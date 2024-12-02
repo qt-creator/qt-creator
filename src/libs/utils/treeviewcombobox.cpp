@@ -5,21 +5,23 @@
 
 #include <QWheelEvent>
 
-using namespace Utils;
+namespace Utils {
 
-TreeViewComboBoxView::TreeViewComboBoxView(QWidget *parent)
-    : QTreeView(parent)
+class TreeViewComboBoxView final : public QTreeView
 {
-    // TODO: Disable the root for all items (with a custom delegate?)
-    setRootIsDecorated(false);
-}
+public:
+    TreeViewComboBoxView()
+    {
+        // TODO: Disable the root for all items (with a custom delegate?)
+        setRootIsDecorated(false);
+    }
 
-void TreeViewComboBoxView::adjustWidth(int width)
-{
-    setMaximumWidth(width);
-    setMinimumWidth(qMin(qMax(sizeHintForColumn(0), minimumSizeHint().width()), width));
-}
-
+    void adjustWidth(int width)
+    {
+        setMaximumWidth(width);
+        setMinimumWidth(qMin(qMax(sizeHintForColumn(0), minimumSizeHint().width()), width));
+    }
+};
 
 TreeViewComboBox::TreeViewComboBox(QWidget *parent)
     : QComboBox(parent)
@@ -135,7 +137,9 @@ void TreeViewComboBox::hidePopup()
         QComboBox::hidePopup();
 }
 
-TreeViewComboBoxView *TreeViewComboBox::view() const
+QTreeView *TreeViewComboBox::view() const
 {
     return m_view;
 }
+
+} // Utils

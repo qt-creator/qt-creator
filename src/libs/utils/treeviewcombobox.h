@@ -10,13 +10,6 @@
 
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT TreeViewComboBoxView : public QTreeView
-{
-public:
-    TreeViewComboBoxView(QWidget *parent = nullptr);
-    void adjustWidth(int width);
-};
-
 class QTCREATOR_UTILS_EXPORT TreeViewComboBox : public QComboBox
 {
 public:
@@ -29,14 +22,15 @@ public:
     void showPopup() override;
     void hidePopup() override;
 
-    TreeViewComboBoxView *view() const;
+    QTreeView *view() const;
 
 private:
     QModelIndex indexBelow(QModelIndex index);
     QModelIndex indexAbove(QModelIndex index);
     QModelIndex lastIndex(const QModelIndex &index);
 
-    TreeViewComboBoxView *m_view;
+    class TreeViewComboBoxView *m_view;
     bool m_skipNextHide = false;
 };
-}
+
+} // Utils
