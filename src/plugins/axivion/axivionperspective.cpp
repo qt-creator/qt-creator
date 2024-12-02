@@ -1000,7 +1000,7 @@ void AxivionPerspective::initPerspective()
 
     auto showIssuesAct = new QAction(this);
     showIssuesAct->setIcon(MARKER_ICON.icon());
-    showIssuesAct->setToolTip(Tr::tr("Show Inline Issues"));
+    showIssuesAct->setToolTip(Tr::tr("Show Issues in Editor"));
     showIssuesAct->setCheckable(true);
     showIssuesAct->setChecked(true);
     connect(showIssuesAct, &QAction::toggled,
