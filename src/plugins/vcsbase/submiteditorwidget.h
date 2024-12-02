@@ -83,6 +83,7 @@ protected:
     void changeEvent(QEvent *event) override;
     virtual QString cleanupDescription(const QString &) const;
     virtual QString commitName() const;
+    virtual void addFileContextMenuActions(QMenu *menu, const QModelIndex &index);
     void insertTopWidget(QWidget *w);
     void insertLeftWidget(QWidget *w);
     void addSubmitButtonMenu(QMenu *menu);
@@ -100,7 +101,7 @@ private:
     void updateActions();
     void updateDiffAction();
     void editorCustomContextMenuRequested(const QPoint &);
-    void fileListCustomContextMenuRequested(const QPoint & pos);
+    void fileListCustomContextMenuRequested(const QPoint &pos);
 
     bool hasSelection() const;
     int checkedFilesCount() const;

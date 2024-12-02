@@ -41,6 +41,7 @@ private:
     void slotDiffSelected(const QList<int> &rows);
     void showCommit(const QString &commit);
     void showLog(const QStringList &range);
+    void revertFile(const Utils::FilePath &filePath, RevertType type);
     void commitDataRetrieved();
 
     inline GitSubmitEditorWidget *submitEditorWidget();

@@ -717,6 +717,12 @@ QString SubmitEditorWidget::commitName() const
     return Tr::tr("&Commit");
 }
 
+void SubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelIndex &index)
+{
+    Q_UNUSED(menu)
+    Q_UNUSED(index)
+}
+
 void SubmitEditorWidget::addSubmitFieldWidget(SubmitFieldWidget *f)
 {
     if (!d->m_fieldLayout) {
@@ -769,7 +775,7 @@ void SubmitEditorWidget::checkAllToggled()
     d->checkAllCheckBox->setTristate(false);
 }
 
-void SubmitEditorWidget::fileListCustomContextMenuRequested(const QPoint & pos)
+void SubmitEditorWidget::fileListCustomContextMenuRequested(const QPoint &pos)
 {
     // Execute menu offering to check/uncheck all
     QMenu menu;
@@ -777,6 +783,10 @@ void SubmitEditorWidget::fileListCustomContextMenuRequested(const QPoint & pos)
     QAction *checkAllAction = menu.addAction(Tr::tr("Select All"));
     //: Uncheck all for submit
     QAction *uncheckAllAction = menu.addAction(Tr::tr("Unselect All"));
+
+    if (const QModelIndex index = d->fileView->indexAt(pos); index.isValid())
+        addFileContextMenuActions(&menu, index);
+
     QAction *action = menu.exec(d->fileView->mapToGlobal(pos));
     if (action == checkAllAction) {
         fileModel()->setAllChecked(true);;

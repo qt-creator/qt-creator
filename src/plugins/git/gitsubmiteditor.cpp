@@ -78,6 +78,8 @@ GitSubmitEditor::GitSubmitEditor() :
     connect(this, &VcsBaseSubmitEditor::diffSelectedRows, this, &GitSubmitEditor::slotDiffSelected);
     connect(submitEditorWidget(), &GitSubmitEditorWidget::showRequested, this, &GitSubmitEditor::showCommit);
     connect(submitEditorWidget(), &GitSubmitEditorWidget::logRequested, this, &GitSubmitEditor::showLog);
+    connect(submitEditorWidget(), &GitSubmitEditorWidget::revertFileRequested,
+            this, &GitSubmitEditor::revertFile);
     connect(versionControl(), &Core::IVersionControl::repositoryChanged,
             this, &GitSubmitEditor::forceUpdateFileModel);
     connect(&m_fetchWatcher, &QFutureWatcher<Result<CommitData>>::finished,
@@ -190,6 +192,23 @@ void GitSubmitEditor::showLog(const QStringList &range)
 {
     if (!m_workingDirectory.isEmpty())
         gitClient().log(m_workingDirectory, {}, false, range);
+}
+
+void GitSubmitEditor::revertFile(const Utils::FilePath &filePath, RevertType type)
+{
+    if (!m_workingDirectory.isEmpty()) {
+        const QStringList files = {filePath.toUrlishString()};
+        const bool revertStaging = type != RevertUnstaged;
+        const bool success = gitClient().synchronousCheckoutFiles(m_workingDirectory, files,
+                                                                  {}, nullptr, revertStaging);
+        if (success) {
+            const QString message = (type == RevertDeletion)
+                ? Tr::tr("File \"%1\" recovered.\n").arg(filePath.toUserOutput())
+                : Tr::tr("File \"%1\" reverted.\n").arg(filePath.toUserOutput());
+            VcsOutputWindow::append(message, VcsOutputWindow::Message);
+            QTimer::singleShot(10, this, &GitSubmitEditor::updateFileModel);
+        }
+    }
 }
 
 void GitSubmitEditor::updateFileModel()

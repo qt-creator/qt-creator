@@ -48,10 +48,12 @@ protected:
     bool canSubmit(QString *whyNot) const override;
     QString cleanupDescription(const QString &) const override;
     QString commitName() const override;
+    void addFileContextMenuActions(QMenu *menu, const QModelIndex &index) override;
 
 signals:
     void showRequested(const QString &commit);
     void logRequested(const QStringList &range);
+    void revertFileRequested(const Utils::FilePath &filePath, RevertType type);
 
 private:
     void authorInformationChanged();

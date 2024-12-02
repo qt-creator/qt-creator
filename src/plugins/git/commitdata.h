@@ -21,6 +21,12 @@ public:
     QString branch;
 };
 
+enum RevertType {
+    RevertAll,
+    RevertUnstaged,
+    RevertDeletion
+};
+
 enum PushAction {
     NoPush,
     NormalPush,

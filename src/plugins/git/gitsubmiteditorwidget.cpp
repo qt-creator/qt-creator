@@ -17,12 +17,15 @@
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
+#include <vcsbase/submitfilemodel.h>
+
 #include <QApplication>
 #include <QCheckBox>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
+#include <QMessageBox>
 #include <QRegularExpressionValidator>
 #include <QTextEdit>
 #include <QVBoxLayout>
@@ -262,6 +265,45 @@ QString GitSubmitEditorWidget::commitName() const
         return Tr::tr("&Commit and Push to Gerrit");
 
     return Tr::tr("&Commit");
+}
+
+void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelIndex &index)
+{
+    const VcsBase::SubmitFileModel *model = fileModel();
+    const FilePath filePath = FilePath::fromString(model->file(index.row()));
+    const FileStates state = static_cast<FileStates>(model->extraData(index.row()).toInt());
+
+    menu->addSeparator();
+    if (state & DeletedFile) {
+        QAction *recover = menu->addAction(Tr::tr("Recover File \"%1\"").arg(filePath.toUserOutput()));
+        connect(recover, &QAction::triggered, this, [this, filePath] {
+            emit revertFileRequested(filePath, RevertDeletion);
+        });
+    } else if (state == (StagedFile | ModifiedFile)) {
+        QAction *revert = menu->addAction(Tr::tr("Revert All Changes to File \"%1\"")
+                                              .arg(filePath.toUserOutput()));
+        connect(revert, &QAction::triggered, this, [this, filePath] {
+            const QString question = Tr::tr("<p>Undo <b>all</b> changes to the file \"%1\"?</p>"
+                                            "<p>Note: These changes will be lost.</p>")
+                                         .arg(filePath.toUserOutput());
+            const int result = QMessageBox::question(this, Tr::tr("Revert File"), question,
+                                                     QMessageBox::Yes | QMessageBox::No);
+            if (result == QMessageBox::Yes)
+                emit revertFileRequested(filePath, RevertAll);
+        });
+    } else if (state == ModifiedFile) {
+        QAction *revert = menu->addAction(Tr::tr("Revert Unstaged Changes to File \"%1\"")
+                                              .arg(filePath.toUserOutput()));
+        connect(revert, &QAction::triggered, this, [this, filePath] {
+            const QString question = Tr::tr("<p>Undo unstaged changes to the file \"%1\"?</p>"
+                                            "<p>Note: These changes will be lost.</p>")
+                                         .arg(filePath.toUserOutput());
+            const int result = QMessageBox::question(this, Tr::tr("Revert File"), question,
+                                                     QMessageBox::Yes | QMessageBox::No);
+            if (result == QMessageBox::Yes)
+                emit revertFileRequested(filePath, RevertUnstaged);
+        });
+    }
 }
 
 void GitSubmitEditorWidget::authorInformationChanged()
