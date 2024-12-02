@@ -64,11 +64,11 @@ ExtensionManagerSettings::ExtensionManagerSettings()
             Row {
                 PushButton {
                     text(Tr::tr("Install Extension...")),
-                    onClicked([] {
+                    onClicked(this, [] {
                         if (Core::executePluginInstallWizard())
                             Core::ICore::askForRestart(
                                     Tr::tr("Plugin changes will take effect after restart."));
-                    }, this),
+                    }),
                 },
                 st,
             },

@@ -50,7 +50,7 @@ CustomQbsPropertiesDialog::CustomQbsPropertiesDialog(const QVariantMap &properti
             Column {
                 PushButton {
                     text(Tr::tr("&Add")),
-                    onClicked([this] { addProperty(); }, this),
+                    onClicked(this, [this] { addProperty(); }),
                 },
                 m_removeButton,
                 st

@@ -189,7 +189,7 @@ FakeVimSettings::FakeVimSettings()
             Row {
                 PushButton {
                     text(Tr::tr("Copy Text Editor Settings")),
-                    onClicked([this] {
+                    onClicked(this, [this] {
                         TabSettings ts = TextEditorSettings::codeStyle()->tabSettings();
                         TypingSettings tps = globalTypingSettings();
                         expandTab.setValue(ts.m_tabPolicy != TabSettings::TabsOnlyTabPolicy);
@@ -200,11 +200,11 @@ FakeVimSettings::FakeVimSettings()
                         autoIndent.setValue(true);
                         smartIndent.setValue(tps.m_autoIndent);
                         incSearch.setValue(true);
-                    }, this),
+                    }),
                 },
                 PushButton {
                     text(Tr::tr("Set Qt Style")),
-                    onClicked([this] {
+                    onClicked(this, [this] {
                         expandTab.setVolatileValue(true);
                         tabStop.setVolatileValue(4);
                         shiftWidth.setVolatileValue(4);
@@ -214,11 +214,11 @@ FakeVimSettings::FakeVimSettings()
                         incSearch.setVolatileValue(true);
                         backspace.setVolatileValue(QString("indent,eol,start"));
                         passKeys.setVolatileValue(true);
-                    }, this),
+                    }),
                 },
                 PushButton {
                     text(Tr::tr("Set Plain Style")),
-                    onClicked([this] {
+                    onClicked(this, [this] {
                         expandTab.setVolatileValue(false);
                         tabStop.setVolatileValue(8);
                         shiftWidth.setVolatileValue(8);
@@ -228,7 +228,7 @@ FakeVimSettings::FakeVimSettings()
                         incSearch.setVolatileValue(false);
                         backspace.setVolatileValue(QString());
                         passKeys.setVolatileValue(false);
-                    }, this),
+                    }),
                  },
                  st
             },

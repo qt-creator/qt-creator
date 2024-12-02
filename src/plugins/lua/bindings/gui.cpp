@@ -193,7 +193,7 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
     if constexpr (has_onReturnPressed<T>) {
         const auto callback = children.get<sol::optional<sol::main_function>>("onReturnPressed");
         if (callback) {
-            item->onReturnPressed([func = *callback]() { void_safe_call(func); }, guard);
+            item->onReturnPressed(guard, [func = *callback]() { void_safe_call(func); });
         }
     }
 
@@ -201,7 +201,7 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         const auto callback = children.get<sol::optional<sol::main_function>>(
             "onRightSideIconClicked");
         if (callback)
-            item->onRightSideIconClicked([func = *callback]() { void_safe_call(func); }, guard);
+            item->onRightSideIconClicked(guard, [func = *callback]() { void_safe_call(func); });
     }
 
     if constexpr (has_setFlat<T>) {
@@ -261,11 +261,11 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
             = children.get<sol::optional<sol::main_function>>("onTextChanged");
         if (onTextChanged) {
             item->onTextChanged(
+                guard,
                 [f = *onTextChanged](const QString &text) {
                     auto res = void_safe_call(f, text);
                     QTC_CHECK_EXPECTED(res);
-                },
-                guard);
+                });
         }
     }
     if constexpr (has_onClicked<T>) {
@@ -273,11 +273,11 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
             = children.get<sol::optional<sol::main_function>>("onClicked");
         if (onClicked) {
             item->onClicked(
+                guard,
                 [f = *onClicked]() {
                     auto res = void_safe_call(f);
                     QTC_CHECK_EXPECTED(res);
-                },
-                guard);
+                });
         }
     }
     if constexpr (has_setText<T>) {

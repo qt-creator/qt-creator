@@ -498,7 +498,7 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
     // clang-format off
     using namespace Layouting;
     Column {
-        Row { Tr::tr("Language Server:"), m_clients, st, errorLabel, PushButton { text(Tr::tr("Send message")), onClicked(send, this) } },
+        Row { Tr::tr("Language Server:"), m_clients, st, errorLabel, PushButton { text(Tr::tr("Send message")), onClicked(this, send) } },
         messageEditor->editorWidget(),
         TabWidget {
             bindTo(&m_tabWidget),

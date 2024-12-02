@@ -573,11 +573,11 @@ QnxSettingsWidget::QnxSettingsWidget()
         Column {
             PushButton {
                 text(Tr::tr("Add...")),
-                onClicked([this] { addConfiguration(); }, this)
+                onClicked(this, [this] { addConfiguration(); })
             },
             PushButton {
                 text(Tr::tr("Remove")),
-                onClicked([this] { removeConfiguration(); }, this)
+                onClicked(this, [this] { removeConfiguration(); })
             },
             st
         }

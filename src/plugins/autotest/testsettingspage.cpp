@@ -77,7 +77,7 @@ TestSettingsWidget::TestSettingsWidget()
         text(Tr::tr("Reset Cached Choices")),
         Layouting::toolTip(Tr::tr("Clear all cached choices of run configurations for "
                        "tests where the executable could not be deduced.")),
-        onClicked(&clearChoiceCache, this)
+        onClicked(this, &clearChoiceCache)
     };
 
     TestSettings &s = Internal::testSettings();

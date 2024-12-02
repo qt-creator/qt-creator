@@ -101,7 +101,7 @@ CommonVcsSettings::CommonVcsSettings()
                     text(Tr::tr("Reset VCS Cache")),
                     Layouting::toolTip(Tr::tr("Reset information about which "
                                               "version control system handles which directory.")),
-                    onClicked(&VcsManager::clearVersionControlCache, this)
+                    onClicked(this, &VcsManager::clearVersionControlCache)
                 }
             }
         };

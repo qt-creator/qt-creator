@@ -316,15 +316,23 @@ SnippetsSettingsWidget::SnippetsSettingsWidget()
         Row {
             snippetSplitter,
             Column {
-                PushButton { text(Tr::tr("Add")),
-                             onClicked([this] { addSnippet(); }, this) },
-                PushButton { text(Tr::tr("Remove")),
-                             onClicked([this] { removeSnippet(); }, this) },
+                PushButton {
+                    text(Tr::tr("Add")),
+                    onClicked(this, [this] { addSnippet(); })
+                },
+                PushButton {
+                    text(Tr::tr("Remove")),
+                    onClicked(this, [this] { removeSnippet(); })
+                },
                 m_revertButton,
-                PushButton { text(Tr::tr("Restore Removed Built-ins")),
-                             onClicked([this] { restoreRemovedBuiltInSnippets(); }, this) },
-                PushButton { text(Tr::tr("Reset All")),
-                             onClicked([this] { resetAllSnippets(); }, this) },
+                PushButton {
+                    text(Tr::tr("Restore Removed Built-ins")),
+                    onClicked(this, [this] { restoreRemovedBuiltInSnippets(); })
+                },
+                PushButton {
+                    text(Tr::tr("Reset All")),
+                    onClicked(this, [this] { resetAllSnippets(); })
+                },
                 st,
             }
         }

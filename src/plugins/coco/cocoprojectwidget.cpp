@@ -48,10 +48,10 @@ CocoProjectWidget::CocoProjectWidget(Project *project, BuildConfiguration *build
                m_optionEdit,
                Row{PushButton{
                        text(Tr::tr("Exclude File...")),
-                       onClicked([&] { onExcludeFileButtonClicked(); }, this)},
+                       onClicked(this, [this] { onExcludeFileButtonClicked(); })},
                    PushButton{
                        text(Tr::tr("Exclude Directory...")),
-                       onClicked([&] { onExcludeDirButtonClicked(); }, this)},
+                       onClicked(this, [this] { onExcludeDirButtonClicked(); })},
                    m_tweaksButton,
                    st},
                m_tweaksDescriptionLabel,
@@ -83,7 +83,7 @@ CocoProjectWidget::CocoProjectWidget(Project *project, BuildConfiguration *build
 
     connect(&m_optionEdit, &StringAspect::changed, this, &CocoProjectWidget::onTextChanged);
     connect(&m_tweaksEdit, &StringAspect::changed, this, &CocoProjectWidget::onTextChanged);
-    m_tweaksButton.onClicked([&] { onTweaksButtonClicked(); }, this);
+    m_tweaksButton.onClicked(this, [this] { onTweaksButtonClicked(); });
 
     connect(&m_revertButton, &QPushButton::clicked, this, &CocoProjectWidget::onRevertButtonClicked);
     connect(&m_saveButton, &QPushButton::clicked, this, &CocoProjectWidget::onSaveButtonClicked);

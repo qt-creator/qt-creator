@@ -282,7 +282,7 @@ public:
     void setWordWrap(bool);
     void setTextInteractionFlags(Qt::TextInteractionFlags);
     void setOpenExternalLinks(bool);
-    void onLinkHovered(const std::function<void(const QString &)> &, QObject *guard);
+    void onLinkHovered(QObject *guard, const std::function<void(const QString &)> &);
 };
 
 class QTCREATOR_UTILS_EXPORT Group : public Widget
@@ -306,7 +306,7 @@ public:
     SpinBox(std::initializer_list<I> ps);
 
     void setValue(int);
-    void onTextChanged(const std::function<void(QString)> &, QObject *guard);
+    void onTextChanged(QObject *guard, const std::function<void(QString)> &);
 };
 
 class QTCREATOR_UTILS_EXPORT PushButton : public Widget
@@ -321,7 +321,7 @@ public:
     void setIconPath(const Utils::FilePath &);
     void setIconSize(const QSize &);
     void setFlat(bool);
-    void onClicked(const std::function<void()> &, QObject *guard);
+    void onClicked(QObject *guard, const std::function<void()> &);
 };
 
 class QTCREATOR_UTILS_EXPORT TextEdit : public Widget
@@ -354,8 +354,8 @@ public:
     void setPlaceHolderText(const QString &text);
     void setCompleter(QCompleter *completer);
     void setMinimumHeight(int height);
-    void onReturnPressed(const std::function<void()> &, QObject *guard);
-    void onRightSideIconClicked(const std::function<void()> &, QObject *guard);
+    void onReturnPressed(QObject *guard, const std::function<void()> &);
+    void onRightSideIconClicked(QObject *guard, const std::function<void()> &);
 };
 
 class QTCREATOR_UTILS_EXPORT Splitter : public Widget
