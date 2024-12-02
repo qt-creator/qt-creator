@@ -285,6 +285,11 @@ QList<Client *> LanguageClientManager::clientsSupportingDocument(
         [doc](Client *client) { return client->isSupportedDocument(doc); });
 }
 
+void LanguageClientManager::writeSettings()
+{
+    LanguageClientSettings::toSettings(Core::ICore::settings(), managerInstance->m_currentSettings);
+}
+
 void LanguageClientManager::applySettings()
 {
     QTC_ASSERT(managerInstance, return);
@@ -292,7 +297,7 @@ void LanguageClientManager::applySettings()
     managerInstance->m_currentSettings
         = Utils::transform(LanguageClientSettings::pageSettings(), &BaseSettings::copy);
     const QList<BaseSettings *> restarts = LanguageClientSettings::changedSettings();
-    LanguageClientSettings::toSettings(Core::ICore::settings(), managerInstance->m_currentSettings);
+    writeSettings();
 
     for (BaseSettings *settings : restarts)
         applySettings(settings);

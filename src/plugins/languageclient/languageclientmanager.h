@@ -53,6 +53,7 @@ public:
 
     static void applySettings();
     static void applySettings(BaseSettings *settings);
+    static void writeSettings();
     static QList<BaseSettings *> currentSettings();
     static void registerClientSettings(BaseSettings *settings);
     static void enableClientSettings(const QString &settingsId, bool enable = true);
