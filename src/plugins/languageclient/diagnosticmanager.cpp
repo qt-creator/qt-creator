@@ -268,7 +268,7 @@ QTextEdit::ExtraSelection DiagnosticManager::createDiagnosticSelection(
     if (severity == DiagnosticSeverity::Error)
         style = C_ERROR;
     else if (severity == DiagnosticSeverity::Warning)
-        style = C_ERROR;
+        style = C_WARNING;
     else
         return {};
 
