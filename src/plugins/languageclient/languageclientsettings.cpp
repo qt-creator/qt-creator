@@ -1187,6 +1187,7 @@ constexpr const char disabledSettingsId[] = "LanguageClient.DisabledSettings";
 ProjectSettings::ProjectSettings(ProjectExplorer::Project *project)
     : m_project(project)
 {
+    QTC_ASSERT(project, return);
     m_json = m_project->namedSettings(projectSettingsId).toByteArray();
     m_enabledSettings = m_project->namedSettings(enabledSettingsId).toStringList();
     m_disabledSettings = m_project->namedSettings(disabledSettingsId).toStringList();
@@ -1209,6 +1210,7 @@ QByteArray ProjectSettings::json() const
 
 void ProjectSettings::setJson(const QByteArray &json)
 {
+    QTC_ASSERT(m_project, return);
     const QJsonValue oldConfig = workspaceConfiguration();
     m_json = json;
     m_project->setNamedSettings(projectSettingsId, m_json);
@@ -1219,6 +1221,7 @@ void ProjectSettings::setJson(const QByteArray &json)
 
 void ProjectSettings::enableSetting(const QString &id)
 {
+    QTC_ASSERT(m_project, return);
     if (m_disabledSettings.removeAll(id) > 0)
         m_project->setNamedSettings(disabledSettingsId, m_disabledSettings);
     if (m_enabledSettings.contains(id))
@@ -1230,6 +1233,7 @@ void ProjectSettings::enableSetting(const QString &id)
 
 void ProjectSettings::disableSetting(const QString &id)
 {
+    QTC_ASSERT(m_project, return);
     if (m_enabledSettings.removeAll(id) > 0)
         m_project->setNamedSettings(enabledSettingsId, m_enabledSettings);
     if (m_disabledSettings.contains(id))
@@ -1241,6 +1245,7 @@ void ProjectSettings::disableSetting(const QString &id)
 
 void ProjectSettings::clearOverride(const QString &id)
 {
+    QTC_ASSERT(m_project, return);
     const bool changedEnabled = m_enabledSettings.removeAll(id) > 0;
     if (changedEnabled)
         m_project->setNamedSettings(enabledSettingsId, m_enabledSettings);
