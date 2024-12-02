@@ -39,6 +39,7 @@
 #include "view3dactioncommand.h"
 #include "requestmodelnodepreviewimagecommand.h"
 #include "changeauxiliarycommand.h"
+#include "pixmapchangedcommand.h"
 
 #include "../editor3d/boxgeometry.h"
 #include "../editor3d/camerageometry.h"
@@ -2091,8 +2092,15 @@ void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
                 nodeInstanceClient()->informationChanged(
                     createAllInformationChangedCommand(QtHelpers::toList(informationChangedInstanceSet)));
 
-            if (!propertyChangedList.isEmpty())
+            if (!propertyChangedList.isEmpty()) {
                 nodeInstanceClient()->valuesChanged(createValuesChangedCommand(propertyChangedList));
+                for (const auto &property : propertyChangedList) {
+                    if (property.second.contains("clip")) {
+                        nodeInstanceClient()->pixmapChanged(
+                            createPixmapChangedCommand({property.first}));
+                    }
+                }
+            }
 
             if (!m_parentChangedSet.isEmpty()) {
                 sendChildrenChangedCommand(QtHelpers::toList(m_parentChangedSet));
