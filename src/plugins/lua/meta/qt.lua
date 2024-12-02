@@ -34,6 +34,13 @@ qt.QClipboard = {}
 ---@return QClipboard globalClipboard The global clipboard object.
 function qt.clipboard() end
 
+--@class QCursor A Lua wrapper for the Qt `QCursor` class.
+qt.QCursor = {}
+
+---Returns the position of the cursor (hot spot) of the primary screen in global screen coordinates.
+---@return QPoint position The position of the cursor.
+function qt.QCursor.pos() end
+
 ---@class QFontMetrics A Lua wrapper for the Qt `QFontMetrics` class.
 qt.QFontMetrics = {}
 
