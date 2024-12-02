@@ -35,7 +35,7 @@ add_feature_info("Meta info tracing" ${ENABLE_METAINFO_TRACING} "")
 
 add_subdirectory(libs)
 
-find_package(Qt6 REQUIRED COMPONENTS WebSockets WebEngineWidgets)
+find_package(Qt6 QUIET COMPONENTS WebSockets WebEngineWidgets)
 
 add_qtc_plugin(QmlDesigner
   PLUGIN_RECOMMENDS QmlPreview
@@ -736,6 +736,7 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
+  CONDITION TARGET Qt::WebSockets
   SOURCES_PREFIX components/devicesharing
   DEPENDS
     QtCreator::QrCodeGenerator Qt::WebSockets
@@ -755,6 +756,7 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
+  CONDITION TARGET Qt::WebEngineWidgets
   SOURCES_PREFIX components/designviewer
   DEPENDS
     Qt::WebEngineWidgets
