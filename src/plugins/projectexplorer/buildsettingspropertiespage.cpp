@@ -30,21 +30,14 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
 using namespace Utils;
 
-///
-// BuildSettingsWidget
-///
+namespace ProjectExplorer::Internal {
 
-BuildSettingsWidget::~BuildSettingsWidget()
-{
-    clearWidgets();
-}
+BuildSettingsWidget::~BuildSettingsWidget() = default;
 
-BuildSettingsWidget::BuildSettingsWidget(Target *target) :
-    m_target(target)
+BuildSettingsWidget::BuildSettingsWidget(Target *target)
+    : m_target(target)
 {
     Q_ASSERT(m_target);
 
@@ -60,38 +53,28 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target) :
     }
 
     { // Edit Build Configuration row
-        auto hbox = new QHBoxLayout();
-        hbox->setContentsMargins(0, 0, 0, 0);
-        hbox->addWidget(new QLabel(Tr::tr("Edit build configuration:"), this));
         m_buildConfigurationComboBox = new QComboBox(this);
         m_buildConfigurationComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
         m_buildConfigurationComboBox->setModel(m_target->buildConfigurationModel());
         setWheelScrollingWithoutFocusBlocked(m_buildConfigurationComboBox);
-        hbox->addWidget(m_buildConfigurationComboBox);
 
-        m_addButton = new QPushButton(this);
-        m_addButton->setText(Tr::tr("Add"));
-        m_addButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        hbox->addWidget(m_addButton);
+        m_addButton = new QPushButton(Tr::tr("Add"), this);
         m_addButtonMenu = new QMenu(this);
         m_addButton->setMenu(m_addButtonMenu);
 
-        m_removeButton = new QPushButton(this);
-        m_removeButton->setText(Tr::tr("Remove"));
-        m_removeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        m_removeButton = new QPushButton(Tr::tr("Remove"), this);
+        m_renameButton = new QPushButton(Tr::tr("Rename..."), this);
+        m_cloneButton = new QPushButton(Tr::tr("Clone..."), this);
+
+        auto hbox = new QHBoxLayout();
+        hbox->setContentsMargins(0, 0, 0, 0);
+        hbox->addWidget(new QLabel(Tr::tr("Edit build configuration:"), this));
+        hbox->addWidget(m_buildConfigurationComboBox);
+        hbox->addWidget(m_addButton);
         hbox->addWidget(m_removeButton);
-
-        m_renameButton = new QPushButton(this);
-        m_renameButton->setText(Tr::tr("Rename..."));
-        m_renameButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         hbox->addWidget(m_renameButton);
-
-        m_cloneButton = new QPushButton(this);
-        m_cloneButton->setText(Tr::tr("Clone..."));
-        m_cloneButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         hbox->addWidget(m_cloneButton);
-
-        hbox->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed));
+        hbox->addStretch();
         vbox->addLayout(hbox);
     }
 
@@ -128,13 +111,12 @@ void BuildSettingsWidget::addSubWidget(QWidget *widget, const QString &displayNa
     auto label = new QLabel(this);
     label->setText(displayName);
     label->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
-
     label->setContentsMargins(0, 18, 0, 0);
 
     layout()->addWidget(label);
     layout()->addWidget(widget);
 
-    m_labels.append(label);
+    m_subWidgets.append(label);
     m_subWidgets.append(widget);
 }
 
@@ -142,8 +124,6 @@ void BuildSettingsWidget::clearWidgets()
 {
     qDeleteAll(m_subWidgets);
     m_subWidgets.clear();
-    qDeleteAll(m_labels);
-    m_labels.clear();
 }
 
 void BuildSettingsWidget::updateAddButtonMenu()
@@ -332,3 +312,5 @@ void BuildSettingsWidget::deleteConfiguration(BuildConfiguration *deleteConfigur
 
     m_target->removeBuildConfiguration(deleteConfiguration);
 }
+
+} // ProjectExplorer::Internal

@@ -7,7 +7,6 @@
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
-class QLabel;
 class QMenu;
 class QPushButton;
 QT_END_NAMESPACE
@@ -20,17 +19,16 @@ class Target;
 
 namespace Internal {
 
-class BuildSettingsWidget : public QWidget
+class BuildSettingsWidget final : public QWidget
 {
-    Q_OBJECT
 public:
     BuildSettingsWidget(Target *target);
-    ~BuildSettingsWidget() override;
+    ~BuildSettingsWidget() final;
 
+private:
     void clearWidgets();
     void addSubWidget(QWidget *widget, const QString &displayName);
 
-private:
     void updateBuildSettings();
     void currentIndexChanged(int index);
 
@@ -56,7 +54,6 @@ private:
     QMenu *m_addButtonMenu = nullptr;
 
     QList<QWidget *> m_subWidgets;
-    QList<QLabel *> m_labels;
 };
 
 } // namespace Internal
