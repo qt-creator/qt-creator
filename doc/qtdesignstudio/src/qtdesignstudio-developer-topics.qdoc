@@ -35,5 +35,11 @@
             QML utilities, the default text editor for your system, and the
             \c sort tool are preconfigured for use. You can change their default
             configurations and configure new tools.
+
+        \li \l{Accessing output, issue, and warning messages}
+
+            \QDS projects generate output information for the user to represent the
+            executed processes. It also shows you the issues that stop a project from
+            getting executed or gives you warnings about probable failures.
     \endlist
 */

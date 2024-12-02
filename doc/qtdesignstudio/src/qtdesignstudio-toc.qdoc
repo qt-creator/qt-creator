@@ -229,6 +229,7 @@
                 \li \l{Finding the Qt Runtime Version}
                 \li \l{Using Git}
                 \li \l{Use external tools}
+                \li \l{Accessing output, issue, and warning messages}
                 \li \l{\QDS on MCUs}
                     \list
                         \li \l {\QMCU Framework}
