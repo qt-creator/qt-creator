@@ -564,12 +564,13 @@ public:
         using namespace Layouting;
         // clang-format off
         Column {
-            Group{
+            Group {
                 title(Tr::tr("QML Language Server")),
-                Column{
+                Column {
                     &m_settings.useQmlls,
                 },
             },
+            tight,
             st,
         }.attachTo(this);
         // clang-format on
