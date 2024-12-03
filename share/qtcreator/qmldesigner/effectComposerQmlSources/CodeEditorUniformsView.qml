@@ -9,12 +9,24 @@ import StudioTheme as StudioTheme
 import TableModules as TableModules
 
 ColumnLayout {
+    id: root
     property alias model: tableView.model
     readonly property alias tableView: tableView
+    property var headerImplicitWidths: []
 
     spacing: -1
 
     HoverHandler { id: hoverHandler }
+
+    CellFontMetrics {
+        id: headerFontMetrics
+
+        font.bold: true
+    }
+
+    CellFontMetrics {
+        id: cellFontMetrics
+    }
 
     HorizontalHeaderView {
         id: horizontalHeader
@@ -27,22 +39,36 @@ ColumnLayout {
 
         delegate: Rectangle {
             color: StudioTheme.Values.themePanelBackground
-            implicitWidth: StudioTheme.Values.cellWidth
             implicitHeight: StudioTheme.Values.cellHeight
+            implicitWidth: headerText.firstLineWidth
+
             border {
                 width: StudioTheme.Values.border
                 color: StudioTheme.Values.themeStateSeparator
             }
 
             Text {
+                id: headerText
+
+                readonly property real firstLineWidth: headerFontMetrics.getWidth(text)
+                                                       + rightPadding
+                                                       + leftPadding
+                                                       + anchors.leftMargin
+                                                       + anchors.rightMargin
+                                                       + 2
+
                 color: StudioTheme.Values.themeTextColor
                 text: display
                 anchors.fill: parent
                 anchors.margins: 8
                 elide: Text.ElideRight
-                font.bold: true
+                font: headerFontMetrics.font
 
                 verticalAlignment: Qt.AlignVCenter
+
+                onFirstLineWidthChanged: {
+                    root.headerImplicitWidths[column] = headerText.firstLineWidth
+                }
             }
         }
     }
@@ -66,11 +92,29 @@ ColumnLayout {
                 selectionMode: TableView.SingleSelection
                 selectionBehavior: TableView.SelectRows
                 selectionModel: ItemSelectionModel {}
+
                 delegate: Cell {
                     id: dataScope
 
+                    property real headerItemWidth: root.headerImplicitWidths[column] ?? 50
+
+                    implicitWidth: Math.max(labelView.firstLineWidth, headerItemWidth)
+
+                    Binding on implicitWidth {
+                        when: dataScope.isDescription && dataScope.isLastCol
+                        value: root.width - dataScope.x
+                        restoreMode: Binding.RestoreBinding
+                    }
+
                     Text {
                         id: labelView
+
+                        readonly property real firstLineWidth: cellFontMetrics.getWidth(text)
+                                                               + rightPadding
+                                                               + leftPadding
+                                                               + anchors.leftMargin
+                                                               + anchors.rightMargin
+                                                               + 2
 
                         text: dataScope.display ?? ""
                         visible: !dataScope.editing
@@ -82,6 +126,8 @@ ColumnLayout {
                         maximumLineCount: 1
                         verticalAlignment: Qt.AlignVCenter
                         clip: true
+                        rightPadding: cellButtonsLoader.width
+                        font: cellFontMetrics.font
 
                         StudioControls.ToolTipArea {
                             anchors.fill: parent
@@ -90,6 +136,7 @@ ColumnLayout {
                         }
 
                         Loader {
+                            id: cellButtonsLoader
                             active: dataScope.canCopy
 
                             anchors.right: parent.right
@@ -177,10 +224,13 @@ ColumnLayout {
         required property bool selected
         required property bool current
         required property bool canCopy
+        required property bool isDescription
+
+        readonly property bool isLastCol: column === tableView.columns - 1
 
         color: tableView.currentRow === row ? StudioTheme.Values.themeTableCellCurrent : StudioTheme.Values.themePanelBackground
-        implicitWidth: StudioTheme.Values.cellWidth
-        implicitHeight: StudioTheme.Values.cellHeight
+        implicitWidth: 120
+        implicitHeight: 27
         border {
             width: StudioTheme.Values.border
             color: StudioTheme.Values.themeStateSeparator
@@ -202,6 +252,16 @@ ColumnLayout {
             id: cellBtnTooltip
 
             visible: cellBtn.hovered && text !== ""
+        }
+    }
+
+    component CellFontMetrics: FontMetrics {
+        id: textFont
+
+        function getWidth(txt) {
+            let nIdx = txt.indexOf('\n')
+            let firstLineText = (nIdx > -1) ? txt.substr(0, nIdx) : txt
+            return Math.ceil(textFont.boundingRect(firstLineText).width)
         }
     }
 }

@@ -30,6 +30,7 @@ public:
     enum Role {
         ValueRole = Qt::UserRole + 1,
         ValueTypeRole,
+        IsDescriptionRole,
         CanCopyRole,
     };
 
