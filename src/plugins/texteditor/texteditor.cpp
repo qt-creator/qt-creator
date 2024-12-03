@@ -7173,9 +7173,23 @@ void TextEditorWidget::mousePressEvent(QMouseEvent *e)
         const QTextCursor &cursor = cursorForPosition(e->pos());
         if (e->modifiers() & Qt::AltModifier && !(e->modifiers() & Qt::ControlModifier)) {
             if (e->modifiers() & Qt::ShiftModifier) {
-                QTextCursor c = multiCursor.mainCursor();
-                c.setPosition(cursor.position(), QTextCursor::KeepAnchor);
-                multiCursor.replaceMainCursor(c);
+                const QTextCursor anchor = multiCursor.takeMainCursor();
+
+                const TabSettings tabSettings = d->m_document->tabSettings();
+                int eventColumn
+                    = tabSettings.columnAt(cursor.block().text(), cursor.positionInBlock());
+                if (cursor.positionInBlock() == cursor.block().length() - 1) {
+                    eventColumn += int(
+                        (e->pos().x() - cursorRect(cursor).center().x()) / d->charWidth());
+                }
+
+                const int anchorColumn
+                    = tabSettings.columnAt(anchor.block().text(), anchor.positionInBlock());
+                const TextEditorWidgetPrivate::BlockSelection blockSelection
+                    = {cursor.blockNumber(), eventColumn, anchor.blockNumber(), anchorColumn};
+
+                multiCursor.addCursors(d->generateCursorsForBlockSelection(blockSelection));
+                setMultiTextCursor(multiCursor);
             } else {
                 multiCursor.addCursor(cursor);
             }
