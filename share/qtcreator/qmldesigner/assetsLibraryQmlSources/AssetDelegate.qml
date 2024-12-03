@@ -20,6 +20,7 @@ TreeViewDelegate {
 
     property bool hasChildWithDropHover: false
     property bool isHighlighted: false
+    property bool isDelegateEmpty: false
     readonly property string suffix: model.fileName.substr(-4)
     readonly property bool isFont: root.suffix === ".ttf" || root.suffix === ".otf"
     readonly property bool isEffect: root.suffix === ".qep"
@@ -60,6 +61,8 @@ TreeViewDelegate {
                 root.assetsView.expand(root.__currentRow)
             else
                 root.assetsView.collapse(root.__currentRow)
+
+            root.isDelegateEmpty = assetsModel.isDelegateEmpty(root.__itemPath)
         }
     }
 
@@ -86,8 +89,10 @@ TreeViewDelegate {
 
         Image {
             id: arrow
+
             width: 8
             height: 4
+            visible: !root.isDelegateEmpty
             source: "image://icons/down-arrow"
             anchors.centerIn: parent
             rotation: root.expanded ? 0 : -90
@@ -129,9 +134,9 @@ TreeViewDelegate {
 
         function __computeText() {
             return root.__isDirectory
-                    ? (root.hasChildren
-                       ? model.display.toUpperCase()
-                       : model.display.toUpperCase() + qsTr(" (empty)"))
+                    ? (root.isDelegateEmpty
+                       ? model.display.toUpperCase() + qsTr(" (empty)")
+                       : model.display.toUpperCase())
                     : model.display
         }
     }
@@ -294,7 +299,7 @@ TreeViewDelegate {
     }
 
     function __toggleExpandCurrentRow() {
-        if (!root.__isDirectory)
+        if (!root.__isDirectory || root.isDelegateEmpty)
             return
 
         let index = root.assetsView.__modelIndex(root.__currentRow)

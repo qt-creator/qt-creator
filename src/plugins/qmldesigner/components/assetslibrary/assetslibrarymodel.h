@@ -55,6 +55,8 @@ public:
     Q_INVOKABLE bool folderExpandState(const QString &path) const;
     Q_INVOKABLE void initializeExpandState(const QString &path);
     Q_INVOKABLE void saveExpandState(const QString &path, bool expand);
+    Q_INVOKABLE bool isDelegateEmpty(const QString &path) const;
+
     void updateExpandPath(const Utils::FilePath &oldPath, const Utils::FilePath &newPath);
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const override

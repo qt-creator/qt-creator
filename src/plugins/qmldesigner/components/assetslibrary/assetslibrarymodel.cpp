@@ -37,10 +37,10 @@ void AssetsLibraryModel::createBackendModel()
     m_sourceFsModel->setReadOnly(false);
 
     setSourceModel(m_sourceFsModel);
-    QObject::connect(m_sourceFsModel, &QFileSystemModel::directoryLoaded, this, &AssetsLibraryModel::directoryLoaded);
 
     QObject::connect(m_sourceFsModel, &QFileSystemModel::directoryLoaded, this,
                      [this]([[maybe_unused]] const QString &dir) {
+        emit directoryLoaded(dir);
         syncIsEmpty();
     });
 
@@ -229,6 +229,21 @@ void AssetsLibraryModel::initializeExpandState(const QString &path)
 void AssetsLibraryModel::saveExpandState(const QString &path, bool expand)
 {
     s_folderExpandStateHash.insert(path, expand);
+}
+
+bool AssetsLibraryModel::isDelegateEmpty(const QString &path) const
+{
+    QModelIndex proxyIndex = indexForPath(path);
+
+    if (!isDirectory(proxyIndex))
+        return true;
+
+    QModelIndex sourceIndex = mapToSource(proxyIndex);
+
+    // Populates the folder's contents if it hasn't already (e.g., collapsed folder)
+    sourceModel()->fetchMore(sourceIndex);
+
+    return sourceModel()->rowCount(sourceIndex) == 0;
 }
 
 void AssetsLibraryModel::updateExpandPath(const Utils::FilePath &oldPath, const Utils::FilePath &newPath)

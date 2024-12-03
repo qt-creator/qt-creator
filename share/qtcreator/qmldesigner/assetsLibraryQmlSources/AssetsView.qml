@@ -185,8 +185,6 @@ TreeView {
                         root.expand(row)
                 })
             }
-
-            assetsModel.saveExpandState(dirPath, root.isExpanded(row))
         }
 
         // we have no way to know beyond doubt here if updateRows() was called due
