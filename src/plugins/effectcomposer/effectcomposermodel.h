@@ -9,6 +9,7 @@
 #include <utils/uniqueobjectptr.h>
 
 #include <QAbstractListModel>
+#include <QColor>
 #include <QFileSystemWatcher>
 #include <QMap>
 #include <QRegularExpression>
@@ -56,6 +57,7 @@ class EffectComposerModel : public QAbstractListModel
     Q_PROPERTY(bool isEnabled READ isEnabled WRITE setIsEnabled NOTIFY isEnabledChanged)
     Q_PROPERTY(bool hasValidTarget READ hasValidTarget WRITE setHasValidTarget NOTIFY hasValidTargetChanged)
     Q_PROPERTY(QString currentComposition READ currentComposition WRITE setCurrentComposition NOTIFY currentCompositionChanged)
+    Q_PROPERTY(QColor currentPreviewColor READ currentPreviewColor WRITE setCurrentPreviewColor NOTIFY currentPreviewColorChanged)
     Q_PROPERTY(QUrl currentPreviewImage READ currentPreviewImage WRITE setCurrentPreviewImage NOTIFY currentPreviewImageChanged)
     Q_PROPERTY(QList<QUrl> previewImages READ previewImages NOTIFY previewImagesChanged)
     Q_PROPERTY(int customPreviewImageCount READ customPreviewImageCount NOTIFY customPreviewImageCountChanged)
@@ -135,6 +137,8 @@ public:
     QString currentComposition() const;
     void setCurrentComposition(const QString &newCurrentComposition);
 
+    QColor currentPreviewColor() const;
+    void setCurrentPreviewColor(const QColor &color);
     QList<QUrl> previewImages() const;
     QUrl currentPreviewImage() const;
     void setCurrentPreviewImage(const QUrl &path);
@@ -179,6 +183,7 @@ signals:
     void hasUnsavedChangesChanged();
     void assignToSelectedTriggered(const QString &effectPath);
     void removePropertiesFromScene(QSet<QByteArray> props, const QString &typeName);
+    void currentPreviewColorChanged();
     void currentPreviewImageChanged();
     void previewImagesChanged();
     void customPreviewImageCountChanged();
@@ -291,6 +296,7 @@ private:
     QString m_effectTypePrefix;
     Utils::FilePath m_compositionPath;
     std::unique_ptr<ShaderEditorData> m_shaderEditorData;
+    QColor m_currentPreviewColor;
     QUrl m_currentPreviewImage;
     QList<QUrl> m_customPreviewImages;
     int m_currentBakeCounter = 0;

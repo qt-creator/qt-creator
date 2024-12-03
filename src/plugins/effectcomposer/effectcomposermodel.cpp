@@ -45,6 +45,7 @@ EffectComposerModel::EffectComposerModel(QObject *parent)
     : QAbstractListModel{parent}
     , m_codeEditorIndex(INVALID_CODE_EDITOR_INDEX)
     , m_shaderDir(QDir::tempPath() + "/qds_ec_XXXXXX")
+    , m_currentPreviewColor("#dddddd")
 {
     m_rebakeTimer.setSingleShot(true);
     connect(&m_rebakeTimer, &QTimer::timeout, this, &EffectComposerModel::bakeShaders);
@@ -1243,6 +1244,7 @@ void EffectComposerModel::saveComposition(const QString &name)
     else
         previewStr = m_currentPreviewImage.toString();
     json.insert("previewImage", previewStr);
+    json.insert("previewColor", m_currentPreviewColor.name());
 
     // Add nodes
     QJsonArray nodesArray;
@@ -1413,6 +1415,9 @@ void EffectComposerModel::openComposition(const QString &path)
         }
     }
 
+    if (json.contains("previewColor"))
+        m_currentPreviewColor = QColor::fromString(json["previewColor"].toString());
+
     if (json.contains("nodes") && json["nodes"].isArray()) {
         beginResetModel();
         QHash<QString, int> refCounts;
@@ -1442,6 +1447,7 @@ void EffectComposerModel::openComposition(const QString &path)
     setHasUnsavedChanges(false);
     emit nodesChanged();
     emit currentPreviewImageChanged();
+    emit currentPreviewColorChanged();
 }
 
 void EffectComposerModel::saveResources(const QString &name)
@@ -2488,8 +2494,24 @@ QList<QUrl> EffectComposerModel::defaultPreviewImages() const
 
 QList<QUrl> EffectComposerModel::previewImages() const
 {
-
     return m_customPreviewImages + defaultPreviewImages();
+}
+
+QColor EffectComposerModel::currentPreviewColor() const
+{
+    return m_currentPreviewColor;
+}
+
+void EffectComposerModel::setCurrentPreviewColor(const QColor &color)
+{
+    if (m_currentPreviewColor == color)
+        return;
+
+    m_currentPreviewColor = color;
+
+    setHasUnsavedChanges(true);
+
+    emit currentPreviewColorChanged();
 }
 
 QUrl EffectComposerModel::currentPreviewImage() const

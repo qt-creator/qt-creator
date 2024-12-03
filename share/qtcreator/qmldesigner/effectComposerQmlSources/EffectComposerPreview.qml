@@ -78,7 +78,9 @@ Column {
 
                 actionIndicatorVisible: false
                 showHexTextField: false
-                color: "#dddddd"
+                color: root.effectComposerModel ? root.effectComposerModel.currentPreviewColor : "#dddddd"
+
+                onColorChanged: root.effectComposerModel.currentPreviewColor = colorEditor.color
             }
         }
 
@@ -197,7 +199,7 @@ Column {
             id: preview
 
             anchors.fill: parent
-            color: colorEditor.color
+            color: root.effectComposerModel ? root.effectComposerModel.currentPreviewColor : "#dddddd"
             clip: true
             visible: !root.effectComposerModel || root.effectComposerModel.effectErrors === ""
 
