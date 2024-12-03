@@ -150,6 +150,10 @@ function TextEditor:hasLockedSuggestion() end
 ---@param text string The text to insert.
 function TextEditor:insertText(text) end
 
+---Indicates if the editor widget has focus.
+---@return boolean hasFocus True if the editor widget has focus, false otherwise.
+function TextEditor:hasFocus() end
+
 ---Returns the current editor or nil.
 ---@return TextEditor|nil editor The currently active editor or nil if there is none.
 function textEditor.currentEditor() end

@@ -381,6 +381,13 @@ void setupTextEditorModule()
             "insertText",
             [](TextEditorPtr editor, const QString &text) {
                 editor->editorWidget()->multiTextCursor().insertText(text);
+            },
+            "hasFocus",
+            [](const TextEditorPtr &textEditor) {
+                QTC_ASSERT(
+                    textEditor && textEditor->editorWidget(),
+                    throw sol::error("TextEditor is not valid"));
+                return textEditor->editorWidget()->hasFocus();
             });
 
         result.new_usertype<TextSuggestion::Data>(
