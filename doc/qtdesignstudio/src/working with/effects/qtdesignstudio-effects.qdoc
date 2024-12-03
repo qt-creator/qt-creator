@@ -46,9 +46,6 @@
         \li A set of ready-made 2D effect components. Includes customizable effects like \uicontrol
             {Brightness Control}, \uicontrol {Gamma Adjust}, and \uicontrol {Opacity Mask}.
     \row
-        \li \l {Using Qt Quick Effect Maker Effects}{Qt Quick Effect Maker}
-        \li Import effects made with \QQEM to \QDS.
-    \row
         \li \l {Creating Custom Effects}{Custom Effects in Qt 5}
         \li Use your own shader files and \QDS custom shader utilities to create
             custom effects.
