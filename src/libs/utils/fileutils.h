@@ -151,9 +151,6 @@ public:
     static QByteArray fetchQrc(const QString &fileName); // Only for internal resources
     bool fetch(const FilePath &filePath);
     bool fetch(const FilePath &filePath, QString *errorString);
-#ifdef QT_GUI_LIB
-    bool fetch(const FilePath &filePath, QWidget *parent);
-#endif // QT_GUI_LIB
     const QByteArray &data() const { return m_data; }
     QByteArray text() const; // data with replaced \r\n -> \n
     const QString &errorString() const { return m_errorString; }

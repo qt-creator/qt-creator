@@ -83,17 +83,6 @@ bool FileReader::fetch(const FilePath &filePath, QString *errorString)
     return false;
 }
 
-#ifdef QT_GUI_LIB
-bool FileReader::fetch(const FilePath &filePath, QWidget *parent)
-{
-    if (fetch(filePath))
-        return true;
-    if (parent)
-        QMessageBox::critical(parent, Tr::tr("File Error"), m_errorString);
-    return false;
-}
-#endif // QT_GUI_LIB
-
 // FileSaver
 
 FileSaverBase::FileSaverBase() = default;
