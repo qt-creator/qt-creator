@@ -332,7 +332,7 @@ QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(c
 
         for (const FilePath &p: paths) {
             Utils::FileReader reader;
-            if (!reader.fetch(p, QFile::Text)) {
+            if (!reader.fetch(p)) {
                 result.errors += reader.errorString();
                 continue;
             }
@@ -341,7 +341,7 @@ QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(c
             CppQmlTypesLoader::BuiltinObjects objs;
             QList<ModuleApiInfo> apis;
             QStringList deps;
-            CppQmlTypesLoader::parseQmlTypeDescriptions(reader.data(), &objs, &apis, &deps,
+            CppQmlTypesLoader::parseQmlTypeDescriptions(reader.text(), &objs, &apis, &deps,
                                                         &error, &warning, p.toString());
             if (!error.isEmpty()) {
                 result.errors += Tr::tr("Failed to parse \"%1\".\nError: %2").arg(p.toUserOutput(), error);

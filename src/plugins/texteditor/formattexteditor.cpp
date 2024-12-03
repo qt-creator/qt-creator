@@ -88,11 +88,11 @@ static FormatOutput format(const FormatInput &input)
 
         // Read text back
         Utils::FileReader reader;
-        if (!reader.fetch(sourceFile.filePath(), QIODevice::Text)) {
+        if (!reader.fetch(sourceFile.filePath())) {
             return Utils::make_unexpected(Tr::tr("Cannot read file \"%1\": %2.")
                          .arg(sourceFile.filePath().toUserOutput(), reader.errorString()));
         }
-        return QString::fromUtf8(reader.data());
+        return QString::fromUtf8(reader.text());
     }
 
     case Command::PipeProcessing: {

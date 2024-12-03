@@ -56,26 +56,27 @@ QByteArray FileReader::fetchQrc(const QString &fileName)
     return file.readAll();
 }
 
-bool FileReader::fetch(const FilePath &filePath, QIODevice::OpenMode mode)
+bool FileReader::fetch(const FilePath &filePath)
 {
-    QTC_ASSERT(!(mode & ~(QIODevice::ReadOnly | QIODevice::Text)), return false);
-
     const expected_str<QByteArray> contents = filePath.fileContents();
     if (!contents) {
         m_errorString = contents.error();
         return false;
     }
     m_data = *contents;
-
-    if (mode & QIODevice::Text)
-        m_data = m_data.replace("\r\n", "\n");
-
     return true;
 }
 
-bool FileReader::fetch(const FilePath &filePath, QIODevice::OpenMode mode, QString *errorString)
+QByteArray FileReader::text() const
 {
-    if (fetch(filePath, mode))
+    QByteArray res = m_data;
+    res = res.replace("\r\n", "\n");
+    return res;
+}
+
+bool FileReader::fetch(const FilePath &filePath, QString *errorString)
+{
+    if (fetch(filePath))
         return true;
     if (errorString)
         *errorString = m_errorString;
@@ -83,9 +84,9 @@ bool FileReader::fetch(const FilePath &filePath, QIODevice::OpenMode mode, QStri
 }
 
 #ifdef QT_GUI_LIB
-bool FileReader::fetch(const FilePath &filePath, QIODevice::OpenMode mode, QWidget *parent)
+bool FileReader::fetch(const FilePath &filePath, QWidget *parent)
 {
-    if (fetch(filePath, mode))
+    if (fetch(filePath))
         return true;
     if (parent)
         QMessageBox::critical(parent, Tr::tr("File Error"), m_errorString);

@@ -176,10 +176,8 @@ static bool createFile(CustomWizardFile cwFile,
         qDebug() << "generating " << targetPath << sourcePath << fm;
 
     // Read contents of source file
-    const QFile::OpenMode openMode
-            = cwFile.binary ? QIODevice::ReadOnly : (QIODevice::ReadOnly|QIODevice::Text);
     FileReader reader;
-    if (!reader.fetch(FilePath::fromString(sourcePath), openMode, errorMessage))
+    if (!reader.fetch(FilePath::fromString(sourcePath), errorMessage))
         return false;
 
     GeneratedFile generatedFile;
@@ -190,7 +188,7 @@ static bool createFile(CustomWizardFile cwFile,
         generatedFile.setBinaryContents(reader.data());
     } else {
         // Template file: Preprocess.
-        const QString contentsIn = QString::fromLocal8Bit(reader.data());
+        const QString contentsIn = QString::fromLocal8Bit(reader.text());
         generatedFile.setContents(CustomWizardContext::processFile(fm, contentsIn));
     }
 

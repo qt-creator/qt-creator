@@ -2812,9 +2812,9 @@ bool GitClient::getCommitData(const FilePath &workingDirectory,
         if (!templateFile.isEmpty()) {
             templateFile = repoDirectory.resolvePath(templateFile);
             FileReader reader;
-            if (!reader.fetch(templateFile, QIODevice::Text, errorMessage))
+            if (!reader.fetch(templateFile, errorMessage))
                 return false;
-            *commitTemplate = QString::fromLocal8Bit(reader.data());
+            *commitTemplate = QString::fromLocal8Bit(reader.text());
         }
         break;
     }

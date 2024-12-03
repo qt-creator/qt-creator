@@ -750,11 +750,11 @@ static void modifyManufacturerTag(const FilePath &avdPath, TagModification modif
 
     const FilePath configFilePath = avdPath / "config.ini";
     FileReader reader;
-    if (!reader.fetch(configFilePath, QIODevice::ReadOnly | QIODevice::Text))
+    if (!reader.fetch(configFilePath))
         return;
 
     FileSaver saver(configFilePath);
-    QTextStream textStream(reader.data());
+    QTextStream textStream(reader.text());
     while (!textStream.atEnd()) {
         QString line = textStream.readLine();
         if (line.contains("hw.device.manufacturer")) {

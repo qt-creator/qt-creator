@@ -100,8 +100,8 @@ private:
             return {};
 
         Utils::FileReader reader;
-        // Do not use QIODevice::Text as we have to deal with byte offsets.
-        if (reader.fetch(Utils::FilePath::fromString(filePath), QIODevice::ReadOnly))
+        // Do not use FileReader::text as we have to deal with byte offsets.
+        if (reader.fetch(Utils::FilePath::fromString(filePath)))
             return reader.data();
 
         return {};

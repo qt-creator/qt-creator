@@ -185,10 +185,10 @@ Core::IDocument::OpenResult ObjectsMapDocument::openImpl(QString *error,
     QByteArray text;
     if (realFileName.fileName() == "objects.map") {
         Utils::FileReader reader;
-        if (!reader.fetch(realFileName, QIODevice::Text, error))
+        if (!reader.fetch(realFileName, error))
             return OpenResult::ReadError;
 
-        text = reader.data();
+        text = reader.text();
     } else {
         const Utils::FilePath base = settings().squishPath();
         if (base.isEmpty()) {

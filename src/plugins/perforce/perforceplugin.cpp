@@ -1416,7 +1416,7 @@ bool PerforcePluginPrivate::activateCommit()
 
     // Pipe file into p4 submit -i
     FileReader reader;
-    if (!reader.fetch(Utils::FilePath::fromString(m_commitMessageFileName), QIODevice::Text)) {
+    if (!reader.fetch(Utils::FilePath::fromString(m_commitMessageFileName))) {
         VcsOutputWindow::appendError(reader.errorString());
         return false;
     }
@@ -1425,7 +1425,7 @@ bool PerforcePluginPrivate::activateCommit()
     submitArgs << QLatin1String("submit") << QLatin1String("-i");
     const PerforceResponse submitResponse = runP4Cmd(settings().topLevelSymLinkTarget(), submitArgs,
                                                      LongTimeOut|RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow|ShowBusyCursor,
-                                                     {}, reader.data());
+                                                     {}, reader.text());
     if (submitResponse.error)
         return false;
 

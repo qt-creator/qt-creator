@@ -242,11 +242,11 @@ static inline QStringList fieldTexts(const QString &fileContents)
 void VcsBaseSubmitEditor::createUserFields(const FilePath &fieldConfigFile)
 {
     FileReader reader;
-    if (!reader.fetch(fieldConfigFile, QIODevice::Text, ICore::dialogParent()))
+    if (!reader.fetch(fieldConfigFile, ICore::dialogParent()))
         return;
 
     // Parse into fields
-    const QStringList fields = fieldTexts(QString::fromUtf8(reader.data()));
+    const QStringList fields = fieldTexts(QString::fromUtf8(reader.text()));
     if (fields.empty())
         return;
     // Create a completer on user names
