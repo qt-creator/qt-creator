@@ -6,7 +6,7 @@
     \previouspage studio-3d-materials-types.html
     \nextpage studio-3d-custom-shaders.html
 
-    \title 3D Effects
+    \title 3D effects
 
     \QDS provides a set of 3D effects, which are visible in the \l {2D} view.
     To apply a visual effect to a scene, drag-and-drop an effect from
@@ -17,7 +17,7 @@
     You can use the \l Effect component available in \uicontrol Components >
     \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} as the base
     component for creating custom post-processing effects. For more information,
-    see \l {Custom Effects and Materials in Qt 5} and \l {Custom Shaders}.
+    see \l {Custom effects and materials in Qt 5} and \l {Custom shaders}.
     \note In \uicontrol {Qt 5}, the \uicontrol Effect component is located
     in \uicontrol {Qt Quick 3D Effects} >
     \uicontrol {Qt Quick 3D Custom Shader Utilities}.

@@ -6,7 +6,7 @@
     \page studio-developer-topics.html
     \nextpage studio-finding-the-qt-runtime-version.html
 
-    \title Developer Topics
+    \title Developer topics
 
     \table
         \row
@@ -17,7 +17,7 @@
     \endtable
 
     \list
-        \li \l{Finding the Qt Runtime Version}
+        \li \l{Finding the Qt runtime version}
 
             \QDS runs projects using a specific version of Qt. Identify
             which version of Qt your \QDS uses.

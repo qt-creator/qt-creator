@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -29,7 +29,7 @@
     They differ from the basic components in that a common style is applied
     to them and that you can specify placeholder text for them.
 
-    \section1 Using Rich Text
+    \section1 Using rich text
 
     You can use rich text in the \uicontrol Text and \uicontrol {Text Input}
     components. To open the rich text editor, select the \inlineimage icons/edit.png
@@ -53,7 +53,7 @@
 
     \image qtquick-rtf-editor.png "Text formatted as rich text in the editor"
 
-    \section1 Marking Strings for Translation
+    \section1 Marking strings for translation
 
     To support translators, mark the strings that should be translated.
     In \uicontrol Properties > \uicontrol Character > \uicontrol Text, select
@@ -77,7 +77,7 @@
 
     For more information, see \l {Mark Strings for Translation}.
 
-    \section1 Character Properties
+    \section1 Character properties
 
     You can set font properties in the \uicontrol Character section
     in \uicontrol Properties. For each string that you enter in the
@@ -123,7 +123,7 @@
     to set the spacing proportionally to the line (as a multiplier).
     For example, set to 2 for double spacing.
 
-    \section1 Text Alignment
+    \section1 Text alignment
 
     You can align text components horizontally and vertically. By default, text
     is vertically aligned to the top. Horizontal alignment follows the natural
@@ -136,11 +136,11 @@
 
     For a single line of text, the size of the text is the area of the text.
     In this common case, all alignments are equivalent. To center a text in
-    its parent, use \l{Setting Anchors and Margins}{anchoring} or bind the
+    its parent, use \l{Setting anchors and margins}{anchoring} or bind the
     width of the text component to that of the parent. For more information, see
-    \l{Setting Bindings}.
+    \l{Setting bindings}.
 
-    \section1 Text and Style Colors
+    \section1 Text and style colors
 
     You can set the color of the text itself and a secondary color used by
     text styles.
@@ -156,7 +156,7 @@
     For more information about selecting colors, see \l{Picking Colors}. You
     can only set solid colors for text components.
 
-    \section1 Advanced Text Properties
+    \section1 Advanced text properties
 
     The height and width of a text component are determined automatically depending
     on the values of the properties you set, to accommodate the length of the
@@ -178,7 +178,7 @@
     has a minimum bound specified by the \uicontrol {Min size} field and
     maximum bound specified by the \uicontrol Size field.
 
-    \section3 Wrapping and Eliding Text
+    \section3 Wrapping and eliding text
 
     In the \uicontrol {Wrap mode} field, you can wrap the text to the text
     component's width. The text will only wrap if you set an explicit width for
@@ -202,7 +202,7 @@
     Multi-length strings are ordered from longest to shortest, separated by the
     Unicode \e {String Terminator} character \c U009C.
 
-    \section3 Formatting Text
+    \section3 Formatting text
 
     Text can be either in plain text or rich text format, depending on the
     value you set in the \uicontrol Format field. If you select
@@ -211,7 +211,7 @@
     described on the \l {Supported HTML Subset}. Note that plain text offers
     better performance than rich text.
 
-    \section3 Rendering Text
+    \section3 Rendering text
 
     In the \uicontrol {Render type} field, you can override the default
     rendering type for a text component. Select \uicontrol NativeRendering if
@@ -238,7 +238,7 @@
     \note This property only describes a preference, as the full range of
     hinting levels are not supported on all of Qt's supported platforms.
 
-    \section1 Advanced Font Properties
+    \section1 Advanced font properties
 
     You can specify additional properties for fonts in the
     \uicontrol {Font Extras} section.
@@ -279,7 +279,7 @@
 
     \image qtquick-designer-text-input-properties.png "Text input field properties"
 
-    \section2 Entering Passwords
+    \section2 Entering passwords
 
     You can set properties for \uicontrol {Text Input} components that make
     them suitable for entering passwords.
@@ -299,7 +299,7 @@
     as users enter them. The mask character is displayed in the
     \uicontrol {Password character} field.
 
-    \section2 Entering Text
+    \section2 Entering text
 
     You can specify how users can enter text into text edit or input fields.
 
@@ -318,7 +318,7 @@
     To prevent users from changing the text, select the \uicontrol {Read only}
     check box.
 
-    \section2 Selecting Text
+    \section2 Selecting text
 
     In the \uicontrol {Selection mode} field, you can specify whether
     individual characters or whole words are selected when selecting text
@@ -350,7 +350,7 @@
     If the \uicontrol {Persistent selection} check box is selected, a text edit
     or input keeps its selection when active focus moves to another component.
 
-    \section2 Tabs and Margins
+    \section2 Tabs and margins
 
     You can specify additional properties for formatting a block of text in
     a \uicontrol {Text Edit} component.
@@ -376,7 +376,7 @@
     text does not have enough vertical or horizontal space in which to be
     rendered, it will appear clipped.
 
-    \section1 Placeholder Text
+    \section1 Placeholder text
 
     For \uicontrol {Text Field} and \uicontrol {Text Area} controls, you can
     specify text to display in a field before users enter text into it.
@@ -388,7 +388,7 @@
     Select the \uicontrol Hover check box to enable the text field to accept
     hover events.
 
-    \section1 Summary of Text Components
+    \section1 Summary of the text components
 
     The following table lists the components that you can use to add text to
     UIs. The \e Location column contains the tab name where you can find the

@@ -3,7 +3,7 @@
 
 //! [creating studio components]
 
-    \section1 Creating Custom Controls
+    \section1 Creating custom controls
 
     You can use project wizard templates to create stylable UI controls based
     on the components in the Qt Quick Controls module:
@@ -28,7 +28,7 @@
     \endtable
 
     You can edit the properties of the controls in all the preset
-    \l{Working with States}{states} to apply your own style to them.
+    \l{Working with states}{states} to apply your own style to them.
 
     \note For buttons and check boxes, you can disable the misbehaving hover
     effects by selecting \l Properties > \uicontrol Control, and then disabling
@@ -49,7 +49,7 @@
         \li Edit component properties in the \l Properties view.
 
             The available properties depend on the component type. You can
-            \l{Specifying Custom Properties}{add properties for components} on
+            \l{Specifying custom properties}{add properties for components} on
             the \uicontrol Properties tab in the {Connections} view.
     \endlist
 

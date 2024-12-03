@@ -9,7 +9,7 @@
     \title Lights
 
     Light components are the primary source of lighting in a \QDS scene.
-    As a secondary light source, you can use \l{Setting Image Based Lighting}
+    As a secondary light source, you can use \l{Setting image-based lighting}
     {image-based lighting}.
 
     To add a light component to your UI, do one of the following:
@@ -26,7 +26,7 @@
     \l {Adding and Removing Modules}.
 
    \note If you select \uicontrol {Qt 5} as the \uicontrol {Target Qt Version}
-    when \l {Creating Projects}{creating your project}, the available light
+    when \l {Creating projects}{creating your project}, the available light
     components and their properties will be slightly different. The properties
     may also be situated differently in the \uicontrol Properties view.
 
@@ -209,24 +209,25 @@
     \uicontrol {Shadow map far} property value. Using smaller values
     may improve the precision and effects of the map.
 
-    \section1 Baked Lightmaps
+    \section1 Baked lightmaps
 
     \note Lightmaps baking is released as technical preview in \QDS 4.1.
 
     Baked lightmaps allow pre-generating the direct lighting from lights,
-    such as DirectionalLight, PointLight, and SpotLight, including the shadows
-    cast by the lights. At run time, instead of performing the appropriate
-    calculations in the fragment shader, and, in case of shadows, generating
-    the potentially costly shadow maps in real time, the pre-generated light map is
+    such as \uicontrol {Directional Light},\uicontrol {Point Light}, and
+    \uicontrol {Spot Light}, including the shadows cast by the lights. At
+    run time, instead of performing the appropriate calculations in the
+    fragment shader, and, in case of shadows, generating the potentially
+    costly shadow maps in real time, the pre-generated light map is
     sampled instead.
 
-    \section2 Baking Lightmaps
+    \section2 Baking lightmaps
 
     To bake lightmaps for models in your 3D scene:
 
     \list 1
       \li Select \inlineimage icons/bakelights.png in the \uicontrol 3D view
-          toolbar or right-click anywhere in the \uicontrol 3D view and select
+          toolbar, or right-click anywhere in the \uicontrol 3D view and select
           \uicontrol {Bake Lights} to open the \uicontrol {Lights Baking Setup}
           dialog to define settings for baking lights.
        \li Set \uicontrol {Bake Mode} for each light source:
@@ -250,7 +251,8 @@
 
     \image bake-lights-dialog.png
 
-    \section2 Manually Baking Lightmaps for a 3D Model
+    \section2 Manually baking lightmaps for a 3D model
+
     \note Baked lightmap components are not visible in the \uicontrol Navigator view by
     default. To make them visible, select \inlineimage icons/visibilityon.png
     in the \uicontrol Navigator view.
@@ -279,13 +281,13 @@
       \li Select \uicontrol {Setup baking manually}, and then select \uicontrol Bake.
     \endlist
 
-    \section2 Manually Baking Lightmaps for a 3D Model Inside a Sub Component
+    \section2 Manually baking lightmaps for a 3D model inside a subcomponent
 
-    To bake lightmaps for a 3D model inside a sub component, first add a local custom property to
-    expose the model:
+    To bake lightmaps for a 3D model inside a subcomponent, first add a local custom property
+    to expose the model:
 
     \list 1
-      \li In the \uicontrol Navigator view, right-click the sub component and select
+      \li In the \uicontrol Navigator view, right-click the subcomponent and select
       \uicontrol {Edit Component}.
       \image baked-lightmaps-edit-component.png
       \li In the \uicontrol Navigator view, select the root component.
@@ -306,14 +308,14 @@
       the bread crumb in the top toolbar.
       \image baked-lightmaps-exit-component.png
       \li From the \uicontrol Components view, drag a \uicontrol {Baked Lightmap} component to the
-      sub component in the \uicontrol Navigator view.
+      subcomponent in the \uicontrol Navigator view.
       \image baked-lightmaps-navigator-blm.png
-      \li In the \uicontrol Navigator view, select the sub component and go to the
+      \li In the \uicontrol Navigator view, select the subcomponent and go to the
       \uicontrol Code view.
       \li In the \uicontrol Code view, you need to set the properties for the model inside the sub
       component by using the exposed property.
 
-      Add the following code inside the sub component.
+      Add the following code inside the subcomponent.
       \code
           lmSphere.bakedLightmap: bakedLightmap
       \endcode

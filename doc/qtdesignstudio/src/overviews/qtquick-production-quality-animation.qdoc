@@ -6,7 +6,7 @@
     \previouspage qtquick-editing-easing-curves.html
     \nextpage qtquick-optimizing-designs.html
 
-    \title Production Quality
+    \title Production quality
 
     After the wireframing and prototyping phases, you can use previewing and
     profiling tools to fine-tune your UI for production.
@@ -19,7 +19,7 @@
             and stuttering.
     \endlist
 
-    \section1 FPS Refresh Rate
+    \section1 FPS refresh rate
 
     As a general rule, animators strive to allow the rendering engine to
     achieve a consistent 60 frames-per-second (FPS) refresh rate. 60 FPS
@@ -43,11 +43,11 @@
     \endlist
 
     For more information about previewing UIs on devices, see
-    \l{Validating with Target Hardware}.
+    \l{Validating with target hardware}.
 
-    \section1 Profiling UI Code
+    \section1 Profiling UI code
 
-    You can use \l{Profiling QML Applications}{QML Profiler} that is integrated
+    You can use \l{Profiling QML applications}{QML Profiler} that is integrated
     into \QDS to find causes for typical performance problems in your UI. For
     example, your UI might be slow, unresponsive, or stuttering. Typically, such
     problems are caused by executing too much JavaScript in too few frames. All
@@ -65,5 +65,5 @@
     to optimize code without profiling is likely to result in very minor rather
     than significant performance improvements.
 
-    For more information, see \l{Profiling QML Applications}.
+    For more information, see \l{Profiling QML applications}.
 */

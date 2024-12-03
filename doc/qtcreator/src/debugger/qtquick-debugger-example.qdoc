@@ -29,7 +29,7 @@
     \uicontrol Debug mode.
 
     For more information about all the options you have, see
-    \l{Debugging Qt Quick Projects}.
+    \l{Debugging Qt Quick projects}.
 
     \if defined(qtdesignstudio)
     \note In this tutorial, you are using advanced menu items. These are not
@@ -111,5 +111,5 @@
 
     \endlist
 
-    \sa {Debugging Qt Quick Projects}
+    \sa {Debugging Qt Quick projects}
 */

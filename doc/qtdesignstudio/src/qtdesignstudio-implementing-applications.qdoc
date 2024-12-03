@@ -6,7 +6,7 @@
     \page studio-implementing-applications.html
     \nextpage studio-designer-developer-workflow.html
 
-    \title Implementing Applications
+    \title Implementing applications
 
     \table
         \row
@@ -23,9 +23,9 @@
 
     \list
 
-        \li \l{Designer-Developer Workflow}
+        \li \l{Designer-developer workflow}
 
-            In \QDS projects, you work on \l{UI Files}{UI files} (.ui.qml),
+            In \QDS projects, you work on \l{UI files} (.ui.qml),
             while developers work on the .qml and C++ source files in
             Qt Creator to create an application that you can build and
             run on target hardware.
@@ -35,7 +35,7 @@
             understands the QML language as code, not just as plain text, so it
             can offer useful features, such as semantic highlighting, checking
             code syntax, code completion, and refactoring actions.
-        \li \l{Debugging and Profiling}
+        \li \l{Debugging and profiling}
 
             \QDS comes with a JavaScript debugger. In the \uicontrol Debug mode,
             you can inspect the state of your UI while debugging.

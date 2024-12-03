@@ -6,32 +6,32 @@
     \page best-practices.html
     \nextpage best-practices-glow.html
 
-    \title Best Practices
+    \title Best practices
 
     \section1 Graphics
 
     \list
-      \li \l {Creating Glow and Bloom Effects}
+      \li \l {Creating the glow and the bloom effects}
     \endlist
 
     \section1 Performance
 
     \list
-      \li \l {Optimizing Designs}
-      \li \l {QML Performance Considerations And Suggestions}
-      \li \l {Creating Optimized 3D Scenes}
-      \li \l {Using Components Economically}
+      \li \l {Optimizing designs}
+      \li \l {QML Performance Considerations And Suggestions}{QML performance considerations and suggestions}
+      \li \l {Creating optimized 3D scenes}
+      \li \l {Using components economically}
     \endlist
 
     \section1 Projects
 
     \list
-      \li \l {Converting Qt Design Studio Projects to Applications}
+      \li \l {Converting \QDS projects to applications}
     \endlist
 
     \section1 Workflow
 
     \list
-      \li \l {Designer-Developer Workflow}
+      \li \l {Designer-developer workflow}
     \endlist
 */

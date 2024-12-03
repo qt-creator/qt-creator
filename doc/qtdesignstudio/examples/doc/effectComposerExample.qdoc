@@ -5,7 +5,7 @@
     \page effect-composer-example.html
     \ingroup studioexamples
 
-    \title The Effect Composer example
+    \title Effect Composer example
     \brief Illustrates how to work with the Effect Composer effects.
 
     \image effect-composer-example.webp {The Effect Composer example project}
@@ -69,6 +69,6 @@
     \endlist
 
     The example project also uses \uicontrol States and \uicontrol Transitions. To learn more, see
-    \l {Working with States} and \l {Transitions}.
+    \l {Working with states} and \l {Transitions}.
 
 */

@@ -6,18 +6,18 @@
     \page studio-importing-designs.html
     \nextpage studio-importing-2d.html
 
-    \title Importing Designs
+    \title Importing designs
 
     You can import 2D and 3D assets to \QDS projects. You need to use \QB for
     exporting the 2D assets from design tools, whereas you can directly import
     3D assets saved in widely-used 3D graphics formats.
 
     \list
-        \li \l{Importing 2D Assets}
+        \li \l{Importing 2D assets}
 
             You can import 2D assets that you exported with \QB to a \QDS
             project as image and QML files and edit them in the Design mode.
-        \li \l{Importing 3D Assets}
+        \li \l{Importing 3D assets}
 
             You can import 3D assets that you created using 3D graphics
             applications and stored in one of the supported file formats.

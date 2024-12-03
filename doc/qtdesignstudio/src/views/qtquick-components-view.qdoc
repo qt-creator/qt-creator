@@ -30,7 +30,7 @@
     \uicontrol {Qt.Multimedia} module adds support for audio and video
     files to your UI.
 
-    \section2 Component Types
+    \section2 Component types
 
     You can add the following types of components to your project:
 
@@ -38,23 +38,23 @@
         \li \l Shapes
         \li \l Text
         \li \l Images
-        \li \l {UI Controls}
-        \li \l {User Interaction Methods}
-        \li \l {Lists and Other Data Models}
-        \li \l {2D Effects}
+        \li \l {UI controls}
+        \li \l {User interaction methods}
+        \li \l {Lists and other data models}
+        \li \l {2D effects}
         \li \l {Logic Helpers}
         \li \l Animations
         \li \l{3D Views}
         \li \l{Node}
         \li \l{Group}
-        \li \l{Instanced Rendering}
-        \li \l{Skeletal Animation}
-        \li \l{3D Models}
-        \li \l{Materials and Shaders}
+        \li \l{Instanced rendering}
+        \li \l{Skeletal animation}
+        \li \l{3D models}
+        \li \l{Materials and shaders}
         \li \l{Textures}
-        \li \l{3D Materials}
-        \li \l{3D Effects}
-        \li \l{Custom Shaders}
+        \li \l{3D materials}
+        \li \l{3D effects}
+        \li \l{Custom shaders}
         \li \l{Lights}
         \li \l{Cameras}
         \li \l{Scene Environments}
@@ -64,11 +64,11 @@
     \endlist
 
     For more information about creating your own components, see
-    \l{Creating Custom Components}.
+    \l{Creating custom components}.
 
-    \section2 Adding and Removing Modules
+    \section2 Adding and removing modules
 
-    When you \l{Creating Projects}{create projects}, modules typically needed in
+    When you \l{Creating projects}{create projects}, modules typically needed in
     them are added by default. For example, an empty application project
     contains basic components and UI controls, while a 3D application project
     contains additional 3D components.

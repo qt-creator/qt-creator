@@ -4,7 +4,7 @@
 /*!
     \page state-transition-animations.html
     \ingroup gstutorials
-    \sa States, {Transitions}, {Working with States}
+    \sa States, {Transitions}, {Working with states}
 
     \title Animated state transitions
     \brief Illustrates how to create animated state transitions.

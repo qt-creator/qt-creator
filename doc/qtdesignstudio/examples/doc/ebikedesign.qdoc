@@ -69,7 +69,7 @@
     speedometer grow and shrink in size depending on its current position.
 
     For more information about using the timeline, see
-    \l {Creating Timeline Animations}.
+    \l {Creating timeline animations}.
 
     \section1 Using states to move between screens
 

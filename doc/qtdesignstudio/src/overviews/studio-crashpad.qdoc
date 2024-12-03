@@ -6,7 +6,7 @@
     \previouspage studio-user-feedback.html
     \nextpage studio-packaging.html
 
-    \title Reporting Crashes
+    \title Reporting crashes
 
     You can enable \QDS to report crashes automatically. \QDS uses Google
     Crashpad to collect crashes and report them to the Sentry backend storage

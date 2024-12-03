@@ -6,21 +6,21 @@
     \page studio-debugging.html
     \nextpage creator-debugging-qml.html
 
-    \title Debugging and Profiling
+    \title Debugging and profiling
 
     \list
-        \li \l{Debugging Qt Quick Projects}
+        \li \l{Debugging Qt Quick projects}
 
             You can use the integrated debugger to debug JavaScript functions,
             to execute JavaScript expressions to get information about the state
             of the UI, and to inspect QML properties and JavaScript
             variables and change them temporarily at runtime.
-        \li \l{Debugging a Qt Quick Application}
+        \li \l{Debugging a Qt Quick Application}{Debugging a Qt Quick application}
 
             This section uses the \l{QML Advanced Tutorial}{Same Game} example
             application to illustrate how to debug Qt Quick applications in the
             \uicontrol Debug mode.
-        \li \l{Profiling QML Applications}
+        \li \l{Profiling QML applications}
 
             You can use QML Profiler to find causes for typical performance
             problems in your UIs, such as slowness, freezing, and stuttering.

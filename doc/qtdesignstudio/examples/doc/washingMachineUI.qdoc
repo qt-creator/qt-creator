@@ -228,7 +228,7 @@
     We create similar connections between button components and signals in the
     other screens to apply other actions that move users to other screens.
 
-    For more information, see \l {Connecting Components to Signals}.
+    For more information, see \l {Connecting components to signals}.
 
     \section1 Showing the current time
 

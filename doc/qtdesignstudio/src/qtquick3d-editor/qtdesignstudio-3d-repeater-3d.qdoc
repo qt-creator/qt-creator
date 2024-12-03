@@ -28,7 +28,7 @@
     For more information, see \l{https://doc.qt.io/qt/qml-qtquick3d-repeater3d.html}
     {Repeater3D} in the \uicontrol {Qt Quick 3D} documentation.
 
-    \section2 Repeater3D Properties
+    \section2 Repeater3D properties
 
     \section3 Model
 
@@ -62,7 +62,7 @@
     all model roles as named properties, in the same way that delegates do for
     view classes like \uicontrol ListView.
 
-    \section1 Adding a Repeater3D Component with a Numeric Model
+    \section1 Adding a Repeater3D component with a numeric model
 
     This section explains how to add a \uicontrol Repeater3D component with
     a numeric model to your \QDS project.
@@ -96,7 +96,7 @@
     \endlist
     \image repeater3d-numeric-model.webp
 
-    \section1 Adding a Repeater3D Component with a List Model
+    \section1 Adding a Repeater3D component with a List Model
 
     This section explains how to add a \uicontrol Repeater3D component with
     a list model to your \QDS project:

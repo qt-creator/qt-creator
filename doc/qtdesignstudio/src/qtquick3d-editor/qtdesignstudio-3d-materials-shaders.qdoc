@@ -6,7 +6,7 @@
     \previouspage studio-3d-model.html
     \nextpage studio-3d-texture.html
 
-    \title Materials and Shaders
+    \title Materials and shaders
 
     \image studio-qtquick-3d-material.webp "Material attached to model in Design mode"
 
@@ -28,7 +28,7 @@
     \list
         \li Default material
         \li Principled material
-        \li \l{Custom Effects and Materials in Qt 5}{Custom material}
+        \li \l{Custom effects and materials in Qt 5}{Custom material}
         \li Texture
     \endlist
 
@@ -49,5 +49,5 @@
     \image studio-qtquick-3d-default-material.webp "DefaultMaterial properties"
 
     You can animate material properties in the \uicontrol Timeline view, as
-    instructed in \l {Creating Timeline Animations}.
+    instructed in \l {Creating timeline animations}.
 */

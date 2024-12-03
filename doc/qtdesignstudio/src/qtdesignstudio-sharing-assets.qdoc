@@ -7,7 +7,7 @@
     \nextpage qtquick-motion-design.html
     \sa {Content Library}
 
-    \title Sharing Assets
+    \title Sharing assets
     With \QDS Bundle files (\e{.qdsbundle}), you can import and export 3D components (such as
     cameras, lights, and models) and materials easily.
 
@@ -21,7 +21,7 @@
       \uicontrol {Export Material}.
     \endlist
 
-    \section1 Importing Bundles
+    \section1 Importing bundles
     To import a 3D component or material bundle, do one of the following:
     \list
       \li In the \uicontrol {3D}, \uicontrol {2D}, or \uicontrol {Navigator} view, right-click

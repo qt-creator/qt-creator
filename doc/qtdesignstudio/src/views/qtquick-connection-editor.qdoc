@@ -6,10 +6,10 @@
     \previouspage qtquick-adding-dynamics.html
     \nextpage quick-signals.html
 
-    \title Working with Connections
+    \title Working with connections
 
     \list
-        \li \l{Connecting Components to Signals}
+        \li \l{Connecting components to signals}
 
             A signal and handler mechanism enables components to respond to
             application events, which are represented by \e signals. When a
@@ -17,7 +17,7 @@
             invoked to respond to the event by applying an action, for
             example.
 
-        \li \l{Adding Bindings Between Properties}
+        \li \l{Adding bindings between properties}
 
             A component's property can be assigned a static value that stays
             constant until it is explicitly changed. To make the UI more
@@ -26,7 +26,7 @@
             the value of a property changes, the values of any properties that
             are bound to it are automatically updated accordingly.
 
-        \li \l{Specifying Custom Properties}
+        \li \l{Specifying custom properties}
 
             Each preset component has a set of preset properties that you
             can specify values for. You can add custom properties that would
@@ -35,5 +35,5 @@
     \endlist
 
     For an example of using properties, bindings, and connections to create a
-    scalable push button, see \l{Creating Scalable Buttons and Borders}.
+    scalable push button, see \l{Creating scalable buttons and borders}.
 */

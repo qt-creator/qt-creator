@@ -6,7 +6,7 @@
     \page studio-simulink.html
     \nextpage creator-qml-modules-with-plugins.html
 
-    \title Simulating Dynamic Systems
+    \title Simulating dynamic systems
 
     Use the Simulink connector to connect simulation to your UI. Simulink is a
     MATLAB-based graphical programming environment for modeling, simulating,
@@ -55,7 +55,7 @@
             {Qt/QML Send} blocks.
     \endlist
 
-    \section2 Address and Port
+    \section2 Address and port
 
     An \uicontrol Address block delivers the IP address of a server to the
     \uicontrol {Simulink-Qt Client} block as a typical IP address string.
@@ -107,7 +107,7 @@
             Signal or \uicontrol Property value.
     \endlist
 
-    \section2 Specifying Property Names in Simulink
+    \section2 Specifying property names in Simulink
 
     Double-click the \uicontrol {Qt/SML Send} or \uicontrol {Qt/QML Receive}
     block in Simulink to specify a property name. A pop-up for \uicontrol
@@ -118,9 +118,9 @@
 
     \image simulink-qt-send-example-property.png "Example property of the Qt Send block"
 
-    \section1 Integrating the Simulink Model to \QDS
+    \section1 Integrating the Simulink model to \QDS
 
-    \section2 Importing the Simulink Connector
+    \section2 Importing the Simulink connector
 
     To integrate the Simulink model into \QDS, you first need to add the
     Simulink connector module to your project. In the \uicontrol Components
@@ -143,13 +143,13 @@
     Navigator to add the properties on the \uicontrol Properties tab in the
     \l Connections view.
 
-    See \l {Specifying Custom Properties} for a detailed description of how
+    See \l {Specifying custom properties} for a detailed description of how
     to add a custom property. The name of the property and the data type
     need to match those of the send or receive property of the Simulink model.
 
     \image studio-connection-view-properties.png "The Properties tab in the Connections view"
 
-    \section2 Creating Bindings
+    \section2 Creating bindings
 
     Next, you need to bind the value of the property you just created to the
     desired properties of UI components.
@@ -166,7 +166,7 @@
     (\uicontrol Actions) menu next to a property, and then select
     \uicontrol {Set Binding}. In the \uicontrol {Binding Editor}, select the
     text field and type in \c {<id>.<property name>}, for example
-    \c rectangle.speedProp. For more information, see \l {Setting Bindings}.
+    \c rectangle.speedProp. For more information, see \l {Setting bindings}.
 
     \image studio-binding-editor.png "The Binding Editor window"
 

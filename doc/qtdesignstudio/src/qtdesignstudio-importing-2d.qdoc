@@ -28,7 +28,7 @@
     will only appear in \uicontrol Assets, and you can then
     drag-and-drop them to a suitable view.
 
-    \section1 Importing Designs From Other Design Tools
+    \section1 Importing designs from other design tools
 
     \image studio-imported-assets.webp "UI imported into Qt Design Studio"
 
@@ -44,7 +44,7 @@
 
     The following instructions use an empty project as an example. For more
     information about the options you have, see
-    \l {Creating Projects}.
+    \l {Creating projects}.
 
     To import the exported assets to \QDS projects:
 
@@ -100,7 +100,7 @@
     \uicontrol {Asset Import} dialog while importing, fix the issues in
     design tool and export the assets again.
 
-    \section2 Merging QML Files
+    \section2 Merging QML files
     When you re-import a QML component, the changes done in \QDS are preserved.
     The QML item changes in the existing QML component are copied to the corresponding
     QML item in the new component.

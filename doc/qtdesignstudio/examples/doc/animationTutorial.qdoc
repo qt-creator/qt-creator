@@ -26,7 +26,7 @@
 /*!
     \page animation-tutorial.html
     \ingroup gstutorials
-    \sa {Creating Timeline Animations}
+    \sa {Creating timeline animations}
 
     \title Timeline animation
     \brief Illustrates how to create timeline animations and bind them to

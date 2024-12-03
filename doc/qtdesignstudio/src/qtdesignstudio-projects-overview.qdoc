@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,7 +6,7 @@
     \page studio-projects-managing.html
     \nextpage studio-projects.html
 
-    \title Managing Projects
+    \title Managing projects
 
     One of the major advantages of \QDS is that it allows a team of designers
     and developers to share a project across different development platforms
@@ -21,7 +21,7 @@
             project source files and configuration files. Do not store generated
             files.
 
-        \li \l {Converting Qt Design Studio Projects to Applications}
+        \li \l {Converting \QDS projects to applications}
 
             \QDS projects are useful for creating UIs. To use them
             for application development in Qt Creator, you have to convert them

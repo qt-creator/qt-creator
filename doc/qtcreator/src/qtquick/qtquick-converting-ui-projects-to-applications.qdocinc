@@ -32,7 +32,7 @@
 
     \if defined(qtcreator)
         For more information about using \QDS to create projects, see
-        \l{Qt Design Studio Manual}.
+        \l{Qt Design Studio documentation}.
     \endif
 
     To use qmake as the build system, use a Qt Creator
@@ -135,8 +135,8 @@
     asset files, such as 100-MB 3D models or 64-MB textures, into the \c .qrc
     file for compiling them into the binary.
 
-    First try to optimize your assets, as described in \l{Optimizing Designs}
-    and \l {Creating Optimized 3D Scenes}.
+    First try to optimize your assets, as described in
+    \l{Optimizing designs} and \l {Creating optimized 3D scenes}.
 
     Large assets should either be loaded directly from the file system or by
     using the Qt resource system dynamically. For more information, see

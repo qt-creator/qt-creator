@@ -92,7 +92,7 @@
 
     The Coffee Machine application screens for choosing coffee, empty cup, and
     brewing each use custom components specified in separate \l{UI files}
-    {UI files} (ui.qml).
+    (ui.qml).
 
     We use the \l Timeline view to animate the transitions between the screens
     during the application flow in \e {ApplicationFlowForm.ui.qml}.

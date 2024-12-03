@@ -6,7 +6,7 @@
     \previouspage studio-3d-effects.html
     \nextpage studio-3d-custom-effects-materials.html
 
-    \title Custom Shaders
+    \title Custom shaders
 
     In \QDS projects created with \uicontrol {Qt 6} as \uicontrol {Target Qt Version},
     you create custom shaders in code and use custom shader utilities to create post-
@@ -15,10 +15,10 @@
     materials and effects.
 
     \note Creating custom effects and materials as described here is not supported
-    in the \QDS \l{Creating Projects} {projects} created with \uicontrol {Qt 6} as
+    in the \QDS \l{Creating projects} {projects} created with \uicontrol {Qt 6} as
     \uicontrol {Target Qt Version}.
 
-    \section1 Custom Shader Utilities in Qt 6
+    \section1 Custom shader utilities in Qt 6
 
     In projects created with \uicontrol {Qt 6} as \uicontrol {Target Qt Version},
     you create custom shaders used for custom materials in code. In \uicontrol {Qt 6},
@@ -29,7 +29,7 @@
     to customize the \uicontrol Effect component used for post-processing
     effects.
 
-    \section2 Creating Shader Files
+    \section2 Creating shader files
 
     In \uicontrol {Qt 6}, you need to create custom shaders for custom materials in code
     using \uicontrol {Text Editor} or the \uicontrol Edit mode. For more information about
@@ -70,7 +70,7 @@
     \image studio-custom-material-uniform-properties.png "Uniforms as properties in Connections view Properties tab"
 
     For more information about adding properties, see
-    \l{Specifying Custom Properties}.
+    \l{Specifying custom properties}.
 
     \section2 Creating Post-Processing Effects
 
@@ -90,7 +90,7 @@
     \uicontrol Effect in \uicontrol Navigator. To define settings for a shader utility, select
     it in \uicontrol Navigator and edit its properties in the \uicontrol Properties view.
 
-    \section1 Custom Shaders in Qt 5
+    \section1 Custom shaders in Qt 5
 
     Use the 3D shader utilities and commands available in \uicontrol Components
     > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D Custom Shader Utilities}
@@ -115,11 +115,11 @@
     \image studio-qtquick-3d-shader-utilities-qt5.webp "Qt 5 custom shader utilities in Components"
 
     For more information about using the shaders, see
-    \l {Custom Effects and Materials in Qt 5}.
+    \l {Custom effects and materials in Qt 5}.
 
     See the following tables for available shader utilities and commands.
 
-    \section1 Available Custom Shader Utilities and Base Components
+    \section1 Available custom shader utilities and base components
     \table
     \header
         \li Component
@@ -189,7 +189,7 @@
             \uicontrol {Always dirty} properties.
 
             The \uicontrol {Shader Info} specifies the shader info of the
-            material. For more information, see \l {Custom Effects and Materials in Qt 5}.
+            material. For more information, see \l {Custom effects and materials in Qt 5}.
 
             \note In \uicontrol {Qt 5} you can also define render passes for
             \uicontrol {Custom Material} by using the \uicontrol Passes property,
@@ -203,7 +203,7 @@
             The \uicontrol Passes property contains a list of render passes
             implemented by the effect. You can add more entry fields to the list
             by selecting \inlineimage icons/plus.png
-            . For more information, see \l {Custom Effects and Materials in Qt 5}.
+            . For more information, see \l {Custom effects and materials in Qt 5}.
 
     \row
         \li \l Pass
@@ -279,7 +279,7 @@
             black texture instead of the one specified by texture.
     \endtable
 
-    \section1 Available Custom Shader Commands
+    \section1 Available custom shader commands
     \table
     \header
         \li Command

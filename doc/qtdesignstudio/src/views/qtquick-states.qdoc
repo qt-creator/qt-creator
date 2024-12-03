@@ -6,7 +6,7 @@
     \previouspage quick-json-data-properties.html
     \nextpage studio-live-preview.html
 
-    \title Working with States
+    \title Working with states
 
     You can define states for components and component instances in the
     \l States view by selecting \inlineimage icons/plus.png
@@ -51,13 +51,13 @@
 
     \youtube FzmLuRHQXaw
 
-    \section1 Setting the Default State
+    \section1 Setting the Default state
 
     The default state determines the startup state of the application.
 
     To set a state to the default state, select \uicontrol Default.
 
-    \section1 Applying States
+    \section1 Applying states
 
     To determine when a state is applied, select \inlineimage icons/edit.png
     in the \uicontrol {When Condition} field. In \uicontrol {Binding Editor},
@@ -87,7 +87,7 @@
 
     \include creator-logical-operators.qdocinc logical operators
 
-    \section2 Examples of when Conditions
+    \section2 Examples of when conditions
 
     To apply a state to a button when the button is pressed, you could simply
     write:
@@ -119,7 +119,7 @@
     \l{Logic Helpers}{logic helpers} from \uicontrol Components
     > \uicontrol {Qt Quick Studio Logic Helper}.
 
-    \section1 Using States
+    \section1 Using states
 
     To keep the code clean, you should create a base state that contains all
     the components you will need in the application. You can then create states,
@@ -160,7 +160,7 @@
 
     \image qmldesigner-screen-design.png "Designing views"
 
-    \section1 State Groups
+    \section1 State groups
 
     With state groups, you can change the state of certain components
     independently of other components and their states in the same view.
@@ -169,7 +169,7 @@
 
     By default, there is one default state group.
 
-    \section1 Extending States
+    \section1 Extending states
 
     When a state extends another state, it inherits all the changes of that
     state. The state being extended is treated as the base state in regards to

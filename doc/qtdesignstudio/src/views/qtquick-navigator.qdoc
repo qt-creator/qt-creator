@@ -40,7 +40,7 @@
     you can change the source of an Image component by selecting
     \uicontrol {Change Source URL} in the context menu.
 
-    \section1 Showing and Hiding Components
+    \section1 Showing and hiding components
 
     To show and hide components in the \uicontrol {2D} view when focusing on
     specific parts of the application, select \inlineimage icons/eye_open.png and
@@ -60,7 +60,7 @@
     To show and hide invisible components in \uicontrol Navigator, select
     \inlineimage {icons/visibilityon.png}.
 
-    \section1 Locking Components
+    \section1 Locking components
 
     When designing complex applications, it is easy to accidentally modify
     the properties of a component in one of the \QDS views in ways that lead to
@@ -80,7 +80,7 @@
     the \l {3D} view nor access their properties in
     \uicontrol Properties.
 
-    If you attempt to \l{Working with States}{remove a state} that changes the
+    If you attempt to \l{Working with states}{remove a state} that changes the
     properties of a locked component, you are prompted to confirm the removal.
 
     If you have \l{Editing Animation Curves}{added easing curves} to keyframe
@@ -89,7 +89,7 @@
     status is synchronized between \uicontrol Navigator and
     \uicontrol {Curves}.
 
-    \section1 Arranging Components
+    \section1 Arranging components
 
     You can view the order of components in a component file in \uicontrol Navigator
     and the \l {Code} view. The order of components in the file also
@@ -124,7 +124,7 @@
     whether you want to adjust their position or attach them to a new parent component.
     Therefore, the parent component is not automatically changed.
 
-    \section1 Adding Property Aliases
+    \section1 Adding property aliases
 
     A \e {property alias} is a property that you can use from outside the
     component. When you view the code in the \l {Code} view, a property alias
@@ -165,9 +165,9 @@
     \image qmldesigner-export-item.png
 
     You can then use the property alias in other components to
-    \l{Working with Connections}{create connections} to this component.
+    \l{Working with connections}{create connections} to this component.
 
-    \section1 Moving Within Components
+    \section1 Moving within components
 
     The files that specify components (\c ui.qml, \c .qml) can contain
     instances of other components specified in separate files. You can

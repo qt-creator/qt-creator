@@ -13,7 +13,7 @@
 
     Use wizards to create Qt Quick projects that have boiler-plate code. Change
     the code in the \uicontrol Edit mode or use a separate visual editor,
-    \l{Qt Design Studio Manual}{\QDS} to open and edit \l{UI Files}{UI files}
+    \l{Qt Design Studio documentation}{\QDS} to open and edit \l{UI files}
     (.ui.qml).
 
     Don't edit UI files in the \uicontrol Edit mode because it is easy
@@ -43,7 +43,7 @@
     {QML types}, see the Qt reference documentation available online and
     in the \uicontrol Help mode.
 
-    For more information about using \QMLD, see \l{Qt Design Studio Manual}.
+    For more information about using \QMLD, see \l{Qt Design Studio documentation}.
 
     \sa {Create Qt Quick Applications}, {Create Qt Quick UI Prototypes},
     {Enable and disable plugins}

@@ -6,7 +6,7 @@
     \previouspage studio-live-preview.html
     \nextpage creator-live-preview-devices.html
 
-    \title Previewing on Desktop
+    \title Previewing on desktop
 
     To preview the currently active QML file on the desktop:
 
@@ -30,7 +30,7 @@
     To preview the application in a different zoom level, right-click the \uicontrol {Live Preview}
     button and select the zoom level.
 
-    \section1 Overriding the Preview Tool
+    \section1 Overriding the preview tool
 
     By default, the QML runtime is used for previewing.
 
@@ -44,6 +44,6 @@
             the preview tool executable is located.
     \endlist
 
-    To preview the design on a device, see \l {Previewing on Devices}.
+    To preview the design on a device, see \l {Previewing on devices}.
 
 */

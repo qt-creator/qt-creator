@@ -6,7 +6,7 @@
     \previouspage qtquick-prototyping.html
     \nextpage studio-simulation-overview.html
 
-    \title Creating UI Logic
+    \title Creating UI logic
 
     Turn your wireframe into an interactive prototype by adding UI logic that
     enables your components to apply actions or react to mock data from backend
@@ -23,7 +23,7 @@
     components by emitting a signal that indicates a change in the value.
 
     To reference a property of a component from another component, you can
-    create \l{Adding Property Aliases}{property aliases} that hold a reference
+    create \l{Adding property aliases}{property aliases} that hold a reference
     to another property. Unlike an ordinary property definition, which
     allocates a new, unique storage space for the property, a property
     alias connects the newly declared property (called the
@@ -32,7 +32,7 @@
     exported as a public property of the relevant component. For example,
     a speedometer should have a property for speed to which the UI is bound.
 
-    You can declare various \l{Working with States}{UI states} that describe how
+    You can declare various \l{Working with states}{UI states} that describe how
     property values change from a base state. States can be a useful way of
     organizing your UI logic. You can associate transitions with components
     to define how their properties will animate when they change due to a
@@ -50,7 +50,7 @@
     component types. This reduces the loading and compilation time as well as
     the package size of the final application.
 
-    The preset \l{UI Controls}{UI controls} have default properties and states
+    The preset \l{UI controls} have default properties and states
     that you can modify. If you need additional properties, you can turn
     instances of the controls into custom components and specify new properties
     for them.
@@ -81,34 +81,34 @@
         \li Go to
     \row
         \li Responding to application events
-        \li \l{Connecting Components to Signals}
+        \li \l{Connecting components to signals}
     \row
         \li Formatting connections
-        \li \l{Actions and Conditions}
+        \li \l{Actions and conditions}
     \row
         \li Dynamically changing the behavior of a component
-        \li \l{Adding Bindings Between Properties}
+        \li \l{Adding bindings between properties}
     \row
         \li Formatting property bindings
-        \li \l{Setting Bindings}
+        \li \l{Setting bindings}
     \row
         \li Referencing a property of a component from another component
-        \li \l{Adding Property Aliases}
+        \li \l{Adding property aliases}
     \row
         \li Referencing a state from within a specific component
-        \li \l{Working with States}
+        \li \l{Working with states}
     \row
         \li Switching to a state when a particular property changes
-        \li \l{Applying States}
+        \li \l{Applying states}
     \row
         \li Using preset UI controls that have default properties and states
-        \li \l{UI Controls}
+        \li \l{UI controls}
     \row
         \li Creating conditional conditions
         \li \l{Logic Helpers}
     \row
         \li Adding custom properties for a particular component type
-        \li \l{Specifying Custom Properties}
+        \li \l{Specifying custom properties}
     \omit
     \row
         \li Adding properties for controlling states

@@ -6,7 +6,7 @@
     \previouspage quick-controls.html
     \nextpage quick-2d-effects.html
 
-    \title Lists and Other Data Models
+    \title Lists and other data models
 
     Applications typically need to handle and display data that is organized
     into list or grid views. Models, views, and delegates are used for
@@ -28,7 +28,7 @@
 
     For more information, see \l{Models and Views in Qt Quick}.
 
-    \section1 List and Grid Views
+    \section1 List Views and Grid Views
 
     Create instances of \uicontrol {List View} and \uicontrol {Grid View}
     components to organize other component instances in list or grid format.
@@ -95,7 +95,7 @@
     to realize that setting a cache will only postpone issues caused by
     slow-loading delegates, it is not a solution to this problem.
 
-    \section1 View Highlight
+    \section1 View highlight
 
     In the \uicontrol {List View Highlight} and \uicontrol {Grid View Highlight}
     sections, you can specify properties for highlighting items in views.
@@ -130,7 +130,7 @@
     \uicontrol {Resize duration}, and \uicontrol {Resize velocity} fields
     control the speed of the move and resize animations for the highlight.
 
-    \section1 Editing List Models
+    \section1 Editing list models
 
     When you add a \l{GridView}{Grid View}, \l{ListView}{List View}, or
     \l{PathView}{Path View}, the ListModel and the delegate component that
@@ -165,7 +165,7 @@
     \include qtquick-pathview-editor.qdocinc pathview
     \include qtquick-pathview-editor.qdocinc svgpath
 
-    \section1 Summary of Model Components
+    \section1 Summary of the model components
 
     The following table lists the components that you can use to add data models
     to UIs. The \e Location column indicates the location of the component in

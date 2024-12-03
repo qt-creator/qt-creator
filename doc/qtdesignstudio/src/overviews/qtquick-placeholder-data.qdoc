@@ -6,7 +6,7 @@
     \previouspage studio-simulation-overview.html
     \nextpage studio-javascript.html
 
-    \title Loading Placeholder Data
+    \title Loading placeholder data
 
     \QDS supports views, models, and delegates, so that when you add
     a Grid View, List View, or Path View component, the ListModel and
@@ -18,7 +18,7 @@
     or in other component files. A typical example is a component that uses the
     properties of its parent, such as \c parent.width.
 
-    \section1 Using Dummy Models
+    \section1 Using dummy models
 
     If you open a file in the \l {2D} view that references a C++ model, you see
     nothing in it. If the data in the model is fetched from the
@@ -64,7 +64,7 @@
         }
     \endqml
 
-    \section1 Creating Dummy Context
+    \section1 Creating dummy context
 
     The following example presents a common pattern:
 

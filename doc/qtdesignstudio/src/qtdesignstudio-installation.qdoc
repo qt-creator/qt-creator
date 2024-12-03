@@ -14,7 +14,7 @@
     get \QDS using the Qt Edu license.
 
     \QDS is available on several operating systems. For more information, see
-    \l{Supported Platforms}.
+    \l{Supported platforms}.
 
     \section1 Using \QOI
 
@@ -56,5 +56,6 @@
     \section1 Using Qt Edu license
 
     Students and teachers can get a licensing package for learning purposes.
-    To apply for the educational license and install \QDS, see \l {Qt Edu for Designers}.
+    To apply for the educational license and install \QDS, see
+     \l {Qt Edu for Designers}{Qt Edu for designers}.
 */

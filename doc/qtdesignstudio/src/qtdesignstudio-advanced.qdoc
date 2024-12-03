@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,7 +6,7 @@
     \page studio-advanced.html
     \nextpage creator-quick-ui-forms.html
 
-    \title Advanced Designer Topics
+    \title Advanced designer topics
 
     \table
         \row
@@ -18,12 +18,12 @@
 
     \list
 
-        \li \l{UI Files}
+        \li \l{UI files}
 
             Some of the wizard templates create projects that contain UI files.
             You should always edit UI files in the \l {2D}
             and \l Properties view, to avoid breaking the code.
-        \li \l{Managing Data Collection}
+        \li \l{Managing data collection}
 
             You can enable \QDS to report crashes automatically. If you enable
             the telemetry plugin, you can turn on the pseudonymous user
@@ -31,7 +31,7 @@
             and transmitted to the backend storage. You can also modify
             settings for collecting user feedback.
 
-        \li \l{Packaging Applications}
+        \li \l{Packaging applications}
 
             When you are ready to deliver your application to users or upload
             it to app stores, you can use \QDS to create suitable packages that

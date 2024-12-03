@@ -10,9 +10,9 @@
             \list
                 \li \l{Installing \QDS}
                 \li \l{Tutorials}
-                \li \l{User Interface}
+                \li \l{User interface}
                     \list
-                        \li \l{Design Views}
+                        \li \l{Design views}
                             \list
                                 \li \l{2D}
                                 \li \l{3D}
@@ -40,44 +40,44 @@
                                 \li \l{Transitions}
                                 \li \l{Translations}
                            \endlist
-                        \li \l{Managing Workspaces}
+                        \li \l{Managing workspaces}
                         \li \l{Manage sessions}
-                        \li \l{Keyboard Shortcuts}
+                        \li \l{Keyboard shortcuts}
                     \endlist
-                \li \l{Creating Projects}
-                \li \l{Use Cases}
-                \li \l{Concepts and Terms}
-                \li \l{Best Practices}
+                \li \l{Creating projects}
+                \li \l{Use cases}
+                \li \l{Concepts and terms}
+                \li \l{Best practices}
                 \li \l{Examples}
             \endlist
         \li \l{Wireframing}
             \list
-                \li \l {Using Components}
+                \li \l {Using components}
                     \list
-                        \li \l{Preset Components}
+                        \li \l{Preset components}
                             \list
                                 \li \l{Shapes}
                                 \li \l{Text}
                                 \li \l{Images}
-                                \li \l{User Interaction Methods}
-                                \li \l{UI Controls}
-                                \li \l{Lists and Other Data Models}
-                                \li \l{2D Effects}
+                                \li \l{User interaction methods}
+                                \li \l{UI controls}
+                                \li \l{Lists and other data models}
+                                \li \l{2D effects}
                                 \li \l{Design Effects}
-                                \li \l{Logic Helpers}
+                                \li \l{Logic helpers}
                                 \li \l{Animations}
                                 \li \l{3D Views}
                                 \li \l{Node}
                                 \li \l{Group}
-                                \li \l{Instanced Rendering}
-                                \li \l{Skeletal Animation}
-                                \li \l{3D Models}
-                                \li \l{Materials and Shaders}
+                                \li \l{Instanced rendering}
+                                \li \l{Skeletal animation}
+                                \li \l{3D models}
+                                \li \l{Materials and shaders}
                                 \li \l{Textures}
-                                \li \l{3D Materials}
-                                \li \l{3D Effects}
-                                \li \l{Custom Shaders}
-                                \li \l{Custom Effects and Materials in Qt 5}
+                                \li \l{3D materials}
+                                \li \l{3D effects}
+                                \li \l{Custom shaders}
+                                \li \l{Custom effects and materials in Qt 5}
                                 \li \l{Lights}
                                 \li \l{Cameras}
                                 \li \l{Scene Environments}
@@ -87,157 +87,158 @@
                                 \li \l{Particles}
                                         \list
                                             \li \l {Particle System}
-                                            \li \l {Logical Particles}
-                                            \li \l {Particle Emitters}
-                                            \li \l {Particle Affectors}
-                                            \li \l {Particle Directions}
+                                            \li \l {Logical particles}
+                                            \li \l {Particle emitters}
+                                            \li \l {Particle affectors}
+                                            \li \l {Particle directions}
                                         \endlist
                             \endlist
-                        \li \l {Creating Component Instances}
-                        \li \l {Creating Custom Components}
+                        \li \l {Creating component instances}
+                        \li \l {Creating custom components}
                             \list
-                                \li \l{Creating Buttons}
-                                \li \l{Creating Scalable Buttons and Borders}
+                                \li \l{Creating buttons}
+                                \li \l{Creating scalable buttons and borders}
                             \endlist
                     \endlist
-                \li \l{Specifying Component Properties}
-                \li \l{Scalable Layouts}
-                \li \l{Annotating Designs}
+                \li \l{Specifying component properties}
+                \li \l{Scalable layouts}
+                \li \l{Annotating designs}
             \endlist
         \li \l{Prototyping}
             \list
-                \li \l{Creating UI Logic}
+                \li \l{Creating UI logic}
                 \li \l{Effects}
-                \li \l{Simulating Complex Experiences}
+                \li \l{Simulating complex experiences}
                     \list
-                        \li \l{Loading Placeholder Data}
-                        \li \l{Simulating Application Logic}
-                        \li \l{Simulating Dynamic Systems}
-                        \li \l{Using QML Modules with Plugins}
+                        \li \l{Loading placeholder data}
+                        \li \l{Simulating application logic}
+                        \li \l{Simulating dynamic systems}
+                        \li \l{Using QML modules with plugins}
                     \endlist
-                \li \l{Dynamic Behaviors}
+                \li \l{Dynamic behaviors}
                     \list
-                        \li \l{Working with Connections}
+                        \li \l{Working with connections}
                             \list
-                                \li\l{Connecting Components to Signals}
-                                \li\l{Adding Bindings Between Properties}
-                                \li\l{Specifying Custom Properties}
+                                \li\l{Connecting components to signals}
+                                \li\l{Adding bindings between properties}
+                                \li\l{Specifying custom properties}
                             \endlist
-                        \li \l{Working with States}
+                        \li \l{Working with states}
                     \endlist
-                \li \l{Validating with Target Hardware}
+                \li \l{Validating with target hardware}
                     \list
-                        \li \l{Previewing on Desktop}
-                        \li \l{Previewing on Devices}
-                        \li \l{Sharing Applications Online}
+                        \li \l{Previewing on desktop}
+                        \li \l{Previewing on devices}
+                        \li \l{Sharing applications online}
                           \list
-                            \li \l{Creating a Single Page Navigation Web Application}
+                            \li \l{Creating a single page navigation web application}
                           \endlist
-                        \li \l {Viewing Applications on Android}
+                        \li \l {Viewing applications on Android}
                     \endlist
-                \li \l {Asset Creation with Other Tools}
+                \li \l {Asset creation with other tools}
                     \list
-                        \li \l{Exporting from Design Tools}
+                        \li \l{Exporting from design tools}
                         \list
-                            \li \l{Exporting Designs from Adobe Illustrator}
-                            \li \l{Exporting Designs from Adobe Photoshop}
+                            \li \l{Exporting designs from Adobe Illustrator}
+                            \li \l{Exporting designs from Adobe Photoshop}
                                 \list
-                                    \li \l{Setting Up Qt Bridge for Adobe Photoshop}
+                                    \li \l{Setting up Qt Bridge for Adobe Photoshop}
                                     \li \l{Using Qt Bridge for Adobe Photoshop}
                                 \endlist
-                            \li \l{Exporting Designs from Adobe XD}
+                            \li \l{Exporting designs from Adobe XD}
                                 \list
-                                    \li \l{Setting Up Qt Bridge for Adobe XD}
+                                    \li \l{Setting up Qt Bridge for Adobe XD}
                                     \li \l{Using Qt Bridge for Adobe XD}
                                 \endlist
-                            \li \l{Exporting Designs from Sketch}
+                            \li \l{Exporting designs from Sketch}
                                 \list
-                                    \li \l{Setting Up Qt Bridge for Sketch}
-                                    \li \l{Using Qt Bridge for Sketch}
+                                    \li \l{Setting up \QBSK}
+                                    \li \l{Using \QBSK}
                                 \endlist
-                            \li \l{Exporting Designs from Figma}
+                            \li \l{Exporting designs from Figma}
                                 \list
-                                    \li \l{Setting Up Qt Bridge for Figma}
+                                    \li \l{Setting up Qt Bridge for Figma}
                                     \li \l{Using Qt Bridge for Figma}
-                                    \li \l{Using Figma Quick Control Template Components in Qt Design Studio}
+                                    \li \l{Using the Figma Quick Control Template components in \QDS}
                                 \endlist
                         \endlist
-                        \li \l {Exporting 3D Assets}
+                        \li \l {Exporting 3D assets}
                             \list
                                 \li \l{Exporting from Blender}
                                 \li \l{Exporting from Maya}
                                 \li \l{Exporting from Qt 3D Studio}
                             \endlist
-                        \li \l{Importing Designs}
+                        \li \l{Importing designs}
                             \list
-                                \li \l{Importing 2D Assets}
+                                \li \l{Importing 2D assets}
                                     \list
-                                        \li \l{Using Custom Fonts}
+                                        \li \l{Using custom fonts}
                                     \endlist
-                                \li \l{Importing 3D Assets}
+                                \li \l{Importing 3D assets}
                             \endlist
-                        \li \l{Exporting Components}
-                        \li \l{Sharing Assets}
+                        \li \l{Exporting components}
+                        \li \l{Using the Qt Quick Effect Maker effects}
+                        \li \l{Sharing assets}
                     \endlist
             \endlist
         \li \l{Motion Design}
             \list
-                \li \l{Introduction to Animation Techniques}
-                \li \l{Creating Timeline Animations}
-                \li \l{Editing Easing Curves}
-                \li \l{Production Quality}
-                \li \l{Optimizing Designs}
+                \li \l{Introduction to animation techniques}
+                \li \l{Creating timeline animations}
+                \li \l{Editing easing curves}
+                \li \l{Production quality}
+                \li \l{Optimizing designs}
                     \list
-                        \li \l{Creating Optimized 3D Scenes}
+                        \li \l{Creating optimized 3D scenes}
                     \endlist
             \endlist
-        \li \l{Implementing Applications}
+        \li \l{Implementing applications}
             \list
-                \li \l{Designer-Developer Workflow}
-                \li \l{Debugging and Profiling}
+                \li \l{Designer-developer workflow}
+                \li \l{Debugging and profiling}
                     \list
-                        \li \l{Debugging Qt Quick Projects}
+                        \li \l{Debugging Qt Quick projects}
                             \list
-                                \li \l{Viewing Call Stack Trace}
-                                \li \l{Setting Breakpoints}
-                                \li \l{Local Variables and Function Parameters}
-                                \li \l{Evaluating Expressions}
+                                \li \l{Viewing call stack trace}
+                                \li \l{Setting breakpoints}
+                                \li \l{Local variables and function parameters}
+                                \li \l{Evaluating expressions}
                             \endlist
-                        \li \l{Debugging a Qt Quick Application}
-                        \li \l{Profiling QML Applications}
+                        \li \l{Debugging a Qt Quick application}
+                        \li \l{Profiling QML applications}
                             \list
                                 \li \l{Profile QML applications}
                             \endlist
                     \endlist
             \endlist
-        \li \l{Advanced Designer Topics}
+        \li \l{Advanced designer topics}
             \list
                 \omit
                 \li Extending Component Functionality
                 \endomit
-                \li \l{UI Files}
-                \li \l{Managing Data Collection}
+                \li \l{UI files}
+                \li \l{Managing data collection}
                     \list
-                        \li \l {Collecting Usage Statistics}
-                        \li \l {Collecting User Feedback}
-                        \li \l {Reporting Crashes}
+                        \li \l {Collecting usage statistics}
+                        \li \l {Collecting user feedback}
+                        \li \l {Reporting crashes}
                     \endlist
-                \li \l {Packaging Applications}
+                \li \l {Packaging applications}
             \endlist
-        \li \l{Developer Topics}
+        \li \l{Developer topics}
             \list
-                \li \l{Finding the Qt Runtime Version}
+                \li \l{Finding the Qt runtime version}
                 \li \l{Using Git}
                 \li \l{Use external tools}
                 \li \l{Accessing output, issue, and warning messages}
                 \li \l{\QDS on MCUs}
                     \list
-                        \li \l {\QMCU Framework}
-                        \li \l {\QDS Version Compatibility with \QMCU SDKs}
-                        \li \l {\QDS Features on MCU Projects}
-                        \li \l {Creating Projects for MCUs}
+                        \li \l {\QMCU framework}
+                        \li \l {\QDS version compatibility with \QMCU SDKs}
+                        \li \l {\QDS features on MCU projects}
+                        \li \l {Creating projects for MCUs}
                         \li \l {Creating UIs for MCUs}
-                        \li \l {Developing Applications for MCUs}
+                        \li \l {Developing applications for MCUs}
                         \li \l {Connecting MCUs with Qt Creator}
                     \endlist
             \endlist
@@ -254,10 +255,10 @@
                         \li \l {Search from documentation}
                         \li \l {Select the help start page}
                     \endlist
-                \li \l{Supported Platforms}
+                \li \l{Supported platforms}
             \endlist
-        \li \l{Technical Support}
-        \li \l{Licenses and Acknowledgments}
-        \li \l{What's New}
+        \li \l{Technical support}
+        \li \l{Licenses and acknowledgments}{Licenses and acknowledgments}
+        \li \l{What's new}
     \endlist
 */

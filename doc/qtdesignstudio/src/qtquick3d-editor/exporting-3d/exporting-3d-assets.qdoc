@@ -7,7 +7,7 @@
     \previouspage qtbridge-figma-template.html
     \nextpage exporting-from-blender.html
 
-    \title Exporting 3D Assets
+    \title Exporting 3D assets
 
     You can import files you created using 3D graphics applications and exported
     to several widely-used formats, such as .blend, .dae, .fbx, .glb, .gltf,
@@ -40,7 +40,7 @@
     basic geometry, you mostly need to pay attention to pivot points and
     transformation.
 
-    \section2 Pivot Points
+    \section2 Pivot points
 
     In \QDS, there is only one pivot per component. It is used as the origin
     for scaling and rotation. Adjust the position of a 3D model's pivot as
@@ -79,7 +79,7 @@
     imported. \QDS also supports importing bezier tangent value tweaked into
     animations.
 
-    \section2 Time-based Animations
+    \section2 Time-based animations
 
     In many 3D modeling tools, when you create keyframes you associate them with
     frame numbers. This is great in the film industry where frame rates are
@@ -104,7 +104,7 @@
     In \QDS, you can specify the duration of the animation in addition to its
     start and end frame.
 
-    \section2 Deform Animations
+    \section2 Deform animations
 
     \e {Deform animations}, such as lattice and bend, are not supported by \QDS.
     However, you can work around this limitation by converting deform animations
@@ -112,7 +112,7 @@
     exporting the animations, you need to bake the actions in them into key
     frames.
 
-    \section2 Baking Actions for Animations
+    \section2 Baking actions for animations
 
     You need to bake actions to export animations that are using custom curves
     or object constraints to control the animation.
@@ -124,7 +124,7 @@
     \e Actions are data-blocks containing animation data. If you are exporting
     animations, you need to bake actions.
 
-    \section2 Animation Systems
+    \section2 Animation systems
 
     3D modeling tools offer highly complex and specialized animation systems.
     We recommend using the \QDS \uicontrol Timeline view whenever practical.
@@ -137,7 +137,7 @@
     extreme differences between the various animation systems are mitigated
     by the limitations imposed by the supported formats.
 
-    \section1 Materials and Textures
+    \section1 Materials and textures
 
     Create and assign material slots in the 3D graphics tool before you export
     3D graphics. If you add several material slots, the first one is assigned
@@ -169,7 +169,7 @@
     values are preserved. For perspective cameras, field of view values
     are also preserved.
 
-    \section1 Node Hierarchy
+    \section1 Node hierarchy
 
     \QDS supports importing hierarchical information. Hierarchies of arbitrary
     depth are supported, including grouped nodes. Hierarchical transforms are

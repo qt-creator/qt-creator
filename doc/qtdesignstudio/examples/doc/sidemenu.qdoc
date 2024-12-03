@@ -172,7 +172,7 @@
     dialog, we bind the states that don't have animations to fixed frames.
 
     For more information about using the timeline, see
-    \l {Creating Timeline Animations}.
+    \l {Creating timeline animations}.
 
     \section1 Connecting the burger menu to actions
 
@@ -192,8 +192,8 @@
 
     The side menu is fully visible and accepts input only in the \e open state.
 
-    For more information about Connecting Components to Signals, see
-    \l {Connecting Components to Signals}.
+    For more information about connecting components to signals, see
+    \l {Connecting components to signals}.
 
     \section1 Applying effects
 

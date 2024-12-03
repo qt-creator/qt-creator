@@ -13,10 +13,10 @@
 
     You can jump to the code from:
     \list
-        \li \uicontrol {Navigator} view
-        \li \uicontrol {2D} view
-        \li \uicontrol {States} view
-        \li \uicontrol {Connections} view
+        \li The \uicontrol {Navigator} view
+        \li The \uicontrol {2D} view
+        \li The \uicontrol {States} view
+        \li The \uicontrol {Connections} view
     \endlist
 
     \section1 Jump to the Code from the Navigator View
@@ -28,7 +28,7 @@
 
     \image jump-to-the-code-from-navigator-view.webp
 
-    \section1 Jump to the Code from the 2D View
+    \section1 Jump to the Code from the 2D view
 
     \list 1
         \li Right-click on a component in the \uicontrol {2D} view.
@@ -41,7 +41,7 @@
     or in the \uicontrol {2D} view and press \key {F4}. That takes you to the code
     location in the \uicontrol {Code} view.
 
-    \section1 Jump to the Code from the States View
+    \section1 Jump to the Code from the States view
 
     \list 1
         \li Locate the state you want to check in the \uicontrol {States} view.
@@ -52,7 +52,7 @@
 
     \image jump-to-the-code-from-state-view.webp
 
-    \section1 Jump to the Code from the Connections View
+    \section1 Jump to the Code from the Connections view
 
     \list 1
         \li Select a connection in the \uicontrol {Connections} view.

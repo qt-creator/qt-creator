@@ -8,7 +8,7 @@
     \page xdqtbridge.html
     \nextpage qtbridge-xd-setup.html
 
-    \title Exporting Designs from Adobe XD
+    \title Exporting designs from Adobe XD
 
     \note This is a \e {Technical Preview} release of the \QBXD. Some design
     elements might not be exported and imported into \QDS as expected.
@@ -22,7 +22,7 @@
 
     \list
 
-        \li \l{Setting Up Qt Bridge for Adobe XD}
+        \li \l{Setting up Qt Bridge for Adobe XD}
 
             You must install and set up the \QBXD export plugin before you can use
             it to export designs.

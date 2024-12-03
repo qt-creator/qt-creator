@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -9,7 +9,7 @@
     \title Images
     \target basic-image
 
-    The Image component is used for adding images to the UI in several supported
+    The \uicontrol Image component is used for adding images to the UI in several supported
     formats, including bitmap formats, such as PNG and JPEG, and vector graphics
     formats, such as SVG. To use any image files in your designs, you need to
     first add them to \l Assets:
@@ -39,7 +39,7 @@
     You can use the \l {Border Image} component to display an image,
     such as a PNG file, as a border and a background. For more
     information about using border images to create buttons, see
-    \l {Creating Scalable Buttons and Borders}.
+    \l {Creating scalable buttons and borders}.
 
     If you need to display animated images, such as GIFs, use the
     \l {Animated Image} component.
@@ -47,7 +47,7 @@
     \note Currently, the supported image formats include JPEG, JPG, PNG, SVG,
         HDR, KTX, BMP, TTF, TIFF, WEBP, and GIF.
 
-    \section1 Image Size
+    \section1 Image size
 
     \image qtquick-designer-image-properties.png "Image properties"
 
@@ -77,7 +77,7 @@
     Select the \uicontrol {Auto transform} check box if the image should
     automatically apply image transformation metadata, such as EXIF orientation.
 
-    \section1 Source Size
+    \section1 Source size
 
     The \uicontrol {Source size} property specifies the scaled width and height
     of the full-frame image. Unlike the value of the \uicontrol Size property,
@@ -110,7 +110,7 @@
     reloaded, potentially even from the network, if it is not in the disk cache.
     Select the \uicontrol Cache check box to cache the image.
 
-    \section1 Image Alignment
+    \section1 Image alignment
 
     You can align images horizontally and vertically in the
     \uicontrol {Alignment H} and \uicontrol {Alignment V}
@@ -138,8 +138,9 @@
 
     \section1 Border Image
 
-    The Border Image component extends the features of the Image component.
-    It is used to create borders out of images by scaling or tiling parts
+    The \uicontrol{Border Image} component extends the features of the
+    \uicontrol Image component. It is used to create borders out of images by
+    scaling or tiling parts
     of each image. A source image is broken into 9 regions that are scaled or
     tiled individually. The corner regions are not scaled at all, while the
     horizontal and vertical regions are scaled according to the values of the
@@ -164,7 +165,7 @@
 
     \section1 Animated Image
 
-    The Animated Image component extends the features of the Image component,
+    The \uicontrol {Animated Image} component extends the features of the Image component,
     providing a way to play animations stored as images containing a series of
     frames, such as those stored in GIF files.
 
@@ -192,11 +193,11 @@
 
     \section1 Iso Icon
 
-    \note The Iso Icon component is not available if you selected
+    \note The \uicontrol {Iso Icon} component is not available if you selected
     \uicontrol {Qt 6} when \l{Creating Projects}{creating the project}.
 
-    The Iso Icon component specifies an icon from an ISO 7000 icon library as a
-    \l [QtQuickExtras] {Picture} component. The icon to use for the type and
+    The \uicontrol {Iso Icon} component specifies an icon from an ISO 7000 icon
+    library as a \l [QtQuickExtras] {Picture} component. The icon to use for the type and
     its color can be specified.
 
     To select an icon in the \uicontrol {ISO Icon Browser} in \QDS, select
@@ -205,12 +206,12 @@
 
     \image studio-iso-icon.png
 
-    You can use the \l{Picking Colors}{color picker} in \l Properties to
+    You can use the \l{Picking colors}{color picker} in \l Properties to
     set the value of \uicontrol {Icon color}.
 
     \image iso-icon-browser.png
 
-    \section1 Summary of Images
+    \section1 Summary of the image components
 
     The following table lists the components that you can use to add images.
     The \e Location column contains the tab name where you can find the

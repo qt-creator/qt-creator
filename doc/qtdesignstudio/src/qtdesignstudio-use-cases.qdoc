@@ -6,7 +6,7 @@
     \previouspage studio-projects.html
     \nextpage studio-terms.html
 
-    \title Use Cases
+    \title Use cases
 
     The following table summarizes the main use cases of \QDS with links to
     more information:
@@ -39,7 +39,7 @@
         \row
             \li \l{Wireframing}
             \li \l{Prototyping}
-            \li \l{Asset Creation with Other Tools}
-            \li \l{Implementing Applications}
+            \li \l{Asset creation with other tools}
+            \li \l{Implementing applications}
     \endtable
 */

@@ -6,7 +6,7 @@
     \previouspage studio-skeletal-components.html
     \nextpage studio-3d-materials.html
 
-    \title 3D Models
+    \title 3D models
 
     The \l Components view features some built-in primitive 3D models. This allows
     you to add cubes, cones, cylinders, spheres, and planes (rectangles) to your scene.
@@ -15,7 +15,7 @@
 
     A model component loads mesh data from a file. You can modify how the
     component is shaded by using materials. For more information, see
-    \l {Materials and Shaders} and \l {Creating Custom Materials}.
+    \l {Materials and shaders} and \l {Creating custom materials}.
 
     To add a model component to your UI, do one of the following:
     \list
@@ -36,7 +36,7 @@
 
     \image studio-qtquick-3d-components.webp "The Qt Quick 3D section in Components"
 
-    \section1 Model Properties
+    \section1 Model properties
 
     You can change the model type in \uicontrol Properties > \uicontrol Model
     > \uicontrol Source field. Select the \inlineimage icons/plus.png
@@ -57,14 +57,14 @@
     material. Select the material from the list in the \uicontrol {Materials}
     field. Select the \inlineimage icons/plus.png
     button to add materials to the list. For more information about materials,
-    see \l {Materials and Shaders}.
+    see \l {Materials and shaders}.
 
     Specify a custom geometry for the model in the \uicontrol Geometry field.
     The \uicontrol Source field must be empty when custom geometry is used.
 
     Set the \uicontrol Instancing property to render a number of instances of
     the model as defined by an instancing table. The instancing tables can be
-    defined by using one of the \l{Instanced Rendering}{instancing components}
+    defined by using one of the \l{Instanced rendering}{instancing components}
     available in \uicontrol Components > \uicontrol {Qt Quick 3D}
     > {Qt Quick 3D}.
 
@@ -85,7 +85,7 @@
     Define the \uicontrol {Depth bias} property to ensure the shadows of your
     model are displayed correctly.
 
-    \section1 Tessellation Properties Available in Qt 5
+    \section1 Tessellation properties in Qt 5
 
     The properties discussed in this section are only available if you selected
     \uicontrol {Qt 5} as the \uicontrol {Target Qt Version} when creating the

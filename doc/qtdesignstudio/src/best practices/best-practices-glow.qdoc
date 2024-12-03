@@ -6,9 +6,9 @@
     \page best-practices-glow.html
     \nextpage {Examples}
 
-    \title Creating Glow and Bloom Effects
+    \title Creating the glow and the bloom effects
 
-    In \QDS, you can add a glow and bloom effect to your 3D scene using the
+    In \QDS, you can add a glow and a bloom effect to your 3D scene using the
     \uicontrol ExtendedSceneEnvironment component (available in Qt 6.5 and later). With this effect,
     you can, for example, create glow around illuminated areas (such as material or skyboxes when
     using image-based lighting) or add ambient light. Using the glow effect is one way to make your
@@ -16,12 +16,12 @@
 
     \image glow-example.webp
 
-    \section1 Creating a Project with ExtendedSceneEnvironment
+    \section1 Creating a project with ExtendedSceneEnvironment
 
     To create a project with \uicontrol ExtendedSceneEnvironment as the default
     scene environment, use the \uicontrol {3D Extended} project preset.
 
-    For more information about creating projects, see \l{Creating Projects}.
+    For more information about creating projects, see \l{Creating projects}.
 
     \section1 Adding ExtendedSceneEnvironment to an Existing Project
 
@@ -31,7 +31,7 @@
 
     \image ext-scene-env-navigator.webp
 
-    \section1 Enabling the Glow Effect
+    \section1 Enabling the Glow effect
 
     To enable the glow effect, select \e SceneEnvironment in the \uicontrol Navigator view and
     then, in the \uicontrol Properties view, select \uicontrol Enabled in the
@@ -42,7 +42,7 @@
     \note When setting up or experimenting with the glow effect, use the \l {Blend Modes}{Replace}
     blend mode to see the effect more clearly.
 
-    \section1 The Flashlight Example Project
+    \section1 The Flashlight Example project
 
     The flashlight example used in this documentation is available from the \uicontrol Examples
     section of the \QDS \uicontrol Welcome page.
@@ -54,7 +54,7 @@
 
     \image glow-example-project.webp
 
-    \section1 Basic Properties
+    \section1 Basic properties
 
     Usually, the best way to achieve a realistic glow effect in your 3D scene is to adjust
     the \uicontrol {Strength}, \uicontrol {Intensity}, and \uicontrol {Bloom}
@@ -131,7 +131,7 @@
         \li \image glow_all_blur_levels.webp
       \endtable
 
-    \section2 Blend Modes
+    \section2 Blend modes
 
     The following blend modes are available:
 
@@ -160,7 +160,7 @@
         \li \image glow-replace-blend.webp
     \endtable
 
-    \section1 Improvement Properties
+    \section1 Improvement properties
 
     The \uicontrol{High Quality} and \uicontrol{Bicubical Upsampling}
     properties improve the quality of the glow blur by upsampling. Using these properties

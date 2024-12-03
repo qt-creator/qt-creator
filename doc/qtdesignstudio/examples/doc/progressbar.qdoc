@@ -14,7 +14,7 @@
 
     \section1 Creating the progress bar
 
-    First, we create an empty project, as described in \l {Creating Projects}.
+    First, we create an empty project, as described in \l {Creating projects}.
     For the purposes of this example, we call the project \e progressbar.
 
     In this example, we use two overlapping instances of the preset
@@ -63,7 +63,7 @@
     in the \l Timeline view.
 
     For more information about using the timeline, see
-    \l {Creating Timeline Animations}.
+    \l {Creating timeline animations}.
 
     \section2 Adding color animation
 
@@ -201,7 +201,7 @@
     by specifying easing curves for them.
 
     For more information about previewing UIs, see
-    \l {Validating with Target Hardware}.
+    \l {Validating with target hardware}.
 
     \section1 Specifying easing curves
 

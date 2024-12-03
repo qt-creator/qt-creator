@@ -6,7 +6,7 @@
     \page studio-timeline.html
     \nextpage qtquick-editing-easing-curves.html
 
-    \title Creating Timeline Animations
+    \title Creating timeline animations
 
     You can create timelines and keyframe-based animations for linear
     interpolation through intermediate values at specified keyframes
@@ -15,7 +15,7 @@
     You can also bind the timeline to a property value of a component such as
     a slider and control the animation this way.
 
-    \section1 Creating an Animation
+    \section1 Creating an animation
 
     To create an animation, whether it's a keyframe animation or an animation
     bound to a property value, you first need to create a timeline.
@@ -72,7 +72,7 @@
     Now, with the settings set for the timeline and the animation, you
     set the keyframes for the properties to animate.
 
-    \section3 Creating Additional Timelines
+    \section3 Creating additional Timelines
 
     You can create more than one timeline. The purpose of several timelines is
     to use different timelines in different states.
@@ -95,7 +95,7 @@
 
     \image timeline-states.webp
 
-    \section2 Setting Keyframe Values
+    \section2 Setting keyframe values
 
     When you create a timeline, \QDS creates one animation for the timeline.
     You can create as many animations for a timeline as you want. For example,
@@ -129,7 +129,7 @@
             \uicontrol {Per Property Recording} again to stop recording.
     \endlist
 
-    \section2 Binding a Timeline to a Property
+    \section2 Binding a Timeline to a property
 
     When you bind a timeline to a component property, the animation's
     current frame is controlled by the value of the property.
@@ -158,7 +158,7 @@
         \image timeline-settings-property-binding.png
     \endlist
 
-    \section2 Binding Animations to States
+    \section2 Binding animations to states
 
     You can bind animations to states, this means that the animation will run
     when you enter the state.
@@ -178,11 +178,11 @@
     To bind a state to a certain keyframe in an animation without running the
     animation, set the keyframe in the \uicontrol{Fixed Frame} field.
 
-    \section1 Managing Keyframes
+    \section1 Managing keyframes
 
     \image studio-timeline-with-tracks.webp "Timeline view"
 
-    \section2 Editing Keyframes
+    \section2 Editing keyframes
 
     To remove all the changes you recorded for a property, right-click the
     property name on the timeline and select \uicontrol {Remove Property}.
@@ -193,10 +193,10 @@
 
     Keyframes are marked on the timeline by using markers
     of different colors and shapes, depending on whether they are active or
-    inactive or whether you have applied \l{Editing Easing Curves}
+    inactive or whether you have applied \l{Editing easing curves}
     {easing curves} to them.
 
-    \section2 Editing Keyframe Values
+    \section2 Editing keyframe values
 
     To fine-tune the value of a keyframe, double-click a keyframe marker or
     right-click it and select \uicontrol {Edit Keyframe} in the context menu.
@@ -207,7 +207,7 @@
 
     \image studio-edit-keyframe.png "Edit Keyframe dialog"
 
-    \section2 Copying Keyframes
+    \section2 Copying keyframes
 
     You can copy the keyframes from the keyframe track for a component and
     paste them to the keyframe track of another component.
@@ -220,7 +220,7 @@
       \uicontrol {Paste Keyframes} in the context menu.
     \endlist
 
-    \section2 Deleting Keyframes
+    \section2 Deleting keyframes
 
     To delete a keyframe, right-click it and select \uicontrol {Delete Keyframe}
     in the context menu.
@@ -229,7 +229,7 @@
     component name in \uicontrol {Timeline} and select
     \uicontrol {Delete All Keyframes} in the context menu.
 
-    \section1 Viewing the Animation
+    \section1 Viewing the animation
 
     To preview your animation, do one of the following in the
     \uicontrol{Timeline} view:
@@ -243,14 +243,14 @@
     \uicontrol {Live Preview} button on the top toolbar
     or press \key Alt + \key P.
 
-    \section1 Animating Rotation
+    \section1 Animating rotation
 
     To animate components that rotate around a central point, you can use the
     \l {basic-item}{Item} component as a parent for the rotating component. Then
     create a timeline for the Item, and set the rotation property for the start
     and end keyframes.
 
-    \section1 Animating Shapes
+    \section1 Animating shapes
 
     You can use the \uicontrol {Qt Quick Studio Components} to animate the
     following shapes:

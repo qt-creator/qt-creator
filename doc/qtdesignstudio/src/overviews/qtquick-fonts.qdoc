@@ -6,7 +6,7 @@
     \previouspage studio-importing-2d.html
     \nextpage studio-importing-3d.html
 
-    \title Using Custom Fonts
+    \title Using custom fonts
 
     For your UI to use custom fonts when you preview it on a device,
     you have to import the fonts to the project folder. \QDS deploys them to

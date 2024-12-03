@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,7 +6,7 @@
     \previouspage quick-design-effects.html
     \nextpage quick-animations.html
 
-    \title Logic Helpers
+    \title Logic helpers
 
     To have your UI perform certain operations, you might need to write
     JavaScript expressions for conditions or convert numbers to strings.
@@ -31,7 +31,7 @@
     The following sections describe the different types of logic helpers in more
     detail.
 
-    \section1 Boolean Helpers
+    \section1 Boolean helpers
 
     You can use logic helpers to bind property values using the boolean AND, OR,
     and NOT operators.
@@ -64,7 +64,7 @@
 
     \image studio-logic-helper-and-checkbox3.png "Binding Checked property to Output property."
 
-    When we \l{Previewing on Desktop}{preview} our UI, all the check boxes are
+    When we \l{Previewing on desktop}{preview} our UI, all the check boxes are
     initially unchecked. However, when we select the first and second check box,
     the third one also becomes checked.
 
@@ -102,7 +102,7 @@
 
     \image studio-logic-helper-not-operator.gif "Previewing two check boxes bound with a NOT operator"
 
-    \section1 Bi-directional Binding
+    \section1 Bi-Directional Binding
 
     The \uicontrol {Bi Direct. Binding} component binds the values of two
     controls together, so that when one value is changed, the other one
@@ -133,7 +133,7 @@
     \section1 String Mapper
 
     The \uicontrol {String Mapper} component maps numbers to strings. First, you
-    \l{Adding Bindings Between Properties}{add a binding} between the string
+    \l{Adding bindings between properties}{add a binding} between the string
     mapper \c input property and the \c value property of the control that you
     want to fetch the values from. Then, you add a binding between the \c text
     property of the string mapper and that of the component that will display
@@ -234,7 +234,7 @@
 
     \image studio-logic-helper-range-mapper.gif "Previewing a range mapper"
 
-    \section1 Combining Several Logic Helpers
+    \section1 Combining several logic helpers
 
     You can combine several logic helpers of the same type or different types to
     define the application logic.
@@ -291,7 +291,7 @@
 
     We can now evaluate values of the \uicontrol {Min Max Mapper}
     and \uicontrol {And Operator} components to apply different
-    \l{Applying States}{states} that display different button text
+    \l{Applying states}{states} that display different button text
     and sell hints. For this purpose, we create the states and set
     \c when conditions for them.
 
@@ -330,7 +330,7 @@
     \youtube
     \endomit
 
-    \section1 Summary of Logic Helpers
+    \section1 Summary of the logic helper components
 
     The following table summarizes the available logic helpers.
 

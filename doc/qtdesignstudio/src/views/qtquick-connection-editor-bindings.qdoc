@@ -6,7 +6,7 @@
     \previouspage quick-signals.html
     \nextpage quick-dynamic-properties.html
 
-    \title Adding Bindings Between Properties
+    \title Adding bindings between properties
 
     To dynamically change the behavior of a component, you can create a
     \e binding between the properties of two components. To create a property
@@ -27,7 +27,7 @@
 
     \image qmldesigner-bindings.webp
 
-    \section1 Creating Bindings Between Component Properties
+    \section1 Creating bindings between component properties
 
     To bind a property of a component to the property of another component:
 
@@ -63,13 +63,13 @@
     \endlist
 
     All the \uicontrol Bindings connections have automated JavaScript expression in the
-    \uicontrol {Code view}. For more information, see \l{Setting Bindings}.
+    \uicontrol {Code view}. For more information, see \l{Setting bindings}.
 
     For examples of creating property bindings, see:
 
     \list
-        \li \l{Using States to Change Component Property Values}
-        \li \l{Exporting Properties}
+        \li \l{Using states to change component property values}
+        \li \l{Exporting properties}
     \endlist
 
     \include creator-logical-operators.qdocinc logical operators

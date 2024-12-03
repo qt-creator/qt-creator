@@ -6,7 +6,7 @@
     \previouspage studio-model-editor.html
     \nextpage creator-project-managing-sessions.html
 
-    \title Managing Workspaces
+    \title Managing workspaces
 
     In the \uicontrol Design mode, you can arrange a set of \QDS
     views as a \e workspace on the screen.
@@ -38,7 +38,7 @@
         to \inlineimage icons/lockon.png
         at the top toolbar.
 
-    \section1 Saving Workspaces
+    \section1 Saving workspaces
 
     The changes you make to a workspace are saved when you exit \QDS.
     Select \uicontrol View > \uicontrol Workspaces >

@@ -8,7 +8,7 @@
 
     \title Using \QBXD
 
-    \section1 Organizing Assets
+    \section1 Organizing assets
 
     To get the best results when you use \QBXD to export designs from Adobe XD
     to \QDS, follow these guidelines when working with Adobe XD:
@@ -26,10 +26,10 @@
 
     To use the fonts that you use in Adobe XD also in \QDS, you need to import
     them to \QDS as assets. \QDS deploys them to devices when you preview the
-    UI. For more information, see \l{Using Custom Fonts}.
+    UI. For more information, see \l{Using custom fonts}.
 
 
-    \section2 Supported Design Elements
+    \section2 Supported design elements
 
     You can export the following parts of your design using \QBXD:
     \list
@@ -51,7 +51,7 @@
     for XD Components is limited. This might change in the future and \QBXD might
     extend the XD Component support.
 
-    \section2 Using Artboards
+    \section2 Using artboards
 
     The hierarchical relationships between artboards and layers are preserved
     when you export designs from Adobe XD and import them into \QDS. The
@@ -62,7 +62,7 @@
     be imported as a separate file that contains the artwork and text on the
     artboard.
 
-    \section2 Annotate Layers for Export
+    \section2 Annotate layers for export
 
     With \QBXD, layers can be annotated to hint how each layer or group must be
     exported. The \uicontrol {Home} panel displays and allows layer annotation for
@@ -135,7 +135,7 @@
             }
             \endcode
             \note The code must have a scope of a component (such as Item, MouseArea, Connections)
-            with a valid syntax for \l {UI Files}.
+            with a valid syntax for \l {UI files}.
             \note Add respective imports for your snippet in \uicontrol Imports.
         \li Select the \uicontrol Clip check box to enable clipping in the
             component generated from the layer. The generated component will clip
@@ -153,7 +153,7 @@
     \uicontrol {Render Text} is selected.
 
 
-    \section2 Export Defaults
+    \section2 Export defaults
 
     \QBXD assigns the following defaults to the layers:
 
@@ -171,9 +171,9 @@
     might take a little while depending on the complexity of your project.
 
     You can now create a project in \QDS and import the assets to it, as
-    described in \l {Creating Projects} and \l{Importing Designs}.
+    described in \l {Creating projects} and \l{Importing designs}.
 
-    \section1 \QBXD Settings
+    \section1 \QBXD settings
 
     To edit export settings:
 
@@ -205,7 +205,7 @@
         \endlist
     \endlist
 
-    \section1 Suggestions and Tips
+    \section1 Suggestions and tips
 
     \list
         \li You can export assets with the default settings and later adjust these in \QDS.

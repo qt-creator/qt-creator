@@ -11,7 +11,7 @@
     Use the following guidelines to achieve the best results when converting
     projects from \Q3DS to \QDS.
 
-    \section1 Best Practices
+    \section1 Best practices
 
     \list
     \li If something in UI is clearly 2D, do not import it from \Q3DS
@@ -32,9 +32,9 @@
         sure they work correctly.
     \endlist
 
-    \section1 Importing Assets
+    \section1 Importing assets
 
-    \section2 Custom Materials
+    \section2 Custom materials
     Custom materials (\e something.shader files in \Q3DS) are not imported
     correctly and have to be fixed manually:
     \list
@@ -58,7 +58,7 @@
         project needs to be run for them to appear.
     \endlist
 
-    \section2 Standard Materials
+    \section2 Standard materials
     Some properties of standard materials may not be imported correctly:
     \list
     \li The sensible value ranges of some properties may have changed between
@@ -103,13 +103,13 @@
         \image exporting-from-qt3ds/04-project-size.png "Select the screen resolution for the project"
 
     \li Your new project has now been created. For more information on
-        creating projects in \QDS, see \l {Creating Projects}.
+        creating projects in \QDS, see \l {Creating projects}.
         For more information on how to get started with \QDS, see
         \l {Getting Started}.
         \image exporting-from-qt3ds/05-new-project-created.png "New project in Qt Design Studio"
         \endlist
 
-    \section2 Getting Started with MyOwnCluster
+    \section2 Getting started with MyOwnCluster
 
     \list 1
     \li Return to your project in \Q3DS to check the size of the presentation.
@@ -135,7 +135,7 @@
         \image exporting-from-qt3ds/08-delete-placeholders.png "Delete placeholders in Navigator"
         \endlist
 
-    \section2 Importing Assets
+    \section2 Importing assets
     \list 1
     \li Select \uicontrol Assets > \inlineimage icons/plus.png
         .
@@ -163,7 +163,7 @@
         \image exporting-from-qt3ds/14-add-myowncluster-to-project.png "MyOwnCluster in Components"
     \endlist
 
-    \section2 Adding Components to the Project
+    \section2 Adding components to the project
 
     \list 1
     \li Drag \uicontrol MyOwnCluster from \uicontrol {My Quick3D Components}
@@ -189,7 +189,7 @@
         \image exporting-from-qt3ds/19-see-form-editor.png "Project in the 2D view"
     \endlist
 
-    \section2 Converting 3D Elements
+    \section2 Converting 3D elements
 
     \list 1
     \li Drag subpresentation_ADAS from \uicontrol Components
@@ -213,7 +213,7 @@
 
     \li Recreate animations in subpresentation_ADAS according to the original
         project. For more information on creating animations in \QDS, see
-        \l {Creating Timeline Animations}.
+        \l {Creating timeline animations}.
         \image exporting-from-qt3ds/24-recreate-animations.png "Recreate animations"
 
     \li Go to the \uicontrol Timeline View to review the timeline for the
@@ -221,7 +221,7 @@
         \image exporting-from-qt3ds/25-adas-timeline.png "ADAS timeline view"
     \endlist
 
-    \section2 Converting 2D Elements
+    \section2 Converting 2D elements
 
     \list 1
     \li Recreate the 2D elements of the original project (in all layers) using
@@ -250,7 +250,7 @@
         3D elements.
     \endlist
 
-    \section2 Converting QML Streams
+    \section2 Converting QML streams
 
     \list 1
     \li Find QML stream files in file explorer.
@@ -285,7 +285,7 @@
         \image exporting-from-qt3ds/37-recreate-keyframes.png "Recreate keyframes"
     \endlist
 
-    \section2 Cleaning Up the Project Structure
+    \section2 Cleaning up the project structure
 
     \list 1
     \li Go to file explorer and clean up the project structure deleting

@@ -53,7 +53,7 @@
     To try it yourself, follow the \l{Login UI: Timeline} tutorial.
 
     For more information about creating timeline animations, see
-    \l{Creating Timeline Animations}.
+    \l{Creating timeline animations}.
 
     \section1 Navigating in Timeline
 
@@ -82,7 +82,7 @@
     and \inlineimage icons/zoom_big.png
     buttons to zoom out of or into the view.
 
-    \section1 Setting Keyframe Track Color
+    \section1 Setting the keyframe track color
 
     To change the color of a keyframe track, select \uicontrol {Override Color}
     in the context menu, and then select a color in the \l{Picking Colors}

@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -8,13 +8,13 @@
     \nextpage qt-ui-viewer.html
 
 
-    \title Creating a Single Page Navigation Web Application
+    \title Creating a single page navigation web application
 
     This example explains how you can create a single page navigation web
     application suitable to run in Qt Design Viewer. In this project,
     you create the structure and navigation for the web application.
 
-    \section1 Setting up the Project
+    \section1 Setting up the project
 
     To set up the project:
     \list 1
@@ -33,7 +33,7 @@
         \endlist
     \endlist
 
-    \section1 Adding Components
+    \section1 Adding components
 
     Next, add the needed components to create the structure for your web
     application.
@@ -70,7 +70,7 @@
 
     \image web-navigation-components.png
 
-    \section1 Creating the Pages
+    \section1 Creating the pages
 
     Next, create the separate pages for your web application. In this example,
     you create pages for \e Home, \e {About Us}, and \e {Contact Us}.
@@ -132,7 +132,7 @@ You can see the pages you created under \uicontrol {My Components} in the
 
 \image web-navigation-page-components.png
 
-\section1 Organizing the Pages
+\section1 Organizing the pages
 
 To organize the pages vertically:
 
@@ -194,7 +194,7 @@ main rectangle so that it adapts to the window size:
   \c {Window.height}.
 \endlist
 
-\section1 Creating the Navigation
+\section1 Creating the navigation
 
 The final step is to create the navigation for the web page. To do this, use the buttons
 that you created earlier.

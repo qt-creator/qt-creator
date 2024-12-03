@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,12 +6,12 @@
     \previouspage studio-3d-loader-3d.html
     \nextpage quick-components-creating.html
 
-    \title Creating Component Instances
+    \title Creating component instances
 
     \QDS comes with \e {preset components} that you can use in your UI by
     creating instances of them.
 
-    \image qmldesigner-editing-components.webp "Creating Component Instances"
+    \image qmldesigner-editing-components.webp "Creating component instances"
 
     To create component instances and edit their properties:
 
@@ -29,23 +29,23 @@
             custom properties on the \uicontrol {Properties} tab in the
             \l {Connections} view.
             \image add-updated-local-custom-property.webp "Connections View Properties tab"
-            For more information, see \l{Specifying Custom Properties}.
+            For more information, see \l{Specifying custom properties}.
         \li To enable users to interact with the component instances, connect
             the instances to signals on the \uicontrol Connections tab in the
             \uicontrol {Connections} view. For example, you can specify what
             happens when a component instance is clicked. For more information,
-            see \l{Connecting Components to Signals}.
+            see \l{Connecting components to signals}.
             \image qmldesigner-connections.webp "Connections View Connections tab"
         \li To dynamically change the behavior of a component instance when
             another component instance changes, create bindings between them on
             the \uicontrol Bindings tab in the \uicontrol {Connections} view.
-            For more information, see \l{Adding Bindings Between Properties}.
+            For more information, see \l{Adding bindings between properties}.
             \image qmldesigner-bindings.webp "Connections view Bindings tab"
         \li Add states to apply sets of changes to the property values of one
             or several component instances in the \uicontrol States view.
-            For more information, see \l{Working with States}.
+            For more information, see \l{Working with states}.
         \li Animate the properties of component instances in the
             \uicontrol Timeline view. For more information, see
-            \l{Creating Timeline Animations}.
+            \l{Creating timeline animations}.
     \endlist
 */

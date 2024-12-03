@@ -5,7 +5,7 @@
     \page qtquick-states-view.html
     \previouspage qtquick-connection-view.html
     \nextpage studio-translations.html
-    \sa {Working with States}
+    \sa {Working with states}
 
     \ingroup studio-views
 
@@ -14,7 +14,7 @@
     \brief Apply states to a component.
 
     The \uicontrol States view displays the different
-    \l{Working with States}{states} of a UI.
+    \l{Working with states}{states} of a UI.
 
     \image qmldesigner-transitions.webp "States view"
 

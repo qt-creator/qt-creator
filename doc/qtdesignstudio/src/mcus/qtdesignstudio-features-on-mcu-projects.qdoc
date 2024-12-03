@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,7 +6,7 @@
     \page studio-features-on-mcu-projects.html
     \nextpage studio-projects-for-mcus.html
 
-    \title \QDS Features on MCU Projects
+    \title \QDS features on MCU projects
 
     The table below provides a summary of how the key \QDS features are supported
     for developing MCU projects.

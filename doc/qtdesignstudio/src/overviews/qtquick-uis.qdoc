@@ -38,7 +38,7 @@
     the developer documentation by pressing \key F1.
 
     \list
-        \li \l {Using Components}
+        \li \l {Using components}
 
             \QDS comes with \e {preset components} that you can use in
             wireframes and prototypes by creating instances of them.
@@ -46,7 +46,7 @@
             of the component instances and combine them. You can import
             designs and assets from other tools as components.
 
-        \li \l {Specifying Component Properties}
+        \li \l {Specifying component properties}
 
             You can specify values for the properties of a component to change
             its appearance and behavior. All components have a set of predefined
@@ -55,7 +55,7 @@
             component. You can specify values for properties of component
             instances in the \l Properties view.
 
-        \li \l {Scalable Layouts}
+        \li \l {Scalable layouts}
 
             The position of a component in a UI can be either absolute
             or relative to other components. While manual positioning
@@ -63,7 +63,7 @@
             methods, such as anchors, layouts, positioners, and property
             bindings, for dynamic UIs.
 
-        \li \l {Annotating Designs}
+        \li \l {Annotating designs}
 
             You can annotate your designs to provide reviewers or developers
             with additional information about them.

@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,7 +6,7 @@
     \previouspage studio-3d-group.html
     \nextpage studio-skeletal-components.html
 
-    \title Instanced Rendering
+    \title Instanced rendering
 
     Instancing allows duplicating a model with variations. In contrast to using
     the \uicontrol Repeater3D component, the model and its graphics resources are
@@ -26,7 +26,7 @@
             \li \uicontrol {Instance List Entry}.
         \endlist
 
-    \section1 Reading Instance Tables from Files
+    \section1 Reading instance tables from files
 
     The \uicontrol Instancing component makes it possible to read instance tables
     from files in XML or binary format. The binary file format uses the same
@@ -50,7 +50,7 @@
     To use the \uicontrol Instancing component, drag-and-drop it from
     \uicontrol Components to \uicontrol Scene in \uicontrol Navigator.
 
-    \section2 Instancing Properties
+    \section2 Instancing properties
 
     Define the location of an XML or a binary file containing the instance data
     in \uicontrol Properties > \uicontrol {File Instancing} > \uicontrol Source.
@@ -69,7 +69,7 @@
 
     \image studio-3d-instancing-model.png "The Instancing property"
 
-    \section1 Using Instance Lists to Build Instance Tables
+    \section1 Using Instance Lists to build instance tables
 
     Use the \uicontrol {Instance List} component to define an instance table in
     \QDS. An instance table consists of instances defined as
@@ -113,7 +113,7 @@
     in an \uicontrol {Instance List}.
 
     Each of the \uicontrol {Instance List Entry} properties can have
-    \l {Adding Bindings Between Properties}{bindings} and animation. Select an
+    \l {Adding bindings between properties}{bindings} and animation. Select an
     \uicontrol {Instance List Entry} in \uicontrol Navigator to specify the
     properties in \uicontrol Properties > \uicontrol {Instance List Entry}.
 

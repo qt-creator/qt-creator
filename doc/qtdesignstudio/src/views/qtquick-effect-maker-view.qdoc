@@ -18,7 +18,7 @@
 
     \image studio-effect-composer.webp "The Effect Composer view in Qt Design Studio."
 
-    \section1 Composing a Custom Effect
+    \section1 Composing a custom effect
 
     \list 1
         \li To create a new custom effect, do one of the following:
@@ -47,7 +47,7 @@
     right-click it in the \uicontrol {Assets} view, and then
     select \uicontrol {Delete File}.
 
-    \section1 Assigning a Custom Effect to a Component
+    \section1 Assigning a custom effect to a component
 
     To assign your newly created custom effect to a component, do one of the following:
 
@@ -61,7 +61,7 @@
 
     \note To assign an effect to a component, you need to save it first.
 
-    \section1 Editing Effects
+    \section1 Editing effects
 
     To open an effect in the \uicontrol {Effect Composer} to edit it, do one of the following:
 
@@ -73,7 +73,7 @@
       \uicontrol {Effect Composer} view.
     \endlist
 
-    \section1 Stacking Effects
+    \section1 Stacking effects
 
     To compose complex custom effects, add multiple effects to your stack in
     \uicontrol {Effect Composer}. The order of effects in the \uicontrol {Effect Composer}
@@ -88,7 +88,7 @@
 
     To clear the effect stack, select \inlineimage icons/studio-clear-effect-stack.png.
 
-    \section1 Using Animated Effects
+    \section1 Using animated effects
 
     Some of the effects in \uicontrol {Effect Composer} are animated. Preview the
     animation in the preview panel using the play, pause, and restart animation
@@ -147,5 +147,5 @@
             in the first step as \uicontrol {Source Item}.
     \endlist
 
-    \sa {Effect Composer Example}
+    \sa {Effect Composer example}
 */

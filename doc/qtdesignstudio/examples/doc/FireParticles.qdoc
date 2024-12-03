@@ -95,7 +95,7 @@
 
     You now have the particle system in place. To preview it, select
     \key Alt + \key{P}. You can also preview the particle system in
-    the \uicontrol{3D} view by using the \l {Particle Editor} tools.
+    the \uicontrol{3D} view by using the \l {Particle editor} tools.
 
     \section2 Adding Sprites and Sprite Animations
 

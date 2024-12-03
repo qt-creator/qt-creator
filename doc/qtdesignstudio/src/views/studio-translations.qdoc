@@ -20,7 +20,7 @@
 
     \image studio-translations-view.png "Translations view"
 
-    \section1 Importing and Exporting Translations
+    \section1 Importing and exporting translations
 
     You can import and export translations using JSON files.
 
@@ -46,7 +46,7 @@
     }
     \endcode
 
-    \section2 Importing Translations
+    \section2 Importing translations
 
     To import a JSON translation file to your \QDS project:
     \list
@@ -72,7 +72,7 @@
       the translation applies to all \c qsTrId strings with that translation
       ID in your project.
 
-    \section1 Generating Qt Translation Source Files
+    \section1 Generating the Qt translation source files
 
     You need to generate Qt compiled translation source files (\e{.qm})
     and Qt translation source files (\e{.ts}) for your project to have the
@@ -83,7 +83,7 @@
     in the \uicontrol Translations view. The files are generated
     in \e{<project-folder>/i18n}.
 
-    \section1 Running Translation Test for a Single Document
+    \section1 Running a translation test for a single document
 
     You can run the translation test to find missing translations
     and translations where the text exceeds the text element boundaries. Running
@@ -148,11 +148,11 @@
     The report shows the type of error as well as line and column of the
     affected text element in the \e{ui.qml} file.
 
-    \section1 Running Translation Test for Several Documents
+    \section1 Running a translation test for several documents
 
     You can run the project translation test on several \e{.ui.qml} files
     at the same time. \QDS runs the same tests as during the
-    \l{Running Translation Test for a Single Document}{Translation Test} and
+    \l{Running a translation test for a single document}{Translation Test} and
     generates the same test reports but does not highlight errors in the UI.
 
     To run the translation test for several documents:
@@ -164,7 +164,7 @@
       \li Select \uicontrol{Run Tests}.
     \endlist
 
-    \section1 Exporting Translations in Other Ways
+    \section1 Exporting translations in other ways
 
     Select
     \inlineimage icons/export-translations.png

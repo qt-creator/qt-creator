@@ -20,16 +20,16 @@
     \endtable
 
     \list
-        \li \l {\QMCU Framework}
+        \li \l {\QMCU framework}
 
             Provides an overview of the \QMCU framework.
         \li \l {\QDS Version Compatibility with \QMCU SDKs}
 
             Lists how the \QDS versions match with particular \QMCU SDKs.
-        \li \l {\QDS Features on MCU Projects}
+        \li \l {\QDS features on MCU projects}
 
             Specifies how the \QDS features are supported for developing MCU projects.
-        \li \l {Creating Projects for MCUs}
+        \li \l {Creating projects for MCUs}
 
             Describes how to use the \QDS wizard and \uicontrol {\QMCU} preset
             to set up a new \QMCU project.

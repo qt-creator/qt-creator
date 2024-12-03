@@ -17,13 +17,13 @@
 
     The available set of Design Effects applies to the \QDS components:
     \list
-        \li \l {Applying Layer Blur on a Component} {Layer Blur}
-        \li \l {Applying Background Blur on a Component} {Background Blur}
-        \li \l {Applying Drop Shadow on a Component} {Drop Shadow}
-        \li \l {Applying Inner Shadow on a Component} {Inner Shadow}
+        \li \l {Applying Layer Blur to a Component} {Layer Blur}
+        \li \l {Applying Background Blur to a Component} {Background Blur}
+        \li \l {Applying Drop Shadow to a Component} {Drop Shadow}
+        \li \l {Applying Inner Shadow to a Component} {Inner Shadow}
     \endlist
 
-    \section1 Applying Layer Blur on a Component
+    \section1 Applying Layer Blur to a component
 
         Use \uicontrol {Layer Blur} to make a component blurry. To apply \uicontrol {Layer Blur}
         to a component:
@@ -42,7 +42,7 @@
             > \uicontrol {Remove Effects}. This also removes all the other effects
             applied to the component.
 
-    \section1 Applying Background Blur on a Component
+    \section1 Applying Background Blur to a component
 
         Apply \uicontrol {Background Blur} to a component when you want to blur a selected
         component behind it. Consider the following:
@@ -74,7 +74,7 @@
 
         \image studio-effects-background-blur.webp "Applying Background Blur"
 
-    \section1 Applying Drop Shadow on a Component
+    \section1 Applying Drop Shadow to a component
 
         Shadows can either fall outside or inside the component.
         The shadow that falls outside is a drop shadow. To apply
@@ -115,7 +115,7 @@
             \image studio-effects-show-shadow-behind.webp "Show drop shadow behind the component"
         \endlist
 
-    \section1 Applying Inner Shadow on a Component
+    \section1 Applying Inner Shadow to a component
 
         \uicontrol {Inner shadow} works inside a component. To apply \uicontrol {Inner Shadow}:
 

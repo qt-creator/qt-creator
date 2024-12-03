@@ -6,7 +6,7 @@
     \previouspage quick-data-models.html
     \nextpage quick-property-effects.html
 
-    \title 2D Effects
+    \title 2D effects
 
     \QDS provides a set of effects that you can apply to components by
     dragging-and-dropping them from \uicontrol Components
@@ -15,7 +15,7 @@
     \image studio-2d-effects.png "Effects tab in Components"
 
     \note The availability of effects depends on whether you selected
-    \uicontrol {Qt 5} or \uicontrol {Qt 6} when \l{Creating Projects}
+    \uicontrol {Qt 5} or \uicontrol {Qt 6} when \l{Creating projects}
     {creating your project}.
 
     Effects have one or more source properties for specifying the visual input
@@ -62,7 +62,7 @@
     the component, which is similar to OpenGL clamp-to-edge behavior. The blur
     does not expand outside the effect component area.
 
-    \section1 Summary of 2D Effects
+    \section1 Summary of the 2D effect components
 
     The following table summarizes the available effects and contains links to
     the developer documentation of the inherited component. The Qt 6 column

@@ -19,7 +19,7 @@
     \ingroup creator-reference-debugger
     \ingroup studio-debugger
 
-    \title Debugging Qt Quick Projects
+    \title Debugging Qt Quick projects
 
     \brief Debug JavaScript functions, execute JavaScript expressions to get
     information about the state of the UI, and inspect QML properties and
@@ -34,14 +34,14 @@
     \l{Customizing the Menu Bar}.
     \endif
 
-    \section1 Setting Up QML Debugging
+    \section1 Setting up QML debugging
 
     \if defined(qtcreator)
     The process of setting up debugging for Qt Quick projects depends on the
     \e type of the project: \uicontrol {Qt Quick UI Prototype} or
     \uicontrol {Qt Quick Application}, and the Qt version.
 
-    \section2 Debugging Qt Quick UI Projects
+    \section2 Debugging Qt Quick UI projects
     \endif
 
     To debug Qt Quick UI projects (.qmlproject), select \uicontrol Automatic
@@ -51,7 +51,7 @@
     \image qtquick-debugger-settings.webp {Debugger settings section in Run Settings}
 
     \if defined(qtcreator)
-    \section2 Debugging Qt Quick Applications
+    \section2 Debugging Qt Quick applications
 
     To debug Qt Quick Applications:
 
@@ -92,7 +92,7 @@
     automatically installed during \QC and Qt installation. Do not delete
     them if you plan to debug QML applications.
 
-    \section2 Using Default Values
+    \section2 Using default values
 
     You can enable or disable QML debugging globally in \preferences >
     \uicontrol {Build & Run} > \uicontrol {Default Build Properties}.
@@ -129,7 +129,7 @@
     global setting.
     \endif
 
-    \section1 Starting QML Debugging
+    \section1 Starting QML debugging
 
     To start the application, choose \uicontrol Debug > \uicontrol {Start Debugging}
     > \uicontrol {Start Debugging of Startup Project} or press \key F5. Once the
@@ -191,25 +191,25 @@
 
     \endlist
 
-    \section1 Debugging JavaScript Functions
+    \section1 Debugging JavaScript functions
 
     You can use the \QC \uicontrol Debug mode to inspect the state of your
     application while debugging. You can interact with the debugger by:
 
     \list
 
-        \li \l{Viewing Call Stack Trace}{Viewing call stack trace}
+        \li \l{Viewing call stack trace}{Viewing call stack trace}
 
-        \li \l{Setting Breakpoints}{Setting breakpoints}
+        \li \l{Setting breakpoints}{Setting breakpoints}
 
-        \li \l{Local Variables and Function Parameters}
+        \li \l{Local variables and function parameters}
               {Viewing local variables and function parameters}
 
-        \li \l{Evaluating Expressions}
+        \li \l{Evaluating expressions}
 
     \endlist
 
-    \section1 Inspecting Items
+    \section1 Inspecting items
 
     While the application is running, you can use the \uicontrol {Locals}
     view to explore the QML item structure.
@@ -237,7 +237,7 @@
     double-click them and enter the new values. You can view the results in the
     running application.
 
-    \section1 Inspecting User Interfaces
+    \section1 Inspecting user interfaces
 
     When you debug complex applications, you can jump to the position in code
     where an item is defined.
@@ -256,7 +256,7 @@
     To move the application running in \QQV to the front, select
     \uicontrol Debug > \uicontrol {Show Application on Top}.
 
-    \section1 Executing JavaScript Expressions
+    \section1 Executing JavaScript expressions
 
     When the application is interrupted by a breakpoint, you can use the
     \uicontrol {QML Debugger Console} to execute JavaScript expressions in the
@@ -274,7 +274,7 @@
     the \l Properties view.
     \endif
 
-    \section1 Applying QML Changes at Runtime
+    \section1 Applying QML changes at runtime
 
     When you change property values in the \uicontrol {QML Debugger Console} or
     in the \uicontrol Locals or \uicontrol Expression view, they are immediately

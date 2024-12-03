@@ -206,7 +206,7 @@
     \uicontrol {Rotational axis} property determine whether the component
     is rotated around the x-axis or the y-axis.
 
-    \section1 Summary of Shapes
+    \section1 Summary of the shape components
 
     The following table lists the components that you can use to draw shapes.
     The \e Location column indicates the location of the component in

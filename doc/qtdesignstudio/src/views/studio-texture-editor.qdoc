@@ -16,7 +16,7 @@
 
     \image texture-editor.webp "Texture Editor"
 
-    \section1 Creating a Texture
+    \section1 Creating a texture
 
     To create a texture, select \inlineimage icons/plus.png
     in the \uicontrol {Texture Editor} view.
@@ -34,7 +34,7 @@
       \uicontrol Source property in the \uicontrol {Texture Editor} view.
     \endlist
 
-    \section1 Applying a Texture to a Material
+    \section1 Applying a texture to a material
 
     To apply a texture to a material, first select the material in the
     \uicontrol {Material Browser} view and then:

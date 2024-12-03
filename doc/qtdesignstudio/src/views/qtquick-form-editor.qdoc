@@ -29,7 +29,7 @@
         \li \l{Rotating 2D Components}{Rotate}
     \endlist
 
-    \section1 Moving Components
+    \section1 Moving components
 
     When the move cursor is displayed, you can move the selected component
     instance to any position in the \uicontrol {2D} view.
@@ -37,9 +37,9 @@
     \image qmldesigner-form-editor-move-cursor.webp "Move cursor in the 2D view"
 
     For more information about alternative ways of positioning component
-    instances in UIs, see \l{Scalable Layouts}.
+    instances in UIs, see \l{Scalable layouts}.
 
-    \section1 Resizing 2D Components
+    \section1 Resizing 2D components
 
     When the resize cursor is displayed, you can drag the markers to resize
     component instances.
@@ -59,7 +59,7 @@
     For more information about alternative ways to specify the size of a
     component or component instance in a UI, see \l{2D Geometry}.
 
-    \section1 Rotating 2D Components
+    \section1 Rotating 2D components
 
     When the rotation cursor \inlineimage icons/rotation-cursor.png
     is displayed in one of the corners of a component instance, you can drag
@@ -84,7 +84,7 @@
 
     \image qmldesigner-zooming.gif "Zooming in the 2D view"
 
-    \section1 Snapping to Parent and Sibling Components
+    \section1 Snapping to parent and sibling components
 
     You can use snapping to align component instances in
     the \uicontrol {2D} view. With snapping turned on, all component instances
@@ -115,20 +115,20 @@
     For alternative ways of aligning and distributing component instances by
     using the \l Properties view, see \l{Aligning and Distributing Components}.
 
-    \section1 Hiding Component Boundaries
+    \section1 Hiding component boundaries
 
     The \uicontrol {2D} view displays the boundaries of component instances.
     To hide them, right-click in the \uicontrol 2D view and select
     \uicontrol {Show Bounds} from the context menu.
 
-    \section1 Previewing Component Size
+    \section1 Previewing component size
 
     The width and height of the root component in a UI file determine the size
     of the component. You can reuse components, such as buttons, in different
     sizes in other UI files and design UIs for use with different device
     profiles, screen resolution, or screen orientation. The component size
     might also be zero (0,0) if its final size is determined by
-    \l{Setting Bindings}{property bindings}.
+    \l{Setting bindings}{property bindings}.
 
     To experiment with different component sizes, enter values in the
     \uicontrol {Override Width} and \uicontrol {Override Height} fields (1) on
@@ -144,13 +144,13 @@
     and specify the component width and height in the
     \uicontrol {Root Component Init Size} group.
 
-    \section1 Specifying Canvas Size
+    \section1 Specifying canvas size
 
     To change the canvas size, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer} and
     specify the canvas width and height in the \uicontrol Canvas group.
 
-    \section1 Setting Canvas Color
+    \section1 Setting canvas color
 
     If you set the background of the root component transparent, the color of
     the working area can make it difficult to see the component instance you
@@ -162,7 +162,7 @@
 
     \image qmldesigner-canvas-color.webp "Transparent canvas color for a transparent component instance"
 
-    \section1 Refreshing 2D View Contents
+    \section1 Refreshing the 2D view contents
 
     When you open a UI file, the component defined in the file and the component
     instances it contains are drawn in the \uicontrol {2D} view. When you

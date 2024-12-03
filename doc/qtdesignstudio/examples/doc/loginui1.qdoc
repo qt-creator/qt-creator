@@ -24,7 +24,7 @@
     For the purposes of this tutorial, you will use the empty wizard template.
     Wizard templates are available also for creating UIs that are optimized for
     mobile platforms and for launcher applications. For more information about
-    the options you have, see \l {Creating Projects}.
+    the options you have, see \l {Creating projects}.
 
     To create a project:
 
@@ -387,7 +387,7 @@
             \li The \e {loginui1.qml} file defines the functionality of
                 the UI. For the time being, it does not do anything.
             \li The \e {Screen01.ui.qml} file is a custom component created by
-                the wizard template. For more information, see \l {UI Files}.
+                the wizard template. For more information, see \l {UI files}.
 
                 By default, this is the main file in the project, but you can
                 change that in the .qmlproject file. While the custom component
@@ -409,11 +409,11 @@
                 \e EventListSimulator.qml files are not used in this example, so
                 you can ignore them for now.
         \endlist
-        \l{UI files}{UI files} define a hierarchy of components with a
-        highly-readable, structured layout. Every UI file consists of two parts:
-        an imports section and an component declaration section. The components and
-        functionality most common to UIs are provided in the \c QtQuick import. You
-        can view the code of a \e .ui.qml file in the \l{Code} view.
+        \l{UI files} define a hierarchy of components with a highly-readable,
+        structured layout. Every UI file consists of two parts: an imports section
+        and a component declaration section. The components and functionality most
+        common to UIs are provided in the \c QtQuick import. You can view the code
+        of a \e .ui.qml file in the \l{Code} view.
 
 
     \section2 Components

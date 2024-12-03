@@ -1,4 +1,4 @@
-// Copyright (C) 2020 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,7 +6,7 @@
     \previouspage qtquick-optimizing-designs.html
     \nextpage studio-implementing-applications.html
 
-    \title Creating Optimized 3D Scenes
+    \title Creating optimized 3D scenes
 
     In \QDS, you can use various means to create a 3D scene. Your choice of
     strategy should always depend on the target platform of your scene.
@@ -14,9 +14,9 @@
     the runtime performance of your UI. The Optimal 3D Scene described
     below illustrates four different ways to create a scene. Also see guidelines
     for \l{Optimizing your 3D Scene}{optimizing the graphics performance of your 3D scene}
-    and \l{Best Practices for 3D Scenes Based on Use Cases}.
+    and \l{Best practices for 3D scenes based on use cases}.
 
-    \section1 The Optimal 3D Scene Example
+    \section1 The Optimal 3D Scene example
 
     The \l {Optimal 3D Scene}
     example features four versions of the same kitchen
@@ -60,7 +60,7 @@
     and colors for the mesh are provided from .mesh file's vertex data, which
     includes one material and no textures.
 
-    \section1 Optimizing Your 3D Scene
+    \section1 Optimizing your 3D scene
 
     To optimize the graphics performance of your 3D scene, you should first
     consider whether you need to animate the 3D objects, lights, camera, or
@@ -75,7 +75,7 @@
     See also the following guidelines related to scene graph, asset complexity,
     CPU specific optimization, and model geometry.
 
-    \section2 Scene Graph
+    \section2 Scene graph
 
     The scene graph is the hierarchy of nodes that describe the scene to be
     rendered.
@@ -88,7 +88,7 @@
     possible. Deep hierarchies with complex parenting increase the performance
     cost.
 
-    \section2 Asset Complexity
+    \section2 Asset complexity
 
     The performance of your UI or scene may sometimes be bottlenecked at render
     time. Avoid this by simplifying your assets.
@@ -97,7 +97,7 @@
     vertices to achieve the desired result. Also note that smaller images
     require less memory and render faster.
 
-    \section2 Optimizing CPU Performance
+    \section2 Optimizing the CPU performance
 
     Rendering objects requires plenty of processing work from the CPU.
     Processing each component consumes resources, so reducing the visible object
@@ -115,7 +115,7 @@
             multiple times, for example reflections and shadows.
     \endlist
 
-    \section2 Optimizing Model Geometry
+    \section2 Optimizing the model geometry
 
     To optimize the geometry of a model:
 
@@ -125,7 +125,7 @@
         doubled-up vertices.
     \endlist
 
-    \section1 Best Practices for 3D Scenes Based on Use Cases
+    \section1 Best practices for 3D scenes based on use cases
 
     The following table summarizes best practices related to optimizing 3D
     scenes in the form of use cases.

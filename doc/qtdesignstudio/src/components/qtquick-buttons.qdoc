@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -12,7 +12,7 @@
     \previouspage quick-components-creating.html
     \nextpage quick-scalable-image.html
 
-    \title Creating Buttons
+    \title Creating buttons
 
     To create a button component:
 
@@ -20,7 +20,7 @@
 
         \li Select \uicontrol File > \uicontrol {New File} >
             \uicontrol {Qt Quick Files} > \uicontrol {Qt Quick UI File} >
-            \uicontrol Choose to create a \l{UI Files}{UI file} called
+            \uicontrol Choose to create a \l{UI files}{UI file} called
             Button.ui.qml (for example).
 
             \note Components are listed in \uicontrol Components >
@@ -95,7 +95,7 @@
 
     To create a graphical button that scales beautifully without using
     vector graphics, use the \l {Border Image} component. For more
-    information, see \l{Creating Scalable Buttons and Borders}.
+    information, see \l{Creating scalable buttons and borders}.
     */
 
 /*!
@@ -103,13 +103,13 @@
     \page quick-scalable-image.html
     \nextpage qtquick-properties.html
 
-    \title Creating Scalable Buttons and Borders
+    \title Creating scalable buttons and borders
 
     You can use the \l {Border Image} component to display an image, such as a
     PNG file, as a border and a background.
 
     Use two border images and suitable graphics to change the appearance of
-    a button when it is clicked. You can use use \l{Working with States}{states}
+    a button when it is clicked. You can use use \l{Working with states}{states}
     to determine which image is visible depending on whether the mouse
     button is pressed down. You could add more images and states to
     change the appearance of the button depending on other mouse events,
@@ -124,20 +124,20 @@
 
    \image qmldesigner-borderimage-type.png "Button component in the 2D and States views"
 
-    \section1 Creating the Button Component
+    \section1 Creating the Button component
 
     To create a button component, select \uicontrol File >
     \uicontrol {New File} >
     \uicontrol {Qt Quick Files} > \uicontrol {Qt Quick UI File} >
 
-    \uicontrol Choose to create a \l{UI Files}{UI file} called Button.ui.qml
+    \uicontrol Choose to create a \l{UI files}{UI file} called Button.ui.qml
     (for example).
 
     \note Components are listed in \uicontrol Components >
     \uicontrol {My Components} only if the filename begins with a
     capital letter.
 
-    \section1 Constructing the Button Component
+    \section1 Constructing the Button component
 
     To construct the button component:
 
@@ -198,7 +198,7 @@
             \endlist
     \endlist
 
-    \section1 Using States to Change Component Property Values
+    \section1 Using States to change component property values
 
     \list 1
         \li In the \l States view, select \inlineimage icons/plus.png
@@ -244,7 +244,7 @@
     and set the button text for each button instance, for example.
 
     For more information about positioning buttons on screens, see
-    \l{Scalable Layouts}.
+    \l{Scalable layouts}.
 
     \image qmldesigner-borderimage.png "Button preview as part of a screen"
 */

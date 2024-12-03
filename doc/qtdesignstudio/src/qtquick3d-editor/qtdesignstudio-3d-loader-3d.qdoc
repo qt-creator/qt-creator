@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -18,7 +18,7 @@
     For more information, see the \l{https://doc.qt.io/qt/qml-qtquick3d-loader3d.html}
     {Loader3D QML type} in the \uicontrol {Qt Quick 3D} documentation.
 
-    \section1 Loader3D Properties
+    \section1 Loader3D properties
 
     \section2 Active
 
@@ -60,11 +60,11 @@
     \uicontrol Loader3D content must be accessed before the asynchronous
     loading is completed.
 
-    \section1 Setting the Loader3D to Load a QML File
+    \section1 Setting Loader3D to load a QML file
 
-    To add a Loader3D component and set it to load a QML file:
+    To add a \uicontrol Loader3D component and set it to load a QML file:
     \list 1
-      \li From \uicontrol {Components}, drag a Loader3D component to
+      \li From \uicontrol {Components}, drag a \uicontrol Loader3D component to
       \e scene in the \uicontrol Navigator or \uicontrol{3D} view.
       \li In \uicontrol {Navigator}, select \e{loader3D}.
       \image loader3d-navigator.png
@@ -73,16 +73,17 @@
       \image loader3d-select-source.png
     \endlist
 
-    \section1 Setting the Loader3D  to Load a Component3D Component
+    \section1 Setting Loader3D to load a Component3D component
 
-    To add a Loader3D component and set it to load a Component3D component:
+    To add a \uicontrol Loader3D component and set it to load a
+    \uicontrol Component3D component:
     \list 1
-      \li From \uicontrol {Components}, drag a Loader3D Component to
-      \e scene in the \uicontrol Navigator or \uicontrol{3D} view.
-      \li From \uicontrol {Components}, drag a Component3D component to
-      \e scene in \uicontrol {Navigator}.
+      \li From \uicontrol {Components}, drag a \uicontrol Loader3D component
+      to \e scene in the \uicontrol Navigator or \uicontrol{3D} view.
+      \li From \uicontrol {Components}, drag a \uicontrol Component3D component
+      to \e scene in \uicontrol {Navigator}.
       \li In \uicontrol {Navigator}, select the filter icon and clear
-      \uicontrol {Show Only Visible Components}. This makes the Component3D
+      \uicontrol {Show Only Visible Components}. This makes the \uicontrol Component3D
       component visible in \uicontrol Navigator.
       \image navigator-show-all-loader.png
       \li In \uicontrol {Navigator}, select \e{loader3D}.
@@ -92,7 +93,7 @@
       \image loader3d-select-source-component.png
     \endlist
 
-    \section1 Setting the Visibility of Loading Components
+    \section1 Setting the Visibility of loading components
 
     To avoid seeing the components loading progressively, set the \uicontrol
     Visibility property for \uicontrol Loader3D appropriately in

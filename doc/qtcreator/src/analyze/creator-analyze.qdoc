@@ -30,7 +30,7 @@
 
     \section1 Improving QML Performance
 
-    \QC comes with the \l{Profiling QML Applications}{QML Profiler} for
+    \QC comes with the \l{Profiling QML applications}{QML Profiler} for
     inspecting binding evaluations and signal handling when running QML code.
     This is useful for identifying potential bottlenecks, especially in the
     evaluation of bindings.

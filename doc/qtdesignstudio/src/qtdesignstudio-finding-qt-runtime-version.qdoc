@@ -6,16 +6,16 @@
     \page studio-finding-the-qt-runtime-version.html
     \nextpage creator-vcs-git.html
 
-    \title Finding the Qt Runtime Version
+    \title Finding the Qt runtime version
 
     \include qtdesignstudio-qt-runtime-version.qdocinc qt-runtime-version
 
-    Find Qt runtime versions for previous \QDS releases in the table below.
+    Find the Qt runtime versions for previous \QDS releases in the table below.
 
     \table
         \header
             \li \QDS
-            \li Qt runtime version
+            \li The Qt runtime version
         \row
             \li 4.0
             \li 6.4.1 and 5.15.5

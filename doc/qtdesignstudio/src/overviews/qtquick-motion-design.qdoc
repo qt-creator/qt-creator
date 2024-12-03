@@ -19,29 +19,29 @@
     \endtable
 
     \list
-        \li \l {Introduction to Animation Techniques}
+        \li \l {Introduction to animation techniques}
 
             Learn more about which animation techniques are supported by \QDS
             and the use cases they are most suitable for.
 
-        \li \l {Creating Timeline Animations}
+        \li \l {Creating timeline animations}
 
             You can use a timeline and keyframe based editor in the
             \l Timeline view to animate the properties of UI
             components. Animating properties enables their values to
             move through intermediate values at specified keyframes
             instead of immediately changing to the target value.
-        \li \l{Editing Easing Curves}
+        \li \l{Editing easing curves}
 
             Specify easing curves for nonlinear interpolation between
             keyframes in timeline animations, as well as between original
             and new property values in property animations and between
             transitions.
-        \li \l {Production Quality}
+        \li \l {Production quality}
 
             After the wireframing and prototyping phases, you can use previewing
             and profiling tools to fine-tune your UI for production.
-        \li \l{Optimizing Designs}
+        \li \l{Optimizing designs}
 
             You can test your UIs on the target devices to make sure you get
             the best performance out of your animations. To solve performance

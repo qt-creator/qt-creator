@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -21,14 +21,14 @@
     have added an asset from \uicontrol {Content Library}, you can use it in
     your project.
 
-    You can also add assets to the \uicontrol {Content Library} > \uicontrol {User Assets}.
+    You can also add assets to \uicontrol {Content Library} > \uicontrol {User Assets}.
 
     Assets added to \uicontrol {User Assets} are always available in \uicontrol {Content Library}
     regardless of what project you are working on.
 
     \image content-library.webp
 
-    \section1 Adding a Material to Your Project
+    \section1 Adding a material to your project
 
     You can use materials on 3D models.
 
@@ -54,7 +54,7 @@
       \uicontrol {Content Library} view and  select \uicontrol{Apply to selected}.
     \endlist
 
-    \section1 Adding a Texture or Environment to Your Project
+    \section1 Adding a texture or environment to your project
 
     To add a texture or environment to your project, right-click the image
     in the \uicontrol {Content Library} view and select one of the options:
@@ -73,7 +73,7 @@
         \endlist
     \endlist
 
-    \section1 Adding an Effect to Your Project
+    \section1 Adding an effect to your project
 
     To add an effect to your project, do one of the following:
 
@@ -93,7 +93,7 @@
     You can add 3D objects (such as 3D models, cameras, and lights), materials, and images to
     \uicontrol {User Assets}.
 
-    \section2 Adding an Asset to User Assets
+    \section2 Adding an asset to User Assets
 
     Add assets to \uicontrol{User Assets} in the following ways:
 
@@ -108,9 +108,9 @@
       \uicontrol {Add to Content Library}.
     \endlist
 
-    \section2 Using Assets from User Assets
+    \section2 Using assets from User Assets
 
-    \section3 Adding a Material
+    \section3 Adding a material
 
     Add a material to your project in the following ways:
 
@@ -129,7 +129,7 @@
       \li Right-click the 3D component and select \uicontrol {Add an instance to project}.
     \endlist
 
-    \section3 Adding a Texture
+    \section3 Adding a texture
 
     Add a texture to your project in the following ways:
 

@@ -6,7 +6,7 @@
     \page studio-getting-started.html
     \nextpage studio-installation.html
 
-    \title Getting Started
+    \title Getting started
 
     \table
         \row
@@ -29,10 +29,10 @@
 
             Follow a set of hands-on tutorials that illustrate how to use the
             features of \QDS.
-        \li \l {User Interface}
+        \li \l {User interface}
 
             Describes the parts and basic features of \QDS.
-        \li \l {Creating Projects}
+        \li \l {Creating projects}
 
             To wireframe or prototype an application, you need a project.
             Setting up a new project in \QDS is aided by a wizard that
@@ -43,10 +43,10 @@
             You can use wizards to create projects for the desktop or embedded
             Linux and Android devices. In addition, you can add individual QML
             files, components, and JavaScript files to your projects.
-        \li \l {Use Cases}
+        \li \l {Use cases}
 
             Describes the main use cases of \QDS at a general level.
-        \li \l{Concepts and Terms}
+        \li \l{Concepts and terms}
 
             Describes main \QDS concepts and terms.
         \li \l{Examples}

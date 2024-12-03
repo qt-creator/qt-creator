@@ -6,7 +6,7 @@
     \previouspage studio-3d-custom-shaders.html
     \nextpage studio-3d-lights.html
 
-    \title Custom Effects and Materials in Qt 5
+    \title Custom effects and materials in Qt 5
 
     Use custom shader utilities to create custom effects in previous \QDS
     versions built with \uicontrol {Qt 5} and \uicontrol {Qt 5.15}.
@@ -14,9 +14,9 @@
     \note To learn how to use and create effects in \QDS projects built
     with \uicontrol {Qt 6} as \uicontrol {Target Qt Version}, see \l Effects.
 
-     \section1 Creating Custom Effects and Materials
+     \section1 Creating custom effects and materials
 
-    Create custom effects and materials using the \l{Custom Shaders in Qt 5}
+    Create custom effects and materials using the \l{Custom shaders in Qt 5}
     {custom shader utilities} available in \uicontrol Components >
     \uicontrol {Qt Quick 3D Custom Shader Utilities}. Each effect or material
     must have a fragment shader that completes all the functions needed to calculate
@@ -28,7 +28,7 @@
     and fragment cutoff (masking). For more information, see
     \l {Qt Quick 3D Custom Material Reference}.
 
-    \section2 Creating Custom Effects
+    \section2 Creating custom effects
 
     \note Use the method described here to create custom effects in \QDS 4.0 or older
     versions in projects created with \uicontrol {Qt 5} or \uicontrol {Qt 5.15} as
@@ -80,7 +80,7 @@
             \image studio-qtquick-3d-shader-properties.webp "Shader properties"
     \endlist
 
-    \section1 Creating Custom Materials
+    \section1 Creating custom materials
 
     \note Use the method described here to create custom materials in \QDS 3.4 or
     older versions in projects created with \uicontrol {Qt 5} or \uicontrol {Qt 5.15}

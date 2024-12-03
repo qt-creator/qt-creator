@@ -14,7 +14,7 @@
 
     \image studio-qtquick-3d-texture.webp {Texture attached to a material in Design mode}
 
-    \section1 Selecting the Mapping Method
+    \section1 Selecting the mapping method
 
     To specify the method of mapping to use when sampling a texture, select
     \uicontrol UV, \uicontrol Environment, or \uicontrol LightProbe in the
@@ -51,7 +51,7 @@
     \note Currently, there is no way to forward input events to the Item
     used as a texture source.
 
-    \section1 UV Scaling
+    \section1 UV scaling
 
     The \uicontrol {U} and \uicontrol {V} scale properties define how
     to scale the U and V texture coordinates when mapping to a mesh's UV
@@ -87,7 +87,7 @@
     For more information about rotating and pivoting components in the local
     coordinate space, see \l {Managing 3D Transformations}.
 
-    \section1 Applying Textures to Materials
+    \section1 Applying textures to materials
 
     To create and apply a texture on the material from an image:
     \list 1

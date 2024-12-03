@@ -6,10 +6,10 @@
     \page qtbridge-overview.html
     \nextpage qtbridge-ai.html
 
-    \title Exporting from Design Tools
+    \title Exporting from design tools
 
     When working with 2D assets, you can use \QB to export them from design
-    tools into a metadata format that you can then \l{Importing Designs}{import}
+    tools into a metadata format that you can then \l{Importing designs}{import}
     into \QDS.
 
     When working with 3D assets, you can use the export functions provided by
@@ -19,7 +19,7 @@
     For best results when importing assets, follow
     the guidelines for creating and exporting them.
 
-    \section1 2D Assets
+    \section1 2D assets
 
     You can use \QOI to install \QB if you have a
     \QDS enterprise license.
@@ -32,20 +32,20 @@
         \li \inlineimage sketch-logo.png
         \li \inlineimage figma-logo.png
     \row
-        \li \l{Exporting Designs from Adobe Illustrator}{Adobe Illustrator}
-        \li \l{Exporting Designs from Adobe Photoshop}{Adobe Photoshop}
-        \li \l{Exporting Designs from Adobe XD}{Adobe XD}
-        \li \l{Exporting Designs from Sketch}{Sketch}
-        \li \l{Exporting Designs from Figma}{Figma}
+        \li \l{Exporting designs from Adobe Illustrator}{Adobe Illustrator}
+        \li \l{Exporting designs from Adobe Photoshop}{Adobe Photoshop}
+        \li \l{Exporting designs from Adobe XD}{Adobe XD}
+        \li \l{Exporting designs from Sketch}{Sketch}
+        \li \l{Exporting designs from Figma}{Figma}
     \endtable
 
-    \section1 3D Assets
+    \section1 3D assets
 
     You can import files you created using 3D graphics applications and
     stored in several widely-used formats, such as .blend, .dae, .fbx,
     .glb, .gltf, .obj, .uia, or .uip.
 
-    For an overview, see \l{Exporting 3D Assets}.
+    For an overview, see \l{Exporting 3D assets}.
 
     \table
     \row

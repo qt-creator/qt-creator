@@ -18,7 +18,7 @@
     \image studio-curve-editor.webp "Curves"
 
     When you edit an animation curve, you implicitly edit the
-    \l{Editing Easing Curves}{easing curves} that the underlying system uses
+    \l{Editing easing curves}{easing curves} that the underlying system uses
     to define an animation. The animation curve is an extension to visualize
     both the value of a keyframe and the interpolation between keyframes
     simultaneously.
@@ -55,7 +55,7 @@
     and then select \inlineimage icons/pin.png
     .
 
-    \section1 Editing Animation Curves
+    \section1 Editing animation curves
 
     To edit animation curves:
 
@@ -72,7 +72,7 @@
 
     Your changes are automatically saved when you close the view.
 
-    \section1 Deleting Keyframes in Curves
+    \section1 Deleting keyframes in curves
 
     To delete the selected keyframe, select \uicontrol {Delete Selected Keyframes}
     in the context menu.

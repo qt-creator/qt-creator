@@ -35,7 +35,7 @@
 
     \section1 Anchoring UI components
 
-    First, you will \l {Setting Anchors and Margins}{anchor} the
+    First, you will \l {Setting anchors and margins}{anchor} the
     static page elements, background image (\e adventurePage), logo
     (\e qt_logo_green_128x128px), and tag line (\e tagLine), to the page.
 
@@ -190,10 +190,10 @@
     For many use cases, the best positioner to use is a simple grid, row, or
     column, and \QDS provides components that will position children in these
     formations in the most efficient manner possible. For more information
-    about using preset positioners, see \l {Using Positioners}.
+    about using preset positioners, see \l {Using positioners}.
 
     For more complicated UI designs, you can use components from the
-    \l {Using Layouts}{Qt Quick Layouts module}.
+    \l {Using layouts}{Qt Quick Layouts module}.
 
     \section1 Next steps
 

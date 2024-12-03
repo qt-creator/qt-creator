@@ -1,4 +1,4 @@
-/ Copyright (C) 2023 The Qt Company Ltd.
+/ Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,7 +6,7 @@
     \previouspage studio-creating-uis-for-mcus.html
     \nextpage studio-connecting-mcus-with-creator.html
 
-    \title Developing Applications for MCUs
+    \title Developing applications for MCUs
 
     As a GUI/application developer, use \QDS to bring your designs to life. Add
     further functionality to your applications and utilize the \l {Prototyping}
@@ -16,7 +16,7 @@
     With \QDS, designers and developers can work together on common projects to
     develop applications. As a designer you can use the views in the \e Design
     mode to modify UI files (.ui.qml). For more information, see
-    \l {Implementing Applications}.
+    \l {Implementing applications}.
 
     \image qds-mcu-target-deployment.png
 

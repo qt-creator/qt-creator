@@ -26,7 +26,7 @@
 
     \image qmldesigner-element-properties.webp "Rectangle and Text properties"
 
-    \section1 Custom Properties
+    \section1 Custom properties
 
     Custom Properties are properties that the user has added to the component.
 
@@ -38,7 +38,7 @@
         \li Description
       \row
         \li Local Custom Property
-        \li A property that has been added for a \l{Preset Components}{preset component}.
+        \li A property that has been added for a \l{Preset components}{preset component}.
       \row
         \li Exposed Custom Property
         \li A property that has been added inside a component.
@@ -46,11 +46,11 @@
 
     \image custom-properties.png
 
-    \section1 Viewing Changes in Properties
+    \section1 Viewing changes in properties
 
     The default values of properties are displayed in white color, while the
     values that you specify explicitly are highlighted with blue color. In
-    addition, property changes in \l{Working with States}{states} are highlighted
+    addition, property changes in \l{Working with states}{states} are highlighted
     with blue.
 
     This allows you to easily see which values are set in the component
@@ -116,13 +116,13 @@
     You can \l{Locking Components}{lock other components} in
     \uicontrol Navigator to make multiselection easier.
 
-    \section1 Getting Help for Properties
+    \section1 Getting help for properties
 
     \list
         \li For information about setting common component properties, see
-            \l{Specifying Component Properties}.
+            \l{Specifying component properties}.
         \li For more information about the properties available for a
-            component, press \key {F1} or see \l{Component Types}
-            and \l{Scalable Layouts}.
+            component, press \key {F1} or see \l{Component types}
+            and \l{Scalable layouts}.
     \endlist
 */

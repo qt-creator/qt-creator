@@ -8,7 +8,7 @@
 
     \title Using \QBF
 
-    \section1 Organizing Designs
+    \section1 Organizing designs
 
     To get the best results during export and import, follow these guidelines
     when working with Figma:
@@ -46,9 +46,9 @@
 
     To use the fonts that you use in Figma also in \QDS, you need to add
     them to \QDS as assets. \QDS deploys them to devices when you preview the
-    UI. For more information, see \l{Using Custom Fonts}.
+    UI. For more information, see \l{Using custom fonts}.
 
-    \section2 Items You Can Export
+    \section2 Items you can export
 
     You can export the following parts of your design using \QBF:
     \list
@@ -65,27 +65,27 @@
         \li Groups
     \endlist
 
-    \section2 Using Frames
+    \section2 Using frames
 
     Frames are exported as components of the \l Rectangle type by default.
     However, if you have applied effects to the frames that \QBF cannot
     handle, such as gradient fill colors or a mixed radius, the frames are
     exported as images.
 
-    \section2 Using Variables
+    \section2 Using variables
     With \QDS 4.6, variables are exported as a QML module named \e DesignSystem. A QML singleton
     is created for each collection. Modes of the collection are exported as theme objects.
     A collection has a \e currentTheme property, updating the property changes the active theme.
-    
+
     When a variable is bound to a property of a layer, the \e DesignSystem module import
     is added to the generated code and the property binding is created accordingly.
-    
+
     To export variables, select \uicontrol {Export Variables} from \l{Settings}.
     
     \note Remote variables are not supported. Setting the active mode on the page or
     layer does not affect the generated code.
- 
-    \section2 Using Variants
+
+    \section2 Using variants
     Figma variants are exported as a component with states. All variants
     inside a \e component-set are merged together and the differences across
     the variants are translated into states.
@@ -103,7 +103,7 @@
             encouraged to create the variant differences.
     \endlist
 
-    \section1 Exporting Designs
+    \section1 Exporting designs
 
     \image qt-figma-bridge.png "Qt Bridge for Figma"
 
@@ -118,7 +118,7 @@
     \QBF exports everything into a .qtbridge archive. You can import the archive
     into a project in \QDS, as described in \l{Importing 2D Assets}.
 
-    \section1 Export Settings
+    \section1 Export settings
 
     You can specify export settings in the \uicontrol Home tab and in the
     \uicontrol Settings tab.
@@ -213,7 +213,7 @@
             }
             \endcode
             \note The code must have a scope of a component (such as Item, MouseArea,
-            Connections) with a valid syntax for \l {UI Files}.
+            Connections) with a valid syntax for \l {UI files}.
             \note Add respective imports for your snippet in \uicontrol {Imports}.
     \row
         \li \uicontrol Alias

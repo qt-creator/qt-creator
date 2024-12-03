@@ -7,7 +7,7 @@
     \previouspage qtquick-fonts.html
     \nextpage creator-exporting-qml.html
 
-    \title Importing 3D Assets
+    \title Importing 3D assets
 
     In \QDS, you can import 3D assets in formats such as .stl, .dae, .fbx, .glb,
     .gltf, .obj, .uia, and .uip. For a list of formats supported by each
@@ -21,11 +21,11 @@
     for more information about a particular option.
 
     For more information about exporting 3D graphics, see
-    \l{Exporting 3D Assets}.
+    \l{Exporting 3D assets}.
 
     \image studio-import-3d.webp
 
-    \section1 Importing a 3D Asset
+    \section1 Importing a 3D asset
 
     To import a 3D asset to a \QDS project:
 
@@ -51,7 +51,7 @@
     After importing the 3D asset, it is available in \uicontrol Components > \uicontrol
     {My 3D Components}.
 
-    \section1 Importing Multiple 3D Assets
+    \section1 Importing multiple 3D assets
 
     To import multiple 3D assets to a \QDS project:
 

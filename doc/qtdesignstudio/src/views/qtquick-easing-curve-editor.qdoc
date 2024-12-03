@@ -6,7 +6,7 @@
     \previouspage studio-timeline.html
     \nextpage qtquick-production-quality-animation.html
 
-    \title Editing Easing Curves
+    \title Editing easing curves
 
     Easing curves define the progress of animation to make motion appear more
     natural because real objects don't usually move at a constant speed nor
@@ -25,7 +25,7 @@
     You can use \uicontrol {Easing Curve Editor} to select and edit easing
     curves.
 
-    \section1 Selecting Easing Curves
+    \section1 Selecting easing curves
 
     You can use the preset curves or modify them by dragging the curve handles
     around. You can add points to the curve and drag them and the point handles
@@ -50,11 +50,11 @@
     roller. To reset the zoom factor, right-click in the picker and
     select \uicontrol {Reset Zoom}.
 
-    \section1 Easing Curves in Timeline Animations
+    \section1 Easing curves in timeline animations
 
     For timeline animations, you can also use the more advanced
     \l {Curves} view that shows the interpolated values of an animated
-    property over the \l{Creating Timeline Animations}{animation} range.
+    property over the \l{Creating timeline animations}{animation} range.
 
     The animation curves present a more readable view of the animation by
     showing the effective values of the animated properties over the animation
@@ -68,7 +68,7 @@
             and are therefore painted in a different color and without handles.
     \endlist
 
-    \section2 Attaching Easing Curves to Keyframes
+    \section2 Attaching easing curves to keyframes
 
     To attach easing curves to keyframes:
 
@@ -83,7 +83,7 @@
     \l Timeline changes from \inlineimage icons/keyframe_linear_active.png
     to a marker that describes the type of the selected easing curve.
 
-    \section1 Attaching Easing Curves to Transitions
+    \section1 Attaching easing curves to transitions
 
     To attach easing curves to transitions:
 
@@ -93,7 +93,7 @@
         \li Select an easing curve, as described in \l{Selecting Easing Curves}.
     \endlist
 
-    \section1 Attaching Easing Curves to Property Animations
+    \section1 Attaching easing curves to property animations
 
     To attach easing curves to property animations:
 
@@ -105,7 +105,7 @@
         \li Select an easing curve, as described in \l{Selecting Easing Curves}.
     \endlist
 
-    \section1 Customizing Easing Curves
+    \section1 Customizing easing curves
 
     To customize easing curves:
 

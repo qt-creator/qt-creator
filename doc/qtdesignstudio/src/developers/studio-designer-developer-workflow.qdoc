@@ -6,20 +6,20 @@
     \previouspage studio-implementing-applications.html
     \nextpage studio-debugging.html
 
-    \title Designer-Developer Workflow
+    \title Designer-developer workflow
 
     \note In this section, you are using advanced menu items. These are not
     visible by default. To toggle the visibility of advanced menu items, see
     \l{Customizing the Menu Bar}.
 
     \QDS enables designers and developers to work together on common
-    projects to develop applications. Designers use the \l{Design Views}{views}
-    in the \uicontrol Design mode to modify \l{UI Files}{UI files} (\e .ui.qml),
+    projects to develop applications. Designers use the \l{Design views}{views}
+    in the \uicontrol Design mode to modify \l{UI files} (\e .ui.qml),
     whereas developers use Qt Creator to work on the Qt Quick (\e .qml) and
     other files that are needed to implement the application logic and to
     prepare the application for production.
 
-    \QDS \l{Creating Projects}{projects} come with boilerplate code for a
+    \QDS \l{Creating projects}{projects} come with boilerplate code for a
     working Qt 6 application that you can build and run in Qt Creator using
     CMake. Therefore, you can open, build, and run the projects with Qt Creator.
 
@@ -32,7 +32,7 @@
     \e {main.py}. Use this file to start the development in Python for the UI
     made with \QDS.
 
-    \section1 Exporting a \QDS Project for C++ Development
+    \section1 Exporting a \QDS project for C++ development
 
         Before you export a \QDS project for Qt Creator, install the following:
         \list
@@ -44,7 +44,7 @@
 
         To export a \QDS project for Qt Creator:
         \list 1
-            \li \l {Creating a Project} {Create} or open your \QDS project with \QDS 4.5 or above.
+            \li \l {Creating a project} {Create} or open your \QDS project with \QDS 4.5 or above.
 
                 \note If you are creating a new project in \QDS, select the
                     \uicontrol {Target Qt Version} that is not higher than the Qt version
@@ -61,7 +61,7 @@
             \image studio-project-export-cmake.webp "Exporting Qt Design Studio project to CMake"
         \endlist
 
-    \section1 Opening the \QDS Project in Qt Creator
+    \section1 Opening the \QDS project in Qt Creator
 
         Open the \e {CMakeLists.txt} file in Qt Creator:
 
@@ -138,7 +138,7 @@
 
     \enddetails
 
-    \section1 Exporting a \QDS Project for Python Development
+    \section1 Exporting a \QDS project for Python development
 
         \list 1
             \li \l {Creating a Project} {Create} a project with \QDS 4.5 or above.
@@ -160,7 +160,7 @@
             \image studio-project-export-python.webp "Exporting Qt Design Studio project to Python"
         \endlist
 
-    \section1 Opening the \QDS Project with Python
+    \section1 Opening the \QDS project with Python
 
         After your project have the Python folder and the \e {main.py} file
         available, you can start setting up your Python environment for developing
@@ -206,7 +206,7 @@
         functionalities to the project. Go to \l {Qt for Python} to learn more
         about developing Qt projects using Python.
 
-    \section1 Converting Qt Design Studio Projects to Applications
+    \section1 Converting \QDS projects to applications
 
         \include qtquick-converting-ui-projects-to-applications.qdocinc {converting-ui-projects-to-applications} {\QDS}
 

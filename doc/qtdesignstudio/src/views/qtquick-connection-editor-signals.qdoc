@@ -6,7 +6,7 @@
     \page quick-signals.html
     \nextpage quick-property-bindings.html
 
-    \title Connecting Components to Signals
+    \title Connecting components to signals
 
     A signal and handler mechanism enables components to respond to application
     events, which are represented by \e signals. When a signal is emitted, the
@@ -38,7 +38,7 @@
     For more information about signals and signal handlers, see
     \l{Signal and Handler Event System}.
 
-    \section1 Connecting Components to Signals in the Connection View
+    \section1 Connecting components to signals in the Connection view
 
     You can connect components to signals that are available to them in
     \uicontrol Connections. Then define \uicontrol Action for them. You can
@@ -89,7 +89,7 @@
           (\uicontrol Remove) to delete a connection.
 
 
-    \section1 Actions and Conditions
+    \section1 Actions and conditions
 
     You use the \uicontrol {Connection Editor} to create the JavaScript
     expressions for \e actions with \e conditions. An \e action connects
@@ -100,7 +100,7 @@
     For more information about the logical operators that you can use to
     construct conditional expressions, see \l {Summary of Logical Operators}.
 
-    \section2 Creating JavaScript Expressions
+    \section2 Creating JavaScript expressions
 
     To create JavaScript expressions for actions, do one of the following:
 
@@ -121,7 +121,7 @@
         \image qmldesigner-connections-ConditionalAction-Manual.webp
     \endlist
 
-    \section2 Action Properties
+    \section2 Action properties
 
     \table
         \header

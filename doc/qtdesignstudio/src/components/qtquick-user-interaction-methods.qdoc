@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,7 +6,7 @@
     \previouspage quick-images.html
     \nextpage quick-controls.html
 
-    \title User Interaction Methods
+    \title User interaction methods
 
     You can create instances of preset basic components to add interaction
     methods to UIs, such as performing actions by using a pointing device or
@@ -14,7 +14,7 @@
     vertically. They are availabe in \uicontrol Components >
     \uicontrol {Default Components} > \uicontrol Basic.
 
-    In addition, you can create instances of preset \l{UI Controls} to inform
+    In addition, you can create instances of preset \l{UI controls} to inform
     users about the progress of the application or to gather input from users.
 
     The following basic components are available for user interaction:
@@ -23,7 +23,7 @@
         \li \l {Mouse Area}
         \li \l {Focus Scope}
         \li \l {Flickable}
-        \li \l {Summary of Basic Interaction Methods}
+        \li \l {Summary of the basic interaction methods}
     \endlist
 
     You can specify values for the properties of component instances in the
@@ -37,14 +37,14 @@
     a defined area.
 
     A mouse area receives events within a defined area. One quick way to define
-    this area is to \l{Setting Anchors and Margins}{anchor} the mouse area to
+    this area is to \l{Setting anchors and margins}{anchor} the mouse area to
     its parent's area. If the parent is a \l {basic-rectangle}{Rectangle} (or
     any component that is derived from an \l {basic-item}{Item}), the mouse area
     will fill the area defined by the parent's dimensions. Alternatively, you
     can define an area smaller or larger than the parent. Several controls, such
     as \l {Button}{buttons}, contain a mouse area.
 
-    A mouse area emits \l{Connecting Components to Signals}{signals} in response
+    A mouse area emits \l{Connecting components to signals}{signals} in response
     to different mouse events:
 
     \list
@@ -59,7 +59,7 @@
         \li \c released()
     \endlist
 
-    \section2 Mouse Area Properties
+    \section2 Mouse Area properties
 
     A \uicontrol {Mouse Area} is an invisible component that is typically used
     in conjunction with a visible component in order to provide mouse handling
@@ -125,7 +125,7 @@
     propagating down this visual hierarchy until a \uicontrol {Mouse Area}
     accepts the event.
 
-    \section2 Advanced Mouse Area Properties
+    \section2 Advanced Mouse Area properties
 
     You can place a \uicontrol {Mouse Area} instance within a component that
     filters child mouse events, such as \uicontrol Flickable. However, the
@@ -140,7 +140,7 @@
     For more information, see the developer documentation for the \l {MouseArea}
     {Mouse Area} component.
 
-    \section2 Drag Properties
+    \section2 Drag properties
 
     You can specify properties for dragging components in the \uicontrol Drag
     section. Select the component to drag in the \uicontrol Target field.
@@ -190,8 +190,8 @@
 
     The \uicontrol {Focus Scope} component is not a visual component and
     therefore the properties of its children need to be exposed to the parent
-    component of the focus scope. \l{Using Layouts}{Layouts} and
-    \l{Using Positioners}{positioners} will use these visual and styling
+    component of the focus scope. \l{Using layouts}{Layouts} and
+    \l{Using positioners}{positioners} will use these visual and styling
     properties to create the layout.
 
     For more information, see \l {Keyboard Focus in Qt Quick}.
@@ -202,7 +202,7 @@
     and flicked, causing the view onto the child components to scroll. This
     behavior forms the basis of components that are designed to show large
     numbers of child components, such as \uicontrol {List View} and
-    \uicontrol {Grid View}. For more information, see \l{List and Grid Views}.
+    \uicontrol {Grid View}. For more information, see \l{List Views and Grid Views}.
 
     In traditional user interfaces, views can be scrolled using standard
     controls, such as scroll bars and arrow buttons. In some situations, it
@@ -269,7 +269,7 @@
     provides a smoother experience (no jump) at the cost of losing some of the
     drag distance at the beginning.
 
-    \section2 Flickable Geometry
+    \section2 Flickable Geometry properties
 
     The \uicontrol {Content size} field specifies the dimensions of the
     surface controlled by a flickable. Typically, set the values of the
@@ -287,7 +287,7 @@
     may have an arbitrary origin due to delegate size variation, or component
     insertion or removal outside the visible region.
 
-    \section1 Summary of Basic Interaction Methods
+    \section1 Summary of the basic interaction methods
 
     The following table lists the components that you can use to add basic
     interaction methods to UIs with links to their developer documentation.

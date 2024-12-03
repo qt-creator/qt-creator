@@ -17,8 +17,8 @@
 
     When you import 3D scenes from files that you exported from 3D graphics
     tools, you also import a \l{Cameras}{scene camera},
-    \l{Lights}{light}, \l{3D Models}{model}, and \l {Materials and Shaders}{materials}.
-    If your scene does not contain them, add the corresponding \l {3D Components}{Qt Quick 3D}
+    \l{Lights}{light}, \l{3D models}{model}, and \l {Materials and shaders}{materials}.
+    If your scene does not contain them, add the corresponding \l {3D components}{Qt Quick 3D}
     components from \uicontrol Components > \inlineimage icons/plus.png
     > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D}.
 
@@ -33,7 +33,7 @@
     connection between them.
 
     \note To avoid transforming components by mistake while editing your scene,
-    use the \l {Showing and Hiding Components}{showing and hiding} or the
+    use the \l {Showing and hiding components}{showing and hiding} or the
     \l {Locking Components}{locking} features in \l Navigator.
 
     To refresh the contents of the \uicontrol{3D} view, press \key P or
@@ -49,7 +49,7 @@
 
     \include qtdesignstudio-qt-academy.qdocinc qt-academy-3D-with-qt-design-studio
 
-    \section1 Using the Context Menu in the 3D View
+    \section1 Using the context menu in the 3D view
 
     There is a context menu in the \uicontrol 3D view. To open it, right-click
     in the \uicontrol 3D view. From the context menu you can, for example:
@@ -62,9 +62,9 @@
 
     \image 3d-view-context-menu.webp "The context menu in the 3D view"
 
-    \section1 Controlling the 3D View Camera
+    \section1 Controlling the 3D view camera
 
-    \section2 Toggling Camera Mode
+    \section2 Toggling the camera mode
 
     Change the projection of the view by switching between \e {perspective camera}
     and \e {orthographic camera} modes. When using the perspective camera mode,
@@ -83,7 +83,7 @@
     \endlist
     You can also toggle the camera mode by using the keyboard shortcut \key T.
 
-    \section2 Navigating in the 3D Scene
+    \section2 Navigating in the 3D scene
 
     Navigate the scene by panning, rotating, and zooming the 3D view
     camera:
@@ -121,7 +121,7 @@
     \uicontrol {Qt Quick 3D}. For more information about using cameras in the
     scene and the available camera types, see \l{Cameras}.
 
-    \section2 Using Split View
+    \section2 Using the split view
 
     To view the scene in a split view of four different point of views, select
     \inlineimage icons/split-view.png.
@@ -133,7 +133,7 @@
     independently. Navigate each split by panning, rotating, and zooming, as
     described above.
 
-    \section2 Using Fly Mode
+    \section2 Using the fly mode
 
     Use the fly mode to move around freely in the 3D scene. To navigate the scene with
     fly mode, right-click and hold in the \uicontrol 3D view, and use the keyboard shortcuts
@@ -182,7 +182,7 @@
         \li Set a value multiplier for the speed slider.
     \endlist
 
-    \section1 Toggling Camera View
+    \section1 Toggling the camera view
 
     In the 3D view, you can show a small window displaying the camera view.
 
@@ -206,7 +206,7 @@
         is currently selected.
     \endtable
 
-    \section1 Using Global and Local Orientation
+    \section1 Using the global and the local orientation
 
     In \uicontrol 3D view, you view the scene in global or local orientation
     mode.
@@ -226,7 +226,7 @@
     To switch between local and global orientation, select \inlineimage global.png
     (\uicontrol {Toggle Local/Global Orientation}) or press \key Y.
 
-    \section1 Using Edit Light
+    \section1 Using the edit light
 
     The edit light is an extra point light that can be used to illuminate the
     scene. To toggle the edit light on and off, select \inlineimage edit_light_on.png
@@ -236,13 +236,13 @@
     For information about the available scene light types and their properties,
     see \l{Lights}.
 
-    \section1 Baking Lights
+    \section1 Baking lights
 
     Bake lights to light static elements in your scene. To bake lights, select
     \inlineimage icons/bakelights.png to open the \uicontrol {Lights Baking Setup}
     dialog. For more information, see \l {Baking Lightmaps}.
 
-    \section1 Selecting Components
+    \section1 Selecting components
 
     To move, rotate, or scale components in the scene, you need to select them
     first. Toggle the selection mode to determine how components are selected
@@ -265,7 +265,7 @@
     \key Ctrl+C and \key Ctrl+V on Windows to copy-paste components.
 
     \target moving components 3d view
-    \section1 Moving Components
+    \section1 Moving components
 
     \image studio-3d-editor-move.webp "The 3D view in move mode"
 
@@ -284,7 +284,7 @@
             center of the move gizmo.
      \endlist
 
-    \section1 Rotating Components
+    \section1 Rotating components
 
     \image studio-3d-editor-rotate.webp "The 3D view in rotate mode"
 
@@ -298,7 +298,7 @@
             gizmo.
     \endlist
 
-    \section1 Scaling Components
+    \section1 Scaling components
 
     \image studio-3d-editor-scale.webp "The 3D view in scale mode"
 
@@ -333,7 +333,7 @@
     With snapping turned on, press and hold \key Shift to snap objects to one tenth of
     the specified snap interval.
 
-    \section2 Configuring Snapping
+    \section2 Configuring snapping
 
     To edit the snapping settings, select \inlineimage icons/snapping-3d-conf.png
     in the \uicontrol 3D view toolbar to open the configure dialog.
@@ -353,7 +353,7 @@
        distance without affecting its orientation, use the relative snapping.
     \endlist
 
-    \section1 Aligning Views and Cameras
+    \section1 Aligning views and cameras
 
     To align a camera to the \uicontrol{3D} view:
     \list 1
@@ -376,7 +376,7 @@
 
     This moves and rotates the 3D view to show the same view as the selected scene camera.
 
-    \section1 Toggling Visibility
+    \section1 Toggling visibility
 
     To toggle the visibility of objects in the \uicontrol{3D} view, select
     \inlineimage icons/visibilityon.png in the toolbar. This opens a menu with the
@@ -417,7 +417,7 @@
             \li \key M
     \endtable
 
-    \section1 Changing Colors
+    \section1 Changing colors
 
     To change the \uicontrol 3D view background or grid color, select
     \inlineimage icons/3d-background-color.png in the toolbar. This opens a menu
@@ -445,7 +445,7 @@
             \li Resets the background and grid colors to the default colors.
     \endtable
 
-    \section1 Particle Editor
+    \section1 Particle editor
 
     The particle editor tools help you preview your particle systems in
     the \uicontrol{3D} view. You can select one particle system to preview at a
@@ -466,7 +466,7 @@
     \inlineimage icons/particles-seek.png to manually seek forward or backward in
     the particle animation.
 
-    \section1 Using Viewport Shading
+    \section1 Using viewport shading
 
     Use \uicontrol {Viewport Shading} to change the rendering of the materials to only
     reflect a particular aspect of the overall rendering process. Use shading also as a

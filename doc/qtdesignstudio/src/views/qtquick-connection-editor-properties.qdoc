@@ -6,10 +6,10 @@
     \previouspage quick-property-bindings.html
     \nextpage quick-json-data-properties.html
 
-    \sa {Specifying Component Properties}
-    \title Specifying Custom Properties
+    \sa {Specifying component properties}
+    \title Specifying custom properties
 
-    Each \l{Preset Components}{preset component }has a set of preset properties
+    Each \l{Preset components}{preset component }has a set of preset properties
     that you can specify values for. You can add custom properties that would
     not otherwise exist for a particular \l{Component Types}{component type}.
     You bind the properties to dynamic expressions to define global properties
@@ -19,7 +19,7 @@
 
     For example, to specify spacing between UI elements, you could define a
     margin for a component that does not have a margin property, and then use
-    \l{Adding Bindings Between Properties}{bindings} to refer to the value of
+    \l{Adding bindings between properties}{bindings} to refer to the value of
     the margin property from other components.
 
     Similarly, you can add custom properties for your own components that are
@@ -30,7 +30,7 @@
     should have an \e int or \e real property for speed to which the UI is
     bound.
 
-    \section1 Adding Properties for a Component
+    \section1 Adding properties for a component
 
     To add a custom property for a component:
 
@@ -45,7 +45,7 @@
             \image add-new-property-dialog.png
     \endlist
 
-    \section1 Binding a Property Value
+    \section1 Binding a property value
 
     To bind the value of the property to that of another one or to data
     accessible in the application:
@@ -58,11 +58,11 @@
         \image qmldesigner-binding-editor.png "Binding Editor"
     \endlist
 
-    For more information, see \l{Setting Bindings}.
+    For more information, see \l{Setting bindings}.
 
-    \section1 Adding a Custom Property to a Component from the Connections View
+    \section1 Adding a custom property to a component in the Connections view
 
-    To add a custom property to a component from the \uicontrol {Connections} view:
+    To add a custom property to a component in the \uicontrol {Connections} view:
 
     \list 1
         \li Select the component you want to add a Custom property to in the
@@ -85,7 +85,7 @@
     \note Select the \inlineimage icons/minus.png
           (\uicontrol Remove) to delete a Custom Property.
 
-    \section1 Supported Property Types
+    \section1 Supported property types
 
     The following table describes the supported property types:
 

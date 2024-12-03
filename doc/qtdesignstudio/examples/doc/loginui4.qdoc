@@ -23,7 +23,7 @@
     In \l {Login UI: States}, you learned how to use states to simulate page
     changes in a UI and connections to provide user interaction with it. In
     this part, you will now learn another way of animating the UI by creating
-    \l{Creating Timeline Animations}{timeline animations} that you bind
+    \l{Creating timeline animations}{timeline animations} that you bind
     to states.
 
     The starting point for this tutorial is the completed
@@ -33,7 +33,7 @@
     Additionally, you can download the completed project of this tutorial
     \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/Loginui4}{here}.
 
-    For more information, see \l {Creating Timeline Animations}.
+    For more information, see \l {Creating timeline animations}.
 
     \section1 Animating UI components
 

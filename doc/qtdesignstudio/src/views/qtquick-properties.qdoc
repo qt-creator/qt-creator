@@ -6,13 +6,13 @@
     \previouspage quick-scalable-image.html
     \nextpage qtquick-positioning.html
 
-    \title Specifying Component Properties
+    \title Specifying component properties
 
     The \l Properties view displays all the properties of the selected
     \l{glossary-component}{component}.
 
     \target basic-item
-    \section1 Basic Component Properties
+    \section1 Basic component properties
 
     All components share a set of properties that you can specify in the
     \uicontrol Properties view.
@@ -46,7 +46,7 @@
 
     For more technical information about IDs, see \l{The id Attribute}.
 
-    To add a \l{Adding Property Aliases}{property alias} that you can use
+    To add a \l{Adding property aliases}{property alias} that you can use
     from  outside of the component, select \inlineimage icons/alias.png
     . You can use a menu item in the \uicontrol Actions menu to add property
     aliases for property values of child components.
@@ -54,10 +54,10 @@
     \section2 Name
 
     The value of the \uicontrol {Name} field specifies the component name
-    used in an \l{Annotating Designs}{annotation}. It is a free-form text
+    used in an \l{Annotating designs}{annotation}. It is a free-form text
     that descibes the component.
 
-    \section1 2D Geometry
+    \section1 2D geometry
 
     Set the properties in the \uicontrol {Geometry - 2D} section to determine
     the position and size of a component.
@@ -67,7 +67,7 @@
     In the \uicontrol Position group, you can set the position of a component on
     the x and y axis. The position of a component in the UI can be either
     absolute or relative to other components. For more information, see
-    \l{Scalable Layouts}.
+    \l{Scalable layouts}.
 
     In the 2D space, the z position of a component determines its position in
     relation to its sibling components in the component hierarchy. You can set
@@ -80,14 +80,14 @@
     The values in the \uicontrol X and \uicontrol Y fields change accordingly.
 
     The component size and position can also be managed automatically
-    when \l{Using Layouts}{using layouts}.
+    when \l{Using layouts}{using layouts}.
 
     The width and height of the root component in a component file determine
     the size of a component. The component size might also be zero (0,0)
     if its final size is determined by property bindings. For more
     information, see \l {Previewing Component Size}.
 
-    \section2 Resetting Component Position and Size
+    \section2 Resetting component position and size
 
     To return a component to its default position after moving it,
     right-click in the \uicontrol 2D or \uicontrol Navigator view and select
@@ -96,7 +96,7 @@
     \uicontrol Navigator view and select \uicontrol Edit >
     \uicontrol {Reset Size}.
 
-    \section2 Managing 2D Transformations
+    \section2 Managing 2D transformations
 
     You can assign any number of transformations, such as rotation and scaling,
     to a component. Each transformation is applied in order, one at a time.
@@ -147,16 +147,16 @@
     Changing a component's opacity does not affect whether the component
     receives user input events.
 
-    You can \l{Creating Timeline Animations}{animate} the opacity value to make a
+    You can \l{Creating timeline animations}{animate} the opacity value to make a
     component fade in and out.
 
     If the \uicontrol Clip check box is selected, the component and its children
     are clipped to the bounding rectangle of the component.
 
-    in the \uicontrol State field, select the \l{Working with States}{state} to
+    in the \uicontrol State field, select the \l{Working with states}{state} to
     change the value of a property in that state.
 
-    \section1 Picking Colors
+    \section1 Picking colors
 
     You can define color properties for some of the components in the
     \uicontrol Properties view by using the color picker. Open the color picker
@@ -191,7 +191,7 @@
 
     Click the \uicontrol X icon to close the color picker.
 
-    \section2 Picking Gradients
+    \section2 Picking gradients
 
     A gradient is defined by two or more colors which are blended
     seamlessly. The colors are specified as a set of gradient stops,
@@ -214,7 +214,7 @@
     use of solid color fills or images. Consider using gradients only for
     static components in a UI.
 
-    \section2 Setting Gradient Properties
+    \section2 Setting gradient properties
 
     \image qtquick-designer-gradient-types.png "Available gradient types"
 
@@ -224,7 +224,7 @@
     \l{Shapes}{Qt Quick Studio Components} in the \uicontrol {Gradient Controls}
     section of the color picker.
 
-    \section3 Linear Gradients
+    \section3 Linear gradients
 
     A \e {linear gradient} interpolates colors between start and end points.
     Outside these points, the gradient is either padded, reflected, or repeated
@@ -234,7 +234,7 @@
 
     \image qtquick-designer-gradient-properties-linear.png "Linear gradient controls"
 
-    \section3 Radial Gradients
+    \section3 Radial gradients
 
     A \e {radial gradient} interpolates colors between a focal circle and a
     center circle. Points outside the cone defined by the two circles will
@@ -253,7 +253,7 @@
 
     \image qtquick-designer-gradient-properties-radial.png "Radial gradient properties"
 
-    \section3 Conical Gradients
+    \section3 Conical gradients
 
     A \e {conical gradient} interpolates colors counter-clockwise around a
     center point. Set the horizontal and vertical center point of the gradient
@@ -262,7 +262,7 @@
 
     \image qtquick-designer-gradient-properties-conical.png "Conical gradient properties"
 
-    \section2 Selecting Web Gradients
+    \section2 Selecting web gradients
 
     The \uicontrol {Gradient Picker} enables you to specify
     \l{https://webgradients.com/}{WebGradients} for components
@@ -316,7 +316,7 @@
     Click one of the \uicontrol Palette color thumbnails to select it as
     the new color.
 
-    \section1 Specifying Developer Properties
+    \section1 Specifying developer properties
 
     In the \uicontrol Advanced and \uicontrol Layer sections of the
     \uicontrol Properties view, you can manage the more advanced
@@ -339,7 +339,7 @@
     text usually set their baseline to the baseline of their text. For non-text
     components, a default baseline offset of 0 is used.
 
-    \section2 Managing Mouse and Keyboard Events
+    \section2 Managing mouse and keyboard events
 
     Select the \uicontrol Enabled check box to allow the component to receive
     mouse and keyboard events. The children of the component inherit this
@@ -353,7 +353,7 @@
     moves keyboard focus to the next component in the chain. Pressing back tab
     (usually, \key {Shift+Tab}) moves focus to the previous component.
 
-    \section2 Using Layers
+    \section2 Using layers
 
     Qt Quick makes use of a dedicated scene graph that is then traversed and
     rendered via a graphics API such as OpenGL ES, OpenGL, Vulkan, Metal, or
@@ -440,7 +440,7 @@
     and vertically. Note that some OpenGL ES 2 implementations do not support
     the \uicontrol Repeat wrap mode with non-power-of-two textures.
 
-    \section1 Copying and Pasting Formatting
+    \section1 Copying and pasting formatting
 
     You can copy property values from a component and paste them to one or
     several other components. The values are applied if the target components
@@ -454,7 +454,7 @@
     them in the \l Navigator or \l {2D} view, and then right-click and select
     \uicontrol Edit > \uicontrol {Apply Formatting}.
 
-    \section1 Editing Properties Inline
+    \section1 Editing properties inline
 
     You can double-click components in the \l {2D} view to edit their
     text, color, or source properties inline. Because you can specify several

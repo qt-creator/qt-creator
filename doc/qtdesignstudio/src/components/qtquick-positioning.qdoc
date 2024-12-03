@@ -6,7 +6,7 @@
     \previouspage qtquick-properties.html
     \nextpage qtquick-annotations.html
 
-    \title Scalable Layouts
+    \title Scalable layouts
 
     The position of a \l{glossary-component}{component} in a UI is either
     absolute or relative to other components. The visual components exist at a
@@ -25,30 +25,30 @@
             \li Action
             \li Purpose
         \row
-            \li \l{Setting Bindings}
+            \li \l{Setting bindings}
             \li To connect the properties of components.
         \row
-            \li \l{Setting Anchors and Margins}
+            \li \l{Setting anchors and margins}
             \li To set the rules for attaching the component to other components. You can define
                 the distance between the components and put margins on the components.
         \row
-            \li \l{Aligning and Distributing Components}
+            \li \l{Aligning and distributing components}
             \li To align the unanchored components left, right, vertical, horizontal, top, and
                 bottom with respect to each other.
         \row
-            \li \l{Using Positioners}
+            \li \l{Using positioners}
             \li To arrange components in rows, columns, grids, or flows.
         \row
-            \li \l{Using Layouts}
+            \li \l{Using layouts}
             \li To place the components in columns, grids, rows and stacks in layouts.
                 The layouts adept the nature of dynamic and resizable UI.
         \row
-            \li \l {Organizing Components}
+            \li \l {Organizing components}
             \li To keep the components or controls collected with frames, groups,
                 group boxes, pages, and panes.
     \endtable
 
-    \section2 Setting Bindings
+    \section2 Setting bindings
 
     Using \e {Property Binding}, you can connect the properties of components. So, change in
     one can affect another. Once the binding is set, the property value is automatically
@@ -72,7 +72,7 @@
     \inlineimage icons/action-icon-binding.png.
     To remove bindings, select \uicontrol Actions > \uicontrol Reset.
 
-   See \l {Adding Bindings Between Properties} to learn how to set bindings using
+   See \l {Adding bindings between properties} to learn how to set bindings using
    the \uicontrol Bindings tab in the \l Connections view.
 
     \note For better performance, set anchors and margins for binding
@@ -80,7 +80,7 @@
     component, anchor the component to its sibling components on the
     left and the right.
 
-    \section2 Setting Anchors and Margins
+    \section2 Setting anchors and margins
 
     In an \l{Important Concepts In Qt Quick - Positioning#anchors}
     {anchor-based} layout, each component has a set of
@@ -140,7 +140,7 @@
     \uicontrol Margin. Margins work for anchors. They do not take any
     effect when using layouts or absolute positioning.
 
-    \section2 Aligning and Distributing Components
+    \section2 Aligning and distributing components
 
     For a group of components, select them to align
     and distribute them evenly. As the positions of the components are fixed,
@@ -209,7 +209,7 @@
     pixels, click \inlineimage icons/distribute-origin-none.png
     button.
 
-    \section2 Using Positioners
+    \section2 Using positioners
 
     Positioner components are containers that manage the positions of their
     child components. For many use cases, the best positioner to use is a simple
@@ -231,7 +231,7 @@
             \uicontrol Column, \uicontrol Grid or \uicontrol {Flow Positioner}.
     \endlist
 
-    \section3 Column Positioner
+    \section3 Column positioner
 
     A \uicontrol Column positions its child components along a single column.
     It is used as a convenient way to vertically position a series of
@@ -246,7 +246,7 @@
     content and the left, right, top, and bottom edges of components
     in the \l Padding section.
 
-    \section3 Row and Flow Positioners
+    \section3 Row and the Flow positioners
 
     A \uicontrol Row positions its child components along a single row. It is
     used as a convenient way to horizontally position a series of components
@@ -255,7 +255,7 @@
     The \uicontrol Flow component positions its child components like words on a
     page, wrapping them to create rows or columns of components.
 
-    \image qtquick-positioner-flow-properties.png "Flow properties"
+    \image qtquick-positioner-flow-properties.png "The Flow properties"
 
     For flow and row positioners, also set the direction of a flow to
     either left-to-right or top-to-bottom in the \uicontrol Flow field.
@@ -269,7 +269,7 @@
     the width of the row is explicitly set, the left anchor remains to the
     left of the row and the right anchor remains to the right of it.
 
-    \section3 Grid Positioner
+    \section3 Grid positioner
 
     A \uicontrol Grid creates a grid of cells that is large enough to hold all
     of its child components, and places these components in the cells from left
@@ -292,7 +292,7 @@
     To also mirror the horizontal alignment of components, select
     \uicontrol AlignRight in the \uicontrol {Alignment H} field.
 
-    \section2 Using Layouts
+    \section2 Using layouts
 
     Use the components available in \uicontrol Components
     > \uicontrol {Qt Quick Layouts} to arrange components in UIs.
@@ -307,7 +307,7 @@
     to select its size in respect to its non-layout parent component. However,
     do not anchor the child components within layouts.
 
-    To put components in the \uicontrol {Grid Layout}:
+    To put components in \uicontrol {Grid Layout}:
 
     \list 1
         \li Select all the components and right-click on one of them.
@@ -406,7 +406,7 @@
             \image studio-stack-layout-example-output.webp "Stack Layout example output"
     \endlist
 
-    \section2 Organizing Components
+    \section2 Organizing components
 
     You can use the \uicontrol Frame and \uicontrol {Group Box} controls to
     draw frames around groups of controls.

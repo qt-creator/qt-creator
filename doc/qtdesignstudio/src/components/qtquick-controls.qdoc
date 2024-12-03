@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,7 +6,7 @@
     \previouspage quick-user-interaction-methods.html
     \nextpage quick-data-models.html
 
-    \title UI Controls
+    \title UI controls
 
     You can create instances of preset UI controls to inform users about
     the progress of the application or to gather input from users. They are
@@ -23,7 +23,7 @@
         \li \l {Selectors}
         \li \l {Tab Bar}
         \li \l {Tool Bar}
-        \li \l {Summary of UI Controls}
+        \li \l {Summary of the UI controls}
     \endlist
 
     You can specify values for the properties of component instances in the
@@ -32,7 +32,7 @@
     are only available for a particular control. The following sections
     describe the preset UI controls and their properties.
 
-    \section1 General Control Properties
+    \section1 General control properties
 
     You can set control properties in the \l Properties view.
 
@@ -57,7 +57,7 @@
     \l {Check Box}. Spacing is not enforced by the controls, so each style may
     interpret it differently, and some may ignore it altogether.
 
-    \section1 Button Controls
+    \section1 Button controls
 
     Qt Quick Controls offer a selection of button-like controls for specific
     use cases. The following sections contain guidelines for choosing the button
@@ -109,7 +109,7 @@
     Don't use a button to set state because a \l Switch is more suitable for
     that purpose.
 
-    \section3 Highlighted Buttons
+    \section3 Highlighted buttons
 
     Select the \uicontrol Highlight check box in the \uicontrol Button section
     to draw the users' attention towards a button. Highlighting a button has no
@@ -121,7 +121,7 @@
 
     \image qtquickcontrols2-button-highlighted.gif "Highlighted button"
 
-    \section3 Flat Buttons
+    \section3 Flat buttons
 
     A flat button typically does not draw a background unless it is pressed or
     checked. To create a flat button, select the \uicontrol Flat check box in
@@ -131,14 +131,14 @@
 
     \image qtquickcontrols2-button-flat.gif "Flat button"
 
-    \section3 Icon Buttons
+    \section3 Icon buttons
 
     To create a button that contains an icon, use the wizard template to
     \l{Creating Custom Controls}{create a custom button} and drag-and-drop
     the icon to the button background component. For an example of using the
     wizard template, see \l{Creating a Push Button}.
 
-    \section2 Delay Button
+    \section2 Delay button
 
     \image qtquickcontrols2-delaybutton.gif "Delay button"
 
@@ -286,7 +286,7 @@
     of the width or height of the button, and make the button's width and height
     identical.
 
-    \section2 Displaying Text and Icons
+    \section2 Displaying text and icons
 
     A button can contain text, an icon, or both. Specify the button text in
     the \uicontrol Text field in the \uicontrol {Button Content} section. The
@@ -296,7 +296,7 @@
 
     \image qtquick-designer-abstract-button-properties.png "Button Content properties"
 
-    \section2 Checking Buttons
+    \section2 Checking buttons
 
     A \e checkable button toggles between checked (on) and unchecked (off) when
     users click on it or press the space bar while the button has active
@@ -316,10 +316,10 @@
     If the buttons don't belong to the same parent, checking and unchecking
     buttons does not affect the other buttons in the group.
 
-    \section2 Button Signals
+    \section2 Button signals
 
     A button emits the \c clicked() signal when it is activated by users.
-    \l{Connecting Components to Signals}{Connect to this signal} to perform
+    \l{Connecting components to signals}{Connect to this signal} to perform
     the button's action. Buttons provide the following additional signals:
     \c canceled(), \c doubleClicked(), \c pressed(), \c released(), and
     \c pressAndHold() for long presses.
@@ -525,7 +525,7 @@
     A combo box is used to select a value from a static multiple-line drop-down
     list. Users cannot add new values, and only one option can be selected.
 
-    Combo box values are provided by a \l{Lists and Other Data Models}
+    Combo box values are provided by a \l{Lists and other data models}
     {data model}. The data model is usually a JavaScript array, a \l ListModel,
     or an integer, but other types of data models are also supported.
 
@@ -621,7 +621,7 @@
     position its contents, for instance by creating a \l RowLayout. If the
     toolbar contains only one item, it will resize to fit the implicit item
     size. This makes a toolbar particularly suitable for use together with
-    \l{Using Layouts}{layouts}. However, you can specify content width
+    \l{Using layouts}{layouts}. However, you can specify content width
     (\uicontrol W) and height (\uicontrol H) in the \uicontrol {Content size}
     field in the \uicontrol Pane section.
 
@@ -630,7 +630,7 @@
     be used in horizontal or vertical toolbars by setting the value of
     the \uicontrol Orientation field.
 
-    \section1 Styling Controls
+    \section1 Styling controls
 
     The preset UI controls can be \l {Styling Qt Quick Controls}{styled}.
     The \uicontrol {2D} view reads the preferred style from a
@@ -647,7 +647,7 @@
     For more information about how to customize a particular control, see
     \l{Customization Reference}.
 
-    \section1 Summary of UI Controls
+    \section1 Summary of the UI controls
 
     The following table lists preset UI controls with links to their developer
     documentation. They are available in \uicontrol Components >
