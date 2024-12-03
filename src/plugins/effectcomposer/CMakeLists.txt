@@ -24,6 +24,7 @@ add_qtc_plugin(EffectComposer
     uniform.cpp uniform.h
     effectutils.cpp effectutils.h
     effectcomposercontextobject.cpp effectcomposercontextobject.h
+    listmodelwidthcalculator.cpp listmodelwidthcalculator.h
     shaderfeatures.cpp shaderfeatures.h
     syntaxhighlighterdata.cpp syntaxhighlighterdata.h
     propertyhandler.cpp propertyhandler.h

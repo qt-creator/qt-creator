@@ -5,6 +5,7 @@ import QtQuick
 import QtQuick.Layouts
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import ModelModules as ModelModules
 
 Rectangle {
     id: root
@@ -24,7 +25,9 @@ Rectangle {
             StudioControls.TopLevelComboBox {
                 id: nodesComboBox
                 style: StudioTheme.Values.toolbarStyle
-                Layout.preferredWidth: 400
+                Layout.preferredWidth: nodeNamesWidthCalculator.maxWidth
+                                       + nodesComboBox.indicator.width
+                                       + 20
                 Layout.alignment: Qt.AlignVCenter
                 model: editableCompositionsModel
                 textRole: "display"
@@ -33,6 +36,14 @@ Rectangle {
                 }
                 onActivated: (idx) => {
                     editableCompositionsModel.openCodeEditor(idx)
+                }
+
+                ModelModules.ListModelWidthCalculator {
+                    id: nodeNamesWidthCalculator
+
+                    model: nodesComboBox.model
+                    font: nodesComboBox.font
+                    textRole: nodesComboBox.textRole
                 }
             }
 

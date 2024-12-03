@@ -6,6 +6,7 @@
 #include "effectcomposermodel.h"
 #include "effectcomposernodesmodel.h"
 #include "effectcomposerwidget.h"
+#include "listmodelwidthcalculator.h"
 #include "studioquickwidget.h"
 #include "tableheaderlengthmodel.h"
 
@@ -250,6 +251,7 @@ void EffectComposerView::dragEnded()
 void EffectComposer::EffectComposerView::registerDeclarativeTypes()
 {
     qmlRegisterType<TableHeaderLengthModel>("TableModules", 1, 0, "TableHeaderLengthModel");
+    qmlRegisterType<ListModelWidthCalculator>("ModelModules", 1, 0, "ListModelWidthCalculator");
 }
 
 } // namespace EffectComposer
