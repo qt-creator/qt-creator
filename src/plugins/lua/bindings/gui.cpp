@@ -88,6 +88,7 @@ CREATE_HAS_FUNC(onTextChanged, nullptr, nullptr)
 CREATE_HAS_FUNC(onClicked, nullptr, nullptr)
 CREATE_HAS_FUNC(setText, QString())
 CREATE_HAS_FUNC(setMarkdown, QString())
+CREATE_HAS_FUNC(setSizePolicy, QSizePolicy())
 CREATE_HAS_FUNC(setReadOnly, bool())
 CREATE_HAS_FUNC(setTitle, QString())
 CREATE_HAS_FUNC(setValue, int())
@@ -289,6 +290,19 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         auto markdown = children.get<sol::optional<QString>>("markdown");
         if (markdown)
             item->setMarkdown(*markdown);
+    }
+    if constexpr (has_setSizePolicy<T>) {
+        auto sizePolicy = children.get<sol::optional<sol::table>>("sizePolicy");
+        if (sizePolicy) {
+            QTC_ASSERT(
+                sizePolicy->size() == 2,
+                throw sol::error(
+                    "sizePolicy must be array of 2 elements: horizontalPolicy, verticalPolicy.")
+                );
+            auto horizontalPolicy = sizePolicy->get<QSizePolicy::Policy>(1);
+            auto verticalPolicy = sizePolicy->get<QSizePolicy::Policy>(2);
+            item->setSizePolicy(QSizePolicy(horizontalPolicy, verticalPolicy));
+        }
     }
     if constexpr (has_setTitle<T>) {
         item->setTitle(children.get_or<QString>("title", ""));
@@ -551,6 +565,9 @@ void setupGuiModule()
         mirrorEnum(gui, QMetaEnum::fromType<Qt::TextFormat>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::TextInteractionFlag>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::CursorShape>());
+
+        auto sizePolicy = gui.create_named("QSizePolicy");
+        mirrorEnum(sizePolicy, QMetaEnum::fromType<QSizePolicy::Policy>());
 
         gui.new_usertype<Stack>(
             "Stack",

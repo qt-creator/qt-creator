@@ -26,6 +26,7 @@ gui.widget = {}
 ---@field windowFlags? WindowType[] The window flags of the widget.
 ---@field widgetAttributes? WidgetAttributeMapT<boolean> The widget attributes of the widget.
 ---@field autoFillBackground? boolean A boolean, representing whether the widget should automatically fill its background.
+---@field sizePolicy? SizePolicy.Policy[] Two size policies of the widget, horizontal and vertical.
 gui.baseWidgetOptions = {}
 
 ---@class (exact) WidgetOptions : BaseWidgetOptions
@@ -458,6 +459,20 @@ gui.CursorShape = {
     LastCursor = DragLinkCursor,
     BitmapCursor = 0,
     CustomCursor = 0
+}
+
+gui.SizePolicy = {
+    --- Enum representing size policy.
+    ---@enum Policy
+    Policy = {
+        Fixed = 0,
+        Minimum = 0,
+        Maximum = 0,
+        Preferred = 0,
+        MinimumExpanding = 0,
+        Expanding = 0,
+        Ignored = 0
+    }
 }
 
 ---@class Space : Layout
