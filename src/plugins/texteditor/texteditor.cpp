@@ -853,6 +853,7 @@ public:
     void _q_animateUpdate(const QTextCursor &cursor, QPointF lastPos, QRectF rect);
     void updateCodeFoldingVisible();
     void updateFileLineEndingVisible();
+    void updateTabSettingsButtonVisible();
 
     void reconfigure();
     void updateSyntaxInfoBar(const HighlighterHelper::Definitions &definitions, const QString &fileName);
@@ -1228,6 +1229,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_tabSettingsButton = new TabSettingsButton(q);
     m_tabSettingsButton->setContentsMargins(spacing, 0, spacing, 0);
     m_toolBarWidget->layout()->addWidget(m_tabSettingsButton);
+    updateTabSettingsButtonVisible();
 
     m_fileLineEnding = new QToolButton(q);
     m_fileLineEnding->setContentsMargins(spacing, 0, spacing, 0);
@@ -3649,6 +3651,7 @@ bool TextEditorWidget::event(QEvent *e)
     }
     case QEvent::ReadOnlyChange:
         d->updateFileLineEndingVisible();
+        d->updateTabSettingsButtonVisible();
         if (isReadOnly())
             setTextInteractionFlags(textInteractionFlags() | Qt::TextSelectableByKeyboard);
         d->updateActions();
@@ -3907,6 +3910,11 @@ void TextEditorWidgetPrivate::updateCodeFoldingVisible()
 void TextEditorWidgetPrivate::updateFileLineEndingVisible()
 {
     m_fileLineEndingAction->setVisible(m_displaySettings.m_displayFileLineEnding && !q->isReadOnly());
+}
+
+void TextEditorWidgetPrivate::updateTabSettingsButtonVisible()
+{
+    m_tabSettingsButton->setVisible(m_displaySettings.m_displayTabSettings && !q->isReadOnly());
 }
 
 void TextEditorWidgetPrivate::reconfigure()
@@ -9189,6 +9197,7 @@ void TextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 
     d->updateCodeFoldingVisible();
     d->updateFileLineEndingVisible();
+    d->updateTabSettingsButtonVisible();
     d->updateHighlights();
     d->setupScrollBar();
     d->updateCursorSelections();

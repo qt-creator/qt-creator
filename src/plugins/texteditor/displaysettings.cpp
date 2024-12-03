@@ -31,6 +31,7 @@ const char centerCursorOnScrollKey[] = "CenterCursorOnScroll";
 const char openLinksInNextSplitKey[] = "OpenLinksInNextSplitKey";
 const char displayFileEncodingKey[] = "DisplayFileEncoding";
 const char displayFileLineEndingKey[] = "DisplayFileLineEnding";
+const char displayTabSettingsKey[] = "DisplayTabSettings";
 const char scrollBarHighlightsKey[] = "ScrollBarHighlights";
 const char animateNavigationWithinFileKey[] = "AnimateNavigationWithinFile";
 const char animateWithinFileTimeMaxKey[] = "AnimateWithinFileTimeMax";
@@ -58,6 +59,7 @@ void DisplaySettings::toSettings(QtcSettings *s) const
     s->setValue(openLinksInNextSplitKey, m_openLinksInNextSplit);
     s->setValue(displayFileEncodingKey, m_displayFileEncoding);
     s->setValue(displayFileLineEndingKey, m_displayFileLineEnding);
+    s->setValue(displayTabSettingsKey, m_displayTabSettings);
     s->setValue(scrollBarHighlightsKey, m_scrollBarHighlights);
     s->setValue(animateNavigationWithinFileKey, m_animateNavigationWithinFile);
     s->setValue(displayAnnotationsKey, m_displayAnnotations);
@@ -86,6 +88,7 @@ void DisplaySettings::fromSettings(QtcSettings *s)
     m_openLinksInNextSplit = s->value(openLinksInNextSplitKey, m_openLinksInNextSplit).toBool();
     m_displayFileEncoding = s->value(displayFileEncodingKey, m_displayFileEncoding).toBool();
     m_displayFileLineEnding = s->value(displayFileLineEndingKey, m_displayFileLineEnding).toBool();
+    m_displayTabSettings = s->value(displayTabSettingsKey, m_displayTabSettings).toBool();
     m_scrollBarHighlights = s->value(scrollBarHighlightsKey, m_scrollBarHighlights).toBool();
     m_animateNavigationWithinFile = s->value(animateNavigationWithinFileKey, m_animateNavigationWithinFile).toBool();
     m_animateWithinFileTimeMax = s->value(animateWithinFileTimeMaxKey, m_animateWithinFileTimeMax).toInt();
@@ -116,6 +119,7 @@ bool DisplaySettings::equals(const DisplaySettings &ds) const
         && m_forceOpenLinksInNextSplit == ds.m_forceOpenLinksInNextSplit
         && m_displayFileEncoding == ds.m_displayFileEncoding
         && m_displayFileLineEnding == ds.m_displayFileLineEnding
+        && m_displayTabSettings == ds.m_displayTabSettings
         && m_scrollBarHighlights == ds.m_scrollBarHighlights
         && m_animateNavigationWithinFile == ds.m_animateNavigationWithinFile
         && m_animateWithinFileTimeMax == ds.m_animateWithinFileTimeMax

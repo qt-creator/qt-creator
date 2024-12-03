@@ -50,6 +50,7 @@ public:
     bool m_forceOpenLinksInNextSplit = false;
     bool m_displayFileEncoding = false;
     bool m_displayFileLineEnding = true;
+    bool m_displayTabSettings = true;
     bool m_scrollBarHighlights = true;
     bool m_animateNavigationWithinFile = false;
     bool m_highlightSelection = true;
