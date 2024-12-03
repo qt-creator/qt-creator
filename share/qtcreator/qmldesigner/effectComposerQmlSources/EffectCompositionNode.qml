@@ -285,7 +285,7 @@ HelperWidgets.Section {
                 height: 40
                 visible: (root.backendModel.advancedMode || isCustom) && !isDependency && !addPropertyForm.visible
                 anchors.horizontalCenter: parent.horizontalCenter
-                spacing: 10
+                spacing: 5
 
                 HelperWidgets.Button {
                     width: 100
