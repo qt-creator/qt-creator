@@ -204,7 +204,8 @@ QString CMakeWriter::getEnvironmentVariable(const QString &key) const
 QString CMakeWriter::makeFindPackageBlock(const NodePtr &node, const QmlBuildSystem *buildSystem) const
 {
     QString head = "find_package(Qt" + buildSystem->versionQt();
-    QString tail = " REQUIRED COMPONENTS Core Gui Qml Quick QuickTimeline ShaderTools";
+    QString tail = " REQUIRED COMPONENTS Core Gui Widgets Qml Quick QuickTimeline ShaderTools";
+
     if (hasMesh(node) || hasQuick3dImport(buildSystem->mainUiFilePath()))
         tail.append(" Quick3D");
     tail.append(")\n");

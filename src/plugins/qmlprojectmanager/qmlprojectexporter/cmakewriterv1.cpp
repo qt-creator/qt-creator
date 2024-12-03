@@ -13,11 +13,12 @@ namespace QmlProjectExporter {
 
 const char TEMPLATE_SRC_CMAKELISTS[] = R"(
 target_sources(${CMAKE_PROJECT_NAME} PUBLIC
-%2)
+%1)
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Quick
     Qt${QT_VERSION_MAJOR}::Qml))";
 
