@@ -1428,6 +1428,7 @@ void tst_Dumpers::dumper()
     if (data.neededGccVersion.isRestricted && m_debuggerEngine == GdbEngine) {
         QProcess gcc;
         gcc.setWorkingDirectory(t->buildPath);
+        gcc.setProcessEnvironment(m_env);
         gcc.start("gcc", {"--version"});
         QVERIFY(gcc.waitForFinished());
         output = gcc.readAllStandardOutput();

@@ -1179,6 +1179,8 @@ class Dumper(DumperBase):
         return self.qtNamespace() + 'Qt::' + enumValue
 
     def lookupNativeType(self, type_name):
+        typeobj = None
+
         if type_name == 'void':
             typeobj = gdb.lookup_type(type_name)
             self.typesToReport[type_name] = typeobj
