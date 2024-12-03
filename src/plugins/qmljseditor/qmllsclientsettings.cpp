@@ -114,7 +114,7 @@ static std::pair<FilePath, QVersionNumber> evaluateLatestQmlls()
     return std::make_pair(latestQmlls, latestVersion);
 }
 
-static CommandLine commandLineForQmlls(const Project *project)
+static CommandLine commandLineForQmlls(Project *project)
 {
     const auto *qtVersion = qtVersionFromProject(project);
     QTC_ASSERT(qtVersion, return {});
@@ -132,6 +132,14 @@ static CommandLine commandLineForQmlls(const Project *project)
     // qmlls 6.8 and later require the import path
     if (version >= QVersionNumber(6, 8, 0))
         result.addArgs({"-I", qtVersion->qmlPath().path()});
+
+    // add custom import paths that the embedded codemodel uses too
+    const QmlJS::ModelManagerInterface::ProjectInfo projectInfo
+        = QmlJS::ModelManagerInterface::instance()->projectInfo(project);
+    for (QmlJS::PathAndLanguage path : projectInfo.importPaths) {
+        if (path.language() == QmlJS::Dialect::Qml)
+            result.addArgs({"-I", path.path().path()});
+    }
 
     // qmlls 6.8.1 and later require the documentation path
     if (version >= QVersionNumber(6, 8, 1))
