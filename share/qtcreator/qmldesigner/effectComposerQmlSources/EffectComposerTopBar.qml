@@ -59,36 +59,6 @@ Rectangle {
         }
 
         HelperWidgets.AbstractButton {
-            id: openCodeEditorButton
-            objectName: "btnOpenCodeEditor"
-
-            property bool codeEditorOpen: root.backendModel
-                                          && (root.backendModel.codeEditorIndex
-                                              === root.backendModel.mainCodeEditorIndex)
-            property color buttonIconColor: openCodeEditorButton.codeEditorOpen
-                                               ? StudioTheme.Values.themeInteraction
-                                               : StudioTheme.Values.themeTextColor
-            style: StudioTheme.ViewBarButtonStyle {
-                icon: StudioTheme.ControlStyle.IconColors {
-                    idle: openCodeEditorButton.buttonIconColor
-                    hover: openCodeEditorButton.buttonIconColor
-                    interaction: openCodeEditorButton.buttonIconColor
-                    disabled: StudioTheme.Values.themeToolbarIcon_blocked
-                }
-            }
-
-            buttonIcon: StudioTheme.Constants.codeEditor_medium
-            tooltip: qsTr("Open code editor")
-            enabled: root.backendModel ? root.backendModel.isEnabled
-                                         && root.backendModel.currentComposition !== ""
-                                       : false
-            visible: root.backendModel ? root.backendModel.advancedMode : false
-
-            onClicked: root.backendModel.openMainCodeEditor()
-
-        }
-
-        HelperWidgets.AbstractButton {
             objectName: "btnAssignCompositionToItem"
 
             style: StudioTheme.Values.viewBarButtonStyle
