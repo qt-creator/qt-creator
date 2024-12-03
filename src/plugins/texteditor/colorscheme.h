@@ -97,7 +97,7 @@ public:
 
     void clear();
 
-    bool save(const Utils::FilePath &filePath, QWidget *parent) const;
+    bool save(const Utils::FilePath &filePath) const;
     bool load(const Utils::FilePath &filePath);
 
     bool equals(const ColorScheme &cs) const
