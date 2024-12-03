@@ -28,19 +28,21 @@ public:
 };
 
 PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(
-        const IDevice::ConstPtr &deviceConfig, QWidget *parent)
+        const DeviceConstRef &device, QWidget *parent)
 {
-    const FilePath dir = deviceConfig->sshParameters().privateKeyFile.parentDir();
+    const FilePath dir = device.sshParameters().privateKeyFile.parentDir();
     const FilePath publicKeyFileName = FileUtils::getOpenFilePath(nullptr,
         Tr::tr("Choose Public Key File"), dir,
         Tr::tr("Public Key Files (*.pub);;All Files (*)"));
     if (publicKeyFileName.isEmpty())
         return nullptr;
-    return new PublicKeyDeploymentDialog(deviceConfig, publicKeyFileName, parent);
+    return new PublicKeyDeploymentDialog(device, publicKeyFileName, parent);
 }
 
-PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const IDevice::ConstPtr &deviceConfig,
-        const FilePath &publicKeyFileName, QWidget *parent)
+PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(
+        const DeviceConstRef &device,
+        const FilePath &publicKeyFileName,
+        QWidget *parent)
     : QProgressDialog(parent), d(new PublicKeyDeploymentDialogPrivate)
 {
     setAutoReset(false);
@@ -76,7 +78,7 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const IDevice::ConstPtr &de
             + QString::fromLocal8Bit(reader.data())
             + "' >> .ssh/authorized_keys && chmod 0600 .ssh/authorized_keys";
 
-    const SshParameters params = deviceConfig->sshParameters();
+    const SshParameters params = device.sshParameters();
     const QString hostKeyCheckingString = params.hostKeyCheckingMode == SshHostKeyCheckingStrict
             ? QLatin1String("yes") : QLatin1String("no");
     const bool isWindows = HostOsInfo::isWindowsHost()

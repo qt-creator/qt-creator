@@ -5,15 +5,16 @@
 
 #include "remotelinux_export.h"
 
-#include <projectexplorer/devicesupport/idevicefwd.h>
 #include <utils/wizard.h>
+
+namespace ProjectExplorer { class DeviceRef; }
 
 namespace RemoteLinux {
 
 class REMOTELINUX_EXPORT SshDeviceWizard : public Utils::Wizard
 {
 public:
-    SshDeviceWizard(const QString &title, const ProjectExplorer::IDevicePtr &device);
+    SshDeviceWizard(const QString &title, const ProjectExplorer::DeviceRef &device);
 };
 
 } // namespace RemoteLinux

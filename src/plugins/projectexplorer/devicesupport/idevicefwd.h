@@ -7,6 +7,9 @@
 
 namespace ProjectExplorer {
 
+class DeviceRef;
+class DeviceConstRef;
+
 class IDevice;
 
 using IDevicePtr = std::shared_ptr<IDevice>;

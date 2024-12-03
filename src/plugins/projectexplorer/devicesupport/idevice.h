@@ -245,6 +245,33 @@ private:
     friend class DeviceManager;
 };
 
+class PROJECTEXPLORER_EXPORT DeviceConstRef
+{
+public:
+    DeviceConstRef(const IDevice::ConstPtr &device);
+    DeviceConstRef(const IDevice::Ptr &device);
+    virtual ~DeviceConstRef();
+
+    Utils::Id id() const;
+    QString displayName() const;
+    SshParameters sshParameters() const;
+
+private:
+    std::weak_ptr<const IDevice> m_constDevice;
+};
+
+class PROJECTEXPLORER_EXPORT DeviceRef : public DeviceConstRef
+{
+public:
+    DeviceRef(const IDevice::Ptr &device);
+
+    void setDisplayName(const QString &displayName);
+    void setSshParameters(const SshParameters &params);
+
+private:
+    std::weak_ptr<IDevice> m_mutableDevice;
+};
+
 class PROJECTEXPLORER_EXPORT DeviceTester : public QObject
 {
     Q_OBJECT

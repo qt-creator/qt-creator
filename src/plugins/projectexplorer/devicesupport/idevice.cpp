@@ -794,4 +794,57 @@ void DeviceProcessKillerTaskAdapter::start()
     task()->start();
 }
 
+// DeviceConstRef
+
+DeviceConstRef::DeviceConstRef(const IDevice::ConstPtr &device)
+    : m_constDevice(device)
+{}
+
+DeviceConstRef::DeviceConstRef(const IDevice::Ptr &device)
+    : m_constDevice(device)
+{}
+
+DeviceConstRef::~DeviceConstRef() = default;
+
+Id DeviceConstRef::id() const
+{
+    const IDevice::ConstPtr device = m_constDevice.lock();
+    QTC_ASSERT(device, return {});
+    return device->id();
+}
+
+QString DeviceConstRef::displayName() const
+{
+    const IDevice::ConstPtr device = m_constDevice.lock();
+    QTC_ASSERT(device, return {});
+    return device->displayName();
+}
+
+SshParameters DeviceConstRef::sshParameters() const
+{
+    const IDevice::ConstPtr device = m_constDevice.lock();
+    QTC_ASSERT(device, return {});
+    return device->sshParameters();
+}
+
+// DeviceRef, mutable
+
+DeviceRef::DeviceRef(const IDevice::Ptr &device)
+    : DeviceConstRef(device), m_mutableDevice(device)
+{}
+
+void DeviceRef::setDisplayName(const QString &displayName)
+{
+    const IDevice::Ptr device = m_mutableDevice.lock();
+    QTC_ASSERT(device, return);
+    device->setDisplayName(displayName);
+}
+
+void DeviceRef::setSshParameters(const SshParameters &params)
+{
+    const IDevice::Ptr device = m_mutableDevice.lock();
+    QTC_ASSERT(device, return);
+    device->setSshParameters(params);
+}
+
 } // namespace ProjectExplorer

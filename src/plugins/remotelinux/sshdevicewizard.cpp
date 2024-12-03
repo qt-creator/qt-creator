@@ -31,7 +31,7 @@ namespace RemoteLinux {
 class SetupPage : public QWizardPage
 {
 public:
-    explicit SetupPage(const ProjectExplorer::IDevicePtr &device)
+    explicit SetupPage(const DeviceRef &device)
         : m_device(device)
     {
         setTitle(Tr::tr("Connection"));
@@ -65,11 +65,11 @@ public:
 
 private:
     void initializePage() final {
-        m_nameLineEdit->setText(m_device->displayName());
-        m_hostNameLineEdit->setText(m_device->sshParameters().host());
+        m_nameLineEdit->setText(m_device.displayName());
+        m_hostNameLineEdit->setText(m_device.sshParameters().host());
         m_sshPortSpinBox->setValue(22);
         m_sshPortSpinBox->setRange(1, 65535);
-        m_userNameLineEdit->setText(m_device->sshParameters().userName());
+        m_userNameLineEdit->setText(m_device.sshParameters().userName());
     }
     bool isComplete() const final {
         return !m_nameLineEdit->text().trimmed().isEmpty()
@@ -77,12 +77,12 @@ private:
                && !m_userNameLineEdit->text().trimmed().isEmpty();
     }
     bool validatePage() final {
-        m_device->setDisplayName(m_nameLineEdit->text().trimmed());
-        SshParameters sshParams = m_device->sshParameters();
+        m_device.setDisplayName(m_nameLineEdit->text().trimmed());
+        SshParameters sshParams = m_device.sshParameters();
         sshParams.setHost(m_hostNameLineEdit->text().trimmed());
         sshParams.setUserName(m_userNameLineEdit->text().trimmed());
         sshParams.setPort(m_sshPortSpinBox->value());
-        m_device->setSshParameters(sshParams);
+        m_device.setSshParameters(sshParams);
         return true;
     }
 
@@ -90,13 +90,13 @@ private:
     FancyLineEdit *m_hostNameLineEdit;
     QSpinBox *m_sshPortSpinBox;
     FancyLineEdit *m_userNameLineEdit;
-    IDevicePtr m_device;
+    DeviceRef m_device;
 };
 
 class KeyDeploymentPage : public QWizardPage
 {
 public:
-    explicit KeyDeploymentPage(const ProjectExplorer::IDevicePtr &device)
+    explicit KeyDeploymentPage(const DeviceRef &device)
         : m_device(device)
     {
         setTitle(Tr::tr("Key Deployment"));
@@ -150,7 +150,7 @@ public:
 
 private:
     void initializePage() final {
-        if (!m_device->sshParameters().privateKeyFile.isEmpty())
+        if (!m_device.sshParameters().privateKeyFile.isEmpty())
             m_keyFileChooser.setFilePath(m_keyFileChooser.filePath());
         m_iconLabel.clear();
     }
@@ -160,10 +160,10 @@ private:
     }
     bool validatePage() final {
         if (!defaultKeys().contains(m_keyFileChooser.filePath())) {
-            SshParameters sshParams = m_device->sshParameters();
+            SshParameters sshParams = m_device.sshParameters();
             sshParams.authenticationType = SshParameters::AuthenticationTypeSpecificKey;
             sshParams.privateKeyFile = m_keyFileChooser.filePath();
-            m_device->setSshParameters(sshParams);
+            m_device.setSshParameters(sshParams);
         }
         return true;
     }
@@ -174,7 +174,7 @@ private:
 
     PathChooser m_keyFileChooser;
     QLabel m_iconLabel;
-    IDevicePtr m_device;
+    DeviceRef m_device;
 };
 
 class FinalPage final : public QWizardPage
@@ -193,7 +193,7 @@ public:
     }
 };
 
-SshDeviceWizard::SshDeviceWizard(const QString &title, const ProjectExplorer::IDevicePtr &device)
+SshDeviceWizard::SshDeviceWizard(const QString &title, const DeviceRef &device)
     : Wizard(Core::ICore::dialogParent())
 {
     setWindowTitle(title);
