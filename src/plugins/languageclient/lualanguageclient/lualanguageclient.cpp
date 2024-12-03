@@ -313,10 +313,12 @@ public:
                         return s->m_id == m_clientSettingsId;
                     });
 
-                if (settings)
+                if (settings) {
                     LanguageClientManager::applySettings(settings);
-                else
+                    LanguageClientManager::writeSettings();
+                } else {
                     LanguageClientManager::applySettings();
+                }
             });
         }
 
