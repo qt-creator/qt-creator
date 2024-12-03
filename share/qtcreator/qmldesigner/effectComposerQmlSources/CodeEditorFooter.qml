@@ -23,6 +23,10 @@ Rectangle {
         spacing: StudioTheme.Values.controlGap
 
         StudioControls.CheckBox {
+            id: liveUpdateButton
+
+            objectName: "BtnLiveUpdate"
+
             text: qsTr("Live Update")
             actionIndicatorVisible: false
             style: StudioTheme.Values.viewBarControlStyle
@@ -38,13 +42,16 @@ Rectangle {
         }
 
         FooterButton {
+            objectName: "BtnClose"
             buttonIcon: qsTr("Close")
             onClicked: root.rootEditor.close()
         }
 
         FooterButton {
+            objectName: "BtnApply"
             buttonIcon: qsTr("Apply")
             onClicked: root.rootEditor.rebakeRequested()
+            enabled: !liveUpdateButton.checked
             Layout.rightMargin: StudioTheme.Values.toolbarHorizontalMargin
         }
     }
