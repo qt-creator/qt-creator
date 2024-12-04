@@ -8,6 +8,10 @@ function(go_build NAME SOURCES PLATFORMS ARCHITECTURES LDFLAGS)
             set(TARGET_NAME ${NAME}-${PLATFORM}-${ARCHITECTURE})
             set(OUTPUT ${OUTPUT_FOLDER}/${TARGET_NAME})
 
+            if (${PLATFORM} STREQUAL "windows")
+                string(APPEND OUTPUT ".exe")
+            endif()
+
             if ((${PLATFORM} STREQUAL "linux" OR (${PLATFORM} STREQUAL "windows" AND ${ARCHITECTURE} STREQUAL "amd64")) AND NOT UPX_BIN STREQUAL "UPX_BIN-NOTFOUND")
                 add_custom_command(
                     OUTPUT "${OUTPUT}"
