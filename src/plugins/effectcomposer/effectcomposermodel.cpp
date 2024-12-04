@@ -2547,6 +2547,11 @@ void EffectComposerModel::setHasUnsavedChanges(bool val)
 
     m_hasUnsavedChanges = val;
     emit hasUnsavedChangesChanged();
+
+    if (!m_hasUnsavedChanges) {
+        for (CompositionNode *node : std::as_const(m_nodes))
+            node->markAsSaved();
+    }
 }
 
 QStringList EffectComposerModel::uniformNames() const

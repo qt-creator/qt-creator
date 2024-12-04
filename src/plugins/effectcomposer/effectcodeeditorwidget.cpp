@@ -179,6 +179,7 @@ void EffectCodeEditorFactory::decorateEditor(TextEditor::TextEditorWidget *edito
     editor->setMarksVisible(false);
     editor->setCodeFoldingSupported(false);
     editor->setTabChangesFocus(true);
+    editor->setRevisionsVisible(true);
 }
 
 } // namespace EffectComposer

@@ -258,6 +258,15 @@ void CompositionNode::setVertexCode(const QString &vertexCode)
     requestRebakeIfLiveUpdateMode();
 }
 
+void CompositionNode::markAsSaved()
+{
+    if (!m_shaderEditorData)
+        return;
+
+    m_shaderEditorData->fragmentDocument->document()->setModified(false);
+    m_shaderEditorData->vertexDocument->document()->setModified(false);
+}
+
 void CompositionNode::openCodeEditor()
 {
     auto editor = EffectShadersCodeEditor::instance();

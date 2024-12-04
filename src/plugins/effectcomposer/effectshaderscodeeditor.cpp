@@ -85,6 +85,18 @@ QList<T> deserializeList(const QByteArray &serialData)
     return result;
 }
 
+void resetDocumentRevisions(TextEditor::TextDocumentPtr textDoc)
+{
+    QTextDocument *doc = textDoc->document();
+    const int blockCount = doc->blockCount();
+    const int docRevision = doc->revision();
+
+    for (int i = 0; i < blockCount; ++i) {
+        QTextBlock block = doc->findBlockByNumber(i);
+        block.setRevision(docRevision);
+    }
+}
+
 } // namespace
 
 namespace EffectComposer {
@@ -216,6 +228,9 @@ ShaderEditorData *EffectShadersCodeEditor::createEditorData(
 
     result->fragmentDocument = result->fragmentEditor->textDocumentPtr();
     result->vertexDocument = result->vertexEditor->textDocumentPtr();
+
+    ::resetDocumentRevisions(result->fragmentDocument);
+    ::resetDocumentRevisions(result->vertexDocument);
 
     if (uniforms) {
         result->tableModel = new EffectComposerUniformsTableModel(uniforms, uniforms);

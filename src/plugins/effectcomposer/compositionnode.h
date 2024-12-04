@@ -74,6 +74,8 @@ public:
     void setFragmentCode(const QString &fragmentCode);
     void setVertexCode(const QString &vertexCode);
 
+    void markAsSaved();
+
     void openCodeEditor();
     void addUniform(const QVariantMap &data);
     void updateUniform(int index, const QVariantMap &data);
