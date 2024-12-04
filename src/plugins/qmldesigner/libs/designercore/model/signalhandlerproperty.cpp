@@ -87,17 +87,15 @@ PropertyName SignalHandlerProperty::prefixRemoved(PropertyNameView propertyName)
 
 QString SignalHandlerProperty::normalizedSourceWithBraces(const QString &source)
 {
-    static const QRegularExpression reg("\\{(\\s*?.*?)*?\\}");
+    static const QRegularExpression reg("^\\{(\\s*?.*?)*?\\}$");
 
-    auto match = reg.match(source);
+    const QString trimmed = source.trimmed();
+    auto match = reg.match(trimmed);
 
     if (match.hasMatch())
-        return source;
+        return trimmed;
 
-    if (source.contains('\n'))
-        return "{\n" + source + "\n}";
-
-    return "{ " + source + " }";
+    return QString("{%2%1%2}").arg(trimmed).arg(trimmed.contains('\n') ? "\n" : " ");
 }
 
 SignalDeclarationProperty::SignalDeclarationProperty() = default;
