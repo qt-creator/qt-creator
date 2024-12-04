@@ -69,6 +69,7 @@ add_qtc_plugin(QmlDesigner
     ${CMAKE_CURRENT_LIST_DIR}/components/import3d
     ${CMAKE_CURRENT_LIST_DIR}/components/assetslibrary
     ${CMAKE_CURRENT_LIST_DIR}/components/debugview
+    ${CMAKE_CURRENT_LIST_DIR}/components/designsystemview
     ${CMAKE_CURRENT_LIST_DIR}/components/edit3d
     ${CMAKE_CURRENT_LIST_DIR}/components/formeditor
     ${CMAKE_CURRENT_LIST_DIR}/components/integration
@@ -237,6 +238,8 @@ extend_qtc_plugin(QmlDesigner
   SOURCES
     collectionmodel.h collectionmodel.cpp
     designsysteminterface.h designsysteminterface.cpp
+    designsystemview.cpp designsystemview.h
+    designsystemwidget.cpp designsystemwidget.h
 )
 
 extend_qtc_plugin(QmlDesigner

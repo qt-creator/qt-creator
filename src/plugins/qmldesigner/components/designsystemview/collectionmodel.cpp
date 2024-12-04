@@ -67,12 +67,21 @@ QVariant CollectionModel::headerData(int section, Qt::Orientation orientation, i
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
         return QString::fromLatin1(m_collection->themeName(findThemeId(section)));
 
-    if (orientation == Qt::Vertical && role == Qt::DisplayRole) {
-        if (auto propInfo = findPropertyName(section))
-            return QString::fromLatin1(propInfo->second);
+    if (orientation == Qt::Vertical) {
+        if (auto propInfo = findPropertyName(section)) {
+            if (role == Qt::DisplayRole)
+                return QString::fromLatin1(propInfo->second);
+            if (role == static_cast<int>(Roles::GroupRole))
+                return QVariant::fromValue<GroupType>(propInfo->first);
+        }
     }
 
     return {};
+}
+
+Qt::ItemFlags CollectionModel::flags(const QModelIndex &index) const
+{
+    return Qt::ItemIsEditable | QAbstractItemModel::flags(index);
 }
 
 QHash<int, QByteArray> CollectionModel::roleNames() const

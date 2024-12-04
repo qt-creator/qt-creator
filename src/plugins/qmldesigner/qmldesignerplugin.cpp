@@ -22,6 +22,7 @@
 #include <connectionview.h>
 #include <curveeditor/curveeditorview.h>
 #include <designeractionmanager.h>
+#include <designsystemview/designsystemview.h>
 #include <eventlist/eventlistpluginview.h>
 #include <formeditor/transitiontool.h>
 #include <formeditor/view3dtool.h>
@@ -668,6 +669,11 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
     auto transitionEditorView = d->viewManager.registerView(
         std::make_unique<TransitionEditorView>(d->externalDependencies));
     transitionEditorView->registerActions();
+
+    if (QmlDesignerBasePlugin::experimentalFeaturesEnabled())
+        d->viewManager.registerView(
+            std::make_unique<DesignSystemView>(d->externalDependencies,
+                                               d->projectManager.projectStorageDependencies()));
 
     d->viewManager.registerFormEditorTool(std::make_unique<SourceTool>());
     d->viewManager.registerFormEditorTool(std::make_unique<ColorTool>());

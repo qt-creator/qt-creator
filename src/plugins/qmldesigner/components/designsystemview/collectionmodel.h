@@ -30,6 +30,7 @@ public:
     QVariant headerData(int section,
                         Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
     QHash<int, QByteArray> roleNames() const override;
     // Add Themes
     bool insertColumns(int column, int count, const QModelIndex &parent = QModelIndex()) override;

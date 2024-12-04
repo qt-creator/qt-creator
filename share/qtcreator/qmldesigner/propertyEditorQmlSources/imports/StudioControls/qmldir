@@ -19,6 +19,7 @@ DialogButtonBox 1.0 DialogButtonBox.qml
 FilterComboBox 1.0 FilterComboBox.qml
 HueSlider 1.0 impl/HueSlider.qml
 IconIndicator 1.0 IconIndicator.qml
+IconTextButton 1.0 IconTextButton.qml
 Indicator 1.0 Indicator.qml
 InfinityLoopIndicator 1.0 InfinityLoopIndicator.qml
 ItemDelegate 1.0 ItemDelegate.qml
