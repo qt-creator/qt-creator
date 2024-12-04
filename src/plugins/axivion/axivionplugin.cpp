@@ -155,7 +155,15 @@ static DashboardInfo toDashboardInfo(const GetDtoStorage<Dto::DashboardInfoDto> 
             projectUrls.insert(project.name, project.url);
         }
     }
-    return {dashboardStorage.url, versionNumber, projects, projectUrls, infoDto.checkCredentialsUrl};
+    return {
+        dashboardStorage.url,
+        versionNumber,
+        projects,
+        projectUrls,
+        infoDto.checkCredentialsUrl,
+        infoDto.namedFiltersUrl,
+        infoDto.userNamedFiltersUrl
+    };
 }
 
 QUrlQuery IssueListSearch::toUrlQuery(QueryMode mode) const
@@ -213,6 +221,7 @@ public:
     void handleIssuesForFile(const Dto::FileViewDto &fileView);
     void enableInlineIssues(bool enable);
     void fetchIssueInfo(const QString &id);
+    void fetchNamedFilters();
 
     void onSessionLoaded(const QString &sessionName);
     void onAboutToSaveSession();
@@ -229,11 +238,14 @@ public:
     std::optional<DashboardInfo> m_dashboardInfo;
     std::optional<Dto::ProjectInfoDto> m_currentProjectInfo;
     std::optional<QString> m_analysisVersion;
+    QList<Dto::NamedFilterInfoDto> m_globalNamedFilters;
+    QList<Dto::NamedFilterInfoDto> m_userNamedFilters;
     Project *m_project = nullptr;
     bool m_runningQuery = false;
     TaskTreeRunner m_taskTreeRunner;
     std::unordered_map<IDocument *, std::unique_ptr<TaskTree>> m_docMarksTrees;
     TaskTreeRunner m_issueInfoRunner;
+    TaskTreeRunner m_namedFilterRunner;
     FileInProjectFinder m_fileFinder; // FIXME maybe obsolete when path mapping is implemented
     QMetaObject::Connection m_fileFinderConnection;
     QHash<FilePath, QSet<TextMark *>> m_allMarks;
@@ -277,6 +289,46 @@ std::optional<Dto::ProjectInfoDto> projectInfo()
 {
     QTC_ASSERT(dd, return {});
     return dd->m_currentProjectInfo;
+}
+
+void fetchNamedFilters()
+{
+    QTC_ASSERT(dd, return);
+    dd->fetchNamedFilters();
+}
+
+void knownNamedFilters(QList<NamedFilter> *global, QList<NamedFilter> *user)
+{
+    QTC_ASSERT(dd, return);
+    QTC_ASSERT(global, return);
+    QTC_ASSERT(user, return);
+
+    *global = Utils::transform(dd->m_globalNamedFilters, [](const Dto::NamedFilterInfoDto &dto) {
+        return NamedFilter{dto.key, dto.displayName, true};
+    });
+    *user = Utils::transform(dd->m_userNamedFilters, [](const Dto::NamedFilterInfoDto &dto) {
+        return NamedFilter{dto.key, dto.displayName, false};
+    });
+}
+
+std::optional<Dto::NamedFilterInfoDto> namedFilterInfoForKey(const QString &key, bool global)
+{
+    QTC_ASSERT(dd, return std::nullopt);
+
+    const auto findFilter = [](const QList<Dto::NamedFilterInfoDto> filters, const QString &key)
+            -> std::optional<Dto::NamedFilterInfoDto> {
+        const int index = Utils::indexOf(filters, [key](const Dto::NamedFilterInfoDto &dto) {
+            return dto.key == key;
+        });
+        if (index == -1)
+            return std::nullopt;
+        return filters.at(index);
+    };
+
+    if (global)
+        return findFilter(dd->m_globalNamedFilters, key);
+    else
+        return findFilter(dd->m_userNamedFilters, key);
 }
 
 // FIXME: extend to give some details?
@@ -388,6 +440,7 @@ static QByteArray contentTypeData(ContentType contentType)
 {
     switch (contentType) {
     case ContentType::Html:      return s_htmlContentType;
+    case ContentType::Json:      return s_jsonContentType;
     case ContentType::PlainText: return s_plaintextContentType;
     case ContentType::Svg:       return s_svgContentType;
     }
@@ -910,6 +963,62 @@ void AxivionPluginPrivate::fetchIssueInfo(const QString &id)
     });
 }
 
+static QList<Dto::NamedFilterInfoDto> extractNamedFiltersFromJsonArray(const QByteArray &json)
+{
+    QList<Dto::NamedFilterInfoDto> result;
+    QJsonParseError error;
+    const QJsonDocument doc = QJsonDocument::fromJson(json, &error);
+    if (error.error != QJsonParseError::NoError)
+        return result;
+    if (!doc.isArray())
+        return result;
+    const QJsonArray array = doc.array();
+    for (const QJsonValue &value : array) {
+        if (!value.isObject())
+            continue;
+        const QJsonDocument objDocument(value.toObject());
+        const auto filter = Dto::NamedFilterInfoDto::deserializeExpected(objDocument.toJson());
+        if (filter)
+            result.append(*filter);
+    }
+    return result;
+}
+
+void AxivionPluginPrivate::fetchNamedFilters()
+{
+    QTC_ASSERT(m_dashboardInfo, return);
+
+    // use simple downloadDatarecipe() as we cannot handle an array of a dto at the moment
+    const Storage<DownloadData> globalStorage;
+    const Storage<DownloadData> userStorage;
+
+    const auto onSetup = [this, globalStorage, userStorage] {
+        QTC_ASSERT(m_dashboardInfo, return);
+        globalStorage->inputUrl = m_dashboardInfo->source.resolved(
+                    *m_dashboardInfo->globalNamedFilters);
+        globalStorage->expectedContentType = ContentType::Json;
+        userStorage->inputUrl = m_dashboardInfo->source.resolved(
+                    *m_dashboardInfo->userNamedFilters);
+        userStorage->expectedContentType = ContentType::Json;
+    };
+    const auto onDone = [this, globalStorage, userStorage] {
+        m_globalNamedFilters = extractNamedFiltersFromJsonArray(globalStorage->outputData);
+        m_userNamedFilters = extractNamedFiltersFromJsonArray(userStorage->outputData);
+        updateNamedFilters();
+    };
+
+    Group namedFiltersGroup = Group {
+            globalStorage,
+            userStorage,
+            onGroupSetup(onSetup),
+            downloadDataRecipe(globalStorage) || successItem,
+            downloadDataRecipe(userStorage) || successItem,
+            onGroupDone(onDone)
+    };
+
+    m_namedFilterRunner.start(namedFiltersGroup);
+}
+
 void AxivionPluginPrivate::handleOpenedDocs()
 {
     const QList<IDocument *> openDocuments = DocumentModel::openedDocuments();
@@ -1086,7 +1195,10 @@ void switchActiveDashboardId(const Id &toDashboardId)
     dd->m_apiToken.reset();
     dd->m_dashboardInfo.reset();
     dd->m_currentProjectInfo.reset();
+    dd->m_globalNamedFilters.clear();
+    dd->m_userNamedFilters.clear();
     updatePerspectiveToolbar();
+    updateNamedFilters();
 }
 
 const std::optional<DashboardInfo> currentDashboardInfo()

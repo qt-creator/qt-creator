@@ -62,10 +62,13 @@ public:
     QStringList projects;
     QHash<QString, QUrl> projectUrls;
     std::optional<QUrl> checkCredentialsUrl;
+    std::optional<QUrl> globalNamedFilters;
+    std::optional<QUrl> userNamedFilters;
 };
 
 enum class ContentType {
     Html,
+    Json,
     PlainText,
     Svg
 };
@@ -101,6 +104,18 @@ Tasking::Group lineMarkerRecipe(const Utils::FilePath &filePath, const LineMarke
 
 void fetchDashboardAndProjectInfo(const DashboardInfoHandler &handler, const QString &projectName);
 std::optional<Dto::ProjectInfoDto> projectInfo();
+
+struct NamedFilter
+{
+    QString key;
+    QString displayName;
+    bool global = false;
+};
+
+void fetchNamedFilters();
+void knownNamedFilters(QList<NamedFilter> *global, QList<NamedFilter> *user);
+std::optional<Dto::NamedFilterInfoDto> namedFilterInfoForKey(const QString &key, bool global);
+
 bool handleCertificateIssue();
 
 QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind);
@@ -117,3 +132,4 @@ Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath);
 
 } // Axivion::Internal
 
+Q_DECLARE_METATYPE(Axivion::Internal::NamedFilter)

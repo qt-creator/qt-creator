@@ -185,6 +185,7 @@ public:
     void updateUi(const QString &kind);
     void initDashboardList(const QString &preferredProject = {});
     void resetDashboard();
+    void updateNamedFilters();
 
     const std::optional<Dto::TableInfoDto> currentTableInfo() const { return m_currentTableInfo; }
     IssueListSearch searchFromUi() const;
@@ -201,6 +202,7 @@ private:
     void onSearchParameterChanged();
     void updateVersionItemsEnabledState();
     void updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDto> &info);
+    void updateAllFilters(const QVariant &namedFilter);
     void setFiltersEnabled(bool enabled);
     void fetchTable();
     void fetchIssues(const IssueListSearch &search);
@@ -219,6 +221,7 @@ private:
     QComboBox *m_ownerFilter = nullptr;
     QComboBox *m_versionStart = nullptr;
     QComboBox *m_versionEnd = nullptr;
+    QComboBox *m_namedFilters = nullptr;
     Guard m_signalBlocker;
     QLineEdit *m_pathGlobFilter = nullptr; // FancyLineEdit instead?
     QLabel *m_totalRows = nullptr;
@@ -334,6 +337,15 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_pathGlobFilter->setPlaceholderText(Tr::tr("Path globbing"));
     connect(m_pathGlobFilter, &QLineEdit::textEdited, this, &IssuesWidget::onSearchParameterChanged);
 
+    m_namedFilters = new QComboBox(this);
+    m_namedFilters->setToolTip(Tr::tr("Named filters"));
+    m_namedFilters->setMinimumContentsLength(25);
+    connect(m_namedFilters, &QComboBox::currentIndexChanged, this, [this] {
+        if (m_signalBlocker.isLocked())
+            return;
+        updateAllFilters(m_namedFilters->currentData());
+    });
+
     m_issuesView = new BaseTreeView(this);
     m_issuesView->setFrameShape(QFrame::StyledPanel); // Bring back Qt default
     m_issuesView->setFrameShadow(QFrame::Sunken);     // Bring back Qt default
@@ -372,7 +384,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
 
     Column {
         Row { m_dashboards, m_dashboardProjects, empty, m_typesLayout, st, m_versionStart, m_versionEnd, st },
-        Row { m_addedFilter, m_removedFilter, Space(1), m_ownerFilter, m_pathGlobFilter },
+        Row { m_addedFilter, m_removedFilter, Space(1), m_ownerFilter, m_pathGlobFilter, m_namedFilters },
         m_stack,
         Row { st, m_totalRows }
     }.attachTo(widget);
@@ -436,6 +448,28 @@ void IssuesWidget::resetDashboard()
     m_dashboardListUninitialized = true;
 }
 
+void IssuesWidget::updateNamedFilters()
+{
+    QList<NamedFilter> globalFilters;
+    QList<NamedFilter> userFilters;
+    knownNamedFilters(&globalFilters, &userFilters);
+
+    Utils::sort(globalFilters, [](const NamedFilter &lhs, const NamedFilter &rhs) {
+        return lhs.displayName < rhs.displayName;
+    });
+    Utils::sort(userFilters, [](const NamedFilter &lhs, const NamedFilter &rhs) {
+        return lhs.displayName < rhs.displayName;
+    });
+    GuardLocker lock(m_signalBlocker);
+    m_namedFilters->clear();
+
+    m_namedFilters->addItem(Tr::tr("Show all")); // no active named filter
+    for (const auto &it : userFilters)
+        m_namedFilters->addItem(it.displayName, QVariant::fromValue(it));
+    for (const auto &it : globalFilters)
+        m_namedFilters->addItem(it.displayName, QVariant::fromValue(it));
+}
+
 void IssuesWidget::initDashboardList(const QString &preferredProject)
 {
     const QString currentProject = preferredProject.isEmpty() ? m_dashboardProjects->currentText()
@@ -477,10 +511,13 @@ void IssuesWidget::reinitProjectList(const QString &currentProject)
             m_issuesView->hideProgressIndicator();
             return;
         }
-        GuardLocker lock(m_signalBlocker);
-        m_dashboardProjects->addItems(info->projects);
-        if (!currentProject.isEmpty() && info->projects.contains(currentProject))
-            m_dashboardProjects->setCurrentText(currentProject);
+        {
+            GuardLocker lock(m_signalBlocker);
+            m_dashboardProjects->addItems(info->projects);
+            if (!currentProject.isEmpty() && info->projects.contains(currentProject))
+                m_dashboardProjects->setCurrentText(currentProject);
+        }
+        fetchNamedFilters();
     };
     {
         GuardLocker lock(m_signalBlocker);
@@ -693,6 +730,7 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
         m_versionStart->clear();
         m_versionEnd->clear();
         m_pathGlobFilter->clear();
+        m_namedFilters->clear();
 
         m_currentProject.clear();
         m_currentPrefix.clear();
@@ -755,6 +793,30 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
     updateVersionItemsEnabledState();
 }
 
+void IssuesWidget::updateAllFilters(const QVariant &namedFilter)
+{
+    NamedFilter nf;
+    if (namedFilter.isValid())
+        nf = namedFilter.value<NamedFilter>();
+    const bool clearOnly = nf.key.isEmpty();
+    const std::optional<Dto::NamedFilterInfoDto> filterInfo
+            = clearOnly ? std::nullopt : namedFilterInfoForKey(nf.key, nf.global);
+
+    GuardLocker lock(m_signalBlocker);
+    if (filterInfo) {
+        m_headerView->updateExistingColumnInfos(filterInfo->filters, filterInfo->sorters);
+        const auto it = filterInfo->filters.find("any path");
+        if (it != filterInfo->filters.cend())
+            m_pathGlobFilter->setText(it->second);
+        else
+            m_pathGlobFilter->clear();
+    } else {
+        // clear all filters / sorters
+        m_headerView->updateExistingColumnInfos({}, std::nullopt);
+        m_pathGlobFilter->clear();
+    }
+}
+
 void IssuesWidget::setFiltersEnabled(bool enabled)
 {
     m_addedFilter->setEnabled(enabled);
@@ -763,6 +825,7 @@ void IssuesWidget::setFiltersEnabled(bool enabled)
     m_versionStart->setEnabled(enabled);
     m_versionEnd->setEnabled(enabled);
     m_pathGlobFilter->setEnabled(enabled);
+    m_namedFilters->setEnabled(enabled);
 }
 
 IssueListSearch IssuesWidget::searchFromUi() const
@@ -966,6 +1029,7 @@ public:
     void setIssueDetailsHtml(const QString &html) { m_issueDetails->setHtml(html); }
     void handleAnchorClicked(const QUrl &url);
     void updateToolbarButtons();
+    void updateNamedFilters();
 
 private:
     void openFilterHelp();
@@ -1144,6 +1208,11 @@ void AxivionPerspective::updateToolbarButtons()
     m_showFilterHelp->setEnabled(pInfo && pInfo->issueFilterHelp);
 }
 
+void AxivionPerspective::updateNamedFilters()
+{
+    m_issuesWidget->updateNamedFilters();
+}
+
 void AxivionPerspective::openFilterHelp()
 {
     const std::optional<Dto::ProjectInfoDto> projInfo = projectInfo();
@@ -1211,6 +1280,12 @@ void updatePerspectiveToolbar()
 {
     QTC_ASSERT(theAxivionPerspective, return);
     theAxivionPerspective->updateToolbarButtons();
+}
+
+void updateNamedFilters()
+{
+    QTC_ASSERT(theAxivionPerspective, return);
+    theAxivionPerspective->updateNamedFilters();
 }
 
 } // Axivion::Internal

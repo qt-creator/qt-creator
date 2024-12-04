@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "dashboard/dto.h"
+
 #include <QHeaderView>
 #include <QList>
 
@@ -30,6 +32,8 @@ public:
     const QString currentSortString() const;
     const QMap<QString, QString> currentFilterMapping() const;
 
+    void updateExistingColumnInfos(const std::map<QString, QString> &filters,
+                                   const std::optional<std::vector<Dto::SortInfoDto>> &sorters);
 signals:
     void filterChanged();
     void sortTriggered();

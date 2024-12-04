@@ -5,6 +5,7 @@
 
 #include "axiviontr.h"
 
+#include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
@@ -209,6 +210,51 @@ const QMap<QString, QString> IssueHeaderView::currentFilterMapping() const
             filter.insert("filter_" + ci.key, QString::fromUtf8(QUrl::toPercentEncoding(*ci.filter)));
     }
     return filter;
+}
+
+void IssueHeaderView::updateExistingColumnInfos(
+        const std::map<QString, QString> &filters,
+        const std::optional<std::vector<Dto::SortInfoDto>> &sorters)
+{
+    // update filters..
+    for (int i = 0, end = m_columnInfoList.size(); i < end; ++i) {
+        ColumnInfo &info = m_columnInfoList[i];
+        const auto filterItem = filters.find(info.key);
+        if (filterItem == filters.end())
+            info.filter.reset();
+        else
+            info.filter.emplace(filterItem->second);
+
+        if (sorters) { // ..and sorters if needed
+            bool found = false;
+            for (const Dto::SortInfoDto &dto : *sorters) {
+                if (dto.key != info.key)
+                    continue;
+                info.sortOrder = dto.getDirectionEnum() == Dto::SortDirection::asc
+                        ? Qt::AscendingOrder : Qt::DescendingOrder;
+                found = true;
+            }
+            if (!found)
+                info.sortOrder.reset();
+        } else { // or clear them
+            info.sortOrder.reset();
+        }
+    }
+
+    // update sort order
+    m_currentSortIndexes.clear();
+    if (sorters) {
+        for (const Dto::SortInfoDto &dto : *sorters) {
+            int index = Utils::indexOf(m_columnInfoList, [key = dto.key](const ColumnInfo &ci) {
+                return ci.key == key;
+            });
+            if (index == -1) // legit
+                continue;
+            m_currentSortIndexes << index;
+        }
+    }
+    // inform UI
+    emit filterChanged();
 }
 
 void IssueHeaderView::mousePressEvent(QMouseEvent *event)
