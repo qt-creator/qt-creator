@@ -204,7 +204,7 @@ static void addToPathChooserContextMenu(PathChooser *pathChooser, QMenu *menu)
     if (pathChooser->filePath().exists()) {
         auto showInGraphicalShell = new QAction(FileUtils::msgGraphicalShellAction(), menu);
         QObject::connect(showInGraphicalShell, &QAction::triggered, pathChooser, [pathChooser] {
-            Core::FileUtils::showInGraphicalShell(pathChooser, pathChooser->filePath());
+            Core::FileUtils::showInGraphicalShell(pathChooser->filePath());
         });
         menu->insertAction(firstAction, showInGraphicalShell);
 

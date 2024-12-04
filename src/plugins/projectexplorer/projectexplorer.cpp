@@ -3795,7 +3795,7 @@ void ProjectExplorerPluginPrivate::showInGraphicalShell()
 {
     Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);
-    Core::FileUtils::showInGraphicalShell(ICore::dialogParent(), currentNode->path());
+    Core::FileUtils::showInGraphicalShell(currentNode->path());
 }
 
 void ProjectExplorerPluginPrivate::showInFileSystemPane()

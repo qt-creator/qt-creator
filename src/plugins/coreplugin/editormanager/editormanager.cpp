@@ -518,7 +518,7 @@ void EditorManagerPrivate::init()
             return;
         const FilePath fp = EditorManager::currentDocument()->filePath();
         if (!fp.isEmpty())
-            FileUtils::showInGraphicalShell(ICore::dialogParent(), fp);
+            FileUtils::showInGraphicalShell(fp);
     });
 
     ActionBuilder showInFileSystem(this, Constants::SHOWINFILESYSTEMVIEW);
@@ -560,7 +560,7 @@ void EditorManagerPrivate::init()
     connect(m_openGraphicalShellContextAction, &QAction::triggered, this, [this] {
         if (!m_contextMenuDocument || m_contextMenuEntry->filePath().isEmpty())
             return;
-        FileUtils::showInGraphicalShell(ICore::dialogParent(), m_contextMenuEntry->filePath());
+        FileUtils::showInGraphicalShell(m_contextMenuEntry->filePath());
     });
     connect(m_showInFileSystemViewContextAction, &QAction::triggered, this, [this] {
         if (!m_contextMenuDocument || m_contextMenuEntry->filePath().isEmpty())

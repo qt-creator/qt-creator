@@ -55,21 +55,21 @@ static FilePath windowsDirectory()
 }
 
 // Show error with option to open settings.
-static void showGraphicalShellError(QWidget *parent, const QString &app, const QString &error)
+static void showGraphicalShellError(const QString &app, const QString &error)
 {
     const QString title = Tr::tr("Launching a file browser failed");
     const QString msg = Tr::tr("Unable to start the file manager:\n\n%1\n\n").arg(app);
-    QMessageBox mbox(QMessageBox::Warning, title, msg, QMessageBox::Close, parent);
+    QMessageBox mbox(QMessageBox::Warning, title, msg, QMessageBox::Close, ICore::dialogParent());
     if (!error.isEmpty())
         mbox.setDetailedText(Tr::tr("\"%1\" returned the following error:\n\n%2").arg(app, error));
     QAbstractButton *settingsButton = mbox.addButton(Core::ICore::msgShowOptionsDialog(),
                                                      QMessageBox::ActionRole);
     mbox.exec();
     if (mbox.clickedButton() == settingsButton)
-        ICore::showOptionsDialog(Constants::SETTINGS_ID_INTERFACE, parent);
+        ICore::showOptionsDialog(Constants::SETTINGS_ID_INTERFACE, ICore::dialogParent());
 }
 
-void showInGraphicalShell(QWidget *parent, const FilePath &pathIn)
+void showInGraphicalShell(const FilePath &pathIn)
 {
     const QFileInfo fileInfo = pathIn.toFileInfo();
     // Mac, Windows support folder or file.
@@ -98,7 +98,7 @@ void showInGraphicalShell(QWidget *parent, const FilePath &pathIn)
                 error = Tr::tr("Error while starting file browser.");
         }
         if (!error.isEmpty())
-            showGraphicalShellError(parent, app, error);
+            showGraphicalShellError(app, error);
     }
 }
 

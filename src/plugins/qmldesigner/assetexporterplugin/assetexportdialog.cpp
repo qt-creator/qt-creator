@@ -92,7 +92,7 @@ AssetExportDialog::AssetExportDialog(const FilePath &exportPath,
     m_exportPath->setPromptDialogFilter(tr("Metadata file (*.metadata)"));
     m_exportPath->lineEdit()->setReadOnly(true);
     m_exportPath->addButton(tr("Open"), this, [this] {
-        Core::FileUtils::showInGraphicalShell(Core::ICore::dialogParent(), m_exportPath->filePath());
+        Core::FileUtils::showInGraphicalShell(m_exportPath->filePath());
     });
 
     m_exportAssetsCheck = new QCheckBox(tr("Export assets"), this);

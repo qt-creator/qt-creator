@@ -2539,9 +2539,9 @@ void ICorePrivate::changeLog()
     connect(showInExplorer, &QPushButton::clicked, this, [versionCombo, versionedFiles] {
         const int index = versionCombo->currentIndex();
         if (index >= 0 && index < versionedFiles.size())
-            FileUtils::showInGraphicalShell(ICore::dialogParent(), versionedFiles.at(index).second);
+            FileUtils::showInGraphicalShell(versionedFiles.at(index).second);
         else
-            FileUtils::showInGraphicalShell(ICore::dialogParent(), ICore::resourcePath("changelog"));
+            FileUtils::showInGraphicalShell(ICore::resourcePath("changelog"));
     });
 
     dialog->show();

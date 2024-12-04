@@ -221,7 +221,7 @@ bool AssetsLibraryWidget::canCreateEffects() const
 
 void AssetsLibraryWidget::showInGraphicalShell(const QString &path)
 {
-    Core::FileUtils::showInGraphicalShell(Core::ICore::dialogParent(), Utils::FilePath::fromString(path));
+    Core::FileUtils::showInGraphicalShell(Utils::FilePath::fromString(path));
 }
 
 QString AssetsLibraryWidget::showInGraphicalShellMsg() const

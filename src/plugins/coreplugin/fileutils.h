@@ -7,10 +7,6 @@
 
 #include <utils/filepath.h>
 
-QT_BEGIN_NAMESPACE
-class QWidget;
-QT_END_NAMESPACE
-
 namespace Utils { class Environment; }
 
 namespace Core {
@@ -20,7 +16,7 @@ enum class HandleIncludeGuards { No, Yes };
 namespace FileUtils {
 
 // Helpers for common directory browser options.
-CORE_EXPORT void showInGraphicalShell(QWidget *parent, const Utils::FilePath &path);
+CORE_EXPORT void showInGraphicalShell(const Utils::FilePath &path);
 CORE_EXPORT void showInFileSystemView(const Utils::FilePath &path);
 CORE_EXPORT void openTerminal(const Utils::FilePath &path, const Utils::Environment &env);
 CORE_EXPORT QString msgFindInDirectory();

@@ -826,7 +826,7 @@ void AndroidBuildApkStep::showInGraphicalShell()
             return;
         }
     }
-    Core::FileUtils::showInGraphicalShell(Core::ICore::dialogParent(), packagePath);
+    Core::FileUtils::showInGraphicalShell(packagePath);
 }
 
 QWidget *AndroidBuildApkStep::createConfigWidget()
