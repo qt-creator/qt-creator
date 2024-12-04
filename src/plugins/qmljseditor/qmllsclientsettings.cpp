@@ -8,6 +8,8 @@
 
 #include <utils/mimeconstants.h>
 
+#include <coreplugin/messagemanager.h>
+
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
 #include <languageclient/languageclientsettings.h>
@@ -115,8 +117,7 @@ static std::pair<FilePath, QVersionNumber> evaluateLatestQmlls()
 static CommandLine commandLineForQmlls(const Project *project)
 {
     const auto *qtVersion = qtVersionFromProject(project);
-    if (!qtVersion)
-        return {};
+    QTC_ASSERT(qtVersion, return {});
 
     auto [executable, version]
         = qmllsSettings()->m_useLatestQmlls
@@ -137,6 +138,23 @@ static CommandLine commandLineForQmlls(const Project *project)
         result.addArgs({"-d", qtVersion->docsPath().path()});
 
     return result;
+}
+
+bool QmllsClientSettings::isValidOnProject(ProjectExplorer::Project *project) const
+{
+    if (!BaseSettings::isValidOnProject(project))
+        return false;
+
+    if (!project || !QtVersionManager::isLoaded())
+        return false;
+
+    if (!qtVersionFromProject(project)) {
+        Core::MessageManager::writeSilently(
+            "Current kit does not have a valid Qt version, disabling QML Language Server...");
+        return false;
+    }
+
+    return true;
 }
 
 BaseClientInterface *QmllsClientSettings::createInterface(Project *project) const

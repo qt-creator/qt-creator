@@ -24,6 +24,8 @@ public:
     void toMap(Utils::Store &map) const override;
     void fromMap(const Utils::Store &map) override;
 
+    bool isValidOnProject(ProjectExplorer::Project *project) const override;
+
     // helpers:
     bool isEnabledOnProjectFile(const Utils::FilePath &file) const;
     bool useQmllsWithBuiltinCodemodelOnProject(const Utils::FilePath &file) const;
