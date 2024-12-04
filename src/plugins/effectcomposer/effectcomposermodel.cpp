@@ -193,7 +193,9 @@ void EffectComposerModel::removeNode(int idx)
     CompositionNode *node = m_nodes.takeAt(idx);
 
     // Invalidate codeEditorIndex only if the index is the same as current index
-    if (m_codeEditorIndex == idx)
+    // Then after the model reset, the nearest code editor should be opened.
+    const bool switchCodeEditorNode = m_codeEditorIndex == idx;
+    if (switchCodeEditorNode)
         setCodeEditorIndex(INVALID_CODE_EDITOR_INDEX);
 
     const QStringList reqNodes = node->requiredNodes();
@@ -207,6 +209,9 @@ void EffectComposerModel::removeNode(int idx)
 
     delete node;
     endResetModel();
+
+    if (switchCodeEditorNode)
+        openNearestAvailableCodeEditor(idx);
 
     if (m_nodes.isEmpty())
         setIsEmpty(true);
@@ -1611,6 +1616,24 @@ void EffectComposerModel::saveResources(const QString &name)
     }
 
     emit resourcesSaved(QString("%1.%2.%2").arg(m_effectTypePrefix, name).toUtf8(), effectPath);
+}
+
+void EffectComposerModel::openNearestAvailableCodeEditor(int idx)
+{
+    int nearestIdx = idx;
+
+    if (nearestIdx >= m_nodes.size())
+        nearestIdx = m_nodes.size() - 1;
+
+    while (nearestIdx >= 0) {
+        CompositionNode *node = m_nodes.at(nearestIdx);
+        if (!node->isDependency())
+            return openCodeEditor(nearestIdx);
+
+        --nearestIdx;
+    }
+
+    openMainCodeEditor();
 }
 
 // Get value in QML format that used for exports

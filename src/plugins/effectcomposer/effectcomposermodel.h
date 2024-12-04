@@ -227,6 +227,7 @@ private:
     void initShaderDir();
     void bakeShaders();
     void saveResources(const QString &name);
+    void openNearestAvailableCodeEditor(int idx);
 
     QString getQmlImagesString(bool localFiles, QString &outImageFixerStr);
     QString getQmlComponentString(bool localFiles);
