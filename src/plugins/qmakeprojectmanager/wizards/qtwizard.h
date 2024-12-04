@@ -60,8 +60,7 @@ public:
     CustomQmakeProjectWizard();
 
 private:
-    Core::BaseFileWizard *create(QWidget *parent,
-                                 const Core::WizardDialogParameters &parameters) const override;
+    Core::BaseFileWizard *create(const Core::WizardDialogParameters &parameters) const override;
     bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l,
                            QString *errorMessage) const override;
 
@@ -81,11 +80,10 @@ class BaseQmakeProjectWizardDialog : public ProjectExplorer::BaseProjectWizardDi
 protected:
     explicit BaseQmakeProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
                                           Utils::ProjectIntroPage *introPage,
-                                          int introId, QWidget *parent,
+                                          int introId,
                                           const Core::WizardDialogParameters &parameters);
 public:
     explicit BaseQmakeProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
-                                          QWidget *parent,
                                           const Core::WizardDialogParameters &parameters);
     ~BaseQmakeProjectWizardDialog() override;
 

@@ -653,11 +653,10 @@ static QString qmlProjectName(const FilePath &folder)
     return {};
 }
 
-Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, QWidget *parent,
-                                         Id platform,
+Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, Id platform,
                                          const QVariantMap &variables, bool showWizard)
 {
-    auto wizard = new JsonWizard(parent);
+    auto wizard = new JsonWizard;
     wizard->setWindowIcon(icon());
     wizard->setWindowTitle(displayName());
 

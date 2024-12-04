@@ -33,11 +33,9 @@ SubdirsProjectWizard::SubdirsProjectWizard()
     setRequiredFeatures({QtSupport::Constants::FEATURE_QT_PREFIX});
 }
 
-Core::BaseFileWizard *SubdirsProjectWizard::create(QWidget *parent,
-                                                   const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *SubdirsProjectWizard::create(const Core::WizardDialogParameters &parameters) const
 {
-    SubdirsProjectWizardDialog *dialog = new SubdirsProjectWizardDialog(this, displayName(), icon(),
-                                                                        parent, parameters);
+    auto dialog = new SubdirsProjectWizardDialog(this, displayName(), icon(), parameters);
 
     dialog->setProjectName(SubdirsProjectWizardDialog::uniqueProjectName(parameters.defaultPath()));
     const QString buttonText = dialog->wizardStyle() == QWizard::MacStyle

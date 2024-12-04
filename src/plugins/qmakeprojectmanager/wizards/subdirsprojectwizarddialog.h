@@ -14,10 +14,9 @@ class SubdirsProjectWizardDialog : public BaseQmakeProjectWizardDialog
 {
     Q_OBJECT
 public:
-    explicit SubdirsProjectWizardDialog(const Core::BaseFileWizardFactory *factory, const QString &templateName,
-                                    const QIcon &icon,
-                                    QWidget *parent,
-                                    const Core::WizardDialogParameters &parameters);
+    SubdirsProjectWizardDialog(const Core::BaseFileWizardFactory *factory, const QString &templateName,
+                               const QIcon &icon,
+                               const Core::WizardDialogParameters &parameters);
 
     QtProjectParameters parameters() const;
 };

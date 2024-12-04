@@ -110,8 +110,8 @@ class SimpleProjectWizardDialog : public BaseFileWizard
     Q_OBJECT
 
 public:
-    SimpleProjectWizardDialog(const BaseFileWizardFactory *factory, QWidget *parent)
-        : BaseFileWizard(factory, QVariantMap(), parent)
+    explicit SimpleProjectWizardDialog(const BaseFileWizardFactory *factory)
+        : BaseFileWizard(factory, QVariantMap())
     {
         setWindowTitle(Tr::tr("Import Existing Project"));
 
@@ -162,10 +162,9 @@ SimpleProjectWizard::SimpleProjectWizard()
     setFlags(IWizardFactory::PlatformIndependent);
 }
 
-BaseFileWizard *SimpleProjectWizard::create(QWidget *parent,
-                                            const WizardDialogParameters &parameters) const
+BaseFileWizard *SimpleProjectWizard::create(const WizardDialogParameters &parameters) const
 {
-    auto wizard = new SimpleProjectWizardDialog(this, parent);
+    auto wizard = new SimpleProjectWizardDialog(this);
     wizard->setProjectDir(parameters.defaultPath());
 
     for (QWizardPage *p : wizard->extensionPages())

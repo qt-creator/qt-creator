@@ -42,9 +42,9 @@ QString FormClassWizard::formSuffix() const
     return preferredSuffix(Utils::Constants::FORM_MIMETYPE);
 }
 
-Core::BaseFileWizard *FormClassWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *FormClassWizard::create(const Core::WizardDialogParameters &parameters) const
 {
-    auto wizardDialog = new FormClassWizardDialog(this, parent);
+    auto wizardDialog = new FormClassWizardDialog(this);
     wizardDialog->setFilePath(parameters.defaultPath());
     return wizardDialog;
 }

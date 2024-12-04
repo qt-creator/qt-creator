@@ -61,7 +61,7 @@ public:
     using GeneratorFiles = QList<GeneratorFile>;
     Q_PROPERTY(GeneratorFiles generateFileList READ generateFileList)
 
-    explicit JsonWizard(QWidget *parent = nullptr);
+    JsonWizard();
     ~JsonWizard() override;
 
     void addGenerator(JsonWizardGenerator *gen);

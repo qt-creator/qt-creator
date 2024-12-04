@@ -98,8 +98,8 @@ class GenericProjectWizard final : public BaseFileWizard
     Q_OBJECT
 
 public:
-    GenericProjectWizard(const BaseFileWizardFactory *factory, QWidget *parent)
-        : BaseFileWizard(factory, QVariantMap(), parent)
+    GenericProjectWizard(const BaseFileWizardFactory *factory)
+        : BaseFileWizard(factory, QVariantMap(), Core::ICore::dialogParent())
     {
         setWindowTitle(Tr::tr("Import Existing Project"));
 
@@ -172,9 +172,9 @@ public:
     }
 
 protected:
-    BaseFileWizard *create(QWidget *parent, const WizardDialogParameters &parameters) const final
+    BaseFileWizard *create(const WizardDialogParameters &parameters) const final
     {
-        auto wizard = new GenericProjectWizard(this, parent);
+        auto wizard = new GenericProjectWizard(this);
         wizard->setFilePath(parameters.defaultPath());
         const QList<QWizardPage *> pages = wizard->extensionPages();
         for (QWizardPage *p : pages)

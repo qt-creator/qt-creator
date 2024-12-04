@@ -138,7 +138,6 @@ void ProjectExplorerTest::testJsonWizardsCheckBox()
 {
     QString errorMessage;
 
-    QWidget parent;
     const QJsonArray widgets({
         createWidget("CheckBox", "Default", QJsonObject()),
         createWidget("CheckBox", "Checked", QJsonObject({{"checked", true}})),
@@ -155,21 +154,21 @@ void ProjectExplorerTest::testJsonWizardsCheckBox()
     const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), {}, &errorMessage));
     QVERIFY2(factory, qPrintable(errorMessage));
 
-    Wizard *wizard = factory->runWizard({}, &parent, Id(), QVariantMap());
+    std::unique_ptr<Wizard> wizard{factory->runWizard({}, Id(), QVariantMap())};
 
-    QVERIFY(!findCheckBox(wizard, "Default")->isChecked());
+    QVERIFY(!findCheckBox(wizard.get(), "Default")->isChecked());
     QCOMPARE(wizard->field("DefaultCheckBox"), QVariant(false));
 
-    QVERIFY(findCheckBox(wizard, "Checked")->isChecked());
+    QVERIFY(findCheckBox(wizard.get(), "Checked")->isChecked());
     QCOMPARE(wizard->field("CheckedCheckBox"), QVariant(true));
 
-    QVERIFY(!findCheckBox(wizard, "UnChecked")->isChecked());
+    QVERIFY(!findCheckBox(wizard.get(), "UnChecked")->isChecked());
     QCOMPARE(wizard->field("UnCheckedCheckBox"), QVariant(false));
 
-    QVERIFY(!findCheckBox(wizard, "SpecialValueUnChecked")->isChecked());
+    QVERIFY(!findCheckBox(wizard.get(), "SpecialValueUnChecked")->isChecked());
     QCOMPARE(qPrintable(wizard->field("SpecialValueUnCheckedCheckBox").toString()), "SpecialUnCheckedValue");
 
-    QVERIFY(findCheckBox(wizard, "SpecialValueChecked")->isChecked());
+    QVERIFY(findCheckBox(wizard.get(), "SpecialValueChecked")->isChecked());
     QCOMPARE(qPrintable(wizard->field("SpecialValueCheckedCheckBox").toString()), "SpecialCheckedValue");
 }
 
@@ -177,7 +176,6 @@ void ProjectExplorerTest::testJsonWizardsLineEdit()
 {
     QString errorMessage;
 
-    QWidget parent;
     const QJsonArray widgets({
          createWidget("LineEdit", "Default", QJsonObject()),
          createWidget("LineEdit", "WithText", QJsonObject({{"trText", "some text"}}))
@@ -187,20 +185,20 @@ void ProjectExplorerTest::testJsonWizardsLineEdit()
     const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), {}, &errorMessage));
     QVERIFY2(factory, qPrintable(errorMessage));
 
-    Wizard *wizard = factory->runWizard({}, &parent, Id(), QVariantMap());
-    QVERIFY(findLineEdit(wizard, "Default"));
-    QVERIFY(findLineEdit(wizard, "Default")->text().isEmpty());
-    QCOMPARE(qPrintable(findLineEdit(wizard, "WithText")->text()), "some text");
+    std::unique_ptr<Wizard> wizard{factory->runWizard({}, Id(), QVariantMap())};
+    QVERIFY(wizard);
+    QVERIFY(findLineEdit(wizard.get(), "Default"));
+    QVERIFY(findLineEdit(wizard.get(), "Default")->text().isEmpty());
+    QCOMPARE(qPrintable(findLineEdit(wizard.get(), "WithText")->text()), "some text");
 
     QVERIFY(!wizard->page(0)->isComplete());
-    findLineEdit(wizard, "Default")->setText("enable isComplete");
+    findLineEdit(wizard.get(), "Default")->setText("enable isComplete");
     QVERIFY(wizard->page(0)->isComplete());
 }
 
 void ProjectExplorerTest::testJsonWizardsComboBox()
 {
     QString errorMessage;
-    QWidget parent;
 
     const QJsonArray items({"abc", "cde", "fgh"});
     QJsonObject disabledComboBoxObject = createWidget("ComboBox", "Disabled", QJsonObject({ {{"disabledIndex", 2}, {"items", items}} }));
@@ -215,9 +213,9 @@ void ProjectExplorerTest::testJsonWizardsComboBox()
     const QJsonObject wizardObject = createGeneralWizard(pages);
     const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), {}, &errorMessage));
     QVERIFY2(factory, qPrintable(errorMessage));
-    Wizard *wizard = factory->runWizard({}, &parent, Id(), QVariantMap());
+    std::unique_ptr<Wizard> wizard{factory->runWizard({}, Id(), QVariantMap())};
 
-    QComboBox *defaultComboBox = findComboBox(wizard, "Default");
+    QComboBox *defaultComboBox = findComboBox(wizard.get(), "Default");
     QVERIFY(defaultComboBox);
     QCOMPARE(defaultComboBox->count(), items.count());
     QCOMPARE(qPrintable(defaultComboBox->currentText()), "abc");
@@ -225,11 +223,11 @@ void ProjectExplorerTest::testJsonWizardsComboBox()
     defaultComboBox->setCurrentIndex(2);
     QCOMPARE(qPrintable(defaultComboBox->currentText()), "fgh");
 
-    QComboBox *index2ComboBox = findComboBox(wizard, "Index2");
+    QComboBox *index2ComboBox = findComboBox(wizard.get(), "Index2");
     QVERIFY(index2ComboBox);
     QCOMPARE(qPrintable(index2ComboBox->currentText()), "fgh");
 
-    QComboBox *disabledComboBox = findComboBox(wizard, "Disabled");
+    QComboBox *disabledComboBox = findComboBox(wizard.get(), "Disabled");
     QVERIFY(disabledComboBox);
     QCOMPARE(qPrintable(disabledComboBox->currentText()), "fgh");
 }
@@ -242,7 +240,6 @@ static QString iconInsideResource(const QString &relativePathToIcon)
 void ProjectExplorerTest::testJsonWizardsIconList()
 {
     QString errorMessage;
-    QWidget parent;
 
     const QJsonArray items({
         QJsonObject{
@@ -272,7 +269,7 @@ void ProjectExplorerTest::testJsonWizardsIconList()
     const QJsonObject wizardObject = createGeneralWizard(pages);
     const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), {}, &errorMessage));
     QVERIFY2(factory, qPrintable(errorMessage));
-    Wizard *wizard = factory->runWizard({}, &parent, Id(), QVariantMap());
+    std::unique_ptr<Wizard> wizard{factory->runWizard({}, Id(), QVariantMap())};
 
     auto view = wizard->findChild<QListView *>("FancyIconList");
     QCOMPARE(view->model()->rowCount(), 2);

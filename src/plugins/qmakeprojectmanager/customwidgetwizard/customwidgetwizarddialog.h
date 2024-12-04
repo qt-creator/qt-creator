@@ -19,7 +19,6 @@ class CustomWidgetWizardDialog : public BaseQmakeProjectWizardDialog
 public:
     explicit CustomWidgetWizardDialog(const Core::BaseFileWizardFactory *factory,
                                       const QString &templateName, const QIcon &icon,
-                                      QWidget *parent,
                                       const Core::WizardDialogParameters &parameters);
 
     std::shared_ptr<PluginOptions> pluginOptions() const;

@@ -62,7 +62,7 @@ public:
     static void setInstalledWizardsPath(const Utils::FilePath &path);
 
 private:
-    Utils::Wizard *runWizardImpl(const Utils::FilePath &path, QWidget *parent, Utils::Id platform,
+    Utils::Wizard *runWizardImpl(const Utils::FilePath &path, Utils::Id platform,
                                  const QVariantMap &variables, bool showWizard = true) override;
 
     // Create all wizards. As other plugins might register factories for derived

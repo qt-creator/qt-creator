@@ -340,7 +340,7 @@ void QdsNewDialog::setWizardFactories(QList<Core::IWizardFactory *> factories_,
 {
     Utils::Id platform = Utils::Id::fromSetting("Desktop");
 
-    WizardFactories factories{factories_, m_dialog.get(), platform};
+    WizardFactories factories{factories_, platform};
 
     std::vector<UserPresetData> recents = m_recentsStore.fetchAll();
     std::vector<UserPresetData> userPresets =  m_userPresetsStore.fetchAll();

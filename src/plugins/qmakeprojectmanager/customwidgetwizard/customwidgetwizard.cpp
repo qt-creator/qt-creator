@@ -29,10 +29,9 @@ CustomWidgetWizard::CustomWidgetWizard()
     setRequiredFeatures({QtSupport::Constants::FEATURE_QWIDGETS});
 }
 
-Core::BaseFileWizard *CustomWidgetWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *CustomWidgetWizard::create(const Core::WizardDialogParameters &parameters) const
 {
-    CustomWidgetWizardDialog *rc = new CustomWidgetWizardDialog(this, displayName(),
-                                                                icon(), parent, parameters);
+    auto rc = new CustomWidgetWizardDialog(this, displayName(), icon(), parameters);
     rc->setProjectName(CustomWidgetWizardDialog::uniqueProjectName(parameters.defaultPath()));
     rc->setFileNamingParameters(FileNamingParameters(headerSuffix(), sourceSuffix(), QtWizard::lowerCaseFiles()));
     return rc;

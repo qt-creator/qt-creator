@@ -3621,7 +3621,7 @@ void ProjectExplorerPluginPrivate::addNewHeaderOrSource()
                 IWizardFactory::allWizardFactories(),
                 [factoryId](const IWizardFactory *f) { return f->id() == factoryId; });
     QTC_ASSERT(factory, return);
-    factory->runWizard(folderNode->directory(), ICore::dialogParent(), {}, map);
+    factory->runWizard(folderNode->directory(), {}, map);
 }
 
 void ProjectExplorerPluginPrivate::addNewSubproject()

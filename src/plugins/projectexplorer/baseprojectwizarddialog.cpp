@@ -39,9 +39,8 @@ struct BaseProjectWizardDialogPrivate
 
 
 BaseProjectWizardDialog::BaseProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
-                                                 QWidget *parent,
                                                  const Core::WizardDialogParameters &parameters) :
-    Core::BaseFileWizard(factory, parameters.extraValues(), parent),
+    Core::BaseFileWizard(factory, parameters.extraValues()),
     d(std::make_unique<BaseProjectWizardDialogPrivate>(new ProjectIntroPage))
 {
     setFilePath(parameters.defaultPath());
@@ -52,9 +51,8 @@ BaseProjectWizardDialog::BaseProjectWizardDialog(const Core::BaseFileWizardFacto
 
 BaseProjectWizardDialog::BaseProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
                                                  ProjectIntroPage *introPage, int introId,
-                                                 QWidget *parent,
                                                  const Core::WizardDialogParameters &parameters) :
-    Core::BaseFileWizard(factory, parameters.extraValues(), parent),
+    Core::BaseFileWizard(factory, parameters.extraValues()),
     d(std::make_unique<BaseProjectWizardDialogPrivate>(introPage, introId))
 {
     setFilePath(parameters.defaultPath());

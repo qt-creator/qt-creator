@@ -138,10 +138,10 @@ void CustomWizard::setParameters(const CustomWizardParametersPtr &p)
     setFlags(p->flags);
 }
 
-BaseFileWizard *CustomWizard::create(QWidget *parent, const WizardDialogParameters &p) const
+BaseFileWizard *CustomWizard::create(const WizardDialogParameters &p) const
 {
     QTC_ASSERT(d->m_parameters, return nullptr);
-    auto wizard = new BaseFileWizard(this, p.extraValues(), parent);
+    auto wizard = new BaseFileWizard(this, p.extraValues());
 
     d->m_context->reset();
     auto customPage = new CustomWizardPage(d->m_context, parameters());
@@ -461,10 +461,9 @@ CustomProjectWizard::CustomProjectWizard() = default;
     initProjectWizardDialog() needs to be called.
 */
 
-BaseFileWizard *CustomProjectWizard::create(QWidget *parent,
-                                            const WizardDialogParameters &parameters) const
+BaseFileWizard *CustomProjectWizard::create(const WizardDialogParameters &parameters) const
 {
-    auto projectDialog = new BaseProjectWizardDialog(this, parent, parameters);
+    auto projectDialog = new BaseProjectWizardDialog(this, parameters);
     initProjectWizardDialog(projectDialog,
                             parameters.defaultPath(),
                             projectDialog->extensionPages());

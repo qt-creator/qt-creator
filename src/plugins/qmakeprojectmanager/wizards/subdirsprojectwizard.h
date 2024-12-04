@@ -16,8 +16,7 @@ public:
     SubdirsProjectWizard();
 
 private:
-    Core::BaseFileWizard *create(QWidget *parent,
-                                 const Core::WizardDialogParameters &parameters) const override;
+    Core::BaseFileWizard *create(const Core::WizardDialogParameters &parameters) const override;
 
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const override;
     bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l,

@@ -544,7 +544,7 @@ static void runWizard(IWizardFactory *wizard, const FilePath &defaultLocation, I
                       const QVariantMap &variables)
 {
     const FilePath path = wizard->runPath(defaultLocation);
-    wizard->runWizard(path, ICore::dialogParent(), platform, variables);
+    wizard->runWizard(path, platform, variables);
 }
 
 void NewDialogWidget::accept()
