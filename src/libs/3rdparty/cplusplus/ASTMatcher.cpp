@@ -218,10 +218,6 @@ bool ASTMatcher::match(DecltypeSpecifierAST *node, DecltypeSpecifierAST *pattern
 
 bool ASTMatcher::match(TypeConstraintAST *node, TypeConstraintAST *pattern)
 {
-    if (!pattern->nestedName)
-        pattern->nestedName = node->nestedName;
-    else if (!AST::match(node->nestedName, pattern->nestedName, this))
-        return false;
     if (!pattern->conceptName)
         pattern->conceptName = node->conceptName;
     else if (!AST::match(node->conceptName, pattern->conceptName, this))

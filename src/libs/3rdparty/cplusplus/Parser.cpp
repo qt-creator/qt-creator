@@ -1338,8 +1338,9 @@ bool Parser::parseTypeConstraint(TypeConstraintAST *&node)
     if (!parseUnqualifiedName(conceptName, false))
         return false;
     const auto typeConstraint = new (_pool) TypeConstraintAST;
-    typeConstraint->nestedName = nestedName;
-    typeConstraint->conceptName = conceptName;
+    typeConstraint->conceptName = new (_pool) QualifiedNameAST;
+    typeConstraint->conceptName->nested_name_specifier_list = nestedName;
+    typeConstraint->conceptName->unqualified_name = conceptName;
     if (LA() != T_LESS) {
         node = typeConstraint;
         return true;

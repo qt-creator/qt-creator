@@ -113,7 +113,6 @@ void DecltypeSpecifierAST::accept0(ASTVisitor *visitor)
 void TypeConstraintAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        accept(nestedName, visitor);
         accept(conceptName, visitor);
         accept(templateArgs, visitor);
     }

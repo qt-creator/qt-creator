@@ -646,8 +646,7 @@ protected:
 class CPLUSPLUS_EXPORT TypeConstraintAST: public AST
 {
 public:
-    NestedNameSpecifierListAST *nestedName = nullptr;
-    NameAST *conceptName = nullptr;
+    QualifiedNameAST *conceptName = nullptr;
     int lessToken = 0;
     ExpressionListAST *templateArgs = nullptr;
     int greaterToken = 0;

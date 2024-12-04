@@ -144,9 +144,6 @@ DecltypeSpecifierAST *DecltypeSpecifierAST::clone(MemoryPool *pool) const
 TypeConstraintAST *TypeConstraintAST::clone(MemoryPool *pool) const
 {
     const auto ast = new (pool) TypeConstraintAST;
-    for (NestedNameSpecifierListAST *iter = nestedName, **ast_iter = &ast->nestedName; iter;
-         iter = iter->next, ast_iter = &(*ast_iter)->next)
-        *ast_iter = new (pool) NestedNameSpecifierListAST((iter->value) ? iter->value->clone(pool) : nullptr);
     if (conceptName)
         ast->conceptName = conceptName->clone(pool);
     ast->lessToken = lessToken;
