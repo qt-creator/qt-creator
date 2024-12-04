@@ -692,7 +692,7 @@ public:
         m_projectPath->setText(displayPath);
     }
 
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index)
+    void paint(QPainter *painter, const QStyleOptionViewItem &option)
     {
         const bool hovered = option.widget->isActiveWindow()
                              && option.state & QStyle::State_MouseOver;
@@ -732,11 +732,11 @@ public:
         const override
     {
         m_itemWidget.setData(index);
-        m_itemWidget.paint(painter, option, index);
+        m_itemWidget.paint(painter, option);
     }
 
     QSize sizeHint([[maybe_unused]] const QStyleOptionViewItem &option,
-                   const QModelIndex &index) const override
+                   [[maybe_unused]] const QModelIndex &index) const override
     {
         return {-1, m_itemWidget.minimumSizeHint().height() + itemSpacing()};
     }
