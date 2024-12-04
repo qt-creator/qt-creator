@@ -174,7 +174,11 @@ void EffectCodeEditorFactory::decorateEditor(TextEditor::TextEditorWidget *edito
         [] { return new QmlJSEditor::QmlJSHighlighter(); });
     editor->textDocument()->setIndenter(QmlJSEditor::createQmlJsIndenter(
                                             editor->textDocument()->document()));
-    editor->setAutoCompleter(new QmlJSEditor::AutoCompleter);
+
+    editor->setLineNumbersVisible(true);
+    editor->setMarksVisible(false);
+    editor->setCodeFoldingSupported(false);
+    editor->setTabChangesFocus(true);
 }
 
 } // namespace EffectComposer

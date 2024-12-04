@@ -273,10 +273,7 @@ EffectCodeEditorWidget *EffectShadersCodeEditor::createJSEditor()
         editor->editorWidget());
     Q_ASSERT(editorWidget);
 
-    editorWidget->setLineNumbersVisible(false);
-    editorWidget->setMarksVisible(false);
-    editorWidget->setCodeFoldingSupported(false);
-    editorWidget->setTabChangesFocus(true);
+    f.decorateEditor(editorWidget);
     editorWidget->unregisterAutoCompletion();
     editorWidget->setParent(this);
     editorWidget->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
