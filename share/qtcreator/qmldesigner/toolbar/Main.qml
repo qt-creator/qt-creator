@@ -505,7 +505,7 @@ Rectangle {
                                 myText: qsTr("Manage shared projects")
                                 myIcon: StudioTheme.Constants.openLink
 
-                                onClicked: Qt.openUrlExternally("https://designviewer-staging.qt.io/")
+                                onClicked: Qt.openUrlExternally(backend.designViewerConnector.loginUrl())
                             }
 
                             Rectangle {

@@ -57,6 +57,7 @@ public:
     ConnectorStatus connectorStatus() const;
     QByteArray userInfo() const;
     bool isWebViewerVisible() const;
+    Q_INVOKABLE QString loginUrl() const;
 
     void projectList();
     Q_INVOKABLE void uploadCurrentProject();

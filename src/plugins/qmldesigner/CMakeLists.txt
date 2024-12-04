@@ -33,6 +33,14 @@ env_with_default("QTC_ENABLE_METAINFO_TRACING" ENV_QTC_ENABLE_METAINFO_TRACING O
 option(ENABLE_METAINFO_TRACING "Enable meta info tracing" ${ENV_QTC_ENABLE_METAINFO_TRACING})
 add_feature_info("Meta info tracing" ${ENABLE_METAINFO_TRACING} "")
 
+env_with_default("QDS_DESIGNVIEWER_USE_STAGING" ENV_QDS_DESIGNVIEWER_USE_STAGING OFF)
+option(QDS_DESIGNVIEWER_USE_STAGING "Use staging API URL for Design Viewer" ${ENV_QDS_DESIGNVIEWER_USE_STAGING})
+add_feature_info("Use staging API URL for Design Viewer" ${QDS_DESIGNVIEWER_USE_STAGING} "")
+
+if(QDS_DESIGNVIEWER_USE_STAGING)
+  add_definitions(-DQDS_DESIGNVIEWER_USE_STAGING)
+endif()
+
 add_subdirectory(libs)
 
 find_package(Qt6 QUIET COMPONENTS WebSockets WebEngineWidgets)

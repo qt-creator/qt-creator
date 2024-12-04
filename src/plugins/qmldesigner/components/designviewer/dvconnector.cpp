@@ -24,7 +24,11 @@ Q_LOGGING_CATEGORY(deploymentPluginLog, "qtc.designer.deploymentPlugin", QtWarni
 
 namespace DVEndpoints {
 using namespace Qt::Literals;
+#ifdef QDS_DESIGNVIEWER_USE_STAGING
 constexpr auto serviceUrl = "https://api-designviewer-staging.qt.io"_L1;
+#else
+constexpr auto serviceUrl = "https://api-designviewer.qt.io"_L1;
+#endif
 constexpr auto project = "/api/v2/project"_L1;
 constexpr auto projectThumbnail = "/api/v2/project/image"_L1;
 constexpr auto share = "/api/v2/share"_L1;
@@ -181,6 +185,11 @@ QByteArray DVConnector::userInfo() const
 bool DVConnector::isWebViewerVisible() const
 {
     return m_isWebViewerVisible;
+}
+
+QString DVConnector::loginUrl() const
+{
+    return DVEndpoints::serviceUrl + DVEndpoints::login;
 }
 
 bool DVConnector::eventFilter(QObject *obj, QEvent *e)
