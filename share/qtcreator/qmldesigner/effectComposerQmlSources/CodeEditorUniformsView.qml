@@ -156,6 +156,7 @@ ColumnLayout {
                                     anchors.fill: parent
                                     spacing: StudioTheme.Values.controlGap
                                     visible: hoverArea.containsMouse
+                                    leftPadding: 5
 
                                     CellButton {
                                         buttonIcon: StudioTheme.Constants.assignTo_medium
@@ -246,6 +247,7 @@ ColumnLayout {
         height: iconSize
         anchors.verticalCenter: parent.verticalCenter
         buttonIcon: StudioTheme.Constants.assignTo_medium
+        iconSize: StudioTheme.Values.miniIcon
         backgroundVisible: false
 
         StudioControls.ToolTip {
