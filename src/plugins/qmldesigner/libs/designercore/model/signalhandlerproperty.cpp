@@ -59,6 +59,14 @@ QString SignalHandlerProperty::sourceNormalizedWithBraces() const
     return normalizedSourceWithBraces(source());
 }
 
+bool SignalHandlerProperty::useNewFunctionSyntax()
+{
+    if (name().contains('.'))
+        return false;
+
+    return parentModelNode().metaInfo().isQtQmlConnections();
+}
+
 PropertyName SignalHandlerProperty::prefixAdded(PropertyNameView propertyName)
 {
     QString nameAsString = QString::fromUtf8(propertyName);

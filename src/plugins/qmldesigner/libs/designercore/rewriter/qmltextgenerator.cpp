@@ -267,7 +267,8 @@ QString QmlTextGenerator::propertyToQml(const AbstractProperty &property, int in
         } else if (property.isSignalDeclarationProperty()) {
             result = m_tabSettings.indentationString(0, indentDepth, 0) + "signal" + " "
                      + QString::fromUtf8(property.name()) + " "_L1 + toQml(property, indentDepth);
-        } else if (property.isSignalHandlerProperty()) {
+        } else if (property.isSignalHandlerProperty()
+                   && property.toSignalHandlerProperty().useNewFunctionSyntax()) {
             result = m_tabSettings.indentationString(0, indentDepth, 0) + "function" + " "
                      + QString::fromUtf8(property.name()) + "() "_L1 + toQml(property, indentDepth);
         } else {

@@ -137,7 +137,11 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
         newPropertyTemplate = QStringLiteral("%1: %2");
         break;
 
-    case QmlRefactoring::SignalHandler:
+    case QmlRefactoring::SignalHandlerOldSyntax:
+        newPropertyTemplate = QStringLiteral("%1: %2");
+        break;
+
+    case QmlRefactoring::SignalHandlerNewSyntax:
         newPropertyTemplate = QStringLiteral("function %1() %2");
         break;
 

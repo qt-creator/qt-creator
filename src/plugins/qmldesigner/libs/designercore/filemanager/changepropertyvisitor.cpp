@@ -85,7 +85,10 @@ void ChangePropertyVisitor::replaceInMembers(UiObjectInitializer *initializer,
             case QmlRefactoring::ScriptBinding:
                 replaceMemberValue(member, nextMemberOnSameLine(members));
                 break;
-            case QmlRefactoring::SignalHandler:
+            case QmlRefactoring::SignalHandlerOldSyntax:
+                replaceMemberValue(member, nextMemberOnSameLine(members));
+                break;
+            case QmlRefactoring::SignalHandlerNewSyntax:
                 replaceMemberValue(member, nextMemberOnSameLine(members));
                 break;
 

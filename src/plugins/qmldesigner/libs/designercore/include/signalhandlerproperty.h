@@ -19,6 +19,8 @@ public:
     QString source() const;
     QString sourceNormalizedWithBraces() const;
 
+    bool useNewFunctionSyntax();
+
     SignalHandlerProperty();
     SignalHandlerProperty(const SignalHandlerProperty &property, AbstractView *view);
 

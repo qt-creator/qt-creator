@@ -20,7 +20,8 @@ public:
         ArrayBinding = 1,
         ObjectBinding = 2,
         ScriptBinding = 3,
-        SignalHandler = 4
+        SignalHandlerOldSyntax = 4,
+        SignalHandlerNewSyntax = 5
     };
 
 public:

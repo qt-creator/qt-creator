@@ -8,10 +8,11 @@
 
 #include <customnotifications.h>
 
-#include <rewriterview.h>
 #include <abstractproperty.h>
-#include <nodeproperty.h>
 #include <nodeabstractproperty.h>
+#include <nodeproperty.h>
+#include <rewriterview.h>
+#include <signalhandlerproperty.h>
 
 #include <qmljs/parser/qmljsengine_p.h>
 #include <utils/algorithm.h>
@@ -338,7 +339,9 @@ QmlRefactoring::PropertyType ModelToTextMerger::propertyType(const AbstractPrope
         QString val = textValue.trimmed();
         if (val.isEmpty())
             return QmlRefactoring::ObjectBinding;
-        return QmlRefactoring::SignalHandler;
+        if (property.toSignalHandlerProperty().useNewFunctionSyntax())
+            return QmlRefactoring::SignalHandlerNewSyntax;
+        return QmlRefactoring::SignalHandlerOldSyntax;
     } else if (property.isNodeListProperty())
         return QmlRefactoring::ArrayBinding;
     else if (property.isNodeProperty())
