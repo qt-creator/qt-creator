@@ -264,22 +264,31 @@ void LldbEngine::handleLldbStarted()
     for (const FilePath &path : rp.solibSearchPath)
         executeDebuggerCommand("settings append target.exec-search-paths " + path.toString());
 
+    const ProcessRunData &inferior = rp.inferior;
+    const FilePath &executable = inferior.command.executable();
     DebuggerCommand cmd2("setupInferior");
-    cmd2.arg("executable", rp.inferior.command.executable().path());
+    cmd2.arg("executable", executable.path());
     cmd2.arg("breakonmain", rp.breakOnMain);
     cmd2.arg("useterminal", usesTerminal());
     cmd2.arg("startmode", rp.startMode);
     cmd2.arg("nativemixed", isNativeMixedActive());
-    cmd2.arg("workingdirectory", rp.inferior.workingDirectory.path());
-    QStringList environment = rp.inferior.environment.toStringList();
+    cmd2.arg("workingdirectory", inferior.workingDirectory.path());
+    Environment environment = inferior.environment;
     // Prevent lldb from automatically setting OS_ACTIVITY_DT_MODE to mirror
     // NSLog to stderr, as that will also mirror os_log, which we pick up in
     // AppleUnifiedLogger::preventsStderrLogging(), and end up disabling Qt's
     // default stderr logger. We prefer Qt's own stderr logging if we can.
-    environment << "IDE_DISABLED_OS_ACTIVITY_DT_MODE=1";
-    cmd2.arg("environment", environment);
-    cmd2.arg("processargs", toHex(ProcessArgs::splitArgs(rp.inferior.command.arguments(),
-                                                         HostOsInfo::hostOs()).join(QChar(0))));
+    environment.set("IDE_DISABLED_OS_ACTIVITY_DT_MODE", "1");
+    if (executable.osType() == Utils::OsTypeWindows
+        && !environment.hasKey(Debugger::Constants::NO_DEBUG_HEAP)) {
+        const QString value = settings().enableHeapDebugging() ? "0" : "1";
+        environment.set(Debugger::Constants::NO_DEBUG_HEAP, value);
+    }
+    cmd2.arg("environment", environment.toStringList());
+    cmd2.arg(
+        "processargs",
+        toHex(ProcessArgs::splitArgs(inferior.command.arguments(), HostOsInfo::hostOs())
+                  .join(QChar(0))));
     cmd2.arg("platform", rp.platform);
     cmd2.arg("symbolfile", rp.symbolFile.path());
 

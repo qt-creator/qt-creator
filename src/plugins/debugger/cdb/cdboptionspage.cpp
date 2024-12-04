@@ -171,6 +171,7 @@ CdbOptionsPageWidget::CdbOptionsPageWidget()
 
     m_breakEventWidget->setBreakEvents(settings().cdbBreakEvents());
 
+    // clang-format off
     Column {
         Row {
             Group {
@@ -188,7 +189,8 @@ CdbOptionsPageWidget::CdbOptionsPageWidget()
                     s.ignoreFirstChanceAccessViolation,
                     s.cdbBreakOnCrtDbgReport,
                     s.cdbBreakPointCorrection,
-                    s.cdbUsePythonDumper
+                    s.cdbUsePythonDumper,
+                    s.enableHeapDebugging
                 }
             }
         },
@@ -209,6 +211,7 @@ CdbOptionsPageWidget::CdbOptionsPageWidget()
         st
 
     }.attachTo(this);
+    // clang-format on
 }
 
 void CdbOptionsPageWidget::apply()

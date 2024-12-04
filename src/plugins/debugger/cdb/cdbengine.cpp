@@ -406,6 +406,10 @@ void CdbEngine::setupEngine()
     if (!oldCdbExtensionPath.isEmpty())
         inferiorEnvironment.appendOrSet(cdbExtensionPathVariableC, oldCdbExtensionPath);
 
+    if (!inferiorEnvironment.hasKey(Debugger::Constants::NO_DEBUG_HEAP)) {
+        const QString value = s.enableHeapDebugging() ? "0" : "1";
+        inferiorEnvironment.set(Debugger::Constants::NO_DEBUG_HEAP, value);
+    }
     m_process.setEnvironment(inferiorEnvironment);
     if (!sp.inferior.workingDirectory.isEmpty())
         m_process.setWorkingDirectory(sp.inferior.workingDirectory);

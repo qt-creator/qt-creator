@@ -53,6 +53,8 @@ const char DISASSEMBLER_SOURCE_FILE[]         = "DisassemblerSourceFile";
 
 const char CRT_DEBUG_REPORT[]                 = "CrtDbgReport";
 
+const char NO_DEBUG_HEAP[]                    = "_NO_DEBUG_HEAP";
+
 } // namespace Constants
 
 enum ModelRoles
