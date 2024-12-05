@@ -121,7 +121,7 @@ static CommandLine commandLineForQmlls(const Project *project)
     auto [executable, version]
         = qmllsSettings()->m_useLatestQmlls
               ? evaluateLatestQmlls()
-              : std::make_pair(qtVersion->binPath() / "qmlls", qtVersion->qtVersion());
+              : std::make_pair(qtVersion->hostBinPath() / "qmlls", qtVersion->qtVersion());
 
     CommandLine result{executable, {}};
 
