@@ -445,6 +445,9 @@ void MarkdownBrowser::setMarkdown(const QString &markdown)
 {
     document()->setMarkdown(markdown);
     postProcessDocument(true);
+    // Reset cursor to start of the document, so that "show" does not
+    // scroll to the end of the document.
+    setTextCursor(QTextCursor(document()));
 }
 
 void MarkdownBrowser::postProcessDocument(bool firstTime) const

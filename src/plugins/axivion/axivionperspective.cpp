@@ -769,11 +769,17 @@ IssueListSearch IssuesWidget::searchFromUi() const
 {
     IssueListSearch search;
     QTC_ASSERT(m_currentTableInfo, return search);
+    const int userIndex = m_ownerFilter->currentIndex();
+    QTC_ASSERT(userIndex >= 0 && m_userNames.size() > userIndex, return search);
+    const int versionStartIndex = m_versionStart->currentIndex();
+    QTC_ASSERT(versionStartIndex >= 0 && m_versionDates.size() > versionStartIndex, return search);
+    const int versionEndIndex = m_versionEnd->currentIndex();
+    QTC_ASSERT(versionEndIndex >= 0 && m_versionDates.size() > versionEndIndex, return search);
     search.kind = m_currentPrefix; // not really ui.. but anyhow
-    search.owner = m_userNames.at(m_ownerFilter->currentIndex());
+    search.owner = m_userNames.at(userIndex);
     search.filter_path = m_pathGlobFilter->text();
-    search.versionStart = m_versionDates.at(m_versionStart->currentIndex());
-    search.versionEnd = m_versionDates.at(m_versionEnd->currentIndex());
+    search.versionStart = m_versionDates.at(versionStartIndex);
+    search.versionEnd = m_versionDates.at(versionEndIndex);
     // different approach: checked means disabling in webview, checked here means explicitly request
     // the checked one, having both checked is impossible (having none checked means fetch both)
     // reason for different approach: currently poor reflected inside the ui (TODO)

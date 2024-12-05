@@ -20,6 +20,7 @@
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSize>
+#include <QSizePolicy>
 #include <QSpacerItem>
 #include <QSpinBox>
 #include <QSplitter>
@@ -806,6 +807,11 @@ void Widget::setContentsMargins(int left, int top, int right, int bottom)
 void Widget::setCursor(Qt::CursorShape shape)
 {
     access(this)->setCursor(shape);
+}
+
+void Widget::setSizePolicy(const QSizePolicy &policy)
+{
+    access(this)->setSizePolicy(policy);
 }
 
 void Widget::activateWindow()
