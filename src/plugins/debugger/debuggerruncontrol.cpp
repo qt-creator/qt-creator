@@ -1146,6 +1146,7 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
     }
 
     d->debuggerServerProc.setCommand(cmd);
+    d->debuggerServerProc.setWorkingDirectory(m_runParameters.inferior.workingDirectory);
 
     connect(&d->debuggerServerProc, &Process::readyReadStandardOutput,
                 this, [this] {
