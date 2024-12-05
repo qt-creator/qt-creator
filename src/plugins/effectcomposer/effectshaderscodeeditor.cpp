@@ -457,9 +457,9 @@ void EffectShadersCodeEditor::selectNonEmptyShader(ShaderEditorData *data)
     auto vertexDoc = data->vertexDocument->document();
     auto fragmentDoc = data->fragmentDocument->document();
 
-    QWidget *widgetToSelect = (vertexDoc->isEmpty() && !fragmentDoc->isEmpty())
-                                  ? data->fragmentEditor.get()
-                                  : data->vertexEditor.get();
+    QWidget *widgetToSelect = (fragmentDoc->isEmpty() && !vertexDoc->isEmpty())
+                                  ? data->vertexEditor.get()
+                                  : data->fragmentEditor.get();
 
     m_stackedWidget->setCurrentWidget(widgetToSelect);
     widgetToSelect->setFocus();
