@@ -135,6 +135,13 @@ TEST_F(QmlProjectItem, get_with_qds_prefix_enable_cmake_generation)
     ASSERT_TRUE(enable);
 }
 
+TEST_F(QmlProjectItem, get_with_qds_prefix_standalone_app)
+{
+    auto enable = projectItemWithQdsPrefix->standaloneApp();
+
+    ASSERT_TRUE(enable);
+}
+
 TEST_F(QmlProjectItem, get_with_qds_prefix_import_paths)
 {
     auto importPaths = projectItemWithQdsPrefix->importPaths();
@@ -282,6 +289,13 @@ TEST_F(QmlProjectItem, get_without_qds_prefix_tar_get_without_qds_prefix_directo
 TEST_F(QmlProjectItem, get_without_qds_prefix_enable_cmake_generation)
 {
     auto enable = projectItemWithoutQdsPrefix->enableCMakeGeneration();
+
+    ASSERT_TRUE(enable);
+}
+
+TEST_F(QmlProjectItem, get_without_qds_prefix_standalone_app)
+{
+    auto enable = projectItemWithoutQdsPrefix->standaloneApp();
 
     ASSERT_TRUE(enable);
 }
@@ -435,6 +449,13 @@ TEST_F(QmlProjectItem, get_empty_tar_get_empty_directory)
 TEST_F(QmlProjectItem, get_empty_enable_cmake_generation)
 {
     auto enable = projectItemEmpty->enableCMakeGeneration();
+
+    ASSERT_FALSE(enable);
+}
+
+TEST_F(QmlProjectItem, get_empty_standalone_app)
+{
+    auto enable = projectItemEmpty->standaloneApp();
 
     ASSERT_FALSE(enable);
 }
@@ -707,6 +728,20 @@ TEST_F(QmlProjectItem, set_enable_cmake_generation)
     projectItemSetters->setEnableCMakeGeneration(true);
 
     ASSERT_EQ(projectItemSetters->enableCMakeGeneration(), true);
+}
+
+TEST_F(QmlProjectItem, set_standalone_app)
+{
+    projectItemSetters->setStandaloneApp(true);
+
+    ASSERT_EQ(projectItemSetters->standaloneApp(), true);
+}
+
+TEST_F(QmlProjectItem, unset_standalone_app)
+{
+    projectItemSetters->setStandaloneApp(false);
+
+    ASSERT_EQ(projectItemSetters->standaloneApp(), false);
 }
 
 // TODO: We should move these 2 tests into the integration tests

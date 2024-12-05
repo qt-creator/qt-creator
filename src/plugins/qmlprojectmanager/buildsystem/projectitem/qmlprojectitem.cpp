@@ -525,4 +525,16 @@ void QmlProjectItem::setEnablePythonGeneration(bool enable)
     insertAndUpdateProjectFile("deployment", obj);
 }
 
+bool QmlProjectItem::standaloneApp() const
+{
+    return m_project["deployment"].toObject()["standaloneApp"].toBool();
+}
+
+void QmlProjectItem::setStandaloneApp(bool value)
+{
+    QJsonObject obj = m_project["deployment"].toObject();
+    obj["standaloneApp"] = value;
+    insertAndUpdateProjectFile("deployment", obj);
+}
+
 } // namespace QmlProjectManager

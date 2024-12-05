@@ -95,6 +95,9 @@ public:
     bool enablePythonGeneration() const;
     void setEnablePythonGeneration(bool enable);
 
+    bool standaloneApp() const;
+    void setStandaloneApp(bool enable);
+
     bool forceFreeType() const;
     bool widgetApp() const;
 

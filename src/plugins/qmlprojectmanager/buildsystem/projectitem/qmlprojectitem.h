@@ -101,6 +101,9 @@ public:
     bool enablePythonGeneration() const;
     void setEnablePythonGeneration(bool enable);
 
+    bool standaloneApp() const;
+    void setStandaloneApp(bool value);
+
 signals:
     void fileModified(const QString &filePath);
     void filesChanged(const QSet<QString> &, const QSet<QString> &);

@@ -152,6 +152,7 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
         appendString("targetDirectory", deploymentConfig["targetDirectory"].toString());
         appendBoolOpt("enableCMakeGeneration", deploymentConfig);
         appendBoolOpt("enablePythonGeneration", deploymentConfig);
+        appendBoolOpt("standaloneApp", deploymentConfig);
         appendBool("widgetApp", runConfig["widgetApp"].toBool());
         appendStringArray("importPaths", rootObject["importPaths"].toVariant().toStringList());
         appendStringArray("mockImports", rootObject["mockImports"].toVariant().toStringList());
@@ -406,8 +407,9 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
                    || propName.contains("forcefreetype", Qt::CaseInsensitive)) {
             currentObj = &runConfigObject;
         } else if (propName.contains("targetdirectory", Qt::CaseInsensitive)
-                || propName.contains("enableCMakeGeneration", Qt::CaseInsensitive)
-                || propName.contains("enablePythonGeneration", Qt::CaseInsensitive)) {
+                   || propName.contains("enableCMakeGeneration", Qt::CaseInsensitive)
+                   || propName.contains("enablePythonGeneration", Qt::CaseInsensitive)
+                   || propName.contains("standaloneApp", Qt::CaseInsensitive)) {
             currentObj = &deploymentObject;
         } else if (propName.contains("qtformcus", Qt::CaseInsensitive)) {
             qtForMCUs = value.toBool();

@@ -105,6 +105,7 @@ Project {
 
 @if %{EnableCMakeGeneration}
     enableCMakeGeneration: true
+    standaloneApp: true
 @endif
 
     qdsVersion: "4.7"

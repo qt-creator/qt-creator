@@ -565,6 +565,17 @@ void QmlBuildSystem::setEnablePythonGeneration(bool enable)
         m_projectItem->setEnablePythonGeneration(enable);
 }
 
+bool QmlBuildSystem::standaloneApp() const
+{
+    return m_projectItem->standaloneApp();
+}
+
+void QmlBuildSystem::setStandaloneApp(bool value)
+{
+    if (value != standaloneApp())
+        m_projectItem->setStandaloneApp(value);
+}
+
 void QmlBuildSystem::refreshFiles(const QSet<QString> & /*added*/, const QSet<QString> &removed)
 {
     if (m_blockFilesUpdate) {
