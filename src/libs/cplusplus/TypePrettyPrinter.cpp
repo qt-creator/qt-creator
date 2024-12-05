@@ -116,6 +116,9 @@ void TypePrettyPrinter::visit(UndefinedType *)
             _text.prepend(QLatin1String("signed"));
         else if (_fullySpecifiedType.isUnsigned())
             _text.prepend(QLatin1String("unsigned"));
+    } else if (_fullySpecifiedType.isAuto()) {
+        prependSpaceUnlessBracket();
+        _text.prepend("auto");
     }
 
     prependCv(_fullySpecifiedType);
