@@ -263,6 +263,8 @@ QtObject {
     readonly property int tabButtonHorizontalPadding: 15
     readonly property int tabButtonVerticalPadding: 1
 
+    // TableView
+    readonly property int tableCellHorizontalMargin: 8
 
     // Theme Colors
 

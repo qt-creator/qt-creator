@@ -60,7 +60,8 @@ ColumnLayout {
                 color: StudioTheme.Values.themeTextColor
                 text: display
                 anchors.fill: parent
-                anchors.margins: 8
+                anchors.leftMargin: StudioTheme.Values.tableCellHorizontalMargin
+                anchors.rightMargin: StudioTheme.Values.tableCellHorizontalMargin
                 elide: Text.ElideRight
                 font: headerFontMetrics.font
 
@@ -120,7 +121,8 @@ ColumnLayout {
                         visible: !dataScope.editing
                         color: StudioTheme.Values.themeTextColor
                         anchors.fill: parent
-                        anchors.margins: 8
+                        anchors.leftMargin: StudioTheme.Values.tableCellHorizontalMargin
+                        anchors.rightMargin: StudioTheme.Values.tableCellHorizontalMargin
                         elide: Text.ElideMiddle
                         wrapMode: Text.WordWrap
                         maximumLineCount: 1
