@@ -137,16 +137,18 @@ class ClangdOutlineItem : public LanguageClientOutlineItem
 private:
     QVariant data(int column, int role) const override
     {
-        switch (role) {
-        case Qt::DisplayRole:
-            return ClangdClient::displayNameFromDocumentSymbol(
-                static_cast<SymbolKind>(type()), name(), detail());
-        case Qt::ForegroundRole:
-            if ((detail().endsWith("class") || detail().endsWith("struct"))
-                && range().end() == selectionRange().end()) {
-                return creatorColor(Theme::TextColorDisabled);
+        if (valid()) {
+            switch (role) {
+            case Qt::DisplayRole:
+                return ClangdClient::displayNameFromDocumentSymbol(
+                    static_cast<SymbolKind>(type()), name(), detail());
+            case Qt::ForegroundRole:
+                if ((detail().endsWith("class") || detail().endsWith("struct"))
+                    && range().end() == selectionRange().end()) {
+                    return creatorColor(Theme::TextColorDisabled);
+                }
+                break;
             }
-            break;
         }
         return LanguageClientOutlineItem::data(column, role);
     }

@@ -29,6 +29,8 @@ public:
         return m_range.contains(pos);
     }
 
+    bool valid() const { return m_client; }
+
 protected:
     // TreeItem interface
     QVariant data(int column, int role) const override;

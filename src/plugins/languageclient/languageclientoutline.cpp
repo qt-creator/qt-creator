@@ -54,15 +54,19 @@ public:
     LanguageClientOutlineModel(Client *client) : m_client(client)  {}
     void setFilePath(const Utils::FilePath &filePath) { m_filePath = filePath; }
 
-    void setInfo(const QList<SymbolInformation> &info)
+    void setInfo(const QList<SymbolInformation> &info, bool createOutOfScopeItem)
     {
         clear();
+        if (createOutOfScopeItem)
+            rootItem()->appendChild(new LanguageClientOutlineItem());
         for (const SymbolInformation &symbol : sortedSymbols(info))
             rootItem()->appendChild(new LanguageClientOutlineItem(symbol));
     }
-    void setInfo(const QList<DocumentSymbol> &info)
+    void setInfo(const QList<DocumentSymbol> &info, bool createOutOfScopeItem)
     {
         clear();
+        if (createOutOfScopeItem)
+            rootItem()->appendChild(new LanguageClientOutlineItem());
         for (const DocumentSymbol &symbol : sortedSymbols(info))
             rootItem()->appendChild(m_client->createOutlineItem(symbol));
     }
@@ -81,7 +85,7 @@ public:
     {
         auto mimeData = new Utils::DropMimeData;
         for (const QModelIndex &index : indexes) {
-            if (LanguageClientOutlineItem *item = itemForIndex(index)) {
+            if (LanguageClientOutlineItem *item = itemForIndex(index); item->valid()) {
                 const LanguageServerProtocol::Position pos = item->pos();
                 mimeData->addFile(m_filePath, pos.line() + 1, pos.character());
             }
@@ -229,9 +233,9 @@ void LanguageClientOutlineWidget::handleResponse(const DocumentUri &uri,
     if (uri != m_uri)
         return;
     if (const auto i = std::get_if<QList<SymbolInformation>>(&result))
-        m_model.setInfo(*i);
+        m_model.setInfo(*i, false);
     else if (const auto s = std::get_if<QList<DocumentSymbol>>(&result))
-        m_model.setInfo(*s);
+        m_model.setInfo(*s, false);
     else
         m_model.clear();
 
@@ -242,6 +246,8 @@ void LanguageClientOutlineWidget::handleResponse(const DocumentUri &uri,
 void LanguageClientOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)
 {
     LanguageClientOutlineItem *item = m_model.itemForIndex(m_proxyModel.mapToSource(proxyIndex));
+    if (!item->valid())
+        return;
     const Position &pos = item->pos();
     // line has to be 1 based, column 0 based!
     m_editor->editorWidget()->gotoLine(pos.line() + 1, pos.character(), true, true);
@@ -253,7 +259,7 @@ static LanguageClientOutlineItem *itemForCursor(const LanguageClientOutlineModel
     const Position pos(cursor);
     LanguageClientOutlineItem *result = nullptr;
     m_model.forAllItems([&](LanguageClientOutlineItem *candidate){
-        if (!candidate->contains(pos))
+        if (!candidate->valid() || !candidate->contains(pos))
             return;
         if (result && candidate->range().contains(result->range()))
             return; // skip item if the range is equal or bigger than the previous found range
@@ -349,9 +355,9 @@ void OutlineComboBox::updateModel(const DocumentUri &resultUri, const DocumentSy
     if (m_uri != resultUri)
         return;
     if (const auto i = std::get_if<QList<SymbolInformation>>(&result))
-        m_model.setInfo(*i);
+        m_model.setInfo(*i, true);
     else if (const auto s = std::get_if<QList<DocumentSymbol>>(&result))
-        m_model.setInfo(*s);
+        m_model.setInfo(*s, true);
     else
         m_model.clear();
 
@@ -364,19 +370,25 @@ void OutlineComboBox::updateEntry()
 {
     if (LanguageClientOutlineItem *item = itemForCursor(m_model, m_editorWidget->textCursor()))
         setCurrentIndex(m_proxyModel.mapFromSource(m_model.indexForItem(item)));
+    else
+        setCurrentIndex(m_proxyModel.mapFromSource(m_model.index(0,0)));
+
 }
 
 void OutlineComboBox::activateEntry()
 {
     const QModelIndex modelIndex = m_proxyModel.mapToSource(view()->currentIndex());
-    if (modelIndex.isValid()) {
-        const Position &pos = m_model.itemForIndex(modelIndex)->pos();
-        Core::EditorManager::cutForwardNavigationHistory();
-        Core::EditorManager::addCurrentPositionToNavigationHistory();
-        // line has to be 1 based, column 0 based!
-        m_editorWidget->gotoLine(pos.line() + 1, pos.character(), true, true);
-        emit m_editorWidget->activateEditor();
-    }
+    if (!modelIndex.isValid())
+        return;
+    LanguageClientOutlineItem *item = m_model.itemForIndex(modelIndex);
+    if (!item->valid())
+        return;
+    const Position &pos = item->pos();
+    Core::EditorManager::cutForwardNavigationHistory();
+    Core::EditorManager::addCurrentPositionToNavigationHistory();
+    // line has to be 1 based, column 0 based!
+    m_editorWidget->gotoLine(pos.line() + 1, pos.character(), true, true);
+    emit m_editorWidget->activateEditor();
 }
 
 void OutlineComboBox::documentUpdated(TextEditor::TextDocument *document)
@@ -417,7 +429,7 @@ QVariant LanguageClientOutlineItem::data(int column, int role) const
     case Qt::DecorationRole:
         return symbolIcon(m_type);
     case Qt::DisplayRole:
-        return m_name;
+        return valid() ? m_name : Tr::tr("<Select Symbol>");
     default:
         return Utils::TreeItem::data(column, role);
     }
