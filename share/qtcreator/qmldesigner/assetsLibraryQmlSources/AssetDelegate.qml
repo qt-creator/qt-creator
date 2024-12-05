@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Templates as T
 import StudioTheme as StudioTheme
 import StudioControls as StudioControls
 import AssetsLibraryBackend
 
-TreeViewDelegate {
+T.TreeViewDelegate {
     id: root
 
     property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
@@ -35,8 +35,6 @@ TreeViewDelegate {
 
     implicitHeight: root.__isDirectory ? root.__dirItemHeight : root.__fileItemHeight
     implicitWidth: root.assetsView.width
-
-    leftMargin: root.__isDirectory ? 0 : thumbnailImage.width
 
     Component.onCompleted: {
         // the depth of the root path will become available before we get to the actual
@@ -83,9 +81,12 @@ TreeViewDelegate {
     }
 
     indicator: Item {
-        implicitWidth: 20
+        id: arrowIndicator
+
+        implicitWidth: 10
         implicitHeight: root.implicitHeight
         anchors.left: bg.left
+        anchors.leftMargin: 5
 
         Image {
             id: arrow
@@ -126,11 +127,13 @@ TreeViewDelegate {
 
     contentItem: Text {
         id: assetLabel
+
         text: assetLabel.__computeText()
         color: StudioTheme.Values.themeTextColor
         font.pixelSize: StudioTheme.Values.baseFontSize
-        anchors.verticalCenter: parent.verticalCenter
         verticalAlignment: Qt.AlignVCenter
+        anchors.left: root.__isDirectory ? arrowIndicator.right : thumbnailImage.right
+        anchors.leftMargin: 8
 
         function __computeText() {
             return root.__isDirectory
