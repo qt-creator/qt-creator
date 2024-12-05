@@ -383,7 +383,15 @@ void DesignerCustomObjectDataFork::doResetProperty(QQmlContext *context, const Q
         }
 
     } else if (property.isResettable()) {
-        property.reset();
+        auto resetValue = getResetValue(propertyName);
+        // when property is resettable but also has a non-default value assigned in the component definition
+        if (!resetValue.isNull()
+            && resetValue != QVariant::fromMetaType(resetValue.metaType())) {
+            property.write(getResetValue(propertyName));
+        } else {
+            property.reset();
+        }
+
     } else if (property.propertyTypeCategory() == QQmlProperty::List) {
         QQmlListReference list = qvariant_cast<QQmlListReference>(property.read());
 
