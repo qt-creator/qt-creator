@@ -131,7 +131,6 @@ GdbEngine::GdbEngine()
     setObjectName("GdbEngine");
     setDebuggerName("GDB");
 
-    m_gdbOutputCodec = QTextCodec::codecForLocale();
     m_inferiorOutputCodec = QTextCodec::codecForLocale();
 
     m_commandTimer.setSingleShot(true);
@@ -632,7 +631,7 @@ void GdbEngine::readGdbStandardOutput()
     int newstart = 0;
     int scan = m_inbuffer.size();
 
-    QByteArray out = m_gdbProc.readAllRawStandardOutput();
+    QString out = m_gdbProc.readAllStandardOutput();
     m_inbuffer.append(out);
 
     // This can trigger when a dialog starts a nested event loop.
@@ -657,8 +656,7 @@ void GdbEngine::readGdbStandardOutput()
         }
         m_busy = true;
 
-        QString msg = m_gdbOutputCodec->toUnicode(m_inbuffer.constData() + start, end - start,
-                                                  &m_gdbOutputCodecState);
+        QString msg = m_inbuffer.mid(start, end - start);
 
         handleResponse(msg);
         m_busy = false;
