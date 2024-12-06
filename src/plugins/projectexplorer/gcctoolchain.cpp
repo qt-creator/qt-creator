@@ -1390,7 +1390,7 @@ static FilePaths findCompilerCandidates(OsType os,
 {
     // We expect the following patterns:
     //   compilerName                            "clang", "gcc"
-    //   compilerName + "-[1-9]*"                "clang-8", "gcc-5"
+    //   compilerName + "-[1-9]*"                "clang-18", "gcc-5"
     //   "*-" + compilerName                     "avr-gcc", "avr32-gcc"
     //                                           "arm-none-eabi-gcc"
     //                                           "x86_64-pc-linux-gnu-gcc"
@@ -1400,39 +1400,45 @@ static FilePaths findCompilerCandidates(OsType os,
     // but not "c89-gcc" or "c99-gcc"
 
     FilePaths compilerPaths;
-    const int cl = compilerName.size();
+    const int nameLen = compilerName.size();
     for (const FilePath &executable : executables) {
         QStringView fileName = executable.fileNameView();
         if (os == OsTypeWindows && fileName.endsWith(u".exe", Qt::CaseInsensitive))
             fileName.chop(4);
 
-        // Do not `continue`, proceed to detect further variants
-        if (fileName == compilerName)
+        // Exact file (base) name match with no prefix or suffix, e.g. "/usr/bin/gcc" for "gcc".
+        if (fileName == compilerName) {
             compilerPaths << executable;
+            continue;
+        }
 
+        // Not an exact match and we are only interested in those.
         if (!detectVariants)
             continue;
 
+        // These are always links intended for more generic tools.
         if (fileName == u"c89-gcc" || fileName == u"c99-gcc")
             continue;
 
-        int pos = fileName.indexOf(compilerName);
-        if (pos == -1)
+        const int nameOffset = fileName.indexOf(compilerName);
+
+        // No match at all.
+        if (nameOffset == -1)
             continue;
 
-        // if not at the beginning, it must be preceded by a hyphen.
-        if (pos > 0 && fileName.at(pos - 1) != '-')
+        // If there is a prefix, it must end with a hyphen.
+        if (nameOffset > 0 && fileName.at(nameOffset - 1) != '-')
             continue;
 
-        // if not at the end, it must by followed by a hyphen and a digit between 1 and 9
-        pos += cl;
-        if (pos != fileName.size()) {
-            if (pos + 1 >= fileName.size())
+        // If there is a suffix, it must start with a hyphen followed by a digit between 1 and 9.
+        const QStringView suffix = fileName.sliced(nameOffset + nameLen);
+        switch (suffix.size()) {
+        case 0: break;
+        case 1: continue;
+        default:
+            if (suffix.first() != '-')
                 continue;
-            if (fileName.at(pos) != '-')
-                continue;
-            const QChar c = fileName.at(pos + 1);
-            if (c < '1' || c > '9')
+            if (const QChar c = suffix.at(1); c < '1' || c > '9')
                 continue;
         }
 
@@ -1441,7 +1447,6 @@ static FilePaths findCompilerCandidates(OsType os,
 
     return compilerPaths;
 }
-
 
 Toolchains GccToolchainFactory::autoDetect(const ToolchainDetector &detector) const
 {
