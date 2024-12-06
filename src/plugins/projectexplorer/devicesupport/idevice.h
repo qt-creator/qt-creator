@@ -251,9 +251,13 @@ public:
     DeviceConstRef(const IDevice::Ptr &device);
     virtual ~DeviceConstRef();
 
+    IDevice::ConstPtr lock() const;
+
     Utils::Id id() const;
     QString displayName() const;
     SshParameters sshParameters() const;
+    Utils::FilePath filePath(const QString &pathOnDevice) const;
+    QVariant extraData(Utils::Id kind) const;
 
 private:
     std::weak_ptr<const IDevice> m_constDevice;
@@ -263,6 +267,8 @@ class PROJECTEXPLORER_EXPORT DeviceRef : public DeviceConstRef
 {
 public:
     DeviceRef(const IDevice::Ptr &device);
+
+    IDevice::Ptr lock() const;
 
     void setDisplayName(const QString &displayName);
     void setSshParameters(const SshParameters &params);

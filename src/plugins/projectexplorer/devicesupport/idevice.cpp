@@ -794,6 +794,11 @@ DeviceConstRef::DeviceConstRef(const IDevice::Ptr &device)
     : m_constDevice(device)
 {}
 
+IDevice::ConstPtr DeviceConstRef::lock() const
+{
+    return m_constDevice.lock();
+}
+
 DeviceConstRef::~DeviceConstRef() = default;
 
 Id DeviceConstRef::id() const
@@ -817,11 +822,30 @@ SshParameters DeviceConstRef::sshParameters() const
     return device->sshParameters();
 }
 
+QVariant DeviceConstRef::extraData(Id kind) const
+{
+    const IDevice::ConstPtr device = m_constDevice.lock();
+    QTC_ASSERT(device, return {});
+    return device->extraData(kind);
+}
+
+FilePath DeviceConstRef::filePath(const QString &pathOnDevice) const
+{
+    const IDevice::ConstPtr device = m_constDevice.lock();
+    QTC_ASSERT(device, return {});
+    return device->filePath(pathOnDevice);
+}
+
 // DeviceRef, mutable
 
 DeviceRef::DeviceRef(const IDevice::Ptr &device)
     : DeviceConstRef(device), m_mutableDevice(device)
 {}
+
+IDevice::Ptr DeviceRef::lock() const
+{
+    return m_mutableDevice.lock();
+}
 
 void DeviceRef::setDisplayName(const QString &displayName)
 {
