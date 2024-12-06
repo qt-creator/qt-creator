@@ -35,7 +35,6 @@
 #include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QSettings>
-#include <QTextCodec>
 #include <QVector>
 #include <QVersionNumber>
 
@@ -260,7 +259,7 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QSt
 {
     QVector<VisualStudioInstallation> installations;
     Process vsWhereProcess;
-    vsWhereProcess.setCodec(QTextCodec::codecForName("UTF-8"));
+    vsWhereProcess.setUtf8Codec();
     vsWhereProcess.setCommand({FilePath::fromString(vswhere),
                         {"-products", "*", "-prerelease", "-legacy", "-format", "json", "-utf8"}});
     vsWhereProcess.runBlocking(5s);
@@ -2114,7 +2113,7 @@ std::optional<QString> MsvcToolchain::generateEnvironmentSettings(const Utils::E
     CommandLine cmd(cmdPath, {"/D", "/E:ON", "/V:ON", "/c", saver.filePath().toUserOutput()});
     qCDebug(Log) << "readEnvironmentSetting: " << call << cmd.toUserOutput()
                  << " Env: " << runEnv.toStringList().size();
-    run.setCodec(QTextCodec::codecForName("UTF-8"));
+    run.setUtf8Codec();
     run.setCommand(cmd);
     run.runBlocking(1min);
 

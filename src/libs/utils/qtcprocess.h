@@ -143,8 +143,9 @@ public:
     void runBlocking(std::chrono::seconds timeout = std::chrono::seconds(10),
                      EventLoopMode eventLoopMode = EventLoopMode::Off);
 
-    void setCodec(QTextCodec *c); // for stdOut and stdErr
-    void setStdOutCodec(QTextCodec *c); // for stdOut, stdErr uses executable.processStdErrCodec()
+    void setCodec(QTextCodec *codec); // for stdOut and stdErr
+    void setUtf8Codec(); // for stdOut and stdErr
+    void setUtf8StdOutCodec(); // for stdOut, stdErr uses executable.processStdErrCodec()
 
     void setTimeOutMessageBoxEnabled(bool);
 

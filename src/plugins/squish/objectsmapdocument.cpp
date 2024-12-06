@@ -11,8 +11,6 @@
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 
-#include <QtCore5Compat/QTextCodec>
-
 using namespace Utils;
 
 namespace Squish {
@@ -209,7 +207,7 @@ Core::IDocument::OpenResult ObjectsMapDocument::openImpl(QString *error,
         Utils::Process objectMapReader;
         objectMapReader.setCommand({exe, {"--scriptMap", "--mode", "read",
                                           "--scriptedObjectMapPath", realFileName.toUserOutput()}});
-        objectMapReader.setCodec(QTextCodec::codecForName("UTF-8"));
+        objectMapReader.setUtf8Codec();
         objectMapReader.start();
         objectMapReader.waitForFinished();
         text = objectMapReader.cleanedStdOut().toUtf8();

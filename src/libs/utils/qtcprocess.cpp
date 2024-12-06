@@ -1748,17 +1748,23 @@ void ChannelBuffer::handleRest()
     }
 }
 
-void Process::setCodec(QTextCodec *c)
+void Process::setCodec(QTextCodec *codec)
 {
-    QTC_ASSERT(c, return);
-    d->m_stdOutCodec = c;
-    d->m_stdErrCodec = c;
+    QTC_ASSERT(codec, return);
+    d->m_stdOutCodec = codec;
+    d->m_stdErrCodec = codec;
 }
 
-void Process::setStdOutCodec(QTextCodec *c)
+void Process::setUtf8Codec()
 {
-    QTC_ASSERT(c, return);
-    d->m_stdOutCodec = c;
+    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+    d->m_stdOutCodec = codec;
+    d->m_stdErrCodec = codec;
+}
+
+void Process::setUtf8StdOutCodec()
+{
+    d->m_stdOutCodec = QTextCodec::codecForName("UTF-8");
 }
 
 void Process::setTimeOutMessageBoxEnabled(bool v)

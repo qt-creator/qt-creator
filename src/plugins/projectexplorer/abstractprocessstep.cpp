@@ -13,8 +13,6 @@
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
-#include <QTextDecoder>
-
 using namespace Tasking;
 using namespace Utils;
 
@@ -195,7 +193,7 @@ bool AbstractProcessStep::setupProcess(Process &process)
         process.setLowPriority();
 
     if (buildEnvironment().hasKey("VSLANG"))
-        process.setStdOutCodec(QTextCodec::codecForName("UTF-8"));
+        process.setUtf8StdOutCodec();
 
     process.setStdOutCallback([this](const QString &s){
         emit addOutput(s, OutputFormat::Stdout, DontAppendNewline);
