@@ -567,11 +567,9 @@ Project *ProjectManager::projectWithProjectFilePath(const FilePath &filePath)
 
 void ProjectManager::configureEditor(IEditor *editor, const FilePath &filePath)
 {
-    if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor)) {
-        // Global settings are the default.
-        if (Project *project = projectForFile(filePath))
-            project->editorConfiguration()->configureEditor(textEditor);
-    }
+    // Global settings are the default.
+    if (Project *project = projectForFile(filePath))
+        project->editorConfiguration()->configureEditor(editor);
 }
 
 void ProjectManager::configureEditors(Project *project)
@@ -580,11 +578,8 @@ void ProjectManager::configureEditors(Project *project)
     for (IDocument *document : documents) {
         if (project->isKnownFile(document->filePath())) {
             const QList<IEditor *> editors = DocumentModel::editorsForDocument(document);
-            for (IEditor *editor : editors) {
-                if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor)) {
-                        project->editorConfiguration()->configureEditor(textEditor);
-                }
-            }
+            for (IEditor *editor : editors)
+                project->editorConfiguration()->configureEditor(editor);
         }
     }
 }

@@ -58,7 +58,7 @@ struct EditorConfigurationPrivate
     QTextCodec *m_textCodec;
 
     QMap<Utils::Id, ICodeStylePreferences *> m_languageCodeStylePreferences;
-    QList<BaseTextEditor *> m_editors;
+    QList<Core::IEditor *> m_editors;
 };
 
 EditorConfiguration::EditorConfiguration() : d(std::make_unique<EditorConfigurationPrivate>())
@@ -230,29 +230,29 @@ void EditorConfiguration::fromMap(const Store &map)
     setUseGlobalSettings(map.value(kUseGlobal, d->m_useGlobal).toBool());
 }
 
-void EditorConfiguration::configureEditor(BaseTextEditor *textEditor) const
+void EditorConfiguration::configureEditor(Core::IEditor *editor) const
 {
-    TextEditorWidget *widget = textEditor->editorWidget();
-    if (widget)
+    TextEditorWidget *widget = TextEditorWidget::fromEditor(editor);
+    if (widget) {
         widget->textDocument()->setCodeStyle(codeStyle(widget->languageSettingsId()));
-    if (!d->m_useGlobal) {
-        textEditor->textDocument()->setCodec(d->m_textCodec);
-        if (widget)
+        if (!d->m_useGlobal) {
+            widget->textDocument()->setCodec(d->m_textCodec);
             switchSettings(widget);
+        }
     }
-    d->m_editors.append(textEditor);
-    connect(textEditor, &BaseTextEditor::destroyed, this, [this, textEditor]() {
-        d->m_editors.removeOne(textEditor);
+    d->m_editors.append(editor);
+    connect(editor, &Core::IEditor::destroyed, this, [this, editor]() {
+        d->m_editors.removeOne(editor);
     });
 }
 
-void EditorConfiguration::deconfigureEditor(BaseTextEditor *textEditor) const
+void EditorConfiguration::deconfigureEditor(Core::IEditor *editor) const
 {
-    TextEditorWidget *widget = textEditor->editorWidget();
+    TextEditorWidget *widget = TextEditorWidget::fromEditor(editor);
     if (widget)
         widget->textDocument()->setCodeStyle(TextEditorSettings::codeStyle(widget->languageSettingsId()));
 
-    d->m_editors.removeOne(textEditor);
+    d->m_editors.removeOne(editor);
 
     // TODO: what about text codec and switching settings?
 }
@@ -391,7 +391,7 @@ void EditorConfiguration::slotAboutToRemoveProject(Project *project)
     if (project->editorConfiguration() != this)
         return;
 
-    for (BaseTextEditor *editor : std::as_const(d->m_editors))
+    for (Core::IEditor *editor : std::as_const(d->m_editors))
         deconfigureEditor(editor);
 }
 
