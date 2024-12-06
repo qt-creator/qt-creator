@@ -42,7 +42,6 @@
 
 #include <QLoggingCategory>
 #include <QPushButton>
-#include <QTextCodec>
 #include <QTimer>
 
 #if defined (WITH_JOURNALD)
@@ -1522,15 +1521,14 @@ void SimpleTargetRunnerPrivate::handleStandardError()
 
 void SimpleTargetRunnerPrivate::start()
 {
-    const bool isLocal = !m_command.executable().needsDevice();
-
     CommandLine cmdLine = m_command;
     Environment env = m_environment;
 
     m_resultData = {};
     QTC_ASSERT(m_state == Inactive, return);
 
-    if (isLocal) {
+    if (!m_command.executable().needsDevice()) {
+        // Running locally.
         if (m_runAsRoot)
             RunControl::provideAskPassEntry(env);
 
@@ -1565,7 +1563,6 @@ void SimpleTargetRunnerPrivate::start()
 
     m_state = Run;
     m_process.setWorkingDirectory(m_workingDirectory);
-    m_process.setCodec(isLocal ? QTextCodec::codecForLocale() : QTextCodec::codecForName("utf8"));
     m_process.setForceDefaultErrorModeOnWindows(true);
     m_process.start();
 }
