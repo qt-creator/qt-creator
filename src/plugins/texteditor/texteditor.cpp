@@ -1466,6 +1466,7 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
 
     m_document = doc;
     q->QPlainTextEdit::setDocument(doc->document());
+    m_tabSettingsButton->setDocument(q->textDocument());
     previousDocument.clear();
     q->setCursorWidth(2); // Applies to the document layout
 
@@ -1587,7 +1588,6 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
     q->setCompletionSettings(TextEditorSettings::completionSettings());
     q->setExtraEncodingSettings(globalExtraEncodingSettings());
     q->setCodeStyle(TextEditorSettings::codeStyle(m_tabSettingsId));
-    m_tabSettingsButton->setDocument(q->textDocument());
 
     m_blockCount = doc->document()->blockCount();
 
