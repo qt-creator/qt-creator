@@ -54,7 +54,6 @@
 #include <qtsupport/qtkitaspect.h>
 
 #include <QTcpServer>
-#include <QTextCodec>
 #include <QTimer>
 
 using namespace Core;
@@ -105,9 +104,6 @@ public:
 
     // DebugServer
     Process debuggerServerProc;
-    QTextCodec *debuggerServerCodec = QTextCodec::codecForName("utf8");
-    QTextCodec::ConverterState outputCodecState; // FIXME: Handle on Process side.
-    QTextCodec::ConverterState errorCodecState;
     ProcessHandle serverAttachPid;
     bool serverUseMulti = true;
     bool serverEssential = true;
@@ -875,6 +871,8 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     if (EngineManager::engines().isEmpty())
         toolRunCount = 0;
 
+    d->debuggerServerProc.setUtf8Codec();
+
     d->runId = QString::number(++toolRunCount);
     d->allowTerminal = allowTerminal;
 
@@ -1155,17 +1153,13 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
 
     connect(&d->debuggerServerProc, &Process::readyReadStandardOutput,
                 this, [this] {
-        const QByteArray data = d->debuggerServerProc.readAllRawStandardOutput();
-        const QString msg = d->debuggerServerCodec->toUnicode(
-                    data.constData(), data.length(), &d->outputCodecState);
+        const QString msg = d->debuggerServerProc.readAllStandardOutput();
         runControl()->postMessage(msg, StdOutFormat, false);
     });
 
     connect(&d->debuggerServerProc, &Process::readyReadStandardError,
                 this, [this] {
-        const QByteArray data = d->debuggerServerProc.readAllRawStandardError();
-        const QString msg = d->debuggerServerCodec->toUnicode(
-                    data.constData(), data.length(), &d->errorCodecState);
+        const QString msg = d->debuggerServerProc.readAllStandardError();
         runControl()->postMessage(msg, StdErrFormat, false);
     });
 
