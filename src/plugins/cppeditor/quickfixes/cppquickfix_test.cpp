@@ -35,10 +35,10 @@ namespace CppEditor {
 namespace Internal {
 namespace Tests {
 
-QList<TestDocumentPtr> singleDocument(const QByteArray &original,
-                                                const QByteArray &expected)
+QList<TestDocumentPtr> singleDocument(
+    const QByteArray &original, const QByteArray &expected, const QByteArray fileName)
 {
-    return {CppTestDocument::create("file.cpp", original, expected)};
+    return {CppTestDocument::create(fileName, original, expected)};
 }
 
 BaseQuickFixTestCase::BaseQuickFixTestCase(const QList<TestDocumentPtr> &testDocuments,

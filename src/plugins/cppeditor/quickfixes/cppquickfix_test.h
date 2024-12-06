@@ -86,8 +86,8 @@ public:
                     int operationIndex = 0);
 };
 
-QList<TestDocumentPtr> singleDocument(const QByteArray &original,
-                                                const QByteArray &expected);
+QList<TestDocumentPtr> singleDocument(
+    const QByteArray &original, const QByteArray &expected, const QByteArray fileName = "file.cpp");
 
 } // namespace Tests
 } // namespace Internal
