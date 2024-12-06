@@ -194,9 +194,8 @@ bool AbstractProcessStep::setupProcess(Process &process)
     if (d->m_lowPriority && projectExplorerSettings().lowBuildPriority)
         process.setLowPriority();
 
-    process.setStdOutCodec(buildEnvironment().hasKey("VSLANG")
-                               ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForLocale());
-    process.setStdErrCodec(QTextCodec::codecForLocale());
+    if (buildEnvironment().hasKey("VSLANG"))
+        process.setStdOutCodec(QTextCodec::codecForName("UTF-8"));
 
     process.setStdOutCallback([this](const QString &s){
         emit addOutput(s, OutputFormat::Stdout, DontAppendNewline);

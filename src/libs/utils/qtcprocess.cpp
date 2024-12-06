@@ -1761,12 +1761,6 @@ void Process::setStdOutCodec(QTextCodec *c)
     d->m_stdOutCodec = c;
 }
 
-void Process::setStdErrCodec(QTextCodec *c)
-{
-    QTC_ASSERT(c, return);
-    d->m_stdErrCodec = c;
-}
-
 void Process::setTimeOutMessageBoxEnabled(bool v)
 {
     d->m_timeOutMessageBoxEnabled = v;

@@ -17,7 +17,6 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QMessageBox>
-#include <QTextCodec>
 
 using namespace Tasking;
 using namespace Utils;
@@ -160,7 +159,6 @@ void ExecuteFilter::createProcess()
 
     m_process = new Process;
     m_process->setEnvironment(Environment::systemEnvironment());
-    m_process->setCodec(QTextCodec::codecForLocale());
     connect(m_process, &Process::done, this, &ExecuteFilter::done);
     connect(m_process, &Process::readyReadStandardOutput, this, &ExecuteFilter::readStdOutput);
     connect(m_process, &Process::readyReadStandardError, this, &ExecuteFilter::readStdError);

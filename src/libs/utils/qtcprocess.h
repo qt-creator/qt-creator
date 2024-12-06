@@ -144,8 +144,7 @@ public:
                      EventLoopMode eventLoopMode = EventLoopMode::Off);
 
     void setCodec(QTextCodec *c); // for stdOut and stdErr
-    void setStdOutCodec(QTextCodec *c);
-    void setStdErrCodec(QTextCodec *c);
+    void setStdOutCodec(QTextCodec *c); // for stdOut, stdErr uses executable.processStdErrCodec()
 
     void setTimeOutMessageBoxEnabled(bool);
 

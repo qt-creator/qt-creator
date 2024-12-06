@@ -137,7 +137,6 @@ GroupItem GenericDirectUploadStep::statTask(UploadStorage *storage,
                                             StatEndHandler statEndHandler)
 {
     const auto onSetup = [this, file](Process &process) {
-        process.setCodec(QTextCodec::codecForName("UTF-8"));
         // We'd like to use --format=%Y, but it's not supported by busybox.
         process.setCommand({deviceConfiguration()->filePath("stat"),
                             {"-t", Utils::ProcessArgs::quoteArgUnix(file.remoteFilePath())}});
