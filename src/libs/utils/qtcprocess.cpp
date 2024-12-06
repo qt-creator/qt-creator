@@ -723,8 +723,8 @@ public:
     qint64 m_applicationMainThreadId = 0;
     ProcessResultData m_resultData;
 
-    QTextCodec *m_stdOutCodec = QTextCodec::codecForLocale();
-    QTextCodec *m_stdErrCodec = QTextCodec::codecForLocale();
+    QTextCodec *m_stdOutCodec = nullptr;
+    QTextCodec *m_stdErrCodec = nullptr;
 
     ProcessResult m_result = ProcessResult::StartFailed;
     ChannelBuffer m_stdOut;
@@ -983,10 +983,16 @@ void ProcessPrivate::sendControlSignal(ControlSignal controlSignal)
 
 void ProcessPrivate::clearForRun()
 {
+    if (!m_stdOutCodec)
+        m_stdOutCodec = m_setup.m_commandLine.executable().processStdOutCodec();
     m_stdOut.clearForRun();
     m_stdOut.codec = m_stdOutCodec;
+
+    if (!m_stdErrCodec)
+        m_stdErrCodec = m_setup.m_commandLine.executable().processStdErrCodec();
     m_stdErr.clearForRun();
     m_stdErr.codec = m_stdErrCodec;
+
     m_result = ProcessResult::StartFailed;
     m_startTimestamp = {};
     m_doneTimestamp = {};
@@ -1622,12 +1628,14 @@ QByteArray Process::rawStdErr() const
 QString Process::stdOut() const
 {
     QTC_CHECK(d->m_stdOut.keepRawData);
+    QTC_ASSERT(d->m_stdOutCodec, return {}); // Process was not started
     return d->m_stdOutCodec->toUnicode(d->m_stdOut.rawData);
 }
 
 QString Process::stdErr() const
 {
     QTC_CHECK(d->m_stdErr.keepRawData);
+    QTC_ASSERT(d->m_stdErrCodec, return {}); // Process was not started
     return d->m_stdErrCodec->toUnicode(d->m_stdErr.rawData);
 }
 
