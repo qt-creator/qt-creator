@@ -39,6 +39,9 @@ public:
     bool renameTheme(ThemeId id, const ThemeName &newName);
     const std::vector<ThemeId> allThemeIds() const;
 
+    ThemeId activeTheme() const { return m_activeTheme; }
+    void setActiveTheme(ThemeId id);
+
     void forAllGroups(std::function<void(GroupType, DSThemeGroup *)> callback) const;
 
     void removeTheme(ThemeId id);
@@ -70,9 +73,12 @@ private:
     ThemeName uniqueThemeName(const ThemeName &hint) const;
     PropertyName uniquePropertyName(const PropertyName &hint) const;
 
+    void reviewActiveTheme();
+
 private:
     std::map<ThemeId, ThemeName> m_themes;
     std::map<GroupType, std::shared_ptr<DSThemeGroup>> m_groups;
+    ThemeId m_activeTheme = static_cast<ThemeId>(0);
 };
 
 using DSCollections = std::map<QString, DSThemeManager>;

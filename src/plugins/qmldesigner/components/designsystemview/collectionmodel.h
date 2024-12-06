@@ -17,9 +17,14 @@ class CollectionModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    enum class Roles { GroupRole = Qt::UserRole + 1, BindingRole };
+    enum class Roles { GroupRole = Qt::UserRole + 1, BindingRole, ActiveThemeRole };
+
+    Q_PROPERTY(QStringList themeNames READ themeNameList NOTIFY themeNameChanged FINAL)
 
     CollectionModel(DSThemeManager *collection);
+
+    QStringList themeNameList() const;
+    Q_INVOKABLE void setActiveTheme(const QString &themeName);
 
     // QAbstractItemModel Interface
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -51,6 +56,9 @@ public:
                                    Qt::Orientation orientation,
                                    const QVariant &value,
                                    int role = Qt::EditRole) override;
+
+signals:
+    void themeNameChanged();
 
 private:
     ThemeId findThemeId(int column) const;

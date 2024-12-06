@@ -48,6 +48,9 @@ std::optional<ThemeId> DSThemeManager::addTheme(const ThemeName &themeNameHint)
     if (!m_themes.try_emplace(newThemeId, assignedThemeName).second)
         return {};
 
+    if (m_themes.size() == 1) // First theme. Make it active.
+        reviewActiveTheme();
+
     // Copy the new theme properties from an old theme(first one).
     if (m_themes.size() > 1)
         duplicateTheme(m_themes.begin()->first, newThemeId);
@@ -101,6 +104,12 @@ const std::vector<ThemeId> DSThemeManager::allThemeIds() const
     return ids;
 }
 
+void DSThemeManager::setActiveTheme(ThemeId id)
+{
+    if (m_themes.contains(id))
+        m_activeTheme = id;
+}
+
 void DSThemeManager::forAllGroups(std::function<void(GroupType, DSThemeGroup *)> callback) const
 {
     if (!callback)
@@ -131,7 +140,8 @@ void DSThemeManager::removeTheme(ThemeId id)
     for (auto &[gt, group] : m_groups)
         group->removeTheme(id);
 
-    m_themes.erase(id);
+    if (m_themes.erase(id))
+        reviewActiveTheme();
 }
 
 void DSThemeManager::duplicateTheme(ThemeId from, ThemeId to)
@@ -217,7 +227,7 @@ void DSThemeManager::decorate(ModelNode rootNode, const QByteArray &nodeType, bo
         return;
 
     auto p = rootNode.bindingProperty("currentTheme");
-    p.setDynamicTypeNameAndExpression(nodeType, QString::fromLatin1(m_themes.begin()->second));
+    p.setDynamicTypeNameAndExpression(nodeType, QString::fromLatin1(m_themes.at(m_activeTheme)));
     if (!isMCU)
         addGroupAliases(rootNode);
     auto model = rootNode.model();
@@ -389,5 +399,16 @@ PropertyName DSThemeManager::uniquePropertyName(const PropertyName &hint) const
                                                         return isPropertyNameUsed(t.toLatin1());
                                                     });
     return propName.toUtf8();
+}
+
+void DSThemeManager::reviewActiveTheme()
+{
+    // Active theme removed. Make the first one active
+    if (!m_themes.contains(m_activeTheme)) {
+        if (m_themes.size() > 0)
+            setActiveTheme(m_themes.begin()->first);
+        else
+            m_activeTheme = static_cast<ThemeId>(0);
+    }
 }
 } // namespace QmlDesigner
