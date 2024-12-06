@@ -43,14 +43,14 @@ Device::Device(const DeviceInfo &deviceInfo, const DeviceSettings &deviceSetting
         m_socketWasConnected = false;
         m_pingTimer.stop();
         m_pongTimer.stop();
-        emit disconnected(m_deviceInfo.deviceId());
+        emit disconnected(m_deviceSettings.deviceId());
     });
     connect(m_socket.data(), &QWebSocket::connected, this, [this]() {
         m_socketWasConnected = true;
         m_reconnectTimer.stop();
         m_pingTimer.start();
-        sendDesignStudioReady(m_deviceInfo.deviceId());
-        emit connected(m_deviceInfo.deviceId());
+        sendDesignStudioReady(m_deviceSettings.deviceId());
+        emit connected(m_deviceSettings.deviceId());
     });
 
     m_reconnectTimer.setSingleShot(true);
@@ -84,15 +84,15 @@ void Device::initPingPong()
             this,
             [this](quint64 elapsedTime, [[maybe_unused]] const QByteArray &payload) {
                 qCDebug(deviceSharePluginLog)
-                    << "Pong received from Device" << m_deviceInfo.deviceId() << "in" << elapsedTime
-                    << "ms";
+                    << "Pong received from Device" << m_deviceSettings.deviceId() << "in"
+                    << elapsedTime << "ms";
                 m_pongTimer.stop();
                 m_pingTimer.start();
             });
 
     connect(&m_pongTimer, &QTimer::timeout, this, [this]() {
         qCWarning(deviceSharePluginLog)
-            << "Device" << m_deviceInfo.deviceId() << "is not responding. Closing connection.";
+            << "Device" << m_deviceSettings.deviceId() << "is not responding. Closing connection.";
         m_socket->close();
     });
 }
@@ -193,13 +193,13 @@ void Device::processTextMessage(const QString &data)
     if (dataType == PackageFromDevice::deviceInfo) {
         QJsonObject deviceInfo = jsonObj.value("data").toObject();
         m_deviceInfo.setJsonObject(deviceInfo);
-        emit deviceInfoReady(m_deviceSettings.ipAddress(), m_deviceInfo.deviceId(), m_deviceInfo);
+        emit deviceInfoReady(m_deviceSettings.ipAddress(), m_deviceSettings.deviceId());
     } else if (dataType == PackageFromDevice::projectRunning) {
-        emit projectStarted(m_deviceInfo.deviceId());
+        emit projectStarted(m_deviceSettings.deviceId());
     } else if (dataType == PackageFromDevice::projectStopped) {
-        emit projectStopped(m_deviceInfo.deviceId());
+        emit projectStopped(m_deviceSettings.deviceId());
     } else if (dataType == PackageFromDevice::projectLogs) {
-        emit projectLogsReceived(m_deviceInfo.deviceId(), jsonObj.value("data").toString());
+        emit projectLogsReceived(m_deviceSettings.deviceId(), jsonObj.value("data").toString());
     } else {
         qCDebug(deviceSharePluginLog) << "Invalid JSON message:" << jsonObj;
     }

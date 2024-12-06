@@ -10,21 +10,21 @@ DeviceManagerModel::DeviceManagerModel(DeviceManager &deviceManager, QObject *pa
     : QAbstractTableModel(parent)
     , m_deviceManager(deviceManager)
 {
-    connect(&m_deviceManager, &DeviceManager::deviceAdded, this, [this](const DeviceInfo &) {
+    connect(&m_deviceManager, &DeviceManager::deviceAdded, this, [this](const QString &) {
         beginResetModel();
         endResetModel();
     });
-    connect(&m_deviceManager, &DeviceManager::deviceRemoved, this, [this](const DeviceInfo &) {
-        beginResetModel();
-        endResetModel();
-    });
-
-    connect(&m_deviceManager, &DeviceManager::deviceOnline, this, [this](const DeviceInfo &) {
+    connect(&m_deviceManager, &DeviceManager::deviceRemoved, this, [this](const QString &) {
         beginResetModel();
         endResetModel();
     });
 
-    connect(&m_deviceManager, &DeviceManager::deviceOffline, this, [this](const DeviceInfo &) {
+    connect(&m_deviceManager, &DeviceManager::deviceOnline, this, [this](const QString &) {
+        beginResetModel();
+        endResetModel();
+    });
+
+    connect(&m_deviceManager, &DeviceManager::deviceOffline, this, [this](const QString &) {
         beginResetModel();
         endResetModel();
     });
@@ -74,8 +74,10 @@ QVariant DeviceManagerModel::data(const QModelIndex &index, int role) const
             return QString("%1x%2").arg(deviceInfo.screenWidth()).arg(deviceInfo.screenHeight());
         case DeviceColumns::AppVersion:
             return deviceInfo.appVersion();
+        case DeviceColumns::SelfId:
+            return deviceInfo.selfId();
         case DeviceColumns::DeviceId:
-            return deviceInfo.deviceId();
+            return deviceSettings.deviceId();
         }
     }
 
@@ -117,6 +119,8 @@ QVariant DeviceManagerModel::headerData(int section, Qt::Orientation orientation
             return tr("Screen Size");
         case DeviceColumns::AppVersion:
             return tr("App Version");
+        case DeviceColumns::SelfId:
+            return tr("Self ID");
         case DeviceColumns::DeviceId:
             return tr("Device ID");
         }
@@ -132,16 +136,16 @@ bool DeviceManagerModel::setData(const QModelIndex &index, const QVariant &value
         return false;
     }
 
-    auto deviceInfo = m_deviceManager.devices()[index.row()]->deviceInfo();
+    auto deviceSettings = m_deviceManager.devices()[index.row()]->deviceSettings();
     switch (index.column()) {
     case DeviceColumns::Alias:
-        m_deviceManager.setDeviceAlias(deviceInfo.deviceId(), value.toString());
+        m_deviceManager.setDeviceAlias(deviceSettings.deviceId(), value.toString());
         break;
     case DeviceColumns::Active:
-        m_deviceManager.setDeviceActive(deviceInfo.deviceId(), value.toBool());
+        m_deviceManager.setDeviceActive(deviceSettings.deviceId(), value.toBool());
         break;
     case DeviceColumns::IPv4Addr:
-        m_deviceManager.setDeviceIP(deviceInfo.deviceId(), value.toString());
+        m_deviceManager.setDeviceIP(deviceSettings.deviceId(), value.toString());
         break;
     }
     emit dataChanged(index, index);

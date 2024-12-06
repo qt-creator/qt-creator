@@ -233,13 +233,13 @@ void AppOutputParentModel::setupRunControls()
 
     connect(&deviceManager,
             &QmlDesigner::DeviceShare::DeviceManager::projectStarted,
-            [this](const QmlDesigner::DeviceShare::DeviceInfo &deviceInfo) {
-                initializeRuns("Project started on device " + deviceInfo.deviceId());
+            [this](const QString &deviceId) {
+                initializeRuns("Project started on device " + deviceId);
             });
 
     connect(&deviceManager,
             &QmlDesigner::DeviceShare::DeviceManager::projectLogsReceived,
-            [this](const QmlDesigner::DeviceShare::DeviceInfo &, const QString &logs) {
+            [this](const QString &, const QString &logs) {
                 if (m_runs.empty())
                     initializeRuns();
 

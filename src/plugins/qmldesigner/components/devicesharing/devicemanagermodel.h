@@ -27,6 +27,7 @@ public:
         Architecture,
         ScreenSize,
         AppVersion,
+        SelfId,
         DeviceId,
         COLUMN_COUNT
     };

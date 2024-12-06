@@ -33,16 +33,19 @@ public:
     bool active() const;
     QString alias() const;
     QString ipAddress() const;
+    QString deviceId() const;
 
     // Setters
     void setActive(const bool &active);
     void setAlias(const QString &alias);
     void setIpAddress(const QString &ipAddress);
+    void setDeviceId(const QString &deviceId);
 
 private:
     static constexpr char keyActive[] = "deviceActive";
     static constexpr char keyAlias[] = "deviceAlias";
     static constexpr char keyIpAddress[] = "ipAddress";
+    static constexpr char keyDeviceId[] = "deviceId";
 };
 
 class DeviceInfo : public IDeviceData
@@ -56,7 +59,7 @@ public:
     QString architecture() const;
     int screenWidth() const;
     int screenHeight() const;
-    QString deviceId() const;
+    QString selfId() const;
     QString appVersion() const;
 
     // Setters
@@ -65,7 +68,7 @@ public:
     void setArchitecture(const QString &architecture);
     void setScreenWidth(const int &screenWidth);
     void setScreenHeight(const int &screenHeight);
-    void setDeviceId(const QString &deviceId);
+    void setSelfId(const QString &selfId);
     void setAppVersion(const QString &appVersion);
 
 private:
@@ -73,7 +76,7 @@ private:
     static constexpr char keyOsVersion[] = "osVersion";
     static constexpr char keyScreenWidth[] = "screenWidth";
     static constexpr char keyScreenHeight[] = "screenHeight";
-    static constexpr char keyDeviceId[] = "deviceId";
+    static constexpr char keySelfId[] = "selfId";
     static constexpr char keyArchitecture[] = "architecture";
     static constexpr char keyAppVersion[] = "appVersion";
 };

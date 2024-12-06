@@ -83,7 +83,7 @@ void DeviceManager::incomingDatagram()
         qCDebug(deviceSharePluginLog) << "Qt UI VIewer found at" << ip << "with id" << id;
 
         for (const auto &device : m_devices) {
-            if (device->deviceInfo().deviceId() == id) {
+            if (device->deviceInfo().selfId() == id) {
                 if (device->deviceSettings().ipAddress() != ip) {
                     qCDebug(deviceSharePluginLog) << "Updating IP address for device" << id;
                     setDeviceIP(id, ip);
@@ -147,7 +147,7 @@ QList<QSharedPointer<Device>> DeviceManager::devices() const
 QSharedPointer<Device> DeviceManager::findDevice(const QString &deviceId) const
 {
     auto it = std::find_if(m_devices.begin(), m_devices.end(), [deviceId](const auto &device) {
-        return device->deviceInfo().deviceId() == deviceId;
+        return device->deviceSettings().deviceId() == deviceId;
     });
 
     return it != m_devices.end() ? *it : nullptr;
@@ -210,9 +210,9 @@ void DeviceManager::setDeviceActive(const QString &deviceId, const bool active)
     writeSettings();
 
     if (active)
-        emit deviceActivated(device->deviceInfo());
+        emit deviceActivated(deviceId);
     else
-        emit deviceDeactivated(device->deviceInfo());
+        emit deviceDeactivated(deviceId);
 }
 
 void DeviceManager::setDeviceIP(const QString &deviceId, const QString &ip)
@@ -265,10 +265,12 @@ bool DeviceManager::addDevice(const QString &ip)
     DeviceSettings deviceSettings;
     deviceSettings.setIpAddress(trimmedIp);
     deviceSettings.setAlias(generateDeviceAlias());
+    deviceSettings.setDeviceId(QUuid::createUuid().toString(QUuid::WithoutBraces));
+
     auto device = initDevice({}, deviceSettings);
     m_devices.append(device);
     writeSettings();
-    emit deviceAdded(device->deviceInfo());
+    emit deviceAdded(deviceSettings.deviceId());
 
     return true;
 }
@@ -281,48 +283,44 @@ QSharedPointer<Device> DeviceManager::initDevice(const DeviceInfo &deviceInfo,
     connect(device.data(), &Device::deviceInfoReady, this, &DeviceManager::deviceInfoReceived);
     connect(device.data(), &Device::disconnected, this, &DeviceManager::deviceDisconnected);
     connect(device.data(), &Device::projectStarted, this, [this](const QString deviceId) {
-        auto device = findDevice(deviceId);
         qCDebug(deviceSharePluginLog) << "Project started on device" << deviceId;
-        emit projectStarted(device->deviceInfo());
+        emit projectStarted(deviceId);
     });
     connect(device.data(), &Device::projectStopped, this, [this](const QString deviceId) {
-        auto device = findDevice(deviceId);
         qCDebug(deviceSharePluginLog) << "Project stopped on device" << deviceId;
-        emit projectStopped(device->deviceInfo());
+        emit projectStopped(deviceId);
     });
     connect(device.data(),
             &Device::projectLogsReceived,
             this,
             [this](const QString deviceId, const QString &logs) {
-                auto device = findDevice(deviceId);
                 qCDebug(deviceSharePluginLog) << "Log:" << deviceId << logs;
-                emit projectLogsReceived(device->deviceInfo(), logs);
+                emit projectLogsReceived(deviceId, logs);
             });
 
     return device;
 }
 
-void DeviceManager::deviceInfoReceived(const QString &deviceIp,
-                                       const QString &deviceId,
-                                       const DeviceInfo &deviceInfo)
+void DeviceManager::deviceInfoReceived(const QString &deviceIp, const QString &deviceId)
 {
     auto newDevIt = std::find_if(m_devices.begin(),
                                  m_devices.end(),
                                  [deviceId, deviceIp](const auto &device) {
-                                     return device->deviceInfo().deviceId() == deviceId
+                                     return device->deviceSettings().deviceId() == deviceId
                                             && device->deviceSettings().ipAddress() == deviceIp;
                                  });
     auto oldDevIt = std::find_if(m_devices.begin(),
                                  m_devices.end(),
                                  [deviceId, deviceIp](const auto &device) {
-                                     return device->deviceInfo().deviceId() == deviceId
+                                     return device->deviceSettings().deviceId() == deviceId
                                             && device->deviceSettings().ipAddress() != deviceIp;
                                  });
 
+    // if there are 2 devices with the same ID but different IPs, remove the old one
+    // aka: merge devices with the same ID
     if (oldDevIt != m_devices.end()) {
-        QSharedPointer<Device> oldDevice;
-        QSharedPointer<Device> newDevice;
-        std::tie(oldDevice, newDevice) = std::make_tuple(*oldDevIt, *newDevIt);
+        QSharedPointer<Device> oldDevice = *oldDevIt;
+        QSharedPointer<Device> newDevice = *newDevIt;
         DeviceSettings deviceSettings = oldDevice->deviceSettings();
         deviceSettings.setIpAddress(newDevice->deviceSettings().ipAddress());
         newDevice->setDeviceSettings(deviceSettings);
@@ -331,7 +329,7 @@ void DeviceManager::deviceInfoReceived(const QString &deviceIp,
 
     writeSettings();
     qCDebug(deviceSharePluginLog) << "Device" << deviceId << "is online";
-    emit deviceOnline(deviceInfo);
+    emit deviceOnline(deviceId);
 }
 
 void DeviceManager::deviceDisconnected(const QString &deviceId)
@@ -341,7 +339,7 @@ void DeviceManager::deviceDisconnected(const QString &deviceId)
         return;
 
     qCDebug(deviceSharePluginLog) << "Device" << deviceId << "disconnected";
-    emit deviceOffline(device->deviceInfo());
+    emit deviceOffline(deviceId);
 }
 
 void DeviceManager::removeDevice(const QString &deviceId)
@@ -350,10 +348,9 @@ void DeviceManager::removeDevice(const QString &deviceId)
     if (!device)
         return;
 
-    const auto deviceInfo = device->deviceInfo();
     m_devices.removeOne(device);
     writeSettings();
-    emit deviceRemoved(deviceInfo);
+    emit deviceRemoved(deviceId);
 }
 
 void DeviceManager::removeDeviceAt(int index)
@@ -361,10 +358,10 @@ void DeviceManager::removeDeviceAt(int index)
     if (index < 0 || index >= m_devices.size())
         return;
 
-    auto deviceInfo = m_devices[index]->deviceInfo();
+    QString deviceId = m_devices[index]->deviceSettings().deviceId();
     m_devices.removeAt(index);
     writeSettings();
-    emit deviceRemoved(deviceInfo);
+    emit deviceRemoved(deviceId);
 }
 
 bool DeviceManager::sendProjectFile(const QString &deviceId, const QString &projectFile)

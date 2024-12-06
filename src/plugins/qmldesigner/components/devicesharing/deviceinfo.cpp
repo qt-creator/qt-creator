@@ -57,6 +57,16 @@ void DeviceSettings::setIpAddress(const QString &ipAddress)
     m_data[keyIpAddress] = ipAddress;
 }
 
+QString DeviceSettings::deviceId() const
+{
+    return m_data.value(keyDeviceId).toString();
+}
+
+void DeviceSettings::setDeviceId(const QString &deviceId)
+{
+    m_data[keyDeviceId] = deviceId;
+}
+
 QString DeviceInfo::os() const
 {
     return m_data.value(keyOs).toString();
@@ -82,9 +92,9 @@ int DeviceInfo::screenHeight() const
     return m_data.value(keyScreenHeight).toInt();
 }
 
-QString DeviceInfo::deviceId() const
+QString DeviceInfo::selfId() const
 {
-    return m_data.value(keyDeviceId).toString();
+    return m_data.value(keySelfId).toString();
 }
 
 QString DeviceInfo::appVersion() const
@@ -115,11 +125,6 @@ void DeviceInfo::setScreenWidth(const int &screenWidth)
 void DeviceInfo::setScreenHeight(const int &screenHeight)
 {
     m_data[keyScreenHeight] = screenHeight;
-}
-
-void DeviceInfo::setDeviceId(const QString &deviceId)
-{
-    m_data[keyDeviceId] = deviceId;
 }
 
 void DeviceInfo::setAppVersion(const QString &appVersion)

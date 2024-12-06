@@ -63,25 +63,23 @@ private:
                                       const DeviceSettings &deviceSettings = DeviceSettings());
 
     // device signals
-    void deviceInfoReceived(const QString &deviceIp,
-                            const QString &deviceId,
-                            const DeviceInfo &deviceInfo);
+    void deviceInfoReceived(const QString &deviceIp, const QString &deviceId);
     void deviceDisconnected(const QString &deviceId);
 
     QSharedPointer<Device> findDevice(const QString &deviceId) const;
     QString generateDeviceAlias() const;
 
 signals:
-    void deviceAdded(const DeviceInfo &deviceInfo);
-    void deviceRemoved(const DeviceInfo &deviceInfo);
-    void deviceOnline(const DeviceInfo &deviceInfo);
-    void deviceOffline(const DeviceInfo &deviceInfo);
-    void deviceActivated(const DeviceInfo &deviceInfo);
-    void deviceDeactivated(const DeviceInfo &deviceInfo);
-    void deviceAliasChanged(const DeviceInfo &deviceInfo);
-    void projectStarted(const DeviceInfo &deviceInfo);
-    void projectStopped(const DeviceInfo &deviceInfo);
-    void projectLogsReceived(const DeviceInfo &deviceInfo, const QString &logs);
+    void deviceAdded(const QString &deviceId);
+    void deviceRemoved(const QString &deviceId);
+    void deviceOnline(const QString &deviceId);
+    void deviceOffline(const QString &deviceId);
+    void deviceActivated(const QString &deviceId);
+    void deviceDeactivated(const QString &deviceId);
+    void deviceAliasChanged(const QString &deviceId);
+    void projectStarted(const QString &deviceId);
+    void projectStopped(const QString &deviceId);
+    void projectLogsReceived(const QString &deviceId, const QString &logs);
 };
 
 } // namespace QmlDesigner::DeviceShare

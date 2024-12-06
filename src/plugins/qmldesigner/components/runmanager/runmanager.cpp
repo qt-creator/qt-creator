@@ -64,10 +64,10 @@ RunManager::RunManager(DeviceShare::DeviceManager &deviceManager)
     connect(&m_deviceManager,
             &DeviceShare::DeviceManager::projectStarted,
             this,
-            [this](const DeviceShare::DeviceInfo &info) {
-                qCDebug(runManagerLog) << "Project started." << info;
+            [this](const QString &deviceId) {
+                qCDebug(runManagerLog) << "Project started." << deviceId;
 
-                m_runningTargets.append(info.deviceId());
+                m_runningTargets.append(deviceId);
 
                 m_state = TargetState::Running;
                 emit stateChanged();
@@ -75,16 +75,14 @@ RunManager::RunManager(DeviceShare::DeviceManager &deviceManager)
     connect(&m_deviceManager,
             &DeviceShare::DeviceManager::projectStopped,
             this,
-            [this](const DeviceShare::DeviceInfo &info) {
-                qCDebug(runManagerLog) << "Project stopped." << info;
+            [this](const QString &deviceId) {
+                qCDebug(runManagerLog) << "Project stopped." << deviceId;
 
                 auto findRunningTarget = [&](const auto &runningTarget) {
                     return std::visit(overloaded{[](const QPointer<ProjectExplorer::RunControl>) {
                                                      return false;
                                                  },
-                                                 [&](const QString &arg) {
-                                                     return arg == info.deviceId();
-                                                 }},
+                                                 [&](const QString &arg) { return arg == deviceId; }},
                                       runningTarget);
                 };
 
@@ -147,7 +145,7 @@ void RunManager::udpateTargets()
 
     for (const auto &device : m_deviceManager.devices()) {
         if (device->deviceSettings().active())
-            m_targets.append(AndroidTarget(device->deviceInfo().deviceId()));
+            m_targets.append(AndroidTarget(device->deviceSettings().deviceId()));
     }
 
     emit targetsChanged();
@@ -318,8 +316,8 @@ QString AndroidTarget::name() const
 
 Utils::Id AndroidTarget::id() const
 {
-    if (auto deviceInfo = deviceManager()->deviceInfo(m_deviceId))
-        return Utils::Id::fromString(deviceInfo->deviceId());
+    if (auto deviceSettings = deviceManager()->deviceSettings(m_deviceId))
+        return Utils::Id::fromString(deviceSettings->deviceId());
 
     return {};
 }
