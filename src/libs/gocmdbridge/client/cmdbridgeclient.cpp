@@ -920,7 +920,10 @@ expected_str<FilePath> Client::getCmdBridgePath(
     const QString type = typeToString.value(osType);
     const QString arch = archToString.value(osArch);
 
-    const QString cmdBridgeName = QStringLiteral("cmdbridge-%1-%2").arg(type, arch);
+    QString cmdBridgeName = QStringLiteral("cmdbridge-%1-%2").arg(type, arch);
+
+    if (osType == OsType::OsTypeWindows)
+        cmdBridgeName += QStringLiteral(".exe");
 
     const FilePath result = libExecPath.resolvePath(cmdBridgeName);
     if (result.exists())

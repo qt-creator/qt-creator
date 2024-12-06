@@ -31,6 +31,7 @@ class QObject;
 class QPushButton;
 class QScrollArea;
 class QSize;
+class QSizePolicy;
 class QSpinBox;
 class QSplitter;
 class QStackedWidget;
@@ -253,6 +254,7 @@ public:
     void setAutoFillBackground(bool);
     void setLayout(const Layout &layout);
     void setSize(int, int);
+    void setSizePolicy(const QSizePolicy &policy);
     void setFixedSize(const QSize &);
     void setWindowTitle(const QString &);
     void setWindowFlags(Qt::WindowFlags);
@@ -541,6 +543,7 @@ QTC_DEFINE_BUILDER_SETTER(widgetAttribute, setWidgetAttribute);
 QTC_DEFINE_BUILDER_SETTER(autoFillBackground, setAutoFillBackground);
 QTC_DEFINE_BUILDER_SETTER(readOnly, setReadOnly);
 QTC_DEFINE_BUILDER_SETTER(markdown, setMarkdown);
+QTC_DEFINE_BUILDER_SETTER(sizePolicy, setSizePolicy);
 QTC_DEFINE_BUILDER_SETTER(basePath, setBasePath);
 QTC_DEFINE_BUILDER_SETTER(fixedSize, setFixedSize);
 

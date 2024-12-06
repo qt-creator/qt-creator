@@ -378,8 +378,8 @@ void EditorToolBar::setGoForwardMenu(QMenu *menu)
 void EditorToolBar::updateActionShortcuts()
 {
     d->m_closeEditorButton->setToolTip(ActionManager::command(Constants::CLOSE)->stringWithAppendedShortcut(Tr::tr("Close Document")));
-    d->m_goBackAction->setToolTip(ActionManager::command(Constants::GO_BACK)->action()->toolTip());
-    d->m_goForwardAction->setToolTip(ActionManager::command(Constants::GO_FORWARD)->action()->toolTip());
+    d->m_goBackAction->setToolTip(ActionManager::command(Constants::GO_BACK)->stringWithAppendedShortcut(Tr::tr("Go Back")));
+    d->m_goForwardAction->setToolTip(ActionManager::command(Constants::GO_FORWARD)->stringWithAppendedShortcut(Tr::tr("Go Forward")));
     d->m_closeSplitButton->setToolTip(ActionManager::command(Constants::REMOVE_CURRENT_SPLIT)->stringWithAppendedShortcut(Tr::tr("Remove Split")));
 }
 

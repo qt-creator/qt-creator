@@ -9,6 +9,7 @@
 
 #include <QApplication>
 #include <QClipboard>
+#include <QCursor>
 #include <QCompleter>
 #include <QDir>
 #include <QFileDevice>
@@ -53,6 +54,12 @@ void setupQtModule()
                 [](QClipboard &, const QString &text) { Utils::setClipboardAndSelection(text); }));
 
         qt["clipboard"] = &QApplication::clipboard;
+
+        qt.new_usertype<QCursor>(
+            "QCursor",
+            sol::no_constructor,
+            "pos", sol::resolve<QPoint()>(&QCursor::pos)
+        );
 
         qt.new_usertype<QFontMetrics>(
             "QFontMetrics",

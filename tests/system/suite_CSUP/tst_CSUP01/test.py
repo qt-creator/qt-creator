@@ -52,6 +52,14 @@ def main():
                 earlyExit("Did not find first line in function block.")
                 return
             type(editorWidget, "<Return>")
+            if useClang:
+                codeModelInMain = lambda: object.exists(
+                    "{currentText='main(int, char **) -> int '"
+                    " type='QComboBox' unnamed='1' visible='1'"
+                    " window=':Qt Creator_Core::Internal::MainWindow'}")
+                if not waitFor(codeModelInMain, 5000):
+                    test.warning("ComboBox does not display expected main function",
+                                 "Did this slow down or did the displayed content change?")
             type(editorWidget, "re")
             triggerCompletion(editorWidget)
             functionName = "realpath"
@@ -63,7 +71,7 @@ def main():
             test.compare(str(lineUnderCursor(editorWidget)).strip(), functionName + "()",
                          "Step 3: Verifying if: The list of suggestions is opened. It is "
                          "possible to select one of the suggestions.")
-# Step 4: Insert text "voi" to new line and press Tab.
+# Step 4: Insert text "unsig" to new line and press Tab.
             resetLine(editorWidget)
             type(editorWidget, "unsig")
             try:

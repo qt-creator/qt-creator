@@ -362,7 +362,9 @@ static QUrl constructUrl(const QString &projectName, const QString &subPath, con
 {
     if (!dd->m_dashboardInfo)
         return {};
-    QUrl url = dd->m_dashboardInfo->source.resolved(QString("api/projects/" + projectName + '/'));
+    const QByteArray encodedProjectName = QUrl::toPercentEncoding(projectName);
+    const QUrl path(QString{"api/projects/" + QString::fromUtf8(encodedProjectName) + '/'});
+    QUrl url = dd->m_dashboardInfo->source.resolved(path);
     if (!subPath.isEmpty() && QTC_GUARD(!subPath.startsWith('/')))
         url = url.resolved(subPath);
     if (!query.isEmpty())
