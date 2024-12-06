@@ -24,6 +24,7 @@
 #include <QStandardPaths>
 #include <QStorageInfo>
 #include <QTemporaryFile>
+#include <QTextCodec>
 #include <QThread>
 
 #ifdef Q_OS_WIN
@@ -398,6 +399,18 @@ Utils::expected_str<std::unique_ptr<FilePathWatcher>> DeviceFileAccess::watch(
 {
     Q_UNUSED(path);
     return make_unexpected(Tr::tr("watch is not implemented."));
+}
+
+QTextCodec *DeviceFileAccess::processStdOutCodec(const FilePath &executable) const
+{
+    Q_UNUSED(executable)
+    return QTextCodec::codecForName("UTF-8"); // Good default nowadays.
+}
+
+QTextCodec *DeviceFileAccess::processStdErrCodec(const FilePath &executable) const
+{
+    Q_UNUSED(executable)
+    return QTextCodec::codecForName("UTF-8"); // Good default nowadays.
 }
 
 // UnavailableDeviceFileAccess
@@ -1181,6 +1194,18 @@ Utils::expected_str<std::unique_ptr<FilePathWatcher>> DesktopDeviceFileAccess::w
     if (watcher->error().isEmpty())
         return watcher;
     return make_unexpected(watcher->error());
+}
+
+QTextCodec *DesktopDeviceFileAccess::processStdOutCodec(const FilePath &executable) const
+{
+    Q_UNUSED(executable);
+    return QTextCodec::codecForLocale();
+}
+
+QTextCodec *DesktopDeviceFileAccess::processStdErrCodec(const FilePath &executable) const
+{
+    Q_UNUSED(executable);
+    return QTextCodec::codecForLocale();
 }
 
 QDateTime DesktopDeviceFileAccess::lastModified(const FilePath &filePath) const

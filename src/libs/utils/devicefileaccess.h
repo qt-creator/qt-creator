@@ -10,6 +10,10 @@
 
 class tst_unixdevicefileaccess; // For testing.
 
+QT_BEGIN_NAMESPACE
+class QTextCodec;
+QT_END_NAMESPACE
+
 namespace Utils {
 
 class CommandLine;
@@ -77,6 +81,9 @@ protected:
     virtual expected_str<FilePath> createTempFile(const FilePath &filePath);
 
     virtual Utils::expected_str<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const;
+
+    virtual QTextCodec *processStdOutCodec(const FilePath &executable) const;
+    virtual QTextCodec *processStdErrCodec(const FilePath &executable) const;
 };
 
 class QTCREATOR_UTILS_EXPORT UnavailableDeviceFileAccess : public DeviceFileAccess
@@ -194,6 +201,9 @@ protected:
     expected_str<FilePath> createTempFile(const FilePath &filePath) override;
 
     Utils::expected_str<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const override;
+
+    QTextCodec *processStdOutCodec(const FilePath &executable) const override;
+    QTextCodec *processStdErrCodec(const FilePath &executable) const override;
 };
 
 class QTCREATOR_UTILS_EXPORT UnixDeviceFileAccess : public DeviceFileAccess

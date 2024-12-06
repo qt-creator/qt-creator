@@ -24,6 +24,7 @@ QT_BEGIN_NAMESPACE
 class QDateTime;
 class QDebug;
 class QFileInfo;
+class QTextCodec;
 class QUrl;
 QT_END_NAMESPACE
 
@@ -190,6 +191,9 @@ public:
     Qt::CaseSensitivity caseSensitivity() const;
     QChar pathComponentSeparator() const;
     QChar pathListSeparator() const;
+
+    QTextCodec *processStdOutCodec() const;
+    QTextCodec *processStdErrCodec() const;
 
     void clear();
     bool isEmpty() const;

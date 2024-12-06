@@ -2155,6 +2155,16 @@ QChar FilePath::pathListSeparator() const
     return osType() == OsTypeWindows ? u';' : u':';
 }
 
+QTextCodec *FilePath::processStdOutCodec() const
+{
+    return fileAccess()->processStdOutCodec(*this);
+}
+
+QTextCodec *FilePath::processStdErrCodec() const
+{
+    return fileAccess()->processStdErrCodec(*this);
+}
+
 /*!
     \brief Recursively resolves symlinks if this is a symlink.
 
