@@ -629,7 +629,7 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPath
     }
 
     FilePaths paths = searchPaths;
-    if (!searchPaths.front().needsDevice()) {
+    if (searchPaths.front().isLocal()) {
         paths.append(searchGdbPathsFromRegistry());
 
         const expected_str<FilePath> lldb = Core::ICore::lldbExecutable(CLANG_BINDIR);
@@ -777,7 +777,7 @@ void DebuggerItemModel::readDebuggers(const FilePath &fileName, bool isSystem)
                     continue;
                 }
                 // FIXME: During startup, devices are not yet available, so we cannot check if the file still exists.
-                if (!item.command().needsDevice() && !item.command().isExecutableFile()) {
+                if (item.command().isLocal() && !item.command().isExecutableFile()) {
                     qWarning() << QString("DebuggerItem \"%1\" (%2) read from \"%3\" dropped since the command is not executable.")
                                   .arg(item.command().toUserOutput(), item.id().toString(), fileName.toUserOutput());
                     continue;

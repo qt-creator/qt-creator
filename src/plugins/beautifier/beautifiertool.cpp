@@ -302,7 +302,7 @@ void AbstractSettings::save()
         FilePath filePath = styleFileName(key);
         filePath.removeFile();
         QTC_ASSERT(m_styleDir.isAbsolutePath(), break);
-        QTC_ASSERT(!m_styleDir.needsDevice(), break);
+        QTC_ASSERT(m_styleDir.isLocal(), break);
         const FilePath parentDir = filePath.parentDir();
         if (parentDir != m_styleDir) {
             // FIXME: Missing in FilePath

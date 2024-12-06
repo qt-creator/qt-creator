@@ -380,7 +380,7 @@ std::optional<CMakeTool::ReaderType> CMakeTool::readerType() const
 
 FilePath CMakeTool::searchQchFile(const FilePath &executable)
 {
-    if (executable.isEmpty() || executable.needsDevice()) // do not register docs from devices
+    if (executable.isEmpty() || !executable.isLocal()) // do not register docs from devices
         return {};
 
     FilePath prefixDir = executable.parentDir().parentDir();

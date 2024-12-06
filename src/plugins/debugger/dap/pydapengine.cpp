@@ -40,8 +40,8 @@ const char installDebugPyInfoBarId[] = "Python::InstallDebugPy";
 
 static FilePath packageDir(const FilePath &python, const QString &packageName)
 {
-    expected_str<FilePath> baseDir = python.needsDevice() ? python.tmpDir()
-                                                          : Core::ICore::userResourcePath();
+    expected_str<FilePath> baseDir = python.isLocal() ? Core::ICore::userResourcePath()
+                                                      : python.tmpDir();
     return baseDir ? baseDir->pathAppended(packageName) : FilePath();
 }
 
@@ -243,7 +243,7 @@ void PyDapEngine::setupEngine()
                   "pip",
                   "install",
                   "-t",
-                  target.needsDevice() ? target.path() : target.toUserOutput(),
+                  target.isLocal() ? target.toUserOutput() : target.path(),
                   "debugpy",
                   "--upgrade"}});
             m_installProcess->setTerminalMode(TerminalMode::Run);

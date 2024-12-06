@@ -92,7 +92,7 @@ public:
         if (!python)
             return result;
         const FilePath path = python->command;
-        if (path.needsDevice())
+        if (!path.isLocal())
             return result;
         if (path.isEmpty()) {
             result << BuildSystemTask(Task::Error, Tr::tr("No Python setup."));

@@ -285,7 +285,7 @@ public:
                 // This improves the situation a bit if a cross-compilation tool chain has the
                 // same ABI as the host.
                 if (level == DebuggerItem::MatchesPerfectly
-                    && !item.command().needsDevice()
+                    && item.command().isLocal()
                     && systemEnvironment.path().contains(item.command().parentDir())) {
                     level = DebuggerItem::MatchesPerfectlyInPath;
                 }

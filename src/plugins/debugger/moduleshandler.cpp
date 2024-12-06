@@ -171,7 +171,7 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
 
     addAction(this, menu, Tr::tr("Show Dependencies of \"%1\"").arg(moduleName),
               Tr::tr("Show Dependencies"),
-              moduleNameValid && !modulePath.needsDevice() && modulePath.exists()
+              moduleNameValid && modulePath.isLocal() && modulePath.exists()
                   && dependsCanBeFound(),
               [modulePath] {
                   Process::startDetached({{"depends"}, {modulePath.toString()}});

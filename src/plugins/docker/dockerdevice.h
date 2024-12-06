@@ -41,7 +41,7 @@ public:
 
     bool canMount(const Utils::FilePath &filePath) const override
     {
-        return !filePath.needsDevice() || filePath.isSameDevice(rootPath());
+        return filePath.isLocal() || filePath.isSameDevice(rootPath());
     }
 
     bool handlesFile(const Utils::FilePath &filePath) const override;

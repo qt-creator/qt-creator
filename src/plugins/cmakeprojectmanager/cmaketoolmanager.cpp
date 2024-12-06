@@ -441,7 +441,7 @@ FilePath CMakeToolManager::mappedFilePath(Project *project, const FilePath &path
     if (!HostOsInfo::isWindowsHost())
         return path;
 
-    if (path.needsDevice())
+    if (!path.isLocal())
         return path;
 
     auto environment = Environment::systemEnvironment();
@@ -560,7 +560,7 @@ void CMakeToolManager::ensureDefaultCMakeToolIsValid()
         if (findById(d->m_defaultCMake))
             return;
         auto cmakeTool = Utils::findOrDefault(cmakeTools(), [](CMakeTool *tool) {
-            return tool->detectionSource().isEmpty() && !tool->cmakeExecutable().needsDevice();
+            return tool->detectionSource().isEmpty() && tool->cmakeExecutable().isLocal();
         });
         if (cmakeTool)
             d->m_defaultCMake = cmakeTool->id();

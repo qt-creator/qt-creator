@@ -2234,7 +2234,7 @@ void ProjectExplorerPluginPrivate::checkRecentProjectsAsync()
     m_recentProjectsFuture
         = QtConcurrent::mapped(&m_recentProjectsPool, m_recentProjects, [](RecentProjectsEntry p) {
               // check if project is available, but avoid querying devices
-              p.exists = p.filePath.needsDevice() || p.filePath.exists();
+              p.exists = !p.filePath.isLocal() || p.filePath.exists();
               return p;
           });
     Utils::futureSynchronizer()->addFuture(m_recentProjectsFuture);
@@ -3845,10 +3845,10 @@ void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env
         return;
     }
 
-    if (buildDevice->rootPath().needsDevice())
-        Terminal::Hooks::instance().openTerminal({CommandLine{*shell}, workingDir, environment});
-    else
+    if (buildDevice->rootPath().isLocal())
         Terminal::Hooks::instance().openTerminal({workingDir, environment});
+    else
+        Terminal::Hooks::instance().openTerminal({CommandLine{*shell}, workingDir, environment});
 }
 
 void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
@@ -3885,11 +3885,11 @@ void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
         return;
     }
 
-    if (device->rootPath().needsDevice()) {
+    if (!device->rootPath().isLocal()) {
+        Terminal::Hooks::instance().openTerminal({workingDir, runnable.environment});
+    } else {
         Terminal::Hooks::instance().openTerminal({CommandLine{*shell}, workingDir,
                                                   runnable.environment});
-    } else {
-        Terminal::Hooks::instance().openTerminal({workingDir, runnable.environment});
     }
 }
 

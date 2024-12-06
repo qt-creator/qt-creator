@@ -282,7 +282,7 @@ void TempFileSaver::initFromString(const QString &templ)
 
 TempFileSaver::TempFileSaver(const FilePath &templ)
 {
-    if (templ.isEmpty() || !templ.needsDevice()) {
+    if (templ.isEmpty() || templ.isLocal()) {
         initFromString(templ.path());
     } else {
         expected_str<FilePath> result = templ.createTempFile();
@@ -437,7 +437,7 @@ static QUrl filePathToQUrl(const FilePath &filePath)
 static void prepareNonNativeDialog(QFileDialog &dialog)
 {
     const auto isValidSideBarPath = [](const FilePath &fp) {
-        return !fp.needsDevice() || fp.hasFileAccess();
+        return fp.isLocal() || fp.hasFileAccess();
     };
 
     // Checking QFileDialog::itemDelegate() seems to be the only way to determine
@@ -524,7 +524,7 @@ FilePath getOpenFilePath(QWidget *parent,
                          bool fromDeviceIfShiftIsPressed,
                          bool forceNonNativeDialog)
 {
-    forceNonNativeDialog = forceNonNativeDialog || dir.needsDevice();
+    forceNonNativeDialog = forceNonNativeDialog || !dir.isLocal();
 #ifdef QT_GUI_LIB
     if (fromDeviceIfShiftIsPressed && qApp->queryKeyboardModifiers() & Qt::ShiftModifier) {
         forceNonNativeDialog = true;
@@ -552,7 +552,7 @@ FilePath getSaveFilePath(QWidget *parent,
                          QFileDialog::Options options,
                          bool forceNonNativeDialog)
 {
-    forceNonNativeDialog = forceNonNativeDialog || dir.needsDevice();
+    forceNonNativeDialog = forceNonNativeDialog || !dir.isLocal();
 
     const QStringList schemes = QStringList(QStringLiteral("file"));
     return firstOrEmpty(getFilePaths(dialogParent(parent),
@@ -574,7 +574,7 @@ FilePath getExistingDirectory(QWidget *parent,
                               bool fromDeviceIfShiftIsPressed,
                               bool forceNonNativeDialog)
 {
-    forceNonNativeDialog = forceNonNativeDialog || dir.needsDevice();
+    forceNonNativeDialog = forceNonNativeDialog || !dir.isLocal();
 
 #ifdef QT_GUI_LIB
     if (fromDeviceIfShiftIsPressed && qApp->queryKeyboardModifiers() & Qt::ShiftModifier) {
@@ -602,7 +602,7 @@ FilePaths getOpenFilePaths(QWidget *parent,
                            QString *selectedFilter,
                            QFileDialog::Options options)
 {
-    bool forceNonNativeDialog = dir.needsDevice();
+    bool forceNonNativeDialog = !dir.isLocal();
 
     const QStringList schemes = QStringList(QStringLiteral("file"));
     return getFilePaths(dialogParent(parent),
@@ -749,7 +749,7 @@ Result copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgtFilePath)
     if (!srcFilePath.exists())
         return Result::Error(Tr::tr("File %1 does not exist.").arg(srcFilePath.toUserOutput()));
 
-    if (srcFilePath.needsDevice() || tgtFilePath.needsDevice())
+    if (!srcFilePath.isLocal() || !tgtFilePath.isLocal())
         return srcFilePath.copyFile(tgtFilePath);
 
     if (tgtFilePath.exists()) {

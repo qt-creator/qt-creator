@@ -1087,7 +1087,7 @@ const Environment &Process::controlEnvironment() const
 
 void Process::setRunData(const ProcessRunData &data)
 {
-    if (data.workingDirectory.needsDevice() && data.command.executable().needsDevice()) {
+    if (!data.workingDirectory.isLocal() && !data.command.executable().isLocal()) {
         QTC_CHECK(data.workingDirectory.isSameDevice(data.command.executable()));
     }
     d->m_setup.m_commandLine = data.command;
@@ -1102,7 +1102,7 @@ ProcessRunData Process::runData() const
 
 void Process::setCommand(const CommandLine &cmdLine)
 {
-    if (d->m_setup.m_workingDirectory.needsDevice() && cmdLine.executable().needsDevice()) {
+    if (!d->m_setup.m_workingDirectory.isLocal() && !cmdLine.executable().isLocal()) {
         QTC_CHECK(d->m_setup.m_workingDirectory.isSameDevice(cmdLine.executable()));
     }
     d->m_setup.m_commandLine = cmdLine;
@@ -1120,7 +1120,7 @@ FilePath Process::workingDirectory() const
 
 void Process::setWorkingDirectory(const FilePath &dir)
 {
-    if (dir.needsDevice() && d->m_setup.m_commandLine.executable().needsDevice()) {
+    if (!dir.isLocal() && !d->m_setup.m_commandLine.executable().isLocal()) {
         QTC_CHECK(dir.isSameDevice(d->m_setup.m_commandLine.executable()));
     }
     d->m_setup.m_workingDirectory = dir;
@@ -1139,11 +1139,11 @@ void Process::start()
                         "lead to crash! Consider calling close() prior to direct restart."));
     d->clearForRun();
     ProcessInterface *processImpl = nullptr;
-    if (d->m_setup.m_commandLine.executable().needsDevice()) {
+    if (d->m_setup.m_commandLine.executable().isLocal()) {
+        processImpl = d->createProcessInterface();
+    } else {
         QTC_ASSERT(s_deviceHooks.processImplHook, return);
         processImpl = s_deviceHooks.processImplHook(commandLine().executable());
-    } else {
-        processImpl = d->createProcessInterface();
     }
 
     if (!processImpl) {

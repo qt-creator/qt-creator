@@ -93,7 +93,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
         return;
     }
 
-    if (buildDirectory.needsDevice()) {
+    if (!buildDirectory.isLocal()) {
         if (!cmake->cmakeExecutable().isSameDevice(buildDirectory)) {
             const QString msg = ::CMakeProjectManager::Tr::tr(
                   "CMake executable \"%1\" and build directory \"%2\" must be on the same device.")

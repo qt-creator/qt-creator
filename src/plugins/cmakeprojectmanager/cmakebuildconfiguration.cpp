@@ -2152,7 +2152,7 @@ void CMakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
 
     const CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
     // The hack further down is only relevant for desktop
-    if (tool && tool->cmakeExecutable().needsDevice())
+    if (tool && !tool->cmakeExecutable().isLocal())
         return;
 
     const FilePath ninja = settings(nullptr).ninjaPath();

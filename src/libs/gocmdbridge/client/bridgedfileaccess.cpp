@@ -107,7 +107,7 @@ Result FileAccess::deployAndInit(const FilePath &libExecPath, const FilePath &re
 
     qCDebug(faLog) << deco() << "Using cmdbridge at:" << *cmdBridgePath;
 
-    if (remoteRootPath.needsDevice()) {
+    if (!remoteRootPath.isLocal()) {
         const auto cmdBridgeFileData = cmdBridgePath->fileContents();
 
         if (!cmdBridgeFileData) {

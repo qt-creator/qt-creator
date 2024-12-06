@@ -417,7 +417,7 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
     };
 
     deviceHooks.fileAccess = [](const FilePath &filePath) -> expected_str<DeviceFileAccess *> {
-        if (!filePath.needsDevice())
+        if (filePath.isLocal())
             return DesktopDeviceFileAccess::instance();
         IDevice::ConstPtr device = DeviceManager::deviceForPath(filePath);
         if (!device) {

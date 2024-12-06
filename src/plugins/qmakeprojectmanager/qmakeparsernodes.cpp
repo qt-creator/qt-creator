@@ -144,7 +144,7 @@ FilePath QmakePriFile::directoryPath() const
 
 QString QmakePriFile::deviceRoot() const
 {
-    if (m_filePath.needsDevice())
+    if (!m_filePath.isLocal())
         return m_filePath.withNewPath("/").toFSPathString();
     return {};
 }

@@ -281,11 +281,12 @@ public:
                                 const WriteContinuation &cont = {}) const;
 
     // Prefer not to use
-    // Using needsDevice() in "user" code is likely to result in code that
+    // Using isLocal() in "user" code is likely to result in code that
     // makes a local/remote distinction which should be avoided in general.
     // There are usually other means available. E.g. distinguishing based
     // on FilePath::osType().
-    bool needsDevice() const;
+    bool isLocal() const;
+    [[deprecated]] bool needsDevice() const { return !isLocal(); }
     bool hasFileAccess() const;
 
     bool isSameDevice(const FilePath &other) const;

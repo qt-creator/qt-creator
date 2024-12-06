@@ -100,8 +100,8 @@ void DesktopRunConfiguration::updateTargetInformation()
     BuildTargetInfo bti = buildTargetInfo();
 
     auto terminalAspect = aspect<TerminalAspect>();
-    terminalAspect->setUseTerminalHint(bti.targetFilePath.needsDevice() ? false : bti.usesTerminal);
-    terminalAspect->setEnabled(!bti.targetFilePath.needsDevice());
+    terminalAspect->setUseTerminalHint(!bti.targetFilePath.isLocal() ? false : bti.usesTerminal);
+    terminalAspect->setEnabled(bti.targetFilePath.isLocal());
     auto launcherAspect = aspect<LauncherAspect>();
     launcherAspect->setVisible(false);
 

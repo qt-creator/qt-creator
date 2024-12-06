@@ -531,7 +531,7 @@ static AllDocumentationFiles allDocumentationFiles(const QtVersions &versions)
 {
     QList<QPair<QtVersion *, QString>> versionsWithDocPath;
     for (QtVersion *v : versions) {
-        if (v->hasDocs() && !v->docsPath().needsDevice())
+        if (v->hasDocs() && v->docsPath().isLocal())
             versionsWithDocPath << qMakePair(v, v->docsPath().path());
     }
     QFuture<QPair<QtVersion *, DocumentationFiles>> future = QtConcurrent::mapped(

@@ -64,7 +64,7 @@ VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseSettings *baseSettings)
 
 FilePath VcsBaseClientImpl::vcsBinary(const Utils::FilePath &forDirectory) const
 {
-    if (forDirectory.needsDevice())
+    if (!forDirectory.isLocal())
         return {};
 
     return m_baseSettings->binaryPath();

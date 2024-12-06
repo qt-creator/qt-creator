@@ -2629,7 +2629,7 @@ bool GitClient::launchGitBash(const FilePath &workingDirectory)
 
 FilePath GitClient::vcsBinary(const FilePath &forDirectory) const
 {
-    if (forDirectory.needsDevice()) {
+    if (!forDirectory.isLocal()) {
         auto it = m_gitExecutableCache.find(forDirectory.withNewPath({}));
         if (it == m_gitExecutableCache.end()) {
             const FilePath gitBin = forDirectory.withNewPath("git").searchInPath();

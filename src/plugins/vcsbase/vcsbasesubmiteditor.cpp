@@ -535,7 +535,7 @@ static QString msgCheckScript(const FilePath &workingDir, const FilePath &cmd)
 
 bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const FilePath &checkScript, QString *errorMessage) const
 {
-    QTC_ASSERT(!checkScript.needsDevice(), return false); // Not supported below.
+    QTC_ASSERT(checkScript.isLocal(), return false); // Not supported below.
     // Write out message
     TempFileSaver saver(TemporaryDirectory::masterDirectoryPath() + "/msgXXXXXX.txt");
     saver.write(fileContents());

@@ -662,8 +662,8 @@ void tst_filepath::toString()
 
     FilePath filePath = FilePath::fromParts(scheme, host, path);
     QCOMPARE(filePath.toString(), result);
-    QString cleanedOutput = filePath.needsDevice() ? filePath.toUserOutput()
-                                                   : QDir::cleanPath(filePath.toUserOutput());
+    QString cleanedOutput = filePath.isLocal() ? QDir::cleanPath(filePath.toUserOutput())
+                                               : filePath.toUserOutput();
     QCOMPARE(cleanedOutput, userResult);
 }
 
@@ -728,8 +728,8 @@ void tst_filepath::toFSPathString()
 
     FilePath filePath = FilePath::fromParts(scheme, host, path);
     QCOMPARE(filePath.toFSPathString(), result);
-    QString cleanedOutput = filePath.needsDevice() ? filePath.toUserOutput()
-                                                   : QDir::cleanPath(filePath.toUserOutput());
+    QString cleanedOutput = filePath.isLocal() ? QDir::cleanPath(filePath.toUserOutput())
+                                               : filePath.toUserOutput();
     QCOMPARE(cleanedOutput, userResult);
 }
 

@@ -1587,7 +1587,7 @@ FilePath FilePathAspect::effectiveBinary() const
     if (kind != PathChooser::ExistingCommand && kind != PathChooser::Command)
         return current;
 
-    if (current.needsDevice())
+    if (!current.isLocal())
         return current;
 
     d->m_effectiveBinary.emplace(current.searchInPath());

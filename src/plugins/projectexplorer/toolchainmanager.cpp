@@ -373,7 +373,7 @@ bool ToolchainManager::isBetterToolchain(
     // Hack to prefer a tool chain from PATH (e.g. autodetected) over other matches.
     // This improves the situation a bit if a cross-compilation tool chain has the
     // same ABI as the host.
-    if (!bundle1.get(&Toolchain::compilerCommand).needsDevice()) {
+    if (bundle1.get(&Toolchain::compilerCommand).isLocal()) {
         const FilePaths envPathVar = Environment::systemEnvironment().path();
         const auto toolchainIsInPath = [&envPathVar](const ToolchainBundle &b) {
             return Utils::contains(b.toolchains(), [&envPathVar](const Toolchain *tc) {
@@ -390,7 +390,7 @@ bool ToolchainManager::isBetterToolchain(
         }
     }
 
-    if (!path1.needsDevice() && !path2.needsDevice()) {
+    if (path1.isLocal() && path2.isLocal()) {
         const QVersionNumber v1 = bundle1.get(&Toolchain::version);
         const QVersionNumber v2 = bundle2.get(&Toolchain::version);
         if (!v1.isNull() && !v2.isNull()) {

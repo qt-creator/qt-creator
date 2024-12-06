@@ -86,7 +86,7 @@ ElfMapper::ElfMapper(const ElfReader *reader)
 
 bool ElfMapper::map()
 {
-    if (binary.needsDevice()) {
+    if (!binary.isLocal()) {
         const expected_str<QByteArray> contents = binary.fileContents();
         QTC_CHECK(contents);
         raw = contents.value_or(QByteArray());

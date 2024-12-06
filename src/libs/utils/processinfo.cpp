@@ -201,7 +201,7 @@ QList<ProcessInfo> ProcessInfo::processInfoList(const FilePath &deviceRoot)
 
 QList<ProcessInfo> ProcessInfo::processInfoList(const FilePath &deviceRoot)
 {
-    if (deviceRoot.needsDevice())
+    if (!deviceRoot.isLocal())
         return processInfoListUnix(deviceRoot);
 
     QList<ProcessInfo> processes;

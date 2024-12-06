@@ -105,7 +105,7 @@ QUrl DesktopDevice::toolControlChannel(const ControlChannelHint &) const
 
 bool DesktopDevice::handlesFile(const FilePath &filePath) const
 {
-    return !filePath.needsDevice();
+    return filePath.isLocal();
 }
 
 FilePath DesktopDevice::filePath(const QString &pathOnDevice) const

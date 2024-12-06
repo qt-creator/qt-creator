@@ -375,7 +375,7 @@ FilePath Node::pathOrDirectory(bool dir) const
     if (m_filePath.isEmpty())
         return {};
 
-    if (m_filePath.needsDevice()) {
+    if (!m_filePath.isLocal()) {
         if (dir)
             return m_filePath.isDir() ? m_filePath.absoluteFilePath() : m_filePath.absolutePath();
         return m_filePath;
@@ -413,7 +413,7 @@ FileNode::FileNode(const Utils::FilePath &filePath, const FileType fileType) :
     setFilePath(filePath);
     const bool ignored = (fileType == FileType::Project || fileType == FileType::App
                           || fileType == FileType::Lib);
-    setUseUnavailableMarker(!ignored && !filePath.needsDevice() && !filePath.exists());
+    setUseUnavailableMarker(!ignored && filePath.isLocal() && !filePath.exists());
     setListInProject(true);
     if (fileType == FileType::Project)
         setPriority(DefaultProjectFilePriority);

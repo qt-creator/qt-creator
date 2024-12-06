@@ -569,7 +569,7 @@ FSEngineHandler::create(const QString &fileName) const
 
         FilePath fixedPath = FilePath::fromString(fixedFileName);
 
-        if (fixedPath.needsDevice()) {
+        if (!fixedPath.isLocal()) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
             return std::make_unique<FSEngineImpl>(removeDoubleSlash(fileName));
 #else

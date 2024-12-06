@@ -600,9 +600,8 @@ FilePaths &JsonWizardFactory::searchPaths()
                 const auto values = plugin->metaData().value("JsonWizardPaths").toArray();
                 for (const QJsonValue &v : values) {
                     const auto path = FilePath::fromString(v.toString());
-                    if (!path.isEmpty() && !path.needsDevice()) {
+                    if (!path.isEmpty() && path.isLocal())
                         m_searchPaths << base.resolvePath(path);
-                    }
                 }
             }
         }

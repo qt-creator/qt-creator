@@ -233,7 +233,7 @@ FilePath PathChooserPrivate::expandedPath(const FilePath &input) const
             // as 'cD:\\dev\\build-project' is considered is handled as being relative
             // input = "cD:\\dev\build-project"; // prepended 'c' to change the device letter
             // m_baseDirectory = "D:\\dev\\project"
-            if (!fp.needsDevice() && HostOsInfo::isWindowsHost() && fp.toString().count(':') > 1)
+            if (fp.isLocal() && HostOsInfo::isWindowsHost() && fp.toString().count(':') > 1)
                 return path;
             return fp;
         }
@@ -401,7 +401,7 @@ void PathChooser::slotBrowse(bool remote)
             predefined.clear();
     }
 
-    remote = remote || filePath().needsDevice();
+    remote = remote || !filePath().isLocal();
 
     // Prompt for a file/dir
     FilePath newPath;

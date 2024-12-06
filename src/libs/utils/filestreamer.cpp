@@ -36,7 +36,7 @@ public:
     void setFilePath(const FilePath &filePath) { m_filePath = filePath; }
     void start() {
         QTC_ASSERT(!m_taskTreeRunner.isRunning(), return);
-        m_taskTreeRunner.start({m_filePath.needsDevice() ? remoteTask() : localTask()});
+        m_taskTreeRunner.start({m_filePath.isLocal() ? localTask() : remoteTask()});
     }
 
 signals:
@@ -307,8 +307,8 @@ using FileStreamWriterTask = CustomTask<FileStreamWriterAdapter>;
 
 static Group sameRemoteDeviceTransferTask(const FilePath &source, const FilePath &destination)
 {
-    QTC_CHECK(source.needsDevice());
-    QTC_CHECK(destination.needsDevice());
+    QTC_CHECK(!source.isLocal());
+    QTC_CHECK(!destination.isLocal());
     QTC_CHECK(source.isSameDevice(destination));
 
     const auto setup = [source, destination](Process &process) {
@@ -359,7 +359,7 @@ static Group interDeviceTransferTask(const FilePath &source, const FilePath &des
 
 static Group transferTask(const FilePath &source, const FilePath &destination)
 {
-    if (source.needsDevice() && destination.needsDevice() && source.isSameDevice(destination))
+    if (!source.isLocal() && !destination.isLocal() && source.isSameDevice(destination))
         return sameRemoteDeviceTransferTask(source, destination);
     return interDeviceTransferTask(source, destination);
 }

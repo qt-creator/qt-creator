@@ -90,7 +90,7 @@ static bool analysisPathValid(const FilePath &analysisPath, QString *error)
 {
     if (analysisPath.isEmpty())
         return true;
-    if (analysisPath.needsDevice() || analysisPath.isAbsolutePath()) {
+    if (!analysisPath.isLocal() || analysisPath.isAbsolutePath()) {
         if (error)
             *error = QString("Path must be relative.");
         return false;
@@ -107,7 +107,7 @@ static bool analysisPathValid(const FilePath &analysisPath, QString *error)
 bool PathMapping::isValid() const
  {
     return !projectName.isEmpty() && !localPath.isEmpty()
-            && !localPath.needsDevice() && localPath.isAbsolutePath()
+            && localPath.isLocal() && localPath.isAbsolutePath()
             && analysisPathValid(analysisPath, nullptr);
 }
 

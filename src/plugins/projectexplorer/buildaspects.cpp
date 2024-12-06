@@ -159,7 +159,7 @@ void BuildDirectoryAspect::addToLayoutImpl(Layouting::Layout &parent)
 
 FilePath BuildDirectoryAspect::fixupDir(const FilePath &dir)
 {
-    if (dir.needsDevice())
+    if (!dir.isLocal())
         return dir;
     if (HostOsInfo::isWindowsHost() && !dir.startsWithDriveLetter())
         return {};

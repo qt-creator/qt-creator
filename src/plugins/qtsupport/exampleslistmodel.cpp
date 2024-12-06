@@ -487,7 +487,7 @@ void ExampleSetModel::updateQtVersionList()
 {
     QtVersions versions = QtVersionManager::sortVersions(
         QtVersionManager::versions([](const QtVersion *v) {
-            return !v->qmakeFilePath().needsDevice() && (v->hasExamples() || v->hasDemos());
+            return v->qmakeFilePath().isLocal() && (v->hasExamples() || v->hasDemos());
         }));
 
     // prioritize default qt version

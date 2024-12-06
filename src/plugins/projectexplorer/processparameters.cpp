@@ -99,7 +99,7 @@ FilePath ProcessParameters::effectiveCommand() const
         FilePath cmd = m_runData.command.executable();
         if (m_macroExpander)
             cmd = m_macroExpander->expand(cmd);
-        if (cmd.needsDevice()) {
+        if (!cmd.isLocal()) {
             // Assume this is already good. FIXME: It is possibly not, so better fix searchInPath.
             m_effectiveCommand = cmd;
         } else {

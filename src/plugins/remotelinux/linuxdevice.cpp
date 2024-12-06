@@ -1656,7 +1656,7 @@ FileTransferInterface *LinuxDevice::createFileTransferInterface(
         const FileTransferSetupData &setup) const
 {
     if (Utils::anyOf(setup.m_files,
-                     [](const FileToTransfer &f) { return f.m_source.needsDevice(); })) {
+                     [](const FileToTransfer &f) { return !f.m_source.isLocal(); })) {
         return new GenericTransferImpl(setup);
     }
 

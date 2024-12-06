@@ -215,7 +215,7 @@ public:
     {
         if (q->clangdExecutableAspect().isEmpty())
             return std::nullopt;
-        if (!q->clangdExecutableAspect().needsDevice())
+        if (q->clangdExecutableAspect().isLocal())
             return q->rootPath().withNewMappedPath(q->clangdExecutableAspect());
         return q->clangdExecutableAspect();
     }
@@ -611,7 +611,7 @@ DockerDevice::DockerDevice()
             return asyncRun([rootPath, newValue]() -> expected_str<QString> {
                 QString changedValue = newValue;
                 FilePath path = FilePath::fromUserInput(newValue);
-                if (!path.needsDevice()) {
+                if (path.isLocal()) {
                     const FilePath onDevicePath = rootPath.withNewMappedPath(path);
                     if (onDevicePath.exists()) {
                         changedValue = onDevicePath.toUserOutput();
@@ -827,7 +827,7 @@ QStringList toMountArg(const DockerDevicePrivate::MountPair &mi)
 
 expected_str<void> isValidMountInfo(const DockerDevicePrivate::MountPair &mi)
 {
-    if (mi.path.needsDevice())
+    if (!mi.path.isLocal())
         return make_unexpected(QString("The path \"%1\" is not local.").arg(mi.path.toUserOutput()));
 
     if (mi.path.isEmpty() && mi.containerPath.isEmpty())
@@ -1105,7 +1105,7 @@ bool DockerDevice::ensureReachable(const FilePath &other) const
     if (other.isSameDevice(rootPath()))
         return true;
 
-    if (other.needsDevice())
+    if (!other.isLocal())
         return false;
 
     if (other.isDir())

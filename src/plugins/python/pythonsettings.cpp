@@ -287,7 +287,7 @@ void InterpreterOptionsWidget::updateCleanButton()
 void InterpreterOptionsWidget::updateGenerateKitButton(const Interpreter &interpreter)
 {
     bool enabled = !KitManager::kit(Id::fromString(interpreter.id))
-            && (interpreter.command.needsDevice() || interpreter.command.isExecutableFile());
+            && (!interpreter.command.isLocal() || interpreter.command.isExecutableFile());
     m_generateKitButton->setEnabled(enabled);
 }
 
@@ -806,7 +806,7 @@ void PythonSettings::removeKitsForInterpreter(const Interpreter &interpreter)
 
 bool PythonSettings::interpreterIsValid(const Interpreter &interpreter)
 {
-    return interpreter.command.needsDevice() || interpreter.command.isExecutableFile();
+    return !interpreter.command.isLocal() || interpreter.command.isExecutableFile();
 }
 
 void PythonSettings::setInterpreter(const QList<Interpreter> &interpreters, const QString &defaultId)
@@ -1019,7 +1019,7 @@ void PythonSettings::initFromSettings(QtcSettings *settings)
 
     const auto keepInterpreter = [](const Interpreter &interpreter) {
         return !interpreter.autoDetected // always keep user added interpreters
-                || interpreter.command.needsDevice() // remote devices might not be reachable at startup
+                || !interpreter.command.isLocal() // remote devices might not be reachable at startup
                 || interpreter.command.isExecutableFile();
     };
 
@@ -1030,7 +1030,7 @@ void PythonSettings::initFromSettings(QtcSettings *settings)
         for (const Interpreter &interpreter : m_interpreters) {
             if (interpreter.autoDetected) {
                 const FilePath &cmd = interpreter.command;
-                if (cmd.needsDevice() || cmd.parentDir().pathAppended("activate").exists())
+                if (!cmd.isLocal() || cmd.parentDir().pathAppended("activate").exists())
                     continue;
             }
             addKitsForInterpreter(interpreter, false);
@@ -1186,7 +1186,7 @@ Utils::ListModel<ProjectExplorer::Interpreter> *createInterpreterModel(QObject *
             return f;
         }
         case Qt::ToolTipRole:
-            if (interpreter.command.needsDevice())
+            if (!interpreter.command.isLocal())
                 break;
             if (interpreter.command.isEmpty())
                 return Tr::tr("Executable is empty.");

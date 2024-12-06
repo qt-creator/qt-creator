@@ -3999,7 +3999,7 @@ void GdbEngine::handleGdbStarted()
     //    runCommand({"set inferior-tty " + QString::fromUtf8(terminal()->slaveDevice())});
 
     const FilePath dumperPath = ICore::resourcePath("debugger");
-    if (rp.debugger.command.executable().needsDevice()) {
+    if (!rp.debugger.command.executable().isLocal()) {
         // Gdb itself running remotely.
         const FilePath loadOrderFile = dumperPath / "loadorder.txt";
         const expected_str<QByteArray> toLoad = loadOrderFile.fileContents();
@@ -4411,7 +4411,7 @@ bool GdbEngine::isTermEngine() const
 
 bool GdbEngine::usesOutputCollector() const
 {
-    return isPlainEngine() && !runParameters().debugger.command.executable().needsDevice();
+    return isPlainEngine() && runParameters().debugger.command.executable().isLocal();
 }
 
 void GdbEngine::claimInitialBreakpoints()
@@ -4740,7 +4740,7 @@ void GdbEngine::interruptInferior2()
         interruptLocalInferior(runParameters().attachPID.pid());
 
     } else if (isRemoteEngine() || runParameters().startMode == AttachToRemoteProcess
-               || m_gdbProc.commandLine().executable().needsDevice()) {
+               || !m_gdbProc.commandLine().executable().isLocal()) {
 
         CHECK_STATE(InferiorStopRequested);
         if (usesTargetAsync()) {

@@ -813,7 +813,7 @@ FilePath QmakeBuildSystem::buildDir(const FilePath &proFilePath) const
     // the convoluted existing local version for now.
     // For starters, compute a 'new' version to check what it would look like,
     // but don't use it.
-    if (!proFilePath.needsDevice()) {
+    if (proFilePath.isLocal()) {
         // This branch should not exist.
         const QDir srcDirRoot = QDir(projectDirectory().toString());
         const QString relativeDir = srcDirRoot.relativeFilePath(proFilePath.parentDir().toString());
@@ -1457,7 +1457,7 @@ QString QmakeBuildSystem::deviceRoot() const
     IDeviceConstPtr device = BuildDeviceKitAspect::device(target()->kit());
     QTC_ASSERT(device, return {});
     FilePath deviceRoot = device->rootPath();
-    if (deviceRoot.needsDevice())
+    if (!deviceRoot.isLocal())
         return deviceRoot.toFSPathString();
 
     return {};

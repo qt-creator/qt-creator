@@ -130,7 +130,7 @@ bool SaveFile::commit()
     if constexpr (HostOsInfo::isWindowsHost()) {
         static const bool disableWinSpecialCode = !qEnvironmentVariableIsEmpty(
             "QTC_DISABLE_SPECIAL_WIN_SAVEFILE");
-        if (!m_finalFilePath.needsDevice() && !disableWinSpecialCode) {
+        if (m_finalFilePath.isLocal() && !disableWinSpecialCode) {
             // Release the file lock
             m_tempFile.reset();
             bool result = ReplaceFile(

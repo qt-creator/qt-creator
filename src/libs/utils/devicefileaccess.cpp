@@ -1013,7 +1013,7 @@ static bool checkToRefuseRemoveDirectory(const QDir &dir, QString *error)
 
 bool DesktopDeviceFileAccess::removeRecursively(const FilePath &filePath, QString *error) const
 {
-    QTC_ASSERT(!filePath.needsDevice(), return false);
+    QTC_ASSERT(filePath.isLocal(), return false);
     QFileInfo fileInfo = filePath.toFileInfo();
     if (!fileInfo.exists() && !fileInfo.isSymLink())
         return true;

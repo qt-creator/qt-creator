@@ -1436,7 +1436,7 @@ SimpleTargetRunnerPrivate::SimpleTargetRunnerPrivate(SimpleTargetRunner *parent)
     m_waitForDoneTimer.setSingleShot(true);
     connect(&m_waitForDoneTimer, &QTimer::timeout, this, [this] {
         q->appendMessage(Tr::tr("Process unexpectedly did not finish."), ErrorMessageFormat);
-        if (m_command.executable().needsDevice())
+        if (!m_command.executable().isLocal())
             q->appendMessage(Tr::tr("Connectivity lost?"), ErrorMessageFormat);
         m_process.close();
         forwardDone();
@@ -1527,7 +1527,7 @@ void SimpleTargetRunnerPrivate::start()
     m_resultData = {};
     QTC_ASSERT(m_state == Inactive, return);
 
-    if (!m_command.executable().needsDevice()) {
+    if (m_command.executable().isLocal()) {
         // Running locally.
         if (m_runAsRoot)
             RunControl::provideAskPassEntry(env);
@@ -1609,7 +1609,7 @@ void SimpleTargetRunnerPrivate::forwardDone()
 
 void SimpleTargetRunnerPrivate::forwardStarted()
 {
-    const bool isDesktop = !m_command.executable().needsDevice();
+    const bool isDesktop = m_command.executable().isLocal();
     if (isDesktop) {
         // Console processes only know their pid after being started
         ProcessHandle pid{privateApplicationPID()};
@@ -1657,7 +1657,7 @@ void SimpleTargetRunner::start()
         appendMessage({}, StdOutFormat);
     }
 
-    const bool isDesktop = !d->m_command.executable().needsDevice();
+    const bool isDesktop = d->m_command.executable().isLocal();
     if (isDesktop && d->m_command.isEmpty()) {
         reportFailure(Tr::tr("No executable specified."));
         return;
@@ -1714,7 +1714,7 @@ void SimpleTargetRunner::suppressDefaultStdOutHandling()
 void SimpleTargetRunner::forceRunOnHost()
 {
     const FilePath executable = d->m_command.executable();
-    if (executable.needsDevice()) {
+    if (!executable.isLocal()) {
         QTC_CHECK(false);
         d->m_command.setExecutable(FilePath::fromString(executable.path()));
     }

@@ -141,7 +141,7 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
                                            ? expandedEntryPath
                                            : currentDocumentDir.resolvePath(expandedEntryPath);
     // The case of e.g. "ssh://", "ssh://*p", etc
-    const bool isPartOfDeviceRoot = expandedEntryPath.needsDevice()
+    const bool isPartOfDeviceRoot = !expandedEntryPath.isLocal()
                                     && expandedEntryPath.path().isEmpty();
 
     // Consider the entered path a directory if it ends with slash/backslash.

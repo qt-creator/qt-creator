@@ -421,7 +421,7 @@ void FileApiReader::replyDirectoryHasChanged(const QString &directory) const
     const FilePath dir = reply.absolutePath();
     if (dir.isEmpty())
         return; // CMake started to fill the result dir, but has not written a result file yet
-    QTC_CHECK(!dir.needsDevice());
+    QTC_CHECK(dir.isLocal());
     QTC_ASSERT(dir.path() == directory, return);
 
     if (m_lastReplyTimestamp.isValid() && reply.lastModified() > m_lastReplyTimestamp)

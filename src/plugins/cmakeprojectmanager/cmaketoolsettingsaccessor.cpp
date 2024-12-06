@@ -176,7 +176,7 @@ void CMakeToolSettingsAccessor::saveCMakeTools(const QList<CMakeTool *> &cmakeTo
     int count = 0;
     for (CMakeTool *item : cmakeTools) {
         Utils::FilePath fi = item->cmakeExecutable();
-        if (fi.needsDevice() || fi.isExecutableFile()) { // be graceful for device related stuff
+        if (!fi.isLocal() || fi.isExecutableFile()) { // be graceful for device related stuff
             Store tmp = item->toMap();
             if (tmp.isEmpty())
                 continue;
@@ -203,7 +203,7 @@ CMakeToolSettingsAccessor::cmakeTools(const Store &data, bool fromSdk) const
         const Store dbMap = storeFromVariant(data.value(key));
         auto item = std::make_unique<CMakeTool>(dbMap, fromSdk);
         const FilePath cmakeExecutable = item->cmakeExecutable();
-        if (item->isAutoDetected() && !cmakeExecutable.needsDevice() && !cmakeExecutable.isExecutableFile()) {
+        if (item->isAutoDetected() && cmakeExecutable.isLocal() && !cmakeExecutable.isExecutableFile()) {
             qWarning() << QString("CMakeTool \"%1\" (%2) dropped since the command is not executable.")
                           .arg(cmakeExecutable.toUserOutput(), item->id().toString());
             continue;

@@ -70,7 +70,7 @@ static QHash<FilePath, PyLSClient*> &pythonClients()
 static FilePath pyLspPath(const FilePath &python)
 {
     const QString version = pythonVersion(python);
-    if (!python.needsDevice())
+    if (python.isLocal())
         return Core::ICore::userResourcePath() / "pylsp" / version;
     if (const expected_str<FilePath> tmpDir = python.tmpDir())
         return *tmpDir / "qc-pylsp" / version;
@@ -136,7 +136,7 @@ protected:
         if (!lspPath.isEmpty() && lspPath.exists() && QTC_GUARD(lspPath.isSameDevice(python))) {
             env.appendOrSet("PYTHONPATH", lspPath.path());
         }
-        if (!python.needsDevice()) {
+        if (python.isLocal()) {
             // todo check where to put this tempdir in remote setups
             env.appendOrSet("PYTHONPATH", m_extraPythonPath.path().toString());
         }

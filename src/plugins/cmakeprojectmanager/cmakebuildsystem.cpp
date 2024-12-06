@@ -1948,7 +1948,7 @@ void CMakeBuildSystem::ensureBuildDirectory(const BuildDirParameters &parameters
         return;
     }
 
-    if (tool->cmakeExecutable().needsDevice()) {
+    if (!tool->cmakeExecutable().isLocal()) {
         if (!tool->cmakeExecutable().ensureReachable(bdir)) {
             // Make sure that the build directory is available on the device.
             handleParsingFailed(

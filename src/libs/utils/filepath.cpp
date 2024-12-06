@@ -234,7 +234,7 @@ FilePath FilePath::currentWorkingPath()
 
 bool FilePath::isRootPath() const
 {
-    if (needsDevice()) {
+    if (!isLocal()) {
         QStringView path = pathView();
         if (osType() != OsTypeWindows)
             return path == QLatin1String("/");
@@ -262,7 +262,7 @@ bool FilePath::isResourceFile() const
 {
     if (scheme() == u"qrc")
         return true;
-    if (needsDevice())
+    if (!isLocal())
         return false;
     return pathView().startsWith(':');
 }
@@ -297,7 +297,7 @@ QString decodeHost(QString host)
 */
 QString FilePath::toString() const
 {
-    if (!needsDevice())
+    if (isLocal())
         return path();
 
     if (pathView().isEmpty())
@@ -377,7 +377,7 @@ QString FilePath::toFSPathString() const
 
 QUrl FilePath::toUrl() const
 {
-    if (!needsDevice())
+    if (isLocal())
         return QUrl::fromLocalFile(toFSPathString());
     QUrl url;
     url.setScheme(scheme().toString());
@@ -395,7 +395,7 @@ QUrl FilePath::toUrl() const
 QString FilePath::toUserOutput() const
 {
     QString tmp = toString();
-    if (needsDevice())
+    if (!isLocal())
         return tmp;
 
     if (osType() == OsTypeWindows)
@@ -598,7 +598,7 @@ std::optional<FilePath> FilePath::refersToExecutableFile(MatchScope matchScope) 
 
 expected_str<FilePath> FilePath::tmpDir() const
 {
-    if (needsDevice()) {
+    if (!isLocal()) {
         const expected_str<Environment> env = deviceEnvironmentWithError();
         if (!env)
             return make_unexpected(env.error());
@@ -621,7 +621,7 @@ expected_str<FilePath> FilePath::tmpDir() const
 
 expected_str<FilePath> FilePath::createTempFile() const
 {
-    if (!needsDevice()) {
+    if (isLocal()) {
         QTemporaryFile file(path());
         file.setAutoRemove(false);
         if (file.open())
@@ -726,13 +726,11 @@ expected_str<QByteArray> FilePath::fileContents(qint64 maxSize, qint64 offset) c
 
 bool FilePath::ensureReachable(const FilePath &other) const
 {
-    if (needsDevice()) {
+    if (!isLocal()) {
         QTC_ASSERT(deviceFileHooks().ensureReachable, return false);
         return deviceFileHooks().ensureReachable(*this, other);
-    } else if (!other.needsDevice()) {
-        return true;
     }
-    return false;
+    return other.isLocal();
 }
 
 expected_str<qint64> FilePath::writeFileContents(const QByteArray &data) const
@@ -757,16 +755,16 @@ FileStreamHandle FilePath::asyncWrite(const QByteArray &data, QObject *context,
     return FileStreamerManager::write(*this, data, context, cont);
 }
 
-bool FilePath::needsDevice() const
+bool FilePath::isLocal() const
 {
-    return m_schemeLen > 0 && scheme() != u"file";
+    return m_schemeLen == 0 || scheme() == u"file";
 }
 
 bool FilePath::isSameDevice(const FilePath &other) const
 {
-    if (needsDevice() != other.needsDevice())
+    if (isLocal() != other.isLocal())
         return false;
-    if (!needsDevice() && !other.needsDevice())
+    if (isLocal() && other.isLocal())
         return true;
 
     QTC_ASSERT(deviceFileHooks().isSameDevice, return true);
@@ -1084,7 +1082,7 @@ FilePath FilePath::parentDir() const
 
 FilePath FilePath::absolutePath() const
 {
-    if (!needsDevice() && isEmpty())
+    if (!!isLocal() && isEmpty())
         return *this;
     const FilePath parentPath = isAbsolutePath()
                                     ? parentDir()
@@ -1096,7 +1094,7 @@ FilePath FilePath::absoluteFilePath() const
 {
     if (isAbsolutePath())
         return cleanPath();
-    if (!needsDevice() && isEmpty())
+    if (!!isLocal() && isEmpty())
         return cleanPath();
 
     return FilePath::currentWorkingPath().resolvePath(*this);
@@ -1129,7 +1127,7 @@ const QString &FilePath::specialDeviceRootPath()
 FilePath FilePath::normalizedPathName() const
 {
     FilePath result = *this;
-    if (!needsDevice()) // FIXME: Assumes no remote Windows and Mac for now.
+    if (!!isLocal()) // FIXME: Assumes no remote Windows and Mac for now.
         result.setParts(scheme(), host(), FileUtils::normalizedPathName(path()));
     return result;
 }
@@ -1146,7 +1144,7 @@ FilePath FilePath::normalizedPathName() const
 QString FilePath::displayName(const QString &args) const
 {
     QString deviceName;
-    if (needsDevice()) {
+    if (!isLocal()) {
         QTC_ASSERT(deviceFileHooks().deviceDisplayName, return nativePath());
         deviceName = deviceFileHooks().deviceDisplayName(*this);
     }
@@ -1278,7 +1276,7 @@ void FilePath::setFromString(QStringView fileNameView)
 
 static expected_str<DeviceFileAccess *> getFileAccess(const FilePath &filePath)
 {
-    if (!filePath.needsDevice())
+    if (filePath.isLocal())
         return DesktopDeviceFileAccess::instance();
 
     if (!deviceFileHooks().fileAccess) {
@@ -1890,7 +1888,7 @@ Environment FilePath::deviceEnvironment() const
 
 expected_str<Environment> FilePath::deviceEnvironmentWithError() const
 {
-    if (needsDevice()) {
+    if (!isLocal()) {
         QTC_ASSERT(deviceFileHooks().environment, return {});
         return deviceFileHooks().environment(*this);
     }
@@ -1900,7 +1898,7 @@ expected_str<Environment> FilePath::deviceEnvironmentWithError() const
 FilePaths FilePath::devicePathEnvironmentVariable() const
 {
     FilePaths result = deviceEnvironment().path();
-    if (needsDevice()) {
+    if (!isLocal()) {
         for (FilePath &dir : result)
             dir.setParts(this->scheme(), this->host(), dir.path());
     }
@@ -2001,7 +1999,7 @@ bool FilePath::setPermissions(QFile::Permissions permissions) const
 
 OsType FilePath::osType() const
 {
-    if (!needsDevice())
+    if (!!isLocal())
         return HostOsInfo::hostOs();
 
     QTC_ASSERT(deviceFileHooks().osType, return HostOsInfo::hostOs());
@@ -2200,7 +2198,7 @@ FilePath FilePath::resolveSymlinks() const
 */
 FilePath FilePath::canonicalPath() const
 {
-    if (needsDevice()) {
+    if (!isLocal()) {
         // FIXME: Not a full solution, but it stays on the right device.
         return *this;
     }
@@ -2330,7 +2328,7 @@ FilePath FilePath::resolvePath(const QString &tail) const
 
 expected_str<FilePath> FilePath::localSource() const
 {
-    if (!needsDevice())
+    if (!!isLocal())
         return *this;
 
     QTC_ASSERT(deviceFileHooks().localSource,
@@ -2367,7 +2365,7 @@ QString FilePath::withTildeHomePath() const
     if (osType() == OsTypeWindows)
         return toString();
 
-    if (needsDevice())
+    if (!isLocal())
         return toString();
 
     static const QString homePath = QDir::homePath();
@@ -2486,8 +2484,8 @@ QTCREATOR_UTILS_EXPORT bool operator!=(const FilePath &first, const FilePath &se
 
 QTCREATOR_UTILS_EXPORT bool operator<(const FilePath &first, const FilePath &second)
 {
-    const bool firstNeedsDevice = first.needsDevice();
-    const bool secondNeedsDevice = second.needsDevice();
+    const bool firstNeedsDevice = !first.isLocal();
+    const bool secondNeedsDevice = !second.isLocal();
 
     // If either needs a device, we have to compare host and scheme first.
     if (firstNeedsDevice || secondNeedsDevice) {

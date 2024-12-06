@@ -275,7 +275,7 @@ QString QtVersion::defaultUnexpandedDisplayName() const
                          ? Tr::tr("Qt %{Qt:Version} in PATH (%2)").arg(location)
                          : Tr::tr("Qt %{Qt:Version} (%2)").arg(location);
 
-    if (qmakeFilePath().needsDevice())
+    if (!qmakeFilePath().isLocal())
         result += QString(Tr::tr(" (on %1)")).arg(qmakeFilePath().host().toString());
 
     return result;
@@ -631,7 +631,7 @@ void QtVersion::fromMap(const Store &map, const FilePath &filePath)
     if (string.startsWith('~'))
         string.remove(0, 1).prepend(QDir::homePath());
     qmake = qmake.withNewPath(string);
-    if (!d->m_qmakeCommand.needsDevice()) {
+    if (d->m_qmakeCommand.isLocal()) {
         if (BuildableHelperLibrary::isQtChooser(qmake)) {
             // we don't want to treat qtchooser as a normal qmake
             // see e.g. QTCREATORBUG-9841, also this lead to users changing what
@@ -1115,7 +1115,7 @@ void QtVersion::ensureMkSpecParsed() const
     Environment env = d->m_qmakeCommand.deviceEnvironment();
     setupQmakeRunEnvironment(env);
     option.environment = env.toProcessEnvironment();
-    if (d->m_qmakeCommand.needsDevice())
+    if (!d->m_qmakeCommand.isLocal())
         option.device_root = d->m_qmakeCommand.withNewPath("/").toFSPathString(); // Empty for host!
     ProMessageHandler msgHandler(true);
     ProFileCacheManager::instance()->incRefCount();

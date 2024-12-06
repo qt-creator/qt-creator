@@ -144,7 +144,7 @@ public:
     std::error_code isLocal(const Twine &Path, bool &Result) override
     {
         const FilePath filePath = FilePath::fromString(QString::fromStdString(Path.str()));
-        Result = !filePath.needsDevice();
+        Result = filePath.isLocal();
         return {};
     }
 

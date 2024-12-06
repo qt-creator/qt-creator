@@ -1668,8 +1668,8 @@ Toolchains GccToolchainFactory::autoDetectToolchains(const FilePaths &compilerPa
                 existingTcMatches = existingCommand.isSameExecutable(compilerPath);
                 if (!existingTcMatches
                         && HostOsInfo::isWindowsHost()
-                        && !existingCommand.needsDevice()
-                        && !compilerPath.needsDevice()) {
+                        && existingCommand.isLocal()
+                        && compilerPath.isLocal()) {
                     existingTcMatches = existingCommand.fileSize() == compilerPath.fileSize();
                 }
             }
