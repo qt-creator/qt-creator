@@ -719,7 +719,10 @@ void FormEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, Inf
         const QmlItemNode qmlItemNode(node);
         if (FormEditorItem *item = scene()->itemForQmlItemNode(qmlItemNode)) {
             scene()->synchronizeTransformation(item);
-            if (qmlItemNode.isRootModelNode() && informationChangedHash.values(node).contains(Size))
+            auto nodeValues = informationChangedHash.values(node);
+            if (qmlItemNode.isRootModelNode()
+                && (informationChangedHash.values(node).contains(Size)
+                    || informationChangedHash.values(node).contains(ImplicitSize)))
                 setupRootItemSize();
 
             changedItems.append(item);
@@ -963,9 +966,10 @@ void FormEditorView::setupRootItemSize()
         if (rootModelNode().hasAuxiliaryData(defaultHeightProperty))
             rootElementInitHeight = rootModelNode().auxiliaryData(defaultHeightProperty).value().toInt();
 
-        bool affectedByCurrentState =
-            rootQmlNode.propertyAffectedByCurrentState("width") ||
-            rootQmlNode.propertyAffectedByCurrentState("height");
+        bool affectedByCurrentState = rootQmlNode.propertyAffectedByCurrentState("width")
+                                      || rootQmlNode.propertyAffectedByCurrentState("height")
+                                      || rootQmlNode.propertyAffectedByCurrentState("implicitWidth")
+                                      || rootQmlNode.propertyAffectedByCurrentState("implicitHeight");
 
         QRectF rootRect = rootQmlNode.instanceBoundingRect();
         if (rootRect.isEmpty() && !affectedByCurrentState) {

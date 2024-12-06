@@ -92,6 +92,7 @@ public:
 
     virtual QPointF position() const;
     virtual QSizeF size() const;
+    virtual QSizeF implicitSize() const;
     virtual QTransform transform() const;
     virtual QTransform contentTransform() const;
     virtual QTransform customTransform() const;

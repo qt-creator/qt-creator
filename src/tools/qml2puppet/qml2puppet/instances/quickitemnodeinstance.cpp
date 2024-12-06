@@ -393,6 +393,11 @@ QSizeF QuickItemNodeInstance::size() const
     return QSizeF(width, height);
 }
 
+QSizeF QuickItemNodeInstance::implicitSize() const
+{
+    return QSizeF(quickItem()->implicitWidth(), quickItem()->implicitHeight());
+}
+
 static QTransform contentItemTransformForItem(QQuickItem *item, NodeInstanceServer *nodeInstanceServer)
 {
     QTransform toParentTransform = QQuickDesignerSupport::parentTransform(item);

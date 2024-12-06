@@ -580,6 +580,11 @@ QSizeF ServerNodeInstance::size() const
     return instanceSize;
 }
 
+QSizeF ServerNodeInstance::implicitSize() const
+{
+    return m_nodeInstance->implicitSize();
+}
+
 QTransform ServerNodeInstance::transform() const
 {
     return m_nodeInstance->transform();

@@ -1092,6 +1092,11 @@ QSizeF ObjectNodeInstance::size() const
     return QSizeF();
 }
 
+QSizeF ObjectNodeInstance::implicitSize() const
+{
+    return QSizeF();
+}
+
 int ObjectNodeInstance::penWidth() const
 {
     return 0;

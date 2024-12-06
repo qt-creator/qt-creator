@@ -45,6 +45,7 @@ public:
     double zValue() const override;
     QPointF position() const override;
     QSizeF size() const override;
+    QSizeF implicitSize() const override;
     QTransform transform() const override;
     QTransform contentItemTransform() const override;
     int penWidth() const override;

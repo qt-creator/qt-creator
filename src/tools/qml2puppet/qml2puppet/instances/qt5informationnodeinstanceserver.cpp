@@ -2078,6 +2078,10 @@ void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
                 if (instance.isValid()) {
                     if (property.second.contains("anchors"))
                         informationChangedInstanceSet.insert(instance);
+                    if (property.second.contains("implicitWidth"))
+                        informationChangedInstanceSet.insert(instance);
+                    if (property.second.contains("implicitHeight"))
+                        informationChangedInstanceSet.insert(instance);
 
                     propertyChangedList.append(property);
                 }

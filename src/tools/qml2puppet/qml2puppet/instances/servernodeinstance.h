@@ -95,6 +95,7 @@ public:
     QRectF contentItemBoundingRect() const;
     QPointF position() const;
     QSizeF size() const;
+    QSizeF implicitSize() const;
     QTransform transform() const;
     QTransform customTransform() const;
     QTransform sceneTransform() const;

@@ -671,29 +671,22 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
     case AuxiliaryDataType::NodeInstancePropertyOverwrite:
         if (hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
-            if (value.isValid()) {
-                PropertyValueContainer container{instance.instanceId(),
-                                                 key.name,
-                                                 value,
-                                                 TypeName(),
-                                                 key.type};
-                m_nodeInstanceServer->changeAuxiliaryValues({{container}});
-            } else {
-                const PropertyName name = key.name.toByteArray();
-                if (node.hasVariantProperty(name)) {
-                    PropertyValueContainer container(instance.instanceId(),
-                                                     name,
-                                                     node.variantProperty(name).value(),
-                                                     TypeName());
-                    ChangeValuesCommand changeValueCommand({container});
-                    m_nodeInstanceServer->changePropertyValues(changeValueCommand);
-                } else if (node.hasBindingProperty(name)) {
-                    PropertyBindingContainer container{instance.instanceId(),
-                                                       name,
-                                                       node.bindingProperty(name).expression(),
-                                                       TypeName()};
-                    m_nodeInstanceServer->changePropertyBindings({{container}});
-                }
+            PropertyValueContainer container{instance.instanceId(), key.name, value, TypeName(), key.type};
+            m_nodeInstanceServer->changeAuxiliaryValues({{container}});
+            const PropertyName name = key.name.toByteArray();
+            if (node.hasVariantProperty(name)) {
+                PropertyValueContainer container(instance.instanceId(),
+                                                 name,
+                                                 node.variantProperty(name).value(),
+                                                 TypeName());
+                ChangeValuesCommand changeValueCommand({container});
+                m_nodeInstanceServer->changePropertyValues(changeValueCommand);
+            } else if (node.hasBindingProperty(name)) {
+                PropertyBindingContainer container{instance.instanceId(),
+                                                   name,
+                                                   node.bindingProperty(name).expression(),
+                                                   TypeName()};
+                m_nodeInstanceServer->changePropertyBindings({{container}});
             }
         }
         break;

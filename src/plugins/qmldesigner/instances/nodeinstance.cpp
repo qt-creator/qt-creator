@@ -30,6 +30,7 @@ public:
     QRectF contentItemBoundingRect;
     QPointF position;
     QSizeF size;
+    QSizeF implicitSize;
     QTransform transform;
     QTransform contentTransform;
     QTransform contentItemTransform;
@@ -534,6 +535,16 @@ InformationName NodeInstance::setInformationSize(const QSizeF &size)
     return NoInformationChange;
 }
 
+InformationName NodeInstance::setInformationImplicitSize(const QSizeF &implicitSize)
+{
+    if (d->implicitSize != implicitSize) {
+        d->implicitSize = implicitSize;
+        return ImplicitSize;
+    }
+
+    return NoInformationChange;
+}
+
 InformationName NodeInstance::setInformationBoundingRect(const QRectF &rectangle)
 {
     if (d->boundingRect != rectangle) {
@@ -749,6 +760,8 @@ InformationName NodeInstance::setInformation(InformationName name, const QVarian
 {
     switch (name) {
     case Size: return setInformationSize(information.toSizeF());
+    case ImplicitSize:
+        return setInformationImplicitSize(information.toSizeF());
     case BoundingRect:
         return setInformationBoundingRect(information.toRectF());
     case BoundingRectPixmap:
