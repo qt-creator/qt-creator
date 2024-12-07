@@ -14,6 +14,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QDialog>
@@ -46,6 +47,8 @@ VersionDialog::VersionDialog()
 
     auto logoLabel = new QLabel;
     logoLabel->setPixmap(Icons::QTCREATORLOGO_BIG.pixmap());
+    const int margin = Utils::StyleHelper::SpacingTokens::ExPaddingGapL;
+    logoLabel->setContentsMargins({margin, margin, margin, margin});
 
     auto copyRightLabel = new QLabel(ICore::aboutInformationHtml());
     copyRightLabel->setWordWrap(true);
