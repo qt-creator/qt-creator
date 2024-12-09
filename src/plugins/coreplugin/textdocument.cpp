@@ -170,6 +170,11 @@ const QTextCodec *BaseTextDocument::codec() const
     return d->m_format.codec();
 }
 
+QByteArray BaseTextDocument::codecName() const
+{
+    return d->m_format.codecName();
+}
+
 void BaseTextDocument::setCodec(const QTextCodec *codec)
 {
     if (debug)

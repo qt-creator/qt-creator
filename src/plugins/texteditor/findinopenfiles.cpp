@@ -12,6 +12,8 @@
 
 #include <utils/qtcsettings.h>
 
+#include <QTextCodec>
+
 using namespace Utils;
 
 namespace TextEditor::Internal {
@@ -59,7 +61,7 @@ QString FindInOpenFiles::displayName() const
 FileContainerProvider FindInOpenFiles::fileContainerProvider() const
 {
     return [] {
-        const QMap<FilePath, QTextCodec *> encodings = TextDocument::openedTextDocumentEncodings();
+        const QMap<FilePath, QByteArray> encodings = TextDocument::openedTextDocumentEncodings();
         FilePaths fileNames;
         QList<QTextCodec *> codecs;
         const QList<Core::DocumentModel::Entry *> entries = Core::DocumentModel::entries();
@@ -67,10 +69,10 @@ FileContainerProvider FindInOpenFiles::fileContainerProvider() const
             const FilePath fileName = entry->filePath();
             if (!fileName.isEmpty()) {
                 fileNames.append(fileName);
-                QTextCodec *codec = encodings.value(fileName);
-                if (!codec)
-                    codec = Core::EditorManager::defaultTextCodec();
-                codecs.append(codec);
+                QByteArray codec = encodings.value(fileName);
+                if (codec.isEmpty())
+                    codec = Core::EditorManager::defaultTextCodecName();
+                codecs.append(QTextCodec::codecForName(codec));
             }
         }
         return FileListContainer(fileNames, codecs);
