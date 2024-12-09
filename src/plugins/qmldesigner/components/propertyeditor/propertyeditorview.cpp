@@ -586,7 +586,6 @@ void PropertyEditorView::setupQmlBackend()
                                                                 m_imageCache,
                                                                 m_stackedWidget,
                                                                 this);
-
     setupCurrentQmlBackend(currentQmlBackend,
                            m_selectedNode,
                            QUrl::fromLocalFile(QString{specificsPath}),

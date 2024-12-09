@@ -23,12 +23,15 @@
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
 #include "qmltimeline.h"
+#include <sourcepathcacheinterface.h>
 #include "variantproperty.h"
 #include <uniquename.h>
 #include <utils3d.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
+
+#include <sourcepathstorage/sourcepathcache.h>
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
@@ -77,6 +80,7 @@ static bool isPreviewAuxiliaryKey(AuxiliaryDataKeyView key)
 MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
     , m_stackedWidget(new QStackedWidget)
+    , m_propertyComponentGenerator{PropertyEditorQmlBackend::propertyEditorResourcesPath(), model()}
     , m_dynamicPropertiesModel(new DynamicPropertiesModel(true, this))
 {
     m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F7), m_stackedWidget);
@@ -115,6 +119,43 @@ MaterialEditorView::~MaterialEditorView()
 {
     qDeleteAll(m_qmlBackendHash);
 }
+
+QUrl MaterialEditorView::getPaneUrl()
+{
+    QString panePath = MaterialEditorQmlBackend::materialEditorResourcesPath();
+    if (m_selectedMaterial.isValid() && m_hasQuick3DImport
+        && (Utils3D::materialLibraryNode(this).isValid() || m_hasMaterialRoot))
+        panePath.append("/MaterialEditorPane.qml");
+    else {
+        panePath.append("/EmptyMaterialEditorPane.qml");
+    }
+
+    return QUrl::fromLocalFile(panePath);
+}
+
+namespace {
+
+#ifdef QDS_USE_PROJECTSTORAGE
+QUrl getSpecificsUrl(const NodeMetaInfos &prototypes, const SourcePathCacheInterface &pathCache)
+{
+    Utils::PathString specificsPath;
+
+    for (const NodeMetaInfo &prototype : prototypes) {
+        auto sourceId = prototype.propertyEditorPathId();
+        if (sourceId) {
+            auto path = pathCache.sourcePath(sourceId);
+            if (path.endsWith("Specifics.qml")) {
+                specificsPath = path;
+                break;
+            }
+        }
+    }
+
+    return QUrl::fromLocalFile(specificsPath.toQString());
+}
+#endif
+
+} // namespace
 
 // from material editor to model
 void MaterialEditorView::changeValue(const QString &name)
@@ -203,6 +244,29 @@ static bool isTrueFalseLiteral(const QString &expression)
 {
     return (expression.compare("false", Qt::CaseInsensitive) == 0)
            || (expression.compare("true", Qt::CaseInsensitive) == 0);
+}
+
+void MaterialEditorView::setupCurrentQmlBackend(const ModelNode &selectedNode,
+                                                const QUrl &qmlSpecificsFile,
+                                                const QString &specificQmlData)
+{
+
+    QmlModelState currState = currentStateNode();
+    QString currentStateName = currState.isBaseState() ? QStringLiteral("invalid state")
+                                                       : currState.name();
+
+    QmlObjectNode qmlObjectNode{selectedNode};
+    if (specificQmlData.isEmpty())
+        m_qmlBackEnd->contextObject()->setSpecificQmlData(specificQmlData);
+    m_qmlBackEnd->setup(qmlObjectNode, currentStateName, qmlSpecificsFile, this);
+    m_qmlBackEnd->contextObject()->setSpecificQmlData(specificQmlData);
+}
+
+void MaterialEditorView::setupWidget()
+{
+    m_qmlBackEnd->widget()->installEventFilter(this);
+    m_stackedWidget->setCurrentWidget(m_qmlBackEnd->widget());
+    m_stackedWidget->setMinimumSize({400, 300});
 }
 
 void MaterialEditorView::changeExpression(const QString &propertyName)
@@ -332,6 +396,11 @@ void MaterialEditorView::currentTimelineChanged(const ModelNode &)
         m_qmlBackEnd->contextObject()->setHasActiveTimeline(QmlTimeline::hasActiveTimeline(this));
 }
 
+void MaterialEditorView::refreshMetaInfos(const TypeIds &deletedTypeIds)
+{
+    m_propertyComponentGenerator.refreshMetaInfos(deletedTypeIds);
+}
+
 DynamicPropertiesModel *MaterialEditorView::dynamicPropertiesModel() const
 {
     return m_dynamicPropertiesModel;
@@ -398,16 +467,6 @@ void MaterialEditorView::resetView()
 
     if (m_timerId)
         m_timerId = 0;
-}
-
-// static
-QString MaterialEditorView::materialEditorResourcesPath()
-{
-#ifdef SHARE_QML_PATH
-    if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
-        return QLatin1String(SHARE_QML_PATH) + "/materialEditorQmlSources";
-#endif
-    return Core::ICore::resourcePath("qmldesigner/materialEditorQmlSources").toString();
 }
 
 void MaterialEditorView::handleToolBarAction(int action)
@@ -528,87 +587,73 @@ void MaterialEditorView::handlePreviewSizeChanged(const QSizeF &size)
     requestPreviewRender();
 }
 
-void MaterialEditorView::setupQmlBackend()
+MaterialEditorQmlBackend *MaterialEditorView::getQmlBackend(const QUrl &qmlFileUrl)
 {
-#ifdef QDS_USE_PROJECTSTORAGE
-// TODO unify implementation with property editor view
-#else
-
-    QUrl qmlPaneUrl;
-    QUrl qmlSpecificsUrl;
-    QString specificQmlData;
-    QString currentTypeName;
-
-    if (m_selectedMaterial.isValid() && m_hasQuick3DImport
-        && (Utils3D::materialLibraryNode(this).isValid() || m_hasMaterialRoot)) {
-        qmlPaneUrl = QUrl::fromLocalFile(materialEditorResourcesPath() + "/MaterialEditorPane.qml");
-
-        TypeName diffClassName;
-        if (NodeMetaInfo metaInfo = m_selectedMaterial.metaInfo()) {
-            diffClassName = metaInfo.typeName();
-            for (const NodeMetaInfo &metaInfo : metaInfo.selfAndPrototypes()) {
-                if (PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsUrl))
-                    break;
-                qmlSpecificsUrl = PropertyEditorQmlBackend::getQmlFileUrl(metaInfo.typeName()
-                                                                          + "Specifics", metaInfo);
-                diffClassName = metaInfo.typeName();
-            }
-
-            if (diffClassName != m_selectedMaterial.type()) {
-                specificQmlData = PropertyEditorQmlBackend::templateGeneration(metaInfo,
-                                                                               model()->metaInfo(
-                                                                                   diffClassName),
-                                                                               m_selectedMaterial);
-            }
-        }
-        currentTypeName = QString::fromLatin1(m_selectedMaterial.type());
-    } else {
-        qmlPaneUrl = QUrl::fromLocalFile(materialEditorResourcesPath() + "/EmptyMaterialEditorPane.qml");
-    }
-
-    MaterialEditorQmlBackend *currentQmlBackend = m_qmlBackendHash.value(qmlPaneUrl.toString());
-
-    QmlModelState currentState = currentStateNode();
-    QString currentStateName = currentState.isBaseState() ? currentState.name() : "invalid state";
+    auto qmlFileName = qmlFileUrl.toString();
+    MaterialEditorQmlBackend *currentQmlBackend = m_qmlBackendHash.value(qmlFileName);
 
     if (!currentQmlBackend) {
         currentQmlBackend = new MaterialEditorQmlBackend(this);
 
         m_stackedWidget->addWidget(currentQmlBackend->widget());
-        m_qmlBackendHash.insert(qmlPaneUrl.toString(), currentQmlBackend);
+        m_qmlBackendHash.insert(qmlFileName, currentQmlBackend);
 
-        currentQmlBackend->setup(m_selectedMaterial, currentStateName, qmlSpecificsUrl, this);
-
-        currentQmlBackend->setSource(qmlPaneUrl);
+        currentQmlBackend->setSource(qmlFileUrl);
 
         QObject *rootObj = currentQmlBackend->widget()->rootObject();
-        QObject::connect(rootObj, SIGNAL(toolBarAction(int)),
-                         this, SLOT(handleToolBarAction(int)));
-        QObject::connect(rootObj, SIGNAL(previewEnvChanged(QString)),
-                         this, SLOT(handlePreviewEnvChanged(QString)));
-        QObject::connect(rootObj, SIGNAL(previewModelChanged(QString)),
-                         this, SLOT(handlePreviewModelChanged(QString)));
-    } else {
-        currentQmlBackend->setup(m_selectedMaterial, currentStateName, qmlSpecificsUrl, this);
+        connect(rootObj, SIGNAL(toolBarAction(int)), this, SLOT(handleToolBarAction(int)));
+        connect(rootObj, SIGNAL(previewEnvChanged(QString)), this, SLOT(handlePreviewEnvChanged(QString)));
+        connect(rootObj, SIGNAL(previewModelChanged(QString)), this, SLOT(handlePreviewModelChanged(QString)));
     }
 
-    currentQmlBackend->widget()->installEventFilter(this);
-    currentQmlBackend->contextObject()->setHasQuick3DImport(m_hasQuick3DImport);
-    currentQmlBackend->contextObject()->setHasMaterialLibrary(
-        Utils3D::materialLibraryNode(this).isValid());
-    currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
-    currentQmlBackend->contextObject()->setCurrentType(currentTypeName);
-    currentQmlBackend->contextObject()->setIsQt6Project(externalDependencies().isQt6Project());
+    return currentQmlBackend;
+}
 
-    m_qmlBackEnd = currentQmlBackend;
+void MaterialEditorView::setupQmlBackend()
+{
+    QUrl qmlPaneUrl = getPaneUrl();
+    QUrl qmlSpecificsUrl;
+    QString specificQmlData;
+
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto selfAndPrototypes = m_selectedMaterial.metaInfo().selfAndPrototypes();
+    bool isEditableComponent = m_selectedMaterial.isComponent()
+                               && !QmlItemNode(m_selectedMaterial).isEffectItem();
+    specificQmlData = m_propertyEditorComponentGenerator.create(selfAndPrototypes, isEditableComponent);
+    qmlSpecificsUrl = getSpecificsUrl(selfAndPrototypes, model()->pathCache());
+#else
+    TypeName diffClassName;
+    if (NodeMetaInfo metaInfo = m_selectedMaterial.metaInfo()) {
+        diffClassName = metaInfo.typeName();
+        for (const NodeMetaInfo &metaInfo : metaInfo.selfAndPrototypes()) {
+           if (PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsUrl))
+               break;
+            qmlSpecificsUrl = PropertyEditorQmlBackend::getQmlFileUrl(metaInfo.typeName() + "Specifics", metaInfo);
+            diffClassName = metaInfo.typeName();
+        }
+
+        if (diffClassName != m_selectedMaterial.type()) {
+            specificQmlData = PropertyEditorQmlBackend::templateGeneration(
+                                metaInfo, model()->metaInfo(diffClassName), m_selectedMaterial);
+        }
+    }
+#endif
+
+    m_qmlBackEnd = getQmlBackend(qmlPaneUrl);
+    setupCurrentQmlBackend(m_selectedMaterial, qmlSpecificsUrl, specificQmlData);
+
+    setupWidget();
+
+    m_qmlBackEnd->contextObject()->setHasQuick3DImport(m_hasQuick3DImport);
+    m_qmlBackEnd->contextObject()->setHasMaterialLibrary(
+        Utils3D::materialLibraryNode(this).isValid());
+    m_qmlBackEnd->contextObject()->setIsQt6Project(externalDependencies().isQt6Project());
 
     m_dynamicPropertiesModel->setSelectedNode(m_selectedMaterial);
 
     initPreviewData();
-
-    m_stackedWidget->setCurrentWidget(m_qmlBackEnd->widget());
-    m_stackedWidget->setMinimumSize({400, 300});
-#endif
+    QString matType = QString::fromLatin1(m_selectedMaterial.type());
+    m_qmlBackEnd->contextObject()->setCurrentType(matType);
 }
 
 void MaterialEditorView::commitVariantValueToModel(PropertyNameView propertyName, const QVariant &value)
@@ -715,6 +760,9 @@ void MaterialEditorView::updatePossibleTypes()
 void MaterialEditorView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
+
+    if constexpr (useProjectStorage())
+        m_propertyComponentGenerator.setModel(model);
 
     m_locked = true;
 
