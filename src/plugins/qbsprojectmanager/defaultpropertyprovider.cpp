@@ -233,8 +233,7 @@ static void filterCompilerLinkerFlags(const ProjectExplorer::Abi &targetAbi, QSt
 {
     for (int i = 0; i < flags.size(); ) {
         if (targetAbi.architecture() != ProjectExplorer::Abi::UnknownArchitecture
-                && flags[i] == QStringLiteral("-arch")
-                && i + 1 < flags.size()) {
+            && (flags[i] == "-arch" || flags[i] == "-target") && i + 1 < flags.size()) {
             flags.removeAt(i);
             flags.removeAt(i);
         } else {
