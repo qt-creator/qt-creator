@@ -5,11 +5,7 @@
 
 #include "../core_global.h"
 
-#include <QWidget>
-
-namespace Core {
-class BaseTextDocument;
-}
+#include <QByteArray>
 
 namespace Core {
 
@@ -20,6 +16,6 @@ struct CORE_EXPORT CodecSelectorResult
     QByteArray codec;
 };
 
-CORE_EXPORT CodecSelectorResult askForCodec(QWidget *parent, Core::BaseTextDocument *doc);
+CORE_EXPORT CodecSelectorResult askForCodec(class BaseTextDocument *doc);
 
 } // namespace Core
