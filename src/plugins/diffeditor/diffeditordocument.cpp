@@ -14,19 +14,12 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
-#include <QCoreApplication>
-#include <QFile>
-#include <QDir>
-#include <QMenu>
-#include <QTextCodec>
-
 using namespace Core;
 using namespace Utils;
 
 namespace DiffEditor::Internal {
 
-DiffEditorDocument::DiffEditorDocument() :
-    Core::BaseTextDocument()
+DiffEditorDocument::DiffEditorDocument()
 {
     setId(Constants::DIFF_EDITOR_ID);
     setMimeType(Constants::DIFF_EDITOR_MIMETYPE);
