@@ -97,7 +97,7 @@ bool FixitsRefactoringFile::apply()
     }
 
     // Write file
-    if (!m_textFileFormat.codec)
+    if (!m_textFileFormat.codec())
         return false; // Error reading file
 
     QString error;
@@ -151,7 +151,7 @@ QTextDocument *FixitsRefactoringFile::document(const FilePath &filePath) const
             if (result != TextFileFormat::ReadSuccess) {
                 qCDebug(fixitsLog)
                     << "ERROR: Could not read " << filePath.toUserOutput() << ":" << error;
-                m_textFileFormat.codec = nullptr;
+                m_textFileFormat.setCodec(nullptr);
             }
         }
         // always make a QTextDocument to avoid excessive null checks

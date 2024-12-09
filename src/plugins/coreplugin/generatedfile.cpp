@@ -160,7 +160,7 @@ bool GeneratedFilePrivate::writeContents(QString *errorMessage) const
     }
 
     TextFileFormat format;
-    format.codec = EditorManager::defaultTextCodec();
+    format.setCodecName(EditorManager::defaultTextCodecName());
     format.lineTerminationMode = EditorManager::defaultLineEnding();
     return format.writeFile(path, QString::fromUtf8(contents), errorMessage);
 }

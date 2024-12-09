@@ -114,7 +114,7 @@ Core::IDocument::OpenResult ResourceFile::load()
         // Detect line ending style
         m_textFileFormat = TextFileFormat::detect(data);
         // we always write UTF-8 when saving
-        m_textFileFormat.codec = QTextCodec::codecForName("UTF-8");
+        m_textFileFormat.setCodecName("UTF-8");
         file.close();
 
         QString error_msg;

@@ -309,7 +309,7 @@ void OutputWindow::contextMenuEvent(QContextMenuEvent *event)
         if (!file.isEmpty()) {
             QString error;
             Utils::TextFileFormat format;
-            format.codec = EditorManager::defaultTextCodec();
+            format.setCodecName(EditorManager::defaultTextCodecName());
             format.lineTerminationMode = EditorManager::defaultLineEnding();
             if (!format.writeFile(file, toPlainText(), &error))
                 MessageManager::writeDisrupting(error);

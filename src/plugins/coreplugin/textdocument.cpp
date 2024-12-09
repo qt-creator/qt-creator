@@ -167,7 +167,7 @@ BaseTextDocument::ReadResult BaseTextDocument::read(const Utils::FilePath &fileP
 
 const QTextCodec *BaseTextDocument::codec() const
 {
-    return d->m_format.codec;
+    return d->m_format.codec();
 }
 
 void BaseTextDocument::setCodec(const QTextCodec *codec)
@@ -175,7 +175,7 @@ void BaseTextDocument::setCodec(const QTextCodec *codec)
     if (debug)
         qDebug() << Q_FUNC_INFO << this << (codec ? codec->name() : QByteArray());
     if (supportsCodec(codec ? codec->name() : QByteArray()))
-        d->m_format.codec = codec;
+        d->m_format.setCodec(codec);
 }
 
 void BaseTextDocument::setCodec(const QByteArray &name)
@@ -183,7 +183,7 @@ void BaseTextDocument::setCodec(const QByteArray &name)
     if (debug)
         qDebug() << Q_FUNC_INFO << this << name;
     if (supportsCodec(name))
-        d->m_format.codec = QTextCodec::codecForName(name);
+        d->m_format.setCodecName(name);
 }
 
 bool BaseTextDocument::supportsCodec(const QByteArray &) const
