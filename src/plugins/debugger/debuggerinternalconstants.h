@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <QtGlobal>
-
 namespace Debugger {
 
 namespace Constants {
@@ -60,11 +58,6 @@ const char CRT_DEBUG_REPORT[]                 = "CrtDbgReport";
 enum ModelRoles
 {
     DisplaySourceRole = 32,  // Qt::UserRole
-
-    EngineStateRole,
-    EngineActionsEnabledRole,
-    RequestActivationRole,
-    RequestContextMenuRole,
 
     // Locals and Watchers
     LocalsINameRole,
