@@ -1668,35 +1668,31 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
               }
     );
 
-    QList<Breakpoint> enabledBreakpoints;
-    QList<Breakpoint> disabledBreakpoints;
-    forItemsAtLevel<1>([&enabledBreakpoints, &disabledBreakpoints](Breakpoint bp) {
-        if (bp) {
-            if (bp->isEnabled())
-                enabledBreakpoints.append(bp);
-            else
-                disabledBreakpoints.append(bp);
-         }
+    bool canDisableAll = false;
+    bool canEnableAll = false;
+    forItemsAtLevel<1>([&canDisableAll, &canEnableAll](Breakpoint bp) {
+        if (bp)
+           (bp->isEnabled() ? canDisableAll : canEnableAll) = true;
     });
 
-    addAction(this, menu, Tr::tr("Disable All Breakpoints"),
-              !enabledBreakpoints.isEmpty(),
-              [this, enabledBreakpoints] {
-        for (Breakpoint bp : enabledBreakpoints) {
-            if (GlobalBreakpoint gbp = bp->globalBreakpoint())
-                gbp->setEnabled(false, false);
-            requestBreakpointEnabling(bp, false);
-        }
+    addAction(this, menu, Tr::tr("Disable All Breakpoints"), canDisableAll, [this] {
+        forItemsAtLevel<1>([this](Breakpoint bp) {
+            if (bp && bp->isEnabled()) {
+                if (GlobalBreakpoint gbp = bp->globalBreakpoint())
+                    gbp->setEnabled(false, false);
+                requestBreakpointEnabling(bp, false);
+            }
+        });
     });
 
-    addAction(this, menu, Tr::tr("Enable All Breakpoints"),
-              !disabledBreakpoints.isEmpty(),
-              [this, disabledBreakpoints] {
-        for (Breakpoint bp : disabledBreakpoints) {
-            if (GlobalBreakpoint gbp = bp->globalBreakpoint())
-                gbp->setEnabled(true, false);
-            requestBreakpointEnabling(bp, true);
-        }
+    addAction(this, menu, Tr::tr("Enable All Breakpoints"), canEnableAll, [this] {
+        forItemsAtLevel<1>([this](Breakpoint bp) {
+            if (bp && !bp->isEnabled()) {
+                if (GlobalBreakpoint gbp = bp->globalBreakpoint())
+                    gbp->setEnabled(true, false);
+                requestBreakpointEnabling(bp, true);
+            }
+        });
     });
 
     addAction(this, menu,
