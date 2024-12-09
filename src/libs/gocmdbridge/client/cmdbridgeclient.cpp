@@ -292,6 +292,9 @@ expected_str<QFuture<Environment>> Client::start()
             d->process->setCommand({d->remoteCmdBridgePath, {}});
             d->process->setProcessMode(ProcessMode::Writer);
             d->process->setProcessChannelMode(QProcess::ProcessChannelMode::SeparateChannels);
+            // Make sure the process has a codec, otherwise it will try to ask us recursively
+            // and dead lock.
+            d->process->setUtf8Codec();
 
             connect(d->process, &Process::done, d->process, [this] {
                 if (d->process->resultData().m_exitCode != 0) {
