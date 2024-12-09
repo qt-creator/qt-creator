@@ -2,6 +2,8 @@ QtcPlugin {
     name: "RemoteLinux"
 
     Depends { name: "Qt.widgets" }
+
+    Depends { name: "CmdBridgeClient" }
     Depends { name: "QmlDebug" }
     Depends { name: "Utils" }
 

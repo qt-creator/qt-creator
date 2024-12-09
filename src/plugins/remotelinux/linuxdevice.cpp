@@ -16,6 +16,9 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
+#include <gocmdbridge/client/bridgedfileaccess.h>
+#include <gocmdbridge/client/cmdbridgeclient.h>
+
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/processlist.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
@@ -338,9 +341,11 @@ public:
     void invalidateEnvironmentCache();
 
     LinuxDevice *q = nullptr;
-    LinuxDeviceAccess m_scriptAccess;
-    UnavailableDeviceFileAccess m_disconnectedAccess;
+
     BoolAspect m_disconnected;
+    UnavailableDeviceFileAccess m_disconnectedAccess;
+    LinuxDeviceAccess m_scriptAccess;
+    CmdBridge::FileAccess m_cmdBridgeAccess;
 
     QReadWriteLock m_environmentCacheLock;
     std::optional<Environment> m_environmentCache;
@@ -1166,14 +1171,25 @@ Result LinuxDevicePrivate::setupShell(const SshParameters &sshParameters, bool a
     if (announce)
         unannounceConnectionAttempt();
 
-    if (result) {
-        setupConnectedAccess();
-        setOsTypeFromUnameResult(m_scriptAccess.m_handler->runInShell(unameCommand()));
-    } else {
+    if (!result) {
         setupDisconnectedAccess();
+        return result;
     }
 
-    return result;
+    setupConnectedAccess();
+    setOsTypeFromUnameResult(m_scriptAccess.m_handler->runInShell(unameCommand()));
+
+    // We have good shell access now, try to get bridge access, too:
+    Result initResult = m_cmdBridgeAccess.deployAndInit(Core::ICore::libexecPath(), q->rootPath());
+    if (initResult) {
+        qCDebug(linuxDeviceLog) << "Bridge ok to use";
+        q->setFileAccess(&m_cmdBridgeAccess);
+    } else {
+        qCDebug(linuxDeviceLog) << "Failed to start CmdBridge:" << initResult.error()
+                                  << ", falling back to slow shell access";
+    }
+
+    return Result::Ok; // Both are fine.
 }
 
 RunResult LinuxDevicePrivate::runInShell(const CommandLine &cmd, const QByteArray &data)
