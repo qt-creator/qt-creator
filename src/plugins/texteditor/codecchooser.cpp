@@ -42,7 +42,7 @@ CodecChooser::CodecChooser(Filter filter)
         }
     }
     connect(this, &QComboBox::currentIndexChanged,
-            this, [this](int index) { emit codecChanged(m_codecs.at(index)); });
+            this, [this](int index) { emit codecChanged(codecAt(index)); });
 }
 
 void CodecChooser::prependNone()
@@ -51,16 +51,16 @@ void CodecChooser::prependNone()
     m_codecs.prepend(nullptr);
 }
 
-QTextCodec *CodecChooser::currentCodec() const
+QByteArray CodecChooser::currentCodec() const
 {
     return codecAt(currentIndex());
 }
 
-QTextCodec *CodecChooser::codecAt(int index) const
+QByteArray CodecChooser::codecAt(int index) const
 {
     if (index < 0)
         index = 0;
-    return m_codecs[index];
+    return m_codecs[index] ? m_codecs[index]->name() : QByteArray();
 }
 
 void CodecChooser::setAssignedCodec(QTextCodec *codec, const QString &name)

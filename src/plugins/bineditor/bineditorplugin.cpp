@@ -247,7 +247,7 @@ public:
     void copy(bool raw = false);
     void setMarkup(const QList<Markup> &markup);
     void setNewWindowRequestAllowed(bool c) { m_canRequestNewWindow = c; }
-    void setCodec(QTextCodec *codec);
+    void setCodec(const QByteArray &codec);
     QByteArray toByteArray(const QString &s) const;
 
     void clearMarkup() { m_markup.clear(); }
@@ -392,7 +392,7 @@ BinEditorWidget::BinEditorWidget(const std::shared_ptr<BinEditorDocument> &doc)
 
     const QByteArray setting = ICore::settings()->value(C_ENCODING_SETTING).toByteArray();
     if (!setting.isEmpty())
-        setCodec(QTextCodec::codecForName(setting));
+        setCodec(setting);
 
     m_addressEdit = new QLineEdit;
     auto addressValidator = new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-F]{1,16}"), m_addressEdit);
@@ -1888,12 +1888,13 @@ void BinEditorWidget::jumpToAddress(quint64 address)
         m_doc->requestNewRange(address);
 }
 
-void BinEditorWidget::setCodec(QTextCodec *codec)
+void BinEditorWidget::setCodec(const QByteArray &codecName)
 {
+    QTextCodec *codec = QTextCodec::codecForName(codecName);
     if (codec == m_codec)
         return;
     m_codec = codec;
-    ICore::settings()->setValue(C_ENCODING_SETTING, codec ? codec->name() : QByteArray());
+    ICore::settings()->setValue(C_ENCODING_SETTING, codecName);
     viewport()->update();
 }
 

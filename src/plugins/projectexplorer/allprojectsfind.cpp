@@ -17,6 +17,7 @@
 #include <utils/qtcsettings.h>
 
 #include <QGridLayout>
+#include <QTextCodec>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -62,14 +63,14 @@ FileContainer AllProjectsFind::filesForProjects(const QStringList &nameFilters,
     QMap<FilePath, QTextCodec *> encodings;
     for (const Project *project : projects) {
         const EditorConfiguration *config = project->editorConfiguration();
-        QTextCodec *projectCodec = config->useGlobalSettings()
-            ? Core::EditorManager::defaultTextCodec()
+        QByteArray projectCodec = config->useGlobalSettings()
+            ? Core::EditorManager::defaultTextCodecName()
             : config->textCodec();
         const FilePaths filteredFiles = filterFiles(project->files(Project::SourceFiles));
         for (const FilePath &fileName : filteredFiles) {
             QTextCodec *codec = openEditorEncodings.value(fileName);
             if (!codec)
-                codec = projectCodec;
+                codec = QTextCodec::codecForName(projectCodec);
             encodings.insert(fileName, codec);
         }
     }

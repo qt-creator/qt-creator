@@ -3821,6 +3821,12 @@ QTextCodec *EditorManager::defaultTextCodec()
     return QTextCodec::codecForLocale();
 }
 
+QByteArray EditorManager::defaultTextCodecName()
+{
+    QTextCodec *codec = defaultTextCodec();
+    return codec ? codec->name() : QByteArray();
+}
+
 /*!
     Returns the default line ending as the user specified in the settings.
 */

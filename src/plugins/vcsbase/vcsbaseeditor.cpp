@@ -1260,7 +1260,7 @@ static QTextCodec *findProjectCodec(const FilePath &dirPath)
     const auto projects = ProjectExplorer::ProjectManager::projects();
     const auto *p
         = findOrDefault(projects, equal(&ProjectExplorer::Project::projectDirectory, dirPath));
-    return p ? p->editorConfiguration()->textCodec() : nullptr;
+    return p ? QTextCodec::codecForName(p->editorConfiguration()->textCodec()) : nullptr;
 }
 
 QTextCodec *VcsBaseEditor::getCodec(const FilePath &source)

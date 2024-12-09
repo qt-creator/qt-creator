@@ -7,10 +7,6 @@
 
 #include <QWidget>
 
-QT_BEGIN_NAMESPACE
-class QTextCodec;
-QT_END_NAMESPACE
-
 namespace TextEditor {
 
 class ICodeStylePreferences;
@@ -32,7 +28,7 @@ public:
 
     void setActive(bool active);
 
-    void setAssignedCodec(QTextCodec *codec);
+    void setAssignedCodec(const QByteArray &codec);
     QByteArray assignedCodecName() const;
 
     void setCodeStyle(ICodeStylePreferences *preferences);
@@ -59,7 +55,7 @@ signals:
     void storageSettingsChanged(const TextEditor::StorageSettings &settings);
     void behaviorSettingsChanged(const TextEditor::BehaviorSettings &settings);
     void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &settings);
-    void textCodecChanged(QTextCodec *codec);
+    void textCodecChanged(const QByteArray &codec);
 
 private:
     void slotTypingSettingsChanged();

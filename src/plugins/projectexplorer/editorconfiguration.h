@@ -12,10 +12,6 @@
 
 #include <memory>
 
-QT_BEGIN_NAMESPACE
-class QTextCodec;
-QT_END_NAMESPACE
-
 namespace TextEditor {
 class BaseTextEditor;
 class TextEditorWidget;
@@ -50,7 +46,7 @@ public:
     void cloneGlobalSettings();
 
     // The default codec is returned in the case the project doesn't override it.
-    QTextCodec *textCodec() const;
+    QByteArray textCodec() const;
 
     const TextEditor::TypingSettings &typingSettings() const;
     const TextEditor::StorageSettings &storageSettings() const;
@@ -79,7 +75,7 @@ public:
     void setUseIndenter(bool onoff);
     void setWrapColumn(int column);
 
-    void setTextCodec(QTextCodec *textCodec);
+    void setTextCodec(const QByteArray &textCodec);
 
     void slotAboutToRemoveProject(ProjectExplorer::Project *project);
 
