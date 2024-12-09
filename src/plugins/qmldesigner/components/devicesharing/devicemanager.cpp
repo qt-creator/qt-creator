@@ -282,14 +282,10 @@ QSharedPointer<Device> DeviceManager::initDevice(const DeviceInfo &deviceInfo,
                                                            &QObject::deleteLater);
     connect(device.data(), &Device::deviceInfoReady, this, &DeviceManager::deviceInfoReceived);
     connect(device.data(), &Device::disconnected, this, &DeviceManager::deviceDisconnected);
-    connect(device.data(), &Device::projectStarted, this, [this](const QString deviceId) {
-        qCDebug(deviceSharePluginLog) << "Project started on device" << deviceId;
-        emit projectStarted(deviceId);
-    });
-    connect(device.data(), &Device::projectStopped, this, [this](const QString deviceId) {
-        qCDebug(deviceSharePluginLog) << "Project stopped on device" << deviceId;
-        emit projectStopped(deviceId);
-    });
+    connect(device.data(), &Device::projectSendingProgress, this, &DeviceManager::projectSendingProgress);
+    connect(device.data(), &Device::projectStarted, this, &DeviceManager::projectStarted);
+    connect(device.data(), &Device::projectStopped, this, &DeviceManager::projectStopped);
+
     connect(device.data(),
             &Device::projectLogsReceived,
             this,
@@ -369,8 +365,6 @@ bool DeviceManager::sendProjectFile(const QString &deviceId, const QString &proj
     auto device = findDevice(deviceId);
     if (!device)
         return false;
-
-    device->sendProjectNotification();
 
     QFile file(projectFile);
     if (!file.open(QIODevice::ReadOnly)) {

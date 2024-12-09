@@ -27,7 +27,6 @@ public:
 
     // device communication
     bool sendDesignStudioReady(const QString &uuid);
-    bool sendProjectNotification();
     bool sendProjectData(const QByteArray &data);
     bool sendProjectStopped();
 
@@ -49,11 +48,15 @@ private:
     QTimer m_pingTimer;
     QTimer m_pongTimer;
 
+    int m_lastProjectSize;
+    int m_lastProjectSentSize;
+
     static constexpr int m_reconnectTimeout = 5000;
-    static constexpr int m_pingTimeout = 1000;
+    static constexpr int m_pingTimeout = 10000;
     static constexpr int m_pongTimeout = 30000;
 
     void initPingPong();
+    bool sendProjectNotification(const int &projectSize);
     bool sendTextMessage(const QLatin1String &dataType, const QJsonValue &data = QJsonValue());
     bool sendBinaryMessage(const QByteArray &data);
 
@@ -61,6 +64,7 @@ signals:
     void connected(const QString &deviceId);
     void disconnected(const QString &deviceId);
     void deviceInfoReady(const QString &deviceIp, const QString &deviceId);
+    void projectSendingProgress(const QString &deviceId, const int progress);
     void projectStarted(const QString &deviceId);
     void projectStopped(const QString &deviceId);
     void projectLogsReceived(const QString &deviceId, const QString &logs);

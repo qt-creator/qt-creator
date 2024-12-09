@@ -5,6 +5,7 @@
 
 #include <QJsonDocument>
 #include <QLatin1String>
+#include <QThreadPool>
 
 namespace QmlDesigner::DeviceShare {
 
@@ -34,6 +35,7 @@ Device::Device(const DeviceInfo &deviceInfo, const DeviceSettings &deviceSetting
     qCDebug(deviceSharePluginLog) << "initial device info:" << m_deviceInfo;
 
     m_socket.reset(new QWebSocket());
+    m_socket->setOutgoingFrameSize(128000);
     connect(m_socket.data(), &QWebSocket::textMessageReceived, this, &Device::processTextMessage);
     connect(m_socket.data(), &QWebSocket::disconnected, this, [this]() {
         m_reconnectTimer.start();
@@ -51,6 +53,20 @@ Device::Device(const DeviceInfo &deviceInfo, const DeviceSettings &deviceSetting
         m_pingTimer.start();
         sendDesignStudioReady(m_deviceSettings.deviceId());
         emit connected(m_deviceSettings.deviceId());
+    });
+
+    connect(m_socket.data(), &QWebSocket::bytesWritten, this, [this](qint64 bytes) {
+        if (m_lastProjectSize == 0)
+            return;
+
+        m_lastProjectSentSize += bytes;
+        const float percentage = ((float) m_lastProjectSentSize * 100.0) / (float) m_lastProjectSize;
+
+        if (percentage != 100.0)
+            emit projectSendingProgress(m_deviceSettings.deviceId(), percentage);
+
+        if (m_lastProjectSentSize >= m_lastProjectSize)
+            m_lastProjectSize = 0;
     });
 
     m_reconnectTimer.setSingleShot(true);
@@ -94,6 +110,7 @@ void Device::initPingPong()
         qCWarning(deviceSharePluginLog)
             << "Device" << m_deviceSettings.deviceId() << "is not responding. Closing connection.";
         m_socket->close();
+        m_socket->abort();
     });
 }
 
@@ -134,9 +151,9 @@ bool Device::sendDesignStudioReady(const QString &uuid)
     return sendTextMessage(PackageToDevice::designStudioReady, uuid);
 }
 
-bool Device::sendProjectNotification()
+bool Device::sendProjectNotification(const int &projectSize)
 {
-    return sendTextMessage(PackageToDevice::projectData);
+    return sendTextMessage(PackageToDevice::projectData, projectSize);
 }
 
 bool Device::sendProjectData(const QByteArray &data)
@@ -174,6 +191,9 @@ bool Device::sendBinaryMessage(const QByteArray &data)
     if (!isConnected())
         return false;
 
+    m_lastProjectSize = data.size();
+    m_lastProjectSentSize = 0;
+    sendProjectNotification(m_lastProjectSize);
     m_socket->sendBinaryMessage(data);
     return true;
 }
@@ -195,8 +215,10 @@ void Device::processTextMessage(const QString &data)
         m_deviceInfo.setJsonObject(deviceInfo);
         emit deviceInfoReady(m_deviceSettings.ipAddress(), m_deviceSettings.deviceId());
     } else if (dataType == PackageFromDevice::projectRunning) {
+        qCDebug(deviceSharePluginLog) << "Project started on device" << m_deviceSettings.deviceId();
         emit projectStarted(m_deviceSettings.deviceId());
     } else if (dataType == PackageFromDevice::projectStopped) {
+        qCDebug(deviceSharePluginLog) << "Project stopped on device" << m_deviceSettings.deviceId();
         emit projectStopped(m_deviceSettings.deviceId());
     } else if (dataType == PackageFromDevice::projectLogs) {
         emit projectLogsReceived(m_deviceSettings.deviceId(), jsonObj.value("data").toString());

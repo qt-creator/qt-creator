@@ -77,6 +77,7 @@ signals:
     void deviceActivated(const QString &deviceId);
     void deviceDeactivated(const QString &deviceId);
     void deviceAliasChanged(const QString &deviceId);
+    void projectSendingProgress(const QString &deviceId, const int percentage);
     void projectStarted(const QString &deviceId);
     void projectStopped(const QString &deviceId);
     void projectLogsReceived(const QString &deviceId, const QString &logs);
