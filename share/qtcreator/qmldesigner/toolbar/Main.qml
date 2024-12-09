@@ -481,12 +481,14 @@ Rectangle {
                                         shareNotification.setText(qsTr("Packing"))
                                         shareNotification.visible = true
 
-                                        shareMenuItem.enabled = true
+                                        shareMenuItem.enabled = false
                                     }
 
                                     function onProjectPackingFailed(errorString: string) {
                                         shareNotification.type = ShareNotification.NotificationType.Error
                                         shareNotification.setHelperText(qsTr("Packing failed."))
+
+                                        shareMenuItem.enabled = true
                                     }
 
                                     function onProjectIsUploading() {
