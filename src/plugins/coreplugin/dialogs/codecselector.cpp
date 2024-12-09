@@ -16,6 +16,7 @@
 #include <QLabel>
 #include <QListWidget>
 #include <QPushButton>
+#include <QTextCodec>
 #include <QScrollBar>
 #include <QVBoxLayout>
 
@@ -28,7 +29,7 @@ public:
     CodecSelector(QWidget *parent, Core::BaseTextDocument *doc);
     ~CodecSelector() override;
 
-    QTextCodec *selectedCodec() const;
+    QByteArray selectedCodec() const;
 
 private:
     void updateButtons();
@@ -142,17 +143,17 @@ void CodecSelector::updateButtons()
     m_saveButton->setEnabled(!m_hasDecodingError && hasCodec);
 }
 
-QTextCodec *CodecSelector::selectedCodec() const
+QByteArray CodecSelector::selectedCodec() const
 {
     if (QListWidgetItem *item = m_listWidget->currentItem()) {
         if (!item->isSelected())
-            return nullptr;
+            return {};
         QString codecName = item->text();
         if (codecName.contains(QLatin1String(" / ")))
             codecName = codecName.left(codecName.indexOf(QLatin1String(" / ")));
-        return QTextCodec::codecForName(codecName.toLatin1());
+        return codecName.toLatin1();
     }
-    return nullptr;
+    return {};
 }
 
 void CodecSelector::buttonClicked(QAbstractButton *button)

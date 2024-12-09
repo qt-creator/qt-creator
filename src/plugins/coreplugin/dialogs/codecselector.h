@@ -5,7 +5,6 @@
 
 #include "../core_global.h"
 
-#include <QTextCodec>
 #include <QWidget>
 
 namespace Core {
@@ -18,7 +17,7 @@ struct CORE_EXPORT CodecSelectorResult
 {
     enum Action { Cancel, Reload, Save };
     Action action;
-    QTextCodec *codec;
+    QByteArray codec;
 };
 
 CORE_EXPORT CodecSelectorResult askForCodec(QWidget *parent, Core::BaseTextDocument *doc);

@@ -823,9 +823,9 @@ Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString,
     return OpenResult::Success;
 }
 
-Result TextDocument::reload(QTextCodec *codec)
+Result TextDocument::reload(const QByteArray &codec)
 {
-    QTC_ASSERT(codec, return Result::Error("No codec given"));
+    QTC_ASSERT(!codec.isEmpty(), return Result::Error("No codec given"));
     setCodec(codec);
     return reload();
 }
