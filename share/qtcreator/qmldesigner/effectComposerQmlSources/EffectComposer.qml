@@ -217,7 +217,7 @@ Item {
             EffectComposerPreview {
                 mainRoot: root
 
-                SplitView.minimumWidth: 250
+                SplitView.minimumWidth: 300
                 SplitView.minimumHeight: 200
                 SplitView.preferredWidth: 300
                 SplitView.preferredHeight: 300
@@ -234,7 +234,7 @@ Item {
             Column {
                 spacing: 1
 
-                SplitView.minimumWidth: 250
+                SplitView.minimumWidth: 400
                 SplitView.minimumHeight: 100
 
                 Component.onCompleted: HelperWidgets.Controller.mainScrollView = scrollView

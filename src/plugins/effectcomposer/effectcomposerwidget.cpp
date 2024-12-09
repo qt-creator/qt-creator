@@ -77,7 +77,7 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
     , m_quickWidget{new StudioQuickWidget(this)}
 {
     setWindowTitle(tr("Effect Composer", "Title of effect composer widget"));
-    setMinimumWidth(250);
+    setMinimumWidth(400);
 
     // create the inner widget
     m_quickWidget->quickWidget()->setObjectName(QmlDesigner::Constants::OBJECT_NAME_EFFECT_COMPOSER);
