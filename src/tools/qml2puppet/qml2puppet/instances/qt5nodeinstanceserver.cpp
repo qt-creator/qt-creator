@@ -160,6 +160,7 @@ void Qt5NodeInstanceServer::setupScene(const CreateSceneCommand &command)
         QString fileId = command.fileUrl.toLocalFile();
         fileId.remove(':');
         fileId.remove('/');
+        fileId.append(QT_VERSION_STR);
         fileId.remove('.');
         m_pipelineCacheFile = QStringLiteral("%1/%2").arg(m_pipelineCacheLocation, fileId);
 
