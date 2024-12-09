@@ -13,7 +13,6 @@
 
 #include <QFileInfo>
 #include <QGuiApplication>
-#include <QTextCodec>
 #include <QTextDocument>
 
 using namespace Utils;
@@ -29,7 +28,7 @@ ScxmlEditorDocument::ScxmlEditorDocument(MainWidget *designWidget, QObject *pare
     setId(Utils::Id(ScxmlEditor::Constants::K_SCXML_EDITOR_ID));
 
     // Designer needs UTF-8 regardless of settings.
-    setCodec(QTextCodec::codecForName("UTF-8"));
+    setCodec("UTF-8");
     connect(m_designWidget.data(), &Common::MainWidget::dirtyChanged, this, [this]{
         emit changed();
     });
@@ -124,9 +123,9 @@ Result ScxmlEditorDocument::reload(ReloadFlag flag, ChangeType type)
     return Result(success, errorString);
 }
 
-bool ScxmlEditorDocument::supportsCodec(const QTextCodec *codec) const
+bool ScxmlEditorDocument::supportsCodec(const QByteArray &codec) const
 {
-    return codec == QTextCodec::codecForName("UTF-8");
+    return TextEditor::TextDocument::isUtf8Codec(codec);
 }
 
 QString ScxmlEditorDocument::designWidgetContents() const

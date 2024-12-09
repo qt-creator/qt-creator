@@ -25,7 +25,7 @@ public:
     QmlJSEditorDocument(Utils::Id id);
     ~QmlJSEditorDocument() override;
 
-    bool supportsCodec(const QTextCodec *codec) const override;
+    bool supportsCodec(const QByteArray &codec) const override;
 
     const QmlJSTools::SemanticInfo &semanticInfo() const;
     bool isSemanticInfoOutdated() const;

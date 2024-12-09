@@ -35,7 +35,7 @@ public:
     bool isSaveAsAllowed() const override;
     Utils::Result reload(ReloadFlag flag, ChangeType type) override;
     QString fallbackSaveAsFileName() const override;
-    bool supportsCodec(const QTextCodec *codec) const override;
+    bool supportsCodec(const QByteArray &codec) const override;
 
     // Internal
     void setFallbackSaveAsFileName(const QString &fileName);

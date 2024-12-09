@@ -91,7 +91,7 @@ CodecSelector::CodecSelector(QWidget *parent, Core::BaseTextDocument *doc)
     int currentIndex = -1;
     for (const int mib : std::as_const(sortedMibs)) {
         QTextCodec *c = QTextCodec::codecForMib(mib);
-        if (!doc->supportsCodec(c))
+        if (!doc->supportsCodec(c ? c->name() : QByteArray()))
             continue;
         if (!buf.isEmpty()) {
 

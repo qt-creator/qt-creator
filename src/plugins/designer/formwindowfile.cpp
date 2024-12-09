@@ -12,14 +12,12 @@
 
 #include <QApplication>
 #include <QBuffer>
+#include <QDebug>
 #include <QDesignerFormWindowInterface>
 #include <QDesignerFormWindowManagerInterface>
 #include <QDesignerFormEditorInterface>
 #include <QTextDocument>
 #include <QUndoStack>
-#include <QFileInfo>
-#include <QDebug>
-#include <QTextCodec>
 
 using namespace Utils;
 
@@ -33,7 +31,7 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
     setParent(parent);
     setId(Utils::Id(Designer::Constants::K_DESIGNER_XML_EDITOR_ID));
     // Designer needs UTF-8 regardless of settings.
-    setCodec(QTextCodec::codecForName("UTF-8"));
+    setCodec("UTF-8");
     connect(m_formWindow->core()->formWindowManager(), &QDesignerFormWindowManagerInterface::formWindowRemoved,
             this, &FormWindowFile::slotFormWindowRemoved);
     connect(m_formWindow->commandHistory(), &QUndoStack::indexChanged,
@@ -224,9 +222,9 @@ QString FormWindowFile::fallbackSaveAsFileName() const
     return m_suggestedName;
 }
 
-bool FormWindowFile::supportsCodec(const QTextCodec *codec) const
+bool FormWindowFile::supportsCodec(const QByteArray &codec) const
 {
-    return codec == QTextCodec::codecForName("UTF-8");
+    return TextEditor::TextDocument::isUtf8Codec(codec);
 }
 
 bool FormWindowFile::writeFile(const Utils::FilePath &filePath, QString *errorString) const

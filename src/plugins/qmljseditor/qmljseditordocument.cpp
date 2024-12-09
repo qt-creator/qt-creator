@@ -30,7 +30,6 @@
 
 #include <QDebug>
 #include <QLoggingCategory>
-#include <QTextCodec>
 
 const char QML_UI_FILE_WARNING[] = "QmlJSEditor.QmlUiFileWarning";
 
@@ -739,13 +738,13 @@ QmlJSEditorDocument::QmlJSEditorDocument(Utils::Id id)
     connect(this, &TextEditor::TextDocument::tabSettingsChanged,
             d, &Internal::QmlJSEditorDocumentPrivate::invalidateFormatterCache);
     resetSyntaxHighlighter([] { return new QmlJSHighlighter(); });
-    setCodec(QTextCodec::codecForName("UTF-8")); // qml files are defined to be utf-8
+    setCodec("UTF-8"); // qml files are defined to be utf-8
     setIndenter(createQmlJsIndenter(document()));
 }
 
-bool QmlJSEditorDocument::supportsCodec(const QTextCodec *codec) const
+bool QmlJSEditorDocument::supportsCodec(const QByteArray &codec) const
 {
-    return codec == QTextCodec::codecForName("UTF-8");
+    return TextEditor::TextDocument::isUtf8Codec(codec);
 }
 
 QmlJSEditorDocument::~QmlJSEditorDocument()

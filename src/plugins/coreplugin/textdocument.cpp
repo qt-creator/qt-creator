@@ -107,6 +107,18 @@ void BaseTextDocument::setLineTerminationMode(Utils::TextFileFormat::LineTermina
     d->m_format.lineTerminationMode = mode;
 }
 
+bool BaseTextDocument::isUtf8Codec(const QByteArray &name)
+{
+    static const auto utf8Codecs = []() -> QList<QByteArray> {
+        QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+        if (QTC_GUARD(codec))
+            return QList<QByteArray>{codec->name()} + codec->aliases();
+        return {"UTF-8"};
+    }();
+
+    return utf8Codecs.contains(name);
+}
+
 /*!
     Autodetects file format and reads the text file specified by \a filePath
     into a list of strings specified by \a plainTextList.
@@ -162,11 +174,19 @@ void BaseTextDocument::setCodec(const QTextCodec *codec)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << this << (codec ? codec->name() : QByteArray());
-    if (supportsCodec(codec))
+    if (supportsCodec(codec ? codec->name() : QByteArray()))
         d->m_format.codec = codec;
 }
 
-bool BaseTextDocument::supportsCodec(const QTextCodec *) const
+void BaseTextDocument::setCodec(const QByteArray &name)
+{
+    if (debug)
+        qDebug() << Q_FUNC_INFO << this << name;
+    if (supportsCodec(name))
+        d->m_format.codec = QTextCodec::codecForName(name);
+}
+
+bool BaseTextDocument::supportsCodec(const QByteArray &) const
 {
     return true;
 }

@@ -34,7 +34,7 @@ public:
     bool isSaveAsAllowed() const override;
     bool isModified() const override;
     Utils::Result reload(ReloadFlag flag, ChangeType type) override;
-    bool supportsCodec(const QTextCodec *codec) const override;
+    bool supportsCodec(const QByteArray &codec) const override;
 
     // Internal
     Common::MainWidget *designWidget() const;
