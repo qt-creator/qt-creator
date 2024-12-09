@@ -10,23 +10,10 @@
 namespace Utils {
 namespace Internal {
 
-bool currentAppearanceMatches(bool dark)
-{
-    auto appearance = [NSApp.effectiveAppearance
-        bestMatchFromAppearancesWithNames:@[NSAppearanceNameAqua, NSAppearanceNameDarkAqua]];
-    return
-        [appearance isEqualToString:(dark ? NSAppearanceNameDarkAqua : NSAppearanceNameAqua)];
-}
-
 void forceMacAppearance(bool dark)
 {
     NSApp.appearance = [NSAppearance
         appearanceNamed:(dark ? NSAppearanceNameDarkAqua : NSAppearanceNameAqua)];
-}
-
-bool currentAppearanceIsDark()
-{
-    return currentAppearanceMatches(true);
 }
 
 void setMacOSHelpMenu(QMenu *menu)

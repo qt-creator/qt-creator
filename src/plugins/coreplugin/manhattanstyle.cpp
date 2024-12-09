@@ -115,7 +115,7 @@ bool lightColored(const QWidget *widget)
 
 static bool isDarkFusionStyle(const QStyle *style)
 {
-    return creatorTheme()->flag(Theme::DarkUserInterface)
+    return creatorTheme()->colorScheme() == Qt::ColorScheme::Dark
             && strcmp(style->metaObject()->className(), "QFusionStyle") == 0;
 }
 

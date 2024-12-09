@@ -13,7 +13,6 @@ namespace Utils {
 namespace Internal {
 
 void forceMacAppearance(bool dark);
-bool currentAppearanceIsDark();
 void setMacOSHelpMenu(QMenu *menu);
 
 } // Internal

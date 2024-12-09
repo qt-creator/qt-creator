@@ -125,8 +125,14 @@ ThemeChooser::~ThemeChooser()
 
 static QString defaultThemeId()
 {
-    return Theme::systemUsesDarkMode() ? QString(Constants::DEFAULT_DARK_THEME)
-                                       : QString(Constants::DEFAULT_THEME);
+    switch (Theme::systemColorScheme()) {
+    case Qt::ColorScheme::Light:
+        return QString("flat");
+    case Qt::ColorScheme::Dark:
+        return QString("flat-dark");
+    default:
+        return QString("flat");
+    }
 }
 
 void ThemeChooser::apply()

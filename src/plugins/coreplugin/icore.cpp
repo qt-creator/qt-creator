@@ -1009,6 +1009,10 @@ QString uiConfigInformation()
     info.append(QString("Color: %1\n").arg(StyleHelper::requestedBaseColor().name()));
     info.append(QString("Theme: %1 \"%2\"\n").arg(creatorTheme()->id())
                            .arg(creatorTheme()->displayName()));
+    info.append(QString("Theme color scheme: Qt::ColorScheme::%1\n")
+                .arg(QVariant::fromValue(creatorTheme()->colorScheme()).toString()));
+    info.append(QString("System color scheme: Qt::ColorScheme::%1\n")
+                .arg(QVariant::fromValue(Theme::systemColorScheme()).toString()));
     const QString toolbarStyle =
         StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyle::Compact ? "Compact" : "Relaxed";
     info.append(QString("Toolbar style: Utils::StyleHelper::ToolbarStyle%1\n").arg(toolbarStyle));
