@@ -164,7 +164,10 @@ void KitAspect::refresh()
         la.spec.resetModel();
         la.comboBox->model()->sort(0);
         const QVariant itemId = la.spec.getter(*kit());
-        la.comboBox->setCurrentIndex(la.comboBox->findData(itemId, IdRole));
+        int idx = la.comboBox->findData(itemId, IdRole);
+        if (idx == -1)
+            idx = la.comboBox->count() - 1;
+        la.comboBox->setCurrentIndex(idx);
         la.comboBox->setEnabled(!d->readOnly && la.comboBox->count() > 1);
     }
 }

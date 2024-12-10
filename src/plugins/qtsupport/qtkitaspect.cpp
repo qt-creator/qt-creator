@@ -49,16 +49,15 @@ public:
     {
         clear();
 
-        const IDevice::ConstPtr device = BuildDeviceKitAspect::device(&m_kit);
-        if (!device)
-            return;
-        const FilePath deviceRoot = device->rootPath();
-        const QtVersions versionsForBuildDevice = QtVersionManager::versions(
-            [&deviceRoot](const QtVersion *qt) {
-                return qt->qmakeFilePath().isSameDevice(deviceRoot);
-            });
-        for (QtVersion *v : versionsForBuildDevice)
-            rootItem()->appendChild(new QtVersionItem(v->uniqueId()));
+        if (const IDevice::ConstPtr device = BuildDeviceKitAspect::device(&m_kit)) {
+            const FilePath deviceRoot = device->rootPath();
+            const QtVersions versionsForBuildDevice = QtVersionManager::versions(
+                [&deviceRoot](const QtVersion *qt) {
+                    return qt->qmakeFilePath().isSameDevice(deviceRoot);
+                });
+            for (QtVersion *v : versionsForBuildDevice)
+                rootItem()->appendChild(new QtVersionItem(v->uniqueId()));
+        }
         rootItem()->appendChild(new QtVersionItem(-1)); // The "No Qt" entry.
     }
 

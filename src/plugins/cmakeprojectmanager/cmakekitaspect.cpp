@@ -80,16 +80,15 @@ public:
     {
         clear();
 
-        const IDevice::ConstPtr dev = BuildDeviceKitAspect::device(&m_kit);
-        if (!dev)
-            return;
-        const FilePath rootPath = dev->rootPath();
-        const QList<CMakeTool *> toolsForBuildDevice
-            = Utils::filtered(CMakeToolManager::cmakeTools(), [rootPath](CMakeTool *item) {
-                  return item->cmakeExecutable().isSameDevice(rootPath);
-              });
-        for (CMakeTool *item : toolsForBuildDevice)
-            rootItem()->appendChild(new CMakeToolTreeItem(item, false));
+        if (const IDevice::ConstPtr dev = BuildDeviceKitAspect::device(&m_kit)) {
+            const FilePath rootPath = dev->rootPath();
+            const QList<CMakeTool *> toolsForBuildDevice
+                = Utils::filtered(CMakeToolManager::cmakeTools(), [rootPath](CMakeTool *item) {
+                      return item->cmakeExecutable().isSameDevice(rootPath);
+                  });
+            for (CMakeTool *item : toolsForBuildDevice)
+                rootItem()->appendChild(new CMakeToolTreeItem(item, false));
+        }
         rootItem()->appendChild(new CMakeToolTreeItem); // The "none" item.
     }
 

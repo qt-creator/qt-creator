@@ -40,20 +40,18 @@ public:
     {
         clear();
 
-        const Toolchains ltcList = ToolchainManager::toolchains(
-            [this](const Toolchain *tc) { return m_category.contains(tc->language()); });
-        IDeviceConstPtr device = BuildDeviceKitAspect::device(&m_kit);
-        if (!device)
-            return;
-
-        const QList<Toolchain *> toolchainsForBuildDevice
-            = Utils::filtered(ltcList, [device](Toolchain *tc) {
-                  return tc->compilerCommand().isSameDevice(device->rootPath());
-              });
-        const QList<ToolchainBundle> bundlesForBuildDevice = ToolchainBundle::collectBundles(
-            toolchainsForBuildDevice, ToolchainBundle::HandleMissing::CreateAndRegister);
-        for (const ToolchainBundle &b : bundlesForBuildDevice)
-            rootItem()->appendChild(new ToolchainTreeItem(b));
+        if (const IDeviceConstPtr device = BuildDeviceKitAspect::device(&m_kit)) {
+            const Toolchains ltcList = ToolchainManager::toolchains(
+                [this](const Toolchain *tc) { return m_category.contains(tc->language()); });
+            const Toolchains toolchainsForBuildDevice
+                = Utils::filtered(ltcList, [device](Toolchain *tc) {
+                      return tc->compilerCommand().isSameDevice(device->rootPath());
+                  });
+            const QList<ToolchainBundle> bundlesForBuildDevice = ToolchainBundle::collectBundles(
+                toolchainsForBuildDevice, ToolchainBundle::HandleMissing::CreateAndRegister);
+            for (const ToolchainBundle &b : bundlesForBuildDevice)
+                rootItem()->appendChild(new ToolchainTreeItem(b));
+        }
         rootItem()->appendChild(new ToolchainTreeItem);
     }
 

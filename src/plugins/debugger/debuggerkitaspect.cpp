@@ -48,18 +48,17 @@ public:
     {
         clear();
 
-        const IDeviceConstPtr device = BuildDeviceKitAspect::device(&m_kit);
-        if (!device)
-            return;
-        const Utils::FilePath rootPath = device->rootPath();
-        const QList<DebuggerItem> debuggersForBuildDevice
-            = Utils::filtered(DebuggerItemManager::debuggers(), [&](const DebuggerItem &item) {
-                  if (item.isGeneric())
-                      return device->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
-                  return item.command().isSameDevice(rootPath);
-              });
-        for (const DebuggerItem &item : debuggersForBuildDevice)
-            rootItem()->appendChild(new DebuggerTreeItem(item, false));
+        if (const IDeviceConstPtr device = BuildDeviceKitAspect::device(&m_kit)) {
+            const Utils::FilePath rootPath = device->rootPath();
+            const QList<DebuggerItem> debuggersForBuildDevice
+                = Utils::filtered(DebuggerItemManager::debuggers(), [&](const DebuggerItem &item) {
+                      if (item.isGeneric())
+                          return device->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
+                      return item.command().isSameDevice(rootPath);
+                  });
+            for (const DebuggerItem &item : debuggersForBuildDevice)
+                rootItem()->appendChild(new DebuggerTreeItem(item, false));
+        }
         DebuggerItem noneItem;
         noneItem.setUnexpandedDisplayName(Tr::tr("None"));
         rootItem()->appendChild(new DebuggerTreeItem(noneItem, false));
