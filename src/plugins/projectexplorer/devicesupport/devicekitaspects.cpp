@@ -99,9 +99,9 @@ private:
     {
         if (const QList<KitAspect *> embedded = aspectsToEmbed(); !embedded.isEmpty()) {
             Layouting::Layout box(new QHBoxLayout);
-            box.addItem(Tr::tr("Type:"));
+            box.addItem(createSubWidget<QLabel>(Tr::tr("Type:")));
             embedded.first()->addToInnerLayout(box);
-            box.addItem(Tr::tr("Device:"));
+            box.addItem(createSubWidget<QLabel>(Tr::tr("Device:")));
             KitAspect::addToInnerLayout(box);
             QSizePolicy p = comboBoxes().first()->sizePolicy();
             p.setHorizontalStretch(1);

@@ -95,7 +95,7 @@ private:
             QSizePolicy p = comboBoxes().first()->sizePolicy();
             p.setHorizontalStretch(2);
             comboBoxes().first()->setSizePolicy(p);
-            box.addItem(Tr::tr("Mkspec:"));
+            box.addItem(createSubWidget<QLabel>(Tr::tr("Mkspec:")));
             embedded.first()->addToInnerLayout(box);
             layout.addItem(box);
         } else {
