@@ -419,6 +419,14 @@ public:
     {
         setTitle(Tr::tr("Accept Terms and Conditions"));
 
+        const QLatin1String legal = QLatin1String(
+            "I confirm that I have reviewed and accept the terms and conditions "
+            "of this extension. I confirm that I have the authority and ability to "
+            "accept the terms and conditions of this extension for the customer. "
+            "I acknowledge that if the customer and the Qt Company already have a "
+            "valid agreement in place, that agreement shall apply, but these terms "
+            "shall govern the use of this extension.");
+
         using namespace Layouting;
         // clang-format off
         Column {
@@ -427,7 +435,7 @@ public:
                 bindTo(&m_terms),
                 readOnly(true),
             }, br,
-            m_accept = new QCheckBox(Tr::tr("I accept the terms and conditions.")),
+            m_accept = new QCheckBox(legal)
         }.attachTo(this);
         // clang-format on
 
