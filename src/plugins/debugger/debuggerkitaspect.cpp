@@ -49,6 +49,8 @@ public:
         clear();
 
         const IDeviceConstPtr device = BuildDeviceKitAspect::device(&m_kit);
+        if (!device)
+            return;
         const Utils::FilePath rootPath = device->rootPath();
         const QList<DebuggerItem> debuggersForBuildDevice
             = Utils::filtered(DebuggerItemManager::debuggers(), [&](const DebuggerItem &item) {

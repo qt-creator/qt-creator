@@ -119,7 +119,6 @@ public:
     bool isAutoDetected() const;
     Utils::Id id() const;
 
-    virtual bool isCompatibleWith(const Kit *k) const;
     virtual QList<Task> validate() const;
 
     QString displayType() const;

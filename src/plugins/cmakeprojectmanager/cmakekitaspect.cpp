@@ -80,7 +80,10 @@ public:
     {
         clear();
 
-        const FilePath rootPath = BuildDeviceKitAspect::device(&m_kit)->rootPath();
+        const IDevice::ConstPtr dev = BuildDeviceKitAspect::device(&m_kit);
+        if (!dev)
+            return;
+        const FilePath rootPath = dev->rootPath();
         const QList<CMakeTool *> toolsForBuildDevice
             = Utils::filtered(CMakeToolManager::cmakeTools(), [rootPath](CMakeTool *item) {
                   return item->cmakeExecutable().isSameDevice(rootPath);

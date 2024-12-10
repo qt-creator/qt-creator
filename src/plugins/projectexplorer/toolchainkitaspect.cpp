@@ -13,7 +13,6 @@
 #include "toolchainmanager.h"
 #include "toolchainoptionspage.h"
 
-#include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/stringutils.h>
@@ -44,6 +43,8 @@ public:
         const Toolchains ltcList = ToolchainManager::toolchains(
             [this](const Toolchain *tc) { return m_category.contains(tc->language()); });
         IDeviceConstPtr device = BuildDeviceKitAspect::device(&m_kit);
+        if (!device)
+            return;
 
         const QList<Toolchain *> toolchainsForBuildDevice
             = Utils::filtered(ltcList, [device](Toolchain *tc) {

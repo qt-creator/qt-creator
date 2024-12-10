@@ -49,7 +49,10 @@ public:
     {
         clear();
 
-        const FilePath deviceRoot = BuildDeviceKitAspect::device(&m_kit)->rootPath();
+        const IDevice::ConstPtr device = BuildDeviceKitAspect::device(&m_kit);
+        if (!device)
+            return;
+        const FilePath deviceRoot = device->rootPath();
         const QtVersions versionsForBuildDevice = QtVersionManager::versions(
             [&deviceRoot](const QtVersion *qt) {
                 return qt->qmakeFilePath().isSameDevice(deviceRoot);

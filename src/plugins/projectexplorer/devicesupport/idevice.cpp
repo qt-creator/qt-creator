@@ -415,16 +415,6 @@ Id IDevice::id() const
     return d->id;
 }
 
-/*!
-    Tests whether a device can be compatible with the given kit. The default
-    implementation will match the device type specified in the kit against
-    the device's own type.
-*/
-bool IDevice::isCompatibleWith(const Kit *k) const
-{
-    return RunDeviceTypeKitAspect::deviceTypeId(k) == type();
-}
-
 QList<Task> IDevice::validate() const
 {
     return {};
