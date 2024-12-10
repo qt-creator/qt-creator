@@ -258,7 +258,7 @@ template<template<typename> class C, // result container type
          typename Result = std::decay_t<std::invoke_result_t<F, Value&>>,
          typename ResultContainer = C<Result>>
 Q_REQUIRED_RESULT decltype(auto) transform(SC &&container, F function);
-#ifdef Q_CC_CLANG
+#if __cpp_template_template_args < 201611L
 // "Matching of template template-arguments excludes compatible templates"
 // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0522r0.html (P0522R0)
 // in C++17 makes the above match e.g. C=std::vector even though that takes two
@@ -833,7 +833,7 @@ Q_REQUIRED_RESULT decltype(auto) transform(SC &&container, F function)
     return transform<ResultContainer>(std::forward<SC>(container), function);
 }
 
-#ifdef Q_CC_CLANG
+#if __cpp_template_template_args < 201611L
 template<template<typename, typename> class C, // result container type
          typename SC,                          // input container type
          typename F,                           // function type
