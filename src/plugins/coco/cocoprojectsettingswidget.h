@@ -3,26 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/projectsettingswidget.h>
-
-#include <QVBoxLayout>
-
-namespace ProjectExplorer {
-class Project;
-}
-
 namespace Coco::Internal {
 
-class CocoProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
-{
-    Q_OBJECT
-
-public:
-    explicit CocoProjectSettingsWidget(ProjectExplorer::Project *project);
-    ~CocoProjectSettingsWidget();
-
-private:
-    QVBoxLayout *m_layout;
-};
+void setupCocoProjectPanel();
 
 } // namespace Coco::Internal

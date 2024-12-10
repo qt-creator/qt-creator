@@ -5,36 +5,67 @@
 
 #include "cocopluginconstants.h"
 #include "cocoprojectwidget.h"
+#include "cocotr.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/projectsettingswidget.h>
 #include <projectexplorer/target.h>
+
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
+#include <QVBoxLayout>
 #include <QDebug>
+
+using namespace ProjectExplorer;
 
 namespace Coco::Internal {
 
-CocoProjectSettingsWidget::CocoProjectSettingsWidget(ProjectExplorer::Project *project)
-    : m_layout{new QVBoxLayout}
+class CocoProjectSettingsWidget final : public ProjectSettingsWidget
 {
-    setUseGlobalSettingsCheckBoxVisible(false);
-    setGlobalSettingsId(Constants::COCO_SETTINGS_PAGE_ID);
+public:
+    explicit CocoProjectSettingsWidget(Project *project)
+    {
+        setUseGlobalSettingsCheckBoxVisible(false);
+        setGlobalSettingsId(Constants::COCO_SETTINGS_PAGE_ID);
 
-    if (auto *target = project->activeTarget()) {
-        auto abc = target->activeBuildConfiguration();
+        auto layout = new QVBoxLayout;
+        if (auto *target = project->activeTarget()) {
+            auto abc = target->activeBuildConfiguration();
 
-        if (abc->id() == QmakeProjectManager::Constants::QMAKE_BC_ID
-            || abc->id() == CMakeProjectManager::Constants::CMAKE_BUILDCONFIGURATION_ID)
-            m_layout->addWidget(new CocoProjectWidget(project, abc));
+            if (abc->id() == QmakeProjectManager::Constants::QMAKE_BC_ID
+                    || abc->id() == CMakeProjectManager::Constants::CMAKE_BUILDCONFIGURATION_ID)
+                layout->addWidget(new CocoProjectWidget(project, abc));
+        }
+        setLayout(layout);
     }
-    setLayout(m_layout);
-}
+};
 
-CocoProjectSettingsWidget::~CocoProjectSettingsWidget()
+class CocoProjectPanelFactory final : public ProjectPanelFactory
 {
-    delete m_layout;
+public:
+    CocoProjectPanelFactory()
+    {
+        setPriority(50);
+        setDisplayName(Tr::tr("Coco Code Coverage"));
+        setSupportsFunction([](Project *project) {
+            if (Target *target = project->activeTarget()) {
+                if (BuildConfiguration *abc = target->activeBuildConfiguration())
+                    return BuildSettings::supportsBuildConfig(*abc);
+            }
+            return false;
+        });
+        setCreateWidgetFunction(
+                    [](Project *project) { return new CocoProjectSettingsWidget(project); });
+    }
+};
+
+void setupCocoProjectPanel()
+{
+    static CocoProjectPanelFactory theCocoProjectPanelFactory;
 }
 
 } // namespace Coco::Internal

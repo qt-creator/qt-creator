@@ -104,7 +104,6 @@ public:
     }
 
     void initialize() final;
-    void addEntryToProjectSettings();
 
 private:
     CocoLanguageClient *m_client = nullptr;
@@ -121,25 +120,10 @@ void CocoPlugin::initialize()
 
     GlobalSettings::read();
     GlobalSettingsPage::instance().widget();
-    addEntryToProjectSettings();
+
+    setupCocoProjectPanel();
 
     initLanguageServer();
-}
-
-void CocoPlugin::addEntryToProjectSettings()
-{
-    auto panelFactory = new ProjectPanelFactory;
-    panelFactory->setPriority(50);
-    panelFactory->setDisplayName(tr("Coco Code Coverage"));
-    panelFactory->setSupportsFunction([](Project *project) {
-        if (Target *target = project->activeTarget()) {
-            if (BuildConfiguration *abc = target->activeBuildConfiguration())
-                return BuildSettings::supportsBuildConfig(*abc);
-        }
-        return false;
-    });
-    panelFactory->setCreateWidgetFunction(
-        [](Project *project) { return new CocoProjectSettingsWidget(project); });
 }
 
 } // namespace Coco
