@@ -486,11 +486,11 @@ qint64 SshProcessInterface::processId() const
 
 ProcessResult SshProcessInterface::runInShell(const CommandLine &command, const QByteArray &data)
 {
+    CommandLine cmd{d->m_device->filePath("/bin/sh"), {"-c"}};
+    cmd.addCommandLineAsSingleArg(command);
+
     Process process;
-    QString tmp;
-    ProcessArgs::addArg(&tmp, command.executable().path());
-    ProcessArgs::addArgs(&tmp, command.arguments());
-    process.setCommand({d->m_device->filePath("/bin/sh"), {"-c", tmp}});
+    process.setCommand(cmd);
     process.setWriteData(data);
     using namespace std::chrono_literals;
     process.runBlocking(2s);
