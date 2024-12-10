@@ -8,7 +8,30 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
+namespace Utils { class ProcessResultData; }
+
 namespace RemoteLinux {
+namespace Internal {
+
+class SshConnectionHandle : public QObject
+{
+    Q_OBJECT
+
+public:
+    SshConnectionHandle(const ProjectExplorer::DeviceConstRef &device) : m_device(device) {}
+    ~SshConnectionHandle() override { emit detachFromSharedConnection(); }
+
+signals:
+    void connected(const QString &socketFilePath);
+    void disconnected(const Utils::ProcessResultData &result);
+
+    void detachFromSharedConnection();
+
+private:
+    ProjectExplorer::DeviceConstRef m_device;
+};
+
+} // Internal
 
 class REMOTELINUX_EXPORT LinuxDevice : public ProjectExplorer::IDevice
 {
@@ -38,7 +61,6 @@ public:
     ProjectExplorer::FileTransferInterface *createFileTransferInterface(
             const ProjectExplorer::FileTransferSetupData &setup) const override;
 
-    class LinuxDeviceAccess *connectionAccess() const;
     void checkOsType() override;
 
     DeviceState deviceState() const override;
@@ -47,6 +69,8 @@ public:
     bool isDisconnected() const;
     bool tryToConnect();
 
+    void attachToSharedConnection(Internal::SshConnectionHandle *sshConnectionHandle,
+                                  const ProjectExplorer::SshParameters &sshParams) const;
 protected:
     LinuxDevice();
 
