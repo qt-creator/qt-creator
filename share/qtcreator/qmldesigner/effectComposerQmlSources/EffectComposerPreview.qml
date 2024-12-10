@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
+import QtQuick.Layouts
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
@@ -24,6 +25,9 @@ Column {
     readonly property int extraMargin: 200
 
     property real previewScale: 1
+
+    // Reserve at least 300 px for the preview error
+    readonly property real minimumWidth: Math.max(300, toolbarRow.minimumWidth)
 
     // Create a dummy parent to host the effect qml object
     function createNewComponent() {
@@ -55,15 +59,21 @@ Column {
     }
 
     Rectangle { // toolbar
-        width: parent.width
+        width: root.width
         height: StudioTheme.Values.toolbarHeight
         color: StudioTheme.Values.themeToolbarBackground
 
-        Row {
+        RowLayout {
+            id: toolbarRow
+
+            readonly property real minimumWidth: toolbarRow.implicitWidth
+                                                 + toolbarRow.anchors.leftMargin
+                                                 + toolbarRow.anchors.rightMargin
+
             spacing: 5
             anchors.leftMargin: 5
-            anchors.left: parent.left
-            anchors.verticalCenter: parent.verticalCenter
+            anchors.rightMargin: 5
+            anchors.fill: parent
 
             PreviewImagesComboBox {
                 id: imagesComboBox
@@ -81,13 +91,13 @@ Column {
                 color: root.effectComposerModel ? root.effectComposerModel.currentPreviewColor : "#dddddd"
 
                 onColorChanged: root.effectComposerModel.currentPreviewColor = colorEditor.color
+                Layout.preferredWidth: colorEditor.height
             }
-        }
 
-        Row {
-            spacing: 5
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.verticalCenter: parent.verticalCenter
+            Item { // Spacer
+                Layout.preferredHeight: 1
+                Layout.fillWidth: true
+            }
 
             HelperWidgets.AbstractButton {
                 objectName: "btnZoomIn"
@@ -134,13 +144,11 @@ Column {
                     imageScaler.resetTransforms()
                 }
             }
-        }
 
-        Row {
-            spacing: 5
-            anchors.rightMargin: 5
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
+            Item { // Spacer
+                Layout.preferredHeight: 1
+                Layout.fillWidth: true
+            }
 
             Column {
                 Text {

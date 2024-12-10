@@ -215,11 +215,13 @@ Item {
             }
 
             EffectComposerPreview {
+                id: preview
+
                 mainRoot: root
 
-                SplitView.minimumWidth: 300
+                SplitView.minimumWidth: preview.minimumWidth
                 SplitView.minimumHeight: 200
-                SplitView.preferredWidth: 300
+                SplitView.preferredWidth: preview.minimumWidth
                 SplitView.preferredHeight: 300
                 Layout.fillWidth: true
                 Layout.fillHeight: true
