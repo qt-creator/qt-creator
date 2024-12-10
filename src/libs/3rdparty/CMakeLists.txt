@@ -5,6 +5,7 @@ add_subdirectory(libptyqt)
 add_subdirectory(qrcodegen)
 add_subdirectory(qtkeychain)
 add_subdirectory(lua)
+add_subdirectory(quickqanava)
 add_subdirectory(sol2)
 
 if(WIN32)

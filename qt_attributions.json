@@ -644,6 +644,32 @@
         "License": "BSD 3-Clause \"New\" or \"Revised\" License",
         "LicenseFile": "src/libs/3rdparty/zlib/LICENSE",
         "Copyright": "Copyright (C) 1995-2024 Jean-loup Gailly and Mark Adler"
+    },
+    {
+        "Id": "quickqanava",
+        "Name": "QuickQanava",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used for PoC - Node Graph Editor",
+        "Path": "src/libs/3rdparty/quickqanava",
+        "Description": "QuickQanava is a C++17 library developed for rendering graphs and relational content within a Qt/QML application.",
+        "Homepage": "http://cneben.github.io/QuickQanava/index.html",
+        "Version": "2.5.0",
+        "License": "BSD License 2.0",
+        "LicenseFile": "src/libs/3rdparty/quickqanava/license.txt",
+        "Copyright": "Copyright (c) 2008-2023, Benoit AUTHEMAN"
+    },
+    {
+        "Id": "bezier",
+        "Name": "bezier",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used for PoC - Node Graph Editor (QuickQanava 3rdparty lib)",
+        "Path": "src/libs/3rdparty/quickqanava/src/bezier",
+        "Description": "QuickQanava 3rdparty lib",
+        "License": "MIT License",
+        "LicenseFile": "src/libs/3rdparty/quickqanava/src/bezier/LICENSE.txt",
+        "Copyright": "Copyright (c) 2018 Øystein Myrmo (oystein.myrmo@gmail.com)"
     }
 ]
 

@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/QuickQanava">
+        <file>Port.qml</file>
+        <file>HorizontalDock.qml</file>
+        <file>VerticalDock.qml</file>
+        <file>Group.qml</file>
+        <file>Edge.qml</file>
+        <file>SelectionItem.qml</file>
+        <file>VisualConnector.qml</file>
+    </qresource>
+</RCC>
