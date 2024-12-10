@@ -13,6 +13,7 @@
 #include "qmldesignericons.h"
 #include "qmldesignerplugin.h"
 #include "viewmanager.h"
+#include <qmldesignertr.h>
 
 #include <auxiliarydataproperties.h>
 #include <backgroundaction.h>
@@ -72,7 +73,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     auto layoutActionGroup = new QActionGroup(this);
     layoutActionGroup->setExclusive(true);
 
-    m_noSnappingAction = layoutActionGroup->addAction(tr("No Snapping"));
+    m_noSnappingAction = layoutActionGroup->addAction(Tr::tr("No Snapping"));
     m_noSnappingAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_noSnappingAction->setCheckable(true);
     m_noSnappingAction->setChecked(true);
@@ -84,7 +85,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
                             ComponentCoreConstants::snappingCategory,
                             1);
 
-    m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Snap with Anchors"));
+    m_snappingAndAnchoringAction = layoutActionGroup->addAction(Tr::tr("Snap with Anchors"));
     m_snappingAndAnchoringAction->setCheckable(true);
     m_snappingAndAnchoringAction->setChecked(true);
 
@@ -96,7 +97,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
                             ComponentCoreConstants::snappingCategory,
                             2);
 
-    m_snappingAction = layoutActionGroup->addAction(tr("Snap without Anchors"));
+    m_snappingAction = layoutActionGroup->addAction(Tr::tr("Snap without Anchors"));
     m_snappingAction->setCheckable(true);
     m_snappingAction->setChecked(true);
 
@@ -109,7 +110,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     addActions(layoutActionGroup->actions());
 
-    m_showBoundingRectAction = new QAction(tr("Show Bounds"), this);
+    m_showBoundingRectAction = new QAction(Tr::tr("Show Bounds"), this);
     m_showBoundingRectAction->setCheckable(true);
     m_showBoundingRectAction->setChecked(false);
     m_showBoundingRectAction->setIcon(
@@ -125,8 +126,8 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     addAction(m_showBoundingRectAction.data());
 
-    m_rootWidthAction = new LineEditAction(tr("Override Width"), this);
-    m_rootWidthAction->setToolTip(tr("Override width of root component."));
+    m_rootWidthAction = new LineEditAction(Tr::tr("Override Width"), this);
+    m_rootWidthAction->setToolTip(Tr::tr("Override width of root component."));
     connect(m_rootWidthAction.data(),
             &LineEditAction::textChanged,
             this,
@@ -134,8 +135,8 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     addAction(m_rootWidthAction.data());
     upperActions.append(m_rootWidthAction.data());
 
-    m_rootHeightAction = new LineEditAction(tr("Override Height"), this);
-    m_rootHeightAction->setToolTip(tr("Override height of root component."));
+    m_rootHeightAction = new LineEditAction(Tr::tr("Override Height"), this);
+    m_rootHeightAction->setToolTip(Tr::tr("Override height of root component."));
     connect(m_rootHeightAction.data(),
             &LineEditAction::textChanged,
             this,
@@ -240,14 +241,14 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
         }
     };
 
-    m_zoomInAction = new QAction(zoomInIcon, tr("Zoom In"), this);
+    m_zoomInAction = new QAction(zoomInIcon, Tr::tr("Zoom In"), this);
     m_zoomInAction->setShortcut(QKeySequence(QKeySequence::ZoomIn));
     addAction(m_zoomInAction.data());
     upperActions.append(m_zoomInAction.data());
     m_toolBox->addRightSideAction(m_zoomInAction.data());
     connect(m_zoomInAction.data(), &QAction::triggered, zoomIn);
 
-    m_zoomOutAction = new QAction(zoomOutIcon, tr("Zoom Out"), this);
+    m_zoomOutAction = new QAction(zoomOutIcon, Tr::tr("Zoom Out"), this);
     m_zoomOutAction->setShortcut(QKeySequence(QKeySequence::ZoomOut));
     addAction(m_zoomOutAction.data());
     upperActions.append(m_zoomOutAction.data());
@@ -260,8 +261,8 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_toolBox->addRightSideAction(m_zoomAction.data());
     connect(m_zoomAction.data(), &ZoomAction::zoomLevelChanged, setZoomLevel);
 
-    m_zoomAllAction = new QAction(zoomAllIcon, tr("Zoom screen to fit all content."), this);
-    m_zoomAllAction->setShortcut(QKeySequence(tr("Ctrl+Alt+0")));
+    m_zoomAllAction = new QAction(zoomAllIcon, Tr::tr("Zoom screen to fit all content."), this);
+    m_zoomAllAction->setShortcut(QKeySequence(Tr::tr("Ctrl+Alt+0")));
 
     addAction(m_zoomAllAction.data());
     upperActions.append(m_zoomAllAction.data());
@@ -269,15 +270,15 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     connect(m_zoomAllAction.data(), &QAction::triggered, frameAll);
 
     m_zoomSelectionAction = new QAction(zoomSelectionIcon,
-                                        tr("Zoom screen to fit current selection."),
+                                        Tr::tr("Zoom screen to fit current selection."),
                                         this);
-    m_zoomSelectionAction->setShortcut(QKeySequence(tr("Ctrl+Alt+i")));
+    m_zoomSelectionAction->setShortcut(QKeySequence(Tr::tr("Ctrl+Alt+i")));
     addAction(m_zoomSelectionAction.data());
     upperActions.append(m_zoomSelectionAction.data());
     m_toolBox->addRightSideAction(m_zoomSelectionAction.data());
     connect(m_zoomSelectionAction.data(), &QAction::triggered, frameSelection);
 
-    m_resetAction = new QAction(reloadIcon, tr("Reload View"), this);
+    m_resetAction = new QAction(reloadIcon, Tr::tr("Reload View"), this);
     static constexpr char formEditorRefreshActionId[] = "QmlDesigner.FormEditor.Refresh";
     registerActionAsCommand(m_resetAction,
                             formEditorRefreshActionId,
@@ -536,9 +537,10 @@ void FormEditorWidget::exportAsImage(const QRectF &boundingRect)
         proposedFileName.chop(3);
     proposedFileName.append(".png");
     const QString fileName = QFileDialog::getSaveFileName(Core::ICore::dialogParent(),
-                                                          tr("Export Current QML File as Image"),
+                                                          Tr::tr(
+                                                              "Export Current QML File as Image"),
                                                           proposedFileName,
-                                                          tr("PNG (*.png);;JPG (*.jpg)"));
+                                                          Tr::tr("PNG (*.png);;JPG (*.jpg)"));
 
     if (!fileName.isNull()) {
         QImage image(boundingRect.size().toSize(), QImage::Format_ARGB32);

@@ -2,17 +2,18 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "formeditorview.h"
-#include "nodeinstanceview.h"
-#include "selectiontool.h"
-#include "rotationtool.h"
-#include "movetool.h"
-#include "resizetool.h"
+#include "abstractcustomtool.h"
 #include "dragtool.h"
-#include "formeditorwidget.h"
-#include <formeditorgraphicsview.h>
 #include "formeditoritem.h"
 #include "formeditorscene.h"
-#include "abstractcustomtool.h"
+#include "formeditorwidget.h"
+#include "movetool.h"
+#include "nodeinstanceview.h"
+#include "resizetool.h"
+#include "rotationtool.h"
+#include "selectiontool.h"
+#include <formeditorgraphicsview.h>
+#include <qmldesignertr.h>
 
 #include <auxiliarydataproperties.h>
 #include <qmldesignerplugin.h>
@@ -361,8 +362,8 @@ WidgetInfo FormEditorView::widgetInfo()
     return createWidgetInfo(m_formEditorWidget.data(),
                             "FormEditor",
                             WidgetInfo::CentralPane,
-                            tr("2D"),
-                            tr("2D view"),
+                            Tr::tr("2D"),
+                            Tr::tr("2D view"),
                             DesignerWidgetFlags::IgnoreErrors);
 }
 
@@ -938,7 +939,7 @@ void FormEditorView::checkRootModelNode()
     if (!rootModelNode().metaInfo().isGraphicalItem()
         && !Qml3DNode::isValidVisualRoot(rootModelNode()))
         m_formEditorWidget->showErrorMessageBox(
-            {DocumentMessage(tr("%1 is not supported as the root element by the 2D view.")
+            {DocumentMessage(Tr::tr("%1 is not supported as the root element by the 2D view.")
                                  .arg(rootModelNode().simplifiedTypeName()))});
     else
         m_formEditorWidget->hideErrorMessageBox();

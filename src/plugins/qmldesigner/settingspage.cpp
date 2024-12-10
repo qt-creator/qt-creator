@@ -6,6 +6,7 @@
 #include "designersettings.h"
 #include "qmldesignerexternaldependencies.h"
 #include "qmldesignerplugin.h"
+#include "qmldesignertr.h"
 
 #include <coreplugin/icore.h>
 
@@ -114,7 +115,7 @@ SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencie
     m_spinCanvasWidth->setValue(10000);
 
     m_smoothRendering = new QCheckBox;
-    m_smoothRendering->setToolTip(tr("Enable smooth rendering in the 2D view."));
+    m_smoothRendering->setToolTip(Tr::tr("Enable smooth rendering in the 2D view."));
 
     m_spinRootItemInitHeight = new QSpinBox;
     m_spinRootItemInitHeight->setMaximum(100000);
@@ -125,138 +126,142 @@ SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencie
     m_spinRootItemInitWidth->setValue(640);
 
     m_styleLineEdit = new QLineEdit;
-    m_styleLineEdit->setPlaceholderText(tr("Default style"));
+    m_styleLineEdit->setPlaceholderText(Tr::tr("Default style"));
 
-    auto resetStyle = new QPushButton(tr("Reset Style"));
+    auto resetStyle = new QPushButton(Tr::tr("Reset Style"));
 
     m_controls2StyleComboBox = new QComboBox;
     m_controls2StyleComboBox->addItems({ "Default", "Material", "Universal" });
 
-    m_emulationGroupBox = new QGroupBox(tr("QML Emulation Layer"));
+    m_emulationGroupBox = new QGroupBox(Tr::tr("QML Emulation Layer"));
 
-    m_useDefaultPuppetRadioButton = new QRadioButton(tr("Use fallback QML emulation layer"));
+    m_useDefaultPuppetRadioButton = new QRadioButton(Tr::tr("Use fallback QML emulation layer"));
     m_useDefaultPuppetRadioButton->setToolTip(
-        tr("If you select this radio button, Qt Design Studio always uses the "
-           "QML emulation layer (QML Puppet) located at the following path."));
+        Tr::tr("If you select this radio button, Qt Design Studio always uses the "
+               "QML emulation layer (QML Puppet) located at the following path."));
     m_useDefaultPuppetRadioButton->setChecked(true);
 
     m_fallbackPuppetPathLineEdit = new Utils::PathChooser;
     m_fallbackPuppetPathLineEdit->setToolTip(
-        tr("Path to the QML emulation layer executable (qmlpuppet)."));
+        Tr::tr("Path to the QML emulation layer executable (qmlpuppet)."));
 
     auto resetFallbackPuppetPathButton = new QPushButton(tr("Reset Path"));
     resetFallbackPuppetPathButton->setToolTip(
-        tr("Resets the path to the built-in QML emulation layer."));
+        Tr::tr("Resets the path to the built-in QML emulation layer."));
 
     m_useQtRelatedPuppetRadioButton = new QRadioButton(
-        tr("Use QML emulation layer that is built with the selected Qt"));
+        Tr::tr("Use QML emulation layer that is built with the selected Qt"));
 
     m_puppetBuildPathLineEdit = new Utils::PathChooser;
     m_puppetBuildPathLineEdit->setEnabled(false);
 
-    auto resetQmlPuppetBuildPathButton = new QPushButton(tr("Reset Path"));
+    auto resetQmlPuppetBuildPathButton = new QPushButton(Tr::tr("Reset Path"));
 
-    m_alwaysSaveSubcomponentsCheckBox =
-        new QCheckBox(tr("Always save when leaving subcomponent in bread crumb"));
+    m_alwaysSaveSubcomponentsCheckBox = new QCheckBox(
+        Tr::tr("Always save when leaving subcomponent in bread crumb"));
 
     m_designerWarningsInEditorCheckBox = new QCheckBox(
-        tr("Warn about unsupported features of .ui.qml files in code editor"));
+        Tr::tr("Warn about unsupported features of .ui.qml files in code editor"));
     m_designerWarningsInEditorCheckBox->setToolTip(
-        tr("Also warns in the code editor about QML features that are not properly "
-           "supported by the Qt Quick Designer."));
+        Tr::tr("Also warns in the code editor about QML features that are not properly "
+               "supported by the Qt Quick Designer."));
 
     m_designerWarningsCheckBox = new QCheckBox(
-        tr("Warn about unsupported features in .ui.qml files"));
-    m_designerWarningsCheckBox->setToolTip(
-        tr("Warns about QML features that are not properly supported by the Qt Design Studio."));
+        Tr::tr("Warn about unsupported features in .ui.qml files"));
+    m_designerWarningsCheckBox->setToolTip(Tr::tr(
+        "Warns about QML features that are not properly supported by the Qt Design Studio."));
 
     m_designerWarningsUiQmlfiles = new QCheckBox(
-        tr("Warn about using .qml files instead of .ui.qml files"));
-    m_designerWarningsUiQmlfiles->setToolTip(
-        tr("Qt Quick Designer will propose to open .ui.qml files instead of opening a .qml file."));
+        Tr::tr("Warn about using .qml files instead of .ui.qml files"));
+    m_designerWarningsUiQmlfiles->setToolTip(Tr::tr(
+        "Qt Quick Designer will propose to open .ui.qml files instead of opening a .qml file."));
 
-    m_useQsTrFunctionRadioButton = new QRadioButton(tr("qsTr()"));
+    m_useQsTrFunctionRadioButton = new QRadioButton(Tr::tr("qsTr()"));
     m_useQsTrFunctionRadioButton->setChecked(true);
-    m_useQsTrIdFunctionRadioButton = new QRadioButton(tr("qsTrId()"));
-    m_useQsTranslateFunctionRadioButton = new QRadioButton(tr("qsTranslate()"));
+    m_useQsTrIdFunctionRadioButton = new QRadioButton(Tr::tr("qsTrId()"));
+    m_useQsTranslateFunctionRadioButton = new QRadioButton(Tr::tr("qsTranslate()"));
 
-    m_designerAlwaysDesignModeCheckBox = new QCheckBox(tr("Always open ui.qml files in Design mode"));
-    m_askBeforeDeletingAssetCheckBox = new QCheckBox(tr("Ask for confirmation before deleting asset"));
-    m_alwaysAutoFormatUICheckBox = new QCheckBox(tr("Always auto-format ui.qml files in Design mode"));
-    m_featureTimelineEditorCheckBox = new QCheckBox(tr("Enable Timeline editor"));
-    m_featureDockWidgetContentMinSize = new QCheckBox(tr("Enable DockWidget content minimum size"));
+    m_designerAlwaysDesignModeCheckBox = new QCheckBox(
+        Tr::tr("Always open ui.qml files in Design mode"));
+    m_askBeforeDeletingAssetCheckBox = new QCheckBox(
+        Tr::tr("Ask for confirmation before deleting asset"));
+    m_alwaysAutoFormatUICheckBox = new QCheckBox(
+        Tr::tr("Always auto-format ui.qml files in Design mode"));
+    m_featureTimelineEditorCheckBox = new QCheckBox(Tr::tr("Enable Timeline editor"));
+    m_featureDockWidgetContentMinSize = new QCheckBox(
+        Tr::tr("Enable DockWidget content minimum size"));
 
-    m_debugGroupBox = new QGroupBox(tr("Debugging"));
-    m_designerShowDebuggerCheckBox = new QCheckBox(tr("Show the debugging view"));
-    m_showPropertyEditorWarningsCheckBox = new QCheckBox(tr("Show property editor warnings"));
+    m_debugGroupBox = new QGroupBox(Tr::tr("Debugging"));
+    m_designerShowDebuggerCheckBox = new QCheckBox(Tr::tr("Show the debugging view"));
+    m_showPropertyEditorWarningsCheckBox = new QCheckBox(Tr::tr("Show property editor warnings"));
 
     m_forwardPuppetOutputComboBox = new QComboBox;
 
-    m_designerEnableDebuggerCheckBox = new QCheckBox(tr("Enable the debugging view"));
-    m_showWarnExceptionsCheckBox = new QCheckBox(tr("Show warn exceptions"));
+    m_designerEnableDebuggerCheckBox = new QCheckBox(Tr::tr("Enable the debugging view"));
+    m_showWarnExceptionsCheckBox = new QCheckBox(Tr::tr("Show warn exceptions"));
 
     m_debugPuppetComboBox = new QComboBox;
 
     using namespace Layouting;
 
-    Column {
-        m_useDefaultPuppetRadioButton,
-        Row {
-            Space(20),
-            Form { tr("Path:"), m_fallbackPuppetPathLineEdit, resetFallbackPuppetPathButton }
-        },
-        m_useQtRelatedPuppetRadioButton,
-        Row {
-            Space(20),
-            Form { tr("Top level build path:"), m_puppetBuildPathLineEdit, resetQmlPuppetBuildPathButton }
-        }
-    }.attachTo(m_emulationGroupBox);
+    Column{m_useDefaultPuppetRadioButton,
+           Row{Space(20),
+               Form{Tr::tr("Path:"), m_fallbackPuppetPathLineEdit, resetFallbackPuppetPathButton}},
+           m_useQtRelatedPuppetRadioButton,
+           Row{Space(20),
+               Form{Tr::tr("Top level build path:"),
+                    m_puppetBuildPathLineEdit,
+                    resetQmlPuppetBuildPathButton}}}
+        .attachTo(m_emulationGroupBox);
 
-    Grid {
-        m_designerShowDebuggerCheckBox,
-        m_showPropertyEditorWarningsCheckBox,
-        Form { tr("Forward QML emulation layer output:"), m_forwardPuppetOutputComboBox },
-        br,
-        m_designerEnableDebuggerCheckBox,
-        m_showWarnExceptionsCheckBox,
-        Form { tr("Debug QML emulation layer:"), m_debugPuppetComboBox }
-    }.attachTo(m_debugGroupBox);
+    Grid{m_designerShowDebuggerCheckBox,
+         m_showPropertyEditorWarningsCheckBox,
+         Form{Tr::tr("Forward QML emulation layer output:"), m_forwardPuppetOutputComboBox},
+         br,
+         m_designerEnableDebuggerCheckBox,
+         m_showWarnExceptionsCheckBox,
+         Form{Tr::tr("Debug QML emulation layer:"), m_debugPuppetComboBox}}
+        .attachTo(m_debugGroupBox);
 
-    Column{Row{Group{title(tr("Snapping")),
-                     Form{tr("Parent component padding:"),
+    Column{Row{Group{title(Tr::tr("Snapping")),
+                     Form{Tr::tr("Parent component padding:"),
                           m_spinSnapMargin,
                           br,
-                          tr("Sibling component spacing:"),
+                          Tr::tr("Sibling component spacing:"),
                           m_spinItemSpacing}},
-               Group{title(tr("Canvas")),
-                     Form{tr("Width:"),
+               Group{title(Tr::tr("Canvas")),
+                     Form{Tr::tr("Width:"),
                           m_spinCanvasWidth,
                           br,
-                          tr("Height:"),
+                          Tr::tr("Height:"),
                           m_spinCanvasHeight,
                           br,
-                          tr("Smooth rendering:"),
+                          Tr::tr("Smooth rendering:"),
                           m_smoothRendering}},
-               Group{title(tr("Root Component Init Size")),
-                     Form{tr("Width:"), m_spinRootItemInitWidth, br, tr("Height:"), m_spinRootItemInitHeight}},
-               Group{title(tr("Styling")),
-                     Form{tr("Controls style:"),
+               Group{title(Tr::tr("Root Component Init Size")),
+                     Form{Tr::tr("Width:"),
+                          m_spinRootItemInitWidth,
+                          br,
+                          Tr::tr("Height:"),
+                          m_spinRootItemInitHeight}},
+               Group{title(Tr::tr("Styling")),
+                     Form{Tr::tr("Controls style:"),
                           m_styleLineEdit,
                           resetStyle,
                           br,
-                          tr("Controls 2 style:"),
+                          Tr::tr("Controls 2 style:"),
                           m_controls2StyleComboBox}}},
            m_emulationGroupBox,
-           Group{title(tr("Subcomponents")), Column{m_alwaysSaveSubcomponentsCheckBox}},
-           Row{Group{title(tr("Warnings")),
+           Group{title(Tr::tr("Subcomponents")), Column{m_alwaysSaveSubcomponentsCheckBox}},
+           Row{Group{title(Tr::tr("Warnings")),
                      Column{m_designerWarningsCheckBox,
                             m_designerWarningsInEditorCheckBox,
                             m_designerWarningsUiQmlfiles}},
-               Group{title(tr("Internationalization")),
+               Group{title(Tr::tr("Internationalization")),
                      Column{m_useQsTrFunctionRadioButton,
                             m_useQsTrIdFunctionRadioButton,
                             m_useQsTranslateFunctionRadioButton}}},
-           Group{title(tr("Features")),
+           Group{title(Tr::tr("Features")),
                  Grid{m_designerAlwaysDesignModeCheckBox,
                       m_alwaysAutoFormatUICheckBox,
                       br,
@@ -490,9 +495,9 @@ void SettingsPageWidget::apply()
     for (const char * const key : restartNecessaryKeys) {
         if (QmlDesignerPlugin::settings().value(key) != settings.value(key)) {
             QMessageBox::information(Core::ICore::dialogParent(),
-                                     tr("Restart Required"),
-                                     tr("The made changes will take effect after a "
-                                        "restart of the QML Emulation layer or %1.")
+                                     Tr::tr("Restart Required"),
+                                     Tr::tr("The made changes will take effect after a "
+                                            "restart of the QML Emulation layer or %1.")
                                          .arg(QGuiApplication::applicationDisplayName()));
             break;
         }
@@ -504,7 +509,7 @@ void SettingsPageWidget::apply()
 SettingsPage::SettingsPage(ExternalDependencies &externalDependencies)
 {
     setId("B.QmlDesigner");
-    setDisplayName(SettingsPageWidget::tr("Qt Quick Designer"));
+    setDisplayName(Tr::tr("Qt Quick Designer"));
     setCategory(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
     setWidgetCreator([&] { return new SettingsPageWidget(externalDependencies); });
 }

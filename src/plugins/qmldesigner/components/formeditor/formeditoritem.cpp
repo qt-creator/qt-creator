@@ -6,6 +6,7 @@
 
 #include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
+#include <qmldesignertr.h>
 #include <variantproperty.h>
 
 #include <modelnode.h>
@@ -1661,8 +1662,8 @@ void FormEditorTransitionItem::drawSelectionLabel(QPainter *painter, const Conne
         const qreal lineHeight = metric.boundingRect("Xyz").height();
         qreal minWidth = 0.0;
 
-        const QString eventTitle = QObject::tr("Connected Events");
-        const QString signalTitle = QObject::tr("Connected Signals");
+        const QString eventTitle = Tr::tr("Connected Events");
+        const QString signalTitle = Tr::tr("Connected Signals");
 
         if (hasEvents) {
             const QRect eventTitleRect = metric.boundingRect(eventTitle);
