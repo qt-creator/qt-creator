@@ -8,10 +8,6 @@
 
 #include <qmldesigner/qmldesignerplugin.h>
 
-#ifdef DVCONNECTOR_ENABLED
-#include <resourcegeneratorproxy.h>
-#endif
-
 namespace QmlDesigner {
 
 Q_LOGGING_CATEGORY(runManagerLog, "qtc.designer.runManager", QtWarningMsg)
@@ -180,10 +176,7 @@ void RunManager::toggleCurrentTarget()
                                       if (!arg.isNull())
                                           arg.get()->initiateStop();
                                   },
-                                  [](const QString arg) {
-                                      if (!arg.isEmpty())
-                                          deviceManager()->stopRunningProject(arg);
-                                  }},
+                                  [](const QString &) { deviceManager()->stopProject(); }},
                        runningTarget);
         }
         return;
@@ -329,10 +322,8 @@ void AndroidTarget::run() const
 {
     if (!ProjectExplorer::ProjectExplorerPlugin::saveModifiedFiles())
         return;
-#ifdef DVCONNECTOR_ENABLED
-    auto qmlrcPath = DesignViewer::ResourceGeneratorProxy().createResourceFileSync();
-    deviceManager()->sendProjectFile(m_deviceId, qmlrcPath->toString());
-#endif
+
+    deviceManager()->runProject(m_deviceId);
 }
 
 } // namespace QmlDesigner

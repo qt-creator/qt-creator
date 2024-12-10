@@ -774,7 +774,6 @@ extend_qtc_plugin(QmlDesigner
   PUBLIC_DEFINES DVCONNECTOR_ENABLED
   SOURCES
     dvconnector.cpp dvconnector.h
-    resourcegeneratorproxy.cpp resourcegeneratorproxy.h
 )
 
 add_qtc_plugin(assetexporterplugin

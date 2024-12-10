@@ -8,59 +8,66 @@
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QLatin1String>
 #include <QNetworkDatagram>
 #include <QNetworkInterface>
 
 #include <coreplugin/icore.h>
+#include <projectexplorer/kitaspect.h>
+#include <projectexplorer/target.h>
+#include <qmldesigner/qmldesignerplugin.h>
+#include <qtsupport/qtkitaspect.h>
 
 namespace QmlDesigner::DeviceShare {
 
+namespace JsonKeys {
+using namespace Qt::Literals;
+constexpr auto devices = "devices"_L1;
+constexpr auto designStudioId = "designStudioId"_L1;
+constexpr auto deviceInfo = "deviceInfo"_L1;
+constexpr auto deviceSettings = "deviceSettings"_L1;
+} // namespace JsonKeys
+
 DeviceManager::DeviceManager(QObject *parent)
     : QObject(parent)
+    , m_currentState(OpTypes::Stopped)
+    , m_processInterrupted(false)
 {
     QFileInfo fileInfo(Core::ICore::settings()->fileName());
     m_settingsPath = fileInfo.absolutePath() + "/device_manager.json";
     readSettings();
-    if (m_uuid.isEmpty()) {
-        m_uuid = QUuid::createUuid().toString(QUuid::WithoutBraces);
-        writeSettings();
-    }
     initUdpDiscovery();
+
+    connect(&m_resourceGenerator,
+            &QmlDesigner::ResourceGenerator::errorOccurred,
+            this,
+            [this](const QString &error) {
+                qCDebug(deviceSharePluginLog) << "ResourceGenerator error:" << error;
+                handleError(ErrTypes::ProjectPackingError, m_currentDeviceId, error);
+            });
+
+    connect(&m_resourceGenerator,
+            &QmlDesigner::ResourceGenerator::qmlrcCreated,
+            this,
+            &DeviceManager::projectPacked);
 }
 
 DeviceManager::~DeviceManager() = default;
 
 void DeviceManager::initUdpDiscovery()
 {
-    const QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
-    for (const QNetworkInterface &interface : interfaces) {
-        if (interface.flags().testFlag(QNetworkInterface::IsUp)
-            && interface.flags().testFlag(QNetworkInterface::IsRunning)) {
-            for (const QNetworkAddressEntry &entry : interface.addressEntries()) {
-                if (entry.ip().protocol() == QAbstractSocket::IPv4Protocol) {
-                    QSharedPointer<QUdpSocket> udpSocket = QSharedPointer<QUdpSocket>::create();
-                    connect(udpSocket.data(),
-                            &QUdpSocket::readyRead,
-                            this,
-                            &DeviceManager::incomingDatagram);
-
-                    bool retVal = udpSocket->bind(entry.ip(), 53452, QUdpSocket::ShareAddress);
-
-                    if (!retVal) {
-                        qCWarning(deviceSharePluginLog)
-                            << "UDP:: Failed to bind to UDP port 53452 on" << entry.ip().toString()
-                            << "on interface" << interface.name()
-                            << ". Error:" << udpSocket->errorString();
-                        continue;
-                    }
-
-                    qCDebug(deviceSharePluginLog) << "UDP:: Listening on" << entry.ip().toString()
-                                                  << "port" << udpSocket->localPort();
-                    m_udpSockets.append(udpSocket);
-                }
-            }
-        }
+    QSharedPointer<QUdpSocket> udpSocket = QSharedPointer<QUdpSocket>::create();
+    bool retVal = udpSocket->bind(QHostAddress::AnyIPv4, 53452, QUdpSocket::ShareAddress);
+    if (!retVal) {
+        qCWarning(deviceSharePluginLog) << "UDP:: Failed to bind to UDP port 53452 on AnyIPv4"
+                                        << ". Error:" << udpSocket->errorString();
+        return;
     }
+
+    connect(udpSocket.data(), &QUdpSocket::readyRead, this, &DeviceManager::incomingDatagram);
+
+    qCDebug(deviceSharePluginLog) << "UDP:: Listening on AnyIPv4 port" << udpSocket->localPort();
+    m_udpSockets.append(udpSocket);
 }
 
 void DeviceManager::incomingDatagram()
@@ -80,16 +87,20 @@ void DeviceManager::incomingDatagram()
 
         const QString id = message["id"].toString();
         const QString ip = datagram.senderAddress().toString();
-        qCDebug(deviceSharePluginLog) << "Qt UI VIewer found at" << ip << "with id" << id;
 
+        bool found = false;
         for (const auto &device : m_devices) {
             if (device->deviceInfo().selfId() == id) {
+                found = true;
                 if (device->deviceSettings().ipAddress() != ip) {
                     qCDebug(deviceSharePluginLog) << "Updating IP address for device" << id;
-                    setDeviceIP(id, ip);
+                    setDeviceIP(device->deviceSettings().deviceId(), ip);
                 }
             }
         }
+
+        if (!found)
+            qCDebug(deviceSharePluginLog) << "Qt UI VIewer discovered at" << ip << "with id" << id;
     }
 }
 
@@ -99,13 +110,13 @@ void DeviceManager::writeSettings()
     QJsonArray devices;
     for (const auto &device : m_devices) {
         QJsonObject deviceInfo;
-        deviceInfo.insert("deviceInfo", device->deviceInfo().jsonObject());
-        deviceInfo.insert("deviceSettings", device->deviceSettings().jsonObject());
+        deviceInfo.insert(JsonKeys::deviceInfo, device->deviceInfo().jsonObject());
+        deviceInfo.insert(JsonKeys::deviceSettings, device->deviceSettings().jsonObject());
         devices.append(deviceInfo);
     }
 
-    root.insert("devices", devices);
-    root.insert("uuid", m_uuid);
+    root.insert(JsonKeys::devices, devices);
+    root.insert(JsonKeys::designStudioId, m_designStudioId);
 
     QJsonDocument doc(root);
     QFile file(m_settingsPath);
@@ -127,15 +138,17 @@ void DeviceManager::readSettings()
     }
 
     QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-    m_uuid = doc.object()["uuid"].toString();
-    QJsonArray devices = doc.object()["devices"].toArray();
+    m_designStudioId = doc.object()[JsonKeys::designStudioId].toString();
+    if (m_designStudioId.isEmpty()) {
+        m_designStudioId = QUuid::createUuid().toString(QUuid::WithoutBraces);
+        writeSettings();
+    }
+
+    QJsonArray devices = doc.object()[JsonKeys::devices].toArray();
     for (const QJsonValue &deviceInfoJson : devices) {
-        DeviceInfo deviceInfo;
-        DeviceSettings deviceSettings;
-        deviceInfo.setJsonObject(deviceInfoJson.toObject()["deviceInfo"].toObject());
-        deviceSettings.setJsonObject(deviceInfoJson.toObject()["deviceSettings"].toObject());
-        auto device = initDevice(deviceInfo, deviceSettings);
-        m_devices.append(device);
+        DeviceInfo deviceInfo{deviceInfoJson.toObject()[JsonKeys::deviceInfo].toObject()};
+        DeviceSettings deviceSettings{deviceInfoJson.toObject()[JsonKeys::deviceSettings].toObject()};
+        initDevice(deviceInfo, deviceSettings);
     }
 }
 
@@ -267,75 +280,73 @@ bool DeviceManager::addDevice(const QString &ip)
     deviceSettings.setAlias(generateDeviceAlias());
     deviceSettings.setDeviceId(QUuid::createUuid().toString(QUuid::WithoutBraces));
 
-    auto device = initDevice({}, deviceSettings);
-    m_devices.append(device);
+    initDevice({}, deviceSettings);
     writeSettings();
     emit deviceAdded(deviceSettings.deviceId());
 
     return true;
 }
 
-QSharedPointer<Device> DeviceManager::initDevice(const DeviceInfo &deviceInfo,
-                                                 const DeviceSettings &deviceSettings)
+void DeviceManager::initDevice(const DeviceInfo &deviceInfo, const DeviceSettings &deviceSettings)
 {
-    QSharedPointer<Device> device = QSharedPointer<Device>(new Device{deviceInfo, deviceSettings},
+    QSharedPointer<Device> device = QSharedPointer<Device>(new Device{m_designStudioId,
+                                                                      deviceInfo,
+                                                                      deviceSettings},
                                                            &QObject::deleteLater);
+    QString deviceId = device->deviceSettings().deviceId();
     connect(device.data(), &Device::deviceInfoReady, this, &DeviceManager::deviceInfoReceived);
-    connect(device.data(), &Device::disconnected, this, &DeviceManager::deviceDisconnected);
+    connect(device.data(), &Device::disconnected, this, [this](const QString &deviceId) {
+        qCDebug(deviceSharePluginLog) << "Device" << deviceId << "disconnected";
+        emit deviceOffline(deviceId);
+        handleError(ErrTypes::NoError, deviceId);
+    });
     connect(device.data(), &Device::projectSendingProgress, this, &DeviceManager::projectSendingProgress);
-    connect(device.data(), &Device::projectStarted, this, &DeviceManager::projectStarted);
-    connect(device.data(), &Device::projectStopped, this, &DeviceManager::projectStopped);
 
-    connect(device.data(),
-            &Device::projectLogsReceived,
-            this,
-            [this](const QString deviceId, const QString &logs) {
-                qCDebug(deviceSharePluginLog) << "Log:" << deviceId << logs;
-                emit projectLogsReceived(deviceId, logs);
-            });
+    connect(device.data(), &Device::projectStarting, this, [this](const QString &deviceId) {
+        m_currentState = OpTypes::Starting;
+        emit projectStarting(deviceId);
+    });
 
-    return device;
+    connect(device.data(), &Device::projectStarted, this, [this](const QString &deviceId) {
+        m_currentState = OpTypes::Running;
+        emit projectStarted(deviceId);
+    });
+
+    connect(device.data(), &Device::projectStopped, this, [this](const QString &deviceId) {
+        handleError(ErrTypes::NoError, deviceId);
+    });
+    connect(device.data(), &Device::projectLogsReceived, this, &DeviceManager::projectLogsReceived);
+
+    m_devices.append(device);
 }
 
-void DeviceManager::deviceInfoReceived(const QString &deviceIp, const QString &deviceId)
+void DeviceManager::deviceInfoReceived(const QString &deviceId)
 {
-    auto newDevIt = std::find_if(m_devices.begin(),
-                                 m_devices.end(),
-                                 [deviceId, deviceIp](const auto &device) {
-                                     return device->deviceSettings().deviceId() == deviceId
-                                            && device->deviceSettings().ipAddress() == deviceIp;
-                                 });
+    auto newDevice = findDevice(deviceId);
+    const QString selfId = newDevice->deviceInfo().selfId();
+    const QString deviceIp = newDevice->deviceSettings().ipAddress();
+
     auto oldDevIt = std::find_if(m_devices.begin(),
                                  m_devices.end(),
-                                 [deviceId, deviceIp](const auto &device) {
-                                     return device->deviceSettings().deviceId() == deviceId
+                                 [selfId, deviceIp](const auto &device) {
+                                     return device->deviceInfo().selfId() == selfId
                                             && device->deviceSettings().ipAddress() != deviceIp;
                                  });
 
     // if there are 2 devices with the same ID but different IPs, remove the old one
     // aka: merge devices with the same ID
     if (oldDevIt != m_devices.end()) {
-        QSharedPointer<Device> oldDevice = *oldDevIt;
-        QSharedPointer<Device> newDevice = *newDevIt;
-        DeviceSettings deviceSettings = oldDevice->deviceSettings();
-        deviceSettings.setIpAddress(newDevice->deviceSettings().ipAddress());
-        newDevice->setDeviceSettings(deviceSettings);
-        m_devices.removeOne(oldDevice);
+        auto oldDevice = *oldDevIt;
+        const QString alias = oldDevice->deviceSettings().alias();
+        m_devices.removeOne(*oldDevIt);
+        DeviceSettings settings = newDevice->deviceSettings();
+        settings.setAlias(alias);
+        newDevice->setDeviceSettings(settings);
     }
 
     writeSettings();
     qCDebug(deviceSharePluginLog) << "Device" << deviceId << "is online";
     emit deviceOnline(deviceId);
-}
-
-void DeviceManager::deviceDisconnected(const QString &deviceId)
-{
-    auto device = findDevice(deviceId);
-    if (!device)
-        return;
-
-    qCDebug(deviceSharePluginLog) << "Device" << deviceId << "disconnected";
-    emit deviceOffline(deviceId);
 }
 
 void DeviceManager::removeDevice(const QString &deviceId)
@@ -360,29 +371,119 @@ void DeviceManager::removeDeviceAt(int index)
     emit deviceRemoved(deviceId);
 }
 
-bool DeviceManager::sendProjectFile(const QString &deviceId, const QString &projectFile)
+void DeviceManager::handleError(const ErrTypes &errType, const QString &deviceId, const QString &error)
 {
-    auto device = findDevice(deviceId);
-    if (!device)
-        return false;
+    if (!m_processInterrupted) {
+        if (errType != ErrTypes::NoError)
+            qCWarning(deviceSharePluginLog) << "Handling error" << error << "for device" << deviceId;
 
-    QFile file(projectFile);
-    if (!file.open(QIODevice::ReadOnly)) {
-        qCWarning(deviceSharePluginLog) << "Failed to open project file" << projectFile;
-        return false;
+        switch (errType) {
+        case ErrTypes::InternalError:
+            emit internalError(deviceId, error);
+            break;
+        case ErrTypes::ProjectPackingError:
+            emit projectPackingError(deviceId, error);
+            break;
+        case ErrTypes::ProjectSendingError:
+            emit projectSendingError(deviceId, error);
+            break;
+        case ErrTypes::ProjectStartError:
+            emit projectStartingError(deviceId, error);
+            break;
+        case ErrTypes::NoError:
+            break;
+        }
     }
 
-    qCDebug(deviceSharePluginLog) << "Sending project file to device" << deviceId;
-    return device->sendProjectData(file.readAll());
+    m_processInterrupted = false;
+    m_currentQtKitVersion.clear();
+    m_currentDeviceId.clear();
+    m_currentState = OpTypes::Stopped;
+    emit projectStopped(deviceId);
 }
 
-bool DeviceManager::stopRunningProject(const QString &deviceId)
+void DeviceManager::runProject(const QString &deviceId)
 {
     auto device = findDevice(deviceId);
-    if (!device)
-        return false;
+    if (!device) {
+        handleError(ErrTypes::InternalError, deviceId, "Device not found");
+        return;
+    }
 
-    return device->sendProjectStopped();
+    if (m_currentState != OpTypes::Stopped) {
+        qCDebug(deviceSharePluginLog) << "Another operation is in progress";
+        return;
+    }
+
+    m_currentQtKitVersion.clear();
+    ProjectExplorer::Target *target = QmlDesignerPlugin::instance()->currentDesignDocument()->currentTarget();
+    if (target && target->kit()) {
+        if (QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(target->kit()))
+            m_currentQtKitVersion = qtVer->qtVersion().toString();
+    }
+
+    m_currentState = OpTypes::Packing;
+    m_currentDeviceId = deviceId;
+    m_resourceGenerator.createQmlrcAsyncWithName();
+    emit projectPacking(deviceId);
+    qCDebug(deviceSharePluginLog) << "Packing project for device" << deviceId;
+}
+
+void DeviceManager::projectPacked(const Utils::FilePath &filePath)
+{
+    qCDebug(deviceSharePluginLog) << "Project packed" << filePath.toString();
+    emit projectSendingProgress(m_currentDeviceId, 0);
+
+    m_currentState = OpTypes::Sending;
+    qCDebug(deviceSharePluginLog) << "Sending project file to device" << m_currentDeviceId;
+    QFile file(filePath.toString());
+
+    if (!file.open(QIODevice::ReadOnly)) {
+        handleError(ErrTypes::ProjectSendingError, m_currentDeviceId, "Failed to open project file");
+        return;
+    }
+
+    ProjectExplorer::Target *target = QmlDesignerPlugin::instance()->currentDesignDocument()->currentTarget();
+    if (target && target->kit()) {
+        if (QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(target->kit()))
+            m_currentQtKitVersion = qtVer->qtVersion().toString();
+    }
+
+    if (!findDevice(m_currentDeviceId)->sendProjectData(file.readAll(), m_currentQtKitVersion)) {
+        handleError(ErrTypes::ProjectSendingError, m_currentDeviceId, "Failed to send project file");
+        return;
+    }
+}
+
+void DeviceManager::stopProject()
+{
+    auto device = findDevice(m_currentDeviceId);
+    if (!device) {
+        handleError(ErrTypes::InternalError, m_currentDeviceId, "Device not found");
+        return;
+    }
+
+    m_processInterrupted = true;
+    switch (m_currentState) {
+    case OpTypes::Stopped:
+        qCWarning(deviceSharePluginLog) << "No project is running";
+        return;
+    case OpTypes::Packing:
+        qCDebug(deviceSharePluginLog) << "Canceling project packing";
+        m_resourceGenerator.cancel();
+        break;
+    case OpTypes::Sending:
+        qCDebug(deviceSharePluginLog) << "Cancelling project sending";
+        device->abortProjectTransmission();
+        break;
+    case OpTypes::Starting:
+    case OpTypes::Running:
+        qCDebug(deviceSharePluginLog) << "Stopping project on device" << m_currentDeviceId;
+        device->sendProjectStopped();
+        break;
+    }
+
+    emit projectStopping(m_currentDeviceId);
 }
 
 DeviceManagerWidget *DeviceManager::widget()
