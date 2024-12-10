@@ -391,14 +391,14 @@ QStringList QMakeStep::parserArguments()
 
 QString QMakeStep::mkspec() const
 {
-    QString additionalArguments = userArguments();
-    ProcessArgs::addArgs(&additionalArguments, m_extraArgs);
-    for (ProcessArgs::ArgIterator ait(&additionalArguments); ait.next(); ) {
-        if (ait.value() == "-spec") {
-            if (ait.next())
-                return FilePath::fromUserInput(ait.value()).toString();
-        }
-    }
+    CommandLine cmd;
+    cmd.addArgs(userArguments(), CommandLine::Raw);
+    cmd.addArgs(m_extraArgs);
+
+    const QStringList args = cmd.splitArguments();
+    const int pos = args.indexOf("-spec") + 1;
+    if (pos > 0 && pos < args.size())
+        return FilePath::fromUserInput(args[pos]).toString();
 
     return QmakeKitAspect::effectiveMkspec(target()->kit());
 }
