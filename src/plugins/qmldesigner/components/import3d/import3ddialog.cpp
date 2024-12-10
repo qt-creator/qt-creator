@@ -1005,8 +1005,9 @@ Rectangle {
     m_model = m_view->model()->createModel("Item");
 #else
     m_model = QmlDesigner::Model::create("QtQuick/Item", 2, 1);
-    m_model->setFileUrl(m_previewFile.toUrl());
 #endif
+
+    m_model->setFileUrl(m_previewFile.toUrl());
 
     auto textDocument = std::make_unique<QTextDocument>(previewQml);
     auto modifier = std::make_unique<NotIndentingTextEditModifier>(textDocument.get(),
