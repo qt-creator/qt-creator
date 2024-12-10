@@ -514,6 +514,10 @@ void setupGuiModule()
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<PushButton>(children, guard);
             }),
+            "setText",
+            &PushButton::setText,
+            "setIconPath",
+            &PushButton::setIconPath,
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 

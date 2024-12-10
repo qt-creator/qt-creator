@@ -14,6 +14,7 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
 #include <extensionsystem/pluginmanager.h>

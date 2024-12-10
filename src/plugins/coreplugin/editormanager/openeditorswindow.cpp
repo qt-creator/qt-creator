@@ -146,6 +146,11 @@ OpenEditorsWindow::OpenEditorsWindow(QWidget *parent)
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_editorView);
+
+    // Close the popup and clear it if documents are closed behind the back of the view
+    connect(DocumentModel::model(), &QAbstractItemModel::rowsAboutToBeRemoved, this, [this] {
+        setVisible(false);
+    });
 }
 
 void OpenEditorsWindow::selectAndHide()
@@ -159,6 +164,8 @@ void OpenEditorsWindow::setVisible(bool visible)
     QWidget::setVisible(visible);
     if (visible)
         setFocus();
+    else
+        m_editorView->m_model.clear();
 }
 
 bool OpenEditorsWindow::eventFilter(QObject *obj, QEvent *e)
