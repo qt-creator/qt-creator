@@ -115,7 +115,7 @@ public:
     int nextId() const final
     {
         if (hasLibSuffix(m_data->sourcePath))
-            return WizardPage::nextId() + 1; // jump over check archive
+            return WizardPage::nextId();
         return WizardPage::nextId();
     }
 
@@ -185,6 +185,20 @@ public:
     {
         m_isComplete = false;
         emit completeChanged();
+        if (hasLibSuffix(m_data->sourcePath)) {
+            m_cancelButton->setVisible(false);
+            expected_str<std::unique_ptr<PluginSpec>> spec = readCppPluginSpec(m_data->sourcePath);
+            if (!spec) {
+                m_label->setType(InfoLabel::Error);
+                m_label->setText(spec.error());
+                return;
+            }
+            m_label->setType(InfoLabel::Ok);
+            m_label->setText(Tr::tr("Archive is OK."));
+            m_data->pluginSpec.swap(*spec);
+            m_isComplete = true;
+            return;
+        }
 
         m_tempDir = std::make_unique<TemporaryDirectory>("plugininstall");
         m_data->extractedPath = m_tempDir->path();
@@ -345,6 +359,7 @@ public:
 
     void initializePage() final
     {
+        QTC_ASSERT(m_data && m_data->pluginSpec, return);
         const FilePath installLocation = m_data->pluginSpec->installLocation(
             !m_data->installIntoApplication);
         installLocation.ensureWritableDir();
