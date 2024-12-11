@@ -79,7 +79,6 @@ Project {
 
     Environment {
        QT_QUICK_CONTROLS_CONF: "qtquickcontrols2.conf"
-       QT_AUTO_SCREEN_SCALE_FACTOR: "1"
        QML_COMPAT_RESOLVE_URLS_ON_ASSIGNMENT: "1"
 @if %{UseVirtualKeyboard}
        QT_IM_MODULE: "qtvirtualkeyboard"
