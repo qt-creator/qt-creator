@@ -4,6 +4,7 @@
 #include "cpphighlighter.h"
 
 #include "cppdoxygen.h"
+#include "cppeditordocument.h"
 #include "cppeditorlogging.h"
 #include "cpptoolsreuse.h"
 
@@ -13,7 +14,6 @@
 #include <utils/textutils.h>
 
 #include <cplusplus/SimpleLexer.h>
-#include <cplusplus/Lexer.h>
 
 #include <QFile>
 #include <QTextCharFormat>
@@ -904,10 +904,16 @@ int main() {                              // 1,0
                 QCOMPARE(actual, expected);
             }
         };
-        connect(testDocument.m_editorWidget, &CppEditorWidget::ifdefedOutBlocksChanged,
-                this, check);
-        t.start(5000);
-        QCOMPARE(loop.exec(), 0);
+
+        if (testDocument.m_editorWidget->cppEditorDocument()->ifdefedOutBlocks().isEmpty()) {
+            connect(testDocument.m_editorWidget->cppEditorDocument(),
+                    &CppEditorDocument::ifdefedOutBlocksApplied,
+                    this, check);
+            t.start(5000);
+            QCOMPARE(loop.exec(), 0);
+        } else {
+            check();
+        }
     }
 
     void cleanup()

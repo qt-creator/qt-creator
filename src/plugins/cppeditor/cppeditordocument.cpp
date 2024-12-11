@@ -79,6 +79,8 @@ CppEditorDocument::CppEditorDocument()
 {
     setId(CppEditor::Constants::CPPEDITOR_ID);
     resetSyntaxHighlighter([] { return new CppHighlighter(); });
+    connect(syntaxHighlighter(), &SyntaxHighlighter::finished,
+            this, &CppEditorDocument::applyIfdefedOutBlocks);
 
     ICodeStylePreferencesFactory *factory
         = TextEditorSettings::codeStyleFactory(Constants::CPP_SETTINGS_ID);
@@ -310,14 +312,14 @@ void CppEditorDocument::setExtraPreprocessorDirectives(const QByteArray &directi
 
 void CppEditorDocument::setIfdefedOutBlocks(const QList<TextEditor::BlockRange> &blocks)
 {
-    if (syntaxHighlighter() && !syntaxHighlighter()->syntaxHighlighterUpToDate()) {
-        connect(syntaxHighlighter(),
-            &SyntaxHighlighter::finished,
-            this,
-            [this, blocks] { setIfdefedOutBlocks(blocks); },
-            Qt::SingleShotConnection);
+    m_ifdefedOutBlocks = blocks;
+    applyIfdefedOutBlocks();
+}
+
+void CppEditorDocument::applyIfdefedOutBlocks()
+{
+    if (!syntaxHighlighter() || !syntaxHighlighter()->syntaxHighlighterUpToDate())
         return;
-    }
 
     auto documentLayout = qobject_cast<TextDocumentLayout*>(document()->documentLayout());
     QTC_ASSERT(documentLayout, return);
@@ -328,8 +330,8 @@ void CppEditorDocument::setIfdefedOutBlocks(const QList<TextEditor::BlockRange> 
     int previousBraceDepth = 0;
     while (block.isValid()) {
         bool resetToPrevious = false;
-        if (rangeNumber < blocks.size()) {
-            const BlockRange &range = blocks.at(rangeNumber);
+        if (rangeNumber < m_ifdefedOutBlocks.size()) {
+            const BlockRange &range = m_ifdefedOutBlocks.at(rangeNumber);
             if (block.position() >= range.first()
                 && ((block.position() + block.length() - 1) <= range.last() || !range.last())) {
                 TextDocumentLayout::setIfdefedOut(block);
@@ -366,6 +368,10 @@ void CppEditorDocument::setIfdefedOutBlocks(const QList<TextEditor::BlockRange> 
 
     if (needUpdate)
         documentLayout->requestUpdate();
+
+#ifdef WITH_TESTS
+    emit ifdefedOutBlocksApplied();
+#endif
 }
 
 void CppEditorDocument::setPreferredParseContext(const QString &parseContextId)
