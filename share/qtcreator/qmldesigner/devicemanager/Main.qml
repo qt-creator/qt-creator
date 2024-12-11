@@ -31,7 +31,8 @@ Rectangle {
         required property bool selected
         required property bool current
 
-        color: tableView.currentRow === row ? StudioTheme.Values.themeTableCellCurrent : StudioTheme.Values.themePanelBackground
+        color: tableView.currentRow === row ? StudioTheme.Values.themeTableCellCurrent
+                                            : StudioTheme.Values.themePanelBackground
         implicitWidth: StudioTheme.Values.cellWidth
         implicitHeight: StudioTheme.Values.cellHeight
         border {
@@ -54,7 +55,7 @@ Rectangle {
             popup.y = rootRectangle.y + rootRectangle.height + popup.chevronSize.height
 
             popup.chevronPosition = Qt.point(rootRectangle.x - popup.x + rootRectangle.width / 2,
-                                            -popup.chevronSize.height)
+                                             -popup.chevronSize.height)
         }
 
         implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
@@ -68,7 +69,7 @@ Rectangle {
         padding: 20
         modal: false
         focus: true
-        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        closePolicy: T.Popup.CloseOnEscape | T.Popup.CloseOnPressOutside
 
         background: Rectangle {
             color: StudioTheme.Values.themePopupBackground
@@ -170,12 +171,23 @@ Rectangle {
                     verticalAlignment: Qt.AlignVCenter
                 }
 
-                TableView.editDelegate: TextField {
+                TableView.editDelegate: T.TextField {
+                    id: textField
+
+                    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
+
                     anchors.fill: parent
                     text: aliasDelegate.display
                     horizontalAlignment: TextInput.AlignLeft
                     verticalAlignment: TextInput.AlignVCenter
                     padding: 8
+
+                    font.pixelSize: textField.style.baseFontSize
+                    color: textField.style.text.idle
+                    selectionColor: textField.style.text.selection
+                    selectedTextColor: textField.style.text.selectedText
+                    placeholderTextColor: textField.style.text.placeholder
+
                     Component.onCompleted: selectAll()
 
                     TableView.onCommit: {
