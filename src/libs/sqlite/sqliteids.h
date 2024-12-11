@@ -147,7 +147,7 @@ public:
     friend void convertToString(String &string, CompoundBasicId id)
     {
         convertToString(string, id.id);
-        convertToString(string, id.contextId);
+        convertToString(string, id.contextId());
     }
 
     friend bool compareId(CompoundBasicId first, CompoundBasicId second)

@@ -474,8 +474,8 @@ QWidget *SpacerField::createWidget(const QString &displayName, JsonFieldPage *pa
     Q_UNUSED(page)
     int hspace = QApplication::style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing);
     int vspace = QApplication::style()->pixelMetric(QStyle::PM_LayoutVerticalSpacing);
-    int hsize = hspace * m_factor;
-    int vsize = vspace * m_factor;
+    int hsize = qMax(0, hspace * m_factor);
+    int vsize = qMax(0, vspace * m_factor);
 
     auto w = new QWidget();
     w->setMinimumSize(hsize, vsize);

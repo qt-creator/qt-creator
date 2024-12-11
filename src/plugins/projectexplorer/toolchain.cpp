@@ -187,7 +187,9 @@ QString Toolchain::detectionSource() const
 
 ToolchainFactory *Toolchain::factory() const
 {
-    return ToolchainFactory::factoryForType(typeId());
+    ToolchainFactory * const factory = ToolchainFactory::factoryForType(typeId());
+    QTC_ASSERT(factory, qDebug() << typeId());
+    return factory;
 }
 
 QByteArray Toolchain::id() const
@@ -741,12 +743,11 @@ void ToolchainFactory::autoDetectionToMap(Store &data, bool detected)
 
 Toolchain *ToolchainFactory::createToolchain(Id toolchainType)
 {
-    for (ToolchainFactory *factory : std::as_const(toolchainFactories())) {
-        if (factory->m_supportedToolchainType == toolchainType) {
-            if (Toolchain *tc = factory->create()) {
-                tc->d->m_typeId = toolchainType;
-                return tc;
-            }
+    if (ToolchainFactory * const factory = factoryForType(toolchainType)) {
+        if (Toolchain * const tc = factory->create()) {
+            QTC_ASSERT(tc->typeId() == toolchainType, qDebug() << toolchainType.toSetting());
+            tc->d->m_typeId = toolchainType; // FIXME: Redundant?
+            return tc;
         }
     }
     return nullptr;
