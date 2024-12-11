@@ -109,6 +109,7 @@ add_qtc_library(winpty STATIC
 
 if(MSVC)
   target_compile_options(winpty PUBLIC /EHsc)
+  target_compile_options(winpty-agent PUBLIC /EHsc)
 endif()
 
 target_include_directories(winpty
