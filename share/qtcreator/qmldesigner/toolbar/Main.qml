@@ -473,7 +473,10 @@ Rectangle {
 
                                     function onProjectUploadError(errorCode: int, message: string) {
                                         shareNotification.type = ShareNotification.NotificationType.Error
-                                        shareNotification.setHelperText(qsTr("Upload failed (" + errorCode + ")."))
+                                        if (errorCode < 100)
+                                            shareNotification.setHelperText(qsTr("Upload failed. Please check your internet connection."))
+                                        else
+                                            shareNotification.setHelperText(qsTr("Upload failed (" + errorCode + ")."))
 
                                         shareMenuItem.enabled = true
                                     }

@@ -76,11 +76,6 @@ Item {
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                 }
-
-                StudioControls.ToolTipArea {
-                    anchors.fill: parent
-                    text: qsTr("This can be your message.")
-                }
             }
         }
 
