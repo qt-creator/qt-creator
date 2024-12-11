@@ -613,7 +613,6 @@ void ModelEditor::exportToImage(bool selectedElements)
         filter += Tr::tr(";;SVG (*.svg)");
 #endif // QT_NO_SVG
         QString fileName = FileUtils::getSaveFilePath(
-                    nullptr,
                     selectedElements ? Tr::tr("Export Selected Elements") : Tr::tr("Export Diagram"),
                     FilePath::fromString(d->lastExportDirPath), filter).toFSPathString();
         if (!fileName.isEmpty()) {

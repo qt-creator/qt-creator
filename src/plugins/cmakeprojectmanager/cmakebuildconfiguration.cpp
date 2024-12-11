@@ -610,7 +610,6 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
 void CMakeBuildSettingsWidget::reconfigureWithInitialParameters()
 {
     QMessageBox::StandardButton reply = CheckableMessageBox::question(
-        Core::ICore::dialogParent(),
         Tr::tr("Re-configure with Initial Parameters"),
         Tr::tr("Clear CMake configuration and configure with initial parameters?"),
         settings(m_buildConfig->project()).askBeforeReConfigureInitialParams.askAgainCheckableDecider(),

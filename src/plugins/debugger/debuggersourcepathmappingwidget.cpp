@@ -381,7 +381,7 @@ void DebuggerSourcePathMappingWidget::slotAdd()
 void DebuggerSourcePathMappingWidget::slotAddQt()
 {
     // Add a mapping for various Qt build locations in case of unpatched builds.
-    const FilePath qtSourcesPath = FileUtils::getExistingDirectory(this, Tr::tr("Qt Sources"));
+    const FilePath qtSourcesPath = FileUtils::getExistingDirectory(Tr::tr("Qt Sources"));
     if (qtSourcesPath.isEmpty())
         return;
     for (const QString &buildPath : qtBuildPaths())

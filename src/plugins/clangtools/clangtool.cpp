@@ -638,8 +638,7 @@ static bool continueDespiteReleaseBuild(const QString &toolName)
                                     "<p>%2</p>"
                                     "</body></html>")
                                 .arg(problem, question);
-    return CheckableMessageBox::question(ICore::dialogParent(),
-                                         title,
+    return CheckableMessageBox::question(title,
                                          message,
                                          Key("ClangToolsCorrectModeWarning"))
            == QMessageBox::Yes;
@@ -968,8 +967,7 @@ void ClangTool::loadDiagnosticsFromFiles()
 {
     // Ask user for files
     const FilePaths filePaths
-        = FileUtils::getOpenFilePaths(nullptr,
-                                      Tr::tr("Select YAML Files with Diagnostics"),
+        = FileUtils::getOpenFilePaths(Tr::tr("Select YAML Files with Diagnostics"),
                                       FileUtils::homePath(),
                                       Tr::tr("YAML Files (*.yml *.yaml);;All Files (*)"));
     if (filePaths.isEmpty())

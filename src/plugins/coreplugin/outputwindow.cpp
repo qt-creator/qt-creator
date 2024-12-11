@@ -305,7 +305,7 @@ void OutputWindow::contextMenuEvent(QContextMenuEvent *event)
     QAction *saveAction = menu->addAction(Tr::tr("Save Contents..."));
     connect(saveAction, &QAction::triggered, this, [this] {
         const FilePath file = FileUtils::getSaveFilePath(
-            ICore::dialogParent(), {}, FileUtils::homePath() / d->outputFileNameHint);
+            {}, FileUtils::homePath() / d->outputFileNameHint);
         if (!file.isEmpty()) {
             QString error;
             Utils::TextFileFormat format;

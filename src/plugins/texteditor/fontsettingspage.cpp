@@ -601,8 +601,7 @@ void FontSettingsPageWidget::deleteColorScheme()
 void FontSettingsPageWidget::importScheme()
 {
     const FilePath importedFile
-        = Utils::FileUtils::getOpenFilePath(this,
-                                            Tr::tr("Import Color Scheme"),
+        = Utils::FileUtils::getOpenFilePath(Tr::tr("Import Color Scheme"),
                                             {},
                                             Tr::tr("Color scheme (*.xml);;All files (*)"));
 
@@ -650,8 +649,7 @@ void FontSettingsPageWidget::exportScheme()
     const ColorSchemeEntry &entry = m_schemeListModel.colorSchemeAt(index);
 
     const FilePath filePath
-        = Utils::FileUtils::getSaveFilePath(this,
-                                            Tr::tr("Export Color Scheme"),
+        = Utils::FileUtils::getSaveFilePath(Tr::tr("Export Color Scheme"),
                                             entry.filePath,
                                             Tr::tr("Color scheme (*.xml);;All files (*)"));
 

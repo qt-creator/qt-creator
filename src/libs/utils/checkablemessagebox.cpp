@@ -80,7 +80,6 @@ static void prepare(QMessageBox::Icon icon,
 }
 
 static QMessageBox::StandardButton exec(
-    QWidget *parent,
     QMessageBox::Icon icon,
     const QString &title,
     const QString &text,
@@ -96,7 +95,7 @@ static QMessageBox::StandardButton exec(
             return acceptButton;
     }
 
-    QMessageBox msgBox(dialogParent(parent));
+    QMessageBox msgBox(dialogParent());
     prepare(icon, title, text, decider, buttons, defaultButton, buttonTextOverrides, msg, msgBox);
     msgBox.exec();
 
@@ -108,8 +107,7 @@ static QMessageBox::StandardButton exec(
     return clickedBtn;
 }
 
-static void show(QWidget *parent,
-                 QMessageBox::Icon icon,
+static void show(QMessageBox::Icon icon,
                  const QString &title,
                  const QString &text,
                  CheckableDecider decider,
@@ -132,7 +130,7 @@ static void show(QWidget *parent,
         return;
     }
 
-    QMessageBox *msgBox = new QMessageBox(dialogParent(parent));
+    QMessageBox *msgBox = new QMessageBox(dialogParent());
     prepare(icon, title, text, decider, buttons, defaultButton, buttonTextOverrides, msg, *msgBox);
 
     std::optional<QPointer<QObject>> guardPtr;
@@ -183,7 +181,6 @@ CheckableDecider::CheckableDecider(bool *storage)
 }
 
 QMessageBox::StandardButton CheckableMessageBox::question(
-    QWidget *parent,
     const QString &title,
     const QString &question,
     const CheckableDecider &decider,
@@ -193,8 +190,7 @@ QMessageBox::StandardButton CheckableMessageBox::question(
     QMap<QMessageBox::StandardButton, QString> buttonTextOverrides,
     const QString &msg)
 {
-    return exec(parent,
-                QMessageBox::Question,
+    return exec(QMessageBox::Question,
                 title,
                 question,
                 decider,
@@ -206,7 +202,6 @@ QMessageBox::StandardButton CheckableMessageBox::question(
 }
 
 void CheckableMessageBox::question_async(
-    QWidget *parent,
     const QString &title,
     const QString &question,
     const CheckableDecider &decider,
@@ -218,8 +213,7 @@ void CheckableMessageBox::question_async(
     QMap<QMessageBox::StandardButton, QString> buttonTextOverrides,
     const QString &msg)
 {
-    show(parent,
-         QMessageBox::Question,
+    show(QMessageBox::Question,
          title,
          question,
          decider,
@@ -233,7 +227,6 @@ void CheckableMessageBox::question_async(
 }
 
 QMessageBox::StandardButton CheckableMessageBox::information(
-    QWidget *parent,
     const QString &title,
     const QString &text,
     const CheckableDecider &decider,
@@ -242,8 +235,7 @@ QMessageBox::StandardButton CheckableMessageBox::information(
     QMap<QMessageBox::StandardButton, QString> buttonTextOverrides,
     const QString &msg)
 {
-    return exec(parent,
-                QMessageBox::Information,
+    return exec(QMessageBox::Information,
                 title,
                 text,
                 decider,
@@ -255,7 +247,6 @@ QMessageBox::StandardButton CheckableMessageBox::information(
 }
 
 void CheckableMessageBox::information_async(
-    QWidget *parent,
     const QString &title,
     const QString &text,
     const CheckableDecider &decider,
@@ -266,8 +257,7 @@ void CheckableMessageBox::information_async(
     QMap<QMessageBox::StandardButton, QString> buttonTextOverrides,
     const QString &msg)
 {
-    show(parent,
-         QMessageBox::Information,
+    show(QMessageBox::Information,
          title,
          text,
          decider,

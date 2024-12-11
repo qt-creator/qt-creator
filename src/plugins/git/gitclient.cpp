@@ -1267,7 +1267,6 @@ void GitClient::archive(const FilePath &workingDirectory, QString commit)
         commit = output.trimmed();
 
     FilePath archiveName = FileUtils::getSaveFilePath(
-                nullptr,
                 Tr::tr("Generate %1 archive").arg(repoName),
                 repoDirectory.pathAppended(QString("../%1-%2").arg(repoName, commit.left(8))),
                 filters.keys().join(";;"),
@@ -1357,7 +1356,6 @@ QStringList GitClient::setupCheckoutArguments(const FilePath &workingDirectory,
         return arguments;
 
     if (Utils::CheckableMessageBox::question(
-            ICore::dialogParent() /*parent*/,
             Tr::tr("Create Local Branch") /*title*/,
             Tr::tr("Would you like to create a local branch?") /*message*/,
             Key("Git.CreateLocalBranchOnCheckout"), /* decider */

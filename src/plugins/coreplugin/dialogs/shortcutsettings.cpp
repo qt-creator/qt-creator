@@ -743,8 +743,7 @@ void ShortcutSettingsWidget::resetToDefault()
 
 void ShortcutSettingsWidget::importAction()
 {
-    FilePath fileName = FileUtils::getOpenFilePath(nullptr,
-                                                   Tr::tr("Import Keyboard Mapping Scheme"),
+    FilePath fileName = FileUtils::getOpenFilePath(Tr::tr("Import Keyboard Mapping Scheme"),
                                                    schemesPath(),
                                                    Tr::tr("Keyboard Mapping Scheme (*.kms)"));
     if (!fileName.isEmpty()) {

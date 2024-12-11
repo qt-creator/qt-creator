@@ -278,8 +278,7 @@ RecordWidget::RecordWidget(const FilePath &recordFile, QWidget *parent)
     });
     connect(m_openClipAction, &QAction::triggered, this, [this, progressLabel] {
         const FilePath lastDir = Internal::settings().lastOpenDirectory();
-        const FilePath file = FileUtils::getOpenFilePath(Core::ICore::dialogParent(),
-                                                         m_openClipAction->text(), lastDir,
+        const FilePath file = FileUtils::getOpenFilePath(m_openClipAction->text(), lastDir,
                                                          "Mov/qtrle rgb24 (*.mov)");
         if (!file.isEmpty()) {
             Internal::settings().lastOpenDirectory.setValue(file.parentDir());

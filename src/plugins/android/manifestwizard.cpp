@@ -255,7 +255,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
     if (m_directory.isEmpty())
         return;
 
-    FileUtils::CopyAskingForOverwrite copy(this);
+    FileUtils::CopyAskingForOverwrite copy;
     Target *target = m_buildSystem->target();
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (!version)

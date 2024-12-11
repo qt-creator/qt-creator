@@ -421,8 +421,7 @@ void MainWidget::exportToImage()
             .arg(lastFolder)
             .arg(suggestedFileName)
             .arg(QDateTime::currentDateTime().toString("yyyyMMddhhmmss"));
-    const FilePath filePath = FileUtils::getSaveFilePath(this,
-                                                         Tr::tr("Export Canvas to Image"),
+    const FilePath filePath = FileUtils::getSaveFilePath(Tr::tr("Export Canvas to Image"),
                                                          FilePath::fromString(suggestedFileName),
                                                          saveImageFileFilter());
     if (!filePath.isEmpty()) {
@@ -451,8 +450,7 @@ void MainWidget::saveScreenShot()
     const QString documentsLocation = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     const FilePath lastFolder = FilePath::fromSettings(
             s->value(Constants::C_SETTINGS_LASTSAVESCREENSHOTFOLDER, documentsLocation));
-    const FilePath filePath = FileUtils::getSaveFilePath(this,
-                                                         Tr::tr("Save Screenshot"),
+    const FilePath filePath = FileUtils::getSaveFilePath(Tr::tr("Save Screenshot"),
                                                          lastFolder / "scxml_screenshot.png",
                                                          saveImageFileFilter());
     if (!filePath.isEmpty()) {

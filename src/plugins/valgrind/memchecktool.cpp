@@ -764,7 +764,6 @@ void MemcheckTool::heobAction()
         const QString dwarfstackPath = dialog.path() + '/' + dwarfstack;
         if (!QFileInfo::exists(dwarfstackPath)
             && CheckableMessageBox::information(
-                   Core::ICore::dialogParent(),
                    Tr::tr("Heob"),
                    Tr::tr("Heob used with MinGW projects needs the %1 DLLs for proper "
                           "stacktrace resolution.")
@@ -987,7 +986,6 @@ void MemcheckTool::loadShowXmlLogFile(const QString &filePath, const QString &ex
 void MemcheckTool::loadExternalXmlLogFile()
 {
     const FilePath filePath = FileUtils::getOpenFilePath(
-                nullptr,
                 Tr::tr("Open Memcheck XML Log File"),
                 {},
                 Tr::tr("XML Files (*.xml);;All Files (*)"));

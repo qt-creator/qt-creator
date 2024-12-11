@@ -1979,8 +1979,7 @@ void ProjectExplorerPluginPrivate::loadAction()
         dir = isProject ? fn : fn.absolutePath();
     }
 
-    FilePath filePath = Utils::FileUtils::getOpenFilePath(ICore::dialogParent(),
-                                                          Tr::tr("Load Project"),
+    FilePath filePath = Utils::FileUtils::getOpenFilePath(Tr::tr("Load Project"),
                                                           dir,
                                                           dd->projectFilterString());
     if (filePath.isEmpty())
@@ -2005,8 +2004,7 @@ void ProjectExplorerPluginPrivate::openWorkspaceAction()
         dir = isProject ? fn : fn.absolutePath();
     }
 
-    FilePath filePath = Utils::FileUtils::getExistingDirectory(
-        ICore::dialogParent(), Tr::tr("Open Workspace"), dir);
+    FilePath filePath = Utils::FileUtils::getExistingDirectory(Tr::tr("Open Workspace"), dir);
     if (filePath.isEmpty())
         return;
 
@@ -3664,7 +3662,7 @@ void ProjectExplorerPluginPrivate::addExistingProjects()
     QTC_ASSERT(projectNode, return);
     const FilePath dir = currentNode->directory();
     FilePaths subProjectFilePaths = Utils::FileUtils::getOpenFilePaths(
-                nullptr, Tr::tr("Choose Project File"), dir,
+                Tr::tr("Choose Project File"), dir,
                 projectNode->subProjectFileNamePatterns().join(";;"));
     if (!ProjectTree::hasNode(projectNode))
         return;
@@ -3702,7 +3700,7 @@ void ProjectExplorerPluginPrivate::handleAddExistingFiles()
     QTC_ASSERT(folderNode, return);
 
     const FilePaths filePaths =
-            Utils::FileUtils::getOpenFilePaths(nullptr, Tr::tr("Add Existing Files"), node->directory());
+            Utils::FileUtils::getOpenFilePaths(Tr::tr("Add Existing Files"), node->directory());
     if (filePaths.isEmpty())
         return;
 

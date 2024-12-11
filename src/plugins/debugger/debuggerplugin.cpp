@@ -1928,7 +1928,7 @@ void DebuggerPluginPrivate::dumpLog()
     LogWindow *logWindow = engine->logWindow();
     QTC_ASSERT(logWindow, return);
 
-    const FilePath filePath = FileUtils::getSaveFilePath(nullptr, Tr::tr("Save Debugger Log"),
+    const FilePath filePath = FileUtils::getSaveFilePath(Tr::tr("Save Debugger Log"),
                               TemporaryDirectory::masterDirectoryFilePath());
     if (filePath.isEmpty())
         return;
@@ -2207,8 +2207,7 @@ bool wantRunTool(ToolMode toolMode, const QString &toolName)
             "or otherwise insufficient output.</p><p>"
             "Do you want to continue and run the tool in %2 mode?</p></body></html>")
                 .arg(toolName).arg(currentMode).arg(toolModeString);
-        if (Utils::CheckableMessageBox::question(ICore::dialogParent(),
-                                                 title,
+        if (Utils::CheckableMessageBox::question(title,
                                                  message,
                                                  Key("AnalyzerCorrectModeWarning"))
             != QMessageBox::Yes)

@@ -298,8 +298,7 @@ void BookmarkView::keyPressEvent(QKeyEvent *event)
 
 void BookmarkView::removeAll()
 {
-    if (CheckableMessageBox::question(this,
-                                      Tr::tr("Remove All Bookmarks"),
+    if (CheckableMessageBox::question(Tr::tr("Remove All Bookmarks"),
                                       Tr::tr("Are you sure you want to remove all bookmarks from "
                                              "all files in the current session?"),
                                       Key("RemoveAllBookmarks"))

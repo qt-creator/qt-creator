@@ -408,8 +408,7 @@ void PathChooser::slotBrowse(bool remote)
     switch (d->m_acceptingKind) {
     case PathChooser::Directory:
     case PathChooser::ExistingDirectory:
-        newPath = FileUtils::getExistingDirectory(this,
-                                                  makeDialogTitle(Tr::tr("Choose Directory")),
+        newPath = FileUtils::getExistingDirectory(makeDialogTitle(Tr::tr("Choose Directory")),
                                                   predefined,
                                                   {},
                                                   d->m_allowPathFromDevice,
@@ -417,8 +416,7 @@ void PathChooser::slotBrowse(bool remote)
         break;
     case PathChooser::ExistingCommand:
     case PathChooser::Command:
-        newPath = FileUtils::getOpenFilePath(this,
-                                             makeDialogTitle(Tr::tr("Choose Executable")),
+        newPath = FileUtils::getOpenFilePath(makeDialogTitle(Tr::tr("Choose Executable")),
                                              predefined,
                                              d->m_dialogFilter,
                                              nullptr,
@@ -428,8 +426,7 @@ void PathChooser::slotBrowse(bool remote)
         newPath = appBundleExpandedPath(newPath);
         break;
     case PathChooser::File: // fall through
-        newPath = FileUtils::getOpenFilePath(this,
-                                             makeDialogTitle(Tr::tr("Choose File")),
+        newPath = FileUtils::getOpenFilePath(makeDialogTitle(Tr::tr("Choose File")),
                                              predefined,
                                              d->m_dialogFilter,
                                              nullptr,
@@ -439,8 +436,7 @@ void PathChooser::slotBrowse(bool remote)
         newPath = appBundleExpandedPath(newPath);
         break;
     case PathChooser::SaveFile:
-        newPath = FileUtils::getSaveFilePath(this,
-                                             makeDialogTitle(Tr::tr("Choose File")),
+        newPath = FileUtils::getSaveFilePath(makeDialogTitle(Tr::tr("Choose File")),
                                              predefined,
                                              d->m_dialogFilter,
                                              nullptr,
@@ -448,8 +444,7 @@ void PathChooser::slotBrowse(bool remote)
                                              remote);
         break;
     case PathChooser::Any: {
-        newPath = FileUtils::getOpenFilePath(this,
-                                             makeDialogTitle(Tr::tr("Choose File")),
+        newPath = FileUtils::getOpenFilePath(makeDialogTitle(Tr::tr("Choose File")),
                                              predefined,
                                              d->m_dialogFilter,
                                              nullptr,

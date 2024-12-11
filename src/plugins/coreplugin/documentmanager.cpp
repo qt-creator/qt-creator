@@ -795,7 +795,7 @@ FilePath DocumentManager::getSaveFileName(const QString &title, const FilePath &
     bool repeat;
     do {
         repeat = false;
-        filePath = FileUtils::getSaveFilePath(nullptr, title, path, filter, selectedFilter);
+        filePath = FileUtils::getSaveFilePath(title, path, filter, selectedFilter);
         if (!filePath.isEmpty()) {
             // If the selected filter is All Files (*) we leave the name exactly as the user
             // specified. Otherwise the suffix must be one available in the selected filter. If
@@ -1040,7 +1040,7 @@ FilePaths DocumentManager::getOpenFileNames(const QString &filters,
                                             QFileDialog::Options options)
 {
     const FilePath path = pathIn.isEmpty() ? fileDialogInitialDirectory() : pathIn;
-    const FilePaths files = FileUtils::getOpenFilePaths(nullptr, Tr::tr("Open File"), path, filters,
+    const FilePaths files = FileUtils::getOpenFilePaths(Tr::tr("Open File"), path, filters,
                                                         selectedFilter, options);
     if (!files.isEmpty())
         setFileDialogLastVisitedDirectory(files.front().absolutePath());

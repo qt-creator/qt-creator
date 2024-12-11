@@ -138,8 +138,7 @@ QString hintAboutBuildBeforeAnalysis()
 
 void showHintAboutBuildBeforeAnalysis()
 {
-    Utils::CheckableMessageBox::information(Core::ICore::dialogParent(),
-                                            Tr::tr("Info About Build the Project Before Analysis"),
+    Utils::CheckableMessageBox::information(Tr::tr("Info About Build the Project Before Analysis"),
                                             hintAboutBuildBeforeAnalysis(),
                                             Key("ClangToolsDisablingBuildBeforeAnalysisHint"));
 }

@@ -2570,7 +2570,6 @@ void WatchModel::clearWatches()
         return;
 
     const QMessageBox::StandardButton ret = CheckableMessageBox::question(
-        ICore::dialogParent(),
         Tr::tr("Remove All Expression Evaluators"),
         Tr::tr("Are you sure you want to remove all expression evaluators?"),
         Key("RemoveAllWatchers"));

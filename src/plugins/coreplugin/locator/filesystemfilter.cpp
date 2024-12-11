@@ -59,8 +59,7 @@ static ILocatorFilter::MatchLevel matchLevelFor(const QRegularExpressionMatch &m
 static bool askForCreating(const QString &title, const FilePath &filePath)
 {
     QMessageBox::StandardButton selected
-        = CheckableMessageBox::question(ICore::dialogParent(),
-                                        title,
+        = CheckableMessageBox::question(title,
                                         Tr::tr("Create \"%1\"?").arg(filePath.shortNativePath()),
                                         Key(kAlwaysCreate),
                                         QMessageBox::Yes | QMessageBox::Cancel,

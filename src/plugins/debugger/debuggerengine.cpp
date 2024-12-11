@@ -2939,7 +2939,6 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
     }
     if (warnOnInappropriateDebugger) {
         CheckableMessageBox::information(
-            Core::ICore::dialogParent(),
             Tr::tr("Warning"),
             Tr::tr("The selected debugger may be inappropriate for the inferior.\n"
                    "Examining symbols and setting breakpoints by file name and line number "

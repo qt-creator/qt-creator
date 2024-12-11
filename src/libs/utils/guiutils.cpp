@@ -53,9 +53,9 @@ void setDialogParentGetter(QWidget *(*getter)())
     s_dialogParentGetter = getter;
 }
 
-QWidget *dialogParent(QWidget *parent)
+QWidget *dialogParent()
 {
-    return parent ? parent : s_dialogParentGetter ? s_dialogParentGetter() : nullptr;
+    return s_dialogParentGetter ? s_dialogParentGetter() : nullptr;
 }
 
 } // namespace Utils

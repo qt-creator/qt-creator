@@ -18,7 +18,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
@@ -450,7 +449,6 @@ void CMakeManager::reloadCMakePresets()
         return;
 
     QMessageBox::StandardButton clickedButton = CheckableMessageBox::question(
-        Core::ICore::dialogParent(),
         Tr::tr("Reload CMake Presets"),
         Tr::tr("Re-generates the kits that were created for CMake presets. All manual "
                "modifications to the CMake project settings will be lost."),

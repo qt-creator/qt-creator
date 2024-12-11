@@ -279,7 +279,7 @@ void AndroidCreateKeystoreCertificate::buttonBoxAccepted()
     if (!validateUserInput())
         return;
 
-    m_keystoreFilePath = FileUtils::getSaveFilePath(this, Tr::tr("Keystore Filename"),
+    m_keystoreFilePath = FileUtils::getSaveFilePath(Tr::tr("Keystore Filename"),
                                                     FileUtils::homePath() / "android_release.keystore",
                                                     Tr::tr("Keystore files (*.keystore *.jks)"));
     if (m_keystoreFilePath.isEmpty())

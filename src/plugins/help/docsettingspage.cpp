@@ -213,8 +213,7 @@ DocSettingsPageWidget::DocSettingsPageWidget()
 
 void DocSettingsPageWidget::addDocumentation()
 {
-    const FilePaths files = FileUtils::getOpenFilePaths(Core::ICore::dialogParent(),
-                                                        Tr::tr("Add Documentation"),
+    const FilePaths files = FileUtils::getOpenFilePaths(Tr::tr("Add Documentation"),
                                                         m_recentDialogPath,
                                                         Tr::tr("Qt Help Files (*.qch)"));
 

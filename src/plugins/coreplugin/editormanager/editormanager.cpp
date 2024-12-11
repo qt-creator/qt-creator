@@ -822,7 +822,7 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const FilePath &filePath)
         CheckableDecider decider(&askAgain);
 
         QMessageBox::StandardButton clickedButton
-            = CheckableMessageBox::question(ICore::dialogParent(), title, text, decider);
+            = CheckableMessageBox::question(title, text, decider);
         systemSettings().warnBeforeOpeningBigFiles.setValue(askAgain);
         return clickedButton != QMessageBox::Yes;
     }

@@ -597,7 +597,7 @@ void QnxSettingsWidget::addConfiguration()
     else
         filter = "*.sh file";
 
-    const FilePath envFile = FileUtils::getOpenFilePath(this, Tr::tr("Select QNX Environment File"),
+    const FilePath envFile = FileUtils::getOpenFilePath(Tr::tr("Select QNX Environment File"),
                                                         {}, filter);
     if (envFile.isEmpty())
         return;

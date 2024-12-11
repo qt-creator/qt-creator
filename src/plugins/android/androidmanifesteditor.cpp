@@ -231,7 +231,6 @@ void IconWidget::setIconFromPath(const FilePath &iconPath)
 void IconWidget::selectIcon()
 {
     FilePath file = FileUtils::getOpenFilePath(
-        this,
         m_iconSelectionText,
         FileUtils::homePath(),
         //: %1 expands to wildcard list for file dialog, do not change order

@@ -449,8 +449,7 @@ void QdsNewDialog::reject()
 
 QString QdsNewDialog::chooseProjectLocation()
 {
-    Utils::FilePath newPath = Utils::FileUtils::getExistingDirectory(m_dialog.get(),
-                                                                     tr("Choose Directory"),
+    Utils::FilePath newPath = Utils::FileUtils::getExistingDirectory(tr("Choose Directory"),
                                                                      m_qmlProjectLocation);
 
     return QDir::toNativeSeparators(newPath.toString());

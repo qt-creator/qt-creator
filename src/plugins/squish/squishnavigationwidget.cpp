@@ -15,7 +15,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 
 #include <utils/algorithm.h>
@@ -337,8 +336,7 @@ void SquishNavigationWidget::onRemoveSharedFileTriggered(const QModelIndex &idx)
     const QString detail = Tr::tr("Do you really want to delete \"%1\" permanently?")
             .arg(scriptFile.toUserOutput());
     const QMessageBox::StandardButton pressed
-        = CheckableMessageBox::question(Core::ICore::dialogParent(),
-                                        Tr::tr("Remove Shared File"),
+        = CheckableMessageBox::question(Tr::tr("Remove Shared File"),
                                         detail,
                                         Key("RemoveSharedSquishScript"),
                                         QMessageBox::Yes | QMessageBox::No,
@@ -388,7 +386,6 @@ void SquishNavigationWidget::onRemoveAllSharedFolderTriggered()
 void SquishNavigationWidget::onRecordTestCase(const QString &suiteName, const QString &testCase)
 {
     QMessageBox::StandardButton pressed = CheckableMessageBox::question(
-        Core::ICore::dialogParent(),
         Tr::tr("Record Test Case"),
         Tr::tr("Do you want to record over the test case \"%1\"? The existing content will "
                "be overwritten by the recorded script.")

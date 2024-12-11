@@ -2792,8 +2792,7 @@ void BreakpointManager::gotoLocation(const GlobalBreakpoint &gbp) const
 void BreakpointManager::executeDeleteAllBreakpointsDialog()
 {
     QMessageBox::StandardButton pressed
-        = CheckableMessageBox::question(ICore::dialogParent(),
-                                        Tr::tr("Remove All Breakpoints"),
+        = CheckableMessageBox::question(Tr::tr("Remove All Breakpoints"),
                                         Tr::tr("Are you sure you want to remove all breakpoints "
                                                "from all files in the current session?"),
                                         Key("RemoveAllBreakpoints"));

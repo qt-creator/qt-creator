@@ -89,7 +89,7 @@ ProjectExplorer::Kit *PerfLoadDialog::kit() const
 void PerfLoadDialog::on_browseTraceFileButton_pressed()
 {
     FilePath filePath = FileUtils::getOpenFilePath(
-                this, Tr::tr("Choose Perf Trace"), {},
+                Tr::tr("Choose Perf Trace"), {},
                 Tr::tr("Perf traces (*%1)").arg(Constants::TraceFileExtension));
     if (filePath.isEmpty())
         return;
@@ -99,8 +99,7 @@ void PerfLoadDialog::on_browseTraceFileButton_pressed()
 
 void PerfLoadDialog::on_browseExecutableDirButton_pressed()
 {
-    FilePath filePath = FileUtils::getExistingDirectory(
-                this, Tr::tr("Choose Directory of Executable"));
+    FilePath filePath = FileUtils::getExistingDirectory(Tr::tr("Choose Directory of Executable"));
     if (filePath.isEmpty())
         return;
 

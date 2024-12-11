@@ -31,7 +31,6 @@ class QTCREATOR_UTILS_EXPORT CheckableMessageBox
 {
 public:
     static QMessageBox::StandardButton question(
-        QWidget *parent,
         const QString &title,
         const QString &question,
         const CheckableDecider &decider,
@@ -42,7 +41,6 @@ public:
         const QString &msg = {});
 
     static void question_async(
-        QWidget *parent,
         const QString &title,
         const QString &question,
         const CheckableDecider &decider,
@@ -55,7 +53,6 @@ public:
         const QString &msg = {});
 
     static QMessageBox::StandardButton information(
-        QWidget *parent,
         const QString &title,
         const QString &text,
         const CheckableDecider &decider,
@@ -65,7 +62,6 @@ public:
         const QString &msg = {});
 
     static void information_async(
-        QWidget *parent,
         const QString &title,
         const QString &text,
         const CheckableDecider &decider,

@@ -652,7 +652,6 @@ void DebuggerRunTool::continueAfterDebugServerStart()
                 bool doNotAskAgain = false;
                 CheckableDecider decider(&doNotAskAgain);
                 CheckableMessageBox::information(
-                    Core::ICore::dialogParent(),
                     Tr::tr("Debugger"),
                     warningMessage,
                     decider,

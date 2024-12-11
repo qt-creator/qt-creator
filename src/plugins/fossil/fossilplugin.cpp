@@ -687,7 +687,7 @@ void FossilPluginPrivate::createRepository()
     // Prompt for a directory that is not under version control yet
     QWidget *mw = ICore::dialogParent();
     do {
-        directory = FileUtils::getExistingDirectory(nullptr, Tr::tr("Choose Checkout Directory"), directory);
+        directory = FileUtils::getExistingDirectory(Tr::tr("Choose Checkout Directory"), directory);
         if (directory.isEmpty())
             return;
         const IVersionControl *managingControl = VcsManager::findVersionControlForDirectory(directory);

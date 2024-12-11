@@ -296,7 +296,7 @@ void KitManagerConfigWidget::setIcon()
     }
     iconMenu.addSeparator();
     iconMenu.addAction(PathChooser::browseButtonLabel(), [this] {
-        const FilePath path = FileUtils::getOpenFilePath(this, Tr::tr("Select Icon"),
+        const FilePath path = FileUtils::getOpenFilePath(Tr::tr("Select Icon"),
                                                          m_modifiedKit->iconPath(),
                                                          Tr::tr("Images (*.png *.xpm *.jpg)"));
         if (path.isEmpty())

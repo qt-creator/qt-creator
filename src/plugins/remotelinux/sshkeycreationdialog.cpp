@@ -129,7 +129,7 @@ void SshKeyCreationDialog::generateKeys()
 
 void SshKeyCreationDialog::handleBrowseButtonClicked()
 {
-    const FilePath filePath = FileUtils::getSaveFilePath(this, Tr::tr("Choose Private Key File Name"));
+    const FilePath filePath = FileUtils::getSaveFilePath(Tr::tr("Choose Private Key File Name"));
     if (!filePath.isEmpty())
         setPrivateKeyFile(filePath);
 }

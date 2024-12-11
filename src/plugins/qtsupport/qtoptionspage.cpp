@@ -682,8 +682,7 @@ QtSettingsPageWidget::~QtSettingsPageWidget()
 void QtSettingsPageWidget::addQtDir()
 {
     FilePath qtVersion
-        = FileUtils::getOpenFilePath(this,
-                                     Tr::tr("Select a qmake Executable"),
+        = FileUtils::getOpenFilePath(Tr::tr("Select a qmake Executable"),
                                      {},
                                      BuildableHelperLibrary::filterForQmakeFileDialog(),
                                      nullptr,
@@ -754,8 +753,7 @@ void QtSettingsPageWidget::editPath()
 {
     QtVersion *current = currentVersion();
     FilePath qtVersion =
-            FileUtils::getOpenFilePath(this,
-                                       Tr::tr("Select a qmake Executable"),
+            FileUtils::getOpenFilePath(Tr::tr("Select a qmake Executable"),
                                        current->qmakeFilePath().absolutePath(),
                                        BuildableHelperLibrary::filterForQmakeFileDialog(),
                                        nullptr,

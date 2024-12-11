@@ -50,7 +50,7 @@ ParseIssuesDialog::ParseIssuesDialog(QWidget *parent) : QDialog(parent), d(new P
 
     const auto loadFileButton = new QPushButton(Tr::tr("Load from File..."));
     connect(loadFileButton, &QPushButton::clicked, this, [this] {
-        const FilePath filePath = FileUtils::getOpenFilePath(this, Tr::tr("Choose File"));
+        const FilePath filePath = FileUtils::getOpenFilePath(Tr::tr("Choose File"));
         if (filePath.isEmpty())
             return;
         QFile file(filePath.toString());

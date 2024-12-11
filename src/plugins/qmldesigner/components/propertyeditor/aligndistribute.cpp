@@ -668,7 +668,6 @@ bool AlignDistribute::executePixelPerfectDialog() const
     Utils::CheckableDecider decider(Key("WarnAboutPixelPerfectDistribution"));
 
     QMessageBox::StandardButton pressed = Utils::CheckableMessageBox::question(
-        Core::ICore::dialogParent(),
         tr("Cannot Distribute Perfectly"),
         tr("These objects cannot be distributed to equal pixel values. "
            "Do you want to distribute to the nearest possible values?"),

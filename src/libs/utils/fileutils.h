@@ -37,13 +37,11 @@ using CopyHelper = std::function<bool(const FilePath &, const FilePath &, QStrin
 class QTCREATOR_UTILS_EXPORT CopyAskingForOverwrite
 {
 public:
-    CopyAskingForOverwrite(QWidget *dialogParent,
-                           const std::function<void(FilePath)> &postOperation = {});
+    explicit CopyAskingForOverwrite(const std::function<void(FilePath)> &postOperation = {});
     CopyHelper operator()();
     FilePaths files() const;
 
 private:
-    QWidget *m_parent;
     FilePaths m_files;
     std::function<void(FilePath)> m_postOperation;
     bool m_overwriteAll = false;
@@ -83,7 +81,6 @@ QTCREATOR_UTILS_EXPORT FilePaths usefulExtraSearchPaths();
 QTCREATOR_UTILS_EXPORT bool hasNativeFileDialog();
 
 QTCREATOR_UTILS_EXPORT FilePath getOpenFilePath(
-        QWidget *parent,
         const QString &caption,
         const FilePath &dir = {},
         const QString &filter = {},
@@ -93,7 +90,6 @@ QTCREATOR_UTILS_EXPORT FilePath getOpenFilePath(
         bool forceNonNativeDialog = false);
 
 QTCREATOR_UTILS_EXPORT FilePath getSaveFilePath(
-        QWidget *parent,
         const QString &caption,
         const FilePath &dir = {},
         const QString &filter = {},
@@ -102,7 +98,6 @@ QTCREATOR_UTILS_EXPORT FilePath getSaveFilePath(
         bool forceNonNativeDialog = false);
 
 QTCREATOR_UTILS_EXPORT FilePath getExistingDirectory(
-        QWidget *parent,
         const QString &caption,
         const FilePath &dir = {},
         QFileDialog::Options options = QFileDialog::ShowDirsOnly,
@@ -110,7 +105,6 @@ QTCREATOR_UTILS_EXPORT FilePath getExistingDirectory(
         bool forceNonNativeDialog = false);
 
 QTCREATOR_UTILS_EXPORT FilePaths getOpenFilePaths(
-        QWidget *parent,
         const QString &caption,
         const FilePath &dir = {},
         const QString &filter = {},

@@ -351,8 +351,7 @@ void GeneralSettingsPageWidget::importBookmarks()
 {
     errorLabel->setVisible(false);
 
-    FilePath filePath = FileUtils::getOpenFilePath(nullptr,
-                                                   Tr::tr("Import Bookmarks"),
+    FilePath filePath = FileUtils::getOpenFilePath(Tr::tr("Import Bookmarks"),
                                                    FilePath::fromString(QDir::currentPath()),
                                                    Tr::tr("Files (*.xbel)"));
 
@@ -375,8 +374,7 @@ void GeneralSettingsPageWidget::exportBookmarks()
 {
     errorLabel->setVisible(false);
 
-    FilePath filePath = FileUtils::getSaveFilePath(nullptr,
-                                                   Tr::tr("Save File"),
+    FilePath filePath = FileUtils::getSaveFilePath(Tr::tr("Save File"),
                                                    "untitled.xbel",
                                                    Tr::tr("Files (*.xbel)"));
 

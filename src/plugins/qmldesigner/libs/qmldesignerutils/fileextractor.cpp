@@ -104,8 +104,7 @@ void FileExtractor::setTargetPath(const QString &path)
 
 void FileExtractor::browse()
 {
-    const FilePath path = FileUtils::getExistingDirectory(nullptr, tr("Choose Directory"),
-                                                          m_targetPath);
+    const FilePath path = FileUtils::getExistingDirectory(tr("Choose Directory"), m_targetPath);
     if (!path.isEmpty()) {
         removeTempTargetPath();
         m_targetPath = path;

@@ -589,7 +589,7 @@ void PerfProfilerTool::showLoadTraceDialog()
 {
     m_perspective.select();
 
-    FilePath filePath = FileUtils::getOpenFilePath(nullptr, Tr::tr("Load Trace File"),
+    FilePath filePath = FileUtils::getOpenFilePath(Tr::tr("Load Trace File"),
                                                    {}, Tr::tr("Trace File (*.ptq)"));
     if (filePath.isEmpty())
         return;
@@ -608,7 +608,7 @@ void PerfProfilerTool::showSaveTraceDialog()
 {
     m_perspective.select();
 
-    FilePath filePath = FileUtils::getSaveFilePath(nullptr, Tr::tr("Save Trace File"),
+    FilePath filePath = FileUtils::getSaveFilePath(Tr::tr("Save Trace File"),
                                                    {}, Tr::tr("Trace File (*.ptq)"));
     if (filePath.isEmpty())
         return;

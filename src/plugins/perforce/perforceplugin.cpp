@@ -786,7 +786,7 @@ void PerforcePluginPrivate::annotateCurrentFile()
 
 void PerforcePluginPrivate::annotateFile()
 {
-    const FilePath filePath = FileUtils::getOpenFilePath(nullptr, Tr::tr("p4 annotate"));
+    const FilePath filePath = FileUtils::getOpenFilePath(Tr::tr("p4 annotate"));
     if (!filePath.isEmpty())
         annotate(filePath.parentDir(), filePath.fileName());
 }
@@ -828,7 +828,7 @@ void PerforcePluginPrivate::filelogCurrentFile()
 
 void PerforcePluginPrivate::filelogFile()
 {
-    const FilePath file = FileUtils::getOpenFilePath(nullptr, Tr::tr("p4 filelog"));
+    const FilePath file = FileUtils::getOpenFilePath(Tr::tr("p4 filelog"));
     if (!file.isEmpty())
         filelog(file.parentDir(), file.fileName());
 }

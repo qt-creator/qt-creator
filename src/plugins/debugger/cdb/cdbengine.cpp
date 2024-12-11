@@ -2239,8 +2239,7 @@ void CdbEngine::checkQtSdkPdbFiles(const QString &module)
                  "symbols for the debugger.")
                   .arg(qtName);
 
-        CheckableMessageBox::information_async(Core::ICore::dialogParent(),
-                                               Tr::tr("Missing Qt Debug Information"),
+        CheckableMessageBox::information_async(Tr::tr("Missing Qt Debug Information"),
                                                message,
                                                Key("CdbQtSdkPdbHint"));
 
@@ -2264,7 +2263,6 @@ void CdbEngine::parseOutputLine(QString line)
     if (!m_initialSessionIdleHandled && line.startsWith("SECURE: File not allowed to be loaded")
         && line.endsWith("qtcreatorcdbext.dll")) {
         CheckableMessageBox::information(
-            Core::ICore::dialogParent(),
             Tr::tr("Debugger Start Failed"),
             Tr::tr("The system prevents loading of \"%1\", which is required for debugging. "
                    "Make sure that your antivirus solution is up to date and if that does not work "

@@ -853,7 +853,6 @@ void CallgrindTool::slotRequestDump()
 void CallgrindTool::loadExternalLogFile()
 {
     const FilePath filePath = FileUtils::getOpenFilePath(
-                nullptr,
                 Tr::tr("Open Callgrind Log File"),
                 {},
                 Tr::tr("Callgrind Output (callgrind.out*);;All Files (*)"));

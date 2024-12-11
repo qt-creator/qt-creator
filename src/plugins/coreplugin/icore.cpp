@@ -2040,7 +2040,6 @@ void ICorePrivate::registerDefaultActions()
                     "Locator.Actions from the menu");
 
                 CheckableMessageBox::information(
-                    Core::ICore::dialogParent(),
                     Tr::tr("Hide Menu Bar"),
                     Tr::tr("This will hide the menu bar completely. "
                            "You can show it again by typing %1."

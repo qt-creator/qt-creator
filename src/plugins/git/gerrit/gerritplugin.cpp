@@ -335,7 +335,7 @@ void GerritPlugin::fetch(const std::shared_ptr<GerritChange> &change, int mode)
         const QString title =
                 Git::Tr::tr("Enter Local Repository for \"%1\" (%2)").arg(change->project, change->branch);
         const FilePath suggestedRespository = findLocalRepository(change->project, change->branch);
-        repository = FileUtils::getExistingDirectory(m_dialog.data(), title, suggestedRespository);
+        repository = FileUtils::getExistingDirectory(title, suggestedRespository);
     }
 
     if (repository.isEmpty())

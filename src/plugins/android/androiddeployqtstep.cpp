@@ -531,8 +531,7 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
 
     connect(installCustomApkButton, &QAbstractButton::clicked, this, [this, widget] {
         const FilePath packagePath
-                = FileUtils::getOpenFilePath(widget,
-                                             Tr::tr("Qt Android Installer"),
+                = FileUtils::getOpenFilePath(Tr::tr("Qt Android Installer"),
                                              FileUtils::homePath(),
                                              Tr::tr("Android package (*.apk)"));
         if (packagePath.isEmpty())

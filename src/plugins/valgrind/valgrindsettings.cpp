@@ -57,7 +57,7 @@ void SuppressionAspect::addSuppressionFile(const FilePath &suppression)
 void SuppressionAspectPrivate::slotAddSuppression()
 {
     const FilePaths files =
-            FileUtils::getOpenFilePaths(nullptr,
+            FileUtils::getOpenFilePaths(
                       Tr::tr("Valgrind Suppression Files"),
                       globalSettings().lastSuppressionDirectory(),
                       Tr::tr("Valgrind Suppression File (*.supp);;All Files (*)"));

@@ -311,10 +311,8 @@ TempFileSaver::~TempFileSaver()
 namespace FileUtils {
 
 #ifdef QT_GUI_LIB
-CopyAskingForOverwrite::CopyAskingForOverwrite(QWidget *dialogParent,
-                                               const std::function<void (FilePath)> &postOperation)
-    : m_parent(dialogParent)
-    , m_postOperation(postOperation)
+CopyAskingForOverwrite::CopyAskingForOverwrite(const std::function<void (FilePath)> &postOperation)
+    : m_postOperation(postOperation)
 {}
 
 CopyHelper CopyAskingForOverwrite::operator()()
@@ -326,7 +324,7 @@ CopyHelper CopyAskingForOverwrite::operator()()
                 copyFile = false;
             else if (!m_overwriteAll) {
                 const int res = QMessageBox::question(
-                    m_parent,
+                    dialogParent(),
                     Tr::tr("Overwrite File?"),
                     Tr::tr("Overwrite existing file \"%1\"?").arg(dest.toUserOutput()),
                     QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::No
@@ -454,8 +452,7 @@ static void prepareNonNativeDialog(QFileDialog &dialog)
     }
 }
 
-FilePaths getFilePaths(QWidget *parent,
-                       const QString &caption,
+FilePaths getFilePaths(const QString &caption,
                        const FilePath &dir,
                        const QString &filter,
                        QString *selectedFilter,
@@ -465,7 +462,7 @@ FilePaths getFilePaths(QWidget *parent,
                        QFileDialog::FileMode fileMode,
                        QFileDialog::AcceptMode acceptMode)
 {
-    QFileDialog dialog(parent, caption, dir.toFSPathString(), filter);
+    QFileDialog dialog(dialogParent(), caption, dir.toFSPathString(), filter);
     dialog.setFileMode(fileMode);
 
     if (forceNonNativeDialog)
@@ -505,8 +502,7 @@ bool hasNativeFileDialog()
     return *hasNative;
 }
 
-FilePath getOpenFilePath(QWidget *parent,
-                         const QString &caption,
+FilePath getOpenFilePath(const QString &caption,
                          const FilePath &dir,
                          const QString &filter,
                          QString *selectedFilter,
@@ -522,8 +518,7 @@ FilePath getOpenFilePath(QWidget *parent,
 #endif
 
     const QStringList schemes = QStringList(QStringLiteral("file"));
-    return firstOrEmpty(getFilePaths(dialogParent(parent),
-                                     caption,
+    return firstOrEmpty(getFilePaths(caption,
                                      dir,
                                      filter,
                                      selectedFilter,
@@ -534,8 +529,7 @@ FilePath getOpenFilePath(QWidget *parent,
                                      QFileDialog::AcceptOpen));
 }
 
-FilePath getSaveFilePath(QWidget *parent,
-                         const QString &caption,
+FilePath getSaveFilePath(const QString &caption,
                          const FilePath &dir,
                          const QString &filter,
                          QString *selectedFilter,
@@ -545,8 +539,7 @@ FilePath getSaveFilePath(QWidget *parent,
     forceNonNativeDialog = forceNonNativeDialog || !dir.isLocal();
 
     const QStringList schemes = QStringList(QStringLiteral("file"));
-    return firstOrEmpty(getFilePaths(dialogParent(parent),
-                                     caption,
+    return firstOrEmpty(getFilePaths(caption,
                                      dir,
                                      filter,
                                      selectedFilter,
@@ -557,8 +550,7 @@ FilePath getSaveFilePath(QWidget *parent,
                                      QFileDialog::AcceptSave));
 }
 
-FilePath getExistingDirectory(QWidget *parent,
-                              const QString &caption,
+FilePath getExistingDirectory(const QString &caption,
                               const FilePath &dir,
                               QFileDialog::Options options,
                               bool fromDeviceIfShiftIsPressed,
@@ -573,8 +565,7 @@ FilePath getExistingDirectory(QWidget *parent,
 #endif
 
     const QStringList schemes = QStringList(QStringLiteral("file"));
-    return firstOrEmpty(getFilePaths(dialogParent(parent),
-                                     caption,
+    return firstOrEmpty(getFilePaths(caption,
                                      dir,
                                      {},
                                      nullptr,
@@ -585,8 +576,7 @@ FilePath getExistingDirectory(QWidget *parent,
                                      QFileDialog::AcceptOpen));
 }
 
-FilePaths getOpenFilePaths(QWidget *parent,
-                           const QString &caption,
+FilePaths getOpenFilePaths(const QString &caption,
                            const FilePath &dir,
                            const QString &filter,
                            QString *selectedFilter,
@@ -595,8 +585,7 @@ FilePaths getOpenFilePaths(QWidget *parent,
     bool forceNonNativeDialog = !dir.isLocal();
 
     const QStringList schemes = QStringList(QStringLiteral("file"));
-    return getFilePaths(dialogParent(parent),
-                        caption,
+    return getFilePaths(caption,
                         dir,
                         filter,
                         selectedFilter,

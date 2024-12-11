@@ -644,7 +644,7 @@ void QmlProfilerTool::showSaveDialog()
     QLatin1String tFile(QtdFileExtension);
     QLatin1String zFile(QztFileExtension);
     FilePath filePath = FileUtils::getSaveFilePath(
-                nullptr, Tr::tr("Save QML Trace"),
+                Tr::tr("Save QML Trace"),
                 globalSettings().lastTraceFile(),
                 Tr::tr("QML traces (*%1 *%2)").arg(zFile).arg(tFile));
     if (!filePath.isEmpty()) {
@@ -668,7 +668,7 @@ void QmlProfilerTool::showLoadDialog()
     QLatin1String tFile(QtdFileExtension);
     QLatin1String zFile(QztFileExtension);
     FilePath filePath = FileUtils::getOpenFilePath(
-                nullptr, Tr::tr("Load QML Trace"),
+                Tr::tr("Load QML Trace"),
                 globalSettings().lastTraceFile(),
                 Tr::tr("QML traces (*%1 *%2)").arg(zFile).arg(tFile));
 

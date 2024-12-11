@@ -1119,8 +1119,7 @@ void AxivionPerspective::handleAnchorClicked(const QUrl &url)
                                       "Do you want to open \"%1\" with its default application?")
                 .arg(url.toString());
         const QMessageBox::StandardButton pressed
-            = CheckableMessageBox::question(Core::ICore::dialogParent(),
-                                            Tr::tr("Open External Links"),
+            = CheckableMessageBox::question(Tr::tr("Open External Links"),
                                             detail,
                                             Key("AxivionOpenExternalLinks"));
         if (pressed == QMessageBox::Yes)

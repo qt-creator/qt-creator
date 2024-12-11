@@ -528,7 +528,7 @@ bool executePluginInstallWizard(const FilePath &archive)
                 return copyPluginFile(data.sourcePath, installPath);
             } else {
                 QString error;
-                FileUtils::CopyAskingForOverwrite copy(ICore::dialogParent(), postCopyOperation());
+                FileUtils::CopyAskingForOverwrite copy(postCopyOperation());
                 if (!FileUtils::copyRecursively(data.extractedPath, installPath, &error, copy())) {
                     QMessageBox::warning(
                         ICore::dialogParent(), Tr::tr("Failed to Copy Plugin Files"), error);

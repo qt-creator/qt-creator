@@ -31,7 +31,7 @@ PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(
         const DeviceConstRef &device, QWidget *parent)
 {
     const FilePath dir = device.sshParameters().privateKeyFile.parentDir();
-    const FilePath publicKeyFileName = FileUtils::getOpenFilePath(nullptr,
+    const FilePath publicKeyFileName = FileUtils::getOpenFilePath(
         Tr::tr("Choose Public Key File"), dir,
         Tr::tr("Public Key Files (*.pub);;All Files (*)"));
     if (publicKeyFileName.isEmpty())

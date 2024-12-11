@@ -317,7 +317,7 @@ void LspLogWidget::saveLog()
         stream << "\n\n";
     });
 
-    const FilePath filePath = FileUtils::getSaveFilePath(this, Tr::tr("Log File"));
+    const FilePath filePath = FileUtils::getSaveFilePath(Tr::tr("Log File"));
     if (filePath.isEmpty())
         return;
     FileSaver saver(filePath, QIODevice::Text);

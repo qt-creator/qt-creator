@@ -575,7 +575,6 @@ TerminalSettings::TerminalSettings()
 
         connect(loadThemeButton, &QPushButton::clicked, this, [] {
             const FilePath path = FileUtils::getOpenFilePath(
-                Core::ICore::dialogParent(),
                 "Open Theme",
                 {},
                 "All Scheme formats (*.itermcolors *.json *.colorscheme *.theme *.theme.txt);;"

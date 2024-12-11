@@ -1294,8 +1294,7 @@ bool RunControl::showPromptToStopDialog(const QString &title,
     if (prompt)
         decider = CheckableDecider(prompt);
 
-    auto selected = CheckableMessageBox::question(Core::ICore::dialogParent(),
-                                                  title,
+    auto selected = CheckableMessageBox::question(title,
                                                   text,
                                                   decider,
                                                   QMessageBox::Yes | QMessageBox::Cancel,

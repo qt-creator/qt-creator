@@ -186,7 +186,7 @@ QString ErrorWidget::modifyExportedValue(const QString &val)
 
 void ErrorWidget::exportWarnings()
 {
-    FilePath fileName = FileUtils::getSaveFilePath(this, Tr::tr("Export to File"), {}, Tr::tr("CSV files (*.csv)"));
+    FilePath fileName = FileUtils::getSaveFilePath(Tr::tr("Export to File"), {}, Tr::tr("CSV files (*.csv)"));
     if (fileName.isEmpty())
         return;
 

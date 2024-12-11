@@ -467,7 +467,7 @@ void addAllEntriesRecursively(SquishTestTreeItem *item)
 void SquishFileHandler::addSharedFolder()
 {
     const Utils::FilePath chosen = Utils::FileUtils::getExistingDirectory(
-                Core::ICore::dialogParent(), Tr::tr("Select Global Script Folder"));
+                Tr::tr("Select Global Script Folder"));
     if (chosen.isEmpty())
         return;
 

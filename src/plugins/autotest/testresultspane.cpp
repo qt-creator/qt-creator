@@ -656,7 +656,7 @@ void TestResultsPane::onCopyWholeTriggered()
 
 void TestResultsPane::onSaveWholeTriggered()
 {
-    const FilePath filePath = FileUtils::getSaveFilePath(nullptr, Tr::tr("Save Output To"));
+    const FilePath filePath = FileUtils::getSaveFilePath(Tr::tr("Save Output To"));
     if (filePath.isEmpty())
         return;
 
