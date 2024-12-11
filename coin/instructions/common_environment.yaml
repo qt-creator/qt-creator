@@ -20,7 +20,7 @@ instructions:
         instructions:
           - type: EnvironmentVariable
             variableName: QTC_QT_BASE_URL
-            variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/qt/6.4.3/release_content/"
+            variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/qt/6.5.3/release_content/"
           - type: EnvironmentVariable
             variableName: MACOSX_DEPLOYMENT_TARGET
             variableValue: 11.0
