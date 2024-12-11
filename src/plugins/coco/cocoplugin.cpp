@@ -7,7 +7,6 @@
 #include "cocoprojectsettingswidget.h"
 #include "cocotr.h"
 #include "globalsettings.h"
-#include "globalsettingspage.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>

@@ -39,8 +39,6 @@ add_qtc_plugin(Coco
     files/cocoplugin.prf
     globalsettings.cpp
     globalsettings.h
-    globalsettingspage.cpp
-    globalsettingspage.h
     images/SquishCoco_48x48.png
     modificationfile.cpp
     modificationfile.h

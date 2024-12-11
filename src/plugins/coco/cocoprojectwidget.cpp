@@ -7,7 +7,7 @@
 #include "cococommon.h"
 #include "cocopluginconstants.h"
 #include "cocotr.h"
-#include "globalsettingspage.h"
+#include "globalsettings.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/buildsystem.h>
