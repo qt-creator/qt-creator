@@ -155,8 +155,8 @@ OpenEditorsWindow::OpenEditorsWindow(QWidget *parent)
 
 void OpenEditorsWindow::selectAndHide()
 {
-    setVisible(false);
     selectEditor(m_editorView->currentItem());
+    setVisible(false);
 }
 
 void OpenEditorsWindow::setVisible(bool visible)
