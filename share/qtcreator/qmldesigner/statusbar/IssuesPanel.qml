@@ -20,6 +20,8 @@ ScrollView {
 
     function clearIssues() { messageModel.resetModel() }
 
+    ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+
     ScrollBar.vertical: StudioControls.TransientScrollBar {
         id: verticalScrollBar
         style: StudioTheme.Values.viewStyle
@@ -37,8 +39,8 @@ ScrollView {
 
             model: MessageModel { id: messageModel }
 
-            delegate: Row {
-                id: row
+            delegate: Item {
+                id: delegateItem
 
                 required property int index
                 required property string message
@@ -46,68 +48,75 @@ ScrollView {
                 required property string type
 
                 width: root.width
-                spacing: 10
+                height: labelInfo.height
 
-                Text {
-                    id: labelIcon
-                    font.family: StudioTheme.Constants.iconFont.family
-                    font.pixelSize: StudioTheme.Values.baseIconFontSize
-                    color: (type == "Warning") ? StudioTheme.Values.themeAmberLight
-                                               : StudioTheme.Values.themeRedLight
-                    text: (type == "Warning") ? StudioTheme.Constants.warning2_medium
-                                              : StudioTheme.Constants.error_medium
-                    width: 18
-                    height: 18
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                }
+                RowLayout {
+                    id: row
+                    anchors.fill: parent
+                    spacing: 10
 
-                Text {
-                    id: labelLocation
-                    text: location
-                    color: "#57b9fc"
-                    font.pixelSize: StudioTheme.Values.baseFontSize
-                    verticalAlignment: Text.AlignVCenter
-                    font.underline: mouseArea.containsMouse
-                    height: 18
+                    Text {
+                        id: labelIcon
+                        font.family: StudioTheme.Constants.iconFont.family
+                        font.pixelSize: StudioTheme.Values.baseIconFontSize
+                        color: (type == "Warning") ? StudioTheme.Values.themeAmberLight
+                                                   : StudioTheme.Values.themeRedLight
+                        text: (type == "Warning") ? StudioTheme.Constants.warning2_medium
+                                                  : StudioTheme.Constants.error_medium
+                        width: 18
+                        height: 18
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
 
-                    MouseArea {
-                        id: mouseArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: mouseArea.containsMouse ? Qt.PointingHandCursor
-                                                             : Qt.ArrowCursor
-                        Connections {
-                            target: mouseArea
-                            function onClicked() {
-                                messageModel.jumpToCode(index)
+                    Text {
+                        id: labelLocation
+                        text: location
+                        color: StudioTheme.Values.themeInteraction
+                        font.pixelSize: StudioTheme.Values.baseFontSize
+                        verticalAlignment: Text.AlignVCenter
+                        font.underline: mouseArea.containsMouse
+                        height: 18
+                        visible: text
+
+                        MouseArea {
+                            id: mouseArea
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: mouseArea.containsMouse ? Qt.PointingHandCursor
+                                                                 : Qt.ArrowCursor
+                            Connections {
+                                target: mouseArea
+                                function onClicked() {
+                                    messageModel.jumpToCode(index)
+                                }
                             }
                         }
                     }
-                }
 
-                Text {
-                    id: labelInfo
-                    color: (type == "Warning") ? StudioTheme.Values.themeAmberLight
-                                               : StudioTheme.Values.themeRedLight
+                    Text {
+                        id: labelInfo
+                        color: (type == "Warning") ? StudioTheme.Values.themeAmberLight
+                                                   : StudioTheme.Values.themeRedLight
 
-                    linkColor: StudioTheme.Values.themeInteraction
-                    text: message
-                    font.pixelSize: StudioTheme.Values.baseFontSize
-                    verticalAlignment: Text.AlignTop
-                    wrapMode: Text.WordWrap
-                    width: row.width - labelIcon.width - labelLocation.width - row.spacing * 2
+                        linkColor: StudioTheme.Values.themeInteraction
+                        text: message
+                        font.pixelSize: StudioTheme.Values.baseFontSize
+                        verticalAlignment: Text.AlignTop
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
 
-                    MouseArea {
-                        anchors.fill: parent
-                        acceptedButtons: Qt.NoButton
-                        cursorShape: labelInfo.hoveredLink === "" ?  Qt.ArrowCursor : Qt.PointingHandCursor
-                    }
+                        MouseArea {
+                            anchors.fill: parent
+                            acceptedButtons: Qt.NoButton
+                            cursorShape: labelInfo.hoveredLink === "" ?  Qt.ArrowCursor : Qt.PointingHandCursor
+                        }
 
-                    Connections {
-                        target: labelInfo
-                        function onLinkActivated(link) {
-                            messageModel.openLink(link)
+                        Connections {
+                            target: labelInfo
+                            function onLinkActivated(link) {
+                                messageModel.openLink(link)
+                            }
                         }
                     }
                 }
