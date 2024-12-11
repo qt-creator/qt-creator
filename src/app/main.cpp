@@ -196,7 +196,7 @@ static inline FilePaths getPluginPaths()
     //    "%LOCALAPPDATA%\QtProject\qtcreator" on Windows Vista and later
     //    "$XDG_DATA_HOME/data/QtProject/qtcreator" or "~/.local/share/data/QtProject/qtcreator" on Linux
     //    "~/Library/Application Support/QtProject/Qt Creator" on Mac
-    const FilePath userPluginPath = appInfo().userPluginsRoot;
+    const FilePath userPluginPath = appInfo().userPluginsRoot.parentDir();
 
     // Qt Creator X.Y.Z can load plugins from X.Y.(Z-1) etc, so add current and previous
     // patch versions
