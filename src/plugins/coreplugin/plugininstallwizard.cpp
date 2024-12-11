@@ -452,18 +452,16 @@ private:
     QTextEdit *m_terms = nullptr;
 };
 
-static std::function<void(FilePath)> postCopyOperation()
+static void postCopyOperation(FilePath filePath)
 {
-    return [](const FilePath &filePath) {
-        if (!HostOsInfo::isMacHost())
-            return;
-        // On macOS, downloaded files get a quarantine flag, remove it, otherwise it is a hassle
-        // to get it loaded as a plugin in Qt Creator.
-        Process xattr;
-        xattr.setCommand({"/usr/bin/xattr", {"-d", "com.apple.quarantine", filePath.absoluteFilePath().toString()}});
-        using namespace std::chrono_literals;
-        xattr.runBlocking(1s);
-    };
+    if (!HostOsInfo::isMacHost())
+        return;
+    // On macOS, downloaded files get a quarantine flag, remove it, otherwise it is a hassle
+    // to get it loaded as a plugin in Qt Creator.
+    Process xattr;
+    xattr.setCommand({"/usr/bin/xattr", {"-d", "com.apple.quarantine", filePath.absoluteFilePath().path()}});
+    using namespace std::chrono_literals;
+    xattr.runBlocking(1s);
 }
 
 static bool copyPluginFile(const FilePath &src, const FilePath &dest)
@@ -490,7 +488,7 @@ static bool copyPluginFile(const FilePath &src, const FilePath &dest)
                              Tr::tr("Failed to write file \"%1\".").arg(destFile.toUserOutput()));
         return false;
     }
-    postCopyOperation()(destFile);
+    postCopyOperation(destFile);
     return true;
 }
 
@@ -528,7 +526,7 @@ bool executePluginInstallWizard(const FilePath &archive)
                 return copyPluginFile(data.sourcePath, installPath);
             } else {
                 QString error;
-                FileUtils::CopyAskingForOverwrite copy(postCopyOperation());
+                FileUtils::CopyAskingForOverwrite copy(&postCopyOperation);
                 if (!FileUtils::copyRecursively(data.extractedPath, installPath, &error, copy())) {
                     QMessageBox::warning(
                         ICore::dialogParent(), Tr::tr("Failed to Copy Plugin Files"), error);
