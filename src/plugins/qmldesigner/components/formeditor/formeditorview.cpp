@@ -16,18 +16,19 @@
 #include <qmldesignertr.h>
 
 #include <auxiliarydataproperties.h>
-#include <qmldesignerplugin.h>
 #include <bindingproperty.h>
+#include <customnotifications.h>
 #include <designersettings.h>
 #include <model.h>
 #include <modelnode.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
+#include <qml3dnode.h>
+#include <qmldesignerplugin.h>
 #include <rewriterview.h>
 #include <variantproperty.h>
 #include <zoomaction.h>
-#include <qml3dnode.h>
 
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
@@ -63,6 +64,10 @@ FormEditorView::~FormEditorView()
 void FormEditorView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
+
+#ifndef QDS_USE_PROJECTSTORAGE
+    m_hadIncompleteTypeInformation = model->rewriterView()->hasIncompleteTypeInformation();
+#endif
 
     m_formEditorWidget->setBackgoundImage({});
 
@@ -472,7 +477,7 @@ void FormEditorView::documentMessagesChanged(const QList<DocumentMessage> &error
     QTC_ASSERT(model(), return);
     QTC_ASSERT(model()->rewriterView(), return);
 
-    if (!errors.isEmpty() && !model()->rewriterView()->hasIncompleteTypeInformation())
+    if (!errors.isEmpty() && !m_hadIncompleteTypeInformation)
         m_formEditorWidget->showErrorMessageBox(errors);
     else if (rewriterView()->errors().isEmpty())
         m_formEditorWidget->hideErrorMessageBox();
@@ -486,6 +491,10 @@ void FormEditorView::customNotification(const AbstractView * /*view*/, const QSt
         m_dragTool->clearMoveDelay();
     if (identifier == QLatin1String("reset QmlPuppet"))
         temporaryBlockView();
+#ifndef QDS_USE_PROJECTSTORAGE
+    if (identifier == UpdateItemlibrary)
+        m_hadIncompleteTypeInformation = model()->rewriterView()->hasIncompleteTypeInformation();
+#endif
 }
 
 void FormEditorView::currentStateChanged(const ModelNode & /*node*/)
