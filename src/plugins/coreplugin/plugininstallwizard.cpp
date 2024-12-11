@@ -112,13 +112,6 @@ public:
         return bool(sourceAndCommand);
     }
 
-    int nextId() const final
-    {
-        if (hasLibSuffix(m_data->sourcePath))
-            return WizardPage::nextId();
-        return WizardPage::nextId();
-    }
-
     InfoLabel *m_info = nullptr;
     Data *m_data = nullptr;
 };
