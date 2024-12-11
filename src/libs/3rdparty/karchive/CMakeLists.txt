@@ -157,12 +157,10 @@ extend_qtc_library(
 )
 
 # libLZMA support
-if (NOT QTC_USE_SYSTEM_LZMA)
-    include (CheckTypeSize)
-    include (CheckIncludeFile)
-    CHECK_TYPE_SIZE("size_t"     SIZEOF_SIZE_T)
-    CHECK_INCLUDE_FILE("stdbool.h" HAVE_STDBOOL_H)
-endif()
+include (CheckTypeSize)
+include (CheckIncludeFile)
+CHECK_TYPE_SIZE("size_t"     SIZEOF_SIZE_T)
+CHECK_INCLUDE_FILE("stdbool.h" HAVE_STDBOOL_H)
 
 extend_qtc_library(
     karchive
