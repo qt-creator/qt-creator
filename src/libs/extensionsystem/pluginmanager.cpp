@@ -2151,4 +2151,13 @@ void PluginManager::setAcceptTermsAndConditionsCallback(
     d->setAcceptTermsAndConditionsCallback(callback);
 }
 
+void PluginManager::setTermsAndConditionsAccepted(PluginSpec *spec)
+{
+    if (spec->termsAndConditions()) {
+        d->pluginsWithAcceptedTermsAndConditions.append(spec->id());
+        if (d->settings)
+            d->settings->setValue(C_TANDCACCEPTED_PLUGINS, d->pluginsWithAcceptedTermsAndConditions);
+    }
+}
+
 } // ExtensionSystem
