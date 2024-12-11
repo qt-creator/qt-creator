@@ -349,8 +349,10 @@ Rectangle {
                 }
 
                 onClosing: {
-                    if (shareNotification.hasFinished())
+                    if (shareNotification.hasFinished()) {
                         shareNotification.visible = false
+                        shareNotification.resetHelperText()
+                    }
                 }
 
                 function formatBytes(bytes, decimals = 2) {
@@ -479,6 +481,7 @@ Rectangle {
                                     function onProjectIsPacking() {
                                         shareNotification.type = ShareNotification.NotificationType.Indeterminate
                                         shareNotification.setText(qsTr("Packing"))
+                                        shareNotification.resetHelperText()
                                         shareNotification.visible = true
 
                                         shareMenuItem.enabled = false

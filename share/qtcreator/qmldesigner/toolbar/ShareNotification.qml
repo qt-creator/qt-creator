@@ -33,6 +33,10 @@ Item {
         helperText.text = value
     }
 
+    function resetHelperText() {
+        helperText.text = ""
+    }
+
     function setProgress(value: var) {
         helperText.text = `${value.toFixed(0)} %`
         progressBar.value = value / 100.0
