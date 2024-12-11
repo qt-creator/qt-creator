@@ -644,6 +644,8 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
     buildDir = buildDir.withNewPath(buildDir.path().replace(" ", "-"));
 
     auto buildDevice = BuildDeviceKitAspect::device(kit);
+    if (!buildDevice)
+        return buildDir;
 
     if (buildDir.isAbsolutePath())
         return buildDevice->rootPath().withNewMappedPath(buildDir);
