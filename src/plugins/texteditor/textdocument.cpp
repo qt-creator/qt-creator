@@ -493,8 +493,10 @@ void TextDocument::applyFontSettings()
         block = block.next();
     }
     updateLayout();
-    if (d->m_highlighter)
+    if (d->m_highlighter) {
         d->m_highlighter->setFontSettings(d->m_fontSettings);
+        d->m_highlighter->scheduleRehighlight();
+    }
 }
 
 void TextDocument::slotCodeStyleSettingsChanged() { }

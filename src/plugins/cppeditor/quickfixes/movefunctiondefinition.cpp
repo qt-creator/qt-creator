@@ -107,9 +107,23 @@ public:
         Scope *scopeAtInsertPos = m_toFile->cppDocument()->scopeAt(l.line(), l.column());
 
         // construct definition
-        const QString funcDec = inlinePrefix(m_toFile->filePath(), [this] { return m_type == MoveOutside; })
-                                + definitionSignature(m_operation, funcAST, m_fromFile, m_toFile,
-                                                      scopeAtInsertPos);
+        const QString inlinePref = inlinePrefix(m_toFile->filePath(), [this] {
+            return m_type == MoveOutside;
+        });
+        QString funcDec = definitionSignature(m_operation, funcAST, m_fromFile, m_toFile,
+                                              scopeAtInsertPos);
+        QString input = funcDec;
+        int inlineIndex = 0;
+        const QRegularExpression templateRegex("template\\s*<[^>]*>");
+        while (input.startsWith("template")) {
+            const QRegularExpressionMatch match = templateRegex.match(input);
+            if (match.hasMatch()) {
+                inlineIndex += match.captured().size() + 1;
+                input = input.mid(match.captured().size() + 1);
+            }
+        }
+        funcDec.insert(inlineIndex, inlinePref);
+
         QString funcDef = prefix + funcDec;
         const int startPosition = m_fromFile->endOf(funcAST->declarator);
         const int endPosition = m_fromFile->endOf(funcAST);
@@ -1182,11 +1196,11 @@ private slots:
             "class Foo { void fu@nc(); };\n"
             "\n"
             "template<class T>\n"
-            "void Foo<T>::func() {}\n";
+            "inline void Foo<T>::func() {}\n";
         ;
 
         MoveFuncDefOutside factory;
-        QuickFixOperationTest(singleDocument(original, expected), &factory);
+        QuickFixOperationTest(singleDocument(original, expected, "file.h"), &factory);
     }
 
     void testConcept()

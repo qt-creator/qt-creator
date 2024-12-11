@@ -1406,6 +1406,7 @@ static FilePaths findCompilerCandidates(OsType os,
         if (os == OsTypeWindows && fileName.endsWith(u".exe", Qt::CaseInsensitive))
             fileName.chop(4);
 
+        // Do not `continue`, proceed to detect further variants
         if (fileName == compilerName)
             compilerPaths << executable;
 
@@ -1426,7 +1427,7 @@ static FilePaths findCompilerCandidates(OsType os,
         // if not at the end, it must by followed by a hyphen and a digit between 1 and 9
         pos += cl;
         if (pos != fileName.size()) {
-            if (pos + 2 >= fileName.size())
+            if (pos + 1 >= fileName.size())
                 continue;
             if (fileName.at(pos) != '-')
                 continue;

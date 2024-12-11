@@ -65,19 +65,24 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor)
                             return AcceptResult();
                         };
                     }
-                    bool realTarget = false;
-                    if (!target.backtrace.isEmpty() && target.targetType != UtilityType) {
+                    // We want to show real targets (executables, libraries) and also
+                    // custom targets defined in the project via add_custom_target.
+                    bool targetOfInterest = false;
+                    if (!target.backtrace.isEmpty()) {
                         const FilePath path = target.backtrace.last().path;
                         const int line = target.backtrace.last().line;
                         entry.linkForEditor = {path, line};
                         entry.extraInfo = path.shortNativePath();
-                        realTarget = true;
+
+                        if (target.targetType != UtilityType || path == projectPath
+                            || path.isChildOf(projectPath))
+                            targetOfInterest = true;
                     } else {
                         entry.extraInfo = projectPath.shortNativePath();
                     }
                     entry.highlightInfo = ILocatorFilter::highlightInfo(match);
                     entry.filePath = cmakeProject->projectFilePath();
-                    if (acceptor || realTarget) {
+                    if (acceptor || targetOfInterest) {
                         if (match.capturedStart() == 0)
                             entries[int(ILocatorFilter::MatchLevel::Best)].append(entry);
                         else if (match.lastCapturedIndex() == 1)

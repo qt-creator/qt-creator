@@ -21,17 +21,13 @@
 #include <coreplugin/icore.h>
 #include <cplusplus/AST.h>
 #include <cplusplus/ASTPath.h>
-#include <cplusplus/Icons.h>
 #include <cppeditor/compilationdb.h>
 #include <cppeditor/cppcodemodelsettings.h>
-#include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cpprefactoringchanges.h>
 #include <cppeditor/cppsemanticinfo.h>
 #include <cppeditor/cpptoolsreuse.h>
-#include <cppeditor/cppvirtualfunctionassistprovider.h>
-#include <cppeditor/cppvirtualfunctionproposalitem.h>
 #include <cppeditor/semantichighlighter.h>
 #include <languageclient/diagnosticmanager.h>
 #include <languageclient/languageclienthoverhandler.h>
@@ -46,15 +42,12 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/taskhub.h>
-#include <texteditor/codeassist/assistinterface.h>
-#include <texteditor/codeassist/iassistprocessor.h>
-#include <texteditor/codeassist/iassistprovider.h>
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -62,9 +55,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/mimeconstants.h>
-#include <utils/itemviews.h>
 #include <utils/theme/theme.h>
-#include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QElapsedTimer>
@@ -472,8 +463,10 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
     progressManager()->setTitleForToken(
         indexingToken(), project ? Tr::tr("Indexing %1 with clangd").arg(project->displayName())
                                  : Tr::tr("Indexing session with clangd"));
-    progressManager()->setCancelHandlerForToken(indexingToken(), [this, project]() {
-        CppEditor::ClangdProjectSettings projectSettings(project);
+    progressManager()->setCancelHandlerForToken(indexingToken(), [this, p = QPointer(project)]() {
+        if (!p)
+            return;
+        CppEditor::ClangdProjectSettings projectSettings(p);
         projectSettings.blockIndexing();
         progressManager()->endProgressReport(indexingToken());
     });

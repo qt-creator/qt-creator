@@ -87,74 +87,70 @@ jobs:
         string(REPLACE "." "" qt_version_dotless "${qt_version}")
         if ("${{ runner.os }}" STREQUAL "Windows")
           set(url_os "windows_x86")
-          set(qt_package_arch_suffix "win64_msvc2022_64")
-          set(qt_dir_prefix "${qt_version}/msvc_64")
-          set(qt_package_suffix "-Windows-Windows_11_23H2-MSVC2022-Windows-Windows_11_23H2-X86_64")
+          set(compiler_id "win64_msvc2022_64")
         elseif ("${{ runner.os }}" STREQUAL "Linux")
           set(url_os "linux_x64")
-          set(qt_package_arch_suffix "linux_gcc_64")
-          set(qt_dir_prefix "${qt_version}/gcc_64")
-          set(qt_package_suffix "-Linux-RHEL_8_10-GCC-Linux-RHEL_8_10-X86_64")
+          set(compiler_id "linux_gcc_64")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
           set(url_os "mac_x64")
-          set(qt_package_arch_suffix "clang_64")
-          set(qt_dir_prefix "${qt_version}/macos")
-          set(qt_package_suffix "-MacOS-MacOS_14-Clang-MacOS-MacOS_14-X86_64-ARM64")
+          set(compiler_id "clang_64")
         endif()
 
         set(qt_base_url "https://download.qt.io/online/qtsdkrepository/${url_os}/desktop/qt6_${qt_version_dotless}/qt6_${qt_version_dotless}")
         file(DOWNLOAD "${qt_base_url}/Updates.xml" ./Updates.xml SHOW_PROGRESS)
 
         file(READ ./Updates.xml updates_xml)
-        string(REGEX MATCH "<Name>qt.qt6.*<Version>([0-9+-.]+)</Version>" updates_xml_output "${updates_xml}")
-        set(qt_package_version ${CMAKE_MATCH_1})
+        # get the package sections, only for given compiler, without the "debug info" ones
+        string(REGEX REPLACE "<PackageUpdate>" ";<PackageUpdate>" sections "${updates_xml}")
+        list(FILTER sections EXCLUDE REGEX "<Name>.*debug.*</Name>")
+        list(FILTER sections INCLUDE REGEX "<Name>.*${compiler_id}.*</Name>")
 
         # Save the path for other steps
-        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/qt6/${qt_dir_prefix}" qt_dir)
+        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/qt/" qt_dir)
         file(APPEND "$ENV{GITHUB_OUTPUT}" "qt_dir=${qt_dir}")
 
+        function(get_sub_url outvar module)
+          set(filtered ${sections})
+          list(FILTER filtered INCLUDE REGEX "<DownloadableArchives>.*${module}.*</DownloadableArchives>")
+          list(LENGTH filtered count)
+          if (count LESS 1)
+            set(${outvar} "<notfound>" PARENT_SCOPE)
+            return()
+          endif()
+          list(GET filtered 0 section)
+          string(REGEX MATCH "<Name>(.*)</Name>" match "${section}")
+          set(name ${CMAKE_MATCH_1})
+          string(REGEX MATCH "<Version>(.*)</Version>" match "${section}")
+          set(version ${CMAKE_MATCH_1})
+          string(REGEX MATCH "<DownloadableArchives>.*(${module}[^,]+).*</DownloadableArchives>" match "${section}")
+          set(archive ${CMAKE_MATCH_1})
+          set(${outvar} "${name}/${version}${archive}" PARENT_SCOPE)
+        endfunction()
+
         message("Downloading Qt to ${qt_dir}")
-        function(downloadAndExtract url archive subdir)
+        function(downloadAndExtract module subdir)
           file(MAKE_DIRECTORY "${qt_dir}/${subdir}")
-          message("Downloading ${url}")
+          set(archive "${module}.7z")
+          get_sub_url(sub_url ${module})
+          set(url "${qt_base_url}/${sub_url}")
+          message("Downloading ${module} from ${url}")
           message("... extracting to ${qt_dir}/${subdir}")
           file(DOWNLOAD "${url}" "$ENV{GITHUB_WORKSPACE}/${archive}" SHOW_PROGRESS)
           execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "$ENV{GITHUB_WORKSPACE}/${archive}" WORKING_DIRECTORY "${qt_dir}/${subdir}")
         endfunction()
 
-        foreach(package qtbase qtdeclarative)
-          downloadAndExtract(
-            "${qt_base_url}/qt.qt6.${qt_version_dotless}.${qt_package_arch_suffix}/${qt_package_version}${package}${qt_package_suffix}.7z"
-            ${package}.7z
-            ""
-          )
-        endforeach()
-
-        foreach(package qt5compat qtshadertools)
-          downloadAndExtract(
-            "${qt_base_url}/qt.qt6.${qt_version_dotless}.addons.${package}.${qt_package_arch_suffix}/${qt_package_version}${package}${qt_package_suffix}.7z"
-            ${package}.7z
-            ""
-          )
+        foreach(package qtbase qtdeclarative qt5compat qtshadertools)
+          downloadAndExtract(${package} "")
         endforeach()
 
         # uic depends on libicu*.so
         if ("${{ runner.os }}" STREQUAL "Linux")
-          if (qt_version VERSION_LESS "6.7.0")
-            set(uic_suffix "Rhel7.2-x64")
-          else()
-            set(uic_suffix "Rhel8.6-x86_64")
-          endif()
-          downloadAndExtract(
-            "${qt_base_url}/qt.qt6.${qt_version_dotless}.${qt_package_arch_suffix}/${qt_package_version}icu-linux-${uic_suffix}.7z"
-            icu.7z
-            "lib"
-          )
+          downloadAndExtract("icu" "lib")
         endif()
 
         execute_process(COMMAND ${qt_dir}/bin/qmake -query)
     - name: Download Qt Creator
-      uses: qt-creator/install-dev-package@v1.2
+      uses: qt-creator/install-dev-package@v1.6
       with:
         version: ${{ env.QT_CREATOR_VERSION }}
         unzip-to: 'qtcreator'
