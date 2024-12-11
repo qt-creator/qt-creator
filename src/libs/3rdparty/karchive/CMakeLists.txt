@@ -282,6 +282,10 @@ extend_qtc_library(
         ./3rdparty/xz/src/liblzma/simple/x86.c
 )
 
+if(MSVC)
+  target_compile_options(karchive PUBLIC /wd4005 /wd4244 /wd4267 /wd4996)
+endif()
+
 # Zstd support
 # BSD License: https://github.com/facebook/zstd/blob/dev/LICENSE
 # Disabled for now as we don't need it and the packages are suboptimal
