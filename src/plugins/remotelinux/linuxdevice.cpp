@@ -900,8 +900,8 @@ public:
         });
         Result result = m_shell->start();
         if (!result) {
-            qCWarning(linuxDeviceLog) << "Failed to start shell for:" << parameters.userAtHostAndPort()
-                                      << ", " << result.error();
+            qCDebug(linuxDeviceLog) << "Failed to start shell for:" << parameters.userAtHostAndPort()
+                                    << ", " << result.error();
         }
         return result;
     }
@@ -1038,7 +1038,7 @@ LinuxDevice::LinuxDevice()
 
         QObject::connect(proc, &Process::done, proc, [proc](){
             if (proc->exitCode() != 0){
-                qCWarning(linuxDeviceLog) << proc->exitMessage();
+                qCDebug(linuxDeviceLog) << proc->exitMessage();
                 Core::MessageManager::writeFlashing(proc->exitMessage());
             }
             proc->deleteLater();
