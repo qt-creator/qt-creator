@@ -54,7 +54,7 @@ class RunManager : public QObject
 public:
     explicit RunManager(DeviceShare::DeviceManager &deviceManager);
 
-    enum TargetState { Starting, Running, NotRunning };
+    enum TargetState { Running, NotRunning };
     Q_ENUM(TargetState)
 
     void udpateTargets();

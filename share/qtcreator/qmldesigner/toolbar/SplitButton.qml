@@ -111,8 +111,6 @@ Item {
                                 return primaryButton.press ? primaryButton.style.text.idle
                                                            : primaryButton.hover ? "#2eff68" // running green
                                                                                  : "#649a5d" // idle green
-                            else if (startingAnimation.running)
-                                return primaryButton.style.text.idle
                             else
                                 return primaryButton.press ? primaryButton.style.text.idle
                                                            : primaryButton.hover ? "#cc3c34" // recording red
@@ -122,20 +120,8 @@ Item {
                         text: {
                             if (root.runManagerState === RunManager.NotRunning)
                                 return StudioTheme.Constants.playOutline_medium
-                            else if (root.runManagerState === RunManager.Starting)
-                                return StudioTheme.Constants.properties_medium
                             else
                                 return StudioTheme.Constants.stop_medium
-                        }
-
-                        RotationAnimation on rotation {
-                            id: startingAnimation
-                            running: root.runManagerState === RunManager.Starting
-                            loops: Animation.Infinite
-                            from: 0
-                            to: 360
-                            duration: 1000
-                            alwaysRunToEnd: true
                         }
                     }
 

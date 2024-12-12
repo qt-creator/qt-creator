@@ -187,21 +187,16 @@ void RunManager::toggleCurrentTarget()
     }
 
     auto target = runTarget(m_currentTargetId);
-
     if (!target)
         return;
 
     bool enabled = std::visit([&](const auto &arg) { return arg.enabled(); }, *target);
-
     if (!enabled) {
         qCDebug(runManagerLog) << "Can't start run target" << m_currentTargetId << "not enabled.";
         return;
     }
 
     std::visit([&](const auto &arg) { arg.run(); }, *target);
-
-    m_state = TargetState::Starting;
-    emit stateChanged();
 }
 
 int RunManager::currentTargetIndex() const
