@@ -29,7 +29,19 @@ class DebuggerItemModel;
 class DEBUGGER_EXPORT DebuggerItem
 {
 public:
-    DebuggerItem();
+    struct TechnicalData
+    {
+        static Utils::expected_str<DebuggerItem::TechnicalData> extract(
+            const Utils::FilePath &fromExecutable,
+            const std::optional<Utils::Environment> &customEnvironment);
+        bool isEmpty() const;
+
+        DebuggerEngineType engineType = NoEngineType;
+        ProjectExplorer::Abis abis;
+        QString version;
+    };
+
+    DebuggerItem() = default;
     DebuggerItem(const Utils::Store &data);
 
     void createId();
@@ -45,7 +57,7 @@ public:
     QString unexpandedDisplayName() const { return m_unexpandedDisplayName; }
     void setUnexpandedDisplayName(const QString &unexpandedDisplayName);
 
-    DebuggerEngineType engineType() const { return m_engineType; }
+    DebuggerEngineType engineType() const { return m_technicalData.engineType; }
     void setEngineType(const DebuggerEngineType &engineType);
 
     Utils::FilePath command() const { return m_command; }
@@ -57,7 +69,7 @@ public:
     QString version() const;
     void setVersion(const QString &version);
 
-    const ProjectExplorer::Abis &abis() const { return m_abis; }
+    const ProjectExplorer::Abis &abis() const { return m_technicalData.abis; }
     void setAbis(const ProjectExplorer::Abis &abis);
     void setAbi(const ProjectExplorer::Abi &abi);
 
@@ -66,6 +78,7 @@ public:
 
     QStringList abiNames() const;
     QDateTime lastModified() const;
+    void setLastModified(const QDateTime &timestamp);
 
     // Keep enum sorted ascending by goodness.
     enum class Problem { NoEngine, InvalidCommand, InvalidWorkingDir, None };
@@ -95,12 +108,10 @@ private:
 
     QVariant m_id;
     QString m_unexpandedDisplayName;
-    DebuggerEngineType m_engineType = NoEngineType;
+    TechnicalData m_technicalData;
     Utils::FilePath m_command;
     Utils::FilePath m_workingDirectory;
     bool m_isAutoDetected = false;
-    QString m_version;
-    ProjectExplorer::Abis m_abis;
     QDateTime m_lastModified;
     QString m_detectionSource;
 
