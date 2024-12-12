@@ -34,7 +34,7 @@ HelperWidgets.Section {
     fillBackground: true
     showCloseButton: !isDependency
     closeButtonToolTip: qsTr("Remove")
-    closeButtonIcon: StudioTheme.Constants.deletepermanently_medium
+    closeButtonIcon: StudioTheme.Constants.deletepermanently_small
     visible: repeater.count > 0 || !isDependency || isCustom
 
     onCloseButtonClicked: {

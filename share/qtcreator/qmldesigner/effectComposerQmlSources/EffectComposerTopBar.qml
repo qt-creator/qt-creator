@@ -62,7 +62,7 @@ Rectangle {
             objectName: "btnAssignCompositionToItem"
 
             style: StudioTheme.Values.viewBarButtonStyle
-            buttonIcon: StudioTheme.Constants.assignTo_medium
+            buttonIcon: StudioTheme.Constants.assignTo_small
             tooltip: qsTr("Assign current composition to selected item")
             enabled: root.backendModel ? root.backendModel.hasValidTarget
                                          && root.backendModel.isEnabled
@@ -94,7 +94,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
 
             style: StudioTheme.Values.viewBarButtonStyle
-            buttonIcon: StudioTheme.Constants.settings_medium
+            buttonIcon: StudioTheme.Constants.advancedCodeView_medium
             tooltip: qsTr("In advanced mode, you can manage effect properties and edit shader code for all effects.")
             checkable: true
             checked: root.backendModel ? root.backendModel.advancedMode : false

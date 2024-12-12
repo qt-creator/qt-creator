@@ -104,7 +104,7 @@ Item {
                     id: iconButton
 
                     buttonSize: 24
-                    icon: StudioTheme.Constants.reload_medium
+                    icon: StudioTheme.Constants.revert_medium
                     iconSize: StudioTheme.Values.mediumIconFontSize
                     anchors.centerIn: parent
                     visible: !warningButton.visible && (mouseArea.containsMouse || iconButton.containsMouse)

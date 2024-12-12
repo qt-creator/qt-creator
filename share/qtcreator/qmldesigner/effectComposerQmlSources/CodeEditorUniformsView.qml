@@ -161,7 +161,7 @@ ColumnLayout {
                                     leftPadding: 5
 
                                     CellButton {
-                                        buttonIcon: StudioTheme.Constants.assignTo_medium
+                                        buttonIcon: StudioTheme.Constants.assignTo_small
                                         onClicked: rootEditor.insertTextToCursorPosition(dataScope.display)
                                         tooltip: qsTr("Insert into the editor cursor position.")
                                     }
