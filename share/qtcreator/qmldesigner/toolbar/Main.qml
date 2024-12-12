@@ -305,7 +305,6 @@ Rectangle {
             anchors.right: moreItems.left
             anchors.rightMargin: 8
             buttonIcon: StudioTheme.Constants.share_large
-            enabled: backend.isSharingEnabled
             tooltip: qsTr("You can share your project to Qt Design Viewer web service.<br><br>To be able to use the sharing service, you need to sign in with your Qt Account details.")
 
             checkable: true

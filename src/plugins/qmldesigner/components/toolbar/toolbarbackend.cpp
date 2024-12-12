@@ -876,11 +876,6 @@ bool ToolBarBackend::projectOpened() const
     return ProjectExplorer::ProjectManager::instance()->startupProject();
 }
 
-bool ToolBarBackend::isSharingEnabled()
-{
-    return QmlDesigner::checkEnterpriseLicense();
-}
-
 bool ToolBarBackend::isDocumentDirty() const
 {
     return Core::EditorManager::currentDocument()
