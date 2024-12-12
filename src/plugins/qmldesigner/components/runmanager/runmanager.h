@@ -78,7 +78,6 @@ private:
 
     QList<Target> m_targets;
     Utils::Id m_currentTargetId;
-    //std::unique_ptr<RunningTarget> m_runningTarget;
 
     QList<RunningTarget> m_runningTargets;
 

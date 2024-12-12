@@ -324,6 +324,9 @@ bool AndroidTarget::enabled() const
 
 void AndroidTarget::run() const
 {
+    if (!ProjectExplorer::ProjectExplorerPlugin::saveModifiedFiles())
+        return;
+
     auto qmlrcPath = DesignViewer::ResourceGeneratorProxy().createResourceFileSync();
     deviceManager()->sendProjectFile(m_deviceId, qmlrcPath->toString());
 }
