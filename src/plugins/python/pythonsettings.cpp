@@ -855,11 +855,18 @@ QString PythonSettings::pylsConfiguration()
     return settingsInstance->m_pylsConfiguration;
 }
 
+static void cacheVenvAndPipUsability(const Interpreter &interpreter)
+{
+    Utils::asyncRun(&venvIsUsable, interpreter.command);
+    Utils::asyncRun(&pipIsUsable, interpreter.command);
+}
+
 void PythonSettings::addInterpreter(const Interpreter &interpreter, bool isDefault)
 {
     if (Utils::anyOf(settingsInstance->m_interpreters, Utils::equal(&Interpreter::id, interpreter.id)))
         return;
     settingsInstance->m_interpreters.append(interpreter);
+    cacheVenvAndPipUsability(interpreter);
     if (isDefault)
         settingsInstance->m_defaultInterpreterId = interpreter.id;
     saveSettings();
@@ -1026,8 +1033,12 @@ void PythonSettings::initFromSettings(QtcSettings *settings)
     const auto [valid, outdatedInterpreters] = Utils::partition(m_interpreters, keepInterpreter);
     m_interpreters = valid;
 
-    if (!settings->value(kitsGeneratedKey, false).toBool()) {
-        for (const Interpreter &interpreter : m_interpreters) {
+    const bool kitsGenerated = settings->value(kitsGeneratedKey, false).toBool();
+    if (kitsGenerated)
+        fixupPythonKits();
+    for (const Interpreter &interpreter : std::as_const(m_interpreters)) {
+        cacheVenvAndPipUsability(interpreter);
+        if (!kitsGenerated) {
             if (interpreter.autoDetected) {
                 const FilePath &cmd = interpreter.command;
                 if (!cmd.isLocal() || cmd.parentDir().pathAppended("activate").exists())
@@ -1035,8 +1046,6 @@ void PythonSettings::initFromSettings(QtcSettings *settings)
             }
             addKitsForInterpreter(interpreter, false);
         }
-    } else {
-        fixupPythonKits();
     }
 
     for (const Interpreter &outdated : outdatedInterpreters)

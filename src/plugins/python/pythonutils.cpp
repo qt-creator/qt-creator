@@ -20,6 +20,7 @@
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
+#include <utils/synchronizedvalue.h>
 
 #include <QReadLocker>
 
@@ -192,31 +193,37 @@ bool isVenvPython(const FilePath &python)
     return python.parentDir().parentDir().pathAppended("pyvenv.cfg").exists();
 }
 
-static bool isUsableHelper(QHash<FilePath, bool> *cache, const QString &keyString,
-                           const QString &commandArg, const FilePath &python)
+static bool isUsableHelper(
+    SynchronizedValue<QHash<FilePath, bool>> *cache,
+    const QString &commandArg,
+    const FilePath &python)
 {
-    auto it = cache->find(python);
-    if (it == cache->end()) {
-        const Key key = keyFromString(keyString);
-        Process process;
-        process.setCommand({python, {"-m", commandArg, "-h"}});
-        process.runBlocking();
-        const bool usable = process.result() == ProcessResult::FinishedWithSuccess;
-        it = cache->insert(python, usable);
-    }
-    return *it;
+    std::optional<bool> result;
+    cache->read([&result, python](const QHash<FilePath, bool> &cache) {
+        if (auto it = cache.find(python); it != cache.end())
+            result = it.value();
+    });
+    if (result)
+        return *result;
+
+    Process process;
+    process.setCommand({python, {"-m", commandArg, "-h"}});
+    process.runBlocking();
+    const bool usable = process.result() == ProcessResult::FinishedWithSuccess;
+    cache->writeLocked()->insert(python, usable);
+    return usable;
 }
 
 bool venvIsUsable(const FilePath &python)
 {
-    static QHash<FilePath, bool> cache;
-    return isUsableHelper(&cache, "pyVenvIsUsable", "venv", python);
+    static SynchronizedValue<QHash<FilePath, bool>> cache;
+    return isUsableHelper(&cache, "venv", python);
 }
 
 bool pipIsUsable(const FilePath &python)
 {
-    static QHash<FilePath, bool> cache;
-    return isUsableHelper(&cache, "pyPipIsUsable", "pip", python);
+    static SynchronizedValue<QHash<FilePath, bool>> cache;
+    return isUsableHelper(&cache, "pip", python);
 }
 
 QString pythonVersion(const FilePath &python)
