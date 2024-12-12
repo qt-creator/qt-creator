@@ -67,7 +67,7 @@ private:
     QSpinBox *m_spinRootItemInitWidth;
     QLineEdit *m_styleLineEdit;
     QComboBox *m_controls2StyleComboBox;
-    QGroupBox *m_emulationGroupBox;
+    QGroupBox *m_qmlPuppetGroupBox;
     QRadioButton *m_useDefaultPuppetRadioButton;
     Utils::PathChooser *m_fallbackPuppetPathLineEdit;
     QRadioButton *m_useQtRelatedPuppetRadioButton;
@@ -133,24 +133,24 @@ SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencie
     m_controls2StyleComboBox = new QComboBox;
     m_controls2StyleComboBox->addItems({ "Default", "Material", "Universal" });
 
-    m_emulationGroupBox = new QGroupBox(Tr::tr("QML Emulation Layer"));
+    m_qmlPuppetGroupBox = new QGroupBox(Tr::tr("QML Puppet"));
 
-    m_useDefaultPuppetRadioButton = new QRadioButton(Tr::tr("Use fallback QML emulation layer"));
+    m_useDefaultPuppetRadioButton = new QRadioButton(Tr::tr("Use fallback QML Puppet"));
     m_useDefaultPuppetRadioButton->setToolTip(
         Tr::tr("If you select this radio button, Qt Design Studio always uses the "
-               "QML emulation layer (QML Puppet) located at the following path."));
+               "QML Puppet located at the following path."));
     m_useDefaultPuppetRadioButton->setChecked(true);
 
     m_fallbackPuppetPathLineEdit = new Utils::PathChooser;
     m_fallbackPuppetPathLineEdit->setToolTip(
-        Tr::tr("Path to the QML emulation layer executable (qmlpuppet)."));
+        Tr::tr("Path to the QML Puppet executable."));
 
     auto resetFallbackPuppetPathButton = new QPushButton(tr("Reset Path"));
     resetFallbackPuppetPathButton->setToolTip(
-        Tr::tr("Resets the path to the built-in QML emulation layer."));
+        Tr::tr("Resets the path to the built-in QML Puppet."));
 
     m_useQtRelatedPuppetRadioButton = new QRadioButton(
-        Tr::tr("Use QML emulation layer that is built with the selected Qt"));
+        Tr::tr("Use QML Puppet that is built with the selected Qt"));
 
     m_puppetBuildPathLineEdit = new Utils::PathChooser;
     m_puppetBuildPathLineEdit->setEnabled(false);
@@ -212,15 +212,15 @@ SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencie
                Form{Tr::tr("Top level build path:"),
                     m_puppetBuildPathLineEdit,
                     resetQmlPuppetBuildPathButton}}}
-        .attachTo(m_emulationGroupBox);
+        .attachTo(m_qmlPuppetGroupBox);
 
     Grid{m_designerShowDebuggerCheckBox,
          m_showPropertyEditorWarningsCheckBox,
-         Form{Tr::tr("Forward QML emulation layer output:"), m_forwardPuppetOutputComboBox},
+         Form{Tr::tr("Forward QML Puppet output:"), m_forwardPuppetOutputComboBox},
          br,
          m_designerEnableDebuggerCheckBox,
          m_showWarnExceptionsCheckBox,
-         Form{Tr::tr("Debug QML emulation layer:"), m_debugPuppetComboBox}}
+         Form{Tr::tr("Debug QML Puppet:"), m_debugPuppetComboBox}}
         .attachTo(m_debugGroupBox);
 
     Column{Row{Group{title(Tr::tr("Snapping")),
@@ -251,7 +251,7 @@ SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencie
                           br,
                           Tr::tr("Controls 2 style:"),
                           m_controls2StyleComboBox}}},
-           m_emulationGroupBox,
+           m_qmlPuppetGroupBox,
            Group{title(Tr::tr("Subcomponents")), Column{m_alwaysSaveSubcomponentsCheckBox}},
            Row{Group{title(Tr::tr("Warnings")),
                      Column{m_designerWarningsCheckBox,
@@ -469,7 +469,7 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
     const auto showDebugSettings = settings.value(DesignerSettingsKey::SHOW_DEBUG_SETTINGS).toBool();
 #endif
     const bool showAdvancedFeatures = !Core::ICore::isQtDesignStudio() || showDebugSettings;
-    m_emulationGroupBox->setVisible(showAdvancedFeatures);
+    m_qmlPuppetGroupBox->setVisible(showAdvancedFeatures);
     m_debugGroupBox->setVisible(showAdvancedFeatures);
     m_featureTimelineEditorCheckBox->setVisible(Core::ICore::isQtDesignStudio());
     m_featureDockWidgetContentMinSize->setVisible(Core::ICore::isQtDesignStudio());
@@ -497,7 +497,7 @@ void SettingsPageWidget::apply()
             QMessageBox::information(Core::ICore::dialogParent(),
                                      Tr::tr("Restart Required"),
                                      Tr::tr("The made changes will take effect after a "
-                                            "restart of the QML Emulation layer or %1.")
+                                            "restart of the QML Puppet or %1.")
                                          .arg(QGuiApplication::applicationDisplayName()));
             break;
         }

@@ -190,8 +190,8 @@ void Edit3DCanvas::mouseMoveEvent(QMouseEvent *e)
 
     if (m_flyMode && globalPos != m_hiddenCursorPos) {
         if (!m_flyModeFirstUpdate) {
-            // We notify explicit camera rotation need for puppet rather than rely in mouse events,
-            // as mouse isn't grabbed on puppet side and can't handle fast movements that go out of
+            // We notify explicit camera rotation needs for QML Puppet rather than relying on mouse events,
+            // as mouse isn't grabbed on QML Puppet side and can't handle fast movements that go out of
             // edit camera mouse area. This also simplifies split view handling.
             QPointF diff = m_isQDSTrusted ? (m_hiddenCursorPos - globalPos)
                                           : (m_lastCursorPos - e->globalPosition().toPoint());

@@ -108,7 +108,7 @@ void Edit3DView::renderImage3DChanged(const QImage &img)
 {
     edit3DWidget()->canvas()->updateRenderImage(img);
 
-    // Notify puppet to resize if received image wasn't correct size
+    // Notify QML Puppet to resize if received image isn't correct size
     if (img.size() != canvasSize())
         edit3DViewResized(canvasSize());
     if (edit3DWidget()->canvas()->busyIndicator()->isVisible()) {
@@ -467,9 +467,9 @@ void Edit3DView::customNotification([[maybe_unused]] const AbstractView *view,
 }
 
 /**
- * @brief Get node at position from puppet process
+ * @brief Get node at position from QML Puppet process
  *
- * Response from puppet process for the model at requested position
+ * Response from QML Puppet process for the model at requested position
  *
  * @param modelNode Node picked at the requested position or invalid node if nothing could be picked
  * @param pos3d 3D scene position of the requested view position

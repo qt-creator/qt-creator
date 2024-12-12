@@ -18,7 +18,7 @@
 #include <clearscenecommand.h>
 
 // Nanotrace headers are not exported to build dir at all if the feature is disabled, so
-// runtime puppet build can't find them.
+// runtime QML Puppet build can't find them.
 #if NANOTRACE_DESIGNSTUDIO_ENABLED
 #include "nanotrace/nanotrace.h"
 #else

@@ -51,7 +51,7 @@ namespace {
                                             /* restartable */ true,
                                             /* asynchronous_start */ true);
         // TODO: research using this method, should avoid creating a separate CrashpadClient for the
-        // puppet (needed only on windows according to docs).
+        // QML Puppet (needed only on windows according to docs).
         //    client->SetHandlerIPCPipe(L"\\\\.\\pipe\\qmlpuppet");
 
         return success;

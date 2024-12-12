@@ -81,7 +81,7 @@ void Import3dImporter::importQuick3D(const QStringList &inputFiles,
     }
 
     if (!isCancelled()) {
-        // Wait for puppet processes to finish
+        // Wait for QML Puppet processes to finish
         if (m_puppetQueue.isEmpty() && !m_puppetProcess) {
             postImport();
         } else {

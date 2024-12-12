@@ -2320,7 +2320,7 @@ QString EffectComposerModel::getQmlComponentString(bool localFiles)
     s += l1 + "ShaderEffect {\n";
 
     if (localFiles) {
-        // Explicit "source" property is required for render puppet to detect effect correctly
+        // Explicit "source" property is required for rendering QML Puppet to detect effects correctly
         s += l2 + "property Item source: null\n";
     }
     if (m_shaderFeatures.enabled(ShaderFeatures::Source))

@@ -334,7 +334,7 @@ void EffectComposerWidget::handleImportScanTimer()
         }
     } else if (m_importScan.counter == 102) {
         if (m_effectComposerView->model()) {
-            // If type is in use, we have to reset puppet to update 2D view
+            // If type is in use, we have to reset QML Puppet to update 2D view
             if (!m_effectComposerView->allModelNodesOfType(
                                          m_effectComposerView->model()->metaInfo(m_importScan.type)).isEmpty()) {
                 m_effectComposerView->resetPuppet();

@@ -1139,7 +1139,7 @@ static bool queryKeyboardForSnapping(bool enabled, double &increment)
     if (increment <= 0.)
         return false;
 
-    // Need to do a hard query for key mods as puppet is not handling real events
+    // Need to do a hard query for key mods as QML Puppet is not handling real events
     Qt::KeyboardModifiers mods = QGuiApplication::queryKeyboardModifiers();
     const bool shiftMod = mods & Qt::ShiftModifier;
     const bool ctrlMod = mods & Qt::ControlModifier;

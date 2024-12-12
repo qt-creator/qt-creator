@@ -152,7 +152,7 @@ void BakeLights::bakeLights()
         emit progress(msg);
         emit finished();
 
-        // Puppet reset is needed to update baking results to current views
+        // QML Puppet reset is needed to update baking results to current views
         m_view->resetPuppet();
     };
 

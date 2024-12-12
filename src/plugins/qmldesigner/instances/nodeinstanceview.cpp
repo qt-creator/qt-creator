@@ -235,6 +235,11 @@ static bool parentTakesOverRendering(const ModelNode &modelNode)
     return false;
 }
 
+static QString crashErrorMessage()
+{
+    return ::QmlDesigner::NodeInstanceView::tr("Internal process (QML Puppet) crashed.");
+}
+
 /*!
     Notifies the view that it was attached to \a model. For every model node in
     the model, a NodeInstance will be created.
@@ -306,7 +311,7 @@ void NodeInstanceView::handleCrash()
     } else {
         if (isAttached()) {
             model()->emitDocumentMessage(
-                ::QmlDesigner::NodeInstanceView::tr("Qt Quick emulation layer crashed."));
+                crashErrorMessage());
         }
     }
 
@@ -576,7 +581,7 @@ void NodeInstanceView::nodeReparented(const ModelNode &node, const NodeAbstractP
         m_nodeInstanceServer->reparentInstances(
             createReparentInstancesCommand(node, newPropertyParent, oldPropertyParent));
 
-        // Reset puppet when particle emitter/affector is reparented to work around issue in
+        // Reset QML Puppet when particle emitter/affector is reparented to work around issue in
         // autodetecting the particle system it belongs to. QTBUG-101157
         if (auto metaInfo = node.metaInfo();
             (metaInfo.isQtQuick3DParticles3DParticleEmitter3D()
@@ -735,7 +740,7 @@ void NodeInstanceView::nodeSourceChanged(const ModelNode &node, const QString & 
          ChangeNodeSourceCommand changeNodeSourceCommand(instance.instanceId(), newNodeSource);
          m_nodeInstanceServer->changeNodeSource(changeNodeSourceCommand);
 
-         // Puppet doesn't deal with node source changes properly, so just reset the puppet for now
+         // QML Puppet doesn't deal with node source changes properly, so just reset the QML Puppet for now
          resetPuppet(); // TODO: Remove this once the issue is properly fixed (QDS-4955)
      }
 }
@@ -1755,7 +1760,7 @@ void NodeInstanceView::token(const TokenCommand &command)
 
 void NodeInstanceView::debugOutput(const DebugOutputCommand & command)
 {
-    DocumentMessage error(::QmlDesigner::NodeInstanceView::tr("Qt Quick emulation layer crashed."));
+    DocumentMessage error(crashErrorMessage());
     if (command.instanceIds().isEmpty() && isAttached()) {
         model()->emitDocumentMessage(command.text());
     } else {
@@ -2105,7 +2110,7 @@ QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &model
 
     ModelNodePreviewImageData imageData;
 
-    // We need puppet to generate the image, which needs to be asynchronous.
+    // We need QML Puppet to generate the image, which needs to be asynchronous.
     // Until the image is ready, we show a placeholder
     const QString id = modelNode.id();
     if (m_imageDataMap.contains(id)) {
@@ -2402,7 +2407,7 @@ void NodeInstanceView::maybeResetOnPropertyChange(PropertyNameView name,
     if (flags & AbstractView::PropertiesAdded && name == "model"
         && node.metaInfo().isQtQuickRepeater()) {
         // TODO: This is a workaround for QTBUG-97583:
-        //       Reset puppet when repeater model is first added, if there is already a delegate
+        //       Reset QML Puppet when repeater model is first added, if there is already a delegate
         if (node.hasProperty("delegate"))
             reset = true;
     } else if (name == "shader" && node.metaInfo().isQtQuick3DShader()) {

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 # standalone build
 if (NOT QT_CREATOR_API_DEFINED)
-    option(BUILD_DESIGNSTUDIO "Build puppet with Qt Design Studio version in the binary name." OFF)
+    option(BUILD_DESIGNSTUDIO "Build QML Puppet with Qt Design Studio version in the binary name." OFF)
     if (BUILD_DESIGNSTUDIO)
         list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../dist/branding/qtdesignstudio")
     endif()

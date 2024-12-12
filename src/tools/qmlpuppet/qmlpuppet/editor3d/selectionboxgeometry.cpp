@@ -149,7 +149,7 @@ QSSGRenderGraphObject *SelectionBoxGeometry::updateSpatialNode(QSSGRenderGraphOb
         // By incrementing generation id by different amounts, we can ensure QSSGBufferManager cache
         // never matches wrong mesh data.
         // The cache should be cleared of old objects after they are unused for one frame.
-        // With puppet reset & multiselection, we can create multiple new boxes per frame,
+        // With QML Puppet reset & multiselection, we can create multiple new boxes per frame,
         // so there's no count that really guarantees there are no invalid cache matches, but
         // even just 8 should make them very unlikely.
         // We start count at 12 here to avoid overlapping with gridgeometry cache ids.

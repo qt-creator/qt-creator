@@ -56,7 +56,7 @@ QProcessUniquePointer puppetProcess(const QString &puppetPath,
             QCoreApplication::translate("PuppetStarter", "Puppet is starting..."),
             QCoreApplication::translate(
                 "PuppetStarter",
-                "You can now attach your debugger to the %1 puppet with process id: %2.")
+                "You can now attach your debugger to the %1 QML Puppet with process id: %2.")
                 .arg(puppetMode, QString::number(puppetProcess->processId())));
     }
 

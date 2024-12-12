@@ -107,7 +107,7 @@ void AssetExporterView::setState(AssetExporterView::LoadState state)
             m_timer.stop();
             // TODO: Send the loaded signal with a delay. The assumption that model attached and a
             // valid root object is enough to declare a QML file is ready is incorrect. A ideal
-            // solution would be that the puppet notifies file ready signal.
+            // solution would be that the QML Puppet notifies file ready signal.
             if (m_state == LoadState::Loaded)
                 QTimer::singleShot(2000, this, &AssetExporterView::loadingFinished);
             else

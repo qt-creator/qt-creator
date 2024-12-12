@@ -1401,7 +1401,7 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView(
             QMetaObject::invokeMethod(m_modelNode3DImageViewData.rootItem, "destroyView");
 
             if (createdFromComponent) {
-                // If component changes, puppet will need a reset anyway, so we can cache the image
+                // If component changes, QML Puppet will need a reset anyway, so we can cache the image
                 m_modelNodePreviewImageCache.insert(cmd.componentPath(),
                                                     renderImage);
                 delete instanceObj;
@@ -1500,7 +1500,7 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode2DImageView(const Reques
 
             delete instanceItem;
 
-            // If component changes, puppet will need a reset anyway, so we can cache the image
+            // If component changes, QML Puppet will need a reset anyway, so we can cache the image
             m_modelNodePreviewImageCache.insert(cmd.componentPath(), renderImage);
         }
 
@@ -1621,7 +1621,7 @@ bool Qt5InformationNodeInstanceServer::isDirtyRecursiveForParentInstances(QQuick
     return false;
 }
 
-/* This method allows changing the selection from the puppet */
+/* This method allows changing the selection from the QML Puppet */
 void Qt5InformationNodeInstanceServer::selectInstances(const QList<ServerNodeInstance> &instanceList)
 {
     nodeInstanceClient()->selectionChanged(createChangeSelectionCommand(instanceList));

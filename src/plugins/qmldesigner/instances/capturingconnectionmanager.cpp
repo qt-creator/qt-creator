@@ -42,9 +42,9 @@ void CapturingConnectionManager::processFinished(int exitCode, QProcess::ExitSta
     if (m_captureFileForTest.isOpen()) {
         m_captureFileForTest.close();
         Core::AsynchronousMessageBox::warning(
-            tr("QML Emulation Layer (QML Puppet - %1) Crashed").arg(connectionName),
-            tr("You are recording a puppet stream and the emulations layer crashed. "
-               "It is recommended to reopen the Qt Quick Designer and start again."));
+            tr("QML Puppet (%1) Crashed").arg(connectionName),
+            tr("The QML Puppet crashed while recording a stream. "
+               "Please reopen %1 and try it again.").arg(QCoreApplication::applicationName()));
     }
 
     InteractiveConnectionManager::processFinished(exitCode, exitStatus, connectionName);
