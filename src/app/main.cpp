@@ -766,7 +766,7 @@ int main(int argc, char **argv)
     info.resources = (appDirPath / RELATIVE_DATA_PATH).cleanPath();
     info.userResources = userResourcePath(settings->fileName(), Constants::IDE_ID);
     info.libexec = (appDirPath / RELATIVE_LIBEXEC_PATH).cleanPath();
-    // sync with src\tools\qml2puppet\qml2puppet\qmlpuppet.cpp -> QString crashReportsPath()
+    // sync with src\tools\qmlpuppet\qmlpuppet\qmlpuppet.cpp -> QString crashReportsPath()
     info.crashReports = info.userResources / "crashpad_reports";
     info.luaPlugins = info.resources / "lua-plugins";
     info.userLuaPlugins = info.userResources / "lua-plugins";

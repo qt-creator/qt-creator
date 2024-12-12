@@ -21,7 +21,7 @@ namespace {
 Utils::FilePath qmlPuppetExecutablePath(const Utils::FilePath &workingDirectory)
 {
     return workingDirectory
-        .pathAppended(QString{"qml2puppet-"} + QCoreApplication::applicationVersion())
+        .pathAppended(QString{"qmlpuppet-"} + QCoreApplication::applicationVersion())
         .withExecutableSuffix();
 }
 

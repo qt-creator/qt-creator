@@ -28,7 +28,7 @@ endif()
 
 add_subdirectory(processlauncher)
 if (WITH_QMLDESIGNER)
-  add_subdirectory(qml2puppet)
+  add_subdirectory(qmlpuppet)
   add_subdirectory(sqlitetester)
 endif()
 add_subdirectory(qtcdebugger) ## windows only

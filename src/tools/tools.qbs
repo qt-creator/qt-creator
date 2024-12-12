@@ -9,7 +9,7 @@ Project {
         "disclaim/disclaim.qbs",
         "process_stub/process_stub.qbs",
         "processlauncher/processlauncher.qbs",
-        "qml2puppet/qml2puppet.qbs",
+        "qmlpuppet/qmlpuppet.qbs",
         "qtcdebugger/qtcdebugger.qbs",
         "qtcreatorcrashhandler/qtcreatorcrashhandler.qbs",
         "qtc-askpass/qtc-askpass.qbs",

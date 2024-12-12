@@ -8,7 +8,7 @@ if (NOT QT_CREATOR_API_DEFINED)
     endif()
   list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake")
 
-  project(qml2puppet)
+  project(qmlpuppet)
 
   set(CMAKE_AUTOMOC ON)
   set(CMAKE_AUTORCC ON)
@@ -29,7 +29,7 @@ if (NOT QT_CREATOR_API_DEFINED)
   set(IS_STAND_ALONE_PUPPET_BUILD ON)
 endif()
 
-add_qtc_executable(qml2puppet
+add_qtc_executable(qmlpuppet
   ${DESTINATION}
   CONDITION TARGET Qt::Quick
   DEPENDS
@@ -39,49 +39,49 @@ add_qtc_executable(qml2puppet
   INCLUDES
     ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
-    qml2puppet/qml2puppetmain.cpp
-    qml2puppet/qmlbase.h
-    qml2puppet/qmlpuppet.h qml2puppet/qmlpuppet.cpp
-    qml2puppet/configcrashpad.h
+    qmlpuppet/qmlpuppetmain.cpp
+    qmlpuppet/qmlbase.h
+    qmlpuppet/qmlpuppet.h qmlpuppet/qmlpuppet.cpp
+    qmlpuppet/configcrashpad.h
     qmlpuppet.qrc
   PROPERTIES
-    OUTPUT_NAME qml2puppet-${IDE_VERSION}
+    OUTPUT_NAME qmlpuppet-${IDE_VERSION}
 )
 
 if (IS_STAND_ALONE_PUPPET_BUILD)
     include(../../libs/qmlpuppetcommunication/QmlPuppetCommunication.cmake)
     configure_file(../../app/app_version.h.cmakein app/app_version.h ESCAPE_QUOTES)
 else()
-    extend_qtc_executable(qml2puppet
+    extend_qtc_executable(qmlpuppet
       DEPENDS app_version
     )
 endif()
 
-extend_qtc_executable(qml2puppet
+extend_qtc_executable(qmlpuppet
   CONDITION Qt6_VERSION
   SOURCES
     editor3d_qt6.qrc
 )
 
-extend_qtc_executable(qml2puppet
+extend_qtc_executable(qmlpuppet
   CONDITION UNIX AND (NOT APPLE)
   DEPENDS rt
 )
 
-extend_qtc_executable(qml2puppet
+extend_qtc_executable(qmlpuppet
   SOURCES_PREFIX instances
   SOURCES
     nodeinstanceclientproxy.cpp nodeinstanceclientproxy.h
 )
 
 find_package(Qt6 COMPONENTS Quick3D QUIET)
-extend_qtc_executable(qml2puppet
+extend_qtc_executable(qmlpuppet
   CONDITION TARGET Qt::Quick3D
   FEATURE_INFO "Qt Quick 3D support"
   DEPENDS Qt::Quick3D Qt::Quick3DPrivate
   DEFINES QUICK3D_MODULE
 
-  SOURCES_PREFIX qml2puppet/editor3d
+  SOURCES_PREFIX qmlpuppet/editor3d
   SOURCES
     generalhelper.cpp generalhelper.h
     mousearea3d.cpp mousearea3d.h
@@ -97,7 +97,7 @@ extend_qtc_executable(qml2puppet
 )
 
 find_package(Qt6 COMPONENTS Quick3DAssetImport QUIET)
-extend_qtc_executable(qml2puppet
+extend_qtc_executable(qmlpuppet
   CONDITION TARGET Qt::Quick3DAssetImport
   FEATURE_INFO "Qt Quick 3D asset import"
   DEPENDS Qt::Quick3DAssetImportPrivate
@@ -105,7 +105,7 @@ extend_qtc_executable(qml2puppet
 )
 
 find_package(Qt6 COMPONENTS Quick3DParticles QUIET)
-extend_qtc_executable(qml2puppet
+extend_qtc_executable(qmlpuppet
   CONDITION TARGET Qt::Quick3DParticles
   FEATURE_INFO "Qt Quick 3D particles"
   DEPENDS Qt::Quick3DParticles Qt::Quick3DParticlesPrivate
@@ -114,21 +114,21 @@ extend_qtc_executable(qml2puppet
 
 # Quick3DAssetUtils optionally depends on QuickTimeline, so find also it to make the CI build work
 find_package(Qt6 COMPONENTS Quick3DAssetUtils QuickTimeline QUIET)
-extend_qtc_executable(qml2puppet
+extend_qtc_executable(qmlpuppet
   CONDITION TARGET Qt::Quick3DAssetUtils
   FEATURE_INFO "Qt Quick 3D asset utils"
   DEPENDS Qt::Quick3DAssetUtilsPrivate
   DEFINES QUICK3D_ASSET_UTILS_MODULE
 )
 
-extend_qtc_executable(qml2puppet
-  SOURCES_PREFIX qml2puppet/import3d
+extend_qtc_executable(qmlpuppet
+  SOURCES_PREFIX qmlpuppet/import3d
   SOURCES
     import3d.cpp import3d.h
 )
 
-extend_qtc_executable(qml2puppet
-  SOURCES_PREFIX qml2puppet/instances
+extend_qtc_executable(qmlpuppet
+  SOURCES_PREFIX qmlpuppet/instances
   SOURCES
     anchorchangesnodeinstance.cpp anchorchangesnodeinstance.h
     behaviornodeinstance.cpp behaviornodeinstance.h
@@ -167,7 +167,7 @@ extend_qtc_executable(qml2puppet
     animationdriver.cpp animationdriver.h
 )
 
-extend_qtc_executable(qml2puppet
+extend_qtc_executable(qmlpuppet
   SOURCES_PREFIX qmlprivategate
   SOURCES
     qmlprivategate.cpp qmlprivategate.h
@@ -177,40 +177,40 @@ if (DEFINED MULTILANGUAGE_SUPPORT_SUBDIRECTORY AND Qt6_VERSION VERSION_GREATER_E
   add_subdirectory(${MULTILANGUAGE_SUPPORT_SUBDIRECTORY} multilanguagesupport_static_build)
 endif()
 
-extend_qtc_executable(qml2puppet
+extend_qtc_executable(qmlpuppet
     CONDITION TARGET QtCreator::multilanguage-support
     DEPENDS QtCreator::multilanguage-support
-    FEATURE_INFO "multilanguage-support in qml2puppet"
+    FEATURE_INFO "multilanguage-support in qmlpuppet"
 )
 
-extend_qtc_executable(qml2puppet
+extend_qtc_executable(qmlpuppet
   PUBLIC_INCLUDES src/libs
 )
 
-extend_qtc_executable(qml2puppet
+extend_qtc_executable(qmlpuppet
   CONDITION TARGET Nanotrace
   DEPENDS Nanotrace
 )
 
 if (Qt6_VERSION VERSION_GREATER_EQUAL 6.4.0)
-    extend_qtc_executable(qml2puppet
+    extend_qtc_executable(qmlpuppet
       # QT_QML_DEBUG is disabled in release builds, but is necessary to have the preview debug channel
       DEFINES ENABLE_INTERNAL_QML_RUNTIME QT_QML_DEBUG
-      PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/qml2puppet/runner
-      SOURCES_PREFIX qml2puppet/runner
+      PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/qmlpuppet/runner
+      SOURCES_PREFIX qmlpuppet/runner
       SOURCES
         qmlruntime.h qmlruntime.cpp
         qmlconfiguration.h loadwatcher.h
     )
 
     # Turn the tool into its own self-contained qml module
-    qt_add_qml_module(qml2puppet
+    qt_add_qml_module(qmlpuppet
         URI QmlRuntime.QmlConfiguration
         VERSION 1.0
         RESOURCE_PREFIX "/qt-project.org/imports"
     )
     if (QTC_STATIC_BUILD)
-      qt_import_qml_plugins(qml2puppet PATH_TO_SCAN ${SRCDIR})
+      qt_import_qml_plugins(qmlpuppet PATH_TO_SCAN ${SRCDIR})
     endif()
 endif()
 
@@ -218,7 +218,7 @@ endif()
 # Crashpad
 # only windows requires separate crashpad client per process until client->SetHandlerIPCPipe()
 # is implemented (check the TODO inside startCrashpad())
-extend_qtc_executable(qml2puppet
+extend_qtc_executable(qmlpuppet
   CONDITION BUILD_WITH_CRASHPAD AND WIN32
   DEFINES
     CRASHPAD_BACKEND_URL="${CRASHPAD_BACKEND_URL}"
@@ -229,7 +229,7 @@ extend_qtc_executable(qml2puppet
 # add application icon
 # IDE_LOGO_PATH in a default QtCreator build is empty, all icons are found by relative paths
 # So we can not use the icon then.
-if (TARGET qml2puppet AND NOT "${IDE_LOGO_PATH}" STREQUAL "")
+if (TARGET qmlpuppet AND NOT "${IDE_LOGO_PATH}" STREQUAL "")
     if (WIN32)
       set(RC_APPLICATION_NAME "${IDE_DISPLAY_NAME}")
       set(RC_VERSION "${IDE_VERSION}.0")
@@ -240,7 +240,7 @@ if (TARGET qml2puppet AND NOT "${IDE_LOGO_PATH}" STREQUAL "")
       string(REPLACE " " "\\x20" RC_COPYRIGHT "${RC_COPYRIGHT}")
       string(REPLACE "." "," RC_VERSION "${RC_VERSION}")
 
-      target_compile_definitions(qml2puppet PRIVATE
+      target_compile_definitions(qmlpuppet PRIVATE
         RC_APPLICATION_NAME=${RC_APPLICATION_NAME}
         RC_VERSION=${RC_VERSION}
         RC_VERSION_STRING=${RC_VERSION_STRING}
@@ -248,6 +248,6 @@ if (TARGET qml2puppet AND NOT "${IDE_LOGO_PATH}" STREQUAL "")
         RC_ICON_PATH=${IDE_ICON_PATH}
       )
 
-      target_sources(qml2puppet PRIVATE windows_application_icon/qml2puppet.rc)
+      target_sources(qmlpuppet PRIVATE windows_application_icon/qmlpuppet.rc)
     endif()
 endif()

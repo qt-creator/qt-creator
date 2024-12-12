@@ -406,7 +406,7 @@ def deploy_qt_mac(qtc_binary_path, qt_install):
         additional_paths.append(os.path.join(bin_path, app))
     additional_paths.append(os.path.join(libexec_path, 'qbs_processlauncher'))
     # qml2puppet
-    puppets = glob(os.path.join(libexec_path, 'qml2puppet*'))
+    puppets = glob(os.path.join(libexec_path, 'qmlpuppet*'))
     for puppet in puppets:
         additional_paths.append(puppet)
     # qtdiag, qtplugininfo

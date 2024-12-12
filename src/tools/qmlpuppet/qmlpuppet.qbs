@@ -1,4 +1,4 @@
 Product {
-    name: "qml2puppet"
+    name: "qmlpuppet"
     files: ["*", "**/*"]
 }

@@ -558,7 +558,7 @@ static bool isConnections(QObject *object)
     return false;
 }
 
-// This is used in share/qtcreator/qml/qmlpuppet/qml2puppet/instances/objectnodeinstance.cpp
+// This is used in share/qtcreator/qml/qmlpuppet/qmlpuppet/instances/objectnodeinstance.cpp
 QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context)
 {
     QTypeRevision revision = QTypeRevision::zero();
