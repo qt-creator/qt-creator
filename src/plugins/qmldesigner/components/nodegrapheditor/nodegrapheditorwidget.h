@@ -32,6 +32,8 @@ public:
 
     static QString qmlSourcesPath();
 
+    Q_INVOKABLE QString generateUUID() const;
+
 protected:
     void showEvent(QShowEvent *) override;
     void focusOutEvent(QFocusEvent *focusEvent) override;

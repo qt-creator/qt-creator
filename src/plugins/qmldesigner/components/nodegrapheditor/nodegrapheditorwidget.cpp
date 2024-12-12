@@ -23,6 +23,8 @@
 #include <QQuickItem>
 #include <QShortcut>
 
+#include <QuickQanava>
+
 namespace QmlDesigner {
 
 static QString propertyEditorResourcesPath()
@@ -32,6 +34,11 @@ static QString propertyEditorResourcesPath()
         return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
 #endif
     return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
+}
+
+static Utils::FilePath materialsPath()
+{
+    return DocumentManager::currentResourcePath().pathAppended("materials");
 }
 
 NodeGraphEditorWidget::NodeGraphEditorWidget(NodeGraphEditorView *nodeGraphEditorView,
@@ -56,11 +63,14 @@ NodeGraphEditorWidget::NodeGraphEditorWidget(NodeGraphEditorView *nodeGraphEdito
 
     auto map = registerPropertyMap("NodeGraphEditorBackend");
     map->setProperties({{"nodeGraphEditorModel", QVariant::fromValue(nodeGraphEditorModel)}});
+    map->setProperties({{"widget", QVariant::fromValue(this)}});
 
     Theme::setupTheme(engine());
 
     setWindowTitle(tr("Node Graph", "Title of Editor widget"));
     setMinimumSize(QSize(256, 256));
+
+    QuickQanava::initialize(engine());
 
     // init the first load of the QML UI elements
     reloadQmlSource();
@@ -73,6 +83,11 @@ QString NodeGraphEditorWidget::qmlSourcesPath()
         return QLatin1String(SHARE_QML_PATH) + "/nodegrapheditor";
 #endif
     return Core::ICore::resourcePath("qmldesigner/nodegrapheditor").toString();
+}
+
+QString NodeGraphEditorWidget::generateUUID() const
+{
+    return QUuid::createUuid().toString();
 }
 
 void NodeGraphEditorWidget::showEvent(QShowEvent *event)

@@ -1,0 +1,5 @@
+module Editor
+ContextMenu 1.0 ContextMenu.qml
+Graph 1.0 Graph.qml
+NewNodeGraphDialog 1.0 NewNodeGraphDialog.qml
+Port 1.0 Port.qml

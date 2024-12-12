@@ -3,6 +3,9 @@
 
 #include "nodegrapheditorimageprovider.h"
 
+#include <documentmanager.h>
+#include <utils/filepath.h>
+
 namespace QmlDesigner::Internal {
 
 NodeGraphEditorImageProvider::NodeGraphEditorImageProvider()
@@ -10,8 +13,17 @@ NodeGraphEditorImageProvider::NodeGraphEditorImageProvider()
 {
 }
 
-QImage NodeGraphEditorImageProvider::requestImage(const QString &/*id*/, QSize */*size*/, const QSize &requestedSize)
+QImage NodeGraphEditorImageProvider::requestImage(const QString &id, QSize */*size*/, const QSize &requestedSize)
 {
+    Utils::FilePath path = DocumentManager::currentResourcePath().pathAppended(id);
+
+    QImage img;
+    img.load(path.toString());
+
+    if (!img.isNull()) {
+        return img;
+    }
+
     const QSize newSize = requestedSize.isEmpty()
                             ? QSize(100, 100)
                             : requestedSize;

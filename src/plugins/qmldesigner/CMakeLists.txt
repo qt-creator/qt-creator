@@ -369,6 +369,9 @@ extend_qtc_plugin(QmlDesigner
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/nodegrapheditor
+  DEPENDS
+    QuickQanava
+    QuickQanavaplugin
   SOURCES
     nodegrapheditorimageprovider.cpp nodegrapheditorimageprovider.h
     nodegrapheditormodel.cpp nodegrapheditormodel.h
