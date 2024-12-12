@@ -141,7 +141,7 @@ public:
 QtQuickDesignerFactory::QtQuickDesignerFactory()
     : QmlJSEditorFactory(QmlJSEditor::Constants::C_QTQUICKDESIGNEREDITOR_ID)
 {
-    setDisplayName(::Core::Tr::tr("Qt Quick Designer"));
+    setDisplayName(Tr::tr("Qt Quick Designer"));
 
     addMimeType(Utils::Constants::QMLUI_MIMETYPE);
     setDocumentCreator([this]() {
@@ -210,8 +210,9 @@ static bool checkIfEditorIsQtQuick(Core::IEditor *editor)
                     || document->language() == QmlJS::Dialect::Qml;
 
         if (Core::ModeManager::currentModeId() == Core::Constants::MODE_DESIGN) {
-            Core::AsynchronousMessageBox::warning(QmlDesignerPlugin::tr("Cannot Open Design Mode"),
-                                                  QmlDesignerPlugin::tr("The QML file is not currently opened in a QML Editor."));
+            Core::AsynchronousMessageBox::warning(
+                Tr::tr("Cannot Open Design Mode"),
+                Tr::tr("The QML file is not currently opened in a QML Editor."));
             Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
         }
     }
@@ -862,7 +863,7 @@ void QmlDesignerPlugin::lauchFeedbackPopupInternal(const QString &identifier)
     QTC_ASSERT(root, return );
 
     QObject *title = root->findChild<QObject *>("title");
-    QString name = QmlDesignerPlugin::tr("Enjoying the %1?").arg(identiferToDisplayString(identifier));
+    QString name = Tr::tr("Enjoying the %1?").arg(identiferToDisplayString(identifier));
     title->setProperty("text", name);
     root->setProperty("identifier", identifier);
 

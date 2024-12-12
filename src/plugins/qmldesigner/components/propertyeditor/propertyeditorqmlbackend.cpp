@@ -13,6 +13,7 @@
 #include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
+#include <qmldesignertr.h>
 #include <qmlobjectnode.h>
 #include <qmltimeline.h>
 #include <sourcepathcache.h>
@@ -430,7 +431,7 @@ void PropertyEditorQmlBackend::setSource(const QUrl &url)
 
     if (showError && !m_view->errors().isEmpty()) {
         const QString errMsg = m_view->errors().constFirst().toString();
-        Core::AsynchronousMessageBox::warning(PropertyEditorView::tr("Invalid QML source"), errMsg);
+        Core::AsynchronousMessageBox::warning(Tr::tr("Invalid QML source"), errMsg);
     }
 }
 
@@ -816,7 +817,7 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaTyp
     QString qmlInnerTemplate = "";
 
     qmlInnerTemplate += "Section {\n";
-    qmlInnerTemplate += "caption: \"" + QObject::tr("Exposed Custom Properties") + "\"\n";
+    qmlInnerTemplate += "caption: \"" + Tr::tr("Exposed Custom Properties") + "\"\n";
     qmlInnerTemplate += anchorLeftRight;
     qmlInnerTemplate += "leftPadding: 0\n";
     qmlInnerTemplate += "rightPadding: 0\n";

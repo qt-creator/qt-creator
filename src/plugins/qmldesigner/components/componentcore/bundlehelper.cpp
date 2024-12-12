@@ -13,6 +13,7 @@
 #include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
+#include <qmldesignertr.h>
 #include <uniquename.h>
 #include <variantproperty.h>
 
@@ -137,9 +138,10 @@ void BundleHelper::importBundleToProject()
     QString bundleVersion = importedJsonObj.value("version").toString();
     bool bundleVersionOk = !bundleVersion.isEmpty() && bundleVersion == BUNDLE_VERSION;
     if (!bundleVersionOk) {
-        QMessageBox::warning(m_widget, QObject::tr("Unsupported bundle file"),
-                             QObject::tr("The chosen bundle was created with an incompatible version"
-                                         " of Qt Design Studio"));
+        QMessageBox::warning(m_widget,
+                             Tr::tr("Unsupported bundle file"),
+                             Tr::tr("The chosen bundle was created with an incompatible version"
+                                    " of Qt Design Studio"));
         return;
     }
 
@@ -167,11 +169,13 @@ void BundleHelper::importBundleToProject()
 
         // confirm overwrite if an item with same name exists
         if (existingQmls.contains(qml)) {
-            auto reply = QMessageBox::question(m_widget, QObject::tr("Component Exists"),
-                                               QObject::tr("A component with the same name '%1' "
-                                                           "already exists in the project, are you "
-                                                           "sure you want to overwrite it?")
-                                                   .arg(qml), QMessageBox::Yes | QMessageBox::No);
+            auto reply = QMessageBox::question(m_widget,
+                                               Tr::tr("Component Exists"),
+                                               Tr::tr("A component with the same name '%1' "
+                                                      "already exists in the project, are you "
+                                                      "sure you want to overwrite it?")
+                                                   .arg(qml),
+                                               QMessageBox::Yes | QMessageBox::No);
             if (reply == QMessageBox::No)
                 continue;
 
@@ -563,9 +567,10 @@ QString BundleHelper::getImportPath() const
                         .currentDesignDocument()->fileName().parentDir();
     }
 
-    return QFileDialog::getOpenFileName(m_widget, QObject::tr("Import Component"),
+    return QFileDialog::getOpenFileName(m_widget,
+                                        Tr::tr("Import Component"),
                                         projectFP.toFSPathString(),
-                                        QObject::tr("Qt Design Studio Bundle Files (*.%1)")
+                                        Tr::tr("Qt Design Studio Bundle Files (*.%1)")
                                             .arg(Constants::BUNDLE_SUFFIX));
 }
 
@@ -579,12 +584,13 @@ QString BundleHelper::getExportPath(const ModelNode &node) const
                         .currentDesignDocument()->fileName().parentDir();
     }
 
-    QString dialogTitle = node.metaInfo().isQtQuick3DMaterial() ? QObject::tr("Export Material")
-                                                                : QObject::tr("Export Component");
-    return QFileDialog::getSaveFileName(m_widget, dialogTitle,
-                                        projectFP.pathAppended(defaultExportFileName).toFSPathString(),
-                                        QObject::tr("Qt Design Studio Bundle Files (*.%1)")
-                                            .arg(Constants::BUNDLE_SUFFIX));
+    QString dialogTitle = node.metaInfo().isQtQuick3DMaterial() ? Tr::tr("Export Material")
+                                                                : Tr::tr("Export Component");
+    return QFileDialog::getSaveFileName(
+        m_widget,
+        dialogTitle,
+        projectFP.pathAppended(defaultExportFileName).toFSPathString(),
+        Tr::tr("Qt Design Studio Bundle Files (*.%1)").arg(Constants::BUNDLE_SUFFIX));
 }
 
 bool BundleHelper::isMaterialBundle(const QString &bundleId) const

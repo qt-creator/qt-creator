@@ -1,7 +1,9 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #include "eventlistactions.h"
+
 #include "eventlist.h"
+#include <qmldesignertr.h>
 #include <theme.h>
 
 #include "metainfo.h"
@@ -50,9 +52,9 @@ static void handleAction(const SelectionContext &) {}
 
 EventListAction::EventListAction()
     : ModelNodeAction("EventList",
-                      QObject::tr("Show Event List"),
+                      Tr::tr("Show Event List"),
                       editEventListIcon(),
-                      QObject::tr("Show Event List"),
+                      Tr::tr("Show Event List"),
                       ComponentCoreConstants::eventListCategory,
                       QKeySequence("Alt+e"),
                       11,
@@ -72,9 +74,9 @@ static void handleAssignEventActionOperation(const SelectionContext &context)
 
 AssignEventEditorAction::AssignEventEditorAction()
     : ModelNodeAction("AssignEventEditor",
-                      QObject::tr("Assign Events to Actions"),
+                      Tr::tr("Assign Events to Actions"),
                       assignEventListIcon(),
-                      QObject::tr("Assign Events to Actions"),
+                      Tr::tr("Assign Events to Actions"),
                       ComponentCoreConstants::eventListCategory,
                       QKeySequence("Alt+a"),
                       21,

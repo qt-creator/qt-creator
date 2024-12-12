@@ -16,6 +16,7 @@
 #include "qmlitemnode.h"
 #include "richtexteditordialog.h"
 #include <qmldesignerplugin.h>
+#include <qmldesignertr.h>
 
 #include <abstractaction.h>
 #include <designeractionmanager.h>
@@ -191,7 +192,7 @@ int TextTool::wantHandleItem(const ModelNode &modelNode) const
 
 QString TextTool::name() const
 {
-    return QCoreApplication::translate("TextTool", "Text Tool");
+    return Tr::tr("Text Tool");
 }
 
 void TextTool::focusLost()

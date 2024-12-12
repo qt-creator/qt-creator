@@ -9,6 +9,7 @@
 #include <modelutils.h>
 #include <nodemetainfo.h>
 #include <qmldesignerplugin.h>
+#include <qmldesignertr.h>
 #include <qmlitemnode.h>
 #include <qmlobjectnode.h>
 #include <rewriterview.h>
@@ -537,14 +538,12 @@ void AssetDumper::savePixmap(const QPixmap &p, Utils::FilePath &path) const
     }
 
     if (!makeParentPath(path)) {
-        ExportNotification::addError(AssetExporter::tr("Error creating asset directory. %1")
-                                     .arg(path.fileName()));
+        ExportNotification::addError(Tr::tr("Error creating asset directory. %1").arg(path.fileName()));
         return;
     }
 
     if (!p.save(path.toString())) {
-        ExportNotification::addError(AssetExporter::tr("Error saving asset. %1")
-                                     .arg(path.fileName()));
+        ExportNotification::addError(Tr::tr("Error saving asset. %1").arg(path.fileName()));
     }
 }
 

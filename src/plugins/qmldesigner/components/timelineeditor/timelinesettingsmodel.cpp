@@ -6,8 +6,9 @@
 #include "timelineview.h"
 
 #include <modelnode.h>
-#include <variantproperty.h>
+#include <qmldesignertr.h>
 #include <qmlvisualnode.h>
+#include <variantproperty.h>
 
 #include <utils/qtcassert.h>
 
@@ -27,7 +28,7 @@ static void setDataForFixedFrame(QStandardItem *item, std::optional<int> fixedVa
     if (fixedValue)
         item->setData(fixedValue.value(), Qt::EditRole);
     else
-        item->setData(TimelineSettingsModel::tr("None"), Qt::EditRole);
+        item->setData(Tr::tr("None"), Qt::EditRole);
 }
 
 class CustomDelegate : public QStyledItemDelegate
@@ -104,7 +105,7 @@ QWidget *TimelineEditorDelegate::createEditor(QWidget *parent,
     switch (index.column()) {
     case TimelineSettingsModel::TimelineRow: {
         QTC_ASSERT(comboBox, return widget);
-        comboBox->addItem(TimelineSettingsModel::tr("None"));
+        comboBox->addItem(Tr::tr("None"));
         for (const auto &timeline : timelineSettingsModel->timelineView()->getTimelines()) {
             if (!timeline.modelNode().id().isEmpty())
                 comboBox->addItem(timeline.modelNode().id());
@@ -112,7 +113,7 @@ QWidget *TimelineEditorDelegate::createEditor(QWidget *parent,
     } break;
     case TimelineSettingsModel::AnimationRow: {
         QTC_ASSERT(comboBox, return widget);
-        comboBox->addItem(TimelineSettingsModel::tr("None"));
+        comboBox->addItem(Tr::tr("None"));
         for (const auto &animation :
              timelineSettingsModel->timelineView()->getAnimations(qmlTimeline)) {
             if (!animation.id().isEmpty())
@@ -200,7 +201,7 @@ static QStandardItem *createStateItem(const ModelNode &state)
     if (state.isValid())
         return new QStandardItem(state.variantProperty("name").value().toString());
     else
-        return new QStandardItem(TimelineSettingsModel::tr("Base State"));
+        return new QStandardItem(Tr::tr("Base State"));
 }
 
 void TimelineSettingsModel::addState(const ModelNode &state)

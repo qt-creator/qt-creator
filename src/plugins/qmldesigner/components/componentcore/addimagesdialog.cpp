@@ -3,6 +3,8 @@
 
 #include "addimagesdialog.h"
 
+#include <qmldesignertr.h>
+
 #include <coreplugin/icore.h>
 
 #include <QComboBox>
@@ -20,10 +22,8 @@ static QTableWidget* createFilesTable(const QStringList &fileNames)
     auto table = new QTableWidget(0, 2);
     table->setSelectionMode(QAbstractItemView::NoSelection);
 
-    QStringList labels({
-                           QCoreApplication::translate("AddImageToResources","File Name"),
-                           QCoreApplication::translate("AddImageToResources","Size")
-                       });
+    QStringList labels({QmlDesigner::Tr::tr("AddImageToResources", "File Name"),
+                        QmlDesigner::Tr::tr("AddImageToResources", "Size")});
     table->setHorizontalHeaderLabels(labels);
     table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     table->verticalHeader()->hide();
@@ -74,7 +74,7 @@ QString AddImagesDialog::getDirectory(const QStringList &fileNames, const QStrin
 
     dialog->setModal(true);
     dialog->setWindowState(Qt::WindowActive);
-    dialog->setWindowTitle(QCoreApplication::translate("AddImageToResources","Add Resources"));
+    dialog->setWindowTitle(Tr::tr("Add Resources"));
     QTableWidget *table = createFilesTable(fileNames);
     table->setParent(dialog);
     auto mainLayout = new QGridLayout(dialog);
@@ -94,12 +94,12 @@ QString AddImagesDialog::getDirectory(const QStringList &fileNames, const QStrin
        directory = text;
     });
 
-    QPushButton *browseButton = new QPushButton(QCoreApplication::translate("AddImageToResources", "&Browse..."), dialog);
+    QPushButton *browseButton = new QPushButton(Tr::tr("&Browse..."), dialog);
 
     QObject::connect(browseButton, &QPushButton::clicked, dialog, [setDirectoryForComboBox, &directory]() {
         const QString newDir = QFileDialog::getExistingDirectory(Core::ICore::dialogParent(),
-                                                              QCoreApplication::translate("AddImageToResources", "Target Directory"),
-                                                              directory);
+                                                                 Tr::tr("Target Directory"),
+                                                                 directory);
         if (!newDir.isEmpty())
             setDirectoryForComboBox(newDir);
     });

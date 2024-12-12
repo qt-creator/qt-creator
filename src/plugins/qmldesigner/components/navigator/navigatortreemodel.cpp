@@ -10,6 +10,7 @@
 #include "navigatorwidget.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
+#include <qmldesignertr.h>
 
 #include <abstractview.h>
 #include <bindingproperty.h>
@@ -80,7 +81,7 @@ bool fitsToTargetProperty(const NodeAbstractProperty &targetProperty,
 
 inline static QString msgUnknownItem(const QString &t)
 {
-    return NavigatorTreeModel::tr("Unknown component: %1").arg(t);
+    return Tr::tr("Unknown component: %1").arg(t);
 }
 
 static void removePosition(const ModelNode &node)
@@ -111,12 +112,14 @@ static bool removeModelNodeFromNodeProperty(NodeAbstractProperty &parentProperty
         if (modelNode != propertyNode && !propertyNode.isAncestorOf(modelNode)) {
             QApplication::setOverrideCursor(Qt::ArrowCursor);
 
-            QMessageBox::StandardButton selectedButton = QMessageBox::warning(Core::ICore::dialogParent(),
-                                                                              QCoreApplication::translate("NavigatorTreeModel", "Warning"),
-                                                                              QCoreApplication::translate("NavigatorTreeModel","Reparenting the component %1 here will cause the "
-                                                                                                                               "component %2 to be deleted. Do you want to proceed?")
-                                                                              .arg(modelNode.id(), propertyNode.id()),
-                                                                              QMessageBox::Ok | QMessageBox::Cancel);
+            QMessageBox::StandardButton selectedButton = QMessageBox::warning(
+                Core::ICore::dialogParent(),
+                Tr::tr("NavigatorTreeModel", "Warning"),
+                Tr::tr("NavigatorTreeModel",
+                       "Reparenting the component %1 here will cause the "
+                       "component %2 to be deleted. Do you want to proceed?")
+                    .arg(modelNode.id(), propertyNode.id()),
+                QMessageBox::Ok | QMessageBox::Cancel);
             if (selectedButton == QMessageBox::Ok) {
                 propertyNode.destroy();
                 removeNodeInPropertySucceeded = true;

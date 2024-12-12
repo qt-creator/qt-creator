@@ -5,6 +5,7 @@
 
 #include <modelnodeoperations.h>
 #include <qmldesignerplugin.h>
+#include <qmldesignertr.h>
 #include <uniquename.h>
 
 #include <qmldesignerbase/settings/designersettings.h>
@@ -131,8 +132,8 @@ void AssetsLibraryModel::deleteFiles(const QStringList &filePaths, bool dontAskA
                 }
             } else {
                 QMessageBox::warning(Core::ICore::dialogParent(),
-                                     tr("Failed to Delete File"),
-                                     tr("Could not delete \"%1\".").arg(filePath));
+                                     Tr::tr("Failed to Delete File"),
+                                     Tr::tr("Could not delete \"%1\".").arg(filePath));
             }
         }
     }

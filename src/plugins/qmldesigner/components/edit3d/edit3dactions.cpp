@@ -5,8 +5,10 @@
 
 #include "edit3dview.h"
 #include "indicatoractionwidget.h"
-#include "qmldesignerconstants.h"
 #include "seekerslider.h"
+
+#include <qmldesignerconstants.h>
+#include <qmldesignertr.h>
 
 #include <utils3d.h>
 
@@ -189,14 +191,14 @@ Edit3DBakeLightsAction::Edit3DBakeLightsAction(const QIcon &icon,
                                                SelectionContextOperation selectionAction)
     : Edit3DAction(QmlDesigner::Constants::EDIT3D_BAKE_LIGHTS,
                    View3DActionType::Empty,
-                   QCoreApplication::translate("BakeLights", "Bake Lights"),
+                   Tr::tr("Bake Lights"),
                    QKeySequence(),
                    false,
                    false,
                    icon,
                    view,
                    selectionAction,
-                   QCoreApplication::translate("BakeLights", "Bake lights for the current 3D scene."))
+                   Tr::tr("Bake lights for the current 3D scene."))
     , m_view(view)
 {
 

@@ -5,16 +5,17 @@
 
 #include <qmath.h>
 
-#include "navigatorview.h"
-#include "navigatortreeview.h"
-#include "navigatorwidget.h"
 #include "choosefrompropertylistdialog.h"
-#include <modelutils.h>
+#include "navigatortreeview.h"
+#include "navigatorview.h"
+#include "navigatorwidget.h"
 #include <dialogutils.h>
 #include <modelnodecontextmenu.h>
-#include <theme.h>
+#include <modelutils.h>
 #include <qmldesignerconstants.h>
+#include <qmldesignertr.h>
 #include <qmlobjectnode.h>
+#include <theme.h>
 
 #include <coreplugin/messagebox.h>
 #include <utils/qtcassert.h>
@@ -170,8 +171,8 @@ static void setId(const QModelIndex &index, const QString &newId)
     if (!ModelNode::isValidId(newId)) {
         DialogUtils::showWarningForInvalidId(newId);
     } else if (modelNode.view()->hasId(newId)) {
-        Core::AsynchronousMessageBox::warning(NavigatorTreeView::tr("Invalid Id"),
-                                              NavigatorTreeView::tr("%1 already exists.").arg(newId));
+        Core::AsynchronousMessageBox::warning(Tr::tr("Invalid Id"),
+                                              Tr::tr("%1 already exists.").arg(newId));
     } else {
         modelNode.setIdWithRefactoring(newId);
     }

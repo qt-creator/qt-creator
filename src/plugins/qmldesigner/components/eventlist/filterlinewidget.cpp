@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #include "filterlinewidget.h"
 
+#include <qmldesignertr.h>
 #include <theme.h>
 #include <utils/fancylineedit.h>
 #include <utils/stylehelper.h>
@@ -24,7 +25,7 @@ FilterLineWidget::FilterLineWidget(QWidget *parent)
     label->setPixmap(icon.pixmap(QSize(18, 18)));
     label->setAlignment(Qt::AlignCenter);
 
-    m_edit->setPlaceholderText(QObject::tr("<Filter>", "Library search input hint text"));
+    m_edit->setPlaceholderText(Tr::tr("<Filter>", "Library search input hint text"));
     m_edit->setDragEnabled(false);
     m_edit->setMinimumWidth(75);
     m_edit->setTextMargins(0, 0, 20, 0);

@@ -37,6 +37,7 @@
 #include <qml3dnode.h>
 #include <qmlchangeset.h>
 #include <qmldesignerconstants.h>
+#include <qmldesignertr.h>
 #include <qmlstate.h>
 #include <qmltimeline.h>
 #include <qmltimelinekeyframegroup.h>
@@ -237,7 +238,7 @@ static bool parentTakesOverRendering(const ModelNode &modelNode)
 
 static QString crashErrorMessage()
 {
-    return ::QmlDesigner::NodeInstanceView::tr("Internal process (QML Puppet) crashed.");
+    return Tr::tr("Internal process (QML Puppet) crashed.");
 }
 
 /*!
@@ -2028,8 +2029,7 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
                                                                               Qt::KeepAspectRatio);
                     imageData.pixmap.setDevicePixelRatio(ratio);
                 }
-                imageData.info = ::QmlDesigner::NodeInstanceView::tr("Source item: %1")
-                                     .arg(boundNode.id());
+                imageData.info = Tr::tr("Source item: %1").arg(boundNode.id());
             }
         }
     } else {
@@ -2250,8 +2250,8 @@ void NodeInstanceView::handleQsbProcessExit(Utils::Process *qsbProcess, const QS
     const QByteArray stdErrStr = qsbProcess->readAllRawStandardError();
 
     if (!errStr.isEmpty() || !stdErrStr.isEmpty()) {
-        Core::MessageManager::writeSilently(QCoreApplication::translate(
-            "QmlDesigner::NodeInstanceView", "Failed to generate QSB file for: %1").arg(shader));
+        Core::MessageManager::writeSilently(
+            Tr::tr("QmlDesigner::NodeInstanceView", "Failed to generate QSB file for: %1").arg(shader));
         if (!errStr.isEmpty())
             Core::MessageManager::writeSilently(errStr);
         if (!stdErrStr.isEmpty())
