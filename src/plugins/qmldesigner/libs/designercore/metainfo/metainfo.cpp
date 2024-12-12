@@ -8,6 +8,7 @@
 #include "metainforeader.h"
 #include "modelnode.h"
 
+#include <designercoretr.h>
 #include <externaldependenciesinterface.h>
 #include <invalidmetainfoexception.h>
 
@@ -114,8 +115,7 @@ void MetaInfoPrivate::parseItemLibraryDescriptions(const ExternalDependenciesInt
             const QString errorMessage = plugin->metaInfo() + QLatin1Char('\n') + QLatin1Char('\n')
                                          + reader.errors().join(QLatin1Char('\n'));
             QMessageBox::warning(nullptr,
-                                 QCoreApplication::translate(
-                                     "QmlDesigner::Internal::MetaInfoPrivate", "Invalid meta info"),
+                                 DesignerCore::Tr::tr("Invalid meta info."),
                                  errorMessage); // not nice but the code will be removed in the near future
 #endif
         }
@@ -132,8 +132,7 @@ void MetaInfoPrivate::parseItemLibraryDescriptions(const ExternalDependenciesInt
             const QString errorMessage = path.toString() + QLatin1Char('\n') + QLatin1Char('\n')
                                          + reader.errors().join(QLatin1Char('\n'));
             QMessageBox::warning(nullptr,
-                                 QCoreApplication::translate(
-                                     "QmlDesigner::Internal::MetaInfoPrivate", "Invalid meta info"),
+                                 DesignerCore::Tr::tr("Invalid meta info."),
                                  errorMessage); // not nice but the code will be removed in the near future
 #endif
         }

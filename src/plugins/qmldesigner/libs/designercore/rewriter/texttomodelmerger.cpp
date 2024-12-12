@@ -5,6 +5,7 @@
 
 #include "abstractproperty.h"
 #include "bindingproperty.h"
+#include "designercoretr.h"
 #include "documentmessage.h"
 #include "filemanager/firstdefinitionfinder.h"
 #include "filemanager/objectlengthcalculator.h"
@@ -938,7 +939,7 @@ Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url, co
     if (data.isEmpty()) {
         if (errors) {
             QmlJS::DiagnosticMessage msg;
-            msg.message = QObject::tr("Empty document");
+            msg.message = DesignerCore::Tr::tr("Empty document.");
             errors->append(DocumentMessage(msg, url));
         }
         return {};
@@ -2174,7 +2175,10 @@ void TextToModelMerger::collectLinkErrors(QList<DocumentMessage> *errors, const 
 void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
 {
     if (m_rewriterView->model()->imports().isEmpty()) {
-        const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found."));
+        const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error,
+                                                         SourceLocation(0, 0, 0, 0),
+                                                         DesignerCore::Tr::tr(
+                                                             "No import statements found."));
         errors->append(
             DocumentMessage(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName().path())));
     }
@@ -2192,9 +2196,7 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
                     const QmlJS::DiagnosticMessage diagnosticMessage(
                         QmlJS::Severity::Error,
                         SourceLocation(0, 0, 0, 0),
-                        QCoreApplication::translate(
-                            "QmlDesigner::TextToModelMerger",
-                            "Qt Quick 6 is not supported with a Qt 5 kit."));
+                        DesignerCore::Tr::tr("Qt Quick 6 is not supported with a Qt 5 kit."));
                     errors->prepend(
                         DocumentMessage(diagnosticMessage,
                                         QUrl::fromLocalFile(m_document->fileName().path())));
@@ -2203,8 +2205,7 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
                 const QmlJS::DiagnosticMessage diagnosticMessage(
                     QmlJS::Severity::Error,
                     SourceLocation(0, 0, 0, 0),
-                    QCoreApplication::translate("QmlDesigner::TextToModelMerger",
-                                                "The Design Mode requires a valid Qt kit."));
+                    DesignerCore::Tr::tr("The Design Mode requires a valid Qt kit."));
                 errors->prepend(DocumentMessage(diagnosticMessage,
                                                 QUrl::fromLocalFile(m_document->fileName().path())));
             }
@@ -2212,7 +2213,7 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
     }
 
     if (!hasQtQuick)
-        errors->append(DocumentMessage(QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import for Qt Quick found.")));
+        errors->append(DocumentMessage(DesignerCore::Tr::tr("No import for Qt Quick found.")));
 }
 
 void TextToModelMerger::collectSemanticErrorsAndWarnings(

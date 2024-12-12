@@ -5,6 +5,7 @@
 
 #include "projectstorage.h"
 
+#include <designercoretr.h>
 #include <invalidmetainfoexception.h>
 
 #include <utils/algorithm.h>
@@ -81,7 +82,7 @@ void TypeAnnotationReader::elementStart(const QString &name,
     case Finished:
     case Undefined:
         setParserState(Error);
-        addError(TypeAnnotationReader::tr("Illegal state while parsing."), currentSourceLocation());
+        addError(DesignerCore::Tr::tr("Illegal state while parsing."), currentSourceLocation());
         [[fallthrough]];
     case Error:
         break;
@@ -120,7 +121,7 @@ void TypeAnnotationReader::elementEnd()
     case Finished:
     case Undefined:
         setParserState(Error);
-        addError(TypeAnnotationReader::tr("Illegal state while parsing."), currentSourceLocation());
+        addError(DesignerCore::Tr::tr("Illegal state while parsing."), currentSourceLocation());
         [[fallthrough]];
     case Error:
         break;
@@ -149,7 +150,7 @@ void TypeAnnotationReader::propertyDefinition(const QString &name,
         readExtraFileProperty(name, value);
         break;
     case ParsingMetaInfo:
-        addError(TypeAnnotationReader::tr("No property definition allowed."), currentSourceLocation());
+        addError(DesignerCore::Tr::tr("No property definition allowed."), currentSourceLocation());
         break;
     case ParsingDocument:
     case ParsingHints:
@@ -158,7 +159,7 @@ void TypeAnnotationReader::propertyDefinition(const QString &name,
     case Finished:
     case Undefined:
         setParserState(Error);
-        addError(TypeAnnotationReader::tr("Illegal state while parsing."), currentSourceLocation());
+        addError(DesignerCore::Tr::tr("Illegal state while parsing."), currentSourceLocation());
         [[fallthrough]];
     case Error:
         break;
@@ -218,26 +219,26 @@ TypeAnnotationReader::ParserSate TypeAnnotationReader::readItemLibraryEntryEleme
     } else if (name == extraFileElementName) {
         return ParsingExtraFile;
     } else {
-        addError(TypeAnnotationReader::tr("Invalid type %1").arg(name), currentSourceLocation());
+        addError(DesignerCore::Tr::tr("Invalid type %1.").arg(name), currentSourceLocation());
         return Error;
     }
 }
 
 TypeAnnotationReader::ParserSate TypeAnnotationReader::readPropertyElement(const QString &name)
 {
-    addError(TypeAnnotationReader::tr("Invalid type %1").arg(name), currentSourceLocation());
+    addError(DesignerCore::Tr::tr("Invalid type %1.").arg(name), currentSourceLocation());
     return Error;
 }
 
 TypeAnnotationReader::ParserSate TypeAnnotationReader::readQmlSourceElement(const QString &name)
 {
-    addError(TypeAnnotationReader::tr("Invalid type %1").arg(name), currentSourceLocation());
+    addError(DesignerCore::Tr::tr("Invalid type %1.").arg(name), currentSourceLocation());
     return Error;
 }
 
 TypeAnnotationReader::ParserSate TypeAnnotationReader::readExtraFileElement(const QString &name)
 {
-    addError(TypeAnnotationReader::tr("Invalid type %1").arg(name), currentSourceLocation());
+    addError(DesignerCore::Tr::tr("Invalid type %1.").arg(name), currentSourceLocation());
     return Error;
 }
 
@@ -271,7 +272,7 @@ void TypeAnnotationReader::readTypeProperty(QStringView name, const QVariant &va
     } else if (name == "icon"_L1) {
         m_typeAnnotations.back().iconPath = absoluteFilePathForDocument(value.toString());
     } else {
-        addError(TypeAnnotationReader::tr("Unknown property for Type %1").arg(name),
+        addError(DesignerCore::Tr::tr("Unknown property for Type %1.").arg(name),
                  currentSourceLocation());
         setParserState(Error);
     }
@@ -293,7 +294,7 @@ void TypeAnnotationReader::readItemLibraryEntryProperty(QStringView name, const 
     } else if (name == "toolTip"_L1) {
         m_itemLibraryEntries.back()["toolTip"] = value;
     } else {
-        addError(TypeAnnotationReader::tr("Unknown property for ItemLibraryEntry %1").arg(name),
+        addError(DesignerCore::Tr::tr("Unknown property for ItemLibraryEntry %1.").arg(name),
                  currentSourceLocation());
         setParserState(Error);
     }
@@ -327,7 +328,7 @@ void TypeAnnotationReader::readPropertyProperty(QStringView name, const QVariant
     } else if (name == "value"_L1) {
         m_currentProperty.value = deEscapeVariant(value);
     } else {
-        addError(TypeAnnotationReader::tr("Unknown property for Property %1").arg(name),
+        addError(DesignerCore::Tr::tr("Unknown property for Property %1.").arg(name),
                  currentSourceLocation());
         setParserState(Error);
     }
@@ -338,7 +339,7 @@ void TypeAnnotationReader::readQmlSourceProperty(QStringView name, const QVarian
     if (name == "source"_L1) {
         m_itemLibraryEntries.back()["templatePath"] = absoluteFilePathForDocument(value.toString());
     } else {
-        addError(TypeAnnotationReader::tr("Unknown property for QmlSource %1").arg(name),
+        addError(DesignerCore::Tr::tr("Unknown property for QmlSource %1.").arg(name),
                  currentSourceLocation());
         setParserState(Error);
     }
@@ -350,7 +351,7 @@ void TypeAnnotationReader::readExtraFileProperty(QStringView name, const QVarian
         m_itemLibraryEntries.back()["extraFilePaths"].push_back(
             absoluteFilePathForDocument(value.toString()));
     } else {
-        addError(TypeAnnotationReader::tr("Unknown property for ExtraFile %1").arg(name),
+        addError(DesignerCore::Tr::tr("Unknown property for ExtraFile %1.").arg(name),
                  currentSourceLocation());
         setParserState(Error);
     }
@@ -484,7 +485,7 @@ void TypeAnnotationReader::insertProperty()
 
 void TypeAnnotationReader::addErrorInvalidType(const QString &typeName)
 {
-    addError(TypeAnnotationReader::tr("Invalid type %1").arg(typeName), currentSourceLocation());
+    addError(DesignerCore::Tr::tr("Invalid type %1.").arg(typeName), currentSourceLocation());
 }
 
 Utils::PathString TypeAnnotationReader::absoluteFilePathForDocument(Utils::PathString relativeFilePath)

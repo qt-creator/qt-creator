@@ -171,6 +171,7 @@ extend_qtc_library(QmlDesignerCore
     abstractview.h
     bytearraymodifier.h
     componenttextmodifier.h
+    designercoretr.h
     forwardview.h
     itemlibraryentry.h
     model.h

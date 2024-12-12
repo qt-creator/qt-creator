@@ -3,6 +3,8 @@
 
 #include "invalididexception.h"
 
+#include <designercoretr.h>
+
 #include <QCoreApplication>
 
 namespace QmlDesigner {
@@ -10,17 +12,15 @@ namespace QmlDesigner {
 static QString descriptionBasedOnReason(InvalidIdException::Reason reason)
 {
     if (reason == InvalidIdException::InvalidCharacters)
-        return QCoreApplication::translate("InvalidIdException",
-                                           "Only alphanumeric characters and underscore allowed.\n"
-                                           "Ids must begin with a lowercase letter.");
+        return DesignerCore::Tr::tr("Only alphanumeric characters and underscore allowed.\n"
+                                    "Ids must begin with a lowercase letter.");
 
-    return QCoreApplication::translate("InvalidIdException", "Ids have to be unique.");
+    return DesignerCore::Tr::tr("Ids have to be unique.");
 }
 
 static QString decorateDescriptionWithId(const QString &id, const QString &description)
 {
-    return QCoreApplication::translate("InvalidIdException", "Invalid Id: %1\n%2")
-            .arg(id, description);
+    return DesignerCore::Tr::tr("Invalid Id: %1\n%2").arg(id, description);
 }
 
 InvalidIdException::InvalidIdException(int line,
