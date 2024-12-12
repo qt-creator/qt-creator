@@ -70,8 +70,7 @@ def switchSession(toSession):
                               "window=':Session Manager_ProjectExplorer::Internal::SessionDialog'}"))
 
 def createAndSwitchToSession(toSession):
-    sessionInputDialog = ("{type='Core::Internal::SessionNameInputDialog' unnamed='1' "
-                          "visible='1' windowTitle='New Session Name'}")
+    sessionInputDialog = ("{type='QDialog' unnamed='1' visible='1' windowTitle='New Session Name'}")
     test.log("Switching to session '%s' after creating it." % toSession)
     invokeMenuItem("File", "Sessions", "Manage...")
     clickButton(waitForObject("{name='btCreateNew' type='QPushButton' visible='1' "
