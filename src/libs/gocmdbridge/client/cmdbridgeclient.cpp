@@ -244,10 +244,8 @@ Client::Client(const Utils::FilePath &remoteCmdBridgePath)
 
 Client::~Client()
 {
-    if (d->thread->isRunning()) {
-        exit();
+    if (d->thread->isRunning() && exit())
         d->thread->wait();
-    }
 }
 
 expected_str<QFuture<Environment>> Client::start()
@@ -856,12 +854,14 @@ Utils::expected_str<QFuture<void>> Client::signalProcess(int pid, Utils::Control
         "signalsuccess");
 }
 
-void Client::exit()
+bool Client::exit()
 {
     try {
         createVoidJob(d.get(), QCborMap{{"Type", "exit"}}, "exitres")->waitForFinished();
+        return true;
     } catch (...) {
-        return;
+        qCWarning(clientLog) << "Client::exit() caught exception";
+        return false;
     }
 }
 
