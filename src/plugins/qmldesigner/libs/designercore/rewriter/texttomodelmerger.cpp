@@ -983,6 +983,10 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
     if (rewriterBenchmark().isInfoEnabled())
         time.start();
 
+#ifndef QDS_USE_PROJECTSTORAGE
+    ModelManagerInterface::instance()->waitForFinished();
+#endif
+
     const QUrl url = m_rewriterView->model()->fileUrl();
 
     m_qrcMapping.clear();
