@@ -68,6 +68,8 @@
   <style name="LogCommitHash" foreground="#c06060"/>
   <style name="LogCommitSubject" foreground="#d6cf9a"/>
   <style name="LogDecoration" foreground="#c060c0"/>
+  <style name="Info" underlineColor="#b6aef1" underlineStyle="DashUnderline"/>
+  <style name="InfoContext" underlineColor="#b6aef1" underlineStyle="DotLine"/>
   <style name="Warning" underlineColor="#d6c545" underlineStyle="SingleUnderline"/>
   <style name="WarningContext" underlineColor="#d6c545" underlineStyle="DotLine"/>
   <style name="Error" underlineColor="#d65645" underlineStyle="SingleUnderline"/>

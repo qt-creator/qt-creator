@@ -71,6 +71,8 @@
   <style name="LogChangeLine" foreground="#c00000"/>
   <style name="Warning" underlineColor="#b58900" underlineStyle="SingleUnderline"/>
   <style name="WarningContext" underlineColor="#b58900" underlineStyle="DotLine"/>
+  <style name="Info" underlineColor="#268bd2" underlineStyle="DashUnderline"/>
+  <style name="InfoContext" underlineColor="#268bd2" underlineStyle="DotLine"/>
   <style name="Error" underlineColor="#dc322f" underlineStyle="SingleUnderline"/>
   <style name="ErrorContext" underlineColor="#dc322f" underlineStyle="DotLine"/>
   <style name="Declaration"/>

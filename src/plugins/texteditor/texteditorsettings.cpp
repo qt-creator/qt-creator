@@ -346,6 +346,18 @@ FormatDescriptions TextEditorSettingsPrivate::initialFormats()
                              QColor(255, 190, 0),
                              QTextCharFormat::DotLine,
                              FormatDescription::ShowAllControls);
+    formatDescr.emplace_back(C_INFO,
+                             Tr::tr("Info"),
+                             Tr::tr("Underline color of info diagnostics."),
+                             QColor(38, 32, 136),
+                             QTextCharFormat::DashUnderline,
+                             FormatDescription::ShowAllControls);
+    formatDescr.emplace_back(C_INFO_CONTEXT,
+                             Tr::tr("Info Context"),
+                             Tr::tr("Underline color of the contexts of info diagnostics."),
+                             QColor(38, 32, 136),
+                             QTextCharFormat::DotLine,
+                             FormatDescription::ShowAllControls);
     Format outputArgumentFormat;
     outputArgumentFormat.setItalic(true);
     formatDescr.emplace_back(C_OUTPUT_ARGUMENT,

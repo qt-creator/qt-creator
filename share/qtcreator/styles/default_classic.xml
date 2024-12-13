@@ -59,6 +59,8 @@
   <style name="DiffDestLine" background="#dfffdf"/>
   <style name="DiffDestChar" background="#afffaf"/>
   <style name="LogChangeLine" foreground="#c00000"/>
+  <style name="Info" underlineColor="#262088" underlineStyle="DashUnderline"/>
+  <style name="InfoContext" underlineColor="#262088" underlineStyle="DotLine"/>
   <style name="Warning" underlineColor="#ffbe00" underlineStyle="SingleUnderline"/>
   <style name="WarningContext" underlineColor="#ffbe00" underlineStyle="DotLine"/>
   <style name="Error" underlineColor="#ff0000" underlineStyle="SingleUnderline"/>
