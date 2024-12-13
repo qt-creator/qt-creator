@@ -1622,7 +1622,7 @@ public:
         QDir().mkpath(QFileInfo(m_filePath).absolutePath());
         QFile f(m_filePath);
         if (f.open(QIODevice::WriteOnly)) {
-            f.write(spec->name().toUtf8());
+            f.write(spec->id().toUtf8());
             f.write("\n");
             f.close();
         } else {
@@ -1933,9 +1933,11 @@ PluginSpec *PluginManagerPrivate::pluginForOption(const QString &option, bool *r
     return nullptr;
 }
 
-PluginSpec *PluginManagerPrivate::pluginById(const QString &id) const
+PluginSpec *PluginManagerPrivate::pluginById(const QString &id_in) const
 {
-    QTC_CHECK(id.isLower()); // Plugin ids are always lower case. So the id argument should be too.
+    QString id = id_in;
+    // Plugin ids are always lower case. So the id argument should be too.
+    QTC_ASSERT(id.isLower(), id = id.toLower());
     return Utils::findOrDefault(pluginSpecs, [id](PluginSpec *spec) { return spec->id() == id; });
 }
 
