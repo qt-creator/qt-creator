@@ -615,7 +615,7 @@ static QList<BaseSettings *> sortedSettingsForDocument(Core::IDocument *document
             });
             return true; // continue
         });
-        return result;
+        return Utils::filteredUnique(result);
     }
 
     return Utils::filtered(prefilteredSettings, [document](BaseSettings *setting) {
