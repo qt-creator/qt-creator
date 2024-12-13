@@ -48,7 +48,6 @@ void CppCodeStylePreferences::setCodeStyleSettings(const CppCodeStyleSettings &d
     QVariant v;
     v.setValue(data);
     emit valueChanged(v);
-    emit codeStyleSettingsChanged(m_data);
     if (!currentDelegate())
         emit currentValueChanged(v);
 }

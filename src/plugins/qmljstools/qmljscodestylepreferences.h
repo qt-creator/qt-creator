@@ -32,7 +32,6 @@ public slots:
     void setCodeStyleSettings(const QmlJSCodeStyleSettings &data);
 
 signals:
-    void codeStyleSettingsChanged(const QmlJSCodeStyleSettings &);
     void currentCodeStyleSettingsChanged(const QmlJSCodeStyleSettings &);
 
 private:

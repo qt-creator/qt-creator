@@ -32,7 +32,6 @@ public slots:
     void setCodeStyleSettings(const CppCodeStyleSettings &data);
 
 signals:
-    void codeStyleSettingsChanged(const CppCodeStyleSettings &);
     void currentCodeStyleSettingsChanged(const CppCodeStyleSettings &);
 
 private:

@@ -48,7 +48,6 @@ void QmlJSCodeStylePreferences::setCodeStyleSettings(const QmlJSCodeStyleSetting
     QVariant v;
     v.setValue(data);
     emit valueChanged(v);
-    emit codeStyleSettingsChanged(m_data);
     if (!currentDelegate())
         emit currentValueChanged(v);
 }
