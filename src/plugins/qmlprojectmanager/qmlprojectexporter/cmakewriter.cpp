@@ -5,8 +5,9 @@
 #include "cmakewriterv0.h"
 #include "cmakewriterv1.h"
 
-#include "qmlprojectmanager/qmlproject.h"
 #include "qmlprojectmanager/buildsystem/qmlbuildsystem.h"
+#include "qmlprojectmanager/qmlproject.h"
+#include "qmlprojectmanager/qmlprojectmanagertr.h"
 
 #include "utils/namevalueitem.h"
 
@@ -52,12 +53,15 @@ CMakeWriter::Ptr CMakeWriter::create(CMakeGenerator *parent)
 
     CMakeGenerator::logIssue(
         ProjectExplorer::Task::Warning,
-        "The project was created with a Qt Design Studio version earlier than Qt Design Studio "
-        "4.5. Due to limitations of the project structure in earlier Qt Design Studio versions, "
-        "the resulting application might not display all the assets. Referring to "
-        "assets between different QML modules does not work in the compiled application.<br>"
-        "<a href=\"https://doc.qt.io/qtdesignstudio/studio-designer-developer-workflow.html\">See "
-        "the documentation for details.</a>",
+        Tr::tr(
+            "The project was created with a Qt Design Studio version earlier than Qt Design Studio "
+            "4.5. Due to limitations of the project structure in earlier Qt Design Studio "
+            "versions, "
+            "the resulting application might not display all the assets. Referring to "
+            "assets between different QML modules does not work in the compiled application.<br>"
+            "<a "
+            "href=\"https://doc.qt.io/qtdesignstudio/studio-designer-developer-workflow.html\">See "
+            "the documentation for details.</a>"),
         buildSystem->projectFilePath());
 
     return std::make_unique<CMakeWriterV0>(parent);
