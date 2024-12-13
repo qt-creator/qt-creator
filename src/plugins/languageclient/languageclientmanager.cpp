@@ -358,6 +358,8 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
             const Utils::FilePath filePath = textDocument->filePath();
             for (ProjectExplorer::Project *project :
                  ProjectExplorer::ProjectManager::projects()) {
+                if (!setting->isValidOnProject(project))
+                    continue;
                 const bool settingIsEnabled
                     = ProjectSettings(project).enabledSettings().contains(setting->m_id)
                       || (setting->m_enabled
@@ -636,8 +638,13 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
                 // check whether we already have a client running for this project
                 Client *clientForProject
                     = Utils::findOrDefault(clients, Utils::equal(&Client::project, project));
-                if (!clientForProject)
+
+                // create a client only when valid on the current project
+                if (!clientForProject) {
+                    if (!setting->isValidOnProject(project))
+                        continue;
                     clientForProject = startClient(setting, project);
+                }
 
                 QTC_ASSERT(clientForProject, continue);
                 openDocumentWithClient(textDocument, clientForProject);

@@ -80,6 +80,7 @@ public:
     virtual QWidget *createSettingsWidget(QWidget *parent = nullptr) const;
     virtual BaseSettings *copy() const = 0;
     virtual bool isValid() const;
+    virtual bool isValidOnProject(ProjectExplorer::Project *project) const;
     Client *createClient() const;
     Client *createClient(ProjectExplorer::Project *project) const;
     bool isEnabledOnProject(ProjectExplorer::Project *project) const;
