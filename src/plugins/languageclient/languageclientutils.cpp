@@ -249,8 +249,9 @@ void updateEditorToolBar(Core::IEditor *editor)
         const QIcon icon = Utils::Icon({{":/languageclient/images/languageclient.png",
                                          Utils::Theme::IconsBaseColor}}).icon();
         extras->m_popupAction = widget->toolBar()->addAction(
-                    icon, client->name(), [document = QPointer(document), client = QPointer<Client>(client)] {
-            auto menu = new QMenu;
+                    icon, client->name(), [widget, document = QPointer(document), client = QPointer<Client>(client)] {
+            auto menu = new QMenu(widget);
+            menu->setAttribute(Qt::WA_DeleteOnClose);
             auto clientsGroup = new QActionGroup(menu);
             clientsGroup->setExclusive(true);
             for (auto client : LanguageClientManager::clientsSupportingDocument(document, false)) {
