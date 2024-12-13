@@ -2,6 +2,7 @@ include(config/license.qdocconf)
 include(config/qtdesignstudio.qdocconf)
 include($QT_INSTALL_DOCS/global/qt-html-templates-online.qdocconf)
 include(config/html-online.qdocconf)
+include(config/qtdesignstudio-icon-macros.qdocconf)
 
 # Override macros for online use
 include(../config/macros-online.qdocconf)
