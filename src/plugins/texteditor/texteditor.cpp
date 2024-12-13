@@ -1293,7 +1293,8 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
             q, &TextEditorWidget::selectEncoding);
 
     connect(m_fileLineEnding, &QToolButton::clicked, ActionManager::instance(), [this] {
-        QMenu *menu = new QMenu;
+        QMenu *menu = new QMenu(q);
+        menu->setAttribute(Qt::WA_DeleteOnClose);
         menu->addAction(Tr::tr("Unix Line Endings (LF)"),
                         [this] { q->selectLineEnding(TextFileFormat::LFLineTerminator); });
         menu->addAction(Tr::tr("Windows Line Endings (CRLF)"),
