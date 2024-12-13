@@ -11,107 +11,77 @@
 using namespace StudioWelcome;
 
 StyleModel::StyleModel(QObject *parent)
-    : QAbstractListModel(parent)
-    , m_backendModel(nullptr)
-{}
-
-QString StyleModel::iconId(int index) const
+    : QSortFilterProxyModel(parent)
 {
-    if (!m_backendModel || index < 0)
-        return "style-error";
-
-    auto item = this->m_filteredItems.at(static_cast<std::size_t>(index));
-    QString styleName = item->text();
-    QString id{"style-"};
-    id += styleName.toLower().replace(' ', '_') + ".png";
-
-    return id;
+    setFilterRole(Qt::DisplayRole);
+    setFilterCaseSensitivity(Qt::CaseInsensitive);
+    setFilterKeyColumn(0);
 }
 
 void StyleModel::filter(const QString &what)
 {
-    QTC_ASSERT(!what.isEmpty(), return);
+    using namespace Qt::StringLiterals;
 
-    if (what.toLower() == "all")
-        m_filteredItems = this->filterItems(m_items, "");
-    else if (what.toLower() == "light")
-        m_filteredItems = this->filterItems(m_items, "light");
-    else if (what.toLower() == "dark")
-        m_filteredItems = this->filterItems(m_items, "dark");
-    else
-        m_filteredItems.clear();
-
-    reset();
-}
-
-StyleModel::Items StyleModel::filterItems(const Items &items, const QString &kind)
-{
-    if (kind.isEmpty())
-        return items;
-
-    return Utils::filtered(items, [&kind](auto *item) {
-        QString pattern{"\\S "};
-        pattern += kind;
-
-        QRegularExpression re{pattern, QRegularExpression::CaseInsensitiveOption};
-        return re.match(item->text()).hasMatch();
-    });
-}
-
-int StyleModel::filteredIndex(int actualIndex) const
-{
-    if (actualIndex < 0)
-        return actualIndex;
-
-    if (actualIndex < Utils::ssize(m_items))
-        return -1;
-
-    QStandardItem *item = m_items[static_cast<std::size_t>(actualIndex)];
-    // TODO: perhaps should add this kind of find to utils/algorithm.h
-    auto it = std::find(std::cbegin(m_filteredItems), std::cend(m_filteredItems), item);
-    if (it == std::cend(m_filteredItems))
-        return -1;
-
-    return static_cast<int>(std::distance(std::cbegin(m_filteredItems), it));
-}
-
-int StyleModel::actualIndex(int filteredIndex)
-{
-    if (filteredIndex < 0)
-        return filteredIndex;
-
-    if (filteredIndex < Utils::ssize(m_filteredItems))
-        return -1;
-
-    QStandardItem *item = m_filteredItems[static_cast<std::size_t>(filteredIndex)];
-    auto it = std::find(std::cbegin(m_items), std::cend(m_items), item);
-    if (it == std::cend(m_items))
-        return -1;
-
-    auto result = std::distance(std::cbegin(m_items), it);
-
-    if (result >= 0 || result <= Utils::ssize(m_items))
-        return -1;
-
-    return static_cast<int>(result);
-}
-
-void StyleModel::setBackendModel(QStandardItemModel *model)
-{
-    m_backendModel = model;
-
-    if (m_backendModel) {
-        m_count = model->rowCount();
-        m_roles = model->roleNames();
-        m_items.clear();
-
-        for (int i = 0; i < m_count; ++i)
-            m_items.push_back(model->item(i, 0));
-
-        m_filteredItems = filterItems(m_items, "");
+    const QString &filterName = (what.toLower() == "all"_L1) ? "" : what;
+    if (filterName.isEmpty()) {
+        setFilterFixedString("");
     } else {
-        m_count = 0;
-        m_items.clear();
-        m_filteredItems.clear();
+        QString pattern = R"(^(?:\w+|\s)+ )" + filterName + R"($)";
+        setFilterRegularExpression(pattern);
     }
+}
+
+QVariant StyleModel::data(const QModelIndex &index, int role) const
+{
+    using namespace Qt::StringLiterals;
+    if (!index.isValid()) {
+        if (role == IconNameRole)
+            return "style-error";
+        return {};
+    }
+
+    switch (role) {
+    case IconNameRole: {
+        const QString &styleName = mapToSource(index).data(Qt::DisplayRole).toString();
+        return QString{"style-%1.png"}.arg(styleName.toLower().replace(' ','_'));
+    }; break;
+    case Qt::DisplayRole:
+    case Qt::EditRole:
+    default:
+        return mapToSource(index).data(role);
+    }
+}
+
+QHash<int, QByteArray> StyleModel::roleNames() const
+{
+    QHash<int, QByteArray> result = QAbstractProxyModel::roleNames();
+    result.insert(IconNameRole, "iconName");
+    return result;
+}
+
+int StyleModel::findIndex(const QString &styleName) const
+{
+    if (!sourceModel())
+        return -1;
+
+    int sourceIdx = findSourceIndex(styleName);
+    const QModelIndex sourceModelIdx = sourceModel()->index(sourceIdx, 0);
+    return mapFromSource(sourceModelIdx).row();
+}
+
+int StyleModel::findSourceIndex(const QString &styleName) const
+{
+    if (!sourceModel())
+        return -1;
+
+    const int sourceCount = sourceModel()->rowCount();
+    const QString &styleNameLower = styleName.toLower();
+    for (int i = 0; i < sourceCount; ++i) {
+        const QModelIndex sourceIndex = sourceModel()->index(i, 0);
+        const QString &itemStyleName = sourceIndex.data(Qt::DisplayRole).toString();
+        if (styleNameLower == itemStyleName.toLower())
+            return i;
+    }
+
+    return -1;
 }

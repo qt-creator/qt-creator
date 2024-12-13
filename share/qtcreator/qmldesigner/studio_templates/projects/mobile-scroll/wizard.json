@@ -24,7 +24,7 @@
         { "key": "UIClassFileName", "value": "%{JS: Util.fileName('%{UIClassName}', 'ui.qml')}" },
         { "key": "QtQuickVersion", "value": "%{JS: %{TargetQtVersion}.TargetQuickVersion}" },
         { "key": "QtQuickFeature", "value": "QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}" },
-        { "key": "QtQuickControlsStyle", "value": "Basic" },
+        { "key": "QtQuickControlsStyle", "value": "%{JS: %{ControlsStyle}.QtQuickControlsStyle}" },
         { "key": "QtQuickControlsStyleTheme", "value": "%{JS: %{ControlsStyle}.QtQuickControlsStyleTheme}" },
         { "key": "ApplicationImport", "value": "%{ImportModuleName}" },
         { "key": "UseStandardResolution", "value": "%{JS: value('CustomScreenWidth') === '' || value('CustomScreenHeight') === ''}" },

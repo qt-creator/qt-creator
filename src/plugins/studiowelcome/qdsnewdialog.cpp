@@ -94,10 +94,6 @@ QdsNewDialog::QdsNewDialog(QWidget *parent)
         QMessageBox::critical(m_dialog.get(), tr("New Project"), tr("Failed to initialize data."));
         reject();
     });
-
-    QObject::connect(m_styleModel.data(), &StyleModel::modelAboutToBeReset, this, [this] {
-        m_qmlStyleIndex = -1;
-    });
 }
 
 bool QdsNewDialog::eventFilter(QObject *obj, QEvent *event)
@@ -117,8 +113,7 @@ void QdsNewDialog::onDeletingWizard()
     m_qmlScreenSizeIndex = -1;
     m_screenSizeModel->reset();
 
-    m_styleModel->setBackendModel(nullptr);
-    m_qmlStyleIndex = -1;
+    m_styleModel->setSourceModel(nullptr);
 }
 
 void QdsNewDialog::setProjectName(const QString &name)
@@ -191,7 +186,7 @@ void QdsNewDialog::onWizardCreated(QStandardItemModel *screenSizeModel, QStandar
         m_screenSizeModel->setBackendModel(screenSizeModel);
 
     if (styleModel)
-        m_styleModel->setBackendModel(styleModel);
+        m_styleModel->setSourceModel(styleModel);
 
     if (!m_currentPreset) {
         qWarning() << "Wizard has been created but there is no Preset selected!";
@@ -208,6 +203,8 @@ void QdsNewDialog::onWizardCreated(QStandardItemModel *screenSizeModel, QStandar
                 setUseVirtualKeyboard(userPreset->useQtVirtualKeyboard);
             if (hasCMakeGeneration())
                 setEnableCMakeGeneration(userPreset->enableCMakeGeneration);
+
+            setStyleName(userPreset->styleName);
         }
 
         m_targetQtVersions.clear();
@@ -228,19 +225,15 @@ void QdsNewDialog::onWizardCreated(QStandardItemModel *screenSizeModel, QStandar
         setProjectName(m_qmlProjectName);
         setProjectLocation(m_qmlProjectLocation.toString());
     }
+}
 
-    if (m_qmlStylesLoaded && m_wizard.haveStyleModel()) {
-        if (m_currentPreset->isUserPreset()) {
-            int index = m_wizard.styleIndex(userPreset->styleName);
-            if (index != -1)
-                setStyleIndex(index);
-        } else {
-            /* NOTE: For a builtin preset, we don't need to set style index. That's because defaults
-             *       will be loaded from the backend Wizard.
-             */
-        }
-        m_styleModel->reset();
-    }
+void QdsNewDialog::setStyleName(const QString &newStyleName)
+{
+    if (m_styleName == newStyleName)
+        return;
+
+    m_styleName = newStyleName;
+    emit styleNameChanged();
 }
 
 void QdsNewDialog::setEnableCMakeGeneration(bool newQmlEnableCMakeGeneration)
@@ -286,44 +279,9 @@ int QdsNewDialog::getTargetQtVersionIndex() const
     return m_qmlTargetQtVersionIndex;
 }
 
-void QdsNewDialog::setStyleIndex(int index)
-{
-    if (!m_qmlStylesLoaded)
-        return;
-
-    if (index == -1) {
-        m_qmlStyleIndex = index;
-        return;
-    }
-
-    m_qmlStyleIndex = index;
-    int actualIndex = m_styleModel->actualIndex(m_qmlStyleIndex);
-    QTC_ASSERT(actualIndex >= 0, return);
-
-    m_wizard.setStyleIndex(actualIndex);
-}
-
 int QdsNewDialog::getStyleIndex() const
 {
-    /**
-     * m_wizard.styleIndex property is the wizard's (backend's) value of the style index.
-     * The initial value (saved in the wizard.json) is read from there. Any subsequent reads of
-     * the style index should use m_styleIndex, which is the QML's style index property. Setting
-     * the style index should update both the m_styleIndex and the backend. In this regard, the
-     * QdsNewDialog's m_styleIndex acts as some kind of cache.
-    */
-
-    if (!m_qmlStylesLoaded)
-        return -1;
-
-    if (m_qmlStyleIndex == -1) {
-        int actualIndex = m_wizard.styleIndex();
-        // Not nice, get sets the property... m_qmlStyleIndex acts like a cache.
-        m_qmlStyleIndex = m_styleModel->filteredIndex(actualIndex);
-        return m_qmlStyleIndex;
-    }
-
-    return m_styleModel->actualIndex(m_qmlStyleIndex);
+    return m_styleModel->findSourceIndex(m_styleName);
 }
 
 void QdsNewDialog::setUseVirtualKeyboard(bool value)
@@ -418,6 +376,8 @@ bool QdsNewDialog::hasCMakeGeneration() const
 void QdsNewDialog::accept()
 {
     CreateProject create{m_wizard};
+    // Get a snapshot of the preset before hiding the dialog
+    UserPresetData preset = currentUserPresetData(m_currentPreset->displayName());
 
     m_dialog->hide();
     create.withName(m_qmlProjectName)
@@ -430,9 +390,6 @@ void QdsNewDialog::accept()
         .withTargetQtVersion(m_qmlTargetQtVersionIndex)
         .execute();
 
-    std::shared_ptr<PresetItem> item = m_wizard.preset();
-
-    UserPresetData preset = currentUserPresetData(m_currentPreset->displayName());
     m_recentsStore.save(preset);
 
     m_dialog->close();
@@ -441,7 +398,7 @@ void QdsNewDialog::accept()
 void QdsNewDialog::reject()
 {
     m_screenSizeModel->setBackendModel(nullptr);
-    m_styleModel->setBackendModel(nullptr);
+    m_styleModel->setSourceModel(nullptr);
     m_wizard.destroyWizard();
 
     m_dialog->close();

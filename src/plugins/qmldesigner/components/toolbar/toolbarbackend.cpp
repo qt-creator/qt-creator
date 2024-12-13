@@ -809,14 +809,16 @@ bool ToolBarBackend::isDesignModeEnabled() const
 
 int ToolBarBackend::currentStyle() const
 {
-    if (!currentDesignDocument())
-        return 0;
+    if (currentDesignDocument()) {
+        auto view = currentDesignDocument()->rewriterView();
+        const QString qmlFile = view->model()->fileUrl().toLocalFile();
+        return ChangeStyleWidgetAction::getCurrentStyle(qmlFile);
+    } else if (Core::EditorManager::currentDocument()) {
+        const QString documentPath = Core::EditorManager::currentDocument()->filePath().toFSPathString();
+        return ChangeStyleWidgetAction::getCurrentStyle(documentPath);
+    }
 
-    auto view = currentDesignDocument()->rewriterView();
-
-    const QString qmlFile = view->model()->fileUrl().toLocalFile();
-
-    return ChangeStyleWidgetAction::getCurrentStyle(qmlFile);
+    return 0;
 }
 
 QStringList ToolBarBackend::kits() const
