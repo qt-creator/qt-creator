@@ -309,8 +309,9 @@ private:
     void showMenu()
     {
         QTC_ASSERT(m_doc, return);
-        auto menu = new QMenu;
+        auto menu = new QMenu(this);
         menu->addAction(ActionManager::command(Constants::AUTO_INDENT_SELECTION)->action());
+        menu->setAttribute(Qt::WA_DeleteOnClose);
         if (auto indenter = m_doc->indenter(); indenter && indenter->respectsTabSettings()) {
             auto documentSettings = menu->addMenu(Tr::tr("Document Settings"));
 
