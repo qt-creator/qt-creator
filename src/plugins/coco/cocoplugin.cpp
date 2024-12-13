@@ -61,8 +61,7 @@ public:
             m_client->shutdown();
         m_client = nullptr;
 
-        CocoInstallation coco;
-        if (coco.isValid()) {
+        if (cocoSettings().isValid()) {
             QDialog dialog(ICore::dialogParent());
             dialog.setModal(true);
             auto layout = new QFormLayout();
@@ -83,7 +82,7 @@ public:
             QObject::connect(&buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
 
             if (dialog.exec() == QDialog::Accepted) {
-                const FilePath cocoPath = coco.coverageBrowserPath();
+                const FilePath cocoPath = cocoSettings().coverageBrowserPath();
                 const FilePath csmesPath = csmesChoser.filePath();
                 if (cocoPath.isExecutableFile() && csmesPath.exists()) {
                     m_client = new CocoLanguageClient(cocoPath, csmesPath);
@@ -117,7 +116,7 @@ void CocoPlugin::initialize()
         QCoreApplication::translate("Coco", "Coco"),
         ":/cocoplugin/images/SquishCoco_48x48.png");
 
-    GlobalSettings::read();
+    cocoSettings().read();
     GlobalSettingsPage::instance().widget();
 
     setupCocoProjectPanel();

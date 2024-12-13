@@ -50,7 +50,6 @@ private:
     bool cocoPathValid() const;
 
     QMakeFeatureFile m_featureFile;
-    CocoInstallation m_coco;
 };
 
 void CocoQMakeSettings::read()
@@ -179,7 +178,7 @@ void CocoQMakeSettings::write(const QString &options, const QString &tweaks)
 
 QString CocoQMakeSettings::pathAssignment() const
 {
-    return pathAssignmentPrefix + m_coco.directory().toUserOutput();
+    return pathAssignmentPrefix + cocoSettings().directory().toUserOutput();
 }
 
 bool CocoQMakeSettings::cocoPathValid() const

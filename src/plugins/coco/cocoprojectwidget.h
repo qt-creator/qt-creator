@@ -4,7 +4,6 @@
 #pragma once
 
 #include "buildsettings.h"
-#include "globalsettings.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <utils/aspects.h>
@@ -75,7 +74,6 @@ private:
     QString m_selectionDirectory;
     ConfigurationState m_configState = configDone;
     QString m_buildConfigurationName;
-    CocoInstallation m_coco;
 };
 
 } // namespace Coco::Internal

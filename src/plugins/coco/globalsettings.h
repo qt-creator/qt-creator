@@ -8,20 +8,15 @@
 #include <QPointer>
 
 namespace Coco::Internal {
-namespace GlobalSettings {
 
-void read();
-void save();
-
-} // GlobalSettings
-
-struct CocoInstallationPrivate;
-
-// Borg pattern: There are many instances of this class, but all are the same.
-class CocoInstallation
+class CocoSettings
 {
+    friend CocoSettings &cocoSettings();
+    CocoSettings();
+
 public:
-    CocoInstallation();
+    void read();
+    void save();
 
     Utils::FilePath directory() const;
     Utils::FilePath coverageBrowserPath() const;
@@ -39,8 +34,12 @@ private:
     void tryPath(const QString &path);
     QString envVar(const QString &var) const;
 
-    static CocoInstallationPrivate *d;
+    Utils::FilePath m_cocoPath;
+    bool m_isValid = false;
+    QString m_errorMessage;
 };
+
+CocoSettings &cocoSettings();
 
 class GlobalSettingsWidget : public QFrame
 {
@@ -67,7 +66,6 @@ private:
     Utils::FilePathAspect m_cocoPathAspect;
     Utils::TextDisplay m_messageLabel;
 
-    CocoInstallation m_coco;
     Utils::FilePath m_previousCocoDir;
 };
 

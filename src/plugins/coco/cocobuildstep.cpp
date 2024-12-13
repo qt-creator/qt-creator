@@ -97,8 +97,7 @@ QWidget *CocoBuildStep::createConfigWidget()
 
 void CocoBuildStep::updateDisplay()
 {
-    CocoInstallation coco;
-    if (!coco.isValid()) {
+    if (!cocoSettings().isValid()) {
         setSummaryText("<i>" + Tr::tr("Coco Code Coverage: No working Coco installation") + "</i>");
         emit setButtonState(false);
         return;

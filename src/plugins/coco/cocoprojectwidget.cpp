@@ -105,11 +105,11 @@ void CocoProjectWidget::reloadSettings()
     setState(configDone);
     displayChanges();
 
-    const bool valid = m_coco.isValid();
+    const bool valid = cocoSettings().isValid();
     m_configerrorLabel.setVisible(!valid);
     if (!valid) {
         m_configerrorLabel.setText(
-            Tr::tr("Coco is not installed correctly: \"%1\"").arg(m_coco.errorMessage()));
+            Tr::tr("Coco is not installed correctly: \"%1\"").arg(cocoSettings().errorMessage()));
     }
 }
 
@@ -232,7 +232,7 @@ void Internal::CocoProjectWidget::onCoverageGroupBoxClicked()
         return;
     }
 
-    if (!m_coco.isValid()) {
+    if (!cocoSettings().isValid()) {
         m_coverageGroupBoxEnabled.setValue(false, Utils::BaseAspect::BeQuiet);
 
         QMessageBox box;
@@ -245,7 +245,7 @@ void Internal::CocoProjectWidget::onCoverageGroupBoxClicked()
         if (box.clickedButton() == editButton)
             Core::ICore::showOptionsDialog(Constants::COCO_SETTINGS_PAGE_ID);
 
-        m_coverageGroupBoxEnabled.setValue(m_coco.isValid(), Utils::BaseAspect::BeQuiet);
+        m_coverageGroupBoxEnabled.setValue(cocoSettings().isValid(), Utils::BaseAspect::BeQuiet);
     } else
         m_buildSettings->setCoverage(checked);
 
