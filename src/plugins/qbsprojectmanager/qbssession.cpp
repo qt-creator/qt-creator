@@ -11,7 +11,6 @@
 #include "qbssettings.h"
 
 #include <coreplugin/messagemanager.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -493,13 +492,7 @@ void QbsSession::handlePacket(const QJsonObject &packet)
     } else if (type == "log-data") {
         Core::MessageManager::writeSilently("[qbs] " + packet.value("message").toString());
     } else if (type == "warning") {
-        const ErrorInfo errorInfo = ErrorInfo(packet.value("warning").toObject());
-
-        // TODO: This loop occurs a lot. Factor it out.
-        for (const ErrorInfoItem &item : errorInfo.items) {
-            TaskHub::addTask(BuildSystemTask(Task::Warning, item.description,
-                                             item.filePath, item.line));
-        }
+        ErrorInfo(packet.value("warning").toObject()).generateTasks(Task::Warning);
     } else if (type == "task-started") {
         emit taskStarted(packet.value("description").toString(),
                          packet.value("max-progress").toInt());
@@ -536,13 +529,7 @@ void QbsSession::handlePacket(const QJsonObject &packet)
         d->reply = packet;
         d->eventLoop.quit();
     } else if (type == "protocol-error") {
-        const ErrorInfo errorInfo = ErrorInfo(packet.value("error").toObject());
-
-        // TODO: This loop occurs a lot. Factor it out.
-        for (const ErrorInfoItem &item : errorInfo.items) {
-            TaskHub::addTask(BuildSystemTask(Task::Error, item.description,
-                                             item.filePath, item.line));
-        }
+        ErrorInfo(packet.value("error").toObject()).generateTasks(Task::Error);
         setError(Error::ProtocolError);
     }
 }
@@ -701,6 +688,12 @@ QString ErrorInfo::toString() const
 {
     return transform<QStringList>(items, [](const ErrorInfoItem &i) { return i.toString(); })
             .join('\n');
+}
+
+void ErrorInfo::generateTasks(ProjectExplorer::Task::TaskType type) const
+{
+    for (const ErrorInfoItem &item : items)
+        TaskHub::addTask(BuildSystemTask(type, item.description, item.filePath, item.line));
 }
 
 void forAllProducts(const QJsonObject &project, const WorkerFunction &productFunction)

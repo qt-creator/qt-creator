@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <projectexplorer/task.h>
 #include <utils/filepath.h>
 
 #include <QHash>
@@ -45,6 +46,7 @@ public:
 
     QString toString() const;
     bool hasError() const { return !items.isEmpty(); }
+    void generateTasks(ProjectExplorer::Task::TaskType type) const;
 
     QList<ErrorInfoItem> items;
 };

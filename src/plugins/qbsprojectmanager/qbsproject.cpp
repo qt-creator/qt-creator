@@ -682,10 +682,7 @@ void QbsBuildSystem::updateAfterBuild()
 
 void QbsBuildSystem::generateErrors(const ErrorInfo &e)
 {
-    for (const ErrorInfoItem &item : e.items) {
-        TaskHub::addTask(BuildSystemTask(Task::Error, item.description,
-                                         item.filePath, item.line));
-    }
+    e.generateTasks(Task::Error);
 }
 
 void QbsBuildSystem::prepareForParsing()
