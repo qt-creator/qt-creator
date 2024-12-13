@@ -119,6 +119,7 @@ void CMakeWriterV0::writeModuleCMakeFile(const NodePtr &node, const NodePtr &roo
     }
 
     content.append(bigResources);
+    content.append("\n");
 
     if (node->type == Node::Type::App) {
         writeToFile = node->dir.pathAppended("qmlModules");

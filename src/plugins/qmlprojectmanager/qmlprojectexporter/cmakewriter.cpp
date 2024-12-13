@@ -30,7 +30,8 @@ qt6_add_resources(%1 %2
     PREFIX "%3"
     VERSION 1.0
     FILES %4
-))";
+)
+)";
 
 CMakeWriter::Ptr CMakeWriter::create(CMakeGenerator *parent)
 {
