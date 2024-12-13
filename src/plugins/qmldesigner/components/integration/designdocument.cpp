@@ -685,6 +685,55 @@ RewriterView *DesignDocument::rewriterView() const
     return m_rewriterView.get();
 }
 
+#ifndef QDS_USE_PROJECTSTORAGE
+static void removeUnusedImports(RewriterView *rewriter)
+{
+    // Remove any import statements for asset based nodes (composed effect or imported3d)
+    // if there is no nodes using them in the scene.
+    QTC_ASSERT(rewriter && rewriter->model(), return);
+
+    GeneratedComponentUtils compUtils{rewriter->externalDependencies()};
+
+    const QString effectPrefix = compUtils.composedEffectsTypePrefix();
+    const QString imported3dPrefix = compUtils.import3dTypePrefix();
+    const QList<Utils::FilePath> qmlFiles = compUtils.imported3dComponents();
+    QHash<QString, QString> m_imported3dTypeMap;
+    for (const Utils::FilePath &qmlFile : qmlFiles) {
+        QString importName = compUtils.getImported3dImportName(qmlFile);
+        QString type = qmlFile.baseName();
+        m_imported3dTypeMap.insert(importName, type);
+    }
+
+    const Imports &imports = rewriter->model()->imports();
+    QHash<QString, Import> assetImports;
+    for (const Import &import : imports) {
+        if (import.url().startsWith(effectPrefix)) {
+            QString type = import.url().split('.').last();
+            assetImports.insert(type, import);
+        } else if (import.url().startsWith(imported3dPrefix)) {
+            assetImports.insert(m_imported3dTypeMap[import.url()], import);
+        }
+    }
+
+    const QList<ModelNode> allNodes = rewriter->allModelNodes();
+    for (const ModelNode &node : allNodes) {
+        if (QmlItemNode(node).isEffectItem()
+            || (node.isComponent() && node.metaInfo().isQtQuick3DNode())) {
+            assetImports.remove(node.simplifiedTypeName());
+        }
+    }
+
+    if (!assetImports.isEmpty()) {
+        Imports removeImports;
+        for (const Import &import : assetImports)
+            removeImports.append(import);
+        rewriter->model()->changeImports({}, removeImports);
+    }
+
+    rewriter->forceAmend();
+}
+#endif
+
 void DesignDocument::setEditor(Core::IEditor *editor)
 {
     m_textEditor = editor;
@@ -694,6 +743,12 @@ void DesignDocument::setEditor(Core::IEditor *editor)
             this, [this](Core::IDocument *document) {
         if (m_textEditor && m_textEditor->document() == document) {
             if (m_documentModel && m_documentModel->rewriterView()) {
+
+#ifdef QDS_USE_PROJECTSTORAGE
+                // TODO: ProjectStorage should handle this via Model somehow (QDS-14519)
+#else
+                removeUnusedImports(rewriterView());
+#endif
                 m_documentModel->rewriterView()->writeAuxiliaryData();
             }
         }

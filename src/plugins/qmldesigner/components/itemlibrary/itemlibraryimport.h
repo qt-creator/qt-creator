@@ -28,7 +28,6 @@ public:
     enum class SectionType {
         Default,
         User,
-        Quick3DAssets,
         Unimported
     };
 
@@ -67,7 +66,6 @@ public:
     bool importUnimported() const { return m_sectionType == SectionType::Unimported; }
 
     static QString userComponentsTitle();
-    static QString quick3DAssetsTitle();
     static QString unimportedComponentsTitle();
 
     SectionType sectionType() const;

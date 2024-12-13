@@ -2613,6 +2613,16 @@ NodeMetaInfo Model::qtQuick3DTextureInputMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::qtQuick3DView3DMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, View3D>();
+    } else {
+        return metaInfo("QtQuick3D.View3D");
+    }
+}
+
 NodeMetaInfo Model::qtQuickBorderImageMetaInfo() const
 {
     if constexpr (useProjectStorage()) {

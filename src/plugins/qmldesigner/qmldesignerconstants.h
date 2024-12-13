@@ -87,6 +87,7 @@ inline constexpr char MIME_TYPE_ASSET_TEXTURE3D[]
     = "application/vnd.qtdesignstudio.asset.texture3d";
 inline constexpr char MIME_TYPE_MODELNODE_LIST[] = "application/vnd.qtdesignstudio.modelnode.list";
 inline constexpr char MIME_TYPE_ASSET_EFFECT[] = "application/vnd.qtdesignstudio.asset.effect";
+inline constexpr char MIME_TYPE_ASSET_IMPORTED3D[] = "application/vnd.qtdesignstudio.asset.imported3d";
 
 // Menus
 inline constexpr char M_VIEW_WORKSPACES[] = "QmlDesigner.Menu.View.Workspaces";

@@ -239,6 +239,10 @@ void NameItemDelegate::paint(QPainter *painter,
                                                                            model->qtQuickBorderImageMetaInfo());
             } else if (dragType == Constants::MIME_TYPE_ASSET_EFFECT) {
                 validDrop = metaInfo.isBasedOn(node.model()->qtQuickItemMetaInfo());
+            } else if (dragType == Constants::MIME_TYPE_ASSET_IMPORTED3D) {
+                Model *model = node.model();
+                validDrop = metaInfo.isBasedOn(model->qtQuick3DNodeMetaInfo(),
+                                               model->qtQuick3DView3DMetaInfo());
             } else {
                 const NodeMetaInfo dragInfo = node.model()->metaInfo(dragType);
                 ChooseFromPropertyListFilter *filter = new ChooseFromPropertyListFilter(dragInfo, metaInfo, true);

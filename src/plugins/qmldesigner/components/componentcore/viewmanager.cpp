@@ -68,7 +68,7 @@ public:
 #endif
         , formEditorView{externalDependencies}
         , textEditorView{externalDependencies}
-        , assetsLibraryView{externalDependencies}
+        , assetsLibraryView{imageCache, externalDependencies}
         , itemLibraryView(imageCache, externalDependencies)
         , navigatorView{externalDependencies}
         , propertyEditorView(imageCache, externalDependencies)

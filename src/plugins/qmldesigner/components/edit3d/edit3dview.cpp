@@ -35,6 +35,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
+#include <qmldesignerutils/asset.h>
+
 #include <projectexplorer/target.h>
 #include <projectexplorer/kit.h>
 
@@ -305,7 +307,11 @@ void Edit3DView::modelAttached(Model *model)
         if (QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(target->kit()))
             m_isBakingLightsSupported = qtVer->qtVersion() >= QVersionNumber(6, 5, 0);
     }
-#ifndef QDS_USE_PROJECTSTORAGE
+#ifdef QDS_USE_PROJECTSTORAGE
+    // TODO: Handle actual entries changed signal/notification once it is available.
+    //       Until then, we simply get what entries are available at model attach time.
+    onEntriesChanged();
+#else
     connect(model->metaInfo().itemLibraryInfo(),
             &ItemLibraryInfo::entriesChanged,
             this,
@@ -333,15 +339,14 @@ void Edit3DView::handleEntriesChanged()
     enum ItemLibraryEntryKeys : int { // used to maintain order
         EK_cameras,
         EK_lights,
-        EK_primitives,
-        EK_importedModels
+        EK_primitives
     };
 
     QMap<ItemLibraryEntryKeys, ItemLibraryDetails> entriesMap{
         {EK_cameras, {tr("Cameras"), contextIcon(DesignerIcons::CameraIcon)}},
         {EK_lights, {tr("Lights"), contextIcon(DesignerIcons::LightIcon)}},
-        {EK_primitives, {tr("Primitives"), contextIcon(DesignerIcons::PrimitivesIcon)}},
-        {EK_importedModels, {tr("Imported Models"), contextIcon(DesignerIcons::ImportedModelsIcon)}}};
+        {EK_primitives, {tr("Primitives"), contextIcon(DesignerIcons::PrimitivesIcon)}}
+    };
 
 #ifdef QDS_USE_PROJECTSTORAGE
     auto append = [&](const NodeMetaInfo &metaInfo, ItemLibraryEntryKeys key) {
@@ -356,16 +361,6 @@ void Edit3DView::handleEntriesChanged()
     append(model()->qtQuick3DPointLightMetaInfo(), EK_lights);
     append(model()->qtQuick3DOrthographicCameraMetaInfo(), EK_cameras);
     append(model()->qtQuick3DPerspectiveCameraMetaInfo(), EK_cameras);
-
-    Utils::PathString import3dTypePrefix = QmlDesignerPlugin::instance()
-                                               ->documentManager()
-                                               .generatedComponentUtils()
-                                               .import3dTypePrefix();
-
-    auto assetsModule = model()->module(import3dTypePrefix, Storage::ModuleKind::QmlLibrary);
-
-    for (const auto &metaInfo : model()->metaInfosForModule(assetsModule))
-        append(metaInfo, EK_importedModels);
 #else
     const QList<ItemLibraryEntry> itemLibEntries = model()->metaInfo().itemLibraryInfo()->entries();
     for (const ItemLibraryEntry &entry : itemLibEntries) {
@@ -379,13 +374,6 @@ void Edit3DView::handleEntriesChanged()
         } else if (entry.typeName() == "QtQuick3D.OrthographicCamera"
                    || entry.typeName() == "QtQuick3D.PerspectiveCamera") {
             entryKey = EK_cameras;
-        } else if (entry.typeName().startsWith(QmlDesignerPlugin::instance()
-                                                   ->documentManager()
-                                                   .generatedComponentUtils()
-                                                   .import3dTypePrefix()
-                                                   .toUtf8())
-                   && NodeHints::fromItemLibraryEntry(entry, model()).canBeDroppedInView3D()) {
-            entryKey = EK_importedModels;
         } else {
             continue;
         }
@@ -464,6 +452,8 @@ void Edit3DView::customNotification([[maybe_unused]] const AbstractView *view,
             self->m_nodeAtPosReqType = NodeAtPosReqType::MainScenePick;
             self->m_pickView3dNode = self->modelNodeForInternalId(qint32(data[1].toInt()));
         });
+    } else if (identifier == "asset_import_finished" || identifier == "assets_deleted") {
+        handleEntriesChanged();
     }
 }
 
@@ -511,9 +501,22 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
         emitCustomNotification("apply_texture_to_model3D", {modelNode, m_droppedModelNode});
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::AssetDrop) {
         bool isModel = modelNode.metaInfo().isQtQuick3DModel();
-        if (!m_droppedFile.isEmpty() && isModel) {
+        if (!m_droppedTexture.isEmpty() && isModel) {
             QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialBrowser");
-            emitCustomNotification("apply_asset_to_model3D", {modelNode}, {m_droppedFile}); // To MaterialBrowserView
+            emitCustomNotification("apply_asset_to_model3D", {modelNode}, {m_droppedTexture}); // To MaterialBrowserView
+        } else if (!m_dropped3dImports.isEmpty()) {
+            ModelNode sceneNode = Utils3D::active3DSceneNode(this);
+            if (!sceneNode.isValid())
+                sceneNode = rootModelNode();
+            ModelNode createdNode;
+            executeInTransaction(__FUNCTION__, [&] {
+                for (const QString &asset : std::as_const(m_dropped3dImports)) {
+                    createdNode = ModelNodeOperations::handleImported3dAssetDrop(
+                        asset, sceneNode, pos3d);
+                }
+            });
+            if (createdNode.isValid())
+                setSelectedModelNode(createdNode);
         }
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::MainScenePick) {
         if (modelNode.isValid())
@@ -524,7 +527,8 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
     }
 
     m_droppedModelNode = {};
-    m_droppedFile.clear();
+    m_dropped3dImports.clear();
+    m_droppedTexture.clear();
     m_nodeAtPosReqType = NodeAtPosReqType::None;
 }
 
@@ -1462,10 +1466,22 @@ void Edit3DView::dropComponent(const ItemLibraryEntry &entry, const QPointF &pos
         nodeAtPosReady({}, {}); // No need to actually resolve position for non-node items
 }
 
-void Edit3DView::dropAsset(const QString &file, const QPointF &pos)
+void QmlDesigner::Edit3DView::dropAssets(const QList<QUrl> &urls, const QPointF &pos)
 {
     m_nodeAtPosReqType = NodeAtPosReqType::AssetDrop;
-    m_droppedFile = file;
+    m_dropped3dImports.clear();
+
+    for (const QUrl &url : urls) {
+        Asset asset(url.toLocalFile());
+        // For textures we only support single drops
+        if (m_dropped3dImports.isEmpty() && asset.isTexture3D()) {
+            m_droppedTexture = asset.fileName();
+            break;
+        } else if (asset.isImported3D()) {
+            m_dropped3dImports.append(asset.id());
+        }
+    }
+
     emitView3DAction(View3DActionType::GetNodeAtPos, pos);
 }
 

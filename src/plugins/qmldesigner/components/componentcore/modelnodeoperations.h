@@ -8,6 +8,8 @@
 
 #include <utils/filepath.h>
 
+#include <QVector3D>
+
 namespace QmlDesigner {
 
 class AddFilesResult
@@ -138,10 +140,14 @@ bool validateEffect(const QString &effectPath);
 bool isEffectComposerActivated();
 
 QMLDESIGNERCOMPONENTS_EXPORT Utils::FilePath getImagesDefaultDirectory();
+Utils::FilePath getImported3dDefaultDirectory();
 
 //Item Library and Assets related drop operations
 QMLDESIGNERCOMPONENTS_EXPORT ModelNode handleItemLibraryEffectDrop(const QString &effectPath,
                                                                    const ModelNode &targetNode);
+ModelNode handleImported3dAssetDrop(const QString &assetPath,
+                                    const ModelNode &targetNode,
+                                    const QVector3D &position = {});
 void handleTextureDrop(const QMimeData *mimeData, const ModelNode &targetModelNode);
 void handleMaterialDrop(const QMimeData *mimeData, const ModelNode &targetNode);
 ModelNode handleItemLibraryImageDrop(const QString &imagePath,

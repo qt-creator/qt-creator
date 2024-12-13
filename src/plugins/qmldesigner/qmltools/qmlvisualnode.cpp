@@ -482,6 +482,58 @@ QmlVisualNode QmlVisualNode::createQml3DNode(AbstractView *view,
     return createQmlObjectNode(view, itemLibraryEntry, position, sceneNodeProperty, createInTransaction).modelNode();
 }
 
+QmlVisualNode QmlVisualNode::createQml3DNode(AbstractView *view,
+                                             const TypeName &typeName,
+                                             const ModelNode &parentNode,
+                                             const QString &importName,
+                                             const QVector3D &position,
+                                             bool createInTransaction)
+{
+    NodeAbstractProperty targetParentProperty = parentNode.defaultNodeListProperty();
+
+    QTC_ASSERT(targetParentProperty.isValid(), return {});
+
+    QTC_ASSERT(!typeName.isEmpty(), return {});
+
+    QmlVisualNode newQmlObjectNode;
+
+    auto createNodeFunc = [&]() {
+        if (!importName.isEmpty()) {
+            Import import = Import::createLibraryImport(importName);
+            view->model()->changeImports({import}, {});
+        }
+
+        QList<QPair<PropertyName, QVariant> > propertyPairList;
+        propertyPairList.append(Position(position).propertyPairList());
+#ifdef QDS_USE_PROJECTSTORAGE
+        newQmlObjectNode = QmlVisualNode(view->createModelNode(typeName,
+                                                               propertyPairList));
+#else
+        NodeMetaInfo metaInfo = view->model()->metaInfo(typeName);
+        newQmlObjectNode = QmlVisualNode(view->createModelNode(typeName,
+                                                               metaInfo.majorVersion(),
+                                                               metaInfo.minorVersion(),
+                                                               propertyPairList));
+#endif
+
+        if (newQmlObjectNode.id().isEmpty()) {
+            newQmlObjectNode.modelNode().setIdWithoutRefactoring(
+                view->model()->generateNewId(QString::fromUtf8(typeName)));
+        }
+
+        if (targetParentProperty.isValid())
+            targetParentProperty.reparentHere(newQmlObjectNode);
+    };
+
+    if (createInTransaction)
+        view->executeInTransaction(__FUNCTION__, createNodeFunc);
+    else
+        createNodeFunc();
+
+    return newQmlObjectNode;
+}
+
+
 NodeListProperty QmlVisualNode::findSceneNodeProperty(AbstractView *view, qint32 sceneRootId)
 {
     QTC_ASSERT(view, return {});

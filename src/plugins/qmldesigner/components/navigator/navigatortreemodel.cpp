@@ -669,6 +669,10 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
                             currNode = ModelNodeOperations::handleItemLibraryEffectDrop(
                                 assetPath, modelNodeForIndex(rowModelIndex));
                             moveNodesAfter = false;
+                        } else if (assetType == Constants::MIME_TYPE_ASSET_IMPORTED3D) {
+                            currNode = ModelNodeOperations::handleImported3dAssetDrop(
+                                assetPath, modelNodeForIndex(rowModelIndex));
+                            moveNodesAfter = false;
                         }
 
                         if (currNode.isValid())

@@ -187,50 +187,6 @@ void EffectComposerView::selectedNodesChanged(const QList<QmlDesigner::ModelNode
     m_widget->effectComposerModel()->setHasValidTarget(hasValidTarget);
 }
 
-void EffectComposerView::nodeAboutToBeRemoved(const QmlDesigner::ModelNode &removedNode)
-{
-    QList<QmlDesigner::ModelNode> nodes = removedNode.allSubModelNodesAndThisNode();
-    bool effectRemoved = false;
-    for (const QmlDesigner::ModelNode &node : nodes) {
-        QmlDesigner::QmlItemNode qmlNode(node);
-        if (qmlNode.isEffectItem()) {
-            effectRemoved = true;
-            break;
-        }
-    }
-    if (effectRemoved)
-        QTimer::singleShot(0, this, &EffectComposerView::removeUnusedEffectImports);
-}
-
-void EffectComposerView::removeUnusedEffectImports()
-{
-    QTC_ASSERT(model(), return);
-
-    const QString effectPrefix = m_componentUtils.composedEffectsTypePrefix();
-
-    const QmlDesigner::Imports &imports = model()->imports();
-    QHash<QString, QmlDesigner::Import> effectImports;
-    for (const QmlDesigner::Import &import : imports) {
-        if (import.url().startsWith(effectPrefix)) {
-            QString type = import.url().split('.').last();
-            effectImports.insert(type, import);
-        }
-    }
-
-    const QList<QmlDesigner::ModelNode> allNodes = allModelNodes();
-    for (const QmlDesigner::ModelNode &node : allNodes) {
-        if (QmlDesigner::QmlItemNode(node).isEffectItem())
-            effectImports.remove(node.simplifiedTypeName());
-    }
-
-    if (!effectImports.isEmpty()) {
-        QmlDesigner::Imports removeImports;
-        for (const QmlDesigner::Import &import : effectImports)
-            removeImports.append(import);
-        model()->changeImports({}, removeImports);
-    }
-}
-
 void EffectComposerView::highlightSupportedProperties(bool highlight, const QString &suffix)
 {
     QQmlContext *ctxObj = m_widget->quickWidget()->rootContext();

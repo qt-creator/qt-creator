@@ -239,6 +239,9 @@ T.TreeViewDelegate {
                             + size.width + " x " + size.height
                             + "\n" + fileSize
                             + " " + fileExt
+                } else if (rootView.assetIsImported3d(model.filePath)) {
+                    return filePath + "\n"
+                            + fileExt
                 } else {
                     return filePath + "\n"
                             + fileSize

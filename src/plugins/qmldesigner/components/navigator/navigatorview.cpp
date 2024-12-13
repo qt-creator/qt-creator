@@ -306,6 +306,9 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
             if (assetType == Constants::MIME_TYPE_ASSET_EFFECT) {
                 m_widget->setDragType(Constants::MIME_TYPE_ASSET_EFFECT);
                 m_widget->update();
+            } else if (assetType == Constants::MIME_TYPE_ASSET_IMPORTED3D) {
+                m_widget->setDragType(Constants::MIME_TYPE_ASSET_IMPORTED3D);
+                m_widget->update();
             } else if (assetType == Constants::MIME_TYPE_ASSET_TEXTURE3D) {
                 m_widget->setDragType(Constants::MIME_TYPE_ASSET_TEXTURE3D);
                 m_widget->update();

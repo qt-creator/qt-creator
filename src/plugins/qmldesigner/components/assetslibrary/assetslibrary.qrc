@@ -24,5 +24,7 @@
         <file>images/asset_ktx_128.png</file>
         <file>images/asset_folder.png</file>
         <file>images/asset_folder@2x.png</file>
+        <file>images/asset_imported3d.png</file>
+        <file>images/asset_imported3d@2x.png</file>
     </qresource>
 </RCC>

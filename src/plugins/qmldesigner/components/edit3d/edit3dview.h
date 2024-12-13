@@ -101,7 +101,7 @@ public:
     void dropBundleItem(const QPointF &pos);
     void dropTexture(const ModelNode &textureNode, const QPointF &pos);
     void dropComponent(const ItemLibraryEntry &entry, const QPointF &pos);
-    void dropAsset(const QString &file, const QPointF &pos);
+    void dropAssets(const QList<QUrl> &urls, const QPointF &pos);
 
     bool isBakingLightsSupported() const;
 
@@ -203,7 +203,8 @@ private:
     ModelCache<QImage> m_canvasCache;
     ModelNode m_droppedModelNode;
     ItemLibraryEntry m_droppedEntry;
-    QString m_droppedFile;
+    QStringList m_dropped3dImports;
+    QString m_droppedTexture;
     NodeAtPosReqType m_nodeAtPosReqType;
     QPoint m_contextMenuPosMouse;
     QVector3D m_contextMenuPos3D;

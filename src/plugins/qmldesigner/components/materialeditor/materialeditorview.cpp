@@ -1015,7 +1015,7 @@ void MaterialEditorView::modelNodePreviewPixmapChanged(const ModelNode &node,
                                                        const QPixmap &pixmap,
                                                        const QByteArray &requestId)
 {
-    if (node != m_selectedMaterial || requestId != m_previewRequestId)
+    if (!m_qmlBackEnd || node != m_selectedMaterial || requestId != m_previewRequestId)
         return;
 
     m_qmlBackEnd->updateMaterialPreview(pixmap);

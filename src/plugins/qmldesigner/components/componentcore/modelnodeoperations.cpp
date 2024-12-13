@@ -1879,6 +1879,13 @@ Utils::FilePath getImagesDefaultDirectory()
         QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString()));
 }
 
+FilePath getImported3dDefaultDirectory()
+{
+    return Utils::FilePath::fromString(getAssetDefaultDirectory(
+        "3d",
+        QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString()));
+}
+
 void jumpToCode(const ModelNode &modelNode)
 {
     QmlDesignerPlugin::instance()->viewManager().jumpToCodeInTextEditor(modelNode);
@@ -2004,6 +2011,36 @@ ModelNode handleItemLibraryEffectDrop(const QString &effectPath, const ModelNode
                                                                targetNode,
                                                                effectPath,
                                                                layerEffect);
+    }
+
+    return newModelNode;
+}
+
+ModelNode handleImported3dAssetDrop(const QString &assetPath, const ModelNode &targetNode,
+                                    const QVector3D &position)
+{
+    AbstractView *view = targetNode.view();
+    QTC_ASSERT(view, return {});
+    QTC_ASSERT(targetNode.isValid(), return {});
+
+    ModelNode newModelNode;
+
+    const GeneratedComponentUtils &compUtils = QmlDesignerPlugin::instance()->documentManager()
+                                             .generatedComponentUtils();
+
+    Utils::FilePath qmlFile = compUtils.getImported3dQml(assetPath);
+    if (qmlFile.exists()) {
+        TypeName qmlType = qmlFile.baseName().toUtf8();
+        QString importName = compUtils.getImported3dImportName(qmlFile);
+        if (!importName.isEmpty() && !qmlType.isEmpty())
+            newModelNode = QmlVisualNode::createQml3DNode(view, qmlType, targetNode, importName, position);
+    } else {
+        QMessageBox msgBox;
+        msgBox.setText(Tr::tr("Asset %1 is not complete.").arg(qmlFile.baseName()));
+        msgBox.setInformativeText(Tr::tr("Please reimport the asset."));
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.setIcon(QMessageBox::Information);
+        msgBox.exec();
     }
 
     return newModelNode;
