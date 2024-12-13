@@ -501,7 +501,10 @@ void QbsSession::handlePacket(const QJsonObject &packet)
     } else if (type == "log-data") {
         Core::MessageManager::writeSilently("[qbs] " + packet.value("message").toString());
     } else if (type == "warning") {
-        ErrorInfo(packet.value("warning").toObject()).generateTasks(Task::Warning);
+        if (const auto it = packet.find("error"); it != packet.end())
+            ErrorInfo(it->toObject()).generateTasks(Task::Error);
+        else
+            ErrorInfo(packet.value("warning").toObject()).generateTasks(Task::Warning);
     } else if (type == "task-started") {
         emit taskStarted(packet.value("description").toString(),
                          packet.value("max-progress").toInt());
