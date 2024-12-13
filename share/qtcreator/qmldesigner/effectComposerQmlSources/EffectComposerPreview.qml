@@ -11,8 +11,8 @@ import EffectComposerBackend
 Column {
     id: root
 
-    property real animatedTime: previewFrameTimer.elapsedTime
-    property int animatedFrame: previewFrameTimer.currentFrame
+    property real animatedTime: frameAnimation.elapsedTime
+    property int animatedFrame: frameAnimation.currentFrame
     property bool timeRunning: previewAnimationRunning
 
     required property Item mainRoot
@@ -173,7 +173,7 @@ Column {
                 tooltip: qsTr("Restart Animation")
 
                 onClicked: {
-                    previewFrameTimer.reset()
+                    frameAnimation.reset()
                 }
             }
 

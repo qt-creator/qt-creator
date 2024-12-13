@@ -852,6 +852,7 @@ R"(
 
             SecondColumnLayout {
                 CheckBox {
+                    id: timeRunningCheckBox
                     text: backendValues.timeRunning.valueToString
                     backendValue: backendValues.timeRunning
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
@@ -872,6 +873,7 @@ R"(
 
             SecondColumnLayout {
                 SpinBox {
+                    enabled: !timeRunningCheckBox.checked
                     minimumValue: 0
                     maximumValue: 9999999
                     decimals: 2
@@ -883,7 +885,7 @@ R"(
                 ExpandingSpacer {}
             }
 )";
-            s += timeProp.arg(tr("Time"), tr("This property allows explicit control of current animation time."));
+            s += timeProp.arg(tr("Time"), tr("This property allows explicit control of current animation time when Running property is false."));
         }
 
         if (m_shaderFeatures.enabled(ShaderFeatures::Frame)) {
@@ -896,6 +898,7 @@ R"(
 
             SecondColumnLayout {
                 SpinBox {
+                    enabled: !timeRunningCheckBox.checked
                     minimumValue: 0
                     maximumValue: 99999999
                     decimals: 0
@@ -907,7 +910,7 @@ R"(
                 ExpandingSpacer {}
             }
 )";
-            s += frameProp.arg(tr("Frame"), tr("This property allows explicit control of current animation frame."));
+            s += frameProp.arg(tr("Frame"), tr("This property allows explicit control of current animation frame when Running property is false."));
         }
 
         s += "        }\n";
@@ -1054,11 +1057,11 @@ R"(
     }
     if (m_shaderFeatures.enabled(ShaderFeatures::Time)) {
         s += "    // When timeRunning is false, this can be used to control iTime manually\n";
-        s += "    property real animatedTime: frameAnimation.elapsedTime\n";
+        s += "    property real animatedTime: 0\n";
     }
     if (m_shaderFeatures.enabled(ShaderFeatures::Frame)) {
         s += "    // When timeRunning is false, this can be used to control iFrame manually\n";
-        s += "    property int animatedFrame: frameAnimation.currentFrame\n";
+        s += "    property int animatedFrame: 0\n";
     }
 
     QString imageFixerTag{"___ecImagefixer___"};
@@ -2299,15 +2302,16 @@ R"(
 QString EffectComposerModel::getQmlComponentString(bool localFiles)
 {
     auto addProperty = [localFiles](const QString &name, const QString &var,
-                                    const QString &type, bool blurHelper = false)
+                                    const QString &type, const QString &condition = {},
+                                    bool blurHelper = false)
     {
-        if (localFiles) {
-            const QString parent = blurHelper ? QString("blurHelper.") : QString("rootItem.");
-            return QString("readonly property %1 %2: %3%4\n").arg(type, name, parent, var);
-        } else {
-            const QString parent = blurHelper ? "blurHelper." : QString();
-            return QString("readonly property %1 %2: %3%4\n").arg(type, name, parent, var);
-        }
+        QString parent;
+        if (blurHelper)
+            parent = "blurHelper.";
+        else if (localFiles)
+            parent = "rootItem.";
+
+        return QString("readonly property %1 %2: %5%3%4\n").arg(type, name, parent, var, condition);
     };
 
     QString s;
@@ -2326,9 +2330,9 @@ QString EffectComposerModel::getQmlComponentString(bool localFiles)
     if (m_shaderFeatures.enabled(ShaderFeatures::Source))
         s += l2 + addProperty("iSource", "source", "Item");
     if (m_shaderFeatures.enabled(ShaderFeatures::Time))
-        s += l2 + addProperty("iTime", "animatedTime", "real");
+        s += l2 + addProperty("iTime", "animatedTime", "real", "frameAnimation.running ? frameAnimation.elapsedTime : ");
     if (m_shaderFeatures.enabled(ShaderFeatures::Frame))
-        s += l2 + addProperty("iFrame", "animatedFrame", "int");
+        s += l2 + addProperty("iFrame", "animatedFrame", "int", "frameAnimation.running ? frameAnimation.currentFrame : ");
     if (m_shaderFeatures.enabled(ShaderFeatures::Resolution)) {
         // Note: Pixel ratio is currently always 1.0
         s += l2 + "readonly property vector3d iResolution: Qt.vector3d(width, height, 1.0)\n";
@@ -2338,11 +2342,11 @@ QString EffectComposerModel::getQmlComponentString(bool localFiles)
         s += l2 + "                                               rootItem._effectMouseZ, rootItem._effectMouseW)\n";
     }
     if (m_shaderFeatures.enabled(ShaderFeatures::BlurSources)) {
-        s += l2 + addProperty("iSourceBlur1", "blurSrc1", "Item", true);
-        s += l2 + addProperty("iSourceBlur2", "blurSrc2", "Item", true);
-        s += l2 + addProperty("iSourceBlur3", "blurSrc3", "Item", true);
-        s += l2 + addProperty("iSourceBlur4", "blurSrc4", "Item", true);
-        s += l2 + addProperty("iSourceBlur5", "blurSrc5", "Item", true);
+        s += l2 + addProperty("iSourceBlur1", "blurSrc1", "Item", "", true);
+        s += l2 + addProperty("iSourceBlur2", "blurSrc2", "Item", "", true);
+        s += l2 + addProperty("iSourceBlur3", "blurSrc3", "Item", "", true);
+        s += l2 + addProperty("iSourceBlur4", "blurSrc4", "Item", "", true);
+        s += l2 + addProperty("iSourceBlur5", "blurSrc5", "Item", "", true);
     }
     // When used in preview component, we need property with value
     // and when in exported component, property with binding to root value.

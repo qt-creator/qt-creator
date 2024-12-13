@@ -227,7 +227,7 @@ Item {
                 Layout.fillHeight: true
 
                 FrameAnimation {
-                    id: previewFrameTimer
+                    id: frameAnimation
                     running: true
                     paused: !root.previewAnimationRunning
                 }
