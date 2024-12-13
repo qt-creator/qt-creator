@@ -245,7 +245,7 @@ Client::Client(const Utils::FilePath &remoteCmdBridgePath)
 Client::~Client()
 {
     if (d->thread->isRunning() && exit())
-        d->thread->wait();
+        d->thread->wait(2000);
 }
 
 expected_str<QFuture<Environment>> Client::start()
