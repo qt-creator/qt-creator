@@ -520,7 +520,10 @@ void AndroidSettingsWidget::showEvent(QShowEvent *event)
                 m_androidSummary->setInProgressText("Packages reloaded");
                 m_sdkLocationPathChooser->triggerChanged();
                 validateSdk();
-            });
+            }, Qt::QueuedConnection); // Hack: Let AndroidSdkModel::refreshData() be called first,
+                                      // otherwise the nested loop inside validateSdk() may trigger
+                                      // the repaint for the old data, containing pointers
+                                      // to the deleted packages. That's why we queue the signal.
         });
         validateOpenSsl();
         m_isInitialReloadDone = true;
