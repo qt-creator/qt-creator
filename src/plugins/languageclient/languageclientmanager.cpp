@@ -323,7 +323,8 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
         managerInstance->m_clientForDocument.remove(document);
     if (!setting->isValid())
         return;
-    if (setting->m_startBehavior == BaseSettings::AlwaysOn || BaseSettings::RequiresFile) {
+    if (setting->m_startBehavior == BaseSettings::AlwaysOn
+        || setting->m_startBehavior == BaseSettings::RequiresFile) {
         if (!setting->m_enabled)
             return;
         auto ensureClient = [setting, client = static_cast<Client *>(nullptr)]() mutable {
