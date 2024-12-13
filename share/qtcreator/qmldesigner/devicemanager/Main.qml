@@ -252,12 +252,14 @@ Rectangle {
                         id: numberLabel
                         Layout.alignment: Qt.AlignTop
                         text: collationItem.number + "."
+                        color: StudioTheme.Values.themeTextColor
                     }
 
                     Label {
                         id: textLabel
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
+                        color: StudioTheme.Values.themeTextColor
                     }
                 }
 
