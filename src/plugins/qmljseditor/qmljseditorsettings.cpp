@@ -57,14 +57,11 @@ using namespace ProjectExplorer;
 
 namespace QmlJSEditor::Internal {
 
-const char SETTINGS_KEY_MAIN[] = "QmlJSEditor";
 const char AUTO_FORMAT_ON_SAVE[] = "QmlJSEditor.AutoFormatOnSave";
 const char AUTO_FORMAT_ONLY_CURRENT_PROJECT[] = "QmlJSEditor.AutoFormatOnlyCurrentProject";
 const char QML_CONTEXTPANE_KEY[] = "QmlJSEditor.ContextPaneEnabled";
 const char QML_CONTEXTPANEPIN_KEY[] = "QmlJSEditor.ContextPanePinned";
 const char FOLD_AUX_DATA[] = "QmlJSEditor.FoldAuxData";
-const char USE_GLOBAL_SETTINGS[] = "QmlJSEditor.UseGlobalSettings";
-const char USE_QMLLS[] = "QmlJSEditor.UseQmlls";
 const char UIQML_OPEN_MODE[] = "QmlJSEditor.openUiQmlMode";
 const char FORMAT_COMMAND[] = "QmlJSEditor.formatCommand";
 const char FORMAT_COMMAND_OPTIONS[] = "QmlJSEditor.formatCommandOptions";
