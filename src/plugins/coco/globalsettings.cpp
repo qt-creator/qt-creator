@@ -7,8 +7,6 @@
 #include "cocopluginconstants.h"
 #include "cocotr.h"
 
-#include <coreplugin/icore.h>
-
 #include <utils/fancylineedit.h>
 #include <utils/filepath.h>
 #include <utils/fileutils.h>
@@ -35,42 +33,21 @@ CocoSettings &cocoSettings()
 CocoSettings::CocoSettings()
 {
     m_errorMessage = Tr::tr("Error: Coco installation directory not set. (This can't happen.)");
-}
 
-void CocoSettings::read()
-{
-    bool directoryInSettings = false;
+    setAutoApply(false);
 
-    QtcSettings *s = Core::ICore::settings();
-    s->beginGroup(Constants::COCO_SETTINGS_GROUP);
-    const QStringList keys = s->allKeys();
-    for (const QString &keyString : keys) {
-        Key key(keyString.toLatin1());
-        if (key == DIRECTORY) {
-            setDirectory(FilePath::fromUserInput(s->value(key).toString()));
-            directoryInSettings = true;
-        } else
-            s->remove(key);
+    cocoPath.setSettingsKey(Constants::COCO_SETTINGS_GROUP, DIRECTORY);
+    cocoPath.setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    cocoPath.setPromptDialogTitle(Tr::tr("Coco Installation Directory"));
+
+    readSettings();
+
+    if (cocoPath().isEmpty()) {
+        findDefaultDirectory();
+        writeSettings();
     }
-    s->endGroup();
 
-    if (!directoryInSettings)
-       findDefaultDirectory();
-
-    save();
-}
-
-void CocoSettings::save()
-{
-    QtcSettings *s = Core::ICore::settings();
-    s->beginGroup(Constants::COCO_SETTINGS_GROUP);
-    s->setValue(DIRECTORY, directory().toUserOutput());
-    s->endGroup();
-}
-
-FilePath CocoSettings::directory() const
-{
-    return m_cocoPath;
+    setDirectoryVars(cocoPath());
 }
 
 FilePath CocoSettings::coverageBrowserPath() const
@@ -82,25 +59,33 @@ FilePath CocoSettings::coverageBrowserPath() const
     else
         browserPath = "coveragebrowser.exe";
 
-    return m_cocoPath.resolvePath(browserPath);
+    return cocoPath().resolvePath(browserPath);
 }
 
-void CocoSettings::setDirectory(const FilePath &dir)
+void CocoSettings::setDirectoryVars(const FilePath &dir)
 {
-    if (isCocoDirectory(dir)) {
-        m_cocoPath = dir;
+    if (isCocoDirectory(dir) && verifyCocoDirectory(dir)) {
+        cocoPath.setValue(dir);
         m_isValid = true;
         m_errorMessage.clear();
-        verifyCocoDirectory();
     } else {
-        m_cocoPath = Utils::FilePath();
+        cocoPath.setValue(FilePath());
         m_isValid = false;
         m_errorMessage
             = Tr::tr("Error: Coco installation directory not found at \"%1\".").arg(dir.nativePath());
     }
+
+    writeSettings();
+    emit updateCocoDir();
 }
 
-FilePath CocoSettings::coverageScannerPath(const FilePath &cocoDir) const
+void CocoSettings::apply()
+{
+    AspectContainer::apply();
+    setDirectoryVars(cocoPath());
+}
+
+static FilePath coverageScannerPath(const FilePath &cocoDir)
 {
     QString scannerPath;
 
@@ -124,9 +109,9 @@ void CocoSettings::logError(const QString &msg)
     m_errorMessage = msg;
 }
 
-bool CocoSettings::verifyCocoDirectory()
+bool CocoSettings::verifyCocoDirectory(const FilePath &cocoDir)
 {
-    QString coveragescanner = coverageScannerPath(m_cocoPath).nativePath();
+    QString coveragescanner = coverageScannerPath(cocoDir).nativePath();
 
     QProcess proc;
     proc.setProgram(coveragescanner);
@@ -182,14 +167,13 @@ void CocoSettings::tryPath(const QString &path)
     const QString nativePath = fpath.nativePath();
     if (isCocoDirectory(fpath)) {
         logSilently(Tr::tr("Found Coco directory \"%1\".").arg(nativePath));
-        setDirectory(fpath);
-        save();
+        setDirectoryVars(fpath);
     } else {
         logSilently(Tr::tr("Checked Coco directory \"%1\".").arg(nativePath));
     }
 }
 
-QString CocoSettings::envVar(const QString &var) const
+static QString envVar(const QString &var)
 {
     return QProcessEnvironment::systemEnvironment().value(var);
 }
@@ -211,70 +195,59 @@ void CocoSettings::findDefaultDirectory()
     }
 }
 
-GlobalSettingsWidget::GlobalSettingsWidget(QFrame *parent)
-    : QFrame(parent)
+class GlobalSettingsWidget : public QFrame
 {
-    m_cocoPathAspect.setDefaultPathValue(cocoSettings().directory());
-    m_cocoPathAspect.setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    m_cocoPathAspect.setPromptDialogTitle(Tr::tr("Coco Installation Directory"));
+public:
+    GlobalSettingsWidget();
 
-    connect(
-        &m_cocoPathAspect,
-        &Utils::FilePathAspect::changed,
-        this,
-        &GlobalSettingsWidget::onCocoPathChanged);
+    void apply();
+    void cancel();
 
+private:
+    Utils::TextDisplay m_messageLabel;
+};
+
+GlobalSettingsWidget::GlobalSettingsWidget()
+{
     using namespace Layouting;
-    Form{
-        Column{
-            Row{Tr::tr("Coco Directory"), m_cocoPathAspect},
-            Row{m_messageLabel}}
+    Form {
+        Column {
+            Row { Tr::tr("Coco Directory"), cocoSettings().cocoPath },
+            Row { m_messageLabel }
+        }
     }.attachTo(this);
-}
 
-void GlobalSettingsWidget::onCocoPathChanged()
-{
-    if (!verifyCocoDirectory(m_cocoPathAspect()))
-        m_cocoPathAspect.setValue(m_previousCocoDir, Utils::BaseAspect::BeQuiet);
-}
-
-bool GlobalSettingsWidget::verifyCocoDirectory(const Utils::FilePath &cocoDir)
-{
-    cocoSettings().setDirectory(cocoDir);
-    m_messageLabel.setText(cocoSettings().errorMessage());
-    if (cocoSettings().isValid())
-        m_messageLabel.setIconType(Utils::InfoLabel::None);
-    else
-        m_messageLabel.setIconType(Utils::InfoLabel::Error);
-    return cocoSettings().isValid();
+    connect(&cocoSettings(), &CocoSettings::updateCocoDir, this, [this] {
+        m_messageLabel.setText(cocoSettings().errorMessage());
+        if (cocoSettings().isValid())
+            m_messageLabel.setIconType(Utils::InfoLabel::None);
+        else
+            m_messageLabel.setIconType(Utils::InfoLabel::Error);
+    });
 }
 
 void GlobalSettingsWidget::apply()
 {
-    if (!verifyCocoDirectory(widgetCocoDir()))
-        return;
-
-    cocoSettings().setDirectory(widgetCocoDir());
-    cocoSettings().save();
-
-    emit updateCocoDir();
+    cocoSettings().apply();
 }
 
 void GlobalSettingsWidget::cancel()
 {
-    cocoSettings().setDirectory(m_previousCocoDir);
+    cocoSettings().cancel();
 }
 
-void GlobalSettingsWidget::setVisible(bool visible)
+class GlobalSettingsPage : public Core::IOptionsPage
 {
-    QFrame::setVisible(visible);
-    m_previousCocoDir = cocoSettings().directory();
-}
+public:
+    GlobalSettingsWidget *widget() override;
+    void apply() override;
+    void cancel() override;
+    void finish() override;
 
-Utils::FilePath GlobalSettingsWidget::widgetCocoDir() const
-{
-    return Utils::FilePath::fromUserInput(m_cocoPathAspect.value());
-}
+    GlobalSettingsPage();
+
+    QPointer<GlobalSettingsWidget> m_widget;
+};
 
 GlobalSettingsPage::GlobalSettingsPage()
     : m_widget(nullptr)
@@ -282,12 +255,6 @@ GlobalSettingsPage::GlobalSettingsPage()
     setId(Constants::COCO_SETTINGS_PAGE_ID);
     setDisplayName(QCoreApplication::translate("Coco", "Coco"));
     setCategory("I.Coco"); // Category I contains also the C++ settings.
-}
-
-GlobalSettingsPage &GlobalSettingsPage::instance()
-{
-    static GlobalSettingsPage instance;
-    return instance;
 }
 
 GlobalSettingsWidget *GlobalSettingsPage::widget()
@@ -312,6 +279,11 @@ void GlobalSettingsPage::cancel()
 void GlobalSettingsPage::finish()
 {
     delete m_widget;
+}
+
+void setupCocoSettings()
+{
+    static GlobalSettingsPage theGlobalSettingsPage;
 }
 
 } // namespace Coco::Internal

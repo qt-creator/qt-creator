@@ -178,7 +178,7 @@ void CocoQMakeSettings::write(const QString &options, const QString &tweaks)
 
 QString CocoQMakeSettings::pathAssignment() const
 {
-    return pathAssignmentPrefix + cocoSettings().directory().toUserOutput();
+    return pathAssignmentPrefix + cocoSettings().cocoPath().toUserOutput();
 }
 
 bool CocoQMakeSettings::cocoPathValid() const
