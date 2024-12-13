@@ -164,7 +164,7 @@ void PluginDetailsView::update(PluginSpec *spec)
     d->documentationUrl->setText(toHtmlLink(spec->documentationUrl()));
     d->location->setText(spec->filePath().toUserOutput());
     const QString pattern = spec->platformSpecification().pattern();
-    const QString platform = pattern.isEmpty() ? Tr::tr("All") : pattern;
+    const QString platform = pattern.isEmpty() ? Tr::tr("All", "Platforms: All") : pattern;
     const QString platformString = Tr::tr("%1 (current: \"%2\")")
                                    .arg(platform, PluginManager::platformName());
     d->platforms->setText(platformString);

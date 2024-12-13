@@ -437,7 +437,8 @@ QtSettingsPageWidget::QtSettingsPageWidget()
 
     m_documentationSetting->addItem(Tr::tr("Highest Version Only"),
                                         int(QtVersionManager::DocumentationSetting::HighestOnly));
-    m_documentationSetting->addItem(Tr::tr("All"), int(QtVersionManager::DocumentationSetting::All));
+    m_documentationSetting->addItem(
+        Tr::tr("All", "All documentation"), int(QtVersionManager::DocumentationSetting::All));
     m_documentationSetting->addItem(
         Tr::tr("None", "No documentation"), int(QtVersionManager::DocumentationSetting::None));
     const int selectedIndex = m_documentationSetting->findData(

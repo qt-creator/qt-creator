@@ -223,9 +223,11 @@ QString SymbolsFindFilter::toolTip(FindFlags findFlags) const
     if (m_symbolsToSearch & SymbolSearcher::Declarations)
         types.append(Tr::tr("Declarations"));
     return Tr::tr("Scope: %1\nTypes: %2\nFlags: %3")
-        .arg(searchScope() == SymbolSearcher::SearchGlobal ? Tr::tr("All") : Tr::tr("Projects"),
-             types.join(", "),
-             IFindFilter::descriptionForFindFlags(findFlags));
+        .arg(
+            searchScope() == SymbolSearcher::SearchGlobal ? Tr::tr("All", "Symbol search scope")
+                                                          : Tr::tr("Projects"),
+            types.join(", "),
+            IFindFilter::descriptionForFindFlags(findFlags));
 }
 
 // #pragma mark -- SymbolsFindFilterConfigWidget

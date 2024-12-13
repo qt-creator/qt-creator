@@ -448,10 +448,8 @@ public:
     {
         static const QList<FilterOption> options = {
             {
-                Tr::tr("All"),
-                []([[maybe_unused]] const QModelIndex &index) {
-                    return true;
-                },
+                Tr::tr("All", "Extensions filter"),
+                []([[maybe_unused]] const QModelIndex &index) { return true; },
             },
             {
                 Tr::tr("Extension packs"),

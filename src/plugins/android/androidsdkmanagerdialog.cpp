@@ -439,7 +439,7 @@ AndroidSdkManagerDialog::AndroidSdkManagerDialog()
 
     auto showAvailableRadio = new QRadioButton(Tr::tr("Available"));
     auto showInstalledRadio = new QRadioButton(Tr::tr("Installed"));
-    auto showAllRadio = new QRadioButton(Tr::tr("All"));
+    auto showAllRadio = new QRadioButton(Tr::tr("All", "Show all packages"));
     showAllRadio->setChecked(true);
 
     auto optionsButton = new QPushButton(Tr::tr("Advanced Options..."));
