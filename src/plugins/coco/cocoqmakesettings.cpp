@@ -5,10 +5,10 @@
 
 #include "buildsettings.h"
 #include "cococommon.h"
-#include "cocoinstallation.h"
 #include "cocopluginconstants.h"
 #include "cocoprojectwidget.h"
 #include "cocotr.h"
+#include "globalsettings.h"
 #include "qmakefeaturefile.h"
 
 #include <utils/commandline.h>

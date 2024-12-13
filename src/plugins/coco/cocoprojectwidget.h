@@ -4,7 +4,7 @@
 #pragma once
 
 #include "buildsettings.h"
-#include "cocoinstallation.h"
+#include "globalsettings.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <utils/aspects.h>

@@ -3,9 +3,9 @@
 
 #include "cocobuildstep.h"
 
-#include "cocoinstallation.h"
 #include "cocopluginconstants.h"
 #include "cocotr.h"
+#include "globalsettings.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <projectexplorer/projectexplorerconstants.h>

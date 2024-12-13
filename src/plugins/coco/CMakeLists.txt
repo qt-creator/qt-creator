@@ -17,8 +17,6 @@ add_qtc_plugin(Coco
     cococmakesettings.h
     cococommon.cpp
     cococommon.h
-    cocoinstallation.cpp
-    cocoinstallation.h
     cocolanguageclient.cpp
     cocolanguageclient.h
     cocoplugin.cpp
