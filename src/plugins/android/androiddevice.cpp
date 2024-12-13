@@ -574,7 +574,7 @@ QString AndroidDevice::deviceTypeName() const
 QString AndroidDevice::skinName() const
 {
     const QString skin = avdSettings()->value("skin.name").toString();
-    return skin.isEmpty() ? Tr::tr("None") : skin;
+    return skin.isEmpty() ? Tr::tr("None", "No skin") : skin;
 }
 
 QString AndroidDevice::androidTargetName() const

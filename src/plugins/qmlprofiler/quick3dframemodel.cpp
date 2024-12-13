@@ -472,7 +472,7 @@ QStringList Quick3DFrameModel::frameNames(const QString &view3D) const
 
 void Quick3DFrameModel::setFilterFrame(const QString &frame)
 {
-    if (frame == Tr::tr("None")) {
+    if (frame == Tr::tr("None", "Compare Frame: None")) {
         m_filterFrame = -1;
     } else {
         QString title = Tr::tr("Frame");

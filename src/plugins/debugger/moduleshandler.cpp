@@ -70,7 +70,8 @@ QVariant ModuleItem::data(int column, int role) const
         if (role == Qt::DisplayRole)
             switch (module.elfData.symbolsType) {
             case UnknownSymbols: return Tr::tr("Unknown");
-            case NoSymbols:      return Tr::tr("None");
+            case NoSymbols:
+                return Tr::tr("None", "Symbols Type (No debug information found)");
             case PlainSymbols:   return Tr::tr("Plain");
             case FastSymbols:    return Tr::tr("Fast");
             case LinkedSymbols:  return Tr::tr("debuglnk");

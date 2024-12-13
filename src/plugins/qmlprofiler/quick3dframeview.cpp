@@ -85,7 +85,7 @@ Quick3DFrameView::Quick3DFrameView(QmlProfilerModelManager *profilerModelManager
         list << model->view3DNames();
         view3DComboModel->setStringList(list);
         list.clear();
-        list << Tr::tr("None");
+        list << Tr::tr("None", "Compare Frame: None");
         list << model->frameNames(Tr::tr("All"));
         frameComboModel->setStringList(list);
     });
@@ -93,7 +93,7 @@ Quick3DFrameView::Quick3DFrameView(QmlProfilerModelManager *profilerModelManager
         m_mainView->setFilterView3D(text);
         model->setFilterView3D(text);
         QStringList list;
-        list << Tr::tr("None");
+        list << Tr::tr("None", "Compare Frame: None");
         list << model->frameNames(text);
         frameComboModel->setStringList(list);
     });

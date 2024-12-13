@@ -74,7 +74,7 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
     d->tabKeyBehavior->addItem(Tr::tr("In Leading White Space"));
 
     d->smartBackspaceBehavior = new QComboBox;
-    d->smartBackspaceBehavior->addItem(Tr::tr("None"));
+    d->smartBackspaceBehavior->addItem(Tr::tr("None", "Backspace indentation: None"));
     d->smartBackspaceBehavior->addItem(Tr::tr("Follows Previous Indents"));
     d->smartBackspaceBehavior->addItem(Tr::tr("Unindents"));
     d->smartBackspaceBehavior->setToolTip(Tr::tr("<html><head/><body>\n"

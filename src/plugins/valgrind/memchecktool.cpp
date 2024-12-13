@@ -1224,7 +1224,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
     auto leakDetailLabel = new QLabel(Tr::tr("Leak details:"));
     leakDetailLayout->addWidget(leakDetailLabel);
     m_leakDetailCombo = new QComboBox;
-    m_leakDetailCombo->addItem(Tr::tr("None"));
+    m_leakDetailCombo->addItem(Tr::tr("None", "Leak details: None"));
     m_leakDetailCombo->addItem(Tr::tr("Simple"));
     m_leakDetailCombo->addItem(Tr::tr("Detect Leak Types"));
     m_leakDetailCombo->addItem(Tr::tr("Detect Leak Types (Show Reachable)"));

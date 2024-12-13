@@ -60,7 +60,7 @@ public:
                 rootItem()->appendChild(new DebuggerTreeItem(item, false));
         }
         DebuggerItem noneItem;
-        noneItem.setUnexpandedDisplayName(Tr::tr("None"));
+        noneItem.setUnexpandedDisplayName(Tr::tr("None", "No debugger"));
         rootItem()->appendChild(new DebuggerTreeItem(noneItem, false));
     }
 

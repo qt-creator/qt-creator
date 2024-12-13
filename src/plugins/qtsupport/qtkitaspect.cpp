@@ -286,7 +286,8 @@ QString QtKitAspectFactory::displayNamePostfix(const Kit *k) const
 KitAspectFactory::ItemList QtKitAspectFactory::toUserOutput(const Kit *k) const
 {
     QtVersion *version = QtKitAspect::qtVersion(k);
-    return {{Tr::tr("Qt version"), version ? version->displayName() : Tr::tr("None")}};
+    return {
+        {Tr::tr("Qt version"), version ? version->displayName() : Tr::tr("None", "No Qt version")}};
 }
 
 void QtKitAspectFactory::addToBuildEnvironment(const Kit *k, Environment &env) const

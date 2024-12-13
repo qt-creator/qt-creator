@@ -82,7 +82,7 @@ void DebugServerProviderChooser::populate()
 {
     const QSignalBlocker blocker(m_chooser);
     m_chooser->clear();
-    m_chooser->addItem(Tr::tr("None"));
+    m_chooser->addItem(Tr::tr("None", "No debug server provider"));
 
     for (const IDebugServerProvider *p : DebugServerProviderManager::providers()) {
         if (!providerMatches(p))

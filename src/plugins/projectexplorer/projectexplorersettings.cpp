@@ -346,7 +346,8 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
     const QSizePolicy cbSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
     m_buildBeforeDeployComboBox->setSizePolicy(cbSizePolicy);
     m_stopBeforeBuildComboBox = new QComboBox;
-    m_stopBeforeBuildComboBox->addItem(Tr::tr("None"), int(StopBeforeBuild::None));
+    m_stopBeforeBuildComboBox->addItem(
+        Tr::tr("None", "Stop applications before building: None"), int(StopBeforeBuild::None));
     m_stopBeforeBuildComboBox->addItem(Tr::tr("All"), int(StopBeforeBuild::All));
     m_stopBeforeBuildComboBox->addItem(Tr::tr("Same Project"), int(StopBeforeBuild::SameProject));
     m_stopBeforeBuildComboBox->addItem(Tr::tr("Same Build Directory"),

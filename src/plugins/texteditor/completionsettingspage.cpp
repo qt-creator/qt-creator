@@ -65,7 +65,7 @@ CompletionSettingsPageWidget::CompletionSettingsPageWidget(CompletionSettingsPag
 {
     m_caseSensitivity = new QComboBox;
     m_caseSensitivity->addItem(Tr::tr("Full"));
-    m_caseSensitivity->addItem(Tr::tr("None"));
+    m_caseSensitivity->addItem(Tr::tr("None", "Case-sensitivity: None"));
     m_caseSensitivity->addItem(Tr::tr("First Letter"));
 
     auto caseSensitivityLabel = new QLabel(Tr::tr("&Case-sensitivity:"));

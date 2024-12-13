@@ -169,7 +169,7 @@ QVariant QtVersionItem::data(int column, int role) const
         if (role == KitAspect::IsNoneRole && column == 0)
             return true;
         if (role == Qt::DisplayRole && column == 0)
-            return Tr::tr("None");
+            return Tr::tr("None", "No Qt version");
         if (role == KitAspect::IdRole)
             return -1;
         return TreeItem::data(column, role);
@@ -438,8 +438,8 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     m_documentationSetting->addItem(Tr::tr("Highest Version Only"),
                                         int(QtVersionManager::DocumentationSetting::HighestOnly));
     m_documentationSetting->addItem(Tr::tr("All"), int(QtVersionManager::DocumentationSetting::All));
-    m_documentationSetting->addItem(Tr::tr("None"),
-                                        int(QtVersionManager::DocumentationSetting::None));
+    m_documentationSetting->addItem(
+        Tr::tr("None", "No documentation"), int(QtVersionManager::DocumentationSetting::None));
     const int selectedIndex = m_documentationSetting->findData(
         int(QtVersionManager::documentationSetting()));
     if (selectedIndex >= 0)

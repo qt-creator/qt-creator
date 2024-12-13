@@ -271,7 +271,7 @@ void IosSigningSettingsWidget::populateProvisioningProfiles()
                 m_signEntityCombo->setItemData(index, profile->details(), Qt::ToolTipRole);
             }
         } else {
-            m_signEntityCombo->addItem(Tr::tr("None"));
+            m_signEntityCombo->addItem(Tr::tr("None", "No signing identity"));
         }
     }
     // Maintain previous selection.

@@ -139,7 +139,7 @@ QVariant CMakeToolTreeItem::data(int column, int role) const
 
     if (!m_id.isValid()) {
         if (role == Qt::DisplayRole && column == 0)
-            return Tr::tr("None");
+            return Tr::tr("None", "No CMake tool");
         if (role == ProjectExplorer::KitAspect::IsNoneRole)
             return true;
         return {};

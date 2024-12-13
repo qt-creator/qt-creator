@@ -52,7 +52,7 @@ QVariant ToolchainTreeItem::data(int column, int role) const
     switch (role) {
     case Qt::DisplayRole:
         if (column == 0)
-            return bundle ? bundle->displayName() : Tr::tr("None");
+            return bundle ? bundle->displayName() : Tr::tr("None", "Toolchain bundle display name");
         return bundle->typeDisplayName();
     case Qt::ToolTipRole: {
         if (!bundle)

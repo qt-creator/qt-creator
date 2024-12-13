@@ -338,7 +338,7 @@ QString ToolchainKitAspectFactory::displayNamePostfix(const Kit *k) const
 KitAspectFactory::ItemList ToolchainKitAspectFactory::toUserOutput(const Kit *k) const
 {
     Toolchain *tc = ToolchainKitAspect::cxxToolchain(k);
-    return {{Tr::tr("Compiler"), tc ? tc->displayName() : Tr::tr("None")}};
+    return {{Tr::tr("Compiler"), tc ? tc->displayName() : Tr::tr("None", "No compiler")}};
 }
 
 void ToolchainKitAspectFactory::addToBuildEnvironment(const Kit *k, Environment &env) const
@@ -356,7 +356,7 @@ void ToolchainKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expa
     expander->registerVariable("Compiler:Name", Tr::tr("Compiler"),
                                [kit] {
                                    const Toolchain *tc = ToolchainKitAspect::cxxToolchain(kit);
-                                   return tc ? tc->displayName() : Tr::tr("None");
+                                   return tc ? tc->displayName() : Tr::tr("None", "No compiler");
                                });
 
     expander->registerVariable("Compiler:Executable", Tr::tr("Path to the compiler executable"),
@@ -369,7 +369,7 @@ void ToolchainKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expa
     expander->registerPrefix("Compiler:Name", Tr::tr("Compiler for different languages"),
                              [kit](const QString &ls) {
                                  const Toolchain *tc = ToolchainKitAspect::toolchain(kit, findLanguage(ls));
-                                 return tc ? tc->displayName() : Tr::tr("None");
+                                 return tc ? tc->displayName() : Tr::tr("None", "No compiler");
                              });
     expander->registerPrefix("Compiler:Executable", Tr::tr("Compiler executable for different languages"),
                              [kit](const QString &ls) {

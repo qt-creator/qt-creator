@@ -155,7 +155,8 @@ void PluginDetailsView::update(PluginSpec *spec)
     d->compatVersion->setText(spec->compatVersion());
     d->vendor->setText(spec->vendor());
     d->vendorId->setText(spec->vendorId());
-    d->component->setText(spec->category().isEmpty() ? Tr::tr("None") : spec->category());
+    d->component->setText(
+        spec->category().isEmpty() ? Tr::tr("None", "No category") : spec->category());
     const auto toHtmlLink = [](const QString &url) {
         return QString::fromLatin1("<a href=\"%1\">%1</a>").arg(url);
     };

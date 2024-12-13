@@ -64,7 +64,7 @@ QWidget *NimCompilerBuildStep::createConfigWidget()
     commandTextEdit->setMinimumSize(QSize(0, 0));
 
     auto defaultArgumentsComboBox = new QComboBox(widget);
-    defaultArgumentsComboBox->addItem(Tr::tr("None"));
+    defaultArgumentsComboBox->addItem(Tr::tr("None", "No default arguments"));
     defaultArgumentsComboBox->addItem(Tr::tr("Debug"));
     defaultArgumentsComboBox->addItem(Tr::tr("Release"));
 

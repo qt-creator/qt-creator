@@ -265,9 +265,9 @@ void ToolchainManager::registerLanguageCategory(const LanguageCategory &language
 
 QString ToolchainManager::displayNameOfLanguageId(const Utils::Id &id)
 {
-    QTC_ASSERT(id.isValid(), return Tr::tr("None"));
+    QTC_ASSERT(id.isValid(), return Tr::tr("None", "No compiler language"));
     QString display = d->m_displayNameForLanguage.value(id);
-    QTC_ASSERT(!display.isEmpty(), return Tr::tr("None"));
+    QTC_ASSERT(!display.isEmpty(), return Tr::tr("None", "No compiler language"));
     return display;
 }
 
@@ -276,7 +276,7 @@ QString ToolchainManager::displayNameOfLanguageCategory(const LanguageCategory &
     if (int(category.size()) == 1)
         return displayNameOfLanguageId(*category.begin());
     QString name = d->m_displayNameForCategory.value(category);
-    QTC_ASSERT(!name.isEmpty(), return Tr::tr("None"));
+    QTC_ASSERT(!name.isEmpty(), return Tr::tr("None", "No compiler category"));
     return name;
 }
 
