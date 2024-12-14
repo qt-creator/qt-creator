@@ -212,6 +212,7 @@ void editInEffectComposer(const SelectionContext &selectionContext);
 QMLDESIGNERCOMPONENTS_EXPORT Utils::FilePath getEffectsImportDirectory();
 QMLDESIGNERCOMPONENTS_EXPORT QString getEffectsDefaultDirectory(const QString &defaultDir = {});
 void openEffectComposer(const QString &filePath);
+void openNodeGraphEditor(const QString &filePath);
 void openOldEffectMaker(const QString &filePath);
 QString getEffectIcon(const QString &effectPath);
 bool useLayerEffect();

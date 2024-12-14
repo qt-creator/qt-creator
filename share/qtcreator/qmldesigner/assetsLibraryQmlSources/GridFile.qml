@@ -12,6 +12,7 @@ GridItem {
     readonly property bool isFont: root.suffix === ".ttf" || root.suffix === ".otf"
     readonly property bool isEffect: root.suffix === ".qep"
     readonly property bool isMaterial: root.suffix === ".mat"
+    readonly property bool isNodeGraph: root.suffix === ".qng"
 
     icon.source: "image://qmldesigner_assets/" + model.filePath
 
@@ -48,10 +49,15 @@ GridItem {
 
     mouseArea.onDoubleClicked: (mouse) => {
         if (mouse.button === Qt.LeftButton) {
-            if (root.isEffect)
+            if (root.isEffect) {
                 root.rootView.openEffectComposer(filePath)
-            else if (root.isMaterial)
+            }
+            else if (root.isMaterial) {
                 root.rootView.openMaterialEditor(filePath)
+            }
+            else if (root.isNodeGraph) {
+                root.rootView.openNodeGraphEditor(filePath)
+            }
         }
 
     }

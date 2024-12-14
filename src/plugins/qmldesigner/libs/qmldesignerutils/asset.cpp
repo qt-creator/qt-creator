@@ -85,6 +85,13 @@ const QStringList &Asset::supportedEffectComposerSuffixes()
     return retList;
 }
 
+const QStringList &Asset::supportedNodeGraphSuffixes()
+{
+    // These are file types only supported by Node Graph Editor
+    static QStringList retList {"*.qng"};
+    return retList;
+}
+
 const QStringList &Asset::supportedMaterialSuffixes()
 {
     static QStringList retList {"*.mat"};
@@ -112,6 +119,7 @@ const QSet<QString> &Asset::supportedSuffixes()
         insertSuffixes(supportedVideoSuffixes());
         insertSuffixes(supportedTexture3DSuffixes());
         insertSuffixes(supportedEffectComposerSuffixes());
+        insertSuffixes(supportedNodeGraphSuffixes());
         insertSuffixes(supportedMaterialSuffixes());
         insertSuffixes(supportedImported3dSuffixes());
     }
@@ -196,6 +204,10 @@ bool Asset::isEffect() const
     return m_type == Asset::Type::Effect;
 }
 
+bool Asset::isNodeGraph() const
+{
+    return m_type == Asset::Type::NodeGraph;
+}
 bool Asset::isMaterial() const
 {
     return m_type == Asset::Type::Material;
@@ -252,6 +264,8 @@ void Asset::resolveType()
         m_type = Asset::Type::Texture3D;
     else if (supportedEffectComposerSuffixes().contains(m_suffix))
         m_type = Asset::Type::Effect;
+    else if (supportedNodeGraphSuffixes().contains(m_suffix))
+        m_type = Asset::Type::NodeGraph;
     else if (supportedMaterialSuffixes().contains(m_suffix))
         m_type = Asset::Type::Material;
     else if (supportedImported3dSuffixes().contains(m_suffix))

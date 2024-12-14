@@ -19,6 +19,7 @@ Base {
 
     Layout.preferredHeight: 150
     Layout.preferredWidth: 150
+    type: "Material"
 
     portsMetaData: QtObject {
         property var pin: [

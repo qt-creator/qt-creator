@@ -6,15 +6,21 @@ import QtQuick.Layouts
 
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
+import NodeGraphEditorBackend
 
 Base {
     id: root
 
     property QtObject value: QtObject {
         property url text: `image://qmldesigner_nodegrapheditor/${comboBox.currentValue}`
+
+        onTextChanged: {
+            NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;
+        }
     }
 
     Layout.preferredWidth: 175
+    type: "ComboBox"
 
     portsMetaData: QtObject {
         property var pin: []

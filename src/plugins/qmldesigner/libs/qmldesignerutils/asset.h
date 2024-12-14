@@ -26,6 +26,7 @@ public:
         Video,
         Texture3D,
         Effect,
+        NodeGraph,
         Material,
         Imported3D
     };
@@ -41,6 +42,7 @@ public:
     static const QStringList &supportedVideoSuffixes();
     static const QStringList &supportedTexture3DSuffixes();
     static const QStringList &supportedEffectComposerSuffixes();
+    static const QStringList &supportedNodeGraphSuffixes();
     static const QStringList &supportedMaterialSuffixes();
     static const QStringList &supportedImported3dSuffixes();
     static const QSet<QString> &supportedSuffixes();
@@ -64,6 +66,7 @@ public:
     bool isHdrFile() const;
     bool isKtxFile() const;
     bool isEffect() const;
+    bool isNodeGraph() const;
     bool isMaterial() const;
     bool isImported3D() const;
     bool isSupported() const;

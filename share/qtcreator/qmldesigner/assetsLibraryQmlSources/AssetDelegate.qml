@@ -22,6 +22,7 @@ TreeViewDelegate {
     readonly property string suffix: model.fileName.substr(-4)
     readonly property bool isFont: root.suffix === ".ttf" || root.suffix === ".otf"
     readonly property bool isEffect: root.suffix === ".qep"
+    readonly property bool isNodeGraph: root.suffix === ".qng"
     property bool currFileSelected: false
     property int initialDepth: -1
     property bool __isDirectory: assetsModel.isDirectory(model.filePath)
@@ -202,6 +203,10 @@ TreeViewDelegate {
             AssetsLibraryBackend.tooltipBackend.hideTooltip()
             if (mouse.button === Qt.LeftButton && root.isEffect)
                 AssetsLibraryBackend.rootView.openEffectComposer(filePath)
+
+             if (mouse.button === Qt.LeftButton && root.isNodeGraph){
+                    AssetsLibraryBackend.rootView.openNodeGraphEditor(filePath)
+             }
         }
 
         ToolTip {

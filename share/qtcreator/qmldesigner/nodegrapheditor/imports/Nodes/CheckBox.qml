@@ -5,13 +5,16 @@ import QtQuick
 import QtQuick.Layouts
 
 import StudioControls as StudioControls
+import NodeGraphEditorBackend
 
 Base {
     id: root
 
     readonly property QtObject value: QtObject {
-        property bool binary: checkBox.checked
+        property bool binary
     }
+
+    type: "CheckBox"
 
     portsMetaData: QtObject {
         property var pin: []
@@ -34,5 +37,11 @@ Base {
 
         actionIndicatorVisible: false
         anchors.centerIn: parent
+        checked: root.value.binary
+
+        onCheckedChanged: {
+            NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;
+            root.value.binary = checked;
+        }
     }
 }

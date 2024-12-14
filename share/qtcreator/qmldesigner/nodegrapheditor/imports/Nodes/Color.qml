@@ -3,13 +3,20 @@
 
 import QtQuick
 import QtQuick.Layouts
+import NodeGraphEditorBackend
 
 Base {
     id: root
 
     readonly property QtObject value: QtObject {
         property color color
+
+        onColorChanged: {
+            NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;
+        }
     }
+
+    type: "Color"
 
     portsMetaData: QtObject {
         property var pin: []

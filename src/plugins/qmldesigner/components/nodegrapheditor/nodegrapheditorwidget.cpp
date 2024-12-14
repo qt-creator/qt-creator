@@ -41,9 +41,28 @@ static Utils::FilePath materialsPath()
     return DocumentManager::currentResourcePath().pathAppended("materials");
 }
 
+void NodeGraphEditorWidget::doOpenNodeGraph(){
+    m_model->openFile(m_filePath);
+}
+
+void NodeGraphEditorWidget::openNodeGraph(const QString &path)
+{
+   m_filePath = path;
+    if (m_model->hasUnsavedChanges()){
+        /*Pass new path to update if saved*/
+        auto newFile  = QFileInfo(path).baseName();
+        QMetaObject::invokeMethod(quickWidget()->rootObject(), "promptToSaveBeforeOpen",Q_ARG(QVariant, newFile));
+    }
+    else{
+        doOpenNodeGraph();
+    }
+}
+
+
 NodeGraphEditorWidget::NodeGraphEditorWidget(NodeGraphEditorView *nodeGraphEditorView,
                                                NodeGraphEditorModel *nodeGraphEditorModel)
     : m_editorView(nodeGraphEditorView)
+    , m_model(nodeGraphEditorModel)
     , m_imageProvider(nullptr)
     , m_qmlSourceUpdateShortcut(nullptr)
 {
@@ -64,6 +83,7 @@ NodeGraphEditorWidget::NodeGraphEditorWidget(NodeGraphEditorView *nodeGraphEdito
     auto map = registerPropertyMap("NodeGraphEditorBackend");
     map->setProperties({{"nodeGraphEditorModel", QVariant::fromValue(nodeGraphEditorModel)}});
     map->setProperties({{"widget", QVariant::fromValue(this)}});
+    connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &NodeGraphEditorWidget::reloadQmlSource);
 
     Theme::setupTheme(engine());
 

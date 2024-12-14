@@ -21,8 +21,11 @@ public:
     WidgetInfo widgetInfo() override;
 
 private:
+  void customNotification(const AbstractView *view, const QString &identifier,
+                            const QList<QmlDesigner::ModelNode> &nodeList, const QList<QVariant> &data) override;
     QPointer<NodeGraphEditorModel> m_editorModel;
     QPointer<NodeGraphEditorWidget> m_editorWidget;
+    
 };
 
 } // namespace QmlDesigner

@@ -4,6 +4,7 @@
 import QtQuick
 
 import QuickQanava as Qan
+import NodeGraphEditorBackend
 
 Qan.Graph {
     id: root
@@ -34,7 +35,7 @@ Qan.Graph {
             });
         }
     }
-    onNodeRemoved: node => {}
+    onNodeRemoved: node => {NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;}
     onOnEdgeRemoved: edge => {
         const srcNode = edge.getSource();
         const dstNode = edge.getDestination();
@@ -43,5 +44,13 @@ Qan.Graph {
 
         // TODO: add reset binding function
         dstNode.item.value[dstPortItem.dataName] = dstNode.item.reset[dstPortItem.dataName];
+         NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;
+    }
+
+    onEdgeInserted: {
+        NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;
+    }
+    onNodeInserted: {
+        NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;
     }
 }

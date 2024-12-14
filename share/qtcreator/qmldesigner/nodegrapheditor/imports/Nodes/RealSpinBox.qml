@@ -5,15 +5,17 @@ import QtQuick
 import QtQuick.Layouts
 
 import StudioControls as StudioControls
+import NodeGraphEditorBackend
 
 Base {
     id: root
 
     readonly property QtObject value: QtObject {
-        property real floating: realSpinBox.realValue
+        property real floating
     }
 
     Layout.preferredWidth: 175
+    type: "RealSpinBox"
 
     portsMetaData: QtObject {
         property var pin: []
@@ -37,5 +39,11 @@ Base {
         actionIndicatorVisible: false
         anchors.centerIn: parent
         decimals: 2
+        realValue: root.value.floating
+
+        onRealValueChanged: {
+            NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;
+            root.value.floating = realValue;
+        }
     }
 }

@@ -124,7 +124,7 @@ QPair<QPixmap, qint64> AssetsLibraryIconProvider::fetchPixmap(const QString &id,
             type = "sound";
         else if (asset.isVideo())
             type = "video";
-        else if (asset.isEffect())
+        else if (asset.isEffect() || asset.isNodeGraph())
             type = QmlDesigner::ModelNodeOperations::getEffectIcon(id);
 
         QString pathTemplate = QString(":/AssetsLibrary/images/asset_%1%2.png").arg(type);

@@ -11,4 +11,5 @@ Qan.Port {
     property var dataBinding: null
     property string dataName: ""
     property string dataType: ""
+    property string dataId: ""
 }

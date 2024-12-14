@@ -30,9 +30,11 @@ public:
     NodeGraphEditorWidget(NodeGraphEditorView *nodeGraphEditorView, NodeGraphEditorModel *nodeGraphEditorModel);
     ~NodeGraphEditorWidget() override = default;
 
-    static QString qmlSourcesPath();
 
     Q_INVOKABLE QString generateUUID() const;
+    static QString qmlSourcesPath();
+    Q_INVOKABLE void doOpenNodeGraph();
+    void openNodeGraph(const QString &path);
 
 protected:
     void showEvent(QShowEvent *) override;
@@ -41,12 +43,13 @@ protected:
 
 private:
     void reloadQmlSource();
-
 private:
     QPointer<NodeGraphEditorView> m_editorView;
+    QPointer<NodeGraphEditorModel> m_model;
     Internal::NodeGraphEditorImageProvider *m_imageProvider;
     QShortcut *m_qmlSourceUpdateShortcut;
     QElapsedTimer m_usageTimer;
+    QString m_filePath;
 };
 
 } // namespace QmlDesigner

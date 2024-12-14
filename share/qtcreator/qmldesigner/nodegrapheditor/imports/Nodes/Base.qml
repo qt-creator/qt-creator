@@ -23,7 +23,8 @@ Qan.NodeItem {
         property var pin: []
         property var pout: []
     }
-    readonly property string uuid: NodeGraphEditorBackend.widget.generateUUID()
+    property string type
+    property string uuid: NodeGraphEditorBackend.widget.generateUUID()
 
     Layout.preferredHeight: 60
     Layout.preferredWidth: 100
@@ -33,6 +34,12 @@ Qan.NodeItem {
 
     Component.onCompleted: {
         internal.configurePorts(root.graph);
+    }
+    onXChanged: {
+        NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;
+    }
+    onYChanged: {
+        NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;
     }
 
     Qan.RectNodeTemplate {
@@ -56,6 +63,7 @@ Qan.NodeItem {
                 }
                 portItem.dataName = data.alias;
                 portItem.dataType = data.type;
+                portItem.dataId = data.id;
             };
 
             root.portsMetaData.pin.forEach(data => {

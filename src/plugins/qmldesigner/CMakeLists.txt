@@ -33,7 +33,6 @@ option(ENABLE_METAINFO_TRACING "Enable meta info tracing" ${ENV_QTC_ENABLE_METAI
 add_feature_info("Meta info tracing" ${ENABLE_METAINFO_TRACING} "")
 
 add_subdirectory(libs)
-
 add_qtc_plugin(QmlDesigner
   PLUGIN_RECOMMENDS QmlPreview
   CONDITION TARGET QmlDesignerCore AND TARGET Qt::QuickWidgets AND TARGET Qt::Svg

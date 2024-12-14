@@ -612,6 +612,11 @@ QSet<QString> AssetsLibraryWidget::supportedAssetSuffixes(bool complex)
     return suffixes;
 }
 
+void AssetsLibraryWidget::openNodeGraphEditor(const QString &filePath)
+{
+     ModelNodeOperations::openNodeGraphEditor(filePath);
+}
+
 void AssetsLibraryWidget::openEffectComposer(const QString &filePath)
 {
     ModelNodeOperations::openEffectComposer(filePath);
@@ -695,6 +700,9 @@ QPair<QString, QByteArray> AssetsLibraryWidget::getAssetTypeAndData(const QStrin
         } else if (asset.isEffect()) {
             // Data: Effect Composer format (suffix)
             return {Constants::MIME_TYPE_ASSET_EFFECT, asset.suffix().toUtf8()};
+        } else if (asset.isNodeGraph()) {
+            // Data: Node Grpah Editor format (suffix)
+            return {Constants::MIME_TYPE_ASSET_NODEGRAPH, asset.suffix().toUtf8()};
         }
     }
     return {};

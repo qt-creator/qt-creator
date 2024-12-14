@@ -2213,6 +2213,13 @@ void openEffectComposer(const QString &filePath)
     }
 }
 
+void openNodeGraphEditor(const QString &filePath)
+{
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("NodeGraphEditor", true);
+         QmlDesignerPlugin::instance()->viewManager()
+             .emitCustomNotification("open_nodegrapheditor_graph", {}, {filePath});
+}
+
 void openOldEffectMaker(const QString &filePath)
 {
     const ProjectExplorer::Target *target = ProjectExplorer::ProjectTree::currentTarget();
@@ -2281,6 +2288,7 @@ QString getEffectsDefaultDirectory(const QString &defaultDir)
 
     return getAssetDefaultDirectory("effects", defaultDir);
 }
+
 
 QString getEffectIcon(const QString &effectPath)
 {

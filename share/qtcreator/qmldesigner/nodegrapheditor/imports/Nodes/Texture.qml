@@ -8,6 +8,7 @@ import QtQuick3D as QtQuick3D
 import QuickQanava as Qan
 
 import NodeGraphEditorBackend
+import NodeGraphEditorBackend
 
 Base {
     id: root
@@ -19,9 +20,13 @@ Base {
 
     Layout.preferredHeight: 150
     Layout.preferredWidth: 150
+    type: "Texture"
 
     Component.onCompleted: {
         node.label = "Texture";
+    }
+    onValueChanged: {
+        NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;
     }
 
     Image {

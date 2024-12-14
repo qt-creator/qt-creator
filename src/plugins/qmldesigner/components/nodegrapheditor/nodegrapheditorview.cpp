@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "nodegrapheditorview.h"
-
 #include "nodegrapheditormodel.h"
 #include "nodegrapheditorwidget.h"
 
@@ -31,4 +30,16 @@ WidgetInfo NodeGraphEditorView::widgetInfo()
                             tr("Node Graph"));
 }
 
+void NodeGraphEditorView::customNotification([[maybe_unused]] const AbstractView *view,
+                                         const QString &identifier,
+                                         [[maybe_unused]] const QList<QmlDesigner::ModelNode> &nodeList,
+                                         const QList<QVariant> &data)
+{
+    if (data.size() < 1)
+        return;
+    if (identifier == "open_nodegrapheditor_graph") {
+        const QString nodeGraphPath = data[0].toString();
+        m_editorWidget->openNodeGraph(nodeGraphPath);
+    }
+}
 } // namespace QmlDesigner
