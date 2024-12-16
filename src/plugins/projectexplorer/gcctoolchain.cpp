@@ -570,7 +570,9 @@ static QStringList filteredFlags(const QStringList &allFlags, bool considerSysro
                    || a == "-gcc-toolchain" || a == "-target" || a == "-mllvm" || a == "-isystem") {
             if (++i < allFlags.length())
                 filtered << a << allFlags.at(i);
-        } else if (a.startsWith("-m") || a.startsWith("-f") || a.startsWith("-O")
+        } else if (a.startsWith("-m")
+                   || (a.startsWith("-f") && !a.startsWith("-fcolor") && !a.startsWith("-fno-color"))
+                   || a.startsWith("-O")
                    || a.startsWith("-std=") || a.startsWith("-stdlib=")
                    || a.startsWith("-specs=") || a == "-ansi" || a == "-undef"
                    || a.startsWith("-D") || a.startsWith("-U")
