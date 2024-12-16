@@ -74,7 +74,7 @@ void QmlJSCodeStylePreferencesWidget::setPreferences(QmlJSCodeStylePreferences *
     {
         connect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
                 this, &QmlJSCodeStylePreferencesWidget::slotSettingsChanged);
-        connect(m_preferences, &QmlJSCodeStylePreferences::currentCodeStyleSettingsChanged,
+        connect(m_preferences, &QmlJSCodeStylePreferences::currentValueChanged,
                 this, &QmlJSCodeStylePreferencesWidget::slotSettingsChanged);
     }
     updatePreview();

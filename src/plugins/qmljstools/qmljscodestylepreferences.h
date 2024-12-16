@@ -28,15 +28,9 @@ public:
     Utils::Store toMap() const override;
     void fromMap(const Utils::Store &map) override;
 
-public slots:
     void setCodeStyleSettings(const QmlJSCodeStyleSettings &data);
 
-signals:
-    void currentCodeStyleSettingsChanged(const QmlJSCodeStyleSettings &);
-
 private:
-    void slotCurrentValueChanged(const QVariant &);
-
     QmlJSCodeStyleSettings m_data;
 };
 

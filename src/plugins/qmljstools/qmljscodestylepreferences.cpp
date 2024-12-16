@@ -13,9 +13,6 @@ QmlJSCodeStylePreferences::QmlJSCodeStylePreferences(QObject *parent) :
 {
     setSettingsSuffix("CodeStyleSettings");
     setGlobalSettingsCategory(Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
-
-    connect(this, &QmlJSCodeStylePreferences::currentValueChanged,
-            this, &QmlJSCodeStylePreferences::slotCurrentValueChanged);
 }
 
 QVariant QmlJSCodeStylePreferences::value() const
@@ -60,14 +57,6 @@ QmlJSCodeStyleSettings QmlJSCodeStylePreferences::currentCodeStyleSettings() con
         return {};
     }
     return v.value<QmlJSCodeStyleSettings>();
-}
-
-void QmlJSCodeStylePreferences::slotCurrentValueChanged(const QVariant &value)
-{
-    if (!value.canConvert<QmlJSCodeStyleSettings>())
-        return;
-
-    emit currentCodeStyleSettingsChanged(value.value<QmlJSCodeStyleSettings>());
 }
 
 Store QmlJSCodeStylePreferences::toMap() const

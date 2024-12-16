@@ -13,9 +13,6 @@ CppCodeStylePreferences::CppCodeStylePreferences(QObject *parent) :
 {
     setSettingsSuffix("CodeStyleSettings");
     setGlobalSettingsCategory(Constants::CPP_CODE_STYLE_SETTINGS_ID);
-
-    connect(this, &CppCodeStylePreferences::currentValueChanged,
-            this, &CppCodeStylePreferences::slotCurrentValueChanged);
 }
 
 QVariant CppCodeStylePreferences::value() const
@@ -60,14 +57,6 @@ CppCodeStyleSettings CppCodeStylePreferences::currentCodeStyleSettings() const
         return {};
     }
     return v.value<CppCodeStyleSettings>();
-}
-
-void CppCodeStylePreferences::slotCurrentValueChanged(const QVariant &value)
-{
-    if (!value.canConvert<CppCodeStyleSettings>())
-        return;
-
-    emit currentCodeStyleSettingsChanged(value.value<CppCodeStyleSettings>());
 }
 
 Store CppCodeStylePreferences::toMap() const

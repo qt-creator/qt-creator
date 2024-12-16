@@ -30,8 +30,7 @@ void QmlJSCodeStylePreferencesWidget::setPreferences(QmlJSCodeStylePreferences *
 
     // cleanup old
     if (m_preferences) {
-        disconnect(m_preferences, &QmlJSCodeStylePreferences::currentCodeStyleSettingsChanged,
-                   m_codeStyleSettingsWidget, &QmlJSCodeStyleSettingsWidget::setCodeStyleSettings);
+        disconnect(m_preferences, &QmlJSCodeStylePreferences::currentValueChanged, this, nullptr);
         disconnect(m_preferences, &QmlJSCodeStylePreferences::currentPreferencesChanged,
                    this, &QmlJSCodeStylePreferencesWidget::slotCurrentPreferencesChanged);
         disconnect(m_codeStyleSettingsWidget, &QmlJSCodeStyleSettingsWidget::settingsChanged,
@@ -42,8 +41,9 @@ void QmlJSCodeStylePreferencesWidget::setPreferences(QmlJSCodeStylePreferences *
     if (m_preferences) {
         m_codeStyleSettingsWidget->setCodeStyleSettings(m_preferences->currentCodeStyleSettings());
 
-        connect(m_preferences, &QmlJSCodeStylePreferences::currentCodeStyleSettingsChanged,
-                m_codeStyleSettingsWidget, &QmlJSCodeStyleSettingsWidget::setCodeStyleSettings);
+        connect(m_preferences, &QmlJSCodeStylePreferences::currentValueChanged, this, [this] {
+            m_codeStyleSettingsWidget->setCodeStyleSettings(m_preferences->currentCodeStyleSettings());
+        });
         connect(m_preferences, &QmlJSCodeStylePreferences::currentPreferencesChanged,
                 this, &QmlJSCodeStylePreferencesWidget::slotCurrentPreferencesChanged);
         connect(m_codeStyleSettingsWidget, &QmlJSCodeStyleSettingsWidget::settingsChanged,

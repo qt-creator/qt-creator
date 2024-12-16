@@ -356,9 +356,8 @@ void CppCodeStylePreferencesWidget::setCodeStyle(CppCodeStylePreferences *codeSt
 
     connect(m_preferences, &CppCodeStylePreferences::currentTabSettingsChanged,
             this, &CppCodeStylePreferencesWidget::setTabSettings);
-    connect(m_preferences, &CppCodeStylePreferences::currentCodeStyleSettingsChanged,
-            this, [this](const CppCodeStyleSettings &codeStyleSettings) {
-        setCodeStyleSettings(codeStyleSettings);
+    connect(m_preferences, &CppCodeStylePreferences::currentValueChanged, this, [this] {
+        setCodeStyleSettings(m_preferences->currentCodeStyleSettings());
     });
 
     connect(m_preferences, &ICodeStylePreferences::currentPreferencesChanged,

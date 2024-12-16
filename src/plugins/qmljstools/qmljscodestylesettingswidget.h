@@ -29,7 +29,7 @@ public:
     QmlJSCodeStyleSettings codeStyleSettings() const;
 
     void setCodingStyleWarningVisible(bool visible);
-    void setCodeStyleSettings(const QmlJSCodeStyleSettings& s);
+    void setCodeStyleSettings(const QmlJSCodeStyleSettings &settings);
 
 signals:
     void settingsChanged(const QmlJSCodeStyleSettings &);
