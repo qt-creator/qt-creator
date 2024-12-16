@@ -63,7 +63,7 @@ Section {
                 width: StudioTheme.Values.singleControlColumnWidth
                 buttonIcon: root.hasDesignerEffect ? qsTr("Remove Effects") : qsTr("Add Effects")
                 iconFontFamily: StudioTheme.Constants.font.family
-                tooltip: qsTr("Adds visual effects on the component.")
+                tooltip: root.hasDesignerEffect ? qsTr("Removes all the visual effects from the component.") : qsTr("Adds visual effects to the component.")
                 onClicked: {
                     if (root.hasDesignerEffect) {
                          root.effectNodeWrapper.deleteModelNode()
