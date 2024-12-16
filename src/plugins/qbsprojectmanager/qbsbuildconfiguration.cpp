@@ -241,9 +241,9 @@ QString QbsBuildConfiguration::equivalentCommandLine(const QbsBuildStepData &ste
     CommandLine commandLine;
     commandLine.addArg(QDir::toNativeSeparators(QbsSettings::qbsExecutableFilePath().toString()));
     commandLine.addArg(stepData.command);
-    const QString buildDir = buildDirectory().toUserOutput();
+    const QString buildDir = buildDirectory().nativePath();
     commandLine.addArgs({"-d", buildDir});
-    commandLine.addArgs({"-f", project()->projectFilePath().toUserOutput()});
+    commandLine.addArgs({"-f", project()->projectFilePath().nativePath()});
     if (QbsSettings::useCreatorSettingsDirForQbs()) {
         commandLine.addArgs({"--settings-dir",
                              QDir::toNativeSeparators(QbsSettings::qbsSettingsBaseDir())});
@@ -273,9 +273,9 @@ QString QbsBuildConfiguration::equivalentCommandLine(const QbsBuildStepData &ste
     commandLine.addArg(QString(Constants::QBS_CONFIG_VARIANT_KEY) + ':' + buildVariant);
     const FilePath installRoot = stepData.installRoot;
     if (!installRoot.isEmpty()) {
-        commandLine.addArg(QString(Constants::QBS_INSTALL_ROOT_KEY) + ':' + installRoot.toUserOutput());
+        commandLine.addArg(QString(Constants::QBS_INSTALL_ROOT_KEY) + ':' + installRoot.nativePath());
         if (stepData.isInstallStep)
-            commandLine.addArgs({"--installRoot", installRoot.toUserOutput()});
+            commandLine.addArgs({"--installRoot", installRoot.nativePath()});
     }
     commandLine.addArg("profile:" + profileName);
 
