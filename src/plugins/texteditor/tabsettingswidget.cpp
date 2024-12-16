@@ -48,11 +48,8 @@ QString continuationTooltip()
         "</ul></body></html>");
 }
 
-TabSettingsWidget::TabSettingsWidget(QWidget *parent) :
-    QGroupBox(parent)
+TabSettingsWidget::TabSettingsWidget()
 {
-    setTitle(Tr::tr("Tabs And Indentation"));
-
     m_codingStyleWarning = new QLabel(
         Tr::tr("<i>Code indentation is configured in <a href=\"C++\">C++</a> "
            "and <a href=\"QtQuick\">Qt Quick</a> settings.</i>"));
@@ -61,60 +58,31 @@ TabSettingsWidget::TabSettingsWidget(QWidget *parent) :
         Tr::tr("The text editor indentation setting is used for non-code files only. See the C++ "
            "and Qt Quick coding style settings to configure indentation for code files."));
 
-    m_autoDetect = new QCheckBox(Tr::tr("Auto detect"), this);
-    m_autoDetect->setToolTip(
+    autoDetect.setLabel(Tr::tr("Auto detect"));
+    autoDetect.setToolTip(
         Tr::tr("%1 tries to detect the indentation settings based on the file contents. It "
                "will fallback to the settings below if the detection fails.")
             .arg(QGuiApplication::applicationDisplayName()));
 
-    m_tabPolicy = new QComboBox(this);
-    m_tabPolicy->addItem(Tr::tr("Spaces Only"));
-    m_tabPolicy->addItem(Tr::tr("Tabs Only"));
+    tabPolicy.setDisplayStyle(Utils::SelectionAspect::DisplayStyle::ComboBox);
+    tabPolicy.addOption(Tr::tr("Spaces Only"));
+    tabPolicy.addOption(Tr::tr("Tabs Only"));
 
-    auto tabSizeLabel = new QLabel(Tr::tr("Ta&b size:"));
+    tabSize.setRange(1, 20);
 
-    m_tabSize = new QSpinBox(this);
-    m_tabSize->setRange(1, 20);
+    indentSize.setRange(1, 20);
 
-    auto indentSizeLabel = new QLabel(Tr::tr("Default &indent size:"));
-
-    m_indentSize = new QSpinBox(this);
-    m_indentSize->setRange(1, 20);
-
-    m_continuationAlignBehavior = new QComboBox;
-    m_continuationAlignBehavior->addItem(Tr::tr("Not At All"));
-    m_continuationAlignBehavior->addItem(Tr::tr("With Spaces"));
-    m_continuationAlignBehavior->addItem(Tr::tr("With Regular Indent"));
-    m_continuationAlignBehavior->setToolTip(continuationTooltip());
-
-    tabSizeLabel->setBuddy(m_tabSize);
-    indentSizeLabel->setBuddy(m_indentSize);
-
-    using namespace Layouting;
-
-    Row {
-        Form {
-            m_codingStyleWarning, br,
-            m_autoDetect, br,
-            Tr::tr("Default tab policy:"), m_tabPolicy, br,
-            indentSizeLabel, m_indentSize, br,
-            tabSizeLabel, m_tabSize, br,
-            Tr::tr("Align continuation lines:"), m_continuationAlignBehavior, br
-        }, st
-    }.attachTo(this);
+    continuationAlignBehavior.setDisplayStyle(Utils::SelectionAspect::DisplayStyle::ComboBox);
+    continuationAlignBehavior.addOption(Tr::tr("Not At All"));
+    continuationAlignBehavior.addOption(Tr::tr("With Spaces"));
+    continuationAlignBehavior.addOption(Tr::tr("With Regular Indent"));
+    continuationAlignBehavior.setToolTip(continuationTooltip());
 
     connect(m_codingStyleWarning, &QLabel::linkActivated,
             this, &TabSettingsWidget::codingStyleLinkActivated);
-    connect(m_autoDetect, &QCheckBox::stateChanged,
-            this, &TabSettingsWidget::slotSettingsChanged);
-    connect(m_tabPolicy, &QComboBox::currentIndexChanged,
-            this, &TabSettingsWidget::slotSettingsChanged);
-    connect(m_tabSize, &QSpinBox::valueChanged,
-            this, &TabSettingsWidget::slotSettingsChanged);
-    connect(m_indentSize, &QSpinBox::valueChanged,
-            this, &TabSettingsWidget::slotSettingsChanged);
-    connect(m_continuationAlignBehavior, &QComboBox::currentIndexChanged,
-            this, &TabSettingsWidget::slotSettingsChanged);
+    connect(this, &Utils::AspectContainer::changed, this, [this] {
+            emit settingsChanged(tabSettings());
+    });
 }
 
 TabSettingsWidget::~TabSettingsWidget() = default;
@@ -122,30 +90,43 @@ TabSettingsWidget::~TabSettingsWidget() = default;
 void TabSettingsWidget::setTabSettings(const TabSettings &s)
 {
     QSignalBlocker blocker(this);
-    m_autoDetect->setChecked(s.m_autoDetect);
-    m_tabPolicy->setCurrentIndex(int(s.m_tabPolicy));
-    m_tabSize->setValue(s.m_tabSize);
-    m_indentSize->setValue(s.m_indentSize);
-    m_continuationAlignBehavior->setCurrentIndex(s.m_continuationAlignBehavior);
+    autoDetect.setValue(s.m_autoDetect);
+    tabPolicy.setValue(int(s.m_tabPolicy));
+    tabSize.setValue(s.m_tabSize);
+    indentSize.setValue(s.m_indentSize);
+    continuationAlignBehavior.setValue(s.m_continuationAlignBehavior);
+}
+
+void TabSettingsWidget::addToLayoutImpl(Layouting::Layout &parent)
+{
+    using namespace Layouting;
+    parent.addItem(Group {
+        title(Tr::tr("Tabs And Indentation")),
+        Row {
+            Form {
+                m_codingStyleWarning, br,
+                autoDetect, br,
+                Tr::tr("Default tab policy:"), tabPolicy, br,
+                Tr::tr("Default &indent size:"), indentSize, br,
+                Tr::tr("Ta&b size:"), tabSize, br,
+                Tr::tr("Align continuation lines:"), continuationAlignBehavior, br
+            }
+        }
+    });
 }
 
 TabSettings TabSettingsWidget::tabSettings() const
 {
     TabSettings set;
 
-    set.m_autoDetect = m_autoDetect->isChecked();
-    set.m_tabPolicy = TabSettings::TabPolicy(m_tabPolicy->currentIndex());
-    set.m_tabSize = m_tabSize->value();
-    set.m_indentSize = m_indentSize->value();
+    set.m_autoDetect = autoDetect();
+    set.m_tabPolicy = TabSettings::TabPolicy(tabPolicy());
+    set.m_tabSize = tabSize();
+    set.m_indentSize = indentSize();
     set.m_continuationAlignBehavior =
-        TabSettings::ContinuationAlignBehavior(m_continuationAlignBehavior->currentIndex());
+        TabSettings::ContinuationAlignBehavior(continuationAlignBehavior());
 
     return set;
-}
-
-void TabSettingsWidget::slotSettingsChanged()
-{
-    emit settingsChanged(tabSettings());
 }
 
 void TabSettingsWidget::codingStyleLinkActivated(const QString &linkString)
