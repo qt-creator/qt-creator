@@ -69,7 +69,7 @@ ScrollView {
                         verticalAlignment: Text.AlignVCenter
                     }
 
-                    Text {
+                    TextEdit {
                         id: labelLocation
                         text: location
                         color: StudioTheme.Values.themeInteraction
@@ -78,6 +78,7 @@ ScrollView {
                         font.underline: mouseArea.containsMouse
                         height: 18
                         visible: text
+                        readOnly: true
 
                         MouseArea {
                             id: mouseArea
@@ -94,17 +95,18 @@ ScrollView {
                         }
                     }
 
-                    Text {
+                    TextEdit {
                         id: labelInfo
                         color: (type == "Warning") ? StudioTheme.Values.themeAmberLight
                                                    : StudioTheme.Values.themeRedLight
 
-                        linkColor: StudioTheme.Values.themeInteraction
                         text: message
                         font.pixelSize: StudioTheme.Values.baseFontSize
                         verticalAlignment: Text.AlignTop
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true
+                        readOnly: true
+                        textFormat: TextEdit.RichText
 
                         MouseArea {
                             anchors.fill: parent
