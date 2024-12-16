@@ -37,7 +37,6 @@ public:
     ProjectExplorer::DeviceTester *createDeviceTester() override;
 
     Utils::FilePath rootPath() const override;
-    Utils::FilePath filePath(const QString &pathOnDevice) const override;
 
     bool canMount(const Utils::FilePath &filePath) const override
     {

@@ -1071,13 +1071,6 @@ DeviceTester *DockerDevice::createDeviceTester()
     return nullptr;
 }
 
-FilePath DockerDevice::filePath(const QString &pathOnDevice) const
-{
-    return FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME,
-                               repoAndTagEncoded(),
-                               pathOnDevice);
-}
-
 bool DockerDevice::handlesFile(const FilePath &filePath) const
 {
     if (filePath.scheme() == u"device" && filePath.host() == id().toString())

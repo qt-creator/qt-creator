@@ -120,6 +120,7 @@ expected_str<Environment> DesktopDevice::systemEnvironmentWithError() const
 
 FilePath DesktopDevice::rootPath() const
 {
+    // FIXME: This is ugly as  .filePath(xxx) and .rootPath().withNewPath(xxx) diverge here.
     if (id() == DESKTOP_DEVICE_ID)
         return HostOsInfo::root();
     return IDevice::rootPath();

@@ -261,8 +261,7 @@ DeviceFileAccess *IDevice::fileAccess() const
 
 FilePath IDevice::filePath(const QString &pathOnDevice) const
 {
-    // match DeviceManager::deviceForPath
-    return FilePath::fromParts(u"device", id().toString(), pathOnDevice);
+    return rootPath().withNewPath(pathOnDevice);
 }
 
 FilePath IDevice::debugServerPath() const
@@ -682,6 +681,7 @@ void IDevice::setMachineType(MachineType machineType)
 
 FilePath IDevice::rootPath() const
 {
+    // match DeviceManager::deviceForPath
     return FilePath::fromParts(u"device", id().toString(), u"/");
 }
 
