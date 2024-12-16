@@ -443,8 +443,6 @@ void AndroidSettingsWidget::updateNdkList()
         }
     }
 
-    m_ndkListWidget->setCurrentRow(0);
-
     updateUI();
 }
 
@@ -688,11 +686,8 @@ void AndroidSettingsWidget::updateUI()
     const bool androidSetupOk = m_androidSummary->allRowsOk();
     const bool openSslOk = m_openSslSummary->allRowsOk();
 
-    const QListWidgetItem *currentItem = m_ndkListWidget->currentItem();
-    const FilePath currentNdk = FilePath::fromUserInput(currentItem ? currentItem->text() : "");
-    const QString infoText = Tr::tr("(SDK Version: %1, NDK Version: %2)")
-            .arg(AndroidConfig::sdkToolsVersion().toString())
-            .arg(currentNdk.isEmpty() ? "" : AndroidConfig::ndkVersion(currentNdk).toString());
+    const QString infoText = Tr::tr("(SDK Version: %1)")
+            .arg(AndroidConfig::sdkToolsVersion().toString());
     m_androidSummary->setInfoText(androidSetupOk ? infoText : "");
 
     m_androidSummary->setSetupOk(androidSetupOk);
@@ -711,7 +706,7 @@ void AndroidSettingsWidget::updateUI()
         }
     }
 
-    m_makeDefaultNdkButton->setEnabled(m_ndkListWidget->count() > 0);
+    m_makeDefaultNdkButton->setEnabled(m_ndkListWidget->currentItem() != nullptr);
     m_makeDefaultNdkButton->setText(isDefaultNdkSelected() ? Tr::tr("Unset Default")
                                                            : Tr::tr("Make Default"));
 }

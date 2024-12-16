@@ -1738,8 +1738,8 @@ Prefix with : if the process is private, use a lowercase name if the process is 
         <translation>Программа git, возможно, установлена некорректно в этой системе. </translation>
     </message>
     <message>
-        <source>(SDK Version: %1, NDK Version: %2)</source>
-        <translation>(Версия SDK: %1, Версия NDK: %2)</translation>
+        <source>(SDK Version: %1)</source>
+        <translation>(Версия SDK: %1)</translation>
     </message>
     <message>
         <source>All essential packages installed for all installed Qt versions.</source>

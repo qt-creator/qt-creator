@@ -10902,8 +10902,8 @@ Locked components cannot be modified or selected.</source>
         <translation>URL zum Herunterladen öffnen</translation>
     </message>
     <message>
-        <source>(SDK Version: %1, NDK Version: %2)</source>
-        <translation>(SDK-Version: %1, NDK-Version: %2)</translation>
+        <source>(SDK Version: %1)</source>
+        <translation>(SDK-Version: %1)</translation>
     </message>
     <message>
         <source>Download and install Android SDK Tools to %1?</source>

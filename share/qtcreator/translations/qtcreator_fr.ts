@@ -11238,8 +11238,8 @@ dans le navigateur système pour un téléchargement manuel.</translation>
         <translation>L&apos;outil git n&apos;est peut-être pas installé correctement sur votre système.</translation>
     </message>
     <message>
-        <source>(SDK Version: %1, NDK Version: %2)</source>
-        <translation>(Version du SDK&#xa0;: %1, version du NDK&#xa0;: %2)</translation>
+        <source>(SDK Version: %1)</source>
+        <translation>(Version du SDK&#xa0;: %1)</translation>
     </message>
     <message>
         <source>Unset Default</source>
