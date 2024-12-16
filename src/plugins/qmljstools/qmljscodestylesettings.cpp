@@ -4,6 +4,7 @@
 #include "qmljscodestylesettings.h"
 
 #include "qmljscodestylepreferences.h"
+#include "qmljstoolsconstants.h"
 #include "qmljstoolssettings.h"
 
 #include <projectexplorer/editorconfiguration.h>
@@ -57,6 +58,11 @@ TextEditor::TabSettings QmlJSCodeStyleSettings::currentGlobalTabSettings()
     QTC_ASSERT(QmlJSCodeStylePreferences, return TextEditor::TabSettings());
 
     return QmlJSCodeStylePreferences->currentTabSettings();
+}
+
+Id QmlJSCodeStyleSettings::settingsId()
+{
+    return Constants::QML_JS_CODE_STYLE_SETTINGS_ID;
 }
 
 } // namespace QmlJSTools

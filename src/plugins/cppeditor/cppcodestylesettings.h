@@ -8,8 +8,9 @@
 #include <utils/store.h>
 
 namespace CPlusPlus { class Overview; }
-namespace TextEditor { class TabSettings; }
 namespace ProjectExplorer { class Project; }
+namespace TextEditor { class TabSettings; }
+namespace Utils { class Id; }
 
 namespace CppEditor {
 
@@ -93,6 +94,7 @@ public:
         default constructed Overview is returned.
         */
     static CPlusPlus::Overview currentGlobalCodeStyleOverview();
+    static Utils::Id settingsId();
 };
 
 } // namespace CppEditor

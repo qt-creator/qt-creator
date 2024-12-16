@@ -7,9 +7,8 @@
 
 #include <utils/store.h>
 
-#include <optional>
-
 namespace TextEditor { class TabSettings; }
+namespace Utils { class Id; }
 
 namespace QmlJSTools {
 
@@ -29,6 +28,7 @@ public:
 
     static QmlJSCodeStyleSettings currentGlobalCodeStyle();
     static TextEditor::TabSettings currentGlobalTabSettings();
+    static Utils::Id settingsId();
 };
 
 } // namespace CppEditor

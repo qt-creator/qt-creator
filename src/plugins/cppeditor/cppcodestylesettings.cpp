@@ -230,4 +230,9 @@ CPlusPlus::Overview CppCodeStyleSettings::currentGlobalCodeStyleOverview()
     return overview;
 }
 
+Id CppCodeStyleSettings::settingsId()
+{
+    return Constants::CPP_CODE_STYLE_SETTINGS_ID;
+}
+
 } // namespace CppEditor
