@@ -122,6 +122,7 @@ TabSettingsWidget::~TabSettingsWidget() = default;
 void TabSettingsWidget::setTabSettings(const TabSettings &s)
 {
     QSignalBlocker blocker(this);
+    m_autoDetect->setChecked(s.m_autoDetect);
     m_tabPolicy->setCurrentIndex(int(s.m_tabPolicy));
     m_tabSize->setValue(s.m_tabSize);
     m_indentSize->setValue(s.m_indentSize);
@@ -132,6 +133,7 @@ TabSettings TabSettingsWidget::tabSettings() const
 {
     TabSettings set;
 
+    set.m_autoDetect = m_autoDetect->isChecked();
     set.m_tabPolicy = TabSettings::TabPolicy(m_tabPolicy->currentIndex());
     set.m_tabSize = m_tabSize->value();
     set.m_indentSize = m_indentSize->value();
