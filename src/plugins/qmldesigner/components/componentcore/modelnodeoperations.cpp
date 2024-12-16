@@ -658,8 +658,8 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
     QmlObjectNode qmlObjectNode(modelNode);
 
     if (!qmlObjectNode.isValid()) {
-        QString title = Tr::tr("ModelNodeOperations", "Go to Implementation");
-        QString description = Tr::tr("ModelNodeOperations", "Invalid component.");
+        QString title = Tr::tr("Go to Implementation");
+        QString description = Tr::tr("Invalid component.");
         Core::AsynchronousMessageBox::warning(title, description);
         return;
     }
@@ -683,8 +683,8 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
         = QmlJSEditor::FindReferences::findUsageOfType(currentDesignDocument, typeName);
 
     if (usages.isEmpty()) {
-        QString title = Tr::tr("ModelNodeOperations", "Go to Implementation");
-        QString description = Tr::tr("ModelNodeOperations", "Cannot find an implementation.");
+        QString title = Tr::tr("Go to Implementation");
+        QString description = Tr::tr("Cannot find an implementation.");
         Core::AsynchronousMessageBox::warning(title, description);
         return;
     }
@@ -949,9 +949,8 @@ static void setIndexProperty(const AbstractProperty &property, const QVariant &v
 
     const QString propertyName = QString::fromUtf8(property.name());
 
-    QString title = Tr::tr("ModelNodeOperations", "Cannot Set Property %1").arg(propertyName);
-    QString description = Tr::tr("ModelNodeOperations", "The property %1 is bound to an expression.")
-                              .arg(propertyName);
+    QString title = Tr::tr("Cannot Set Property %1").arg(propertyName);
+    QString description = Tr::tr("The property %1 is bound to an expression.").arg(propertyName);
     Core::AsynchronousMessageBox::warning(title, description);
 }
 
@@ -1086,10 +1085,8 @@ AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &de
         if (targetFilePath.exists()) {
             if (srcFilePath.lastModified() == targetFilePath.lastModified())
                 continue;
-            const QString title = Tr::tr("ModelNodeOperations", "Overwrite Existing File?");
-            const QString question = Tr::tr("ModelNodeOperations",
-                                            "File already exists. Overwrite?\n\"%1\"")
-                                         .arg(targetFile);
+            const QString title = Tr::tr("Overwrite Existing File?");
+            const QString question = Tr::tr("File already exists. Overwrite?\n\"%1\"").arg(targetFile);
             if (QMessageBox::question(qobject_cast<QWidget *>(Core::ICore::dialogParent()),
                                       title, question, QMessageBox::Yes | QMessageBox::No)
                     != QMessageBox::Yes) {

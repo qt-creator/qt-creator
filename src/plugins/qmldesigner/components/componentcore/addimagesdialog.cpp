@@ -22,8 +22,7 @@ static QTableWidget* createFilesTable(const QStringList &fileNames)
     auto table = new QTableWidget(0, 2);
     table->setSelectionMode(QAbstractItemView::NoSelection);
 
-    QStringList labels({QmlDesigner::Tr::tr("AddImageToResources", "File Name"),
-                        QmlDesigner::Tr::tr("AddImageToResources", "Size")});
+    QStringList labels({QmlDesigner::Tr::tr("File Name"), QmlDesigner::Tr::tr("Size")});
     table->setHorizontalHeaderLabels(labels);
     table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     table->verticalHeader()->hide();

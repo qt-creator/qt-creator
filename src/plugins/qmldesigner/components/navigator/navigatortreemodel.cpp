@@ -114,9 +114,8 @@ static bool removeModelNodeFromNodeProperty(NodeAbstractProperty &parentProperty
 
             QMessageBox::StandardButton selectedButton = QMessageBox::warning(
                 Core::ICore::dialogParent(),
-                Tr::tr("NavigatorTreeModel", "Warning"),
-                Tr::tr("NavigatorTreeModel",
-                       "Reparenting the component %1 here will cause the "
+                Tr::tr("Warning"),
+                Tr::tr("Reparenting the component %1 here will cause the "
                        "component %2 to be deleted. Do you want to proceed?")
                     .arg(modelNode.id(), propertyNode.id()),
                 QMessageBox::Ok | QMessageBox::Cancel);

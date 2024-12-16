@@ -2250,8 +2250,7 @@ void NodeInstanceView::handleQsbProcessExit(Utils::Process *qsbProcess, const QS
     const QByteArray stdErrStr = qsbProcess->readAllRawStandardError();
 
     if (!errStr.isEmpty() || !stdErrStr.isEmpty()) {
-        Core::MessageManager::writeSilently(
-            Tr::tr("QmlDesigner::NodeInstanceView", "Failed to generate QSB file for: %1").arg(shader));
+        Core::MessageManager::writeSilently(Tr::tr("Failed to generate QSB file for: %1").arg(shader));
         if (!errStr.isEmpty())
             Core::MessageManager::writeSilently(errStr);
         if (!stdErrStr.isEmpty())
