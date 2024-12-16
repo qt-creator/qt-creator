@@ -6,6 +6,7 @@ import QtQuick.Layouts
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 import ModelModules as ModelModules
+import HelperWidgets as HelperWidgets
 
 Rectangle {
     id: root
@@ -24,6 +25,7 @@ Rectangle {
 
             StudioControls.TopLevelComboBox {
                 id: nodesComboBox
+
                 style: StudioTheme.Values.toolbarStyle
                 Layout.preferredWidth: nodeNamesWidthCalculator.maxWidth
                                        + nodesComboBox.indicator.width
@@ -31,9 +33,11 @@ Rectangle {
                 Layout.alignment: Qt.AlignVCenter
                 model: editableCompositionsModel
                 textRole: "display"
+
                 Binding on currentIndex {
                     value: editableCompositionsModel.selectedIndex
                 }
+
                 onActivated: (idx) => {
                     editableCompositionsModel.openCodeEditor(idx)
                 }
@@ -57,6 +61,17 @@ Rectangle {
                 text: qsTr("Columns")
                 style: StudioTheme.Values.viewBarControlStyle
                 Layout.alignment: Qt.AlignVCenter
+            }
+
+            HelperWidgets.AbstractButton {
+                id: openHelpButton
+
+                objectName: "btnEffectComposerHelp"
+                style: StudioTheme.Values.viewBarButtonStyle
+                buttonIcon: StudioTheme.Constants.help
+                tooltip: qsTr("Open Effect Composer Help.")
+
+                onClicked: Qt.openUrlExternally("https://doc.qt.io/qtdesignstudio/qtquick-effect-composer-view.html")
             }
         }
 
