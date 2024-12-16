@@ -22,6 +22,10 @@ class TabSettings;
 class Formatter
 {
 public:
+    enum class FormatMode {
+        Range, // default
+        FullDocument,
+    };
     Formatter() = default;
     virtual ~Formatter() = default;
 
@@ -45,6 +49,8 @@ public:
     {
         return nullptr;
     }
+
+    virtual void setMode(FormatMode) {}
 };
 
 } // namespace TextEditor

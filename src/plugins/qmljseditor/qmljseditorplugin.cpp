@@ -257,13 +257,41 @@ static void reformatByBuiltInFormatter(QPointer<QmlJSEditorDocument> document)
     }
 }
 
+static bool reformatUsingLanguageServer(QPointer<QmlJSEditorDocument> document)
+{
+    if (!document)
+        return false;
+
+    if (!document->formatter())
+        return false;
+
+    TextEditor::BaseTextEditor *editor = qobject_cast<TextEditor::BaseTextEditor *>(
+        EditorManager::currentEditor());
+    if (!editor)
+        return false;
+
+    TextEditor::TextEditorWidget *editorWidget = editor->editorWidget();
+    if (!editorWidget)
+        return false;
+
+    document->setFormatterMode(TextEditor::Formatter::FormatMode::FullDocument);
+    editorWidget->autoFormat();
+
+    return true;
+}
+
 void QmlJSEditorPluginPrivate::reformatFile()
 {
     if (!m_currentDocument)
         return;
 
-    if (settings().useCustomFormatCommand())
-        reformatByQmlFormat(m_currentDocument);
+    if (reformatUsingLanguageServer(m_currentDocument))
+        return;
+
+    if (settings().useCustomFormatCommand()) {
+       reformatByQmlFormat(m_currentDocument);
+       return;
+    }
 
     reformatByBuiltInFormatter(m_currentDocument);
 }
