@@ -99,7 +99,7 @@ function(qtc_enable_separate_debug_info target installDestination)
         TARGET ${target}
         POST_BUILD
         ${commands}
-        )
+        VERBATIM)
 endfunction()
 
 # Installs pdb files for given target into the specified install dir.
