@@ -3,7 +3,7 @@
 
 #include "qmljscodestylesettings.h"
 
-#include "qmljscodestylepreferences.h"
+#include "qmljscodestylesettings.h"
 #include "qmljstoolsconstants.h"
 #include "qmljstoolssettings.h"
 

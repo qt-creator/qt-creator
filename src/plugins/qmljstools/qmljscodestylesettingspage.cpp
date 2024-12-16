@@ -3,8 +3,8 @@
 
 #include "qmljscodestylesettingspage.h"
 
-#include "qmljscodestylepreferences.h"
 #include "qmljscodestylepreferenceswidget.h"
+#include "qmljscodestylesettings.h"
 #include "qmljsqtstylecodeformatter.h"
 #include "qmljstoolsconstants.h"
 #include "qmljstoolssettings.h"

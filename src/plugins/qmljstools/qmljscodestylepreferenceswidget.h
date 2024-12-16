@@ -5,16 +5,12 @@
 
 #include "qmljstools_global.h"
 
+#include "qmljscodestylesettings.h"
+
 #include <QWidget>
 
-namespace TextEditor {
-class ICodeStylePreferences;
-}
-
 namespace QmlJSTools {
-class QmlJSCodeStyleSettings;
 class QmlJSCodeStyleSettingsWidget;
-class QmlJSCodeStylePreferences;
 
 class QMLJSTOOLS_EXPORT QmlJSCodeStylePreferencesWidget : public QWidget
 {

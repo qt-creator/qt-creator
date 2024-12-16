@@ -5,8 +5,8 @@
 
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
-#include "cppcodestylepreferences.h"
 #include "cppcodestylepreferencesfactory.h"
+#include "cppcodestylesettings.h"
 
 #include <coreplugin/icore.h>
 

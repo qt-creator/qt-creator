@@ -3,7 +3,6 @@
 
 #include "insertfunctiondefinition.h"
 
-#include "../cppcodestylepreferences.h"
 #include "../cppcodestylesettings.h"
 #include "../cppeditortr.h"
 #include "../cppeditorwidget.h"

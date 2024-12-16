@@ -7,7 +7,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <cppeditor/cppcodestylepreferences.h>
 #include <cppeditor/cppcodestylesettings.h>
 
 #include <texteditor/icodestylepreferences.h>

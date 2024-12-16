@@ -5,10 +5,11 @@
 
 #include "qmljstools_global.h"
 
+#include "qmljscodestylesettings.h"
+
 #include <QObject>
 
 namespace QmlJSTools {
-class QmlJSCodeStylePreferences;
 
 /**
  * This class provides a central place for cpp tools settings.

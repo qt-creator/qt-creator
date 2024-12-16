@@ -5,7 +5,6 @@
 
 #include <cppeditor/cppcodeformatter.h>
 #include <cppeditor/cpptoolssettings.h>
-#include <cppeditor/cppcodestylepreferences.h>
 #include <texteditor/tabsettings.h>
 
 #include <QTextDocument>

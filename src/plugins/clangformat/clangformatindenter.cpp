@@ -7,8 +7,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <cppeditor/cppcodestylepreferences.h>
-#include <cppeditor/cppcodestylepreferencesfactory.h>
 #include <cppeditor/cppqtstyleindenter.h>
 #include <cppeditor/cpptoolssettings.h>
 

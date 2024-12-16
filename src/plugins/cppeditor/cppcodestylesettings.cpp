@@ -3,7 +3,7 @@
 
 #include "cppcodestylesettings.h"
 
-#include "cppcodestylepreferences.h"
+#include "cppcodestylesettings.h"
 #include "cppeditorconstants.h"
 #include "cpptoolssettings.h"
 

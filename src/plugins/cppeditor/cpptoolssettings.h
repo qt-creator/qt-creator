@@ -5,11 +5,11 @@
 
 #include "cppeditor_global.h"
 
+#include "cppcodestylesettings.h"
+
 #include <QObject>
 
 namespace CppEditor {
-
-class CppCodeStylePreferences;
 
 // This class is meant to go away.
 

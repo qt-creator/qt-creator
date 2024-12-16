@@ -3,7 +3,6 @@
 
 #include "cppquickfix_test.h"
 
-#include "../cppcodestylepreferences.h"
 #include "../cppeditorwidget.h"
 #include "../cppmodelmanager.h"
 #include "../cppsourceprocessertesthelper.h"

@@ -4,7 +4,6 @@
 #include "cppcodestylesettingspage.h"
 
 #include "cppcodeformatter.h"
-#include "cppcodestylepreferences.h"
 #include "cppcodestylesnippets.h"
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
@@ -472,7 +471,7 @@ void CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged()
         return;
 
     if (m_preferences) {
-        auto current = qobject_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
+        auto current = dynamic_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
         if (current)
             current->setCodeStyleSettings(cppCodeStyleSettings());
     }
@@ -487,7 +486,7 @@ void CppCodeStylePreferencesWidget::slotTabSettingsChanged(const TabSettings &se
         return;
 
     if (m_preferences) {
-        auto current = qobject_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
+        auto current = dynamic_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
         if (current)
             current->setTabSettings(settings);
     }
@@ -569,7 +568,7 @@ void CppCodeStylePreferencesWidget::apply()
 void CppCodeStylePreferencesWidget::finish()
 {
     if (m_preferences) {
-        auto current = qobject_cast<CppCodeStylePreferences *>(m_preferences->currentDelegate());
+        auto current = dynamic_cast<CppCodeStylePreferences *>(m_preferences->currentDelegate());
         if (current) {
             current->setCodeStyleSettings(m_originalCppCodeStyleSettings);
             current->setTabSettings(m_originalTabSettings);

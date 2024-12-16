@@ -5,6 +5,8 @@
 
 #include "cppeditor_global.h"
 
+#include <texteditor/icodestylepreferences.h>
+
 #include <utils/store.h>
 
 namespace CPlusPlus { class Overview; }
@@ -96,6 +98,8 @@ public:
     static CPlusPlus::Overview currentGlobalCodeStyleOverview();
     static Utils::Id settingsId();
 };
+
+using CppCodeStylePreferences = TextEditor::TypedCodeStylePreferences<CppCodeStyleSettings>;
 
 } // namespace CppEditor
 

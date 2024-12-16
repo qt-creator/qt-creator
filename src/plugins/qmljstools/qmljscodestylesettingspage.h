@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "qmljscodestylesettings.h"
+
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 
@@ -13,7 +15,6 @@ namespace TextEditor {
 }
 
 namespace QmlJSTools {
-class QmlJSCodeStylePreferences;
 class QmlJSCodeStylePreferencesWidget;
 class QmlJSCodeStyleSettings;
 

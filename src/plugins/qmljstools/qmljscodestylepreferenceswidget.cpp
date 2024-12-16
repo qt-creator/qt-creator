@@ -3,7 +3,6 @@
 
 #include "qmljscodestylepreferenceswidget.h"
 
-#include "qmljscodestylepreferences.h"
 #include "qmljscodestylesettings.h"
 #include "qmljscodestylesettingswidget.h"
 
@@ -62,7 +61,7 @@ void QmlJSCodeStylePreferencesWidget::slotSettingsChanged(const QmlJSCodeStyleSe
     if (!m_preferences)
         return;
 
-    QmlJSCodeStylePreferences *current = qobject_cast<QmlJSCodeStylePreferences*>(m_preferences->currentPreferences());
+    QmlJSCodeStylePreferences *current = dynamic_cast<QmlJSCodeStylePreferences*>(m_preferences->currentPreferences());
     if (!current)
         return;
 

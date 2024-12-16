@@ -19,7 +19,6 @@
 
 #include <qmljstools/qmljstoolsconstants.h>
 #include <qmljstools/qmljstoolssettings.h>
-#include <qmljstools/qmljscodestylepreferences.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>

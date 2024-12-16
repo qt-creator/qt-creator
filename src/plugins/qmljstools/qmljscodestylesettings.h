@@ -5,6 +5,8 @@
 
 #include "qmljstools_global.h"
 
+#include <texteditor/icodestylepreferences.h>
+
 #include <utils/store.h>
 
 namespace TextEditor { class TabSettings; }
@@ -31,6 +33,8 @@ public:
     static Utils::Id settingsId();
 };
 
-} // namespace CppEditor
+using QmlJSCodeStylePreferences = TextEditor::TypedCodeStylePreferences<QmlJSCodeStyleSettings>;
+
+} // namespace QmlJSTools
 
 Q_DECLARE_METATYPE(QmlJSTools::QmlJSCodeStyleSettings)

@@ -20,7 +20,6 @@ namespace TextEditor {
 }
 
 namespace CppEditor {
-class CppCodeStylePreferences;
 
 namespace Internal {
 
