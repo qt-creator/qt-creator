@@ -244,10 +244,8 @@ QString QbsBuildConfiguration::equivalentCommandLine(const QbsBuildStepData &ste
     const QString buildDir = buildDirectory().nativePath();
     commandLine.addArgs({"-d", buildDir});
     commandLine.addArgs({"-f", project()->projectFilePath().nativePath()});
-    if (QbsSettings::useCreatorSettingsDirForQbs()) {
-        commandLine.addArgs({"--settings-dir",
-                             QDir::toNativeSeparators(QbsSettings::qbsSettingsBaseDir())});
-    }
+    if (QbsSettings::useCreatorSettingsDirForQbs())
+        commandLine.addArgs({"--settings-dir", QbsSettings::qbsSettingsBaseDir().nativePath()});
     if (stepData.dryRun)
         commandLine.addArg("--dry-run");
     if (stepData.keepGoing)

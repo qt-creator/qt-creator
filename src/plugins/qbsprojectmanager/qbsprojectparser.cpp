@@ -72,7 +72,7 @@ void QbsProjectParser::parse(const Store &config, const Environment &env,
     request.insert(Constants::QBS_RESTORE_BEHAVIOR_KEY,
                    userConfig.take(Constants::QBS_RESTORE_BEHAVIOR_KEY).toString());
     if (QbsSettings::useCreatorSettingsDirForQbs())
-        request.insert("settings-directory", QbsSettings::qbsSettingsBaseDir());
+        request.insert("settings-directory", QbsSettings::qbsSettingsBaseDir().path());
     request.insert("overridden-properties", QJsonObject::fromVariantMap(mapFromStore(userConfig)));
 
     // People don't like it when files are created as a side effect of opening a project,

@@ -415,7 +415,7 @@ QbsSession::BuildGraphInfo QbsSession::getBuildGraphInfo(const FilePath &bgFileP
     request.insert("restore-behavior", "restore-only");
     request.insert("configuration-name", bgFi.completeBaseName());
     if (QbsSettings::useCreatorSettingsDirForQbs())
-        request.insert("settings-directory", QbsSettings::qbsSettingsBaseDir());
+        request.insert("settings-directory", QbsSettings::qbsSettingsBaseDir().path());
     request.insert("build-root", buildRoot.path());
     request.insert("error-handling-mode", "relaxed");
     request.insert("data-mode", "only-if-changed");

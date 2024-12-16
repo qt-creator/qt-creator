@@ -201,7 +201,7 @@ QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, cons
 {
     QStringList args;
     if (QbsSettings::useCreatorSettingsDirForQbs())
-        args << "--settings-dir" << QbsSettings::qbsSettingsBaseDir();
+        args << "--settings-dir" << QbsSettings::qbsSettingsBaseDir().path();
     switch (op) {
     case QbsConfigOp::Get:
         args << key;

@@ -105,9 +105,9 @@ bool QbsSettings::useCreatorSettingsDirForQbs()
     return instance().m_settings.useCreatorSettings;
 }
 
-QString QbsSettings::qbsSettingsBaseDir()
+FilePath QbsSettings::qbsSettingsBaseDir()
 {
-    return useCreatorSettingsDirForQbs() ? Core::ICore::userResourcePath().toString() : QString();
+    return useCreatorSettingsDirForQbs() ? Core::ICore::userResourcePath() : FilePath();
 }
 
 QVersionNumber QbsSettings::qbsVersion()

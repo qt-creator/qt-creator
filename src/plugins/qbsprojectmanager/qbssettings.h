@@ -35,7 +35,7 @@ public:
     static bool hasQbsExecutable();
     static QString defaultInstallDirTemplate();
     static bool useCreatorSettingsDirForQbs();
-    static QString qbsSettingsBaseDir();
+    static Utils::FilePath qbsSettingsBaseDir();
     static QVersionNumber qbsVersion();
 
     static void setSettingsData(const QbsSettingsData &settings);
