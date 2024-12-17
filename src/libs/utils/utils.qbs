@@ -307,6 +307,8 @@ QtcLibrary {
         "styledbar.h",
         "stylehelper.cpp",
         "stylehelper.h",
+        "summarywidget.cpp",
+        "summarywidget.h",
         "synchronizedvalue.h",
         "templateengine.cpp",
         "templateengine.h",

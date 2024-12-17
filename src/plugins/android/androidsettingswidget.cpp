@@ -20,12 +20,12 @@
 #include <utils/async.h>
 #include <utils/detailswidget.h>
 #include <utils/hostosinfo.h>
-#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/summarywidget.h>
 #include <utils/utilsicons.h>
 
 #include <QCheckBox>
@@ -52,107 +52,6 @@ namespace Android::Internal {
 
 static Q_LOGGING_CATEGORY(androidsettingswidget, "qtc.android.androidsettingswidget", QtWarningMsg);
 constexpr int requiredJavaMajorVersion = 17;
-
-class SummaryWidget : public QWidget
-{
-    class RowData {
-    public:
-        InfoLabel *m_infoLabel = nullptr;
-        bool m_valid = false;
-        QString m_validText;
-    };
-
-public:
-    SummaryWidget(const QMap<int, QString> &validationPoints, const QString &validText,
-                  const QString &invalidText, DetailsWidget *detailsWidget) :
-        QWidget(detailsWidget),
-        m_validText(validText),
-        m_invalidText(invalidText),
-        m_detailsWidget(detailsWidget)
-    {
-        QTC_CHECK(m_detailsWidget);
-        auto layout = new QVBoxLayout(this);
-        layout->setContentsMargins(22, 0, 0, 12);
-        layout->setSpacing(4);
-        for (auto itr = validationPoints.cbegin(); itr != validationPoints.cend(); ++itr) {
-            RowData data;
-            data.m_infoLabel = new InfoLabel(itr.value());
-            data.m_validText = itr.value();
-            layout->addWidget(data.m_infoLabel);
-            m_validationData[itr.key()] = data;
-            setPointValid(itr.key(), false);
-        }
-        m_detailsWidget->setWidget(this);
-        setContentsMargins(0, 0, 0, 0);
-    }
-
-    template<class T>
-    void setPointValid(int key, const expected_str<T> &test)
-    {
-        setPointValid(key, test.has_value(), test.has_value() ? QString{} : test.error());
-    }
-
-    void setPointValid(int key, bool valid, const QString errorText = {})
-    {
-        if (!m_validationData.contains(key))
-            return;
-        RowData &data = m_validationData[key];
-        data.m_valid = valid;
-        data.m_infoLabel->setType(valid ? InfoLabel::Ok : InfoLabel::NotOk);
-        data.m_infoLabel->setText(valid || errorText.isEmpty() ? data.m_validText : errorText);
-        updateUi();
-    }
-
-    bool rowsOk(const QList<int> &keys) const
-    {
-        for (auto key : keys) {
-            if (!m_validationData[key].m_valid)
-                return false;
-        }
-        return true;
-    }
-
-    bool allRowsOk() const
-    {
-        return rowsOk(m_validationData.keys());
-    }
-
-    void setInfoText(const QString &text)
-    {
-        m_infoText = text;
-        updateUi();
-    }
-
-    void setInProgressText(const QString &text)
-    {
-        m_detailsWidget->setIcon({});
-        m_detailsWidget->setSummaryText(QString("%1...").arg(text));
-        m_detailsWidget->setState(DetailsWidget::Collapsed);
-    }
-
-    void setSetupOk(bool ok)
-    {
-        m_detailsWidget->setState(ok ? DetailsWidget::Collapsed : DetailsWidget::Expanded);
-    }
-
-    void setState(DetailsWidget::State state)
-    {
-        m_detailsWidget->setState(state);
-    }
-
-private:
-    void updateUi() {
-        bool ok = allRowsOk();
-        m_detailsWidget->setIcon(ok ? Icons::OK.icon() : Icons::CRITICAL.icon());
-        m_detailsWidget->setSummaryText(ok ? QString("%1 %2").arg(m_validText).arg(m_infoText)
-                                           : m_invalidText);
-    }
-    QString m_validText;
-    QString m_invalidText;
-    QString m_infoText;
-    DetailsWidget *m_detailsWidget = nullptr;
-    QMap<int, RowData> m_validationData;
-};
 
 class AndroidSettingsWidget final : public Core::IOptionsPageWidget
 {
