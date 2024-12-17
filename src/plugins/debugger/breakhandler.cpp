@@ -1521,8 +1521,15 @@ void BreakpointItem::deleteBreakpoint()
 {
     QTC_ASSERT(!globalBreakpoint(), return); // Use deleteBreakpoint(GlobalBreakpoint gbp) instead.
 
-    for (QPointer<DebuggerEngine> engine : EngineManager::engines())
-        engine->breakHandler()->requestBreakpointRemoval(this);
+    bool found = false;
+    for (QPointer<DebuggerEngine> engine : EngineManager::engines()) {
+        if (QTC_GUARD(engine)) {
+            QTC_CHECK(!found);
+            found = true;
+            engine->breakHandler()->requestBreakpointRemoval(this);
+        }
+    }
+    QTC_CHECK(found);
 }
 
 void BreakpointItem::deleteGlobalOrThisBreakpoint()

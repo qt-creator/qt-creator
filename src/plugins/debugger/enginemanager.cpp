@@ -616,8 +616,8 @@ QList<QPointer<DebuggerEngine>> EngineManager::engines()
 {
     QList<QPointer<DebuggerEngine>> result;
     d->m_engineModel.forItemsAtLevel<1>([&result](EngineItem *engineItem) {
-        if (DebuggerEngine *engine = engineItem->m_engine)
-            result.append(engine);
+        if (engineItem->m_engine)
+            result.append(engineItem->m_engine);
     });
     return result;
 }
