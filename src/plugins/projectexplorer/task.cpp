@@ -136,7 +136,7 @@ QString Task::formattedDescription(DescriptionTags tags, const QString &extraHea
         return {};
 
     QString text = description(tags);
-    const int offset = (tags & WithSummary) ? summary.size() + 1 : 0;
+    const int offset = (tags & WithSummary) ? 0 : summary.size() + 1;
     static const QString linkTagStartPlaceholder("__QTC_LINK_TAG_START__");
     static const QString linkTagEndPlaceholder("__QTC_LINK_TAG_END__");
     static const QString linkEndPlaceholder("__QTC_LINK_END__");
@@ -169,7 +169,8 @@ void Task::addLinkDetail(const QString &link)
     QTextCharFormat format;
     format.setAnchor(true);
     format.setAnchorHref(link);
-    formats << QTextLayout::FormatRange{0, int(link.length()), format};
+    const int offset = summary.length() + 1;
+    formats << QTextLayout::FormatRange{offset, int(link.length()), format};
 }
 
 //
