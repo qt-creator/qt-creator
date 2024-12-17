@@ -522,7 +522,7 @@ void QbsBuildSystem::updateProjectNodes(const std::function<void ()> &continuati
             continuation();
     });
     m_treeCreationWatcher->setFuture(Utils::asyncRun(ProjectExplorerPlugin::sharedThreadPool(),
-            QThread::LowPriority, &QbsNodeTreeBuilder::buildTree,
+            QThread::LowPriority, &buildQbsProjectTree,
             project()->displayName(), project()->projectFilePath(), project()->projectDirectory(),
             projectData()));
 }

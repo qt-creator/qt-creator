@@ -4,7 +4,6 @@
 #include "qbsnodetreebuilder.h"
 
 #include "qbsnodes.h"
-#include "qbsproject.h"
 #include "qbsprojectmanagertr.h"
 #include "qbssession.h"
 
@@ -20,8 +19,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 static FileType fileType(const QJsonObject &artifact)
 {
@@ -49,7 +47,7 @@ static FileType fileType(const QJsonObject &artifact)
     return FileType::Unknown;
 }
 
-void setupArtifact(FolderNode *root, const QJsonObject &artifact)
+static void setupArtifact(FolderNode *root, const QJsonObject &artifact)
 {
     const FilePath path = FilePath::fromString(artifact.value("file-path").toString());
     const FileType type = fileType(artifact);
@@ -82,7 +80,6 @@ static void setupGeneratedArtifacts(FolderNode *root, const QJsonObject &product
                     [root](const QJsonObject &artifact) { setupArtifact(root, artifact); });
     root->compress();
 }
-
 
 static std::unique_ptr<QbsGroupNode> buildGroupNodeTree(const QJsonObject &grp)
 {
@@ -179,10 +176,10 @@ static QStringList unreferencedBuildSystemFiles(const QJsonObject &project)
     return unreferenced;
 }
 
-QbsProjectNode *QbsNodeTreeBuilder::buildTree(const QString &projectName,
-                                              const Utils::FilePath &projectFile,
-                                              const Utils::FilePath &projectDir,
-                                              const QJsonObject &projectData)
+QbsProjectNode *buildQbsProjectTree(const QString &projectName,
+                                    const FilePath &projectFile,
+                                    const FilePath &projectDir,
+                                    const QJsonObject &projectData)
 {
     auto root = std::make_unique<QbsProjectNode>(projectData);
 
@@ -219,5 +216,4 @@ QbsProjectNode *QbsNodeTreeBuilder::buildTree(const QString &projectName,
     return root.release();
 }
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // namespace QbsProjectManager::Internal
