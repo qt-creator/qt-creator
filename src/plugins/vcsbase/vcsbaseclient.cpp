@@ -16,14 +16,13 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
 
-#include <extensionsystem/shutdownguard.h>
-
 #include <texteditor/textdocument.h>
 
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/shutdownguard.h>
 
 #include <QDebug>
 #include <QStringList>
@@ -213,7 +212,7 @@ VcsCommand *VcsBaseClientImpl::createVcsCommand(const FilePath &defaultWorkingDi
                                                 const Environment &environment)
 {
     auto command = new VcsCommand(defaultWorkingDir, environment);
-    command->setParent(ExtensionSystem::shutdownGuard());
+    command->setParent(Utils::shutdownGuard());
     return command;
 }
 

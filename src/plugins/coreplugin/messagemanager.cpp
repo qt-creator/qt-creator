@@ -9,9 +9,8 @@
 #include "ioutputpane.h"
 #include "outputwindow.h"
 
-#include <extensionsystem/shutdownguard.h>
-
 #include <utils/qtcassert.h>
+#include <utils/shutdownguard.h>
 #include <utils/utilsicons.h>
 
 #include <QFont>
@@ -100,7 +99,7 @@ private:
 static MessageOutputWindow *messageOutputWindow()
 {
     static QPointer<MessageOutputWindow> theMessageOutputWindow
-            = new MessageOutputWindow(ExtensionSystem::shutdownGuard());
+            = new MessageOutputWindow(Utils::shutdownGuard());
     return theMessageOutputWindow.get();
 }
 
@@ -124,7 +123,7 @@ static void showOutputPane(Flag flags)
 static void writeImpl(const QString &text, Flag flags)
 {
     // Make sure this end up in the GUI thread.
-    QMetaObject::invokeMethod(ExtensionSystem::shutdownGuard(), [text, flags] {
+    QMetaObject::invokeMethod(Utils::shutdownGuard(), [text, flags] {
         QTC_ASSERT(messageOutputWindow(), return);
         showOutputPane(flags);
         messageOutputWindow()->append(text + '\n');

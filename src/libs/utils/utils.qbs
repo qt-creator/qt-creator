@@ -271,6 +271,8 @@ QtcLibrary {
         "result.h",
         "savefile.cpp",
         "savefile.h",
+        "shutdownguard.cpp",
+        "shutdownguard.h",
         "scopedswap.h",
         "scopedtimer.cpp",
         "scopedtimer.h",

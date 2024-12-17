@@ -17,7 +17,6 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
-#include <extensionsystem/shutdownguard.h>
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
@@ -27,6 +26,7 @@
 #include <utils/store.h>
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
+#include <utils/shutdownguard.h>
 #include <utils/threadutils.h>
 
 #include <nanotrace/nanotrace.h>
@@ -114,7 +114,7 @@ static SessionManagerPrivate *d = nullptr;
 
 SessionManager *sessionManager()
 {
-    static ExtensionSystem::GuardedObject<SessionManager> theSessionManager;
+    static GuardedObject<SessionManager> theSessionManager;
     return theSessionManager.get();
 }
 

@@ -3,13 +3,16 @@
 
 #pragma once
 
-#include "extensionsystem_global.h"
+#include "utils_global.h"
 
 #include <QObject>
 
-namespace ExtensionSystem {
+namespace Utils {
 
-EXTENSIONSYSTEM_EXPORT QObject *shutdownGuard();
+QTCREATOR_UTILS_EXPORT QObject *shutdownGuard();
+
+// Called from PluginManagerPrivate::deleteAll()
+QTCREATOR_UTILS_EXPORT void triggerShutdownGuard();
 
 template <class T>
 class GuardedObject
@@ -31,4 +34,4 @@ private:
     T *m_object;
 };
 
-} // namespace ExtensionSystem
+} // namespace Utils

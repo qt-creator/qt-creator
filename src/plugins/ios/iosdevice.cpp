@@ -13,8 +13,6 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
-#include <extensionsystem/shutdownguard.h>
-
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
@@ -23,6 +21,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/portlist.h>
 #include <utils/qtcprocess.h>
+#include <utils/shutdownguard.h>
 
 #include <solutions/tasking/tasktree.h>
 
@@ -628,7 +627,7 @@ void IosDeviceManager::updateUserModeDevices()
 
 IosDeviceManager *IosDeviceManager::instance()
 {
-    static IosDeviceManager *theInstance = new IosDeviceManager(ExtensionSystem::shutdownGuard());
+    static IosDeviceManager *theInstance = new IosDeviceManager(Utils::shutdownGuard());
     return theInstance;
 }
 
