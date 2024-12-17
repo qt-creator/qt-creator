@@ -725,10 +725,10 @@ void forAllArtifacts(const QJsonObject &group, const WorkerFunction &artifactFun
         artifactFunction(v.toObject());
 }
 
-Location locationFromObject(const QJsonObject &o)
+Location locationFromObject(const QJsonObject &o, const FilePath &projectDir)
 {
     const QJsonObject loc = o.value("location").toObject();
-    return Location(FilePath::fromString(loc.value("file-path").toString()),
+    return Location(projectDir.withNewPath(loc.value("file-path").toString()),
                     loc.value("line").toInt());
 }
 

@@ -95,7 +95,8 @@ public:
     const Utils::FilePath filePath;
     const int line;
 };
-Location locationFromObject(const QJsonObject &o); // Project, Product or Group
+// Project, Product or Group
+Location locationFromObject(const QJsonObject &o, const Utils::FilePath &projectDir);
 
 class QbsSession : public QObject
 {
