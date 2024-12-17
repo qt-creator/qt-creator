@@ -235,12 +235,15 @@ if (TARGET qmlpuppet AND NOT "${IDE_LOGO_PATH}" STREQUAL "")
       set(RC_VERSION "${IDE_VERSION}.0")
       set(RC_VERSION_STRING "${IDE_VERSION_DISPLAY}")
       set(RC_COPYRIGHT "${IDE_COPYRIGHT}")
+      set(RC_PUBLISHER "${IDE_PUBLISHER}")
 
       string(REPLACE " " "\\x20" RC_APPLICATION_NAME "${RC_APPLICATION_NAME}")
+      string(REPLACE " " "\\x20" RC_PUBLISHER "${RC_PUBLISHER}")
       string(REPLACE " " "\\x20" RC_COPYRIGHT "${RC_COPYRIGHT}")
       string(REPLACE "." "," RC_VERSION "${RC_VERSION}")
 
       target_compile_definitions(qmlpuppet PRIVATE
+        RC_PUBLISHER=${RC_PUBLISHER}
         RC_APPLICATION_NAME=${RC_APPLICATION_NAME}
         RC_VERSION=${RC_VERSION}
         RC_VERSION_STRING=${RC_VERSION_STRING}

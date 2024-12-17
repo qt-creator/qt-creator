@@ -16,6 +16,7 @@ VS_VERSION_INFO VERSIONINFO
        // U.S. English - Windows, Multilingual
        BLOCK "040904E4"
        {
+          VALUE "CompanyName", STRINGIFY(RC_PUBLISHER)
           VALUE "FileDescription", STRINGIFY(RC_APPLICATION_NAME)
           VALUE "FileVersion", STRINGIFY(RC_VERSION_STRING)
           VALUE "ProductName", STRINGIFY(RC_APPLICATION_NAME)
