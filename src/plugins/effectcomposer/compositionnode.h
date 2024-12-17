@@ -90,6 +90,9 @@ signals:
     void vertexCodeChanged();
     void nameChanged();
 
+private slots:
+    void onUniformRenamed(const QString &oldName, const QString &newName);
+
 private:
     void parse(const QString &effectName, const QString &qenPath, const QJsonObject &json);
     void ensureCodeEditorData();

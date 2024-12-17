@@ -129,10 +129,19 @@ void EffectComposerUniformsModel::updateUniform(int uniformIndex, Uniform *unifo
 {
     QTC_ASSERT(uniformIndex < m_uniforms.size() && uniformIndex >= 0, return);
 
-    beginResetModel();
-    delete m_uniforms[uniformIndex];
-    m_uniforms[uniformIndex] = uniform;
-    endResetModel();
+    Uniform *oldUniform = m_uniforms.at(uniformIndex);
+    m_uniforms.replace(uniformIndex, uniform);
+
+    const QModelIndex idx = index(uniformIndex, 0);
+    static const QList<int> allRoles = roleNames().keys();
+    emit dataChanged(idx, idx, allRoles);
+
+    const QString &oldName = oldUniform->name();
+    const QString &newName = uniform->name();
+    if (oldName != newName)
+        emit uniformRenamed(oldName, newName);
+
+    delete oldUniform;
 }
 
 QList<Uniform *> EffectComposerUniformsModel::uniforms() const

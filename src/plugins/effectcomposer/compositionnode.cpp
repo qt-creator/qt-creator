@@ -15,6 +15,49 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 
+namespace {
+
+struct CodeRename
+{
+    CodeRename(const QString &oldName, const QString &newName)
+        : m_newName(newName)
+        , m_regex{QString(R"(\b%1\b)").arg(oldName)}
+    {}
+
+    QString operator()(QString code) const { return code.replace(m_regex, m_newName); }
+
+    void operator()(QTextDocument *document) const
+    {
+        QTextCursor docCursor(document);
+        bool documentChanged = false;
+        QTextBlock block = document->lastBlock();
+        while (block.isValid()) {
+            QString blockText = block.text();
+            QRegularExpressionMatch match = m_regex.match(blockText);
+            if (match.hasMatch()) {
+                if (!documentChanged) {
+                    docCursor.beginEditBlock();
+                    documentChanged = true;
+                }
+                blockText.replace(m_regex, m_newName);
+                QTextCursor blockCursor(block);
+                blockCursor.movePosition(QTextCursor::StartOfBlock);
+                blockCursor.insertText(blockText);
+                blockCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+                blockCursor.removeSelectedText();
+            }
+            block = block.previous();
+        }
+        if (documentChanged)
+            docCursor.endEditBlock();
+    }
+
+    const QString m_newName;
+    const QRegularExpression m_regex;
+};
+
+} // namespace
+
 namespace EffectComposer {
 
 CompositionNode::CompositionNode(const QString &effectName, const QString &qenPath,
@@ -51,6 +94,12 @@ CompositionNode::CompositionNode(const QString &effectName, const QString &qenPa
         &QAbstractItemModel::rowsRemoved,
         this,
         &CompositionNode::rebakeRequested);
+
+    connect(
+        &m_uniformsModel,
+        &EffectComposerUniformsModel::uniformRenamed,
+        this,
+        &CompositionNode::onUniformRenamed);
 }
 
 CompositionNode::~CompositionNode()
@@ -323,6 +372,18 @@ void CompositionNode::updateAreUniformsInUse(bool force)
                                     EffectComposerUniformsModel::IsInUse);
         }
         m_InUseCheckNeeded = false;
+    }
+}
+
+void CompositionNode::onUniformRenamed(const QString &oldName, const QString &newName)
+{
+    CodeRename codeRename{oldName, newName};
+    if (m_shaderEditorData) {
+        codeRename(m_shaderEditorData->vertexDocument->document());
+        codeRename(m_shaderEditorData->fragmentDocument->document());
+    } else {
+        setVertexCode(codeRename(vertexCode()));
+        setFragmentCode(codeRename(fragmentCode()));
     }
 }
 

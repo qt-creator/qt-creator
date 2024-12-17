@@ -48,6 +48,9 @@ public:
 
     QList<Uniform *> uniforms() const;
 
+signals:
+    void uniformRenamed(QString oldName, QString newName);
+
 private:
     QList<Uniform *> m_uniforms;
 };
