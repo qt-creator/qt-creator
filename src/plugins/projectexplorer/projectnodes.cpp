@@ -132,11 +132,8 @@ void Node::setIsGenerated(bool g)
         m_flags = static_cast<NodeFlag>(m_flags & ~FlagIsGenerated);
 }
 
-void Node::setAbsoluteFilePathAndLine(const Utils::FilePath &path, int line)
+void Node::setAbsoluteFilePathAndLine(const FilePath &path, int line)
 {
-    if (m_filePath == path && m_line == line)
-        return;
-
     m_filePath = path;
     m_line = line;
 }
