@@ -52,6 +52,10 @@ public:
 
     bool usesClangd() const;
 
+#ifdef WITH_TESTS
+    QList<TextEditor::BlockRange> ifdefedOutBlocks() const { return m_ifdefedOutBlocks; }
+#endif
+
 signals:
     void codeWarningsUpdated(unsigned contentsRevision,
                              const QList<QTextEdit::ExtraSelection> selections,
@@ -64,6 +68,10 @@ signals:
     void semanticInfoUpdated(const SemanticInfo semanticInfo); // TODO: Remove me
 
     void preprocessorSettingsChanged(bool customSettings);
+
+#ifdef WITH_TESTS
+    void ifdefedOutBlocksApplied();
+#endif
 
 protected:
     void applyFontSettings() override;
@@ -94,6 +102,7 @@ private:
     void releaseResources();
 
     void showHideInfoBarAboutMultipleParseContexts(bool show);
+    void applyIfdefedOutBlocks();
 
     void initializeTimer();
 
@@ -117,6 +126,7 @@ private:
 
     ParseContextModel m_parseContextModel;
     OutlineModel m_overviewModel;
+    QList<TextEditor::BlockRange> m_ifdefedOutBlocks;
 };
 
 } // namespace Internal
