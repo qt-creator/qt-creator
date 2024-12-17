@@ -1153,12 +1153,6 @@ QtStyleCodeFormatter::QtStyleCodeFormatter(const TabSettings &tabSettings,
     setStatementMacros(m_styleSettings.statementMacros);
 }
 
-void QtStyleCodeFormatter::setTabSettings(const TabSettings &tabSettings)
-{
-    m_tabSettings = tabSettings;
-    setTabSize(tabSettings.m_tabSize);
-}
-
 void QtStyleCodeFormatter::setCodeStyleSettings(const CppCodeStyleSettings &settings)
 {
     m_styleSettings = settings;

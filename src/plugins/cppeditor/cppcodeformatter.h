@@ -241,7 +241,6 @@ public:
     QtStyleCodeFormatter(const TextEditor::TabSettings &tabSettings,
                          const CppCodeStyleSettings &settings);
 
-    void setTabSettings(const TextEditor::TabSettings &tabSettings);
     void setCodeStyleSettings(const CppCodeStyleSettings &settings);
 
 protected:
