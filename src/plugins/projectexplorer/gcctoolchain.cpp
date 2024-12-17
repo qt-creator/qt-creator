@@ -1629,7 +1629,6 @@ FilePath GccToolchainFactory::correspondingCompilerCommand(
 Toolchains GccToolchainFactory::autoDetectSdkClangToolchain(const Toolchains &known)
 {
     const expected_str<FilePath> compilerPath = Core::ICore::clangExecutable(CLANG_BINDIR);
-    QTC_CHECK_EXPECTED(compilerPath);
     if (!compilerPath)
         return {};
 
