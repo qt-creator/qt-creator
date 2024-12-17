@@ -30,7 +30,7 @@
 
     If you have specified values for properties that are not supported by the
     new component type, \QDS offers to remove them for you. If you'd rather do
-    this yourself, you can select the \inlineimage icons/action-icon.png
+    this yourself, you can select the \imageactionicon
     (\uicontrol Actions) menu next to the property name, and then select
     \uicontrol Reset to remove the property values before trying again.
 
@@ -47,7 +47,7 @@
     For more technical information about IDs, see \l{The id Attribute}.
 
     To add a \l{Adding property aliases}{property alias} that you can use
-    from  outside of the component, select \inlineimage icons/alias.png
+    from  outside of the component, select \imagealias
     . You can use a menu item in the \uicontrol Actions menu to add property
     aliases for property values of child components.
 

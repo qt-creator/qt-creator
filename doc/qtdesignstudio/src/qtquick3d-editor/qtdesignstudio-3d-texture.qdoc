@@ -109,7 +109,7 @@
     To change the source file for the texture:
     \list 1
         \li Double-click the texture in \uicontrol {Material Browser}.
-        \li In \uicontrol {Texture Editor}, select \inlineimage icons/add-file-16px.png
+        \li In \uicontrol {Texture Editor}, select \imageaddfile16px
         next to \uicontrol {Source}.
         \li Select the new texture.
         \li Select \uicontrol Open.

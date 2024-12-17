@@ -92,7 +92,7 @@
 
     To add the assets:
     \list 1
-        \li Select \uicontrol Assets > \inlineimage icons/plus.png
+        \li Select \uicontrol Assets > \imageplus
         (Select \uicontrol View > \uicontrol Views > \uicontrol Assets to enable it,
             if you can't find it).
         \image loginui1-add-assets.webp "The Assets view."
@@ -476,7 +476,7 @@
         The \l {Images}{Image} component is used for adding images to the UI in several
         supported formats, including bitmap formats such as PNG and JPEG and vector
         graphics formats such as SVG. To add an image to \uicontrol Assets, select
-        \inlineimage icons/plus.png
+        \imageplus
         , and then select the image file.
 
         If you need to display animated images, use the \l {Animated Image}

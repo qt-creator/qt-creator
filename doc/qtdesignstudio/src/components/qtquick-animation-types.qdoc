@@ -120,11 +120,11 @@
     \uicontrol {Sequential Animation} component for managing them as a
     group.
 
-    To pause animations, select the \inlineimage icons/pause-icon.png
+    To pause animations, select the \imagepauseicon
     (\uicontrol Paused) check box.
 
     To attach an \l{Editing easing curves}{easing curve} to
-    the animation, select the \inlineimage icons/curve_editor.png
+    the animation, select the \imagecurveeditor
     (\uicontrol {Easing Curve Editor}) button in the
     \uicontrol {Easing Curve} field.
 

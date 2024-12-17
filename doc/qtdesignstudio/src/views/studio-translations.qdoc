@@ -51,7 +51,7 @@
     To import a JSON translation file to your \QDS project:
     \list
       \li In the \uicontrol Translation view in \QDS, select
-      \inlineimage icons/import-json-translations.png
+      \imageimportjsontranslations
       and open the JSON file.
     \endlist
     Matching \c qsTrId text strings are translated. For example,
@@ -79,7 +79,7 @@
     translations working in the actual application and live preview.
 
     To generate these files, select
-    \inlineimage icons/generate-translation-files.png
+    \imagegeneratetranslationfiles
     in the \uicontrol Translations view. The files are generated
     in \e{<project-folder>/i18n}.
 
@@ -94,7 +94,7 @@
 
     \list 1
       \li In the \uicontrol Translations view, select
-      \inlineimage icons/qml-translation-test.png
+      \imageqmltranslationtest
       .
       \li Select the tests to run and the highlight color
       for each test:
@@ -158,7 +158,7 @@
     To run the translation test for several documents:
     \list 1
       \li Select
-      \inlineimage icons/project-translation-test.png
+      \imageprojecttranslationtest
       in the \uicontrol Translations view.
       \li Select the files that you want to include in the test.
       \li Select \uicontrol{Run Tests}.
@@ -167,7 +167,7 @@
     \section1 Exporting translations in other ways
 
     Select
-    \inlineimage icons/export-translations.png
+    \imageexporttranslations
     in the \uicontrol Translations view, for alternative ways to
     export translations:
     \list

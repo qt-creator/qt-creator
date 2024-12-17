@@ -68,14 +68,14 @@
     \section2 Adding color animation
 
     First, we add a color animation to the \e root component in the \e Root.qml
-    file. We select the \inlineimage icons/plus.png
+    file. We select the \imageplus
     button to add a 100-frame timeline to root. You can use the default
     values for all other fields.
 
     \image progressbar-timeline-settings.png "Timeline settings"
 
     To start recording a color animation on the timeline, we check that the
-    playhead is at frame 0 and then select the \inlineimage icons/recordfill.png
+    playhead is at frame 0 and then select the \imagerecordfill
     (\uicontrol {Auto Key (K)}) button (or press \key k).
 
     \image progressbar-timeline.png "Color animation timeline"
@@ -84,7 +84,7 @@
     \uicontrol Properties > \uicontrol Text > \uicontrol {Text Color}.
     We can either \l{Picking colors}{pick a color} from the color selector
     or use the \uicontrol {Set Binding} command in the
-    \inlineimage icons/action-icon.png
+    \imageactionicon
     (\uicontrol Actions) menu to open the \uicontrol {Binding Editor}.
 
     We then move the playhead to frame 50 and set the text color to red
@@ -173,7 +173,7 @@
     use a column layout to lay out the progress bar instances.
 
     We can now add timelines for each progress bar instance, with different
-    settings. We select the \inlineimage icons/plus.png
+    settings. We select the \imageplus
     button to add a 4000-frame timeline to the first progress bar instance
     (\e root). We select the \uicontrol Continuous check box so that the
     animation will loop.
@@ -215,8 +215,8 @@
     \image studio-easing-curve-editor.png "Easing Curve Editor"
 
     When we apply easing curves to animations, the shape of the keyframe
-    marker changes from \inlineimage icons/keyframe_linear_active.png
-    to \inlineimage icons/keyframe_manualbezier_active.png
+    marker changes from \imagekeyframelinearactive
+    to \imagekeyframemanualbezieractive
     .
 
     For more information, see \l{Editing easing curves}.

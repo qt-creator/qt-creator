@@ -67,90 +67,90 @@
         \li Name
         \li Purpose
     \row
-        \li \inlineimage icons/attractor-16px.png
+        \li \imageattractor16px
         \li Attractor
         \li Attracts particles towards a specific point.
     \row
-        \li \inlineimage icons/emit-burst-16px.png
+        \li \imageemitburst16px
         \li Dynamic Burst
         \li Emits particles in dynamic bursts. Use dynamic burst for
             emitters that are moving.
     \row
-        \li \inlineimage icons/emit-burst-16px.png
+        \li \imageemitburst16px
         \li Emit Burst
         \li Emits particles in bursts.
     \row
-        \li \inlineimage icons/emitter-16px.png
+        \li \imageemitter16px
         \li Emitter
         \li Emits logical particles.
     \row
-        \li \inlineimage icons/gravity-16px.png
+        \li \imagegravity16px
         \li Gravity
         \li Accelerates particles to a vector of the specified magnitude in the
             specified direction.
     \row
-        \li \inlineimage icons/line-particles-16px.png
+        \li \imagelineparticles16px
         \li Line Particle
         \li Creates line-shaped sprite particles.
     \row
-        \li \inlineimage icons/model-blend-particle-16px.png
+        \li \imagemodelblendparticle16px
         \li Model Blend Particle
         \li Blends a particle effect with an instance of a \uicontrol Model
             component.
     \row
-        \li \inlineimage icons/model-particle-16px.png
+        \li \imagemodelparticle16px
         \li Model Particle
         \li Creates a particle that uses an instance of a \uicontrol Model
             component.
     \row
-        \li \inlineimage icons/model-shape-16px.png
+        \li \imagemodelshape16px
         \li Model Shape
         \li Provides 3D shapes from a model to emitters and affectors.
     \row
-        \li \inlineimage icons/particle-shape-16px.png
+        \li \imageparticleshape16px
         \li Particle Shape
         \li Provides 3D shapes to emitters and affectors.
     \row
-        \li \inlineimage icons/particle-system-16px.png
+        \li \imageparticlesystem16px
         \li Particle System
         \li Creates a particle system that includes particle, emitter, and
             affector components.
     \row
-        \li \inlineimage icons/point-rotator-16px.png
+        \li \imagepointrotator16px
         \li Point Rotator
         \li Rotates particles around a pivot point.
     \row
-        \li \inlineimage icons/repeller-16px.png
+        \li \imagerepeller16px
         \li Repeller
         \li Repels particles from its location.
     \row
-        \li \inlineimage icons/scale-affector-16px.png
+        \li \imagescaleaffector16px
         \li Scale Affector
         \li Scales particles based on the particles' lifetime and other
         parameters.
     \row
-        \li \inlineimage icons/sprite-particle-16px.png
+        \li \imagespriteparticle16px
         \li Sprite Particle
         \li Creates particles that use a 2D sprite texture.
     \row
-        \li \inlineimage icons/sprite-sequence-16px.png
+        \li \imagespritesequence16px
         \li Sprite Sequence
         \li Provides image sequence features for \uicontrol {Sprite Particle}
             component instances.
     \row
-        \li \inlineimage icons/target-direction-16px.png
+        \li \imagetargetdirection16px
         \li Target Direction
         \li Specifies a direction towards the target position.
     \row
-        \li \inlineimage icons/trail-emitter-16px.png
+        \li \imagetrailemitter16px
         \li Trail Emitter
         \li Emits logical particles from other particles.
     \row
-        \li \inlineimage icons/vector-direction-16px.png
+        \li \imagevectordirection16px
         \li Vector Direction
         \li Specifies a direction towards the target direction.
     \row
-        \li \inlineimage icons/wander-16px.png
+        \li \imagewander16px
         \li Wander
         \li Applies random wave curves to particles.
     \endtable
@@ -1128,7 +1128,7 @@
     \uicontrol System.
 
     To only affect some of the particles in the particle system, select
-    them in \uicontrol Particles. Select \inlineimage icons/plus.png
+    them in \uicontrol Particles. Select \imageplus
     to add logical particles to the list.
 
     Deselect \uicontrol Enabled to turn the affector off. Usually, this

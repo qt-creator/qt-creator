@@ -142,7 +142,7 @@
     To create a new material with Fresnel:
 
     \list 1
-      \li In \uicontrol {Material Editor}, select \inlineimage icons/plus.png.
+      \li In \uicontrol {Material Editor}, select \imageplus.
       \li Edit the properties under \uicontrol {Clearcoat} and \uicontrol {Fresnel} respectively.
     \endlist
 

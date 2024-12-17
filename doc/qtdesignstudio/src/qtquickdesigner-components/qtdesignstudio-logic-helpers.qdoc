@@ -48,7 +48,7 @@
     select the \uicontrol {And Operator} component instance (2) and set its
     properties in \l Properties (3).
 
-    We select \inlineimage icons/action-icon.png
+    We select \imageactionicon
     next to the \uicontrol {Input 01} field to display the \uicontrol Actions
     menu, and then \uicontrol {Set Binding} (4) to open the
     \uicontrol {Binding Editor} (5). There we bind the value of the \c input01
@@ -340,33 +340,33 @@
         \li Logic helper
         \li Description
     \row
-        \li \inlineimage icons/lc-and-operator-16px.png
+        \li \imagelcandoperator16px
         \li And Operator
         \li Boolean AND.
     \row
-        \li \inlineimage icons/lc-bidirectional-binding-16px.png
+        \li \imagelcbidirectionalbinding16px
         \li Bi Direct. Binding
         \li A bi-directional binding that binds two values in both directions
             and keeps them in sync.
     \row
-        \li \inlineimage icons/lc-min-max-16px.png
+        \li \imagelcminmax16px
         \li Min Max Mapper
         \li Maps a number to another number with a minimum and maximum value.
     \row
-        \li \inlineimage icons/lc-not-operator-16px.png
+        \li \imagelcnotoperator16px
         \li Not Operator
         \li Boolean NOT.
     \row
-        \li \inlineimage icons/lc-or-operator-16px.png
+        \li \imagelcoroperator16px
         \li Or Operator
         \li Boolean OR.
     \row
-        \li \inlineimage icons/lc-range-mapper-16px.png
+        \li \imagelcrangemapper16px
         \li Range Mapper
         \li Maps a numerical range to another range, so that the output value
             of the second range follows the input value of the original range.
     \row
-        \li \inlineimage icons/lc-string-mapper-16px.png
+        \li \imagelcstringmapper16px
         \li String Mapper
         \li Maps a number to a string with the defined precision.
     \endtable

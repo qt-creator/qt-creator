@@ -52,7 +52,7 @@
     An optional solid border can be added to a rectangle with its own color
     and thickness by setting the values of the \uicontrol {Border color} and
     \uicontrol {Border width} fields. To create a border without a fill color,
-    select the \inlineimage icons/transparent-icon.png
+    select the \imagetransparenticon
     button that sets the color to \e transparent.
 
     By setting the value of the \uicontrol Radius field, you can create shapes
@@ -221,32 +221,32 @@
         \li MCU support
         \li Purpose
     \row
-        \li \inlineimage icons/item-arc-16px.png
+        \li \imageitemarc16px
         \li \l Arc
         \li Qt Quick Studio Components
         \li No
         \li An arc that begins and ends at given positions.
     \row
-        \li \inlineimage icons/custom-border-16px.png
+        \li \imagecustomborder16px
         \li \l Border
         \li Qt Quick Studio Components
         \li No
         \li A line with four segments that you can show and shape individually.
     \row
-        \li \inlineimage icons/item-pie-16px.png
+        \li \imageitempie16px
         \li \l Pie
         \li Qt Quick Studio Components
         \li No
         \li A pie slice or a pie with a slice missing from it.
     \row
-        \li \inlineimage icons/item-flippable-16px.png
+        \li \imageitemflippable16px
         \li \l Flipable
         \li Qt Quick Studio Components
         \li No
         \li A component that can be visibly \e flipped between its front and
          back sides, like a card.
     \row
-        \li \inlineimage rect-icon16.png
+        \li \imagerecticon16
         \li \l Rectangle
         \li Default Components - Basic
         \li Yes
@@ -254,7 +254,7 @@
             gradient and an optional border. You can use the radius property
             to draw circles.
     \row
-        \li \inlineimage icons/custom-rectangle-16px.png
+        \li \imagecustomrectangle16px
         \li \l{Studio Rectangle}{Rectangle}
         \li Qt Quick Studio Components
         \li No
@@ -262,7 +262,7 @@
             linear, conical, or radial gradients, and corners that you can
             shape independently of each other.
     \row
-        \li \inlineimage icons/item-triangle-16px.png
+        \li \imageitemtriangle16px
         \li \l Triangle
         \li Qt Quick Studio Components
         \li No

@@ -137,7 +137,7 @@
 
     \section2 Importing assets
     \list 1
-    \li Select \uicontrol Assets > \inlineimage icons/plus.png
+    \li Select \uicontrol Assets > \imageplus
         .
         \image exporting-from-qt3ds/09-add-new-assets.png
 

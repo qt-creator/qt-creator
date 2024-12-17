@@ -213,7 +213,7 @@
     \endtable
 
     To use JavaScript and image files in the UI, select
-    \uicontrol Assets > \inlineimage icons/plus.png
+    \uicontrol Assets > \imageplus
     .
 
     \section1 Using custom presets

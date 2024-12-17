@@ -31,7 +31,7 @@
     module to your project:
 
     \list 1
-      \li In the \uicontrol Component view, select \inlineimage icons/plus.png
+      \li In the \uicontrol Component view, select \imageplus
       .
       \li Find QtQuick3D.Particles3D and select it to add it to your project.
       \li From \uicontrol Components, drag a
@@ -163,7 +163,7 @@
     Now you can run the snow effect in the live preview:
     \list 1
       \li In \uicontrol{States} next to \uicontrol State1 select
-      \inlineimage icons/action-icon.png
+      \imageactionicon
       and select \uicontrol{Set as Default}.
       \li Press \key{Alt+P}.
     \endlist

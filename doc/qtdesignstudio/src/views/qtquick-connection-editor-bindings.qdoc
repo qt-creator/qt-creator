@@ -42,7 +42,7 @@
         \li Apply a thick \e black \uicontrol Border and a \e blue \uicontrol{Color} to the \e {viewBox} component.
         \li Select the \e {connectBox} component.
         \li Select \uicontrol Bindings from the \uicontrol Connections view.
-        \li Select the \inlineimage icons/plus.png
+        \li Select the \imageplus
              (\uicontrol Add) button to add a binding to the currently selected
             component.
 

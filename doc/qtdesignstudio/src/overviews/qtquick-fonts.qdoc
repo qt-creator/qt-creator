@@ -19,7 +19,7 @@
 
     \list 1
         \li Select \uicontrol Assets
-         > \inlineimage icons/plus.png
+         > \imageplus
          .
         \li Browse to the folder that contains the font files and select them,
             and then select \uicontrol Open.

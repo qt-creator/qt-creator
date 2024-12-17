@@ -661,132 +661,132 @@
         \li MCU support
         \li Purpose
     \row
-        \li \inlineimage icons/busyindicator-icon16.png
+        \li \imagebusyindicatoricon16
         \li \l [QtQuickControls]{BusyIndicator}{Busy Indicator}
         \li No
         \li Indicates activity while content is being loaded.
     \row
-        \li \inlineimage icons/button-icon16.png
+        \li \imagebuttonicon16
         \li \l [QtQuickControls]{Button}
         \li Yes
         \li A push button that you can associate with an action.
     \row
-        \li \inlineimage icons/checkbox-icon16.png
+        \li \imagecheckboxicon16
         \li \l [QtQuickControls]{CheckBox}{Check Box}
         \li Yes
         \li An option button that can be toggled on (checked) or off
             (unchecked).
     \row
-        \li \inlineimage icons/checkbox-icon16.png
+        \li \imagecheckboxicon16
         \li \l [QtQuickControls]{CheckDelegate}{Check Delegate}
         \li No
         \li An item delegate that can be toggled on (checked) or off
             (unchecked).
     \row
-        \li \inlineimage icons/combobox-icon16.png
+        \li \imagecomboboxicon16
         \li \l [QtQuickControls]{ComboBox}{Combo Box}
         \li No
         \li A combined button and popup list that is populated by using a data
             model.
     \row
-        \li \inlineimage icons/delaybutton-icon16.png
+        \li \imagedelaybuttonicon16
         \li \l [QtQuickControls]{DelayButton}{Delay Button}
         \li No
         \li An option button that is triggered when held down long enough.
     \row
-        \li \inlineimage icons/dial-icon16.png
+        \li \imagedialicon16
         \li \l [QtQuickControls]{Dial}
         \li Yes
         \li A circular dial that is rotated to set a value.
     \row
-        \li \inlineimage icons/pageindicator-icon16.png
+        \li \imagepageindicatoricon16
         \li \l [QtQuickControls]{PageIndicator}{Page Indicator}
         \li No
         \li Indicates the indicate the currently active page in a container of
             multiple pages.
     \row
-        \li \inlineimage icons/progressbar-icon16.png
+        \li \imageprogressbaricon16
         \li \l [QtQuickControls]{ProgressBar}{Progress Bar}
         \li Yes
         \li Indicates the progress of an operation.
     \row
-        \li \inlineimage icons/radiobutton-icon16.png
+        \li \imageradiobuttonicon16
         \li \l [QtQuickControls]{RadioButton}{Radio Button}
         \li Yes
         \li An option button that can be switched on (checked) or off
             (unchecked).
     \row
-        \li \inlineimage icons/radiobutton-icon16.png
+        \li \imageradiobuttonicon16
         \li \l [QtQuickControls]{RadioDelegate}{Radio Delegate}
         \li No
         \li An item delegate that can be toggled on (checked) or off
             (unchecked).
     \row
-        \li \inlineimage icons/rangeslider-icon16.png
+        \li \imagerangeslidericon16
         \li \l [QtQuickControls]{RangeSlider}{Range Slider}
         \li No
         \li Enables users to select a range of values by sliding two handles
             along a track.
     \row
-        \li \inlineimage icons/roundbutton-icon16.png
+        \li \imageroundbuttonicon16
         \li \l [QtQuickControls]{RoundButton}{Round Button}
         \li No
         \li A push button with rounded corners that you can associate with an
             action.
     \row
-        \li \inlineimage icons/slider-icon16.png
+        \li \imageslidericon16
         \li \l [QtQuickControls]{Slider}
         \li Yes
         \li Enables users to select a value by sliding a handle along a track.
     \row
-        \li \inlineimage icons/spinbox-icon16.png
+        \li \imagespinboxicon16
         \li \l [QtQuickControls]{SpinBox}{Spin Box}
         \li No
         \li Enables users to specify a value by clicking the up or down buttons,
             by pressing up or down on the keyboard, or by entering a value in
             the box.
     \row
-        \li \inlineimage icons/switch-icon16.png
+        \li \imageswitchicon16
         \li \l [QtQuickControls]{Switch}
         \li Yes
         \li An option button that can be toggled on or off.
     \row
-        \li \inlineimage icons/switch-icon16.png
+        \li \imageswitchicon16
         \li \l [QtQuickControls]{SwitchDelegate}{Switch Delegate}
         \li No
         \li An item delegate with a switch indicator that can be toggled on or
             off.
     \row
-        \li \inlineimage icons/toolbar-icon16.png
+        \li \imagetoolbaricon16
         \li \l [QtQuickControls] {TabBar}{Tab Bar}
         \li No
         \li Enables users to switch between different views or subtasks.
     \row
-        \li \inlineimage icons/toolbutton-icon16.png
+        \li \imagetoolbuttonicon16
         \li \l [QtQuickControls]{TabButton}{Tab Button}
         \li
         \li A button that is functionally similar to \uicontrol Button, but
             provides a look that is more suitable for a \uicontrol {Tab Bar}.
     \row
-        \li \inlineimage icons/toolbar-icon16.png
+        \li \imagetoolbaricon16
         \li \l [QtQuickControls]{ToolBar}{Tool Bar}
         \li No
         \li A container of application-wide and context sensitive actions and
             controls, such as navigation buttons and search fields.
     \row
-        \li \inlineimage icons/toolbutton-icon16.png
+        \li \imagetoolbuttonicon16
         \li \l [QtQuickControls]{ToolButton}{Tool Button}
         \li No
         \li A button that is functionally similar to \uicontrol Button, but
             provides a look that is more suitable for a \uicontrol {Tool Bar}.
     \row
-        \li \inlineimage icons/toolseparator-icon16.png
+        \li \imagetoolseparatoricon16
         \li \l [QtQuickControls]{ToolSeparator}{Tool Separator}
         \li No
         \li Separates a group of items from adjacent items on a
             \uicontrol {Tool Bar}.
     \row
-        \li \inlineimage icons/tumbler-icon16.png
+        \li \imagetumblericon16
         \li \l [QtQuickControls]{Tumbler}
         \li No
         \li A spinnable wheel of items that can be selected.

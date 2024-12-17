@@ -15,7 +15,7 @@
     first add them to \l Assets:
     \list 1
         \li Select \uicontrol Assets
-            > \inlineimage icons/plus.png
+            > \imageplus
             .
         \li Select the image file, and then select \uicontrol Open.
         \li Select the location where the image will be saved in the
@@ -177,7 +177,7 @@
 
     To play the animation, select the \uicontrol Playing check box.
 
-    To pause the animation, select the \inlineimage icons/pause-icon.png
+    To pause the animation, select the \imagepauseicon
     (\uicontrol Paused) check box.
 
     When the \uicontrol Cache check box is selected, every frame of the
@@ -226,27 +226,27 @@
         \li MCU support
         \li Purpose
     \row
-        \li \inlineimage animated-image-icon16.png
+        \li \imageanimatedimageicon16
         \li \l [QtQuick]{AnimatedImage}{Animated Image}
         \li Default Components - Basic
         \li No
         \li An images that stores animations containing a series of frames,
             such as those stored in GIF files.
     \row
-        \li \inlineimage border-image-icon16.png
+        \li \imageborderimageicon16
         \li \l [QtQuick]{BorderImage}{Border Image}
         \li Default Components - Basic
         \li Yes
         \li An image that is used as a border or background.
     \row
-        \li \inlineimage image-icon16.png
+        \li \imageimageicon16
         \li \l [QtQuick]{Image}
         \li Default Components - Basic
         \li Yes
         \li An image in one of the supported formats, including bitmap formats
             such as PNG and JPEG and vector graphics formats such as SVG.
     \row
-        \li \inlineimage icons/iso-icons-16px.png
+        \li \imageisoicons16px
         \li \l{Iso Icon}
         \li Qt Quick Studio Components
         \li No

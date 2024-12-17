@@ -21,7 +21,7 @@
 
     When you run a project, details about the runtime execution processes
     is listed in the output view. To access these messages, select
-    \inlineimage icons/output.png {Output}.
+    \imageoutput.
 
     \image studio-output-view-message.webp Runtime execution process related output messages
 
@@ -29,7 +29,7 @@
 
     Technical problems in the \QDS project are visible in the
     \uicontrol Output view. To access these issues,
-    select \inlineimage icons/warning.png {Warning} \inlineimage icons/error.png {Error}.
+    select \imagewarning \imageerror.
 
     Select the \e filename from the issue notification to jump into the location of the error.
     It takes you to the location of the issue in the view (\uicontrol 2D, \uicontrol 3D, or
@@ -48,7 +48,7 @@
 
     \endtable
 
-    To clear the \uicontrol Output view, select \inlineimage icons/clear-view.png {Clear}.
-    To close the \uicontrol Output view, select \inlineimage icons/distribute-origin-none.png {Close}.
+    To clear the \uicontrol Output view, select \imageclearview.
+    To close the \uicontrol Output view, select \imagedistributeoriginnone.
 
 */

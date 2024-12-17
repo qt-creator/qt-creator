@@ -41,7 +41,7 @@
     Add the \uicontrol {QtQuick Layouts} module:
     \list 1
       \li In \uicontrol Components, select
-      \inlineimage icons/plus.png
+      \imageplus
       \li Select \uicontrol {QtQuick.Layouts}.
     \endlist
 
@@ -95,7 +95,7 @@
     \list
       \li Set \uicontrol Size > \uicontrol H to 1024.
       \li Next to \uicontrol Size > \uicontrol W, select
-      \inlineimage icons/action-icon.png
+      \imageactionicon
       and select \uicontrol Reset.
     \endlist
 
@@ -143,14 +143,14 @@ To organize the pages vertically:
   \li Select \e columnLayout in Navigator and in \uicontrol Properties:
     \list
       \li Next to \uicontrol Size > \uicontrol W and \uicontrol Size >
-      \uicontrol H, select \inlineimage icons/action-icon.png
+      \uicontrol H, select \imageactionicon
       and select \uicontrol Reset.
       \li Set \uicontrol {Column Spacing} to 0.
     \endlist
   \li Select \e flickable in \uicontrol Navigator, and in \uicontrol Properties:
     \list
       \li Next to \uicontrol Size > \uicontrol W and \uicontrol Size >
-      \uicontrol H, select \inlineimage icons/action-icon.png
+      \uicontrol H, select \imageactionicon
       and select \uicontrol Reset.
       \li Set \uicontrol {Content size} > \uicontrol H to 3072.
       \li On the \uicontrol Layout tab, select
@@ -186,7 +186,7 @@ main rectangle so that it adapts to the window size:
 \list 1
   \li In \uicontrol Navigator, select \e Rectangle.
   \li In \uicontrol Properties, select
-  \inlineimage icons/action-icon-binding.png
+  \imageactioniconbinding
   next to \uicontrol Width and select \uicontrol {Set Binding}.
   \li Enter \c {Window.width}
   \image web-navigation-size-binding.png
@@ -223,7 +223,7 @@ vertically to the correct place:
       \li \uicontrol {Fill color} to #e0e0e0.
       \li \uicontrol {Z stack} to 1.
     \endlist
-  \li Select \inlineimage icons/action-icon-binding.png
+  \li Select \imageactioniconbinding
   next to \uicontrol Width and select \uicontrol {Set Binding}.
   \li Enter \c {parent.width}.
   \image web-navigation-size-binding-2.png

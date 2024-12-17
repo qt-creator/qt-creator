@@ -302,18 +302,18 @@
         \li MCU support
         \li Purpose
     \row
-        \li \inlineimage flickable-icon16.png
+        \li \imageflickableicon16
         \li \l [QML]{Flickable}
         \li Yes
         \li Enables flicking components horizontally or vertically.
     \row
-        \li \inlineimage focusscope-icon16.png
+        \li \imagefocusscopeicon16
         \li \l{FocusScope}{Focus Scope}
         \li No
         \li Assists in keyboard focus handling when building reusable
             components.
     \row
-        \li \inlineimage mouse-area-icon16.png
+        \li \imagemouseareaicon16
         \li \l [QtQuick]{MouseArea}{Mouse Area}
         \li Yes
         \li Enables simple mouse handling.

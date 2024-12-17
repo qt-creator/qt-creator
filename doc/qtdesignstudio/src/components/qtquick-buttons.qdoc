@@ -50,7 +50,7 @@
                 the rectangle to produce rounded corners for the button.
 
             \li Select \uicontrol {Layout}, and then select the
-                \inlineimage icons/anchor-fill.png
+                \imageanchorfill
                 (\uicontrol {Fill to Parent}) button to anchor the Rectangle to
                 the Item.
 
@@ -143,7 +143,7 @@
 
     \list 1
         \li Click \uicontrol {Design} to edit the UI file in the \l {2D} view.
-        \li Select \uicontrol Assets > \inlineimage icons/plus.png
+        \li Select \uicontrol Assets > \imageplus
             to copy the image files you want to use to the project folder.
         \li In \l Navigator, select the root component and set the
             width (\uicontrol W) and height (\uicontrol H) of the button in the
@@ -162,7 +162,7 @@
                 \li In the \uicontrol Source field, select the image file for
                     the border image. For example, inactive_button.png.
                 \li In the \uicontrol {Layout} tab, select the
-                    \inlineimage icons/anchor-fill.png
+                    \imageanchorfill
                     (\uicontrol {Fill to Parent}) button to always make the
                     image the same size as its parent. This makes the button
                     component scalable because the image size is bound to the
@@ -176,7 +176,7 @@
                     for the button when it is clicked. For example,
                     active_button.png.
                 \li In the \uicontrol {Layout} tab, select the
-                    \inlineimage icons/anchor-fill.png
+                    \imageanchorfill
                     (\uicontrol {Fill to Parent}) button.
             \endlist
         \li Select the text component to specify font size and color in
@@ -188,9 +188,9 @@
                 \li In \uicontrol Font group, \uicontrol Size field, enter the
                     font size.
                 \li In the \uicontrol {Layout} tab, select
-                    \inlineimage icons/anchor-center-vertical.png
+                    \imageanchorcentervertical
                     (\uicontrol {Vertical Center}) and
-                    \inlineimage icons/anchor-center-horizontal.png
+                    \imageanchorcenterhorizontal
                     (\uicontrol {Horizontal Center}) buttons to inherit the
                     vertical and horizontal centering from the parent.
                     This ensures that the button label is centered when the
@@ -201,12 +201,12 @@
     \section1 Using States to change component property values
 
     \list 1
-        \li In the \l States view, select \inlineimage icons/plus.png
+        \li In the \l States view, select \imageplus
             twice to create two new states.
             \image qmldesigner-borderimage-states.png "Active and inactive states"
         \li Select \uicontrol State1.
         \li Change the state name to \e active.
-        \li Select \inlineimage icons/action-icon.png
+        \li Select \imageactionicon
             , and then select \uicontrol {Set when Condition} to determine
             when the state should be applied.
         \li In the \uicontrol {Binding Editor}, select the \c mouseArea

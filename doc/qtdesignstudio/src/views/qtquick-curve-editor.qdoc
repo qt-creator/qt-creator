@@ -30,29 +30,29 @@
     \list 1
         \li Select the keyframes. To select multiple keyframes, press and hold
         \key Ctrl, and then select them.
-        \li Select \inlineimage icons/easing-curve-linear-icon.png (\uicontrol Linear),
-        \inlineimage icons/easing-curve-step-icon.png (\uicontrol Step) or
-        \inlineimage icons/easing-curve-spline.png (\uicontrol Spline) depending on
+        \li Select \imageeasingcurvelinearicon (\uicontrol Linear),
+        \imageeasingcurvestepicon (\uicontrol Step) or
+        \imageeasingcurvespline (\uicontrol Spline) depending on
         which interpolation method you want to use.
     \endlist
 
     When you set interpolation to \uicontrol Spline, handles appear in
     \uicontrol {Curves} that you can use to modify the curve. Select
-    \inlineimage icons/easing-curve-unify.png (\uicontrol Unify) to lock the handle on the
+    \imageeasingcurveunify (\uicontrol Unify) to lock the handle on the
     left of a keyframe to the one
     on the right of it so that moving the left handle also moves the right
     handle.
 
     If the component that contains the animated property has been locked
-    in \l Navigator, you can select \inlineimage icons/lockon.png
+    in \l Navigator, you can select \imagelockon
     to unlock it. You can also lock individual easing curves for editing.
 
     To lock an animation curve, hover the mouse over the property in the list,
-    and then select \inlineimage icons/lockoff.png
+    and then select \imagelockoff
     .
 
     To pin an animation curve, hover the mouse over the property in the list,
-    and then select \inlineimage icons/pin.png
+    and then select \imagepin
     .
 
     \section1 Editing animation curves

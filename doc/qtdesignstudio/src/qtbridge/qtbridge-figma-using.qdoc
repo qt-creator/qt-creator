@@ -139,7 +139,7 @@
             to avoid duplicate IDs when the layer and the respective artwork
             are imported into \QDS.
             \note Once the ID is edited, the automatic assignment of ID from
-            layer name stops for this layer. Use \inlineimage figma-binding-reset.png
+            layer name stops for this layer. Use \imagefigmabindingreset
             button next to \uicontrol ID to reset the ID back to automatic assignment.
     \row
         \li \uicontrol {Export as}
@@ -159,7 +159,7 @@
                     into one component.
                 \li \uicontrol Skipped completely skips the selected layer.
             \endlist
-            \note Use \inlineimage figma-binding-reset.png button next to
+            \note Use \imagefigmabindingreset button next to
             \uicontrol {Export as} to reset to default value.
     \row
         \li \uicontrol {Custom Component Type}

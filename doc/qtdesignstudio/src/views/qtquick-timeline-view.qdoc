@@ -19,7 +19,7 @@
 
     \image studio-timeline-empty.webp "Empty Timeline view"
 
-    Select the \inlineimage icons/plus.png
+    Select the \imageplus
     (\uicontrol {Add Timeline}) button to
     \l{Creating a Timeline}{create a timeline} and specify settings for it in
     the \uicontrol {Timeline Settings} dialog.
@@ -34,14 +34,14 @@
 
     To animate component properties in the \uicontrol Timeline view, you
     must \l{Setting Keyframe Values}{insert keyframes} for them. In the
-    \l Properties view, select \inlineimage icons/action-icon.png
+    \l Properties view, select \imageactionicon
     (\uicontrol Actions) > \uicontrol {Insert Keyframe} for a property that you
     want to animate. A keyframe track is generated for each component that you
     insert keyframes for.
 
     \image studio-timeline-with-empty-tracks.webp "Timeline view with a property"
 
-    You can now select \inlineimage icons/local_record_keyframes.png
+    You can now select \imagelocalrecordkeyframes
     to \l{Setting Keyframe Values}{record changes} in component properties
     while you \l{Navigating in Timeline}{navigate the timeline}.
 
@@ -78,8 +78,8 @@
     \section1 Zooming in Timeline
 
     Use the slider on the toolbar to set the zooming level in the
-    \uicontrol Timeline view. Select the \inlineimage icons/zoom_small.png
-    and \inlineimage icons/zoom_big.png
+    \uicontrol Timeline view. Select the \imagezoomsmall
+    and \imagezoombig
     buttons to zoom out of or into the view.
 
     \section1 Setting the keyframe track color

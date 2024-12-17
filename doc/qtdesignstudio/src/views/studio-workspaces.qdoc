@@ -14,8 +14,8 @@
     To detach views:
 
     \list
-        \li Toggle \inlineimage icons/lockon.png
-        to \inlineimage icons/lockoff.png
+        \li Toggle \imagelockon
+        to \imagelockoff
         at the top toolbar.
         \li Double-click the title bar of the view.
         \li Start dragging the view to another position.
@@ -34,8 +34,8 @@
     To open closed views, select \uicontrol View > \uicontrol Views.
 
     \note To lock all views, toggle
-        \inlineimage icons/lockoff.png
-        to \inlineimage icons/lockon.png
+        \imagelockoff
+        to \imagelockon
         at the top toolbar.
 
     \section1 Saving workspaces

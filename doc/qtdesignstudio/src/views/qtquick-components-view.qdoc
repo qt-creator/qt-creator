@@ -73,7 +73,7 @@
     contains basic components and UI controls, while a 3D application project
     contains additional 3D components.
 
-    To view the list of available modules, select \inlineimage icons/plus.png
+    To view the list of available modules, select \imageplus
     . Most commonly used modules are placed at the top of the list in
     alphabetical order. You can search for components and modules by entering
     search criteria in the \uicontrol Search field.

@@ -23,7 +23,7 @@
 
     Initially, \uicontrol States displays a \e {base state} that shows the
     selected \l{glossary-component}{component} in its initial state. To add
-    states, select \inlineimage icons/plus.png
+    states, select \imageplus
     in the \uicontrol States view.
 
     For more information, watch the following video:

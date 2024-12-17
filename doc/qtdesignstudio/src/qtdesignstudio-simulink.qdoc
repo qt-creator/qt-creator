@@ -124,7 +124,7 @@
 
     To integrate the Simulink model into \QDS, you first need to add the
     Simulink connector module to your project. In the \uicontrol Components
-    view, select \inlineimage icons/plus.png
+    view, select \imageplus
     > \uicontrol SimulinkConnector. \QDS is now ready to communicate with the
     Simulink model.
 
@@ -134,7 +134,7 @@
     \uicontrol SimulinkConnector item in \l Navigator and set the IP address
     and/or port in the \l Properties view. If you cannot see
     \uicontrol SimulinkConnector in \uicontrol Navigator, you need to click
-    \inlineimage icons/filtericon.png
+    \imagefiltericon
     (\uicontrol {Filter Tree}) and unselect \uicontrol {Show only visible items}.
 
     To communicate with a specific model in Simulink, you need to create
@@ -162,7 +162,7 @@
     To bind the root item property to a component property, select the component
     either by clicking on it on the canvas or in \uicontrol Navigator. In the
     \uicontrol Properties view, find the component property to which you want to
-    bind the root item property. Select the \inlineimage icons/action-icon.png
+    bind the root item property. Select the \imageactionicon
     (\uicontrol Actions) menu next to a property, and then select
     \uicontrol {Set Binding}. In the \uicontrol {Binding Editor}, select the
     text field and type in \c {<id>.<property name>}, for example

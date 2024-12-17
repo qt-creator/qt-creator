@@ -32,7 +32,7 @@
     \section1 Using rich text
 
     You can use rich text in the \uicontrol Text and \uicontrol {Text Input}
-    components. To open the rich text editor, select the \inlineimage icons/edit.png
+    components. To open the rich text editor, select the \imageedit
     (\uicontrol Edit) button in \uicontrol Properties > \uicontrol Character
     > \uicontrol Text.
 
@@ -93,7 +93,7 @@
 
     \list 1
         \li Select \uicontrol Assets
-            > \inlineimage icons/plus.png
+            > \imageplus
             .
         \li Select the font file, and then select \uicontrol Open.
         \li Select the location where the file will be saved in the
@@ -403,37 +403,37 @@
         \li MCU support
         \li Purpose
     \row
-        \li \inlineimage icons/label-icon16.png
+        \li \imagelabelicon16
         \li \l [QtQuickControls]{Label}
         \li Qt Quick Controls
         \li No
         \li A text label with inherited styling and font.
     \row
-        \li \inlineimage text-icon16.png
+        \li \imagetexticon16
         \li \l [QtQuick]{Text}
         \li Default Components - Basic
         \li Yes
         \li Formatted read-only text.
     \row
-        \li \inlineimage icons/textarea-icon16.png
+        \li \imagetextareaicon16
         \li \l [QtQuickControls]{TextArea}{Text Area}
         \li Qt Quick Controls
         \li No
         \li Multiple lines of editable formatted text.
     \row
-        \li \inlineimage text-edit-icon16.png
+        \li \imagetextediticon16
         \li \l [QtQuick]{TextEdit}{Text Edit}
         \li Default Components - Basic
         \li No
         \li A single line of editable formatted text that can be validated.
     \row
-        \li \inlineimage icons/textfield-icon16.png
+        \li \imagetextfieldicon16
         \li \l [QtQuickControls]{TextField}{Text Field}
         \li Qt Quick Controls
         \li No
         \li A single line of editable plain text.
     \row
-        \li \inlineimage text-input-icon16.png
+        \li \imagetextinputicon16
         \li \l [QtQuick]{TextInput}{Text Input}
         \li Default Components - Basic
         \li No

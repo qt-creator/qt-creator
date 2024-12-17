@@ -85,7 +85,7 @@
       Now, four cubes are drawn to the scene, but they are drawn to the exact same
       place.
       \li Select \e cube in \uicontrol Navigator and in \uicontrol Properties
-      select \inlineimage icons/action-icon.png
+      select \imageactionicon
       next to \uicontrol Translation > \uicontrol X.
       \li Select \uicontrol {Set binding} to open \uicontrol {Binding Editor}.
       \li In the binding editor, enter \c{index * 150}. This sets the X
@@ -174,7 +174,7 @@
       in \uicontrol Navigator.
       \image repeater3d-listmodel-navigator.png
       \li Select \e sphere in \uicontrol Navigator and in the \uicontrol Properties view, select
-      \inlineimage icons/action-icon.png
+      \imageactionicon
       next to \uicontrol Scale > \uicontrol X.
       \li Select \uicontrol {Set binding} to open \uicontrol {Binding Editor}.
       \li In the binding editor, enter \c{radius}. This sets the X
@@ -191,7 +191,7 @@
 
     \list 1
       \li Select \e sphere in \uicontrol Navigator and in the \uicontrol Properties view, select
-      \inlineimage icons/action-icon.png
+      \imageactionicon
       next to \uicontrol Translation > \uicontrol X.
       \li Select \uicontrol {Set binding} to open \uicontrol {Binding Editor}.
       \li In the binding editor, enter \c{index * 1000}. This sets the X

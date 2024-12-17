@@ -16,7 +16,7 @@
 
     \uicontrol {Assets} displays the images and other files
     that you add to the project folder by dragging external asset
-    files to \QDS or by selecting \inlineimage icons/plus.png
+    files to \QDS or by selecting \imageplus
     . For more information about importing assets to \QDS, see
     \l {Importing 2D Assets} and \l {Importing 3D Assets}.
 

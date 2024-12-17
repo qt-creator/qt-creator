@@ -18,7 +18,7 @@
 
     \section1 Creating a texture
 
-    To create a texture, select \inlineimage icons/plus.png
+    To create a texture, select \imageplus
     in the \uicontrol {Texture Editor} view.
 
     \note You can also create textures from the
@@ -39,7 +39,7 @@
     To apply a texture to a material, first select the material in the
     \uicontrol {Material Browser} view and then:
     \list 1
-      \li Select \inlineimage icons/apply.png
+      \li Select \imageapply
       .
       \li Select the material and property that you want to add the texture to.
       \image select-material-property.png "Select a material property"

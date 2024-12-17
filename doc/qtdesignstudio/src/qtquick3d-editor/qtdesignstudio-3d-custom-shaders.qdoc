@@ -172,7 +172,7 @@
             The \uicontrol {Vertex shader} and \uicontrol {Fragment shader}
             properties define the vertex and fragment shader files for the
             material. Select the shader files from the dropdown menus. You can
-            select \inlineimage icons/add-file-16px.png
+            select \imageaddfile16px
             to add new shader files to the dropdown menus.
 
             The \uicontrol {Source blend} and \uicontrol {Destination blend}
@@ -202,7 +202,7 @@
 
             The \uicontrol Passes property contains a list of render passes
             implemented by the effect. You can add more entry fields to the list
-            by selecting \inlineimage icons/plus.png
+            by selecting \imageplus
             . For more information, see \l {Custom effects and materials in Qt 5}.
 
     \row

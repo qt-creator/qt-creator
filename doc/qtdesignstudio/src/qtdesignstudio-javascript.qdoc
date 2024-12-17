@@ -117,7 +117,7 @@
             import Data 1.0
             \endcode
         \li Returning to the \uicontrol {2D} view, locate the property that
-            should be bound to the simulated values. Select \inlineimage icons/action-icon.png
+            should be bound to the simulated values. Select \imageactionicon
             and \uicontrol {Set Binding} for the property and enter the
             simulated Value property. For example, you would set the following
             expression to bind to the example \c name1 property:

@@ -73,7 +73,7 @@
     module to your project:
 
     \list 1
-      \li In the \uicontrol Components view, select \inlineimage icons/plus.png
+      \li In the \uicontrol Components view, select \imageplus
       .
       \li Find QtQuick3D.Particles3D, and select it to add it to your project.
     \endlist
@@ -108,7 +108,7 @@
     (\e{fire-sprites.png}) to use for the fire:
 
     \list 1
-      \li In the \uicontrol {Assets} view, select \inlineimage icons/plus.png
+      \li In the \uicontrol {Assets} view, select \imageplus
       .
       \li In the \uicontrol {Add Assets} dialog, find and select \e {fire-sprites.png}.
     \endlist
@@ -235,7 +235,7 @@
     \image fire-particles-camera.png
 
     Now, run the project by selecting \key Ctrl + \key{R} or the
-    \inlineimage icons/run_project.png
+    \imagerunproject
     button in the top toolbar.
 
 */

@@ -50,24 +50,24 @@
         \li Select \e adventurePage in the \l Navigator view to display its
             properties in the \l Properties view.
         \li In \uicontrol Properties > \uicontrol Layout, select
-            the \inlineimage icons/anchor-fill.png
+            the \imageanchorfill
             anchor button to anchor \e adventurePage to its
             parent in the \uicontrol Target field. This attaches the background
             image to the rectangle on all sides.
             \note Selecting the anchor button should automatically select the
             four buttons on the left side of it. If it doesn't, select
-            \inlineimage icons/reset.png on the \uicontrol {2D} view toolbar to refresh the
+            \imagereset on the \uicontrol {2D} view toolbar to refresh the
             \uicontrol{2D} view.
             \image loginui2-layout.png "Layout properties"
         \li Select \e qt_logo_green_128x128px in \uicontrol Navigator.
         \li In \uicontrol Properties > \uicontrol Layout, set:
             \list
-                \li \uicontrol Anchors to \inlineimage icons/anchor-top.png and
-                    \inlineimage icons/anchor-center-horizontal.png.
-                \li \uicontrol Target \inlineimage icons/anchor-top.png to \e parent to anchor
+                \li \uicontrol Anchors to \imageanchortop and
+                    \imageanchorcenterhorizontal.
+                \li \uicontrol Target \imageanchortop to \e parent to anchor
                     the logo to its parent.
-                \li \uicontrol Margin \inlineimage icons/anchor-top.png to \e 40 and
-                    select \inlineimage icons/anchor-top.png to anchor the logo to the top of
+                \li \uicontrol Margin \imageanchortop to \e 40 and
+                    select \imageanchortop to anchor the logo to the top of
                     the target.
             \endlist
             This attaches the logo to the rectangle at the top while keeping its horizontal
@@ -76,12 +76,12 @@
         \li Select \e tagLine in \uicontrol Navigator.
         \li In \uicontrol Properties > \uicontrol Layout, set:
             \list
-                \li \uicontrol Anchors to \inlineimage icons/anchor-top.png and
-                    \inlineimage icons/anchor-center-horizontal.png.
-                \li \uicontrol Target \inlineimage icons/anchor-top.png to
+                \li \uicontrol Anchors to \imageanchortop and
+                    \imageanchorcenterhorizontal.
+                \li \uicontrol Target \imageanchortop to
                     \e qt_logo_green_128x128px to anchor the tag line to the logo.
-                \li \uicontrol Margin \inlineimage icons/anchor-top.png to \e 40 and
-                    select \inlineimage icons/anchor-bottom.png to anchor the tag line to the
+                \li \uicontrol Margin \imageanchortop to \e 40 and
+                    select \imageanchorbottom to anchor the tag line to the
                     bottom of the target.
             \endlist
                 This attaches the tag line to the bottom of the logo while keeping its horizontal
@@ -137,12 +137,12 @@
         \li Select \e fields in \uicontrol Navigator.
         \li In \uicontrol Properties > \uicontrol Layout, set:
             \list
-                \li \uicontrol Anchors to \inlineimage icons/anchor-top.png and
-                    \inlineimage icons/anchor-center-horizontal.png.
-                \li \uicontrol Target \inlineimage icons/anchor-top.png to
+                \li \uicontrol Anchors to \imageanchortop and
+                    \imageanchorcenterhorizontal.
+                \li \uicontrol Target \imageanchortop to
                     \e tagLine to anchor the entry fields to the tag line.
-                \li \uicontrol Margin \inlineimage icons/anchor-top.png to \e 170 and
-                    select \inlineimage icons/anchor-bottom.png to anchor the entry fields to the
+                \li \uicontrol Margin \imageanchortop to \e 170 and
+                    select \imageanchorbottom to anchor the entry fields to the
                     bottom of the target.
             \endlist
                 This attaches the entry fields to the bottom of the tag line while keeping its
@@ -151,12 +151,12 @@
         \li Select \e buttons in \uicontrol Navigator.
         \li In \uicontrol Properties > \uicontrol Layout, set:
             \list
-                \li \uicontrol Anchors to \inlineimage icons/anchor-bottom.png and
-                    \inlineimage icons/anchor-center-horizontal.png.
-                \li \uicontrol Target \inlineimage icons/anchor-bottom.png to
+                \li \uicontrol Anchors to \imageanchorbottom and
+                    \imageanchorcenterhorizontal.
+                \li \uicontrol Target \imageanchorbottom to
                     \e parent to anchor the entry fields to the rectangle.
-                \li \uicontrol Margin \inlineimage icons/anchor-bottom.png to \e 50 and
-                    select \inlineimage icons/anchor-bottom.png to anchor the entry fields to the
+                \li \uicontrol Margin \imageanchorbottom to \e 50 and
+                    select \imageanchorbottom to anchor the entry fields to the
                     bottom of the target.
             \endlist
                 This attaches the buttons to the bottom of the rectangle while keeping its

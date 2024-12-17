@@ -180,51 +180,51 @@
         \li MCU support
         \li Purpose
     \row
-        \li \inlineimage gridview-icon16.png
+        \li \imagegridviewicon16
         \li \l{GridView}{Grid View}
         \li Default Components - Views
         \li No
         \li A grid vizualization of a model.
     \row
-        \li \inlineimage icons/itemdelegate-icon16.png
+        \li \imageitemdelegateicon16
         \li \l{ItemDelegate}{Item Delegate}
         \li Qt Quick Controls
         \li No
         \li A standard view item that can be used as a delegate in various
             views and controls, such as \l ListView and \l ComboBox.
     \row
-        \li \inlineimage listview-icon16.png
+        \li \imagelistviewicon16
         \li \l{ListView}{List View}
         \li Default Components - Views
         \li Yes
         \li A list vizualization of a model.
     \row
-        \li \inlineimage pathview-icon16.png
+        \li \imagepathviewicon16
         \li \l{Path View}
         \li Default Components - Views
         \li No
         \li Vizualizes the contents of a model along a path.
     \row
-        \li \inlineimage icons/scrollview-icon16.png
+        \li \imagescrollviewicon16
         \li \l [QtQuickControls] {ScrollView}{Scroll View}
         \li Qt Quick Controls
         \li No
         \li Provides scrolling for user-defined content. It can be used instead
             of a \l Flickable component.
     \row
-        \li \inlineimage icons/stackview-icon16.png
+        \li \imagestackviewicon16
         \li \l [QtQuickControls] {StackView}{Stack View}
         \li Qt Quick Controls
         \li No
         \li A stack-based navigation model.
     \row
-        \li \inlineimage icons/item-svg-16px.png
+        \li \imageitemsvg16px
         \li \l{SVG Path Item}
         \li Qt Quick Studio Components
         \li No
         \li An SVG path data string that is used to draw a path as a line.
     \row
-        \li \inlineimage icons/itemdelegate-icon16.png
+        \li \imageitemdelegateicon16
         \li \l{SwipeDelegate}{Swipe Delegate}
         \li Qt Quick Controls
         \li No
@@ -232,7 +232,7 @@
             options or information. It is used as a delegate in views such
             as \l ListView.
     \row
-        \li \inlineimage icons/swipeview-icon16.png
+        \li \imageswipeviewicon16
         \li \l[QtQuickControls] {SwipeView}{Swipe View}
         \li Qt Quick Controls
         \li Yes

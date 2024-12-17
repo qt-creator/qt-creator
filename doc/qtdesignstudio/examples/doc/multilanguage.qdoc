@@ -143,14 +143,14 @@
       Translations to open the \uicontrol Translations view. You can
       drag it to a workspace to dock it.
       \li In \uicontrol Translations, select
-      \inlineimage icons/select-languages.png
+      \imageselectlanguages
       .
       \li Select the languages that you want to support in your project,
       in this case \uicontrol{English - American English} and
       \uicontrol{Swedish - Svenska}.
       \li Set \uicontrol{English - American English} as primary language and
       select \uicontrol{Ok}.
-      \li Select \inlineimage icons/import-json-translations.png
+      \li Select \imageimportjsontranslations
       and open the \e ml_translations.json file. Now you can see all your
       imported translations in the \uicontrol Translations view.
       \image imported-translations.png
@@ -167,7 +167,7 @@
     Finally, before you can see your translations in the application or in
     \uicontrol{Live Preview}, you must generate Qt translation source files.
     To do this, select
-    \inlineimage icons/generate-translation-files.png
+    \imagegeneratetranslationfiles
     in the \uicontrol Translations view.
 
 */

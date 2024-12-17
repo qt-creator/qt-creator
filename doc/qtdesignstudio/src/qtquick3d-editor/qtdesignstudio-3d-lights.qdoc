@@ -41,25 +41,25 @@
         \li More information
 
     \row
-        \li \inlineimage icons/directional.png
+        \li \imagedirectional
         \li Directional Light
         \li No
         \li \l{DirectionalLight}{Light Directional}
 
     \row
-        \li \inlineimage icons/point.png
+        \li \imagepoint
         \li Point Light
         \li No
         \li \l{PointLight}{Light Point}
 
     \row
-        \li \inlineimage icons/spot.png
+        \li \imagespot
         \li Spot Light
         \li No
         \li \l{SpotLight}{Light Spot}
 
     \row
-        \li \inlineimage icons/area.png
+        \li \imagearea
         \li Area Light
         \li Yes
         \li \l{AreaLight}{Light Area}
@@ -226,7 +226,7 @@
     To bake lightmaps for models in your 3D scene:
 
     \list 1
-      \li Select \inlineimage icons/bakelights.png in the \uicontrol 3D view
+      \li Select \imagebakelights in the \uicontrol 3D view
           toolbar, or right-click anywhere in the \uicontrol 3D view and select
           \uicontrol {Bake Lights} to open the \uicontrol {Lights Baking Setup}
           dialog to define settings for baking lights.
@@ -254,7 +254,7 @@
     \section2 Manually baking lightmaps for a 3D model
 
     \note Baked lightmap components are not visible in the \uicontrol Navigator view by
-    default. To make them visible, select \inlineimage icons/visibilityon.png
+    default. To make them visible, select \imagevisibilityon
     in the \uicontrol Navigator view.
 
     To bake lightmaps for a 3D model:
@@ -291,7 +291,7 @@
       \uicontrol {Edit Component}.
       \image baked-lightmaps-edit-component.png
       \li In the \uicontrol Navigator view, select the root component.
-      \li In the \uicontrol Properties view, select \inlineimage icons/plus.png
+      \li In the \uicontrol Properties view, select \imageplus
       in the \uicontrol {Local Custom Properties} section.
       \li Add a new property, set \uicontrol Type to alias.
       \image baked-lightmaps-add-property.png

@@ -37,7 +37,7 @@
     To use some other tool:
 
     \list 1
-        \li Select \inlineimage icons/settings.png to go to
+        \li Select \imagesettings to go to
             \uicontrol {Run Settings}.
             \image studio-run-settings.webp {Run Settings}
         \li In \uicontrol {Override device QML viewer}, select the folder where

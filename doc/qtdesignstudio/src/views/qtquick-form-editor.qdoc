@@ -61,7 +61,7 @@
 
     \section1 Rotating 2D components
 
-    When the rotation cursor \inlineimage icons/rotation-cursor.png
+    When the rotation cursor \imagerotationcursor
     is displayed in one of the corners of a component instance, you can drag
     clockwise or counter-clockwise to freely rotate the component instance
     around its origin.
@@ -155,7 +155,7 @@
     If you set the background of the root component transparent, the color of
     the working area can make it difficult to see the component instance you
     are working on. To make component instances more visible, you can select
-    the canvas color in the \inlineimage icons/canvas-color.png
+    the canvas color in the \imagecanvascolor
     list. By default, the color is transparent. Setting the canvas color does
     not affect the background color of your root component or component
     instances in any way.
@@ -173,6 +173,6 @@
     the \uicontrol {2D} view.
 
     To refresh the contents of the \uicontrol {2D} view, press \key R or
-    select the \inlineimage icons/reset.png
+    select the \imagereset
     (\uicontrol {Reset View}) button.
 */

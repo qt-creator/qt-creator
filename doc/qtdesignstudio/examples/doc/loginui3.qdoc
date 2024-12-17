@@ -79,7 +79,7 @@
     components in the \uicontrol {2D} view, depending on the current page:
 
     \list 1
-        \li In the \l States view, select \inlineimage icons/plus.png
+        \li In the \l States view, select \imageplus
         .
         \li Enter \e login as the state name.
             \image loginui3-login-state.webp "States view"
@@ -129,13 +129,13 @@
         \li Select \uicontrol View > \uicontrol Views >
             \uicontrol {Connections} to open the \uicontrol Connections view.
         \li Select \e createAccount in \uicontrol Navigator.
-        \li In the \uicontrol Connections tab, select the \inlineimage icons/plus.png
+        \li In the \uicontrol Connections tab, select the \imageplus
             button to open the connection setup options.
         \li Set \uicontrol Signal to \c clicked, \uicontrol Action to
             \c {Change State}, \uicontrol {State Group} to \c rectangle, and
             \uicontrol State to \c createAccount in the respective
             drop-down menus.
-        \li Select the \inlineimage icons/close.png
+        \li Select the \imageclose
             button to close the connection setup options.
 
         \image loginui3-connections.webp "Connections tab"

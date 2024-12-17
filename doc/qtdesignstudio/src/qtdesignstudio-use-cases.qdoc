@@ -13,10 +13,10 @@
 
     \table
         \row
-            \li \inlineimage qds-front-ui.png
-            \li \inlineimage studio-flow.png
-            \li \inlineimage qds-studio-3d-scenes.png
-            \li \inlineimage qds-front-projects.png
+            \li \image qds-front-ui.png
+            \li \image studio-flow.png
+            \li \image qds-studio-3d-scenes.png
+            \li \image qds-front-projects.png
         \row
             \li \b {Creating UI wireframes}
             \li \b {Creating UI prototypes}

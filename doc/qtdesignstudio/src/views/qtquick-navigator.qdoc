@@ -43,8 +43,8 @@
     \section1 Showing and hiding components
 
     To show and hide components in the \uicontrol {2D} view when focusing on
-    specific parts of the application, select \inlineimage icons/eye_open.png and
-    \inlineimage icons/visibility-off.png in \uicontrol Navigator.
+    specific parts of the application, select \imageeyeopen and
+    \imagevisibilityoff in \uicontrol Navigator.
 
     To change the visibility of a component in the application code, select the
     \uicontrol Visibility check box in the \uicontrol Properties view or select
@@ -58,7 +58,7 @@
     parent component.
 
     To show and hide invisible components in \uicontrol Navigator, select
-    \inlineimage {icons/visibilityon.png}.
+    \imagevisibilityon.
 
     \section1 Locking components
 
@@ -70,7 +70,7 @@
     more components than you wanted to.
 
     To lock components that you are not currently editing and their children,
-    click \inlineimage icons/lockon.png
+    click \imagelockon
     in \uicontrol Navigator. Locked components cannot be handled in any \QDS
     views. You can unlock the components when you want to edit them again.
 
@@ -98,7 +98,7 @@
     the bottom of the \uicontrol Navigator tree and behind overlapping
     components in the \uicontrol {2D} view. To list the components in the order
     in which they appear in the file, as some other tools do, select
-    \inlineimage {icons/reverse_order.png}.
+    \imagereverseorder.
 
     To move a component to the top or bottom of the tree within its parent,
     right-click it in the \uicontrol Navigator or \uicontrol {2D} view
@@ -112,9 +112,9 @@
     \image qtquick-designer-navigator-arrange.gif "Reversing component order"
 
     You can also drag the component to another position in the tree or use the
-    \inlineimage {icons/navigator-arrowup.png} and \inlineimage {icons/navigator-arrowdown.png}
-    buttons to move the component in the tree. You can use the \inlineimage {icons/arrowleft.png}
-    and \inlineimage {icons/arrowright.png} buttons to change the parent of the component.
+    \imagenavigatorarrowup and \imagenavigatorarrowdown
+    buttons to move the component in the tree. You can use the \imagearrowleft
+    and \imagearrowright buttons to change the parent of the component.
 
     \image qmldesigner-navigator-arrows.png "Navigator buttons"
 
@@ -158,7 +158,7 @@
             below the third level.
     \endlist
 
-    You can use the \inlineimage icons/alias.png
+    You can use the \imagealias
     (\uicontrol Export) button in \uicontrol Navigator to export
     a component as a property alias with a valid alias reference.
 

@@ -45,7 +45,7 @@
 
     To create the first state:
     \list 1
-      \li In the \l States view, select \inlineimage icons/plus.png
+      \li In the \l States view, select \imageplus
       .
       \li Change the name of the new state to \e{side}.
     \endlist
@@ -123,13 +123,13 @@
     \list 1
       \li Go to the \uicontrol Connections view.
       \li In \uicontrol{Navigator}, select \e button_side and in
-          \uicontrol {Connections}, select the \inlineimage icons/plus.png
+          \uicontrol {Connections}, select the \imageplus
           button to open the connection setup options.
       \li Set \uicontrol Signal to \c clicked, \uicontrol Action to
             \c {Change State}, \uicontrol {State Group} to \c rectangle and
             \uicontrol State to \c side in the respective
             drop-down menus.
-      \li Select the \inlineimage icons/close.png
+      \li Select the \imageclose
             button to close the connection setup options.
       \li Repeat steps 2 to 4 for the next three buttons and set them to go to
       their corresponding states.
@@ -148,7 +148,7 @@
 
     \list 1
       \li Go to \l{Transitions}.
-      \li Select \inlineimage icons/plus.png
+      \li Select \imageplus
       .
       \li In the upper right corner of \uicontrol {Transitions}, change
       the number 2000 to 1000.

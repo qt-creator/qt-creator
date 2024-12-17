@@ -80,7 +80,7 @@
 
     When you attach easing curves to keyframes, the shape of the
     keyframe marker on a keyframe track in
-    \l Timeline changes from \inlineimage icons/keyframe_linear_active.png
+    \l Timeline changes from \imagekeyframelinearactive
     to a marker that describes the type of the selected easing curve.
 
     \section1 Attaching easing curves to transitions
@@ -88,7 +88,7 @@
     To attach easing curves to transitions:
 
     \list 1
-        \li In \l{Transitions}, select the \inlineimage icons/curve_editor.png
+        \li In \l{Transitions}, select the \imagecurveeditor
             (\uicontrol {Easing Curve Editor}) button.
         \li Select an easing curve, as described in \l{Selecting Easing Curves}.
     \endlist
@@ -100,7 +100,7 @@
     \list 1
         \li In \l Navigator, select an \l{Animations}{Animation} component
             instance.
-        \li In \l Properties, select the \inlineimage icons/curve_editor.png
+        \li In \l Properties, select the \imagecurveeditor
             (\uicontrol {Easing Curve Editor}) button.
         \li Select an easing curve, as described in \l{Selecting Easing Curves}.
     \endlist

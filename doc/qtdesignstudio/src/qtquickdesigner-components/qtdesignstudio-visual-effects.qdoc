@@ -77,7 +77,7 @@
         \li Qt 6
         \li Description
     \row
-        \li \inlineimage icons/blend-mode-16px.png
+        \li \imageblendmode16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-blend.html}{Blend}
         \li No
         \li Merges two source components by using a blend mode.
@@ -92,13 +92,13 @@
             \l{https://doc.qt.io/qt-5/qml-qtgraphicaleffects-blend.html#mode-prop}
             {Blend.mode}.
     \row
-        \li \inlineimage icons/brightness-contrast-16px.png
+        \li \imagebrightnesscontrast16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-brightnesscontrast.html}
             {Brightness Contrast}
         \li Yes
         \li Adjusts \uicontrol Brightness and \uicontrol Contrast.
     \row
-        \li \inlineimage icons/colourize-16px.png
+        \li \imagecolourize16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-coloroverlay.html}
             {Color Overlay}
         \li Yes
@@ -106,14 +106,14 @@
             \uicontrol {Overlay color}. You can use the color picker
             to \l{Picking Colors}{select the color}.
     \row
-        \li \inlineimage icons/colourize-16px.png
+        \li \imagecolourize16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-colorize.html}
             {Colorize}
         \li Yes
         \li Sets the color in the HSL color space by specifying \uicontrol Hue,
             \uicontrol Lightness, and \uicontrol Saturation values.
     \row
-        \li \inlineimage icons/desaturation-16px.png
+        \li \imagedesaturation16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-desaturate.html}
             {Desaturation}
         \li Yes
@@ -123,7 +123,7 @@
             calculated as averages of the original RGB component values
             of the source component.
     \row
-        \li \inlineimage icons/directional-blur-16px.png
+        \li \imagedirectionalblur16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-directionalblur.html}
             {Directional Blur}
         \li Yes
@@ -141,7 +141,7 @@
             \uicontrol Samples field. If the \uicontrol Length value is large,
             more samples are needed to preserve high visual quality.
     \row
-        \li \inlineimage icons/displace-16px.png
+        \li \imagedisplace16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-displace.html}
             {Displace}
         \li Yes
@@ -155,7 +155,7 @@
             according to the displacement source value, while \c 1.0 sets the
             maximum shift.
     \row
-        \li \inlineimage icons/drop-shadow-16px.png
+        \li \imagedropshadow16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-dropshadow.html}
             {Drop Shadow}
         \li Yes
@@ -178,7 +178,7 @@
             blur with even a moderate number of samples will only run at 60
             FPS on high-end graphics hardware.
     \row
-        \li \inlineimage icons/fast-blur-16px.png
+        \li \imagefastblur16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-fastblur.html}
             {Fast Blur}
         \li Yes
@@ -197,7 +197,7 @@
             algorithm may internally reduce the accuracy of the radius in order
             to provide good rendering performance.
     \row
-        \li \inlineimage icons/gamma-adjust-16px.png
+        \li \imagegammaadjust16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-gammaadjust.html}
             {Gamma Adjust}
         \li Yes
@@ -206,7 +206,7 @@
             power-law expression, where the value of the \uicontrol Gamma
             field is used as the reciprocal scaling exponent.
     \row
-        \li \inlineimage icons/gaussian-blur-16px.png
+        \li \imagegaussianblur16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-gaussianblur.html}
             {Gaussian Blur}
         \li No
@@ -229,7 +229,7 @@
             deviation value makes the effect insignificant for the pixels near
             the radius.
     \row
-        \li \inlineimage icons/glow-16px.png
+        \li \imageglow16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-glow.html}{Glow}
         \li Yes
         \li Generates a halo-like glow around the source component. This effect
@@ -240,7 +240,7 @@
             \uicontrol Samples and \uicontrol Radius and the strength of the
             glow can be changed using the value of the \uicontrol Spread field.
     \row
-        \li \inlineimage icons/hue-saturation-16px.png
+        \li \imagehuesaturation16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-huesaturation.html}
             {Hue Saturation}
         \li Yes
@@ -251,7 +251,7 @@
             the \uicontrol Lightness value from the original, instead of
             setting them.
     \row
-        \li \inlineimage icons/inner-shadow-16px.png
+        \li \imageinnershadow16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-innershadow.html}
             {Inner Shadow}
         \li No
@@ -274,7 +274,7 @@
             at the cost of high visual quality, select the \uicontrol Fast
             check box.
     \row
-        \li \inlineimage icons/levels-16px.png
+        \li \imagelevels16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-leveladjust.html}
             {Level Adjust}
         \li Yes
@@ -305,7 +305,7 @@
             To lighten the dark areas and to reduce the contrast, increase the
             value of the \uicontrol Minimum output field.
     \row
-        \li \inlineimage icons/mask-blur-16px.png
+        \li \imagemaskblur16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-maskedblur.html}
             {Masked Blur}
         \li No
@@ -321,7 +321,7 @@
             samples are taken per pixel when blur calculation is done. Larger
             samples produce better quality, but are slower to render.
     \row
-        \li \inlineimage icons/opacity-mask-16px.png
+        \li \imageopacitymask16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-opacitymask.html}
             {Opacity Mask}
         \li Yes
@@ -337,7 +337,7 @@
             is \c false, the resulting opacity is the source alpha multiplied
             with the mask alpha: \c {As * Am}.
     \row
-        \li \inlineimage icons/radial-blur-16px.png
+        \li \imageradialblur16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-radialblur.html}
             {Radial Blur}
         \li No
@@ -353,7 +353,7 @@
             value or the \uicontrol Samples field. If the angle is large, more
             samples are needed to preserve high visual quality.
     \row
-        \li \inlineimage icons/recursive-blur-16px.png
+        \li \imagerecursiveblur16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-recursiveblur.html}
             {Recursive Blur}
         \li No
@@ -370,7 +370,7 @@
             \uicontrol {Fast Blur} or \uicontrol {Gaussian Blur},
             but the result is produced asynchronously and takes more time.
     \row
-        \li \inlineimage icons/threshold-16px.png
+        \li \imagethreshold16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-thresholdmask.html}
             {Threshold Mask}
         \li Yes
@@ -382,7 +382,7 @@
             softens the transition from the transparent mask pixels towards
             opaque mask pixels by adding interpolated values between them.
     \row
-        \li \inlineimage icons/zoom-blur-16px.png
+        \li \imagezoomblur16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-zoomblur.html}
             {Zoom Blur}
         \li No

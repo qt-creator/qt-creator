@@ -53,7 +53,7 @@
         \li Select the component you want to connect in the \uicontrol Navigator or \uicontrol 2D
         view.
         \li Go to the \uicontrol Connections tab in the \uicontrol Connections view.
-        \li Select the \inlineimage icons/plus.png
+        \li Select the \imageplus
             (\uicontrol Add) button to add a connection.
     \endlist
 
@@ -85,7 +85,7 @@
 
     \note Select a connection to re-open the \uicontrol {Connection Editor} for any
         previously created \uicontrol Connection.
-    \note Select \inlineimage icons/minus.png
+    \note Select \imageminus
           (\uicontrol Remove) to delete a connection.
 
 

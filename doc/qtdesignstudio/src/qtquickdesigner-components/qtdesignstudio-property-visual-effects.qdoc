@@ -90,7 +90,7 @@
 
         \list 1
             \li Select the component and go to the \uicontrol Properties view > \uicontrol Effects.
-                Then, select \inlineimage icons/particle-play.png next to the shadow type
+                Then, select \imageparticleplay next to the shadow type
                 selector dropdown menu.
             \li Adjust \uicontrol Blur, \uicontrol Offset, \uicontrol Spread, and \uicontrol Color
                 to shape the shadow.
@@ -108,7 +108,7 @@
         \list 1
             \li Select the component with a drop shadow.
             \li Go to the \uicontrol Properties view > \uicontrol Effects.
-                Then, select \inlineimage icons/particle-play.png next to the shadow type
+                Then, select \imageparticleplay next to the shadow type
                 selector dropdown menu.
             \li Select \uicontrol {Show Behind}.
 

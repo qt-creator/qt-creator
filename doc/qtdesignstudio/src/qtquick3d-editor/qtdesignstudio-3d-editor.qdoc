@@ -19,7 +19,7 @@
     tools, you also import a \l{Cameras}{scene camera},
     \l{Lights}{light}, \l{3D models}{model}, and \l {Materials and shaders}{materials}.
     If your scene does not contain them, add the corresponding \l {3D components}{Qt Quick 3D}
-    components from \uicontrol Components > \inlineimage icons/plus.png
+    components from \uicontrol Components > \imageplus
     > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D}.
 
     Use the \uicontrol 3D toolbar buttons to modify the \uicontrol 3D view,
@@ -37,7 +37,7 @@
     \l {Locking Components}{locking} features in \l Navigator.
 
     To refresh the contents of the \uicontrol{3D} view, press \key P or
-    select the \inlineimage icons/reset.png
+    select the \imagereset
     (\uicontrol {Reset View}) button.
 
     \image studio-3d-editor.webp "The 3D view"
@@ -75,10 +75,10 @@
 
     To toggle the camera mode, do one of the following:
     \list
-        \li Select \inlineimage perspective_camera.png
+        \li Select \imageperspectivecamera
          (\uicontrol {Toggle Perspective/Orthographic Camera}) to use the
          perspective camera mode.
-        \li Select \inlineimage orthographic_camera.png to use the orthographic
+        \li Select \imageorthographiccamera to use the orthographic
         camera mode.
     \endlist
     You can also toggle the camera mode by using the keyboard shortcut \key T.
@@ -105,7 +105,7 @@
     \endlist
 
     To zoom and focus the 3D view camera on a selected component, select
-    \inlineimage fit_selected.png (\uicontrol {Fit Selected}) or press \key F.
+    \imagefitselected (\uicontrol {Fit Selected}) or press \key F.
 
     The world axis helper (1) shows the direction of the world axes in the view.
     To point the 3D view camera at the currently selected component in the direction of
@@ -124,7 +124,7 @@
     \section2 Using the split view
 
     To view the scene in a split view of four different point of views, select
-    \inlineimage icons/split-view.png.
+    \imagesplitview.
 
     \image studio-3d-split-view.webp "Split view in the 3D view"
 
@@ -173,7 +173,7 @@
     \endtable
 
     To adjust the movement speed, right-click and hold in the \uicontrol 3D view, and rotate the
-    mouse wheel. Alternatively, select \inlineimage icons/camera_speed.png in the \uicontrol 3D
+    mouse wheel. Alternatively, select \imagecameraspeed in the \uicontrol 3D
     view toolbar to open the configuration dialog.
 
     In the configuration dialog, you can:
@@ -189,7 +189,7 @@
     \image 3d-view-camera-view.webp
 
     To toggle this view,
-    select \inlineimage icons/visibilityon.png
+    select \imagevisibilityon
     and then one of the options:
 
     \table
@@ -223,14 +223,14 @@
     the axes of global space. Dragging on the red arrow of the gizmo moves the
     component in the local x direction in relation to the component.
 
-    To switch between local and global orientation, select \inlineimage global.png
+    To switch between local and global orientation, select \imageglobal
     (\uicontrol {Toggle Local/Global Orientation}) or press \key Y.
 
     \section1 Using the edit light
 
     The edit light is an extra point light that can be used to illuminate the
-    scene. To toggle the edit light on and off, select \inlineimage edit_light_on.png
-    or \inlineimage edit_light_off.png (\uicontrol {Toggle Edit Light}) or
+    scene. To toggle the edit light on and off, select \imageeditlighton
+    or \imageeditlightoff (\uicontrol {Toggle Edit Light}) or
     press \key U.
 
     For information about the available scene light types and their properties,
@@ -239,7 +239,7 @@
     \section1 Baking lights
 
     Bake lights to light static elements in your scene. To bake lights, select
-    \inlineimage icons/bakelights.png to open the \uicontrol {Lights Baking Setup}
+    \imagebakelights to open the \uicontrol {Lights Baking Setup}
     dialog. For more information, see \l {Baking Lightmaps}.
 
     \section1 Selecting components
@@ -249,9 +249,9 @@
     when you click them in the \uicontrol{3D} view:
 
     \list
-        \li Use the \inlineimage select_item.png (\uicontrol {Single Selection})
+        \li Use the \imageselectitem (\uicontrol {Single Selection})
             mode to select a single component.
-        \li Use the \inlineimage select_group.png (\uicontrol {Group Selection})
+        \li Use the \imageselectgroup (\uicontrol {Group Selection})
             mode to select the top level parent of the component, so you can move
             a group of components simultaneously.
     \endlist
@@ -273,7 +273,7 @@
     y, or z axis or on the top, bottom, left, and right clip planes of the
     the \uicontrol{3D} view.
 
-    To move components, select \inlineimage move_off.png or press \key W:
+    To move components, select \imagemoveoff or press \key W:
 
     \list
         \li To move components along the axes of the move gizmo, click the axis,
@@ -288,7 +288,7 @@
 
     \image studio-3d-editor-rotate.webp "The 3D view in rotate mode"
 
-    To rotate components, select \inlineimage rotate_off.png
+    To rotate components, select \imagerotateoff
     or press \key E:
 
     \list
@@ -306,7 +306,7 @@
     component. You can adjust the scale across one, two, or three axes,
     depending on the handle.
 
-    To scale components, select \inlineimage scale_off.png or press \key R:
+    To scale components, select \imagescaleoff or press \key R:
 
     \list
         \li To adjust the scale across one axis, drag the scale handle
@@ -325,7 +325,7 @@
     Toggle snapping in the following ways:
 
     \list
-      \li Select \inlineimage icons/snapping-3d.png
+      \li Select \imagesnapping3d
       in the \uicontrol 3D view toolbar.
       \li Hold down the \key Ctrl key.
     \endlist
@@ -335,7 +335,7 @@
 
     \section2 Configuring snapping
 
-    To edit the snapping settings, select \inlineimage icons/snapping-3d-conf.png
+    To edit the snapping settings, select \imagesnapping3dconf
     in the \uicontrol 3D view toolbar to open the configure dialog.
 
     In the configure dialog, you can do the following:
@@ -360,7 +360,7 @@
       \li Select a scene camera in the \uicontrol{3D} or \uicontrol {Navigator} view.
       \note If you don't have a camera selected, the most recently selected camera
       is aligned to the view.
-      \li In the \uicontrol{3D} view, select \inlineimage icons/align-camera-on.png.
+      \li In the \uicontrol{3D} view, select \imagealigncameraon.
     \endlist
 
     This moves and rotates the scene camera to show the same view as the current view
@@ -371,7 +371,7 @@
       \li Select a scene camera in the \uicontrol{3D} view or \uicontrol {Navigator}.
       \note If you don't have a camera selected, the view is aligned to the most recently
             selected camera.
-      \li In the \uicontrol{3D} view, select \inlineimage icons/align-view-on.png.
+      \li In the \uicontrol{3D} view, select \imagealignviewon.
     \endlist
 
     This moves and rotates the 3D view to show the same view as the selected scene camera.
@@ -379,7 +379,7 @@
     \section1 Toggling visibility
 
     To toggle the visibility of objects in the \uicontrol{3D} view, select
-    \inlineimage icons/visibilityon.png in the toolbar. This opens a menu with the
+    \imagevisibilityon in the toolbar. This opens a menu with the
     following options:
 
     \table
@@ -420,7 +420,7 @@
     \section1 Changing colors
 
     To change the \uicontrol 3D view background or grid color, select
-    \inlineimage icons/3d-background-color.png in the toolbar. This opens a menu
+    \image3dbackgroundcolor in the toolbar. This opens a menu
     with the following options:
 
     \table
@@ -457,13 +457,13 @@
       \li Select a particle system in the \uicontrol Navigator or
       \uicontrol{3D} view.
       \li In the \uicontrol{3D} view, select
-      \inlineimage icons/particle-animation-on.png to activate particle animation.
+      \imageparticleanimationon to activate particle animation.
       Now you can see the particle animation in the \uicontrol{3D} view.
     \endlist
 
     You can pause the particle animation by selecting
-    \inlineimage icons/particle-pause.png. When the animation is paused, use
-    \inlineimage icons/particles-seek.png to manually seek forward or backward in
+    \imageparticlepause. When the animation is paused, use
+    \imageparticlesseek to manually seek forward or backward in
     the particle animation.
 
     \section1 Using viewport shading

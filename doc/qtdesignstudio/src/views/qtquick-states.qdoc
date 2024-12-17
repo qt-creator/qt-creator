@@ -9,7 +9,7 @@
     \title Working with states
 
     You can define states for components and component instances in the
-    \l States view by selecting \inlineimage icons/plus.png
+    \l States view by selecting \imageplus
     .
 
     \image qmldesigner-transitions.png "States view"
@@ -59,7 +59,7 @@
 
     \section1 Applying states
 
-    To determine when a state is applied, select \inlineimage icons/edit.png
+    To determine when a state is applied, select \imageedit
     in the \uicontrol {When Condition} field. In \uicontrol {Binding Editor},
     specify a \l [QtQuick]{State::when}{when} property for the state. Set the
     value of the property to a boolean expression that evaluates to \c true when
@@ -142,7 +142,7 @@
     \list 1
         \li In the base state, add all components you will need in the
             application (1). While you work on one view, you can click the
-            \inlineimage icons/eye_open.png
+            \imageeyeopen
             icon in \l Navigator to hide components on the canvas that are
             not part of a view.
         \li In \uicontrol States, select the \uicontrol + symbol to create

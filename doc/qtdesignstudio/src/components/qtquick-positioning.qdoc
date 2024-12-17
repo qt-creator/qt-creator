@@ -56,7 +56,7 @@
 
     To set \e {Property Binding} to a component property:
     \list 1
-        \li Go to the \uicontrol Properties view and select \inlineimage icons/action-icon.png
+        \li Go to the \uicontrol Properties view and select \imageactionicon
         (\uicontrol Actions) menu next to a property, and then select
         \uicontrol {Set Binding}.
 
@@ -69,7 +69,7 @@
     \endlist
 
     When a binding is set, the \uicontrol Actions menu icon changes to
-    \inlineimage icons/action-icon-binding.png.
+    \imageactioniconbinding.
     To remove bindings, select \uicontrol Actions > \uicontrol Reset.
 
    See \l {Adding bindings between properties} to learn how to set bindings using
@@ -95,9 +95,9 @@
             You can combine multiple anchors. For each selected button, you can
             choose the target component of that anchor from the corresponding dropdown.
         \li To apply fill anchors to a component, select
-            \inlineimage icons/anchor-fill.png (\uicontrol {Fill to Parent}).
+            \imageanchorfill (\uicontrol {Fill to Parent}).
         \li To reset the anchors to their saved state, select
-            \inlineimage icons/qtcreator-anchors-reset-icon.png (\uicontrol {Reset Anchors}).
+            \imageqtcreatoranchorsreseticon (\uicontrol {Reset Anchors}).
     \endlist
 
     \image qmldesigner-anchor-buttons.png "Anchor buttons"
@@ -187,18 +187,18 @@
     distributed horizontally or vertically:
 
     \list
-        \li Select \inlineimage icons/distribute-origin-top-left.png
-            and \inlineimage icons/distribute-spacing-horizontal.png
+        \li Select \imagedistributeorigintopleft
+            and \imagedistributespacinghorizontal
             to use the left edge of the target area or item as the starting
             point.
-        \li Select \inlineimage icons/distribute-origin-top-left.png
-            and \inlineimage icons/distribute-spacing-vertical.png
+        \li Select \imagedistributeorigintopleft
+            and \imagedistributespacingvertical
             to use the top edge.
-        \li Select \inlineimage icons/distribute-origin-bottom-right.png
-            and \inlineimage icons/distribute-spacing-horizontal.png
+        \li Select \imagedistributeoriginbottomright
+            and \imagedistributespacinghorizontal
             to use the right edge.
-        \li Select \inlineimage icons/distribute-origin-bottom-right.png
-            and \inlineimage icons/distribute-spacing-vertical.png
+        \li Select \imagedistributeoriginbottomright
+            and \imagedistributespacingvertical
             to use the bottom edge.
     \endlist
 
@@ -206,7 +206,7 @@
 
     In the \uicontrol {Pixel spacing} field, set the space between
     components in pixels. To disable the distribution of spacing in
-    pixels, click \inlineimage icons/distribute-origin-none.png
+    pixels, click \imagedistributeoriginnone
     button.
 
     \section2 Using positioners
@@ -219,10 +219,10 @@
     formations in the most efficient manner possible.
 
     To position several components in a
-    \uicontrol Column \inlineimage column-positioner-icon-16px.png,
-    \uicontrol Row \inlineimage row-positioner-icon-16px.png,
-    \uicontrol Grid \inlineimage grid-positioner-icon-16px.png,
-    or \uicontrol Flow \inlineimage flow-positioner-icon-16px.png :
+    \uicontrol Column \imagecolumnpositionericon16px,
+    \uicontrol Row \imagerowpositionericon16px,
+    \uicontrol Grid \imagegridpositionericon16px,
+    or \uicontrol Flow \imageflowpositionericon16px :
 
     \list 1
         \li Select the components in the \l {2D} view.
@@ -349,12 +349,12 @@
             the \uicontrol 2D view or \uicontrol Navigator view, and place on the top of
             the \uicontrol {Stack Layout} component.
             \note Alternatively, you can add components to the \uicontrol {Stack Layout} by
-                selecting the \inlineimage icons/plus.png button next to the
+                selecting the \imageplus button next to the
                 \uicontrol {Stack Layout} component name in the \l {2D} view.
         \li To move between components of \uicontrol {Stack Layout},
             select the \uicontrol {Stack Layout} component in the \uicontrol 2D view. Then
-            select the \inlineimage icons/prev.png
-            (\uicontrol Previous) and \inlineimage icons/next.png
+            select the \imageprev
+            (\uicontrol Previous) and \imagenext
             (\uicontrol Next) buttons. This updates the \uicontrol {Current index} of the
             \uicontrol {Stack Layout} and brings the \uicontrol {Current index}
             component on top of the stack.
@@ -389,7 +389,7 @@
 
         \li Go to the \uicontrol Navigator view and select the \uicontrol {Stack Layout} component.
         \li Go to the \uicontrol Properties view > \uicontrol {Stack Layout}. Select
-            \inlineimage icons/action-icon.png to access the context menu, then select
+            \imageactionicon to access the context menu, then select
             \uicontrol {Set Binding}.
 
             \image studio-stack-layout-add-binding.webp "Getting the context menu to bind components"
@@ -424,27 +424,27 @@
         \li Location
         \li Purpose
     \row
-        \li \inlineimage icons/frame-icon16.png
+        \li \imageframeicon16
         \li \l [QtQuickControls]{Frame}
         \li Qt Quick Controls
         \li A visual frame around a group of controls.
     \row
-        \li \inlineimage icons/group-16px.png
+        \li \imagegroup16px
         \li Group
         \li Qt Quick Studio Components
         \li Enables handling the selected components as a group.
     \row
-        \li \inlineimage icons/groupbox-icon16.png
+        \li \imagegroupboxicon16
         \li \l [QtQuickControls]{GroupBox}{Group Box}
         \li Qt Quick Controls
         \li A titled visual frame around a group of controls.
     \row
-        \li \inlineimage icons/page-icon16.png
+        \li \imagepageicon16
         \li \l [QtQuickControls]{Page}
         \li Qt Quick Controls
         \li A styled page control with support for a header and footer.
     \row
-        \li \inlineimage icons/pane-icon16.png
+        \li \imagepaneicon16
         \li \l [QtQuickControls]{Pane}
         \li Qt Quick Controls
         \li A background that matches the application style and theme.

@@ -32,7 +32,7 @@
     \list 1
         \li Open the import dialog in one of the following methods:
             \list
-                \li Select \l Assets > \inlineimage icons/plus.png, select the file you
+                \li Select \l Assets > \imageplus, select the file you
                     want to import, and click \uicontrol Open.
                 \li Drag the 3D asset to the \uicontrol 3D view. In this case, the 3D asset will be
                     added to your scene, so it will appear in the \uicontrol 3D and
@@ -58,7 +58,7 @@
     \list 1
         \li Open the import dialog in one of the following methods:
             \list
-                \li Select \uicontrol Assets > \inlineimage icons/plus.png, select the files you
+                \li Select \uicontrol Assets > \imageplus, select the files you
                     want to import, and click \uicontrol Open.
                 \li Select the 3D asset files and drag them to the \uicontrol 3D view. In this
                     case, the 3D assets will be added to your scene, so they will appear in the

@@ -125,7 +125,7 @@
 
     We can now add a timeline animation to make the arc move around the button
     when the button is pressed. In the \uicontrol Timeline view, we select the
-    \inlineimage icons/plus.png
+    \imageplus
     button to add a 1000-frame timeline to the \e root of the component.
     We'll use the default values for all other fields.
 
@@ -134,14 +134,14 @@
     First, we select the initial arc segment, \e arcSegment1, in
     \l Navigator to display its properties in \uicontrol Properties.
     In \uicontrol {Geometry - 2D} > \uicontrol Rotation, we select
-    \inlineimage icons/action-icon.png
+    \imageactionicon
     (\uicontrol Actions), and then select \uicontrol {Insert Keyframe} to
     insert a keyframe that we can animate in the \uicontrol Timeline view.
 
     \image washingmachineui-insert-keyframe.png "Inserting keyframe for Rotation property"
 
     To start recording a rotation animation on the timeline, we check that the
-    playhead is at frame 0 and then select the \inlineimage icons/recordfill.png
+    playhead is at frame 0 and then select the \imagerecordfill
     (\uicontrol {Auto Key (K)}) button (or press \key k).
 
     First, we set the rotation at frame 0 to -90 in \uicontrol Properties >
@@ -205,10 +205,10 @@
 
     Then, we select the mouse area for the start button, \e startMA,
     in \uicontrol Navigator. On the \uicontrol Connections tab in the
-    \l {Connections} view, we select the \inlineimage icons/plus.png
+    \l {Connections} view, we select the \imageplus
     (\uicontrol Add) button. We set \uicontrol Signal to \c clicked,
     \uicontrol Action to \c {Call Function} and \uicontrol Item to
-    \c startClicked. Next, we select the \inlineimage icons/close.png
+    \c startClicked. Next, we select the \imageclose
     button to close the connection setup options.
 
     \image washingmachineui-connections.webp "Connections view"

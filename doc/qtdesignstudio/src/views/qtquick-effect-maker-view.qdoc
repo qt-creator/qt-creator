@@ -39,9 +39,9 @@
             (4) to see how the composition affects a component before assigning it to one. Use the
             preview panel toolbar to select the preview image and the preview panel background
             color.
-        \li Finally, select \inlineimage icons/save-effect-composer.png to save your
+        \li Finally, select \imagesaveeffectcomposer to save your
             effect composition. If the composition is still \e Untitled, name it, and then select
-            \uicontrol Save. Select \inlineimage icons/save-as-effect-composer.png to save the
+            \uicontrol Save. Select \imagesaveaseffectcomposer to save the
             custom effect under a different name, for example, to create variations of the effect
             composition.
     \endlist
@@ -71,7 +71,7 @@
 
     \list
         \li Select a component in \uicontrol Navigator or the \uicontrol 2D view,
-            and then select \inlineimage icons/assign-effect-composer.png in
+            and then select \imageassigneffectcomposer in
             \uicontrol {Effect Composer}.
         \li Drag the composition from \uicontrol Assets to the component in
             \uicontrol Navigator or the \uicontrol {2D} view.
@@ -100,15 +100,15 @@
     the effect composition.
 
     To change the position of an effect in the stack, drag the effect by the handle
-    (\inlineimage icons/dragmarks-effect-composer.png) to the desired position.
+    (\imagedragmarkseffectcomposer) to the desired position.
 
     Some pre-made effects, such as effects with blur, always operate on the original item
     ignoring any effect nodes before them.
 
     To determine whether or not each of the effects in the stack is rendered, toggle the
-    visibility on (\inlineimage icons/visibilityon.png) and off (\inlineimage icons/visibility-off.png).
+    visibility on (\imagevisibilityon) and off (\imagevisibilityoff).
 
-    To clear the effect stack, select \inlineimage icons/studio-clear-effect-stack.png.
+    To clear the effect stack, select \imagestudiocleareffectstack.
 
     \section1 Using animated effects
 
@@ -160,7 +160,7 @@
         \li In \uicontrol Properties > \uicontrol Visibility, clear the \uicontrol Visibility
             checkbox to set the \uicontrol Item component (1) as not visible.
         \li In \uicontrol Properties > \uicontrol Layout > \uicontrol Anchors, select
-            \inlineimage icons/anchor-fill.png to fill the parent component.
+            \imageanchorfill to fill the parent component.
         \li In the \uicontrol Navigator view, drag the \uicontrol {Source Item} component (4) as
             the child of the \uicontrol Item component (1).
         \li In \uicontrol Properties > \uicontrol Visibility, select the \uicontrol Visibility

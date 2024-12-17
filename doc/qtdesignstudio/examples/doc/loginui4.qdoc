@@ -60,13 +60,13 @@
     \list 1
         \li Double-click \e Screen01.ui.qml in \l Projects to open it
             in the \l {2D} view.
-        \li In the \l States view, select \e login > \inlineimage icons/more-button.png
+        \li In the \l States view, select \e login > \imagemorebutton
             > \uicontrol Delete to remove the state. Repeat for the \e createAccount state.
         \li Select \e username in \l Navigator, and then select:
             \list
-                \li \inlineimage icons/arrowleft.png to move \e username into the parent
+                \li \imagearrowleft to move \e username into the parent
                     rectangle.
-                \li \inlineimage icons/navigator-arrowup.png to move \e username below
+                \li \imagenavigatorarrowup to move \e username below
                     \e tagLine in \uicontrol Navigator to preserve the
                     \l{Arranging components}{component hierarchy}.
             \endlist
@@ -77,15 +77,15 @@
         \li Select \e username in \uicontrol Navigator.
         \li In \uicontrol Properties > \uicontrol Layout, set:
             \list
-                \li \uicontrol Anchors to \inlineimage icons/anchor-top.png and
-                    \inlineimage icons/anchor-center-horizontal.png.
-                \li \uicontrol Target \inlineimage icons/anchor-top.png to
+                \li \uicontrol Anchors to \imageanchortop and
+                    \imageanchorcenterhorizontal.
+                \li \uicontrol Target \imageanchortop to
                     \e tagLine to anchor \e username to the tag line.
-                \li \uicontrol Margin \inlineimage icons/anchor-top.png to \e 170 and
-                    select \inlineimage icons/anchor-bottom.png to anchor \e username to the
+                \li \uicontrol Margin \imageanchortop to \e 170 and
+                    select \imageanchorbottom to anchor \e username to the
                     bottom of the target.
                     \note Selecting the anchor button should automatically update the
-                    \uicontrol {2D} view. If it doesn't, select \inlineimage icons/reset.png
+                    \uicontrol {2D} view. If it doesn't, select \imagereset
                     on the \uicontrol {2D} view toolbar to refresh the \uicontrol{2D} view.
             \endlist
             This attaches \e username to the bottom of the tag line while keeping its
@@ -94,12 +94,12 @@
         \li Select \e password in \uicontrol Navigator.
         \li In \uicontrol Properties > \uicontrol Layout, set:
             \list
-                \li \uicontrol Anchors to \inlineimage icons/anchor-top.png and
-                    \inlineimage icons/anchor-center-horizontal.png.
-                \li \uicontrol Target \inlineimage icons/anchor-top.png to
+                \li \uicontrol Anchors to \imageanchortop and
+                    \imageanchorcenterhorizontal.
+                \li \uicontrol Target \imageanchortop to
                     \e username to anchor \e password to \e username.
-                \li \uicontrol Margin \inlineimage icons/anchor-top.png to \e 20 and
-                    select \inlineimage icons/anchor-bottom.png to anchor \e password to the
+                \li \uicontrol Margin \imageanchortop to \e 20 and
+                    select \imageanchorbottom to anchor \e password to the
                     bottom of the target.
             \endlist
             This attaches \e password to the bottom of \e username while keeping its
@@ -125,7 +125,7 @@
     \list 1
             \li Select \uicontrol View > \uicontrol Views >
             \uicontrol Timeline to open the \l Timeline view.
-        \li In \uicontrol Timeline, select \inlineimage icons/plus.png
+        \li In \uicontrol Timeline, select \imageplus
             to add a 1000-frame timeline and define settings for running the animation.
         \li In the \uicontrol {Animation ID} field, enter
             \e toCreateAccountState.
@@ -148,13 +148,13 @@
         \li Select \e repeatPassword in \uicontrol Navigator to display its
             properties in \uicontrol Properties.
         \li In \uicontrol Visibility > \uicontrol Opacity, select
-            \inlineimage icons/action-icon.png
+            \imageactionicon
             > \uicontrol {Insert Keyframe} to insert a keyframe for the
             opacity property of the component.
             \image loginui4-keyframe-opacity.png "Inserting keyframe for opacity property"
         \li In \uicontrol Timeline, check that the playhead is in
             frame \e 0, select the small arrow next to \e repeatPassword
-            keyframe to expand it, and then select the \inlineimage icons/recordfill.png
+            keyframe to expand it, and then select the \imagerecordfill
             (\uicontrol {Per Property Recording}) button for the
             \uicontrol opacity property of \e repeatPassword to start
             recording property changes.
@@ -164,7 +164,7 @@
             to show the button.
 
             Alternatively, you can fine-tune the value of a keyframe by right-clicking the
-            keyframe marker \inlineimage icons/keyframe_linear_active.png
+            keyframe marker \imagekeyframelinearactive
             , and selecting \uicontrol {Edit Keyframe}.
             \image loginui4-timeline.webp "Recording the opacity property"
         \li Select the record button again to stop recording property changes.
@@ -193,15 +193,15 @@
         \li Select \e repeatPassword in \uicontrol Navigator to display its
             properties in \uicontrol Properties.
         \li In \uicontrol Layout > \uicontrol Margin (under
-            \inlineimage icons/anchor-top.png
-            ), select \inlineimage icons/action-icon.png
+            \imageanchortop
+            ), select \imageactionicon
             > \uicontrol {Insert Keyframe} to insert a keyframe for the top
             anchor margin of \e repeatPassword.
             \image loginui4-keyframe-top-anchor-margin.png "Inserting keyframe for top anchor margin"
         \li In \uicontrol Timeline, check that the playhead is in
             frame \e 0, and select the record button for the \e anchors.topMargin
             property of \e repeatPassword.
-        \li In \uicontrol Layout > \uicontrol Margin (under \inlineimage icons/anchor-top.png),
+        \li In \uicontrol Layout > \uicontrol Margin (under \imageanchortop),
             set a negative value for the top anchor margin, \e -100, to place \e repeatPassword
             on top of \e password.
         \li Move the playhead to frame \e 1000 and change the top anchor margin
@@ -220,7 +220,7 @@
     margin animation that will make the transition seem smoother:
 
     \list 1
-        \li Click the keyframe marker \inlineimage icons/keyframe_linear_active.png
+        \li Click the keyframe marker \imagekeyframelinearactive
             for the \e anchors.topMargin property at frame \e 1000 on the
             timeline to select it.
             \image loginui4-easing-curve-top-anchor-margin.webp "Top anchor margin keyframe marker"
@@ -233,8 +233,8 @@
     \endlist
 
     When you attach easing curves to keyframes, the shape of the keyframe
-    marker changes from \inlineimage icons/keyframe_linear_active.png
-    to \inlineimage icons/keyframe_manualbezier_active.png
+    marker changes from \imagekeyframelinearactive
+    to \imagekeyframemanualbezieractive
     .
 
     Your timeline should now look something like this:
@@ -251,7 +251,7 @@
     in \uicontrol Timeline:
 
     \list 1
-        \li In \uicontrol States, select \inlineimage icons/plus.png
+        \li In \uicontrol States, select \imageplus
             twice to add two states and name them \e login and \e createAccount. You
             don't need to make any property changes this time because you'll
             bind the states to property animations.
@@ -259,7 +259,7 @@
             the \e login state is applied when the application starts.
             \image loginui4-states.webp "Created states in the States view."
         \li With the base state selected, select \uicontrol Timeline >
-            \inlineimage icons/settings.png (\uicontrol {Timeline Settings (S)}) on the toolbar
+            \imagesettings (\uicontrol {Timeline Settings (S)}) on the toolbar
             (or press \key S) to open the \uicontrol {Timeline Settings} dialog.
         \li Double-click the cell in the \uicontrol Timeline column on the
             \e login row, and select \e timeline in the list.

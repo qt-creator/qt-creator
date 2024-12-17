@@ -25,7 +25,7 @@
     To create a timeline to animate a UI component:
 
     \list 1
-        \li In the \l Timeline view, select the \inlineimage icons/plus.png
+        \li In the \l Timeline view, select the \imageplus
             (\uicontrol {Add Timeline}) button to specify settings
             for the timeline and running the animation
             in the \uicontrol {Timeline Settings} dialog.
@@ -83,7 +83,7 @@
        \li In \uicontrol {Timeline}, open the \uicontrol {Timeline Settings}
        dialog.
        \li Next to the \uicontrol {Timeline Settings} tab, select
-       \inlineimage icons/plus.png
+       \imageplus
        . This creates another timeline.
        \li In the table below the \uicontrol {Animation Settings} tab, set the
        Timeline for the state where you want to use it.
@@ -111,7 +111,7 @@
 
     \list 1
         \li In the \l Navigator view, select the component to animate.
-        \li In the \l Properties view, select \inlineimage icons/action-icon.png
+        \li In the \l Properties view, select \imageactionicon
             (\uicontrol Actions) > \uicontrol {Insert Keyframe} for the property
             that you want to animate.
             \image timeline-insert-keyframe.png
@@ -151,7 +151,7 @@
               control the complete animation with the slider.
             \endlist
         \li In the \uicontrol {Timeline Settings} dialog, select
-        \inlineimage icons/minus.png
+        \imageminus
         next to the \uicontrol {Animation Settings} tab to delete the
         animation. If you have several animations, delete all.
         \li In \uicontrol {Expression binding}, enter \c {slider.value}.
@@ -235,7 +235,7 @@
     \uicontrol{Timeline} view:
     \list
       \li Drag the playhead along the timeline.
-      \li Select \inlineimage icons/start_playback.png
+      \li Select \imagestartplayback
       button or press \key Space.
     \endlist
 

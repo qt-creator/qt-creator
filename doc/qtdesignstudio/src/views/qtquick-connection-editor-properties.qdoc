@@ -37,7 +37,7 @@
     \list 1
         \li Go to the \uicontrol {Local Custom Properties} section in the
         \uicontrol Properties view.
-        \li Select the \inlineimage icons/plus.png
+        \li Select the \imageplus
             (\uicontrol Add) button to add a custom property for the currently
             selected component.
             \image add-local-custom-property.png
@@ -52,7 +52,7 @@
 
     \list 1
       \li In the \uicontrol Properties view, select
-        \inlineimage icons/action-icon.png
+        \imageactionicon
         next to the property.
       \li Select \uicontrol {Set Binding}.
         \image qmldesigner-binding-editor.png "Binding Editor"
@@ -71,7 +71,7 @@
 
             \image add-updated-local-custom-property.webp
 
-        \li Select the \inlineimage icons/plus.png
+        \li Select the \imageplus
              (\uicontrol Add) button to add a Custom property.
         \li From the pop-up \uicontrol {Custom property editor}, select the \uicontrol {Type}
             of the property you want to include.
@@ -82,7 +82,7 @@
         \li Set a value to the Custom property in the \uicontrol {Value} field.
     \endlist
 
-    \note Select the \inlineimage icons/minus.png
+    \note Select the \imageminus
           (\uicontrol Remove) to delete a Custom Property.
 
     \section1 Supported property types

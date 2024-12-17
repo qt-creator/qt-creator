@@ -45,7 +45,7 @@
 
     \list 1
         \li Locate the state you want to check in the \uicontrol {States} view.
-        \li Select \inlineimage icons/browse-button.png
+        \li Select \imagebrowsebutton
             to open additional options.
         \li Select \uicontrol {Jump to the Code}.
     \endlist
@@ -56,7 +56,7 @@
 
     \list 1
         \li Select a connection in the \uicontrol {Connections} view.
-        \li Select \inlineimage icons/jump-to-code-16px.png
+        \li Select \imagejumptocode16px
             to jump to the code segment related to the connection.
     \endlist
 

@@ -64,7 +64,7 @@
 
     \list 1
       \li In the \uicontrol Timeline view, select
-      \inlineimage icons/plus.png
+      \imageplus
       .
       This creates a timeline and one animation.
       \li On the \uicontrol {Animation Settings} tab in the
@@ -90,7 +90,7 @@
     \list 1
       \li In the \uicontrol Navigator view, select \e {ballbearing1}.
       \li In the \uicontrol Properties view, select
-      \inlineimage icons/action-icon.png (Actions)
+      \imageactionicon (Actions)
       next to \uicontrol Rotation > \uicontrol {Y}.
       \li Select \uicontrol {Insert Keyframe}.
       \image animation-tutorial-insert-keyframe.png
@@ -116,7 +116,7 @@
     \list 1
       \li In the \uicontrol Navigator view, select \e {timelineAnimation}.
       \li In the \uicontrol Connections view, go to the \uicontrol Bindings tab.
-      \li Select \inlineimage icons/plus.png
+      \li Select \imageplus
       to create a binding.
       \li For the binding you created, set:
         \list
@@ -144,9 +144,9 @@
       \li In the \uicontrol Navigator view, select \e {ballBearing1}.
       \li Select \key {F2} to go into the component.
       \li In the \uicontrol Timeline view, select
-      \inlineimage icons/plus.png
+      \imageplus
       to add a timeline and open the \uicontrol {Timeline Settings} dialog.
-      \li Select \inlineimage icons/minus.png
+      \li Select \imageminus
       next to the \uicontrol {Animation Settings} tab to remove the animation
       in this timeline.
       You do not need an animation when you bind the timeline to a property.
@@ -162,7 +162,7 @@
     \list 1
       \li In the \uicontrol{Navigator} view, select \e{inner_race}.
       \li In the \uicontrol Properties view, select
-      \inlineimage icons/action-icon.png (Actions)
+      \imageactionicon (Actions)
       next to \uicontrol Translation > \uicontrol Y.
       \li Select \uicontrol {Insert Keyframe}.
       \li In the \uicontrol Timeline view, select the
@@ -199,7 +199,7 @@
     \list 1
       \li In the \uicontrol Navigator view, select \e Node.
       \li On the \uicontrol Properties tab in the \uicontrol Connections view,
-      select \inlineimage icons/plus.png
+      select \imageplus
       .
       \li In the \uicontrol {Property Type} field, enter \e {Item}.
       This field is a drop-down list, but you can also type text.
@@ -212,7 +212,7 @@
 
     \list 1
       \li In the \uicontrol {Timeline} view, select
-      \inlineimage icons/animation.png
+      \imageanimation
       .
       \li In the \uicontrol {Expression binding field}, enter
       \c {property0.value}.
@@ -228,7 +228,7 @@
       \li In the \uicontrol {Navigator} view, select \e {ballbearing1}.
       \li In the \uicontrol {Connections} view, go to the
       \uicontrol {Bindings} tab.
-      \li Select \inlineimage icons/plus.png
+      \li Select \imageplus
       .
       \li For the binding you just created:
         \list

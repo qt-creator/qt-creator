@@ -103,7 +103,7 @@
                 \uicontrol Asynchronous check box.
                 \image loader3d-visibility.png
             \li In \uicontrol {Visibility},
-                select \inlineimage icons/action-icon.png
+                select \imageactionicon
                 to open the actions menu, and then select \uicontrol {Set Binding}.
             \li Type \c {status === Loader3D.Ready} into \uicontrol {Binding Editor}.
                 \image studio-3d-loader3d-binding-editor.png "Setting Visibility in Binding Editor"

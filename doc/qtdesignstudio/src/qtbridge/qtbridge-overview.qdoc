@@ -26,11 +26,11 @@
 
     \table
     \row
-        \li \inlineimage ai-logo.png
-        \li \inlineimage ps-logo.png
-        \li \inlineimage xd-logo.png
-        \li \inlineimage sketch-logo.png
-        \li \inlineimage figma-logo.png
+        \li \imageailogo
+        \li \imagepslogo
+        \li \imagexdlogo
+        \li \imagesketchlogo
+        \li \imagefigmalogo
     \row
         \li \l{Exporting designs from Adobe Illustrator}{Adobe Illustrator}
         \li \l{Exporting designs from Adobe Photoshop}{Adobe Photoshop}
@@ -49,9 +49,9 @@
 
     \table
     \row
-        \li \inlineimage blender-logo.png
-        \li \inlineimage maya-logo.png
-        \li \inlineimage qt-3ds-logo.png
+        \li \imageblenderlogo
+        \li \imagemayalogo
+        \li \imageqt3dslogo
     \row
         \li \l{Exporting from Blender}{Blender}
         \li \l{Exporting from Maya}{Maya}
