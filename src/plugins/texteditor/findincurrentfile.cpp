@@ -11,6 +11,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/qtcsettings.h>
+#include <utils/shutdownguard.h>
 
 #include <QPointer>
 #include <QTextCodec>
@@ -128,7 +129,7 @@ QByteArray FindInCurrentFile::settingsKey() const
 
 void setupFindInCurrentFile()
 {
-    static FindInCurrentFile theFindInCurrentFile;
+    static GuardedObject<FindInCurrentFile> theFindInCurrentFile;
 }
 
 } // TextEditor::Internal

@@ -27,10 +27,12 @@ public:
         });
     }
 
-    GuardedObject()
-        : GuardedObject(new T)
+    template <typename ...Args>
+    GuardedObject(Args && ...args)
+        : GuardedObject(new T(std::forward<Args>(args)...))
     {}
 
+    operator T&() const { return *m_object; }
     T *get() const { return m_object; }
 
 private:

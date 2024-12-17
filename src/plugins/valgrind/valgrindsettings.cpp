@@ -13,6 +13,7 @@
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
+#include <utils/shutdownguard.h>
 #include <utils/utilsicons.h>
 
 #include <QListView>
@@ -407,7 +408,7 @@ QString ValgrindSettings::leakCheckOnFinishOptionString() const
 
 ValgrindSettings &globalSettings()
 {
-    static ValgrindSettings theSettings{true};
+    static GuardedObject<ValgrindSettings> theSettings{true};
     return theSettings;
 }
 
