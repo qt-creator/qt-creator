@@ -30,11 +30,11 @@ Token_Stroke_Subtle=Primitive-Neutral-650
 
 Token_Notification_Alert_Default=Primitive-Yellow-400
 Token_Notification_Alert_Muted=Primitive-Yellow-600
-Token_Notification_Alert_Subtle=Primitive-Yellow-1000
+Token_Notification_Alert_Subtle=Primitive-Yellow-900
 
-Token_Notification_Neutral_Default=Primitive-QAMidnight-300
-Token_Notification_Neutral_Muted=Primitive-QAMidnight-600
-Token_Notification_Neutral_Subtle=Primitive-QAMidnight-900
+Token_Notification_Neutral_Default=Primitive-Blue-400
+Token_Notification_Neutral_Muted=Primitive-Blue-500
+Token_Notification_Neutral_Subtle=Primitive-Blue-900
 
 Token_Notification_Danger_Default=Primitive-Red-400
 Token_Notification_Danger_Muted=Primitive-Red-600
@@ -44,7 +44,7 @@ Token_Notification_Success_Default=Primitive-Neon-500
 Token_Notification_Success_Muted=Primitive-Neon-700
 Token_Notification_Success_Subtle=Primitive-Neon-1000
 
-Token_Gradient01_Start=Primitive-Pine-700
+Token_Gradient01_Start=Primitive-Pine-1000
 Token_Gradient01_End=Primitive-Neon-600
 Token_Gradient02_Start=Primitive-Neutral-600
 Token_Gradient02_End=Primitive-Neutral-450
