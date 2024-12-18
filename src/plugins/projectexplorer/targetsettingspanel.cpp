@@ -157,15 +157,14 @@ public:
     TargetGroupItemPrivate(TargetGroupItem *q, Project *project);
     ~TargetGroupItemPrivate() override;
 
-    void handleRemovedKit(Kit *kit);
     void handleAddedKit(Kit *kit);
-    void handleUpdatedKit(Kit *kit);
 
     void handleTargetAdded(Target *target);
     void handleTargetRemoved(Target *target);
     void handleTargetChanged(Target *target);
 
     void ensureWidget();
+    void scheduleRebuildContents();
     void rebuildContents();
     void ensureShowMoreItem();
 
@@ -184,6 +183,7 @@ public:
     TargetGroupItem *q;
     QString m_displayName;
     Project *m_project;
+    bool m_rebuildScheduled = false;
 
     QPointer<QWidget> m_noKitLabel;
     QPointer<QWidget> m_configurePage;
@@ -689,13 +689,13 @@ TargetGroupItemPrivate::TargetGroupItemPrivate(TargetGroupItem *q, Project *proj
     connect(KitManager::instance(), &KitManager::kitAdded,
             this, &TargetGroupItemPrivate::handleAddedKit);
     connect(KitManager::instance(), &KitManager::kitRemoved,
-            this, &TargetGroupItemPrivate::handleRemovedKit);
+            this, &TargetGroupItemPrivate::scheduleRebuildContents);
     connect(KitManager::instance(), &KitManager::kitUpdated,
-            this, &TargetGroupItemPrivate::handleUpdatedKit);
-    connect(KitManager::instance(), &KitManager::kitsChanged,
-            this, &TargetGroupItemPrivate::rebuildContents);
+            this, &TargetGroupItemPrivate::scheduleRebuildContents);
+    connect(KitManager::instance(), &KitManager::kitsLoaded,
+            this, &TargetGroupItemPrivate::scheduleRebuildContents);
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-            this, &TargetGroupItemPrivate::rebuildContents);
+            this, &TargetGroupItemPrivate::scheduleRebuildContents);
 
     rebuildContents();
 }
@@ -762,18 +762,6 @@ ITargetItem *TargetGroupItem::targetItem(Target *target) const
     return nullptr;
 }
 
-void TargetGroupItemPrivate::handleRemovedKit(Kit *kit)
-{
-    Q_UNUSED(kit)
-    rebuildContents();
-}
-
-void TargetGroupItemPrivate::handleUpdatedKit(Kit *kit)
-{
-    Q_UNUSED(kit)
-    rebuildContents();
-}
-
 void TargetGroupItemPrivate::handleAddedKit(Kit *kit)
 {
     q->appendChild(new TargetItem(m_project, kit->id(), m_project->projectIssues(kit)));
@@ -799,8 +787,17 @@ void TargetGroupItemPrivate::ensureShowMoreItem()
     q->appendChild(new ShowMoreItem(this));
 }
 
+void TargetGroupItemPrivate::scheduleRebuildContents()
+{
+    if (m_rebuildScheduled)
+        return;
+    m_rebuildScheduled = true;
+    QMetaObject::invokeMethod(this, &TargetGroupItemPrivate::rebuildContents, Qt::QueuedConnection);
+}
+
 void TargetGroupItemPrivate::rebuildContents()
 {
+    m_rebuildScheduled = false;
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
     const auto sortedKits = KitManager::sortedKits();
     bool isAnyKitNotEnabled = std::any_of(sortedKits.begin(), sortedKits.end(), [this](Kit *kit) {
