@@ -164,6 +164,9 @@ Item {
         anchors.centerIn: parent
 
         onSave: {
+            graphView.graph.clearGraph();
+            graphView.graph.insertNode(Nodes.Components.material);
+            NodeGraphEditorBackend.nodeGraphEditorModel.createQmlComponent(graphView.graph);
             updateGraphData();
             NodeGraphEditorBackend.nodeGraphEditorModel.saveFile(fileName);
             NodeGraphEditorBackend.nodeGraphEditorModel.openFileName(fileName);
@@ -182,6 +185,8 @@ Item {
         onRejected: {}
         onSave: {
             if (NodeGraphEditorBackend.nodeGraphEditorModel.currentFileName !== "") {
+                NodeGraphEditorBackend.nodeGraphEditorModel.createQmlComponent(graphView.graph);
+
                 /*Save current graph data to the backend*/
                 updateGraphData();
 
@@ -229,17 +234,7 @@ Item {
                     tooltip: qsTr("Add a new graph node.")
 
                     onClicked: () => {
-                        newNodeGraphDialog.open();
-                    }
-                }
-
-                HelperWidgets.AbstractButton {
-                    buttonIcon: StudioTheme.Constants.remove_medium
-                    style: StudioTheme.Values.viewBarButtonStyle
-                    tooltip: qsTr("Clear graph.")
-
-                    onClicked: () => {
-                        graphView.graph.clearGraph();
+                        saveAsDialog.open();
                     }
                 }
 
@@ -251,22 +246,13 @@ Item {
 
                     onClicked: () => {
                         if (NodeGraphEditorBackend.nodeGraphEditorModel.currentFileName !== "") {
+                            NodeGraphEditorBackend.nodeGraphEditorModel.createQmlComponent(graphView.graph);
                             updateGraphData();
                             NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = false;
                             NodeGraphEditorBackend.nodeGraphEditorModel.saveFile(NodeGraphEditorBackend.nodeGraphEditorModel.currentFileName);
                         } else {
                             saveAsDialog.open();
                         }
-                    }
-                }
-
-                HelperWidgets.AbstractButton {
-                    buttonIcon: StudioTheme.Constants.saveAs_medium
-                    style: StudioTheme.Values.viewBarButtonStyle
-                    tooltip: qsTr("Save as ...")
-
-                    onClicked: () => {
-                        saveAsDialog.open();
                     }
                 }
 
@@ -299,7 +285,9 @@ Item {
                     }
                 }
                 onRightClicked: function (pos) {
-                    contextMenu.popup();
+                    if (NodeGraphEditorBackend.nodeGraphEditorModel.currentFileName !== "") {
+                        contextMenu.popup();
+                    }
                 }
             }
 

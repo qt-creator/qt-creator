@@ -30,6 +30,7 @@ public:
     NodeGraphEditorWidget(NodeGraphEditorView *nodeGraphEditorView, NodeGraphEditorModel *nodeGraphEditorModel);
     ~NodeGraphEditorWidget() override = default;
 
+    Q_INVOKABLE QList<QVariantMap> createMetaData_inPorts(QByteArray typeName);
 
     Q_INVOKABLE QString generateUUID() const;
     static QString qmlSourcesPath();

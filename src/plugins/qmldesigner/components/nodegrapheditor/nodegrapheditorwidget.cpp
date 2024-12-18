@@ -7,6 +7,7 @@
 #include "nodegrapheditormodel.h"
 #include "nodegrapheditorview.h"
 
+#include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <theme.h>
@@ -103,6 +104,52 @@ QString NodeGraphEditorWidget::qmlSourcesPath()
         return QLatin1String(SHARE_QML_PATH) + "/nodegrapheditor";
 #endif
     return Core::ICore::resourcePath("qmldesigner/nodegrapheditor").toString();
+}
+
+static QList<QString> allowedTypes {
+    "bool",
+    "float",
+    "double",
+    "QColor",
+    "QUrl",
+    "Texture",
+};
+
+static QMap<QString, QString> translateTypes {
+    { "float", "real" },
+    { "double", "real" },
+};
+
+static QList<QString> omitNames {
+};
+
+QList<QVariantMap> NodeGraphEditorWidget::createMetaData_inPorts(QByteArray typeName)
+{
+    QList<QVariantMap> result;
+
+    const auto mi = m_editorView->model()->metaInfo(typeName);
+    if (mi.isValid()) {
+        for (const auto& property : mi.properties()) {
+            QString type = QString::fromUtf8(property.propertyType().simplifiedTypeName());
+            const QString name = QString::fromUtf8(property.name());
+
+            if (!allowedTypes.contains(type))
+                continue;
+            if (omitNames.contains(name))
+                continue;
+
+            if (translateTypes.contains(type))
+                type = translateTypes[type];
+
+            result.append({
+                           { "id", name },
+                           { "displayName", name },
+                           { "type", type }
+            });
+        }
+    }
+
+    return result;
 }
 
 QString NodeGraphEditorWidget::generateUUID() const

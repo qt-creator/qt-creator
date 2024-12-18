@@ -24,6 +24,7 @@ Base {
 
     Component.onCompleted: {
         node.label = "Texture";
+        internal.configurePorts(root.graph);
     }
     onValueChanged: {
         NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;
@@ -33,6 +34,23 @@ Base {
         anchors.centerIn: parent
         height: 96
         source: root.value.source
+        // source: `image://qmldesigner_nodegrapheditor/${root.value.source}`
         width: 96
+    }
+
+    QtObject {
+        id: internal
+
+        function configurePorts(graph) {
+            const inPorts = NodeGraphEditorBackend.widget.createMetaData_inPorts("QtQuick3D.Texture");
+            inPorts.forEach(data => {
+                const portItem = graph.insertPort(root.node, Qan.NodeItem.Left, Qan.PortItem.In, `${data.displayName} (${data.type})`, data.id);
+                portItem.dataName = data.displayName;
+                portItem.dataType = data.type;
+            });
+
+            const valuePort = graph.insertPort(root.node, Qan.NodeItem.Right, Qan.PortItem.Out, "OUT", "texture");
+            valuePort.dataType = "Texture";
+        }
     }
 }

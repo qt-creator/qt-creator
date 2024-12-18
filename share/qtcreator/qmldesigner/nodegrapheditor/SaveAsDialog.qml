@@ -60,6 +60,30 @@ StudioControls.Dialog {
                 }
             }
 
+            Row {
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: StudioTheme.Values.themeTextColor
+                    text: qsTr("Type: ")
+                }
+
+                StudioControls.ComboBox {
+                    id: cbType
+
+                    actionIndicatorVisible: false
+                    model: [
+                        {
+                            value: "principled_material",
+                            text: "Principled Material"
+                        },
+                    ]
+                    textRole: "text"
+                    valueRole: "value"
+
+                    onActivated: () => {}
+                }
+            }
+
             Text {
                 id: emptyText
 

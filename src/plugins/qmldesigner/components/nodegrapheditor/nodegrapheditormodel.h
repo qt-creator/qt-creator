@@ -6,6 +6,10 @@
 #include <QStandardItemModel>
 #include <QPointer>
 
+namespace qan {
+class Graph;
+}
+
 namespace QmlDesigner {
 
 class NodeGraphEditorView;
@@ -19,6 +23,7 @@ public:
     Q_INVOKABLE void openFile(QString filePath);
     Q_INVOKABLE void openFileName(QString filePath);
     Q_INVOKABLE void saveFile(QString fileName);
+    Q_INVOKABLE void createQmlComponent(qan::Graph* graph);
 private:
     QPointer<NodeGraphEditorView> m_editorView;
 
