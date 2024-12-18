@@ -459,8 +459,9 @@ IDevice::Ptr AndroidDevice::create()
     return IDevice::Ptr(new AndroidDevice);
 }
 
-AndroidDeviceInfo AndroidDevice::androidDeviceInfoFromIDevice(const IDevice *dev)
+AndroidDeviceInfo AndroidDevice::androidDeviceInfoFromDevice(const ConstPtr &dev)
 {
+    QTC_ASSERT(dev, return {});
     AndroidDeviceInfo info;
     info.state = dev->deviceState();
     info.avdName = dev->extraData(Constants::AndroidAvdName).toString();

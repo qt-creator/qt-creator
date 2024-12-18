@@ -21,7 +21,7 @@ public:
     AndroidDevice();
 
     static IDevice::Ptr create();
-    static AndroidDeviceInfo androidDeviceInfoFromIDevice(const IDevice *dev);
+    static AndroidDeviceInfo androidDeviceInfoFromDevice(const IDevice::ConstPtr &dev);
 
     static Utils::Id idFromDeviceInfo(const AndroidDeviceInfo &info);
     static Utils::Id idFromAvdInfo(const CreateAvdInfo &info);

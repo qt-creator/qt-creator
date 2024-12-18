@@ -208,14 +208,14 @@ bool AndroidDeployQtStep::init()
     if (selectedAbis.isEmpty())
         selectedAbis.append(bs->extraData(buildKey, Constants::AndroidAbi).toString());
 
-    const auto dev = dynamic_cast<const AndroidDevice *>(RunDeviceKitAspect::device(kit()).get());
+    const auto dev = std::dynamic_pointer_cast<const AndroidDevice>(RunDeviceKitAspect::device(kit()));
     if (!dev) {
         reportWarningOrError(Tr::tr("No valid deployment device is set."), Task::Error);
         return false;
     }
 
     // TODO: use AndroidDevice directly instead of AndroidDeviceInfo.
-    const AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(dev);
+    const AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromDevice(dev);
 
     if (!info.isValid()) {
         reportWarningOrError(Tr::tr("The deployment device \"%1\" is invalid.")
@@ -548,7 +548,7 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
             return;
 
         const IDevice::ConstPtr device = RunDeviceKitAspect::device(currentTarget->kit());
-        const AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(device.get());
+        const AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromDevice(device);
         if (!info.isValid()) // aborted
             return;
 
