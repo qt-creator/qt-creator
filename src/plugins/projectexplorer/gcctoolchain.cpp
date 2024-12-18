@@ -1006,7 +1006,7 @@ void GccToolchain::resetToolchain(const FilePath &path)
     const DetectedAbisResult detectedAbis = detectSupportedAbis();
     m_supportedAbis = detectedAbis.supportedAbis;
     m_originalTargetTriple = detectedAbis.originalTargetTriple;
-    m_installDir = installDir();
+    m_installDir.clear();
 
     if (m_supportedAbis.isEmpty())
         setTargetAbiNoSignal(Abi());
