@@ -27,9 +27,9 @@ namespace QbsProjectManager::Internal {
 class QbsLanguageClientInterface : public LocalSocketClientInterface
 {
 public:
-    QbsLanguageClientInterface(const QString &serverPath)
+    QbsLanguageClientInterface(const QString &serverPath, const FilePath &qbsExecutable)
         : LocalSocketClientInterface(serverPath),
-          m_qbsExecutable(QbsSettings::qbsExecutableFilePath()) {}
+          m_qbsExecutable(qbsExecutable) {}
 
 private:
     Utils::FilePath serverDeviceTemplate() const override{ return m_qbsExecutable; };
@@ -48,9 +48,10 @@ public:
     QPointer<QbsBuildSystem> buildSystem;
 };
 
-
 QbsLanguageClient::QbsLanguageClient(const QString &serverPath, QbsBuildSystem *buildSystem)
-    : Client(new QbsLanguageClientInterface(serverPath)), d(new Private(this))
+    : Client(new QbsLanguageClientInterface(
+                 serverPath, QbsSettings::qbsExecutableFilePath(*buildSystem->kit())))
+    , d(new Private(this))
 {
     d->buildSystem = buildSystem;
     setName(QString::fromLatin1("qbs@%1").arg(serverPath));

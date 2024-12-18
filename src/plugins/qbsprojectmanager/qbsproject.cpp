@@ -30,6 +30,7 @@
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/environmentkitaspect.h>
@@ -152,7 +153,7 @@ static bool supportsNodeAction(ProjectAction action, const Node *node)
 
 QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
     : BuildSystem(bc->target()),
-      m_session(new QbsSession(this)),
+      m_session(new QbsSession(this, BuildDeviceKitAspect::device(bc->kit()))),
       m_cppCodeModelUpdater(
         ProjectUpdaterFactory::createProjectUpdater(ProjectExplorer::Constants::CXX_LANGUAGE_ID)),
       m_buildConfiguration(bc)
@@ -627,16 +628,18 @@ void QbsBuildSystem::startParsing(const QVariantMap &extraConfig)
 {
     QTC_ASSERT(!m_qbsProjectParser, return);
 
+    FilePath dir = m_buildConfiguration->buildDirectory();
     Store config = m_buildConfiguration->qbsConfiguration();
-    if (!config.contains(Constants::QBS_INSTALL_ROOT_KEY)) {
-        config.insert(Constants::QBS_INSTALL_ROOT_KEY, m_buildConfiguration->macroExpander()
-                      ->expand(QbsSettings::defaultInstallDirTemplate()));
+    QString installRoot = config.value(Constants::QBS_INSTALL_ROOT_KEY).toString();
+    if (installRoot.isEmpty()) {
+        installRoot = m_buildConfiguration->macroExpander()->expand(
+            QbsSettings::defaultInstallDirTemplate());
     }
+    config.insert(Constants::QBS_INSTALL_ROOT_KEY, FilePath::fromString(installRoot).path());
     config.insert(Constants::QBS_RESTORE_BEHAVIOR_KEY, "restore-and-track-changes");
     for (auto it = extraConfig.begin(); it != extraConfig.end(); ++it)
         config.insert(keyFromString(it.key()), it.value());
     Environment env = m_buildConfiguration->environment();
-    FilePath dir = m_buildConfiguration->buildDirectory();
 
     m_guard = guardParsingRun();
 

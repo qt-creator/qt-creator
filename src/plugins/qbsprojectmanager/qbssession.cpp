@@ -11,6 +11,8 @@
 #include "qbssettings.h"
 
 #include <coreplugin/messagemanager.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -130,6 +132,9 @@ private:
 class QbsSession::Private
 {
 public:
+    Private(const IDeviceConstPtr &dev) : device(dev) {}
+
+    DeviceConstRef device;
     Process *qbsProcess = nullptr;
     QbsLanguageClient *languageClient = nullptr;
     PacketReader *packetReader = nullptr;
@@ -145,7 +150,8 @@ public:
     bool fileUpdatePossible = true;
 };
 
-QbsSession::QbsSession(QbsBuildSystem *buildSystem) : QObject(buildSystem), d(new Private)
+QbsSession::QbsSession(QbsBuildSystem *buildSystem, const IDeviceConstPtr &device)
+    : QObject(buildSystem), d(new Private(device))
 {
     initialize();
 }
@@ -191,7 +197,9 @@ void QbsSession::initialize()
     });
     connect(d->packetReader, &PacketReader::packetReceived, this, &QbsSession::handlePacket);
     d->state = State::Initializing;
-    const FilePath qbsExe = QbsSettings::qbsExecutableFilePath();
+    const IDeviceConstPtr device = d->device.lock();
+    QTC_ASSERT(device, return);
+    const FilePath qbsExe = QbsSettings::qbsExecutableFilePath(device);
     if (qbsExe.isEmpty()) {
         QTimer::singleShot(0, this, [this] { setError(Error::NoQbsPath); });
         return;
@@ -200,7 +208,7 @@ void QbsSession::initialize()
         QTimer::singleShot(0, this, [this] { setError(Error::InvalidQbsExecutable); });
         return;
     }
-    d->qbsProcess->setEnvironment(QbsSettings::qbsProcessEnvironment());
+    d->qbsProcess->setEnvironment(QbsSettings::qbsProcessEnvironment(device));
     d->qbsProcess->setCommand({qbsExe, {"session"}});
     d->qbsProcess->start();
 }
@@ -238,8 +246,7 @@ QString QbsSession::errorString(QbsSession::Error error)
         return Tr::tr("No qbs executable was found, please set the path in the settings.");
     case Error::InvalidQbsExecutable:
         return Tr::tr("The qbs executable was not found at the specified path, or it is not "
-                      "executable (\"%1\").")
-            .arg(QbsSettings::qbsExecutableFilePath().toUserOutput());
+                      "executable.");
     case Error::QbsQuit:
         return Tr::tr("The qbs process quit unexpectedly.");
     case Error::QbsFailedToStart:
@@ -406,6 +413,8 @@ void QbsSession::insertRequestedModuleProperties(QJsonObject &request)
 QbsSession::BuildGraphInfo QbsSession::getBuildGraphInfo(const FilePath &bgFilePath,
                                                          const QStringList &requestedProperties)
 {
+    const IDeviceConstPtr device = DeviceManager::deviceForPath(bgFilePath);
+    QTC_ASSERT(device, return {});
     const QFileInfo bgFi = bgFilePath.toFileInfo();
     QDir buildRoot = bgFi.dir();
     buildRoot.cdUp();
@@ -413,13 +422,13 @@ QbsSession::BuildGraphInfo QbsSession::getBuildGraphInfo(const FilePath &bgFileP
     request.insert("type", "resolve-project");
     request.insert("restore-behavior", "restore-only");
     request.insert("configuration-name", bgFi.completeBaseName());
-    if (QbsSettings::useCreatorSettingsDirForQbs())
-        request.insert("settings-directory", QbsSettings::qbsSettingsBaseDir().path());
+    if (QbsSettings::useCreatorSettingsDirForQbs(device))
+        request.insert("settings-directory", QbsSettings::qbsSettingsBaseDir(device).path());
     request.insert("build-root", buildRoot.path());
     request.insert("error-handling-mode", "relaxed");
     request.insert("data-mode", "only-if-changed");
     request.insert("module-properties", QJsonArray::fromStringList(requestedProperties));
-    QbsSession session(nullptr);
+    QbsSession session(nullptr, device);
     session.sendRequest(request);
     QJsonObject reply;
     BuildGraphInfo bgInfo;

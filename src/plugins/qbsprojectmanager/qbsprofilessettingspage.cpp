@@ -63,15 +63,15 @@ public:
     {
         ProfileTreeItem * const newRoot = new ProfileTreeItem(QString(), QString());
         QHash<QStringList, ProfileTreeItem *> itemMap;
-        QHash<const IDevice *, QList<const Kit *>> kitsPerBuildDevice;
+        QHash<const IDeviceConstPtr, QList<const Kit *>> kitsPerBuildDevice;
         for (const Kit * const k : validKits) {
             if (const IDeviceConstPtr dev = BuildDeviceKitAspect::device(k))
-                kitsPerBuildDevice[dev.get()] << k;
+                kitsPerBuildDevice[dev] << k;
         }
         for (auto it = kitsPerBuildDevice.cbegin(); it != kitsPerBuildDevice.cend(); ++it) {
-            const QStringList output
-                = QbsProfileManager::runQbsConfig(QbsProfileManager::QbsConfigOp::Get, "profiles")
-                      .split('\n', Qt::SkipEmptyParts);
+            const QStringList output = QbsProfileManager::runQbsConfig(
+                                           it.key(), QbsProfileManager::QbsConfigOp::Get, "profiles")
+                                           .split('\n', Qt::SkipEmptyParts);
             const QStringList profileNames = Utils::transform(it.value(), [](const Kit *k) {
                 return QbsProfileManager::profileNameForKit(k);
             });

@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <projectexplorer/devicesupport/idevicefwd.h>
 #include <projectexplorer/task.h>
 #include <utils/filepath.h>
 
@@ -102,7 +103,7 @@ class QbsSession : public QObject
 {
     Q_OBJECT
 public:
-    explicit QbsSession(QbsBuildSystem *buildSystem);
+    explicit QbsSession(QbsBuildSystem *buildSystem, const ProjectExplorer::IDeviceConstPtr &device);
     ~QbsSession() override;
 
     enum class State { Initializing, Active, Inactive };

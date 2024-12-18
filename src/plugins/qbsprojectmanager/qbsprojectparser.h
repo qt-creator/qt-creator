@@ -5,6 +5,7 @@
 
 #include "qbssession.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/environment.h>
 #include <utils/store.h>
 
@@ -44,6 +45,7 @@ private:
     Utils::Environment m_environment;
     const Utils::FilePath m_projectFilePath;
     QbsSession * const m_session;
+    const ProjectExplorer::DeviceConstRef m_device;
     ErrorInfo m_error;
     QJsonObject m_projectData;
     bool m_parsing = false;

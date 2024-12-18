@@ -14,6 +14,7 @@
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/projectexplorer.h>
@@ -238,14 +239,17 @@ QStringList QbsBuildConfiguration::products() const
 
 QString QbsBuildConfiguration::equivalentCommandLine(const QbsBuildStepData &stepData) const
 {
+    const IDeviceConstPtr dev = BuildDeviceKitAspect::device(kit());
+    if (!dev)
+        return Tr::tr("<No build device>");
     CommandLine commandLine;
-    commandLine.addArg(QDir::toNativeSeparators(QbsSettings::qbsExecutableFilePath().toString()));
+    commandLine.addArg(QbsSettings::qbsExecutableFilePath(dev).nativePath());
     commandLine.addArg(stepData.command);
     const QString buildDir = buildDirectory().nativePath();
     commandLine.addArgs({"-d", buildDir});
     commandLine.addArgs({"-f", project()->projectFilePath().nativePath()});
-    if (QbsSettings::useCreatorSettingsDirForQbs())
-        commandLine.addArgs({"--settings-dir", QbsSettings::qbsSettingsBaseDir().nativePath()});
+    if (QbsSettings::useCreatorSettingsDirForQbs(dev))
+        commandLine.addArgs({"--settings-dir", QbsSettings::qbsSettingsBaseDir(dev).nativePath()});
     if (stepData.dryRun)
         commandLine.addArg("--dry-run");
     if (stepData.keepGoing)
