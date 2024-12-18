@@ -10,6 +10,7 @@
 
 #include <createtexture.h>
 #include <designeractionmanager.h>
+#include <designermcumanager.h>
 #include <designerpaths.h>
 #include <designmodewidget.h>
 #include <hdrimage.h>
@@ -208,9 +209,9 @@ bool AssetsLibraryWidget::createNewEffect(const QString &effectPath, bool openIn
     return created;
 }
 
-bool AssetsLibraryWidget::canCreateEffects() const
+bool AssetsLibraryWidget::isEffectsCreationAllowed() const
 {
-    if (!Core::ICore::isQtDesignStudio())
+    if (!Core::ICore::isQtDesignStudio() || DesignerMcuManager::instance().isMCUProject())
         return false;
 
 #ifdef LICENSECHECKER
@@ -264,6 +265,8 @@ void AssetsLibraryWidget::updateContextMenuActionsEnableState()
                                                         Utils3D::active3DSceneId(
                                                             m_assetsView->model()));
     setHasSceneEnv(activeSceneEnv.isValid());
+
+    setCanCreateEffects(isEffectsCreationAllowed());
 }
 
 void AssetsLibraryWidget::setHasMaterialLibrary(bool enable)
@@ -273,6 +276,11 @@ void AssetsLibraryWidget::setHasMaterialLibrary(bool enable)
 
     m_hasMaterialLibrary = enable;
     emit hasMaterialLibraryChanged();
+}
+
+bool AssetsLibraryWidget::hasMaterialLibrary() const
+{
+    return m_hasMaterialLibrary;
 }
 
 void AssetsLibraryWidget::setHasSceneEnv(bool b)
@@ -744,6 +752,20 @@ void AssetsLibraryWidget::addAssetsToContentLibrary(const QStringList &assetPath
 {
     QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
     m_assetsView->emitCustomNotification("add_assets_to_content_lib", {}, {assetPaths});
+}
+
+void AssetsLibraryWidget::setCanCreateEffects(bool newVal)
+{
+    if (m_canCreateEffects == newVal)
+        return;
+
+    m_canCreateEffects = newVal;
+    emit canCreateEffectsChanged();
+}
+
+bool AssetsLibraryWidget::canCreateEffects() const
+{
+    return m_canCreateEffects;
 }
 
 } // namespace QmlDesigner

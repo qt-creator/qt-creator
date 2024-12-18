@@ -127,7 +127,7 @@ StudioControls.Menu {
         text: qsTr("Edit in Effect Composer")
         visible: root.__fileIndex && root.__selectedAssetPathsList.length === 1
                  && root.assetsModel.allFilePathsAreComposedEffects(root.__selectedAssetPathsList)
-                 && root.rootView.canCreateEffects()
+                 && root.rootView.canCreateEffects
         height: editInEffectComposerItem.visible ? editInEffectComposerItem.implicitHeight : 0
         onTriggered: AssetsLibraryBackend.rootView.openEffectComposer(root.__selectedAssetPathsList[0])
     }
@@ -225,7 +225,7 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("New Effect")
-        visible: root.rootView.canCreateEffects()
+        visible: root.rootView.canCreateEffects
         height: visible ? implicitHeight : 0
 
         NewEffectDialog {
