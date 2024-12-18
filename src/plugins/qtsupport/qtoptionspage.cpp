@@ -899,8 +899,8 @@ static QString linkingPurposeText()
 {
     return Tr::tr(
         "Linking with a Qt installation automatically registers Qt versions and kits, and other "
-        "tools that were installed with that Qt installer, in this Qt Creator installation. Other "
-        "Qt Creator installations are not affected.");
+        "tools that were installed with that Qt installer, in this %1 installation. Other %1 "
+        "installations are not affected.").arg(QGuiApplication::applicationDisplayName());
 }
 
 static bool canLinkWithQt(QString *toolTip)

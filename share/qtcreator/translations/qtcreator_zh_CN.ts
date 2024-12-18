@@ -38550,7 +38550,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Linking with a Qt installation automatically registers Qt versions and kits, and other tools that were installed with that Qt installer, in this Qt Creator installation. Other Qt Creator installations are not affected.</source>
+        <source>Linking with a Qt installation automatically registers Qt versions and kits, and other tools that were installed with that Qt installer, in this %1 installation. Other %1 installations are not affected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

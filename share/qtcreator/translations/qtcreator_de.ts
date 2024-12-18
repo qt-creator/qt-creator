@@ -49912,8 +49912,8 @@ wirklich entfernen?</translation>
         <translation>Die ausgewählte Qt-Version muss dem Gerät entsprechen.</translation>
     </message>
     <message>
-        <source>Linking with a Qt installation automatically registers Qt versions and kits, and other tools that were installed with that Qt installer, in this Qt Creator installation. Other Qt Creator installations are not affected.</source>
-        <translation>Das Verknüpfen mit einer Qt-Installation registriert Qt-Versionen, Kits und andere mit dem Qt-Installationsprogramm installierte Werkzeuge automatisch in dieser Qt Creator-Installation. Dies hat keine Auswirkung auf andere Qt Creator-Installationen.</translation>
+        <source>Linking with a Qt installation automatically registers Qt versions and kits, and other tools that were installed with that Qt installer, in this %1 installation. Other %1 installations are not affected.</source>
+        <translation>Das Verknüpfen mit einer Qt-Installation registriert Qt-Versionen, Kits und andere mit dem Qt-Installationsprogramm installierte Werkzeuge automatisch in dieser %1-Installation. Dies hat keine Auswirkung auf andere %1-Installationen.</translation>
     </message>
     <message>
         <source>%1&apos;s resource directory is not writable.</source>

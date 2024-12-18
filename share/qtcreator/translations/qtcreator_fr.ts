@@ -50241,8 +50241,8 @@ Le déploiement vers ce répertoire entrainera la suppression des fichiers déj�
         <translation>L’exécutable qmake %1 n’a pas pu être ajouté : %2</translation>
     </message>
     <message>
-        <source>Linking with a Qt installation automatically registers Qt versions and kits, and other tools that were installed with that Qt installer, in this Qt Creator installation. Other Qt Creator installations are not affected.</source>
-        <translation>L’établissement d’un lien avec une installation de Qt enregistre automatiquement les versions et les kits de Qt, ainsi que les autres outils qui ont été installés avec ce programme d’installation de Qt, dans cette installation de Qt Creator. Les autres installations de Qt Creator ne sont pas concernées.</translation>
+        <source>Linking with a Qt installation automatically registers Qt versions and kits, and other tools that were installed with that Qt installer, in this %1 installation. Other %1 installations are not affected.</source>
+        <translation>L’établissement d’un lien avec une installation de Qt enregistre automatiquement les versions et les kits de Qt, ainsi que les autres outils qui ont été installés avec ce programme d’installation de Qt, dans cette installation de %1. Les autres installations de %1 ne sont pas concernées.</translation>
     </message>
     <message>
         <source>%1&apos;s resource directory is not writable.</source>
