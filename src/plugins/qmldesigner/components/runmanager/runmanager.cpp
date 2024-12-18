@@ -7,7 +7,10 @@
 #include <projectexplorer/projectexplorer.h>
 
 #include <qmldesigner/qmldesignerplugin.h>
+
+#ifdef DVCONNECTOR_ENABLED
 #include <resourcegeneratorproxy.h>
+#endif
 
 namespace QmlDesigner {
 
@@ -326,9 +329,10 @@ void AndroidTarget::run() const
 {
     if (!ProjectExplorer::ProjectExplorerPlugin::saveModifiedFiles())
         return;
-
+#ifdef DVCONNECTOR_ENABLED
     auto qmlrcPath = DesignViewer::ResourceGeneratorProxy().createResourceFileSync();
     deviceManager()->sendProjectFile(m_deviceId, qmlrcPath->toString());
+#endif
 }
 
 } // namespace QmlDesigner

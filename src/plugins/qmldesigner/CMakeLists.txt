@@ -771,6 +771,7 @@ extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/designviewer
   DEPENDS
     Qt::WebEngineWidgets
+  PUBLIC_DEFINES DVCONNECTOR_ENABLED
   SOURCES
     dvconnector.cpp dvconnector.h
     resourcegeneratorproxy.cpp resourcegeneratorproxy.h
