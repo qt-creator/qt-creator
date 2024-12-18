@@ -15,6 +15,7 @@
 #include <optional>
 #include <variant>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Android::Internal {
