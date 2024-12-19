@@ -554,6 +554,9 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
             } else if (assetType == Constants::MIME_TYPE_ASSET_IMAGE) {
                 m_widget->setDragType(Constants::MIME_TYPE_ASSET_IMAGE);
                 m_widget->update();
+            } else if (assetType == Constants::MIME_TYPE_ASSET_NODEGRAPH) {
+                m_widget->setDragType(Constants::MIME_TYPE_ASSET_NODEGRAPH);
+                m_widget->update();
             }
         }
     }

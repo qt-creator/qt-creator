@@ -281,6 +281,7 @@ R"(}
     Utils::FilePath path = DocumentManager::currentResourcePath().pathAppended(m_currentFileName + ".qml");
     qCritical() << path.toString();
     writeToFile(s.toUtf8(), path.toString(), FileType::Text);
+    m_editorView->resetPuppet();
 }
 
 

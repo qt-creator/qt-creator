@@ -224,6 +224,9 @@ Utils::FilePath getImagesDefaultDirectory();
 //Item Library and Assets related drop operations
 QMLDESIGNERCOMPONENTS_EXPORT ModelNode handleItemLibraryEffectDrop(const QString &effectPath,
                                                                    const ModelNode &targetNode);
+
+QMLDESIGNERCOMPONENTS_EXPORT ModelNode handleItemLibraryNodeGraphDrop(const QString &nodeGraphPath,
+                                                                   const ModelNode &targetNode);
 void handleTextureDrop(const QMimeData *mimeData, const ModelNode &targetModelNode);
 void handleMaterialDrop(const QMimeData *mimeData, const ModelNode &targetNode);
 ModelNode handleItemLibraryImageDrop(const QString &imagePath,

@@ -164,7 +164,14 @@ Item {
         anchors.centerIn: parent
 
         onSave: {
+            if (NodeGraphEditorBackend.nodeGraphEditorModel.currentFileName != "") {
+                updateGraphData();
+                NodeGraphEditorBackend.nodeGraphEditorModel.saveFile(NodeGraphEditorBackend.nodeGraphEditorModel.currentFileName);
+                NodeGraphEditorBackend.nodeGraphEditorModel.createQmlComponent(graphView.graph);
+            }
+
             graphView.graph.clearGraph();
+            NodeGraphEditorBackend.nodeGraphEditorModel.currentFileName = fileName;
             graphView.graph.insertNode(Nodes.Components.material);
             NodeGraphEditorBackend.nodeGraphEditorModel.createQmlComponent(graphView.graph);
             updateGraphData();

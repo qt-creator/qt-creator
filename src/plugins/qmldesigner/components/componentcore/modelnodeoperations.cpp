@@ -2492,6 +2492,30 @@ ModelNode handleItemLibraryEffectDrop(const QString &effectPath, const ModelNode
     return newModelNode;
 }
 
+
+ModelNode handleItemLibraryNodeGraphDrop(const QString &nodeGraphPath, const ModelNode &targetNode)
+{
+    AbstractView *view = targetNode.view();
+    QTC_ASSERT(view, return {});
+    ModelNode newMatNode;
+
+    const QString materialName = QFileInfo(nodeGraphPath).baseName();
+    QString newId = view->model()->generateNewId(materialName, "material");
+    newMatNode = view->createModelNode(materialName.toUtf8(), 1, 0);
+    newMatNode.setIdWithRefactoring(newId);
+    VariantProperty objNameProp = newMatNode.variantProperty("objectName");
+    objNameProp.setValue(materialName);
+    ModelNode matLib = Utils3D::materialLibraryNode(view);
+    if (!matLib.isValid())
+        return ModelNode{};
+
+    matLib.defaultNodeListProperty().reparentHere(newMatNode);
+
+    Utils3D::selectMaterial(newMatNode);
+    view->resetPuppet();
+    return newMatNode;
+}
+
 void handleTextureDrop(const QMimeData *mimeData, const ModelNode &targetModelNode)
 {
     AbstractView *view = targetModelNode.view();

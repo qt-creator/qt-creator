@@ -695,6 +695,11 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
                                 assetPath, modelNodeForIndex(rowModelIndex));
                             moveNodesAfter = false;
                         }
+                        else if (assetType == Constants::MIME_TYPE_ASSET_NODEGRAPH) {
+                            currNode = ModelNodeOperations::handleItemLibraryNodeGraphDrop(
+                                assetPath, modelNodeForIndex(rowModelIndex));
+                            moveNodesAfter = false;
+                        }
 
                         if (currNode.isValid())
                             addedNodes.append(currNode);

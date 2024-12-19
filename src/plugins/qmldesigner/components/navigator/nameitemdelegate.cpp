@@ -234,7 +234,11 @@ void NameItemDelegate::paint(QPainter *painter,
                 Model *model = node.model();
                 validDrop = isValid3dTextureTarget() || metaInfo.isBasedOn(model->qtQuickImageMetaInfo(),
                                                                            model->qtQuickBorderImageMetaInfo());
-            } else {
+            } else if (dragType == Constants::MIME_TYPE_ASSET_NODEGRAPH) {
+                Model *model = node.model();
+                validDrop = (node.id() == Constants::MATERIAL_LIB_ID);
+            }
+             else {
                 const NodeMetaInfo dragInfo = node.model()->metaInfo(dragType);
                 ChooseFromPropertyListFilter *filter = new ChooseFromPropertyListFilter(dragInfo, metaInfo, true);
                 validDrop = !filter->propertyList.isEmpty();
