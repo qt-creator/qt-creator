@@ -877,7 +877,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
             this, [] { runStartAndDebugApplicationDialog(); });
 
     connect(&m_attachToCoreAction, &QAction::triggered,
-            this, &DebuggerPluginPrivate::attachCore);
+            this, [] { runAttachToCoreDialog(); });
 
     connect(&m_attachToLastCoreAction, &QAction::triggered,
             this, &DebuggerPluginPrivate::attachToLastCore);
@@ -1479,16 +1479,6 @@ void DebuggerPluginPrivate::parseCommandLineArguments()
         QTimer::singleShot(0, this, &DebuggerPluginPrivate::runScheduled);
 }
 
-static void setConfigValue(const Key &name, const QVariant &value)
-{
-    ICore::settings()->setValue("DebugMode/" + name, value);
-}
-
-static QVariant configValue(const Key &name)
-{
-    return ICore::settings()->value("DebugMode/" + name);
-}
-
 void DebuggerPluginPrivate::updatePresetState()
 {
     if (PluginManager::isShuttingDown())
@@ -1612,43 +1602,6 @@ void DebuggerPluginPrivate::onStartupProjectChanged(Project *project)
     }
 
     updatePresetState();
-}
-
-void DebuggerPluginPrivate::attachCore()
-{
-    AttachCoreDialog dlg(ICore::dialogParent());
-
-    const QString lastExternalKit = configValue("LastExternalKit").toString();
-    if (!lastExternalKit.isEmpty())
-        dlg.setKitId(Id::fromString(lastExternalKit));
-    dlg.setSymbolFile(FilePath::fromSettings(configValue("LastExternalExecutableFile")));
-    dlg.setCoreFile(FilePath::fromSettings(configValue("LastLocalCoreFile")));
-    dlg.setOverrideStartScript(FilePath::fromSettings(configValue("LastExternalStartScript")));
-    dlg.setSysRoot(FilePath::fromSettings(configValue("LastSysRoot")));
-
-    if (dlg.exec() != QDialog::Accepted)
-        return;
-
-    setConfigValue("LastExternalExecutableFile", dlg.symbolFile().toSettings());
-    setConfigValue("LastLocalCoreFile", dlg.coreFile().toSettings());
-    setConfigValue("LastExternalKit", dlg.kit()->id().toSetting());
-    setConfigValue("LastExternalStartScript", dlg.overrideStartScript().toSettings());
-    setConfigValue("LastSysRoot", dlg.sysRoot().toSettings());
-
-    auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    runControl->setKit(dlg.kit());
-    runControl->setDisplayName(Tr::tr("Core file \"%1\"").arg(dlg.coreFile().toUserOutput()));
-    auto debugger = new DebuggerRunTool(runControl);
-
-    debugger->setInferiorExecutable(dlg.symbolFileCopy());
-    debugger->setCoreFilePath(dlg.coreFileCopy());
-    debugger->setStartMode(AttachToCore);
-    debugger->setCloseMode(DetachAtClose);
-    debugger->setOverrideStartScript(dlg.overrideStartScript());
-    const FilePath sysRoot = dlg.sysRoot();
-    if (!sysRoot.isEmpty())
-        debugger->setSysRoot(sysRoot);
-    debugger->startRunControl();
 }
 
 void DebuggerPluginPrivate::attachToLastCore()

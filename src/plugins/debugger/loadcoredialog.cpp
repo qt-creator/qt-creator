@@ -4,8 +4,11 @@
 #include "loadcoredialog.h"
 
 #include "debuggerkitaspect.h"
+#include "debuggerruncontrol.h"
 #include "debuggertr.h"
 #include "gdb/gdbengine.h"
+
+#include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitchooser.h>
@@ -22,14 +25,9 @@
 #include <QCheckBox>
 #include <QDialogButtonBox>
 #include <QFormLayout>
-#include <QHeaderView>
 #include <QLabel>
-#include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QSortFilterProxyModel>
-#include <QTextBrowser>
-#include <QTreeView>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -84,6 +82,39 @@ public:
         st.validCoreFilename = coreFileName->isValid();
         return st;
     }
+};
+
+class AttachCoreDialog : public QDialog
+{
+public:
+    explicit AttachCoreDialog(QWidget *parent);
+    ~AttachCoreDialog() override;
+
+    int exec() override;
+
+    FilePath symbolFile() const;
+    FilePath coreFile() const;
+    FilePath overrideStartScript() const;
+    FilePath sysRoot() const;
+
+    // For persistance.
+    ProjectExplorer::Kit *kit() const;
+    void setSymbolFile(const FilePath &symbolFilePath);
+    void setCoreFile(const FilePath &coreFilePath);
+    void setOverrideStartScript(const FilePath &scriptName);
+    void setSysRoot(const FilePath &sysRoot);
+    void setKitId(Id id);
+
+    FilePath coreFileCopy() const;
+    FilePath symbolFileCopy() const;
+
+    void accepted();
+
+private:
+    void changed();
+    void coreFileChanged(const FilePath &core);
+
+    class AttachCoreDialogPrivate *d;
 };
 
 AttachCoreDialog::AttachCoreDialog(QWidget *parent)
@@ -351,6 +382,51 @@ FilePath AttachCoreDialog::sysRoot() const
 void AttachCoreDialog::setSysRoot(const FilePath &sysRoot)
 {
     d->sysRootDirectory->setFilePath(sysRoot);
+}
+
+void runAttachToCoreDialog()
+{
+    AttachCoreDialog dlg(ICore::dialogParent());
+
+    QtcSettings *settings  = ICore::settings();
+
+    const Key executableKey("DebugMode/LastExternalExecutableFile");
+    const Key localCoreKey("DebugMode/LastLocalCoreFile");
+    const Key kitKey("DebugMode/LastExternalKit");
+    const Key startScriptKey("DebugMode/LastExternalStartScript");
+    const Key sysrootKey("DebugMode/LastSysRoot");
+
+    const QString lastExternalKit = settings->value(kitKey).toString();
+    if (!lastExternalKit.isEmpty())
+        dlg.setKitId(Id::fromString(lastExternalKit));
+    dlg.setSymbolFile(FilePath::fromSettings(settings->value(executableKey)));
+    dlg.setCoreFile(FilePath::fromSettings(settings->value(localCoreKey)));
+    dlg.setOverrideStartScript(FilePath::fromSettings(settings->value(startScriptKey)));
+    dlg.setSysRoot(FilePath::fromSettings(settings->value(sysrootKey)));
+
+    if (dlg.exec() != QDialog::Accepted)
+        return;
+
+    settings->setValue(executableKey, dlg.symbolFile().toSettings());
+    settings->setValue(localCoreKey, dlg.coreFile().toSettings());
+    settings->setValue(kitKey, dlg.kit()->id().toSetting());
+    settings->setValue(startScriptKey, dlg.overrideStartScript().toSettings());
+    settings->setValue(sysrootKey, dlg.sysRoot().toSettings());
+
+    auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    runControl->setKit(dlg.kit());
+    runControl->setDisplayName(Tr::tr("Core file \"%1\"").arg(dlg.coreFile().toUserOutput()));
+    auto debugger = new DebuggerRunTool(runControl);
+
+    debugger->setInferiorExecutable(dlg.symbolFileCopy());
+    debugger->setCoreFilePath(dlg.coreFileCopy());
+    debugger->setStartMode(AttachToCore);
+    debugger->setCloseMode(DetachAtClose);
+    debugger->setOverrideStartScript(dlg.overrideStartScript());
+    const FilePath sysRoot = dlg.sysRoot();
+    if (!sysRoot.isEmpty())
+        debugger->setSysRoot(sysRoot);
+    debugger->startRunControl();
 }
 
 } // Debugger::Internal
