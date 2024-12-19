@@ -65,9 +65,12 @@ static bool isLocal(RunConfiguration *runConfiguration)
     scripts can restart application several times during tests.
 */
 
-UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
+UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(std::optional<QPoint> pos, QWidget *parent)
     : QDialog(parent)
+    , m_lastPosition(pos)
 {
+    if (pos)
+        move(*pos);
     setWindowTitle(Tr::tr("Attach to Process Not Yet Started"));
 
     m_kitChooser = new KitChooser(this);
@@ -197,6 +200,8 @@ void UnstartedAppWatcherDialog::selectExecutable()
 
 void UnstartedAppWatcherDialog::startWatching()
 {
+    if (m_lastPosition)
+        move(*m_lastPosition);
     show();
     if (checkExecutableString()) {
         setWaitingState(WatchingState);
@@ -212,10 +217,12 @@ void UnstartedAppWatcherDialog::pidFound(const ProcessInfo &p)
     startStopTimer(false);
     m_process = p;
 
-    if (hideOnAttach())
+    if (hideOnAttach()) {
+        m_lastPosition = pos();
         hide();
-    else
+    } else {
         accept();
+    }
 
     emit processFound();
 }

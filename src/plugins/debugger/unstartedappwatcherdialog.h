@@ -28,7 +28,7 @@ class UnstartedAppWatcherDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit UnstartedAppWatcherDialog(QWidget *parent = nullptr);
+    UnstartedAppWatcherDialog(std::optional<QPoint> pos, QWidget *parent = nullptr);
 
     ProjectExplorer::Kit *currentKit() const;
     Utils::ProcessInfo currentProcess() const;
@@ -70,6 +70,7 @@ private:
     Utils::ProcessInfo m_process;
     QSet<int> m_excluded;
     QTimer m_timer;
+    std::optional<QPoint> m_lastPosition;
 };
 
 } // Debugger::Internal

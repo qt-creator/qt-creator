@@ -702,6 +702,8 @@ public:
 
     DebuggerRunWorkerFactory debuggerWorkerFactory;
 
+    std::optional<QPoint> attachToUnstartedApplicationDialogLastPosition;
+
     // FIXME: Needed?
 //            QString mainScript = runConfig->property("mainScript").toString();
 //            const bool isDebuggableScript = mainScript.endsWith(".py"); // Only Python for now.
@@ -1750,9 +1752,13 @@ void DebuggerPluginPrivate::attachToRunningApplication()
 
 void DebuggerPluginPrivate::attachToUnstartedApplicationDialog()
 {
-    auto dlg = new UnstartedAppWatcherDialog(ICore::dialogParent());
+    auto dlg = new UnstartedAppWatcherDialog(
+        attachToUnstartedApplicationDialogLastPosition, ICore::dialogParent());
 
-    connect(dlg, &QDialog::finished, dlg, &QObject::deleteLater);
+    connect(dlg, &QDialog::finished, this, [this, dlg]() {
+        this->attachToUnstartedApplicationDialogLastPosition = dlg->pos();
+        dlg->deleteLater();
+    });
     connect(dlg, &UnstartedAppWatcherDialog::processFound, this, [this, dlg] {
         RunControl *rc = attachToRunningProcess(dlg->currentKit(),
                                                 dlg->currentProcess(),
