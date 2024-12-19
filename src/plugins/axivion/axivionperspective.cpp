@@ -14,7 +14,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <debugger/analyzer/analyzerconstants.h>
+#include <debugger/debuggerconstants.h>
 #include <debugger/debuggermainwindow.h>
 
 #include <projectexplorer/projectexplorericons.h>

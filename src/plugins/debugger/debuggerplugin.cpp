@@ -26,7 +26,6 @@
 #include "shared/hostutils.h"
 #include "console/console.h"
 
-#include "analyzer/analyzerconstants.h"
 #include "analyzer/analyzerutils.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>

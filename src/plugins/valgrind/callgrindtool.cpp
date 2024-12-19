@@ -33,7 +33,6 @@
 
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggermainwindow.h>
-#include <debugger/analyzer/analyzerconstants.h>
 #include <debugger/analyzer/analyzerutils.h>
 #include <debugger/analyzer/startremotedialog.h>
 

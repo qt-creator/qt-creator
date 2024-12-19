@@ -28,8 +28,8 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <debugger/analyzer/analyzerconstants.h>
 #include <debugger/analyzer/analyzerutils.h>
+#include <debugger/debuggerconstants.h>
 #include <debugger/debuggericons.h>
 #include <debugger/debuggermainwindow.h>
 

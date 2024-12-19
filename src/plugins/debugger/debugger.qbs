@@ -230,7 +230,6 @@ QtcPlugin {
         prefix: "analyzer/"
         files: [
             "analyzerbase.qrc",
-            "analyzerconstants.h",
             "analyzericons.h",
             "analyzerrunconfigwidget.cpp",
             "analyzerrunconfigwidget.h",

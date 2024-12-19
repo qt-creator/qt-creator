@@ -15,7 +15,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/taskprogress.h>
 
-#include <debugger/analyzer/analyzerconstants.h>
+#include <debugger/debuggerconstants.h>
 
 #include <utils/async.h>
 #include <utils/stylehelper.h>

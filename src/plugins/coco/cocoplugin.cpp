@@ -11,13 +11,15 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
+
+#include <debugger/debuggerconstants.h>
+
+#include <extensionsystem/iplugin.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/target.h>
 
-#include <debugger/analyzer/analyzerconstants.h>
-
-#include <extensionsystem/iplugin.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>
@@ -29,12 +31,10 @@
 #include <QPushButton>
 
 using namespace Core;
+using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Coco {
-
-using namespace ProjectExplorer;
-using namespace Internal;
+namespace Coco::Internal {
 
 class CocoPlugin final : public ExtensionSystem::IPlugin
 {
@@ -124,6 +124,6 @@ void CocoPlugin::initialize()
     initLanguageServer();
 }
 
-} // namespace Coco
+} // namespace Coco::Internal
 
 #include "cocoplugin.moc"

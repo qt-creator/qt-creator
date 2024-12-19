@@ -14,7 +14,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 
-#include <debugger/analyzer/analyzerconstants.h>
+#include <debugger/debuggerconstants.h>
 #include <debugger/debuggermainwindow.h>
 
 #include <extensionsystem/iplugin.h>

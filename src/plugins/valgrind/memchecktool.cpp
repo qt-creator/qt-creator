@@ -24,10 +24,10 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 
+#include <debugger/debuggerconstants.h>
 #include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerruncontrol.h>
-#include <debugger/analyzer/analyzerconstants.h>
 #include <debugger/analyzer/analyzerutils.h>
 #include <debugger/analyzer/startremotedialog.h>
 
