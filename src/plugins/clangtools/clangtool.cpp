@@ -24,7 +24,9 @@
 
 #include <cppeditor/cppmodelmanager.h>
 
-#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerconstants.h>
+#include <debugger/analyzer/analyzerutils.h>
+#include <debugger/debuggerconstants.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>

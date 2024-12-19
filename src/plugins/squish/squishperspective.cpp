@@ -7,7 +7,7 @@
 #include "squishtr.h"
 #include "squishxmloutputhandler.h"
 
-#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerutils.h>
 #include <debugger/debuggericons.h>
 #include <coreplugin/icore.h>
 

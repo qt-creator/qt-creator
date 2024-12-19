@@ -32,7 +32,8 @@
 #include <cppeditor/cppeditorconstants.h>
 
 #include <debugger/debuggerconstants.h>
-#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/debuggermainwindow.h>
+#include <debugger/analyzer/analyzerconstants.h>
 #include <debugger/analyzer/analyzerutils.h>
 #include <debugger/analyzer/startremotedialog.h>
 
@@ -829,7 +830,7 @@ void CallgrindTool::requestContextMenu(TextEditorWidget *widget, int line, QMenu
 
 void CallgrindTool::handleShowCostsOfFunction()
 {
-    CPlusPlus::Symbol *symbol = AnalyzerUtils::findSymbolUnderCursor();
+    CPlusPlus::Symbol *symbol = Debugger::findSymbolUnderCursor();
     if (!symbol)
         return;
 

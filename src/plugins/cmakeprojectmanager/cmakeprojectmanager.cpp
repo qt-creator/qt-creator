@@ -27,7 +27,7 @@
 #include <cppeditor/cpptoolsreuse.h>
 
 #include <debugger/analyzer/analyzerconstants.h>
-#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerutils.h>
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>

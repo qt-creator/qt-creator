@@ -6,7 +6,7 @@
 #include "callgrind/callgrindparser.h"
 #include "valgrindtr.h"
 
-#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerutils.h>
 
 #include <utils/filepath.h>
 #include <utils/filestreamermanager.h>

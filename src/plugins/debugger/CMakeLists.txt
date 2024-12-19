@@ -9,7 +9,6 @@ add_qtc_plugin(Debugger
     analyzer/analyzerbase.qrc
     analyzer/analyzerconstants.h
     analyzer/analyzericons.h
-    analyzer/analyzermanager.h
     analyzer/analyzerrunconfigwidget.cpp analyzer/analyzerrunconfigwidget.h
     analyzer/analyzerutils.cpp analyzer/analyzerutils.h
     analyzer/detailederrorview.cpp analyzer/detailederrorview.h

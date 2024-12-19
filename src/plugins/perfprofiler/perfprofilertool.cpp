@@ -17,7 +17,7 @@
 #include <coreplugin/modemanager.h>
 
 #include <debugger/analyzer/analyzerconstants.h>
-#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerutils.h>
 #include <debugger/debuggericons.h>
 
 #include <projectexplorer/project.h>

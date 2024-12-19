@@ -27,7 +27,7 @@
 #include "console/console.h"
 
 #include "analyzer/analyzerconstants.h"
-#include "analyzer/analyzermanager.h"
+#include "analyzer/analyzerutils.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
