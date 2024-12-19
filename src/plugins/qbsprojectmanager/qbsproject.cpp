@@ -871,6 +871,7 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
 }
 
 static RawProjectPart generateProjectPart(
+        const FilePath &refFile,
         const QJsonObject &product,
         const QJsonObject &group,
         const std::shared_ptr<const Toolchain> &cToolchain,
@@ -918,12 +919,12 @@ static RawProjectPart generateProjectPart(
     list.append(arrayToStringList(props.value("cpp.systemFrameworkPaths")));
     list.removeDuplicates();
     for (const QString &p : std::as_const(list))
-        headerPaths += HeaderPath::makeFramework(FilePath::fromUserInput(p));
+        headerPaths += HeaderPath::makeFramework(refFile.withNewPath(p));
     rpp.setHeaderPaths(headerPaths);
     rpp.setDisplayName(groupName);
     const QJsonObject location = groupOrProduct.value("location").toObject();
     rpp.setProjectFileLocation(
-        FilePath::fromUserInput(location.value("file-path").toString()),
+        refFile.withNewPath(location.value("file-path").toString()),
         location.value("line").toInt(),
         location.value("column").toInt());
     rpp.setBuildSystemTarget(QbsProductNode::getBuildKey(product));
@@ -946,8 +947,10 @@ static RawProjectPart generateProjectPart(
     bool hasObjcFiles = false;
     bool hasObjcxxFiles = false;
     const auto artifactWorker = [&](const QJsonObject &source) {
-        const QString filePath = source.value("file-path").toString();
-        filePathToSourceArtifact.insert(filePath, source);
+        const QString filePath = refFile.withNewPath(source.value("file-path").toString()).toString();
+        QJsonObject translatedSource = source;
+        translatedSource.insert("file-path", filePath);
+        filePathToSourceArtifact.insert(filePath, translatedSource);
         for (const QJsonValue &tag : source.value("file-tags").toArray()) {
             if (tag == "c")
                 hasCFiles = true;
@@ -988,7 +991,10 @@ static RawProjectPart generateProjectPart(
         qCWarning(qbsPmLog) << "Expect problems with code model";
     }
     rpp.setPreCompiledHeaders(Utils::toList(pchFiles));
-    rpp.setIncludedFiles(arrayToStringList(props.value("cpp.prefixHeaders")));
+    rpp.setIncludedFiles(
+        Utils::transform(arrayToStringList(props.value("cpp.prefixHeaders")), [&](const QString &f) {
+            return refFile.withNewPath(f).toString();
+        }));
     rpp.setFiles(filePathToSourceArtifact.keys(), {},
                  [filePathToSourceArtifact](const QString &filePath) {
         // Keep this lambda thread-safe!
@@ -998,6 +1004,7 @@ static RawProjectPart generateProjectPart(
 }
 
 static RawProjectParts generateProjectParts(
+        const FilePath &refFile,
         const QJsonObject &projectData,
         const std::shared_ptr<const Toolchain> &cToolchain,
         const std::shared_ptr<const Toolchain> &cxxToolchain,
@@ -1005,21 +1012,25 @@ static RawProjectParts generateProjectParts(
         )
 {
     RawProjectParts rpps;
+    const auto translatedPath = [&](const QJsonValue &v) {
+        QTC_ASSERT(v.isString(), return QString());
+        return refFile.withNewPath(v.toString()).toString();
+    };
     forAllProducts(projectData, [&](const QJsonObject &prd) {
         QString cPch;
         QString cxxPch;
         QString objcPch;
         QString objcxxPch;
-        const auto &pchFinder = [&cPch, &cxxPch, &objcPch, &objcxxPch](const QJsonObject &artifact) {
+        const auto &pchFinder = [&](const QJsonObject &artifact) {
             const QJsonArray fileTags = artifact.value("file-tags").toArray();
             if (fileTags.contains("c_pch_src"))
-                cPch = artifact.value("file-path").toString();
+                cPch = translatedPath(artifact.value("file-path"));
             if (fileTags.contains("cpp_pch_src"))
-                cxxPch = artifact.value("file-path").toString();
+                cxxPch = translatedPath(artifact.value("file-path"));
             if (fileTags.contains("objc_pch_src"))
-                objcPch = artifact.value("file-path").toString();
+                objcPch = translatedPath(artifact.value("file-path"));
             if (fileTags.contains("objcpp_pch_src"))
-                objcxxPch = artifact.value("file-path").toString();
+                objcxxPch = translatedPath(artifact.value("file-path"));
         };
         forAllArtifacts(prd, ArtifactType::All, pchFinder);
         const Utils::QtMajorVersion qtVersionForPart
@@ -1033,11 +1044,11 @@ static RawProjectParts generateProjectParts(
         };
         for (const QJsonValue &g : groups) {
             appendIfNotEmpty(generateProjectPart(
-                                 prd, g.toObject(), cToolchain, cxxToolchain, qtVersionForPart,
+                                 refFile, prd, g.toObject(), cToolchain, cxxToolchain, qtVersionForPart,
                                  cPch, cxxPch, objcPch, objcxxPch));
         }
         appendIfNotEmpty(generateProjectPart(
-                             prd, {}, cToolchain, cxxToolchain, qtVersionForPart,
+                             refFile, prd, {}, cToolchain, cxxToolchain, qtVersionForPart,
                              cPch, cxxPch, objcPch, objcxxPch));
     });
     return rpps;
@@ -1058,8 +1069,8 @@ void QbsBuildSystem::updateCppCodeModel()
             ? kitInfo.cxxToolchain->clone() : nullptr);
 
     m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), {},
-            [projectData, kitInfo, cToolchain, cxxToolchain] {
-                    return generateProjectParts(projectData, cToolchain, cxxToolchain,
+            [projectData, kitInfo, cToolchain, cxxToolchain, refFile = project()->projectFilePath()] {
+                    return generateProjectParts(refFile, projectData, cToolchain, cxxToolchain,
                                                 kitInfo.projectPartQtVersion);
     }});
 }
@@ -1146,8 +1157,8 @@ void QbsBuildSystem::updateApplicationTargets()
         }
         BuildTargetInfo bti;
         bti.buildKey = QbsProductNode::getBuildKey(productData);
-        bti.targetFilePath = FilePath::fromString(targetFile);
-        bti.projectFilePath = FilePath::fromString(projectFile);
+        bti.targetFilePath = projectFilePath().withNewPath(targetFile);
+        bti.projectFilePath = projectFilePath().withNewPath(projectFile);
         bti.isQtcRunnable = isQtcRunnable; // Fixed up below.
         bti.usesTerminal = usesTerminal;
         bti.displayName = productData.value("full-display-name").toString();
@@ -1196,12 +1207,12 @@ void QbsBuildSystem::updateDeploymentInfo()
     if (session()->projectData().isEmpty())
         return;
     DeploymentData deploymentData;
-    forAllProducts(session()->projectData(), [&deploymentData](const QJsonObject &product) {
-        forAllArtifacts(product, ArtifactType::All, [&deploymentData](const QJsonObject &artifact) {
+    forAllProducts(session()->projectData(), [&](const QJsonObject &product) {
+        forAllArtifacts(product, ArtifactType::All, [&](const QJsonObject &artifact) {
             const QJsonObject installData = artifact.value("install-data").toObject();
             if (installData.value("is-installable").toBool()) {
                 deploymentData.addFile(
-                            FilePath::fromSettings(artifact.value("file-path")),
+                            projectFilePath().withNewPath(artifact.value("file-path").toString()),
                             QFileInfo(installData.value("install-file-path").toString()).path(),
                             artifact.value("is-executable").toBool()
                                 ? DeployableFile::TypeExecutable : DeployableFile::TypeNormal);
