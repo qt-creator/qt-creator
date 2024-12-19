@@ -48,15 +48,7 @@ class TEXTEDITOR_EXPORT TextBlockUserData : public QTextBlockUserData
 {
 public:
 
-    inline TextBlockUserData()
-        : m_foldingIndent(0)
-        , m_lexerState(0)
-        , m_folded(false)
-        , m_ifdefedOut(false)
-        , m_foldingStartIncluded(false)
-        , m_foldingEndIncluded(false)
-        , m_codeFormatterData(nullptr)
-    {}
+    TextBlockUserData() = default;
     ~TextBlockUserData() override;
 
     inline TextMarks marks() const { return m_marks; }
@@ -141,15 +133,15 @@ public:
 
 private:
     TextMarks m_marks;
-    int m_foldingIndent : 16;
-    int m_lexerState : 8;
-    uint m_folded : 1;
-    uint m_ifdefedOut : 1;
-    uint m_foldingStartIncluded : 1;
-    uint m_foldingEndIncluded : 1;
+    int m_foldingIndent : 16 = 0;
+    int m_lexerState : 8 = 0;
+    uint m_folded : 1 = false;
+    uint m_ifdefedOut : 1 = false;
+    uint m_foldingStartIncluded : 1 = false;
+    uint m_foldingEndIncluded : 1 = false;
     int m_additionalAnnotationHeight = 0;
     Parentheses m_parentheses;
-    CodeFormatterData *m_codeFormatterData;
+    CodeFormatterData *m_codeFormatterData = nullptr;
     KSyntaxHighlighting::State m_syntaxState;
     QByteArray m_expectedRawStringSuffix; // A bit C++-specific, but let's be pragmatic.
     std::unique_ptr<QTextDocument> m_replacement;
