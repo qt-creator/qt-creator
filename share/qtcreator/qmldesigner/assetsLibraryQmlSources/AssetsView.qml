@@ -46,6 +46,16 @@ TreeView {
     readonly property int lastRow: root.rows - 1
     property var __createdDirectories: []
 
+    onExpanded:(row) => {
+        let index = root.__modelIndex(row)
+        assetsModel.saveExpandState(assetsModel.filePath(index), true)
+    }
+
+    onCollapsed:(row) => {
+        let index = root.__modelIndex(row)
+        assetsModel.saveExpandState(assetsModel.filePath(index), false)
+    }
+
     rowHeightProvider: (row) => {
         if (row <= root.rootPathRow)
             return 0
@@ -358,8 +368,6 @@ TreeView {
             return
 
         let row = root.rowAtIndex(index)
-
-        assetsModel.saveExpandState(root.currentFilePath, expand)
 
         if (expand)
             root.expand(row)
