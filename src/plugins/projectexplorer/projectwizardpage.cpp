@@ -546,37 +546,35 @@ IVersionControl *ProjectWizardPage::currentVersionControl()
 void ProjectWizardPage::setFiles(const FilePaths &files)
 {
     m_commonDirectory = FileUtils::commonPath(files);
-    const bool hasNoCommonDirectory = m_commonDirectory.isEmpty() || files.size() < 2;
+    const bool hasCommonDirectory = !m_commonDirectory.isEmpty() && files.size() > 1;
 
     QString fileMessage;
     {
         QTextStream str(&fileMessage);
         str << "<qt>"
-            << (hasNoCommonDirectory ? Tr::tr("Files to be added:") : Tr::tr("Files to be added in"))
+            << (hasCommonDirectory ? Tr::tr("Files to be added in") : Tr::tr("Files to be added:"))
             << "<pre>";
 
-        QStringList formattedFiles;
-        if (hasNoCommonDirectory) {
-            formattedFiles = Utils::transform(files, &FilePath::toString);
-        } else {
+        FilePaths formattedFiles = files;
+        if (hasCommonDirectory) {
             str << m_commonDirectory.toUserOutput() << ":\n\n";
-            int prefixSize = m_commonDirectory.toUserOutput().size();
-            formattedFiles = Utils::transform(files, [prefixSize] (const FilePath &f) {
-                return f.toString().mid(prefixSize + 1); // +1 skips the initial dir separator
+            const QDir commonDir(m_commonDirectory.path());
+            formattedFiles = transform(files, [&](const FilePath &f) {
+                return FilePath::fromString(commonDir.relativeFilePath(f.path()));
             });
         }
         // Alphabetically, and files in sub-directories first
-        Utils::sort(formattedFiles, [](const QString &filePath1, const QString &filePath2) -> bool {
-            const bool filePath1HasDir = filePath1.contains(QLatin1Char('/'));
-            const bool filePath2HasDir = filePath2.contains(QLatin1Char('/'));
+        Utils::sort(formattedFiles, [](const FilePath &filePath1, const FilePath &filePath2) -> bool {
+            const bool filePath1HasDir = filePath1.path().contains('/');
+            const bool filePath2HasDir = filePath2.path().contains('/');
 
             if (filePath1HasDir == filePath2HasDir)
-                return FilePath::fromString(filePath1) < FilePath::fromString(filePath2);
+                return filePath1 < filePath2;
             return filePath1HasDir;
         });
 
-        for (const QString &f : std::as_const(formattedFiles))
-            str << QDir::toNativeSeparators(f) << '\n';
+        for (const FilePath &f : std::as_const(formattedFiles))
+            str << f.toUserOutput() << '\n';
 
         str << "</pre>";
     }
