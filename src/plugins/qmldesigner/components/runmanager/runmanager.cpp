@@ -59,6 +59,49 @@ RunManager::RunManager(DeviceShare::DeviceManager &deviceManager)
 
     // TODO If device going offline is currently running force stop
 
+    // Packing
+    connect(&m_deviceManager,
+            &DeviceShare::DeviceManager::projectPacking,
+            this,
+            [this](const QString &deviceId) {
+                qCDebug(runManagerLog) << "Project packing." << deviceId;
+                setState(TargetState::Packing);
+            });
+    connect(&m_deviceManager,
+            &DeviceShare::DeviceManager::projectPackingError,
+            this,
+            &RunManager::handleError);
+
+    // Sending
+    connect(&m_deviceManager,
+            &DeviceShare::DeviceManager::projectSendingProgress,
+            this,
+            [this](const QString &deviceId, const int percentage) {
+                qCDebug(runManagerLog) << "Project sending." << deviceId << percentage;
+                setProgress(percentage);
+                setState(TargetState::Sending);
+            });
+    connect(&m_deviceManager,
+            &DeviceShare::DeviceManager::projectSendingError,
+            this,
+            &RunManager::handleError);
+
+    // Starting
+    connect(&m_deviceManager,
+            &DeviceShare::DeviceManager::projectStarting,
+            this,
+            [this](const QString &deviceId) {
+                qCDebug(runManagerLog) << "Project starting." << deviceId;
+                setState(TargetState::Starting);
+            });
+
+    connect(&m_deviceManager,
+            &DeviceShare::DeviceManager::projectStartingError,
+            this,
+            &RunManager::handleError);
+
+    connect(&m_deviceManager, &DeviceShare::DeviceManager::internalError, this, &RunManager::handleError);
+
     // Connect Android/Device run/stop project signals
     connect(&m_deviceManager,
             &DeviceShare::DeviceManager::projectStarted,
@@ -68,8 +111,7 @@ RunManager::RunManager(DeviceShare::DeviceManager &deviceManager)
 
                 m_runningTargets.append(deviceId);
 
-                m_state = TargetState::Running;
-                emit stateChanged();
+                setState(TargetState::Running);
             });
     connect(&m_deviceManager,
             &DeviceShare::DeviceManager::projectStopped,
@@ -91,8 +133,7 @@ RunManager::RunManager(DeviceShare::DeviceManager &deviceManager)
                 if (!m_runningTargets.isEmpty())
                     return;
 
-                m_state = TargetState::NotRunning;
-                emit stateChanged();
+                setState(TargetState::NotRunning);
             });
 
     // Connect Creator run/stop project signals
@@ -105,8 +146,7 @@ RunManager::RunManager(DeviceShare::DeviceManager &deviceManager)
 
                 m_runningTargets.append(QPointer(runControl));
 
-                m_state = TargetState::Running;
-                emit stateChanged();
+                setState(TargetState::Running);
             });
     connect(projectExplorerPlugin,
             &ProjectExplorer::ProjectExplorerPlugin::runControlStoped,
@@ -128,8 +168,7 @@ RunManager::RunManager(DeviceShare::DeviceManager &deviceManager)
                 if (!m_runningTargets.isEmpty())
                     return;
 
-                m_state = TargetState::NotRunning;
-                emit stateChanged();
+                setState(TargetState::NotRunning);
             });
 
     udpateTargets();
@@ -192,7 +231,14 @@ void RunManager::toggleCurrentTarget()
         return;
     }
 
+    setError("");
+
     std::visit([&](const auto &arg) { arg.run(); }, *target);
+}
+
+void RunManager::cancelCurrentTarget()
+{
+    deviceManager()->stopProject();
 }
 
 int RunManager::currentTargetIndex() const
@@ -223,6 +269,45 @@ bool RunManager::selectRunTarget(const QString &targetName)
     return selectRunTarget(Utils::Id::fromString(targetName));
 }
 
+void RunManager::setState(TargetState state)
+{
+    if (state == m_state)
+        return;
+
+    m_state = state;
+    emit stateChanged();
+}
+
+RunManager::TargetState RunManager::state() const
+{
+    return m_state;
+}
+
+void RunManager::setProgress(int progress)
+{
+    m_progress = progress;
+    emit progressChanged();
+}
+
+int RunManager::progress() const
+{
+    return m_progress;
+}
+
+void RunManager::setError(const QString &error)
+{
+    if (error == m_error)
+        return;
+
+    m_error = error;
+    emit errorChanged();
+}
+
+const QString &RunManager::error() const
+{
+    return m_error;
+}
+
 std::optional<Target> RunManager::runTarget(Utils::Id targetId) const
 {
     auto find_id = [&](const auto &target) {
@@ -251,6 +336,13 @@ int RunManager::runTargetIndex(Utils::Id targetId) const
         return std::distance(m_targets.begin(), result);
 
     return -1;
+}
+
+void RunManager::handleError(const QString &deviceId, const QString &error)
+{
+    qCDebug(runManagerLog) << "Error" << deviceId << error;
+    setError(error);
+    setState(TargetState::NotRunning);
 }
 
 QString NormalTarget::name() const

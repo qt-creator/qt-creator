@@ -118,12 +118,15 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: home.right
             anchors.leftMargin: 10
-            width: 160
+            width: 170
 
             runTarget: backend?.runTargetIndex
             runManagerState: backend?.runManagerState
+            runManagerProgress: backend?.runManagerProgress
+            runManagerError: backend?.runManagerError
 
             onClicked: backend.toggleRunning()
+            onCancelClicked: backend.cancelRunning()
             onRunTargetSelected: function(targetName) { backend.selectRunTarget(targetName) }
             onOpenRunTargets: backend.openDeviceManager()
         }

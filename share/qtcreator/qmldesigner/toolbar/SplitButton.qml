@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
+import QtQuick.Shapes
+import QtQuick.Layouts
 import QtQuick.Templates as T
 
 import StudioTheme as StudioTheme
@@ -17,11 +19,15 @@ Item {
     property bool hover: primaryButton.hover || menuButton.hover
 
     signal clicked()
+    signal cancelClicked()
     signal runTargetSelected(targetId: string)
     signal openRunTargets()
 
-    property int runTarget: 0
+    property int runTarget: 0 // index
+    property string runTargetName
     property int runManagerState: RunManager.NotRunning
+    property int runManagerProgress: 0
+    property string runManagerError
 
     property int menuWidth: Math.max(160, root.width)
 
@@ -33,6 +39,11 @@ Item {
         return runManagerModel.data(modelIndex, RunManagerModel.Enabled)
     }
 
+    function getRunTargetName(index: int): string {
+        let modelIndex = runManagerModel.index(index, 0)
+        return runManagerModel.data(modelIndex, "targetName")
+    }
+
     ToolTipArea {
         id: toolTipArea
         anchors.fill: parent
@@ -42,15 +53,84 @@ Item {
     }
 
     onRunTargetChanged: {
+        root.runTargetName = root.getRunTargetName(root.runTarget)
         primaryButton.enabled = root.isRunTargetEnabled(root.runTarget)
+    }
+
+    component ProgressCircle: Shape {
+        id: shape
+
+        property real from: 0
+        property real to: 100
+        property bool indeterminate: false
+        property real value: 0.5
+
+        property int strokeWidth: 4
+
+        property int radiusX: (shape.width - shape.strokeWidth) / 2
+        property int radiusY: (shape.height - shape.strokeWidth) / 2
+
+        width: 20
+        height: 20
+        preferredRendererType: Shape.CurveRenderer
+
+        ShapePath {
+            id: background
+            strokeColor: "gray"
+            strokeWidth: shape.strokeWidth
+            fillColor: "transparent"
+            capStyle: ShapePath.FlatCap
+
+            PathAngleArc {
+                radiusX: shape.radiusX
+                radiusY: shape.radiusY
+                centerX: shape.width / 2
+                centerY: shape.height / 2
+                startAngle: 0
+                sweepAngle: 360
+            }
+        }
+
+        ShapePath {
+            id: foreground
+            strokeColor: StudioTheme.Values.themeInteraction
+            strokeWidth: shape.strokeWidth
+            fillColor: "transparent"
+            capStyle: ShapePath.FlatCap
+
+            PathAngleArc {
+                radiusX: shape.radiusX
+                radiusY: shape.radiusY
+                centerX: shape.width / 2
+                centerY: shape.height / 2
+                startAngle: -90
+                sweepAngle: shape.indeterminate ? 90 : 360 * shape.value
+            }
+        }
+        // Indeterminate rotation animation
+        RotationAnimation on rotation {
+            loops: Animation.Infinite
+            from: 0
+            to: 360
+            running: shape.indeterminate
+            duration: 2000
+
+            onStopped: shape.rotation = 0
+        }
     }
 
     Connections {
         target: runManagerModel
+
         function onModelReset() {
+            root.runTargetName = root.getRunTargetName(root.runTarget)
             primaryButton.enabled = root.isRunTargetEnabled(root.runTarget)
         }
     }
+
+    readonly property bool showProgress: root.runManagerState === RunManager.Packing
+                                         || root.runManagerState === RunManager.Sending
+                                         || root.runManagerState === RunManager.Starting
 
     Row {
         T.AbstractButton {
@@ -94,47 +174,95 @@ Item {
                 width: primaryButton.width
                 height: primaryButton.height
 
-                Row {
-                    anchors.verticalCenter: parent.verticalCenter
+                RowLayout {
                     anchors.left: parent.left
+                    anchors.right: parent.right
                     anchors.leftMargin: 8
+                    anchors.rightMargin: 8
+                    anchors.verticalCenter: parent.verticalCenter
                     spacing: 8
 
-                    T.Label {
+                    Item {
+                        width: 20
                         height: primaryButton.height
-                        font.family: StudioTheme.Constants.iconFont.family
-                        font.pixelSize: primaryButton.style.baseIconFontSize
-                        verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignHCenter
-                        color: {
-                            if (root.runManagerState === RunManager.NotRunning)
-                                return primaryButton.press ? primaryButton.style.text.idle
-                                                           : primaryButton.hover ? "#2eff68" // running green
-                                                                                 : "#649a5d" // idle green
-                            else
-                                return primaryButton.press ? primaryButton.style.text.idle
-                                                           : primaryButton.hover ? "#cc3c34" // recording red
-                                                                                 : "#6a4242" // idle red
+
+                        ProgressCircle {
+                            anchors.centerIn: parent
+                            visible: root.showProgress
+                            indeterminate: root.runManagerState === RunManager.Packing
+                                           || root.runManagerState === RunManager.Starting
+                            value: root.runManagerProgress / 100
                         }
 
-                        text: {
-                            if (root.runManagerState === RunManager.NotRunning)
-                                return StudioTheme.Constants.playOutline_medium
-                            else
-                                return StudioTheme.Constants.stop_medium
+                        T.Label {
+                            visible: !root.showProgress
+                            height: primaryButton.height
+
+                            font.family: StudioTheme.Constants.iconFont.family
+                            font.pixelSize: primaryButton.style.baseIconFontSize
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
+                            color: {
+                                if (root.runManagerState === RunManager.NotRunning)
+                                    return primaryButton.press ? primaryButton.style.text.idle
+                                                               : primaryButton.hover ? "#2eff68" // running green
+                                                                                     : "#649a5d" // idle green
+                                else
+                                    return primaryButton.press ? primaryButton.style.text.idle
+                                                               : primaryButton.hover ? "#cc3c34" // recording red
+                                                                                     : "#6a4242" // idle red
+                            }
+
+                            text: {
+                                if (root.runManagerState === RunManager.NotRunning)
+                                    return StudioTheme.Constants.playOutline_medium
+                                else
+                                    return StudioTheme.Constants.stop_medium
+                            }
                         }
                     }
 
                     T.Label {
+                        Layout.fillWidth: true
                         height: primaryButton.height
                         color: primaryButton.enabled ? primaryButton.style.text.idle
                                                      : primaryButton.style.text.disabled
                         font.pixelSize: primaryButton.style.baseFontSize
                         verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignHCenter
+                        horizontalAlignment: Text.AlignLeft
+                        elide: Text.ElideMiddle
                         text: {
-                            let index = runManagerModel.index(root.runTarget, 0)
-                            return runManagerModel.data(index, "targetName")
+                            if (root.runManagerState === RunManager.Packing)
+                                return qsTr("Packing")
+                            else if (root.runManagerState === RunManager.Sending)
+                                return qsTr("Sending")
+                            else if (root.runManagerState === RunManager.Starting)
+                                return qsTr("Starting")
+                            else
+                                return root.runTargetName
+                        }
+                    }
+
+                    T.Label {
+                        visible: root.showProgress || root.runManagerError
+                        height: primaryButton.height
+
+                        font.family: StudioTheme.Constants.iconFont.family
+                        font.pixelSize: StudioTheme.Values.mediumFontSize
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
+
+                        color: root.runManagerError ? StudioTheme.Values.themeError
+                                                    : primaryButton.style.text.idle
+                        text: root.runManagerError ? StudioTheme.Constants.error_medium
+                                                   : StudioTheme.Constants.close_small
+
+                        ToolTipArea {
+                            anchors.fill: parent
+                            acceptedButtons: Qt.LeftButton
+                            tooltip: root.runManagerError
+
+                            onClicked: root.cancelClicked()
                         }
                     }
                 }
@@ -256,6 +384,7 @@ Item {
 
             checkable: false
             checked: window.visible
+            enabled: root.runManagerState === RunManager.NotRunning
 
             onClicked: {
                 if (window.visible) {
