@@ -592,19 +592,6 @@ void DebuggerEnginePrivate::setupViews()
     QTC_ASSERT(m_state == DebuggerNotReady || m_state == DebuggerFinished, qDebug() << m_state);
     m_progress.setProgressValue(200);
 
-//    m_terminal.setup();
-//    if (m_terminal.isUsable()) {
-//        connect(&m_terminal, &Terminal::stdOutReady, [this](const QString &msg) {
-//            m_engine->showMessage(msg, Utils::StdOutFormatSameLine);
-//        });
-//        connect(&m_terminal, &Terminal::stdErrReady, [this](const QString &msg) {
-//            m_engine->showMessage(msg, Utils::StdErrFormatSameLine);
-//        });
-//        connect(&m_terminal, &Terminal::error, [this](const QString &msg) {
-//            m_engine->showMessage(msg, Utils::ErrorMessageFormat);
-//        });
-//    }
-
     connect(&m_locationTimer, &QTimer::timeout,
             this, &DebuggerEnginePrivate::resetLocation);
 
