@@ -371,8 +371,18 @@ Environment LinuxDevicePrivate::getEnvironment()
     if (m_disconnected())
         return {};
 
+    const bool sourceProfile = q->extraData(Constants::SourceProfile).toBool();
+
+    CommandLine cmd;
+    if (sourceProfile) {
+        cmd.setExecutable(q->filePath("sh"));
+        cmd.addArgs({"-c", ". /etc/profile ; . ~/.profile ; env"});
+    } else {
+        cmd.setExecutable(q->filePath("env"));
+    }
+
     Process getEnvProc;
-    getEnvProc.setCommand(CommandLine{q->filePath("env")});
+    getEnvProc.setCommand(cmd);
     using namespace std::chrono;
     getEnvProc.runBlocking(5s);
 
