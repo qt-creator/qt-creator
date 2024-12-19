@@ -227,19 +227,16 @@ CallgrindTool::CallgrindTool(QObject *parent)
         "Callgrind tool to record function calls when a program runs.");
 
     if (!Utils::HostOsInfo::isWindowsHost()) {
-        auto action = new QAction(Tr::tr("Valgrind Function Profiler"), this);
-        action->setToolTip(toolTip);
-        menu->addAction(ActionManager::registerAction(action, CallgrindLocalActionId),
+        m_startAction->setText(Tr::tr("Valgrind Function Profiler"));
+        m_startAction->setParent(this);
+        m_startAction->setToolTip(toolTip);
+        menu->addAction(ActionManager::registerAction(m_startAction, CallgrindLocalActionId),
                         Debugger::Constants::G_ANALYZER_TOOLS);
-        QObject::connect(action, &QAction::triggered, this, [this, action] {
-            if (!Debugger::wantRunTool(OptimizedMode, action->text()))
+        QObject::connect(m_startAction, &QAction::triggered, this, [this] {
+            if (!Debugger::wantRunTool(OptimizedMode, m_startAction->text()))
                 return;
             m_perspective.select();
             ProjectExplorerPlugin::runStartupProject(CALLGRIND_RUN_MODE);
-        });
-        QObject::connect(m_startAction, &QAction::triggered, action, &QAction::triggered);
-        QObject::connect(m_startAction, &QAction::changed, action, [action, this] {
-            action->setEnabled(m_startAction->isEnabled());
         });
     }
 
