@@ -115,6 +115,8 @@ private:
     Utils::AspectContainer *m_globalSettings = nullptr;  // Not owned.
 };
 
+PROJECTEXPLORER_EXPORT QWidget *createRunConfigAspectWidget(GlobalOrProjectAspect *);
+
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
 {

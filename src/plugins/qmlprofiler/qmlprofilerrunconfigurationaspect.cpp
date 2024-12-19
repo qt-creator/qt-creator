@@ -7,11 +7,13 @@
 #include "qmlprofilersettings.h"
 #include "qmlprofilertr.h"
 
-#include <debugger/analyzer/analyzerrunconfigwidget.h>
+#include <projectexplorer/runconfiguration.h>
+
+using namespace ProjectExplorer;
 
 namespace QmlProfiler::Internal {
 
-QmlProfilerRunConfigurationAspect::QmlProfilerRunConfigurationAspect(ProjectExplorer::Target *)
+QmlProfilerRunConfigurationAspect::QmlProfilerRunConfigurationAspect(Target *)
 {
     setProjectSettings(new QmlProfilerSettings);
     setGlobalSettings(&Internal::globalSettings());
@@ -19,7 +21,7 @@ QmlProfilerRunConfigurationAspect::QmlProfilerRunConfigurationAspect(ProjectExpl
     setDisplayName(Tr::tr("QML Profiler Settings"));
     setUsingGlobalSettings(true);
     resetProjectToGlobalSettings();
-    setConfigWidgetCreator([this] { return new Debugger::AnalyzerRunConfigWidget(this); });
+    setConfigWidgetCreator([this] { return createRunConfigAspectWidget(this); });
 }
 
 } // QmlProfiler::Internal

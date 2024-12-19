@@ -8,7 +8,6 @@ add_qtc_plugin(Debugger
   SOURCES
     analyzer/analyzerbase.qrc
     analyzer/analyzericons.h
-    analyzer/analyzerrunconfigwidget.cpp analyzer/analyzerrunconfigwidget.h
     analyzer/analyzerutils.cpp analyzer/analyzerutils.h
     analyzer/detailederrorview.cpp analyzer/detailederrorview.h
     analyzer/diagnosticlocation.cpp analyzer/diagnosticlocation.h
