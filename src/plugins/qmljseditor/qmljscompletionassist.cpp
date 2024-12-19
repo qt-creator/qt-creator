@@ -879,7 +879,7 @@ bool QmlJSCompletionAssistProcessor::acceptsIdleEditor() const
         tc.setPosition(interface()->position());
         const QTextBlock &block = tc.block();
         const QString &blockText = block.text();
-        const int blockState = qMax(0, block.previous().userState()) & 0xff;
+        const int blockState = qMax(0, block.previous().userState());
 
         Scanner scanner;
         const QList<Token> tokens = scanner(blockText, blockState);

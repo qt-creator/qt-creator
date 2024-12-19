@@ -26,10 +26,7 @@ public:
 
     int startState(const QTextBlock &block) const
     {
-        int state = block.previous().userState();
-        if (state == -1)
-            return 0;
-        return state & 0xff;
+        return qMax(0, block.previous().userState());
     }
 
     QString operator()(const QTextCursor &cursor)

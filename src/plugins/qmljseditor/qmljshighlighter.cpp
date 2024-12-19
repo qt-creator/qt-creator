@@ -284,7 +284,8 @@ int QmlJSHighlighter::onBlockStart()
 
 void QmlJSHighlighter::onBlockEnd(int state)
 {
-    setCurrentBlockState((m_braceDepth << 8) | state);
+    setCurrentBlockState(state);
+    TextDocumentLayout::setBraceDepth(currentBlock(), m_braceDepth);
     TextDocumentLayout::setParentheses(currentBlock(), m_currentBlockParentheses);
     TextDocumentLayout::setFoldingIndent(currentBlock(), m_foldingIndent);
 }

@@ -71,6 +71,8 @@ public:
     inline const Parentheses &parentheses() const { return m_parentheses; }
     inline bool hasParentheses() const { return !m_parentheses.isEmpty(); }
     int braceDepthDelta() const;
+    inline int braceDepth() const { return m_braceDepth; }
+    inline void setBraceDepth(int depth) { m_braceDepth = depth; }
 
     inline bool setIfdefedOut() { bool result = m_ifdefedOut; m_ifdefedOut = true; return !result; }
     inline bool clearIfdefedOut() { bool result = m_ifdefedOut; m_ifdefedOut = false; return result;}
@@ -134,12 +136,13 @@ public:
 private:
     TextMarks m_marks;
     int m_foldingIndent : 16 = 0;
+    int m_braceDepth : 16 = 0;
+    int m_additionalAnnotationHeight : 16 = 0;
     int m_lexerState : 8 = 0;
     uint m_folded : 1 = false;
     uint m_ifdefedOut : 1 = false;
     uint m_foldingStartIncluded : 1 = false;
     uint m_foldingEndIncluded : 1 = false;
-    int m_additionalAnnotationHeight = 0;
     Parentheses m_parentheses;
     CodeFormatterData *m_codeFormatterData = nullptr;
     KSyntaxHighlighting::State m_syntaxState;
@@ -167,8 +170,8 @@ public:
     static bool ifdefedOut(const QTextBlock &block);
     static int braceDepthDelta(const QTextBlock &block);
     static int braceDepth(const QTextBlock &block);
-    static void setBraceDepth(QTextBlock &block, int depth);
-    static void changeBraceDepth(QTextBlock &block, int delta);
+    static void setBraceDepth(const QTextBlock &block, int depth);
+    static void changeBraceDepth(const QTextBlock &block, int delta);
     static void setFoldingIndent(const QTextBlock &block, int indent);
     static int foldingIndent(const QTextBlock &block);
     static void setLexerState(const QTextBlock &block, int state);
