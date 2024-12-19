@@ -227,6 +227,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_configurationStates = new QTabBar(this);
     m_configurationStates->addTab(Tr::tr("Initial Configuration"));
     m_configurationStates->addTab(Tr::tr("Current Configuration"));
+    setWheelScrollingWithoutFocusBlocked(m_configurationStates);
     connect(m_configurationStates, &QTabBar::currentChanged, this, [this](int index) {
         updateConfigurationStateIndex(index);
     });
