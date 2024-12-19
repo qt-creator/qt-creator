@@ -1516,11 +1516,11 @@ void DebuggerPluginPrivate::updatePresetState()
     if (!currentEngine) {
         // No engine running  -- or -- we have a running engine but it does not
         // correspond to the current start up project.
-        m_startAction.setEnabled(bool(canRun));
+        m_startAction.setEnabled(canRun);
         m_startAction.setIcon(startIcon(true));
         m_startAction.setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         m_startAction.setVisible(true);
-        m_debugWithoutDeployAction.setEnabled(bool(canRun));
+        m_debugWithoutDeployAction.setEnabled(canRun);
         m_visibleStartAction.setAction(&m_startAction);
         m_hiddenStopAction.setAction(&m_undisturbableAction);
         return;
@@ -1534,7 +1534,7 @@ void DebuggerPluginPrivate::updatePresetState()
     m_startAction.setEnabled(false);
     m_startAction.setVisible(false);
 
-    m_debugWithoutDeployAction.setEnabled(bool(canRun));
+    m_debugWithoutDeployAction.setEnabled(canRun);
 
     const DebuggerState state = currentEngine->state();
 
@@ -1552,8 +1552,8 @@ void DebuggerPluginPrivate::updatePresetState()
         m_hiddenStopAction.setAction(ActionManager::command(Constants::INTERRUPT)->action());
     } else if (state == DebuggerFinished) {
         // We don't want to do anything anymore.
-        m_startAction.setEnabled(bool(canRun));
-        m_debugWithoutDeployAction.setEnabled(bool(canRun));
+        m_startAction.setEnabled(canRun);
+        m_debugWithoutDeployAction.setEnabled(canRun);
         m_visibleStartAction.setAction(ActionManager::command(DEBUGGER_START)->action());
         m_hiddenStopAction.setAction(&m_undisturbableAction);
     } else if (state == InferiorUnrunnable) {

@@ -855,12 +855,12 @@ void MemcheckTool::updateRunActions()
         const auto canRun = ProjectExplorerPlugin::canRunStartupProject(MEMCHECK_RUN_MODE);
         m_startAction->setToolTip(canRun ? Tr::tr("Start a Valgrind Memcheck analysis.")
                                          : canRun.error());
-        m_startAction->setEnabled(bool(canRun));
+        m_startAction->setEnabled(canRun);
         const auto canRunGdb = ProjectExplorerPlugin::canRunStartupProject(
             MEMCHECK_WITH_GDB_RUN_MODE);
         m_startWithGdbAction->setToolTip(
             canRunGdb ? Tr::tr("Start a Valgrind Memcheck with GDB analysis.") : canRunGdb.error());
-        m_startWithGdbAction->setEnabled(bool(canRunGdb));
+        m_startWithGdbAction->setEnabled(canRunGdb);
         m_stopAction->setEnabled(false);
     }
 }

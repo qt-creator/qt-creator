@@ -59,7 +59,7 @@ void setupProjectModule()
 
         result["canRunStartupProject"] =
             [](const QString &mode) -> std::pair<bool, std::variant<QString, sol::lua_nil_t>> {
-            auto result = ProjectExplorerPlugin::canRunStartupProject(Id::fromString(mode));
+            const auto result = ProjectExplorerPlugin::canRunStartupProject(Id::fromString(mode));
             if (result)
                 return std::make_pair(true, sol::lua_nil);
             return std::make_pair(false, result.error());
