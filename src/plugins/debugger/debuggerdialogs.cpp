@@ -13,14 +13,12 @@
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/toolchain.h>
 
 #include <utils/fancylineedit.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
-#include <QButtonGroup>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDebug>
@@ -33,9 +31,7 @@
 #include <QMessageBox>
 #include <QPlainTextEdit>
 #include <QPushButton>
-#include <QRadioButton>
 #include <QRegularExpression>
-#include <QScrollArea>
 #include <QSpinBox>
 
 using namespace Core;
@@ -501,8 +497,8 @@ public:
     KitChooser *kitChooser;
 };
 
-AttachToQmlPortDialog::AttachToQmlPortDialog(QWidget *parent)
-  : QDialog(parent),
+AttachToQmlPortDialog::AttachToQmlPortDialog()
+  : QDialog(ICore::dialogParent()),
     d(new AttachToQmlPortDialogPrivate)
 {
     setWindowTitle(Tr::tr("Start Debugger"));
@@ -587,8 +583,8 @@ static QString cdbRemoteHelp()
                  QString(cdbConnectionSyntax));
 }
 
-StartRemoteCdbDialog::StartRemoteCdbDialog(QWidget *parent) :
-    QDialog(parent), m_lineEdit(new QLineEdit)
+StartRemoteCdbDialog::StartRemoteCdbDialog()
+    : QDialog(ICore::dialogParent()), m_lineEdit(new QLineEdit)
 {
     setWindowTitle(Tr::tr("Start a CDB Remote Session"));
 
@@ -653,10 +649,10 @@ void StartRemoteCdbDialog::setConnection(const QString &c)
     m_okButton->setEnabled(!c.isEmpty());
 }
 
-AddressDialog::AddressDialog(QWidget *parent) :
-        QDialog(parent),
-        m_lineEdit(new QLineEdit),
-        m_box(new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel))
+AddressDialog::AddressDialog()
+    : QDialog(ICore::dialogParent()),
+      m_lineEdit(new QLineEdit),
+      m_box(new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel))
 {
     setWindowTitle(Tr::tr("Select Start Address"));
 
@@ -714,205 +710,6 @@ bool AddressDialog::isValid() const
     bool ok = false;
     text.toULongLong(&ok, 16);
     return ok;
-}
-
-///////////////////////////////////////////////////////////////////////
-//
-// StartRemoteEngineDialog
-//
-///////////////////////////////////////////////////////////////////////
-
-class StartRemoteEngineDialogPrivate
-{
-public:
-    FancyLineEdit *host;
-    FancyLineEdit *username;
-    QLineEdit *password;
-    FancyLineEdit *enginePath;
-    FancyLineEdit *inferiorPath;
-    QDialogButtonBox *buttonBox;
-};
-
-StartRemoteEngineDialog::StartRemoteEngineDialog(QWidget *parent)
-    : QDialog(parent), d(new StartRemoteEngineDialogPrivate)
-{
-    setWindowTitle(Tr::tr("Start Remote Engine"));
-
-    d->host = new FancyLineEdit(this);
-    d->host->setHistoryCompleter("HostName");
-
-    d->username = new FancyLineEdit(this);
-    d->username->setHistoryCompleter("UserName");
-
-    d->password = new QLineEdit(this);
-    d->password->setEchoMode(QLineEdit::Password);
-
-    d->enginePath = new FancyLineEdit(this);
-    d->enginePath->setHistoryCompleter("EnginePath");
-
-    d->inferiorPath = new FancyLineEdit(this);
-    d->inferiorPath->setHistoryCompleter("InferiorPath");
-
-    d->buttonBox = new QDialogButtonBox(this);
-    d->buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
-
-    auto formLayout = new QFormLayout();
-    formLayout->addRow(Tr::tr("&Host:"), d->host);
-    formLayout->addRow(Tr::tr("&Username:"), d->username);
-    formLayout->addRow(Tr::tr("&Password:"), d->password);
-    formLayout->addRow(Tr::tr("&Engine path:"), d->enginePath);
-    formLayout->addRow(Tr::tr("&Inferior path:"), d->inferiorPath);
-
-    auto verticalLayout = new QVBoxLayout(this);
-    verticalLayout->addLayout(formLayout);
-    verticalLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    verticalLayout->addWidget(d->buttonBox);
-
-    connect(d->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(d->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-}
-
-StartRemoteEngineDialog::~StartRemoteEngineDialog()
-{
-    delete d;
-}
-
-QString StartRemoteEngineDialog::host() const
-{
-    return d->host->text();
-}
-
-QString StartRemoteEngineDialog::username() const
-{
-    return d->username->text();
-}
-
-QString StartRemoteEngineDialog::password() const
-{
-    return d->password->text();
-}
-
-QString StartRemoteEngineDialog::inferiorPath() const
-{
-    return d->inferiorPath->text();
-}
-
-QString StartRemoteEngineDialog::enginePath() const
-{
-    return d->enginePath->text();
-}
-
-///////////////////////////////////////////////////////////////////////
-//
-// TypeFormatsDialogUi
-//
-///////////////////////////////////////////////////////////////////////
-
-class TypeFormatsDialogPage : public QWidget
-{
-public:
-    TypeFormatsDialogPage()
-    {
-        m_layout = new QGridLayout;
-        m_layout->setColumnStretch(0, 2);
-        auto vboxLayout = new QVBoxLayout;
-        vboxLayout->addLayout(m_layout);
-        vboxLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Ignored,
-                                            QSizePolicy::MinimumExpanding));
-        setLayout(vboxLayout);
-    }
-
-    void addTypeFormats(const QString &type,
-        const DisplayFormats &typeFormats, int current)
-    {
-        const int row = m_layout->rowCount();
-        int column = 0;
-        auto group = new QButtonGroup(this);
-        m_layout->addWidget(new QLabel(type), row, column++);
-        for (int i = -1; i != typeFormats.size(); ++i) {
-            auto choice = new QRadioButton(this);
-            choice->setText(i == -1 ? Tr::tr("Reset")
-                                    : WatchHandler::nameForFormat(typeFormats.at(i)));
-            m_layout->addWidget(choice, row, column++);
-            if (i == current)
-                choice->setChecked(true);
-            group->addButton(choice, i);
-        }
-    }
-private:
-    QGridLayout *m_layout;
-};
-
-class TypeFormatsDialogUi
-{
-public:
-    TypeFormatsDialogUi(TypeFormatsDialog *q)
-    {
-        tabs = new QTabWidget(q);
-
-        buttonBox = new QDialogButtonBox(q);
-        buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
-
-        auto layout = new QVBoxLayout(q);
-        layout->addWidget(tabs);
-        layout->addWidget(buttonBox);
-        q->setLayout(layout);
-    }
-
-    void addPage(const QString &name)
-    {
-        auto page = new TypeFormatsDialogPage;
-        pages.append(page);
-        auto scroller = new QScrollArea;
-        scroller->setWidgetResizable(true);
-        scroller->setWidget(page);
-        scroller->setFrameStyle(QFrame::NoFrame);
-        tabs->addTab(scroller, name);
-    }
-
-public:
-    QList<TypeFormatsDialogPage *> pages;
-    QDialogButtonBox *buttonBox;
-
-private:
-    QTabWidget *tabs;
-};
-
-
-///////////////////////////////////////////////////////////////////////
-//
-// TypeFormatsDialog
-//
-///////////////////////////////////////////////////////////////////////
-
-TypeFormatsDialog::TypeFormatsDialog(QWidget *parent)
-   : QDialog(parent), m_ui(new TypeFormatsDialogUi(this))
-{
-    setWindowTitle(Tr::tr("Type Formats"));
-    m_ui->addPage(Tr::tr("Qt Types"));
-    m_ui->addPage(Tr::tr("Standard Types"));
-    m_ui->addPage(Tr::tr("Misc Types"));
-
-    connect(m_ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(m_ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-}
-
-TypeFormatsDialog::~TypeFormatsDialog()
-{
-    delete m_ui;
-}
-
-void TypeFormatsDialog::addTypeFormats(const QString &type0,
-    const DisplayFormats &typeFormats, int current)
-{
-    QString type = type0;
-    type.replace("__", "::");
-    int pos = 2;
-    if (type.startsWith('Q'))
-        pos = 0;
-    else if (type.startsWith("std::"))
-        pos = 1;
-    m_ui->pages[pos]->addTypeFormats(type, typeFormats, current);
 }
 
 } // Debugger::Internal

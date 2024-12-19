@@ -1690,7 +1690,7 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
     Kit *kit = findUniversalCdbKit();
     QTC_ASSERT(kit, return);
 
-    StartRemoteCdbDialog dlg(ICore::dialogParent());
+    StartRemoteCdbDialog dlg;
     QString previousConnection = configValue(connectionKey).toString();
     if (previousConnection.isEmpty())
         previousConnection = "localhost:1234";
@@ -1819,7 +1819,7 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
 
 void DebuggerPluginPrivate::attachToQmlPort()
 {
-    AttachToQmlPortDialog dlg(ICore::dialogParent());
+    AttachToQmlPortDialog dlg;
 
     const QVariant qmlServerPort = configValue("LastQmlServerPort");
     if (qmlServerPort.isValid())

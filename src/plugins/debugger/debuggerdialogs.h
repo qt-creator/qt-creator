@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "watchhandler.h"
-
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/abi.h>
 
@@ -18,18 +16,13 @@ QT_END_NAMESPACE
 
 namespace Debugger::Internal {
 
-class AttachToQmlPortDialogPrivate;
-class DebuggerRunParameters;
-class StartApplicationParameters;
-class StartRemoteEngineDialogPrivate;
-
 void runAttachToRemoteServerDialog();
 void runStartAndDebugApplicationDialog();
 
 class AttachToQmlPortDialog : public QDialog
 {
 public:
-    explicit AttachToQmlPortDialog(QWidget *parent);
+    AttachToQmlPortDialog();
     ~AttachToQmlPortDialog() override;
 
     int port() const;
@@ -39,13 +32,13 @@ public:
     void setKitId(Utils::Id id);
 
 private:
-    AttachToQmlPortDialogPrivate *d;
+    class AttachToQmlPortDialogPrivate *d;
 };
 
 class StartRemoteCdbDialog : public QDialog
 {
 public:
-    explicit StartRemoteCdbDialog(QWidget *parent);
+    StartRemoteCdbDialog();
     ~StartRemoteCdbDialog() override;
 
     QString connection() const;
@@ -62,7 +55,7 @@ private:
 class AddressDialog : public QDialog
 {
 public:
-     explicit AddressDialog(QWidget *parent = nullptr);
+     AddressDialog();
 
      void setAddress(quint64 a);
      quint64 address() const;
@@ -78,36 +71,6 @@ private:
 
      QLineEdit *m_lineEdit;
      QDialogButtonBox *m_box;
-};
-
-class StartRemoteEngineDialog : public QDialog
-{
-public:
-    explicit StartRemoteEngineDialog(QWidget *parent);
-    ~StartRemoteEngineDialog() override;
-    QString username() const;
-    QString host() const;
-    QString password() const;
-    QString enginePath() const;
-    QString inferiorPath() const;
-
-private:
-    StartRemoteEngineDialogPrivate *d;
-};
-
-class TypeFormatsDialogUi;
-
-class TypeFormatsDialog : public QDialog
-{
-public:
-    explicit TypeFormatsDialog(QWidget *parent);
-    ~TypeFormatsDialog() override;
-
-    void addTypeFormats(const QString &type, const DisplayFormats &formats,
-        int currentFormat);
-
-private:
-    TypeFormatsDialogUi *m_ui;
 };
 
 } // Debugger::Internal
