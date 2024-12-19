@@ -2376,12 +2376,11 @@ void DebuggerEngine::raiseWatchersWindow()
 
 void DebuggerEngine::openMemoryEditor()
 {
-    AddressDialog dialog;
-    if (dialog.exec() != QDialog::Accepted)
-        return;
-    MemoryViewSetupData data;
-    data.startAddress = dialog.address();
-    openMemoryView(data);
+    if (std::optional<quint64> result = runAddressDialog(0)) {
+        MemoryViewSetupData data;
+        data.startAddress = *result;
+        openMemoryView(data);
+    }
 }
 
 void DebuggerEngine::updateLocalsView(const GdbMi &all)

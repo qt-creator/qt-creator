@@ -1926,12 +1926,9 @@ QMenu *WatchModel::createMemoryMenu(WatchItem *item, QWidget *parent)
     addAction(this, menu, Tr::tr("Open Memory Editor..."),
               true,
               [this, item] {
-                    AddressDialog dialog;
-                    if (item->address)
-                        dialog.setAddress(item->address);
-                    if (dialog.exec() == QDialog::Accepted) {
+                    if (std::optional<quint64> result = runAddressDialog(item->address)) {
                         MemoryViewSetupData data;
-                        data.startAddress = dialog.address();
+                        data.startAddress = *result;
                         m_engine->openMemoryView(data);
                     }
                });

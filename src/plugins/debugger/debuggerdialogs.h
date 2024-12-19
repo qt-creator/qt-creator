@@ -3,15 +3,9 @@
 
 #pragma once
 
-#include <projectexplorer/kitchooser.h>
-#include <projectexplorer/abi.h>
+#include <QtGlobal>
 
-#include <QDialog>
-
-QT_BEGIN_NAMESPACE
-class QLineEdit;
-class QDialogButtonBox;
-QT_END_NAMESPACE
+#include <optional>
 
 namespace ProjectExplorer { class Kit; }
 
@@ -22,25 +16,6 @@ void runStartAndDebugApplicationDialog();
 void runStartRemoteCdbSessionDialog(ProjectExplorer::Kit *kit);
 void runAttachToQmlPortDialog();
 
-class AddressDialog : public QDialog
-{
-public:
-     AddressDialog();
-
-     void setAddress(quint64 a);
-     quint64 address() const;
-
-private:
-     void textChanged();
-     void accept() override;
-
-     void setOkButtonEnabled(bool v);
-     bool isOkButtonEnabled() const;
-
-     bool isValid() const;
-
-     QLineEdit *m_lineEdit;
-     QDialogButtonBox *m_box;
-};
+std::optional<quint64> runAddressDialog(quint64 initialAddress);
 
 } // Debugger::Internal

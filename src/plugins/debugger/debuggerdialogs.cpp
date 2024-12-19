@@ -11,6 +11,7 @@
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
+#include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -715,7 +716,27 @@ void runStartRemoteCdbSessionDialog(Kit *kit)
     debugger->startRunControl();
 }
 
+//
 // AddressDialog
+//
+
+class AddressDialog final : public QDialog
+{
+public:
+     AddressDialog();
+
+     void setAddress(quint64 a) { m_lineEdit->setText("0x" + QString::number(a, 16)); }
+     quint64 address() const { return m_lineEdit->text().toULongLong(nullptr, 16); }
+
+     void setOkButtonEnabled(bool v) { m_box->button(QDialogButtonBox::Ok)->setEnabled(v); }
+     bool isOkButtonEnabled() const { return m_box->button(QDialogButtonBox::Ok)->isEnabled(); }
+
+private:
+     void accept() override;
+
+     QLineEdit *m_lineEdit;
+     QDialogButtonBox *m_box;
+};
 
 AddressDialog::AddressDialog()
     : QDialog(ICore::dialogParent()),
@@ -736,29 +757,15 @@ AddressDialog::AddressDialog()
     connect(m_box, &QDialogButtonBox::accepted, this, &AddressDialog::accept);
     connect(m_box, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(m_lineEdit, &QLineEdit::returnPressed, this, &AddressDialog::accept);
-    connect(m_lineEdit, &QLineEdit::textChanged, this, &AddressDialog::textChanged);
+
+    connect(m_lineEdit, &QLineEdit::textChanged, this, [this] {
+        const QString text = m_lineEdit->text();
+        bool ok = false;
+        text.toULongLong(&ok, 16);
+        setOkButtonEnabled(ok);
+    });
 
     setOkButtonEnabled(false);
-}
-
-void AddressDialog::setOkButtonEnabled(bool v)
-{
-    m_box->button(QDialogButtonBox::Ok)->setEnabled(v);
-}
-
-bool AddressDialog::isOkButtonEnabled() const
-{
-    return m_box->button(QDialogButtonBox::Ok)->isEnabled();
-}
-
-void AddressDialog::setAddress(quint64 a)
-{
-    m_lineEdit->setText("0x" + QString::number(a, 16));
-}
-
-quint64 AddressDialog::address() const
-{
-    return m_lineEdit->text().toULongLong(nullptr, 16);
 }
 
 void AddressDialog::accept()
@@ -767,17 +774,15 @@ void AddressDialog::accept()
         QDialog::accept();
 }
 
-void AddressDialog::textChanged()
+std::optional<quint64> runAddressDialog(quint64 initialAddress)
 {
-    setOkButtonEnabled(isValid());
-}
+    AddressDialog dialog;
+    dialog.setAddress(initialAddress);
 
-bool AddressDialog::isValid() const
-{
-    const QString text = m_lineEdit->text();
-    bool ok = false;
-    text.toULongLong(&ok, 16);
-    return ok;
+    if (dialog.exec() != QDialog::Accepted)
+        return {};
+
+    return dialog.address();
 }
 
 } // Debugger::Internal
