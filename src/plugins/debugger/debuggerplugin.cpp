@@ -891,7 +891,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
             this, &DebuggerPluginPrivate::attachToUnstartedApplicationDialog);
 
     connect(&m_attachToQmlPortAction, &QAction::triggered,
-            this, &DebuggerPluginPrivate::attachToQmlPort);
+            this, [] { runAttachToQmlPortDialog(); });
 
     connect(&m_startRemoteCdbAction, &QAction::triggered,
             this, [] { runStartRemoteCdbSessionDialog(findUniversalCdbKit()); });
@@ -1790,46 +1790,6 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     debugger->startRunControl();
 
     return debugger->runControl();
-}
-
-void DebuggerPluginPrivate::attachToQmlPort()
-{
-    AttachToQmlPortDialog dlg;
-
-    const QVariant qmlServerPort = configValue("LastQmlServerPort");
-    if (qmlServerPort.isValid())
-        dlg.setPort(qmlServerPort.toInt());
-    else
-        dlg.setPort(-1);
-
-    const Id kitId = Id::fromSetting(configValue("LastProfile"));
-    if (kitId.isValid())
-        dlg.setKitId(kitId);
-
-    if (dlg.exec() != QDialog::Accepted)
-        return;
-
-    Kit *kit = dlg.kit();
-    QTC_ASSERT(kit, return);
-    setConfigValue("LastQmlServerPort", dlg.port());
-    setConfigValue("LastProfile", kit->id().toSetting());
-
-    IDevice::ConstPtr device = RunDeviceKitAspect::device(kit);
-    QTC_ASSERT(device, return);
-
-    auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    runControl->setKit(kit);
-    auto debugger = new DebuggerRunTool(runControl);
-
-    QUrl qmlServer = device->toolControlChannel(IDevice::QmlControlChannel);
-    qmlServer.setPort(dlg.port());
-    debugger->setQmlServer(qmlServer);
-
-    SshParameters sshParameters = device->sshParameters();
-    debugger->setRemoteChannel(sshParameters.host(), sshParameters.port());
-    debugger->setStartMode(AttachToQmlServer);
-
-    debugger->startRunControl();
 }
 
 void DebuggerPluginPrivate::runScheduled()

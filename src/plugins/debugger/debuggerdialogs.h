@@ -9,7 +9,6 @@
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
-class QPushButton;
 class QLineEdit;
 class QDialogButtonBox;
 QT_END_NAMESPACE
@@ -21,22 +20,7 @@ namespace Debugger::Internal {
 void runAttachToRemoteServerDialog();
 void runStartAndDebugApplicationDialog();
 void runStartRemoteCdbSessionDialog(ProjectExplorer::Kit *kit);
-
-class AttachToQmlPortDialog : public QDialog
-{
-public:
-    AttachToQmlPortDialog();
-    ~AttachToQmlPortDialog() override;
-
-    int port() const;
-    void setPort(const int port);
-
-    ProjectExplorer::Kit *kit() const;
-    void setKitId(Utils::Id id);
-
-private:
-    class AttachToQmlPortDialogPrivate *d;
-};
+void runAttachToQmlPortDialog();
 
 class AddressDialog : public QDialog
 {

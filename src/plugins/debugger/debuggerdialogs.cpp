@@ -490,34 +490,42 @@ void StartApplicationDialog::setParameters(const StartApplicationParameters &p)
 //
 ///////////////////////////////////////////////////////////////////////
 
-class AttachToQmlPortDialogPrivate
+class AttachToQmlPortDialog final : public QDialog
 {
 public:
-    QSpinBox *portSpinBox;
-    KitChooser *kitChooser;
+    AttachToQmlPortDialog();
+
+    int port() const { return m_portSpinBox->value(); }
+    void setPort(const int port) { m_portSpinBox->setValue(port); }
+
+    Kit *kit() const { return m_kitChooser->currentKit(); }
+    void setKitId(Utils::Id id) { m_kitChooser->setCurrentKitId(id); }
+
+private:
+    QSpinBox *m_portSpinBox;
+    KitChooser *m_kitChooser;
 };
 
 AttachToQmlPortDialog::AttachToQmlPortDialog()
-  : QDialog(ICore::dialogParent()),
-    d(new AttachToQmlPortDialogPrivate)
+  : QDialog(ICore::dialogParent())
 {
-    setWindowTitle(Tr::tr("Start Debugger"));
+    setWindowTitle(Tr::tr("Attach to QML Port"));
 
-    d->kitChooser = new KitChooser(this);
-    d->kitChooser->setShowIcons(true);
-    d->kitChooser->populate();
+    m_kitChooser = new KitChooser(this);
+    m_kitChooser->setShowIcons(true);
+    m_kitChooser->populate();
 
-    d->portSpinBox = new QSpinBox(this);
-    d->portSpinBox->setMaximum(65535);
-    d->portSpinBox->setValue(3768);
+    m_portSpinBox = new QSpinBox(this);
+    m_portSpinBox->setMaximum(65535);
+    m_portSpinBox->setValue(3768);
 
     auto buttonBox = new QDialogButtonBox(this);
     buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
     buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
     auto formLayout = new QFormLayout();
-    formLayout->addRow(Tr::tr("Kit:"), d->kitChooser);
-    formLayout->addRow(Tr::tr("&Port:"), d->portSpinBox);
+    formLayout->addRow(Tr::tr("Kit:"), m_kitChooser);
+    formLayout->addRow(Tr::tr("&Port:"), m_portSpinBox);
 
     auto verticalLayout = new QVBoxLayout(this);
     verticalLayout->addLayout(formLayout);
@@ -527,29 +535,48 @@ AttachToQmlPortDialog::AttachToQmlPortDialog()
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
-AttachToQmlPortDialog::~AttachToQmlPortDialog()
+void runAttachToQmlPortDialog()
 {
-    delete d;
-}
+    AttachToQmlPortDialog dlg;
+    QtcSettings *settings = ICore::settings();
 
-void AttachToQmlPortDialog::setPort(const int port)
-{
-    d->portSpinBox->setValue(port);
-}
+    const Key lastQmlServerPortKey = "DebugMode/LastQmlServerPort";
+    const QVariant qmlServerPort = settings->value(lastQmlServerPortKey);
 
-int AttachToQmlPortDialog::port() const
-{
-    return d->portSpinBox->value();
-}
+    if (qmlServerPort.isValid())
+        dlg.setPort(qmlServerPort.toInt());
+    else
+        dlg.setPort(-1);
 
-Kit *AttachToQmlPortDialog::kit() const
-{
-    return d->kitChooser->currentKit();
-}
+    const Key lastProfileKey = "DebugMode/LastProfile";
+    const Id kitId = Id::fromSetting(settings->value(lastProfileKey));
+    if (kitId.isValid())
+        dlg.setKitId(kitId);
 
-void AttachToQmlPortDialog::setKitId(Id id)
-{
-    d->kitChooser->setCurrentKitId(id);
+    if (dlg.exec() != QDialog::Accepted)
+        return;
+
+    Kit *kit = dlg.kit();
+    QTC_ASSERT(kit, return);
+    settings->setValue(lastQmlServerPortKey, dlg.port());
+    settings->setValue(lastProfileKey, kit->id().toSetting());
+
+    IDevice::ConstPtr device = RunDeviceKitAspect::device(kit);
+    QTC_ASSERT(device, return);
+
+    auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    runControl->setKit(kit);
+    auto debugger = new DebuggerRunTool(runControl);
+
+    QUrl qmlServer = device->toolControlChannel(IDevice::QmlControlChannel);
+    qmlServer.setPort(dlg.port());
+    debugger->setQmlServer(qmlServer);
+
+    SshParameters sshParameters = device->sshParameters();
+    debugger->setRemoteChannel(sshParameters.host(), sshParameters.port());
+    debugger->setStartMode(AttachToQmlServer);
+
+    debugger->startRunControl();
 }
 
 // StartRemoteCdbDialog
