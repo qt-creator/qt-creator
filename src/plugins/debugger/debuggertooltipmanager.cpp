@@ -1060,7 +1060,7 @@ bool DebuggerToolTipManagerPrivate::eventFilter(QObject *o, QEvent *e)
         purgeClosedToolTips();
         QList<QPointer<DebuggerToolTipWidget>> affectedTooltips;
         for (auto &[editor, tooltips] : m_tooltips) {
-            if (editor->window() == o)
+            if (editor && editor->window() == o)
                 affectedTooltips.append(tooltips);
         }
         for (const QPointer<DebuggerToolTipWidget> &tooltip : std::as_const(affectedTooltips)) {
