@@ -26,7 +26,6 @@ public:
 
 signals:
     void canceled();
-    void avdDetected();
 
 private:
     void remoteStarted(const Utils::Port &debugServerPort, qint64 pid);
