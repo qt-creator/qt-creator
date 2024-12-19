@@ -14,10 +14,13 @@ class QLineEdit;
 class QDialogButtonBox;
 QT_END_NAMESPACE
 
+namespace ProjectExplorer { class Kit; }
+
 namespace Debugger::Internal {
 
 void runAttachToRemoteServerDialog();
 void runStartAndDebugApplicationDialog();
+void runStartRemoteCdbSessionDialog(ProjectExplorer::Kit *kit);
 
 class AttachToQmlPortDialog : public QDialog
 {
@@ -33,23 +36,6 @@ public:
 
 private:
     class AttachToQmlPortDialogPrivate *d;
-};
-
-class StartRemoteCdbDialog : public QDialog
-{
-public:
-    StartRemoteCdbDialog();
-    ~StartRemoteCdbDialog() override;
-
-    QString connection() const;
-    void setConnection(const QString &);
-
-private:
-    void textChanged(const QString &);
-    void accept() override;
-
-    QPushButton *m_okButton = nullptr;
-    QLineEdit *m_lineEdit;
 };
 
 class AddressDialog : public QDialog

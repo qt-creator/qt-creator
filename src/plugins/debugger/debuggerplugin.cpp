@@ -631,7 +631,6 @@ public:
     void enableOrDisableBreakpoint();
     void updateDebugWithoutDeployMenu();
 
-    void startRemoteCdbSession();
     void attachToRunningApplication();
     void attachToUnstartedApplicationDialog();
     void attachToQmlPort();
@@ -895,7 +894,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
             this, &DebuggerPluginPrivate::attachToQmlPort);
 
     connect(&m_startRemoteCdbAction, &QAction::triggered,
-            this, &DebuggerPluginPrivate::startRemoteCdbSession);
+            this, [] { runStartRemoteCdbSessionDialog(findUniversalCdbKit()); });
 
     // "Start Debugging" sub-menu
     // groups:
@@ -1682,30 +1681,6 @@ void DebuggerPluginPrivate::reloadDebuggingHelpers()
     else
         DebuggerMainWindow::showStatusMessage(
             Tr::tr("Reload debugging helpers skipped as no engine is running."), 5000);
-}
-
-void DebuggerPluginPrivate::startRemoteCdbSession()
-{
-    const Key connectionKey = "CdbRemoteConnection";
-    Kit *kit = findUniversalCdbKit();
-    QTC_ASSERT(kit, return);
-
-    StartRemoteCdbDialog dlg;
-    QString previousConnection = configValue(connectionKey).toString();
-    if (previousConnection.isEmpty())
-        previousConnection = "localhost:1234";
-    dlg.setConnection(previousConnection);
-    if (dlg.exec() != QDialog::Accepted)
-        return;
-    setConfigValue(connectionKey, dlg.connection());
-
-    auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    runControl->setKit(kit);
-    auto debugger = new DebuggerRunTool(runControl);
-    debugger->setStartMode(AttachToRemoteServer);
-    debugger->setCloseMode(KillAtClose);
-    debugger->setRemoteChannel(dlg.connection());
-    debugger->startRunControl();
 }
 
 void DebuggerPluginPrivate::attachToRunningApplication()

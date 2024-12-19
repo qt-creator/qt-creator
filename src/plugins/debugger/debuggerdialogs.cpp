@@ -552,7 +552,8 @@ void AttachToQmlPortDialog::setKitId(Id id)
     d->kitChooser->setCurrentKitId(id);
 }
 
-// --------- StartRemoteCdbDialog
+// StartRemoteCdbDialog
+
 static QString cdbRemoteHelp()
 {
     const char cdbConnectionSyntax[] =
@@ -582,6 +583,22 @@ static QString cdbRemoteHelp()
                  QString("cdb.exe -server tcp:port=1234"),
                  QString(cdbConnectionSyntax));
 }
+
+class StartRemoteCdbDialog final : public QDialog
+{
+public:
+    StartRemoteCdbDialog();
+
+    QString connection() const;
+    void setConnection(const QString &);
+
+private:
+    void textChanged(const QString &);
+    void accept() override;
+
+    QPushButton *m_okButton = nullptr;
+    QLineEdit *m_lineEdit;
+};
 
 StartRemoteCdbDialog::StartRemoteCdbDialog()
     : QDialog(ICore::dialogParent()), m_lineEdit(new QLineEdit)
@@ -624,8 +641,6 @@ void StartRemoteCdbDialog::accept()
         QDialog::accept();
 }
 
-StartRemoteCdbDialog::~StartRemoteCdbDialog() = default;
-
 void StartRemoteCdbDialog::textChanged(const QString &t)
 {
     m_okButton->setEnabled(!t.isEmpty());
@@ -648,6 +663,32 @@ void StartRemoteCdbDialog::setConnection(const QString &c)
     m_lineEdit->setText(c);
     m_okButton->setEnabled(!c.isEmpty());
 }
+
+void runStartRemoteCdbSessionDialog(Kit *kit)
+{
+    QTC_ASSERT(kit, return);
+    const Key connectionKey = "DebugMode/CdbRemoteConnection";
+
+    StartRemoteCdbDialog dlg;
+    QString previousConnection = ICore::settings()->value(connectionKey).toString();
+    if (previousConnection.isEmpty())
+        previousConnection = "localhost:1234";
+    dlg.setConnection(previousConnection);
+    if (dlg.exec() != QDialog::Accepted)
+        return;
+
+    ICore::settings()->setValue(connectionKey, dlg.connection());
+
+    auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    runControl->setKit(kit);
+    auto debugger = new DebuggerRunTool(runControl);
+    debugger->setStartMode(AttachToRemoteServer);
+    debugger->setCloseMode(KillAtClose);
+    debugger->setRemoteChannel(dlg.connection());
+    debugger->startRunControl();
+}
+
+// AddressDialog
 
 AddressDialog::AddressDialog()
     : QDialog(ICore::dialogParent()),
