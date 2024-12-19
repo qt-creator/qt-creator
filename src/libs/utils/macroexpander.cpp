@@ -514,13 +514,13 @@ void MacroExpander::registerFileVariables(const QByteArray &prefix,
     registerVariable(
         prefix + kFilePathPostfix,
         Tr::tr("%1: Full path including file name.").arg(heading),
-        [base] { return base().path(); },
+        [base] { return base().toFSPathString(); },
         visibleInChooser);
 
     registerVariable(
         prefix + kPathPostfix,
         Tr::tr("%1: Full path excluding file name.").arg(heading),
-        [base] { return base().parentDir().path(); },
+        [base] { return base().parentDir().toFSPathString(); },
         visibleInChooser);
 
     registerVariable(
