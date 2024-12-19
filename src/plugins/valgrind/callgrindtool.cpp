@@ -833,7 +833,7 @@ void CallgrindTool::handleShowCostsOfFunction()
     if (!symbol)
         return;
 
-    if (!symbol->asFunction())
+    if (!symbol->asFunction() && !symbol->type()->asFunctionType())
         return;
 
     CPlusPlus::Overview view;
