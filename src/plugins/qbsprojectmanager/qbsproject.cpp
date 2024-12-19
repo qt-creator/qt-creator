@@ -348,20 +348,19 @@ bool QbsBuildSystem::isProjectEditable() const
     return !isParsing() && !BuildManager::isBuilding(target());
 }
 
-bool QbsBuildSystem::ensureWriteableQbsFile(const QString &file)
+// Ensure that the file is not read only
+bool QbsBuildSystem::ensureWriteableQbsFile(const FilePath &file)
 {
-    // Ensure that the file is not read only
-    QFileInfo fi(file);
-    if (!fi.isWritable()) {
+    if (!file.isWritableFile()) {
         // Try via vcs manager
         IVersionControl *versionControl =
-            VcsManager::findVersionControlForDirectory(FilePath::fromString(fi.absolutePath()));
-        if (!versionControl || !versionControl->vcsOpen(FilePath::fromString(file))) {
-            bool makeWritable = QFile::setPermissions(file, fi.permissions() | QFile::WriteUser);
+            VcsManager::findVersionControlForDirectory(file.parentDir());
+        if (!versionControl || !versionControl->vcsOpen(file)) {
+            bool makeWritable = file.setPermissions(file.permissions() | QFile::WriteUser);
             if (!makeWritable) {
                 QMessageBox::warning(ICore::dialogParent(),
                                      Tr::tr("Failed"),
-                                     Tr::tr("Could not write project file %1.").arg(file));
+                                     Tr::tr("Could not write project file %1.").arg(file.toUserOutput()));
                 return false;
             }
         }
@@ -375,10 +374,9 @@ bool QbsBuildSystem::addFilesToProduct(
         const QJsonObject &group,
         FilePaths *notAdded)
 {
-    const QString groupFilePath = group.value("location").toObject().value("file-path").toString();
-    ensureWriteableQbsFile(groupFilePath);
+    ensureWriteableQbsFile(groupFilePath(group));
     const FileChangeResult result = session()->addFiles(
-                Utils::transform(filePaths, &FilePath::toString),
+                Utils::transform(filePaths, &FilePath::path),
                 product.value("full-display-name").toString(),
                 group.value("name").toString());
     if (result.error().hasError()) {
@@ -394,27 +392,27 @@ RemovedFilesFromProject QbsBuildSystem::removeFilesFromProduct(
         const QJsonObject &group,
         FilePaths *notRemoved)
 {
-    const auto allWildcardsInGroup = transform<QStringList>(
+    const auto allWildcardsInGroup = transform<FilePaths>(
                 group.value("source-artifacts-from-wildcards").toArray(),
-                [](const QJsonValue &v) { return v.toObject().value("file-path").toString(); });
+                [this](const QJsonValue &v) { return locationFilePath(v.toObject()); });
     FilePaths wildcardFiles;
-    QStringList nonWildcardFiles;
+    FilePaths nonWildcardFiles;
     for (const FilePath &filePath : filePaths) {
-        if (allWildcardsInGroup.contains(filePath.toString()))
+        if (allWildcardsInGroup.contains(filePath))
             wildcardFiles << filePath;
         else
-            nonWildcardFiles << filePath.toString();
+            nonWildcardFiles << filePath;
     }
 
-    const QString groupFilePath = group.value("location")
-            .toObject().value("file-path").toString();
-    ensureWriteableQbsFile(groupFilePath);
+    ensureWriteableQbsFile(groupFilePath(group));
     const FileChangeResult result = session()->removeFiles(
-                nonWildcardFiles,
+                Utils::transform(nonWildcardFiles, &FilePath::path),
                 product.value("name").toString(),
                 group.value("name").toString());
 
-    *notRemoved = FileUtils::toFilePathList(result.failedFiles());
+    *notRemoved = Utils::transform(result.failedFiles(), [this](const QString &f) {
+        return projectFilePath().withNewPath(f);
+    });
     if (result.error().hasError())
         MessageManager::writeDisrupting(result.error().toString());
     const bool success = notRemoved->isEmpty();
@@ -450,29 +448,26 @@ bool QbsBuildSystem::renameFilesInProduct(
     const QJsonObject &group,
     Utils::FilePaths *notRenamed)
 {
-    const auto allWildcardsInGroup = transform<QStringList>(
+    const auto allWildcardsInGroup = transform<FilePaths>(
         group.value("source-artifacts-from-wildcards").toArray(),
-        [](const QJsonValue &v) { return v.toObject().value("file-path").toString(); });
+        [this](const QJsonValue &v) { return locationFilePath(v.toObject()); });
     using FileStringPair = std::pair<QString, QString>;
     using FileStringPairs = QList<FileStringPair>;
-    const FileStringPairs filesAsStrings = Utils::transform(files, [](const FilePair &fp) {
-        return std::make_pair(fp.first.path(), fp.second.path());
-    });
     FileStringPairs nonWildcardFiles;
-    for (const FileStringPair &file : filesAsStrings) {
+    for (const FilePair &file : files) {
         if (!allWildcardsInGroup.contains(file.first))
-            nonWildcardFiles << file;
+            nonWildcardFiles << std::make_pair(file.first.path(), file.second.path());
     }
 
-    const QString groupFilePath = group.value("location")
-                                      .toObject().value("file-path").toString();
-    ensureWriteableQbsFile(groupFilePath);
+    ensureWriteableQbsFile(groupFilePath(group));
     const FileChangeResult result = session()->renameFiles(
         nonWildcardFiles,
         product.value("name").toString(),
         group.value("name").toString());
 
-    *notRenamed = FileUtils::toFilePathList(result.failedFiles());
+    *notRenamed = Utils::transform(result.failedFiles(), [this](const QString &f) {
+        return projectFilePath().withNewPath(f);
+    });
     if (result.error().hasError())
         MessageManager::writeDisrupting(result.error().toString());
     return notRenamed->isEmpty();
@@ -526,6 +521,16 @@ void QbsBuildSystem::updateProjectNodes(const std::function<void ()> &continuati
             QThread::LowPriority, &buildQbsProjectTree,
             project()->displayName(), project()->projectFilePath(), project()->projectDirectory(),
             projectData()));
+}
+
+FilePath QbsBuildSystem::locationFilePath(const QJsonObject &loc) const
+{
+    return projectDirectory().withNewPath(loc.value("file-path").toString());
+}
+
+FilePath QbsBuildSystem::groupFilePath(const QJsonObject &group) const
+{
+    return locationFilePath(group.value("location").toObject());
 }
 
 FilePath QbsBuildSystem::installRoot()

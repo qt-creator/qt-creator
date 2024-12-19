@@ -129,8 +129,10 @@ private:
     void updateAfterParse();
     void updateProjectNodes(const std::function<void()> &continuation);
     Utils::FilePath installRoot();
+    Utils::FilePath locationFilePath(const QJsonObject &loc) const;
+    Utils::FilePath groupFilePath(const QJsonObject &group) const;
 
-    static bool ensureWriteableQbsFile(const QString &file);
+    static bool ensureWriteableQbsFile(const Utils::FilePath &file);
 
     QbsSession * const m_session;
     QSet<Core::IDocument *> m_qbsDocuments;
