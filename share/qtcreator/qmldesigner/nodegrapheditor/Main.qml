@@ -293,6 +293,15 @@ Item {
                 }
                 onRightClicked: function (pos) {
                     if (NodeGraphEditorBackend.nodeGraphEditorModel.currentFileName !== "") {
+                        var selectedNodes = graphView.graph.selectedNodes;
+                        if (selectedNodes) {
+                            if (selectedNodes.length > 0)
+                                contextMenu.node = selectedNodes.at(0);
+                            else
+                                contextMenu.node = null;
+                        } else
+                            contextMenu.node = null;
+
                         contextMenu.popup();
                     }
                 }

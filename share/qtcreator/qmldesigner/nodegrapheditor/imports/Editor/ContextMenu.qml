@@ -14,8 +14,17 @@ StudioControls.Menu {
     id: contextMenu
 
     required property var graph
+    property var inputsModel: []
+    property var node
 
     closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnEscape
+
+    onAboutToShow: {
+        if (node && node.item)
+            contextMenu.inputsModel = node.item.portsMetaData;
+        else
+            contextMenu.inputsModel = null;
+    }
 
     StudioControls.MenuItem {
         text: qsTr("BaseColor")
@@ -86,6 +95,34 @@ StudioControls.Menu {
 
         onTriggered: () => {
             contextMenu.graph.insertNode(Nodes.Components.texture);
+        }
+    }
+
+    StudioControls.MenuSeparator {
+        height: implicitHeight
+        style: StudioTheme.Values.controlStyle
+    }
+
+    StudioControls.Menu {
+        enabled: node !== null
+        title: "Pins"
+
+        Repeater {
+            id: pinRepeater
+
+            model: contextMenu.inputsModel ? contextMenu.inputsModel.pin : null
+
+            delegate: StudioControls.CheckBox {
+                actionIndicator.visible: false
+                checkState: (modelData.enabled === undefined || modelData.enabled === true) ? Qt.Checked : Qt.UnChecked
+                text: "pin: " + modelData.name
+                width: implicitWidth + StudioTheme.Values.toolbarHorizontalMargin
+
+                onToggled: {
+                    contextMenu.node.item.switchPin(modelData.id);
+                    contextMenu.node.item.updatePinVisibility(modelData.id);
+                }
+            }
         }
     }
 }

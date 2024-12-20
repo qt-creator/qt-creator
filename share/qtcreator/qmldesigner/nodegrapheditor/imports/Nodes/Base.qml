@@ -18,6 +18,7 @@ Qan.NodeItem {
         //     alias: "",
         //     name: "",
         //     type: "",
+        //     enabled: true,
         //     binding: (values) => {}
         // }
         property var pin: []
@@ -25,6 +26,29 @@ Qan.NodeItem {
     }
     property string type
     property string uuid: NodeGraphEditorBackend.widget.generateUUID()
+
+    function switchPin(pin_id) {
+        root.portsMetaData.pin.forEach(data => {
+            if (data.id == pin_id) {
+                if (data.enabled === false)
+                    data.enabled = true;
+                else
+                    data.enabled = false;
+            }
+        });
+    }
+
+    function updatePinVisibility(pin_id) {
+        internal.createdPorts.forEach(data => {
+            if (data.dataId === pin_id) {
+                root.portsMetaData.pin.forEach(data2 => {
+                    if (data2.id === pin_id) {
+                        data.visible = data2.enabled;
+                    }
+                });
+            }
+        });
+    }
 
     Layout.preferredHeight: 60
     Layout.preferredWidth: 100
@@ -56,6 +80,8 @@ Qan.NodeItem {
     QtObject {
         id: internal
 
+        property var createdPorts: []
+
         function configurePorts(graph) {
             const initPort = (portItem, data) => {
                 if (data.binding) {
@@ -65,15 +91,27 @@ Qan.NodeItem {
                 portItem.dataType = data.type;
                 portItem.dataId = data.id;
             };
+            for (var i = 0; i < createdPorts.length; i++) {
+                graph.removePort(root.node, createdPorts[i]);
+            }
+            createdPorts = [];
+
+            root.node.item.ports.clear();
 
             root.portsMetaData.pin.forEach(data => {
                 const portItem = graph.insertPort(root.node, Qan.NodeItem.Left, Qan.PortItem.In, `${data.name} (${data.type})`, data.id);
                 initPort(portItem, data);
+
+                if (data.enabled != undefined && data.enabled === false) {
+                    portItem.visible = false;
+                }
+                createdPorts.push(portItem);
             });
 
             root.portsMetaData.pout.forEach(data => {
                 const portItem = graph.insertPort(root.node, Qan.NodeItem.Right, Qan.PortItem.Out, `${data.name}`, data.id);
                 initPort(portItem, data);
+                createdPorts.push(portItem);
             });
         }
     }

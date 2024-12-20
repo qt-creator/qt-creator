@@ -30,18 +30,21 @@ Base {
                 id: "metalness_in_metalness",
                 alias: "metalness",
                 name: "Metalness",
+                enabled: true,
                 type: "real"
             },
             {
                 id: "metalness_in_metalnessChannel",
                 alias: "channel",
                 name: "Channel",
+                enabled: true,
                 type: "QQuick3DMaterial::TextureChannelMapping"
             },
             {
                 id: "metalness_in_metalnessMap ",
                 alias: "map",
                 name: "Map",
+                enabled: false,
                 type: "Texture"
             },
         ]
@@ -50,6 +53,7 @@ Base {
                 id: "metalness_out",
                 alias: "",
                 name: "OUT",
+                enabled: true,
                 type: "nge::Metalness"
             },
         ]
