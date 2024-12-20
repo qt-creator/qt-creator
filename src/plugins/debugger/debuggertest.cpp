@@ -114,7 +114,7 @@ void DebuggerUnitTests::testStateMachine()
     connect(debugger, &DebuggerRunTool::stopped,
             &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);
 
-    debugger->startRunControl();
+    runControl->start();
 
     QTestEventLoop::instance().enterLoop(5);
 }

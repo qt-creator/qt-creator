@@ -613,7 +613,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
                 debugger->setCloseMode(DetachAtClose);
                 debugger->setRunControlName(name);
                 debugger->setCoreFilePath(FilePath::fromString(coreFile), true);
-                debugger->startRunControl();
+                rc->start();
             });
 
             first = false;
@@ -959,11 +959,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
                                             + 0x100 * qtVersion.minorVersion()
                                             + qtVersion.microVersion();
     }
-}
-
-void DebuggerRunTool::startRunControl()
-{
-    ProjectExplorerPlugin::startRunControl(runControl());
 }
 
 void DebuggerRunTool::addSolibSearchDir(const QString &str)

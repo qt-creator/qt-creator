@@ -660,7 +660,7 @@ public:
 
     ActionContainer *m_menu = nullptr;
 
-    QList<DebuggerRunTool *> m_scheduledStarts;
+    QList<RunControl *> m_scheduledStarts;
 
     ProxyAction m_visibleStartAction; // The fat debug button
     ProxyAction m_hiddenStopAction;
@@ -1420,7 +1420,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         }
         debugger->setUseTerminal(useTerminal);
 
-        m_scheduledStarts.append(debugger);
+        m_scheduledStarts.append(runControl);
         return true;
     }
     // -wincrashevent <event-handle>:<pid>. A handle used for
@@ -1448,7 +1448,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                 "does not match the pattern <handle>:<pid>.").arg(*it, option);
             return false;
         }
-        m_scheduledStarts.append(debugger);
+        m_scheduledStarts.append(runControl);
         return true;
     }
 
@@ -1619,13 +1619,14 @@ void DebuggerPluginPrivate::attachToLastCore()
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->setKit(KitManager::defaultKit());
     runControl->setDisplayName(Tr::tr("Last Core file \"%1\"").arg(lastCore.coreFile.toString()));
-    auto debugger = new DebuggerRunTool(runControl);
 
+    auto debugger = new DebuggerRunTool(runControl);
     debugger->setInferiorExecutable(lastCore.binary);
     debugger->setCoreFilePath(lastCore.coreFile);
     debugger->setStartMode(AttachToCore);
     debugger->setCloseMode(DetachAtClose);
-    debugger->startRunControl();
+
+    runControl->start();
 }
 
 void DebuggerPluginPrivate::reloadDebuggingHelpers()
@@ -1674,7 +1675,8 @@ void DebuggerPluginPrivate::attachToRunningApplication()
         debugger->setCloseMode(DetachAtClose);
         debugger->setUseContinueInsteadOfRun(true);
         debugger->setContinueAfterAttach(false);
-        debugger->startRunControl();
+
+        runControl->start();
     }
 }
 
@@ -1734,6 +1736,7 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     runControl->setKit(kit);
     //: %1: PID
     runControl->setDisplayName(Tr::tr("Process %1").arg(processInfo.processId));
+
     auto debugger = new DebuggerRunTool(runControl);
     debugger->setAttachPid(ProcessHandle(processInfo.processId));
     debugger->setInferiorExecutable(device->filePath(processInfo.executable));
@@ -1741,15 +1744,15 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     debugger->setCloseMode(DetachAtClose);
     debugger->setContinueAfterAttach(contAfterAttach);
 
-    debugger->startRunControl();
+    runControl->start();
 
-    return debugger->runControl();
+    return runControl;
 }
 
 void DebuggerPluginPrivate::runScheduled()
 {
-    for (DebuggerRunTool *debugger : std::as_const(m_scheduledStarts))
-        debugger->startRunControl();
+    for (RunControl *runControl : std::as_const(m_scheduledStarts))
+        runControl->start();
 }
 
 void DebuggerPluginPrivate::editorOpened(IEditor *editor)
@@ -2283,15 +2286,18 @@ void DebuggerPlugin::attachToProcess(const qint64 processId, const Utils::FilePa
 void DebuggerPlugin::attachExternalApplication(RunControl *rc)
 {
     ProcessHandle pid = rc->applicationProcessHandle();
+
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->setTarget(rc->target());
     runControl->setDisplayName(Tr::tr("Process %1").arg(pid.pid()));
+
     auto debugger = new DebuggerRunTool(runControl);
     debugger->setInferiorExecutable(rc->targetFilePath());
     debugger->setAttachPid(pid);
     debugger->setStartMode(AttachToLocalProcess);
     debugger->setCloseMode(DetachAtClose);
-    debugger->startRunControl();
+
+    runControl->start();
 }
 
 void DebuggerPlugin::getEnginesState(QByteArray *json) const

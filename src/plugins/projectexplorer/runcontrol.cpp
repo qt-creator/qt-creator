@@ -380,6 +380,11 @@ void RunControl::copyDataFromRunControl(RunControl *runControl)
     d->copyData(runControl->d.get());
 }
 
+void RunControl::start()
+{
+    ProjectExplorerPlugin::startRunControl(this);
+}
+
 void RunControl::resetDataForAttachToCore()
 {
     d->m_workers.clear();

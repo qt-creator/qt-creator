@@ -95,7 +95,7 @@ void setupProjectModule()
                 auto startRun = [rc = std::move(rc)]() mutable {
                     if (!rc->createMainWorker())
                         return;
-                    ProjectExplorerPlugin::startRunControl(rc.release());
+                    rc.release()->start();
                 };
 
                 if (status == BuildForRunConfigStatus::Building) {

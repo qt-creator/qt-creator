@@ -897,7 +897,7 @@ void ClangTool::startTool(FileSelection fileSelection, const RunSettings &runSet
         m_infoBarWidget->setInfoText("Waiting for build to finish...");
     setState(State::PreparationStarted);
 
-    ProjectExplorerPlugin::startRunControl(m_runControl);
+    m_runControl->start();
 }
 
 FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelection)

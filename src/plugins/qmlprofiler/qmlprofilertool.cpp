@@ -609,7 +609,7 @@ ProjectExplorer::RunControl *QmlProfilerTool::attachToWaitingApplication()
 
     connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionClosed,
             runControl, &RunControl::initiateStop);
-    ProjectExplorerPlugin::startRunControl(runControl);
+    runControl->start();
     return runControl;
 }
 

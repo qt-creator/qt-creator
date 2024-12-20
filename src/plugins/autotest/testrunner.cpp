@@ -588,7 +588,7 @@ void TestRunner::debugTests()
                                  runControl, &RunControl::initiateStop);
 
     connect(runControl, &RunControl::stopped, this, &TestRunner::onFinished);
-    ProjectExplorerPlugin::startRunControl(runControl);
+    runControl->start();
     if (useOutputProcessor && testSettings().popupOnStart())
         popupResultsPane();
 }

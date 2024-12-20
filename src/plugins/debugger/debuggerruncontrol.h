@@ -27,8 +27,6 @@ public:
                              AllowTerminal allowTerminal = DoAllowTerminal);
     ~DebuggerRunTool() override;
 
-    void startRunControl();
-
     void start() override;
     void stop() override;
 

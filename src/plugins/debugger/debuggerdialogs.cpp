@@ -380,10 +380,6 @@ void StartApplicationDialog::run(bool attachRemote)
 
     Kit *k = dialog.kitChooser->currentKit();
 
-    auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    runControl->setKit(k);
-    auto debugger = new DebuggerRunTool(runControl);
-
     const StartApplicationParameters newParameters = dialog.parameters();
     if (newParameters != history.back()) {
         history.append(newParameters);
@@ -405,7 +401,12 @@ void StartApplicationDialog::run(bool attachRemote)
             &dialog, Tr::tr("Cannot debug"), Tr::tr("Cannot debug application: Kit has no device"));
         return;
     }
-    ProcessRunData inferior = newParameters.runnable;
+
+    auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    runControl->setKit(k);
+
+    auto debugger = new DebuggerRunTool(runControl);
+
     const QString inputAddress = dialog.channelOverrideEdit->text();
     if (!inputAddress.isEmpty())
         debugger->setRemoteChannel(inputAddress);
@@ -414,7 +415,7 @@ void StartApplicationDialog::run(bool attachRemote)
     debugger->setRunControlName(newParameters.displayName());
     debugger->setBreakOnMain(newParameters.breakAtMain);
     debugger->setDebugInfoLocation(newParameters.debugInfoLocation);
-    debugger->setInferior(inferior);
+    debugger->setInferior(newParameters.runnable);
     debugger->setCommandsAfterConnect(newParameters.serverInitCommands);
     debugger->setCommandsForReset(newParameters.serverResetCommands);
     debugger->setUseTerminal(newParameters.runInTerminal);
@@ -435,7 +436,8 @@ void StartApplicationDialog::run(bool attachRemote)
         debugger->setUseContinueInsteadOfRun(true);
         debugger->setRunControlName(Tr::tr("Attach to %1").arg(debugger->remoteChannel()));
     }
-    debugger->startRunControl();
+
+    runControl->start();
 }
 
 void runAttachToRemoteServerDialog()
@@ -577,7 +579,7 @@ void runAttachToQmlPortDialog()
     debugger->setRemoteChannel(sshParameters.host(), sshParameters.port());
     debugger->setStartMode(AttachToQmlServer);
 
-    debugger->startRunControl();
+    runControl->start();
 }
 
 // StartRemoteCdbDialog
@@ -709,11 +711,13 @@ void runStartRemoteCdbSessionDialog(Kit *kit)
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->setKit(kit);
+
     auto debugger = new DebuggerRunTool(runControl);
     debugger->setStartMode(AttachToRemoteServer);
     debugger->setCloseMode(KillAtClose);
     debugger->setRemoteChannel(dlg.connection());
-    debugger->startRunControl();
+
+    runControl->start();
 }
 
 //

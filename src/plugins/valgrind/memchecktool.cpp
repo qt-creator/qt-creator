@@ -654,7 +654,7 @@ MemcheckTool::MemcheckTool(QObject *parent)
         rc->createMainWorker();
         rc->setCommandLine(dlg.commandLine());
         rc->setWorkingDirectory(dlg.workingDirectory());
-        ProjectExplorerPlugin::startRunControl(rc);
+        rc->start();
     });
 
     m_perspective.addToolBarAction(m_startAction);

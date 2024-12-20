@@ -348,8 +348,8 @@ void runAttachToCoreDialog()
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->setKit(dlg.kit());
     runControl->setDisplayName(Tr::tr("Core file \"%1\"").arg(dlg.coreFile().toUserOutput()));
-    auto debugger = new DebuggerRunTool(runControl);
 
+    auto debugger = new DebuggerRunTool(runControl);
     debugger->setInferiorExecutable(dlg.symbolFileCopy());
     debugger->setCoreFilePath(dlg.coreFileCopy());
     debugger->setStartMode(AttachToCore);
@@ -358,7 +358,8 @@ void runAttachToCoreDialog()
     const FilePath sysRoot = dlg.sysRoot();
     if (!sysRoot.isEmpty())
         debugger->setSysRoot(sysRoot);
-    debugger->startRunControl();
+
+    runControl->start();
 }
 
 } // Debugger::Internal

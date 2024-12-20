@@ -262,7 +262,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
         runControl->createMainWorker();
         runControl->setCommandLine(dlg.commandLine());
         runControl->setWorkingDirectory(dlg.workingDirectory());
-        ProjectExplorerPlugin::startRunControl(runControl);
+        runControl->start();
     });
 
     // If there is a CppEditor context menu add our own context menu actions.

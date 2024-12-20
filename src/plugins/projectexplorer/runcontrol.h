@@ -151,6 +151,8 @@ public:
     explicit RunControl(Utils::Id mode);
     ~RunControl() final;
 
+    void start();
+
     void setTarget(Target *target);
     void setKit(Kit *kit);
 

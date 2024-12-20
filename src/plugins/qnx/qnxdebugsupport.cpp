@@ -19,7 +19,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitchooser.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -158,7 +157,7 @@ void showAttachToProcessDialog()
         debugger->setSysRoot(qtVersion->qnxTarget());
     debugger->setUseContinueInsteadOfRun(true);
 
-    ProjectExplorerPlugin::startRunControl(runControl);
+    runControl->start();
 }
 
 // QnxDebugWorkerFactory
