@@ -612,8 +612,10 @@ void QbsProjectManagerPlugin::reparseProject(QbsProject *project)
     if (!t)
         return;
 
-    if (auto bs = qobject_cast<QbsBuildSystem *>(t->buildSystem()))
-        bs->scheduleParsing({{Constants::QBS_RESTORE_BEHAVIOR_KEY, "resolve-only"}});
+    if (auto bs = qobject_cast<QbsBuildSystem *>(t->buildSystem());
+        bs && bs->session()->apiLevel() >= 8) {
+        bs->scheduleParsing({{Constants::QBS_RESTORE_BEHAVIOR_KEY, "restore-and-resolve"}});
+    }
 }
 
 void buildNamedProduct(QbsProject *project, const QString &product)
