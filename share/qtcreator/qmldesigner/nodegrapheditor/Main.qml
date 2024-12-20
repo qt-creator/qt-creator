@@ -291,17 +291,16 @@ Item {
                         graph.removeSelection();
                     }
                 }
-                onRightClicked: function (pos) {
+                onRightClicked: pos => {
                     if (NodeGraphEditorBackend.nodeGraphEditorModel.currentFileName !== "") {
+                        contextMenu.node = null;
                         var selectedNodes = graphView.graph.selectedNodes;
-                        if (selectedNodes) {
-                            if (selectedNodes.length > 0)
-                                contextMenu.node = selectedNodes.at(0);
-                            else
-                                contextMenu.node = null;
-                        } else
-                            contextMenu.node = null;
+                        if (selectedNodes && selectedNodes.length > 0) {
+                            contextMenu.node = selectedNodes.at(0);
+                        }
 
+                        const factor = (1.0 / graphView.zoom);
+                        contextMenu.newPosition = Qt.point(-graphView.containerItem.x * factor + pos.x * factor, -graphView.containerItem.y * factor + pos.y * factor);
                         contextMenu.popup();
                     }
                 }

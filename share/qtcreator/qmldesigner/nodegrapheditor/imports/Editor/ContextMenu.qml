@@ -15,6 +15,7 @@ StudioControls.Menu {
 
     required property var graph
     property var inputsModel: []
+    property point newPosition
     property var node
 
     closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnEscape
@@ -30,7 +31,7 @@ StudioControls.Menu {
         text: qsTr("BaseColor")
 
         onTriggered: () => {
-            contextMenu.graph.insertNode(Nodes.Components.baseColor);
+            internal.createNode(Nodes.Components.baseColor);
         }
     }
 
@@ -38,7 +39,7 @@ StudioControls.Menu {
         text: qsTr("Metalness")
 
         onTriggered: () => {
-            contextMenu.graph.insertNode(Nodes.Components.metalness);
+            internal.createNode(Nodes.Components.metalness);
         }
     }
 
@@ -46,7 +47,7 @@ StudioControls.Menu {
         text: qsTr("Roughness")
 
         onTriggered: () => {
-            contextMenu.graph.insertNode(Nodes.Components.roughness);
+            internal.createNode(Nodes.Components.roughness);
         }
     }
 
@@ -54,7 +55,7 @@ StudioControls.Menu {
         text: qsTr("CheckBox")
 
         onTriggered: () => {
-            contextMenu.graph.insertNode(Nodes.Components.checkBox);
+            internal.createNode(Nodes.Components.checkBox);
         }
     }
 
@@ -62,7 +63,7 @@ StudioControls.Menu {
         text: qsTr("Color")
 
         onTriggered: () => {
-            contextMenu.graph.insertNode(Nodes.Components.color);
+            internal.createNode(Nodes.Components.color);
         }
     }
 
@@ -70,7 +71,7 @@ StudioControls.Menu {
         text: qsTr("ComboBox")
 
         onTriggered: () => {
-            contextMenu.graph.insertNode(Nodes.Components.comboBox);
+            internal.createNode(Nodes.Components.comboBox);
         }
     }
 
@@ -78,7 +79,7 @@ StudioControls.Menu {
         text: qsTr("Material")
 
         onTriggered: () => {
-            contextMenu.graph.insertNode(Nodes.Components.material);
+            internal.createNode(Nodes.Components.material);
         }
     }
 
@@ -86,7 +87,7 @@ StudioControls.Menu {
         text: qsTr("RealSpinBox")
 
         onTriggered: () => {
-            contextMenu.graph.insertNode(Nodes.Components.realSpinBox);
+            internal.createNode(Nodes.Components.realSpinBox);
         }
     }
 
@@ -94,7 +95,7 @@ StudioControls.Menu {
         text: qsTr("Texture")
 
         onTriggered: () => {
-            contextMenu.graph.insertNode(Nodes.Components.texture);
+            internal.createNode(Nodes.Components.texture);
         }
     }
 
@@ -123,6 +124,17 @@ StudioControls.Menu {
                     contextMenu.node.item.updatePinVisibility(modelData.id);
                 }
             }
+        }
+    }
+
+    QtObject {
+        id: internal
+
+        function createNode(type) {
+            const node = contextMenu.graph.insertNode(type);
+            const nodeItem = node.item;
+            nodeItem.x = contextMenu.newPosition.x;
+            nodeItem.y = contextMenu.newPosition.y;
         }
     }
 }
