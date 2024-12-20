@@ -109,6 +109,7 @@ Item {
             maximumLineCount: 3 // Must be set, otherwise elide don't work and we end up with single line text
             elide: Text.ElideRight
             wrapMode: Text.Wrap
+            color: "black"
         }
         Item {
             id: contentLayout
