@@ -36,31 +36,51 @@ using namespace Utils;
 
 namespace Debugger::Internal {
 
-///////////////////////////////////////////////////////////////////////
-//
-// AttachCoreDialog
-//
-///////////////////////////////////////////////////////////////////////
-
-class AttachCoreDialogPrivate
+class AttachCoreDialog final : public QDialog
 {
 public:
-    KitChooser *kitChooser;
+    AttachCoreDialog();
 
-    PathChooser *symbolFileName;
-    PathChooser *coreFileName;
-    PathChooser *overrideStartScriptFileName;
-    PathChooser *sysRootDirectory;
+    int exec() final;
 
-    FilePath debuggerPath;
+    FilePath symbolFile() const { return m_symbolFileName->filePath(); }
+    FilePath coreFile() const { return m_coreFileName->filePath(); }
+    FilePath overrideStartScript() const { return m_overrideStartScript->filePath(); }
+    FilePath sysRoot() const { return m_sysRootDirectory->filePath(); }
 
-    QDialogButtonBox *buttonBox;
-    ProgressIndicator *progressIndicator;
-    QLabel *progressLabel;
+    // For persistance.
+    ProjectExplorer::Kit *kit() const { return m_kitChooser->currentKit(); }
 
-    TaskTree taskTree;
-    expected_str<FilePath> coreFileResult;
-    expected_str<FilePath> symbolFileResult;
+    void setSymbolFile(const FilePath &filePath) { m_symbolFileName->setFilePath(filePath); }
+    void setCoreFile(const FilePath &filePath) { m_coreFileName->setFilePath(filePath); }
+    void setOverrideStartScript(const FilePath &filePath) { m_overrideStartScript->setFilePath(filePath); }
+    void setSysRoot(const FilePath &sysRoot) { m_sysRootDirectory->setFilePath(sysRoot); }
+    void setKitId(Id id) { m_kitChooser->setCurrentKitId(id); }
+
+    FilePath coreFileCopy() const;
+    FilePath symbolFileCopy() const;
+
+private:
+    void accepted();
+    void changed();
+    void coreFileChanged(const FilePath &core);
+
+    KitChooser *m_kitChooser;
+
+    PathChooser *m_symbolFileName;
+    PathChooser *m_coreFileName;
+    PathChooser *m_overrideStartScript;
+    PathChooser *m_sysRootDirectory;
+
+    FilePath m_debuggerPath;
+
+    QDialogButtonBox *m_buttonBox;
+    ProgressIndicator *m_progressIndicator;
+    QLabel *m_progressLabel;
+
+    TaskTree m_taskTree;
+    expected_str<FilePath> m_coreFileResult;
+    expected_str<FilePath> m_symbolFileResult;
 
     struct State
     {
@@ -77,170 +97,132 @@ public:
     State getDialogState() const
     {
         State st;
-        st.validKit = (kitChooser->currentKit() != nullptr);
-        st.validSymbolFilename = symbolFileName->isValid();
-        st.validCoreFilename = coreFileName->isValid();
+        st.validKit = (m_kitChooser->currentKit() != nullptr);
+        st.validSymbolFilename = m_symbolFileName->isValid();
+        st.validCoreFilename = m_coreFileName->isValid();
         return st;
     }
 };
 
-class AttachCoreDialog : public QDialog
-{
-public:
-    explicit AttachCoreDialog(QWidget *parent);
-    ~AttachCoreDialog() override;
-
-    int exec() override;
-
-    FilePath symbolFile() const;
-    FilePath coreFile() const;
-    FilePath overrideStartScript() const;
-    FilePath sysRoot() const;
-
-    // For persistance.
-    ProjectExplorer::Kit *kit() const;
-    void setSymbolFile(const FilePath &symbolFilePath);
-    void setCoreFile(const FilePath &coreFilePath);
-    void setOverrideStartScript(const FilePath &scriptName);
-    void setSysRoot(const FilePath &sysRoot);
-    void setKitId(Id id);
-
-    FilePath coreFileCopy() const;
-    FilePath symbolFileCopy() const;
-
-    void accepted();
-
-private:
-    void changed();
-    void coreFileChanged(const FilePath &core);
-
-    class AttachCoreDialogPrivate *d;
-};
-
-AttachCoreDialog::AttachCoreDialog(QWidget *parent)
-    : QDialog(parent), d(new AttachCoreDialogPrivate)
+AttachCoreDialog::AttachCoreDialog()
+    : QDialog(ICore::dialogParent())
 {
     setWindowTitle(Tr::tr("Load Core File"));
 
-    d->buttonBox = new QDialogButtonBox(this);
-    d->buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
-    d->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-    d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    m_buttonBox = new QDialogButtonBox(this);
+    m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+    m_buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+    m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-    d->kitChooser = new KitChooser(this);
-    d->kitChooser->setShowIcons(true);
-    d->kitChooser->populate();
+    m_kitChooser = new KitChooser(this);
+    m_kitChooser->setShowIcons(true);
+    m_kitChooser->populate();
 
-    d->coreFileName = new PathChooser(this);
-    d->coreFileName->setHistoryCompleter("Debugger.CoreFile.History");
-    d->coreFileName->setExpectedKind(PathChooser::File);
-    d->coreFileName->setPromptDialogTitle(Tr::tr("Select Core File"));
-    d->coreFileName->setAllowPathFromDevice(true);
+    m_coreFileName = new PathChooser(this);
+    m_coreFileName->setHistoryCompleter("Debugger.CoreFile.History");
+    m_coreFileName->setExpectedKind(PathChooser::File);
+    m_coreFileName->setPromptDialogTitle(Tr::tr("Select Core File"));
+    m_coreFileName->setAllowPathFromDevice(true);
 
-    d->symbolFileName = new PathChooser(this);
-    d->symbolFileName->setHistoryCompleter("Executable");
-    d->symbolFileName->setExpectedKind(PathChooser::File);
-    d->symbolFileName->setPromptDialogTitle(Tr::tr("Select Executable or Symbol File"));
-    d->symbolFileName->setAllowPathFromDevice(true);
-    d->symbolFileName->setToolTip(
+    m_symbolFileName = new PathChooser(this);
+    m_symbolFileName->setHistoryCompleter("Executable");
+    m_symbolFileName->setExpectedKind(PathChooser::File);
+    m_symbolFileName->setPromptDialogTitle(Tr::tr("Select Executable or Symbol File"));
+    m_symbolFileName->setAllowPathFromDevice(true);
+    m_symbolFileName->setToolTip(
         Tr::tr("Select a file containing debug information corresponding to the core file. "
            "Typically, this is the executable or a *.debug file if the debug "
            "information is stored separately from the executable."));
 
-    d->overrideStartScriptFileName = new PathChooser(this);
-    d->overrideStartScriptFileName->setHistoryCompleter("Debugger.StartupScript.History");
-    d->overrideStartScriptFileName->setExpectedKind(PathChooser::File);
-    d->overrideStartScriptFileName->setPromptDialogTitle(Tr::tr("Select Startup Script"));
+    m_overrideStartScript = new PathChooser(this);
+    m_overrideStartScript->setHistoryCompleter("Debugger.StartupScript.History");
+    m_overrideStartScript->setExpectedKind(PathChooser::File);
+    m_overrideStartScript->setPromptDialogTitle(Tr::tr("Select Startup Script"));
 
-    d->sysRootDirectory = new PathChooser(this);
-    d->sysRootDirectory->setHistoryCompleter("Debugger.SysRoot.History");
-    d->sysRootDirectory->setExpectedKind(PathChooser::Directory);
-    d->sysRootDirectory->setPromptDialogTitle(Tr::tr("Select SysRoot Directory"));
-    d->sysRootDirectory->setToolTip(Tr::tr(
-        "This option can be used to override the kit's SysRoot setting"));
+    m_sysRootDirectory = new PathChooser(this);
+    m_sysRootDirectory->setHistoryCompleter("Debugger.SysRoot.History");
+    m_sysRootDirectory->setExpectedKind(PathChooser::Directory);
+    m_sysRootDirectory->setPromptDialogTitle(Tr::tr("Select SysRoot Directory"));
+    m_sysRootDirectory->setToolTip(Tr::tr(
+     "This option can be used to override the kit's SysRoot setting"));
 
-    d->progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Small, this);
-    d->progressIndicator->setVisible(false);
+    m_progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Small, this);
+    m_progressIndicator->setVisible(false);
 
-    d->progressLabel = new QLabel();
-    d->progressLabel->setVisible(false);
+    m_progressLabel = new QLabel();
+    m_progressLabel->setVisible(false);
 
     // clang-format off
     using namespace Layouting;
 
     Column {
         Form {
-            Tr::tr("Kit:"), d->kitChooser, br,
-            Tr::tr("Core file:"), d->coreFileName, br,
-            Tr::tr("&Executable or symbol file:"), d->symbolFileName, br,
-            Tr::tr("Override &start script:"), d->overrideStartScriptFileName, br,
-            Tr::tr("Override S&ysRoot:"), d->sysRootDirectory, br,
+            Tr::tr("Kit:"), m_kitChooser, br,
+            Tr::tr("Core file:"), m_coreFileName, br,
+            Tr::tr("&Executable or symbol file:"), m_symbolFileName, br,
+            Tr::tr("Override &start script:"), m_overrideStartScript, br,
+            Tr::tr("Override S&ysRoot:"), m_sysRootDirectory, br,
         },
         st,
         hr,
         Row {
-            d->progressIndicator, d->progressLabel, d->buttonBox
+            m_progressIndicator, m_progressLabel, m_buttonBox
         }
     }.attachTo(this);
     // clang-format on
 }
 
-AttachCoreDialog::~AttachCoreDialog()
-{
-    delete d;
-}
-
 int AttachCoreDialog::exec()
 {
-    connect(d->symbolFileName, &PathChooser::validChanged, this, &AttachCoreDialog::changed);
-    connect(d->coreFileName, &PathChooser::validChanged, this, [this] {
-        coreFileChanged(d->coreFileName->unexpandedFilePath());
+    connect(m_symbolFileName, &PathChooser::validChanged, this, &AttachCoreDialog::changed);
+    connect(m_coreFileName, &PathChooser::validChanged, this, [this] {
+        coreFileChanged(m_coreFileName->unexpandedFilePath());
     });
-    connect(d->coreFileName, &PathChooser::textChanged, this, [this] {
-        coreFileChanged(d->coreFileName->unexpandedFilePath());
+    connect(m_coreFileName, &PathChooser::textChanged, this, [this] {
+        coreFileChanged(m_coreFileName->unexpandedFilePath());
     });
-    connect(d->kitChooser, &KitChooser::currentIndexChanged, this, &AttachCoreDialog::changed);
-    connect(d->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-    connect(d->buttonBox, &QDialogButtonBox::accepted, this, &AttachCoreDialog::accepted);
+    connect(m_kitChooser, &KitChooser::currentIndexChanged, this, &AttachCoreDialog::changed);
+    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(m_buttonBox, &QDialogButtonBox::accepted, this, &AttachCoreDialog::accepted);
     changed();
 
-    connect(&d->taskTree, &TaskTree::done, this, [this] {
+    connect(&m_taskTree, &TaskTree::done, this, [this] {
         setEnabled(true);
-        d->progressIndicator->setVisible(false);
-        d->progressLabel->setVisible(false);
+        m_progressIndicator->setVisible(false);
+        m_progressLabel->setVisible(false);
 
-        if (!d->coreFileResult) {
+        if (!m_coreFileResult) {
             QMessageBox::critical(this,
                                   Tr::tr("Error"),
                                   Tr::tr("Failed to copy core file to device: %1")
-                                      .arg(d->coreFileResult.error()));
+                                      .arg(m_coreFileResult.error()));
             return;
         }
 
-        if (!d->symbolFileResult) {
+        if (!m_symbolFileResult) {
             QMessageBox::critical(this,
                                   Tr::tr("Error"),
                                   Tr::tr("Failed to copy symbol file to device: %1")
-                                      .arg(d->coreFileResult.error()));
+                                      .arg(m_coreFileResult.error()));
             return;
         }
 
         accept();
     });
-    connect(&d->taskTree, &TaskTree::progressValueChanged, this, [this](int value) {
+    connect(&m_taskTree, &TaskTree::progressValueChanged, this, [this](int value) {
         const QString text = Tr::tr("Copying files to device... %1/%2")
                                  .arg(value)
-                                 .arg(d->taskTree.progressMaximum());
-        d->progressLabel->setText(text);
+                                 .arg(m_taskTree.progressMaximum());
+        m_progressLabel->setText(text);
     });
 
-    AttachCoreDialogPrivate::State st = d->getDialogState();
+    State st = getDialogState();
     if (!st.validKit) {
-        d->kitChooser->setFocus();
+        m_kitChooser->setFocus();
     } else if (!st.validCoreFilename) {
-        d->coreFileName->setFocus();
+        m_coreFileName->setFocus();
     } else if (!st.validSymbolFilename) {
-        d->symbolFileName->setFocus();
+        m_symbolFileName->setFocus();
     }
 
     return QDialog::exec();
@@ -284,109 +266,59 @@ void AttachCoreDialog::accepted()
         AsyncTask<ResultType>{[this, copyFileAsync](auto &task) {
                                   task.setConcurrentCallData(copyFileAsync, coreFile());
                               },
-                              [this](const Async<ResultType> &task) { d->coreFileResult = task.result(); },
+                              [this](const Async<ResultType> &task) { m_coreFileResult = task.result(); },
                               CallDoneIf::Success},
         AsyncTask<ResultType>{[this, copyFileAsync](auto &task) {
                                   task.setConcurrentCallData(copyFileAsync, symbolFile());
                               },
-                              [this](const Async<ResultType> &task) { d->symbolFileResult = task.result(); },
+                              [this](const Async<ResultType> &task) { m_symbolFileResult = task.result(); },
                               CallDoneIf::Success}
     };
 
-    d->taskTree.setRecipe(root);
-    d->taskTree.start();
+    m_taskTree.setRecipe(root);
+    m_taskTree.start();
 
-    d->progressLabel->setText(Tr::tr("Copying files to device..."));
+    m_progressLabel->setText(Tr::tr("Copying files to device..."));
 
     setEnabled(false);
-    d->progressIndicator->setVisible(true);
-    d->progressLabel->setVisible(true);
+    m_progressIndicator->setVisible(true);
+    m_progressLabel->setVisible(true);
 }
 
 void AttachCoreDialog::coreFileChanged(const FilePath &coreFile)
 {
     if (coreFile.osType() != OsType::OsTypeWindows && coreFile.exists()) {
-        Kit *k = d->kitChooser->currentKit();
+        Kit *k = m_kitChooser->currentKit();
         QTC_ASSERT(k, return);
         ProcessRunData debugger = DebuggerKitAspect::runnable(k);
         CoreInfo cinfo = CoreInfo::readExecutableNameFromCore(debugger, coreFile);
         if (!cinfo.foundExecutableName.isEmpty())
-            d->symbolFileName->setFilePath(cinfo.foundExecutableName);
-        else if (!d->symbolFileName->isValid() && !cinfo.rawStringFromCore.isEmpty())
-            d->symbolFileName->setFilePath(FilePath::fromString(cinfo.rawStringFromCore));
+            m_symbolFileName->setFilePath(cinfo.foundExecutableName);
+        else if (!m_symbolFileName->isValid() && !cinfo.rawStringFromCore.isEmpty())
+            m_symbolFileName->setFilePath(FilePath::fromString(cinfo.rawStringFromCore));
     }
     changed();
 }
 
 void AttachCoreDialog::changed()
 {
-    AttachCoreDialogPrivate::State st = d->getDialogState();
-    d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(st.isValid());
-}
-
-FilePath AttachCoreDialog::coreFile() const
-{
-    return d->coreFileName->filePath();
-}
-
-FilePath AttachCoreDialog::symbolFile() const
-{
-    return d->symbolFileName->filePath();
+    State st = getDialogState();
+    m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(st.isValid());
 }
 
 FilePath AttachCoreDialog::coreFileCopy() const
 {
-    return d->coreFileResult.value_or(d->symbolFileName->filePath());
+    return m_coreFileResult.value_or(m_symbolFileName->filePath());
 }
 
 FilePath AttachCoreDialog::symbolFileCopy() const
 {
-    return d->symbolFileResult.value_or(d->symbolFileName->filePath());
-}
-
-void AttachCoreDialog::setSymbolFile(const FilePath &symbolFilePath)
-{
-    d->symbolFileName->setFilePath(symbolFilePath);
-}
-
-void AttachCoreDialog::setCoreFile(const FilePath &coreFilePath)
-{
-    d->coreFileName->setFilePath(coreFilePath);
-}
-
-void AttachCoreDialog::setKitId(Id id)
-{
-    d->kitChooser->setCurrentKitId(id);
-}
-
-Kit *AttachCoreDialog::kit() const
-{
-    return d->kitChooser->currentKit();
-}
-
-FilePath AttachCoreDialog::overrideStartScript() const
-{
-    return d->overrideStartScriptFileName->filePath();
-}
-
-void AttachCoreDialog::setOverrideStartScript(const FilePath &scriptName)
-{
-    d->overrideStartScriptFileName->setFilePath(scriptName);
-}
-
-FilePath AttachCoreDialog::sysRoot() const
-{
-    return d->sysRootDirectory->filePath();
-}
-
-void AttachCoreDialog::setSysRoot(const FilePath &sysRoot)
-{
-    d->sysRootDirectory->setFilePath(sysRoot);
+    return m_symbolFileResult.value_or(m_symbolFileName->filePath());
 }
 
 void runAttachToCoreDialog()
 {
-    AttachCoreDialog dlg(ICore::dialogParent());
+    AttachCoreDialog dlg;
 
     QtcSettings *settings  = ICore::settings();
 
