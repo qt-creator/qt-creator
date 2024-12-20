@@ -120,10 +120,14 @@ public:
     void clicked() final
     {
         QTC_ASSERT(m_bp, return);
-        if (!m_bp->isEnabled())
-            m_bp->setEnabled(true);
-        else
+
+        if (m_bp->isEnabled()) {
             m_bp->deleteGlobalOrThisBreakpoint();
+            return;
+        }
+
+        if (const GlobalBreakpoint gbp = m_bp->globalBreakpoint())
+            gbp->setEnabled(true);
     }
 
 public:
