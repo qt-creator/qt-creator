@@ -1013,7 +1013,7 @@ DiagnosticItem *ClangTool::diagnosticItem(const QModelIndex &index) const
 
 void ClangTool::showOutputPane()
 {
-    ProjectExplorerPlugin::showOutputPaneForRunControl(m_runControl);
+    m_runControl->showOutputPane();
 }
 
 void ClangTool::reset()

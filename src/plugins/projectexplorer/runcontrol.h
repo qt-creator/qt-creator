@@ -257,6 +257,8 @@ public:
     void requestWorkerChannel();
     QUrl workerChannel() const;
 
+    void showOutputPane();
+
 signals:
     void appendMessage(const QString &msg, Utils::OutputFormat format);
     void aboutToStart();

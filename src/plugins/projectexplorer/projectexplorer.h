@@ -117,7 +117,6 @@ public:
     static const QList<CustomParserSettings> customParsers();
 
     static void startRunControl(RunControl *runControl);
-    static void showOutputPaneForRunControl(RunControl *runControl);
 
     static Utils::FilePairs renameFiles(
         const QList<std::pair<Node *, Utils::FilePath>> &nodesAndNewFilePaths);

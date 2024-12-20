@@ -701,6 +701,11 @@ QUrl RunControl::workerChannel() const
     return d->workerChannel;
 }
 
+void RunControl::showOutputPane()
+{
+    appOutputPane().showOutputPaneForRunControl(this);
+}
+
 void RunControlPrivate::continueStart()
 {
     checkState(RunControlState::Starting);

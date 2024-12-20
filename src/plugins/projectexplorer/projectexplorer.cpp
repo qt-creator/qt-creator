@@ -2501,11 +2501,6 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl)
     dd->startRunControl(runControl);
 }
 
-void ProjectExplorerPlugin::showOutputPaneForRunControl(RunControl *runControl)
-{
-    appOutputPane().showOutputPaneForRunControl(runControl);
-}
-
 static HandleIncludeGuards canTryToRenameIncludeGuards(const Node *node)
 {
     return node->asFileNode() && node->asFileNode()->fileType() == FileType::Header
