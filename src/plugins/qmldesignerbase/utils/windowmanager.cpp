@@ -8,7 +8,7 @@
 #include <QCursor>
 #include <QGuiApplication>
 #include <QMainWindow>
-#include <QRect>
+#include <QQmlEngine>
 #include <QScreen>
 #include <QWindow>
 
