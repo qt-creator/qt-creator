@@ -1616,7 +1616,10 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
     QMultiHash<EditorView *, IEditor *> editorsPerView;
     for (IEditor *editor : std::as_const(acceptedEditors)) {
         emit m_instance->editorAboutToClose(editor);
-        removeEditor(editor, flag != CloseFlag::Suspend);
+        const DocumentModel::Entry *entry = DocumentModel::entryForDocument(editor->document());
+        // If the file is pinned, closing it should remove the editor but keep it in Open Documents.
+        const bool removeSuspendedEntry = !entry->pinned && flag != CloseFlag::Suspend;
+        removeEditor(editor, removeSuspendedEntry);
         if (EditorView *view = viewForEditor(editor)) {
             editorsPerView.insert(view, editor);
             if (QApplication::focusWidget()
@@ -3074,7 +3077,8 @@ bool EditorManager::closeDocuments(const QList<DocumentModel::Entry *> &entries)
     for (DocumentModel::Entry *entry : entries) {
         if (!entry)
             continue;
-        if (entry->isSuspended)
+        // Pinned files shouldn't be removed from Open Documents, even when pressing the "x" button.
+        if (!entry->pinned && entry->isSuspended)
             DocumentModelPrivate::removeEntry(entry);
         else
             documentsToClose << entry->document;
