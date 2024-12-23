@@ -550,9 +550,9 @@ public:
                            const NodeMetaInfo &metaInfo,
                            const QString &propertyPrefix,
                            AST::UiQualifiedId *propertyId,
-                           const QString &astValue)
+                           QStringView astValue)
     {
-        QStringList astValueList = astValue.split(u'.');
+        QList<QStringView> astValueList = astValue.split(u'.');
 
         if (astValueList.size() == 2) {
             //Check for global Qt enums
