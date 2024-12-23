@@ -675,106 +675,110 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
 
 namespace {
 
-class StartsWith : public QStringView
-{
-public:
-    using QStringView::QStringView;
-    bool operator()(QStringView moduleName) const { return moduleName.startsWith(*this); }
-};
-
-class EndsWith : public QStringView
-{
-public:
-    using QStringView::QStringView;
-    bool operator()(QStringView moduleName) const { return moduleName.endsWith(*this); }
-};
-
-class StartsAndEndsWith : public std::pair<QStringView, QStringView>
-{
-public:
-    using Base = std::pair<QStringView, QStringView>;
-    using Base::Base;
-    bool operator()(QStringView moduleName) const
-    {
-        return moduleName.startsWith(first) && moduleName.endsWith(second);
-    }
-};
-
-class Equals : public QStringView
-{
-public:
-    using QStringView::QStringView;
-    bool operator()(QStringView moduleName) const { return moduleName == *this; }
-};
-
-constexpr auto skipModules = std::make_tuple(EndsWith(u".impl"),
-                                             StartsWith(u"QML"),
-                                             StartsWith(u"QtQml"),
-                                             StartsAndEndsWith(u"QtQuick", u".PrivateWidgets"),
-                                             EndsWith(u".private"),
-                                             EndsWith(u".Private"),
-                                             Equals(u"QtQuick.Particles"),
-                                             StartsWith(u"QtQuick.Dialogs"),
-                                             Equals(u"QtQuick.Controls.Styles"),
-                                             Equals(u"QtNfc"),
-                                             Equals(u"Qt.WebSockets"),
-                                             Equals(u"QtWebkit"),
-                                             Equals(u"QtLocation"),
-                                             Equals(u"QtWebChannel"),
-                                             Equals(u"QtWinExtras"),
-                                             Equals(u"QtPurchasing"),
-                                             Equals(u"QtBluetooth"),
-                                             Equals(u"Enginio"),
-                                             Equals(u"FlowView"),
-                                             StartsWith(u"Qt.labs."),
-                                             StartsWith(u"Qt.test.controls"),
-                                             StartsWith(u"QmlTime"),
-                                             StartsWith(u"Qt.labs."),
-                                             StartsWith(u"Qt.test.controls"),
-                                             StartsWith(u"Qt3D."),
-                                             StartsWith(u"Qt5Compat.GraphicalEffects"),
-                                             StartsWith(u"QtCanvas3D"),
-                                             StartsWith(u"QtCore"),
-                                             StartsWith(u"QtDataVisualization"),
-                                             StartsWith(u"QtGamepad"),
-                                             StartsWith(u"QtOpcUa"),
-                                             StartsWith(u"QtPositioning"),
-                                             Equals(u"QtQuick.Controls.Basic"),
-                                             Equals(u"QtQuick.Controls.Fusion"),
-                                             Equals(u"QtQuick.Controls.Imagine"),
-                                             Equals(u"QtQuick.Controls.Material"),
-                                             Equals(u"QtQuick.Controls.NativeStyle"),
-                                             Equals(u"QtQuick.Controls.Universal"),
-                                             Equals(u"QtQuick.Controls.Windows"),
-                                             Equals(u"QtQuick3D.MaterialEditor"),
-                                             StartsWith(u"QtQuick.LocalStorage"),
-                                             StartsWith(u"QtQuick.NativeStyle"),
-                                             StartsWith(u"QtQuick.Pdf"),
-                                             StartsWith(u"QtQuick.Scene2D"),
-                                             StartsWith(u"QtQuick.Scene3D"),
-                                             StartsWith(u"QtQuick.Shapes"),
-                                             StartsWith(u"QtQuick.Studio.EventSimulator"),
-                                             StartsWith(u"QtQuick.Studio.EventSystem"),
-                                             StartsWith(u"QtQuick.Templates"),
-                                             StartsWith(u"QtQuick.VirtualKeyboard"),
-                                             StartsWith(u"QtQuick.tooling"),
-                                             StartsWith(
-                                                 u"QtQuick3D MateriablacklistImportslEditor"),
-                                             StartsWith(u"QtQuick3D.ParticleEffects"),
-                                             StartsWith(u"QtRemoteObjects"),
-                                             StartsWith(u"QtRemoveObjects"),
-                                             StartsWith(u"QtScxml"),
-                                             StartsWith(u"QtSensors"),
-                                             StartsWith(u"QtTest"),
-                                             StartsWith(u"QtTextToSpeech"),
-                                             StartsWith(u"QtVncServer"),
-                                             StartsWith(u"QtWebEngine"),
-                                             StartsWith(u"QtWebSockets"),
-                                             StartsWith(u"QtWebView"));
-
 #ifndef QDS_USE_PROJECTSTORAGE
 bool skipModule(QStringView moduleName)
 {
+    class StartsWith : public QStringView
+    {
+    public:
+        using QStringView::QStringView;
+
+        bool operator()(QStringView moduleName) const { return moduleName.startsWith(*this); }
+    };
+
+    class EndsWith : public QStringView
+    {
+    public:
+        using QStringView::QStringView;
+
+        bool operator()(QStringView moduleName) const { return moduleName.endsWith(*this); }
+    };
+
+    class StartsAndEndsWith : public std::pair<QStringView, QStringView>
+    {
+    public:
+        using Base = std::pair<QStringView, QStringView>;
+        using Base::Base;
+
+        bool operator()(QStringView moduleName) const
+        {
+            return moduleName.startsWith(first) && moduleName.endsWith(second);
+        }
+    };
+
+    class Equals : public QStringView
+    {
+    public:
+        using QStringView::QStringView;
+
+        bool operator()(QStringView moduleName) const { return moduleName == *this; }
+    };
+
+    static constexpr auto skipModules = std::make_tuple(
+        EndsWith(u".impl"),
+        StartsWith(u"QML"),
+        StartsWith(u"QtQml"),
+        StartsAndEndsWith(u"QtQuick", u".PrivateWidgets"),
+        EndsWith(u".private"),
+        EndsWith(u".Private"),
+        Equals(u"QtQuick.Particles"),
+        StartsWith(u"QtQuick.Dialogs"),
+        Equals(u"QtQuick.Controls.Styles"),
+        Equals(u"QtNfc"),
+        Equals(u"Qt.WebSockets"),
+        Equals(u"QtWebkit"),
+        Equals(u"QtLocation"),
+        Equals(u"QtWebChannel"),
+        Equals(u"QtWinExtras"),
+        Equals(u"QtPurchasing"),
+        Equals(u"QtBluetooth"),
+        Equals(u"Enginio"),
+        Equals(u"FlowView"),
+        StartsWith(u"Qt.labs."),
+        StartsWith(u"Qt.test.controls"),
+        StartsWith(u"QmlTime"),
+        StartsWith(u"Qt.labs."),
+        StartsWith(u"Qt.test.controls"),
+        StartsWith(u"Qt3D."),
+        StartsWith(u"Qt5Compat.GraphicalEffects"),
+        StartsWith(u"QtCanvas3D"),
+        StartsWith(u"QtCore"),
+        StartsWith(u"QtDataVisualization"),
+        StartsWith(u"QtGamepad"),
+        StartsWith(u"QtOpcUa"),
+        StartsWith(u"QtPositioning"),
+        Equals(u"QtQuick.Controls.Basic"),
+        Equals(u"QtQuick.Controls.Fusion"),
+        Equals(u"QtQuick.Controls.Imagine"),
+        Equals(u"QtQuick.Controls.Material"),
+        Equals(u"QtQuick.Controls.NativeStyle"),
+        Equals(u"QtQuick.Controls.Universal"),
+        Equals(u"QtQuick.Controls.Windows"),
+        Equals(u"QtQuick3D.MaterialEditor"),
+        StartsWith(u"QtQuick.LocalStorage"),
+        StartsWith(u"QtQuick.NativeStyle"),
+        StartsWith(u"QtQuick.Pdf"),
+        StartsWith(u"QtQuick.Scene2D"),
+        StartsWith(u"QtQuick.Scene3D"),
+        StartsWith(u"QtQuick.Shapes"),
+        StartsWith(u"QtQuick.Studio.EventSimulator"),
+        StartsWith(u"QtQuick.Studio.EventSystem"),
+        StartsWith(u"QtQuick.Templates"),
+        StartsWith(u"QtQuick.VirtualKeyboard"),
+        StartsWith(u"QtQuick.tooling"),
+        StartsWith(u"QtQuick3D MateriablacklistImportslEditor"),
+        StartsWith(u"QtQuick3D.ParticleEffects"),
+        StartsWith(u"QtRemoteObjects"),
+        StartsWith(u"QtRemoveObjects"),
+        StartsWith(u"QtScxml"),
+        StartsWith(u"QtSensors"),
+        StartsWith(u"QtTest"),
+        StartsWith(u"QtTextToSpeech"),
+        StartsWith(u"QtVncServer"),
+        StartsWith(u"QtWebEngine"),
+        StartsWith(u"QtWebSockets"),
+        StartsWith(u"QtWebView"));
+
     return std::apply([=](const auto &...skipModule) { return (skipModule(moduleName) || ...); },
                       skipModules);
 }
