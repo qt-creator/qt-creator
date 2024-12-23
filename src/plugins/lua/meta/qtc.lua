@@ -59,6 +59,7 @@ EditorHooks = {}
 ---@field projectRemoved? function function(project: Project)
 ---@field aboutToRemoveProject? function function(project: Project)
 ---@field runActionsUpdated? function function() Called when Project.canRunStartupProject() might have changed.
+---@field buildStateChanged? function function(project: Project, isBuilding: boolean)
 
 ---@class Hooks
 ---@field editors? EditorHooks
