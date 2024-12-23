@@ -24,9 +24,9 @@ Item {
     property string effectNodeName
 
     property int typeIndex: 1
-    property string displayName
-    property string uniName
-    property string description
+    property alias displayName: nameText.text
+    property alias uniName: uniNameText.text
+    property alias description: descriptionEdit.text
     property var minValue: 0
     property var maxValue: 1
     property var defaultValue: 0
@@ -136,15 +136,14 @@ Item {
 
     function showForAdd()
     {
-        root.uniNameEdited = false
-
         if (typeCombo.currentIndex === 0)
             reloadType()
         else
             typeCombo.currentIndex = 0
 
         root.displayName = root.backendModel.getUniqueDisplayName(root.reservedDispNames)
-        root.uniName = root.backendModel.generateUniformName(root.effectNodeName, root.displayName, "")
+        let generatedUniName = root.backendModel.generateUniformName(root.effectNodeName, root.displayName, "")
+        root.initiateUniName(generatedUniName)
         root.description = ""
         root.userAdded = true
 
@@ -330,6 +329,11 @@ Item {
         root.showMinMax = hasMinMax
     }
 
+    function initiateUniName(name: string) {
+        root.uniName = name
+        root.uniNameEdited = false
+    }
+
     onMinValueChanged: {
         if (!root.showMinMax)
             return
@@ -343,6 +347,7 @@ Item {
             defaultValueLoader.uniformValue = root.copyValue(root.defaultValue)
         }
     }
+
     onMaxValueChanged: {
         if (!root.showMinMax)
             return
@@ -413,15 +418,13 @@ Item {
                     actionIndicatorVisible: false
                     translationIndicatorVisible: false
 
-                    text: root.displayName
-
                     KeyNavigation.tab: uniNameText
 
-                    onEditingFinished: {
-                        root.displayName = nameText.text
+                    onTextChanged: {
                         if (!root.uniNameEdited) {
-                            root.uniName = root.backendModel.generateUniformName(
+                            let generatedUniName = root.backendModel.generateUniformName(
                                         root.effectNodeName, root.displayName, root.uniName)
+                            root.initiateUniName(generatedUniName)
                         }
                     }
                 }
@@ -481,12 +484,7 @@ Item {
 
                     KeyNavigation.tab: descriptionEdit
 
-                    onEditingFinished:{
-                        if (root.uniName !== uniNameText.text) {
-                            root.uniName = uniNameText.text
-                            root.uniNameEdited = true
-                        }
-                    }
+                    onTextChanged: root.uniNameEdited = true
                 }
             }
 
@@ -550,11 +548,7 @@ Item {
                         color: StudioTheme.Values.themeTextColor
                         wrapMode: TextEdit.WordWrap
 
-                        text: root.description
-
                         KeyNavigation.tab: typeCombo
-
-                        onEditingFinished: root.description = descriptionEdit.text
                     }
                 }
             }
