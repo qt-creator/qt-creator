@@ -1612,7 +1612,7 @@ void HeobData::processFinished()
 
             connect(m_runControl, &RunControl::started, this, &HeobData::debugStarted);
             connect(m_runControl, &RunControl::stopped, this, &HeobData::debugStopped);
-            debugger->startRunControl();
+            m_runControl->start();
             return;
         }
 
