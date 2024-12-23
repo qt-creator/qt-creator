@@ -40,7 +40,7 @@ CollectionModel *DesignSystemInterface::model(const QString &typeName)
 
 void DesignSystemInterface::addCollection(const QString &name)
 {
-    if (auto collection = m_store->addCollection(name))
+    if (m_store->addCollection(name))
         emit collectionsChanged();
 }
 
