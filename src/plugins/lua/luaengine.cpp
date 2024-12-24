@@ -230,18 +230,38 @@ expected_str<void> connectHooks(
     qCDebug(logLuaEngine) << "connectHooks called with path: " << path;
 
     for (const auto &[k, v] : table) {
-        qCDebug(logLuaEngine) << "Processing key: " << k.as<QString>();
-        if (v.get_type() == sol::type::table) {
-            return connectHooks(
-                lua, v.as<sol::table>(), QStringList{path, k.as<QString>()}.join("."), guard);
-        } else if (v.get_type() == sol::type::function) {
-            QString hookName = QStringList{path, k.as<QString>()}.join(".");
-            qCDebug(logLuaEngine) << "Connecting function to hook: " << hookName;
-            auto it = d->m_hooks.find(hookName);
-            if (it == d->m_hooks.end())
-                return make_unexpected(Tr::tr("No hook with the name \"%1\" found.").arg(hookName));
-            else
-                it.value()(v.as<sol::function>(), guard);
+        if (k.get_type() != sol::type::string)
+            return make_unexpected(
+                Tr::tr("Non-string key encountered in Lua table at path \"%1\"").arg(path));
+
+        const auto keyName = k.as<QString>();
+        const auto currentPath = QStringList{path, keyName}.join(".");
+        qCDebug(logLuaEngine) << "Processing path:" << currentPath;
+
+        switch (v.get_type()) {
+        case sol::type::table: {
+            auto result = connectHooks(lua, v.as<sol::table>(), currentPath, guard);
+            if (!result)
+                return result;
+            break;
+        }
+        case sol::type::function: {
+            qCDebug(logLuaEngine) << "Connecting function to hook:" << currentPath;
+
+            auto it = d->m_hooks.find(currentPath);
+            if (it == d->m_hooks.end()) {
+                return make_unexpected(
+                    Tr::tr("No hook with the name \"%1\" found.").arg(currentPath));
+            }
+
+            it.value()(v.as<sol::function>(), guard);
+            break;
+        }
+        default: {
+            return make_unexpected(Tr::tr("Unsupported value type \"%1\" at path \"%2\".")
+                                       .arg(static_cast<int>(v.get_type()))
+                                       .arg(currentPath));
+        }
         }
     }
 
