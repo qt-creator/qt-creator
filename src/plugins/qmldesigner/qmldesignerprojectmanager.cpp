@@ -605,16 +605,19 @@ void QmlDesignerProjectManager::update()
     if (!m_projectData || !m_projectData->projectStorageData)
         return;
 
-    if constexpr (isUsingQmlDesignerLite()) {
-        m_projectData->projectStorageData->updater.update({directoriesForLiteDesigner(),
-                                                           qmlTypesForLiteDesigner(),
-                                                           propertyEditorResourcesPath(),
-                                                           {qtCreatorItemLibraryPath()}});
-    } else {
-        m_projectData->projectStorageData->updater.update({directories(m_projectData->activeTarget),
-                                                           qmlTypes(m_projectData->activeTarget),
-                                                           propertyEditorResourcesPath(),
-                                                           {qtCreatorItemLibraryPath()}});
+    try {
+        if constexpr (isUsingQmlDesignerLite()) {
+            m_projectData->projectStorageData->updater.update({directoriesForLiteDesigner(),
+                                                               qmlTypesForLiteDesigner(),
+                                                               propertyEditorResourcesPath(),
+                                                               {qtCreatorItemLibraryPath()}});
+        } else {
+            m_projectData->projectStorageData->updater.update({directories(m_projectData->activeTarget),
+                                                               qmlTypes(m_projectData->activeTarget),
+                                                               propertyEditorResourcesPath(),
+                                                               {qtCreatorItemLibraryPath()}});
+        }
+    } catch (const std::exception &) {
     }
 }
 

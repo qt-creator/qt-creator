@@ -49,14 +49,10 @@ public:
                          &FileSystemWatcher::directoryChanged,
                          [&](const QString &path) { compressChangedDirectoryPath(path); });
 
-        m_directoryPathCompressor.setCallback([&](QmlDesigner::SourceContextIds &&sourceContextIds) {
-            addChangedPathForFilePath(std::move(sourceContextIds));
-        });
-    }
-
-    ~ProjectStoragePathWatcher()
-    {
-        m_directoryPathCompressor.setCallback([&](SourceContextIds &&) {});
+        m_directoryPathCompressor.setCallback(
+            [&](const QmlDesigner::SourceContextIds &sourceContextIds) {
+                addChangedPathForFilePath(sourceContextIds);
+            });
     }
 
     void updateIdPaths(const std::vector<IdPaths> &idPaths) override
@@ -324,7 +320,7 @@ public:
             m_pathCache.sourceContextId(Utils::PathString{path}));
     }
 
-    WatcherEntries watchedEntriesForPaths(QmlDesigner::SourceContextIds &&sourceContextIds)
+    WatcherEntries watchedEntriesForPaths(const QmlDesigner::SourceContextIds &sourceContextIds)
     {
         WatcherEntries foundEntries;
         foundEntries.reserve(m_watchedEntries.size());
@@ -375,10 +371,10 @@ public:
         return idPaths;
     }
 
-    void addChangedPathForFilePath(SourceContextIds &&sourceContextIds)
+    void addChangedPathForFilePath(const SourceContextIds &sourceContextIds)
     {
         if (m_notifier) {
-            WatcherEntries foundEntries = watchedEntriesForPaths(std::move(sourceContextIds));
+            WatcherEntries foundEntries = watchedEntriesForPaths(sourceContextIds);
 
             SourceIds watchedSourceIds = watchedPaths(foundEntries);
 
