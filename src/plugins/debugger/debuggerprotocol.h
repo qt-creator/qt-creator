@@ -237,7 +237,7 @@ public:
     };
 
     DebuggerEncoding() = default;
-    explicit DebuggerEncoding(const QString &data);
+    explicit DebuggerEncoding(QStringView data);
     QString toString() const;
 
     EncodingType type = Unencoded;
@@ -246,7 +246,7 @@ public:
 };
 
 // Decode string data as returned by the dumper helpers.
-QString decodeData(const QString &baIn, const QString &encoding);
+QString decodeData(QStringView baIn, const QString &encoding);
 
 
 // These enum values correspond to possible value display format requests,
