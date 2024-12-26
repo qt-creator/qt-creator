@@ -12,11 +12,7 @@ Base {
     id: root
 
     property QtObject value: QtObject {
-        property url text: `image://qmldesigner_nodegrapheditor/${comboBox.currentValue}`
-
-        onTextChanged: {
-            NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;
-        }
+    property url text: `image://qmldesigner_nodegrapheditor/${comboBox.currentValue}`
     }
 
     Layout.preferredWidth: 175
@@ -53,7 +49,10 @@ Base {
         model: fileModel.model
         textRole: "fileName"
         valueRole: "relativeFilePath"
-
+        onCurrentValueChanged: {
+            NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;
+            root.value.text = `image://qmldesigner_nodegrapheditor/${currentValue}`
+        }
         // valueRole: "absoluteFilePath"
 
         // model: [

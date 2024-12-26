@@ -15,12 +15,25 @@ Base {
 
     readonly property QtQuick3D.Texture reset: QtQuick3D.Texture {
     }
+    property alias source: root.value.source
     readonly property QtQuick3D.Texture value: QtQuick3D.Texture {
     }
 
     Layout.preferredHeight: 150
     Layout.preferredWidth: 150
     type: "Texture"
+
+    portsMetaData: QtObject {
+        property var pin: [
+            {
+                id: "texture_in_source",
+                alias: "source",
+                name: "Source",
+                type: "QUrl"
+            },
+        ]
+        property var pout: []
+    }
 
     Component.onCompleted: {
         node.label = "Texture";
@@ -34,7 +47,6 @@ Base {
         anchors.centerIn: parent
         height: 96
         source: root.value.source
-        // source: `image://qmldesigner_nodegrapheditor/${root.value.source}`
         width: 96
     }
 
