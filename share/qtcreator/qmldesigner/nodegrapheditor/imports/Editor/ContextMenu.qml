@@ -44,6 +44,14 @@ StudioControls.Menu {
     }
 
     StudioControls.MenuItem {
+        text: qsTr("Occlusion")
+
+        onTriggered: () => {
+            internal.createNode(Nodes.Components.occlusion);
+        }
+    }
+
+    StudioControls.MenuItem {
         text: qsTr("Roughness")
 
         onTriggered: () => {

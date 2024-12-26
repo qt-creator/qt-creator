@@ -37,6 +37,10 @@ QtObject {
         Roughness {
         }
     }
+    readonly property Component occlusion: Component {
+        Occlusion {
+        }
+    }
     readonly property Component texture: Component {
         Texture {
         }

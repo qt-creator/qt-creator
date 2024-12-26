@@ -73,6 +73,9 @@ Item {
             case "Metalness":
                 n = graphView.graph.insertNode(Nodes.Components.metalness);
                 break;
+            case "Occlusion":
+                n = graphView.graph.insertNode(Nodes.Components.occlusion);
+                break;
             case "BaseColor":
                 n = graphView.graph.insertNode(Nodes.Components.baseColor);
                 break;

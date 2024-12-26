@@ -77,6 +77,23 @@ Base {
                     });
                 }
             },
+            {
+                id: "principledmaterial_in_occlusion",
+                alias: "",
+                name: "Occlusion",
+                type: "nge::Occlusion",
+                binding: values => {
+                    root.value.occlussion = Qt.binding(() => {
+                        return values.occlusion;
+                    });
+                    root.value.occlusionChannel = Qt.binding(() => {
+                        return values.channel;
+                    });
+                    root.value.occlusionMap = Qt.binding(() => {
+                        return values.map;
+                    });
+                }
+            },
         ]
         property var pout: []
     }
