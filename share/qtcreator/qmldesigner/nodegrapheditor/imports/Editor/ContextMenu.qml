@@ -113,7 +113,7 @@ StudioControls.Menu {
     }
 
     StudioControls.Menu {
-        enabled: node !== null
+        enabled: node !== null && pinRepeater.count > 0
         title: "Pins"
 
         Repeater {

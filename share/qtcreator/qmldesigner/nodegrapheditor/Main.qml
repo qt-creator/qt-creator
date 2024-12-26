@@ -294,6 +294,19 @@ Item {
                         graph.removeSelection();
                     }
                 }
+                onNodeRightClicked: node => {
+                    if (NodeGraphEditorBackend.nodeGraphEditorModel.currentFileName !== "") {
+                        contextMenu.node = node;
+                        var selectedNodes = graphView.graph.selectedNodes;
+                        if (selectedNodes && selectedNodes.length > 0) {
+                            contextMenu.node = selectedNodes.at(0);
+                        }
+
+                        const factor = (1.0 / graphView.zoom);
+                        contextMenu.newPosition = Qt.point(-graphView.containerItem.x * factor + node.item.x * factor, -graphView.containerItem.y * factor + node.item.y * factor);
+                        contextMenu.popup();
+                    }
+                }
                 onRightClicked: pos => {
                     if (NodeGraphEditorBackend.nodeGraphEditorModel.currentFileName !== "") {
                         contextMenu.node = null;
