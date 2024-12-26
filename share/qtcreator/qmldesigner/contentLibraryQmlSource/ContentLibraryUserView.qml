@@ -104,7 +104,6 @@ Item {
                     bottomPadding: StudioTheme.Values.sectionPadding
 
                     caption: categoryTitle
-                    visible: !categoryEmpty && infoText.text === ""
                     category: "ContentLib_User"
 
                     function expandSection() {
@@ -132,6 +131,7 @@ Item {
                                     ContentLibraryItem {
                                         width: root.cellWidth
                                         height: root.cellHeight
+                                        visible: !infoText.visible
 
                                         onShowContextMenu: ctxMenuItem.popupMenu(modelData)
                                         onAddToProject: ContentLibraryBackend.userModel.addToProject(modelData)
@@ -151,6 +151,7 @@ Item {
                                     delegate: ContentLibraryItem {
                                         width: root.cellWidth
                                         height: root.cellHeight
+                                        visible: !infoText.visible
 
                                         onShowContextMenu: ctxMenuItem.popupMenu(modelData)
                                         onAddToProject: ContentLibraryBackend.userModel.addToProject(modelData)
@@ -169,28 +170,32 @@ Item {
                         leftPadding: 10
                         visible: infoText.text === "" && !searchBox.isEmpty() && categoryNoMatch
                     }
-                }
-            }
 
-            Text {
-                id: infoText
-                text: {
-                    if (!ContentLibraryBackend.rootView.isQt6Project)
-                        qsTr("<b>Content Library</b> is not supported in Qt5 projects.")
-                    else if (!ContentLibraryBackend.rootView.hasQuick3DImport)
-                        qsTr("To use <b>Content Library</b>, first add the QtQuick3D module in the <b>Components</b> view.")
-                    else if (!ContentLibraryBackend.rootView.hasMaterialLibrary)
-                        qsTr("<b>Content Library</b> is disabled inside a non-visual component.")
-                    else if (ContentLibraryBackend.userModel.isEmpty)
-                        qsTr("There are no user assets in the <b>Content Library</b>.")
-                    else
-                        ""
+                    Text {
+                        id: infoText
+
+                        text: {
+                            let categoryName = (categoryTitle === "3D") ? categoryTitle + " assets"
+                                                                        : categoryTitle.toLowerCase()
+
+                            if (!ContentLibraryBackend.rootView.isQt6Project)
+                                qsTr("<b>Content Library</b> is not supported in Qt5 projects.")
+                            else if (!ContentLibraryBackend.rootView.hasQuick3DImport && categoryTitle !== "Textures")
+                                qsTr("To use " +  categoryName + ", first add the QtQuick3D module in the <b>Components</b> view.")
+                            else if (!ContentLibraryBackend.rootView.hasMaterialLibrary)
+                                qsTr("<b>Content Library</b> is disabled inside a non-visual component.")
+                            else if (categoryEmpty)
+                                qsTr("There are no "+ categoryName + " in the <b>User Assets</b>.")
+                            else
+                                ""
+                        }
+                        color: StudioTheme.Values.themeTextColor
+                        font.pixelSize: StudioTheme.Values.baseFontSize
+                        topPadding: 10
+                        leftPadding: 10
+                        visible: infoText.text !== ""
+                    }
                 }
-                color: StudioTheme.Values.themeTextColor
-                font.pixelSize: StudioTheme.Values.baseFontSize
-                topPadding: 10
-                leftPadding: 10
-                visible: infoText.text !== ""
             }
         }
     }
