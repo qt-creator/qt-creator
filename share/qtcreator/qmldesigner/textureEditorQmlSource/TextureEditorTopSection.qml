@@ -61,13 +61,20 @@ Column {
                 HelperWidgets.Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
 
                 HelperWidgets.LineEdit {
+                    id: texName
+
                     implicitWidth: StudioTheme.Values.singleControlColumnWidth
                     width: StudioTheme.Values.singleControlColumnWidth
-                    backendValue: backendValues.objectName
                     placeholderText: qsTr("Texture name")
-
                     showTranslateCheckBox: false
                     showExtendedFunctionButton: false
+
+                    Timer {
+                        running: true
+                        interval: 0
+                        onTriggered: texName.backendValue = backendValues.objectName
+                        // backendValues.objectName is not available yet without the Timer
+                    }
 
                     // allow only alphanumeric characters, underscores, no space at start, and 1 space between words
                     validator: RegularExpressionValidator { regularExpression: /^(\w+\s)*\w+$/ }
