@@ -57,7 +57,8 @@ struct RoleColMap
         static const QHash<int, int> colOfRole = [] {
             QHash<int, int> result;
             int col = -1;
-            for (const UniformRoleData &roleData : tableCols())
+            const QList<UniformRoleData> &columns = tableCols();
+            for (const UniformRoleData &roleData : columns)
                 result.insert(roleData.role, ++col);
             return result;
         }();

@@ -100,8 +100,8 @@ void EffectComposerNodesModel::resetModel()
     endResetModel();
 }
 
-void EffectComposerNodesModel::updateCanBeAdded(const QStringList &uniforms,
-                                                const QStringList &nodeNames)
+void EffectComposerNodesModel::updateCanBeAdded(
+    const QStringList &uniforms, [[maybe_unused]] const QStringList &nodeNames)
 {
     for (const EffectNodesCategory *cat : std::as_const(m_categories)) {
         const QList<EffectNode *> nodes = cat->nodes();

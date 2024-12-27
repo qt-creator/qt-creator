@@ -163,7 +163,7 @@ void ListModelWidthCalculator::onSourceItemsInserted(const QModelIndex &, int fi
     setMaxWidth(maxW);
 }
 
-void ListModelWidthCalculator::onSourceItemsRemoved(const QModelIndex &parent, int first, int last)
+void ListModelWidthCalculator::onSourceItemsRemoved(const QModelIndex &, int first, int last)
 {
     if (!isValidRow(first) || !isValidRow(last)) {
         reset();

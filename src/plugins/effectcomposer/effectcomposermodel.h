@@ -248,6 +248,7 @@ private:
     void setCodeEditorIndex(int index);
     Utils::FilePath customPreviewImagesPath() const;
     QList<QUrl> defaultPreviewImages() const;
+    QUrl defaultPreviewImage() const;
 
     enum class FileType
     {

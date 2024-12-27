@@ -25,8 +25,6 @@
 
 namespace EffectComposer {
 
-constexpr char qmlEffectComposerContextId[] = "QmlDesigner::EffectComposer";
-
 EffectComposerView::EffectComposerView(QmlDesigner::ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
     , m_componentUtils(externalDependencies)

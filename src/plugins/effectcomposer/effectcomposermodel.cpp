@@ -4,7 +4,6 @@
 #include "effectcomposermodel.h"
 
 #include "compositionnode.h"
-#include "effectcodeeditorwidget.h"
 #include "effectshaderscodeeditor.h"
 #include "effectutils.h"
 #include "propertyhandler.h"
@@ -49,7 +48,7 @@ EffectComposerModel::EffectComposerModel(QObject *parent)
 {
     m_rebakeTimer.setSingleShot(true);
     connect(&m_rebakeTimer, &QTimer::timeout, this, &EffectComposerModel::bakeShaders);
-    m_currentPreviewImage = defaultPreviewImages().first();
+    m_currentPreviewImage = defaultPreviewImage();
     connectCodeEditor();
 }
 
@@ -378,7 +377,7 @@ void EffectComposerModel::removeCustomPreviewImage(const QUrl &url)
         emit previewImagesChanged();
         emit customPreviewImageCountChanged();
         if (url == m_currentPreviewImage) {
-            m_currentPreviewImage = defaultPreviewImages().first();
+            m_currentPreviewImage = defaultPreviewImage();
             emit currentPreviewImageChanged();
         }
     }
@@ -1404,7 +1403,7 @@ void EffectComposerModel::openComposition(const QString &path)
     else
         resetRootFragmentShader();
 
-    m_currentPreviewImage = defaultPreviewImages().first();
+    m_currentPreviewImage = defaultPreviewImage();
     if (json.contains("previewImage")) {
         const QString imageStr = json["previewImage"].toString();
         if (!imageStr.isEmpty()) {
@@ -1481,7 +1480,7 @@ void EffectComposerModel::saveResources(const QString &name)
     }
 
     Utils::FilePaths oldFiles;
-    QStringList newFileNames;
+    QSet<QString> newFileNames;
 
     // Create effect folder if not created
     if (!effectPath.exists())
@@ -1490,7 +1489,7 @@ void EffectComposerModel::saveResources(const QString &name)
         oldFiles = effectPath.dirEntries(QDir::Files);
 
     // Create effect qmldir
-    newFileNames.append(qmldirFileName);
+    newFileNames.insert(qmldirFileName);
     qmldirPath = effectPath.resolvePath(qmldirFileName);
     qmldirContent = QString::fromUtf8(qmldirPath.fileContents().value_or(QByteArray()));
     if (qmldirContent.isEmpty()) {
@@ -1556,7 +1555,7 @@ void EffectComposerModel::saveResources(const QString &name)
     }
 
     writeToFile(qmlUtf8, qmlFilePath, FileType::Text);
-    newFileNames.append(qmlFilename);
+    newFileNames.insert(qmlFilename);
 
     // Save shaders and images
     QStringList sources = {m_vertexShaderFilename, m_fragmentShaderFilename};
@@ -1597,7 +1596,7 @@ void EffectComposerModel::saveResources(const QString &name)
     for (int i = 0; i < sources.count(); ++i) {
         Utils::FilePath source = Utils::FilePath::fromString(sources[i]);
         Utils::FilePath target = Utils::FilePath::fromString(effectsResPath + dests[i]);
-        newFileNames.append(target.fileName());
+        newFileNames.insert(target.fileName());
         if (target.exists() && source.fileName() != target.fileName())
             target.removeFile(); // Remove existing file for update
         if (!source.copyFile(target) && !target.exists())
@@ -1613,7 +1612,7 @@ void EffectComposerModel::saveResources(const QString &name)
 
     // Delete old content that was not overwritten
     // We ignore subdirectories, as currently subdirs only contain fixed content
-    for (const Utils::FilePath &oldFile : oldFiles) {
+    for (const Utils::FilePath &oldFile : std::as_const(oldFiles)) {
         if (!newFileNames.contains(oldFile.fileName()))
             oldFile.removeFile();
     }
@@ -2301,6 +2300,7 @@ R"(
 
 QString EffectComposerModel::getQmlComponentString(bool localFiles)
 {
+    using namespace Qt::StringLiterals;
     auto addProperty = [localFiles](const QString &name, const QString &var,
                                     const QString &type, const QString &condition = {},
                                     bool blurHelper = false)
@@ -2315,9 +2315,9 @@ QString EffectComposerModel::getQmlComponentString(bool localFiles)
     };
 
     QString s;
-    QString l1 = localFiles ? QStringLiteral("        ") : QStringLiteral("");
-    QString l2 = localFiles ? QStringLiteral("            ") : QStringLiteral("    ");
-    QString l3 = localFiles ? QStringLiteral("                ") : QStringLiteral("        ");
+    const QString l1 = localFiles ? "        "_L1 : ""_L1;
+    const QString l2 = localFiles ? "            "_L1 : "    "_L1;
+    const QString l3 = localFiles ? "                "_L1 : "        "_L1;
 
     if (!localFiles)
         s += "import QtQuick\n";
@@ -2496,6 +2496,12 @@ QList<QUrl> EffectComposerModel::defaultPreviewImages() const
     return defaultImages;
 }
 
+QUrl EffectComposerModel::defaultPreviewImage() const
+{
+    const QList<QUrl> &defaultImages = defaultPreviewImages();
+    return defaultImages.first();
+}
+
 QList<QUrl> EffectComposerModel::previewImages() const
 {
     return m_customPreviewImages + defaultPreviewImages();
@@ -2531,7 +2537,7 @@ void EffectComposerModel::setCurrentPreviewImage(const QUrl &path)
     if (previewImages().contains(path))
         m_currentPreviewImage = path;
     else
-        m_currentPreviewImage = defaultPreviewImages().first();
+        m_currentPreviewImage = defaultPreviewImage();
 
     setHasUnsavedChanges(true);
 
