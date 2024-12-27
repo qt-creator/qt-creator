@@ -12,6 +12,10 @@ Base {
 
     readonly property QtObject value: QtObject {
         property real floating
+
+        onFloatingChanged: {
+            realSpinBox.realValue = floating;
+        }
     }
 
     Layout.preferredWidth: 175

@@ -83,7 +83,7 @@ Base {
                 name: "Occlusion",
                 type: "nge::Occlusion",
                 binding: values => {
-                    root.value.occlussion = Qt.binding(() => {
+                    root.value.occlusionAmount = Qt.binding(() => {
                         return values.occlusion;
                     });
                     root.value.occlusionChannel = Qt.binding(() => {
