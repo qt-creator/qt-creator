@@ -87,24 +87,10 @@ Store ToolWrapper::toVariantMap() const
     return data;
 }
 
-template<typename First>
-void impl_option_cat(QStringList &list, const First &first)
-{
-    list.append(first);
-}
-
-template<typename First, typename... T>
-void impl_option_cat(QStringList &list, const First &first, const T &...args)
-{
-    impl_option_cat(list, first);
-    impl_option_cat(list, args...);
-}
-
-template<typename... T>
-QStringList options_cat(const T &...args)
+QStringList options_cat(const auto &...args)
 {
     QStringList result;
-    impl_option_cat(result, args...);
+    (result.append(args), ...);
     return result;
 }
 
@@ -146,16 +132,9 @@ ProcessRunData ToolWrapper::introspect(const FilePath &sourceDirectory) const
             sourceDirectory};
 }
 
-template<typename File_t>
-bool containsFiles(const QString &path, const File_t &file)
+bool containsFiles(const QString &path, const auto &...files)
 {
-    return QFileInfo::exists(QString("%1/%2").arg(path).arg(file));
-}
-
-template<typename File_t, typename... T>
-bool containsFiles(const QString &path, const File_t &file, const T &...files)
-{
-    return containsFiles(path, file) && containsFiles(path, files...);
+    return (QFileInfo::exists(QString("%1/%2").arg(path).arg(files)) && ...);
 }
 
 bool run_meson(const ProcessRunData &runData, QIODevice *output)
