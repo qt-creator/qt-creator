@@ -6,7 +6,6 @@
 #include "mesonbuildsystem.h"
 #include "mesonpluginconstants.h"
 #include "mesonprojectmanagertr.h"
-#include "mesonprojectnodes.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>

@@ -18,6 +18,7 @@ add_qtc_plugin(MesonProjectManager
   mesoninfoparser.h
   mesonoutputparser.cpp
   mesonoutputparser.h
+  mesonpluginconstants.h
   mesonproject.cpp
   mesonproject.h
   mesonprojectimporter.cpp
