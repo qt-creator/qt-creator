@@ -150,6 +150,15 @@ void DSThemeManager::duplicateTheme(ThemeId from, ThemeId to)
         group->duplicateValues(from, to);
 }
 
+std::optional<GroupType> DSThemeManager::groupType(const PropertyName &name) const
+{
+    for (const auto &[gt, group] : m_groups) {
+        if (group->hasProperty(name))
+            return gt;
+    }
+    return {};
+}
+
 std::optional<ThemeProperty> DSThemeManager::property(ThemeId themeId,
                                                       GroupType gType,
                                                       const PropertyName &name) const

@@ -10,6 +10,7 @@
 
 namespace QmlDesigner {
 class DSThemeManager;
+class DSStore;
 using PropInfo = std::pair<GroupType, PropertyName>;
 
 class CollectionModel : public QAbstractItemModel
@@ -17,11 +18,17 @@ class CollectionModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    enum class Roles { GroupRole = Qt::UserRole + 1, BindingRole, ActiveThemeRole };
+    enum Roles {
+        GroupRole = Qt::UserRole + 1,
+        BindingRole,
+        ActiveThemeRole,
+        ResolvedValueRole,
+        PropertyValueRole
+    };
 
     Q_PROPERTY(QStringList themeNames READ themeNameList NOTIFY themeNameChanged FINAL)
 
-    CollectionModel(DSThemeManager *collection);
+    CollectionModel(DSThemeManager *collection, const DSStore *store);
 
     QStringList themeNameList() const;
     Q_INVOKABLE void setActiveTheme(const QString &themeName);
@@ -66,6 +73,7 @@ private:
 
 private:
     DSThemeManager *m_collection = nullptr;
+    const DSStore *m_store;
 
     // cache
     std::vector<ThemeId> m_themeIdList;

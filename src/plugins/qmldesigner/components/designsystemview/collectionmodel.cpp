@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "collectionmodel.h"
+#include <designsystem/dsstore.h>
 #include <designsystem/dsthemegroup.h>
 #include <designsystem/dsthememanager.h>
 
@@ -9,8 +10,9 @@
 
 namespace QmlDesigner {
 
-CollectionModel::CollectionModel(DSThemeManager *collection)
+CollectionModel::CollectionModel(DSThemeManager *collection, const DSStore *store)
     : m_collection(collection)
+    , m_store(store)
 {
     updateCache();
 }
@@ -47,14 +49,22 @@ QVariant CollectionModel::data(const QModelIndex &index, int role) const
     if (!property)
         return {};
 
+    const QVariant propertyValue = property->value.toString();
+    const QVariant displayValue = property->isBinding
+                                      ? m_store->resolvedDSBinding(propertyValue.toString()).value
+                                      : property->value;
+
     switch (role) {
     case Qt::DisplayRole:
-        return property->value.toString();
-    case static_cast<int>(Roles::GroupRole):
+    case Roles::ResolvedValueRole:
+        return displayValue;
+    case Roles::PropertyValueRole:
+        return propertyValue;
+    case Roles::GroupRole:
         return QVariant::fromValue<GroupType>(groupType);
-    case static_cast<int>(Roles::BindingRole):
+    case Roles::BindingRole:
         return property->isBinding;
-    case static_cast<int>(Roles::ActiveThemeRole):
+    case Roles::ActiveThemeRole:
         return m_collection->activeTheme() == themeId;
     }
 
@@ -86,7 +96,7 @@ QVariant CollectionModel::headerData(int section, Qt::Orientation orientation, i
         switch (role) {
         case Qt::DisplayRole:
             return QString::fromLatin1(m_collection->themeName(themeId));
-        case static_cast<int>(Roles::ActiveThemeRole):
+        case Roles::ActiveThemeRole:
             return m_collection->activeTheme() == themeId;
         default:
             break;
@@ -97,7 +107,7 @@ QVariant CollectionModel::headerData(int section, Qt::Orientation orientation, i
         if (auto propInfo = findPropertyName(section)) {
             if (role == Qt::DisplayRole)
                 return QString::fromLatin1(propInfo->second);
-            if (role == static_cast<int>(Roles::GroupRole))
+            if (role == Roles::GroupRole)
                 return QVariant::fromValue<GroupType>(propInfo->first);
         }
     }
@@ -112,9 +122,11 @@ Qt::ItemFlags CollectionModel::flags(const QModelIndex &index) const
 QHash<int, QByteArray> CollectionModel::roleNames() const
 {
     auto roles = QAbstractItemModel::roleNames();
-    roles.insert(static_cast<int>(Roles::GroupRole), "group");
-    roles.insert(static_cast<int>(Roles::BindingRole), "isBinding");
-    roles.insert(static_cast<int>(Roles::ActiveThemeRole), "isActive");
+    roles.insert(Roles::ResolvedValueRole, "resolvedValue");
+    roles.insert(Roles::GroupRole, "group");
+    roles.insert(Roles::BindingRole, "isBinding");
+    roles.insert(Roles::ActiveThemeRole, "isActive");
+    roles.insert(Roles::PropertyValueRole, "propertyValue");
     return roles;
 }
 

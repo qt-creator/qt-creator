@@ -50,6 +50,8 @@ public:
 
     void duplicateTheme(ThemeId from, ThemeId to);
 
+    std::optional<GroupType> groupType(const PropertyName &name) const;
+
     bool addProperty(GroupType gType, const ThemeProperty &p);
     std::optional<ThemeProperty> property(ThemeId themeId,
                                                GroupType gType,
