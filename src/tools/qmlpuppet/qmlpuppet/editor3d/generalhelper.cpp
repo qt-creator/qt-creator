@@ -567,8 +567,10 @@ void GeneralHelper::alignCameras(QQuick3DCamera *camera, const QVariant &nodes)
 // Aligning means taking the position and XY rotation from the source camera. Rest of the properties
 // remain the same, as this is used to align edit cameras, which have fixed Z-rot, fov, and clips.
 // The camera zoom is reset to default.
-QVector4D GeneralHelper::alignView(QQuick3DCamera *camera, const QVariant &nodes,
-                                   const QVector3D &lookAtPoint, float defaultLookAtDistance)
+QVector4D GeneralHelper::alignView(QQuick3DCamera *camera,
+                                   const QVariant &nodes,
+                                   const QVector3D &,
+                                   float defaultLookAtDistance)
 {
     const QVariantList varNodes = nodes.value<QVariantList>();
     QQuick3DCamera *cameraNode = nullptr;
