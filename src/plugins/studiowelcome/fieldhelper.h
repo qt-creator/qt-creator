@@ -21,6 +21,7 @@ public:
     CheckBoxHelper(ProjectExplorer::JsonFieldPage *detailsPage, const QString &fieldName);
 
     void setChecked(bool value);
+    bool isChecked() const;
 
 private:
     ProjectExplorer::CheckBoxField *m_field = nullptr;

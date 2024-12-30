@@ -21,6 +21,12 @@ void CheckBoxHelper::setChecked(bool value)
     m_field->setChecked(value);
 }
 
+bool CheckBoxHelper::isChecked() const
+{
+    QTC_ASSERT(m_field, return false);
+    return m_field->isChecked();
+}
+
 ComboBoxHelper::ComboBoxHelper(ProjectExplorer::JsonFieldPage *detailsPage, const QString &fieldName)
     : m_field(dynamic_cast<ProjectExplorer::ComboBoxField *>(detailsPage->jsonField(fieldName)))
 {}

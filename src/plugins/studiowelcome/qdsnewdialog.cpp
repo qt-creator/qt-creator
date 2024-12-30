@@ -205,6 +205,13 @@ void QdsNewDialog::onWizardCreated(QStandardItemModel *screenSizeModel, QStandar
                 setEnableCMakeGeneration(userPreset->enableCMakeGeneration);
 
             setStyleName(userPreset->styleName);
+        } else {
+            if (getHaveVirtualKeyboard())
+                setUseVirtualKeyboard(m_wizard.virtualKeyboardUsed());
+            if (hasCMakeGeneration())
+                setEnableCMakeGeneration(m_wizard.cmakeGenerationEnabled());
+
+            setStyleName(m_wizard.styleName());
         }
 
         m_targetQtVersions.clear();
@@ -440,7 +447,7 @@ UserPresetData QdsNewDialog::currentUserPresetData(const QString &displayName) c
         targetQtVersion = m_wizard.targetQtVersionName(m_qmlTargetQtVersionIndex);
 
     if (m_wizard.haveStyleModel())
-        styleName = m_wizard.styleName(getStyleIndex());
+        styleName = m_wizard.styleNameAt(getStyleIndex());
 
     if (m_wizard.haveVirtualKeyboard())
         useVirtualKeyboard = m_qmlUseVirtualKeyboard;

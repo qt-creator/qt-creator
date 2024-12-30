@@ -931,6 +931,14 @@ void CheckBoxField::setChecked(bool value)
     emit w->clicked(value);
 }
 
+bool CheckBoxField::isChecked() const
+{
+    auto w = qobject_cast<QCheckBox *>(widget());
+    QTC_ASSERT(w, return false);
+
+    return w->isChecked();
+}
+
 bool CheckBoxField::validate(MacroExpander *expander, QString *message)
 {
     if (!JsonFieldPage::Field::validate(expander, message))
