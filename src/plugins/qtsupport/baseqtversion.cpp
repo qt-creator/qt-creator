@@ -1750,7 +1750,7 @@ bool QtVersionPrivate::queryQMakeVariables(const FilePath &binary, const Environ
     QByteArray output;
     output = runQmakeQuery(binary, env, error);
 
-    if (!output.contains("QMAKE_VERSION:")) {
+    if (binary.fileName().contains("qmake") && !output.contains("QMAKE_VERSION:")) {
         // Some setups pass error messages via stdout, fooling the logic below.
         // Example with docker/qemu/arm "OCI runtime exec failed: exec failed: container_linux.go:367:
         // starting container process caused: exec: "/bin/qmake": stat /bin/qmake: no such file or directory"

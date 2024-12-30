@@ -233,7 +233,7 @@ QtVersions KitDetectorPrivate::autoDetectQtVersions() const
 
     emit q->logOutput(ProjectExplorer::Tr::tr("Searching for qmake executables..."));
 
-    const QStringList candidates = {"qmake6", "qmake-qt6", "qmake-qt5", "qmake"};
+    const QStringList candidates = {"qmake6", "qmake-qt6", "qmake-qt5", "qmake", "qtpaths6", "qtpaths"};
     for (const FilePath &searchPath : m_searchPaths) {
         searchPath.iterateDirectory(handleQmake,
                                     {candidates,
