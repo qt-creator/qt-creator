@@ -1,7 +1,7 @@
 // Copyright (C) 2020 Alexis Jeandet.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "ninjabuildstep.h"
+#include "mesonbuildstep.h"
 
 #include "mesonbuildsystem.h"
 #include "mesonpluginconstants.h"
@@ -31,7 +31,7 @@ namespace MesonProjectManager::Internal {
 const char TARGETS_KEY[] = "MesonProjectManager.BuildStep.BuildTargets";
 const char TOOL_ARGUMENTS_KEY[] = "MesonProjectManager.BuildStep.AdditionalArguments";
 
-NinjaBuildStep::NinjaBuildStep(BuildStepList *bsl, Id id)
+MesonBuildStep::MesonBuildStep(BuildStepList *bsl, Id id)
     : AbstractProcessStep{bsl, id}
 {
     if (m_targetName.isEmpty())
@@ -41,12 +41,12 @@ NinjaBuildStep::NinjaBuildStep(BuildStepList *bsl, Id id)
     setCommandLineProvider([this] { return command(); });
     setUseEnglishOutput();
 
-    connect(target(), &ProjectExplorer::Target::parsingFinished, this, &NinjaBuildStep::update);
-    connect(&settings().verboseNinja, &BaseAspect::changed,
-            this, &NinjaBuildStep::commandChanged);
+    connect(target(), &ProjectExplorer::Target::parsingFinished, this, &MesonBuildStep::update);
+    connect(&settings().verboseBuild, &BaseAspect::changed,
+            this, &MesonBuildStep::commandChanged);
 }
 
-QWidget *NinjaBuildStep::createConfigWidget()
+QWidget *MesonBuildStep::createConfigWidget()
 {
     auto widget = new QWidget;
     setDisplayName(Tr::tr("Build", "MesonProjectManager::MesonBuildStepConfigWidget display name."));
@@ -95,9 +95,9 @@ QWidget *NinjaBuildStep::createConfigWidget()
     updateDetails();
     updateTargetList();
 
-    connect(this, &NinjaBuildStep::commandChanged, this, updateDetails);
+    connect(this, &MesonBuildStep::commandChanged, this, updateDetails);
 
-    connect(this, &NinjaBuildStep::targetListChanged, widget, updateTargetList);
+    connect(this, &MesonBuildStep::targetListChanged, widget, updateTargetList);
 
     connect(toolArguments, &QLineEdit::textEdited, this, [this, updateDetails](const QString &text) {
         setCommandArgs(text);
@@ -115,29 +115,21 @@ QWidget *NinjaBuildStep::createConfigWidget()
     return widget;
 }
 
-// --verbose is only supported since
-// https://github.com/ninja-build/ninja/commit/bf7517505ad1def03e13bec2b4131399331bc5c4
-// TODO check when to switch back to --verbose
-CommandLine NinjaBuildStep::command()
+CommandLine MesonBuildStep::command()
 {
-    CommandLine cmd;
-    if (auto tool = NinjaToolKitAspect::ninjaTool(kit()))
-        cmd.setExecutable(tool->exe());
-
-    if (!m_commandArgs.isEmpty())
-        cmd.addArgs(m_commandArgs, CommandLine::RawType::Raw);
-    if (settings().verboseNinja())
-        cmd.addArg("-v");
-    cmd.addArg(m_targetName);
-    return cmd;
+    if (auto tool = MesonToolKitAspect::mesonTool(kit()))
+    {
+        return tool->compile(buildDirectory(), m_targetName, settings().verboseBuild()).command;
+    }
+    return {};
 }
 
-QStringList NinjaBuildStep::projectTargets()
+QStringList MesonBuildStep::projectTargets()
 {
     return static_cast<MesonBuildSystem *>(buildSystem())->targetList();
 }
 
-void NinjaBuildStep::update(bool parsingSuccessful)
+void MesonBuildStep::update(bool parsingSuccessful)
 {
     if (parsingSuccessful) {
         if (!projectTargets().contains(m_targetName)) {
@@ -147,7 +139,7 @@ void NinjaBuildStep::update(bool parsingSuccessful)
     }
 }
 
-QString NinjaBuildStep::defaultBuildTarget() const
+QString MesonBuildStep::defaultBuildTarget() const
 {
     const ProjectExplorer::BuildStepList *const bsl = stepList();
     QTC_ASSERT(bsl, return {});
@@ -159,7 +151,7 @@ QString NinjaBuildStep::defaultBuildTarget() const
     return {Constants::Targets::all};
 }
 
-void NinjaBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
+void MesonBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
 {
     auto mesonOutputParser = new MesonOutputParser;
     mesonOutputParser->setSourceDirectory(project()->projectDirectory());
@@ -180,46 +172,46 @@ void NinjaBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
     });
 }
 
-void NinjaBuildStep::setBuildTarget(const QString &targetName)
+void MesonBuildStep::setBuildTarget(const QString &targetName)
 {
     m_targetName = targetName;
 }
 
-void NinjaBuildStep::setCommandArgs(const QString &args)
+void MesonBuildStep::setCommandArgs(const QString &args)
 {
     m_commandArgs = args.trimmed();
 }
 
-void NinjaBuildStep::toMap(Store &map) const
+void MesonBuildStep::toMap(Store &map) const
 {
     AbstractProcessStep::toMap(map);
     map.insert(TARGETS_KEY, m_targetName);
     map.insert(TOOL_ARGUMENTS_KEY, m_commandArgs);
 }
 
-void NinjaBuildStep::fromMap(const Store &map)
+void MesonBuildStep::fromMap(const Store &map)
 {
     m_targetName = map.value(TARGETS_KEY).toString();
     m_commandArgs = map.value(TOOL_ARGUMENTS_KEY).toString();
     return AbstractProcessStep::fromMap(map);
 }
 
-// NinjaBuildStepFactory
+// MesonBuildStepFactory
 
-class NinjaBuildStepFactory final : public BuildStepFactory
+class MesonBuildStepFactory final : public BuildStepFactory
 {
 public:
-    NinjaBuildStepFactory()
+    MesonBuildStepFactory()
     {
-        registerStep<NinjaBuildStep>(Constants::MESON_BUILD_STEP_ID);
+        registerStep<MesonBuildStep>(Constants::MESON_BUILD_STEP_ID);
         setSupportedProjectType(Constants::Project::ID);
         setDisplayName(Tr::tr("Meson Build"));
     }
 };
 
-void setupNinjaBuildStep()
+void setupMesonBuildStep()
 {
-    static NinjaBuildStepFactory theNinjaBuildStepFactory;
+    static MesonBuildStepFactory theMesonBuildStepFactory;
 }
 
 } // MesonProjectManager::Internal

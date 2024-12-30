@@ -12,6 +12,8 @@ add_qtc_plugin(MesonProjectManager
   mesonactionsmanager.h
   mesonbuildconfiguration.cpp
   mesonbuildconfiguration.h
+  mesonbuildstep.cpp
+  mesonbuildstep.h
   mesonbuildsystem.cpp
   mesonbuildsystem.h
   mesoninfoparser.cpp
@@ -33,8 +35,6 @@ add_qtc_plugin(MesonProjectManager
   mesonrunconfiguration.h
   mesontools.cpp
   mesontools.h
-  ninjabuildstep.cpp
-  ninjabuildstep.h
   ninjaparser.cpp
   ninjaparser.h
   resources_meson.qrc

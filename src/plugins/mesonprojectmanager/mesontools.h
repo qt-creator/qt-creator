@@ -18,18 +18,17 @@ namespace MesonProjectManager::Internal {
 
 enum class ToolType { Meson, Ninja };
 
-class ToolWrapper final
+class MesonToolWrapper final
 {
 public:
-    ToolWrapper() = delete;
-    explicit ToolWrapper(const Utils::Store &data);
-    ToolWrapper(ToolType toolType,
-                const QString &name,
+    MesonToolWrapper() = delete;
+    explicit MesonToolWrapper(const Utils::Store &data);
+    MesonToolWrapper(const QString &name,
                 const Utils::FilePath &path,
                 const Utils::Id &id = {},
                 bool autoDetected = false);
 
-    ~ToolWrapper();
+    ~MesonToolWrapper();
 
     const QVersionNumber &version() const noexcept { return m_version; }
     bool isValid() const noexcept { return m_isValid; }
@@ -45,8 +44,7 @@ public:
 
     Utils::Store toVariantMap() const;
 
-    ToolType toolType() const { return m_toolType; }
-    void setToolType(ToolType newToolType) { m_toolType = newToolType; }
+    ToolType toolType() const { return ToolType::Meson; }
 
     Utils::ProcessRunData setup(const Utils::FilePath &sourceDirectory,
                                 const Utils::FilePath &buildDirectory,
@@ -58,8 +56,24 @@ public:
                                      const Utils::FilePath &buildDirectory) const;
     Utils::ProcessRunData introspect(const Utils::FilePath &sourceDirectory) const;
 
+    Utils::ProcessRunData compile(const Utils::FilePath &buildDirectory,
+                                  const QString& target, bool verbose = false) const;
+    Utils::ProcessRunData compile(const Utils::FilePath &buildDirectory,
+                                  bool verbose = false) const;
+
+    Utils::ProcessRunData test(const Utils::FilePath &buildDirectory,
+                               const QString& testSuite, bool verbose = false) const;
+
+    Utils::ProcessRunData benchmark(const Utils::FilePath &buildDirectory,
+                                    const QString& benchmark, bool verbose = false) const;
+
+    Utils::ProcessRunData clean(const Utils::FilePath &buildDirectory,
+                                bool verbose = false) const;
+
+    Utils::ProcessRunData install(const Utils::FilePath &buildDirectory,
+                                  bool verbose = false) const;
+
 private:
-    ToolType m_toolType;
     QVersionNumber m_version;
     bool m_isValid;
     bool m_autoDetected;
@@ -72,7 +86,7 @@ bool run_meson(const Utils::ProcessRunData &runData, QIODevice *output = nullptr
 
 bool isSetup(const Utils::FilePath &buildPath);
 
-std::optional<Utils::FilePath> findTool(ToolType toolType);
+std::optional<Utils::FilePath> findMeson();
 
 class MesonTools : public QObject
 {
@@ -82,7 +96,7 @@ class MesonTools : public QObject
     ~MesonTools() {}
 
 public:
-    using Tool_t = std::shared_ptr<ToolWrapper>;
+    using Tool_t = std::shared_ptr<MesonToolWrapper>;
 
     static void setTools(std::vector<Tool_t> &&tools);
     static const std::vector<Tool_t> &tools();
@@ -92,8 +106,8 @@ public:
                            const Utils::FilePath &exe);
     static void removeTool(const Utils::Id &id);
 
-    static std::shared_ptr<ToolWrapper> toolById(const Utils::Id &id, ToolType toolType);
-    static std::shared_ptr<ToolWrapper> autoDetectedTool(ToolType toolType);
+    static std::shared_ptr<MesonToolWrapper> toolById(const Utils::Id &id);
+    static std::shared_ptr<MesonToolWrapper> autoDetectedTool();
 
     static MesonTools *instance();
 

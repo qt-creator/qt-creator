@@ -13,7 +13,7 @@ public:
     MesonSettings();
 
     Utils::BoolAspect autorunMeson{this};
-    Utils::BoolAspect verboseNinja{this};
+    Utils::BoolAspect verboseBuild{this};
 };
 
 MesonSettings &settings();

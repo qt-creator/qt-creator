@@ -114,7 +114,7 @@ void ToolTreeItem::update_tooltip(const QVersionNumber &version)
 
 void ToolTreeItem::update_tooltip()
 {
-    update_tooltip(ToolWrapper::read_version(m_executable));
+    update_tooltip(MesonToolWrapper::read_version(m_executable));
 }
 
 // ToolsModel
@@ -144,7 +144,7 @@ void ToolsModel::updateItem(const Id &itemId, const QString &name, const FilePat
 
 void ToolsModel::addMesonTool()
 {
-    manualGroup()->appendChild(new ToolTreeItem{uniqueName(Tr::tr("New Meson or Ninja tool"))});
+    manualGroup()->appendChild(new ToolTreeItem{uniqueName(Tr::tr("New Meson"))});
 }
 
 void ToolsModel::removeMesonTool(ToolTreeItem *item)

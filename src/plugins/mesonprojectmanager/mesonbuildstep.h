@@ -10,11 +10,11 @@
 
 namespace MesonProjectManager::Internal {
 
-class NinjaBuildStep final : public ProjectExplorer::AbstractProcessStep
+class MesonBuildStep final : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
 public:
-    NinjaBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
+    MesonBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
 
     QWidget *createConfigWidget() final;
     Utils::CommandLine command();
@@ -38,6 +38,6 @@ private:
     NinjaParser *m_ninjaParser = nullptr;
 };
 
-void setupNinjaBuildStep();
+void setupMesonBuildStep();
 
 } // MesonProjectManager::Internal

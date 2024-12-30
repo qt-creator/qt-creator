@@ -40,7 +40,7 @@ private slots:
         Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath()
                                                                + "/mesontest-XXXXXX");
 
-        const auto path = findTool(ToolType::Meson);
+        const auto path = findMeson();
         if (!path)
             QSKIP("Meson not found");
     }
@@ -63,9 +63,9 @@ private slots:
         {
             QTemporaryDir build_dir{"test-meson"};
             FilePath buildDir = FilePath::fromString(build_dir.path());
-            const auto tool = findTool(ToolType::Meson);
+            const auto tool = findMeson();
             QVERIFY(tool.has_value());
-            ToolWrapper meson(ToolType::Meson, "name", *tool);
+            MesonToolWrapper meson("name", *tool);
             run_meson(meson.setup(FilePath::fromString(src_dir), buildDir));
             QVERIFY(isSetup(buildDir));
 
@@ -83,9 +83,9 @@ private slots:
             // With unconfigured project
             QTemporaryFile introFile;
             introFile.open();
-            const auto tool = findTool(ToolType::Meson);
+            const auto tool = findMeson();
             QVERIFY(tool.has_value());
-            const ToolWrapper meson(ToolType::Meson, "name", *tool);
+            const MesonToolWrapper meson("name", *tool);
             run_meson(meson.introspect(Utils::FilePath::fromString(src_dir)), &introFile);
 
             MesonInfoParser::Result result = MesonInfoParser::parse(&introFile);

@@ -59,20 +59,6 @@ struct Target
     const std::optional<QString> subproject;
     const SourceGroupList sources;
 
-    static inline QString fullName(const Utils::FilePath &buildDir, const Target &target)
-    {
-        using namespace Utils;
-        auto fname = target.fileName.first();
-        if (FilePath::fromString(fname).isAbsolutePath()) {
-            fname.remove(buildDir.toString());
-            if (fname.startsWith('/'))
-                fname.remove(0, 1);
-            return fname;
-        } else {
-            return fname;
-        }
-    }
-
     static Type toType(const QString &typeStr)
     {
         if (typeStr == "executable")
@@ -90,6 +76,14 @@ struct Target
         if (typeStr == "jar")
             return Type::jar;
         return Type::unknown;
+    }
+
+    inline static QString unique_name(const Target &target, const Utils::FilePath &projectDir)
+    {
+        auto relative_path = Utils::FilePath::fromString(target.definedIn).canonicalPath().relativeChildPath(projectDir.canonicalPath()).parentDir();
+        if (target.type == Type::sharedModule)
+            return relative_path.pathAppended(Utils::FilePath::fromString(target.fileName[0]).fileName()).toString();
+        return relative_path.pathAppended(target.name).toString();
     }
 
     Target(const QString &type,

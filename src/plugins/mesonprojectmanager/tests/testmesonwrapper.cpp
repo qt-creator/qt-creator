@@ -28,21 +28,21 @@ private slots:
         Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath()
                                                                + "/mesontest-XXXXXX");
 
-        const auto path = findTool(ToolType::Meson);
+        const auto path = findMeson();
         if (!path)
             QSKIP("Meson not found");
     }
 
     void shouldFindMesonFromPATH()
     {
-        const auto path = findTool(ToolType::Meson);
+        const auto path = findMeson();
         QVERIFY(path);
         QVERIFY(path->exists());
     }
 
     void shouldReportMesonVersion()
     {
-        ToolWrapper meson(ToolType::Meson, "name", *findTool(ToolType::Meson));
+        MesonToolWrapper meson("name", *findMeson());
         QVERIFY(meson.isValid());
         QVERIFY(meson.version().majorVersion() == 0);
         QVERIFY(meson.version().minorVersion() >= 50);
@@ -63,7 +63,7 @@ private slots:
     {
         QFETCH(QString, src_dir);
         QTemporaryDir build_dir{"test-meson"};
-        const ToolWrapper meson(ToolType::Meson, "name", *findTool(ToolType::Meson));
+        const MesonToolWrapper meson("name", *findMeson());
         QVERIFY(run_meson(meson.setup(Utils::FilePath::fromString(src_dir),
                                       Utils::FilePath::fromString(build_dir.path()))));
         QVERIFY(
@@ -84,7 +84,7 @@ private slots:
     {
         QFETCH(QString, src_dir);
         QTemporaryDir build_dir{"test-meson"};
-        const ToolWrapper meson(ToolType::Meson, "name", *findTool(ToolType::Meson));
+        const MesonToolWrapper meson("name", *findMeson());
         QVERIFY(run_meson(meson.setup(Utils::FilePath::fromString(src_dir),
                                       Utils::FilePath::fromString(build_dir.path()))));
         QVERIFY(run_meson(meson.configure(Utils::FilePath::fromString(src_dir),

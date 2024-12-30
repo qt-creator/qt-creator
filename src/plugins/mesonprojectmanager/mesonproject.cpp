@@ -39,9 +39,6 @@ public:
         if (!MesonToolKitAspect::isValid(k))
             result.append(
                 createProjectTask(Task::TaskType::Error, Tr::tr("No Meson tool set.")));
-        if (!NinjaToolKitAspect::isValid(k))
-            result.append(
-                createProjectTask(Task::TaskType::Error, Tr::tr("No Ninja tool set.")));
         if (ToolchainKitAspect::toolChains(k).isEmpty())
             result.append(createProjectTask(Task::TaskType::Warning,
                                             Tr::tr("No compilers set in kit.")));

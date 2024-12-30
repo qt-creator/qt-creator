@@ -3,12 +3,12 @@
 
 #include "mesonactionsmanager.h"
 #include "mesonbuildconfiguration.h"
+#include "mesonbuildstep.h"
 #include "mesonbuildsystem.h"
 #include "mesonpluginconstants.h"
 #include "mesonproject.h"
 #include "mesonprojectmanagertr.h"
 #include "mesonrunconfiguration.h"
-#include "ninjabuildstep.h"
 #include "toolssettingsaccessor.h"
 #include "toolssettingspage.h"
 
@@ -38,7 +38,7 @@ class MesonProjectPlugin final : public ExtensionSystem::IPlugin
 
         setupMesonBuildSystem();
         setupMesonBuildConfiguration();
-        setupNinjaBuildStep();
+        setupMesonBuildStep();
 
         setupMesonRunConfiguration();
         setupMesonRunAndDebugWorkers();

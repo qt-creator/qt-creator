@@ -7,7 +7,7 @@
 #include "mesonbuildsystem.h"
 #include "mesonpluginconstants.h"
 #include "mesonprojectmanagertr.h"
-#include "ninjabuildstep.h"
+#include "mesonbuildstep.h"
 
 #include <coreplugin/find/itemviewfind.h>
 
@@ -97,7 +97,7 @@ ProjectExplorer::BuildSystem *MesonBuildConfiguration::buildSystem() const
 
 void MesonBuildConfiguration::build(const QString &target)
 {
-    auto mesonBuildStep = qobject_cast<NinjaBuildStep *>(
+    auto mesonBuildStep = qobject_cast<MesonBuildStep *>(
         Utils::findOrDefault(buildSteps()->steps(), [](const ProjectExplorer::BuildStep *bs) {
             return bs->id() == Constants::MESON_BUILD_STEP_ID;
         }));
