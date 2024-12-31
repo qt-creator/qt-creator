@@ -77,10 +77,7 @@ public:
     template<typename String>
     friend void convertToString(String &string, BasicId id)
     {
-        if (id.isNull())
-            NanotraceHR::convertToString(string, "invalid null");
-        else
-            NanotraceHR::convertToString(string, id.internalId());
+        NanotraceHR::convertToString(string, id.id);
     }
 
     friend bool compareId(BasicId first, BasicId second) { return first.id == second.id; }
@@ -146,8 +143,10 @@ public:
     template<typename String>
     friend void convertToString(String &string, CompoundBasicId id)
     {
-        convertToString(string, id.mainId());
-        convertToString(string, id.contextId());
+        int mainId = id;
+        int contextId = id >> 32;
+        convertToString(string, mainId);
+        convertToString(string, contextId);
     }
 
     friend bool compareId(CompoundBasicId first, CompoundBasicId second)
