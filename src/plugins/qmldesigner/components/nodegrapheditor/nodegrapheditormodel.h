@@ -24,6 +24,7 @@ public:
     Q_INVOKABLE void openFileName(QString filePath);
     Q_INVOKABLE void saveFile(QString fileName);
     Q_INVOKABLE void createQmlComponent(qan::Graph* graph);
+    void clear();
 private:
     QPointer<NodeGraphEditorView> m_editorView;
 
@@ -34,6 +35,7 @@ Q_PROPERTY(bool hasUnsavedChanges MEMBER m_hasUnsavedChanges WRITE setHasUnsaved
  signals:
 void graphDataChanged();
 void nodeGraphLoaded();
+void nodeGraphCleared();
     void hasUnsavedChangesChanged();
     void currentFileNameChanged();
     public:

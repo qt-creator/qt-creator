@@ -159,6 +159,10 @@ Item {
             initEdges(edges);
             NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = false;
         }
+        onNodeGraphCleared: {
+        graphView.graph.clearGraph();
+        NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = false;
+        }
     }
 
     SaveAsDialog {

@@ -4,7 +4,7 @@
 #include "nodegrapheditorview.h"
 #include "nodegrapheditormodel.h"
 #include "nodegrapheditorwidget.h"
-
+#include <qmldesignerplugin.h>
 namespace QmlDesigner {
 
 NodeGraphEditorView::NodeGraphEditorView(ExternalDependenciesInterface &externalDependencies)
@@ -18,6 +18,19 @@ NodeGraphEditorView::~NodeGraphEditorView()
 {
     delete m_editorWidget.data();
 }
+
+
+void NodeGraphEditorView::modelAttached(QmlDesigner::Model *model)
+{
+    AbstractView::modelAttached(model);
+    QString currProjectPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString();
+    if (m_currProjectPath != currProjectPath) { // starting a new project
+        m_editorModel->clear();
+    }
+
+    m_currProjectPath = currProjectPath;
+}
+
 
 WidgetInfo NodeGraphEditorView::widgetInfo()
 {

@@ -61,13 +61,13 @@ void NodeGraphEditorModel::saveFile(QString fileName){
 
 void NodeGraphEditorModel::openFile(QString filePath){
     const QString nodeGraphName = QFileInfo(filePath).baseName();
-    setCurrentFileName(nodeGraphName);
     QFile nodeGraphFile(filePath);
     if (!nodeGraphFile.open(QIODevice::ReadOnly)) {
         QString error = QString("Couldn't open node graph file: '%1'").arg(filePath);
         qWarning() << qPrintable(error);
         return;
     }
+    setCurrentFileName(nodeGraphName);
      QByteArray data = nodeGraphFile.readAll();
         m_graphData = QString::fromStdString(data.toStdString());
         graphDataChanged();
@@ -76,6 +76,14 @@ void NodeGraphEditorModel::openFile(QString filePath){
     nodeGraphFile.close();
     if (data.isEmpty())
         return;
+}
+
+void NodeGraphEditorModel::clear()
+{
+    setGraphData("");
+    setCurrentFileName("");
+    m_saveDirectory = "";
+    nodeGraphCleared();
 }
 QString NodeGraphEditorModel::saveDirectory(){
     if (m_saveDirectory!="") {

@@ -19,13 +19,14 @@ public:
 
     bool hasWidget() const override { return true; }
     WidgetInfo widgetInfo() override;
+    void modelAttached(QmlDesigner::Model * model) override;
 
 private:
   void customNotification(const AbstractView *view, const QString &identifier,
                             const QList<QmlDesigner::ModelNode> &nodeList, const QList<QVariant> &data) override;
     QPointer<NodeGraphEditorModel> m_editorModel;
     QPointer<NodeGraphEditorWidget> m_editorWidget;
-    
+    QString m_currProjectPath;
 };
 
 } // namespace QmlDesigner
