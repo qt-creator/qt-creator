@@ -27,27 +27,49 @@ Qan.NodeItem {
     property string type
     property string uuid: NodeGraphEditorBackend.widget.generateUUID()
 
-    function switchPin(pin_id) {
+    function switchPin(pin_id, value) {
         root.portsMetaData.pin.forEach(data => {
             if (data.id == pin_id) {
-                if (data.enabled === false)
-                    data.enabled = true;
-                else
-                    data.enabled = false;
+                data.enabled = value;
             }
         });
     }
 
     function updatePinVisibility(pin_id) {
+        var edgeToDelete = null;
         internal.createdPorts.forEach(data => {
             if (data.dataId === pin_id) {
                 root.portsMetaData.pin.forEach(data2 => {
                     if (data2.id === pin_id) {
+                        // Hide/show Pin
                         data.visible = data2.enabled;
+                        // Find edge for hidden Pin, for removal
+                        if (!data2.enabled) {
+                            for (var i = 0; i < graphView.graph.edges.length; i++) {
+                                var edge = graphView.graph.edges.at(i);
+                                var destItem = edge.item.destinationItem;
+                                if (destItem === data) {
+                                    edgeToDelete = edge;
+                                    break;
+                                }
+                            }
+                        }
                     }
                 });
             }
         });
+
+        if (edgeToDelete) {
+            // Remove from ports first
+            if (edgeToDelete.item.sourceItem) {
+                edgeToDelete.item.sourceItem.onEdgeItemDestroyed(edgeToDelete.item);
+            }
+            if (edgeToDelete.item.destinationItem) {
+                edgeToDelete.item.destinationItem.onEdgeItemDestroyed(edgeToDelete.item);
+            }
+            // Remove edge
+            graphView.graph.removeEdge(edgeToDelete);
+        }
     }
 
     Layout.preferredHeight: 60

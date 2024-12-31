@@ -123,12 +123,12 @@ StudioControls.Menu {
 
             delegate: StudioControls.CheckBox {
                 actionIndicator.visible: false
-                checkState: (modelData.enabled === undefined || modelData.enabled === true) ? Qt.Checked : Qt.UnChecked
+                checked: (modelData.enabled === undefined || modelData.enabled === true)
                 text: "pin: " + modelData.name
                 width: implicitWidth + StudioTheme.Values.toolbarHorizontalMargin
 
                 onToggled: {
-                    contextMenu.node.item.switchPin(modelData.id);
+                    contextMenu.node.item.switchPin(modelData.id, checked);
                     contextMenu.node.item.updatePinVisibility(modelData.id);
                 }
             }

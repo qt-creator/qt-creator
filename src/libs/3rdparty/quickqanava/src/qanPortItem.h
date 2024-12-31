@@ -160,7 +160,7 @@ protected:
     EdgeItems           _outEdgeItems;
 
     //! Used internally to automatically monitor in/out edges items destruction.
-    void                onEdgeItemDestroyed(QObject* obj);
+    Q_INVOKABLE void    onEdgeItemDestroyed(QObject* obj);
 
 public:
     //! Force input/output edge update.
