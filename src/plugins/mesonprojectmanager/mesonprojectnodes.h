@@ -16,7 +16,7 @@ public:
 class MesonTargetNode : public ProjectExplorer::ProjectNode
 {
 public:
-    MesonTargetNode(const Utils::FilePath &directory, const QString &name);
+    MesonTargetNode(const Utils::FilePath &directory, const QString &name, const QString &target_type, const QStringList &filenames, bool build_by_default);
 
     void build() override;
     QString tooltip() const final;
@@ -24,6 +24,9 @@ public:
 
 private:
     QString m_name;
+    QString m_target_type;
+    QStringList m_filenames;
+    bool m_build_by_default;
 };
 
 } // MesonProjectManager:Internal

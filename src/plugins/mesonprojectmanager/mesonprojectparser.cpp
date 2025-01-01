@@ -20,8 +20,10 @@
 #include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/fileinprojectfinder.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/stringutils.h>
 
+#include <memory>
 #include <optional>
 
 using namespace Core;
@@ -39,53 +41,177 @@ struct CompilerArgs
     Macros macros;
 };
 
-static void buildTargetTree(std::unique_ptr<MesonProjectNode> &root, const Target &target)
+struct TargetFiles
 {
-    const auto path = FilePath::fromString(target.definedIn);
-    for (const auto &group : target.sources) {
-        for (const auto &file : group.sources) {
-            root->addNestedNode(
-                std::make_unique<FileNode>(FilePath::fromString(file), FileType::Source));
-        }
-    }
-    for (const auto &extraFile : target.extraFiles) {
-        root->addNestedNode(
-            std::make_unique<FileNode>(FilePath::fromString(extraFile), FileType::Unknown));
-    }
+    FilePaths c_cpp_sources;
+    FilePaths headers;
+    FilePaths py_sources;
+    FilePaths ui_files;
+    FilePaths qrc_files;
+    FilePaths qml_files;
+    FilePaths local_others;
+    FilePaths global_others;
+};
+
+
+static bool isHeader(const Utils::FilePath &file)
+{
+    return file.endsWith(".h")
+           || file.endsWith(".hpp")
+           || file.endsWith(".hxx");
 }
 
-static void addTargetNode(std::unique_ptr<MesonProjectNode> &root, const Target &target)
+static bool isSource(const Utils::FilePath &file)
 {
-    root->findNode([&root, &target, path = FilePath::fromString(target.definedIn)](Node *node) {
-        if (node->filePath() == path.absolutePath()) {
-            auto asFolder = dynamic_cast<FolderNode *>(node);
-            if (asFolder) {
-                auto targetNode = std::make_unique<MesonTargetNode>(
-                    path.absolutePath().pathAppended(target.name), Target::unique_name(target,root->directory()));
-                targetNode->setDisplayName(target.name);
-                asFolder->addNode(std::move(targetNode));
-            }
-            return true;
+    return file.endsWith(".c")
+           || file.endsWith(".cpp")
+           || file.endsWith(".cxx")
+           || file.endsWith(".cc")
+           || file.endsWith(".C");
+}
+
+static std::unique_ptr<VirtualFolderNode> createVFolder(const FilePath &basePath,
+                                                        const QString &displayName,
+                                                        bool isSourcesOrHeaders,
+                                                        const QString &icon = {})
+{
+    auto newFolder = std::make_unique<VirtualFolderNode>(basePath);
+    newFolder->setDisplayName(displayName);
+    newFolder->setIsSourcesOrHeaders(isSourcesOrHeaders);
+    if (icon.isEmpty())
+        newFolder->setIcon(FileIconProvider::icon(QFileIconProvider::Folder));
+    else
+        newFolder->setIcon(FileIconProvider::directoryIcon(icon));
+    return newFolder;
+}
+
+static std::unique_ptr<MesonTargetNode> makeTargetNodes(std::unique_ptr<MesonProjectNode> &root,
+                                                        const Target &target,
+                                                        const TargetFiles &targetFiles)
+{
+    auto targetNode = std::make_unique<MesonTargetNode>(
+        FilePath::fromString(target.definedIn).absolutePath().pathAppended(target.name),
+        Target::unique_name(target,root->directory()),
+        Target::typeToString(target.type),
+        target.fileName,
+        target.buildByDefault
+        );
+    targetNode->setDisplayName(target.name);
+    if (!targetFiles.c_cpp_sources.isEmpty()) {
+        auto sourcesGroup = createVFolder(targetNode->path(), Tr::tr("Source Files"), true, ProjectExplorer::Constants::FILEOVERLAY_CPP);
+        for (const auto &file : targetFiles.c_cpp_sources) {
+            sourcesGroup->addNestedNode(std::make_unique<FileNode>(file, FileType::Source));
         }
-        return false;
-    });
+        targetNode->addNode(std::move(sourcesGroup));
+    }
+    if (!targetFiles.headers.isEmpty()) {
+        auto headersGroup = createVFolder(targetNode->path(), Tr::tr("Header Files"), true, ProjectExplorer::Constants::FILEOVERLAY_H);
+        for (const auto &file : targetFiles.headers) {
+            headersGroup->addNestedNode(std::make_unique<FileNode>(file, FileType::Header));
+        }
+        targetNode->addNode(std::move(headersGroup));
+    }
+    if (!targetFiles.py_sources.isEmpty()) {
+        auto pyGroup = createVFolder(targetNode->path(), Tr::tr("Python Files"), true, ProjectExplorer::Constants::FILEOVERLAY_PY);
+        for (const auto &file : targetFiles.py_sources) {
+            pyGroup->addNestedNode(std::make_unique<FileNode>(file, FileType::Source));
+        }
+        targetNode->addNode(std::move(pyGroup));
+    }
+    if (!targetFiles.ui_files.isEmpty()) {
+        auto uiGroup = createVFolder(targetNode->path(), Tr::tr("Qt Designer Files"), true, ProjectExplorer::Constants::FILEOVERLAY_UI);
+        for (const auto &file : targetFiles.ui_files) {
+            uiGroup->addNestedNode(std::make_unique<FileNode>(file, FileType::Form));
+        }
+        targetNode->addNode(std::move(uiGroup));
+    }
+    if (!targetFiles.qrc_files.isEmpty()) {
+        auto qrcGroup = createVFolder(targetNode->path(), Tr::tr("Qt Resource Files"), true, ProjectExplorer::Constants::FILEOVERLAY_QRC);
+        for (const auto &file : targetFiles.qrc_files) {
+            qrcGroup->addNestedNode(std::make_unique<FileNode>(file, FileType::Resource));
+        }
+        targetNode->addNode(std::move(qrcGroup));
+    }
+    if (!targetFiles.qml_files.isEmpty()) {
+        auto qmlGroup = createVFolder(targetNode->path(), Tr::tr("QML Files"), true, ProjectExplorer::Constants::FILEOVERLAY_QML);
+        for (const auto &file : targetFiles.qml_files) {
+            qmlGroup->addNestedNode(std::make_unique<FileNode>(file, FileType::QML));
+        }
+        targetNode->addNode(std::move(qmlGroup));
+    }
+    if (!targetFiles.local_others.isEmpty()) {
+        auto otherGroup = createVFolder(targetNode->path(), Tr::tr("Other Files"), false, ProjectExplorer::Constants::FILEOVERLAY_UNKNOWN);
+        for (const auto &file : targetFiles.local_others) {
+            otherGroup->addNestedNode(std::make_unique<FileNode>(file, FileType::Unknown));
+        }
+        targetNode->addNode(std::move(otherGroup));
+    }
+    if (!targetFiles.global_others.isEmpty()) {
+        for (const auto &file : targetFiles.global_others) {
+            root->addNestedNode(std::make_unique<FileNode>(file, FileType::Unknown));
+        }
+    }
+    return targetNode;
+}
+
+static void filterFile(const Utils::FilePath &file, const Utils::FilePath &targetPath, TargetFiles &targetFiles)
+{
+    if (isHeader(file))
+        targetFiles.headers << file;
+    else if (isSource(file))
+        targetFiles.c_cpp_sources << file;
+    else if (file.endsWith(".py"))
+        targetFiles.py_sources << file;
+    else if (file.endsWith(".ui"))
+        targetFiles.ui_files << file;
+    else if (file.endsWith(".qrc"))
+        targetFiles.qrc_files << file;
+    else if (file.endsWith(".qml"))
+        targetFiles.qml_files << file;
+    else if (file.isChildOf(targetPath))
+        targetFiles.local_others << file;
+    else
+        targetFiles.global_others << file;
+}
+
+static void buildTargetTree(std::unique_ptr<MesonProjectNode> &root, const Target &target)
+{
+    const auto project_file_path = FilePath::fromString(target.definedIn).canonicalPath();
+    const auto project_file_dir = project_file_path.absolutePath();
+    TargetFiles targetFiles;
+    if (auto node = root->findNode([absPath=project_file_dir](Node* node){return node->path()==absPath;}); node) {
+        if (auto folder = node->asFolderNode(); folder) {
+            for (const auto &group : target.sources) {
+                for (const auto &file : group.sources) {
+                    filterFile(FilePath::fromString(file).canonicalPath(), project_file_dir, targetFiles);
+                }
+            }
+            for (const auto &extraFile : target.extraFiles) {
+                filterFile(FilePath::fromString(extraFile).canonicalPath(), project_file_dir, targetFiles);
+            }
+            folder->addNode(makeTargetNodes(root, target, targetFiles));
+        }
+    }
 }
 
 static std::unique_ptr<MesonProjectNode> buildTree(
     const FilePath &srcDir, const TargetsList &targets, const FilePaths &bsFiles)
 {
-    std::set<FilePath> targetPaths;
     auto root = std::make_unique<MesonProjectNode>(srcDir);
-    for (const Target &target : targets) {
-        buildTargetTree(root, target);
-        targetPaths.insert(FilePath::fromString(target.definedIn).absolutePath());
-        addTargetNode(root, target);
-    }
+    //Populating all build system files ensures all folders are created
     for (FilePath bsFile : bsFiles) {
         if (!bsFile.toFileInfo().isAbsolute())
             bsFile = srcDir.pathAppended(bsFile.toUrlishString());
-        root->addNestedNode(std::make_unique<FileNode>(bsFile, FileType::Project));
+        // For some reason Meson also list files outside of the project directory
+        // like the python3 or qmake path
+        if (bsFile.canonicalPath().isChildOf(srcDir))
+            root->addNestedNode(std::make_unique<FileNode>(bsFile, FileType::Project));
     }
+
+    for (const Target &target : targets) {
+        buildTargetTree(root, target);
+    }
+
     return root;
 }
 
@@ -162,13 +288,13 @@ bool MesonProjectParser::configure(
     const FilePath &sourcePath, const FilePath &buildPath, const QStringList &args)
 {
     m_introType = IntroDataType::file;
-    m_srcDir = sourcePath;
-    m_buildDir = buildPath;
-    m_outputParser.setSourceDirectory(sourcePath);
-    auto cmd = MesonTools::toolById(m_meson)->configure(sourcePath, buildPath, args);
+    m_srcDir = sourcePath.canonicalPath();
+    m_buildDir = buildPath.canonicalPath();
+    m_outputParser.setSourceDirectory(m_srcDir);
+    auto cmd = MesonTools::toolById(m_meson)->configure(m_srcDir, m_buildDir, args);
     cmd.environment = m_env;
     // see comment near m_pendingCommands declaration
-    auto enqCmd = MesonTools::toolById(m_meson)->regenerate(sourcePath, buildPath);
+    auto enqCmd = MesonTools::toolById(m_meson)->regenerate(m_srcDir, m_buildDir);
     enqCmd.environment = m_env;
     m_pendingCommands.enqueue(std::make_tuple(enqCmd, false));
     return run(cmd, m_projectName);
@@ -184,24 +310,24 @@ bool MesonProjectParser::setup(
     const FilePath &sourcePath, const FilePath &buildPath, const QStringList &args, bool forceWipe)
 {
     m_introType = IntroDataType::file;
-    m_srcDir = sourcePath;
-    m_buildDir = buildPath;
-    m_outputParser.setSourceDirectory(sourcePath);
+    m_srcDir = sourcePath.canonicalPath();
+    m_buildDir = buildPath.canonicalPath();
+    m_outputParser.setSourceDirectory(m_srcDir);
     auto cmdArgs = args;
-    if (forceWipe || isSetup(buildPath))
+    if (forceWipe || isSetup(m_buildDir))
         cmdArgs << "--wipe";
-    auto cmd = MesonTools::toolById(m_meson)->setup(sourcePath, buildPath, cmdArgs);
+    auto cmd = MesonTools::toolById(m_meson)->setup(m_srcDir, m_buildDir, cmdArgs);
     cmd.environment = m_env;
     return run(cmd, m_projectName);
 }
 
 bool MesonProjectParser::parse(const FilePath &sourcePath, const FilePath &buildPath)
 {
-    m_srcDir = sourcePath;
-    m_buildDir = buildPath;
-    m_outputParser.setSourceDirectory(sourcePath);
-    if (!isSetup(buildPath)) {
-        return parse(sourcePath);
+    m_srcDir = sourcePath.canonicalPath();
+    m_buildDir = buildPath.canonicalPath();
+    m_outputParser.setSourceDirectory(m_srcDir);
+    if (!isSetup(m_buildDir)) {
+        return parse(m_srcDir);
     } else {
         m_introType = IntroDataType::file;
         return startParser();
@@ -210,10 +336,10 @@ bool MesonProjectParser::parse(const FilePath &sourcePath, const FilePath &build
 
 bool MesonProjectParser::parse(const FilePath &sourcePath)
 {
-    m_srcDir = sourcePath;
+    m_srcDir = sourcePath.canonicalPath();
     m_introType = IntroDataType::stdo;
-    m_outputParser.setSourceDirectory(sourcePath);
-    auto cmd = MesonTools::toolById(m_meson)->introspect(sourcePath);
+    m_outputParser.setSourceDirectory(m_srcDir);
+    auto cmd = MesonTools::toolById(m_meson)->introspect(m_srcDir);
     cmd.environment = m_env;
     return run(cmd, m_projectName, true);
 }

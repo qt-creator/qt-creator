@@ -58,6 +58,7 @@ struct Target
     const QStringList extraFiles;
     const std::optional<QString> subproject;
     const SourceGroupList sources;
+    const bool buildByDefault;
 
     static Type toType(const QString &typeStr)
     {
@@ -78,6 +79,29 @@ struct Target
         return Type::unknown;
     }
 
+    static QString typeToString(const Type type)
+    {
+        switch (type) {
+        case Type::executable:
+            return QStringLiteral("executable");
+        case Type::staticLibrary:
+            return QStringLiteral("static library");
+        case Type::sharedLibrary:
+            return QStringLiteral("shared library");
+        case Type::sharedModule:
+            return QStringLiteral("shared module");
+        case Type::custom:
+            return QStringLiteral("custom");
+        case Type::run:
+            return QStringLiteral("run");
+        case Type::jar:
+            return QStringLiteral("jar");
+        case Type::unknown:
+            return QStringLiteral("unknown");
+        }
+        return QStringLiteral("unknown");
+    }
+
     inline static QString unique_name(const Target &target, const Utils::FilePath &projectDir)
     {
         auto relative_path = Utils::FilePath::fromString(target.definedIn).canonicalPath().relativeChildPath(projectDir.canonicalPath()).parentDir();
@@ -93,7 +117,8 @@ struct Target
            QStringList &&fileName,
            QStringList &&extraFiles,
            QString &&subproject,
-           SourceGroupList &&sources)
+           SourceGroupList &&sources,
+           bool buildByDefault)
         : type{toType(type)}
         , name{std::move(name)}
         , id{std::move(id)}
@@ -103,6 +128,7 @@ struct Target
         , subproject{subproject.isNull() ? std::nullopt
                                          : std::optional<QString>{std::move(subproject)}}
         , sources{std::move(sources)}
+        , buildByDefault{buildByDefault}
     {}
 };
 

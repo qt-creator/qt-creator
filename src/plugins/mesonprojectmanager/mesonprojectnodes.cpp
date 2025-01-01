@@ -23,9 +23,12 @@ MesonProjectNode::MesonProjectNode(const FilePath &directory)
     setListInProject(false);
 }
 
-MesonTargetNode::MesonTargetNode(const FilePath &directory, const QString &name)
+MesonTargetNode::MesonTargetNode(const FilePath &directory, const QString &name,const QString &target_type, const QStringList &filenames, bool build_by_default)
     : ProjectNode(directory)
     , m_name(name)
+    , m_target_type(target_type)
+    , m_filenames(filenames)
+    , m_build_by_default(build_by_default)
 {
     setPriority(Node::DefaultProjectPriority + 900);
     setIcon(":/projectexplorer/images/build.png");
@@ -44,7 +47,12 @@ void MesonTargetNode::build()
 
 QString MesonTargetNode::tooltip() const
 {
-    return {};
+    return QString(R"(Target: %1
+Type: %2
+Build by default: %3
+Produced files: %4)").arg(m_name, m_target_type,
+             m_build_by_default ? QStringLiteral("Yes"):QStringLiteral("No"),
+             m_filenames.join(", "));
 }
 
 QString MesonTargetNode::buildKey() const
