@@ -124,6 +124,7 @@ signals:
     void hasModelSelectionChanged();
     void importBundle();
     void requestTab(int tabIndex);
+    void acceptTexturesDrop(const QList<QUrl> &urls);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;

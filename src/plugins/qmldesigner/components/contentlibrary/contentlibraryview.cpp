@@ -87,6 +87,19 @@ WidgetInfo ContentLibraryView::widgetInfo()
             m_draggedBundleItem = item;
         });
 
+        connect(m_widget, &ContentLibraryWidget::acceptTexturesDrop, this,
+                [this](const QList<QUrl> &urls) {
+            QStringList paths;
+
+            for (const QUrl &url : urls) {
+                QString path = url.toLocalFile();
+
+                if (Asset(path).isImage())
+                    paths.append(path);
+            }
+            addLibAssets(paths);
+        });
+
         connect(m_widget,
                 &ContentLibraryWidget::addTextureRequested,
                 this,

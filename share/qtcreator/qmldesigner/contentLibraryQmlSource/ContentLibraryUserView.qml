@@ -104,6 +104,7 @@ Item {
                     bottomPadding: StudioTheme.Values.sectionPadding
 
                     caption: categoryTitle
+                    dropEnabled: true
                     category: "ContentLib_User"
 
                     function expandSection() {
@@ -113,6 +114,24 @@ Item {
                     property alias count: repeater.count
 
                     onCountChanged: root.assignMaxCount()
+
+                    onDropEnter: (drag) => {
+                        drag.accepted = categoryTitle === "Textures"
+                                     && drag.formats[0] === "application/vnd.qtdesignstudio.assets"
+
+                        section.highlight = drag.accepted
+                    }
+
+                    onDropExit: {
+                        section.highlight = false
+                    }
+
+                    onDrop: (drag) => {
+                        section.highlight = false
+                        ContentLibraryBackend.rootView.acceptTexturesDrop(drag.urls)
+                        drag.accept()
+                        section.expandSection()
+                    }
 
                     Grid {
                         width: section.width - section.leftPadding - section.rightPadding
@@ -182,7 +201,7 @@ Item {
                                 qsTr("<b>Content Library</b> is not supported in Qt5 projects.")
                             else if (!ContentLibraryBackend.rootView.hasQuick3DImport && categoryTitle !== "Textures")
                                 qsTr("To use " +  categoryName + ", first add the QtQuick3D module in the <b>Components</b> view.")
-                            else if (!ContentLibraryBackend.rootView.hasMaterialLibrary)
+                            else if (!ContentLibraryBackend.rootView.hasMaterialLibrary && categoryTitle !== "Textures")
                                 qsTr("<b>Content Library</b> is disabled inside a non-visual component.")
                             else if (categoryEmpty)
                                 qsTr("There are no "+ categoryName + " in the <b>User Assets</b>.")
