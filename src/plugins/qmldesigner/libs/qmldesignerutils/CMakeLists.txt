@@ -15,6 +15,7 @@ add_qtc_library(QmlDesignerUtils STATIC
     imageutils.cpp imageutils.h
     qmldesignerutils_global.h
     version.cpp version.h
+    maputils.h
 )
 
 extend_qtc_library(QmlDesignerUtils
