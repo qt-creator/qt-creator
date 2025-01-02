@@ -827,7 +827,7 @@ public:
         auto sessions = new QWidget;
         {
             auto sessionsLabel = new Core::Label(Tr::tr("Sessions"), Core::Label::Primary);
-            auto manageSessionsButton = new Button(Tr::tr("Manage..."), Button::MediumSecondary);
+            auto manageSessionsButton = new Button(Tr::tr("Manage..."), Button::LargeSecondary);
             auto sessionsList = new TreeView(this, "Sessions");
             sessionsList->setModel(projectWelcomePage->m_sessionModel);
             sessionsList->header()->setSectionHidden(1, true); // The "last modified" column.

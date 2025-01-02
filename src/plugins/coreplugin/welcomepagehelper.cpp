@@ -114,16 +114,16 @@ enum WidgetState {
 static const TextFormat &buttonTF(Button::Role role, WidgetState state)
 {
     using namespace WelcomePageHelpers;
-    static const TextFormat mediumPrimaryTF
+    static const TextFormat largePrimaryTF
         {Theme::Token_Basic_White, StyleHelper::UiElement::UiElementButtonMedium,
          Qt::AlignCenter | Qt::TextDontClip | Qt::TextShowMnemonic};
-    static const TextFormat mediumSecondaryTF
-        {Theme::Token_Text_Default, mediumPrimaryTF.uiElement, mediumPrimaryTF.drawTextFlags};
+    static const TextFormat largeSecondaryTF
+        {Theme::Token_Text_Default, largePrimaryTF.uiElement, largePrimaryTF.drawTextFlags};
     static const TextFormat smallPrimaryTF
-        {mediumPrimaryTF.themeColor, StyleHelper::UiElement::UiElementButtonSmall,
-         mediumPrimaryTF.drawTextFlags};
+        {largePrimaryTF.themeColor, StyleHelper::UiElement::UiElementButtonSmall,
+         largePrimaryTF.drawTextFlags};
     static const TextFormat smallSecondaryTF
-        {mediumSecondaryTF.themeColor, smallPrimaryTF.uiElement, smallPrimaryTF.drawTextFlags};
+        {largeSecondaryTF.themeColor, smallPrimaryTF.uiElement, smallPrimaryTF.drawTextFlags};
     static const TextFormat smallListDefaultTF
         {Theme::Token_Text_Default, StyleHelper::UiElement::UiElementIconStandard,
          Qt::AlignLeft | Qt::AlignVCenter | Qt::TextDontClip | Qt::TextShowMnemonic};
@@ -140,8 +140,8 @@ static const TextFormat &buttonTF(Button::Role role, WidgetState state)
         {Theme::Token_Text_Default, tagDefaultTF.uiElement};
 
     switch (role) {
-    case Button::MediumPrimary: return mediumPrimaryTF;
-    case Button::MediumSecondary: return mediumSecondaryTF;
+    case Button::LargePrimary: return largePrimaryTF;
+    case Button::LargeSecondary: return largeSecondaryTF;
     case Button::SmallPrimary: return smallPrimaryTF;
     case Button::SmallSecondary: return smallSecondaryTF;
     case Button::SmallList: return (state == WidgetStateDefault) ? smallListDefaultTF
@@ -151,7 +151,7 @@ static const TextFormat &buttonTF(Button::Role role, WidgetState state)
     case Button::Tag: return (state == WidgetStateDefault) ? tagDefaultTF
                                              : tagHoverTF;
     }
-    return mediumPrimaryTF;
+    return largePrimaryTF;
 }
 
 Button::Button(const QString &text, Role role, QWidget *parent)
@@ -215,7 +215,7 @@ void Button::paintEvent(QPaintEvent *event)
 
     const qreal brRectRounding = 3.75;
     switch (m_role) {
-    case MediumPrimary:
+    case LargePrimary:
     case SmallPrimary: {
         const Theme::Color color = isEnabled() ? (isDown()
                                                   ? Theme::Token_Accent_Subtle
@@ -226,7 +226,7 @@ void Button::paintEvent(QPaintEvent *event)
         drawCardBackground(&p, bgR, fill, QPen(Qt::NoPen), brRectRounding);
         break;
     }
-    case MediumSecondary:
+    case LargeSecondary:
     case SmallSecondary: {
         const Theme::Color color = isEnabled() ? Theme::Token_Stroke_Strong
                                                : Theme::Token_Stroke_Subtle;
@@ -283,7 +283,7 @@ void Button::updateMargins()
         setContentsMargins(HPaddingXs, VPaddingXxs, HPaddingXs, VPaddingXxs);
         return;
     }
-    const bool tokenSizeS = m_role == MediumPrimary || m_role == MediumSecondary
+    const bool tokenSizeS = m_role == LargePrimary || m_role == LargeSecondary
                             || m_role == SmallList || m_role == SmallLink;
     const int gap = tokenSizeS ? HGapS : HGapXs;
     const int hPaddingR = tokenSizeS ? HPaddingS : HPaddingXs;

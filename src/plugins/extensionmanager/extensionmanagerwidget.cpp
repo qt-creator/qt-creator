@@ -150,7 +150,7 @@ public:
         m_dlCount->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
         m_details = new ElidingLabel;
         applyTf(m_details, detailsTF);
-        installButton = new Button(Tr::tr("Install..."), Button::MediumPrimary);
+        installButton = new Button(Tr::tr("Install..."), Button::LargePrimary);
         installButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         installButton->hide();
 

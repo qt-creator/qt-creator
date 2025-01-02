@@ -75,8 +75,8 @@ class CORE_EXPORT Button : public QAbstractButton
 {
 public:
     enum Role {
-        MediumPrimary,
-        MediumSecondary,
+        LargePrimary,
+        LargeSecondary,
         SmallPrimary,
         SmallSecondary,
         SmallList,
@@ -96,7 +96,7 @@ protected:
 private:
     void updateMargins();
 
-    const Role m_role = MediumPrimary;
+    const Role m_role = LargePrimary;
     QPixmap m_pixmap;
 };
 

@@ -123,8 +123,8 @@ public:
         };
 
         {
-            auto newButton = new Button(Tr::tr("Create Project..."), Button::MediumPrimary);
-            auto openButton = new Button(Tr::tr("Open Project..."), Button::MediumSecondary);
+            auto newButton = new Button(Tr::tr("Create Project..."), Button::LargePrimary);
+            auto openButton = new Button(Tr::tr("Open Project..."), Button::LargeSecondary);
 
             Column projectButtons {
                 newButton,
