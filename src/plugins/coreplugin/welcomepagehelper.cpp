@@ -40,6 +40,8 @@ namespace Core {
 using namespace WelcomePageHelpers;
 using namespace StyleHelper::SpacingTokens;
 
+const qreal disabledIconOpacity = 0.3;
+
 static QColor themeColor(Theme::Color role)
 {
     return creatorColor(role);
@@ -215,16 +217,21 @@ void Button::paintEvent(QPaintEvent *event)
     switch (m_role) {
     case MediumPrimary:
     case SmallPrimary: {
-        const QBrush fill(creatorColor(isDown()
-                                       ? Theme::Token_Accent_Subtle
-                                       : hovered ? Theme::Token_Accent_Muted
-                                                 : Theme::Token_Accent_Default));
+        const Theme::Color color = isEnabled() ? (isDown()
+                                                  ? Theme::Token_Accent_Subtle
+                                                  : (hovered ? Theme::Token_Accent_Muted
+                                                             : Theme::Token_Accent_Default))
+                                               : Theme::Token_Foreground_Subtle;
+        const QBrush fill(creatorColor(color));
         drawCardBackground(&p, bgR, fill, QPen(Qt::NoPen), brRectRounding);
         break;
     }
     case MediumSecondary:
     case SmallSecondary: {
-        const QPen outline(creatorColor(Theme::Token_Text_Default), hovered ? 2 : 1);
+        const Theme::Color color = isEnabled() ? Theme::Token_Stroke_Strong
+                                               : Theme::Token_Stroke_Subtle;
+        const qreal width = hovered ? 2.0 : 1.0;
+        const QPen outline(creatorColor(color), width);
         drawCardBackground(&p, bgR, QBrush(Qt::NoBrush), outline, brRectRounding);
         break;
     }
@@ -259,7 +266,8 @@ void Button::paintEvent(QPaintEvent *event)
     const QString elidedLabelText = fm.elidedText(text(), Qt::ElideRight, availableLabelWidth);
     const QRect labelR(margins.left(), margins.top(), availableLabelWidth, tf.lineHeight());
     p.setFont(font);
-    p.setPen(tf.color());
+    const QColor textColor = isEnabled() ? tf.color() : creatorColor(Theme::Token_Text_Subtle);
+    p.setPen(textColor);
     p.drawText(labelR, tf.drawTextFlags, elidedLabelText);
 }
 
@@ -301,7 +309,8 @@ Label::Label(const QString &text, Role role, QWidget *parent)
     setFixedHeight(vPadding + tF.lineHeight() + vPadding);
     setFont(tF.font());
     QPalette pal = palette();
-    pal.setColor(QPalette::WindowText, tF.color());
+    pal.setColor(QPalette::Active, QPalette::WindowText, tF.color());
+    pal.setColor(QPalette::Disabled, QPalette::WindowText, creatorColor(Theme::Token_Text_Subtle));
     setPalette(pal);
 }
 
@@ -328,7 +337,9 @@ SearchBox::SearchBox(QWidget *parent)
 
     QPalette pal = palette();
     pal.setColor(QPalette::Base, Qt::transparent);
-    pal.setColor(QPalette::PlaceholderText, searchBoxPlaceholderTF.color());
+    pal.setColor(QPalette::Active, QPalette::PlaceholderText, searchBoxPlaceholderTF.color());
+    pal.setColor(QPalette::Disabled, QPalette::PlaceholderText,
+                 creatorColor(Theme::Token_Text_Subtle));
     pal.setColor(QPalette::Text, searchBoxTextTF.color());
     setPalette(pal);
 
@@ -358,12 +369,14 @@ void SearchBox::leaveEvent(QEvent *event)
     update();
 }
 
-static void paintCommonBackground(QPainter *p, const QRectF &rect, const QWidget *widget)
+static void paintCommonBackground(QPainter *p, const QRectF &rect, const QWidget *w)
 {
     const QBrush fill(creatorColor(Theme::Token_Background_Muted));
-    const Theme::Color c = widget->hasFocus() ? Theme::Token_Stroke_Strong :
-                               widget->underMouse() ? Theme::Token_Stroke_Muted
-                                                    : Theme::Token_Stroke_Subtle;
+    const Theme::Color c =
+            w->isEnabled() ? (w->hasFocus() ? Theme::Token_Stroke_Strong
+                                            : (w->underMouse() ? Theme::Token_Stroke_Muted
+                                                               : Theme::Token_Stroke_Subtle))
+                           : Theme::Token_Foreground_Subtle;
     const QPen pen(creatorColor(c));
     drawCardBackground(p, rect, fill, pen);
 }
@@ -385,6 +398,8 @@ void SearchBox::paintEvent(QPaintEvent *event)
         const QPixmap icon = searchBoxIcon();
         const QSize iconS = icon.deviceIndependentSize().toSize();
         const QPoint iconPos(width() - HPaddingXs - iconS.width(), (height() - iconS.height()) / 2);
+        if (!isEnabled())
+            p.setOpacity(disabledIconOpacity);
         p.drawPixmap(iconPos, icon);
     }
 
@@ -450,12 +465,15 @@ void ComboBox::paintEvent(QPaintEvent *)
     const QRect textR(margins.left(), margins.top(),
                       width() - margins.right(), ComboBoxTf.lineHeight());
     p.setFont(ComboBoxTf.font());
-    p.setPen(ComboBoxTf.color());
+    const QColor color = isEnabled() ? ComboBoxTf.color() : creatorColor(Theme::Token_Text_Subtle);
+    p.setPen(color);
     p.drawText(textR, ComboBoxTf.drawTextFlags, currentText());
 
     const QPixmap icon = comboBoxIcon();
     const QSize iconS = icon.deviceIndependentSize().toSize();
     const QPoint iconPos(width() - HPaddingXs - iconS.width(), (height() - iconS.height()) / 2);
+    if (!isEnabled())
+        p.setOpacity(disabledIconOpacity);
     p.drawPixmap(iconPos, icon);
 }
 
