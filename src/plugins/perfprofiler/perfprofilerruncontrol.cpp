@@ -97,6 +97,7 @@ public:
     void start() final
     {
         m_process = new Process(this);
+        runControl()->setProperty("PerfProcess", QVariant::fromValue(m_process.get()));
 
         connect(m_process, &Process::started, this, &RunWorker::reportStarted);
         connect(m_process, &Process::done, this, [this] {
@@ -135,8 +136,6 @@ public:
         if (m_process)
             m_process->terminate();
     }
-
-    Process *recorder() { return m_process; }
 
 private:
     QPointer<Process> m_process;
@@ -185,13 +184,7 @@ public:
                 &PerfProfilerTool::onRunControlFinished);
 
         PerfDataReader *reader = m_perfParserWorker->reader();
-        Process *perfProcess = nullptr;
-        if (auto prw = qobject_cast<LocalPerfRecordWorker *>(m_perfRecordWorker)) {
-            // That's the local case.
-            perfProcess = prw->recorder();
-        } else {
-            perfProcess = runControl()->property("PerfProcess").value<Process *>();
-        }
+        Process *perfProcess = runControl()->property("PerfProcess").value<Process *>();
 
         if (perfProcess) {
             connect(perfProcess, &Process::readyReadStandardError, this, [this, perfProcess] {
