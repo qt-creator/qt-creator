@@ -61,30 +61,25 @@ bool DSThemeGroup::addProperty(ThemeId theme, const ThemeProperty &prop)
         return false;
     }
 
-    if (!m_values.contains(prop.name))
-        m_values[prop.name] = {};
+    auto [valuesIterator, i] = m_values.try_emplace(prop.name);
 
-    auto &tValues = m_values.at(prop.name);
-    if (tValues.contains(theme)) {
+    auto &tValues = valuesIterator->second;
+    auto [iter, inserted] = tValues.try_emplace(theme, prop.value, prop.isBinding);
+    if (!inserted)
         qCDebug(dsLog) << "Add property failed. Duplicate property name." << prop;
-        return false;
-    }
 
-    tValues.emplace(std::piecewise_construct,
-                    std::forward_as_tuple(theme),
-                    std::forward_as_tuple(prop.value, prop.isBinding));
-
-    return true;
+    return inserted;
 }
 
 std::optional<ThemeProperty> DSThemeGroup::propertyValue(ThemeId theme, const PropertyName &name) const
 {
-    if (!m_values.contains(name))
+    const auto valuesIter = m_values.find(name);
+    if (valuesIter == m_values.end())
         return {};
 
-    const auto &tValues = m_values.at(name);
-    const auto itr = tValues.find(theme);
-    if (itr != tValues.end()) {
+    const auto &tValues = valuesIter->second;
+
+    if (const auto itr = tValues.find(theme); itr != tValues.end()) {
         auto &[value, isBindind] = itr->second;
         return ThemeProperty{name, value, isBindind};
     }
@@ -98,24 +93,25 @@ bool DSThemeGroup::hasProperty(const PropertyName &name) const
 
 bool DSThemeGroup::updateProperty(ThemeId theme, const ThemeProperty &prop)
 {
-    if (!m_values.contains(prop.name)) {
-        qCDebug(dsLog) << "Property update failure. Can't find property" << prop;
-        return false;
-    }
-
     if (!prop.isValid()) {
         qCDebug(dsLog) << "Property update failure. Invalid property" << prop;
         return false;
     }
 
-    auto &tValues = m_values.at(prop.name);
+    const auto valuesIter = m_values.find(prop.name);
+    if (valuesIter == m_values.end()) {
+        qCDebug(dsLog) << "Property update failure. Can't find property" << prop;
+        return false;
+    }
+
+    auto &tValues = valuesIter->second;
     const auto itr = tValues.find(theme);
     if (itr == tValues.end()) {
         qCDebug(dsLog) << "Property update failure. No property for the theme" << theme << prop;
         return false;
     }
 
-    auto &entry = tValues.at(theme);
+    auto &entry = itr->second;
     entry.value = prop.value;
     entry.isBinding = prop.isBinding;
     return true;
