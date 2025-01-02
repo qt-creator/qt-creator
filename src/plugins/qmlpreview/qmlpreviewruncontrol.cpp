@@ -213,8 +213,7 @@ LocalQmlPreviewSupportFactory::LocalQmlPreviewSupportFactory()
             }
 
             cmd.addArg(qmlDebugLocalArguments(QmlPreviewServices, runControl->qmlChannel().path()));
-            worker->setCommandLine(cmd);
-            worker->forceRunOnHost();
+            worker->setCommandLine(cmd.toLocal());
         });
         return worker;
     });

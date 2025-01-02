@@ -184,6 +184,7 @@ public:
     QStringList splitArguments() const;
 
     bool isEmpty() const { return m_executable.isEmpty(); }
+    CommandLine toLocal() const;
 
 private:
     friend QTCREATOR_UTILS_EXPORT bool operator==(const CommandLine &first, const CommandLine &second);

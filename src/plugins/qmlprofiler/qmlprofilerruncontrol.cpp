@@ -154,8 +154,7 @@ RunWorker *createLocalQmlProfilerWorker(RunControl *runControl)
         const QString oldArgs = cmd.arguments();
         cmd.setArguments(arguments);
         cmd.addArgs(oldArgs, Utils::CommandLine::Raw);
-        worker->setCommandLine(cmd);
-        worker->forceRunOnHost();
+        worker->setCommandLine(cmd.toLocal());
     });
 
     return worker;

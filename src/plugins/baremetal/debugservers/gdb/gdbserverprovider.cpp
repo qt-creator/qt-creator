@@ -176,8 +176,7 @@ RunWorker *GdbServerProvider::targetRunner(RunControl *runControl) const
     worker->setId("BareMetalGdbServer");
     // Baremetal's GDB servers are launched on the host, not on the target.
     worker->setStartModifier([worker, cmd = command()] {
-        worker->setCommandLine(cmd);
-        worker->forceRunOnHost();
+        worker->setCommandLine(cmd.toLocal());
     });
     return worker;
 }

@@ -1710,15 +1710,6 @@ void ProcessRunner::suppressDefaultStdOutHandling()
     d->m_suppressDefaultStdOutHandling = true;
 }
 
-void ProcessRunner::forceRunOnHost()
-{
-    const FilePath executable = d->m_command.executable();
-    if (!executable.isLocal()) {
-        QTC_CHECK(false);
-        d->m_command.setExecutable(FilePath::fromString(executable.path()));
-    }
-}
-
 // RunWorkerPrivate
 
 RunWorkerPrivate::RunWorkerPrivate(RunWorker *runWorker, RunControl *runControl)

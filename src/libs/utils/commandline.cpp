@@ -1598,6 +1598,17 @@ QStringList CommandLine::splitArguments() const
     return ProcessArgs::splitArgs(m_arguments, m_executable.osType());
 }
 
+CommandLine CommandLine::toLocal() const
+{
+    if (m_executable.isLocal())
+        return *this;
+
+    QTC_CHECK(false); // TODO: Does it make sense?
+    CommandLine cmd = *this;
+    cmd.setExecutable(FilePath::fromString(m_executable.path()));
+    return cmd;
+}
+
 QTCREATOR_UTILS_EXPORT bool operator==(const CommandLine &first, const CommandLine &second)
 {
     return first.m_executable == second.m_executable && first.m_arguments == second.m_arguments;

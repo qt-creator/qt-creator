@@ -295,7 +295,6 @@ public:
     void setProcessMode(Utils::ProcessMode processMode);
 
     void suppressDefaultStdOutHandling();
-    void forceRunOnHost();
 
 signals:
     void stdOutData(const QByteArray &data);
