@@ -96,10 +96,9 @@ public:
 
         // If the parser is gone, there is no point in going on.
         m_perfParserWorker->setEssential(true);
+        m_perfRecordWorker = qobject_cast<ProcessRunner *>(runControl->createWorker("PerfRecorder"));
 
-        if ((m_perfRecordWorker = qobject_cast<ProcessRunner *>(runControl->createWorker("PerfRecorder")))) {
-            m_perfParserWorker->addStartDependency(m_perfRecordWorker);
-        } else {
+        if (!m_perfRecordWorker) {
             m_perfRecordWorker = new ProcessRunner(runControl);
             m_perfRecordWorker->suppressDefaultStdOutHandling();
 
@@ -118,14 +117,13 @@ public:
                 appendMessage("Starting Perf: " + cmd.toUserOutput(), NormalMessageFormat);
             });
 
-            m_perfRecordWorker->addStartDependency(m_perfParserWorker);
-
             // In the local case, the parser won't automatically stop when the recorder does. So we need
             // to mark the recorder as essential, too.
             m_perfRecordWorker->setEssential(true);
         }
         addStartDependency(m_perfRecordWorker);
 
+        m_perfParserWorker->addStartDependency(m_perfRecordWorker);
         m_perfParserWorker->addStopDependency(m_perfRecordWorker);
         PerfProfilerTool::instance()->onWorkerCreation(runControl);
     }
