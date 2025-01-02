@@ -125,6 +125,7 @@ signals:
     void importBundle();
     void requestTab(int tabIndex);
     void acceptTexturesDrop(const QList<QUrl> &urls);
+    void acceptMaterialDrop(const QString &internalId);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;

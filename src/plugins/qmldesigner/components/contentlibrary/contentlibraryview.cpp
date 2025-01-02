@@ -100,6 +100,13 @@ WidgetInfo ContentLibraryView::widgetInfo()
             addLibAssets(paths);
         });
 
+        connect(m_widget, &ContentLibraryWidget::acceptMaterialDrop, this,
+                [this](const QString &internalId) {
+            ModelNode matNode = QmlDesignerPlugin::instance()->viewManager()
+                                .view()->modelNodeForInternalId(internalId.toInt());
+            addLibItem(matNode);
+        });
+
         connect(m_widget,
                 &ContentLibraryWidget::addTextureRequested,
                 this,

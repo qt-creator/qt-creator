@@ -116,8 +116,8 @@ Item {
                     onCountChanged: root.assignMaxCount()
 
                     onDropEnter: (drag) => {
-                        drag.accepted = categoryTitle === "Textures"
-                                     && drag.formats[0] === "application/vnd.qtdesignstudio.assets"
+                        drag.accepted = (categoryTitle === "Textures" && drag.formats[0] === "application/vnd.qtdesignstudio.assets")
+                                     || (categoryTitle === "Materials" && drag.formats[0] === "application/vnd.qtdesignstudio.material")
 
                         section.highlight = drag.accepted
                     }
@@ -128,9 +128,13 @@ Item {
 
                     onDrop: (drag) => {
                         section.highlight = false
-                        ContentLibraryBackend.rootView.acceptTexturesDrop(drag.urls)
                         drag.accept()
                         section.expandSection()
+
+                        if (categoryTitle === "Textures")
+                            ContentLibraryBackend.rootView.acceptTexturesDrop(drag.urls)
+                        else if (categoryTitle === "Materials")
+                            ContentLibraryBackend.rootView.acceptMaterialDrop(drag.getDataAsString(drag.formats[0]))
                     }
 
                     Grid {
