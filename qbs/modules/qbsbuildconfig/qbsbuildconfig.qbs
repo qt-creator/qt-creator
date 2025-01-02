@@ -22,6 +22,10 @@ Module {
              return flags;
          }
     }
+    Properties {
+        condition: qbs.toolchain.contains("msvc")
+        cpp.defines: "_UCRT_NOISY_NAN"
+    }
 
     priority: 1
 

@@ -206,8 +206,8 @@ Client *LanguageClientManager::startClient(const BaseSettings *setting,
     QTC_ASSERT(setting, return nullptr);
     QTC_ASSERT(setting->isValid(), return nullptr);
     Client *client = setting->createClient(project);
-    qCDebug(Log) << "start client: " << client->name() << client;
     QTC_ASSERT(client, return nullptr);
+    qCDebug(Log) << "start client: " << client->name() << client;
     client->start();
     managerInstance->m_clientsForSetting[setting->m_id].append(client);
     return client;
@@ -336,16 +336,22 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
             ensureClient();
 
         for (TextEditor::TextDocument *previousDocument : std::as_const(documents)) {
-            if (setting->m_languageFilter.isSupported(previousDocument))
-                openDocumentWithClient(previousDocument, ensureClient());
+            if (setting->m_languageFilter.isSupported(previousDocument)) {
+                auto client = ensureClient();
+                QTC_ASSERT(client, return);
+                openDocumentWithClient(previousDocument, client);
+            }
         }
         const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
         for (Core::IDocument *document : openedDocuments) {
             if (documents.contains(document))
                 continue; // already handled above
             if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document)) {
-                if (setting->m_languageFilter.isSupported(document))
-                    ensureClient()->openDocument(textDocument);
+                if (setting->m_languageFilter.isSupported(document)) {
+                    auto client = ensureClient();
+                    QTC_ASSERT(client, return);
+                    client->openDocument(textDocument);
+                }
             }
         }
     } else if (setting->m_startBehavior == BaseSettings::RequiresProject) {

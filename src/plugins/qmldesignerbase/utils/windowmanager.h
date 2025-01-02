@@ -5,10 +5,10 @@
 
 #include "../qmldesignerbase_global.h"
 
+#include <QObject>
 #include <QPoint>
-#include <QtQml/qqml.h>
+#include <QRect>
 
-QT_FORWARD_DECLARE_CLASS(QRect)
 QT_FORWARD_DECLARE_CLASS(QWindow)
 
 namespace QmlDesigner {

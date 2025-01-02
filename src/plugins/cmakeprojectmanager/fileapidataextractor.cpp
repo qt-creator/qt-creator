@@ -823,6 +823,9 @@ static void addTargets(FolderNode *root,
                     folderDir, createSourceGroupNode(td.folderTargetProperty, folderDir, root));
 
             tNode = createTargetNode(folderNodes, folderDir, t.name);
+
+            // Set the correct source directory, not the FOLDER property value
+            tNode->setFilePath(dir);
         } else {
             tNode = createTargetNode(cmakeListsNodes, dir, t.name);
         }
