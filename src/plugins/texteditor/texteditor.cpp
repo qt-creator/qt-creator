@@ -5108,7 +5108,7 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
         if (!m_find->inScope(start, end))
             continue;
 
-        // check if the result is inside the visibale area for long blocks
+        // check if the result is inside the visible area for long blocks
         const QTextLine &startLine = block.layout()->lineForTextPosition(idx);
         const QTextLine &endLine = block.layout()->lineForTextPosition(idx + l);
 
