@@ -72,6 +72,7 @@ public:
 
     void setVisibleAfterAddFileAction(bool visibleAfterAddFileAction);
 
+    using ProjectExplorer::Node::setFilePath;
 private:
     QString m_tooltip;
     Utils::FilePath m_buildDirectory;

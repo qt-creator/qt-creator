@@ -130,7 +130,8 @@ public:
 
     void clear()
     {
-        file.remove();
+        if (!file.fileName().isEmpty())
+            file.remove();
         stream.setDevice(nullptr);
     }
 

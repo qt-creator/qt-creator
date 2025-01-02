@@ -112,7 +112,6 @@ BuildDirParameters::BuildDirParameters(CMakeBuildSystem *buildSystem)
         environment.set("ICECC", "no");
 
     environment.set("QTC_RUN", "1");
-    environment.setFallback("CMAKE_COLOR_DIAGNOSTICS", "1");
     environment.setFallback("CLICOLOR_FORCE", "1");
 
     cmakeToolId = CMakeKitAspect::cmakeToolId(k);
