@@ -60,10 +60,11 @@ void FileApiReader::setParameters(const BuildDirParameters &p)
     m_parameters = p;
     qCDebug(cmakeFileApiMode) << "Work directory:" << m_parameters.buildDirectory.toUserOutput();
 
-    // Reset watcher:
-    m_watcher.clear();
-
     FileApiParser::setupCMakeFileApi(m_parameters.buildDirectory);
+
+    const FilePath replyDirectory = FileApiParser::cmakeReplyDirectory(m_parameters.buildDirectory);
+    if (!m_watcher.watchesDirectory(replyDirectory))
+        m_watcher.addDirectory(replyDirectory.path(), FileSystemWatcher::WatchAllChanges);
 
     resetData();
 }
@@ -383,8 +384,7 @@ void FileApiReader::startCMakeState(const QStringList &configurationArguments)
 
     qCDebug(cmakeFileApiMode) << ">>>>>> Running cmake with arguments:" << configurationArguments;
     // Reset watcher:
-    m_watcher.removeFiles(m_watcher.filePaths());
-    m_watcher.removeDirectories(m_watcher.directoryPaths());
+    m_watcher.clear();
 
     makeBackupConfiguration(true);
     writeConfigurationIntoBuildDirectory(configurationArguments);
