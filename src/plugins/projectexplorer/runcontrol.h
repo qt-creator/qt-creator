@@ -279,6 +279,8 @@ private:
 
 class PROJECTEXPLORER_EXPORT ProcessRunner final : public RunWorker
 {
+    Q_OBJECT
+
 public:
     explicit ProcessRunner(RunControl *runControl);
     ~ProcessRunner() override;
