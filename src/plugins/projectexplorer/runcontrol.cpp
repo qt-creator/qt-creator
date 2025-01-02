@@ -1512,17 +1512,13 @@ void ProcessRunnerPrivate::handleDone()
 void ProcessRunnerPrivate::handleStandardOutput()
 {
     if (m_suppressDefaultStdOutHandling)
-        return;
-
-    const QString msg = m_process.readAllStandardOutput();
-    q->appendMessage(msg, StdOutFormat, false);
+        emit q->stdOutData(m_process.readAllRawStandardOutput());
+    else
+        q->appendMessage(m_process.readAllStandardOutput(), StdOutFormat, false);
 }
 
 void ProcessRunnerPrivate::handleStandardError()
 {
-    if (m_suppressDefaultStdOutHandling)
-        return;
-
     const QString msg = m_process.readAllStandardError();
     q->appendMessage(msg, StdErrFormat, false);
 }
@@ -1707,11 +1703,6 @@ void ProcessRunner::setWorkingDirectory(const FilePath &workingDirectory)
 void ProcessRunner::setProcessMode(Utils::ProcessMode processMode)
 {
     d->m_process.setProcessMode(processMode);
-}
-
-Process *ProcessRunner::process() const
-{
-    return &d->m_process;
 }
 
 void ProcessRunner::suppressDefaultStdOutHandling()

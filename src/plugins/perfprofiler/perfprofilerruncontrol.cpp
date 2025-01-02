@@ -140,18 +140,11 @@ public:
                 &PerfProfilerTool::onRunControlFinished);
 
         PerfDataReader *reader = m_perfParserWorker->reader();
-        Process *perfProcess = m_perfRecordWorker->process();
-
-        if (perfProcess) {
-            connect(perfProcess, &Process::readyReadStandardError, this, [this, perfProcess] {
-                appendMessage(QString::fromLocal8Bit(perfProcess->readAllRawStandardError()),
-                              StdErrFormat);
-            });
-            connect(perfProcess, &Process::readyReadStandardOutput, this, [this, reader, perfProcess] {
-                if (!reader->feedParser(perfProcess->readAllRawStandardOutput()))
-                    reportFailure(Tr::tr("Failed to transfer Perf data to perfparser."));
-            });
-        }
+        connect(m_perfRecordWorker, &ProcessRunner::stdOutData,
+                this, [this, reader](const QByteArray &data) {
+            if (!reader->feedParser(data))
+                reportFailure(Tr::tr("Failed to transfer Perf data to perfparser."));
+        });
 
         reportStarted();
     }

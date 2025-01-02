@@ -293,10 +293,12 @@ public:
     void setEnvironment(const Utils::Environment &environment);
     void setWorkingDirectory(const Utils::FilePath &workingDirectory);
     void setProcessMode(Utils::ProcessMode processMode);
-    Utils::Process *process() const;
 
     void suppressDefaultStdOutHandling();
     void forceRunOnHost();
+
+signals:
+    void stdOutData(const QByteArray &data);
 
 private:
     void start() final;
