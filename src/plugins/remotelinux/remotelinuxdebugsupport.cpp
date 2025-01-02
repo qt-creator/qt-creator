@@ -32,7 +32,7 @@ class RemoteLinuxRunWorkerFactory final : public RunWorkerFactory
 public:
     RemoteLinuxRunWorkerFactory()
     {
-        setProduct<SimpleTargetRunner>();
+        setProduct<ProcessRunner>();
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedDeviceType(Constants::GenericLinuxOsType);
         setSupportedRunConfigs(supportedRunConfigs());
@@ -76,7 +76,7 @@ public:
         setProducer([](RunControl *runControl) {
             runControl->requestQmlChannel();
 
-            auto worker = new SimpleTargetRunner(runControl);
+            auto worker = new ProcessRunner(runControl);
             worker->setId("RemoteLinuxQmlToolingSupport");
 
             auto runworker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));

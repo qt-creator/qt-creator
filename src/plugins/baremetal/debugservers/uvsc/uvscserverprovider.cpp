@@ -204,7 +204,7 @@ bool UvscServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMess
 
 ProjectExplorer::RunWorker *UvscServerProvider::targetRunner(RunControl *runControl) const
 {
-    auto worker = new SimpleTargetRunner(runControl);
+    auto worker = new ProcessRunner(runControl);
     worker->setId("BareMetalUvscServer");
     worker->setCommandLine({DebuggerKitAspect::runnable(runControl->kit()).command.executable(),
                             {"-j0", QStringLiteral("-s%1").arg(m_channel.port())}});

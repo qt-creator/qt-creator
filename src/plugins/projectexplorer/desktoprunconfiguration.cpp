@@ -3,7 +3,7 @@
 
 #include "desktoprunconfiguration.h"
 
-#include "buildsystem.h"
+#include "deploymentdata.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "runconfigurationaspects.h"
@@ -237,7 +237,7 @@ void setupDesktopRunConfigurations()
 
 void setupDesktopRunWorker()
 {
-    static SimpleTargetRunnerFactory theDesktopRunWorkerFactory({
+    static ProcessRunnerFactory theDesktopRunWorkerFactory({
         Constants::CMAKE_RUNCONFIG_ID,
         Constants::QBS_RUNCONFIG_ID,
         Constants::QMAKE_RUNCONFIG_ID

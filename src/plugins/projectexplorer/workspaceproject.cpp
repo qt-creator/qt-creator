@@ -437,7 +437,7 @@ class WorkspaceProjectRunWorkerFactory : public RunWorkerFactory
 public:
     WorkspaceProjectRunWorkerFactory()
     {
-        setProduct<SimpleTargetRunner>();
+        setProduct<ProcessRunner>();
         addSupportedRunMode(Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(WORKSPACE_PROJECT_RUNCONFIG_ID);
     }

@@ -1366,15 +1366,15 @@ void RunControlPrivate::debugMessage(const QString &msg) const
 }
 
 
-// SimpleTargetRunnerPrivate
+// ProcessRunnerPrivate
 
 namespace Internal {
 
-class SimpleTargetRunnerPrivate : public QObject
+class ProcessRunnerPrivate : public QObject
 {
 public:
-    explicit SimpleTargetRunnerPrivate(SimpleTargetRunner *parent);
-    ~SimpleTargetRunnerPrivate() override;
+    explicit ProcessRunnerPrivate(ProcessRunner *parent);
+    ~ProcessRunnerPrivate() override;
 
     void start();
     void stop();
@@ -1391,7 +1391,7 @@ public:
     qint64 privateApplicationPID() const;
     bool isRunning() const;
 
-    SimpleTargetRunner *q = nullptr;
+    ProcessRunner *q = nullptr;
 
     bool m_runAsRoot = false;
 
@@ -1425,16 +1425,16 @@ static QProcess::ProcessChannelMode defaultProcessChannelMode()
             ? QProcess::MergedChannels : QProcess::SeparateChannels;
 }
 
-SimpleTargetRunnerPrivate::SimpleTargetRunnerPrivate(SimpleTargetRunner *parent)
+ProcessRunnerPrivate::ProcessRunnerPrivate(ProcessRunner *parent)
     : q(parent)
 {
     m_process.setProcessChannelMode(defaultProcessChannelMode());
-    connect(&m_process, &Process::started, this, &SimpleTargetRunnerPrivate::forwardStarted);
-    connect(&m_process, &Process::done, this, &SimpleTargetRunnerPrivate::handleDone);
+    connect(&m_process, &Process::started, this, &ProcessRunnerPrivate::forwardStarted);
+    connect(&m_process, &Process::done, this, &ProcessRunnerPrivate::handleDone);
     connect(&m_process, &Process::readyReadStandardError,
-                this, &SimpleTargetRunnerPrivate::handleStandardError);
+                this, &ProcessRunnerPrivate::handleStandardError);
     connect(&m_process, &Process::readyReadStandardOutput,
-                this, &SimpleTargetRunnerPrivate::handleStandardOutput);
+                this, &ProcessRunnerPrivate::handleStandardOutput);
     connect(&m_process, &Process::requestingStop, this, [this] {
         q->appendMessage(Tr::tr("Requesting process to stop ...."), NormalMessageFormat);
     });
@@ -1471,13 +1471,13 @@ SimpleTargetRunnerPrivate::SimpleTargetRunnerPrivate(SimpleTargetRunner *parent)
     }
 }
 
-SimpleTargetRunnerPrivate::~SimpleTargetRunnerPrivate()
+ProcessRunnerPrivate::~ProcessRunnerPrivate()
 {
     if (m_state == Run)
         forwardDone();
 }
 
-void SimpleTargetRunnerPrivate::stop()
+void ProcessRunnerPrivate::stop()
 {
     if (m_stopRequested || m_state != Run)
         return;
@@ -1489,12 +1489,12 @@ void SimpleTargetRunnerPrivate::stop()
     m_process.stop();
 }
 
-bool SimpleTargetRunnerPrivate::isRunning() const
+bool ProcessRunnerPrivate::isRunning() const
 {
     return m_process.state() != QProcess::NotRunning;
 }
 
-qint64 SimpleTargetRunnerPrivate::privateApplicationPID() const
+qint64 ProcessRunnerPrivate::privateApplicationPID() const
 {
     if (!isRunning())
         return 0;
@@ -1502,14 +1502,14 @@ qint64 SimpleTargetRunnerPrivate::privateApplicationPID() const
     return m_process.processId();
 }
 
-void SimpleTargetRunnerPrivate::handleDone()
+void ProcessRunnerPrivate::handleDone()
 {
     m_resultData = m_process.resultData();
     QTC_CHECK(m_state == Run);
     forwardDone();
 }
 
-void SimpleTargetRunnerPrivate::handleStandardOutput()
+void ProcessRunnerPrivate::handleStandardOutput()
 {
     if (m_suppressDefaultStdOutHandling)
         return;
@@ -1518,7 +1518,7 @@ void SimpleTargetRunnerPrivate::handleStandardOutput()
     q->appendMessage(msg, StdOutFormat, false);
 }
 
-void SimpleTargetRunnerPrivate::handleStandardError()
+void ProcessRunnerPrivate::handleStandardError()
 {
     if (m_suppressDefaultStdOutHandling)
         return;
@@ -1527,7 +1527,7 @@ void SimpleTargetRunnerPrivate::handleStandardError()
     q->appendMessage(msg, StdErrFormat, false);
 }
 
-void SimpleTargetRunnerPrivate::start()
+void ProcessRunnerPrivate::start()
 {
     CommandLine cmdLine = m_command;
     Environment env = m_environment;
@@ -1576,9 +1576,9 @@ void SimpleTargetRunnerPrivate::start()
 }
 
 /*!
-    \class ProjectExplorer::SimpleTargetRunner
+    \class ProjectExplorer::ProcessRunner
 
-    \brief The SimpleTargetRunner class is the application launcher of the
+    \brief The ProcessRunner class is the application launcher of the
     ProjectExplorer plugin.
 
     Encapsulates processes running in a console or as GUI processes,
@@ -1586,15 +1586,15 @@ void SimpleTargetRunnerPrivate::start()
 
     \sa Utils::Process
 */
-SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
-    : RunWorker(runControl), d(new Internal::SimpleTargetRunnerPrivate(this))
+ProcessRunner::ProcessRunner(RunControl *runControl)
+    : RunWorker(runControl), d(new Internal::ProcessRunnerPrivate(this))
 {
-    setId("SimpleTargetRunner");
+    setId("ProcessRunner");
 }
 
-SimpleTargetRunner::~SimpleTargetRunner() = default;
+ProcessRunner::~ProcessRunner() = default;
 
-void SimpleTargetRunnerPrivate::forwardDone()
+void ProcessRunnerPrivate::forwardDone()
 {
     if (m_stopReported)
         return;
@@ -1615,7 +1615,7 @@ void SimpleTargetRunnerPrivate::forwardDone()
     q->reportStopped();
 }
 
-void SimpleTargetRunnerPrivate::forwardStarted()
+void ProcessRunnerPrivate::forwardStarted()
 {
     const bool isDesktop = m_command.executable().isLocal();
     if (isDesktop) {
@@ -1628,7 +1628,7 @@ void SimpleTargetRunnerPrivate::forwardStarted()
     q->reportStarted();
 }
 
-void SimpleTargetRunner::start()
+void ProcessRunner::start()
 {
     d->m_command = runControl()->commandLine();
     d->m_workingDirectory = runControl()->workingDirectory();
@@ -1673,53 +1673,53 @@ void SimpleTargetRunner::start()
     d->start();
 }
 
-void SimpleTargetRunner::stop()
+void ProcessRunner::stop()
 {
     d->m_stopForced = true;
     d->stop();
 }
 
-void SimpleTargetRunner::setStartModifier(const std::function<void ()> &startModifier)
+void ProcessRunner::setStartModifier(const std::function<void ()> &startModifier)
 {
     d->m_startModifier = startModifier;
 }
 
-CommandLine SimpleTargetRunner::commandLine() const
+CommandLine ProcessRunner::commandLine() const
 {
     return d->m_command;
 }
 
-void SimpleTargetRunner::setCommandLine(const Utils::CommandLine &commandLine)
+void ProcessRunner::setCommandLine(const Utils::CommandLine &commandLine)
 {
     d->m_command = commandLine;
 }
 
-void SimpleTargetRunner::setEnvironment(const Environment &environment)
+void ProcessRunner::setEnvironment(const Environment &environment)
 {
     d->m_environment = environment;
 }
 
-void SimpleTargetRunner::setWorkingDirectory(const FilePath &workingDirectory)
+void ProcessRunner::setWorkingDirectory(const FilePath &workingDirectory)
 {
     d->m_workingDirectory = workingDirectory;
 }
 
-void SimpleTargetRunner::setProcessMode(Utils::ProcessMode processMode)
+void ProcessRunner::setProcessMode(Utils::ProcessMode processMode)
 {
     d->m_process.setProcessMode(processMode);
 }
 
-Process *SimpleTargetRunner::process() const
+Process *ProcessRunner::process() const
 {
     return &d->m_process;
 }
 
-void SimpleTargetRunner::suppressDefaultStdOutHandling()
+void ProcessRunner::suppressDefaultStdOutHandling()
 {
     d->m_suppressDefaultStdOutHandling = true;
 }
 
-void SimpleTargetRunner::forceRunOnHost()
+void ProcessRunner::forceRunOnHost()
 {
     const FilePath executable = d->m_command.executable();
     if (!executable.isLocal()) {
@@ -2031,11 +2031,11 @@ void addOutputParserFactory(const std::function<Utils::OutputLineParser *(Target
     g_outputParserFactories.append(factory);
 }
 
-// SimpleTargetRunnerFactory
+// ProcessRunnerFactory
 
-SimpleTargetRunnerFactory::SimpleTargetRunnerFactory(const QList<Id> &runConfigs)
+ProcessRunnerFactory::ProcessRunnerFactory(const QList<Id> &runConfigs)
 {
-    setProduct<SimpleTargetRunner>();
+    setProduct<ProcessRunner>();
     addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     setSupportedRunConfigs(runConfigs);
 }

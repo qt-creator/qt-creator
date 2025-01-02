@@ -178,7 +178,7 @@ void setupPythonRunConfiguration()
 
 void setupPythonRunWorker()
 {
-    static SimpleTargetRunnerFactory thePythonRunWorkerFactory(
+    static ProcessRunnerFactory thePythonRunWorkerFactory(
         {Constants::C_PYTHONRUNCONFIGURATION_ID}
     );
 }

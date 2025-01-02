@@ -216,7 +216,7 @@ public:
     EmrunRunWorkerFactory()
     {
         setProducer([](RunControl *runControl) {
-            auto worker = new SimpleTargetRunner(runControl);
+            auto worker = new ProcessRunner(runControl);
             runControl->requestWorkerChannel();
 
             worker->setStartModifier([worker, runControl] {

@@ -91,7 +91,7 @@ public:
 void setupHaskellRunSupport()
 {
     static HaskellRunConfigurationFactory runConfigFactory;
-    static SimpleTargetRunnerFactory runWorkerFactory{{Constants::C_HASKELL_RUNCONFIG_ID}};
+    static ProcessRunnerFactory runWorkerFactory{{Constants::C_HASKELL_RUNCONFIG_ID}};
     static SimpleDebugRunnerFactory debugWorkerFactory{{Constants::C_HASKELL_RUNCONFIG_ID}};
 }
 

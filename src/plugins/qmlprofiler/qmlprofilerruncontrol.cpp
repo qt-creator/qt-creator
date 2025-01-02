@@ -144,7 +144,7 @@ void QmlProfilerRunner::profilerStateChanged()
 
 RunWorker *createLocalQmlProfilerWorker(RunControl *runControl)
 {
-    auto worker = new SimpleTargetRunner(runControl);
+    auto worker = new ProcessRunner(runControl);
 
     worker->setId("LocalQmlProfilerSupport");
 

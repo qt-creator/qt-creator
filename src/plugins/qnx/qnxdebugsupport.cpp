@@ -136,7 +136,7 @@ void showAttachToProcessDialog()
     debugger->setupPortsGatherer();
     debugger->setUseCtrlCStub(true);
     if (debugger->isCppDebugging()) {
-        auto pdebugRunner = new SimpleTargetRunner(runControl);
+        auto pdebugRunner = new ProcessRunner(runControl);
         pdebugRunner->setId("PDebugRunner");
         pdebugRunner->setStartModifier([pdebugRunner, debugger] {
             const int pdebugPort = debugger->debugChannel().port();
@@ -175,7 +175,7 @@ public:
 
             debugger->setupPortsGatherer();
 
-            auto debuggeeRunner = new SimpleTargetRunner(runControl);
+            auto debuggeeRunner = new ProcessRunner(runControl);
             debuggeeRunner->setId("QnxDebuggeeRunner");
 
             debuggeeRunner->setStartModifier([debuggeeRunner] {

@@ -38,7 +38,7 @@ class Target;
 namespace Internal {
 class RunControlPrivate;
 class RunWorkerPrivate;
-class SimpleTargetRunnerPrivate;
+class ProcessRunnerPrivate;
 } // Internal
 
 class PROJECTEXPLORER_EXPORT RunWorker : public QObject
@@ -277,17 +277,11 @@ private:
     const std::unique_ptr<Internal::RunControlPrivate> d;
 };
 
-
-/**
- * A simple TargetRunner for cases where a plain ApplicationLauncher is
- * sufficient for running purposes.
- */
-
-class PROJECTEXPLORER_EXPORT SimpleTargetRunner final : public RunWorker
+class PROJECTEXPLORER_EXPORT ProcessRunner final : public RunWorker
 {
 public:
-    explicit SimpleTargetRunner(RunControl *runControl);
-    ~SimpleTargetRunner() override;
+    explicit ProcessRunner(RunControl *runControl);
+    ~ProcessRunner() override;
 
     void setStartModifier(const std::function<void()> &startModifier);
 
@@ -309,13 +303,13 @@ private:
     const Utils::ProcessRunData &runnable() const = delete;
     void setRunnable(const Utils::ProcessRunData &) = delete;
 
-    const std::unique_ptr<Internal::SimpleTargetRunnerPrivate> d;
+    const std::unique_ptr<Internal::ProcessRunnerPrivate> d;
 };
 
-class PROJECTEXPLORER_EXPORT SimpleTargetRunnerFactory : public RunWorkerFactory
+class PROJECTEXPLORER_EXPORT ProcessRunnerFactory : public RunWorkerFactory
 {
 public:
-    explicit SimpleTargetRunnerFactory(const QList<Utils::Id> &runConfig);
+    explicit ProcessRunnerFactory(const QList<Utils::Id> &runConfig);
 };
 
 

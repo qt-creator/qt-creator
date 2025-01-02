@@ -43,7 +43,7 @@ namespace AppManager::Internal {
 
 static RunWorker *createInferiorRunner(RunControl *runControl, QmlDebugServicesPreset qmlServices)
 {
-    auto worker = new SimpleTargetRunner(runControl);
+    auto worker = new ProcessRunner(runControl);
     worker->setId(AppManager::Constants::DEBUG_LAUNCHER_ID);
     worker->setEssential(true);
 
@@ -193,7 +193,7 @@ public:
     AppManagerRunWorkerFactory()
     {
         setProducer([](RunControl *runControl) {
-            auto worker = new SimpleTargetRunner(runControl);
+            auto worker = new ProcessRunner(runControl);
             worker->setId("ApplicationManagerPlugin.Run.TargetRunner");
             QObject::connect(worker, &RunWorker::stopped, worker, [worker, runControl] {
                 worker->appendMessage(

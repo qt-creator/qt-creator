@@ -178,7 +178,7 @@ LocalQmlPreviewSupportFactory::LocalQmlPreviewSupportFactory()
 {
     setId(ProjectExplorer::Constants::QML_PREVIEW_RUN_FACTORY);
     setProducer([](RunControl *runControl) {
-        auto worker = new SimpleTargetRunner(runControl);
+        auto worker = new ProcessRunner(runControl);
         worker->setId("LocalQmlPreviewSupport");
 
         runControl->setQmlChannel(Utils::urlFromLocalSocket());

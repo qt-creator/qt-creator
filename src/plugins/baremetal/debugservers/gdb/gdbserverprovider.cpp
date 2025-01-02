@@ -172,7 +172,7 @@ RunWorker *GdbServerProvider::targetRunner(RunControl *runControl) const
 
     // Command arguments are in host OS style as the bare metal's GDB servers are launched
     // on the host, not on that target.
-    auto worker = new SimpleTargetRunner(runControl);
+    auto worker = new ProcessRunner(runControl);
     worker->setId("BareMetalGdbServer");
     // Baremetal's GDB servers are launched on the host, not on the target.
     worker->setStartModifier([worker, cmd = command()] {

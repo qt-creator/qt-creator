@@ -29,7 +29,7 @@ namespace Qdb::Internal {
 static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
                                                 QmlDebugServicesPreset qmlServices)
 {
-    auto worker = new SimpleTargetRunner(runControl);
+    auto worker = new ProcessRunner(runControl);
     worker->setId("QdbDeviceInferiorWorker");
 
     worker->setStartModifier([worker, runControl, qmlServices] {
@@ -90,7 +90,7 @@ public:
     QdbRunWorkerFactory()
     {
         setProducer([](RunControl *runControl) {
-            auto worker = new SimpleTargetRunner(runControl);
+            auto worker = new ProcessRunner(runControl);
             worker->setStartModifier([worker] {
                 const CommandLine remoteCommand = worker->commandLine();
                 const FilePath remoteExe = remoteCommand.executable();

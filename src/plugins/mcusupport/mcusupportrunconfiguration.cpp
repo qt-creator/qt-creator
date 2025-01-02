@@ -84,7 +84,7 @@ McuSupportRunConfigurationFactory::McuSupportRunConfigurationFactory()
 FlashRunWorkerFactory::FlashRunWorkerFactory()
 {
     setProducer([](RunControl *runControl) {
-        auto worker = new SimpleTargetRunner(runControl);
+        auto worker = new ProcessRunner(runControl);
         worker->setStartModifier([worker, runControl] {
             const Target *target = runControl->target();
             worker->setCommandLine({cmakeFilePath(target),

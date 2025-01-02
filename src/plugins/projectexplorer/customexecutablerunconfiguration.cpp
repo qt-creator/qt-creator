@@ -75,7 +75,7 @@ CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory
 
 CustomExecutableRunWorkerFactory::CustomExecutableRunWorkerFactory()
 {
-    setProduct<SimpleTargetRunner>();
+    setProduct<ProcessRunner>();
     addSupportedRunMode(Constants::NORMAL_RUN_MODE);
     addSupportedRunConfig(Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID);
 }
