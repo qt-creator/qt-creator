@@ -149,7 +149,7 @@
 
     To trigger the GDB command that generates a core file while debugging,
     go to \uicontrol View > \uicontrol Views > \l {Debugger Log}.
-    In the \uicontrol Command field, type \c gcore and press \key Enter. The
+    In the \uicontrol Command field, type \c gcore and select \key Enter. The
     core file is created in the current working directory. You can specify
     another location for the file, including a relative or absolute path, as an
     argument of the command.
@@ -285,7 +285,7 @@
 
     One common factor in many use cases is switching editors while working on a
     set of open files. While working on files A and B, users sometimes need to
-    look at file C. They can press \key Ctrl+Tab to move between the files and
+    look at file C. They can select \key Ctrl+Tab to move between the files and
     have the files open in the correct editor according to file type. The list
     is sorted by last used.
 
@@ -298,9 +298,9 @@
 
     \list
 
-        \li Press \key F4 to switch between header and source.
+        \li Select \key F4 to switch between header and source.
 
-        \li Press \key Alt+Left to move backwards in the navigation history.
+        \li Select \key Alt+Left to move backwards in the navigation history.
 
         \li Use the locator (Ctrl+K) to simply tell \QC where to go.
 
@@ -319,7 +319,7 @@
 
     With \QC, developers can type \c {Ctrl+K m AFun} to find the function.
     Typically, they only need to type 3 to 4 characters of the function name.
-    They can then fix the problem and press \key Alt+Back to go back to where
+    They can then fix the problem and select \key Alt+Back to go back to where
     they were.
 
     Other locator filters include \c c for classes, \c : for all symbols, and

@@ -36,7 +36,7 @@
     use the \l {Showing and hiding components}{showing and hiding} or the
     \l {Locking Components}{locking} features in \l Navigator.
 
-    To refresh the contents of the \uicontrol{3D} view, press \key P or
+    To refresh the contents of the \uicontrol{3D} view, select \key P or
     select the \imagereset
     (\uicontrol {Reset View}) button.
 
@@ -91,21 +91,21 @@
     \list
         \li To pan, do one of the following and drag anywhere in the view to pan:
             \list
-              \li Press and hold \key Alt (or \key Option on \macos) and
+              \li Select and hold \key Alt (or \key Option on \macos) and
               \key {middle mouse button}.
-              \li Press and hold \key {right mouse button}, and then press and hold
+              \li Select and hold \key {right mouse button}, and then select and hold
               \key {left mouse button}.
-              \li Press and hold \key Shift and \key {left mouse button}.
+              \li Select and hold \key Shift and \key {left mouse button}.
             \endlist
-        \li To orbit, press \key Alt and and drag anywhere in the
+        \li To orbit, select \key Alt and and drag anywhere in the
             \uicontrol 3D view to rotate the view.
-        \li To zoom, use the mouse wheel or press \key Alt and right-click
+        \li To zoom, use the mouse wheel or select \key Alt and right-click
             anywhere in the \uicontrol 3D view to zoom the view in or out as you drag
             up or down.
     \endlist
 
     To zoom and focus the 3D view camera on a selected component, select
-    \imagefitselected (\uicontrol {Fit Selected}) or press \key F.
+    \imagefitselected (\uicontrol {Fit Selected}) or select \key F.
 
     The world axis helper (1) shows the direction of the world axes in the view.
     To point the 3D view camera at the currently selected component in the direction of
@@ -224,14 +224,14 @@
     component in the local x direction in relation to the component.
 
     To switch between local and global orientation, select \imageglobal
-    (\uicontrol {Toggle Local/Global Orientation}) or press \key Y.
+    (\uicontrol {Toggle Local/Global Orientation}) or select \key Y.
 
     \section1 Using the edit light
 
     The edit light is an extra point light that can be used to illuminate the
     scene. To toggle the edit light on and off, select \imageeditlighton
     or \imageeditlightoff (\uicontrol {Toggle Edit Light}) or
-    press \key U.
+    select \key U.
 
     For information about the available scene light types and their properties,
     see \l{Lights}.
@@ -256,7 +256,7 @@
             a group of components simultaneously.
     \endlist
 
-    Alternatively, press \key Q to toggle the selection mode.
+    Alternatively, select \key Q to toggle the selection mode.
 
     To multiselect, hold \key Ctrl and click the components you wish to select.
 
@@ -273,7 +273,7 @@
     y, or z axis or on the top, bottom, left, and right clip planes of the
     the \uicontrol{3D} view.
 
-    To move components, select \imagemoveoff or press \key W:
+    To move components, select \imagemoveoff or select \key W:
 
     \list
         \li To move components along the axes of the move gizmo, click the axis,
@@ -289,7 +289,7 @@
     \image studio-3d-editor-rotate.webp "The 3D view in rotate mode"
 
     To rotate components, select \imagerotateoff
-    or press \key E:
+    or select the \key E key:
 
     \list
         \li To rotate a component around its rotation gizmo, drag the axis ring
@@ -306,7 +306,7 @@
     component. You can adjust the scale across one, two, or three axes,
     depending on the handle.
 
-    To scale components, select \imagescaleoff or press \key R:
+    To scale components, select \imagescaleoff or select the \key R key:
 
     \list
         \li To adjust the scale across one axis, drag the scale handle
@@ -330,7 +330,7 @@
       \li Hold down the \key Ctrl key.
     \endlist
 
-    With snapping turned on, press and hold \key Shift to snap objects to one tenth of
+    With snapping turned on, select and hold \key Shift to snap objects to one tenth of
     the specified snap interval.
 
     \section2 Configuring snapping

@@ -28,7 +28,7 @@
 
     To apply interpolation between keyframes:
     \list 1
-        \li Select the keyframes. To select multiple keyframes, press and hold
+        \li Select the keyframes. To select multiple keyframes, select and hold
         \key Ctrl, and then select them.
         \li Select \imageeasingcurvelinearicon (\uicontrol Linear),
         \imageeasingcurvestepicon (\uicontrol Step) or
@@ -67,7 +67,7 @@
         \li Right-click in \uicontrol {Curves}, and select
             \uicontrol {Insert Keyframe} to add a keyframe.
         \li Select properties in the list to display the easing curves attached to them.
-            To select multiple properties, press and hold \key Ctrl, and then select them.
+            To select multiple properties, select and hold \key Ctrl, and then select them.
     \endlist
 
     Your changes are automatically saved when you close the view.

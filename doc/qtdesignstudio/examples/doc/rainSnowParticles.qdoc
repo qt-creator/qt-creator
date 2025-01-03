@@ -118,7 +118,7 @@
 
     \image rain-snow-tutorial-navigator.png
 
-    Now, the rain effect is ready. Press \key Alt+P to see it in the live
+    Now, the rain effect is ready. Select \key Alt+P to see it in the live
     preview.
 
     \section1 Creating a snow effect
@@ -165,7 +165,7 @@
       \li In \uicontrol{States} next to \uicontrol State1 select
       \imageactionicon
       and select \uicontrol{Set as Default}.
-      \li Press \key{Alt+P}.
+      \li Select \key{Alt+P}.
     \endlist
 
     \image rain-snow-tutorial-default-state.png

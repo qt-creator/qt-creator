@@ -76,7 +76,7 @@
 
     To start recording a color animation on the timeline, we check that the
     playhead is at frame 0 and then select the \imagerecordfill
-    (\uicontrol {Auto Key (K)}) button (or press \key k).
+    (\uicontrol {Auto Key (K)}) button (or select \key K).
 
     \image progressbar-timeline.png "Color animation timeline"
 

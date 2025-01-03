@@ -227,7 +227,7 @@
     \list
         \li Select \inlineimage icons/qtcreator-debug-button.png
             (\uicontrol {Start Debugging of Startup Project}).
-        \li Press \key F5.
+        \li Select \key F5.
         \li Enter \c {dr} in the locator, and select the project to debug.
         \li Go to \uicontrol Debug > \uicontrol {Start Debugging} >
             \uicontrol {Start Debugging of Startup Project}.
@@ -1083,7 +1083,7 @@
     the contents of variables of simple data types, for example, \c int, \c float,
     \c QString and \c std::string when the application is interrupted. To do so,
     click the \uicontrol Value column, modify the value with the inplace editor,
-    and press \key Enter.
+    and select \key Enter.
 
     To change the complete contents of QVector or \c std::vector values, type
     all values separated by commas into the \uicontrol Value column of the main
@@ -1421,7 +1421,7 @@
     You can use the left pane of the \uicontrol {Debugger Log} view to directly
     interact with the command line of the debugger.
 
-    Press \key {Ctrl+Enter} to send the contents of the line under the
+    Select \key {Ctrl+Enter} to send the contents of the line under the
     text cursor to the debugger. Or, enter the command in the
     \uicontrol Command field. The right side pane of the
     \uicontrol {Debugger Log} view shows the command output.

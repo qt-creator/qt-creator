@@ -149,7 +149,7 @@
     \skipto import
     \printuntil /^\ {0}\}/
 
-    Press \key {Ctrl+R} to run the application, and click the rectangles to
+    Select \key {Ctrl+R} to run the application, and click the rectangles to
     move the Qt logo from one rectangle to another.
 
     \section1 Animate transitions
@@ -180,6 +180,6 @@
 
     \printuntil /^\ {0}\}/
 
-    Press \key {Ctrl+R} to run the application, and click the rectangles to
+    Select \key {Ctrl+R} to run the application, and click the rectangles to
     view the animated transitions.
 */

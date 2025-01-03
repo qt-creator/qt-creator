@@ -21,7 +21,7 @@
 
     \list
 
-        \li Press \key {Ctrl+K} (\key {Cmd+K} on \macos).
+        \li Select \key {Ctrl+K} (\key {Cmd+K} on \macos).
 
         \li Go to \uicontrol Tools, and then select \uicontrol Locate.
 
@@ -53,8 +53,8 @@
             execute.
 
         \li Select a locator filter in the filter list to use it. Press
-            the up and down arrow keys or press \key Ctrl+P and \key Ctrl+N
-            to move up and down the list, and then press \key Enter to use the
+            the up and down arrow keys or select \key Ctrl+P and \key Ctrl+N
+            to move up and down the list, and then select \key Enter to use the
             selected filter.
     \endlist
 
@@ -118,8 +118,8 @@
     To create a new file and open it in the editor:
 
     \list 1
-        \li Type \c f followed by \key Space, followed by path and file name
-        \li Press \key Enter or select \uicontrol {Create and Open File}.
+        \li Enter \c f followed by \key Space, followed by path and file name
+        \li Select \key Enter or select \uicontrol {Create and Open File}.
     \endlist
 
     To create a directory, select \uicontrol {Create Directory}.

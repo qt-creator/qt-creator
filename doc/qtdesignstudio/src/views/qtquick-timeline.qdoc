@@ -121,7 +121,7 @@
             \image timeline-per-property-recording.webp
         \li Ensure that the playhead is in frame 0 and enter the value of the
             property in the field next to the property name on the timeline.
-            Press \key Enter to save the value.
+            Select \key Enter to save the value.
         \li Move the playhead to another frame on the timeline and specify
             the value at that frame. For more information, see
             \l{Navigating in Timeline}.
@@ -236,12 +236,12 @@
     \list
       \li Drag the playhead along the timeline.
       \li Select \imagestartplayback
-      button or press \key Space.
+      button or select \key Space.
     \endlist
 
     To preview the whole UI, select the
     \uicontrol {Live Preview} button on the top toolbar
-    or press \key Alt + \key P.
+    or select \key Alt + \key P.
 
     \section1 Animating rotation
 

@@ -172,7 +172,7 @@
 
             \list
 
-                \li In the code editor, click the left margin or press \key F9
+                \li In the code editor, click the left margin or select \key F9
                     (\key F8 on \macos) on a particular line where you want the
                     application to stop.
 
@@ -291,7 +291,7 @@
         \li In the \uicontrol {Breakpoint Preset} view or the
             \uicontrol Breakpoints view:
             \list
-                \li Select the breakpoint and press \key Delete.
+                \li Select the breakpoint and select \key Delete.
                 \li Select \uicontrol {Delete Selected Breakpoints},
                     \uicontrol {Delete Selected Breakpoints}, or
                     \uicontrol {Delete Breakpoints of File} in the
@@ -310,13 +310,13 @@
         \li Right-click the breakpoint marker in the text editor and select
             \uicontrol{Disable Breakpoint}.
 
-        \li Select a line that has a breakpoint and press \key Ctrl+F9
+        \li Select a line that has a breakpoint and select \key Ctrl+F9
             (\key Ctrl+F8 on \macos).
 
         \li In the \uicontrol {Breakpoint Preset} view or the
             \uicontrol Breakpoints view:
             \list
-                \li Select the breakpoint and press \key Space.
+                \li Select the breakpoint and select \key Space.
                 \li Select \uicontrol {Disable Breakpoint} in the context menu.
             \endlist
     \endlist

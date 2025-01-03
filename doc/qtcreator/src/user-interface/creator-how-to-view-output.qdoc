@@ -41,11 +41,11 @@
     \endlist
 
     To maximize an open output view, select the \inlineimage icons/arrowup.png
-    (\uicontrol Maximize) button or press \key {Alt+Shift+9}.
+    (\uicontrol Maximize) button or select \key {Alt+Shift+9}.
 
     To increase or decrease the output text size, select \inlineimage icons/plus.png
     (\uicontrol {Zoom In}) or \inlineimage icons/minus.png
-    (\uicontrol {Zoom Out}), or press \key Ctrl++ or \key Ctrl+-. Zooming is
+    (\uicontrol {Zoom Out}), or select \key Ctrl++ or \key Ctrl+-. Zooming is
     not supported in all output views.
 
     \section1 Change text encoding
@@ -60,7 +60,7 @@
 
     \section1 Find and filter output
 
-    To search in output, press \key {Ctrl+F} when the view is active. Enter
+    To search in output, select \key {Ctrl+F} when the view is active. Enter
     search criteria in the \uicontrol Find field. For more information, see
     \l{Search in current file}.
 

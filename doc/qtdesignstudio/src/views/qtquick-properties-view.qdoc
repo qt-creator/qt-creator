@@ -107,9 +107,9 @@
     or \uicontrol{3D} view:
 
     \list
-        \li On Windows, press and hold \key Ctrl and \key Shift, and then click
+        \li On Windows, select and hold \key Ctrl and \key Shift, and then click
             the components to select them.
-        \li On \macos, press \key Shift to select a range of components or
+        \li On \macos, select \key Shift to select a range of components or
             \key Cmd to select multiple single components.
     \endlist
 
@@ -122,7 +122,7 @@
         \li For information about setting common component properties, see
             \l{Specifying component properties}.
         \li For more information about the properties available for a
-            component, press \key {F1} or see \l{Component types}
+            component, select \key {F1} or see \l{Component types}
             and \l{Scalable layouts}.
     \endlist
 */

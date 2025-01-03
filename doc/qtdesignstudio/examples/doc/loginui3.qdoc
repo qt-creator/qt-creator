@@ -40,7 +40,7 @@
     this section from the previous \e {Login UI} tutorials.
 
     To preview the changes that you make, select the \uicontrol {Live Preview} button
-    or press \key {Alt+P}.
+    or select \key {Alt+P}.
 
     To add the entry field needed on the second page to the \e Screen01
     component:
@@ -59,7 +59,7 @@
             enter \e {Repeat Password} and select \uicontrol tr to mark the text
             translatable.
             \image loginui3-new-entryfield-properties.webp "Entryfield properties"
-        \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
+        \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
     \endlist
 
@@ -98,7 +98,7 @@
         \li In \uicontrol Visibility, clear the \uicontrol Visible checkbox
             to hide the \e {Create Account} button in the account creation
             state.
-        \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
+        \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
     \endlist
 
@@ -140,7 +140,7 @@
 
         \image loginui3-connections.webp "Connections tab"
 
-        \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
+        \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
 
             \note Alternatively, right-click the \e createAccount button in

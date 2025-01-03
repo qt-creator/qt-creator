@@ -62,7 +62,7 @@
     Remove the button and the text component from the UI to have a clean workspace. Later
     in this tutorial, you will add and modify them as you need.
 
-    To remove this button, select it and press \key {Backspace}. Repeat for the
+    To remove this button, select it and select \key {Backspace}. Repeat for the
     text component.
 
     Next, you will edit the values of the properties of the component instances
@@ -103,7 +103,7 @@
     \endlist
 
     To preview the changes that you make, select the \uicontrol {Live Preview} button
-    or press \key {Alt+P}.
+    or select \key {Alt+P}.
 
     The \e Screen01.ui.qml file that the wizard template created for you should
     be open. If it is not, you can double-click it in the \uicontrol Projects view
@@ -140,7 +140,7 @@
                     white (\e #ffffff).
                     \image loginui1-properties-text.webp "Text properties."
             \endlist
-        \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
+        \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
     \endlist
 
@@ -238,7 +238,7 @@
         \li In the \uicontrol States view, select the \e normal state and
             repeat the changes in the background color and text properties,
             as necessary. Repeat for the \e down state.
-        \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
+        \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
     \endlist
 
@@ -279,7 +279,7 @@
             to another position in the \uicontrol {2D} view. Use the
             guidelines to align the button instances below the tag line:
             \image loginui1-align-entry-fields.webp "Aligned entry fields."
-        \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
+        \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
     \endlist
 
@@ -328,7 +328,7 @@
             turn the button background green when the button is pressed down.
             Also, in \uicontrol Text > \uicontrol Character >
             \uicontrol {Text color}, keep the text color as white (\e #ffffff).
-        \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
+        \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
     \endlist
 
@@ -361,7 +361,7 @@
         \li Select the second PushButton instance, and change its ID to
             \e createAccount and text label to \e {Create Account}. Again,
             mark the text translatable.
-        \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
+        \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
     \endlist
 

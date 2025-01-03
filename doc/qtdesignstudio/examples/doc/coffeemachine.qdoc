@@ -108,7 +108,7 @@
     selection screen on the timeline, we select \e choosingCoffee in
     \l Navigator. We check that the playhead is at frame 0, and then
     select the \imagerecordfill
-    (\uicontrol {Auto Key (K)}) button (or press \key k).
+    (\uicontrol {Auto Key (K)}) button (or select \key K).
 
     At frame 0, we set the X coordinate to 0 in \l Properties >
     \uicontrol {Geometry - 2D} > \uicontrol Position. We then move the

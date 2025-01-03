@@ -38,7 +38,7 @@
     \image jump-to-the-code-from-2D-view.webp
 
     \note Alternatively, you can select the component in the \uicontrol {Navigator} view
-    or in the \uicontrol {2D} view and press \key {F4}. That takes you to the code
+    or in the \uicontrol {2D} view and select \key {F4}. That takes you to the code
     location in the \uicontrol {Code} view.
 
     \section1 Jump to the Code from the States view

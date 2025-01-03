@@ -89,9 +89,9 @@
     the \key Tab key.
 
     To apply a suggestion word-by-word, select \uicontrol {Apply Word}
-    or press \key {Alt+Right}.
+    or select \key {Alt+Right}.
 
-    To reject a suggestion, press \key Esc or the arrow keys.
+    To reject a suggestion, select \key Esc or the arrow keys.
 
     \section1 Turn suggestions on and off
 

@@ -132,7 +132,7 @@
     \section1 Starting QML debugging
 
     To start the application, choose \uicontrol Debug > \uicontrol {Start Debugging}
-    > \uicontrol {Start Debugging of Startup Project} or press \key F5. Once the
+    > \uicontrol {Start Debugging of Startup Project} or select \key F5. Once the
     application starts running, it behaves and performs as usual. You can then
     perform the following tasks:
 

@@ -79,7 +79,7 @@
 
         \endlist
 
-        \li Press \key {Ctrl+S} to save the button.
+        \li Select \key {Ctrl+S} to save the button.
 
             \image qmldesigner-button.png "Button component"
 
@@ -226,7 +226,7 @@
             specify that the state is applied when the mouse button is not
             pressed down.
             \image qmldesigner-borderimage-bindings1.png "Inactive state when condition"
-        \li Press \key {Ctrl+S} to save the button.
+        \li Select \key {Ctrl+S} to save the button.
         \li Select the
             \uicontrol {Live Preview} button on the top toolbar to see how the
             button behaves when you select it. Drag the preview

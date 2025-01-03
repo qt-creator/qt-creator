@@ -100,7 +100,7 @@
             \b{Select me}.
         \li Double-click the \uicontrol {Push Button} widget and enter the text
             \b{Click me}.
-        \li Press \key {Ctrl+S} (or \key {Cmd+S}) to save your changes.
+        \li Select \key {Ctrl+S} (or \key {Cmd+S}) to save your changes.
     \endlist
 
     For more information about designing UIs with \QD, see \l{\QD Manual}.

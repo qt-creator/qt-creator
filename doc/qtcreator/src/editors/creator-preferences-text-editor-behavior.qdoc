@@ -80,7 +80,7 @@
     \uicontrol Unindents.
 
     You can specify whether the \key Tab key automatically indents text when you
-    press it. To automatically indent text, select \uicontrol Always in the
+    select it. To automatically indent text, select \uicontrol Always in the
     \uicontrol {Tab key performs auto-indent} field. To only indent text when
     the cursor is located within leading white space, select \uicontrol {In
     Leading White Space}.

@@ -39,10 +39,10 @@
         \li Use the following keyboard shortcuts, depending on the mode you are
             currently in:
             \list
-                \li In all modes, press \key Ctrl+O (\key Cmd+O on \macos) to open the
+                \li In all modes, select \key Ctrl+O (\key Cmd+O on \macos) to open the
                     \uicontrol {Open File} dialog, where you can select a project file.
                 \li On Windows and Linux, in all modes except the \uicontrol Help mode,
-                    press \key Ctrl+Shift+O to open the \uicontrol {Load Project} dialog.
+                    select \key Ctrl+Shift+O to open the \uicontrol {Load Project} dialog.
                 \li In the \uicontrol Welcome mode, \uicontrol Projects tab, press
                     \key Ctrl+Shift+number (\key Cmd+Shift+number on \macos), where
                     the number is the number of a project in the list of recently opened

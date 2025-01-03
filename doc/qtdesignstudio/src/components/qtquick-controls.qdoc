@@ -299,7 +299,7 @@
     \section2 Checking buttons
 
     A \e checkable button toggles between checked (on) and unchecked (off) when
-    users click on it or press the space bar while the button has active
+    users select it or the space bar while the button has active
     focus. Select the \uicontrol Checkable check box to make a button checkable.
     To make the button checked, select the \uicontrol Checked check box.
 

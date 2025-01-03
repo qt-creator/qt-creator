@@ -40,7 +40,7 @@
     (\e qt_logo_green_128x128px), and tag line (\e tagLine), to the page.
 
     To preview the changes that you make, select the \uicontrol {Live Preview} button
-    or press \key {Alt+P}.
+    or select \key {Alt+P}.
 
     To anchor component instances on a page:
 
@@ -93,7 +93,7 @@
             located in the correct place in the component hierarchy in
             \uicontrol Navigator. For more information,
             see \l{Arranging components}.
-        \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
+        \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
     \endlist
 
@@ -162,7 +162,7 @@
                 This attaches the buttons to the bottom of the rectangle while keeping its
                 horizontal center aligned with that of the rectangle.
             \image loginui2-buttons-properties.webp "Properties of buttons"
-        \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
+        \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
     \endlist
 

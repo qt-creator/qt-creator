@@ -12,7 +12,7 @@
 
     \list
         \li Select the \uicontrol {Live Preview} button on the top toolbar.
-        \li Press \key {Alt+P}.
+        \li Select \key {Alt+P}.
             \image studio-live-preview.webp
     \endlist
 

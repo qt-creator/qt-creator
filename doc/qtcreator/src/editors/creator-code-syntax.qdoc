@@ -103,7 +103,7 @@
     find common problems.
 
     To run static checks, go to \uicontrol Tools > \uicontrol {QML/JS} >
-    \uicontrol {Run Checks} or press \key {Ctrl+Shift+C}.
+    \uicontrol {Run Checks} or select \key {Ctrl+Shift+C}.
 
     View the results in the \uicontrol QML and \uicontrol {QML Analysis}
     filters in \l Issues.

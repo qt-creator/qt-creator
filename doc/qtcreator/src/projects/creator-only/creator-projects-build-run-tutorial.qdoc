@@ -72,7 +72,7 @@
         \li Select \inlineimage icons/run_small.png
             (\uicontrol Run) to build and run the application.
 
-        \li To see the compilation progress, press \key{Alt+4} to open
+        \li To see the compilation progress, select \key{Alt+4} to open
             \l {Compile Output}.
 
             If build errors occur, check that you have a Qt version, a

@@ -21,7 +21,7 @@
 
     \list 1
 
-        \li Press \key {Ctrl+F} or go to \uicontrol Edit >
+        \li Select \key {Ctrl+F} or go to \uicontrol Edit >
             \uicontrol {Find/Replace} > \uicontrol {Find/Replace}.
 
         \li In \uicontrol Find, enter the text you are looking for.
@@ -32,10 +32,10 @@
             type.
 
         \li To go to the next occurrence, select \inlineimage icons/next.png
-            (\uicontrol {Find Next}), or press \key F3.
+            (\uicontrol {Find Next}), or select \key F3.
 
         \li To go to the previous occurrence, select \inlineimage icons/prev.png
-            (\uicontrol {Find Previous}), or press \key {Shift+F3}.
+            (\uicontrol {Find Previous}), or select \key {Shift+F3}.
 
         \li To select all found occurrences in a file, select
             \uicontrol {Select All}.
@@ -146,7 +146,7 @@
     \section1 Search in all projects
 
     \list 1
-        \li Press \key {Ctrl+Shift+F} or go to \uicontrol Edit >
+        \li Select \key {Ctrl+Shift+F} or go to \uicontrol Edit >
             \uicontrol {Find/Replace} > \uicontrol {Advanced Find} >
             \uicontrol {Open Advanced Find}.
         \li In \uicontrol Scope, select \uicontrol {All Projects}.

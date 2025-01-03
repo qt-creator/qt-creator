@@ -51,7 +51,7 @@
     column component and anchor them to the rectangle and to each other instead.
 
     To preview the changes that you make, select the \uicontrol {Live Preview} button
-    or press \key {Alt+P}.
+    or select \key {Alt+P}.
 
     \section2 Replacing columns with anchors
 
@@ -71,7 +71,7 @@
                     \l{Arranging components}{component hierarchy}.
             \endlist
         \li Repeat the previous step for \e password and \e repeatPassword.
-        \li Select \e fields in \uicontrol Navigator and press \key Delete to
+        \li Select \e fields in \uicontrol Navigator and select \key Delete to
             delete it.
             \image loginui4-hierarchy.webp "The hierarchy of the components."
         \li Select \e username in \uicontrol Navigator.
@@ -108,7 +108,7 @@
         \li Repeat the previous step to anchor the top of \e repeatPassword
             to the bottom of \e password with a margin of \e 20 and to
             anchor it horizontally to its parent.
-        \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
+        \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
     \endlist
 
@@ -175,7 +175,7 @@
             property of the button and to record changes for it. However, this
             time the opacity value needs to be \e 1 in frame \e 0 and \e 0 in frame \e 1000.
             \image loginui4-timeline-opacity.webp "Recorded timeline for the opacity properties"
-        \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
+        \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
     \endlist
 
@@ -210,7 +210,7 @@
             \e password.
         \li Select the record button again to stop recording property changes.
         \image loginui4-timeline-all.webp "Recorded timeline for repeatPassword and createAccount."
-        \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
+        \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
     \endlist
 
@@ -260,7 +260,7 @@
             \image loginui4-states.webp "Created states in the States view."
         \li With the base state selected, select \uicontrol Timeline >
             \imagesettings (\uicontrol {Timeline Settings (S)}) on the toolbar
-            (or press \key S) to open the \uicontrol {Timeline Settings} dialog.
+            (or select \key S) to open the \uicontrol {Timeline Settings} dialog.
         \li Double-click the cell in the \uicontrol Timeline column on the
             \e login row, and select \e timeline in the list.
         \li Double-click the cell in the \uicontrol Timeline column on the
@@ -269,7 +269,7 @@
             \e createAccount row, and select \e toCreateAccountState.
             \image loginui4-timeline-settings-states.png
         \li Click \uicontrol Close to save the timeline settings.
-        \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
+        \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
     \endlist
 

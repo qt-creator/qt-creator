@@ -41,7 +41,7 @@
     Trip and Navigator screens on the timeline, we select \e screenCanvas in
     the \l Navigator view. We check that the playhead is at frame 0, and then
     select the \imagerecordfill
-    (\uicontrol {Auto Key (K)}) button (or press \key k).
+    (\uicontrol {Auto Key (K)}) button (or select \key K).
 
     \image ebikedesign-timeline.png "Timeline view"
 

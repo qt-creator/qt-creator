@@ -47,14 +47,14 @@
     \image qtquick-designer-scaling-items.webp "The 2D view"
 
     To have the resizing done from the center of the selected component instance
-    rather than from its edges, press \key Alt (or \key Opt on \macos).
+    rather than from its edges, select \key Alt (or \key Opt on \macos).
 
     To preserve the image aspect ratio while resizing when using the corner
-    markers, press \key Shift. This also works on component instances that
+    markers, select \key Shift. This also works on component instances that
     are anchored using left, right, top, or bottom anchors.
 
     To both resize from the center of the component instance and preserve the
-    aspect ratio, press \key Alt+Shift (or \key {Opt+Shift} on \macos).
+    aspect ratio, select \key Alt+Shift (or \key {Opt+Shift} on \macos).
 
     For more information about alternative ways to specify the size of a
     component or component instance in a UI, see \l{2D Geometry}.
@@ -68,7 +68,7 @@
 
     \image qtquick-designer-rotating-items.webp "2D rotation tool"
 
-    Additionally, press \key Shift or \key Alt (or \key Opt on \macos)
+    Additionally, select \key Shift or \key Alt (or \key Opt on \macos)
     to rotate component instances in steps of 5 or 45 degrees, respectively.
 
     You can set the \l{Managing 2D Transformations}{origin} in \l Properties >
@@ -172,7 +172,7 @@
     column or a row, the new position might not be displayed correctly in
     the \uicontrol {2D} view.
 
-    To refresh the contents of the \uicontrol {2D} view, press \key R or
+    To refresh the contents of the \uicontrol {2D} view, select the \key R key or
     select the \imagereset
     (\uicontrol {Reset View}) button.
 */

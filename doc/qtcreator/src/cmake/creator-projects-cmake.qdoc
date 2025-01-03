@@ -271,7 +271,7 @@
         \li \c{$ENV} for environment variables
     \endlist
 
-    Press \key Tab or \key Enter to accept the selected suggestion and complete
+    Select \key Tab or \key Enter to accept the selected suggestion and complete
     the code.
 
     \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Completion},
