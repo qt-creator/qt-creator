@@ -169,16 +169,27 @@ bool QmllsClientSettings::isValidOnProject(ProjectExplorer::Project *project) co
     return true;
 }
 
+class QmllsClientInterface : public StdIOClientInterface
+{
+public:
+    FilePath qmllsFilePath() const { return m_cmd.executable(); }
+};
+
 BaseClientInterface *QmllsClientSettings::createInterface(Project *project) const
 {
-    auto interface = new StdIOClientInterface;
+    auto interface = new QmllsClientInterface;
     interface->setCommandLine(commandLineForQmlls(project));
     return interface;
 }
 
 Client *QmllsClientSettings::createClient(BaseClientInterface *interface) const
 {
-    return new QmllsClient(static_cast<StdIOClientInterface *>(interface));
+    auto qmllsInterface = static_cast<QmllsClientInterface *>(interface);
+    auto client = new QmllsClient(qmllsInterface);
+    const QString name = QString("%1 (%2)").arg(
+        Utils::globalMacroExpander()->expand(m_name), qmllsInterface->qmllsFilePath().toString());
+    client->setName(name);
+    return client;
 }
 
 class QmllsClientSettingsWidget : public QWidget

@@ -618,7 +618,10 @@ Client *BaseSettings::createClient(ProjectExplorer::Project *project) const
     BaseClientInterface *interface = createInterface(project);
     QTC_ASSERT(interface, return nullptr);
     auto *client = createClient(interface);
-    client->setName(Utils::globalMacroExpander()->expand(m_name));
+
+    if (client->name().isEmpty())
+        client->setName(Utils::globalMacroExpander()->expand(m_name));
+
     client->setSupportedLanguage(m_languageFilter);
     client->setInitializationOptions(initializationOptions());
     client->setActivateDocumentAutomatically(true);
