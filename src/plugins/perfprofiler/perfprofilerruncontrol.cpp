@@ -83,67 +83,6 @@ private:
     PerfDataReader m_reader;
 };
 
-class PerfProfilerRunner final : public RunWorker
-{
-public:
-    explicit PerfProfilerRunner(RunControl *runControl)
-        : RunWorker(runControl)
-    {
-        setId("PerfProfilerRunner");
-
-        PerfParserWorker *perfParserWorker = new PerfParserWorker(runControl);
-        addStopDependency(perfParserWorker);
-
-        // If the parser is gone, there is no point in going on.
-        perfParserWorker->setEssential(true);
-        ProcessRunner *perfRecordWorker
-            = qobject_cast<ProcessRunner *>(runControl->createWorker("PerfRecorder"));
-
-        if (!perfRecordWorker) {
-            perfRecordWorker = new ProcessRunner(runControl);
-            perfRecordWorker->suppressDefaultStdOutHandling();
-
-            perfRecordWorker->setStartModifier([this, runControl, perfRecordWorker] {
-                const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
-                const QString recordArgs = perfArgs[Constants::PerfRecordArgsId].toString();
-
-                CommandLine cmd({device()->filePath("perf"), {"record"}});
-                cmd.addArgs(recordArgs, CommandLine::Raw);
-                cmd.addArgs({"-o", "-", "--"});
-                cmd.addCommandLineAsArgs(runControl->commandLine(), CommandLine::Raw);
-
-                perfRecordWorker->setCommandLine(cmd);
-                perfRecordWorker->setWorkingDirectory(runControl->workingDirectory());
-                perfRecordWorker->setEnvironment(runControl->environment());
-                appendMessage("Starting Perf: " + cmd.toUserOutput(), NormalMessageFormat);
-            });
-
-            // In the local case, the parser won't automatically stop when the recorder does. So we need
-            // to mark the recorder as essential, too.
-            perfRecordWorker->setEssential(true);
-        }
-        addStartDependency(perfRecordWorker);
-
-        perfParserWorker->addStartDependency(perfRecordWorker);
-        perfParserWorker->addStopDependency(perfRecordWorker);
-        PerfProfilerTool::instance()->onWorkerCreation(runControl);
-
-        auto tool = PerfProfilerTool::instance();
-        connect(tool->stopAction(), &QAction::triggered, runControl, &RunControl::initiateStop);
-        connect(runControl, &RunControl::started, PerfProfilerTool::instance(),
-                &PerfProfilerTool::onRunControlStarted);
-        connect(runControl, &RunControl::stopped, PerfProfilerTool::instance(),
-                &PerfProfilerTool::onRunControlFinished);
-
-        PerfDataReader *reader = perfParserWorker->reader();
-        connect(perfRecordWorker, &ProcessRunner::stdOutData,
-                this, [this, reader](const QByteArray &data) {
-            if (!reader->feedParser(data))
-                reportFailure(Tr::tr("Failed to transfer Perf data to perfparser."));
-        });
-    }
-};
-
 // PerfProfilerRunWorkerFactory
 
 class PerfProfilerRunWorkerFactory final : public RunWorkerFactory
@@ -151,7 +90,64 @@ class PerfProfilerRunWorkerFactory final : public RunWorkerFactory
 public:
     PerfProfilerRunWorkerFactory()
     {
-        setProduct<PerfProfilerRunner>();
+        setProducer([](RunControl *runControl) {
+            auto worker = new RunWorker(runControl);
+            worker->setId("PerfProfilerRunner");
+
+            PerfParserWorker *perfParserWorker = new PerfParserWorker(runControl);
+            worker->addStopDependency(perfParserWorker);
+
+            // If the parser is gone, there is no point in going on.
+            perfParserWorker->setEssential(true);
+            ProcessRunner *perfRecordWorker
+                = qobject_cast<ProcessRunner *>(runControl->createWorker("PerfRecorder"));
+
+            if (!perfRecordWorker) {
+                perfRecordWorker = new ProcessRunner(runControl);
+                perfRecordWorker->suppressDefaultStdOutHandling();
+
+                perfRecordWorker->setStartModifier([worker, runControl, perfRecordWorker] {
+                    const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
+                    const QString recordArgs = perfArgs[Constants::PerfRecordArgsId].toString();
+
+                    CommandLine cmd({worker->device()->filePath("perf"), {"record"}});
+                    cmd.addArgs(recordArgs, CommandLine::Raw);
+                    cmd.addArgs({"-o", "-", "--"});
+                    cmd.addCommandLineAsArgs(runControl->commandLine(), CommandLine::Raw);
+
+                    perfRecordWorker->setCommandLine(cmd);
+                    perfRecordWorker->setWorkingDirectory(runControl->workingDirectory());
+                    perfRecordWorker->setEnvironment(runControl->environment());
+                    worker->appendMessage("Starting Perf: " + cmd.toUserOutput(), NormalMessageFormat);
+                });
+
+                // In the local case, the parser won't automatically stop when the recorder does. So we need
+                // to mark the recorder as essential, too.
+                perfRecordWorker->setEssential(true);
+            }
+            worker->addStartDependency(perfRecordWorker);
+
+            perfParserWorker->addStartDependency(perfRecordWorker);
+            perfParserWorker->addStopDependency(perfRecordWorker);
+            PerfProfilerTool::instance()->onWorkerCreation(runControl);
+
+            auto tool = PerfProfilerTool::instance();
+            QObject::connect(tool->stopAction(), &QAction::triggered,
+                             runControl, &RunControl::initiateStop);
+            QObject::connect(runControl, &RunControl::started, PerfProfilerTool::instance(),
+                             &PerfProfilerTool::onRunControlStarted);
+            QObject::connect(runControl, &RunControl::stopped, PerfProfilerTool::instance(),
+                             &PerfProfilerTool::onRunControlFinished);
+
+            PerfDataReader *reader = perfParserWorker->reader();
+            QObject::connect(perfRecordWorker, &ProcessRunner::stdOutData,
+                             worker, [worker, reader](const QByteArray &data) {
+                if (!reader->feedParser(data))
+                    worker->reportFailure(Tr::tr("Failed to transfer Perf data to perfparser."));
+            });
+
+            return worker;
+        });
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
     }
 };
