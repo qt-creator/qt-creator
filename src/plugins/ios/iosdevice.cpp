@@ -293,6 +293,15 @@ void IosDeviceManager::updateInfo(const QString &devId)
 {
     using namespace Tasking;
 
+    const auto getDeviceCtlVersion = ProcessTask(
+        [](Process &process) {
+            process.setCommand({FilePath::fromString("/usr/bin/xcrun"), {"devicectl", "--version"}});
+        },
+        [this](const Process &process) {
+            m_deviceCtlVersion = QVersionNumber::fromString(process.stdOut());
+            qCDebug(detectLog) << "devicectl version:" << *m_deviceCtlVersion;
+        });
+
     const auto infoFromDeviceCtl = ProcessTask(
         [](Process &process) {
             process.setCommand({FilePath::fromString("/usr/bin/xcrun"),
@@ -325,7 +334,16 @@ void IosDeviceManager::updateInfo(const QString &devId)
         });
     });
 
-    const Group root{sequential, stopOnSuccess, infoFromDeviceCtl, infoFromIosTool};
+    // clang-format off
+    const Group root{
+        parallel,
+        continueOnError,
+        m_deviceCtlVersion ? nullItem : getDeviceCtlVersion,
+        Group {
+            sequential, stopOnSuccess, infoFromDeviceCtl, infoFromIosTool
+        }
+    };
+    // clang-format on
 
     TaskTree *task = new TaskTree(root);
     m_updateTasks[devId].reset(task); // cancels any existing update, not calling done handlers
@@ -343,6 +361,7 @@ void IosDeviceManager::deviceInfo(const QString &uid,
                                   IosDevice::Handler handler,
                                   const Ios::IosToolHandler::Dict &info)
 {
+    qCDebug(detectLog) << "got device information:" << info;
     DeviceManager *devManager = DeviceManager::instance();
     Utils::Id baseDevId(Constants::IOS_DEVICE_ID);
     Utils::Id devType(Constants::IOS_DEVICE_TYPE);
@@ -572,6 +591,24 @@ void IosDeviceManager::monitorAvailableDevices()
     deviceConnectedCallback(NULL, gAddedIter);
     deviceDisconnectedCallback(NULL, gRemovedIter);
 #endif
+}
+
+bool IosDeviceManager::isDeviceCtlOutputSupported()
+{
+    return instance()->m_deviceCtlVersion
+           && instance()->m_deviceCtlVersion >= QVersionNumber(355, 28); // Xcode 15.4
+}
+
+bool IosDeviceManager::isDeviceCtlDebugSupported()
+{
+    // TODO this actually depends on a kit with LLDB >= lldb-1600.0.36.3 (Xcode 16.0)
+    // and devicectl >= 355.28 (Xcode 15.4) already has the devicectl requirements
+    // In principle users could install Xcode 16, and get devicectl >= 397.21 from that
+    // (it is globally installed in /Library/...)
+    // but then switch to an Xcode 15 installation with xcode-select, and use lldb-1500 which does
+    // not support the required commands.
+    return instance()->m_deviceCtlVersion
+           && instance()->m_deviceCtlVersion >= QVersionNumber(397, 21); // Xcode 16.0
 }
 
 IosDeviceManager::IosDeviceManager(QObject *parent) :

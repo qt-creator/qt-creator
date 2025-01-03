@@ -12,7 +12,9 @@
 #include <QMessageBox>
 #include <QPointer>
 #include <QTimer>
+#include <QVersionNumber>
 
+#include <optional>
 #include <unordered_map>
 
 namespace Ios {
@@ -80,6 +82,9 @@ public:
                     const Ios::IosToolHandler::Dict &info);
     void monitorAvailableDevices();
 
+    static bool isDeviceCtlOutputSupported();
+    static bool isDeviceCtlDebugSupported();
+
 private:
     void updateUserModeDevices();
     IosDeviceManager(QObject *parent = nullptr);
@@ -87,6 +92,7 @@ private:
     QTimer m_userModeDevicesTimer;
     QStringList m_userModeDeviceIds;
     QPointer<QMessageBox> m_devModeDialog;
+    std::optional<QVersionNumber> m_deviceCtlVersion;
 };
 
 void setupIosDevice();
