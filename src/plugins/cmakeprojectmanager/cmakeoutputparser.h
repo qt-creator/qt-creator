@@ -49,7 +49,8 @@ private:
         int line = -1;
         QString function;
     };
-    std::optional<QList<CallStackLine>> m_callStack;
+    QList<CallStackLine> m_callStack;
+    bool m_callStackDetected = false;
     CallStackLine m_errorOrWarningLine;
 };
 

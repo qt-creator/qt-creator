@@ -129,20 +129,20 @@ OutputLineParser::Result CMakeOutputParser::handleLine(const QString &line, Outp
             m_errorOrWarningLine.function = match.captured(4);
 
             return {Status::InProgress, linkSpecs};
-        }
-        else if (trimmedLine.startsWith(QLatin1String("  ")) && !m_lastTask.isNull() && !m_callStack) {
-            if (m_skippedFirstEmptyLine)
-                m_lastTask.details.append(QString());
-            m_lastTask.details.append(trimmedLine.mid(2));
-            return Status::InProgress;
         } else if (trimmedLine.startsWith(QLatin1String("  ")) && !m_lastTask.isNull()) {
-            match = m_sourceLineAndFunction.match(trimmedLine);
-            if (match.hasMatch()) {
-                CallStackLine stackLine;
-                stackLine.file = absoluteFilePath(resolvePath(match.captured(1)));
-                stackLine.line = match.captured(2).toInt();
-                stackLine.function = match.captured(3);
-                m_callStack.value() << stackLine;
+            if (m_callStackDetected) {
+                match = m_sourceLineAndFunction.match(trimmedLine);
+                if (match.hasMatch()) {
+                    CallStackLine stackLine;
+                    stackLine.file = absoluteFilePath(resolvePath(match.captured(1)));
+                    stackLine.line = match.captured(2).toInt();
+                    stackLine.function = match.captured(3);
+                    m_callStack << stackLine;
+                }
+            } else {
+                if (m_skippedFirstEmptyLine)
+                    m_lastTask.details.append(QString());
+                m_lastTask.details.append(trimmedLine.mid(2));
             }
             return {Status::InProgress};
         } else if (trimmedLine.endsWith(QLatin1String("in cmake code at"))) {
@@ -160,7 +160,7 @@ OutputLineParser::Result CMakeOutputParser::handleLine(const QString &line, Outp
             // Do not pass on lines starting with "-- " or "* ". Those are typical CMake output
             return Status::InProgress;
         } else if (trimmedLine.startsWith("Call Stack (most recent call first):")) {
-            m_callStack = QList<CallStackLine>();
+            m_callStackDetected = true;
             return {Status::InProgress};
         }
         return Status::NotHandled;
@@ -214,19 +214,19 @@ void CMakeOutputParser::flush()
         t.summary = t.details.takeFirst();
     m_lines += t.details.count();
 
-    if (m_callStack.has_value() && !m_callStack.value().isEmpty()) {
-        t.file = m_callStack.value().last().file;
-        t.line = m_callStack.value().last().line;
+    if (!m_callStack.isEmpty()) {
+        t.file = m_callStack.last().file;
+        t.line = m_callStack.last().line;
 
         LinkSpecs specs;
         t.details << QString();
         t.details << Tr::tr("Call stack:");
         m_lines += 2;
 
-        m_callStack->push_front(m_errorOrWarningLine);
+        m_callStack.push_front(m_errorOrWarningLine);
 
         int offset = t.details.join('\n').size();
-        Utils::reverseForeach(m_callStack.value(), [&](const auto &line) {
+        Utils::reverseForeach(m_callStack, [&](const auto &line) {
             const QString fileAndLine = QString("%1:%2").arg(line.file.path()).arg(line.line);
             const QString completeLine = QString("  %1%2").arg(fileAndLine).arg(line.function);
 
@@ -247,7 +247,8 @@ void CMakeOutputParser::flush()
     scheduleTask(t, m_lines, 1);
     m_lines = 0;
 
-    m_callStack.reset();
+    m_callStack.clear();
+    m_callStackDetected = false;
 }
 
 } // CMakeProjectManager
