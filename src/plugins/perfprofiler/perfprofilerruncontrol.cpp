@@ -126,15 +126,12 @@ public:
         m_perfParserWorker->addStartDependency(m_perfRecordWorker);
         m_perfParserWorker->addStopDependency(m_perfRecordWorker);
         PerfProfilerTool::instance()->onWorkerCreation(runControl);
-    }
 
-    void start() final
-    {
         auto tool = PerfProfilerTool::instance();
-        connect(tool->stopAction(), &QAction::triggered, runControl(), &RunControl::initiateStop);
-        connect(runControl(), &RunControl::started, PerfProfilerTool::instance(),
+        connect(tool->stopAction(), &QAction::triggered, runControl, &RunControl::initiateStop);
+        connect(runControl, &RunControl::started, PerfProfilerTool::instance(),
                 &PerfProfilerTool::onRunControlStarted);
-        connect(runControl(), &RunControl::stopped, PerfProfilerTool::instance(),
+        connect(runControl, &RunControl::stopped, PerfProfilerTool::instance(),
                 &PerfProfilerTool::onRunControlFinished);
 
         PerfDataReader *reader = m_perfParserWorker->reader();
@@ -143,8 +140,6 @@ public:
             if (!reader->feedParser(data))
                 reportFailure(Tr::tr("Failed to transfer Perf data to perfparser."));
         });
-
-        reportStarted();
     }
 
 private:
