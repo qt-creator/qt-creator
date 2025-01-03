@@ -178,7 +178,7 @@ QmlProfilerTool::QmlProfilerTool()
     d->m_clearButton->setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
     d->m_clearButton->setToolTip(Tr::tr("Discard data"));
 
-    connect(d->m_clearButton, &QAbstractButton::clicked, [this](){
+    connect(d->m_clearButton, &QAbstractButton::clicked, [this] {
         if (checkForUnsavedNotes())
             clearData();
     });
@@ -382,7 +382,6 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
     connect(d->m_stopAction, &QAction::triggered, runControl, &RunControl::initiateStop);
 
     updateRunActions();
-    runWorker->registerProfilerStateManager(d->m_profilerState);
 
     //
     // Initialize m_projectFinder
@@ -391,7 +390,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
     d->m_profilerModelManager->populateFileFinder(runControl->target());
 
     connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionFailed,
-            runWorker, [this, runWorker]() {
+            runWorker, [this, runWorker] {
         auto infoBox = new QMessageBox(ICore::dialogParent());
         infoBox->setIcon(QMessageBox::Critical);
         infoBox->setWindowTitle(QGuiApplication::applicationDisplayName());

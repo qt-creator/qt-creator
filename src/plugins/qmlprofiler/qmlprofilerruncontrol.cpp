@@ -3,6 +3,7 @@
 
 #include "qmlprofilerruncontrol.h"
 
+#include "qmlprofilerstatemanager.h"
 #include "qmlprofilertool.h"
 
 #include <coreplugin/icore.h>
@@ -22,8 +23,6 @@
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/url.h>
-
-#include <QMessageBox>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -61,9 +60,17 @@ QmlProfilerRunner::~QmlProfilerRunner()
 
 void QmlProfilerRunner::start()
 {
-    if (!d->m_profilerState)
-        QmlProfilerTool::instance()->finalizeRunControl(this);
+    if (d->m_profilerState)
+        disconnect(d->m_profilerState, &QmlProfilerStateManager::stateChanged, this, nullptr);
+
+    QmlProfilerTool::instance()->finalizeRunControl(this);
+    d->m_profilerState = QmlProfilerTool::instance()->stateManager();
     QTC_ASSERT(d->m_profilerState, return);
+
+    connect(d->m_profilerState, &QmlProfilerStateManager::stateChanged, this, [this] {
+        if (d->m_profilerState->currentState() == QmlProfilerStateManager::Idle)
+            reportStopped();
+    });
     reportStarted();
 }
 
@@ -114,32 +121,6 @@ void QmlProfilerRunner::cancelProcess()
     }
     }
     runControl()->initiateStop();
-}
-
-void QmlProfilerRunner::registerProfilerStateManager( QmlProfilerStateManager *profilerState )
-{
-    // disconnect old
-    if (d->m_profilerState)
-        disconnect(d->m_profilerState, &QmlProfilerStateManager::stateChanged,
-                   this, &QmlProfilerRunner::profilerStateChanged);
-
-    d->m_profilerState = profilerState;
-
-    // connect
-    if (d->m_profilerState)
-        connect(d->m_profilerState, &QmlProfilerStateManager::stateChanged,
-                this, &QmlProfilerRunner::profilerStateChanged);
-}
-
-void QmlProfilerRunner::profilerStateChanged()
-{
-    switch (d->m_profilerState->currentState()) {
-    case QmlProfilerStateManager::Idle:
-        reportStopped();
-        break;
-    default:
-        break;
-    }
 }
 
 RunWorker *createLocalQmlProfilerWorker(RunControl *runControl)
