@@ -22,7 +22,7 @@
     By default, \QC builds qmake projects (that have .pro files) in a separate
     directory from the source directory, as \l{glossary-shadow-build}
     {shadow builds}. This keeps the files generated for each kit separate. If
-    you only build and run with a single kit, you can deselect the
+    you only build and run with a single kit, you can clear the
     \uicontrol {Shadow build} checkbox.
 
     Select the build directory in the \uicontrol {Build Directory} field. You
@@ -38,7 +38,7 @@
     \section1 Tooltips in Kit Selector
 
     In the \uicontrol {Tooltip in target selector} field, you can enter text
-    that is displayed as a tooltip when you hover the mouse over the build
+    that is displayed as a tooltip when you hover over the build
     configuration in the \l{Build for many platforms}{kit selector}.
 
     You can create separate versions of project files to keep platform-dependent

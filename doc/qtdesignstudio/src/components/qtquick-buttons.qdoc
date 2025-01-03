@@ -33,7 +33,7 @@
             (\uicontrol W) and height (\uicontrol H) of the button in
             \l Properties.
 
-        \li Drag-and-drop a \uicontrol Rectangle from \uicontrol Components >
+        \li Drag a \uicontrol Rectangle from \uicontrol Components >
             \uicontrol {Default Components} > \uicontrol Basic to the component
             in \uicontrol Navigator. This creates a nested component where the
             Item is the parent of the Rectangle. Components are positioned
@@ -57,7 +57,7 @@
 
         \endlist
 
-        \li Drag-and-drop a \uicontrol {Text} component to the Item in
+        \li Drag a \uicontrol {Text} component to the Item in
             \uicontrol Navigator.
 
         \li In the \uicontrol Properties view, edit the properties of the
@@ -150,11 +150,11 @@
             \l Properties view to match the size of the images
             you plan to use. This specifies the initial size of the button
             component.
-        \li Drag-and-drop two \uicontrol {Border Image} components from
+        \li Drag two \uicontrol {Border Image} components from
             \uicontrol Components > \uicontrol {Default Components} >
             \uicontrol Basic to the root component in \uicontrol Navigator.
-        \li Drag-and-drop a \uicontrol Text component to the root component.
-        \li Drag-and-drop a \uicontrol {Mouse Area} to the root component.
+        \li Drag a \uicontrol Text component to the root component.
+        \li Drag a \uicontrol {Mouse Area} to the root component.
         \li Select a border image to edit the values of its properties:
             \list 1
                 \li In the \uicontrol Id field, enter an ID for the border
@@ -238,7 +238,7 @@
     When you work on other files in the project to create screens
     or other components for the UI, the button component appears in
     \uicontrol Components > \uicontrol {My Components}.
-    You can drag-and-drop it to the \uicontrol {2D} or
+    You can drag it to the \uicontrol {2D} or
     \uicontrol Navigator view to create button instances and modify the values
     of their properties to assign them useful IDs, change their appearance,
     and set the button text for each button instance, for example.

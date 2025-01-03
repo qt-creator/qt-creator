@@ -268,7 +268,7 @@
         component now appears in \uicontrol {My 3D Components}.
         \image exporting-from-qt3ds/33-see-qml-stream-component-in-myqmlcomponents.png "QML stream in My QML Components"
 
-    \li Drag-and-drop the QML stream component to MyOwnCluster in \uicontrol
+    \li Drag the QML stream component to MyOwnCluster in \uicontrol
         Navigator.
         \image exporting-from-qt3ds/34-drag-to-myowncluster-in-navigator.png "Drag the QML stream component to MyOwnCluster"
 

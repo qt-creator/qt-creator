@@ -368,7 +368,7 @@
 
     If a Qt Quick test case does not have a name, it is marked
     \uicontrol Unnamed in the list. \uicontrol {Run All Tests} executes
-    unnamed test cases. You cannot select or deselect them.
+    unnamed test cases. You cannot select or clear them.
 
     \QC scans the project for tests when you open the project and updates the
     test list for the currently active test frameworks when you edit tests.
@@ -848,7 +848,7 @@
 
     To show all messages, select \uicontrol {Check All Filters}.
 
-    To deselect all message types, select \uicontrol {Uncheck All Filters}.
+    To clear all message types, select \uicontrol {Uncheck All Filters}.
 
     \section1 Blacklisting Tests
 

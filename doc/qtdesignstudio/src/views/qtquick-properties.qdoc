@@ -125,7 +125,7 @@
 
     \image qtquick-properties-visibility.png "Visibility properties"
 
-    Deselect the \uicontrol Visible check box to hide a component and all
+    Clear the \uicontrol Visible check box to hide a component and all
     its child components, unless they have explicitly been set to be visible.
     This might have surprise effects when using property bindings. In such
     cases, it may be better to use the \uicontrol Opacity property instead.

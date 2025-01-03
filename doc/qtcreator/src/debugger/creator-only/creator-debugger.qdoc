@@ -1109,7 +1109,7 @@
     If you cannot debug Qt objects because their data is corrupted, you can
     switch off the debugging helpers to make low-level structures visible.
 
-    To switch off the debugging helpers, deselect
+    To switch off the debugging helpers, clear
     \uicontrol {Use Debugging Helpers} in \preferences >
     \uicontrol Debugger > \uicontrol {Locals & Expressions}.
 
@@ -2166,7 +2166,7 @@
     \section1 Structure Members Are Not Sorted According to Structure Layout
 
     By default, structure members are displayed in alphabetic order. To inspect
-    the real layout in memory, deselect
+    the real layout in memory, clear
     \uicontrol {Sort Members of Classes and Structs Alphabetically} in the
     context menu in the \uicontrol Locals and \uicontrol Expressions views.
 

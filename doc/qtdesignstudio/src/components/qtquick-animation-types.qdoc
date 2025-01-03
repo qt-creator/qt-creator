@@ -13,7 +13,7 @@
     that is to be animated, and apply the animation depending on the type of
     behavior that is required.
 
-    You can drag-and-drop animation components from
+    You can drag animation components from
     \uicontrol Components > \uicontrol {Default Components} >
     \uicontrol Animation to the \l Navigator or \l {2D} view to
     create instances of them.
@@ -132,7 +132,7 @@
 
     You can create several animations that can run in parallel or in sequence.
     To manage a group of animations that will play at the same time, create an
-    instance of a \uicontrol {Parallel Animation} component and drag-and-drop
+    instance of a \uicontrol {Parallel Animation} component and drag
     the other animations to it. To play the animations in the specified order,
     one after the other, create an instance of a
     \uicontrol {Sequential Animation} instead.

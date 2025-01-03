@@ -21,7 +21,7 @@
     \uicontrol {Build Directory} field.
 
     In the \uicontrol {Tooltip in target selector} field, you can enter text
-    that is displayed as a tooltip when you hover the mouse over the build
+    that is displayed as a tooltip when you hover over the build
     configuration in the \l{Build for many platforms}{kit selector}.
 
     You can enter a name for the build configuration in the
@@ -98,7 +98,7 @@
 
                     \note On Windows, the build will fail if the application
                     is running because the executable file cannot be
-                    overwritten. To avoid this issue, you can deselect this
+                    overwritten. To avoid this issue, you can clear this
                     check box and add a \uicontrol {Qbs Install} deployment step
                     in the run settings that will be performed just before
                     running the application.
@@ -108,7 +108,7 @@
                     starts.
 
                 \li Select \uicontrol {Use default location} to install the
-                    artifacts to the default location. Deselect the check box to
+                    artifacts to the default location. Clear the check box to
                     specify another location in the
                     \uicontrol {Installation directory} field.
 

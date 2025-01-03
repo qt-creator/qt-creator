@@ -57,7 +57,7 @@
     or select \key F6 and \key Shift+F6.
 
     By default, a new build clears the \uicontrol Issues view. To keep
-    the issues from the previous build rounds, deselect \preferences >
+    the issues from the previous build rounds, clear \preferences >
     \uicontrol {Build & Run} > \uicontrol General >
     \uicontrol {Clear issues list on new build}.
 

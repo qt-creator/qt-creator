@@ -22,7 +22,7 @@
 
     Logic helpers are invisible components that you can use in connection with
     controls, such as a \l {slider-control}{Slider} or \l {Check Box}.
-    To use a logic helper, drag-and-drop it from \uicontrol Components >
+    To use a logic helper, drag it from \uicontrol Components >
     \uicontrol {Qt Quick Studio Logic Helper} to \l Navigator. If you cannot
     find the logic helpers in \uicontrol {Components}, you need to add the
     \uicontrol {Qt Quick Studio Logic Helper} module to your project,
@@ -42,7 +42,7 @@
     The output is evaluated as \c true if both inputs are \c true.
 
     For example, we could use the checked state of two check boxes to determine
-    the checked state of a third one. First, we drag-and-drop three instances of
+    the checked state of a third one. First, we drag three instances of
     the \uicontrol {Check Box} components and one instance of the
     \uicontrol {And Operator} component to \uicontrol Navigator (1). Then, we
     select the \uicontrol {And Operator} component instance (2) and set its
@@ -81,7 +81,7 @@
     condition is not met.
 
     For example, we could specify that if one check box is checked, another
-    one cannot be checked. First, we drag-and-drop two instances of the
+    one cannot be checked. First, we drag two instances of the
     \uicontrol {Check Box} component and one instance of the
     \uicontrol {Not Operator} component to \uicontrol Navigator. Then, we select
     the \uicontrol {Not Operator} component instance and set its properties in
@@ -97,7 +97,7 @@
 
     \image studio-logic-helper-not-check-box.png "Check box checked property bound to NOT operator output"
 
-    When we preview our UI, the second check box is initially checked. However,
+    When we preview our UI, the second check box is initially selected. However,
     when we select the first check box, the second one is automatically cleared.
 
     \image studio-logic-helper-not-operator.gif "Previewing two check boxes bound with a NOT operator"
@@ -110,7 +110,7 @@
     a slider and checkbox. Typically, it is used to bind a backend value
     to a control, such as a slider.
 
-    For example, to synchronize the values of two sliders, we drag-and-drop two
+    For example, to synchronize the values of two sliders, we drag two
     instances of the \uicontrol Slider component and one instance of the
     \uicontrol {Bi Direct. Binding} component to the same parent component in
     \uicontrol Navigator. Then, we select the bi-directional binding instance
@@ -140,7 +140,7 @@
     the string.
 
     For example, to use a \l Text component to display the value of a
-    slider, we drag-and-drop \uicontrol Text, \uicontrol Slider, and
+    slider, we drag \uicontrol Text, \uicontrol Slider, and
     \uicontrol {String Mapper} components to the same parent component. Then,
     we select the \uicontrol {String Mapper} instance in \uicontrol Navigator
     to display its properties in \uicontrol Properties. There we bind the value
@@ -175,7 +175,7 @@
 
     For example, to restrict the maximum value of a slider to 0.60,
     regardless of the maximum value set in the slider properties,
-    we drag-and-drop a \uicontrol {Min Max Mapper} to our example
+    we drag a \uicontrol {Min Max Mapper} to our example
     above. We select it to display its properties in \uicontrol Properties.
     Then, we bind the value of the \uicontrol Input property of the mapper to
     the value of the \c value property of the slider and set the value

@@ -47,8 +47,8 @@
     To use a locator filter:
 
     \list
-        \li Type the locator filter prefix followed by \key Space. The prefix
-            is usually short, from one to three characters. Then type the search
+        \li Enter the locator filter prefix followed by \key Space. The prefix
+            is usually short, from one to three characters. Then enter the search
             string (for example, a filename or class name) or the command to
             execute.
 
@@ -58,7 +58,7 @@
             selected filter.
     \endlist
 
-    As you type a search string,
+    As you enter a search string,
     the locator shows the occurrences of that string regardless of where in the
     name of an object it appears. Some locator filters, such as colon, \c m,
     and \c t, support \e fuzzy matching, which means that you can enter the

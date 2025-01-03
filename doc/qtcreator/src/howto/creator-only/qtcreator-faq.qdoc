@@ -149,7 +149,7 @@
 
     To trigger the GDB command that generates a core file while debugging,
     go to \uicontrol View > \uicontrol Views > \l {Debugger Log}.
-    In the \uicontrol Command field, type \c gcore and select \key Enter. The
+    In the \uicontrol Command field, enter \c gcore and select \key Enter. The
     core file is created in the current working directory. You can specify
     another location for the file, including a relative or absolute path, as an
     argument of the command.
@@ -232,7 +232,7 @@
     When you run a console application, you can view the output in the console
     window of the calling application. If the
     calling application is a GUI application (for example, a release-built
-    version of \QC), a new console window is opened.  For this
+    version of \QC), a new console window is opened. For this
     type of application, \c qDebug() and related functions use standard output
     and error output.
 
@@ -317,8 +317,8 @@
     in the tab bar, find our that the function is inline, fix the problem, and
     forget where they came from.
 
-    With \QC, developers can type \c {Ctrl+K m AFun} to find the function.
-    Typically, they only need to type 3 to 4 characters of the function name.
+    With \QC, developers can enter \c {Ctrl+K m AFun} to find the function.
+    Typically, they only need to enter 3 to 4 characters of the function name.
     They can then fix the problem and select \key Alt+Back to go back to where
     they were.
 

@@ -80,8 +80,7 @@
     enter \uicontrol {t} (\uicontrol {Request Copilot Suggestion}) in the
     \l{Navigate with locator}{locator}.
 
-    Hover the mouse over a suggestion to show a toolbar with
-    \inlineimage icons/prev.png
+    Hover over a suggestion to show a toolbar with \inlineimage icons/prev.png
     and \inlineimage icons/next.png
     buttons for cycling between Copilot suggestions.
 

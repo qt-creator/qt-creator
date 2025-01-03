@@ -11,12 +11,12 @@
     You can import 2D assets, such as images, fonts, and sound files, to \QDS to
     use them in your projects.
 
-    To import an asset, drag-and-drop the external file containing the asset from,
+    To import an asset, drag the external file containing the asset from,
     for example, File Explorer on Windows, to the \uicontrol {2D},
     \uicontrol Navigator, or \uicontrol {Code} view. Alternatively, select
     \uicontrol Assets > \imageplus
     and follow the instructions in the \uicontrol {Asset Import} dialog. You can
-    also multiselect several external asset files to drag-and-drop them to
+    also multiselect several external asset files to drag them to
     \QDS simultaneously.
 
     The imported images will appear in \uicontrol Assets.
@@ -26,7 +26,7 @@
     external font file to the \uicontrol {2D} view, it will be added to your
     project as a text component. Other imported assets, such as sound files,
     will only appear in \uicontrol Assets, and you can then
-    drag-and-drop them to a suitable view.
+    drag them to a suitable view.
 
     \section1 Importing designs from other design tools
 
@@ -74,9 +74,9 @@
             the image files to.
         \li Select the \uicontrol {Create sub directory} check box to import the
             assets in a sub directory inside \uicontrol {Export Paths}.
-        \li Deselect the \uicontrol {Import assets} check box if you only want
+        \li Clear the \uicontrol {Import assets} check box if you only want
             to create QML files.
-        \li Deselect the \uicontrol {Generate QML} check box if you only
+        \li Clear the \uicontrol {Generate QML} check box if you only
             want to import assets.
         \li Select the \uicontrol {Merge QML} check box if you have imported the
             assets before and want to merge the changes into existing QML files
@@ -93,7 +93,7 @@
     The components that you specified in the design tool are displayed in
     \uicontrol Components > \uicontrol {My Components} as well as in the
     \uicontrol Projects view as separate QML files. To use them,
-    drag-and-drop them from \uicontrol Components to the \uicontrol {2D} or
+    drag them from \uicontrol Components to the \uicontrol {2D} or
     \l Navigator view.
 
     If asset importer conflicts, warnings, and errors are displayed in the

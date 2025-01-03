@@ -66,7 +66,7 @@
     \list 1
         \li Select \preferences > \uicontrol Qbs.
             \image qtcreator-options-qbs.png "Qbs preferences"
-        \li Deselect the \uicontrol {Use \QC settings directory for Qbs} check
+        \li Clear the \uicontrol {Use \QC settings directory for Qbs} check
             box to store Qbs profiles in the Qbs settings directory.
         \li In the \uicontrol {Path to qbs executable} field, you can view
             and change the path to the Qbs executable.

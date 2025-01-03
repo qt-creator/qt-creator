@@ -15,7 +15,7 @@
 
     To set preferences for documentation comments for a particular project,
     select \uicontrol Projects > \uicontrol {Project Settings} >
-    \uicontrol {Documentation Comments}, and deselect the
+    \uicontrol {Documentation Comments}, and clear the
     \uicontrol {Use global settings} check box.
 
     \image qtcreator-preferences-documentation-comments.webp {Documentation Comments settings}

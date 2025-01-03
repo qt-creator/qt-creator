@@ -30,7 +30,7 @@
     set of predefined properties, some of which control things that are
     visible to users, while others are used behind the scene.
 
-    You drag-and-drop the preset components from the \uicontrol Components view
+    You drag the preset components from the \uicontrol Components view
     to the \l {2D}, \l {3D}, or \l Navigator view to create
     instances of them. You then change the instances to your liking by modifying
     their properties in the \l Properties view. The application code is

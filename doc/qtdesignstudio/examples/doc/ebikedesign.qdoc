@@ -54,7 +54,7 @@
     to return to the Standard screen. Finally, at frame 4000, we set the X
     coordinate to -19 to return to the Trip screen.
 
-    When we deselect the record button to stop recording the timeline, the
+    When we clear the record button to stop recording the timeline, the
     new timeline appears in the view.
 
     When we select \e tripScreen in the \uicontrol Navigator, we can see the

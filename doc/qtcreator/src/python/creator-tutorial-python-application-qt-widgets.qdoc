@@ -41,7 +41,7 @@
         \li Select \uicontrol{Next} (on Windows and Linux) or \uicontrol Continue
             (on \macos) to open the \uicontrol {Define Class} dialog.
             \image qtcreator-new-qt-for-python-app-widgets-define-class.webp {Define Class dialog}
-        \li In \uicontrol {Class name}, type \b {MyWidget} as the class
+        \li In \uicontrol {Class name}, enter \b {MyWidget} as the class
             name.
         \li In \uicontrol {Base class}, select \b {QWidget} as the base class.
             \note The \uicontrol {Source file} field is automatically updated to

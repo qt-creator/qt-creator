@@ -18,7 +18,7 @@
     The normal workflow is to use an external content creation tool to create
     a mesh, which also contains morph targets, and import it to \QDS.
 
-    To add a morph target for a model in \QDS, drag-and-drop a
+    To add a morph target for a model in \QDS, drag a
     \uicontrol {Morph Target} component from \uicontrol Components
     > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} to \uicontrol Scene in
     \l Navigator. Then select the model in \uicontrol Navigator, and in
