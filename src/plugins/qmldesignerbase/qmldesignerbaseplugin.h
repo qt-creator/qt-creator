@@ -33,7 +33,7 @@ public:
     static bool experimentalFeaturesEnabled();
     static QByteArray experimentalFeaturesSettingsKey();
 
-    static void enbableLiteMode();
+    static void enableLiteMode();
     static bool isLiteModeEnabled();
 
 private:

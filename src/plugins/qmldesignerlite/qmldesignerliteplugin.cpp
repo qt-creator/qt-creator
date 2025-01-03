@@ -9,7 +9,7 @@ namespace QmlDesigner {
 
 QmlDesignerLitePlugin::QmlDesignerLitePlugin()
 {
-    QmlDesignerBasePlugin::enbableLiteMode();
+    QmlDesignerBasePlugin::enableLiteMode();
 }
 
 QmlDesignerLitePlugin::~QmlDesignerLitePlugin() = default;
