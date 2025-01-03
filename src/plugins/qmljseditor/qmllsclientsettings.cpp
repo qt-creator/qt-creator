@@ -163,6 +163,9 @@ bool QmllsClientSettings::isValidOnProject(ProjectExplorer::Project *project) co
         return false;
     }
 
+    if (m_useLatestQmlls && evaluateLatestQmlls().first.isEmpty())
+        return false;
+
     return true;
 }
 
