@@ -141,9 +141,13 @@ static const TextFormat &buttonTF(Button::Role role, WidgetState state)
 
     switch (role) {
     case Button::LargePrimary: return largePrimaryTF;
-    case Button::LargeSecondary: return largeSecondaryTF;
+    case Button::LargeSecondary:
+    case Button::LargeTertiary:
+        return largeSecondaryTF;
     case Button::SmallPrimary: return smallPrimaryTF;
-    case Button::SmallSecondary: return smallSecondaryTF;
+    case Button::SmallSecondary:
+    case Button::SmallTertiary:
+        return smallSecondaryTF;
     case Button::SmallList: return (state == WidgetStateDefault) ? smallListDefaultTF
                                              : smallListCheckedTF;
     case Button::SmallLink: return (state == WidgetStateDefault) ? smallLinkDefaultTF
@@ -233,6 +237,17 @@ void Button::paintEvent(QPaintEvent *event)
         const qreal width = hovered ? 2.0 : 1.0;
         const QPen outline(creatorColor(color), width);
         drawCardBackground(&p, bgR, QBrush(Qt::NoBrush), outline, brRectRounding);
+        break;
+    }
+    case LargeTertiary:
+    case SmallTertiary: {
+        const Theme::Color border = isDown() ? Theme::Token_Stroke_Muted
+                                             : Theme::Token_Stroke_Subtle;
+        const Theme::Color bg = isEnabled() ? (isDown() ? Theme::Token_Foreground_Default
+                                                        : (hovered ? Theme::Token_Foreground_Muted
+                                                                   : Theme::Token_Foreground_Subtle))
+                                            : Theme::Token_Foreground_Subtle;
+        drawCardBackground(&p, bgR, creatorColor(bg), creatorColor(border), brRectRounding);
         break;
     }
     case SmallList: {

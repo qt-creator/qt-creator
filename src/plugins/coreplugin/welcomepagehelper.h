@@ -77,8 +77,10 @@ public:
     enum Role {
         LargePrimary,
         LargeSecondary,
+        LargeTertiary,
         SmallPrimary,
         SmallSecondary,
+        SmallTertiary,
         SmallList,
         SmallLink,
         Tag,
