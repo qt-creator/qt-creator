@@ -1313,7 +1313,7 @@ QString ICore::aboutInformationHtml()
                   wrapBr(appInfo.copyright))
           + br
           + Tr::tr("The Qt logo, axivion stopping software erosion logo, Qt Group logo, as well as "
-                   "Qt®, Axivion®, avixion stopping software erosion®, Boot to Qt®, Built with "
+                   "Qt®, Axivion®, axivion stopping software erosion®, Boot to Qt®, Built with "
                    "Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, "
                    "Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® "
                    "are registered trademarks of The Qt Company Ltd. or its subsidiaries.");
