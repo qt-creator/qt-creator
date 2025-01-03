@@ -1505,8 +1505,7 @@ qint64 SimpleTargetRunnerPrivate::privateApplicationPID() const
 void SimpleTargetRunnerPrivate::handleDone()
 {
     m_resultData = m_process.resultData();
-    QTC_ASSERT(m_state == Run, forwardDone(); return);
-
+    QTC_CHECK(m_state == Run);
     forwardDone();
 }
 
