@@ -26,8 +26,6 @@ class RunControl;
 namespace PerfProfiler {
 namespace Internal {
 
-class PerfProfilerRunner;
-
 class PerfProfilerTool  : public QObject
 {
     Q_OBJECT
@@ -70,7 +68,6 @@ private:
     void clearData();
     void clear();
 
-    friend class PerfProfilerRunner;
     void populateFileFinder(const ProjectExplorer::Project *project,
                             const ProjectExplorer::Kit *kit);
     void updateFilterMenu();
