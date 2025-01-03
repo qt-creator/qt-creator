@@ -241,11 +241,8 @@ void LldbEngine::handleLldbStarted()
     }
 
     commands = settings().extraDumperCommands();
-    if (!commands.isEmpty()) {
-        DebuggerCommand cmd("executeDebuggerCommand");
-        cmd.arg("command", commands);
-        runCommand(cmd);
-    }
+    if (!commands.isEmpty())
+        executeDebuggerCommand(commands);
 
     DebuggerCommand cmd1("loadDumpers");
     cmd1.callback = [this](const DebuggerResponse &response) {
