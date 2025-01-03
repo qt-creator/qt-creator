@@ -130,15 +130,16 @@ static CommandLine commandLineForQmlls(Project *project)
         result.addArgs({"-b", configuration->buildDirectory().path()});
 
     // qmlls 6.8 and later require the import path
-    if (version >= QVersionNumber(6, 8, 0))
+    if (version >= QVersionNumber(6, 8, 0)) {
         result.addArgs({"-I", qtVersion->qmlPath().path()});
 
-    // add custom import paths that the embedded codemodel uses too
-    const QmlJS::ModelManagerInterface::ProjectInfo projectInfo
-        = QmlJS::ModelManagerInterface::instance()->projectInfo(project);
-    for (QmlJS::PathAndLanguage path : projectInfo.importPaths) {
-        if (path.language() == QmlJS::Dialect::Qml)
-            result.addArgs({"-I", path.path().path()});
+        // add custom import paths that the embedded codemodel uses too
+        const QmlJS::ModelManagerInterface::ProjectInfo projectInfo
+            = QmlJS::ModelManagerInterface::instance()->projectInfo(project);
+        for (QmlJS::PathAndLanguage path : projectInfo.importPaths) {
+            if (path.language() == QmlJS::Dialect::Qml)
+                result.addArgs({"-I", path.path().path()});
+        }
     }
 
     // qmlls 6.8.1 and later require the documentation path
