@@ -64,6 +64,8 @@ void QmlProfilerRunner::start()
         disconnect(d->m_profilerState, &QmlProfilerStateManager::stateChanged, this, nullptr);
 
     QmlProfilerTool::instance()->finalizeRunControl(this);
+    connect(this, &QmlProfilerRunner::stopped,
+            QmlProfilerTool::instance(), &QmlProfilerTool::handleStop);
     d->m_profilerState = QmlProfilerTool::instance()->stateManager();
     QTC_ASSERT(d->m_profilerState, return);
 

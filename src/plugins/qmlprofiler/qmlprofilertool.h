@@ -31,6 +31,7 @@ public:
     static QmlProfilerTool *instance();
 
     void finalizeRunControl(QmlProfilerRunner *runWorker);
+    void handleStop();
 
     bool prepareTool();
     ProjectExplorer::RunControl *attachToWaitingApplication();

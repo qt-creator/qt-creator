@@ -362,23 +362,6 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
         }
     }
 
-    auto handleStop = [this, runControl] {
-        if (!d->m_toolBusy)
-            return;
-
-        d->m_toolBusy = false;
-        updateRunActions();
-        disconnect(d->m_stopAction, &QAction::triggered, runControl, &RunControl::initiateStop);
-
-        // If we're still trying to connect, stop now.
-        if (d->m_profilerConnections->isConnecting()) {
-            showNonmodalWarning(Tr::tr("The application finished before a connection could be "
-                                   "established. No data was loaded."));
-        }
-        d->m_profilerConnections->disconnectFromServer();
-    };
-
-    connect(runWorker, &QmlProfilerRunner::stopped, this, handleStop);
     connect(d->m_stopAction, &QAction::triggered, runControl, &RunControl::initiateStop);
 
     updateRunActions();
@@ -430,6 +413,23 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
 
     d->m_profilerConnections->connectToServer(runControl->qmlChannel());
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
+}
+
+void QmlProfilerTool::handleStop()
+{
+    if (!d->m_toolBusy)
+        return;
+
+    d->m_toolBusy = false;
+    updateRunActions();
+    disconnect(d->m_stopAction, &QAction::triggered, nullptr, nullptr);
+
+    // If we're still trying to connect, stop now.
+    if (d->m_profilerConnections->isConnecting()) {
+        showNonmodalWarning(Tr::tr("The application finished before a connection could be "
+                                   "established. No data was loaded."));
+    }
+    d->m_profilerConnections->disconnectFromServer();
 }
 
 void QmlProfilerTool::recordingButtonChanged(bool recording)
