@@ -489,8 +489,7 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
         for (Client *client : clients) {
             errMsg += sendMessage(
                 client,
-                Utils::globalMacroExpander()->expand(
-                    QString::fromUtf8(messageEditor->document()->contents())));
+                Utils::globalMacroExpander()->expand(messageEditor->textDocument()->plainText()));
         }
         errorLabel->setText(errMsg);
     };
