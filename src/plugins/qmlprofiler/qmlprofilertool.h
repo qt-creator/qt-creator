@@ -17,7 +17,6 @@ class QmlProfilerStateManager;
 
 namespace Internal {
 
-class QmlProfilerRunner;
 class QmlProfilerClientManager;
 
 class QMLPROFILER_EXPORT QmlProfilerTool : public QObject
@@ -30,7 +29,7 @@ public:
 
     static QmlProfilerTool *instance();
 
-    void finalizeRunControl(QmlProfilerRunner *runWorker);
+    void finalizeRunControl(ProjectExplorer::RunControl *runControl);
     void handleStop();
 
     bool prepareTool();

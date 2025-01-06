@@ -350,10 +350,9 @@ void QmlProfilerTool::updateRunActions()
     }
 }
 
-void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
+void QmlProfilerTool::finalizeRunControl(RunControl *runControl)
 {
     d->m_toolBusy = true;
-    auto runControl = runWorker->runControl();
     if (auto aspect = runControl->aspectData<QmlProfilerRunConfigurationAspect>()) {
         if (auto settings = static_cast<const QmlProfilerSettings *>(aspect->currentSettings)) {
             d->m_profilerConnections->setFlushInterval(settings->flushEnabled() ?
@@ -366,52 +365,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
 
     updateRunActions();
 
-    //
-    // Initialize m_projectFinder
-    //
-
     d->m_profilerModelManager->populateFileFinder(runControl->target());
-
-    connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionFailed,
-            runWorker, [this, runWorker] {
-        auto infoBox = new QMessageBox(ICore::dialogParent());
-        infoBox->setIcon(QMessageBox::Critical);
-        infoBox->setWindowTitle(QGuiApplication::applicationDisplayName());
-
-        const int interval = d->m_profilerConnections->retryInterval();
-        const int retries = d->m_profilerConnections->maximumRetries();
-
-        infoBox->setText(Tr::tr("Could not connect to the in-process QML profiler "
-                                "within %1 s.\n"
-                                "Do you want to retry and wait %2 s?")
-                         .arg(interval * retries / 1000.0)
-                         .arg(interval * 2 * retries / 1000.0));
-        infoBox->setStandardButtons(QMessageBox::Retry | QMessageBox::Cancel | QMessageBox::Help);
-        infoBox->setDefaultButton(QMessageBox::Retry);
-        infoBox->setModal(true);
-
-        connect(infoBox, &QDialog::finished, runWorker, [this, runWorker, interval](int result) {
-            switch (result) {
-            case QMessageBox::Retry:
-                d->m_profilerConnections->setRetryInterval(interval * 2);
-                d->m_profilerConnections->retryConnect();
-                break;
-            case QMessageBox::Help:
-                HelpManager::showHelpUrl(
-                            "qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html");
-                Q_FALLTHROUGH();
-            case QMessageBox::Cancel:
-                // The actual error message has already been logged.
-                QmlProfilerTool::logState(Tr::tr("Failed to connect."));
-                runWorker->cancelProcess();
-                break;
-            }
-        });
-
-        infoBox->show();
-    }, Qt::QueuedConnection); // Queue any connection failures after reportStarted()
-
-    d->m_profilerConnections->connectToServer(runControl->qmlChannel());
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
 }
 

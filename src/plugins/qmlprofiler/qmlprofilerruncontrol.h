@@ -20,8 +20,6 @@ public:
     QmlProfilerRunner(ProjectExplorer::RunControl *runControl);
     ~QmlProfilerRunner() override;
 
-    void cancelProcess();
-
 private:
     void start() override;
     void stop() override;

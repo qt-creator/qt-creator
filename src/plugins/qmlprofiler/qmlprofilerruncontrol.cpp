@@ -3,8 +3,10 @@
 
 #include "qmlprofilerruncontrol.h"
 
+#include "qmlprofilerclientmanager.h"
 #include "qmlprofilerstatemanager.h"
 #include "qmlprofilertool.h"
+#include "qmlprofilertr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
@@ -23,6 +25,8 @@
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/url.h>
+
+#include <QMessageBox>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -63,7 +67,7 @@ void QmlProfilerRunner::start()
     if (d->m_profilerState)
         disconnect(d->m_profilerState, &QmlProfilerStateManager::stateChanged, this, nullptr);
 
-    QmlProfilerTool::instance()->finalizeRunControl(this);
+    QmlProfilerTool::instance()->finalizeRunControl(runControl());
     connect(this, &QmlProfilerRunner::stopped,
             QmlProfilerTool::instance(), &QmlProfilerTool::handleStop);
     d->m_profilerState = QmlProfilerTool::instance()->stateManager();
@@ -73,6 +77,66 @@ void QmlProfilerRunner::start()
         if (d->m_profilerState->currentState() == QmlProfilerStateManager::Idle)
             reportStopped();
     });
+
+    QmlProfilerClientManager *clientManager = QmlProfilerTool::instance()->clientManager();
+    connect(clientManager, &QmlProfilerClientManager::connectionFailed, this, [this, clientManager] {
+        auto infoBox = new QMessageBox(ICore::dialogParent());
+        infoBox->setIcon(QMessageBox::Critical);
+        infoBox->setWindowTitle(QGuiApplication::applicationDisplayName());
+
+        const int interval = clientManager->retryInterval();
+        const int retries = clientManager->maximumRetries();
+
+        infoBox->setText(Tr::tr("Could not connect to the in-process QML profiler "
+                                "within %1 s.\n"
+                                "Do you want to retry and wait %2 s?")
+                             .arg(interval * retries / 1000.0)
+                             .arg(interval * 2 * retries / 1000.0));
+        infoBox->setStandardButtons(QMessageBox::Retry | QMessageBox::Cancel | QMessageBox::Help);
+        infoBox->setDefaultButton(QMessageBox::Retry);
+        infoBox->setModal(true);
+
+        connect(infoBox, &QDialog::finished, this, [this, clientManager, interval](int result) {
+            const auto cancelProcess = [this] {
+                QTC_ASSERT(d->m_profilerState, return);
+
+                switch (d->m_profilerState->currentState()) {
+                case QmlProfilerStateManager::Idle:
+                    break;
+                case QmlProfilerStateManager::AppRunning:
+                    d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
+                    break;
+                default: {
+                    const QString message = QString::fromLatin1("Unexpected process termination requested with state %1 in %2:%3")
+                    .arg(d->m_profilerState->currentStateAsString(), QString::fromLatin1(__FILE__), QString::number(__LINE__));
+                    qWarning("%s", qPrintable(message));
+                    return;
+                }
+                }
+                runControl()->initiateStop();
+            };
+
+            switch (result) {
+            case QMessageBox::Retry:
+                clientManager->setRetryInterval(interval * 2);
+                clientManager->retryConnect();
+                break;
+            case QMessageBox::Help:
+                HelpManager::showHelpUrl(
+                    "qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html");
+                Q_FALLTHROUGH();
+            case QMessageBox::Cancel:
+                // The actual error message has already been logged.
+                QmlProfilerTool::logState(Tr::tr("Failed to connect."));
+                cancelProcess();
+                break;
+            }
+        });
+
+        infoBox->show();
+    }, Qt::QueuedConnection); // Queue any connection failures after reportStarted()
+    clientManager->connectToServer(runControl()->qmlChannel());
+
     reportStarted();
 }
 
@@ -103,26 +167,6 @@ void QmlProfilerRunner::stop()
     }
         break;
     }
-}
-
-void QmlProfilerRunner::cancelProcess()
-{
-    QTC_ASSERT(d->m_profilerState, return);
-
-    switch (d->m_profilerState->currentState()) {
-    case QmlProfilerStateManager::Idle:
-        break;
-    case QmlProfilerStateManager::AppRunning:
-        d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
-        break;
-    default: {
-        const QString message = QString::fromLatin1("Unexpected process termination requested with state %1 in %2:%3")
-            .arg(d->m_profilerState->currentStateAsString(), QString::fromLatin1(__FILE__), QString::number(__LINE__));
-        qWarning("%s", qPrintable(message));
-        return;
-    }
-    }
-    runControl()->initiateStop();
 }
 
 RunWorker *createLocalQmlProfilerWorker(RunControl *runControl)
