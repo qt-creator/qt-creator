@@ -94,7 +94,7 @@ static QString compilerPath(QString pathFlag)
         wchar_t *buffer = new wchar_t[pathLength];
         GetLongPathNameW(reinterpret_cast<LPCWSTR>(pathFlag.utf16()), buffer, pathLength);
         pathFlag = QString::fromUtf16(
-            reinterpret_cast<ushort *>(buffer), static_cast<int>(pathLength - 1));
+            reinterpret_cast<char16_t *>(buffer), static_cast<int>(pathLength - 1));
         delete[] buffer;
     }
 #endif
