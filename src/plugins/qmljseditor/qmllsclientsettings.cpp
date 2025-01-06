@@ -64,6 +64,7 @@ QmllsClientSettings::QmllsClientSettings()
 
     m_settingsTypeId = Constants::QMLLS_CLIENT_SETTINGS_ID;
     m_startBehavior = RequiresProject;
+    m_initializationOptions = "{\"qtCreatorHighlighting\": true}";
 }
 
 static QtVersion *qtVersionFromProject(const Project *project)

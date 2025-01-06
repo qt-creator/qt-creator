@@ -141,10 +141,6 @@ QmllsClient::QmllsClient(StdIOClientInterface *interface)
         &ProjectExplorer::BuildManager::buildQueueFinished,
         this,
         [this]() { LanguageClientManager::restartClient(this); });
-    QJsonObject initializationOptions {
-        {"qtCreatorHighlighting", true}
-    };
-    setInitializationOptions(initializationOptions);
     semanticTokenSupport()->setTokenTypesMap(QmllsClient::semanticTokenTypesMap());
     semanticTokenSupport()->setTextStyleForTokenType(
         [](int tokenType) -> std::optional<TextEditor::TextStyle> {
