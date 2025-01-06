@@ -20038,8 +20038,8 @@ provided they were unmodified before the refactoring.</source>
         <translation>Impossible de trouver l&apos;exécutable %1 dans %2</translation>
     </message>
     <message>
-        <source>The Qt logo, axivion stopping software erosion logo, Qt Group logo, as well as Qt®, Axivion®, avixion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® are registered trademarks of The Qt Company Ltd. or its subsidiaries.</source>
-        <translation>Le logo Qt, le logo axivion stopper stopping software erosion, le logo du groupe Qt, ainsi que Qt®, Axivion®, avixion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® sont des marques déposées de The&#xa0;Qt&#xa0;Company&#xa0;Ltd. ou de ses filiales.</translation>
+        <source>The Qt logo, axivion stopping software erosion logo, Qt Group logo, as well as Qt®, Axivion®, axivion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® are registered trademarks of The Qt Company Ltd. or its subsidiaries.</source>
+        <translation>Le logo Qt, le logo axivion stopper stopping software erosion, le logo du groupe Qt, ainsi que Qt®, Axivion®, axivion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® sont des marques déposées de The&#xa0;Qt&#xa0;Company&#xa0;Ltd. ou de ses filiales.</translation>
     </message>
     <message>
         <source>%1 is free software, and you are welcome to redistribute it under &lt;a href=&quot;%2&quot;&gt;certain conditions&lt;/a&gt;. For some components, different conditions might apply though.</source>

@@ -19451,8 +19451,8 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
         <translation>Die ausführbare Datei %1 konnte in %2 nicht gefunden werden</translation>
     </message>
     <message>
-        <source>The Qt logo, axivion stopping software erosion logo, Qt Group logo, as well as Qt®, Axivion®, avixion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® are registered trademarks of The Qt Company Ltd. or its subsidiaries.</source>
-        <translation>The Qt logo, axivion stopping software erosion logo, Qt Group logo, as well as Qt®, Axivion®, avixion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® are registered trademarks of The Qt Company Ltd. or its subsidiaries.</translation>
+        <source>The Qt logo, axivion stopping software erosion logo, Qt Group logo, as well as Qt®, Axivion®, axivion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® are registered trademarks of The Qt Company Ltd. or its subsidiaries.</source>
+        <translation>The Qt logo, axivion stopping software erosion logo, Qt Group logo, as well as Qt®, Axivion®, axivion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® are registered trademarks of The Qt Company Ltd. or its subsidiaries.</translation>
     </message>
     <message>
         <source>%1 is free software, and you are welcome to redistribute it under &lt;a href=&quot;%2&quot;&gt;certain conditions&lt;/a&gt;. For some components, different conditions might apply though.</source>
