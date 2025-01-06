@@ -226,7 +226,7 @@ void QmlJSEditorPluginPrivate::reformatFile()
             QmlJS::Document::MutablePtr latestDocument;
 
             const Utils::FilePath fileName = m_currentDocument->filePath();
-            latestDocument = snapshot.documentFromSource(QString::fromUtf8(m_currentDocument->contents()),
+            latestDocument = snapshot.documentFromSource(m_currentDocument->plainText(),
                                                          fileName,
                                                          QmlJS::ModelManagerInterface::guessLanguageOfFile(fileName));
             latestDocument->parseQml();
