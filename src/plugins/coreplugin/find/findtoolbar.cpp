@@ -41,9 +41,6 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-Q_DECLARE_METATYPE(QStringList)
-Q_DECLARE_METATYPE(Core::IFindFilter*)
-
 using namespace Utils;
 
 namespace Core::Internal {
