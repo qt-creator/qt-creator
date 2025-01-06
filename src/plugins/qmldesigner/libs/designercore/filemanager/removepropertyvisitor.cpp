@@ -117,6 +117,10 @@ bool RemovePropertyVisitor::memberNameMatchesPropertyName(const QString &propert
         return toString(scriptBinding->qualifiedId) == propertyName;
     else if (auto arrayBinding = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(ast))
         return toString(arrayBinding->qualifiedId) == propertyName;
-    else
+    else if (auto uiSourceElement = QmlJS::AST::cast<QmlJS::AST::UiSourceElement *>(ast)) {
+        auto function = QmlJS::AST::cast<QmlJS::AST::FunctionDeclaration *>(
+            uiSourceElement->sourceElement);
+        return function->name == propertyName;
+    } else
         return false;
 }

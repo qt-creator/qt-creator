@@ -16,7 +16,7 @@
 
     When you type text or code, it is indented automatically according to the
     selected text editor or code style preferences. Select a block to indent it when
-    you press \key Tab. Press \key {Shift+Tab} to decrease the indentation. You
+    you select \key Tab. Select \key {Shift+Tab} to decrease the indentation. You
     can disable automatic indentation.
 
     To fix the indentation in the file currently open in the editor,
@@ -25,16 +25,16 @@
 
     \list
         \li To automatically indent the highlighted text, select
-            \uicontrol {Auto-indent Selection} or press \key {Ctrl+I}.
+            \uicontrol {Auto-indent Selection} or select \key {Ctrl+I}.
         \li To automatically format the highlighted text, select
-            \uicontrol {Auto-format Selection} or press \key {Ctrl+;}.
+            \uicontrol {Auto-format Selection} or select \key {Ctrl+;}.
         \li To adjust the wrapping of the selected paragraph, select
-            \uicontrol {Rewrap Paragraph} or press \key {Ctrl+E}
+            \uicontrol {Rewrap Paragraph} or select \key {Ctrl+E}
             followed by \key R.
         \li To toggle text wrapping, select \uicontrol {Enable Text Wrapping}
-             or press \key {Ctrl+E} followed by \key {Ctrl+W}.
+             or select \key {Ctrl+E} followed by \key {Ctrl+W}.
         \li To visualize whitespace in the editor, select
-            \uicontrol {Visualize Whitespace} or press \key {Ctrl+E}
+            \uicontrol {Visualize Whitespace} or select \key {Ctrl+E}
             followed by \key {Ctrl+V}.
         \li To clear all whitespace characters from the currently open file,
             select \uicontrol {Clean Whitespace}.

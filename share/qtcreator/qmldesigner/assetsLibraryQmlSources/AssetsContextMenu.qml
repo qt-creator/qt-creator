@@ -25,6 +25,8 @@ StudioControls.Menu {
     property var __selectedAssetPathsList: null
     property bool __showInGraphicalShellEnabled: false
 
+    signal openNewFolderDialog(string dirPath)
+
     closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnEscape
 
     function openContextMenuForRoot(rootModelIndex, dirPath, dirName, onFolderCreated)
@@ -125,7 +127,7 @@ StudioControls.Menu {
         text: qsTr("Edit in Effect Composer")
         visible: root.__fileIndex && root.__selectedAssetPathsList.length === 1
                  && root.assetsModel.allFilePathsAreComposedEffects(root.__selectedAssetPathsList)
-                 && root.rootView.canCreateEffects()
+                 && root.rootView.canCreateEffects
         height: editInEffectComposerItem.visible ? editInEffectComposerItem.implicitHeight : 0
         onTriggered: AssetsLibraryBackend.rootView.openEffectComposer(root.__selectedAssetPathsList[0])
     }
@@ -192,18 +194,9 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("New Folder")
-        visible: !root.assetsModel.isEmpty
         height: visible ? implicitHeight : 0
 
-        NewFolderDialog {
-            id: newFolderDialog
-            parent: root.assetsView
-            dirPath: root.__dirPath
-
-            onAccepted: root.__onFolderCreated(newFolderDialog.createdDirPath)
-        }
-
-        onTriggered: newFolderDialog.open()
+        onTriggered: root.openNewFolderDialog(root.__dirPath)
     }
 
     StudioControls.MenuItem {
@@ -232,7 +225,7 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("New Effect")
-        visible: root.rootView.canCreateEffects()
+        visible: root.rootView.canCreateEffects
         height: visible ? implicitHeight : 0
 
         NewEffectDialog {

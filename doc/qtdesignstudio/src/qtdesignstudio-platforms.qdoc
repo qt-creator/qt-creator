@@ -6,12 +6,12 @@
     \page studio-platforms.html
     \nextpage technical-support.html
 
-    \title Supported Platforms
+    \title Supported platforms
 
     You can install and run \QDS on several operating systems to create
     applications for multiple desktop, embedded, and mobile device platforms.
 
-    \section1 Host Platforms
+    \section1 Host platforms
 
     \QDS is available in binary packages for the following operating systems:
 
@@ -31,7 +31,7 @@
     minimum hardware and software: Intel Core i7 with 8GB of RAM and integrated
     Intel Graphics.
 
-    \section1 Design Tools
+    \section1 Design tools
 
     \QB is available for the following design tools:
 

@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 #include "appoutputmodel.h"
 
+#include <devicesharing/devicemanager.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/runcontrol.h>
+#include <qmldesignerplugin.h>
 
 #include <vector>
 
@@ -216,23 +217,47 @@ void AppOutputParentModel::setupRunControls()
     connect(explorerPlugin,
             &ProjectExplorer::ProjectExplorerPlugin::runControlStarted,
             [this](ProjectExplorer::RunControl *rc) {
-                AppOutputParentModel::Run run;
-                run.timestamp = QTime::currentTime().toString().toStdString();
-                run.messages.push_back({rc->commandLine().displayName(), m_messageColor});
-
-                beginResetModel();
-                m_runs.push_back(run);
-                endResetModel();
-
+                initializeRuns(rc->commandLine().displayName());
                 connect(rc,
                         &ProjectExplorer::RunControl::appendMessage,
-                        [this](const QString &out, Utils::OutputFormat format) {
-                            if (!m_runs.empty()) {
-                                int row = static_cast<int>(m_runs.size()) - 1;
-                                emit messageAdded(row, out.trimmed(), colorFromFormat(format));
-                            }
+                        [this, rc](const QString &out, Utils::OutputFormat format) {
+                            if (m_runs.empty())
+                                initializeRuns(rc->commandLine().displayName());
+
+                            int row = static_cast<int>(m_runs.size()) - 1;
+                            emit messageAdded(row, out.trimmed(), colorFromFormat(format));
                         });
             });
+
+    auto &deviceManager = QmlDesigner::QmlDesignerPlugin::instance()->deviceManager();
+
+    connect(&deviceManager,
+            &QmlDesigner::DeviceShare::DeviceManager::projectStarted,
+            [this](const QString &deviceId) {
+                initializeRuns("Project started on device " + deviceId);
+            });
+
+    connect(&deviceManager,
+            &QmlDesigner::DeviceShare::DeviceManager::projectLogsReceived,
+            [this](const QString &, const QString &logs) {
+                if (m_runs.empty())
+                    initializeRuns();
+
+                int row = static_cast<int>(m_runs.size()) - 1;
+                emit messageAdded(row, logs.trimmed(), m_messageColor);
+            });
+}
+
+void AppOutputParentModel::initializeRuns(const QString &message)
+{
+    AppOutputParentModel::Run run;
+    run.timestamp = QTime::currentTime().toString().toStdString();
+    if (!message.isEmpty())
+        run.messages.push_back({message, m_messageColor});
+
+    beginResetModel();
+    m_runs.push_back(run);
+    endResetModel();
 }
 
 QColor AppOutputParentModel::colorFromFormat(Utils::OutputFormat format) const

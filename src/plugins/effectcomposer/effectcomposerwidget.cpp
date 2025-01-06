@@ -77,7 +77,7 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
     , m_quickWidget{new StudioQuickWidget(this)}
 {
     setWindowTitle(tr("Effect Composer", "Title of effect composer widget"));
-    setMinimumWidth(250);
+    setMinimumWidth(400);
 
     // create the inner widget
     m_quickWidget->quickWidget()->setObjectName(QmlDesigner::Constants::OBJECT_NAME_EFFECT_COMPOSER);
@@ -108,10 +108,6 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
     map->setProperties({{"effectComposerNodesModel", QVariant::fromValue(m_effectComposerNodesModel.data())},
                         {"effectComposerModel", QVariant::fromValue(m_effectComposerModel.data())},
                         {"rootView", QVariant::fromValue(this)}});
-
-    connect(m_effectComposerModel.data(), &EffectComposerModel::nodesChanged, this, [this]() {
-        m_effectComposerNodesModel->updateCanBeAdded(m_effectComposerModel->uniformNames());
-    });
 
     connect(m_effectComposerModel.data(), &EffectComposerModel::resourcesSaved,
             this, [this](const QmlDesigner::TypeName &type, const Utils::FilePath &path) {
@@ -246,6 +242,12 @@ void EffectComposerWidget::dropNode(const QByteArray &mimeData)
     }
 }
 
+void EffectComposerWidget::updateCanBeAdded()
+{
+    m_effectComposerNodesModel->updateCanBeAdded(m_effectComposerModel->uniformNames(),
+                                                 m_effectComposerModel->nodeNames());
+}
+
 QSize EffectComposerWidget::sizeHint() const
 {
     return {420, 420};
@@ -332,7 +334,7 @@ void EffectComposerWidget::handleImportScanTimer()
         }
     } else if (m_importScan.counter == 102) {
         if (m_effectComposerView->model()) {
-            // If type is in use, we have to reset puppet to update 2D view
+            // If type is in use, we have to reset QML Puppet to update 2D view
             if (!m_effectComposerView->allModelNodesOfType(
                                          m_effectComposerView->model()->metaInfo(m_importScan.type)).isEmpty()) {
                 m_effectComposerView->resetPuppet();

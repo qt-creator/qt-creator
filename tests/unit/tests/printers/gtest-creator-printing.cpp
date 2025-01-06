@@ -26,6 +26,8 @@
 
 #include <utils/smallstringio.h>
 
+#include <designsystem/dsconstants.h>
+
 namespace std {
 template <typename T> ostream &operator<<(ostream &out, const QVector<T> &vector)
 {
@@ -434,6 +436,30 @@ const char *sourceTypeToText(SourceType sourceType)
 }
 
 } // namespace
+
+std::ostream &operator<<(std::ostream &out, const ThemeProperty &prop)
+{
+    out << "{name: " << prop.name.toStdString() << ", value: " << prop.value
+        << ", isBinding: " << prop.isBinding << "}";
+
+    return out;
+}
+
+void PrintTo(const ThemeProperty &prop, std::ostream *os)
+{
+    *os << prop;
+}
+
+std::ostream &operator<<(std::ostream &out, const GroupType &group)
+{
+    out << "ThemeGroup{ " << static_cast<int>(group) << ", " << GroupId(group) << "}";
+    return out;
+}
+
+void PrintTo(const GroupType &group, std::ostream *os)
+{
+    *os << group;
+}
 
 std::ostream &operator<<(std::ostream &out, const FileStatus &fileStatus)
 {

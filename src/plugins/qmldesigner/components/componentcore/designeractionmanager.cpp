@@ -23,6 +23,7 @@
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <nodeproperty.h>
+#include <qmldesignertr.h>
 #include <theme.h>
 
 #include <formeditortoolbutton.h>
@@ -933,18 +934,14 @@ public:
         try {
             dialog.exec();
         } catch (const DocumentError &) {
-            QMessageBox::warning(
-                Core::ICore::dialogParent(),
-                QCoreApplication::translate("DesignerActionManager", "Document Has Errors"),
-                QCoreApplication::translate("DesignerActionManager",
-                                            "The document which contains the list model "
-                                            "contains errors. So we cannot edit it."));
+            QMessageBox::warning(Core::ICore::dialogParent(),
+                                 Tr::tr("Document Has Errors"),
+                                 Tr::tr("The document which contains the list model "
+                                        "contains errors. So we cannot edit it."));
         } catch (const RewritingException &) {
-            QMessageBox::warning(
-                Core::ICore::dialogParent(),
-                QCoreApplication::translate("DesignerActionManager", "Document Cannot Be Written"),
-                QCoreApplication::translate("DesignerActionManager",
-                                            "An error occurred during a write attemp."));
+            QMessageBox::warning(Core::ICore::dialogParent(),
+                                 Tr::tr("Document Cannot Be Written"),
+                                 Tr::tr("An error occurred during a write attemp."));
         }
     }
 };

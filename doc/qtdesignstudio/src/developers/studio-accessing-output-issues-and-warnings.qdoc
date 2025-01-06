@@ -1,0 +1,54 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page studio-accessing-output-issues-and-warnings.html
+    \nextpage studio-on-mcus.html
+    \previouspage creator-editor-external.html
+
+    \title Accessing output, issue, and warning messages
+
+    \image studio-output-view.webp Qt Design Studio Output view
+
+    \QDS projects generate output information that represent the
+    executed processes. It also shows you the issues that stop a project from
+    getting executed or gives you warnings about probable failures. Warning messages
+    generated in the \uicontrol Issues relate to the code and design problems,
+    and warning messages generated in the \uicontrol Output relate to the
+    runtime failures.
+
+    \section1 Accessing the Output messages
+
+    When you run a project, details about the runtime execution processes
+    is listed in the output view. To access these messages, select
+    \imageoutput.
+
+    \image studio-output-view-message.webp Runtime execution process related output messages
+
+    \section1 Accessing the Issue and Warning messages
+
+    Technical problems in the \QDS project are visible in the
+    \uicontrol Output view. To access these issues,
+    select \imagewarning \imageerror.
+
+    Select the \e filename from the issue notification to jump into the location of the error.
+    It takes you to the location of the issue in the view (\uicontrol 2D, \uicontrol 3D, or
+    \uicontrol Code) you are currently in.
+
+    \table
+        \header
+            \li Message type
+            \li Message example
+        \row
+            \li Issue notification
+            \li \image studio-issue-message.webp
+        \row
+            \li Warning notification
+            \li \image studio-warning-message.webp
+
+    \endtable
+
+    To clear the \uicontrol Output view, select \imageclearview.
+    To close the \uicontrol Output view, select \imagedistributeoriginnone.
+
+*/

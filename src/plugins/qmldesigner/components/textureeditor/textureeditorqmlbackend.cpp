@@ -5,7 +5,6 @@
 
 #include "assetimageprovider.h"
 #include "bindingproperty.h"
-#include "documentmanager.h"
 #include "nodemetainfo.h"
 #include "propertyeditorvalue.h"
 #include "qmldesignerconstants.h"
@@ -16,17 +15,11 @@
 
 #include <coreplugin/icore.h>
 
-#include <qmldesignerutils/hdrimage.h>
-#include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
-#include <QDir>
-#include <QFileInfo>
 #include <QQuickImageProvider>
-#include <QQuickItem>
 #include <QQuickWidget>
 #include <QVector2D>
 #include <QVector3D>
@@ -58,6 +51,8 @@ TextureEditorQmlBackend::TextureEditorQmlBackend(TextureEditorView *textureEdito
     m_contextObject->setBackendValues(&m_backendValuesPropertyMap);
     m_contextObject->setModel(textureEditor->model());
     context()->setContextObject(m_contextObject.get());
+    context()->setContextProperty("hasTexture", QVariant(false));
+    context()->setContextProperty("modelNodeBackend", &m_backendModelNode);
 
     QObject::connect(&m_backendValuesPropertyMap, &DesignerPropertyMap::valueChanged,
                      textureEditor, &TextureEditorView::changeValue);
@@ -112,7 +107,7 @@ void TextureEditorQmlBackend::setValue(const QmlObjectNode &,
                                        const QVariant &value)
 {
     // Vector*D values need to be split into their subcomponents
-    if (value.typeId() == QVariant::Vector2D) {
+    if (value.typeId() == QMetaType::QVector2D) {
         const char *suffix[2] = {"_x", "_y"};
         auto vecValue = value.value<QVector2D>();
         for (int i = 0; i < 2; ++i) {
@@ -123,7 +118,7 @@ void TextureEditorQmlBackend::setValue(const QmlObjectNode &,
             if (propertyValue)
                 propertyValue->setValue(QVariant(vecValue[i]));
         }
-    } else if (value.typeId() == QVariant::Vector3D) {
+    } else if (value.typeId() == QMetaType::QVector3D) {
         const char *suffix[3] = {"_x", "_y", "_z"};
         auto vecValue = value.value<QVector3D>();
         for (int i = 0; i < 3; ++i) {
@@ -134,7 +129,7 @@ void TextureEditorQmlBackend::setValue(const QmlObjectNode &,
             if (propertyValue)
                 propertyValue->setValue(QVariant(vecValue[i]));
         }
-    } else if (value.typeId() == QVariant::Vector4D) {
+    } else if (value.typeId() == QMetaType::QVector4D) {
         const char *suffix[4] = {"_x", "_y", "_z", "_w"};
         auto vecValue = value.value<QVector4D>();
         for (int i = 0; i < 4; ++i) {

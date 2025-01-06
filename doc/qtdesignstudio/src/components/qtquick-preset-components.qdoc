@@ -6,10 +6,10 @@
     \previouspage quick-components.html
     \nextpage quick-shapes.html
 
-    \title Preset Components
+    \title Preset components
 
     To use preset components, add the modules that contain them to your project
-    by selecting \uicontrol Components > \inlineimage icons/plus.png
+    by selecting \uicontrol Components > \imageplus
     . For more information, see \l{Adding and Removing Modules}. You can then
     create instances of the components by dragging-and-dropping them from
     \uicontrol Components to the \l {2D}, \l {3D} , or \l Navigator view.
@@ -19,7 +19,7 @@
     and set its properties in the \l Properties view.
 
     For more information about creating your own components, see
-    \l{Creating Custom Components}.
+    \l{Creating custom components}.
 
     \section1 2D Components
 
@@ -27,10 +27,10 @@
         \li \l Shapes
         \li \l Text
         \li \l Images
-        \li \l {User Interaction Methods}
-        \li \l {UI Controls}
-        \li \l {Lists and Other Data Models}
-        \li \l {2D Effects}
+        \li \l {User interaction methods}
+        \li \l {UI controls}
+        \li \l {Lists and other data models}
+        \li \l {2D effects}
         \li \l {Design Effects}
         \li \l {Logic Helpers}
         \li \l Animations
@@ -44,19 +44,19 @@
     can \l{Importing 3D Assets}{import} the assets you need and work with them
     to create scenes and states, as well as the transitions between them.
 
-        \list
+    \list
         \li \l {3D Views}
         \li \l {Node}
         \li \l {Group}
-        \li \l {Instanced Rendering}
-        \li \l {Skeletal Animation}
-        \li \l {3D Models}
-        \li \l {Materials and Shaders}
+        \li \l {Instanced rendering}
+        \li \l {Skeletal animation}
+        \li \l {3D models}
+        \li \l {Materials and shaders}
         \li \l {Textures}
-        \li \l {3D Materials}
-        \li \l {3D Effects}
-        \li \l {Custom Shaders}
-        \li \l {Custom Effects and Materials}
+        \li \l {3D materials}
+        \li \l {3D effects}
+        \li \l {Custom shaders}
+        \li \l {Custom effects and materials in Qt 5}
         \li \l {Lights}
         \li \l {Cameras}
         \li \l {Scene Environments}
@@ -64,7 +64,7 @@
         \li \l {Repeater3D}
         \li \l {Loader3D}
         \li \l {Particles}
-     \endlist
+    \endlist
 
     When you import 3D scenes from files that you exported from 3D graphics
     tools, you also import the camera, light, model, and materials as 3D

@@ -152,7 +152,7 @@ void BakeLights::bakeLights()
         emit progress(msg);
         emit finished();
 
-        // Puppet reset is needed to update baking results to current views
+        // QML Puppet reset is needed to update baking results to current views
         m_view->resetPuppet();
     };
 
@@ -286,7 +286,7 @@ void BakeLights::exposeModelsAndLights(const QString &nodeId)
     }
 
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-    QmlJS::Document::Ptr doc = rewriter.document()->ptr();
+    QmlJS::Document::Ptr doc = rewriter.document();
     modelManager->updateDocument(doc);
 
     m_view->model()->rewriterView()->forceAmend();

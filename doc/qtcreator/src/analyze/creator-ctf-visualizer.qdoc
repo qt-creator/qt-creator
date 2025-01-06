@@ -26,7 +26,7 @@
     how the hardware is utilized and what the kernel and application are doing.
 
     Tracing information can tell you more about the data that
-    \l{Profiling QML Applications}{QML Profiler} collects. For example, you
+    \l{Profiling QML applications}{QML Profiler} collects. For example, you
     can check why a trivial binding evaluation is taking so long. This might
     be caused by C++ being executed or the disk I/O being slow.
 

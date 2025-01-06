@@ -22,6 +22,7 @@
 #include <connectionview.h>
 #include <curveeditor/curveeditorview.h>
 #include <designeractionmanager.h>
+#include <designsystemview/designsystemview.h>
 #include <eventlist/eventlistpluginview.h>
 #include <formeditor/transitiontool.h>
 #include <formeditor/view3dtool.h>
@@ -29,14 +30,16 @@
 #ifndef QDS_USE_PROJECTSTORAGE
 #  include <metainfo.h>
 #endif
+#include <devicesharing/devicemanager.h>
 #include <pathtool/pathtool.h>
+#include <qmljseditor/qmljseditor.h>
+#include <qmljseditor/qmljseditorconstants.h>
+#include <qmljseditor/qmljseditordocument.h>
+#include <runmanager/runmanager.h>
 #include <sourcetool/sourcetool.h>
 #include <texttool/texttool.h>
 #include <timelineeditor/timelineview.h>
 #include <transitioneditor/transitioneditorview.h>
-#include <qmljseditor/qmljseditor.h>
-#include <qmljseditor/qmljseditorconstants.h>
-#include <qmljseditor/qmljseditordocument.h>
 
 #include <qmljstools/qmljstoolsconstants.h>
 
@@ -138,7 +141,7 @@ public:
 QtQuickDesignerFactory::QtQuickDesignerFactory()
     : QmlJSEditorFactory(QmlJSEditor::Constants::C_QTQUICKDESIGNEREDITOR_ID)
 {
-    setDisplayName(::Core::Tr::tr("Qt Quick Designer"));
+    setDisplayName(Tr::tr("Qt Quick Designer"));
 
     addMimeType(Utils::Constants::QMLUI_MIMETYPE);
     setDocumentCreator([this]() {
@@ -174,6 +177,8 @@ public:
     ViewManager viewManager{projectManager.asynchronousImageCache(), externalDependencies};
     DocumentManager documentManager{projectManager, externalDependencies};
     ShortCutManager shortCutManager;
+    DeviceShare::DeviceManager deviceManager;
+    RunManager runManager{deviceManager};
     SettingsPage settingsPage{externalDependencies};
     DesignModeWidget mainWidget;
     QtQuickDesignerFactory m_qtQuickDesignerFactory;
@@ -205,8 +210,9 @@ static bool checkIfEditorIsQtQuick(Core::IEditor *editor)
                     || document->language() == QmlJS::Dialect::Qml;
 
         if (Core::ModeManager::currentModeId() == Core::Constants::MODE_DESIGN) {
-            Core::AsynchronousMessageBox::warning(QmlDesignerPlugin::tr("Cannot Open Design Mode"),
-                                                  QmlDesignerPlugin::tr("The QML file is not currently opened in a QML Editor."));
+            Core::AsynchronousMessageBox::warning(
+                Tr::tr("Cannot Open Design Mode"),
+                Tr::tr("The QML file is not currently opened in a QML Editor."));
             Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
         }
     }
@@ -665,6 +671,11 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
         std::make_unique<TransitionEditorView>(d->externalDependencies));
     transitionEditorView->registerActions();
 
+    if (QmlDesignerBasePlugin::experimentalFeaturesEnabled())
+        d->viewManager.registerView(
+            std::make_unique<DesignSystemView>(d->externalDependencies,
+                                               d->projectManager.projectStorageDependencies()));
+
     d->viewManager.registerFormEditorTool(std::make_unique<SourceTool>());
     d->viewManager.registerFormEditorTool(std::make_unique<ColorTool>());
     d->viewManager.registerFormEditorTool(std::make_unique<TextTool>());
@@ -852,7 +863,7 @@ void QmlDesignerPlugin::lauchFeedbackPopupInternal(const QString &identifier)
     QTC_ASSERT(root, return );
 
     QObject *title = root->findChild<QObject *>("title");
-    QString name = QmlDesignerPlugin::tr("Enjoying the %1?").arg(identiferToDisplayString(identifier));
+    QString name = Tr::tr("Enjoying the %1?").arg(identiferToDisplayString(identifier));
     title->setProperty("text", name);
     root->setProperty("identifier", identifier);
 
@@ -904,6 +915,16 @@ const DocumentManager &QmlDesignerPlugin::documentManager() const
 ViewManager &QmlDesignerPlugin::viewManager()
 {
     return instance()->d->viewManager;
+}
+
+DeviceShare::DeviceManager &QmlDesignerPlugin::deviceManager()
+{
+    return instance()->d->deviceManager;
+}
+
+RunManager &QmlDesignerPlugin::runManager()
+{
+    return instance()->d->runManager;
 }
 
 DesignerActionManager &QmlDesignerPlugin::designerActionManager()

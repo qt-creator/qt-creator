@@ -156,7 +156,7 @@ void StatesEditorView::createNewState()
 {
     // can happen when root node is e.g. a ListModel
     if (!QmlVisualNode::isValidQmlVisualNode(activeStatesGroupNode())
-        && m_activeStatesGroupNode.type() != "QtQuick.StateGroup")
+        && !m_activeStatesGroupNode.metaInfo().isQtQuickStateGroup())
         return;
 
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_STATE_ADDED);

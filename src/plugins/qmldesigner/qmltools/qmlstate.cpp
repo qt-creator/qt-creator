@@ -71,7 +71,7 @@ QList<QmlPropertyChanges> QmlModelState::propertyChanges() const
         for (const ModelNode &childNode : nodes) {
             //### exception if not valid QmlModelStateOperation
             if (QmlPropertyChanges::isValidQmlPropertyChanges(childNode))
-                returnList.append(QmlPropertyChanges(childNode));
+                returnList.emplace_back(childNode);
         }
     }
 
@@ -114,7 +114,7 @@ QList<QmlModelStateOperation> QmlModelState::stateOperations() const
         for (const ModelNode &childNode : nodes) {
             //### exception if not valid QmlModelStateOperation
             if (QmlModelStateOperation::isValidQmlModelStateOperation(childNode))
-                returnList.append(QmlModelStateOperation(childNode));
+                returnList.emplace_back(childNode);
         }
     }
 
@@ -198,7 +198,7 @@ QList<QmlObjectNode> QmlModelState::allAffectedNodes() const
     for (const ModelNode &childNode : nodes) {
         if (QmlModelStateOperation::isValidQmlModelStateOperation(childNode) &&
             !returnList.contains(QmlModelStateOperation(childNode).target()))
-            returnList.append(QmlModelStateOperation(childNode).target());
+            returnList.emplace_back(QmlModelStateOperation(childNode).target());
     }
 
     return returnList;

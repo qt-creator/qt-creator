@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Templates as T
 import StudioTheme as StudioTheme
+import StudioControls as StudioControls
 import AssetsLibraryBackend
 
-TreeViewDelegate {
+T.TreeViewDelegate {
     id: root
 
     property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
@@ -19,6 +20,7 @@ TreeViewDelegate {
 
     property bool hasChildWithDropHover: false
     property bool isHighlighted: false
+    property bool isDelegateEmpty: false
     readonly property string suffix: model.fileName.substr(-4)
     readonly property bool isFont: root.suffix === ".ttf" || root.suffix === ".otf"
     readonly property bool isEffect: root.suffix === ".qep"
@@ -34,8 +36,6 @@ TreeViewDelegate {
     implicitHeight: root.__isDirectory ? root.__dirItemHeight : root.__fileItemHeight
     implicitWidth: root.assetsView.width
 
-    leftMargin: root.__isDirectory ? 0 : thumbnailImage.width
-
     Component.onCompleted: {
         // the depth of the root path will become available before we get to the actual
         // items we display, so it's safe to set assetsView.rootPathDepth here. All other
@@ -46,6 +46,21 @@ TreeViewDelegate {
         } else if (model.filePath.includes(assetsModel.rootPath())) {
             root.depth -= root.assetsView.rootPathDepth
             root.initialDepth = root.depth
+        }
+
+        // expand/collapse folder based on its stored expanded state
+        if (root.__isDirectory) {
+            // if the folder expand state is not stored yet, stores it as true (expanded)
+            root.assetsModel.initializeExpandState(root.__itemPath)
+
+            let expandState = assetsModel.folderExpandState(root.__itemPath)
+
+            if (expandState)
+                root.assetsView.expand(root.__currentRow)
+            else
+                root.assetsView.collapse(root.__currentRow)
+
+            root.isDelegateEmpty = assetsModel.isDelegateEmpty(root.__itemPath)
         }
     }
 
@@ -66,14 +81,19 @@ TreeViewDelegate {
     }
 
     indicator: Item {
-        implicitWidth: 20
+        id: arrowIndicator
+
+        implicitWidth: 10
         implicitHeight: root.implicitHeight
         anchors.left: bg.left
+        anchors.leftMargin: 5
 
         Image {
             id: arrow
+
             width: 8
             height: 4
+            visible: !root.isDelegateEmpty
             source: "image://icons/down-arrow"
             anchors.centerIn: parent
             rotation: root.expanded ? 0 : -90
@@ -107,17 +127,19 @@ TreeViewDelegate {
 
     contentItem: Text {
         id: assetLabel
+
         text: assetLabel.__computeText()
         color: StudioTheme.Values.themeTextColor
         font.pixelSize: StudioTheme.Values.baseFontSize
-        anchors.verticalCenter: parent.verticalCenter
         verticalAlignment: Qt.AlignVCenter
+        anchors.left: root.__isDirectory ? arrowIndicator.right : thumbnailImage.right
+        anchors.leftMargin: 8
 
         function __computeText() {
             return root.__isDirectory
-                    ? (root.hasChildren
-                       ? model.display.toUpperCase()
-                       : model.display.toUpperCase() + qsTr(" (empty)"))
+                    ? (root.isDelegateEmpty
+                       ? model.display.toUpperCase() + qsTr(" (empty)")
+                       : model.display.toUpperCase())
                     : model.display
         }
     }
@@ -184,8 +206,6 @@ TreeViewDelegate {
                     root.assetsView.selectedAssets = {}
                 root.assetsView.selectedAssets[root.__itemPath] = root.currFileSelected
                 root.assetsView.selectedAssetsChanged()
-
-                root.assetsView.currentFilePath = root.__itemPath
             }
         }
 
@@ -197,7 +217,7 @@ TreeViewDelegate {
                 AssetsLibraryBackend.rootView.openEffectComposer(filePath)
         }
 
-        ToolTip {
+        StudioControls.ToolTip {
             id: assetTooltip
             visible: !root.isFont && mouseArea.containsMouse && !root.assetsView.contextMenu.visible
             text: assetTooltip.__computeText()
@@ -244,10 +264,12 @@ TreeViewDelegate {
         }
 
         onClicked: (mouse) => {
-            if (mouse.button === Qt.LeftButton)
+            if (mouse.button === Qt.LeftButton) {
                 root.__toggleExpandCurrentRow()
-            else
+                root.assetsView.currentFilePath = root.__itemPath
+            } else {
                 root.__openContextMenuForCurrentRow()
+            }
         }
     }
 
@@ -280,7 +302,7 @@ TreeViewDelegate {
     }
 
     function __toggleExpandCurrentRow() {
-        if (!root.__isDirectory)
+        if (!root.__isDirectory || root.isDelegateEmpty)
             return
 
         let index = root.assetsView.__modelIndex(root.__currentRow)
@@ -294,6 +316,8 @@ TreeViewDelegate {
         } else {
             root.assetsView.expand(root.__currentRow)
         }
+
+        assetsModel.saveExpandState(root.__itemPath, root.expanded)
     }
 
     function reloadImage() {

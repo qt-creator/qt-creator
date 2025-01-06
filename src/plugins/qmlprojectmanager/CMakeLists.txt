@@ -53,6 +53,13 @@ extend_qtc_plugin(QmlProjectManager
       boilerplate.qrc
 )
 
+extend_qtc_plugin(QmlProjectManager
+    PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/qmldirtoqmlproject
+    SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/qmldirtoqmlproject
+    SOURCES
+    mcumoduleprojectitem.cpp mcumoduleprojectitem.h
+)
+
 add_qtc_library(QmlProjectManagerLib OBJECT
     CONDITION WITH_TESTS AND Qt6_VERSION VERSION_GREATER_EQUAL 6.4.3
     EXCLUDE_FROM_INSTALL
@@ -66,4 +73,5 @@ add_qtc_library(QmlProjectManagerLib OBJECT
         buildsystem/projectitem/qmlprojectitem.cpp buildsystem/projectitem/qmlprojectitem.h
         buildsystem/projectitem/converters.cpp buildsystem/projectitem/converters.h
         qmlprojectexporter/filetypes.cpp qmlprojectexporter/filetypes.h
+        qmldirtoqmlproject/mcumoduleprojectitem.cpp qmldirtoqmlproject/mcumoduleprojectitem.h
 )

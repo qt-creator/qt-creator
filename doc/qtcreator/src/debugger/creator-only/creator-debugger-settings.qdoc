@@ -262,7 +262,7 @@
             shifted to the next source code line for which the code was actually
             generated. To reflect such temporary changes by moving the breakpoint
             markers in the source code editor, select this checkbox. For more
-            information, see \l{Setting Breakpoints}.
+            information, see \l{Setting breakpoints}.
     \row
         \li \uicontrol {Use Python dumper}
         \li Uses the abstraction layer of Python Dumper classes to create a

@@ -28,7 +28,7 @@
     For more information, see \l{https://doc.qt.io/qt/qml-qtquick3d-repeater3d.html}
     {Repeater3D} in the \uicontrol {Qt Quick 3D} documentation.
 
-    \section2 Repeater3D Properties
+    \section2 Repeater3D properties
 
     \section3 Model
 
@@ -62,7 +62,7 @@
     all model roles as named properties, in the same way that delegates do for
     view classes like \uicontrol ListView.
 
-    \section1 Adding a Repeater3D Component with a Numeric Model
+    \section1 Adding a Repeater3D component with a numeric model
 
     This section explains how to add a \uicontrol Repeater3D component with
     a numeric model to your \QDS project.
@@ -78,14 +78,14 @@
     \endlist
     Now, you have set up the \uicontrol Repeater3D component to use a numeric
     model that draws four instances of the same item. Next, you need to add the
-    item to draw. In this example we are using a \uicontrol Cube.
+    item to draw. In this example we are using a \uicontrol Cube:
     \list 1
       \li From \uicontrol Components, drag a \uicontrol Cube to \e repeater3D in
       \uicontrol Navigator.
       Now, four cubes are drawn to the scene, but they are drawn to the exact same
       place.
       \li Select \e cube in \uicontrol Navigator and in \uicontrol Properties
-      select \inlineimage icons/action-icon.png
+      select \imageactionicon
       next to \uicontrol Translation > \uicontrol X.
       \li Select \uicontrol {Set binding} to open \uicontrol {Binding Editor}.
       \li In the binding editor, enter \c{index * 150}. This sets the X
@@ -96,7 +96,7 @@
     \endlist
     \image repeater3d-numeric-model.webp
 
-    \section1 Adding a Repeater3D Component with a List Model
+    \section1 Adding a Repeater3D component with a List Model
 
     This section explains how to add a \uicontrol Repeater3D component with
     a list model to your \QDS project:
@@ -167,14 +167,14 @@
 
     Now, you have set up the \uicontrol Repeater3D component to use a
     \uicontrol ListModel to draw the items. Next, you need to add the
-    item to draw. In this example, you are using a \uicontrol Sphere.
+    item to draw. In this example, you are using a \uicontrol Sphere:
 
     \list 1
       \li From \uicontrol Components, drag a \uicontrol Sphere to \e _3DRepeater
       in \uicontrol Navigator.
       \image repeater3d-listmodel-navigator.png
       \li Select \e sphere in \uicontrol Navigator and in the \uicontrol Properties view, select
-      \inlineimage icons/action-icon.png
+      \imageactionicon
       next to \uicontrol Scale > \uicontrol X.
       \li Select \uicontrol {Set binding} to open \uicontrol {Binding Editor}.
       \li In the binding editor, enter \c{radius}. This sets the X
@@ -187,11 +187,11 @@
     \endlist
 
     Now, three spheres of different size are drawn but they are drawn in the same
-    position so you need to change the position to see all spheres.
+    position so you need to change the position to see all the spheres:
 
     \list 1
       \li Select \e sphere in \uicontrol Navigator and in the \uicontrol Properties view, select
-      \inlineimage icons/action-icon.png
+      \imageactionicon
       next to \uicontrol Translation > \uicontrol X.
       \li Select \uicontrol {Set binding} to open \uicontrol {Binding Editor}.
       \li In the binding editor, enter \c{index * 1000}. This sets the X

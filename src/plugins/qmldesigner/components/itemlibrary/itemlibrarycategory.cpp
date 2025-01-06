@@ -6,6 +6,8 @@
 #include "itemlibraryitem.h"
 #include "itemlibrarywidget.h"
 
+#include <QApplication>
+
 namespace QmlDesigner {
 
 ItemLibraryCategory::ItemLibraryCategory(const QString &groupName, QObject *parent)
@@ -18,6 +20,11 @@ ItemLibraryCategory::ItemLibraryCategory(const QString &groupName, QObject *pare
 QString ItemLibraryCategory::categoryName() const
 {
     return m_name;
+}
+
+QString ItemLibraryCategory::displayNMame() const
+{
+ return QApplication::translate("itemlibrary", m_name.toUtf8());
 }
 
 bool ItemLibraryCategory::categoryExpanded() const

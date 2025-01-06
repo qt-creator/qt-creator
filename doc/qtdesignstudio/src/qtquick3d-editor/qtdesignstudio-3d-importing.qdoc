@@ -7,7 +7,7 @@
     \previouspage qtquick-fonts.html
     \nextpage creator-exporting-qml.html
 
-    \title Importing 3D Assets
+    \title Importing 3D assets
 
     In \QDS, you can import 3D assets in formats such as .stl, .dae, .fbx, .glb,
     .gltf, .obj, .uia, and .uip. For a list of formats supported by each
@@ -21,18 +21,18 @@
     for more information about a particular option.
 
     For more information about exporting 3D graphics, see
-    \l{Exporting 3D Assets}.
+    \l{Exporting 3D assets}.
 
     \image studio-import-3d.webp
 
-    \section1 Importing a 3D Asset
+    \section1 Importing a 3D asset
 
     To import a 3D asset to a \QDS project:
 
     \list 1
         \li Open the import dialog in one of the following methods:
             \list
-                \li Select \l Assets > \inlineimage icons/plus.png, select the file you
+                \li Select \l Assets > \imageplus, select the file you
                     want to import, and click \uicontrol Open.
                 \li Drag the 3D asset to the \uicontrol 3D view. In this case, the 3D asset will be
                     added to your scene, so it will appear in the \uicontrol 3D and
@@ -51,14 +51,14 @@
     After importing the 3D asset, it is available in \uicontrol Components > \uicontrol
     {My 3D Components}.
 
-    \section1 Importing Multiple 3D Assets
+    \section1 Importing multiple 3D assets
 
     To import multiple 3D assets to a \QDS project:
 
     \list 1
         \li Open the import dialog in one of the following methods:
             \list
-                \li Select \uicontrol Assets > \inlineimage icons/plus.png, select the files you
+                \li Select \uicontrol Assets > \imageplus, select the files you
                     want to import, and click \uicontrol Open.
                 \li Select the 3D asset files and drag them to the \uicontrol 3D view. In this
                     case, the 3D assets will be added to your scene, so they will appear in the

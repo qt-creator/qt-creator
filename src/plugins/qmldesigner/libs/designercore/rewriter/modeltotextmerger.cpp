@@ -8,10 +8,11 @@
 
 #include <customnotifications.h>
 
-#include <rewriterview.h>
 #include <abstractproperty.h>
-#include <nodeproperty.h>
 #include <nodeabstractproperty.h>
+#include <nodeproperty.h>
+#include <rewriterview.h>
+#include <signalhandlerproperty.h>
 
 #include <qmljs/parser/qmljsengine_p.h>
 #include <utils/algorithm.h>
@@ -325,7 +326,7 @@ void ModelToTextMerger::schedule(RewriteAction *action)
 
 QmlRefactoring::PropertyType ModelToTextMerger::propertyType(const AbstractProperty &property, const QString &textValue)
 {
-    if (property.isBindingProperty() || property.isSignalHandlerProperty()) {
+    if (property.isBindingProperty()) {
         QString val = textValue.trimmed();
         if (val.isEmpty())
             return QmlRefactoring::ObjectBinding;
@@ -334,13 +335,20 @@ QmlRefactoring::PropertyType ModelToTextMerger::propertyType(const AbstractPrope
             return QmlRefactoring::ObjectBinding;
         else
             return QmlRefactoring::ScriptBinding;
+    } else if (property.isSignalHandlerProperty()) {
+        QString val = textValue.trimmed();
+        if (val.isEmpty())
+            return QmlRefactoring::ObjectBinding;
+        if (property.toSignalHandlerProperty().useNewFunctionSyntax())
+            return QmlRefactoring::SignalHandlerNewSyntax;
+        return QmlRefactoring::SignalHandlerOldSyntax;
     } else if (property.isNodeListProperty())
         return QmlRefactoring::ArrayBinding;
     else if (property.isNodeProperty())
         return QmlRefactoring::ObjectBinding;
     else if (property.isVariantProperty())
         return QmlRefactoring::ScriptBinding;
-    else if (property.isSignalDeclarationProperty())
+    else if (property.isSignalHandlerProperty())
         return QmlRefactoring::ScriptBinding;
 
     Q_ASSERT(false); //Cannot convert property type

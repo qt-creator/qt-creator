@@ -118,19 +118,19 @@
 
     To interrupt a running C++ application, go to \uicontrol Debug >
     \uicontrol Interrupt. The debugger automatically interrupts
-    the application when it hits a \l {Setting Breakpoints}{breakpoint}.
+    the application when it hits a \l {Setting breakpoints}{breakpoint}.
 
     Once the application stops, \QC:
 
     \list
 
-        \li Retrieves data representing the \l{Viewing Call Stack Trace}
+        \li Retrieves data representing the \l{Viewing call stack trace}
             {call stack} at the application's current position.
 
-        \li Retrieves the contents of \l{Local Variables and Function Parameters}
+        \li Retrieves the contents of \l{Local variables and function parameters}
             {local variables}.
 
-        \li Examines \l{Evaluating Expressions}{expressions}.
+        \li Examines \l{Evaluating expressions}{expressions}.
 
         \li Updates the \l{Viewing and Editing Register State}{Registers},
             \l{Viewing Modules}{Modules}, and \l{Viewing Disassembled Code}
@@ -206,7 +206,7 @@
     objects and user interfaces, as well as execute JavaScript
     expressions.
 
-    For more information, see \l{Debugging Qt Quick Projects} and
+    For more information, see \l{Debugging Qt Quick projects} and
     \l{Tutorial: Qt Quick debugging}.
 
     \sa {Tutorial: C++ debugging}, {Debug}{How To: Debug}, {Debuggers},
@@ -227,7 +227,7 @@
     \list
         \li Select \inlineimage icons/qtcreator-debug-button.png
             (\uicontrol {Start Debugging of Startup Project}).
-        \li Press \key F5.
+        \li Select \key F5.
         \li Enter \c {dr} in the locator, and select the project to debug.
         \li Go to \uicontrol Debug > \uicontrol {Start Debugging} >
             \uicontrol {Start Debugging of Startup Project}.
@@ -245,7 +245,7 @@
     parameters.
 
     You can specify breakpoints before or after launching the debugger.
-    For more information, see \l{Setting Breakpoints}.
+    For more information, see \l{Setting breakpoints}.
 
     \section1 Execute GDB or CDB commands
 
@@ -373,7 +373,7 @@
     opening it makes setting breakpoints and stepping through the code easier.
 
     You can specify breakpoints before or after attaching the debugger to the
-    application. For more information, see \l{Setting Breakpoints}.
+    application. For more information, see \l{Setting breakpoints}.
 
     \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
@@ -750,7 +750,7 @@
         \li Stack
         \li Examine the nested function calls leading to the current position
             as a call stack trace.
-        \li \l {Viewing Call Stack Trace}
+        \li \l {Viewing call stack trace}
     \row
         \li Breakpoint Preset
 
@@ -758,7 +758,7 @@
         \li Set \e {breakpoints} with conditions to make the application stop in
             a controlled way. A \e {watchpoint} stops the application when the
             value of an expression changes.
-        \li \l {Setting Breakpoints}
+        \li \l {Setting breakpoints}
     \row
         \li Threads
         \li Switch between threads.
@@ -775,11 +775,11 @@
         \li Locals
         \li View information about the parameters of the function in the topmost
             stack frame and local variables.
-        \li \l {Local Variables and Function Parameters}
+        \li \l {Local variables and function parameters}
     \row
         \li Expressions
         \li Compute values of arithmetic expressions or function calls.
-        \li \l {Evaluating Expressions}
+        \li \l {Evaluating expressions}
     \row
         \li Registers
         \li View the current state of the CPU registers to examine the
@@ -898,8 +898,8 @@
 
     \image qtcreator-locals.png {Locals view}
 
-    The \l {Local Variables and Function Parameters}{Locals} and
-    \l {Evaluating Expressions}{Expressions} views show structured
+    The \l {Local variables and function parameters}{Locals} and
+    \l {Evaluating expressions}{Expressions} views show structured
     data, such as objects of \c class, \c struct, or \c union types, as a tree.
     To access sub-structures of the objects, expand the tree nodes.
     The tree shows the sub-structures in their in-memory order. To show them
@@ -924,7 +924,7 @@
     \l{Debugging Helpers}{debugging helpers}.
 
     In addition to the generic IDE functionality of the
-    \l {Viewing Call Stack Trace}{Stack}, \uicontrol {Locals},
+    \l {Viewing call stack trace}{Stack}, \uicontrol {Locals},
     \uicontrol {Expressions}, \l {Viewing and Editing Register State}{Registers},
     and other views, \QC makes debugging Qt-based applications easy. The debugger
     plugin understands the internal layout of several Qt classes, for example,
@@ -1083,7 +1083,7 @@
     the contents of variables of simple data types, for example, \c int, \c float,
     \c QString and \c std::string when the application is interrupted. To do so,
     click the \uicontrol Value column, modify the value with the inplace editor,
-    and press \key Enter.
+    and select \key Enter.
 
     To change the complete contents of QVector or \c std::vector values, type
     all values separated by commas into the \uicontrol Value column of the main
@@ -1161,7 +1161,7 @@
 
     This allows you to select the thread that is in the focus of the debugger.
 
-    The \l {Viewing Call Stack Trace}{Stack} view adjusts its contents
+    The \l {Viewing call stack trace}{Stack} view adjusts its contents
     accordingly.
 
     \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
@@ -1421,7 +1421,7 @@
     You can use the left pane of the \uicontrol {Debugger Log} view to directly
     interact with the command line of the debugger.
 
-    Press \key {Ctrl+Enter} to send the contents of the line under the
+    Select \key {Ctrl+Enter} to send the contents of the line under the
     text cursor to the debugger. Or, enter the command in the
     \uicontrol Command field. The right side pane of the
     \uicontrol {Debugger Log} view shows the command output.
@@ -1429,7 +1429,7 @@
     \note Usually, you do not need this feature because \QC offers better ways to
     handle the task. For example, instead of using the GDB
     \c print command from the command line, you can evaluate an expression in
-    the \l {Evaluating Expressions}{Expressions} view.
+    the \l {Evaluating expressions}{Expressions} view.
 
     \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
@@ -1493,8 +1493,8 @@
     \QC uses Python scripts to translate raw memory contents and type information
     data from debugger backends (GDB, LLDB, and CDB are currently supported)
     into the form presented to the user in the
-    \l {Local Variables and Function Parameters}{Locals}
-    and \l {Evaluating Expressions}{Expressions} views.
+    \l {Local variables and function parameters}{Locals}
+    and \l {Evaluating expressions}{Expressions} views.
 
     Unlike GDB's
     \l{https://sourceware.org/gdb/onlinedocs/gdb/Pretty-Printing.html#Pretty-Printing}

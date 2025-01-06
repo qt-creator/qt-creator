@@ -87,6 +87,7 @@ static void openOpenProjectDialog()
         Core::ICore::openFiles(files, Core::ICore::None);
 }
 
+constexpr char LAST_QDS_VERSION_ENTRY[] = "QML/Designer/lastQDSVersion";
 const char DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY[] = "StudioSplashScreen";
 
 const char TELEMETRY_INSIGHT_SETTING[] = "Telemetry";
@@ -273,6 +274,11 @@ public:
     {
         QDesktopServices::openUrl(
             QUrl("qthelp://org.qt-project.qtdesignstudio/doc/studio-getting-started.html"));
+    }
+
+    Q_INVOKABLE void showLink(const QString &link)
+    {
+        QDesktopServices::openUrl(QUrl::fromUserInput(link));
     }
 
     Q_INVOKABLE void openExample(const QString &examplePath,
@@ -478,7 +484,10 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
     case FilePathRole:
         return data.filePath.toVariant();
     case PrettyFilePathRole:
-        return data.filePath.absolutePath().withTildeHomePath();
+        if (Utils::HostOsInfo::isWindowsHost())
+            return data.filePath.absolutePath().nativePath();
+        else
+            return data.filePath.absolutePath().withTildeHomePath();
     case PreviewUrl:
         return QVariant(
             QStringLiteral("image://project_preview/")
@@ -572,23 +581,32 @@ static bool forceDownLoad()
     return Core::ICore::settings()->value(lastQDSVersionEntry, false).toBool();
 }
 
+static bool isFirstUsage()
+{
+    static const bool qdsVersionUpdated = []() -> bool {
+        Utils::QtcSettings *settings = Core::ICore::settings();
+
+        const QString lastQDSVersion = settings->value(LAST_QDS_VERSION_ENTRY).toString();
+        const QString currentVersion = Utils::appInfo().displayVersion;
+
+        if (currentVersion != lastQDSVersion) {
+            settings->setValue(LAST_QDS_VERSION_ENTRY, currentVersion);
+            return true;
+        }
+        return false;
+    }();
+
+    return qdsVersionUpdated;
+}
+
 static bool showSplashScreen()
 {
     // some error dialog is maybe open, be silent to avoid focus problems (macOS had some)
     if (Core::ICore::mainWindow() != Core::ICore::dialogParent())
         return false;
-    const Key lastQDSVersionEntry = "QML/Designer/lastQDSVersion";
 
-    QtcSettings *settings = Core::ICore::settings();
-
-    const QString lastQDSVersion = settings->value(lastQDSVersionEntry).toString();
-
-    const QString currentVersion = Utils::appInfo().displayVersion;
-
-    if (currentVersion != lastQDSVersion) {
-        settings->setValue(lastQDSVersionEntry, currentVersion);
+    if (isFirstUsage())
         return true;
-    }
 
     return Utils::CheckableDecider(DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY).shouldAskAgain();
 }
@@ -814,22 +832,25 @@ WelcomeMode::~WelcomeMode()
 
 void WelcomeMode::setupQuickWidget(const QString &welcomePagePath)
 {
-        m_quickWidget->rootContext()->setContextProperty("$dataModel", m_dataModelDownloader);
+    m_quickWidget->rootContext()->setContextProperty("$dataModel", m_dataModelDownloader);
+    m_quickWidget->rootContext()
+        ->setContextProperty("isFirstUsage", QVariant::fromValue(isFirstUsage()));
 
-        m_quickWidget->engine()->addImportPath(Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources/imports").toString());
+    m_quickWidget->engine()->addImportPath(
+        Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources/imports").toString());
 
-        m_quickWidget->engine()->addImportPath(welcomePagePath + "/imports");
-        m_quickWidget->engine()->addImportPath(m_dataModelDownloader->targetFolder().toString());
+    m_quickWidget->engine()->addImportPath(welcomePagePath + "/imports");
+    m_quickWidget->engine()->addImportPath(m_dataModelDownloader->targetFolder().toString());
+    m_quickWidget->setSource(QUrl::fromLocalFile(welcomePagePath + "/main.qml"));
+
+    QShortcut *updateShortcut = nullptr;
+    if (Utils::HostOsInfo::isMacHost())
+        updateShortcut = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_F5), m_quickWidget);
+    else
+        updateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F5), m_quickWidget);
+    connect(updateShortcut, &QShortcut::activated, this, [this, welcomePagePath]() {
         m_quickWidget->setSource(QUrl::fromLocalFile(welcomePagePath + "/main.qml"));
-
-        QShortcut *updateShortcut = nullptr;
-        if (Utils::HostOsInfo::isMacHost())
-            updateShortcut = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_F5), m_quickWidget);
-        else
-            updateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F5), m_quickWidget);
-        connect(updateShortcut, &QShortcut::activated, this, [this, welcomePagePath](){
-            m_quickWidget->setSource(QUrl::fromLocalFile(welcomePagePath + "/main.qml"));
-        });
+    });
 }
 
 void WelcomeMode::createQuickWidget()

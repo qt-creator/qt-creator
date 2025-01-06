@@ -11,7 +11,7 @@
     The \uicontrol {Morph Target} component can be used to define morph targets
     for vertex animation. Morph targets are the objects we bind to control
     the morphing of a model. Usually, morphing is controlled by using
-    \l {Timeline}{timeline} animation or \l {Applying Animation}{property animation}.
+    \l {Timeline}{timeline} animation or \l {Applying animations}{property animation}.
     The degree of morphing is controlled by defining the \uicontrol Weight
     property of the \uicontrol {Morph Target} component.
 
@@ -25,7 +25,7 @@
     \l Properties > \uicontrol Model > \uicontrol {Morph Targets}, select the
     name of the \uicontrol {Morph Target} component.
 
-    \section1 Morph Target Properties
+    \section1 Morph Target properties
 
     To define attributes and weight for a \uicontrol {Morph Target}, select it
     in \uicontrol Navigator and specify its properties in the

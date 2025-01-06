@@ -7,7 +7,7 @@
     \page qt-ui-viewer.html
     \nextpage studio-exporting-and-importing.html
 
-    \title Viewing Applications on Android
+    \title Viewing applications on Android
 
     View \QDS projects that you have shared online in \QUV.
     Bring all the projects from a \QDS ID to \QUV, or establish a direct
@@ -34,9 +34,7 @@
 
     \section1 Connecting a \QDS ID with \QUV
 
-    Connect your \QDS ID to \QUV to access all your shared \QDS projects in \QUV.
-
-    To do that:
+    Connect your \QDS ID to \QUV to access all your shared \QDS projects in \QUV:
     \list 1
       \li Open \QDS on your computer.
       \li Open or create a project in \QDS.
@@ -53,7 +51,7 @@
 
     \note Only one \QDS ID can be connected to the \QUV at a time.
 
-    \section1 Running a \QDS Project in \QUV
+    \section1 Running a \QDS project in \QUV
 
      Once the projects are in \QUV:
       \list 1
@@ -76,7 +74,7 @@
               ID connection.
       \endlist
 
-    \section1 Creating a Network Connection between \QDS and \QUV
+    \section1 Creating a network connection between \QDS and \QUV
 
       To create a direct connection with a \QDS project without using a
       \QDS ID, first, get your Android device's \e {Local IP} from \QUV.

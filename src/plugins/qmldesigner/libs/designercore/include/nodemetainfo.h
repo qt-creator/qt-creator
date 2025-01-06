@@ -223,6 +223,7 @@ public:
     bool isQtQuickRectangle() const;
     bool isQtQuickRepeater() const;
     bool isQtQuickState() const;
+    bool isQtQuickStateGroup() const;
     bool isQtQuickStateOperation() const;
     bool isQtQuickStudioComponentsGroupItem() const;
     bool isQtQuickStudioUtilsJsonListModel() const;

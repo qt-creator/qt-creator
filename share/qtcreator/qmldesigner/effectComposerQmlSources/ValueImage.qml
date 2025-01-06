@@ -3,13 +3,14 @@
 
 import QtQuick
 import HelperWidgets as HelperWidgets
-import StudioTheme as StudioTheme
 import EffectComposerBackend
 
 Row {
     id: itemPane
 
     spacing: 5
+
+    signal valueChanged()
 
     HelperWidgets.UrlChooser {
         backendValue: uniformBackendValue
@@ -18,7 +19,10 @@ Row {
         actionIndicatorVisible: false
         comboBox.width: Math.min(parent.width - 70, 300)
 
-        onAbsoluteFilePathChanged: uniformValue = absoluteFilePath
+        onAbsoluteFilePathChanged: {
+            uniformValue = absoluteFilePath
+            itemPane.valueChanged()
+        }
 
         function defaultAsString(defaultPath) {
             if (!defaultPath)

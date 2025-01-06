@@ -5,7 +5,7 @@
 
 namespace QmlDesigner {
 
-// A generic command that can hold a variant data from puppet to creator
+// A generic command that can hold a variant data from QML Puppet to creator
 
 PuppetToCreatorCommand::PuppetToCreatorCommand(Type type, const QVariant &data)
     : m_type(type)

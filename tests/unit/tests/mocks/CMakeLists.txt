@@ -40,4 +40,5 @@ add_qtc_library(TestMocks OBJECT
     sqlitetransactionbackendmock.h
     sqlitewritestatementmock.cpp
     sqlitewritestatementmock.h
+    textmodifiermock.h
 )

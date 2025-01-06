@@ -79,6 +79,7 @@ protected:
                         const QVariant &thirdInformation);
 
     InformationName setInformationSize(const QSizeF &size);
+    InformationName setInformationImplicitSize(const QSizeF &implicitSize);
     InformationName setInformationBoundingRect(const QRectF &rectangle);
     InformationName setInformationBoundingRectPixmap(const QRectF &rectangle);
     InformationName setInformationContentItemBoundingRect(const QRectF &rectangle);

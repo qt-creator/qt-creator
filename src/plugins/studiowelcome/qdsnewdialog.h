@@ -32,7 +32,6 @@ public:
     Q_PROPERTY(QString projectDescription MEMBER m_qmlProjectDescription READ projectDescription WRITE setProjectDescription NOTIFY projectDescriptionChanged)
     Q_PROPERTY(QString customWidth MEMBER m_qmlCustomWidth)
     Q_PROPERTY(QString customHeight MEMBER m_qmlCustomHeight)
-    Q_PROPERTY(int styleIndex MEMBER m_qmlStyleIndex READ getStyleIndex WRITE setStyleIndex)
     Q_PROPERTY(bool useVirtualKeyboard MEMBER m_qmlUseVirtualKeyboard READ getUseVirtualKeyboard WRITE setUseVirtualKeyboard NOTIFY useVirtualKeyboardChanged)
     Q_PROPERTY(
         bool enableCMakeGeneration
@@ -48,10 +47,10 @@ public:
     Q_PROPERTY(QString statusType MEMBER m_qmlStatusType READ getStatusType NOTIFY statusTypeChanged)
     Q_PROPERTY(bool fieldsValid MEMBER m_qmlFieldsValid READ getFieldsValid NOTIFY fieldsValidChanged)
     Q_PROPERTY(QString presetName MEMBER m_qmlPresetName)
+    Q_PROPERTY(QString styleName MEMBER m_styleName WRITE setStyleName NOTIFY styleNameChanged)
     Q_PROPERTY(QStringList targetQtVersions MEMBER m_targetQtVersions NOTIFY targetQtVersionsChanged)
 
     Q_PROPERTY(bool detailsLoaded MEMBER m_qmlDetailsLoaded)
-    Q_PROPERTY(bool stylesLoaded MEMBER m_qmlStylesLoaded)
 
     Q_INVOKABLE void removeCurrentPreset();
     Q_INVOKABLE QString currentPresetQmlPath() const;
@@ -65,7 +64,7 @@ public:
     Q_PROPERTY(QAbstractListModel *categoryModel MEMBER m_categoryModel CONSTANT);
     Q_PROPERTY(QAbstractListModel *presetModel MEMBER m_presetModel CONSTANT);
     Q_PROPERTY(QAbstractListModel *screenSizeModel MEMBER m_screenSizeModel CONSTANT);
-    Q_PROPERTY(QAbstractListModel *styleModel MEMBER m_styleModel CONSTANT);
+    Q_PROPERTY(QAbstractItemModel *styleModel MEMBER m_styleModel CONSTANT)
 
     /*********************/
 
@@ -79,7 +78,6 @@ public:
     void showDialog() override;
     void setSelectedPreset(int selection);
 
-    void setStyleIndex(int index);
     int getStyleIndex() const;
 
     void setTargetQtVersionIndex(int index);
@@ -99,6 +97,8 @@ public:
     QString getStatusType() const { return m_qmlStatusType; }
 
     void setEnableCMakeGeneration(bool newQmlEnableCMakeGeneration);
+
+    void setStyleName(const QString &newStyleName);
 
 public slots:
     void accept();
@@ -122,6 +122,7 @@ signals:
     void userPresetSaved();
     void lastUserPresetRemoved();
     void targetQtVersionsChanged();
+    void styleNameChanged();
 
 private slots:
     void onStatusMessageChanged(Utils::InfoLabel::InfoType type, const QString &message);
@@ -166,8 +167,6 @@ private:
     int m_qmlSelectedPreset = -1;
     int m_qmlScreenSizeIndex = -1;
     int m_qmlTargetQtVersionIndex = -1;
-    // m_qmlStyleIndex is like a cache, so it needs to be updated on get()
-    mutable int m_qmlStyleIndex = -1;
     bool m_qmlUseVirtualKeyboard = false;
     bool m_qmlEnableCMakeGeneration = false;
     bool m_qmlHaveVirtualKeyboard = false;
@@ -178,6 +177,7 @@ private:
     QString m_qmlStatusMessage;
     QString m_qmlStatusType;
     QString m_qmlPresetName;
+    QString m_styleName;
 
     int m_presetPage = -1; // i.e. the page in the Presets View
 
@@ -185,7 +185,6 @@ private:
     QString m_qmlCustomHeight;
 
     bool m_qmlDetailsLoaded = false;
-    bool m_qmlStylesLoaded = false;
 
     std::shared_ptr<PresetItem> m_currentPreset;
 

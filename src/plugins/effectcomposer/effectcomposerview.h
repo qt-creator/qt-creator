@@ -36,6 +36,8 @@ public:
 
     void highlightSupportedProperties(bool highlight, const QString &suffix = {});
 
+    static void registerDeclarativeTypes();
+
 private:
     void customNotification(const AbstractView *view, const QString &identifier,
                             const QList<QmlDesigner::ModelNode> &nodeList, const QList<QVariant> &data) override;

@@ -154,6 +154,8 @@ private:
     AbstractFormEditorTool *m_currentTool = nullptr;
     int m_transactionCounter = 0;
     std::function<void(int, int)> m_gotoErrorCallback;
+
+    bool m_hadIncompleteTypeInformation = false;
 };
 
 } // namespace QmlDesigner

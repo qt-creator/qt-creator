@@ -6,7 +6,7 @@
     \previouspage studio-model-editor.html
     \nextpage creator-project-managing-sessions.html
 
-    \title Managing Workspaces
+    \title Managing workspaces
 
     In the \uicontrol Design mode, you can arrange a set of \QDS
     views as a \e workspace on the screen.
@@ -14,8 +14,8 @@
     To detach views:
 
     \list
-        \li Toggle \inlineimage icons/lockon.png
-        to \inlineimage icons/lockoff.png
+        \li Toggle \imagelockon
+        to \imagelockoff
         at the top toolbar.
         \li Double-click the title bar of the view.
         \li Start dragging the view to another position.
@@ -34,11 +34,11 @@
     To open closed views, select \uicontrol View > \uicontrol Views.
 
     \note To lock all views, toggle
-        \inlineimage icons/lockoff.png
-        to \inlineimage icons/lockon.png
+        \imagelockoff
+        to \imagelockon
         at the top toolbar.
 
-    \section1 Saving Workspaces
+    \section1 Saving workspaces
 
     The changes you make to a workspace are saved when you exit \QDS.
     Select \uicontrol View > \uicontrol Workspaces >

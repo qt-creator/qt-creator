@@ -13,6 +13,7 @@
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <qmldesignerplugin.h>
+#include <qmldesignertr.h>
 #include <qmlobjectnode.h>
 #include <uniquename.h>
 #include <utils3d.h>
@@ -222,8 +223,8 @@ bool CreateTexture::addFileToProject(const QString &filePath)
                 {filePath}, ModelNodeOperations::getImagesDefaultDirectory().toString(), false);
 
     if (result.status() == AddFilesResult::Failed) {
-        Core::AsynchronousMessageBox::warning(QObject::tr("Failed to Add Texture"),
-                                              QObject::tr("Could not add %1 to project.").arg(filePath));
+        Core::AsynchronousMessageBox::warning(Tr::tr("Failed to Add Texture"),
+                                              Tr::tr("Could not add %1 to project.").arg(filePath));
         return false;
     }
 

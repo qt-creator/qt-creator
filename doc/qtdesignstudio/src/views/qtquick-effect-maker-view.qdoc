@@ -10,95 +10,165 @@
 
     \title Effect Composer
 
-    \brief Compose custom effects.
+    \brief Create effect compositions.
 
-    Use \uicontrol {Effect Composer} to create post-processing effects that
-    can be applied to 2D or 3D components. The effects created with \uicontrol {Effect Composer}
-    are shader effects, which can be used in any \QDS projects.
+    Use \uicontrol {Effect Composer} to create post-processing effect compositions that
+    can be applied to 2D components or 3D views. The compositions created with
+    \uicontrol {Effect Composer} are shader effects, which can be used in any
+    \QDS projects. To create an effect composition, select and adjust one or several
+    of the pre-made effects or customize empty effect nodes as you wish.
 
-    \image studio-effect-composer.webp "The Effect Composer view in Qt Design Studio."
+    \image studio-effect-composer.webp The Effect Composer view in Qt Design Studio.
 
-    \section1 Composing a Custom Effect
+    \section1 Creating an effect composition
 
     \list 1
-        \li To create a new custom effect, do one of the following:
+        \li To create a new effect composition, do one of the following:
             \list
                 \li Right-click anywhere in the \uicontrol Assets view (1) and select
-                    \uicontrol {New Effect} in the dialog. Give your new custom
-                    effect a name and select \uicontrol Create.
+                    \uicontrol {New Effect}. Name your effect composition and select
+                    \uicontrol Create.
                 \li Open the \uicontrol {Effect Composer} view (2), select \uicontrol {Add Effect},
-                    and then select the effects you wish to use from the dropdown menu.
-                    The added effects appear in the effect stack (3). You cannot add some of the
-                    effects to the same custom effect.
+                    and then select the effects you wish to use from the dropdown menu. You can
+                    also add a \l {Using a custom effect in an effect composition}{Custom} effect
+                    as a part of your effect composition. The added effects appear in the effect stack
+                    (3). You cannot add the same pre-made effect twice to the composition. You can,
+                    however, add more than one custom effect to the same composition.
             \endlist
-        \li Adjust the effect parameters to modify your custom effect. View the preview panel (4) to
-            see how your effect affects a component before assigning it to one. Use the preview panel
-            toolbar to select the preview image and the preview panel background color.
-        \li Finally, select \inlineimage icons/save-effect-composer.png to save your
-            custom effect. If the custom effect is still \e Untitled, name it, and then select
-            \uicontrol Save. Select \inlineimage icons/save-as-effect-composer.png to save the custom
-            effect under a different name, for example to create variations of the effect you
-            composed.
+        \li Adjust the effect parameters to modify your effect composition. View the preview panel
+            (4) to see how the composition affects a component before assigning it to one. Use the
+            preview panel toolbar to select the preview image and the preview panel background
+            color.
+        \li Finally, select \imagesaveeffectcomposer to save your
+            effect composition. If the composition is still \e Untitled, name it, and then select
+            \uicontrol Save. Select \imagesaveaseffectcomposer to save the
+            custom effect under a different name, for example, to create variations of the effect
+            composition.
     \endlist
 
-    \image studio-effect-composer-assets.webp "Effect Composer and the Assets view"
+    \image studio-effect-composer-assets.webp Effect Composer and the Assets view
 
-    The saved custom effects appear in the \uicontrol {Assets} view. To delete a custom effect,
-    right-click it in the \uicontrol {Assets} view, and then
-    select \uicontrol {Delete File}.
+    The saved effect compositions appear in the \uicontrol {Assets} > \uicontrol Effects.
+    To delete an effect composition, right-click it in the \uicontrol {Assets} view, and
+    then select \uicontrol {Delete File}.
 
-    \section1 Assigning a Custom Effect to a Component
+    \section1 Using a custom effect in an effect composition
 
-    To assign your newly created custom effect to a 2D or 3D component,
-    do one of the following:
+    In addition to using the pre-made effects as described above, you can also add empty custom
+    effects in your composition. To add a custom effect to your \uicontrol {Effect Composer}
+    composition:
+
+    \list 1
+        \li Open the \uicontrol {Effect Composer} view (2), select \uicontrol {Add Effect},
+        and then select \uicontrol Custom to add an empty effect node to your effect.
+        \li Select \uicontrol {Add Properties} or \uicontrol {Show Code} to customize the
+        custom effect.
+    \endlist
+
+    \section1 Assigning an effect composition to a component
+
+    To assign your newly created effect composition to a component, do one of the following:
 
     \list
-        \li Select a component in the \uicontrol Navigator, \uicontrol 2D, or
-            \uicontrol 3D view, and then select \inlineimage icons/assign-effect-composer.png
-            in \uicontrol {Effect Composer}.
-        \li Drag the custom effect from \uicontrol Assets to the component in
+        \li Select a component in \uicontrol Navigator or the \uicontrol 2D view,
+            and then select \imageassigneffectcomposer in
+            \uicontrol {Effect Composer}.
+        \li Drag the composition from \uicontrol Assets to the component in
             \uicontrol Navigator or the \uicontrol {2D} view.
     \endlist
 
-    \note To assign an effect to a component, you need to save it first.
+    \note To assign a composition to a component, you need to save it first.
 
-    \section1 Editing Effects
+    \section1 Editing effect compositions
 
-    To open an effect in the \uicontrol {Effect Composer} to edit it, do one of the following:
+    To edit an effect composition in the \uicontrol {Effect Composer}, do one
+    of the following:
 
     \list
-      \li In the \uicontrol Assets view, double-click the effect.
+      \li In the \uicontrol Assets view, double-click the name of the effect composition.
       \li In the \uicontrol Navigator or \uicontrol Assets view, right-click and select
       \uicontrol {Edit in Effect Composer}.
-      \li Drag the effect from the \uicontrol Navigator or \uicontrol Assets view to the
+      \li Drag the composition from the \uicontrol Navigator or \uicontrol Assets view to the
       \uicontrol {Effect Composer} view.
     \endlist
 
-    \section1 Stacking Effects
+    \section1 Stacking effects
 
-    To compose complex custom effects, add multiple effects to your stack in
+    To create complex effect compositions, add multiple effects to your stack in
     \uicontrol {Effect Composer}. The order of effects in the \uicontrol {Effect Composer}
     stack determines the order they are rendered, which affects the final output of
-    the custom effects.
+    the effect composition.
 
     To change the position of an effect in the stack, drag the effect by the handle
-    (\inlineimage icons/dragmarks-effect-composer.png) to the desired position.
+    (\imagedragmarkseffectcomposer) to the desired position.
+
+    Some pre-made effects, such as effects with blur, always operate on the original item
+    ignoring any effect nodes before them.
 
     To determine whether or not each of the effects in the stack is rendered, toggle the
-    visibility on (\inlineimage icons/visibilityon.png) and off (\inlineimage icons/visibility-off.png).
+    visibility on (\imagevisibilityon) and off (\imagevisibilityoff).
 
-    To clear the effect stack, select \inlineimage icons/studio-clear-effect-stack.png.
+    To clear the effect stack, select \imagestudiocleareffectstack.
 
-    \section1 Using Animated Effects
+    \section1 Using animated effects
 
     Some of the effects in \uicontrol {Effect Composer} are animated. Preview the
     animation in the preview panel using the play, pause, and restart animation
     buttons.
 
-    When an animated effect has been applied to a component, the animation plays
-    by default in \uicontrol {Live Preview} and when you run the project.
-    To define whether the animation plays or not, select the assigned effect in
+    When a composition including an animated effect has been applied to a component,
+    the animation plays by default in \uicontrol {Live Preview} and when you run
+    the project. To define whether the animation plays or not, select the assigned effect in
     \uicontrol Navigator, and in \uicontrol Properties >
-    \uicontrol {Exposed Custom Properties}, select or clear the
-    \uicontrol timeRunning checkbox.
+    \uicontrol {Exposed Custom Properties}, select or clear the \uicontrol Running checkbox.
+    To specify the exact point in time in the animation that is shown, set the \uicontrol Time
+    property. You cannot set the \uicontrol Time property if the \uicontrol Running checkbox
+    is selected.
+
+    \section1 Using opacity mask effects
+
+    Use \uicontrol {Opacity Mask} effects as a part of your effect composition to mask
+    components in your scene with an image or another component.
+
+    To use a component as the source for the \uicontrol {Opacity Mask} effect:
+
+    \image effect-composer-opacity-mask-scaled.webp The structure of a scaled opacity mask effect in the Navigator view.
+
+    \list 1
+        \li In the \uicontrol {Effect Composer} view, create an \uicontrol {Opacity Mask}
+            effect (1) with a placeholder image as \uicontrol Source.
+        \li Save the effect (1) and assign it to a component in your scene (2).
+        \li In the \uicontrol Navigator view, select the effect (1).
+        \li In \uicontrol Properties > \uicontrol {Opacity Mask} > \uicontrol {Source Item},
+            select a component (3) in your scene.
+        \li In the \uicontrol Navigator view, select the \uicontrol {Source Item} (3) component.
+        \li In \uicontrol Properties > \uicontrol Visibility, clear the \uicontrol Visibility
+            checkbox to hide the \uicontrol {Source Item} component (3).
+    \endlist
+
+    The \uicontrol {Source Item} component is automatically scaled to fit the component the
+    effect is assigned to.
+
+    To use an unscaled component as the \uicontrol {Source Item}:
+
+    \image effect-composer-opacity-mask-unscaled.webp The structure of an unscaled opacity mask effect in the Navigator view.
+
+    \list 1
+        \li In \uicontrol Components > \uicontrol {Default Components}, add an \uicontrol Item
+            component (1) to your scene as a child to the component (2) that the effect (3) is
+            applied to.
+        \li In \uicontrol Properties > \uicontrol Visibility, clear the \uicontrol Visibility
+            checkbox to set the \uicontrol Item component (1) as not visible.
+        \li In \uicontrol Properties > \uicontrol Layout > \uicontrol Anchors, select
+            \imageanchorfill to fill the parent component.
+        \li In the \uicontrol Navigator view, drag the \uicontrol {Source Item} component (4) as
+            the child of the \uicontrol Item component (1).
+        \li In \uicontrol Properties > \uicontrol Visibility, select the \uicontrol Visibility
+            checkbox to show the \uicontrol {Source Item} component (4).
+        \li In the \uicontrol Navigator view, select the effect (3).
+        \li In \uicontrol Properties > \uicontrol {Opacity Mask}, set the \uicontrol Item (1) added
+            in the first step as \uicontrol {Source Item}.
+    \endlist
+
+    \sa {Effect Composer example}
 */

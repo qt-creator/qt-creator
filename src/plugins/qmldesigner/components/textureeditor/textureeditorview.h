@@ -5,6 +5,8 @@
 
 #include <abstractview.h>
 
+#include <propertyeditorcomponentgenerator.h>
+
 #include <QHash>
 #include <QPointer>
 #include <QTimer>
@@ -12,7 +14,6 @@
 QT_BEGIN_NAMESPACE
 class QShortcut;
 class QStackedWidget;
-class QTimer;
 class QColorDialog;
 QT_END_NAMESPACE
 
@@ -22,6 +23,7 @@ class DynamicPropertiesModel;
 class ModelNode;
 class QmlObjectNode;
 class TextureEditorQmlBackend;
+class SourcePathCacheInterface;
 
 class TextureEditorView : public AbstractView
 {
@@ -77,6 +79,8 @@ public:
 
     void currentTimelineChanged(const ModelNode &node) override;
 
+    void refreshMetaInfos(const TypeIds &deletedTypeIds) override;
+
     DynamicPropertiesModel *dynamicPropertiesModel() const;
 
     static TextureEditorView *instance();
@@ -98,6 +102,12 @@ private:
     void applyTextureToSelectedModel(const ModelNode &texture);
 
     void setupQmlBackend();
+    TextureEditorQmlBackend *getQmlBackend(const QUrl &qmlFileUrl);
+    QUrl getPaneUrl();
+    void setupCurrentQmlBackend(const ModelNode &selectedNode,
+                                const QUrl &qmlSpecificsFile,
+                                const QString &specificQmlData);
+    void setupWidget();
 
     void commitVariantValueToModel(PropertyNameView propertyName, const QVariant &value);
     void commitAuxValueToModel(PropertyNameView propertyName, const QVariant &value);
@@ -116,6 +126,8 @@ private:
     ModelNode m_selectedModel;
     QHash<QString, TextureEditorQmlBackend *> m_qmlBackendHash;
     TextureEditorQmlBackend *m_qmlBackEnd = nullptr;
+    PropertyComponentGenerator m_propertyComponentGenerator;
+    PropertyEditorComponentGenerator m_propertyEditorComponentGenerator{m_propertyComponentGenerator};
     bool m_locked = false;
     bool m_setupCompleted = false;
     bool m_hasQuick3DImport = false;

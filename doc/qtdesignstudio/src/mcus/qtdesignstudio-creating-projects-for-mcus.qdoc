@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,7 +6,7 @@
     \page studio-projects-for-mcus.html
     \nextpage studio-creating-uis-for-mcus.html
 
-    \title Creating Projects for MCUs
+    \title Creating projects for MCUs
 
     Use the \uicontrol {\QMCU} preset in the \QDS wizard to set up a new \QMCU
     project. When you create a project with the wizard, all the necessary files
@@ -18,9 +18,9 @@
     of the default components that you can deploy, run, and debug on MCU boards.
 
     \note For more information on the default components available for MCU
-    projects, see \l {Qt Design Studio Features on MCU Projects}.
+    projects, see \l {\QDS features on MCU projects}.
 
-    \section1 Creating an MCU Project
+    \section1 Creating an MCU project
 
     To create an MCU project:
 
@@ -50,7 +50,7 @@
         \li .qml files define the functionality and appearance of application
             components.
         \li \e Screen01.ui.qml defines a custom component that you can edit in
-            the \l {2D} view. For more information, see \l {UI Files}.
+            the \l {2D} view. For more information, see \l {UI files}.
 
             While the custom component is a good starting point for new users,
             you don't have to use it. Specifically, if you export and import
@@ -74,12 +74,12 @@
             components available for the MCU project.
     \endlist
 
-    To use image files in the UI, select \uicontrol Assets > \inlineimage icons/plus.png
+    To use image files in the UI, select \uicontrol Assets > \imageplus
     .
 
     \sa {Using Custom Presets}
 
-    \section1 Adding Files to MCU Projects
+    \section1 Adding files to MCU projects
 
     You can use wizard templates to add individual files to projects.
 
@@ -92,14 +92,14 @@
     \table
     \header
         \li Category
-        \li Wizard Template
+        \li Wizard template
         \li Purpose
     \row
         \li {1,5} Qt Quick Files
     \row
         \li Qt Quick File
         \li Generates a component with one of the following default components
-            or \l{Using Positioners}{positioners} as the root component:
+            or \l{Using positioners}{positioners} as the root component:
             \l {basic-item}{Item}, \l {basic-rectangle}{Rectangle}, \l {Images}
             {Image}, \l {Border Image}, \l Flickable, Row, Column, Flow, or
             Grid.
@@ -110,7 +110,7 @@
     \row
         \li Qt Quick Views
         \li Generates a List View. For more information, see
-            \l{List and Grid Views}.
+            \l{List Views and Grid Views}.
     \row
         \li Qt Quick UI Form
         \li Creates a UI file along with a matching QML file for

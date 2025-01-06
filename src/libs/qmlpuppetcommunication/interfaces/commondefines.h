@@ -35,6 +35,7 @@ enum InformationName {
     MoveView,
     ShowView,
     ResizeView,
-    HideView
+    HideView,
+    ImplicitSize
 };
 }

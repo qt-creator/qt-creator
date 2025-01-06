@@ -57,6 +57,7 @@ StudioControls.ComboBox {
         target: root.popup
 
         function onAboutToShow() {
+            EffectComposerBackend.rootView.updateCanBeAdded()
             root.calculateWindowGeometry()
 
             window.show()

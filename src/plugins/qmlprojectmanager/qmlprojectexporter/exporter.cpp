@@ -30,10 +30,14 @@ void Exporter::updateProject(QmlProject *project)
 void Exporter::updateProjectItem(QmlProjectItem *item, bool updateEnabled)
 {
     connect(item, &QmlProjectItem::filesChanged, m_cmakeGen, &CMakeGenerator::update);
+    connect(item, &QmlProjectItem::fileModified, m_cmakeGen, &CMakeGenerator::updateModifiedFile);
 
     if (updateEnabled) {
         m_cmakeGen->setEnabled(item->enableCMakeGeneration());
         m_pythonGen->setEnabled(item->enablePythonGeneration());
+
+        m_cmakeGen->setStandaloneApp(item->standaloneApp());
+        m_pythonGen->setStandaloneApp(item->standaloneApp());
     }
 }
 

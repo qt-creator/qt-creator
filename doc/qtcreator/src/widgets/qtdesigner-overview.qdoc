@@ -40,7 +40,7 @@
     \section1 Code Editor Integration
 
     To switch between forms (\uicontrol Design mode) and code (\uicontrol Edit mode),
-    press \key Shift+F4.
+    select \key Shift+F4.
 
     You can use \QC to create stub implementations of slot functions. In the
     \uicontrol Design mode, right-click a widget to open a context menu, and then
@@ -58,7 +58,7 @@
 
     To open resource files from the code editor, select
     \uicontrol {Follow Symbol Under Cursor} in the context menu
-    or press \key F2 when the cursor is over a string literal.
+    or select \key F2 when the cursor is over a string literal.
 
     \section1 Specifying Settings for \QD
 
@@ -81,7 +81,7 @@
     \endlist
 
     To preview the settings, select \uicontrol Tools > \uicontrol{Form Editor} >
-    \uicontrol Preview, or press \key Alt+Shift+R.
+    \uicontrol Preview, or select \key Alt+Shift+R.
 
     \section1 Previewing Forms Using Device Profiles
 

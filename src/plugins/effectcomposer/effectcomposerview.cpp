@@ -6,7 +6,9 @@
 #include "effectcomposermodel.h"
 #include "effectcomposernodesmodel.h"
 #include "effectcomposerwidget.h"
+#include "listmodelwidthcalculator.h"
 #include "studioquickwidget.h"
+#include "tableheaderlengthmodel.h"
 
 #include <designermcumanager.h>
 #include <documentmanager.h>
@@ -19,10 +21,9 @@
 #include <coreplugin/icore.h>
 
 #include <QTimer>
+#include <QtQml>
 
 namespace EffectComposer {
-
-constexpr char qmlEffectComposerContextId[] = "QmlDesigner::EffectComposer";
 
 EffectComposerView::EffectComposerView(QmlDesigner::ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
@@ -158,6 +159,8 @@ void EffectComposerView::modelAttached(QmlDesigner::Model *model)
 void EffectComposerView::modelAboutToBeDetached(QmlDesigner::Model *model)
 {
     AbstractView::modelAboutToBeDetached(model);
+    if (m_widget)
+        m_widget->effectComposerModel()->clear(true);
 }
 
 void EffectComposerView::selectedNodesChanged(const QList<QmlDesigner::ModelNode> & selectedNodeList,
@@ -228,7 +231,8 @@ void EffectComposerView::highlightSupportedProperties(bool highlight, const QStr
 
 void EffectComposerView::dragStarted(QMimeData *mimeData)
 {
-    if (mimeData->hasFormat(QmlDesigner::Constants::MIME_TYPE_ASSETS)) {
+    if (mimeData->hasFormat(QmlDesigner::Constants::MIME_TYPE_ASSETS)
+        || mimeData->hasFormat(QmlDesigner::Constants::MIME_TYPE_BUNDLE_TEXTURE)) {
         QString format = mimeData->formats()[0];
         const QString assetPath = QString::fromUtf8(mimeData->data(format)).split(',')[0];
         const QString suffix = "*." + assetPath.split('.').last().toLower();
@@ -240,6 +244,12 @@ void EffectComposerView::dragStarted(QMimeData *mimeData)
 void EffectComposerView::dragEnded()
 {
     highlightSupportedProperties(false);
+}
+
+void EffectComposer::EffectComposerView::registerDeclarativeTypes()
+{
+    qmlRegisterType<TableHeaderLengthModel>("TableModules", 1, 0, "TableHeaderLengthModel");
+    qmlRegisterType<ListModelWidthCalculator>("ModelModules", 1, 0, "ListModelWidthCalculator");
 }
 
 } // namespace EffectComposer

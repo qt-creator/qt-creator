@@ -8,7 +8,7 @@
 
     \title Using \QBSK
 
-    \section1 Organizing Assets
+    \section1 Organizing assets
 
     To get the best results when you use \QBSK to export designs from Sketch
     to \QDS, follow these guidelines when working with Sketch:
@@ -48,7 +48,7 @@
 
     To use the fonts that you use in Sketch also in \QDS, you need to import
     them to \QDS as assets. \QDS deploys them to devices when you preview the
-    UI. For more information, see \l{Using Custom Fonts}.
+    UI. For more information, see \l{Using custom fonts}.
 
     For more information, see the \QBSK tutorials that are also accessible from
     the \uicontrol Tutorials tab of the Welcome mode:
@@ -60,7 +60,7 @@
             {Sketch Bridge Tutorial Part 2}
     \endlist
 
-    \section2 Items You Can Export
+    \section2 Items you can export
 
     You can export the following parts of your design using \QBSK:
     \list
@@ -79,7 +79,7 @@
         \li Libraries
     \endlist
 
-    \section2 Using Artboards
+    \section2 Using artboards
 
     The relationships between artboards and layers are preserved when you export
     designs from Sketch and import them into \QDS.
@@ -104,7 +104,7 @@
     If you want to use the assets on an artboard in \QDS as they are in Sketch,
     you can import the artboard without generating code for it.
 
-    \section2 Using Layers and Groups
+    \section2 Using layers and groups
 
     When you use \QBSK to export your designs, you will determine how you want
     each layer or group to be exported: as \e merged or as \e child. Each
@@ -130,7 +130,7 @@
     recommend that you do not change the IDs after the first time you export
     the assets, to avoid problems.
 
-    \section1 Exporting Assets
+    \section1 Exporting assets
 
     By default, assets are exported as follows:
 
@@ -162,7 +162,7 @@
 
     \image qt-sketch-bridge.png
 
-    \section2 Specifying Settings for Exporting Assets
+    \section2 Specifying settings for exporting assets
 
     To export your design using \QBSK:
 
@@ -234,7 +234,7 @@
         \li Select the \uicontrol Visible check box to determine the visibility
             of the layer.
         \li In the \uicontrol Annotations field, specify annotation for the
-            component. See \l {Annotating Designs}.
+            component. See \l {Annotating designs}.
         \li Select the \uicontrol Settings tab to specify the export path and
             asset format.
         \li Select \uicontrol Export to export the document into a .qtbridge archive.
@@ -246,9 +246,9 @@
     your project.
 
     You can now create a project in \QDS and import the .qtbridge archive to it, as
-    described in \l {Creating Projects} and \l{Importing Designs}.
+    described in \l {Creating projects} and \l{Importing designs}.
 
-    \section1 Specifying Export Path and Asset Format
+    \section1 Specifying export path and asset format
 
     You can export assets into JPG, PNG, or SVG format. To specify export path
     and asset format, select \uicontrol Settings.
@@ -286,7 +286,7 @@
     \note Using invalid characters or reservered file names for the page name will result into
     imports errors as page name is used for the directory name to organize the UI files in \QDS .
 
-    \section1 Exporting Library Symbols
+    \section1 Exporting library symbols
 
     \QBSK can handle symbols used from a local library. Before you use \QBSK to export a document
     that contains remote symbols, you must prepare the Sketch document of the local library with

@@ -2,31 +2,33 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "formeditorview.h"
-#include "nodeinstanceview.h"
-#include "selectiontool.h"
-#include "rotationtool.h"
-#include "movetool.h"
-#include "resizetool.h"
+#include "abstractcustomtool.h"
 #include "dragtool.h"
-#include "formeditorwidget.h"
-#include <formeditorgraphicsview.h>
 #include "formeditoritem.h"
 #include "formeditorscene.h"
-#include "abstractcustomtool.h"
+#include "formeditorwidget.h"
+#include "movetool.h"
+#include "nodeinstanceview.h"
+#include "resizetool.h"
+#include "rotationtool.h"
+#include "selectiontool.h"
+#include <formeditorgraphicsview.h>
+#include <qmldesignertr.h>
 
 #include <auxiliarydataproperties.h>
-#include <qmldesignerplugin.h>
 #include <bindingproperty.h>
+#include <customnotifications.h>
 #include <designersettings.h>
 #include <model.h>
 #include <modelnode.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
+#include <qml3dnode.h>
+#include <qmldesignerplugin.h>
 #include <rewriterview.h>
 #include <variantproperty.h>
 #include <zoomaction.h>
-#include <qml3dnode.h>
 
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
@@ -62,6 +64,10 @@ FormEditorView::~FormEditorView()
 void FormEditorView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
+
+#ifndef QDS_USE_PROJECTSTORAGE
+    m_hadIncompleteTypeInformation = model->rewriterView()->hasIncompleteTypeInformation();
+#endif
 
     m_formEditorWidget->setBackgoundImage({});
 
@@ -361,8 +367,8 @@ WidgetInfo FormEditorView::widgetInfo()
     return createWidgetInfo(m_formEditorWidget.data(),
                             "FormEditor",
                             WidgetInfo::CentralPane,
-                            tr("2D"),
-                            tr("2D view"),
+                            Tr::tr("2D"),
+                            Tr::tr("2D view"),
                             DesignerWidgetFlags::IgnoreErrors);
 }
 
@@ -471,7 +477,7 @@ void FormEditorView::documentMessagesChanged(const QList<DocumentMessage> &error
     QTC_ASSERT(model(), return);
     QTC_ASSERT(model()->rewriterView(), return);
 
-    if (!errors.isEmpty() && !model()->rewriterView()->hasIncompleteTypeInformation())
+    if (!errors.isEmpty() && !m_hadIncompleteTypeInformation)
         m_formEditorWidget->showErrorMessageBox(errors);
     else if (rewriterView()->errors().isEmpty())
         m_formEditorWidget->hideErrorMessageBox();
@@ -485,6 +491,10 @@ void FormEditorView::customNotification(const AbstractView * /*view*/, const QSt
         m_dragTool->clearMoveDelay();
     if (identifier == QLatin1String("reset QmlPuppet"))
         temporaryBlockView();
+#ifndef QDS_USE_PROJECTSTORAGE
+    if (identifier == UpdateItemlibrary)
+        m_hadIncompleteTypeInformation = model()->rewriterView()->hasIncompleteTypeInformation();
+#endif
 }
 
 void FormEditorView::currentStateChanged(const ModelNode & /*node*/)
@@ -719,7 +729,10 @@ void FormEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, Inf
         const QmlItemNode qmlItemNode(node);
         if (FormEditorItem *item = scene()->itemForQmlItemNode(qmlItemNode)) {
             scene()->synchronizeTransformation(item);
-            if (qmlItemNode.isRootModelNode() && informationChangedHash.values(node).contains(Size))
+            auto nodeValues = informationChangedHash.values(node);
+            if (qmlItemNode.isRootModelNode()
+                && (informationChangedHash.values(node).contains(Size)
+                    || informationChangedHash.values(node).contains(ImplicitSize)))
                 setupRootItemSize();
 
             changedItems.append(item);
@@ -935,7 +948,7 @@ void FormEditorView::checkRootModelNode()
     if (!rootModelNode().metaInfo().isGraphicalItem()
         && !Qml3DNode::isValidVisualRoot(rootModelNode()))
         m_formEditorWidget->showErrorMessageBox(
-            {DocumentMessage(tr("%1 is not supported as the root element by the 2D view.")
+            {DocumentMessage(Tr::tr("%1 is not supported as the root element by the 2D view.")
                                  .arg(rootModelNode().simplifiedTypeName()))});
     else
         m_formEditorWidget->hideErrorMessageBox();
@@ -963,9 +976,10 @@ void FormEditorView::setupRootItemSize()
         if (rootModelNode().hasAuxiliaryData(defaultHeightProperty))
             rootElementInitHeight = rootModelNode().auxiliaryData(defaultHeightProperty).value().toInt();
 
-        bool affectedByCurrentState =
-            rootQmlNode.propertyAffectedByCurrentState("width") ||
-            rootQmlNode.propertyAffectedByCurrentState("height");
+        bool affectedByCurrentState = rootQmlNode.propertyAffectedByCurrentState("width")
+                                      || rootQmlNode.propertyAffectedByCurrentState("height")
+                                      || rootQmlNode.propertyAffectedByCurrentState("implicitWidth")
+                                      || rootQmlNode.propertyAffectedByCurrentState("implicitHeight");
 
         QRectF rootRect = rootQmlNode.instanceBoundingRect();
         if (rootRect.isEmpty() && !affectedByCurrentState) {

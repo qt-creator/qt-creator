@@ -27,7 +27,7 @@
     For more examples, see \l{Qt Quick Examples and Tutorials}.
 
     You can use a visual editor to develop Qt Quick applications in \QDS. For
-    more information, see \l{Qt Design Studio Manual}.
+    more information, see \l{Qt Design Studio documentation}.
 
     \include qtquick-tutorial-create-empty-project.qdocinc qtquick empty application
 
@@ -149,7 +149,7 @@
     \skipto import
     \printuntil /^\ {0}\}/
 
-    Press \key {Ctrl+R} to run the application, and click the rectangles to
+    Select \key {Ctrl+R} to run the application, and click the rectangles to
     move the Qt logo from one rectangle to another.
 
     \section1 Animate transitions
@@ -180,6 +180,6 @@
 
     \printuntil /^\ {0}\}/
 
-    Press \key {Ctrl+R} to run the application, and click the rectangles to
+    Select \key {Ctrl+R} to run the application, and click the rectangles to
     view the animated transitions.
 */

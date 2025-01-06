@@ -218,7 +218,7 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
     // The Qt version might know, but we need to make sure
     // that the device can reach it.
     if (QtVersion *version = QtKitAspect::qtVersion(kit)) {
-        // look for puppet as qmlruntime only in QtStudio Qt versions
+        // look for QML Puppet as qmlruntime only in QtStudio Qt versions
         if (version->features().contains("QtStudio") &&
             version->qtVersion().majorVersion() > 5 && !hasDeployStep()) {
 

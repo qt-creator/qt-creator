@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -19,16 +19,16 @@
     create instances of them.
 
     You can achieve similar results by using different animation techniques.
-    For more information, see \l{Introduction to Animation Techniques}.
+    For more information, see \l{Introduction to animation techniques}.
 
-    \section1 Applying Animation
+    \section1 Applying animations
 
     A property animation is applied when the value of a property changes.
     Color and number animations are property animation types for specific
     purposes. Specify settings for animations in \l Properties >
     \uicontrol {Animation Targets}.
 
-    \section2 Animating Color Changes
+    \section2 Animating color changes
 
     For example, you can apply animation to the value of the \uicontrol Color
     property of an instance of a \l Rectangle component to change its value
@@ -49,7 +49,7 @@
     color in the \uicontrol {To color} field. Specify the duration of the
     animation in the \uicontrol Duration field.
 
-    \section2 Animating Changes in Numerical Values
+    \section2 Animating changes in numerical values
 
     Similarly, to apply animation when a numerical value of a property changes,
     create an instance of the \uicontrol {Number Animation} component.
@@ -72,7 +72,7 @@
     For an example of using property animation to animate the scale and opacity
     of components, see the \l{Coffee Machine} example.
 
-    \section2 Setting Non-Animated Properties
+    \section2 Setting non-animated properties
 
     To immediately change a property value during an animation
     without animating the property change, create an instance
@@ -92,7 +92,7 @@
 
     \image qtquick-property-action.gif "Sequential property actions and number animation"
 
-    \section1 Playing Animations
+    \section1 Playing animations
 
     Specify settings for playing animations in the \uicontrol Animation group.
 
@@ -104,7 +104,7 @@
 
     You can connect the running property of an animation to a signal emitted
     by a component to play the animation when users click a button, for
-    example. For more information, see \l{Connecting Components to Signals}.
+    example. For more information, see \l{Connecting components to signals}.
 
     To run animations several times in a loop, set the number of times they
     should play in the \uicontrol Loops field. Set the value to -1 to have
@@ -120,15 +120,15 @@
     \uicontrol {Sequential Animation} component for managing them as a
     group.
 
-    To pause animations, select the \inlineimage icons/pause-icon.png
+    To pause animations, select the \imagepauseicon
     (\uicontrol Paused) check box.
 
-    To attach an \l{Editing Easing Curves}{easing curve} to
-    the animation, select the \inlineimage icons/curve_editor.png
+    To attach an \l{Editing easing curves}{easing curve} to
+    the animation, select the \imagecurveeditor
     (\uicontrol {Easing Curve Editor}) button in the
     \uicontrol {Easing Curve} field.
 
-    \section2 Playing Groups of Animations
+    \section2 Playing groups of animations
 
     You can create several animations that can run in parallel or in sequence.
     To manage a group of animations that will play at the same time, create an
@@ -155,7 +155,7 @@
     check box and specify the duration of the pause in the
     \uicontrol Duration field.
 
-    \section1 Performance Considerations
+    \section1 Performance considerations
 
     \QDS enables you to use fluidity and dynamic transitions as well as visual
     effects to great effect in a UI. However, you need to take some care when
@@ -176,7 +176,7 @@
     component because script animations are run in the main thread and can
     therefore cause frames to be skipped if they take too long to complete.
 
-    \section1 Summary of Animation Components
+    \section1 Summary of the animation components
 
     The following table lists the components that you can use to animate
     component properties programmatically. They are available in
@@ -186,7 +186,7 @@
     \table
     \header
         \li Component
-        \li Use Case
+        \li Use case
     \row
         \li \uicontrol {Property Animation}
         \li Applying animation when the value of a property changes. Color

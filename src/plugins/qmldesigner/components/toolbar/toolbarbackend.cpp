@@ -14,8 +14,12 @@
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmleditormenu.h>
+#include <runmanager.h>
 #include <viewmanager.h>
 #include <zoomaction.h>
+
+#include <devicemanagermodel.h>
+#include <devicemanagerwidget.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
@@ -204,6 +208,79 @@ QVariant WorkspaceModel::data(const QModelIndex &index, int role) const
     }
 
     return QVariant();
+}
+
+RunManagerModel::RunManagerModel(QObject *)
+{
+    connect(&QmlDesignerPlugin::runManager(), &RunManager::targetsChanged, this, &RunManagerModel::reset);
+
+    connect(ProjectExplorer::KitManager::instance(),
+            &ProjectExplorer::KitManager::kitsChanged,
+            this,
+            &RunManagerModel::reset);
+    connect(ProjectExplorer::KitManager::instance(),
+            &ProjectExplorer::KitManager::kitsLoaded,
+            this,
+            &RunManagerModel::reset);
+
+    connect(&QmlDesignerPlugin::deviceManager(),
+            &DeviceShare::DeviceManager::deviceOnline,
+            this,
+            &RunManagerModel::reset);
+    connect(&QmlDesignerPlugin::deviceManager(),
+            &DeviceShare::DeviceManager::deviceOffline,
+            this,
+            &RunManagerModel::reset);
+
+    connect(ProjectExplorer::ProjectManager::instance(),
+            &ProjectExplorer::ProjectManager::startupProjectChanged,
+            this,
+            &RunManagerModel::reset);
+
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
+            &ProjectExplorer::ProjectExplorerPlugin::runActionsUpdated,
+            this,
+            &RunManagerModel::reset);
+}
+
+int RunManagerModel::rowCount(const QModelIndex &) const
+{
+    return QmlDesignerPlugin::runManager().targets().size();
+}
+
+QHash<int, QByteArray> RunManagerModel::roleNames() const
+{
+    static QHash<int, QByteArray> roleNames{{DisplayNameRole, "targetName"},
+                                            {TargetNameRole, "targetId"},
+                                            {Enabled, "targetEnabled"}};
+
+    return roleNames;
+}
+
+QVariant RunManagerModel::data(const QModelIndex &index, int role) const
+{
+    if (index.isValid() && index.row() < rowCount()) {
+        auto target = QmlDesignerPlugin::runManager().targets()[index.row()];
+
+        if (role == DisplayNameRole)
+            return std::visit([](const auto &arg) { return arg.name(); }, target);
+        else if (role == TargetNameRole)
+            return std::visit([](const auto &arg) { return arg.id().toSetting(); }, target);
+        else if (role == Enabled)
+            return std::visit([](const auto &arg) { return arg.enabled(); }, target);
+        else
+            qWarning() << Q_FUNC_INFO << "invalid role";
+    } else {
+        qWarning() << Q_FUNC_INFO << "invalid index";
+    }
+
+    return QVariant();
+}
+
+void RunManagerModel::reset()
+{
+    beginResetModel();
+    endResetModel();
 }
 
 ActionSubscriber::ActionSubscriber(QObject *parent)
@@ -401,6 +478,17 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
             &ProjectExplorer::KitManager::kitsChanged,
             this,
             &ToolBarBackend::kitsChanged);
+
+    // RunManager connections
+
+    connect(&QmlDesignerPlugin::runManager(),
+            &RunManager::runTargetChanged,
+            this,
+            &ToolBarBackend::runTargetIndexChanged);
+    connect(&QmlDesignerPlugin::runManager(),
+            &RunManager::stateChanged,
+            this,
+            &ToolBarBackend::runManagerStateChanged);
 }
 
 void ToolBarBackend::registerDeclarativeType()
@@ -409,10 +497,27 @@ void ToolBarBackend::registerDeclarativeType()
     qmlRegisterType<ActionSubscriber>("ToolBar", 1, 0, "ActionSubscriber");
     qmlRegisterType<CrumbleBarModel>("ToolBar", 1, 0, "CrumbleBarModel");
     qmlRegisterType<WorkspaceModel>("ToolBar", 1, 0, "WorkspaceModel");
+    qmlRegisterType<RunManagerModel>("ToolBar", 1, 0, "RunManagerModel");
 
     qmlRegisterType<MessageModel>("OutputPane", 1, 0, "MessageModel");
     qmlRegisterType<AppOutputParentModel>("OutputPane", 1, 0, "AppOutputParentModel");
     qmlRegisterType<AppOutputChildModel>("OutputPane", 1, 0, "AppOutputChildModel");
+
+    qmlRegisterUncreatableType<RunManager>("ToolBar",
+                                           1,
+                                           0,
+                                           "RunManager",
+                                           "RunManager shouldn't be instantiated.");
+    qmlRegisterUncreatableType<DeviceShare::DeviceManagerModel>(
+        "ToolBar", 1, 0, "DeviceManagerModel", "DeviceManagerModel shouldn't be instantiated.");
+
+#ifdef DVCONNECTOR_ENABLED
+    qmlRegisterUncreatableType<DesignViewer::DVConnector>("ToolBar",
+                                                          1,
+                                                          0,
+                                                          "DVConnector",
+                                                          "DVConnector shouldn't be instantiated.");
+#endif
 }
 
 void ToolBarBackend::triggerModeChange()
@@ -593,6 +698,21 @@ void ToolBarBackend::setCurrentKit(int index)
     emit currentKitChanged();
 }
 
+void ToolBarBackend::openDeviceManager()
+{
+    QmlDesignerPlugin::deviceManager().widget()->show();
+}
+
+void ToolBarBackend::selectRunTarget(const QString &targetName)
+{
+    QmlDesignerPlugin::runManager().selectRunTarget(targetName);
+}
+
+void ToolBarBackend::toggleRunning()
+{
+    QmlDesignerPlugin::runManager().toggleCurrentTarget();
+}
+
 bool ToolBarBackend::canGoBack() const
 {
     QTC_ASSERT(designModeWidget(), return false);
@@ -691,14 +811,16 @@ bool ToolBarBackend::isDesignModeEnabled() const
 
 int ToolBarBackend::currentStyle() const
 {
-    if (!currentDesignDocument())
-        return 0;
+    if (currentDesignDocument()) {
+        auto view = currentDesignDocument()->rewriterView();
+        const QString qmlFile = view->model()->fileUrl().toLocalFile();
+        return ChangeStyleWidgetAction::getCurrentStyle(qmlFile);
+    } else if (Core::EditorManager::currentDocument()) {
+        const QString documentPath = Core::EditorManager::currentDocument()->filePath().toFSPathString();
+        return ChangeStyleWidgetAction::getCurrentStyle(documentPath);
+    }
 
-    auto view = currentDesignDocument()->rewriterView();
-
-    const QString qmlFile = view->model()->fileUrl().toLocalFile();
-
-    return ChangeStyleWidgetAction::getCurrentStyle(qmlFile);
+    return 0;
 }
 
 QStringList ToolBarBackend::kits() const
@@ -758,11 +880,6 @@ bool ToolBarBackend::projectOpened() const
     return ProjectExplorer::ProjectManager::instance()->startupProject();
 }
 
-bool ToolBarBackend::isSharingEnabled()
-{
-    return QmlDesigner::checkEnterpriseLicense();
-}
-
 bool ToolBarBackend::isDocumentDirty() const
 {
     return Core::EditorManager::currentDocument()
@@ -773,6 +890,23 @@ bool ToolBarBackend::isLiteModeEnabled() const
 {
     return QmlDesignerBasePlugin::isLiteModeEnabled();
 }
+
+int ToolBarBackend::runTargetIndex() const
+{
+    return QmlDesignerPlugin::runManager().currentTargetIndex();
+}
+
+int ToolBarBackend::runManagerState() const
+{
+    return QmlDesignerPlugin::runManager().state();
+}
+
+#ifdef DVCONNECTOR_ENABLED
+DesignViewer::DVConnector *ToolBarBackend::designViewerConnector()
+{
+    return &m_designViewerConnector;
+}
+#endif
 
 void ToolBarBackend::launchGlobalAnnotations()
 {

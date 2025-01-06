@@ -1,6 +1,7 @@
 {
     "deployment": {
         "enableCMakeGeneration": false,
+        "enablePythonGeneration": false,
         "targetDirectory": "/opt/UntitledProject13"
     },
     "environment": {

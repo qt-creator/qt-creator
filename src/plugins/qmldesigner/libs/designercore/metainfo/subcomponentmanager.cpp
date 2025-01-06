@@ -4,6 +4,7 @@
 #include "subcomponentmanager.h"
 #include "metainforeader.h"
 
+#include <designercoretr.h>
 #include <externaldependenciesinterface.h>
 #include <invalidmetainfoexception.h>
 #include <model.h>
@@ -214,11 +215,9 @@ void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool a
                 } catch (const InvalidMetaInfoException &e) {
                     qWarning() << e.description();
                     const QString errorMessage = metaInfoFile.absoluteFilePath() + QLatin1Char('\n') + QLatin1Char('\n') + reader.errors().join(QLatin1Char('\n'));
-                    QMessageBox::warning(
-                        m_externalDependencies.mainWindow(),
-                        QCoreApplication::translate("SubComponentManager::parseDirectory",
-                                                    "Invalid meta info"),
-                        errorMessage);
+                    QMessageBox::warning(m_externalDependencies.mainWindow(),
+                                         DesignerCore::Tr::tr("Invalid meta info."),
+                                         errorMessage);
                 }
             }
         }
@@ -434,7 +433,7 @@ void SubComponentManager::parseQuick3DAssetsItem(const QString &importUrl, const
         ItemLibraryEntry itemLibraryEntry;
         itemLibraryEntry.setType(type.toUtf8(), 1, 0);
         itemLibraryEntry.setName(name);
-        itemLibraryEntry.setCategory(::QmlDesigner::SubComponentManager::tr("My 3D Components"));
+        itemLibraryEntry.setCategory(DesignerCore::Tr::tr("My 3D Components"));
         itemLibraryEntry.setCustomComponentSource(qmlIt.fileInfo().absoluteFilePath());
         itemLibraryEntry.setRequiredImport(importUrl);
         itemLibraryEntry.setTypeIcon(QIcon(defaultIconPath));

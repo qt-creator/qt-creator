@@ -59,14 +59,14 @@ void InteractiveConnectionManager::shutDown()
 void InteractiveConnectionManager::showCannotConnectToPuppetWarningAndSwitchToEditMode()
 {
     Core::AsynchronousMessageBox::warning(
-        tr("Cannot Connect to QML Emulation Layer (QML Puppet)"),
-        tr("The executable of the QML emulation layer (QML Puppet) may not be responding. "
+        tr("Cannot Connect to QML Puppet"),
+        tr("The executable of the QML Puppet may not be responding. "
            "Switching to another kit might help."));
 
     QmlDesignerPlugin::instance()->switchToTextModeDeferred();
     if (m_view && m_view->isAttached())
         m_view->model()->emitDocumentMessage(
-            tr("Cannot Connect to QML Emulation Layer (QML Puppet)"));
+            tr("Cannot Connect to QML Puppet"));
 }
 
 void InteractiveConnectionManager::dispatchCommand(const QVariant &command, Connection &connection)

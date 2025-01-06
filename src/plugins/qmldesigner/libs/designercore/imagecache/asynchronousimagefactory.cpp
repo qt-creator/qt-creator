@@ -27,7 +27,7 @@ void AsynchronousImageFactory::generate(Utils::SmallStringView name,
                                         ImageCache::AuxiliaryData auxiliaryData)
 {
     auto [trace, flowToken] = ImageCache::category().beginDurationWithFlow(
-        "request image in asynchronous image factory"_t);
+        "request image in asynchronous image factory");
     m_taskQueue.addTask(trace.createToken(),
                         name,
                         extraId,
@@ -45,7 +45,7 @@ void AsynchronousImageFactory::request(Utils::SmallStringView name,
                                        ImageCacheCollectorInterface &collector,
                                        ImageCache::TraceToken traceToken)
 {
-    auto [storageTracer, flowToken] = traceToken.beginDurationWithFlow("starte image generator"_t);
+    auto [storageTracer, flowToken] = traceToken.beginDurationWithFlow("starte image generator");
     const auto id = extraId.empty() ? Utils::PathString{name}
                                     : Utils::PathString::join({name, "+", extraId});
 

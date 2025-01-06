@@ -4,16 +4,16 @@
 /*!
     \page creator-exporting-qml.html
     \previouspage studio-importing-3d.html
-    \nextpage qt-using-effect-maker-effects.html
+    \nextpage sharing-assets.html
 
-    \title Exporting Components
+    \title Exporting components
 
     \note In this section, you are using advanced menu items. These are not
     visible by default. To toggle the visibility of advanced menu items, see
     \l{Customizing the Menu Bar}.
 
-    \l{glossary-component}{Components} contained in \l{UI Files}
-    {UI files} (.ui.qml) can be exported to JSON metadata format and PNG assets.
+    \l{glossary-component}{Components} contained in \l{UI files} (.ui.qml)
+    can be exported to JSON metadata format and PNG assets.
 
     To export the UI files from the current project, select \uicontrol Build >
     \uicontrol {Export Components}.
@@ -33,12 +33,14 @@
             components generate assets as PNG files.
     \endlist
 
-    \section1 Configuring QML Export
+    \section1 Configuring the QML export
 
     You can configure the export in the \uicontrol {Export Components} dialog,
     which lists the UI files (.ui.qml) of the current project.
 
     \image qtquick-qml-export-dialog.png "Export Components dialog"
+
+    To configure the export:
 
     \list 1
         \li In the \uicontrol {Export path} field, specify the path where

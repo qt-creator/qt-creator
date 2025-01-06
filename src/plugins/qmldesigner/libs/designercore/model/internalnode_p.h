@@ -63,7 +63,7 @@ public:
         , minorVersion(minorVersion)
         , isValid(true)
         , internalId(internalId)
-        , traceToken(flowTraceToken.beginAsynchronous("InternalNode"_t,
+        , traceToken(flowTraceToken.beginAsynchronous("InternalNode",
                                                       keyValue("type", typeName),
                                                       keyValue("internal id", internalId)))
     {}

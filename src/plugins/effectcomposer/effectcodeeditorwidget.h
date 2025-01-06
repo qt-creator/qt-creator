@@ -29,6 +29,11 @@ public:
     void unregisterAutoCompletion();
     void setEditorTextWithIndentation(const QString &text);
 
+    std::unique_ptr<TextEditor::AssistInterface> createAssistInterface(
+        TextEditor::AssistKind assistKind, TextEditor::AssistReason assistReason) const override;
+
+    void setUniformsCallback(const std::function<QStringList()> &callback);
+
 signals:
     void returnKeyClicked();
 
@@ -36,6 +41,11 @@ public:
     Core::IContext *m_context = nullptr;
     QAction *m_completionAction = nullptr;
     bool m_isMultiline = true;
+
+private:
+    QStringList getUniforms() const;
+
+    std::function<QStringList()> m_getUniforms;
 };
 
 class EffectDocument : public QmlJSEditor::QmlJSEditorDocument

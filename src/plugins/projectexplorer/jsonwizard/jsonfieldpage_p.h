@@ -215,6 +215,7 @@ public:
     bool suppressName() const override { return true; }
 
     void setChecked(bool);
+    bool isChecked() const;
 
 private:
     bool parseData(const QVariant &data, QString *errorMessage) override;

@@ -12,22 +12,30 @@ import StudioTheme as StudioTheme
 import BackendApi
 
 Item {
+    id: root
+
     width: DialogValues.stylesPaneWidth
 
-    Component.onCompleted: {
-        BackendApi.stylesLoaded = true
-
-        /*
-         * TODO: roleNames is called before the backend model (in the proxy class StyleModel) is
-         * loaded, which may be buggy. But I found no way to force refresh the model, so as to
-         * reload the role names afterwards. setting styleModel.dynamicRoles doesn't appear to do
-         * anything.
-        */
+    function synchronize() {
+        stylesList.currentIndex = BackendApi.styleModel.findIndex(BackendApi.styleName)
+        styleTitleText.refresh()
     }
 
-    Component.onDestruction: {
-        BackendApi.stylesLoaded = false
+    Connections {
+        target: BackendApi.styleModel
+        function onModelReset() {
+            root.synchronize()
+        }
     }
+
+    Connections {
+        target: BackendApi
+        function onStyleNameChanged() {
+            root.synchronize()
+        }
+    }
+
+    Component.onCompleted: root.synchronize()
 
     Rectangle {
         color: DialogValues.lightPaneColor
@@ -79,7 +87,7 @@ Item {
 
                 onActivated: (index) => {
                     BackendApi.styleModel.filter(currentValue.toLowerCase())
-                    styleTitleText.refresh()
+                    root.synchronize()
                 }
             } // Style Filter ComboBox
 
@@ -116,13 +124,15 @@ Item {
                     highlightFollowsCurrentItem: false
                     bottomMargin: -DialogValues.styleListItemBottomMargin
 
-                    onCurrentIndexChanged: {
-                        if (BackendApi.styleModel.rowCount() > 0)
-                            BackendApi.styleIndex = stylesList.currentIndex
+                    onCurrentItemChanged: {
+                        if (stylesList.currentItem)
+                            BackendApi.styleName = stylesList.currentItem.styleName
                     }
 
                     delegate: ItemDelegate {
                         id: delegateId
+
+                        readonly property string styleName: model.display
                         width: stylesList.width
                         height: DialogValues.styleListItemHeight
                         hoverEnabled: true
@@ -170,13 +180,12 @@ Item {
                                         width: DialogValues.styleImageWidth
                                         height: DialogValues.styleImageHeight
                                         asynchronous: false
-                                        source: "image://newprojectdialog_library/" + BackendApi.styleModel.iconId(model.index)
+                                        source: "image://newprojectdialog_library/" + model.iconName
                                     }
                                 } // Rectangle
 
                                 Text {
-                                    id: styleText
-                                    text: model.display
+                                    text: delegateId.styleName
                                     font.pixelSize: DialogValues.defaultPixelSize
                                     lineHeight: DialogValues.defaultLineHeight
                                     height: DialogValues.styleTextHeight
@@ -186,17 +195,8 @@ Item {
                                     color: DialogValues.textColor
                                 }
                             } // Column
-                        }
-                    }
-
-                    Connections {
-                        target: BackendApi.styleModel
-                        function onModelReset() {
-                            stylesList.currentIndex = BackendApi.styleIndex
-                            stylesList.currentIndexChanged()
-                            styleTitleText.refresh()
-                        }
-                    }
+                        }// Item
+                    }// ItemDelegate
                 } // ListView
             } // ScrollView
         } // Parent Item

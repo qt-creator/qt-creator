@@ -17,6 +17,9 @@ class QMLDESIGNERCORE_EXPORT SignalHandlerProperty final : public AbstractProper
 public:
     void setSource(const QString &source);
     QString source() const;
+    QString sourceNormalizedWithBraces() const;
+
+    bool useNewFunctionSyntax();
 
     SignalHandlerProperty();
     SignalHandlerProperty(const SignalHandlerProperty &property, AbstractView *view);
@@ -30,6 +33,8 @@ public:
                           AbstractView *view)
         : AbstractProperty(propertyName, internalNode, model, view)
     {}
+
+    static QString normalizedSourceWithBraces(const QString &source);
 };
 
 class QMLDESIGNERCORE_EXPORT SignalDeclarationProperty final : public AbstractProperty

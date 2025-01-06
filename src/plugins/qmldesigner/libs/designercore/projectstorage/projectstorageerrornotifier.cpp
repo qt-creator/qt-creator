@@ -30,4 +30,14 @@ void ProjectStorageErrorNotifier::propertyNameDoesNotExists(Utils::SmallStringVi
              << " in file: " << m_pathCache.sourcePath(sourceId).toStringView();
 }
 
+void ProjectStorageErrorNotifier::qmlDocumentDoesNotExistsForQmldirEntry(Utils::SmallStringView typeName,
+                                                                         Storage::Version,
+                                                                         SourceId qmlDocumentSourceId,
+                                                                         SourceId qmldirSourceId)
+{
+    qDebug() << "Not existing Qml Document "
+             << m_pathCache.sourcePath(qmlDocumentSourceId).toStringView() << " for type "
+             << typeName << " in file: " << m_pathCache.sourcePath(qmldirSourceId).toStringView();
+}
+
 } // namespace QmlDesigner

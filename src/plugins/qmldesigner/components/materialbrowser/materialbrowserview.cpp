@@ -255,7 +255,7 @@ void MaterialBrowserView::modelAttached(Model *model)
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
     m_widget->materialBrowserModel()->setIsQt6Project(externalDependencies().isQt6Project());
 
-    // Project load is already very busy and may even trigger puppet reset, so let's wait a moment
+    // Project load is already very busy and may even trigger QML Puppet reset, so let's wait a moment
     // before refreshing the model
     QTimer::singleShot(1000, model, [this] {
         refreshModel(true);
@@ -581,7 +581,7 @@ void MaterialBrowserView::importsChanged([[maybe_unused]] const Imports &addedIm
 
     loadPropertyGroups();
 
-    // Import change will trigger puppet reset, so we don't want to update previews immediately
+    // Import change will trigger QML Puppet reset, so we don't want to update previews immediately
     refreshModel(false);
 }
 
@@ -623,7 +623,7 @@ void MaterialBrowserView::currentStateChanged([[maybe_unused]] const ModelNode &
 void MaterialBrowserView::instancesCompleted(const QVector<ModelNode> &completedNodeList)
 {
     for (const ModelNode &node : completedNodeList) {
-        // We use root node completion as indication of puppet reset
+        // We use root node completion as indication of QML Puppet reset
         if (node.isRootNode()) {
             m_puppetResetPending  = false;
             QTimer::singleShot(1000, this, [this] {

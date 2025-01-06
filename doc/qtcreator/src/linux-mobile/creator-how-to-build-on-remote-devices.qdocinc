@@ -18,7 +18,7 @@
             add the path to the CMake executable on the \1.
 
         \li Go to \uicontrol {Preferences} > \uicontrol Kits >
-            \uicontrol {Qt Versions}, and then press \key Shift and click the
+            \uicontrol {Qt Versions}, and then select and hold \key Shift and select the
             \uicontrol Add button to add the Qt version on the \1.
 
         \li Go to \uicontrol {Preferences} > \uicontrol Kits >

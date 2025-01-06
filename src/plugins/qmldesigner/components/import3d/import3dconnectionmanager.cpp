@@ -29,7 +29,7 @@ void Import3dConnectionManager::setPreviewImageCallback(ImageCallback callback)
 void Import3dConnectionManager::dispatchCommand(const QVariant &command,
                                                 ConnectionManagerInterface::Connection &connection)
 {
-    static const int commandType = QMetaType::type("PuppetToCreatorCommand");
+    static const int commandType = QMetaType::fromName("PuppetToCreatorCommand").id();;
 
     if (command.typeId() == commandType) {
         auto cmd = command.value<PuppetToCreatorCommand>();

@@ -1,11 +1,6 @@
 [
-    "Basic.wrk",
-    "UX-Design.wrk",
-    "Essentials.wrk",
-    "Animation-2D.wrk",
-    "Essentials-3D.wrk",
-    "Animation-3D.wrk",
-    "Advanced-3D.wrk",
-    "Code.wrk",
-    "Views-All.wrk"
+    "Basic-2D.wrk",
+    "Basic-3D.wrk",
+    "Advanced-2D.wrk",
+    "Advanced-3D.wrk"
 ]

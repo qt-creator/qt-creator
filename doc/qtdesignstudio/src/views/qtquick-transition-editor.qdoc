@@ -16,8 +16,8 @@
     \uicontrol {Transitions} to animate the changes between
     states.
 
-    First, you need to \l{Working with States}{add states} in the \l States view
-    and \l{Specifying Component Properties}{edit some properties} that can be
+    First, you need to \l{Working with states}{add states} in the \l States view
+    and \l{Specifying component properties}{edit some properties} that can be
     animated, such as colors or numbers, in the \l Properties view. For example,
     you can animate the changes in the position of a component.
 
@@ -25,17 +25,17 @@
 
     In \uicontrol {Transitions}, you can set the start frame, end
     frame, and duration for the transition of each property. You can also
-    set an \l{Editing Easing Curves}{easing curve} for each animation and
+    set an \l{Editing easing curves}{easing curve} for each animation and
     the maximum duration of the whole transition.
 
     \section1 Zooming in Transitions
 
     Use the slider on the toolbar to set the zooming level in
-    \uicontrol {Transitions}. Select the \inlineimage icons/zoom_small.png
-    and \inlineimage icons/zoom_big.png
+    \uicontrol {Transitions}. Select the \imagezoomsmall
+    and \imagezoombig
     buttons to zoom out of or into the view.
 
-    \section1 Animating Transitions Between States
+    \section1 Animating transitions between states
 
     To animate transitions:
 
@@ -43,7 +43,7 @@
         \li Select \uicontrol View > \uicontrol Views >
             \uicontrol {Transition Editor}.
             \image qmldesigner-transition-editor-startup.webp "Empty Transitions view"
-        \li Select the \inlineimage icons/plus.png
+        \li Select the \imageplus
             (\uicontrol {Add Transition}) button to add a transition. This
             works only if you have added at least one state and modified at
             least one property in it.
@@ -51,14 +51,14 @@
         \li Move the blue bar next to the component or property name to set
             the start and end frame of the animation of the property. Pull its
             left and right edges to set the duration of the animation.
-        \li To attach an \l{Editing Easing Curves}{easing curve} to the
-            selected transition, select the \inlineimage icons/curve_editor.png
+        \li To attach an \l{Editing easing curves}{easing curve} to the
+            selected transition, select the \imagecurveeditor
             (\uicontrol {Easing Curve Editor (C)}) button.
     \endlist
 
-    \section1 Specifying Transition Settings
+    \section1 Specifying transition settings
 
-    To modify transition settings, select the \inlineimage icons/settings.png
+    To modify transition settings, select the \imagesettings
     (\uicontrol {Transition Settings (S)}) button in
     \uicontrol {Transition Editor}.
 
@@ -67,7 +67,7 @@
     To add transitions:
 
     \list 1
-        \li Select the \inlineimage icons/plus.png
+        \li Select the \imageplus
             (\uicontrol {Add Transition}) button.
         \li In the \uicontrol {Transition ID} field, enter an ID for the
             transition.
@@ -75,7 +75,7 @@
         \li In the \uicontrol To field, select the state to transition to.
     \endlist
 
-    To remove the current transition, select the \inlineimage icons/minus.png
+    To remove the current transition, select the \imageminus
     (\uicontrol {Remove Transition}) button.
 
 */

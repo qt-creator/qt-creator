@@ -341,7 +341,7 @@ Item {
                         spacing: stateBackground.thumbSpacing
 
                         Repeater {
-                            model: propertyChangesModel
+                            model: root.propertyChangesVisible ? propertyChangesModel : 0
 
                             delegate: Rectangle {
                                 id: propertyChanges

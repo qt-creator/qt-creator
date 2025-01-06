@@ -27,9 +27,9 @@
             symbol.
 
         \li To show tooltips for function signatures regardless of the
-            cursor position in the function call, press \key {Ctrl+Shift+D}.
+            cursor position in the function call, select \key {Ctrl+Shift+D}.
 
-        \li To show the full help on a Qt class or function, press \key F1 or
+        \li To show the full help on a Qt class or function, select \key F1 or
             select \uicontrol {Context Help} in the context menu.
             The documentation is shown in a
             view next to the code editor, or, if there is not enough vertical
@@ -305,7 +305,7 @@
     \title Detach the help window
 
     By default, context-sensitive help opens in a window next to the
-    code editor when you press \key F1. If there is not enough vertical
+    code editor when you select \key F1. If there is not enough vertical
     space, the help opens in the full-screen help mode.
 
     \if defined(qtdesignstudio)

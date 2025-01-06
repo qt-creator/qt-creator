@@ -24,13 +24,13 @@
 
     \list
 
-        \li \l {Creating UI Logic}
+        \li \l {Creating UI logic}
 
             You can turn your wireframe into an interactive prototype by
             adding the logic that enables your components to apply actions
             or react to mock data from backend systems to simulate complex
             experiences.
-        \li \l{Simulating Complex Experiences}
+        \li \l{Simulating complex experiences}
 
             You can connect UIs to different forms of data from various
             sources, such as QML-based data models, JavaScript files, and
@@ -38,20 +38,20 @@
             You can also connect your UI to Simulink to load live data from
             a Simulink simulation.
 
-        \li \l {Dynamic Behaviors}
+        \li \l {Dynamic behaviors}
 
             You can create connections between components to enable them to
             communicate with each other. The connections can be triggered by
             changes in component property values or in UI states.
 
-        \li \l {Validating with Target Hardware}
+        \li \l {Validating with target hardware}
 
             You can use the live preview feature to preview a UI file or the
             entire UI on the desktop, as well as on Android and embedded Linux
             devices. The changes you make to the UI are instantly visible
             to you in the preview.
 
-        \li \l {Asset Creation with Other Tools}
+        \li \l {Asset creation with other tools}
 
             Describes how to export designs containing 2D and 3D assets into
             files that you can import to projects in \QDS, how to import them,

@@ -19,7 +19,7 @@ auto &category()
 
 TypeHasInvalidSourceId::TypeHasInvalidSourceId()
 {
-    category().threadEvent("TypeHasInvalidSourceId"_t);
+    category().threadEvent("TypeHasInvalidSourceId");
 }
 
 const char *TypeHasInvalidSourceId::what() const noexcept
@@ -29,7 +29,7 @@ const char *TypeHasInvalidSourceId::what() const noexcept
 
 ModuleDoesNotExists::ModuleDoesNotExists()
 {
-    category().threadEvent("ModuleDoesNotExists"_t);
+    category().threadEvent("ModuleDoesNotExists");
 }
 
 const char *ModuleDoesNotExists::what() const noexcept
@@ -39,7 +39,7 @@ const char *ModuleDoesNotExists::what() const noexcept
 
 ModuleAlreadyExists::ModuleAlreadyExists()
 {
-    category().threadEvent("ModuleAlreadyExists"_t);
+    category().threadEvent("ModuleAlreadyExists");
 }
 
 const char *ModuleAlreadyExists::what() const noexcept
@@ -53,14 +53,14 @@ TypeNameDoesNotExists::TypeNameDoesNotExists(std::string_view typeName, SourceId
         Utils::SmallString::join(
             {"type: ", typeName, ", source id: ", Utils::SmallString::number(sourceId.internalId())})}
 {
-    category().threadEvent("TypeNameDoesNotExists"_t,
+    category().threadEvent("TypeNameDoesNotExists",
                            keyValue("type name", typeName),
                            keyValue("source id", sourceId));
 }
 
 PrototypeChainCycle::PrototypeChainCycle()
 {
-    category().threadEvent("PrototypeChainCycle"_t);
+    category().threadEvent("PrototypeChainCycle");
 }
 
 const char *PrototypeChainCycle::what() const noexcept
@@ -70,7 +70,7 @@ const char *PrototypeChainCycle::what() const noexcept
 
 AliasChainCycle::AliasChainCycle()
 {
-    category().threadEvent("AliasChainCycle"_t);
+    category().threadEvent("AliasChainCycle");
 }
 
 const char *AliasChainCycle::what() const noexcept
@@ -80,7 +80,7 @@ const char *AliasChainCycle::what() const noexcept
 
 CannotParseQmlTypesFile::CannotParseQmlTypesFile()
 {
-    category().threadEvent("CannotParseQmlTypesFile"_t);
+    category().threadEvent("CannotParseQmlTypesFile");
 }
 
 const char *CannotParseQmlTypesFile::what() const noexcept
@@ -90,7 +90,7 @@ const char *CannotParseQmlTypesFile::what() const noexcept
 
 CannotParseQmlDocumentFile::CannotParseQmlDocumentFile()
 {
-    category().threadEvent("CannotParseQmlDocumentFile"_t);
+    category().threadEvent("CannotParseQmlDocumentFile");
 }
 
 const char *CannotParseQmlDocumentFile::what() const noexcept
@@ -100,7 +100,7 @@ const char *CannotParseQmlDocumentFile::what() const noexcept
 
 DirectoryInfoHasInvalidProjectSourceId::DirectoryInfoHasInvalidProjectSourceId()
 {
-    category().threadEvent("DirectoryInfoHasInvalidProjectSourceId"_t);
+    category().threadEvent("DirectoryInfoHasInvalidProjectSourceId");
 }
 
 const char *DirectoryInfoHasInvalidProjectSourceId::what() const noexcept
@@ -110,7 +110,7 @@ const char *DirectoryInfoHasInvalidProjectSourceId::what() const noexcept
 
 DirectoryInfoHasInvalidSourceId::DirectoryInfoHasInvalidSourceId()
 {
-    category().threadEvent("DirectoryInfoHasInvalidSourceId"_t);
+    category().threadEvent("DirectoryInfoHasInvalidSourceId");
 }
 
 const char *DirectoryInfoHasInvalidSourceId::what() const noexcept
@@ -120,7 +120,7 @@ const char *DirectoryInfoHasInvalidSourceId::what() const noexcept
 
 DirectoryInfoHasInvalidModuleId::DirectoryInfoHasInvalidModuleId()
 {
-    category().threadEvent("DirectoryInfoHasInvalidModuleId"_t);
+    category().threadEvent("DirectoryInfoHasInvalidModuleId");
 }
 
 const char *DirectoryInfoHasInvalidModuleId::what() const noexcept
@@ -130,7 +130,7 @@ const char *DirectoryInfoHasInvalidModuleId::what() const noexcept
 
 FileStatusHasInvalidSourceId::FileStatusHasInvalidSourceId()
 {
-    category().threadEvent("FileStatusHasInvalidSourceId"_t);
+    category().threadEvent("FileStatusHasInvalidSourceId");
 }
 
 const char *FileStatusHasInvalidSourceId::what() const noexcept
@@ -160,12 +160,12 @@ const char *ProjectStorageErrorWithMessage::what() const noexcept
 ExportedTypeCannotBeInserted::ExportedTypeCannotBeInserted(std::string_view errorMessage)
     : ProjectStorageErrorWithMessage{"ExportedTypeCannotBeInserted"sv, errorMessage}
 {
-    category().threadEvent("ExportedTypeCannotBeInserted"_t, keyValue("error message", errorMessage));
+    category().threadEvent("ExportedTypeCannotBeInserted", keyValue("error message", errorMessage));
 }
 
 TypeAnnotationHasInvalidSourceId::TypeAnnotationHasInvalidSourceId()
 {
-    category().threadEvent("TypeAnnotationHasInvalidSourceId"_t);
+    category().threadEvent("TypeAnnotationHasInvalidSourceId");
 }
 
 const char *TypeAnnotationHasInvalidSourceId::what() const noexcept

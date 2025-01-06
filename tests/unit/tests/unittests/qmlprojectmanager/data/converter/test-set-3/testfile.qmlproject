@@ -91,6 +91,7 @@ Project {
     QDS.targetDirectory: "/opt/UntitledProject13"
 
     QDS.enableCMakeGeneration: false
+    QDS.enablePythonGeneration: false
 
     QDS.qdsVersion: "4.0"
 

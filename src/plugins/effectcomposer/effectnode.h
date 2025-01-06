@@ -26,6 +26,7 @@ public:
     QString description() const;
     QString qenPath() const;
     QHash<QString, QString> defaultImagesHash() const { return m_defaultImagesHash; }
+    bool isCustom() const { return m_isCustom; }
 
     void setCanBeAdded(bool enabled);
 
@@ -39,6 +40,7 @@ private:
     QString m_description;
     QString m_qenPath;
     QUrl m_iconPath;
+    bool m_isCustom = false;
     bool m_canBeAdded = true;
     QSet<QString> m_uniformNames;
     QHash<QString, QString> m_defaultImagesHash;

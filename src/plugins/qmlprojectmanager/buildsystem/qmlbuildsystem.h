@@ -74,11 +74,13 @@ public:
     Utils::EnvironmentItems environment() const;
 
     QStringList allImports() const;
-    QStringList importPaths() const;
     QStringList mockImports() const;
     QStringList absoluteImportPaths() const;
     QStringList targetImportPaths() const;
     QStringList fileSelectors() const;
+
+    QStringList importPaths() const;
+    void addImportPath(const Utils::FilePath &path);
 
     bool multilanguageSupport() const;
     QStringList supportedLanguages() const;
@@ -92,6 +94,9 @@ public:
 
     bool enablePythonGeneration() const;
     void setEnablePythonGeneration(bool enable);
+
+    bool standaloneApp() const;
+    void setStandaloneApp(bool enable);
 
     bool forceFreeType() const;
     bool widgetApp() const;
@@ -114,6 +119,8 @@ public:
     Utils::FilePath getStartupQmlFileWithFallback() const;
 
     static QmlBuildSystem *getStartupBuildSystem();
+
+    void addQmlProjectModule(const Utils::FilePath &path);
 
 signals:
     void projectChanged();

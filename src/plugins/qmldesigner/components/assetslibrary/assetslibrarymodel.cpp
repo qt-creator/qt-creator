@@ -5,6 +5,7 @@
 
 #include <modelnodeoperations.h>
 #include <qmldesignerplugin.h>
+#include <qmldesignertr.h>
 #include <uniquename.h>
 
 #include <qmldesignerbase/settings/designersettings.h>
@@ -37,10 +38,10 @@ void AssetsLibraryModel::createBackendModel()
     m_sourceFsModel->setReadOnly(false);
 
     setSourceModel(m_sourceFsModel);
-    QObject::connect(m_sourceFsModel, &QFileSystemModel::directoryLoaded, this, &AssetsLibraryModel::directoryLoaded);
 
     QObject::connect(m_sourceFsModel, &QFileSystemModel::directoryLoaded, this,
                      [this]([[maybe_unused]] const QString &dir) {
+        emit directoryLoaded(dir);
         syncIsEmpty();
     });
 
@@ -131,8 +132,8 @@ void AssetsLibraryModel::deleteFiles(const QStringList &filePaths, bool dontAskA
                 }
             } else {
                 QMessageBox::warning(Core::ICore::dialogParent(),
-                                     tr("Failed to Delete File"),
-                                     tr("Could not delete \"%1\".").arg(filePath));
+                                     Tr::tr("Failed to Delete File"),
+                                     Tr::tr("Could not delete \"%1\".").arg(filePath));
             }
         }
     }
@@ -177,8 +178,18 @@ bool AssetsLibraryModel::deleteFolderRecursively(const QModelIndex &folderIndex)
 {
     auto idx = mapToSource(folderIndex);
     bool ok = m_sourceFsModel->remove(idx);
-    if (!ok)
+
+    if (ok) {
+        Utils::FilePath parentPath = Utils::FilePath::fromString(filePath(folderIndex));
+        const QStringList paths = s_folderExpandStateHash.keys();
+
+        for (const QString &path : paths) {
+            if (Utils::FilePath::fromString(path).isChildOf(parentPath))
+                s_folderExpandStateHash.remove(path);
+        }
+    } else {
         qWarning() << __FUNCTION__ << " could not remove folder recursively: " << m_sourceFsModel->filePath(idx);
+    }
 
     return ok;
 }
@@ -203,6 +214,59 @@ bool AssetsLibraryModel::isSameOrDescendantPath(const QUrl &source, const QStrin
     Utils::FilePath targetPath = Utils::FilePath::fromString(target);
 
     return srcPath == targetPath || targetPath.isChildOf(srcPath);
+}
+
+bool AssetsLibraryModel::folderExpandState(const QString &path) const
+{
+    return s_folderExpandStateHash.value(path);
+}
+
+void AssetsLibraryModel::initializeExpandState(const QString &path)
+{
+    if (!s_folderExpandStateHash.contains(path))
+        saveExpandState(path, true);
+}
+
+void AssetsLibraryModel::saveExpandState(const QString &path, bool expand)
+{
+    s_folderExpandStateHash.insert(path, expand);
+}
+
+bool AssetsLibraryModel::isDelegateEmpty(const QString &path) const
+{
+    QModelIndex proxyIndex = indexForPath(path);
+
+    if (!isDirectory(proxyIndex))
+        return true;
+
+    QModelIndex sourceIndex = mapToSource(proxyIndex);
+
+    // Populates the folder's contents if it hasn't already (e.g., collapsed folder)
+    sourceModel()->fetchMore(sourceIndex);
+
+    return sourceModel()->rowCount(sourceIndex) == 0;
+}
+
+void AssetsLibraryModel::updateExpandPath(const Utils::FilePath &oldPath, const Utils::FilePath &newPath)
+{
+    // update parent folder expand state
+    bool value = s_folderExpandStateHash.take(oldPath.toFSPathString());
+    saveExpandState(newPath.toFSPathString(), value);
+
+    const QStringList paths = s_folderExpandStateHash.keys();
+
+    for (const QString &path : paths) {
+        Utils::FilePath childPath = Utils::FilePath::fromString(path);
+
+        // update subfolders expand states
+        if (childPath.isChildOf(oldPath)) {
+            QString relativePath = Utils::FilePath::calcRelativePath(path, oldPath.toFSPathString());
+            Utils::FilePath newChildPath = newPath.pathAppended(relativePath);
+
+            value = s_folderExpandStateHash.take(path);
+            saveExpandState(newChildPath.toFSPathString(), value);
+        }
+    }
 }
 
 bool AssetsLibraryModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const

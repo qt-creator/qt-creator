@@ -7,4 +7,5 @@ extend_qtc_test(unittest
     modelnode-test.cpp
     modelresourcemanagement-test.cpp
     nodelistproperty-test.cpp
+    rewriterview-test.cpp
 )

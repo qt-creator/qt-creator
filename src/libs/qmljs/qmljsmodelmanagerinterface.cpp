@@ -327,6 +327,11 @@ void ModelManagerInterface::cancelAllThreads()
     m_futureSynchronizer.cancelAllFutures();
 }
 
+void ModelManagerInterface::waitForFinished()
+{
+    m_futureSynchronizer.waitForFinished();
+}
+
 Snapshot ModelManagerInterface::snapshot() const
 {
     return m_syncedData.readLocked()->m_validSnapshot;

@@ -19,13 +19,13 @@ Rectangle {
     signal saveClicked
     signal saveAsClicked
     signal assignToSelectedClicked
-    signal openShadersCodeEditor
 
     Row {
         spacing: 5
         anchors.verticalCenter: parent.verticalCenter
 
         HelperWidgets.AbstractButton {
+            objectName: "btnAddComposition"
             style: StudioTheme.Values.viewBarButtonStyle
             buttonIcon: StudioTheme.Constants.add_medium
             tooltip: qsTr("Add new composition")
@@ -34,6 +34,7 @@ Rectangle {
         }
 
         HelperWidgets.AbstractButton {
+            objectName: "btnSaveComposition"
             style: StudioTheme.Values.viewBarButtonStyle
             buttonIcon: StudioTheme.Constants.save_medium
             tooltip: qsTr("Save current composition")
@@ -46,6 +47,7 @@ Rectangle {
         }
 
         HelperWidgets.AbstractButton {
+            objectName: "btnSaveAsComposition"
             style: StudioTheme.Values.viewBarButtonStyle
             buttonIcon: StudioTheme.Constants.saveAs_medium
             tooltip: qsTr("Save current composition with a new name")
@@ -57,19 +59,10 @@ Rectangle {
         }
 
         HelperWidgets.AbstractButton {
-            style: StudioTheme.Values.viewBarButtonStyle
-            buttonIcon: StudioTheme.Constants.codeEditor_medium
-            tooltip: qsTr("Open Code")
-            enabled: root.backendModel ? root.backendModel.isEnabled
-                                         && root.backendModel.currentComposition !== ""
-                                       : false
+            objectName: "btnAssignCompositionToItem"
 
-            onClicked: root.openShadersCodeEditor()
-        }
-
-        HelperWidgets.AbstractButton {
             style: StudioTheme.Values.viewBarButtonStyle
-            buttonIcon: StudioTheme.Constants.assignTo_medium
+            buttonIcon: StudioTheme.Constants.assignTo_small
             tooltip: qsTr("Assign current composition to selected item")
             enabled: root.backendModel ? root.backendModel.hasValidTarget
                                          && root.backendModel.isEnabled
@@ -80,7 +73,6 @@ Rectangle {
         }
     }
 
-
     Text {
         readonly property string compName: root.backendModel ? root.backendModel.currentComposition
                                                              : ""
@@ -90,20 +82,43 @@ Rectangle {
         color: StudioTheme.Values.themeTextColor
     }
 
-    HelperWidgets.AbstractButton {
+    Row {
+        spacing: 5
         anchors.verticalCenter: parent.verticalCenter
         anchors.rightMargin: 5
         anchors.right: parent.right
 
-        style: StudioTheme.Values.viewBarButtonStyle
-        buttonIcon: StudioTheme.Constants.help
-        tooltip: qsTr("How to use Effect Composer:
+        HelperWidgets.AbstractButton {
+            objectName: "btnEffectComposerAdvancedMode"
+
+            anchors.verticalCenter: parent.verticalCenter
+
+            style: StudioTheme.Values.viewBarButtonStyle
+            buttonIcon: StudioTheme.Constants.advancedCodeView_medium
+            tooltip: qsTr("In advanced mode, you can manage effect properties and edit shader code for all effects.")
+            checkable: true
+            checked: root.backendModel ? root.backendModel.advancedMode : false
+
+            onClicked: root.backendModel.advancedMode = !root.backendModel.advancedMode
+        }
+
+        HelperWidgets.AbstractButton {
+            id: openHelpButton
+
+            objectName: "btnEffectComposerHelp"
+
+            anchors.verticalCenter: parent.verticalCenter
+
+            style: StudioTheme.Values.viewBarButtonStyle
+            buttonIcon: StudioTheme.Constants.help
+            tooltip: qsTr("How to use Effect Composer:
 1. Click \"+ Add Effect\" to add effect node
 2. Adjust the effect nodes properties
 3. Change the order of the effects, if you like
 4. See the preview
 5. Save in the assets library, if you wish to reuse the effect later")
 
-        onClicked: Qt.openUrlExternally("https://doc.qt.io/qtdesignstudio/qtquick-effect-composer-view.html")
+            onClicked: Qt.openUrlExternally("https://doc.qt.io/qtdesignstudio/qtquick-effect-composer-view.html")
+        }
     }
 }

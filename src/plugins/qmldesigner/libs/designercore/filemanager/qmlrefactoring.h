@@ -19,7 +19,9 @@ public:
         Invalid = -1,
         ArrayBinding = 1,
         ObjectBinding = 2,
-        ScriptBinding = 3
+        ScriptBinding = 3,
+        SignalHandlerOldSyntax = 4,
+        SignalHandlerNewSyntax = 5
     };
 
 public:

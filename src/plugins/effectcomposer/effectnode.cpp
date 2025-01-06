@@ -29,6 +29,7 @@ EffectNode::EffectNode(const QString &qenPath)
 
     m_name = node.name();
     m_description = node.description();
+    m_isCustom = node.isCustom();
 
     const QList<Uniform *> uniforms = node.uniforms();
     for (const Uniform *uniform : uniforms) {

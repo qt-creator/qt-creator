@@ -25,15 +25,23 @@ class NodeMetaInfo;
 class AssetPath
 {
 public:
-    Utils::FilePath basePath;
-    QString relativePath;
+    AssetPath(const Utils::FilePath &bsPath, const QString &relPath, const QStringList &imports = {})
+        : basePath(bsPath)
+        , relativePath(relPath)
+        , importsToRemove(imports)
+    {}
 
     Utils::FilePath absFilPath() const;
+    QByteArray fileContent() const;
 
     bool operator==(const AssetPath &other) const
     {
         return basePath == other.basePath && relativePath == other.relativePath;
     }
+
+    Utils::FilePath basePath;
+    QString relativePath;
+    QStringList importsToRemove;
 
 private:
     friend size_t qHash(const AssetPath &asset)
@@ -55,6 +63,8 @@ public:
     QString nodeNameToComponentFileName(const QString &name) const;
     QPair<QString, QSet<AssetPath>> modelNodeToQmlString(const ModelNode &node, int depth = 0);
     QString getImportPath() const;
+    QSet<AssetPath> getComponentDependencies(const Utils::FilePath &filePath,
+                                             const Utils::FilePath &mainCompDir) const;
 
 private:
     void createImporter();
@@ -64,8 +74,6 @@ private:
     void addIconAndCloseZip(const auto &image);
     Utils::FilePath componentPath(const NodeMetaInfo &metaInfo) const;
     QSet<AssetPath> getBundleComponentDependencies(const ModelNode &node) const;
-    QSet<AssetPath> getComponentDependencies(const Utils::FilePath &filePath,
-                                             const Utils::FilePath &mainCompDir);
     void exportComponent(const ModelNode &node);
     void exportNode(const ModelNode &node, const QPixmap &iconPixmap = QPixmap());
 
@@ -74,7 +82,7 @@ private:
     Utils::UniqueObjectPtr<BundleImporter> m_importer;
     std::unique_ptr<ZipWriter> m_zipWriter;
     std::unique_ptr<QTemporaryDir> m_tempDir;
-    Utils::FilePath m_iconSavePath;
+    QString m_iconPath;
 
     static constexpr char BUNDLE_VERSION[] = "1.0";
 };

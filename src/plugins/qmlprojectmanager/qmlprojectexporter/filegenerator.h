@@ -34,11 +34,15 @@ public:
     bool isEnabled() const;
     void setEnabled(bool enabled);
 
+    bool standaloneApp() const;
+    void setStandaloneApp(bool value);
+
 protected:
     void updateMenuAction(const Utils::Id &id, std::function<bool(void)> isEnabled);
 
 private:
     bool m_enabled = false;
+    bool m_standaloneApp = false;
     QmlBuildSystem *m_buildSystem = nullptr;
 };
 

@@ -146,7 +146,7 @@ public:
     template<typename String>
     friend void convertToString(String &string, CompoundBasicId id)
     {
-        convertToString(string, id.id);
+        convertToString(string, id.mainId());
         convertToString(string, id.contextId());
     }
 

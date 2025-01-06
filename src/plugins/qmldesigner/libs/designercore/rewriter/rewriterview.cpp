@@ -53,12 +53,14 @@ bool debugQmlPuppet(const DesignerSettings &settings)
 }
 
 RewriterView::RewriterView(ExternalDependenciesInterface &externalDependencies,
-                           DifferenceHandling differenceHandling)
+                           DifferenceHandling differenceHandling,
+                           InstantQmlTextUpdate instantQmlTextUpdate)
     : AbstractView{externalDependencies}
     , m_differenceHandling(differenceHandling)
     , m_positionStorage(std::make_unique<ModelNodePositionStorage>())
     , m_modelToTextMerger(std::make_unique<Internal::ModelToTextMerger>(this))
     , m_textToModelMerger(std::make_unique<Internal::TextToModelMerger>(this))
+    , m_instantQmlTextUpdate(instantQmlTextUpdate)
 {
     setKind(Kind::Rewriter);
 
@@ -67,6 +69,7 @@ RewriterView::RewriterView(ExternalDependenciesInterface &externalDependencies,
     m_amendTimer.setInterval(800);
     connect(&m_amendTimer, &QTimer::timeout, this, &RewriterView::amendQmlText);
 
+#ifndef QDS_USE_PROJECTSTORAGE
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
     connect(modelManager,
             &QmlJS::ModelManagerInterface::libraryInfoUpdated,
@@ -83,6 +86,7 @@ RewriterView::RewriterView(ExternalDependenciesInterface &externalDependencies,
             this,
             &RewriterView::handleLibraryInfoUpdate,
             Qt::QueuedConnection);
+#endif
 }
 
 RewriterView::~RewriterView() = default;
@@ -99,10 +103,12 @@ Internal::TextToModelMerger *RewriterView::textToModelMerger() const
 
 void RewriterView::modelAttached(Model *model)
 {
-    QTC_ASSERT(m_textModifier, return);
-    m_modelAttachPending = false;
-
     AbstractView::modelAttached(model);
+
+    if (!m_textModifier)
+        return;
+
+    m_modelAttachPending = false;
 
     ModelAmender differenceHandler(m_textToModelMerger.get());
     const QString qmlSource = m_textModifier->text();
@@ -884,6 +890,7 @@ void RewriterView::setupCanonicalHashes() const
     }
 }
 
+#ifndef QDS_USE_PROJECTSTORAGE
 void RewriterView::handleLibraryInfoUpdate()
 {
     // Trigger dummy amend to reload document when library info changes
@@ -898,6 +905,7 @@ void RewriterView::handleProjectUpdate()
 {
     emit modelInterfaceProjectUpdated();
 }
+#endif
 
 ModelNode RewriterView::nodeAtTextCursorPosition(int cursorPosition) const
 {
@@ -913,8 +921,8 @@ bool RewriterView::renameId(const QString &oldId, const QString &newId)
                               && rootModelNode().hasBindingProperty(propertyName)
                               && rootModelNode().bindingProperty(propertyName).isAliasExport();
 
-        bool instant = m_instantQmlTextUpdate;
-        m_instantQmlTextUpdate = true;
+        auto instant = m_instantQmlTextUpdate;
+        m_instantQmlTextUpdate = InstantQmlTextUpdate::Yes;
 
         bool refactoring = textModifier()->renameId(oldId, newId);
 
@@ -940,7 +948,7 @@ const QmlJS::ScopeChain *RewriterView::scopeChain() const
 }
 #endif
 
-const QmlJS::Document *RewriterView::document() const
+QmlJS::Document::Ptr RewriterView::document() const
 {
     return textToModelMerger()->document();
 }
@@ -1158,7 +1166,8 @@ void RewriterView::qmlTextChanged()
     }
 
     case Amend: {
-        if (m_instantQmlTextUpdate || externalDependencies().instantQmlTextUpdate()) {
+        if (m_instantQmlTextUpdate == InstantQmlTextUpdate::Yes
+            || externalDependencies().instantQmlTextUpdate()) {
             amendQmlText();
         } else {
             if (externalDependencies().viewManagerUsesRewriterView(this)) {

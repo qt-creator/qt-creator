@@ -254,6 +254,18 @@ QtObject {
     readonly property int flowPillHeight: 20
     readonly property int flowPillRadius: 4
 
+    readonly property int cellWidth: 200
+    readonly property int cellHeight: 40
+
+    // Tab
+    readonly property int tabBarHorizontalMargin: 10
+    readonly property int tabBarSpacing: 2
+    readonly property int tabButtonHorizontalPadding: 15
+    readonly property int tabButtonVerticalPadding: 1
+
+    // TableView
+    readonly property int tableCellHorizontalMargin: 8
+
     // Theme Colors
 
     property bool isLightTheme: values.themeControlBackground.hsvValue > values.themeTextColor.hsvValue
@@ -470,6 +482,8 @@ QtObject {
     property color themePillText: Theme.color(Theme.DSpillText)
     property color themePillTextSelected: Theme.color(Theme.DSpillTextSelected)
     property color themePillTextEdit: Theme.color(Theme.DspillTextEdit)
+
+    property color themeTableCellCurrent: Theme.color(Theme.DStableCellCurrent)
 
     // Control Style Mapping
     property ControlStyle controlStyle: DefaultStyle {}

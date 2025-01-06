@@ -16,7 +16,7 @@ StudioControls.Dialog {
     closePolicy: Popup.CloseOnEscape
     modal: true
 
-    required property string dirPath
+    property string dirPath
     property string createdDirPath: ""
     readonly property int __maxPath: 260
 
@@ -87,7 +87,7 @@ StudioControls.Dialog {
                 enabled: folderName.text !== "" && root.createdDirPath.length <= root.__maxPath
                 onClicked: {
                     let dirPathToCreate = root.dirPath + '/' + folderName.text
-                    root.createdDirPath = AssetsLibraryBackend.assetsModel.addNewFolder(root.createdDirPath)
+                    root.createdDirPath = AssetsLibraryBackend.assetsModel.addNewFolder(dirPathToCreate)
 
                     if (root.createdDirPath)
                         root.accept()
@@ -111,5 +111,10 @@ StudioControls.Dialog {
 
     onRejected: {
         root.createdDirPath = ""
+    }
+
+    function openDialog(dirPath) {
+        root.dirPath = dirPath
+        root.open()
     }
 }

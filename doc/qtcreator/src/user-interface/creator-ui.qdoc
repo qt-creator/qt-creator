@@ -11,7 +11,7 @@
     \nextpage creator-configuring.html
     \endif
 
-    \title User Interface
+    \title User interface
 
     \if defined(qtcreator)
     When you start \QC, it opens to the \uicontrol Welcome mode.

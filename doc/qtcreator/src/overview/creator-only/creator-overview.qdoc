@@ -68,12 +68,12 @@
     \image heartgame-start.webp {Heart Rate Game}
 
     To create intuitive, modern-looking, fluid user interfaces (UI), use
-    \l{Qt Quick} and \l{Qt Design Studio Manual}{\QDS}:
+    \l{Qt Quick} and \l{Qt Design Studio documentation}{\QDS}:
 
     \list
         \li \l {\QMLD}
 
-            Or, enable the \QMLD plugin to visually edit \l{UI Files}{UI files}
+            Or, enable the \QMLD plugin to visually edit \l{UI files}
             (.ui.qml).
         \li \l {Converting UI Projects to Applications}
 
@@ -82,14 +82,14 @@
             development, you have to convert them to Qt Quick
             Application projects that have project configuration
             files (CMakeLists.txt or .pro), .cpp, and .qrc files.
-        \li \l {UI Files}
+        \li \l {UI files}
 
             If you switch between \QC and \QDS or cooperate with
             designers on a project, you might encounter .ui.qml files.
             They are intended to be edited in \QDS only, so you need
             to be careful not to break the code. To visually edit the
             files in \QC, enable the \QMLD plugin.
-        \li \l{Using QML Modules with Plugins}
+        \li \l{Using QML modules with plugins}
 
             Load C++ plugins for QML to simulate data.
     \endlist

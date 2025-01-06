@@ -298,7 +298,7 @@ QList<QmlTimelineKeyframeGroup> QmlTimeline::allKeyframeGroups() const
 
     for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
         if (QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(childNode))
-            returnList.append(QmlTimelineKeyframeGroup(childNode));
+            returnList.emplace_back(childNode);
     }
 
     return returnList;

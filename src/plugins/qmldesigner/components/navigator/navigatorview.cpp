@@ -181,21 +181,14 @@ void NavigatorView::modelAttached(Model *model)
 void NavigatorView::clearExplorerWarnings()
 {
     QList<ModelNode> allNodes;
-    addNodeAndSubModelNodesToList(rootModelNode(), allNodes);
+    allNodes.append(rootModelNode());
+    allNodes.append(rootModelNode().allSubModelNodes());
     for (ModelNode node : allNodes) {
         if (node.metaInfo().isFileComponent()) {
             const ProjectExplorer::FileNode *fnode = fileNodeForModelNode(node);
             if (fnode)
                 fnode->setHasError(false);
         }
-    }
-}
-
-void NavigatorView::addNodeAndSubModelNodesToList(const ModelNode &node, QList<ModelNode> &nodes)
-{
-    nodes.append(node);
-    for (ModelNode subNode : node.allSubModelNodes()) {
-        addNodeAndSubModelNodesToList(subNode, nodes);
     }
 }
 
@@ -284,6 +277,16 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
         m_widget->setDragType(matNode.metaInfo().typeName());
 #endif
         m_widget->update();
+    } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM)) {
+        QByteArray data = mimeData->data(Constants::MIME_TYPE_BUNDLE_ITEM);
+        QDataStream stream(data);
+        TypeName bundleItemType;
+        stream >> bundleItemType;
+
+        if (bundleItemType.contains("UserMaterials")) {
+            m_widget->setDragType(Constants::MIME_TYPE_BUNDLE_MATERIAL);
+            m_widget->update();
+        }
     } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_TEXTURE)) {
         m_widget->setDragType(Constants::MIME_TYPE_BUNDLE_TEXTURE);
         m_widget->update();
@@ -301,8 +304,7 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
             auto assetTypeAndData = AssetsLibraryWidget::getAssetTypeAndData(assetsPaths[0]);
             QString assetType = assetTypeAndData.first;
             if (assetType == Constants::MIME_TYPE_ASSET_EFFECT) {
-                // We use arbitrary type name because at this time we don't have effect composer
-                // specific type
+                m_widget->setDragType(Constants::MIME_TYPE_ASSET_EFFECT);
                 m_widget->update();
             } else if (assetType == Constants::MIME_TYPE_ASSET_TEXTURE3D) {
                 m_widget->setDragType(Constants::MIME_TYPE_ASSET_TEXTURE3D);

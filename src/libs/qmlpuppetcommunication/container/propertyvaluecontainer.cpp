@@ -59,7 +59,7 @@ TypeName PropertyValueContainer::dynamicTypeName() const
 
 // The reflection flag indicates that a property change notification
 // is reflected. This means that the notification is the reaction to a
-// property change original done by the puppet itself.
+// property change originally done by the QML Puppet itself.
 // In the Qt5InformationNodeInstanceServer such notification are
 // therefore ignored.
 

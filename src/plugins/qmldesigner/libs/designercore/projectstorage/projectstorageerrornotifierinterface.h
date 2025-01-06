@@ -4,6 +4,7 @@
 #pragma once
 
 #include "projectstorageids.h"
+#include "projectstorageinfotypes.h"
 
 #include <utils/smallstringview.h>
 
@@ -24,6 +25,11 @@ public:
                                         SourceId sourceId)
         = 0;
     virtual void propertyNameDoesNotExists(Utils::SmallStringView propertyName, SourceId sourceId) = 0;
+    virtual void qmlDocumentDoesNotExistsForQmldirEntry(Utils::SmallStringView typeName,
+                                                        Storage::Version version,
+                                                        SourceId qmlDocumentSourceId,
+                                                        SourceId qmldirSourceId)
+        = 0;
 
 protected:
     ~ProjectStorageErrorNotifierInterface() = default;

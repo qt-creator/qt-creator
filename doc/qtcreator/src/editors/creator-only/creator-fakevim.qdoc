@@ -11,18 +11,18 @@
 
     To run the main editor in a manner similar to the Vim editor, go to
     \uicontrol Edit > \uicontrol Advanced and select \uicontrol {Use FakeVim},
-    or press \key {Alt+Y,Alt+Y}.
+    or select \key {Alt+Y,Alt+Y}.
 
     \section1 Escape FakeVim mode
 
     To temporarily escape FakeVim mode to access the normal \QC keyboard
-    shortcuts like \key {Ctrl-R} for \uicontrol Run, press the comma
+    shortcuts like \key {Ctrl-R} for \uicontrol Run, select the comma
     key (\key {,}) before pressing the shortcut.
 
     \section1 Quit FakeVim mode
 
     To quit the FakeVim mode, go to \uicontrol Edit > \uicontrol Advanced and
-    clear \uicontrol {Use FakeVim}, or press \key {Alt+Y,Alt+Y}.
+    clear \uicontrol {Use FakeVim}, or select \key {Alt+Y,Alt+Y}.
 
     \sa {FakeVim Modes and Commands}, {FakeVim}, {Change editor colors}
 */

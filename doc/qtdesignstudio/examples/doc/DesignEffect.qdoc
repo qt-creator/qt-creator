@@ -5,12 +5,12 @@
     \page design-effect-example.html
     \ingroup studioexamples
 
-    \title Design Effect
-    \brief Illustrates how to use the \QDS design effect.
+    \title Design Effects Demo
+    \brief Illustrates how to use the \QDS Design Effects.
 
     \image studio-design-effects-demo-gallery.webp
 
-    The \e{Design Effects Demo Gallery} example illustrates the use cases of the
+    The \e{Design Effects Demo} example illustrates various use cases of the
     design effects in \QDS. Learn more about design effects
     \l {https://doc.qt.io/qtdesignstudio/quick-design-effects.html}{here}.
 
@@ -18,7 +18,7 @@
     principles:
     \table
       \header
-        \li Design Effect
+        \li Design effect
         \li Description
       \row
         \li Neumorphism
@@ -39,7 +39,7 @@
     Watch this video tutorial to learn how to create these effects using \QDS design effects:
     \youtube h0p27_HScxc
 
-    \section1 Using Neumorphism Example
+    \section1 Using the Neumorphism example
 
     \image studio-neumorphism.webp
 
@@ -57,7 +57,7 @@
           accurately they translate into \QDS design effects.
           The animation gives a real-time animated Neumorphism design effect in \QDS.
 
-    \section1 Using Skeuomorphism Example
+    \section1 Using the Skeuomorphism example
 
     \image studio-skeuomorphism.webp
 
@@ -79,7 +79,7 @@
           these buttons to test different stages of the Skeuomorphism effect.
 
 
-    \section1 Using Glassmorphism Example
+    \section1 Using the Glassmorphism example
 
     \image studio-glassmorphism.webp
 
@@ -97,7 +97,7 @@
           part of the image hidden behind it would become blurred.
     \endlist
 
-    \section1 Using the Design Effect Demo Project
+    \section1 Using the Design Effect Demo project
 
     \image studio-design-effects-demo-project.webp
 
@@ -114,7 +114,7 @@
 
     To change the theme of the calculator between light and dark, select \uicontrol DARK.
 
-    \section2 Using Shadow or Blur Effects
+    \section2 Using shadow or blur effects
 
       To change the direction of the shadows on the calculator, drag \uicontrol {SHADOW DIR}
       up or down.
@@ -127,8 +127,7 @@
 
       To turn the design effects on or off in the calculator, select \uicontrol FX.
 
-    \section2 Using Music or Sound Effects
-
+    \section2 Using music or sound effects
       To play sound or music in the calculator:
       \list
         \li To play music in a loop, select \uicontrol CHRD, \uicontrol TECH, or

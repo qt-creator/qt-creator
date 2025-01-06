@@ -4,6 +4,11 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <qmldesignerplugin.h>
+#include <texteditor/texteditorview.h>
+
+#include <QDesktopServices>
+#include <QWindow>
 
 MessageModel::MessageModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -47,18 +52,29 @@ void MessageModel::jumpToCode(const QVariant &index)
     bool ok = false;
     if (int idx = index.toInt(&ok); ok) {
         if (idx >= 0 && std::cmp_less(idx, m_tasks.size())) {
-            // TODO:
-            // - Check why this does not jump to line/column
-            // - Only call this when sure that the task, file row etc are valid.
-            ProjectExplorer::Task task = m_tasks.at(idx);
+            ProjectExplorer::Task task = m_tasks.at(static_cast<size_t>(idx));
             const int column = task.column ? task.column - 1 : 0;
 
-            Utils::Link link(task.file, task.line, column);
-            Core::EditorManager::openEditorAt(link,
-                                              {},
-                                              Core::EditorManager::SwitchSplitIfAlreadyVisible);
+            if (Core::EditorManager::openEditor(task.file,
+                                                Utils::Id(),
+                                                Core::EditorManager::DoNotMakeVisible)) {
+
+                auto &viewManager = QmlDesigner::QmlDesignerPlugin::instance()->viewManager();
+                if (auto *editorView = viewManager.textEditorView()) {
+                    if (TextEditor::BaseTextEditor *editor = editorView->textEditor()) {
+                        editor->gotoLine(task.line, column);
+                        editor->widget()->setFocus();
+                        editor->editorWidget()->updateFoldingHighlight(QTextCursor());
+                    }
+                }
+            }
         }
     }
+}
+
+void MessageModel::openLink(const QVariant &url)
+{
+    QDesktopServices::openUrl(QUrl::fromUserInput(url.toString()));
 }
 
 int MessageModel::rowCount(const QModelIndex &) const
@@ -78,7 +94,7 @@ QHash<int, QByteArray> MessageModel::roleNames() const
 QVariant MessageModel::data(const QModelIndex &index, int role) const
 {
     if (index.isValid() && index.row() < rowCount()) {
-        int row = index.row();
+        size_t row = static_cast<size_t>(index.row());
         if (role == MessageRole) {
             return m_tasks.at(row).description();
         } else if (role == FileNameRole) {
@@ -140,7 +156,7 @@ void MessageModel::removeTask(const ProjectExplorer::Task &task)
 void MessageModel::clearTasks(const Utils::Id &categoryId)
 {
     beginResetModel();
-    std::erase_if(m_tasks, [categoryId](const ProjectExplorer::Task& task) {
+    std::erase_if(m_tasks, [categoryId](const ProjectExplorer::Task &task) {
         return task.category == categoryId;
     });
     endResetModel();

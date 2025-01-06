@@ -25,6 +25,12 @@ public:
     EffectComposerPlugin() {}
     ~EffectComposerPlugin() override {}
 
+    bool initialize(const QStringList &arguments, QString *errorString) override
+    {
+        EffectComposerView::registerDeclarativeTypes();
+        return ExtensionSystem::IPlugin::initialize(arguments, errorString);
+    }
+
     bool delayedInitialize() override
     {
         if (m_delayedInitialized)

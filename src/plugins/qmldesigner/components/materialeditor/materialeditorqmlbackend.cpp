@@ -6,14 +6,15 @@
 #include "materialeditorcontextobject.h"
 #include "materialeditorimageprovider.h"
 #include "materialeditortransaction.h"
-#include "propertyeditorvalue.h"
-#include <qmldesignerconstants.h>
-#include <qmltimeline.h>
 
-#include <qmlobjectnode.h>
-#include <nodemetainfo.h>
-#include <variantproperty.h>
 #include <bindingproperty.h>
+#include <nodemetainfo.h>
+#include <propertyeditorqmlbackend.h>
+#include <propertyeditorvalue.h>
+#include <qmldesignerconstants.h>
+#include <qmlobjectnode.h>
+#include <qmltimeline.h>
+#include <variantproperty.h>
 
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
@@ -21,8 +22,6 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QDir>
-#include <QFileInfo>
 #include <QQuickItem>
 #include <QQuickWidget>
 #include <QVector2D>
@@ -47,11 +46,13 @@ MaterialEditorQmlBackend::MaterialEditorQmlBackend(MaterialEditorView *materialE
 {
     m_quickWidget->setObjectName(Constants::OBJECT_NAME_MATERIAL_EDITOR);
     m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
-    m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
+    m_quickWidget->engine()->addImportPath(PropertyEditorQmlBackend::propertyEditorResourcesPath() + "/imports");
     m_quickWidget->engine()->addImageProvider("materialEditor", m_materialEditorImageProvider);
     m_contextObject->setBackendValues(&m_backendValuesPropertyMap);
     m_contextObject->setModel(materialEditor->model());
     context()->setContextObject(m_contextObject.get());
+    context()->setContextProperty("hasMaterial", QVariant(false));
+    context()->setContextProperty("modelNodeBackend", &m_backendModelNode);
 
     QObject::connect(&m_backendValuesPropertyMap, &DesignerPropertyMap::valueChanged,
                      materialEditor, &MaterialEditorView::changeValue);
@@ -268,13 +269,14 @@ void MaterialEditorQmlBackend::setup(const QmlObjectNode &selectedMaterialNode, 
     }
 }
 
-QString MaterialEditorQmlBackend::propertyEditorResourcesPath()
+// static
+QString MaterialEditorQmlBackend::materialEditorResourcesPath()
 {
 #ifdef SHARE_QML_PATH
     if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
-        return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
+        return QLatin1String(SHARE_QML_PATH) + "/materialEditorQmlSources";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
+    return Core::ICore::resourcePath("qmldesigner/materialEditorQmlSources").toString();
 }
 
 void MaterialEditorQmlBackend::emitSelectionToBeChanged()

@@ -6,7 +6,7 @@
     \page studio-exporting-and-importing.html
     \nextpage qtbridge-overview.html
 
-    \title Asset Creation with Other Tools
+    \title Asset creation with other tools
 
     Typically, you as a designer would like to use specialized UI design tools,
     such as Adobe Photoshop, Sketch, Figma, Blender, or Maya, and then send the
@@ -26,14 +26,14 @@
     \list 1
         \li Export your design from a design tool into a metadata
         format supported by \QDS.
-        \li \l{Creating Projects}{Create a project} in \QDS and import the
+        \li \l{Creating projects}{Create a project} in \QDS and import the
             metadata file to it.
         \li Edit the imported components and create more components in
             the \l {2D} and \l {3D} view.
         \li Animate your design in \l {Transitions} or \l Timeline
             and \l {Curves}.
         \li Create interactions in \l States and \l {Connections}.
-        \li \l{Validating with Target Hardware}{Preview} your design in
+        \li \l{Validating with target hardware}{Preview} your design in
             real time, on the desktop or on a mobile or an embedded device.
     \endlist
 
@@ -43,11 +43,11 @@
     \youtube pEETxSxYazg
 
     \list
-        \li \l {Exporting from Design Tools}
+        \li \l {Exporting from design tools}
 
             Export designs containing 2D and 3D assets into a metadata format
             that you can import to projects in \QDS.
-        \li \l{Importing Designs}
+        \li \l{Importing designs}
 
             Import assets that you exported from design tools to a \QDS project
             and edit them in the \uicontrol Design mode to create a UI.

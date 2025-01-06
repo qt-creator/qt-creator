@@ -3,6 +3,8 @@
 
 #include "itemlibraryitem.h"
 
+#include <QApplication>
+
 namespace QmlDesigner {
 
 ItemLibraryItem::ItemLibraryItem(const ItemLibraryEntry &itemLibraryEntry, bool isUsable, QObject *parent)
@@ -16,7 +18,7 @@ ItemLibraryItem::~ItemLibraryItem() = default;
 
 QString ItemLibraryItem::itemName() const
 {
-    return m_itemLibraryEntry.name();
+    return QApplication::translate("itemlibrary", m_itemLibraryEntry.name().toUtf8());
 }
 
 QString ItemLibraryItem::typeName() const

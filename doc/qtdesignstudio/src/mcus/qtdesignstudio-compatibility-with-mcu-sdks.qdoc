@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,18 +6,21 @@
     \page studio-compatibility-with-mcu-sdks.html
     \nextpage studio-features-on-mcu-projects.html
 
-    \title \QDS Version Compatibility with \QMCU SDKs
+    \title \QDS version compatibility with \QMCU SDKs
 
     The following table lists the \QDS versions you can use to develop
     applications with particular \QMCU SDK versions.
 
     \table
     \header
-        \li \QDS Version
-        \li \QMCU SDK Version
+        \li \QDS version
+        \li \QMCU SDK version
     \row
-        \li 4.5 or later
-        \li 2.8 or later
+        \li 4.7 or later
+        \li 2.9 or later
+    \row
+        \li 4.5 up to 4.6
+        \li 2.8
     \row
         \li 4.4
         \li 2.7

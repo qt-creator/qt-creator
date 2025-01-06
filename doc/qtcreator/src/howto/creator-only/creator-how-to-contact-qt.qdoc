@@ -45,6 +45,5 @@
     {#qt-creator} channel on Libera.Chat IRC, go to \uicontrol Help >
     \uicontrol Contact.
 
-    \sa {Paste and fetch code snippets}, {Technical Support},
-    {Turn on crash reports}
+    \sa {Paste and fetch code snippets}, {Technical support}
 */

@@ -345,7 +345,7 @@ private:
 public:
     NotNullPointer<ProjectStorageType> projectStorage = nullptr;
     NotNullPointer<PathCacheType> pathCache = nullptr;
-    ModelTracing::AsynchronousToken traceToken = ModelTracing::category().beginAsynchronous("Model"_t);
+    ModelTracing::AsynchronousToken traceToken = ModelTracing::category().beginAsynchronous("Model");
 
 private:
     Model *m_model = nullptr;

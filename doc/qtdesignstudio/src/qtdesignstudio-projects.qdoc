@@ -6,7 +6,7 @@
     \previouspage studio-keyboard-shortcuts.html
     \nextpage studio-use-cases.html
 
-    \title Creating Projects
+    \title Creating projects
 
     One of the major advantages of \QDS is that it allows a team of designers
     and developers to share a project across different development platforms
@@ -16,7 +16,7 @@
 
     \list
         \li Group files together.
-        \li Include \l{UI Files}{UI files} (.ui.qml), component files (.qml),
+        \li Include \l{UI files} (.ui.qml), component files (.qml),
             and assets files.
         \li Specify settings for previewing UIs.
     \endlist
@@ -34,7 +34,7 @@
         \li Purpose
     \row
         \li Recents
-        \li
+        \li \e {Not applicable}
         \li Lists your most recently used presets.
     \row
         \li {1,3} General
@@ -56,7 +56,7 @@
         \li MCU
         \li Creates an application that uses a subset of default components
             (as supported by \QMCU) that you can deploy, run, and debug
-            on MCU boards. For more information, see \l {Creating Projects for MCUs}.
+            on MCU boards. For more information, see \l {Creating projects for MCUs}.
     \row
         \li {1,3} Mobile
         \li Scroll
@@ -77,7 +77,7 @@
             images, and text, and defines a launcher application.
    \row
         \li Custom
-        \li
+        \li \e {Not applicable}
         \li Lists your saved custom presets.
             \note This tab is not visible if there are no saved custom presets.
     \endtable
@@ -86,13 +86,13 @@
 
     To test how well your designs work, you can preview the
     UIs on the desktop, embedded Linux devices, or Android devices. For more
-    information, see \l{Validating with Target Hardware}.
+    information, see \l{Validating with target hardware}.
 
     You can export designs from other design tools and import them to projects.
-    For more information, see \l{Exporting from Design Tools} and
-    \l{Importing Designs From Other Design Tools}.
+    For more information, see \l{Exporting from design tools} and
+    \l{Importing designs from other design tools}.
 
-    \section1 Creating a Project
+    \section1 Creating a project
 
     To create a project:
 
@@ -127,7 +127,7 @@
 
     \table
         \header
-            \li File/Folder
+            \li File or folder
             \li Description
         \row
             \li ProjectName.qmlproject
@@ -170,7 +170,7 @@
         \row
             \li Screen01.ui.qml
             \li This file defines a custom component that you can edit in the \uicontrol {2D} view.
-                For more information, see \l {UI Files}.
+                For more information, see \l {UI files}.
                 The project wizard generates this as the first scene.
         \row
             \li qtquickcontrols2.conf
@@ -184,7 +184,7 @@
 
     \table
         \header
-            \li File/Folder
+            \li File or folder
             \li Description
         \row
             \li \c {Generated} (folder)
@@ -213,10 +213,10 @@
     \endtable
 
     To use JavaScript and image files in the UI, select
-    \uicontrol Assets > \inlineimage icons/plus.png
+    \uicontrol Assets > \imageplus
     .
 
-    \section1 Using Custom Presets
+    \section1 Using custom presets
 
     You can save project settings as custom presets. All saved custom presets
     are available on the \uicontrol Custom tab in the
@@ -231,7 +231,7 @@
       preset.
     \endlist
 
-    \section1 Adding Files to Projects
+    \section1 Adding files to projects
 
     You can use wizard templates to add individual files to projects.
 
@@ -244,13 +244,13 @@
     \table
     \header
         \li Category
-        \li Wizard Template
+        \li Wizard template
         \li Purpose
     \row
         \li {1,4} Qt Quick Files
         \li Qt Quick File
         \li Generates a component with one of the following default components
-            or \l{Using Positioners}{positioners} as the root component:
+            or \l{Using positioners}{positioners} as the root component:
             \l {basic-item}{Item}, \l {basic-rectangle}{Rectangle}, \l {Images}
             {Image}, \l {Border Image}, \l Flickable, Row, Column, Flow, or
             Grid.
@@ -261,7 +261,7 @@
     \row
         \li Qt Quick Views
         \li Generates a Grid View or a List View. For more information, see
-            \l{List and Grid Views}.
+            \l{List Views and Grid Views}.
     \row
         \li Qt Quick UI Form
         \li Creates a UI file along with a matching QML file for
@@ -304,6 +304,6 @@
         \li Generates files that you can use to write the application logic.
             This is useful for testing the application before the developers
             implement the application logic in C++, for example. For more
-            information, see \l {Simulating Application Logic}.
+            information, see \l {Simulating application logic}.
     \endtable
 */

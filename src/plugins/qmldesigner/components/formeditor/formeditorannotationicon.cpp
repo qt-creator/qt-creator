@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "formeditorannotationicon.h"
+#include <qmldesignertr.h>
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsLinearLayout>
@@ -49,7 +50,7 @@ FormEditorAnnotationIcon::FormEditorAnnotationIcon(const ModelNode &modelNode, Q
         }
     }
 
-    setToolTip(tr("Annotation"));
+    setToolTip(Tr::tr("Annotation"));
     setCursor(Qt::ArrowCursor);
 }
 
@@ -182,13 +183,9 @@ void FormEditorAnnotationIcon::mouseReleaseEvent(QGraphicsSceneMouseEvent * even
 void FormEditorAnnotationIcon::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
     QMenu menu;
-    menu.addAction(tr("Edit Annotation"), [this] {
-        createAnnotationEditor();
-    });
+    menu.addAction(Tr::tr("Edit Annotation"), [this] { createAnnotationEditor(); });
 
-    menu.addAction(tr("Remove Annotation"), [this] {
-        removeAnnotationDialog();
-    });
+    menu.addAction(Tr::tr("Remove Annotation"), [this] { removeAnnotationDialog(); });
 
     menu.exec(event->screenPos());
     event->accept();
@@ -332,7 +329,7 @@ QGraphicsItem *FormEditorAnnotationIcon::createCommentBubble(QRectF rect, const 
 
     if (!author.isEmpty()) {
         QGraphicsTextItem *authorItem = new QGraphicsTextItem(frameItem);
-        authorItem->setPlainText(tr("By: ") + author);
+        authorItem->setPlainText(Tr::tr("By: ") + author);
         authorItem->setDefaultTextColor(textColor);
         authorItem->setTextWidth(rect.width());
         authorItem->setPos(frameX, nextY);
@@ -373,7 +370,7 @@ QGraphicsItem *FormEditorAnnotationIcon::createCommentBubble(QRectF rect, const 
 
     if (!date.isEmpty()) {
         QGraphicsTextItem *dateItem = new QGraphicsTextItem(frameItem);
-        dateItem->setPlainText(tr("Edited: ") + date);
+        dateItem->setPlainText(Tr::tr("Edited: ") + date);
         dateItem->setDefaultTextColor(textColor);
         dateItem->setTextWidth(rect.width());
         dateItem->setPos(frameX, nextY);
@@ -461,13 +458,13 @@ void FormEditorAnnotationIcon::createAnnotationEditor()
 
 void FormEditorAnnotationIcon::removeAnnotationDialog()
 {
-    QString dialogTitle = tr("Annotation");
+    QString dialogTitle = Tr::tr("Annotation");
     if (!m_customId.isNull()) {
         dialogTitle = m_customId;
     }
     QPointer<QMessageBox> deleteDialog = new QMessageBox(Core::ICore::dialogParent());
     deleteDialog->setWindowTitle(dialogTitle);
-    deleteDialog->setText(tr("Delete this annotation?"));
+    deleteDialog->setText(Tr::tr("Delete this annotation?"));
     deleteDialog->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     deleteDialog->setDefaultButton(QMessageBox::Yes);
 

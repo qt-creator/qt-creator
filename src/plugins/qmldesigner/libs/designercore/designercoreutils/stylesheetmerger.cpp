@@ -169,8 +169,7 @@ ModelNode StylesheetMerger::createReplacementNode(const ModelNode& styleNode, Mo
             continue;
         if (isTextAlignmentProperty(variantProperty) && !m_options.preserveTextAlignment && !styleNode.hasProperty(variantProperty.name()))
             continue;
-        propertyList.append(QPair<PropertyName, QVariant>(variantProperty.name().toByteArray(),
-                                                          variantProperty.value()));
+        propertyList.emplace_back(variantProperty.name().toByteArray(), variantProperty.value());
     }
 
 #ifdef QDS_USE_PROJECTSTORAGE
@@ -332,10 +331,11 @@ void StylesheetMerger::replaceRootNode(ModelNode& templateRootNode)
 // Move the newly created nodes to the correct position in the parent node
 void StylesheetMerger::adjustNodeIndex(ModelNode &node)
 {
-    if (!m_reparentInfoHash.contains(node.id()))
+    auto found = m_reparentInfoHash.find(node.id());
+    if (found == m_reparentInfoHash.end())
         return;
 
-    ReparentInfo info = m_reparentInfoHash.value(node.id());
+    ReparentInfo info = *found;
     if (info.parentIndex < 0)
         return;
 

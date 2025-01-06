@@ -162,13 +162,13 @@
         \li To format the duplicated lines as a comment, go to
             \uicontrol {Duplicate Selection and Comment}.
         \li To turn selected text into lowercase, go to
-            \uicontrol {Lowercase Selection} or press \key {Alt+U}.
+            \uicontrol {Lowercase Selection} or select \key {Alt+U}.
         \li To turn selected text into uppercase, go to
-            \uicontrol {Uppercase Selection} or press \key {Alt+Shift+U}.
+            \uicontrol {Uppercase Selection} or select \key {Alt+Shift+U}.
         \li To sort selected lines alphabetically, go to
-            \uicontrol {Sort Selected Lines} or press \key {Alt+Shift+S}.
+            \uicontrol {Sort Selected Lines} or select \key {Alt+Shift+S}.
         \li To add a cursor at the next occurrence of selected text for multi-cursor
-            editing, go to \uicontrol {Add Next Occurrence to Selection} or press \key {Ctrl+D}
+            editing, go to \uicontrol {Add Next Occurrence to Selection} or select \key {Ctrl+D}
     \endlist
 
     \sa {Edit Code}{How To: Edit Code},
@@ -205,7 +205,7 @@
     open project using the locator:
 
     \list 1
-        \li Press \key {Ctrl+K} to activate the locator.
+        \li Select \key {Ctrl+K} to activate the locator.
         \li Start typing the filename.
             \image qtcreator-locator-open.webp {List of files in the locator}
         \li Use the arrow keys to move to the filename in the list and press
@@ -217,7 +217,7 @@
 
     Filters locating files also accept paths, such as \c {tools/*main.cpp}.
     If the path to a file is very long, it might not fit into the locator
-    window. To view the full path, press \key Alt when the filename is selected
+    window. To view the full path, select \key Alt when the filename is selected
     or drag the right edge of the locator to make it wider.
 
     If the locator does not find some files, see \l{Specify project contents}
@@ -249,12 +249,12 @@
     Use keyboard shortcuts:
 
     \list
-        \li To quickly move between currently open files, press \key Ctrl+Tab.
-        \li To move forward in the location history, press \key {Alt+Right}
+        \li To quickly move between currently open files, select \key Ctrl+Tab.
+        \li To move forward in the location history, select \key {Alt+Right}
             (\key {Cmd+Opt+Right} on \macos).
-        \li To move backward, press \key {Alt+Left} (\key {Cmd+Opt+Left} on \macos).
+        \li To move backward, select \key {Alt+Left} (\key {Cmd+Opt+Left} on \macos).
             For example, after you use the \uicontrol Locator
-            to jump to a symbol in the same file, press \key {Alt+Left} to jump
+            to jump to a symbol in the same file, select \key {Alt+Left} to jump
             back to your original location in that file.
     \endlist
 
@@ -292,7 +292,7 @@
 
     \list 1
 
-        \li Press \key {Ctrl+K} to activate the locator.
+        \li Select \key {Ctrl+K} to activate the locator.
 
         \li Enter a colon (:) followed by a space and the upper case letters in
             the symbol name (here, \c {QGuiApplication}):
@@ -313,7 +313,7 @@
     \section1 Move to symbol definition or declaration
 
     To move directly to the definition or declaration of a symbol in the
-    \uicontrol Edit mode, move the cursor on the symbol and press \key {F2}.
+    \uicontrol Edit mode, move the cursor on the symbol and select \key {F2}.
 
     Or, hold the \key Ctrl key (\key Cmd on \macos) and click
     the symbol. If you have multiple splits opened, open the link in the next
@@ -343,7 +343,7 @@
     \section2 Switch between function definition and decalaration
 
     To switch between the definition and declaration of a function, place the
-    cursor on either and press \key {Shift+F2} or right-click and go to
+    cursor on either and select \key {Shift+F2} or right-click and go to
     \uicontrol {Switch Between Function Declaration/Definition} or
     \uicontrol {Open Function Declaration/Definition in Next Split}.
     For example, this allows you to navigate from anywhere within a function
@@ -357,7 +357,7 @@
     \section2 Open links in another split
 
     Links open in the same split by default. To open them in the next
-    split, press \key {Ctrl+E} first. For example, press \key {Ctrl+E,F2} to
+    split, select \key {Ctrl+E} first. For example, select \key {Ctrl+E,F2} to
     follow the symbol into the next split. If necessary, the view is
     automatically split.
 
@@ -477,7 +477,7 @@
     \title Insert multiple cursors
 
     To apply a change to several places simultaneously in the editor in the
-    \uicontrol Edit mode, press and hold \key Alt, and click to place cursors
+    \uicontrol Edit mode, select and hold \key Alt, and click to place cursors
     in several places in the file. Any changes you make are applied
     simultaneously at all the cursor positions.
 
@@ -486,14 +486,14 @@
     To manage cursors:
 
     \list
-        \li Press the arrow keys to move all the cursors up and down.
-        \li Press the \key Home and \key End key to move all the cursors
+        \li Select the arrow keys to move all the cursors up and down.
+        \li Select the \key Home and \key End key to move all the cursors
             to the beginning or to the end of the line.
-        \li Press and hold \key Alt and double-click strings to select
+        \li Select and hold \key Alt and double-click strings to select
             several strings simultaneously.
-        \li Press \key {Alt+Shift+I} to create cursors at the ends of
+        \li Select \key {Alt+Shift+I} to create cursors at the ends of
             selected lines.
-        \li Press \key Esc to remove all the cursors and selections.
+        \li Select \key Esc to remove all the cursors and selections.
     \endlist
 
     \sa {Edit Code}{How To: Edit Code}, {Editing Selected Lines}, {Edit Mode}
@@ -517,7 +517,7 @@
     \list
 
         \li To split the editor view into a top and bottom view, go to
-            \uicontrol Window > \uicontrol Split, press \key {Ctrl+E, 2}, or
+            \uicontrol Window > \uicontrol Split, select \key {Ctrl+E, 2}, or
             select the \inlineimage icons/splitbutton_horizontal.png
             (\uicontrol Split) button and then select \uicontrol Split.
 
@@ -532,7 +532,7 @@
            The \uicontrol {Split Side by Side} command creates views to the right
            of the currently active editor view.
 
-        \li To open the editor in a detached window, press \key {Ctrl+E, 4}, or
+        \li To open the editor in a detached window, select \key {Ctrl+E, 4}, or
             go to \uicontrol Window > \uicontrol {Open in New Window}.
 
             The new window behaves in the same way as the editor area
@@ -554,7 +554,7 @@
     \list
         \li Place the cursor within the view you want to remove and go to
             \uicontrol Window > \uicontrol {Remove Current Split}.
-        \li Press \key {Ctrl+E, 0}.
+        \li Select \key {Ctrl+E, 0}.
         \li Select the \inlineimage icons/splitbutton_closetop.png
             (\uicontrol {Remove Split}) button.
     \endlist
@@ -563,7 +563,7 @@
 
     \list
         \li Go to \uicontrol Window > \uicontrol {Remove All Splits}.
-        \li Press \key {Ctrl+E, 1}.
+        \li Select \key {Ctrl+E, 1}.
     \endlist
 
     \sa {Edit Code}{How To: Edit Code}, {Detach views}, {Edit Mode}
@@ -583,9 +583,9 @@
 
         \li Right-click the line number and select \uicontrol {Toggle Bookmark}.
 
-        \li Press \key Shift and click the left margin at a line.
+        \li Select \key Shift and click the left margin at a line.
 
-        \li Press \key {Ctrl+M} when the cursor is on a line.
+        \li Select \key {Ctrl+M} when the cursor is on a line.
 
     \endlist
 
@@ -598,7 +598,7 @@
     \list
         \li Go to \uicontrol Tools > \uicontrol Bookmarks >
             \uicontrol {Edit Bookmark}.
-        \li Press \key {Ctrl+Shift+M}.
+        \li Select \key {Ctrl+Shift+M}.
         \li Right-click a bookmark and go to \uicontrol {Edit Bookmark}
             in the context menu.
     \endlist
@@ -610,7 +610,7 @@
 
     To move to the previous bookmark in the current session, go to
     \uicontrol Tools > \uicontrol Bookmarks > \uicontrol {Previous Bookmark}
-    or press \key {Ctrl+,}.
+    or select \key {Ctrl+,}.
 
     To move to the next bookmark in the current session, go to \uicontrol Tools >
     \uicontrol Bookmarks > \uicontrol {Previous Bookmark} or press
@@ -618,7 +618,7 @@
 
     \section2 Locate bookmarks
 
-    To use the locator to go to a bookmark, press \key {Ctrl+K} (or \key {Cmd+K}
+    To use the locator to go to a bookmark, select \key {Ctrl+K} (or \key {Cmd+K}
     on \macos) to open the locator. Enter \e b and a space to display a list of
     bookmarks. To filter the bookmarks by line number or a text string, enter
     the number or string after the space. Double-click a bookmark in the list to
@@ -635,7 +635,7 @@
     \image qtcreator-bookmarks-view.webp {Listing bookmarks in Bookmarks view}
 
     To move bookmarks up and down, select \uicontrol {Move Up} or
-    \uicontrol {Move Down} in the context menu or press \key {Ctrl+Alt+,} or
+    \uicontrol {Move Down} in the context menu or select \key {Ctrl+Alt+,} or
     \key {Ctrl+Alt+.}.
 
     To list bookmarks alphabetically by the name of the file where you set them,
@@ -702,7 +702,7 @@
     To view information about the C++ code model in the
     \uicontrol {C++ Code Model Inspector} dialog and write it to a log file,
     select \uicontrol Tools > \uicontrol {Debug \QC } >
-    \uicontrol {Inspect C++ Code Model} or press \key {Ctrl+Shift+F12}.
+    \uicontrol {Inspect C++ Code Model} or select \key {Ctrl+Shift+F12}.
 
     \image qtcreator-code-model-inspector.webp {Code Model Inspector dialog}
 

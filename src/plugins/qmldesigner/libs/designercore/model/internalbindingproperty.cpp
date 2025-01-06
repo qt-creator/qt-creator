@@ -24,7 +24,7 @@ QString InternalBindingProperty::expression() const
 
 void InternalBindingProperty::setExpression(const QString &expression)
 {
-    traceToken.tick("expression"_t, keyValue("expression", expression));
+    traceToken.tick("expression", keyValue("expression", expression));
 
     m_expression = expression;
 }

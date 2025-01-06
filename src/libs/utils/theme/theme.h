@@ -402,6 +402,7 @@ public:
         DSactionJIT,
 
         DStableHeaderBackground,
+        DStableCellCurrent,
         DStableHeaderText,
 
         DSdockContainerBackground,

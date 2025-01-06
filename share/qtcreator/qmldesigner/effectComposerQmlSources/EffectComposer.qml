@@ -21,6 +21,7 @@ Item {
     property int moveToIdx: 0
     property bool previewAnimationRunning: false
     property var expandStates: null
+    property real ensureVisibleY: -1
 
     // Invoked after save changes is done
     property var onSaveChangesCallback: () => {}
@@ -195,10 +196,6 @@ Item {
             onAssignToSelectedClicked: {
                 root.backendModel.assignToSelected()
             }
-
-            onOpenShadersCodeEditor: {
-                root.backendModel.openMainShadersCodeEditor()
-            }
         }
 
         SplitView {
@@ -218,17 +215,19 @@ Item {
             }
 
             EffectComposerPreview {
+                id: preview
+
                 mainRoot: root
 
-                SplitView.minimumWidth: 250
+                SplitView.minimumWidth: preview.minimumWidth
                 SplitView.minimumHeight: 200
-                SplitView.preferredWidth: 300
+                SplitView.preferredWidth: preview.minimumWidth
                 SplitView.preferredHeight: 300
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 
                 FrameAnimation {
-                    id: previewFrameTimer
+                    id: frameAnimation
                     running: true
                     paused: !root.previewAnimationRunning
                 }
@@ -237,7 +236,7 @@ Item {
             Column {
                 spacing: 1
 
-                SplitView.minimumWidth: 250
+                SplitView.minimumWidth: 400
                 SplitView.minimumHeight: 100
 
                 Component.onCompleted: HelperWidgets.Controller.mainScrollView = scrollView
@@ -258,6 +257,8 @@ Item {
                     }
 
                     HelperWidgets.AbstractButton {
+                        objectName: "btnRemoveAllEffects"
+
                         anchors.right: parent.right
                         anchors.rightMargin: 5
                         anchors.verticalCenter: parent.verticalCenter
@@ -276,6 +277,8 @@ Item {
                     }
 
                     HelperWidgets.AbstractButton {
+                        objectName: "btnOpenShaderInCodeEditor"
+
                         anchors.right: parent.right
                         anchors.rightMargin: 5
                         anchors.verticalCenter: parent.verticalCenter
@@ -314,6 +317,12 @@ Item {
                                 let lastItemH = repeater.itemAt(repeater.count - 1).height
                                 scrollView.contentY = scrollView.contentItem.height - lastItemH
                                 nodesComboBox.nodeJustAdded = false
+                            }
+
+                            if (root.ensureVisibleY >= 0) {
+                                if (root.ensureVisibleY > scrollView.contentY + scrollView.height)
+                                    scrollView.contentY = root.ensureVisibleY - scrollView.height
+                                root.ensureVisibleY = -1
                             }
                         }
 
@@ -371,7 +380,7 @@ Item {
                                         dragAnimation.enabled = true
                                     }
 
-                                    onOpenShadersCodeEditor: (idx) => root.backendModel.openShadersCodeEditor(idx)
+                                    onEnsureVisible: visibleY => root.ensureVisibleY = visibleY
                                 }
                             } // Repeater
                         } // Column

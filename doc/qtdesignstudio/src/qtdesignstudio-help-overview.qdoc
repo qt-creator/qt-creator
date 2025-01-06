@@ -22,7 +22,7 @@
             and index functions to find particular topics in the helps, or
             request context-sensitive help by pressing \key F1 in the Design
             mode.
-        \li \l{Supported Platforms}
+        \li \l{Supported platforms}
 
             You can install and run \QDS on several operating systems to design
             UIs for multiple desktop, embedded, and mobile device platforms.

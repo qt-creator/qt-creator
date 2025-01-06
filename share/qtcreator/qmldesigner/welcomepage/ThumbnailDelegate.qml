@@ -382,6 +382,7 @@ Item {
             Text {
                 id: recentProjectInfo
                 color: Constants.currentGlobalText
+                linkColor: Constants.currentBrand
                 text: typeof(description) === "undefined" ? "" : description
                 anchors.fill: parent
                 font.pixelSize: 12
@@ -390,6 +391,17 @@ Item {
                 wrapMode: Text.WordWrap
                 anchors.margins: Constants.thumbnailMargin
                 anchors.topMargin: 25
+
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.NoButton
+                    cursorShape: recentProjectInfo.hoveredLink === "" ?  Qt.ArrowCursor : Qt.PointingHandCursor
+                }
+
+                Connections {
+                    target: recentProjectInfo
+                    onLinkActivated: (link)=>  Constants.projectModel.showLink(link)
+                }
             }
 
             TagArea {

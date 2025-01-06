@@ -125,7 +125,7 @@ static QList<T> adjustedList(const QList<T>& oldList, AbstractView *view)
 
     for (const T &item : oldList)
     {
-       newList.append(T(item, view));
+        newList.emplace_back(item, view);
     }
 
     return newList;

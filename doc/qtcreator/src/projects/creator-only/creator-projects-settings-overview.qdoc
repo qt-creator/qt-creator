@@ -56,7 +56,7 @@
     If you selected CMake as the build system for the project, a
     \e {Release with Debug Information} build configuration is also available.
     It is similar to a \e profile configuration, but with
-    \l{Debugging Qt Quick Projects}{QML debugging and profiling} explicitly turned off.
+    \l{Debugging Qt Quick projects}{QML debugging and profiling} explicitly turned off.
     You can also use a \e {Minimum Size Release} build configuration to create the
     final installation binary package. It is a release build that makes the size
     of the binary package as small as possible, even if this makes the

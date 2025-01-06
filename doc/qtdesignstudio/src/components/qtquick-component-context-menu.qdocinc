@@ -3,64 +3,64 @@
 
 /*!
 //! [context-menu]
-    \section1 Context Menu
+    \section1 Context menu
 
     The following table summarizes the \uicontrol Navigator and
-    \uicontrol {2D} views context menu items and provides links
+    \uicontrol {2D} view context menu items and provides links
     to more information about them.
 
     \table
     \header
-        \li To Learn About
-        \li Go To
+        \li To learn about
+        \li Go to
     \row
         \li Arrange
-        \li \l{Arranging Components}
+        \li \l{Arranging components}
     \row
         \li Edit
-        \li \l{Showing and Hiding Components}
+        \li \l{Showing and hiding components}
     \row
         \li Anchors
-        \li \l{Setting Anchors and Margins}
+        \li \l{Setting anchors and margins}
     \row
         \li Group
-        \li \l{Organizing Components}
+        \li \l{Organizing components}
     \row
         \li Positioner
-        \li \l{Using Positioners}
+        \li \l{Using positioners}
     \row
         \li Layout
-        \li \l{Using Layouts}
+        \li \l{Using layouts}
     \row
         \li Stacked Container
-        \li \l{Lists and Other Data Models}
+        \li \l{Lists and other data models}
     \row
         \li Timeline
         \li \l{Creating a Timeline}
     \row
         \li Event List
-        \li \l{Simulating Events}
+        \li \l{Simulating events}
     \row
         \li Edit Color
-        \li \l{Editing Properties Inline}
+        \li \l{Editing properties inline}
     \row
         \li Edit Annotation
-        \li \l{Annotating Designs}
+        \li \l{Annotating designs}
     \row
         \li Merge File with Template
-        \li \l{Merging Files with Templates}
+        \li \l{Merging files with templates}
     \row
         \li Move Component Instances into Separate Files
-        \li \l{Turning Component Instances into Custom Components}
+        \li \l{Turning component instances into custom components}
     \row
-        \li Connecting Components to Signals
-        \li \l{Connecting Components to Signals in the Connection View}
+        \li Connecting components to signals
+        \li \l{Connecting components to signals in the Connection view}
     \row
         \li Go to Implementation
-        \li \l{Using UI Files}
+        \li \l{Using UI files}
     \row
         \li Edit Component
-        \li \l{Moving Within Components}
+        \li \l{Moving within components}
     \endtable
 //! [context-menu]
 */

@@ -3,6 +3,8 @@
 
 #include "propertyeditorcomponentgenerator.h"
 
+#include <qmldesignertr.h>
+
 #include <utils/environment.h>
 #include <utils/span.h>
 
@@ -168,7 +170,7 @@ QString PropertyEditorComponentGenerator::create(const NodeMetaInfos &prototypeC
       })xy"}
         .arg(createImports(m_propertyGenerator.imports()),
              componentButton(isComponent),
-             QObject::tr("Exposed Custom Properties"),
+             Tr::tr("Exposed Custom Properties"),
              createPropertySections(m_propertyGenerator, prototypeChain));
 }
 

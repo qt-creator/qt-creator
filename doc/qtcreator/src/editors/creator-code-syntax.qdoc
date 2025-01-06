@@ -103,7 +103,7 @@
     find common problems.
 
     To run static checks, go to \uicontrol Tools > \uicontrol {QML/JS} >
-    \uicontrol {Run Checks} or press \key {Ctrl+Shift+C}.
+    \uicontrol {Run Checks} or select \key {Ctrl+Shift+C}.
 
     View the results in the \uicontrol QML and \uicontrol {QML Analysis}
     filters in \l Issues.
@@ -503,13 +503,13 @@
         \li Error
         \li This type (type name) is not supported as a root element of a
             UI file (.ui.qml)
-        \li For more information about supported QML types, see \l{UI Files}.
+        \li For more information about supported QML types, see \l{UI files}.
 
     \row
         \li M221
         \li Error
         \li This type (type name) is not supported in a UI file (.ui.qml)
-        \li For more information about supported QML types, see \l{UI Files}.
+        \li For more information about supported QML types, see \l{UI files}.
 
     \row
         \li M222
@@ -522,26 +522,26 @@
         \li M223
         \li Error
         \li JavaScript blocks are not supported in a UI file (.ui.qml)
-        \li For more information about supported features, see \l{UI Files}.
+        \li For more information about supported features, see \l{UI files}.
 
     \row
         \li M224
         \li Error
         \li Behavior type is not supported in a UI file (.ui.qml)
-        \li For more information about supported QML types, see \l{UI Files}.
+        \li For more information about supported QML types, see \l{UI files}.
 
     \row
         \li M225
         \li Error
         \li States are only supported in the root item in a UI file (.ui.qml)
-        \li For more information about supported features, see \l{UI Files}.
+        \li For more information about supported features, see \l{UI files}.
 
     \row
         \li M226
         \li Error
         \li Referencing the parent of the root item is not supported in a
             UI file (.ui.qml)
-        \li For more information about supported features, see \l{UI Files}.
+        \li For more information about supported features, see \l{UI files}.
 
     \row
         \li M227
@@ -766,7 +766,7 @@
     To reset the code model, select \uicontrol Tools > \uicontrol {QML/JS} >
     \uicontrol {Reset Code Model}.
 
-    \sa {Check code syntax}, {Using QML Modules with Plugins}
+    \sa {Check code syntax}, {Using QML modules with plugins}
 
     \if defined(qtcreator)
     \sa {Analyzing Code}

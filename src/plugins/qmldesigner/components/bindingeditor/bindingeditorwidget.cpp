@@ -4,6 +4,7 @@
 #include "bindingeditorwidget.h"
 
 #include <indentingtexteditormodifier.h>
+#include <qmldesignertr.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreplugintr.h>
@@ -141,7 +142,7 @@ void BindingDocument::triggerPendingUpdates()
 BindingEditorFactory::BindingEditorFactory()
 {
     setId(BINDINGEDITOR_CONTEXT_ID);
-    setDisplayName(::Core::Tr::tr("Binding Editor"));
+    setDisplayName(Tr::tr("Binding Editor"));
     addMimeType(BINDINGEDITOR_CONTEXT_ID);
     addMimeType(Utils::Constants::QML_MIMETYPE);
     addMimeType(Utils::Constants::QMLTYPES_MIMETYPE);

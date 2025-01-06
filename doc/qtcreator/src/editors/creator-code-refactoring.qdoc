@@ -25,7 +25,7 @@
     \list 1
         \li Place the cursor on the symbol in the editor.
         \li Go to \uicontrol Tools > \uicontrol {C++} >
-            \uicontrol {Rename Symbol Under Cursor}, or press \key {Ctrl+Shift+R}.
+            \uicontrol {Rename Symbol Under Cursor}, or select \key {Ctrl+Shift+R}.
 
             Use the keyboard shortcut to rename Python symbols.
     \endlist
@@ -33,7 +33,7 @@
 
     To rename a QML type in a project, go to \uicontrol Tools >
     \uicontrol {QML/JS} > \uicontrol {Rename Symbol Under Cursor}
-    or press \key {Ctrl+Shift+R}.
+    or select \key {Ctrl+Shift+R}.
 
     \uicontrol {Search Results} shows the location
     and number of instances of the symbol in the current project.

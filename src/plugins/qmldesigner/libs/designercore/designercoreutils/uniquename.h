@@ -18,5 +18,12 @@ QMLDESIGNERCORE_EXPORT QString generateId(QStringView id,
 QMLDESIGNERCORE_EXPORT QString generateId(QStringView id,
                                           const QString &fallbackId,
                                           std::function<bool(const QString &)> predicate = {});
+QMLDESIGNERCORE_EXPORT QString generateTypeName(QStringView name,
+                                                const QString &fallbackName,
+                                                std::function<bool(const QString &)> predicate = {});
+
+QMLDESIGNERCORE_EXPORT QString generateTypeName(QByteArrayView name,
+                                                const QString &fallbackName,
+                                                std::function<bool(const QString &)> predicate = {});
 
 } // namespace QmlDesigner::UniqueName

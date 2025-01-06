@@ -8,7 +8,10 @@
 #include "dsconstants.h"
 #include "dsthemegroup.h"
 
+#include <externaldependenciesinterface.h>
 #include <modelnode.h>
+
+#include <QCoreApplication>
 
 namespace QmlDesigner {
 
@@ -18,21 +21,29 @@ class DSTheme;
 
 class DESIGNSYSTEM_EXPORT DSThemeManager
 {
+    Q_DECLARE_TR_FUNCTIONS(DSThemeManager);
 
 public:
     DSThemeManager();
     ~DSThemeManager();
 
-    DSThemeManager(const DSThemeManager&) = delete;
-    DSThemeManager& operator=(const DSThemeManager&) = delete;
+    DSThemeManager(const DSThemeManager &) = default;
+    DSThemeManager &operator=(const DSThemeManager &) = default;
 
     DSThemeManager(DSThemeManager&&) = default;
-    DSThemeManager& operator=(DSThemeManager&&) = default;
+    DSThemeManager &operator=(DSThemeManager &&) = default;
 
-    std::optional<ThemeId> addTheme(const ThemeName &themeName);
+    std::optional<ThemeId> addTheme(const ThemeName &themeNameHint);
     std::optional<ThemeId> themeId(const ThemeName &themeName) const;
+    ThemeName themeName(ThemeId id) const;
+    bool renameTheme(ThemeId id, const ThemeName &newName);
+    const std::vector<ThemeId> allThemeIds() const;
+
+    void forAllGroups(std::function<void(GroupType, DSThemeGroup *)> callback) const;
+
     void removeTheme(ThemeId id);
     size_t themeCount() const;
+    size_t propertyCount() const;
 
     void duplicateTheme(ThemeId from, ThemeId to);
 
@@ -41,18 +52,28 @@ public:
                                                GroupType gType,
                                                const PropertyName &name) const;
     void removeProperty(GroupType gType, const PropertyName &p);
-    void updateProperty(ThemeId id, GroupType gType, const ThemeProperty &p);
-    void updateProperty(ThemeId id, GroupType gType, const ThemeProperty &p, const PropertyName &newName);
 
-    void decorate(ModelNode rootNode, const QByteArray& nodeType, bool isMCU) const;
-    void decorateThemeComponent(ModelNode rootNode) const;
+    bool updateProperty(ThemeId id, GroupType gType, const ThemeProperty &prop);
+    bool renameProperty(GroupType gType, const PropertyName &name, const PropertyName &newName);
+
+    void decorate(ModelNode rootNode, const QByteArray &nodeType = "QtObject", bool isMCU = false) const;
+    void decorateThemeInterface(ModelNode rootNode) const;
+
+    std::optional<QString> load(ModelNode rootModelNode);
 
 private:
     DSThemeGroup *propertyGroup(GroupType type);
     void addGroupAliases(ModelNode rootNode) const;
 
+    bool findPropertyType(const AbstractProperty &p, ThemeProperty *themeProp, GroupType *gt) const;
+
+    ThemeName uniqueThemeName(const ThemeName &hint) const;
+    PropertyName uniquePropertyName(const PropertyName &hint) const;
+
 private:
     std::map<ThemeId, ThemeName> m_themes;
-    std::map<GroupType, std::unique_ptr<DSThemeGroup>> m_groups;
+    std::map<GroupType, std::shared_ptr<DSThemeGroup>> m_groups;
 };
-}
+
+using DSCollections = std::map<QString, DSThemeManager>;
+} // namespace QmlDesigner

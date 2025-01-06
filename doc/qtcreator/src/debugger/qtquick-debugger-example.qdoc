@@ -29,7 +29,7 @@
     \uicontrol Debug mode.
 
     For more information about all the options you have, see
-    \l{Debugging Qt Quick Projects}.
+    \l{Debugging Qt Quick projects}.
 
     \if defined(qtdesignstudio)
     \note In this tutorial, you are using advanced menu items. These are not
@@ -69,7 +69,7 @@
             \image qtquick-example-setting-breakpoint2.webp {Debugger view}
 
         \li Select \inlineimage icons/debugger_stepinto_small.png
-            (\uicontrol {Step Into}) on the toolbar or press \key F11 to step
+            (\uicontrol {Step Into}) on the toolbar or select \key F11 to step
             into the code in the stack. The samegame.js file opens in the code
             editor at the function that starts a new game.
 
@@ -111,5 +111,5 @@
 
     \endlist
 
-    \sa {Debugging Qt Quick Projects}
+    \sa {Debugging Qt Quick projects}
 */

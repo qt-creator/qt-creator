@@ -71,12 +71,12 @@
             \uicontrol {Zoom Out}
         \li Zooms into or out of the whole state chart in the state editor.
 
-            You can also press \key Ctrl and use the mouse wheel.
+            You can also select \key Ctrl and use the mouse wheel.
     \row
         \li \inlineimage icons/pan.png
         \li \uicontrol Panning
-        \li Pans the state chart. To increase the pace of panning, press down the
-            \key Shift key.
+        \li Pans the state chart. To increase the pace of panning, select
+            \key {Shift}.
     \row
         \li \inlineimage icons/fittoview.png
         \li \uicontrol {Fit to View}
@@ -85,7 +85,7 @@
         \li \inlineimage icons/zoom.png
         \li \uicontrol {Magnifier Tool}
         \li Zooms into a part of the state chart. To move the magnifier tool
-            faster, press down the \key Alt key.
+            faster, select and hold \key {Alt}.
     \row
         \li \inlineimage icons/navigator.png
         \li \uicontrol {Navigator}
@@ -180,7 +180,7 @@
 
     Drag states on top of other states to create compound states. You can also
     drag child states out of their parent state. To move child states
-    within their parent, press down the \key Ctrl key while dragging them.
+    within their parent, select and hold \key Ctrl while dragging them.
 
     \section1 Aligning and Editing States
 

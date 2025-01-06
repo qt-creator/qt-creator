@@ -15,6 +15,7 @@ class ItemLibraryCategory : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QString categoryName READ categoryName FINAL)
+    Q_PROPERTY(QString displayNMame READ displayNMame FINAL)
     Q_PROPERTY(bool categoryVisible READ isCategoryVisible WRITE setCategoryVisible NOTIFY categoryVisibilityChanged FINAL)
     Q_PROPERTY(bool categoryExpanded READ categoryExpanded WRITE setExpanded NOTIFY expandedChanged FINAL)
     Q_PROPERTY(bool categorySelected READ categorySelected WRITE setCategorySelected NOTIFY categorySelectedChanged FINAL)
@@ -24,6 +25,7 @@ public:
     ItemLibraryCategory(const QString &groupName, QObject *parent = nullptr);
 
     QString categoryName() const;
+    QString displayNMame() const;
     bool categoryExpanded() const;
     bool categorySelected() const;
     QString sortingName() const;

@@ -5,8 +5,9 @@
 #include <abstractaction.h>
 
 #include <QAction>
-#include <QWidgetAction>
 #include <QIcon>
+#include <QMap>
+#include <QWidgetAction>
 
 QT_BEGIN_NAMESPACE
 class QWidgetAction;
@@ -48,6 +49,32 @@ public:
 
     SelectionContextOperation m_action;
     SelectionContext m_selectionContext;
+};
+
+class Edit3DSingleSelectionAction : public DefaultAction
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(Edit3DSingleSelectionAction)
+
+public:
+    struct Option
+    {
+        QString name;
+        QString tooltip;
+        QByteArray data;
+    };
+
+    explicit Edit3DSingleSelectionAction(const QString &description, const QList<Option> &options);
+
+    void selectOption(const QByteArray &data);
+    QByteArray currentData() const;
+
+signals:
+    void dataChanged(const QByteArray &data);
+
+private:
+    QActionGroup *m_group = nullptr;
+    QMap<QByteArray, QAction *> m_dataAction;
 };
 
 class Edit3DAction : public AbstractAction
@@ -152,10 +179,15 @@ private:
 
 class Edit3DCameraViewAction : public Edit3DAction
 {
+    Q_DECLARE_TR_FUNCTIONS(Edit3DCameraViewAction)
+
 public:
     Edit3DCameraViewAction(const QByteArray &menuId, View3DActionType type, Edit3DView *view);
 
-    void setMode(const QString &mode);
+    void setMode(const QByteArray &mode);
+
+private:
+    QList<Edit3DSingleSelectionAction::Option> options() const;
 };
 
 } // namespace QmlDesigner

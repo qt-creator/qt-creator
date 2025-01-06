@@ -3,6 +3,8 @@
 
 #include "changepropertyvisitor.h"
 
+#include <signalhandlerproperty.h>
+
 #include <qmljs/parser/qmljsast_p.h>
 
 using namespace QmlJS;
@@ -83,6 +85,12 @@ void ChangePropertyVisitor::replaceInMembers(UiObjectInitializer *initializer,
             case QmlRefactoring::ScriptBinding:
                 replaceMemberValue(member, nextMemberOnSameLine(members));
                 break;
+            case QmlRefactoring::SignalHandlerOldSyntax:
+                replaceMemberValue(member, nextMemberOnSameLine(members));
+                break;
+            case QmlRefactoring::SignalHandlerNewSyntax:
+                replaceMemberValue(member, nextMemberOnSameLine(members));
+                break;
 
             default:
                 Q_ASSERT(!"Unhandled QmlRefactoring::PropertyType");
@@ -99,12 +107,19 @@ void ChangePropertyVisitor::replaceInMembers(UiObjectInitializer *initializer,
     }
 }
 
+QString ensureBraces(const QString &source)
+{
+    return SignalHandlerProperty::normalizedSourceWithBraces(source);
+}
+
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 void ChangePropertyVisitor::replaceMemberValue(UiObjectMember *propertyMember, bool needsSemicolon)
 {
     QString replacement = m_value;
     int startOffset = -1;
     int endOffset = -1;
+    bool requiresBraces = false;
+
     if (auto objectBinding = AST::cast<UiObjectBinding *>(propertyMember)) {
         startOffset = objectBinding->qualifiedTypeNameId->identifierToken.offset;
         endOffset = objectBinding->initializer->rbraceToken.end();
@@ -114,7 +129,12 @@ void ChangePropertyVisitor::replaceMemberValue(UiObjectMember *propertyMember, b
     } else if (auto arrayBinding = AST::cast<UiArrayBinding *>(propertyMember)) {
         startOffset = arrayBinding->lbracketToken.offset;
         endOffset = arrayBinding->rbracketToken.end();
-    } else if (auto publicMember = AST::cast<UiPublicMember*>(propertyMember)) {
+    } else if (auto sourceElement = AST::cast<UiSourceElement *>(propertyMember)) {
+        auto function = AST::cast<AST::FunctionDeclaration *>(sourceElement->sourceElement);
+        startOffset = function->lbraceToken.offset;
+        endOffset = function->rbraceToken.end();
+        requiresBraces = true;
+    } else if (auto publicMember = AST::cast<UiPublicMember *>(propertyMember)) {
         if (publicMember->type == AST::UiPublicMember::Signal) {
             startOffset = publicMember->firstSourceLocation().offset;
             if (publicMember->semicolonToken.isValid())
@@ -139,6 +159,9 @@ void ChangePropertyVisitor::replaceMemberValue(UiObjectMember *propertyMember, b
         return;
     }
 
+    if (requiresBraces)
+        replacement = ensureBraces(replacement);
+
     if (needsSemicolon)
         replacement += QChar::fromLatin1(';');
 
@@ -158,7 +181,11 @@ bool ChangePropertyVisitor::isMatchingPropertyMember(const QString &propName,
         return propName == toString(arrayBinding->qualifiedId);
     else if (auto publicMember = AST::cast<UiPublicMember *>(member))
         return propName == publicMember->name;
-    else
+    else if (auto uiSourceElement = AST::cast<UiSourceElement *>(member)) {
+        auto function = AST::cast<AST::FunctionDeclaration *>(uiSourceElement->sourceElement);
+
+        return function->name == propName;
+    } else
         return false;
 }
 

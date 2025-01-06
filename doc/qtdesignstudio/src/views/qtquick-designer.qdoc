@@ -13,7 +13,7 @@
     \previouspage creator-quick-tour.html
     \nextpage qtquick-form-editor.html
 
-    \title Design Views
+    \title Design views
 
     \QDS contains views for designing UIs. To open them, select
     \uicontrol View > \uicontrol Views. The following images present the
@@ -25,10 +25,10 @@
     You can move the views anywhere on the screen and save them as
     \e workspaces, as instructed in \l {Managing Workspaces}.
 
-    \section1 Summary of Design Views
+    \section1 Summary of the Design views
 
     The following table provides a summary of the design views. For information on
-    MCU support, see \l {\QDS Features on MCU Projects}.
+    MCU support, see \l {\QDS features on MCU projects}.
 
     \annotatedlist studio-views
 */

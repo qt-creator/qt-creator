@@ -3,6 +3,7 @@
 
 #include "backgroundaction.h"
 
+#include <qmldesignertr.h>
 #include <theme.h>
 
 #include <utils/stylehelper.h>
@@ -68,7 +69,7 @@ QWidget *BackgroundAction::createWidget(QWidget *parent)
     comboBox->setFixedWidth(42);
 
     for (int i = 0; i < colors().size(); ++i) {
-        comboBox->addItem(tr(""));
+        comboBox->addItem("");
         comboBox->setItemIcon(i, iconForColor((colors().at(i))));
     }
 
@@ -78,7 +79,7 @@ QWidget *BackgroundAction::createWidget(QWidget *parent)
 
     comboBox->setProperty(Utils::StyleHelper::C_HIDE_BORDER, true);
     comboBox->setProperty(Utils::StyleHelper::C_TOOLBAR_ACTIONWIDGET, true);
-    comboBox->setToolTip(tr("Set the color of the canvas."));
+    comboBox->setToolTip(Tr::tr("Set the color of the canvas."));
     m_comboBox = comboBox;
     return comboBox;
 }

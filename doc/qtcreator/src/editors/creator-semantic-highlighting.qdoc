@@ -126,12 +126,12 @@
     Use keyboard shortcuts to move within and between code blocks:
 
     \list
-        \li To go to block end, press \key {Ctrl+]}.
-        \li To go to block start, press \key {Ctrl+[}.
+        \li To go to block end, select \key {Ctrl+]}.
+        \li To go to block start, select \key {Ctrl+[}.
     \endlist
 
     To also select the lines from the cursor position to the end
-    or beginning of the block, press \key {Ctrl+Shift+]} and
+    or beginning of the block, select \key {Ctrl+Shift+]} and
     \key {Ctrl+Shift+[}, respectively.
     \endif
 

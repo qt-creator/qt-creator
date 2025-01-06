@@ -67,7 +67,7 @@
 
     In \uicontrol {Extra arguments}, enter additional arguments for
     running Heob. To list the available arguments in the Heob console, enter
-    \c -H in this field and press \key Enter.
+    \c -H in this field and select \key Enter.
 
     For example, use the \c -oleaks.html option to record leak data in an HTML
     file. Together with this option, you can use the \c -g2 option to group the

@@ -14,7 +14,7 @@
     To import an asset, drag-and-drop the external file containing the asset from,
     for example, File Explorer on Windows, to the \uicontrol {2D},
     \uicontrol Navigator, or \uicontrol {Code} view. Alternatively, select
-    \uicontrol Assets > \inlineimage icons/plus.png
+    \uicontrol Assets > \imageplus
     and follow the instructions in the \uicontrol {Asset Import} dialog. You can
     also multiselect several external asset files to drag-and-drop them to
     \QDS simultaneously.
@@ -28,7 +28,7 @@
     will only appear in \uicontrol Assets, and you can then
     drag-and-drop them to a suitable view.
 
-    \section1 Importing Designs From Other Design Tools
+    \section1 Importing designs from other design tools
 
     \image studio-imported-assets.webp "UI imported into Qt Design Studio"
 
@@ -44,7 +44,7 @@
 
     The following instructions use an empty project as an example. For more
     information about the options you have, see
-    \l {Creating Projects}.
+    \l {Creating projects}.
 
     To import the exported assets to \QDS projects:
 
@@ -54,7 +54,7 @@
             the project and select \uicontrol Create.
         \li In \uicontrol Projects, double-click \e Screen01.ui.qml to move to
             the Design mode.
-        \li Select \uicontrol Assets > \inlineimage icons/plus.png
+        \li Select \uicontrol Assets > \imageplus
             .
         \li Select the folder where you exported the assets.
         \li Select \uicontrol {Compressed Metadata (*.qtbridge)}  or
@@ -100,12 +100,13 @@
     \uicontrol {Asset Import} dialog while importing, fix the issues in
     design tool and export the assets again.
 
-    \section2 Merging QML Files
+    \section2 Merging QML files
     When you re-import a QML component, the changes done in \QDS are preserved.
     The QML item changes in the existing QML component are copied to the corresponding
     QML item in the new component.
 
-    The following rules are observed while merging QML components.
+    \QDS follows a set of rules while merging QML components:
+
     \list
         \li While importing, a unique identifier (UUID) is added for each QML item in the
             component. The UUID is used to find the corresponding QML item in the existing

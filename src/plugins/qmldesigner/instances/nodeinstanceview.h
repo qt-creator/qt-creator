@@ -235,7 +235,7 @@ private: // functions
     void startPuppetTransaction();
     void endPuppetTransaction();
 
-    // puppet to creator command handlers
+    // QML Puppet to creator command handlers
     void handlePuppetKeyPress(int key, Qt::KeyboardModifiers modifiers);
 
     struct ModelNodePreviewImageData {

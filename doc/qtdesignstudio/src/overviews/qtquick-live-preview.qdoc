@@ -6,7 +6,7 @@
     \previouspage quick-states.html
     \nextpage studio-live-preview-desktop.html
 
-    \title Validating with Target Hardware
+    \title Validating with target hardware
 
     Preview a UI file or the entire UI on the desktop, as well as on embedded
     Linux devices to instantly view the changes you make to the UI. On Android
@@ -20,18 +20,18 @@
     don't have \QC.
 
     \list
-        \li \l{Previewing on Desktop}
+        \li \l{Previewing on desktop}
 
             Preview individual QML files or the whole UI.
-        \li \l{Previewing on Devices}
+        \li \l{Previewing on devices}
 
             Connect your devices to your computer.
 
-        \li \l{Sharing Applications Online}
+        \li \l{Sharing applications online}
 
             Share applications online and view them in a web browser.
 
-        \li \l{Viewing Applications on Android}
+        \li \l{Viewing applications on Android}
 
            Preview \QDS projects with \QUV on an Android device.
     \endlist

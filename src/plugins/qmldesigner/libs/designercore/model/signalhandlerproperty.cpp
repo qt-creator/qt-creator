@@ -6,6 +6,9 @@
 #include "internalnode_p.h"
 #include "model.h"
 #include "model_p.h"
+
+#include <QRegularExpression>
+
 namespace QmlDesigner {
 
 SignalHandlerProperty::SignalHandlerProperty() = default;
@@ -51,6 +54,19 @@ QString SignalHandlerProperty::source() const
     return QString();
 }
 
+QString SignalHandlerProperty::sourceNormalizedWithBraces() const
+{
+    return normalizedSourceWithBraces(source());
+}
+
+bool SignalHandlerProperty::useNewFunctionSyntax()
+{
+    if (name().contains('.'))
+        return false;
+
+    return parentModelNode().metaInfo().isQtQmlConnections();
+}
+
 PropertyName SignalHandlerProperty::prefixAdded(PropertyNameView propertyName)
 {
     QString nameAsString = QString::fromUtf8(propertyName);
@@ -75,6 +91,19 @@ PropertyName SignalHandlerProperty::prefixRemoved(PropertyNameView propertyName)
     nameAsString[0] = firstChar;
 
     return nameAsString.toLatin1();
+}
+
+QString SignalHandlerProperty::normalizedSourceWithBraces(const QString &source)
+{
+    static const QRegularExpression reg("^\\{(\\s*?.*?)*?\\}$");
+
+    const QString trimmed = source.trimmed();
+    auto match = reg.match(trimmed);
+
+    if (match.hasMatch())
+        return trimmed;
+
+    return QString("{%2%1%2}").arg(trimmed).arg(trimmed.contains('\n') ? "\n" : " ");
 }
 
 SignalDeclarationProperty::SignalDeclarationProperty() = default;

@@ -5,39 +5,81 @@
     \page fresnel-effect-example.html
     \ingroup studioexamples
 
-    \title Fresnel Example
-    \brief Illustrates how to work with the fresnel effect.
+    \title Fresnel properties on materials
+    \brief Illustrates how to work with Fresnel.
+    \sa {Material Editor and Browser}, {Setting image-based lighting}, {Directional Light},
+    {3D models}, {Content Library}
 
     \image fresnel-example.webp
 
-    The \e{Fresnel} example illustrates how to add and adjust a fresnel effect on
-    a 3D model.
+    The \e {Fresnel properties on materials} example illustrates how to add Fresnel to a material
+    and use the material on a 3D model.
 
-    The fresnel effect affects how materials reflect light at different viewing angles. Imagine the
+    Fresnel affects how materials reflect light at different viewing angles. Imagine the
     water on a lake. If you look down at the water from straight above, you can see through the
     water, but if you look from a lower angle, the reflections are stronger.
 
     \image fresnel-angle.webp
 
-    \section1 Running the Example
+    \section1 Running the example
 
     To run the example in \QDS, go to the \uicontrol Welcome screen and select the example
     from the \uicontrol Examples tab.
 
-    \section1 The 3D Scene
+    \section1 The 3D scene
 
-    The example project consists of a basic 3D scene with the following components:
+    The 3D scene of the example project consists of the following models:
 
     \list
-      \li A 3D model.
-      \li A directional light.
-      \li An HDR image used to light the scene (image-based lighting).
+        \li Monkey head (\e {monkeyModel})
+        \li Sphere (\e {sphere})
+        \li Plane (\e {mirror})
     \endlist
 
-    \section1 The Material
+    The 3D scene uses a directional light and an HDR image (image-based lighting) to light
+    the scene.
 
-    The material on the 3D model in this example is a principled material with a
-    clearcoat.
+    Use the example UI controls to manipulate the scene.
+
+    \table
+    \header
+        \li Control
+        \li Description
+    \row
+        \li \uicontrol {Rotate background}
+        \li Rotates the background to see the models from different angles.
+    \row
+        \li \uicontrol {Move camera} or \uicontrol {Move model}
+        \li Switches between moving the monkey head model and the camera.
+    \row
+        \li \uicontrol {Reset camera}
+        \li Resets the camera.
+    \row
+        \li \uicontrol {Reset monkey}
+        \li Resets the monkey.
+    \endtable
+
+    Navigate the scene with your keyboard using the \uicontrol {Camera controls} listed in
+    the example.
+
+    \section1 The materials
+
+    The following materials are used in this example.
+
+    \table
+    \header
+        \li Material
+        \li Description
+    \row
+        \li Monkey Material
+        \li A yellow principled material with a clearcoat.
+    \row
+        \li Green Material
+        \li A green principled material with a clearcoat.
+    \row
+        \li Mirror
+        \li A ready-made material from \uicontrol {Content Library}.
+    \endtable
 
     \section2 Clearcoat
 
@@ -47,9 +89,9 @@
 
     You adjust clearcoat properties independently from the base material.
 
-    \section2 Fresnel Properties
+    \section2 The Fresnel properties
 
-    The following properties affect how the fresnel effect renders. These properties are
+    The following properties affect how Fresnel renders. These properties are
     available both for the base material and the clearcoat layer. Adjusting the settings for the
     clearcoat has a bigger visual effect.
 
@@ -58,33 +100,50 @@
         \li Property
         \li Description
       \row
-        \li Fresnel power
-        \li Increasing the fresnel power decreases the head-on reflections (steep viewing angle)
+        \li Fresnel Power
+        \li Increasing the Fresnel power decreases the head-on reflections (steep viewing angle)
             while maintaining the reflections seen from more shallow viewing angles.
       \row
         \li Enable scale and bias
         \li Takes the scale and bias properties into account.
       \row
-        \li Scale
+        \li Fresnel Scale
         \li Determines the rate of change in reflection intensity as the viewing angle varies. A
         large scale value results in a gentler transition between weak and strong reflections, while
         a smaller scale creates a more abrupt shift in reflection intensity.
       \row
-        \li Bias
-        \li Controls the offset for the fresnel power property and determines how quickly the
+        \li Fresnel Bias
+        \li Controls the offset for the Fresnel power property, which determines how quickly the
         reflection transitions from weak to strong as the viewing
         angle changes. A larger bias value shifts the transition point toward steeper angles.
     \endtable
 
-    \section3 Adjusting the Fresnel Settings
+    \section2 Adjusting the Fresnel properties
 
-    To adjust the settings:
+    To adjust the Fresnel properties, use the sliders in the example UI.
+
+    To improve performance, select a lower reflection detail from the
+    \uicontrol {Reflection detail} dropdown menu.
+
+    To reset the Fresnel properties, select \uicontrol {Reset fresnel}.
+
+    \section1 Getting started with Fresnel
+
+    To edit an existing material:
 
     \list 1
-      \li In \uicontrol {Material Browser}, double-click \e {Monkey Material}.
+      \li In \uicontrol {Material Browser}, double-click a material.
       \li In \uicontrol {Material Editor}, find the properties under
       \uicontrol {Clearcoat} and \uicontrol {Fresnel} respectively.
     \endlist
 
     \note You see the changes live as you edit them in the \uicontrol 2D view.
+
+    To create a new material with Fresnel:
+
+    \list 1
+      \li In \uicontrol {Material Editor}, select \imageplus.
+      \li Edit the properties under \uicontrol {Clearcoat} and \uicontrol {Fresnel} respectively.
+    \endlist
+
 */

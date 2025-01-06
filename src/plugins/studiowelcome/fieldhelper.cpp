@@ -21,6 +21,12 @@ void CheckBoxHelper::setChecked(bool value)
     m_field->setChecked(value);
 }
 
+bool CheckBoxHelper::isChecked() const
+{
+    QTC_ASSERT(m_field, return false);
+    return m_field->isChecked();
+}
+
 ComboBoxHelper::ComboBoxHelper(ProjectExplorer::JsonFieldPage *detailsPage, const QString &fieldName)
     : m_field(dynamic_cast<ProjectExplorer::ComboBoxField *>(detailsPage->jsonField(fieldName)))
 {}
@@ -50,9 +56,7 @@ int ComboBoxHelper::indexOf(const QString &text) const
     const QStandardItemModel *model = m_field->model();
     for (int i = 0; i < model->rowCount(); ++i) {
         const QStandardItem *item = model->item(i, 0);
-        const QString text = item->text();
-
-        if (text == text)
+        if (text == item->text())
             return i;
     }
 

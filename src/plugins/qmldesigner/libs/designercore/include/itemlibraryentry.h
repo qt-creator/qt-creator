@@ -48,7 +48,8 @@ public:
     ItemLibraryEntry &operator=(ItemLibraryEntry &&) = default;
     ~ItemLibraryEntry();
 
-    static ItemLibraryEntry create(const Storage::Info::ItemLibraryEntry &entry);
+    static ItemLibraryEntry create(const PathCacheType &pathCache,
+                                   const Storage::Info::ItemLibraryEntry &entry);
 
     QString name() const;
     TypeName typeName() const;
@@ -90,7 +91,7 @@ private:
 using ItemLibraryEntries = QList<ItemLibraryEntry>;
 
 QMLDESIGNERCORE_EXPORT QList<ItemLibraryEntry> toItemLibraryEntries(
-    const Storage::Info::ItemLibraryEntries &entries);
+    const PathCacheType &pathCache, const Storage::Info::ItemLibraryEntries &entries);
 
 } // namespace QmlDesigner
 

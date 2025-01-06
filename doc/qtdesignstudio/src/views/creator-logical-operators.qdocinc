@@ -1,9 +1,9 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
 //! [logical operators]
-    \section2 Summary of Logical Operators
+    \section2 Summary of logical operators
 
     You can use the following
     \l{https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Expressions_and_Operators}

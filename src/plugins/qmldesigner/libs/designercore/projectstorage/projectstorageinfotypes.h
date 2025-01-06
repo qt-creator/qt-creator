@@ -413,6 +413,18 @@ struct ItemLibraryEntry
         , properties{std::move(properties)}
     {}
 
+    ItemLibraryEntry(TypeId typeId,
+                     Utils::SmallStringView typeName,
+                     Utils::SmallStringView name,
+                     Utils::SmallStringView category,
+                     Utils::SmallStringView import)
+        : typeId{typeId}
+        , typeName{typeName}
+        , name{name}
+        , category{category}
+        , import{import}
+    {}
+
     template<typename String>
     friend void convertToString(String &string, const ItemLibraryEntry &entry)
     {
@@ -438,10 +450,12 @@ struct ItemLibraryEntry
     Utils::PathString iconPath;
     Utils::SmallString category;
     Utils::SmallString import;
+    ModuleKind moduleKind = ModuleKind::QmlLibrary;
     ToolTipString toolTip;
     Utils::PathString templatePath;
     ItemLibraryProperties properties;
     std::vector<Utils::PathString> extraFilePaths;
+    SourceId componentSourceId;
 };
 
 using ItemLibraryEntries = QVarLengthArray<ItemLibraryEntry, 1>;

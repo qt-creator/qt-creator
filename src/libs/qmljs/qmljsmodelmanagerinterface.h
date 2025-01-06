@@ -197,6 +197,7 @@ public:
 
     QFuture<void> refreshSourceFiles(const QList<Utils::FilePath> &sourceFiles,
                                      bool emitDocumentOnDiskChanged);
+    void waitForFinished();
 
 signals:
     void documentUpdated(QmlJS::Document::Ptr doc);
@@ -240,6 +241,7 @@ protected:
     void loadQmlTypeDescriptionsInternal(const QString &path);
     void setDefaultProject(const ProjectInfo &pInfo, ProjectExplorer::Project *p);
     void cancelAllThreads();
+
 private:
     void joinAllThreads(bool cancelOnWait = false);
     void iterateQrcFiles(ProjectExplorer::Project *project,

@@ -405,8 +405,8 @@ def deploy_qt_mac(qtc_binary_path, qt_install):
     for app in apps:
         additional_paths.append(os.path.join(bin_path, app))
     additional_paths.append(os.path.join(libexec_path, 'qbs_processlauncher'))
-    # qml2puppet
-    puppets = glob(os.path.join(libexec_path, 'qml2puppet*'))
+    # QML Puppet
+    puppets = glob(os.path.join(libexec_path, 'qmlpuppet*'))
     for puppet in puppets:
         additional_paths.append(puppet)
     # qtdiag, qtplugininfo
@@ -451,6 +451,49 @@ def get_qt_install_info(qmake_binary):
                           plugins=qt_install_info['QT_INSTALL_PLUGINS'],
                           qml=qt_install_info['QT_INSTALL_QML'],
                           translations=qt_install_info['QT_INSTALL_TRANSLATIONS']))
+
+
+def check_webengine(dest_dir):
+    if common.is_linux_platform():
+        core_path = os.path.join(dest_dir, 'lib', 'libQt6WebEngineCore.so.6')
+    elif common.is_windows_platform():
+        core_path = os.path.join(dest_dir, 'Qt6WebEngineCore.dll')
+
+    if not os.path.exists(core_path):
+        return False
+    return True
+
+
+def deploy_webengine_process(qt_install_dir, dest_dir):
+    if common.is_linux_platform():
+        process_path = os.path.join(qt_install_dir, 'libexec', 'QtWebEngineProcess')
+    elif common.is_windows_platform():
+        process_path = os.path.join(qt_install_dir, 'bin', 'QtWebEngineProcess.exe')
+
+    if not os.path.exists(process_path):
+        print(f"Error: QtWebEngineProcess not found at {process_path}.")
+        sys.exit(1)
+
+    if common.is_linux_platform():
+        dest_process_dir = os.path.join(dest_dir, 'libexec')
+    if common.is_windows_platform():
+        dest_process_dir = dest_dir
+    os.makedirs(dest_process_dir, exist_ok=True)
+    print(f"Copying: {process_path} -> {dest_process_dir}")
+    shutil.copy(process_path, dest_process_dir)
+
+    resources = ['icudtl.dat', 'qtwebengine_resources.pak', 'qtwebengine_resources_100p.pak',
+                 'qtwebengine_resources_200p.pak', 'qtwebengine_devtools_resources.pak', 'v8_context_snapshot.bin']
+    resources_dir = os.path.join(qt_install_dir, 'resources')
+    dest_resources_dir = os.path.join(dest_dir, 'resources')
+    os.makedirs(dest_resources_dir, exist_ok=True)
+
+    for resource in resources:
+        resource_path = os.path.join(resources_dir, resource)
+        if os.path.exists(resource_path):
+            print(f"Copying: {resource_path} -> {dest_resources_dir}")
+            shutil.copy(resource_path, dest_resources_dir)
+
 
 def main():
     args = get_args()
@@ -500,6 +543,9 @@ def main():
             print("fixing rpaths...")
             common.fix_rpaths(install_dir, os.path.join(qt_deploy_prefix, 'lib'), qt_install_info, chrpath_bin)
 
+        # Unlike macOS, where it is part of lib/QtWebEngineCore.framework, it is missing
+        if check_webengine(qt_deploy_prefix):
+            deploy_webengine_process(qt_install_info['QT_INSTALL_PREFIX'], qt_deploy_prefix)
 
 if __name__ == "__main__":
     main()

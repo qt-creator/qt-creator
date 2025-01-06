@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include "abstractview.h"
-#include "modelnode.h"
+#include <abstractview.h>
+
+#include <propertyeditorcomponentgenerator.h>
 
 #include <QHash>
 #include <QPointer>
@@ -12,9 +13,9 @@
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
-class QColorDialog;
 class QShortcut;
 class QStackedWidget;
+class QUrl;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -23,6 +24,7 @@ class DynamicPropertiesModel;
 class ItemLibraryInfo;
 class MaterialEditorQmlBackend;
 class QmlObjectNode;
+class SourcePathCacheInterface;
 
 class MaterialEditorView : public AbstractView
 {
@@ -86,6 +88,8 @@ public:
 
     void currentTimelineChanged(const ModelNode &node) override;
 
+    void refreshMetaInfos(const TypeIds &deletedTypeIds) override;
+
     DynamicPropertiesModel *dynamicPropertiesModel() const;
 
     static MaterialEditorView *instance();
@@ -102,14 +106,18 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
-    static QString materialEditorResourcesPath();
-
     void reloadQml();
     void highlightSupportedProperties(bool highlight = true);
 
     void requestPreviewRender();
 
     void setupQmlBackend();
+    MaterialEditorQmlBackend *getQmlBackend(const QUrl &qmlFileUrl);
+    QUrl getPaneUrl();
+    void setupCurrentQmlBackend(const ModelNode &selectedNode,
+                                const QUrl &qmlSpecificsFile,
+                                const QString &specificQmlData);
+    void setupWidget();
 
     void commitVariantValueToModel(PropertyNameView propertyName, const QVariant &value);
     void commitAuxValueToModel(PropertyNameView propertyName, const QVariant &value);
@@ -130,6 +138,8 @@ private:
     QStackedWidget *m_stackedWidget = nullptr;
     QHash<QString, MaterialEditorQmlBackend *> m_qmlBackendHash;
     MaterialEditorQmlBackend *m_qmlBackEnd = nullptr;
+    PropertyComponentGenerator m_propertyComponentGenerator;
+    PropertyEditorComponentGenerator m_propertyEditorComponentGenerator{m_propertyComponentGenerator};
     bool m_locked = false;
     bool m_setupCompleted = false;
     bool m_hasQuick3DImport = false;

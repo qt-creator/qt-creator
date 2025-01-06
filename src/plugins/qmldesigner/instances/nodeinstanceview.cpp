@@ -37,6 +37,7 @@
 #include <qml3dnode.h>
 #include <qmlchangeset.h>
 #include <qmldesignerconstants.h>
+#include <qmldesignertr.h>
 #include <qmlstate.h>
 #include <qmltimeline.h>
 #include <qmltimelinekeyframegroup.h>
@@ -235,6 +236,11 @@ static bool parentTakesOverRendering(const ModelNode &modelNode)
     return false;
 }
 
+static QString crashErrorMessage()
+{
+    return Tr::tr("Internal process (QML Puppet) crashed.");
+}
+
 /*!
     Notifies the view that it was attached to \a model. For every model node in
     the model, a NodeInstance will be created.
@@ -306,7 +312,7 @@ void NodeInstanceView::handleCrash()
     } else {
         if (isAttached()) {
             model()->emitDocumentMessage(
-                ::QmlDesigner::NodeInstanceView::tr("Qt Quick emulation layer crashed."));
+                crashErrorMessage());
         }
     }
 
@@ -576,7 +582,7 @@ void NodeInstanceView::nodeReparented(const ModelNode &node, const NodeAbstractP
         m_nodeInstanceServer->reparentInstances(
             createReparentInstancesCommand(node, newPropertyParent, oldPropertyParent));
 
-        // Reset puppet when particle emitter/affector is reparented to work around issue in
+        // Reset QML Puppet when particle emitter/affector is reparented to work around issue in
         // autodetecting the particle system it belongs to. QTBUG-101157
         if (auto metaInfo = node.metaInfo();
             (metaInfo.isQtQuick3DParticles3DParticleEmitter3D()
@@ -671,29 +677,22 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
     case AuxiliaryDataType::NodeInstancePropertyOverwrite:
         if (hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
-            if (value.isValid()) {
-                PropertyValueContainer container{instance.instanceId(),
-                                                 key.name,
-                                                 value,
-                                                 TypeName(),
-                                                 key.type};
-                m_nodeInstanceServer->changeAuxiliaryValues({{container}});
-            } else {
-                const PropertyName name = key.name.toByteArray();
-                if (node.hasVariantProperty(name)) {
-                    PropertyValueContainer container(instance.instanceId(),
-                                                     name,
-                                                     node.variantProperty(name).value(),
-                                                     TypeName());
-                    ChangeValuesCommand changeValueCommand({container});
-                    m_nodeInstanceServer->changePropertyValues(changeValueCommand);
-                } else if (node.hasBindingProperty(name)) {
-                    PropertyBindingContainer container{instance.instanceId(),
-                                                       name,
-                                                       node.bindingProperty(name).expression(),
-                                                       TypeName()};
-                    m_nodeInstanceServer->changePropertyBindings({{container}});
-                }
+            PropertyValueContainer container{instance.instanceId(), key.name, value, TypeName(), key.type};
+            m_nodeInstanceServer->changeAuxiliaryValues({{container}});
+            const PropertyName name = key.name.toByteArray();
+            if (node.hasVariantProperty(name)) {
+                PropertyValueContainer container(instance.instanceId(),
+                                                 name,
+                                                 node.variantProperty(name).value(),
+                                                 TypeName());
+                ChangeValuesCommand changeValueCommand({container});
+                m_nodeInstanceServer->changePropertyValues(changeValueCommand);
+            } else if (node.hasBindingProperty(name)) {
+                PropertyBindingContainer container{instance.instanceId(),
+                                                   name,
+                                                   node.bindingProperty(name).expression(),
+                                                   TypeName()};
+                m_nodeInstanceServer->changePropertyBindings({{container}});
             }
         }
         break;
@@ -742,7 +741,7 @@ void NodeInstanceView::nodeSourceChanged(const ModelNode &node, const QString & 
          ChangeNodeSourceCommand changeNodeSourceCommand(instance.instanceId(), newNodeSource);
          m_nodeInstanceServer->changeNodeSource(changeNodeSourceCommand);
 
-         // Puppet doesn't deal with node source changes properly, so just reset the puppet for now
+         // QML Puppet doesn't deal with node source changes properly, so just reset the QML Puppet for now
          resetPuppet(); // TODO: Remove this once the issue is properly fixed (QDS-4955)
      }
 }
@@ -1762,7 +1761,7 @@ void NodeInstanceView::token(const TokenCommand &command)
 
 void NodeInstanceView::debugOutput(const DebugOutputCommand & command)
 {
-    DocumentMessage error(::QmlDesigner::NodeInstanceView::tr("Qt Quick emulation layer crashed."));
+    DocumentMessage error(crashErrorMessage());
     if (command.instanceIds().isEmpty() && isAttached()) {
         model()->emitDocumentMessage(command.text());
     } else {
@@ -2030,8 +2029,7 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
                                                                               Qt::KeepAspectRatio);
                     imageData.pixmap.setDevicePixelRatio(ratio);
                 }
-                imageData.info = ::QmlDesigner::NodeInstanceView::tr("Source item: %1")
-                                     .arg(boundNode.id());
+                imageData.info = Tr::tr("Source item: %1").arg(boundNode.id());
             }
         }
     } else {
@@ -2112,7 +2110,7 @@ QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &model
 
     ModelNodePreviewImageData imageData;
 
-    // We need puppet to generate the image, which needs to be asynchronous.
+    // We need QML Puppet to generate the image, which needs to be asynchronous.
     // Until the image is ready, we show a placeholder
     const QString id = modelNode.id();
     if (m_imageDataMap.contains(id)) {
@@ -2252,8 +2250,7 @@ void NodeInstanceView::handleQsbProcessExit(Utils::Process *qsbProcess, const QS
     const QByteArray stdErrStr = qsbProcess->readAllRawStandardError();
 
     if (!errStr.isEmpty() || !stdErrStr.isEmpty()) {
-        Core::MessageManager::writeSilently(QCoreApplication::translate(
-            "QmlDesigner::NodeInstanceView", "Failed to generate QSB file for: %1").arg(shader));
+        Core::MessageManager::writeSilently(Tr::tr("Failed to generate QSB file for: %1").arg(shader));
         if (!errStr.isEmpty())
             Core::MessageManager::writeSilently(errStr);
         if (!stdErrStr.isEmpty())
@@ -2409,7 +2406,7 @@ void NodeInstanceView::maybeResetOnPropertyChange(PropertyNameView name,
     if (flags & AbstractView::PropertiesAdded && name == "model"
         && node.metaInfo().isQtQuickRepeater()) {
         // TODO: This is a workaround for QTBUG-97583:
-        //       Reset puppet when repeater model is first added, if there is already a delegate
+        //       Reset QML Puppet when repeater model is first added, if there is already a delegate
         if (node.hasProperty("delegate"))
             reset = true;
     } else if (name == "shader" && node.metaInfo().isQtQuick3DShader()) {

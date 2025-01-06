@@ -153,7 +153,7 @@ ModelPrivate::~ModelPrivate()
 
 void ModelPrivate::detachAllViews()
 {
-    auto tracer = traceToken.begin("detach all views"_t);
+    auto tracer = traceToken.begin("detach all views");
 
     for (const QPointer<AbstractView> &view : std::as_const(m_viewList))
         detachView(view.data(), true);
@@ -198,7 +198,7 @@ Storage::Imports createStorageImports(const Imports &imports,
 
 void ModelPrivate::changeImports(Imports toBeAddedImports, Imports toBeRemovedImports)
 {
-    auto tracer = traceToken.begin("change imports"_t);
+    auto tracer = traceToken.begin("change imports");
 
     std::sort(toBeAddedImports.begin(), toBeAddedImports.end());
     std::sort(toBeRemovedImports.begin(), toBeRemovedImports.end());
@@ -275,17 +275,19 @@ void ModelPrivate::setDocumentMessages(const QList<DocumentMessage> &errors,
 
 void ModelPrivate::setFileUrl(const QUrl &fileUrl)
 {
-    auto tracer = traceToken.begin("file url"_t);
+    auto tracer = traceToken.begin("file url");
 
     QUrl oldPath = m_fileUrl;
 
     if (oldPath != fileUrl) {
         m_fileUrl = fileUrl;
         if constexpr (useProjectStorage()) {
-            auto path = fileUrl.path();
+            auto path = fileUrl.toString(QUrl::PreferLocalFile);
             m_sourceId = pathCache->sourceId(SourcePath{path});
             auto found = std::find(path.rbegin(), path.rend(), u'/').base();
             m_localPath = Utils::PathString{QStringView{path.begin(), std::prev(found)}};
+            auto imports = createStorageImports(m_imports, m_localPath, *projectStorage, m_sourceId);
+            projectStorage->synchronizeDocumentImports(std::move(imports), m_sourceId);
         }
 
         for (const QPointer<AbstractView> &view : std::as_const(m_viewList))
@@ -328,7 +330,7 @@ InternalNodePointer ModelPrivate::createNode(TypeNameView typeName,
                                                   majorVersion,
                                                   minorVersion,
                                                   internalId,
-                                                  traceToken.tickWithFlow("create node"_t));
+                                                  traceToken.tickWithFlow("create node"));
 
     setTypeId(newNode.get(), typeName);
 
@@ -539,7 +541,7 @@ void ModelPrivate::changeNodeId(const InternalNodePointer &node, const QString &
     const QString oldId = node->id;
 
     node->id = id;
-    node->traceToken.tick("id"_t, std::forward_as_tuple("id", id));
+    node->traceToken.tick("id", std::forward_as_tuple("id", id));
     if (!oldId.isEmpty())
         m_idNodeHash.remove(oldId);
     if (!id.isEmpty())
@@ -929,13 +931,16 @@ void ModelPrivate::attachView(AbstractView *view)
     if (!view->isEnabled())
         return;
 
-    if (m_viewList.contains(view))
-        return;
+    if (view->isAttached()) {
+        if (view->model() == m_model)
+            return;
+        else
+            view->model()->detachView(view);
+    }
 
     m_viewList.append(view);
 
-    if (!view->isAttached())
-        view->modelAttached(m_model);
+    view->modelAttached(m_model);
 }
 
 void ModelPrivate::detachView(AbstractView *view, bool notifyView)
@@ -1173,7 +1178,7 @@ void ModelPrivate::setSelectedNodes(const FewNodes &selectedNodeList)
     if (sortedSelectedList == m_selectedInternalNodes)
         return;
 
-    auto flowToken = traceToken.tickWithFlow("selected model nodes"_t);
+    auto flowToken = traceToken.tickWithFlow("selected model nodes");
 
     if constexpr (decltype(traceToken)::categoryIsActive()) { // the compiler should optimize it away but to be sure
         std::set_difference(sortedSelectedList.begin(),
@@ -1181,7 +1186,7 @@ void ModelPrivate::setSelectedNodes(const FewNodes &selectedNodeList)
                             m_selectedInternalNodes.begin(),
                             m_selectedInternalNodes.end(),
                             Utils::make_iterator([&](const auto &node) {
-                                node->traceToken.tick(flowToken, "select model node"_t);
+                                node->traceToken.tick(flowToken, "select model node");
                             }));
     }
 
@@ -1194,7 +1199,7 @@ void ModelPrivate::setSelectedNodes(const FewNodes &selectedNodeList)
                             m_selectedInternalNodes.begin(),
                             m_selectedInternalNodes.end(),
                             Utils::make_iterator([&](const auto &node) {
-                                node->traceToken.tick(flowToken, "deselect model node"_t);
+                                node->traceToken.tick(flowToken, "deselect model node");
                             }));
     }
 
@@ -1203,7 +1208,7 @@ void ModelPrivate::setSelectedNodes(const FewNodes &selectedNodeList)
 
 void ModelPrivate::clearSelectedNodes()
 {
-    auto tracer = traceToken.begin("clear selected model nodes"_t);
+    auto tracer = traceToken.begin("clear selected model nodes");
 
     auto lastSelectedNodeList = m_selectedInternalNodes;
     m_selectedInternalNodes.clear();
@@ -1224,7 +1229,7 @@ QList<ModelNode> ModelPrivate::toModelNodeList(Utils::span<const InternalNodePoi
     QList<ModelNode> modelNodeList;
     modelNodeList.reserve(nodeList.size());
     for (const InternalNodePointer &node : nodeList)
-        modelNodeList.append(ModelNode(node, m_model, view));
+        modelNodeList.emplace_back(node, m_model, view);
 
     return modelNodeList;
 }
@@ -1338,7 +1343,7 @@ static QList<PropertyPair> toPropertyPairList(const QList<InternalProperty *> &p
     propertyPairList.reserve(propertyList.size());
 
     for (const InternalProperty *property : propertyList)
-        propertyPairList.append({property->propertyOwner(), property->name()});
+        propertyPairList.emplace_back(property->propertyOwner(), property->name());
 
     return propertyPairList;
 }
@@ -1401,7 +1406,8 @@ void ModelPrivate::setBindingProperties(const ModelResourceSet::SetExpressions &
 
     auto bindingPropertiesWithExpressions = toInternalBindingProperties(setExpressions);
 
-    auto bindingProperties = CoreUtils::to<QList>(bindingPropertiesWithExpressions | std::views::keys);
+    auto bindingProperties = Utils::transform(bindingPropertiesWithExpressions,
+                                              [](const auto &entry) { return std::get<0>(entry); });
 
     notifyBindingPropertiesAboutToBeChanged(bindingProperties);
     for (const auto &[bindingProperty, expression] : bindingPropertiesWithExpressions)
@@ -1571,7 +1577,7 @@ void ModelPrivate::changeRootNodeType(const TypeName &type, int majorVersion, in
 {
     Q_ASSERT(rootNode());
 
-    m_rootInternalNode->traceToken.tick("type name"_t, keyValue("type name", type));
+    m_rootInternalNode->traceToken.tick("type name", keyValue("type name", type));
 
     m_rootInternalNode->typeName = type;
     m_rootInternalNode->majorVersion = majorVersion;
@@ -1582,7 +1588,7 @@ void ModelPrivate::changeRootNodeType(const TypeName &type, int majorVersion, in
 
 void ModelPrivate::setScriptFunctions(const InternalNodePointer &node, const QStringList &scriptFunctionList)
 {
-    m_rootInternalNode->traceToken.tick("script function"_t);
+    m_rootInternalNode->traceToken.tick("script function");
 
     node->scriptFunctions = scriptFunctionList;
 
@@ -1591,7 +1597,7 @@ void ModelPrivate::setScriptFunctions(const InternalNodePointer &node, const QSt
 
 void ModelPrivate::setNodeSource(const InternalNodePointer &node, const QString &nodeSource)
 {
-    m_rootInternalNode->traceToken.tick("node source"_t);
+    m_rootInternalNode->traceToken.tick("node source");
 
     node->nodeSource = nodeSource;
     notifyNodeSourceChanged(node, nodeSource);
@@ -1641,6 +1647,9 @@ void ModelPrivate::setNodeInstanceView(AbstractView *nodeInstanceView)
 
     if (nodeInstanceView && nodeInstanceView->kind() != AbstractView::Kind::NodeInstance)
         return;
+
+    if (nodeInstanceView && nodeInstanceView->isAttached())
+        nodeInstanceView->model()->setNodeInstanceView(nullptr);
 
     if (m_nodeInstanceView)
         m_nodeInstanceView->modelAboutToBeDetached(m_model);
@@ -1853,7 +1862,7 @@ void Model::changeImports(Imports importsToBeAdded, Imports importsToBeRemoved)
 #ifndef QDS_USE_PROJECTSTORAGE
 void Model::setPossibleImports(Imports possibleImports)
 {
-    auto tracer = d->traceToken.begin("possible imports"_t);
+    auto tracer = d->traceToken.begin("possible imports");
 
     std::sort(possibleImports.begin(), possibleImports.end());
 
@@ -1867,7 +1876,7 @@ void Model::setPossibleImports(Imports possibleImports)
 #ifndef QDS_USE_PROJECTSTORAGE
 void Model::setUsedImports(Imports usedImports)
 {
-    auto tracer = d->traceToken.begin("used imports"_t);
+    auto tracer = d->traceToken.begin("used imports");
 
     std::sort(usedImports.begin(), usedImports.end());
 
@@ -1970,6 +1979,9 @@ ModelNode Model::currentStateNode(AbstractView *view)
 
 void Model::setCurrentTimelineNode(const ModelNode &timeline)
 {
+    if (timeline.internalNode() == d->m_currentTimelineNode)
+        return;
+
     Internal::WriteLocker locker(this); // unsure about this locker
 
     d->m_currentTimelineNode = timeline.internalNode();
@@ -2679,7 +2691,7 @@ NodeMetaInfo Model::qtQmlConnectionsMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
         using namespace Storage::Info;
-        return createNodeMetaInfo<QtQml, Connections>();
+        return createNodeMetaInfo<QtQml_Base, Connections>();
     } else {
         return metaInfo("QtQml.Connections");
     }
@@ -2750,7 +2762,7 @@ QList<ItemLibraryEntry> Model::itemLibraryEntries() const
 {
 #ifdef QDS_USE_PROJECTSTORAGE
     using namespace Storage::Info;
-    return toItemLibraryEntries(d->projectStorage->itemLibraryEntries(d->m_sourceId));
+    return toItemLibraryEntries(*d->pathCache, d->projectStorage->itemLibraryEntries(d->m_sourceId));
 #else
     return d->metaInfo().itemLibraryInfo()->entries();
 #endif
@@ -2842,7 +2854,7 @@ The view is informed that it has been registered within the model by a call to A
 */
 void Model::attachView(AbstractView *view)
 {
-    auto traceToken = d->traceToken.begin("attachView"_t,
+    auto traceToken = d->traceToken.begin("attachView",
                                           keyValue("name",
                                                    std::string_view{view->metaObject()->className()}));
 
@@ -2872,7 +2884,7 @@ void Model::attachView(AbstractView *view)
 */
 void Model::detachView(AbstractView *view, ViewNotification emitDetachNotify)
 {
-    auto traceToken = d->traceToken.begin("detachView"_t,
+    auto traceToken = d->traceToken.begin("detachView",
                                           keyValue("name",
                                                    std::string_view{view->metaObject()->className()}));
 

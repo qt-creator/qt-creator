@@ -42,7 +42,7 @@ void SeekerSlider::mousePressEvent(QMouseEvent *event)
     QStyleOptionSlider os;
     initStyleOption(&os);
     QRect handleRect = style()->subControlRect(QStyle::CC_Slider, &os, QStyle::SC_SliderHandle, this);
-    m_moving = handleRect.contains(event->localPos().toPoint());
+    m_moving = handleRect.contains(event->position().toPoint());
     if (m_moving)
         QSlider::mousePressEvent(event);
     else

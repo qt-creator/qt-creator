@@ -2014,7 +2014,7 @@ void tst_TestCore::testBasicStatesQtQuick20()
     qDebug() << rootModelNode.nodeListProperty("states").toModelNodeList().first().metaInfo().typeName();
 #endif
 
-    QSKIP("No qml2puppet");
+    QSKIP("No QML Puppet");
 
     QScopedPointer<TestView> view(new TestView);
     QVERIFY(view.data());

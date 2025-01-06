@@ -12,6 +12,51 @@
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
+
+namespace {
+
+struct CodeRename
+{
+    CodeRename(const QString &oldName, const QString &newName)
+        : m_newName(newName)
+        , m_regex{QString(R"(\b%1\b)").arg(oldName)}
+    {}
+
+    QString operator()(QString code) const { return code.replace(m_regex, m_newName); }
+
+    void operator()(QTextDocument *document) const
+    {
+        QTextCursor docCursor(document);
+        bool documentChanged = false;
+        QTextBlock block = document->lastBlock();
+        while (block.isValid()) {
+            QString blockText = block.text();
+            QRegularExpressionMatch match = m_regex.match(blockText);
+            if (match.hasMatch()) {
+                if (!documentChanged) {
+                    docCursor.beginEditBlock();
+                    documentChanged = true;
+                }
+                blockText.replace(m_regex, m_newName);
+                QTextCursor blockCursor(block);
+                blockCursor.movePosition(QTextCursor::StartOfBlock);
+                blockCursor.insertText(blockText);
+                blockCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+                blockCursor.removeSelectedText();
+            }
+            block = block.previous();
+        }
+        if (documentChanged)
+            docCursor.endEditBlock();
+    }
+
+    const QString m_newName;
+    const QRegularExpression m_regex;
+};
+
+} // namespace
 
 namespace EffectComposer {
 
@@ -43,9 +88,24 @@ CompositionNode::CompositionNode(const QString &effectName, const QString &qenPa
     else {
         parse(effectName, "", jsonObject);
     }
+
+    connect(
+        &m_uniformsModel,
+        &QAbstractItemModel::rowsRemoved,
+        this,
+        &CompositionNode::rebakeRequested);
+
+    connect(
+        &m_uniformsModel,
+        &EffectComposerUniformsModel::uniformRenamed,
+        this,
+        &CompositionNode::onUniformRenamed);
 }
 
-CompositionNode::~CompositionNode() = default;
+CompositionNode::~CompositionNode()
+{
+    EffectShadersCodeEditor::instance()->cleanFromData(m_shaderEditorData.get());
+};
 
 QString CompositionNode::fragmentCode() const
 {
@@ -69,7 +129,7 @@ QString CompositionNode::id() const
 
 QObject *CompositionNode::uniformsModel()
 {
-    return &m_unifomrsModel;
+    return &m_uniformsModel;
 }
 
 QStringList CompositionNode::requiredNodes() const
@@ -93,6 +153,11 @@ void CompositionNode::setIsEnabled(bool newIsEnabled)
 bool CompositionNode::isDependency() const
 {
     return m_refCount > 0;
+}
+
+bool CompositionNode::isCustom() const
+{
+    return m_isCustom;
 }
 
 CompositionNode::NodeType CompositionNode::type() const
@@ -122,6 +187,9 @@ void CompositionNode::parse(const QString &effectName, const QString &qenPath, c
     if (json.contains("enabled"))
         m_isEnabled = json["enabled"].toBool();
 
+    if (json.contains("custom"))
+        m_isCustom = json["custom"].toBool();
+
     m_id = json.value("id").toString();
     if (m_id.isEmpty() && !qenPath.isEmpty()) {
         QString fileName = qenPath.split('/').last();
@@ -130,11 +198,10 @@ void CompositionNode::parse(const QString &effectName, const QString &qenPath, c
     }
 
     // parse properties
-    QJsonArray jsonProps = json.value("properties").toArray();
+    const QJsonArray &jsonProps = json.value("properties").toArray();
     for (const QJsonValueConstRef &prop : jsonProps) {
         const auto uniform = new Uniform(effectName, prop.toObject(), qenPath);
-        m_unifomrsModel.addUniform(uniform);
-        m_uniforms.append(uniform);
+        m_uniformsModel.addUniform(uniform);
         g_propertyData.insert(uniform->name(), uniform->value());
         if (uniform->type() == Uniform::Type::Define) {
             // Changing defines requires rebaking the shaders
@@ -157,39 +224,33 @@ void CompositionNode::parse(const QString &effectName, const QString &qenPath, c
     }
 }
 
-void CompositionNode::ensureShadersCodeEditor()
+void CompositionNode::ensureCodeEditorData()
 {
-    if (m_shadersCodeEditor)
+    using TextEditor::TextDocument;
+    if (m_shaderEditorData)
         return;
 
-    m_shadersCodeEditor = Utils::makeUniqueObjectLatePtr<EffectShadersCodeEditor>(name());
-    m_shadersCodeEditor->setFragmentValue(fragmentCode());
-    m_shadersCodeEditor->setVertexValue(vertexCode());
+    m_shaderEditorData.reset(EffectShadersCodeEditor::instance()
+                                 ->createEditorData(fragmentCode(), vertexCode(), &m_uniformsModel));
 
-    connect(m_shadersCodeEditor.get(), &EffectShadersCodeEditor::vertexValueChanged, this, [this] {
-        setVertexCode(m_shadersCodeEditor->vertexValue());
+    connect(m_shaderEditorData->fragmentDocument.get(), &TextDocument::contentsChanged, this, [this] {
+        setFragmentCode(m_shaderEditorData->fragmentDocument->plainText());
     });
 
-    connect(m_shadersCodeEditor.get(), &EffectShadersCodeEditor::fragmentValueChanged, this, [this] {
-        setFragmentCode(m_shadersCodeEditor->fragmentValue());
+    connect(m_shaderEditorData->vertexDocument.get(), &TextDocument::contentsChanged, this, [this] {
+        setVertexCode(m_shaderEditorData->vertexDocument->plainText());
     });
-
-    connect(
-        m_shadersCodeEditor.get(),
-        &EffectShadersCodeEditor::rebakeRequested,
-        this,
-        &CompositionNode::rebakeRequested);
 }
 
 void CompositionNode::requestRebakeIfLiveUpdateMode()
 {
-    if (m_shadersCodeEditor && m_shadersCodeEditor->liveUpdate())
+    if (EffectShadersCodeEditor::instance()->liveUpdate())
         emit rebakeRequested();
 }
 
 QList<Uniform *> CompositionNode::uniforms() const
 {
-    return m_uniforms;
+    return m_uniformsModel.uniforms();
 }
 
 int CompositionNode::incRefCount()
@@ -228,6 +289,7 @@ void CompositionNode::setFragmentCode(const QString &fragmentCode)
         return;
 
     m_fragmentCode = fragmentCode;
+    m_InUseCheckNeeded = true;
     emit fragmentCodeChanged();
 
     requestRebakeIfLiveUpdateMode();
@@ -239,20 +301,104 @@ void CompositionNode::setVertexCode(const QString &vertexCode)
         return;
 
     m_vertexCode = vertexCode;
+    m_InUseCheckNeeded = true;
     emit vertexCodeChanged();
 
     requestRebakeIfLiveUpdateMode();
 }
 
-void CompositionNode::openShadersCodeEditor()
+void CompositionNode::markAsSaved()
 {
-    ensureShadersCodeEditor();
-    m_shadersCodeEditor->showWidget();
+    if (!m_shaderEditorData)
+        return;
+
+    m_shaderEditorData->fragmentDocument->document()->setModified(false);
+    m_shaderEditorData->vertexDocument->document()->setModified(false);
+}
+
+void CompositionNode::openCodeEditor()
+{
+    auto editor = EffectShadersCodeEditor::instance();
+    ensureCodeEditorData();
+    editor->setupShader(m_shaderEditorData.get());
+    editor->showWidget();
+}
+
+void CompositionNode::addUniform(const QVariantMap &data)
+{
+    const auto uniform = new Uniform({}, QJsonObject::fromVariantMap(data), {});
+    g_propertyData.insert(uniform->name(), uniform->value());
+    m_uniformsModel.addUniform(uniform);
+    updateAreUniformsInUse(true);
+}
+
+void CompositionNode::updateUniform(int index, const QVariantMap &data)
+{
+    QTC_ASSERT(index < uniforms().size() && index >= 0, return);
+
+    const auto uniform = new Uniform({}, QJsonObject::fromVariantMap(data), {});
+
+    g_propertyData.insert(uniform->name(), uniform->value());
+    m_uniformsModel.updateUniform(index, uniform);
+    updateAreUniformsInUse(true);
+}
+
+void CompositionNode::updateAreUniformsInUse(bool force)
+{
+    if (force || m_InUseCheckNeeded) {
+        const QString matchTemplate("\\b%1\\b");
+        const QList<Uniform *> uniList = uniforms();
+
+        // Some of the uniforms may only be used by customValue properties
+        QString customValues;
+        for (const Uniform *u : uniList) {
+            if (!u->customValue().isEmpty()) {
+                customValues.append(u->customValue());
+                customValues.append(' ');
+            }
+        }
+
+        for (int i = 0; i < uniList.size(); ++i) {
+            Uniform *u = uniList[i];
+            QString pattern = matchTemplate.arg(QRegularExpression::escape(u->name()));
+            QRegularExpression regex(pattern);
+            bool found = false;
+            found = regex.match(m_fragmentCode).hasMatch();
+            if (!found)
+                found = regex.match(m_vertexCode).hasMatch();
+            if (!found && !customValues.isEmpty())
+                found = regex.match(customValues).hasMatch();
+            m_uniformsModel.setData(m_uniformsModel.index(i), found,
+                                    EffectComposerUniformsModel::IsInUse);
+        }
+        m_InUseCheckNeeded = false;
+    }
+}
+
+void CompositionNode::onUniformRenamed(const QString &oldName, const QString &newName)
+{
+    CodeRename codeRename{oldName, newName};
+    if (m_shaderEditorData) {
+        codeRename(m_shaderEditorData->vertexDocument->document());
+        codeRename(m_shaderEditorData->fragmentDocument->document());
+    } else {
+        setVertexCode(codeRename(vertexCode()));
+        setFragmentCode(codeRename(fragmentCode()));
+    }
 }
 
 QString CompositionNode::name() const
 {
     return m_name;
+}
+
+void CompositionNode::setName(const QString &name)
+{
+    if (m_name == name)
+        return;
+
+    m_name = name;
+    emit nameChanged();
 }
 
 } // namespace EffectComposer

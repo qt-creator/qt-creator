@@ -6,13 +6,13 @@
     \previouspage studio-live-preview.html
     \nextpage creator-live-preview-devices.html
 
-    \title Previewing on Desktop
+    \title Previewing on desktop
 
     To preview the currently active QML file on the desktop:
 
     \list
         \li Select the \uicontrol {Live Preview} button on the top toolbar.
-        \li Press \key {Alt+P}.
+        \li Select \key {Alt+P}.
             \image studio-live-preview.webp
     \endlist
 
@@ -30,20 +30,20 @@
     To preview the application in a different zoom level, right-click the \uicontrol {Live Preview}
     button and select the zoom level.
 
-    \section1 Overriding the Preview Tool
+    \section1 Overriding the preview tool
 
     By default, the QML runtime is used for previewing.
 
     To use some other tool:
 
     \list 1
-        \li Select \inlineimage icons/settings.png to go to
+        \li Select \imagesettings to go to
             \uicontrol {Run Settings}.
             \image studio-run-settings.webp {Run Settings}
         \li In \uicontrol {Override device QML viewer}, select the folder where
             the preview tool executable is located.
     \endlist
 
-    To preview the design on a device, see \l {Previewing on Devices}.
+    To preview the design on a device, see \l {Previewing on devices}.
 
 */

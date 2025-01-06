@@ -7,6 +7,7 @@
 #include "signallistdelegate.h"
 
 #include <qmldesignerplugin.h>
+#include <qmldesignertr.h>
 
 #include <theme.h>
 #include <utils/fancylineedit.h>
@@ -32,7 +33,7 @@ std::unique_ptr<QWidget> createFilterWidget(Utils::FancyLineEdit *lineEdit)
     auto *label = new QLabel;
     label->setPixmap(icon.pixmap(QSize(24, 24)));
     label->setAlignment(Qt::AlignCenter);
-    lineEdit->setPlaceholderText(QObject::tr("<Filter>", "Library search input hint text"));
+    lineEdit->setPlaceholderText(Tr::tr("<Filter>", "Library search input hint text"));
     lineEdit->setDragEnabled(false);
     lineEdit->setMinimumWidth(75);
     lineEdit->setTextMargins(0, 0, 20, 0);

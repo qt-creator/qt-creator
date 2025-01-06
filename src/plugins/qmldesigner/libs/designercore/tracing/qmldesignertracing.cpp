@@ -55,7 +55,7 @@ StringEventQueue &stringEventQueue()
 namespace ModelTracing {
 namespace {
 
-thread_local Category category_{"model"_t, Tracing::stringEventQueue(), category};
+thread_local Category category_{"model", Tracing::stringEventQueue(), category};
 
 } // namespace
 
@@ -70,7 +70,7 @@ namespace ProjectStorageTracing {
 
 Category &projectStorageCategory()
 {
-    thread_local Category category{"project storage"_t,
+    thread_local Category category{"project storage",
                                    Tracing::eventQueueWithStringArguments(),
                                    projectStorageCategory};
 
@@ -79,7 +79,7 @@ Category &projectStorageCategory()
 
 Category &projectStorageUpdaterCategory()
 {
-    thread_local Category category{"project storage updater"_t,
+    thread_local Category category{"project storage updater",
                                    Tracing::eventQueueWithStringArguments(),
                                    projectStorageCategory};
 
@@ -91,7 +91,7 @@ Category &projectStorageUpdaterCategory()
 namespace SourcePathStorageTracing {
 Category &category()
 {
-    thread_local Category category_{"project storage updater"_t,
+    thread_local Category category_{"project storage updater",
                                     Tracing::eventQueueWithStringArguments(),
                                     category};
 
@@ -102,7 +102,7 @@ Category &category()
 namespace MetaInfoTracing {
 Category &category()
 {
-    thread_local Category category_{"meta info"_t, Tracing::eventQueueWithStringArguments(), category};
+    thread_local Category category_{"meta info", Tracing::eventQueueWithStringArguments(), category};
 
     return category_;
 }

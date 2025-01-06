@@ -3,11 +3,13 @@
 
 import QtQuick
 import StudioControls as StudioControls
-import StudioTheme as StudioTheme
-import EffectComposerBackend
 
 Row {
+    id: root
+
     width: parent.width
+
+    signal valueChanged()
 
     StudioControls.TextField {
         id: textField
@@ -19,6 +21,9 @@ Row {
 
         text: uniformValue
 
-        onEditingFinished: uniformValue = text
+        onEditingFinished: {
+            uniformValue = text
+            root.valueChanged()
+        }
     }
 }

@@ -132,7 +132,7 @@ public:
     TypeId commonTypeId() const
     {
         using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"get type id from common type cache"_t,
+        NanotraceHR::Tracer tracer{"get type id from common type cache",
                                    projectStorageCategory(),
                                    keyValue("module name", std::string_view{moduleName}),
                                    keyValue("type name", std::string_view{typeName})};
@@ -148,7 +148,7 @@ public:
     TypeId builtinTypeId() const
     {
         using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"get builtin type id from common type cache"_t,
+        NanotraceHR::Tracer tracer{"get builtin type id from common type cache",
                                    projectStorageCategory()};
 
         auto typeId = commonTypeCache_.builtinTypeId<BuiltinType>();
@@ -162,7 +162,7 @@ public:
     TypeId builtinTypeId() const
     {
         using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"get builtin type id from common type cache"_t,
+        NanotraceHR::Tracer tracer{"get builtin type id from common type cache",
                                    projectStorageCategory()};
 
         auto typeId = commonTypeCache_.builtinTypeId<builtinType>();
@@ -837,7 +837,7 @@ private:
     template<typename Relinkable>
     void removeRelinkableEntries(std::vector<Relinkable> &relinkables, auto &ids, auto projection)
     {
-        NanotraceHR::Tracer tracer{"remove relinkable entries"_t, projectStorageCategory()};
+        NanotraceHR::Tracer tracer{"remove relinkable entries", projectStorageCategory()};
 
         std::vector<Relinkable> newRelinkables;
         newRelinkables.reserve(relinkables.size());
