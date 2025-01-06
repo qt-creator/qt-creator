@@ -29,6 +29,7 @@
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
+#include <utils/temporaryfile.h>
 #include <utils/url.h>
 #include <utils/utilsicons.h>
 
@@ -125,16 +126,30 @@ class DeviceCtlPollingRunner final : public DeviceCtlRunnerBase
 public:
     DeviceCtlPollingRunner(RunControl *runControl);
 
-    void stop() final;
+    void stop();
 
 private:
-    GroupItem launchTask(const QString &bundleIdentifier) final;
+    GroupItem launchTask(const QString &bundleIdentifier);
     void checkProcess();
 
     std::unique_ptr<TaskTree> m_stopTask;
     std::unique_ptr<TaskTree> m_pollTask;
     QTimer m_pollTimer;
     qint64 m_processIdentifier = -1;
+};
+
+class DeviceCtlRunner final : public DeviceCtlRunnerBase
+{
+public:
+    DeviceCtlRunner(RunControl *runControl);
+
+    void stop();
+
+private:
+    GroupItem launchTask(const QString &bundleIdentifier);
+
+    Process m_process;
+    std::unique_ptr<TemporaryFile> m_deviceCtlOutput;
 };
 
 DeviceCtlRunnerBase::DeviceCtlRunnerBase(RunControl *runControl)
@@ -411,6 +426,62 @@ void DeviceCtlPollingRunner::checkProcess()
     };
     m_pollTask.reset(new TaskTree(Group{ProcessTask(onSetup, onDone)}));
     m_pollTask->start();
+}
+
+DeviceCtlRunner::DeviceCtlRunner(RunControl *runControl)
+    : DeviceCtlRunnerBase(runControl)
+{}
+
+void DeviceCtlRunner::stop()
+{
+    if (m_process.isRunning())
+        m_process.stop();
+}
+
+GroupItem DeviceCtlRunner::launchTask(const QString &bundleIdentifier)
+{
+    const auto onSetup = [this, bundleIdentifier] {
+        if (!m_device) {
+            reportFailure(Tr::tr("Running failed. No iOS device found."));
+            return false;
+        }
+        m_deviceCtlOutput.reset(new TemporaryFile("devicectl"));
+        if (!m_deviceCtlOutput->open() || m_deviceCtlOutput->fileName().isEmpty()) {
+            reportFailure(Tr::tr("Running failed. Failed to create the temporary output file."));
+            return false;
+        }
+        m_process.setCommand(
+            {FilePath::fromString("/usr/bin/xcrun"),
+             {"devicectl",
+              "device",
+              "process",
+              "launch",
+              "--device",
+              m_device->uniqueInternalDeviceId(),
+              "--quiet",
+              "--json-output",
+              m_deviceCtlOutput->fileName(),
+              "--console",
+              bundleIdentifier,
+              m_arguments}});
+        connect(&m_process, &Process::started, this, [this] { reportStarted(); });
+        connect(&m_process, &Process::done, this, [this] {
+            if (m_process.error() != QProcess::UnknownError)
+                reportFailure(Tr::tr("Failed to run devicectl: %1.").arg(m_process.errorString()));
+            m_deviceCtlOutput->reset();
+            reportStoppedImpl();
+        });
+        connect(&m_process, &Process::readyReadStandardError, this, [this] {
+            appendMessage(m_process.readAllStandardError(), StdErrFormat, false);
+        });
+        connect(&m_process, &Process::readyReadStandardOutput, this, [this] {
+            appendMessage(m_process.readAllStandardOutput(), StdOutFormat, false);
+        });
+
+        m_process.start();
+        return true;
+    };
+    return Sync(onSetup);
 }
 
 class IosRunner : public RunWorker
@@ -877,6 +948,10 @@ IosRunWorkerFactory::IosRunWorkerFactory()
     setProducer([](RunControl *control) -> RunWorker * {
         IosDevice::ConstPtr iosdevice = std::dynamic_pointer_cast<const IosDevice>(control->device());
         if (iosdevice && iosdevice->handler() == IosDevice::Handler::DeviceCtl) {
+            if (IosDeviceManager::isDeviceCtlOutputSupported())
+                return new DeviceCtlRunner(control);
+            // TODO Remove the polling runner when we decide not to support iOS 17+ devices
+            // with Xcode < 15.4 at all
             return new DeviceCtlPollingRunner(control);
         }
         control->setIcon(Icons::RUN_SMALL_TOOLBAR);
