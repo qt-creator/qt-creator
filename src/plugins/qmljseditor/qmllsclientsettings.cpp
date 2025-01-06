@@ -120,10 +120,12 @@ static CommandLine commandLineForQmlls(Project *project)
     const auto *qtVersion = qtVersionFromProject(project);
     QTC_ASSERT(qtVersion, return {});
 
-    auto [executable, version]
-        = qmllsSettings()->m_useLatestQmlls
-              ? evaluateLatestQmlls()
-              : std::make_pair(qtVersion->hostBinPath() / "qmlls", qtVersion->qtVersion());
+    auto [executable, version] = qmllsSettings()->m_useLatestQmlls
+                                     ? evaluateLatestQmlls()
+                                     : std::make_pair(
+                                           QmlJS::ModelManagerInterface::qmllsForBinPath(
+                                               qtVersion->hostBinPath(), qtVersion->qtVersion()),
+                                           qtVersion->qtVersion());
 
     CommandLine result{executable, {}};
 
