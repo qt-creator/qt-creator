@@ -844,6 +844,31 @@ private:
     IosRunner *m_runner;
 };
 
+static expected_str<FilePath> findDeviceSdk(IosDevice::ConstPtr dev)
+{
+    const QString osVersion = dev->osVersion();
+    const QString productType = dev->productType();
+    const QString cpuArchitecture = dev->cpuArchitecture();
+    const FilePath home = FilePath::fromString(QDir::homePath());
+    const FilePaths symbolsPathCandidates
+        = {home / "Library/Developer/Xcode/iOS DeviceSupport" / (productType + " " + osVersion)
+               / "Symbols",
+           home / "Library/Developer/Xcode/iOS DeviceSupport" / (osVersion + " " + cpuArchitecture)
+               / "Symbols",
+           home / "Library/Developer/Xcode/iOS DeviceSupport" / osVersion / "Symbols",
+           IosConfigurations::developerPath() / "Platforms/iPhoneOS.platform/DeviceSupport"
+               / osVersion / "Symbols"};
+    const FilePath deviceSdk = Utils::findOrDefault(symbolsPathCandidates, &FilePath::isDir);
+    if (deviceSdk.isEmpty()) {
+        return Utils::make_unexpected(
+            Tr::tr("Could not find device specific debug symbols at %1. "
+                   "Debugging initialization will be slow until you open the Organizer window of "
+                   "Xcode with the device connected to have the symbols generated.")
+                .arg(symbolsPathCandidates.constFirst().toUserOutput()));
+    }
+    return deviceSdk;
+}
+
 IosDebugSupport::IosDebugSupport(RunControl *runControl)
     : DebuggerRunTool(runControl)
 {
@@ -859,29 +884,12 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
         IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(device());
         setStartMode(AttachToRemoteProcess);
         setIosPlatform("remote-ios");
-        const QString osVersion = dev->osVersion();
-        const QString productType = dev->productType();
-        const QString cpuArchitecture = dev->cpuArchitecture();
-        const FilePath home = FilePath::fromString(QDir::homePath());
-        const FilePaths symbolsPathCandidates
-            = {home / "Library/Developer/Xcode/iOS DeviceSupport" / (productType + " " + osVersion)
-                   / "Symbols",
-               home / "Library/Developer/Xcode/iOS DeviceSupport"
-                   / (osVersion + " " + cpuArchitecture) / "Symbols",
-               home / "Library/Developer/Xcode/iOS DeviceSupport" / osVersion / "Symbols",
-               IosConfigurations::developerPath() / "Platforms/iPhoneOS.platform/DeviceSupport"
-                   / osVersion / "Symbols"};
-        const FilePath deviceSdk = Utils::findOrDefault(symbolsPathCandidates, &FilePath::isDir);
+        const expected_str<FilePath> deviceSdk = findDeviceSdk(dev);
 
-        if (deviceSdk.isEmpty()) {
-            TaskHub::addTask(DeploymentTask(
-                Task::Warning,
-                Tr::tr("Could not find device specific debug symbols at %1. "
-                       "Debugging initialization will be slow until you open the Organizer window of "
-                       "Xcode with the device connected to have the symbols generated.")
-                    .arg(symbolsPathCandidates.constFirst().toUserOutput())));
-        }
-        setDeviceSymbolsRoot(deviceSdk.toString());
+        if (!deviceSdk)
+            TaskHub::addTask(DeploymentTask(Task::Warning, deviceSdk.error()));
+        else
+            setDeviceSymbolsRoot(deviceSdk->path());
     } else {
         setStartMode(AttachToLocalProcess);
         setIosPlatform("ios-simulator");
