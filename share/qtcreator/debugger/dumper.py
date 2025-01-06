@@ -178,6 +178,7 @@ class DumperBase():
 
         self.isBigEndian = False
         self.packCode = '<'
+        self.byteorder = 'little'
 
         self.resetCaches()
         self.resetStats()
@@ -1767,17 +1768,17 @@ class DumperBase():
             primaryOpcode = data[0]
             if primaryOpcode == relativeJumpCode:
                 # relative jump on 32 and 64 bit with a 32bit offset
-                offset = int.from_bytes(data[1:5], byteorder='little')
+                offset = int.from_bytes(data[1:5], byteorder=self.byteorder)
                 return address + 5 + offset
             if primaryOpcode == jumpCode:
                 if data[1] != 0x25:  # check for known extended opcode
                     return 0
                 # 0xff25 is a relative jump on 64bit and an absolute jump on 32 bit
                 if self.ptrSize() == 8:
-                    offset = int.from_bytes(data[2:6], byteorder='little')
+                    offset = int.from_bytes(data[2:6], byteorder=self.byteorder)
                     return address + 6 + offset
                 else:
-                    return int.from_bytes(data[2:6], byteorder='little')
+                    return int.from_bytes(data[2:6], byteorder=self.byteorder)
             return 0
 
         # Do not try to extract a function pointer if there are no values to compare with
@@ -2532,7 +2533,7 @@ typename))
 
     def extract_pointer_at_address(self, address):
         blob = self.value_data_from_address(address, self.ptrSize())
-        return int.from_bytes(blob, byteorder='little')
+        return int.from_bytes(blob, byteorder=self.byteorder)
 
     def value_extract_integer(self, value, size, signed):
         if isinstance(value.lvalue, int):
@@ -2542,7 +2543,7 @@ typename))
         #with self.dumper.timer('extractInt'):
         value.check()
         blob = self.value_data(value, size)
-        return int.from_bytes(blob, byteorder='little', signed=signed)
+        return int.from_bytes(blob, byteorder=self.byteorder, signed=signed)
 
     def value_extract_something(self, valuish, size, signed=False):
         if isinstance(valuish, int):
@@ -2551,7 +2552,7 @@ typename))
             blob = self.value_data(valuish, size)
         else:
             raise RuntimeError('CANT EXTRACT FROM %s' % type(valuish))
-        res = int.from_bytes(blob, byteorder='little', signed=signed)
+        res = int.from_bytes(blob, byteorder=self.byteorder, signed=signed)
         #self.warn("EXTRACTED %s SIZE %s FROM %s" % (res, size, blob))
         return res
 
