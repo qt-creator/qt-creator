@@ -97,33 +97,47 @@ struct AppInfo
     qint64 processIdentifier = -1;
 };
 
-class DeviceCtlRunner : public RunWorker
+class DeviceCtlRunnerBase : public RunWorker
 {
 public:
-    DeviceCtlRunner(RunControl *runControl);
+    DeviceCtlRunnerBase(RunControl *runControl);
 
-    void start() final;
-    void stop() final;
+    void start();
 
-    void checkProcess();
+protected:
+    void reportStoppedImpl();
+
+    IosDevice::ConstPtr m_device;
+    QStringList m_arguments;
 
 private:
     GroupItem findApp(const QString &bundleIdentifier, Storage<AppInfo> appInfo);
     GroupItem findProcess(Storage<AppInfo> &appInfo);
     GroupItem killProcess(Storage<AppInfo> &appInfo);
-    GroupItem launchTask(const QString &bundleIdentifier);
-    void reportStoppedImpl();
+    virtual GroupItem launchTask(const QString &bundleIdentifier) = 0;
 
     FilePath m_bundlePath;
-    QStringList m_arguments;
-    IosDevice::ConstPtr m_device;
-    std::unique_ptr<TaskTree> m_runTask;
+    std::unique_ptr<TaskTree> m_startTask;
+};
+
+class DeviceCtlPollingRunner final : public DeviceCtlRunnerBase
+{
+public:
+    DeviceCtlPollingRunner(RunControl *runControl);
+
+    void stop() final;
+
+private:
+    GroupItem launchTask(const QString &bundleIdentifier) final;
+    void checkProcess();
+
+    std::unique_ptr<TaskTree> m_stopTask;
     std::unique_ptr<TaskTree> m_pollTask;
     QTimer m_pollTimer;
     qint64 m_processIdentifier = -1;
 };
 
-DeviceCtlRunner::DeviceCtlRunner(RunControl *runControl)
+DeviceCtlRunnerBase::DeviceCtlRunnerBase(RunControl *runControl)
     : RunWorker(runControl)
 {
     setId("IosDeviceCtlRunner");
@@ -132,13 +146,9 @@ DeviceCtlRunner::DeviceCtlRunner(RunControl *runControl)
     m_bundlePath = data->bundleDirectory;
     m_arguments = ProcessArgs::splitArgs(runControl->commandLine().arguments(), OsTypeMac);
     m_device = std::dynamic_pointer_cast<const IosDevice>(RunDeviceKitAspect::device(runControl->kit()));
-
-    using namespace std::chrono_literals;
-    m_pollTimer.setInterval(500ms); // not too often since running devicectl takes time
-    connect(&m_pollTimer, &QTimer::timeout, this, &DeviceCtlRunner::checkProcess);
 }
 
-GroupItem DeviceCtlRunner::findApp(const QString &bundleIdentifier, Storage<AppInfo> appInfo)
+GroupItem DeviceCtlRunnerBase::findApp(const QString &bundleIdentifier, Storage<AppInfo> appInfo)
 {
     const auto onSetup = [this](Process &process) {
         if (!m_device)
@@ -171,7 +181,7 @@ GroupItem DeviceCtlRunner::findApp(const QString &bundleIdentifier, Storage<AppI
     return ProcessTask(onSetup, onDone);
 }
 
-GroupItem DeviceCtlRunner::findProcess(Storage<AppInfo> &appInfo)
+GroupItem DeviceCtlRunnerBase::findProcess(Storage<AppInfo> &appInfo)
 {
     const auto onSetup = [this, appInfo](Process &process) {
         if (!m_device || appInfo->pathOnDevice.isEmpty())
@@ -203,7 +213,7 @@ GroupItem DeviceCtlRunner::findProcess(Storage<AppInfo> &appInfo)
     return ProcessTask(onSetup, onDone);
 }
 
-GroupItem DeviceCtlRunner::killProcess(Storage<AppInfo> &appInfo)
+GroupItem DeviceCtlRunnerBase::killProcess(Storage<AppInfo> &appInfo)
 {
     const auto onSetup = [this, appInfo](Process &process) {
         if (!m_device || appInfo->processIdentifier < 0)
@@ -227,7 +237,7 @@ GroupItem DeviceCtlRunner::killProcess(Storage<AppInfo> &appInfo)
     return ProcessTask(onSetup, DoneResult::Success); // we tried our best and don't care at this point
 }
 
-GroupItem DeviceCtlRunner::launchTask(const QString &bundleIdentifier)
+GroupItem DeviceCtlPollingRunner::launchTask(const QString &bundleIdentifier)
 {
     const auto onSetup = [this, bundleIdentifier](Process &process) {
         if (!m_device) {
@@ -271,14 +281,14 @@ GroupItem DeviceCtlRunner::launchTask(const QString &bundleIdentifier)
     return ProcessTask(onSetup, onDone);
 }
 
-void DeviceCtlRunner::reportStoppedImpl()
+void DeviceCtlRunnerBase::reportStoppedImpl()
 {
     appendMessage(Tr::tr("\"%1\" exited.").arg(m_bundlePath.toUserOutput()),
                   Utils::NormalMessageFormat);
     reportStopped();
 }
 
-void DeviceCtlRunner::start()
+void DeviceCtlRunnerBase::start()
 {
     QSettings settings(m_bundlePath.pathAppended("Info.plist").toString(), QSettings::NativeFormat);
     const QString bundleIdentifier
@@ -302,16 +312,25 @@ void DeviceCtlRunner::start()
     // Try to kill that.
     // Then launch the app (again).
     Storage<AppInfo> appInfo;
-    m_runTask.reset(new TaskTree(Group{sequential,
-                                       appInfo,
-                                       findApp(bundleIdentifier, appInfo),
-                                       findProcess(appInfo),
-                                       killProcess(appInfo),
-                                       launchTask(bundleIdentifier)}));
-    m_runTask->start();
+    m_startTask.reset(new TaskTree(Group{
+        sequential,
+        appInfo,
+        findApp(bundleIdentifier, appInfo),
+        findProcess(appInfo),
+        killProcess(appInfo),
+        launchTask(bundleIdentifier)}));
+    m_startTask->start();
 }
 
-void DeviceCtlRunner::stop()
+DeviceCtlPollingRunner::DeviceCtlPollingRunner(RunControl *runControl)
+    : DeviceCtlRunnerBase(runControl)
+{
+    using namespace std::chrono_literals;
+    m_pollTimer.setInterval(500ms); // not too often since running devicectl takes time
+    connect(&m_pollTimer, &QTimer::timeout, this, &DeviceCtlPollingRunner::checkProcess);
+}
+
+void DeviceCtlPollingRunner::stop()
 {
     // stop polling, we handle the reportStopped in the done handler
     m_pollTimer.stop();
@@ -352,11 +371,11 @@ void DeviceCtlRunner::stop()
         reportStoppedImpl();
         return DoneResult::Success;
     };
-    m_runTask.reset(new TaskTree(Group{ProcessTask(onSetup, onDone)}));
-    m_runTask->start();
+    m_stopTask.reset(new TaskTree(Group{ProcessTask(onSetup, onDone)}));
+    m_stopTask->start();
 }
 
-void DeviceCtlRunner::checkProcess()
+void DeviceCtlPollingRunner::checkProcess()
 {
     if (m_pollTask)
         return;
@@ -858,7 +877,7 @@ IosRunWorkerFactory::IosRunWorkerFactory()
     setProducer([](RunControl *control) -> RunWorker * {
         IosDevice::ConstPtr iosdevice = std::dynamic_pointer_cast<const IosDevice>(control->device());
         if (iosdevice && iosdevice->handler() == IosDevice::Handler::DeviceCtl) {
-            return new DeviceCtlRunner(control);
+            return new DeviceCtlPollingRunner(control);
         }
         control->setIcon(Icons::RUN_SMALL_TOOLBAR);
         control->setDisplayName(QString("Run on %1")
