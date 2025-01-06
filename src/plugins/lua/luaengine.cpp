@@ -30,6 +30,32 @@ Utils::expected_str<void> connectHooks(
 
 static Q_LOGGING_CATEGORY(logLuaEngine, "qtc.lua.engine", QtWarningMsg);
 
+QString luaToString(lua_State *state, int index)
+{
+    size_t l;
+    const char *s = luaL_tolstring(state, index, &l);
+    if (s == nullptr)
+        return {};
+
+    // Remove from stack what tolstring pushed onto it.
+    sol::stack::pop_n(state, 1);
+
+    return QString::fromUtf8(s, l);
+}
+
+template<typename T>
+QString refToString(const T &ref)
+{
+    if (ref.template is<QString>())
+        return ref.template as<QString>();
+
+    if (ref.template is<sol::table>())
+        return toJsonString(ref.template as<sol::table>());
+
+    auto pp = sol::stack::push_pop(ref);
+    return luaToString(ref.lua_state(), -1);
+}
+
 class LuaInterfaceImpl final : public QObject, public LuaInterface
 {
 public:
@@ -315,8 +341,8 @@ expected_str<sol::protected_function> prepareSetup(
     if (logLuaEngine().isDebugEnabled()) {
         qCDebug(logLuaEngine) << "Script returned table with keys:";
         for (const auto &[key, value] : *pluginTable) {
-            qCDebug(logLuaEngine) << "Key:" << key.as<QString>();
-            qCDebug(logLuaEngine) << "Value:" << value.as<QString>();
+            qCDebug(logLuaEngine) << "Key:" << refToString(key);
+            qCDebug(logLuaEngine) << "Value:" << refToString(value);
         }
     }
 
