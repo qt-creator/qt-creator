@@ -18,14 +18,10 @@ class QmlProfilerRunner : public ProjectExplorer::RunWorker
 {
 public:
     QmlProfilerRunner(ProjectExplorer::RunControl *runControl);
-    ~QmlProfilerRunner() override;
 
 private:
     void start() override;
     void stop() override;
-
-    class QmlProfilerRunnerPrivate;
-    QmlProfilerRunnerPrivate *d;
 };
 
 ProjectExplorer::RunWorker *createLocalQmlProfilerWorker(ProjectExplorer::RunControl *runControl);

@@ -33,23 +33,8 @@ using namespace ProjectExplorer;
 
 namespace QmlProfiler::Internal {
 
-//
-// QmlProfilerRunControlPrivate
-//
-
-class QmlProfilerRunner::QmlProfilerRunnerPrivate
-{
-public:
-    QPointer<QmlProfilerStateManager> m_profilerState;
-};
-
-//
-// QmlProfilerRunControl
-//
-
 QmlProfilerRunner::QmlProfilerRunner(RunControl *runControl)
     : RunWorker(runControl)
-    , d(new QmlProfilerRunnerPrivate)
 {
     setId("QmlProfilerRunner");
     runControl->requestQmlChannel();
@@ -57,29 +42,21 @@ QmlProfilerRunner::QmlProfilerRunner(RunControl *runControl)
     setSupportsReRunning(false);
 }
 
-QmlProfilerRunner::~QmlProfilerRunner()
-{
-    delete d;
-}
-
 void QmlProfilerRunner::start()
 {
-    if (d->m_profilerState)
-        disconnect(d->m_profilerState, &QmlProfilerStateManager::stateChanged, this, nullptr);
-
     QmlProfilerTool::instance()->finalizeRunControl(runControl());
     connect(this, &QmlProfilerRunner::stopped,
             QmlProfilerTool::instance(), &QmlProfilerTool::handleStop);
-    d->m_profilerState = QmlProfilerTool::instance()->stateManager();
-    QTC_ASSERT(d->m_profilerState, return);
+    QmlProfilerStateManager *stateManager = QmlProfilerTool::instance()->stateManager();
+    QTC_ASSERT(stateManager, return);
 
-    connect(d->m_profilerState, &QmlProfilerStateManager::stateChanged, this, [this] {
-        if (d->m_profilerState->currentState() == QmlProfilerStateManager::Idle)
+    connect(stateManager, &QmlProfilerStateManager::stateChanged, this, [this, stateManager] {
+        if (stateManager->currentState() == QmlProfilerStateManager::Idle)
             reportStopped();
     });
 
     QmlProfilerClientManager *clientManager = QmlProfilerTool::instance()->clientManager();
-    connect(clientManager, &QmlProfilerClientManager::connectionFailed, this, [this, clientManager] {
+    connect(clientManager, &QmlProfilerClientManager::connectionFailed, this, [this, clientManager, stateManager] {
         auto infoBox = new QMessageBox(ICore::dialogParent());
         infoBox->setIcon(QMessageBox::Critical);
         infoBox->setWindowTitle(QGuiApplication::applicationDisplayName());
@@ -96,19 +73,17 @@ void QmlProfilerRunner::start()
         infoBox->setDefaultButton(QMessageBox::Retry);
         infoBox->setModal(true);
 
-        connect(infoBox, &QDialog::finished, this, [this, clientManager, interval](int result) {
-            const auto cancelProcess = [this] {
-                QTC_ASSERT(d->m_profilerState, return);
-
-                switch (d->m_profilerState->currentState()) {
+        connect(infoBox, &QDialog::finished, this, [this, clientManager, stateManager, interval](int result) {
+            const auto cancelProcess = [this, stateManager] {
+                switch (stateManager->currentState()) {
                 case QmlProfilerStateManager::Idle:
                     break;
                 case QmlProfilerStateManager::AppRunning:
-                    d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
+                    stateManager->setCurrentState(QmlProfilerStateManager::AppDying);
                     break;
                 default: {
                     const QString message = QString::fromLatin1("Unexpected process termination requested with state %1 in %2:%3")
-                    .arg(d->m_profilerState->currentStateAsString(), QString::fromLatin1(__FILE__), QString::number(__LINE__));
+                    .arg(stateManager->currentStateAsString(), QString::fromLatin1(__FILE__), QString::number(__LINE__));
                     qWarning("%s", qPrintable(message));
                     return;
                 }
@@ -142,18 +117,19 @@ void QmlProfilerRunner::start()
 
 void QmlProfilerRunner::stop()
 {
-    if (!d->m_profilerState) {
+    QmlProfilerStateManager *stateManager = QmlProfilerTool::instance()->stateManager();
+    if (!stateManager) {
         reportStopped();
         return;
     }
 
-    switch (d->m_profilerState->currentState()) {
+    switch (stateManager->currentState()) {
     case QmlProfilerStateManager::AppRunning:
-        d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStopRequested);
+        stateManager->setCurrentState(QmlProfilerStateManager::AppStopRequested);
         break;
     case QmlProfilerStateManager::AppStopRequested:
         // Pressed "stop" a second time. Kill the application without collecting data
-        d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
+        stateManager->setCurrentState(QmlProfilerStateManager::Idle);
         reportStopped();
         break;
     case QmlProfilerStateManager::Idle:
@@ -162,7 +138,7 @@ void QmlProfilerRunner::stop()
         break;
     default: {
         const QString message = QString::fromLatin1("Unexpected engine stop from state %1 in %2:%3")
-            .arg(d->m_profilerState->currentStateAsString(), QString::fromLatin1(__FILE__), QString::number(__LINE__));
+            .arg(stateManager->currentStateAsString(), QString::fromLatin1(__FILE__), QString::number(__LINE__));
         qWarning("%s", qPrintable(message));
     }
         break;
