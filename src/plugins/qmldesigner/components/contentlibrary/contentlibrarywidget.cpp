@@ -658,6 +658,27 @@ void ContentLibraryWidget::markTextureUpdated(const QString &textureKey)
         m_environmentsModel->markTextureHasNoUpdates(subcategory, textureKey);
 }
 
+bool ContentLibraryWidget::areNodes3D(const QByteArray &data) const
+{
+    QByteArray encodedData = data;
+    QDataStream stream(&encodedData, QIODevice::ReadOnly);
+
+    while (!stream.atEnd()) {
+        int internalId;
+        stream >> internalId;
+
+        if (internalId == 0)
+            continue;
+
+        ModelNode modelNode = QmlDesignerPlugin::instance()->viewManager()
+                                  .view()->modelNodeForInternalId(internalId);
+        if (!modelNode.metaInfo().isQtQuick3DNode())
+            return false;
+    }
+
+    return true;
+}
+
 QSize ContentLibraryWidget::sizeHint() const
 {
     return {420, 420};

@@ -107,6 +107,9 @@ WidgetInfo ContentLibraryView::widgetInfo()
             addLibItem(matNode);
         });
 
+        connect(m_widget, &ContentLibraryWidget::accept3DDrop, this,
+                &ContentLibraryView::decodeAndAddToContentLib);
+
         connect(m_widget,
                 &ContentLibraryWidget::addTextureRequested,
                 this,
@@ -788,6 +791,32 @@ void ContentLibraryView::saveIconToBundle(const auto &image) { // auto: QImage o
         qWarning() << __FUNCTION__ << ": icon save failed";
 
     m_iconSavePath.clear();
+}
+
+void ContentLibraryView::decodeAndAddToContentLib(const QByteArray &data)
+{
+    QByteArray encodedData = data;
+    QDataStream stream(&encodedData, QIODevice::ReadOnly);
+
+    QList<int> internalIds;
+
+    while (!stream.atEnd()) {
+        int internalId;
+        stream >> internalId;
+        internalIds.append(internalId);
+    }
+
+    for (int internalId : std::as_const(internalIds)) {
+        ModelNode node3D = QmlDesignerPlugin::instance()->viewManager()
+                               .view()->modelNodeForInternalId(internalId);
+        if (!node3D.metaInfo().isQtQuick3DNode())
+            continue;
+
+        if (node3D.isComponent())
+            addLib3DComponent(node3D);
+        else
+            addLibItem(node3D);
+    }
 };
 
 void ContentLibraryView::importBundleToContentLib()

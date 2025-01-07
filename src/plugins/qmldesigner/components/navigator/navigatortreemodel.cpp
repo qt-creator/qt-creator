@@ -54,9 +54,10 @@
 
 namespace QmlDesigner {
 
-static QList<ModelNode> modelNodesFromMimeData(const QMimeData *mineData, AbstractView *view)
+static QList<ModelNode> modelNodesFromMimeData(const QMimeData *mimeData, AbstractView *view)
 {
-    QByteArray encodedModelNodeData = mineData->data(Constants::MIME_TYPE_MODELNODE_LIST);
+    QByteArray encodedModelNodeData = mimeData->data(Constants::MIME_TYPE_MODELNODE_LIST);
+
     QDataStream modelNodeStream(&encodedModelNodeData, QIODevice::ReadOnly);
 
     QList<ModelNode> modelNodeList;
