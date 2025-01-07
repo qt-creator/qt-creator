@@ -78,7 +78,7 @@ if (NOT QT_CREATOR_API_DEFINED)
   endif()
 endif()
 
-if (NOT WIN32 OR NOT MSVC)
+if (NOT WIN32 OR NOT MSVC OR BUILD_DESIGNSTUDIO)
   return()
 endif()
 

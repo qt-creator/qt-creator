@@ -89,6 +89,8 @@ public:
 
     void refreshBackendModel();
 
+    void setupContextProperties();
+
 private:
     void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
                                    PropertyNameView name,
@@ -97,6 +99,7 @@ private:
     void setupPropertyEditorValue(PropertyNameView name,
                                   PropertyEditorView *propertyEditor,
                                   const NodeMetaInfo &type);
+    void createPropertyEditorValues(const QmlObjectNode &qmlObjectNode, PropertyEditorView *propertyEditor);
 
     static QUrl fileToUrl(const QString &filePath);
     static QString fileFromUrl(const QUrl &url);

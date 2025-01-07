@@ -36,7 +36,7 @@
 
     \list 1
         \li Go to \uicontrol Tools > \uicontrol {Code Pasting} >
-            \uicontrol {Paste Snippet} or press \key {Alt+C,Alt+P}.
+            \uicontrol {Paste Snippet} or select \key {Alt+C,Alt+P}.
             \image qtcreator-send-to-codepaster.webp {Send to Codepaster dialog}
         \li In \uicontrol Protocol, select the code pasting service to use.
         \li In \uicontrol {Expires after}, specify the time to keep
@@ -59,7 +59,7 @@
 
     \list 1
         \li Go to \uicontrol Tools > \uicontrol {Code Pasting} >
-            \uicontrol {Fetch Snippet} or press \key {Alt+C,Alt+F}.
+            \uicontrol {Fetch Snippet} or select \key {Alt+C,Alt+F}.
         \li Select the snippet to fetch from the list.
     \endlist
 

@@ -78,7 +78,7 @@ void UserItemCategory::loadBundle(bool force)
 
         QString name = itemObj.value("name").toString();
         QString qml = itemObj.value("qml").toString();
-        TypeName type = QLatin1String("%1.%2").arg(typePrefix, qml.chopped(4)).toLatin1();
+        TypeName type = QLatin1String("%1.%2").arg(typePrefix, qml.section('.', 0, 0)).toLatin1();
         QUrl icon = m_bundlePath.pathAppended(itemObj.value("icon").toString()).toUrl();
         QStringList files = itemObj.value("files").toVariant().toStringList();
 

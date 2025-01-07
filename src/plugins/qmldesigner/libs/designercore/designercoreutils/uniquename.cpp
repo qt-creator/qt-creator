@@ -40,10 +40,23 @@ QString filterInvalidLettersAndCapitalizeAfterInvalidLetter(QStringView id)
     return result;
 }
 
+void trimNonAsciifromFront(QString &str)
+{
+    static const QRegularExpression lettersRegEx("[a-zA-Z]");
+    const int letterIndex = str.indexOf(lettersRegEx);
+    str = letterIndex == -1 ? QString() : str.sliced(letterIndex).trimmed();
+}
+
 void lowerFirstLetter(QString &id)
 {
     if (id.size())
         id.front() = id.front().toLower();
+}
+
+void capitalizeFirstLetter(QString &str)
+{
+    if (str.size())
+        str.front() = str.front().toUpper();
 }
 
 void prependUnderscoreIfBanned(QString &id)
@@ -61,6 +74,16 @@ QString toValidId(QStringView id)
     prependUnderscoreIfBanned(validId);
 
     return validId;
+}
+
+QString toValidTypeName(QStringView id)
+{
+    QString validTypeName = filterInvalidLettersAndCapitalizeAfterInvalidLetter(id);
+    trimNonAsciifromFront(validTypeName);
+
+    capitalizeFirstLetter(validTypeName);
+
+    return validTypeName;
 }
 
 } // namespace
@@ -189,6 +212,51 @@ QString generateId(QStringView id,
         return newId;
 
     return UniqueName::generate(newId, predicate);
+}
+
+/**
+ * @brief Generates a unique QML type name based on the provided name
+ *
+ *  - Removes all characters except A-Z, a-z, 0-9, and underscore.
+ *  - Ensures the first letter is an uppercase A-Z
+ *  - Converts to camel case by making the following character of an invalid character uppercase.
+ *
+ * @param name The original name to be made unique.
+ * @param fallbackName This is used when the name is empty or contains only invalid chars.
+ * @param predicate Called with a new version of generated name until predicate returns true.
+ * @return A unique QML type name (when predicate() returns false)
+ */
+QString generateTypeName(QStringView name,
+                         const QString &fallbackName,
+                         std::function<bool(const QString &)> predicate)
+{
+    QString newTypeName = toValidTypeName(name);
+    if (newTypeName.isEmpty())
+        newTypeName = fallbackName;
+
+    if (newTypeName.isEmpty() || !predicate)
+        return newTypeName;
+
+    return UniqueName::generate(newTypeName, predicate);
+}
+
+/**
+ * @brief Generates a unique QML type name based on the provided name
+ *
+ *  - Removes all characters except A-Z, a-z, 0-9, and underscore.
+ *  - Ensures the first letter is an uppercase A-Z
+ *  - Converts to camel case by making the following character of an invalid character uppercase.
+ *
+ * @param name The original name to be made unique.
+ * @param fallbackName This is used when the name is empty or contains only invalid chars.
+ * @param predicate Called with a new version of generated name until predicate returns true.
+ * @return A unique QML type name (when predicate() returns false)
+ */
+QString generateTypeName(QByteArrayView name,
+                         const QString &fallbackName,
+                         std::function<bool(const QString &)> predicate)
+{
+    return generateTypeName(QString::fromUtf8(name), fallbackName, predicate);
 }
 
 } // namespace QmlDesigner::UniqueName

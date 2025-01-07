@@ -510,6 +510,45 @@ TEST_F(NodeMetaInfo, inflate_value_and_readonly_properties_handles_invalid)
     ASSERT_THAT(properties, ElementsAre(CompoundProperty(IsFalse(), IsFalse(), IsEmpty())));
 }
 
+TEST_F(NodeMetaInfo, add_inflated_value_and_readonly_properties)
+{
+    using QmlDesigner::Storage::PropertyDeclarationTraits;
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    auto fontTypeId = projectStorageMock.typeId(qtQuickModuleId, "font");
+    auto inputDeviceId = projectStorageMock.typeId(qtQuickModuleId, "InputDevice");
+    auto xPropertyId = projectStorageMock.createProperty(metaInfo.id(), "x", intTypeId);
+    auto fontPropertyId = projectStorageMock.createProperty(metaInfo.id(), "font", fontTypeId);
+    auto familyPropertyId = projectStorageMock.propertyDeclarationId(fontTypeId, "family");
+    auto pixelSizePropertyId = projectStorageMock.propertyDeclarationId(fontTypeId, "pixelSize");
+    auto devicePropertyId = projectStorageMock.createProperty(metaInfo.id(),
+                                                              "device",
+                                                              PropertyDeclarationTraits::IsReadOnly,
+                                                              inputDeviceId);
+    auto seatNamePropertyId = projectStorageMock.propertyDeclarationId(inputDeviceId, "seatName");
+
+    auto properties = QmlDesigner::MetaInfoUtils::addInflatedValueAndReadOnlyProperties(
+        metaInfo.properties());
+
+    ASSERT_THAT(
+        properties,
+        AllOf(Contains(CompoundPropertyIds(xPropertyId, IsFalse(), "x")),
+              Contains(CompoundPropertyIds(fontPropertyId, IsFalse(), "font")),
+              Contains(CompoundPropertyIds(familyPropertyId, fontPropertyId, "font.family")),
+              Contains(CompoundPropertyIds(pixelSizePropertyId, fontPropertyId, "font.pixelSize")),
+              Not(Contains(CompoundPropertyIds(devicePropertyId, IsFalse(), _))),
+              Contains(CompoundPropertyIds(seatNamePropertyId, devicePropertyId, "device.seatName"))));
+}
+
+TEST_F(NodeMetaInfo, add_inflated_value_and_readonly_properties_handles_invalid)
+{
+    QmlDesigner::PropertyMetaInfos propertiesWithInvalid = {QmlDesigner::PropertyMetaInfo{}};
+
+    auto properties = QmlDesigner::MetaInfoUtils::addInflatedValueAndReadOnlyProperties(
+        propertiesWithInvalid);
+
+    ASSERT_THAT(properties, ElementsAre(CompoundProperty(IsFalse(), IsFalse(), IsEmpty())));
+}
+
 TEST_F(NodeMetaInfo, get_local_properties)
 {
     auto metaInfo = model.qtQuickItemMetaInfo();
@@ -3168,6 +3207,7 @@ TEST_F(NodeMetaInfo, item_library_entries)
                                                "/icon/path",
                                                "Basic",
                                                "QtQuick",
+                                               ModuleKind::QmlLibrary,
                                                "An object",
                                                "",
                                                ElementsAre(IsItemLibraryProperty("x", "double", 1)),

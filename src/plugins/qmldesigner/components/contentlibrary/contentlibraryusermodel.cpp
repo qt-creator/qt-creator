@@ -84,7 +84,7 @@ void ContentLibraryUserModel::addItem(const QString &bundleId, const QString &na
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
 
     QString typePrefix = compUtils.userBundleType(bundleId);
-    TypeName type = QLatin1String("%1.%2").arg(typePrefix, qml.chopped(4)).toLatin1();
+    TypeName type = QLatin1String("%1.%2").arg(typePrefix, qml.section('.', 0, 0)).toLatin1();
 
     SectionIndex sectionIndex = bundleIdToSectionIndex(bundleId);
 
@@ -308,7 +308,7 @@ void ContentLibraryUserModel::updateImportedState(const QStringList &importedIte
     bool changed = false;
     for (QObject *item : items) {
         ContentLibraryItem *castedItem = qobject_cast<ContentLibraryItem *>(item);
-        changed |= castedItem->setImported(importedItems.contains(castedItem->qml().chopped(4)));
+        changed |= castedItem->setImported(importedItems.contains(castedItem->qml().section('.', 0, 0)));
     }
 
     if (changed)

@@ -34,6 +34,7 @@ public:
     int warningCount() const;
     Q_INVOKABLE void resetModel();
     Q_INVOKABLE void jumpToCode(const QVariant &index);
+    Q_INVOKABLE void openLink(const QVariant &url);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QHash<int, QByteArray> roleNames() const override;

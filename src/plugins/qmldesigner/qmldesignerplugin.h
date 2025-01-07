@@ -24,9 +24,14 @@ namespace Core {
 
 namespace QmlDesigner {
 
+namespace DeviceShare {
+    class DeviceManager;
+}
+
 class QmlDesignerPluginPrivate;
 class AsynchronousImageCache;
 class ExternalDependenciesInterface;
+class RunManager;
 
 namespace Internal { class DesignModeWidget; }
 
@@ -50,6 +55,8 @@ public:
     const DocumentManager &documentManager() const;
 
     static ViewManager &viewManager();
+    static DeviceShare::DeviceManager &deviceManager();
+    static RunManager &runManager();
 
     DesignerActionManager &designerActionManager();
     const DesignerActionManager &designerActionManager() const;

@@ -470,7 +470,7 @@ Rectangle {
                         tooltip: StatesEditorBackend.statesEditorModel.isMCUs
                                     ? qsTr("State Groups are not supported with Qt for MCUs")
                                     : qsTr("Create State Group")
-                        onClicked: StatesEditorBackend.statesEditorModel.addStateGroup("stateGroup")
+                        onClicked: StatesEditorBackend.statesEditorModel.addStateGroup("newStateGroup")
                         enabled: !StatesEditorBackend.statesEditorModel.isMCUs
                     }
 

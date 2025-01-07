@@ -5,6 +5,7 @@
 
 #include "abstractproperty.h"
 #include "bindingproperty.h"
+#include "designercoretr.h"
 #include "documentmessage.h"
 #include "filemanager/firstdefinitionfinder.h"
 #include "filemanager/objectlengthcalculator.h"
@@ -84,7 +85,7 @@ bool isGlobalQtEnums(QStringView value)
          u"TopToBottom",     u"UpArrowCursor",  u"Vertical",           u"WaitCursor",
          u"WhatsThisCursor", u"WheelFocus"});
 
-    if (value.toString().startsWith("Key_"))
+    if (value.startsWith(u"Key_"))
         return true;
 
     return std::binary_search(std::begin(list),
@@ -269,17 +270,17 @@ QVariant convertDynamicPropertyValueToVariant(const QString &astValue,
     const QString cleanedValue = fixEscapedUnicodeChar(deEscape(stripQuotes(astValue.trimmed())));
 
     if (astType.isEmpty())
-        return QString();
+        return QVariant(QString());
 
-    const int type = propertyType(astType);
-    if (type == QMetaType::fromName("QVariant").id()) {
+    const QMetaType type = static_cast<QMetaType>(propertyType(astType));
+    if (type == QMetaType::fromType<QVariant>()) {
         if (cleanedValue.isNull()) // Explicitly isNull, NOT isEmpty!
-            return QVariant(static_cast<QVariant::Type>(type));
+            return QVariant(type);
         else
             return QVariant(cleanedValue);
     } else {
         QVariant value = QVariant(cleanedValue);
-        value.convert(static_cast<QVariant::Type>(type));
+        value.convert(type);
         return value;
     }
 }
@@ -382,7 +383,7 @@ bool smartVeryFuzzyCompare(const QVariant &value1, const QVariant &value2)
     }
 bool smartColorCompare(const QVariant &value1, const QVariant &value2)
 {
-    if ((value1.typeId() == QVariant::Color) || (value2.typeId() == QVariant::Color))
+    if ((value1.typeId() == QMetaType::QColor) || (value2.typeId() == QMetaType::QColor))
         return value1.value<QColor>().rgba() == value2.value<QColor>().rgba();
     return false;
 }
@@ -531,14 +532,11 @@ public:
 
         QVariant value(cleanedValue);
         if (propertyTypeMetaInfo.isBool()) {
-            value.convert(QMetaType::Type::Bool);
-            return value;
+            return value.toBool();
         } else if (propertyTypeMetaInfo.isInteger()) {
-            value.convert(QMetaType::Type::Int);
-            return value;
+            return value.toInt();
         } else if (propertyTypeMetaInfo.isFloat()) {
-            value.convert(QMetaType::Type::Double);
-            return value;
+            return value.toDouble();
         } else if (propertyTypeMetaInfo.isString()) {
             // nothing to do
         } else { //property alias et al
@@ -552,9 +550,9 @@ public:
                            const NodeMetaInfo &metaInfo,
                            const QString &propertyPrefix,
                            AST::UiQualifiedId *propertyId,
-                           const QString &astValue)
+                           QStringView astValue)
     {
-        QStringList astValueList = astValue.split(u'.');
+        QList<QStringView> astValueList = astValue.split(u'.');
 
         if (astValueList.size() == 2) {
             //Check for global Qt enums
@@ -677,105 +675,110 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
 
 namespace {
 
-class StartsWith : public QStringView
-{
-public:
-    using QStringView::QStringView;
-    bool operator()(QStringView moduleName) const { return moduleName.startsWith(*this); }
-};
-
-class EndsWith : public QStringView
-{
-public:
-    using QStringView::QStringView;
-    bool operator()(QStringView moduleName) const { return moduleName.endsWith(*this); }
-};
-
-class StartsAndEndsWith : public std::pair<QStringView, QStringView>
-{
-public:
-    using Base = std::pair<QStringView, QStringView>;
-    using Base::Base;
-    bool operator()(QStringView moduleName) const
-    {
-        return moduleName.startsWith(first) && moduleName.endsWith(second);
-    }
-};
-
-class Equals : public QStringView
-{
-public:
-    using QStringView::QStringView;
-    bool operator()(QStringView moduleName) const { return moduleName == *this; }
-};
-
-constexpr auto skipModules = std::make_tuple(EndsWith(u".impl"),
-                                             StartsWith(u"QML"),
-                                             StartsWith(u"QtQml"),
-                                             StartsAndEndsWith(u"QtQuick", u".PrivateWidgets"),
-                                             EndsWith(u".private"),
-                                             EndsWith(u".Private"),
-                                             Equals(u"QtQuick.Particles"),
-                                             StartsWith(u"QtQuick.Dialogs"),
-                                             Equals(u"QtQuick.Controls.Styles"),
-                                             Equals(u"QtNfc"),
-                                             Equals(u"Qt.WebSockets"),
-                                             Equals(u"QtWebkit"),
-                                             Equals(u"QtLocation"),
-                                             Equals(u"QtWebChannel"),
-                                             Equals(u"QtWinExtras"),
-                                             Equals(u"QtPurchasing"),
-                                             Equals(u"QtBluetooth"),
-                                             Equals(u"Enginio"),
-                                             StartsWith(u"Qt.labs."),
-                                             StartsWith(u"Qt.test.controls"),
-                                             StartsWith(u"QmlTime"),
-                                             StartsWith(u"Qt.labs."),
-                                             StartsWith(u"Qt.test.controls"),
-                                             StartsWith(u"Qt3D."),
-                                             StartsWith(u"Qt5Compat.GraphicalEffects"),
-                                             StartsWith(u"QtCanvas3D"),
-                                             StartsWith(u"QtCore"),
-                                             StartsWith(u"QtDataVisualization"),
-                                             StartsWith(u"QtGamepad"),
-                                             StartsWith(u"QtOpcUa"),
-                                             StartsWith(u"QtPositioning"),
-                                             Equals(u"QtQuick.Controls.Basic"),
-                                             Equals(u"QtQuick.Controls.Fusion"),
-                                             Equals(u"QtQuick.Controls.Imagine"),
-                                             Equals(u"QtQuick.Controls.Material"),
-                                             Equals(u"QtQuick.Controls.NativeStyle"),
-                                             Equals(u"QtQuick.Controls.Universal"),
-                                             Equals(u"QtQuick.Controls.Windows"),
-                                             Equals(u"QtQuick3D.MaterialEditor"),
-                                             StartsWith(u"QtQuick.LocalStorage"),
-                                             StartsWith(u"QtQuick.NativeStyle"),
-                                             StartsWith(u"QtQuick.Pdf"),
-                                             StartsWith(u"QtQuick.Scene2D"),
-                                             StartsWith(u"QtQuick.Scene3D"),
-                                             StartsWith(u"QtQuick.Shapes"),
-                                             StartsWith(u"QtQuick.Studio.EventSimulator"),
-                                             StartsWith(u"QtQuick.Studio.EventSystem"),
-                                             StartsWith(u"QtQuick.Templates"),
-                                             StartsWith(u"QtQuick.VirtualKeyboard"),
-                                             StartsWith(u"QtQuick.tooling"),
-                                             StartsWith(
-                                                 u"QtQuick3D MateriablacklistImportslEditor"),
-                                             StartsWith(u"QtQuick3D.ParticleEffects"),
-                                             StartsWith(u"QtRemoteObjects"),
-                                             StartsWith(u"QtRemoveObjects"),
-                                             StartsWith(u"QtScxml"),
-                                             StartsWith(u"QtSensors"),
-                                             StartsWith(u"QtTest"),
-                                             StartsWith(u"QtTextToSpeech"),
-                                             StartsWith(u"QtVncServer"),
-                                             StartsWith(u"QtWebEngine"),
-                                             StartsWith(u"QtWebSockets"),
-                                             StartsWith(u"QtWebView"));
-
 #ifndef QDS_USE_PROJECTSTORAGE
 bool skipModule(QStringView moduleName)
 {
+    class StartsWith : public QStringView
+    {
+    public:
+        using QStringView::QStringView;
+
+        bool operator()(QStringView moduleName) const { return moduleName.startsWith(*this); }
+    };
+
+    class EndsWith : public QStringView
+    {
+    public:
+        using QStringView::QStringView;
+
+        bool operator()(QStringView moduleName) const { return moduleName.endsWith(*this); }
+    };
+
+    class StartsAndEndsWith : public std::pair<QStringView, QStringView>
+    {
+    public:
+        using Base = std::pair<QStringView, QStringView>;
+        using Base::Base;
+
+        bool operator()(QStringView moduleName) const
+        {
+            return moduleName.startsWith(first) && moduleName.endsWith(second);
+        }
+    };
+
+    class Equals : public QStringView
+    {
+    public:
+        using QStringView::QStringView;
+
+        bool operator()(QStringView moduleName) const { return moduleName == *this; }
+    };
+
+    static constexpr auto skipModules = std::make_tuple(
+        EndsWith(u".impl"),
+        StartsWith(u"QML"),
+        StartsWith(u"QtQml"),
+        StartsAndEndsWith(u"QtQuick", u".PrivateWidgets"),
+        EndsWith(u".private"),
+        EndsWith(u".Private"),
+        Equals(u"QtQuick.Particles"),
+        StartsWith(u"QtQuick.Dialogs"),
+        Equals(u"QtQuick.Controls.Styles"),
+        Equals(u"QtNfc"),
+        Equals(u"Qt.WebSockets"),
+        Equals(u"QtWebkit"),
+        Equals(u"QtLocation"),
+        Equals(u"QtWebChannel"),
+        Equals(u"QtWinExtras"),
+        Equals(u"QtPurchasing"),
+        Equals(u"QtBluetooth"),
+        Equals(u"Enginio"),
+        Equals(u"FlowView"),
+        StartsWith(u"Qt.labs."),
+        StartsWith(u"Qt.test.controls"),
+        StartsWith(u"QmlTime"),
+        StartsWith(u"Qt.labs."),
+        StartsWith(u"Qt.test.controls"),
+        StartsWith(u"Qt3D."),
+        StartsWith(u"Qt5Compat.GraphicalEffects"),
+        StartsWith(u"QtCanvas3D"),
+        StartsWith(u"QtCore"),
+        StartsWith(u"QtDataVisualization"),
+        StartsWith(u"QtGamepad"),
+        StartsWith(u"QtOpcUa"),
+        StartsWith(u"QtPositioning"),
+        Equals(u"QtQuick.Controls.Basic"),
+        Equals(u"QtQuick.Controls.Fusion"),
+        Equals(u"QtQuick.Controls.Imagine"),
+        Equals(u"QtQuick.Controls.Material"),
+        Equals(u"QtQuick.Controls.NativeStyle"),
+        Equals(u"QtQuick.Controls.Universal"),
+        Equals(u"QtQuick.Controls.Windows"),
+        Equals(u"QtQuick3D.MaterialEditor"),
+        StartsWith(u"QtQuick.LocalStorage"),
+        StartsWith(u"QtQuick.NativeStyle"),
+        StartsWith(u"QtQuick.Pdf"),
+        StartsWith(u"QtQuick.Scene2D"),
+        StartsWith(u"QtQuick.Scene3D"),
+        StartsWith(u"QtQuick.Shapes"),
+        StartsWith(u"QtQuick.Studio.EventSimulator"),
+        StartsWith(u"QtQuick.Studio.EventSystem"),
+        StartsWith(u"QtQuick.Templates"),
+        StartsWith(u"QtQuick.VirtualKeyboard"),
+        StartsWith(u"QtQuick.tooling"),
+        StartsWith(u"QtQuick3D MateriablacklistImportslEditor"),
+        StartsWith(u"QtQuick3D.ParticleEffects"),
+        StartsWith(u"QtRemoteObjects"),
+        StartsWith(u"QtRemoveObjects"),
+        StartsWith(u"QtScxml"),
+        StartsWith(u"QtSensors"),
+        StartsWith(u"QtTest"),
+        StartsWith(u"QtTextToSpeech"),
+        StartsWith(u"QtVncServer"),
+        StartsWith(u"QtWebEngine"),
+        StartsWith(u"QtWebSockets"),
+        StartsWith(u"QtWebView"));
+
     return std::apply([=](const auto &...skipModule) { return (skipModule(moduleName) || ...); },
                       skipModules);
 }
@@ -940,7 +943,7 @@ Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url, co
     if (data.isEmpty()) {
         if (errors) {
             QmlJS::DiagnosticMessage msg;
-            msg.message = QObject::tr("Empty document");
+            msg.message = DesignerCore::Tr::tr("Empty document.");
             errors->append(DocumentMessage(msg, url));
         }
         return {};
@@ -984,6 +987,10 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
     QElapsedTimer time;
     if (rewriterBenchmark().isInfoEnabled())
         time.start();
+
+#ifndef QDS_USE_PROJECTSTORAGE
+    ModelManagerInterface::instance()->waitForFinished();
+#endif
 
     const QUrl url = m_rewriterView->model()->fileUrl();
 
@@ -1180,7 +1187,20 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         if (!member)
             continue;
 
-        if (auto array = AST::cast<AST::UiArrayBinding *>(member)) {
+        if (auto source = AST::cast<AST::UiSourceElement *>(member)) {
+            auto function = AST::cast<AST::FunctionDeclaration *>(source->sourceElement);
+
+            AbstractProperty modelProperty = modelNode.property(function->name.toUtf8());
+
+            QString astValue;
+            if (function->body) {
+                astValue = textAt(context->doc(), function->lbraceToken, function->rbraceToken);
+                astValue = astValue.trimmed();
+            }
+
+            syncSignalHandler(modelProperty, astValue, differenceHandler);
+            modelPropertyNames.remove(function->name.toUtf8());
+        } else if (auto array = AST::cast<AST::UiArrayBinding *>(member)) {
             const QString astPropertyName = toString(array->qualifiedId);
             if (isPropertyChangesType(typeName) || isConnectionsType(typeName)
                 || modelNode.metaInfo().hasProperty(astPropertyName.toUtf8())) {
@@ -2159,7 +2179,10 @@ void TextToModelMerger::collectLinkErrors(QList<DocumentMessage> *errors, const 
 void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
 {
     if (m_rewriterView->model()->imports().isEmpty()) {
-        const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found."));
+        const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error,
+                                                         SourceLocation(0, 0, 0, 0),
+                                                         DesignerCore::Tr::tr(
+                                                             "No import statements found."));
         errors->append(
             DocumentMessage(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName().path())));
     }
@@ -2177,9 +2200,7 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
                     const QmlJS::DiagnosticMessage diagnosticMessage(
                         QmlJS::Severity::Error,
                         SourceLocation(0, 0, 0, 0),
-                        QCoreApplication::translate(
-                            "QmlDesigner::TextToModelMerger",
-                            "Qt Quick 6 is not supported with a Qt 5 kit."));
+                        DesignerCore::Tr::tr("Qt Quick 6 is not supported with a Qt 5 kit."));
                     errors->prepend(
                         DocumentMessage(diagnosticMessage,
                                         QUrl::fromLocalFile(m_document->fileName().path())));
@@ -2188,8 +2209,7 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
                 const QmlJS::DiagnosticMessage diagnosticMessage(
                     QmlJS::Severity::Error,
                     SourceLocation(0, 0, 0, 0),
-                    QCoreApplication::translate("QmlDesigner::TextToModelMerger",
-                                                "The Design Mode requires a valid Qt kit."));
+                    DesignerCore::Tr::tr("The Design Mode requires a valid Qt kit."));
                 errors->prepend(DocumentMessage(diagnosticMessage,
                                                 QUrl::fromLocalFile(m_document->fileName().path())));
             }
@@ -2197,7 +2217,7 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
     }
 
     if (!hasQtQuick)
-        errors->append(DocumentMessage(QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import for Qt Quick found.")));
+        errors->append(DocumentMessage(DesignerCore::Tr::tr("No import for Qt Quick found.")));
 }
 
 void TextToModelMerger::collectSemanticErrorsAndWarnings(

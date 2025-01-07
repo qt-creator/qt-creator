@@ -6,14 +6,14 @@
     \previouspage creator-quick-ui-forms.html
     \nextpage studio-collecting-usage-statistics.html
 
-    \title Managing Data Collection
+    \title Managing data collection
 
     See below for more information about the collected data:
 
     \list
-        \li \l {Collecting Usage Statistics}
-        \li \l {Collecting User Feedback}
-        \li \l {Reporting Crashes}
+        \li \l {Collecting usage statistics}
+        \li \l {Collecting user feedback}
+        \li \l {Reporting crashes}
     \endlist
 
     \section1 Principles of Data Collection
@@ -27,7 +27,7 @@
     \l{https://www.qt.io/terms-conditions/privacy-and-security}
     {Qt Appendix for Privacy and Security}.
 
-    \sa {Collecting Usage Statistics}
+    \sa {Collecting usage statistics}
 */
 
 /*!
@@ -35,17 +35,11 @@
     \previouspage studio-telemetry.html
     \nextpage studio-user-feedback.html
 
-    \title Collecting Usage Statistics
+    \title Collecting usage statistics
 
-    The telemetry plugin uses the
-    \l{https://api.kde.org/frameworks/kuserfeedback/html/index.html}
-    {KUserFeedback} framework to collect the usage data. The library
-    has been designed from the user data privacy point of view and
-    \QC respects the same privacy rules.
-
-    The data is transmitted to the backend storage using an encrypted
-    connection. The storage is located in the same Heroku backend as the
-    \QOI backend. Physically, data is stored in the Amazon cloud.
+    The telemetry plugin uses Qt Insight, an analytics solution for collecting usage data in
+    Qt applications. The Qt Insight Tracker library ensures compliance with GDPR regulations.
+    Data is securely transmitted to a centralized backend.
 
     \section1 Turning on Telemetry
 
@@ -55,5 +49,5 @@
 
     \image studio-preferences-telemetry-usage-statistics.webp {Usage Statistics}
 
-    \sa {Managing Data Collection}
+    \sa {Managing data collection}
 */

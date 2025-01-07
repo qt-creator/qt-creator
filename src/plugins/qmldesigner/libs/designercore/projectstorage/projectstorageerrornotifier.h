@@ -23,6 +23,10 @@ public:
                                 Utils::SmallStringView propertyName,
                                 SourceId sourceId) override;
     void propertyNameDoesNotExists(Utils::SmallStringView propertyName, SourceId sourceId) override;
+    void qmlDocumentDoesNotExistsForQmldirEntry(Utils::SmallStringView typeName,
+                                                Storage::Version version,
+                                                SourceId qmlDocumentSourceId,
+                                                SourceId qmldirSourceId) override;
 
 private:
     PathCacheType &m_pathCache;

@@ -25,6 +25,7 @@ class DesignerActionManager;
 class NodeInstanceView;
 class RewriterView;
 class Edit3DView;
+class TextEditorView;
 
 namespace Internal { class DesignModeWidget; }
 
@@ -71,6 +72,8 @@ public:
     void nextFileIsCalledInternally();
 
     const AbstractView *view() const;
+    TextEditorView *textEditorView();
+
     void emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList,
                                 const QList<QVariant> &data);
 

@@ -400,7 +400,7 @@ MetaInfo {
        }
 
         ItemLibraryEntry {
-            name: "Property Animation"
+            name: "Property"
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
@@ -420,7 +420,7 @@ MetaInfo {
        }
 
         ItemLibraryEntry {
-            name: "Pause Animation"
+            name: "Pause"
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
@@ -439,7 +439,7 @@ MetaInfo {
        }
 
         ItemLibraryEntry {
-            name: "Sequential Animation"
+            name: "Sequential"
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
@@ -458,7 +458,7 @@ MetaInfo {
        }
 
         ItemLibraryEntry {
-            name: "Parallel Animation"
+            name: "Parallel"
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
@@ -518,7 +518,7 @@ MetaInfo {
        }
 
         ItemLibraryEntry {
-            name: "Color Animation"
+            name: "Color"
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
@@ -538,7 +538,7 @@ MetaInfo {
         }
 
         ItemLibraryEntry {
-            name: "Number Animation"
+            name: "Number"
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
@@ -560,7 +560,7 @@ MetaInfo {
         }
 
         ItemLibraryEntry {
-            name: "Frame Animation"
+            name: "Frame"
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/frame-animation-24px.png"
             version: "2.0"

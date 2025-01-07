@@ -25,6 +25,7 @@
 #include <nodeinstanceview.h>
 #include <propertyeditorview.h>
 #include <qmldesignerplugin.h>
+#include <qmldesignertr.h>
 #include <rewriterview.h>
 #include <stateseditorview.h>
 #include <texteditorview.h>
@@ -266,9 +267,9 @@ void ViewManager::registerNanotraceActions()
         auto handleShutdownNanotraceAction = [](const SelectionContext &) {};
         auto shutdownNanotraceIcon = []() { return QIcon(); };
         auto startNanotraceAction = new ModelNodeAction("Start Nanotrace",
-                                                        QObject::tr("Start Nanotrace"),
+                                                        Tr::tr("Start Nanotrace"),
                                                         shutdownNanotraceIcon(),
-                                                        QObject::tr("Start Nanotrace"),
+                                                        Tr::tr("Start Nanotrace"),
                                                         ComponentCoreConstants::eventListCategory,
                                                         QKeySequence(),
                                                         22,
@@ -281,9 +282,9 @@ void ViewManager::registerNanotraceActions()
         d->designerActionManagerView.designerActionManager().addDesignerAction(startNanotraceAction);
 
         auto shutDownNanotraceAction = new ModelNodeAction("ShutDown Nanotrace",
-                                                           QObject::tr("Shut Down Nanotrace"),
+                                                           Tr::tr("Shut Down Nanotrace"),
                                                            shutdownNanotraceIcon(),
-                                                           QObject::tr("Shut Down Nanotrace"),
+                                                           Tr::tr("Shut Down Nanotrace"),
                                                            ComponentCoreConstants::eventListCategory,
                                                            QKeySequence(),
                                                            23,
@@ -509,6 +510,11 @@ void ViewManager::nextFileIsCalledInternally()
 const AbstractView *ViewManager::view() const
 {
     return &d->nodeInstanceView;
+}
+
+TextEditorView *ViewManager::textEditorView()
+{
+    return &d->textEditorView;
 }
 
 void ViewManager::emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList,

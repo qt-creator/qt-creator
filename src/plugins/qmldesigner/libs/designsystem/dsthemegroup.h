@@ -12,12 +12,6 @@
 #include <optional>
 
 namespace QmlDesigner {
-enum class DECORATION_CONTEXT {
-    MCU,
-    MPU,
-    COMPONENT_THEME,
-};
-
 class DESIGNSYSTEM_EXPORT DSThemeGroup
 {
     struct PropertyData
@@ -42,11 +36,11 @@ public:
 
     bool addProperty(ThemeId, const ThemeProperty &prop);
     std::optional<ThemeProperty> propertyValue(ThemeId theme, const PropertyName &name) const;
+    bool hasProperty(const PropertyName &name) const;
 
-    void updateProperty(ThemeId theme, PropertyName newName, const ThemeProperty &prop);
+    bool updateProperty(ThemeId theme, const ThemeProperty &prop);
     void removeProperty(const PropertyName &name);
-
-    GroupType type() const { return m_type; }
+    bool renameProperty(const PropertyName &name, const PropertyName &newName);
 
     size_t count(ThemeId theme) const;
     size_t count() const;
@@ -55,7 +49,12 @@ public:
     void removeTheme(ThemeId theme);
 
     void duplicateValues(ThemeId from, ThemeId to);
-    void decorate(ThemeId theme, ModelNode themeNode, DECORATION_CONTEXT decorationContext);
+    void decorate(ThemeId theme, ModelNode themeNode, bool wrapInGroups = true);
+    void decorateComponent(ModelNode node);
+    std::vector<PropertyName> propertyNames() const;
+
+private:
+    void addProperty(ModelNode n, PropertyNameView propName, const PropertyData &data) const;
 
 private:
     const GroupType m_type;

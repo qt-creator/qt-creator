@@ -33,8 +33,9 @@
 #include <stylesheetmerger.h>
 #include <variantproperty.h>
 
-#include <qmldesignerplugin.h>
 #include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
+#include <qmldesignertr.h>
 
 #include <annotationeditor/annotationeditor.h>
 
@@ -657,8 +658,8 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
     QmlObjectNode qmlObjectNode(modelNode);
 
     if (!qmlObjectNode.isValid()) {
-        QString title = QCoreApplication::translate("ModelNodeOperations", "Go to Implementation");
-        QString description = QCoreApplication::translate("ModelNodeOperations", "Invalid component.");
+        QString title = Tr::tr("Go to Implementation");
+        QString description = Tr::tr("Invalid component.");
         Core::AsynchronousMessageBox::warning(title, description);
         return;
     }
@@ -682,8 +683,8 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
         = QmlJSEditor::FindReferences::findUsageOfType(currentDesignDocument, typeName);
 
     if (usages.isEmpty()) {
-        QString title = QCoreApplication::translate("ModelNodeOperations", "Go to Implementation");
-        QString description = QCoreApplication::translate("ModelNodeOperations", "Cannot find an implementation.");
+        QString title = Tr::tr("Go to Implementation");
+        QString description = Tr::tr("Cannot find an implementation.");
         Core::AsynchronousMessageBox::warning(title, description);
         return;
     }
@@ -948,8 +949,8 @@ static void setIndexProperty(const AbstractProperty &property, const QVariant &v
 
     const QString propertyName = QString::fromUtf8(property.name());
 
-    QString title = QCoreApplication::translate("ModelNodeOperations", "Cannot Set Property %1").arg(propertyName);
-    QString description = QCoreApplication::translate("ModelNodeOperations", "The property %1 is bound to an expression.").arg(propertyName);
+    QString title = Tr::tr("Cannot Set Property %1").arg(propertyName);
+    QString description = Tr::tr("The property %1 is bound to an expression.").arg(propertyName);
     Core::AsynchronousMessageBox::warning(title, description);
 }
 
@@ -1084,10 +1085,8 @@ AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &de
         if (targetFilePath.exists()) {
             if (srcFilePath.lastModified() == targetFilePath.lastModified())
                 continue;
-            const QString title = QCoreApplication::translate(
-                        "ModelNodeOperations", "Overwrite Existing File?");
-            const QString question = QCoreApplication::translate(
-                        "ModelNodeOperations", "File already exists. Overwrite?\n\"%1\"").arg(targetFile);
+            const QString title = Tr::tr("Overwrite Existing File?");
+            const QString question = Tr::tr("File already exists. Overwrite?\n\"%1\"").arg(targetFile);
             if (QMessageBox::question(qobject_cast<QWidget *>(Core::ICore::dialogParent()),
                                       title, question, QMessageBox::Yes | QMessageBox::No)
                     != QMessageBox::Yes) {
@@ -1480,7 +1479,7 @@ QString getTemplateDialog(const Utils::FilePath &projectPath)
     dialog->setMinimumWidth(480);
     dialog->setModal(true);
 
-    dialog->setWindowTitle(QCoreApplication::translate("TemplateMerge","Merge With Template"));
+    dialog->setWindowTitle(Tr::tr("TemplateMerge", "Merge With Template"));
 
     auto mainLayout = new QGridLayout(dialog);
 
@@ -1501,9 +1500,9 @@ QString getTemplateDialog(const Utils::FilePath &projectPath)
         templateFile = newFile;
     };
 
-    QPushButton *browseButton = new QPushButton(QCoreApplication::translate("TemplateMerge", "&Browse..."), dialog);
+    QPushButton *browseButton = new QPushButton(Tr::tr("TemplateMerge", "&Browse..."), dialog);
 
-    mainLayout->addWidget(new QLabel(QCoreApplication::translate("TemplateMerge", "Template:")), 0, 0);
+    mainLayout->addWidget(new QLabel(Tr::tr("TemplateMerge", "Template:")), 0, 0);
     mainLayout->addWidget(comboBox, 1, 0, 1, 3);
     mainLayout->addWidget(browseButton, 1, 3, 1 , 1);
 
@@ -1512,9 +1511,8 @@ QString getTemplateDialog(const Utils::FilePath &projectPath)
     mainLayout->addWidget(buttonBox, 2, 2, 1, 2);
 
     QObject::connect(browseButton, &QPushButton::clicked, dialog, [setTemplate, &projectPath]() {
-
         const QString newFile = QFileDialog::getOpenFileName(Core::ICore::dialogParent(),
-                                                             QCoreApplication::translate("TemplateMerge", "Browse Template"),
+                                                             Tr::tr("TemplateMerge", "Browse Template"),
                                                              projectPath.toString(),
                                                              "*.qml");
         if (!newFile.isEmpty())
@@ -1724,7 +1722,7 @@ Utils::FilePath findEffectFile(const ModelNode &effectNode)
                                                                  QDirIterator::Subdirectories});
         if (matches.isEmpty()) {
             QMessageBox msgBox;
-            msgBox.setText(::QObject::tr("Effect file %1 not found in the project.").arg(effectFile));
+            msgBox.setText(Tr::tr("Effect file %1 not found in the project.").arg(effectFile));
             msgBox.setStandardButtons(QMessageBox::Ok);
             msgBox.setDefaultButton(QMessageBox::Ok);
             msgBox.setIcon(QMessageBox::Warning);
@@ -1867,9 +1865,9 @@ bool validateEffect(const QString &effectPath)
     Utils::FilePath qmlPath = effectsResDir.resolvePath(effectName + "/" + effectName + ".qml");
     if (!qmlPath.exists()) {
         QMessageBox msgBox;
-        msgBox.setText(QObject::tr("Effect %1 is not complete.").arg(effectName));
-        msgBox.setInformativeText(QObject::tr("Ensure that you have saved it in the Effect Composer."
-                                              "\nDo you want to edit this effect?"));
+        msgBox.setText(Tr::tr("Effect %1 is not complete.").arg(effectName));
+        msgBox.setInformativeText(Tr::tr("Ensure that you have saved it in the Effect Composer."
+                                         "\nDo you want to edit this effect?"));
         msgBox.setStandardButtons(QMessageBox::No | QMessageBox::Yes);
         msgBox.setDefaultButton(QMessageBox::Yes);
         msgBox.setIcon(QMessageBox::Question);

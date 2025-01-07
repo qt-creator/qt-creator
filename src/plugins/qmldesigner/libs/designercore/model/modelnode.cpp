@@ -5,6 +5,7 @@
 
 #include "annotation.h"
 #include "bindingproperty.h"
+#include "designercoretr.h"
 #include "internalnode_p.h"
 #include "model_p.h"
 #include "nodeabstractproperty.h"
@@ -105,24 +106,24 @@ QString ModelNode::getIdValidityErrorMessage(const QString &id)
         return {}; // valid
 
     if (id.at(0).isUpper())
-        return ::QObject::tr("ID cannot start with an uppercase character (%1).").arg(id);
+        return DesignerCore::Tr::tr("ID cannot start with an uppercase character (%1).").arg(id);
 
     if (id.at(0).isDigit())
-        return ::QObject::tr("ID cannot start with a number (%1).").arg(id);
+        return DesignerCore::Tr::tr("ID cannot start with a number (%1).").arg(id);
 
     if (id.contains(' '))
-        return ::QObject::tr("ID cannot include whitespace (%1).").arg(id);
+        return DesignerCore::Tr::tr("ID cannot include whitespace (%1).").arg(id);
 
     if (ModelUtils::isQmlKeyword(id))
-        return ::QObject::tr("%1 is a reserved QML keyword.").arg(id);
+        return DesignerCore::Tr::tr("%1 is a reserved QML keyword.").arg(id);
 
     if (ModelUtils::isQmlBuiltinType(id))
-        return ::QObject::tr("%1 is a reserved Qml type.").arg(id);
+        return DesignerCore::Tr::tr("%1 is a reserved Qml type.").arg(id);
 
     if (ModelUtils::isDiscouragedQmlId(id))
-        return ::QObject::tr("%1 is a reserved property keyword.").arg(id);
+        return DesignerCore::Tr::tr("%1 is a reserved property keyword.").arg(id);
 
-    return ::QObject::tr("ID includes invalid characters (%1).").arg(id);
+    return DesignerCore::Tr::tr("ID includes invalid characters (%1).").arg(id);
 }
 
 bool ModelNode::hasId() const

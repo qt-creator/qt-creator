@@ -3,14 +3,14 @@
 
 import QtQuick
 import StudioControls as StudioControls
-import StudioTheme as StudioTheme
-import EffectComposerBackend
 
 Row {
     id: itemPane
 
     width: parent.width
     spacing: 5
+
+    signal valueChanged()
 
     StudioControls.ColorEditor {
         actionIndicatorVisible: false
@@ -21,8 +21,10 @@ Row {
         onResetValueChanged: color = uniformValue
         Component.onCompleted: color = uniformValue
         onColorChanged: {
-            if (uniformValue !== color)
+            if (uniformValue !== color) {
                 uniformValue = color
+                itemPane.valueChanged()
+            }
         }
     }
 }

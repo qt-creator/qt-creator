@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,7 +6,7 @@
     \previouspage studio-crashpad.html
     \nextpage studio-developer-topics.html
 
-    \title Packaging Applications
+    \title Packaging applications
 
     \note In this section, you are using advanced menu items. These are not
     visible by default. To toggle the visibility of advanced menu items, see
@@ -16,7 +16,7 @@
     app stores, you can use \QDS to create suitable packages that contain all
     the necessary files, such as fonts, images, components, and modules.
 
-    \section1 Adding Resources to Packages
+    \section1 Adding resources to packages
 
     \QDS supports the \e{Qt Resource System} (QRC), which is a
     platform-independent mechanism for storing files in the application's
@@ -42,7 +42,7 @@
     resource collection file, you can recreate the resource collection
     file to remove them also from there.
 
-    \section1 Embedding Resources into Applications
+    \section1 Embedding resources into applications
 
     Alternatively, you can embed the resources into your application by
     selecting \uicontrol File > \uicontrol {Export Project} >

@@ -10,6 +10,7 @@ import AssetsLibraryBackend
 
 TreeView {
     id: root
+
     clip: true
     interactive: verticalScrollBar.visible && !root.contextMenu.opened && !rootView.isDragging
     reuseItems: false
@@ -44,6 +45,16 @@ TreeView {
     readonly property int firstRow: root.rootPathRow + 1
     readonly property int lastRow: root.rows - 1
     property var __createdDirectories: []
+
+    onExpanded:(row) => {
+        let index = root.__modelIndex(row)
+        assetsModel.saveExpandState(assetsModel.filePath(index), true)
+    }
+
+    onCollapsed:(row) => {
+        let index = root.__modelIndex(row)
+        assetsModel.saveExpandState(assetsModel.filePath(index), false)
+    }
 
     rowHeightProvider: (row) => {
         if (row <= root.rootPathRow)
@@ -92,7 +103,6 @@ TreeView {
         function onDirectoryCreated(path)
         {
             root.__createdDirectories.push(path)
-
             updateRowsTimer.restart()
         }
 
@@ -117,15 +127,7 @@ TreeView {
             // updating rows for safety: the rows might have been created before the
             // directory (esp. the root path) has been loaded, so we must make sure all rows are
             // expanded -- otherwise, the tree may not become visible.
-
             updateRowsTimer.restart()
-
-            let idx = assetsModel.indexForPath(path)
-            let row = root.rowAtIndex(idx)
-            let column = root.columnAtIndex(idx)
-
-            if (row >= root.rootPathRow && !root.isExpanded(row))
-                root.expand(row)
         }
 
         function onRootPathChanged()
@@ -179,9 +181,9 @@ TreeView {
             let index = assetsModel.indexForPath(dirPath)
             let row = root.rowAtIndex(index)
 
-            if (row > 0)
+            if (row > 0) {
                 root.expand(row)
-            else if (row === -1 && assetsModel.indexIsValid(index)) {
+            } else if (row === -1 && assetsModel.indexIsValid(index)) {
                 // It is possible that this directory, dirPath, was created inside of a parent
                 // directory that was not yet expanded in the TreeView. This can happen with the
                 // bridge plugin. In such a situation, we don't have a "row" for it yet, so we have
@@ -214,10 +216,10 @@ TreeView {
     function __doExpandAll()
     {
         let expandedAny = false
-        for (let nRow = 0; nRow < root.rows; ++nRow) {
-            let index = root.__modelIndex(nRow)
-            if (assetsModel.isDirectory(index) && !root.isExpanded(nRow)) {
-                root.expand(nRow);
+        for (let r = 0; r < root.rows; ++r) {
+            let index = root.__modelIndex(r)
+            if (assetsModel.isDirectory(index) && !root.isExpanded(r)) {
+                root.expand(r)
                 expandedAny = true
             }
         }
@@ -316,9 +318,6 @@ TreeView {
     function __selectRow(row: int)
     {
         let index = root.__modelIndex(row)
-        if (assetsModel.isDirectory(index))
-            return
-
         let filePath = assetsModel.filePath(index)
 
         root.clearSelectedAssets()
@@ -334,15 +333,10 @@ TreeView {
         let index = root.currentFilePath ? assetsModel.indexForPath(root.currentFilePath)
                                          : root.__modelIndex(root.firstRow)
         let row = root.rowAtIndex(index)
-        let nextRow = row
-        let nextIndex = index
+        let nextRow = row + amount
 
-        do {
-            nextRow = nextRow + amount
-            if ((amount < 0 && nextRow < root.firstRow) || (amount > 0 && nextRow > root.lastRow))
-                return
-            nextIndex = root.__modelIndex(nextRow)
-        } while (assetsModel.isDirectory(nextIndex))
+        if ((amount < 0 && nextRow < root.firstRow) || (amount > 0 && nextRow > root.lastRow))
+            return
 
         root.__selectRow(nextRow)
         root.positionViewAtRow(nextRow, TableView.Contain)
@@ -356,6 +350,29 @@ TreeView {
 
     Keys.onDownPressed: {
         moveSelection(1)
+    }
+
+    Keys.onRightPressed: {
+        root.expandFolder(true)
+    }
+
+    Keys.onLeftPressed: {
+        root.expandFolder(false)
+    }
+
+    function expandFolder(expand) {
+        let index = root.currentFilePath ? assetsModel.indexForPath(root.currentFilePath)
+                                         : root.__modelIndex(root.firstRow)
+
+        if (!assetsModel.isDirectory(index))
+            return
+
+        let row = root.rowAtIndex(index)
+
+        if (expand)
+            root.expand(row)
+        else
+            root.collapse(row)
     }
 
     ConfirmDeleteFilesDialog {

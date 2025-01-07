@@ -21,6 +21,7 @@ add_qtc_library(QmlDesignerCore
   DEFINES
      $<$<BOOL:${USE_PROJECTSTORAGE}>:QDS_USE_PROJECTSTORAGE>
      $<$<BOOL:${QTC_USE_QML_DESIGNER_LITE}>:QTC_USE_QML_DESIGNER_LITE>
+     $<$<BOOL:${DETACH_DISABLED_VIEWS}>:DETACH_DISABLED_VIEWS>
   PUBLIC_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}
     include
@@ -30,6 +31,7 @@ extend_qtc_library(QmlDesignerCore
   PUBLIC_INCLUDES designercoreutils
   SOURCES_PREFIX designercoreutils
   SOURCES
+    functional.h
     generatedcomponentutils.cpp
     generatedcomponentutils.h
     modelmerger.cpp
@@ -169,6 +171,7 @@ extend_qtc_library(QmlDesignerCore
     abstractview.h
     bytearraymodifier.h
     componenttextmodifier.h
+    designercoretr.h
     forwardview.h
     itemlibraryentry.h
     model.h

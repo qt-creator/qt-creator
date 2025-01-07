@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,7 +6,7 @@
     \previouspage quick-user-interaction-methods.html
     \nextpage quick-data-models.html
 
-    \title UI Controls
+    \title UI controls
 
     You can create instances of preset UI controls to inform users about
     the progress of the application or to gather input from users. They are
@@ -23,7 +23,7 @@
         \li \l {Selectors}
         \li \l {Tab Bar}
         \li \l {Tool Bar}
-        \li \l {Summary of UI Controls}
+        \li \l {Summary of the UI controls}
     \endlist
 
     You can specify values for the properties of component instances in the
@@ -32,7 +32,7 @@
     are only available for a particular control. The following sections
     describe the preset UI controls and their properties.
 
-    \section1 General Control Properties
+    \section1 General control properties
 
     You can set control properties in the \l Properties view.
 
@@ -57,7 +57,7 @@
     \l {Check Box}. Spacing is not enforced by the controls, so each style may
     interpret it differently, and some may ignore it altogether.
 
-    \section1 Button Controls
+    \section1 Button controls
 
     Qt Quick Controls offer a selection of button-like controls for specific
     use cases. The following sections contain guidelines for choosing the button
@@ -109,7 +109,7 @@
     Don't use a button to set state because a \l Switch is more suitable for
     that purpose.
 
-    \section3 Highlighted Buttons
+    \section3 Highlighted buttons
 
     Select the \uicontrol Highlight check box in the \uicontrol Button section
     to draw the users' attention towards a button. Highlighting a button has no
@@ -121,7 +121,7 @@
 
     \image qtquickcontrols2-button-highlighted.gif "Highlighted button"
 
-    \section3 Flat Buttons
+    \section3 Flat buttons
 
     A flat button typically does not draw a background unless it is pressed or
     checked. To create a flat button, select the \uicontrol Flat check box in
@@ -131,14 +131,14 @@
 
     \image qtquickcontrols2-button-flat.gif "Flat button"
 
-    \section3 Icon Buttons
+    \section3 Icon buttons
 
     To create a button that contains an icon, use the wizard template to
     \l{Creating Custom Controls}{create a custom button} and drag-and-drop
     the icon to the button background component. For an example of using the
     wizard template, see \l{Creating a Push Button}.
 
-    \section2 Delay Button
+    \section2 Delay button
 
     \image qtquickcontrols2-delaybutton.gif "Delay button"
 
@@ -238,7 +238,7 @@
         \li Ensure that a sensible default option is checked.
         \li List radio button options vertically.
         \li Keep the list short.
-        \li In order to avoid confusion, do not put two groups of radio buttons
+        \li To avoid confusion, do not put two groups of radio buttons
             next to each other.
     \endlist
 
@@ -286,7 +286,7 @@
     of the width or height of the button, and make the button's width and height
     identical.
 
-    \section2 Displaying Text and Icons
+    \section2 Displaying text and icons
 
     A button can contain text, an icon, or both. Specify the button text in
     the \uicontrol Text field in the \uicontrol {Button Content} section. The
@@ -296,10 +296,10 @@
 
     \image qtquick-designer-abstract-button-properties.png "Button Content properties"
 
-    \section2 Checking Buttons
+    \section2 Checking buttons
 
     A \e checkable button toggles between checked (on) and unchecked (off) when
-    users click on it or press the space bar while the button has active
+    users select it or the space bar while the button has active
     focus. Select the \uicontrol Checkable check box to make a button checkable.
     To make the button checked, select the \uicontrol Checked check box.
 
@@ -316,10 +316,10 @@
     If the buttons don't belong to the same parent, checking and unchecking
     buttons does not affect the other buttons in the group.
 
-    \section2 Button Signals
+    \section2 Button signals
 
     A button emits the \c clicked() signal when it is activated by users.
-    \l{Connecting Components to Signals}{Connect to this signal} to perform
+    \l{Connecting components to signals}{Connect to this signal} to perform
     the button's action. Buttons provide the following additional signals:
     \c canceled(), \c doubleClicked(), \c pressed(), \c released(), and
     \c pressAndHold() for long presses.
@@ -360,9 +360,9 @@
     Typical places for a busy indicator are:
 
     \list
-        \li In the corner of a \uicontrol {Tool Bar}
-        \li As an overlay on top of a \uicontrol Page
-        \li On the side of an \uicontrol {Item Delegate}
+        \li In the corner of a \uicontrol {Tool Bar}.
+        \li As an overlay on top of a \uicontrol {Page}.
+        \li On the side of an \uicontrol {Item Delegate}.
     \endlist
 
     \section2 Page Indicator
@@ -410,10 +410,10 @@
     Typical places for an indeterminate progress bar are:
 
     \list
-        \li At the bottom of a \uicontrol {Tool Bar}
-        \li Inline within the content of a \uicontrol Page
+        \li At the bottom of a \uicontrol {Tool Bar}.
+        \li Inline within the content of a \uicontrol {Page}.
         \li In an \uicontrol {Item Delegate} to show the progress
-            of a particular item
+            of a particular item.
     \endlist
 
     \section1 Selectors
@@ -525,7 +525,7 @@
     A combo box is used to select a value from a static multiple-line drop-down
     list. Users cannot add new values, and only one option can be selected.
 
-    Combo box values are provided by a \l{Lists and Other Data Models}
+    Combo box values are provided by a \l{Lists and other data models}
     {data model}. The data model is usually a JavaScript array, a \l ListModel,
     or an integer, but other types of data models are also supported.
 
@@ -621,7 +621,7 @@
     position its contents, for instance by creating a \l RowLayout. If the
     toolbar contains only one item, it will resize to fit the implicit item
     size. This makes a toolbar particularly suitable for use together with
-    \l{Using Layouts}{layouts}. However, you can specify content width
+    \l{Using layouts}{layouts}. However, you can specify content width
     (\uicontrol W) and height (\uicontrol H) in the \uicontrol {Content size}
     field in the \uicontrol Pane section.
 
@@ -630,7 +630,7 @@
     be used in horizontal or vertical toolbars by setting the value of
     the \uicontrol Orientation field.
 
-    \section1 Styling Controls
+    \section1 Styling controls
 
     The preset UI controls can be \l {Styling Qt Quick Controls}{styled}.
     The \uicontrol {2D} view reads the preferred style from a
@@ -647,148 +647,148 @@
     For more information about how to customize a particular control, see
     \l{Customization Reference}.
 
-    \section1 Summary of UI Controls
+    \section1 Summary of the UI controls
 
     The following table lists preset UI controls with links to their developer
     documentation. They are available in \uicontrol Components >
-    \uicontrol {Qt Quick Controls}. The \e MCU column indicates which controls
+    \uicontrol {Qt Quick Controls}. The \e {MCU support} column indicates which controls
     are supported on MCUs.
 
     \table
     \header
         \li Icon
         \li Name
-        \li MCU
+        \li MCU support
         \li Purpose
     \row
-        \li \inlineimage icons/busyindicator-icon16.png
+        \li \imagebusyindicatoricon16
         \li \l [QtQuickControls]{BusyIndicator}{Busy Indicator}
-        \li
+        \li No
         \li Indicates activity while content is being loaded.
     \row
-        \li \inlineimage icons/button-icon16.png
+        \li \imagebuttonicon16
         \li \l [QtQuickControls]{Button}
-        \li \inlineimage ok.png
+        \li Yes
         \li A push button that you can associate with an action.
     \row
-        \li \inlineimage icons/checkbox-icon16.png
+        \li \imagecheckboxicon16
         \li \l [QtQuickControls]{CheckBox}{Check Box}
-        \li \inlineimage ok.png
+        \li Yes
         \li An option button that can be toggled on (checked) or off
             (unchecked).
     \row
-        \li \inlineimage icons/checkbox-icon16.png
+        \li \imagecheckboxicon16
         \li \l [QtQuickControls]{CheckDelegate}{Check Delegate}
-        \li
+        \li No
         \li An item delegate that can be toggled on (checked) or off
             (unchecked).
     \row
-        \li \inlineimage icons/combobox-icon16.png
+        \li \imagecomboboxicon16
         \li \l [QtQuickControls]{ComboBox}{Combo Box}
-        \li
+        \li No
         \li A combined button and popup list that is populated by using a data
             model.
     \row
-        \li \inlineimage icons/delaybutton-icon16.png
+        \li \imagedelaybuttonicon16
         \li \l [QtQuickControls]{DelayButton}{Delay Button}
-        \li
+        \li No
         \li An option button that is triggered when held down long enough.
     \row
-        \li \inlineimage icons/dial-icon16.png
+        \li \imagedialicon16
         \li \l [QtQuickControls]{Dial}
-        \li \inlineimage ok.png
+        \li Yes
         \li A circular dial that is rotated to set a value.
     \row
-        \li \inlineimage icons/pageindicator-icon16.png
+        \li \imagepageindicatoricon16
         \li \l [QtQuickControls]{PageIndicator}{Page Indicator}
-        \li
+        \li No
         \li Indicates the indicate the currently active page in a container of
             multiple pages.
     \row
-        \li \inlineimage icons/progressbar-icon16.png
+        \li \imageprogressbaricon16
         \li \l [QtQuickControls]{ProgressBar}{Progress Bar}
-        \li \inlineimage ok.png
+        \li Yes
         \li Indicates the progress of an operation.
     \row
-        \li \inlineimage icons/radiobutton-icon16.png
+        \li \imageradiobuttonicon16
         \li \l [QtQuickControls]{RadioButton}{Radio Button}
-        \li \inlineimage ok.png
+        \li Yes
         \li An option button that can be switched on (checked) or off
             (unchecked).
     \row
-        \li \inlineimage icons/radiobutton-icon16.png
+        \li \imageradiobuttonicon16
         \li \l [QtQuickControls]{RadioDelegate}{Radio Delegate}
-        \li
+        \li No
         \li An item delegate that can be toggled on (checked) or off
             (unchecked).
     \row
-        \li \inlineimage icons/rangeslider-icon16.png
+        \li \imagerangeslidericon16
         \li \l [QtQuickControls]{RangeSlider}{Range Slider}
-        \li
+        \li No
         \li Enables users to select a range of values by sliding two handles
             along a track.
     \row
-        \li \inlineimage icons/roundbutton-icon16.png
+        \li \imageroundbuttonicon16
         \li \l [QtQuickControls]{RoundButton}{Round Button}
-        \li
+        \li No
         \li A push button with rounded corners that you can associate with an
             action.
     \row
-        \li \inlineimage icons/slider-icon16.png
+        \li \imageslidericon16
         \li \l [QtQuickControls]{Slider}
-        \li \inlineimage ok.png
+        \li Yes
         \li Enables users to select a value by sliding a handle along a track.
     \row
-        \li \inlineimage icons/spinbox-icon16.png
+        \li \imagespinboxicon16
         \li \l [QtQuickControls]{SpinBox}{Spin Box}
-        \li
+        \li No
         \li Enables users to specify a value by clicking the up or down buttons,
             by pressing up or down on the keyboard, or by entering a value in
             the box.
     \row
-        \li \inlineimage icons/switch-icon16.png
+        \li \imageswitchicon16
         \li \l [QtQuickControls]{Switch}
-        \li \inlineimage ok.png
+        \li Yes
         \li An option button that can be toggled on or off.
     \row
-        \li \inlineimage icons/switch-icon16.png
+        \li \imageswitchicon16
         \li \l [QtQuickControls]{SwitchDelegate}{Switch Delegate}
-        \li
+        \li No
         \li An item delegate with a switch indicator that can be toggled on or
             off.
     \row
-        \li \inlineimage icons/toolbar-icon16.png
+        \li \imagetoolbaricon16
         \li \l [QtQuickControls] {TabBar}{Tab Bar}
-        \li
+        \li No
         \li Enables users to switch between different views or subtasks.
     \row
-        \li \inlineimage icons/toolbutton-icon16.png
+        \li \imagetoolbuttonicon16
         \li \l [QtQuickControls]{TabButton}{Tab Button}
         \li
         \li A button that is functionally similar to \uicontrol Button, but
             provides a look that is more suitable for a \uicontrol {Tab Bar}.
     \row
-        \li \inlineimage icons/toolbar-icon16.png
+        \li \imagetoolbaricon16
         \li \l [QtQuickControls]{ToolBar}{Tool Bar}
-        \li
+        \li No
         \li A container of application-wide and context sensitive actions and
             controls, such as navigation buttons and search fields.
     \row
-        \li \inlineimage icons/toolbutton-icon16.png
+        \li \imagetoolbuttonicon16
         \li \l [QtQuickControls]{ToolButton}{Tool Button}
-        \li
+        \li No
         \li A button that is functionally similar to \uicontrol Button, but
             provides a look that is more suitable for a \uicontrol {Tool Bar}.
     \row
-        \li \inlineimage icons/toolseparator-icon16.png
+        \li \imagetoolseparatoricon16
         \li \l [QtQuickControls]{ToolSeparator}{Tool Separator}
-        \li
+        \li No
         \li Separates a group of items from adjacent items on a
             \uicontrol {Tool Bar}.
     \row
-        \li \inlineimage icons/tumbler-icon16.png
+        \li \imagetumblericon16
         \li \l [QtQuickControls]{Tumbler}
-        \li
+        \li No
         \li A spinnable wheel of items that can be selected.
     \endtable
 */

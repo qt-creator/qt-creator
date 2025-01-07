@@ -8,29 +8,28 @@
 
     \title Tutorials
 
-    \image loginui4.gif "Log In UI"
+    \image loginui4.gif "Login UI"
 
-    \section1 Video Tutorials
+    \section1 Video tutorials
 
-    When you run \QDS, the \uicontrol Tutorials tab in \uicontrol Welcome mode contains links
-    to video tutorials. To watch a tutorial on YouTube,
-    select it.
+    When you run \QDS, the \uicontrol Tutorials tab in the \uicontrol Welcome mode
+    contains links to video tutorials. Select a tutorial to watch it on YouTube.
 
-    \section1 Written Tutorials
+    \section1 Written tutorials
 
     You can follow a set of hands-on tutorials that
     illustrate how to use the features of \QDS. Even if you plan to export your
     designs from a design tool, it is useful to go through tutorials to learn to
-    use \QDS. In particular, \l {Log In UI - Components}
+    use \QDS. In particular, \l {Login UI: Components}
     describes the terms and concepts that you will run into when exporting
     designs with \QB.
 
     Before you start, take a look at the following topics to familiarize
     yourself with the parts of \QDS in general, and the \uicontrol Design
-    mode in particular: \l{User Interface} and \l{Design Views}.
+    mode in particular: \l{User interface} and \l{Design views}.
 
     In addition to these tutorials, \QDS comes with examples that you can open
-    from the \uicontrol Examples and tabs in the \uicontrol Welcome mode. For more
+    from the \uicontrol Examples tab in the \uicontrol Welcome mode. For more
     information, see \l {Examples}.
 
 */

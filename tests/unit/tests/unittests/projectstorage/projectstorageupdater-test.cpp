@@ -9,6 +9,7 @@
 #include <projectstoragepathwatchermock.h>
 #include <qmldocumentparsermock.h>
 #include <qmltypesparsermock.h>
+#include <version-matcher.h>
 
 #include <projectstorage-matcher.h>
 
@@ -337,6 +338,7 @@ protected:
     QmlDesigner::SourcePathCache<QmlDesigner::SourcePathStorage> sourcePathCache{
         staticData->sourcePathStorage};
     NiceMock<ProjectStoragePathWatcherMock> patchWatcherMock;
+    NiceMock<ProjectStorageErrorNotifierMock> errorNotifierMock;
     QmlDesigner::ProjectPartId projectPartId = QmlDesigner::ProjectPartId::create(1);
     QmlDesigner::ProjectPartId otherProjectPartId = QmlDesigner::ProjectPartId::create(0);
     QmlDesigner::ProjectStorageUpdater updater{fileSystemMock,
@@ -346,6 +348,7 @@ protected:
                                                qmlDocumentParserMock,
                                                qmlTypesParserMock,
                                                patchWatcherMock,
+                                               errorNotifierMock,
                                                projectPartId};
     SourceId qmltypesPathSourceId = sourcePathCache.sourceId("/path/example.qmltypes");
     SourceId qmltypes2PathSourceId = sourcePathCache.sourceId("/path/example2.qmltypes");
@@ -747,14 +750,26 @@ TEST_F(ProjectStorageUpdater, parse_qml_documents)
     updater.update({.directories = directories});
 }
 
-TEST_F(ProjectStorageUpdater, parse_qml_documents_with_non_existing_qml_document_throws)
+TEST_F(ProjectStorageUpdater, non_existing_qml_documents_are_ignored)
 {
     QString qmldir{R"(module Example
-                      NonexitingType 1.0 NonexitingType.qml)"};
+                      NonexitingType 1.0 NonexitingType.qml
+                      FirstType 1.0 First.qml
+                      FirstTypeV2 2.2 First2.qml
+                      SecondType 2.2 Second.qml)"};
+    QString qmlDocument1{"First{}"};
+    QString qmlDocument2{"Second{}"};
+    QString qmlDocument3{"Third{}"};
     setContent(u"/path/qmldir", qmldir);
+    setContent(u"/path/First.qml", qmlDocument1);
+    setContent(u"/path/First2.qml", qmlDocument2);
+    setContent(u"/path/Second.qml", qmlDocument3);
 
-    ASSERT_THROW(updater.update({.directories = directories}),
-                 QmlDesigner::CannotParseQmlDocumentFile);
+    EXPECT_CALL(qmlDocumentParserMock, parse(qmlDocument1, _, _, _));
+    EXPECT_CALL(qmlDocumentParserMock, parse(qmlDocument2, _, _, _));
+    EXPECT_CALL(qmlDocumentParserMock, parse(qmlDocument3, _, _, _));
+
+    updater.update({.directories = directories});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qml_documents)
@@ -779,6 +794,82 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents)
                                         Storage::Synchronization::ChangeLevel::Full),
                           Field(&Storage::Synchronization::Type::exportedTypes,
                                 UnorderedElementsAre(IsExportedType(exampleModuleId, "FirstType", 1, 0),
+                                                     IsExportedType(pathModuleId, "First", -1, -1)))),
+                    AllOf(IsStorageType("First2.qml",
+                                        Storage::Synchronization::ImportedType{"Object2"},
+                                        TypeTraitsKind::Reference,
+                                        qmlDocumentSourceId2,
+                                        Storage::Synchronization::ChangeLevel::Full),
+                          Field(&Storage::Synchronization::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(exampleModuleId, "FirstType", 2, 2),
+                                                     IsExportedType(pathModuleId, "First2", -1, -1)))),
+                    AllOf(IsStorageType("Second.qml",
+                                        Storage::Synchronization::ImportedType{"Object3"},
+                                        TypeTraitsKind::Reference,
+                                        qmlDocumentSourceId3,
+                                        Storage::Synchronization::ChangeLevel::Full),
+                          Field(&Storage::Synchronization::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(exampleModuleId, "SecondType", 2, 2),
+                                                     IsExportedType(pathModuleId, "Second", -1, -1)))))),
+            Field(&SynchronizationPackage::updatedSourceIds,
+                  UnorderedElementsAre(qmlDirPathSourceId,
+                                       qmlDocumentSourceId1,
+                                       qmlDocumentSourceId2,
+                                       qmlDocumentSourceId3)),
+            Field(&SynchronizationPackage::updatedFileStatusSourceIds,
+                  UnorderedElementsAre(qmlDirPathSourceId,
+                                       qmlDocumentSourceId1,
+                                       qmlDocumentSourceId2,
+                                       qmlDocumentSourceId3)),
+            Field(&SynchronizationPackage::fileStatuses,
+                  UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 1, 21),
+                                       IsFileStatus(qmlDocumentSourceId1, 1, 21),
+                                       IsFileStatus(qmlDocumentSourceId2, 1, 21),
+                                       IsFileStatus(qmlDocumentSourceId3, 1, 21))),
+            Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
+                  UnorderedElementsAre(directoryPathSourceId)),
+            Field(&SynchronizationPackage::directoryInfos,
+                  UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
+                                                       qmlDocumentSourceId1,
+                                                       ModuleId{},
+                                                       FileType::QmlDocument),
+                                       IsDirectoryInfo(directoryPathSourceId,
+                                                       qmlDocumentSourceId2,
+                                                       ModuleId{},
+                                                       FileType::QmlDocument),
+                                       IsDirectoryInfo(directoryPathSourceId,
+                                                       qmlDocumentSourceId3,
+                                                       ModuleId{},
+                                                       FileType::QmlDocument))))));
+
+    updater.update({.directories = directories});
+}
+
+TEST_F(ProjectStorageUpdater, skip_duplicate_qmldir_entries)
+{
+    QString qmldir{R"(module Example
+                      FirstType 1.0 First.qml
+                      FirstType 1.0 First.qml
+                      FirstType 2.0 First.qml
+                      FirstType 2.2 First2.qml
+                      SecondType 2.2 Second.qml)"};
+    setContent(u"/path/qmldir", qmldir);
+
+    EXPECT_CALL(
+        projectStorageMock,
+        synchronize(AllOf(
+            Field(&SynchronizationPackage::imports, UnorderedElementsAre(import1, import2, import3)),
+            Field(
+                &SynchronizationPackage::types,
+                UnorderedElementsAre(
+                    AllOf(IsStorageType("First.qml",
+                                        Storage::Synchronization::ImportedType{"Object"},
+                                        TypeTraitsKind::Reference,
+                                        qmlDocumentSourceId1,
+                                        Storage::Synchronization::ChangeLevel::Full),
+                          Field(&Storage::Synchronization::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(exampleModuleId, "FirstType", 1, 0),
+                                                     IsExportedType(exampleModuleId, "FirstType", 2, 0),
                                                      IsExportedType(pathModuleId, "First", -1, -1)))),
                     AllOf(IsStorageType("First2.qml",
                                         Storage::Synchronization::ImportedType{"Object2"},
@@ -2103,13 +2194,83 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents_without_qmldir)
     updater.update({.directories = directories});
 }
 
-TEST_F(ProjectStorageUpdater, synchronize_qml_documents_without_qmldir_throws_if_qml_document_does_not_exists)
+TEST_F(ProjectStorageUpdater, warn_about_non_existing_qml_document)
 {
-    setFilesDontExists({qmlDirPathSourceId, qmlDocumentSourceId1});
+    setFilesDontExists({qmlDocumentSourceId1});
     setFilesAdded({directoryPathSourceId});
+    QString qmldir{R"(module Example
+                      FirstType 1.0 First.qml
+                      FirstType 2.2 First2.qml)"};
+    setQmlFileNames(u"/path", {"First2.qml"});
+    setContent(u"/path/qmldir", qmldir);
 
-    ASSERT_THROW(updater.update({.directories = directories}),
-                 QmlDesigner::CannotParseQmlDocumentFile);
+    EXPECT_CALL(errorNotifierMock,
+                qmlDocumentDoesNotExistsForQmldirEntry(Eq("FirstType"),
+                                                       IsVersion(1, 0),
+                                                       qmlDocumentSourceId1,
+                                                       qmlDirPathSourceId));
+
+    updater.update({.directories = directories});
+}
+
+TEST_F(ProjectStorageUpdater,
+       synchronize_qml_documents_without_parsed_type_if_qml_document_does_not_exists)
+{
+    setFilesDontExists({qmlDocumentSourceId1});
+    setFilesAdded({directoryPathSourceId});
+    QString qmldir{R"(module Example
+                      FirstType 1.0 First.qml
+                      FirstType 2.2 First2.qml)"};
+    setQmlFileNames(u"/path", {"First2.qml"});
+    setContent(u"/path/qmldir", qmldir);
+
+    EXPECT_CALL(
+        projectStorageMock,
+        synchronize(AllOf(
+            Field(&SynchronizationPackage::imports, UnorderedElementsAre(import2)),
+            Field(&SynchronizationPackage::types,
+                  UnorderedElementsAre(
+                      AllOf(IsStorageType("First.qml",
+                                          Storage::Synchronization::ImportedType{},
+                                          TypeTraitsKind::None,
+                                          qmlDocumentSourceId1,
+                                          Storage::Synchronization::ChangeLevel::Full),
+                            Field(&Storage::Synchronization::Type::exportedTypes,
+                                  UnorderedElementsAre(
+                                      IsExportedType(exampleModuleId, "FirstType", 1, 0)))),
+                      AllOf(IsStorageType("First2.qml",
+                                          Storage::Synchronization::ImportedType{"Object2"},
+                                          TypeTraitsKind::Reference,
+                                          qmlDocumentSourceId2,
+                                          Storage::Synchronization::ChangeLevel::Full),
+                            Field(&Storage::Synchronization::Type::exportedTypes,
+                                  UnorderedElementsAre(
+                                      IsExportedType(pathModuleId, "First2", -1, -1),
+                                      IsExportedType(exampleModuleId, "FirstType", 2, 2)))))),
+            Field(&SynchronizationPackage::updatedSourceIds,
+                  UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId1, qmlDocumentSourceId2)),
+            Field(&SynchronizationPackage::updatedFileStatusSourceIds,
+                  UnorderedElementsAre(directoryPathSourceId,
+                                       qmlDirPathSourceId,
+                                       qmlDocumentSourceId1,
+                                       qmlDocumentSourceId2)),
+            Field(&SynchronizationPackage::fileStatuses,
+                  UnorderedElementsAre(IsFileStatus(directoryPathSourceId, 1, 21),
+                                       IsFileStatus(qmlDirPathSourceId, 1, 21),
+                                       IsFileStatus(qmlDocumentSourceId2, 1, 21))),
+            Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
+                  UnorderedElementsAre(directoryPathSourceId)),
+            Field(&SynchronizationPackage::directoryInfos,
+                  UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
+                                                       qmlDocumentSourceId1,
+                                                       ModuleId{},
+                                                       FileType::QmlDocument),
+                                       IsDirectoryInfo(directoryPathSourceId,
+                                                       qmlDocumentSourceId2,
+                                                       ModuleId{},
+                                                       FileType::QmlDocument))))));
+
+    updater.update({.directories = directories});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qml_documents_without_qmldir_throws_if_directory_does_not_exists)

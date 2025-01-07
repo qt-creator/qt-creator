@@ -22,10 +22,10 @@
                 If you have not used an integrated development environment (IDE)
                 before, or want to know what kind of IDE \QC is, go to
                 \l{Overview}.
-            \li \b {\l{User Interface}}
+            \li \b {\l{User interface}}
 
                 If you have not used \QC before, and want to become familiar
-                with the parts of the user interface, go to \l{User Interface}.
+                with the parts of the user interface, go to \l{User interface}.
             \li \b {\l{Configuring Qt Creator}}
 
                 To make \QC behave more like your favorite code editor or IDE,

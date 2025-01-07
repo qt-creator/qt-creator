@@ -15,7 +15,6 @@ Flickable {
     readonly property bool horizontalScrollBarVisible: horizontalScrollBar.scrollBarVisible
     readonly property bool bothVisible: flickable.verticalScrollBarVisible
                                         && flickable.horizontalScrollBarVisible
-
     property bool hideVerticalScrollBar: false
     property bool hideHorizontalScrollBar: false
 
@@ -24,6 +23,8 @@ Flickable {
     default property alias content: areaItem.children
 
     property bool adsFocus: false
+    property alias hovered: hoverHandler.hovered
+
     // objectName is used by the dock widget to find this particular ScrollView
     // and set the ads focus on it.
     objectName: "__mainSrollView"

@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -17,21 +17,21 @@
 
     \list
         \li \l {Particle System}
-        \li \l {Logical Particles}
-        \li \l {Particle Emitters}
-        \li \l {Particle Affectors}
-        \li \l {Particle Directions}
+        \li \l {Logical particles}
+        \li \l {Particle emitters}
+        \li \l {Particle affectors}
+        \li \l {Particle directions}
     \endlist
 
-    Preset particle \l{Particle Components}{components},
-    \l{Particle Templates}{templates}, and \l{Particle Effects}{effects} are
+    Preset particle \l{Particle components}{components},
+    \l{Particle templates}{templates}, and \l{Particle effects}{effects} are
     available in \uicontrol Components > \uicontrol {QtQuick3D Particles3D}
     after you add the \uicontrol {QtQuick3D.Particles3D} module to
     your project, as instructed in \l{Adding and Removing Modules}.
 
     \image studio-3d-particles.png "3D Particles"
 
-    \section1 Particle Components
+    \section1 Particle components
 
     When you add an instance of the \uicontrol {Particle System} component to a
     scene, \QDS automatically adds instances of the \uicontrol {Sprite Particle},
@@ -40,7 +40,7 @@
     \image studio-3d-particle-system-navigator.png "Particle System in Navigator"
 
     The \uicontrol {Sprite Particle} is a visual \l{Textures}{2D texture}
-    particle. To use \l{3D Models}{3D model} particles, add instances of the
+    particle. To use \l{3D models}{3D model} particles, add instances of the
     \uicontrol {Model Particle} component to the particle system. It is
     important to define the amount of particles to use in \uicontrol Properties
     > \uicontrol Particle > \uicontrol {Max amount}, so that the optimal buffer
@@ -67,95 +67,95 @@
         \li Name
         \li Purpose
     \row
-        \li \inlineimage icons/attractor-16px.png
+        \li \imageattractor16px
         \li Attractor
         \li Attracts particles towards a specific point.
     \row
-        \li \inlineimage icons/emit-burst-16px.png
+        \li \imageemitburst16px
         \li Dynamic Burst
         \li Emits particles in dynamic bursts. Use dynamic burst for
             emitters that are moving.
     \row
-        \li \inlineimage icons/emit-burst-16px.png
+        \li \imageemitburst16px
         \li Emit Burst
         \li Emits particles in bursts.
     \row
-        \li \inlineimage icons/emitter-16px.png
+        \li \imageemitter16px
         \li Emitter
         \li Emits logical particles.
     \row
-        \li \inlineimage icons/gravity-16px.png
+        \li \imagegravity16px
         \li Gravity
         \li Accelerates particles to a vector of the specified magnitude in the
             specified direction.
     \row
-        \li \inlineimage icons/line-particles-16px.png
+        \li \imagelineparticles16px
         \li Line Particle
         \li Creates line-shaped sprite particles.
     \row
-        \li \inlineimage icons/model-blend-particle-16px.png
+        \li \imagemodelblendparticle16px
         \li Model Blend Particle
         \li Blends a particle effect with an instance of a \uicontrol Model
             component.
     \row
-        \li \inlineimage icons/model-particle-16px.png
+        \li \imagemodelparticle16px
         \li Model Particle
         \li Creates a particle that uses an instance of a \uicontrol Model
             component.
     \row
-        \li \inlineimage icons/model-shape-16px.png
+        \li \imagemodelshape16px
         \li Model Shape
         \li Provides 3D shapes from a model to emitters and affectors.
     \row
-        \li \inlineimage icons/particle-shape-16px.png
+        \li \imageparticleshape16px
         \li Particle Shape
         \li Provides 3D shapes to emitters and affectors.
     \row
-        \li \inlineimage icons/particle-system-16px.png
+        \li \imageparticlesystem16px
         \li Particle System
         \li Creates a particle system that includes particle, emitter, and
             affector components.
     \row
-        \li \inlineimage icons/point-rotator-16px.png
+        \li \imagepointrotator16px
         \li Point Rotator
         \li Rotates particles around a pivot point.
     \row
-        \li \inlineimage icons/repeller-16px.png
+        \li \imagerepeller16px
         \li Repeller
         \li Repels particles from its location.
     \row
-        \li \inlineimage icons/scale-affector-16px.png
+        \li \imagescaleaffector16px
         \li Scale Affector
         \li Scales particles based on the particles' lifetime and other
         parameters.
     \row
-        \li \inlineimage icons/sprite-particle-16px.png
+        \li \imagespriteparticle16px
         \li Sprite Particle
         \li Creates particles that use a 2D sprite texture.
     \row
-        \li \inlineimage icons/sprite-sequence-16px.png
+        \li \imagespritesequence16px
         \li Sprite Sequence
         \li Provides image sequence features for \uicontrol {Sprite Particle}
             component instances.
     \row
-        \li \inlineimage icons/target-direction-16px.png
+        \li \imagetargetdirection16px
         \li Target Direction
         \li Specifies a direction towards the target position.
     \row
-        \li \inlineimage icons/trail-emitter-16px.png
+        \li \imagetrailemitter16px
         \li Trail Emitter
         \li Emits logical particles from other particles.
     \row
-        \li \inlineimage icons/vector-direction-16px.png
+        \li \imagevectordirection16px
         \li Vector Direction
         \li Specifies a direction towards the target direction.
     \row
-        \li \inlineimage icons/wander-16px.png
+        \li \imagewander16px
         \li Wander
         \li Applies random wave curves to particles.
     \endtable
 
-    \section1 Particle Templates
+    \section1 Particle templates
 
     A particle template is a preset of particle components that you can use to
     create specific particle effects in a convenient way.
@@ -276,7 +276,7 @@
       \endlist
     \endtable
 
-    \section1 Particle Effects
+    \section1 Particle effects
 
     A particle effect is a ready-made effect that you can use to create, for
     example, fire, rain, or mist in a convenient way.
@@ -313,7 +313,7 @@
 
     \image studio-3d-particles-sprite-template.png
 
-    \section1 Performance Considerations
+    \section1 Performance considerations
 
     The particles are designed to be usable on a variety of hardware on
     desktops, as well as mobile and embedded devices. However, in addition
@@ -339,11 +339,11 @@
 
     \youtube 9MqUCP6JLCQ
 
-    \section1 Particle System Tutorials
+    \section1 Particle System tutorials
 
     \list
-      \li \l{Particle System: Fire Effect}
-      \li \l{Particle System: Rain and Snow Effect}
+      \li \l{Particle System: The fire effect}
+      \li \l{Particle System: The rain and the snow effects}
     \endlist
 */
 
@@ -409,7 +409,7 @@
     \previouspage studio-3d-particle-system.html
     \nextpage studio-3d-particle-emitters.html
 
-    \title Logical Particles
+    \title Logical particles
 
     All the particle system components act on \e {logical particles}. Each
     particle has a logical representation within the particle system, and this
@@ -422,9 +422,9 @@
     \list
       \li \uicontrol {Sprite Particle} and \uicontrol{Line Particle} for
       \l{Textures}{2D texture} particles.
-      \li \uicontrol {Model Particle} for \l{3D Models}{3D model} particles.
-      Model particles use \l{Instanced Rendering}{instanced rendering} to render
-      thousands of particles, with full \l{3D Materials}{materials} and
+      \li \uicontrol {Model Particle} for \l{3D models}{3D model} particles.
+      Model particles use \l{Instanced rendering}{instanced rendering} to render
+      thousands of particles, with full \l{3D materials}{materials} and
       \l{Lights}{lights} support.
     \endlist
 
@@ -714,7 +714,7 @@
     \previouspage studio-3d-logical-particles.html
     \nextpage studio-3d-particle-affectors.html
 
-    \title Particle Emitters
+    \title Particle emitters
 
     The \uicontrol {Particle Emitter} component emits logical particles into
     the system. You can determine how individual particles will look like and
@@ -766,7 +766,7 @@
 
     In \uicontrol Velocity, set a starting velocity for emitted particles.
     If velocity is not set, particles start motionless, and velocity is
-    determined by \l{Particle Affectors}{particle affectors}.
+    determined by \l{Particle affectors}{Particle affectors}.
 
     Use \uicontrol Enabled to turn an emitter on or off. Usually, this property
     is used in code to conditionally turn emitters on and off. To continue
@@ -903,7 +903,7 @@
     \previouspage studio-3d-particle-emitters.html
     \nextpage studio-3d-particle-directions.html
 
-    \title Particle Affectors
+    \title Particle affectors
 
     Affectors are an optional component of a particle system. They can perform
     a variety of manipulations to the simulation, such as altering the
@@ -1050,7 +1050,7 @@
     milliseconds.
 
     \uicontrol {Easing Curve} defines the
-    \l{Editing Easing Curves}{easing curve} for the scaling animation.
+    \l{Editing easing curves}{easing curve} for the scaling animation.
 
     \section1 Wander
 
@@ -1118,7 +1118,7 @@
 
     \section1 Particle Affector
 
-    Specify common settings for particle affectors in \uicontrol Properties >
+    Specify common settings for Particle affectors in \uicontrol Properties >
     \l {Particle Affector}.
 
     \image studio-3d-properties-particle-affector.png "Affector properties"
@@ -1128,7 +1128,7 @@
     \uicontrol System.
 
     To only affect some of the particles in the particle system, select
-    them in \uicontrol Particles. Select \inlineimage icons/plus.png
+    them in \uicontrol Particles. Select \imageplus
     to add logical particles to the list.
 
     Deselect \uicontrol Enabled to turn the affector off. Usually, this
@@ -1140,7 +1140,7 @@
     \previouspage studio-3d-particle-affectors.html
     \nextpage quick-component-instances.html
 
-    \title Particle Directions
+    \title Particle directions
 
     Directions can be specified by specifying the emitted particle velocity
     towards either the target position or the target vector.

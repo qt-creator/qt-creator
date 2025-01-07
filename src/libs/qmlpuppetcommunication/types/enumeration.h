@@ -29,7 +29,7 @@ public:
         : m_enumerationName{text, static_cast<qsizetype>(std::strlen(text))}
     {}
 
-    Enumeration(const QString &enumerationName)
+    Enumeration(QStringView enumerationName)
         : m_enumerationName(enumerationName.toUtf8())
     {}
 

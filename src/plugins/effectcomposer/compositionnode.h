@@ -7,20 +7,24 @@
 
 #include <utils/uniqueobjectptr.h>
 
+#include <memory>
+
 #include <QJsonObject>
 #include <QObject>
 
 namespace EffectComposer {
 
 class EffectShadersCodeEditor;
+struct ShaderEditorData;
 
 class CompositionNode : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString nodeName MEMBER m_name CONSTANT)
+    Q_PROPERTY(QString nodeName READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(bool nodeEnabled READ isEnabled WRITE setIsEnabled NOTIFY isEnabledChanged)
     Q_PROPERTY(bool isDependency READ isDependency NOTIFY isDepencyChanged)
+    Q_PROPERTY(bool isCustom READ isCustom CONSTANT)
     Q_PROPERTY(QObject *nodeUniformsModel READ uniformsModel NOTIFY uniformsModelChanged)
     Q_PROPERTY(
         QString fragmentCode
@@ -54,8 +58,10 @@ public:
     void setIsEnabled(bool newIsEnabled);
 
     bool isDependency() const;
+    bool isCustom() const;
 
     QString name() const;
+    void setName(const QString &name);
 
     QList<Uniform *> uniforms() const;
 
@@ -68,7 +74,12 @@ public:
     void setFragmentCode(const QString &fragmentCode);
     void setVertexCode(const QString &vertexCode);
 
-    void openShadersCodeEditor();
+    void markAsSaved();
+
+    void openCodeEditor();
+    void addUniform(const QVariantMap &data);
+    void updateUniform(int index, const QVariantMap &data);
+    void updateAreUniformsInUse(bool force = false);
 
 signals:
     void uniformsModelChanged();
@@ -77,10 +88,14 @@ signals:
     void rebakeRequested();
     void fragmentCodeChanged();
     void vertexCodeChanged();
+    void nameChanged();
+
+private slots:
+    void onUniformRenamed(const QString &oldName, const QString &newName);
 
 private:
     void parse(const QString &effectName, const QString &qenPath, const QJsonObject &json);
-    void ensureShadersCodeEditor();
+    void ensureCodeEditorData();
     void requestRebakeIfLiveUpdateMode();
 
     QString m_name;
@@ -91,13 +106,13 @@ private:
     QStringList m_requiredNodes;
     QString m_id;
     bool m_isEnabled = true;
+    bool m_isCustom = false;
     int m_refCount = 0;
     int m_extraMargin = 0;
+    bool m_InUseCheckNeeded = false;
 
-    QList<Uniform *> m_uniforms;
-
-    EffectComposerUniformsModel m_unifomrsModel;
-    Utils::UniqueObjectLatePtr<EffectShadersCodeEditor> m_shadersCodeEditor;
+    EffectComposerUniformsModel m_uniformsModel;
+    std::unique_ptr<ShaderEditorData> m_shaderEditorData;
 };
 
 } // namespace EffectComposer

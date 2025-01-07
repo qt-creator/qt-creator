@@ -54,7 +54,7 @@
     To jump from one issue to the next or previous
     one, select \inlineimage icons/arrowup.png
     and \inlineimage icons/arrowdown.png
-    or press \key F6 and \key Shift+F6.
+    or select \key F6 and \key Shift+F6.
 
     By default, a new build clears the \uicontrol Issues view. To keep
     the issues from the previous build rounds, deselect \preferences >

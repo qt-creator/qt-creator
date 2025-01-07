@@ -84,7 +84,7 @@
 
     \list 1
         \li Right-click a class in the code editor.
-        \li Select \uicontrol {Open Type Hierarchy} or press \key {Ctrl+Shift+T}.
+        \li Select \uicontrol {Open Type Hierarchy} or select \key {Ctrl+Shift+T}.
     \endlist
 
     \image qtcreator-type-hierarchy-view.png {Type Hierarchy view}
@@ -118,7 +118,7 @@
     \list 1
         \li Right-click a file in the editor.
         \li Select \uicontrol {Open Include Hierarchy}
-            or press \key {Ctrl+Shift+I}.
+            or select \key {Ctrl+Shift+I}.
     \endlist
 
     \image qtcreator-include-hierarchy-view.png {Include Hierarchy view}

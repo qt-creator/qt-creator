@@ -6,20 +6,20 @@
     \previouspage studio-implementing-applications.html
     \nextpage studio-debugging.html
 
-    \title Designer-Developer Workflow
+    \title Designer-developer workflow
 
     \note In this section, you are using advanced menu items. These are not
     visible by default. To toggle the visibility of advanced menu items, see
     \l{Customizing the Menu Bar}.
 
     \QDS enables designers and developers to work together on common
-    projects to develop applications. Designers use the \l{Design Views}{views}
-    in the \uicontrol Design mode to modify \l{UI Files}{UI files} (\e .ui.qml),
+    projects to develop applications. Designers use the \l{Design views}{views}
+    in the \uicontrol Design mode to modify \l{UI files} (\e .ui.qml),
     whereas developers use Qt Creator to work on the Qt Quick (\e .qml) and
     other files that are needed to implement the application logic and to
     prepare the application for production.
 
-    \QDS \l{Creating Projects}{projects} come with boilerplate code for a
+    \QDS \l{Creating projects}{projects} come with boilerplate code for a
     working Qt 6 application that you can build and run in Qt Creator using
     CMake. Therefore, you can open, build, and run the projects with Qt Creator.
 
@@ -32,20 +32,19 @@
     \e {main.py}. Use this file to start the development in Python for the UI
     made with \QDS.
 
-    \section1 Exporting a \QDS Project for C++ Development
+    \section1 Exporting a \QDS project for C++ development
 
-        To export a \QDS project for Qt Creator, you need:
-
+        Before you export a \QDS project for Qt Creator, install the following:
         \list
             \li Qt Creator 13.0 or above.
             \li \QDS 4.5 or above.
-            \li Git.
-
-            \note Learn more about getting Git \l {https://wiki.qt.io/Git_Installation} {here}.
+            \li Git. To learn more about installing Git,
+            see \l {https://wiki.qt.io/Git_Installation}.
         \endlist
 
+        To export a \QDS project for Qt Creator:
         \list 1
-            \li \l {Creating a Project} {Create} or open your \QDS project with \QDS 4.5 or above.
+            \li \l {Creating a project} {Create} or open your \QDS project with \QDS 4.5 or above.
 
                 \note If you are creating a new project in \QDS, select the
                     \uicontrol {Target Qt Version} that is not higher than the Qt version
@@ -62,9 +61,9 @@
             \image studio-project-export-cmake.webp "Exporting Qt Design Studio project to CMake"
         \endlist
 
-    \section1 Opening the \QDS Project in Qt Creator
+    \section1 Opening the \QDS project in Qt Creator
 
-        Open the \e {CMakeLists.txt} file in Qt Creator. To open:
+        Open the \e {CMakeLists.txt} file in Qt Creator:
 
         \list 1
             \li In Qt Creator, select \uicontrol File > \uicontrol {Open File or Project}.
@@ -94,7 +93,52 @@
         All the import assets are now bundled in the same folder, so the CMake
         generation works properly.
 
-    \section1 Exporting a \QDS Project for Python Development
+    \section1 CMake Generator
+        \details {FAQ}
+
+        Learn how the CMake generator works.
+
+        \section2 What does the CMake Generator convert?
+            The CMake Generator converts the contents of the \e .qmlproject file
+            to CMake.
+            \note A \QDS project can run with a missing path or file filter.
+                However, CMake generation can fail due to missing elements in the
+                \e .qmlproject file.
+
+        \section2 Which changes are tracked by the CMake Generator?
+            All the files that are listed in \e .qmlproject are tracked by the
+            CMake Generator. Editing the \e .qmlproject file triggers a CMake
+            generation. Adding, removing, and renaming files are tracked.
+
+        \section2 Why do you need Stubb or Mock QML data for \QDS?
+            \QDS doesn't understand C++ code, so the CMake Generator ignores any
+            components or properties made with C++. If you want a similar
+            representation in \QDS for the components or properties created with
+            C++, add a QML mock file for \QDS. Keep these mock files in a dedicated
+            folder within your project folder. You can later add a \c mockImports
+            variable within the \e .qmlproject file and include the folder path
+            with mock files in the \c mockImports variable. CMake ignores all folders
+            and files included in the \c mockImports variable. So they only stay in the
+            \QDS space and are not converted with CMake Generator.
+
+            Example:
+            \code
+                mockImports: [ "MockDatas" ]
+            \endcode
+            Here, MockDatas is a folder in your project folder with all the files
+            with QML mock data. If you include this code in the \e .qmlproject file,
+            the CMake Generator ignores everything inside the MockDatas folder.
+
+        \section2 Is it possible to manually change the contents of the \e CMakeLists.txt files?
+            Yes, you can make changes to the \e CMakeLists.txt files existing in the
+            App and the Root folders of your project. The \e CMakeLists.txt files
+            in other folders of your project are overwritten as soon as the
+            CMake generator runs next time. Only the \e CMakeLists.txt files in
+            the App and the Root folders of your project are not overwritten.
+
+    \enddetails
+
+    \section1 Exporting a \QDS project for Python development
 
         \list 1
             \li \l {Creating a Project} {Create} a project with \QDS 4.5 or above.
@@ -116,7 +160,7 @@
             \image studio-project-export-python.webp "Exporting Qt Design Studio project to Python"
         \endlist
 
-    \section1 Opening the \QDS Project with Python
+    \section1 Opening the \QDS project with Python
 
         After your project have the Python folder and the \e {main.py} file
         available, you can start setting up your Python environment for developing
@@ -124,22 +168,22 @@
 
         \table
             \row
-                \li {2,1} \image studio-project-export-python-folder.webp "The generated Python folder in the Qt Design Studio project"
-                \li {2,2} \image studio-project-export-python-file.webp "The generated Python file in the Qt Design Studio project"
+                \li \image studio-project-export-python-folder.webp "The generated Python folder in the Qt Design Studio project"
+                \li \image studio-project-export-python-file.webp "The generated Python file in the Qt Design Studio project"
         \endtable
         \list 1
-            \li If you don't have Python installed on your computer, install it.
+            \li Install Python.
                 The latest version of Python is available
                 \l {https://www.python.org/downloads/} {here}.
 
-            \li Next, follow the steps from this document to
+            \li Follow the steps from this document to
                 \l {https://doc.qt.io/qtforpython-6/quickstart.html} {install PySide6}.
                 You need this for working with Qt in Python.
 
                 \note You need Python version between 3.8 and 3.13 to install
                     PySide6.
 
-            \li After installing PySide6, install \QDS packages for PySide6. Stay
+            \li Install the \QDS packages for PySide6. Stay
                 in the virtual environment that was accessed for installing
                 PySide6. From there, execute the command in the command prompt.
                 \code
@@ -148,17 +192,25 @@
 
             \li Go to your project folder in the command prompt.
                 \code
-                    cd path/to/your/project/folder
+                    cd <path/to/your/project/folder>
                 \endcode
 
-            \li Finally, run the command below in the command prompt to open the
+            \li Run the command below in the command prompt to open the
                 \e {main.py} file from your project.
                 \code
                     python Python\main.py
                 \endcode
+
+                \note Any extra data or Python files you add to the project and,
+                    import from \e {main.py} must remain inside the \c {Python} folder.
         \endlist
 
         Your \QDS project now runs in Python. Use Python to add more
         functionalities to the project. Go to \l {Qt for Python} to learn more
         about developing Qt projects using Python.
+
+    \section1 Converting \QDS projects to applications
+
+        \include qtquick-converting-ui-projects-to-applications.qdocinc {converting-ui-projects-to-applications} {\QDS}
+
 */

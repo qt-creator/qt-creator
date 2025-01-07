@@ -413,11 +413,11 @@ void ModelTest::data()
     // General Purpose roles that should return a QColor
     QVariant colorVariant = model->data(model->index(0, 0), Qt::BackgroundRole);
     if (colorVariant.isValid())
-        Q_ASSERT(colorVariant.canConvert(QVariant::Color));
+        Q_ASSERT(colorVariant.canConvert(QMetaType::QColor));
 
     colorVariant = model->data(model->index(0, 0), Qt::ForegroundRole);
     if (colorVariant.isValid())
-        Q_ASSERT(colorVariant.canConvert(QVariant::Color));
+        Q_ASSERT(colorVariant.canConvert(QMetaType::QColor));
 
     // Check that the "check state" is one we know about.
     QVariant checkStateVariant = model->data(model->index(0, 0), Qt::CheckStateRole);

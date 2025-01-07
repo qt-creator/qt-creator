@@ -4,13 +4,15 @@
 import QtQuick
 import QtQuick.Layouts
 import HelperWidgets as HelperWidgets
-import StudioControls as StudioControls
 import StudioTheme as StudioTheme
-import EffectComposerBackend
 
 RowLayout {
+    id: root
+
     width: parent.width
     spacing: 0
+
+    signal valueChanged()
 
     HelperWidgets.DoubleSpinBox {
         id: vX
@@ -30,7 +32,10 @@ RowLayout {
         value: uniformValue.x
         stepSize: .01
         decimals: 2
-        onValueModified: uniformValue.x = value
+        onValueModified: {
+            uniformValue.x = value
+            root.valueChanged()
+        }
     }
 
     Item { // spacer
@@ -70,7 +75,10 @@ RowLayout {
         value: uniformValue.y
         stepSize: .01
         decimals: 2
-        onValueModified: uniformValue.y = value
+        onValueModified: {
+            uniformValue.y = value
+            root.valueChanged()
+        }
     }
 
     Item { // spacer
@@ -110,7 +118,10 @@ RowLayout {
         value: uniformValue.z
         stepSize: .01
         decimals: 2
-        onValueModified: uniformValue.z = value
+        onValueModified: {
+            uniformValue.z = value
+            root.valueChanged()
+        }
     }
 
     Item { // spacer
@@ -150,7 +161,10 @@ RowLayout {
         value: uniformValue.w
         stepSize: .01
         decimals: 2
-        onValueModified: uniformValue.w = value
+        onValueModified: {
+            uniformValue.w = value
+            root.valueChanged()
+        }
     }
 
     Item { // spacer

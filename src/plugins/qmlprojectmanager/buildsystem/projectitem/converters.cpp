@@ -60,6 +60,13 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
         appendItem(key, QString::fromStdString(val ? "true" : "false"), false);
     };
 
+    auto appendBoolOpt = [&appendBool](const QString &key, const QJsonObject &source) {
+        if (!source.keys().contains(key)) {
+            return;
+        }
+        appendBool(key, source[key].toBool());
+    };
+
     auto appendStringArray = [&appendItem](const QString &key, const QStringList &vals) {
         if (vals.isEmpty())
             return;
@@ -143,8 +150,9 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
         appendString("mainFile", runConfig["mainFile"].toString());
         appendString("mainUiFile", runConfig["mainUiFile"].toString());
         appendString("targetDirectory", deploymentConfig["targetDirectory"].toString());
-        appendBool("enableCMakeGeneration", deploymentConfig["enableCMakeGeneration"].toBool());
-        appendBool("enablePythonGeneration", deploymentConfig["enablePythonGeneration"].toBool());
+        appendBoolOpt("enableCMakeGeneration", deploymentConfig);
+        appendBoolOpt("enablePythonGeneration", deploymentConfig);
+        appendBoolOpt("standaloneApp", deploymentConfig);
         appendBool("widgetApp", runConfig["widgetApp"].toBool());
         appendStringArray("importPaths", rootObject["importPaths"].toVariant().toStringList());
         appendStringArray("mockImports", rootObject["mockImports"].toVariant().toStringList());
@@ -399,8 +407,9 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
                    || propName.contains("forcefreetype", Qt::CaseInsensitive)) {
             currentObj = &runConfigObject;
         } else if (propName.contains("targetdirectory", Qt::CaseInsensitive)
-                || propName.contains("enableCMakeGeneration", Qt::CaseInsensitive)
-                || propName.contains("enablePythonGeneration", Qt::CaseInsensitive)) {
+                   || propName.contains("enableCMakeGeneration", Qt::CaseInsensitive)
+                   || propName.contains("enablePythonGeneration", Qt::CaseInsensitive)
+                   || propName.contains("standaloneApp", Qt::CaseInsensitive)) {
             currentObj = &deploymentObject;
         } else if (propName.contains("qtformcus", Qt::CaseInsensitive)) {
             qtForMCUs = value.toBool();
@@ -519,6 +528,16 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
             shaderToolObject.insert("files", childNode->property("files").value.toJsonValue());
         } else if (childNode->name().contains("config", Qt::CaseInsensitive)) {
             mcuConfigObject = nodeToJsonObject(childNode);
+            if (const auto fileSelector = childNode->property("fileSelector"); fileSelector.isValid()) {
+                auto currentSelectors = runConfigObject.value("fileSelectors").toArray();
+                const auto mcuSelectors = fileSelector.value.toJsonArray();
+                for (const auto &elem : mcuSelectors) {
+                    if (!currentSelectors.contains(elem)) {
+                        currentSelectors.append(elem);
+                    }
+                }
+                runConfigObject.insert("fileSelectors", currentSelectors);
+            }
         } else if (childNode->name().contains("module", Qt::CaseInsensitive)) {
             mcuModuleObject = nodeToJsonObject(childNode);
         } else {
@@ -530,6 +549,7 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
     QStringList qmlProjectDependencies;
     qmlProjectDependencies.append(qmlprojectsFromImportPaths(importPaths, projectRootPath));
     qmlProjectDependencies.append(qmlprojectsFromFilesNodes(fileGroupsObject, projectRootPath));
+    qmlProjectDependencies.removeDuplicates();
     qmlProjectDependencies.sort();
     rootObject.insert("qmlprojectDependencies", QJsonArray::fromStringList(qmlProjectDependencies));
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -12,7 +12,7 @@
     \uicontrol Node component in \uicontrol Properties > \uicontrol Node
     and \uicontrol Transform.
 
-    \section1 Setting Node Opacity and Visibility
+    \section1 Setting the Node opacity and visibility
 
     You can set the opacity and visibility of 3D components that are based on
     the \uicontrol Node component in \uicontrol Properties > \uicontrol Node.
@@ -36,7 +36,7 @@
 
     The \uicontrol {Static flags} property is currently not used.
 
-    \section1 Managing 3D Transformations
+    \section1 Managing 3D transformations
 
     You can manage 3D transformations for components that are based on the
     \uicontrol Node component in \uicontrol Transform.

@@ -54,7 +54,7 @@ protected:
     virtual QWidget *createWidget(QWidget *parent) override;
 
 private:
-    bool m_indicator;
+    bool m_indicator = false;
 
 signals:
     void indicatorChanged(bool, QPrivateSignal);

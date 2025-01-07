@@ -3,6 +3,8 @@
 
 #include <resourcegenerator.h>
 
+#include <qmldesignertr.h>
+
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/messagebox.h>
@@ -34,8 +36,7 @@ void generateMenuEntry(QObject *parent)
 {
     const Core::Context projectContext(QmlProjectManager::Constants::QML_PROJECT_ID);
     // ToDo: move this to QtCreator and add tr to the string then
-    auto action = new QAction(QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                                          "Generate QRC Resource File..."),
+    auto action = new QAction(Tr::tr("QmlDesigner::GenerateResource", "Generate QRC Resource File..."),
                               parent);
     action->setEnabled(ProjectExplorer::ProjectManager::startupProject() != nullptr);
     // todo make it more intelligent when it gets enabled
@@ -52,9 +53,9 @@ void generateMenuEntry(QObject *parent)
         QTC_ASSERT(project, return);
         const FilePath projectPath = project->projectFilePath().parentDir();
         auto qrcFilePath = Core::DocumentManager::getSaveFileNameWithExtension(
-            QCoreApplication::translate("QmlDesigner::GenerateResource", "Save Project as QRC File"),
+            Tr::tr("QmlDesigner::GenerateResource", "Save Project as QRC File"),
             projectPath.pathAppended(project->displayName() + ".qrc"),
-            QCoreApplication::translate("QmlDesigner::GenerateResource", "QML Resource File (*.qrc)"));
+            Tr::tr("QmlDesigner::GenerateResource", "QML Resource File (*.qrc)"));
 
         if (qrcFilePath.toString().isEmpty())
             return;
@@ -62,15 +63,14 @@ void generateMenuEntry(QObject *parent)
         createQrcFile(qrcFilePath);
 
         Core::AsynchronousMessageBox::information(
-            QCoreApplication::translate("QmlDesigner::GenerateResource", "Success"),
-            QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                        "Successfully generated QRC resource file\n %1")
+            Tr::tr("QmlDesigner::GenerateResource", "Success"),
+            Tr::tr("QmlDesigner::GenerateResource", "Successfully generated QRC resource file\n %1")
                 .arg(qrcFilePath.toString()));
     });
 
     // ToDo: move this to QtCreator and add tr to the string then
-    auto rccAction = new QAction(QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                                             "Generate Deployable Package..."),
+    auto rccAction = new QAction(Tr::tr("QmlDesigner::GenerateResource",
+                                        "Generate Deployable Package..."),
                                  parent);
     rccAction->setEnabled(ProjectExplorer::ProjectManager::startupProject() != nullptr);
     QObject::connect(ProjectExplorer::ProjectManager::instance(),
@@ -86,7 +86,7 @@ void generateMenuEntry(QObject *parent)
         QTC_ASSERT(project, return);
         const FilePath projectPath = project->projectFilePath().parentDir();
         const FilePath qmlrcFilePath = Core::DocumentManager::getSaveFileNameWithExtension(
-            QCoreApplication::translate("QmlDesigner::GenerateResource", "Save Project as Resource"),
+            Tr::tr("QmlDesigner::GenerateResource", "Save Project as Resource"),
             projectPath.pathAppended(project->displayName() + ".qmlrc"),
             "QML Resource File (*.qmlrc);;Resource File (*.rcc)");
 
@@ -94,9 +94,8 @@ void generateMenuEntry(QObject *parent)
             return;
 
         QProgressDialog progress;
-        progress.setLabelText(
-            QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                        "Generating deployable package. Please wait..."));
+        progress.setLabelText(Tr::tr("QmlDesigner::GenerateResource",
+                                     "Generating deployable package. Please wait..."));
         progress.setRange(0, 0);
         progress.setWindowModality(Qt::WindowModal);
         progress.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
@@ -118,23 +117,20 @@ void generateMenuEntry(QObject *parent)
 
         if (!future.result()) {
             Core::MessageManager::writeDisrupting(
-                QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                            "Failed to generate deployable package!"));
+                Tr::tr("QmlDesigner::GenerateResource", "Failed to generate deployable package!"));
             QMessageBox msgBox;
-            msgBox.setWindowTitle(
-                QCoreApplication::translate("QmlDesigner::GenerateResource", "Error"));
-            msgBox.setText(QCoreApplication::translate(
-                "QmlDesigner::GenerateResource",
-                "Failed to generate deployable package!\n\nPlease check "
-                "the output pane for more information."));
+            msgBox.setWindowTitle(Tr::tr("QmlDesigner::GenerateResource", "Error"));
+            msgBox.setText(Tr::tr("QmlDesigner::GenerateResource",
+                                  "Failed to generate deployable package!\n\nPlease check "
+                                  "the output pane for more information."));
             msgBox.exec();
             return;
         }
 
         QMessageBox msgBox;
-        msgBox.setWindowTitle(QCoreApplication::translate("QmlDesigner::GenerateResource", "Success"));
-        msgBox.setText(QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                                   "Successfully generated deployable package"));
+        msgBox.setWindowTitle(Tr::tr("QmlDesigner::GenerateResource", "Success"));
+        msgBox.setText(
+            Tr::tr("QmlDesigner::GenerateResource", "Successfully generated deployable package"));
         msgBox.exec();
     });
 
@@ -193,12 +189,15 @@ bool createQmlrcFile(const FilePath &qmlrcFilePath)
     const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     const QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(
         project->activeTarget()->kit());
+    QTC_ASSERT(qtVersion, return false);
+
     const FilePath rccBinary = qtVersion->rccFilePath();
 
     Utils::Process rccProcess;
     rccProcess.setWorkingDirectory(project->projectDirectory());
 
     const QStringList arguments = {"--binary",
+                                   "--no-zstd",
                                    "--compress",
                                    "9",
                                    "--threshold",
@@ -211,8 +210,7 @@ bool createQmlrcFile(const FilePath &qmlrcFilePath)
     rccProcess.start();
     if (!rccProcess.waitForStarted()) {
         Core::MessageManager::writeDisrupting(
-            QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                        "Unable to generate resource file: %1")
+            Tr::tr("QmlDesigner::GenerateResource", "Unable to generate resource file: %1")
                 .arg(qmlrcFilePath.toString()));
         return false;
     }
@@ -222,8 +220,7 @@ bool createQmlrcFile(const FilePath &qmlrcFilePath)
     if (!rccProcess.readDataFromProcess(&stdOut, &stdErr)) {
         rccProcess.stop();
         Core::MessageManager::writeDisrupting(
-            QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                        "A timeout occurred running \"%1\".")
+            Tr::tr("QmlDesigner::GenerateResource", "A timeout occurred running \"%1\".")
                 .arg(rccProcess.commandLine().toUserOutput()));
         return false;
     }
@@ -235,14 +232,13 @@ bool createQmlrcFile(const FilePath &qmlrcFilePath)
         Core::MessageManager::writeFlashing(QString::fromLocal8Bit(stdErr));
 
     if (rccProcess.exitStatus() != QProcess::NormalExit) {
-        Core::MessageManager::writeDisrupting(
-            QCoreApplication::translate("QmlDesigner::GenerateResource", "\"%1\" crashed.")
-                .arg(rccProcess.commandLine().toUserOutput()));
+        Core::MessageManager::writeDisrupting(Tr::tr("QmlDesigner::GenerateResource", "\"%1\" crashed.")
+                                                  .arg(rccProcess.commandLine().toUserOutput()));
         return false;
     }
     if (rccProcess.exitCode() != 0) {
         Core::MessageManager::writeDisrupting(
-            QCoreApplication::translate("QmlDesigner::GenerateResource", "\"%1\" failed (exit code %2).")
+            Tr::tr("QmlDesigner::GenerateResource", "\"%1\" failed (exit code %2).")
                 .arg(rccProcess.commandLine().toUserOutput())
                 .arg(rccProcess.exitCode()));
         return false;

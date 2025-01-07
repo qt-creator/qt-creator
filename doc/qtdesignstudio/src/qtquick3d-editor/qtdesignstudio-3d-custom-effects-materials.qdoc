@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,192 +6,157 @@
     \previouspage studio-3d-custom-shaders.html
     \nextpage studio-3d-lights.html
 
-    \title Custom Effects and Materials
+    \title Custom effects and materials in Qt 5
 
-    The \l{3D Effects}{Qt Quick 3D Effects} and \l{3D Materials}
-    {Qt Quick 3D Materials} modules contain a set of ready-made effects and
-    materials that you can apply to 3D models. If the ready-made effects and
-    materials don't meet your needs, you can create custom effects and
-    materials. Each effect or material must have a fragment shader that
-    implements all the functions needed to calculate the shaded color. The
-    material system also offers ready-made functions to help you implement
-    the material. If the 3D effects and materials are not displayed in
-    \l Components, you should add the \uicontrol QtQuick3D.Effects and
-    \uicontrol QtQuick3D.Materials modules to your project, as described in
-    \l {Adding and Removing Modules}.
+    Use custom shader utilities to create custom effects in previous \QDS
+    versions built with \uicontrol {Qt 5} and \uicontrol {Qt 5.15}.
 
-    The material system supports dielectric, metallic, and transparent
-    materials, point lights, area lights, ambient occlusion, shadowing,
-    two-sided polygons, index-of-refraction, and fragment cutoff (masking).
-    For more information, see \l {Qt Quick 3D Custom Material Reference}.
+    \note To learn how to use and create effects in \QDS projects built
+    with \uicontrol {Qt 6} as \uicontrol {Target Qt Version}, see \l Effects.
 
-    Use the components in \uicontrol Components >
-    \uicontrol QtQuick3D > \uicontrol {Qt Quick 3D Custom Shader Utils} to
-    create custom effects and materials. You can find the \uicontrol Effect
-    component in \uicontrol Components > \uicontrol {QtQuick3D Effects} > \uicontrol
-    {Qt Quick 3D Custom Shader Utils}, and the \uicontrol {Custom Material}
-    component in \uicontrol Components> \uicontrol {QtQuick3D Materials} >
-    \uicontrol {Qt Quick 3D Custom Shader Utils}. For more information about the
-    shader utilities and commands and their properties, see
-    \l {Custom Shaders}.
+     \section1 Creating custom effects and materials
 
-    \note You must create the actual shader source files with some other tool
-    and copy them to your project folder. You can then specify the source file
-    names in the custom effect or material properties. To use custom \e uniforms
-    in the shader files, you must specify them as QML properties for the custom
-    effect or material component. \QDS automatically generates the uniforms for
-    the shaders based on the property values.
+    Create custom effects and materials using the \l{Custom shaders in Qt 5}
+    {custom shader utilities} available in \uicontrol Components >
+    \uicontrol {Qt Quick 3D Custom Shader Utilities}. Each effect or material
+    must have a fragment shader that completes all the functions needed to calculate
+    the shaded color. The material system also offers ready-made functions to help you
+    implement the material.
 
-    \section1 Creating Custom Effects
+    You can create dielectric, metallic, and transparent materials, point lights,
+    area lights, ambient occlusion, shadowing, two-sided polygons, index-of-refraction,
+    and fragment cutoff (masking). For more information, see
+    \l {Qt Quick 3D Custom Material Reference}.
 
-    By default, a custom effect component contains a Pass component and a Shader
-    component in the fragment stage. You can add passes, shaders, and other
-    shader utilities to the effect.
+    \section2 Creating custom effects
 
-    \image studio-qtquick-3d-custom-effect-navigator.png "Custom effect in Navigator"
+    \note Use the method described here to create custom effects in \QDS 4.0 or older
+    versions in projects created with \uicontrol {Qt 5} or \uicontrol {Qt 5.15} as
+    \uicontrol {Target Qt Version}.
 
-    The fragment shader component is created with a placeholder for the path
-    to the shader file. Specify the path to the shader file to use in the
-    shader properties.
+    By default, the custom effect component contains a \uicontrol Pass component
+    and a \uicontrol Shader component in the fragment stage. You can add passes,
+    shaders, and other shader utilities to the effect.
+
+    \image studio-qtquick-3d-custom-effect-navigator.webp "Custom effect in Navigator"
+
+    The fragment shader component has a placeholder for the path to the shader file.
+    You need to create shader files in code. For more information,
+    see \l {Creating Shader Files}. Specify the path to the shader file to use in the
+    \uicontrol Properties view.
 
     To create a custom effect:
 
     \list 1
-        \li Drag-and-drop an \uicontrol {Effect} component from the
-            \uicontrol {Qt Quick 3D Custom Shader Utils} tab of
-            \uicontrol Component to a Model component in \l Navigator.
-        \li Select the custom effect component in \uicontrol Navigator to edit
-            the values of its properties in the \l Properties view.
+        \li Drag an \uicontrol Effect component from \uicontrol Components
+            > \uicontrol {Qt Quick 3D Effects} >
+            \uicontrol {Qt Quick 3D Custom Shader Utilities} to a model
+            component in \l Navigator.
+        \li Select the \uicontrol Effect component in \uicontrol Navigator
+            to adjust the values of its properties in the \l Properties view.
             \image studio-qtquick-3d-custom-effect.png "Custom effect properties"
-        \li In the \uicontrol Passes field, select the pass components for
+        \li Use the \uicontrol Passes property to select the pass components for
             the effect.
-        \li Select the pass component in \uicontrol Navigator to specify values
-            for its properties in \uicontrol Properties.
+        \li Select the \uicontrol renderPass component in \uicontrol Navigator to
+            specify values for its properties in \uicontrol Properties.
             \image studio-qtquick-3d-pass.png "Pass properties"
-        \li To execute commands during the pass, drag-and-drop the following
-            command components from \uicontrol Component to the custom material in
-            \uicontrol Navigator: \uicontrol Blending, \uicontrol {Buffer Blit},
-            \uicontrol {Buffer Input}, \uicontrol {Cull Mode},
-            \uicontrol {Depth Input}, \uicontrol {Render State}, and
-            \uicontrol {Set Uniform Value}. Then select the commands in the
-            \uicontrol Commands field.
-        \li To allocate a buffer for the pass, drag-and-drop a \uicontrol Buffer
-            component to the custom material. Then select the buffer in the
-            \uicontrol Buffer field.
-        \li Select the shader component in \uicontrol Navigator to set the path
-            to the shader files in the \uicontrol Source field in
-            \uicontrol Properties.
-            \image studio-qtquick-3d-shader-properties.png "Shader properties"
+        \li To run commands during the pass, drag the following
+            command components from \uicontrol Components >
+            \uicontrol {Qt Quick 3D Custom Shader Utilities} to \uicontrol Effect
+            > \uicontrol renderPass in \uicontrol Navigator:
+            \list
+                \li \uicontrol Blending
+                \li \uicontrol Buffer
+                \li \uicontrol {Buffer Blit}
+                \li \uicontrol {Buffer Input}
+                \li \uicontrol {Cull Mode}
+                \li \uicontrol {Depth Input}
+                \li \uicontrol {Render State}
+                \li \uicontrol {Set Uniform Value}
+            \endlist
+        \li Select the \uicontrol fragShader component in \uicontrol Navigator >
+            \uicontrol Effect to set the path to the shader files using the
+            \uicontrol Source property in \uicontrol Properties.
+            \image studio-qtquick-3d-shader-properties.webp "Shader properties"
     \endlist
 
-    \section1 Creating Custom Materials
+    \section1 Creating custom materials
 
-    By default, a Custom Material component contains two Shader components, a
-    Shader Info component, and a Pass component. You can add shaders, passes,
-    and other shader utilities to the material.
+    \note Use the method described here to create custom materials in \QDS 3.4 or
+    older versions in projects created with \uicontrol {Qt 5} or \uicontrol {Qt 5.15}
+    as \uicontrol {Target Qt Version}.
+
+    By default, the \uicontrol {Custom Material} component contains two \uicontrol Shader
+    components, a \uicontrol {Shader Info}, and a \uicontrol Pass component. You can add
+    shaders, passes, and other shader utilities to the material.
 
     \image studio-qtquick-3d-custom-material-navigator.png "Custom material in Navigator"
 
-    By default, fragment and vertex shaders are created with placeholders for
-    the paths to the shader files. Specify the paths to the shader files to use
-    in the shader properties.
+    By default, fragment and vertex shaders have placeholders for the paths to the
+    shader files. Specify the paths to the shader files to use in the shader properties.
 
-    The Shader Info component specifies the shader component and version, as
-    well as the options used by the shader based on the selected shader key
+    The \uicontrol {Shader Info} component specifies the shader component and version,
+    as well as the options used by the shader based on the selected shader key
     values, such as diffuse or specular lighting, refraction, transparency,
     displacement, transmissiveness, glossiness, and alpha cutout.
 
-    The shaders are used with the Pass component to create the resulting
-    material. A pass can contain multiple rendering passes and other commands.
-    You can use a Buffer component to allocate a buffer for storing intermediate
+    Use shaders with the \uicontrol Pass component to customize the material.
+    A pass can contain multiple rendering passes and other commands. Use a
+    \uicontrol Buffer component to allocate a buffer for storing intermediate
     rendering results.
 
     To create a custom material:
 
     \list 1
-        \li Drag-and-drop a \uicontrol {Custom Material} component from the
-            \uicontrol {Qt Quick 3D Custom Shader Utils} tab of
-            \uicontrol Component to a Model component in \uicontrol Navigator.
-        \li Select the custom material component in \uicontrol Navigator to
-            edit the values of its properties in the \uicontrol Properties view.
+        \li Drag a \uicontrol {Custom Material} component from
+            \uicontrol Components > \uicontrol {Qt Quick 3D Custom Shader Utils}
+            to a model component in \uicontrol Navigator.
+        \li Select the \uicontrol {Custom Material} component in \uicontrol Navigator
+            to adjust the values of its properties in the \uicontrol Properties view.
             \image studio-qtquick-3d-custom-material.png "Custom material properties"
         \li Select the \uicontrol Transparency check box to make the material
-            transparent.
-        \li Select the \uicontrol Refraction check box to specify that the
+            transparent, and \uicontrol Refraction to specify that the
             material is \l{Using Highlights and Reflections}{reflective}.
-        \li Select the \uicontrol {Always dirty} check box to determine that
-            the material needs to be refreshed every time it is used.
+        \li Select the \uicontrol {Always dirty} check box to refresh the
+            the material every time it is used.
         \li In the \uicontrol {Shader Info} field, select the shader info
-            component to use.
-        \li In the \uicontrol Passes field, select the pass components for
-            the effect.
+            component to use, and in the \uicontrol Passes field, select the pass
+            components for the effect.
         \li In the \uicontrol Material group, select the
             \l{Using Highlights and Reflections}{light probe},
             \l{Simulating Geometry Displacement}{displacement map and amount},
             and \l{Culling Faces}{culling mode} to use.
-        \li Select the shader info component in \uicontrol Navigator to specify
-            values for its properties in \uicontrol Properties.
+        \li Select the \uicontrol shaderInfo component in \uicontrol Navigator
+            to adjust the values for its properties in \uicontrol Properties.
             \image studio-qtquick-3d-shader-info.png "Shader Info properties"
-        \li Select the pass component in \uicontrol Navigator to specify values
-            for its properties in \uicontrol Properties.
+        \li Select the \uicontrol renderPass component in \uicontrol Navigator
+            to adjust the values for its properties in \uicontrol Properties.
             \image studio-qtquick-3d-pass.png "Pass properties"
-        \li To execute commands during the pass, drag-and-drop the following
-            command components from \uicontrol Component to the pass component in
-            \uicontrol Navigator: \uicontrol Blending, \uicontrol {Buffer Blit},
-            \uicontrol {Buffer Input}, \uicontrol {Cull Mode},
-            \uicontrol {Depth Input}, \uicontrol {Render State}, and
-            \uicontrol {Set Uniform Value}. The command components are created
-            at the same level as the pass component and automatically added to
-            the \uicontrol Commands field.
-        \li To allocate a buffer for the pass, drag-and-drop a \uicontrol Buffer
-            component to the custom material. Then select the buffer in the
-            \uicontrol Buffer field.
-        \li To add a shader to the pass, drag-and-drop the \uicontrol Shader
-            component from the \uicontrol Component to the pass component in
-            \uicontrol Navigator. The shader components are created at the same
-            level as the pass component and automatically added to the
+        \li To execute commands during the pass, drag the following command
+            components from \uicontrol Components to the \uicontrol renderPass
+            component in \uicontrol Navigator:
+            \list
+                \li \uicontrol Blending
+                \li \uicontrol {Buffer Blit}
+                \li \uicontrol {Buffer Input}
+                \li \uicontrol {Cull Mode},
+                \li \uicontrol {Depth Input}
+                \li \uicontrol {Render State}
+                \li \uicontrol {Set Uniform Value}
+            \endlist
+            \QDS creates the command components at the same level as the pass component
+            and automatically adds them to the \uicontrol Commands field.
+        \li To allocate a buffer for the pass, drag a \uicontrol Buffer
+            component to the \uicontrol {Custom Material} component. Then select
+            the buffer in the \uicontrol Buffer field.
+        \li To add a shader to a pass, drag a \uicontrol Shader
+            component from \uicontrol Components to the pass component in
+            \uicontrol Navigator. \QDS creates the shader components at the same
+            level as the pass component and automatically adds them to the
             \uicontrol Shaders field.
         \li Select the shader components in \uicontrol Navigator to set the
             paths to the shader files in the \uicontrol Source field in
             \uicontrol Properties.
-            \image studio-qtquick-3d-shader-properties.png "Shader properties"
+            \image studio-qtquick-3d-shader-properties.webp "Shader properties"
     \endlist
-
-    \section1 Creating Shader Files
-
-    The requirements set for shaders that you can use in custom effects and
-    materials are described in \l {Qt Quick 3D Custom Material Reference}.
-
-    If you use custom uniforms in the shader files, you must specify them
-    as QML properties for the custom effect or material component. \QDS
-    automatically generates the uniforms based on the property values.
-
-    For example, the following code snippet shows fragment shader code that
-    uses two uniforms: \c uTextureInUse and \c uInputTexture.
-
-    \code
-    out vec4 fragColor;
-
-    in vec3 pos;
-    in vec3 texCoord0;
-
-    void main() {
-
-        vec4 textCol;
-        if (uTextureInUse)
-            textCol = texture( uInputTexture, texCoord0.xy );
-
-        fragColor = vec4(pos.x * 0.02 * textCol.x, pos.y * 0.02 * textCol.y, pos.z * 0.02, 1.0);
-    }
-    \endcode
-
-    To use the above fragment shader in a custom effect or material component,
-    you must remove the uniforms from the shader code and define them as
-    properties for the component on the \uicontrol Properties tab in the
-    \l {Connections} view.
-
-    \image studio-custom-material-uniform-properties.png "Uniforms as properties in Connections view Properties tab"
-
-    For more information about adding properties, see
-    \l{Specifying Custom Properties}.
 */

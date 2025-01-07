@@ -108,7 +108,7 @@ RotationController &RotationController::operator =(const RotationController &oth
 
 bool RotationController::isValid() const
 {
-    return m_data->formEditorItem && m_data->formEditorItem->qmlItemNode().isValid();
+    return m_data && m_data->formEditorItem && m_data->formEditorItem->qmlItemNode().isValid();
 }
 
 void RotationController::show()

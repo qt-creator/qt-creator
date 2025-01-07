@@ -24,6 +24,9 @@ Uniform::Uniform(const QString &effectName, const QJsonObject &propObj, const QS
     m_type = Uniform::typeFromString(propObj.value("type").toString());
     defaultValue = propObj.value("defaultValue").toString();
 
+    if (propObj.contains("userAdded"))
+        m_userAdded = getBoolValue(propObj.value("userAdded"), false);
+
     m_displayName = propObj.value("displayName").toString();
     if (m_displayName.isEmpty())
         m_displayName = m_name;
@@ -148,6 +151,24 @@ QString Uniform::description() const
 QString Uniform::displayName() const
 {
     return m_displayName;
+}
+
+bool Uniform::userAdded() const
+{
+    return m_userAdded;
+}
+
+void Uniform::setIsInUse(bool inUse)
+{
+    if (m_isInUse != inUse) {
+        m_isInUse = inUse;
+        emit uniformIsInUseChanged();
+    }
+}
+
+bool Uniform::isInUse() const
+{
+    return m_isInUse;
 }
 
 QString Uniform::customValue() const
@@ -346,9 +367,27 @@ R"(
 R"(
                 UrlChooser {
                     backendValue: backendValues.%1
+                    enabled: comboBox_%1.currentIndex === 0
+                }
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: "%3"
+                tooltip: "%4"
+            }
+
+            SecondColumnLayout {
+                ItemFilterComboBox {
+                    id: comboBox_%1
+                    backendValue: backendValues.%2
                 }
 )";
-        specs += typeSpec.arg(m_name + "Url");
+        specs += typeSpec.arg(m_name + "Url")
+                     .arg(m_name)
+                     .arg(m_displayName + tr(" Item"))
+                     .arg(tr("Set this to use an item in the scene as %1 instead of the above image.")
+                              .arg(m_displayName));
         break;
     }
     case Type::Define:
@@ -393,14 +432,15 @@ bool Uniform::getBoolValue(const QJsonValue &jsonValue, bool defaultValue)
 // Used with sampler types
 QString Uniform::getResourcePath(const QString &effectName, const QString &value, const QString &qenPath) const
 {
-    QString filePath = value;
-    if (qenPath.isEmpty()) {
+    if (Utils::FilePath::fromString(value).isAbsolutePath()) {
+        return value;
+    } else if (qenPath.isEmpty()) {
         const Utils::FilePath effectsResDir = QmlDesigner::ModelNodeOperations::getEffectsImportDirectory();
         return effectsResDir.pathAppended(effectName).pathAppended(value).toString();
     } else {
         QDir dir(m_qenPath);
         dir.cdUp();
-        QString absPath = dir.absoluteFilePath(filePath);
+        QString absPath = dir.absoluteFilePath(value);
         absPath = QDir::cleanPath(absPath);
         absPath = QUrl::fromLocalFile(absPath).toString();
         return absPath;

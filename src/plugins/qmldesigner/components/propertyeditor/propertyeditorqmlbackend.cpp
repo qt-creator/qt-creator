@@ -13,6 +13,7 @@
 #include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
+#include <qmldesignertr.h>
 #include <qmlobjectnode.h>
 #include <qmltimeline.h>
 #include <sourcepathcache.h>
@@ -430,7 +431,7 @@ void PropertyEditorQmlBackend::setSource(const QUrl &url)
 
     if (showError && !m_view->errors().isEmpty()) {
         const QString errMsg = m_view->errors().constFirst().toString();
-        Core::AsynchronousMessageBox::warning(PropertyEditorView::tr("Invalid QML source"), errMsg);
+        Core::AsynchronousMessageBox::warning(Tr::tr("Invalid QML source"), errMsg);
     }
 }
 
@@ -452,6 +453,28 @@ PropertyEditorValue *PropertyEditorQmlBackend::propertyValueForName(const QStrin
      return qobject_cast<PropertyEditorValue*>(variantToQObject(backendValuesPropertyMap().value(propertyName)));
 }
 
+void QmlDesigner::PropertyEditorQmlBackend::createPropertyEditorValues(const QmlObjectNode &qmlObjectNode, PropertyEditorView *propertyEditor)
+{
+#ifndef QDS_USE_PROJECTSTORAGE
+    for (const auto &property : PropertyEditorUtils::filteredProperties(qmlObjectNode.metaInfo())) {
+        auto propertyName = property.name();
+        createPropertyEditorValue(qmlObjectNode,
+                                  propertyName,
+                                  qmlObjectNode.instanceValue(propertyName),
+                                  propertyEditor);
+    }
+#else
+
+    for (const auto &property : MetaInfoUtils::addInflatedValueAndReadOnlyProperties(qmlObjectNode.metaInfo().properties())) {
+        auto propertyName = property.name();
+        createPropertyEditorValue(qmlObjectNode,
+                                  propertyName,
+                                  qmlObjectNode.instanceValue(propertyName),
+                                  propertyEditor);
+    }
+#endif
+}
+
 void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile, PropertyEditorView *propertyEditor)
 {
     if (qmlObjectNode.isValid()) {
@@ -464,20 +487,14 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         if (propertyEditorBenchmark().isInfoEnabled())
             time.start();
 
-        for (const auto &property : PropertyEditorUtils::filteredProperties(qmlObjectNode.metaInfo())) {
-            auto propertyName = property.name();
-            createPropertyEditorValue(qmlObjectNode,
-                                      propertyName,
-                                      qmlObjectNode.instanceValue(propertyName),
-                                      propertyEditor);
-        }
+        createPropertyEditorValues(qmlObjectNode, propertyEditor);
         setupLayoutAttachedProperties(qmlObjectNode, propertyEditor);
         setupInsightAttachedProperties(qmlObjectNode, propertyEditor);
         setupAuxiliaryProperties(qmlObjectNode, propertyEditor);
 
         // model node
         m_backendModelNode.setup(qmlObjectNode.modelNode());
-        context()->setContextProperty(QLatin1String("modelNodeBackend"), &m_backendModelNode);
+        context()->setContextProperty("modelNodeBackend", &m_backendModelNode);
 
         // className
         auto valueObject = qobject_cast<PropertyEditorValue *>(variantToQObject(
@@ -507,9 +524,7 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
 
         // anchors
         m_backendAnchorBinding.setup(qmlObjectNode.modelNode());
-        context()->setContextProperties(QVector<QQmlContext::PropertyPair>{
-            {{"anchorBackend"}, QVariant::fromValue(&m_backendAnchorBinding)},
-            {{"transaction"}, QVariant::fromValue(m_propertyEditorTransaction.get())}});
+        setupContextProperties();
 
         contextObject()->setHasMultiSelection(
             !qmlObjectNode.view()->singleSelectedModelNode().isValid());
@@ -802,7 +817,7 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaTyp
     QString qmlInnerTemplate = "";
 
     qmlInnerTemplate += "Section {\n";
-    qmlInnerTemplate += "caption: \"" + QObject::tr("Exposed Custom Properties") + "\"\n";
+    qmlInnerTemplate += "caption: \"" + Tr::tr("Exposed Custom Properties") + "\"\n";
     qmlInnerTemplate += anchorLeftRight;
     qmlInnerTemplate += "leftPadding: 0\n";
     qmlInnerTemplate += "rightPadding: 0\n";
@@ -924,6 +939,14 @@ NodeMetaInfo PropertyEditorQmlBackend::findCommonAncestor(const ModelNode &node)
 void PropertyEditorQmlBackend::refreshBackendModel()
 {
     m_backendModelNode.refresh();
+}
+
+void PropertyEditorQmlBackend::setupContextProperties()
+{
+    context()->setContextProperty("modelNodeBackend", &m_backendModelNode);
+    context()->setContextProperties(QVector<QQmlContext::PropertyPair>{
+        {{"anchorBackend"}, QVariant::fromValue(&m_backendAnchorBinding)},
+        {{"transaction"}, QVariant::fromValue(m_propertyEditorTransaction.get())}});
 }
 
 #ifndef QDS_USE_PROJECTSTORAGE

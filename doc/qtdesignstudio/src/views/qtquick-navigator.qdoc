@@ -40,11 +40,11 @@
     you can change the source of an Image component by selecting
     \uicontrol {Change Source URL} in the context menu.
 
-    \section1 Showing and Hiding Components
+    \section1 Showing and hiding components
 
     To show and hide components in the \uicontrol {2D} view when focusing on
-    specific parts of the application, select \inlineimage icons/eye_open.png and
-    \inlineimage icons/visibility-off.png in \uicontrol Navigator.
+    specific parts of the application, select \imageeyeopen and
+    \imagevisibilityoff in \uicontrol Navigator.
 
     To change the visibility of a component in the application code, select the
     \uicontrol Visibility check box in the \uicontrol Properties view or select
@@ -58,9 +58,9 @@
     parent component.
 
     To show and hide invisible components in \uicontrol Navigator, select
-    \inlineimage {icons/visibilityon.png}.
+    \imagevisibilityon.
 
-    \section1 Locking Components
+    \section1 Locking components
 
     When designing complex applications, it is easy to accidentally modify
     the properties of a component in one of the \QDS views in ways that lead to
@@ -70,7 +70,7 @@
     more components than you wanted to.
 
     To lock components that you are not currently editing and their children,
-    click \inlineimage icons/lockon.png
+    click \imagelockon
     in \uicontrol Navigator. Locked components cannot be handled in any \QDS
     views. You can unlock the components when you want to edit them again.
 
@@ -80,7 +80,7 @@
     the \l {3D} view nor access their properties in
     \uicontrol Properties.
 
-    If you attempt to \l{Working with States}{remove a state} that changes the
+    If you attempt to \l{Working with states}{remove a state} that changes the
     properties of a locked component, you are prompted to confirm the removal.
 
     If you have \l{Editing Animation Curves}{added easing curves} to keyframe
@@ -89,7 +89,7 @@
     status is synchronized between \uicontrol Navigator and
     \uicontrol {Curves}.
 
-    \section1 Arranging Components
+    \section1 Arranging components
 
     You can view the order of components in a component file in \uicontrol Navigator
     and the \l {Code} view. The order of components in the file also
@@ -98,7 +98,7 @@
     the bottom of the \uicontrol Navigator tree and behind overlapping
     components in the \uicontrol {2D} view. To list the components in the order
     in which they appear in the file, as some other tools do, select
-    \inlineimage {icons/reverse_order.png}.
+    \imagereverseorder.
 
     To move a component to the top or bottom of the tree within its parent,
     right-click it in the \uicontrol Navigator or \uicontrol {2D} view
@@ -112,9 +112,9 @@
     \image qtquick-designer-navigator-arrange.gif "Reversing component order"
 
     You can also drag the component to another position in the tree or use the
-    \inlineimage {icons/navigator-arrowup.png} and \inlineimage {icons/navigator-arrowdown.png}
-    buttons to move the component in the tree. You can use the \inlineimage {icons/arrowleft.png}
-    and \inlineimage {icons/arrowright.png} buttons to change the parent of the component.
+    \imagenavigatorarrowup and \imagenavigatorarrowdown
+    buttons to move the component in the tree. You can use the \imagearrowleft
+    and \imagearrowright buttons to change the parent of the component.
 
     \image qmldesigner-navigator-arrows.png "Navigator buttons"
 
@@ -124,7 +124,7 @@
     whether you want to adjust their position or attach them to a new parent component.
     Therefore, the parent component is not automatically changed.
 
-    \section1 Adding Property Aliases
+    \section1 Adding property aliases
 
     A \e {property alias} is a property that you can use from outside the
     component. When you view the code in the \l {Code} view, a property alias
@@ -158,16 +158,16 @@
             below the third level.
     \endlist
 
-    You can use the \inlineimage icons/alias.png
+    You can use the \imagealias
     (\uicontrol Export) button in \uicontrol Navigator to export
     a component as a property alias with a valid alias reference.
 
     \image qmldesigner-export-item.png
 
     You can then use the property alias in other components to
-    \l{Working with Connections}{create connections} to this component.
+    \l{Working with connections}{create connections} to this component.
 
-    \section1 Moving Within Components
+    \section1 Moving within components
 
     The files that specify components (\c ui.qml, \c .qml) can contain
     instances of other components specified in separate files. You can
@@ -178,7 +178,7 @@
         \li In the \uicontrol {2D} or \uicontrol Navigator view,
             right-click an instance of a component and then select
             \uicontrol {Edit Component} in the context menu or
-            press \key F2.
+            select \key F2.
         \li In \uicontrol Properties, select \uicontrol {Edit Base Component}.
     \endlist
 

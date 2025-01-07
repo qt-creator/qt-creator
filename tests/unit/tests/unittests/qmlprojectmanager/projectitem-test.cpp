@@ -135,6 +135,13 @@ TEST_F(QmlProjectItem, get_with_qds_prefix_enable_cmake_generation)
     ASSERT_TRUE(enable);
 }
 
+TEST_F(QmlProjectItem, get_with_qds_prefix_standalone_app)
+{
+    auto enable = projectItemWithQdsPrefix->standaloneApp();
+
+    ASSERT_TRUE(enable);
+}
+
 TEST_F(QmlProjectItem, get_with_qds_prefix_import_paths)
 {
     auto importPaths = projectItemWithQdsPrefix->importPaths();
@@ -282,6 +289,13 @@ TEST_F(QmlProjectItem, get_without_qds_prefix_tar_get_without_qds_prefix_directo
 TEST_F(QmlProjectItem, get_without_qds_prefix_enable_cmake_generation)
 {
     auto enable = projectItemWithoutQdsPrefix->enableCMakeGeneration();
+
+    ASSERT_TRUE(enable);
+}
+
+TEST_F(QmlProjectItem, get_without_qds_prefix_standalone_app)
+{
+    auto enable = projectItemWithoutQdsPrefix->standaloneApp();
 
     ASSERT_TRUE(enable);
 }
@@ -435,6 +449,13 @@ TEST_F(QmlProjectItem, get_empty_tar_get_empty_directory)
 TEST_F(QmlProjectItem, get_empty_enable_cmake_generation)
 {
     auto enable = projectItemEmpty->enableCMakeGeneration();
+
+    ASSERT_FALSE(enable);
+}
+
+TEST_F(QmlProjectItem, get_empty_standalone_app)
+{
+    auto enable = projectItemEmpty->standaloneApp();
 
     ASSERT_FALSE(enable);
 }
@@ -709,6 +730,20 @@ TEST_F(QmlProjectItem, set_enable_cmake_generation)
     ASSERT_EQ(projectItemSetters->enableCMakeGeneration(), true);
 }
 
+TEST_F(QmlProjectItem, set_standalone_app)
+{
+    projectItemSetters->setStandaloneApp(true);
+
+    ASSERT_EQ(projectItemSetters->standaloneApp(), true);
+}
+
+TEST_F(QmlProjectItem, unset_standalone_app)
+{
+    projectItemSetters->setStandaloneApp(false);
+
+    ASSERT_EQ(projectItemSetters->standaloneApp(), false);
+}
+
 // TODO: We should move these 2 tests into the integration tests
 TEST_F(QmlProjectItem, test_file_filters)
 {
@@ -760,6 +795,38 @@ TEST_F(QmlProjectItem, qmlproject_modules)
             "file2.qmlproject",
             "../converter/test-set-mcu-1/mcu-modules/from_importpath/imported_module.qmlproject",
             "../converter/test-set-mcu-2/testfile.qmlproject"));
+}
+
+TEST_F(QmlProjectItem, set_empty_qmlproject_modules)
+{
+    projectItemSetters->setQmlProjectModules({});
+
+    auto qmlProjectModules = projectItemSetters->qmlProjectModules();
+
+    ASSERT_THAT(qmlProjectModules, IsEmpty());
+}
+
+TEST_F(QmlProjectItem, set_qmlproject_modules)
+{
+    projectItemSetters->setQmlProjectModules({"testModule.qmlproject", "testModule2.qmlproject"});
+
+    auto qmlProjectModules = projectItemSetters->qmlProjectModules();
+
+    ASSERT_THAT(qmlProjectModules,
+                UnorderedElementsAre("testModule.qmlproject", "testModule2.qmlproject"));
+}
+
+TEST_F(QmlProjectItem, add_qmlproject_module)
+{
+    auto currentModules = projectItemSetters->qmlProjectModules();
+    projectItemSetters->addQmlProjectModule("test.qmlproject");
+    projectItemSetters->addQmlProjectModule("test2.qmlproject");
+
+    auto qmlProjectModules = projectItemSetters->qmlProjectModules();
+
+    ASSERT_THAT(qmlProjectModules,
+                UnorderedElementsAreArray(currentModules
+                                          + QStringList{"test.qmlproject", "test2.qmlproject"}));
 }
 
 TEST_F(QmlProjectItem, no_qmlproject_modules)

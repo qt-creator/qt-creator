@@ -196,7 +196,7 @@ TransitionEditorWidget::TransitionEditorWidget(TransitionEditorView *view)
             [this](const QString &message) { m_statusBar->setText(message); });
 
     connect(m_addButton, &QPushButton::clicked, this, [this] {
-        m_transitionEditorView->addNewTransition();
+        auto transition = m_transitionEditorView->addNewTransition();
     });
 
     Navigation2dFilter *filter = new Navigation2dFilter(m_graphicsView->viewport());
@@ -314,11 +314,10 @@ void TransitionEditorWidget::init(int zoom)
     ModelNode root = transitionEditorView()->rootModelNode();
     ModelNode transition;
 
-    if (NodeAbstractProperty transitions = root.nodeAbstractProperty("transitions")) {
-        const QList<ModelNode> directSubNodes = transitions.directSubNodes();
-        if (!directSubNodes.isEmpty())
-            transition = directSubNodes.constFirst();
-    }
+    //TODO
+    const QList<ModelNode> transitions = transitionEditorView()->allTransitions();
+    if (!transitions.isEmpty())
+        transition = transitions.constFirst();
 
     m_graphicsScene->setTransition(transition);
     setTransitionActive(transition.isValid());
@@ -328,6 +327,7 @@ void TransitionEditorWidget::init(int zoom)
     m_toolbar->setScaleFactor(zoom);
 
     m_toolbar->setCurrentTransition(transition);
+    m_toolbar->setTransitions(transitions);
 
     qreal duration = 2000;
     if (auto data = transition.auxiliaryData(transitionDurationProperty))
@@ -349,7 +349,7 @@ void TransitionEditorWidget::updateData(const ModelNode &transition)
         if (transition.id() == m_toolbar->currentTransitionId()) {
             m_graphicsScene->setTransition(transition);
         } else {
-            m_toolbar->updateComboBox(transition.view()->rootModelNode());
+            m_toolbar->updateComboBox(transitionEditorView()->allTransitions());
         }
     }
 }

@@ -132,11 +132,8 @@ T.AbstractButton {
     SequentialAnimation {
         id: highlightAnimation
         running: false
+        loops: 3
 
-        MyColorAnimation { to: StudioTheme.Values.themeConnectionEditorButtonBorder_hover }
-        MyColorAnimation { to: control.style.background.idle }
-        MyColorAnimation { to: StudioTheme.Values.themeConnectionEditorButtonBorder_hover }
-        MyColorAnimation { to: control.style.background.idle }
         MyColorAnimation { to: StudioTheme.Values.themeConnectionEditorButtonBorder_hover }
         MyColorAnimation { to: control.style.background.idle }
     }

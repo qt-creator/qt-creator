@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "invalidargumentexception.h"
+
+#include <designercoretr.h>
+
 #include <QString>
 #include <QCoreApplication>
 /*!
@@ -19,8 +22,7 @@ QString InvalidArgumentException::invalidArgumentDescription(int line,
                                                              const QByteArray &argument)
 {
     if (QString::fromUtf8(function) == QLatin1String("createNode")) {
-        return QCoreApplication::translate("QmlDesigner::InvalidArgumentException",
-                  "Failed to create item of type %1").arg(QString::fromUtf8(argument));
+        return DesignerCore::Tr::tr("Failed to create item of type %1.").arg(QString::fromUtf8(argument));
     }
 
     return Exception::defaultDescription(line, function, file);

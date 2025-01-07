@@ -6,7 +6,7 @@
     \previouspage quick-uis.html
     \nextpage quick-preset-components.html
 
-    \title Using Components
+    \title Using components
 
     A \e component is a reusable building block for a UI.
 
@@ -18,7 +18,7 @@
     Some of the preset components represent simple shapes, text, or images,
     while others represent complex UI controls with full functionality, such
     as spin boxes or sliders. You can also add instances of preset
-    \l {3D Components}{3D components} to your UIs.
+    \l {3D components}{3D components} to your UIs.
 
     To build your own components, you can modify the \e properties of the
     component instances and combine them.
@@ -27,8 +27,8 @@
     \e ui.qml or \e .qml). For example, a Button component may be defined
     in \e Button.ui.qml. Typically, the visual appearance of a component
     is defined in a \e {UI file} (ui.qml). To create component files,
-    you can use \l{Creating Components from Scratch}{wizard templates}, or
-    \l{Turning Component Instances into Custom Components}
+    you can use \l{Creating components from scratch}{wizard templates}, or
+    \l{Turning component instances into custom components}
     {move component instances into separate component files}.
 
     Select \uicontrol Components to view the preset components that
@@ -41,12 +41,12 @@
     Read more about components:
 
     \list
-        \li \l {Preset Components}
-        \li \l {Creating Component Instances}
-        \li \l {Creating Custom Components}
+        \li \l {Preset components}
+        \li \l {Creating component instances}
+        \li \l {Creating custom components}
     \endlist
 
-    \section1 Using Components Economically
+    \section1 Using components economically
 
     It is important to understand the performance costs associated with using
     components.
@@ -58,8 +58,8 @@
             components that can be conveniently recombined to suit the needs of
             your UI.
         \li Use as few components as necessary. To minimize the number of
-            components, use \l{Adding Property Aliases}{alias properties} and
-            \l{Working with States}{states} to create the differences in your
+            components, use \l{Adding property aliases}{alias properties} and
+            \l{Working with states}{states} to create the differences in your
             component instances. We recommend reusing components
             instead of duplicating them, so the components do not need to be
             processed as completely new component types. This reduces loading
@@ -69,8 +69,8 @@
             a speedometer should have an \c int or \c real property for speed
             to which the UI is bound.
         \li Separate UI from the application logic. Designers should work with
-            the \l{UI Files}{UI files} (.ui.qml), while developers should work
-            on the corresponding implementation files (.qml) to define their
+            the \l{UI files} (.ui.qml), while developers should work on the
+            corresponding implementation files (.qml) to define their
             programmatic behaviors or JavaScript. This enables iteration from
             both the design and development side of the process without the
             risk of overwriting each other's work.

@@ -143,7 +143,7 @@
 
     \section1 Analyze the applications
 
-    Use the \l{Profiling QML Applications}{QML Profiler} to find causes
+    Use the \l{Profiling QML applications}{QML Profiler} to find causes
     for typical performance problems in Qt Quick applications, such as
     slowness and unresponsive, stuttering user interfaces. You cannot profile an
     in-process runtime as an individual process.
@@ -156,5 +156,5 @@
     {Remote Linux}{How To: Develop for remote Linux},
     {Run on many platforms}, {Debugging}, {Debuggers}, {Debugger},
     {Developing for \B2Q Devices}, {Developing for Remote Linux Devices},
-    {Profiling QML Applications}, {Kits}
+    {Profiling QML applications}, {Kits}
 */

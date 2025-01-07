@@ -3,6 +3,8 @@
 
 #include <model.h>
 
+#include <qmldesignertr.h>
+
 #include <coreplugin/messagebox.h>
 
 namespace QmlDesigner {
@@ -23,10 +25,9 @@ Make sure the ID is:
 </ul>
 )";
 
-    Core::AsynchronousMessageBox::warning(Model::tr("Invalid Id"),
-                                          Model::tr(text).arg(id));
+    Core::AsynchronousMessageBox::warning(Tr::tr("Invalid Id"), Tr::tr(text).arg(id));
 }
 
 } // namespace DialogUtils
 
-} //QmlDesigner
+} // namespace QmlDesigner

@@ -113,7 +113,7 @@
     To locate a session:
 
     \list 1
-        \li Press \key {Ctrl+K} (\key {Cmd+K} on \macos) to activate the locator.
+        \li Select \key {Ctrl+K} (\key {Cmd+K} on \macos) to activate the locator.
         \li Enter:
             \list
                 \li \c {t} \e {<session_name>}

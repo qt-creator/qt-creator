@@ -23,8 +23,8 @@ class QMLDESIGNERCORE_EXPORT TextModifier: public QObject
     Q_OBJECT
 
 private:
-    TextModifier(const TextModifier &);
-    TextModifier &operator=(const TextModifier &);
+    TextModifier(const TextModifier &) = delete;
+    TextModifier &operator=(const TextModifier &) = delete;
 
 public:
     struct MoveInfo {
@@ -42,7 +42,7 @@ public:
 
 public:
     TextModifier() = default;
-    ~TextModifier() override = 0;
+    ~TextModifier();
 
     virtual void replace(int offset, int length, const QString& replacement) = 0;
     virtual void move(const MoveInfo &moveInfo) = 0;

@@ -155,8 +155,8 @@
 
             \image qtcreator-textfinder-objectname.png {Changing object names}
 
-        \li Press \key {Ctrl+A} (or \key {Cmd+A}) to select the widgets and
-            select \uicontrol{Lay out Horizontally} (or press \key {Ctrl+H} on Linux or
+        \li Select \key {Ctrl+A} (or \key {Cmd+A}) to select the widgets and
+            select \uicontrol{Lay out Horizontally} (or select \key {Ctrl+H} on Linux or
             Windows or \key {Ctrl+Shift+H} on \macos) to apply a horizontal
             layout (QHBoxLayout).
 
@@ -165,7 +165,7 @@
         \li Drag a \uicontrol{Text Edit} widget (QTextEdit) to the form.
 
         \li Select the screen area, and then select \uicontrol{Lay out Vertically}
-            (or press \key {Ctrl+L}) to apply a vertical layout (QVBoxLayout).
+            (or select \key {Ctrl+L}) to apply a vertical layout (QVBoxLayout).
 
             \image qtcreator-textfinder-ui.png {Text Finder UI}
 
@@ -193,7 +193,7 @@
 
             \endlist
 
-        \li Press \key {Ctrl+S} (or \key {Cmd+S}) to save your changes.
+        \li Select \key {Ctrl+S} (or \key {Cmd+S}) to save your changes.
 
     \endlist
 

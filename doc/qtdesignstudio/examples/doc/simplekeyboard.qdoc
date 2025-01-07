@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,9 +6,9 @@
     \ingroup studioexamples
     \brief Illustrates how to use a virtual keyboard in an application.
 
-    \title Simple Keyboard
+    \title Simple keyboard
 
-    \e {Simple Keyboard} provides a virtual keyboard for entering
+    \e {Simple keyboard} provides a virtual keyboard for entering
     text into several text fields. It uses functionality from the
     \l{Qt Virtual Keyboard} module.
 
@@ -18,13 +18,13 @@
     text into \l{Text Edit} or \l{Text Input} components. For more information
     about using it, see \l{User Guide}{Virtual Keyboard: User Guide}.
 
-    To test the virtual keyboard, you need to select the \inlineimage icons/run_small.png
+    To test the virtual keyboard, you need to select the \imagerunsmall
     (\uicontrol Run) button to run the example on the desktop or a device.
     The keyboard is not available during preview.
 
-    \section1 Using a Virtual Keyboard
+    \section1 Using a virtual keyboard
 
-    First, we create an empty project, as described in \l {Creating Projects}.
+    First, we create an empty project, as described in \l {Creating projects}.
     For the purposes of this example, we call the project \e SimpleKeyboard.
     We can use the default settings for other options, but we need to select
     the \uicontrol {Use Qt Virtual Keyboard} check box on the

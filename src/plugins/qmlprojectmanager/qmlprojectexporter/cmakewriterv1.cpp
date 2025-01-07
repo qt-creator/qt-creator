@@ -5,19 +5,28 @@
 
 #include "qmlprojectmanager/buildsystem/qmlbuildsystem.h"
 
+#include <coreplugin/icore.h>
+
 namespace QmlProjectManager {
 
 namespace QmlProjectExporter {
 
 const char TEMPLATE_SRC_CMAKELISTS[] = R"(
 target_sources(${CMAKE_PROJECT_NAME} PUBLIC
-%2)
+%1)
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Quick
     Qt${QT_VERSION_MAJOR}::Qml))";
+
+const char TEMPLATE_DEPENDENCIES_CMAKELISTS[] = R"(
+if (BUILD_QDS_COMPONENTS)
+    add_subdirectory(%1)
+endif()
+)";
 
 CMakeWriterV1::CMakeWriterV1(CMakeGenerator *parent)
     : CMakeWriter(parent)
@@ -52,10 +61,49 @@ void CMakeWriterV1::writeRootCMakeFile(const NodePtr &node) const
         writeFile(insightPath, insightTemplate);
     }
 
-    const Utils::FilePath componentPath = cmakeFolderPath.pathAppended("qmlcomponents.cmake");
-    if (!componentPath.exists()) {
-        const QString compTemplate = readTemplate(":/templates/qmlcomponents");
-        writeFile(componentPath, compTemplate);
+    const Utils::FilePath dependenciesPath = node->dir.pathAppended(DEPENDENCIES_DIR);
+    const Utils::FilePath componentsPath = dependenciesPath.pathAppended(COMPONENTS_DIR);
+    const Utils::FilePath componentsIgnoreFile = componentsPath.pathAppended(COMPONENTS_IGNORE_FILE);
+
+    bool copyComponents = false;
+    // Note: If dependencies directory exists but not the components directory, we assunme
+    // the user has intentionally deleted it because he has the components installed in Qt.
+    if (!dependenciesPath.exists()) {
+        dependenciesPath.createDir();
+        copyComponents = true;
+    } else if (componentsIgnoreFile.exists()) {
+        auto normalizeVersion = [](const auto &version) -> std::tuple<int, int, int> {
+            auto [major, minor, patch] = version;
+            return {major.value_or(0), minor.value_or(0), patch.value_or(0)};
+        };
+        auto *bs = parent()->buildSystem();
+        auto versionDS = normalizeVersion(versionFromString(bs->versionDesignStudio()));
+        auto versionIgnore = normalizeVersion(versionFromIgnoreFile(componentsIgnoreFile));
+        if (versionDS > versionIgnore) {
+            copyComponents = true;
+            if (componentsPath.exists())
+                componentsPath.removeRecursively();
+        }
+    }
+
+    if (copyComponents) {
+        if (!componentsPath.exists())
+            componentsPath.createDir();
+
+        const Utils::FilePath componentsSrc =
+            Core::ICore::resourcePath("qmldesigner/Dependencies/qtquickdesigner-components");
+
+        if (componentsSrc.exists()) {
+            auto cpyResult = componentsSrc.copyRecursively(componentsPath);
+            if (cpyResult) {
+                QString depsTemplate =
+                    QString::fromUtf8(TEMPLATE_DEPENDENCIES_CMAKELISTS, -1).arg(COMPONENTS_DIR);
+                writeFile(dependenciesPath.pathAppended("CMakeLists.txt"), depsTemplate);
+            } else {
+                CMakeGenerator::logIssue(
+                    ProjectExplorer::Task::Error, cpyResult.error(), componentsSrc);
+            }
+        }
     }
 
     const Utils::FilePath sharedFile = node->dir.pathAppended("CMakeLists.txt.shared");
@@ -67,7 +115,7 @@ void CMakeWriterV1::writeRootCMakeFile(const NodePtr &node) const
     const Utils::FilePath file = node->dir.pathAppended("CMakeLists.txt");
     if (!file.exists()) {
         const QString appName = parent()->projectName() + "App";
-        const QString findPackage = makeFindPackageBlock(parent()->buildSystem());
+        const QString findPackage = makeFindPackageBlock(node, parent()->buildSystem());
 
         QString fileSection = "";
         const QString configFile = getEnvironmentVariable(ENV_VARIABLE_CONTROLCONF);
@@ -87,7 +135,7 @@ void CMakeWriterV1::writeModuleCMakeFile(const NodePtr &node, const NodePtr &) c
     if (node->type == Node::Type::App) {
         const Utils::FilePath userFile = node->dir.pathAppended("qds.cmake");
         QString userFileContent(DO_NOT_EDIT_FILE);
-        userFileContent.append(makeSubdirectoriesBlock(node));
+        userFileContent.append(makeSubdirectoriesBlock(node, {DEPENDENCIES_DIR}));
 
         auto [resources, bigResources] = makeResourcesBlocksRoot(node);
         if (!resources.isEmpty()) {

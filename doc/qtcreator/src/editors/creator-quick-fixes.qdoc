@@ -33,7 +33,7 @@
             quick fix.
     \endlist
 
-    Or, press \key {Alt+Enter} to open a context menu that has
+    Or, select \key {Alt+Enter} to open a context menu that has
     quick fixes available in the current cursor position.
 
     By default, the refactored files are saved automatically. To turn off

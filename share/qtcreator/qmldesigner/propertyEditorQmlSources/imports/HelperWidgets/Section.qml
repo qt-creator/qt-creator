@@ -21,6 +21,7 @@ Item {
     property alias showLeftBorder: leftBorder.visible
     property alias showCloseButton: closeButton.visible
     property alias closeButtonToolTip: closeButton.tooltip
+    property alias closeButtonIcon: closeButton.icon
     property alias showEyeButton: eyeButton.visible
     property alias eyeButtonToolTip: eyeButton.tooltip
     property alias spacing: column.spacing

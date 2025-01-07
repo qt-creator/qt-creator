@@ -8,7 +8,7 @@
 
     \title Using \QBPS
 
-    \section1 Organizing Assets
+    \section1 Organizing assets
 
     To get the best results when you use \QBPS to export designs from Adobe
     Photoshop for importing them to \QDS, follow these guidelines when working
@@ -26,13 +26,13 @@
 
     To use the fonts that you use in Photoshop also in \QDS, you need to load
     them to \QDS. \QDS deploys them to devices when you preview the UI. For more
-    information, see \l{Using Custom Fonts}.
+    information, see \l{Using custom fonts}.
 
     \note You can export only files that are saved in the Photoshop file format,
     such as \e {.psd} and \e {.psb}. For all other document formats, \QDS
     displays the following error message: \e {Document is not supported.}
 
-    \section2 Items You Can Export
+    \section2 Items you can export
 
     You can export the following parts of your design using \QBPS:
     \list
@@ -48,14 +48,14 @@
         \li Frames
     \endlist
 
-    \section2 Using Artboards
+    \section2 Using artboards
 
     The relationships between the groups and layers on an artboard are preserved
     when you export designs from Adobe Photoshop and import them into \QDS.
 
     When you use \QBPS to export your designs, you will determine how you want
     each group or layer exported: as a \e component or \e child. A component
-    will be imported as a single \l {UI Files}{UI file} that can contain other
+    will be imported as a single \l {UI files}{UI file} that can contain other
     assets. A child will be imported as a single image file that you can use
     within UI files.
 
@@ -88,7 +88,7 @@
     \QB imports the control as a custom component that you can program in
     \QDS.
 
-    \section1 Exporting Assets
+    \section1 Exporting assets
 
     Each artboard is exported automatically as a component, which means that it
     will be imported as a separate file that contains all the artwork on the
@@ -135,7 +135,7 @@
 
     \image qt-bridge.png
 
-    \section2 Specifying Settings for Exporting Assets
+    \section2 Specifying settings for exporting assets
 
     To export your design using \QBPS:
 
@@ -212,7 +212,7 @@
         \li Select \uicontrol {Cascade properties} to apply the current set of
             properties to all the children of the selected layer.
         \li In the \uicontrol Annotations field, specify annotation for the
-            component. See \l {Annotating Designs}.
+            component. See \l {Annotating designs}.
         \li Select \uicontrol Export to copy your assets to the export path you
             specified.
         \li When the exporting is done, select \uicontrol OK.
@@ -222,7 +222,7 @@
     might take a little while depending on the complexity of your project.
 
     You can now create a project in \QDS and import the assets to it, as
-    described in \l {Creating Projects} and \l{Importing Designs}.
+    described in \l {Creating projects} and \l{Importing designs}.
 
     \note
     Exporting your design using \QBPS can be slow for documents with large number
@@ -240,7 +240,7 @@
 
     \image qt-bridge-qml-id-settings.png
 
-    \section1 Cloning Documents
+    \section1 Cloning documents
 
     \QBPS enables creating a clone of the current document. The clone workflow
     allows the user to filter out certain kind of layers and groups. In the \QBPS
@@ -248,7 +248,7 @@
 
     \image qt-bridge-clone.png
 
-    \section2 Clone Options
+    \section2 Clone options
     The following exclusion options can be selected to exclude certain kind of layers and
     groups in the cloned document:
     \list
@@ -261,7 +261,7 @@
             the other selected exclusion options.
     \endlist
 
-    \section1 Sanitizing Documents
+    \section1 Sanitizing documents
 
     \QBPS enables removing all \QBPS related metadata from the active
     document. In the \QBPS \uicontrol Settings dialog, select
@@ -279,8 +279,8 @@
     You can change the default behavior of \QBPS with the help of a JSX script. One can write
     specific functions in the script that are called by \QBPS with useful parameters.
 
-    \section2 Overridable JSX Functions
-    You can define the following functions in the override JSX.
+    \section2 Overridable JSX functions
+    Define the following functions in the override JSX:
     \list
         \li preExport(document)
             This function is called before the document is exported. The parameter \a document is
@@ -306,10 +306,10 @@
     In the \QBPS \uicontrol Settings dialog, select \uicontrol {Override JSX Script} to set the
     override JSX script.
 
-    \section1 Importing Metadata & Assets
+    \section1 Importing metadata and assets
 
     \QBPS can import metadata generated from other tools and generate a Photoshop document. A
-    conventional workflow would be to generate metadata and assets by \l {Exporting Components} {exporting}
+    conventional workflow would be to generate metadata and assets by \l {Exporting components} {exporting}
     a QML project from \QDS and use \QBPS to generate a Photoshop document.
 
     Imported text and the assets are organized into Artboards, layers, and groups.

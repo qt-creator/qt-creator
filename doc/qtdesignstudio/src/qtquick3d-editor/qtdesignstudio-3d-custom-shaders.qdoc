@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,58 +6,129 @@
     \previouspage studio-3d-effects.html
     \nextpage studio-3d-custom-effects-materials.html
 
-    \title Custom Shaders
+    \title Custom shaders
 
-    You can use the 3D shader utilities and commands available in
-    > \uicontrol Components > \uicontrol {Qt Quick 3D} >
-    \uicontrol {Qt Quick 3D Custom Shader Utilities} to create your own effects
-    and materials.
+    In \QDS projects created with \uicontrol {Qt 6} as \uicontrol {Target Qt Version},
+    you create custom shaders in code and use custom shader utilities to create post-
+    processing effects. In projects created with \uicontrol {Qt 5} as \uicontrol
+    {Target Qt Version}, you can use custom shader utilities to to create custom
+    materials and effects.
+
+    \note Creating custom effects and materials as described here is not supported
+    in the \QDS \l{Creating projects} {projects} created with \uicontrol {Qt 6} as
+    \uicontrol {Target Qt Version}.
+
+    \section1 Custom shader utilities in Qt 6
+
+    In projects created with \uicontrol {Qt 6} as \uicontrol {Target Qt Version},
+    you create custom shaders used for custom materials in code. In \uicontrol {Qt 6},
+    the custom materials no longer support multipass rendering, and therefore
+    you don't need to use the custom shader utilities to create custom materials.
+
+    Use the custom shader utilities available in \uicontrol Components > \uicontrol QtQuick3D
+    to customize the \uicontrol Effect component used for post-processing
+    effects.
+
+    \section2 Creating shader files
+
+    In \uicontrol {Qt 6}, you need to create custom shaders for custom materials in code
+    using \uicontrol {Text Editor} or the \uicontrol Edit mode. For more information about
+    creating custom materials, see \l {Qt Quick 3D - Custom Materials Example} in the
+    Qt Quick 3D documentation.
+
+    The requirements set for shaders that you can use in custom effects and
+    materials are described in \l {Qt Quick 3D Custom Material Reference}.
+
+    If you use custom uniforms in the shader files, you must specify them
+    as QML properties for the custom effect or material component. \QDS
+    automatically generates the uniforms based on the property values.
+
+    For example, the following code snippet shows fragment shader code that
+    uses two uniforms: \c uTextureInUse and \c uInputTexture.
+
+    \code
+    out vec4 fragColor;
+
+    in vec3 pos;
+    in vec3 texCoord0;
+
+    void main() {
+
+        vec4 textCol;
+        if (uTextureInUse)
+            textCol = texture( uInputTexture, texCoord0.xy );
+
+        fragColor = vec4(pos.x * 0.02 * textCol.x, pos.y * 0.02 * textCol.y, pos.z * 0.02, 1.0);
+    }
+    \endcode
+
+    To use the above fragment shader in a custom effect or material component,
+    you must remove the uniforms from the shader code and define them as
+    properties for the component on the \uicontrol Properties tab in the
+    \l {Connections} view.
+
+    \image studio-custom-material-uniform-properties.png "Uniforms as properties in Connections view Properties tab"
+
+    For more information about adding properties, see
+    \l{Specifying custom properties}.
+
+    \section2 Creating Post-Processing Effects
+
+    You can use the custom shader utilities available in \uicontrol Components to create custom
+    post-processing effects.
+
+    \note \uicontrol ExtendedSceneEnvironment provides a set of built-in effects, such as depth
+    of field, glow/bloom, lens flare, color grading, and vignette. These effects can be defined
+    as properties, as described in \l {Applying Post-Processing Effects in the Extended Scene Environment}.
+    To ensure optimal performance for your application, we recommend using these built-in effects
+    instead of applying custom post-processing effects.
+
+    To create a post-processing effect, drag an \uicontrol Effect from \uicontrol Components >
+    \uicontrol QtQuick3D > \uicontrol Components to \uicontrol a scene environment in
+    \uicontrol Navigator. To customize the effect, drag the required shader utilities from
+    \uicontrol Components > \uicontrol QtQuick3d > \uicontrol {Custom Shader Utils} to
+    \uicontrol Effect in \uicontrol Navigator. To define settings for a shader utility, select
+    it in \uicontrol Navigator and edit its properties in the \uicontrol Properties view.
+
+    \section1 Custom shaders in Qt 5
+
+    Use the 3D shader utilities and commands available in \uicontrol Components
+    > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D Custom Shader Utilities}
+    to create your own effects and materials. The \uicontrol Effect component, used
+    as the base component for custom effects, is located in
+     \uicontrol {Qt Quick 3D Effects} > \uicontrol {Qt Quick 3D Custom Shader Utilities}.
+    To use the \uicontrol Effect component, you may need to add add the
+    \uicontrol QtQuick3D.Effects module to your project. The \uicontrol {Custom Material}
+    is located in \uicontrol {Qt Quick 3D Materials} >
+    \uicontrol {Qt Quick 3D Custom Shader Utilities}. To use the
+    \uicontrol {Custom Material} component, you may need to add the
+    \uicontrol QtQuick3D.Materials module to your project.
 
     If the custom shader utilities are not displayed in \uicontrol {Components},
     add the \uicontrol QtQuick3D module to your project, as described in
-    \l {Adding and Removing Modules}.
+     \l {Adding and Removing Modules}.
 
-    \note If you select \uicontrol {Qt 5} as the \uicontrol {Target Qt Version}
-    when \l {Creating Projects}{creating your project}, the available custom
-    shader utilities and their properties will be slightly different, and some
-    of the components can be found in different locations in
-    \uicontrol {Components}.
+    \note In some \QDS versions the location of the custom shader utilities in
+    \uicontrol Components may differ from what is described here. Use the search
+    function in \uicontrol Components to locate any available component.
 
-    \image studio-qtquick-3d-shader-utilities.png "Custom shader utilities in Components"
-
-    You can find additional shader utilities, the \uicontrol Effect and
-    \uicontrol {Custom Material} components, in
-    \uicontrol Components > \uicontrol {Qt Quick3D} > \uicontrol {Qt Quick 3D}.
-
-    \image studio-qtquick-3d-components.webp "Effect and Custom Material Components in Components"
-
-    \note In Qt 5 the \uicontrol Effect component is located in
-    \uicontrol {Qt Quick 3D Effects} >
-    \uicontrol {Qt Quick 3D Custom Shader Utilities}. To use the
-    \uicontrol Effect component, add the \uicontrol QtQuick3D.Effects module to
-    your project.
-
-    \note In Qt 5 the \uicontrol {Custom Material} component can be found in
-    \uicontrol {Qt Quick 3D Materials} >
-    \uicontrol {Qt Quick 3D Custom Shader Utilities}. To use the
-    \uicontrol {Custom Material} component, add the
-    \uicontrol QtQuick3D.Materials module to your project.
+    \image studio-qtquick-3d-shader-utilities-qt5.webp "Qt 5 custom shader utilities in Components"
 
     For more information about using the shaders, see
-    \l {Custom Effects and Materials}.
+    \l {Custom effects and materials in Qt 5}.
 
     See the following tables for available shader utilities and commands.
 
-    \section1 Available Custom Shader Utilities
+    \section1 Available custom shader utilities and base components
     \table
     \header
-        \li Custom Shader
-        \li Qt 5 Only
+        \li Component
+        \li Qt 5 only
         \li Description
 
     \row
         \li \l Buffer
-        \li
+        \li No
         \li A buffer to be used for a pass of \uicontrol {Custom Material}
             or \uicontrol Effect instances.
 
@@ -91,7 +162,7 @@
 
     \row
         \li \l {CustomMaterial} {Custom Material}
-        \li
+        \li No
         \li The base component for creating custom materials used to shade
             model instances.
 
@@ -101,7 +172,7 @@
             The \uicontrol {Vertex shader} and \uicontrol {Fragment shader}
             properties define the vertex and fragment shader files for the
             material. Select the shader files from the dropdown menus. You can
-            select \inlineimage icons/add-file-16px.png
+            select \imageaddfile16px
             to add new shader files to the dropdown menus.
 
             The \uicontrol {Source blend} and \uicontrol {Destination blend}
@@ -118,26 +189,25 @@
             \uicontrol {Always dirty} properties.
 
             The \uicontrol {Shader Info} specifies the shader info of the
-            material. For more information, see \l {Custom Effects and Materials}.
+            material. For more information, see \l {Custom effects and materials in Qt 5}.
 
-            \note In Qt 5 you can also define render passes for
-            \uicontrol {Custom Material} instances by using the
-            \uicontrol Passes property, which lists render passes implemented
-            by the material.
+            \note In \uicontrol {Qt 5} you can also define render passes for
+            \uicontrol {Custom Material} by using the \uicontrol Passes property,
+            which lists render passes implemented by the material.
 
     \row
         \li \l Effect
-        \li
+        \li No
         \li A base component for creating post-processing effects.
 
             The \uicontrol Passes property contains a list of render passes
             implemented by the effect. You can add more entry fields to the list
-            by selecting \inlineimage icons/plus.png
-            . For more information, see \l {Custom Effects and Materials}.
+            by selecting \imageplus
+            . For more information, see \l {Custom effects and materials in Qt 5}.
 
     \row
         \li \l Pass
-        \li
+        \li No
         \li A render pass of an \uicontrol Effect instance. In Qt 5 you can also
             use render passes for \uicontrol {Custom Materials}.
 
@@ -151,7 +221,7 @@
             \uicontrol Pass instance.
     \row
         \li \l Shader
-        \li
+        \li No
         \li A container component for defining shader code used by
             \uicontrol Effect instances.
 
@@ -164,7 +234,7 @@
 
     \row
         \li \l {ShaderInfo} {Shader Info}
-        \li \inlineimage ok.png
+        \li Yes
         \li Basic information about custom shader code for Custom Materials.
 
             The \uicontrol Version property specifies the shader code version,
@@ -197,7 +267,7 @@
             \endlist
     \row
         \li \l {TextureInput} {Texture Input}
-        \li
+        \li No
         \li A texture channel for \uicontrol {Custom Material} and Effect
             instances.
 
@@ -209,16 +279,16 @@
             black texture instead of the one specified by texture.
     \endtable
 
-    \section1 Available Custom Shader Commands
+    \section1 Available custom shader commands
     \table
     \header
         \li Command
-        \li Qt 5 Only
+        \li Qt 5 only
         \li Description
 
     \row
         \li \l Blending
-        \li
+        \li Yes
         \li A pass command that specifies the source blending function.
 
             The \uicontrol Source property specifies the source blending
@@ -226,7 +296,7 @@
             destination for it.
     \row
         \li \l {BufferBlit} {Buffer Blit}
-        \li \inlineimage ok.png
+        \li Yes
         \li A copy operation between two buffers in a pass of a Custom Material
             or an Effect.
 
@@ -234,7 +304,7 @@
             and the destination buffers for the copy-operation.
     \row
         \li \l {BufferInput} {Buffer Input}
-        \li
+        \li No
         \li An input buffer to be used for a pass of a Custom Material or an
             Effect.
 
@@ -244,7 +314,7 @@
 
     \row
         \li \l {CullMode} {Cull Mode}
-        \li \inlineimage ok.png
+        \li Yes
         \li A culling mode for a render pass.
 
             The \uicontrol Mode property specifies the culling mode in a pass
@@ -255,7 +325,7 @@
 
     \row
         \li \l {DepthInput} {Depth Input}
-        \li \inlineimage ok.png
+        \li Yes
         \li An output texture for the depth buffer.
 
             The \uicontrol Parameter property specifies the name of the texture
@@ -263,7 +333,7 @@
 
     \row
         \li \l {RenderState} {Render State}
-        \li \inlineimage ok.png
+        \li Yes
         \li The render state to be enabled or disabled in a pass of a
             \uicontrol {Custom Material} or an \uicontrol Effect instance.
 
@@ -279,7 +349,7 @@
 
     \row
         \li \l {SetUniformValue} {Set Uniform Value}
-        \li
+        \li No
         \li A value to be set during a single pass.
 
             The \uicontrol Target property specifies the name of the uniform

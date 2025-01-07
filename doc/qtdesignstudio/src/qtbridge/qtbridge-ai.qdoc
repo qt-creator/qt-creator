@@ -6,7 +6,7 @@
     \page qtbridge-ai.html
     \nextpage psqtbridge.html
 
-    \title Exporting Designs from Adobe Illustrator
+    \title Exporting designs from Adobe Illustrator
 
     Even though \QDS does not provide a specific export bridge for Adobe
     Illustrator, you can design UIs in it and export your designs to \QDS in
@@ -20,9 +20,9 @@
             assets into formats supported by \QDS, such as PNG and JPEG.
     \endlist
 
-    \section1 Placing Illustrator Content into Photoshop
+    \section1 Placing the Illustrator content into Photoshop
 
-    You can place Illustrator content into Photoshop in several ways. If you
+    You can place the Illustrator content into Photoshop in several ways. If you
     select \uicontrol File > \uicontrol {Place linked} in Illustrator, the
     content updates automatically. However, the whole file content is placed
     on a single Photoshop layer, which means that you cannot use \QBPS to
@@ -39,9 +39,9 @@
     smart objects, see the Illustrator and Photoshop documentation.
 
     For more information about exporting designs from Photoshop, see
-    \l{Exporting Designs from Adobe Photoshop}.
+    \l{Exporting designs from Adobe Photoshop}.
 
-    \section1 Exporting Assets for Screens
+    \section1 Exporting assets for screens
 
     Sometimes it is easier to just export layers and artboards from Illustrator
     and to create scalable layouts and UI flows in \QDS. You can export assets

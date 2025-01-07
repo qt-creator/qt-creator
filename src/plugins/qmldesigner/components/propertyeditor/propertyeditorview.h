@@ -98,15 +98,12 @@ public:
                                          const QString &propertyName);
 
 protected:
-    void timerEvent(QTimerEvent *event) override;
-    void setupPane(const TypeName &typeName);
     void setValue(const QmlObjectNode &fxObjectNode, PropertyNameView name, const QVariant &value);
     bool eventFilter(QObject *obj, QEvent *event) override;
 
 private: //functions
     void reloadQml();
     void updateSize();
-    void setupPanes();
 
     void select();
     void setSelelectedModelNode();
@@ -133,8 +130,6 @@ private: //variables
     PropertyComponentGenerator m_propertyComponentGenerator;
     PropertyEditorComponentGenerator m_propertyEditorComponentGenerator{m_propertyComponentGenerator};
     bool m_locked;
-    bool m_setupCompleted;
-    QTimer *m_singleShotTimer;
     bool m_textureAboutToBeRemoved = false;
 };
 

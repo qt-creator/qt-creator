@@ -66,7 +66,8 @@ ScrollView {
                 required property string run
                 required property color blockColor
 
-                Text {
+                TextEdit {
+                    readOnly: true
                     id: timeStampText
                     text: parentDelegate.run
                     color: parentDelegate.blockColor
@@ -89,7 +90,8 @@ ScrollView {
                         required property string message
                         required property color messageColor
 
-                        Text {
+                        TextEdit {
+                            readOnly: true
                             wrapMode: Text.WordWrap
                             text: childDelegate.message
                             color: childDelegate.messageColor

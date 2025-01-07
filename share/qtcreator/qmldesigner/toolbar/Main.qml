@@ -3,8 +3,11 @@
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
+
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import StudioWindowManager
 import ToolBar
 
 Rectangle {
@@ -15,9 +18,7 @@ Rectangle {
     readonly property int largeBreakpoint: 1200
     readonly property bool flyoutEnabled: root.width < root.largeBreakpoint
 
-    ToolBarBackend {
-        id: backend
-    }
+    ToolBarBackend { id: backend }
 
     Item {
         id: topToolbarOtherMode
@@ -64,11 +65,11 @@ Rectangle {
                 }
             }
 
-            MouseArea{
+            MouseArea {
                 id: mouseArea
                 anchors.fill: parent
                 hoverEnabled: true
-                onClicked: homeOther.onClicked()
+                onClicked: homeOther.clicked()
             }
 
             states: [
@@ -111,69 +112,20 @@ Rectangle {
             tooltip: qsTr("Switch to Welcome Mode.")
         }
 
-        ToolbarButton {
-            id: runProject
+        SplitButton {
+            id: splitButton
+            style: StudioTheme.Values.toolbarButtonStyle
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: home.right
             anchors.leftMargin: 10
-            buttonIcon: StudioTheme.Constants.runProjOutline_large
-            style: StudioTheme.ToolbarStyle {
-                radius: StudioTheme.Values.smallRadius
+            width: 160
 
-                icon: StudioTheme.ControlStyle.IconColors {
-                    idle: StudioTheme.Values.themeIdleGreen
-                    hover: StudioTheme.Values.themeRunningGreen
-                    interaction: "#ffffff"
-                    disabled: "#636363"
-                }
+            runTarget: backend?.runTargetIndex
+            runManagerState: backend?.runManagerState
 
-                background: StudioTheme.ControlStyle.BackgroundColors {
-                    idle: StudioTheme.Values.themeControlBackground_toolbarIdle
-                    hover: StudioTheme.Values.themeControlBackground_topToolbarHover
-                    interaction: StudioTheme.Values.themeInteraction
-                    disabled: StudioTheme.Values.themeControlBackground_toolbarIdle
-                }
-
-                border: StudioTheme.ControlStyle.BorderColors {
-                    idle: StudioTheme.Values.themeControlBackground_toolbarIdle
-                    hover: StudioTheme.Values.themeControlBackground_topToolbarHover
-                    interaction: StudioTheme.Values.themeInteraction
-                    disabled: StudioTheme.Values.themeControlBackground_toolbarIdle
-                }
-            }
-
-            onClicked: backend.runProject()
-            tooltip: qsTr("Run Project")
-        }
-
-        ToolbarButton {
-            id: livePreviewButton
-            style: StudioTheme.Values.primaryToolbarStyle
-            width: 96
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: runProject.right
-            anchors.leftMargin: 10
-            iconFontFamily: StudioTheme.Constants.font.family
-            buttonIcon: qsTr("Live Preview")
-
-            onClicked: {
-                livePreview.trigger()
-            }
-
-            MouseArea {
-                acceptedButtons: Qt.RightButton
-                anchors.fill: parent
-
-                onClicked: {
-                    var p = livePreviewButton.mapToGlobal(0, 0)
-                    backend.showZoomMenu(p.x, p.y)
-                }
-            }
-
-            ActionSubscriber {
-                id: livePreview
-                actionId: "LivePreview"
-            }
+            onClicked: backend.toggleRunning()
+            onRunTargetSelected: function(targetName) { backend.selectRunTarget(targetName) }
+            onOpenRunTargets: backend.openDeviceManager()
         }
 
         StudioControls.TopLevelComboBox {
@@ -181,7 +133,7 @@ Rectangle {
             style: StudioTheme.Values.toolbarStyle
             width: 320 - ((root.width > root.mediumBreakpoint) ? 0 : (root.mediumBreakpoint - root.width))
             anchors.verticalCenter: parent.verticalCenter
-            anchors.left: livePreviewButton.right
+            anchors.left: splitButton.right
             anchors.leftMargin: 10
             model: backend.documentModel
 
@@ -191,7 +143,7 @@ Rectangle {
         }
 
         Text {
-            parent:currentFile.contentItem
+            parent: currentFile.contentItem
             visible: backend.isDocumentDirty
 
             anchors.right: parent.right
@@ -333,20 +285,300 @@ Rectangle {
             onCountChanged: workspaces.currentIndex = workspaces.indexOfValue(backend.currentWorkspace)
         }
 
+        Connections {
+            target: WindowManager
+            enabled: dvWindow.visible
+
+            function onAboutToQuit() {
+                dvWindow.close()
+            }
+
+            function onMainWindowVisibleChanged(value) {
+                if (!value)
+                    dvWindow.close()
+            }
+        }
+
         ToolbarButton {
             id: shareButton
-            style: StudioTheme.Values.primaryToolbarStyle
-            width: 96
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: moreItems.left
             anchors.rightMargin: 8
-            iconFontFamily: StudioTheme.Constants.font.family
-            buttonIcon: qsTr("Share")
-            visible: !root.flyoutEnabled && backend.isSharingEnabled
-            enabled: backend.isSharingEnabled
-            tooltip: shareButton.enabled ? qsTr("Share your project online.") : qsTr("Sharing your project online is disabled in the Community Version.")
+            buttonIcon: StudioTheme.Constants.share_large
+            tooltip: qsTr("You can share your project to Qt Design Viewer web service.<br><br>To be able to use the sharing service, you need to sign in with your Qt Account details.")
 
-            onClicked: backend.shareApplicationOnline()
+            checkable: true
+            checked: dvWindow.visible
+            checkedInverted: true
+
+            onClicked: {
+                if (dvWindow.visible) {
+                    dvWindow.close()
+                } else {
+                    var originMapped = shareButton.mapToGlobal(0,0)
+                    dvWindow.x = originMapped.x + shareButton.width - dvWindow.width
+                    dvWindow.y = originMapped.y + shareButton.height
+                    dvWindow.show()
+                    dvWindow.requestActivate()
+                }
+            }
+
+            Window {
+                id: dvWindow
+
+                width: 300
+                height: stackLayout.children[stackLayout.currentIndex].implicitHeight
+
+                visible: false
+                flags: Qt.FramelessWindowHint | Qt.Tool | Qt.NoDropShadowWindowHint
+                modality: Qt.NonModal
+                transientParent: null
+                color: "transparent"
+
+                onActiveFocusItemChanged: {
+                    if (dvWindow.activeFocusItem === null && !dvWindow.active
+                        && !shareButton.hover
+                        && !backend.designViewerConnector.isWebViewerVisible)
+                        dvWindow.close()
+                }
+
+                onVisibleChanged: {
+                    // if visible and logged in
+                    // fetch user info
+                }
+
+                onClosing: {
+                    if (shareNotification.hasFinished()) {
+                        shareNotification.visible = false
+                        shareNotification.resetHelperText()
+                    }
+                }
+
+                function formatBytes(bytes, decimals = 2) {
+                    if (!+bytes)
+                        return '0 Bytes'
+
+                    const k = 1024
+                    const dm = decimals < 0 ? 0 : decimals
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+                    const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+                    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+                }
+
+                Connections {
+                    target: backend.designViewerConnector
+
+                    function onUserInfoReceived(reply: var) {
+                        let jsonReply = JSON.parse(reply)
+
+                        loggedInPage.email = jsonReply.email
+                        loggedInPage.license = jsonReply.license
+                        loggedInPage.storageUsed = jsonReply.storageUsed
+                        loggedInPage.storageLimit = jsonReply.storageLimit
+                    }
+                }
+
+                StackLayout {
+                    id: stackLayout
+
+                    property int internalMargin: 8
+
+                    anchors.fill: parent
+                    currentIndex: backend.designViewerConnector.connectorStatus
+
+                    // Fetching
+                    Rectangle {
+                        id: fetchingPage
+                        color: StudioTheme.Values.themePopupBackground
+                        Layout.fillWidth: true
+                        implicitHeight: 200
+
+                        BusyIndicator {
+                            anchors.centerIn: parent
+                            running: StackView.status === StackView.Active // TODO test
+                        }
+                    }
+
+                    // NotLoggedIn
+                    Rectangle {
+                        id: notLoggedInPage
+                        color: StudioTheme.Values.themePopupBackground
+                        Layout.fillWidth: true
+                        implicitHeight: menuColumn.implicitHeight
+
+                        Column {
+                            id: menuColumn
+                            anchors.fill: parent
+                            padding: StudioTheme.Values.border
+
+                            MenuItemDelegate {
+                                width: parent.width
+
+                                myText: qsTr("Sign in")
+                                myIcon: StudioTheme.Constants.signin_medium
+
+                                onClicked: backend.designViewerConnector.login()
+                            }
+                        }
+                    }
+
+                    // LoggedIn
+                    Rectangle {
+                        id: loggedInPage
+
+                        property string email
+                        property string license
+                        property var storageUsed
+                        property var storageLimit
+
+                        color: StudioTheme.Values.themePopupBackground
+
+                        Layout.fillWidth: true
+                        implicitHeight: loggedInPageColumn.implicitHeight
+
+                        Column {
+                            id: loggedInPageColumn
+                            anchors.fill: parent
+                            padding: StudioTheme.Values.border
+                            spacing: 0
+
+                            MenuItemDelegate {
+                                id: shareMenuItem
+                                width: parent.width
+
+                                myText: qsTr("Share")
+                                myIcon: StudioTheme.Constants.upload_medium
+
+                                onClicked: backend.designViewerConnector.uploadCurrentProject()
+                            }
+
+                            ShareNotification {
+                                id: shareNotification
+
+                                Connections {
+                                    target: backend.designViewerConnector
+
+                                    function onProjectUploadProgress(progress: var) {
+                                        shareNotification.setProgress(progress)
+                                    }
+
+                                    function onProjectUploaded() {
+                                        shareNotification.type = ShareNotification.NotificationType.Success
+                                        shareNotification.setHelperText(qsTr("Upload succeeded."))
+
+                                        shareMenuItem.enabled = true
+                                    }
+
+                                    function onProjectUploadError(errorCode: int, message: string) {
+                                        shareNotification.type = ShareNotification.NotificationType.Error
+                                        if (errorCode < 100)
+                                            shareNotification.setHelperText(qsTr("Upload failed. Please check your internet connection."))
+                                        else
+                                            shareNotification.setHelperText(qsTr("Upload failed (" + errorCode + ")."))
+
+                                        shareMenuItem.enabled = true
+                                    }
+
+                                    function onProjectIsPacking() {
+                                        shareNotification.type = ShareNotification.NotificationType.Indeterminate
+                                        shareNotification.setText(qsTr("Packing"))
+                                        shareNotification.resetHelperText()
+                                        shareNotification.visible = true
+
+                                        shareMenuItem.enabled = false
+                                    }
+
+                                    function onProjectPackingFailed(errorString: string) {
+                                        shareNotification.type = ShareNotification.NotificationType.Error
+                                        shareNotification.setHelperText(qsTr("Packing failed."))
+
+                                        shareMenuItem.enabled = true
+                                    }
+
+                                    function onProjectIsUploading() {
+                                        shareNotification.type = ShareNotification.NotificationType.Normal
+                                        shareNotification.setText(qsTr("Uploading"))
+                                        shareNotification.visible = true
+
+                                        shareMenuItem.enabled = false
+                                    }
+                                }
+                            }
+
+                            MenuItemDelegate {
+                                width: parent.width
+
+                                myText: qsTr("Manage shared projects")
+                                myIcon: StudioTheme.Constants.openLink
+
+                                onClicked: Qt.openUrlExternally(backend.designViewerConnector.loginUrl())
+                            }
+
+                            Rectangle {
+                                width: parent.width
+                                height: StudioTheme.Values.height * 2
+                                color: StudioTheme.Values.themePanelBackground
+
+                                Row {
+                                    anchors.fill: parent
+                                    spacing: 0
+
+                                    Label {
+                                        id: iconLabel
+                                        width: StudioTheme.Values.topLevelComboHeight
+                                        height: StudioTheme.Values.topLevelComboHeight
+
+                                        anchors.verticalCenter: parent.verticalCenter
+
+                                        color: StudioTheme.Values.themeTextColor
+                                        font.family: StudioTheme.Constants.iconFont.family
+                                        font.pixelSize: StudioTheme.Values.topLevelComboIcon
+                                        text: StudioTheme.Constants.user_medium
+                                        verticalAlignment: Text.AlignVCenter
+                                        horizontalAlignment: Text.AlignHCenter
+                                    }
+
+                                    Column {
+                                        width: parent.width - parent.spacing - iconLabel.width - 8 // TODO 8 is the margin
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        spacing: 4
+
+                                        Text {
+                                            color: StudioTheme.Values.themeTextColor
+                                            text: loggedInPage.email ?? ""
+                                        }
+
+                                        RowLayout {
+                                            width: parent.width
+
+                                            Text {
+                                                Layout.fillWidth: true
+                                                color: StudioTheme.Values.themeTextColor
+                                                text: loggedInPage.license ?? ""
+                                            }
+
+                                            Text {
+                                                color: StudioTheme.Values.themeTextColor
+                                                text: `${dvWindow.formatBytes(loggedInPage.storageUsed)} / ${dvWindow.formatBytes(loggedInPage.storageLimit)}`
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            MenuItemDelegate {
+                                width: parent.width
+
+                                myText: qsTr("Sign out")
+                                myIcon: StudioTheme.Constants.signout_medium
+
+                                onClicked: backend.designViewerConnector.logout()
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         ToolbarButton {
@@ -378,8 +610,9 @@ Rectangle {
             id: window
 
             readonly property int padding: 6
+            readonly property int morePopupWidth: Math.max(180, row.width)
 
-            width: row.width + window.padding * 2
+            width: window.morePopupWidth + window.padding * 2
             height: row.height + (backend.isLiteModeEnabled ? 0 : workspacesFlyout.height)
                     + (backend.isLiteModeEnabled ? 2 : 3) * window.padding
                     + (workspacesFlyout.popup.opened ? workspacesFlyout.popup.height : 0)
@@ -461,18 +694,6 @@ Rectangle {
 
                             onClicked: backend.setLockWorkspace(lockWorkspaceFlyout.checked)
                         }
-
-                        ToolbarButton {
-                            anchors.verticalCenter: parent.verticalCenter
-                            style: StudioTheme.Values.primaryToolbarStyle
-                            width: shareButton.width
-                            iconFontFamily: StudioTheme.Constants.font.family
-                            buttonIcon: qsTr("Share")
-                            enabled: backend.isSharingEnabled
-                            tooltip: shareButton.enabled ? qsTr("Share your project online.") : qsTr("Sharing your project online is disabled in the Community Version.")
-
-                            onClicked: backend.shareApplicationOnline()
-                        }
                     }
 
                     StudioControls.ComboBox {
@@ -480,7 +701,7 @@ Rectangle {
                         anchors.horizontalCenter: parent.horizontalCenter
                         actionIndicatorVisible: false
                         style: StudioTheme.Values.statusbarControlStyle
-                        width: row.width
+                        width: window.morePopupWidth
                         maximumPopupHeight: 400
                         model: workspaceModel
                         textRole: "displayName"

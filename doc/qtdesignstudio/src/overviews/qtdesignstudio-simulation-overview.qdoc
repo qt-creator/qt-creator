@@ -6,7 +6,7 @@
     \previouspage qtquick-creating-ui-logic.html
     \nextpage qtquick-placeholder-data.html
 
-    \title Simulating Complex Experiences
+    \title Simulating complex experiences
 
     \QDS enables you to connect UIs to different forms of data from various
     sources, such as QML-based data models, JavaScript files, and backend
@@ -15,23 +15,23 @@
 
 
     \list
-        \li \l{Loading Placeholder Data}
+        \li \l{Loading placeholder data}
 
             You can create QML files that contain placeholder data, so that
             you can test grid, list, or path views, even though you don't
             have access to real data.
 
-        \li \l{Simulating Application Logic}
+        \li \l{Simulating application logic}
 
         You can use JavaScript to generate mock data for your UI.
 
-        \li \l{Simulating Dynamic Systems}
+        \li \l{Simulating dynamic systems}
 
         Use the Simulink connector to connect a Simulink Simulation Model to
         your UI. Simulink is a MATLAB-based graphical programming environment
         for modeling, simulating, and analyzing multi-domain dynamic systems.
 
-        \li \l{Using QML Modules with Plugins}
+        \li \l{Using QML modules with plugins}
 
         You can load C++ plugins for QML to simulate data.
     \endlist

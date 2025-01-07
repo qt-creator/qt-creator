@@ -133,11 +133,17 @@ class FileStatus;
 class Import;
 class NodeMetaInfo;
 class PropertyMetaInfo;
+class ThemeProperty;
+enum class GroupType;
 struct CompoundPropertyMetaInfo;
 enum class FlagIs : unsigned int;
 template<typename NameType>
 class BasicAuxiliaryDataKey;
 
+void PrintTo(const ThemeProperty &prop, std::ostream *os);
+std::ostream &operator<<(std::ostream &out, const ThemeProperty &prop);
+void PrintTo(const GroupType &group, std::ostream *os);
+std::ostream &operator<<(std::ostream &out, const GroupType &group);
 std::ostream &operator<<(std::ostream &out, const ModelNode &node);
 std::ostream &operator<<(std::ostream &out, const VariantProperty &property);
 std::ostream &operator<<(std::ostream &out, const AbstractProperty &property);

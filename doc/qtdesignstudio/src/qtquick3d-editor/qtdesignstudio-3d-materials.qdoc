@@ -6,7 +6,7 @@
     \previouspage studio-3d-texture.html
     \nextpage studio-3d-effects.html
 
-    \title 3D Materials
+    \title 3D materials
 
     \QDS provides a set of pregenerated \uicontrol {Qt Quick 3D}
     materials. If the 3D materials are not displayed in \uicontrol {Components},
@@ -15,12 +15,12 @@
     pregenerated 3D materials may cause performance issues, we advice you to
     use \uicontrol {Principled Material}, \uicontrol {Default Material}, or
     \uicontrol {Custom Material} instead. For more information,
-    see \l {Materials and Shaders} and \l {Creating Custom Materials}.
+    see \l {Materials and shaders} and \l {Creating custom materials}.
 
     \note The \uicontrol QtQuick3D.Materials module is not available in
     \uicontrol {Qt 6}. To use the pregenerated \uicontrol {Qt Quick 3D}
     materials, you need to select \uicontrol {Qt 5} as the
-    \uicontrol {Target Qt Version} when \l {Creating Projects}{creating your project}.
+    \uicontrol {Target Qt Version} when \l {Creating projects}{creating your project}.
 
     To apply a 3D material to a component, you should first delete the default
     material and then drag-and-drop a new material from
@@ -30,7 +30,7 @@
     \l Properties view. You can apply the same material to another component as
     well. Again, delete the default material first. You should then select the
     component and go to the \uicontrol Properties view. Find the
-    \uicontrol Materials property, select the \inlineimage icons/plus.png
+    \uicontrol Materials property, select the \imageplus
     icon, and choose the new material in the dropdown menu.
 
     Each material has its own set of properties that can be used to further
@@ -47,10 +47,10 @@
     You can use the \l {CustomMaterial}{Custom Material} component available in
     \uicontrol {Qt Quick 3D Effects} > \uicontrol {Custom Shader Utils} as
     the base component for creating custom materials used to shade models. For
-    more information, see \l {Custom Effects and Materials} and
-    \l {Custom Shaders}.
+    more information, see \l {Custom effects and materials in Qt 5} and
+    \l {Custom shaders}.
 
-    \section1 Metal Materials
+    \section1 Metal materials
 
     The following describes properties of the metal-based materials, which
     include \uicontrol Aluminum, \uicontrol {Aluminum Anod Emis}, \uicontrol
@@ -69,9 +69,7 @@
     \section2 Reflection
 
     Use the properties under the \uicontrol Reflection tab to specify the
-    reflective qualities of the material. For more information on the various
-    material properties related to reflection, see \l {Using Highlights and
-    Reflections}.
+    reflective qualities of the material:
 
     \list
         \target tiling_metal
@@ -89,24 +87,27 @@
             reflections seen at grazing angles.
         \endlist
 
+    For more information on the various material properties related to
+    reflection, see \l {Using highlights and reflections}.
+
     \section2 Roughness
     Use the \uicontrol Roughness properties to determine how light behaves when
-    it comes in contact with material. With zero roughness, light bounces off a
-    material, which makes it appear glossy. Increased roughness causes the light
-    reflected off the material to scatter, which results in a matte appearance.
+    it comes in contact with material:
 
     \list
         \li The \uicontrol {Map Offset} \uicontrol {Map Scale} and \uicontrol
             Texture specify the quality of roughness applied to the material.
         \li Use the numerical \uicontrol Roughness property to define how
-            glossy or matte the material appears.
+            glossy or matte the material appears. With zero roughness, light
+            bounces off a material, which makes it appear glossy. Increased
+            roughness causes the light reflected off the material to scatter,
+            which results in a matte appearance.
     \endlist
 
     \target emission_metal
     \section2 Emission
     Use the properties under the \uicontrol Emission tab to specify the
-    emissive qualities of the material. For more information on properties
-    related to emission, see \l {Self-Illuminating Materials}.
+    emissive qualities of the material:
     \list
         \li The \uicontrol Intensity property determines the quantity of light
             the surface of material emits.
@@ -115,6 +116,9 @@
             texture for emissive mask. Use the \uicontrol {Mask Offset}
             to set the mask offset for the emissive map.
     \endlist
+
+    For more information on properties related to emission,
+    see \l {Self-illuminating materials}.
 
     \target bump_metal
     \section2 Bump
@@ -253,15 +257,16 @@
 
     \section2 General
 
-    Plastic materials share some of the properties with glass materials. For
-    descriptions of \uicontrol Roughness and \uicontrol {Index of Refraction}
-    properties, see \l{general_glass} {general properties for glass materials}.
+    Plastic materials share some of the properties with glass materials:
     \list
         \li The \uicontrol {Texture scaling} property determines how fast a
             material is repeated on a surface.
         \li The \uicontrol {Bump Factor} property sets the strength of bumpiness
             for glass materials.
     \endlist
+
+    For descriptions of \uicontrol Roughness and \uicontrol {Index of Refraction}
+    properties, see \l{general_glass} {general properties for glass materials}.
 
     \section2 Random Gradient Mapping
 
@@ -301,7 +306,7 @@
             \l {tiling_metal} {tiling for metal materials}.
         \endlist
 
-    \section2 Diffuse Map
+    \section2 Diffuse map
 
     Use the \uicontrol {Light Wrap} property to set the diffuse light bend of
     the material. The \uicontrol Texture property defines a texture for the
@@ -312,14 +317,14 @@
     For the description of \uicontrol Bump properties, see \l {bump_metal}
     {properties for metal materials}.
 
-    \section1 Available Materials
+    \section1 Available materials
 
     See the following table for available materials.
 
     \table
     \header
         \li Material
-        \li Example Image
+        \li Example image
         \li Description
 
     \row

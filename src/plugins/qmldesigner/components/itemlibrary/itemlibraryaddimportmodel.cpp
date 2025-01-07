@@ -90,7 +90,7 @@ void ItemLibraryAddImportModel::update(const Imports &possibleImports)
     } else if (isLiteDesigner) {
         const QStringList liteAllowedList = {"QtQuick", "QtQuick.Layouts", "QtQuick.Controls"};
         filteredImports = Utils::filtered(possibleImports, [&](const Import &import) {
-            return (liteAllowedList.contains(import.url()) || !import.url().startsWith("Qt"));
+            return (liteAllowedList.contains(import.url()));
         });
     } else {
         filteredImports = possibleImports;

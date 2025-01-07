@@ -60,7 +60,6 @@ void CMakeGenerator::updateProject(QmlProject *project)
     if (!isEnabled())
         return;
 
-    m_moduleNames.clear();
     m_writer = CMakeWriter::create(this);
 
     m_root = std::make_shared<Node>();
@@ -107,6 +106,26 @@ bool CMakeGenerator::hasChildModule(const NodePtr &node) const
     return false;
 }
 
+void CMakeGenerator::updateModifiedFile(const QString &fileString)
+{
+    if (!isEnabled() || !m_writer)
+        return;
+
+    const Utils::FilePath path = Utils::FilePath::fromString(fileString);
+    if (path.fileName() != "qmldir")
+        return;
+
+    if (path.fileSize() == 0) {
+        if (auto node = findNode(m_root, path.parentDir()))
+            removeFile(node, path);
+    } else if (auto node = findOrCreateNode(m_root, path.parentDir())) {
+        insertFile(node, path);
+    }
+
+    createCMakeFiles(m_root);
+    createSourceFiles();
+}
+
 void CMakeGenerator::update(const QSet<QString> &added, const QSet<QString> &removed)
 {
     if (!isEnabled() || !m_writer)
@@ -150,7 +169,11 @@ bool CMakeGenerator::ignore(const Utils::FilePath &path) const
         if (!m_root->dir.exists())
             return true;
 
-        static const QStringList fileNames = { "CMakeCache.txt", "build.ninja" };
+        static const QStringList dirNames = { DEPENDENCIES_DIR };
+        if (dirNames.contains(path.fileName()))
+            return true;
+
+        static const QStringList fileNames = {COMPONENTS_IGNORE_FILE, "CMakeCache.txt", "build.ninja"};
 
         Utils::FilePath dir = path;
         while (dir.isChildOf(m_root->dir)) {
@@ -234,6 +257,10 @@ bool CMakeGenerator::isMockModule(const NodePtr &node) const
 
 void CMakeGenerator::readQmlDir(const Utils::FilePath &filePath, NodePtr &node) const
 {
+    node->uri = "";
+    node->name = "";
+    node->singletons.clear();
+
     if (isMockModule(node))
         node->type = Node::Type::MockModule;
     else
@@ -355,8 +382,10 @@ bool CMakeGenerator::findFile(const NodePtr &node, const Utils::FilePath &file) 
 void CMakeGenerator::insertFile(NodePtr &node, const Utils::FilePath &path) const
 {
     QString error;
-    if (!Utils::FileNameValidatingLineEdit::validateFileName(path.fileName(), false, &error))
-        logIssue(ProjectExplorer::Task::Error, error, path);
+    if (!Utils::FileNameValidatingLineEdit::validateFileName(path.fileName(), false, &error)) {
+        if (!isImageFile(path))
+            logIssue(ProjectExplorer::Task::Error, error, path);
+    }
 
     if (path.fileName() == "qmldir") {
         readQmlDir(path, node);
@@ -458,9 +487,6 @@ void CMakeGenerator::parseNodeTree(NodePtr &generatorNode,
 
     if (m_writer)
         m_writer->transformNode(generatorNode);
-
-    if (generatorNode->type == Node::Type::Module)
-        m_moduleNames.push_back(generatorNode->name);
 }
 
 void CMakeGenerator::parseSourceTree()

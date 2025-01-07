@@ -3,6 +3,8 @@
 
 #include <documentmessage.h>
 
+#include <designercoretr.h>
+
 #include <qmljs/parser/qmljsengine_p.h>
 #include <qmljs/parser/qmljsdiagnosticmessage_p.h>
 
@@ -48,9 +50,9 @@ QString DocumentMessage::toString() const
     QString str;
 
     if (m_type == ParseError)
-        str += ::QmlDesigner::DocumentMessage::tr("Error parsing");
+        str += DesignerCore::Tr::tr("Error parsing");
     else if (m_type == InternalError)
-        str += ::QmlDesigner::DocumentMessage::tr("Internal error");
+        str += DesignerCore::Tr::tr("Internal error");
 
     if (url().isValid()) {
         if (!str.isEmpty())
@@ -62,14 +64,16 @@ QString DocumentMessage::toString() const
     if (line() != -1) {
         if (!str.isEmpty())
             str += QLatin1Char(' ');
-        str += ::QmlDesigner::DocumentMessage::tr("line %1\n").arg(line());
+        str += DesignerCore::Tr::tr("line %1").arg(line());
+        str += "\n";
     }
 
     if (column() != -1) {
         if (!str.isEmpty())
             str += QLatin1Char(' ');
 
-        str += ::QmlDesigner::DocumentMessage::tr("column %1\n").arg(column());
+        str += DesignerCore::Tr::tr("column %1").arg(column());
+        str += "\n";
     }
 
     if (!str.isEmpty())

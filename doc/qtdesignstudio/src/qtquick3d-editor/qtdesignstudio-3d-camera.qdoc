@@ -67,10 +67,10 @@
 
    \image studio-qtquick-camera-properties.webp "Properties view for Perspective Camera"
 
-    \section1 Setting Camera Field of View
+    \section1 Setting the camera field of view
 
     \note If you select \uicontrol {Qt 5} as the \uicontrol {Target Qt Version}
-    when \l {Creating Projects}{creating your project}, the camera properties
+    when \l {Creating projects}{creating your project}, the camera properties
     will be slightly different.
 
     \note Orthographic cameras don't have the FOV property.
@@ -126,7 +126,7 @@
     better results with ambient occlusion or with effects that use the depth
     buffer of the camera, such as the \e {depth of field} effect.
 
-    \section1 Setting a Camera to Look at an Object
+    \section1 Setting a camera to look at an object
 
     Setting the camera to look at a specific object can be useful, for example,
     if you want to create a cinematic effect or have the camera follow a user-controlled object.

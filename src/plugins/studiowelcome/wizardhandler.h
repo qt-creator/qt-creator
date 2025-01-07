@@ -40,16 +40,19 @@ public:
     void setStyleIndex(int index);
     int styleIndex() const;
     int styleIndex(const QString &styleName) const;
-    QString styleName(int index) const;
+    QString styleNameAt(int index) const;
+    QString styleName() const;
     bool haveStyleModel() const;
 
     void destroyWizard();
 
     void setUseVirtualKeyboard(bool value);
     bool haveVirtualKeyboard() const;
+    bool virtualKeyboardUsed() const;
 
     void enableCMakeGeneration(bool value);
     bool hasCMakeGeneration() const;
+    bool cmakeGenerationEnabled() const;
 
     void setProjectName(const QString &name);
     void setProjectLocation(const Utils::FilePath &location);

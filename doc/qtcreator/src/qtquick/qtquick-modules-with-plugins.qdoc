@@ -18,7 +18,7 @@
 
     \ingroup creator-reference-ui-design
 
-    \title Using QML Modules with Plugins
+    \title Using QML modules with plugins
 
     \brief Using C++ plugins to expose custom components to Qt Quick
     applications.
@@ -129,16 +129,16 @@
     \if defined(qtdesignstudio)
     \section1 Running QML Modules in Design Mode
 
-    A QML emulation layer (also called QML Puppet) is used in the
+    The QML Puppet is used in the
     \uicontrol Design mode to render and preview images and to collect
     data. To be able to render custom components correctly from QML modules,
-    the emulation layer must be built with the same Qt version and compiler
+    the QML Puppet must be built with the same Qt version and compiler
     as the QML modules.
 
    \include qtdesignstudio-qt-runtime-version.qdocinc qt-runtime-version
 
     A plugin should behave differently depending on whether it is run by the
-    emulation layer or an application. For example, animations should not be run
+    QML Puppet or an application. For example, animations should not be run
     in the \uicontrol Design mode. You can use the value of the \c QML_PUPPET_MODE
     environment variable to check whether the plugin is currently being run
     by an application or edited in the \uicontrol Design mode.

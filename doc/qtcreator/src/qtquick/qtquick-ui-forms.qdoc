@@ -18,7 +18,7 @@
 
     \ingroup creator-reference-ui-design
 
-    \title UI Files
+    \title UI files
 
     \brief Limitations of \QDS UI files (.ui.qml).
 
@@ -156,7 +156,7 @@
     \l{https://doc.qt.io/qt/qml-qtqml-qt.html}{Qt QML Methods}.
 
     \if defined(qtdesignstudio)
-    \section1 Using UI Files
+    \section1 Using UI files
 
     You can edit the UI files in the \l {2D} and
     \uicontrol {Code} views. Components that are

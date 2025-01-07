@@ -20,7 +20,7 @@
         \li Place the cursor on the symbol in the editor.
         \li Go to \uicontrol Tools > \uicontrol {C++} >
             \uicontrol {Find References to Symbol Under Cursor},
-            or press \key {Ctrl+Shift+U}.
+            or select \key {Ctrl+Shift+U}.
             \image qtcreator-find-references-to-symbol-under-cursor.webp {Found symbols in the Search Results view}
     \endlist
 

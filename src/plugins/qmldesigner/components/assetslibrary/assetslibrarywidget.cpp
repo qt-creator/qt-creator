@@ -6,9 +6,11 @@
 #include "assetslibraryiconprovider.h"
 #include "assetslibrarymodel.h"
 #include "assetslibraryview.h"
+#include <qmldesignertr.h>
 
 #include <createtexture.h>
 #include <designeractionmanager.h>
+#include <designermcumanager.h>
 #include <designerpaths.h>
 #include <designmodewidget.h>
 #include <hdrimage.h>
@@ -105,7 +107,7 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
     , m_assetsView{view}
     , m_assetsWidget{Utils::makeUniqueObjectPtr<StudioQuickWidget>(this)}
 {
-    setWindowTitle(tr("Assets Library", "Title of assets library widget"));
+    setWindowTitle(Tr::tr("Assets Library", "Title of assets library widget"));
     setMinimumWidth(250);
 
     m_assetsWidget->quickWidget()->installEventFilter(this);
@@ -207,9 +209,9 @@ bool AssetsLibraryWidget::createNewEffect(const QString &effectPath, bool openIn
     return created;
 }
 
-bool AssetsLibraryWidget::canCreateEffects() const
+bool AssetsLibraryWidget::isEffectsCreationAllowed() const
 {
-    if (!Core::ICore::isQtDesignStudio())
+    if (!Core::ICore::isQtDesignStudio() || DesignerMcuManager::instance().isMCUProject())
         return false;
 
 #ifdef LICENSECHECKER
@@ -263,6 +265,8 @@ void AssetsLibraryWidget::updateContextMenuActionsEnableState()
                                                         Utils3D::active3DSceneId(
                                                             m_assetsView->model()));
     setHasSceneEnv(activeSceneEnv.isValid());
+
+    setCanCreateEffects(isEffectsCreationAllowed());
 }
 
 void AssetsLibraryWidget::setHasMaterialLibrary(bool enable)
@@ -272,6 +276,11 @@ void AssetsLibraryWidget::setHasMaterialLibrary(bool enable)
 
     m_hasMaterialLibrary = enable;
     emit hasMaterialLibraryChanged();
+}
+
+bool AssetsLibraryWidget::hasMaterialLibrary() const
+{
+    return m_hasMaterialLibrary;
 }
 
 void AssetsLibraryWidget::setHasSceneEnv(bool b)
@@ -343,8 +352,8 @@ void AssetsLibraryWidget::handleDeleteEffects([[maybe_unused]] const QStringList
             eDir.removeRecursively(&error);
             if (!error.isEmpty()) {
                 QMessageBox::warning(Core::ICore::dialogParent(),
-                                     tr("Failed to Delete Effect Resources"),
-                                     tr("Could not delete \"%1\".").arg(eDir.toString()));
+                                     Tr::tr("Failed to Delete Effect Resources"),
+                                     Tr::tr("Could not delete \"%1\".").arg(eDir.toString()));
             }
         }
     }
@@ -427,12 +436,17 @@ void AssetsLibraryWidget::handleAssetsDrop(const QList<QUrl> &urls, const QStrin
             }
         }
 
-        if (!src.renameFile(dest) && src.isDir()) {
-            QMessageBox errBox;
-            QString message = QString("Failed to move folder \"%1\".\nThe folder might contain subfolders or one of its files is in use.")
-                                  .arg(src.fileName());
-            errBox.setInformativeText(message);
-            errBox.exec();
+        bool isDir = src.isDir();
+
+        if (src.renameFile(dest)) {
+            if (isDir)
+                m_assetsModel->updateExpandPath(src, dest);
+        } else if (isDir) {
+            Core::AsynchronousMessageBox::warning(
+                Tr::tr("Folder move failure"),
+                Tr::tr("Failed to move folder \"%1\". The folder might contain subfolders or one "
+                       "of its files is in use.")
+                    .arg(src.fileName()));
         }
     }
 
@@ -487,9 +501,9 @@ void AssetsLibraryWidget::handleExtFilesDrop(const QList<QUrl> &simpleFilePaths,
                                                                            targetDirPath,
                                                                            false);
             if (result.status() == AddFilesResult::Failed) {
-                QWidget *w = Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
-                                                                   tr("Could not add %1 to project.")
-                                                                       .arg(simpleFilePathStrings.join(' ')));
+                QWidget *w = Core::AsynchronousMessageBox::warning(
+                    Tr::tr("Failed to Add Files"),
+                    Tr::tr("Could not add %1 to project.").arg(simpleFilePathStrings.join(' ')));
                 // Avoid multiple modal dialogs open at the same time
                 auto mb = qobject_cast<QMessageBox *>(w);
                 if (mb && !complexFilePathStrings.empty())
@@ -644,7 +658,7 @@ void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog
             return priorities.value(first) < priorities.value(second);
         });
 
-        QStringList filters { tr("All Files (%1)").arg("*.*") };
+        QStringList filters{Tr::tr("All Files (%1)").arg("*.*")};
         QString filterTemplate = "%1 (%2)";
         for (const QString &key : std::as_const(sortedKeys)) {
             const QStringList values = map.values(key);
@@ -664,7 +678,7 @@ void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog
         const QString currentDir = lastDir.isEmpty() ? document->fileName().parentDir().toString() : lastDir;
 
         fileNames = QFileDialog::getOpenFileNames(Core::ICore::dialogParent(),
-                                                  tr("Add Assets"),
+                                                  Tr::tr("Add Assets"),
                                                   currentDir,
                                                   filters.join(";;"));
 
@@ -718,8 +732,8 @@ void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog
     }
 
     if (!failedOpsFiles.isEmpty()) {
-        QWidget *w = Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
-                                                           tr("Could not add %1 to project.")
+        QWidget *w = Core::AsynchronousMessageBox::warning(Tr::tr("Failed to Add Files"),
+                                                           Tr::tr("Could not add %1 to project.")
                                                                .arg(failedOpsFiles.join(' ')));
         // Avoid multiple modal dialogs open at the same time
         auto mb = qobject_cast<QMessageBox *>(w);
@@ -727,9 +741,10 @@ void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog
             mb->exec();
     }
     if (!unsupportedFiles.isEmpty()) {
-        Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
-                                              tr("Could not add %1 to project. Unsupported file format.")
-                                                  .arg(unsupportedFiles.join(' ')));
+        Core::AsynchronousMessageBox::warning(
+            Tr::tr("Failed to Add Files"),
+            Tr::tr("Could not add %1 to project. Unsupported file format.")
+                .arg(unsupportedFiles.join(' ')));
     }
 }
 
@@ -737,6 +752,20 @@ void AssetsLibraryWidget::addAssetsToContentLibrary(const QStringList &assetPath
 {
     QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
     m_assetsView->emitCustomNotification("add_assets_to_content_lib", {}, {assetPaths});
+}
+
+void AssetsLibraryWidget::setCanCreateEffects(bool newVal)
+{
+    if (m_canCreateEffects == newVal)
+        return;
+
+    m_canCreateEffects = newVal;
+    emit canCreateEffectsChanged();
+}
+
+bool AssetsLibraryWidget::canCreateEffects() const
+{
+    return m_canCreateEffects;
 }
 
 } // namespace QmlDesigner

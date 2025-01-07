@@ -131,28 +131,28 @@
 
     \list
         \li Select \uicontrol {Zoom In} toolbar button.
-        \li Press \key Ctrl++.
-        \li Press \key Ctrl and roll the mouse wheel up.
+        \li Select \key Ctrl++.
+        \li Select \key Ctrl and roll the mouse wheel up.
     \endlist
 
     To zoom out of diagrams:
 
     \list
         \li Select \uicontrol {Zoom Out}.
-        \li Press \key Ctrl+-.
-        \li Press \key Ctrl and roll the mouse wheel down.
+        \li Select \key Ctrl+-.
+        \li Select \key Ctrl and roll the mouse wheel down.
     \endlist
 
     To reset the diagram size to 100%:
 
     \list
         \li Select \uicontrol {Reset Zoom}.
-        \li Press \key Ctrl+0.
+        \li Select \key Ctrl+0.
     \endlist
 
     \section2 Printing Diagrams
 
-    To print diagrams, press \key Ctrl+C when no elements are selected in
+    To print diagrams, select \key Ctrl+C when no elements are selected in
     the editor to copy all elements to the clipboard by using 300 dpi. Then
     paste the diagram to an application that can print images.
 
@@ -340,14 +340,14 @@
             associations.
 
         \li To create \e {sampling points} that divide a relation into two
-            connected lines, select a relation and press \key Shift and click
+            connected lines, select a relation and select \key Shift and click
             on the relation line.
 
             If possible, the end point of a relation is moved automatically
             to draw the line to the next sampling point either vertically or
             horizontally.
 
-        \li To remove a sampling point, press \key Ctrl and click the sampling
+        \li To remove a sampling point, select \key Ctrl and click the sampling
             point.
 
         \li To group elements, drag a \uicontrol Boundary element to
@@ -500,9 +500,9 @@
 
     \section2 Add and delete points
 
-    To add more points, press \key Shift and click a relation.
+    To add more points, select \key Shift and click a relation.
 
-    To delete a point, press \key Ctrl and click a point.
+    To delete a point, select \key Ctrl and click a point.
 
     \section2 Specify members
 

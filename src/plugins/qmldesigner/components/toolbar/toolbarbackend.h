@@ -6,6 +6,10 @@
 #include <QAbstractListModel>
 #include <QObject>
 
+#ifdef DVCONNECTOR_ENABLED
+#include <designviewer/dvconnector.h>
+#endif
+
 namespace QmlDesigner {
 
 class ActionInterface;
@@ -38,6 +42,28 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QHash<int, QByteArray> roleNames() const override;
     QVariant data(const QModelIndex &index, int role = DisplayNameRole) const override;
+};
+
+class RunManagerModel : public QAbstractListModel
+{
+    Q_OBJECT
+
+public:
+    enum RunManagerRoles {
+        DisplayNameRole = Qt::DisplayRole,
+        TargetNameRole = Qt::UserRole,
+        Enabled
+    };
+    Q_ENUM(RunManagerRoles)
+
+    explicit RunManagerModel(QObject *parent = nullptr);
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QHash<int, QByteArray> roleNames() const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+
+private:
+    void reset();
 };
 
 class ActionSubscriber : public QObject
@@ -96,10 +122,16 @@ class ToolBarBackend : public QObject
     Q_PROPERTY(bool isQt6 READ isQt6 NOTIFY isQt6Changed)
     Q_PROPERTY(bool isMCUs READ isMCUs NOTIFY isMCUsChanged)
     Q_PROPERTY(bool projectOpened READ projectOpened NOTIFY projectOpenedChanged)
-    Q_PROPERTY(bool isSharingEnabled READ isSharingEnabled NOTIFY isSharingEnabledChanged)
     Q_PROPERTY(bool isDocumentDirty READ isDocumentDirty NOTIFY isDocumentDirtyChanged)
 
     Q_PROPERTY(bool isLiteModeEnabled READ isLiteModeEnabled CONSTANT)
+
+    Q_PROPERTY(int runTargetIndex READ runTargetIndex NOTIFY runTargetIndexChanged)
+    Q_PROPERTY(int runManagerState READ runManagerState NOTIFY runManagerStateChanged)
+
+#ifdef DVCONNECTOR_ENABLED
+    Q_PROPERTY(DesignViewer::DVConnector *designViewerConnector READ designViewerConnector CONSTANT)
+#endif
 
 public:
     ToolBarBackend(QObject *parent  = nullptr);
@@ -119,6 +151,10 @@ public:
     Q_INVOKABLE void showZoomMenu(int x, int y);
     Q_INVOKABLE void setCurrentStyle(int index);
     Q_INVOKABLE void setCurrentKit(int index);
+
+    Q_INVOKABLE void openDeviceManager();
+    Q_INVOKABLE void selectRunTarget(const QString &targetName);
+    Q_INVOKABLE void toggleRunning();
 
     bool canGoBack() const;
     bool canGoForward() const;
@@ -148,12 +184,16 @@ public:
 
     bool projectOpened() const;
 
-    bool isSharingEnabled();
-
     bool isDocumentDirty() const;
 
     bool isLiteModeEnabled() const;
 
+    int runTargetIndex() const;
+    int runManagerState() const;
+
+#ifdef DVCONNECTOR_ENABLED
+    DesignViewer::DVConnector *designViewerConnector();
+#endif
     static void launchGlobalAnnotations();
 
 signals:
@@ -173,8 +213,10 @@ signals:
     void isQt6Changed();
     void isMCUsChanged();
     void projectOpenedChanged();
-    void isSharingEnabledChanged();
     void isDocumentDirtyChanged();
+
+    void runTargetIndexChanged();
+    void runManagerStateChanged();
 
 private:
     void setupWorkspaces();
@@ -183,6 +225,9 @@ private:
 
     QStringList m_openDocuments;
     QMetaObject::Connection m_kitConnection;
+#ifdef DVCONNECTOR_ENABLED
+    DesignViewer::DVConnector m_designViewerConnector;
+#endif
 };
 
 } // namespace QmlDesigner

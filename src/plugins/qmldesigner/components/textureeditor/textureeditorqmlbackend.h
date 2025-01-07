@@ -31,7 +31,7 @@ class TextureEditorQmlBackend
     Q_DISABLE_COPY(TextureEditorQmlBackend)
 
 public:
-    TextureEditorQmlBackend(TextureEditorView *materialEditor,
+    TextureEditorQmlBackend(TextureEditorView *textureEditor,
                             class AsynchronousImageCache &imageCache);
     ~TextureEditorQmlBackend();
 

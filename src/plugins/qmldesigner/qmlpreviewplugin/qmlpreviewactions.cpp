@@ -25,8 +25,6 @@
 
 namespace QmlDesigner {
 
-using namespace ProjectExplorer;
-
 const Utils::Icon previewIcon({
         {":/qmlpreviewplugin/images/live_preview.png", Utils::Theme::IconsBaseColor}});
 const QByteArray livePreviewId = "LivePreview";
@@ -36,11 +34,11 @@ static void handleAction(const SelectionContext &context)
     if (context.isValid()) {
         if (context.toggled()) {
             bool skipDeploy = false;
-            if (const Target *startupTarget = ProjectManager::startupTarget()) {
-                const Kit *kit = startupTarget->kit();
+            if (const auto startupTarget = ProjectExplorer::ProjectManager::startupTarget()) {
+                const auto kit = startupTarget->kit();
                 if (kit
                     && (kit->supportedPlatforms().contains(Android::Constants::ANDROID_DEVICE_TYPE)
-                        || RunDeviceTypeKitAspect::deviceTypeId(kit)
+                        || ProjectExplorer::RunDeviceTypeKitAspect::deviceTypeId(kit)
                                == Android::Constants::ANDROID_DEVICE_TYPE)) {
                     skipDeploy = true;
                     // In case of an android kit we don't want the live preview button to be toggled
@@ -52,7 +50,8 @@ static void handleAction(const SelectionContext &context)
                         interface->action()->setChecked(false);
                 }
             }
-            ProjectExplorerPlugin::runStartupProject(Constants::QML_PREVIEW_RUN_MODE, skipDeploy);
+            ProjectExplorer::ProjectExplorerPlugin::runStartupProject(
+                ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE, skipDeploy);
         } else {
             QmlPreviewWidgetPlugin::stopAllRunControls();
         }
@@ -244,7 +243,7 @@ QWidget *SwitchLanguageComboboxAction::createWidget(QWidget *parent)
     connect(ProjectExplorer::ProjectManager::instance(),  &ProjectExplorer::ProjectManager::startupProjectChanged,
         comboBox, refreshComboBoxFunction);
 
-    if (auto project = ProjectManager::startupProject())
+    if (auto project = ProjectExplorer::ProjectManager::startupProject())
         refreshComboBoxFunction(project);
 
     // do this after refreshComboBoxFunction so we do not get currentLocaleChanged signals at initialization

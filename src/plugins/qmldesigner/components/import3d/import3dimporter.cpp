@@ -81,7 +81,7 @@ void Import3dImporter::importQuick3D(const QStringList &inputFiles,
     }
 
     if (!isCancelled()) {
-        // Wait for puppet processes to finish
+        // Wait for QML Puppet processes to finish
         if (m_puppetQueue.isEmpty() && !m_puppetProcess) {
             postImport();
         } else {
@@ -733,6 +733,7 @@ void Import3dImporter::finalizeQuick3DImport()
                         if (result.isCanceled() || result.isFinished())
                             counter = 48; // skip to next step
                     } else if (counter == 49) {
+#ifndef QDS_USE_PROJECTSTORAGE
                         QmlDesignerPlugin::instance()->documentManager().resetPossibleImports();
                         model->rewriterView()->forceAmend();
                         try {
@@ -742,6 +743,25 @@ void Import3dImporter::finalizeQuick3DImport()
                             if (!success)
                                 addError(tr("Failed to insert import statement into qml document."));
                             transaction.commit();
+#else
+                        // TODO: ModelUtils::addImportsWithCheck requires Model::possibleImports()
+                        //       to return correct list instead of empty list, so until that is
+                        //       fixed we need to just trust the missing modules are available
+                        const Imports &imports = model->imports();
+                        Imports importsToAdd;
+                        for (const QString &importName : std::as_const(m_requiredImports)) {
+                            auto hasName = [&](const auto &import) {
+                                return import.url() == importName || import.file() == importName;
+                            };
+                            if (!Utils::anyOf(imports, hasName)) {
+                                Import import = Import::createLibraryImport(importName);
+                                importsToAdd.push_back(import);
+                            }
+                        }
+
+                        try {
+                            model->changeImports(std::move(importsToAdd), {});
+#endif
                         } catch (const RewritingException &e) {
                             addError(tr("Failed to update imports: %1").arg(e.description()));
                         }

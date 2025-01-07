@@ -5,8 +5,8 @@
     \page index.html
     \nextpage studio-getting-started.html
 
-    \keyword {Qt Design Studio Manual}
-    \title Qt Design Studio Documentation
+    \keyword {Qt Design Studio documentation}
+    \title Qt Design Studio documentation
 
     \raw HTML
     <style>
@@ -18,9 +18,9 @@
     \div {class="main-navigation"}
     \table borderless 100%
         \row
-            \li \inlineimage icons/installation.png
-            \li \inlineimage icons/getting-started.png
-            \li \inlineimage icons/tutorials.png
+            \li \imageinstallation
+            \li \imagegettingstarted
+            \li \imagetutorials
         \row
             \li \b {INSTALLATION}
 
@@ -33,7 +33,7 @@
                 Learn about the \QDS features, UI and how to get started with
                 your first project.
 
-                \l{Getting Started}
+                \l{Getting started}
             \li \b {TUTORIALS}
 
                 Follow the tutorials to learn how to create \QDS applications.
@@ -63,35 +63,33 @@
     \div {class="link-list"}
     \table 100%
         \row
-            \li \inlineimage icons/demo-32x32.png
-            \li \inlineimage icons/build-32x32.png
-            \li \inlineimage icons/settings-32x32.png
+            \li \imagedemo32x32
+            \li \imagebuild32x32
+            \li \imageexamples32x32
         \row
                 \li Key Concepts
                     \list
-                        \li \l{Introduction to Animation Techniques}{Animation Techniques}
-                        \li \l{Asset Creation with Other Tools}{Creating Assets with Other Tools}
-                        \li \l{Creating UI Logic}
-                        \li \l{Using Components}{Components}
-                        \li \l{Designer-Developer Workflow}
+                        \li \l{Introduction to animation techniques}{Animation techniques}
+                        \li \l{Asset creation with other tools}{Creating assets with other tools}
+                        \li \l{Creating UI logic}
+                        \li \l{Using components}{Components}
+                        \li \l{Designer-developer workflow}
                         \li \l{Qt Design Studio on MCUs}
                     \endlist
-                \li Best Practices
+                \li Best practices
                     \list
-                        \li \l{Converting Qt 5 Projects into Qt 6 Projects}
-                        \li \l{Converting UI Projects to Applications}
-                        \li \l{Creating Glow and Bloom Effects}
-                        \li \l{Creating Optimized 3D Scenes}
-                        \li \l{Optimizing Designs}
-                        \li \l{Production Quality}{Achieving Production Quality}
+                        \li \l{Creating the glow and the bloom effects}
+                        \li \l{Creating optimized 3D scenes}
+                        \li \l{Optimizing designs}
+                        \li \l{Production quality}{Achieving production quality}
                     \endlist
-                \li Online Courses
+                \li Online courses
                     \list
-                        \li \l{https://www.qt.io/academy/course-catalog#getting-started-with-qt-design-studio}{Getting Started}
-                        \li \l{https://www.qt.io/academy/course-catalog#creating-your-first-app-with-qt-design-studio}{Creating Your First App}
+                        \li \l{https://www.qt.io/academy/course-catalog#getting-started-with-qt-design-studio}{Getting started}
+                        \li \l{https://www.qt.io/academy/course-catalog#creating-your-first-app-with-qt-design-studio}{Creating your first app}
                         \li \l{https://www.qt.io/academy/course-catalog#2d-with-qt-design-studio}{2D with Qt Design Studio}
                         \li \l{https://www.qt.io/academy/course-catalog#3d-with-qt-design-studio}{3D with Qt Design Studio}
-                        \li \l{https://www.qt.io/academy/course-catalog#qt-design-studio:-blur-effect}{Creating a Blur Effect}
+                        \li \l{https://www.qt.io/academy/course-catalog#qt-design-studio:-blur-effect}{Creating a Blur effect}
                     \endlist
     \endtable
     \enddiv

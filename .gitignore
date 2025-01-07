@@ -157,7 +157,6 @@ tmp/
 /bin/cplusplus-mkvisitor
 /bin/cplusplus-update-frontend
 /bin/qbs*
-/bin/qml2puppet
 /bin/qmlpuppet
 /bin/qtcreator
 /bin/qtcreator_crash_handler

@@ -7,7 +7,7 @@
     \previouspage studio-live-preview-desktop.html
     \nextpage qt-design-viewer.html
 
-    \title Previewing on Devices
+    \title Previewing on devices
 
     \else
     \previouspage creator-how-tos.html
@@ -49,7 +49,7 @@
             \image design-studio-select-kit.webp
         \endif
         \li Select \uicontrol Build > \uicontrol {QML Preview} or
-            press \key {Alt+P}.
+            select \key {Alt+P}.
     \endlist
 
     \section2 On Android

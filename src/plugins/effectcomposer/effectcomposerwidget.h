@@ -58,6 +58,7 @@ public:
     Q_INVOKABLE void dropAsset(const QUrl &url);
     Q_INVOKABLE bool isEffectNode(const QByteArray &mimeData) const;
     Q_INVOKABLE void dropNode(const QByteArray &mimeData);
+    Q_INVOKABLE void updateCanBeAdded();
 
     QSize sizeHint() const override;
 

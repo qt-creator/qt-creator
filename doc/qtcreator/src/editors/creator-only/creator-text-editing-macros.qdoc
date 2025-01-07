@@ -21,11 +21,11 @@
 
     \list 1
         \li Go to \uicontrol Tools > \uicontrol {Text Editing Macros} >
-            \uicontrol {Record Macro} or press \key {Alt+[}.
-        \li Press keyboard keys.
+            \uicontrol {Record Macro} or select \key {Alt+[}.
+        \li Select keyboard keys.
         \li To stop recording, go to \uicontrol Tools >
             \uicontrol {Text Editing Macros} > \uicontrol {Stop Recording Macro}
-            or press \key {Alt+]}.
+            or select \key {Alt+]}.
     \endlist
 
     \note The macro recorder does not support code completion.
@@ -37,7 +37,7 @@
     \list
         \li Go to \uicontrol Tools > \uicontrol {Text Editing Macros} >
             \uicontrol {Play Last Macro}.
-        \li Press \key {Alt+R}.
+        \li Select \key {Alt+R}.
         \li Enter \c rm in the locator.
     \endlist
 

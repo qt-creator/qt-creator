@@ -55,7 +55,7 @@
 
     \list
         \li Select \inlineimage icons/cancel-build.png.
-        \li Press \key {Alt+Backspace}.
+        \li Select \key {Alt+Backspace}.
         \li Go to \uicontrol Build > \uicontrol {Cancel Build}.
     \endlist
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,14 +6,14 @@
     \previouspage creator-qml-modules-with-plugins.html
     \nextpage qmldesigner-connections.html
 
-    \title Dynamic Behaviors
+    \title Dynamic behaviors
 
     Create connections between components to enable them to communicate with
     each other. The connections can be triggered by signals that are emitted
     when the values of other components or the UI state change.
 
     \list
-         \li \l {Working with Connections}
+         \li \l {Working with connections}
 
             You can create connections between the UI components and
             the application to enable them to communicate with each other. For
@@ -25,7 +25,7 @@
             binding their properties together. This way, when the value of a
             property changes in a parent component, it can be automatically
             changed in all the child components, for example.
-        \li \l {Working with States}
+        \li \l {Working with states}
 
             You can declare various UI states that describe how component
             properties change from a base state. Therefore, states can be

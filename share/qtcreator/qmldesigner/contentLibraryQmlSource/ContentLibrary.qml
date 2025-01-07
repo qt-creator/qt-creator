@@ -143,9 +143,9 @@ Item {
                     tabsModel: [
                         { name: qsTr("Materials"),    icon: StudioTheme.Constants.material_medium },
                         { name: qsTr("Textures"),     icon: StudioTheme.Constants.textures_medium },
-                        { name: qsTr("Environments"), icon: StudioTheme.Constants.languageList_medium },
-                        { name: qsTr("Effects"),      icon: StudioTheme.Constants.effects },
-                        { name: qsTr("User Assets"),  icon: StudioTheme.Constants.effects } // TODO: update icon
+                        { name: qsTr("Environments"), icon: StudioTheme.Constants.environment_medium },
+                        { name: qsTr("Effects"),      icon: StudioTheme.Constants.effects_medium },
+                        { name: qsTr("User Assets"),  icon: StudioTheme.Constants.userAssets_medium }
                     ]
                 }
             }

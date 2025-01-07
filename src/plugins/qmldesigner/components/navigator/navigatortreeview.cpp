@@ -244,12 +244,12 @@ bool NavigatorTreeView::viewportEvent(QEvent *event)
     } else if (event->type() == QEvent::HoverMove) {
         if (m_previewToolTip && m_previewToolTip->isVisible()) {
             auto *he = static_cast<QHoverEvent *>(event);
-            QModelIndex index = indexAt(he->pos());
+            QModelIndex index = indexAt(he->position().toPoint());
             if (!index.isValid() || index.internalId() != quintptr(m_previewToolTipNodeId)) {
                 m_previewToolTip->hide();
                 m_previewToolTipNodeId = -1;
             } else {
-                m_previewToolTip->move(mapToGlobal(he->pos()) + offset);
+                m_previewToolTip->move(mapToGlobal(he->position().toPoint()) + offset);
             }
         }
     }

@@ -3,6 +3,8 @@
 
 #include "effectcodeeditorwidget.h"
 
+#include "effectsautocomplete.h"
+
 #include <qmldesigner/textmodifier/indentingtexteditormodifier.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -19,10 +21,13 @@
 
 #include <qmljstools/qmljsindenter.h>
 
+#include <utils/fileutils.h>
 #include <utils/mimeconstants.h>
+#include <utils/temporaryfile.h>
 #include <utils/transientscroll.h>
 
 #include <QAction>
+#include <QTemporaryFile>
 
 namespace EffectComposer {
 
@@ -55,6 +60,11 @@ EffectCodeEditorWidget::EffectCodeEditorWidget()
     connect(m_completionAction, &QAction::triggered, this, [this] {
         invokeAssist(TextEditor::Completion);
     });
+
+    setLineNumbersVisible(true);
+    setMarksVisible(false);
+    setCodeFoldingSupported(false);
+    setTabChangesFocus(true);
 }
 
 EffectCodeEditorWidget::~EffectCodeEditorWidget()
@@ -76,12 +86,38 @@ void EffectCodeEditorWidget::setEditorTextWithIndentation(const QString &text)
     auto *doc = document();
     doc->setPlainText(text);
 
+    if (Utils::Result result = textDocument()->save(); !result)
+        qWarning() << __FUNCTION__ << result.error();
+
     // We don't need to indent an empty text but is also needed for safer text.length()-1 below
     if (text.isEmpty())
         return;
 
     auto modifier = std::make_unique<QmlDesigner::IndentingTextEditModifier>(doc, QTextCursor{doc});
     modifier->indent(0, text.length()-1);
+}
+
+std::unique_ptr<TextEditor::AssistInterface> EffectCodeEditorWidget::createAssistInterface(
+    [[maybe_unused]] TextEditor::AssistKind assistKind, TextEditor::AssistReason assistReason) const
+{
+    return std::make_unique<EffectsCompletionAssistInterface>(
+        textCursor(),
+        Utils::FilePath(),
+        assistReason,
+        qmlJsEditorDocument()->semanticInfo(),
+        getUniforms());
+}
+
+void EffectCodeEditorWidget::setUniformsCallback(const std::function<QStringList()> &callback)
+{
+    m_getUniforms = callback;
+}
+
+QStringList EffectCodeEditorWidget::getUniforms() const
+{
+    if (m_getUniforms)
+        return m_getUniforms();
+    return {};
 }
 
 EffectDocument::EffectDocument()
@@ -120,14 +156,16 @@ EffectCodeEditorFactory::EffectCodeEditorFactory()
 
     setDocumentCreator([]() { return new EffectDocument; });
     setEditorWidgetCreator([]() { return new EffectCodeEditorWidget; });
-    setEditorCreator([]() { return new QmlJSEditor::QmlJSEditor; });
+    setEditorCreator([]() {
+        return new QmlJSEditor::QmlJSEditor;
+    });
     setAutoCompleterCreator([]() { return new QmlJSEditor::AutoCompleter; });
     setCommentDefinition(Utils::CommentDefinition::CppStyle);
     setParenthesesMatchingEnabled(true);
     setCodeFoldingSupported(true);
 
     addHoverHandler(new QmlJSEditor::QmlJSHoverHandler);
-    setCompletionAssistProvider(new QmlJSEditor::QmlJSCompletionAssistProvider);
+    setCompletionAssistProvider(new EffectsCompeletionAssistProvider);
 }
 
 void EffectCodeEditorFactory::decorateEditor(TextEditor::TextEditorWidget *editor)
@@ -136,7 +174,12 @@ void EffectCodeEditorFactory::decorateEditor(TextEditor::TextEditorWidget *edito
         [] { return new QmlJSEditor::QmlJSHighlighter(); });
     editor->textDocument()->setIndenter(QmlJSEditor::createQmlJsIndenter(
                                             editor->textDocument()->document()));
-    editor->setAutoCompleter(new QmlJSEditor::AutoCompleter);
+
+    editor->setLineNumbersVisible(true);
+    editor->setMarksVisible(false);
+    editor->setCodeFoldingSupported(false);
+    editor->setTabChangesFocus(true);
+    editor->setRevisionsVisible(true);
 }
 
 } // namespace EffectComposer

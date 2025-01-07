@@ -14,15 +14,8 @@ Rectangle {
     color: Constants.currentThemeBackground
     width: 1842
     //anchors.fill: parent //this is required to make it responsive but commented out to force minimum size to work
-    property int pageIndex: 0
+    property int pageIndex: isFirstUsage ? 3 : 0
     property bool designMode: !(typeof (Constants.projectModel.designMode) === "undefined")
-
-    signal openUiTour
-    signal closeUiTour
-
-    function uiTourClosed() {
-        recentProjects.checked = true
-    }
 
     TestControlPanel {
         id: controlPanel
@@ -105,53 +98,24 @@ Rectangle {
         spacing: 15
         visible: !Constants.projectModel.liteDesignerEnabled
 
-        CheckButton {
-            id: recentProjects
+        PageButton {
             text: qsTr("Recent Projects")
-            autoExclusive: true
-            checked: true
-            Layout.fillWidth: true
-
-            Connections {
-                target: recentProjects
-                function onClicked(mouse) { appBackground.pageIndex = 0 }
-            }
+            pageId: 0
         }
 
-        CheckButton {
-            id: examples
+        PageButton {
             text: qsTr("Examples")
-            autoExclusive: true
-            Layout.fillWidth: true
-
-            Connections {
-                target: examples
-                function onClicked(mouse) { appBackground.pageIndex = 1 }
-            }
+            pageId: 1
         }
 
-        CheckButton {
-            id: tutorials
+        PageButton {
             text: qsTr("Tutorials")
-            autoExclusive: true
-            Layout.fillWidth: true
-
-            Connections {
-                target: tutorials
-                function onClicked(mouse) { appBackground.pageIndex = 2 }
-            }
+            pageId: 2
         }
 
-        CheckButton {
-            id: tours
+        PageButton {
             text: qsTr("UI Tour")
-            autoExclusive: true
-            Layout.fillWidth: true
-
-            Connections {
-                target: tours
-                function onClicked(mouse) { appBackground.pageIndex = 3 }
-            }
+            pageId: 3
         }
     }
 
@@ -315,5 +279,21 @@ Rectangle {
         anchors.right: thumbnails.left
         anchors.rightMargin: 20
         y: 657
+    }
+
+    component PageButton: CheckButton {
+        id: pageButton
+
+        required property int pageId
+        readonly property bool isCurrentPage: appBackground.pageIndex === pageButton.pageId
+
+        autoExclusive: true
+        Layout.fillWidth: true
+
+        Binding on checked {
+            value: pageButton.isCurrentPage
+        }
+
+        onClicked: appBackground.pageIndex = pageButton.pageId
     }
 }

@@ -669,6 +669,25 @@ void QmlObjectNode::setId(const QString &id)
     modelNode().setIdWithRefactoring(id);
 }
 
+void QmlObjectNode::setNameAndId(const QString &newName, const QString &fallbackId)
+{
+    if (!isValid())
+        return;
+
+    VariantProperty objectNameProperty = modelNode().variantProperty("objectName");
+    QString oldName = objectNameProperty.value().toString();
+
+    if (oldName != newName) {
+        const Model *model = view()->model();
+        QTC_ASSERT(model, return);
+
+        view()->executeInTransaction(__FUNCTION__, [&] {
+            modelNode().setIdWithRefactoring(model->generateNewId(newName, fallbackId));
+            objectNameProperty.setValue(newName);
+        });
+    }
+}
+
 QString QmlObjectNode::id() const
 {
     return modelNode().id();

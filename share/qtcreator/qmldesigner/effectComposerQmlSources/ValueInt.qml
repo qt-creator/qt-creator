@@ -4,12 +4,16 @@
 import QtQuick
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
-import StudioTheme as StudioTheme
-import EffectComposerBackend
 
 Row {
+    id: root
+
+    property bool hideSlider: false
+
     width: parent.width
     spacing: 5
+
+    signal valueChanged()
 
     HelperWidgets.DoubleSpinBox {
         id: spinBox
@@ -26,14 +30,17 @@ Row {
         value: uniformValue
         stepSize: 1
         decimals: 0
-        onValueModified: uniformValue = Math.round(value)
+        onValueModified: {
+            uniformValue = Math.round(value)
+            root.valueChanged()
+        }
     }
 
     StudioControls.Slider {
         id: slider
 
-        width: parent.width - 100
-        visible: width > 20
+        width: parent.width - spinBox.width - root.spacing
+        visible: !hideSlider && width > 20
         labels: false
         actionIndicatorVisible: false
         handleLabelVisible: false
@@ -43,6 +50,7 @@ Row {
         onMoved: {
             uniformValue = Math.round(value)
             spinBox.value = Math.round(value)
+            root.valueChanged()
         }
     }
 }

@@ -73,6 +73,16 @@ void FileGenerator::setEnabled(bool enabled)
     m_enabled = enabled;
 }
 
+bool FileGenerator::standaloneApp() const
+{
+    return m_standaloneApp;
+}
+
+void FileGenerator::setStandaloneApp(bool value)
+{
+    m_standaloneApp = value;
+}
+
 void FileGenerator::updateMenuAction(const Utils::Id &id, std::function<bool(void)> isEnabled)
 {
     Core::Command *cmd = Core::ActionManager::command(id);

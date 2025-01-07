@@ -1,0 +1,17 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page quick-converting-ui-projects.html
+    \nextpage creator-editor-external.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-ui-design
+
+    \title Converting UI Projects to Applications
+
+    \brief Converting a project that has a .qmlproject file to one that has a
+    .pro file.
+
+    \include qtquick-converting-ui-projects-to-applications.qdocinc {converting-ui-projects-to-applications} {Qt Quick UI Prototype}
+*/

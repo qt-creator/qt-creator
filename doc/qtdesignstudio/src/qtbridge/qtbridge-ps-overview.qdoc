@@ -8,7 +8,7 @@
     \page psqtbridge.html
     \nextpage qtbridge-ps-setup.html
 
-    \title Exporting Designs from Adobe Photoshop
+    \title Exporting designs from Adobe Photoshop
 
     You can use \QBPS to export designs from Adobe Photoshop to \e {.metadata}
     format that you can \l{Importing 2D Assets}{import} to projects in \QDS.

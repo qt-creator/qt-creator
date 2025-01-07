@@ -24,7 +24,6 @@ class QMLDESIGNER_EXPORT ConnectionManager : public BaseConnectionManager
 public:
     ConnectionManager();
     ~ConnectionManager() override;
-    enum PuppetStreamType { FirstPuppetStream, SecondPuppetStream, ThirdPuppetStream };
 
     void setUp(NodeInstanceServerInterface *nodeInstanceServerProxy,
                const QString &qrcMappingString,

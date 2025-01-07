@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -8,13 +8,13 @@
     \nextpage qt-ui-viewer.html
 
 
-    \title Creating a Single Page Navigation Web Application
+    \title Creating a single page navigation web application
 
     This example explains how you can create a single page navigation web
     application suitable to run in Qt Design Viewer. In this project,
     you create the structure and navigation for the web application.
 
-    \section1 Setting up the Project
+    \section1 Setting up the project
 
     To set up the project:
     \list 1
@@ -26,14 +26,14 @@
           \li \uicontrol {Target Version} to 6.2.
         \endlist
       \li In \uicontrol Navigator:
-        \list
+        \list 1
           \li Select and delete \e Text.
           \li Select \e Rectangle and in \uicontrol Properties, set
           \uicontrol {Fill color} to #ffffff.
         \endlist
     \endlist
 
-    \section1 Adding Components
+    \section1 Adding components
 
     Next, add the needed components to create the structure for your web
     application.
@@ -41,13 +41,13 @@
     Add the \uicontrol {QtQuick Layouts} module:
     \list 1
       \li In \uicontrol Components, select
-      \inlineimage icons/plus.png
+      \imageplus
       \li Select \uicontrol {QtQuick.Layouts}.
     \endlist
 
     To add the structure for the web application,
-    drag and drop the following components from \uicontrol Components
-    to \e rectangle in \uicontrol Navigator.
+    drag the following components from \uicontrol Components
+    to \e rectangle in \uicontrol Navigator:
     \list
       \li \uicontrol Rectangle
         \list
@@ -70,7 +70,7 @@
 
     \image web-navigation-components.png
 
-    \section1 Creating the Pages
+    \section1 Creating the pages
 
     Next, create the separate pages for your web application. In this example,
     you create pages for \e Home, \e {About Us}, and \e {Contact Us}.
@@ -95,7 +95,7 @@
     \list
       \li Set \uicontrol Size > \uicontrol H to 1024.
       \li Next to \uicontrol Size > \uicontrol W, select
-      \inlineimage icons/action-icon.png
+      \imageactionicon
       and select \uicontrol Reset.
     \endlist
 
@@ -132,7 +132,7 @@ You can see the pages you created under \uicontrol {My Components} in the
 
 \image web-navigation-page-components.png
 
-\section1 Organizing the Pages
+\section1 Organizing the pages
 
 To organize the pages vertically:
 
@@ -143,14 +143,14 @@ To organize the pages vertically:
   \li Select \e columnLayout in Navigator and in \uicontrol Properties:
     \list
       \li Next to \uicontrol Size > \uicontrol W and \uicontrol Size >
-      \uicontrol H, select \inlineimage icons/action-icon.png
+      \uicontrol H, select \imageactionicon
       and select \uicontrol Reset.
       \li Set \uicontrol {Column Spacing} to 0.
     \endlist
   \li Select \e flickable in \uicontrol Navigator, and in \uicontrol Properties:
     \list
       \li Next to \uicontrol Size > \uicontrol W and \uicontrol Size >
-      \uicontrol H, select \inlineimage icons/action-icon.png
+      \uicontrol H, select \imageactionicon
       and select \uicontrol Reset.
       \li Set \uicontrol {Content size} > \uicontrol H to 3072.
       \li On the \uicontrol Layout tab, select
@@ -181,12 +181,12 @@ code inside the \e Flickable component:
 \endcode
 
 To align the scrollbar to the right and bottom side of the window, set the height and width of the
-main rectangle so that it adapts to the window size.
+main rectangle so that it adapts to the window size:
 
 \list 1
   \li In \uicontrol Navigator, select \e Rectangle.
   \li In \uicontrol Properties, select
-  \inlineimage icons/action-icon-binding.png
+  \imageactioniconbinding
   next to \uicontrol Width and select \uicontrol {Set Binding}.
   \li Enter \c {Window.width}
   \image web-navigation-size-binding.png
@@ -194,7 +194,7 @@ main rectangle so that it adapts to the window size.
   \c {Window.height}.
 \endlist
 
-\section1 Creating the Navigation
+\section1 Creating the navigation
 
 The final step is to create the navigation for the web page. To do this, use the buttons
 that you created earlier.
@@ -213,7 +213,7 @@ First, create an animation to use when scrolling between the different pages:
 \endlist
 
 Next, connect the buttons to the number animation to scroll the content
-vertically to the correct place.
+vertically to the correct place:
 
 \list 1
   \li In \uicontrol Navigator, select \e rectangle and in \uicontrol Properties
@@ -223,7 +223,7 @@ vertically to the correct place.
       \li \uicontrol {Fill color} to #e0e0e0.
       \li \uicontrol {Z stack} to 1.
     \endlist
-  \li Select \inlineimage icons/action-icon-binding.png
+  \li Select \imageactioniconbinding
   next to \uicontrol Width and select \uicontrol {Set Binding}.
   \li Enter \c {parent.width}.
   \image web-navigation-size-binding-2.png

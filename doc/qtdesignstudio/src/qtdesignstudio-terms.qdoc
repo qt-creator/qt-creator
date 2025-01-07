@@ -6,7 +6,7 @@
     \previouspage studio-use-cases.html
     \nextpage best-practices.html
 
-    \title Concepts and Terms
+    \title Concepts and terms
 
     This topic describes main \QDS concepts and terms:
 
@@ -65,8 +65,8 @@
     Read more about bindings:
 
     \list
-        \li \l{Adding Bindings Between Properties}
-        \li \l{Setting Bindings}
+        \li \l{Adding bindings between properties}
+        \li \l{Setting bindings}
     \endlist
 
     \section1 Component
@@ -83,10 +83,10 @@
     Some of the \l {Component Types}{preset components} represent simple shapes,
     text, or images, while others represent complex UI controls with full
     functionality, such as spin boxes or sliders. You can also add instances of
-    preset \l {3D Components}{3D components} to your UIs. You can find all
+    preset \l {3D components}{3D components} to your UIs. You can find all
     the preset components in \l Components.
 
-    To build \l {Creating Component Instances}{your own components}, you can
+    To build \l {Creating component instances}{your own components}, you can
     modify the \l{glossary-property}{properties} of the component instances
     and combine them.
 
@@ -94,16 +94,16 @@
     \e ui.qml or \e .qml). For example, a Button component may be defined
     in Button.ui.qml. Typically, the visual appearance of a component is
     defined in a \e {UI file}. To create component files, you can use
-    \l{Creating Components from Scratch}{wizard templates}, or
-    \l{Turning Component Instances into Custom Components}
+    \l{Creating components from scratch}{wizard templates}, or
+    \l{Turning component instances into custom components}
     {move component instances into separate component files}.
 
     Read more about components:
 
     \list
-        \li \l {Preset Components}
-        \li \l {Creating Component Instances}
-        \li \l {Creating Custom Components}
+        \li \l {Preset components}
+        \li \l {Creating component instances}
+        \li \l {Creating custom components}
     \endlist
 
     \section1 Connection
@@ -121,7 +121,7 @@
 
     \list
         \li \l{Connections}
-        \li \l{Working with Connections}
+        \li \l{Working with connections}
     \endlist
 
     \section1 Device
@@ -132,7 +132,7 @@
     Read more about devices:
 
     \list
-        \li \l{Previewing on Devices}
+        \li \l{Previewing on devices}
     \endlist
 
     \section1 Mode
@@ -175,7 +175,7 @@
     Read more about projects:
 
     \list
-        \li \l{Creating Projects}
+        \li \l{Creating projects}
     \endlist
 
     \section1 Property
@@ -193,10 +193,10 @@
 
     \list
         \li \l{Properties}
-        \li \l{Preset Components}
-        \li \l{Specifying Component Properties}
-        \li \l{Adding Bindings Between Properties}
-        \li \l{Specifying Custom Properties}
+        \li \l{Preset components}
+        \li \l{Specifying component properties}
+        \li \l{Adding bindings between properties}
+        \li \l{Specifying custom properties}
     \endlist
 
     \section1 Signal
@@ -221,7 +221,7 @@
     Read more about signals:
 
     \list
-        \li \l{Connecting Components to Signals}
+        \li \l{Connecting components to signals}
         \li \l{Mouse Area}
     \endlist
 
@@ -248,7 +248,7 @@
 
     \list
         \li \l{States}
-        \li \l{Working with States}
+        \li \l{Working with states}
     \endlist
 
     \section1 Transition
@@ -264,7 +264,7 @@
 
     \list
         \li \l{Transitions}
-        \li \l{Animating Transitions Between States}
+        \li \l{Animating transitions between states}
     \endlist
     \omit
 

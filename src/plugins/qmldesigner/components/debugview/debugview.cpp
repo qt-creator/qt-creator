@@ -463,8 +463,11 @@ void DebugView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyNam
 
         for (const Pair &pair : propertyList) {
             message << pair.first;
-            message << lineBreak;
+            message << " ";
             message << pair.second;
+            message << ": ";
+            message << QmlObjectNode(pair.first).instanceValue(pair.second).toString();
+            message << lineBreak;
         }
 
         logInstance(":instancePropertyChanged::", string);
@@ -504,6 +507,10 @@ void DebugView::instanceInformationsChanged(const QMultiHash<ModelNode, Informat
         for (const ModelNode &modelNode : modelNodes) {
             message << modelNode;
             message << informationChangedHash.value(modelNode);
+            message << ": ";
+            message << QmlItemNode(modelNode).instanceSize().width();
+            message << " ";
+            message << QmlItemNode(modelNode).instanceSize().height();
         }
 
         logInstance("::instanceInformationsChanged:", string);

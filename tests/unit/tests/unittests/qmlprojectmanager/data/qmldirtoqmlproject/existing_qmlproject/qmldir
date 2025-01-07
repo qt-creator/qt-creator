@@ -1,0 +1,3 @@
+# test comment
+module test.module
+singleton TestSingleton 1.0 TestSingleton.qml

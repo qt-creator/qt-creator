@@ -17,7 +17,7 @@
     \list 1
       \li Select the example project to open it. \QDS makes all necessary
       downloads.
-      \li Select \inlineimage icons/run_small.png
+      \li Select \imagerunsmall
       (\uicontrol {Run}) to run the example.
     \endlist
 
@@ -26,6 +26,6 @@
     on the \uicontrol Welcome page. Select the icon to download the latest
     version of the example project.
 
-    \section1 Example Documentation
+    \section1 Example documentation
 
 */

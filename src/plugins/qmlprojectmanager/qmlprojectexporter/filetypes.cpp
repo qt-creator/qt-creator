@@ -29,15 +29,18 @@ bool isQmlFile(const Utils::FilePath &path)
     return suffix == "qml" || suffix == "ui.qml";
 }
 
+bool isImageFile(const Utils::FilePath &path)
+{
+    return imageFiles().contains(path.suffix(), Qt::CaseInsensitive);
+}
+
 bool isAssetFile(const Utils::FilePath &path)
 {
     static const QStringList suffixes = {
         "js", "ts", "json", "hints", "mesh", "qad", "qsb", "frag",
         "frag.qsb", "vert", "vert.qsb", "mng", "wav"
     };
-    return
-        suffixes.contains(path.suffix(), Qt::CaseInsensitive) ||
-        imageFiles().contains(path.suffix(), Qt::CaseInsensitive);
+    return suffixes.contains(path.suffix(), Qt::CaseInsensitive) || isImageFile(path);
 }
 
 bool isResource(const Utils::FilePath &path)

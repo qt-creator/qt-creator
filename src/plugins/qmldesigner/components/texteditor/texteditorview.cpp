@@ -140,6 +140,11 @@ void TextEditorView::qmlJSEditorContextHelp(const Core::IContext::HelpCallback &
 #endif
 }
 
+TextEditor::BaseTextEditor *TextEditorView::textEditor()
+{
+    return m_widget->textEditor();
+}
+
 void TextEditorView::nodeIdChanged(const ModelNode& /*node*/, const QString &/*newId*/, const QString &/*oldId*/)
 {
 }

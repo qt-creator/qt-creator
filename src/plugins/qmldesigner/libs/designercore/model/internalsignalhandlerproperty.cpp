@@ -23,7 +23,7 @@ QString InternalSignalHandlerProperty::source() const
 }
 void InternalSignalHandlerProperty::setSource(const QString &source)
 {
-    traceToken.tick("source"_t, keyValue("source", source));
+    traceToken.tick("source", keyValue("source", source));
 
     m_source = source;
 }
@@ -40,7 +40,7 @@ QString InternalSignalDeclarationProperty::signature() const
 
 void InternalSignalDeclarationProperty::setSignature(const QString &signature)
 {
-    traceToken.tick("signature"_t, keyValue("signature", signature));
+    traceToken.tick("signature", keyValue("signature", signature));
 
     m_signature = signature;
 }

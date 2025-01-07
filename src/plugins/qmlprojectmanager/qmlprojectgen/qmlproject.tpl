@@ -37,7 +37,6 @@ Project {
 
     Environment {
         QT_QUICK_CONTROLS_CONF: "qtquickcontrols2.conf"
-        QT_AUTO_SCREEN_SCALE_FACTOR: "1"
         QT_LOGGING_RULES: "qt.qml.connections=false"
         QT_ENABLE_HIGHDPI_SCALING: "0"
         /* Useful for debugging

@@ -105,11 +105,10 @@ QString TransitionEditorToolBar::currentTransitionId() const
     return m_transitionComboBox->currentText();
 }
 
-void TransitionEditorToolBar::updateComboBox(const ModelNode &root)
+void TransitionEditorToolBar::updateComboBox(const QList<ModelNode> &transitions)
 {
-    if (NodeAbstractProperty transitions = root.nodeAbstractProperty("transitions")) {
-        for (const ModelNode &transition : transitions.directSubNodes())
-            m_transitionComboBox->addItem(transition.id());
+    for (const ModelNode &transition : transitions) {
+        m_transitionComboBox->addItem(transition.id());
     }
 }
 
@@ -118,12 +117,17 @@ void TransitionEditorToolBar::setCurrentTransition(const ModelNode &transition)
     if (transition.isValid()) {
         m_transitionComboBox->clear();
         const ModelNode root = transition.view()->rootModelNode();
-        updateComboBox(root);
+        //updateComboBox(root);
         m_transitionComboBox->setCurrentText(transition.id());
     } else {
         m_transitionComboBox->clear();
         m_transitionComboBox->setCurrentText("");
     }
+}
+
+void TransitionEditorToolBar::setTransitions(const QList<ModelNode> &transitions)
+{
+    updateComboBox(transitions);
 }
 
 void TransitionEditorToolBar::setDuration(qreal frame)

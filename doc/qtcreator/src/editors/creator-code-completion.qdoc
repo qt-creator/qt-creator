@@ -18,7 +18,7 @@
     complete the code. It shows a list of suggestions to
     the statement currently under your cursor.
 
-    Press \key Tab or \key Enter to accept the selected suggestion and complete
+    Select \key Tab or \key Enter to accept the selected suggestion and complete
     the code.
 
     \if defined(qtcreator)
@@ -29,7 +29,7 @@
     \image qml-code-completion.png
     \caption Suggestions for completing QML code.
 
-    To open the list of suggestions at any time, press \key {Ctrl+Space}.
+    To open the list of suggestions at any time, select \key {Ctrl+Space}.
     If only one option is available, \QC inserts it automatically.
 
     \section1 Summary of Available Types
@@ -107,8 +107,8 @@
     \section1 Complete code snippets
 
     Code snippets can consist of multiple variables that you specify values for.
-    Select an item in the list and press \key Tab or \key Enter to complete the
-    code. Press \key Tab to move between the variables and specify values for
+    Select an item in the list and select \key Tab or \key Enter to complete the
+    code. Select \key Tab to move between the variables and specify values for
     them. When you specify a value for a variable, all instances of the variable
     within the snippet are renamed.
 
@@ -171,7 +171,7 @@
 
     Select the \uicontrol {Automatically split strings} check box to split
     a string to two lines by adding an end quote at the cursor position when
-    you press \key Enter and a start quote at the beginning of the next line,
+    you select \key Enter and a start quote at the beginning of the next line,
     before the rest of the string. In addition, pressing \key {Shift+Enter}
     inserts an escape character at the cursor position and moves the rest of
     the string to the next line.
@@ -182,7 +182,7 @@
     closing character is added automatically at the end of the selection.
 
     By default, the automatically inserted text is highlighted and animated,
-    skipped when you type, and removed when you press \key Backspace.
+    skipped when you type, and removed when you select \key Backspace.
 
     \if defined(qtcreator)
     \sa {Complete CMake code}, {Enclose code in brackets or quotes}, {Nim}

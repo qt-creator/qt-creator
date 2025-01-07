@@ -9,10 +9,10 @@
     \title 3D Views
 
     To create a Qt Quick 3D UI project, use the \uicontrol {3D} preset that adds the
-    \l {3D Components}{Qt Quick 3D} components to \uicontrol Components
+    \l {3D components}{Qt Quick 3D} components to \uicontrol Components
     and contains a 3D view component. The \uicontrol {View3D} component
     includes a \l {Scene Environments}{scene environment} as well as a scene \l {Lights}{light},
-    \l {Cameras}{camera}, and \l {3D Models}{model}. A default \l {Materials and Shaders}{material}
+    \l {Cameras}{camera}, and \l {3D models}{model}. A default \l {Materials and shaders}{material}
     is attached to the model. You can attach \l {Textures}{textures} to materials.
 
     To create a project with many complex effects, use the \uicontrol {Extended 3D} preset
@@ -23,7 +23,7 @@
     \note The extended 3D view is available in projects created with Qt 6.5
     or higher set as the target version.
 
-    For more information about creating projects, see \l{Creating Projects}.
+    For more information about creating projects, see \l{Creating projects}.
 
     To manually add a 3D view to your project, you first need to add the
     \uicontrol {Qt Quick 3D} module to \uicontrol {Components}, as described in

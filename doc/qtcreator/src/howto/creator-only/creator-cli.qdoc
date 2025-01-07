@@ -133,7 +133,7 @@
        \row
             \li -presentationMode
             \li Core plugin: display keyboard shortcuts as popups when you
-                press them. Mostly useful when presenting \QC to someone else.
+                select them. Mostly useful when presenting \QC to someone else.
 
         \row
             \li -theme <default | dark>

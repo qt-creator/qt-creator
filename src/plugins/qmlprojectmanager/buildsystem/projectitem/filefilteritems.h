@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QFileInfo>
 #include <QObject>
 #include <QRegularExpression>
 #include <QSet>
@@ -52,16 +53,19 @@ signals:
     void directoryChanged();
     void recursiveChanged();
     void pathsChanged();
+    void fileModified(const QString &filePath);
     void filesChanged(const QSet<QString> &added, const QSet<QString> &removed);
 
 private:
     void updateFileList();
     void updateFileListNow();
+    void watchFiles(QSet<QString> filters, const QSet<QString> &add, const QSet<QString> &remove);
 
     QString absolutePath(const QString &path) const;
     QString absoluteDir() const;
 
     bool fileMatches(const QString &fileName) const;
+    bool ignoreDirectory(const QFileInfo &file) const;
     QSet<QString> filesInSubTree(const QDir &rootDir, const QDir &dir, QSet<QString> *parsedDirs = nullptr);
     Utils::FileSystemWatcher *dirWatcher();
     QStringList watchedDirectories() const;

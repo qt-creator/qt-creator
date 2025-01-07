@@ -42,6 +42,10 @@ using FileGetter = std::function<std::vector<Utils::FilePath>(const NodePtr &)>;
 
 class CMakeGenerator;
 
+const char DEPENDENCIES_DIR[] = "Dependencies";
+const char COMPONENTS_DIR[] = "Components";
+const char COMPONENTS_IGNORE_FILE[] = "ignore-in-qds";
+
 const char ENV_VARIABLE_CONTROLCONF[] =
     "QT_QUICK_CONTROLS_CONF";
 
@@ -58,8 +62,11 @@ class CMakeWriter
 {
 public:
     using Ptr = std::shared_ptr<CMakeWriter>;
+    using Version = std::tuple<std::optional<int>, std::optional<int>, std::optional<int>>;
 
     static Ptr create(CMakeGenerator *parent);
+    static Version versionFromString(const QString &versionString);
+    static Version versionFromIgnoreFile(const Utils::FilePath &path);
     static QString readTemplate(const QString &templatePath);
     static void writeFile(const Utils::FilePath &path, const QString &content);
 
@@ -86,11 +93,11 @@ protected:
 
     QString getEnvironmentVariable(const QString &key) const;
 
-    QString makeFindPackageBlock(const QmlBuildSystem* buildSystem) const;
+    QString makeFindPackageBlock(const NodePtr &node, const QmlBuildSystem *buildSystem) const;
     QString makeRelative(const NodePtr &node, const Utils::FilePath &path) const;
     QString makeQmlFilesBlock(const NodePtr &node) const;
     QString makeSingletonBlock(const NodePtr &node) const;
-    QString makeSubdirectoriesBlock(const NodePtr &node) const;
+    QString makeSubdirectoriesBlock(const NodePtr &node, const QStringList &others = {}) const;
     QString makeSetEnvironmentFn() const;
     std::tuple<QString, QString> makeResourcesBlocksRoot(const NodePtr &node) const;
     std::tuple<QString, QString> makeResourcesBlocksModule(const NodePtr &node) const;
@@ -98,6 +105,10 @@ protected:
 private:
     void collectPlugins(const NodePtr &node, std::vector<QString> &out) const;
     void collectResources(const NodePtr &node, QStringList &res, QStringList &bigRes) const;
+
+    bool hasMesh(const NodePtr &node) const;
+    bool hasQuick3dImport(const Utils::FilePath &file) const;
+
     const CMakeGenerator *m_parent = nullptr;
 };
 

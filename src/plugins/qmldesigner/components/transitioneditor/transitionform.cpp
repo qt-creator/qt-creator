@@ -109,6 +109,18 @@ TransitionForm::TransitionForm(QWidget *parent)
             m_transition.variantProperty("from").setValue(fromValue);
         });
     });
+
+    connect(ui->stateGroupComboBox, &QComboBox::currentIndexChanged, this, [this](int index) {
+        QTC_ASSERT(m_transition.isValid(), return);
+        auto view = m_transition.view();
+        ModelNode stateGroup = view->rootModelNode();
+        if (index > 0)
+            stateGroup = view->modelNodeForId(ui->stateGroupComboBox->currentText());
+        QTC_ASSERT(stateGroup.isValid(), return);
+        emit this->stateGroupChanged(m_transition, stateGroup);
+        setupStatesLists();
+        setupStateGroups();
+    });
 }
 
 TransitionForm::~TransitionForm()
@@ -123,12 +135,24 @@ void TransitionForm::setTransition(const ModelNode &transition)
     if (m_transition.isValid()) {
         ui->idLineEdit->setText(m_transition.displayName());
     }
+
+    setupStateGroups();
     setupStatesLists();
 }
 
 ModelNode TransitionForm::transition() const
 {
     return m_transition;
+}
+
+ModelNode TransitionForm::stateGroupNode() const
+{
+    auto stateGroup = m_transition.parentProperty().parentModelNode();
+
+    if (!stateGroup.isValid())
+        return m_transition.view()->rootModelNode();
+
+    return stateGroup;
 }
 
 void TransitionForm::setupStatesLists()
@@ -159,7 +183,7 @@ void TransitionForm::setupStatesLists()
         toList = m_transition.variantProperty("to").value().toString().split(",");
     }
 
-    if (const QmlItemNode root = m_transition.view()->rootModelNode()) {
+    if (const QmlObjectNode root = stateGroupNode()) {
         const QmlModelStateGroup states = root.states();
         for (const QString &stateName : states.names()) {
             auto itemTo = new QListWidgetItem(stateName, ui->listWidgetTo);
@@ -182,6 +206,36 @@ void TransitionForm::setupStatesLists()
 
     ui->listWidgetTo->blockSignals(bTo);
     ui->listWidgetFrom->blockSignals(bFrom);
+}
+
+void TransitionForm::setupStateGroups()
+{
+    if (!m_transition.isValid())
+        return;
+
+    auto view = m_transition.view();
+
+    if (!view->isAttached())
+        return;
+
+    const auto groupMetaInfo = view->model()->qtQuickStateGroupMetaInfo();
+
+    auto stateGroups = Utils::transform(view->allModelNodesOfType(groupMetaInfo),
+                                        &ModelNode::displayName);
+    stateGroups.prepend(tr("Default"));
+
+    bool block = ui->stateGroupComboBox->blockSignals(true);
+    ui->stateGroupComboBox->clear();
+    ui->stateGroupComboBox->insertItems(0, stateGroups);
+
+    auto stateGroup = stateGroupNode();
+
+    if (stateGroup.isRootNode())
+        ui->stateGroupComboBox->setCurrentIndex(0);
+    else
+        ui->stateGroupComboBox->setCurrentText(stateGroup.id());
+
+    ui->stateGroupComboBox->blockSignals(block);
 }
 
 } // namespace QmlDesigner

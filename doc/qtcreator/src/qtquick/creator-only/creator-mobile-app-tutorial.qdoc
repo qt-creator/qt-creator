@@ -202,7 +202,7 @@
     \uicontrol {Always allow from this computer} check box, and then select
     \uicontrol OK.
 
-        \li To run the application on the device, press \key {Ctrl+R}.
+        \li To run the application on the device, select \key {Ctrl+R}.
 
     \endlist
 */

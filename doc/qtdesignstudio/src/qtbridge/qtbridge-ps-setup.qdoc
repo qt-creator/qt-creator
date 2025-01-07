@@ -6,7 +6,7 @@
     \page qtbridge-ps-setup.html
     \nextpage qtbridge-ps-using.html
 
-    \title Setting Up \QBPS
+    \title Setting up \QBPS
 
     \QBPS is included in the
     \l{https://www.qt.io/pricing}{Qt Design Studio Enterprise license}.
@@ -67,7 +67,7 @@
     \note On \macos \QBPS fails to load when Adobe Photoshop runs natively on an ARM
     processor (Apple silicon). For more information, see \l {Running \QBPS on Apple Silicon}.
 
-    \section1 Enabling Remote Connections
+    \section1 Enabling remote connections
 
     To set up \QBPS:
 
@@ -94,7 +94,7 @@
 
     \note
 
-    \section1 Running \QBPS on Apple Silicon
+    \section1 Running \QBPS on Apple silicon
 
     If you are using \macos on an ARM processor (Apple silicon), \QBPS may not be listed
     in Adobe Photoshop under \uicontrol Window > \uicontrol {Extensions (Legacy)}.

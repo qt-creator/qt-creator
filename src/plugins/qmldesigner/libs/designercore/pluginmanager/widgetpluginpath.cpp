@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "widgetpluginpath.h"
+#include <designercoretr.h>
 #include <iwidgetplugin.h>
 
 #include <utils/filepath.h>
@@ -42,18 +43,17 @@ static IWidgetPlugin *instance(WidgetPluginData &p)
 
         if (!(loader.isLoaded() || loader.load())) {
             p.failed = true;
-            p.errorMessage = QCoreApplication::translate("WidgetPluginManager",
-                                                         "Failed to create instance of file "
-                                                         "\"%1\": %2").arg(p.path).arg(loader.errorString());
+            p.errorMessage = DesignerCore::Tr::tr("Failed to create instance of file "
+                                                  "\"%1\": %2")
+                                 .arg(p.path)
+                                 .arg(loader.errorString());
             qWarning() << p.errorMessage;
             return nullptr;
         }
         QObject *object = loader.instance();
         if (!object) {
             p.failed = true;
-            p.errorMessage = QCoreApplication::translate("WidgetPluginManager",
-                                                         "Failed to create instance of file \"%1\"."
-                                                         ).arg(p.path);
+            p.errorMessage = DesignerCore::Tr::tr("Failed to create instance of file \"%1\".").arg(p.path);
             qWarning() << p.errorMessage;
             return nullptr;
         }

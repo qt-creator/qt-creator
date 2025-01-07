@@ -30,6 +30,7 @@ public:
     QRectF contentItemBoundingRect;
     QPointF position;
     QSizeF size;
+    QSizeF implicitSize;
     QTransform transform;
     QTransform contentTransform;
     QTransform contentItemTransform;
@@ -310,7 +311,7 @@ QVariant NodeInstance::property(PropertyNameView name) const
             if (index != -1) {
                 PropertyNameView parentPropName = name.left(index);
                 QVariant varValue = value(d->propertyValues, parentPropName);
-                if (varValue.typeId() == QVariant::Vector2D) {
+                if (varValue.typeId() == QMetaType::QVector2D) {
                     auto value = varValue.value<QVector2D>();
                     char subProp = name.right(1)[0];
                     float subValue = 0.f;
@@ -326,7 +327,7 @@ QVariant NodeInstance::property(PropertyNameView name) const
                         break;
                     }
                     return QVariant(subValue);
-                } else if (varValue.typeId() == QVariant::Vector3D) {
+                } else if (varValue.typeId() == QMetaType::QVector3D) {
                     auto value = varValue.value<QVector3D>();
                     char subProp = name.right(1)[0];
                     float subValue = 0.f;
@@ -345,7 +346,7 @@ QVariant NodeInstance::property(PropertyNameView name) const
                         break;
                     }
                     return QVariant(subValue);
-                } else if (varValue.typeId() == QVariant::Vector4D) {
+                } else if (varValue.typeId() == QMetaType::QVector4D) {
                     auto value = varValue.value<QVector4D>();
                     char subProp = name.right(1)[0];
                     float subValue = 0.f;
@@ -431,9 +432,9 @@ void NodeInstance::setProperty(PropertyNameView name, const QVariant &value)
         QVariant oldValue = QmlDesigner::value(d->propertyValues, parentPropName);
         QVariant newValueVar;
         bool update = false;
-        if (oldValue.typeId() == QVariant::Vector2D) {
+        if (oldValue.typeId() == QMetaType::QVector2D) {
             QVector2D newValue;
-            if (oldValue.typeId() == QVariant::Vector2D)
+            if (oldValue.typeId() == QMetaType::QVector2D)
                 newValue = oldValue.value<QVector2D>();
             if (name.endsWith(".x")) {
                 newValue.setX(value.toFloat());
@@ -443,9 +444,9 @@ void NodeInstance::setProperty(PropertyNameView name, const QVariant &value)
                 update = true;
             }
             newValueVar = newValue;
-        } else if (oldValue.typeId() == QVariant::Vector3D) {
+        } else if (oldValue.typeId() == QMetaType::QVector3D) {
             QVector3D newValue;
-            if (oldValue.typeId() == QVariant::Vector3D)
+            if (oldValue.typeId() == QMetaType::QVector3D)
                 newValue = oldValue.value<QVector3D>();
             if (name.endsWith(".x")) {
                 newValue.setX(value.toFloat());
@@ -458,9 +459,9 @@ void NodeInstance::setProperty(PropertyNameView name, const QVariant &value)
                 update = true;
             }
             newValueVar = newValue;
-        } else if (oldValue.typeId() == QVariant::Vector4D) {
+        } else if (oldValue.typeId() == QMetaType::QVector4D) {
             QVector4D newValue;
-            if (oldValue.typeId() == QVariant::Vector4D)
+            if (oldValue.typeId() == QMetaType::QVector4D)
                 newValue = oldValue.value<QVector4D>();
             if (name.endsWith(".x")) {
                 newValue.setX(value.toFloat());
@@ -529,6 +530,16 @@ InformationName NodeInstance::setInformationSize(const QSizeF &size)
     if (d->size != size) {
         d->size = size;
         return Size;
+    }
+
+    return NoInformationChange;
+}
+
+InformationName NodeInstance::setInformationImplicitSize(const QSizeF &implicitSize)
+{
+    if (d->implicitSize != implicitSize) {
+        d->implicitSize = implicitSize;
+        return ImplicitSize;
     }
 
     return NoInformationChange;
@@ -749,6 +760,8 @@ InformationName NodeInstance::setInformation(InformationName name, const QVarian
 {
     switch (name) {
     case Size: return setInformationSize(information.toSizeF());
+    case ImplicitSize:
+        return setInformationImplicitSize(information.toSizeF());
     case BoundingRect:
         return setInformationBoundingRect(information.toRectF());
     case BoundingRectPixmap:

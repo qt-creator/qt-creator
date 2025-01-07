@@ -79,8 +79,13 @@ void EffectComposerNodesModel::loadModel()
         m_categories.push_back(category);
     }
 
+    const QString customCatName = "Custom";
     std::sort(m_categories.begin(), m_categories.end(),
-              [](EffectNodesCategory *a, EffectNodesCategory *b) {
+              [&customCatName](EffectNodesCategory *a, EffectNodesCategory *b) {
+        if (a->name() == customCatName)
+            return false;
+        if (b->name() == customCatName)
+            return true;
         return a->name() < b->name();
     });
 
@@ -95,16 +100,18 @@ void EffectComposerNodesModel::resetModel()
     endResetModel();
 }
 
-void EffectComposerNodesModel::updateCanBeAdded(const QStringList &uniforms)
+void EffectComposerNodesModel::updateCanBeAdded(
+    const QStringList &uniforms, [[maybe_unused]] const QStringList &nodeNames)
 {
     for (const EffectNodesCategory *cat : std::as_const(m_categories)) {
         const QList<EffectNode *> nodes = cat->nodes();
         for (EffectNode *node : nodes) {
             bool match = false;
             for (const QString &uniform : uniforms) {
-                match = node->hasUniform(uniform);
-                if (match)
+                if (node->hasUniform(uniform)) {
+                    match = true;
                     break;
+                }
             }
             node->setCanBeAdded(!match);
         }

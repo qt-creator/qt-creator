@@ -8,18 +8,24 @@
 
     \title Connecting MCUs with Qt Creator
 
-    \l {Connecting MCUs} {Connect MCU boards} to a development host to
-    build applications for them using the GNU Arm Embedded GCC compiler, libraries,
-    and other GNU tools necessary for BareMetal software development on devices
-    based on the Arm Cortex-M processors. Deploy the applications on MCUs to run
-    and debug them using Qt Creator.
+    With \QMCU you can develop applications for desktop and for specific MCU
+    target devices using either Linux or Windows as the development host
+    environment.
 
-    The toolchains are available for cross-compilation on Microsoft Windows,
-    Linux, and macOS. However, the \QMCU SDK is currently only available for
-    Windows and Linux.
+    When developing for desktop, you first need to install the
+    \l {MCU prerequisites for desktop}. After installing the prerequisites, you
+    need to create a \l {MCU kit for desktop} to set up the necessary environment
+    for Qt Creator to build the \QMCU application for the desktop target.
 
-    For more information on how to manage the complete cycle of developing \QMCU
-    applications using Qt tools, see:
+    If you want to start developing for a specific MCU target device, you first
+    need to install both the common and \l {MCU target device-specific prerequisites}.
+    After installing all the required prerequisites, you can launch Qt Creator
+    and create a \l {MCU kit for a target device} to set up the necessary
+    environment for Qt Creator to build and run the \QMCU application on the MCU
+    target device.
+
+    For examples on how to use Qt tools to manage the complete \QMCU application
+    development cycle for a specific target device, see:
 
     \list
         \li \l {Infineon Traveo II quick start guide}

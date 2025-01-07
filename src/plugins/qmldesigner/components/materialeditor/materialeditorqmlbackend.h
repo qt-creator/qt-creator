@@ -51,7 +51,7 @@ public:
 
     PropertyEditorValue *propertyValueForName(const QString &propertyName);
 
-    static QString propertyEditorResourcesPath();
+    static QString materialEditorResourcesPath();
 
     void emitSelectionToBeChanged();
     void emitSelectionChanged();

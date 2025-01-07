@@ -24,9 +24,14 @@ public:
     ~TransitionForm() override;
     void setTransition(const ModelNode &transition);
     ModelNode transition() const;
+    ModelNode stateGroupNode() const;
+
+signals:
+    void stateGroupChanged(const ModelNode &transition, const ModelNode &stateGroup);
 
 private:
     void setupStatesLists();
+    void setupStateGroups();
 
     Ui::TransitionForm *ui;
     ModelNode m_transition;

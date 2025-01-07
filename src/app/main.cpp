@@ -289,6 +289,19 @@ static void setHighDpiEnvironmentVariable()
     QGuiApplication::setHighDpiScaleFactorRoundingPolicy(userPolicy);
 }
 
+static void setRHIOpenGLVariable()
+{
+    QSettings installSettings(
+        QSettings::IniFormat,
+        QSettings::SystemScope,
+        QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
+        QLatin1String(Core::Constants::IDE_CASED_ID));
+
+    const QVariant value = installSettings.value("Core/RhiBackend");
+    if (value.isValid())
+        qputenv("QSG_RHI_BACKEND", value.toByteArray());
+}
+
 void setPixmapCacheLimit()
 {
     const int originalLimit = QPixmapCache::cacheLimit();
@@ -673,6 +686,7 @@ int main(int argc, char **argv)
     // though. So we set up install settings with a educated guess here, and re-setup it later.
     setupInstallSettings(options.installSettingsPath);
     setHighDpiEnvironmentVariable();
+    setRHIOpenGLVariable();
 
     SharedTools::QtSingleApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
@@ -751,7 +765,7 @@ int main(int argc, char **argv)
     info.resources = (appDirPath / RELATIVE_DATA_PATH).cleanPath();
     info.userResources = userResourcePath(settings->fileName(), Constants::IDE_ID);
     info.libexec = (appDirPath / RELATIVE_LIBEXEC_PATH).cleanPath();
-    // sync with src\tools\qml2puppet\qml2puppet\qmlpuppet.cpp -> QString crashReportsPath()
+    // sync with src\tools\qmlpuppet\qmlpuppet\qmlpuppet.cpp -> QString crashReportsPath()
     info.crashReports = info.userResources / "crashpad_reports";
     info.luaPlugins = info.resources / "lua-plugins";
     info.userLuaPlugins = info.userResources / "lua-plugins";

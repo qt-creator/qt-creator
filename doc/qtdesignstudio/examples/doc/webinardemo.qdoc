@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -23,10 +23,10 @@
     design to \QDS as PNG images and custom components.
 
     Before we can begin, we must set up \QB as instructed in
-    \l{Exporting Designs from Adobe Photoshop}.
+    \l{Exporting designs from Adobe Photoshop}.
 
     We organize our design in Photoshop using artboards as instructed in
-    \l{Organizing Assets}.
+    \l{Organizing assets}.
 
     \QB automatically proposes identifiers for all groups and layers. The IDs
     will be used as filenames in \QDS. We want to change some of them in the
@@ -47,7 +47,7 @@
     properties for the components to export, so that we won't have to do that in
     \QDS.
 
-    \section2 Creating a Reference Image
+    \section2 Creating a reference image
 
     \image webinardemo-qb-layoutref.png "Settings for exporting stackLayout artboard"
 
@@ -58,7 +58,7 @@
     select \uicontrol Merged in the \uicontrol {Export As} field to merge
     them all into one image when this artboard is exported.
 
-    \section2 Creating the UI Main Page
+    \section2 Creating the UI main page
 
     We want to use the \e backgroundGradient artboard as the main page of
     the UI. Initially, it will contain a gradient image that we
@@ -68,7 +68,7 @@
     \uicontrol {Export As} field to export it as a PNG file that is referred
     to from the main page.
 
-    \section2 Using Stack Layout
+    \section2 Using stack layout
 
     \image webinardemo-qb-stacklayout.png "Settings for exporting stackLayout artboard"
 
@@ -109,7 +109,7 @@
 
     \image webinardemo-blureffect.png "FastBlurItem component in Design mode"
 
-    \section2 Creating a Menu with Reusable Buttons
+    \section2 Creating a menu with reusable buttons
 
     The \e miniMenu artboard contains menu buttons that we will use to toggle
     popup dialogs in the UI. We want to be able to reuse the buttons
@@ -123,27 +123,27 @@
     separate, so that we can switch the icons depending on the state of the
     button. We will implement this functionality in \QDS.
 
-    \section2 Preparing for Animation
+    \section2 Preparing for animation
 
     We want to animate the contents of the \e largePopup artboard in \QDS, so
     we export each group and layer as a child.
 
-    \section2 Exporting Our Design
+    \section2 Exporting our design
 
     When we have specified settings for all the artboards and the groups and
     layers in them, we select \uicontrol Export to copy the assets and metadata
     to the export path we specified.
 
-    \section1 Importing Our Design
+    \section1 Importing our design
 
     After using \QB in Adobe Photoshop to export our design, we import it into
-    a project that we create in \QDS, as instructed in \l{Importing Designs}.
+    a project that we create in \QDS, as instructed in \l{Importing designs}.
 
     If we need to make changes in Photoshop later and export our design again,
     \QDS will try to merge our changes during the import, so that none of the
     changes we mage in \QDS are lost.
 
-    \section1 Using Imported Components
+    \section1 Using imported components
 
     The \e {LayoutReference.ui.qml} file contains a reference image of
     the UI we will create. We use the imported components to create the
@@ -162,7 +162,7 @@
 
     We can now use states and the timeline to animate the components in the UI.
 
-    \section2 Animating Components
+    \section2 Animating components
 
     We open the \e {Largepopup.ui.qml} file in the \uicontrol Design mode to add
     animation to it. In the \l States view, we add the \e opening, \e open,
@@ -178,5 +178,5 @@
     \image webinardemo-timeline.png "Popup animations in the Timeline view"
 
     For more information about using the timeline, see
-    \l {Creating Timeline Animations}.
+    \l {Creating timeline animations}.
 */

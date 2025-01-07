@@ -11,7 +11,7 @@
     \page creator-vcs-git.html
     \if defined(qtdesignstudio)
     \previouspage studio-finding-the-qt-runtime-version.html
-    \nextpage studio-porting-projects.html
+    \nextpage creator-editor-external.html
 
     \title Using Git
     \else

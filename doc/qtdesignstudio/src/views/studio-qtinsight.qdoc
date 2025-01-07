@@ -25,8 +25,8 @@
 
     In \QDS, you can do the following with Qt Insight:
     \list
-      \li Turn on and off tracking
-      \li Set send cadence
-      \li Manage categories
+      \li Turn on and off tracking.
+      \li Set send cadence.
+      \li Manage categories.
     \endlist
 */

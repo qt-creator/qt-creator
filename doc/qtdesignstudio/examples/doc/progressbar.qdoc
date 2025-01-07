@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -12,9 +12,9 @@
 
     \e {Progress Bar} animates rectangles and numbers using timelines.
 
-    \section1 Creating the Progress Bar
+    \section1 Creating the progress bar
 
-    First, we create an empty project, as described in \l {Creating Projects}.
+    First, we create an empty project, as described in \l {Creating projects}.
     For the purposes of this example, we call the project \e progressbar.
 
     In this example, we use two overlapping instances of the preset
@@ -53,9 +53,9 @@
     change for the animation.
 
     For more information about creating and positioning components, see
-    \l {Using Components} and \l {Scalable Layouts}.
+    \l {Using Components} and \l {Scalable layouts}.
 
-    \section1 Animating Progress Bar Elements
+    \section1 Animating the progress bar elements
 
     The text label will indicate the progress in numbers and changing color,
     while the indicator rectangle will indicate it by getting wider and
@@ -63,28 +63,28 @@
     in the \l Timeline view.
 
     For more information about using the timeline, see
-    \l {Creating Timeline Animations}.
+    \l {Creating timeline animations}.
 
-    \section2 Adding Color Animation
+    \section2 Adding color animation
 
     First, we add a color animation to the \e root component in the \e Root.qml
-    file. We select the \inlineimage icons/plus.png
+    file. We select the \imageplus
     button to add a 100-frame timeline to root. You can use the default
     values for all other fields.
 
     \image progressbar-timeline-settings.png "Timeline settings"
 
     To start recording a color animation on the timeline, we check that the
-    playhead is at frame 0 and then select the \inlineimage icons/recordfill.png
-    (\uicontrol {Auto Key (K)}) button (or press \key k).
+    playhead is at frame 0 and then select the \imagerecordfill
+    (\uicontrol {Auto Key (K)}) button (or select \key K).
 
     \image progressbar-timeline.png "Color animation timeline"
 
     We then set the color at frame 0 to green (\e {#8de98d}) in
     \uicontrol Properties > \uicontrol Text > \uicontrol {Text Color}.
-    We can either \l{Picking Colors}{pick a color} from the color selector
+    We can either \l{Picking colors}{pick a color} from the color selector
     or use the \uicontrol {Set Binding} command in the
-    \inlineimage icons/action-icon.png
+    \imageactionicon
     (\uicontrol Actions) menu to open the \uicontrol {Binding Editor}.
 
     We then move the playhead to frame 50 and set the text color to red
@@ -96,7 +96,7 @@
 
     We can drag the playhead along the timeline to see the color animation.
 
-    \section2 Animating the Indicator
+    \section2 Animating the indicator
 
     We select \e pb_front in \uicontrol Navigator and then select the record
     button again to animate the width of the indicator. At frame 0, we set the
@@ -120,7 +120,7 @@
     When we move the playhead, we can see that the color animation is also
     applied to the indicator.
 
-    \section1 Creating a Reusable Component
+    \section1 Creating a reusable component
 
     We want the progress bar to be reusable, so we'll move it to a separate
     component file. To make sure that the component will contain the timeline,
@@ -135,14 +135,14 @@
 
     \image progressbar-move-component.png "Move Component into Separate File dialog"
 
-    \section1 Exporting Properties
+    \section1 Exporting properties
 
     We now select the root component in \uicontrol Navigator, and
     then select \uicontrol {Go into Component} in the context menu to
     open \e Root.qml in the \uicontrol {2D} view.
 
-    We want to be able to use the keyframe value as the value of the text label,
-    so we will export it as a \l{Adding Property Aliases}{property alias}. We
+    We want to use the keyframe value as the value of the text label,
+    so we will export it as a \l{Adding property aliases}{property alias}. We
     select \e timeline in \uicontrol Navigator and then \uicontrol Properties >
     \uicontrol Timeline > \uicontrol {Current frame} > \uicontrol Actions >
     \uicontrol {Export Property as Alias}.
@@ -166,14 +166,14 @@
     When we move back to the top-level file, we can see that the number of the
     current keyframe (0) is displayed as the value of the text label.
 
-    \section1 Animating Progress Bar Instances
+    \section1 Animating the progress bar instances
 
     We want to experiment with different start and end values and easing curves,
     so we copy-paste the progress bar instance twice in the top-level file. We
     use a column layout to lay out the progress bar instances.
 
     We can now add timelines for each progress bar instance, with different
-    settings. We select the \inlineimage icons/plus.png
+    settings. We select the \imageplus
     button to add a 4000-frame timeline to the first progress bar instance
     (\e root). We select the \uicontrol Continuous check box so that the
     animation will loop.
@@ -201,9 +201,9 @@
     by specifying easing curves for them.
 
     For more information about previewing UIs, see
-    \l {Validating with Target Hardware}.
+    \l {Validating with target hardware}.
 
-    \section1 Specifying Easing Curves
+    \section1 Specifying easing curves
 
     We can add custom easing curves to every keyframe in the animations. First,
     we select the keyframe to add the easing curve to, and then select
@@ -215,9 +215,9 @@
     \image studio-easing-curve-editor.png "Easing Curve Editor"
 
     When we apply easing curves to animations, the shape of the keyframe
-    marker changes from \inlineimage icons/keyframe_linear_active.png
-    to \inlineimage icons/keyframe_manualbezier_active.png
+    marker changes from \imagekeyframelinearactive
+    to \imagekeyframemanualbezieractive
     .
 
-    For more information, see \l{Editing Easing Curves}.
+    For more information, see \l{Editing easing curves}.
 */

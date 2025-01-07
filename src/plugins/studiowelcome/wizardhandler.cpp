@@ -197,9 +197,14 @@ int WizardHandler::styleIndex(const QString &styleName) const
     return ComboBoxHelper(m_detailsPage, "ControlsStyle").indexOf(styleName);
 }
 
-QString WizardHandler::styleName(int index) const
+QString WizardHandler::styleNameAt(int index) const
 {
     return ComboBoxHelper(m_detailsPage, "ControlsStyle").text(index);
+}
+
+QString WizardHandler::styleName() const
+{
+    return styleNameAt(styleIndex());
 }
 
 void WizardHandler::setUseVirtualKeyboard(bool value)
@@ -212,6 +217,11 @@ bool WizardHandler::haveVirtualKeyboard() const
     return m_wizard->hasField("UseVirtualKeyboard");
 }
 
+bool WizardHandler::virtualKeyboardUsed() const
+{
+    return CheckBoxHelper(m_detailsPage, "UseVirtualKeyboard").isChecked();
+}
+
 void WizardHandler::enableCMakeGeneration(bool value)
 {
     CheckBoxHelper(m_detailsPage, "EnableCMakeGeneration").setChecked(value);
@@ -220,6 +230,11 @@ void WizardHandler::enableCMakeGeneration(bool value)
 bool WizardHandler::hasCMakeGeneration() const
 {
     return m_wizard->hasField("EnableCMakeGeneration");
+}
+
+bool WizardHandler::cmakeGenerationEnabled() const
+{
+    return CheckBoxHelper(m_detailsPage, "EnableCMakeGeneration").isChecked();
 }
 
 void WizardHandler::run(const std::function<void(QWizardPage *)> &processPage)

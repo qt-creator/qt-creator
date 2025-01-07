@@ -83,7 +83,7 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
 
     using namespace NanotraceHR::Literals;
     auto [collectorTraceToken, flowtoken] = traceToken.beginDurationWithFlow(
-        "generate image in standard collector"_t);
+        "generate image in standard collector");
 
     RewriterView rewriterView{m_externalDependencies, RewriterView::Amend};
     NodeInstanceView nodeInstanceView{m_connectionManager, m_externalDependencies};

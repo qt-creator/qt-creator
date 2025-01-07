@@ -5,8 +5,9 @@
 #include "cmakewriterv0.h"
 #include "cmakewriterv1.h"
 
-#include "qmlprojectmanager/qmlproject.h"
 #include "qmlprojectmanager/buildsystem/qmlbuildsystem.h"
+#include "qmlprojectmanager/qmlproject.h"
+#include "qmlprojectmanager/qmlprojectmanagertr.h"
 
 #include "utils/namevalueitem.h"
 
@@ -30,7 +31,8 @@ qt6_add_resources(%1 %2
     PREFIX "%3"
     VERSION 1.0
     FILES %4
-))";
+)
+)";
 
 CMakeWriter::Ptr CMakeWriter::create(CMakeGenerator *parent)
 {
@@ -40,20 +42,60 @@ CMakeWriter::Ptr CMakeWriter::create(CMakeGenerator *parent)
     const QmlBuildSystem *buildSystem = parent->buildSystem();
     QTC_ASSERT(buildSystem, return {});
 
-    const QString versionString = buildSystem->versionDesignStudio();
-    bool ok = false;
-    if (float version = versionString.toFloat(&ok); ok && version > 4.4)
+    auto [major, minor, patch] = versionFromString(buildSystem->versionDesignStudio());
+
+    bool useV1 = false;
+    if (major.has_value())
+        useV1 = minor.has_value() ? *major >= 4 && *minor >= 5 : *major >= 5;
+
+    if (useV1)
         return std::make_unique<CMakeWriterV1>(parent);
 
     CMakeGenerator::logIssue(
         ProjectExplorer::Task::Warning,
-        "The project was created with a Qt Design Studio version earlier than Qt Design Studio "
-        "4.5. Due to limitations of the project structure in earlier Qt Design Studio versions, "
-        "the resulting application might not display all the assets. Referring to "
-        "assets between different QML modules does not work in the compiled application.",
+        Tr::tr(
+            "The project was created with a Qt Design Studio version earlier than Qt Design Studio "
+            "4.5. Due to limitations of the project structure in earlier Qt Design Studio "
+            "versions, "
+            "the resulting application might not display all the assets. Referring to "
+            "assets between different QML modules does not work in the compiled application.<br>"
+            "<a "
+            "href=\"https://doc.qt.io/qtdesignstudio/studio-designer-developer-workflow.html\">See "
+            "the documentation for details.</a>"),
         buildSystem->projectFilePath());
 
     return std::make_unique<CMakeWriterV0>(parent);
+}
+
+CMakeWriter::Version CMakeWriter::versionFromString(const QString &versionString)
+{
+    const QStringList versions = versionString.split('.', Qt::SkipEmptyParts);
+    auto checkComponent = [&versions](qsizetype idx) -> std::optional<int> {
+        if (versions.size() >= idx+1) {
+            bool ok = false;
+            if (int version = versions[idx].toInt(&ok); ok)
+                return version;
+        }
+        return std::nullopt;
+    };
+
+    return {checkComponent(0), checkComponent(1), checkComponent(2)};
+}
+
+CMakeWriter::Version CMakeWriter::versionFromIgnoreFile(const Utils::FilePath &path)
+{
+    QString versionString;
+    QFile ignoreFile(path.toFSPathString());
+    if (ignoreFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream stream(&ignoreFile);
+        QString firstLine = stream.readLine();
+        ignoreFile.close();
+
+        QStringList parts = firstLine.split(' ');
+        QTC_ASSERT(parts.size()==3, return {});
+        return versionFromString(parts[2]);
+    }
+    return {};
 }
 
 QString CMakeWriter::readTemplate(const QString &templatePath)
@@ -164,23 +206,20 @@ QString CMakeWriter::getEnvironmentVariable(const QString &key) const
     return value;
 }
 
-QString CMakeWriter::makeFindPackageBlock(const QmlBuildSystem* buildSystem) const
+QString CMakeWriter::makeFindPackageBlock(const NodePtr &node, const QmlBuildSystem *buildSystem) const
 {
     QString head = "find_package(Qt" + buildSystem->versionQt();
-    const QString tail = " REQUIRED COMPONENTS Core Gui Qml Quick)\n";
+    QString tail = " REQUIRED COMPONENTS Core Gui Widgets Qml Quick QuickTimeline ShaderTools";
 
-    const QStringList versions = buildSystem->versionQtQuick().split('.', Qt::SkipEmptyParts);
-    if (versions.size() < 2)
+    if (hasMesh(node) || hasQuick3dImport(buildSystem->mainUiFilePath()))
+        tail.append(" Quick3D");
+    tail.append(")\n");
+
+    auto [major, minor, patch] = versionFromString(buildSystem->versionQtQuick());
+    if (!major.has_value() || !minor.has_value())
         return head + tail;
 
-    bool majorOk = false;
-    bool minorOk = false;
-    int major = versions[0].toInt(&majorOk);
-    int minor = versions[1].toInt(&minorOk);
-    if (!majorOk || !minorOk)
-        return head + tail;
-
-    const QString from = versions[0] + "." + versions[1];
+    const QString from = QString::number(*major) + "." + QString::number(*minor);
     QString out = head + " " + from + tail;
 
     if (major >= 6 && minor >= 3)
@@ -219,7 +258,7 @@ QString CMakeWriter::makeSingletonBlock(const NodePtr &node) const
     return str;
 }
 
-QString CMakeWriter::makeSubdirectoriesBlock(const NodePtr &node) const
+QString CMakeWriter::makeSubdirectoriesBlock(const NodePtr &node, const QStringList &others) const
 {
     QTC_ASSERT(parent(), return {});
 
@@ -229,6 +268,10 @@ QString CMakeWriter::makeSubdirectoriesBlock(const NodePtr &node) const
             || n->type == Node::Type::App || parent()->hasChildModule(n))
             str.append(QString("add_subdirectory(%1)\n").arg(n->dir.fileName()));
     }
+
+    for (const QString &other : others)
+        str.append(QString("add_subdirectory(%1)\n").arg(other));
+
     return str;
 }
 
@@ -333,6 +376,38 @@ void CMakeWriter::collectResources(const NodePtr &node, QStringList &res, QStrin
             res.append(makeRelative(node, path));
         }
     }
+}
+
+bool CMakeWriter::hasMesh(const NodePtr &node) const
+{
+    for (const auto &path : node->assets) {
+        if (path.suffix()=="mesh")
+            return true;
+    }
+
+    for (const auto &child : node->subdirs) {
+        if (hasMesh(child))
+            return true;
+    }
+
+    return false;
+}
+
+bool CMakeWriter::hasQuick3dImport(const Utils::FilePath &filePath) const
+{
+    QFile f(filePath.toString());
+    if (!f.open(QIODevice::ReadOnly))
+        return false;
+
+    QTextStream stream(&f);
+    while (!stream.atEnd()) {
+        QString line = stream.readLine();
+        if (line.contains("{"))
+            break;
+        if (line.contains("import") && line.contains("QtQuick3D"))
+            return true;
+    }
+    return false;
 }
 
 } // End namespace QmlProjectExporter.

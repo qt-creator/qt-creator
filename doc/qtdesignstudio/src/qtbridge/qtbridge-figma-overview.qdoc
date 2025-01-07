@@ -8,7 +8,7 @@
     \page figmaqtbridge.html
     \nextpage qtbridge-figma-setup.html
 
-    \title Exporting Designs from Figma
+    \title Exporting designs from Figma
 
     You can use \QBF to export designs from Figma to a \e {.qtbridge}
     archive that you can \l{Importing 2D Assets}{import} to projects in \QDS.
@@ -19,7 +19,7 @@
 
     \list
 
-        \li \l{Setting Up Qt Bridge for Figma}
+        \li \l{Setting up Qt Bridge for Figma}
 
             You must install Figma and the \QBF export tool before you can use
             the tool to export designs.

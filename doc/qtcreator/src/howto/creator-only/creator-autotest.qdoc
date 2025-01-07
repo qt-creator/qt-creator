@@ -421,7 +421,7 @@
     To locate Qt Test data tags:
 
     \list 1
-        \li Press \key {Ctrl+K} (\key {Cmd+K} on \macos) to activate the locator.
+        \li Select \key {Ctrl+K} (\key {Cmd+K} on \macos) to activate the locator.
         \li Enter \c qdt, followed by a space.
     \endlist
 

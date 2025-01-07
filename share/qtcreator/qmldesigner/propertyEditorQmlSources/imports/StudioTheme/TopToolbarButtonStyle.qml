@@ -4,7 +4,6 @@
 import QtQuick
 
 ControlStyle {
-
     controlSize: Qt.size(Values.topLevelComboWidth, Values.topLevelComboHeight)
     borderWidth: Values.border
     baseIconFontSize: Values.topLevelComboIcon

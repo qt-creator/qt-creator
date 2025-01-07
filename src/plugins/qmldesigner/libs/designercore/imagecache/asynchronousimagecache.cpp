@@ -20,7 +20,7 @@ using namespace NanotraceHR::Literals;
 namespace ImageCache {
 namespace {
 
-thread_local Category category_{"image cache"_t,
+thread_local Category category_{"image cache",
                                 QmlDesigner::Tracing::eventQueueWithStringArguments(),
                                 category};
 } // namespace
@@ -63,15 +63,15 @@ void AsynchronousImageCache::request(Utils::SmallStringView name,
     using namespace std::literals::string_view_literals;
 
     auto [durationToken, flowToken] = traceToken.beginDurationWithFlow(
-        "AsynchronousImageCache works on the image request"_t,
+        "AsynchronousImageCache works on the image request",
         keyValue("name", name),
         keyValue("extra id", extraId));
 
-    auto timeStrampToken = durationToken.beginDuration("getting timestamp"_t);
+    auto timeStrampToken = durationToken.beginDuration("getting timestamp");
     const auto timeStamp = timeStampProvider.timeStamp(name);
     timeStrampToken.end(keyValue("time stamp", timeStamp.value));
 
-    auto storageTraceToken = durationToken.beginDuration("fetching image from storage"_t,
+    auto storageTraceToken = durationToken.beginDuration("fetching image from storage",
                                                          keyValue("storage id", id));
     auto requestImageFromStorage = [&](RequestType requestType) {
         switch (requestType) {
@@ -92,7 +92,7 @@ void AsynchronousImageCache::request(Utils::SmallStringView name,
 
     if (entry) {
         if (entry->isNull()) {
-            storageTraceToken.tick("there was an null image in storage"_t);
+            storageTraceToken.tick("there was an null image in storage");
             abortCallback(ImageCache::AbortReason::Failed);
         } else {
             captureCallback(*entry);
@@ -106,7 +106,7 @@ void AsynchronousImageCache::request(Utils::SmallStringView name,
                           const QImage &midSizeImage,
                           const QImage &smallImage,
                           ImageCache::TraceToken traceToken) {
-                auto token = traceToken.beginDuration("call capture callback"_t);
+                auto token = traceToken.beginDuration("call capture callback");
                 auto selectImage = [](RequestType requestType,
                                       const QImage &image,
                                       const QImage &midSizeImage,
@@ -130,11 +130,11 @@ void AsynchronousImageCache::request(Utils::SmallStringView name,
         auto imageGenerationAbortedCallback =
             [abortCallback = std::move(abortCallback)](ImageCache::AbortReason reason,
                                                        ImageCache::TraceToken traceToken) {
-                traceToken.tick("image could not be created"_t);
+                traceToken.tick("image could not be created");
                 abortCallback(reason);
             };
 
-        traceToken.tick("call the generator"_t);
+        traceToken.tick("call the generator");
 
         generator.generateImage(name,
                                 extraId,
@@ -153,7 +153,7 @@ void AsynchronousImageCache::requestImage(Utils::SmallStringView name,
                                           ImageCache::AuxiliaryData auxiliaryData)
 {
     auto [trace, flowToken] = ImageCache::category().beginDurationWithFlow(
-        "request image in asynchronous image cache"_t);
+        "request image in asynchronous image cache");
     m_taskQueue.addTask(trace.createToken(),
                         std::move(name),
                         std::move(extraId),
@@ -171,7 +171,7 @@ void AsynchronousImageCache::requestMidSizeImage(Utils::SmallStringView name,
                                                  ImageCache::AuxiliaryData auxiliaryData)
 {
     auto [traceToken, flowToken] = ImageCache::category().beginDurationWithFlow(
-        "request mid size image in asynchronous image cache"_t);
+        "request mid size image in asynchronous image cache");
     m_taskQueue.addTask(traceToken.createToken(),
                         std::move(name),
                         std::move(extraId),
@@ -189,7 +189,7 @@ void AsynchronousImageCache::requestSmallImage(Utils::SmallStringView name,
                                                ImageCache::AuxiliaryData auxiliaryData)
 {
     auto [traceToken, flowtoken] = ImageCache::category().beginDurationWithFlow(
-        "request small size image in asynchronous image cache"_t);
+        "request small size image in asynchronous image cache");
     m_taskQueue.addTask(traceToken.createToken(),
                         std::move(name),
                         std::move(extraId),
@@ -226,7 +226,7 @@ void AsynchronousImageCache::Clean::operator()(Entry &entry)
 {
     using namespace NanotraceHR::Literals;
 
-    entry.traceToken.tick("cleaning up in the cache"_t);
+    entry.traceToken.tick("cleaning up in the cache");
 
     entry.abortCallback(ImageCache::AbortReason::Abort);
 }

@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<QtAdvancedDockingSystem containers="1" displayName="Basic 3D" mcusEnabled="true" userVersion="0" version="1">
+  <container floating="false">
+    <splitter count="3" orientation="Horizontal">
+      <splitter count="3" orientation="Vertical">
+        <area current="Navigator" tabs="3">
+          <widget closed="false" name="Navigator"/>
+          <widget closed="false" name="Projects"/>
+          <widget closed="true" name="DebugView"/>
+        </area>
+        <area current="Assets" tabs="3">
+          <widget closed="false" name="Assets"/>
+          <widget closed="false" name="Components"/>
+          <widget closed="false" name="ContentLibrary"/>
+        </area>
+        <area current="OpenDocuments" tabs="2">
+          <widget closed="true" name="FileSystem"/>
+          <widget closed="true" name="OpenDocuments"/>
+        </area>
+        <sizes>708 514 0</sizes>
+      </splitter>
+      <splitter count="3" orientation="Vertical">
+        <splitter count="2" orientation="Horizontal">
+          <area current="Editor3D" tabs="1">
+            <widget closed="false" name="Editor3D"/>
+          </area>
+          <area current="FormEditor" tabs="2">
+            <widget closed="false" name="FormEditor"/>
+            <widget closed="true" name="TextEditor"/>
+          </area>
+          <sizes>764 767</sizes>
+        </splitter>
+        <area current="Timelines" tabs="2">
+          <widget closed="true" name="StatesEditor"/>
+          <widget closed="true" name="Timelines"/>
+        </area>
+        <area current="OutputPane" tabs="1">
+          <widget closed="true" name="OutputPane"/>
+        </area>
+        <sizes>1223 0 0</sizes>
+      </splitter>
+      <splitter count="2" orientation="Vertical">
+        <area current="Properties" tabs="4">
+          <widget closed="false" name="Properties"/>
+          <widget closed="false" name="MaterialEditor"/>
+          <widget closed="false" name="TextureEditor"/>
+          <widget closed="true" name="ConnectionView"/>
+        </area>
+        <area current="MaterialBrowser" tabs="1">
+          <widget closed="false" name="MaterialBrowser"/>
+        </area>
+        <sizes>611 611</sizes>
+      </splitter>
+      <sizes>512 1532 512</sizes>
+    </splitter>
+  </container>
+</QtAdvancedDockingSystem>
