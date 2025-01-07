@@ -46,9 +46,9 @@ static bool isOverridingPalette(const Theme *theme)
 {
     if (theme->flag(Theme::DerivePaletteFromTheme))
         return true;
-    if (theme->flag(Theme::DerivePaletteFromThemeIfNeeded)
-        && qGuiApp->styleHints()->colorScheme() != theme->colorScheme()) {
-        return true;
+    if (theme->flag(Theme::DerivePaletteFromThemeIfNeeded)) {
+        const Qt::ColorScheme systemTheme = qGuiApp->styleHints()->colorScheme();
+        return systemTheme != Qt::ColorScheme::Unknown && systemTheme != theme->colorScheme();
     }
     return false;
 }
