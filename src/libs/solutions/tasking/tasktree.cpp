@@ -1933,7 +1933,7 @@ class RuntimeIteration
 public:
     RuntimeIteration(int index, RuntimeContainer *container);
     std::optional<Loop> loop() const;
-    void deleteChild(RuntimeTask *node);
+    void removeChild(RuntimeTask *node);
 
     const int m_iterationIndex = 0;
     const bool m_isProgressive = true;
@@ -2121,7 +2121,7 @@ std::optional<Loop> RuntimeIteration::loop() const
     return m_container->m_containerNode.m_loop;
 }
 
-void RuntimeIteration::deleteChild(RuntimeTask *task)
+void RuntimeIteration::removeChild(RuntimeTask *task)
 {
     const auto it = std::find_if(m_children.cbegin(), m_children.cend(), [task](const auto &ptr) {
         return ptr.get() == task;
@@ -2212,7 +2212,7 @@ void TaskTreePrivate::continueContainer(RuntimeContainer *container)
     const bool result = invokeDoneHandler(container, bit ? DoneWith::Success : DoneWith::Error);
     container->m_parentTask->m_setupResult = toSetupResult(result);
     if (parentIteration) {
-        parentIteration->deleteChild(parentTask);
+        parentIteration->removeChild(parentTask);
         if (!parentIteration->m_container->isStarting())
             childDone(parentIteration, result);
     } else {
@@ -2271,7 +2271,7 @@ void TaskTreePrivate::startChildren(RuntimeContainer *container)
         if (task->m_setupResult == SetupResult::Continue)
             continue;
 
-        task->m_parentIteration->deleteChild(task.get());
+        task->m_parentIteration->removeChild(task.get());
         childDone(iteration, task->m_setupResult == SetupResult::StopWithSuccess);
         if (container->m_parentTask->m_setupResult != SetupResult::Continue)
             return;
@@ -2378,7 +2378,7 @@ void TaskTreePrivate::startTask(const std::shared_ptr<RuntimeTask> &node)
     if (node->m_setupResult != SetupResult::Continue) {
         if (node->m_parentIteration->m_isProgressive)
             advanceProgress(1);
-        node->m_parentIteration->deleteChild(node.get());
+        node->m_parentIteration->removeChild(node.get());
         return;
     }
     QObject::connect(node->m_task.get(), &TaskInterface::done,
@@ -2391,7 +2391,7 @@ void TaskTreePrivate::startTask(const std::shared_ptr<RuntimeTask> &node)
         if (parentIteration->m_container->isStarting())
             return;
 
-        parentIteration->deleteChild(node.get());
+        parentIteration->removeChild(node.get());
         childDone(parentIteration, result);
         bumpAsyncCount();
     });
