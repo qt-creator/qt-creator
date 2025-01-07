@@ -35,7 +35,7 @@ public:
             return m_fallbackStubCreator->startStubProcess(setup);
         }
 
-        const Id id = Id::fromString(setup.m_commandLine.executable().toUserOutput());
+        const Id id = Id::fromString(setup.m_commandLine.toUserOutput());
 
         TerminalWidget *terminal = m_terminalPane->stoppedTerminalWithId(id);
 
