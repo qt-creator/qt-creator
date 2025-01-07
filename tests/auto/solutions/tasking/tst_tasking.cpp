@@ -3010,6 +3010,25 @@ void tst_Tasking::testTree_data()
     }
 
     {
+        class CustomTaskAdapter : public TaskAdapter<bool> // bool is dummy
+        {
+        private:
+            void start() final { emit done(DoneResult::Error); }
+        };
+
+        using CustomTask = CustomTask<CustomTaskAdapter>;
+
+        // Check if progress is updated correctly on error when the 1st task finishes synchonously.
+        const Group root {
+            storage,
+            CustomTask(),
+            createSuccessTask(1)
+        };
+        QTest::newRow("ProgressOnSynchronousError")
+            << TestData{storage, root, {}, 2, DoneWith::Error, 0};
+    }
+
+    {
         const auto recipe = [storage, createSuccessTask](bool withTask) {
             return Group {
                 storage,

@@ -2271,6 +2271,7 @@ void TaskTreePrivate::startChildren(RuntimeContainer *container)
         if (task->m_setupResult == SetupResult::Continue)
             continue;
 
+        task->m_parentIteration->deleteChild(task.get());
         childDone(iteration, task->m_setupResult == SetupResult::StopWithSuccess);
         if (container->m_parentTask->m_setupResult != SetupResult::Continue)
             return;
