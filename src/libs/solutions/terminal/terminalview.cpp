@@ -950,7 +950,33 @@ void TerminalView::keyPressEvent(QKeyEvent *event)
 
     event->accept();
 
-    d->m_surface->sendKey(event);
+    if (d->m_surface->isInAltScreen()) {
+        d->m_surface->sendKey(event);
+    } else {
+        switch (event->key()) {
+        case Qt::Key_PageDown:
+            verticalScrollBar()->setValue(qBound(
+                0,
+                verticalScrollBar()->value() + d->m_surface->liveSize().height(),
+                verticalScrollBar()->maximum()));
+            break;
+        case Qt::Key_PageUp:
+            verticalScrollBar()->setValue(qBound(
+                0,
+                verticalScrollBar()->value() - d->m_surface->liveSize().height(),
+                verticalScrollBar()->maximum()));
+            break;
+        case Qt::Key_End:
+            verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+            break;
+        case Qt::Key_Home:
+            verticalScrollBar()->setValue(0);
+            break;
+        default:
+            d->m_surface->sendKey(event);
+            break;
+        }
+    }
 }
 
 void TerminalView::keyReleaseEvent(QKeyEvent *event)

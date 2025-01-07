@@ -42,7 +42,6 @@
 #include <QPixmapCache>
 #include <QRawFont>
 #include <QRegularExpression>
-#include <QScrollBar>
 #include <QTextItem>
 #include <QTextLayout>
 #include <QToolTip>
