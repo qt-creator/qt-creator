@@ -189,7 +189,8 @@ void TerminalView::setupSurface()
     connect(d->m_surface.get(), &TerminalSurface::invalidated, this, [this](const QRect &rect) {
         setSelection(std::nullopt);
         updateViewportRect(gridToViewport(rect));
-        verticalScrollBar()->setValue(d->m_surface->fullSize().height());
+        if (verticalScrollBar()->value() == verticalScrollBar()->maximum())
+            verticalScrollBar()->setValue(d->m_surface->fullSize().height());
     });
     connect(
         d->m_surface.get(),
