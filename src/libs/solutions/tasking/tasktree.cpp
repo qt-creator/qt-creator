@@ -2200,17 +2200,17 @@ void RuntimeContainer::deleteFinishedIterations()
 
 void TaskTreePrivate::continueContainer(RuntimeContainer *container)
 {
-    if (container->m_parentTask->m_setupResult == SetupResult::Continue)
+    RuntimeTask *parentTask = container->m_parentTask;
+    if (parentTask->m_setupResult == SetupResult::Continue)
         startChildren(container);
-    if (container->m_parentTask->m_setupResult == SetupResult::Continue)
+    if (parentTask->m_setupResult == SetupResult::Continue)
         return;
 
-    const bool bit = container->updateSuccessBit(container->m_parentTask->m_setupResult == SetupResult::StopWithSuccess);
+    const bool bit = container->updateSuccessBit(parentTask->m_setupResult == SetupResult::StopWithSuccess);
     RuntimeIteration *parentIteration = container->parentIteration();
-    RuntimeTask *parentTask = container->m_parentTask;
     QT_CHECK(parentTask);
     const bool result = invokeDoneHandler(container, bit ? DoneWith::Success : DoneWith::Error);
-    container->m_parentTask->m_setupResult = toSetupResult(result);
+    parentTask->m_setupResult = toSetupResult(result);
     if (parentIteration) {
         parentIteration->removeChild(parentTask);
         if (!parentIteration->m_container->isStarting())
