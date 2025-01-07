@@ -1,0 +1,23 @@
+module NewNodes
+
+BaseGroup 1.0 BaseGroup.qml
+BaseNode 1.0 BaseNode.qml
+
+ValueNode 1.0 ValueNode.qml
+OutputNode 1.0 OutputNode.qml
+InputNode 1.0 InputNode.qml
+ProviderNode 1.0 ProviderNode.qml
+
+ColorNode 1.0 ColorNode.qml
+MetalnessNode 1.0 MetalnessNode.qml
+RoughnessNode 1.0 RoughnessNode.qml
+NormalNode 1.0 NormalNode.qml
+OcclusionNode 1.0 OcclusionNode.qml
+OpacityNode 1.0 OpacityNode.qml
+
+TextureNode 1.0 TextureNode.qml
+PrincipledMaterialNode 1.0 PrincipledMaterialNode.qml
+
+MaterialViewerNode 1.0 MaterialViewerNode.qml
+
+singleton Components 1.0 Components.qml

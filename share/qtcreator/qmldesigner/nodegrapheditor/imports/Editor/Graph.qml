@@ -16,8 +16,10 @@ Qan.Graph {
     }
 
     onConnectorRequestEdgeCreation: (srcNode, dstNode, srcPortItem, dstPortItem) => {
-        if (srcPortItem.dataType !== dstPortItem.dataType) {
-            return;
+        if (dstPortItem.dataType !== "Any") {
+            if (srcPortItem.dataType !== dstPortItem.dataType) {
+                return;
+            }
         }
 
         const edge = root.insertEdge(srcNode, dstNode);
@@ -35,7 +37,15 @@ Qan.Graph {
             });
         }
     }
-    onNodeRemoved: node => {NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;}
+    onEdgeInserted: {
+        NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;
+    }
+    onNodeInserted: {
+        NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;
+    }
+    onNodeRemoved: node => {
+        NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;
+    }
     onOnEdgeRemoved: edge => {
         const srcNode = edge.getSource();
         const dstNode = edge.getDestination();
@@ -43,14 +53,11 @@ Qan.Graph {
         const dstPortItem = edge.item.destinationItem;
 
         // TODO: add reset binding function
-        dstNode.item.value[dstPortItem.dataName] = dstNode.item.reset[dstPortItem.dataName];
-         NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;
-    }
-
-    onEdgeInserted: {
-        NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;
-    }
-    onNodeInserted: {
+        if (dstPortItem.dataReset) {
+            dstPortItem.dataReset();
+        } else {
+            dstNode.item.value[dstPortItem.dataName] = dstNode.item.reset[dstPortItem.dataName];
+        }
         NodeGraphEditorBackend.nodeGraphEditorModel.hasUnsavedChanges = true;
     }
 }

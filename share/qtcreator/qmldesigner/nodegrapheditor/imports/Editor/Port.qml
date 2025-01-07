@@ -9,7 +9,8 @@ Qan.Port {
     id: root
 
     property var dataBinding: null
-    property string dataName: ""
-    property string dataType: ""
     property string dataId: ""
+    property string dataName: ""
+    property var dataReset: null
+    property string dataType: ""
 }
