@@ -104,7 +104,7 @@ QChar AssistInterface::characterAt(int position) const
 
 QString AssistInterface::textAt(int pos, int length) const
 {
-    return Utils::Text::textAt(QTextCursor(m_textDocument), pos, length);
+    return Utils::Text::textAt(m_textDocument, pos, length);
 }
 
 void AssistInterface::prepareForAsyncUse()

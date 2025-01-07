@@ -464,11 +464,10 @@ static ChangeSet convertReplacements(const QTextDocument *doc,
 
 static QString selectedLines(QTextDocument *doc, const QTextBlock &startBlock, const QTextBlock &endBlock)
 {
-    return Text::textAt(QTextCursor(doc),
-                        startBlock.position(),
-                        std::max(0,
-                                 endBlock.position() + endBlock.length()
-                                     - startBlock.position() - 1));
+    return Text::textAt(
+        doc,
+        startBlock.position(),
+        std::max(0, endBlock.position() + endBlock.length() - startBlock.position() - 1));
 }
 
 static int indentationForBlock(const ChangeSet &toReplace,

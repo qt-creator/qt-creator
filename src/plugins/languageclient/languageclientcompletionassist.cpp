@@ -204,12 +204,12 @@ bool LanguageClientCompletionItem::isPerfectMatch(int pos, QTextDocument *doc) c
         auto range = edit->range();
         const int start = positionInText(doc, range.start().line() + 1, range.start().character() + 1);
         const int end = positionInText(doc, range.end().line() + 1, range.end().character() + 1);
-        auto text = textAt(QTextCursor(doc), start, end - start);
+        auto text = textAt(doc, start, end - start);
         return text == edit->newText();
     }
     const QString textToInsert(m_item.insertText().value_or(text()));
     const int length = textToInsert.length();
-    return textToInsert == textAt(QTextCursor(doc), pos - length, length);
+    return textToInsert == textAt(doc, pos - length, length);
 }
 
 bool LanguageClientCompletionItem::isDeprecated() const

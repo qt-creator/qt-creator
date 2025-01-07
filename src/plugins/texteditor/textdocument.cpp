@@ -334,7 +334,7 @@ QString TextDocument::plainText() const
 
 QString TextDocument::textAt(int pos, int length) const
 {
-    return Utils::Text::textAt(QTextCursor(document()), pos, length);
+    return Utils::Text::textAt(document(), pos, length);
 }
 
 QChar TextDocument::characterAt(int pos) const

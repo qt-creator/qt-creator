@@ -156,10 +156,11 @@ int positionInText(const QTextDocument *textDocument, int line, int column)
     return textDocument->findBlockByNumber(line - 1).position() + column - 1;
 }
 
-QString textAt(QTextCursor tc, int pos, int length)
+QString textAt(QTextDocument *textDocument, int pos, int length)
 {
     if (pos < 0)
         pos = 0;
+    QTextCursor tc(textDocument);
     tc.movePosition(QTextCursor::End);
     const int end = std::min(pos + length, tc.position());
 

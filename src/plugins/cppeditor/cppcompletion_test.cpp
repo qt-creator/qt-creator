@@ -118,7 +118,7 @@ public:
 
         const int pos = proposal->basePosition();
         const int length = m_position - pos;
-        const QString prefix = Utils::Text::textAt(QTextCursor(m_textDocument), pos, length);
+        const QString prefix = Utils::Text::textAt(m_textDocument, pos, length);
         if (!prefix.isEmpty())
             listmodel->filter(prefix);
         if (listmodel->isSortable(prefix))

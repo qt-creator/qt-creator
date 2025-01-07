@@ -65,7 +65,7 @@ QTCREATOR_UTILS_EXPORT bool convertPosition(const QTextDocument *document,
 // line and column are 1-based
 QTCREATOR_UTILS_EXPORT int positionInText(const QTextDocument *textDocument, int line, int column);
 
-QTCREATOR_UTILS_EXPORT QString textAt(QTextCursor tc, int pos, int length);
+QTCREATOR_UTILS_EXPORT QString textAt(QTextDocument *textDocument, int pos, int length);
 
 // line is 1-based, column is 0-based
 QTCREATOR_UTILS_EXPORT QTextCursor selectAt(QTextCursor textCursor, int line, int column, uint length);

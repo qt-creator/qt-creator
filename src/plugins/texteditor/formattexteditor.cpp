@@ -50,7 +50,7 @@ static QString sourceData(TextEditorWidget *editor, int startPos, int endPos)
 {
     return (startPos < 0)
             ? editor->toPlainText()
-            : Utils::Text::textAt(editor->textCursor(), startPos, (endPos - startPos));
+            : Utils::Text::textAt(editor->document(), startPos, (endPos - startPos));
 }
 
 static FormatOutput format(const FormatInput &input)
