@@ -16,6 +16,8 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
+#include <remotelinux/remotelinux_constants.h>
+
 #include <utils/qtcprocess.h>
 
 #include <QAction>
@@ -83,7 +85,45 @@ private:
     PerfDataReader m_reader;
 };
 
-// PerfProfilerRunWorkerFactory
+// Factories
+
+class PerfRecordWorkerFactory final : public RunWorkerFactory
+{
+public:
+    PerfRecordWorkerFactory()
+    {
+        setProducer([](RunControl *runControl) {
+            auto runner = new ProcessRunner(runControl);
+            runner->suppressDefaultStdOutHandling();
+
+            runner->setStartModifier([runner, runControl] {
+                const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
+                const QString recordArgs = perfArgs[Constants::PerfRecordArgsId].toString();
+
+                CommandLine cmd({runControl->device()->filePath("perf"), {"record"}});
+                cmd.addArgs(recordArgs, CommandLine::Raw);
+                cmd.addArgs({"-o", "-", "--"});
+                cmd.addCommandLineAsArgs(runControl->commandLine(), CommandLine::Raw);
+
+                runner->setCommandLine(cmd);
+                runner->setWorkingDirectory(runControl->workingDirectory());
+                runner->setEnvironment(runControl->environment());
+                runControl->appendMessage("Starting Perf: " + cmd.toUserOutput(), NormalMessageFormat);
+            });
+
+            // In the local case, the parser won't automatically stop when the recorder does. So we need
+            // to mark the recorder as essential, too.
+            runner->setEssential(true);
+            return runner;
+        });
+
+        addSupportedRunMode("PerfRecorder");
+        addSupportForLocalRunConfigs();
+        addSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+        addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+        addSupportedDeviceType("DockerDeviceType");
+    }
+};
 
 class PerfProfilerRunWorkerFactory final : public RunWorkerFactory
 {
@@ -99,32 +139,15 @@ public:
 
             // If the parser is gone, there is no point in going on.
             perfParserWorker->setEssential(true);
+
+            // There are currently two RunWorkerFactories reacting to that:
+            // PerfRecordRunnerFactory above for the generic case and
+            // QdbPerfProfilerWorkerFactory in boot2qt.
             ProcessRunner *perfRecordWorker
                 = qobject_cast<ProcessRunner *>(runControl->createWorker("PerfRecorder"));
 
-            if (!perfRecordWorker) {
-                perfRecordWorker = new ProcessRunner(runControl);
-                perfRecordWorker->suppressDefaultStdOutHandling();
+            QTC_ASSERT(perfRecordWorker, return worker);
 
-                perfRecordWorker->setStartModifier([worker, runControl, perfRecordWorker] {
-                    const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
-                    const QString recordArgs = perfArgs[Constants::PerfRecordArgsId].toString();
-
-                    CommandLine cmd({worker->device()->filePath("perf"), {"record"}});
-                    cmd.addArgs(recordArgs, CommandLine::Raw);
-                    cmd.addArgs({"-o", "-", "--"});
-                    cmd.addCommandLineAsArgs(runControl->commandLine(), CommandLine::Raw);
-
-                    perfRecordWorker->setCommandLine(cmd);
-                    perfRecordWorker->setWorkingDirectory(runControl->workingDirectory());
-                    perfRecordWorker->setEnvironment(runControl->environment());
-                    worker->appendMessage("Starting Perf: " + cmd.toUserOutput(), NormalMessageFormat);
-                });
-
-                // In the local case, the parser won't automatically stop when the recorder does. So we need
-                // to mark the recorder as essential, too.
-                perfRecordWorker->setEssential(true);
-            }
             worker->addStartDependency(perfRecordWorker);
 
             perfParserWorker->addStartDependency(perfRecordWorker);
@@ -155,6 +178,7 @@ public:
 void setupPerfProfilerRunWorker()
 {
     static PerfProfilerRunWorkerFactory thePerfProfilerRunWorkerFactory;
+    static PerfRecordWorkerFactory thePerfRecordWorkerFactory;
 }
 
 } // PerfProfiler::Internal
