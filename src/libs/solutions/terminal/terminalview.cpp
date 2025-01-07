@@ -977,9 +977,10 @@ void TerminalView::applySizeChange()
     if (d->m_surface->liveSize() == newLiveSize)
         return;
 
-    resizePty(newLiveSize);
-    d->m_surface->resize(newLiveSize);
-    flushVTerm(true);
+    if (resizePty(newLiveSize)) {
+        d->m_surface->resize(newLiveSize);
+        flushVTerm(true);
+    }
 }
 
 void TerminalView::updateScrollBars()

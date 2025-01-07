@@ -77,7 +77,7 @@ protected:
     void contextMenuRequested(const QPoint &pos) override;
 
     qint64 writeToPty(const QByteArray &data) override;
-    void resizePty(QSize newSize) override;
+    bool resizePty(QSize newSize) override;
     void setClipboard(const QString &text) override;
     std::optional<TerminalView::Link> toLink(const QString &text) override;
 
