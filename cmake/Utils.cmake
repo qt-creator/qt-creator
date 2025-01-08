@@ -89,6 +89,10 @@ function(configure_qml_designer Qt6_VERSION)
         set(QTC_WITH_QMLDESIGNER_DEFAULT OFF)
     endif()
 
+    if(NOT TARGET Qt::Quick)
+        set(QTC_WITH_QMLDESIGNER_DEFAULT OFF)
+    endif()
+
     env_with_default("QTC_WITH_QMLDESIGNER" ENV_QTC_WITH_QMLDESIGNER ${QTC_WITH_QMLDESIGNER_DEFAULT})
     option(WITH_QMLDESIGNER "Build QmlDesigner" ${ENV_QTC_WITH_QMLDESIGNER})
     add_feature_info("WITH_QMLDESIGNER" ${WITH_QMLDESIGNER} "${QMLDESIGNER_FEATURE_DESC}")
