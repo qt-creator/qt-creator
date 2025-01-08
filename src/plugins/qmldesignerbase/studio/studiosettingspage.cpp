@@ -3,9 +3,8 @@
 
 #include "studiosettingspage.h"
 
+#include "../qmldesignerbaseplugin.h"
 #include "../utils/designerpaths.h"
-
-#include <qmldesignerbaseplugin.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
