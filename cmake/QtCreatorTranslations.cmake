@@ -167,6 +167,8 @@ function(add_translation_targets file_prefix)
     TS_TARGET_PREFIX
     QM_TARGET_PREFIX
     ALL_QM_TARGET
+    OUT_VAR_QM_FILES
+    OUT_VAR_TS_FILES
   )
   set(multi_args
     TS_LANGUAGES
@@ -233,6 +235,9 @@ function(add_translation_targets file_prefix)
 
   file(MAKE_DIRECTORY ${_arg_OUTPUT_DIRECTORY})
 
+  set(out_ts_files "")
+  set(out_qm_files "")
+
   foreach(l IN LISTS _arg_QM_LANGUAGES)
     set(_ts_file "${CMAKE_CURRENT_SOURCE_DIR}/${file_prefix}_${l}.ts")
     set(_qm_file "${_arg_OUTPUT_DIRECTORY}/${file_prefix}_${l}.qm")
@@ -244,8 +249,20 @@ function(add_translation_targets file_prefix)
       COMMENT "Generate .qm file"
       VERBATIM)
     add_custom_target("${_arg_QM_TARGET_PREFIX}${l}" DEPENDS "${_qm_file}")
+
+    list(APPEND out_ts_files "${_ts_file}")
+    list(APPEND out_qm_files "${_qm_file}")
+
     install(FILES "${_qm_file}" DESTINATION ${_arg_INSTALL_DESTINATION})
 
     add_dependencies("${_arg_ALL_QM_TARGET}" "${_arg_QM_TARGET_PREFIX}${l}")
   endforeach()
+
+  if(_arg_OUT_VAR_TS_FILES)
+    set(${_arg_OUT_VAR_TS_FILES} "${out_ts_files}" PARENT_SCOPE)
+  endif()
+
+  if(_arg_OUT_VAR_QM_FILES)
+    set(${_arg_OUT_VAR_QM_FILES} "${out_qm_files}" PARENT_SCOPE)
+  endif()
 endfunction()
