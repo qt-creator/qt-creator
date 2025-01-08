@@ -9,6 +9,15 @@ if (NOT IS_ABSOLUTE ${IDE_LOGO_PATH})
 endif()
 configure_file(app_logo.qrc.cmakein app_logo_cmake.qrc)
 
+# This needs to be explicit like this, to avoid issues with the path
+# to the binary in generated SBOMs.
+set(qtcreator_props "")
+if(APPLE)
+  list(APPEND qtcreator_props MACOSX_BUNDLE ON)
+endif()
+if(WIN32)
+  list(APPEND qtcreator_props WIN32_EXECUTABLE ON)
+endif()
 add_qtc_executable(qtcreator
   DEFINES
     IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
@@ -19,8 +28,7 @@ add_qtc_executable(qtcreator
     ${CMAKE_CURRENT_BINARY_DIR}/app_logo_cmake.qrc
     ../tools/qtcreatorcrashhandler/crashhandlersetup.cpp ../tools/qtcreatorcrashhandler/crashhandlersetup.h
   PROPERTIES
-    WIN32_EXECUTABLE ON
-    MACOSX_BUNDLE ON
+    ${qtcreator_props}
     OUTPUT_NAME "${IDE_APP_TARGET}"
   DESTINATION "${IDE_APP_PATH}"
   QTC_RUNNABLE

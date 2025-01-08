@@ -77,6 +77,7 @@ file(COPY
   ${PROJECT_SOURCE_DIR}/cmake/QtCreatorDocumentation.cmake
   ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPI.cmake
   ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPIInternal.cmake
+  ${PROJECT_SOURCE_DIR}/cmake/QtCreatorSbom.cmake
   ${PROJECT_SOURCE_DIR}/cmake/Config.cmake.in
   ${PROJECT_SOURCE_DIR}/cmake/QtcSeparateDebugInfo.cmake
   ${PROJECT_SOURCE_DIR}/cmake/QtcSeparateDebugInfo.Info.plist.in
@@ -91,6 +92,7 @@ install(
     ${PROJECT_SOURCE_DIR}/cmake/QtCreatorDocumentation.cmake
     ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPI.cmake
     ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPIInternal.cmake
+    ${PROJECT_SOURCE_DIR}/cmake/QtCreatorSbom.cmake
     ${PROJECT_SOURCE_DIR}/cmake/Config.cmake.in
     ${PROJECT_SOURCE_DIR}/cmake/QtcSeparateDebugInfo.cmake
     ${PROJECT_SOURCE_DIR}/cmake/QtcSeparateDebugInfo.Info.plist.in
