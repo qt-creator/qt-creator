@@ -26,6 +26,7 @@
 #include <utils/qtcassert.h>
 #include <utils/url.h>
 
+#include <QGuiApplication>
 #include <QMessageBox>
 
 using namespace Core;
