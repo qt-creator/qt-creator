@@ -411,10 +411,6 @@ public:
 
         BaseSqliteResultRange(BaseSqliteResultRange &) = delete;
         BaseSqliteResultRange &operator=(BaseSqliteResultRange &) = delete;
-
-        BaseSqliteResultRange(BaseSqliteResultRange &&other)
-            : m_statement{std::move(other.resetter)}
-        {}
         BaseSqliteResultRange &operator=(BaseSqliteResultRange &&) = delete;
 
         iterator begin() & { return iterator{m_statement}; }
