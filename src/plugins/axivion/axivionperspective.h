@@ -14,7 +14,6 @@ void showErrorMessage(const QString &errorMessage);
 void reinitDashboard(const QString &projectName);
 void resetDashboard();
 void updateIssueDetails(const QString &html);
-void updatePerspectiveToolbar();
 void updateNamedFilters();
 
 } // Axivion::Internal

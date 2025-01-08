@@ -208,6 +208,7 @@ private:
     void fetchIssues(const IssueListSearch &search);
     void onFetchRequested(int startRow, int limit);
     void hideOverlays();
+    void openFilterHelp();
 
     QString m_currentPrefix;
     QString m_currentProject;
@@ -222,6 +223,7 @@ private:
     QComboBox *m_versionStart = nullptr;
     QComboBox *m_versionEnd = nullptr;
     QComboBox *m_namedFilters = nullptr;
+    QToolButton *m_showFilterHelp = nullptr;
     Guard m_signalBlocker;
     QLineEdit *m_pathGlobFilter = nullptr; // FancyLineEdit instead?
     QLabel *m_totalRows = nullptr;
@@ -346,6 +348,12 @@ IssuesWidget::IssuesWidget(QWidget *parent)
         updateAllFilters(m_namedFilters->currentData());
     });
 
+    m_showFilterHelp = new QToolButton(this);
+    m_showFilterHelp->setIcon(Utils::Icons::INFO.icon());
+    m_showFilterHelp->setToolTip(Tr::tr("Show Online Filter Help"));
+    m_showFilterHelp->setEnabled(false);
+    connect(m_showFilterHelp, &QToolButton::clicked, this, &IssuesWidget::openFilterHelp);
+
     m_issuesView = new BaseTreeView(this);
     m_issuesView->setFrameShape(QFrame::StyledPanel); // Bring back Qt default
     m_issuesView->setFrameShadow(QFrame::Sunken);     // Bring back Qt default
@@ -384,7 +392,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
 
     Column {
         Row { m_dashboards, m_dashboardProjects, empty, m_typesLayout, st, m_versionStart, m_versionEnd, st },
-        Row { m_addedFilter, m_removedFilter, Space(1), m_ownerFilter, m_pathGlobFilter, m_namedFilters },
+        Row { m_addedFilter, m_removedFilter, Space(1), m_ownerFilter, m_pathGlobFilter, m_namedFilters, m_showFilterHelp },
         m_stack,
         Row { st, m_totalRows }
     }.attachTo(widget);
@@ -479,6 +487,7 @@ void IssuesWidget::initDashboardList(const QString &preferredProject)
     const QList<AxivionServer> servers = settings().allAvailableServers();
     if (servers.isEmpty()) {
         switchActiveDashboardId({});
+        m_showFilterHelp->setEnabled(false);
         showOverlay(Tr::tr("Configure dashboards in Preferences > Axivion > General."), SettingsIcon);
         return;
     }
@@ -738,6 +747,7 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
         m_addedFilter->setText("0");
         m_removedFilter->setText("0");
         setFiltersEnabled(false);
+        m_showFilterHelp->setEnabled(false);
         m_issuesModel->clear();
         m_issuesModel->setHeader({});
         hideOverlays();
@@ -791,6 +801,7 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
     m_versionEnd->addItems(versionLabels);
     m_versionStart->setCurrentIndex(m_versionDates.count() - 1);
     updateVersionItemsEnabledState();
+    m_showFilterHelp->setEnabled(info->issueFilterHelp.has_value());
 }
 
 void IssuesWidget::updateAllFilters(const QVariant &namedFilter)
@@ -952,6 +963,13 @@ void IssuesWidget::hideOverlays()
     m_stack->setCurrentIndex(0);
 }
 
+void IssuesWidget::openFilterHelp()
+{
+    const std::optional<Dto::ProjectInfoDto> projInfo = projectInfo();
+    if (projInfo && projInfo->issueFilterHelp)
+        QDesktopServices::openUrl(resolveDashboardInfoUrl(*projInfo->issueFilterHelp));
+}
+
 static void loadImage(QPromise<QImage> &promise, const QByteArray &data)
 {
     promise.addResult(QImage::fromData(data));
@@ -1028,12 +1046,9 @@ public:
     bool handleContextMenu(const QString &issue, const ItemViewEvent &e);
     void setIssueDetailsHtml(const QString &html) { m_issueDetails->setHtml(html); }
     void handleAnchorClicked(const QUrl &url);
-    void updateToolbarButtons();
     void updateNamedFilters();
 
 private:
-    void openFilterHelp();
-
     IssuesWidget *m_issuesWidget = nullptr;
     LazyImageBrowser *m_issueDetails = nullptr;
     QAction *m_showFilterHelp = nullptr;
@@ -1087,18 +1102,10 @@ void AxivionPerspective::initPerspective()
             TextEditor::TextDocument::temporaryHideMarksAnnotation("AxivionTextMark");
     });
 
-    m_showFilterHelp = new QAction(this);
-    m_showFilterHelp->setIcon(Utils::Icons::INFO_TOOLBAR.icon());
-    m_showFilterHelp->setToolTip(Tr::tr("Show Online Filter Help"));
-    m_showFilterHelp->setEnabled(false);
-    connect(m_showFilterHelp, &QAction::triggered, this, &AxivionPerspective::openFilterHelp);
-
     addToolBarAction(reloadDataAct);
     addToolbarSeparator();
     addToolBarAction(showIssuesAct);
     addToolBarAction(toggleIssuesAct);
-    addToolbarSeparator();
-    addToolBarAction(m_showFilterHelp); // FIXME move to IssuesWidget when named filters are added
 
     addWindow(m_issuesWidget, Perspective::SplitVertical, nullptr);
     addWindow(m_issueDetails, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
@@ -1202,22 +1209,9 @@ void AxivionPerspective::handleAnchorClicked(const QUrl &url)
         EditorManager::openEditorAt(link);
 }
 
-void AxivionPerspective::updateToolbarButtons()
-{
-    const std::optional<Dto::ProjectInfoDto> pInfo = projectInfo();
-    m_showFilterHelp->setEnabled(pInfo && pInfo->issueFilterHelp);
-}
-
 void AxivionPerspective::updateNamedFilters()
 {
     m_issuesWidget->updateNamedFilters();
-}
-
-void AxivionPerspective::openFilterHelp()
-{
-    const std::optional<Dto::ProjectInfoDto> projInfo = projectInfo();
-    if (projInfo && projInfo->issueFilterHelp)
-        QDesktopServices::openUrl(resolveDashboardInfoUrl(*projInfo->issueFilterHelp));
 }
 
 static QPointer<AxivionPerspective> theAxivionPerspective;
@@ -1274,12 +1268,6 @@ void updateIssueDetails(const QString &html)
 {
     QTC_ASSERT(theAxivionPerspective, return);
     theAxivionPerspective->setIssueDetailsHtml(html);
-}
-
-void updatePerspectiveToolbar()
-{
-    QTC_ASSERT(theAxivionPerspective, return);
-    theAxivionPerspective->updateToolbarButtons();
 }
 
 void updateNamedFilters()

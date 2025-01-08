@@ -868,7 +868,6 @@ Group projectInfoRecipe(const QString &projectName)
         }
 
         if (dd->m_dashboardInfo->projects.isEmpty()) {
-            updatePerspectiveToolbar();
             updateDashboard();
             return SetupResult::StopWithSuccess;
         }
@@ -877,7 +876,6 @@ Group projectInfoRecipe(const QString &projectName)
             dd->m_currentProjectInfo = data;
             if (!dd->m_currentProjectInfo->versions.empty())
                 setAnalysisVersion(dd->m_currentProjectInfo->versions.back().date);
-            updatePerspectiveToolbar();
             updateDashboard();
         };
 
@@ -1197,7 +1195,6 @@ void switchActiveDashboardId(const Id &toDashboardId)
     dd->m_currentProjectInfo.reset();
     dd->m_globalNamedFilters.clear();
     dd->m_userNamedFilters.clear();
-    updatePerspectiveToolbar();
     updateNamedFilters();
 }
 
