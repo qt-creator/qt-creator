@@ -103,7 +103,8 @@ bool IosRunConfiguration::isEnabled(Id runMode) const
 
     IosDevice::ConstPtr iosdevice = std::dynamic_pointer_cast<const IosDevice>(dev);
     if (iosdevice && iosdevice->handler() == IosDevice::Handler::DeviceCtl
-        && runMode != ProjectExplorer::Constants::NORMAL_RUN_MODE) {
+        && runMode != ProjectExplorer::Constants::NORMAL_RUN_MODE
+        && !IosDeviceManager::isDeviceCtlDebugSupported()) {
         return false;
     }
 
@@ -280,9 +281,9 @@ QString IosRunConfiguration::disabledReason(Id runMode) const
         }
         IosDevice::ConstPtr iosdevice = std::dynamic_pointer_cast<const IosDevice>(dev);
         if (iosdevice && iosdevice->handler() == IosDevice::Handler::DeviceCtl
-            && runMode != ProjectExplorer::Constants::NORMAL_RUN_MODE) {
-            return Tr::tr("Debugging and profiling is currently not supported for devices with iOS "
-                          "17 and later.");
+            && runMode != ProjectExplorer::Constants::NORMAL_RUN_MODE
+            && !IosDeviceManager::isDeviceCtlDebugSupported()) {
+            return Tr::tr("Debugging on devices with iOS 17 and later requires Xcode 16 or later.");
         }
     }
     return RunConfiguration::disabledReason(runMode);

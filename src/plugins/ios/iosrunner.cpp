@@ -92,6 +92,12 @@ static void stopRunningRunControl(RunControl *runControl)
         activeRunControls[devId] = runControl;
 }
 
+static QString getBundleIdentifier(const FilePath &bundlePath)
+{
+    QSettings settings(bundlePath.pathAppended("Info.plist").toString(), QSettings::NativeFormat);
+    return settings.value(QString::fromLatin1("CFBundleIdentifier")).toString();
+}
+
 struct AppInfo
 {
     QUrl pathOnDevice;
@@ -104,16 +110,18 @@ public:
     DeviceCtlRunnerBase(RunControl *runControl);
 
     void start();
+    qint64 processIdentifier() const { return m_processIdentifier; }
 
 protected:
+    GroupItem findApp(const QString &bundleIdentifier, Storage<AppInfo> appInfo);
+    GroupItem findProcess(Storage<AppInfo> &appInfo);
     void reportStoppedImpl();
 
     IosDevice::ConstPtr m_device;
     QStringList m_arguments;
+    qint64 m_processIdentifier = -1;
 
 private:
-    GroupItem findApp(const QString &bundleIdentifier, Storage<AppInfo> appInfo);
-    GroupItem findProcess(Storage<AppInfo> &appInfo);
     GroupItem killProcess(Storage<AppInfo> &appInfo);
     virtual GroupItem launchTask(const QString &bundleIdentifier) = 0;
 
@@ -135,7 +143,6 @@ private:
     std::unique_ptr<TaskTree> m_stopTask;
     std::unique_ptr<TaskTree> m_pollTask;
     QTimer m_pollTimer;
-    qint64 m_processIdentifier = -1;
 };
 
 class DeviceCtlRunner final : public DeviceCtlRunnerBase
@@ -145,11 +152,15 @@ public:
 
     void stop();
 
+    void setStartStopped(bool startStopped) { m_startStopped = startStopped; }
+
 private:
     GroupItem launchTask(const QString &bundleIdentifier);
 
     Process m_process;
     std::unique_ptr<TemporaryFile> m_deviceCtlOutput;
+    std::unique_ptr<TaskTree> m_processIdTask;
+    bool m_startStopped = false;
 };
 
 DeviceCtlRunnerBase::DeviceCtlRunnerBase(RunControl *runControl)
@@ -305,9 +316,7 @@ void DeviceCtlRunnerBase::reportStoppedImpl()
 
 void DeviceCtlRunnerBase::start()
 {
-    QSettings settings(m_bundlePath.pathAppended("Info.plist").toString(), QSettings::NativeFormat);
-    const QString bundleIdentifier
-        = settings.value(QString::fromLatin1("CFBundleIdentifier")).toString();
+    const QString bundleIdentifier = getBundleIdentifier(m_bundlePath);
     if (bundleIdentifier.isEmpty()) {
         reportFailure(Tr::tr("Failed to determine bundle identifier."));
         return;
@@ -450,25 +459,47 @@ GroupItem DeviceCtlRunner::launchTask(const QString &bundleIdentifier)
             reportFailure(Tr::tr("Running failed. Failed to create the temporary output file."));
             return false;
         }
-        m_process.setCommand(
-            {FilePath::fromString("/usr/bin/xcrun"),
-             {"devicectl",
-              "device",
-              "process",
-              "launch",
-              "--device",
-              m_device->uniqueInternalDeviceId(),
-              "--quiet",
-              "--json-output",
-              m_deviceCtlOutput->fileName(),
-              "--console",
-              bundleIdentifier,
-              m_arguments}});
-        connect(&m_process, &Process::started, this, [this] { reportStarted(); });
+        const QStringList startStoppedArg = m_startStopped ? QStringList("--start-stopped")
+                                                           : QStringList();
+        const QStringList arguments = QStringList(
+                                          {"devicectl",
+                                           "device",
+                                           "process",
+                                           "launch",
+                                           "--device",
+                                           m_device->uniqueInternalDeviceId(),
+                                           "--quiet",
+                                           "--json-output",
+                                           m_deviceCtlOutput->fileName()})
+                                      + startStoppedArg
+                                      + QStringList({"--console", bundleIdentifier}) + m_arguments;
+        m_process.setCommand({FilePath::fromString("/usr/bin/xcrun"), arguments});
+        connect(&m_process, &Process::started, this, [this, bundleIdentifier] {
+            // devicectl does report the process ID in its json output, but that is broken
+            // for --console. When that is used, the json output is only written after the process
+            // finished, which is not helpful.
+            // Manually find the process ID for the bundle identifier.
+            Storage<AppInfo> appInfo;
+            m_processIdTask.reset(new TaskTree(Group{
+                sequential,
+                appInfo,
+                findApp(bundleIdentifier, appInfo),
+                findProcess(appInfo),
+                onGroupDone([this, appInfo](DoneWith doneWith) {
+                    if (doneWith == DoneWith::Success) {
+                        m_processIdentifier = appInfo->processIdentifier;
+                        reportStarted();
+                    } else {
+                        reportFailure(Tr::tr("Failed to retrieve process ID."));
+                    }
+                })}));
+            m_processIdTask->start();
+        });
         connect(&m_process, &Process::done, this, [this] {
             if (m_process.error() != QProcess::UnknownError)
                 reportFailure(Tr::tr("Failed to run devicectl: %1.").arg(m_process.errorString()));
             m_deviceCtlOutput->reset();
+            m_processIdTask.reset();
             reportStoppedImpl();
         });
         connect(&m_process, &Process::readyReadStandardError, this, [this] {
@@ -841,7 +872,8 @@ public:
 private:
     void start() override;
 
-    IosRunner *m_runner;
+    IosRunner *m_iosRunner = nullptr;
+    DeviceCtlRunner *m_deviceCtlRunner = nullptr;
 };
 
 static expected_str<FilePath> findDeviceSdk(IosDevice::ConstPtr dev)
@@ -874,15 +906,29 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
 {
     setId("IosDebugSupport");
 
-    m_runner = new IosRunner(runControl);
-    m_runner->setCppDebugging(isCppDebugging());
-    m_runner->setQmlDebugging(isQmlDebugging() ? QmlDebuggerServices : NoQmlDebugServices);
+    IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(device());
 
-    addStartDependency(m_runner);
+    if (dev->type() == Ios::Constants::IOS_SIMULATOR_TYPE
+        || dev->handler() == IosDevice::Handler::IosTool) {
+        m_iosRunner = new IosRunner(runControl);
+        m_iosRunner->setCppDebugging(isCppDebugging());
+        m_iosRunner->setQmlDebugging(isQmlDebugging() ? QmlDebuggerServices : NoQmlDebugServices);
+        addStartDependency(m_iosRunner);
+    } else {
+        QTC_CHECK(isCppDebugging());
+        m_deviceCtlRunner = new DeviceCtlRunner(runControl);
+        m_deviceCtlRunner->setStartStopped(true);
+        addStartDependency(m_deviceCtlRunner);
+    }
 
     if (device()->type() == Ios::Constants::IOS_DEVICE_TYPE) {
-        IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(device());
-        setStartMode(AttachToRemoteProcess);
+        if (dev->handler() == IosDevice::Handler::DeviceCtl) {
+            QTC_CHECK(IosDeviceManager::isDeviceCtlDebugSupported());
+            setStartMode(AttachToIosDevice);
+            setDeviceUuid(dev->uniqueInternalDeviceId());
+        } else {
+            setStartMode(AttachToRemoteProcess);
+        }
         setIosPlatform("remote-ios");
         const expected_str<FilePath> deviceSdk = findDeviceSdk(dev);
 
@@ -898,20 +944,39 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
 
 void IosDebugSupport::start()
 {
-    if (!m_runner->isAppRunning()) {
+    const IosDeviceTypeAspect::Data *data = runControl()->aspectData<IosDeviceTypeAspect>();
+    QTC_ASSERT(data, reportFailure("Broken IosDeviceTypeAspect setup."); return);
+    setRunControlName(data->applicationName);
+    setContinueAfterAttach(true);
+
+    IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(device());
+    if (dev->type() == Ios::Constants::IOS_DEVICE_TYPE
+        && dev->handler() == IosDevice::Handler::DeviceCtl) {
+        const auto msgOnlyCppDebuggingSupported = [] {
+            return Tr::tr("Only C++ debugging is supported for devices with iOS 17 and later.");
+        };
+        if (!isCppDebugging()) {
+            reportFailure(msgOnlyCppDebuggingSupported());
+            return;
+        }
+        if (isQmlDebugging()) {
+            runParameters().isQmlDebugging = false;
+            appendMessage(msgOnlyCppDebuggingSupported(), OutputFormat::LogMessageFormat, true);
+        }
+        setAttachPid(m_deviceCtlRunner->processIdentifier());
+        setInferiorExecutable(data->localExecutable);
+        DebuggerRunTool::start();
+        return;
+    }
+
+    if (!m_iosRunner->isAppRunning()) {
         reportFailure(Tr::tr("Application not running."));
         return;
     }
 
-    const IosDeviceTypeAspect::Data *data = runControl()->aspectData<IosDeviceTypeAspect>();
-    QTC_ASSERT(data, reportFailure("Broken IosDeviceTypeAspect setup."); return);
-
-    setRunControlName(data->applicationName);
-    setContinueAfterAttach(true);
-
-    Port gdbServerPort = m_runner->gdbServerPort();
-    Port qmlServerPort = m_runner->qmlServerPort();
-    setAttachPid(ProcessHandle(m_runner->pid()));
+    Port gdbServerPort = m_iosRunner->gdbServerPort();
+    Port qmlServerPort = m_iosRunner->qmlServerPort();
+    setAttachPid(ProcessHandle(m_iosRunner->pid()));
 
     const bool cppDebug = isCppDebugging();
     const bool qmlDebug = isQmlDebugging();

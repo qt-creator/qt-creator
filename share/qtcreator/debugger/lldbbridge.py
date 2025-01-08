@@ -98,6 +98,7 @@ class Dumper(DumperBase):
         self.startMode_ = None
         self.processArgs_ = None
         self.attachPid_ = None
+        self.deviceUuid_ = None
         self.dyldImageSuffix = None
         self.dyldLibraryPath = None
         self.dyldFrameworkPath = None
@@ -918,6 +919,7 @@ class Dumper(DumperBase):
         self.environment_ = args.get('environment', [])
         self.environment_ = list(map(lambda x: self.hexdecode(x), self.environment_))
         self.attachPid_ = args.get('attachpid', 0)
+        self.deviceUuid_ = args.get('deviceUuid', '')
         self.sysRoot_ = args.get('sysroot', '')
         self.remoteChannel_ = args.get('remotechannel', '')
         self.platform_ = args.get('platform', '')
@@ -942,11 +944,23 @@ class Dumper(DumperBase):
         if self.startMode_ == DebuggerStartMode.AttachExternal:
             self.symbolFile_ = ''
 
-        self.target = self.debugger.CreateTarget(
-            self.symbolFile_, None, self.platform_, True, error)
+        if self.startMode_ == DebuggerStartMode.AttachToIosDevice:
+            # The script code depends on a target from now on,
+            # so we already need to attach with the special Apple lldb debugger commands
+            self.runDebuggerCommand('device select ' + self.deviceUuid_)
+            self.runDebuggerCommand('device process attach -p ' + str(self.attachPid_))
+            self.target = self.debugger.GetSelectedTarget()
+        else:
+            self.target = self.debugger.CreateTarget(
+                self.symbolFile_, None, self.platform_, True, error)
 
         if not error.Success():
             self.report(self.describeError(error))
+            self.reportState('enginerunfailed')
+            return
+
+        if not self.target:
+            self.report('Debugger failed to create target.')
             self.reportState('enginerunfailed')
             return
 
@@ -1090,6 +1104,11 @@ class Dumper(DumperBase):
                 self.reportState('enginerunokandinferiorunrunnable')
             else:
                 self.reportState('enginerunfailed')
+        elif self.startMode_ == DebuggerStartMode.AttachToIosDevice:
+            # Already attached in setupInferior (to get a SBTarget),
+            # just get the process from it
+            self.process = self.target.GetProcess()
+            self.reportState('enginerunandinferiorrunok')
         else:
             launchInfo = lldb.SBLaunchInfo(self.processArgs_)
             launchInfo.SetWorkingDirectory(self.workingDirectory_)
@@ -1920,15 +1939,19 @@ class Dumper(DumperBase):
         self.debugger.GetCommandInterpreter().HandleCommand(command, result)
         self.reportResult('fulltrace="%s"' % self.hexencode(result.GetOutput()), args)
 
-    def executeDebuggerCommand(self, args):
-        self.reportToken(args)
+    def runDebuggerCommand(self, command):
+        self.report('Running debugger command "{}"'.format(command))
         result = lldb.SBCommandReturnObject()
-        command = args['command']
         self.debugger.GetCommandInterpreter().HandleCommand(command, result)
         success = result.Succeeded()
         output = toCString(result.GetOutput())
         error = toCString(str(result.GetError()))
         self.report('success="%d",output="%s",error="%s"' % (success, output, error))
+
+    def executeDebuggerCommand(self, args):
+        self.reportToken(args)
+        command = args['command']
+        self.runDebuggerCommand(command)
 
     def executeRoundtrip(self, args):
         self.reportResult('', args)

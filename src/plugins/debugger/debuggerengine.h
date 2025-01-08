@@ -116,6 +116,8 @@ public:
     QString deviceSymbolsRoot;
     bool continueAfterAttach = false;
     Utils::FilePath sysRoot;
+    // iOS 17+
+    QString deviceUuid;
 
     // Used by general core file debugging. Public access requested in QTCREATORBUG-17158.
     Utils::FilePath coreFile;

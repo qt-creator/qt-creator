@@ -255,6 +255,11 @@ void DebuggerRunTool::setDeviceSymbolsRoot(const QString &deviceSymbolsRoot)
     m_runParameters.deviceSymbolsRoot = deviceSymbolsRoot;
 }
 
+void DebuggerRunTool::setDeviceUuid(const QString &uuid)
+{
+    m_runParameters.deviceUuid = uuid;
+}
+
 void DebuggerRunTool::setTestCase(int testCase)
 {
     m_runParameters.testCase = testCase;

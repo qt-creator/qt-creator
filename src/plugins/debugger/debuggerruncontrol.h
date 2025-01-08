@@ -101,6 +101,8 @@ public:
 
     void setIosPlatform(const QString &platform);
     void setDeviceSymbolsRoot(const QString &deviceSymbolsRoot);
+    void setDeviceUuid(const QString &uuid);
+
     void setAbi(const ProjectExplorer::Abi &abi);
 
     DebuggerEngineType cppEngineType() const;

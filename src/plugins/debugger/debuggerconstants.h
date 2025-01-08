@@ -28,9 +28,8 @@ const char ANALYZERTASK_ID[]         = "Analyzer.TaskId";
 
 } // namespace Constants
 
-// Keep in sync with dumper.py
-enum DebuggerStartMode
-{
+// Keep in sync with debugger/utils.py
+enum DebuggerStartMode {
     NoStartMode,
     StartInternal,          // Start current start project's binary
     StartExternal,          // Start binary found in file system
@@ -40,7 +39,8 @@ enum DebuggerStartMode
     AttachToRemoteServer,   // Attach to a running gdbserver
     AttachToRemoteProcess,  // Attach to a running remote process
     AttachToQmlServer,      // Attach to a running QmlServer
-    StartRemoteProcess      // Start and attach to a remote process
+    StartRemoteProcess,     // Start and attach to a remote process
+    AttachToIosDevice       // Attach to an application on a iOS 17+ device
 };
 
 enum DebuggerCloseMode

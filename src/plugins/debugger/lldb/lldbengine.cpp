@@ -270,6 +270,7 @@ void LldbEngine::handleLldbStarted()
     cmd2.arg("startmode", rp.startMode);
     cmd2.arg("nativemixed", isNativeMixedActive());
     cmd2.arg("workingdirectory", inferior.workingDirectory.path());
+    cmd2.arg("deviceUuid", rp.deviceUuid);
     Environment environment = inferior.environment;
     // Prevent lldb from automatically setting OS_ACTIVITY_DT_MODE to mirror
     // NSLog to stderr, as that will also mirror os_log, which we pick up in
@@ -303,18 +304,20 @@ void LldbEngine::handleLldbStarted()
         if (rp.startMode != StartInternal) {
             // it is better not to check the start mode on the python sid (as we would have to duplicate the
             // enum values), and thus we assume that if the rp.attachPID is valid we really have to attach
-            QTC_CHECK(rp.attachPID.isValid() && (rp.startMode == AttachToRemoteProcess
-                                                 || rp.startMode == AttachToLocalProcess
-                                                 || rp.startMode == AttachToRemoteServer));
+            QTC_CHECK(
+                rp.attachPID.isValid()
+                && (rp.startMode == AttachToRemoteProcess || rp.startMode == AttachToLocalProcess
+                    || rp.startMode == AttachToRemoteServer || rp.startMode == AttachToIosDevice));
             cmd2.arg("attachpid", rp.attachPID.pid());
             cmd2.arg("sysroot", rp.deviceSymbolsRoot.isEmpty() ? rp.sysRoot.toString()
                                                                : rp.deviceSymbolsRoot);
             cmd2.arg("remotechannel", ((rp.startMode == AttachToRemoteProcess
                                        || rp.startMode == AttachToRemoteServer)
                                       ? rp.remoteChannel : QString()));
-            QTC_CHECK(!rp.continueAfterAttach || (rp.startMode == AttachToRemoteProcess
-                                                  || rp.startMode == AttachToLocalProcess
-                                                  || rp.startMode == AttachToRemoteServer));
+            QTC_CHECK(
+                !rp.continueAfterAttach
+                || (rp.startMode == AttachToRemoteProcess || rp.startMode == AttachToLocalProcess
+                    || rp.startMode == AttachToRemoteServer || rp.startMode == AttachToIosDevice));
             m_continueAtNextSpontaneousStop = false;
         }
     }
