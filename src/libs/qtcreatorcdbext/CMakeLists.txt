@@ -12,11 +12,43 @@ if (NOT DEFINED QTCREATORCDBEXT_INSTALL_LLVM)
   set(QTCREATORCDBEXT_INSTALL_LLVM YES) # default
 endif()
 
+set(ArchSuffix "32")
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+  set(ArchSuffix "64")
+endif()
+
+if(MSVC_CXX_ARCHITECTURE_ID MATCHES "^ARM")
+  set(ArchSuffix "arm${ArchSuffix}")
+endif()
+
 if (NOT QT_CREATOR_API_DEFINED)
   # standalone build
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
+  include(QtCreatorSbom)
   qtc_handle_compiler_cache_support()
+
+  # Need to look for Qt6 optionally, so that we can use the SBOM feature, even though the
+  # project doesn't link to Qt.
+  find_package(Qt6
+    COMPONENTS Core
+  )
+
+  set(QT_CREATOR_CDB_EXT_STANDALONE_BUILD TRUE)
+  qtc_setup_sbom()
+  qtc_sbom_compute_cpe(project_cpe
+      VENDOR "qt"
+      PRODUCT "${PROJECT_NAME}"
+      VERSION "${IDE_VERSION}"
+  )
+  set(QT_SBOM_LICENSE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/../../../LICENSES")
+  qtc_sbom_begin_project(
+    SBOM_PROJECT_NAME "${PROJECT_NAME}-${ArchSuffix}"
+    QT_REPO_PROJECT_NAME "${PROJECT_NAME}-${ArchSuffix}"
+    PURL_NAMESPACE "qt"
+    PURL_NAME "${PROJECT_NAME}"
+    CPE "${project_cpe}"
+  )
 
   # Compile for x86, x64 and arm64
   if (NOT ${PROJECT_NAME}-MultiBuild AND NOT MINGW)
@@ -80,15 +112,6 @@ endif()
 
 if (NOT WIN32 OR NOT MSVC OR BUILD_DESIGNSTUDIO)
   return()
-endif()
-
-set(ArchSuffix "32")
-if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-  set(ArchSuffix "64")
-endif()
-
-if (MSVC_CXX_ARCHITECTURE_ID MATCHES "^ARM")
-  set(ArchSuffix "arm${ArchSuffix}")
 endif()
 
 if (NOT EXISTS "${CMAKE_BINARY_DIR}/lib/qtcreatorcdbext${ArchSuffix}")
@@ -304,4 +327,8 @@ if (_library_enabled)
     endif()
   endif()
 
+endif()
+
+if(QT_CREATOR_CDB_EXT_STANDALONE_BUILD)
+  qtc_sbom_end_project()
 endif()

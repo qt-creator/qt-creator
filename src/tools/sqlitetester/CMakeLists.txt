@@ -16,11 +16,25 @@ if (NOT QT_CREATOR_API_DEFINED)
   set(DESTINATION DESTINATION .)
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
+  include(QtCreatorSbom)
   qtc_handle_compiler_cache_support()
 
   find_package(Qt6
     COMPONENTS Core Gui Widgets
     REQUIRED
+  )
+  set(QT_SQLITE_TESTER_STANDALONE_BUILD TRUE)
+  qtc_setup_sbom()
+  qtc_sbom_compute_cpe(project_cpe
+      VENDOR "qt"
+      PRODUCT "${PROJECT_NAME}"
+      VERSION "${IDE_VERSION}"
+  )
+  set(QT_SBOM_LICENSE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/../../../LICENSES")
+  qtc_sbom_begin_project(
+    PURL_NAMESPACE "qt"
+    PURL_NAME "${PROJECT_NAME}"
+    CPE "${project_cpe}"
   )
 endif()
 
@@ -35,3 +49,7 @@ add_qtc_executable(sqlitetester
   SOURCES
     main.cpp
 )
+
+if(QT_SQLITE_TESTER_STANDALONE_BUILD)
+  qtc_sbom_end_project()
+endif()
