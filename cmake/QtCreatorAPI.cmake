@@ -157,6 +157,7 @@ function(add_qtc_library name)
     PROPERTIES
     PRIVATE_COMPILE_OPTIONS
     PUBLIC_COMPILE_OPTIONS
+    SBOM_ARGS
   )
 
   cmake_parse_arguments(_arg "${opt_args}" "${single_args}" "${multi_args}" ${ARGN})
@@ -318,7 +319,9 @@ function(add_qtc_library name)
     set(COMPONENT_OPTION "COMPONENT" "${_arg_COMPONENT}")
   endif()
 
+  set(will_install_target FALSE)
   if (NOT _arg_EXCLUDE_FROM_INSTALL AND (NOT QTC_STATIC_BUILD OR _arg_SHARED))
+    set(will_install_target TRUE)
     install(TARGETS ${name}
       EXPORT QtCreator
       RUNTIME
@@ -362,8 +365,49 @@ function(add_qtc_library name)
   if(Qt6_VERSION AND "${have_automoc_prop}")
     qt_extract_metatypes(${name})
   endif()
+
+  qtc_mark_for_deferred_finalization("${name}" qtc_finalize_library)
+
+  if(QT_GENERATE_SBOM)
+    set(sbom_args
+      DEFAULT_SBOM_ENTITY_TYPE "LIBRARY"
+      RUNTIME_PATH "${_DESTINATION}"
+      LIBRARY_PATH "${IDE_LIBRARY_PATH}"
+      ARCHIVE_PATH "${IDE_LIBRARY_ARCHIVE_PATH}"
+      ${_arg_SBOM_ARGS}
+    )
+
+    get_target_property(target_type "${name}" TYPE)
+    if(NOT (will_install_target AND target_type STREQUAL SHARED_LIBRARY))
+      list(APPEND sbom_args NO_INSTALL)
+    endif()
+
+    qtc_extend_qtc_entity_sbom(${name} ${sbom_args})
+  endif()
 endfunction(add_qtc_library)
 
+function(qtc_finalize_target target)
+  qtc_finalize_sbom("${target}")
+
+  # Mark as finalized.
+  set_target_properties(${target} PROPERTIES _qtc_is_finalized TRUE)
+endfunction()
+
+function(qtc_finalize_library target)
+  qtc_finalize_target("${target}")
+endfunction()
+
+# SBOM finalizer handler that is run after finalizing a target.
+# This is defined here, and not in QtCreatorSbom.cmake because if an existing plugin or standalone
+# project includes QtCreatorAPI.cmake, but not QtCreatorSbom.cmake, that would cause a failure
+# not finding the function.
+function(qtc_finalize_sbom target)
+  if(NOT QT_GENERATE_SBOM)
+    return()
+  endif()
+
+  _qt_internal_finalize_sbom(${target})
+endfunction()
 
 function(markdown_to_json resultVarName filepath)
   file(STRINGS ${filepath} markdown)
@@ -423,6 +467,7 @@ function(add_qtc_plugin target_name)
     PROPERTIES
     PRIVATE_COMPILE_OPTIONS
     PUBLIC_COMPILE_OPTIONS
+    SBOM_ARGS
   )
 
   cmake_parse_arguments(_arg "${opt_args}" "${single_args}" "${multi_args}" ${ARGN})
@@ -684,7 +729,9 @@ function(add_qtc_plugin target_name)
     enable_pch(${target_name})
   endif()
 
+  set(will_install_target FALSE)
   if (NOT _arg_SKIP_INSTALL AND NOT QTC_STATIC_BUILD)
+    set(will_install_target TRUE)
     if (_arg_EXPORT)
       set(export QtCreator${target_name})
     else()
@@ -727,6 +774,31 @@ function(add_qtc_plugin target_name)
       )
     endif()
   endif()
+
+  qtc_mark_for_deferred_finalization("${name}" qtc_finalize_plugin)
+
+  if(QT_GENERATE_SBOM)
+    set(sbom_args "")
+
+    get_target_property(target_type "${name}" TYPE)
+    if(NOT (will_install_target AND target_type STREQUAL "SHARED_LIBRARY"))
+       list(APPEND sbom_args NO_INSTALL)
+    endif()
+
+    list(APPEND sbom_args
+      DEFAULT_SBOM_ENTITY_TYPE "LIBRARY"
+      RUNTIME_PATH "${plugin_dir}"
+      LIBRARY_PATH "${plugin_dir}"
+      ARCHIVE_PATH "${plugin_dir}"
+      ${_arg_SBOM_ARGS}
+    )
+
+    qtc_extend_qtc_entity_sbom(${name} ${sbom_args})
+  endif()
+endfunction()
+
+function(qtc_finalize_plugin target)
+  qtc_finalize_target("${target}")
 endfunction()
 
 function(extend_qtc_plugin target_name)
@@ -787,6 +859,7 @@ function(add_qtc_executable name)
     PROPERTIES
     PRIVATE_COMPILE_OPTIONS
     PUBLIC_COMPILE_OPTIONS
+    SBOM_ARGS
   )
 
   cmake_parse_arguments(_arg "${opt_args}" "${single_args}" "${multi_args}" ${ARGN})
@@ -910,7 +983,10 @@ function(add_qtc_executable name)
       set_target_properties(${name} PROPERTIES FOLDER "qtc_runnable")
   endif()
 
+  set(will_install_target FALSE)
   if (NOT _arg_SKIP_INSTALL)
+    set(will_install_target TRUE)
+
     unset(COMPONENT_OPTION)
     if (_arg_COMPONENT)
       set(COMPONENT_OPTION "COMPONENT" "${_arg_COMPONENT}")
@@ -955,6 +1031,10 @@ function(add_qtc_executable name)
             if (_is_framework)
               # get rid of the whole Foo.framework/* part whereever it is
               string(REGEX REPLACE "/[^/]*[.]framework/.*" "" _location ${_location})
+            else()
+              # get the actual dir of the library, rather than the library path itself, similar
+              # to the framework code path, because that's what gets embedded as the rpath.
+              get_filename_component(_location "${_location}" DIRECTORY)
             endif()
             get_filename_component(_abs_location ${_location} ABSOLUTE)
             list(APPEND _rpaths_to_remove "${_abs_location}")
@@ -988,6 +1068,28 @@ function(add_qtc_executable name)
 
     qtc_enable_separate_debug_info(${name} "${_DESTINATION}")
   endif()
+
+  qtc_mark_for_deferred_finalization("${name}" qtc_finalize_executable)
+
+  if(QT_GENERATE_SBOM)
+    set(sbom_args "")
+
+    if(NOT will_install_target)
+      list(APPEND sbom_args NO_INSTALL)
+    endif()
+
+    list(APPEND sbom_args
+      DEFAULT_SBOM_ENTITY_TYPE "EXECUTABLE"
+      RUNTIME_PATH "${_DESTINATION}"
+      ${_arg_SBOM_ARGS}
+    )
+
+    qtc_extend_qtc_entity_sbom(${name} ${sbom_args})
+  endif()
+endfunction()
+
+function(qtc_finalize_executable target)
+  qtc_finalize_target("${target}")
 endfunction()
 
 function(extend_qtc_executable name)

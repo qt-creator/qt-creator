@@ -15,4 +15,11 @@ add_qtc_library(libvterm STATIC
     src/utf8.h
     src/vterm.c
     src/vterm_internal.h
+  SBOM_ARGS
+    SBOM_ENTITY_TYPE THIRD_PARTY_LIBRARY_WITH_FILES
+    USE_ATTRIBUTION_FILES
+    ATTRIBUTION_FILE_PATHS
+      "${QtCreator_SOURCE_DIR}/qt_attributions.json"
+    ATTRIBUTION_IDS
+      libvterm
 )

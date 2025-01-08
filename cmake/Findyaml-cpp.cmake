@@ -122,6 +122,13 @@ else()
       ${YAML_SOURCE_DIR}/src/tag.cpp
       ${YAML_SOURCE_DIR}/src/tag.h
       ${YAML_SOURCE_DIR}/src/token.h
+    SBOM_ARGS
+      SBOM_ENTITY_TYPE THIRD_PARTY_LIBRARY_WITH_FILES
+      USE_ATTRIBUTION_FILES
+      ATTRIBUTION_FILE_PATHS
+        "${QtCreator_SOURCE_DIR}/qt_attributions.json"
+      ATTRIBUTION_IDS
+        yaml-cpp
     )
     if (QTC_STATIC_BUILD)
       extend_qtc_target(yaml-cpp

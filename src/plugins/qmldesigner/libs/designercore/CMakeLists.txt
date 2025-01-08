@@ -419,4 +419,11 @@ extend_qtc_library(QmlDesignerCore
     qmltypesparserinterface.h
     qmltypesparser.cpp qmltypesparser.h
     qmldocumentparser.cpp qmldocumentparser.h
+  SBOM_ARGS
+    USE_ATTRIBUTION_FILES
+    CREATE_SBOM_FOR_EACH_ATTRIBUTION
+    ATTRIBUTION_FILE_PATHS
+      "${QtCreator_SOURCE_DIR}/qt_attributions.json"
+    ATTRIBUTION_IDS
+      json-nlohmann
 )

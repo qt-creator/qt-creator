@@ -5,6 +5,13 @@ add_qtc_library(qtkeychain
     qkeychain_export.h
   PROPERTIES
     QT_COMPILE_OPTIONS_DISABLE_WARNINGS ON
+  SBOM_ARGS
+    SBOM_ENTITY_TYPE THIRD_PARTY_LIBRARY_WITH_FILES
+    USE_ATTRIBUTION_FILES
+    ATTRIBUTION_FILE_PATHS
+      "${QtCreator_SOURCE_DIR}/qt_attributions.json"
+    ATTRIBUTION_IDS
+      qtkeychain
 )
 
 if (WIN32)

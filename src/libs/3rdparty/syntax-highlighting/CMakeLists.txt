@@ -42,6 +42,36 @@ add_qtc_library(KSyntaxHighlighting
     src/lib/wildcardmatcher.cpp
     src/lib/worddelimiters.cpp src/lib/worddelimiters_p.h
     src/lib/xml_p.h
+  SBOM_ARGS
+    SBOM_ENTITY_TYPE THIRD_PARTY_LIBRARY_WITH_FILES
+    USE_ATTRIBUTION_FILES
+    ATTRIBUTION_FILE_PATHS
+      "${QtCreator_SOURCE_DIR}/qt_attributions.json"
+    ATTRIBUTION_IDS
+      ksyntaxhighlighting
+      ksyntaxhighlighting-alert
+      ksyntaxhighlighting-bash
+      ksyntaxhighlighting-cmake
+      ksyntaxhighlighting-css
+      ksyntaxhighlighting-doxygen
+      ksyntaxhighlighting-dtd
+      ksyntaxhighlighting-html
+      ksyntaxhighlighting-ini
+      ksyntaxhighlighting-java
+      ksyntaxhighlighting-javadoc
+      ksyntaxhighlighting-json
+      ksyntaxhighlighting-markdown
+      ksyntaxhighlighting-modelines
+      ksyntaxhighlighting-perl
+      ksyntaxhighlighting-perl6
+      ksyntaxhighlighting-powershell
+      ksyntaxhighlighting-qdocconf
+      ksyntaxhighlighting-ruby
+      ksyntaxhighlighting-toml
+      ksyntaxhighlighting-valgrind-suppression
+      ksyntaxhighlighting-xml
+      ksyntaxhighlighting-yacc
+      ksyntaxhighlighting-yaml
 )
 
 set(export_symbol_declaration DEFINES KF6SyntaxHighlighting_EXPORTS)

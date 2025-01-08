@@ -18,3 +18,13 @@ qtc_copy_to_builddir(copy_src_share_to_builddir
 install(FILES ${tools}
   DESTINATION "${EXT_TOOLS_DIR}"
 )
+
+qtc_add_sbom(ExternalToolsResources
+  SBOM_ENTITY_TYPE RESOURCES
+)
+
+qtc_sbom_add_files(ExternalToolsResources
+  FILES "${tools}"
+  FILE_TYPE "RESOURCES"
+  INSTALL_PATH "${EXT_TOOLS_DIR}"
+)

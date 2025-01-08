@@ -12,6 +12,13 @@ add_qtc_library(SqliteInternal OBJECT
       ../3rdparty/sqlite/config.h
       ../3rdparty/sqlite/sqlite_static_config.h
       ../3rdparty/sqlite/sqlite.h
+  SBOM_ARGS
+    USE_ATTRIBUTION_FILES
+    CREATE_SBOM_FOR_EACH_ATTRIBUTION
+    ATTRIBUTION_FILE_PATHS
+      "${QtCreator_SOURCE_DIR}/qt_attributions.json"
+    ATTRIBUTION_IDS
+      sqlite
 )
 
 extend_qtc_library(SqliteInternal

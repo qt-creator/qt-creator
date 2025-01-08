@@ -19,6 +19,7 @@ include(QtCreatorIDEBranding RESULT_VARIABLE IDE_BRANDING_FILE)
 include(QtCreatorTranslations)
 include(QtCreatorDocumentation)
 include(QtCreatorAPI)
+include(QtCreatorSbom)
 
 set(IDE_REVISION FALSE CACHE BOOL "Marks the presence of IDE revision string.")
 set(IDE_REVISION_STR "" CACHE STRING "The IDE revision string.")
@@ -89,6 +90,9 @@ if (Qt6_VERSION VERSION_GREATER_EQUAL 6.9.0)
     QUIET
   )
 endif()
+
+qtc_setup_sbom()
+qtc_sbom_begin_project()
 
 # depending on Qt version and compiler version enable or disable Qml Designer
 # can be overwritten by variable WITH_QMLDESIGNER / QTC_WITH_QMLDESIGNER (env)
@@ -223,3 +227,5 @@ if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR
   # Only for opensource, non-super-repo builds
   add_subdirectory(packaging)
 endif()
+
+qtc_sbom_end_project()

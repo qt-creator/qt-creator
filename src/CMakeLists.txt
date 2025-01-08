@@ -35,47 +35,36 @@ install(EXPORT QtCreator
   FILE QtCreatorTargets.cmake
 )
 
-file(WRITE ${CMAKE_BINARY_DIR}/cmake/QtCreatorConfig.cmake "
-\# Qt version used for building
-\# A compatible Qt version should be used by externally built plugins
-set(QTC_QT_VERSION ${Qt6_VERSION})
+include(CMakePackageConfigHelpers)
 
-\# force plugins to same path naming conventions as Qt Creator
-\# otherwise plugins will not be found
-if(UNIX AND NOT APPLE)
-  include(GNUInstallDirs)
-  set(CMAKE_INSTALL_BINDIR ${CMAKE_INSTALL_BINDIR})
-  set(CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
-  set(CMAKE_INSTALL_LIBEXECDIR ${CMAKE_INSTALL_LIBEXECDIR})
-  set(CMAKE_INSTALL_DATAROOTDIR ${CMAKE_INSTALL_DATAROOTDIR})
-endif()
-
-include(CMakeFindDependencyMacro)
-find_dependency(Qt6 ${IDE_QT_VERSION_MIN}
-  COMPONENTS Concurrent Core Gui Widgets Core5Compat Network PrintSupport Qml Sql REQUIRED
+set(configure_package_config_file_input_path "${PROJECT_SOURCE_DIR}/cmake/QtCreatorConfig.cmake.in")
+set(common_configure_package_config_file_options
+  NO_SET_AND_CHECK_MACRO
+  NO_CHECK_REQUIRED_COMPONENTS_MACRO
+  PATH_VARS
+    QTCREATOR_RELOCATABLE_INSTALL_PREFIX
 )
-find_dependency(Qt6 COMPONENTS Quick QuickWidgets QUIET)
 
-if (NOT IDE_VERSION)
-  include(\${CMAKE_CURRENT_LIST_DIR}/QtCreatorIDEBranding.cmake)
-endif()
+# Build-tree Config file, used in super build projects that call add_subdirectory(qtcreator).
+set(QTCREATOR_RELOCATABLE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}")
+configure_package_config_file(
+  "${configure_package_config_file_input_path}"
+  "${CMAKE_BINARY_DIR}/cmake/QtCreatorConfig.cmake"
+  INSTALL_DESTINATION "${CMAKE_BINARY_DIR}/cmake"
+  INSTALL_PREFIX "${CMAKE_BINARY_DIR}"
+  ${common_configure_package_config_file_options}
+)
 
-if (NOT DEFINED add_qtc_plugin)
-  include(\${CMAKE_CURRENT_LIST_DIR}/QtCreatorAPI.cmake)
-endif()
-
-if (NOT DEFINED add_translation_targets)
-  include(\${CMAKE_CURRENT_LIST_DIR}/QtCreatorTranslations.cmake)
-endif()
-
-if (NOT DEFINED add_qtc_documentation)
-  include(\${CMAKE_CURRENT_LIST_DIR}/QtCreatorDocumentation.cmake)
-endif()
-
-if (NOT TARGET QtCreator::Core)
-  include(\${CMAKE_CURRENT_LIST_DIR}/QtCreatorTargets.cmake)
-endif()
-")
+# Install-tree Config file, used in non-super build projects.
+set(QTCREATOR_RELOCATABLE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
+configure_package_config_file(
+  "${configure_package_config_file_input_path}"
+  # This is generated into a different directory on purpose, so it doesn't collide with the
+  # build-tree config file.
+  "${CMAKE_BINARY_DIR}/cmake/install/QtCreatorConfig.cmake"
+  INSTALL_DESTINATION "${IDE_CMAKE_INSTALL_PATH}/QtCreator"
+  ${common_configure_package_config_file_options}
+)
 
 # Local build export
 export(EXPORT QtCreator
@@ -88,6 +77,7 @@ file(COPY
   ${PROJECT_SOURCE_DIR}/cmake/QtCreatorDocumentation.cmake
   ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPI.cmake
   ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPIInternal.cmake
+  ${PROJECT_SOURCE_DIR}/cmake/QtCreatorSbom.cmake
   ${PROJECT_SOURCE_DIR}/cmake/Config.cmake.in
   ${PROJECT_SOURCE_DIR}/cmake/QtcSeparateDebugInfo.cmake
   ${PROJECT_SOURCE_DIR}/cmake/QtcSeparateDebugInfo.Info.plist.in
@@ -102,10 +92,11 @@ install(
     ${PROJECT_SOURCE_DIR}/cmake/QtCreatorDocumentation.cmake
     ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPI.cmake
     ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPIInternal.cmake
+    ${PROJECT_SOURCE_DIR}/cmake/QtCreatorSbom.cmake
     ${PROJECT_SOURCE_DIR}/cmake/Config.cmake.in
     ${PROJECT_SOURCE_DIR}/cmake/QtcSeparateDebugInfo.cmake
     ${PROJECT_SOURCE_DIR}/cmake/QtcSeparateDebugInfo.Info.plist.in
-    ${CMAKE_BINARY_DIR}/cmake/QtCreatorConfig.cmake
+    ${CMAKE_BINARY_DIR}/cmake/install/QtCreatorConfig.cmake
   DESTINATION ${IDE_CMAKE_INSTALL_PATH}/QtCreator
   COMPONENT Devel EXCLUDE_FROM_ALL
 )

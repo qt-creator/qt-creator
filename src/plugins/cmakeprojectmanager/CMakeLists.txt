@@ -49,6 +49,14 @@ add_qtc_plugin(CMakeProjectManager
     3rdparty/cmake/cmListFileLexer.cxx
     3rdparty/cmake/cmListFileCache.h
     3rdparty/rstparser/rstparser.cc 3rdparty/rstparser/rstparser.h
+  SBOM_ARGS
+    USE_ATTRIBUTION_FILES
+    CREATE_SBOM_FOR_EACH_ATTRIBUTION
+    ATTRIBUTION_FILE_PATHS
+      "${QtCreator_SOURCE_DIR}/qt_attributions.json"
+    ATTRIBUTION_IDS
+      cmake-lexer
+      vitaut-rstparser
 )
 
 file(GLOB_RECURSE test_cases RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} testcases/*)

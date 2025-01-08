@@ -50,4 +50,20 @@ add_translation_targets(qtcreator
   OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${IDE_DATA_PATH}/translations"
   INSTALL_DESTINATION "${IDE_DATA_PATH}/translations"
   TARGETS "${__QTC_LIBRARIES}" "${__QTC_PLUGINS}"
-  SOURCES "${json_wizards_h}" "${custom_wizards_h}" "${externaltools_h}" "${snippets_h}")
+  SOURCES "${json_wizards_h}" "${custom_wizards_h}" "${externaltools_h}" "${snippets_h}"
+  OUT_VAR_TS_FILES ts_files
+  OUT_VAR_QM_FILES qm_files
+)
+
+qtc_add_sbom(CreatorTranslations
+  SBOM_ENTITY_TYPE QT_TRANSLATIONS
+  QT_LICENSE_ID "QT_COMMERCIAL_OR_BSD3"
+)
+
+qtc_sbom_add_files(CreatorTranslations
+  FILES "${qm_files}"
+  SOURCE_FILES_PER_INPUT_FILE "${ts_files}"
+  FILE_TYPE "QT_TRANSLATION"
+  INSTALL_PATH "${IDE_DATA_PATH}/translations"
+)
+

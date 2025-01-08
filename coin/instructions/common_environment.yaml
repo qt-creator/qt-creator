@@ -24,6 +24,9 @@ instructions:
           - type: EnvironmentVariable
             variableName: MACOSX_DEPLOYMENT_TARGET
             variableValue: 11.0
+          - type: EnvironmentVariable
+            variableName: QTC_SBOM_OPTION
+            variableValue: "--no-sbom"
         enable_if:
           condition: property
           property: features

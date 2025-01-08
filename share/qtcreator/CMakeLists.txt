@@ -81,14 +81,35 @@ install(
   USE_SOURCE_PERMISSIONS
 )
 
+qtc_add_sbom(CreatorShareResources
+  SBOM_ENTITY_TYPE RESOURCES
+  USE_ATTRIBUTION_FILES
+  CREATE_SBOM_FOR_EACH_ATTRIBUTION
+  ATTRIBUTION_FILE_PATHS
+    "${QtCreator_SOURCE_DIR}/qt_attributions.json"
+  ATTRIBUTION_IDS
+    pyprof2calltree
+)
+
 # create install rule for resource files
 foreach(file ${resource_files})
   get_filename_component(path "${file}" DIRECTORY)
+  set(dest "${IDE_DATA_PATH}/${path}")
   install(
     FILES "${file}"
-    DESTINATION "${IDE_DATA_PATH}/${path}"
+    DESTINATION "${dest}"
+  )
+  qtc_sbom_add_files(CreatorShareResources
+    FILES "${file}"
+    FILE_TYPE "RESOURCES"
+    INSTALL_PATH "${dest}"
   )
 endforeach()
 
+qtc_sbom_add_files(CreatorShareResources
+  DIRECTORIES "${resource_directories}"
+  FILE_TYPE "RESOURCES"
+  INSTALL_PATH "${IDE_DATA_PATH}"
+)
 
 add_subdirectory(translations)

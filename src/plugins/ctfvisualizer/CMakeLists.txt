@@ -20,4 +20,11 @@ add_qtc_plugin(CtfVisualizer
     ctfvisualizerconstants.h
     ctfvisualizertraceview.h
     ../../libs/3rdparty/json/json.hpp
+  SBOM_ARGS
+    USE_ATTRIBUTION_FILES
+    CREATE_SBOM_FOR_EACH_ATTRIBUTION
+    ATTRIBUTION_FILE_PATHS
+      "${QtCreator_SOURCE_DIR}/qt_attributions.json"
+    ATTRIBUTION_IDS
+      json-nlohmann
 )

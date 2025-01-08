@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake")
 
-project(sdktool)
+project(qtsdktool)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -14,8 +14,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 if (NOT QT_CREATOR_API_DEFINED)
   # standalone build
   set(DESTINATION DESTINATION .)
+  set(QTC_SBOM_READY ON)
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
+  include(QtCreatorSbom)
   qtc_handle_compiler_cache_support()
 
   find_package(QT NAMES Qt6 Qt5
@@ -25,6 +27,19 @@ if (NOT QT_CREATOR_API_DEFINED)
   find_package(Qt${QT_VERSION_MAJOR}
     COMPONENTS Core
     REQUIRED
+  )
+  set(QT_SDK_TOOL_STANDALONE_BUILD TRUE)
+  qtc_setup_sbom()
+  qtc_sbom_compute_cpe(project_cpe
+      VENDOR "qt"
+      PRODUCT "${PROJECT_NAME}"
+      VERSION "${IDE_VERSION}"
+  )
+  set(QT_SBOM_LICENSE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/../../../LICENSES")
+  qtc_sbom_begin_project(
+    PURL_NAMESPACE "qt"
+    PURL_NAME "${PROJECT_NAME}"
+    CPE "${project_cpe}"
   )
 endif()
 
@@ -104,3 +119,6 @@ if (MSVC AND TARGET sdktool AND TARGET Qt5::Core)
   endif()
 endif()
 
+if(QT_SDK_TOOL_STANDALONE_BUILD)
+  qtc_sbom_end_project()
+endif()

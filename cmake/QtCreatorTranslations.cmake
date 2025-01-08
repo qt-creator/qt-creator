@@ -160,9 +160,25 @@ function(add_translation_targets file_prefix)
     return()
   endif()
 
-  cmake_parse_arguments(_arg ""
-    "OUTPUT_DIRECTORY;INSTALL_DESTINATION;TS_TARGET_PREFIX;QM_TARGET_PREFIX;ALL_QM_TARGET"
-    "TS_LANGUAGES;QM_LANGUAGES;TARGETS;SOURCES;INCLUDES" ${ARGN})
+  set(opt_args "")
+  set(single_args
+    OUTPUT_DIRECTORY
+    INSTALL_DESTINATION
+    TS_TARGET_PREFIX
+    QM_TARGET_PREFIX
+    ALL_QM_TARGET
+    OUT_VAR_QM_FILES
+    OUT_VAR_TS_FILES
+  )
+  set(multi_args
+    TS_LANGUAGES
+    QM_LANGUAGES
+    TARGETS
+    SOURCES
+    INCLUDES
+  )
+
+  cmake_parse_arguments(_arg "${opt_args}" "${single_args}" "${multi_args}" ${ARGN})
   if (_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "Invalid parameters to add_translation_targets: ${_arg_UNPARSED_ARGUMENTS}.")
   endif()
@@ -219,6 +235,9 @@ function(add_translation_targets file_prefix)
 
   file(MAKE_DIRECTORY ${_arg_OUTPUT_DIRECTORY})
 
+  set(out_ts_files "")
+  set(out_qm_files "")
+
   foreach(l IN LISTS _arg_QM_LANGUAGES)
     set(_ts_file "${CMAKE_CURRENT_SOURCE_DIR}/${file_prefix}_${l}.ts")
     set(_qm_file "${_arg_OUTPUT_DIRECTORY}/${file_prefix}_${l}.qm")
@@ -230,8 +249,20 @@ function(add_translation_targets file_prefix)
       COMMENT "Generate .qm file"
       VERBATIM)
     add_custom_target("${_arg_QM_TARGET_PREFIX}${l}" DEPENDS "${_qm_file}")
+
+    list(APPEND out_ts_files "${_ts_file}")
+    list(APPEND out_qm_files "${_qm_file}")
+
     install(FILES "${_qm_file}" DESTINATION ${_arg_INSTALL_DESTINATION})
 
     add_dependencies("${_arg_ALL_QM_TARGET}" "${_arg_QM_TARGET_PREFIX}${l}")
   endforeach()
+
+  if(_arg_OUT_VAR_TS_FILES)
+    set(${_arg_OUT_VAR_TS_FILES} "${out_ts_files}" PARENT_SCOPE)
+  endif()
+
+  if(_arg_OUT_VAR_QM_FILES)
+    set(${_arg_OUT_VAR_QM_FILES} "${out_qm_files}" PARENT_SCOPE)
+  endif()
 endfunction()

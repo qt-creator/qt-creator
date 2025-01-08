@@ -41,6 +41,13 @@ add_qtc_library(3rd_cplusplus OBJECT
     TypeVisitor.cpp TypeVisitor.h
     cppassert.h
   SKIP_PCH
+  SBOM_ARGS
+    SBOM_ENTITY_TYPE THIRD_PARTY_LIBRARY_WITH_FILES
+    USE_ATTRIBUTION_FILES
+    ATTRIBUTION_FILE_PATHS
+      "${QtCreator_SOURCE_DIR}/qt_attributions.json"
+    ATTRIBUTION_IDS
+      front-end-for-cpp
 )
 
 set(export_symbol_declaration DEFINES CPLUSPLUS_BUILD_LIB)

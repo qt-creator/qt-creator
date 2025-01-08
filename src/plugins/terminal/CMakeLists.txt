@@ -15,4 +15,12 @@ add_qtc_plugin(Terminal
     terminalsettings.cpp terminalsettings.h
     terminaltr.h
     terminalwidget.cpp terminalwidget.h
+  SBOM_ARGS
+    USE_ATTRIBUTION_FILES
+    CREATE_SBOM_FOR_EACH_ATTRIBUTION
+    ATTRIBUTION_FILE_PATHS
+      "${QtCreator_SOURCE_DIR}/qt_attributions.json"
+    ATTRIBUTION_IDS
+      terminal-shellintegrations
+      terminal-shellintegrations-clink
 )

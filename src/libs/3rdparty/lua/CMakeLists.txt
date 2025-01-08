@@ -59,6 +59,13 @@ add_qtc_library(lua546
     src/lvm.h
     src/lzio.c
     src/lzio.h
+  SBOM_ARGS
+    SBOM_ENTITY_TYPE THIRD_PARTY_LIBRARY_WITH_FILES
+    USE_ATTRIBUTION_FILES
+    ATTRIBUTION_FILE_PATHS
+      "${QtCreator_SOURCE_DIR}/qt_attributions.json"
+    ATTRIBUTION_IDS
+      lua
 )
 
 extend_qtc_library(lua546

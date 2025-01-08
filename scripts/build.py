@@ -57,6 +57,7 @@ def get_arguments():
                         action='store_true', default=False);
     parser.add_argument('--no-docs', help='Skip documentation generation',
                         action='store_true', default=False)
+    parser.add_argument('--no-sbom', help='Skip SBOM generation', action='store_true', default=False)
     parser.add_argument('--no-build-date', help='Does not show build date in about dialog, for reproducible builds',
                         action='store_true', default=False)
     parser.add_argument('--no-dmg', help='Skip disk image creation (macOS)',
@@ -147,9 +148,12 @@ def common_cmake_arguments(args):
 
     return cmake_args
 
+
+def cmake_option(option):
+    return 'ON' if option else 'OFF'
+
+
 def build_qtcreator(args, paths):
-    def cmake_option(option):
-        return 'ON' if option else 'OFF'
     if args.no_qtcreator:
         return
     if not os.path.exists(paths.build):
@@ -166,6 +170,7 @@ def build_qtcreator(args, paths):
                   '-DCMAKE_PREFIX_PATH=' + ';'.join(prefix_paths),
                   '-DSHOW_BUILD_DATE=' + cmake_option(not args.no_build_date),
                   '-DWITH_DOCS=' + cmake_option(not args.no_docs),
+                  '-DQT_GENERATE_SBOM=' + cmake_option(not args.no_sbom),
                   '-DBUILD_QBS=' + cmake_option(build_qbs),
                   '-DBUILD_DEVELOPER_DOCS=' + cmake_option(not args.no_docs),
                   '-DBUILD_LIBRARY_SDKTOOLLIB=' + cmake_option(args.with_sdk_tool),
@@ -229,8 +234,11 @@ def build_wininterrupt(args, paths):
     if not os.path.exists(paths.wininterrupt_build):
         os.makedirs(paths.wininterrupt_build)
     prefix_paths = [common.to_posix_path(os.path.abspath(fp)) for fp in args.prefix_paths]
+    # Needed for Qt SBOM API
+    prefix_paths += [paths.qt]
     cmake_args = ['-DCMAKE_PREFIX_PATH=' + ';'.join(prefix_paths),
-                  '-DCMAKE_INSTALL_PREFIX=' + common.to_posix_path(paths.wininterrupt_install)]
+                  '-DCMAKE_INSTALL_PREFIX=' + common.to_posix_path(paths.wininterrupt_install),
+                  '-DQT_GENERATE_SBOM=' + cmake_option(not args.no_sbom)]
     cmake_args += common_cmake_arguments(args)
     common.check_print_call(['cmake'] + cmake_args + [os.path.join(paths.src, 'src', 'tools', 'wininterrupt')],
                             paths.wininterrupt_build)
@@ -245,11 +253,14 @@ def build_qtcreatorcdbext(args, paths):
     if not os.path.exists(paths.qtcreatorcdbext_build):
         os.makedirs(paths.qtcreatorcdbext_build)
     prefix_paths = [os.path.abspath(fp) for fp in args.prefix_paths]
+    # Needed for Qt SBOM API
+    prefix_paths += [paths.qt]
     if paths.llvm:
         prefix_paths += [paths.llvm]
     prefix_paths = [common.to_posix_path(fp) for fp in prefix_paths]
     cmake_args = ['-DCMAKE_PREFIX_PATH=' + ';'.join(prefix_paths),
-                  '-DCMAKE_INSTALL_PREFIX=' + common.to_posix_path(paths.qtcreatorcdbext_install)]
+                  '-DCMAKE_INSTALL_PREFIX=' + common.to_posix_path(paths.qtcreatorcdbext_install),
+                  '-DQT_GENERATE_SBOM=' + cmake_option(not args.no_sbom)]
     cmake_args += common_cmake_arguments(args)
     common.check_print_call(['cmake'] + cmake_args + [os.path.join(paths.src, 'src', 'libs', 'qtcreatorcdbext')],
                             paths.qtcreatorcdbext_build)

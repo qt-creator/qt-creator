@@ -19,8 +19,10 @@ if (NOT QT_CREATOR_API_DEFINED)
 
   set(DESTINATION DESTINATION .)
   include(Utils)
+  set(QTC_SBOM_READY ON)
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
+  include(QtCreatorSbom)
   qtc_handle_compiler_cache_support()
 
   find_package(Qt6
@@ -28,6 +30,19 @@ if (NOT QT_CREATOR_API_DEFINED)
     REQUIRED
   )
   set(IS_STAND_ALONE_PUPPET_BUILD ON)
+
+  qtc_setup_sbom()
+  qtc_sbom_compute_cpe(project_cpe
+      VENDOR "qt"
+      PRODUCT "${PROJECT_NAME}"
+      VERSION "${IDE_VERSION}"
+  )
+  set(QT_SBOM_LICENSE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/../../../LICENSES")
+  qtc_sbom_begin_project(
+    PURL_NAMESPACE "qt"
+    PURL_NAME "${PROJECT_NAME}"
+    CPE "${project_cpe}"
+  )
 endif()
 
 env_with_default("QTC_NO_DEFAULT_QMLPUPPET" ENV_QTC_NO_DEFAULT_QMLPUPPET OFF)
@@ -282,4 +297,7 @@ if (Qt6_VERSION VERSION_GREATER_EQUAL 6.10.0)
     # as sharing nodes between windows is not supported and can causes rendering artifacts.
     DEFINES SINGLE_WINDOW_RENDERING
   )
+endif()
+if(IS_STAND_ALONE_PUPPET_BUILD)
+  qtc_sbom_end_project()
 endif()
