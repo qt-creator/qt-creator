@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "devicemanager.h"
-
+#include "device.h"
 #include "devicemanagerwidget.h"
 
 #include <QFile>
@@ -11,6 +11,7 @@
 #include <QLatin1String>
 #include <QNetworkDatagram>
 #include <QNetworkInterface>
+#include <QUdpSocket>
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/kitaspect.h>

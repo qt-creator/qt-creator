@@ -3,14 +3,13 @@
 
 #pragma once
 
-#include <QThread>
 #include <QTimer>
-#include <QWebSocket>
 
 #include <atomic>
 
 #include "deviceinfo.h"
 
+class QWebSocket;
 namespace QmlDesigner::DeviceShare {
 
 class Device : public QObject

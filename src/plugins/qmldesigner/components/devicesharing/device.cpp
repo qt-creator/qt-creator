@@ -5,7 +5,8 @@
 
 #include <QJsonDocument>
 #include <QLatin1String>
-#include <QThreadPool>
+
+#include "websocketmock.h"
 
 namespace QmlDesigner::DeviceShare {
 

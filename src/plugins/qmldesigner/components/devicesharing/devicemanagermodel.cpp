@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "devicemanagermodel.h"
+#include "device.h"
 #include "devicemanager.h"
 
 namespace QmlDesigner::DeviceShare {

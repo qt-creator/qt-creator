@@ -748,15 +748,22 @@ extend_qtc_plugin(QmlDesigner
 
 extend_qtc_plugin(QmlDesigner
   CONDITION TARGET Qt::WebSockets
+  DEFINES QT_WEBSOCKET_ENABLED
+  DEPENDS
+    Qt::WebSockets
+)
+
+extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/devicesharing
   DEPENDS
-    QtCreator::QrCodeGenerator Qt::WebSockets
+    QtCreator::QrCodeGenerator
   SOURCES
     device.cpp device.h
     deviceinfo.cpp deviceinfo.h
     devicemanager.cpp devicemanager.h
     devicemanagermodel.cpp devicemanagermodel.h
     devicemanagerwidget.cpp devicemanagerwidget.h
+    websocketmock.h
 )
 
 extend_qtc_plugin(QmlDesigner

@@ -3,16 +3,17 @@
 
 #pragma once
 
-#include <QPointer>
-#include <QUdpSocket>
-#include <QWebSocketServer>
-
 #include <qmldesigner/components/componentcore/resourcegenerator.h>
 
-#include "device.h"
+#include "deviceinfo.h"
 
+#include <QPointer>
+
+QT_BEGIN_NAMESPACE
+class QUdpSocket;
+QT_END_NAMESPACE
 namespace QmlDesigner::DeviceShare {
-
+class Device;
 class DeviceManagerWidget;
 
 class DeviceManager : public QObject

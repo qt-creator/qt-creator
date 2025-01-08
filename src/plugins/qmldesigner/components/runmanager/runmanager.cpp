@@ -8,6 +8,8 @@
 
 #include <qmldesigner/qmldesignerplugin.h>
 
+#include <devicesharing/device.h>
+
 namespace QmlDesigner {
 
 Q_LOGGING_CATEGORY(runManagerLog, "qtc.designer.runManager", QtWarningMsg)
