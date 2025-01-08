@@ -951,6 +951,10 @@ function(add_qtc_executable name)
             if (_is_framework)
               # get rid of the whole Foo.framework/* part whereever it is
               string(REGEX REPLACE "/[^/]*[.]framework/.*" "" _location ${_location})
+            else()
+              # get the actual dir of the library, rather than the library path itself, similar
+              # to the framework code path, because that's what gets embedded as the rpath.
+              get_filename_component(_location "${_location}" DIRECTORY)
             endif()
             get_filename_component(_abs_location ${_location} ABSOLUTE)
             list(APPEND _rpaths_to_remove "${_abs_location}")
