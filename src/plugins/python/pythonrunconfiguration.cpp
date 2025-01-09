@@ -96,7 +96,7 @@ private:
 
     const QRegularExpression filePattern;
     QList<Task> m_tasks;
-    bool m_inTraceBack;
+    bool m_inTraceBack = false;
 };
 
 // RunConfiguration
