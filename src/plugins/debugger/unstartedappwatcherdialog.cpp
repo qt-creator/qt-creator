@@ -244,7 +244,7 @@ void UnstartedAppWatcherDialog::startStopTimer(bool start)
 
 void UnstartedAppWatcherDialog::findProcess()
 {
-    const QString &appName = m_pathChooser->filePath().normalizedPathName().toString();
+    const QString &appName = m_pathChooser->filePath().normalizedPathName().toUrlishString();
     ProcessInfo fallback;
     const QList<ProcessInfo> processInfoList = ProcessInfo::processInfoList();
     for (const ProcessInfo &processInfo : processInfoList) {
@@ -282,8 +282,8 @@ void UnstartedAppWatcherDialog::kitChanged()
 
 bool UnstartedAppWatcherDialog::checkExecutableString() const
 {
-    if (!m_pathChooser->filePath().toString().isEmpty()) {
-        QFileInfo fileInfo(m_pathChooser->filePath().toString());
+    if (!m_pathChooser->filePath().toUrlishString().isEmpty()) {
+        QFileInfo fileInfo(m_pathChooser->filePath().toUrlishString());
         return (fileInfo.exists() && fileInfo.isFile());
     }
     return false;

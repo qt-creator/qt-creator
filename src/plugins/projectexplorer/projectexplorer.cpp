@@ -3566,7 +3566,7 @@ void ProjectExplorerPluginPrivate::addNewFile()
     // store void pointer to avoid QVariant to use qobject_cast, which might core-dump when trying
     // to access meta data on an object that get deleted in the meantime:
     map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE), QVariant::fromValue(static_cast<void *>(currentNode)));
-    map.insert(Constants::PREFERRED_PROJECT_NODE_PATH, currentNode->filePath().toString());
+    map.insert(Constants::PREFERRED_PROJECT_NODE_PATH, currentNode->filePath().toUrlishString());
     Project *p = ProjectTree::projectForNode(currentNode);
     QTC_ASSERT(p, p = ProjectTree::currentProject());
     if (p) {
@@ -3598,7 +3598,7 @@ void ProjectExplorerPluginPrivate::addNewHeaderOrSource()
     QVariantMap map;
     map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE),
                QVariant::fromValue(static_cast<void *>(folderNode)));
-    map.insert(Constants::PREFERRED_PROJECT_NODE_PATH, folderNode->filePath().toString());
+    map.insert(Constants::PREFERRED_PROJECT_NODE_PATH, folderNode->filePath().toUrlishString());
     map.insert("InitialFileName", fileNode->filePath().completeBaseName());
     Project *p = ProjectTree::projectForNode(folderNode);
     QTC_ASSERT(p, p = ProjectTree::currentProject());
@@ -3769,7 +3769,7 @@ void ProjectExplorerPluginPrivate::searchOnFileSystem()
 {
     const Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);
-    TextEditor::FindInFiles::findOnFileSystem(currentNode->path().toString());
+    TextEditor::FindInFiles::findOnFileSystem(currentNode->path().toUrlishString());
 }
 
 void ProjectExplorerPluginPrivate::vcsLogDirectory()
@@ -3962,7 +3962,7 @@ void ProjectExplorerPluginPrivate::duplicateFile()
     ProjectTree::CurrentNodeKeeper nodeKeeper;
 
     FileNode *fileNode = currentNode->asFileNode();
-    QString filePath = currentNode->filePath().toString();
+    QString filePath = currentNode->filePath().toUrlishString();
     QFileInfo sourceFileInfo(filePath);
     QString baseName = sourceFileInfo.baseName();
 
@@ -4185,7 +4185,7 @@ void ProjectExplorerPlugin::renameFilesForSymbol(const QString &oldSymbolName,
         if (newBaseName == oldBaseName)
             continue;
 
-        const QString newFilePath = file.absolutePath().toString() + '/' + newBaseName + '.'
+        const QString newFilePath = file.absolutePath().toUrlishString() + '/' + newBaseName + '.'
                 + file.completeSuffix();
         filesToRename.emplaceBack(node, FilePath::fromString(newFilePath));
     }

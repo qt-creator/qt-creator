@@ -1352,7 +1352,7 @@ EditorFactories EditorManagerPrivate::findFactories(Id editorId, const FilePath 
     }
     if (factories.empty()) {
         qWarning("%s: unable to find an editor factory for the file '%s', editor Id '%s'.",
-                 Q_FUNC_INFO, filePath.toString().toUtf8().constData(), editorId.name().constData());
+                 Q_FUNC_INFO, filePath.toUrlishString().toUtf8().constData(), editorId.name().constData());
     }
 
     return factories;
@@ -1604,7 +1604,7 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
         if (!editor->document()->filePath().isEmpty() && !editor->document()->isTemporary()) {
             QByteArray state = editor->saveState();
             if (!state.isEmpty())
-                d->m_editorStates.insert(editor->document()->filePath().toString(), QVariant(state));
+                d->m_editorStates.insert(editor->document()->filePath().toUrlishString(), QVariant(state));
         }
     }
 
@@ -1714,7 +1714,7 @@ void EditorManagerPrivate::activateView(EditorView *view)
 void EditorManagerPrivate::restoreEditorState(IEditor *editor)
 {
     QTC_ASSERT(editor, return);
-    QString fileName = editor->document()->filePath().toString();
+    QString fileName = editor->document()->filePath().toUrlishString();
     editor->restoreState(d->m_editorStates.value(fileName).toByteArray());
 }
 
@@ -2581,7 +2581,7 @@ void EditorManagerPrivate::revertToSaved(IDocument *document)
 {
     if (!document)
         return;
-    const QString fileName =  document->filePath().toString();
+    const QString fileName =  document->filePath().toUrlishString();
     if (fileName.isEmpty())
         return;
     if (document->isModified()) {
@@ -2651,7 +2651,7 @@ void EditorManagerPrivate::findInDirectory()
         return;
     const FilePath path = d->m_contextMenuEntry->filePath();
     emit m_instance->findOnFileSystemRequest(
-        (path.isDir() ? path : path.parentDir()).toString());
+        (path.isDir() ? path : path.parentDir()).toUrlishString());
 }
 
 void EditorManagerPrivate::togglePinned()
@@ -3340,7 +3340,7 @@ static QString makeTitleUnique(QString *titlePattern)
             QSet<QString> docnames;
             const QList<DocumentModel::Entry *> entries = DocumentModel::entries();
             for (const DocumentModel::Entry *entry : entries) {
-                QString name = entry->filePath().toString();
+                QString name = entry->filePath().toUrlishString();
                 if (name.isEmpty())
                     name = entry->displayName();
                 else
@@ -3604,7 +3604,7 @@ QByteArray EditorManager::saveState()
             IEditor *editor = DocumentModel::editorsForDocument(document).constFirst();
             QByteArray state = editor->saveState();
             if (!state.isEmpty())
-                d->m_editorStates.insert(document->filePath().toString(), QVariant(state));
+                d->m_editorStates.insert(document->filePath().toUrlishString(), QVariant(state));
         }
     }
 
@@ -3622,7 +3622,7 @@ QByteArray EditorManager::saveState()
 
     for (const DocumentModel::Entry *entry : entries) {
         if (!entry->document->isTemporary()) {
-            stream << entry->filePath().toString() << entry->plainDisplayName() << entry->id()
+            stream << entry->filePath().toUrlishString() << entry->plainDisplayName() << entry->id()
                    << entry->pinned;
         }
     }

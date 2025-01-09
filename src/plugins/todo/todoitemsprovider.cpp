@@ -110,7 +110,7 @@ void TodoItemsProvider::setItemsListWithinStartupProject()
             bool skip = false;
             for (const QVariant &pattern : settings[Constants::EXCLUDES_LIST_KEY].toList()) {
                 QRegularExpression re(pattern.toString());
-                if (filePath.toString().indexOf(re) != -1) {
+                if (filePath.toUrlishString().indexOf(re) != -1) {
                     skip = true;
                     break;
                 }

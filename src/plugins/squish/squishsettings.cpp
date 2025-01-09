@@ -506,7 +506,7 @@ void SquishServerSettingsWidget::addAutPath(TreeItem *categoryItem, SquishServer
     const FilePath path = FileUtils::getExistingDirectory(Tr::tr("Select Application Path"), entry);
     if (path.isEmpty() || path == entry)
         return;
-    const QString pathStr = path.toString();
+    const QString pathStr = path.toUrlishString();
     if (original) {
         m_serverSettings.autPaths.removeOne(originalPathStr);
         m_model.destroyItem(original);

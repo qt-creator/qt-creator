@@ -81,7 +81,7 @@ AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children, const QSt
     m_canAdd(false)
 {
     if (node)
-        m_toolTip = node->directory().toString();
+        m_toolTip = node->directory().toUrlishString();
     for (AddNewTree *child : std::as_const(children))
         appendChild(child);
 }
@@ -93,7 +93,7 @@ AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children,
     m_priority(info.priority)
 {
     if (node)
-        m_toolTip = node->directory().toString();
+        m_toolTip = node->directory().toUrlishString();
     for (AddNewTree *child : std::as_const(children))
         appendChild(child);
 }
@@ -158,7 +158,7 @@ void BestNodeSelector::inspect(AddNewTree *tree, bool isContextNode)
 {
     FolderNode *node = tree->node();
     if (node->isProjectNodeType()) {
-        if (static_cast<ProjectNode *>(node)->deploysFolder(m_commonDirectory.toString())) {
+        if (static_cast<ProjectNode *>(node)->deploysFolder(m_commonDirectory.toUrlishString())) {
             m_deploys = true;
             m_deployText += tree->displayName() + QLatin1Char('\n');
         }
@@ -167,10 +167,10 @@ void BestNodeSelector::inspect(AddNewTree *tree, bool isContextNode)
         return;
 
     const FilePath projectDirectory = node->directory();
-    const int projectDirectorySize = projectDirectory.toString().size();
+    const int projectDirectorySize = projectDirectory.toUrlishString().size();
     if (m_commonDirectory != projectDirectory
-            && !m_commonDirectory.toString().startsWith(
-                projectDirectory.toString() + QLatin1Char('/')) // TODO: still required?
+            && !m_commonDirectory.toUrlishString().startsWith(
+                projectDirectory.toUrlishString() + QLatin1Char('/')) // TODO: still required?
             && !isContextNode)
         return;
 

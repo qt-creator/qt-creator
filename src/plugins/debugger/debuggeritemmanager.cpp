@@ -811,7 +811,7 @@ void DebuggerItemModel::autoDetectUvscDebuggers()
 
         QString errorMsg;
         const QString uVisionVersion = winGetDLLVersion(
-                    WinDLLFileVersion, uVision.toString(), &errorMsg);
+                    WinDLLFileVersion, uVision.toUrlishString(), &errorMsg);
 
         DebuggerItem item;
         item.createId();

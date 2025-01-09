@@ -350,7 +350,7 @@ void VcsBaseClient::annotate(const Utils::FilePath &workingDir, const QString &f
     QStringList args;
     args << vcsCmdString << revisionSpec(revision) << extraOptions << file;
     const Id kind = vcsEditorKind(AnnotateCommand);
-    const QString id = VcsBaseEditor::getSource(workingDir, QStringList(file)).toString();
+    const QString id = VcsBaseEditor::getSource(workingDir, QStringList(file)).toUrlishString();
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const FilePath source = VcsBaseEditor::getSource(workingDir, file);
 
@@ -453,7 +453,7 @@ void VcsBaseClient::revertFile(const FilePath &workingDir,
     args << revisionSpec(revision) << extraOptions << file;
     // Indicate repository change or file list
     VcsCommand *cmd = createCommand(workingDir);
-    const QStringList files = QStringList(workingDir.pathAppended(file).toString());
+    const QStringList files = QStringList(workingDir.pathAppended(file).toUrlishString());
     connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
             emit changed(files);
@@ -469,7 +469,7 @@ void VcsBaseClient::revertAll(const FilePath &workingDir,
     args << revisionSpec(revision) << extraOptions;
     // Indicate repository change or file list
     VcsCommand *cmd = createCommand(workingDir);
-    const QStringList files = QStringList(workingDir.toString());
+    const QStringList files = QStringList(workingDir.toUrlishString());
     connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
             emit changed(files);
@@ -562,7 +562,7 @@ void VcsBaseClient::update(const FilePath &repositoryRoot, const QString &revisi
     VcsCommand *cmd = createCommand(repositoryRoot);
     connect(cmd, &VcsCommand::done, this, [this, repositoryRoot, cmd] {
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
-            emit changed(repositoryRoot.toString());
+            emit changed(repositoryRoot.toUrlishString());
     });
     enqueueJob(cmd, args, repositoryRoot);
 }

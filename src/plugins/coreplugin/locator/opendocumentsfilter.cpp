@@ -38,7 +38,7 @@ static void matchEditors(QPromise<void> &promise, const LocatorStorage &storage,
                          const QList<Entry> &editorsData)
 {
     const Link link = Link::fromString(storage.input(), true);
-    const QRegularExpression regexp = ILocatorFilter::createRegExp(link.targetFilePath.toString());
+    const QRegularExpression regexp = ILocatorFilter::createRegExp(link.targetFilePath.toUrlishString());
     if (!regexp.isValid())
         return;
 

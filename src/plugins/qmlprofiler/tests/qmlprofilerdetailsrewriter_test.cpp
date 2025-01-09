@@ -40,7 +40,7 @@ public:
                     ProjectExplorer::FileType::Source);
         root->addNode(std::move(fileNode));
         setRootProjectNode(std::move(root));
-        setDisplayName(file.toString());
+        setDisplayName(file.toUrlishString());
         setId("QmlProfilerDetailsRewriterTest.DummyProject");
     }
 

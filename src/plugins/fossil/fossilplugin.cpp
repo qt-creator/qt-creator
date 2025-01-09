@@ -758,7 +758,7 @@ bool FossilPluginPrivate::activateCommit()
         // Whether local commit or not
         if (commitWidget->isPrivateOptionEnabled())
             extraOptions += "--private";
-        fossilClient().commit(m_submitRepository, files, editorDocument->filePath().toString(), extraOptions);
+        fossilClient().commit(m_submitRepository, files, editorDocument->filePath().toUrlishString(), extraOptions);
     }
     return true;
 }
@@ -909,7 +909,7 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sou
     const QString fossilFile = options.value("fossil-file");
     const FilePath fossilFilePath = FilePath::fromUserInput(QDir::fromNativeSeparators(fossilFile));
     const QString fossilFileNative = fossilFilePath.toUserOutput();
-    const QFileInfo cloneRepository(fossilFilePath.toString());
+    const QFileInfo cloneRepository(fossilFilePath.toUrlishString());
 
     // Check when requested to clone a local repository and clone-into repository file is the same
     // or not specified.

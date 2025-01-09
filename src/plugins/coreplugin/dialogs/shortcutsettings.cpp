@@ -116,7 +116,7 @@ QMap<QString, QList<QKeySequence>> CommandsFile::importCommands() const
 {
     QMap<QString, QList<QKeySequence>> result;
 
-    QFile file(m_filePath.toString());
+    QFile file(m_filePath.toUrlishString());
     if (!file.open(QIODevice::ReadOnly|QIODevice::Text))
         return result;
 

@@ -421,7 +421,7 @@ void QbsProjectManagerPlugin::buildFileContextMenu()
     QTC_ASSERT(node, return);
     auto project = qobject_cast<QbsProject *>(ProjectTree::currentProject());
     QTC_ASSERT(project, return);
-    buildSingleFile(project, node->filePath().toString());
+    buildSingleFile(project, node->filePath().toUrlishString());
 }
 
 void QbsProjectManagerPlugin::buildFile()
@@ -431,7 +431,7 @@ void QbsProjectManagerPlugin::buildFile()
     if (!project || !node)
         return;
 
-    buildSingleFile(project, node->filePath().toString());
+    buildSingleFile(project, node->filePath().toUrlishString());
 }
 
 void QbsProjectManagerPlugin::buildProductContextMenu()

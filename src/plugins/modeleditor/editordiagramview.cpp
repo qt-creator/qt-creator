@@ -67,7 +67,7 @@ void EditorDiagramView::dropProjectExplorerNodes(const QList<QVariant> &values, 
             auto folderNode = dynamic_cast<ProjectExplorer::FolderNode *>(node);
             if (folderNode) {
                 d->pxNodeController->addFileSystemEntry(
-                            folderNode->filePath().toString(), -1, -1,
+                            folderNode->filePath().toUrlishString(), -1, -1,
                             diagramSceneModel()->findTopmostElement(scenePos),
                             scenePos, diagramSceneModel()->diagram());
             }
@@ -80,7 +80,7 @@ void EditorDiagramView::dropFiles(const QList<Utils::DropSupport::FileSpec> &fil
     for (const auto &fileSpec : files) {
         QPointF scenePos = mapToScene(pos);
         d->pxNodeController->addFileSystemEntry(
-                    fileSpec.filePath.toString(), fileSpec.line, fileSpec.column,
+                    fileSpec.filePath.toUrlishString(), fileSpec.line, fileSpec.column,
                     diagramSceneModel()->findTopmostElement(scenePos),
                     scenePos, diagramSceneModel()->diagram());
     }

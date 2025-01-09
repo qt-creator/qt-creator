@@ -246,7 +246,7 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
         if (debugInfoLocation.isEmpty())
             debugInfoLocation = sysRoot / "/usr/lib/debug";
         if (debugSourceLocation.isEmpty()) {
-            const QString base = sysRoot.toString() + "/usr/src/debug/";
+            const QString base = sysRoot.toUrlishString() + "/usr/src/debug/";
             debugSourceLocation.append(base + "qt5base/src/corelib");
             debugSourceLocation.append(base + "qt5base/src/gui");
             debugSourceLocation.append(base + "qt5base/src/network");
@@ -1852,7 +1852,7 @@ void DebuggerEnginePrivate::cleanupViews()
             bool keepIt = true;
             if (document->isModified())
                 keepIt = true;
-            else if (document->filePath().toString().contains("qeventdispatcher"))
+            else if (document->filePath().toUrlishString().contains("qeventdispatcher"))
                 keepIt = false;
             else if (isMemory)
                 keepIt = !closeMemory;
@@ -3037,7 +3037,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
                 rp.symbolFile = rp.symbolFile.stringAppended(".exe");
             QString errorMessage;
             QStringList rc;
-            if (getPDBFiles(rp.symbolFile.toString(), &rc, &errorMessage) && !rc.isEmpty())
+            if (getPDBFiles(rp.symbolFile.toUrlishString(), &rc, &errorMessage) && !rc.isEmpty())
                 return;
             if (!errorMessage.isEmpty()) {
                 detailedWarning.append('\n');
@@ -3064,7 +3064,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
         const ElfData elfData = reader.readHeaders();
         const QString error = reader.errorString();
 
-        showMessage("EXAMINING " + rp.symbolFile.toString(), LogDebug);
+        showMessage("EXAMINING " + rp.symbolFile.toUrlishString(), LogDebug);
         QByteArray msg = "ELF SECTIONS: ";
 
         static const QList<QByteArray> interesting = {

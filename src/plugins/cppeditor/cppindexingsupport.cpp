@@ -75,7 +75,7 @@ public:
     void process(const CPlusPlus::Document::Ptr document)
     {
         using namespace CPlusPlus;
-        const QString fileName = document->filePath().toString();
+        const QString fileName = document->filePath().toUrlishString();
 
         const QList<Document::DiagnosticMessage> messages = document->diagnosticMessages();
         for (const Document::DiagnosticMessage &message : messages) {

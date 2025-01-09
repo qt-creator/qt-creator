@@ -142,7 +142,7 @@ private:
             symbolFile = Utils::findOrDefault(target->buildSystem()->applicationTargets(),
                [&](const BuildTargetInfo &ti) {
                    return ti.buildKey == targetInformation.manifest.code
-                       || ti.projectFilePath.toString() == targetInformation.manifest.code;
+                       || ti.projectFilePath.toUrlishString() == targetInformation.manifest.code;
                }).targetFilePath;
         } else {
             reportFailure(Tr::tr("Cannot debug: Only QML and native applications are supported."));

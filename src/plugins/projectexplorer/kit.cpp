@@ -142,7 +142,7 @@ Kit::Kit(const Store &data)
 
     d->m_unexpandedDisplayName.fromMap(data, DISPLAYNAME_KEY);
     d->m_fileSystemFriendlyName = data.value(FILESYSTEMFRIENDLYNAME_KEY).toString();
-    d->m_iconPath = FilePath::fromString(data.value(ICON_KEY, d->m_iconPath.toString()).toString());
+    d->m_iconPath = FilePath::fromString(data.value(ICON_KEY, d->m_iconPath.toUrlishString()).toString());
     d->m_deviceTypeForIcon = Id::fromSetting(data.value(DEVICE_TYPE_FOR_ICON_KEY));
     if (const auto it = data.constFind(RELEVANT_ASPECTS_KEY); it != data.constEnd())
         d->m_relevantAspects = transform<QSet<Id>>(it.value().toList(), &Id::fromSetting);
@@ -370,7 +370,7 @@ QIcon Kit::icon() const
         return d->m_cachedIcon;
 
     if (!d->m_deviceTypeForIcon.isValid() && !d->m_iconPath.isEmpty() && d->m_iconPath.exists()) {
-        d->m_cachedIcon = QIcon(d->m_iconPath.toString());
+        d->m_cachedIcon = QIcon(d->m_iconPath.toUrlishString());
         return d->m_cachedIcon;
     }
 
@@ -509,7 +509,7 @@ Store Kit::toMap() const
         data.insert(FILESYSTEMFRIENDLYNAME_KEY, d->m_fileSystemFriendlyName);
     data.insert(AUTODETECTIONSOURCE_KEY, d->m_autoDetectionSource);
     data.insert(SDK_PROVIDED_KEY, d->m_sdkProvided);
-    data.insert(ICON_KEY, d->m_iconPath.toString());
+    data.insert(ICON_KEY, d->m_iconPath.toUrlishString());
     data.insert(DEVICE_TYPE_FOR_ICON_KEY, d->m_deviceTypeForIcon.toSetting());
 
     QStringList mutableInfo;

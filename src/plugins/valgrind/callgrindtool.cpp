@@ -619,7 +619,7 @@ void CallgrindTool::handleFilterProjectCosts()
     Project *pro = ProjectTree::currentProject();
 
     if (pro && m_filterProjectCosts->isChecked()) {
-        const QString projectDir = pro->projectDirectory().toString();
+        const QString projectDir = pro->projectDirectory().toUrlishString();
         m_proxyModel.setFilterBaseDir(projectDir);
     } else {
         m_proxyModel.setFilterBaseDir(QString());
@@ -856,7 +856,7 @@ void CallgrindTool::loadExternalLogFile()
     if (filePath.isEmpty())
         return;
 
-    QFile logFile(filePath.toString());
+    QFile logFile(filePath.toUrlishString());
     if (!logFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QString msg = Tr::tr("Callgrind: Failed to open file for reading: %1")
                 .arg(filePath.toUserOutput());

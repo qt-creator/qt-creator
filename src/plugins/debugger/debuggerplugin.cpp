@@ -1620,7 +1620,7 @@ void DebuggerPluginPrivate::attachToLastCore()
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->setKit(KitManager::defaultKit());
-    runControl->setDisplayName(Tr::tr("Last Core file \"%1\"").arg(lastCore.coreFile.toString()));
+    runControl->setDisplayName(Tr::tr("Last Core file \"%1\"").arg(lastCore.coreFile.toUrlishString()));
 
     auto debugger = new DebuggerRunTool(runControl);
     DebuggerRunParameters &rp = debugger->runParameters();
@@ -2277,7 +2277,7 @@ void DebuggerPlugin::attachToProcess(const qint64 processId, const Utils::FilePa
 {
     ProcessInfo processInfo;
     processInfo.processId = processId;
-    processInfo.executable = executable.toString();
+    processInfo.executable = executable.toUrlishString();
 
     auto kitChooser = new KitChooser;
     kitChooser->setShowIcons(true);

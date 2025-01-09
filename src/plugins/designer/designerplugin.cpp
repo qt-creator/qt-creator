@@ -155,7 +155,7 @@ class DesignerPlugin final : public ExtensionSystem::IPlugin
         const QString locale = ICore::userInterfaceLanguage();
         if (!locale.isEmpty()) {
             auto qtr = new QTranslator(this);
-            const QString creatorTrPath = ICore::resourcePath("translations").toString();
+            const QString creatorTrPath = ICore::resourcePath("translations").toUrlishString();
             const QString qtTrPath = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
             const QString trFile = "designer_" + locale;
             if (qtr->load(trFile, qtTrPath) || qtr->load(trFile, creatorTrPath))

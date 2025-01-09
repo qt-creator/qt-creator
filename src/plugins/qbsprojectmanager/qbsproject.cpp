@@ -283,8 +283,8 @@ bool QbsBuildSystem::renameFiles(Node *context, const FilePairs &filesToRename, 
         bool success = true;
         for (const auto &[oldFilePath, newFilePath] : filesToRename) {
             if (!renameFileInProduct(
-                    oldFilePath.toString(),
-                    newFilePath.toString(),
+                    oldFilePath.toUrlishString(),
+                    newFilePath.toUrlishString(),
                     prdNode->productData(),
                     n->groupData())) {
                 success = false;
@@ -302,8 +302,8 @@ bool QbsBuildSystem::renameFiles(Node *context, const FilePairs &filesToRename, 
         bool success = true;
         for (const auto &[oldFilePath, newFilePath] : filesToRename) {
             if (!renameFileInProduct(
-                    oldFilePath.toString(),
-                    newFilePath.toString(),
+                    oldFilePath.toUrlishString(),
+                    newFilePath.toUrlishString(),
                     n->productData(),
                     n->mainGroup())) {
                 success = false;
@@ -340,7 +340,7 @@ ProjectExplorer::DeploymentKnowledge QbsProject::deploymentKnowledge() const
 
 FilePaths QbsBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
 {
-    return FileUtils::toFilePathList(session()->filesGeneratedFrom(sourceFile.toString()));
+    return FileUtils::toFilePathList(session()->filesGeneratedFrom(sourceFile.toUrlishString()));
 }
 
 bool QbsBuildSystem::isProjectEditable() const
@@ -952,7 +952,7 @@ static RawProjectPart generateProjectPart(
     bool hasObjcFiles = false;
     bool hasObjcxxFiles = false;
     const auto artifactWorker = [&](const QJsonObject &source) {
-        const QString filePath = refFile.withNewPath(source.value("file-path").toString()).toString();
+        const QString filePath = refFile.withNewPath(source.value("file-path").toString()).toUrlishString();
         QJsonObject translatedSource = source;
         translatedSource.insert("file-path", filePath);
         filePathToSourceArtifact.insert(filePath, translatedSource);
@@ -998,7 +998,7 @@ static RawProjectPart generateProjectPart(
     rpp.setPreCompiledHeaders(Utils::toList(pchFiles));
     rpp.setIncludedFiles(
         Utils::transform(arrayToStringList(props.value("cpp.prefixHeaders")), [&](const QString &f) {
-            return refFile.withNewPath(f).toString();
+            return refFile.withNewPath(f).toUrlishString();
         }));
     rpp.setFiles(filePathToSourceArtifact.keys(), {},
                  [filePathToSourceArtifact](const QString &filePath) {
@@ -1019,7 +1019,7 @@ static RawProjectParts generateProjectParts(
     RawProjectParts rpps;
     const auto translatedPath = [&](const QJsonValue &v) {
         QTC_ASSERT(v.isString(), return QString());
-        return refFile.withNewPath(v.toString()).toString();
+        return refFile.withNewPath(v.toString()).toUrlishString();
     };
     forAllProducts(projectData, [&](const QJsonObject &prd) {
         QString cPch;

@@ -628,7 +628,7 @@ void IosDeviceToolHandlerPrivate::requestTransferApp(const FilePath &bundlePath,
 {
     m_bundlePath = bundlePath;
     m_deviceId = deviceId;
-    QString tmpDeltaPath = TemporaryDirectory::masterDirectoryFilePath().pathAppended("ios").toString();
+    QString tmpDeltaPath = TemporaryDirectory::masterDirectoryFilePath().pathAppended("ios").toUrlishString();
     QStringList args;
     args << QLatin1String("--id") << deviceId << QLatin1String("--bundle")
          << bundlePath.path() << QLatin1String("--timeout") << QString::number(timeout)
@@ -941,7 +941,7 @@ bool IosSimulatorToolHandlerPrivate::isResponseValid(const SimulatorControl::Res
 
 QString IosToolHandler::iosDeviceToolPath()
 {
-    return Core::ICore::libexecPath("ios/iostool").toString();
+    return Core::ICore::libexecPath("ios/iostool").toUrlishString();
 }
 
 IosToolHandler::IosToolHandler(const Internal::IosDeviceType &devType, QObject *parent) :

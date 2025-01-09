@@ -109,9 +109,9 @@ void openQDS(const FilePath &fileName)
     //-a and -client arguments help to append project to open design studio application
     if (HostOsInfo::isMacHost())
         qdsStarted = Process::startDetached(
-            {"/usr/bin/open", {"-a", qdsPath.path(), fileName.toString()}});
+            {"/usr/bin/open", {"-a", qdsPath.path(), fileName.toUrlishString()}});
     else
-        qdsStarted = Process::startDetached({qdsPath, {"-client", fileName.toString()}});
+        qdsStarted = Process::startDetached({qdsPath, {"-client", fileName.toUrlishString()}});
 
     if (!qdsStarted) {
         QMessageBox::warning(ICore::dialogParent(),
@@ -412,7 +412,7 @@ void QmlProjectPlugin::initialize()
                                 return;
 
                             const Utils::FilePath fileName = Utils::FilePath::fromString(
-                                document->filePath().toString() + Constants::fakeProjectName);
+                                document->filePath().toUrlishString() + Constants::fakeProjectName);
                             auto result = ProjectExplorer::ProjectExplorerPlugin::openProjects(
                                 {fileName});
                             QTC_ASSERT(result.project(), return);

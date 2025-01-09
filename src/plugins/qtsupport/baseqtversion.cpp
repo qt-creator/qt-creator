@@ -1818,7 +1818,7 @@ FilePath QtVersionPrivate::mkspecFromVersionInfo(const QHash<ProKey, ProString> 
     OsType osInfo = mkspecFullPath.osType();
     if (osInfo == OsTypeWindows) {
         if (!qt5) {
-            QFile f2(mkspecFullPath.toString() + "/qmake.conf");
+            QFile f2(mkspecFullPath.toUrlishString() + "/qmake.conf");
             if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
                 while (!f2.atEnd()) {
                     QByteArray line = f2.readLine();
@@ -1830,7 +1830,7 @@ FilePath QtVersionPrivate::mkspecFromVersionInfo(const QHash<ProKey, ProString> 
                                 static const QRegularExpression rex("\\binclude\\(([^)]+)/qmake\\.conf\\)");
                                 const QRegularExpressionMatch match = rex.match(QString::fromLocal8Bit(f2.readAll()));
                                 if (match.hasMatch()) {
-                                    possibleFullPath = mkspecFullPath.toString() + '/'
+                                    possibleFullPath = mkspecFullPath.toUrlishString() + '/'
                                             + match.captured(1);
                                 }
                             }
@@ -1847,7 +1847,7 @@ FilePath QtVersionPrivate::mkspecFromVersionInfo(const QHash<ProKey, ProString> 
         }
     } else {
         if (osInfo == OsTypeMac) {
-            QFile f2(mkspecFullPath.toString() + "/qmake.conf");
+            QFile f2(mkspecFullPath.toUrlishString() + "/qmake.conf");
             if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
                 while (!f2.atEnd()) {
                     QByteArray line = f2.readLine();
@@ -1872,7 +1872,7 @@ FilePath QtVersionPrivate::mkspecFromVersionInfo(const QHash<ProKey, ProString> 
             QString rspec = mkspecFullPath.toFileInfo().symLinkTarget();
             if (!rspec.isEmpty())
                 mkspecFullPath = FilePath::fromUserInput(
-                            QDir(baseMkspecDir.toString()).absoluteFilePath(rspec));
+                            QDir(baseMkspecDir.toUrlishString()).absoluteFilePath(rspec));
         }
     }
     return mkspecFullPath;
@@ -2004,7 +2004,7 @@ bool QtVersion::isQtQuickCompilerSupported(QString *reason) const
         return false;
     }
 
-    const QString qtQuickCompilerPrf = mkspecsPath().toString() + "/features/qtquickcompiler.prf";
+    const QString qtQuickCompilerPrf = mkspecsPath().toUrlishString() + "/features/qtquickcompiler.prf";
     if (!QFileInfo::exists(qtQuickCompilerPrf)) {
         if (reason)
             *reason = Tr::tr("This Qt Version does not contain Qt Quick Compiler.");
@@ -2075,7 +2075,7 @@ FilePaths QtVersionPrivate::qtCorePaths()
 
 static QByteArray scanQtBinaryForBuildString(const FilePath &library)
 {
-    QFile lib(library.toString());
+    QFile lib(library.toUrlishString());
     QByteArray buildString;
 
     if (lib.open(QIODevice::ReadOnly)) {

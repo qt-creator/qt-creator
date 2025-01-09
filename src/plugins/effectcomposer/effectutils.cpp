@@ -28,7 +28,7 @@ QString EffectUtils::nodesSourcesPath()
     if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/effectComposerNodes";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/effectComposerNodes").toString();
+    return Core::ICore::resourcePath("qmldesigner/effectComposerNodes").toUrlishString();
 }
 
 } // namespace EffectComposer

@@ -875,7 +875,7 @@ void TextToModelMerger::setupPossibleImports()
     auto modules = m_possibleModules;
 
     if (document()->fileName() != "<internal>")
-        modules.append(generatePossibleFileImports(document()->path().toString(), allUsedImports));
+        modules.append(generatePossibleFileImports(document()->path().toUrlishString(), allUsedImports));
 
     if (m_rewriterView->isAttached())
         m_rewriterView->model()->setPossibleImports(modules);
@@ -2240,7 +2240,7 @@ void TextToModelMerger::collectSemanticErrorsAndWarnings(
 
     check.enableQmlDesignerChecks();
 
-    QUrl fileNameUrl = QUrl::fromLocalFile(m_document->fileName().toString());
+    QUrl fileNameUrl = QUrl::fromLocalFile(m_document->fileName().toUrlishString());
     const QList<StaticAnalysis::Message> messages = check();
     for (const StaticAnalysis::Message &message : messages) {
         if (message.severity == Severity::Error) {

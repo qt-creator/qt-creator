@@ -107,7 +107,7 @@ static QString unescape(const QString &input)
 
 static bool parseTaskFile(QString *errorString, const FilePath &name)
 {
-    QFile tf(name.toString());
+    QFile tf(name.toUrlishString());
     if (!tf.open(QIODevice::ReadOnly)) {
         *errorString = Tr::tr("Cannot open task file %1: %2")
                            .arg(name.toUserOutput(), tf.errorString());
@@ -147,7 +147,7 @@ static bool parseTaskFile(QString *errorString, const FilePath &name)
             file = QDir::fromNativeSeparators(file);
             QFileInfo fi(file);
             if (fi.isRelative())
-                file = parentDir.pathAppended(file).toString();
+                file = parentDir.pathAppended(file).toUrlishString();
         }
         description = unescape(description);
 

@@ -38,7 +38,7 @@ QString UtilsJsExtension::qtCreatorIdeVersion() const
 
 QString UtilsJsExtension::qtCreatorSettingsPath() const
 {
-    return Core::ICore::userResourcePath().toString();
+    return Core::ICore::userResourcePath().toUrlishString();
 }
 
 QString UtilsJsExtension::toNativeSeparators(const QString &in) const
@@ -125,7 +125,7 @@ QString UtilsJsExtension::preferredSuffix(const QString &mimetype) const
 
 QString UtilsJsExtension::fileName(const QString &path, const QString &extension) const
 {
-    return Utils::FilePath::fromStringWithExtension(path, extension).toString();
+    return Utils::FilePath::fromStringWithExtension(path, extension).toUrlishString();
 }
 
 QString UtilsJsExtension::mktemp(const QString &pattern) const

@@ -244,7 +244,7 @@ void setupUtilsModule()
                     return QString("ProcessRunData{\n  command=%1,\n  workingDirectory=%2,\n  "
                                    "environment={\n    %3\n}\n}")
                         .arg(prd.command.toUserOutput())
-                        .arg(prd.workingDirectory.toString())
+                        .arg(prd.workingDirectory.toUrlishString())
                         .arg(prd.environment.toStringList().join(",\n    "));
                 });
 

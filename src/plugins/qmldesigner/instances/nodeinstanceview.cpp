@@ -2341,7 +2341,7 @@ void NodeInstanceView::handleShaderChanges()
 
         QStringList args = baseArgs;
         args.append("-o");
-        args.append(outPath.toString());
+        args.append(outPath.toUrlishString());
         args.append(shader);
         auto qsbProcess = new Utils::Process(this);
         connect(qsbProcess, &Utils::Process::done, this, [this, qsbProcess, shader] {

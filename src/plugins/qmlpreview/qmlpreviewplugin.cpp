@@ -340,7 +340,7 @@ void QmlPreviewPlugin::previewCurrentFile()
                              Tr::tr("Start the QML Preview for the project before selecting "
                                     "a specific file for preview."));
 
-    const QString file = currentNode->filePath().toString();
+    const QString file = currentNode->filePath().toUrlishString();
     if (file != d->m_previewedFile)
         setPreviewedFile(file);
     else
@@ -459,7 +459,7 @@ void QmlPreviewPluginPrivate::checkEditor()
         dialect = QmlJS::Dialect::QmlQtQuick2Ui;
     else
         dialect = QmlJS::Dialect::NoLanguage;
-    checkDocument(doc->filePath().toString(), doc->contents(), dialect);
+    checkDocument(doc->filePath().toUrlishString(), doc->contents(), dialect);
 }
 
 void QmlPreviewPluginPrivate::checkFile(const QString &fileName)

@@ -487,13 +487,13 @@ bool ExternalTool::save(QString *errorMessage) const
         out.writeAttribute(kError, stringForOutputHandling(m_errorHandling));
         out.writeAttribute(kModifiesDocument, QLatin1String(m_modifiesCurrentDocument ? kYes : kNo));
         for (const FilePath &executable : m_executables)
-            out.writeTextElement(kPath, executable.toString());
+            out.writeTextElement(kPath, executable.toUrlishString());
         if (!m_arguments.isEmpty())
             out.writeTextElement(kArguments, m_arguments);
         if (!m_input.isEmpty())
             out.writeTextElement(kInput, m_input);
         if (!m_workingDirectory.isEmpty())
-            out.writeTextElement(kWorkingDirectory, m_workingDirectory.toString());
+            out.writeTextElement(kWorkingDirectory, m_workingDirectory.toUrlishString());
         if (m_baseEnvironmentProviderId.isValid())
             out.writeTextElement(kBaseEnvironmentId, m_baseEnvironmentProviderId.toString());
         if (!m_environment.isEmpty()) {

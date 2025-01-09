@@ -356,7 +356,7 @@ void QmlJSHoverHandler::handleImport(const ScopeChain &scopeChain, AST::UiImport
         if (import.info.ast() == node) {
             if (import.info.type() == ImportType::Library
                     && !import.libraryPath.isEmpty()) {
-                QString msg = Tr::tr("Library at %1").arg(import.libraryPath.toString());
+                QString msg = Tr::tr("Library at %1").arg(import.libraryPath.toUrlishString());
                 const LibraryInfo &libraryInfo = scopeChain.context()->snapshot().libraryInfo(import.libraryPath);
                 if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::DumpDone) {
                     msg += QLatin1Char('\n');

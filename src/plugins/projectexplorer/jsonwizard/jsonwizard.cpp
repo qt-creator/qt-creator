@@ -514,7 +514,7 @@ void JsonWizard::openProjectForNode(Node *node)
 
     if (projFilePath && !Core::EditorManager::openEditor(projFilePath.value())) {
             auto errorMessage = Tr::tr("Failed to open an editor for \"%1\".")
-                    .arg(QDir::toNativeSeparators(projFilePath.value().toString()));
+                    .arg(QDir::toNativeSeparators(projFilePath.value().toUrlishString()));
             QMessageBox::warning(nullptr, Tr::tr("Cannot Open Project"), errorMessage);
     }
 }

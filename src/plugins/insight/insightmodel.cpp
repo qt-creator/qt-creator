@@ -657,7 +657,7 @@ void InsightModel::parseDefaultConfig()
         const QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
 
         if (qtVersion) {
-            m_defaultConfig = readJSON(qtVersion->dataPath().toString() + "/" + dataFolder + "/"
+            m_defaultConfig = readJSON(qtVersion->dataPath().toUrlishString() + "/" + dataFolder + "/"
                                        + insightConfFile);
         }
     }

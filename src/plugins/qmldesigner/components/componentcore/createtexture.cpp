@@ -220,7 +220,7 @@ void CreateTexture::execute(const QStringList &filePaths, AddTextureMode mode, i
 bool CreateTexture::addFileToProject(const QString &filePath)
 {
     AddFilesResult result = ModelNodeOperations::addImageToProject(
-                {filePath}, ModelNodeOperations::getImagesDefaultDirectory().toString(), false);
+                {filePath}, ModelNodeOperations::getImagesDefaultDirectory().toUrlishString(), false);
 
     if (result.status() == AddFilesResult::Failed) {
         Core::AsynchronousMessageBox::warning(Tr::tr("Failed to Add Texture"),
@@ -242,7 +242,7 @@ ModelNode CreateTexture::createTextureFromImage(const  Utils::FilePath &assetPat
 
     NodeMetaInfo metaInfo = m_view->model()->qtQuick3DTextureMetaInfo();
 
-    QString textureSource = assetPath.relativePathFrom(DocumentManager::currentFilePath()).toString();
+    QString textureSource = assetPath.relativePathFrom(DocumentManager::currentFilePath()).toUrlishString();
 
     ModelNode newTexNode = Utils3D::getTextureDefaultInstance(textureSource, m_view);
     if (!newTexNode.isValid()) {

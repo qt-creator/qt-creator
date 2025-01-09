@@ -259,7 +259,7 @@ QString projectUniqueId(ProjectExplorer::Project *project)
     if (!project)
         return QString();
 
-    return QString::fromUtf8(QCryptographicHash::hash(project->projectFilePath().toString().toUtf8(),
+    return QString::fromUtf8(QCryptographicHash::hash(project->projectFilePath().toUrlishString().toUtf8(),
                                                       QCryptographicHash::Md5)
                                  .toHex(0));
 }

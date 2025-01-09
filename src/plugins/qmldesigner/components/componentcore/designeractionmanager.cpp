@@ -2238,7 +2238,7 @@ QString DesignerActionManager::designerIconResourcesPath() const
     if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/designericons.json";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/designericons.json").toString();
+    return Core::ICore::resourcePath("qmldesigner/designericons.json").toUrlishString();
 }
 
 DesignerActionToolBar::DesignerActionToolBar(QWidget *parentWidget) : Utils::StyledBar(parentWidget),

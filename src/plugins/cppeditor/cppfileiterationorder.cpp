@@ -125,7 +125,7 @@ QStringList FileIterationOrder::toStringList() const
     QStringList result;
 
     for (const auto &entry : m_set)
-        result.append(entry.filePath.toString());
+        result.append(entry.filePath.toUrlishString());
 
     return result;
 }

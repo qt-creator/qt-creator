@@ -234,7 +234,7 @@ void ProjectExplorerTest::testJsonWizardsComboBox()
 
 static QString iconInsideResource(const QString &relativePathToIcon)
 {
-    return Core::ICore::resourcePath().resolvePath(relativePathToIcon).toString();
+    return Core::ICore::resourcePath().resolvePath(relativePathToIcon).toUrlishString();
 }
 
 void ProjectExplorerTest::testJsonWizardsIconList()

@@ -200,7 +200,7 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
     }
     // file names can match with +linenumber or :linenumber
     const Link link = Link::fromString(entryFileName, true);
-    regExp = ILocatorFilter::createRegExp(link.targetFilePath.toString(), caseSensitivity);
+    regExp = ILocatorFilter::createRegExp(link.targetFilePath.toUrlishString(), caseSensitivity);
     if (regExp.isValid()) {
         for (const FilePath &file : files) {
             if (promise.isCanceled())

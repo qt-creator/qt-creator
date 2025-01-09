@@ -881,7 +881,7 @@ static QString qtVersionsFile(const QString &baseDir)
 
 static std::optional<FilePath> currentlyLinkedQtDir(bool *hasInstallSettings)
 {
-    const QString installSettingsFilePath = settingsFile(ICore::resourcePath().toString());
+    const QString installSettingsFilePath = settingsFile(ICore::resourcePath().toUrlishString());
     const bool installSettingsExist = QFileInfo::exists(installSettingsFilePath);
     if (hasInstallSettings)
         *hasInstallSettings = installSettingsExist;
@@ -994,8 +994,8 @@ static std::optional<FilePath> settingsDirForQtDir(const FilePath &baseDirectory
         return qtDir / dir;
     });
     const FilePath validDir = Utils::findOrDefault(dirsToCheck, [baseDirectory](const FilePath &dir) {
-        return QFileInfo::exists(settingsFile(baseDirectory.resolvePath(dir).toString()))
-               || QFileInfo::exists(qtVersionsFile(baseDirectory.resolvePath(dir).toString()));
+        return QFileInfo::exists(settingsFile(baseDirectory.resolvePath(dir).toUrlishString()))
+               || QFileInfo::exists(qtVersionsFile(baseDirectory.resolvePath(dir).toUrlishString()));
     });
     if (!validDir.isEmpty())
         return validDir;
@@ -1076,7 +1076,7 @@ void QtSettingsPageWidget::linkWithQt()
     unlinkButton->setEnabled(currentLink.has_value());
     connect(unlinkButton, &QPushButton::clicked, &dialog, [&dialog, &askForRestart] {
         bool removeSettingsFile = false;
-        const QString filePath = settingsFile(ICore::resourcePath().toString());
+        const QString filePath = settingsFile(ICore::resourcePath().toUrlishString());
         {
             QSettings installSettings(filePath, QSettings::IniFormat);
             installSettings.remove(kInstallSettingsKey);
@@ -1097,7 +1097,7 @@ void QtSettingsPageWidget::linkWithQt()
         const std::optional<FilePath> settingsDir = settingsDirForQtDir(pathInput->baseDirectory(),
                                                                         pathInput->unexpandedFilePath());
         if (QTC_GUARD(settingsDir)) {
-            const QString settingsFilePath = settingsFile(ICore::resourcePath().toString());
+            const QString settingsFilePath = settingsFile(ICore::resourcePath().toUrlishString());
             QSettings settings(settingsFilePath, QSettings::IniFormat);
             settings.setValue(kInstallSettingsKey, settingsDir->toVariant());
             settings.sync();

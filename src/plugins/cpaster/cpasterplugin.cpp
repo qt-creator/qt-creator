@@ -373,7 +373,7 @@ void CodePasterPluginPrivate::finishFetch(const QString &titleDescription,
         return;
     }
     const Utils::FilePath filePath = saver.filePath();
-    m_fetchedSnippets.push_back(filePath.toString());
+    m_fetchedSnippets.push_back(filePath.toUrlishString());
     // Open editor with title.
     IEditor *editor = EditorManager::openEditor(filePath);
     QTC_ASSERT(editor, return);

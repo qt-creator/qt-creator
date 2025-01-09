@@ -41,7 +41,7 @@ public:
         case QAbstractFileEngine::AbsoluteName:
         case QAbstractFileEngine::DefaultName:
         case QAbstractFileEngine::CanonicalName:
-            return chopIfEndsWith(m_filePath.toString(), '/');
+            return chopIfEndsWith(m_filePath.toUrlishString(), '/');
             break;
         case QAbstractFileEngine::BaseName:
             if (m_filePath.fileName().isEmpty())
@@ -51,7 +51,7 @@ public:
         case QAbstractFileEngine::PathName:
         case QAbstractFileEngine::AbsolutePathName:
         case QAbstractFileEngine::CanonicalPathName:
-            return chopIfEndsWith(m_filePath.parentDir().toString(), '/');
+            return chopIfEndsWith(m_filePath.parentDir().toUrlishString(), '/');
             break;
 
         default:

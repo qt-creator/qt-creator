@@ -264,7 +264,7 @@ QString TextureEditorQmlBackend::propertyEditorResourcesPath()
     if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
+    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toUrlishString();
 }
 
 void TextureEditorQmlBackend::emitSelectionToBeChanged()

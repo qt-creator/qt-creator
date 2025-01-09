@@ -161,8 +161,8 @@ std::optional<QString> DSStore::save(bool mcuCompatible)
 
 std::optional<QString> DSStore::save(const Utils::FilePath &moduleDirPath, bool mcuCompatible)
 {
-    if (!QDir().mkpath(moduleDirPath.absoluteFilePath().toString()))
-        return tr("Can not create design system module directory %1.").arg(moduleDirPath.toString());
+    if (!QDir().mkpath(moduleDirPath.absoluteFilePath().toUrlishString()))
+        return tr("Can not create design system module directory %1.").arg(moduleDirPath.toUrlishString());
 
     // dump collections
     QStringList singletons;

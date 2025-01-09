@@ -301,7 +301,7 @@ void KitManagerConfigWidget::setIcon()
                                                          Tr::tr("Images (*.png *.xpm *.jpg)"));
         if (path.isEmpty())
             return;
-        const QIcon icon(path.toString());
+        const QIcon icon(path.toUrlishString());
         if (icon.isNull())
             return;
         m_iconButton->setIcon(icon);

@@ -287,7 +287,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString * 
     }
 
     Sqlite::LibraryInitializer::initialize();
-    QDir{}.mkpath(Core::ICore::cacheResourcePath().toString());
+    QDir{}.mkpath(Core::ICore::cacheResourcePath().toUrlishString());
 
     QAction *action = new QAction(tr("Give Feedback..."), this);
     Core::Command *cmd = Core::ActionManager::registerAction(action, "Help.GiveFeedback");
@@ -306,7 +306,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString * 
     const QString fontPath
         = Core::ICore::resourcePath(
                 "qmldesigner/propertyEditorQmlSources/imports/StudioTheme/icons.ttf")
-              .toString();
+              .toUrlishString();
     if (QFontDatabase::addApplicationFont(fontPath) < 0)
         qCWarning(qmldesignerLog) << "Could not add font " << fontPath << "to font database";
 
@@ -388,7 +388,7 @@ static QStringList allUiQmlFilesforCurrentProject(const Utils::FilePath &fileNam
         const QList<Utils::FilePath> fileNames = currentProject->files(ProjectExplorer::Project::SourceFiles);
         for (const Utils::FilePath &fileName : fileNames) {
             if (fileName.endsWith(".ui.qml"))
-                list.append(fileName.toString());
+                list.append(fileName.toUrlishString());
         }
     }
 
@@ -401,7 +401,7 @@ static QString projectPath(const Utils::FilePath &fileName)
     ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::projectForFile(fileName);
 
     if (currentProject)
-        path = currentProject->projectDirectory().toString();
+        path = currentProject->projectDirectory().toUrlishString();
 
     return path;
 }
@@ -844,7 +844,7 @@ void QmlDesignerPlugin::lauchFeedbackPopupInternal(const QString &identifier)
     m_feedbackWidget = new QQuickWidget(Core::ICore::dialogParent());
     m_feedbackWidget->setObjectName(Constants::OBJECT_NAME_TOP_FEEDBACK);
 
-    const QString qmlPath = Core::ICore::resourcePath("qmldesigner/feedback/FeedbackPopup.qml").toString();
+    const QString qmlPath = Core::ICore::resourcePath("qmldesigner/feedback/FeedbackPopup.qml").toUrlishString();
 
     m_feedbackWidget->setSource(QUrl::fromLocalFile(qmlPath));
     if (!m_feedbackWidget->errors().isEmpty()) {

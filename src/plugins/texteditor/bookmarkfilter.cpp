@@ -93,7 +93,7 @@ LocatorFilterEntries BookmarkFilter::match(const QString &input) const
         else if (!bookmark->lineText().isEmpty())
             entry.extraInfo = bookmark->lineText();
         else
-            entry.extraInfo = bookmark->filePath().toString();
+            entry.extraInfo = bookmark->filePath().toUrlishString();
         int highlightIndex = entry.displayName.indexOf(input, 0, Qt::CaseInsensitive);
         if (highlightIndex >= 0) {
             entry.highlightInfo = {highlightIndex, int(input.length())};

@@ -62,7 +62,7 @@ LastCore getLastCore()
     // on 2nd invocation).
     QString tmpCorePath = QDir::tempPath() + '/' + lastCore.coreFile.fileName();
     const auto tmpCore = Utils::FilePath::fromString(tmpCorePath);
-    if (!tmpCore.exists() && !QFile::copy(lastCore.coreFile.toString(), tmpCorePath))
+    if (!tmpCore.exists() && !QFile::copy(lastCore.coreFile.toUrlishString(), tmpCorePath))
         return {};
 
     const QString uncompressedCorePath = tmpCorePath.sliced(0, tmpCorePath.size() - 4);

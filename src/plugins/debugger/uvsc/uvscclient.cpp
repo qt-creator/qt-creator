@@ -946,7 +946,7 @@ bool UvscClient::openProject(const Utils::FilePath &projectFile)
     if (!checkConnection())
         return false;
 
-    QByteArray prjdata = UvscUtils::encodeProjectData({projectFile.toString()});
+    QByteArray prjdata = UvscUtils::encodeProjectData({projectFile.toUrlishString()});
     const UVSC_STATUS st = ::UVSC_PRJ_LOAD(m_descriptor,
                                            reinterpret_cast<PRJDATA *>(prjdata.data()),
                                            prjdata.size());
@@ -982,7 +982,7 @@ bool UvscClient::setProjectSources(const FilePath &sourceDirectory,
                 || sourceFile.endsWith(".s")) {
             const FilePath parentDir = sourceFile.parentDir();
             QString groupName = parentDir.relativeChildPath(
-                        sourceDirectory).toString();
+                        sourceDirectory).toUrlishString();
             if (groupName.isEmpty())
                 groupName = "default";
 
@@ -1000,7 +1000,7 @@ bool UvscClient::setProjectSources(const FilePath &sourceDirectory,
             }
 
             // Add new source file to a group.
-            QByteArray prjdata = UvscUtils::encodeProjectData({groupName, sourceFile.toString()});
+            QByteArray prjdata = UvscUtils::encodeProjectData({groupName, sourceFile.toUrlishString()});
             const UVSC_STATUS st = ::UVSC_PRJ_ADD_FILE(m_descriptor,
                                                        reinterpret_cast<PRJDATA *>(prjdata.data()),
                                                        prjdata.size());
@@ -1033,7 +1033,7 @@ bool UvscClient::setProjectOutputTarget(const Utils::FilePath &outputFile)
     if (!checkConnection())
         return false;
 
-    QByteArray prjdata = UvscUtils::encodeProjectData({outputFile.toString()});
+    QByteArray prjdata = UvscUtils::encodeProjectData({outputFile.toUrlishString()});
     const UVSC_STATUS st = ::UVSC_PRJ_SET_OUTPUTNAME(m_descriptor,
                                                      reinterpret_cast<PRJDATA *>(prjdata.data()),
                                                      prjdata.size());

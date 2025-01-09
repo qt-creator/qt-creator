@@ -300,7 +300,7 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
         // assume this error was created by an external library
         QSet<QString> validFolders;
         for (Project *project : ProjectManager::projects()) {
-            validFolders << project->projectDirectory().toString();
+            validFolders << project->projectDirectory().toUrlishString();
             const QList<Target *> targets = project->targets();
             for (const Target *target : targets) {
                 const QList<DeployableFile> files = target->deploymentData().allFiles();
@@ -309,7 +309,7 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
                         validFolders << file.remoteDirectory();
                 }
                 for (BuildConfiguration *config : target->buildConfigurations())
-                    validFolders << config->buildDirectory().toString();
+                    validFolders << config->buildDirectory().toUrlishString();
             }
         }
 
@@ -713,7 +713,7 @@ void MemcheckTool::heobAction()
     }
 
     FilePath executable = sr.command.executable();
-    const QString workingDirectory = sr.workingDirectory.normalizedPathName().toString();
+    const QString workingDirectory = sr.workingDirectory.normalizedPathName().toUrlishString();
     const QString commandLineArguments = sr.command.arguments();
     const QStringList envStrings = sr.environment.toStringList();
 
@@ -937,7 +937,7 @@ void MemcheckTool::setupRunner(MemcheckToolRunner *runTool)
 {
     RunControl *runControl = runTool->runControl();
     m_errorModel.setRelevantFrameFinder(makeFrameFinder(transform(runControl->project()->files(Project::AllFiles),
-                                                                  &FilePath::toString)));
+                                                                  &FilePath::toUrlishString)));
 
     connect(runTool, &MemcheckToolRunner::parserError,
             this, &MemcheckTool::parserError);
@@ -994,7 +994,7 @@ void MemcheckTool::loadExternalXmlLogFile()
         return;
 
     m_exitMsg.clear();
-    loadXmlLogFile(filePath.toString());
+    loadXmlLogFile(filePath.toUrlishString());
 }
 
 void MemcheckTool::loadXmlLogFile(const QString &filePath)
@@ -1354,7 +1354,7 @@ bool HeobDialog::attach() const
 
 QString HeobDialog::path() const
 {
-    return m_pathChooser->filePath().toString();
+    return m_pathChooser->filePath().toUrlishString();
 }
 
 void HeobDialog::keyPressEvent(QKeyEvent *e)

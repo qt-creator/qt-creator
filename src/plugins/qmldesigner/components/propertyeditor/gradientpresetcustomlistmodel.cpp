@@ -22,9 +22,9 @@ const char settingsFileName[] = "GradientPresets.ini";
 QString settingsFullFilePath(const QSettings::Scope &scope)
 {
     if (scope == QSettings::SystemScope)
-        return Core::ICore::installerResourcePath(settingsFileName).toString();
+        return Core::ICore::installerResourcePath(settingsFileName).toUrlishString();
 
-    return Core::ICore::userResourcePath(settingsFileName).toString();
+    return Core::ICore::userResourcePath(settingsFileName).toUrlishString();
 }
 
 } // namespace Internal

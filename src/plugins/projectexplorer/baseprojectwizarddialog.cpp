@@ -122,7 +122,7 @@ ProjectIntroPage *BaseProjectWizardDialog::introPage() const
 
 QString BaseProjectWizardDialog::uniqueProjectName(const FilePath &path)
 {
-    const QDir pathDir(path.toString());
+    const QDir pathDir(path.toUrlishString());
     //: File path suggestion for a new project. If you choose
     //: to translate it, make sure it is a valid path name without blanks
     //: and using only ascii chars.

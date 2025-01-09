@@ -135,7 +135,7 @@ MacroExpanderPtr McuSdkRepository::getMacroExpander(const McuTarget &target)
     for (const auto &package : target.packages()) {
         macroExpander->registerVariable(package->cmakeVariableName().toLocal8Bit(),
                                         package->label(),
-                                        [package] { return package->path().toString(); });
+                                        [package] { return package->path().toUrlishString(); });
     }
 
     for (auto [key, macro] : asKeyValueRange(*globalMacros()))
@@ -172,7 +172,7 @@ FilePath McuSupportOptions::qulDocsDir() const
 
 void McuSupportOptions::registerQchFiles() const
 {
-    const QString docsDir = qulDocsDir().toString();
+    const QString docsDir = qulDocsDir().toUrlishString();
     if (docsDir.isEmpty())
         return;
 
@@ -196,8 +196,8 @@ void McuSupportOptions::registerExamples() const
             continue;
 
         QtSupport::QtVersionManager::registerExampleSet(dir.second,
-                                                        docsDir.toString(),
-                                                        examplesDir.toString());
+                                                        docsDir.toUrlishString(),
+                                                        examplesDir.toUrlishString());
     }
 }
 

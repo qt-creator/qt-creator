@@ -432,8 +432,8 @@ void MainWidget::exportToImage()
         QPainter painter(&image);
         view->scene()->render(&painter, QRectF(), r);
 
-        if (image.save(filePath.toString())) {
-            s->setValue(Constants::C_SETTINGS_LASTEXPORTFOLDER, filePath.parentDir().toString());
+        if (image.save(filePath.toUrlishString())) {
+            s->setValue(Constants::C_SETTINGS_LASTEXPORTFOLDER, filePath.parentDir().toUrlishString());
         } else {
             QMessageBox::warning(this, Tr::tr("Export Failed"), Tr::tr("Could not export to image."));
         }
@@ -456,7 +456,7 @@ void MainWidget::saveScreenShot()
     if (!filePath.isEmpty()) {
         const QImage image = view->view()->grabView();
 
-        if (image.save(filePath.toString())) {
+        if (image.save(filePath.toUrlishString())) {
             s->setValue(Constants::C_SETTINGS_LASTSAVESCREENSHOTFOLDER, filePath.parentDir().toSettings());
         } else {
             QMessageBox::warning(this, Tr::tr("Saving Failed"), Tr::tr("Could not save the screenshot."));

@@ -1301,11 +1301,11 @@ void tst_Dumpers::initTestCase()
         QVERIFY(QFileInfo::exists(cdbextPath + "\\qtcreatorcdbext.dll"));
         env.set("_NT_DEBUGGER_EXTENSION_PATH", cdbextPath);
         env.prependOrSetPath(Utils::FilePath::fromString(m_qmakeBinary).parentDir());
-        m_makeBinary = env.searchInPath("nmake.exe").toString();
+        m_makeBinary = env.searchInPath("nmake.exe").toUrlishString();
         m_env = env.toProcessEnvironment();
 
         QProcess cl;
-        cl.start(env.searchInPath("cl.exe").toString(), QStringList());
+        cl.start(env.searchInPath("cl.exe").toUrlishString(), QStringList());
         QVERIFY(cl.waitForFinished());
         QString output = cl.readAllStandardError();
         int pos = output.indexOf('\n');
@@ -1355,7 +1355,7 @@ void tst_Dumpers::initTestCase()
             env.prependOrSetPath(Utils::FilePath::fromString(m_qmakeBinary).parentDir());
 
             m_env = env.toProcessEnvironment();
-            m_makeBinary = env.searchInPath("nmake.exe").toString();
+            m_makeBinary = env.searchInPath("nmake.exe").toUrlishString();
         } else {
             m_env = QProcessEnvironment::systemEnvironment();
             m_makeBinary = "make";

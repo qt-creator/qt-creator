@@ -55,8 +55,8 @@ private:
         QStringList args;
         if (BuildConfiguration *buildConfiguration = target()->activeBuildConfiguration()) {
             args << "--work-dir"
-                 << QDir(projectDirectory.toString()).relativeFilePath(
-                        buildConfiguration->buildDirectory().toString());
+                 << QDir(projectDirectory.toUrlishString()).relativeFilePath(
+                        buildConfiguration->buildDirectory().toUrlishString());
         }
         args << "exec" << executable();
         if (!arguments.arguments().isEmpty())

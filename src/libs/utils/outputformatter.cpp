@@ -42,7 +42,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QString, linkSep, {"::"})
 
 QString OutputLineParser::createLinkTarget(const FilePath &filePath, int line = -1, int column = -1)
 {
-    return *linkPrefix() + filePath.toString() + *linkSep() + QString::number(line)
+    return *linkPrefix() + filePath.toUrlishString() + *linkSep() + QString::number(line)
             + *linkSep() + QString::number(column);
 }
 
@@ -130,7 +130,7 @@ FilePath OutputLineParser::absoluteFilePath(const FilePath &filePath) const
     if (candidates.count() == 1)
         return candidates.first();
 
-    QString fp = filePath.toString();
+    QString fp = filePath.toUrlishString();
     while (fp.startsWith("../"))
         fp.remove(0, 3);
     bool found = false;

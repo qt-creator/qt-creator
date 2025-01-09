@@ -155,14 +155,14 @@ void SysRootKitAspect::setSysRoot(Kit *k, const FilePath &v)
     for (Toolchain *tc : ToolchainKitAspect::toolChains(k)) {
         if (!tc->sysRoot().isEmpty()) {
             // It's the sysroot from toolchain, don't set it.
-            if (tc->sysRoot() == v.toString())
+            if (tc->sysRoot() == v.toUrlishString())
                 return;
 
             // We've changed the default toolchain sysroot, set it.
             break;
         }
     }
-    k->setValue(SysRootKitAspect::id(), v.toString());
+    k->setValue(SysRootKitAspect::id(), v.toUrlishString());
 }
 
 } // namespace ProjectExplorer

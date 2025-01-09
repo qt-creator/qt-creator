@@ -582,7 +582,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     const QList<Document::Ptr> docList = findDocumentsIncluding(docTable, uicedName, true); // change to false when we know the absolute path to generated ui_<>.h file
     DocumentMap docMap;
     for (const Document::Ptr &d : docList) {
-        docMap.insert(qAbs(d->filePath().absolutePath().toString()
+        docMap.insert(qAbs(d->filePath().absolutePath().toUrlishString()
                            .compare(uiFolder, Qt::CaseInsensitive)), d);
     }
 

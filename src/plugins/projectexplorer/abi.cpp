@@ -1203,7 +1203,7 @@ Abis Abi::abisOfBinary(const Utils::FilePath &path)
 
         while (!data.isEmpty()) {
             if ((getUint8(data, 58) != 0x60 || getUint8(data, 59) != 0x0a)) {
-                qWarning() << path.toString() << ": Thought it was an ar-file, but it is not!";
+                qWarning() << path.toUrlishString() << ": Thought it was an ar-file, but it is not!";
                 break;
             }
 

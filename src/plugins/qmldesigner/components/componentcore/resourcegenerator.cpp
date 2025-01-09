@@ -57,7 +57,7 @@ void generateMenuEntry(QObject *parent)
             projectPath.pathAppended(project->displayName() + ".qrc"),
             Tr::tr("QmlDesigner::GenerateResource", "QML Resource File (*.qrc)"));
 
-        if (qrcFilePath.toString().isEmpty())
+        if (qrcFilePath.toUrlishString().isEmpty())
             return;
 
         createQrcFile(qrcFilePath);
@@ -65,7 +65,7 @@ void generateMenuEntry(QObject *parent)
         Core::AsynchronousMessageBox::information(
             Tr::tr("QmlDesigner::GenerateResource", "Success"),
             Tr::tr("QmlDesigner::GenerateResource", "Successfully generated QRC resource file\n %1")
-                .arg(qrcFilePath.toString()));
+                .arg(qrcFilePath.toUrlishString()));
     });
 
     // ToDo: move this to QtCreator and add tr to the string then
@@ -90,7 +90,7 @@ void generateMenuEntry(QObject *parent)
             projectPath.pathAppended(project->displayName() + ".qmlrc"),
             "QML Resource File (*.qmlrc);;Resource File (*.rcc)");
 
-        if (qmlrcFilePath.toString().isEmpty())
+        if (qmlrcFilePath.toUrlishString().isEmpty())
             return;
 
         QProgressDialog progress;
@@ -158,7 +158,7 @@ QStringList getProjectFileList()
 
 bool createQrcFile(const FilePath &qrcFilePath)
 {
-    QFile qrcFile(qrcFilePath.toString());
+    QFile qrcFile(qrcFilePath.toUrlishString());
 
     if (!qrcFile.open(QIODeviceBase::WriteOnly | QIODevice::Truncate))
         return false;
@@ -203,15 +203,15 @@ bool createQmlrcFile(const FilePath &qmlrcFilePath)
                                    "--threshold",
                                    "30",
                                    "--output",
-                                   qmlrcFilePath.toString(),
-                                   tempQrcFile.toString()};
+                                   qmlrcFilePath.toUrlishString(),
+                                   tempQrcFile.toUrlishString()};
 
     rccProcess.setCommand({rccBinary, arguments});
     rccProcess.start();
     if (!rccProcess.waitForStarted()) {
         Core::MessageManager::writeDisrupting(
             Tr::tr("QmlDesigner::GenerateResource", "Unable to generate resource file: %1")
-                .arg(qmlrcFilePath.toString()));
+                .arg(qmlrcFilePath.toUrlishString()));
         return false;
     }
 

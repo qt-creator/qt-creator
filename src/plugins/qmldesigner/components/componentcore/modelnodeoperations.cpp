@@ -674,7 +674,7 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
     QString itemId = modelNode.id();
 
     const Utils::FilePath currentDesignDocument = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName();
-    const QString fileName = currentDesignDocument.toString();
+    const QString fileName = currentDesignDocument.toUrlishString();
     const QString typeName = currentDesignDocument.baseName();
 
     QStringList signalNames = cleanSignalNames(getSortedSignalNameList(selectionState.selectedModelNodes().constFirst()));
@@ -689,7 +689,7 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
         return;
     }
 
-    usages = FindImplementation::run(usages.constFirst().path.toString(), typeName, itemId);
+    usages = FindImplementation::run(usages.constFirst().path.toUrlishString(), typeName, itemId);
 
     Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
 
@@ -725,7 +725,7 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
                           selectionState.view()->model());
 
                 //Move cursor to correct curser position
-                const QString filePath = Core::EditorManager::currentDocument()->filePath().toString();
+                const QString filePath = Core::EditorManager::currentDocument()->filePath().toUrlishString();
                 QList<QmlJSEditor::FindReferences::Usage> usages = FindImplementation::run(filePath, typeName, itemId);
                 Core::EditorManager::openEditorAt({Utils::FilePath::fromString(filePath),
                                                    usages.constFirst().line,
@@ -1129,7 +1129,7 @@ static QString getAssetDefaultDirectory(const QString &assetDir, const QString &
         assetPath.createDir();
 
     if (assetPath.exists() && assetPath.isDir())
-        adjustedDefaultDirectory = assetPath.toString();
+        adjustedDefaultDirectory = assetPath.toUrlishString();
 
     return adjustedDefaultDirectory;
 }
@@ -1465,7 +1465,7 @@ QString getTemplateDialog(const Utils::FilePath &projectPath)
 {
     const Utils::FilePath templatesPath = projectPath.pathAppended("templates");
 
-    const QStringList templateFiles = QDir(templatesPath.toString()).entryList({"*.qml"});
+    const QStringList templateFiles = QDir(templatesPath.toUrlishString()).entryList({"*.qml"});
 
     QStringList names;
 
@@ -1513,7 +1513,7 @@ QString getTemplateDialog(const Utils::FilePath &projectPath)
     QObject::connect(browseButton, &QPushButton::clicked, dialog, [setTemplate, &projectPath]() {
         const QString newFile = QFileDialog::getOpenFileName(Core::ICore::dialogParent(),
                                                              Tr::tr("TemplateMerge", "Browse Template"),
-                                                             projectPath.toString(),
+                                                             projectPath.toUrlishString(),
                                                              "*.qml");
         if (!newFile.isEmpty())
             setTemplate(newFile);
@@ -1539,7 +1539,7 @@ QString getTemplateDialog(const Utils::FilePath &projectPath)
 
     if (!result.isEmpty() && !QFileInfo::exists(result)) {
         result = templateFiles.at(names.indexOf(result));
-        result = templatesPath.pathAppended(result).toString();
+        result = templatesPath.pathAppended(result).toUrlishString();
     }
 
     return result;
@@ -1806,7 +1806,7 @@ void openOldEffectMaker(const QString &filePath)
         arguments << filePath;
         if (effectPath.fileContents()->isEmpty())
             arguments << "--create";
-        arguments << "--exportpath" << effectResPath.toString();
+        arguments << "--exportpath" << effectResPath.toUrlishString();
 
         if (env.osType() == Utils::OsTypeMac)
             env.set("QSG_RHI_BACKEND", "metal");
@@ -1837,7 +1837,7 @@ QString getEffectsDefaultDirectory(const QString &defaultDir)
     if (defaultDir.isEmpty()) {
         return Utils::FilePath::fromString(getAssetDefaultDirectory(
             "effects",
-            QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString())).toString();
+            QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toUrlishString())).toUrlishString();
     }
 
     return getAssetDefaultDirectory("effects", defaultDir);
@@ -1882,7 +1882,7 @@ Utils::FilePath getImagesDefaultDirectory()
 {
     return Utils::FilePath::fromString(getAssetDefaultDirectory(
         "images",
-        QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString()));
+        QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toUrlishString()));
 }
 
 void jumpToCode(const ModelNode &modelNode)
@@ -1983,7 +1983,7 @@ bool dropAsImage3dTexture(const ModelNode &targetNode,
                                                   .absolutePath()
                                                   .pathAppended(relImagePath)
                                                   .cleanPath()
-                                                  .toString()});
+                                                  .toUrlishString()});
             }
         });
         return true;

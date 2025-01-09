@@ -314,7 +314,7 @@ int TaskModel::sizeOfFile(const QFont &font)
     m_fileMeasurementFont = font;
 
     for (int i = m_lastMaxSizeIndex; i < count; ++i) {
-        QString filename = m_tasks.at(i).file.toString();
+        QString filename = m_tasks.at(i).file.toUrlishString();
         const int pos = filename.lastIndexOf(QLatin1Char('/'));
         if (pos != -1)
             filename = filename.mid(pos +1);
@@ -432,7 +432,7 @@ bool TaskFilterModel::filterAcceptsTask(const Task &task) const
             return m_filterStringIsRegexp ? m_filterRegexp.isValid() && s.contains(m_filterRegexp)
                                           : s.contains(m_filterText, m_filterCaseSensitivity);
         };
-        if ((accepts(task.file.toString()) || accepts(task.description())) == m_filterIsInverted)
+        if ((accepts(task.file.toUrlishString()) || accepts(task.description())) == m_filterIsInverted)
             accept = false;
     }
 

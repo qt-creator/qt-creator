@@ -126,7 +126,7 @@ void Document::setLanguage(Dialect l)
 
 QString Document::importId() const
 {
-    return _fileName.toString();
+    return _fileName.toUrlishString();
 }
 
 QByteArray Document::fingerprint() const
@@ -458,7 +458,7 @@ void Snapshot::insert(const Document::Ptr &document, bool allowInvalid)
         cImport.importId = document->importId();
         cImport.language = document->language();
         cImport.addPossibleExport(
-            Export(ImportKey(ImportType::File, fileName.toString()), {}, true, fileName.baseName()));
+            Export(ImportKey(ImportType::File, fileName.toUrlishString()), {}, true, fileName.baseName()));
         cImport.fingerprint = document->fingerprint();
         _dependencies.addCoreImport(cImport);
     }
@@ -471,7 +471,7 @@ void Snapshot::insertLibraryInfo(const Utils::FilePath &path, const LibraryInfo 
     _libraries.insert(path.cleanPath(), info);
     if (!info.wasFound()) return;
     CoreImport cImport;
-    cImport.importId = path.toString();
+    cImport.importId = path.toUrlishString();
     cImport.language = Dialect::AnyLanguage;
     QSet<ImportKey> packages;
     for (const ModuleApiInfo &moduleInfo : info.moduleApis()) {

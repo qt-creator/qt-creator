@@ -91,14 +91,14 @@ DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, I
     const Id importPathConstant = QtSupport::Constants::KIT_QML_IMPORT_PATH;
     const FilePath qulIncludeDir = FilePath::fromVariant(kit->value(importPathConstant));
     QStringList includeDirs {
-        ProcessArgs::quoteArg(qulIncludeDir.toString()),
-        ProcessArgs::quoteArg(qulIncludeDir.pathAppended("Timeline").toString()),
-        ProcessArgs::quoteArg(qulIncludeDir.pathAppended("Shapes").toString())
+        ProcessArgs::quoteArg(qulIncludeDir.toUrlishString()),
+        ProcessArgs::quoteArg(qulIncludeDir.pathAppended("Timeline").toUrlishString()),
+        ProcessArgs::quoteArg(qulIncludeDir.pathAppended("Shapes").toUrlishString())
     };
 
     const Id toolChainConstant = Internal::Constants::KIT_MCUTARGET_TOOLCHAIN_KEY;
     QStringList arguments = {
-        ProcessArgs::quoteArg(buildSystem()->projectFilePath().toString()),
+        ProcessArgs::quoteArg(buildSystem()->projectFilePath().toUrlishString()),
         "--platform", findKitInformation(kit, "QUL_PLATFORM"),
         "--toolchain", kit->value(toolChainConstant).toString(),
         "--include-dirs", includeDirs.join(","),

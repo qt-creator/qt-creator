@@ -313,7 +313,7 @@ void QmakePriFile::processValues(QmakePriFileEvalResult &result)
         QFileInfo fi((*it).toFileInfo());
         if (fi.exists()) {
             if (fi.isDir()) {
-                result.recursiveEnumerateFiles += recursiveEnumerate((*it).toString());
+                result.recursiveEnumerateFiles += recursiveEnumerate((*it).toUrlishString());
                 // keep directories
                 ++it;
             } else {
@@ -360,7 +360,7 @@ void QmakePriFile::update(const Internal::QmakePriFileEvalResult &result)
 
 void QmakePriFile::watchFolders(const QSet<FilePath> &folders)
 {
-    const QSet<QString> folderStrings = Utils::transform(folders, &FilePath::toString);
+    const QSet<QString> folderStrings = Utils::transform(folders, &FilePath::toUrlishString);
     QSet<QString> toUnwatch = m_watchedFolders;
     toUnwatch.subtract(folderStrings);
 
@@ -598,7 +598,7 @@ bool QmakePriFile::canRenameFile(const FilePath &oldFilePath, const FilePath &ne
     if (newFilePath.isEmpty())
         return false;
 
-    bool changeProFileOptional = deploysFolder(oldFilePath.absolutePath().toString());
+    bool changeProFileOptional = deploysFolder(oldFilePath.absolutePath().toUrlishString());
     if (changeProFileOptional)
         return true;
 
@@ -610,7 +610,7 @@ bool QmakePriFile::renameFile(const FilePath &oldFilePath, const FilePath &newFi
     if (newFilePath.isEmpty())
         return false;
 
-    bool changeProFileOptional = deploysFolder(oldFilePath.absolutePath().toString());
+    bool changeProFileOptional = deploysFolder(oldFilePath.absolutePath().toUrlishString());
     if (renameFile(oldFilePath, newFilePath, Change::Save))
         return true;
     return changeProFileOptional;
@@ -682,13 +682,13 @@ bool QmakePriFile::saveModifiedEditors()
 FilePaths QmakePriFile::formResources(const FilePath &formFile) const
 {
     QStringList resourceFiles;
-    QFile file(formFile.toString());
+    QFile file(formFile.toUrlishString());
     if (!file.open(QIODevice::ReadOnly))
         return {};
 
     QXmlStreamReader reader(&file);
 
-    QFileInfo fi(formFile.toString());
+    QFileInfo fi(formFile.toUrlishString());
     QDir formDir = fi.absoluteDir();
     while (!reader.atEnd()) {
         reader.readNext();
@@ -761,7 +761,7 @@ QPair<ProFile *, QStringList> QmakePriFile::readProFile()
         includeFile = parser.parsedProBlock(deviceRoot(),
                                             QStringView(contents),
                                             0,
-                                            filePath().toString(),
+                                            filePath().toUrlishString(),
                                             1);
     }
     return {includeFile, lines};
@@ -769,7 +769,7 @@ QPair<ProFile *, QStringList> QmakePriFile::readProFile()
 
 bool QmakePriFile::prepareForChange()
 {
-    return saveModifiedEditors() && ensureWriteableProFile(filePath().toString());
+    return saveModifiedEditors() && ensureWriteableProFile(filePath().toUrlishString());
 }
 
 bool QmakePriFile::renameFile(const FilePath &oldFilePath, const FilePath &newFilePath, Change mode)
@@ -816,7 +816,7 @@ bool QmakePriFile::renameFile(const FilePath &oldFilePath, const FilePath &newFi
 
         ProWriter::addFiles(proFile,
                             &currentLines,
-                            {newFilePath.toString()},
+                            {newFilePath.toUrlishString()},
                             loc.first,
                             continuationIndent());
         lines = lines.mid(0, loc.second) + currentLines + lines.mid(endLine);
@@ -855,17 +855,17 @@ void QmakePriFile::changeFiles(const QString &mimeType,
     if (change == AddToProFile) {
         // Use the first variable for adding.
         ProWriter::addFiles(includeFile, &lines,
-                            Utils::transform(filePaths, &FilePath::toString),
+                            Utils::transform(filePaths, &FilePath::toUrlishString),
                             varNameForAdding(mimeType),
                             continuationIndent());
         notChanged->clear();
     } else { // RemoveFromProFile
-        QDir priFileDir = QDir(m_qmakeProFile->directoryPath().toString());
+        QDir priFileDir = QDir(m_qmakeProFile->directoryPath().toUrlishString());
         *notChanged = FileUtils::toFilePathList(
             ProWriter::removeFiles(includeFile,
                                    &lines,
                                    priFileDir,
-                                   Utils::transform(filePaths, &FilePath::toString),
+                                   Utils::transform(filePaths, &FilePath::toUrlishString),
                                    varNamesForRemoving()));
     }
 
@@ -1860,8 +1860,8 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
     if (tryUnfixified) {
         const QStringList rawValues = reader->values("INCLUDEPATH");
         for (const QString &p : rawValues) {
-            const QString sysrootifiedPath = sysrootify(QDir::cleanPath(p), sysroot.toString(),
-                                                        projectDir, buildDir.toString());
+            const QString sysrootifiedPath = sysrootify(QDir::cleanPath(p), sysroot.toUrlishString(),
+                                                        projectDir, buildDir.toUrlishString());
             if (IoUtils::isAbsolutePath({}, sysrootifiedPath) && IoUtils::exists({}, sysrootifiedPath))
                 paths << sysrootifiedPath;
         }

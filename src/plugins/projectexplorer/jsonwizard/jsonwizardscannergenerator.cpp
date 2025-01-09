@@ -94,7 +94,7 @@ Core::GeneratedFiles JsonWizardScannerGenerator::fileList(Utils::MacroExpander *
     int minDepth = std::numeric_limits<int>::max();
     for (auto it = result.begin(); it != result.end(); ++it) {
         const Utils::FilePath relPath = it->filePath().relativePathFrom(projectDir);
-        it->setBinary(binaryPattern.match(relPath.toString()).hasMatch());
+        it->setBinary(binaryPattern.match(relPath.toUrlishString()).hasMatch());
         bool found = ProjectManager::canOpenProjectForMimeType(Utils::mimeTypeForFile(relPath));
         if (found) {
             it->setAttributes(it->attributes() | Core::GeneratedFile::OpenProjectAttribute);

@@ -2124,7 +2124,7 @@ QString GccToolchain::sysRoot() const
     if (m_subType == Clang) {
         if (const GccToolchain *parentTC = mingwToolchainFromId(m_parentToolchainId)) {
             const FilePath mingwCompiler = parentTC->compilerCommand();
-            return mingwCompiler.parentDir().parentDir().toString();
+            return mingwCompiler.parentDir().parentDir().toUrlishString();
         }
     }
     return {};

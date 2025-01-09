@@ -86,7 +86,7 @@ bool NimCompilerCleanStep::removeCacheDirectory()
     QTC_ASSERT(bc, return false);
     if (!bc->cacheDirectory().exists())
         return true;
-    QDir dir = QDir::fromNativeSeparators(bc->cacheDirectory().toString());
+    QDir dir = QDir::fromNativeSeparators(bc->cacheDirectory().toUrlishString());
     const QString dirName = dir.dirName();
     if (!dir.cdUp())
         return false;

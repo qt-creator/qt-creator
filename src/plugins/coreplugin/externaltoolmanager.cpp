@@ -62,10 +62,10 @@ ExternalToolManager::ExternalToolManager()
 
     QMap<QString, QMultiMap<int, ExternalTool*> > categoryPriorityMap;
     QMap<QString, ExternalTool *> tools;
-    parseDirectory(ICore::userResourcePath("externaltools").toString(),
+    parseDirectory(ICore::userResourcePath("externaltools").toUrlishString(),
                    &categoryPriorityMap,
                    &tools);
-    parseDirectory(ICore::resourcePath("externaltools").toString(),
+    parseDirectory(ICore::resourcePath("externaltools").toUrlishString(),
                    &categoryPriorityMap,
                    &tools,
                    true);

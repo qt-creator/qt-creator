@@ -82,8 +82,8 @@ struct Target
     {
         auto relative_path = Utils::FilePath::fromString(target.definedIn).canonicalPath().relativeChildPath(projectDir.canonicalPath()).parentDir();
         if (target.type == Type::sharedModule)
-            return relative_path.pathAppended(Utils::FilePath::fromString(target.fileName[0]).fileName()).toString();
-        return relative_path.pathAppended(target.name).toString();
+            return relative_path.pathAppended(Utils::FilePath::fromString(target.fileName[0]).fileName()).toUrlishString();
+        return relative_path.pathAppended(target.name).toUrlishString();
     }
 
     Target(const QString &type,

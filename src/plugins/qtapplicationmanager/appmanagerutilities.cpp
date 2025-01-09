@@ -44,7 +44,7 @@ FilePath getToolFilePath(const QString &toolname, const Kit *kit, const IDevice:
     const FilePath path = local ? getToolPathByQtVersion(QtKitAspect::qtVersion(kit))
                                 : FilePath(Constants::REMOTE_DEFAULT_BIN_PATH);
     const QString name = getToolNameByDevice(toolname, device);
-    const QString filePath = !path.isEmpty() ? path.pathAppended(name).toString() : name;
+    const QString filePath = !path.isEmpty() ? path.pathAppended(name).toUrlishString() : name;
     return !device ? FilePath::fromString(filePath) : device->filePath(filePath);
 }
 

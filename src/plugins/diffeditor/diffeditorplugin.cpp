@@ -230,7 +230,7 @@ QList<ReloadInput> DiffOpenFilesController::reloadInputList() const
             TextFileFormat format = textDocument->format();
 
             QString leftText;
-            const QString fileName = textDocument->filePath().toString();
+            const QString fileName = textDocument->filePath().toUrlishString();
             const TextFileFormat::ReadResult leftResult = TextFileFormat::readFile(
                 FilePath::fromString(fileName), format.codec(), &leftText, &format, &errorString);
 
@@ -283,7 +283,7 @@ QList<ReloadInput> DiffModifiedFilesController::reloadInputList() const
             TextFileFormat format = textDocument->format();
 
             QString leftText;
-            const QString fileName = textDocument->filePath().toString();
+            const QString fileName = textDocument->filePath().toUrlishString();
             const TextFileFormat::ReadResult leftResult = TextFileFormat::readFile(
                 FilePath::fromString(fileName), format.codec(), &leftText, &format, &errorString);
 
@@ -500,7 +500,7 @@ void DiffEditorPlugin::diffCurrentFile()
     if (!textDocument)
         return;
 
-    const QString fileName = textDocument->filePath().toString();
+    const QString fileName = textDocument->filePath().toUrlishString();
     if (fileName.isEmpty())
         return;
 
@@ -530,9 +530,9 @@ void DiffEditorPlugin::diffExternalFiles()
         return;
 
     const QString documentId = QLatin1String(Constants::DIFF_EDITOR_PLUGIN)
-            + ".DiffExternalFiles." + filePath1.toString() + '.' + filePath2.toString();
-    const QString title = Tr::tr("Diff \"%1\", \"%2\"").arg(filePath1.toString(), filePath2.toString());
-    reload<DiffExternalFilesController>(documentId, title, filePath1.toString(), filePath2.toString());
+            + ".DiffExternalFiles." + filePath1.toUrlishString() + '.' + filePath2.toUrlishString();
+    const QString title = Tr::tr("Diff \"%1\", \"%2\"").arg(filePath1.toUrlishString(), filePath2.toUrlishString());
+    reload<DiffExternalFilesController>(documentId, title, filePath1.toUrlishString(), filePath2.toUrlishString());
 }
 
 } // namespace DiffEditor::Internal

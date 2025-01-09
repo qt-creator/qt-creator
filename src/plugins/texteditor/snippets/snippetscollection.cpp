@@ -332,7 +332,7 @@ void SnippetsCollection::writeSnippetXML(const Snippet &snippet, QXmlStreamWrite
 QList<Snippet> SnippetsCollection::readXML(const FilePath &fileName, const QString &snippetId) const
 {
     QList<Snippet> snippets;
-    QFile file(fileName.toString());
+    QFile file(fileName.toUrlishString());
     if (file.exists() && file.open(QIODevice::ReadOnly)) {
         QXmlStreamReader xml(&file);
         if (xml.readNextStartElement()) {

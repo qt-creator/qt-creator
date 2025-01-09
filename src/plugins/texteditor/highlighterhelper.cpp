@@ -42,7 +42,7 @@ static KSyntaxHighlighting::Repository *highlightRepository()
     if (!repository) {
         repository = new KSyntaxHighlighting::Repository();
         repository->addCustomSearchPath(
-            TextEditorSettings::highlighterSettings().definitionFilesPath().toString());
+            TextEditorSettings::highlighterSettings().definitionFilesPath().toUrlishString());
         const FilePath dir = Core::ICore::resourcePath("generic-highlighter/syntax");
         if (dir.exists())
             repository->addCustomSearchPath(dir.parentDir().path());
@@ -142,7 +142,7 @@ Definitions definitionsForFileName(const FilePath &fileName)
         const Definition &rememberedDefinition
             = fileExtension.isEmpty()
                   ? definitionForSetting(kDefinitionForFilePath,
-                                         fileName.absoluteFilePath().toString())
+                                         fileName.absoluteFilePath().toUrlishString())
                   : definitionForSetting(kDefinitionForExtension, fileExtension);
         if (rememberedDefinition.isValid() && definitions.contains(rememberedDefinition))
             definitions = {rememberedDefinition};
@@ -172,7 +172,7 @@ void rememberDefinitionForDocument(const Definition &definition,
         } else if (!path.isEmpty()) {
             const Key id(kDefinitionForFilePath);
             QMap<QString, QVariant> map = settings->value(id).toMap();
-            map.insert(path.absoluteFilePath().toString(), definition.name());
+            map.insert(path.absoluteFilePath().toUrlishString(), definition.name());
             settings->setValue(id, map);
         }
     } else if (!mimeType.isEmpty()) {
@@ -196,7 +196,7 @@ void clearDefinitionForDocumentCache()
 
 void addCustomHighlighterPath(const FilePath &path)
 {
-    highlightRepository()->addCustomSearchPath(path.toString());
+    highlightRepository()->addCustomSearchPath(path.toUrlishString());
 }
 
 void downloadDefinitions(std::function<void()> callback)
@@ -261,7 +261,7 @@ QFuture<QTextDocument *> highlightCode(const QString &code, const QString &mimeT
     auto definition = definitions.first();
 
     const QString definitionFilesPath
-        = TextEditorSettings::highlighterSettings().definitionFilesPath().toString();
+        = TextEditorSettings::highlighterSettings().definitionFilesPath().toUrlishString();
 
     Highlighter *highlighter = new Highlighter(definitionFilesPath);
     QObject::connect(highlighter, &Highlighter::finished, document, [document, promise]() {

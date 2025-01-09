@@ -105,7 +105,7 @@ Core::IDocument::OpenResult ResourceFile::load()
     if (m_contents.isEmpty()) {
 
         // Regular file
-        QFile file(m_filePath.toString());
+        QFile file(m_filePath.toUrlishString());
         if (!file.open(QIODevice::ReadOnly)) {
             m_error_message = file.errorString();
             return Core::IDocument::OpenResult::ReadError;
@@ -815,7 +815,7 @@ bool ResourceModel::setData(const QModelIndex &index, const QVariant &value, int
     if (!newFileName.isChildOf(filePath().absolutePath()))
         return false;
 
-    return renameFile(file(index), newFileName.toString());
+    return renameFile(file(index), newFileName.toUrlishString());
 }
 
 void ResourceModel::getItem(const QModelIndex &index, QString &prefix, QString &file) const

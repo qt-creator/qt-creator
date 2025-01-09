@@ -203,7 +203,7 @@ static QVersionNumber findXcodeVersion(const FilePath &developerPath)
 {
     const FilePath xcodeInfo = developerPath.parentDir().pathAppended("Info.plist");
     if (xcodeInfo.exists()) {
-        QSettings settings(xcodeInfo.toString(), QSettings::NativeFormat);
+        QSettings settings(xcodeInfo.toUrlishString(), QSettings::NativeFormat);
         return QVersionNumber::fromString(settings.value("CFBundleShortVersionString").toString());
     } else {
         qCDebug(iosCommonLog) << "Error finding Xcode version." << xcodeInfo.toUserOutput() <<

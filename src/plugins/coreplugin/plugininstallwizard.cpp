@@ -100,7 +100,7 @@ public:
     bool isComplete() const final
     {
         const FilePath path = m_data->sourcePath;
-        if (!QFileInfo::exists(path.toString())) {
+        if (!QFileInfo::exists(path.toUrlishString())) {
             m_info->setText(Tr::tr("File does not exist."));
             return false;
         }

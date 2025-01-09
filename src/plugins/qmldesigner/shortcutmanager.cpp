@@ -143,7 +143,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
         QPixmap pixmap = Core::ICore::mainWindow()->grab();
 
-        const bool b = pixmap.save(file.toString(), "PNG");
+        const bool b = pixmap.save(file.toUrlishString(), "PNG");
         qWarning() << "screenshot" << file << b << pixmap;
     });
 

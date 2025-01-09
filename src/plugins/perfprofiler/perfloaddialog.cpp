@@ -115,7 +115,7 @@ void PerfLoadDialog::chooseDefaults()
     m_kitChooser->setCurrentKitId(target->kit()->id());
 
     if (auto *bc = target->activeBuildConfiguration())
-        m_executableDirLineEdit->setText(bc->buildDirectory().toString());
+        m_executableDirLineEdit->setText(bc->buildDirectory().toUrlishString());
 }
 
 } // PerfProfiler::Internal

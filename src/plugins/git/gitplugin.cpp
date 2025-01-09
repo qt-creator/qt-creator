@@ -169,7 +169,7 @@ public:
 
     void vcsAnnotate(const FilePath &filePath, int line) final;
     void vcsLog(const Utils::FilePath &topLevel, const Utils::FilePath &relativeDirectory) final {
-        gitClient().log(topLevel, relativeDirectory.toString(), true);
+        gitClient().log(topLevel, relativeDirectory.toUrlishString(), true);
     }
     void vcsDescribe(const FilePath &source, const QString &id) final { gitClient().show(source, id); }
     QString vcsTopic(const FilePath &directory) final;
@@ -1094,7 +1094,7 @@ void GitPluginPrivate::undoFileChanges(bool revertStaging)
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     FileChangeBlocker fcb(state.currentFile());
-    gitClient().revertFiles({state.currentFile().toString()}, revertStaging);
+    gitClient().revertFiles({state.currentFile().toUrlishString()}, revertStaging);
 }
 
 class ResetItemDelegate : public LogItemDelegate
@@ -1269,7 +1269,7 @@ void GitPluginPrivate::gitkForCurrentFolder()
      *  one line command mentioned above.
      *
      */
-    QDir dir(state.currentFileDirectory().toString());
+    QDir dir(state.currentFileDirectory().toUrlishString());
     if (QFileInfo(dir,".git").exists() || dir.cd(".git")) {
         gitClient().launchGitK(state.currentFileDirectory());
     } else {
@@ -1761,7 +1761,7 @@ bool GitPluginPrivate::isVcsFileOrDirectory(const FilePath &filePath) const
         return false;
     if (filePath.isDir())
         return true;
-    QFile file(filePath.toString());
+    QFile file(filePath.toUrlishString());
     if (!file.open(QFile::ReadOnly))
         return false;
     return file.read(8) == "gitdir: ";

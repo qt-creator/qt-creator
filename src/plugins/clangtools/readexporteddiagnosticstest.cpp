@@ -266,7 +266,7 @@ FilePath ReadExportedDiagnosticsTest::createFile(const Utils::FilePath &yamlFile
     FileReader reader;
     if (QTC_GUARD(reader.fetch(yamlFilePath))) {
         QByteArray contents = reader.text();
-        contents.replace("FILE_PATH", filePathToInject.toString().toLocal8Bit());
+        contents.replace("FILE_PATH", filePathToInject.toUrlishString().toLocal8Bit());
 
         FileSaver fileSaver(newFileName, QIODevice::WriteOnly | QIODevice::Text);
         QTC_CHECK(fileSaver.write(contents));

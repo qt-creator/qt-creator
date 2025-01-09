@@ -82,7 +82,7 @@ bool QtWizard::qt4ProjectPostGenerateFiles(const QWizard *w,
 
 QString QtWizard::templateDir()
 {
-    return Core::ICore::resourcePath("templates/qt4project").toString();
+    return Core::ICore::resourcePath("templates/qt4project").toUrlishString();
 }
 
 bool QtWizard::lowerCaseFiles()

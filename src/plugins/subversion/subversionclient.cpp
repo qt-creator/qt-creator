@@ -117,7 +117,7 @@ QString SubversionClient::synchronousTopic(const FilePath &repository) const
     // TODO: Looks unused
     QStringList args;
 
-    QString svnVersionBinary = vcsBinary(repository).toString();
+    QString svnVersionBinary = vcsBinary(repository).toUrlishString();
     int pos = svnVersionBinary.lastIndexOf('/');
     if (pos < 0)
         svnVersionBinary.clear();

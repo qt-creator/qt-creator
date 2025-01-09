@@ -207,12 +207,12 @@ void GitLabCloneDialog::cloneFinished(bool success)
         // limit the files to the most top-level item(s)
         int minimum = std::numeric_limits<int>::max();
         for (const FilePath &f : filesWeMayOpen) {
-            int parentCount = f.toString().count('/');
+            int parentCount = f.toUrlishString().count('/');
             if (parentCount < minimum)
                 minimum = parentCount;
         }
         filesWeMayOpen = filtered(filesWeMayOpen, [minimum](const FilePath &f) {
-            return f.toString().count('/') == minimum;
+            return f.toUrlishString().count('/') == minimum;
         });
 
         hide(); // avoid to many dialogs.. FIXME: maybe change to some wizard approach?

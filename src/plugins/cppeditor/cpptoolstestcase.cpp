@@ -192,7 +192,7 @@ static bool snapshotContains(const CPlusPlus::Snapshot &snapshot, const QSet<Fil
 {
     for (const FilePath &filePath : filePaths) {
         if (!snapshot.contains(filePath)) {
-            qWarning() << "Missing file in snapshot:" << qPrintable(filePath.toString());
+            qWarning() << "Missing file in snapshot:" << qPrintable(filePath.toUrlishString());
             return false;
         }
     }

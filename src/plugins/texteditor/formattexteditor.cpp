@@ -74,7 +74,7 @@ static FormatOutput format(const FormatInput &input)
 
         // Format temporary file
         QStringList options = input.command.options();
-        options.replaceInStrings(QLatin1String("%file"), sourceFile.filePath().toString());
+        options.replaceInStrings(QLatin1String("%file"), sourceFile.filePath().toUrlishString());
         Process process;
         process.setCommand({executable, options});
         process.runBlocking(5s);
@@ -99,7 +99,7 @@ static FormatOutput format(const FormatInput &input)
         Process process;
         QStringList options = input.command.options();
         options.replaceInStrings("%filename", input.filePath.fileName());
-        options.replaceInStrings("%file", input.filePath.toString());
+        options.replaceInStrings("%file", input.filePath.toUrlishString());
         process.setCommand({executable, options});
         process.setWriteData(input.sourceData.toUtf8());
         process.start();

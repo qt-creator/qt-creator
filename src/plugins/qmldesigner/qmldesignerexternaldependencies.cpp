@@ -29,7 +29,7 @@ double ExternalDependencies::formEditorDevicePixelRatio() const
 
 QString ExternalDependencies::defaultPuppetFallbackDirectory() const
 {
-    return Core::ICore::libexecPath().toString();
+    return Core::ICore::libexecPath().toUrlishString();
 }
 
 QString ExternalDependencies::qmlPuppetFallbackDirectory() const
@@ -44,14 +44,14 @@ QString ExternalDependencies::qmlPuppetFallbackDirectory() const
 
 QString ExternalDependencies::defaultPuppetToplevelBuildDirectory() const
 {
-    return Core::ICore::userResourcePath("qmlpuppet/").toString();
+    return Core::ICore::userResourcePath("qmlpuppet/").toUrlishString();
 }
 
 QUrl ExternalDependencies::projectUrl() const
 {
     DesignDocument *document = QmlDesignerPlugin::instance()->viewManager().currentDesignDocument();
     if (document)
-        return QUrl::fromLocalFile(document->projectFolder().toString());
+        return QUrl::fromLocalFile(document->projectFolder().toUrlishString());
 
     return {};
 }
@@ -63,7 +63,7 @@ QString ExternalDependencies::projectName() const
 
 QString ExternalDependencies::currentProjectDirPath() const
 {
-    return QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString();
+    return QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toUrlishString();
 }
 
 QUrl ExternalDependencies::currentResourcePath() const
@@ -155,8 +155,8 @@ PuppetStartData ExternalDependencies::puppetStartData(const Model &model) const
     auto target = ProjectExplorer::ProjectManager::startupTarget();
     auto [workingDirectory, puppetPath] = QmlPuppetPaths::qmlPuppetPaths(target, m_designerSettings);
 
-    data.puppetPath = puppetPath.toString();
-    data.workingDirectoryPath = workingDirectory.toString();
+    data.puppetPath = puppetPath.toUrlishString();
+    data.workingDirectoryPath = workingDirectory.toUrlishString();
     data.environment = PuppetEnvironmentBuilder::createEnvironment(target, m_designerSettings, model, qmlPuppetPath());
     data.debugPuppet = m_designerSettings.value(DesignerSettingsKey::DEBUG_PUPPET).toString();
     data.freeTypeOption = createFreeTypeOption(target);
@@ -190,7 +190,7 @@ QString qmlPath(ProjectExplorer::Target *target)
     if (!qtVersion)
         return {};
 
-    return qtVersion->qmlPath().toString();
+    return qtVersion->qmlPath().toUrlishString();
 }
 
 std::tuple<ProjectExplorer::Project *, ProjectExplorer::Target *, QmlProjectManager::QmlBuildSystem *>

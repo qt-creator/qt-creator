@@ -84,7 +84,7 @@ QString PullOrPushDialog::remoteLocation() const
     if (m_defaultButton->isChecked())
         return {};
     if (m_localButton->isChecked())
-        return m_localPathChooser->filePath().toString();
+        return m_localPathChooser->filePath().toUrlishString();
     return m_urlLineEdit->text();
 }
 

@@ -161,7 +161,7 @@ void removeFiles(const FilePaths &filePaths, bool deleteFromFS)
 
     // remove from file system
     for (const FilePath &fp : filePaths) {
-        QFile file(fp.toString());
+        QFile file(fp.toUrlishString());
         if (!file.exists()) // could have been deleted by vc
             continue;
         if (!file.remove()) {
@@ -346,7 +346,7 @@ void updateHeaderFileGuardIfApplicable(const FilePath &oldFilePath,
 {
     if (handleGuards == HandleIncludeGuards::No)
         return;
-    const bool headerUpdateSuccess = updateHeaderFileGuardAfterRename(newFilePath.toString(),
+    const bool headerUpdateSuccess = updateHeaderFileGuardAfterRename(newFilePath.toUrlishString(),
                                                                       oldFilePath.baseName());
     if (headerUpdateSuccess)
         return;

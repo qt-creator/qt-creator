@@ -86,7 +86,7 @@ static void runSilverSeacher(QPromise<SearchResultItems> &promise,
         if (!searchOptions.isEmpty())
             arguments << searchOptions.split(' ');
 
-        arguments << "--" << parameters.text << parameters.searchDir.normalizedPathName().toString();
+        arguments << "--" << parameters.text << parameters.searchDir.normalizedPathName().toUrlishString();
         process.setCommand({"ag", arguments});
     };
 

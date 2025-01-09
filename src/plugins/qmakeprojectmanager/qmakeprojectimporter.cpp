@@ -87,7 +87,7 @@ QList<void *> QmakeProjectImporter::examineDirectory(const FilePath &importPath,
     QList<void *> result;
     const QLoggingCategory &logs = MakeFileParse::logging();
 
-    const QStringList makefiles = QDir(importPath.toString()).entryList(QStringList(("Makefile*")));
+    const QStringList makefiles = QDir(importPath.toUrlishString()).entryList(QStringList(("Makefile*")));
     qCDebug(logs) << "  Makefiles:" << makefiles;
 
     for (const QString &file : makefiles) {

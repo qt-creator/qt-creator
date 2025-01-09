@@ -238,7 +238,7 @@ QmlProfilerTool::QmlProfilerTool()
         connect(editorManager, &EditorManager::editorCreated,
                 model, [this, model](Core::IEditor *editor, const FilePath &filePath) {
             Q_UNUSED(editor)
-            model->createMarks(d->m_viewContainer, filePath.toString());
+            model->createMarks(d->m_viewContainer, filePath.toUrlishString());
         });
     }
 
@@ -495,7 +495,7 @@ void QmlProfilerTool::createInitialTextMarks()
     QmlProfilerTextMarkModel *model = d->m_profilerModelManager->textMarkModel();
     const QList<IDocument *> documents = DocumentModel::openedDocuments();
     for (IDocument *document : documents)
-        model->createMarks(d->m_viewContainer, document->filePath().toString());
+        model->createMarks(d->m_viewContainer, document->filePath().toUrlishString());
 }
 
 bool QmlProfilerTool::prepareTool()
@@ -605,7 +605,7 @@ void QmlProfilerTool::showSaveDialog()
             filePath = filePath.stringAppended(zFile);
         saveLastTraceFile(filePath);
         Debugger::enableMainWindow(false);
-        Core::ProgressManager::addTask(d->m_profilerModelManager->save(filePath.toString()),
+        Core::ProgressManager::addTask(d->m_profilerModelManager->save(filePath.toUrlishString()),
                                        Tr::tr("Saving Trace Data"), TASK_SAVE,
                                        Core::ProgressManager::ShowInApplicationIcon);
     }
@@ -631,7 +631,7 @@ void QmlProfilerTool::showLoadDialog()
         connect(d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
                 this, &QmlProfilerTool::setRecordedFeatures);
         d->m_profilerModelManager->populateFileFinder();
-        Core::ProgressManager::addTask(d->m_profilerModelManager->load(filePath.toString()),
+        Core::ProgressManager::addTask(d->m_profilerModelManager->load(filePath.toUrlishString()),
                                        Tr::tr("Loading Trace Data"), TASK_LOAD);
     }
 }

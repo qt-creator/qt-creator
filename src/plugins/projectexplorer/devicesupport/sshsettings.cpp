@@ -74,10 +74,10 @@ void SshSettings::storeSettings(QtcSettings *settings)
     settings->setValue(connectionSharingKey(), sshSettings->useConnectionSharing);
     settings->setValue(connectionSharingTimeoutKey(),
                        sshSettings->connectionSharingTimeOutInMinutes);
-    settings->setValue(sshFilePathKey(), sshSettings->sshFilePath.toString());
-    settings->setValue(sftpFilePathKey(), sshSettings->sftpFilePath.toString());
-    settings->setValue(askPassFilePathKey(), sshSettings->askpassFilePath.toString());
-    settings->setValue(keygenFilePathKey(), sshSettings->keygenFilePath.toString());
+    settings->setValue(sshFilePathKey(), sshSettings->sshFilePath.toUrlishString());
+    settings->setValue(sftpFilePathKey(), sshSettings->sftpFilePath.toUrlishString());
+    settings->setValue(askPassFilePathKey(), sshSettings->askpassFilePath.toUrlishString());
+    settings->setValue(keygenFilePathKey(), sshSettings->keygenFilePath.toUrlishString());
 }
 
 void SshSettings::setConnectionSharingEnabled(bool share)

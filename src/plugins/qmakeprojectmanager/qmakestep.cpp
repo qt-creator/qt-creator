@@ -155,7 +155,7 @@ QMakeStepConfig QMakeStep::deducedArguments() const
         targetAbi = tc->targetAbi();
         if (HostOsInfo::isWindowsHost()
             && tc->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
-            config.sysRoot = SysRootKitAspect::sysRoot(kit).toString();
+            config.sysRoot = SysRootKitAspect::sysRoot(kit).toUrlishString();
             config.targetTriple = tc->originalTargetTriple();
         }
     }
@@ -365,7 +365,7 @@ QString QMakeStep::effectiveQMakeCall() const
     if (make.isEmpty())
         make = FilePath::fromPathPart(Tr::tr("<no Make step found>"));
 
-    QString result = qmake.toString();
+    QString result = qmake.toUrlishString();
     if (qtVersion) {
         QmakeBuildConfiguration *qmakeBc = qmakeBuildConfiguration();
         const FilePath makefile = qmakeBc ? qmakeBc->makefile() : FilePath();
@@ -398,7 +398,7 @@ QString QMakeStep::mkspec() const
     const QStringList args = cmd.splitArguments();
     const int pos = args.indexOf("-spec") + 1;
     if (pos > 0 && pos < args.size())
-        return FilePath::fromUserInput(args[pos]).toString();
+        return FilePath::fromUserInput(args[pos]).toUrlishString();
 
     return QmakeKitAspect::effectiveMkspec(target()->kit());
 }

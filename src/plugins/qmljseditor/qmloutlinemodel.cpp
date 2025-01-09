@@ -319,7 +319,7 @@ QmlOutlineModel::QmlOutlineModel(QmlJSEditorDocument *document) :
     m_editorDocument(document)
 {
     m_icons = Icons::instance();
-    Icons::instance()->setIconFilesPath(Core::ICore::resourcePath("qmlicons").toString());
+    Icons::instance()->setIconFilesPath(Core::ICore::resourcePath("qmlicons").toUrlishString());
 
     setItemPrototype(new QmlOutlineItem(this));
 }

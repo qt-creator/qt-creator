@@ -324,7 +324,7 @@ void QmakeBuildSystem::updateCppCodeModel()
         RawProjectPart rpp;
         rpp.setDisplayName(pro->displayName());
         rpp.setProjectFileLocation(pro->filePath());
-        rpp.setBuildSystemTarget(pro->filePath().toString());
+        rpp.setBuildSystemTarget(pro->filePath().toUrlishString());
         switch (pro->projectType()) {
         case ProjectType::ApplicationTemplate:
             rpp.setBuildTargetType(BuildTargetType::Executable);
@@ -392,11 +392,11 @@ void QmakeBuildSystem::updateCppCodeModel()
         const QList<ProjectExplorer::ExtraCompiler *> proGenerators = pro->extraCompilers();
         for (ProjectExplorer::ExtraCompiler *ec : proGenerators) {
             ec->forEachTarget([&](const FilePath &generatedFile) {
-                fileList += generatedFile.toString();
+                fileList += generatedFile.toUrlishString();
             });
         }
         generators.append(proGenerators);
-        fileList.prepend(CppEditor::CppModelManager::configurationFileName().toString());
+        fileList.prepend(CppEditor::CppModelManager::configurationFileName().toUrlishString());
         rpp.setFiles(fileList, [cumulativeSourceFiles](const QString &filePath) {
             // Keep this lambda thread-safe!
             return !cumulativeSourceFiles.contains(filePath);
@@ -815,15 +815,15 @@ FilePath QmakeBuildSystem::buildDir(const FilePath &proFilePath) const
     // but don't use it.
     if (proFilePath.isLocal()) {
         // This branch should not exist.
-        const QDir srcDirRoot = QDir(projectDirectory().toString());
-        const QString relativeDir = srcDirRoot.relativeFilePath(proFilePath.parentDir().toString());
+        const QDir srcDirRoot = QDir(projectDirectory().toUrlishString());
+        const QString relativeDir = srcDirRoot.relativeFilePath(proFilePath.parentDir().toUrlishString());
         // FIXME: Convoluted. Try to migrate to newRes once we feel confident enough.
         const FilePath oldResult = buildDir.withNewPath(
                     QDir::cleanPath(QDir(buildDir.path()).absoluteFilePath(relativeDir)));
         const FilePath newResult = buildDir.resolvePath(relativeDir);
         QTC_ASSERT(oldResult == newResult,
                    qDebug() << "New build dir construction failed. Not equal:"
-                            << oldResult.toString() << newResult.toString());
+                            << oldResult.toUrlishString() << newResult.toUrlishString());
         return oldResult;
     }
 
@@ -1210,7 +1210,7 @@ void QmakeBuildSystem::updateBuildSystemData()
             bti.displayNameUniquifier = QString::fromLatin1(" (%1)")
                     .arg(relativePathInProject.toUserOutput());
         }
-        bti.buildKey = bti.projectFilePath.toString();
+        bti.buildKey = bti.projectFilePath.toUrlishString();
         bti.isQtcRunnable = config.contains("qtc_runnable");
 
         if (config.contains("console") && !config.contains("testcase")) {
@@ -1227,7 +1227,7 @@ void QmakeBuildSystem::updateBuildSystemData()
         if (!libDirectories.isEmpty()) {
             QmakeProFile *proFile = node->proFile();
             QTC_ASSERT(proFile, return);
-            const QString proDirectory = buildDir(proFile->filePath()).toString();
+            const QString proDirectory = buildDir(proFile->filePath()).toUrlishString();
             for (QString dir : libDirectories) {
                 // Fix up relative entries like "LIBS+=-L.."
                 const QFileInfo fi(dir);

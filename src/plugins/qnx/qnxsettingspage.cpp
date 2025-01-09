@@ -93,7 +93,7 @@ public:
     Store toMap() const
     {
         Store data;
-        data.insert(QNXEnvFileKey, m_envFile.toString());
+        data.insert(QNXEnvFileKey, m_envFile.toUrlishString());
         data.insert(QNXVersionKey, m_version.toString());
         return data;
     }
@@ -276,7 +276,7 @@ void QnxConfiguration::createKit(const QnxTarget &target)
                     .arg(target.shortDescription()));
 
         k->setAutoDetected(false);
-        k->setAutoDetectionSource(m_envFile.toString());
+        k->setAutoDetectionSource(m_envFile.toUrlishString());
 
         k->setSticky(ToolchainKitAspect::id(), true);
         k->setSticky(RunDeviceTypeKitAspect::id(), true);
@@ -655,8 +655,8 @@ void QnxSettingsWidget::updateInformation()
         config->ensureContents();
         m_configName->setText(config->m_configName);
         m_configVersion->setText(config->m_version.toString());
-        m_configHost->setText(config->m_qnxHost.toString());
-        m_configTarget->setText(config->m_qnxTarget.toString());
+        m_configHost->setText(config->m_qnxHost.toUrlishString());
+        m_configTarget->setText(config->m_qnxTarget.toUrlishString());
         m_compiler->setText(config->m_qccCompiler.toUserOutput());
         m_architectures->setText(config->architectureNames());
         m_kitCreation->setConfiguration(envFile);

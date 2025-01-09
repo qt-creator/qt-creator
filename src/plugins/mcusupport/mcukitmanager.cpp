@@ -128,7 +128,7 @@ public:
             k->setDeviceTypeForIcon(DEVICE_TYPE);
         k->setValue(QtSupport::Constants::FLAGS_SUPPLIES_QTQUICK_IMPORT_PATH, true);
         // FIXME: This is treated as a pathlist in CMakeBuildSystem::updateQmlJSCodeModel
-        k->setValue(QtSupport::Constants::KIT_QML_IMPORT_PATH, (sdkPath / "include/qul").toString());
+        k->setValue(QtSupport::Constants::KIT_QML_IMPORT_PATH, (sdkPath / "include/qul").toUrlishString());
         k->setValue(QtSupport::Constants::KIT_HAS_MERGED_HEADER_PATHS_WITH_QML_IMPORT_PATHS, true);
         QSet<Id> irrelevant = {
             SysRootKitAspect::id(),
@@ -278,9 +278,9 @@ public:
                 if (!cxxToolchain->compilerCommand().isEmpty()
                     && !cToolchain->compilerCommand().isEmpty()) {
                     configMap.insert("CMAKE_CXX_COMPILER",
-                                     cxxToolchain->compilerCommand().toString().toLatin1());
+                                     cxxToolchain->compilerCommand().toUrlishString().toLatin1());
                     configMap.insert("CMAKE_C_COMPILER",
-                                     cToolchain->compilerCommand().toString().toLatin1());
+                                     cToolchain->compilerCommand().toUrlishString().toLatin1());
                 }
             } else {
                 printMessage(Tr::tr("Warning for target %1: invalid toolchain path (%2). "
@@ -300,7 +300,7 @@ public:
             const FilePath cMakeToolchainFile = mcuTarget->toolChainFilePackage()->path();
 
             configMap.insert(Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
-                             cMakeToolchainFile.toString().toUtf8());
+                             cMakeToolchainFile.toUrlishString().toUtf8());
             if (!cMakeToolchainFile.exists()) {
                 printMessage(
                     Tr::tr("Warning for target %1: missing CMake toolchain file expected at %2.")
@@ -312,7 +312,7 @@ public:
 
         const FilePath generatorsPath = qtForMCUsSdkPackage->path().pathAppended(
             "/lib/cmake/Qul/QulGenerators.cmake");
-        configMap.insert("QUL_GENERATORS", generatorsPath.toString().toUtf8());
+        configMap.insert("QUL_GENERATORS", generatorsPath.toUrlishString().toUtf8());
         if (!generatorsPath.exists()) {
             printMessage(Tr::tr("Warning for target %1: missing QulGenerators expected at %2.")
                              .arg(generateKitNameFromTarget(mcuTarget),

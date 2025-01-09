@@ -92,7 +92,7 @@ void PluginDumper::onLoadBuiltinTypes(const QmlJS::ModelManagerInterface::Projec
     }
 
     runQmlDump(info, QStringList(QLatin1String("--builtins")), info.qtQmlPath);
-    m_qtToInfo.insert(info.qtQmlPath.toString(), info);
+    m_qtToInfo.insert(info.qtQmlPath.toUrlishString(), info);
 }
 
 void PluginDumper::onLoadPluginTypes(const Utils::FilePath &libraryPath,
@@ -342,7 +342,7 @@ QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(c
             QList<ModuleApiInfo> apis;
             QStringList deps;
             CppQmlTypesLoader::parseQmlTypeDescriptions(reader.text(), &objs, &apis, &deps,
-                                                        &error, &warning, p.toString());
+                                                        &error, &warning, p.toUrlishString());
             if (!error.isEmpty()) {
                 result.errors += Tr::tr("Failed to parse \"%1\".\nError: %2").arg(p.toUserOutput(), error);
             } else {
@@ -419,7 +419,7 @@ QFuture<PluginDumper::DependencyInfo> PluginDumper::loadDependencies(const FileP
     FilePaths dependenciesPaths;
     FilePath path;
     for (const FilePath &name : dependencies) {
-        path = buildQmltypesPath(name.toString());
+        path = buildQmltypesPath(name.toUrlishString());
         if (!path.isEmpty())
             dependenciesPaths << path;
         visited->insert(name);
@@ -557,7 +557,7 @@ void PluginDumper::prepareLibraryInfo(LibraryInfo &libInfo,
     if (!warnings.isEmpty())
         printParseWarnings(libraryPath, warnings.join(QLatin1String("\n")));
 
-    applyQt515MissingImportWorkaround(libraryPath.toString(), libInfo);
+    applyQt515MissingImportWorkaround(libraryPath.toUrlishString(), libInfo);
 
     libInfo.updateFingerprint();
 }
@@ -662,7 +662,7 @@ void PluginDumper::dump(const Plugin &plugin)
     args << plugin.importUri;
     args << plugin.importVersion;
     args << (plugin.importPath.isEmpty() ? Utils::FilePath::fromString(".") : plugin.importPath)
-                .toString();
+                .toUrlishString();
     runQmlDump(info, args, plugin.qmldirPath);
 }
 

@@ -416,7 +416,7 @@ QStringList RecordWidget::ffmpegParameters(const ClipInfo &clipInfo) const
     if (Internal::settings().enableRtBuffer())
         args.append({"-rtbufsize", QString::number(Internal::settings().rtBufferSize()) + "M"});
     args.append(recordPreset().encodingParameters);
-    args.append(clipInfo.file.toString());
+    args.append(clipInfo.file.toUrlishString());
 
     return args;
 }

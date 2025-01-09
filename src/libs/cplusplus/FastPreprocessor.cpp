@@ -60,7 +60,7 @@ void FastPreprocessor::sourceNeeded(int line, const FilePath &filePath, IncludeT
     if (_addIncludesToCurrentDoc) {
         // CHECKME: Is that cleanPath needed?
         const FilePath cleanPath = filePath.cleanPath();
-        _currentDoc->addIncludeFile(Document::Include(filePath.toString(), cleanPath, line, mode));
+        _currentDoc->addIncludeFile(Document::Include(filePath.toUrlishString(), cleanPath, line, mode));
     }
     mergeEnvironment(filePath);
 }

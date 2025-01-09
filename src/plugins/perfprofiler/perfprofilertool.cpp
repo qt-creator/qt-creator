@@ -518,7 +518,7 @@ void PerfProfilerTool::gotoSourceLocation(QString filePath, int lineNumber, int 
 
     QFileInfo fi(filePath);
     if (!fi.isAbsolute() || !fi.exists() || !fi.isReadable()) {
-        fi.setFile(m_fileFinder.findFile(filePath).constFirst().toString());
+        fi.setFile(m_fileFinder.findFile(filePath).constFirst().toUrlishString());
         if (!fi.exists() || !fi.isReadable())
             return;
     }
@@ -537,7 +537,7 @@ static Utils::FilePaths collectQtIncludePaths(const ProjectExplorer::Kit *kit)
     if (qt == nullptr)
         return Utils::FilePaths();
     Utils::FilePaths paths{qt->headerPath()};
-    QDirIterator dit(paths.first().toString(), QStringList(), QDir::Dirs | QDir::NoDotAndDotDot,
+    QDirIterator dit(paths.first().toUrlishString(), QStringList(), QDir::Dirs | QDir::NoDotAndDotDot,
                      QDirIterator::Subdirectories);
     while (dit.hasNext()) {
         dit.next();

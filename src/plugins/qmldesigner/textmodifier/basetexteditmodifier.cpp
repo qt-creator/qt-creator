@@ -99,7 +99,7 @@ bool BaseTextEditModifier::moveToComponent(int nodeOffset, const QString &import
 
             QmlJSEditor::performComponentFromObjectDef(qobject_cast<QmlJSEditor::QmlJSEditorWidget *>(
                                                            m_textEdit),
-                                                       document->filePath().toString(),
+                                                       document->filePath().toUrlishString(),
                                                        object,
                                                        importData);
             return true;

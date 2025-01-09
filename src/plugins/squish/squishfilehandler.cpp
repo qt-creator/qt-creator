@@ -232,7 +232,7 @@ void SquishFileHandler::openTestSuites()
     const Utils::FilePaths chosenSuites = dialog.chosenSuites();
     for (const Utils::FilePath &suiteDir : chosenSuites) {
         const QString suiteName = suiteDir.fileName();
-        const QStringList cases = SuiteConf::validTestCases(suiteDir.toString());
+        const QStringList cases = SuiteConf::validTestCases(suiteDir.toUrlishString());
         const Utils::FilePath suiteConf = suiteDir.pathAppended("suite.conf");
 
         if (m_suites.contains(suiteName)) {
@@ -268,7 +268,7 @@ void SquishFileHandler::openTestSuites()
 void SquishFileHandler::openTestSuite(const Utils::FilePath &suiteConfPath, bool isReopen)
 {
     const QString suiteName = suiteConfPath.parentDir().fileName();
-    const QStringList cases = SuiteConf::validTestCases(suiteConfPath.parentDir().toString());
+    const QStringList cases = SuiteConf::validTestCases(suiteConfPath.parentDir().toUrlishString());
 
     if (m_suites.contains(suiteName)) {
         if (isReopen) {
@@ -565,7 +565,7 @@ void SquishFileHandler::updateSquishServerGlobalScripts()
 
 QStringList SquishFileHandler::suitePathsAsStringList() const
 {
-    return Utils::transform(m_suites.values(), &Utils::FilePath::toString);
+    return Utils::transform(m_suites.values(), &Utils::FilePath::toUrlishString);
 }
 
 } // namespace Internal

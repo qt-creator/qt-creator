@@ -65,7 +65,7 @@ Core::IDocument::OpenResult FormWindowFile::open(QString *errorString,
     if (readResult != Utils::TextFileFormat::ReadSuccess)
         return OpenResult::ReadError;
 
-    form->setFileName(filePath.absoluteFilePath().toString());
+    form->setFileName(filePath.absoluteFilePath().toUrlishString());
     const QByteArray contentsBA = contents.toUtf8();
     QBuffer str;
     str.setData(contentsBA);
@@ -91,7 +91,7 @@ Result FormWindowFile::saveImpl(const FilePath &filePath, bool autoSave)
 
     const QString oldFormName = m_formWindow->fileName();
     if (!autoSave)
-        m_formWindow->setFileName(filePath.toString());
+        m_formWindow->setFileName(filePath.toUrlishString());
     QString errorString;
     const bool writeOK = writeFile(filePath, &errorString);
     m_shouldAutoSave = false;
@@ -151,7 +151,7 @@ bool FormWindowFile::setContents(const QByteArray &contents)
 
 void FormWindowFile::setFilePath(const FilePath &newName)
 {
-    m_formWindow->setFileName(newName.toString());
+    m_formWindow->setFileName(newName.toUrlishString());
     IDocument::setFilePath(newName);
 }
 

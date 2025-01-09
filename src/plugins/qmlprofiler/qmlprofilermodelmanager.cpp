@@ -301,7 +301,7 @@ int QmlProfilerModelManager::appendEventType(QmlEventType &&type)
     if (location.isValid()) {
         const RangeType rangeType = type.rangeType();
         const QmlEventLocation localLocation(d->detailsRewriter->getLocalFile(location.filename())
-                                                 .toString(),
+                                                 .toUrlishString(),
                                              location.line(),
                                              location.column());
 
@@ -332,7 +332,7 @@ void QmlProfilerModelManager::setEventType(int typeIndex, QmlEventType &&type)
         d->textMarkModel->addTextMarkId(typeIndex,
                                         QmlEventLocation(d->detailsRewriter
                                                              ->getLocalFile(location.filename())
-                                                             .toString(),
+                                                             .toUrlishString(),
                                                          location.line(),
                                                          location.column()));
     }

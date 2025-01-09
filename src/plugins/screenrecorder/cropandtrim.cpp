@@ -346,7 +346,7 @@ CropWidget::CropWidget(QWidget *parent)
             lastDir.setValue(file.parentDir());
             lastDir.writeToSettingsImmediatly();
             const QImage image = m_cropScene->croppedImage();
-            image.save(file.toString());
+            image.save(file.toUrlishString());
         }
     });
     connect(copyImageToClipboardAction, &QAction::triggered, this, [this] {

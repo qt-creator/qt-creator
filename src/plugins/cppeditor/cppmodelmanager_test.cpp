@@ -109,7 +109,7 @@ public:
         rpp.setQtVersion(Utils::QtMajorVersion::Qt5);
         const ProjectFiles rppFiles = Utils::transform<ProjectFiles>(projectFiles,
                 [](const FilePath &file) {
-            return ProjectFile(file, ProjectFile::classify(file.toString()));
+            return ProjectFile(file, ProjectFile::classify(file.toUrlishString()));
         });
         const auto project = modelManagerTestHelper->createProject(
                     name, Utils::FilePath::fromString(dir).pathAppended(name + ".pro"));
@@ -606,11 +606,11 @@ void ModelManagerTest::testExtraeditorsupportUiFiles()
     QStringList fileNamesInWorkinCopy;
     const WorkingCopy::Table &elements = workingCopy.elements();
     for (auto it = elements.cbegin(), end = elements.cend(); it != end; ++it)
-        fileNamesInWorkinCopy << Utils::FilePath::fromString(it.key().toString()).fileName();
+        fileNamesInWorkinCopy << Utils::FilePath::fromString(it.key().toUrlishString()).fileName();
 
     fileNamesInWorkinCopy.sort();
     const QString expectedUiHeaderFileName = _("ui_mainwindow.h");
-    QCOMPARE(fileNamesInWorkinCopy.at(0), CppModelManager::configurationFileName().toString());
+    QCOMPARE(fileNamesInWorkinCopy.at(0), CppModelManager::configurationFileName().toUrlishString());
     QCOMPARE(fileNamesInWorkinCopy.at(1), expectedUiHeaderFileName);
 
     // Check CppSourceProcessor / includes.
@@ -795,7 +795,7 @@ void ModelManagerTest::testPrecompiledHeaders()
     RawProjectPart rpp1;
     rpp1.setProjectFileLocation("project1.projectfile");
     rpp1.setQtVersion(Utils::QtMajorVersion::None);
-    rpp1.setPreCompiledHeaders({pch1File.toString()});
+    rpp1.setPreCompiledHeaders({pch1File.toUrlishString()});
     rpp1.setHeaderPaths({HeaderPath::makeUser(testDataDirectory.includeDir(false))});
     const auto part1 = ProjectPart::create(project->projectFilePath(), rpp1, {},
             {{main1File, ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
@@ -803,7 +803,7 @@ void ModelManagerTest::testPrecompiledHeaders()
     RawProjectPart rpp2;
     rpp2.setProjectFileLocation("project2.projectfile");
     rpp2.setQtVersion(Utils::QtMajorVersion::None);
-    rpp2.setPreCompiledHeaders({pch2File.toString()});
+    rpp2.setPreCompiledHeaders({pch2File.toUrlishString()});
     rpp2.setHeaderPaths({HeaderPath::makeUser(testDataDirectory.includeDir(false))});
     const auto part2 = ProjectPart::create(project->projectFilePath(), rpp2, {},
             {{main2File, ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
@@ -1306,14 +1306,14 @@ void ModelManagerTest::testSettingsChanges()
         = Utils::transform({"baz.h", "baz2.h", "baz3.h", "foo.cpp", "foo.h", "main.cpp"},
                            [&](const QString &fn) { return p1Dir.filePath(fn); });
     const ProjectFiles p1ProjectFiles = Utils::transform(p1Files, [](const FilePath &fp) {
-        return ProjectFile(fp, ProjectFile::classify(fp.toString()));
+        return ProjectFile(fp, ProjectFile::classify(fp.toUrlishString()));
     });
     Project * const p1 = helper.createProject("testdata_project1", FilePath::fromString("p1.pro"));
     setupProjectNodes(*p1, p1ProjectFiles);
     RawProjectPart rpp1;
     const auto part1 = ProjectPart::create(p1->projectFilePath(), rpp1, {}, p1ProjectFiles);
     const auto pi1 = ProjectInfo::create(ProjectUpdateInfo(p1, KitInfo(nullptr), {}, {}), {part1});
-    const auto p1Sources = Utils::transform<QSet<QString>>(p1Files, &FilePath::toString);
+    const auto p1Sources = Utils::transform<QSet<QString>>(p1Files, &FilePath::toUrlishString);
     CppModelManager::updateProjectInfo(pi1);
 
     const MyTestDataDir p2Dir("testdata_project2");
@@ -1321,14 +1321,14 @@ void ModelManagerTest::testSettingsChanges()
         = Utils::transform({"bar.h", "bar.cpp", "foobar2000.h", "foobar4000.h", "main.cpp"},
                            [&](const QString &fn) { return p1Dir.filePath(fn); });
     const ProjectFiles p2ProjectFiles = Utils::transform(p2Files, [](const FilePath &fp) {
-        return ProjectFile(fp, ProjectFile::classify(fp.toString()));
+        return ProjectFile(fp, ProjectFile::classify(fp.toUrlishString()));
     });
     Project * const p2 = helper.createProject("testdata_project2", FilePath::fromString("p2.pro"));
     setupProjectNodes(*p2, p2ProjectFiles);
     RawProjectPart rpp2;
     const auto part2 = ProjectPart::create(p2->projectFilePath(), rpp2, {}, p2ProjectFiles);
     const auto pi2 = ProjectInfo::create(ProjectUpdateInfo(p2, KitInfo(nullptr), {}, {}), {part2});
-    const auto p2Sources = Utils::transform<QSet<QString>>(p2Files, &FilePath::toString);
+    const auto p2Sources = Utils::transform<QSet<QString>>(p2Files, &FilePath::toUrlishString);
     CppModelManager::updateProjectInfo(pi2);
 
     // Initial check: Have all files been indexed?
@@ -1368,7 +1368,7 @@ void ModelManagerTest::testSettingsChanges()
         QVERIFY(waitForRefresh());
     QVERIFY(!waitForRefresh());
     QSet<QString> filteredP1Sources = p1Sources;
-    filteredP1Sources -= p1Dir.filePath("baz3.h").toString();
+    filteredP1Sources -= p1Dir.filePath("baz3.h").toUrlishString();
     QCOMPARE(refreshedFiles, filteredP1Sources);
 }
 

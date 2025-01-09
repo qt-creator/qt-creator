@@ -83,7 +83,7 @@ static std::unique_ptr<MesonProjectNode> buildTree(
     }
     for (FilePath bsFile : bsFiles) {
         if (!bsFile.toFileInfo().isAbsolute())
-            bsFile = srcDir.pathAppended(bsFile.toString());
+            bsFile = srcDir.pathAppended(bsFile.toUrlishString());
         root->addNestedNode(std::make_unique<FileNode>(bsFile, FileType::Project));
     }
     return root;
@@ -140,7 +140,7 @@ static QStringList toAbsolutePath(const FilePath &refPath, QStringList &pathList
         std::cbegin(pathList),
         std::cend(pathList),
         std::back_inserter(allAbs),
-        [refPath](const QString &path) { return refPath.resolvePath(path).toString(); });
+        [refPath](const QString &path) { return refPath.resolvePath(path).toUrlishString(); });
     return allAbs;
 }
 

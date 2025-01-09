@@ -32,7 +32,7 @@ Theme::Theme(Utils::Theme *originTheme, QObject *parent)
     QString constantsPath
         = Core::ICore::resourcePath(
                   "qmldesigner/propertyEditorQmlSources/imports/StudioTheme/InternalConstants.qml")
-              .toString();
+              .toUrlishString();
 
     QQmlEngine *engine = new QQmlEngine(this);
     setupTheme(engine);

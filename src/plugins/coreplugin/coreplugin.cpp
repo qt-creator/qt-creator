@@ -234,7 +234,7 @@ static void addToPathChooserContextMenu(PathChooser *pathChooser, QMenu *menu)
     } else {
         auto mkPathAct = new QAction(Tr::tr("Create Folder"), menu);
         QObject::connect(mkPathAct, &QAction::triggered, pathChooser, [pathChooser] {
-            QDir().mkpath(pathChooser->filePath().toString());
+            QDir().mkpath(pathChooser->filePath().toUrlishString());
             pathChooser->triggerChanged();
         });
         menu->insertAction(firstAction, mkPathAct);
@@ -305,9 +305,9 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                [] { return QLocale::system()
                                         .toString(QTime::currentTime(), QLocale::ShortFormat); });
     expander->registerVariable("Config:DefaultProjectDirectory", Tr::tr("The configured default directory for projects."),
-                               [] { return DocumentManager::projectsDirectory().toString(); });
+                               [] { return DocumentManager::projectsDirectory().toUrlishString(); });
     expander->registerVariable("Config:LastFileDialogDirectory", Tr::tr("The directory last visited in a file dialog."),
-                               [] { return DocumentManager::fileDialogLastVisitedDirectory().toString(); });
+                               [] { return DocumentManager::fileDialogLastVisitedDirectory().toUrlishString(); });
     expander->registerVariable("HostOs:isWindows",
                                Tr::tr("Is %1 running on Windows?")
                                    .arg(QGuiApplication::applicationDisplayName()),
@@ -340,11 +340,11 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     expander->registerVariable("IDE:ResourcePath",
                                Tr::tr("The directory where %1 finds its pre-installed resources.")
                                    .arg(QGuiApplication::applicationDisplayName()),
-                               [] { return ICore::resourcePath().toString(); });
+                               [] { return ICore::resourcePath().toUrlishString(); });
     expander->registerVariable("IDE:UserResourcePath",
                                Tr::tr("The directory where %1 puts custom user data.")
                                    .arg(QGuiApplication::applicationDisplayName()),
-                               [] { return ICore::userResourcePath().toString(); });
+                               [] { return ICore::userResourcePath().toUrlishString(); });
     expander->registerPrefix("CurrentDate:", Tr::tr("The current date (QDate formatstring)."),
                              [](const QString &fmt) { return QDate::currentDate().toString(fmt); });
     expander->registerPrefix("CurrentTime:", Tr::tr("The current time (QTime formatstring)."),

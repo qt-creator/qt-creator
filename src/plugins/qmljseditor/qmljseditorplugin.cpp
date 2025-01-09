@@ -81,8 +81,8 @@ public:
     QPointer<QmlJSEditorDocument> m_currentDocument;
 
     QmlJS::JsonSchemaManager m_jsonManager{
-        {ICore::userResourcePath("json/").toString(),
-         ICore::resourcePath("json/").toString()}};
+        {ICore::userResourcePath("json/").toUrlishString(),
+         ICore::resourcePath("json/").toUrlishString()}};
     QmlJsEditingSettingsPage m_qmJSEditingSettingsPage;
 };
 

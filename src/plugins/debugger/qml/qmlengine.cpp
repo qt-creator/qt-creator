@@ -449,8 +449,8 @@ void QmlEngine::errorMessageBoxFinished(int result)
 
 void QmlEngine::gotoLocation(const Location &location)
 {
-    if (QUrl(location.fileName().toString()).isLocalFile()) { // create QUrl to ensure validity
-        const QString fileName = location.fileName().toString();
+    if (QUrl(location.fileName().toUrlishString()).isLocalFile()) { // create QUrl to ensure validity
+        const QString fileName = location.fileName().toUrlishString();
         // internal file from source files -> show generated .js
         QTC_ASSERT(d->sourceDocuments.contains(fileName), return);
 
@@ -611,9 +611,9 @@ void QmlEngine::executeRunToLine(const ContextData &data)
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     showStatusMessage(Tr::tr("Run to line %1 (%2) requested...")
                           .arg(data.textPosition.line)
-                          .arg(data.fileName.toString()),
+                          .arg(data.fileName.toUrlishString()),
                       5000);
-    d->setBreakpoint(SCRIPTREGEXP, data.fileName.toString(), true, data.textPosition.line);
+    d->setBreakpoint(SCRIPTREGEXP, data.fileName.toUrlishString(), true, data.textPosition.line);
     clearExceptionSelection();
     d->continueDebugging(Continue);
 
@@ -664,7 +664,7 @@ void QmlEngine::insertBreakpoint(const Breakpoint &bp)
         d->setExceptionBreak(AllExceptions, requested.enabled);
 
     } else if (requested.type == BreakpointByFileAndLine) {
-        d->setBreakpoint(SCRIPTREGEXP, requested.fileName.toString(),
+        d->setBreakpoint(SCRIPTREGEXP, requested.fileName.toUrlishString(),
                          requested.enabled, requested.textPosition.line, 0,
                          requested.condition, requested.ignoreCount);
 
@@ -722,7 +722,7 @@ void QmlEngine::updateBreakpoint(const Breakpoint &bp)
         d->changeBreakpoint(bp, requested.enabled);
     } else {
         d->clearBreakpoint(bp);
-        d->setBreakpoint(SCRIPTREGEXP, requested.fileName.toString(),
+        d->setBreakpoint(SCRIPTREGEXP, requested.fileName.toUrlishString(),
                          requested.enabled, requested.textPosition.line, 0,
                          requested.condition, requested.ignoreCount);
         d->breakpointsSync.insert(d->sequence, bp);
@@ -1865,7 +1865,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
 
                             clearBreakpoint(bp);
                             setBreakpoint(SCRIPTREGEXP,
-                                          params.fileName.toString(),
+                                          params.fileName.toUrlishString(),
                                           params.enabled,
                                           params.textPosition.line,
                                           newColumn,

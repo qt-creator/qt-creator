@@ -190,7 +190,7 @@ Client *QmllsClientSettings::createClient(BaseClientInterface *interface) const
     auto qmllsInterface = static_cast<QmllsClientInterface *>(interface);
     auto client = new QmllsClient(qmllsInterface);
     const QString name = QString("%1 (%2)").arg(
-        Utils::globalMacroExpander()->expand(m_name), qmllsInterface->qmllsFilePath().toString());
+        Utils::globalMacroExpander()->expand(m_name), qmllsInterface->qmllsFilePath().toUrlishString());
     client->setName(name);
     return client;
 }

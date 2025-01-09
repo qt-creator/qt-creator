@@ -203,14 +203,14 @@ void StudioSettingsPage::apply()
     }
 
     QtcSettings *s = Core::ICore::settings();
-    const QString value = m_pathChooserExamples->filePath().toString();
+    const QString value = m_pathChooserExamples->filePath().toUrlishString();
 
     if (s->value(Paths::exampleDownloadPath, false).toString() != value) {
         s->setValue(Paths::exampleDownloadPath, value);
         emit examplesDownloadPathChanged(value);
     }
 
-    const QString bundlesPath = m_pathChooserBundles->filePath().toString();
+    const QString bundlesPath = m_pathChooserBundles->filePath().toUrlishString();
 
     if (s->value(Paths::bundlesDownloadPath).toString() != bundlesPath) {
         s->setValue(Paths::bundlesDownloadPath, bundlesPath);

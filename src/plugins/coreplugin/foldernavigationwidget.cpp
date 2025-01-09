@@ -347,7 +347,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     connect(m_crumbLabel, &FileCrumbLabel::pathClicked,
             this, [this](const FilePath &path) {
         const QModelIndex rootIndex = m_sortProxyModel->mapToSource(m_listView->rootIndex());
-        const QModelIndex fileIndex = m_fileSystemModel->index(path.toString());
+        const QModelIndex fileIndex = m_fileSystemModel->index(path.toUrlishString());
         if (!isChildOf(fileIndex, rootIndex))
             selectBestRootForFile(path);
         selectFile(path);
@@ -559,7 +559,7 @@ void FolderNavigationWidget::selectBestRootForFile(const FilePath &filePath)
 void FolderNavigationWidget::selectFile(const FilePath &filePath)
 {
     const QModelIndex fileIndex = m_sortProxyModel->mapFromSource(
-        m_fileSystemModel->index(filePath.toString()));
+        m_fileSystemModel->index(filePath.toUrlishString()));
     if (fileIndex.isValid() || filePath.isEmpty() /* Computer root */) {
         // TODO This only scrolls to the right position if all directory contents are loaded.
         // Unfortunately listening to directoryLoaded was still not enough (there might also
@@ -568,7 +568,7 @@ void FolderNavigationWidget::selectFile(const FilePath &filePath)
         m_listView->setCurrentIndex(fileIndex);
         QTimer::singleShot(200, this, [this, filePath] {
             const QModelIndex fileIndex = m_sortProxyModel->mapFromSource(
-                m_fileSystemModel->index(filePath.toString()));
+                m_fileSystemModel->index(filePath.toUrlishString()));
             if (fileIndex == m_listView->rootIndex()) {
                 m_listView->horizontalScrollBar()->setValue(0);
                 m_listView->verticalScrollBar()->setValue(0);
@@ -583,7 +583,7 @@ void FolderNavigationWidget::selectFile(const FilePath &filePath)
 void FolderNavigationWidget::setRootDirectory(const FilePath &directory)
 {
     const QModelIndex index = m_sortProxyModel->mapFromSource(
-        m_fileSystemModel->setRootPath(directory.toString()));
+        m_fileSystemModel->setRootPath(directory.toUrlishString()));
     m_listView->setRootIndex(index);
 }
 
@@ -594,9 +594,9 @@ int FolderNavigationWidget::bestRootForFile(const FilePath &filePath)
     for (int i = 1; i < m_rootSelector->count(); ++i) {
         const auto root = m_rootSelector->itemData(i).value<FilePath>();
         if ((filePath == root || filePath.isChildOf(root))
-                && root.toString().size() > commonLength) {
+                && root.toUrlishString().size() > commonLength) {
             index = i;
-            commonLength = root.toString().size();
+            commonLength = root.toUrlishString().size();
         }
     }
     return index;
@@ -625,7 +625,7 @@ void FolderNavigationWidget::createNewFolder(const QModelIndex &parent)
                                                    existingItems);
     // create directory and edit
     const QModelIndex index = m_sortProxyModel->mapFromSource(
-        m_fileSystemModel->mkdir(parent, name.toString()));
+        m_fileSystemModel->mkdir(parent, name.toUrlishString()));
     if (!index.isValid())
         return;
     m_listView->setCurrentIndex(index);
@@ -634,7 +634,7 @@ void FolderNavigationWidget::createNewFolder(const QModelIndex &parent)
 
 void FolderNavigationWidget::setCrumblePath(const FilePath &filePath)
 {
-    const QModelIndex index = m_fileSystemModel->index(filePath.toString());
+    const QModelIndex index = m_fileSystemModel->index(filePath.toUrlishString());
     const int width = m_crumbLabel->width();
     const int previousHeight = m_crumbLabel->immediateHeightForWidth(width);
     m_crumbLabel->setPath(filePath);

@@ -440,7 +440,7 @@ void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
         const FilePath userChoice = Utils::chooseFileFromList(task.fileCandidates);
         if (!userChoice.isEmpty()) {
             task.file = userChoice;
-            updatedTaskFileName(task, task.file.toString());
+            updatedTaskFileName(task, task.file.toUrlishString());
         }
     }
 

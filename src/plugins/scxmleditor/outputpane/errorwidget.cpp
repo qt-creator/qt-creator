@@ -190,7 +190,7 @@ void ErrorWidget::exportWarnings()
     if (fileName.isEmpty())
         return;
 
-    QFile file(fileName.toString());
+    QFile file(fileName.toUrlishString());
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QMessageBox::warning(this, Tr::tr("Export Failed"), Tr::tr("Cannot open file %1.").arg(fileName.toUserOutput()));
         file.close();

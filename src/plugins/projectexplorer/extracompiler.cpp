@@ -166,7 +166,7 @@ void ExtraCompiler::compileIfDirty()
 ExtraCompiler::ContentProvider ExtraCompiler::fromFileProvider() const
 {
     const auto provider = [fileName = source()] {
-        QFile file(fileName.toString());
+        QFile file(fileName.toUrlishString());
         if (!file.open(QFile::ReadOnly | QFile::Text))
             return QByteArray();
         return file.readAll();

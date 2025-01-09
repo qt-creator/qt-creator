@@ -128,7 +128,7 @@ bool QmakeMakeStep::init()
     if (bc->fileNodeBuild() && subProFile) {
         QString objectsDir = subProFile->objectsDirectory();
         if (objectsDir.isEmpty()) {
-            objectsDir = bc->qmakeBuildSystem()->buildDir(subProFile->filePath()).toString();
+            objectsDir = bc->qmakeBuildSystem()->buildDir(subProFile->filePath()).toUrlishString();
             if (subProFile->isDebugAndRelease()) {
                 if (bc->buildType() == QmakeBuildConfiguration::Debug)
                     objectsDir += "/debug";
@@ -142,11 +142,11 @@ bool QmakeMakeStep::init()
             const FilePath proFileDir = subProFile->proFile()->sourceDir().canonicalPath();
             if (!objectsDir.endsWith('/'))
                 objectsDir += QLatin1Char('/');
-            objectsDir += sourceFileDir.relativeChildPath(proFileDir).toString();
+            objectsDir += sourceFileDir.relativeChildPath(proFileDir).toUrlishString();
             objectsDir = QDir::cleanPath(objectsDir);
         }
 
-        QString relObjectsDir = QDir(pp->workingDirectory().toString())
+        QString relObjectsDir = QDir(pp->workingDirectory().toUrlishString())
                 .relativeFilePath(objectsDir);
         if (relObjectsDir == ".")
             relObjectsDir.clear();

@@ -131,7 +131,7 @@ private:
         const int variant = GLSL::Lexer::Variant_All;
 
         QByteArray code;
-        QFile file(Core::ICore::resourcePath("glsl").pathAppended(m_fileName).toString());
+        QFile file(Core::ICore::resourcePath("glsl").pathAppended(m_fileName).toUrlishString());
         if (file.open(QFile::ReadOnly))
             code = file.readAll();
 

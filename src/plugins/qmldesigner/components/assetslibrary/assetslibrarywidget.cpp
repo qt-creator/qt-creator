@@ -59,7 +59,7 @@ static QString propertyEditorResourcesPath()
     if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
+    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toUrlishString();
 }
 
 bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
@@ -347,13 +347,13 @@ void AssetsLibraryWidget::handleDeleteEffects([[maybe_unused]] const QStringList
     // Delete the effect modules
     for (const QString &effectName : effectNames) {
         Utils::FilePath eDir = effectsDir.pathAppended(effectName);
-        if (eDir.exists() && eDir.toString().startsWith(m_assetsModel->currentProjectDirPath())) {
+        if (eDir.exists() && eDir.toUrlishString().startsWith(m_assetsModel->currentProjectDirPath())) {
             QString error;
             eDir.removeRecursively(&error);
             if (!error.isEmpty()) {
                 QMessageBox::warning(Core::ICore::dialogParent(),
                                      Tr::tr("Failed to Delete Effect Resources"),
-                                     Tr::tr("Could not delete \"%1\".").arg(eDir.toString()));
+                                     Tr::tr("Could not delete \"%1\".").arg(eDir.toUrlishString()));
             }
         }
     }
@@ -401,7 +401,7 @@ void AssetsLibraryWidget::handleAssetsDrop(const QList<QUrl> &urls, const QStrin
 
     Utils::FilePath destDir = Utils::FilePath::fromUserInput(targetDir);
 
-    QString resourceFolder = DocumentManager::currentResourcePath().toString();
+    QString resourceFolder = DocumentManager::currentResourcePath().toUrlishString();
 
     if (destDir.isFile())
         destDir = destDir.parentDir();
@@ -425,7 +425,7 @@ void AssetsLibraryWidget::handleAssetsDrop(const QList<QUrl> &urls, const QStrin
             int userAction = msgBox.buttonRole(msgBox.clickedButton());
 
             if (userAction == QMessageBox::AcceptRole) { // "Keep Both"
-                dest = Utils::FilePath::fromString(UniqueName::generatePath(dest.toString()));
+                dest = Utils::FilePath::fromString(UniqueName::generatePath(dest.toUrlishString()));
             } else if (userAction == QMessageBox::ResetRole && dest.exists()) { // "Replace"
                 if (!dest.removeFile()) {
                     qWarning() << __FUNCTION__ << "Failed to remove existing file" << dest;
@@ -543,7 +543,7 @@ QString AssetsLibraryWidget::qmlSourcesPath()
     if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/assetsLibraryQmlSources";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/assetsLibraryQmlSources").toString();
+    return Core::ICore::resourcePath("qmldesigner/assetsLibraryQmlSources").toUrlishString();
 }
 
 void AssetsLibraryWidget::clearSearchFilter()
@@ -675,7 +675,7 @@ void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog
         }
 
         static QString lastDir;
-        const QString currentDir = lastDir.isEmpty() ? document->fileName().parentDir().toString() : lastDir;
+        const QString currentDir = lastDir.isEmpty() ? document->fileName().parentDir().toUrlishString() : lastDir;
 
         fileNames = QFileDialog::getOpenFileNames(Core::ICore::dialogParent(),
                                                   Tr::tr("Add Assets"),
@@ -710,7 +710,7 @@ void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog
         QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_RESOURCE_IMPORTED + category);
         if (operation) {
             AddFilesResult result = operation(fileNames,
-                                              document->fileName().parentDir().toString(), showDialog);
+                                              document->fileName().parentDir().toUrlishString(), showDialog);
             if (result.status() == AddFilesResult::Failed) {
                 failedOpsFiles.append(fileNames);
             } else {

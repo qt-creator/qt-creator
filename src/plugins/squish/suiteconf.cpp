@@ -282,7 +282,7 @@ QStringList SuiteConf::validTestCases(const QString &baseDirectory)
             const Utils::FilePath testCaseDir = subDir / testCase;
             if (testCaseDir.isDir()) {
                 Utils::FilePath testCaseTest = testCaseDir.pathAppended("test" + extension);
-                validCases.append(testCaseTest.toString());
+                validCases.append(testCaseTest.toUrlishString());
             }
         }
 
@@ -291,7 +291,7 @@ QStringList SuiteConf::validTestCases(const QString &baseDirectory)
         for (const Utils::FilePath &entry : entries) {
             if (!entry.fileName().startsWith("tst_"))
                 continue;
-            const QString testFileStr = entry.pathAppended("test" + extension).toString();
+            const QString testFileStr = entry.pathAppended("test" + extension).toUrlishString();
             if (!validCases.contains(testFileStr))
                 validCases.append(testFileStr);
         }

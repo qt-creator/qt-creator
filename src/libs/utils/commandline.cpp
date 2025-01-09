@@ -580,7 +580,7 @@ ProcessArgs ProcessArgs::prepareArgs(const QString &args, SplitError *err, OsTyp
     QString wdcopy;
     QString *wd = nullptr;
     if (pwd) {
-        wdcopy = pwd->toString();
+        wdcopy = pwd->toUrlishString();
         wd = &wdcopy;
     }
     ProcessArgs res;
@@ -651,7 +651,7 @@ bool ProcessArgs::prepareCommand(const CommandLine &cmdLine, QString *outCmd, Pr
     ProcessArgs::SplitError err;
     *outArgs = ProcessArgs::prepareArgs(arguments, &err, executable.osType(), env, pwd);
     if (err == ProcessArgs::SplitOk) {
-        *outCmd = executable.toString();
+        *outCmd = executable.toUrlishString();
     } else {
         if (executable.osType() == OsTypeWindows) {
             *outCmd = qtcEnvironmentVariable("COMSPEC");
@@ -661,7 +661,7 @@ bool ProcessArgs::prepareCommand(const CommandLine &cmdLine, QString *outCmd, Pr
             if (err != ProcessArgs::FoundMeta)
                 return false;
             *outCmd = qtcEnvironmentVariable("SHELL", "/bin/sh");
-            *outArgs = ProcessArgs::createUnixArgs({"-c", quoteArg(executable.toString()) + ' ' + arguments});
+            *outArgs = ProcessArgs::createUnixArgs({"-c", quoteArg(executable.toUrlishString()) + ' ' + arguments});
         }
     }
     return true;

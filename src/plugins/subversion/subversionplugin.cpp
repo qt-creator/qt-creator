@@ -602,7 +602,7 @@ void SubversionPluginPrivate::revertAll()
     // NoteL: Svn "revert ." doesn not work.
     CommandLine args{settings().binaryPath(), {"revert"}};
     args << SubversionClient::AddAuthOptions();
-    args << QLatin1String("--recursive") << state.topLevel().toString();
+    args << QLatin1String("--recursive") << state.topLevel().toUrlishString();
     const auto revertResponse = runSvn(state.topLevel(), args, RunFlags::ShowStdOut);
     if (revertResponse.result() != ProcessResult::FinishedWithSuccess) {
         QMessageBox::warning(ICore::dialogParent(), title, Tr::tr("Revert failed: %1")
@@ -641,7 +641,7 @@ void SubversionPluginPrivate::revertCurrentFile()
 
     const auto revertResponse = runSvn(state.currentFileTopLevel(), args, RunFlags::ShowStdOut);
     if (revertResponse.result() == ProcessResult::FinishedWithSuccess)
-        emit filesChanged(QStringList(state.currentFile().toString()));
+        emit filesChanged(QStringList(state.currentFile().toUrlishString()));
 }
 
 void SubversionPluginPrivate::diffProjectDirectory()
@@ -723,7 +723,7 @@ void SubversionPluginPrivate::startCommit(const FilePath &workingDir, const QStr
         VcsOutputWindow::appendError(saver.errorString());
         return;
     }
-    m_commitMessageFileName = saver.filePath().toString();
+    m_commitMessageFileName = saver.filePath().toUrlishString();
     // Create a submit editor and set file list
     SubversionSubmitEditor *editor = openSubversionSubmitEditor(m_commitMessageFileName);
     QTC_ASSERT(editor, return);
@@ -948,7 +948,7 @@ SubversionPluginPrivate *SubversionPluginPrivate::instance()
 QString SubversionPluginPrivate::monitorFile(const FilePath &repository) const
 {
     QTC_ASSERT(!repository.isEmpty(), return QString());
-    QDir repoDir(repository.toString());
+    QDir repoDir(repository.toUrlishString());
     for (const QString &svnDir : std::as_const(m_svnDirectories)) {
         if (repoDir.exists(svnDir)) {
             QFileInfo fi(repoDir.absoluteFilePath(svnDir + QLatin1String("/wc.db")));
@@ -1015,7 +1015,7 @@ bool SubversionPluginPrivate::vcsCheckout(const FilePath &directory, const QByte
         args.addMaskedArg(password);
     }
 
-    args << QString::fromLatin1(tempUrl.toEncoded()) << directory.toString();
+    args << QString::fromLatin1(tempUrl.toEncoded()) << directory.toUrlishString();
 
     return runSvn(directory, args, RunFlags::None, nullptr, 10).result()
             == ProcessResult::FinishedWithSuccess;

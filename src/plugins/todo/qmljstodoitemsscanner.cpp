@@ -69,12 +69,12 @@ void QmlJsTodoItemsScanner::processDocument(QmlJS::Document::Ptr doc)
         quint32 startLine = sourceLocation.startLine;
         for (int j = 0; j < commentLines.count(); ++j) {
             const QString &commentLine = commentLines.at(j);
-            processCommentLine(doc->fileName().toString(), commentLine, startLine + j, itemList);
+            processCommentLine(doc->fileName().toUrlishString(), commentLine, startLine + j, itemList);
         }
 
     }
 
-    emit itemsFetched(doc->fileName().toString(), itemList);
+    emit itemsFetched(doc->fileName().toUrlishString(), itemList);
 }
 
 }

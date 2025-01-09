@@ -155,7 +155,7 @@ static FilePath correspondingHeaderOrSourceInProject(const FilePath &filePath,
     FilePath bestFilePath;
     int compareValue = 0;
     for (const FilePath &projectFile : projectFiles) {
-        int value = commonFilePathLength(filePath.toString(), projectFile.toString());
+        int value = commonFilePathLength(filePath.toUrlishString(), projectFile.toUrlishString());
         if (value > compareValue) {
             compareValue = value;
             bestFilePath = projectFile;
@@ -274,7 +274,7 @@ static inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, b
 
 static void createTempFile(const FilePath &filePath)
 {
-    QString fileName = filePath.toString();
+    QString fileName = filePath.toUrlishString();
     QFile file(fileName);
     QDir(QFileInfo(fileName).absolutePath()).mkpath(_("."));
     file.open(QFile::WriteOnly);

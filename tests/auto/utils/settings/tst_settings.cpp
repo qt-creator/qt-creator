@@ -117,7 +117,7 @@ public:
     {
         return Utils::filtered(static_cast<const BasicTestSettingsAccessor *>(accessor())->fileNames(),
                                [&baseFileName](const FilePath &f) {
-            return f.parentDir() == baseFileName.parentDir() && f.toString().startsWith(baseFileName.toString());
+            return f.parentDir() == baseFileName.parentDir() && f.toUrlishString().startsWith(baseFileName.toUrlishString());
         });
     }
 };

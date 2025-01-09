@@ -1239,7 +1239,7 @@ QVariant WorkingCopyModel::data(const QModelIndex &index, int role) const
         if (column == RevisionColumn)
             return m_workingCopyList.at(row).revision;
         else if (column == FilePathColumn)
-            return m_workingCopyList.at(row).filePath.toString();
+            return m_workingCopyList.at(row).filePath.toUrlishString();
     } else if (role == Qt::UserRole) {
         return m_workingCopyList.at(row).source;
     }
@@ -1965,7 +1965,7 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Const
         {QString::fromLatin1("ToolChain Type"), part->toolchainType.toString()},
         {QString::fromLatin1("ToolChain Target Triple"), part->toolchainTargetTriple},
         {QString::fromLatin1("ToolChain Word Width"), CMI::Utils::toString(part->toolchainAbi.wordWidth())},
-        {QString::fromLatin1("ToolChain Install Dir"), part->toolchainInstallDir.toString()},
+        {QString::fromLatin1("ToolChain Install Dir"), part->toolchainInstallDir.toUrlishString()},
         {QString::fromLatin1("Language Version"), CMI::Utils::toString(part->languageVersion)},
         {QString::fromLatin1("Language Extensions"), CMI::Utils::toString(part->languageExtensions)},
         {QString::fromLatin1("Qt Version"), CMI::Utils::toString(part->qtVersion)}

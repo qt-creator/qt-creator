@@ -281,7 +281,8 @@ void JsonSummaryPage::updateProjectData(FolderNode *node)
     m_wizard->setValue(QLatin1String(KEY_SELECTED_NODE), QVariant::fromValue(node));
     m_wizard->setValue(Constants::PROJECT_ISSUBPROJECT, node ? true : false);
     m_wizard->setValue(Constants::PREFERRED_PROJECT_NODE, QVariant::fromValue(node));
-    m_wizard->setValue(Constants::PREFERRED_PROJECT_NODE_PATH, node ? node->filePath().toString() : QString());
+    m_wizard->setValue(Constants::PREFERRED_PROJECT_NODE_PATH, node ?
+node->filePath().toUrlishString() : QString());
     bool qtKeyWordsEnabled = true;
     if (ProjectTree::hasNode(node)) {
         const ProjectNode *projectNode = node->asProjectNode();

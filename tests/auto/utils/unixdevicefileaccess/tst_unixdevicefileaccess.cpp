@@ -18,7 +18,7 @@ namespace QTest {
 template<>
 char *toString(const Utils::FilePath &filePath)
 {
-    return qstrdup(filePath.toString().toLocal8Bit().constData());
+    return qstrdup(filePath.toUrlishString().toLocal8Bit().constData());
 }
 } // namespace QTest
 QT_END_NAMESPACE
@@ -35,7 +35,7 @@ public:
     {
         // Note: Don't convert into Utils::Process. See more comments in this change in gerrit.
         QProcess p;
-        p.setProgram(cmdLine.executable().toString());
+        p.setProgram(cmdLine.executable().toUrlishString());
         p.setArguments(cmdLine.splitArguments());
         p.setProcessChannelMode(QProcess::SeparateChannels);
 

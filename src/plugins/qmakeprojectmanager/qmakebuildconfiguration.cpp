@@ -693,7 +693,7 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
         if (parsedSpec.isChildOf(sourceMkSpecPath))
             parsedSpec = parsedSpec.relativeChildPath(sourceMkSpecPath);
     }
-    return parsedSpec.toString();
+    return parsedSpec.toUrlishString();
 }
 
 /*!
@@ -749,9 +749,9 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
     if (version && version->isInQtSourceDirectory(projectPath)) {
         // assemble build directory
         QString projectDirectory = projectPath.toFileInfo().absolutePath();
-        QDir qtSourceDir = QDir(version->sourcePath().toString());
+        QDir qtSourceDir = QDir(version->sourcePath().toUrlishString());
         QString relativeProjectPath = qtSourceDir.relativeFilePath(projectDirectory);
-        QString qtBuildDir = version->prefix().toString();
+        QString qtBuildDir = version->prefix().toUrlishString();
         QString absoluteBuildPath = QDir::cleanPath(qtBuildDir + QLatin1Char('/') + relativeProjectPath);
 
         info.buildDirectory = FilePath::fromString(absoluteBuildPath);
@@ -827,7 +827,7 @@ QmakeBuildConfiguration::LastKitState::LastKitState() = default;
 
 QmakeBuildConfiguration::LastKitState::LastKitState(Kit *k)
     : m_qtVersion(QtKitAspect::qtVersionId(k)),
-      m_sysroot(SysRootKitAspect::sysRoot(k).toString()),
+      m_sysroot(SysRootKitAspect::sysRoot(k).toUrlishString()),
       m_mkspec(QmakeKitAspect::mkspec(k))
 {
     Toolchain *tc = ToolchainKitAspect::cxxToolchain(k);

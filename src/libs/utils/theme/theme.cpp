@@ -204,7 +204,7 @@ void Theme::readSettingsInternal(QSettings &settings)
         const Utils::FilePath includedPath = path.parentDir().pathAppended(include);
 
         if (includedPath.exists()) {
-            QSettings themeSettings(includedPath.toString(), QSettings::IniFormat);
+            QSettings themeSettings(includedPath.toUrlishString(), QSettings::IniFormat);
             readSettingsInternal(themeSettings);
         } else {
             qWarning("Theme \"%s\" misses include \"%s\".",

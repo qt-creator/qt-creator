@@ -105,7 +105,7 @@ FilePropertiesDialog::~FilePropertiesDialog() = default;
 
 void FilePropertiesDialog::detectTextFileSettings()
 {
-    QFile file(m_filePath.toString());
+    QFile file(m_filePath.toUrlishString());
     if (!file.open(QIODevice::ReadOnly)) {
         m_lineEndings->setText(Tr::tr("Unknown"));
         m_indentation->setText(Tr::tr("Unknown"));

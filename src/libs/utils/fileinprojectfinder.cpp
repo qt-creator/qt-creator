@@ -253,7 +253,7 @@ bool FileInProjectFinder::findFileOrDirectory(const FilePath &originalPath, File
         while (prefixToIgnore != -1) {
             QString candidateString = originalPath.toFSPathString();
             candidateString.remove(0, prefixToIgnore);
-            candidateString.prepend(m_projectDir.toString());
+            candidateString.prepend(m_projectDir.toUrlishString());
             const FilePath candidate = FilePath::fromString(candidateString);
             const int matchLength = origLength - prefixToIgnore;
             // FIXME: This might be a worse match than what we find later.
@@ -261,7 +261,7 @@ bool FileInProjectFinder::findFileOrDirectory(const FilePath &originalPath, File
                 return handleSuccess(originalPath, {candidate}, matchLength,
                                      "in project directory");
             }
-            prefixToIgnore = originalPath.toString().indexOf(separator, prefixToIgnore + 1);
+            prefixToIgnore = originalPath.toUrlishString().indexOf(separator, prefixToIgnore + 1);
         }
     }
 
@@ -275,9 +275,9 @@ bool FileInProjectFinder::findFileOrDirectory(const FilePath &originalPath, File
     if (directoryHandler)
         matches.append(pathSegmentsWithSameName(lastSegment));
 
-    const QStringList matchedFilePaths = bestMatches(matches, originalPath.toString());
+    const QStringList matchedFilePaths = bestMatches(matches, originalPath.toUrlishString());
     if (!matchedFilePaths.empty()) {
-        const int matchLength = commonPostFixLength(matchedFilePaths.first(), originalPath.toString());
+        const int matchLength = commonPostFixLength(matchedFilePaths.first(), originalPath.toUrlishString());
         FilePaths hits;
         for (const QString &matchedFilePath : matchedFilePaths) {
             if (checkPath(FilePath::fromString(matchedFilePath), matchLength, fileHandler, directoryHandler))
@@ -297,7 +297,7 @@ bool FileInProjectFinder::findFileOrDirectory(const FilePath &originalPath, File
 
     // check if absolute path is found in sysroot
     if (!m_sysroot.isEmpty()) {
-        const FilePath sysrootPath = m_sysroot.pathAppended(originalPath.toString());
+        const FilePath sysrootPath = m_sysroot.pathAppended(originalPath.toUrlishString());
         if (checkPath(sysrootPath, origLength, fileHandler, directoryHandler)) {
             return handleSuccess(originalPath, {sysrootPath}, origLength, "in sysroot");
         }
@@ -367,7 +367,7 @@ QStringList FileInProjectFinder::filesWithSameFileName(const QString &fileName) 
     QStringList result;
     for (const FilePath &f : m_projectFiles) {
         if (f.fileName() == fileName)
-            result << f.toString();
+            result << f.toUrlishString();
     }
     return result;
 }
@@ -379,8 +379,8 @@ QStringList FileInProjectFinder::pathSegmentsWithSameName(const QString &pathSeg
         FilePath currentPath = f.parentDir();
         do {
             if (currentPath.fileName() == pathSegment) {
-                if (result.isEmpty() || result.last() != currentPath.toString())
-                    result.append(currentPath.toString());
+                if (result.isEmpty() || result.last() != currentPath.toUrlishString())
+                    result.append(currentPath.toUrlishString());
             }
             currentPath = currentPath.parentDir();
         } while (!currentPath.isEmpty());
@@ -449,7 +449,7 @@ FilePaths FileInProjectFinder::QrcUrlFinder::find(const QUrl &fileUrl) const
     for (const FilePath &f : m_allQrcFiles) {
         QrcParser::Ptr &qrcParser = m_parserCache[f];
         if (!qrcParser)
-            qrcParser = QrcParser::parseQrcFile(f.toString(), QString());
+            qrcParser = QrcParser::parseQrcFile(f.toUrlishString(), QString());
         if (!qrcParser->isValid())
             continue;
         qrcParser->collectFilesAtPath(QrcParser::normalizedQrcFilePath(fileUrl.toString()), &hits);

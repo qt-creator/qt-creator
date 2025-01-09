@@ -386,7 +386,7 @@ void PerfDataReader::addTargetArguments(CommandLine *cmd, const RunControl *runC
     ProjectExplorer::Kit *kit = runControl->kit();
     QTC_ASSERT(kit, return);
     ProjectExplorer::BuildConfiguration *buildConfig = runControl->target()->activeBuildConfiguration();
-    QString buildDir = buildConfig ? buildConfig->buildDirectory().toString() : QString();
+    QString buildDir = buildConfig ? buildConfig->buildDirectory().toUrlishString() : QString();
     collectArguments(cmd, buildDir, kit);
 }
 

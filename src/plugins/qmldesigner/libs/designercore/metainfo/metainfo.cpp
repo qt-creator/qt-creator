@@ -36,7 +36,7 @@ static QString globalMetaInfoPath(const ExternalDependenciesInterface &externalD
     if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/globalMetaInfo";
 #endif
-    return externalDependecies.resourcePath("qmldesigner/globalMetaInfo").toString();
+    return externalDependecies.resourcePath("qmldesigner/globalMetaInfo").toUrlishString();
 }
 
 Utils::FilePaths allGlobalMetaInfoFiles(const ExternalDependenciesInterface &externalDependecies)
@@ -125,11 +125,11 @@ void MetaInfoPrivate::parseItemLibraryDescriptions(const ExternalDependenciesInt
     for (const Utils::FilePath &path : allMetaInfoFiles) {
         Internal::MetaInfoReader reader(*m_q);
         try {
-            reader.readMetaInfoFile(path.toString());
+            reader.readMetaInfoFile(path.toUrlishString());
         } catch ([[maybe_unused]] const InvalidMetaInfoException &e) {
 #ifndef UNIT_TESTS
             qWarning() << e.description();
-            const QString errorMessage = path.toString() + QLatin1Char('\n') + QLatin1Char('\n')
+            const QString errorMessage = path.toUrlishString() + QLatin1Char('\n') + QLatin1Char('\n')
                                          + reader.errors().join(QLatin1Char('\n'));
             QMessageBox::warning(nullptr,
                                  DesignerCore::Tr::tr("Invalid meta info."),

@@ -97,7 +97,7 @@ void UvscEngine::setupEngine()
     }
 
     showMessage("UVSC: RESOLVING LIBRARY SYMBOLS...");
-    m_client.reset(new UvscClient(rp.debugger.command.executable().parentDir().toString()));
+    m_client.reset(new UvscClient(rp.debugger.command.executable().parentDir().toUrlishString()));
     if (m_client->error() != UvscClient::NoError) {
         handleSetupFailure(Tr::tr("Internal error: Cannot resolve the library: %1.")
                            .arg(m_client->errorString()));
@@ -357,7 +357,7 @@ void UvscEngine::insertBreakpoint(const Breakpoint &bp)
         exe.replace('-', '_');
         expression += "\\\\" + exe;
         // Add file name.
-        expression += "\\" + requested.fileName.toString();
+        expression += "\\" + requested.fileName.toUrlishString();
         // Add line number.
         expression += "\\" + QString::number(requested.textPosition.line);
     }
@@ -526,7 +526,7 @@ bool UvscEngine::configureProject(const DebuggerRunParameters &rp)
         return false;
     } else if (!m_client->openProject(projectPath)) {
         handleSetupFailure(Tr::tr("Internal error: Unable to open the uVision project %1: %2.")
-                           .arg(projectPath.toString(), m_client->errorString()));
+                           .arg(projectPath.toUrlishString(), m_client->errorString()));
         return false;
     } else {
         showMessage("UVSC: PROJECT LOADED");
@@ -550,7 +550,7 @@ bool UvscEngine::configureProject(const DebuggerRunParameters &rp)
         return false;
     } else if (!m_client->setProjectOutputTarget(targetPath)) {
         handleSetupFailure(Tr::tr("Internal error: Unable to set the uVision output file %1: %2.")
-                           .arg(targetPath.toString(), m_client->errorString()));
+                           .arg(targetPath.toUrlishString(), m_client->errorString()));
         return false;
     } else {
         showMessage("UVSC: PROJECT OUTPUT TARGET SET");
@@ -592,7 +592,7 @@ void UvscEngine::handleProjectClosed()
     // Re-open the project again.
     if (!m_client->openProject(projectPath)) {
         handleSetupFailure(Tr::tr("Internal error: Unable to open the uVision project %1: %2.")
-                           .arg(projectPath.toString(), m_client->errorString()));
+                           .arg(projectPath.toUrlishString(), m_client->errorString()));
         return;
     }
 

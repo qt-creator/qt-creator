@@ -297,7 +297,7 @@ bool IosDeployStep::checkProvisioningProfile()
     if (!provisioningFilePath.exists())
         return true;
 
-    QFile provisionFile(provisioningFilePath.toString());
+    QFile provisionFile(provisioningFilePath.toUrlishString());
     if (!provisionFile.open(QIODevice::ReadOnly))
         return true;
 

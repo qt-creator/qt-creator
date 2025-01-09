@@ -1745,7 +1745,7 @@ static Key llvmDirKey()
 void ClangClToolchain::toMap(Store &data) const
 {
     MsvcToolchain::toMap(data);
-    data.insert(llvmDirKey(), m_clangPath.toString());
+    data.insert(llvmDirKey(), m_clangPath.toUrlishString());
 }
 
 void ClangClToolchain::fromMap(const Store &data)

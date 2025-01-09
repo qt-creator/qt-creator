@@ -899,7 +899,7 @@ bool DesktopDeviceFileAccess::hasHardLinks(const FilePath &filePath) const
 #ifdef Q_OS_UNIX
     struct stat s
     {};
-    const int r = stat(filePath.absoluteFilePath().toString().toLocal8Bit().constData(), &s);
+    const int r = stat(filePath.absoluteFilePath().toUrlishString().toLocal8Bit().constData(), &s);
     if (r == 0) {
         // check for hardlinks because these would break without the atomic write implementation
         if (s.st_nlink > 1)

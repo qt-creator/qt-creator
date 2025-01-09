@@ -53,7 +53,7 @@ ParseIssuesDialog::ParseIssuesDialog(QWidget *parent) : QDialog(parent), d(new P
         const FilePath filePath = FileUtils::getOpenFilePath(Tr::tr("Choose File"));
         if (filePath.isEmpty())
             return;
-        QFile file(filePath.toString());
+        QFile file(filePath.toUrlishString());
         if (!file.open(QIODevice::ReadOnly)) {
             QMessageBox::critical(this, Tr::tr("Could Not Open File"),
                                   Tr::tr("Could not open file: \"%1\": %2")

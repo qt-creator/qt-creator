@@ -354,7 +354,7 @@ private:
             return;
 
         CppRefactoringChanges refactoring(snapshot());
-        const bool isHeaderFile = ProjectFile::isHeader(ProjectFile::classify(filePath().toString()));
+        const bool isHeaderFile = ProjectFile::isHeader(ProjectFile::classify(filePath().toUrlishString()));
         FilePath cppFile; // Only set if the class is defined in a header file.
         if (isHeaderFile) {
             InsertionPointLocator locator(refactoring);
@@ -521,7 +521,7 @@ private:
                                 // Insert Position: Implementation File
                                 DeclaratorAST *declAST = simpleDecl->declarator_list->value;
                                 InsertDefOperation *op = nullptr;
-                                ProjectFile::Kind kind = ProjectFile::classify(interface.filePath().toString());
+                                ProjectFile::Kind kind = ProjectFile::classify(interface.filePath().toUrlishString());
                                 const bool isHeaderFile = ProjectFile::isHeader(kind);
                                 if (isHeaderFile) {
                                     CppRefactoringChanges refactoring(interface.snapshot());

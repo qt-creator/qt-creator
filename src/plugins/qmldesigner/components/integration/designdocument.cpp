@@ -321,7 +321,7 @@ bool DesignDocument::hasQmlParseErrors() const
 
 QString DesignDocument::displayName() const
 {
-    return fileName().toString();
+    return fileName().toUrlishString();
 }
 
 QString DesignDocument::simplfiedDisplayName() const
@@ -335,10 +335,10 @@ QString DesignDocument::simplfiedDisplayName() const
 void DesignDocument::updateFileName(const Utils::FilePath & /*oldFileName*/, const Utils::FilePath &newFileName)
 {
     if (m_documentModel)
-        m_documentModel->setFileUrl(QUrl::fromLocalFile(newFileName.toString()));
+        m_documentModel->setFileUrl(QUrl::fromLocalFile(newFileName.toUrlishString()));
 
     if (m_inFileComponentModel)
-        m_inFileComponentModel->setFileUrl(QUrl::fromLocalFile(newFileName.toString()));
+        m_inFileComponentModel->setFileUrl(QUrl::fromLocalFile(newFileName.toUrlishString()));
 
     emit displayNameChanged(displayName());
 }
@@ -543,7 +543,7 @@ void DesignDocument::close()
 void DesignDocument::updateSubcomponentManager()
 {
     Q_ASSERT(m_subComponentManager);
-    m_subComponentManager->update(QUrl::fromLocalFile(fileName().toString()),
+    m_subComponentManager->update(QUrl::fromLocalFile(fileName().toUrlishString()),
                                   currentModel()->imports() + currentModel()->possibleImports());
 }
 

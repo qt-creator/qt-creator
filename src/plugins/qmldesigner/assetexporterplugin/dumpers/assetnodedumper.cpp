@@ -37,7 +37,7 @@ QJsonObject AssetNodeDumper::json(Component &component) const
     exporter.exportAsset(exporter.generateAsset(m_node), assetPath);
 
     QJsonObject assetData;
-    assetData.insert(AssetPathTag, assetPath.toString());
+    assetData.insert(AssetPathTag, assetPath.toUrlishString());
     QJsonObject metadata = jsonObject.value(MetadataTag).toObject();
     metadata.insert(AssetDataTag, assetData);
     jsonObject.insert(MetadataTag, metadata);

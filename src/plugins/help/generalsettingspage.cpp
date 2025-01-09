@@ -358,7 +358,7 @@ void GeneralSettingsPageWidget::importBookmarks()
     if (filePath.isEmpty())
         return;
 
-    QFile file(filePath.toString());
+    QFile file(filePath.toUrlishString());
     if (file.open(QIODevice::ReadOnly)) {
         const BookmarkManager &manager = LocalHelpManager::bookmarkManager();
         XbelReader reader(manager.treeBookmarkModel(), manager.listBookmarkModel());

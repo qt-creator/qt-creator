@@ -198,7 +198,7 @@ bool CppSourceProcessor::getFileContents(const FilePath &absoluteFilePath,
                                             contents,
                                             &error)
         != Utils::TextFileFormat::ReadSuccess) {
-        qWarning("Error reading file \"%s\": \"%s\".", qPrintable(absoluteFilePath.toString()),
+        qWarning("Error reading file \"%s\": \"%s\".", qPrintable(absoluteFilePath.toUrlishString()),
                  qPrintable(error));
         return false;
     }
@@ -401,7 +401,7 @@ void CppSourceProcessor::sourceNeeded(int line, const FilePath &filePath, Includ
     const FilePath absoluteFilePath = resolveFile(filePath, type);
 
     if (m_currentDoc) {
-        m_currentDoc->addIncludeFile(Document::Include(filePath.toString(), absoluteFilePath, line, type));
+        m_currentDoc->addIncludeFile(Document::Include(filePath.toUrlishString(), absoluteFilePath, line, type));
         if (absoluteFilePath.isEmpty()) {
             m_currentDoc->addDiagnosticMessage(messageNoSuchFile(m_currentDoc, filePath, line));
             return;
@@ -430,14 +430,14 @@ void CppSourceProcessor::sourceNeeded(int line, const FilePath &filePath, Includ
         return;
     }
 
-    qCDebug(log) << "Parsing:" << absoluteFilePath.toString() << "contents:" << contents.size() << "bytes";
+    qCDebug(log) << "Parsing:" << absoluteFilePath.toUrlishString() << "contents:" << contents.size() << "bytes";
 
     Document::Ptr document = Document::create(absoluteFilePath);
     document->setEditorRevision(editorRevision);
     document->setLanguageFeatures(m_languageFeatures);
     for (const FilePath &include : initialIncludes) {
         m_included.insert(include);
-        Document::Include inc(include.toString(), include, 0, IncludeLocal);
+        Document::Include inc(include.toUrlishString(), include, 0, IncludeLocal);
         document->addIncludeFile(inc);
     }
     if (absoluteFilePath.exists())
@@ -457,7 +457,7 @@ void CppSourceProcessor::sourceNeeded(int line, const FilePath &filePath, Includ
         switchCurrentDocument(previousDocument);
         mergeEnvironment(globalDocument);
         m_snapshot.insert(globalDocument);
-        m_todo.remove(absoluteFilePath.toString());
+        m_todo.remove(absoluteFilePath.toUrlishString());
         return;
     }
 
@@ -471,7 +471,7 @@ void CppSourceProcessor::sourceNeeded(int line, const FilePath &filePath, Includ
     m_documentFinished(document);
 
     m_snapshot.insert(document);
-    m_todo.remove(absoluteFilePath.toString());
+    m_todo.remove(absoluteFilePath.toUrlishString());
     switchCurrentDocument(previousDocument);
 }
 

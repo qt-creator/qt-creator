@@ -26,7 +26,7 @@ CppPreProcessorDialog::CppPreProcessorDialog(const FilePath &filePath, QWidget *
     resize(400, 300);
     setWindowTitle(Tr::tr("Additional C++ Preprocessor Directives"));
 
-    const Key key = Constants::EXTRA_PREPROCESSOR_DIRECTIVES + keyFromString(m_filePath.toString());
+    const Key key = Constants::EXTRA_PREPROCESSOR_DIRECTIVES + keyFromString(m_filePath.toUrlishString());
     const QString directives = Core::SessionManager::value(key).toString();
 
     m_editWidget = new TextEditor::SnippetEditorWidget;
@@ -55,7 +55,7 @@ int CppPreProcessorDialog::exec()
     if (QDialog::exec() == Rejected)
         return Rejected;
 
-    const Key key = Constants::EXTRA_PREPROCESSOR_DIRECTIVES + keyFromString(m_filePath.toString());
+    const Key key = Constants::EXTRA_PREPROCESSOR_DIRECTIVES + keyFromString(m_filePath.toUrlishString());
     Core::SessionManager::setValue(key, extraPreprocessorDirectives());
 
     return Accepted;

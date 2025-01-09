@@ -381,7 +381,7 @@ QString BuildSystem::disabledReason(const QString &buildKey) const
                                   : Tr::tr("The project could not be fully parsed.");
         const FilePath projectFilePath = buildTarget(buildKey).projectFilePath;
         if (!projectFilePath.isEmpty() && !projectFilePath.exists())
-            msg += '\n' + Tr::tr("The project file \"%1\" does not exist.").arg(projectFilePath.toString());
+            msg += '\n' + Tr::tr("The project file \"%1\" does not exist.").arg(projectFilePath.toUrlishString());
         return msg;
     }
     return {};

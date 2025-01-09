@@ -61,7 +61,7 @@ static void setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &proje
     if (projectInfo.project)
         activeTarget = projectInfo.project->activeTarget();
     Kit *activeKit = activeTarget ? activeTarget->kit() : KitManager::defaultKit();
-    const QHash<QString, QString> replacements = {{QLatin1String("$(QT_INSTALL_QML)"), projectInfo.qtQmlPath.toString()}};
+    const QHash<QString, QString> replacements = {{QLatin1String("$(QT_INSTALL_QML)"), projectInfo.qtQmlPath.toUrlishString()}};
 
     for (IBundleProvider *bp : IBundleProvider::allBundleProviders())
         bp->mergeBundlesForKit(activeKit, projectInfo.activeBundle, replacements);
@@ -296,8 +296,8 @@ void ModelManager::delayedInitialization()
 void ModelManager::loadDefaultQmlTypeDescriptions()
 {
     if (ICore::instance()) {
-        loadQmlTypeDescriptionsInternal(ICore::resourcePath().toString());
-        loadQmlTypeDescriptionsInternal(ICore::userResourcePath().toString());
+        loadQmlTypeDescriptionsInternal(ICore::resourcePath().toUrlishString());
+        loadQmlTypeDescriptionsInternal(ICore::userResourcePath().toUrlishString());
     }
 }
 

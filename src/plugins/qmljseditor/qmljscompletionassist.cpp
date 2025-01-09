@@ -620,7 +620,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::performAsync()
         if (contextFinder.isInImport()) {
             QStringList patterns;
             patterns << QLatin1String("*.qml") << QLatin1String("*.js");
-            if (completeFileName(document->path().toString(), literalText, patterns))
+            if (completeFileName(document->path().toUrlishString(), literalText, patterns))
                 return createContentProposal();
             return nullptr;
         }
@@ -630,7 +630,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::performAsync()
         if (!value) {
             // do nothing
         } else if (value->asUrlValue()) {
-            if (completeUrl(document->path().toString(), literalText))
+            if (completeUrl(document->path().toUrlishString(), literalText))
                 return createContentProposal();
         }
 

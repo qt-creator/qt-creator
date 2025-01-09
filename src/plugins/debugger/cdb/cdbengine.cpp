@@ -2466,7 +2466,7 @@ unsigned BreakpointCorrectionContext::fixLineNumber(const FilePath &filePath,
     }
     if (debug)
         qDebug("Code model: Breakpoint line %u -> %u in %s",
-               lineNumber, correctedLine, qPrintable(filePath.toString()));
+               lineNumber, correctedLine, qPrintable(filePath.toUrlishString()));
     return correctedLine;
 }
 
@@ -2654,7 +2654,7 @@ unsigned CdbEngine::parseStackTrace(const GdbMi &data, bool sourceStepInto)
             return ParseStackStepOut;
         }
         if (hasFile) {
-            const NormalizedSourceFileName fileName = sourceMapNormalizeFileNameFromDebugger(frames.at(i).file.toString());
+            const NormalizedSourceFileName fileName = sourceMapNormalizeFileNameFromDebugger(frames.at(i).file.toUrlishString());
             if (!fileName.exists && i == 0 && sourceStepInto) {
                 showMessage("Step into: Hit frame with no source, step out...", LogMisc);
                 return ParseStackStepOut;

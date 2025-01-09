@@ -332,7 +332,7 @@ void ScopeChain::initializeRootScope()
             for (Document::Ptr otherDoc : snapshot) {
                 for (const ImportInfo &import : otherDoc->bind()->imports()) {
                     if ((import.type() == ImportType::File
-                         && m_document->fileName().toString() == import.path())
+                         && m_document->fileName().toUrlishString() == import.path())
                         || (import.type() == ImportType::QrcFile
                             && ModelManagerInterface::instance()
                                    ->filesAtQrcPath(import.path())

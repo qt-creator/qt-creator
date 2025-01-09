@@ -1791,7 +1791,7 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
         *output = proc.cleanedStdOut();
     });
 
-    handler->setCurrentFileName(editor->document()->filePath().toString());
+    handler->setCurrentFileName(editor->document()->filePath().toUrlishString());
     handler->installEventFilter();
 
     // pop up the bar
@@ -1819,7 +1819,7 @@ void FakeVimPlugin::currentEditorAboutToChange(IEditor *editor)
 void FakeVimPlugin::allDocumentsRenamed(const FilePath &oldPath, const FilePath &newPath)
 {
     renameFileNameInEditors(oldPath, newPath);
-    FakeVimHandler::updateGlobalMarksFilenames(oldPath.toString(), newPath.toString());
+    FakeVimHandler::updateGlobalMarksFilenames(oldPath.toUrlishString(), newPath.toUrlishString());
 }
 
 void FakeVimPlugin::documentRenamed(
@@ -1831,8 +1831,8 @@ void FakeVimPlugin::documentRenamed(
 void FakeVimPlugin::renameFileNameInEditors(const FilePath &oldPath, const FilePath &newPath)
 {
     for (const HandlerAndData &handlerAndData : m_editorToHandler) {
-        if (handlerAndData.handler->currentFileName() == oldPath.toString())
-            handlerAndData.handler->setCurrentFileName(newPath.toString());
+        if (handlerAndData.handler->currentFileName() == oldPath.toUrlishString())
+            handlerAndData.handler->setCurrentFileName(newPath.toUrlishString());
     }
 }
 
@@ -1915,7 +1915,7 @@ void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, cons
         bool saved = false;
         IEditor *editor = editorFromHandler();
         const QString fileName = handler->currentFileName();
-        if (editor && editor->document()->filePath().toString() == fileName) {
+        if (editor && editor->document()->filePath().toUrlishString() == fileName) {
             triggerAction(Core::Constants::SAVE);
             saved = !editor->document()->isModified();
             if (saved) {

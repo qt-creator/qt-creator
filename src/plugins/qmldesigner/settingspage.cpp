@@ -345,7 +345,7 @@ QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
     settings.insert(DesignerSettingsKey::DEBUG_PUPPET,
         m_debugPuppetComboBox->currentText());
 
-    QString newFallbackPuppetPath = m_fallbackPuppetPathLineEdit->filePath().toString();
+    QString newFallbackPuppetPath = m_fallbackPuppetPathLineEdit->filePath().toUrlishString();
     QTC_CHECK(m_externalDependencies.defaultPuppetFallbackDirectory()
               == m_fallbackPuppetPathLineEdit->lineEdit()->placeholderText());
     if (newFallbackPuppetPath.isEmpty())
@@ -363,10 +363,10 @@ QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
     }
 
     if (!m_puppetBuildPathLineEdit->filePath().isEmpty()
-        && m_puppetBuildPathLineEdit->filePath().toString()
+        && m_puppetBuildPathLineEdit->filePath().toUrlishString()
                != m_externalDependencies.defaultPuppetToplevelBuildDirectory()) {
         settings.insert(DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY,
-            m_puppetBuildPathLineEdit->filePath().toString());
+            m_puppetBuildPathLineEdit->filePath().toUrlishString());
     }
     settings.insert(DesignerSettingsKey::ALWAYS_SAVE_IN_CRUMBLEBAR,
         m_alwaysSaveSubcomponentsCheckBox->isChecked());

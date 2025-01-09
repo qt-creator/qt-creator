@@ -726,7 +726,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
 void DebuggerRunTool::addSolibSearchDir(const QString &str)
 {
     QString path = str;
-    path.replace("%{sysroot}", m_runParameters.sysRoot.toString());
+    path.replace("%{sysroot}", m_runParameters.sysRoot.toUrlishString());
     m_runParameters.solibSearchPath.append(FilePath::fromString(path));
 }
 

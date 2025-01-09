@@ -47,7 +47,7 @@ Core::IDocument::OpenResult ScxmlEditorDocument::open(QString *errorString,
         return OpenResult::ReadError;
 
     const FilePath &absoluteFilePath = filePath.absoluteFilePath();
-    if (!m_designWidget->load(absoluteFilePath.toString())) {
+    if (!m_designWidget->load(absoluteFilePath.toUrlishString())) {
         *errorString = m_designWidget->errorMessage();
         return OpenResult::ReadError;
     }
@@ -64,14 +64,14 @@ Result ScxmlEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
 
     bool dirty = m_designWidget->isDirty();
 
-    m_designWidget->setFileName(filePath.toString());
+    m_designWidget->setFileName(filePath.toUrlishString());
     if (!m_designWidget->save()) {
-        m_designWidget->setFileName(this->filePath().toString());
+        m_designWidget->setFileName(this->filePath().toUrlishString());
         return Result::Error(m_designWidget->errorMessage());
     }
 
     if (autoSave) {
-        m_designWidget->setFileName(this->filePath().toString());
+        m_designWidget->setFileName(this->filePath().toUrlishString());
         m_designWidget->save();
         return Result::Ok;
     }
@@ -86,7 +86,7 @@ Result ScxmlEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
 
 void ScxmlEditorDocument::setFilePath(const FilePath &newName)
 {
-    m_designWidget->setFileName(newName.toString());
+    m_designWidget->setFileName(newName.toUrlishString());
     IDocument::setFilePath(newName);
 }
 
@@ -117,7 +117,7 @@ Result ScxmlEditorDocument::reload(ReloadFlag flag, ChangeType type)
         return Result::Ok;
     emit aboutToReload();
     QString errorString;
-    emit reloadRequested(&errorString, filePath().toString());
+    emit reloadRequested(&errorString, filePath().toUrlishString());
     const bool success = errorString.isEmpty();
     emit reloadFinished(success);
     return Result(success, errorString);

@@ -21,7 +21,7 @@ namespace CppEditor {
 static QStringList projectPartArguments(const ProjectPart &projectPart)
 {
     QStringList args;
-    args << projectPart.compilerFilePath.toString();
+    args << projectPart.compilerFilePath.toUrlishString();
     args << "-c";
     if (projectPart.toolchainType != PEConstants::MSVC_TOOLCHAIN_TYPEID) {
         args << "--target=" + projectPart.toolchainTargetTriple;
@@ -110,7 +110,7 @@ static QJsonObject createFileObject(const FilePath &buildDir,
                                     bool clStyle)
 {
     QJsonObject fileObject;
-    fileObject["file"] = projFile.path.toString();
+    fileObject["file"] = projFile.path.toUrlishString();
     QJsonArray args;
 
     if (purpose == CompilationDbPurpose::Project) {
@@ -142,7 +142,7 @@ static QJsonObject createFileObject(const FilePath &buildDir,
 
     args.append(projFile.path.toUserOutput());
     fileObject["arguments"] = args;
-    fileObject["directory"] = buildDir.toString();
+    fileObject["directory"] = buildDir.toUrlishString();
     return fileObject;
 }
 

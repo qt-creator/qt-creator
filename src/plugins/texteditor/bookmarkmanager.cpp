@@ -994,7 +994,7 @@ QString BookmarkManager::bookmarkToString(const Bookmark *b)
     const QLatin1Char colon(':');
     // Using \t as delimiter because any another symbol can be a part of note.
     const QLatin1Char noteDelimiter('\t');
-    return colon + b->filePath().toString() +
+    return colon + b->filePath().toUrlishString() +
             colon + QString::number(b->lineNumber()) +
             noteDelimiter + b->note();
 }

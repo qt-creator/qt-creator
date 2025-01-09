@@ -281,7 +281,7 @@ QStringList MesonBuildSystem::configArgs(bool isSetup)
     if (!isSetup || params.contains("--cross-file") || params.contains("--native-file"))
         return m_pendingConfigArgs + bc->mesonConfigArgs();
 
-    return QStringList{QString("--native-file=%1").arg(machineFile(kit()).toString())}
+    return QStringList{QString("--native-file=%1").arg(machineFile(kit()).toUrlishString())}
            + m_pendingConfigArgs + bc->mesonConfigArgs();
 }
 

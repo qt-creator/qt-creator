@@ -997,7 +997,7 @@ bool CMakeBuildSystem::renameFile(
 {
     const FilePath projDir = context->filePath().canonicalPath();
     const FilePath newRelPath = newFilePath.canonicalPath().relativePathFrom(projDir).cleanPath();
-    const QString newRelPathName = newRelPath.toString();
+    const QString newRelPathName = newRelPath.toUrlishString();
 
     const QString targetName = context->buildKey();
     const QString key
@@ -2483,7 +2483,7 @@ void CMakeBuildSystem::runGenerator(Id id)
     const FilePath outDir = buildConfiguration()->buildDirectory()
             / ("qtc_" + FileUtils::fileSystemFriendlyName(generator));
     if (!outDir.ensureWritableDir()) {
-        showError(Tr::tr("Cannot create output directory \"%1\".").arg(outDir.toString()));
+        showError(Tr::tr("Cannot create output directory \"%1\".").arg(outDir.toUrlishString()));
         return;
     }
     CommandLine cmdLine(cmakeTool->cmakeExecutable(), {"-S", buildConfiguration()->target()

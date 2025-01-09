@@ -879,7 +879,7 @@ QMap<QString, int> TestTreeModel::boostTestSuitesAndTests() const
 
     if (TestTreeItem *rootNode = boostTestRootNode()) {
         rootNode->forFirstLevelChildItems([&result](TestTreeItem *child) {
-            result.insert(child->name() + '|' + child->proFile().toString(), child->childCount());
+            result.insert(child->name() + '|' + child->proFile().toUrlishString(), child->childCount());
         });
     }
     return result;

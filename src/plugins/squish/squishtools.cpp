@@ -529,7 +529,7 @@ void SquishTools::startSquishServer(Request request)
     toolsSettings.setup();
 
     const FilePath squishServer = Environment::systemEnvironment().searchInPath(
-        toolsSettings.serverPath.toString());
+        toolsSettings.serverPath.toUrlishString());
     if (!squishServer.isExecutableFile()) {
         const QString detail = Tr::tr("\"%1\" could not be found or is not executable.\nCheck the "
                                       "settings.").arg(toolsSettings.serverPath.toUserOutput());
@@ -1189,7 +1189,7 @@ QStringList SquishTools::runnerArgumentsFromSettings()
     if (m_request == RecordTestRequested) {
         arguments << "--startapp"; // --record is triggered separately
     } else if (m_request == RunTestRequested) {
-        arguments << "--testcase" << m_currentTestCasePath.toString();
+        arguments << "--testcase" << m_currentTestCasePath.toUrlishString();
         arguments << "--debug" << "--ide";
     } else {
         QTC_ASSERT(false, qDebug("Request %d", m_request));
@@ -1213,7 +1213,7 @@ QStringList SquishTools::runnerArgumentsFromSettings()
         arguments << "--reportgen"
                   << QString::fromLatin1("xml2.2,%1").arg(caseReportFilePath.toUserOutput());
 
-        m_currentResultsXML = new QFile(caseReportFilePath.toString());
+        m_currentResultsXML = new QFile(caseReportFilePath.toUrlishString());
     }
     return arguments;
 }
@@ -1249,7 +1249,7 @@ bool SquishTools::isValidToStartRunner()
 bool SquishTools::setupRunnerPath()
 {
     const FilePath squishRunner = Environment::systemEnvironment().searchInPath(
-        toolsSettings.runnerPath.toString());
+        toolsSettings.runnerPath.toUrlishString());
     if (!squishRunner.isExecutableFile()) {
         const QString detail = Tr::tr("\"%1\" could not be found or is not executable.\nCheck the "
                                       "settings.").arg(toolsSettings.runnerPath.toUserOutput());
@@ -1274,9 +1274,9 @@ void SquishTools::setupAndStartSquishRunnerProcess(const CommandLine &cmdLine)
         m_resultsFileWatcher = new QFileSystemWatcher;
         // on 2nd run this directory exists and won't emit changes, so use the current subdirectory
         if (m_currentResultsDirectory.exists())
-            m_resultsFileWatcher->addPath(m_currentResultsDirectory.pathAppended(m_suitePath.fileName()).toString());
+            m_resultsFileWatcher->addPath(m_currentResultsDirectory.pathAppended(m_suitePath.fileName()).toUrlishString());
         else
-            m_resultsFileWatcher->addPath(m_currentResultsDirectory.toString());
+            m_resultsFileWatcher->addPath(m_currentResultsDirectory.toUrlishString());
 
         connect(m_resultsFileWatcher,
                 &QFileSystemWatcher::directoryChanged,

@@ -108,7 +108,7 @@ QStringList CppcheckTool::additionalArguments(const CppEditor::ProjectPart &part
 
     if (settings().addIncludePaths()) {
         for (const ProjectExplorer::HeaderPath &path : part.headerPaths) {
-            const QString projectDir = m_project->projectDirectory().toString();
+            const QString projectDir = m_project->projectDirectory().toUrlishString();
             if (path.type == ProjectExplorer::HeaderPathType::User
                 && path.path.startsWith(projectDir))
                 result.push_back("-I " + path.path);
@@ -167,7 +167,7 @@ void CppcheckTool::check(const Utils::FilePaths &files)
     } else {
         std::copy_if(files.cbegin(), files.cend(), std::back_inserter(filtered),
                      [this](const Utils::FilePath &file) {
-            const QString stringed = file.toString();
+            const QString stringed = file.toUrlishString();
             const auto filter = [stringed](const QRegularExpression &re) {
                 return re.match(stringed).hasMatch();
             };

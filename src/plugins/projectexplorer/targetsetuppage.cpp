@@ -229,7 +229,7 @@ void TargetSetupPage::setProjectPath(const FilePath &path)
 {
     d->projectPath = path;
     if (!d->projectPath.isEmpty()) {
-        QFileInfo fileInfo(QDir::cleanPath(path.toString()));
+        QFileInfo fileInfo(QDir::cleanPath(path.toUrlishString()));
         QStringList subDirsList = fileInfo.absolutePath().split('/');
         d->headerLabel->setText(Tr::tr("The following kits can be used for project <b>%1</b>:",
                                       "%1: Project name").arg(subDirsList.last()));

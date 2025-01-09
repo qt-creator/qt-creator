@@ -575,7 +575,7 @@ void PerforcePluginPrivate::revertCurrentFile()
     PerforceResponse result2 = runP4Cmd(state.currentFileTopLevel(), args,
                                         CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
     if (!result2.error)
-        emit filesChanged(QStringList(state.currentFile().toString()));
+        emit filesChanged(QStringList(state.currentFile().toUrlishString()));
 }
 
 void PerforcePluginPrivate::diffCurrentFile()
@@ -716,7 +716,7 @@ void PerforcePluginPrivate::startSubmitProject()
         cleanCommitMessageFile();
         return;
     }
-    m_commitMessageFileName = saver.filePath().toString();
+    m_commitMessageFileName = saver.filePath().toUrlishString();
 
     args.clear();
     args << QLatin1String("files");
@@ -957,7 +957,7 @@ bool PerforcePluginPrivate::managesDirectoryFstat(const FilePath &directory)
     bool managed = false;
     do {
         // Quick check: Must be at or below top level and not "../../other_path"
-        const QString relativeDirArgs = settings().relativeToTopLevelArguments(directory.toString());
+        const QString relativeDirArgs = settings().relativeToTopLevelArguments(directory.toUrlishString());
         if (!relativeDirArgs.isEmpty() && relativeDirArgs.startsWith(QLatin1String(".."))) {
             if (!settings().defaultEnv())
                 break;
@@ -1213,11 +1213,11 @@ PerforceResponse PerforcePluginPrivate::runP4Cmd(const FilePath &workingDir,
         VcsOutputWindow::appendError(Tr::tr("Perforce is not correctly configured."));
         return {};
     }
-    QStringList actualArgs = settings().commonP4Arguments(workingDir.toString());
+    QStringList actualArgs = settings().commonP4Arguments(workingDir.toUrlishString());
     QString errorMessage;
     std::shared_ptr<TempFileSaver> tempFile = createTemporaryArgumentFile(extraArgs, &errorMessage);
     if (tempFile)
-        actualArgs << QLatin1String("-x") << tempFile->filePath().toString();
+        actualArgs << QLatin1String("-x") << tempFile->filePath().toUrlishString();
     else if (!errorMessage.isEmpty())
         return {};
 
@@ -1517,7 +1517,7 @@ void PerforcePluginPrivate::setTopLevel(const FilePath &topLevel)
     if (settings().topLevel() == topLevel)
         return;
 
-    settings().setTopLevel(topLevel.toString());
+    settings().setTopLevel(topLevel.toUrlishString());
 
     const QString msg = Tr::tr("Perforce repository: %1").arg(topLevel.toUserOutput());
     VcsOutputWindow::appendSilently(msg);

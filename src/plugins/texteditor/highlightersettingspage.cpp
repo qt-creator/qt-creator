@@ -40,7 +40,7 @@ public:
 
     void migrateGenericHighlighterFiles()
     {
-        QDir userDefinitionPath(m_settings.definitionFilesPath().toString());
+        QDir userDefinitionPath(m_settings.definitionFilesPath().toUrlishString());
         if (userDefinitionPath.mkdir("syntax")) {
             const auto link = Utils::HostOsInfo::isAnyUnixHost()
                                   ? static_cast<bool(*)(const QString &, const QString &)>(&QFile::link)

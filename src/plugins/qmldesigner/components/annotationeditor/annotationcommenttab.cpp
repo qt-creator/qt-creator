@@ -49,7 +49,7 @@ AnnotationCommentTab::AnnotationCommentTab(QWidget *parent)
             m_editor->setImageActionVisible(false);
         }
 
-        m_editor->setDocumentBaseUrl(QUrl::fromLocalFile(projectPath.toString()));
+        m_editor->setDocumentBaseUrl(QUrl::fromLocalFile(projectPath.toUrlishString()));
     }
 
     ui->formLayout->setWidget(3, QFormLayout::FieldRole, m_editor);
@@ -157,13 +157,13 @@ QString AnnotationCommentTab::backupFile(const QString &filePath)
         if (!newFile.exists()) {
             oldFile.copyFile(newFile);
             break;
-        } else if (compareFileChecksum(oldFile.absoluteFilePath().toString(), newFile.absoluteFilePath().toString()) == 0)
+        } else if (compareFileChecksum(oldFile.absoluteFilePath().toUrlishString(), newFile.absoluteFilePath().toUrlishString()) == 0)
             break;
 
         newFile = imgDir / newNameTemplate.arg(i);
     }
 
-    return newFile.relativeChildPath(projectFolderPath).toString();
+    return newFile.relativeChildPath(projectFolderPath).toUrlishString();
 }
 
 

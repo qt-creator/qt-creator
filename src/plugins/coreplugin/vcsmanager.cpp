@@ -78,12 +78,12 @@ public:
     {
         QTC_ASSERT(dir.isAbsolutePath(), return);
 
-        const QString topLevelString = topLevel.toString();
+        const QString topLevelString = topLevel.toUrlishString();
         QTC_ASSERT(dir.isChildOf(topLevel) || topLevel == dir || topLevel.isEmpty(), return);
         QTC_ASSERT((topLevel.isEmpty() && !vc) || (!topLevel.isEmpty() && vc), return);
 
         FilePath tmpDir = dir;
-        while (tmpDir.toString().size() >= topLevelString.size() && !tmpDir.isEmpty()) {
+        while (tmpDir.toUrlishString().size() >= topLevelString.size() && !tmpDir.isEmpty()) {
             m_cachedMatches.insert(tmpDir, {vc, topLevel});
             // if no vc was found, this might mean we're inside a repo internal directory (.git)
             // Cache only input directory, not parents
@@ -171,7 +171,7 @@ void VcsManager::resetVersionControlForDirectory(const FilePath &inputDirectory)
 static FilePath fixedDir(const FilePath &directory)
 {
 #ifdef WITH_TESTS
-    const QString directoryString = directory.toString();
+    const QString directoryString = directory.toUrlishString();
     if (!directoryString.isEmpty() && directoryString[0].isLetter()
         && directoryString.indexOf(QLatin1Char(':') + QLatin1String(TEST_PREFIX)) == 1) {
         return FilePath::fromString(directoryString.mid(2));
@@ -283,7 +283,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
     // we need to select the version control with the longest toplevel pathname.
     Utils::sort(allThatCanManage, [](const FilePathVersionControlPair &l,
                                      const FilePathVersionControlPair &r) {
-        return l.first.toString().size() > r.first.toString().size();
+        return l.first.toUrlishString().size() > r.first.toUrlishString().size();
     });
 
     if (allThatCanManage.isEmpty()) {
@@ -308,9 +308,9 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
     // In this case, don't cache it.
     if (!tmpDir.isEmpty()) {
         for (auto i = allThatCanManage.constBegin(); i != allThatCanManage.constEnd(); ++i) {
-            const QString firstString = i->first.toString();
+            const QString firstString = i->first.toUrlishString();
             // If topLevel was already cached for another VC, skip this one
-            if (tmpDir.toString().size() < firstString.size())
+            if (tmpDir.toUrlishString().size() < firstString.size())
                 continue;
             d->cache(i->second, i->first, tmpDir);
             tmpDir = i->first.parentDir();
@@ -761,7 +761,7 @@ void VcsManagerTest::testVcsManager()
         FilePath realTopLevel;
         vcs = VcsManager::findVersionControlForDirectory(
             FilePath::fromString(makeString(directory)), &realTopLevel);
-        QCOMPARE(realTopLevel.toString(), makeString(topLevel));
+        QCOMPARE(realTopLevel.toUrlishString(), makeString(topLevel));
         if (vcs)
             QCOMPARE(vcs->id().toString(), vcsId);
         else

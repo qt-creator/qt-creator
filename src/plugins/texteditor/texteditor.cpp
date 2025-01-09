@@ -3988,7 +3988,7 @@ void TextEditorWidgetPrivate::configureGenericHighlighter(
     }
 
     const QString definitionFilesPath
-        = TextEditorSettings::highlighterSettings().definitionFilesPath().toString();
+        = TextEditorSettings::highlighterSettings().definitionFilesPath().toUrlishString();
     m_document->resetSyntaxHighlighter([definitionFilesPath, definition] {
         auto highlighter = new Highlighter(definitionFilesPath);
         highlighter->setDefinition(definition);
@@ -7998,7 +7998,7 @@ bool TextEditorWidget::openLink(const Utils::Link &link, bool inNextSplit)
     } s;
 #endif
 
-    QString url = link.targetFilePath.toString();
+    QString url = link.targetFilePath.toUrlishString();
     if (url.startsWith(u"https://") || url.startsWith(u"http://")) {
         QDesktopServices::openUrl(url);
         return true;

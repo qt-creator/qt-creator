@@ -253,7 +253,7 @@ public:
 
     void openEditor(const FilePath &filePath, int line, int column = -1) override
     {
-        this->fileName = filePath.toString();
+        this->fileName = filePath.toUrlishString();
         this->line = line;
         this->column = column;
     }

@@ -247,7 +247,7 @@ static QStringList additionalFilesToCopy(const QtVersion *qt)
     const int major = qt->qtVersion().majorVersion();
     if (major >= 6) {
         if (HostOsInfo::isMacHost()) {
-            return {qt->libraryPath().pathAppended("/QtCore.framework/Versions/A/QtCore").toString()};
+            return {qt->libraryPath().pathAppended("/QtCore.framework/Versions/A/QtCore").toUrlishString()};
         } else if (HostOsInfo::isWindowsHost()) {
             const QString release = QString("bin/Qt%1Core.dll").arg(major);
             const QString debug = QString("bin/Qt%1Cored.dll").arg(major);
@@ -257,14 +257,14 @@ static QStringList additionalFilesToCopy(const QtVersion *qt)
             const FilePath base = qt->qmakeFilePath().parentDir().parentDir();
             const QStringList allFiles = Utils::transform(
                         {release, debug, mingwGcc, mingwStd, mingwPthread}, [&base](const QString &s) {
-                return base.pathAppended(s).toString();
+                return base.pathAppended(s).toUrlishString();
             });
             const QStringList existingFiles = Utils::filtered(allFiles, [](const QString &f) {
                 return FilePath::fromUserInput(f).exists();
             });
             return !existingFiles.empty() ? existingFiles : QStringList(release);
         } else if (HostOsInfo::isLinuxHost()) {
-            const QDir base(qt->libraryPath().toString());
+            const QDir base(qt->libraryPath().toUrlishString());
             const QString core = base.absolutePath() + QString("/libQt%1Core.so.%1").arg(major);
             const QStringList icuLibs
                 = Utils::transform(base.entryInfoList({"libicu*.so.*"}), [](const QFileInfo &fi) {
@@ -288,12 +288,12 @@ static Utils::FilePath setupQmake(const QtVersion *qt, const QString &path)
         return fp.path();
     };
 
-    const QStringList filesToCopy = QStringList(qmake.toString()) + additionalFilesToCopy(qt);
+    const QStringList filesToCopy = QStringList(qmake.toUrlishString()) + additionalFilesToCopy(qt);
     for (const QString &file : filesToCopy) {
         const FilePath sourceFile = FilePath::fromString(file);
         const FilePath targetFile = target.pathAppended(removeDriveLetter(sourceFile));
         if (!targetFile.parentDir().ensureWritableDir() || !sourceFile.copyFile(targetFile)) {
-            qDebug() << "Failed to copy" << sourceFile.toString() << "to" << targetFile.toString();
+            qDebug() << "Failed to copy" << sourceFile.toUrlishString() << "to" << targetFile.toUrlishString();
             return {};
         }
     }

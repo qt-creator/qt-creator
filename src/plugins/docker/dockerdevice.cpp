@@ -556,7 +556,7 @@ DockerDevice::DockerDevice()
 
     mounts.setSettingsKey(DockerDeviceMappedPaths);
     mounts.setLabelText(Tr::tr("Paths to mount:"));
-    mounts.setDefaultValue({Core::DocumentManager::projectsDirectory().toString()});
+    mounts.setDefaultValue({Core::DocumentManager::projectsDirectory().toUrlishString()});
     mounts.setToolTip(Tr::tr("Maps paths in this list one-to-one to the docker container."));
     mounts.setPlaceHolderText(Tr::tr("Host directories to mount into the container."));
 
@@ -1433,7 +1433,7 @@ expected_str<FilePath> DockerDevicePrivate::localSource(const FilePath &other) c
         }
     }
 
-    return make_unexpected(Tr::tr("localSource: No mount point found for %1").arg(other.toString()));
+    return make_unexpected(Tr::tr("localSource: No mount point found for %1").arg(other.toUrlishString()));
 }
 
 bool DockerDevicePrivate::ensureReachable(const FilePath &other)

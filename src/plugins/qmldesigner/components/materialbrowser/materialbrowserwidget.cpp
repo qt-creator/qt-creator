@@ -45,7 +45,7 @@ static QString propertyEditorResourcesPath()
     if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
+    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toUrlishString();
 }
 
 class PreviewImageProvider : public QQuickImageProvider
@@ -394,7 +394,7 @@ QString MaterialBrowserWidget::qmlSourcesPath()
     if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/materialBrowserQmlSource";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/materialBrowserQmlSource").toString();
+    return Core::ICore::resourcePath("qmldesigner/materialBrowserQmlSource").toUrlishString();
 }
 
 void MaterialBrowserWidget::clearSearchFilter()

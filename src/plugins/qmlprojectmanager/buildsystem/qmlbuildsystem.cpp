@@ -609,9 +609,9 @@ QVariant QmlBuildSystem::additionalData(Utils::Id id) const
     if (id == Constants::customQt6Project)
         return qt6Project();
     if (id == Constants::mainFilePath)
-        return mainFilePath().toString();
+        return mainFilePath().toUrlishString();
     if (id == Constants::canonicalProjectDir)
-        return canonicalProjectDir().toString();
+        return canonicalProjectDir().toUrlishString();
     return {};
 }
 
@@ -639,7 +639,7 @@ bool QmlBuildSystem::addFiles(Node *context, const Utils::FilePaths &filePaths, 
 
     Utils::FilePaths toAdd;
     for (const Utils::FilePath &filePath : filePaths) {
-        if (!m_projectItem->matchesFile(filePath.toString()))
+        if (!m_projectItem->matchesFile(filePath.toUrlishString()))
             toAdd << filePaths;
     }
     return toAdd.isEmpty();

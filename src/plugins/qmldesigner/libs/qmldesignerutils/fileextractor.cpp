@@ -24,7 +24,7 @@ FileExtractor::FileExtractor(QObject *parent)
 
     QObject::connect(this, &FileExtractor::targetFolderExistsChanged, this, [this] {
         if (targetFolderExists())
-            m_birthTime = QFileInfo(m_targetPath.toString() + "/" + m_archiveName).birthTime();
+            m_birthTime = QFileInfo(m_targetPath.toUrlishString() + "/" + m_archiveName).birthTime();
         else
             m_birthTime = QDateTime();
 
@@ -93,12 +93,12 @@ void FileExtractor::setTargetPath(const QString &path)
     removeTempTargetPath();
     m_targetPath = FilePath::fromString(path);
 
-    QDir dir(m_targetPath.toString());
+    QDir dir(m_targetPath.toUrlishString());
 
     if (!path.isEmpty() && !dir.exists()) {
         // Even though m_targetPath will be created eventually, we need to make sure the path exists
         // before m_bytesBefore is being calculated.
-        dir.mkpath(m_targetPath.toString());
+        dir.mkpath(m_targetPath.toUrlishString());
     }
 }
 
@@ -179,7 +179,7 @@ QString FileExtractor::count() const
 
 bool FileExtractor::targetFolderExists() const
 {
-    return QFileInfo::exists(m_targetPath.toString() + "/" + m_archiveName);
+    return QFileInfo::exists(m_targetPath.toUrlishString() + "/" + m_archiveName);
 }
 
 int FileExtractor::progress() const
@@ -199,7 +199,7 @@ QString FileExtractor::archiveName() const
 
 QString FileExtractor::sourceFile() const
 {
-    return m_sourceFile.toString();
+    return m_sourceFile.toUrlishString();
 }
 
 void FileExtractor::extract()
@@ -212,7 +212,7 @@ void FileExtractor::extract()
         m_isTempTargetPath = true;
     }
 
-    m_targetFolder = m_targetPath.toString() + "/" + m_archiveName;
+    m_targetFolder = m_targetPath.toUrlishString() + "/" + m_archiveName;
 
     // If the target directory already exists, remove it and its content
 
@@ -235,7 +235,7 @@ void FileExtractor::extract()
 
     m_timer.start();
     m_bytesBefore = QStorageInfo(m_targetPath.toFileInfo().dir()).bytesAvailable();
-    m_compressedSize = QFileInfo(m_sourceFile.toString()).size();
+    m_compressedSize = QFileInfo(m_sourceFile.toUrlishString()).size();
     if (m_compressedSize <= 0)
         qWarning() << "Compressed size for file '" << m_sourceFile << "' is zero or invalid: " << m_compressedSize;
 
@@ -262,7 +262,7 @@ void FileExtractor::extract()
 void QmlDesigner::FileExtractor::removeTempTargetPath()
 {
     if (m_isTempTargetPath && m_targetPath.exists()) {
-        QTC_ASSERT(m_targetPath.toString().startsWith(QDir::tempPath()), qDebug() << m_targetPath;
+        QTC_ASSERT(m_targetPath.toUrlishString().startsWith(QDir::tempPath()), qDebug() << m_targetPath;
                    return );
         m_targetPath.removeRecursively();
         m_isTempTargetPath = false;

@@ -140,7 +140,7 @@ void SquishRunnerProcess::onStdOutput(const QString &lineIn)
         fileName.chop(1); // remove the colon
         const Utils::FilePath fp = Utils::FilePath::fromUserInput(fileName);
         if (fp.isRelativePath())
-            fileName = m_currentTestCasePath.resolvePath(fileName).toString();
+            fileName = m_currentTestCasePath.resolvePath(fileName).toUrlishString();
     } else if (m_autId == 0 && line.startsWith("AUTID: ")) {
         isPrompt = true;
         m_autId = line.mid(7).toInt();

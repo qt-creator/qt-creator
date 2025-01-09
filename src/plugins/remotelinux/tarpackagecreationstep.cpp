@@ -241,7 +241,7 @@ void TarPackageCreationStep::addNeededDeploymentFiles(
         return;
     }
 
-    const QStringList files = QDir(deployable.localFilePath().toString())
+    const QStringList files = QDir(deployable.localFilePath().toUrlishString())
             .entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
 
     if (files.isEmpty()) {

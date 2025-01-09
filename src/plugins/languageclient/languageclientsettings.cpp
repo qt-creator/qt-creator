@@ -1121,7 +1121,7 @@ bool LanguageFilter::isSupported(const Utils::FilePath &filePath, const QString 
                                   options);
     });
     return Utils::anyOf(regexps, [filePath](const QRegularExpression &reg){
-        return reg.match(filePath.toString()).hasMatch()
+        return reg.match(filePath.toUrlishString()).hasMatch()
                 || reg.match(filePath.fileName()).hasMatch();
     });
 }

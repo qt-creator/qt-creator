@@ -87,7 +87,7 @@ static ProjectManagerPrivate *d = nullptr;
 
 static QString projectFolderId(Project *pro)
 {
-    return pro->projectFilePath().toString();
+    return pro->projectFilePath().toUrlishString();
 }
 
 const int PROJECT_SORT_VALUE = 100;
@@ -349,18 +349,18 @@ void ProjectManagerPrivate::saveSession()
 
     SessionManager::setSessionValue("ProjectList",
                                     Utils::transform<QStringList>(projectFiles,
-                                                                  &FilePath::toString));
+                                                                  &FilePath::toUrlishString));
     SessionManager::setSessionValue("CascadeSetActive", m_casadeSetActive);
     SessionManager::setSessionValue("DeployProjectDependencies", m_deployProjectDependencies);
 
     QVariantMap depMap;
     auto i = m_depMap.constBegin();
     while (i != m_depMap.constEnd()) {
-        QString key = i.key().toString();
+        QString key = i.key().toUrlishString();
         QStringList values;
         const FilePaths valueList = i.value();
         for (const FilePath &value : valueList)
-            values << value.toString();
+            values << value.toUrlishString();
         depMap.insert(key, values);
         ++i;
     }

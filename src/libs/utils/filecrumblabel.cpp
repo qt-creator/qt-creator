@@ -34,7 +34,7 @@ void FileCrumbLabel::setPath(const FilePath &path)
             links.prepend(linkForPath(current, fileName));
         } else if (HostOsInfo::isWindowsHost() && current.isRootPath()) {
             // Only on Windows add the drive letter, without the '/' at the end
-            QString display = current.toString();
+            QString display = current.toUrlishString();
             if (display.endsWith('/'))
                 display.chop(1);
             links.prepend(linkForPath(current, display));

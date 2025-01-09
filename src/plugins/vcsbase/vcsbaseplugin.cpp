@@ -382,7 +382,7 @@ QString VcsBasePluginState::relativeCurrentFile() const
 
 QString VcsBasePluginState::currentPatchFile() const
 {
-    return data->m_state.currentPatchFile.toString();
+    return data->m_state.currentPatchFile.toUrlishString();
 }
 
 QString VcsBasePluginState::currentPatchFileDisplayName() const
@@ -408,7 +408,7 @@ FilePath VcsBasePluginState::currentProjectTopLevel() const
 QString VcsBasePluginState::relativeCurrentProject() const
 {
     QTC_ASSERT(hasProject(), return QString());
-    return data->m_state.currentProjectPath.relativeChildPath(data->m_state.currentProjectTopLevel).toString();
+    return data->m_state.currentProjectPath.relativeChildPath(data->m_state.currentProjectTopLevel).toUrlishString();
 }
 
 bool VcsBasePluginState::hasTopLevel() const

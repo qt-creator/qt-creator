@@ -77,7 +77,7 @@ static Interpreter createInterpreter(const FilePath &python,
         result.name = pythonProcess.cleanedStdOut().trimmed();
     if (result.name.isEmpty())
         result.name = defaultName;
-    QDir pythonDir(python.parentDir().toString());
+    QDir pythonDir(python.parentDir().toUrlishString());
     if (pythonDir.exists() && pythonDir.exists("activate") && pythonDir.cdUp())
         result.name += QString(" (%1)").arg(pythonDir.dirName());
     if (!suffix.isEmpty())
@@ -664,7 +664,7 @@ static void pythonsFromPath(QPromise<QList<Interpreter>> &promise)
         const FilePaths dirs = Environment::systemEnvironment().path();
         QSet<FilePath> used;
         for (const FilePath &path : dirs) {
-            const QDir dir(path.toString());
+            const QDir dir(path.toUrlishString());
             for (const QFileInfo &fi : dir.entryInfoList(filters)) {
                 if (promise.isCanceled())
                     return;
@@ -967,7 +967,7 @@ void PythonSettings::createVirtualEnvironment(
 QList<Interpreter> PythonSettings::detectPythonVenvs(const FilePath &path)
 {
     QList<Interpreter> result;
-    QDir dir = path.toFileInfo().isDir() ? QDir(path.toString()) : path.toFileInfo().dir();
+    QDir dir = path.toFileInfo().isDir() ? QDir(path.toUrlishString()) : path.toFileInfo().dir();
     if (dir.exists()) {
         const QString venvPython = HostOsInfo::withExecutableSuffix("python");
         const QString activatePath = HostOsInfo::isWindowsHost() ? QString{"Scripts"}

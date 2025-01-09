@@ -207,7 +207,7 @@ FilePath CMakeTool::qchFilePath() const
 FilePath CMakeTool::cmakeExecutable(const FilePath &path)
 {
     if (path.osType() == OsTypeMac) {
-        const QString executableString = path.toString();
+        const QString executableString = path.toUrlishString();
         const int appIndex = executableString.lastIndexOf(".app");
         const int appCutIndex = appIndex + 4;
         const bool endsWithApp = appIndex >= 0 && appCutIndex >= executableString.size();

@@ -215,7 +215,7 @@ bool run_meson(const ProcessRunData &runData, QIODevice *output)
 
 bool isSetup(const FilePath &buildPath)
 {
-    return containsFiles(buildPath.pathAppended(Constants::MESON_INFO_DIR).toString(),
+    return containsFiles(buildPath.pathAppended(Constants::MESON_INFO_DIR).toUrlishString(),
                          Constants::MESON_INTRO_TESTS,
                          Constants::MESON_INTRO_TARGETS,
                          Constants::MESON_INTRO_INSTALLED,
@@ -265,7 +265,7 @@ static void ensureAutoDetected()
             if (std::optional<FilePath> path = findMeson()) {
                 s_tools.emplace_back(
                     std::make_shared<MesonToolWrapper>(
-                        QString("System %1 at %2").arg("Meson").arg(path->toString()), *path, Id{}, true));
+                        QString("System %1 at %2").arg("Meson").arg(path->toUrlishString()), *path, Id{}, true));
 
         }
     }

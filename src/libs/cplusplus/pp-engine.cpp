@@ -749,7 +749,7 @@ QByteArray Preprocessor::run(const Utils::FilePath &filePath,
                              bool noLines,
                              bool markGeneratedTokens)
 {
-    return run(filePath.toString(), source, noLines, markGeneratedTokens);
+    return run(filePath.toUrlishString(), source, noLines, markGeneratedTokens);
 }
 
 QByteArray Preprocessor::run(const QString &fileName,

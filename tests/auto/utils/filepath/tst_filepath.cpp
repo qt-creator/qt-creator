@@ -14,7 +14,7 @@ namespace QTest {
 template<>
 char *toString(const Utils::FilePath &filePath)
 {
-    return qstrdup(filePath.toString().toLocal8Bit().constData());
+    return qstrdup(filePath.toUrlishString().toLocal8Bit().constData());
 }
 } // namespace QTest
 QT_END_NAMESPACE
@@ -289,7 +289,7 @@ void tst_filepath::parentDir()
     FilePath result = FilePath::fromUserInput(path).parentDir();
     if (!expectFailMessage.isEmpty())
         QEXPECT_FAIL("", expectFailMessage.toUtf8().constData(), Continue);
-    QCOMPARE(result.toString(), parentPath);
+    QCOMPARE(result.toUrlishString(), parentPath);
 }
 
 void tst_filepath::isChildOf_data()
@@ -443,7 +443,7 @@ void tst_filepath::calcRelativePath()
 
 void tst_filepath::relativePath_specials()
 {
-    QString path = FilePath("").relativePathFrom("").toString();
+    QString path = FilePath("").relativePathFrom("").toUrlishString();
     QCOMPARE(path, "");
 }
 
@@ -486,7 +486,7 @@ void tst_filepath::relativePath()
     QFETCH(QString, result);
     FilePath actualPath = FilePath::fromString(rootPath + "/" + relative)
                               .relativePathFrom(FilePath::fromString(rootPath + "/" + anchor));
-    QCOMPARE(actualPath.toString(), result);
+    QCOMPARE(actualPath.toUrlishString(), result);
 }
 
 void tst_filepath::rootLength_data()
@@ -661,7 +661,7 @@ void tst_filepath::toString()
     QFETCH(QString, userResult);
 
     FilePath filePath = FilePath::fromParts(scheme, host, path);
-    QCOMPARE(filePath.toString(), result);
+    QCOMPARE(filePath.toUrlishString(), result);
     QString cleanedOutput = filePath.isLocal() ? QDir::cleanPath(filePath.toUserOutput())
                                                : filePath.toUserOutput();
     QCOMPARE(cleanedOutput, userResult);
@@ -1049,14 +1049,14 @@ void tst_filepath::fromToString()
 
     FilePath filePath = FilePath::fromString(full);
 
-    QCOMPARE(filePath.toString(), full);
+    QCOMPARE(filePath.toUrlishString(), full);
 
     QCOMPARE(filePath.scheme(), scheme);
     QCOMPARE(filePath.host(), host);
     QCOMPARE(filePath.path(), path);
 
     FilePath copy = FilePath::fromParts(scheme, host, path);
-    QCOMPARE(copy.toString(), full);
+    QCOMPARE(copy.toUrlishString(), full);
 }
 
 void tst_filepath::comparison()
@@ -1621,19 +1621,19 @@ void tst_filepath::hostSpecialChars()
     QCOMPARE(fp.host(), host);
     QCOMPARE(expected.host(), host);
 
-    QString toStringExpected = expected.toString();
-    QString toStringActual = fp.toString();
+    QString toStringExpected = expected.toUrlishString();
+    QString toStringActual = fp.toUrlishString();
 
     // Check that toString gives the same result
     QCOMPARE(toStringActual, toStringExpected);
 
     // Check that fromString => toString => fromString gives the same result
-    FilePath toFromExpected = FilePath::fromString(expected.toString());
+    FilePath toFromExpected = FilePath::fromString(expected.toUrlishString());
     QCOMPARE(toFromExpected, expected);
     QCOMPARE(toFromExpected, fp);
 
     // Check that setParts => toString => fromString gives the same result
-    FilePath toFromActual = FilePath::fromString(fp.toString());
+    FilePath toFromActual = FilePath::fromString(fp.toUrlishString());
     QCOMPARE(toFromActual, fp);
     QCOMPARE(toFromExpected, expected);
 }
@@ -1677,7 +1677,7 @@ void tst_filepath::sort()
     sorted.sort();
 
     FilePath::sort(filePaths);
-    QStringList sortedPaths = Utils::transform(filePaths, &FilePath::toString);
+    QStringList sortedPaths = Utils::transform(filePaths, &FilePath::toUrlishString);
 
     QCOMPARE(sortedPaths, sorted);
 }
@@ -1854,29 +1854,29 @@ void tst_filepath::dontBreakPathOnWierdWindowsPaths()
         "device://host/./C:/Users/johndoe/Documents/"
         "build-iartest-IAR-Debugx/Debug_IAR_55df6f02d5b3d06d/iartest.a152245e/iartest.out");
     QCOMPARE(
-        path.toString(),
+        path.toUrlishString(),
         "device://host/C:/Users/johndoe/Documents/"
         "build-iartest-IAR-Debugx/Debug_IAR_55df6f02d5b3d06d/iartest.a152245e/iartest.out");
 
     FilePath pathWithBackslash = FilePath::fromUserInput(
         "device://host/C:\\Users\\johndoe\\Documents\\test.elf");
-    QCOMPARE(pathWithBackslash.toString(), "device://host/C:/Users/johndoe/Documents/test.elf");
+    QCOMPARE(pathWithBackslash.toUrlishString(), "device://host/C:/Users/johndoe/Documents/test.elf");
     QCOMPARE(pathWithBackslash.path(), "C:/Users/johndoe/Documents/test.elf");
 
     const FilePath bin = FilePath::fromString(pathWithBackslash.path());
-    QCOMPARE(bin.toString(), "C:/Users/johndoe/Documents/test.elf");
+    QCOMPARE(bin.toUrlishString(), "C:/Users/johndoe/Documents/test.elf");
 
     // Make sure the optimization still works
     FilePath path2 = FilePath::fromString("/./");
-    QCOMPARE(path2.toString(), "");
+    QCOMPARE(path2.toUrlishString(), "");
 
     // Make sure unix paths are not affected
     FilePath path3 = FilePath::fromString("/./foo/bar");
-    QCOMPARE(path3.toString(), "foo/bar");
+    QCOMPARE(path3.toUrlishString(), "foo/bar");
 
     // Make sure unix paths with device also work
     FilePath path4 = FilePath::fromString("device://host/./foo/bar");
-    QCOMPARE(path4.toString(), "device://host/./foo/bar");
+    QCOMPARE(path4.toUrlishString(), "device://host/./foo/bar");
 }
 
 } // Utils

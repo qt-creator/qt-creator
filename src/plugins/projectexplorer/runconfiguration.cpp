@@ -221,7 +221,7 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
                                Tr::tr("The run configuration's working directory."),
                                [this] {
         const auto wdAspect = aspect<WorkingDirectoryAspect>();
-        return wdAspect ? wdAspect->workingDirectory().toString() : QString();
+        return wdAspect ? wdAspect->workingDirectory().toUrlishString() : QString();
     });
     expander.registerVariable("RunConfig:Name", Tr::tr("The run configuration's name."),
             [this] { return displayName(); });
@@ -245,7 +245,7 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
             return CommandLine{executable, arguments, CommandLine::Raw};
 
         CommandLine launcherCommand(launcher.command, launcher.arguments);
-        launcherCommand.addArg(executable.toString());
+        launcherCommand.addArg(executable.toUrlishString());
         launcherCommand.addArgs(arguments, CommandLine::Raw);
 
         return launcherCommand;

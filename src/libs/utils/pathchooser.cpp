@@ -233,7 +233,7 @@ FilePath PathChooserPrivate::expandedPath(const FilePath &input) const
             // as 'cD:\\dev\\build-project' is considered is handled as being relative
             // input = "cD:\\dev\build-project"; // prepended 'c' to change the device letter
             // m_baseDirectory = "D:\\dev\\project"
-            if (fp.isLocal() && HostOsInfo::isWindowsHost() && fp.toString().count(':') > 1)
+            if (fp.isLocal() && HostOsInfo::isWindowsHost() && fp.toUrlishString().count(':') > 1)
                 return path;
             return fp;
         }
@@ -334,9 +334,9 @@ FilePath PathChooser::baseDirectory() const
 
 void PathChooser::setEnvironment(const Environment &env)
 {
-    QString oldExpand = filePath().toString();
+    QString oldExpand = filePath().toUrlishString();
     d->m_environment = env;
-    if (filePath().toString() != oldExpand) {
+    if (filePath().toUrlishString() != oldExpand) {
         triggerChanged();
         emit rawPathChanged();
     }

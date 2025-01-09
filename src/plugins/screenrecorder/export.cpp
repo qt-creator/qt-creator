@@ -268,12 +268,12 @@ QStringList ExportWidget::ffmpegExportParameters() const
             "-v", "error",
             "-stats",
             "-stats_period", "0.25",
-            "-i", m_inputClipInfo.file.toString(),
+            "-i", m_inputClipInfo.file.toUrlishString(),
         }
         << "-filter_complex" << trimFilter + cropFilter + extraFilter << "-map" << "[out]"
         << m_currentFormat.encodingParameters
         << loop
-        << m_outputClipInfo.file.toString();
+        << m_outputClipInfo.file.toUrlishString();
 
     return args;
 }

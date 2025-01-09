@@ -155,7 +155,7 @@ private:
         m_iconLabel.clear();
     }
     bool isComplete() const final {
-        return m_keyFileChooser.filePath().toString().isEmpty()
+        return m_keyFileChooser.filePath().toUrlishString().isEmpty()
                || m_keyFileChooser.filePath().exists();
     }
     bool validatePage() final {

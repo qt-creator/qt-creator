@@ -31,7 +31,7 @@ Utils::FilePath projectFilePath()
 
 static Utils::FilePath findFile(const Utils::FilePath &path, const QString &fileName)
 {
-    QDirIterator it(path.toString(), QDirIterator::Subdirectories);
+    QDirIterator it(path.toUrlishString(), QDirIterator::Subdirectories);
 
     while (it.hasNext()) {
         QFileInfo file(it.next());

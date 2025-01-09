@@ -804,7 +804,7 @@ void Project::changeRootProjectDirectory()
                                                             | QFileDialog::DontResolveSymlinks);
     if (rootPath != d->m_rootProjectDirectory) {
         d->m_rootProjectDirectory = rootPath;
-        setNamedSettings(Constants::PROJECT_ROOT_PATH_KEY, d->m_rootProjectDirectory.toString());
+        setNamedSettings(Constants::PROJECT_ROOT_PATH_KEY, d->m_rootProjectDirectory.toUrlishString());
         emit rootProjectDirectoryChanged();
     }
 }
@@ -1359,7 +1359,7 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                                    if (const RunConfiguration *const rc = rcGetter()) {
                                        if (const auto wdAspect
                                            = rc->aspect<WorkingDirectoryAspect>())
-                                           return wdAspect->workingDirectory().toString();
+                                           return wdAspect->workingDirectory().toUrlishString();
                                    }
                                    return {};
                                });
@@ -1583,7 +1583,7 @@ void ProjectExplorerTest::testProject_multipleBuildConfigs()
         qDebug() << copyResult.error();
     QVERIFY(copyResult);
 
-    const QFileInfoList files = QDir(projectDir.toString()).entryInfoList(QDir::Files | QDir::Dirs);
+    const QFileInfoList files = QDir(projectDir.toUrlishString()).entryInfoList(QDir::Files | QDir::Dirs);
     for (const QFileInfo &f : files)
         QFile(f.absoluteFilePath()).setPermissions(f.permissions() | QFile::WriteUser);
     const auto theProject = ProjectExplorerPlugin::openProject(projectDir.pathAppended("generic-project.creator"));
@@ -1646,7 +1646,7 @@ void ProjectExplorerTest::testSourceToBinaryMapping()
         if (!result)
             qDebug() << result.error();
         QVERIFY(result);
-        const QFileInfoList files = QDir(projectDir.toString()).entryInfoList(QDir::Files);
+        const QFileInfoList files = QDir(projectDir.toUrlishString()).entryInfoList(QDir::Files);
         for (const QFileInfo &f : files)
             QFile(f.absoluteFilePath()).setPermissions(f.permissions() | QFile::WriteUser);
     }

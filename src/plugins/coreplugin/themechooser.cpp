@@ -171,7 +171,7 @@ QList<ThemeEntry> ThemeEntry::availableThemes()
 
     static const FilePath installThemeDir = ICore::resourcePath("themes");
     static const FilePath userThemeDir = ICore::userResourcePath("themes");
-    addThemesFromPath(installThemeDir.toString(), &themes);
+    addThemesFromPath(installThemeDir.toUrlishString(), &themes);
     if (themes.isEmpty())
         qWarning() << "Warning: No themes found in installation: "
                    << installThemeDir.toUserOutput();
@@ -182,7 +182,7 @@ QList<ThemeEntry> ThemeEntry::availableThemes()
         ThemeEntry defaultEntry = themes.takeAt(defaultIndex);
         themes.prepend(defaultEntry);
     }
-    addThemesFromPath(userThemeDir.toString(), &themes);
+    addThemesFromPath(userThemeDir.toUrlishString(), &themes);
     return themes;
 }
 

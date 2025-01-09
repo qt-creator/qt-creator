@@ -202,7 +202,7 @@ Toolchains ToolchainManager::registerToolchains(const Toolchains &toolchains)
         QTC_ASSERT(isLanguageSupported(tc->language()),
                    qDebug() << qPrintable("language \"" + tc->language().toString()
                                           + "\" unknown while registering \""
-                                          + tc->compilerCommand().toString() + "\"");
+                                          + tc->compilerCommand().toUrlishString() + "\"");
                    notRegistered << tc;
                    continue);
         QTC_ASSERT(d->m_accessor, notRegistered << tc; continue);

@@ -116,12 +116,12 @@ bool QmakeBuildSystem::supportsAction(Node *context, ProjectAction action, const
                 if (folder) {
                     FilePaths list;
                     folder->forEachFolderNode([&](FolderNode *f) { list << f->filePath(); });
-                    if (n->deploysFolder(FileUtils::commonPath(list).toString()))
+                    if (n->deploysFolder(FileUtils::commonPath(list).toUrlishString()))
                         addExistingFiles = false;
                 }
             }
 
-            addExistingFiles = addExistingFiles && !n->deploysFolder(node->filePath().toString());
+            addExistingFiles = addExistingFiles && !n->deploysFolder(node->filePath().toUrlishString());
 
             if (action == AddExistingFile || action == AddExistingDirectory)
                 return addExistingFiles;
@@ -214,7 +214,7 @@ RemovedFilesFromProject QmakeBuildSystem::removeFiles(Node *context, const FileP
         FilePaths wildcardFiles;
         FilePaths nonWildcardFiles;
         for (const FilePath &file : filePaths) {
-            if (pri->proFile()->isFileFromWildcard(file.toString()))
+            if (pri->proFile()->isFileFromWildcard(file.toUrlishString()))
                 wildcardFiles << file;
             else
                 nonWildcardFiles << file;
@@ -318,7 +318,7 @@ bool QmakeProFileNode::showInSimpleTree() const
 
 QString QmakeProFileNode::buildKey() const
 {
-    return filePath().toString();
+    return filePath().toUrlishString();
 }
 
 bool QmakeProFileNode::parseInProgress() const
@@ -365,11 +365,11 @@ QVariant QmakeProFileNode::data(Id role) const
         return singleVariableValue(Variable::AndroidDeploySettingsFile);
     if (role == Android::Constants::AndroidSoLibPath) {
         TargetInformation info = targetInformation();
-        QStringList res = {info.buildDir.toString()};
+        QStringList res = {info.buildDir.toUrlishString()};
         FilePath destDir = info.destDir;
         if (!destDir.isEmpty()) {
             destDir = info.buildDir.resolvePath(destDir.path());
-            res.append(destDir.toString());
+            res.append(destDir.toUrlishString());
         }
         res.removeDuplicates();
         return res;
@@ -389,7 +389,7 @@ QVariant QmakeProFileNode::data(Id role) const
     if (role == Ios::Constants::IosBuildDir) {
         const TargetInformation info = targetInformation();
         if (info.valid)
-            return info.buildDir.toString();
+            return info.buildDir.toUrlishString();
     }
 
     if (role == Ios::Constants::IosCmakeGenerator) {

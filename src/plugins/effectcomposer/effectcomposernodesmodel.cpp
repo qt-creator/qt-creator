@@ -54,7 +54,7 @@ void EffectComposerNodesModel::loadModel()
 
     m_categories = {};
 
-    QDirIterator itCategories(nodesPath.toString(), QDir::Dirs | QDir::NoDotAndDotDot);
+    QDirIterator itCategories(nodesPath.toUrlishString(), QDir::Dirs | QDir::NoDotAndDotDot);
     while (itCategories.hasNext()) {
         itCategories.next();
 
@@ -65,7 +65,7 @@ void EffectComposerNodesModel::loadModel()
 
         QList<EffectNode *> effects = {};
         Utils::FilePath categoryPath = nodesPath.resolvePath(itCategories.fileName());
-        QDirIterator itEffects(categoryPath.toString(), {"*.qen"}, QDir::Files);
+        QDirIterator itEffects(categoryPath.toUrlishString(), {"*.qen"}, QDir::Files);
         while (itEffects.hasNext()) {
             itEffects.next();
             auto node = new EffectNode(itEffects.filePath());

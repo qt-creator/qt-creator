@@ -2256,7 +2256,7 @@ void GdbEngine::handleBreakInsert1(const DebuggerResponse &response, const Break
     } else if (response.data["msg"].data().contains("Unknown option")) {
         // Older version of gdb don't know the -a option to set tracepoints
         // ^error,msg="mi_cmd_break_insert: Unknown option ``a''"
-        const QString fileName = bp->fileName().toString();
+        const QString fileName = bp->fileName().toUrlishString();
         const int lineNumber = bp->textPosition().line;
         DebuggerCommand cmd("trace \"" + GdbMi::escapeCString(fileName) + "\":"
                             + QString::number(lineNumber),
@@ -2778,7 +2778,7 @@ void GdbEngine::removeBreakpoint(const Breakpoint &bp)
         // We already have a fully inserted breakpoint.
         notifyBreakpointRemoveProceeding(bp);
         showMessage(
-            QString("DELETING BP %1 IN %2").arg(bp->responseId()).arg(bp->fileName().toString()));
+            QString("DELETING BP %1 IN %2").arg(bp->responseId()).arg(bp->fileName().toUrlishString()));
         DebuggerCommand cmd("-break-delete " + bp->responseId(), NeedsTemporaryStop);
         runCommand(cmd);
 

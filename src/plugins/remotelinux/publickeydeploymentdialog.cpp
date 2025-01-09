@@ -82,7 +82,7 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(
     const QString hostKeyCheckingString = params.hostKeyCheckingMode == SshHostKeyCheckingStrict
             ? QLatin1String("yes") : QLatin1String("no");
     const bool isWindows = HostOsInfo::isWindowsHost()
-            && SshSettings::sshFilePath().toString().toLower().contains("/system32/");
+            && SshSettings::sshFilePath().toUrlishString().toLower().contains("/system32/");
     const bool useTimeout = (params.timeout != 0) && !isWindows;
 
     Utils::CommandLine cmd{SshSettings::sshFilePath()};

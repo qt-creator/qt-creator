@@ -68,7 +68,7 @@ void PipInstallTask::run()
     }
     QStringList arguments = {"-m", "pip", "install"};
     if (!m_requirementsFile.isEmpty()) {
-        arguments << "-r" << m_requirementsFile.toString();
+        arguments << "-r" << m_requirementsFile.toUrlishString();
     } else {
         for (const PipPackage &package : m_packages) {
             QString pipPackage = package.packageName;

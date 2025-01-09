@@ -30,7 +30,7 @@ static QQuickWidget *createBusyIndicator(QWidget *p)
 {
     auto widget = new QQuickWidget(p);
 
-    const QString source = Core::ICore::resourcePath("qmldesigner/misc/BusyIndicator.qml").toString();
+    const QString source = Core::ICore::resourcePath("qmldesigner/misc/BusyIndicator.qml").toUrlishString();
     QTC_ASSERT(QFileInfo::exists(source), return widget);
     widget->setSource(QUrl::fromLocalFile(source));
     widget->setFixedSize(64, 64);

@@ -136,7 +136,7 @@ void QmlPreviewWidgetPlugin::setQmlFile()
         const Utils::FilePath qmlFileName =
                 QmlDesignerPlugin::instance()->currentDesignDocument()->fileName();
         bool hasPreviewedFile =
-            s_previewPlugin->setProperty("previewedFile", qmlFileName.toString());
+            s_previewPlugin->setProperty("previewedFile", qmlFileName.toUrlishString());
         QTC_CHECK(hasPreviewedFile);
     }
 }

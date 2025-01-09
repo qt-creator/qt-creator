@@ -183,7 +183,7 @@ bool DataModelDownloader::available() const
 
 FilePath DataModelDownloader::targetFolder() const
 {
-    return FilePath::fromUserInput(tempFilePath().toString() + "/" + "dataImports");
+    return FilePath::fromUserInput(tempFilePath().toUrlishString() + "/" + "dataImports");
 }
 
 void DataModelDownloader::setForceDownload(bool b)

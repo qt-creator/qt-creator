@@ -255,7 +255,7 @@ void ReadOnlyFilesDialogPrivate::promptFailWarning(const FilePaths &files, ReadO
         title = Tr::tr("Could Not Change Permissions on Some Files");
         message = failWarning + QLatin1Char('\n')
                 + Tr::tr("See details for a complete list of files.");
-        details = Utils::transform(files, &FilePath::toString).join('\n');
+        details = Utils::transform(files, &FilePath::toUrlishString).join('\n');
     }
     QMessageBox msgBox(QMessageBox::Warning, title, message,
                        QMessageBox::Ok, ICore::dialogParent());

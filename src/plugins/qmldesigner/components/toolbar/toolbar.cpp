@@ -80,7 +80,7 @@ Utils::UniqueObjectPtr<QToolBar> ToolBar::create()
 
     quickWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_TOP_TOOLBAR);
 
-    quickWidget->engine()->addImportPath(propertyEditorResourcesPath().toString() + "/imports");
+    quickWidget->engine()->addImportPath(propertyEditorResourcesPath().toUrlishString() + "/imports");
 
     Utils::FilePath qmlFilePath = qmlSourcesPath() / "Main.qml";
     QTC_ASSERT(qmlFilePath.exists(), return nullptr);
@@ -111,7 +111,7 @@ Utils::UniqueObjectPtr<QWidget> ToolBar::createStatusBar()
 
     quickWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_STATUSBAR);
 
-    quickWidget->engine()->addImportPath(propertyEditorResourcesPath().toString() + "/imports");
+    quickWidget->engine()->addImportPath(propertyEditorResourcesPath().toUrlishString() + "/imports");
 
     Utils::FilePath qmlFilePath = qmlSourcesStatusBarPath().pathAppended("/Main.qml");
     QTC_ASSERT(qmlFilePath.exists(), return nullptr);

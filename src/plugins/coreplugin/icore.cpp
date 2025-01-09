@@ -2169,7 +2169,7 @@ IDocument *ICore::openFiles(const FilePaths &filePaths,
                 emFlags |= EditorManager::SwitchSplitIfAlreadyVisible;
             IEditor *editor = nullptr;
             if (flags & ICore::CanContainLineAndColumnNumbers) {
-                const Link &link = Link::fromString(absoluteFilePath.toString(), true);
+                const Link &link = Link::fromString(absoluteFilePath.toUrlishString(), true);
                 editor = EditorManager::openEditorAt(link, {}, emFlags);
             } else {
                 editor = EditorManager::openEditor(absoluteFilePath, {}, emFlags);

@@ -194,7 +194,7 @@ MercurialPluginPrivate::MercurialPluginPrivate()
         return repository.pathAppended(".hg/branch");
     });
     setTopicRefresher([](const FilePath &repository) {
-        return mercurialClient().branchQuerySync(repository.toString());
+        return mercurialClient().branchQuerySync(repository.toUrlishString());
     });
 
     Core::Context context(Constants::MERCURIAL_CONTEXT);
@@ -615,7 +615,7 @@ bool MercurialPluginPrivate::activateCommit()
         QStringList extraOptions;
         if (!commitEditor->committerInfo().isEmpty())
             extraOptions << QLatin1String("-u") << commitEditor->committerInfo();
-        mercurialClient().commit(m_submitRepository, files, editorFile->filePath().toString(),
+        mercurialClient().commit(m_submitRepository, files, editorFile->filePath().toUrlishString(),
                                  extraOptions);
     }
     return true;
@@ -747,7 +747,7 @@ bool MercurialPluginPrivate::sccManaged(const QString &filename)
     const bool managed = managesDirectory(FilePath::fromString(fi.absolutePath()), &topLevel);
     if (!managed || topLevel.isEmpty())
         return false;
-    const QDir topLevelDir(topLevel.toString());
+    const QDir topLevelDir(topLevel.toUrlishString());
     return mercurialClient().manifestSync(topLevel, topLevelDir.relativeFilePath(filename));
 }
 

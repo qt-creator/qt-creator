@@ -97,7 +97,7 @@ static QStringList replImportArgs(const FilePath &pythonFile, ReplType type)
     using MimeTypes = QList<MimeType>;
     const MimeTypes mimeTypes = pythonFile.isEmpty() || type == ReplType::Unmodified
                                     ? MimeTypes()
-                                    : mimeTypesForFileName(pythonFile.toString());
+                                    : mimeTypesForFileName(pythonFile.toUrlishString());
     const bool isPython = Utils::anyOf(mimeTypes, [](const MimeType &mt) {
         return mt.inherits(Constants::C_PY_MIMETYPE) || mt.inherits(Constants::C_PY3_MIMETYPE);
     });

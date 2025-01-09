@@ -60,7 +60,7 @@ public:
         QString host;
 
         if (kit) {
-            systemRoot = SysRootKitAspect::sysRoot(kit).toString();
+            systemRoot = SysRootKitAspect::sysRoot(kit).toUrlishString();
             const IDevice::ConstPtr deviceConfiguration = RunDeviceKitAspect::device(kit);
             host = deviceConfiguration->sshParameters().host();
         }
@@ -116,7 +116,7 @@ Store DeploymentTimeInfo::exportDeployTimes() const
     using DepIt = QHash<DeployParameters, DeploymentTimeInfoPrivate::Timestamps>::ConstIterator;
 
     for (DepIt it = d->lastDeployed.constBegin(); it != d->lastDeployed.constEnd(); ++it) {
-        fileList << it.key().file.localFilePath().toString();
+        fileList << it.key().file.localFilePath().toUrlishString();
         remotePathList << it.key().file.remoteDirectory();
         hostList << it.key().host;
         sysrootList << it.key().sysroot;

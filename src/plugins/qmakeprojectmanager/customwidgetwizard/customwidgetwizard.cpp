@@ -44,7 +44,7 @@ Core::GeneratedFiles CustomWidgetWizard::generateFiles(const QWizard *w,
     Q_ASSERT(w);
     GenerationParameters p;
     p.fileName = cw->projectName();
-    p.path = cw->filePath().toString();
+    p.path = cw->filePath().toUrlishString();
     p.templatePath = QtWizard::templateDir();
     p.templatePath += QLatin1String("/customwidgetwizard");
     return PluginGenerator::generatePlugin(p, *(cw->pluginOptions()), errorMessage);

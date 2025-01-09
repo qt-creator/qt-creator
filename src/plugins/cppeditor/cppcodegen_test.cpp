@@ -46,7 +46,7 @@ Document::Ptr createDocumentAndFile(TemporaryDir *temporaryDir,
     const FilePath absoluteFilePath = temporaryDir->createFile(relativeFilePath, text);
     QTC_ASSERT(!absoluteFilePath.isEmpty(), return Document::Ptr());
 
-    return createDocument(absoluteFilePath.toString(), text, expectedGlobalSymbolCount);
+    return createDocument(absoluteFilePath.toUrlishString(), text, expectedGlobalSymbolCount);
 }
 
 } // anonymous namespace

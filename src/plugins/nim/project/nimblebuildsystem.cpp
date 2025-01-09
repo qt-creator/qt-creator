@@ -104,7 +104,7 @@ NimbleBuildSystem::NimbleBuildSystem(Target *target)
     m_projectScanner.watchProjectFilePath();
 
     connect(&m_projectScanner, &NimProjectScanner::fileChanged, this, [this](const QString &path) {
-        if (path == projectFilePath().toString())
+        if (path == projectFilePath().toUrlishString())
             requestDelayedParse();
     });
 
@@ -117,7 +117,7 @@ NimbleBuildSystem::NimbleBuildSystem(Target *target)
         // Workaround for nimble creating temporary files in project root directory
         // when querying the list of tasks.
         // See https://github.com/nim-lang/nimble/issues/720
-        if (directory != projectDirectory().toString())
+        if (directory != projectDirectory().toUrlishString())
             requestDelayedParse();
     });
 
@@ -219,14 +219,14 @@ bool NimbleBuildSystem::supportsAction(Node *context, ProjectAction action, cons
 
 bool NimbleBuildSystem::addFiles(Node *, const FilePaths &filePaths, FilePaths *)
 {
-    return m_projectScanner.addFiles(Utils::transform(filePaths, &FilePath::toString));
+    return m_projectScanner.addFiles(Utils::transform(filePaths, &FilePath::toUrlishString));
 }
 
 RemovedFilesFromProject NimbleBuildSystem::removeFiles(Node *,
                                                        const FilePaths &filePaths,
                                                        FilePaths *)
 {
-    return m_projectScanner.removeFiles(Utils::transform(filePaths, &FilePath::toString));
+    return m_projectScanner.removeFiles(Utils::transform(filePaths, &FilePath::toUrlishString));
 }
 
 bool NimbleBuildSystem::deleteFiles(Node *, const FilePaths &)
@@ -238,7 +238,7 @@ bool NimbleBuildSystem::renameFiles(Node *, const FilePairs &filesToRename, File
 {
     bool success = true;
     for (const auto &[oldFilePath, newFilePath] : filesToRename) {
-        if (!m_projectScanner.renameFile(oldFilePath.toString(), newFilePath.toString())) {
+        if (!m_projectScanner.renameFile(oldFilePath.toUrlishString(), newFilePath.toUrlishString())) {
             success = false;
             if (notRenamed)
                 *notRenamed << oldFilePath;

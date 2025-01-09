@@ -135,18 +135,18 @@ ScreenRecorderSettings::ScreenRecorderSettings()
 
     lastOpenDirectory.setSettingsKey("LastOpenDir");
     lastOpenDirectory.setExpectedKind(PathChooser::ExistingDirectory);
-    lastOpenDirectory.setDefaultValue(FileUtils::homePath().toString());
+    lastOpenDirectory.setDefaultValue(FileUtils::homePath().toUrlishString());
 
     exportLastDirectory.setSettingsKey("ExportLastDir");
     exportLastDirectory.setExpectedKind(PathChooser::ExistingDirectory);
-    exportLastDirectory.setDefaultValue(FileUtils::homePath().toString());
+    exportLastDirectory.setDefaultValue(FileUtils::homePath().toUrlishString());
 
     exportLastFormat.setSettingsKey("ExportLastFormat");
     exportLastFormat.setDefaultValue("WebP");
 
     lastSaveImageDirectory.setSettingsKey("LastSaveImageDir");
     lastSaveImageDirectory.setExpectedKind(PathChooser::ExistingDirectory);
-    lastSaveImageDirectory.setDefaultValue(FileUtils::homePath().toString());
+    lastSaveImageDirectory.setDefaultValue(FileUtils::homePath().toUrlishString());
 
     recordFrameRate.setSettingsKey("RecordFrameRate");
     recordFrameRate.setDefaultValue(24);

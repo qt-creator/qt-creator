@@ -436,7 +436,7 @@ QString Uniform::getResourcePath(const QString &effectName, const QString &value
         return value;
     } else if (qenPath.isEmpty()) {
         const Utils::FilePath effectsResDir = QmlDesigner::ModelNodeOperations::getEffectsImportDirectory();
-        return effectsResDir.pathAppended(effectName).pathAppended(value).toString();
+        return effectsResDir.pathAppended(effectName).pathAppended(value).toUrlishString();
     } else {
         QDir dir(m_qenPath);
         dir.cdUp();

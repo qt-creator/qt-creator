@@ -575,7 +575,7 @@ void MacWebKitHelpViewer::setHtml(const QString &html)
         [m_widget->webView().mainFrame
             loadHTMLString:html.toNSString()
                    baseURL:[NSURL
-                               fileURLWithPath:Core::ICore::resourcePath().toString().toNSString()]];
+                               fileURLWithPath:Core::ICore::resourcePath().toUrlishString().toNSString()]];
     }
 }
 

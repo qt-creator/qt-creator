@@ -84,7 +84,7 @@ void PromptOverwriteDialog::setFiles(const FilePaths &l)
         const QString nativeFileName = fileName.toUserOutput();
         const int length = nativeFileName.size() - nativeCommonPath.size() - 1;
         QStandardItem *item = new QStandardItem(nativeFileName.right(length));
-        item->setData(QVariant(fileName.toString()), FileNameRole);
+        item->setData(QVariant(fileName.toUrlishString()), FileNameRole);
         item->setFlags(Qt::ItemIsEnabled);
         item->setCheckable(true);
         item->setCheckState(Qt::Checked);

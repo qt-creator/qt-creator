@@ -677,7 +677,7 @@ void IDocument::setRestoredFrom(const Utils::FilePath &path)
 void IDocument::removeAutoSaveFile()
 {
     if (!d->autoSavePath.isEmpty()) {
-        QFile::remove(d->autoSavePath.toString());
+        QFile::remove(d->autoSavePath.toUrlishString());
         d->autoSavePath.clear();
         if (d->restored) {
             d->restored = false;

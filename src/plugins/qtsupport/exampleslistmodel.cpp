@@ -186,7 +186,7 @@ int ExampleSetModel::indexForQtVersion(QtVersion *qtVersion) const
     }
 
     // check for extra set
-    const QString &documentationPath = qtVersion->docsPath().toString();
+    const QString &documentationPath = qtVersion->docsPath().toUrlishString();
     for (int i = 0; i < rowCount(); ++i) {
         if (getType(i) == ExtraExampleSetType
                 && m_extraExampleSets.at(getExtraExampleSetIndex(i)).manifestPath == documentationPath)
@@ -253,7 +253,7 @@ int ExampleSetModel::getExtraExampleSetIndex(int i) const
 static QString resourcePath()
 {
     // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
-    return Core::ICore::resourcePath().normalizedPathName().toString();
+    return Core::ICore::resourcePath().normalizedPathName().toUrlishString();
 }
 
 static QPixmap fetchPixmapAndUpdatePixmapCache(const QString &url)
@@ -576,9 +576,9 @@ QStringList ExampleSetModel::exampleSources(QString *examplesInstallPath,
         const QtVersions versions = QtVersionManager::versions();
         for (QtVersion *version : versions) {
             if (version->uniqueId() == qtId) {
-                manifestScanPath = version->docsPath().toString();
-                examplesPath = version->examplesPath().toString();
-                demosPath = version->demosPath().toString();
+                manifestScanPath = version->docsPath().toUrlishString();
+                examplesPath = version->examplesPath().toUrlishString();
+                demosPath = version->demosPath().toUrlishString();
                 if (qtVersion)
                     *qtVersion = version->qtVersion();
                 break;

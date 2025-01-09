@@ -166,7 +166,7 @@ bool DocumentModelPrivate::disambiguateDisplayNames(DocumentModel::Entry *entry)
                                                   .arg(++countWithoutFilePath));
             continue;
         }
-        const QString uniqueDisplayName = path.relativeChildPath(commonAncestor).toString();
+        const QString uniqueDisplayName = path.relativeChildPath(commonAncestor).toUrlishString();
         if (uniqueDisplayName != "" && e->document->uniqueDisplayName() != uniqueDisplayName) {
             e->document->setUniqueDisplayName(uniqueDisplayName);
         }

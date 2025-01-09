@@ -43,7 +43,7 @@ QString CMakeCommandBuilder::defaultArguments() const
     QString buildDir;
     BuildConfiguration *buildConfig = buildStep()->buildConfiguration();
     if (buildConfig)
-        buildDir = buildConfig->buildDirectory().toString();
+        buildDir = buildConfig->buildDirectory().toUrlishString();
 
     if (buildDir.isEmpty())
         buildDir = ".";

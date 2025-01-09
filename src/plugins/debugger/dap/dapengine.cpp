@@ -814,7 +814,7 @@ void DapEngine::handleBreakpointResponse(const QJsonObject &response)
     const Breakpoints bps = breakHandler()->breakpoints();
     for (const Breakpoint &bp : bps) {
         BreakpointParameters parameters = bp->requestedParameters();
-        QString mapKey = parameters.fileName.toString() + ":"
+        QString mapKey = parameters.fileName.toUrlishString() + ":"
                          + QString::number(parameters.textPosition.line);
         if (map.find(mapKey) != map.end()) {
             if (bp->state() == BreakpointRemoveProceeding) {
@@ -854,14 +854,14 @@ void DapEngine::handleBreakpointResponse(const QJsonObject &response)
             if (!bp->isEnabled())
                 continue;
 
-            QString path = bp->requestedParameters().fileName.toString();
+            QString path = bp->requestedParameters().fileName.toUrlishString();
             int line = bp->requestedParameters().textPosition.line;
 
             QJsonObject jsonBreakpoint;
             QString key;
             for (auto it = map.cbegin(); it != map.cend(); ++it) {
                 const QJsonObject breakpoint = *it;
-                if (path == bp->requestedParameters().fileName.toString()
+                if (path == bp->requestedParameters().fileName.toUrlishString()
                     && abs(breakpoint.value("line").toInt() - line)
                            < abs(jsonBreakpoint.value("line").toInt() - line)) {
                     jsonBreakpoint = breakpoint;

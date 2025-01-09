@@ -149,7 +149,7 @@ private slots:
         QFETCH(CommandLine, cmdLine);
         QFETCH(QString, testData);
 
-        if (cmdLine.executable().toString().contains("docker") && !m_dockerSetupCheckOk) {
+        if (cmdLine.executable().toUrlishString().contains("docker") && !m_dockerSetupCheckOk) {
             QSKIP("Docker was found, but does not seem to be set up correctly, skipping.");
         }
 
@@ -197,7 +197,7 @@ private slots:
         QFETCH(CommandLine, cmdLine);
         QFETCH(QString, testData);
 
-        if (cmdLine.executable().toString().contains("docker") && !m_dockerSetupCheckOk) {
+        if (cmdLine.executable().toUrlishString().contains("docker") && !m_dockerSetupCheckOk) {
             QSKIP("Docker was found, but does not seem to be set up correctly, skipping.");
         }
 
@@ -225,7 +225,7 @@ private slots:
     {
         QFETCH(CommandLine, cmdLine);
 
-        if (cmdLine.executable().toString().contains("docker") && !m_dockerSetupCheckOk) {
+        if (cmdLine.executable().toUrlishString().contains("docker") && !m_dockerSetupCheckOk) {
             QSKIP("Docker was found, but does not seem to be set up correctly, skipping.");
         }
 
@@ -248,7 +248,7 @@ private slots:
     {
         QFETCH(CommandLine, cmdLine);
 
-        if (cmdLine.executable().toString().contains("docker") && !m_dockerSetupCheckOk) {
+        if (cmdLine.executable().toUrlishString().contains("docker") && !m_dockerSetupCheckOk) {
             QSKIP("Docker was found, but does not seem to be set up correctly, skipping.");
         }
 
@@ -277,7 +277,7 @@ private slots:
     {
         QFETCH(CommandLine, cmdLine);
 
-        if (cmdLine.executable().toString().contains("docker") && !m_dockerSetupCheckOk) {
+        if (cmdLine.executable().toUrlishString().contains("docker") && !m_dockerSetupCheckOk) {
             QSKIP("Docker was found, but does not seem to be set up correctly, skipping.");
         }
 
@@ -301,7 +301,7 @@ private slots:
     {
         QFETCH(CommandLine, cmdLine);
 
-        if (cmdLine.executable().toString().contains("docker") && !m_dockerSetupCheckOk) {
+        if (cmdLine.executable().toUrlishString().contains("docker") && !m_dockerSetupCheckOk) {
             QSKIP("Docker was found, but does not seem to be set up correctly, skipping.");
         }
 

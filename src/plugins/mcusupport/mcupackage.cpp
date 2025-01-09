@@ -223,8 +223,8 @@ QString McuPackage::statusText() const
                                                            : QString("%1 %2").arg(outDetectionPath,
                                                                                   displayVersions);
     const QString displayDetectedPath = m_versions.empty()
-                                            ? m_usedDetectionPath.toString()
-                                            : QString("%1 %2").arg(m_usedDetectionPath.toString(),
+                                            ? m_usedDetectionPath.toUrlishString()
+                                            : QString("%1 %2").arg(m_usedDetectionPath.toUrlishString(),
                                                                    m_detectedVersion);
 
     QString response;

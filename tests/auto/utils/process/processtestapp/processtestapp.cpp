@@ -91,7 +91,7 @@ void SubProcessConfig::setupSubProcess(QProcess *subProcess) const
 {
     subProcess->setProcessEnvironment(m_environment.toProcessEnvironment());
     subProcess->setProgram(FilePath::fromString(s_pathToProcessTestApp
-                           + QLatin1String("/processtestapp")).withExecutableSuffix().toString());
+                           + QLatin1String("/processtestapp")).withExecutableSuffix().toUrlishString());
 }
 
 static void doCrash()

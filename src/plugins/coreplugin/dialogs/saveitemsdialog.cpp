@@ -172,7 +172,7 @@ void SaveItemsDialog::collectFilesToDiff()
     const QList<QTreeWidgetItem *> items = m_treeWidget->selectedItems();
     for (const QTreeWidgetItem *item : items) {
         if (auto doc = item->data(0, Qt::UserRole).value<IDocument*>())
-            m_filesToDiff.append(doc->filePath().toString());
+            m_filesToDiff.append(doc->filePath().toUrlishString());
     }
     reject();
 }

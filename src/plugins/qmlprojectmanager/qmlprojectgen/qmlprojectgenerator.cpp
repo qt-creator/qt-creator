@@ -64,7 +64,7 @@ bool QmlProjectFileGenerator::execute()
     const QString fileContent = QmlProjectExporter::CMakeWriter::readTemplate(QMLPROJECT_FILE_TEMPLATE_PATH)
             .arg(contentEntry, imageEntry, jsEntry, assetEntry, importPaths);
 
-    QFile file(m_targetFile.toString());
+    QFile file(m_targetFile.toUrlishString());
     file.open(QIODevice::WriteOnly);
     if (!file.isOpen())
         return false;
@@ -75,7 +75,7 @@ bool QmlProjectFileGenerator::execute()
 
     QMessageBox::information(Core::ICore::dialogParent(),
                              Tr::tr("Project File Generated"),
-                             Tr::tr("File created:\n\n%1").arg(m_targetFile.toString()),
+                             Tr::tr("File created:\n\n%1").arg(m_targetFile.toUrlishString()),
                              QMessageBox::Ok);
 
     return true;
@@ -175,7 +175,7 @@ bool QmlProjectFileGenerator::isDirAcceptable(const FilePath &dir, const FilePat
 
     if (uiFileParentDir.isChildOf(dir)) {
         const FilePath relativePath = uiFileParentDir.relativeChildPath(dir);
-        QStringList components = relativePath.toString().split("/");
+        QStringList components = relativePath.toUrlishString().split("/");
         if (components.size() > 2) {
             QMessageBox::StandardButton sel = QMessageBox::question(Core::ICore::dialogParent(),
                                                   Tr::tr("Problem"),
@@ -234,7 +234,7 @@ const QStringList QmlProjectFileGenerator::findContentDirs(const QStringList &su
         if (fullPath == m_targetDir)
             relativePaths.append(".");
         else
-            relativePaths.append(fullPath.relativeChildPath(m_targetDir).toString().split('/').first());
+            relativePaths.append(fullPath.relativeChildPath(m_targetDir).toUrlishString().split('/').first());
     }
 
     return relativePaths;

@@ -53,17 +53,17 @@ static QStringList searchPaths(Kit *kit)
     if (!qtVersion)
         return {};
 
-    const QDir pluginDir(qtVersion->pluginPath().toString());
+    const QDir pluginDir(qtVersion->pluginPath().toUrlishString());
     const QStringList pluginSubDirs = pluginDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 
     QStringList searchPaths;
 
     for (const QString &dir : pluginSubDirs)
-        searchPaths << qtVersion->pluginPath().toString() + '/' + dir;
+        searchPaths << qtVersion->pluginPath().toUrlishString() + '/' + dir;
 
-    searchPaths << qtVersion->libraryPath().toString();
-    searchPaths << qtVersion->qnxTarget().pathAppended(qtVersion->cpuDir() + "/lib").toString();
-    searchPaths << qtVersion->qnxTarget().pathAppended(qtVersion->cpuDir() + "/usr/lib").toString();
+    searchPaths << qtVersion->libraryPath().toUrlishString();
+    searchPaths << qtVersion->qnxTarget().pathAppended(qtVersion->cpuDir() + "/lib").toUrlishString();
+    searchPaths << qtVersion->qnxTarget().pathAppended(qtVersion->cpuDir() + "/usr/lib").toUrlishString();
 
     return searchPaths;
 }
@@ -93,7 +93,7 @@ public:
         mainLayout->insertLayout(mainLayout->count() - 2, formLayout);
     }
 
-    QString projectSource() const { return m_projectSource->filePath().toString(); }
+    QString projectSource() const { return m_projectSource->filePath().toUrlishString(); }
     FilePath localExecutable() const { return m_localExecutable->filePath(); }
 
 private:

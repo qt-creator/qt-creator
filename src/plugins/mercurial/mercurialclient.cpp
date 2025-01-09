@@ -93,7 +93,7 @@ bool MercurialClient::manifestSync(const FilePath &repository, const QString &re
 
     const CommandResult result = vcsSynchronousExec(repository, args);
 
-    const QDir repositoryDir(repository.toString());
+    const QDir repositoryDir(repository.toUrlishString());
     const QFileInfo needle = QFileInfo(repositoryDir, relativeFilename);
 
     const QStringList files = result.cleanedStdOut().split(QLatin1Char('\n'));
@@ -141,7 +141,7 @@ bool MercurialClient::synchronousClone(const FilePath &workingDirectory,
         return vcsSynchronousExec(workingDirectory, QStringList{"update"}, flags).result()
                 == ProcessResult::FinishedWithSuccess;
     } else {
-        const QStringList arguments{"clone", dstLocation, workingDirectory.parentDir().toString()};
+        const QStringList arguments{"clone", dstLocation, workingDirectory.parentDir().toUrlishString()};
         return vcsSynchronousExec(workingDirectory.parentDir(), arguments, flags).result()
                 == ProcessResult::FinishedWithSuccess;
     }
@@ -264,7 +264,7 @@ void MercurialClient::incoming(const FilePath &repositoryRoot, const QString &re
     if (!repository.isEmpty())
         args.append(repository);
 
-    QString id = repositoryRoot.toString();
+    QString id = repositoryRoot.toUrlishString();
     if (!repository.isEmpty())
         id += QLatin1Char('/') + repository;
 
@@ -285,7 +285,7 @@ void MercurialClient::outgoing(const FilePath &repositoryRoot)
 
     VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot,
                                                   VcsBaseEditor::getCodec(repositoryRoot),
-                                                  "outgoing", repositoryRoot.toString());
+                                                  "outgoing", repositoryRoot.toUrlishString());
     enqueueJob(createCommand(repositoryRoot, editor), args, repositoryRoot);
 }
 
@@ -313,20 +313,20 @@ void MercurialClient::showDiffEditor(const FilePath &workingDir, const QStringLi
         const QString title = Tr::tr("Mercurial Diff");
         const FilePath sourceFile = VcsBaseEditor::getSource(workingDir, QString());
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
-                + ".DiffRepo." + sourceFile.toString();
+                + ".DiffRepo." + sourceFile.toUrlishString();
         requestReload(documentId, sourceFile, title, workingDir, {"diff"});
     } else if (files.size() == 1) {
         const QString &fileName = files.at(0);
         const QString title = Tr::tr("Mercurial Diff \"%1\"").arg(fileName);
         const FilePath sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
-                + ".DiffFile." + sourceFile.toString();
+                + ".DiffFile." + sourceFile.toUrlishString();
         requestReload(documentId, sourceFile, title, workingDir, {"diff", fileName});
     } else {
-        const QString title = Tr::tr("Mercurial Diff \"%1\"").arg(workingDir.toString());
+        const QString title = Tr::tr("Mercurial Diff \"%1\"").arg(workingDir.toUrlishString());
         const FilePath sourceFile = VcsBaseEditor::getSource(workingDir, QString());
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
-                + ".DiffFile." + workingDir.toString();
+                + ".DiffFile." + workingDir.toUrlishString();
         requestReload(documentId, sourceFile, title, workingDir, QStringList{"diff"} + files);
     }
 }

@@ -297,7 +297,7 @@ TempFileSaver::~TempFileSaver()
 {
     m_file.reset();
     if (m_autoRemove)
-        QFile::remove(m_filePath.toString());
+        QFile::remove(m_filePath.toUrlishString());
 }
 
 /*!
@@ -700,7 +700,7 @@ bool copyRecursively(const FilePath &srcFilePath,
             }
             return false;
         }
-        const QDir sourceDir(srcFilePath.toString());
+        const QDir sourceDir(srcFilePath.toUrlishString());
         const QStringList fileNames = sourceDir.entryList(
             QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
         for (const QString &fileName : fileNames) {

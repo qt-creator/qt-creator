@@ -461,7 +461,7 @@ void Edit3DWidget::updateCreateSubMenu(const QList<ItemLibraryDetails> &entriesL
     m_createSubMenu->setIcon(contextIcon(DesignerIcons::CreateIcon));
     m_contextMenu->addMenu(m_createSubMenu);
 
-    const QString docPath = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName().toString();
+    const QString docPath = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName().toUrlishString();
 
     auto isEntryValid = [&](const ItemLibraryEntry &entry) -> bool {
         // Don't allow entries that match current document

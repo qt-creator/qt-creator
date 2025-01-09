@@ -116,7 +116,7 @@ McuPackagePtr createBoardSdkPackage(const SettingsHandler::Ptr &settingsHandler,
             return FilePath::fromUserInput(qtcEnvironmentVariable(envVar));
         if (!desc.boardSdk.defaultPath.isEmpty()) {
             FilePath defaultPath = FilePath::fromUserInput(QDir::rootPath()
-                                                           + desc.boardSdk.defaultPath.toString());
+                                                           + desc.boardSdk.defaultPath.toUrlishString());
             if (defaultPath.exists())
                 return defaultPath;
         }

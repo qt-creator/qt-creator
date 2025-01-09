@@ -863,7 +863,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                 TaskHub::requestPopup();
             }
         } else {
-            QString cmakeExecutable = configurePreset.cmakeExecutable.value().toString();
+            QString cmakeExecutable = configurePreset.cmakeExecutable.value().toUrlishString();
             CMakePresets::Macros::expand(configurePreset, env, projectDirectory(), cmakeExecutable);
 
             configurePreset.cmakeExecutable = FilePath::fromUserInput(cmakeExecutable);
@@ -937,7 +937,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
             updateCompilerPaths(config, env);
             config << CMakeConfigItem("CMAKE_COMMAND",
                                       CMakeConfigItem::PATH,
-                                      configurePreset.cmakeExecutable.value().toString().toUtf8());
+                                      configurePreset.cmakeExecutable.value().toUrlishString().toUtf8());
             if (configurePreset.generator)
                 config << CMakeConfigItem("CMAKE_GENERATOR",
                                           CMakeConfigItem::STRING,
@@ -1396,7 +1396,7 @@ void CMakeProjectImporterTest::testCMakeProjectImporterToolchain()
     QCOMPARE(tcs.count(), expectedLanguages.count());
     for (int i = 0; i < tcs.count(); ++i) {
         QCOMPARE(tcs.at(i).language, expectedLanguages.at(i));
-        QCOMPARE(tcs.at(i).compilerPath.toString(), expectedToolchains.at(i));
+        QCOMPARE(tcs.at(i).compilerPath.toUrlishString(), expectedToolchains.at(i));
     }
 }
 

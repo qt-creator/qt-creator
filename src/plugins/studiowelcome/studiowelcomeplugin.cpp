@@ -750,7 +750,7 @@ WelcomeMode::WelcomeMode()
 {
     setDisplayName(tr("Welcome"));
 
-    const QString welcomePagePath = Core::ICore::resourcePath("qmldesigner/welcomepage").toString();
+    const QString welcomePagePath = Core::ICore::resourcePath("qmldesigner/welcomepage").toUrlishString();
 
     m_dataModelDownloader = new DataModelDownloader(this);
     if (!m_dataModelDownloader->exists()) { //Fallback if data cannot be downloaded
@@ -760,7 +760,7 @@ WelcomeMode::WelcomeMode()
 
         m_dataModelDownloader->setForceDownload(true);
     }
-    Utils::FilePath readme = Utils::FilePath::fromUserInput(m_dataModelDownloader->targetFolder().toString()
+    Utils::FilePath readme = Utils::FilePath::fromUserInput(m_dataModelDownloader->targetFolder().toUrlishString()
                                                             + "/readme.txt");
 
 
@@ -837,10 +837,10 @@ void WelcomeMode::setupQuickWidget(const QString &welcomePagePath)
         ->setContextProperty("isFirstUsage", QVariant::fromValue(isFirstUsage()));
 
     m_quickWidget->engine()->addImportPath(
-        Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources/imports").toString());
+        Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources/imports").toUrlishString());
 
     m_quickWidget->engine()->addImportPath(welcomePagePath + "/imports");
-    m_quickWidget->engine()->addImportPath(m_dataModelDownloader->targetFolder().toString());
+    m_quickWidget->engine()->addImportPath(m_dataModelDownloader->targetFolder().toUrlishString());
     m_quickWidget->setSource(QUrl::fromLocalFile(welcomePagePath + "/main.qml"));
 
     QShortcut *updateShortcut = nullptr;

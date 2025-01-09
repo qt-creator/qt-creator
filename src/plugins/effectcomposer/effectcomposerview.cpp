@@ -141,7 +141,7 @@ void EffectComposerView::modelAttached(QmlDesigner::Model *model)
     AbstractView::modelAttached(model);
 
 
-    QString currProjectPath = QmlDesigner::DocumentManager::currentProjectDirPath().toString();
+    QString currProjectPath = QmlDesigner::DocumentManager::currentProjectDirPath().toUrlishString();
 
     if (m_currProjectPath != currProjectPath) { // starting a new project
         m_widget->effectComposerNodesModel()->loadModel();

@@ -358,7 +358,7 @@ QString bundleIdentifier(const Utils::FilePath &bundlePath)
     QString bundleID;
 #ifdef Q_OS_MAC
     if (bundlePath.exists()) {
-        CFStringRef cFBundlePath = bundlePath.toString().toCFString();
+        CFStringRef cFBundlePath = bundlePath.toUrlishString().toCFString();
         CFURLRef bundle_url = CFURLCreateWithFileSystemPath (kCFAllocatorDefault, cFBundlePath, kCFURLPOSIXPathStyle, true);
         CFRelease(cFBundlePath);
         CFBundleRef bundle = CFBundleCreate (kCFAllocatorDefault, bundle_url);
@@ -378,7 +378,7 @@ QString bundleExecutable(const Utils::FilePath &bundlePath)
     QString executable;
 #ifdef Q_OS_MAC
     if (bundlePath.exists()) {
-        CFStringRef cFBundlePath = bundlePath.toString().toCFString();
+        CFStringRef cFBundlePath = bundlePath.toUrlishString().toCFString();
         CFURLRef bundle_url = CFURLCreateWithFileSystemPath (kCFAllocatorDefault, cFBundlePath, kCFURLPOSIXPathStyle, true);
         CFRelease(cFBundlePath);
         CFBundleRef bundle = CFBundleCreate (kCFAllocatorDefault, bundle_url);
@@ -475,7 +475,7 @@ void installApp(QPromise<SimulatorControl::Response> &promise,
     }
 
     expected_str<void> result
-        = runSimCtlCommand({"install", simUdid, bundlePath.toString()}, nullptr, [&promise] {
+        = runSimCtlCommand({"install", simUdid, bundlePath.toUrlishString()}, nullptr, [&promise] {
               return promise.isCanceled();
           });
     if (!result) {

@@ -183,7 +183,7 @@ bool MakeInstallStep::init()
 
     const auto buildStep = buildConfiguration()->buildSteps()->firstOfType<AbstractProcessStep>();
     m_isCmakeProject = buildStep
-            && buildStep->processParameters()->command().executable().toString()
+            && buildStep->processParameters()->command().executable().toUrlishString()
             .contains("cmake");
 
     return true;

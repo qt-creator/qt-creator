@@ -120,7 +120,7 @@ QStringList NameController::buildElementsPath(const FilePath &filePath,
 {
     QList<QString> relativeElements;
 
-    QStringList split = filePath.toString().split("/");
+    QStringList split = filePath.toUrlishString().split("/");
     QStringList::const_iterator splitEnd = split.constEnd();
     if (ignoreLastFilePathPart || split.last().isEmpty())
         --splitEnd;

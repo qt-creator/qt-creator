@@ -424,7 +424,7 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
     }
 
     const Toolchain * tc = nullptr;
-    const ProjectFile classifier(filePath, ProjectFile::classify(filePath.toString()));
+    const ProjectFile classifier(filePath, ProjectFile::classify(filePath.toUrlishString()));
     if (classifier.isC()) {
         tc = ToolchainKitAspect::cToolchain(project->activeTarget()->kit());
     } else if (classifier.isCxx() || classifier.isHeader()) {
@@ -1180,7 +1180,7 @@ CppEditorDocumentHandle *CppModelManager::cppEditorDocument(const FilePath &file
         return nullptr;
 
     QMutexLocker locker(&d->m_cppEditorDocumentsMutex);
-    return d->m_cppEditorDocuments.value(filePath.toString(), 0);
+    return d->m_cppEditorDocuments.value(filePath.toUrlishString(), 0);
 }
 
 BaseEditorDocumentProcessor *CppModelManager::cppEditorDocumentProcessor(const FilePath &filePath)
@@ -1196,8 +1196,8 @@ void CppModelManager::registerCppEditorDocument(CppEditorDocumentHandle *editorD
     QTC_ASSERT(!filePath.isEmpty(), return);
 
     QMutexLocker locker(&d->m_cppEditorDocumentsMutex);
-    QTC_ASSERT(d->m_cppEditorDocuments.value(filePath.toString(), 0) == 0, return);
-    d->m_cppEditorDocuments.insert(filePath.toString(), editorDocument);
+    QTC_ASSERT(d->m_cppEditorDocuments.value(filePath.toUrlishString(), 0) == 0, return);
+    d->m_cppEditorDocuments.insert(filePath.toUrlishString(), editorDocument);
 }
 
 void CppModelManager::unregisterCppEditorDocument(const QString &filePath)
@@ -1340,7 +1340,7 @@ static QSet<QString> filteredFilesRemoved(const QSet<QString> &files,
         }
 
         if (!skip)
-            result << filePath.toString();
+            result << filePath.toUrlishString();
     }
 
     return result;
@@ -1354,7 +1354,7 @@ QFuture<void> CppModelManager::updateSourceFiles(const QSet<FilePath> &sourceFil
 
     std::unordered_map<Project *, QSet<QString>> sourcesPerProject;
     for (const FilePath &fp : sourceFiles)
-        sourcesPerProject[ProjectManager::projectForFile(fp)] << fp.toString();
+        sourcesPerProject[ProjectManager::projectForFile(fp)] << fp.toUrlishString();
     std::vector<std::pair<QSet<QString>, CppCodeModelSettings>> sourcesAndSettings;
     for (const auto &it : sourcesPerProject) {
         sourcesAndSettings
@@ -1401,10 +1401,10 @@ void CppModelManager::removeProjectInfoFilesAndIncludesFromSnapshot(const Projec
             const QSet<FilePath> filePaths = d->m_snapshot.allIncludesForDocument(cxxFile.path);
             for (const FilePath &filePath : filePaths) {
                 d->m_snapshot.remove(filePath);
-                removedFiles << filePath.toString();
+                removedFiles << filePath.toUrlishString();
             }
             d->m_snapshot.remove(cxxFile.path);
-            removedFiles << cxxFile.path.toString();
+            removedFiles << cxxFile.path.toUrlishString();
         }
     }
 
@@ -1619,7 +1619,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
                 const QSet<FilePath> removedFiles = comparer.removedFiles();
                 if (!removedFiles.isEmpty()) {
                     filesRemoved = true;
-                    emit m_instance->aboutToRemoveFiles(transform<QStringList>(removedFiles, &FilePath::toString));
+                    emit m_instance->aboutToRemoveFiles(transform<QStringList>(removedFiles, &FilePath::toUrlishString));
                     removeFilesFromSnapshot(removedFiles);
                 }
             }
@@ -1991,10 +1991,10 @@ void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> 
             const QTextBlock &block = file->document()->findBlockByNumber(
                 candidate.includeLine - 1);
             const FilePath relPathOld = FilePath::fromString(FilePath::calcRelativePath(
-                candidate.oldHeaderFilePath.toString(), includingFileOld.parentDir().toString()));
+                candidate.oldHeaderFilePath.toUrlishString(), includingFileOld.parentDir().toUrlishString()));
             const FilePath relPathNew = FilePath::fromString(FilePath::calcRelativePath(
-                candidate.newHeaderFilePath.toString(), includingFileNew.parentDir().toString()));
-            int replaceStart = block.text().indexOf(relPathOld.toString());
+                candidate.newHeaderFilePath.toUrlishString(), includingFileNew.parentDir().toUrlishString()));
+            int replaceStart = block.text().indexOf(relPathOld.toUrlishString());
             QString oldString;
             QString newString;
             if (candidate.isUiHeader || replaceStart == -1) {
@@ -2002,8 +2002,8 @@ void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> 
                 oldString = candidate.oldHeaderFileName;
                 newString = candidate.newHeaderFileName;
             } else {
-                oldString = relPathOld.toString();
-                newString = relPathNew.toString();
+                oldString = relPathOld.toUrlishString();
+                newString = relPathNew.toUrlishString();
             }
             if (replaceStart > -1 && oldString != newString) {
                 changeSet.replace(block.position() + replaceStart,
@@ -2175,7 +2175,7 @@ void CppModelManager::GC()
         if (reachableFiles.contains(fileName))
             newSnapshot.insert(it.value());
         else
-            notReachableFiles.append(fileName.toString());
+            notReachableFiles.append(fileName.toUrlishString());
     }
 
     // Announce removing files and replace the snapshot

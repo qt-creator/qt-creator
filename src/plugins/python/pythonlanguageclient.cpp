@@ -138,7 +138,7 @@ protected:
         }
         if (python.isLocal()) {
             // todo check where to put this tempdir in remote setups
-            env.appendOrSet("PYTHONPATH", m_extraPythonPath.path().toString());
+            env.appendOrSet("PYTHONPATH", m_extraPythonPath.path().toUrlishString());
         }
         if (env.hasChanges())
             setEnvironment(env);

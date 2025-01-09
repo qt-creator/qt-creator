@@ -348,7 +348,7 @@ private:
             return;
 
         QString className;
-        const QString currentDocumentFilePath = interface.semanticInfo().doc->filePath().toString();
+        const QString currentDocumentFilePath = interface.semanticInfo().doc->filePath().toUrlishString();
         const HeaderPaths headerPaths = relevantHeaderPaths(currentDocumentFilePath);
         FilePaths headers;
 
@@ -370,7 +370,7 @@ private:
 
                 for (const FilePath &header : std::as_const(headerAndItsForwardingHeaders)) {
                     const QString include = findShortestInclude(currentDocumentFilePath,
-                                                                header.toString(),
+                                                                header.toUrlishString(),
                                                                 headerPaths);
                     if (include.size() > 2) {
                         const QString headerFileName = info->filePath().fileName();

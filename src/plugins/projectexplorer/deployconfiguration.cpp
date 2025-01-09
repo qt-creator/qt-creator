@@ -73,7 +73,7 @@ void DeployConfiguration::toMap(Store &map) const
     Store deployData;
     for (int i = 0; i < m_customDeploymentData.fileCount(); ++i) {
         const DeployableFile &f = m_customDeploymentData.fileAt(i);
-        deployData.insert(keyFromString(f.localFilePath().toString()), f.remoteDirectory());
+        deployData.insert(keyFromString(f.localFilePath().toUrlishString()), f.remoteDirectory());
     }
     map.insert(DEPLOYMENT_DATA, variantFromStore(deployData));
 }

@@ -477,7 +477,7 @@ Import LinkPrivate::importNonFile(const Document::Ptr &doc, const ImportInfo &im
                   "For qmlRegister... calls, make sure that you define the Module URI as a string literal.\n")
                   .arg(importInfo.name(),
                        Utils::transform(m_importPaths, [](const Utils::FilePath &p) {
-                           return p.toString();
+                           return p.toUrlishString();
                        }).join("\n")));
     }
 
@@ -560,7 +560,7 @@ bool LinkPrivate::importLibrary(const Document::Ptr &doc,
                       .arg(importName,
                                importInfo.name(),
                                Utils::transform(m_importPaths, [](const Utils::FilePath &p) {
-                                   return p.toString();
+                                   return p.toUrlishString();
                                }).join(QLatin1Char('\n'))));
             }
         } else if (!subImport.valid) {
@@ -608,7 +608,7 @@ bool LinkPrivate::importLibrary(const Document::Ptr &doc,
             }
         } else {
             const QString packageName = importInfo.name();
-            m_valueOwner->cppQmlTypes().load(libraryPath.toString(),
+            m_valueOwner->cppQmlTypes().load(libraryPath.toUrlishString(),
                                              libraryInfo.metaObjects(),
                                              packageName);
             const auto objects = m_valueOwner->cppQmlTypes().createObjectsForImport(packageName,

@@ -314,7 +314,8 @@ public:
     expected_str<FilePath> localSource() const;
 
     // FIXME: Avoid. See toSettings, toVariant, toUserOutput, toFSPathString, path, nativePath.
-    QString toString() const;
+    QString toUrlishString() const;
+    [[deprecated]] QString toString() const { return toUrlishString(); }
 
     bool equalsCaseSensitive(const FilePath &other) const;
 

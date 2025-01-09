@@ -61,7 +61,7 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     }
 
     if (fileName.endsWith(Constants::fakeProjectName)) {
-        auto uiFile = fileName.toString();
+        auto uiFile = fileName.toUrlishString();
         uiFile.remove(Constants::fakeProjectName);
         auto parentDir = Utils::FilePath::fromString(uiFile).parentDir();
 

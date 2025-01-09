@@ -85,7 +85,7 @@ void NimProjectScanner::startScan()
 {
     m_scanner.setFilter(
         [excludedFiles = excludedFiles()](const Utils::MimeType &, const FilePath &fp) {
-            const QString path = fp.toString();
+            const QString path = fp.toUrlishString();
             return excludedFiles.contains(path) || path.endsWith(".nimproject")
                    || path.contains(".nimproject.user") || path.contains(".nimble.user");
         });
@@ -225,14 +225,14 @@ bool NimBuildSystem::supportsAction(Node *context, ProjectAction action, const N
 
 bool NimBuildSystem::addFiles(Node *, const FilePaths &filePaths, FilePaths *)
 {
-    return m_projectScanner.addFiles(Utils::transform(filePaths, &FilePath::toString));
+    return m_projectScanner.addFiles(Utils::transform(filePaths, &FilePath::toUrlishString));
 }
 
 RemovedFilesFromProject NimBuildSystem::removeFiles(Node *,
                                                     const FilePaths &filePaths,
                                                     FilePaths *)
 {
-    return m_projectScanner.removeFiles(Utils::transform(filePaths, &FilePath::toString));
+    return m_projectScanner.removeFiles(Utils::transform(filePaths, &FilePath::toUrlishString));
 }
 
 bool NimBuildSystem::deleteFiles(Node *, const FilePaths &)
@@ -244,7 +244,7 @@ bool NimBuildSystem::renameFiles(Node *, const FilePairs &filesToRename, FilePat
 {
     bool success = true;
     for (const auto &[oldFilePath, newFilePath] : filesToRename) {
-        if (!m_projectScanner.renameFile(oldFilePath.toString(), newFilePath.toString())) {
+        if (!m_projectScanner.renameFile(oldFilePath.toUrlishString(), newFilePath.toUrlishString())) {
             success = false;
             if (notRenamed)
                 *notRenamed << oldFilePath;

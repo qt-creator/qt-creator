@@ -292,7 +292,7 @@ bool ColorSchemeReader::read(const FilePath &filePath, ColorScheme *scheme)
     if (m_scheme)
         m_scheme->clear();
 
-    QFile file(filePath.toString());
+    QFile file(filePath.toUrlishString());
     if (!file.open(QFile::ReadOnly | QFile::Text))
         return false;
 

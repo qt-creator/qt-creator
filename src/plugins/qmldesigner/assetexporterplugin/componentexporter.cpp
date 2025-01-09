@@ -122,7 +122,7 @@ void Component::addReferenceAsset(QJsonObject &metadataObject) const
     QJsonObject assetData;
     if (metadataObject.contains(AssetDataTag))
         assetData = metadataObject[AssetDataTag].toObject();
-    assetData.insert(ReferenceAssetTag, refAssetPath.toString());
+    assetData.insert(ReferenceAssetTag, refAssetPath.toUrlishString());
     metadataObject.insert(AssetDataTag, assetData);
 }
 

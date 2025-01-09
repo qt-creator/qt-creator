@@ -234,9 +234,9 @@ void WorkingDirectoryAspect::fromMap(const Store &map)
 void WorkingDirectoryAspect::toMap(Store &data) const
 {
     const QString wd = m_workingDirectory == m_defaultWorkingDirectory
-        ? QString() : m_workingDirectory.toString();
+        ? QString() : m_workingDirectory.toUrlishString();
     saveToMap(data, wd, QString(), settingsKey());
-    saveToMap(data, m_defaultWorkingDirectory.toString(), QString(), settingsKey() + ".default");
+    saveToMap(data, m_defaultWorkingDirectory.toUrlishString(), QString(), settingsKey() + ".default");
 }
 
 /*!
@@ -815,7 +815,7 @@ Launcher::Launcher(const LauncherInfo &testLauncherInfo, const LauncherInfo &emu
     FilePath command1 = emulatorLauncherInfo.command;
     if (command1.isRelativePath())
         command1 = sourceDirectory.resolvePath(command1);
-    arguments.append(command1.toString());
+    arguments.append(command1.toUrlishString());
     arguments.append(emulatorLauncherInfo.arguments);
     displayName = QString("%1 + %2 (%3)").arg(launcherType2UiString(testLauncherInfo.type),
                                        launcherType2UiString(emulatorLauncherInfo.type),

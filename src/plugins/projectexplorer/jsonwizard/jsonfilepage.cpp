@@ -43,7 +43,7 @@ bool JsonFilePage::validatePage()
 
     const FilePath target = dir.resolvePath(fileName());
 
-    wizard()->setProperty("TargetPath", target.toString());
+    wizard()->setProperty("TargetPath", target.toUrlishString());
     return true;
 }
 

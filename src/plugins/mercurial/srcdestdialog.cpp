@@ -103,7 +103,7 @@ QString SrcDestDialog::getRepositoryString() const
         return repoUrl.toString();
     }
     if (m_localButton->isChecked())
-        return m_localPathChooser->filePath().toString();
+        return m_localPathChooser->filePath().toUrlishString();
     return m_urlLineEdit->text();
 }
 
@@ -115,8 +115,8 @@ FilePath SrcDestDialog::workingDir() const
 QUrl SrcDestDialog::getRepoUrl() const
 {
     // Repo to use: Default to the project repo, but use the current
-    const QString projectLoc = m_state.currentProjectPath().toString();
-    const QString fileLoc = m_state.currentFileTopLevel().toString();
+    const QString projectLoc = m_state.currentProjectPath().toUrlishString();
+    const QString fileLoc = m_state.currentFileTopLevel().toUrlishString();
     m_workingdir = projectLoc;
     if (!fileLoc.isEmpty())
         m_workingdir = fileLoc;

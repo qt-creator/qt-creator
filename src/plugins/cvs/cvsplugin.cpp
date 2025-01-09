@@ -659,7 +659,7 @@ CvsPluginPrivate::CvsPluginPrivate()
 void CvsPluginPrivate::vcsDescribe(const FilePath &source, const QString &changeNr)
 {
     QString errorMessage;
-    if (!describe(source.toString(), changeNr, &errorMessage))
+    if (!describe(source.toUrlishString(), changeNr, &errorMessage))
         VcsOutputWindow::appendError(errorMessage);
 };
 
@@ -773,7 +773,7 @@ void CvsPluginPrivate::revertAll()
     if (!messageBoxQuestion(title, Tr::tr("Revert all pending changes to the repository?")))
         return;
     const auto revertResponse = runCvs(state.topLevel(), {"update", "-C",
-                                       state.topLevel().toString()}, RunFlags::ShowStdOut);
+                                       state.topLevel().toUrlishString()}, RunFlags::ShowStdOut);
     if (revertResponse.result() != ProcessResult::FinishedWithSuccess) {
         Core::AsynchronousMessageBox::warning(title, Tr::tr("Revert failed: %1")
                                               .arg(revertResponse.exitMessage()));
@@ -808,7 +808,7 @@ void CvsPluginPrivate::revertCurrentFile()
     const auto revertRes = runCvs(state.currentFileTopLevel(),
                            {"update", "-C", state.relativeCurrentFile()}, RunFlags::ShowStdOut);
     if (revertRes.result() == ProcessResult::FinishedWithSuccess)
-        emit filesChanged(QStringList(state.currentFile().toString()));
+        emit filesChanged(QStringList(state.currentFile().toUrlishString()));
 }
 
 void CvsPluginPrivate::diffProject()
@@ -898,7 +898,7 @@ void CvsPluginPrivate::startCommit(const FilePath &workingDir, const QString &fi
         VcsOutputWindow::appendError(saver.errorString());
         return;
     }
-    m_commitMessageFileName = saver.filePath().toString();
+    m_commitMessageFileName = saver.filePath().toUrlishString();
     // Create a submit editor and set file list
     CvsSubmitEditor *editor = openCVSSubmitEditor(m_commitMessageFileName);
     setSubmitEditor(editor);
@@ -1162,7 +1162,7 @@ bool CvsPluginPrivate::describe(const QString &file, const QString &changeNr, QS
                 .arg(QDir::toNativeSeparators(file));
         return false;
     }
-    return describe(toplevel, QDir(toplevel.toString()).relativeFilePath(file), changeNr, errorMessage);
+    return describe(toplevel, QDir(toplevel.toUrlishString()).relativeFilePath(file), changeNr, errorMessage);
 }
 
 bool CvsPluginPrivate::describe(const FilePath &toplevel, const QString &file,
@@ -1339,7 +1339,7 @@ bool CvsPluginPrivate::managesDirectory(const FilePath &directory, FilePath *top
     if (topLevel)
         topLevel->clear();
     bool manages = false;
-    const QDir dir(directory.toString());
+    const QDir dir(directory.toUrlishString());
     do {
         if (!dir.exists() || !checkCVSDirectory(dir))
             break;

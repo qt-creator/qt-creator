@@ -149,7 +149,7 @@ signals:
 private:
     // Deprecated, only used in property getter.
     // Use filePath().toString() or better suitable conversions.
-    QString path() const { return filePath().toString(); }
+    QString path() const { return filePath().toUrlishString(); }
 
     // Returns overridden title or the one from <title>
     QString makeDialogTitle(const QString &title);

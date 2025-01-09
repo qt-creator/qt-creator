@@ -79,7 +79,7 @@ static CommandLine emrunCommand(const Target *target,
         args.append(port);
         args.append("--no_emrun_detect");
         args.append("--serve_after_close");
-        args.append(html.toString());
+        args.append(html.toUrlishString());
 
         return CommandLine(pythonInterpreter(env), args);
     }

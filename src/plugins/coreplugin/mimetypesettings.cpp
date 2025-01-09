@@ -601,9 +601,9 @@ void MimeTypeSettingsPage::writeUserModifiedMimeTypes()
 {
     static Utils::FilePath modifiedMimeTypesFile = ICore::userResourcePath(kModifiedMimeTypesFile);
 
-    if (QFileInfo::exists(modifiedMimeTypesFile.toString())
-            || QDir().mkpath(modifiedMimeTypesFile.parentDir().toString())) {
-        QFile file(modifiedMimeTypesFile.toString());
+    if (QFileInfo::exists(modifiedMimeTypesFile.toUrlishString())
+            || QDir().mkpath(modifiedMimeTypesFile.parentDir().toUrlishString())) {
+        QFile file(modifiedMimeTypesFile.toUrlishString());
         if (file.open(QFile::WriteOnly | QFile::Truncate)) {
             // Notice this file only represents user modifications. It is writen in a
             // convienient way for synchronization, which is similar to but not exactly the
@@ -662,7 +662,7 @@ MimeTypeSettingsPage::UserMimeTypeHash MimeTypeSettingsPage::readUserModifiedMim
 {
     static Utils::FilePath modifiedMimeTypesPath = ICore::userResourcePath(kModifiedMimeTypesFile);
     UserMimeTypeHash userMimeTypes;
-    QFile file(modifiedMimeTypesPath.toString());
+    QFile file(modifiedMimeTypesPath.toUrlishString());
     if (file.open(QFile::ReadOnly)) {
         UserMimeType mt;
         QXmlStreamReader reader(&file);

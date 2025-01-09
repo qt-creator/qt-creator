@@ -219,8 +219,8 @@ QStringList IosBuildStep::defaultArguments() const
         res << gtc->platformCodeGenFlags();
     }
     if (!SysRootKitAspect::sysRoot(kit).isEmpty())
-        res << "-sdk" << SysRootKitAspect::sysRoot(kit).toString();
-    res << "SYMROOT=" + buildDirectory().toString();
+        res << "-sdk" << SysRootKitAspect::sysRoot(kit).toUrlishString();
+    res << "SYMROOT=" + buildDirectory().toUrlishString();
     return res;
 }
 

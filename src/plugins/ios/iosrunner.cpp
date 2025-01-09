@@ -94,7 +94,7 @@ static void stopRunningRunControl(RunControl *runControl)
 
 static QString getBundleIdentifier(const FilePath &bundlePath)
 {
-    QSettings settings(bundlePath.pathAppended("Info.plist").toString(), QSettings::NativeFormat);
+    QSettings settings(bundlePath.pathAppended("Info.plist").toUrlishString(), QSettings::NativeFormat);
     return settings.value(QString::fromLatin1("CFBundleIdentifier")).toString();
 }
 
@@ -986,7 +986,7 @@ void IosDebugSupport::start()
         rp.setInferiorExecutable(data->localExecutable);
         setRemoteChannel("connect://localhost:" + gdbServerPort.toString());
 
-        QString bundlePath = data->bundleDirectory.toString();
+        QString bundlePath = data->bundleDirectory.toUrlishString();
         bundlePath.chop(4);
         FilePath dsymPath = FilePath::fromString(bundlePath.append(".dSYM"));
         if (dsymPath.exists()

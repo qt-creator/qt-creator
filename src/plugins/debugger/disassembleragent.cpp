@@ -83,7 +83,7 @@ bool FrameKey::matches(const Location &loc) const
 {
     return loc.address() >= startAddress
             && loc.address() <= endAddress
-            && loc.fileName().toString() == fileName
+            && loc.fileName().toUrlishString() == fileName
             && loc.functionName() == functionName;
 }
 
@@ -273,7 +273,7 @@ void DisassemblerAgent::setContents(const DisassemblerLines &contents)
         const quint64 endAddress = contents.endAddress();
         if (startAddress) {
             FrameKey key;
-            key.fileName = d->location.fileName().toString();
+            key.fileName = d->location.fileName().toUrlishString();
             key.functionName = d->location.functionName();
             key.startAddress = startAddress;
             key.endAddress = endAddress;
@@ -303,7 +303,7 @@ void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
         // Make that a proper TextDocument reimplementation.
         d->document->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
         d->document->setProperty(Debugger::Constants::OPENED_WITH_DISASSEMBLY, true);
-        d->document->setProperty(Debugger::Constants::DISASSEMBLER_SOURCE_FILE, d->location.fileName().toString());
+        d->document->setProperty(Debugger::Constants::DISASSEMBLER_SOURCE_FILE, d->location.fileName().toUrlishString());
         d->configureMimeType();
     } else {
         EditorManager::activateEditorForDocument(d->document);

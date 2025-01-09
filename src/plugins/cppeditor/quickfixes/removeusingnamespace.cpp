@@ -438,9 +438,9 @@ private:
             }
         } else {
             for (auto i = s.begin(); i != s.end(); ++i) {
-                if (ProjectFile::classify(i.key().toString()) != ProjectFile::Unsupported) {
+                if (ProjectFile::classify(i.key().toUrlishString()) != ProjectFile::Unsupported) {
                     handleFile(i.key(), i.value(), [](const FilePath &file) {
-                        return ProjectFile::classify(file.toString()) != ProjectFile::Unsupported;
+                        return ProjectFile::classify(file.toUrlishString()) != ProjectFile::Unsupported;
                     });
                 }
             }
@@ -577,7 +577,7 @@ private:
         UsingDirectiveAST *usingDirective = path.at(n)->asUsingDirective();
         if (usingDirective && usingDirective->name->name->asNameId()) {
             result << new RemoveUsingNamespaceOperation(interface, usingDirective, false);
-            const bool isHeader = ProjectFile::isHeader(ProjectFile::classify(interface.filePath().toString()));
+            const bool isHeader = ProjectFile::isHeader(ProjectFile::classify(interface.filePath().toUrlishString()));
             if (isHeader && path.at(n - 1)->asTranslationUnit()) // using namespace at global scope
                 result << new RemoveUsingNamespaceOperation(interface, usingDirective, true);
         }

@@ -67,7 +67,7 @@ QStringList SshParameters::connectionOptions(const FilePath &binary) const
     args << "-o" << "BatchMode=" + batchModeEnabled;
 
     const bool isWindows = HostOsInfo::isWindowsHost()
-            && binary.toString().toLower().contains("/system32/");
+            && binary.toUrlishString().toLower().contains("/system32/");
     const bool useTimeout = (timeout != 0) && !isWindows;
     if (useTimeout)
         args << "-o" << "ConnectTimeout=" + QString::number(timeout);
@@ -136,7 +136,7 @@ const QString getKeyFileFromEnvironment()
     const QString keyFile = qtcEnvironmentVariable("QTC_SSH_TEST_KEYFILE");
     if (keyFile.isEmpty()) {
         if (qtcEnvironmentVariableIsSet("QTC_SSH_TEST_DEFAULTS"))
-            return defaultKeyFile.toString();
+            return defaultKeyFile.toUrlishString();
     }
     return keyFile;
 }

@@ -222,7 +222,7 @@ QVariantMap JsonWizardFactory::loadDefaultValues(const QString &fileName)
         if (path.isEmpty())
             continue;
 
-        FilePath dir = FilePath::fromString(path.toString());
+        FilePath dir = FilePath::fromString(path.toUrlishString());
         if (!dir.exists()) {
             if (verbose())
                 verboseLog.append(
@@ -240,11 +240,11 @@ QVariantMap JsonWizardFactory::loadDefaultValues(const QString &fileName)
             if (verbose())
                 verboseLog.append(
                     Tr::tr("Checking \"%1\" for %2.")
-                        .arg(QDir::toNativeSeparators(current.absolutePath().toString()))
+                        .arg(QDir::toNativeSeparators(current.absolutePath().toUrlishString()))
                         .arg(fileName)
                     + "\n");
             if (current.pathAppended(fileName).exists()) {
-                QFile configFile(current.pathAppended(fileName).toString());
+                QFile configFile(current.pathAppended(fileName).toUrlishString());
                 configFile.open(QIODevice::ReadOnly);
                 QJsonParseError error;
                 const QByteArray fileData = configFile.readAll();
@@ -676,7 +676,7 @@ Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, Id platform,
     for (auto i = variables.constBegin(); i != variables.constEnd(); ++i)
         wizard->setValue(i.key(), i.value());
 
-    wizard->setValue(QStringLiteral("InitialPath"), path.toString());
+    wizard->setValue(QStringLiteral("InitialPath"), path.toUrlishString());
     wizard->setValue(QStringLiteral("QmlProjectName"), qmlProjectName(path));
     wizard->setValue(QStringLiteral("Platform"), platform.toString());
 
@@ -737,7 +737,7 @@ Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, Id platform,
                                                                  return f->canCreate(data.typeId);
                                                             });
         QTC_ASSERT(factory, continue);
-        JsonWizardGenerator *gen = factory->create(data.typeId, data.data, path.toString(), platform, variables);
+        JsonWizardGenerator *gen = factory->create(data.typeId, data.data, path.toUrlishString(), platform, variables);
         QTC_ASSERT(gen, continue);
 
         wizard->addGenerator(gen);
@@ -873,7 +873,7 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &base
             .compare("Themed", Qt::CaseInsensitive) == 0;
     setIcon(iconIsThemed ? themedIcon(iconPath)
                          : strVal.isEmpty() ? QIcon()
-                                            : QIcon(iconPath.toString()),
+                                            : QIcon(iconPath.toUrlishString()),
             iconText);
 
     const QString fontIconName = data.value(QLatin1String(FONT_ICON_NAME_KEY)).toString();
@@ -886,12 +886,12 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &base
             *errorMessage = Tr::tr("Image file \"%1\" not found.").arg(imagePath.toUserOutput());
             return false;
         }
-        setDescriptionImage(imagePath.toString());
+        setDescriptionImage(imagePath.toUrlishString());
     }
 
     const FilePath detailsPage = baseDir.resolvePath(QString("detailsPage.qml"));
     if (detailsPage.exists())
-        setDetailsPageQmlPath(detailsPage.toString());
+        setDetailsPageQmlPath(detailsPage.toUrlishString());
 
     setRequiredFeatures(Id::fromStringList(data.value(QLatin1String(REQUIRED_FEATURES_KEY)).toStringList()));
     m_preferredFeatures = Id::fromStringList(data.value(QLatin1String(SUGGESTED_FEATURES_KEY)).toStringList());

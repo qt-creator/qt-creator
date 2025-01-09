@@ -14,7 +14,7 @@ namespace QTest {
 template<>
 char *toString(const Utils::FilePath &filePath)
 {
-    return qstrdup(filePath.toString().toLocal8Bit().constData());
+    return qstrdup(filePath.toUrlishString().toLocal8Bit().constData());
 }
 
 template<>
@@ -61,7 +61,7 @@ void tst_fileutils::commonPath()
 
     const FilePath result = FileUtils::commonPath(list);
 
-    QCOMPARE(expected.toString(), result.toString());
+    QCOMPARE(expected.toUrlishString(), result.toUrlishString());
 }
 
 void tst_fileutils::commonPath_data()

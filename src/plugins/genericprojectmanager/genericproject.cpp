@@ -314,8 +314,8 @@ static void insertSorted(QStringList *list, const QString &value)
 
 bool GenericBuildSystem::addFiles(Node *, const FilePaths &filePaths_, FilePaths *)
 {
-    const QStringList filePaths = Utils::transform(filePaths_, &FilePath::toString);
-    const QDir baseDir(projectDirectory().toString());
+    const QStringList filePaths = Utils::transform(filePaths_, &FilePath::toUrlishString);
+    const QDir baseDir(projectDirectory().toUrlishString());
     QStringList newList = m_rawFileList;
     if (filePaths.size() > m_rawFileList.size()) {
         newList += transform(filePaths, [&baseDir](const QString &p) {
@@ -339,7 +339,7 @@ bool GenericBuildSystem::addFiles(Node *, const FilePaths &filePaths_, FilePaths
             toAdd << directory;
     }
 
-    const QDir dir(projectDirectory().toString());
+    const QDir dir(projectDirectory().toUrlishString());
     const auto candidates = toAdd;
     for (const QString &path : candidates) {
         QString relative = dir.relativeFilePath(path);
@@ -360,7 +360,7 @@ RemovedFilesFromProject GenericBuildSystem::removeFiles(Node *, const FilePaths 
     QStringList newList = m_rawFileList;
 
     for (const FilePath &filePath : filePaths) {
-        QHash<QString, QString>::iterator i = m_rawListEntries.find(filePath.toString());
+        QHash<QString, QString>::iterator i = m_rawListEntries.find(filePath.toUrlishString());
         if (i != m_rawListEntries.end())
             newList.removeOne(i.value());
     }
@@ -372,7 +372,7 @@ RemovedFilesFromProject GenericBuildSystem::removeFiles(Node *, const FilePaths 
 bool GenericBuildSystem::setFiles(const QStringList &filePaths)
 {
     QStringList newList;
-    QDir baseDir(projectDirectory().toString());
+    QDir baseDir(projectDirectory().toUrlishString());
     for (const QString &filePath : filePaths)
         newList.append(baseDir.relativeFilePath(filePath));
     Utils::sort(newList);
@@ -392,7 +392,7 @@ bool GenericBuildSystem::renameFiles(Node *, const FilePairs &filesToRename, Fil
                 *notRenamed << oldFilePath;
         };
 
-        const auto i = m_rawListEntries.find(oldFilePath.toString());
+        const auto i = m_rawListEntries.find(oldFilePath.toUrlishString());
         if (i == m_rawListEntries.end()) {
             fail();
             continue;
@@ -404,9 +404,9 @@ bool GenericBuildSystem::renameFiles(Node *, const FilePairs &filesToRename, Fil
             continue;
         }
 
-        QDir baseDir(projectDirectory().toString());
+        QDir baseDir(projectDirectory().toUrlishString());
         newList.removeAt(index);
-        insertSorted(&newList, baseDir.relativeFilePath(newFilePath.toString()));
+        insertSorted(&newList, baseDir.relativeFilePath(newFilePath.toUrlishString()));
     }
 
     if (!saveRawFileList(newList)) {
@@ -465,9 +465,9 @@ FilePath GenericBuildSystem::findCommonSourceRoot()
     if (m_files.isEmpty())
         return FilePath::fromFileInfo(QFileInfo(m_filesFileName));
 
-    QString root = m_files.front().first.toString();
+    QString root = m_files.front().first.toUrlishString();
     for (const SourceFile &sourceFile : std::as_const(m_files)) {
-        const QString item = sourceFile.first.toString();
+        const QString item = sourceFile.first.toUrlishString();
         if (root.length() > item.length())
             root.truncate(item.length());
 
@@ -542,7 +542,7 @@ GenericBuildSystem::SourceFiles GenericBuildSystem::processEntries(
     const MacroExpander *expander = buildConfig ? buildConfig->macroExpander()
                                                 : target()->macroExpander();
 
-    const QDir projectDir(projectDirectory().toString());
+    const QDir projectDir(projectDirectory().toUrlishString());
 
     QFileInfo fileInfo;
     SourceFiles sourceFiles;
@@ -555,7 +555,7 @@ GenericBuildSystem::SourceFiles GenericBuildSystem::processEntries(
         trimmedPath = buildEnv.expandVariables(trimmedPath);
         trimmedPath = expander->expand(trimmedPath);
 
-        trimmedPath = FilePath::fromUserInput(trimmedPath).toString();
+        trimmedPath = FilePath::fromUserInput(trimmedPath).toUrlishString();
 
         QStringList tagsForFile;
         const int tagListPos = trimmedPath.indexOf('|');
@@ -599,7 +599,7 @@ void GenericBuildSystem::refreshCppCodeModel()
 
     static const auto sourceFilesToStringList = [](const SourceFiles &sourceFiles) {
         return Utils::transform(sourceFiles, [](const SourceFile &f) {
-            return f.first.toString();
+            return f.first.toUrlishString();
         });
     };
     rpp.setFiles(sourceFilesToStringList(m_files));
@@ -714,7 +714,7 @@ void GenericProject::editFilesTriggered()
     if (sfd.exec() == QDialog::Accepted) {
         if (Target *t = activeTarget()) {
             auto bs = static_cast<GenericBuildSystem *>(t->buildSystem());
-            bs->setFiles(transform(sfd.selectedFiles(), &FilePath::toString));
+            bs->setFiles(transform(sfd.selectedFiles(), &FilePath::toUrlishString));
         }
     }
 }

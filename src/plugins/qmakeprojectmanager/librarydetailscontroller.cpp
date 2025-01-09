@@ -623,7 +623,7 @@ AddLibraryWizard::LinkageType NonInternalLibraryDetailsController::suggestedLink
     AddLibraryWizard::LinkageType type = AddLibraryWizard::NoLinkage;
     if (libraryPlatformType() != OsTypeWindows) {
         if (libraryDetailsWidget()->libraryPathChooser->isValid()) {
-            QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->filePath().toString());
+            QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->filePath().toUrlishString());
             if (fi.suffix() == QLatin1String("a"))
                 type = AddLibraryWizard::StaticLinkage;
             else
@@ -638,7 +638,7 @@ AddLibraryWizard::MacLibraryType NonInternalLibraryDetailsController::suggestedM
     AddLibraryWizard::MacLibraryType type = AddLibraryWizard::NoLibraryType;
     if (libraryPlatformType() == OsTypeMac) {
         if (libraryDetailsWidget()->libraryPathChooser->isValid()) {
-            QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->filePath().toString());
+            QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->filePath().toUrlishString());
             if (fi.suffix() == QLatin1String("framework"))
                 type = AddLibraryWizard::FrameworkType;
             else
@@ -652,7 +652,7 @@ QString NonInternalLibraryDetailsController::suggestedIncludePath() const
 {
     QString includePath;
     if (libraryDetailsWidget()->libraryPathChooser->isValid()) {
-        QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->filePath().toString());
+        QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->filePath().toUrlishString());
         includePath = fi.absolutePath();
         QFileInfo dfi(includePath);
         // TODO: Win: remove debug or release folder first if appropriate
@@ -729,7 +729,7 @@ void NonInternalLibraryDetailsController::handleLibraryPathChange()
         bool subfoldersEnabled = true;
         bool removeSuffixEnabled = true;
         if (libraryDetailsWidget()->libraryPathChooser->isValid()) {
-            QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->filePath().toString());
+            QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->filePath().toUrlishString());
             QFileInfo dfi(fi.absolutePath());
             const QString parentFolderName = dfi.fileName().toLower();
             if (parentFolderName != QLatin1String("debug") &&
@@ -765,7 +765,7 @@ bool NonInternalLibraryDetailsController::isComplete() const
 
 QString NonInternalLibraryDetailsController::snippet() const
 {
-    QString libPath = libraryDetailsWidget()->libraryPathChooser->filePath().toString();
+    QString libPath = libraryDetailsWidget()->libraryPathChooser->filePath().toUrlishString();
     QFileInfo fi(libPath);
     QString libName;
     const bool removeSuffix = isWindowsGroupVisible()
@@ -811,7 +811,7 @@ QString NonInternalLibraryDetailsController::snippet() const
         }
         targetRelativePath = appendSeparator(pdir.relativeFilePath(absoluteLibraryPath));
 
-        const QString includePath = libraryDetailsWidget()->includePathChooser->filePath().toString();
+        const QString includePath = libraryDetailsWidget()->includePathChooser->filePath().toUrlishString();
         if (!includePath.isEmpty())
             includeRelativePath = pdir.relativeFilePath(includePath);
     }
@@ -873,7 +873,7 @@ bool PackageLibraryDetailsController::isLinkPackageGenerated() const
     if (!project)
         return false;
 
-    const ProjectNode *projectNode = project->findNodeForBuildKey(proFile().toString());
+    const ProjectNode *projectNode = project->findNodeForBuildKey(proFile().toUrlishString());
     if (!projectNode)
         return false;
 
@@ -923,7 +923,7 @@ void ExternalLibraryDetailsController::updateWindowsOptionsEnablement()
     bool removeSuffixEnabled = true;
     if (libraryPlatformType() == OsTypeWindows
             && libraryDetailsWidget()->libraryPathChooser->isValid()) {
-        QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->filePath().toString());
+        QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->filePath().toUrlishString());
         QFileInfo dfi(fi.absolutePath());
         const QString parentFolderName = dfi.fileName().toLower();
         if (parentFolderName != QLatin1String("debug") &&
@@ -1023,7 +1023,7 @@ void InternalLibraryDetailsController::updateProFile()
 
     const GuardLocker locker(m_ignoreChanges);
 
-    m_rootProjectPath = project->projectDirectory().toString();
+    m_rootProjectPath = project->projectDirectory().toUrlishString();
 
     auto t = project->activeTarget();
     auto bs = dynamic_cast<QmakeBuildSystem *>(t ? t->buildSystem() : nullptr);
@@ -1038,7 +1038,7 @@ void InternalLibraryDetailsController::updateProFile()
 
         const QStringList configVar = proFile->variableValue(Variable::Config);
         if (!configVar.contains(QLatin1String("plugin"))) {
-            const QString relProFilePath = rootDir.relativeFilePath(proFile->filePath().toString());
+            const QString relProFilePath = rootDir.relativeFilePath(proFile->filePath().toUrlishString());
             TargetInformation targetInfo = proFile->targetInformation();
             const QString itemToolTip = QString::fromLatin1("%1 (%2)").arg(targetInfo.target).arg(relProFilePath);
             m_proFiles.append(proFile);
@@ -1099,7 +1099,7 @@ QString InternalLibraryDetailsController::snippet() const
 
     // relative path for the project for which we insert the snippet,
     // it's relative to the root project
-    const QString proRelavitePath = rootDir.relativeFilePath(proFile().toString());
+    const QString proRelavitePath = rootDir.relativeFilePath(proFile().toUrlishString());
 
     // project for which we insert the snippet
 
@@ -1108,7 +1108,7 @@ QString InternalLibraryDetailsController::snippet() const
     if (const Project *project = ProjectManager::projectForFile(proFile())) {
         if (ProjectExplorer::Target *t = project->activeTarget())
             if (ProjectExplorer::BuildConfiguration *bc = t->activeBuildConfiguration())
-                rootBuildDir.setPath(bc->buildDirectory().toString());
+                rootBuildDir.setPath(bc->buildDirectory().toUrlishString());
     }
 
     // the project for which we insert the snippet inside build tree
@@ -1123,8 +1123,8 @@ QString InternalLibraryDetailsController::snippet() const
     // project node which we want to link against
     TargetInformation targetInfo = m_proFiles.at(currentIndex)->targetInformation();
 
-    const QString targetRelativePath = appendSeparator(projectBuildDir.relativeFilePath(targetInfo.buildDir.toString()));
-    const QString includeRelativePath = projectSrcDir.relativeFilePath(libraryDetailsWidget()->includePathChooser->filePath().toString());
+    const QString targetRelativePath = appendSeparator(projectBuildDir.relativeFilePath(targetInfo.buildDir.toUrlishString()));
+    const QString includeRelativePath = projectSrcDir.relativeFilePath(libraryDetailsWidget()->includePathChooser->filePath().toUrlishString());
 
     const bool useSubfolders = libraryDetailsWidget()->useSubfoldersCheckBox->isChecked();
     const bool addSuffix = libraryDetailsWidget()->addSuffixCheckBox->isChecked();

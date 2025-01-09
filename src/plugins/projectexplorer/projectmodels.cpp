@@ -93,8 +93,8 @@ bool compareNodes(const Node *n1, const Node *n2)
     if (displayNameResult != 0)
         return displayNameResult < 0;
 
-    const int filePathResult = caseFriendlyCompare(n1->filePath().toString(),
-                                 n2->filePath().toString());
+    const int filePathResult = caseFriendlyCompare(n1->filePath().toUrlishString(),
+                                 n2->filePath().toUrlishString());
     return filePathResult < 0;
 }
 
@@ -254,7 +254,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
         return node->isEnabled() ? QVariant()
                                  : Utils::creatorColor(Utils::Theme::TextColorDisabled);
     case Project::FilePathRole:
-        return node->filePath().toString();
+        return node->filePath().toUrlishString();
     case Project::isParsingRole:
         return project && bs ? bs->isParsing() && !project->needsConfiguration() : false;
     case Project::UseUnavailableMarkerRole:
@@ -439,7 +439,7 @@ void FlatModel::onExpanded(const QModelIndex &idx)
 ExpandData FlatModel::expandDataForNode(const Node *node) const
 {
     QTC_ASSERT(node, return {});
-    return {node->filePath().toString(), node->priority()};
+    return {node->filePath().toUrlishString(), node->priority()};
 }
 
 void FlatModel::handleProjectAdded(Project *project)
@@ -828,12 +828,12 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
     case DropAction::MoveWithFiles: {
         FilePaths filesToAdd;
         FilePaths filesToRemove;
-        const VcsInfo targetVcs = vcsInfoForFile(targetDir.toString());
+        const VcsInfo targetVcs = vcsInfoForFile(targetDir.toUrlishString());
         const bool vcsAddPossible = targetVcs.vcs
                 && targetVcs.vcs->supportsOperation(Core::IVersionControl::AddOperation);
         for (const FilePath &sourceFile : sourceFiles) {
             const FilePath targetFile = targetFilePath(sourceFile);
-            const VcsInfo sourceVcs = vcsInfoForFile(sourceFile.toString());
+            const VcsInfo sourceVcs = vcsInfoForFile(sourceFile.toUrlishString());
             if (sourceVcs.vcs && targetVcs.vcs && sourceVcs == targetVcs
                     && sourceVcs.vcs->supportsOperation(Core::IVersionControl::MoveOperation)) {
                 if (sourceVcs.vcs->vcsMove(sourceFile, targetFile)) {

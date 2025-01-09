@@ -169,7 +169,7 @@ public:
         if (!refactoring.file(newFileName)->create(newComponentSource, reindent, openEditor))
             return;
 
-        if (path.toString() == currentFileName.toFileInfo().path()) {
+        if (path.toUrlishString() == currentFileName.toFileInfo().path()) {
             // hack for the common case, next version should use the wizard
             ProjectExplorer::Node *oldFileNode = ProjectExplorer::ProjectTree::nodeForFile(
                 currentFileName);
@@ -196,14 +196,14 @@ public:
             const QMessageBox::StandardButton button = QMessageBox::question(
                 Core::ICore::dialogParent(),
                 Core::VcsManager::msgAddToVcsTitle(),
-                Core::VcsManager::msgPromptToAddToVcs(QStringList(newFileName.toString()),
+                Core::VcsManager::msgPromptToAddToVcs(QStringList(newFileName.toUrlishString()),
                                                       versionControl),
                 QMessageBox::Yes | QMessageBox::No);
             if (button == QMessageBox::Yes && !versionControl->vcsAdd(newFileName)) {
                 QMessageBox::warning(Core::ICore::dialogParent(),
                                      Core::VcsManager::msgAddToVcsFailedTitle(),
                                      Core::VcsManager::msgToAddToVcsFailed(
-                                         QStringList(newFileName.toString()), versionControl));
+                                         QStringList(newFileName.toUrlishString()), versionControl));
             }
         }
     }

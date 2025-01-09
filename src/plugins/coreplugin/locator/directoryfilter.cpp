@@ -108,14 +108,14 @@ void DirectoryFilter::saveState(QJsonObject &object) const
     if (!m_directories.isEmpty()) {
         object.insert(kDirectoriesKey,
                       QJsonArray::fromStringList(
-                          Utils::transform(m_directories, &FilePath::toString)));
+                          Utils::transform(m_directories, &FilePath::toUrlishString)));
     }
     if (m_filters != kFiltersDefault)
         object.insert(kFiltersKey, QJsonArray::fromStringList(m_filters));
     const std::optional<FilePaths> files = m_cache.filePaths();
     if (files) {
         object.insert(kFilesKey, QJsonArray::fromStringList(
-                                     Utils::transform(*files, &FilePath::toString)));
+                                     Utils::transform(*files, &FilePath::toUrlishString)));
     }
     if (m_exclusionFilters != kExclusionFiltersDefault)
         object.insert(kExclusionFiltersKey, QJsonArray::fromStringList(m_exclusionFilters));
@@ -266,7 +266,7 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
             &DirectoryFilter::updateOptionButtons,
             Qt::DirectConnection);
     m_dialog->directoryList->clear();
-    m_dialog->directoryList->addItems(Utils::transform(m_directories, &FilePath::toString));
+    m_dialog->directoryList->addItems(Utils::transform(m_directories, &FilePath::toUrlishString));
     m_dialog->nameLabel->setVisible(m_isCustomFilter);
     m_dialog->nameEdit->setVisible(m_isCustomFilter);
     m_dialog->directoryLabel->setVisible(m_isCustomFilter);

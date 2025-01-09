@@ -389,7 +389,7 @@ FilePath MacroExpander::expand(const FilePath &fileNameWithVariables) const
     // We also cannot just operate on the scheme, host and path component
     // individually as we want to allow single variables to expand to fully
     // remote-qualified paths.
-    return FilePath::fromUserInput(expand(fileNameWithVariables.toString()));
+    return FilePath::fromUserInput(expand(fileNameWithVariables.toUrlishString()));
 }
 
 QByteArray MacroExpander::expand(const QByteArray &stringWithVariables) const

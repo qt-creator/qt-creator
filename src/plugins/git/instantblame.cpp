@@ -378,7 +378,7 @@ void InstantBlame::perform()
     m_lastVisitedEditorLine = line;
 
     const Utils::FilePath filePath = widget->textDocument()->filePath();
-    const QFileInfo fi(filePath.toString());
+    const QFileInfo fi(filePath.toUrlishString());
     const Utils::FilePath workingDirectory = Utils::FilePath::fromString(fi.path());
     const QString lineString = QString("%1,%1").arg(line);
     const auto lineDiffHandler = [this](const CommandResult &result) {
@@ -436,7 +436,7 @@ void InstantBlame::perform()
         options.append("-w");
     if (settings().instantBlameIgnoreLineMoves())
         options.append("-M");
-    options.append({"-L", lineString, "--", filePath.toString()});
+    options.append({"-L", lineString, "--", filePath.toUrlishString()});
     qCDebug(log) << "Running git" << options.join(' ');
     gitClient().vcsExecWithHandler(workingDirectory, options, this,
                                    commandHandler, RunFlags::NoOutput, m_codec);

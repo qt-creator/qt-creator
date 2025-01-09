@@ -552,7 +552,7 @@ FSEngineHandler::create(const QString &fileName) const
     if (fixedFileName.startsWith(rootPath)) {
         const QStringList deviceSchemes = FSEngine::registeredDeviceSchemes();
         for (const QString &scheme : deviceSchemes) {
-            if (fixedFileName == rootFilePath.pathAppended(scheme).toString()) {
+            if (fixedFileName == rootFilePath.pathAppended(scheme).toUrlishString()) {
                 const FilePaths filteredRoots = Utils::filtered(FSEngine::registeredDeviceRoots(),
                                                                 [scheme](const FilePath &root) {
                                                                     return root.scheme() == scheme;

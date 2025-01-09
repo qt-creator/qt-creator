@@ -98,7 +98,7 @@ static std::optional<PathMapping> findPathMappingMatch(const QString &projectNam
         if (mapping.analysisPath.isEmpty())
             return mapping;
 
-        QString analysis = mapping.analysisPath.toString();
+        QString analysis = mapping.analysisPath.toUrlishString();
         // ensure we use complete paths
         if (!analysis.endsWith('/'))
             analysis.append('/');
@@ -148,9 +148,9 @@ public:
                     if (const std::optional<Dto::ProjectInfoDto> pInfo = projectInfo()) {
                         if (auto mapping = findPathMappingMatch(pInfo->name, link)) {
                             std::optional<FilePath> fp = link.targetFilePath.prefixRemoved(
-                                        mapping->analysisPath.toString());
+                                        mapping->analysisPath.toUrlishString());
                             QTC_CHECK(fp);
-                            fp = mapping->localPath.pathAppended(fp->toString());
+                            fp = mapping->localPath.pathAppended(fp->toUrlishString());
                             if (fp->exists())
                                 targetFilePath = *fp;
                         }

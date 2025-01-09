@@ -482,7 +482,7 @@ const QList<Node *> ProjectTree::siblingsWithSameBaseName(const Node *fileNode)
         return n->asFileNode()
                 && n->filePath().toFileInfo().dir() == fi.dir()
                 && n->filePath().completeBaseName() == fi.completeBaseName()
-                && n->filePath().toString() != fi.filePath();
+                && n->filePath().toUrlishString() != fi.filePath();
     };
     return productNode->findNodes(filter);
 }

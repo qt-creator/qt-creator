@@ -98,7 +98,7 @@ QByteArray DiffChunk::asPatch(const FilePath &workingDirectory) const
 {
     const FilePath relativeFile = workingDirectory.isEmpty() ?
                 fileName : fileName.relativeChildPath(workingDirectory);
-    const QByteArray fileNameBA = QFile::encodeName(relativeFile.toString());
+    const QByteArray fileNameBA = QFile::encodeName(relativeFile.toUrlishString());
     QByteArray rc = "--- ";
     rc += fileNameBA;
     rc += "\n+++ ";
@@ -1355,7 +1355,7 @@ QString VcsBaseEditor::getTitleId(const FilePath &workingDirectory,
     QString rc;
     switch (nonEmptyFileNames.size()) {
     case 0:
-        rc = workingDirectory.toString();
+        rc = workingDirectory.toUrlishString();
         break;
     case 1:
         rc = nonEmptyFileNames.front();
@@ -1424,7 +1424,7 @@ QString VcsBaseEditorWidget::findDiffFile(const QString &f) const
     if (!d->m_workingDirectory.isEmpty()) {
         const FilePath baseFileInfo = d->m_workingDirectory.pathAppended(f);
         if (baseFileInfo.isFile())
-            return baseFileInfo.absoluteFilePath().toString();
+            return baseFileInfo.absoluteFilePath().toUrlishString();
     }
     // 2) Try in source (which can be file or directory)
     const FilePath sourcePath = source();
@@ -1433,7 +1433,7 @@ QString VcsBaseEditorWidget::findDiffFile(const QString &f) const
                                                       : sourcePath.absolutePath();
         const FilePath sourceFileInfo = sourceDir.pathAppended(f);
         if (sourceFileInfo.isFile())
-            return sourceFileInfo.absoluteFilePath().toString();
+            return sourceFileInfo.absoluteFilePath().toUrlishString();
 
         const FilePath topLevel =
             VcsManager::findTopLevelForDirectory(sourceDir);
@@ -1442,7 +1442,7 @@ QString VcsBaseEditorWidget::findDiffFile(const QString &f) const
 
         const FilePath topLevelFile = topLevel.pathAppended(f);
         if (topLevelFile.isFile())
-            return topLevelFile.absoluteFilePath().toString();
+            return topLevelFile.absoluteFilePath().toUrlishString();
     }
 
     // 3) Try working directory
@@ -1472,7 +1472,7 @@ void VcsBaseEditorWidget::slotAnnotateRevision(const QString &change)
     const FilePath relativePath = fileName.isRelativePath()
             ? fileName
             : fileName.relativeChildPath(workingDirectory);
-    emit annotateRevisionRequested(workingDirectory, relativePath.toString(), change, currentLine);
+    emit annotateRevisionRequested(workingDirectory, relativePath.toUrlishString(), change, currentLine);
 }
 
 QStringList VcsBaseEditorWidget::annotationPreviousVersions(const QString &) const
@@ -1618,7 +1618,7 @@ QString VcsBaseEditor::editorTag(EditorContentType t, const FilePath &workingDir
         rc += revision;
         rc += colon;
     }
-    rc += workingDirectory.toString();
+    rc += workingDirectory.toUrlishString();
     if (!files.isEmpty()) {
         rc += colon;
         rc += files.join(QString(colon));

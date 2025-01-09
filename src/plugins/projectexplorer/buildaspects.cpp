@@ -163,7 +163,7 @@ FilePath BuildDirectoryAspect::fixupDir(const FilePath &dir)
         return dir;
     if (HostOsInfo::isWindowsHost() && !dir.startsWithDriveLetter())
         return {};
-    const QString dirString = dir.toString().toLower();
+    const QString dirString = dir.toUrlishString().toLower();
     const QStringList drives = Utils::transform(QDir::drives(), [](const QFileInfo &fi) {
         return fi.absoluteFilePath().toLower().chopped(1);
     });

@@ -345,7 +345,7 @@ QString TextureEditorContextObject::resolveResourcePath(const QString &path)
     if (Utils::FilePath::fromString(path).isAbsolutePath())
         return path;
     return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()
-            ->fileName().absolutePath().pathAppended(path).cleanPath().toString();
+            ->fileName().absolutePath().pathAppended(path).cleanPath().toUrlishString();
 }
 
 } // QmlDesigner

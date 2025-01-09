@@ -126,7 +126,7 @@ void VcsPlugin::initialize()
     expander->registerVariable(Constants::VAR_VCS_TOPLEVELPATH,
         Tr::tr("The top level path to the repository the current project is in."), [] {
             if (Project *project = ProjectTree::currentProject())
-                return VcsManager::findTopLevelForDirectory(project->projectDirectory()).toString();
+                return VcsManager::findTopLevelForDirectory(project->projectDirectory()).toUrlishString();
             return QString();
         });
 

@@ -66,7 +66,7 @@ GeneratedCodeModelSupport::GeneratedCodeModelSupport(ExtraCompiler *generator,
 
 GeneratedCodeModelSupport::~GeneratedCodeModelSupport()
 {
-    CppModelManager::emitAbstractEditorSupportRemoved(m_generatedFilePath.toString());
+    CppModelManager::emitAbstractEditorSupportRemoved(m_generatedFilePath.toUrlishString());
     QLoggingCategory log("qtc.cppeditor.generatedcodemodelsupport", QtWarningMsg);
     qCDebug(log) << "dtor ~generatedcodemodelsupport for" << m_generatedFilePath;
 }

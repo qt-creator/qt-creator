@@ -40,7 +40,7 @@ QmlBundle BasicBundleProvider::defaultBundle(const QString &bundleInfoName,
     }
     QStringList errors;
     bool stripVersions = qtVersion && qtVersion->qtVersion().majorVersion() > 5;
-    if (!res.readFrom(defaultBundlePath.toString(), stripVersions, &errors) && !wroteErrors) {
+    if (!res.readFrom(defaultBundlePath.toUrlishString(), stripVersions, &errors) && !wroteErrors) {
         qWarning() << "BasicBundleProvider: ERROR reading " << defaultBundlePath
                    << " : " << errors;
         wroteErrors = true;
@@ -93,7 +93,7 @@ void BasicBundleProvider::mergeBundlesForKit(ProjectExplorer::Kit *kit
         bundles.mergeBundleForLanguage(Dialect::QmlQtQuick2Ui, b2);
         return;
     }
-    QString qtQmlPath = qtVersion->qmlPath().toString();
+    QString qtQmlPath = qtVersion->qmlPath().toUrlishString();
 
     myReplacements.insert(QLatin1String("$(CURRENT_DIRECTORY)"), qtQmlPath);
     QDir qtQuick2Bundles(qtQmlPath);

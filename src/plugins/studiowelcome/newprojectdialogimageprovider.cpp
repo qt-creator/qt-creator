@@ -17,7 +17,7 @@ NewProjectDialogImageProvider::NewProjectDialogImageProvider()
 
 QPixmap NewProjectDialogImageProvider::invalidStyleIcon()
 {
-    QString iconPath = Core::ICore::resourcePath("qmldesigner/newprojectdialog/image/style-error.png").toString();
+    QString iconPath = Core::ICore::resourcePath("qmldesigner/newprojectdialog/image/style-error.png").toUrlishString();
     QString file = Utils::StyleHelper::dpiSpecificImageFile(iconPath);
     return QPixmap{file};
 }
@@ -44,7 +44,7 @@ QPixmap NewProjectDialogImageProvider::requestStatusPixmap(const QString &id, QS
 
 QPixmap NewProjectDialogImageProvider::requestStylePixmap(const QString &id, QSize *size, const QSize &requestedSize)
 {
-    QString realPath = Core::ICore::resourcePath("qmldesigner/newprojectdialog/image/" + id).toString();
+    QString realPath = Core::ICore::resourcePath("qmldesigner/newprojectdialog/image/" + id).toUrlishString();
 
     QPixmap pixmap{realPath};
 
@@ -64,7 +64,7 @@ QPixmap NewProjectDialogImageProvider::requestStylePixmap(const QString &id, QSi
 
 QPixmap NewProjectDialogImageProvider::requestDefaultPixmap(const QString &id, QSize *size, const QSize &requestedSize)
 {
-    QString realPath = Core::ICore::resourcePath("qmldesigner/newprojectdialog/image/" + id).toString();
+    QString realPath = Core::ICore::resourcePath("qmldesigner/newprojectdialog/image/" + id).toUrlishString();
 
     QPixmap pixmap{realPath};
 

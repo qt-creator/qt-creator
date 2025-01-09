@@ -284,7 +284,7 @@ void AutotestUnitTests::testCodeParserBoostTest()
     QMap<QString, int> expectedSuitesAndTests;
 
     auto pathConstructor = [basePath, extension](const QString &name, const QString &subPath) {
-        return QString(name + '|' + basePath.pathAppended(subPath + extension).toString());
+        return QString(name + '|' + basePath.pathAppended(subPath + extension).toUrlishString());
     };
     expectedSuitesAndTests.insert(pathConstructor("Master Test Suite", "tests/deco/deco"), 2); // decorators w/o suite
     expectedSuitesAndTests.insert(pathConstructor("Master Test Suite", "tests/fix/fix"), 2); // fixtures

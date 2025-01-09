@@ -91,7 +91,7 @@ bool ComponentNameDialog::go(QString *proposedName,
 
     if (QDialog::Accepted == d.exec()) {
         *proposedName = d.m_componentNameEdit->text();
-        *proposedPath = d.m_pathEdit->filePath().toString();
+        *proposedPath = d.m_pathEdit->filePath().toUrlishString();
 
         if (d.m_checkBox->isChecked())
             *proposedSuffix = "ui.qml";

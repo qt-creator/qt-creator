@@ -143,13 +143,14 @@ static bool isWindowsDriveLetter(QChar ch)
         These are used to interface QVariant-based API, e.g.
         settings or item model (internal) data.
 
-    \li FilePath::fromString(), FilePath::toString()
+    \li FilePath::toUrlishString()
 
-        These are used for internal interfaces to code areas that
-        still use QString based file paths for simple storage and retrieval.
+        Converts the FilePath to a scheme://host/path string.
 
-        In most cases, use of one of the more specialized above is
-        more appropriate.
+        Mostly used in legacy code and for debugging reasons.
+
+        In almost all cases, use of one of the more specialized conversion
+        above is more appropriate.
 
     \endlist
 
@@ -161,7 +162,7 @@ static bool isWindowsDriveLetter(QChar ch)
     Communication with QVariant based Qt API should use \c fromVariant() and
     \c toVariant().
 
-    Uses of \c fromString() and \c toString() should be phased out by transforming
+    Uses of \c toUrlishString() should be phased out by transforming
     code from QString based file path to FilePath. An exception here are
     fragments of paths of a FilePath that are later used with \c pathAppended()
     or similar which should be kept as QString.
@@ -295,7 +296,7 @@ QString decodeHost(QString host)
 
     \sa toFSPathString()
 */
-QString FilePath::toString() const
+QString FilePath::toUrlishString() const
 {
     if (isLocal())
         return path();
@@ -394,7 +395,7 @@ QUrl FilePath::toUrl() const
 */
 QString FilePath::toUserOutput() const
 {
-    QString tmp = toString();
+    QString tmp = toUrlishString();
     if (!isLocal())
         return tmp;
 
@@ -454,7 +455,7 @@ QString FilePath::fileNameWithPathComponents(int pathComponents) const
         return fullPath.mid(component);
 
     // If there are no more slashes before the found one, return the entire string
-    return toString();
+    return toUrlishString();
 }
 
 /*!
@@ -1189,7 +1190,7 @@ QString FilePath::displayName(const QString &args) const
     To create FilePath objects from strings possibly containing backslashes as
     path separator, use \c fromUserInput.
 
-    \sa toString, fromUserInput
+    \sa toFSPathString, toUserOutput, fromUserInput
 */
 FilePath FilePath::fromString(const QString &filepath)
 {
@@ -1497,7 +1498,7 @@ FilePath FilePath::fromSettings(const QVariant &variant)
 
 QVariant FilePath::toSettings() const
 {
-    return toString();
+    return toUrlishString();
 }
 
 /*!
@@ -1915,7 +1916,7 @@ void FilePath::removeDuplicates(FilePaths &files)
 {
     // FIXME: Improve.
     // FIXME: This drops the osType information, which is not correct.
-    QStringList list = transform<QStringList>(files, &FilePath::toString);
+    QStringList list = transform<QStringList>(files, &FilePath::toUrlishString);
     list.removeDuplicates();
     files = FileUtils::toFilePathList(list);
 }
@@ -1965,7 +1966,7 @@ FilePath FilePath::pathAppended(const QString &path) const
 
 FilePath FilePath::stringAppended(const QString &str) const
 {
-    return FilePath::fromString(toString() + str);
+    return FilePath::fromString(toUrlishString() + str);
 }
 
 std::optional<FilePath> FilePath::tailRemoved(const QString &str) const
@@ -2047,7 +2048,7 @@ Result FilePath::copyFile(const FilePath &target) const
         if (!target.setPermissions(perms)) {
             target.removeFile();
             return Result::Error(
-                Tr::tr("Could not set permissions on \"%1\"").arg(target.toString()));
+                Tr::tr("Could not set permissions on \"%1\"").arg(target.toUrlishString()));
         }
 
         return Result::Ok;
@@ -2279,7 +2280,7 @@ QString FilePath::shortNativePath() const
         const FilePath home = FileUtils::homePath();
         if (isChildOf(home)) {
             return QLatin1Char('~') + QDir::separator()
-                + QDir::toNativeSeparators(relativeChildPath(home).toString());
+                + QDir::toNativeSeparators(relativeChildPath(home).toUrlishString());
         }
     }
     return toUserOutput();
@@ -2363,10 +2364,10 @@ FilePath FilePath::cleanPath() const
 QString FilePath::withTildeHomePath() const
 {
     if (osType() == OsTypeWindows)
-        return toString();
+        return toUrlishString();
 
     if (!isLocal())
-        return toString();
+        return toUrlishString();
 
     static const QString homePath = QDir::homePath();
 
@@ -2374,12 +2375,12 @@ QString FilePath::withTildeHomePath() const
     if (outPath.startsWith(homePath))
        return '~' + outPath.mid(homePath.size());
 
-    return toString();
+    return toUrlishString();
 }
 
 QTextStream &operator<<(QTextStream &s, const FilePath &fn)
 {
-    return s << fn.toString();
+    return s << fn.toUrlishString();
 }
 
 // FileFilter
@@ -2546,7 +2547,7 @@ QTCREATOR_UTILS_EXPORT size_t qHash(const FilePath &filePath)
 
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const FilePath &c)
 {
-    return dbg << c.toString();
+    return dbg << c.toUrlishString();
 }
 
 class TemporaryFilePathPrivate
