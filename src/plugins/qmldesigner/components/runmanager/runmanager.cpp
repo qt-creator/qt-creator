@@ -57,7 +57,32 @@ RunManager::RunManager(DeviceShare::DeviceManager &deviceManager)
             this,
             &RunManager::udpateTargets);
 
-    // TODO If device going offline is currently running force stop
+    // If device going offline is currently running force stop
+    connect(&m_deviceManager,
+            &DeviceShare::DeviceManager::deviceOffline,
+            this,
+            [this](const QString &deviceId) {
+                qCDebug(runManagerLog) << "Device offline." << deviceId;
+
+                if (m_runningTargets.empty())
+                    return;
+
+                auto findRunningTarget = [&](const auto &runningTarget) {
+                    return std::visit(overloaded{[](const QPointer<ProjectExplorer::RunControl>) {
+                                                     return false;
+                                                 },
+                                                 [&](const QString &arg) { return arg == deviceId; }},
+                                      runningTarget);
+                };
+
+                const auto it = std::ranges::find_if(m_runningTargets, findRunningTarget);
+
+                if (it != m_runningTargets.end()) {
+                    std::visit(overloaded{[](const QPointer<ProjectExplorer::RunControl>) {},
+                                          [&](const QString &) { m_deviceManager.stopProject(); }},
+                               *it);
+                }
+            });
 
     // Packing
     connect(&m_deviceManager,
@@ -391,8 +416,8 @@ AndroidTarget::AndroidTarget(const QString &deviceId)
 
 QString AndroidTarget::name() const
 {
-    if (auto devcieSettings = deviceManager()->deviceSettings(m_deviceId))
-        return devcieSettings->alias();
+    if (auto deviceSettings = deviceManager()->deviceSettings(m_deviceId))
+        return deviceSettings->alias();
 
     return {};
 }
