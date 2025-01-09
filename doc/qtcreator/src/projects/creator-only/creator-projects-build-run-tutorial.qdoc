@@ -60,7 +60,7 @@
         \li Select \uicontrol {Configure Project}.
 
         \li To check that you can compile and link the application code for a
-            device, click the \uicontrol {Kit Selector} and select the kit for
+            device, select the \uicontrol {Kit Selector} and select the kit for
             the device.
 
             \image qtcreator-examples-kit-selector.webp {Selecting a kit to build with}

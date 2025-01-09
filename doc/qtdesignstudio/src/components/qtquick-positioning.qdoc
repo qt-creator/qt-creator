@@ -206,7 +206,7 @@
 
     In the \uicontrol {Pixel spacing} field, set the space between
     components in pixels. To disable the distribution of spacing in
-    pixels, click \imagedistributeoriginnone
+    pixels, select \imagedistributeoriginnone
     button.
 
     \section2 Using positioners

@@ -20,7 +20,7 @@
     when using Qt 6 as the minimum Qt version and CMake as the build system.
 
     You will use the \l{Edit Mode}{Edit} mode to create an application
-    that moves a Qt logo between three rectangles when you click them.
+    that moves a Qt logo between three rectangles when you select them.
 
     \image qtquick-tutorial.gif {Transitions example}
 
@@ -120,7 +120,7 @@
 
     \section1 Connect mouse clicks to state changes
 
-    To make the image move between the rectangles when users click them, add
+    To make the image move between the rectangles when users select them, add
     states to the Page component where you change the values of the \c x and
     \c y properties of \e icon to match those of the middle right and top left
     rectangles. To make sure that the image stays within the rectangle
@@ -149,7 +149,7 @@
     \skipto import
     \printuntil /^\ {0}\}/
 
-    Select \key {Ctrl+R} to run the application, and click the rectangles to
+    Select \key {Ctrl+R} to run the application, and then select the rectangles to
     move the Qt logo from one rectangle to another.
 
     \section1 Animate transitions
@@ -180,6 +180,6 @@
 
     \printuntil /^\ {0}\}/
 
-    Select \key {Ctrl+R} to run the application, and click the rectangles to
+    Select \key {Ctrl+R} to run the application, and then select the rectangles to
     view the animated transitions.
 */

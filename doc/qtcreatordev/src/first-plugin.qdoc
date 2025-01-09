@@ -117,7 +117,7 @@
     of the \uicontrol {Command line arguments} field to
     \c {-pluginpath %{buildDir}}.
 
-    When you click \uicontrol OK, \QC starts up, and you can verify that your
+    When you select \uicontrol OK, \QC starts up, and you can verify that your
     plugin is successfully loaded by looking for a menu entry \uicontrol Tools >
     \uicontrol Example and by looking for the plugin in the \uicontrol Help >
     \uicontrol {About Plugins} dialog.

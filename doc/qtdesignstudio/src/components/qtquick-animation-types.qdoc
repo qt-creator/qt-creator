@@ -103,7 +103,7 @@
     \uicontrol Duration field.
 
     You can connect the running property of an animation to a signal emitted
-    by a component to play the animation when users click a button, for
+    by a component to play the animation when users select a button, for
     example. For more information, see \l{Connecting components to signals}.
 
     To run animations several times in a loop, set the number of times they

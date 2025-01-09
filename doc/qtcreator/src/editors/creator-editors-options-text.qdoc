@@ -72,7 +72,7 @@
         \li Select \preferences > \uicontrol {Text Editor} >
             \uicontrol {Font & Colors} > \uicontrol Copy.
 
-        \li Enter a name for the color scheme and click \uicontrol OK.
+        \li Enter a name for the color scheme and select \uicontrol OK.
 
         \li In the \uicontrol Foreground field, specify the color of the selected
             code element or message.

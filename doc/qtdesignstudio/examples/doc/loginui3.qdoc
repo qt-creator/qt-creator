@@ -149,7 +149,7 @@
             \uicontrol {Change State to createAccount}.
     \endlist
 
-    In the live preview, you can now click the \e {Create Account}
+    In the live preview, you can now select the \e {Create Account}
     button to go to the account creation page.
 
     \image loginui3.gif "Moving between login page and account creation page"

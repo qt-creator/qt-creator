@@ -288,7 +288,7 @@
             by ignoring big files. Specify the maximum size of files to parse in
             the field next to the check box.
         \li The \uicontrol {Diagnostic configuration} field shows the Clang
-            checks to perform. Click the value of the field to select and edit
+            checks to perform. Select the value of the field to select and edit
             the checks to perform.
         \li Select \uicontrol Add to select sessions that should use a single
             clangd process for indexing.
@@ -296,7 +296,7 @@
 
     \section1 Clang Checks
 
-    Click the value of the \uicontrol {Diagnostic configuration} field to open
+    Select the value of the \uicontrol {Diagnostic configuration} field to open
     the \uicontrol {Diagnostic Configurations} dialog, where you can select and
     edit the checks to perform.
 

@@ -109,8 +109,8 @@
 
     The world axis helper (1) shows the direction of the world axes in the view.
     To point the 3D view camera at the currently selected component in the direction of
-    an axis, click the axis. Clicking the dot at the end of the axis will point
-    the camera at the opposite direction of the axis. If no component is
+    an axis, select the axis. To point the camera at the opposite direction of the axis,
+    select the dot at the end of the axis. If no component is
     selected, the camera is pointed at the world origin.
 
     \image studio-3d-editor-axis-helper.webp "Axis helper in the 3D view"
@@ -128,7 +128,7 @@
 
     \image studio-3d-split-view.webp "Split view in the 3D view"
 
-    To select one of the four panes, click the pane. The selected pane is marked with
+    Select one of the four panes to make it the active pane. The active pane is marked with
     a blue frame. Use the world axis helper to change the point of view for each pane
     independently. Navigate each split by panning, rotating, and zooming, as
     described above.
@@ -246,7 +246,7 @@
 
     To move, rotate, or scale components in the scene, you need to select them
     first. Toggle the selection mode to determine how components are selected
-    when you click them in the \uicontrol{3D} view:
+    when you select them in the \uicontrol{3D} view:
 
     \list
         \li Use the \imageselectitem (\uicontrol {Single Selection})
@@ -258,7 +258,7 @@
 
     Alternatively, select \key Q to toggle the selection mode.
 
-    To multiselect, hold \key Ctrl and click the components you wish to select.
+    To multiselect, hold \key Ctrl and select the components you wish to select.
 
     After selecting a component, you can apply the usual \l {Keyboard Shortcuts}
     {keyboard shortcuts} applicable to your operating system, for example,
@@ -276,7 +276,7 @@
     To move components, select \imagemoveoff or select \key W:
 
     \list
-        \li To move components along the axes of the move gizmo, click the axis,
+        \li To move components along the axes of the move gizmo, select the axis,
             and drag the component along the axis.
         \li To move components on a plane, drag the plane handle of the move
             component on the plane.

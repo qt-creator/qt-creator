@@ -25,7 +25,7 @@
     \section1 Manage build configurations
 
     To add a new build configuration to the list in
-    \uicontrol {Edit build configuration}, click \uicontrol Add and select the
+    \uicontrol {Edit build configuration}, select \uicontrol Add and then select the
     type of configuration to add. The options you have depend on the
     build system that you selected for the project. You can add as many build
     configurations as you need. You can also select \uicontrol Clone to
@@ -34,7 +34,7 @@
     Select \uicontrol Rename to give the currently selected build configuration
     a new name.
 
-    To delete the currently selected build configuration, click \uicontrol Remove.
+    To delete the currently selected build configuration, select \uicontrol Remove.
 
     \section1 Edit build configurations
 

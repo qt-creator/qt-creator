@@ -130,7 +130,7 @@
 
     \li To delete the placeholders created by the wizard, multiselect \uicontrol
         Text and \uicontrol view3D components (\key Ctrl + mouse left click) in
-        \uicontrol Navigator, then right click on the selected items, and select
+        \uicontrol Navigator, then right-click on the selected items, and select
         \uicontrol Edit > \uicontrol Delete.
         \image exporting-from-qt3ds/08-delete-placeholders.png "Delete placeholders in Navigator"
         \endlist
@@ -170,7 +170,7 @@
         in \uicontrol Components to the \uicontrol {2D} view.
         \image exporting-from-qt3ds/15-drag-to-project.png "Drag MyOwnCluster to the 2D view"
 
-    \li In \uicontrol Navigator, right click on myOwnCluster and select \uicontrol
+    \li In \uicontrol Navigator, right-click on myOwnCluster and select \uicontrol
         {Go into Component}.
         \image exporting-from-qt3ds/16-go-into-component.png "Go into component My Own Cluster"
 
