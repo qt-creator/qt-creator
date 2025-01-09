@@ -47,9 +47,6 @@ static RunWorker *createInferiorRunner(RunControl *runControl, QmlDebugServicesP
     worker->setId(AppManager::Constants::DEBUG_LAUNCHER_ID);
     worker->setEssential(true);
 
-    if (worker->usesPerfChannel())
-        worker->suppressDefaultStdOutHandling();
-
     worker->setStartModifier([worker, runControl, qmlServices] {
         FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
         QString appId = runControl->aspectData<AppManagerIdAspect>()->value;

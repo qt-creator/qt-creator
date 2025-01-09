@@ -172,8 +172,7 @@ public:
     {
         setProducer([](RunControl *runControl) {
             runControl->requestPerfChannel();
-            auto worker = createQdbDeviceInferiorWorker(runControl, NoQmlDebugServices);
-            return worker;
+            return createQdbDeviceInferiorWorker(runControl, NoQmlDebugServices);
         });
         addSupportedRunMode("PerfRecorder");
         addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);

@@ -94,8 +94,6 @@ public:
     {
         setProducer([](RunControl *runControl) {
             auto runner = new ProcessRunner(runControl);
-            runner->suppressDefaultStdOutHandling();
-
             runner->setStartModifier([runner, runControl] {
                 const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
                 const QString recordArgs = perfArgs[Constants::PerfRecordArgsId].toString();
@@ -148,6 +146,7 @@ public:
 
             QTC_ASSERT(perfRecordWorker, return worker);
 
+            perfRecordWorker->suppressDefaultStdOutHandling();
             worker->addStartDependency(perfRecordWorker);
 
             perfParserWorker->addStartDependency(perfRecordWorker);
