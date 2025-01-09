@@ -77,7 +77,7 @@ public:
     void kickoffTerminalProcess();
     void interruptTerminal();
 
-    Internal::DebuggerRunParameters &runParameters() { return m_runParameters; }
+    DebuggerRunParameters &runParameters() { return m_runParameters; }
 
     void setLldbPlatform(const QString &platform);
     void addQmlServerInferiorCommandLineArgumentIfNeeded();
@@ -121,7 +121,7 @@ private:
 
     Internal::DebuggerRunToolPrivate *d;
     QList<QPointer<Internal::DebuggerEngine>> m_engines;
-    Internal::DebuggerRunParameters m_runParameters;
+    DebuggerRunParameters m_runParameters;
 };
 
 class DebuggerRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory

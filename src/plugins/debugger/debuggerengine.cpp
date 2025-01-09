@@ -117,8 +117,6 @@ QDebug operator<<(QDebug str, const DebuggerRunParameters &sp)
     return str;
 }
 
-namespace Internal {
-
 DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::RunControl *runControl)
 {
     Kit *kit = runControl->kit();
@@ -198,6 +196,23 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
 
     return params;
 }
+
+bool DebuggerRunParameters::isCppDebugging() const
+{
+    return cppEngineType == GdbEngineType
+           || cppEngineType == LldbEngineType
+           || cppEngineType == CdbEngineType
+           || cppEngineType == GdbDapEngineType
+           || cppEngineType == LldbDapEngineType
+           || cppEngineType == UvscEngineType;
+}
+
+bool DebuggerRunParameters::isNativeMixedDebugging() const
+{
+    return nativeMixedEnabled && isCppDebugging() && isQmlDebugging;
+}
+
+namespace Internal {
 
 static bool debuggerActionsEnabledHelper(DebuggerState state)
 {
@@ -2735,21 +2750,6 @@ void DebuggerEngine::startDying() const
 QString DebuggerEngine::runId() const
 {
     return d->m_runId;
-}
-
-bool DebuggerRunParameters::isCppDebugging() const
-{
-    return cppEngineType == GdbEngineType
-        || cppEngineType == LldbEngineType
-        || cppEngineType == CdbEngineType
-        || cppEngineType == GdbDapEngineType
-        || cppEngineType == LldbDapEngineType
-        || cppEngineType == UvscEngineType;
-}
-
-bool DebuggerRunParameters::isNativeMixedDebugging() const
-{
-    return nativeMixedEnabled && isCppDebugging() && isQmlDebugging;
 }
 
 QString DebuggerEngine::formatStartParameters() const

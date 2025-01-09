@@ -71,32 +71,7 @@ enum DebuggerState
 
 DEBUGGER_EXPORT QDebug operator<<(QDebug str, DebuggerState state);
 
-namespace Internal {
-
-class DebuggerEnginePrivate;
-class DebuggerPluginPrivate;
-class DisassemblerAgent;
-class MemoryAgent;
-class WatchItem;
-class BreakHandler;
-class BreakpointParameters;
-class LocationMark;
-class LogWindow;
-class ModulesHandler;
-class RegisterHandler;
-class PeripheralRegisterHandler;
-class Section;
-class SourceFilesHandler;
-class StackFrame;
-class StackHandler;
-class Symbol;
-class WatchHandler;
-class WatchTreeView;
-class DebuggerToolTipContext;
-class DebuggerToolTipManager;
-class MemoryViewSetupData;
-
-class DebuggerRunParameters
+class DEBUGGER_EXPORT DebuggerRunParameters
 {
 public:
     static DebuggerRunParameters fromRunControl(ProjectExplorer::RunControl *runControl);
@@ -206,6 +181,31 @@ public:
     Utils::FilePath uVisionOptionsFilePath;
     bool uVisionSimulator = false;
 };
+
+namespace Internal {
+
+class DebuggerEnginePrivate;
+class DebuggerPluginPrivate;
+class DisassemblerAgent;
+class MemoryAgent;
+class WatchItem;
+class BreakHandler;
+class BreakpointParameters;
+class LocationMark;
+class LogWindow;
+class ModulesHandler;
+class RegisterHandler;
+class PeripheralRegisterHandler;
+class Section;
+class SourceFilesHandler;
+class StackFrame;
+class StackHandler;
+class Symbol;
+class WatchHandler;
+class WatchTreeView;
+class DebuggerToolTipContext;
+class DebuggerToolTipManager;
+class MemoryViewSetupData;
 
 class UpdateParameters
 {
