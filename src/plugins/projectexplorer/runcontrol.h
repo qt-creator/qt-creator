@@ -84,9 +84,6 @@ public:
     QUrl qmlChannel() const;
     bool usesQmlChannel() const;
 
-    QUrl perfChannel() const;
-    bool usesPerfChannel() const;
-
 signals:
     void started();
     void stopped();

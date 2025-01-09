@@ -56,7 +56,7 @@ static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
                 return;
             }
         }
-        if (worker->usesPerfChannel()) {
+        if (runControl->usesPerfChannel()) {
             const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
             // appcontroller is not very clear about this, but it expects a comma-separated list of arguments.
             // Any literal commas that apper in the args should be escaped by additional commas.
@@ -70,7 +70,7 @@ static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
                                            .join(',');
             cmd.addArg("--profile-perf");
             cmd.addArgs(recordArgs, CommandLine::Raw);
-            lowerPort = upperPort = worker->perfChannel().port();
+            lowerPort = upperPort = runControl->perfChannel().port();
         }
 
         cmd.addArg("--port-range");

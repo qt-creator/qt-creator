@@ -64,8 +64,8 @@ public:
     {
         CommandLine cmd{findPerfParser()};
         m_reader.addTargetArguments(&cmd, runControl());
-        if (usesPerfChannel()) { // The channel is only used with qdb currently.
-            const QUrl url = perfChannel();
+        if (runControl()->usesPerfChannel()) { // The channel is only used with qdb currently.
+            const QUrl url = runControl()->perfChannel();
             QTC_CHECK(url.isValid());
             cmd.addArgs({"--host", url.host(), "--port", QString::number(url.port())});
         }

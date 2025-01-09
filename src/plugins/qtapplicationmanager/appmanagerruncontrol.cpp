@@ -76,7 +76,7 @@ static RunWorker *createInferiorRunner(RunControl *runControl, QmlDebugServicesP
             }
             cmd.addArg(debugArgs.join(' '));
         }
-        if (worker->usesPerfChannel()) {
+        if (runControl->usesPerfChannel()) {
             const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
             const QString recordArgs = perfArgs[PerfProfiler::Constants::PerfRecordArgsId].toString();
             cmd.addArg(QString("perf record %1 -o - --").arg(recordArgs));

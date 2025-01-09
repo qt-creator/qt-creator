@@ -1975,16 +1975,6 @@ bool RunWorker::usesQmlChannel() const
     return d->runControl->usesQmlChannel();
 }
 
-QUrl RunWorker::perfChannel() const
-{
-    return d->runControl->perfChannel();
-}
-
-bool RunWorker::usesPerfChannel() const
-{
-    return d->runControl->usesPerfChannel();
-}
-
 void RunWorker::start()
 {
     reportStarted();
