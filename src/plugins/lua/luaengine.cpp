@@ -30,6 +30,32 @@ Utils::expected_str<void> connectHooks(
 
 static Q_LOGGING_CATEGORY(logLuaEngine, "qtc.lua.engine", QtWarningMsg);
 
+QString luaToString(lua_State *state, int index)
+{
+    size_t l;
+    const char *s = luaL_tolstring(state, index, &l);
+    if (s == nullptr)
+        return {};
+
+    // Remove from stack what tolstring pushed onto it.
+    sol::stack::pop_n(state, 1);
+
+    return QString::fromUtf8(s, l);
+}
+
+template<typename T>
+QString refToString(const T &ref)
+{
+    if (ref.template is<QString>())
+        return ref.template as<QString>();
+
+    if (ref.template is<sol::table>())
+        return toJsonString(ref.template as<sol::table>());
+
+    auto pp = sol::stack::push_pop(ref);
+    return luaToString(ref.lua_state(), -1);
+}
+
 class LuaInterfaceImpl final : public QObject, public LuaInterface
 {
 public:
@@ -205,18 +231,38 @@ expected_str<void> connectHooks(
     qCDebug(logLuaEngine) << "connectHooks called with path: " << path;
 
     for (const auto &[k, v] : table) {
-        qCDebug(logLuaEngine) << "Processing key: " << k.as<QString>();
-        if (v.get_type() == sol::type::table) {
-            return connectHooks(
-                lua, v.as<sol::table>(), QStringList{path, k.as<QString>()}.join("."), guard);
-        } else if (v.get_type() == sol::type::function) {
-            QString hookName = QStringList{path, k.as<QString>()}.join(".");
-            qCDebug(logLuaEngine) << "Connecting function to hook: " << hookName;
-            auto it = d->m_hooks.find(hookName);
-            if (it == d->m_hooks.end())
-                return make_unexpected(Tr::tr("No hook with the name \"%1\" found.").arg(hookName));
-            else
-                it.value()(v.as<sol::function>(), guard);
+        if (k.get_type() != sol::type::string)
+            return make_unexpected(
+                Tr::tr("Non-string key encountered in Lua table at path \"%1\"").arg(path));
+
+        const auto keyName = k.as<QString>();
+        const auto currentPath = QStringList{path, keyName}.join(".");
+        qCDebug(logLuaEngine) << "Processing path:" << currentPath;
+
+        switch (v.get_type()) {
+        case sol::type::table: {
+            auto result = connectHooks(lua, v.as<sol::table>(), currentPath, guard);
+            if (!result)
+                return result;
+            break;
+        }
+        case sol::type::function: {
+            qCDebug(logLuaEngine) << "Connecting function to hook:" << currentPath;
+
+            auto it = d->m_hooks.find(currentPath);
+            if (it == d->m_hooks.end()) {
+                return make_unexpected(
+                    Tr::tr("No hook with the name \"%1\" found.").arg(currentPath));
+            }
+
+            it.value()(v.as<sol::function>(), guard);
+            break;
+        }
+        default: {
+            return make_unexpected(Tr::tr("Unsupported value type \"%1\" at path \"%2\".")
+                                       .arg(static_cast<int>(v.get_type()))
+                                       .arg(currentPath));
+        }
         }
     }
 
@@ -316,8 +362,8 @@ expected_str<sol::protected_function> prepareSetup(
     if (logLuaEngine().isDebugEnabled()) {
         qCDebug(logLuaEngine) << "Script returned table with keys:";
         for (const auto &[key, value] : *pluginTable) {
-            qCDebug(logLuaEngine) << "Key:" << key.as<QString>();
-            qCDebug(logLuaEngine) << "Value:" << value.as<QString>();
+            qCDebug(logLuaEngine) << "Key:" << refToString(key);
+            qCDebug(logLuaEngine) << "Value:" << refToString(value);
         }
     }
 

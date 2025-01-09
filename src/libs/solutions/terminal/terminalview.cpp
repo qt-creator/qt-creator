@@ -189,7 +189,8 @@ void TerminalView::setupSurface()
     connect(d->m_surface.get(), &TerminalSurface::invalidated, this, [this](const QRect &rect) {
         setSelection(std::nullopt);
         updateViewportRect(gridToViewport(rect));
-        verticalScrollBar()->setValue(d->m_surface->fullSize().height());
+        if (verticalScrollBar()->value() == verticalScrollBar()->maximum())
+            verticalScrollBar()->setValue(d->m_surface->fullSize().height());
     });
     connect(
         d->m_surface.get(),
@@ -949,7 +950,33 @@ void TerminalView::keyPressEvent(QKeyEvent *event)
 
     event->accept();
 
-    d->m_surface->sendKey(event);
+    if (d->m_surface->isInAltScreen()) {
+        d->m_surface->sendKey(event);
+    } else {
+        switch (event->key()) {
+        case Qt::Key_PageDown:
+            verticalScrollBar()->setValue(qBound(
+                0,
+                verticalScrollBar()->value() + d->m_surface->liveSize().height(),
+                verticalScrollBar()->maximum()));
+            break;
+        case Qt::Key_PageUp:
+            verticalScrollBar()->setValue(qBound(
+                0,
+                verticalScrollBar()->value() - d->m_surface->liveSize().height(),
+                verticalScrollBar()->maximum()));
+            break;
+        case Qt::Key_End:
+            verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+            break;
+        case Qt::Key_Home:
+            verticalScrollBar()->setValue(0);
+            break;
+        default:
+            d->m_surface->sendKey(event);
+            break;
+        }
+    }
 }
 
 void TerminalView::keyReleaseEvent(QKeyEvent *event)
@@ -977,9 +1004,10 @@ void TerminalView::applySizeChange()
     if (d->m_surface->liveSize() == newLiveSize)
         return;
 
-    resizePty(newLiveSize);
-    d->m_surface->resize(newLiveSize);
-    flushVTerm(true);
+    if (resizePty(newLiveSize)) {
+        d->m_surface->resize(newLiveSize);
+        flushVTerm(true);
+    }
 }
 
 void TerminalView::updateScrollBars()

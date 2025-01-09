@@ -240,9 +240,21 @@ void setupTextEditorModule()
             "to",
             sol::property(&Range::end, &Range::end));
 
-        result.new_usertype<QTextCursor>(
+        auto textCursorType = result.new_usertype<QTextCursor>(
             "TextCursor",
             sol::no_constructor,
+            "create",
+            sol::overload(
+                []() {
+                    return QTextCursor();
+                },
+                [](QTextDocument *doc) {
+                    return QTextCursor(doc);
+                },
+                [](const QTextCursor &other) {
+                    return QTextCursor(other);
+                }
+            ),
             "position",
             &QTextCursor::position,
             "blockNumber",
@@ -279,7 +291,55 @@ void setupTextEditorModule()
                 return ret;
             },
             "insertText",
-            [](QTextCursor *textCursor, const QString &text) { textCursor->insertText(text); });
+            [](QTextCursor *textCursor, const QString &text) { textCursor->insertText(text); },
+            "movePosition",
+            sol::overload(
+                [](QTextCursor *cursor, QTextCursor::MoveOperation op) {
+                    cursor->movePosition(op);
+                },
+                [](QTextCursor *cursor, QTextCursor::MoveOperation op, QTextCursor::MoveMode mode) {
+                    cursor->movePosition(op, mode);
+                },
+                [](QTextCursor *cursor, QTextCursor::MoveOperation op, QTextCursor::MoveMode mode, int n) {
+                    cursor->movePosition(op, mode, n);
+                }
+            ));
+
+        textCursorType["MoveMode"] = lua.create_table_with(
+            "MoveAnchor", QTextCursor::MoveAnchor,
+            "KeepAnchor", QTextCursor::KeepAnchor
+        );
+
+        textCursorType["MoveOperation"] = lua.create_table_with(
+            "NoMove",            QTextCursor::NoMove,
+
+            "Start",            QTextCursor::Start,
+            "Up",               QTextCursor::Up,
+            "StartOfLine",      QTextCursor::StartOfLine,
+            "StartOfBlock",     QTextCursor::StartOfBlock,
+            "StartOfWord",      QTextCursor::StartOfWord,
+            "PreviousBlock",    QTextCursor::PreviousBlock,
+            "PreviousCharacter",QTextCursor::PreviousCharacter,
+            "PreviousWord",     QTextCursor::PreviousWord,
+            "Left",             QTextCursor::Left,
+            "WordLeft",         QTextCursor::WordLeft,
+
+            "End",              QTextCursor::End,
+            "Down",             QTextCursor::Down,
+            "EndOfLine",        QTextCursor::EndOfLine,
+            "EndOfWord",        QTextCursor::EndOfWord,
+            "EndOfBlock",       QTextCursor::EndOfBlock,
+            "NextBlock",        QTextCursor::NextBlock,
+            "NextCharacter",    QTextCursor::NextCharacter,
+            "NextWord",         QTextCursor::NextWord,
+            "Right",            QTextCursor::Right,
+            "WordRight",        QTextCursor::WordRight,
+
+            "NextCell",         QTextCursor::NextCell,
+            "PreviousCell",     QTextCursor::PreviousCell,
+            "NextRow",          QTextCursor::NextRow,
+            "PreviousRow",      QTextCursor::PreviousRow
+        );
 
         using LayoutOrWidget = std::variant<Layouting::Layout *, Layouting::Widget *, QWidget *>;
 

@@ -42,7 +42,7 @@ FileApiReader::FileApiReader()
     QObject::connect(&m_watcher,
                      &FileSystemWatcher::directoryChanged,
                      this,
-                     &FileApiReader::replyDirectoryHasChanged);
+                     &FileApiReader::handleReplyDirectoryChange);
 }
 
 FileApiReader::~FileApiReader()
@@ -60,10 +60,11 @@ void FileApiReader::setParameters(const BuildDirParameters &p)
     m_parameters = p;
     qCDebug(cmakeFileApiMode) << "Work directory:" << m_parameters.buildDirectory.toUserOutput();
 
-    // Reset watcher:
-    m_watcher.clear();
-
     FileApiParser::setupCMakeFileApi(m_parameters.buildDirectory);
+
+    const FilePath replyDirectory = FileApiParser::cmakeReplyDirectory(m_parameters.buildDirectory);
+    if (!m_watcher.watchesDirectory(replyDirectory))
+        m_watcher.addDirectory(replyDirectory.path(), FileSystemWatcher::WatchAllChanges);
 
     resetData();
 }
@@ -385,8 +386,7 @@ void FileApiReader::startCMakeState(const QStringList &configurationArguments)
 
     qCDebug(cmakeFileApiMode) << ">>>>>> Running cmake with arguments:" << configurationArguments;
     // Reset watcher:
-    m_watcher.removeFiles(m_watcher.filePaths());
-    m_watcher.removeDirectories(m_watcher.directoryPaths());
+    m_watcher.clear();
 
     makeBackupConfiguration(true);
     writeConfigurationIntoBuildDirectory(configurationArguments);
@@ -412,7 +412,7 @@ void FileApiReader::cmakeFinishedState(int exitCode)
              m_lastCMakeExitCode != 0);
 }
 
-void FileApiReader::replyDirectoryHasChanged(const QString &directory) const
+void FileApiReader::handleReplyDirectoryChange(const QString &directory)
 {
     if (m_isParsing)
         return; // This has been triggered by ourselves, ignore.
@@ -424,8 +424,10 @@ void FileApiReader::replyDirectoryHasChanged(const QString &directory) const
     QTC_CHECK(dir.isLocal());
     QTC_ASSERT(dir.path() == directory, return);
 
-    if (m_lastReplyTimestamp.isValid() && reply.lastModified() > m_lastReplyTimestamp)
+    if (m_lastReplyTimestamp.isValid() && reply.lastModified() > m_lastReplyTimestamp) {
+        m_lastReplyTimestamp = reply.lastModified();
         emit dirty();
+    }
 }
 
 } // CMakeProjectManager::Internal
