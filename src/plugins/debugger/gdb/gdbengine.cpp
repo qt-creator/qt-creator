@@ -1646,7 +1646,7 @@ void GdbEngine::shutdownInferior()
 {
     CHECK_STATE(InferiorShutdownRequested);
     DebuggerCommand cmd;
-    cmd.function = QLatin1String(runParameters().closeMode == DetachAtClose ? "detach " : "kill ");
+    cmd.function = QLatin1String(runParameters().closeMode() == DetachAtClose ? "detach " : "kill ");
     cmd.callback = CB(handleInferiorShutdown);
     cmd.flags = NeedsTemporaryStop|LosesChild;
     runCommand(cmd);
@@ -4770,7 +4770,7 @@ void GdbEngine::shutdownEngine()
 
     switch (m_gdbProc.state()) {
     case QProcess::Running: {
-        if (runParameters().closeMode == KillAndExitMonitorAtClose)
+        if (runParameters().closeMode() == KillAndExitMonitorAtClose)
             runCommand({"monitor exit"});
         runCommand({"exitGdb", ExitRequest, CB(handleGdbExit)});
         break;

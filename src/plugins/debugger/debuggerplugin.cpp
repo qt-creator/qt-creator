@@ -1399,7 +1399,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             debugger->setSysRoot(FilePath::fromUserInput(sysRoot));
         if (pid) {
             rp.setStartMode(AttachToLocalProcess);
-            debugger->setCloseMode(DetachAtClose);
+            rp.setCloseMode(DetachAtClose);
             debugger->setAttachPid(pid);
             debugger->setRunControlName(Tr::tr("Process %1").arg(pid));
             debugger->setStartMessage(Tr::tr("Attaching to local process %1.").arg(pid));
@@ -1410,7 +1410,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             debugger->setStartMessage(Tr::tr("Attaching to remote server %1.").arg(remoteChannel));
         } else if (startMode == AttachToCore) {
             rp.setStartMode(AttachToCore);
-            debugger->setCloseMode(DetachAtClose);
+            rp.setCloseMode(DetachAtClose);
             debugger->setCoreFilePath(coreFile);
             debugger->setRunControlName(Tr::tr("Core file \"%1\"").arg(coreFile.toUserOutput()));
             debugger->setStartMessage(Tr::tr("Attaching to core file %1.").arg(coreFile.toUserOutput()));
@@ -1627,7 +1627,7 @@ void DebuggerPluginPrivate::attachToLastCore()
     debugger->setInferiorExecutable(lastCore.binary);
     debugger->setCoreFilePath(lastCore.coreFile);
     rp.setStartMode(AttachToCore);
-    debugger->setCloseMode(DetachAtClose);
+    rp.setCloseMode(DetachAtClose);
 
     runControl->start();
 }
@@ -1676,7 +1676,7 @@ void DebuggerPluginPrivate::attachToRunningApplication()
         debugger->setId("AttachToRunningProcess");
         debugger->setUseDebugServer(ProcessHandle(processInfo.processId), false, false);
         rp.setStartMode(AttachToRemoteProcess);
-        debugger->setCloseMode(DetachAtClose);
+        rp.setCloseMode(DetachAtClose);
         debugger->setUseContinueInsteadOfRun(true);
         debugger->setContinueAfterAttach(false);
 
@@ -1746,7 +1746,7 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     debugger->setAttachPid(ProcessHandle(processInfo.processId));
     debugger->setInferiorExecutable(device->filePath(processInfo.executable));
     rp.setStartMode(AttachToLocalProcess);
-    debugger->setCloseMode(DetachAtClose);
+    rp.setCloseMode(DetachAtClose);
     debugger->setContinueAfterAttach(contAfterAttach);
 
     runControl->start();
@@ -2300,7 +2300,7 @@ void DebuggerPlugin::attachExternalApplication(RunControl *rc)
     debugger->setInferiorExecutable(rc->targetFilePath());
     debugger->setAttachPid(pid);
     rp.setStartMode(AttachToLocalProcess);
-    debugger->setCloseMode(DetachAtClose);
+    rp.setCloseMode(DetachAtClose);
 
     runControl->start();
 }

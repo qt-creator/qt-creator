@@ -120,7 +120,7 @@ public:
             DebuggerRunParameters &rp = worker->runParameters();
             worker->setupPortsGatherer();
             rp.setStartMode(Debugger::AttachToRemoteServer);
-            worker->setCloseMode(KillAndExitMonitorAtClose);
+            rp.setCloseMode(KillAndExitMonitorAtClose);
             worker->setUseContinueInsteadOfRun(true);
             worker->setContinueAfterAttach(true);
             worker->addSolibSearchDir("%{sysroot}/system/lib");

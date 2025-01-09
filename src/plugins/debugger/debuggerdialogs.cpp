@@ -407,6 +407,7 @@ void StartApplicationDialog::run(bool attachRemote)
 
     auto debugger = new DebuggerRunTool(runControl);
 
+    DebuggerRunParameters &rp = debugger->runParameters();
     const QString inputAddress = dialog.channelOverrideEdit->text();
     if (!inputAddress.isEmpty())
         debugger->setRemoteChannel(inputAddress);
@@ -431,8 +432,8 @@ void StartApplicationDialog::run(bool attachRemote)
         debugger->runParameters().setStartMode(isLocal ? StartExternal : StartRemoteProcess);
 
     if (attachRemote) {
-        debugger->runParameters().setStartMode(AttachToRemoteServer);
-        debugger->setCloseMode(KillAtClose);
+        rp.setStartMode(AttachToRemoteServer);
+        rp.setCloseMode(KillAtClose);
         debugger->setUseContinueInsteadOfRun(true);
         debugger->setRunControlName(Tr::tr("Attach to %1").arg(debugger->remoteChannel()));
     }
@@ -715,7 +716,7 @@ void runStartRemoteCdbSessionDialog(Kit *kit)
     auto debugger = new DebuggerRunTool(runControl);
     DebuggerRunParameters &rp = debugger->runParameters();
     rp.setStartMode(AttachToRemoteServer);
-    debugger->setCloseMode(KillAtClose);
+    rp.setCloseMode(KillAtClose);
     debugger->setRemoteChannel(dlg.connection());
 
     runControl->start();

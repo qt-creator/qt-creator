@@ -54,7 +54,7 @@ public:
             debugger->setUseDebugServer({}, true, true);
 
             rp.setStartMode(AttachToRemoteServer);
-            debugger->setCloseMode(KillAndExitMonitorAtClose);
+            rp.setCloseMode(KillAndExitMonitorAtClose);
             debugger->setUseExtendedRemote(true);
 
             if (rc->device()->osType() == Utils::OsTypeMac)

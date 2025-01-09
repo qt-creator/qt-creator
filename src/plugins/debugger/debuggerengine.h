@@ -85,7 +85,8 @@ public:
     DebuggerStartMode startMode() const { return m_startMode; }
     bool isLocalAttachEngine() const { return m_startMode == AttachToLocalProcess; }
 
-    DebuggerCloseMode closeMode = KillAtClose;
+    void setCloseMode(DebuggerCloseMode closeMode) { m_closeMode = closeMode; }
+    DebuggerCloseMode closeMode() const { return m_closeMode; }
 
     Utils::ProcessRunData inferior;
     QString displayName; // Used in the Snapshots view.
@@ -193,6 +194,7 @@ public:
 
 private:
     DebuggerStartMode m_startMode = NoStartMode;
+    DebuggerCloseMode m_closeMode = KillAtClose;
 };
 
 namespace Internal {

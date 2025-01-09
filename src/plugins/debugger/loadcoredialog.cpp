@@ -354,7 +354,7 @@ void runAttachToCoreDialog()
     debugger->setInferiorExecutable(dlg.symbolFileCopy());
     debugger->setCoreFilePath(dlg.coreFileCopy());
     rp.setStartMode(AttachToCore);
-    debugger->setCloseMode(DetachAtClose);
+    rp.setCloseMode(DetachAtClose);
     debugger->setOverrideStartScript(dlg.overrideStartScript());
     const FilePath sysRoot = dlg.sysRoot();
     if (!sysRoot.isEmpty())

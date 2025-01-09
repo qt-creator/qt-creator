@@ -148,7 +148,7 @@ void showAttachToProcessDialog()
 
     DebuggerRunParameters &rp = debugger->runParameters();
     rp.setStartMode(AttachToRemoteServer);
-    debugger->setCloseMode(DetachAtClose);
+    rp.setCloseMode(DetachAtClose);
     debugger->setSymbolFile(localExecutable);
     debugger->setAttachPid(pid);
 //    setRunControlName(Tr::tr("Remote: \"%1\" - Process %2").arg(remoteChannel).arg(m_process.pid));
@@ -204,7 +204,7 @@ public:
 
             DebuggerRunParameters &rp = debugger->runParameters();
             rp.setStartMode(AttachToRemoteServer);
-            debugger->setCloseMode(KillAtClose);
+            rp.setCloseMode(KillAtClose);
             debugger->setUseCtrlCStub(true);
             debugger->setSolibSearchPath(FileUtils::toFilePathList(searchPaths(k)));
             if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(k))) {

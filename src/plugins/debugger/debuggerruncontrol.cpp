@@ -103,11 +103,6 @@ public:
 
 } // namespace Internal
 
-void DebuggerRunTool::setCloseMode(DebuggerCloseMode closeMode)
-{
-    m_runParameters.closeMode = closeMode;
-}
-
 void DebuggerRunTool::setAttachPid(ProcessHandle pid)
 {
     m_runParameters.attachPID = pid;
@@ -578,8 +573,9 @@ void DebuggerRunTool::continueAfterDebugServerStart()
                 rc->resetDataForAttachToCore();
                 auto name = QString(Tr::tr("%1 - Snapshot %2").arg(runControl()->displayName()).arg(++d->snapshotCounter));
                 auto debugger = new DebuggerRunTool(rc);
-                debugger->runParameters().setStartMode(AttachToCore);
-                debugger->setCloseMode(DetachAtClose);
+                DebuggerRunParameters &rp = debugger->runParameters();
+                rp.setStartMode(AttachToCore);
+                rp.setCloseMode(DetachAtClose);
                 debugger->setRunControlName(name);
                 debugger->setCoreFilePath(FilePath::fromString(coreFile), true);
                 rc->start();

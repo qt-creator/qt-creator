@@ -311,7 +311,7 @@ void DebuggerRunParameters::setStartMode(DebuggerStartMode startMode)
 
     cppEngineType = NoEngineType;
     isQmlDebugging = true;
-    closeMode = KillAtClose;
+    m_closeMode = KillAtClose;
 
     // FIXME: This is horribly wrong.
     // get files from all the projects in the session
