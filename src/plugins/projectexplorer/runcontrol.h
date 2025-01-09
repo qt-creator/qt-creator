@@ -78,9 +78,6 @@ public:
     bool isEssential() const;
     void setEssential(bool essential);
 
-    QUrl debugChannel() const;
-    bool usesDebugChannel() const;
-
 signals:
     void started();
     void stopped();

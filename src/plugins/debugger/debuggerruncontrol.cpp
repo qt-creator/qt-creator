@@ -442,8 +442,8 @@ void DebuggerRunTool::continueAfterTerminalStart()
 {
     TaskHub::clearTasks(Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
-    if (usesDebugChannel())
-        setRemoteChannel(debugChannel());
+    if (runControl()->usesDebugChannel())
+        setRemoteChannel(runControl()->debugChannel());
 
     if (runControl()->usesQmlChannel()) {
         setQmlServer(runControl()->qmlChannel());
@@ -968,7 +968,7 @@ void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
 
 void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
 {
-    if (!usesDebugChannel()) {
+    if (!runControl()->usesDebugChannel()) {
         continueAfterDebugServerStart();
         return;
     }
@@ -978,7 +978,7 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
         CommandLine commandLine = m_runParameters.inferior.command;
         CommandLine cmd;
 
-        if (runControl()->usesQmlChannel() && !usesDebugChannel()) {
+        if (runControl()->usesQmlChannel() && !runControl()->usesDebugChannel()) {
             // FIXME: Case should not happen?
             cmd.setExecutable(commandLine.executable());
             cmd.addArg(qmlDebugTcpArguments(QmlDebuggerServices, runControl()->qmlChannel()));
@@ -1025,15 +1025,15 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
                     }
                 }
             }
-            QTC_ASSERT(usesDebugChannel(), reportFailure({}));
+            QTC_ASSERT(runControl()->usesDebugChannel(), reportFailure({}));
             if (cmd.executable().baseName().contains("lldb-server")) {
                 cmd.addArg("platform");
                 cmd.addArg("--listen");
-                cmd.addArg(QString("*:%1").arg(debugChannel().port()));
+                cmd.addArg(QString("*:%1").arg(runControl()->debugChannel().port()));
                 cmd.addArg("--server");
             } else if (cmd.executable().baseName() == "debugserver") {
                 const QString ipAndPort("`echo $SSH_CLIENT | cut -d ' ' -f 1`:%1");
-                cmd.addArgs(ipAndPort.arg(debugChannel().port()), CommandLine::Raw);
+                cmd.addArgs(ipAndPort.arg(runControl()->debugChannel().port()), CommandLine::Raw);
 
                 if (d->serverAttachPid.isValid())
                     cmd.addArgs({"--attach", QString::number(d->serverAttachPid.pid())});
@@ -1046,7 +1046,7 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
                 if (d->serverAttachPid.isValid())
                     cmd.addArg("--attach");
 
-                const auto port = debugChannel().port();
+                const auto port = runControl()->debugChannel().port();
                 cmd.addArg(QString(":%1").arg(port));
 
                 if (device()->extraData(ProjectExplorer::Constants::SSH_FORWARD_DEBUGSERVER_PORT).toBool()) {

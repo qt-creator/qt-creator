@@ -138,8 +138,8 @@ void showAttachToProcessDialog()
     if (debugger->isCppDebugging()) {
         auto pdebugRunner = new ProcessRunner(runControl);
         pdebugRunner->setId("PDebugRunner");
-        pdebugRunner->setStartModifier([pdebugRunner, debugger] {
-            const int pdebugPort = debugger->debugChannel().port();
+        pdebugRunner->setStartModifier([pdebugRunner, runControl] {
+            const int pdebugPort = runControl->debugChannel().port();
             pdebugRunner->setCommandLine({QNX_DEBUG_EXECUTABLE, {QString::number(pdebugPort)}});
         });
 
@@ -181,8 +181,8 @@ public:
             debuggeeRunner->setStartModifier([debuggeeRunner, runControl] {
                 CommandLine cmd = debuggeeRunner->commandLine();
                 QStringList arguments;
-                if (debuggeeRunner->usesDebugChannel()) {
-                    const int pdebugPort = debuggeeRunner->debugChannel().port();
+                if (runControl->usesDebugChannel()) {
+                    const int pdebugPort = runControl->debugChannel().port();
                     cmd.setExecutable(debuggeeRunner->device()->filePath(QNX_DEBUG_EXECUTABLE));
                     arguments.append(QString::number(pdebugPort));
                 }

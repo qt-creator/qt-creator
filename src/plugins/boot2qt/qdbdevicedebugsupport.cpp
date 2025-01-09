@@ -38,9 +38,9 @@ static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
         int lowerPort = 0;
         int upperPort = 0;
 
-        if (worker->usesDebugChannel()) {
+        if (runControl->usesDebugChannel()) {
             cmd.addArg("--debug-gdb");
-            lowerPort = upperPort = worker->debugChannel().port();
+            lowerPort = upperPort = runControl->debugChannel().port();
         }
         if (runControl->usesQmlChannel()) {
             cmd.addArg("--debug-qml");
@@ -48,8 +48,8 @@ static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
             cmd.addArg(qmlDebugServices(qmlServices));
             lowerPort = upperPort = runControl->qmlChannel().port();
         }
-        if (worker->usesDebugChannel() && runControl->usesQmlChannel()) {
-            lowerPort = worker->debugChannel().port();
+        if (runControl->usesDebugChannel() && runControl->usesQmlChannel()) {
+            lowerPort = runControl->debugChannel().port();
             upperPort = runControl->qmlChannel().port();
             if (lowerPort + 1 != upperPort) {
                 worker->reportFailure("Need adjacent free ports for combined C++/QML debugging");

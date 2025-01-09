@@ -64,11 +64,11 @@ static RunWorker *createInferiorRunner(RunControl *runControl, QmlDebugServicesP
 
         cmd.addArg("debug-application");
 
-        if (worker->usesDebugChannel() || runControl->usesQmlChannel()) {
+        if (runControl->usesDebugChannel() || runControl->usesQmlChannel()) {
             QStringList debugArgs;
             debugArgs.append(envVars.join(' '));
-            if (worker->usesDebugChannel())
-                debugArgs.append(QString("gdbserver :%1").arg(worker->debugChannel().port()));
+            if (runControl->usesDebugChannel())
+                debugArgs.append(QString("gdbserver :%1").arg(runControl->debugChannel().port()));
             if (runControl->usesQmlChannel()) {
                 const QString qmlArgs = qmlDebugCommandLineArguments(qmlServices,
                     QString("port:%1").arg(runControl->qmlChannel().port()), true);
@@ -162,7 +162,7 @@ private:
             setUseExtendedRemote(false);
             setUseContinueInsteadOfRun(true);
             setContinueAfterAttach(true);
-            setRemoteChannel(debugChannel());
+            setRemoteChannel(runControl()->debugChannel());
             setSymbolFile(symbolFile);
 
             QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(runControl()->kit());

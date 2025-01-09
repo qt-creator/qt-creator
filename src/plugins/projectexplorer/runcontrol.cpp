@@ -1955,16 +1955,6 @@ void RunWorker::setEssential(bool essential)
     d->essential = essential;
 }
 
-QUrl RunWorker::debugChannel() const
-{
-    return d->runControl->debugChannel();
-}
-
-bool RunWorker::usesDebugChannel() const
-{
-    return d->runControl->usesDebugChannel();
-}
-
 void RunWorker::start()
 {
     reportStarted();
