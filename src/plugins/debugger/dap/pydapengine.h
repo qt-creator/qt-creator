@@ -17,7 +17,6 @@ private:
     void quitDebugger() override;
 
     void setupEngine() override;
-    bool isLocalAttachEngine() const;
 
     bool acceptsBreakpoint(const BreakpointParameters &bp) const override;
 

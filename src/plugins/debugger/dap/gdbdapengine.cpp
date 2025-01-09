@@ -113,7 +113,7 @@ GdbDapEngine::GdbDapEngine()
 
 void GdbDapEngine::handleDapInitialize()
 {
-    if (!isLocalAttachEngine()) {
+    if (!runParameters().isLocalAttachEngine()) {
         DapEngine::handleDapInitialize();
         return;
     }
@@ -123,14 +123,9 @@ void GdbDapEngine::handleDapInitialize()
     qCDebug(logCategory()) << "handleDapAttach";
 }
 
-bool GdbDapEngine::isLocalAttachEngine() const
-{
-    return runParameters().startMode() == AttachToLocalProcess;
-}
-
 void GdbDapEngine::handleDapConfigurationDone()
 {
-    if (!isLocalAttachEngine()) {
+    if (!runParameters().isLocalAttachEngine()) {
         DapEngine::handleDapConfigurationDone();
         return;
     }
@@ -145,7 +140,7 @@ void GdbDapEngine::setupEngine()
     const DebuggerRunParameters &rp = runParameters();
     CommandLine cmd{rp.debugger.command.executable(), {"-i", "dap"}};
 
-    if (isLocalAttachEngine())
+    if (runParameters().isLocalAttachEngine())
         cmd.addArgs({"-p", QString::number(rp.attachPID.pid())});
 
     QVersionNumber oldestVersion(14, 0, 50);

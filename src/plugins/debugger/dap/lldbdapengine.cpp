@@ -151,7 +151,7 @@ void LldbDapEngine::handleDapInitialize()
     const QJsonArray map = sourceMap();
     const QJsonArray commands = preRunCommands();
 
-    if (!isLocalAttachEngine()) {
+    if (!runParameters().isLocalAttachEngine()) {
         const QJsonArray env = QJsonArray::fromStringList(rp.inferior.environment.toStringList());
         const QJsonArray args = QJsonArray::fromStringList(rp.inferior.command.splitArguments());
 
@@ -192,14 +192,9 @@ void LldbDapEngine::handleDapInitialize()
     qCDebug(logCategory()) << "handleDapAttach";
 }
 
-bool LldbDapEngine::isLocalAttachEngine() const
-{
-    return runParameters().startMode() == AttachToLocalProcess;
-}
-
 void LldbDapEngine::handleDapConfigurationDone()
 {
-    if (!isLocalAttachEngine()) {
+    if (!runParameters().isLocalAttachEngine()) {
         DapEngine::handleDapConfigurationDone();
         return;
     }

@@ -4378,7 +4378,7 @@ void GdbEngine::debugLastCommand()
 
 bool GdbEngine::isLocalRunEngine() const
 {
-    return !isCoreEngine() && !isLocalAttachEngine() && !isRemoteEngine();
+    return !isCoreEngine() && !runParameters().isLocalAttachEngine() && !isRemoteEngine();
 }
 
 bool GdbEngine::isPlainEngine() const
@@ -4395,11 +4395,6 @@ bool GdbEngine::isRemoteEngine() const
 {
     const DebuggerStartMode startMode = runParameters().startMode();
     return startMode == StartRemoteProcess || startMode == AttachToRemoteServer;
-}
-
-bool GdbEngine::isLocalAttachEngine() const
-{
-    return runParameters().startMode() == AttachToLocalProcess;
 }
 
 bool GdbEngine::isTermEngine() const
@@ -4468,7 +4463,7 @@ void GdbEngine::setupInferior()
 
         handleInferiorPrepared();
 
-    } else if (isLocalAttachEngine()) {
+    } else if (runParameters().isLocalAttachEngine()) {
         // Task 254674 does not want to remove them
         //qq->breakHandler()->removeAllBreakpoints();
         handleInferiorPrepared();
@@ -4604,7 +4599,7 @@ void GdbEngine::runEngine()
         QString channel = rp.remoteChannel;
         runCommand({"target remote " + channel});
 
-    } else if (isLocalAttachEngine()) {
+    } else if (runParameters().isLocalAttachEngine()) {
 
         const qint64 pid = rp.attachPID.pid();
         showStatusMessage(Tr::tr("Attaching to process %1.").arg(pid));
@@ -4733,7 +4728,7 @@ void GdbEngine::handleRemoteAttach(const DebuggerResponse &response)
 
 void GdbEngine::interruptInferior2()
 {
-    if (isLocalAttachEngine()) {
+    if (runParameters().isLocalAttachEngine()) {
 
         interruptLocalInferior(runParameters().attachPID.pid());
 

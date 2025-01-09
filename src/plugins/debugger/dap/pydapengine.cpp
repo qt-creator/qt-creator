@@ -260,7 +260,7 @@ void PyDapEngine::setupEngine()
                      "-m", "debugpy",
                      "--listen", "127.0.0.1:5679"}};
 
-    if (isLocalAttachEngine()) {
+    if (runParameters().isLocalAttachEngine()) {
         cmd.addArgs({"--pid", QString::number(runParameters().attachPID.pid())});
     } else {
         cmd.addArgs({"--wait-for-client",
@@ -281,11 +281,6 @@ bool PyDapEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
     const auto mimeType = Utils::mimeTypeForFile(bp.fileName);
     return mimeType.matchesName(C_PY3_MIMETYPE) || mimeType.matchesName(C_PY_GUI_MIMETYPE)
            || mimeType.matchesName(C_PY_MIMETYPE) || mimeType.matchesName(C_PY_MIME_ICON);
-}
-
-bool PyDapEngine::isLocalAttachEngine() const
-{
-    return runParameters().startMode() == AttachToLocalProcess;
 }
 
 const QLoggingCategory &PyDapEngine::logCategory()

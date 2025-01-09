@@ -18,7 +18,6 @@ private:
     void handleDapInitialize() override;
     void handleDapConfigurationDone() override;
 
-    bool isLocalAttachEngine() const;
     bool acceptsBreakpoint(const BreakpointParameters &bp) const override;
     const QLoggingCategory &logCategory() override;
 };

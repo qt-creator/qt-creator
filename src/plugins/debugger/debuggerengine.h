@@ -83,6 +83,7 @@ public:
 
     void setStartMode(DebuggerStartMode startMode);
     DebuggerStartMode startMode() const { return m_startMode; }
+    bool isLocalAttachEngine() const { return m_startMode == AttachToLocalProcess; }
 
     DebuggerCloseMode closeMode = KillAtClose;
 
