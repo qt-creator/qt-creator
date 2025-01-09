@@ -921,13 +921,14 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
         addStartDependency(m_deviceCtlRunner);
     }
 
+    DebuggerRunParameters &rp = runParameters();
     if (device()->type() == Ios::Constants::IOS_DEVICE_TYPE) {
         if (dev->handler() == IosDevice::Handler::DeviceCtl) {
             QTC_CHECK(IosDeviceManager::isDeviceCtlDebugSupported());
-            setStartMode(AttachToIosDevice);
+            rp.setStartMode(AttachToIosDevice);
             setDeviceUuid(dev->uniqueInternalDeviceId());
         } else {
-            setStartMode(AttachToRemoteProcess);
+            rp.setStartMode(AttachToRemoteProcess);
         }
         setIosPlatform("remote-ios");
         const expected_str<FilePath> deviceSdk = findDeviceSdk(dev);
@@ -937,7 +938,7 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
         else
             setDeviceSymbolsRoot(deviceSdk->path());
     } else {
-        setStartMode(AttachToLocalProcess);
+        rp.setStartMode(AttachToLocalProcess);
         setIosPlatform("ios-simulator");
     }
 }
@@ -1003,7 +1004,7 @@ void IosDebugSupport::start()
         QTC_ASSERT(isListening, return);
         qmlServer.setHost(server.serverAddress().toString());
         if (!cppDebug)
-            setStartMode(AttachToRemoteServer);
+            runParameters().setStartMode(AttachToRemoteServer);
     }
 
     if (qmlServerPort.isValid())

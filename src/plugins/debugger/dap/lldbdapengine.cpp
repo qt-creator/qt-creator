@@ -194,7 +194,7 @@ void LldbDapEngine::handleDapInitialize()
 
 bool LldbDapEngine::isLocalAttachEngine() const
 {
-    return runParameters().startMode == AttachToLocalProcess;
+    return runParameters().startMode() == AttachToLocalProcess;
 }
 
 void LldbDapEngine::handleDapConfigurationDone()

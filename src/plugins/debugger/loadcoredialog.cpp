@@ -350,9 +350,10 @@ void runAttachToCoreDialog()
     runControl->setDisplayName(Tr::tr("Core file \"%1\"").arg(dlg.coreFile().toUserOutput()));
 
     auto debugger = new DebuggerRunTool(runControl);
+    DebuggerRunParameters &rp = debugger->runParameters();
     debugger->setInferiorExecutable(dlg.symbolFileCopy());
     debugger->setCoreFilePath(dlg.coreFileCopy());
-    debugger->setStartMode(AttachToCore);
+    rp.setStartMode(AttachToCore);
     debugger->setCloseMode(DetachAtClose);
     debugger->setOverrideStartScript(dlg.overrideStartScript());
     const FilePath sysRoot = dlg.sysRoot();

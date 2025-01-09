@@ -142,15 +142,16 @@ bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMessa
     ProcessRunData inferior;
     inferior.command.setExecutable(bin);
     inferior.command.setArguments(runnable.command.arguments());
+    DebuggerRunParameters &rp = runTool->runParameters();
     runTool->setInferior(inferior);
     runTool->setSymbolFile(bin);
-    runTool->setStartMode(AttachToRemoteServer);
+    rp.setStartMode(AttachToRemoteServer);
     runTool->setCommandsAfterConnect(initCommands()); // .. and here?
     runTool->setCommandsForReset(resetCommands());
     runTool->setRemoteChannel(channelString());
     runTool->setUseContinueInsteadOfRun(true);
     runTool->setUseExtendedRemote(useExtendedRemote());
-    runTool->runParameters().peripheralDescriptionFile = m_peripheralDescriptionFile;
+    rp.peripheralDescriptionFile = m_peripheralDescriptionFile;
     return true;
 }
 

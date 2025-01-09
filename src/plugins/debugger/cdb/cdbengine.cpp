@@ -284,11 +284,11 @@ void CdbEngine::setupEngine()
         m_effectiveStartMode = AttachToLocalProcess;
         sp.inferior.command = {};
         sp.attachPID = ProcessHandle(applicationPid());
-        sp.startMode = AttachToLocalProcess;
+        sp.setStartMode(AttachToLocalProcess);
         sp.useTerminal = false; // Force no terminal.
         showMessage(QString("Attaching to %1...").arg(sp.attachPID.pid()), LogMisc);
     } else {
-        m_effectiveStartMode = sp.startMode;
+        m_effectiveStartMode = sp.startMode();
     }
 
     // Start engine which will run until initial breakpoint:
@@ -330,7 +330,7 @@ void CdbEngine::setupEngine()
     CommandLine debugger{sp.debugger.command};
 
     m_extensionFileName = extensionFi.fileName();
-    const bool isRemote = sp.startMode == AttachToRemoteServer;
+    const bool isRemote = sp.startMode() == AttachToRemoteServer;
     if (isRemote) { // Must be first
         debugger.addArgs({"-remote", sp.remoteChannel});
     } else {
@@ -357,7 +357,7 @@ void CdbEngine::setupEngine()
 
     debugger.addArgs(s.cdbAdditionalArguments(), CommandLine::Raw);
 
-    switch (sp.startMode) {
+    switch (sp.startMode()) {
     case StartInternal:
     case StartExternal:
         debugger.addArg(sp.inferior.command.executable().toUserOutput());
@@ -369,9 +369,10 @@ void CdbEngine::setupEngine()
     case AttachToLocalProcess:
     case AttachToCrashedProcess:
         debugger.addArgs({"-p", QString::number(sp.attachPID.pid())});
-        if (sp.startMode == AttachToCrashedProcess) {
+        if (sp.startMode() == AttachToCrashedProcess) {
             debugger.addArgs({"-e", sp.crashParameter, "-g"});
         } else {
+            // TODO: Dead branch?
             if (usesTerminal())
                 debugger.addArgs({"-pr", "-pb"});
         }
@@ -380,7 +381,7 @@ void CdbEngine::setupEngine()
         debugger.addArgs({"-z", sp.coreFile.path()});
         break;
     default:
-        handleSetupFailure(QString("Internal error: Unsupported start mode %1.").arg(sp.startMode));
+        handleSetupFailure(QString("Internal error: Unsupported start mode %1.").arg(sp.startMode()));
         return;
     }
 
@@ -425,7 +426,7 @@ void CdbEngine::processStarted()
     showMessage(QString("%1 running as %2").arg(execPath.toUserOutput()).arg(pid), LogMisc);
     m_hasDebuggee = true;
     m_initialSessionIdleHandled = false;
-    if (runParameters().startMode == AttachToRemoteServer) {
+    if (runParameters().startMode() == AttachToRemoteServer) {
         // We do not get an 'idle' in a remote session, but are accessible
         m_accessible = true;
         runCommand({".load " + m_extensionFileName, NoFlags});
@@ -444,7 +445,7 @@ void CdbEngine::handleInitialSessionIdle()
     // (attemptBreakpointSynchronization() will be directly called then)
     if (rp.breakOnMain) {
         BreakpointParameters bp(BreakpointAtMain);
-        if (rp.startMode == StartInternal || rp.startMode == StartExternal) {
+        if (rp.startMode() == StartInternal || rp.startMode() == StartExternal) {
             const QString &moduleFileName = rp.inferior.command.executable().fileName();
             bp.module = moduleFileName.left(moduleFileName.indexOf('.'));
         }
@@ -485,7 +486,7 @@ void CdbEngine::handleInitialSessionIdle()
         // Fails for core dumps.
         if (response.resultClass == ResultDone)
             notifyInferiorPid(response.data.toProcessHandle());
-        if (response.resultClass == ResultDone || runParameters().startMode == AttachToCore) {
+        if (response.resultClass == ResultDone || runParameters().startMode() == AttachToCore) {
             STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupOk")
                     notifyEngineSetupOk();
             runEngine();
@@ -563,7 +564,7 @@ void CdbEngine::runEngine()
 //        runCommand({"bm /( QtCored4!qFatal", BuiltinCommand}); // 'bm': All overloads.
 //        runCommand({"bm /( Qt5Cored!QMessageLogger::fatal", BuiltinCommand});
 //    }
-    if (runParameters().startMode == AttachToCore) {
+    if (runParameters().startMode() == AttachToCore) {
         QTC_ASSERT(!m_coreStopReason.isNull(), return; );
         notifyEngineRunOkAndInferiorUnrunnable();
         processStop(*m_coreStopReason, false);
@@ -588,7 +589,7 @@ void CdbEngine::shutdownInferior()
             qDebug("notifyInferiorShutdownFinished");
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownFinished")
     } else if (m_accessible) { // except console.
-        if (runParameters().startMode == AttachToLocalProcess || runParameters().startMode == AttachToCrashedProcess)
+        if (runParameters().startMode() == AttachToLocalProcess || runParameters().startMode() == AttachToCrashedProcess)
             detachDebugger();
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownFinished")
     } else {
@@ -633,7 +634,7 @@ void CdbEngine::shutdownEngine()
     // Go for kill if there are commands pending.
     if (m_accessible && !commandsPending()) {
         // detach (except console): Wait for debugger to finish.
-        if (runParameters().startMode == AttachToLocalProcess || runParameters().startMode == AttachToCrashedProcess)
+        if (runParameters().startMode() == AttachToLocalProcess || runParameters().startMode() == AttachToCrashedProcess)
             detachDebugger();
         // Remote requires a bit more force to quit.
         if (m_effectiveStartMode == AttachToRemoteServer) {
@@ -1766,7 +1767,7 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
     }
     // Notify about state and send off command sequence to get stack, etc.
     if (stopFlags & StopNotifyStop) {
-        if (runParameters().startMode != AttachToCore) {
+        if (runParameters().startMode() != AttachToCore) {
             if (state() == InferiorStopRequested) {
                 STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorStopOk")
                         notifyInferiorStopOk();
@@ -2027,7 +2028,7 @@ void CdbEngine::handleSessionIdle(const QString &message)
     if (!m_initialSessionIdleHandled) { // Temporary stop at beginning
         handleInitialSessionIdle();
         // Store stop reason to be handled in runEngine().
-        if (runParameters().startMode == AttachToCore) {
+        if (runParameters().startMode() == AttachToCore) {
             m_coreStopReason.reset(new GdbMi);
             m_coreStopReason->fromString(message);
         }
@@ -2746,7 +2747,7 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
     }
 
 
-    if (runParameters().startMode == AttachToRemoteServer) {
+    if (runParameters().startMode() == AttachToRemoteServer) {
         FilePath dumperPath = Core::ICore::resourcePath("debugger");
         const FilePath loadOrderFile = dumperPath / "loadorder.txt";
         const expected_str<QByteArray> toLoad = loadOrderFile.fileContents();

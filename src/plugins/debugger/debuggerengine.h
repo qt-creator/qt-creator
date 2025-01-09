@@ -81,7 +81,9 @@ public:
 
     Utils::Result fixupParameters(ProjectExplorer::RunControl *runControl);
 
-    DebuggerStartMode startMode = NoStartMode;
+    void setStartMode(DebuggerStartMode startMode);
+    DebuggerStartMode startMode() const { return m_startMode; }
+
     DebuggerCloseMode closeMode = KillAtClose;
 
     Utils::ProcessRunData inferior;
@@ -187,6 +189,9 @@ public:
     Utils::FilePath uVisionProjectFilePath;
     Utils::FilePath uVisionOptionsFilePath;
     bool uVisionSimulator = false;
+
+private:
+    DebuggerStartMode m_startMode = NoStartMode;
 };
 
 namespace Internal {

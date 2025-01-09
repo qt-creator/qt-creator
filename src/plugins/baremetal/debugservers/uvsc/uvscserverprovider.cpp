@@ -184,13 +184,14 @@ bool UvscServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMess
 
     ProcessRunData inferior;
     inferior.command.setExecutable(bin);
-    runTool->runParameters().peripheralDescriptionFile = peripheralDescriptionFile;
-    runTool->runParameters().uVisionProjectFilePath = projFilePath;
-    runTool->runParameters().uVisionOptionsFilePath = optFilePath;
-    runTool->runParameters().uVisionSimulator = isSimulator();
+    DebuggerRunParameters &rp = runTool->runParameters();
+    rp.peripheralDescriptionFile = peripheralDescriptionFile;
+    rp.uVisionProjectFilePath = projFilePath;
+    rp.uVisionOptionsFilePath = optFilePath;
+    rp.uVisionSimulator = isSimulator();
     runTool->setInferior(inferior);
     runTool->setSymbolFile(bin);
-    runTool->setStartMode(AttachToRemoteServer);
+    rp.setStartMode(AttachToRemoteServer);
     runTool->setRemoteChannel(channelString());
     runTool->setUseContinueInsteadOfRun(true);
     return true;

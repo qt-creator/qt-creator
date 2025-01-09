@@ -103,29 +103,6 @@ public:
 
 } // namespace Internal
 
-void DebuggerRunTool::setStartMode(DebuggerStartMode startMode)
-{
-    m_runParameters.startMode = startMode;
-    if (startMode == AttachToQmlServer) {
-        m_runParameters.cppEngineType = NoEngineType;
-        m_runParameters.isQmlDebugging = true;
-        m_runParameters.closeMode = KillAtClose;
-
-        // FIXME: This is horribly wrong.
-        // get files from all the projects in the session
-        QList<Project *> projects = ProjectManager::projects();
-        if (Project *startupProject = ProjectManager::startupProject()) {
-            // startup project first
-            projects.removeOne(startupProject);
-            projects.insert(0, startupProject);
-        }
-        for (Project *project : std::as_const(projects))
-            m_runParameters.projectSourceFiles.append(project->files(Project::SourceFiles));
-        if (!projects.isEmpty())
-            m_runParameters.projectSourceDirectory = projects.first()->projectDirectory();
-    }
-}
-
 void DebuggerRunTool::setCloseMode(DebuggerCloseMode closeMode)
 {
     m_runParameters.closeMode = closeMode;
@@ -393,8 +370,8 @@ void DebuggerRunTool::startTerminalIfNeededAndContinueStartup()
 
     // CDB has a built-in console that might be preferred by some.
     const bool useCdbConsole = m_runParameters.cppEngineType == CdbEngineType
-            && (m_runParameters.startMode == StartInternal
-                || m_runParameters.startMode == StartExternal)
+            && (m_runParameters.startMode() == StartInternal
+                || m_runParameters.startMode() == StartExternal)
             && settings().useCdbConsole();
     if (useCdbConsole)
         m_runParameters.useTerminal = false;
@@ -457,7 +434,7 @@ void DebuggerRunTool::continueAfterTerminalStart()
     }
 
     // User canceled input dialog asking for executable when working on library project.
-    if (m_runParameters.startMode == StartInternal
+    if (m_runParameters.startMode() == StartInternal
             && m_runParameters.inferior.command.isEmpty()
             && m_runParameters.interpreter.isEmpty()) {
         reportFailure(Tr::tr("No executable specified."));
@@ -601,7 +578,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
                 rc->resetDataForAttachToCore();
                 auto name = QString(Tr::tr("%1 - Snapshot %2").arg(runControl()->displayName()).arg(++d->snapshotCounter));
                 auto debugger = new DebuggerRunTool(rc);
-                debugger->setStartMode(AttachToCore);
+                debugger->runParameters().setStartMode(AttachToCore);
                 debugger->setCloseMode(DetachAtClose);
                 debugger->setRunControlName(name);
                 debugger->setCoreFilePath(FilePath::fromString(coreFile), true);
@@ -612,7 +589,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
         }
     }
 
-    if (m_runParameters.startMode != AttachToCore) {
+    if (m_runParameters.startMode() != AttachToCore) {
         QStringList unhandledIds;
         bool hasQmlBreakpoints = false;
         for (const GlobalBreakpoint &gbp : BreakpointManager::globalBreakpoints()) {

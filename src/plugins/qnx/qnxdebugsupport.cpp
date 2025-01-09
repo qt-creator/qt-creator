@@ -146,7 +146,8 @@ void showAttachToProcessDialog()
         debugger->addStartDependency(pdebugRunner);
     }
 
-    debugger->setStartMode(AttachToRemoteServer);
+    DebuggerRunParameters &rp = debugger->runParameters();
+    rp.setStartMode(AttachToRemoteServer);
     debugger->setCloseMode(DetachAtClose);
     debugger->setSymbolFile(localExecutable);
     debugger->setAttachPid(pid);
@@ -201,7 +202,8 @@ public:
 
             Kit *k = runControl->kit();
 
-            debugger->setStartMode(AttachToRemoteServer);
+            DebuggerRunParameters &rp = debugger->runParameters();
+            rp.setStartMode(AttachToRemoteServer);
             debugger->setCloseMode(KillAtClose);
             debugger->setUseCtrlCStub(true);
             debugger->setSolibSearchPath(FileUtils::toFilePathList(searchPaths(k)));

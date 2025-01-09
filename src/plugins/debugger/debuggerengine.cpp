@@ -47,6 +47,7 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/toolchainkitaspect.h>
@@ -263,7 +264,7 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
         } else {
             service = QmlDebuggerServices;
         }
-        if (startMode != AttachToLocalProcess && startMode != AttachToCrashedProcess) {
+        if (m_startMode != AttachToLocalProcess && m_startMode != AttachToCrashedProcess) {
             const QString qmlarg = isCppDebugging() && nativeMixedEnabled
                                  ? qmlDebugNativeArguments(service, false)
                                  : qmlDebugTcpArguments(service, qmlServer);
@@ -271,8 +272,8 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
         }
     }
 
-    if (startMode == NoStartMode)
-        startMode = StartInternal;
+    if (m_startMode == NoStartMode)
+        m_startMode = StartInternal;
 
     if (breakOnMainNextTime) {
         breakOnMain = true;
@@ -300,6 +301,30 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
         inferior.environment.set("QT_LOGGING_TO_CONSOLE", "1");
 
     return Result::Ok;
+}
+
+void DebuggerRunParameters::setStartMode(DebuggerStartMode startMode)
+{
+    m_startMode = startMode;
+    if (startMode != AttachToQmlServer)
+        return;
+
+    cppEngineType = NoEngineType;
+    isQmlDebugging = true;
+    closeMode = KillAtClose;
+
+    // FIXME: This is horribly wrong.
+    // get files from all the projects in the session
+    QList<Project *> projects = ProjectManager::projects();
+    if (Project *startupProject = ProjectManager::startupProject()) {
+        // startup project first
+        projects.removeOne(startupProject);
+        projects.insert(0, startupProject);
+    }
+    for (Project *project : std::as_const(projects))
+        projectSourceFiles.append(project->files(Project::SourceFiles));
+    if (!projects.isEmpty())
+        projectSourceDirectory = projects.first()->projectDirectory();
 }
 
 bool DebuggerRunParameters::isCppDebugging() const
@@ -1736,7 +1761,7 @@ void DebuggerEnginePrivate::updateState()
     m_threadsHandler.threadSwitcher()->setEnabled(threadsEnabled);
     m_threadLabel->setEnabled(threadsEnabled);
 
-    const bool isCore = m_engine->runParameters().startMode == AttachToCore;
+    const bool isCore = m_engine->runParameters().startMode() == AttachToCore;
     const bool stopped = state == InferiorStopOk;
     const bool detachable = stopped && !isCore;
     m_detachAction.setEnabled(detachable);
@@ -2180,7 +2205,7 @@ void DebuggerEngine::notifyInferiorPid(const ProcessHandle &pid)
     d->m_inferiorPid = pid;
     if (pid.isValid()) {
         showMessage(Tr::tr("Taking notice of pid %1").arg(pid.pid()));
-        DebuggerStartMode sm = runParameters().startMode;
+        const DebuggerStartMode sm = runParameters().startMode();
         if (sm == StartInternal || sm == StartExternal || sm == AttachToLocalProcess)
             d->m_inferiorPid.activate();
     }
@@ -2862,7 +2887,7 @@ QString DebuggerEngine::formatStartParameters() const
     const DebuggerRunParameters &sp = d->m_runParameters;
     QString rc;
     QTextStream str(&rc);
-    str << "Start parameters: '" << sp.displayName << "' mode: " << sp.startMode
+    str << "Start parameters: '" << sp.displayName << "' mode: " << sp.startMode()
         << "\nABI: " << sp.toolChainAbi.toString() << '\n';
     str << "Languages: ";
     if (sp.isCppDebugging())
@@ -3006,7 +3031,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
         }
         if (warnOnRelease
                 && rp.cppEngineType == CdbEngineType
-                && rp.startMode != AttachToRemoteServer) {
+                && rp.startMode() != AttachToRemoteServer) {
             QTC_ASSERT(!rp.symbolFile.isEmpty(), return);
             if (!rp.symbolFile.exists() && !rp.symbolFile.endsWith(".exe"))
                 rp.symbolFile = rp.symbolFile.stringAppended(".exe");

@@ -92,7 +92,8 @@ public:
 
         Target *target = runControl->target();
         Kit *kit = target->kit();
-        setStartMode(AttachToRemoteServer);
+        DebuggerRunParameters &rp = runParameters();
+        rp.setStartMode(AttachToRemoteServer);
         const QString packageName = Internal::packageName(target);
         setRunControlName(packageName);
         setUseContinueInsteadOfRun(true);

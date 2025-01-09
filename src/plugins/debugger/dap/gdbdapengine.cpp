@@ -125,7 +125,7 @@ void GdbDapEngine::handleDapInitialize()
 
 bool GdbDapEngine::isLocalAttachEngine() const
 {
-    return runParameters().startMode == AttachToLocalProcess;
+    return runParameters().startMode() == AttachToLocalProcess;
 }
 
 void GdbDapEngine::handleDapConfigurationDone()

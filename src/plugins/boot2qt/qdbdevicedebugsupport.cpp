@@ -117,8 +117,9 @@ public:
             auto worker = new DebuggerRunTool(runControl);
             worker->setId("QdbDeviceDebugSupport");
 
+            DebuggerRunParameters &rp = worker->runParameters();
             worker->setupPortsGatherer();
-            worker->setStartMode(Debugger::AttachToRemoteServer);
+            rp.setStartMode(Debugger::AttachToRemoteServer);
             worker->setCloseMode(KillAndExitMonitorAtClose);
             worker->setUseContinueInsteadOfRun(true);
             worker->setContinueAfterAttach(true);

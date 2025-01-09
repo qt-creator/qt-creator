@@ -971,7 +971,7 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
         Abi abi = rp.toolChainAbi;
         if (abi.os() == Abi::WindowsOS
             && cmd.function.startsWith("attach")
-            && (rp.startMode == AttachToLocalProcess || usesTerminal()))
+            && (rp.startMode() == AttachToLocalProcess || usesTerminal()))
         {
             // Ignore spurious 'running' responses to 'attach'.
         } else {
@@ -1708,7 +1708,7 @@ void GdbEngine::setLinuxOsAbi()
 void GdbEngine::detachDebugger()
 {
     CHECK_STATE(InferiorStopOk);
-    QTC_CHECK(runParameters().startMode != AttachToCore);
+    QTC_CHECK(runParameters().startMode() != AttachToCore);
     DebuggerCommand cmd("detach", NativeCommand | ExitRequest);
     cmd.callback = [this](const DebuggerResponse &) {
         CHECK_STATE(InferiorStopOk);
@@ -1762,7 +1762,7 @@ bool GdbEngine::hasCapability(unsigned cap) const
         return true;
     }
 
-    if (runParameters().startMode == AttachToCore)
+    if (runParameters().startMode() == AttachToCore)
         return false;
 
     return cap & (JumpToLineCapability
@@ -2545,7 +2545,7 @@ void GdbEngine::handleTracepointModified(const GdbMi &data)
 
 bool GdbEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
-    if (runParameters().startMode == AttachToCore)
+    if (runParameters().startMode() == AttachToCore)
         return false;
     if (bp.isCppBreakpoint())
         return true;
@@ -4296,7 +4296,7 @@ void GdbEngine::resetCommandQueue()
 
 bool GdbEngine::usesExecInterrupt() const
 {
-    DebuggerStartMode mode = runParameters().startMode;
+    const DebuggerStartMode mode = runParameters().startMode();
     return (mode == AttachToRemoteServer || mode == AttachToRemoteProcess)
             && usesTargetAsync();
 }
@@ -4388,18 +4388,18 @@ bool GdbEngine::isPlainEngine() const
 
 bool GdbEngine::isCoreEngine() const
 {
-    return runParameters().startMode == AttachToCore;
+    return runParameters().startMode() == AttachToCore;
 }
 
 bool GdbEngine::isRemoteEngine() const
 {
-    DebuggerStartMode startMode = runParameters().startMode;
+    const DebuggerStartMode startMode = runParameters().startMode();
     return startMode == StartRemoteProcess || startMode == AttachToRemoteServer;
 }
 
 bool GdbEngine::isLocalAttachEngine() const
 {
-    return runParameters().startMode == AttachToLocalProcess;
+    return runParameters().startMode() == AttachToLocalProcess;
 }
 
 bool GdbEngine::isTermEngine() const
@@ -4417,7 +4417,7 @@ void GdbEngine::claimInitialBreakpoints()
     CHECK_STATE(EngineRunRequested);
 
     const DebuggerRunParameters &rp = runParameters();
-    if (rp.startMode != AttachToCore) {
+    if (rp.startMode() != AttachToCore) {
         showStatusMessage(Tr::tr("Setting breakpoints..."));
         showMessage(Tr::tr("Setting breakpoints..."));
         BreakpointManager::claimBreakpointsForEngine(this);
@@ -4464,7 +4464,7 @@ void GdbEngine::setupInferior()
         runCommand(cmd);
     }
 
-    if (rp.startMode == AttachToRemoteProcess) {
+    if (rp.startMode() == AttachToRemoteProcess) {
 
         handleInferiorPrepared();
 
@@ -4596,7 +4596,7 @@ void GdbEngine::runEngine()
 
     const DebuggerRunParameters &rp = runParameters();
 
-    if (rp.startMode == AttachToRemoteProcess) {
+    if (rp.startMode() == AttachToRemoteProcess) {
 
         claimInitialBreakpoints();
         notifyEngineRunAndInferiorStopOk();
@@ -4689,7 +4689,7 @@ void GdbEngine::handleLocalAttach(const DebuggerResponse &response)
     }
     case ResultError:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
-            QString msg = msgPtraceError(runParameters().startMode);
+            const QString msg = msgPtraceError(runParameters().startMode());
             showStatusMessage(Tr::tr("Failed to attach to application: %1").arg(msg));
             AsynchronousMessageBox::warning(Tr::tr("Debugger Error"), msg);
             notifyEngineIll();
@@ -4720,7 +4720,7 @@ void GdbEngine::handleRemoteAttach(const DebuggerResponse &response)
     }
     case ResultError:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
-            notifyInferiorSetupFailedHelper(msgPtraceError(runParameters().startMode));
+            notifyInferiorSetupFailedHelper(msgPtraceError(runParameters().startMode()));
             break;
         }
         notifyInferiorSetupFailedHelper(response.data["msg"].data());
@@ -4737,7 +4737,7 @@ void GdbEngine::interruptInferior2()
 
         interruptLocalInferior(runParameters().attachPID.pid());
 
-    } else if (isRemoteEngine() || runParameters().startMode == AttachToRemoteProcess
+    } else if (isRemoteEngine() || runParameters().startMode() == AttachToRemoteProcess
                || !m_gdbProc.commandLine().executable().isLocal()) {
 
         CHECK_STATE(InferiorStopRequested);
@@ -5043,7 +5043,7 @@ void GdbEngine::handleStubAttached(const DebuggerResponse &response, qint64 main
         break;
     case ResultError:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
-            notifyInferiorSetupFailedHelper(msgPtraceError(runParameters().startMode));
+            notifyInferiorSetupFailedHelper(msgPtraceError(runParameters().startMode()));
             break;
         }
         showMessage(response.data["msg"].data());

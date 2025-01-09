@@ -285,7 +285,7 @@ bool PyDapEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 
 bool PyDapEngine::isLocalAttachEngine() const
 {
-    return runParameters().startMode == AttachToLocalProcess;
+    return runParameters().startMode() == AttachToLocalProcess;
 }
 
 const QLoggingCategory &PyDapEngine::logCategory()

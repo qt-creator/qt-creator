@@ -152,7 +152,8 @@ private:
             return;
         }
 
-        setStartMode(Debugger::AttachToRemoteServer);
+        Debugger::DebuggerRunParameters &rp = runParameters();
+        rp.setStartMode(Debugger::AttachToRemoteServer);
         setCloseMode(Debugger::KillAndExitMonitorAtClose);
 
         if (isQmlDebugging())

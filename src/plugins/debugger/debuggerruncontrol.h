@@ -41,7 +41,6 @@ public:
 
     void addExpectedSignal(const QString &signal);
 
-    void setStartMode(DebuggerStartMode startMode);
     void setCloseMode(DebuggerCloseMode closeMode);
 
     void setAttachPid(Utils::ProcessHandle pid);
