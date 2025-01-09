@@ -150,7 +150,7 @@ public:
     template <typename Function, typename ...Args>
     void setConcurrentCallData(Function &&function, Args &&...args)
     {
-        return wrapConcurrent(std::forward<Function>(function), std::forward<Args>(args)...);
+        wrapConcurrent(std::forward<Function>(function), std::forward<Args>(args)...);
     }
 
     void setFutureSynchronizer(FutureSynchronizer *synchorizer) { m_synchronizer = synchorizer; }
