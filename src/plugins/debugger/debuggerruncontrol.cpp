@@ -11,7 +11,6 @@
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
 #include "debuggerkitaspect.h"
-#include "debuggerrunconfigurationaspect.h"
 #include "breakhandler.h"
 #include "enginemanager.h"
 
@@ -26,8 +25,6 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
-#include <projectexplorer/sysrootkitaspect.h>
-#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
@@ -50,11 +47,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/messagebox.h>
-
-#include <qtsupport/qtkitaspect.h>
-
-#include <QTcpServer>
-#include <QTimer>
 
 using namespace Core;
 using namespace Debugger::Internal;
@@ -860,7 +852,9 @@ DebuggerEngineType DebuggerRunTool::cppEngineType() const
 }
 
 DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerminal)
-    : RunWorker(runControl), d(new DebuggerRunToolPrivate)
+    : RunWorker(runControl)
+    , d(new DebuggerRunToolPrivate)
+    , m_runParameters(DebuggerRunParameters::fromRunControl(runControl))
 {
     setId("DebuggerRunTool");
 
@@ -885,79 +879,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
                                 " Would you still like to terminate it?"),
                 QString(), QString(), optionalPrompt);
     });
-
-    m_runParameters.displayName = runControl->displayName();
-
-    if (auto symbolsAspect = runControl->aspectData<SymbolFileAspect>())
-        m_runParameters.symbolFile = symbolsAspect->filePath;
-    if (auto terminalAspect = runControl->aspectData<TerminalAspect>())
-        m_runParameters.useTerminal = terminalAspect->useTerminal;
-    if (auto runAsRootAspect = runControl->aspectData<RunAsRootAspect>())
-        m_runParameters.runAsRoot = runAsRootAspect->value;
-
-    Kit *kit = runControl->kit();
-    QTC_ASSERT(kit, return);
-
-    m_runParameters.sysRoot = SysRootKitAspect::sysRoot(kit);
-    m_runParameters.macroExpander = runControl->macroExpander();
-    m_runParameters.debugger = DebuggerKitAspect::runnable(kit);
-    m_runParameters.cppEngineType = DebuggerKitAspect::engineType(kit);
-    m_runParameters.version = DebuggerKitAspect::version(kit);
-
-    if (QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit))
-        m_runParameters.qtSourceLocation = qtVersion->sourcePath();
-
-    if (auto aspect = runControl->aspectData<DebuggerRunConfigurationAspect>()) {
-        if (!aspect->useCppDebugger)
-            m_runParameters.cppEngineType = NoEngineType;
-        m_runParameters.isQmlDebugging = aspect->useQmlDebugger;
-        m_runParameters.isPythonDebugging = aspect->usePythonDebugger;
-        m_runParameters.multiProcess = aspect->useMultiProcess;
-        m_runParameters.additionalStartupCommands = aspect->overrideStartup;
-
-        if (aspect->useCppDebugger) {
-            if (DebuggerKitAspect::debugger(kit)) {
-                const Tasks tasks = DebuggerKitAspect::validateDebugger(kit);
-                for (const Task &t : tasks) {
-                    if (t.type != Task::Warning)
-                        m_runParameters.validationErrors.append(t.description());
-                }
-            } else {
-                m_runParameters.validationErrors.append(noDebuggerInKitMessage());
-            }
-        }
-    }
-
-    ProcessRunData inferior = runControl->runnable();
-    // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
-    inferior.workingDirectory = inferior.workingDirectory.normalizedPathName();
-    m_runParameters.inferior = inferior;
-
-    const QString envBinary = qtcEnvironmentVariable("QTC_DEBUGGER_PATH");
-    if (!envBinary.isEmpty())
-        m_runParameters.debugger.command.setExecutable(FilePath::fromString(envBinary));
-
-    if (Project *project = runControl->project()) {
-        m_runParameters.projectSourceDirectory = project->projectDirectory();
-        m_runParameters.projectSourceFiles = project->files(Project::SourceFiles);
-    } else {
-        m_runParameters.projectSourceDirectory = m_runParameters.debugger.command.executable().parentDir();
-        m_runParameters.projectSourceFiles.clear();
-    }
-
-    m_runParameters.toolChainAbi = ToolchainKitAspect::targetAbi(kit);
-
-    bool ok = false;
-    const int nativeMixedOverride = qtcEnvironmentVariableIntValue("QTC_DEBUGGER_NATIVE_MIXED", &ok);
-    if (ok)
-        m_runParameters.nativeMixedEnabled = bool(nativeMixedOverride);
-
-    if (QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(kit)) {
-        const QVersionNumber qtVersion = baseQtVersion->qtVersion();
-        m_runParameters.qtVersion = 0x10000 * qtVersion.majorVersion()
-                                            + 0x100 * qtVersion.minorVersion()
-                                            + qtVersion.microVersion();
-    }
 }
 
 void DebuggerRunTool::addSolibSearchDir(const QString &str)

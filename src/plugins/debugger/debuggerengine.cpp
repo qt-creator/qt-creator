@@ -8,6 +8,8 @@
 #include "debuggercore.h"
 #include "debuggerdialogs.h"
 #include "debuggericons.h"
+#include "debuggerkitaspect.h"
+#include "debuggerrunconfigurationaspect.h"
 #include "debuggerruncontrol.h"
 #include "debuggertooltipmanager.h"
 #include "debuggertr.h"
@@ -43,7 +45,12 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/sysrootkitaspect.h>
+#include <projectexplorer/toolchainkitaspect.h>
+
+#include <qtsupport/qtkitaspect.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
@@ -111,6 +118,86 @@ QDebug operator<<(QDebug str, const DebuggerRunParameters &sp)
 }
 
 namespace Internal {
+
+DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::RunControl *runControl)
+{
+    Kit *kit = runControl->kit();
+    QTC_ASSERT(kit, return {});
+
+    DebuggerRunParameters params;
+
+    params.displayName = runControl->displayName();
+
+    if (auto symbolsAspect = runControl->aspectData<SymbolFileAspect>())
+        params.symbolFile = symbolsAspect->filePath;
+    if (auto terminalAspect = runControl->aspectData<TerminalAspect>())
+        params.useTerminal = terminalAspect->useTerminal;
+    if (auto runAsRootAspect = runControl->aspectData<RunAsRootAspect>())
+        params.runAsRoot = runAsRootAspect->value;
+
+    params.sysRoot = SysRootKitAspect::sysRoot(kit);
+    params.macroExpander = runControl->macroExpander();
+    params.debugger = DebuggerKitAspect::runnable(kit);
+    params.cppEngineType = DebuggerKitAspect::engineType(kit);
+    params.version = DebuggerKitAspect::version(kit);
+
+    if (QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit))
+        params.qtSourceLocation = qtVersion->sourcePath();
+
+    if (auto aspect = runControl->aspectData<DebuggerRunConfigurationAspect>()) {
+        if (!aspect->useCppDebugger)
+            params.cppEngineType = NoEngineType;
+        params.isQmlDebugging = aspect->useQmlDebugger;
+        params.isPythonDebugging = aspect->usePythonDebugger;
+        params.multiProcess = aspect->useMultiProcess;
+        params.additionalStartupCommands = aspect->overrideStartup;
+
+        if (aspect->useCppDebugger) {
+            if (DebuggerKitAspect::debugger(kit)) {
+                const Tasks tasks = DebuggerKitAspect::validateDebugger(kit);
+                for (const Task &t : tasks) {
+                    if (t.type != Task::Warning)
+                        params.validationErrors.append(t.description());
+                }
+            } else {
+                params.validationErrors.append(Tr::tr("The kit does not have a debugger set."));
+            }
+        }
+    }
+
+    ProcessRunData inferior = runControl->runnable();
+    // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
+    inferior.workingDirectory = inferior.workingDirectory.normalizedPathName();
+    params.inferior = inferior;
+
+    const QString envBinary = qtcEnvironmentVariable("QTC_DEBUGGER_PATH");
+    if (!envBinary.isEmpty())
+        params.debugger.command.setExecutable(FilePath::fromString(envBinary));
+
+    if (Project *project = runControl->project()) {
+        params.projectSourceDirectory = project->projectDirectory();
+        params.projectSourceFiles = project->files(Project::SourceFiles);
+    } else {
+        params.projectSourceDirectory = params.debugger.command.executable().parentDir();
+        params.projectSourceFiles.clear();
+    }
+
+    params.toolChainAbi = ToolchainKitAspect::targetAbi(kit);
+
+    bool ok = false;
+    const int nativeMixedOverride = qtcEnvironmentVariableIntValue("QTC_DEBUGGER_NATIVE_MIXED", &ok);
+    if (ok)
+        params.nativeMixedEnabled = bool(nativeMixedOverride);
+
+    if (QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(kit)) {
+        const QVersionNumber qtVersion = baseQtVersion->qtVersion();
+        params.qtVersion = 0x10000 * qtVersion.majorVersion()
+                           + 0x100 * qtVersion.minorVersion()
+                           + qtVersion.microVersion();
+    }
+
+    return params;
+}
 
 static bool debuggerActionsEnabledHelper(DebuggerState state)
 {

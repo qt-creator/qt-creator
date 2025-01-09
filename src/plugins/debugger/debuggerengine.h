@@ -28,6 +28,8 @@ QT_END_NAMESPACE
 
 namespace Core { class IOptionsPage; }
 
+namespace ProjectExplorer { class RunControl; }
+
 namespace Utils {
 class MacroExpander;
 class Perspective;
@@ -97,6 +99,8 @@ class MemoryViewSetupData;
 class DebuggerRunParameters
 {
 public:
+    static DebuggerRunParameters fromRunControl(ProjectExplorer::RunControl *runControl);
+
     DebuggerStartMode startMode = NoStartMode;
     DebuggerCloseMode closeMode = KillAtClose;
 
