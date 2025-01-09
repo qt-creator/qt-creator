@@ -647,6 +647,11 @@ void TerminalSurface::sendFocus(bool hasFocus)
         vterm_state_focus_out(vts);
 }
 
+bool TerminalSurface::isInAltScreen()
+{
+    return d->m_altscreen;
+}
+
 void TerminalSurface::setWriteToPty(WriteToPty writeToPty)
 {
     d->m_writeToPty = writeToPty;

@@ -1,0 +1,162 @@
+// Copyright (C) 2024 Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial
+
+/*!
+    \page creator-qtaiassistant.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-edit
+
+    \title Use Qt AI Assistant
+
+    Qt AI Assistant is a coding assistant. When connected to a Large Language
+    Model (LLM), it auto-completes your code, gives expert coding advice,
+    suggests code fixes, as well as writes test cases and code documentation.
+
+    \image qtaiassistant-codecompletion.webp {Automatic Code Completion}
+
+    Qt AI Assistant is available for selected commercial Qt developer
+    license holders. For more information on licensing, select \uicontrol Compare
+    in \l{Qt pricing}.
+
+    \note The LLM itself is not in scope of the Qt AI Assistant. You need to
+    connect to a third-party LLM and agree to the terms and conditions, as well
+    as to the acceptable use policy of the LLM provider. By using Qt AI Assistant,
+    you agree to \l{Terms & Conditions - Qt Development Framework}.
+
+    Qt AI Assistant is currently experimental and powered by generative AI. Check
+    all suggestions to make sure that they are fit for use in your project.
+
+    \note Install and load the Qt AI Assistant extension to use it.
+
+    \section1 Connect to an LLM
+
+    You can connect to the following LLMs:
+
+    \list
+        \li Meta Code Llama 13B (running in a cloud deployment of your choice)
+        \li Meta Llama 3.1 70B (running in a cloud deployment of your choice)
+        \li Anthropic Claude 3.5 Sonnet (provided as subscription-based service
+            by Anthropic)
+        \li Meta Code Llama 7B through Ollama (running locally on your computer)
+    \endlist
+
+    To connect to an LLM:
+
+    \list 1
+        \li Go to \preferences > \uicontrol {AI Assistant} > \uicontrol General.
+            \image qtcreator-preferences-qtaiassistant-general.webp {AI Assistant General preferences}
+        \li Select an LLM for each configurable use case.
+        \li Go to \uicontrol Advanced.
+            \image qtcreator-preferences-qtaiassistant-advanced.webp {AI Assistant Advanced preferences}
+        \li Enter the API authentication token and server URL of each LLM.
+            For more information on where to get the access information, see the
+            third-party LLM provider documentation.
+    \endlist
+
+    \section1 Automatic code-completion
+
+    Qt AI Assistant can help you write code by suggesting what to write next.
+    It prompts the LLM to make one code suggestion when you stop typing.
+
+    To accept the entire suggestion, select the \key Tab key.
+
+    To accept parts of the suggestions, select \key {Alt+Right}.
+
+    To dismiss the suggestion, select \key Esc or navigate to another position in
+    the code editor.
+
+    To interact with Qt AI Assistant using the mouse, hover over the suggestion.
+
+    \image qtaiassistant-codecompletionbar.webp {Code completion tool bar when hovering over a suggestion}
+
+    When you hover over a suggestion, you can accept parts of the suggested code
+    snippet word-by-word or line-by-line.
+
+    To close the code completion bar, select the \key Esc key or move the cursor
+    to another position.
+
+    To turn auto-completion of code on or off globally for all projects, go to
+    \preferences > \uicontrol {AI Assistant}. Qt AI Assistant consumes a
+    significant number of tokens from the LLM. To cut costs, disable the
+    auto-completion feature when not needed, and use keyboard shortcuts for
+    code completion.
+
+    \section1 Complete code from the keyboard
+
+    To trigger code suggestions manually, select \key {Ctrl+'}.
+
+    \section1 Enter prompts and smart commands
+
+    In an inline prompt window in the text editor, you can prompt the assistant
+    to implement your requests in human language, ask questions, or execute
+    \e {smart commands}. To open the chat, select \key {Ctrl+Shift+A}.
+    Alternatively, to open the inline prompt window, you can select code
+    and then select \inlineimage icons/ai-assistant.png.
+
+    To close the inline prompt window, select \key Esc or
+    \inlineimage icons/close.png.
+
+    To go to Qt AI Assistant preferences from the inline prompt window, select
+    \inlineimage icons/settings.png.
+
+    \section2 Request suggestions using human language
+
+    To request suggestions using human language, enter your requests into the
+    input field. If you have highlighted code, the AI assistant adds it as
+    context to the prompt. Qt AI Assistant shows a suggestion that you can
+    copy to the clipboard by selecting \uicontrol Copy in the inline prompt
+    window.
+
+    \section2 Request test cases in Qt Test syntax
+
+    To write test cases with Qt AI Assistant:
+
+    \list 1
+        \li Highlight code in the code editor.
+        \li Open the inline prompt window.
+        \li Select the \uicontrol {/qtest} smart command.
+    \endlist
+
+    Qt AI Assistant generates a test case in \l{Qt Test} format that you can copy
+    and paste to your \l{Create Qt tests}{Qt test project}.
+
+    \section2 Request code documentation in Markdown format
+
+    To create code documentation:
+
+    \list 1
+        \li Highlight code in the code editor.
+        \li Open the inline prompt window.
+        \li Select the \uicontrol {/doc} smart command.
+    \endlist
+
+    Qt AI Assistant generates code documentation in a format that you can copy
+    and paste to your documentation file.
+
+    \section2 Request fixing of code
+
+    To request a fix to your code:
+
+    \list 1
+        \li Highlight code in the code editor.
+        \li Open the inline prompt window.
+        \li Select the \uicontrol {/fix} smart command.
+    \endlist
+
+    Qt AI Assistant writes a suggestion for a fix of your code.
+
+    \section2 Request explaining of code
+
+    To request an explanation of existing code:
+
+    \list 1
+        \li Highlight code in the code editor.
+        \li Open the inline prompt window.
+        \li Select the \uicontrol {/explain} smart command.
+    \endlist
+
+    Qt AI Assistant provides an explanation of the highlighted code.
+
+    \sa {Install extensions}, {Load extensions}
+*/

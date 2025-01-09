@@ -1,0 +1,30 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-use-git-on-windows.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-git
+
+    \title Use Git for Windows
+
+    If you configure Git for use with \c {git bash} only, and use SSH
+    authorization, Git looks for the SSH keys in the directory where the
+    \c HOME environment points to. The variable is always set by \c {git bash}.
+
+    However, the variable is typically not set in a Windows command prompt. When
+    you run Git from a Windows command prompt, it looks for the SSH keys in its
+    installation directory, and therefore, the authorization fails.
+
+    You can set the \c HOME environment variable from \QC. Go to \preferences >
+    \uicontrol {Version Control} > \uicontrol Git, and then select
+    \uicontrol {Set "HOME" environment variable}. \c HOME is
+    set to \c %HOMEDRIVE%%HOMEPATH% when the Git executable is run and
+    authorization works as it would with \c {git bash}.
+
+    \image qtcreator-preferences-vcs-git.webp {Git preferences}
+
+    \sa {Use Git}{How To: Use Git}, {Compare files},
+    {Set up version control systems}, {Version Control Systems}
+*/

@@ -78,7 +78,7 @@ private:
     void startCMakeState(const QStringList &configurationArguments);
     void cmakeFinishedState(int exitCode);
 
-    void replyDirectoryHasChanged(const QString &directory) const;
+    void handleReplyDirectoryChange(const QString &directory);
     void makeBackupConfiguration(bool store);
 
     void writeConfigurationIntoBuildDirectory(const QStringList &configuration);

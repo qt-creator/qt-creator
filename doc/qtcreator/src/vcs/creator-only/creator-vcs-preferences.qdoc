@@ -6,6 +6,7 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-use
+    \ingroup creator-how-to-git
 
     \title Set up version control systems
 
@@ -23,7 +24,7 @@
     arise, you should be ready to use the system also from \QC.
 
     For more information on using Git for Windows, see
-    \l {Using Git for Windows}.
+    \l {Use Git for Windows}.
 
     \section1 General VCS preferences
 
@@ -82,5 +83,5 @@
     To show file status, go to \preferences > \uicontrol {Version Control}
     > \uicontrol General, and then select \uicontrol {Show VCS file status}.
 
-    \sa {Version Control Systems}
+    \sa {Use Git}{How To: Use Git}, {Version Control Systems}
 */

@@ -201,6 +201,20 @@ void setupProjectModule()
                 QTC_CHECK_EXPECTED(res);
             });
     });
+
+    // buildStateChanged
+    registerHook("projects.buildStateChanged", [](sol::main_function func, QObject *guard) {
+        QObject::connect(
+            BuildManager::instance(),
+            &BuildManager::buildStateChanged,
+            guard,
+            [func](ProjectExplorer::Project *pro) {
+                const bool isBuilding = BuildManager::isBuilding(pro);
+                expected_str<void> res = void_safe_call(func, pro, isBuilding);
+                QTC_CHECK_EXPECTED(res);
+            }
+        );
+    });
 }
 
 } // namespace Lua::Internal

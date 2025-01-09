@@ -1559,7 +1559,8 @@ void ProcessRunnerPrivate::start()
     m_stopRequested = false;
 
     QVariantHash extraData = q->runControl()->extraData();
-    extraData[TERMINAL_SHELL_NAME] = m_command.executable().fileName();
+    extraData[TERMINAL_SHELL_NAME]
+        = q->runControl()->target()->activeRunConfiguration()->displayName();
 
     m_process.setCommand(cmdLine);
     m_process.setEnvironment(env);

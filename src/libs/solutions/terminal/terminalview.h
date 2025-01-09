@@ -123,7 +123,12 @@ public:
         return noHits;
     }
 
-    virtual void resizePty(QSize newSize) { Q_UNUSED(newSize); }
+    virtual bool resizePty(QSize newSize)
+    {
+        Q_UNUSED(newSize);
+        return false;
+    }
+
     virtual void setClipboard(const QString &text) { Q_UNUSED(text); }
     virtual std::optional<Link> toLink(const QString &text)
     {
