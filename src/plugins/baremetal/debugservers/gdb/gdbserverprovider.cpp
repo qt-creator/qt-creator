@@ -41,17 +41,6 @@ GdbServerProvider::GdbServerProvider(const QString &id)
     setEngineType(Debugger::GdbEngineType);
 }
 
-GdbServerProvider::GdbServerProvider(const GdbServerProvider &other)
-    : IDebugServerProvider(other.id())
-    , m_startupMode(other.m_startupMode)
-    , m_peripheralDescriptionFile(other.m_peripheralDescriptionFile)
-    , m_initCommands(other.m_initCommands)
-    , m_resetCommands(other.m_resetCommands)
-    , m_useExtendedRemote(other.useExtendedRemote())
-{
-    setEngineType(Debugger::GdbEngineType);
-}
-
 GdbServerProvider::StartupMode GdbServerProvider::startupMode() const
 {
     return m_startupMode;

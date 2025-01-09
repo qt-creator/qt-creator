@@ -64,12 +64,6 @@ UvscServerProvider::UvscServerProvider(const QString &id)
     setToolsetNumber(ArmAdsToolsetNumber);
 }
 
-UvscServerProvider::UvscServerProvider(const UvscServerProvider &other)
-    : IDebugServerProvider(other.id())
-{
-    setEngineType(UvscEngineType);
-}
-
 void UvscServerProvider::setToolsIniFile(const FilePath &toolsIniFile)
 {
     m_toolsIniFile = toolsIniFile;

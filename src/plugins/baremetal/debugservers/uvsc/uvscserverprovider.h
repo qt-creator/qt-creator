@@ -61,7 +61,6 @@ public:
 
 protected:
     explicit UvscServerProvider(const QString &id);
-    explicit UvscServerProvider(const UvscServerProvider &other);
 
     void setToolsetNumber(ToolsetNumber toolsetNumber);
     void setSupportedDrivers(const QStringList &supportedDrivers);
