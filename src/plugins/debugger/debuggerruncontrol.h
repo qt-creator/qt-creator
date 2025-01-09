@@ -13,8 +13,6 @@
 
 #include <utils/environmentfwd.h>
 
-namespace Utils { class Result; }
-
 namespace Debugger {
 
 namespace Internal { class DebuggerRunToolPrivate; }
@@ -33,8 +31,6 @@ public:
     void stop() override;
 
     void setSolibSearchPath(const Utils::FilePaths &list);
-
-    static void setBreakOnMainNextTime();
 
     void setInferior(const Utils::ProcessRunData &runnable);
     void setInferiorExecutable(const Utils::FilePath &executable);
@@ -110,7 +106,6 @@ public:
 private:
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);
 
-    Utils::Result fixupParameters();
     void handleEngineStarted(Internal::DebuggerEngine *engine);
     void handleEngineFinished(Internal::DebuggerEngine *engine);
 

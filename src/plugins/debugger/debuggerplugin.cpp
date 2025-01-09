@@ -1041,7 +1041,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
     connect(&m_startAndBreakOnMain, &QAction::triggered, this, [] {
-        DebuggerRunTool::setBreakOnMainNextTime();
+        DebuggerRunParameters::setBreakOnMainNextTime();
         ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE, false);
     });
 

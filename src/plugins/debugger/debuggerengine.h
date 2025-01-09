@@ -34,6 +34,7 @@ namespace Utils {
 class MacroExpander;
 class Perspective;
 class ProcessResultData;
+class Result;
 } // Utils
 
 namespace Debugger {
@@ -75,6 +76,10 @@ class DEBUGGER_EXPORT DebuggerRunParameters
 {
 public:
     static DebuggerRunParameters fromRunControl(ProjectExplorer::RunControl *runControl);
+
+    static void setBreakOnMainNextTime();
+
+    Utils::Result fixupParameters(ProjectExplorer::RunControl *runControl);
 
     DebuggerStartMode startMode = NoStartMode;
     DebuggerCloseMode closeMode = KillAtClose;

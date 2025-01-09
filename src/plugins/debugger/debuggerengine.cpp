@@ -47,6 +47,7 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/toolchainkitaspect.h>
 
@@ -66,6 +67,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/styledbar.h>
+#include <utils/url.h>
 #include <utils/utilsicons.h>
 
 #include <QApplication>
@@ -195,6 +197,109 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
     }
 
     return params;
+}
+
+static bool breakOnMainNextTime = false;
+
+void DebuggerRunParameters::setBreakOnMainNextTime()
+{
+    breakOnMainNextTime = true;
+}
+
+Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runControl)
+{
+    if (symbolFile.isEmpty())
+        symbolFile = inferior.command.executable();
+
+    // Set a Qt Creator-specific environment variable, to able to check for it in debugger
+    // scripts.
+    debugger.environment.set("QTC_DEBUGGER_PROCESS", "1");
+
+    // Copy over DYLD_IMAGE_SUFFIX etc
+    for (const auto &var :
+         QStringList({"DYLD_IMAGE_SUFFIX", "DYLD_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH"}))
+        if (inferior.environment.hasKey(var))
+            debugger.environment.set(var, inferior.environment.expandedValueForKey(var));
+
+    // validate debugger if C++ debugging is enabled
+    if (!validationErrors.isEmpty())
+        return Result::Error(validationErrors.join('\n'));
+
+    if (isQmlDebugging) {
+        const auto device = runControl->device();
+        if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+            if (qmlServer.port() <= 0) {
+                qmlServer = Utils::urlFromLocalHostAndFreePort();
+                if (qmlServer.port() <= 0)
+                    return Result::Error(Tr::tr("Not enough free ports for QML debugging."));
+            }
+            // Makes sure that all bindings go through the JavaScript engine, so that
+            // breakpoints are actually hit!
+            const QString optimizerKey = "QML_DISABLE_OPTIMIZER";
+            if (!inferior.environment.hasKey(optimizerKey))
+                inferior.environment.set(optimizerKey, "1");
+        }
+    }
+
+    if (settings().autoEnrichParameters()) {
+        if (debugInfoLocation.isEmpty())
+            debugInfoLocation = sysRoot / "/usr/lib/debug";
+        if (debugSourceLocation.isEmpty()) {
+            const QString base = sysRoot.toString() + "/usr/src/debug/";
+            debugSourceLocation.append(base + "qt5base/src/corelib");
+            debugSourceLocation.append(base + "qt5base/src/gui");
+            debugSourceLocation.append(base + "qt5base/src/network");
+        }
+    }
+
+    if (isQmlDebugging) {
+        QmlDebugServicesPreset service;
+        if (isCppDebugging()) {
+            if (nativeMixedEnabled) {
+                service = QmlNativeDebuggerServices;
+            } else {
+                service = QmlDebuggerServices;
+            }
+        } else {
+            service = QmlDebuggerServices;
+        }
+        if (startMode != AttachToLocalProcess && startMode != AttachToCrashedProcess) {
+            const QString qmlarg = isCppDebugging() && nativeMixedEnabled
+                                 ? qmlDebugNativeArguments(service, false)
+                                 : qmlDebugTcpArguments(service, qmlServer);
+            inferior.command.addArg(qmlarg);
+        }
+    }
+
+    if (startMode == NoStartMode)
+        startMode = StartInternal;
+
+    if (breakOnMainNextTime) {
+        breakOnMain = true;
+        breakOnMainNextTime = false;
+    }
+
+    if (HostOsInfo::isWindowsHost()) {
+        // Otherwise command lines with '> tmp.log' hang.
+        ProcessArgs::SplitError perr;
+        ProcessArgs::prepareArgs(inferior.command.arguments(), &perr,
+                                 HostOsInfo::hostOs(), nullptr,
+                                 &inferior.workingDirectory).toWindowsArgs();
+        if (perr != ProcessArgs::SplitOk) {
+            // perr == BadQuoting is never returned on Windows
+            // FIXME? QTCREATORBUG-2809
+            return Result::Error(Tr::tr("Debugging complex command lines "
+                                        "is currently not supported on Windows."));
+        }
+    }
+
+    if (isNativeMixedDebugging())
+        inferior.environment.set("QV4_FORCE_INTERPRETER", "1");
+
+    if (settings().forceLoggingToConsole())
+        inferior.environment.set("QT_LOGGING_TO_CONSOLE", "1");
+
+    return Result::Ok;
 }
 
 bool DebuggerRunParameters::isCppDebugging() const
