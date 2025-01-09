@@ -195,7 +195,7 @@ void DapEngine::handleDapInitialize()
 {
     QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
 
-    m_dapClient->sendLaunch(runParameters().inferior.command);
+    m_dapClient->sendLaunch(runParameters().inferior().command);
 
     qCDebug(logCategory()) << "handleDapLaunch";
 }
@@ -699,7 +699,7 @@ void DapEngine::handleResponse(DapResponseType type, const QJsonObject &response
             AsynchronousMessageBox::critical(
                 Tr::tr("Failed to Start Application"),
                 Tr::tr("\"%1\" could not be started. Error message: %2")
-                    .arg(runParameters().inferior.command.toUserOutput())
+                    .arg(runParameters().inferior().command.toUserOutput())
                     .arg(response.value("message").toString()));
         }
         break;

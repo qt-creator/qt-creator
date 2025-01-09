@@ -108,12 +108,12 @@ QDebug operator<<(QDebug d, DebuggerState state)
 QDebug operator<<(QDebug str, const DebuggerRunParameters &sp)
 {
     QDebug nospace = str.nospace();
-    nospace << "executable=" << sp.inferior.command.executable()
+    nospace << "executable=" << sp.inferior().command.executable()
             << " coreFile=" << sp.coreFile
-            << " processArgs=" << sp.inferior.command.arguments()
-            << " inferior environment=<" << sp.inferior.environment.toStringList().size() << " variables>"
+            << " processArgs=" << sp.inferior().command.arguments()
+            << " inferior environment=<" << sp.inferior().environment.toStringList().size() << " variables>"
             << " debugger environment=<" << sp.debugger.environment.toStringList().size() << " variables>"
-            << " workingDir=" << sp.inferior.workingDirectory
+            << " workingDir=" << sp.inferior().workingDirectory
             << " attachPID=" << sp.attachPID.pid()
             << " remoteChannel=" << sp.remoteChannel
             << " abi=" << sp.toolChainAbi.toString() << '\n';
@@ -169,7 +169,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
     ProcessRunData inferior = runControl->runnable();
     // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
     inferior.workingDirectory = inferior.workingDirectory.normalizedPathName();
-    params.inferior = inferior;
+    params.setInferior(inferior);
 
     const QString envBinary = qtcEnvironmentVariable("QTC_DEBUGGER_PATH");
     if (!envBinary.isEmpty())
@@ -210,7 +210,7 @@ void DebuggerRunParameters::setBreakOnMainNextTime()
 Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runControl)
 {
     if (symbolFile.isEmpty())
-        symbolFile = inferior.command.executable();
+        symbolFile = m_inferior.command.executable();
 
     // Set a Qt Creator-specific environment variable, to able to check for it in debugger
     // scripts.
@@ -219,8 +219,8 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
     // Copy over DYLD_IMAGE_SUFFIX etc
     for (const auto &var :
          QStringList({"DYLD_IMAGE_SUFFIX", "DYLD_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH"}))
-        if (inferior.environment.hasKey(var))
-            debugger.environment.set(var, inferior.environment.expandedValueForKey(var));
+        if (m_inferior.environment.hasKey(var))
+            debugger.environment.set(var, m_inferior.environment.expandedValueForKey(var));
 
     // validate debugger if C++ debugging is enabled
     if (!validationErrors.isEmpty())
@@ -237,8 +237,8 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
             // Makes sure that all bindings go through the JavaScript engine, so that
             // breakpoints are actually hit!
             const QString optimizerKey = "QML_DISABLE_OPTIMIZER";
-            if (!inferior.environment.hasKey(optimizerKey))
-                inferior.environment.set(optimizerKey, "1");
+            if (!m_inferior.environment.hasKey(optimizerKey))
+                m_inferior.environment.set(optimizerKey, "1");
         }
     }
 
@@ -268,7 +268,7 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
             const QString qmlarg = isCppDebugging() && nativeMixedEnabled
                                  ? qmlDebugNativeArguments(service, false)
                                  : qmlDebugTcpArguments(service, qmlServer);
-            inferior.command.addArg(qmlarg);
+            m_inferior.command.addArg(qmlarg);
         }
     }
 
@@ -283,9 +283,9 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
     if (HostOsInfo::isWindowsHost()) {
         // Otherwise command lines with '> tmp.log' hang.
         ProcessArgs::SplitError perr;
-        ProcessArgs::prepareArgs(inferior.command.arguments(), &perr,
+        ProcessArgs::prepareArgs(m_inferior.command.arguments(), &perr,
                                  HostOsInfo::hostOs(), nullptr,
-                                 &inferior.workingDirectory).toWindowsArgs();
+                                 &m_inferior.workingDirectory).toWindowsArgs();
         if (perr != ProcessArgs::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809
@@ -295,10 +295,10 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
     }
 
     if (isNativeMixedDebugging())
-        inferior.environment.set("QV4_FORCE_INTERPRETER", "1");
+        m_inferior.environment.set("QV4_FORCE_INTERPRETER", "1");
 
     if (settings().forceLoggingToConsole())
-        inferior.environment.set("QT_LOGGING_TO_CONSOLE", "1");
+        m_inferior.environment.set("QT_LOGGING_TO_CONSOLE", "1");
 
     return Result::Ok;
 }
@@ -2895,13 +2895,13 @@ QString DebuggerEngine::formatStartParameters() const
     if (sp.isQmlDebugging)
         str << "qml";
     str << '\n';
-    if (!sp.inferior.command.isEmpty()) {
-        str << "Executable: " << sp.inferior.command.toUserOutput();
+    if (!sp.inferior().command.isEmpty()) {
+        str << "Executable: " << sp.inferior().command.toUserOutput();
         if (usesTerminal())
             str << " [terminal]";
         str << '\n';
-        if (!sp.inferior.workingDirectory.isEmpty())
-            str << "Directory: " << sp.inferior.workingDirectory.toUserOutput() << '\n';
+        if (!sp.inferior().workingDirectory.isEmpty())
+            str << "Directory: " << sp.inferior().workingDirectory.toUserOutput() << '\n';
     }
     if (!sp.debugger.command.isEmpty())
         str << "Debugger: " << sp.debugger.command.toUserOutput() << '\n';

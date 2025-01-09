@@ -559,7 +559,7 @@ void TestRunner::debugTests()
         reportResult(ResultType::MessageWarn, details);
     }
     auto debugger = new Debugger::DebuggerRunTool(runControl);
-    debugger->setInferior(inferior);
+    debugger->runParameters().setInferior(inferior);
     debugger->setRunControlName(config->displayName());
 
     bool useOutputProcessor = true;

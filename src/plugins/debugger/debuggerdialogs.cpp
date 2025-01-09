@@ -416,7 +416,7 @@ void StartApplicationDialog::run(bool attachRemote)
     debugger->setRunControlName(newParameters.displayName());
     debugger->setBreakOnMain(newParameters.breakAtMain);
     debugger->setDebugInfoLocation(newParameters.debugInfoLocation);
-    debugger->setInferior(newParameters.runnable);
+    rp.setInferior(newParameters.runnable);
     debugger->setCommandsAfterConnect(newParameters.serverInitCommands);
     debugger->setCommandsForReset(newParameters.serverResetCommands);
     debugger->setUseTerminal(newParameters.runInTerminal);
@@ -426,7 +426,7 @@ void StartApplicationDialog::run(bool attachRemote)
 
     bool isLocal = dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
     if (isLocal) // FIXME: Restriction needed?
-        debugger->setInferiorEnvironment(k->runEnvironment());
+        rp.setInferiorEnvironment(k->runEnvironment());
 
     if (!attachRemote)
         debugger->runParameters().setStartMode(isLocal ? StartExternal : StartRemoteProcess);

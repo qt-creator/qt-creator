@@ -265,7 +265,7 @@ void PyDapEngine::setupEngine()
     } else {
         cmd.addArgs({"--wait-for-client",
                      scriptFile.path(),
-                     runParameters().inferior.workingDirectory.path()});
+                     runParameters().inferior().workingDirectory.path()});
     }
 
     IDataProvider *dataProvider

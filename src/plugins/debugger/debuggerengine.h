@@ -88,7 +88,13 @@ public:
     void setCloseMode(DebuggerCloseMode closeMode) { m_closeMode = closeMode; }
     DebuggerCloseMode closeMode() const { return m_closeMode; }
 
-    Utils::ProcessRunData inferior;
+    void setInferior(const Utils::ProcessRunData &runnable) { m_inferior = runnable; }
+    void setInferiorExecutable(const Utils::FilePath &executable) {
+        m_inferior.command.setExecutable(executable);
+    }
+    void setInferiorEnvironment(const Utils::Environment &env) { m_inferior.environment = env; }
+    Utils::ProcessRunData inferior() const { return m_inferior; }
+
     QString displayName; // Used in the Snapshots view.
     Utils::ProcessHandle attachPID;
     Utils::FilePaths solibSearchPath;
@@ -195,6 +201,8 @@ public:
 private:
     DebuggerStartMode m_startMode = NoStartMode;
     DebuggerCloseMode m_closeMode = KillAtClose;
+
+    Utils::ProcessRunData m_inferior;
 };
 
 namespace Internal {

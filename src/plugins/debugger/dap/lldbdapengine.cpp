@@ -152,13 +152,13 @@ void LldbDapEngine::handleDapInitialize()
     const QJsonArray commands = preRunCommands();
 
     if (!runParameters().isLocalAttachEngine()) {
-        const QJsonArray env = QJsonArray::fromStringList(rp.inferior.environment.toStringList());
-        const QJsonArray args = QJsonArray::fromStringList(rp.inferior.command.splitArguments());
+        const QJsonArray env = QJsonArray::fromStringList(rp.inferior().environment.toStringList());
+        const QJsonArray args = QJsonArray::fromStringList(rp.inferior().command.splitArguments());
 
         QJsonObject launchJson{
             {"noDebug", false},
-            {"program", rp.inferior.command.executable().path()},
-            {"cwd", rp.inferior.workingDirectory.path()},
+            {"program", rp.inferior().command.executable().path()},
+            {"cwd", rp.inferior().workingDirectory.path()},
             {"env", env},
             {"__restart", ""},
         };
@@ -178,7 +178,7 @@ void LldbDapEngine::handleDapInitialize()
     QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
 
     QJsonObject attachJson{
-        {"program", rp.inferior.command.executable().path()},
+        {"program", rp.inferior().command.executable().path()},
         {"pid", QString::number(rp.attachPID.pid())},
         {"__restart", ""},
     };

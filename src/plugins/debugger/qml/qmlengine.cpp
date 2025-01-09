@@ -490,9 +490,9 @@ void QmlEngine::startProcess()
     if (d->process.isRunning())
         return;
 
-    d->process.setCommand(runParameters().inferior.command);
-    d->process.setWorkingDirectory(runParameters().inferior.workingDirectory);
-    d->process.setEnvironment(runParameters().inferior.environment);
+    d->process.setCommand(runParameters().inferior().command);
+    d->process.setWorkingDirectory(runParameters().inferior().workingDirectory);
+    d->process.setEnvironment(runParameters().inferior().environment);
     showMessage(Tr::tr("Starting %1").arg(d->process.commandLine().toUserOutput()),
         NormalMessageFormat);
     d->process.start();

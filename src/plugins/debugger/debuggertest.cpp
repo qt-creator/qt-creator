@@ -108,7 +108,8 @@ void DebuggerUnitTests::testStateMachine()
     runControl->copyDataFromRunConfiguration(rc);
     auto debugger = new DebuggerRunTool(runControl);
 
-    debugger->setInferior(rc->runnable());
+    DebuggerRunParameters &rp = debugger->runParameters();
+    rp.setInferior(rc->runnable());
     debugger->setTestCase(TestNoBoundsOfCurrentFunction);
 
     connect(debugger, &DebuggerRunTool::stopped,

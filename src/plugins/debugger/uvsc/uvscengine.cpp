@@ -353,7 +353,7 @@ void UvscEngine::insertBreakpoint(const Breakpoint &bp)
     if (requested.type == BreakpointByFileAndLine) {
         // Add target executable name.
         const DebuggerRunParameters &rp = runParameters();
-        QString exe = rp.inferior.command.executable().baseName();
+        QString exe = rp.inferior().command.executable().baseName();
         exe.replace('-', '_');
         expression += "\\\\" + exe;
         // Add file name.
@@ -544,8 +544,8 @@ bool UvscEngine::configureProject(const DebuggerRunParameters &rp)
 
     // We need to use the relative output target path.
     showMessage("UVSC: SETTING PROJECT OUTPUT TARGET...");
-    const FilePath targetPath = rp.inferior.command.executable().relativeChildPath(projectPath.parentDir());
-    if (!rp.inferior.command.executable().exists()) {
+    const FilePath targetPath = rp.inferior().command.executable().relativeChildPath(projectPath.parentDir());
+    if (!rp.inferior().command.executable().exists()) {
         handleSetupFailure(Tr::tr("Internal error: The specified output file does not exist."));
         return false;
     } else if (!m_client->setProjectOutputTarget(targetPath)) {
@@ -600,7 +600,7 @@ void UvscEngine::handleProjectClosed()
     Module module;
     module.startAddress = 0;
     module.endAddress = 0;
-    module.modulePath = rp.inferior.command.executable();
+    module.modulePath = rp.inferior().command.executable();
     module.moduleName = "<executable>";
     modulesHandler()->updateModule(module);
 

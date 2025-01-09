@@ -945,6 +945,7 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
 
 void IosDebugSupport::start()
 {
+    DebuggerRunParameters &rp = runParameters();
     const IosDeviceTypeAspect::Data *data = runControl()->aspectData<IosDeviceTypeAspect>();
     QTC_ASSERT(data, reportFailure("Broken IosDeviceTypeAspect setup."); return);
     setRunControlName(data->applicationName);
@@ -965,7 +966,7 @@ void IosDebugSupport::start()
             appendMessage(msgOnlyCppDebuggingSupported(), OutputFormat::LogMessageFormat, true);
         }
         setAttachPid(m_deviceCtlRunner->processIdentifier());
-        setInferiorExecutable(data->localExecutable);
+        rp.setInferiorExecutable(data->localExecutable);
         DebuggerRunTool::start();
         return;
     }
@@ -975,14 +976,14 @@ void IosDebugSupport::start()
         return;
     }
 
-    Port gdbServerPort = m_iosRunner->gdbServerPort();
-    Port qmlServerPort = m_iosRunner->qmlServerPort();
+    const Port gdbServerPort = m_iosRunner->gdbServerPort();
+    const Port qmlServerPort = m_iosRunner->qmlServerPort();
     setAttachPid(ProcessHandle(m_iosRunner->pid()));
 
     const bool cppDebug = isCppDebugging();
     const bool qmlDebug = isQmlDebugging();
     if (cppDebug) {
-        setInferiorExecutable(data->localExecutable);
+        rp.setInferiorExecutable(data->localExecutable);
         setRemoteChannel("connect://localhost:" + gdbServerPort.toString());
 
         QString bundlePath = data->bundleDirectory.toString();

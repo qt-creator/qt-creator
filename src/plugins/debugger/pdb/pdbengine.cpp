@@ -112,9 +112,10 @@ void PdbEngine::setupEngine()
     }
 
     CommandLine cmd{m_interpreter, {bridge, scriptFile.path()}};
-    cmd.addArg(runParameters().inferior.workingDirectory.path());
+    const DebuggerRunParameters &rp = runParameters();
+    cmd.addArg(rp.inferior().workingDirectory.path());
     cmd.addArg("--");
-    QStringList arguments = runParameters().inferior.command.splitArguments();
+    QStringList arguments = rp.inferior().command.splitArguments();
     if (!arguments.isEmpty() && arguments.constFirst() == "-u")
         arguments.removeFirst(); // unbuffered added by run config
     if (!arguments.isEmpty())
@@ -347,7 +348,7 @@ void PdbEngine::refreshSymbols(const GdbMi &symbols)
         symbol.name = item["name"].data();
         syms.append(symbol);
     }
-    showModuleSymbols(runParameters().inferior.command.executable().withNewPath(moduleName), syms);
+    showModuleSymbols(runParameters().inferior().command.executable().withNewPath(moduleName), syms);
 }
 
 bool PdbEngine::canHandleToolTip(const DebuggerToolTipContext &) const

@@ -240,21 +240,6 @@ void DebuggerRunTool::setAbi(const Abi &abi)
     m_runParameters.toolChainAbi = abi;
 }
 
-void DebuggerRunTool::setInferior(const ProcessRunData &runnable)
-{
-    m_runParameters.inferior = runnable;
-}
-
-void DebuggerRunTool::setInferiorExecutable(const FilePath &executable)
-{
-    m_runParameters.inferior.command.setExecutable(executable);
-}
-
-void DebuggerRunTool::setInferiorEnvironment(const Utils::Environment &env)
-{
-    m_runParameters.inferior.environment = env;
-}
-
 void DebuggerRunTool::setRunControlName(const QString &name)
 {
     m_runParameters.displayName = name;
@@ -377,7 +362,7 @@ void DebuggerRunTool::startTerminalIfNeededAndContinueStartup()
     }
 
     // Actually start the terminal.
-    ProcessRunData stub = m_runParameters.inferior;
+    ProcessRunData stub = m_runParameters.inferior();
 
     if (m_runParameters.runAsRoot) {
         d->terminalProc.setRunAsRoot(true);
@@ -420,17 +405,18 @@ void DebuggerRunTool::continueAfterTerminalStart()
             QTC_ASSERT(qmlServerPort > 0, reportFailure(); return);
             QString mode = QString("port:%1").arg(qmlServerPort);
 
-            CommandLine cmd{m_runParameters.inferior.command.executable()};
+            auto inferior = m_runParameters.inferior();
+            CommandLine cmd{inferior.command.executable()};
             cmd.addArg(qmlDebugCommandLineArguments(QmlDebuggerServices, mode, true));
-            cmd.addArgs(m_runParameters.inferior.command.arguments(), CommandLine::Raw);
-
-            m_runParameters.inferior.command = cmd;
+            cmd.addArgs(m_runParameters.inferior().command.arguments(), CommandLine::Raw);
+            inferior.command = cmd;
+            m_runParameters.setInferior(inferior);
         }
     }
 
     // User canceled input dialog asking for executable when working on library project.
     if (m_runParameters.startMode() == StartInternal
-            && m_runParameters.inferior.command.isEmpty()
+            && m_runParameters.inferior().command.isEmpty()
             && m_runParameters.interpreter.isEmpty()) {
         reportFailure(Tr::tr("No executable specified."));
         return;
@@ -453,13 +439,13 @@ void DebuggerRunTool::continueAfterTerminalStart()
     }
 
     if (m_runParameters.cppEngineType == CdbEngineType
-            && Utils::is64BitWindowsBinary(m_runParameters.inferior.command.executable())
+        && Utils::is64BitWindowsBinary(m_runParameters.inferior().command.executable())
             && !Utils::is64BitWindowsBinary(m_runParameters.debugger.command.executable())) {
         reportFailure(
             Tr::tr(
                 "%1 is a 64 bit executable which can not be debugged by a 32 bit Debugger.\n"
                 "Please select a 64 bit Debugger in the kit settings for this kit.")
-                .arg(m_runParameters.inferior.command.executable().toUserOutput()));
+                .arg(m_runParameters.inferior().command.executable().toUserOutput()));
         return;
     }
 
@@ -470,7 +456,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
 {
     Utils::globalMacroExpander()->registerFileVariables(
                 "DebuggedExecutable", Tr::tr("Debugged executable"),
-                [this] { return m_runParameters.inferior.command.executable(); }
+                [this] { return m_runParameters.inferior().command.executable(); }
     );
 
     runControl()->setDisplayName(m_runParameters.displayName);
@@ -629,7 +615,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
         }
     }
 
-    appendMessage(Tr::tr("Debugging %1 ...").arg(m_runParameters.inferior.command.toUserOutput()),
+    appendMessage(Tr::tr("Debugging %1 ...").arg(m_runParameters.inferior().command.toUserOutput()),
                   NormalMessageFormat);
     const QString debuggerName = Utils::transform<QStringList>(m_engines, &DebuggerEngine::objectName).join(" ");
 
@@ -678,7 +664,7 @@ void DebuggerRunTool::handleEngineFinished(DebuggerEngine *engine)
 {
     engine->prepareForRestart();
     if (--d->engineStopsNeeded == 0) {
-        QString cmd = m_runParameters.inferior.command.toUserOutput();
+        QString cmd = m_runParameters.inferior().command.toUserOutput();
         QString msg = engine->runParameters().exitCode // Main engine.
                           ? Tr::tr("Debugging of %1 has finished with exit code %2.")
                                 .arg(cmd)
@@ -844,7 +830,7 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
 
     // FIXME: Indentation intentionally wrong to keep diff in gerrit small. Will fix later.
 
-        CommandLine commandLine = m_runParameters.inferior.command;
+        CommandLine commandLine = m_runParameters.inferior().command;
         CommandLine cmd;
 
         if (runControl()->usesQmlChannel() && !runControl()->usesDebugChannel()) {

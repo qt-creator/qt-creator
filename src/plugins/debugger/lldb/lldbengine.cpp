@@ -261,17 +261,16 @@ void LldbEngine::handleLldbStarted()
     for (const FilePath &path : rp.solibSearchPath)
         executeDebuggerCommand("settings append target.exec-search-paths " + path.toString());
 
-    const ProcessRunData &inferior = rp.inferior;
-    const FilePath &executable = inferior.command.executable();
+    const FilePath &executable = rp.inferior().command.executable();
     DebuggerCommand cmd2("setupInferior");
     cmd2.arg("executable", executable.path());
     cmd2.arg("breakonmain", rp.breakOnMain);
     cmd2.arg("useterminal", usesTerminal());
     cmd2.arg("startmode", rp.startMode());
     cmd2.arg("nativemixed", isNativeMixedActive());
-    cmd2.arg("workingdirectory", inferior.workingDirectory.path());
+    cmd2.arg("workingdirectory", rp.inferior().workingDirectory.path());
     cmd2.arg("deviceUuid", rp.deviceUuid);
-    Environment environment = inferior.environment;
+    Environment environment = rp.inferior().environment;
     // Prevent lldb from automatically setting OS_ACTIVITY_DT_MODE to mirror
     // NSLog to stderr, as that will also mirror os_log, which we pick up in
     // AppleUnifiedLogger::preventsStderrLogging(), and end up disabling Qt's
@@ -285,7 +284,7 @@ void LldbEngine::handleLldbStarted()
     cmd2.arg("environment", environment.toStringList());
     cmd2.arg(
         "processargs",
-        toHex(ProcessArgs::splitArgs(inferior.command.arguments(), HostOsInfo::hostOs())
+        toHex(ProcessArgs::splitArgs(rp.inferior().command.arguments(), HostOsInfo::hostOs())
                   .join(QChar(0))));
     cmd2.arg("platform", rp.platform);
     cmd2.arg("symbolfile", rp.symbolFile.path());
@@ -671,7 +670,7 @@ void LldbEngine::reloadModules()
 {
     DebuggerCommand cmd("fetchModules");
     cmd.callback = [this](const DebuggerResponse &response) {
-        const FilePath inferior = runParameters().inferior.command.executable();
+        const FilePath inferior = runParameters().inferior().command.executable();
         const GdbMi &modules = response.data["modules"];
         ModulesHandler *handler = modulesHandler();
         handler->beginUpdateAll();

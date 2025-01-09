@@ -1394,7 +1394,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         runControl->setKit(kit);
         auto debugger = new DebuggerRunTool(runControl);
         DebuggerRunParameters &rp = debugger->runParameters();
-        debugger->setInferiorExecutable(executable);
+        rp.setInferiorExecutable(executable);
         if (!sysRoot.isEmpty())
             debugger->setSysRoot(FilePath::fromUserInput(sysRoot));
         if (pid) {
@@ -1624,7 +1624,7 @@ void DebuggerPluginPrivate::attachToLastCore()
 
     auto debugger = new DebuggerRunTool(runControl);
     DebuggerRunParameters &rp = debugger->runParameters();
-    debugger->setInferiorExecutable(lastCore.binary);
+    rp.setInferiorExecutable(lastCore.binary);
     debugger->setCoreFilePath(lastCore.coreFile);
     rp.setStartMode(AttachToCore);
     rp.setCloseMode(DetachAtClose);
@@ -1744,7 +1744,7 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     auto debugger = new DebuggerRunTool(runControl);
     DebuggerRunParameters &rp = debugger->runParameters();
     debugger->setAttachPid(ProcessHandle(processInfo.processId));
-    debugger->setInferiorExecutable(device->filePath(processInfo.executable));
+    rp.setInferiorExecutable(device->filePath(processInfo.executable));
     rp.setStartMode(AttachToLocalProcess);
     rp.setCloseMode(DetachAtClose);
     debugger->setContinueAfterAttach(contAfterAttach);
@@ -2297,7 +2297,7 @@ void DebuggerPlugin::attachExternalApplication(RunControl *rc)
 
     auto debugger = new DebuggerRunTool(runControl);
     DebuggerRunParameters &rp = debugger->runParameters();
-    debugger->setInferiorExecutable(rc->targetFilePath());
+    rp.setInferiorExecutable(rc->targetFilePath());
     debugger->setAttachPid(pid);
     rp.setStartMode(AttachToLocalProcess);
     rp.setCloseMode(DetachAtClose);

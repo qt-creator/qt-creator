@@ -282,7 +282,7 @@ void CdbEngine::setupEngine()
     DebuggerRunParameters sp = runParameters();
     if (usesTerminal()) {
         m_effectiveStartMode = AttachToLocalProcess;
-        sp.inferior.command = {};
+        sp.setInferior({{}, sp.inferior().workingDirectory, sp.inferior().environment});
         sp.attachPID = ProcessHandle(applicationPid());
         sp.setStartMode(AttachToLocalProcess);
         sp.useTerminal = false; // Force no terminal.
@@ -360,9 +360,9 @@ void CdbEngine::setupEngine()
     switch (sp.startMode()) {
     case StartInternal:
     case StartExternal:
-        debugger.addArg(sp.inferior.command.executable().toUserOutput());
+        debugger.addArg(sp.inferior().command.executable().toUserOutput());
         // Complete native argument string.
-        debugger.addArgs(sp.inferior.command.arguments(), CommandLine::Raw);
+        debugger.addArgs(sp.inferior().command.arguments(), CommandLine::Raw);
         break;
     case AttachToRemoteServer:
         break;
@@ -393,8 +393,8 @@ void CdbEngine::setupEngine()
 
     m_autoBreakPointCorrection = false;
 
-    Environment inferiorEnvironment = sp.inferior.environment.hasChanges()
-            ? sp.inferior.environment : Environment::systemEnvironment();
+    Environment inferiorEnvironment = sp.inferior().environment.hasChanges()
+            ? sp.inferior().environment : Environment::systemEnvironment();
 
     // Make sure that QTestLib uses OutputDebugString for logging.
     const QString qtLoggingToConsoleKey = QStringLiteral("QT_LOGGING_TO_CONSOLE");
@@ -412,8 +412,8 @@ void CdbEngine::setupEngine()
         inferiorEnvironment.set(Debugger::Constants::NO_DEBUG_HEAP, value);
     }
     m_process.setEnvironment(inferiorEnvironment);
-    if (!sp.inferior.workingDirectory.isEmpty())
-        m_process.setWorkingDirectory(sp.inferior.workingDirectory);
+    if (!sp.inferior().workingDirectory.isEmpty())
+        m_process.setWorkingDirectory(sp.inferior().workingDirectory);
 
     m_process.setCommand(debugger);
     m_process.start();
@@ -446,7 +446,7 @@ void CdbEngine::handleInitialSessionIdle()
     if (rp.breakOnMain) {
         BreakpointParameters bp(BreakpointAtMain);
         if (rp.startMode() == StartInternal || rp.startMode() == StartExternal) {
-            const QString &moduleFileName = rp.inferior.command.executable().fileName();
+            const QString &moduleFileName = rp.inferior().command.executable().fileName();
             bp.module = moduleFileName.left(moduleFileName.indexOf('.'));
         }
         QString function = cdbAddBreakpointCommand(bp, m_sourcePathMappings);
@@ -459,10 +459,10 @@ void CdbEngine::handleInitialSessionIdle()
 
     const DebuggerSettings &s = settings();
     QStringList symbolPaths = s.cdbSymbolPaths();
-    QString symbolPath = rp.inferior.environment.expandedValueForKey("_NT_ALT_SYMBOL_PATH");
+    QString symbolPath = rp.inferior().environment.expandedValueForKey("_NT_ALT_SYMBOL_PATH");
     if (!symbolPath.isEmpty())
         symbolPaths += symbolPath;
-    symbolPath = rp.inferior.environment.expandedValueForKey("_NT_SYMBOL_PATH");
+    symbolPath = rp.inferior().environment.expandedValueForKey("_NT_SYMBOL_PATH");
     if (!symbolPath.isEmpty())
         symbolPaths += symbolPath;
 
@@ -1470,7 +1470,7 @@ void CdbEngine::handleModules(const DebuggerResponse &response)
 {
     if (response.resultClass == ResultDone) {
         if (response.data.type() == GdbMi::List) {
-            const FilePath inferior = runParameters().inferior.command.executable();
+            const FilePath inferior = runParameters().inferior().command.executable();
             ModulesHandler *handler = modulesHandler();
             handler->beginUpdateAll();
             for (const GdbMi &gdbmiModule : response.data) {

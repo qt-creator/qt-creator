@@ -32,9 +32,6 @@ public:
 
     void setSolibSearchPath(const Utils::FilePaths &list);
 
-    void setInferior(const Utils::ProcessRunData &runnable);
-    void setInferiorExecutable(const Utils::FilePath &executable);
-    void setInferiorEnvironment(const Utils::Environment &env); // Used by GammaRay plugin
     void setRunControlName(const QString &name);
     void setStartMessage(const QString &msg);
     void setCrashParameter(const QString &event);
