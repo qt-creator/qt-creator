@@ -477,8 +477,10 @@ void DebuggerRunTool::continueAfterTerminalStart()
 //        return;
 //    }
 
-    if (!fixupParameters())
+    if (Result res = fixupParameters(); !res) {
+        reportFailure(res.error());
         return;
+    }
 
     if (m_runParameters.cppEngineType == CdbEngineType
             && Utils::is64BitWindowsBinary(m_runParameters.inferior.command.executable())
@@ -744,7 +746,7 @@ void DebuggerRunTool::setSolibSearchPath(const Utils::FilePaths &list)
     m_runParameters.solibSearchPath = list;
 }
 
-bool DebuggerRunTool::fixupParameters()
+Result DebuggerRunTool::fixupParameters()
 {
     DebuggerRunParameters &rp = m_runParameters;
     if (rp.symbolFile.isEmpty())
@@ -761,19 +763,15 @@ bool DebuggerRunTool::fixupParameters()
             rp.debugger.environment.set(var, rp.inferior.environment.expandedValueForKey(var));
 
     // validate debugger if C++ debugging is enabled
-    if (!rp.validationErrors.isEmpty()) {
-        reportFailure(rp.validationErrors.join('\n'));
-        return false;
-    }
+    if (!rp.validationErrors.isEmpty())
+        return Result::Error(rp.validationErrors.join('\n'));
 
     if (rp.isQmlDebugging) {
         if (device() && device()->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
             if (rp.qmlServer.port() <= 0) {
                 rp.qmlServer = Utils::urlFromLocalHostAndFreePort();
-                if (rp.qmlServer.port() <= 0) {
-                    reportFailure(Tr::tr("Not enough free ports for QML debugging."));
-                    return false;
-                }
+                if (rp.qmlServer.port() <= 0)
+                    return Result::Error(Tr::tr("Not enough free ports for QML debugging."));
             }
             // Makes sure that all bindings go through the JavaScript engine, so that
             // breakpoints are actually hit!
@@ -831,9 +829,8 @@ bool DebuggerRunTool::fixupParameters()
         if (perr != ProcessArgs::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809
-            reportFailure(Tr::tr("Debugging complex command lines "
-                                 "is currently not supported on Windows."));
-            return false;
+            return Result::Error(Tr::tr("Debugging complex command lines "
+                                        "is currently not supported on Windows."));
         }
     }
 
@@ -843,7 +840,7 @@ bool DebuggerRunTool::fixupParameters()
     if (settings().forceLoggingToConsole())
         rp.inferior.environment.set("QT_LOGGING_TO_CONSOLE", "1");
 
-    return true;
+    return Result::Ok;
 }
 
 DebuggerEngineType DebuggerRunTool::cppEngineType() const
