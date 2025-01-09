@@ -120,7 +120,7 @@ public:
 private:
     void handleResponse(const DocumentUri &uri, const DocumentSymbolsResult &response);
     void updateTextCursor(const QModelIndex &proxyIndex);
-    void updateSelectionInTree(const QTextCursor &currentCursor);
+    void updateSelectionInTree();
     void onItemActivated(const QModelIndex &index);
 
     QPointer<Client> m_client;
@@ -168,10 +168,7 @@ LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
     connect(&m_view, &QAbstractItemView::activated,
             this, &LanguageClientOutlineWidget::onItemActivated);
     connect(m_editor->editorWidget(), &TextEditor::TextEditorWidget::cursorPositionChanged,
-            this, [this](){
-        if (m_sync)
-            updateSelectionInTree(m_editor->textCursor());
-    });
+            this, &LanguageClientOutlineWidget::updateSelectionInTree);
     setFocusProxy(&m_view);
 }
 
@@ -183,8 +180,7 @@ QList<QAction *> LanguageClientOutlineWidget::filterMenuActions() const
 void LanguageClientOutlineWidget::setCursorSynchronization(bool syncWithCursor)
 {
     m_sync = syncWithCursor;
-    if (m_sync && m_editor)
-        updateSelectionInTree(m_editor->textCursor());
+    updateSelectionInTree();
 }
 
 void LanguageClientOutlineWidget::setSorted(bool sorted)
@@ -237,7 +233,7 @@ void LanguageClientOutlineWidget::handleResponse(const DocumentUri &uri,
     m_view.expandAll();
 
     // The list has changed, update the current items
-    updateSelectionInTree(m_editor->textCursor());
+    updateSelectionInTree();
 }
 
 void LanguageClientOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)
@@ -263,8 +259,11 @@ static LanguageClientOutlineItem *itemForCursor(const LanguageClientOutlineModel
     return result;
 }
 
-void LanguageClientOutlineWidget::updateSelectionInTree(const QTextCursor &currentCursor)
+void LanguageClientOutlineWidget::updateSelectionInTree()
 {
+    if (!m_sync || !m_editor)
+        return;
+    const QTextCursor currentCursor = m_editor->editorWidget()->textCursor();
     if (LanguageClientOutlineItem *item = itemForCursor(m_model, currentCursor)) {
         const QModelIndex index = m_proxyModel.mapFromSource(m_model.indexForItem(item));
         m_view.setCurrentIndex(index);
