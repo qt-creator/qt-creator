@@ -256,21 +256,13 @@ public:
     AppManagerQmlToolingWorkerFactory()
     {
         setProducer([](RunControl *runControl) {
-            auto worker = new RunWorker(runControl);
-            worker->setId("AppManagerQmlToolingSupport");
-
             runControl->requestQmlChannel();
-            QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
-            auto runner = createInferiorRunner(runControl, services);
-            worker->addStartDependency(runner);
-            worker->addStopDependency(runner);
+            auto worker = createInferiorRunner(runControl, servicesForRunMode(runControl->runMode()));
 
             auto extraWorker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
             extraWorker->addStartDependency(worker);
-            worker->addStopDependency(extraWorker);
-
             // Make sure the QML Profiler is stopped before the appman-controller
-            runner->addStopDependency(extraWorker);
+            worker->addStopDependency(extraWorker);
             return worker;
         });
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
