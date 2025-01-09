@@ -234,6 +234,7 @@ void LanguageClientOutlineWidget::handleResponse(const DocumentUri &uri,
         m_model.setInfo(*s);
     else
         m_model.clear();
+    m_view.expandAll();
 
     // The list has changed, update the current items
     updateSelectionInTree(m_editor->textCursor());
