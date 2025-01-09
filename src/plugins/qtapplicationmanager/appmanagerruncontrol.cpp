@@ -287,14 +287,8 @@ public:
     AppManagerPerfProfilerWorkerFactory()
     {
         setProducer([](RunControl *runControl) {
-            auto worker = new RunWorker(runControl);
-            worker->setId("AppManagerPerfProfilerSupport");
-
             runControl->requestPerfChannel();
-            auto profilee = createInferiorRunner(runControl, NoQmlDebugServices);
-            worker->addStartDependency(profilee);
-            worker->addStopDependency(profilee);
-            return worker;
+            return createInferiorRunner(runControl, NoQmlDebugServices);
         });
         addSupportedRunMode("PerfRecorder");
         addSupportedRunConfig(Constants::RUNANDDEBUGCONFIGURATION_ID);
