@@ -64,14 +64,14 @@ static RunWorker *createInferiorRunner(RunControl *runControl, QmlDebugServicesP
 
         cmd.addArg("debug-application");
 
-        if (worker->usesDebugChannel() || worker->usesQmlChannel()) {
+        if (worker->usesDebugChannel() || runControl->usesQmlChannel()) {
             QStringList debugArgs;
             debugArgs.append(envVars.join(' '));
             if (worker->usesDebugChannel())
                 debugArgs.append(QString("gdbserver :%1").arg(worker->debugChannel().port()));
-            if (worker->usesQmlChannel()) {
+            if (runControl->usesQmlChannel()) {
                 const QString qmlArgs = qmlDebugCommandLineArguments(qmlServices,
-                    QString("port:%1").arg(worker->qmlChannel().port()), true);
+                    QString("port:%1").arg(runControl->qmlChannel().port()), true);
                 debugArgs.append(QString("%program% %1 %arguments%") .arg(qmlArgs));
             }
             cmd.addArg(debugArgs.join(' '));
@@ -156,7 +156,7 @@ private:
         setCloseMode(Debugger::KillAndExitMonitorAtClose);
 
         if (isQmlDebugging())
-            setQmlServer(qmlChannel());
+            setQmlServer(runControl()->qmlChannel());
 
         if (isCppDebugging()) {
             setUseExtendedRemote(false);

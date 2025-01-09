@@ -440,8 +440,8 @@ void DebuggerRunTool::continueAfterTerminalStart()
     if (usesDebugChannel())
         setRemoteChannel(debugChannel());
 
-    if (usesQmlChannel()) {
-        setQmlServer(qmlChannel());
+    if (runControl()->usesQmlChannel()) {
+        setQmlServer(runControl()->qmlChannel());
         if (d->addQmlServerInferiorCommandLineArgumentIfNeeded
                 && m_runParameters.isQmlDebugging
                 && m_runParameters.isCppDebugging()) {
@@ -973,10 +973,10 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
         CommandLine commandLine = m_runParameters.inferior.command;
         CommandLine cmd;
 
-        if (usesQmlChannel() && !usesDebugChannel()) {
+        if (runControl()->usesQmlChannel() && !usesDebugChannel()) {
             // FIXME: Case should not happen?
             cmd.setExecutable(commandLine.executable());
-            cmd.addArg(qmlDebugTcpArguments(QmlDebuggerServices, qmlChannel()));
+            cmd.addArg(qmlDebugTcpArguments(QmlDebuggerServices, runControl()->qmlChannel()));
             cmd.addArgs(commandLine.arguments(), CommandLine::Raw);
         } else {
             cmd.setExecutable(device()->debugServerPath());

@@ -178,7 +178,7 @@ public:
             auto debuggeeRunner = new ProcessRunner(runControl);
             debuggeeRunner->setId("QnxDebuggeeRunner");
 
-            debuggeeRunner->setStartModifier([debuggeeRunner] {
+            debuggeeRunner->setStartModifier([debuggeeRunner, runControl] {
                 CommandLine cmd = debuggeeRunner->commandLine();
                 QStringList arguments;
                 if (debuggeeRunner->usesDebugChannel()) {
@@ -186,8 +186,8 @@ public:
                     cmd.setExecutable(debuggeeRunner->device()->filePath(QNX_DEBUG_EXECUTABLE));
                     arguments.append(QString::number(pdebugPort));
                 }
-                if (debuggeeRunner->usesQmlChannel()) {
-                    arguments.append(qmlDebugTcpArguments(QmlDebuggerServices, debuggeeRunner->qmlChannel()));
+                if (runControl->usesQmlChannel()) {
+                    arguments.append(qmlDebugTcpArguments(QmlDebuggerServices, runControl->qmlChannel()));
                 }
                 cmd.setArguments(ProcessArgs::joinArgs(arguments));
                 debuggeeRunner->setCommandLine(cmd);

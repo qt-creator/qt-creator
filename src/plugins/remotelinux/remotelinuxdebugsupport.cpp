@@ -87,7 +87,7 @@ public:
                 QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
 
                 CommandLine cmd = worker->commandLine();
-                cmd.addArg(qmlDebugTcpArguments(services, worker->qmlChannel()));
+                cmd.addArg(qmlDebugTcpArguments(services, runControl->qmlChannel()));
                 worker->setCommandLine(cmd);
             });
             return worker;

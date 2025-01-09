@@ -81,9 +81,6 @@ public:
     QUrl debugChannel() const;
     bool usesDebugChannel() const;
 
-    QUrl qmlChannel() const;
-    bool usesQmlChannel() const;
-
 signals:
     void started();
     void stopped();

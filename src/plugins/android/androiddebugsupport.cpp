@@ -149,7 +149,7 @@ public:
         }
         if (isQmlDebugging()) {
             qCDebug(androidDebugSupportLog) << "QML debugging enabled. QML server: "
-                                            << qmlChannel().toDisplayString();
+                                            << runControl->qmlChannel().toDisplayString();
             //TODO: Not sure if these are the right paths.
             if (qtVersion)
                 addSearchDirectory(qtVersion->qmlPath());
@@ -188,7 +188,7 @@ void AndroidDebugSupport::start()
         }
     }
     if (isQmlDebugging())
-        setQmlServer(qmlChannel());
+        setQmlServer(runControl()->qmlChannel());
     DebuggerRunTool::start();
 }
 
