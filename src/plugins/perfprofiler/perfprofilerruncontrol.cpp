@@ -128,15 +128,8 @@ class PerfProfilerRunWorkerFactory final : public RunWorkerFactory
 public:
     PerfProfilerRunWorkerFactory()
     {
-        setProducer([](RunControl *runControl) {
-            auto worker = new RunWorker(runControl);
-            worker->setId("PerfProfilerRunner");
-
+        setProducer([](RunControl *runControl) -> RunWorker * {
             PerfParserWorker *perfParserWorker = new PerfParserWorker(runControl);
-            worker->addStopDependency(perfParserWorker);
-
-            // If the parser is gone, there is no point in going on.
-            perfParserWorker->setEssential(true);
 
             // There are currently two RunWorkerFactories reacting to that:
             // PerfRecordRunnerFactory above for the generic case and
@@ -144,10 +137,9 @@ public:
             ProcessRunner *perfRecordWorker
                 = qobject_cast<ProcessRunner *>(runControl->createWorker("PerfRecorder"));
 
-            QTC_ASSERT(perfRecordWorker, return worker);
+            QTC_ASSERT(perfRecordWorker, return nullptr);
 
             perfRecordWorker->suppressDefaultStdOutHandling();
-            worker->addStartDependency(perfRecordWorker);
 
             perfParserWorker->addStartDependency(perfRecordWorker);
             perfParserWorker->addStopDependency(perfRecordWorker);
@@ -163,12 +155,15 @@ public:
 
             PerfDataReader *reader = perfParserWorker->reader();
             QObject::connect(perfRecordWorker, &ProcessRunner::stdOutData,
-                             worker, [worker, reader](const QByteArray &data) {
-                if (!reader->feedParser(data))
-                    worker->reportFailure(Tr::tr("Failed to transfer Perf data to perfparser."));
-            });
+                             perfParserWorker, [perfParserWorker, reader](const QByteArray &data) {
+                if (reader->feedParser(data))
+                    return;
 
-            return worker;
+                perfParserWorker->appendMessage(Tr::tr("Failed to transfer Perf data to perfparser."),
+                                                ErrorMessageFormat);
+                perfParserWorker->initiateStop();
+            });
+            return perfParserWorker;
         });
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
     }
