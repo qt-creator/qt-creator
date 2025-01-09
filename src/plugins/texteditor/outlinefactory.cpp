@@ -177,7 +177,6 @@ void OutlineWidgetStack::restoreSettings(Utils::QtcSettings *settings, int posit
     const Key baseKey = numberedKey("Outline.", position) + '.';
     const QString baseKeyString = stringFromKey(baseKey);
 
-    bool syncWithEditor = true;
     m_widgetSettings.clear();
     const QStringList longKeys = settings->allKeys();
     for (const QString &longKey : longKeys) {
@@ -187,13 +186,13 @@ void OutlineWidgetStack::restoreSettings(Utils::QtcSettings *settings, int posit
         const QString key = longKey.mid(baseKeyString.length());
 
         if (key == QLatin1String("SyncWithEditor")) {
-            syncWithEditor = settings->value(keyFromString(longKey)).toBool();
+            m_syncWithEditor = settings->value(keyFromString(longKey)).toBool();
             continue;
         }
         m_widgetSettings.insert(key, settings->value(keyFromString(longKey)));
     }
 
-    m_toggleSync->setChecked(syncWithEditor);
+    m_toggleSync->setChecked(m_syncWithEditor);
     if (auto outlineWidget = qobject_cast<IOutlineWidget*>(currentWidget()))
         outlineWidget->restoreSettings(m_widgetSettings);
 }
