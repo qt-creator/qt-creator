@@ -1401,22 +1401,22 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             rp.setStartMode(AttachToLocalProcess);
             rp.setCloseMode(DetachAtClose);
             debugger->setAttachPid(pid);
-            debugger->setRunControlName(Tr::tr("Process %1").arg(pid));
+            rp.setDisplayName(Tr::tr("Process %1").arg(pid));
             debugger->setStartMessage(Tr::tr("Attaching to local process %1.").arg(pid));
         } else if (startMode == AttachToRemoteServer) {
             rp.setStartMode(AttachToRemoteServer);
             debugger->setRemoteChannel(remoteChannel);
-            debugger->setRunControlName(Tr::tr("Remote: \"%1\"").arg(remoteChannel));
+            rp.setDisplayName(Tr::tr("Remote: \"%1\"").arg(remoteChannel));
             debugger->setStartMessage(Tr::tr("Attaching to remote server %1.").arg(remoteChannel));
         } else if (startMode == AttachToCore) {
             rp.setStartMode(AttachToCore);
             rp.setCloseMode(DetachAtClose);
             debugger->setCoreFilePath(coreFile);
-            debugger->setRunControlName(Tr::tr("Core file \"%1\"").arg(coreFile.toUserOutput()));
+            rp.setDisplayName(Tr::tr("Core file \"%1\"").arg(coreFile.toUserOutput()));
             debugger->setStartMessage(Tr::tr("Attaching to core file %1.").arg(coreFile.toUserOutput()));
         } else {
             rp.setStartMode(StartExternal);
-            debugger->setRunControlName(Tr::tr("Executable file \"%1\"").arg(executable.toUserOutput()));
+            rp.setDisplayName(Tr::tr("Executable file \"%1\"").arg(executable.toUserOutput()));
             debugger->setStartMessage(Tr::tr("Debugging file %1.").arg(executable.toUserOutput()));
         }
         debugger->setUseTerminal(useTerminal);
@@ -1443,7 +1443,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         rp.setStartMode(AttachToCrashedProcess);
         debugger->setCrashParameter(it->section(':', 0, 0));
         debugger->setAttachPid(pid);
-        debugger->setRunControlName(Tr::tr("Crashed process %1").arg(pid));
+        rp.setDisplayName(Tr::tr("Crashed process %1").arg(pid));
         debugger->setStartMessage(Tr::tr("Attaching to crashed process %1").arg(pid));
         if (pid < 1) {
             *errorMessage = Tr::tr("The parameter \"%1\" of option \"%2\" "

@@ -948,7 +948,7 @@ void IosDebugSupport::start()
     DebuggerRunParameters &rp = runParameters();
     const IosDeviceTypeAspect::Data *data = runControl()->aspectData<IosDeviceTypeAspect>();
     QTC_ASSERT(data, reportFailure("Broken IosDeviceTypeAspect setup."); return);
-    setRunControlName(data->applicationName);
+    rp.setDisplayName(data->applicationName);
     setContinueAfterAttach(true);
 
     IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(device());

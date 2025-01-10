@@ -95,7 +95,7 @@ public:
         DebuggerRunParameters &rp = runParameters();
         rp.setStartMode(AttachToRemoteServer);
         const QString packageName = Internal::packageName(target);
-        setRunControlName(packageName);
+        rp.setDisplayName(packageName);
         setUseContinueInsteadOfRun(true);
 
         QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);

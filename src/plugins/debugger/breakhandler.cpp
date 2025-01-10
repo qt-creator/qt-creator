@@ -2207,9 +2207,7 @@ QVariant GlobalBreakpointItem::data(int column, int role) const
         case BreakpointNumberColumn:
             if (role == Qt::DisplayRole) {
                 if (auto engine = usingEngine())
-                    return engine->runParameters().displayName;
-
-
+                    return engine->runParameters().displayName();
                 return QString("-");
             }
             if (role == Qt::DecorationRole)

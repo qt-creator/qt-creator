@@ -240,11 +240,6 @@ void DebuggerRunTool::setAbi(const Abi &abi)
     m_runParameters.toolChainAbi = abi;
 }
 
-void DebuggerRunTool::setRunControlName(const QString &name)
-{
-    m_runParameters.displayName = name;
-}
-
 void DebuggerRunTool::setStartMessage(const QString &msg)
 {
     m_runParameters.startMessage = msg;
@@ -459,7 +454,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
                 [this] { return m_runParameters.inferior().command.executable(); }
     );
 
-    runControl()->setDisplayName(m_runParameters.displayName);
+    runControl()->setDisplayName(m_runParameters.displayName());
 
     if (auto dapEngine = createDapEngine(runControl()->runMode()))
         m_engines << dapEngine;
@@ -562,7 +557,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
                 DebuggerRunParameters &rp = debugger->runParameters();
                 rp.setStartMode(AttachToCore);
                 rp.setCloseMode(DetachAtClose);
-                debugger->setRunControlName(name);
+                rp.setDisplayName(name);
                 debugger->setCoreFilePath(FilePath::fromString(coreFile), true);
                 rc->start();
             });

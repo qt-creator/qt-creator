@@ -152,7 +152,7 @@ void showAttachToProcessDialog()
     debugger->setSymbolFile(localExecutable);
     debugger->setAttachPid(pid);
 //    setRunControlName(Tr::tr("Remote: \"%1\" - Process %2").arg(remoteChannel).arg(m_process.pid));
-    debugger->setRunControlName(Tr::tr("Remote QNX process %1").arg(pid));
+    rp.setDisplayName(Tr::tr("Remote QNX process %1").arg(pid));
     debugger->setSolibSearchPath(FileUtils::toFilePathList(searchPaths(kit)));
     if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(kit)))
         debugger->setSysRoot(qtVersion->qnxTarget());

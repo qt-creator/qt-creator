@@ -413,7 +413,7 @@ void StartApplicationDialog::run(bool attachRemote)
         debugger->setRemoteChannel(inputAddress);
     else
         debugger->setRemoteChannel(dev->sshParameters().host(), newParameters.serverPort);
-    debugger->setRunControlName(newParameters.displayName());
+    rp.setDisplayName(newParameters.displayName());
     debugger->setBreakOnMain(newParameters.breakAtMain);
     debugger->setDebugInfoLocation(newParameters.debugInfoLocation);
     rp.setInferior(newParameters.runnable);
@@ -435,7 +435,7 @@ void StartApplicationDialog::run(bool attachRemote)
         rp.setStartMode(AttachToRemoteServer);
         rp.setCloseMode(KillAtClose);
         debugger->setUseContinueInsteadOfRun(true);
-        debugger->setRunControlName(Tr::tr("Attach to %1").arg(debugger->remoteChannel()));
+        rp.setDisplayName(Tr::tr("Attach to %1").arg(debugger->remoteChannel()));
     }
 
     runControl->start();

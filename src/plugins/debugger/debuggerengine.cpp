@@ -127,7 +127,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
 
     DebuggerRunParameters params;
 
-    params.displayName = runControl->displayName();
+    params.m_displayName = runControl->displayName();
 
     if (auto symbolsAspect = runControl->aspectData<SymbolFileAspect>())
         params.symbolFile = symbolsAspect->filePath;
@@ -2458,7 +2458,7 @@ void DebuggerEngine::updateAll()
 QString DebuggerEngine::displayName() const
 {
     //: e.g. LLDB for "myproject", shows up i
-    return Tr::tr("%1 for \"%2\"").arg(d->m_debuggerName, runParameters().displayName);
+    return Tr::tr("%1 for \"%2\"").arg(d->m_debuggerName, runParameters().displayName());
 }
 
 void DebuggerEngine::insertBreakpoint(const Breakpoint &bp)
@@ -2887,7 +2887,7 @@ QString DebuggerEngine::formatStartParameters() const
     const DebuggerRunParameters &sp = d->m_runParameters;
     QString rc;
     QTextStream str(&rc);
-    str << "Start parameters: '" << sp.displayName << "' mode: " << sp.startMode()
+    str << "Start parameters: '" << sp.displayName() << "' mode: " << sp.startMode()
         << "\nABI: " << sp.toolChainAbi.toString() << '\n';
     str << "Languages: ";
     if (sp.isCppDebugging())

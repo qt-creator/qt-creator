@@ -95,7 +95,9 @@ public:
     void setInferiorEnvironment(const Utils::Environment &env) { m_inferior.environment = env; }
     Utils::ProcessRunData inferior() const { return m_inferior; }
 
-    QString displayName; // Used in the Snapshots view.
+    void setDisplayName(const QString &name) { m_displayName = name; }
+    QString displayName() const { return m_displayName; }
+
     Utils::ProcessHandle attachPID;
     Utils::FilePaths solibSearchPath;
 
@@ -203,6 +205,8 @@ private:
     DebuggerCloseMode m_closeMode = KillAtClose;
 
     Utils::ProcessRunData m_inferior;
+
+    QString m_displayName; // Used in the Snapshots view.
 };
 
 namespace Internal {

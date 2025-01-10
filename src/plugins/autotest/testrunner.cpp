@@ -560,7 +560,7 @@ void TestRunner::debugTests()
     }
     auto debugger = new Debugger::DebuggerRunTool(runControl);
     debugger->runParameters().setInferior(inferior);
-    debugger->setRunControlName(config->displayName());
+    debugger->runParameters().setDisplayName(config->displayName());
 
     bool useOutputProcessor = true;
     if (Target *targ = config->project()->activeTarget()) {

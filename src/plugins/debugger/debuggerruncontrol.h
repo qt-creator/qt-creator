@@ -32,7 +32,6 @@ public:
 
     void setSolibSearchPath(const Utils::FilePaths &list);
 
-    void setRunControlName(const QString &name);
     void setStartMessage(const QString &msg);
     void setCrashParameter(const QString &event);
 
