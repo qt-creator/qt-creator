@@ -172,7 +172,7 @@ private:
                 rp.addSearchDirectory(version->qmlPath());
             }
 
-            auto sysroot = SysRootKitAspect().sysRoot(runControl()->kit());
+            const FilePath sysroot = SysRootKitAspect::sysRoot(runControl()->kit());
             if (sysroot.isEmpty())
                 rp.setSysRoot("/");
             else
