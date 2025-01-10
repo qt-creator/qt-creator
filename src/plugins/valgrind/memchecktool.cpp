@@ -1602,12 +1602,13 @@ void HeobData::processFinished()
             m_runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
             m_runControl->setKit(m_kit);
             auto debugger = new DebuggerRunTool(m_runControl);
+            DebuggerRunParameters &rp = debugger->runParameters();
             debugger->setAttachPid(ProcessHandle(m_data[1]));
-            debugger->setRunControlName(Tr::tr("Process %1").arg(m_data[1]));
-            debugger->setStartMode(AttachToLocalProcess);
-            debugger->setCloseMode(DetachAtClose);
+            rp.setDisplayName(Tr::tr("Process %1").arg(m_data[1]));
+            rp.setStartMode(AttachToLocalProcess);
+            rp.setCloseMode(DetachAtClose);
             debugger->setContinueAfterAttach(true);
-            debugger->setInferiorExecutable(FilePath::fromString(Utils::imageName(m_data[1])));
+            rp.setInferiorExecutable(FilePath::fromString(Utils::imageName(m_data[1])));
 
             connect(m_runControl, &RunControl::started, this, &HeobData::debugStarted);
             connect(m_runControl, &RunControl::stopped, this, &HeobData::debugStopped);
