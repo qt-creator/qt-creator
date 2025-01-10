@@ -1396,7 +1396,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         DebuggerRunParameters &rp = debugger->runParameters();
         rp.setInferiorExecutable(executable);
         if (!sysRoot.isEmpty())
-            debugger->setSysRoot(FilePath::fromUserInput(sysRoot));
+            rp.setSysRoot(FilePath::fromUserInput(sysRoot));
         if (pid) {
             rp.setStartMode(AttachToLocalProcess);
             rp.setCloseMode(DetachAtClose);

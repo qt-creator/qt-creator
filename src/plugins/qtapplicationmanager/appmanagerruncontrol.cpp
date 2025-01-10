@@ -174,9 +174,9 @@ private:
 
             auto sysroot = SysRootKitAspect().sysRoot(runControl()->kit());
             if (sysroot.isEmpty())
-                setSysRoot("/");
+                rp.setSysRoot("/");
             else
-                setSysRoot(sysroot);
+                rp.setSysRoot(sysroot);
         }
 
         DebuggerRunTool::start();

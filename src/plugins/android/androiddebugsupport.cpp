@@ -143,7 +143,7 @@ public:
                                    / devicePreferredAbi; // Legacy Ndk structure
                 if (!sysRoot.exists())
                     sysRoot = AndroidConfig::toolchainPathFromNdk(ndkLocation) / "sysroot";
-                setSysRoot(sysRoot);
+                rp.setSysRoot(sysRoot);
                 qCDebug(androidDebugSupportLog).noquote() << "Sysroot: " << sysRoot.toUserOutput();
             }
         }

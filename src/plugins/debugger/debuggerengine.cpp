@@ -136,7 +136,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
     if (auto runAsRootAspect = runControl->aspectData<RunAsRootAspect>())
         params.runAsRoot = runAsRootAspect->value;
 
-    params.sysRoot = SysRootKitAspect::sysRoot(kit);
+    params.setSysRoot(SysRootKitAspect::sysRoot(kit));
     params.macroExpander = runControl->macroExpander();
     params.debugger = DebuggerKitAspect::runnable(kit);
     params.cppEngineType = DebuggerKitAspect::engineType(kit);
@@ -244,9 +244,9 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
 
     if (settings().autoEnrichParameters()) {
         if (debugInfoLocation.isEmpty())
-            debugInfoLocation = sysRoot / "/usr/lib/debug";
+            debugInfoLocation = m_sysRoot / "/usr/lib/debug";
         if (debugSourceLocation.isEmpty()) {
-            const QString base = sysRoot.toUrlishString() + "/usr/src/debug/";
+            const QString base = m_sysRoot.toUrlishString() + "/usr/src/debug/";
             debugSourceLocation.append(base + "qt5base/src/corelib");
             debugSourceLocation.append(base + "qt5base/src/gui");
             debugSourceLocation.append(base + "qt5base/src/network");
@@ -330,7 +330,7 @@ void DebuggerRunParameters::setStartMode(DebuggerStartMode startMode)
 void DebuggerRunParameters::addSolibSearchDir(const QString &str)
 {
     QString path = str;
-    path.replace("%{sysroot}", sysRoot.toUrlishString());
+    path.replace("%{sysroot}", m_sysRoot.toUrlishString());
     m_solibSearchPath.append(FilePath::fromString(path));
 }
 
@@ -2927,7 +2927,7 @@ QString DebuggerEngine::formatStartParameters() const
         str << "Remote: " << sp.remoteChannel() << '\n';
     if (!sp.qmlServer().host().isEmpty())
         str << "QML server: " << sp.qmlServer().host() << ':' << sp.qmlServer().port() << '\n';
-    str << "Sysroot: " << sp.sysRoot << '\n';
+    str << "Sysroot: " << sp.sysRoot() << '\n';
     str << "Debug Source Location: " << sp.debugSourceLocation.join(':') << '\n';
     return rc;
 }

@@ -1608,7 +1608,7 @@ FilePath GdbEngine::cleanupFullName(const QString &fileName)
     if (cleanFilePath.isReadableFile())
         return cleanFilePath;
 
-    const FilePath sysroot = runParameters().sysRoot;
+    const FilePath sysroot = runParameters().sysRoot();
     if (!sysroot.isEmpty() && fileName.startsWith('/')) {
         cleanFilePath = sysroot.pathAppended(fileName.mid(1));
         if (cleanFilePath.isReadableFile())
@@ -3971,11 +3971,11 @@ void GdbEngine::handleGdbStarted()
             showMessage("# directory does not exist: " + src, LogInput);
     }
 
-    if (!rp.sysRoot.isEmpty()) {
-        runCommand({"set sysroot " + rp.sysRoot.path()});
+    if (!rp.sysRoot().isEmpty()) {
+        runCommand({"set sysroot " + rp.sysRoot().path()});
         // sysroot is not enough to correctly locate the sources, so explicitly
         // relocate the most likely place for the debug source
-        runCommand({"set substitute-path /usr/src " + rp.sysRoot.path() + "/usr/src"});
+        runCommand({"set substitute-path /usr/src " + rp.sysRoot().path() + "/usr/src"});
     }
 
     //QByteArray ba = QFileInfo(sp.dumperLibrary).path().toLocal8Bit();

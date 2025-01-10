@@ -161,7 +161,9 @@ public:
     void setContinueAfterAttach(bool on) { m_continueAfterAttach = on; }
     bool continueAfterAttach() const { return m_continueAfterAttach; }
 
-    Utils::FilePath sysRoot;
+    void setSysRoot(const Utils::FilePath &sysRoot) { m_sysRoot = sysRoot; }
+    Utils::FilePath sysRoot() const { return m_sysRoot; }
+
     // iOS 17+
     QString deviceUuid;
 
@@ -265,6 +267,7 @@ private:
 
     QString m_deviceSymbolsRoot;
     bool m_continueAfterAttach = false;
+    Utils::FilePath m_sysRoot;
 };
 
 namespace Internal {

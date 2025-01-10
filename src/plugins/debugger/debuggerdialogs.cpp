@@ -422,7 +422,7 @@ void StartApplicationDialog::run(bool attachRemote)
     debugger->setUseTerminal(newParameters.runInTerminal);
     rp.setUseExtendedRemote(newParameters.useTargetExtendedRemote);
     if (!newParameters.sysRoot.isEmpty())
-        debugger->setSysRoot(newParameters.sysRoot);
+        rp.setSysRoot(newParameters.sysRoot);
 
     bool isLocal = dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
     if (isLocal) // FIXME: Restriction needed?

@@ -103,11 +103,6 @@ public:
 
 } // namespace Internal
 
-void DebuggerRunTool::setSysRoot(const Utils::FilePath &sysRoot)
-{
-    m_runParameters.sysRoot = sysRoot;
-}
-
 void DebuggerRunTool::setBreakOnMain(bool on)
 {
     m_runParameters.breakOnMain = on;

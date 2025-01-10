@@ -358,7 +358,7 @@ void runAttachToCoreDialog()
     debugger->setOverrideStartScript(dlg.overrideStartScript());
     const FilePath sysRoot = dlg.sysRoot();
     if (!sysRoot.isEmpty())
-        debugger->setSysRoot(sysRoot);
+        rp.setSysRoot(sysRoot);
 
     runControl->start();
 }

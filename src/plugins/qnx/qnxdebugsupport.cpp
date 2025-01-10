@@ -156,7 +156,7 @@ void showAttachToProcessDialog()
     rp.setDisplayName(Tr::tr("Remote QNX process %1").arg(pid));
     rp.setSolibSearchPath(FileUtils::toFilePathList(searchPaths(kit)));
     if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(kit)))
-        debugger->setSysRoot(qtVersion->qnxTarget());
+        rp.setSysRoot(qtVersion->qnxTarget());
     rp.setUseContinueInsteadOfRun(true);
 
     runControl->start();
@@ -209,7 +209,7 @@ public:
             rp.setUseCtrlCStub(true);
             rp.setSolibSearchPath(FileUtils::toFilePathList(searchPaths(k)));
             if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(k))) {
-                debugger->setSysRoot(qtVersion->qnxTarget());
+                rp.setSysRoot(qtVersion->qnxTarget());
                 debugger->modifyDebuggerEnvironment(qtVersion->environment());
             }
 
