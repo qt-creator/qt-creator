@@ -55,8 +55,6 @@ public:
     bool isCppDebugging() const;
     bool isQmlDebugging() const;
 
-    void setUsePortsGatherer(bool useCpp, bool useQml);
-
     void modifyDebuggerEnvironment(const Utils::EnvironmentItems &item);
 
     void setDeviceUuid(const QString &uuid);

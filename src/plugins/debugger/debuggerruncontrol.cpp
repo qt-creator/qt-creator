@@ -568,17 +568,13 @@ bool DebuggerRunTool::isQmlDebugging() const
     return m_runParameters.isQmlDebugging;
 }
 
-void DebuggerRunTool::setUsePortsGatherer(bool useCpp, bool useQml)
-{
-    if (useCpp)
-        runControl()->requestDebugChannel();
-    if (useQml)
-        runControl()->requestQmlChannel();
-}
-
 void DebuggerRunTool::setupPortsGatherer()
 {
-    setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
+    if (isCppDebugging())
+        runControl()->requestDebugChannel();
+
+    if (isQmlDebugging())
+        runControl()->requestQmlChannel();
 }
 
 DebuggerEngineType DebuggerRunTool::cppEngineType() const
