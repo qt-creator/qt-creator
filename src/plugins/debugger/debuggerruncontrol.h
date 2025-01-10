@@ -37,7 +37,6 @@ public:
 
     void setSysRoot(const Utils::FilePath &sysRoot);
 
-    void setUseContinueInsteadOfRun(bool on);
     void setContinueAfterAttach(bool on);
     void setBreakOnMain(bool on);
     void setUseTerminal(bool on);

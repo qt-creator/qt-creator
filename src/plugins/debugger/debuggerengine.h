@@ -132,7 +132,9 @@ public:
     void setCommandsForReset(const QString &commands) { m_commandsForReset = commands; }
     QString commandsForReset() const { return m_commandsForReset; }
 
-    bool useContinueInsteadOfRun = false; // if connected to a hw debugger run is not possible but continue is used
+    void setUseContinueInsteadOfRun(bool on) { m_useContinueInsteadOfRun = on; }
+    bool useContinueInsteadOfRun() const { return m_useContinueInsteadOfRun; }
+
     QString commandsAfterConnect; // additional commands to post after connection to debug target
 
     // Used by Valgrind
@@ -239,6 +241,7 @@ private:
     QMap<QString, QString> m_sourcePathMap; // Used by Mer plugin (3rd party)
 
     QString m_commandsForReset; // Used by baremetal plugin. Commands used for resetting the inferior
+    bool m_useContinueInsteadOfRun = false; // If connected to a hw debugger run is not possible but continue is used
 };
 
 namespace Internal {

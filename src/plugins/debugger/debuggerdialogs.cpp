@@ -434,7 +434,7 @@ void StartApplicationDialog::run(bool attachRemote)
     if (attachRemote) {
         rp.setStartMode(AttachToRemoteServer);
         rp.setCloseMode(KillAtClose);
-        debugger->setUseContinueInsteadOfRun(true);
+        rp.setUseContinueInsteadOfRun(true);
         rp.setDisplayName(Tr::tr("Attach to %1").arg(rp.remoteChannel()));
     }
 

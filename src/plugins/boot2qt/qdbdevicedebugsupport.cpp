@@ -121,7 +121,7 @@ public:
             worker->setupPortsGatherer();
             rp.setStartMode(Debugger::AttachToRemoteServer);
             rp.setCloseMode(KillAndExitMonitorAtClose);
-            worker->setUseContinueInsteadOfRun(true);
+            rp.setUseContinueInsteadOfRun(true);
             worker->setContinueAfterAttach(true);
             rp.addSolibSearchDir("%{sysroot}/system/lib");
 

@@ -157,7 +157,7 @@ void showAttachToProcessDialog()
     rp.setSolibSearchPath(FileUtils::toFilePathList(searchPaths(kit)));
     if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(kit)))
         debugger->setSysRoot(qtVersion->qnxTarget());
-    debugger->setUseContinueInsteadOfRun(true);
+    rp.setUseContinueInsteadOfRun(true);
 
     runControl->start();
 }

@@ -149,7 +149,7 @@ bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMessa
     runTool->setCommandsAfterConnect(initCommands()); // .. and here?
     rp.setCommandsForReset(resetCommands());
     rp.setRemoteChannel(channelString());
-    runTool->setUseContinueInsteadOfRun(true);
+    rp.setUseContinueInsteadOfRun(true);
     rp.setUseExtendedRemote(useExtendedRemote());
     rp.peripheralDescriptionFile = m_peripheralDescriptionFile;
     return true;

@@ -4617,7 +4617,7 @@ void GdbEngine::runEngine()
     } else if (isRemoteEngine()) {
 
         claimInitialBreakpoints();
-        if (runParameters().useContinueInsteadOfRun) {
+        if (rp.useContinueInsteadOfRun()) {
             notifyEngineRunAndInferiorStopOk();
             continueInferiorInternal();
         } else {
@@ -4641,7 +4641,7 @@ void GdbEngine::runEngine()
     } else if (isPlainEngine()) {
 
         claimInitialBreakpoints();
-        if (runParameters().useContinueInsteadOfRun)
+        if (rp.useContinueInsteadOfRun())
             runCommand({"-exec-continue", DebuggerCommand::RunRequest, CB(handleExecuteContinue)});
         else
             runCommand({"-exec-run", DebuggerCommand::RunRequest, CB(handleExecRun)});

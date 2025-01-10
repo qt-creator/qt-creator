@@ -96,7 +96,7 @@ public:
         rp.setStartMode(AttachToRemoteServer);
         const QString packageName = Internal::packageName(target);
         rp.setDisplayName(packageName);
-        setUseContinueInsteadOfRun(true);
+        rp.setUseContinueInsteadOfRun(true);
 
         QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
         if (!HostOsInfo::isWindowsHost()
