@@ -683,11 +683,6 @@ void DebuggerRunTool::setupPortsGatherer()
     setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
 }
 
-void DebuggerRunTool::setSolibSearchPath(const Utils::FilePaths &list)
-{
-    m_runParameters.solibSearchPath = list;
-}
-
 DebuggerEngineType DebuggerRunTool::cppEngineType() const
 {
     return m_runParameters.cppEngineType;
@@ -721,13 +716,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
                                 " Would you still like to terminate it?"),
                 QString(), QString(), optionalPrompt);
     });
-}
-
-void DebuggerRunTool::addSolibSearchDir(const QString &str)
-{
-    QString path = str;
-    path.replace("%{sysroot}", m_runParameters.sysRoot.toUrlishString());
-    m_runParameters.solibSearchPath.append(FilePath::fromString(path));
 }
 
 DebuggerRunTool::~DebuggerRunTool()

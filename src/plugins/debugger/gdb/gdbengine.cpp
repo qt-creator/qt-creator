@@ -4452,9 +4452,9 @@ void GdbEngine::setupInferior()
     if (rp.breakOnMain)
         runCommand({"tbreak " + mainFunction()});
 
-    if (!rp.solibSearchPath.isEmpty()) {
+    if (!rp.solibSearchPath().isEmpty()) {
         DebuggerCommand cmd("appendSolibSearchPath");
-        cmd.arg("path", transform(rp.solibSearchPath, &FilePath::path));
+        cmd.arg("path", transform(rp.solibSearchPath(), &FilePath::path));
         cmd.arg("separator", HostOsInfo::pathListSeparator());
         runCommand(cmd);
     }

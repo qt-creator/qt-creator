@@ -124,7 +124,7 @@ public:
                                                  .pathAppended(apkDevicePreferredAbi(target));
             solibSearchPath.append(androidLibsPath);
             FilePath::removeDuplicates(solibSearchPath);
-            setSolibSearchPath(solibSearchPath);
+            rp.setSolibSearchPath(solibSearchPath);
             qCDebug(androidDebugSupportLog).noquote() << "SoLibSearchPath: " << solibSearchPath;
             setSymbolFile(androidAppProcessDir(target).pathAppended("app_process"));
             setSkipExecutableValidation(true);

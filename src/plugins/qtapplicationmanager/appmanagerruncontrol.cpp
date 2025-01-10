@@ -168,7 +168,7 @@ private:
 
             QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(runControl()->kit());
             if (version) {
-                setSolibSearchPath(version->qtSoPaths());
+                rp.setSolibSearchPath(version->qtSoPaths());
                 addSearchDirectory(version->qmlPath());
             }
 

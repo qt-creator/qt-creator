@@ -327,6 +327,13 @@ void DebuggerRunParameters::setStartMode(DebuggerStartMode startMode)
         projectSourceDirectory = projects.first()->projectDirectory();
 }
 
+void DebuggerRunParameters::addSolibSearchDir(const QString &str)
+{
+    QString path = str;
+    path.replace("%{sysroot}", sysRoot.toString());
+    m_solibSearchPath.append(FilePath::fromString(path));
+}
+
 bool DebuggerRunParameters::isCppDebugging() const
 {
     return cppEngineType == GdbEngineType

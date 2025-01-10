@@ -102,7 +102,9 @@ public:
     void setAttachPid(qint64 pid) { m_attachPid = Utils::ProcessHandle(pid); }
     Utils::ProcessHandle attachPid() const { return m_attachPid; }
 
-    Utils::FilePaths solibSearchPath;
+    void setSolibSearchPath(const Utils::FilePaths &list) { m_solibSearchPath = list; }
+    void addSolibSearchDir(const QString &str);
+    Utils::FilePaths solibSearchPath() const { return m_solibSearchPath; }
 
     // Used by Qml debugging.
     QUrl qmlServer;
@@ -212,6 +214,8 @@ private:
     QString m_displayName; // Used in the Snapshots view.
 
     Utils::ProcessHandle m_attachPid;
+
+    Utils::FilePaths m_solibSearchPath;
 };
 
 namespace Internal {

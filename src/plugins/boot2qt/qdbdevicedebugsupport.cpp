@@ -123,7 +123,7 @@ public:
             rp.setCloseMode(KillAndExitMonitorAtClose);
             worker->setUseContinueInsteadOfRun(true);
             worker->setContinueAfterAttach(true);
-            worker->addSolibSearchDir("%{sysroot}/system/lib");
+            rp.addSolibSearchDir("%{sysroot}/system/lib");
 
             auto debuggee = createQdbDeviceInferiorWorker(runControl, QmlDebuggerServices);
             worker->addStartDependency(debuggee);

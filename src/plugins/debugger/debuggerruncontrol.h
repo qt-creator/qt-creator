@@ -30,8 +30,6 @@ public:
     void start() override;
     void stop() override;
 
-    void setSolibSearchPath(const Utils::FilePaths &list);
-
     void setStartMessage(const QString &msg);
     void setCrashParameter(const QString &event);
 
@@ -76,7 +74,6 @@ public:
 
     void setUsePortsGatherer(bool useCpp, bool useQml);
 
-    void addSolibSearchDir(const QString &str);
     void modifyDebuggerEnvironment(const Utils::EnvironmentItems &item);
     void addSearchDirectory(const Utils::FilePath &dir);
 
