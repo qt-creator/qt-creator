@@ -153,11 +153,6 @@ void DebuggerRunTool::setCommandsAfterConnect(const QString &commands)
     m_runParameters.commandsAfterConnect = commands;
 }
 
-void DebuggerRunTool::setCommandsForReset(const QString &commands)
-{
-    m_runParameters.commandsForReset = commands;
-}
-
 void DebuggerRunTool::setDebugInfoLocation(const FilePath &debugInfoLocation)
 {
     m_runParameters.debugInfoLocation = debugInfoLocation;

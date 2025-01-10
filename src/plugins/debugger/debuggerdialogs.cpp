@@ -418,7 +418,7 @@ void StartApplicationDialog::run(bool attachRemote)
     debugger->setDebugInfoLocation(newParameters.debugInfoLocation);
     rp.setInferior(newParameters.runnable);
     debugger->setCommandsAfterConnect(newParameters.serverInitCommands);
-    debugger->setCommandsForReset(newParameters.serverResetCommands);
+    rp.setCommandsForReset(newParameters.serverResetCommands);
     debugger->setUseTerminal(newParameters.runInTerminal);
     rp.setUseExtendedRemote(newParameters.useTargetExtendedRemote);
     if (!newParameters.sysRoot.isEmpty())

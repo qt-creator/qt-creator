@@ -4173,8 +4173,9 @@ void GdbEngine::abortDebuggerProcess()
 
 void GdbEngine::resetInferior()
 {
-    if (!runParameters().commandsForReset.isEmpty()) {
-        const QStringList commands = expand(runParameters().commandsForReset).split('\n');
+    const QString commandsForReset = runParameters().commandsForReset();
+    if (!commandsForReset.isEmpty()) {
+        const QStringList commands = expand(commandsForReset).split('\n');
         for (QString command : commands) {
             command = command.trimmed();
             if (!command.isEmpty())

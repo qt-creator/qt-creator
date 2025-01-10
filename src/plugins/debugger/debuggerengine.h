@@ -129,8 +129,9 @@ public:
     }
     QMap<QString, QString> sourcePathMap() const { return m_sourcePathMap; }
 
-    // Used by baremetal plugin
-    QString commandsForReset; // commands used for resetting the inferior
+    void setCommandsForReset(const QString &commands) { m_commandsForReset = commands; }
+    QString commandsForReset() const { return m_commandsForReset; }
+
     bool useContinueInsteadOfRun = false; // if connected to a hw debugger run is not possible but continue is used
     QString commandsAfterConnect; // additional commands to post after connection to debug target
 
@@ -236,6 +237,8 @@ private:
     Utils::FilePath m_symbolFile;
 
     QMap<QString, QString> m_sourcePathMap; // Used by Mer plugin (3rd party)
+
+    QString m_commandsForReset; // Used by baremetal plugin. Commands used for resetting the inferior
 };
 
 namespace Internal {

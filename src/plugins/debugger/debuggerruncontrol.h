@@ -44,7 +44,6 @@ public:
     void setUseDebugServer(Utils::ProcessHandle attachPid, bool essential, bool useMulti);
 
     void setCommandsAfterConnect(const QString &commands);
-    void setCommandsForReset(const QString &commands);
 
     void setDebugInfoLocation(const Utils::FilePath &debugInfoLocation);
 
