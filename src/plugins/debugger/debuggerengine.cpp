@@ -115,7 +115,7 @@ QDebug operator<<(QDebug str, const DebuggerRunParameters &sp)
             << " debugger environment=<" << sp.debugger.environment.toStringList().size() << " variables>"
             << " workingDir=" << sp.inferior().workingDirectory
             << " attachPID=" << sp.attachPid().pid()
-            << " remoteChannel=" << sp.remoteChannel
+            << " remoteChannel=" << sp.remoteChannel()
             << " abi=" << sp.toolChainAbi.toString() << '\n';
     return str;
 }
@@ -2923,8 +2923,8 @@ QString DebuggerEngine::formatStartParameters() const
             str << ' ' << dir;
         str << '\n';
     }
-    if (!sp.remoteChannel.isEmpty())
-        str << "Remote: " << sp.remoteChannel << '\n';
+    if (!sp.remoteChannel().isEmpty())
+        str << "Remote: " << sp.remoteChannel() << '\n';
     if (!sp.qmlServer().host().isEmpty())
         str << "QML server: " << sp.qmlServer().host() << ':' << sp.qmlServer().port() << '\n';
     str << "Sysroot: " << sp.sysRoot << '\n';

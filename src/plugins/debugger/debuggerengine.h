@@ -109,8 +109,15 @@ public:
     void setQmlServer(const QUrl &qmlServer) { m_qmlServer = qmlServer; }
     QUrl qmlServer() const { return m_qmlServer; }
 
-    // Used by general remote debugging.
-    QString remoteChannel;
+    void setRemoteChannel(const QString &channel) { m_remoteChannel = channel; }
+    void setRemoteChannel(const QUrl &url) {
+        m_remoteChannel = QString("%1:%2").arg(url.host()).arg(url.port());
+    }
+    void setRemoteChannel(const QString &host, int port) {
+        m_remoteChannel = QString("%1:%2").arg(host).arg(port);
+    }
+    QString remoteChannel() const { return m_remoteChannel; }
+
     bool useExtendedRemote = false; // Whether to use GDB's target extended-remote or not.
     Utils::FilePath symbolFile;
 
@@ -218,6 +225,8 @@ private:
     Utils::FilePaths m_solibSearchPath;
 
     QUrl m_qmlServer; // Used by Qml debugging.
+
+    QString m_remoteChannel; // Used by general remote debugging.
 };
 
 namespace Internal {

@@ -984,7 +984,7 @@ void IosDebugSupport::start()
     const bool qmlDebug = isQmlDebugging();
     if (cppDebug) {
         rp.setInferiorExecutable(data->localExecutable);
-        setRemoteChannel("connect://localhost:" + gdbServerPort.toString());
+        rp.setRemoteChannel("connect://localhost:" + gdbServerPort.toString());
 
         QString bundlePath = data->bundleDirectory.toUrlishString();
         bundlePath.chop(4);

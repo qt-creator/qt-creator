@@ -191,7 +191,7 @@ void MemcheckToolRunner::startDebugger(qint64 valgrindPid)
     DebuggerRunParameters &rp = debugger->runParameters();
     rp.setStartMode(Debugger::AttachToRemoteServer);
     rp.setDisplayName(QString("VGdb %1").arg(valgrindPid));
-    debugger->setRemoteChannel(QString("| vgdb --pid=%1").arg(valgrindPid));
+    rp.setRemoteChannel(QString("| vgdb --pid=%1").arg(valgrindPid));
     debugger->setUseContinueInsteadOfRun(true);
     debugger->addExpectedSignal("SIGTRAP");
 

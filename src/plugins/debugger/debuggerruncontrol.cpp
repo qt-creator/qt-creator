@@ -120,26 +120,6 @@ void DebuggerRunTool::setLldbPlatform(const QString &platform)
     m_runParameters.platform = platform;
 }
 
-void DebuggerRunTool::setRemoteChannel(const QString &channel)
-{
-    m_runParameters.remoteChannel = channel;
-}
-
-void DebuggerRunTool::setRemoteChannel(const QUrl &url)
-{
-    m_runParameters.remoteChannel = QString("%1:%2").arg(url.host()).arg(url.port());
-}
-
-QString DebuggerRunTool::remoteChannel() const
-{
-    return m_runParameters.remoteChannel;
-}
-
-void DebuggerRunTool::setRemoteChannel(const QString &host, int port)
-{
-    m_runParameters.remoteChannel = QString("%1:%2").arg(host).arg(port);
-}
-
 void DebuggerRunTool::setUseExtendedRemote(bool on)
 {
     m_runParameters.useExtendedRemote = on;
@@ -373,7 +353,7 @@ void DebuggerRunTool::continueAfterTerminalStart()
     TaskHub::clearTasks(Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
     if (runControl()->usesDebugChannel())
-        setRemoteChannel(runControl()->debugChannel());
+        m_runParameters.setRemoteChannel(runControl()->debugChannel());
 
     if (runControl()->usesQmlChannel()) {
         m_runParameters.setQmlServer(runControl()->qmlChannel());

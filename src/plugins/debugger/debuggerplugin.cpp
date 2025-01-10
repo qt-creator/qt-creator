@@ -1405,7 +1405,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             debugger->setStartMessage(Tr::tr("Attaching to local process %1.").arg(pid));
         } else if (startMode == AttachToRemoteServer) {
             rp.setStartMode(AttachToRemoteServer);
-            debugger->setRemoteChannel(remoteChannel);
+            rp.setRemoteChannel(remoteChannel);
             rp.setDisplayName(Tr::tr("Remote: \"%1\"").arg(remoteChannel));
             debugger->setStartMessage(Tr::tr("Attaching to remote server %1.").arg(remoteChannel));
         } else if (startMode == AttachToCore) {

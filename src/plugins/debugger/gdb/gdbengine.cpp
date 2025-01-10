@@ -4596,8 +4596,7 @@ void GdbEngine::runEngine()
         claimInitialBreakpoints();
         notifyEngineRunAndInferiorStopOk();
 
-        QString channel = rp.remoteChannel;
-        runCommand({"target remote " + channel});
+        runCommand({"target remote " + rp.remoteChannel()});
 
     } else if (runParameters().isLocalAttachEngine()) {
 
@@ -4862,7 +4861,7 @@ void GdbEngine::handleSetTargetAsync(const DebuggerResponse &response)
 void GdbEngine::callTargetRemote()
 {
     CHECK_STATE(EngineSetupRequested);
-    QString channel = runParameters().remoteChannel;
+    QString channel = runParameters().remoteChannel();
 
     // Don't touch channels with explicitly set protocols.
     if (!channel.startsWith("tcp:") && !channel.startsWith("udp:")

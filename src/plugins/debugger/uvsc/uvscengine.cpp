@@ -79,7 +79,7 @@ void UvscEngine::setupEngine()
     const DebuggerRunParameters &rp = runParameters();
 
     // Extract the TCP/IP port for running uVision server.
-    const QUrl channel(rp.remoteChannel);
+    const QUrl channel(rp.remoteChannel());
     const int port = channel.port();
     if (port <= 0) {
         handleSetupFailure(Tr::tr("Internal error: Invalid TCP/IP port specified %1.")

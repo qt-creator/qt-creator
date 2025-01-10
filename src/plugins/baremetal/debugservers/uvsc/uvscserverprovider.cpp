@@ -192,7 +192,7 @@ bool UvscServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMess
     rp.setInferior(inferior);
     runTool->setSymbolFile(bin);
     rp.setStartMode(AttachToRemoteServer);
-    runTool->setRemoteChannel(channelString());
+    rp.setRemoteChannel(channelString());
     runTool->setUseContinueInsteadOfRun(true);
     return true;
 }

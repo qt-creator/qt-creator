@@ -37,9 +37,6 @@ public:
 
     void setSysRoot(const Utils::FilePath &sysRoot);
     void setSymbolFile(const Utils::FilePath &symbolFile);
-    void setRemoteChannel(const QString &channel);
-    void setRemoteChannel(const QString &host, int port);
-    QString remoteChannel() const;
 
     void setUseExtendedRemote(bool on);
     void setUseContinueInsteadOfRun(bool on);
@@ -75,7 +72,6 @@ public:
     void modifyDebuggerEnvironment(const Utils::EnvironmentItems &item);
     void addSearchDirectory(const Utils::FilePath &dir);
 
-    void setRemoteChannel(const QUrl &url);
     void setUseTargetAsync(bool on);
     void setSkipExecutableValidation(bool on);
     void setUseCtrlCStub(bool on);

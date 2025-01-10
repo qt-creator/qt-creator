@@ -331,11 +331,10 @@ void CdbEngine::setupEngine()
 
     m_extensionFileName = extensionFi.fileName();
     const bool isRemote = sp.startMode() == AttachToRemoteServer;
-    if (isRemote) { // Must be first
-        debugger.addArgs({"-remote", sp.remoteChannel});
-    } else {
+    if (isRemote) // Must be first
+        debugger.addArgs({"-remote", sp.remoteChannel()});
+    else
         debugger.addArg("-a" + m_extensionFileName);
-    }
 
     // Source line info/No terminal breakpoint / Pull extension
     debugger.addArgs({"-lines", "-G",

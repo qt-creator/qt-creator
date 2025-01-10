@@ -180,13 +180,12 @@ void AndroidDebugSupport::start()
                 // The port number must be removed to form a valid hostname
                 deviceSerialNumber.truncate(colonPos);
             }
-            setRemoteChannel("adb://" + deviceSerialNumber,
-                             m_runner->debugServerPort().number());
+            rp.setRemoteChannel("adb://" + deviceSerialNumber, m_runner->debugServerPort().number());
         } else {
             QUrl debugServer;
             debugServer.setPort(m_runner->debugServerPort().number());
             debugServer.setHost(QHostAddress(QHostAddress::LocalHost).toString());
-            setRemoteChannel(debugServer);
+            rp.setRemoteChannel(debugServer);
         }
     }
     if (isQmlDebugging())
