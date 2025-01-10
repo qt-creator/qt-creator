@@ -169,7 +169,7 @@ private:
 
 void AndroidDebugSupport::start()
 {
-    setAttachPid(m_runner->pid());
+    runParameters().setAttachPid(m_runner->pid());
     if (isCppDebugging()) {
         if (cppEngineType() == LldbEngineType) {
             QString deviceSerialNumber = Internal::deviceSerialNumber(runControl()->target());

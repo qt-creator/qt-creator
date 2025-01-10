@@ -114,7 +114,7 @@ QDebug operator<<(QDebug str, const DebuggerRunParameters &sp)
             << " inferior environment=<" << sp.inferior().environment.toStringList().size() << " variables>"
             << " debugger environment=<" << sp.debugger.environment.toStringList().size() << " variables>"
             << " workingDir=" << sp.inferior().workingDirectory
-            << " attachPID=" << sp.attachPID.pid()
+            << " attachPID=" << sp.attachPid().pid()
             << " remoteChannel=" << sp.remoteChannel
             << " abi=" << sp.toolChainAbi.toString() << '\n';
     return str;
@@ -791,7 +791,7 @@ void DebuggerEnginePrivate::setupViews()
     connect(fp, &FutureProgress::canceled, m_engine, &DebuggerEngine::quitDebugger);
     m_progress.reportStarted();
 
-    m_inferiorPid = rp.attachPID.isValid() ? rp.attachPID : ProcessHandle();
+    m_inferiorPid = rp.attachPid().isValid() ? rp.attachPid() : ProcessHandle();
 //    if (m_inferiorPid.isValid())
 //        m_runControl->setApplicationProcessHandle(m_inferiorPid);
 
@@ -2907,8 +2907,8 @@ QString DebuggerEngine::formatStartParameters() const
         str << "Debugger: " << sp.debugger.command.toUserOutput() << '\n';
     if (!sp.coreFile.isEmpty())
         str << "Core: " << sp.coreFile.toUserOutput() << '\n';
-    if (sp.attachPID.isValid())
-        str << "PID: " << sp.attachPID.pid() << ' ' << sp.crashParameter << '\n';
+    if (sp.attachPid().isValid())
+        str << "PID: " << sp.attachPid().pid() << ' ' << sp.crashParameter << '\n';
     if (!sp.projectSourceDirectory.isEmpty()) {
         str << "Project: " << sp.projectSourceDirectory.toUserOutput() << '\n';
         str << "Additional Search Directories:";

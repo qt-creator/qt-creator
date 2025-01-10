@@ -37,9 +37,6 @@ public:
 
     void addExpectedSignal(const QString &signal);
 
-    void setAttachPid(Utils::ProcessHandle pid);
-    void setAttachPid(qint64 pid);
-
     void setSysRoot(const Utils::FilePath &sysRoot);
     void setSymbolFile(const Utils::FilePath &symbolFile);
     void setRemoteChannel(const QString &channel);

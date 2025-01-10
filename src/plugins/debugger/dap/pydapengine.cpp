@@ -261,7 +261,7 @@ void PyDapEngine::setupEngine()
                      "--listen", "127.0.0.1:5679"}};
 
     if (runParameters().isLocalAttachEngine()) {
-        cmd.addArgs({"--pid", QString::number(runParameters().attachPID.pid())});
+        cmd.addArgs({"--pid", QString::number(runParameters().attachPid().pid())});
     } else {
         cmd.addArgs({"--wait-for-client",
                      scriptFile.path(),

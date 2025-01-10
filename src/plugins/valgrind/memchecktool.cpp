@@ -1603,7 +1603,7 @@ void HeobData::processFinished()
             m_runControl->setKit(m_kit);
             auto debugger = new DebuggerRunTool(m_runControl);
             DebuggerRunParameters &rp = debugger->runParameters();
-            debugger->setAttachPid(ProcessHandle(m_data[1]));
+            rp.setAttachPid(ProcessHandle(m_data[1]));
             rp.setDisplayName(Tr::tr("Process %1").arg(m_data[1]));
             rp.setStartMode(AttachToLocalProcess);
             rp.setCloseMode(DetachAtClose);

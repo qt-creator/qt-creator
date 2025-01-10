@@ -179,7 +179,7 @@ void LldbDapEngine::handleDapInitialize()
 
     QJsonObject attachJson{
         {"program", rp.inferior().command.executable().path()},
-        {"pid", QString::number(rp.attachPID.pid())},
+        {"pid", QString::number(rp.attachPid().pid())},
         {"__restart", ""},
     };
     if (!map.isEmpty())

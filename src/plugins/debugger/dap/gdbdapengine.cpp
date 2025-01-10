@@ -141,7 +141,7 @@ void GdbDapEngine::setupEngine()
     CommandLine cmd{rp.debugger.command.executable(), {"-i", "dap"}};
 
     if (runParameters().isLocalAttachEngine())
-        cmd.addArgs({"-p", QString::number(rp.attachPID.pid())});
+        cmd.addArgs({"-p", QString::number(rp.attachPid().pid())});
 
     QVersionNumber oldestVersion(14, 0, 50);
     QVersionNumber version = QVersionNumber::fromString(rp.version);

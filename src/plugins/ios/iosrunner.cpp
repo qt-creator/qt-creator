@@ -965,7 +965,7 @@ void IosDebugSupport::start()
             runParameters().isQmlDebugging = false;
             appendMessage(msgOnlyCppDebuggingSupported(), OutputFormat::LogMessageFormat, true);
         }
-        setAttachPid(m_deviceCtlRunner->processIdentifier());
+        rp.setAttachPid(m_deviceCtlRunner->processIdentifier());
         rp.setInferiorExecutable(data->localExecutable);
         DebuggerRunTool::start();
         return;
@@ -978,7 +978,7 @@ void IosDebugSupport::start()
 
     const Port gdbServerPort = m_iosRunner->gdbServerPort();
     const Port qmlServerPort = m_iosRunner->qmlServerPort();
-    setAttachPid(ProcessHandle(m_iosRunner->pid()));
+    rp.setAttachPid(m_iosRunner->pid());
 
     const bool cppDebug = isCppDebugging();
     const bool qmlDebug = isQmlDebugging();

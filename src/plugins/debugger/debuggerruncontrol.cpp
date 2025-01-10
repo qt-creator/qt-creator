@@ -103,16 +103,6 @@ public:
 
 } // namespace Internal
 
-void DebuggerRunTool::setAttachPid(ProcessHandle pid)
-{
-    m_runParameters.attachPID = pid;
-}
-
-void DebuggerRunTool::setAttachPid(qint64 pid)
-{
-    m_runParameters.attachPID = ProcessHandle(pid);
-}
-
 void DebuggerRunTool::setSysRoot(const Utils::FilePath &sysRoot)
 {
     m_runParameters.sysRoot = sysRoot;

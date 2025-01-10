@@ -1400,7 +1400,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         if (pid) {
             rp.setStartMode(AttachToLocalProcess);
             rp.setCloseMode(DetachAtClose);
-            debugger->setAttachPid(pid);
+            rp.setAttachPid(pid);
             rp.setDisplayName(Tr::tr("Process %1").arg(pid));
             debugger->setStartMessage(Tr::tr("Attaching to local process %1.").arg(pid));
         } else if (startMode == AttachToRemoteServer) {
@@ -1442,7 +1442,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         DebuggerRunParameters &rp = debugger->runParameters();
         rp.setStartMode(AttachToCrashedProcess);
         debugger->setCrashParameter(it->section(':', 0, 0));
-        debugger->setAttachPid(pid);
+        rp.setAttachPid(pid);
         rp.setDisplayName(Tr::tr("Crashed process %1").arg(pid));
         debugger->setStartMessage(Tr::tr("Attaching to crashed process %1").arg(pid));
         if (pid < 1) {
@@ -1743,7 +1743,7 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
 
     auto debugger = new DebuggerRunTool(runControl);
     DebuggerRunParameters &rp = debugger->runParameters();
-    debugger->setAttachPid(ProcessHandle(processInfo.processId));
+    rp.setAttachPid(ProcessHandle(processInfo.processId));
     rp.setInferiorExecutable(device->filePath(processInfo.executable));
     rp.setStartMode(AttachToLocalProcess);
     rp.setCloseMode(DetachAtClose);
@@ -2298,7 +2298,7 @@ void DebuggerPlugin::attachExternalApplication(RunControl *rc)
     auto debugger = new DebuggerRunTool(runControl);
     DebuggerRunParameters &rp = debugger->runParameters();
     rp.setInferiorExecutable(rc->targetFilePath());
-    debugger->setAttachPid(pid);
+    rp.setAttachPid(pid);
     rp.setStartMode(AttachToLocalProcess);
     rp.setCloseMode(DetachAtClose);
 

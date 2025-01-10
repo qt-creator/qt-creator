@@ -150,7 +150,7 @@ void showAttachToProcessDialog()
     rp.setStartMode(AttachToRemoteServer);
     rp.setCloseMode(DetachAtClose);
     debugger->setSymbolFile(localExecutable);
-    debugger->setAttachPid(pid);
+    rp.setAttachPid(pid);
 //    setRunControlName(Tr::tr("Remote: \"%1\" - Process %2").arg(remoteChannel).arg(m_process.pid));
     rp.setDisplayName(Tr::tr("Remote QNX process %1").arg(pid));
     debugger->setSolibSearchPath(FileUtils::toFilePathList(searchPaths(kit)));

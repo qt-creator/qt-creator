@@ -283,10 +283,10 @@ void CdbEngine::setupEngine()
     if (usesTerminal()) {
         m_effectiveStartMode = AttachToLocalProcess;
         sp.setInferior({{}, sp.inferior().workingDirectory, sp.inferior().environment});
-        sp.attachPID = ProcessHandle(applicationPid());
+        sp.setAttachPid(applicationPid());
         sp.setStartMode(AttachToLocalProcess);
         sp.useTerminal = false; // Force no terminal.
-        showMessage(QString("Attaching to %1...").arg(sp.attachPID.pid()), LogMisc);
+        showMessage(Tr::tr("Attaching to %1...").arg(sp.attachPid().pid()), LogMisc);
     } else {
         m_effectiveStartMode = sp.startMode();
     }
@@ -368,7 +368,7 @@ void CdbEngine::setupEngine()
         break;
     case AttachToLocalProcess:
     case AttachToCrashedProcess:
-        debugger.addArgs({"-p", QString::number(sp.attachPID.pid())});
+        debugger.addArgs({"-p", QString::number(sp.attachPid().pid())});
         if (sp.startMode() == AttachToCrashedProcess) {
             debugger.addArgs({"-e", sp.crashParameter, "-g"});
         } else {

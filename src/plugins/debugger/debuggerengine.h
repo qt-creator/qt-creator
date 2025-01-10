@@ -98,7 +98,10 @@ public:
     void setDisplayName(const QString &name) { m_displayName = name; }
     QString displayName() const { return m_displayName; }
 
-    Utils::ProcessHandle attachPID;
+    void setAttachPid(Utils::ProcessHandle pid) { m_attachPid = pid; }
+    void setAttachPid(qint64 pid) { m_attachPid = Utils::ProcessHandle(pid); }
+    Utils::ProcessHandle attachPid() const { return m_attachPid; }
+
     Utils::FilePaths solibSearchPath;
 
     // Used by Qml debugging.
@@ -207,6 +210,8 @@ private:
     Utils::ProcessRunData m_inferior;
 
     QString m_displayName; // Used in the Snapshots view.
+
+    Utils::ProcessHandle m_attachPid;
 };
 
 namespace Internal {

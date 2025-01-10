@@ -4601,7 +4601,7 @@ void GdbEngine::runEngine()
 
     } else if (runParameters().isLocalAttachEngine()) {
 
-        const qint64 pid = rp.attachPID.pid();
+        const qint64 pid = rp.attachPid().pid();
         showStatusMessage(Tr::tr("Attaching to process %1.").arg(pid));
         runCommand({"attach " + QString::number(pid), [this](const DebuggerResponse &r) {
                         handleLocalAttach(r);
@@ -4730,7 +4730,7 @@ void GdbEngine::interruptInferior2()
 {
     if (runParameters().isLocalAttachEngine()) {
 
-        interruptLocalInferior(runParameters().attachPID.pid());
+        interruptLocalInferior(runParameters().attachPid().pid());
 
     } else if (isRemoteEngine() || runParameters().startMode() == AttachToRemoteProcess
                || !m_gdbProc.commandLine().executable().isLocal()) {
@@ -4911,9 +4911,9 @@ void GdbEngine::handleTargetExtendedRemote(const DebuggerResponse &response)
         QString commands = settings().gdbPostAttachCommands();
         if (!commands.isEmpty())
             runCommand({commands, NativeCommand});
-        if (runParameters().attachPID.isValid()) { // attach to pid if valid
+        if (runParameters().attachPid().isValid()) { // attach to pid if valid
             // gdb server will stop the remote application itself.
-            runCommand({"attach " + QString::number(runParameters().attachPID.pid()),
+            runCommand({"attach " + QString::number(runParameters().attachPid().pid()),
                         CB(handleTargetExtendedAttach)});
         } else if (!runParameters().inferior().command.isEmpty()) {
             runCommand({"-gdb-set remote exec-file " + runParameters().inferior().command.executable().path(),
@@ -4963,8 +4963,8 @@ void GdbEngine::handleTargetQnx(const DebuggerResponse &response)
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
 
         const DebuggerRunParameters &rp = runParameters();
-        if (rp.attachPID.isValid())
-            runCommand({"attach " + QString::number(rp.attachPID.pid()), CB(handleRemoteAttach)});
+        if (rp.attachPid().isValid())
+            runCommand({"attach " + QString::number(rp.attachPid().pid()), CB(handleRemoteAttach)});
         else if (!rp.inferior().command.isEmpty())
             runCommand({"set nto-executable " + rp.inferior().command.executable().path(),
                         CB(handleSetNtoExecutable)});
