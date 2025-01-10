@@ -61,6 +61,8 @@ static CommandLine valgrindCommand(const CommandLine &command,
 
 class ValgrindProcessPrivate : public QObject
 {
+    Q_OBJECT
+
 public:
     ValgrindProcessPrivate(ValgrindProcess *owner)
         : q(owner)
@@ -83,6 +85,9 @@ public:
     bool m_useTerminal = false;
 
     TaskTreeRunner m_taskTreeRunner;
+
+signals:
+    void stopRequested();
 };
 
 Group ValgrindProcessPrivate::runRecipe() const
@@ -175,6 +180,7 @@ Group ValgrindProcessPrivate::runRecipe() const
         connect(processPtr, &Process::readyReadStandardError, this, [this, processPtr] {
             emit q->appendMessage(processPtr->readAllStandardError(), StdErrFormat);
         });
+        connect(this, &ValgrindProcessPrivate::stopRequested, processPtr, &Process::stop);
     };
     const auto onProcessDone = [this, storage](const Process &process) {
         emit q->processErrorReceived(process.errorString(), process.error());
@@ -254,7 +260,7 @@ bool ValgrindProcess::start()
 
 void ValgrindProcess::stop()
 {
-    d->m_taskTreeRunner.reset();
+    emit d->stopRequested();
 }
 
 bool ValgrindProcess::runBlocking()
@@ -275,3 +281,5 @@ bool ValgrindProcess::runBlocking()
 }
 
 } // namespace Valgrind
+
+#include "valgrindprocess.moc"

@@ -4066,9 +4066,9 @@ public:
         , m_embed(embed)
         , m_textEditorWidget(textEditorWidget)
     {
-        QVBoxLayout *layout = new QVBoxLayout(this);
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(m_embed);
+        m_layout = new QVBoxLayout(this);
+        updateContentMargins();
+        m_layout->addWidget(m_embed);
 
         setFixedWidth(m_textEditorWidget->width() - m_textEditorWidget->extraAreaWidth());
         setFixedHeight(m_embed->minimumSizeHint().height());
@@ -4076,13 +4076,31 @@ public:
         connect(m_textEditorWidget, &TextEditorWidget::resized, this, [this] {
             setFixedWidth(m_textEditorWidget->width() - m_textEditorWidget->extraAreaWidth());
         });
+
+        m_textEditorWidget->viewport()->installEventFilter(this);
     }
 
     int embedHeight() { return m_embed->sizeHint().height(); }
 
+    bool eventFilter(QObject *obj, QEvent *event) override
+    {
+        if (event->type() == QEvent::Resize)
+            updateContentMargins();
+        return QObject::eventFilter(obj, event);
+    }
+
 private:
+    void updateContentMargins() {
+        bool verticalScrollBarVisible = m_textEditorWidget->verticalScrollBar()->isVisible();
+        int verticalScrollBarWidth = m_textEditorWidget->verticalScrollBar()->width();
+
+        // Value 4 here is the liitle space between extraArea (space with line numbers) and code.
+        m_layout->setContentsMargins(0, 0, 4 + (verticalScrollBarVisible ? verticalScrollBarWidth : 0), 0);
+    }
+
     QWidget *m_embed;
     TextEditorWidget *m_textEditorWidget;
+    QVBoxLayout *m_layout;
 };
 
 EmbeddedWidgetInterface::~EmbeddedWidgetInterface()
