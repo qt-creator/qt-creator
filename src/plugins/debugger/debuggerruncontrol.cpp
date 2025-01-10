@@ -143,11 +143,6 @@ void DebuggerRunTool::setUseTerminal(bool on)
     m_runParameters.useTerminal = on;
 }
 
-void DebuggerRunTool::setCommandsAfterConnect(const QString &commands)
-{
-    m_runParameters.commandsAfterConnect = commands;
-}
-
 void DebuggerRunTool::setDebugInfoLocation(const FilePath &debugInfoLocation)
 {
     m_runParameters.debugInfoLocation = debugInfoLocation;

@@ -135,7 +135,8 @@ public:
     void setUseContinueInsteadOfRun(bool on) { m_useContinueInsteadOfRun = on; }
     bool useContinueInsteadOfRun() const { return m_useContinueInsteadOfRun; }
 
-    QString commandsAfterConnect; // additional commands to post after connection to debug target
+    void setCommandsAfterConnect(const QString &commands) { m_commandsAfterConnect = commands; }
+    QString commandsAfterConnect() const { return m_commandsAfterConnect; }
 
     // Used by Valgrind
     QStringList expectedSignals;
@@ -242,6 +243,7 @@ private:
 
     QString m_commandsForReset; // Used by baremetal plugin. Commands used for resetting the inferior
     bool m_useContinueInsteadOfRun = false; // If connected to a hw debugger run is not possible but continue is used
+    QString m_commandsAfterConnect; // Additional commands to post after connection to debug target
 };
 
 namespace Internal {

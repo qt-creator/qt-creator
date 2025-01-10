@@ -42,8 +42,6 @@ public:
     void setUseTerminal(bool on);
     void setUseDebugServer(Utils::ProcessHandle attachPid, bool essential, bool useMulti);
 
-    void setCommandsAfterConnect(const QString &commands);
-
     void setDebugInfoLocation(const Utils::FilePath &debugInfoLocation);
 
     void setCoreFilePath(const Utils::FilePath &core, bool isSnapshot = false);

@@ -4436,8 +4436,8 @@ void GdbEngine::claimInitialBreakpoints()
     // and even if it fails (e.g. due to stripped binaries), continuing with
     // the start up is the best we can do.
 
-    if (!rp.commandsAfterConnect.isEmpty()) {
-        const QString commands = expand(rp.commandsAfterConnect);
+    if (!rp.commandsAfterConnect().isEmpty()) {
+        const QString commands = expand(rp.commandsAfterConnect());
         for (const QString &command : commands.split('\n'))
             runCommand({command, NativeCommand});
     }

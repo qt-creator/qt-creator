@@ -437,8 +437,8 @@ void CdbEngine::handleInitialSessionIdle()
 {
     m_initialSessionIdleHandled = true;
     const DebuggerRunParameters &rp = runParameters();
-    if (!rp.commandsAfterConnect.isEmpty())
-        runCommand({rp.commandsAfterConnect, NoFlags});
+    if (!rp.commandsAfterConnect().isEmpty())
+        runCommand({rp.commandsAfterConnect(), NoFlags});
     //operateByInstructionTriggered(operatesByInstruction());
     // QmlCppEngine expects the QML engine to be connected before any breakpoints are hit
     // (attemptBreakpointSynchronization() will be directly called then)

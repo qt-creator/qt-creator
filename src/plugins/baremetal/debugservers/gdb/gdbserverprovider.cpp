@@ -146,7 +146,7 @@ bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMessa
     rp.setInferior(inferior);
     rp.setSymbolFile(bin);
     rp.setStartMode(AttachToRemoteServer);
-    runTool->setCommandsAfterConnect(initCommands()); // .. and here?
+    rp.setCommandsAfterConnect(initCommands()); // .. and here?
     rp.setCommandsForReset(resetCommands());
     rp.setRemoteChannel(channelString());
     rp.setUseContinueInsteadOfRun(true);
