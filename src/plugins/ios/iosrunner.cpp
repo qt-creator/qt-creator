@@ -907,21 +907,21 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
     setId("IosDebugSupport");
 
     IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(device());
+    DebuggerRunParameters &rp = runParameters();
 
     if (dev->type() == Ios::Constants::IOS_SIMULATOR_TYPE
         || dev->handler() == IosDevice::Handler::IosTool) {
         m_iosRunner = new IosRunner(runControl);
-        m_iosRunner->setCppDebugging(isCppDebugging());
-        m_iosRunner->setQmlDebugging(isQmlDebugging() ? QmlDebuggerServices : NoQmlDebugServices);
+        m_iosRunner->setCppDebugging(rp.isCppDebugging());
+        m_iosRunner->setQmlDebugging(rp.isQmlDebugging() ? QmlDebuggerServices : NoQmlDebugServices);
         addStartDependency(m_iosRunner);
     } else {
-        QTC_CHECK(isCppDebugging());
+        QTC_CHECK(rp.isCppDebugging());
         m_deviceCtlRunner = new DeviceCtlRunner(runControl);
         m_deviceCtlRunner->setStartStopped(true);
         addStartDependency(m_deviceCtlRunner);
     }
 
-    DebuggerRunParameters &rp = runParameters();
     if (device()->type() == Ios::Constants::IOS_DEVICE_TYPE) {
         if (dev->handler() == IosDevice::Handler::DeviceCtl) {
             QTC_CHECK(IosDeviceManager::isDeviceCtlDebugSupported());
@@ -957,12 +957,12 @@ void IosDebugSupport::start()
         const auto msgOnlyCppDebuggingSupported = [] {
             return Tr::tr("Only C++ debugging is supported for devices with iOS 17 and later.");
         };
-        if (!isCppDebugging()) {
+        if (!rp.isCppDebugging()) {
             reportFailure(msgOnlyCppDebuggingSupported());
             return;
         }
-        if (isQmlDebugging()) {
-            runParameters().isQmlDebugging = false;
+        if (rp.isQmlDebugging()) {
+            rp.setQmlDebugging(false);
             appendMessage(msgOnlyCppDebuggingSupported(), OutputFormat::LogMessageFormat, true);
         }
         rp.setAttachPid(m_deviceCtlRunner->processIdentifier());
@@ -980,8 +980,8 @@ void IosDebugSupport::start()
     const Port qmlServerPort = m_iosRunner->qmlServerPort();
     rp.setAttachPid(m_iosRunner->pid());
 
-    const bool cppDebug = isCppDebugging();
-    const bool qmlDebug = isQmlDebugging();
+    const bool cppDebug = rp.isCppDebugging();
+    const bool qmlDebug = rp.isQmlDebugging();
     if (cppDebug) {
         rp.setInferiorExecutable(data->localExecutable);
         rp.setRemoteChannel("connect://localhost:" + gdbServerPort.toString());

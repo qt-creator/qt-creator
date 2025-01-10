@@ -281,7 +281,7 @@ void DebuggerRunTool::continueAfterTerminalStart()
     if (runControl()->usesQmlChannel()) {
         m_runParameters.setQmlServer(runControl()->qmlChannel());
         if (d->addQmlServerInferiorCommandLineArgumentIfNeeded
-                && m_runParameters.isQmlDebugging
+                && m_runParameters.isQmlDebugging()
                 && m_runParameters.isCppDebugging()) {
 
             int qmlServerPort = m_runParameters.qmlServer().port();
@@ -373,7 +373,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
                 m_engines << createUvscEngine();
                 break;
             default:
-                if (!m_runParameters.isQmlDebugging) {
+                if (!m_runParameters.isQmlDebugging()) {
                     reportFailure(noEngineMessage() + '\n' +
                         Tr::tr("Specify Debugger settings in Projects > Run."));
                     return;
@@ -386,7 +386,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
         if (m_runParameters.isPythonDebugging)
             m_engines << createPdbEngine();
 
-        if (m_runParameters.isQmlDebugging)
+        if (m_runParameters.isQmlDebugging())
             m_engines << createQmlEngine();
     }
 
@@ -558,22 +558,12 @@ void DebuggerRunTool::handleEngineFinished(DebuggerEngine *engine)
     }
 }
 
-bool DebuggerRunTool::isCppDebugging() const
-{
-    return m_runParameters.isCppDebugging();
-}
-
-bool DebuggerRunTool::isQmlDebugging() const
-{
-    return m_runParameters.isQmlDebugging;
-}
-
 void DebuggerRunTool::setupPortsGatherer()
 {
-    if (isCppDebugging())
+    if (m_runParameters.isCppDebugging())
         runControl()->requestDebugChannel();
 
-    if (isQmlDebugging())
+    if (m_runParameters.isQmlDebugging())
         runControl()->requestQmlChannel();
 }
 

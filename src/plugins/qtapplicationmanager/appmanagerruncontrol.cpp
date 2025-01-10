@@ -156,10 +156,10 @@ private:
         rp.setStartMode(Debugger::AttachToRemoteServer);
         rp.setCloseMode(Debugger::KillAndExitMonitorAtClose);
 
-        if (isQmlDebugging())
+        if (rp.isQmlDebugging())
             rp.setQmlServer(runControl()->qmlChannel());
 
-        if (isCppDebugging()) {
+        if (rp.isCppDebugging()) {
             rp.setUseExtendedRemote(false);
             rp.setUseContinueInsteadOfRun(true);
             rp.setContinueAfterAttach(true);

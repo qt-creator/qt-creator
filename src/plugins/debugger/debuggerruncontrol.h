@@ -47,13 +47,8 @@ public:
     void kickoffTerminalProcess();
     void interruptTerminal();
 
-    DebuggerRunParameters &runParameters() { return m_runParameters; }
-
     void addQmlServerInferiorCommandLineArgumentIfNeeded();
     void setupPortsGatherer();
-
-    bool isCppDebugging() const;
-    bool isQmlDebugging() const;
 
     void modifyDebuggerEnvironment(const Utils::EnvironmentItems &item);
 
@@ -62,6 +57,8 @@ public:
     void setAbi(const ProjectExplorer::Abi &abi);
 
     DebuggerEngineType cppEngineType() const;
+
+    DebuggerRunParameters &runParameters() { return m_runParameters; }
 
 private:
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);

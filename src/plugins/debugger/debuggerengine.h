@@ -109,6 +109,9 @@ public:
     void setQmlServer(const QUrl &qmlServer) { m_qmlServer = qmlServer; }
     QUrl qmlServer() const { return m_qmlServer; }
 
+    bool isQmlDebugging() const { return m_isQmlDebugging; }
+    void setQmlDebugging(bool on) { m_isQmlDebugging = on; }
+
     void setRemoteChannel(const QString &channel) { m_remoteChannel = channel; }
     void setRemoteChannel(const QUrl &url) {
         m_remoteChannel = QString("%1:%2").arg(url.host()).arg(url.port());
@@ -176,7 +179,6 @@ public:
     DebuggerEngineType cppEngineType = NoEngineType;
     QString version;
 
-    bool isQmlDebugging = false;
     bool isPythonDebugging = false;
     bool breakOnMain = false;
     bool multiProcess = false; // Whether to set detach-on-fork off.
@@ -244,6 +246,7 @@ private:
     Utils::FilePaths m_solibSearchPath;
 
     QUrl m_qmlServer; // Used by Qml debugging.
+    bool m_isQmlDebugging = false;
 
     QString m_remoteChannel; // Used by general remote debugging.
     bool m_useExtendedRemote = false; // Whether to use GDB's target extended-remote or not.

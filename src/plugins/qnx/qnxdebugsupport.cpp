@@ -137,7 +137,7 @@ void showAttachToProcessDialog()
     debugger->setId("QnxAttachDebugSupport");
     debugger->setupPortsGatherer();
     rp.setUseCtrlCStub(true);
-    if (debugger->isCppDebugging()) {
+    if (rp.isCppDebugging()) {
         auto pdebugRunner = new ProcessRunner(runControl);
         pdebugRunner->setId("PDebugRunner");
         pdebugRunner->setStartModifier([pdebugRunner, runControl] {

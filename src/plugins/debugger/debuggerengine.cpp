@@ -148,7 +148,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
     if (auto aspect = runControl->aspectData<DebuggerRunConfigurationAspect>()) {
         if (!aspect->useCppDebugger)
             params.cppEngineType = NoEngineType;
-        params.isQmlDebugging = aspect->useQmlDebugger;
+        params.m_isQmlDebugging = aspect->useQmlDebugger;
         params.isPythonDebugging = aspect->usePythonDebugger;
         params.multiProcess = aspect->useMultiProcess;
         params.additionalStartupCommands = aspect->overrideStartup;
@@ -226,7 +226,7 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
     if (!validationErrors.isEmpty())
         return Result::Error(validationErrors.join('\n'));
 
-    if (isQmlDebugging) {
+    if (m_isQmlDebugging) {
         const auto device = runControl->device();
         if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
             if (m_qmlServer.port() <= 0) {
@@ -253,7 +253,7 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
         }
     }
 
-    if (isQmlDebugging) {
+    if (m_isQmlDebugging) {
         QmlDebugServicesPreset service;
         if (isCppDebugging()) {
             if (nativeMixedEnabled) {
@@ -310,7 +310,7 @@ void DebuggerRunParameters::setStartMode(DebuggerStartMode startMode)
         return;
 
     cppEngineType = NoEngineType;
-    isQmlDebugging = true;
+    m_isQmlDebugging = true;
     m_closeMode = KillAtClose;
 
     // FIXME: This is horribly wrong.
@@ -346,7 +346,7 @@ bool DebuggerRunParameters::isCppDebugging() const
 
 bool DebuggerRunParameters::isNativeMixedDebugging() const
 {
-    return nativeMixedEnabled && isCppDebugging() && isQmlDebugging;
+    return nativeMixedEnabled && isCppDebugging() && m_isQmlDebugging;
 }
 
 namespace Internal {
@@ -2899,7 +2899,7 @@ QString DebuggerEngine::formatStartParameters() const
     str << "Languages: ";
     if (sp.isCppDebugging())
         str << "c++ ";
-    if (sp.isQmlDebugging)
+    if (sp.isQmlDebugging())
         str << "qml";
     str << '\n';
     if (!sp.inferior().command.isEmpty()) {

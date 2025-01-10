@@ -105,7 +105,7 @@ public:
             rp.setUseTargetAsync(true);
         }
 
-        if (isCppDebugging()) {
+        if (rp.isCppDebugging()) {
             qCDebug(androidDebugSupportLog) << "C++ debugging enabled";
             const ProjectNode *node = target->project()->findNodeForBuildKey(runControl->buildKey());
             FilePaths solibSearchPath = getSoLibSearchPath(node);
@@ -147,7 +147,7 @@ public:
                 qCDebug(androidDebugSupportLog).noquote() << "Sysroot: " << sysRoot.toUserOutput();
             }
         }
-        if (isQmlDebugging()) {
+        if (rp.isQmlDebugging()) {
             qCDebug(androidDebugSupportLog) << "QML debugging enabled. QML server: "
                                             << runControl->qmlChannel().toDisplayString();
             //TODO: Not sure if these are the right paths.
@@ -170,7 +170,7 @@ void AndroidDebugSupport::start()
 {
     DebuggerRunParameters &rp = runParameters();
     rp.setAttachPid(m_runner->pid());
-    if (isCppDebugging()) {
+    if (rp.isCppDebugging()) {
         if (cppEngineType() == LldbEngineType) {
             QString deviceSerialNumber = Internal::deviceSerialNumber(runControl()->target());
             const int colonPos = deviceSerialNumber.indexOf(QLatin1Char(':'));
@@ -187,7 +187,7 @@ void AndroidDebugSupport::start()
             rp.setRemoteChannel(debugServer);
         }
     }
-    if (isQmlDebugging())
+    if (rp.isQmlDebugging())
         rp.setQmlServer(runControl()->qmlChannel());
     DebuggerRunTool::start();
 }
