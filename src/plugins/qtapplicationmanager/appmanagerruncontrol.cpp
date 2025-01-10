@@ -169,7 +169,7 @@ private:
             QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(runControl()->kit());
             if (version) {
                 rp.setSolibSearchPath(version->qtSoPaths());
-                addSearchDirectory(version->qmlPath());
+                rp.addSearchDirectory(version->qmlPath());
             }
 
             auto sysroot = SysRootKitAspect().sysRoot(runControl()->kit());

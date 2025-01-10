@@ -2919,7 +2919,7 @@ QString DebuggerEngine::formatStartParameters() const
     if (!sp.projectSourceDirectory.isEmpty()) {
         str << "Project: " << sp.projectSourceDirectory.toUserOutput() << '\n';
         str << "Additional Search Directories:";
-        for (const FilePath &dir : sp.additionalSearchDirectories)
+        for (const FilePath &dir : sp.additionalSearchDirectories())
             str << ' ' << dir;
         str << '\n';
     }

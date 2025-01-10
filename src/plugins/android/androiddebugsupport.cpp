@@ -152,7 +152,7 @@ public:
                                             << runControl->qmlChannel().toDisplayString();
             //TODO: Not sure if these are the right paths.
             if (qtVersion)
-                addSearchDirectory(qtVersion->qmlPath());
+                rp.addSearchDirectory(qtVersion->qmlPath());
         }
         connect(this, &RunWorker::started, this, [this, packageName] {
             qCDebug(androidDebugSupportLog) << "Starting debugger - package name: " << packageName

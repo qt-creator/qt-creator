@@ -189,11 +189,6 @@ void DebuggerRunTool::setCrashParameter(const QString &event)
     m_runParameters.crashParameter = event;
 }
 
-void DebuggerRunTool::addSearchDirectory(const Utils::FilePath &dir)
-{
-    m_runParameters.additionalSearchDirectories.append(dir);
-}
-
 void DebuggerRunTool::start()
 {
     startCoreFileSetupIfNeededAndContinueStartup();

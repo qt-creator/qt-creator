@@ -147,7 +147,8 @@ public:
     void setUseTargetAsync(bool on) { m_useTargetAsync = on; }
     bool useTargetAsync() const { return m_useTargetAsync; }
 
-    Utils::FilePaths additionalSearchDirectories;
+    void addSearchDirectory(const Utils::FilePath &dir) { m_additionalSearchDirectories.append(dir); }
+    Utils::FilePaths additionalSearchDirectories() const { return m_additionalSearchDirectories; }
 
     // Used by iOS.
     QString platform;
@@ -250,6 +251,8 @@ private:
     bool m_useCtrlCStub = false; // For QNX debugging.
 
     bool m_useTargetAsync = false;
+
+    Utils::FilePaths m_additionalSearchDirectories;
 };
 
 namespace Internal {

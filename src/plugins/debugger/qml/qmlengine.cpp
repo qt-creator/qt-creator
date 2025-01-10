@@ -2451,7 +2451,7 @@ FilePath QmlEngine::toFileInProject(const QUrl &fileUrl)
     const DebuggerRunParameters &rp = runParameters();
     d->fileFinder.setProjectDirectory(rp.projectSourceDirectory);
     d->fileFinder.setProjectFiles(rp.projectSourceFiles);
-    d->fileFinder.setAdditionalSearchDirectories(rp.additionalSearchDirectories);
+    d->fileFinder.setAdditionalSearchDirectories(rp.additionalSearchDirectories());
     d->fileFinder.setSysroot(rp.sysRoot);
 
     return d->fileFinder.findFile(fileUrl).constFirst();

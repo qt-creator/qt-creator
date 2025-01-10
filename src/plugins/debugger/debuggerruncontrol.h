@@ -62,7 +62,6 @@ public:
     void setUsePortsGatherer(bool useCpp, bool useQml);
 
     void modifyDebuggerEnvironment(const Utils::EnvironmentItems &item);
-    void addSearchDirectory(const Utils::FilePath &dir);
 
     void setIosPlatform(const QString &platform);
     void setDeviceSymbolsRoot(const QString &deviceSymbolsRoot);
