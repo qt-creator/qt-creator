@@ -144,7 +144,9 @@ public:
     void setUseCtrlCStub(bool on) { m_useCtrlCStub = on; }
     bool useCtrlCStub() const { return m_useCtrlCStub; }
 
-    bool useTargetAsync = false;
+    void setUseTargetAsync(bool on) { m_useTargetAsync = on; }
+    bool useTargetAsync() const { return m_useTargetAsync; }
+
     Utils::FilePaths additionalSearchDirectories;
 
     // Used by iOS.
@@ -246,6 +248,8 @@ private:
     QStringList m_expectedSignals; // Used by Valgrind
 
     bool m_useCtrlCStub = false; // For QNX debugging.
+
+    bool m_useTargetAsync = false;
 };
 
 namespace Internal {

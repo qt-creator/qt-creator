@@ -102,7 +102,7 @@ public:
         if (!HostOsInfo::isWindowsHost()
             && (qtVersion && AndroidConfig::ndkVersion(qtVersion) >= QVersionNumber(11, 0, 0))) {
             qCDebug(androidDebugSupportLog) << "UseTargetAsync: " << true;
-            setUseTargetAsync(true);
+            rp.setUseTargetAsync(true);
         }
 
         if (isCppDebugging()) {

@@ -113,11 +113,6 @@ void DebuggerRunTool::setLldbPlatform(const QString &platform)
     m_runParameters.platform = platform;
 }
 
-void DebuggerRunTool::setUseTargetAsync(bool on)
-{
-    m_runParameters.useTargetAsync = on;
-}
-
 void DebuggerRunTool::setContinueAfterAttach(bool on)
 {
     m_runParameters.continueAfterAttach = on;

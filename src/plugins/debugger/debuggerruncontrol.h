@@ -64,8 +64,6 @@ public:
     void modifyDebuggerEnvironment(const Utils::EnvironmentItems &item);
     void addSearchDirectory(const Utils::FilePath &dir);
 
-    void setUseTargetAsync(bool on);
-
     void setIosPlatform(const QString &platform);
     void setDeviceSymbolsRoot(const QString &deviceSymbolsRoot);
     void setDeviceUuid(const QString &uuid);

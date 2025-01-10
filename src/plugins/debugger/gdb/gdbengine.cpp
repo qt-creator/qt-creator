@@ -4303,7 +4303,7 @@ bool GdbEngine::usesExecInterrupt() const
 
 bool GdbEngine::usesTargetAsync() const
 {
-    return runParameters().useTargetAsync || settings().targetAsync();
+    return runParameters().useTargetAsync() || settings().targetAsync();
 }
 
 void GdbEngine::scheduleTestResponse(int testCase, const QString &response)
