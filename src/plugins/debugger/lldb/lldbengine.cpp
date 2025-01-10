@@ -308,8 +308,8 @@ void LldbEngine::handleLldbStarted()
                 && (rp.startMode() == AttachToRemoteProcess || rp.startMode() == AttachToLocalProcess
                     || rp.startMode() == AttachToRemoteServer || rp.startMode() == AttachToIosDevice));
             cmd2.arg("attachpid", rp.attachPid().pid());
-            cmd2.arg("sysroot", rp.deviceSymbolsRoot.isEmpty() ? rp.sysRoot.toUrlishString()
-                                                               : rp.deviceSymbolsRoot);
+            cmd2.arg("sysroot", rp.deviceSymbolsRoot().isEmpty() ? rp.sysRoot.toUrlishString()
+                                                                 : rp.deviceSymbolsRoot());
             cmd2.arg("remotechannel", ((rp.startMode() == AttachToRemoteProcess
                                         || rp.startMode() == AttachToRemoteServer)
                                            ? rp.remoteChannel() : QString()));

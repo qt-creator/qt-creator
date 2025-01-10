@@ -128,11 +128,6 @@ void DebuggerRunTool::setDebugInfoLocation(const FilePath &debugInfoLocation)
     m_runParameters.debugInfoLocation = debugInfoLocation;
 }
 
-void DebuggerRunTool::setDeviceSymbolsRoot(const QString &deviceSymbolsRoot)
-{
-    m_runParameters.deviceSymbolsRoot = deviceSymbolsRoot;
-}
-
 void DebuggerRunTool::setDeviceUuid(const QString &uuid)
 {
     m_runParameters.deviceUuid = uuid;

@@ -936,7 +936,7 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
         if (!deviceSdk)
             TaskHub::addTask(DeploymentTask(Task::Warning, deviceSdk.error()));
         else
-            setDeviceSymbolsRoot(deviceSdk->path());
+            rp.setDeviceSymbolsRoot(deviceSdk->path());
     } else {
         rp.setStartMode(AttachToLocalProcess);
         rp.setLldbPlatform("ios-simulator");

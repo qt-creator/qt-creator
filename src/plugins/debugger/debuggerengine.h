@@ -153,7 +153,11 @@ public:
     void setLldbPlatform(const QString &platform) { m_lldbPlatform = platform; }
     QString lldbPlatform() const { return m_lldbPlatform; }
 
-    QString deviceSymbolsRoot;
+    void setDeviceSymbolsRoot(const QString &deviceSymbolsRoot) {
+        m_deviceSymbolsRoot = deviceSymbolsRoot;
+    }
+    QString deviceSymbolsRoot() const { return m_deviceSymbolsRoot; }
+
     bool continueAfterAttach = false;
     Utils::FilePath sysRoot;
     // iOS 17+
@@ -256,6 +260,8 @@ private:
     Utils::FilePaths m_additionalSearchDirectories;
 
     QString m_lldbPlatform;
+
+    QString m_deviceSymbolsRoot;
 };
 
 namespace Internal {

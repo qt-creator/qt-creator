@@ -62,7 +62,6 @@ public:
 
     void modifyDebuggerEnvironment(const Utils::EnvironmentItems &item);
 
-    void setDeviceSymbolsRoot(const QString &deviceSymbolsRoot);
     void setDeviceUuid(const QString &uuid);
 
     void setAbi(const ProjectExplorer::Abi &abi);
