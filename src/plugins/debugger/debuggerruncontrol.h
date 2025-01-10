@@ -33,8 +33,6 @@ public:
     void setStartMessage(const QString &msg);
     void setCrashParameter(const QString &event);
 
-    void addExpectedSignal(const QString &signal);
-
     void setSysRoot(const Utils::FilePath &sysRoot);
 
     void setContinueAfterAttach(bool on);

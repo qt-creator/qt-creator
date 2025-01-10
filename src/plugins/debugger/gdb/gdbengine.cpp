@@ -1421,7 +1421,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
             QString meaning = data["signal-meaning"].data();
             // Ignore these as they are showing up regularly when
             // stopping debugging.
-            if (name == stopSignal(rp.toolChainAbi) || rp.expectedSignals.contains(name)) {
+            if (name == stopSignal(rp.toolChainAbi) || rp.expectedSignals().contains(name)) {
                 showMessage(name + " CONSIDERED HARMLESS. CONTINUING.");
             } else if (m_isQnxGdb && name == "0" && meaning == "Signal 0") {
                 showMessage("SIGNAL 0 CONSIDERED BOGUS.");

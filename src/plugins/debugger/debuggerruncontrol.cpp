@@ -204,11 +204,6 @@ void DebuggerRunTool::setCrashParameter(const QString &event)
     m_runParameters.crashParameter = event;
 }
 
-void DebuggerRunTool::addExpectedSignal(const QString &signal)
-{
-    m_runParameters.expectedSignals.append(signal);
-}
-
 void DebuggerRunTool::addSearchDirectory(const Utils::FilePath &dir)
 {
     m_runParameters.additionalSearchDirectories.append(dir);
