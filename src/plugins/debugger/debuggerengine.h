@@ -150,8 +150,9 @@ public:
     void addSearchDirectory(const Utils::FilePath &dir) { m_additionalSearchDirectories.append(dir); }
     Utils::FilePaths additionalSearchDirectories() const { return m_additionalSearchDirectories; }
 
-    // Used by iOS.
-    QString platform;
+    void setLldbPlatform(const QString &platform) { m_lldbPlatform = platform; }
+    QString lldbPlatform() const { return m_lldbPlatform; }
+
     QString deviceSymbolsRoot;
     bool continueAfterAttach = false;
     Utils::FilePath sysRoot;
@@ -253,6 +254,8 @@ private:
     bool m_useTargetAsync = false;
 
     Utils::FilePaths m_additionalSearchDirectories;
+
+    QString m_lldbPlatform;
 };
 
 namespace Internal {

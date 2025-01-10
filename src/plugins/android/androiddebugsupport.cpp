@@ -86,13 +86,13 @@ public:
     explicit AndroidDebugSupport(RunControl *runControl) : Debugger::DebuggerRunTool(runControl)
     {
         setId("AndroidDebugger");
-        setLldbPlatform("remote-android");
+        DebuggerRunParameters &rp = runParameters();
+        rp.setLldbPlatform("remote-android");
         m_runner = new AndroidRunner(runControl);
         addStartDependency(m_runner);
 
         Target *target = runControl->target();
         Kit *kit = target->kit();
-        DebuggerRunParameters &rp = runParameters();
         rp.setStartMode(AttachToRemoteServer);
         const QString packageName = Internal::packageName(target);
         rp.setDisplayName(packageName);

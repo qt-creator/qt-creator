@@ -108,11 +108,6 @@ void DebuggerRunTool::setSysRoot(const Utils::FilePath &sysRoot)
     m_runParameters.sysRoot = sysRoot;
 }
 
-void DebuggerRunTool::setLldbPlatform(const QString &platform)
-{
-    m_runParameters.platform = platform;
-}
-
 void DebuggerRunTool::setContinueAfterAttach(bool on)
 {
     m_runParameters.continueAfterAttach = on;
@@ -131,11 +126,6 @@ void DebuggerRunTool::setUseTerminal(bool on)
 void DebuggerRunTool::setDebugInfoLocation(const FilePath &debugInfoLocation)
 {
     m_runParameters.debugInfoLocation = debugInfoLocation;
-}
-
-void DebuggerRunTool::setIosPlatform(const QString &platform)
-{
-    m_runParameters.platform = platform;
 }
 
 void DebuggerRunTool::setDeviceSymbolsRoot(const QString &deviceSymbolsRoot)

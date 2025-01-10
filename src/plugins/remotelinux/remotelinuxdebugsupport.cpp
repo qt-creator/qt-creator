@@ -58,9 +58,9 @@ public:
             rp.setUseExtendedRemote(true);
 
             if (rc->device()->osType() == Utils::OsTypeMac)
-                debugger->setLldbPlatform("remote-macosx");
+                rp.setLldbPlatform("remote-macosx");
             else
-                debugger->setLldbPlatform("remote-linux");
+                rp.setLldbPlatform("remote-linux");
             return debugger;
         });
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);

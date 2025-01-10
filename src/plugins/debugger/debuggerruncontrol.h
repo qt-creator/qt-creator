@@ -52,7 +52,6 @@ public:
 
     DebuggerRunParameters &runParameters() { return m_runParameters; }
 
-    void setLldbPlatform(const QString &platform);
     void addQmlServerInferiorCommandLineArgumentIfNeeded();
     void setupPortsGatherer();
 
@@ -63,7 +62,6 @@ public:
 
     void modifyDebuggerEnvironment(const Utils::EnvironmentItems &item);
 
-    void setIosPlatform(const QString &platform);
     void setDeviceSymbolsRoot(const QString &deviceSymbolsRoot);
     void setDeviceUuid(const QString &uuid);
 

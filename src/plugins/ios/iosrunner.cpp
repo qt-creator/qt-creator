@@ -930,7 +930,7 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
         } else {
             rp.setStartMode(AttachToRemoteProcess);
         }
-        setIosPlatform("remote-ios");
+        rp.setLldbPlatform("remote-ios");
         const expected_str<FilePath> deviceSdk = findDeviceSdk(dev);
 
         if (!deviceSdk)
@@ -939,7 +939,7 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
             setDeviceSymbolsRoot(deviceSdk->path());
     } else {
         rp.setStartMode(AttachToLocalProcess);
-        setIosPlatform("ios-simulator");
+        rp.setLldbPlatform("ios-simulator");
     }
 }
 

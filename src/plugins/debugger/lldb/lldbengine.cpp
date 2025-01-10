@@ -286,7 +286,7 @@ void LldbEngine::handleLldbStarted()
         "processargs",
         toHex(ProcessArgs::splitArgs(rp.inferior().command.arguments(), HostOsInfo::hostOs())
                   .join(QChar(0))));
-    cmd2.arg("platform", rp.platform);
+    cmd2.arg("platform", rp.lldbPlatform());
     cmd2.arg("symbolfile", rp.symbolFile().path());
 
     if (usesTerminal()) {
