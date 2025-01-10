@@ -330,7 +330,7 @@ void DebuggerRunParameters::setStartMode(DebuggerStartMode startMode)
 void DebuggerRunParameters::addSolibSearchDir(const QString &str)
 {
     QString path = str;
-    path.replace("%{sysroot}", sysRoot.toString());
+    path.replace("%{sysroot}", sysRoot.toUrlishString());
     m_solibSearchPath.append(FilePath::fromString(path));
 }
 
