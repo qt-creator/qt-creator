@@ -3132,8 +3132,8 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
                     for (auto pair : std::as_const(globalRegExpSourceMap)) {
                         const QRegularExpressionMatch match = pair.first.match(string);
                         if (match.hasMatch()) {
-                            rp.sourcePathMap.insert(string.left(match.capturedStart()) + match.captured(1),
-                                                    pair.second);
+                            rp.insertSourcePath(string.left(match.capturedStart()) + match.captured(1),
+                                                pair.second);
                             found = true;
                             break;
                         }

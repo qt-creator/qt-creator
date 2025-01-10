@@ -124,8 +124,10 @@ public:
     void setSymbolFile(const Utils::FilePath &symbolFile) { m_symbolFile = symbolFile; }
     Utils::FilePath symbolFile() const { return m_symbolFile; }
 
-    // Used by Mer plugin (3rd party)
-    QMap<QString, QString> sourcePathMap;
+    void insertSourcePath(const QString &key, const QString &value) {
+        m_sourcePathMap.insert(key, value);
+    }
+    QMap<QString, QString> sourcePathMap() const { return m_sourcePathMap; }
 
     // Used by baremetal plugin
     QString commandsForReset; // commands used for resetting the inferior
@@ -232,6 +234,8 @@ private:
     QString m_remoteChannel; // Used by general remote debugging.
     bool m_useExtendedRemote = false; // Whether to use GDB's target extended-remote or not.
     Utils::FilePath m_symbolFile;
+
+    QMap<QString, QString> m_sourcePathMap; // Used by Mer plugin (3rd party)
 };
 
 namespace Internal {

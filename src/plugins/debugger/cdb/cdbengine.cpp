@@ -2821,9 +2821,8 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
 
 void CdbEngine::mergeStartParametersSourcePathMap()
 {
-    const DebuggerRunParameters &rp = runParameters();
-    QMap<QString, QString>::const_iterator end = rp.sourcePathMap.end();
-    for (QMap<QString, QString>::const_iterator it = rp.sourcePathMap.begin(); it != end; ++it) {
+    const QMap<QString, QString> sourcePathMap = runParameters().sourcePathMap();
+    for (auto it = sourcePathMap.begin(); it != sourcePathMap.end(); ++it) {
         SourcePathMapping spm(QDir::toNativeSeparators(it.key()), QDir::toNativeSeparators(it.value()));
         if (!m_sourcePathMappings.contains(spm))
             m_sourcePathMappings.push_back(spm);
