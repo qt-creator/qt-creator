@@ -3827,12 +3827,11 @@ void GdbEngine::setupEngine()
     CHECK_STATE(EngineSetupRequested);
     showMessage("TRYING TO START ADAPTER");
 
-    if (isRemoteEngine())
-        m_gdbProc.setUseCtrlCStub(runParameters().useCtrlCStub); // This is only set for QNX
-
     const DebuggerRunParameters &rp = runParameters();
-    CommandLine gdbCommand = rp.debugger.command;
+    if (isRemoteEngine())
+        m_gdbProc.setUseCtrlCStub(rp.useCtrlCStub()); // This is only set for QNX
 
+    CommandLine gdbCommand = rp.debugger.command;
     if (usesOutputCollector()) {
         if (!m_outputCollector.listen()) {
             handleAdapterStartFailed(Tr::tr("Cannot set up communication with child process: %1")

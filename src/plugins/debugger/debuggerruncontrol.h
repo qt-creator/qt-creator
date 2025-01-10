@@ -66,7 +66,6 @@ public:
 
     void setUseTargetAsync(bool on);
     void setSkipExecutableValidation(bool on);
-    void setUseCtrlCStub(bool on);
 
     void setIosPlatform(const QString &platform);
     void setDeviceSymbolsRoot(const QString &deviceSymbolsRoot);

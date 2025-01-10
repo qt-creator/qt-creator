@@ -141,8 +141,8 @@ public:
     void addExpectedSignal(const QString &signal) { m_expectedSignals.append(signal); }
     QStringList expectedSignals() const { return m_expectedSignals; }
 
-    // For QNX debugging
-    bool useCtrlCStub = false;
+    void setUseCtrlCStub(bool on) { m_useCtrlCStub = on; }
+    bool useCtrlCStub() const { return m_useCtrlCStub; }
 
     // Used by Android to avoid false positives on warnOnRelease
     bool skipExecutableValidation = false;
@@ -246,6 +246,8 @@ private:
     QString m_commandsAfterConnect; // Additional commands to post after connection to debug target
 
     QStringList m_expectedSignals; // Used by Valgrind
+
+    bool m_useCtrlCStub = false; // For QNX debugging.
 };
 
 namespace Internal {

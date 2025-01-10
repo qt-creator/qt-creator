@@ -133,9 +133,10 @@ void showAttachToProcessDialog()
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->copyDataFromRunConfiguration(runConfig);
     auto debugger = new DebuggerRunTool(runControl);
+    DebuggerRunParameters &rp = debugger->runParameters();
     debugger->setId("QnxAttachDebugSupport");
     debugger->setupPortsGatherer();
-    debugger->setUseCtrlCStub(true);
+    rp.setUseCtrlCStub(true);
     if (debugger->isCppDebugging()) {
         auto pdebugRunner = new ProcessRunner(runControl);
         pdebugRunner->setId("PDebugRunner");
@@ -147,7 +148,6 @@ void showAttachToProcessDialog()
         debugger->addStartDependency(pdebugRunner);
     }
 
-    DebuggerRunParameters &rp = debugger->runParameters();
     rp.setStartMode(AttachToRemoteServer);
     rp.setCloseMode(DetachAtClose);
     rp.setSymbolFile(localExecutable);
@@ -206,7 +206,7 @@ public:
             DebuggerRunParameters &rp = debugger->runParameters();
             rp.setStartMode(AttachToRemoteServer);
             rp.setCloseMode(KillAtClose);
-            debugger->setUseCtrlCStub(true);
+            rp.setUseCtrlCStub(true);
             rp.setSolibSearchPath(FileUtils::toFilePathList(searchPaths(k)));
             if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(k))) {
                 debugger->setSysRoot(qtVersion->qnxTarget());
