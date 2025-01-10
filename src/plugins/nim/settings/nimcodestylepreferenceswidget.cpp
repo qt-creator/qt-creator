@@ -59,8 +59,6 @@ NimCodeStylePreferencesWidget::NimCodeStylePreferencesWidget(ICodeStylePreferenc
     updatePreview();
 }
 
-NimCodeStylePreferencesWidget::~NimCodeStylePreferencesWidget() = default;
-
 void NimCodeStylePreferencesWidget::decorateEditor(const FontSettings &fontSettings)
 {
     m_previewTextEdit->textDocument()->setFontSettings(fontSettings);

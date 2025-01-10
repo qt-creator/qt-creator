@@ -21,7 +21,7 @@ namespace CppEditor { class CppCodeStyleSettings; }
 
 namespace ClangFormat {
 
-QString projectUniqueId(ProjectExplorer::Project *project);
+QString projectUniqueId(const ProjectExplorer::Project *project);
 
 bool getProjectUseGlobalSettings(const ProjectExplorer::Project *project);
 

@@ -254,7 +254,7 @@ void fromTabSettings(clang::format::FormatStyle &style, const TextEditor::TabSet
     }
 }
 
-QString projectUniqueId(ProjectExplorer::Project *project)
+QString projectUniqueId(const ProjectExplorer::Project *project)
 {
     if (!project)
         return QString();

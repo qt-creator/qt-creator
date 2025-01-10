@@ -74,7 +74,7 @@ add_qtc_plugin(TextEditor
     highlightersettings.cpp highlightersettings.h
     highlightersettingspage.cpp highlightersettingspage.h
     icodestylepreferences.cpp icodestylepreferences.h
-    icodestylepreferencesfactory.cpp icodestylepreferencesfactory.h
+    icodestylepreferencesfactory.h
     indenter.h
     ioutlinewidget.h
     jsoneditor.cpp jsoneditor.h

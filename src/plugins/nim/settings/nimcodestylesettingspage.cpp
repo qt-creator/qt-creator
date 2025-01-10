@@ -101,8 +101,8 @@ public:
         m_nimCodeStylePreferences->setId(originalTabPreferences->id());
 
         auto factory = TextEditorSettings::codeStyleFactory(Nim::Constants::C_NIMLANGUAGE_ID);
-
-        auto editor = new CodeStyleEditor(factory, m_nimCodeStylePreferences);
+        CodeStyleEditorWidget *editor
+            = factory->createCodeStyleEditor(nullptr, m_nimCodeStylePreferences);
 
         auto layout = new QVBoxLayout(this);
         layout->addWidget(editor);

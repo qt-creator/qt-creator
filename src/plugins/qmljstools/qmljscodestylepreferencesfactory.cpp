@@ -5,33 +5,103 @@
 
 #include "qmljscodestylesettings.h"
 #include "qmljscodestylesettingspage.h"
+#include "qmljseditor/qmljseditorconstants.h"
 #include "qmljsindenter.h"
 #include "qmljstoolsconstants.h"
 #include "qmljstoolstr.h"
 
-#include <qmljseditor/qmljseditorconstants.h>
+#include <texteditor/codestyleeditor.h>
+#include <texteditor/indenter.h>
+#include <utils/id.h>
 
-using namespace QmlJSTools;
+#include <QString>
+#include <QTextDocument>
+#include <QWidget>
 
-static const char *defaultPreviewText =
-    "import QtQuick 1.0\n"
-    "\n"
-    "Rectangle {\n"
-    "    width: 360\n"
-    "    height: 360\n"
-    "    Text {\n"
-    "        anchors.centerIn: parent\n"
-    "        text: \"Hello World\"\n"
-    "    }\n"
-    "    MouseArea {\n"
-    "        anchors.fill: parent\n"
-    "        onClicked: {\n"
-    "            Qt.quit();\n"
-    "        }\n"
-    "    }\n"
-    "}\n";
+namespace QmlJSTools {
 
-QmlJSCodeStylePreferencesFactory::QmlJSCodeStylePreferencesFactory() = default;
+class QmlJsCodeStyleEditor final : public TextEditor::CodeStyleEditor
+{
+public:
+    static QmlJsCodeStyleEditor *create(
+        const TextEditor::ICodeStylePreferencesFactory *factory,
+        ProjectExplorer::Project *project,
+        TextEditor::ICodeStylePreferences *codeStyle,
+        QWidget *parent = nullptr);
+
+private:
+    QmlJsCodeStyleEditor(QWidget *parent = nullptr);
+
+    CodeStyleEditorWidget *createEditorWidget(
+        const ProjectExplorer::Project * /*project*/,
+        TextEditor::ICodeStylePreferences *codeStyle,
+        QWidget *parent = nullptr) const override;
+    QString previewText() const override;
+    QString snippetProviderGroupId() const override;
+};
+
+QmlJsCodeStyleEditor *QmlJsCodeStyleEditor::create(
+    const TextEditor::ICodeStylePreferencesFactory *factory,
+    ProjectExplorer::Project *project,
+    TextEditor::ICodeStylePreferences *codeStyle,
+    QWidget *parent)
+{
+    auto editor = new QmlJsCodeStyleEditor{parent};
+    editor->init(factory, project, codeStyle);
+    return editor;
+}
+
+QmlJsCodeStyleEditor::QmlJsCodeStyleEditor(QWidget *parent)
+    : CodeStyleEditor{parent}
+{}
+
+TextEditor::CodeStyleEditorWidget *QmlJsCodeStyleEditor::createEditorWidget(
+    const ProjectExplorer::Project * /*project*/,
+    TextEditor::ICodeStylePreferences *codeStyle,
+    QWidget *parent) const
+{
+    auto qmlJSPreferences = dynamic_cast<QmlJSCodeStylePreferences *>(codeStyle);
+    if (qmlJSPreferences == nullptr)
+        return nullptr;
+    auto widget = new Internal::QmlJSCodeStylePreferencesWidget(previewText(), parent);
+    widget->setPreferences(qmlJSPreferences);
+    return widget;
+}
+
+QString QmlJsCodeStyleEditor::previewText() const
+{
+    static const QString defaultPreviewText = R"(import QtQuick 1.0
+
+Rectangle {
+    width: 360
+    height: 360
+    Text {
+        anchors.centerIn: parent
+        text: "Hello World"
+    }
+    MouseArea {
+        anchors.fill: parent
+        onClicked: {
+            Qt.quit();
+        }
+    }
+})";
+
+    return defaultPreviewText;
+}
+
+QString QmlJsCodeStyleEditor::snippetProviderGroupId() const
+{
+    return QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID;
+}
+
+TextEditor::CodeStyleEditorWidget *QmlJSCodeStylePreferencesFactory::createCodeStyleEditor(
+    ProjectExplorer::Project *project,
+    TextEditor::ICodeStylePreferences *codeStyle,
+    QWidget *parent) const
+{
+    return QmlJsCodeStyleEditor::create(this, project, codeStyle, parent);
+}
 
 Utils::Id QmlJSCodeStylePreferencesFactory::languageId()
 {
@@ -48,32 +118,9 @@ TextEditor::ICodeStylePreferences *QmlJSCodeStylePreferencesFactory::createCodeS
     return new QmlJSCodeStylePreferences;
 }
 
-TextEditor::CodeStyleEditorWidget *QmlJSCodeStylePreferencesFactory::createEditor(
-    TextEditor::ICodeStylePreferences *preferences,
-    ProjectExplorer::Project *project,
-    QWidget *parent) const
-{
-    Q_UNUSED(project)
-    auto qmlJSPreferences = dynamic_cast<QmlJSCodeStylePreferences *>(preferences);
-    if (!qmlJSPreferences)
-        return nullptr;
-    auto widget = new Internal::QmlJSCodeStylePreferencesWidget(this, parent);
-    widget->setPreferences(qmlJSPreferences);
-    return widget;
-}
-
 TextEditor::Indenter *QmlJSCodeStylePreferencesFactory::createIndenter(QTextDocument *doc) const
 {
     return QmlJSEditor::createQmlJsIndenter(doc);
 }
 
-QString QmlJSCodeStylePreferencesFactory::snippetProviderGroupId() const
-{
-    return QString(QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID);
-}
-
-QString QmlJSCodeStylePreferencesFactory::previewText() const
-{
-    return QLatin1String(defaultPreviewText);
-}
-
+} // namespace QmlJSTools

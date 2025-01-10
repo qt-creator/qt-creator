@@ -3,9 +3,19 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include "clangformatfile.h"
+#include "clangformatindenter.h"
+
+#include <coreplugin/editormanager/ieditor.h>
+#include <texteditor/codestyleeditor.h>
+#include <utils/filepath.h>
+#include <utils/guard.h>
+
+#include <memory>
 
 QT_BEGIN_NAMESPACE
+class QLabel;
+class QScrollArea;
 class QWidget;
 QT_END_NAMESPACE
 
@@ -14,13 +24,52 @@ class ICodeStylePreferences;
 class CodeStyleEditorWidget;
 } // namespace TextEditor
 
+namespace Utils {
+class InfoLabel;
+}
+
 namespace ProjectExplorer { class Project; }
 
 namespace ClangFormat {
+class ClangFormatConfigWidget final : public TextEditor::CodeStyleEditorWidget
+{
+public:
+    ClangFormatConfigWidget(
+        const ProjectExplorer::Project *project,
+        TextEditor::ICodeStylePreferences *codeStyle,
+        QWidget *parent);
+    ~ClangFormatConfigWidget() override;
 
-TextEditor::CodeStyleEditorWidget *createClangFormatConfigWidget(
-    TextEditor::ICodeStylePreferences *codeStyle,
-    ProjectExplorer::Project *project,
-    QWidget *parent);
+    void apply() override;
 
+    void onUseCustomSettingsChanged(bool doUse);
+
+private:
+    bool eventFilter(QObject *object, QEvent *event) override;
+
+    Utils::FilePath globalPath();
+    Utils::FilePath projectPath();
+    void createStyleFileIfNeeded(bool isGlobal);
+    void initPreview(TextEditor::ICodeStylePreferences *codeStyle);
+    void initEditor();
+    void reopenClangFormatDocument();
+    void updatePreview();
+    void slotCodeStyleChanged(TextEditor::ICodeStylePreferences *currentPreferences);
+    void updateReadOnlyState();
+
+    const ProjectExplorer::Project *m_project = nullptr;
+    QWidget *m_editorWidget = nullptr;
+    QScrollArea *m_editorScrollArea = nullptr;
+    TextEditor::SnippetEditorWidget *m_preview = nullptr;
+    std::unique_ptr<Core::IEditor> m_editor;
+
+    std::unique_ptr<ClangFormatFile> m_config;
+
+    Utils::Guard m_ignoreChanges;
+    QLabel *m_clangVersion;
+    Utils::InfoLabel *m_clangFileIsCorrectText;
+    ClangFormatIndenter *m_indenter;
+
+    bool m_useCustomSettings = false;
+};
 } // ClangFormat

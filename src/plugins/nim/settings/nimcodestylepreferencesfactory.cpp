@@ -2,24 +2,84 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "nimcodestylepreferencesfactory.h"
+
+#include "nim/editor/nimindenter.h"
+#include "nim/nimconstants.h"
+#include "nim/nimtr.h"
 #include "nimcodestylepreferenceswidget.h"
 
-#include "../editor/nimindenter.h"
-#include "../nimconstants.h"
-#include "../nimtr.h"
-
+#include <texteditor/codestyleeditor.h>
+#include <texteditor/indenter.h>
+#include <texteditor/simplecodestylepreferences.h>
 #include <utils/id.h>
 
-#include <texteditor/simplecodestylepreferences.h>
-
+#include <QString>
+#include <QTextDocument>
 #include <QWidget>
 
 using namespace TextEditor;
 
 namespace Nim {
 
-NimCodeStylePreferencesFactory::NimCodeStylePreferencesFactory()
+class NimCodeStyleEditor final : public TextEditor::CodeStyleEditor
 {
+public:
+    static NimCodeStyleEditor *create(
+        const TextEditor::ICodeStylePreferencesFactory *factory,
+        ProjectExplorer::Project *project,
+        TextEditor::ICodeStylePreferences *codeStyle,
+        QWidget *parent = nullptr);
+
+private:
+    NimCodeStyleEditor(QWidget *parent = nullptr);
+
+    CodeStyleEditorWidget *createEditorWidget(
+        const ProjectExplorer::Project * /*project*/,
+        TextEditor::ICodeStylePreferences *codeStyle,
+        QWidget *parent = nullptr) const override;
+    QString previewText() const override;
+    QString snippetProviderGroupId() const override;
+};
+
+NimCodeStyleEditor *NimCodeStyleEditor::create(
+    const ICodeStylePreferencesFactory *factory,
+    ProjectExplorer::Project *project,
+    ICodeStylePreferences *codeStyle,
+    QWidget *parent)
+{
+    auto editor = new NimCodeStyleEditor{parent};
+    editor->init(factory, project, codeStyle);
+    return editor;
+}
+
+NimCodeStyleEditor::NimCodeStyleEditor(QWidget *parent)
+    : CodeStyleEditor{parent}
+{}
+
+CodeStyleEditorWidget *NimCodeStyleEditor::createEditorWidget(
+    const ProjectExplorer::Project * /*project*/,
+    ICodeStylePreferences *codeStyle,
+    QWidget *parent) const
+{
+    return new NimCodeStylePreferencesWidget(codeStyle, parent);
+}
+
+QString NimCodeStyleEditor::previewText() const
+{
+    return Constants::C_NIMCODESTYLEPREVIEWSNIPPET;
+}
+
+QString NimCodeStyleEditor::snippetProviderGroupId() const
+{
+    return Constants::C_NIMSNIPPETSGROUP_ID;
+}
+
+TextEditor::CodeStyleEditorWidget *NimCodeStylePreferencesFactory::createCodeStyleEditor(
+    ProjectExplorer::Project *project,
+    TextEditor::ICodeStylePreferences *codeStyle,
+    QWidget *parent) const
+{
+    return NimCodeStyleEditor::create(this, project, codeStyle, parent);
 }
 
 Utils::Id NimCodeStylePreferencesFactory::languageId()
@@ -37,29 +97,9 @@ ICodeStylePreferences *NimCodeStylePreferencesFactory::createCodeStyle() const
     return new SimpleCodeStylePreferences();
 }
 
-CodeStyleEditorWidget *NimCodeStylePreferencesFactory::createEditor(
-    ICodeStylePreferences *preferences,
-    ProjectExplorer::Project *project,
-    QWidget *parent) const
-{
-    Q_UNUSED(project)
-    auto result = new NimCodeStylePreferencesWidget(preferences, parent);
-    return result;
-}
-
 Indenter *NimCodeStylePreferencesFactory::createIndenter(QTextDocument *doc) const
 {
     return createNimIndenter(doc);
-}
-
-QString NimCodeStylePreferencesFactory::snippetProviderGroupId() const
-{
-    return Nim::Constants::C_NIMSNIPPETSGROUP_ID;
-}
-
-QString NimCodeStylePreferencesFactory::previewText() const
-{
-    return QLatin1String(Nim::Constants::C_NIMCODESTYLEPREVIEWSNIPPET);
 }
 
 } // Nim

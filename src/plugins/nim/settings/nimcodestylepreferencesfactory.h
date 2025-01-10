@@ -3,24 +3,35 @@
 
 #pragma once
 
+#include <texteditor/codestyleeditor.h>
 #include <texteditor/icodestylepreferencesfactory.h>
+#include <utils/id.h>
+
+#include <QString>
+
+class QTextDocument;
+class QWidget;
+
+namespace TextEditor {
+class CodeStyleEditorWidget;
+class Indenter;
+} // namespace TextEditor
 
 namespace Nim {
 
-class NimCodeStylePreferencesFactory : public TextEditor::ICodeStylePreferencesFactory
+class NimCodeStylePreferencesFactory final : public TextEditor::ICodeStylePreferencesFactory
 {
 public:
-    NimCodeStylePreferencesFactory();
+    TextEditor::CodeStyleEditorWidget *createCodeStyleEditor(
+        ProjectExplorer::Project *project,
+        TextEditor::ICodeStylePreferences *codeStyle,
+        QWidget *parent = nullptr) const override;
 
+private:
     Utils::Id languageId() override;
     QString displayName() override;
     TextEditor::ICodeStylePreferences *createCodeStyle() const override;
-    TextEditor::CodeStyleEditorWidget *createEditor(TextEditor::ICodeStylePreferences *settings,
-                                                    ProjectExplorer::Project *project,
-                                                    QWidget *parent) const override;
     TextEditor::Indenter *createIndenter(QTextDocument *doc) const override;
-    QString snippetProviderGroupId() const override;
-    QString previewText() const override;
 };
 
 } // namespace Nim

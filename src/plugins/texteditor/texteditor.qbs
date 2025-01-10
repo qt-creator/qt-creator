@@ -96,7 +96,6 @@ Project {
             "highlightersettingspage.h",
             "icodestylepreferences.cpp",
             "icodestylepreferences.h",
-            "icodestylepreferencesfactory.cpp",
             "icodestylepreferencesfactory.h",
             "indenter.h",
             "ioutlinewidget.h",

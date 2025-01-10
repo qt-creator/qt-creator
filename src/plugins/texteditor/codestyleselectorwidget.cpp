@@ -26,12 +26,8 @@ using namespace Utils;
 
 namespace TextEditor {
 
-CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *factory,
-                                                 ProjectExplorer::Project *project,
-                                                 QWidget *parent)
+CodeStyleSelectorWidget::CodeStyleSelectorWidget(QWidget *parent)
     : QWidget(parent)
-    , m_factory(factory)
-    , m_project(project)
 {
     m_delegateComboBox = new QComboBox(this);
     m_delegateComboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -218,7 +214,7 @@ void CodeStyleSelectorWidget::slotExportClicked()
     ICodeStylePreferences *currentPreferences = m_codeStyle->currentPreferences();
     const FilePath filePath = FileUtils::getSaveFilePath(
         Tr::tr("Export Code Style"),
-        FileUtils::homePath().pathAppended(QString::fromUtf8(currentPreferences->id() + ".xml")),
+        FileUtils::homePath().pathAppended(currentPreferences->displayName() + ".xml"),
         Tr::tr("Code styles (*.xml);;All files (*)"));
     if (!filePath.isEmpty()) {
         CodeStylePool *codeStylePool = m_codeStyle->delegatingPool();

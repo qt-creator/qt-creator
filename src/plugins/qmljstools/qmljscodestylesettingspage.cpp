@@ -12,16 +12,17 @@
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
-#include <qmljseditor/qmljseditorconstants.h>
 #include <texteditor/codestyleeditor.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
+#include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/simplecodestylepreferenceswidget.h>
 #include <texteditor/snippets/snippeteditor.h>
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
 #include <utils/layoutbuilder.h>
+#include <qmljseditor/qmljseditorconstants.h>
 
 #include <QTextStream>
 #include <QVBoxLayout>
@@ -33,13 +34,13 @@ namespace QmlJSTools::Internal {
 // QmlJSCodeStylePreferencesWidget
 
 QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(
-        const TextEditor::ICodeStylePreferencesFactory *factory, QWidget *parent)
+    const QString &previewText, QWidget *parent)
     : TextEditor::CodeStyleEditorWidget(parent)
 {
     m_tabPreferencesWidget = new SimpleCodeStylePreferencesWidget;
     m_codeStylePreferencesWidget = new QmlJSTools::QmlJSCodeStylePreferencesWidget;
     m_previewTextEdit = new SnippetEditorWidget;
-    m_previewTextEdit->setPlainText(factory->previewText());
+    m_previewTextEdit->setPlainText(previewText);
     QSizePolicy sp(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     sp.setHorizontalStretch(1);
     m_previewTextEdit->setSizePolicy(sp);
@@ -137,9 +138,9 @@ public:
         m_preferences.setId(originalPreferences->id());
 
         auto vbox = new QVBoxLayout(this);
-        vbox->addWidget(new CodeStyleEditor(
-            TextEditorSettings::codeStyleFactory(QmlJSTools::Constants::QML_JS_SETTINGS_ID),
-            &m_preferences));
+        vbox->addWidget(
+            TextEditorSettings::codeStyleFactory(QmlJSTools::Constants::QML_JS_SETTINGS_ID)
+                ->createCodeStyleEditor(nullptr, &m_preferences));
     }
 
     void apply() final

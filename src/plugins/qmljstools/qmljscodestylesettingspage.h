@@ -6,7 +6,12 @@
 #include "qmljscodestylesettings.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <texteditor/icodestylepreferencesfactory.h>
+#include <texteditor/codestyleeditor.h>
+
+QT_BEGIN_NAMESPACE
+class QString;
+class QWidget;
+QT_END_NAMESPACE
 
 namespace TextEditor {
     class FontSettings;
@@ -25,8 +30,7 @@ class QmlJSCodeStylePreferencesWidget : public TextEditor::CodeStyleEditorWidget
     Q_OBJECT
 
 public:
-    explicit QmlJSCodeStylePreferencesWidget(const TextEditor::ICodeStylePreferencesFactory *factory,
-                                             QWidget *parent = nullptr);
+    explicit QmlJSCodeStylePreferencesWidget(const QString &previewText, QWidget *parent = nullptr);
 
     void setPreferences(QmlJSCodeStylePreferences* preferences);
 
