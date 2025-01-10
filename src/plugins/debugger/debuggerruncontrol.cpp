@@ -110,8 +110,6 @@ void DebuggerRunTool::setSysRoot(const Utils::FilePath &sysRoot)
 
 void DebuggerRunTool::setSymbolFile(const FilePath &symbolFile)
 {
-    if (symbolFile.isEmpty())
-        reportFailure(Tr::tr("Cannot debug: Local executable is not set."));
     m_runParameters.symbolFile = symbolFile;
 }
 

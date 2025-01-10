@@ -127,6 +127,7 @@ void showAttachToProcessDialog()
     if (localExecutable.isEmpty()) {
         if (auto aspect = runConfig->aspect<SymbolFileAspect>())
             localExecutable = aspect->expandedValue();
+        QTC_ASSERT(!localExecutable.isEmpty(), return);
     }
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
