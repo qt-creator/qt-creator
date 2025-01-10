@@ -157,7 +157,7 @@ private:
         rp.setCloseMode(Debugger::KillAndExitMonitorAtClose);
 
         if (isQmlDebugging())
-            setQmlServer(runControl()->qmlChannel());
+            rp.setQmlServer(runControl()->qmlChannel());
 
         if (isCppDebugging()) {
             setUseExtendedRemote(false);

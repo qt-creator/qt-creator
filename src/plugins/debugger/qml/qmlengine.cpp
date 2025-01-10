@@ -347,8 +347,11 @@ void QmlEngine::beginConnection()
 
     QTC_ASSERT(state() == EngineRunRequested, return);
 
+    QmlDebugConnection *connection = d->connection();
+    if (!connection || connection->isConnected())
+        return;
 
-    QString host = runParameters().qmlServer.host();
+    QString host = runParameters().qmlServer().host();
     // Use localhost as default
     if (host.isEmpty())
         host = QHostAddress(QHostAddress::LocalHost).toString();
@@ -365,12 +368,7 @@ void QmlEngine::beginConnection()
      * the connection will be closed again (instead of returning the "connection refused"
      * error that we expect).
      */
-    int port = runParameters().qmlServer.port();
-
-    QmlDebugConnection *connection = d->connection();
-    if (!connection || connection->isConnected())
-        return;
-
+    const int port = runParameters().qmlServer().port();
     connection->connectToHost(host, port);
 
     //A timeout to check the connection state

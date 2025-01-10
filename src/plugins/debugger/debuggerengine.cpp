@@ -229,9 +229,9 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
     if (isQmlDebugging) {
         const auto device = runControl->device();
         if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-            if (qmlServer.port() <= 0) {
-                qmlServer = Utils::urlFromLocalHostAndFreePort();
-                if (qmlServer.port() <= 0)
+            if (m_qmlServer.port() <= 0) {
+                m_qmlServer = Utils::urlFromLocalHostAndFreePort();
+                if (m_qmlServer.port() <= 0)
                     return Result::Error(Tr::tr("Not enough free ports for QML debugging."));
             }
             // Makes sure that all bindings go through the JavaScript engine, so that
@@ -267,7 +267,7 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
         if (m_startMode != AttachToLocalProcess && m_startMode != AttachToCrashedProcess) {
             const QString qmlarg = isCppDebugging() && nativeMixedEnabled
                                  ? qmlDebugNativeArguments(service, false)
-                                 : qmlDebugTcpArguments(service, qmlServer);
+                                 : qmlDebugTcpArguments(service, m_qmlServer);
             m_inferior.command.addArg(qmlarg);
         }
     }
@@ -2925,8 +2925,8 @@ QString DebuggerEngine::formatStartParameters() const
     }
     if (!sp.remoteChannel.isEmpty())
         str << "Remote: " << sp.remoteChannel << '\n';
-    if (!sp.qmlServer.host().isEmpty())
-        str << "QML server: " << sp.qmlServer.host() << ':' << sp.qmlServer.port() << '\n';
+    if (!sp.qmlServer().host().isEmpty())
+        str << "QML server: " << sp.qmlServer().host() << ':' << sp.qmlServer().port() << '\n';
     str << "Sysroot: " << sp.sysRoot << '\n';
     str << "Debug Source Location: " << sp.debugSourceLocation.join(':') << '\n';
     return rc;

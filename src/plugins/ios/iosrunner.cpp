@@ -1011,7 +1011,7 @@ void IosDebugSupport::start()
     if (qmlServerPort.isValid())
         qmlServer.setPort(qmlServerPort.number());
 
-    setQmlServer(qmlServer);
+    rp.setQmlServer(qmlServer);
 
     DebuggerRunTool::start();
 }

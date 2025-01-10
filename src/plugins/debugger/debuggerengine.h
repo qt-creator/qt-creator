@@ -106,8 +106,8 @@ public:
     void addSolibSearchDir(const QString &str);
     Utils::FilePaths solibSearchPath() const { return m_solibSearchPath; }
 
-    // Used by Qml debugging.
-    QUrl qmlServer;
+    void setQmlServer(const QUrl &qmlServer) { m_qmlServer = qmlServer; }
+    QUrl qmlServer() const { return m_qmlServer; }
 
     // Used by general remote debugging.
     QString remoteChannel;
@@ -216,6 +216,8 @@ private:
     Utils::ProcessHandle m_attachPid;
 
     Utils::FilePaths m_solibSearchPath;
+
+    QUrl m_qmlServer; // Used by Qml debugging.
 };
 
 namespace Internal {

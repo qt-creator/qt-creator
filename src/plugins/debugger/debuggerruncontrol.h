@@ -53,8 +53,6 @@ public:
 
     void setDebugInfoLocation(const Utils::FilePath &debugInfoLocation);
 
-    void setQmlServer(const QUrl &qmlServer);
-
     void setCoreFilePath(const Utils::FilePath &core, bool isSnapshot = false);
 
     void setTestCase(int testCase);

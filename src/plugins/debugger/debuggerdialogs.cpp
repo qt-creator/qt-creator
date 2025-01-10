@@ -571,14 +571,15 @@ void runAttachToQmlPortDialog()
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->setKit(kit);
     auto debugger = new DebuggerRunTool(runControl);
+    DebuggerRunParameters &rp = debugger->runParameters();
 
     QUrl qmlServer = device->toolControlChannel(IDevice::QmlControlChannel);
     qmlServer.setPort(dlg.port());
-    debugger->setQmlServer(qmlServer);
+    rp.setQmlServer(qmlServer);
 
-    SshParameters sshParameters = device->sshParameters();
+    const SshParameters sshParameters = device->sshParameters();
     debugger->setRemoteChannel(sshParameters.host(), sshParameters.port());
-    debugger->runParameters().setStartMode(AttachToQmlServer);
+    rp.setStartMode(AttachToQmlServer);
 
     runControl->start();
 }

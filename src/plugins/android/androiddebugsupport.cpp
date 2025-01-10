@@ -169,7 +169,8 @@ private:
 
 void AndroidDebugSupport::start()
 {
-    runParameters().setAttachPid(m_runner->pid());
+    DebuggerRunParameters &rp = runParameters();
+    rp.setAttachPid(m_runner->pid());
     if (isCppDebugging()) {
         if (cppEngineType() == LldbEngineType) {
             QString deviceSerialNumber = Internal::deviceSerialNumber(runControl()->target());
@@ -189,7 +190,7 @@ void AndroidDebugSupport::start()
         }
     }
     if (isQmlDebugging())
-        setQmlServer(runControl()->qmlChannel());
+        rp.setQmlServer(runControl()->qmlChannel());
     DebuggerRunTool::start();
 }
 

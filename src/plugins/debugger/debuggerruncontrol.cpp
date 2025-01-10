@@ -195,11 +195,6 @@ void DebuggerRunTool::setDebugInfoLocation(const FilePath &debugInfoLocation)
     m_runParameters.debugInfoLocation = debugInfoLocation;
 }
 
-void DebuggerRunTool::setQmlServer(const QUrl &qmlServer)
-{
-    m_runParameters.qmlServer = qmlServer;
-}
-
 void DebuggerRunTool::setIosPlatform(const QString &platform)
 {
     m_runParameters.platform = platform;
@@ -381,12 +376,12 @@ void DebuggerRunTool::continueAfterTerminalStart()
         setRemoteChannel(runControl()->debugChannel());
 
     if (runControl()->usesQmlChannel()) {
-        setQmlServer(runControl()->qmlChannel());
+        m_runParameters.setQmlServer(runControl()->qmlChannel());
         if (d->addQmlServerInferiorCommandLineArgumentIfNeeded
                 && m_runParameters.isQmlDebugging
                 && m_runParameters.isCppDebugging()) {
 
-            int qmlServerPort = m_runParameters.qmlServer.port();
+            int qmlServerPort = m_runParameters.qmlServer().port();
             QTC_ASSERT(qmlServerPort > 0, reportFailure(); return);
             QString mode = QString("port:%1").arg(qmlServerPort);
 
