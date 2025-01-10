@@ -108,11 +108,6 @@ void DebuggerRunTool::setSysRoot(const Utils::FilePath &sysRoot)
     m_runParameters.sysRoot = sysRoot;
 }
 
-void DebuggerRunTool::setContinueAfterAttach(bool on)
-{
-    m_runParameters.continueAfterAttach = on;
-}
-
 void DebuggerRunTool::setBreakOnMain(bool on)
 {
     m_runParameters.breakOnMain = on;

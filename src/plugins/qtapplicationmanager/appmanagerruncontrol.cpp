@@ -162,7 +162,7 @@ private:
         if (isCppDebugging()) {
             rp.setUseExtendedRemote(false);
             rp.setUseContinueInsteadOfRun(true);
-            setContinueAfterAttach(true);
+            rp.setContinueAfterAttach(true);
             rp.setRemoteChannel(runControl()->debugChannel());
             rp.setSymbolFile(symbolFile);
 

@@ -4674,7 +4674,7 @@ void GdbEngine::handleLocalAttach(const DebuggerResponse &response)
             // receiving its '^done'.
             claimInitialBreakpoints();
             notifyEngineRunAndInferiorStopOk();
-            if (runParameters().continueAfterAttach)
+            if (runParameters().continueAfterAttach())
                 continueInferiorInternal();
             else
                 updateAll();

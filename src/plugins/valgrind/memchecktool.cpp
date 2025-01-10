@@ -1607,7 +1607,7 @@ void HeobData::processFinished()
             rp.setDisplayName(Tr::tr("Process %1").arg(m_data[1]));
             rp.setStartMode(AttachToLocalProcess);
             rp.setCloseMode(DetachAtClose);
-            debugger->setContinueAfterAttach(true);
+            rp.setContinueAfterAttach(true);
             rp.setInferiorExecutable(FilePath::fromString(Utils::imageName(m_data[1])));
 
             connect(m_runControl, &RunControl::started, this, &HeobData::debugStarted);

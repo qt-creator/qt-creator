@@ -314,7 +314,7 @@ void LldbEngine::handleLldbStarted()
                                         || rp.startMode() == AttachToRemoteServer)
                                            ? rp.remoteChannel() : QString()));
             QTC_CHECK(
-                !rp.continueAfterAttach
+                !rp.continueAfterAttach()
                 || (rp.startMode() == AttachToRemoteProcess || rp.startMode() == AttachToLocalProcess
                     || rp.startMode() == AttachToRemoteServer || rp.startMode() == AttachToIosDevice));
             m_continueAtNextSpontaneousStop = false;
@@ -924,7 +924,7 @@ void LldbEngine::handleStateNotification(const GdbMi &item)
     } else if (newState == "enginerunfailed")
         notifyEngineRunFailed();
     else if (newState == "enginerunandinferiorrunok") {
-        if (runParameters().continueAfterAttach)
+        if (runParameters().continueAfterAttach())
             m_continueAtNextSpontaneousStop = true;
         notifyEngineRunAndInferiorRunOk();
     } else if (newState == "enginerunandinferiorstopok") {

@@ -1678,7 +1678,7 @@ void DebuggerPluginPrivate::attachToRunningApplication()
         rp.setStartMode(AttachToRemoteProcess);
         rp.setCloseMode(DetachAtClose);
         rp.setUseContinueInsteadOfRun(true);
-        debugger->setContinueAfterAttach(false);
+        rp.setContinueAfterAttach(false);
 
         runControl->start();
     }
@@ -1747,7 +1747,7 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     rp.setInferiorExecutable(device->filePath(processInfo.executable));
     rp.setStartMode(AttachToLocalProcess);
     rp.setCloseMode(DetachAtClose);
-    debugger->setContinueAfterAttach(contAfterAttach);
+    rp.setContinueAfterAttach(contAfterAttach);
 
     runControl->start();
 

@@ -158,7 +158,9 @@ public:
     }
     QString deviceSymbolsRoot() const { return m_deviceSymbolsRoot; }
 
-    bool continueAfterAttach = false;
+    void setContinueAfterAttach(bool on) { m_continueAfterAttach = on; }
+    bool continueAfterAttach() const { return m_continueAfterAttach; }
+
     Utils::FilePath sysRoot;
     // iOS 17+
     QString deviceUuid;
@@ -262,6 +264,7 @@ private:
     QString m_lldbPlatform;
 
     QString m_deviceSymbolsRoot;
+    bool m_continueAfterAttach = false;
 };
 
 namespace Internal {

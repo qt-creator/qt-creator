@@ -35,7 +35,6 @@ public:
 
     void setSysRoot(const Utils::FilePath &sysRoot);
 
-    void setContinueAfterAttach(bool on);
     void setBreakOnMain(bool on);
     void setUseTerminal(bool on);
     void setUseDebugServer(Utils::ProcessHandle attachPid, bool essential, bool useMulti);

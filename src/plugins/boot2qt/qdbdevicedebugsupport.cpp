@@ -122,7 +122,7 @@ public:
             rp.setStartMode(Debugger::AttachToRemoteServer);
             rp.setCloseMode(KillAndExitMonitorAtClose);
             rp.setUseContinueInsteadOfRun(true);
-            worker->setContinueAfterAttach(true);
+            rp.setContinueAfterAttach(true);
             rp.addSolibSearchDir("%{sysroot}/system/lib");
 
             auto debuggee = createQdbDeviceInferiorWorker(runControl, QmlDebuggerServices);
