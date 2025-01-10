@@ -129,7 +129,6 @@ private:
 } // namespace Internal
 
 JsonWizard::JsonWizard()
-    : Wizard(Core::ICore::dialogParent())
 {
     setMinimumSize(800, 500);
     m_expander.registerExtraResolver([this](const QString &name, QString *ret) -> bool {

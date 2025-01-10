@@ -13,9 +13,8 @@ namespace BareMetal::Internal {
 
 enum PageId { SetupPageId };
 
-BareMetalDeviceConfigurationWizard::BareMetalDeviceConfigurationWizard(QWidget *parent) :
-   Utils::Wizard(parent),
-   m_setupPage(new BareMetalDeviceConfigurationWizardSetupPage(this))
+BareMetalDeviceConfigurationWizard::BareMetalDeviceConfigurationWizard()
+    : m_setupPage(new BareMetalDeviceConfigurationWizardSetupPage(this))
 {
     setWindowTitle(Tr::tr("New Bare Metal Device Configuration Setup"));
     setPage(SetupPageId, m_setupPage);

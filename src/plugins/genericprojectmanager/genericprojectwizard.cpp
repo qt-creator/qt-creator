@@ -7,7 +7,6 @@
 #include "genericprojectmanagertr.h"
 
 #include <coreplugin/basefilewizard.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/iwizardfactory.h>
 
 #include <projectexplorer/customwizard/customwizard.h>
@@ -99,7 +98,7 @@ class GenericProjectWizard final : public BaseFileWizard
 
 public:
     GenericProjectWizard(const BaseFileWizardFactory *factory)
-        : BaseFileWizard(factory, QVariantMap(), Core::ICore::dialogParent())
+        : BaseFileWizard(factory, QVariantMap())
     {
         setWindowTitle(Tr::tr("Import Existing Project"));
 

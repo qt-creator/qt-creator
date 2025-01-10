@@ -15,7 +15,6 @@
 #include "qmakestep.h"
 #include "wizards/subdirsprojectwizard.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -348,7 +347,7 @@ void QmakeProjectManagerPluginPrivate::addLibraryImpl(const FilePath &filePath, 
     if (filePath.isEmpty())
         return;
 
-    Internal::AddLibraryWizard wizard(filePath, Core::ICore::dialogParent());
+    Internal::AddLibraryWizard wizard(filePath);
     if (wizard.exec() != QDialog::Accepted)
         return;
 

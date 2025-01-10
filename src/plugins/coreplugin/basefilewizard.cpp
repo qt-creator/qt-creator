@@ -25,12 +25,8 @@ IFileWizardExtension::~IFileWizardExtension()
     g_fileWizardExtensions.removeOne(this);
 }
 
-BaseFileWizard::BaseFileWizard(const BaseFileWizardFactory *factory,
-                               const QVariantMap &extraValues,
-                               QWidget *parent) :
-    Wizard(parent),
-    m_extraValues(extraValues),
-    m_factory(factory)
+BaseFileWizard::BaseFileWizard(const BaseFileWizardFactory *factory, const QVariantMap &extraValues)
+    : m_extraValues(extraValues), m_factory(factory)
 {
     for (IFileWizardExtension *extension : std::as_const(g_fileWizardExtensions))
         m_extensionPages += extension->extensionPages(factory);

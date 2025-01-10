@@ -64,9 +64,8 @@ static FancyLineEdit::AsyncValidationResult validateLibraryPath(const QString &i
     return make_unexpected(::QmakeProjectManager::Tr::tr("File does not match filter."));
 }
 
-AddLibraryWizard::AddLibraryWizard(const FilePath &proFile, QWidget *parent)
-    : Wizard(parent)
-    , m_proFile(proFile)
+AddLibraryWizard::AddLibraryWizard(const FilePath &proFile)
+    : m_proFile(proFile)
 {
     setWindowTitle(Tr::tr("Add Library"));
     m_libraryTypePage = new LibraryTypePage(this);

@@ -15,17 +15,14 @@
 
 using namespace Utils;
 
+namespace Designer::Internal {
+
 enum { FormPageId, ClassPageId };
 
-namespace Designer {
-namespace Internal {
-
-// ----------------- FormClassWizardDialog
-FormClassWizardDialog::FormClassWizardDialog(const Core::BaseFileWizardFactory *factory,
-                                             QWidget *parent) :
-    Core::BaseFileWizard(factory, QVariantMap(), parent),
-    m_formPage(new FormTemplateWizardPage),
-    m_classPage(new FormClassWizardPage)
+FormClassWizardDialog::FormClassWizardDialog(const Core::BaseFileWizardFactory *factory)
+    : Core::BaseFileWizard(factory, QVariantMap())
+    , m_formPage(new FormTemplateWizardPage)
+    , m_classPage(new FormClassWizardPage)
 {
     setWindowTitle(Tr::tr("Qt Widgets Designer Form Class"));
 
@@ -74,5 +71,4 @@ FormClassWizardParameters FormClassWizardDialog::parameters() const
     return rc;
 }
 
-} // namespace Internal
-} // namespace Designer
+} // namespace Designer::Internal

@@ -502,7 +502,7 @@ static bool copyPluginFile(const FilePath &src, const FilePath &dest)
 
 bool executePluginInstallWizard(const FilePath &archive)
 {
-    Wizard wizard(ICore::dialogParent());
+    Wizard wizard;
     wizard.setWindowTitle(Tr::tr("Install Plugin"));
 
     Data data;

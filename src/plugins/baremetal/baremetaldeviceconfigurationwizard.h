@@ -13,7 +13,7 @@ class BareMetalDeviceConfigurationWizardSetupPage;
 class BareMetalDeviceConfigurationWizard final : public Utils::Wizard
 {
 public:
-    explicit BareMetalDeviceConfigurationWizard(QWidget *parent = nullptr);
+    BareMetalDeviceConfigurationWizard();
 
     ProjectExplorer::IDevicePtr device() const;
 

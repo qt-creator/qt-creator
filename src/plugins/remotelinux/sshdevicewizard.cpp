@@ -7,8 +7,6 @@
 #include "remotelinuxtr.h"
 #include "sshkeycreationdialog.h"
 
-#include <coreplugin/icore.h>
-
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 
@@ -194,7 +192,6 @@ public:
 };
 
 SshDeviceWizard::SshDeviceWizard(const QString &title, const DeviceRef &device)
-    : Wizard(Core::ICore::dialogParent())
 {
     setWindowTitle(title);
 
