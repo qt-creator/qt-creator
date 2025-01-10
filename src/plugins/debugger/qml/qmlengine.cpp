@@ -609,7 +609,7 @@ void QmlEngine::executeRunToLine(const ContextData &data)
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     showStatusMessage(Tr::tr("Run to line %1 (%2) requested...")
                           .arg(data.textPosition.line)
-                          .arg(data.fileName.toUrlishString()),
+                          .arg(data.fileName.toUserOutput()),
                       5000);
     d->setBreakpoint(SCRIPTREGEXP, data.fileName.toUrlishString(), true, data.textPosition.line);
     clearExceptionSelection();

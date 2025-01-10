@@ -259,7 +259,7 @@ void LldbEngine::handleLldbStarted()
     }
 
     for (const FilePath &path : rp.solibSearchPath())
-        executeDebuggerCommand("settings append target.exec-search-paths " + path.toUrlishString());
+        executeDebuggerCommand("settings append target.exec-search-paths " + path.path());
 
     const FilePath &executable = rp.inferior().command.executable();
     DebuggerCommand cmd2("setupInferior");
@@ -308,7 +308,7 @@ void LldbEngine::handleLldbStarted()
                 && (rp.startMode() == AttachToRemoteProcess || rp.startMode() == AttachToLocalProcess
                     || rp.startMode() == AttachToRemoteServer || rp.startMode() == AttachToIosDevice));
             cmd2.arg("attachpid", rp.attachPid().pid());
-            cmd2.arg("sysroot", rp.deviceSymbolsRoot().isEmpty() ? rp.sysRoot().toUrlishString()
+            cmd2.arg("sysroot", rp.deviceSymbolsRoot().isEmpty() ? rp.sysRoot().path()
                                                                  : rp.deviceSymbolsRoot());
             cmd2.arg("remotechannel", ((rp.startMode() == AttachToRemoteProcess
                                         || rp.startMode() == AttachToRemoteServer)

@@ -96,7 +96,7 @@ void PdbEngine::setupEngine()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
     m_interpreter = runParameters().interpreter;
-    QString bridge = ICore::resourcePath("debugger/pdbbridge.py").toUrlishString();
+    const FilePath bridge = ICore::resourcePath("debugger/pdbbridge.py");
 
     connect(&m_proc, &Process::started, this, &PdbEngine::handlePdbStarted);
     connect(&m_proc, &Process::done, this, &PdbEngine::handlePdbDone);
@@ -111,7 +111,7 @@ void PdbEngine::setupEngine()
         notifyEngineSetupFailed();
     }
 
-    CommandLine cmd{m_interpreter, {bridge, scriptFile.path()}};
+    CommandLine cmd{m_interpreter, {bridge.path(), scriptFile.path()}};
     const DebuggerRunParameters &rp = runParameters();
     cmd.addArg(rp.inferior().workingDirectory.path());
     cmd.addArg("--");
@@ -227,7 +227,7 @@ void PdbEngine::insertBreakpoint(const Breakpoint &bp)
     if (params.type  == BreakpointByFunction)
         loc = params.functionName;
     else
-        loc = params.fileName.toUrlishString() + ':' + QString::number(params.textPosition.line);
+        loc = params.fileName.path() + ':' + QString::number(params.textPosition.line);
 
     postDirectCommand("break " + loc);
 }

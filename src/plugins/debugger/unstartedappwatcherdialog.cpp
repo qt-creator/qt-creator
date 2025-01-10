@@ -244,7 +244,7 @@ void UnstartedAppWatcherDialog::startStopTimer(bool start)
 
 void UnstartedAppWatcherDialog::findProcess()
 {
-    const QString &appName = m_pathChooser->filePath().normalizedPathName().toUrlishString();
+    const QString appName = m_pathChooser->filePath().normalizedPathName().path();
     ProcessInfo fallback;
     const QList<ProcessInfo> processInfoList = ProcessInfo::processInfoList();
     for (const ProcessInfo &processInfo : processInfoList) {

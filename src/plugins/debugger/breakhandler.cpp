@@ -1901,7 +1901,7 @@ FilePath BreakpointItem::markerFileName() const
     if (origFileName.endsWith(m_parameters.fileName.fileName()))
         return origFileName;
 
-    return m_parameters.fileName.toUrlishString().size() > origFileName.toUrlishString().size()
+    return m_parameters.fileName.toFSPathString().size() > origFileName.toFSPathString().size()
                ? m_parameters.fileName
                : origFileName;
 }

@@ -2465,7 +2465,7 @@ unsigned BreakpointCorrectionContext::fixLineNumber(const FilePath &filePath,
     }
     if (debug)
         qDebug("Code model: Breakpoint line %u -> %u in %s",
-               lineNumber, correctedLine, qPrintable(filePath.toUrlishString()));
+               lineNumber, correctedLine, qPrintable(filePath.toUserOutput()));
     return correctedLine;
 }
 

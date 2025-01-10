@@ -175,7 +175,7 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
               moduleNameValid && modulePath.isLocal() && modulePath.exists()
                   && dependsCanBeFound(),
               [modulePath] {
-                  Process::startDetached({{"depends"}, {modulePath.toUrlishString()}});
+                  Process::startDetached({{"depends"}, {modulePath.nativePath()}});
               });
 
     addAction(this, menu, Tr::tr("Load Symbols for All Modules"),

@@ -2778,7 +2778,7 @@ void GdbEngine::removeBreakpoint(const Breakpoint &bp)
         // We already have a fully inserted breakpoint.
         notifyBreakpointRemoveProceeding(bp);
         showMessage(
-            QString("DELETING BP %1 IN %2").arg(bp->responseId()).arg(bp->fileName().toUrlishString()));
+            QString("DELETING BP %1 IN %2").arg(bp->responseId()).arg(bp->fileName().toUserOutput()));
         DebuggerCommand cmd("-break-delete " + bp->responseId(), NeedsTemporaryStop);
         runCommand(cmd);
 

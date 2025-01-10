@@ -592,7 +592,7 @@ static void handleGroup(QXmlStreamReader &in, PeripheralRegisterGroups &groups)
 
 static PeripheralRegisterGroups availablePeripheralRegisterGroups(const FilePath &filePath)
 {
-    QFile f(filePath.toUrlishString());
+    QFile f(filePath.toFSPathString());
     if (!f.open(QIODevice::ReadOnly))
         return {};
 
