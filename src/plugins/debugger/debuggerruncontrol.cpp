@@ -123,11 +123,6 @@ void DebuggerRunTool::setContinueAfterAttach(bool on)
     m_runParameters.continueAfterAttach = on;
 }
 
-void DebuggerRunTool::setSkipExecutableValidation(bool on)
-{
-    m_runParameters.skipExecutableValidation = on;
-}
-
 void DebuggerRunTool::setBreakOnMain(bool on)
 {
     m_runParameters.breakOnMain = on;

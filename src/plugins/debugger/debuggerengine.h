@@ -144,8 +144,6 @@ public:
     void setUseCtrlCStub(bool on) { m_useCtrlCStub = on; }
     bool useCtrlCStub() const { return m_useCtrlCStub; }
 
-    // Used by Android to avoid false positives on warnOnRelease
-    bool skipExecutableValidation = false;
     bool useTargetAsync = false;
     Utils::FilePaths additionalSearchDirectories;
 

@@ -65,7 +65,6 @@ public:
     void addSearchDirectory(const Utils::FilePath &dir);
 
     void setUseTargetAsync(bool on);
-    void setSkipExecutableValidation(bool on);
 
     void setIosPlatform(const QString &platform);
     void setDeviceSymbolsRoot(const QString &deviceSymbolsRoot);
