@@ -287,7 +287,7 @@ void LldbEngine::handleLldbStarted()
         toHex(ProcessArgs::splitArgs(rp.inferior().command.arguments(), HostOsInfo::hostOs())
                   .join(QChar(0))));
     cmd2.arg("platform", rp.platform);
-    cmd2.arg("symbolfile", rp.symbolFile.path());
+    cmd2.arg("symbolfile", rp.symbolFile().path());
 
     if (usesTerminal()) {
         const qint64 attachedPID = applicationPid();

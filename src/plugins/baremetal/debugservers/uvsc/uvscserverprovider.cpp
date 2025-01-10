@@ -190,7 +190,7 @@ bool UvscServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMess
     rp.uVisionOptionsFilePath = optFilePath;
     rp.uVisionSimulator = isSimulator();
     rp.setInferior(inferior);
-    runTool->setSymbolFile(bin);
+    rp.setSymbolFile(bin);
     rp.setStartMode(AttachToRemoteServer);
     rp.setRemoteChannel(channelString());
     runTool->setUseContinueInsteadOfRun(true);

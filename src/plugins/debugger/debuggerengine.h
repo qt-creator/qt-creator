@@ -121,7 +121,8 @@ public:
     void setUseExtendedRemote(bool on) { m_useExtendedRemote = on; }
     bool useExtendedRemote() const { return m_useExtendedRemote; }
 
-    Utils::FilePath symbolFile;
+    void setSymbolFile(const Utils::FilePath &symbolFile) { m_symbolFile = symbolFile; }
+    Utils::FilePath symbolFile() const { return m_symbolFile; }
 
     // Used by Mer plugin (3rd party)
     QMap<QString, QString> sourcePathMap;
@@ -230,6 +231,7 @@ private:
 
     QString m_remoteChannel; // Used by general remote debugging.
     bool m_useExtendedRemote = false; // Whether to use GDB's target extended-remote or not.
+    Utils::FilePath m_symbolFile;
 };
 
 namespace Internal {

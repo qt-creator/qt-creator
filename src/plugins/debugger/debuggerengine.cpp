@@ -130,7 +130,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
     params.m_displayName = runControl->displayName();
 
     if (auto symbolsAspect = runControl->aspectData<SymbolFileAspect>())
-        params.symbolFile = symbolsAspect->filePath;
+        params.setSymbolFile(symbolsAspect->filePath);
     if (auto terminalAspect = runControl->aspectData<TerminalAspect>())
         params.useTerminal = terminalAspect->useTerminal;
     if (auto runAsRootAspect = runControl->aspectData<RunAsRootAspect>())
@@ -209,8 +209,8 @@ void DebuggerRunParameters::setBreakOnMainNextTime()
 
 Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runControl)
 {
-    if (symbolFile.isEmpty())
-        symbolFile = m_inferior.command.executable();
+    if (m_symbolFile.isEmpty())
+        m_symbolFile = m_inferior.command.executable();
 
     // Set a Qt Creator-specific environment variable, to able to check for it in debugger
     // scripts.
@@ -3039,12 +3039,12 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
         if (warnOnRelease
                 && rp.cppEngineType == CdbEngineType
                 && rp.startMode() != AttachToRemoteServer) {
-            QTC_ASSERT(!rp.symbolFile.isEmpty(), return);
-            if (!rp.symbolFile.exists() && !rp.symbolFile.endsWith(".exe"))
-                rp.symbolFile = rp.symbolFile.stringAppended(".exe");
+            QTC_ASSERT(!rp.symbolFile().isEmpty(), return);
+            if (!rp.symbolFile().exists() && !rp.symbolFile().endsWith(".exe"))
+                rp.setSymbolFile(rp.symbolFile().stringAppended(".exe"));
             QString errorMessage;
             QStringList rc;
-            if (getPDBFiles(rp.symbolFile.toUrlishString(), &rc, &errorMessage) && !rc.isEmpty())
+            if (getPDBFiles(rp.symbolFile().toUrlishString(), &rc, &errorMessage) && !rc.isEmpty())
                 return;
             if (!errorMessage.isEmpty()) {
                 detailedWarning.append('\n');
@@ -3067,11 +3067,11 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
             }
         }
 
-        ElfReader reader(rp.symbolFile);
+        ElfReader reader(rp.symbolFile());
         const ElfData elfData = reader.readHeaders();
         const QString error = reader.errorString();
 
-        showMessage("EXAMINING " + rp.symbolFile.toUrlishString(), LogDebug);
+        showMessage("EXAMINING " + rp.symbolFile().toUrlishString(), LogDebug);
         QByteArray msg = "ELF SECTIONS: ";
 
         static const QList<QByteArray> interesting = {

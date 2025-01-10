@@ -3949,7 +3949,7 @@ void GdbEngine::handleGdbStarted()
     module.startAddress = 0;
     module.endAddress = 0;
     module.modulePath = rp.inferior().command.executable();
-    module.hostPath = rp.symbolFile;
+    module.hostPath = rp.symbolFile();
     module.moduleName = "<executable>";
     modulesHandler()->updateModule(module);
 
@@ -4472,8 +4472,8 @@ void GdbEngine::setupInferior()
 
         setLinuxOsAbi();
         QString symbolFile;
-        if (!rp.symbolFile.isEmpty())
-            symbolFile = rp.symbolFile.absoluteFilePath().path();
+        if (!rp.symbolFile().isEmpty())
+            symbolFile = rp.symbolFile().absoluteFilePath().path();
 
         //const QByteArray sysroot = sp.sysroot.toLocal8Bit();
         //const QByteArray remoteArch = sp.remoteArchitecture.toLatin1();

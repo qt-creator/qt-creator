@@ -164,7 +164,7 @@ private:
             setUseContinueInsteadOfRun(true);
             setContinueAfterAttach(true);
             rp.setRemoteChannel(runControl()->debugChannel());
-            setSymbolFile(symbolFile);
+            rp.setSymbolFile(symbolFile);
 
             QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(runControl()->kit());
             if (version) {

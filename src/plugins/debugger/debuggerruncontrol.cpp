@@ -108,11 +108,6 @@ void DebuggerRunTool::setSysRoot(const Utils::FilePath &sysRoot)
     m_runParameters.sysRoot = sysRoot;
 }
 
-void DebuggerRunTool::setSymbolFile(const FilePath &symbolFile)
-{
-    m_runParameters.symbolFile = symbolFile;
-}
-
 void DebuggerRunTool::setLldbPlatform(const QString &platform)
 {
     m_runParameters.platform = platform;

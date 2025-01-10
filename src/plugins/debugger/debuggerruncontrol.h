@@ -36,7 +36,6 @@ public:
     void addExpectedSignal(const QString &signal);
 
     void setSysRoot(const Utils::FilePath &sysRoot);
-    void setSymbolFile(const Utils::FilePath &symbolFile);
 
     void setUseContinueInsteadOfRun(bool on);
     void setContinueAfterAttach(bool on);
