@@ -286,7 +286,8 @@ if (_library_enabled)
     # Deploy lldb.exe and its Python dependency
     find_package(Clang QUIET)
     if (LLVM_TOOLS_BINARY_DIR AND LLVM_LIBRARY_DIRS)
-      foreach(lldb_file lldb.exe lldb-dap.exe liblldb.dll python311.zip python311.dll)
+      file(GLOB python_files RELATIVE ${LLVM_TOOLS_BINARY_DIR} "${LLVM_TOOLS_BINARY_DIR}/python*")
+      foreach(lldb_file lldb.exe lldb-dap.exe liblldb.dll ${python_files})
         if (EXISTS ${LLVM_TOOLS_BINARY_DIR}/${lldb_file})
           install(FILES ${LLVM_TOOLS_BINARY_DIR}/${lldb_file}
                   DESTINATION bin/clang/bin
@@ -298,7 +299,7 @@ if (_library_enabled)
         install(DIRECTORY ${LLVM_LIBRARY_DIRS}/site-packages
                 DESTINATION bin/clang/lib
                 COMPONENT qtcreatorcdbext
-                PATTERN _lldb.cp311-win_amd64.pyd EXCLUDE)
+                PATTERN "_lldb.cp*64.pyd" EXCLUDE)
       endif()
     endif()
   endif()
