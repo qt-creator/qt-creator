@@ -160,7 +160,7 @@ private:
             rp.setQmlServer(runControl()->qmlChannel());
 
         if (isCppDebugging()) {
-            setUseExtendedRemote(false);
+            rp.setUseExtendedRemote(false);
             setUseContinueInsteadOfRun(true);
             setContinueAfterAttach(true);
             rp.setRemoteChannel(runControl()->debugChannel());

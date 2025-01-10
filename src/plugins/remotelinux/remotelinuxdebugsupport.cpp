@@ -55,7 +55,7 @@ public:
 
             rp.setStartMode(AttachToRemoteServer);
             rp.setCloseMode(KillAndExitMonitorAtClose);
-            debugger->setUseExtendedRemote(true);
+            rp.setUseExtendedRemote(true);
 
             if (rc->device()->osType() == Utils::OsTypeMac)
                 debugger->setLldbPlatform("remote-macosx");

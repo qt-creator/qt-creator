@@ -4878,7 +4878,7 @@ void GdbEngine::callTargetRemote()
 
     if (m_isQnxGdb)
         runCommand({"target qnx " + channel, CB(handleTargetQnx)});
-    else if (runParameters().useExtendedRemote)
+    else if (runParameters().useExtendedRemote())
         runCommand({"target extended-remote " + channel, CB(handleTargetExtendedRemote)});
     else
         runCommand({"target remote " + channel, CB(handleTargetRemote)});

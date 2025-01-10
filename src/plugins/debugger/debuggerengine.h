@@ -118,7 +118,9 @@ public:
     }
     QString remoteChannel() const { return m_remoteChannel; }
 
-    bool useExtendedRemote = false; // Whether to use GDB's target extended-remote or not.
+    void setUseExtendedRemote(bool on) { m_useExtendedRemote = on; }
+    bool useExtendedRemote() const { return m_useExtendedRemote; }
+
     Utils::FilePath symbolFile;
 
     // Used by Mer plugin (3rd party)
@@ -227,6 +229,7 @@ private:
     QUrl m_qmlServer; // Used by Qml debugging.
 
     QString m_remoteChannel; // Used by general remote debugging.
+    bool m_useExtendedRemote = false; // Whether to use GDB's target extended-remote or not.
 };
 
 namespace Internal {

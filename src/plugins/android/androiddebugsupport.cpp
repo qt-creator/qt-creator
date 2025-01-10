@@ -128,7 +128,7 @@ public:
             qCDebug(androidDebugSupportLog).noquote() << "SoLibSearchPath: " << solibSearchPath;
             setSymbolFile(androidAppProcessDir(target).pathAppended("app_process"));
             setSkipExecutableValidation(true);
-            setUseExtendedRemote(true);
+            rp.setUseExtendedRemote(true);
             QString devicePreferredAbi = apkDevicePreferredAbi(target);
             setAbi(androidAbi2Abi(devicePreferredAbi));
 

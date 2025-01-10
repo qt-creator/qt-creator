@@ -38,7 +38,6 @@ public:
     void setSysRoot(const Utils::FilePath &sysRoot);
     void setSymbolFile(const Utils::FilePath &symbolFile);
 
-    void setUseExtendedRemote(bool on);
     void setUseContinueInsteadOfRun(bool on);
     void setContinueAfterAttach(bool on);
     void setBreakOnMain(bool on);

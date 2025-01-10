@@ -120,11 +120,6 @@ void DebuggerRunTool::setLldbPlatform(const QString &platform)
     m_runParameters.platform = platform;
 }
 
-void DebuggerRunTool::setUseExtendedRemote(bool on)
-{
-    m_runParameters.useExtendedRemote = on;
-}
-
 void DebuggerRunTool::setUseContinueInsteadOfRun(bool on)
 {
     m_runParameters.useContinueInsteadOfRun = on;
