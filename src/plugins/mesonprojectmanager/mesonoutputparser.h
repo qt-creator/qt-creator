@@ -6,6 +6,7 @@
 #include <projectexplorer/ioutputparser.h>
 
 #include <utils/outputformatter.h>
+#include <utils/fileutils.h>
 
 #include <QRegularExpression>
 
@@ -36,6 +37,7 @@ public:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;
     void readStdo(const QByteArray &data);
     void setSourceDirectory(const Utils::FilePath &sourceDir);
+    void setBuildDirectory(const Utils::FilePath &buildDir);
 };
 
 } // namespace MesonProjectManager::Internal

@@ -291,6 +291,7 @@ bool MesonProjectParser::configure(
     m_srcDir = sourcePath.canonicalPath();
     m_buildDir = buildPath.canonicalPath();
     m_outputParser.setSourceDirectory(m_srcDir);
+    m_outputParser.setBuildDirectory(m_buildDir);
     auto cmd = MesonTools::toolById(m_meson)->configure(m_srcDir, m_buildDir, args);
     cmd.environment = m_env;
     // see comment near m_pendingCommands declaration
@@ -313,6 +314,7 @@ bool MesonProjectParser::setup(
     m_srcDir = sourcePath.canonicalPath();
     m_buildDir = buildPath.canonicalPath();
     m_outputParser.setSourceDirectory(m_srcDir);
+    m_outputParser.setBuildDirectory(m_buildDir);
     auto cmdArgs = args;
     if (forceWipe || isSetup(m_buildDir))
         cmdArgs << "--wipe";
@@ -326,6 +328,7 @@ bool MesonProjectParser::parse(const FilePath &sourcePath, const FilePath &build
     m_srcDir = sourcePath.canonicalPath();
     m_buildDir = buildPath.canonicalPath();
     m_outputParser.setSourceDirectory(m_srcDir);
+    m_outputParser.setBuildDirectory(m_buildDir);
     if (!isSetup(m_buildDir)) {
         return parse(m_srcDir);
     } else {
