@@ -1095,6 +1095,11 @@ void GitClient::merge(const FilePath &workingDirectory, const QStringList &unmer
 
 void GitClient::status(const FilePath &workingDirectory) const
 {
+    vcsExec(workingDirectory, {"status"}, RunFlags::ShowStdOut);
+}
+
+void GitClient::fullStatus(const FilePath &workingDirectory) const
+{
     vcsExec(workingDirectory, {"status", "-u"}, RunFlags::ShowStdOut);
 }
 

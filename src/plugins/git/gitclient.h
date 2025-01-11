@@ -163,6 +163,7 @@ public:
     void merge(const Utils::FilePath &workingDirectory, const QStringList &unmergedFileNames = {});
 
     void status(const Utils::FilePath &workingDirectory) const;
+    void fullStatus(const Utils::FilePath &workingDirectory) const;
     void log(const Utils::FilePath &workingDirectory, const QString &fileName = {},
              bool enableAnnotationContextMenu = false, const QStringList &args = {});
     void reflog(const Utils::FilePath &workingDirectory, const QString &branch = {});

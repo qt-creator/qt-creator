@@ -677,6 +677,9 @@ GitPluginPrivate::GitPluginPrivate()
     createRepositoryAction(localRepositoryMenu, "Status", "Git.StatusRepository",
                            context, true, &GitClient::status);
 
+    createRepositoryAction(localRepositoryMenu, "Status (Include all untracked)", "Git.FullStatusRepository",
+                           context, true, &GitClient::fullStatus);
+
     // --------------
     localRepositoryMenu->addSeparator(context);
 
