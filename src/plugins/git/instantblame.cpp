@@ -200,13 +200,16 @@ void InstantBlame::setup()
     qCDebug(log) << "Setup";
 
     auto setupBlameForEditor = [this] {
+        qCDebug(log) << "Setting up blame for editor.";
         Core::IEditor *editor = EditorManager::currentEditor();
         if (!editor) {
+            qCDebug(log) << "No current editor found.";
             stop();
             return;
         }
 
         if (!settings().instantBlame()) {
+            qCDebug(log) << "Instant blame is disabled.";
             m_lastVisitedEditorLine = -1;
             stop();
             return;
@@ -224,8 +227,11 @@ void InstantBlame::setup()
         }
 
         const FilePath workingDirectory = currentState().currentFileTopLevel();
-        if (!refreshWorkingDirectory(workingDirectory))
+        if (!refreshWorkingDirectory(workingDirectory)) {
+            qCDebug(log).nospace().noquote() << "Cannot refresh working directory: '"
+                                             << workingDirectory << "'";
             return;
+        }
 
         qCInfo(log) << "Adding blame cursor connection";
         m_blameCursorPosConn = connect(widget, &QPlainTextEdit::cursorPositionChanged, this,
