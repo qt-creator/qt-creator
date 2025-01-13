@@ -135,7 +135,7 @@ void DebuggerRunTool::addQmlServerInferiorCommandLineArgumentIfNeeded()
 
 void DebuggerRunTool::modifyDebuggerEnvironment(const EnvironmentItems &items)
 {
-    m_runParameters.debugger.environment.modify(items);
+    m_runParameters.debugger().environment.modify(items);
 }
 
 void DebuggerRunTool::setCrashParameter(const QString &event)
@@ -302,7 +302,7 @@ void DebuggerRunTool::continueAfterTerminalStart()
 
     if (m_runParameters.cppEngineType() == CdbEngineType
         && Utils::is64BitWindowsBinary(m_runParameters.inferior().command.executable())
-            && !Utils::is64BitWindowsBinary(m_runParameters.debugger.command.executable())) {
+            && !Utils::is64BitWindowsBinary(m_runParameters.debugger().command.executable())) {
         reportFailure(
             Tr::tr(
                 "%1 is a 64 bit executable which can not be debugged by a 32 bit Debugger.\n"

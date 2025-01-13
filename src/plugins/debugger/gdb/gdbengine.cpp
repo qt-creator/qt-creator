@@ -693,7 +693,7 @@ void GdbEngine::interruptInferior()
                             notifyInferiorStopFailed();
                         }
                     });
-            signalOperation->setDebuggerCommand(runParameters().debugger.command.executable());
+            signalOperation->setDebuggerCommand(runParameters().debugger().command.executable());
             signalOperation->interruptProcess(inferiorPid());
         } else {
             interruptInferior2();
@@ -3831,7 +3831,7 @@ void GdbEngine::setupEngine()
     if (isRemoteEngine())
         m_gdbProc.setUseCtrlCStub(rp.useCtrlCStub()); // This is only set for QNX
 
-    CommandLine gdbCommand = rp.debugger.command;
+    CommandLine gdbCommand = rp.debugger().command;
     if (usesOutputCollector()) {
         if (!m_outputCollector.listen()) {
             handleAdapterStartFailed(Tr::tr("Cannot set up communication with child process: %1")
@@ -3849,7 +3849,7 @@ void GdbEngine::setupEngine()
 
     m_expectTerminalTrap = usesTerminal();
 
-    if (rp.debugger.command.isEmpty()) {
+    if (rp.debugger().command.isEmpty()) {
         handleGdbStartFailed();
         handleAdapterStartFailed(
             msgNoGdbBinaryForToolchain(rp.toolChainAbi),
@@ -3862,7 +3862,7 @@ void GdbEngine::setupEngine()
         gdbCommand.addArg("-n");
 
     // This is filled in DebuggerKitAspect::runnable
-    Environment gdbEnv = rp.debugger.environment;
+    Environment gdbEnv = rp.debugger().environment;
     gdbEnv.setupEnglishOutput();
     if (rp.runAsRoot())
         RunControl::provideAskPassEntry(gdbEnv);
@@ -3871,8 +3871,8 @@ void GdbEngine::setupEngine()
     showMessage("STARTING " + gdbCommand.toUserOutput());
 
     m_gdbProc.setCommand(gdbCommand);
-    if (rp.debugger.workingDirectory.isDir())
-        m_gdbProc.setWorkingDirectory(rp.debugger.workingDirectory);
+    if (rp.debugger().workingDirectory.isDir())
+        m_gdbProc.setWorkingDirectory(rp.debugger().workingDirectory);
     m_gdbProc.setEnvironment(gdbEnv);
     m_gdbProc.start();
 }
@@ -3996,7 +3996,7 @@ void GdbEngine::handleGdbStarted()
     //    runCommand({"set inferior-tty " + QString::fromUtf8(terminal()->slaveDevice())});
 
     const FilePath dumperPath = ICore::resourcePath("debugger");
-    if (!rp.debugger.command.executable().isLocal()) {
+    if (!rp.debugger().command.executable().isLocal()) {
         // Gdb itself running remotely.
         const FilePath loadOrderFile = dumperPath / "loadorder.txt";
         const expected_str<QByteArray> toLoad = loadOrderFile.fileContents();
@@ -4043,7 +4043,7 @@ void GdbEngine::handleGdbStarted()
     } else {
         // Gdb on local host
         // This is useful (only) in custom gdb builds that did not run 'make install'
-        const FilePath uninstalledData = rp.debugger.command.executable().parentDir()
+        const FilePath uninstalledData = rp.debugger().command.executable().parentDir()
             / "data-directory/python";
         if (uninstalledData.exists())
             runCommand({"python sys.path.append('" + uninstalledData.path() + "')"});
@@ -4104,7 +4104,7 @@ void GdbEngine::setEnvironmentVariables()
                 && str.compare("path", Qt::CaseInsensitive) == 0;
     };
 
-    Environment baseEnv = runParameters().debugger.environment;
+    Environment baseEnv = runParameters().debugger().environment;
     Environment runEnv = runParameters().inferior().environment;
     const EnvironmentItems items = baseEnv.diff(runEnv);
     for (const EnvironmentItem &item : items) {
@@ -4139,7 +4139,7 @@ void GdbEngine::handleGdbDone()
                 .arg(wd.toUserOutput());
         } else {
             msg = RunWorker::userMessageForProcessError(QProcess::FailedToStart,
-                runParameters().debugger.command.executable());
+                runParameters().debugger().command.executable());
         }
         handleAdapterStartFailed(msg);
         return;
@@ -4148,7 +4148,7 @@ void GdbEngine::handleGdbDone()
     const QProcess::ProcessError error = m_gdbProc.error();
     if (error != QProcess::UnknownError) {
         QString msg = RunWorker::userMessageForProcessError(error,
-                      runParameters().debugger.command.executable());
+                      runParameters().debugger().command.executable());
         const QString errorString = m_gdbProc.errorString();
         if (!errorString.isEmpty())
             msg += '\n' + errorString;
@@ -4404,7 +4404,7 @@ bool GdbEngine::isTermEngine() const
 
 bool GdbEngine::usesOutputCollector() const
 {
-    return isPlainEngine() && runParameters().debugger.command.executable().isLocal();
+    return isPlainEngine() && runParameters().debugger().command.executable().isLocal();
 }
 
 void GdbEngine::claimInitialBreakpoints()
@@ -4524,7 +4524,7 @@ void GdbEngine::setupInferior()
         FilePath executable = rp.inferior().command.executable();
 
         if (executable.isEmpty()) {
-            CoreInfo cinfo = CoreInfo::readExecutableNameFromCore(rp.debugger, rp.coreFile());
+            CoreInfo cinfo = CoreInfo::readExecutableNameFromCore(rp.debugger(), rp.coreFile());
 
             if (!cinfo.isCore) {
                 AsynchronousMessageBox::warning(Tr::tr("Error Loading Core File"),

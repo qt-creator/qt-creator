@@ -122,7 +122,7 @@ void PdbEngine::setupEngine()
         arguments.removeFirst(); // file added by run config
     cmd.addArgs(arguments);
     showMessage("STARTING " + cmd.toUserOutput());
-    m_proc.setEnvironment(runParameters().debugger.environment);
+    m_proc.setEnvironment(runParameters().debugger().environment);
     m_proc.setCommand(cmd);
     m_proc.start();
 }

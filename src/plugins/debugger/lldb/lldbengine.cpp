@@ -180,10 +180,10 @@ void LldbEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
-    const FilePath lldbCmd = runParameters().debugger.command.executable();
+    const FilePath lldbCmd = runParameters().debugger().command.executable();
 
     showMessage("STARTING LLDB: " + lldbCmd.toUserOutput());
-    Environment environment = runParameters().debugger.environment;
+    Environment environment = runParameters().debugger().environment;
     environment.set("QT_CREATOR_LLDB_PROCESS", "1");
     environment.set("PYTHONUNBUFFERED", "1"); // avoid flushing problem on macOS
     const bool ndkPythonEnvTweaked = DebuggerItem::addAndroidLldbPythonEnv(lldbCmd, environment);
@@ -210,8 +210,8 @@ void LldbEngine::setupEngine()
 
     m_lldbProc.setEnvironment(environment);
 
-    if (runParameters().debugger.workingDirectory.isDir())
-        m_lldbProc.setWorkingDirectory(runParameters().debugger.workingDirectory);
+    if (runParameters().debugger().workingDirectory.isDir())
+        m_lldbProc.setWorkingDirectory(runParameters().debugger().workingDirectory);
 
     m_lldbProc.setCommand(CommandLine(lldbCmd));
 
@@ -799,7 +799,7 @@ void LldbEngine::handleLldbDone()
         notifyEngineSetupFailed();
         showMessage("ADAPTER START FAILED");
         ICore::showWarningWithOptions(adapterStartFailed(), Tr::tr("Unable to start LLDB \"%1\": %2")
-                 .arg(runParameters().debugger.command.executable().toUserOutput(),
+                 .arg(runParameters().debugger().command.executable().toUserOutput(),
                  m_lldbProc.errorString()));
         return;
     }
@@ -833,7 +833,7 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
             return Tr::tr("The LLDB process failed to start. Either the "
                 "invoked program \"%1\" is missing, or you may have insufficient "
                 "permissions to invoke the program.")
-                .arg(runParameters().debugger.command.executable().toUserOutput());
+                .arg(runParameters().debugger().command.executable().toUserOutput());
         case QProcess::Crashed:
             return Tr::tr("The LLDB process crashed some time after starting "
                 "successfully.");

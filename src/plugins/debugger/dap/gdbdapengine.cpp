@@ -57,9 +57,9 @@ public:
     void start() override
     {
         m_proc.setProcessMode(ProcessMode::Writer);
-        if (m_runParameters.debugger.workingDirectory.isDir())
-            m_proc.setWorkingDirectory(m_runParameters.debugger.workingDirectory);
-        m_proc.setEnvironment(m_runParameters.debugger.environment);
+        if (m_runParameters.debugger().workingDirectory.isDir())
+            m_proc.setWorkingDirectory(m_runParameters.debugger().workingDirectory);
+        m_proc.setEnvironment(m_runParameters.debugger().environment);
         m_proc.setCommand(m_cmd);
         m_proc.start();
     }
@@ -138,7 +138,7 @@ void GdbDapEngine::setupEngine()
     QTC_ASSERT(state() == EngineSetupRequested, qCDebug(logCategory()) << state());
 
     const DebuggerRunParameters &rp = runParameters();
-    CommandLine cmd{rp.debugger.command.executable(), {"-i", "dap"}};
+    CommandLine cmd{rp.debugger().command.executable(), {"-i", "dap"}};
 
     if (runParameters().isLocalAttachEngine())
         cmd.addArgs({"-p", QString::number(rp.attachPid().pid())});

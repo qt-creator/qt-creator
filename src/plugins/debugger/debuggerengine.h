@@ -194,7 +194,8 @@ public:
 
     bool runAsRoot() const { return m_runAsRoot; }
 
-    Utils::ProcessRunData debugger;
+    Utils::ProcessRunData debugger() const { return m_debugger; };
+
     Utils::FilePath overrideStartScript; // Used in attach to core and remote debugging
     QString startMessage; // First status message shown.
     Utils::FilePath debugInfoLocation; // Gdb "set-debug-file-directory".
@@ -298,6 +299,8 @@ private:
     bool m_multiProcess = false; // Whether to set detach-on-fork off.
     bool m_useTerminal = false;
     bool m_runAsRoot = false;
+
+    Utils::ProcessRunData m_debugger;
 };
 
 namespace Internal {

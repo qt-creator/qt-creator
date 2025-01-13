@@ -88,16 +88,16 @@ void UvscEngine::setupEngine()
     }
 
     // Check for valid uVision executable.
-    if (rp.debugger.command.isEmpty()) {
+    if (rp.debugger().command.isEmpty()) {
         handleSetupFailure(Tr::tr("Internal error: No uVision executable specified."));
         return;
-    } else if (!rp.debugger.command.executable().exists()) {
+    } else if (!rp.debugger().command.executable().exists()) {
         handleSetupFailure(Tr::tr("Internal error: The specified uVision executable does not exist."));
         return;
     }
 
     showMessage("UVSC: RESOLVING LIBRARY SYMBOLS...");
-    m_client.reset(new UvscClient(rp.debugger.command.executable().parentDir().toUrlishString()));
+    m_client.reset(new UvscClient(rp.debugger().command.executable().parentDir().toUrlishString()));
     if (m_client->error() != UvscClient::NoError) {
         handleSetupFailure(Tr::tr("Internal error: Cannot resolve the library: %1.")
                            .arg(m_client->errorString()));

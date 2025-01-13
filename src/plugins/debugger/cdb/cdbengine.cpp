@@ -295,14 +295,14 @@ void CdbEngine::setupEngine()
     // Determine binary (force MSVC), extension lib name and path to use
     // The extension is passed as relative name with the path variable set
     //(does not work with absolute path names)
-    if (sp.debugger.command.isEmpty()) {
+    if (sp.debugger().command.isEmpty()) {
         handleSetupFailure(Tr::tr("There is no CDB executable specified."));
         return;
     }
 
     bool cdbIs64Bit = true;
     bool cdbIsArm = false;
-    Abis abisOfCdb = Abi::abisOfBinary(sp.debugger.command.executable());
+    Abis abisOfCdb = Abi::abisOfBinary(sp.debugger().command.executable());
     if (abisOfCdb.size() == 1) {
         Abi abi = abisOfCdb.at(0);
         cdbIs64Bit = abi.wordWidth() == 64;
@@ -327,7 +327,7 @@ void CdbEngine::setupEngine()
     }
 
     // Prepare command line.
-    CommandLine debugger{sp.debugger.command};
+    CommandLine debugger{sp.debugger().command};
 
     m_extensionFileName = extensionFi.fileName();
     const bool isRemote = sp.startMode() == AttachToRemoteServer;
@@ -421,7 +421,7 @@ void CdbEngine::setupEngine()
 void CdbEngine::processStarted()
 {
     const qint64 pid = m_process.processId();
-    const FilePath execPath = runParameters().debugger.command.executable();
+    const FilePath execPath = runParameters().debugger().command.executable();
     showMessage(QString("%1 running as %2").arg(execPath.toUserOutput()).arg(pid), LogMisc);
     m_hasDebuggee = true;
     m_initialSessionIdleHandled = false;

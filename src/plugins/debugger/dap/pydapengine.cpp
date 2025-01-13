@@ -80,7 +80,7 @@ public:
 
     void start() override
     {
-        Environment env = m_runParameters.debugger.environment;
+        Environment env = m_runParameters.debugger().environment;
         const FilePath debugPyDir = packageDir(m_cmd.executable(), "debugpy");
         if (QTC_GUARD(debugPyDir.isSameDevice(m_cmd.executable()))) {
             env.appendOrSet("PYTHONPATH", debugPyDir.path());

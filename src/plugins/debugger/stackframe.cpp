@@ -74,7 +74,7 @@ StackFrame StackFrame::parseFrame(const GdbMi &frameMi, const DebuggerRunParamet
     frame.level = frameMi["level"].data();
     frame.function = frameMi["function"].data();
     frame.module = frameMi["module"].data();
-    const FilePath debugger = rp.debugger.command.executable();
+    const FilePath debugger = rp.debugger().command.executable();
     const FilePath onDevicePath = debugger.withNewPath(frameMi["file"].data()).cleanPath();
     frame.file = onDevicePath.localSource().value_or(onDevicePath);
     frame.line = frameMi["line"].toInt();

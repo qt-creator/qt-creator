@@ -112,7 +112,7 @@ QDebug operator<<(QDebug str, const DebuggerRunParameters &rp)
             << " coreFile=" << rp.coreFile()
             << " processArgs=" << rp.inferior().command.arguments()
             << " inferior environment=<" << rp.inferior().environment.toStringList().size() << " variables>"
-            << " debugger environment=<" << rp.debugger.environment.toStringList().size() << " variables>"
+            << " debugger environment=<" << rp.debugger().environment.toStringList().size() << " variables>"
             << " workingDir=" << rp.inferior().workingDirectory
             << " attachPID=" << rp.attachPid().pid()
             << " remoteChannel=" << rp.remoteChannel()
@@ -138,7 +138,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
 
     params.setSysRoot(SysRootKitAspect::sysRoot(kit));
     params.macroExpander = runControl->macroExpander();
-    params.debugger = DebuggerKitAspect::runnable(kit);
+    params.m_debugger = DebuggerKitAspect::runnable(kit);
     params.m_cppEngineType = DebuggerKitAspect::engineType(kit);
     params.m_version = DebuggerKitAspect::version(kit);
 
@@ -173,13 +173,13 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
 
     const QString envBinary = qtcEnvironmentVariable("QTC_DEBUGGER_PATH");
     if (!envBinary.isEmpty())
-        params.debugger.command.setExecutable(FilePath::fromString(envBinary));
+        params.m_debugger.command.setExecutable(FilePath::fromString(envBinary));
 
     if (Project *project = runControl->project()) {
         params.projectSourceDirectory = project->projectDirectory();
         params.projectSourceFiles = project->files(Project::SourceFiles);
     } else {
-        params.projectSourceDirectory = params.debugger.command.executable().parentDir();
+        params.projectSourceDirectory = params.debugger().command.executable().parentDir();
         params.projectSourceFiles.clear();
     }
 
@@ -214,13 +214,13 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
 
     // Set a Qt Creator-specific environment variable, to able to check for it in debugger
     // scripts.
-    debugger.environment.set("QTC_DEBUGGER_PROCESS", "1");
+    m_debugger.environment.set("QTC_DEBUGGER_PROCESS", "1");
 
     // Copy over DYLD_IMAGE_SUFFIX etc
     for (const auto &var :
          QStringList({"DYLD_IMAGE_SUFFIX", "DYLD_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH"}))
         if (m_inferior.environment.hasKey(var))
-            debugger.environment.set(var, m_inferior.environment.expandedValueForKey(var));
+            m_debugger.environment.set(var, m_inferior.environment.expandedValueForKey(var));
 
     // validate debugger if C++ debugging is enabled
     if (!validationErrors.isEmpty())
@@ -2905,8 +2905,8 @@ QString DebuggerEngine::formatStartParameters() const
         if (!rp.inferior().workingDirectory.isEmpty())
             str << "Directory: " << rp.inferior().workingDirectory.toUserOutput() << '\n';
     }
-    if (!rp.debugger.command.isEmpty())
-        str << "Debugger: " << rp.debugger.command.toUserOutput() << '\n';
+    if (!rp.debugger().command.isEmpty())
+        str << "Debugger: " << rp.debugger().command.toUserOutput() << '\n';
     if (!rp.coreFile().isEmpty())
         str << "Core: " << rp.coreFile().toUserOutput() << '\n';
     if (rp.attachPid().isValid())
