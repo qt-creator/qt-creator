@@ -264,7 +264,7 @@ void LldbEngine::handleLldbStarted()
     const FilePath &executable = rp.inferior().command.executable();
     DebuggerCommand cmd2("setupInferior");
     cmd2.arg("executable", executable.path());
-    cmd2.arg("breakonmain", rp.breakOnMain);
+    cmd2.arg("breakonmain", rp.breakOnMain());
     cmd2.arg("useterminal", usesTerminal());
     cmd2.arg("startmode", rp.startMode());
     cmd2.arg("nativemixed", isNativeMixedActive());

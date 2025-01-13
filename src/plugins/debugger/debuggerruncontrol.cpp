@@ -103,11 +103,6 @@ public:
 
 } // namespace Internal
 
-void DebuggerRunTool::setBreakOnMain(bool on)
-{
-    m_runParameters.breakOnMain = on;
-}
-
 void DebuggerRunTool::setUseTerminal(bool on)
 {
     m_runParameters.useTerminal = on;

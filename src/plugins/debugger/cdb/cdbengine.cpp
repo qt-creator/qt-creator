@@ -442,7 +442,7 @@ void CdbEngine::handleInitialSessionIdle()
     //operateByInstructionTriggered(operatesByInstruction());
     // QmlCppEngine expects the QML engine to be connected before any breakpoints are hit
     // (attemptBreakpointSynchronization() will be directly called then)
-    if (rp.breakOnMain) {
+    if (rp.breakOnMain()) {
         BreakpointParameters bp(BreakpointAtMain);
         if (rp.startMode() == StartInternal || rp.startMode() == StartExternal) {
             const QString &moduleFileName = rp.inferior().command.executable().fileName();

@@ -135,7 +135,7 @@ void PdbEngine::handlePdbStarted()
     showStatusMessage(Tr::tr("Running requested..."), 5000);
     BreakpointManager::claimBreakpointsForEngine(this);
     notifyEngineRunAndInferiorStopOk();
-    if (runParameters().breakOnMain)
+    if (runParameters().breakOnMain())
         updateAll();
     else
         continueInferior();

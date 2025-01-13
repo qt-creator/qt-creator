@@ -183,7 +183,10 @@ public:
     QString version() const { return m_version; }
 
     bool isPythonDebugging() const { return m_isPythonDebugging; }
-    bool breakOnMain = false;
+
+    void setBreakOnMain(bool on) { m_breakOnMain = on; }
+    bool breakOnMain() const { return m_breakOnMain; }
+
     bool multiProcess = false; // Whether to set detach-on-fork off.
     bool useTerminal = false;
     bool runAsRoot = false;
@@ -288,6 +291,7 @@ private:
     QString m_version;
 
     bool m_isPythonDebugging = false;
+    bool m_breakOnMain = false;
 };
 
 namespace Internal {

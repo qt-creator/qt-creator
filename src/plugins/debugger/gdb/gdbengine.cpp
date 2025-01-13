@@ -4449,7 +4449,7 @@ void GdbEngine::setupInferior()
     const DebuggerRunParameters &rp = runParameters();
 
     //runCommand("set follow-exec-mode new");
-    if (rp.breakOnMain)
+    if (rp.breakOnMain())
         runCommand({"tbreak " + mainFunction()});
 
     if (!rp.solibSearchPath().isEmpty()) {

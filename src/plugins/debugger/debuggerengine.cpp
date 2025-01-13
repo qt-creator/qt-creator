@@ -276,7 +276,7 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
         m_startMode = StartInternal;
 
     if (breakOnMainNextTime) {
-        breakOnMain = true;
+        m_breakOnMain = true;
         breakOnMainNextTime = false;
     }
 

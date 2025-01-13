@@ -414,7 +414,7 @@ void StartApplicationDialog::run(bool attachRemote)
     else
         rp.setRemoteChannel(dev->sshParameters().host(), newParameters.serverPort);
     rp.setDisplayName(newParameters.displayName());
-    debugger->setBreakOnMain(newParameters.breakAtMain);
+    rp.setBreakOnMain(newParameters.breakAtMain);
     debugger->setDebugInfoLocation(newParameters.debugInfoLocation);
     rp.setInferior(newParameters.runnable);
     rp.setCommandsAfterConnect(newParameters.serverInitCommands);
