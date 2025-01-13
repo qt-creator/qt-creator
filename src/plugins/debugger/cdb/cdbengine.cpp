@@ -543,7 +543,7 @@ void CdbEngine::runEngine()
     // else the debugger will slow down considerably.
     const auto cb = [this](const DebuggerResponse &r) { handleBreakInsert(r, Breakpoint()); };
     if (settings().cdbBreakOnCrtDbgReport()) {
-        Abi::OSFlavor flavor = runParameters().toolChainAbi.osFlavor();
+        Abi::OSFlavor flavor = runParameters().toolChainAbi().osFlavor();
         // CrtDebugReport cannot be safely resolved for vc 19
         if ((flavor > Abi::WindowsMsvc2005Flavor && flavor <= Abi::WindowsMsvc2013Flavor) ||
                 flavor > Abi::WindowsMSysFlavor || flavor <= Abi::WindowsCEFlavor) {
@@ -837,7 +837,7 @@ void CdbEngine::jumpToAddress(quint64 address)
     QString cmd;
     StringInputStream str(cmd);
     // PC-register depending on 64/32bit.
-    str << "r " << (runParameters().toolChainAbi.wordWidth() == 64 ? "rip" : "eip") << '=';
+    str << "r " << (runParameters().toolChainAbi().wordWidth() == 64 ? "rip" : "eip") << '=';
     str.setHexPrefix(true);
     str.setIntegerBase(16);
     str << address;

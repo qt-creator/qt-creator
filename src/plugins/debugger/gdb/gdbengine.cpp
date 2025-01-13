@@ -440,7 +440,7 @@ void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &res
         } else {
             GdbMi threads = result["thread-id"];
             threadsHandler()->notifyRunning(threads.data());
-            if (runParameters().toolChainAbi.os() == Abi::WindowsOS) {
+            if (runParameters().toolChainAbi().os() == Abi::WindowsOS) {
                 // NOTE: Each created thread spits out a *running message. We completely ignore them
                 // on Windows, and handle only numbered responses
 
@@ -968,7 +968,7 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
 
     if (!isExpectedResult) {
         const DebuggerRunParameters &rp = runParameters();
-        Abi abi = rp.toolChainAbi;
+        Abi abi = rp.toolChainAbi();
         if (abi.os() == Abi::WindowsOS
             && cmd.function.startsWith("attach")
             && (rp.startMode() == AttachToLocalProcess || usesTerminal()))
@@ -1358,7 +1358,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
 
     bool isStopperThread = false;
 
-    if (rp.toolChainAbi.os() == Abi::WindowsOS
+    if (rp.toolChainAbi().os() == Abi::WindowsOS
             && usesTerminal()
             && reason == "signal-received"
             && data["signal-name"].data() == "SIGTRAP")
@@ -1421,7 +1421,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
             QString meaning = data["signal-meaning"].data();
             // Ignore these as they are showing up regularly when
             // stopping debugging.
-            if (name == stopSignal(rp.toolChainAbi) || rp.expectedSignals().contains(name)) {
+            if (name == stopSignal(rp.toolChainAbi()) || rp.expectedSignals().contains(name)) {
                 showMessage(name + " CONSIDERED HARMLESS. CONTINUING.");
             } else if (m_isQnxGdb && name == "0" && meaning == "Signal 0") {
                 showMessage("SIGNAL 0 CONSIDERED BOGUS.");
@@ -1695,7 +1695,7 @@ void GdbEngine::setLinuxOsAbi()
     if (!HostOsInfo::isWindowsHost())
         return;
     const DebuggerRunParameters &rp = runParameters();
-    bool isElf = (rp.toolChainAbi.binaryFormat() == Abi::ElfFormat);
+    bool isElf = (rp.toolChainAbi().binaryFormat() == Abi::ElfFormat);
     if (!isElf && !rp.inferior().command.isEmpty()) {
         isElf = Utils::anyOf(Abi::abisOfBinary(rp.inferior().command.executable()), [](const Abi &abi) {
             return abi.binaryFormat() == Abi::ElfFormat;
@@ -3852,7 +3852,7 @@ void GdbEngine::setupEngine()
     if (rp.debugger().command.isEmpty()) {
         handleGdbStartFailed();
         handleAdapterStartFailed(
-            msgNoGdbBinaryForToolchain(rp.toolChainAbi),
+            msgNoGdbBinaryForToolchain(rp.toolChainAbi()),
             Constants::DEBUGGER_COMMON_SETTINGS_ID);
         return;
     }
@@ -5014,7 +5014,7 @@ void GdbEngine::handleStubAttached(const DebuggerResponse &response, qint64 main
     case ResultDone:
     case ResultRunning:
         claimInitialBreakpoints();
-        if (runParameters().toolChainAbi.os() == ProjectExplorer::Abi::WindowsOS) {
+        if (runParameters().toolChainAbi().os() == ProjectExplorer::Abi::WindowsOS) {
             QString errorMessage;
             // Resume thread that was suspended by console stub process (see stub code).
             if (winResumeThread(mainThreadId, &errorMessage)) {
@@ -5217,7 +5217,7 @@ QString GdbEngine::msgPtraceError(DebuggerStartMode sm)
 QString GdbEngine::mainFunction() const
 {
     const DebuggerRunParameters &rp = runParameters();
-    return QLatin1String(rp.toolChainAbi.os() == Abi::WindowsOS && !usesTerminal() ? "qMain" : "main");
+    return QLatin1String(rp.toolChainAbi().os() == Abi::WindowsOS && !usesTerminal() ? "qMain" : "main");
 }
 
 //

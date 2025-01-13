@@ -209,7 +209,8 @@ public:
 
     Utils::FilePath qtSourceLocation() const { return m_qtSourceLocation; }
 
-    ProjectExplorer::Abi toolChainAbi;
+    void setToolChainAbi(const ProjectExplorer::Abi &abi) { m_toolChainAbi = abi; }
+    ProjectExplorer::Abi toolChainAbi() const { return m_toolChainAbi; }
 
     Utils::FilePath projectSourceDirectory;
     Utils::FilePaths projectSourceFiles;
@@ -315,6 +316,7 @@ private:
     Utils::FilePath m_debugInfoLocation; // Gdb "set-debug-file-directory".
     QStringList m_debugSourceLocation; // Gdb "directory"
     Utils::FilePath m_qtSourceLocation;
+    ProjectExplorer::Abi m_toolChainAbi;
 };
 
 namespace Internal {

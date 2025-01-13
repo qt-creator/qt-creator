@@ -44,8 +44,6 @@ public:
 
     void modifyDebuggerEnvironment(const Utils::EnvironmentItems &item);
 
-    void setAbi(const ProjectExplorer::Abi &abi);
-
     DebuggerRunParameters &runParameters() { return m_runParameters; }
 
 private:

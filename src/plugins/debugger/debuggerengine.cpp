@@ -116,7 +116,7 @@ QDebug operator<<(QDebug str, const DebuggerRunParameters &rp)
             << " workingDir=" << rp.inferior().workingDirectory
             << " attachPID=" << rp.attachPid().pid()
             << " remoteChannel=" << rp.remoteChannel()
-            << " abi=" << rp.toolChainAbi.toString() << '\n';
+            << " abi=" << rp.toolChainAbi().toString() << '\n';
     return str;
 }
 
@@ -183,7 +183,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
         params.projectSourceFiles.clear();
     }
 
-    params.toolChainAbi = ToolchainKitAspect::targetAbi(kit);
+    params.m_toolChainAbi = ToolchainKitAspect::targetAbi(kit);
 
     bool ok = false;
     const int nativeMixedOverride = qtcEnvironmentVariableIntValue("QTC_DEBUGGER_NATIVE_MIXED", &ok);
@@ -2890,7 +2890,7 @@ QString DebuggerEngine::formatStartParameters() const
     QString rc;
     QTextStream str(&rc);
     str << "Start parameters: '" << rp.displayName() << "' mode: " << rp.startMode()
-        << "\nABI: " << rp.toolChainAbi.toString() << '\n';
+        << "\nABI: " << rp.toolChainAbi().toString() << '\n';
     str << "Languages: ";
     if (rp.isCppDebugging())
         str << "c++ ";
@@ -3006,14 +3006,14 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
     static const Key warnOnInappropriateDebuggerKey = "DebuggerWarnOnInappropriateDebugger";
 
     const bool warnOnRelease = settings().warnOnReleaseBuilds()
-                               && rp.toolChainAbi.osFlavor() != Abi::AndroidLinuxFlavor;
+                               && rp.toolChainAbi().osFlavor() != Abi::AndroidLinuxFlavor;
     bool warnOnInappropriateDebugger = false;
     QString detailedWarning;
-    switch (rp.toolChainAbi.binaryFormat()) {
+    switch (rp.toolChainAbi().binaryFormat()) {
     case Abi::PEFormat: {
         if (CheckableDecider(warnOnInappropriateDebuggerKey).shouldAskAgain()) {
             QString preferredDebugger;
-            if (rp.toolChainAbi.osFlavor() == Abi::WindowsMSysFlavor) {
+            if (rp.toolChainAbi().osFlavor() == Abi::WindowsMSysFlavor) {
                 if (rp.cppEngineType() == CdbEngineType)
                     preferredDebugger = "GDB";
             } else if (rp.cppEngineType() != CdbEngineType && rp.cppEngineType() != LldbEngineType) {

@@ -128,8 +128,8 @@ public:
             qCDebug(androidDebugSupportLog).noquote() << "SoLibSearchPath: " << solibSearchPath;
             rp.setSymbolFile(androidAppProcessDir(target).pathAppended("app_process"));
             rp.setUseExtendedRemote(true);
-            QString devicePreferredAbi = apkDevicePreferredAbi(target);
-            setAbi(androidAbi2Abi(devicePreferredAbi));
+            const QString devicePreferredAbi = apkDevicePreferredAbi(target);
+            rp.setToolChainAbi(androidAbi2Abi(devicePreferredAbi));
 
             auto qt = static_cast<AndroidQtVersion *>(qtVersion);
             const int minimumNdk = qt ? qt->minimumNDK() : 0;

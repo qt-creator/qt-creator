@@ -108,11 +108,6 @@ void DebuggerRunTool::setTestCase(int testCase)
     m_runParameters.testCase = testCase;
 }
 
-void DebuggerRunTool::setAbi(const Abi &abi)
-{
-    m_runParameters.toolChainAbi = abi;
-}
-
 void DebuggerRunTool::addQmlServerInferiorCommandLineArgumentIfNeeded()
 {
     d->addQmlServerInferiorCommandLineArgumentIfNeeded = true;
@@ -468,7 +463,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
     const QString debuggerName = Utils::transform<QStringList>(m_engines, &DebuggerEngine::objectName).join(" ");
 
     const QString message = Tr::tr("Starting debugger \"%1\" for ABI \"%2\"...")
-            .arg(debuggerName).arg(m_runParameters.toolChainAbi.toString());
+            .arg(debuggerName).arg(m_runParameters.toolChainAbi().toString());
     DebuggerMainWindow::showStatusMessage(message, 10000);
 
     showMessage(m_engines.first()->formatStartParameters(), LogDebug);
