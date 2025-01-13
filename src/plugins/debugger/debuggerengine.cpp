@@ -176,11 +176,11 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
         params.m_debugger.command.setExecutable(FilePath::fromString(envBinary));
 
     if (Project *project = runControl->project()) {
-        params.projectSourceDirectory = project->projectDirectory();
-        params.projectSourceFiles = project->files(Project::SourceFiles);
+        params.m_projectSourceDirectory = project->projectDirectory();
+        params.m_projectSourceFiles = project->files(Project::SourceFiles);
     } else {
-        params.projectSourceDirectory = params.debugger().command.executable().parentDir();
-        params.projectSourceFiles.clear();
+        params.m_projectSourceDirectory = params.debugger().command.executable().parentDir();
+        params.m_projectSourceFiles.clear();
     }
 
     params.m_toolChainAbi = ToolchainKitAspect::targetAbi(kit);
@@ -322,9 +322,9 @@ void DebuggerRunParameters::setStartMode(DebuggerStartMode startMode)
         projects.insert(0, startupProject);
     }
     for (Project *project : std::as_const(projects))
-        projectSourceFiles.append(project->files(Project::SourceFiles));
+        m_projectSourceFiles.append(project->files(Project::SourceFiles));
     if (!projects.isEmpty())
-        projectSourceDirectory = projects.first()->projectDirectory();
+        m_projectSourceDirectory = projects.first()->projectDirectory();
 }
 
 void DebuggerRunParameters::addSolibSearchDir(const QString &str)
@@ -2911,8 +2911,8 @@ QString DebuggerEngine::formatStartParameters() const
         str << "Core: " << rp.coreFile().toUserOutput() << '\n';
     if (rp.attachPid().isValid())
         str << "PID: " << rp.attachPid().pid() << ' ' << rp.crashParameter << '\n';
-    if (!rp.projectSourceDirectory.isEmpty()) {
-        str << "Project: " << rp.projectSourceDirectory.toUserOutput() << '\n';
+    if (!rp.projectSourceDirectory().isEmpty()) {
+        str << "Project: " << rp.projectSourceDirectory().toUserOutput() << '\n';
         str << "Additional Search Directories:";
         for (const FilePath &dir : rp.additionalSearchDirectories())
             str << ' ' << dir;

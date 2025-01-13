@@ -194,7 +194,7 @@ public:
 
     bool runAsRoot() const { return m_runAsRoot; }
 
-    Utils::ProcessRunData debugger() const { return m_debugger; };
+    Utils::ProcessRunData debugger() const { return m_debugger; }
 
     void setOverrideStartScript(const Utils::FilePath &script) { m_overrideStartScript = script; }
     Utils::FilePath overrideStartScript() const { return m_overrideStartScript; }
@@ -212,8 +212,8 @@ public:
     void setToolChainAbi(const ProjectExplorer::Abi &abi) { m_toolChainAbi = abi; }
     ProjectExplorer::Abi toolChainAbi() const { return m_toolChainAbi; }
 
-    Utils::FilePath projectSourceDirectory;
-    Utils::FilePaths projectSourceFiles;
+    Utils::FilePath projectSourceDirectory() const { return m_projectSourceDirectory; }
+    Utils::FilePaths projectSourceFiles() const { return m_projectSourceFiles; }
 
     // Terminal
     qint64 applicationPid = 0;
@@ -317,6 +317,9 @@ private:
     QStringList m_debugSourceLocation; // Gdb "directory"
     Utils::FilePath m_qtSourceLocation;
     ProjectExplorer::Abi m_toolChainAbi;
+
+    Utils::FilePath m_projectSourceDirectory;
+    Utils::FilePaths m_projectSourceFiles;
 };
 
 namespace Internal {

@@ -171,7 +171,7 @@ void StackFrame::fixQrcFrame(const DebuggerRunParameters &rp)
         relativePath = relativePath.mid(1);
     relativeFile = relativeFile.withNewPath(relativePath);
 
-    FilePath absFile = findFile(rp.projectSourceDirectory, relativeFile);
+    FilePath absFile = findFile(rp.projectSourceDirectory(), relativeFile);
     if (absFile.isEmpty())
         absFile = findFile(FilePath::fromString(QDir::currentPath()), relativeFile);
 
