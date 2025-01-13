@@ -26,7 +26,7 @@ class ClassViewPlugin final : public ExtensionSystem::IPlugin
     void initialize() final
     {
         setupClassViewNavigationWidgetFactory();
-        setupClassViewManager(this);
+        setupClassViewManager();
     }
 };
 

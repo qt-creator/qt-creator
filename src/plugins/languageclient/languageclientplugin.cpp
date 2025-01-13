@@ -50,7 +50,7 @@ void LanguageClientPlugin::initialize()
     setupCallHierarchyFactory();
     setupTypeHierarchyFactory();
     setupLanguageClientProjectPanel();
-    setupLanguageClientManager(this);
+    setupLanguageClientManager();
     setupLanguageClientOutline();
 
 #ifdef WITH_TESTS
