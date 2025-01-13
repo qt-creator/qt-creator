@@ -170,8 +170,11 @@ public:
     void setDeviceUuid(const QString &uuid) { m_deviceUuid = uuid; }
     QString deviceUuid() const { return m_deviceUuid; }
 
-    // Used by general core file debugging. Public access requested in QTCREATORBUG-17158.
-    Utils::FilePath coreFile;
+    void setCoreFilePath(const Utils::FilePath &coreFile) { m_coreFile = coreFile; }
+    Utils::FilePath coreFile() const { return m_coreFile; }
+
+    void setSnapshot(bool isSnapshot) { m_isSnapshot = isSnapshot; }
+    bool isSnapshot() const { return m_isSnapshot; }
 
     // Macro-expanded and passed to debugger startup.
     QString additionalStartupCommands;
@@ -191,7 +194,6 @@ public:
     Utils::FilePath debugInfoLocation; // Gdb "set-debug-file-directory".
     QStringList debugSourceLocation; // Gdb "directory"
     Utils::FilePath qtSourceLocation;
-    bool isSnapshot = false; // Set if created internally.
     ProjectExplorer::Abi toolChainAbi;
 
     Utils::FilePath projectSourceDirectory;
@@ -273,6 +275,10 @@ private:
     Utils::FilePath m_sysRoot;
 
     QString m_deviceUuid; // iOS 17+
+
+    // Used by general core file debugging. Public access requested in QTCREATORBUG-17158.
+    Utils::FilePath m_coreFile;
+    bool m_isSnapshot = false; // Set if created internally.
 };
 
 namespace Internal {

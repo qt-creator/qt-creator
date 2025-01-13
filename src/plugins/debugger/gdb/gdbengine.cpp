@@ -4524,7 +4524,7 @@ void GdbEngine::setupInferior()
         FilePath executable = rp.inferior().command.executable();
 
         if (executable.isEmpty()) {
-            CoreInfo cinfo = CoreInfo::readExecutableNameFromCore(rp.debugger, rp.coreFile);
+            CoreInfo cinfo = CoreInfo::readExecutableNameFromCore(rp.debugger, rp.coreFile());
 
             if (!cinfo.isCore) {
                 AsynchronousMessageBox::warning(Tr::tr("Error Loading Core File"),
@@ -4626,7 +4626,7 @@ void GdbEngine::runEngine()
     } else if (isCoreEngine()) {
 
         claimInitialBreakpoints();
-        runCommand({"target core " + runParameters().coreFile.path(), CB(handleTargetCore)});
+        runCommand({"target core " + runParameters().coreFile().path(), CB(handleTargetCore)});
 
     } else if (isTermEngine()) {
 
@@ -4802,7 +4802,7 @@ void GdbEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
 
     } else  if (isCoreEngine()) {
 
-        const FilePath core = runParameters().coreFile;
+        const FilePath core = runParameters().coreFile();
         if (response.resultClass == ResultDone) {
             showMessage(Tr::tr("Symbols found."), StatusBar);
             handleInferiorPrepared();
@@ -5128,7 +5128,7 @@ void GdbEngine::handleTargetCore(const DebuggerResponse &response)
         // Even without the stack, the user can find interesting stuff by exploring
         // the memory, globals etc.
         showStatusMessage(
-            Tr::tr("Attach to core \"%1\" failed:").arg(runParameters().coreFile.toUserOutput())
+            Tr::tr("Attach to core \"%1\" failed:").arg(runParameters().coreFile().toUserOutput())
             + '\n' + response.data["msg"].data() + '\n' + Tr::tr("Continuing nevertheless."));
     }
     // Due to the auto-solib-add off setting, we don't have any

@@ -352,7 +352,7 @@ void runAttachToCoreDialog()
     auto debugger = new DebuggerRunTool(runControl);
     DebuggerRunParameters &rp = debugger->runParameters();
     rp.setInferiorExecutable(dlg.symbolFileCopy());
-    debugger->setCoreFilePath(dlg.coreFileCopy());
+    rp.setCoreFilePath(dlg.coreFileCopy());
     rp.setStartMode(AttachToCore);
     rp.setCloseMode(DetachAtClose);
     debugger->setOverrideStartScript(dlg.overrideStartScript());

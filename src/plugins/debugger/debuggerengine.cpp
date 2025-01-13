@@ -109,7 +109,7 @@ QDebug operator<<(QDebug str, const DebuggerRunParameters &rp)
 {
     QDebug nospace = str.nospace();
     nospace << "executable=" << rp.inferior().command.executable()
-            << " coreFile=" << rp.coreFile
+            << " coreFile=" << rp.coreFile()
             << " processArgs=" << rp.inferior().command.arguments()
             << " inferior environment=<" << rp.inferior().environment.toStringList().size() << " variables>"
             << " debugger environment=<" << rp.debugger.environment.toStringList().size() << " variables>"
@@ -2912,8 +2912,8 @@ QString DebuggerEngine::formatStartParameters() const
     }
     if (!rp.debugger.command.isEmpty())
         str << "Debugger: " << rp.debugger.command.toUserOutput() << '\n';
-    if (!rp.coreFile.isEmpty())
-        str << "Core: " << rp.coreFile.toUserOutput() << '\n';
+    if (!rp.coreFile().isEmpty())
+        str << "Core: " << rp.coreFile().toUserOutput() << '\n';
     if (rp.attachPid().isValid())
         str << "PID: " << rp.attachPid().pid() << ' ' << rp.crashParameter << '\n';
     if (!rp.projectSourceDirectory.isEmpty()) {

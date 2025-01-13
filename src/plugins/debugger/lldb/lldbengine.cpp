@@ -359,7 +359,7 @@ void LldbEngine::runEngine()
     showStatusMessage(Tr::tr("Running requested..."), 5000);
     DebuggerCommand cmd("runEngine");
     if (rp.startMode() == AttachToCore)
-        cmd.arg("coreFile", rp.coreFile.path());
+        cmd.arg("coreFile", rp.coreFile().path());
     runCommand(cmd);
 }
 

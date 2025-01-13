@@ -1411,7 +1411,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         } else if (startMode == AttachToCore) {
             rp.setStartMode(AttachToCore);
             rp.setCloseMode(DetachAtClose);
-            debugger->setCoreFilePath(coreFile);
+            rp.setCoreFilePath(coreFile);
             rp.setDisplayName(Tr::tr("Core file \"%1\"").arg(coreFile.toUserOutput()));
             debugger->setStartMessage(Tr::tr("Attaching to core file %1.").arg(coreFile.toUserOutput()));
         } else {
@@ -1625,7 +1625,7 @@ void DebuggerPluginPrivate::attachToLastCore()
     auto debugger = new DebuggerRunTool(runControl);
     DebuggerRunParameters &rp = debugger->runParameters();
     rp.setInferiorExecutable(lastCore.binary);
-    debugger->setCoreFilePath(lastCore.coreFile);
+    rp.setCoreFilePath(lastCore.coreFile);
     rp.setStartMode(AttachToCore);
     rp.setCloseMode(DetachAtClose);
 

@@ -138,12 +138,6 @@ void DebuggerRunTool::setStartMessage(const QString &msg)
     m_runParameters.startMessage = msg;
 }
 
-void DebuggerRunTool::setCoreFilePath(const FilePath &coreFile, bool isSnapshot)
-{
-    m_runParameters.coreFile = coreFile;
-    m_runParameters.isSnapshot = isSnapshot;
-}
-
 void DebuggerRunTool::addQmlServerInferiorCommandLineArgumentIfNeeded()
 {
     d->addQmlServerInferiorCommandLineArgumentIfNeeded = true;
@@ -166,7 +160,7 @@ void DebuggerRunTool::start()
 
 void DebuggerRunTool::startCoreFileSetupIfNeededAndContinueStartup()
 {
-    const FilePath coreFile = m_runParameters.coreFile;
+    const FilePath coreFile = m_runParameters.coreFile();
     if (!coreFile.endsWith(".gz") && !coreFile.endsWith(".lzo")) {
         continueAfterCoreFileSetup();
         return;
@@ -181,11 +175,11 @@ void DebuggerRunTool::startCoreFileSetupIfNeededAndContinueStartup()
     d->m_coreUnpackProcess.setWorkingDirectory(TemporaryDirectory::masterDirectoryFilePath());
     connect(&d->m_coreUnpackProcess, &Process::done, this, [this] {
         if (d->m_coreUnpackProcess.error() == QProcess::UnknownError) {
-            m_runParameters.coreFile = d->m_tempCoreFilePath;
+            m_runParameters.setCoreFilePath(d->m_tempCoreFilePath);
             continueAfterCoreFileSetup();
             return;
         }
-        reportFailure("Error unpacking " + m_runParameters.coreFile.toUserOutput());
+        reportFailure("Error unpacking " + m_runParameters.coreFile().toUserOutput());
     });
 
     const QString msg = Tr::tr("Unpacking core file to %1");
@@ -441,7 +435,8 @@ void DebuggerRunTool::continueAfterDebugServerStart()
                 rp.setStartMode(AttachToCore);
                 rp.setCloseMode(DetachAtClose);
                 rp.setDisplayName(name);
-                debugger->setCoreFilePath(FilePath::fromString(coreFile), true);
+                rp.setCoreFilePath(FilePath::fromString(coreFile));
+                rp.setSnapshot(true);
                 rc->start();
             });
 
@@ -602,8 +597,8 @@ DebuggerRunTool::~DebuggerRunTool()
     if (d->m_tempCoreFilePath.exists())
         d->m_tempCoreFilePath.removeFile();
 
-    if (m_runParameters.isSnapshot && !m_runParameters.coreFile.isEmpty())
-        m_runParameters.coreFile.removeFile();
+    if (m_runParameters.isSnapshot() && !m_runParameters.coreFile().isEmpty())
+        m_runParameters.coreFile().removeFile();
 
     qDeleteAll(m_engines);
     m_engines.clear();

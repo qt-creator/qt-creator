@@ -39,8 +39,6 @@ public:
 
     void setDebugInfoLocation(const Utils::FilePath &debugInfoLocation);
 
-    void setCoreFilePath(const Utils::FilePath &core, bool isSnapshot = false);
-
     void setTestCase(int testCase);
     void setOverrideStartScript(const Utils::FilePath &script);
 
