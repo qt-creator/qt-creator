@@ -335,6 +335,32 @@ void DebuggerRunParameters::addSolibSearchDir(const QString &str)
     m_solibSearchPath.append(FilePath::fromString(path));
 }
 
+static QStringList splitCommandHelper(const QString &text, const MacroExpander *expander)
+{
+    QStringList result;
+
+    if (!text.isEmpty()) {
+        const QStringList commands = expander->expand(text).split('\n');
+        for (const QString &command : commands) {
+            const QString trimmed = command.trimmed();
+            if (!trimmed.isEmpty())
+                result.append(trimmed);
+        }
+    }
+
+    return result;
+}
+
+QStringList DebuggerRunParameters::commandsAfterConnect() const
+{
+    return splitCommandHelper(m_commandsAfterConnect, m_macroExpander);
+}
+
+QStringList DebuggerRunParameters::commandsForReset() const
+{
+    return splitCommandHelper(m_commandsForReset, m_macroExpander);
+}
+
 bool DebuggerRunParameters::isCppDebugging() const
 {
     return cppEngineType() != NoEngineType;

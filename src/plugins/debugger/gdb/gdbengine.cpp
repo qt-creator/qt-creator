@@ -4172,15 +4172,10 @@ void GdbEngine::abortDebuggerProcess()
 
 void GdbEngine::resetInferior()
 {
-    const QString commandsForReset = runParameters().commandsForReset();
-    if (!commandsForReset.isEmpty()) {
-        const QStringList commands = expand(commandsForReset).split('\n');
-        for (QString command : commands) {
-            command = command.trimmed();
-            if (!command.isEmpty())
-                runCommand({command, ConsoleCommand | NeedsTemporaryStop | NativeCommand});
-        }
-    }
+    const QStringList commands = runParameters().commandsForReset();
+    for (const QString &command : commands)
+        runCommand({command, ConsoleCommand | NeedsTemporaryStop | NativeCommand});
+
     m_rerunPending = true;
     requestInterruptInferior();
     runEngine();
@@ -4435,11 +4430,9 @@ void GdbEngine::claimInitialBreakpoints()
     // and even if it fails (e.g. due to stripped binaries), continuing with
     // the start up is the best we can do.
 
-    if (!rp.commandsAfterConnect().isEmpty()) {
-        const QString commands = expand(rp.commandsAfterConnect());
-        for (const QString &command : commands.split('\n'))
-            runCommand({command, NativeCommand});
-    }
+    const QStringList commands = rp.commandsAfterConnect();
+    for (const QString &command : commands)
+        runCommand({command, NativeCommand});
 }
 
 void GdbEngine::setupInferior()

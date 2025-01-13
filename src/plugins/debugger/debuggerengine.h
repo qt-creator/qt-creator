@@ -132,14 +132,14 @@ public:
     }
     QMap<QString, QString> sourcePathMap() const { return m_sourcePathMap; }
 
+    void setCommandsAfterConnect(const QString &commands) { m_commandsAfterConnect = commands; }
+    QStringList commandsAfterConnect() const;
+
     void setCommandsForReset(const QString &commands) { m_commandsForReset = commands; }
-    QString commandsForReset() const { return m_commandsForReset; }
+    QStringList commandsForReset() const;
 
     void setUseContinueInsteadOfRun(bool on) { m_useContinueInsteadOfRun = on; }
     bool useContinueInsteadOfRun() const { return m_useContinueInsteadOfRun; }
-
-    void setCommandsAfterConnect(const QString &commands) { m_commandsAfterConnect = commands; }
-    QString commandsAfterConnect() const { return m_commandsAfterConnect; }
 
     void addExpectedSignal(const QString &signal) { m_expectedSignals.append(signal); }
     QStringList expectedSignals() const { return m_expectedSignals; }
