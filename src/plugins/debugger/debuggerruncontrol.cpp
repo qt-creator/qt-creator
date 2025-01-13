@@ -259,7 +259,7 @@ void DebuggerRunTool::continueAfterTerminalStart()
     // User canceled input dialog asking for executable when working on library project.
     if (m_runParameters.startMode() == StartInternal
             && m_runParameters.inferior().command.isEmpty()
-            && m_runParameters.interpreter.isEmpty()) {
+            && m_runParameters.interpreter().isEmpty()) {
         reportFailure(Tr::tr("No executable specified."));
         return;
     }
@@ -362,8 +362,8 @@ void DebuggerRunTool::continueAfterDebugServerStart()
             const FilePath mainScript = mainScriptAspect->filePath;
             const FilePath interpreter = interpreterAspect->filePath;
             if (!interpreter.isEmpty() && mainScript.endsWith(".py")) {
-                m_runParameters.mainScript = mainScript;
-                m_runParameters.interpreter = interpreter;
+                m_runParameters.setMainScript(mainScript);
+                m_runParameters.setInterpreter(interpreter);
             }
         }
     }

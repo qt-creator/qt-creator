@@ -215,9 +215,9 @@ void PyDapEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
-    Utils::FilePath interpreter = runParameters().interpreter;
+    Utils::FilePath interpreter = runParameters().interpreter();
 
-    const FilePath scriptFile = runParameters().mainScript;
+    const FilePath scriptFile = runParameters().mainScript();
     if (!scriptFile.isReadableFile()) {
         MessageManager::writeDisrupting(
             "Python Error" + QString("Cannot open script file %1").arg(scriptFile.toUserOutput()));
@@ -234,11 +234,11 @@ void PyDapEngine::setupEngine()
         info.addCustomButton(Tr::tr("Install debugpy"), [this] {
             Core::ICore::infoBar()->removeInfo(installDebugPyInfoBarId);
             Core::ICore::infoBar()->globallySuppressInfo(installDebugPyInfoBarId);
-            const FilePath target = packageDir(runParameters().interpreter, "debugpy");
-            QTC_ASSERT(target.isSameDevice(runParameters().interpreter), return);
+            const FilePath target = packageDir(runParameters().interpreter(), "debugpy");
+            QTC_ASSERT(target.isSameDevice(runParameters().interpreter()), return);
             m_installProcess.reset(new Process);
             m_installProcess->setCommand(
-                {runParameters().interpreter,
+                {runParameters().interpreter(),
                  {"-m",
                   "pip",
                   "install",

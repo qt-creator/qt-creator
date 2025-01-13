@@ -221,9 +221,11 @@ public:
     void setApplicationMainThreadId(qint64 threadId) { m_applicationMainThreadId = threadId; }
     qint64 applicationMainThreadId() const { return m_applicationMainThreadId; }
 
-    // Used by Script debugging
-    Utils::FilePath interpreter;
-    Utils::FilePath mainScript;
+    void setInterpreter(const Utils::FilePath &path) { m_interpreter = path; }
+    Utils::FilePath interpreter() const { return m_interpreter; }
+
+    void setMainScript(const Utils::FilePath &path) { m_mainScript = path; }
+    Utils::FilePath mainScript() const { return m_mainScript; }
 
     // Used by AttachCrashedExternal.
     QString crashParameter;
@@ -325,6 +327,9 @@ private:
 
     qint64 m_applicationPid = 0; // Terminal
     qint64 m_applicationMainThreadId = 0; // Terminal
+
+    Utils::FilePath m_interpreter; // Used by Script debugging
+    Utils::FilePath m_mainScript; // Used by Script debugging
 };
 
 namespace Internal {

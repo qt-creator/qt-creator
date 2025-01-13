@@ -95,7 +95,7 @@ void PdbEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
-    m_interpreter = runParameters().interpreter;
+    m_interpreter = runParameters().interpreter();
     const FilePath bridge = ICore::resourcePath("debugger/pdbbridge.py");
 
     connect(&m_proc, &Process::started, this, &PdbEngine::handlePdbStarted);
@@ -103,7 +103,7 @@ void PdbEngine::setupEngine()
     connect(&m_proc, &Process::readyReadStandardOutput, this, &PdbEngine::readPdbStandardOutput);
     connect(&m_proc, &Process::readyReadStandardError, this, &PdbEngine::readPdbStandardError);
 
-    const FilePath scriptFile = runParameters().mainScript;
+    const FilePath scriptFile = runParameters().mainScript();
     if (!scriptFile.isReadableFile()) {
         AsynchronousMessageBox::critical(Tr::tr("Python Error"),
                                          QString("Cannot open script file %1")
