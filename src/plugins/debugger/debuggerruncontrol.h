@@ -33,7 +33,6 @@ public:
     void kickoffTerminalProcess();
     void interruptTerminal();
 
-    void addQmlServerInferiorCommandLineArgumentIfNeeded();
     void setupPortsGatherer();
 
     DebuggerRunParameters &runParameters() { return m_runParameters; }

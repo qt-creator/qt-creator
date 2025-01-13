@@ -79,7 +79,6 @@ static QString noDebuggerInKitMessage()
 class DebuggerRunToolPrivate
 {
 public:
-    bool addQmlServerInferiorCommandLineArgumentIfNeeded = false;
     int snapshotCounter = 0;
     int engineStartsNeeded = 0;
     int engineStopsNeeded = 0;
@@ -99,11 +98,6 @@ public:
 };
 
 } // namespace Internal
-
-void DebuggerRunTool::addQmlServerInferiorCommandLineArgumentIfNeeded()
-{
-    d->addQmlServerInferiorCommandLineArgumentIfNeeded = true;
-}
 
 void DebuggerRunTool::start()
 {
@@ -221,13 +215,13 @@ void DebuggerRunTool::continueAfterTerminalStart()
 
     if (runControl()->usesQmlChannel()) {
         m_runParameters.setQmlServer(runControl()->qmlChannel());
-        if (d->addQmlServerInferiorCommandLineArgumentIfNeeded
+        if (m_runParameters.isAddQmlServerInferiorCmdArgIfNeeded()
                 && m_runParameters.isQmlDebugging()
                 && m_runParameters.isCppDebugging()) {
 
-            int qmlServerPort = m_runParameters.qmlServer().port();
+            const int qmlServerPort = m_runParameters.qmlServer().port();
             QTC_ASSERT(qmlServerPort > 0, reportFailure(); return);
-            QString mode = QString("port:%1").arg(qmlServerPort);
+            const QString mode = QString("port:%1").arg(qmlServerPort);
 
             auto inferior = m_runParameters.inferior();
             CommandLine cmd{inferior.command.executable()};

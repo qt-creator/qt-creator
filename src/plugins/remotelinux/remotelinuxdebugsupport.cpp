@@ -51,7 +51,7 @@ public:
             DebuggerRunParameters &rp = debugger->runParameters();
             debugger->setId("RemoteLinuxDebugWorker");
             debugger->setupPortsGatherer();
-            debugger->addQmlServerInferiorCommandLineArgumentIfNeeded();
+            rp.setAddQmlServerInferiorCmdArgIfNeeded(true);
 
             rp.setStartMode(AttachToRemoteServer);
             rp.setCloseMode(KillAndExitMonitorAtClose);
