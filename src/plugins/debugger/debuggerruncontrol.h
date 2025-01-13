@@ -30,7 +30,6 @@ public:
     void start() override;
     void stop() override;
 
-    void setStartMessage(const QString &msg);
     void setCrashParameter(const QString &event);
 
     void setUseDebugServer(Utils::ProcessHandle attachPid, bool essential, bool useMulti);
@@ -38,7 +37,6 @@ public:
     void setDebugInfoLocation(const Utils::FilePath &debugInfoLocation);
 
     void setTestCase(int testCase);
-    void setOverrideStartScript(const Utils::FilePath &script);
 
     void kickoffTerminalProcess();
     void interruptTerminal();

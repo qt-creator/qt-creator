@@ -355,7 +355,7 @@ void runAttachToCoreDialog()
     rp.setCoreFilePath(dlg.coreFileCopy());
     rp.setStartMode(AttachToCore);
     rp.setCloseMode(DetachAtClose);
-    debugger->setOverrideStartScript(dlg.overrideStartScript());
+    rp.setOverrideStartScript(dlg.overrideStartScript());
     const FilePath sysRoot = dlg.sysRoot();
     if (!sysRoot.isEmpty())
         rp.setSysRoot(sysRoot);

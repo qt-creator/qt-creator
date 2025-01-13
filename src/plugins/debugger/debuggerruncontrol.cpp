@@ -113,19 +113,9 @@ void DebuggerRunTool::setTestCase(int testCase)
     m_runParameters.testCase = testCase;
 }
 
-void DebuggerRunTool::setOverrideStartScript(const FilePath &script)
-{
-    m_runParameters.overrideStartScript = script;
-}
-
 void DebuggerRunTool::setAbi(const Abi &abi)
 {
     m_runParameters.toolChainAbi = abi;
-}
-
-void DebuggerRunTool::setStartMessage(const QString &msg)
-{
-    m_runParameters.startMessage = msg;
 }
 
 void DebuggerRunTool::addQmlServerInferiorCommandLineArgumentIfNeeded()

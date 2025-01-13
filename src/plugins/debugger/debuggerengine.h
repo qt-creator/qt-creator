@@ -196,8 +196,12 @@ public:
 
     Utils::ProcessRunData debugger() const { return m_debugger; };
 
-    Utils::FilePath overrideStartScript; // Used in attach to core and remote debugging
-    QString startMessage; // First status message shown.
+    void setOverrideStartScript(const Utils::FilePath &script) { m_overrideStartScript = script; }
+    Utils::FilePath overrideStartScript() const { return m_overrideStartScript; }
+
+    void setStartMessage(const QString &msg) { m_startMessage = msg; }
+    // FIXME: Add a startMessage() getter and use it.
+
     Utils::FilePath debugInfoLocation; // Gdb "set-debug-file-directory".
     QStringList debugSourceLocation; // Gdb "directory"
     Utils::FilePath qtSourceLocation;
@@ -301,6 +305,9 @@ private:
     bool m_runAsRoot = false;
 
     Utils::ProcessRunData m_debugger;
+    Utils::FilePath m_overrideStartScript; // Used in attach to core and remote debugging
+
+    QString m_startMessage; // First status message shown.
 };
 
 namespace Internal {

@@ -1402,22 +1402,22 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             rp.setCloseMode(DetachAtClose);
             rp.setAttachPid(pid);
             rp.setDisplayName(Tr::tr("Process %1").arg(pid));
-            debugger->setStartMessage(Tr::tr("Attaching to local process %1.").arg(pid));
+            rp.setStartMessage(Tr::tr("Attaching to local process %1.").arg(pid));
         } else if (startMode == AttachToRemoteServer) {
             rp.setStartMode(AttachToRemoteServer);
             rp.setRemoteChannel(remoteChannel);
             rp.setDisplayName(Tr::tr("Remote: \"%1\"").arg(remoteChannel));
-            debugger->setStartMessage(Tr::tr("Attaching to remote server %1.").arg(remoteChannel));
+            rp.setStartMessage(Tr::tr("Attaching to remote server %1.").arg(remoteChannel));
         } else if (startMode == AttachToCore) {
             rp.setStartMode(AttachToCore);
             rp.setCloseMode(DetachAtClose);
             rp.setCoreFilePath(coreFile);
             rp.setDisplayName(Tr::tr("Core file \"%1\"").arg(coreFile.toUserOutput()));
-            debugger->setStartMessage(Tr::tr("Attaching to core file %1.").arg(coreFile.toUserOutput()));
+            rp.setStartMessage(Tr::tr("Attaching to core file %1.").arg(coreFile.toUserOutput()));
         } else {
             rp.setStartMode(StartExternal);
             rp.setDisplayName(Tr::tr("Executable file \"%1\"").arg(executable.toUserOutput()));
-            debugger->setStartMessage(Tr::tr("Debugging file %1.").arg(executable.toUserOutput()));
+            rp.setStartMessage(Tr::tr("Debugging file %1.").arg(executable.toUserOutput()));
         }
         rp.setUseTerminal(useTerminal);
 
@@ -1444,7 +1444,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         debugger->setCrashParameter(it->section(':', 0, 0));
         rp.setAttachPid(pid);
         rp.setDisplayName(Tr::tr("Crashed process %1").arg(pid));
-        debugger->setStartMessage(Tr::tr("Attaching to crashed process %1").arg(pid));
+        rp.setStartMessage(Tr::tr("Attaching to crashed process %1").arg(pid));
         if (pid < 1) {
             *errorMessage = Tr::tr("The parameter \"%1\" of option \"%2\" "
                 "does not match the pattern <handle>:<pid>.").arg(*it, option);

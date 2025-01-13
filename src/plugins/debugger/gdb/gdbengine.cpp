@@ -4077,7 +4077,7 @@ void GdbEngine::handleGdbStartFailed()
 
 void GdbEngine::loadInitScript()
 {
-    const FilePath script = runParameters().overrideStartScript;
+    const FilePath script = runParameters().overrideStartScript();
     if (!script.isEmpty()) {
         if (script.isReadableFile()) {
             runCommand({"source " + script.path()});
