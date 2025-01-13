@@ -105,18 +105,18 @@ QDebug operator<<(QDebug d, DebuggerState state)
     return d << DebuggerEngine::stateName(state);
 }
 
-QDebug operator<<(QDebug str, const DebuggerRunParameters &sp)
+QDebug operator<<(QDebug str, const DebuggerRunParameters &rp)
 {
     QDebug nospace = str.nospace();
-    nospace << "executable=" << sp.inferior().command.executable()
-            << " coreFile=" << sp.coreFile
-            << " processArgs=" << sp.inferior().command.arguments()
-            << " inferior environment=<" << sp.inferior().environment.toStringList().size() << " variables>"
-            << " debugger environment=<" << sp.debugger.environment.toStringList().size() << " variables>"
-            << " workingDir=" << sp.inferior().workingDirectory
-            << " attachPID=" << sp.attachPid().pid()
-            << " remoteChannel=" << sp.remoteChannel()
-            << " abi=" << sp.toolChainAbi.toString() << '\n';
+    nospace << "executable=" << rp.inferior().command.executable()
+            << " coreFile=" << rp.coreFile
+            << " processArgs=" << rp.inferior().command.arguments()
+            << " inferior environment=<" << rp.inferior().environment.toStringList().size() << " variables>"
+            << " debugger environment=<" << rp.debugger.environment.toStringList().size() << " variables>"
+            << " workingDir=" << rp.inferior().workingDirectory
+            << " attachPID=" << rp.attachPid().pid()
+            << " remoteChannel=" << rp.remoteChannel()
+            << " abi=" << rp.toolChainAbi.toString() << '\n';
     return str;
 }
 
@@ -2891,44 +2891,44 @@ QString DebuggerEngine::runId() const
 
 QString DebuggerEngine::formatStartParameters() const
 {
-    const DebuggerRunParameters &sp = d->m_runParameters;
+    const DebuggerRunParameters &rp = d->m_runParameters;
     QString rc;
     QTextStream str(&rc);
-    str << "Start parameters: '" << sp.displayName() << "' mode: " << sp.startMode()
-        << "\nABI: " << sp.toolChainAbi.toString() << '\n';
+    str << "Start parameters: '" << rp.displayName() << "' mode: " << rp.startMode()
+        << "\nABI: " << rp.toolChainAbi.toString() << '\n';
     str << "Languages: ";
-    if (sp.isCppDebugging())
+    if (rp.isCppDebugging())
         str << "c++ ";
-    if (sp.isQmlDebugging())
+    if (rp.isQmlDebugging())
         str << "qml";
     str << '\n';
-    if (!sp.inferior().command.isEmpty()) {
-        str << "Executable: " << sp.inferior().command.toUserOutput();
+    if (!rp.inferior().command.isEmpty()) {
+        str << "Executable: " << rp.inferior().command.toUserOutput();
         if (usesTerminal())
             str << " [terminal]";
         str << '\n';
-        if (!sp.inferior().workingDirectory.isEmpty())
-            str << "Directory: " << sp.inferior().workingDirectory.toUserOutput() << '\n';
+        if (!rp.inferior().workingDirectory.isEmpty())
+            str << "Directory: " << rp.inferior().workingDirectory.toUserOutput() << '\n';
     }
-    if (!sp.debugger.command.isEmpty())
-        str << "Debugger: " << sp.debugger.command.toUserOutput() << '\n';
-    if (!sp.coreFile.isEmpty())
-        str << "Core: " << sp.coreFile.toUserOutput() << '\n';
-    if (sp.attachPid().isValid())
-        str << "PID: " << sp.attachPid().pid() << ' ' << sp.crashParameter << '\n';
-    if (!sp.projectSourceDirectory.isEmpty()) {
-        str << "Project: " << sp.projectSourceDirectory.toUserOutput() << '\n';
+    if (!rp.debugger.command.isEmpty())
+        str << "Debugger: " << rp.debugger.command.toUserOutput() << '\n';
+    if (!rp.coreFile.isEmpty())
+        str << "Core: " << rp.coreFile.toUserOutput() << '\n';
+    if (rp.attachPid().isValid())
+        str << "PID: " << rp.attachPid().pid() << ' ' << rp.crashParameter << '\n';
+    if (!rp.projectSourceDirectory.isEmpty()) {
+        str << "Project: " << rp.projectSourceDirectory.toUserOutput() << '\n';
         str << "Additional Search Directories:";
-        for (const FilePath &dir : sp.additionalSearchDirectories())
+        for (const FilePath &dir : rp.additionalSearchDirectories())
             str << ' ' << dir;
         str << '\n';
     }
-    if (!sp.remoteChannel().isEmpty())
-        str << "Remote: " << sp.remoteChannel() << '\n';
-    if (!sp.qmlServer().host().isEmpty())
-        str << "QML server: " << sp.qmlServer().host() << ':' << sp.qmlServer().port() << '\n';
-    str << "Sysroot: " << sp.sysRoot() << '\n';
-    str << "Debug Source Location: " << sp.debugSourceLocation.join(':') << '\n';
+    if (!rp.remoteChannel().isEmpty())
+        str << "Remote: " << rp.remoteChannel() << '\n';
+    if (!rp.qmlServer().host().isEmpty())
+        str << "QML server: " << rp.qmlServer().host() << ':' << rp.qmlServer().port() << '\n';
+    str << "Sysroot: " << rp.sysRoot() << '\n';
+    str << "Debug Source Location: " << rp.debugSourceLocation.join(':') << '\n';
     return rc;
 }
 
