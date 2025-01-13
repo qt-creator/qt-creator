@@ -33,6 +33,8 @@ class LANGUAGECLIENT_EXPORT LanguageClientManager : public QObject
     Q_DISABLE_COPY_MOVE(LanguageClientManager)
 
 public:
+    ~LanguageClientManager() override;
+
     static void clientStarted(Client *client);
     static void clientFinished(Client *client);
     static Client *startClient(const BaseSettings *setting, ProjectExplorer::Project *project = nullptr);
@@ -98,10 +100,9 @@ signals:
     void openCallHierarchy();
 
 private:
-    explicit LanguageClientManager(QObject *parent);
-    ~LanguageClientManager() override;
+    LanguageClientManager();
 
-    friend void setupLanguageClientManager(QObject *guard);
+    friend void setupLanguageClientManager();
 
     void updateProject(ProjectExplorer::Project *project);
     void projectAdded(ProjectExplorer::Project *project);
@@ -127,6 +128,6 @@ template<typename T> bool LanguageClientManager::hasClients()
     });
 }
 
-void setupLanguageClientManager(QObject *guard);
+void setupLanguageClientManager();
 
 } // namespace LanguageClient

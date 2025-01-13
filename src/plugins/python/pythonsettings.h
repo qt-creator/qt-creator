@@ -78,7 +78,8 @@ private:
     static void saveSettings();
 };
 
-void setupPythonSettings(QObject *guard);
+void setupPythonSettings();
+
 Utils::ListModel<ProjectExplorer::Interpreter> *createInterpreterModel(QObject *parent);
 
 } // Python::Internal

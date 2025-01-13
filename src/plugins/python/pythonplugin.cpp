@@ -90,7 +90,7 @@ class PythonPlugin final : public ExtensionSystem::IPlugin
         setupPythonDebugWorker();
         setupPythonOutputParser();
 
-        setupPythonSettings(this);
+        setupPythonSettings();
         setupPythonWizard();
 
         setupPipSupport(this);

@@ -18,15 +18,18 @@ template <class T>
 class GuardedObject
 {
 public:
-    GuardedObject()
-        : m_object(new T)
+    GuardedObject(T *obj)
+        : m_object(obj)
     {
         QObject::connect(shutdownGuard(), &QObject::destroyed, shutdownGuard(), [this] {
             delete m_object;
             m_object = nullptr;
         });
     }
-    ~GuardedObject() = default;
+
+    GuardedObject()
+        : GuardedObject(new T)
+    {}
 
     T *get() const { return m_object; }
 

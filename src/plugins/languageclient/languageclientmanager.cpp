@@ -29,6 +29,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/theme/theme.h>
+#include <utils/shutdownguard.h>
 #include <utils/utilsicons.h>
 
 #include <QTimer>
@@ -50,8 +51,7 @@ class LanguageClientManagerPrivate
     LanguageFunctionsFilter m_functionFilter;
 };
 
-LanguageClientManager::LanguageClientManager(QObject *parent)
-    : QObject(parent)
+LanguageClientManager::LanguageClientManager()
 {
     setObjectName("LanguageClientManager");
 
@@ -742,9 +742,9 @@ bool LanguageClientManager::isShutdownFinished()
            && managerInstance->m_scheduledForDeletion.isEmpty();
 }
 
-void setupLanguageClientManager(QObject *guard)
+void setupLanguageClientManager()
 {
-    (void) new LanguageClientManager(guard);
+    static Utils::GuardedObject theLanguageClientManager{new LanguageClientManager};
 }
 
 } // namespace LanguageClient

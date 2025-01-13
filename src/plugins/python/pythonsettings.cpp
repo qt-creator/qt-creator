@@ -36,6 +36,7 @@
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
+#include <utils/shutdownguard.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -1169,10 +1170,9 @@ Interpreter PythonSettings::interpreter(const QString &interpreterId)
                                 Utils::equal(&Interpreter::id, interpreterId));
 }
 
-void setupPythonSettings(QObject *guard)
+void setupPythonSettings()
 {
-    new PythonSettings; // Initializes settingsInstance
-    settingsInstance->setParent(guard);
+    static GuardedObject thePythonSettings{new PythonSettings};
 }
 
 Utils::ListModel<ProjectExplorer::Interpreter> *createInterpreterModel(QObject *parent)
