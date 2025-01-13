@@ -30,18 +30,18 @@ sol::object qobject_index_get(const sol::this_state &s, QObject *obj, const char
         return sol::make_object(s.lua_state(), r); \
     }
 
-        switch (p.type()) {
-            LUA_VALUE_FROM_PROPERTY(QVariant::Type::Rect, QRect)
-            LUA_VALUE_FROM_PROPERTY(QVariant::Type::Size, QSize)
-            LUA_VALUE_FROM_PROPERTY(QVariant::Type::Point, QPoint)
-            LUA_VALUE_FROM_PROPERTY(QVariant::Type::RectF, QRectF)
-            LUA_VALUE_FROM_PROPERTY(QVariant::Type::SizeF, QSizeF)
-            LUA_VALUE_FROM_PROPERTY(QVariant::Type::PointF, QPointF)
-            LUA_VALUE_FROM_PROPERTY(QVariant::Type::Color, QColor)
-            LUA_VALUE_FROM_PROPERTY(QVariant::Type::Bool, bool)
-            LUA_VALUE_FROM_PROPERTY(QVariant::Type::Int, int)
-            LUA_VALUE_FROM_PROPERTY(QVariant::Type::Double, double)
-            LUA_VALUE_FROM_PROPERTY(QVariant::Type::String, QString)
+        switch (p.metaType().id()) {
+            LUA_VALUE_FROM_PROPERTY(QMetaType::Type::QRect, QRect)
+            LUA_VALUE_FROM_PROPERTY(QMetaType::Type::QSize, QSize)
+            LUA_VALUE_FROM_PROPERTY(QMetaType::Type::QPoint, QPoint)
+            LUA_VALUE_FROM_PROPERTY(QMetaType::Type::QRectF, QRectF)
+            LUA_VALUE_FROM_PROPERTY(QMetaType::Type::QSizeF, QSizeF)
+            LUA_VALUE_FROM_PROPERTY(QMetaType::Type::QPointF, QPointF)
+            LUA_VALUE_FROM_PROPERTY(QMetaType::Type::QColor, QColor)
+            LUA_VALUE_FROM_PROPERTY(QMetaType::Type::Bool, bool)
+            LUA_VALUE_FROM_PROPERTY(QMetaType::Type::Int, int)
+            LUA_VALUE_FROM_PROPERTY(QMetaType::Type::Double, double)
+            LUA_VALUE_FROM_PROPERTY(QMetaType::Type::QString, QString)
         default:
             break;
         }
@@ -81,18 +81,18 @@ void qobject_index_set(QObject *obj, const char *key, sol::stack_object value)
         break; \
     }
 
-        switch (p.type()) {
-            SET_PROPERTY_FROM_LUA(QVariant::Type::Rect, QRect)
-            SET_PROPERTY_FROM_LUA(QVariant::Type::Size, QSize)
-            SET_PROPERTY_FROM_LUA(QVariant::Type::Point, QPoint)
-            SET_PROPERTY_FROM_LUA(QVariant::Type::RectF, QRectF)
-            SET_PROPERTY_FROM_LUA(QVariant::Type::SizeF, QSizeF)
-            SET_PROPERTY_FROM_LUA(QVariant::Type::PointF, QPointF)
-            SET_PROPERTY_FROM_LUA(QVariant::Type::Color, QColor)
-            SET_PROPERTY_FROM_LUA(QVariant::Type::Bool, bool)
-            SET_PROPERTY_FROM_LUA(QVariant::Type::Int, int)
-            SET_PROPERTY_FROM_LUA(QVariant::Type::Double, double)
-            SET_PROPERTY_FROM_LUA(QVariant::Type::String, QString)
+        switch (p.metaType().id()) {
+            SET_PROPERTY_FROM_LUA(QMetaType::Type::QRect, QRect)
+            SET_PROPERTY_FROM_LUA(QMetaType::Type::QSize, QSize)
+            SET_PROPERTY_FROM_LUA(QMetaType::Type::QPoint, QPoint)
+            SET_PROPERTY_FROM_LUA(QMetaType::Type::QRectF, QRectF)
+            SET_PROPERTY_FROM_LUA(QMetaType::Type::QSizeF, QSizeF)
+            SET_PROPERTY_FROM_LUA(QMetaType::Type::QPointF, QPointF)
+            SET_PROPERTY_FROM_LUA(QMetaType::Type::QColor, QColor)
+            SET_PROPERTY_FROM_LUA(QMetaType::Type::Bool, bool)
+            SET_PROPERTY_FROM_LUA(QMetaType::Type::Int, int)
+            SET_PROPERTY_FROM_LUA(QMetaType::Type::Double, double)
+            SET_PROPERTY_FROM_LUA(QMetaType::Type::QString, QString)
         default:
             break;
         }
