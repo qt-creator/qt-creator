@@ -233,12 +233,13 @@ public:
     bool isCppDebugging() const;
     bool isNativeMixedDebugging() const;
 
-    const Utils::MacroExpander *macroExpander = nullptr;
+    const Utils::MacroExpander *macroExpander() const { return m_macroExpander; }
 
-    std::optional<int> exitCode = {};
+    void setExitCode(int code) { m_exitCode = code; }
+    std::optional<int> exitCode() const { return m_exitCode; }
 
-    // For Debugger testing.
-    int testCase = 0;
+    void setTestCase(int testCase) { m_testCase = testCase; }
+    int testCase() const { return m_testCase; }
 
     QStringList validationErrors;
 
@@ -331,6 +332,11 @@ private:
 
     QString m_crashParameter; // Used by AttachCrashedExternal.
     bool m_nativeMixedEnabled = false;
+
+    const Utils::MacroExpander *m_macroExpander = nullptr;
+    std::optional<int> m_exitCode = {};
+
+    int m_testCase = 0; // For Debugger testing.
 };
 
 namespace Internal {

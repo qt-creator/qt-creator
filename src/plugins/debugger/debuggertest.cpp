@@ -110,7 +110,7 @@ void DebuggerUnitTests::testStateMachine()
 
     DebuggerRunParameters &rp = debugger->runParameters();
     rp.setInferior(rc->runnable());
-    debugger->setTestCase(TestNoBoundsOfCurrentFunction);
+    rp.setTestCase(TestNoBoundsOfCurrentFunction);
 
     connect(debugger, &DebuggerRunTool::stopped,
             &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);

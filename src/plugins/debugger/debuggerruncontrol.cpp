@@ -103,11 +103,6 @@ public:
 
 } // namespace Internal
 
-void DebuggerRunTool::setTestCase(int testCase)
-{
-    m_runParameters.testCase = testCase;
-}
-
 void DebuggerRunTool::addQmlServerInferiorCommandLineArgumentIfNeeded()
 {
     d->addQmlServerInferiorCommandLineArgumentIfNeeded = true;
@@ -502,11 +497,11 @@ void DebuggerRunTool::handleEngineFinished(DebuggerEngine *engine)
 {
     engine->prepareForRestart();
     if (--d->engineStopsNeeded == 0) {
-        QString cmd = m_runParameters.inferior().command.toUserOutput();
-        QString msg = engine->runParameters().exitCode // Main engine.
+        const QString cmd = m_runParameters.inferior().command.toUserOutput();
+        const QString msg = engine->runParameters().exitCode() // Main engine.
                           ? Tr::tr("Debugging of %1 has finished with exit code %2.")
                                 .arg(cmd)
-                                .arg(*engine->runParameters().exitCode)
+                                .arg(*engine->runParameters().exitCode())
                           : Tr::tr("Debugging of %1 has finished.").arg(cmd);
         appendMessage(msg, NormalMessageFormat);
         reportStopped();

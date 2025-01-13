@@ -32,8 +32,6 @@ public:
 
     void setUseDebugServer(Utils::ProcessHandle attachPid, bool essential, bool useMulti);
 
-    void setTestCase(int testCase);
-
     void kickoffTerminalProcess();
     void interruptTerminal();
 

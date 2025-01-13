@@ -137,7 +137,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
         params.m_runAsRoot = runAsRootAspect->value;
 
     params.setSysRoot(SysRootKitAspect::sysRoot(kit));
-    params.macroExpander = runControl->macroExpander();
+    params.m_macroExpander = runControl->macroExpander();
     params.m_debugger = DebuggerKitAspect::runnable(kit);
     params.m_cppEngineType = DebuggerKitAspect::engineType(kit);
     params.m_version = DebuggerKitAspect::version(kit);
@@ -1157,7 +1157,7 @@ QString DebuggerEngine::stateName(int s)
 
 void DebuggerEngine::notifyExitCode(int code)
 {
-    d->m_runParameters.exitCode = code;
+    d->m_runParameters.setExitCode(code);
 }
 
 void DebuggerEngine::showStatusMessage(const QString &msg, int timeout) const
@@ -2133,7 +2133,7 @@ bool DebuggerEngine::canDisplayTooltip() const
 
 QString DebuggerEngine::expand(const QString &string) const
 {
-    return runParameters().macroExpander->expand(string);
+    return runParameters().macroExpander()->expand(string);
 }
 
 QString DebuggerEngine::nativeStartupCommands() const
@@ -3111,7 +3111,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
             globalRegExpSourceMap.reserve(sourcePathMap.size());
             for (auto it = sourcePathMap.begin(), end = sourcePathMap.end(); it != end; ++it) {
                 if (it.key().startsWith('(')) {
-                    const QString expanded = rp.macroExpander->expand(it.value());
+                    const QString expanded = rp.macroExpander()->expand(it.value());
                     if (!expanded.isEmpty())
                         globalRegExpSourceMap.push_back({QRegularExpression(it.key()), expanded});
                 }
