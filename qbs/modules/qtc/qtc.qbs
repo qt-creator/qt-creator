@@ -91,6 +91,8 @@ Module {
         "QT_RESTRICTED_CAST_FROM_ASCII",
         "QT_NO_FOREACH",
         "QT_DISABLE_DEPRECATED_BEFORE=0x050900",
+        "QT_WARN_DEPRECATED_BEFORE=0x060400",
+        "QT_WARN_DEPRECATED_UP_TO=0x060400",
         "QT_USE_QSTRINGBUILDER",
         "QT_NO_QSNPRINTF",
     ].concat(withPluginTests ? ["WITH_TESTS"] : [])
