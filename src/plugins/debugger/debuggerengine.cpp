@@ -192,6 +192,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
 
     if (QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(kit)) {
         const QVersionNumber qtVersion = baseQtVersion->qtVersion();
+        params.m_qtNamespace = baseQtVersion->qtNamespace();
         params.m_qtVersion = 0x10000 * qtVersion.majorVersion()
                            + 0x100 * qtVersion.minorVersion()
                            + qtVersion.microVersion();
