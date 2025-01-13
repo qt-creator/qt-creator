@@ -5,6 +5,7 @@
 #include "qrcodegen.h"
 
 #include <QJsonDocument>
+#include <QJsonValue>
 #include <QPainter>
 #include <QSvgRenderer>
 
