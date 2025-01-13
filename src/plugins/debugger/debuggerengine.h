@@ -202,9 +202,13 @@ public:
     void setStartMessage(const QString &msg) { m_startMessage = msg; }
     // FIXME: Add a startMessage() getter and use it.
 
-    Utils::FilePath debugInfoLocation; // Gdb "set-debug-file-directory".
-    QStringList debugSourceLocation; // Gdb "directory"
-    Utils::FilePath qtSourceLocation;
+    void setDebugInfoLocation(const Utils::FilePath &location) { m_debugInfoLocation = location; }
+    Utils::FilePath debugInfoLocation() const { return m_debugInfoLocation; }
+
+    QStringList debugSourceLocation() const { return m_debugSourceLocation; }
+
+    Utils::FilePath qtSourceLocation() const { return m_qtSourceLocation; }
+
     ProjectExplorer::Abi toolChainAbi;
 
     Utils::FilePath projectSourceDirectory;
@@ -308,6 +312,9 @@ private:
     Utils::FilePath m_overrideStartScript; // Used in attach to core and remote debugging
 
     QString m_startMessage; // First status message shown.
+    Utils::FilePath m_debugInfoLocation; // Gdb "set-debug-file-directory".
+    QStringList m_debugSourceLocation; // Gdb "directory"
+    Utils::FilePath m_qtSourceLocation;
 };
 
 namespace Internal {

@@ -34,8 +34,6 @@ public:
 
     void setUseDebugServer(Utils::ProcessHandle attachPid, bool essential, bool useMulti);
 
-    void setDebugInfoLocation(const Utils::FilePath &debugInfoLocation);
-
     void setTestCase(int testCase);
 
     void kickoffTerminalProcess();

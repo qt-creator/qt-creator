@@ -3964,7 +3964,7 @@ void GdbEngine::handleGdbStarted()
     }
 
     // Spaces just will not work.
-    for (const QString &src : rp.debugSourceLocation) {
+    for (const QString &src : rp.debugSourceLocation()) {
         if (QDir(src).exists())
             runCommand({"directory " + src});
         else
@@ -4214,7 +4214,7 @@ void GdbEngine::handleInferiorPrepared()
 void GdbEngine::handleDebugInfoLocation(const DebuggerResponse &response)
 {
     if (response.resultClass == ResultDone) {
-        const FilePath debugInfoLocation = runParameters().debugInfoLocation;
+        const FilePath debugInfoLocation = runParameters().debugInfoLocation();
         if (!debugInfoLocation.isEmpty() && debugInfoLocation.exists()) {
             const QString curDebugInfoLocations = response.consoleStreamOutput.split('"').value(1);
             QString cmd = "set debug-file-directory " + debugInfoLocation.path();

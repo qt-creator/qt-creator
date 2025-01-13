@@ -103,11 +103,6 @@ public:
 
 } // namespace Internal
 
-void DebuggerRunTool::setDebugInfoLocation(const FilePath &debugInfoLocation)
-{
-    m_runParameters.debugInfoLocation = debugInfoLocation;
-}
-
 void DebuggerRunTool::setTestCase(int testCase)
 {
     m_runParameters.testCase = testCase;

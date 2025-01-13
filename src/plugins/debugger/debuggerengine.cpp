@@ -143,7 +143,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
     params.m_version = DebuggerKitAspect::version(kit);
 
     if (QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit))
-        params.qtSourceLocation = qtVersion->sourcePath();
+        params.m_qtSourceLocation = qtVersion->sourcePath();
 
     if (auto aspect = runControl->aspectData<DebuggerRunConfigurationAspect>()) {
         if (!aspect->useCppDebugger)
@@ -243,13 +243,13 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
     }
 
     if (settings().autoEnrichParameters()) {
-        if (debugInfoLocation.isEmpty())
-            debugInfoLocation = m_sysRoot / "/usr/lib/debug";
-        if (debugSourceLocation.isEmpty()) {
+        if (m_debugInfoLocation.isEmpty())
+            m_debugInfoLocation = m_sysRoot / "/usr/lib/debug";
+        if (m_debugSourceLocation.isEmpty()) {
             const QString base = m_sysRoot.toUrlishString() + "/usr/src/debug/";
-            debugSourceLocation.append(base + "qt5base/src/corelib");
-            debugSourceLocation.append(base + "qt5base/src/gui");
-            debugSourceLocation.append(base + "qt5base/src/network");
+            m_debugSourceLocation.append(base + "qt5base/src/corelib");
+            m_debugSourceLocation.append(base + "qt5base/src/gui");
+            m_debugSourceLocation.append(base + "qt5base/src/network");
         }
     }
 
@@ -2923,7 +2923,7 @@ QString DebuggerEngine::formatStartParameters() const
     if (!rp.qmlServer().host().isEmpty())
         str << "QML server: " << rp.qmlServer().host() << ':' << rp.qmlServer().port() << '\n';
     str << "Sysroot: " << rp.sysRoot() << '\n';
-    str << "Debug Source Location: " << rp.debugSourceLocation.join(':') << '\n';
+    str << "Debug Source Location: " << rp.debugSourceLocation().join(':') << '\n';
     return rc;
 }
 

@@ -419,7 +419,7 @@ void DebuggerSourcePathMappingWidget::slotEditTargetFieldChanged()
 SourcePathMap mergePlatformQtPath(const DebuggerRunParameters &sp, const SourcePathMap &in)
 {
     static const QString qglobal = "qtbase/src/corelib/global/qglobal.h";
-    const FilePath sourceLocation = sp.qtSourceLocation;
+    const FilePath sourceLocation = sp.qtSourceLocation();
     if (!(sourceLocation / qglobal).exists())
         return in;
 
