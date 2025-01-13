@@ -1566,7 +1566,7 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
     }
 
     const auto runner = [tokens, filePath = doc->filePath(),
-                         text = doc->document()->toPlainText(),
+                         text = doc->plainText(),
                          rev = doc->document()->revision(), this] {
         try {
             return Utils::asyncRun(doSemanticHighlighting, filePath, tokens, text,
