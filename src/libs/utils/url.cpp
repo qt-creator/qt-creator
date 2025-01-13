@@ -5,6 +5,7 @@
 
 #include "temporaryfile.h"
 
+#include <QDebug>
 #include <QHostAddress>
 #include <QTcpServer>
 #include <QUrl>
