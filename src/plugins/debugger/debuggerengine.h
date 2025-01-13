@@ -241,8 +241,8 @@ public:
     void setTestCase(int testCase) { m_testCase = testCase; }
     int testCase() const { return m_testCase; }
 
-    int qtVersion = 0;
-    QString qtNamespace;
+    int qtVersion() const { return m_qtVersion; }
+    QString qtNamespace() const { return m_qtNamespace; };
 
     // Common debugger constants.
     Utils::FilePath peripheralDescriptionFile;
@@ -336,6 +336,9 @@ private:
 
     int m_testCase = 0; // For Debugger testing.
     QStringList m_validationErrors;
+
+    int m_qtVersion = 0;
+    QString m_qtNamespace;
 };
 
 namespace Internal {

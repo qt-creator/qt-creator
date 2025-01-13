@@ -5164,8 +5164,8 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
     cmd.arg("dyntype", s.useDynamicType());
     cmd.arg("qobjectnames", s.showQObjectNames());
     cmd.arg("timestamps", s.logTimeStamps());
-    cmd.arg("qtversion", runParameters().qtVersion);
-    cmd.arg("qtnamespace", runParameters().qtNamespace);
+    cmd.arg("qtversion", runParameters().qtVersion());
+    cmd.arg("qtnamespace", runParameters().qtNamespace());
 
     StackFrame frame = stackHandler()->currentFrame();
     cmd.arg("context", frame.context);
