@@ -241,8 +241,6 @@ public:
     void setTestCase(int testCase) { m_testCase = testCase; }
     int testCase() const { return m_testCase; }
 
-    QStringList validationErrors;
-
     int qtVersion = 0;
     QString qtNamespace;
 
@@ -337,6 +335,7 @@ private:
     std::optional<int> m_exitCode = {};
 
     int m_testCase = 0; // For Debugger testing.
+    QStringList m_validationErrors;
 };
 
 namespace Internal {

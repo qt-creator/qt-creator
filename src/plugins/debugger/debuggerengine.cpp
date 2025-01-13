@@ -158,10 +158,10 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
                 const Tasks tasks = DebuggerKitAspect::validateDebugger(kit);
                 for (const Task &t : tasks) {
                     if (t.type != Task::Warning)
-                        params.validationErrors.append(t.description());
+                        params.m_validationErrors.append(t.description());
                 }
             } else {
-                params.validationErrors.append(Tr::tr("The kit does not have a debugger set."));
+                params.m_validationErrors.append(Tr::tr("The kit does not have a debugger set."));
             }
         }
     }
@@ -223,8 +223,8 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
             m_debugger.environment.set(var, m_inferior.environment.expandedValueForKey(var));
 
     // validate debugger if C++ debugging is enabled
-    if (!validationErrors.isEmpty())
-        return Result::Error(validationErrors.join('\n'));
+    if (!m_validationErrors.isEmpty())
+        return Result::Error(m_validationErrors.join('\n'));
 
     if (m_isQmlDebugging) {
         const auto device = runControl->device();
