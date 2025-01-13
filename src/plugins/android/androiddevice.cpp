@@ -30,6 +30,7 @@
 #include <utils/port.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/shutdownguard.h>
 #include <utils/url.h>
 
 #include <QFileSystemWatcher>
@@ -89,7 +90,7 @@ static SdkToolResult runAdbCommand(const QStringList &args)
 class AndroidDeviceManagerInstance : public QObject
 {
 public:
-    AndroidDeviceManagerInstance(QObject *parent);
+    AndroidDeviceManagerInstance();
     ~AndroidDeviceManagerInstance()
     {
         QTC_ASSERT(s_instance == this, return);
@@ -99,7 +100,7 @@ public:
     void setupDevicesWatcher();
     void eraseAvd(const IDevice::Ptr &device, QWidget *parent);
 
-    Group m_avdListRecipe;
+    Group m_avdListRecipe{};
     TaskTreeRunner m_avdListRunner;
     TaskTreeRunner m_avdDeviceWatcherRunner;
     std::unique_ptr<Process> m_removeAvdProcess;
@@ -842,9 +843,7 @@ static void handleAvdListChange(const AndroidDeviceInfoList &avdList)
     }
 }
 
-AndroidDeviceManagerInstance::AndroidDeviceManagerInstance(QObject *parent)
-    : QObject(parent)
-    , m_avdListRecipe{}
+AndroidDeviceManagerInstance::AndroidDeviceManagerInstance()
 {
     QTC_ASSERT(!s_instance, return);
     s_instance = this;
@@ -1092,9 +1091,9 @@ void setupAndroidDevice()
     static AndroidDeviceFactory theAndroidDeviceFactory;
 }
 
-void setupAndroidDeviceManager(QObject *guard)
+void setupAndroidDeviceManager()
 {
-    (void) new AndroidDeviceManagerInstance(guard);
+    static GuardedObject<AndroidDeviceManagerInstance> theAndroidDeviceManager;
 }
 
 } // Android::Internal

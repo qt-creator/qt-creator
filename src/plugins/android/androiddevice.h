@@ -74,6 +74,6 @@ Tasking::Group createAvdRecipe(const Tasking::Storage<std::optional<QString>> &e
                                const CreateAvdInfo &info, bool force);
 
 void setupAndroidDevice();
-void setupAndroidDeviceManager(QObject *guard);
+void setupAndroidDeviceManager();
 
 } // Android::Internal

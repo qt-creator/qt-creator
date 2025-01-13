@@ -84,7 +84,7 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
         setupAndroidQtVersion();
         setupAndroidToolchain();
 
-        setupAndroidDeviceManager(this);
+        setupAndroidDeviceManager();
 
         setupAndroidSettingsPage();
 
