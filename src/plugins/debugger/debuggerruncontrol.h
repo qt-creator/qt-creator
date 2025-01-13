@@ -40,9 +40,6 @@ public:
 private:
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);
 
-    void handleEngineStarted(Internal::DebuggerEngine *engine);
-    void handleEngineFinished(Internal::DebuggerEngine *engine);
-
     void startCoreFileSetupIfNeededAndContinueStartup();
     void continueAfterCoreFileSetup();
 

@@ -361,10 +361,34 @@ void DebuggerRunTool::continueAfterDebugServerStart()
                 rc->initiateStop();
             }, Qt::QueuedConnection);
         connect(engine, &DebuggerEngine::requestRunControlStop, rc, &RunControl::initiateStop);
-        connect(engine, &DebuggerEngine::engineStarted,
-                this, [this, engine] { handleEngineStarted(engine); });
-        connect(engine, &DebuggerEngine::engineFinished,
-                this, [this, engine] { handleEngineFinished(engine); });
+
+        connect(engine, &DebuggerEngine::engineStarted, this, [this, engine] {
+            // Correct:
+            // if (--d->engineStartsNeeded == 0) {
+            //     EngineManager::activateDebugMode();
+            //     reportStarted();
+            // }
+
+            // Feels better, as the QML Engine might attach late or not at all.
+            if (engine == m_engines.first()) {
+                EngineManager::activateDebugMode();
+                reportStarted();
+            }
+        });
+
+        connect(engine, &DebuggerEngine::engineFinished, this, [this, engine] {
+            engine->prepareForRestart();
+            if (--d->engineStopsNeeded == 0) {
+                const QString cmd = m_runParameters.inferior().command.toUserOutput();
+                const QString msg = engine->runParameters().exitCode() // Main engine.
+                                        ? Tr::tr("Debugging of %1 has finished with exit code %2.")
+                                              .arg(cmd)
+                                              .arg(*engine->runParameters().exitCode())
+                                        : Tr::tr("Debugging of %1 has finished.").arg(cmd);
+                appendMessage(msg, NormalMessageFormat);
+                reportStopped();
+            }
+        });
         connect(engine, &DebuggerEngine::appendMessageRequested,
                 this, &DebuggerRunTool::appendMessage);
         ++d->engineStartsNeeded;
@@ -462,36 +486,6 @@ void DebuggerRunTool::stop()
 {
     QTC_ASSERT(!m_engines.isEmpty(), reportStopped(); return);
     Utils::reverseForeach(m_engines, [](DebuggerEngine *engine) { engine->quitDebugger(); });
-}
-
-void DebuggerRunTool::handleEngineStarted(DebuggerEngine *engine)
-{
-    // Correct:
-//    if (--d->engineStartsNeeded == 0) {
-//        EngineManager::activateDebugMode();
-//        reportStarted();
-//    }
-
-    // Feels better, as the QML Engine might attach late or not at all.
-    if (engine == m_engines.first()) {
-        EngineManager::activateDebugMode();
-        reportStarted();
-    }
-}
-
-void DebuggerRunTool::handleEngineFinished(DebuggerEngine *engine)
-{
-    engine->prepareForRestart();
-    if (--d->engineStopsNeeded == 0) {
-        const QString cmd = m_runParameters.inferior().command.toUserOutput();
-        const QString msg = engine->runParameters().exitCode() // Main engine.
-                          ? Tr::tr("Debugging of %1 has finished with exit code %2.")
-                                .arg(cmd)
-                                .arg(*engine->runParameters().exitCode())
-                          : Tr::tr("Debugging of %1 has finished.").arg(cmd);
-        appendMessage(msg, NormalMessageFormat);
-        reportStopped();
-    }
 }
 
 void DebuggerRunTool::setupPortsGatherer()
