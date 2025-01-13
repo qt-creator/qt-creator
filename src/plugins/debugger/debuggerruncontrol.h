@@ -50,11 +50,7 @@ private:
     DebuggerRunParameters m_runParameters;
 };
 
-class DebuggerRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    DebuggerRunWorkerFactory();
-};
+void setupDebuggerRunWorker();
 
 class SimpleDebugRunnerFactory final : public ProjectExplorer::RunWorkerFactory
 {

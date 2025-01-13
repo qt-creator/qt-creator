@@ -699,8 +699,6 @@ public:
     Perspective m_perspective{Constants::PRESET_PERSPECTIVE_ID, Tr::tr("Debugger")};
     Perspective m_perspectiveDap{Constants::DAP_PERSPECTIVE_ID, Tr::tr("DAP")};
 
-    DebuggerRunWorkerFactory debuggerWorkerFactory;
-
     std::optional<QPoint> attachToUnstartedApplicationDialogLastPosition;
 
     // FIXME: Needed?
@@ -777,6 +775,8 @@ QWidget *DebuggerPluginPrivate::createEngineManagerWindow(BaseTreeView *engineMa
 
 DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
 {
+    setupDebuggerRunWorker();
+
     qRegisterMetaType<ContextData>("ContextData");
     qRegisterMetaType<DebuggerRunParameters>("DebuggerRunParameters");
     qRegisterMetaType<QString *>();
