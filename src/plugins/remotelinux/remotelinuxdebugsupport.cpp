@@ -47,10 +47,11 @@ public:
         setProducer([](RunControl *rc) {
             rc->requestDebugChannel();
 
-            auto debugger = new DebuggerRunTool(rc, DebuggerRunTool::DoNotAllowTerminal);
+            auto debugger = new DebuggerRunTool(rc);
             DebuggerRunParameters &rp = debugger->runParameters();
             debugger->setId("RemoteLinuxDebugWorker");
             debugger->setupPortsGatherer();
+            rp.setUseTerminal(false);
             rp.setAddQmlServerInferiorCmdArgIfNeeded(true);
 
             rp.setStartMode(AttachToRemoteServer);

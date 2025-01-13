@@ -91,7 +91,6 @@ public:
 
     // Terminal
     Process terminalProc;
-    DebuggerRunTool::AllowTerminal allowTerminal = DebuggerRunTool::DoAllowTerminal;
 
     // DebugServer
     Process debuggerServerProc;
@@ -163,9 +162,6 @@ void DebuggerRunTool::continueAfterCoreFileSetup()
 
 void DebuggerRunTool::startTerminalIfNeededAndContinueStartup()
 {
-    if (d->allowTerminal == DoNotAllowTerminal)
-        m_runParameters.setUseTerminal(false);
-
     // CDB has a built-in console that might be preferred by some.
     const bool useCdbConsole = m_runParameters.cppEngineType() == CdbEngineType
             && (m_runParameters.startMode() == StartInternal
@@ -497,7 +493,7 @@ void DebuggerRunTool::setupPortsGatherer()
         runControl()->requestQmlChannel();
 }
 
-DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerminal)
+DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
     : RunWorker(runControl)
     , d(new DebuggerRunToolPrivate)
     , m_runParameters(DebuggerRunParameters::fromRunControl(runControl))
@@ -513,7 +509,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     d->debuggerServerProc.setUtf8Codec();
 
     d->runId = QString::number(++toolRunCount);
-    d->allowTerminal = allowTerminal;
 
     runControl->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
     runControl->setPromptToStop([](bool *optionalPrompt) {

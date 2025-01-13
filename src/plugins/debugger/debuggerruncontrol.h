@@ -22,9 +22,7 @@ class SubChannelProvider;
 class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::RunWorker
 {
 public:
-    enum AllowTerminal { DoAllowTerminal, DoNotAllowTerminal };
-    explicit DebuggerRunTool(ProjectExplorer::RunControl *runControl,
-                             AllowTerminal allowTerminal = DoAllowTerminal);
+    explicit DebuggerRunTool(ProjectExplorer::RunControl *runControl);
     ~DebuggerRunTool() override;
 
     void start() override;
