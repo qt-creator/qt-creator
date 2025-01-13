@@ -17,8 +17,6 @@ namespace Debugger {
 
 namespace Internal { class DebuggerRunToolPrivate; }
 
-class SubChannelProvider;
-
 class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::RunWorker
 {
 public:

@@ -560,44 +560,6 @@ void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
     }
 }
 
-////////////////////////////////////////////////////////////////////////
-//
-// Externally visible helper.
-//
-////////////////////////////////////////////////////////////////////////
-
-/*!
-    \class Debugger::SubChannelProvider
-
-    The class implements a \c RunWorker to provide a url
-    indicating usable connection end
-    points for 'server-using' tools (typically one, like plain
-    gdbserver and the Qml tooling, but two for mixed debugging).
-
-    Urls can describe local or tcp servers that are directly
-    accessible to the host tools.
-
-    By default it is assumed that no forwarding is needed, i.e.
-    end points provided by the shared endpoint resource provider
-    are directly accessible.
-
-    The tool implementations can assume that any needed port
-    forwarding setup is setup and handled transparently by
-    a \c SubChannelProvider instance.
-
-    If there are multiple subchannels needed that need to share a
-    common set of resources on the remote side, a device implementation
-    can provide a "SharedEndpointGatherer" RunWorker.
-
-    If none is provided, it is assumed that the shared resource
-    is open TCP ports, provided by the device's PortGatherer i
-    implementation.
-
-    FIXME: The current implementation supports only the case
-    of "any number of TCP channels that do not need actual
-    forwarding.
-*/
-
 void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
 {
     if (!runControl()->usesDebugChannel()) {
