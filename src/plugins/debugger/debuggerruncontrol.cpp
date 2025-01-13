@@ -372,7 +372,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
             }
         }
 
-        if (m_runParameters.isPythonDebugging)
+        if (m_runParameters.isPythonDebugging())
             m_engines << createPdbEngine();
 
         if (m_runParameters.isQmlDebugging())

@@ -182,7 +182,7 @@ public:
 
     QString version() const { return m_version; }
 
-    bool isPythonDebugging = false;
+    bool isPythonDebugging() const { return m_isPythonDebugging; }
     bool breakOnMain = false;
     bool multiProcess = false; // Whether to set detach-on-fork off.
     bool useTerminal = false;
@@ -286,6 +286,8 @@ private:
     DebuggerEngineType m_cppEngineType = NoEngineType;
 
     QString m_version;
+
+    bool m_isPythonDebugging = false;
 };
 
 namespace Internal {

@@ -149,7 +149,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
         if (!aspect->useCppDebugger)
             params.m_cppEngineType = NoEngineType;
         params.m_isQmlDebugging = aspect->useQmlDebugger;
-        params.isPythonDebugging = aspect->usePythonDebugger;
+        params.m_isPythonDebugging = aspect->usePythonDebugger;
         params.multiProcess = aspect->useMultiProcess;
         params.m_additionalStartupCommands = aspect->overrideStartup;
 
