@@ -625,9 +625,9 @@ void PeripheralRegisterHandler::updateRegisterGroups()
     clear();
 
     const DebuggerRunParameters &rp = m_engine->runParameters();
-    if (!rp.peripheralDescriptionFile.exists())
+    if (!rp.peripheralDescriptionFile().exists())
         return;
-    m_peripheralRegisterGroups = availablePeripheralRegisterGroups(rp.peripheralDescriptionFile);
+    m_peripheralRegisterGroups = availablePeripheralRegisterGroups(rp.peripheralDescriptionFile());
 }
 
 void PeripheralRegisterHandler::updateRegister(quint64 address, quint64 value)

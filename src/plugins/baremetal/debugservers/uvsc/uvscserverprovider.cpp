@@ -185,10 +185,10 @@ bool UvscServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMess
     ProcessRunData inferior;
     inferior.command.setExecutable(bin);
     DebuggerRunParameters &rp = runTool->runParameters();
-    rp.peripheralDescriptionFile = peripheralDescriptionFile;
-    rp.uVisionProjectFilePath = projFilePath;
-    rp.uVisionOptionsFilePath = optFilePath;
-    rp.uVisionSimulator = isSimulator();
+    rp.setPeripheralDescriptionFile(peripheralDescriptionFile);
+    rp.setUVisionProjectFilePath(projFilePath);
+    rp.setUVisionOptionsFilePath(optFilePath);
+    rp.setUVisionSimulator(isSimulator());
     rp.setInferior(inferior);
     rp.setSymbolFile(bin);
     rp.setStartMode(AttachToRemoteServer);

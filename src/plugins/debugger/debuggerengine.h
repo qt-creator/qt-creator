@@ -244,13 +244,17 @@ public:
     int qtVersion() const { return m_qtVersion; }
     QString qtNamespace() const { return m_qtNamespace; };
 
-    // Common debugger constants.
-    Utils::FilePath peripheralDescriptionFile;
+    void setPeripheralDescriptionFile(const Utils::FilePath &path) { m_peripheralDescriptionFile = path; }
+    Utils::FilePath peripheralDescriptionFile() const { return m_peripheralDescriptionFile; }
 
-    // UVSC-specific debugger constants.
-    Utils::FilePath uVisionProjectFilePath;
-    Utils::FilePath uVisionOptionsFilePath;
-    bool uVisionSimulator = false;
+    void setUVisionProjectFilePath(const Utils::FilePath &path) { m_uVisionProjectFilePath = path; }
+    Utils::FilePath uVisionProjectFilePath() const { return m_uVisionProjectFilePath; }
+
+    void setUVisionOptionsFilePath(const Utils::FilePath &path) { m_uVisionOptionsFilePath = path; }
+    Utils::FilePath uVisionOptionsFilePath() const { return m_uVisionOptionsFilePath; }
+
+    void setUVisionSimulator(bool on) { m_uVisionSimulator = on; }
+    bool uVisionSimulator() const { return m_uVisionSimulator; }
 
 private:
     DebuggerStartMode m_startMode = NoStartMode;
@@ -339,6 +343,11 @@ private:
 
     int m_qtVersion = 0;
     QString m_qtNamespace;
+
+    Utils::FilePath m_peripheralDescriptionFile; // Common debugger constant.
+    Utils::FilePath m_uVisionProjectFilePath; // UVSC-specific debugger constant.
+    Utils::FilePath m_uVisionOptionsFilePath; // UVSC-specific debugger constant.
+    bool m_uVisionSimulator = false;
 };
 
 namespace Internal {

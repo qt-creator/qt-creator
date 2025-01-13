@@ -514,8 +514,8 @@ void UvscEngine::updateAll()
 bool UvscEngine::configureProject(const DebuggerRunParameters &rp)
 {
     // Fetch patchs for the generated uVision project files.
-    const FilePath optionsPath = rp.uVisionOptionsFilePath;
-    const FilePath projectPath = rp.uVisionProjectFilePath;
+    const FilePath optionsPath = rp.uVisionOptionsFilePath();
+    const FilePath projectPath = rp.uVisionProjectFilePath();
 
     showMessage("UVSC: LOADING PROJECT...");
     if (!optionsPath.exists()) {
@@ -533,7 +533,7 @@ bool UvscEngine::configureProject(const DebuggerRunParameters &rp)
     }
 
     showMessage("UVSC: SETTING PROJECT DEBUG TARGET...");
-    m_simulator = rp.uVisionSimulator;
+    m_simulator = rp.uVisionSimulator();
     if (!m_client->setProjectDebugTarget(m_simulator)) {
         handleSetupFailure(Tr::tr("Internal error: Unable to set the uVision debug target: %1.")
                            .arg(m_client->errorString()));
@@ -582,7 +582,7 @@ void UvscEngine::handleProjectClosed()
     m_loadingRequired = false;
 
     const DebuggerRunParameters &rp = runParameters();
-    const FilePath projectPath = rp.uVisionProjectFilePath;
+    const FilePath projectPath = rp.uVisionProjectFilePath();
 
     // This magic function removes specific files from the uVision
     // project directory. Without of this we can't enumerate the local
