@@ -154,7 +154,7 @@ Item {
                                     ContentLibraryItem {
                                         width: root.cellWidth
                                         height: root.cellHeight
-                                        visible: !infoText.visible
+                                        visible: modelData.bundleItemVisible && !infoText.visible
 
                                         onShowContextMenu: ctxMenuItem.popupMenu(modelData)
                                         onAddToProject: ContentLibraryBackend.userModel.addToProject(modelData)
@@ -174,7 +174,7 @@ Item {
                                     delegate: ContentLibraryItem {
                                         width: root.cellWidth
                                         height: root.cellHeight
-                                        visible: !infoText.visible
+                                        visible: modelData.bundleItemVisible && !infoText.visible
 
                                         onShowContextMenu: ctxMenuItem.popupMenu(modelData)
                                         onAddToProject: ContentLibraryBackend.userModel.addToProject(modelData)

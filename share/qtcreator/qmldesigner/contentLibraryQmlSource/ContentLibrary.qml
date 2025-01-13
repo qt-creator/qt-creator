@@ -117,8 +117,7 @@ Item {
                                 return ContentLibraryBackend.effectsModel.hasRequiredQuick3DImport
                                     && ContentLibraryBackend.effectsModel.bundleExists
                             case ContentLibrary.TabIndex.UserAssetsTab:
-                                return ContentLibraryBackend.rootView.hasQuick3DImport
-                                    && !ContentLibraryBackend.userModel.isEmpty
+                                return !ContentLibraryBackend.userModel.isEmpty
                             default:
                                 return false
                         }
