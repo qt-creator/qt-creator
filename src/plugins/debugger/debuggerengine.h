@@ -180,7 +180,7 @@ public:
 
     DebuggerEngineType cppEngineType() const { return m_cppEngineType; }
 
-    QString version;
+    QString version() const { return m_version; }
 
     bool isPythonDebugging = false;
     bool breakOnMain = false;
@@ -284,6 +284,8 @@ private:
     QString m_additionalStartupCommands;
 
     DebuggerEngineType m_cppEngineType = NoEngineType;
+
+    QString m_version;
 };
 
 namespace Internal {

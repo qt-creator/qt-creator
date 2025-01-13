@@ -140,7 +140,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
     params.macroExpander = runControl->macroExpander();
     params.debugger = DebuggerKitAspect::runnable(kit);
     params.m_cppEngineType = DebuggerKitAspect::engineType(kit);
-    params.version = DebuggerKitAspect::version(kit);
+    params.m_version = DebuggerKitAspect::version(kit);
 
     if (QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit))
         params.qtSourceLocation = qtVersion->sourcePath();

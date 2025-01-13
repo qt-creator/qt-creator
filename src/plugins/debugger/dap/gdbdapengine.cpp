@@ -144,10 +144,10 @@ void GdbDapEngine::setupEngine()
         cmd.addArgs({"-p", QString::number(rp.attachPid().pid())});
 
     QVersionNumber oldestVersion(14, 0, 50);
-    QVersionNumber version = QVersionNumber::fromString(rp.version);
+    QVersionNumber version = QVersionNumber::fromString(rp.version());
     if (version < oldestVersion) {
         notifyEngineSetupFailed();
-        MessageManager::writeDisrupting("Debugger version " + rp.version
+        MessageManager::writeDisrupting("Debugger version " + rp.version()
                                         + " is too old. Please upgrade to at least "
                                         + oldestVersion.toString());
         return;
