@@ -131,7 +131,7 @@ QJsonArray LldbDapEngine::sourceMap() const
 QJsonArray LldbDapEngine::preRunCommands() const
 {
     const QStringList lines = settings().gdbStartupCommands().split('\n')
-                              + runParameters().additionalStartupCommands.split('\n');
+                              + runParameters().additionalStartupCommands().split('\n');
     QJsonArray result;
     for (const QString &line : lines) {
         const QString trimmed = line.trimmed();

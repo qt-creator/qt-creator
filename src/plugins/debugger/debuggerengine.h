@@ -176,8 +176,7 @@ public:
     void setSnapshot(bool isSnapshot) { m_isSnapshot = isSnapshot; }
     bool isSnapshot() const { return m_isSnapshot; }
 
-    // Macro-expanded and passed to debugger startup.
-    QString additionalStartupCommands;
+    QString additionalStartupCommands() const { return m_additionalStartupCommands; }
 
     DebuggerEngineType cppEngineType = NoEngineType;
     QString version;
@@ -279,6 +278,9 @@ private:
     // Used by general core file debugging. Public access requested in QTCREATORBUG-17158.
     Utils::FilePath m_coreFile;
     bool m_isSnapshot = false; // Set if created internally.
+
+    // Macro-expanded and passed to debugger startup.
+    QString m_additionalStartupCommands;
 };
 
 namespace Internal {

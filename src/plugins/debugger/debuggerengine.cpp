@@ -151,7 +151,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
         params.m_isQmlDebugging = aspect->useQmlDebugger;
         params.isPythonDebugging = aspect->usePythonDebugger;
         params.multiProcess = aspect->useMultiProcess;
-        params.additionalStartupCommands = aspect->overrideStartup;
+        params.m_additionalStartupCommands = aspect->overrideStartup;
 
         if (aspect->useCppDebugger) {
             if (DebuggerKitAspect::debugger(kit)) {
@@ -2144,7 +2144,7 @@ QString DebuggerEngine::expand(const QString &string) const
 QString DebuggerEngine::nativeStartupCommands() const
 {
     QStringList lines = settings().gdbStartupCommands().split('\n');
-    lines += runParameters().additionalStartupCommands.split('\n');
+    lines += runParameters().additionalStartupCommands().split('\n');
 
     lines = Utils::filtered(lines, [](const QString line) {
         const QString trimmed = line.trimmed();
