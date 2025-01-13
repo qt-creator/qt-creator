@@ -52,8 +52,6 @@ public:
 
     void modifyDebuggerEnvironment(const Utils::EnvironmentItems &item);
 
-    void setDeviceUuid(const QString &uuid);
-
     void setAbi(const ProjectExplorer::Abi &abi);
 
     DebuggerEngineType cppEngineType() const;

@@ -167,8 +167,8 @@ public:
     void setSysRoot(const Utils::FilePath &sysRoot) { m_sysRoot = sysRoot; }
     Utils::FilePath sysRoot() const { return m_sysRoot; }
 
-    // iOS 17+
-    QString deviceUuid;
+    void setDeviceUuid(const QString &uuid) { m_deviceUuid = uuid; }
+    QString deviceUuid() const { return m_deviceUuid; }
 
     // Used by general core file debugging. Public access requested in QTCREATORBUG-17158.
     Utils::FilePath coreFile;
@@ -271,6 +271,8 @@ private:
     QString m_deviceSymbolsRoot;
     bool m_continueAfterAttach = false;
     Utils::FilePath m_sysRoot;
+
+    QString m_deviceUuid; // iOS 17+
 };
 
 namespace Internal {

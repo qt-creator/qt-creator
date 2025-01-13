@@ -118,11 +118,6 @@ void DebuggerRunTool::setDebugInfoLocation(const FilePath &debugInfoLocation)
     m_runParameters.debugInfoLocation = debugInfoLocation;
 }
 
-void DebuggerRunTool::setDeviceUuid(const QString &uuid)
-{
-    m_runParameters.deviceUuid = uuid;
-}
-
 void DebuggerRunTool::setTestCase(int testCase)
 {
     m_runParameters.testCase = testCase;

@@ -269,7 +269,7 @@ void LldbEngine::handleLldbStarted()
     cmd2.arg("startmode", rp.startMode());
     cmd2.arg("nativemixed", isNativeMixedActive());
     cmd2.arg("workingdirectory", rp.inferior().workingDirectory.path());
-    cmd2.arg("deviceUuid", rp.deviceUuid);
+    cmd2.arg("deviceUuid", rp.deviceUuid());
     Environment environment = rp.inferior().environment;
     // Prevent lldb from automatically setting OS_ACTIVITY_DT_MODE to mirror
     // NSLog to stderr, as that will also mirror os_log, which we pick up in

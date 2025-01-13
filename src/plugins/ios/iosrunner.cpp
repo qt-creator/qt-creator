@@ -926,7 +926,7 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
         if (dev->handler() == IosDevice::Handler::DeviceCtl) {
             QTC_CHECK(IosDeviceManager::isDeviceCtlDebugSupported());
             rp.setStartMode(AttachToIosDevice);
-            setDeviceUuid(dev->uniqueInternalDeviceId());
+            rp.setDeviceUuid(dev->uniqueInternalDeviceId());
         } else {
             rp.setStartMode(AttachToRemoteProcess);
         }
