@@ -52,8 +52,6 @@ public:
 
     void setAbi(const ProjectExplorer::Abi &abi);
 
-    DebuggerEngineType cppEngineType() const;
-
     DebuggerRunParameters &runParameters() { return m_runParameters; }
 
 private:

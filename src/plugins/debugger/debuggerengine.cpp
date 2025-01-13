@@ -139,7 +139,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
     params.setSysRoot(SysRootKitAspect::sysRoot(kit));
     params.macroExpander = runControl->macroExpander();
     params.debugger = DebuggerKitAspect::runnable(kit);
-    params.cppEngineType = DebuggerKitAspect::engineType(kit);
+    params.m_cppEngineType = DebuggerKitAspect::engineType(kit);
     params.version = DebuggerKitAspect::version(kit);
 
     if (QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit))
@@ -147,7 +147,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
 
     if (auto aspect = runControl->aspectData<DebuggerRunConfigurationAspect>()) {
         if (!aspect->useCppDebugger)
-            params.cppEngineType = NoEngineType;
+            params.m_cppEngineType = NoEngineType;
         params.m_isQmlDebugging = aspect->useQmlDebugger;
         params.isPythonDebugging = aspect->usePythonDebugger;
         params.multiProcess = aspect->useMultiProcess;
@@ -309,7 +309,7 @@ void DebuggerRunParameters::setStartMode(DebuggerStartMode startMode)
     if (startMode != AttachToQmlServer)
         return;
 
-    cppEngineType = NoEngineType;
+    m_cppEngineType = NoEngineType;
     m_isQmlDebugging = true;
     m_closeMode = KillAtClose;
 
@@ -336,12 +336,7 @@ void DebuggerRunParameters::addSolibSearchDir(const QString &str)
 
 bool DebuggerRunParameters::isCppDebugging() const
 {
-    return cppEngineType == GdbEngineType
-           || cppEngineType == LldbEngineType
-           || cppEngineType == CdbEngineType
-           || cppEngineType == GdbDapEngineType
-           || cppEngineType == LldbDapEngineType
-           || cppEngineType == UvscEngineType;
+    return cppEngineType() != NoEngineType;
 }
 
 bool DebuggerRunParameters::isNativeMixedDebugging() const
@@ -3019,9 +3014,9 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
         if (CheckableDecider(warnOnInappropriateDebuggerKey).shouldAskAgain()) {
             QString preferredDebugger;
             if (rp.toolChainAbi.osFlavor() == Abi::WindowsMSysFlavor) {
-                if (rp.cppEngineType == CdbEngineType)
+                if (rp.cppEngineType() == CdbEngineType)
                     preferredDebugger = "GDB";
-            } else if (rp.cppEngineType != CdbEngineType && rp.cppEngineType != LldbEngineType) {
+            } else if (rp.cppEngineType() != CdbEngineType && rp.cppEngineType() != LldbEngineType) {
                 // osFlavor() is MSVC, so the recommended debugger is still CDB,
                 // but don't warn for LLDB which starts to be usable, too.
                 preferredDebugger = "CDB";
@@ -3037,7 +3032,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
             }
         }
         if (warnOnRelease
-                && rp.cppEngineType == CdbEngineType
+                && rp.cppEngineType() == CdbEngineType
                 && rp.startMode() != AttachToRemoteServer) {
             QTC_ASSERT(!rp.symbolFile().isEmpty(), return);
             if (!rp.symbolFile().exists() && !rp.symbolFile().endsWith(".exe"))
@@ -3057,7 +3052,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
     }
     case Abi::ElfFormat: {
         if (CheckableDecider(warnOnInappropriateDebuggerKey).shouldAskAgain()) {
-            if (rp.cppEngineType == CdbEngineType) {
+            if (rp.cppEngineType() == CdbEngineType) {
                 warnOnInappropriateDebugger = true;
                 detailedWarning = Tr::tr(
                     "The inferior is in the ELF format.\n"

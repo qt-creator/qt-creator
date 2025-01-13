@@ -221,7 +221,7 @@ void DebuggerRunTool::startTerminalIfNeededAndContinueStartup()
         m_runParameters.useTerminal = false;
 
     // CDB has a built-in console that might be preferred by some.
-    const bool useCdbConsole = m_runParameters.cppEngineType == CdbEngineType
+    const bool useCdbConsole = m_runParameters.cppEngineType() == CdbEngineType
             && (m_runParameters.startMode() == StartInternal
                 || m_runParameters.startMode() == StartExternal)
             && settings().useCdbConsole();
@@ -310,7 +310,7 @@ void DebuggerRunTool::continueAfterTerminalStart()
         return;
     }
 
-    if (m_runParameters.cppEngineType == CdbEngineType
+    if (m_runParameters.cppEngineType() == CdbEngineType
         && Utils::is64BitWindowsBinary(m_runParameters.inferior().command.executable())
             && !Utils::is64BitWindowsBinary(m_runParameters.debugger.command.executable())) {
         reportFailure(
@@ -338,7 +338,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
 
     if (m_engines.isEmpty()) {
         if (m_runParameters.isCppDebugging()) {
-            switch (m_runParameters.cppEngineType) {
+            switch (m_runParameters.cppEngineType()) {
             case GdbEngineType:
                 m_engines << createGdbEngine();
                 break;
@@ -555,11 +555,6 @@ void DebuggerRunTool::setupPortsGatherer()
 
     if (m_runParameters.isQmlDebugging())
         runControl()->requestQmlChannel();
-}
-
-DebuggerEngineType DebuggerRunTool::cppEngineType() const
-{
-    return m_runParameters.cppEngineType;
 }
 
 DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerminal)

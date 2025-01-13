@@ -171,7 +171,7 @@ void AndroidDebugSupport::start()
     DebuggerRunParameters &rp = runParameters();
     rp.setAttachPid(m_runner->pid());
     if (rp.isCppDebugging()) {
-        if (cppEngineType() == LldbEngineType) {
+        if (rp.cppEngineType() == LldbEngineType) {
             QString deviceSerialNumber = Internal::deviceSerialNumber(runControl()->target());
             const int colonPos = deviceSerialNumber.indexOf(QLatin1Char(':'));
             if (colonPos > 0) {

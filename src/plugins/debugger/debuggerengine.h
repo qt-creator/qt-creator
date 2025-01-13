@@ -178,7 +178,8 @@ public:
 
     QString additionalStartupCommands() const { return m_additionalStartupCommands; }
 
-    DebuggerEngineType cppEngineType = NoEngineType;
+    DebuggerEngineType cppEngineType() const { return m_cppEngineType; }
+
     QString version;
 
     bool isPythonDebugging = false;
@@ -281,6 +282,8 @@ private:
 
     // Macro-expanded and passed to debugger startup.
     QString m_additionalStartupCommands;
+
+    DebuggerEngineType m_cppEngineType = NoEngineType;
 };
 
 namespace Internal {
