@@ -201,6 +201,8 @@ void KitAspect::addListAspectSpec(const ListAspectSpec &listAspectSpec)
     const auto sortModel = new KitAspectSortModel(this);
     sortModel->setSourceModel(listAspectSpec.model);
     comboBox->setModel(sortModel);
+    comboBox->setMinimumContentsLength(15);
+    comboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     d->listAspects.emplaceBack(listAspectSpec, comboBox);
 
     refresh();
