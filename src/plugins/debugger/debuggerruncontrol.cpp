@@ -103,11 +103,6 @@ public:
 
 } // namespace Internal
 
-void DebuggerRunTool::setUseTerminal(bool on)
-{
-    m_runParameters.useTerminal = on;
-}
-
 void DebuggerRunTool::setDebugInfoLocation(const FilePath &debugInfoLocation)
 {
     m_runParameters.debugInfoLocation = debugInfoLocation;
@@ -213,7 +208,7 @@ void DebuggerRunTool::continueAfterCoreFileSetup()
 void DebuggerRunTool::startTerminalIfNeededAndContinueStartup()
 {
     if (d->allowTerminal == DoNotAllowTerminal)
-        m_runParameters.useTerminal = false;
+        m_runParameters.setUseTerminal(false);
 
     // CDB has a built-in console that might be preferred by some.
     const bool useCdbConsole = m_runParameters.cppEngineType() == CdbEngineType
@@ -221,9 +216,9 @@ void DebuggerRunTool::startTerminalIfNeededAndContinueStartup()
                 || m_runParameters.startMode() == StartExternal)
             && settings().useCdbConsole();
     if (useCdbConsole)
-        m_runParameters.useTerminal = false;
+        m_runParameters.setUseTerminal(false);
 
-    if (!m_runParameters.useTerminal) {
+    if (!m_runParameters.useTerminal()) {
         continueAfterTerminalStart();
         return;
     }
@@ -231,7 +226,7 @@ void DebuggerRunTool::startTerminalIfNeededAndContinueStartup()
     // Actually start the terminal.
     ProcessRunData stub = m_runParameters.inferior();
 
-    if (m_runParameters.runAsRoot) {
+    if (m_runParameters.runAsRoot()) {
         d->terminalProc.setRunAsRoot(true);
         RunControl::provideAskPassEntry(stub.environment);
     }

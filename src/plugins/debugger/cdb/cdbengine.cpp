@@ -285,7 +285,7 @@ void CdbEngine::setupEngine()
         sp.setInferior({{}, sp.inferior().workingDirectory, sp.inferior().environment});
         sp.setAttachPid(applicationPid());
         sp.setStartMode(AttachToLocalProcess);
-        sp.useTerminal = false; // Force no terminal.
+        sp.setUseTerminal(false); // Force no terminal.
         showMessage(Tr::tr("Attaching to %1...").arg(sp.attachPid().pid()), LogMisc);
     } else {
         m_effectiveStartMode = sp.startMode();
@@ -341,7 +341,7 @@ void CdbEngine::setupEngine()
                       // register idle (debuggee stop) notification
                       "-c", ".idle_cmd " + m_extensionCommandPrefix + "idle"});
 
-    if (sp.useTerminal) // Separate console
+    if (sp.useTerminal()) // Separate console
         debugger.addArg("-2");
 
     const DebuggerSettings &s = settings();
@@ -397,7 +397,7 @@ void CdbEngine::setupEngine()
 
     // Make sure that QTestLib uses OutputDebugString for logging.
     const QString qtLoggingToConsoleKey = QStringLiteral("QT_LOGGING_TO_CONSOLE");
-    if (!sp.useTerminal && !inferiorEnvironment.hasKey(qtLoggingToConsoleKey))
+    if (!sp.useTerminal() && !inferiorEnvironment.hasKey(qtLoggingToConsoleKey))
         inferiorEnvironment.set(qtLoggingToConsoleKey, "0");
 
     static const char cdbExtensionPathVariableC[] = "_NT_DEBUGGER_EXTENSION_PATH";

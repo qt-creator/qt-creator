@@ -1419,7 +1419,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             rp.setDisplayName(Tr::tr("Executable file \"%1\"").arg(executable.toUserOutput()));
             debugger->setStartMessage(Tr::tr("Debugging file %1.").arg(executable.toUserOutput()));
         }
-        debugger->setUseTerminal(useTerminal);
+        rp.setUseTerminal(useTerminal);
 
         m_scheduledStarts.append(runControl);
         return true;

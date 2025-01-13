@@ -203,7 +203,7 @@ void LldbEngine::setupEngine()
             environment.appendOrSet("PYTHONPATH", "/usr/lib/llvm-14/lib/python3.10/dist-packages");
     }
 
-    if (runParameters().runAsRoot) {
+    if (runParameters().runAsRoot()) {
         ProjectExplorer::RunControl::provideAskPassEntry(environment);
         m_lldbProc.setRunAsRoot(true);
     }

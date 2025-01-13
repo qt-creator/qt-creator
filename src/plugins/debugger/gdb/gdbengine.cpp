@@ -3864,9 +3864,9 @@ void GdbEngine::setupEngine()
     // This is filled in DebuggerKitAspect::runnable
     Environment gdbEnv = rp.debugger.environment;
     gdbEnv.setupEnglishOutput();
-    if (rp.runAsRoot)
+    if (rp.runAsRoot())
         RunControl::provideAskPassEntry(gdbEnv);
-    m_gdbProc.setRunAsRoot(rp.runAsRoot);
+    m_gdbProc.setRunAsRoot(rp.runAsRoot());
 
     showMessage("STARTING " + gdbCommand.toUserOutput());
 
@@ -3982,7 +3982,7 @@ void GdbEngine::handleGdbStarted()
     //if (!ba.isEmpty())
     //    runCommand("set solib-search-path " + ba);
 
-    if (settings().multiInferior() || runParameters().multiProcess) {
+    if (settings().multiInferior() || runParameters().multiProcess()) {
         //runCommand("set follow-exec-mode new");
         runCommand({"set detach-on-fork off"});
     }
@@ -4355,7 +4355,7 @@ void GdbEngine::interruptLocalInferior(qint64 pid)
         return;
     }
     QString errorMessage;
-    if (runParameters().runAsRoot) {
+    if (runParameters().runAsRoot()) {
         Environment env = Environment::systemEnvironment();
         RunControl::provideAskPassEntry(env);
         Process proc;

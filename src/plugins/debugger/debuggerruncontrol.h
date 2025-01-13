@@ -33,7 +33,6 @@ public:
     void setStartMessage(const QString &msg);
     void setCrashParameter(const QString &event);
 
-    void setUseTerminal(bool on);
     void setUseDebugServer(Utils::ProcessHandle attachPid, bool essential, bool useMulti);
 
     void setDebugInfoLocation(const Utils::FilePath &debugInfoLocation);

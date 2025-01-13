@@ -187,9 +187,12 @@ public:
     void setBreakOnMain(bool on) { m_breakOnMain = on; }
     bool breakOnMain() const { return m_breakOnMain; }
 
-    bool multiProcess = false; // Whether to set detach-on-fork off.
-    bool useTerminal = false;
-    bool runAsRoot = false;
+    bool multiProcess() const { return m_multiProcess; }
+
+    void setUseTerminal(bool on) { m_useTerminal = on; }
+    bool useTerminal() const { return m_useTerminal; }
+
+    bool runAsRoot() const { return m_runAsRoot; }
 
     Utils::ProcessRunData debugger;
     Utils::FilePath overrideStartScript; // Used in attach to core and remote debugging
@@ -292,6 +295,9 @@ private:
 
     bool m_isPythonDebugging = false;
     bool m_breakOnMain = false;
+    bool m_multiProcess = false; // Whether to set detach-on-fork off.
+    bool m_useTerminal = false;
+    bool m_runAsRoot = false;
 };
 
 namespace Internal {

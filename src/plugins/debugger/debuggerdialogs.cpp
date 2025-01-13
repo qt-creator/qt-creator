@@ -419,7 +419,7 @@ void StartApplicationDialog::run(bool attachRemote)
     rp.setInferior(newParameters.runnable);
     rp.setCommandsAfterConnect(newParameters.serverInitCommands);
     rp.setCommandsForReset(newParameters.serverResetCommands);
-    debugger->setUseTerminal(newParameters.runInTerminal);
+    rp.setUseTerminal(newParameters.runInTerminal);
     rp.setUseExtendedRemote(newParameters.useTargetExtendedRemote);
     if (!newParameters.sysRoot.isEmpty())
         rp.setSysRoot(newParameters.sysRoot);

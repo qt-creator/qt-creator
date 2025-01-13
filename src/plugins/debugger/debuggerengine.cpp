@@ -132,9 +132,9 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
     if (auto symbolsAspect = runControl->aspectData<SymbolFileAspect>())
         params.setSymbolFile(symbolsAspect->filePath);
     if (auto terminalAspect = runControl->aspectData<TerminalAspect>())
-        params.useTerminal = terminalAspect->useTerminal;
+        params.m_useTerminal = terminalAspect->useTerminal;
     if (auto runAsRootAspect = runControl->aspectData<RunAsRootAspect>())
-        params.runAsRoot = runAsRootAspect->value;
+        params.m_runAsRoot = runAsRootAspect->value;
 
     params.setSysRoot(SysRootKitAspect::sysRoot(kit));
     params.macroExpander = runControl->macroExpander();
@@ -150,7 +150,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
             params.m_cppEngineType = NoEngineType;
         params.m_isQmlDebugging = aspect->useQmlDebugger;
         params.m_isPythonDebugging = aspect->usePythonDebugger;
-        params.multiProcess = aspect->useMultiProcess;
+        params.m_multiProcess = aspect->useMultiProcess;
         params.m_additionalStartupCommands = aspect->overrideStartup;
 
         if (aspect->useCppDebugger) {
@@ -2307,7 +2307,7 @@ void DebuggerEngine::setSecondaryEngine()
 
 bool DebuggerEngine::usesTerminal() const
 {
-    return d->m_runParameters.useTerminal;
+    return d->m_runParameters.useTerminal();
 }
 
 qint64 DebuggerEngine::applicationPid() const
