@@ -30,8 +30,6 @@ public:
     void start() override;
     void stop() override;
 
-    void setUseDebugServer(Utils::ProcessHandle attachPid, bool essential, bool useMulti);
-
     void kickoffTerminalProcess();
     void interruptTerminal();
 

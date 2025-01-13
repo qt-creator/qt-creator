@@ -1674,7 +1674,9 @@ void DebuggerPluginPrivate::attachToRunningApplication()
         auto debugger = new DebuggerRunTool(runControl);
         DebuggerRunParameters &rp = debugger->runParameters();
         debugger->setId("AttachToRunningProcess");
-        debugger->setUseDebugServer(ProcessHandle(processInfo.processId), false, false);
+        rp.setServerAttachPid(ProcessHandle(processInfo.processId));
+        rp.setServerUseMulti(false);
+        rp.setServerEssential(false);
         rp.setStartMode(AttachToRemoteProcess);
         rp.setCloseMode(DetachAtClose);
         rp.setUseContinueInsteadOfRun(true);

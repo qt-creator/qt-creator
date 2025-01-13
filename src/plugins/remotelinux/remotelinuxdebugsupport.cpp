@@ -45,13 +45,13 @@ public:
     RemoteLinuxDebugWorkerFactory()
     {
         setProducer([](RunControl *rc) {
+            rc->requestDebugChannel();
+
             auto debugger = new DebuggerRunTool(rc, DebuggerRunTool::DoNotAllowTerminal);
             DebuggerRunParameters &rp = debugger->runParameters();
             debugger->setId("RemoteLinuxDebugWorker");
-
             debugger->setupPortsGatherer();
             debugger->addQmlServerInferiorCommandLineArgumentIfNeeded();
-            debugger->setUseDebugServer({}, true, true);
 
             rp.setStartMode(AttachToRemoteServer);
             rp.setCloseMode(KillAndExitMonitorAtClose);

@@ -96,9 +96,6 @@ public:
 
     // DebugServer
     Process debuggerServerProc;
-    ProcessHandle serverAttachPid;
-    bool serverUseMulti = true;
-    bool serverEssential = true;
 };
 
 } // namespace Internal
@@ -692,15 +689,15 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
                 const QString ipAndPort("`echo $SSH_CLIENT | cut -d ' ' -f 1`:%1");
                 cmd.addArgs(ipAndPort.arg(runControl()->debugChannel().port()), CommandLine::Raw);
 
-                if (d->serverAttachPid.isValid())
-                    cmd.addArgs({"--attach", QString::number(d->serverAttachPid.pid())});
+                if (m_runParameters.serverAttachPid().isValid())
+                    cmd.addArgs({"--attach", QString::number(m_runParameters.serverAttachPid().pid())});
                 else
                     cmd.addCommandLineAsArgs(runControl()->runnable().command);
             } else {
                 // Something resembling gdbserver
-                if (d->serverUseMulti)
+                if (m_runParameters.serverUseMulti())
                     cmd.addArg("--multi");
-                if (d->serverAttachPid.isValid())
+                if (m_runParameters.serverAttachPid().isValid())
                     cmd.addArg("--attach");
 
                 const auto port = runControl()->debugChannel().port();
@@ -713,8 +710,8 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
                     d->debuggerServerProc.setExtraData(extraData);
                 }
 
-                if (d->serverAttachPid.isValid())
-                    cmd.addArg(QString::number(d->serverAttachPid.pid()));
+                if (m_runParameters.serverAttachPid().isValid())
+                    cmd.addArg(QString::number(m_runParameters.serverAttachPid().pid()));
             }
         }
 
@@ -745,19 +742,11 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
     connect(&d->debuggerServerProc, &Process::done, this, [this] {
         if (d->terminalProc.error() != QProcess::UnknownError)
             reportFailure(d->terminalProc.errorString());
-        if (d->terminalProc.error() != QProcess::FailedToStart && d->serverEssential)
+        if (d->terminalProc.error() != QProcess::FailedToStart && m_runParameters.serverEssential())
             reportDone();
     });
 
     d->debuggerServerProc.start();
-}
-
-void DebuggerRunTool::setUseDebugServer(ProcessHandle attachPid, bool essential, bool useMulti)
-{
-    runControl()->requestDebugChannel();
-    d->serverAttachPid = attachPid;
-    d->serverEssential = essential;
-    d->serverUseMulti = useMulti;
 }
 
 // DebuggerRunWorkerFactory

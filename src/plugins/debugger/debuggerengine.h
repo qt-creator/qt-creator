@@ -256,6 +256,15 @@ public:
     void setUVisionSimulator(bool on) { m_uVisionSimulator = on; }
     bool uVisionSimulator() const { return m_uVisionSimulator; }
 
+    void setServerAttachPid(const Utils::ProcessHandle &handle) { m_serverAttachPid = handle; }
+    Utils::ProcessHandle serverAttachPid() const { return m_serverAttachPid; }
+
+    void setServerUseMulti(bool on) { m_serverUseMulti = on; }
+    bool serverUseMulti() const { return m_serverUseMulti; }
+
+    void setServerEssential(bool on) { m_serverEssential = on; }
+    bool serverEssential() const { return m_serverEssential; }
+
 private:
     DebuggerStartMode m_startMode = NoStartMode;
     DebuggerCloseMode m_closeMode = KillAtClose;
@@ -348,6 +357,10 @@ private:
     Utils::FilePath m_uVisionProjectFilePath; // UVSC-specific debugger constant.
     Utils::FilePath m_uVisionOptionsFilePath; // UVSC-specific debugger constant.
     bool m_uVisionSimulator = false;
+
+    Utils::ProcessHandle m_serverAttachPid;
+    bool m_serverUseMulti = true;
+    bool m_serverEssential = true;
 };
 
 namespace Internal {
