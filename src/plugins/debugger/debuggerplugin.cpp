@@ -1441,7 +1441,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         auto debugger = new DebuggerRunTool(runControl);
         DebuggerRunParameters &rp = debugger->runParameters();
         rp.setStartMode(AttachToCrashedProcess);
-        debugger->setCrashParameter(it->section(':', 0, 0));
+        rp.setCrashParameter(it->section(':', 0, 0));
         rp.setAttachPid(pid);
         rp.setDisplayName(Tr::tr("Crashed process %1").arg(pid));
         rp.setStartMessage(Tr::tr("Attaching to crashed process %1").arg(pid));

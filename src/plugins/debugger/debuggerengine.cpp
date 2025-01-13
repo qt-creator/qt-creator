@@ -188,7 +188,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
     bool ok = false;
     const int nativeMixedOverride = qtcEnvironmentVariableIntValue("QTC_DEBUGGER_NATIVE_MIXED", &ok);
     if (ok)
-        params.nativeMixedEnabled = bool(nativeMixedOverride);
+        params.m_nativeMixedEnabled = bool(nativeMixedOverride);
 
     if (QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(kit)) {
         const QVersionNumber qtVersion = baseQtVersion->qtVersion();
@@ -256,7 +256,7 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
     if (m_isQmlDebugging) {
         QmlDebugServicesPreset service;
         if (isCppDebugging()) {
-            if (nativeMixedEnabled) {
+            if (m_nativeMixedEnabled) {
                 service = QmlNativeDebuggerServices;
             } else {
                 service = QmlDebuggerServices;
@@ -265,7 +265,7 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
             service = QmlDebuggerServices;
         }
         if (m_startMode != AttachToLocalProcess && m_startMode != AttachToCrashedProcess) {
-            const QString qmlarg = isCppDebugging() && nativeMixedEnabled
+            const QString qmlarg = isCppDebugging() && m_nativeMixedEnabled
                                  ? qmlDebugNativeArguments(service, false)
                                  : qmlDebugTcpArguments(service, m_qmlServer);
             m_inferior.command.addArg(qmlarg);
@@ -341,7 +341,7 @@ bool DebuggerRunParameters::isCppDebugging() const
 
 bool DebuggerRunParameters::isNativeMixedDebugging() const
 {
-    return nativeMixedEnabled && isCppDebugging() && m_isQmlDebugging;
+    return m_nativeMixedEnabled && isCppDebugging() && m_isQmlDebugging;
 }
 
 namespace Internal {
@@ -2910,7 +2910,7 @@ QString DebuggerEngine::formatStartParameters() const
     if (!rp.coreFile().isEmpty())
         str << "Core: " << rp.coreFile().toUserOutput() << '\n';
     if (rp.attachPid().isValid())
-        str << "PID: " << rp.attachPid().pid() << ' ' << rp.crashParameter << '\n';
+        str << "PID: " << rp.attachPid().pid() << ' ' << rp.crashParameter() << '\n';
     if (!rp.projectSourceDirectory().isEmpty()) {
         str << "Project: " << rp.projectSourceDirectory().toUserOutput() << '\n';
         str << "Additional Search Directories:";

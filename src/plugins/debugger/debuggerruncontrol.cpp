@@ -118,11 +118,6 @@ void DebuggerRunTool::modifyDebuggerEnvironment(const EnvironmentItems &items)
     m_runParameters.debugger().environment.modify(items);
 }
 
-void DebuggerRunTool::setCrashParameter(const QString &event)
-{
-    m_runParameters.crashParameter = event;
-}
-
 void DebuggerRunTool::start()
 {
     startCoreFileSetupIfNeededAndContinueStartup();

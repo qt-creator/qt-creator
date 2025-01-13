@@ -30,8 +30,6 @@ public:
     void start() override;
     void stop() override;
 
-    void setCrashParameter(const QString &event);
-
     void setUseDebugServer(Utils::ProcessHandle attachPid, bool essential, bool useMulti);
 
     void setTestCase(int testCase);

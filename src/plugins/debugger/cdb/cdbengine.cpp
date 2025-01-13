@@ -369,7 +369,7 @@ void CdbEngine::setupEngine()
     case AttachToCrashedProcess:
         debugger.addArgs({"-p", QString::number(sp.attachPid().pid())});
         if (sp.startMode() == AttachToCrashedProcess) {
-            debugger.addArgs({"-e", sp.crashParameter, "-g"});
+            debugger.addArgs({"-e", sp.crashParameter(), "-g"});
         } else {
             // TODO: Dead branch?
             if (usesTerminal())

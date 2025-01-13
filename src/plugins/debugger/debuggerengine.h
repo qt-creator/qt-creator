@@ -227,10 +227,8 @@ public:
     void setMainScript(const Utils::FilePath &path) { m_mainScript = path; }
     Utils::FilePath mainScript() const { return m_mainScript; }
 
-    // Used by AttachCrashedExternal.
-    QString crashParameter;
-
-    bool nativeMixedEnabled = false;
+    void setCrashParameter(const QString &event) { m_crashParameter = event; }
+    QString crashParameter() const { return m_crashParameter; }
 
     bool isCppDebugging() const;
     bool isNativeMixedDebugging() const;
@@ -330,6 +328,9 @@ private:
 
     Utils::FilePath m_interpreter; // Used by Script debugging
     Utils::FilePath m_mainScript; // Used by Script debugging
+
+    QString m_crashParameter; // Used by AttachCrashedExternal.
+    bool m_nativeMixedEnabled = false;
 };
 
 namespace Internal {
