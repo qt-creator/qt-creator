@@ -2313,13 +2313,13 @@ bool DebuggerEngine::usesTerminal() const
 qint64 DebuggerEngine::applicationPid() const
 {
     QTC_CHECK(usesTerminal());
-    return d->m_runParameters.applicationPid;
+    return d->m_runParameters.applicationPid();
 }
 
 qint64 DebuggerEngine::applicationMainThreadId() const
 {
     QTC_CHECK(usesTerminal());
-    return d->m_runParameters.applicationMainThreadId;
+    return d->m_runParameters.applicationMainThreadId();
 }
 
 void DebuggerEngine::interruptTerminal() const

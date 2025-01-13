@@ -215,9 +215,11 @@ public:
     Utils::FilePath projectSourceDirectory() const { return m_projectSourceDirectory; }
     Utils::FilePaths projectSourceFiles() const { return m_projectSourceFiles; }
 
-    // Terminal
-    qint64 applicationPid = 0;
-    qint64 applicationMainThreadId = 0;
+    void setApplicationPid(qint64 pid) { m_applicationPid = pid; }
+    qint64 applicationPid() const { return m_applicationPid; }
+
+    void setApplicationMainThreadId(qint64 threadId) { m_applicationMainThreadId = threadId; }
+    qint64 applicationMainThreadId() const { return m_applicationMainThreadId; }
 
     // Used by Script debugging
     Utils::FilePath interpreter;
@@ -320,6 +322,9 @@ private:
 
     Utils::FilePath m_projectSourceDirectory;
     Utils::FilePaths m_projectSourceFiles;
+
+    qint64 m_applicationPid = 0; // Terminal
+    qint64 m_applicationMainThreadId = 0; // Terminal
 };
 
 namespace Internal {

@@ -215,8 +215,8 @@ void DebuggerRunTool::startTerminalIfNeededAndContinueStartup()
     d->terminalProc.setRunData(stub);
 
     connect(&d->terminalProc, &Process::started, this, [this] {
-        m_runParameters.applicationPid = d->terminalProc.processId();
-        m_runParameters.applicationMainThreadId = d->terminalProc.applicationMainThreadId();
+        m_runParameters.setApplicationPid(d->terminalProc.processId());
+        m_runParameters.setApplicationMainThreadId(d->terminalProc.applicationMainThreadId());
         continueAfterTerminalStart();
     });
 
