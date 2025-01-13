@@ -36,8 +36,6 @@ public:
     void addQmlServerInferiorCommandLineArgumentIfNeeded();
     void setupPortsGatherer();
 
-    void modifyDebuggerEnvironment(const Utils::EnvironmentItems &item);
-
     DebuggerRunParameters &runParameters() { return m_runParameters; }
 
 private:

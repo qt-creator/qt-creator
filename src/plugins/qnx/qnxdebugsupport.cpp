@@ -210,7 +210,7 @@ public:
             rp.setSolibSearchPath(FileUtils::toFilePathList(searchPaths(k)));
             if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(k))) {
                 rp.setSysRoot(qtVersion->qnxTarget());
-                debugger->modifyDebuggerEnvironment(qtVersion->environment());
+                rp.modifyDebuggerEnvironment(qtVersion->environment());
             }
 
             return debugger;

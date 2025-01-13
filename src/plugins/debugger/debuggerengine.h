@@ -194,6 +194,9 @@ public:
 
     bool runAsRoot() const { return m_runAsRoot; }
 
+    void modifyDebuggerEnvironment(const Utils::EnvironmentItems &items) {
+        m_debugger.environment.modify(items);
+    }
     Utils::ProcessRunData debugger() const { return m_debugger; }
 
     void setOverrideStartScript(const Utils::FilePath &script) { m_overrideStartScript = script; }

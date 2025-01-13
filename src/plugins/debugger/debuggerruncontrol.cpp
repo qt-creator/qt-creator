@@ -105,11 +105,6 @@ void DebuggerRunTool::addQmlServerInferiorCommandLineArgumentIfNeeded()
     d->addQmlServerInferiorCommandLineArgumentIfNeeded = true;
 }
 
-void DebuggerRunTool::modifyDebuggerEnvironment(const EnvironmentItems &items)
-{
-    m_runParameters.debugger().environment.modify(items);
-}
-
 void DebuggerRunTool::start()
 {
     startCoreFileSetupIfNeededAndContinueStartup();
