@@ -122,6 +122,7 @@ public:
     void setColumnStretch(int cols, int rows);
     void setSpacing(int space);
     void setFieldGrowthPolicy(int policy);
+    void setStretch(int index, int stretch);
 
     void attachTo(QWidget *);
 
@@ -614,6 +615,7 @@ QTCREATOR_UTILS_EXPORT void hr(Layout *);
 QTCREATOR_UTILS_EXPORT void tight(Layout *); // noMargin + spacing(0)
 
 QTCREATOR_UTILS_EXPORT LayoutModifier spacing(int space);
+QTCREATOR_UTILS_EXPORT LayoutModifier stretch(int index, int stretch);
 
 // Convenience
 

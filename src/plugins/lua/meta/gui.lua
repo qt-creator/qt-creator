@@ -260,6 +260,11 @@ function gui.normalMargin() end
 ---Sets the alignment of a Grid layout according to the Form layout rules.
 function gui.withFormAlignment() end
 
+---Sets the stretch factor at position index to stretch.
+---@param index integer The widget index.
+---@param stretch integer The stretch factor.
+function gui.stretch(index, stretch) end
+
 --- Enum representing Text interaction flags
 ---@enum TextInteractionFlag
 gui.TextInteractionFlag {

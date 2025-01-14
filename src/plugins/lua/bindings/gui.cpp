@@ -700,6 +700,7 @@ void setupGuiModule()
         gui["normalMargin"] = &normalMargin;
         gui["withFormAlignment"] = &withFormAlignment;
         gui["spacing"] = &spacing;
+        gui["stretch"] = &stretch;
 
         return gui;
     });

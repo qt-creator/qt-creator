@@ -686,6 +686,12 @@ void Layout::setFieldGrowthPolicy(int policy)
         lt->setFieldGrowthPolicy(QFormLayout::FieldGrowthPolicy(policy));
 }
 
+void Layout::setStretch(int index, int stretch)
+{
+    if (auto lt = asBox())
+        lt->setStretch(index, stretch);
+}
+
 QWidget *Layout::emerge() const
 {
     const_cast<Layout *>(this)->flush();
@@ -1141,6 +1147,11 @@ void addToLayout(Layout *layout, const Span &inner)
 LayoutModifier spacing(int space)
 {
     return [space](Layout *layout) { layout->setSpacing(space); };
+}
+
+LayoutModifier stretch(int index, int stretch)
+{
+    return [index, stretch](Layout *layout) { layout->setStretch(index, stretch); };
 }
 
 void addToLayout(Layout *layout, const Space &inner)
