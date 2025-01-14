@@ -31,7 +31,7 @@ public:
     const Utils::FilePath projectFilePath() const { return m_projectPath; }
     const Utils::FilePath projectDirectory() const { return m_projectPath.parentDir(); }
 
-    virtual const QList<BuildInfo> import(const Utils::FilePath &importPath, bool silent = false);
+    const QList<BuildInfo> import(const Utils::FilePath &importPath, bool silent = false);
     virtual Utils::FilePaths importCandidates() = 0;
     virtual Target *preferredTarget(const QList<Target *> &possibleTargets);
     virtual bool filter(Kit *) const { return true; }
