@@ -172,7 +172,7 @@ Rectangle {
                 }
 
                 TableView.editDelegate: T.TextField {
-                    id: textField
+                    id: aliasTextField
 
                     property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
@@ -182,11 +182,11 @@ Rectangle {
                     verticalAlignment: TextInput.AlignVCenter
                     padding: 8
 
-                    font.pixelSize: textField.style.baseFontSize
-                    color: textField.style.text.idle
-                    selectionColor: textField.style.text.selection
-                    selectedTextColor: textField.style.text.selectedText
-                    placeholderTextColor: textField.style.text.placeholder
+                    font.pixelSize: aliasTextField.style.baseFontSize
+                    color: aliasTextField.style.text.idle
+                    selectionColor: aliasTextField.style.text.selection
+                    selectedTextColor: aliasTextField.style.text.selectedText
+                    placeholderTextColor: aliasTextField.style.text.placeholder
 
                     Component.onCompleted: selectAll()
 
@@ -198,6 +198,66 @@ Rectangle {
                     background: Rectangle {
                         color: StudioTheme.Values.themePanelBackground
                         border.color: StudioTheme.Values.themeInteraction
+                        border.width: StudioTheme.Values.border
+                    }
+                }
+            }
+        }
+
+        DelegateChoice {
+            column: DeviceManagerModel.IPv4Addr
+
+            Cell {
+                id: ipDelegate
+
+                Text {
+                    text: ipDelegate.display
+                    visible: !ipDelegate.editing
+                    color: StudioTheme.Values.themeTextColor
+                    anchors.fill: parent
+                    anchors.margins: 8
+                    elide: Text.ElideMiddle
+
+                    horizontalAlignment: Qt.AlignLeft
+                    verticalAlignment: Qt.AlignVCenter
+                }
+
+                TableView.editDelegate: T.TextField {
+                    id: ipTextField
+
+                    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
+
+                    anchors.fill: parent
+                    text: ipDelegate.display
+                    horizontalAlignment: TextInput.AlignLeft
+                    verticalAlignment: TextInput.AlignVCenter
+                    padding: 8
+
+                    font.pixelSize: ipTextField.style.baseFontSize
+                    color: ipTextField.style.text.idle
+                    selectionColor: ipTextField.style.text.selection
+                    selectedTextColor: ipTextField.style.text.selectedText
+                    placeholderTextColor: ipTextField.style.text.placeholder
+
+                    validator: RegularExpressionValidator {
+                        regularExpression: /^(\d{1,3}\.){3}\d{1,3}$/
+                    }
+
+                    Component.onCompleted: selectAll()
+
+                    TableView.onCommit: {
+                        if (ipTextField.acceptableInput) {
+                            let index = ipDelegate.TableView.view.index(ipDelegate.row, ipDelegate.column)
+                            ipDelegate.TableView.view.model.setData(index, text, Qt.EditRole)
+                        } else {
+                            ipTextField.undo()
+                        }
+                    }
+
+                    background: Rectangle {
+                        color: StudioTheme.Values.themePanelBackground
+                        border.color: ipTextField.acceptableInput ? StudioTheme.Values.themeInteraction
+                                                                  : StudioTheme.Values.themeError
                         border.width: StudioTheme.Values.border
                     }
                 }

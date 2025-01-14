@@ -89,6 +89,8 @@ QVariant DeviceManagerModel::data(const QModelIndex &index, int role) const
             return deviceSettings.alias();
         case DeviceColumns::Active:
             return deviceSettings.active();
+        case DeviceColumns::IPv4Addr:
+            return deviceSettings.ipAddress();
         }
     }
 
@@ -160,7 +162,8 @@ Qt::ItemFlags DeviceManagerModel::flags(const QModelIndex &index) const
 
     Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
-    if (index.column() == DeviceColumns::Active || index.column() == DeviceColumns::Alias)
+    if (index.column() == DeviceColumns::Active || index.column() == DeviceColumns::Alias
+        || index.column() == DeviceColumns::IPv4Addr)
         flags |= Qt::ItemIsEditable;
 
     return flags;
