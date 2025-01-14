@@ -73,8 +73,8 @@ public:
     void replace(const QHash<QString, QString> &replacements);
 
     bool isEmpty() const;
-    bool operator==(const Trie &o);
-    bool operator!=(const Trie &o);
+    bool operator==(const Trie &o) const;
+    bool operator!=(const Trie &o) const;
 
     friend QMLJS_EXPORT QDebug operator<<(QDebug dbg, const TrieNode::Ptr &trie);
     friend QMLJS_EXPORT QDebug operator<<(QDebug dbg, const Trie &trie);
