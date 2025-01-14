@@ -40,7 +40,7 @@ QmlProfilerRunner::QmlProfilerRunner(RunControl *runControl)
     setId("QmlProfilerRunner");
     runControl->requestQmlChannel();
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
-    setSupportsReRunning(false);
+    runControl->setSupportsReRunning(false);
 }
 
 void QmlProfilerRunner::start()

@@ -238,7 +238,7 @@ void DebuggerRunTool::continueAfterTerminalStart()
 
     // QML and/or mixed are not prepared for it.
 //    setSupportsReRunning(!m_runParameters.isQmlDebugging);
-    setSupportsReRunning(false); // FIXME: Broken in general.
+    runControl()->setSupportsReRunning(false); // FIXME: Broken in general.
 
     // FIXME: Disabled due to Android. Make Android device report available ports instead.
 //    int portsUsed = portsUsedByDebugger();

@@ -233,7 +233,6 @@ public:
     QList<RunWorker *> stopDependencies;
     QString id;
 
-    bool supportsReRunning = true;
     bool essential = false;
 };
 
@@ -350,7 +349,6 @@ public:
     void showError(const QString &msg);
 
     static bool isAllowedTransition(RunControlState from, RunControlState to);
-    bool supportsReRunning() const;
     bool isUsingTaskTree() const { return bool(m_runRecipe); }
     void startTaskTree();
     void checkAutoDeleteAndEmitStopped();
@@ -1211,24 +1209,7 @@ void RunControl::setSupportsReRunning(bool reRunningSupported)
 
 bool RunControl::supportsReRunning() const
 {
-    if (d->isUsingTaskTree())
-        return d->m_supportsReRunning;
-    return d->supportsReRunning();
-}
-
-bool RunControlPrivate::supportsReRunning() const
-{
-    for (RunWorker *worker : m_workers) {
-        if (!worker) {
-            debugMessage("Found unknown deleted worker when checking for re-run support");
-            return false;
-        }
-        if (!worker->d->supportsReRunning)
-            return false;
-        if (worker->d->state != RunWorkerState::Done)
-            return false;
-    }
-    return true;
+    return d->m_supportsReRunning;
 }
 
 void RunControlPrivate::startTaskTree()
@@ -1900,11 +1881,6 @@ RunControl *RunWorker::runControl() const
 void RunWorker::setId(const QString &id)
 {
     d->id = id;
-}
-
-void RunWorker::setSupportsReRunning(bool reRunningSupported)
-{
-    d->supportsReRunning = reRunningSupported;
 }
 
 QString RunWorker::userMessageForProcessError(QProcess::ProcessError error, const FilePath &program)
