@@ -139,6 +139,7 @@ const QList<BuildInfo> ProjectImporter::import(const Utils::FilePath &importPath
 
             auto factory = BuildConfigurationFactory::find(k, projectFilePath());
             for (BuildInfo i : infoList) {
+                i.displayName = Tr::tr("%1 (imported)").arg(i.displayName);
                 i.kitId = k->id();
                 i.factory = factory;
                 if (!result.contains(i))
