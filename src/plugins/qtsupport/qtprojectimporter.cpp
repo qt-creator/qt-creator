@@ -14,6 +14,7 @@
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
@@ -108,6 +109,8 @@ Kit *QtProjectImporter::createTemporaryKit(const QtVersionData &versionData,
 
 #if WITH_TESTS
 
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
 
@@ -116,6 +119,23 @@ Kit *QtProjectImporter::createTemporaryKit(const QtVersionData &versionData,
 #include <QTest>
 
 namespace QtSupport::Internal {
+
+class TestBuildConfigFactory : public BuildConfigurationFactory
+{
+public:
+    TestBuildConfigFactory()
+    {
+        for (ExtensionSystem::PluginSpec * const spec : ExtensionSystem::PluginManager::plugins()) {
+            if (spec->id() == "qmakeprojectmanager") {
+                if (spec->state() == ExtensionSystem::PluginSpec::Running)
+                    return;
+                break;
+            }
+        }
+        registerBuildConfiguration<BuildConfiguration>("QtSupport.Test");
+        setSupportedProjectMimeTypeName(Utils::Constants::PROFILE_MIMETYPE);
+    }
+};
 
 struct DirectoryData {
     DirectoryData(const QString &ip,
@@ -162,6 +182,7 @@ protected:
     void deleteDirectoryData(void *directoryData) const override;
 
 private:
+    const TestBuildConfigFactory m_bcFactory;
     const QList<void *> m_testData;
     mutable Utils::FilePath m_path;
     mutable QVector<void*> m_deletedTestData;
@@ -443,7 +464,7 @@ void QtProjectImporterTest::testQtProjectImporter_oneProject()
 
     // Finally set up importer:
     // Copy the directoryData so that importer is free to delete it later.
-    TestQtProjectImporter importer(tempDir1.path(),
+    TestQtProjectImporter importer(tempDir1.filePath("test.pro"),
                                    Utils::transform(testData, [](DirectoryData *i) {
                                        return static_cast<void *>(new DirectoryData(*i));
                                    }));
@@ -456,7 +477,7 @@ void QtProjectImporterTest::testQtProjectImporter_oneProject()
     const QList<BuildInfo> buildInfo = importer.import(Utils::FilePath::fromString(appDir), true);
 
     // VALIDATE: Basic TestImporter state:
-    QCOMPARE(importer.projectFilePath(), tempDir1.path());
+    QCOMPARE(importer.projectFilePath(), tempDir1.filePath("test.pro"));
     QCOMPARE(importer.allDeleted(), true);
 
     // VALIDATE: Result looks reasonable:
@@ -560,7 +581,7 @@ void QtProjectImporterTest::testQtProjectImporter_oneProject()
         QCOMPARE(newKitId, newKitIdAfterImport);
 
         // VALIDATE: Importer state
-        QCOMPARE(importer.projectFilePath(), tempDir1.path());
+        QCOMPARE(importer.projectFilePath(), tempDir1.filePath("test.pro"));
         QCOMPARE(importer.allDeleted(), true);
 
         if (kitIsPersistent) {

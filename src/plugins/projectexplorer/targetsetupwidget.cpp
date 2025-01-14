@@ -129,32 +129,30 @@ void TargetSetupWidget::addBuildInfo(const BuildInfo &info, bool isImport)
     store.isEnabled = info.enabledByDefault;
     ++m_selected;
 
-    if (info.factory) {
-        store.checkbox = new QCheckBox;
-        store.checkbox->setText(info.displayName);
-        store.checkbox->setChecked(store.isEnabled);
-        store.checkbox->setAttribute(Qt::WA_LayoutUsesWidgetRect);
-        m_newBuildsLayout->addWidget(store.checkbox, pos * 2, 0);
+    store.checkbox = new QCheckBox;
+    store.checkbox->setText(info.displayName);
+    store.checkbox->setChecked(store.isEnabled);
+    store.checkbox->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+    m_newBuildsLayout->addWidget(store.checkbox, pos * 2, 0);
 
-        store.pathChooser = new PathChooser();
-        store.pathChooser->setExpectedKind(PathChooser::Directory);
-        store.pathChooser->setFilePath(info.buildDirectory);
-        if (!info.showBuildDirConfigWidget)
-            store.pathChooser->setVisible(false);
-        store.pathChooser->setHistoryCompleter("TargetSetup.BuildDir.History");
-        store.pathChooser->setReadOnly(isImport);
-        m_newBuildsLayout->addWidget(store.pathChooser, pos * 2, 1);
+    store.pathChooser = new PathChooser();
+    store.pathChooser->setExpectedKind(PathChooser::Directory);
+    store.pathChooser->setFilePath(info.buildDirectory);
+    if (!info.showBuildDirConfigWidget)
+        store.pathChooser->setVisible(false);
+    store.pathChooser->setHistoryCompleter("TargetSetup.BuildDir.History");
+    store.pathChooser->setReadOnly(isImport);
+    m_newBuildsLayout->addWidget(store.pathChooser, pos * 2, 1);
 
-        store.issuesLabel = new QLabel;
-        store.issuesLabel->setIndent(32);
-        m_newBuildsLayout->addWidget(store.issuesLabel, pos * 2 + 1, 0, 1, 2);
-        store.issuesLabel->setVisible(false);
+    store.issuesLabel = new QLabel;
+    store.issuesLabel->setIndent(32);
+    m_newBuildsLayout->addWidget(store.issuesLabel, pos * 2 + 1, 0, 1, 2);
+    store.issuesLabel->setVisible(false);
 
-        connect(store.checkbox, &QAbstractButton::toggled, this,
-                [this, checkBox = store.checkbox](bool b) { checkBoxToggled(checkBox, b); });
-        connect(store.pathChooser, &PathChooser::rawPathChanged, this,
-                [this, pathChooser = store.pathChooser] { pathChanged(pathChooser); });
-    }
+    connect(store.checkbox, &QAbstractButton::toggled, this,
+            [this, checkBox = store.checkbox](bool b) { checkBoxToggled(checkBox, b); });
+    connect(store.pathChooser, &PathChooser::rawPathChanged, this,
+            [this, pathChooser = store.pathChooser] { pathChanged(pathChooser); });
 
     store.hasIssues = false;
     m_infoStore.emplace_back(std::move(store));
@@ -283,8 +281,7 @@ void TargetSetupWidget::clear()
 void TargetSetupWidget::updateDefaultBuildDirectories()
 {
     for (const BuildInfo &buildInfo : buildInfoList(m_kit, m_projectPath)) {
-        if (!buildInfo.factory)
-            continue;
+        QTC_ASSERT(buildInfo.factory, continue);
         bool found = false;
         for (BuildInfoStore &buildInfoStore : m_infoStore) {
             if (buildInfoStore.buildInfo.typeName == buildInfo.typeName) {
@@ -348,16 +345,14 @@ void TargetSetupWidget::reportIssues(int index)
 
 QPair<Task::TaskType, QString> TargetSetupWidget::findIssues(const BuildInfo &info)
 {
-    if (m_projectPath.isEmpty() || !info.factory)
+    QTC_ASSERT(info.factory, return std::make_pair(Task::Unknown, QString()));
+    if (m_projectPath.isEmpty())
         return {Task::Unknown, {}};
 
-    Tasks issues;
-    if (info.factory)
-        issues = info.factory->reportIssues(m_kit, m_projectPath, info.buildDirectory);
-
+    const Tasks issues = info.factory->reportIssues(m_kit, m_projectPath, info.buildDirectory);
     QString text;
     Task::TaskType highestType = Task::Unknown;
-    for (const Task &t : std::as_const(issues)) {
+    for (const Task &t : issues) {
         if (!text.isEmpty())
             text.append(QLatin1String("<br>"));
         // set severity:
