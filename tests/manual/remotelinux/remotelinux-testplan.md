@@ -42,7 +42,9 @@ Start Qt Creator with clean settings, preferably using the -tcs switch.
    location on the target machine.
   - For Qmake: Add `target.path = /tmp/mytest` and `INSTALLS += target`.
   - For qbs: Add `qbs.installPrefix: "/tmp/mytest"`.
-  - For CMake and other exotic build tools, check the respective documentation.
+  - For CMake: Add `set(CMAKE_INSTALL_PREFIX /tmp/mytest)` to CMakeList.txt
+      or add `-DCMAKE_INSTALL_PREFIX=/tmp/mytest` in the `Initial Configuration`
+  - For other exotic build tools, check the respective documentation.
 3. Click the `Run` button. The project should get built and deployed, and the output
    "Hello World" should appear in the application output pane.
 
