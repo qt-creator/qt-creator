@@ -6,7 +6,6 @@ add_subdirectory(qrcodegen)
 add_subdirectory(qtkeychain)
 add_subdirectory(lua)
 add_subdirectory(sol2)
-add_subdirectory(karchive)
 
 if(WIN32)
     add_subdirectory(winpty)

@@ -41,20 +41,6 @@
         "Copyright": "Author: Dominik Haumann (dhaumann@kde.org)."
     },
     {
-        "Id": "karchive",
-        "Name": "KArchive",
-        "QDocModule": "qtcreator",
-        "QtParts": ["tools"],
-        "QtUsage": "Used for reading and writing archives.",
-        "Path": "src/libs/3rdparty/karchive",
-        "Description": "KArchive provides classes for easy reading, creation and manipulation of 'archive' formats like ZIP and TAR.",
-        "Homepage": "https://invent.kde.org/frameworks/karchive",
-        "Version": "6.9.0",
-        "License": "GNU Lesser General Public License v2.1",
-        "LicenseFile": "src/libs/3rdparty/karchive/LICENSES/LGPL-2.0-or-later.txt",
-        "Copyright": "Copyright The KDE project contributors"
-    },
-    {
         "Id": "ksyntaxhighlighting-bash",
         "Name": "KSyntaxHighlighting: bash.xml",
         "QDocModule": "qtcreator",
@@ -651,7 +637,7 @@
         "Name": "ZLib",
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
-        "QtUsage": "Used by KArchive/ZipWriter/ZipReader to support compress and uncompress operations.",
+        "QtUsage": "Used by ZipWriter/ZipReader to support compress and uncompress operations.",
         "Path": "src/libs/3rdparty/zlib",
         "Description": "Zlib is a lossless data-compression library.",
         "Homepage": "https://www.zlib.net",
@@ -659,34 +645,6 @@
         "License": "BSD 3-Clause \"New\" or \"Revised\" License",
         "LicenseFile": "src/libs/3rdparty/zlib/LICENSE",
         "Copyright": "Copyright (C) 1995-2024 Jean-loup Gailly and Mark Adler"
-    },
-    {
-        "Id": "bzip2",
-        "Name": "bzip2",
-        "QDocModule": "qtcreator",
-        "QtParts": ["tools"],
-        "QtUsage": "Used by KArchive to support compress and uncompress operations.",
-        "Path": "src/libs/3rdparty/karchive/3rdparty/bzip2",
-        "Description": "BZip2 is a lossless data-compression library.",
-        "Homepage": "https://sourceware.org/bzip2/",
-        "Version": "1.0.8",
-        "License": "bzip2 and libbzip2 License v1.0.6",
-        "LicenseFile": "src/libs/3rdparty/karchive/3rdparty/bzip2/LICENSE",
-        "Copyright": "copyright (C) 1996-2019 Julian R Seward."
-    },
-    {
-        "Id": "xz",
-        "Name": "xz",
-        "QDocModule": "qtcreator",
-        "QtParts": ["tools"],
-        "QtUsage": "Used by KArchive to support compress and uncompress operations.",
-        "Path": "src/libs/3rdparty/karchive/3rdparty/xz",
-        "Description": "XZ is a lossless data-compression library.",
-        "Homepage": "https://tukaani.org/xz/",
-        "Version": "5.6.3",
-        "License": "BSD Zero Clause License (0BSD)",
-        "LicenseFile": "src/libs/3rdparty/karchive/3rdparty/xz/COPYING",
-        "Copyright": "Copyright (C) The XZ Utils authors and contributors"
     },
     {
         "Id": "tika-mimetypes",
