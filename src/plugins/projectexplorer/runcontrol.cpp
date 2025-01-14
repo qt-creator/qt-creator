@@ -1882,11 +1882,6 @@ void RunWorker::appendMessage(const QString &msg, OutputFormat format, bool appe
     d->runControl->postMessage(msg, format, appendNewLine);
 }
 
-IDevice::ConstPtr RunWorker::device() const
-{
-    return d->runControl->device();
-}
-
 void RunWorker::addStartDependency(RunWorker *dependency)
 {
     d->startDependencies.append(dependency);

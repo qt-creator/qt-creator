@@ -185,7 +185,7 @@ public:
                 QStringList arguments;
                 if (runControl->usesDebugChannel()) {
                     const int pdebugPort = runControl->debugChannel().port();
-                    cmd.setExecutable(debuggeeRunner->device()->filePath(QNX_DEBUG_EXECUTABLE));
+                    cmd.setExecutable(runControl->device()->filePath(QNX_DEBUG_EXECUTABLE));
                     arguments.append(QString::number(pdebugPort));
                 }
                 if (runControl->usesQmlChannel()) {

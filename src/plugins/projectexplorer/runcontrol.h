@@ -58,7 +58,6 @@ public:
 
     // Part of read-only interface of RunControl for convenience.
     void appendMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
-    IDeviceConstPtr device() const;
 
     // States
     void initiateStart();

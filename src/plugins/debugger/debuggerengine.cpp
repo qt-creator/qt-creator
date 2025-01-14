@@ -1296,7 +1296,7 @@ void DebuggerEngine::setRunId(const QString &id)
 void DebuggerEngine::setRunTool(DebuggerRunTool *runTool)
 {
     d->m_runTool = runTool;
-    d->m_device = runTool->device();
+    d->m_device = runTool->runControl()->device();
 
     validateRunParameters(d->m_runParameters);
 

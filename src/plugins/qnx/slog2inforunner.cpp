@@ -35,7 +35,7 @@ void Slog2InfoRunner::start()
     QTC_CHECK(!m_taskTreeRunner.isRunning());
 
     const auto onTestSetup = [this](Process &process) {
-        process.setCommand(CommandLine{device()->filePath("slog2info")});
+        process.setCommand(CommandLine{runControl()->device()->filePath("slog2info")});
     };
     const auto onTestDone = [this] {
         appendMessage(Tr::tr("Warning: \"slog2info\" is not found on the device, "
@@ -43,7 +43,7 @@ void Slog2InfoRunner::start()
     };
 
     const auto onLaunchTimeSetup = [this](Process &process) {
-        process.setCommand({device()->filePath("date"), "+\"%d %H:%M:%S\"", CommandLine::Raw});
+        process.setCommand({runControl()->device()->filePath("date"), "+\"%d %H:%M:%S\"", CommandLine::Raw});
     };
     const auto onLaunchTimeDone = [this](const Process &process) {
         QTC_CHECK(!m_applicationId.isEmpty());
@@ -51,7 +51,7 @@ void Slog2InfoRunner::start()
     };
 
     const auto onLogSetup = [this](Process &process) {
-        process.setCommand({device()->filePath("slog2info"), {"-w"}});
+        process.setCommand({runControl()->device()->filePath("slog2info"), {"-w"}});
         connect(&process, &Process::readyReadStandardOutput, this, [this, processPtr = &process] {
             processLogInput(QString::fromLatin1(processPtr->readAllRawStandardOutput()));
         });

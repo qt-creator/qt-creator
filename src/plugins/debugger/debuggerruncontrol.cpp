@@ -578,11 +578,11 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
             cmd.addArg(qmlDebugTcpArguments(QmlDebuggerServices, runControl()->qmlChannel()));
             cmd.addArgs(commandLine.arguments(), CommandLine::Raw);
         } else {
-            cmd.setExecutable(device()->debugServerPath());
+            cmd.setExecutable(runControl()->device()->debugServerPath());
 
             if (cmd.isEmpty()) {
-                if (device()->osType() == Utils::OsTypeMac) {
-                    const FilePath debugServerLocation = device()->filePath(
+                if (runControl()->device()->osType() == Utils::OsTypeMac) {
+                    const FilePath debugServerLocation = runControl()->device()->filePath(
                         "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/"
                         "Resources/debugserver");
 
@@ -592,15 +592,15 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
                         // TODO: In the future it is expected that the debugserver will be
                         // replaced by lldb-server. Remove the check for debug server at that point.
                         const FilePath lldbserver
-                                = device()->filePath("lldb-server").searchInPath();
+                                = runControl()->device()->filePath("lldb-server").searchInPath();
                         if (lldbserver.isExecutableFile())
                             cmd.setExecutable(lldbserver);
                     }
                 } else {
                     const FilePath gdbServerPath
-                            = device()->filePath("gdbserver").searchInPath();
+                            = runControl()->device()->filePath("gdbserver").searchInPath();
                     FilePath lldbServerPath
-                            = device()->filePath("lldb-server").searchInPath();
+                            = runControl()->device()->filePath("lldb-server").searchInPath();
 
                     // TODO: Which one should we prefer?
                     if (gdbServerPath.isExecutableFile())
@@ -643,7 +643,7 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
                 const auto port = runControl()->debugChannel().port();
                 cmd.addArg(QString(":%1").arg(port));
 
-                if (device()->extraData(ProjectExplorer::Constants::SSH_FORWARD_DEBUGSERVER_PORT).toBool()) {
+                if (runControl()->device()->extraData(ProjectExplorer::Constants::SSH_FORWARD_DEBUGSERVER_PORT).toBool()) {
                     QVariantHash extraData;
                     extraData[RemoteLinux::Constants::SshForwardPort] = port;
                     extraData[RemoteLinux::Constants::DisableSharing] = true;

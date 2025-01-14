@@ -323,7 +323,7 @@ void DeviceCtlRunnerBase::start()
     }
 
     appendMessage(Tr::tr("Running \"%1\" on %2...")
-                      .arg(m_bundlePath.toUserOutput(), device()->displayName()),
+                      .arg(m_bundlePath.toUserOutput(), runControl()->device()->displayName()),
                   NormalMessageFormat);
 
     // If the app is already running, we should first kill it, then launch again.
@@ -906,7 +906,7 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
 {
     setId("IosDebugSupport");
 
-    IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(device());
+    IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(runControl->device());
     DebuggerRunParameters &rp = runParameters();
 
     if (dev->type() == Ios::Constants::IOS_SIMULATOR_TYPE
@@ -922,7 +922,7 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
         addStartDependency(m_deviceCtlRunner);
     }
 
-    if (device()->type() == Ios::Constants::IOS_DEVICE_TYPE) {
+    if (runControl->device()->type() == Ios::Constants::IOS_DEVICE_TYPE) {
         if (dev->handler() == IosDevice::Handler::DeviceCtl) {
             QTC_CHECK(IosDeviceManager::isDeviceCtlDebugSupported());
             rp.setStartMode(AttachToIosDevice);
@@ -951,7 +951,7 @@ void IosDebugSupport::start()
     rp.setDisplayName(data->applicationName);
     rp.setContinueAfterAttach(true);
 
-    IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(device());
+    IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(runControl()->device());
     if (dev->type() == Ios::Constants::IOS_DEVICE_TYPE
         && dev->handler() == IosDevice::Handler::DeviceCtl) {
         const auto msgOnlyCppDebuggingSupported = [] {

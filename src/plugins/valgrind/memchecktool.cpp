@@ -123,9 +123,9 @@ QString MemcheckToolRunner::progressTitle() const
 
 void MemcheckToolRunner::start()
 {
-    if (device()->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+    if (runControl()->device()->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         m_process.reset(new Process);
-        m_process->setCommand({device()->filePath("echo"), "-n $SSH_CLIENT", CommandLine::Raw});
+        m_process->setCommand({runControl()->device()->filePath("echo"), "-n $SSH_CLIENT", CommandLine::Raw});
         connect(m_process.get(), &Process::done, this, [this] {
             const ProcessResult result = m_process->result();
             const QByteArrayList data = m_process->rawStdOut().split(' ');

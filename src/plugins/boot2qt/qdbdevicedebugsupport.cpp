@@ -33,7 +33,7 @@ static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
     worker->setId("QdbDeviceInferiorWorker");
 
     worker->setStartModifier([worker, runControl, qmlServices] {
-        CommandLine cmd{worker->device()->filePath(Constants::AppcontrollerFilepath)};
+        CommandLine cmd{runControl->device()->filePath(Constants::AppcontrollerFilepath)};
 
         int lowerPort = 0;
         int upperPort = 0;
