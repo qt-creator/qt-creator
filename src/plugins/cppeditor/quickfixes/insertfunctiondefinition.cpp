@@ -22,6 +22,7 @@
 #include <QDialogButtonBox>
 #include <QGridLayout>
 #include <QHBoxLayout>
+#include <QScrollArea>
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
@@ -256,7 +257,8 @@ public:
         defaultImplTargetLayout->addWidget(new QLabel(Tr::tr("Default implementation location:")));
         defaultImplTargetLayout->addWidget(defaultImplTargetComboBox);
 
-        const auto candidatesLayout = new QGridLayout;
+        const auto candidatesWidget = new QWidget;
+        const auto candidatesLayout = new QGridLayout(candidatesWidget);
         Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
         oo.showFunctionSignatures = true;
         oo.showReturnTypes = true;
@@ -272,6 +274,8 @@ public:
                                         i, 0);
             candidatesLayout->addWidget(implTargetComboBox, i, 1);
         }
+        const auto scrollArea = new QScrollArea;
+        scrollArea->setWidget(candidatesWidget);
 
         const auto buttonBox
             = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -282,7 +286,7 @@ public:
         const auto mainLayout = new QVBoxLayout(this);
         mainLayout->addLayout(defaultImplTargetLayout);
         mainLayout->addWidget(Layouting::createHr(this));
-        mainLayout->addLayout(candidatesLayout);
+        mainLayout->addWidget(scrollArea);
         mainLayout->addWidget(buttonBox);
     }
 
