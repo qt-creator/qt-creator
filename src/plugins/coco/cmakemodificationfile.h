@@ -5,22 +5,15 @@
 
 #include "modificationfile.h"
 
-namespace ProjectExplorer {
-class Project;
-}
-
 namespace Coco::Internal {
 
 class CMakeModificationFile : public ModificationFile
 {
 public:
-    CMakeModificationFile(ProjectExplorer::Project *project);
+    CMakeModificationFile();
 
     void read();
     void write() const;
-
-private:
-    ProjectExplorer::Project *m_project;
 };
 
 } // namespace Coco::Internal

@@ -26,7 +26,6 @@ class CocoCMakeSettings : public BuildSettings
 public:
     explicit CocoCMakeSettings(BuildConfiguration *bc)
         : BuildSettings{m_featureFile, bc}
-        , m_featureFile{bc->project()}
     {}
 
     void connectToProject(CocoProjectWidget *parent) const override;

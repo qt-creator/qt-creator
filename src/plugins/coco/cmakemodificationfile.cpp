@@ -16,9 +16,8 @@ using namespace ProjectExplorer;
 static const char flagsSetting[] = "set(coverage_flags_list\n";
 static const char tweaksLine[] = "# User-supplied settings follow here:\n";
 
-CMakeModificationFile::CMakeModificationFile(ProjectExplorer::Project *project)
+CMakeModificationFile::CMakeModificationFile()
     : ModificationFile{QString(Constants::PROFILE_NAME) + ".cmake", ":/cocoplugin/files/cocoplugin.cmake"}
-    , m_project{project}
 {}
 
 void CMakeModificationFile::read()
