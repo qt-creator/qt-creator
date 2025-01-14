@@ -65,7 +65,9 @@ static KitData createKitData(const Kit *kit)
     data.cxxCompilerPath = expander->expand(QString("%{Compiler:Executable:Cxx}"));
     data.cmakePath = expander->expand(QString("%{CMake:Executable:FilePath}"));
     data.qmakePath = expander->expand(QString("%{Qt:qmakeExecutable}"));
+    data.qtPrefixPath = expander->expand(QString("%{Qt:QT_INSTALL_PREFIX}"));
     data.qtVersionStr = expander->expand(QString("%{Qt:Version}"));
+    data.pythonPath = expander->expand(QString("%{Python:Path}"));
     data.qtVersion = Utils::QtMajorVersion::None;
     auto version = QVersionNumber::fromString(data.qtVersionStr);
     if (!version.isNull()) {
@@ -140,6 +142,10 @@ void MachineFileManager::addMachineFile(const Kit *kit)
     ba += entry("c", kitData.cCompilerPath);
     ba += entry("cpp", kitData.cxxCompilerPath);
     ba += entry("qmake", kitData.qmakePath);
+    if (!kitData.pythonPath.isEmpty()){
+        ba += entry("python3", kitData.pythonPath);
+        ba += entry("python", kitData.pythonPath);
+    }
     if (kitData.qtVersion == QtMajorVersion::Qt4)
         ba += entry("qmake-qt4", kitData.qmakePath);
     else if (kitData.qtVersion == QtMajorVersion::Qt5)
@@ -147,6 +153,10 @@ void MachineFileManager::addMachineFile(const Kit *kit)
     else if (kitData.qtVersion == QtMajorVersion::Qt6)
         ba += entry("qmake-qt6", kitData.qmakePath);
     ba += entry("cmake", kitData.cmakePath);
+    ba += "\n[cmake]\n";
+    ba += entry("CMAKE_C_COMPILER", kitData.cCompilerPath);
+    ba += entry("CMAKE_CXX_COMPILER", kitData.cxxCompilerPath);
+    ba += entry("CMAKE_PREFIX_PATH", kitData.qtPrefixPath);
 
     filePath.writeFileContents(ba);
 }
