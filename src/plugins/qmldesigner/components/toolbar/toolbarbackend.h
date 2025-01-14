@@ -128,6 +128,8 @@ class ToolBarBackend : public QObject
 
     Q_PROPERTY(int runTargetIndex READ runTargetIndex NOTIFY runTargetIndexChanged)
     Q_PROPERTY(int runManagerState READ runManagerState NOTIFY runManagerStateChanged)
+    Q_PROPERTY(int runManagerProgress READ runManagerProgress NOTIFY runManagerProgressChanged)
+    Q_PROPERTY(QString runManagerError READ runManagerError NOTIFY runManagerErrorChanged)
 
 #ifdef DVCONNECTOR_ENABLED
     Q_PROPERTY(DesignViewer::DVConnector *designViewerConnector READ designViewerConnector CONSTANT)
@@ -155,6 +157,7 @@ public:
     Q_INVOKABLE void openDeviceManager();
     Q_INVOKABLE void selectRunTarget(const QString &targetName);
     Q_INVOKABLE void toggleRunning();
+    Q_INVOKABLE void cancelRunning();
 
     bool canGoBack() const;
     bool canGoForward() const;
@@ -190,6 +193,8 @@ public:
 
     int runTargetIndex() const;
     int runManagerState() const;
+    int runManagerProgress() const;
+    QString runManagerError() const;
 
 #ifdef DVCONNECTOR_ENABLED
     DesignViewer::DVConnector *designViewerConnector();
@@ -217,6 +222,8 @@ signals:
 
     void runTargetIndexChanged();
     void runManagerStateChanged();
+    void runManagerProgressChanged();
+    void runManagerErrorChanged();
 
 private:
     void setupWorkspaces();

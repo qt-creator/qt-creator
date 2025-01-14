@@ -10,7 +10,7 @@
     \title Show and hide the main menu
 
     On Linux and Windows, you can hide the main menu bar to save space on the
-    screen. Select \uicontrol View, and deselect the \uicontrol {Show Menu Bar}
+    screen. Select \uicontrol View, and clear the \uicontrol {Show Menu Bar}
     check box.
 
     \image qtcreator-without-menubar.webp {Qt Creator without the main menu}

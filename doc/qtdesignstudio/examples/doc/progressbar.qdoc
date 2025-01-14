@@ -23,7 +23,7 @@
     \l {progress-bar-control}{Progress Bar} component available in
     \uicontrol Components > \uicontrol {Qt Quick Controls}.
 
-    In the \uicontrol Design mode, we drag-and-drop a \uicontrol Rectangle from
+    In the \uicontrol Design mode, we drag a \uicontrol Rectangle from
     \uicontrol Components > \uicontrol {Default Components} >
     \uicontrol Basic to the \l {2D} view and modify its size to create the
     background for the progress bar. We change its ID to \e pb_back in
@@ -31,12 +31,12 @@
 
     We want to be able to control the background rectangle and the text label
     that was added by the project wizard, so we will use an \uicontrol Item
-    component for that. We drag-and-drop the Item from \uicontrol Components >
+    component for that. We drag the Item from \uicontrol Components >
     \uicontrol {Default Components} > \uicontrol Basic
     to the \uicontrol {2D} view and change its ID to \e root in
     \uicontrol Properties.
 
-    To make the background and text children of the Item, we drag-and-drop them
+    To make the background and text children of the Item, we drag them
     to the Item in \l Navigator. This enables us to use the anchor
     buttons in \uicontrol Properties > \uicontrol Layout to anchor them to their
     parent. We anchor the background to its parent on all edges, with a 30-pixel
@@ -45,7 +45,7 @@
 
     \image progressbar-rectangle.png "Progress bar background in the 2D view"
 
-    We now drag-and-drop another rectangle on top of the background rectangle in
+    We now drag another rectangle on top of the background rectangle in
     \uicontrol Navigator and change its ID to \e pb_front in
     \uicontrol Properties.
     We then anchor the left, top, and bottom of the indicator to its parent with
@@ -125,7 +125,7 @@
     We want the progress bar to be reusable, so we'll move it to a separate
     component file. To make sure that the component will contain the timeline,
     we select \uicontrol {Filter Tree} in \uicontrol Navigator and then
-    deselect the \uicontrol {Show Only Visible Items} check box to show the
+    clear the \uicontrol {Show Only Visible Items} check box to show the
     timeline component in \uicontrol Navigator. We then move the timeline
     component to \e root  to have it moved as a part of the root component.
 

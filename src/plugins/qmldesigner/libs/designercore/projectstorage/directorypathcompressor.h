@@ -15,12 +15,12 @@
 namespace QmlDesigner {
 
 template<typename Timer>
-class DirectoryPathCompressor
+class DirectoryPathCompressor final
 {
 public:
     DirectoryPathCompressor() { m_timer.setSingleShot(true); }
 
-    virtual ~DirectoryPathCompressor() = default;
+    ~DirectoryPathCompressor() = default;
 
     void addSourceContextId(SourceContextId sourceContextId)
     {
@@ -34,12 +34,18 @@ public:
         restartTimer();
     }
 
-    SourceContextIds takeSourceContextIds() { return std::move(m_sourceContextIds); }
+    const SourceContextIds &sourceContextIds() { return m_sourceContextIds; }
 
-    virtual void setCallback(std::function<void(QmlDesigner::SourceContextIds &&)> &&callback)
+    virtual void setCallback(std::function<void(const QmlDesigner::SourceContextIds &)> &&callback)
     {
-        QObject::connect(&m_timer, &Timer::timeout, [this, callback = std::move(callback)] {
-            callback(takeSourceContextIds());
+        if (connection)
+            QObject::disconnect(connection);
+        connection = QObject::connect(&m_timer, &Timer::timeout, [this, callback = std::move(callback)] {
+            try {
+                callback(m_sourceContextIds);
+                m_sourceContextIds.clear();
+            } catch (const std::exception &) {
+            }
         });
     }
 
@@ -54,7 +60,21 @@ public:
     }
 
 private:
+    struct ConnectionGuard
+    {
+        ~ConnectionGuard()
+        {
+            if (connection)
+                QObject::disconnect(connection);
+        }
+
+        QMetaObject::Connection &connection;
+    };
+
+private:
     SourceContextIds m_sourceContextIds;
+    QMetaObject::Connection connection;
+    ConnectionGuard connectionGuard{connection};
     Timer m_timer;
 };
 

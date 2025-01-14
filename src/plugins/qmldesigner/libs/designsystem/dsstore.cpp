@@ -248,6 +248,28 @@ QStringList DSStore::collectionNames() const
     return names;
 }
 
+ThemeProperty DSStore::resolvedDSBinding(QStringView binding) const
+{
+    const auto parts = binding.split('.', Qt::SkipEmptyParts);
+    if (parts.size() != 3)
+        return {};
+
+    const auto &collectionName = parts[0];
+    auto itr = m_collections.find(collectionName.toString());
+    if (itr == m_collections.end())
+        return {};
+
+    const DSThemeManager &boundCollection = itr->second;
+    const auto &propertyName = parts[2].toLatin1();
+    if (const auto group = boundCollection.groupType(propertyName)) {
+        auto property = boundCollection.property(boundCollection.activeTheme(), *group, propertyName);
+        if (property)
+            return property->isBinding ? resolvedDSBinding(property->value.toString()) : *property;
+    }
+
+    return {};
+}
+
 QString DSStore::uniqueCollectionName(const QString &hint) const
 {
     return UniqueName::generateTypeName(hint, "Collection", [this](const QString &t) {

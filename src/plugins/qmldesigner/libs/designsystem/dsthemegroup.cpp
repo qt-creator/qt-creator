@@ -199,7 +199,7 @@ void DSThemeGroup::decorate(ThemeId theme, ModelNode themeNode, bool wrapInGroup
     for (auto &[propName, values] : m_values) {
         auto themeValue = values.find(theme);
         if (themeValue != values.end())
-            addProperty(targetNode, propName, themeValue->second);
+            addProperty(targetNode, propName, themeValue->second, wrapInGroups);
     }
 }
 
@@ -224,21 +224,18 @@ std::vector<PropertyName> DSThemeGroup::propertyNames() const
     return names;
 }
 
-void DSThemeGroup::addProperty(ModelNode n, PropertyNameView propName, const PropertyData &data) const
+void DSThemeGroup::addProperty(ModelNode n, PropertyNameView propName, const PropertyData &data, bool createNewProperty) const
 {
-    auto metaInfo = n.model()->metaInfo(n.type());
-    const bool propDefined = metaInfo.property(propName).isValid();
-
     const auto typeName = groupTypeName(m_type);
     if (data.isBinding) {
-        if (propDefined)
+        if (!createNewProperty)
             n.bindingProperty(propName).setExpression(data.value.toString());
         else if (auto bindingProp = n.bindingProperty(propName))
             bindingProp.setDynamicTypeNameAndExpression(*typeName, data.value.toString());
         else
             qCDebug(dsLog) << "Assigning invalid binding" << propName << n.id();
     } else {
-        if (propDefined)
+        if (!createNewProperty)
             n.variantProperty(propName).setValue(data.value);
         else if (auto nodeProp = n.variantProperty(propName))
             nodeProp.setDynamicTypeNameAndValue(*typeName, data.value);

@@ -13,7 +13,7 @@
 
     \e {Side Menu} displays a menu bar and a side menu that slides open when
     users click the menu icon. The appearance of the menu bar buttons changes
-    when users hover the cursor over them or select them.
+    when users hover over them or select them.
 
     Each button opens an image file. The side menu can be used to apply
     \l {2D effects}{graphical effects}, such as hue, saturation,
@@ -82,7 +82,7 @@
     We construct the menu bar in the \e {MainFile.ui.qml} file using the
     \l {2D} view. The CustomButton component is listed in
     \uicontrol Components > \uicontrol {My Components}.
-    We drag-and-drop several instances of the component to \uicontrol Navigator
+    We drag several instances of the component to \uicontrol Navigator
     or the \uicontrol {2D} view and enclose them in a \uicontrol {Row Layout}
     component instance to lay them out as a menu bar.
 
@@ -90,8 +90,8 @@
 
     We can change the properties of each CustomButton instance separately in
     the \uicontrol Properties view. We want only one of the menu bar buttons
-    to be checked at any time, so that checking another button automatically
-    unchecks the previously checked one. Therefore, we set the
+    to be selected at any time, so that selecting another button automatically
+    clears the previously selected one. Therefore, we set the
     \l {AbstractButton::}{autoExclusive} property to \c true for all
     button instances.
 
@@ -104,7 +104,7 @@
     \section1 Creating a side menu
 
     We can now continue to create a side menu that slides open when users
-    click the burger menu. We drag-and-drop a \l Text component from
+    click the burger menu. We drag a \l Text component from
     \uicontrol Components > \uicontrol {Default Components}
     > \uicontrol Basic and a \l {slider-control}{Slider} component from
     \uicontrol {Qt Quick Controls} to \uicontrol Navigator to create separate
@@ -209,7 +209,7 @@
     in the \uicontrol Settings menu of the \uicontrol Value property in
     \uicontrol Properties > \uicontrol Slider.
 
-    We open the \e {EffectStack.qml} file, and drag-and-drop components from
+    We open the \e {EffectStack.qml} file, and drag components from
     \uicontrol Components > \uicontrol {Qt Quick Studio Effects} to
     \uicontrol Navigator to create the effect stack.
 

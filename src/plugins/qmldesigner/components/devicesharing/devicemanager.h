@@ -3,14 +3,17 @@
 
 #pragma once
 
+#include <qmldesigner/components/componentcore/resourcegenerator.h>
+
+#include "deviceinfo.h"
+
 #include <QPointer>
-#include <QUdpSocket>
-#include <QWebSocketServer>
 
-#include "device.h"
-
+QT_BEGIN_NAMESPACE
+class QUdpSocket;
+QT_END_NAMESPACE
 namespace QmlDesigner::DeviceShare {
-
+class Device;
 class DeviceManagerWidget;
 
 class DeviceManager : public QObject
@@ -36,8 +39,10 @@ public:
     bool addDevice(const QString &ip);
     void removeDevice(const QString &deviceId);
     void removeDeviceAt(int index);
-    bool sendProjectFile(const QString &deviceId, const QString &projectFile);
-    bool stopRunningProject(const QString &deviceId);
+
+    // project management functions
+    void runProject(const QString &deviceId); // async
+    void stopProject();                       // async
 
     DeviceManagerWidget *widget();
 
@@ -48,7 +53,22 @@ private:
 
     // settings
     QString m_settingsPath;
-    QString m_uuid;
+    QString m_designStudioId;
+
+    enum class ErrTypes {
+        NoError,
+        InternalError,
+        ProjectPackingError,
+        ProjectSendingError,
+        ProjectStartError
+    };
+    enum class OpTypes { Stopped, Packing, Sending, Starting, Running };
+    OpTypes m_currentState;
+    QString m_currentDeviceId;
+    QString m_currentQtKitVersion;
+    bool m_processInterrupted;
+
+    QmlDesigner::ResourceGenerator m_resourceGenerator;
 
     QPointer<DeviceManagerWidget> m_widget;
 
@@ -59,15 +79,20 @@ private:
     void incomingConnection();
     void readSettings();
     void writeSettings();
-    QSharedPointer<Device> initDevice(const DeviceInfo &deviceInfo = DeviceInfo(),
-                                      const DeviceSettings &deviceSettings = DeviceSettings());
+    void initDevice(const DeviceInfo &deviceInfo = DeviceInfo(),
+                    const DeviceSettings &deviceSettings = DeviceSettings());
 
     // device signals
-    void deviceInfoReceived(const QString &deviceIp, const QString &deviceId);
-    void deviceDisconnected(const QString &deviceId);
+    void deviceInfoReceived(const QString &deviceId);
 
     QSharedPointer<Device> findDevice(const QString &deviceId) const;
     QString generateDeviceAlias() const;
+
+    // internal functions
+    void projectPacked(const Utils::FilePath &filePath);
+    void handleError(const ErrTypes &errType,
+                     const QString &deviceId,
+                     const QString &error = QString());
 
 signals:
     void deviceAdded(const QString &deviceId);
@@ -77,10 +102,19 @@ signals:
     void deviceActivated(const QString &deviceId);
     void deviceDeactivated(const QString &deviceId);
     void deviceAliasChanged(const QString &deviceId);
+
+    void projectPacking(const QString &deviceId);
+    void projectPackingError(const QString &deviceId, const QString &error);
     void projectSendingProgress(const QString &deviceId, const int percentage);
+    void projectSendingError(const QString &deviceId, const QString &error);
+    void projectStarting(const QString &deviceId);
+    void projectStartingError(const QString &deviceId, const QString &error);
     void projectStarted(const QString &deviceId);
+    void projectStopping(const QString &deviceId);
     void projectStopped(const QString &deviceId);
     void projectLogsReceived(const QString &deviceId, const QString &logs);
+
+    void internalError(const QString &deviceId, const QString &error);
 };
 
 } // namespace QmlDesigner::DeviceShare

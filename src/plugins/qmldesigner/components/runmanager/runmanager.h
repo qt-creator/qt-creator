@@ -54,7 +54,7 @@ class RunManager : public QObject
 public:
     explicit RunManager(DeviceShare::DeviceManager &deviceManager);
 
-    enum TargetState { Running, NotRunning };
+    enum TargetState { Packing, Sending, Starting, Running, NotRunning };
     Q_ENUM(TargetState)
 
     void udpateTargets();
@@ -62,17 +62,27 @@ public:
     const QList<Target> targets() const;
 
     void toggleCurrentTarget();
+    void cancelCurrentTarget();
 
     int currentTargetIndex() const;
 
     bool selectRunTarget(Utils::Id id);
     bool selectRunTarget(const QString &targetName);
 
-    TargetState state() const { return m_state; }
+    void setState(TargetState state);
+    TargetState state() const;
+
+    void setProgress(int progress);
+    int progress() const;
+
+    void setError(const QString &error);
+    const QString &error() const;
 
 private:
     std::optional<Target> runTarget(Utils::Id targetId) const;
     int runTargetIndex(Utils::Id targetId) const;
+
+    void handleError(const QString &deviceId, const QString &error);
 
     DeviceShare::DeviceManager &m_deviceManager;
 
@@ -82,11 +92,15 @@ private:
     QList<RunningTarget> m_runningTargets;
 
     TargetState m_state = TargetState::NotRunning;
+    int m_progress = 0;
+    QString m_error;
 
 signals:
     void runTargetChanged();
     void stateChanged();
     void targetsChanged();
+    void progressChanged();
+    void errorChanged();
 };
 
 } // namespace QmlDesigner

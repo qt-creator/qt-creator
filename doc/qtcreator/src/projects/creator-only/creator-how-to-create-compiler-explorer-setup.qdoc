@@ -60,7 +60,7 @@
         \li Enter code to see the resulting assembly code.
     \endlist
 
-    Hover the mouse over the assembly code, to have the matching source lines
+   hover over the assembly code, to have the matching source lines
     highlighted.
 
     You can also see the application status and output.

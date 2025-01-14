@@ -54,7 +54,7 @@
     Unified Change Management (UCM) view, they are added to the change set of
     a UCM activity. By default, the activities are automatically assigned names.
     To disable this functionality, select \preferences >
-    \uicontrol {Version Control} > \uicontrol ClearCase, and then deselect the
+    \uicontrol {Version Control} > \uicontrol ClearCase, and then clear the
     \uicontrol {Auto assign activity names} check box.
 
     To automatically check out files when you edit them, select the

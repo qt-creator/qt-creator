@@ -27,7 +27,7 @@ protected:
 class DeviceSettings : public IDeviceData
 {
 public:
-    DeviceSettings() = default;
+    using IDeviceData::IDeviceData;
 
     // Getters
     bool active() const;
@@ -51,7 +51,7 @@ private:
 class DeviceInfo : public IDeviceData
 {
 public:
-    DeviceInfo() = default;
+    using IDeviceData::IDeviceData;
 
     // Getters
     QString os() const;
@@ -76,7 +76,7 @@ private:
     static constexpr char keyOsVersion[] = "osVersion";
     static constexpr char keyScreenWidth[] = "screenWidth";
     static constexpr char keyScreenHeight[] = "screenHeight";
-    static constexpr char keySelfId[] = "selfId";
+    static constexpr char keySelfId[] = "deviceId";
     static constexpr char keyArchitecture[] = "architecture";
     static constexpr char keyAppVersion[] = "appVersion";
 };

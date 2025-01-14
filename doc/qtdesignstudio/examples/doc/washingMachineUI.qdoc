@@ -167,7 +167,7 @@
 
     In our UI, we use connections and states to move between screens. First,
     we specify the application workflow in \e ApplicationFlow.qml. When the
-    file is open in the \uicontrol {2D} view, we drag-and-drop the components
+    file is open in the \uicontrol {2D} view, we drag the components
     that define the screens in the application from \uicontrol Components to
     \uicontrol Navigator or the \uicontrol {2D} view: \e StartScreen,
     \e SettingsScreen, \e PresetsScreen, and \e RunningScreen.

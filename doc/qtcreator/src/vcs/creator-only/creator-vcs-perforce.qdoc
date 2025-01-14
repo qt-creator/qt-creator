@@ -64,7 +64,7 @@
     within the client workspace. By default, files are automatically opened for
     editing. To disable this feature, select \preferences >
     \uicontrol {Version Control} > \uicontrol Perforce,
-    and then deselect the \uicontrol {Automatically open files when editing}
+    and then clear the \uicontrol {Automatically open files when editing}
     check box.
 
     To list files that are open for editing, select \uicontrol Tools >

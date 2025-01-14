@@ -154,7 +154,7 @@ DVConnector::DVConnector(QObject *parent)
             });
 
     connect(&m_resourceGenerator,
-            &ResourceGeneratorProxy::resourceFileCreated,
+            &ResourceGenerator::qmlrcCreated,
             this,
             [this](const std::optional<Utils::FilePath> &resourcePath) {
                 emit projectIsUploading();
@@ -162,12 +162,10 @@ DVConnector::DVConnector(QObject *parent)
                 uploadProject(projectName, resourcePath->toString());
             });
 
-    connect(&m_resourceGenerator,
-            &ResourceGeneratorProxy::errorOccurred,
-            [this](const QString &errorString) {
-                qCWarning(deploymentPluginLog) << "Error occurred while packing the project";
-                emit projectPackingFailed(errorString);
-            });
+    connect(&m_resourceGenerator, &ResourceGenerator::errorOccurred, [this](const QString &errorString) {
+        qCWarning(deploymentPluginLog) << "Error occurred while packing the project";
+        emit projectPackingFailed(errorString);
+    });
 
     fetchUserInfo();
 }
@@ -220,7 +218,7 @@ void DVConnector::projectList()
 void DVConnector::uploadCurrentProject()
 {
     QString projectName = ProjectExplorer::ProjectManager::startupProject()->displayName();
-    m_resourceGenerator.createResourceFileAsync(projectName);
+    m_resourceGenerator.createQmlrcAsyncWithName(projectName);
     emit projectIsPacking();
 }
 

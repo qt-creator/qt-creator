@@ -140,7 +140,7 @@
         \li Select \uicontrol Projects > \uicontrol {Project Settings} >
             \uicontrol {Clang Tools}.
             \image qtcreator-clang-tools-settings.webp {Clang Tools customized settings}
-        \li Deselect \uicontrol {Use global settings}.
+        \li Clear \uicontrol {Use global settings}.
         \li Specify \uicontrol preferences for the project.
         \li In \uicontrol {Suppressed diagnostics}, you can view the suppression
             list for a project and to remove diagnostics from it.
@@ -196,7 +196,7 @@
             generated during the build. For big projects, not building the
             project might save some time.
 
-        \li To disable automatic analysis of open documents, deselect the
+        \li To disable automatic analysis of open documents, clear the
             \uicontrol {Analyze open files} check box.
 
         \li In the \uicontrol {Parallel jobs} field, select the number of jobs

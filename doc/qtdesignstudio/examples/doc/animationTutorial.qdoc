@@ -202,7 +202,7 @@
       select \imageplus
       .
       \li In the \uicontrol {Property Type} field, enter \e {Item}.
-      This field is a drop-down list, but you can also type text.
+      This field is a drop-down list, but you can also enter text.
       \li In the \uicontrol {Property Value} field, enter \e {null}.
     \endlist
     \image animation-tutorial-property.png

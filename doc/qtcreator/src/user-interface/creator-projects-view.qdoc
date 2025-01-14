@@ -108,7 +108,7 @@
         \li Close all files in a project.
         \li Close the selected project or all projects except the selected
             one. By default, this closes all files in the projects. To keep
-            them open, deselect the \preferences > \uicontrol {Build & Run} >
+            them open, clear the \preferences > \uicontrol {Build & Run} >
             \uicontrol General > \uicontrol {Close source files along with project}
             check box.
     \endlist
@@ -139,7 +139,7 @@
     \endlist
 
     To stop synchronizing the position in the project tree with the file
-    currently opened in the editor, deselect \inlineimage icons/linkicon.png
+    currently opened in the editor, clear \inlineimage icons/linkicon.png
     (\uicontrol {Synchronize with Editor}).
 
     Some build systems support adding and removing files to a project in \QC

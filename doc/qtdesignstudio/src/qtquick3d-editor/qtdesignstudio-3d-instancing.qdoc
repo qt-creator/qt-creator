@@ -47,7 +47,7 @@
     \l{https://doc.qt.io/qt/qml-qtquick3d-fileinstancing.html}{FileInstancing}
     QML type.
 
-    To use the \uicontrol Instancing component, drag-and-drop it from
+    To use the \uicontrol Instancing component, drag it from
     \uicontrol Components to \uicontrol Scene in \uicontrol Navigator.
 
     \section2 Instancing properties
@@ -84,11 +84,11 @@
 
     To build an instance table:
         \list 1
-            \li Drag-and-drop an \uicontrol {Instance List} component from
+            \li Drag an \uicontrol {Instance List} component from
                 \uicontrol Components > \uicontrol {Qt Quick 3D}
                 > \uicontrol {Qt Quick 3D} to \uicontrol Scene in
                 \uicontrol Navigator.
-            \li Drag-and-drop \uicontrol {Instance List Entry} components to the
+            \li Drag \uicontrol {Instance List Entry} components to the
                 \uicontrol {Instance List} component to create list items.
                 \image studio-3d-instancing-instance-list.png "Instance List and Instance Entries in Navigator"
 

@@ -127,6 +127,11 @@ void DeviceInfo::setScreenHeight(const int &screenHeight)
     m_data[keyScreenHeight] = screenHeight;
 }
 
+void DeviceInfo::setSelfId(const QString &selfId)
+{
+    m_data[keySelfId] = selfId;
+}
+
 void DeviceInfo::setAppVersion(const QString &appVersion)
 {
     m_data[keyAppVersion] = appVersion;

@@ -137,7 +137,7 @@
                 Increase the limit if frames are dropped during the recording.
         \row
             \li \uicontrol {Export animated images as infinite loop}
-            \li Whether to export animated images as inifite loops. Deselect
+            \li Whether to export animated images as inifite loops. Clear
                 this check box to only play the animation once.
         \row
             \li \uicontrol {Write command line of FFmpeg calls to General Messages}

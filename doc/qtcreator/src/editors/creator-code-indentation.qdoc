@@ -68,7 +68,7 @@
     To help you keep line length at a particular number of characters, set the
     number of characters in the \uicontrol {Display right margin at column}
     field. To use a different color for the margin area, select the
-    \uicontrol {Tint whole margin area} check box. Deselect the check box to show
+    \uicontrol {Tint whole margin area} check box. Clear the check box to show
     the margin as a vertical line.
 
     To use a context-specific margin when available, select the

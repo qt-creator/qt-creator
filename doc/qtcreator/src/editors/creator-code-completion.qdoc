@@ -166,7 +166,7 @@
 
     When completion is invoked manually, \QC completes the common prefix of the
     list of suggestions. This is especially useful for classes with several
-    similarly named members. To disable this functionality, deselect the
+    similarly named members. To disable this functionality, clear the
     \uicontrol {Autocomplete common prefix} check box.
 
     Select the \uicontrol {Automatically split strings} check box to split

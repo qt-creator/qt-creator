@@ -111,7 +111,7 @@
 
     Double-click the \uicontrol {Qt/SML Send} or \uicontrol {Qt/QML Receive}
     block in Simulink to specify a property name. A pop-up for \uicontrol
-    {Block Parameters} appears. Type the name of the property in the \uicontrol
+    {Block Parameters} appears. Enter the name of the property in the \uicontrol
     {Qt Signal/Property Name} field and click \uicontrol OK. The name, for
     example speedProp, needs to match a \uicontrol signal or a \uicontrol
     property in \QDS.
@@ -165,7 +165,7 @@
     bind the root item property. Select the \imageactionicon
     (\uicontrol Actions) menu next to a property, and then select
     \uicontrol {Set Binding}. In the \uicontrol {Binding Editor}, select the
-    text field and type in \c {<id>.<property name>}, for example
+    text field and enter \c {<id>.<property name>}, for example
     \c rectangle.speedProp. For more information, see \l {Setting bindings}.
 
     \image studio-binding-editor.png "The Binding Editor window"
