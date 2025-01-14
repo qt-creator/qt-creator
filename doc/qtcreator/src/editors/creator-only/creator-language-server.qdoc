@@ -80,13 +80,10 @@
     To add language servers, go to \preferences > \uicontrol {Language Client}
     and select \uicontrol Add.
 
-    \image qtcreator-language-client-options-java.png {Java language server preferences}
+    \image qtcreator-preferences-language-client-qmlls.webp {Language Client General preferences}
 
     To enable a language server, select the checkbox next to the language
     server name and set server preferences.
-
-    To configure \l{Configure \QMLLS}{\QMLLS}, go to
-    \preferences > \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing}.
 
     To remove language servers from the list, select \uicontrol Delete.
 
@@ -240,15 +237,28 @@
 
     Since Qt 6.4, \QMLLS offers code completion and issues warnings for QML.
 
-    To turn off \QMLLS, go to \preferences > \uicontrol {Qt Quick} >
-    \uicontrol {QML/JS Editing} and clear \uicontrol {Turn on}.
+    To set preferences for \QMLLS, go to \preferences >
+    \uicontrol {Language Client} > \uicontrol General and
+    select \uicontrol {\QMLLS}.
+
+    \image qtcreator-preferences-language-client-qmlls.webp {QML Language Server in Language Client preferences}
+
+    \section1 Turn off \QMLLS
+
+    To turn off \QMLLS, clear the \uicontrol {\QMLLS} checkbox.
+
+    \section1 Use advanced features
 
     By default, \QMLLS issues warning messages and provides code completion,
     while the embedded code model handles advanced features, such as renaming
-    symbols and finding usages. To disable the embedded code model and use
-    \QMLLS for everything, select \uicontrol {Use advanced features}.
+    symbols and finding usages.
 
-    Also, \QC tries to use \QMLLS shipped with the Qt version in your current
+    To disable the embedded code model and use \QMLLS for everything, select
+    \uicontrol {Use advanced features}.
+
+    \section1 Select \QMLLS version
+
+    \QC tries to use \QMLLS shipped with the Qt version in your current
     \l{Kits}{kit}. To override that behavior and always use
     \QMLLS of the highest registered Qt version, select
     \uicontrol {Use from latest Qt version}.
@@ -256,7 +266,7 @@
     To use older \QMLLS versions, select
     \uicontrol{Allow versions below Qt 6.8}.
 
-    \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}
+    \section1 Automatically configure new CMake projects
 
     To automatically configure new CMake projects, select
     \uicontrol {Create .qmlls.ini files for new projects}.
@@ -330,7 +340,23 @@
     \ingroup creator-how-to-lsp
     \ingroup creator-how-to-projects-configure
 
-    \title Configure language server workspace
+    \title Configure language servers for projects
+
+    To configure language servers for the current project, go to
+    \uicontrol Projects > \uicontrol {Project Settings} >
+    \uicontrol {Language Server}.
+
+    \image qtcreator-projects-settings-language-server.webp {Language Server settings for a project}
+
+    To add language servers and change their preferences, select
+    \uicontrol {Global settings}.
+
+    \section1 Turn on and off language servers
+
+    To turn on and off language servers, select \uicontrol Enabled or
+    \uicontrol Disabled in \uicontrol {Project Specific Language Servers}.
+
+    \section1 Configure language server workspace
 
     The language client sends the contents of the
     \uicontrol {Workspace Configuration} field as a JSON file to all language
@@ -338,18 +364,8 @@
     JSON file must be valid JSON. The available settings depend on the language
     server.
 
-    To configure the language server workspace for the current project:
-
-    \list 1
-        \li Go to \uicontrol Projects > \uicontrol {Project Settings} >
-            \uicontrol {Language Server}.
-            \image qtcreator-projects-settings-language-server.webp {Language Server settings for a project}
-        \li In \uicontrol {Workspace Configuration}, specify language server
-            settings using valid JSON format.
-    \endlist
-
-    To add language servers and change their preferences, go to
-    \uicontrol {Global settings}.
+    In \uicontrol {Workspace Configuration}, specify language server settings
+    using valid JSON format.
 
     \sa {Manage Language Servers}{How To: Manage Language Servers},
     {Language Servers}, {Configuring Projects}
