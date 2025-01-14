@@ -86,7 +86,7 @@ private:
         BuildInfoStore(const BuildInfoStore &other) = delete;
         BuildInfoStore(BuildInfoStore &&other);
         BuildInfoStore &operator=(const BuildInfoStore &other) = delete;
-        BuildInfoStore &operator=(BuildInfoStore &&other) = delete;
+        BuildInfoStore &operator=(BuildInfoStore &&other);
 
         BuildInfo buildInfo;
         QCheckBox *checkbox = nullptr;

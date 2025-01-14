@@ -122,18 +122,24 @@ void TargetSetupWidget::addBuildInfo(const BuildInfo &info, bool isImport)
         m_haveImported = true;
     }
 
-    const auto pos = static_cast<int>(m_infoStore.size());
-
     BuildInfoStore store;
     store.buildInfo = info;
     store.isEnabled = info.enabledByDefault;
-    ++m_selected;
+    store.hasIssues = false;
+
+    const auto it
+        = std::find_if(m_infoStore.begin(), m_infoStore.end(), [&info](const BuildInfoStore &bsi) {
+              return bsi.buildInfo.buildDirectory == info.buildDirectory;
+          });
+    const bool replace = it != m_infoStore.end();
+    const int pos = replace ? std::distance(m_infoStore.begin(), it) : int(m_infoStore.size());
+    if (!replace || (isImport && m_selected == 0))
+        ++m_selected;
 
     store.checkbox = new QCheckBox;
     store.checkbox->setText(info.displayName);
     store.checkbox->setChecked(store.isEnabled);
     store.checkbox->setAttribute(Qt::WA_LayoutUsesWidgetRect);
-    m_newBuildsLayout->addWidget(store.checkbox, pos * 2, 0);
 
     store.pathChooser = new PathChooser();
     store.pathChooser->setExpectedKind(PathChooser::Directory);
@@ -142,11 +148,9 @@ void TargetSetupWidget::addBuildInfo(const BuildInfo &info, bool isImport)
         store.pathChooser->setVisible(false);
     store.pathChooser->setHistoryCompleter("TargetSetup.BuildDir.History");
     store.pathChooser->setReadOnly(isImport);
-    m_newBuildsLayout->addWidget(store.pathChooser, pos * 2, 1);
 
     store.issuesLabel = new QLabel;
     store.issuesLabel->setIndent(32);
-    m_newBuildsLayout->addWidget(store.issuesLabel, pos * 2 + 1, 0, 1, 2);
     store.issuesLabel->setVisible(false);
 
     connect(store.checkbox, &QAbstractButton::toggled, this,
@@ -154,11 +158,20 @@ void TargetSetupWidget::addBuildInfo(const BuildInfo &info, bool isImport)
     connect(store.pathChooser, &PathChooser::rawPathChanged, this,
             [this, pathChooser = store.pathChooser] { pathChanged(pathChooser); });
 
-    store.hasIssues = false;
-    m_infoStore.emplace_back(std::move(store));
+    if (replace) {
+        QTC_CHECK(isImport);
+        m_newBuildsLayout->replaceWidget(it->checkbox, store.checkbox);
+        m_newBuildsLayout->replaceWidget(it->pathChooser, store.pathChooser);
+        m_newBuildsLayout->replaceWidget(it->issuesLabel, store.issuesLabel);
+        *it = std::move(store);
+    } else {
+        m_newBuildsLayout->addWidget(store.checkbox, pos * 2, 0);
+        m_newBuildsLayout->addWidget(store.pathChooser, pos * 2, 1);
+        m_newBuildsLayout->addWidget(store.issuesLabel, pos * 2 + 1, 0, 1, 2);
+        m_infoStore.emplace_back(std::move(store));
+    }
 
     reportIssues(pos);
-
     emit selectedToggled();
 }
 
@@ -382,6 +395,12 @@ TargetSetupWidget::BuildInfoStore::~BuildInfoStore()
 
 TargetSetupWidget::BuildInfoStore::BuildInfoStore(TargetSetupWidget::BuildInfoStore &&other)
 {
+    *this = std::move(other);
+}
+
+TargetSetupWidget::BuildInfoStore &TargetSetupWidget::BuildInfoStore::operator=(
+    BuildInfoStore &&other)
+{
     std::swap(other.buildInfo, buildInfo);
     std::swap(other.checkbox, checkbox);
     std::swap(other.label, label);
@@ -389,6 +408,7 @@ TargetSetupWidget::BuildInfoStore::BuildInfoStore(TargetSetupWidget::BuildInfoSt
     std::swap(other.pathChooser, pathChooser);
     std::swap(other.isEnabled, isEnabled);
     std::swap(other.hasIssues, hasIssues);
+    return *this;
 }
 
 } // namespace Internal
