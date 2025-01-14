@@ -853,6 +853,15 @@ bool CMakeBuildSystem::hasSubprojectBuildSupport() const
     return cmakeGenerator().contains("Ninja") || cmakeGenerator().contains("Makefiles");
 }
 
+QVariant CMakeBuildSystem::additionalData(Id id) const
+{
+    if (id == "FoundPackages") {
+        // for analytics
+        return m_findPackagesFilesHash.keys();
+    }
+    return {};
+}
+
 RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
                                                       const FilePaths &filePaths,
                                                       FilePaths *notRemoved)

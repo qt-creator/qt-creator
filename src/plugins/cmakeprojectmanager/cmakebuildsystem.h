@@ -133,6 +133,7 @@ public:
     QString cmakeGenerator() const;
     bool hasSubprojectBuildSupport() const;
 
+    QVariant additionalData(Utils::Id id) const override;
 signals:
     void configurationCleared();
     void configurationChanged(const CMakeConfig &config);
