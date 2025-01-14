@@ -264,11 +264,12 @@ QString quoteAmpersands(const QString &text)
 QString asciify(const QString &input)
 {
     QString result;
+    result.reserve(input.size() * 5);
     for (const QChar &c : input) {
         if (c.isPrint() && c.unicode() < 128)
-            result.append(c);
+            result += c;
         else
-            result.append(QString::fromLatin1("u%1").arg(int16_t(c.unicode()), 4, 16, QChar('0')));
+            result += QString::asprintf("u%04x", c.unicode());
     }
     return result;
 }
