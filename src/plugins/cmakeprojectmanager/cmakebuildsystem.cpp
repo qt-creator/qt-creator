@@ -857,7 +857,7 @@ QVariant CMakeBuildSystem::additionalData(Id id) const
 {
     if (id == "FoundPackages") {
         // for analytics
-        return m_findPackagesFilesHash.keys();
+        return QVariant::fromValue(m_findPackagesFilesHash);
     }
     return {};
 }
