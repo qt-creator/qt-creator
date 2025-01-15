@@ -74,7 +74,6 @@ protected:
     explicit DeviceProcessSignalOperation();
 
     Utils::FilePath m_debuggerCommand;
-    Utils::Result m_result = Utils::Result::Ok;
 };
 
 // See cpp file for documentation.
