@@ -104,38 +104,39 @@ CppQuickFixSettingsWidget::CppQuickFixSettingsWidget()
 
     const QString placeHolderTect = Tr::tr("See tool tip for more information");
     const QString toolTip = Tr::tr(
-R"==(Use <name> for the variable
-Use <camel> for camel case
-Use <snake> for snake case
-Use <Name>, <Camel> and <Snake> for upper case
-e.g. name = "m_test_foo_":
-"set_<name> => "set_test_foo"
-"set<Name> => "setTest_foo"
-"set<Camel> => "setTestFoo")==");
+        "A JavaScript expression acting as the return value of a function taking a parameter "
+        "called \"name\"");
+    CppQuickFixSettings defaultSettings;
 
     m_lineEdit_getterAttribute = new QLineEdit;
     m_lineEdit_getterAttribute->setPlaceholderText(Tr::tr("For example, [[nodiscard]]"));
     m_lineEdit_getterName = new QLineEdit;
-    m_lineEdit_getterName->setPlaceholderText(placeHolderTect);
+    m_lineEdit_getterName->setPlaceholderText(defaultSettings.getterNameTemplate);
     m_lineEdit_getterName->setToolTip(toolTip);
     m_lineEdit_setterName = new QLineEdit;
-    m_lineEdit_setterName->setPlaceholderText(placeHolderTect);
+    m_lineEdit_setterName->setPlaceholderText(defaultSettings.setterNameTemplate);
     m_lineEdit_setterName->setToolTip(toolTip);
     m_lineEdit_setterParameter = new QLineEdit;
-    m_lineEdit_setterParameter->setPlaceholderText(Tr::tr("For example, new<Name>"));
+    m_lineEdit_setterParameter->setPlaceholderText(defaultSettings.setterParameterNameTemplate);
     m_lineEdit_setterParameter->setToolTip(toolTip);
     m_checkBox_setterSlots = new QCheckBox(Tr::tr("Setters should be slots"));
     m_lineEdit_resetName = new QLineEdit;
-    m_lineEdit_resetName->setPlaceholderText(Tr::tr("Normally reset<Name>"));
+    m_lineEdit_resetName->setPlaceholderText(defaultSettings.resetNameTemplate);
     m_lineEdit_resetName->setToolTip(toolTip);
     m_lineEdit_signalName = new QLineEdit;
-    m_lineEdit_signalName->setPlaceholderText(Tr::tr("Normally <name>Changed"));
+    m_lineEdit_signalName->setPlaceholderText(defaultSettings.signalNameTemplate);
     m_lineEdit_signalName->setToolTip(toolTip);
     m_checkBox_signalWithNewValue = new QCheckBox(
                 Tr::tr("Generate signals with the new value as parameter"));
     m_lineEdit_memberVariableName = new QLineEdit;
-    m_lineEdit_memberVariableName->setPlaceholderText(Tr::tr("For example, m_<name>"));
+    m_lineEdit_memberVariableName->setPlaceholderText(defaultSettings.memberVariableNameTemplate);
     m_lineEdit_memberVariableName->setToolTip(toolTip);
+    m_lineEdit_nameFromMemberVariable = new QLineEdit;
+    m_lineEdit_nameFromMemberVariable->setToolTip(
+        Tr::tr(
+            "How to get from the member variable to the semantic name.\n"
+            "This is the reverse of the operation above.\n"
+            "Leave empty to apply heuristics."));
 
     m_radioButton_generateMissingNamespace = new QRadioButton(Tr::tr("Generate missing namespaces"));
     m_radioButton_addUsingnamespace = new QRadioButton(Tr::tr("Add \"using namespace ...\""));
@@ -253,6 +254,7 @@ e.g. name = "m_test_foo_":
                 Tr::tr("Signal name:"), m_lineEdit_signalName, br,
                 m_checkBox_signalWithNewValue, br,
                 Tr::tr("Member variable name:"), m_lineEdit_memberVariableName, br,
+                Tr::tr("Name from member variable:"), m_lineEdit_nameFromMemberVariable, br,
             },
         },
         Group {
@@ -312,6 +314,7 @@ e.g. name = "m_test_foo_":
     connect(m_lineEdit_getterAttribute, &QLineEdit::textEdited, then);
     connect(m_lineEdit_getterName, &QLineEdit::textEdited, then);
     connect(m_lineEdit_memberVariableName, &QLineEdit::textEdited, then);
+    connect(m_lineEdit_nameFromMemberVariable, &QLineEdit::textEdited, then);
     connect(m_lineEdit_resetName, &QLineEdit::textEdited, then);
     connect(m_lineEdit_setterName, &QLineEdit::textEdited, then);
     connect(m_lineEdit_setterParameter, &QLineEdit::textEdited, then);
@@ -348,6 +351,7 @@ void CppQuickFixSettingsWidget::loadSettings(CppQuickFixSettings *settings)
     m_lineEdit_resetName->setText(settings->resetNameTemplate);
     m_lineEdit_signalName->setText(settings->signalNameTemplate);
     m_lineEdit_memberVariableName->setText(settings->memberVariableNameTemplate);
+    m_lineEdit_nameFromMemberVariable->setText(settings->nameFromMemberVariableTemplate);
     m_checkBox_setterSlots->setChecked(settings->setterAsSlot);
     m_checkBox_signalWithNewValue->setChecked(settings->signalWithNewValue);
     m_useAutoCheckBox->setChecked(settings->useAuto);
@@ -402,6 +406,7 @@ void CppQuickFixSettingsWidget::saveSettings(CppQuickFixSettings *settings)
     settings->resetNameTemplate = m_lineEdit_resetName->text();
     settings->signalNameTemplate = m_lineEdit_signalName->text();
     settings->memberVariableNameTemplate = m_lineEdit_memberVariableName->text();
+    settings->nameFromMemberVariableTemplate = m_lineEdit_nameFromMemberVariable->text();
     if (m_radioButton_rewriteTypes->isChecked()) {
         settings->cppFileNamespaceHandling = CppQuickFixSettings::MissingNamespaceHandling::RewriteType;
     } else if (m_radioButton_addUsingnamespace->isChecked()) {

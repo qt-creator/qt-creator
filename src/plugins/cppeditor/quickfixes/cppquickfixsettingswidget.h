@@ -66,6 +66,7 @@ private:
     QLineEdit *m_lineEdit_setterName;
     QLineEdit *m_lineEdit_signalName;
     QLineEdit *m_lineEdit_memberVariableName;
+    QLineEdit *m_lineEdit_nameFromMemberVariable;
     QRadioButton *m_radioButton_generateMissingNamespace;
     QRadioButton *m_radioButton_addUsingnamespace;
     QRadioButton *m_radioButton_rewriteTypes;

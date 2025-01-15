@@ -117,15 +117,16 @@ public:
     int setterOutsideClassFrom = 0;
     int setterInCppFileFrom = 1;
     QString getterAttributes;                 // e.g. [[nodiscard]]
-    QString getterNameTemplate = "<name>";    // or get<Name>
-    QString setterNameTemplate = "set<Name>"; // or set_<name> or Set<Name>
-    QString setterParameterNameTemplate = "new<Name>";
-    QString signalNameTemplate = "<name>Changed";
-    QString resetNameTemplate = "reset<Name>";
+    QString getterNameTemplate = R"js("get" + name[0].toUpperCase() + name.slice(1))js";
+    QString setterNameTemplate = R"js("set" + name[0].toUpperCase() + name.slice(1))js";
+    QString setterParameterNameTemplate = R"js("new" + name[0].toUpperCase() + name.slice(1))js";
+    QString signalNameTemplate = R"js(name + "Changed")js";
+    QString resetNameTemplate = R"js("reset" + name[0].toUpperCase() + name.slice(1))js";
     bool signalWithNewValue = false;
     bool setterAsSlot = false;
     MissingNamespaceHandling cppFileNamespaceHandling = MissingNamespaceHandling::CreateMissing;
-    QString memberVariableNameTemplate = "m_<name>";
+    QString memberVariableNameTemplate = R"js("m_" + name)js";
+    QString nameFromMemberVariableTemplate;
     QStringList valueTypes; // if contains use value. Ignores namespaces and template parameters
     bool returnByConstRef = false;
     bool useAuto = true;

@@ -131,15 +131,11 @@ static QString memberBaseName(const QString &name)
     };
     QString baseName = name;
 
-    CppQuickFixSettings *settings = CppQuickFixProjectsSettings::getQuickFixSettings(
+    const CppQuickFixSettings * const settings = CppQuickFixProjectsSettings::getQuickFixSettings(
         ProjectExplorer::ProjectTree::currentProject());
-    const QString &nameTemplate = settings->memberVariableNameTemplate;
-    const QString prefix = nameTemplate.left(nameTemplate.indexOf('<'));
-    const QString postfix = nameTemplate.mid(nameTemplate.lastIndexOf('>') + 1);
-    if (name.startsWith(prefix) && name.endsWith(postfix)) {
-        const QString base = name.mid(prefix.length(), name.length() - postfix.length());
-        if (validName(base))
-            return base;
+    if (!settings->nameFromMemberVariableTemplate.isEmpty()) {
+        return CppQuickFixSettings::replaceNamePlaceholders(
+                    settings->nameFromMemberVariableTemplate, name);
     }
 
     // Remove leading and trailing "_"
@@ -2863,8 +2859,7 @@ private slots:
 
         QuickFixSettings s;
         s->cppFileNamespaceHandling = CppQuickFixSettings::MissingNamespaceHandling::CreateMissing;
-        s->setterParameterNameTemplate = "value";
-        s->getterNameTemplate = "get<Name>";
+        s->setterParameterNameTemplate = "\"value\"";
         s->setterInCppFileFrom = 1;
         s->getterInCppFileFrom = 1;
         GenerateGetterSetter factory;
@@ -2986,7 +2981,7 @@ private slots:
 
         QuickFixSettings s;
         s->cppFileNamespaceHandling = CppQuickFixSettings::MissingNamespaceHandling::AddUsingDirective;
-        s->setterParameterNameTemplate = "value";
+        s->setterParameterNameTemplate = "\"value\"";
         s->setterInCppFileFrom = 1;
 
         if (std::strstr(QTest::currentDataTag(), "unnamed nested") != nullptr)
@@ -3118,7 +3113,7 @@ private slots:
 
         QuickFixSettings s;
         s->cppFileNamespaceHandling = CppQuickFixSettings::MissingNamespaceHandling::RewriteType;
-        s->setterParameterNameTemplate = "value";
+        s->setterParameterNameTemplate = "\"value\"";
         s->setterInCppFileFrom = 1;
 
         if (std::strstr(QTest::currentDataTag(), "unnamed nested") != nullptr)
@@ -3306,12 +3301,20 @@ private slots:
         QuickFixSettings s;
         s->setterInCppFileFrom = 0;
         s->getterInCppFileFrom = 0;
-        s->setterNameTemplate = "Seet_<Name>";
-        s->getterNameTemplate = "give_me_<snake>";
-        s->signalNameTemplate = "new<Camel>Value";
-        s->setterParameterNameTemplate = "New_<Snake>";
-        s->resetNameTemplate = "set_<camel>_toDefault";
-        s->memberVariableNameTemplate = "mem_<name>";
+        s->setterNameTemplate =  R"js("Seet_" + name[0].toUpperCase() + name.slice(1))js";
+        s->getterNameTemplate = R"js("give_me_" + name.replace(/([A-Z])/g,
+            function(v) { return "_" + v.toLowerCase(); }))js";
+        s->signalNameTemplate = R"js("new" + name[0].toUpperCase()
+            + name.slice(1).replace(/_([a-z])/g, function(v) { return v.slice(1).toUpperCase(); })
+            + "Value")js";
+        s->setterParameterNameTemplate = R"js("New_" + name[0].toUpperCase()
+            + name.slice(1).replace(/([A-Z])/g,
+                "_" + "$1").replace(/(_[a-z])/g, function(v) { return v.toUpperCase(); }))js";
+        s->resetNameTemplate = R"js("set_" + name.replace(/_([a-z])/g,
+            function(v) { return v.slice(1).toUpperCase(); }) + "_toDefault")js";
+        s->memberVariableNameTemplate = R"js("mem_" + name)js";
+        if (QByteArray(QTest::currentDataTag()) == "create methods with given member variable")
+            s->nameFromMemberVariableTemplate = R"js(name.slice(4))js";
         if (operation == 0) {
             InsertQtPropertyMembers factory;
             QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), operation);
@@ -3572,7 +3575,6 @@ private slots:
         QuickFixSettings s;
         s->setterInCppFileFrom = 0;
         s->getterInCppFileFrom = 0;
-        s->getterNameTemplate = "get<Name>";
         s->valueTypes << "Value";
         s->returnByConstRef = true;
 
@@ -3644,7 +3646,6 @@ void Foo::setBar(const custom<N2::test> &newBar)
 
         QuickFixSettings s;
         s->cppFileNamespaceHandling = CppQuickFixSettings::MissingNamespaceHandling::AddUsingDirective;
-        s->getterNameTemplate = "get<Name>";
         s->getterInCppFileFrom = 1;
         s->signalWithNewValue = true;
         CppQuickFixSettings::CustomTemplate t;
@@ -3684,7 +3685,7 @@ void Foo::setBar(const custom<N2::test> &newBar)
         testDocuments << CppTestDocument::create("file.h", original, expected);
 
         QuickFixSettings s;
-        s->setterParameterNameTemplate = "<name>";
+        s->setterParameterNameTemplate = "name";
         s->setterInCppFileFrom = 0;
 
         GenerateGetterSetter factory;
@@ -4023,7 +4024,8 @@ void Foo::setBar(const custom<N2::test> &newBar)
         QFETCH(QByteArray, expected);
 
         QuickFixSettings s;
-        s->setterParameterNameTemplate = "<name>";
+        s->getterNameTemplate = "name";
+        s->setterParameterNameTemplate = "name";
         s->getterInCppFileFrom = 1;
         s->setterInCppFileFrom = 1;
 
@@ -4069,7 +4071,6 @@ void Foo::setBar(const custom<N2::test> &newBar)
 
         QuickFixSettings s;
         s->getterInCppFileFrom = 1;
-        s->getterNameTemplate = "get<Name>";
         GenerateGetterSetter factory;
         QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 1);
     }
@@ -4110,7 +4111,7 @@ void Foo::setBar(const custom<N2::test> &newBar)
         testDocuments << CppTestDocument::create("file.cpp", original, expected);
 
         s->setterInCppFileFrom = 1;
-        s->setterParameterNameTemplate = "value";
+        s->setterParameterNameTemplate = "\"value\"";
 
         GenerateGetterSetter factory;
         QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 0);
@@ -4123,7 +4124,8 @@ void Foo::setBar(const custom<N2::test> &newBar)
         QByteArray expected;
         QuickFixSettings s;
         s->setterInCppFileFrom = 1;
-        s->setterParameterNameTemplate = "value";
+        s->getterNameTemplate = "name";
+        s->setterParameterNameTemplate = "\"value\"";
 
         // Header File
         original = R"(
@@ -4213,8 +4215,7 @@ void Foo::setBar(const custom<N2::test> &newBar)
         QuickFixSettings s;
         s->setterOutsideClassFrom = 1;
         s->getterOutsideClassFrom = 1;
-        s->setterParameterNameTemplate = "value";
-        s->getterNameTemplate = "get<Name>";
+        s->setterParameterNameTemplate = "\"value\"";
 
         GenerateGetterSetter factory;
         QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 4);
@@ -4251,7 +4252,7 @@ void Foo::setBar(const custom<N2::test> &newBar)
 
         QuickFixSettings s;
         s->setterOutsideClassFrom = 1;
-        s->setterParameterNameTemplate = "value";
+        s->setterParameterNameTemplate = "\"value\"";
 
         GenerateGetterSetter factory;
         QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 0);
@@ -4288,7 +4289,6 @@ void Foo::setBar(const custom<N2::test> &newBar)
         QuickFixSettings s;
         s->getterOutsideClassFrom = 0;
         s->getterInCppFileFrom = 0;
-        s->getterNameTemplate = "get<Name>";
         s->returnByConstRef = true;
 
         GenerateGetterSetter factory;
@@ -4448,8 +4448,7 @@ private slots:
         QFETCH(QByteArray, expected);
 
         QuickFixSettings s;
-        s->getterNameTemplate = "get<Name>";
-        s->setterParameterNameTemplate = "value";
+        s->setterParameterNameTemplate = "\"value\"";
         s->setterOutsideClassFrom = 1;
         s->getterOutsideClassFrom = 1;
         s->returnByConstRef = true;
@@ -4613,7 +4612,7 @@ private slots:
         QuickFixSettings s;
         s->setterAsSlot = true;
         s->setterInCppFileFrom = 0;
-        s->setterParameterNameTemplate = "<name>";
+        s->setterParameterNameTemplate = "name";
         s->signalWithNewValue = true;
 
         InsertQtPropertyMembers factory;
