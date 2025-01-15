@@ -8,6 +8,7 @@
 
 #include <utils/processinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/result.h>
 #include <utils/treemodel.h>
 
 #include <QTimer>
@@ -96,7 +97,18 @@ void ProcessList::killProcess(int row)
     const ProcessInfo processInfo = at(row);
     d->signalOperation = d->device->signalOperation();
     connect(d->signalOperation.get(), &DeviceProcessSignalOperation::finished,
-            this, &ProcessList::reportDelayedKillStatus);
+            this, [this](const Result &result) {
+        if (result) {
+            QTC_CHECK(d->state == Killing);
+            setFinished();
+            emit processKilled();
+        } else {
+            QTC_CHECK(d->state != Inactive);
+            setFinished();
+            emit error(result.error());
+        }
+        d->signalOperation.reset();
+    });
     d->signalOperation->killProcess(processInfo.processId);
 }
 
@@ -140,21 +152,6 @@ void ProcessList::handleUpdate()
     }
 
     emit processListUpdated();
-}
-
-void ProcessList::reportDelayedKillStatus(const QString &errorMessage)
-{
-    if (errorMessage.isEmpty()) {
-        QTC_CHECK(d->state == Killing);
-        setFinished();
-        emit processKilled();
-    } else {
-        QTC_CHECK(d->state != Inactive);
-        setFinished();
-        emit error(errorMessage);
-    }
-
-    d->signalOperation.reset();
 }
 
 } // ProjectExplorer

@@ -30,41 +30,45 @@ namespace ProjectExplorer {
 void DesktopProcessSignalOperation::killProcess(qint64 pid)
 {
     killProcessSilently(pid);
-    emit finished(m_errorMessage);
+    emit finished(m_result);
 }
 
 void DesktopProcessSignalOperation::killProcess(const QString &filePath)
 {
-    m_errorMessage.clear();
+    m_result = Result::Ok;
     const QList<ProcessInfo> processInfoList = ProcessInfo::processInfoList();
     for (const ProcessInfo &processInfo : processInfoList) {
         if (processInfo.commandLine == filePath)
             killProcessSilently(processInfo.processId);
     }
-    emit finished(m_errorMessage);
+    emit finished(m_result);
 }
 
 void DesktopProcessSignalOperation::interruptProcess(qint64 pid)
 {
-    m_errorMessage.clear();
+    m_result = Result::Ok;
     interruptProcessSilently(pid);
-    emit finished(m_errorMessage);
+    emit finished(m_result);
 }
 
 void DesktopProcessSignalOperation::appendMsgCannotKill(qint64 pid, const QString &why)
 {
-    if (!m_errorMessage.isEmpty())
-        m_errorMessage += QChar::fromLatin1('\n');
-    m_errorMessage += Tr::tr("Cannot kill process with pid %1: %2").arg(pid).arg(why);
-    m_errorMessage += QLatin1Char(' ');
+    QString result = m_result.error();
+    if (!result.isEmpty())
+        result += QChar::fromLatin1('\n');
+    result += Tr::tr("Cannot kill process with pid %1: %2").arg(pid).arg(why);
+    result += QLatin1Char(' ');
+    m_result = Result::Error(result);
 }
 
 void DesktopProcessSignalOperation::appendMsgCannotInterrupt(qint64 pid, const QString &why)
 {
-    if (!m_errorMessage.isEmpty())
-        m_errorMessage += QChar::fromLatin1('\n');
-    m_errorMessage += Tr::tr("Cannot interrupt process with pid %1: %2").arg(pid).arg(why);
-    m_errorMessage += QLatin1Char(' ');
+    QString result = m_result.error();
+    if (!result.isEmpty())
+        result += QChar::fromLatin1('\n');
+    result += Tr::tr("Cannot interrupt process with pid %1: %2").arg(pid).arg(why);
+    result += QLatin1Char(' ');
+    m_result = Result::Error(result);
 }
 
 void DesktopProcessSignalOperation::killProcessSilently(qint64 pid)

@@ -766,8 +766,8 @@ void DeviceProcessKiller::start()
     }
 
     connect(m_signalOperation.get(), &DeviceProcessSignalOperation::finished,
-            this, [this](const QString &errorMessage) {
-        m_errorString = errorMessage;
+            this, [this](const Result &result) {
+        m_errorString = result.error();
         emit done(toDoneResult(m_errorString.isEmpty()));
     });
 

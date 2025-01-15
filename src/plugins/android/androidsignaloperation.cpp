@@ -20,7 +20,7 @@ void AndroidSignalOperation::signalOperationViaADB(qint64 pid, int signal)
     struct InternalStorage {
         FilePath adbPath;
         QString runAs = {};
-        QString errorMessage = {};
+        Result result = Result::Ok;
     };
 
     const Storage<InternalStorage> storage({AndroidConfig::adbToolPath()});
@@ -33,16 +33,15 @@ void AndroidSignalOperation::signalOperationViaADB(qint64 pid, int signal)
             storage->runAs = process.stdOut();
             if (!storage->runAs.isEmpty())
                 return true;
-            storage->errorMessage = QLatin1String("Cannot find User for process: ")
-                                    + QString::number(pid);
+            storage->result = Result::Error("Cannot find User for process: " + QString::number(pid));
         } else if (result == DoneWith::Error) {
-            storage->errorMessage = QLatin1String(" adb process exit code: ")
-                                    + QString::number(process.exitCode());
+            QString result = " adb process exit code: " + QString::number(process.exitCode());
             const QString adbError = process.errorString();
             if (!adbError.isEmpty())
-                storage->errorMessage += QLatin1String(" adb process error: ") + adbError;
+                result += " adb process error: " + adbError;
+            storage->result = Result::Error(result);
         } else {
-            storage->errorMessage = QLatin1String("adb process timed out");
+            storage->result = Result::Error("adb process timed out");
         }
         return false;
     };
@@ -53,14 +52,14 @@ void AndroidSignalOperation::signalOperationViaADB(qint64 pid, int signal)
     };
     const auto onKillDone = [storage, pid](const Process &process, DoneWith result) {
         if (result == DoneWith::Error) {
-            storage->errorMessage = QLatin1String("Cannot kill process: ") + QString::number(pid)
-                                    + process.stdErr();
+            storage->result = Result::Error("Cannot kill process: " + QString::number(pid)
+                                            + process.stdErr());
         } else if (result == DoneWith::Cancel) {
-            storage->errorMessage = QLatin1String("adb process timed out");
+            storage->result = Result::Error("adb process timed out");
         }
     };
 
-    const auto onDone = [this, storage] { emit finished(storage->errorMessage); };
+    const auto onDone = [this, storage] { emit finished(storage->result); };
 
     const Group recipe {
         ProcessTask(onCatSetup, onCatDone).withTimeout(5s),
@@ -78,9 +77,8 @@ void AndroidSignalOperation::killProcess(qint64 pid)
 void AndroidSignalOperation::killProcess(const QString &filePath)
 {
     Q_UNUSED(filePath)
-    m_errorMessage = QLatin1String("The android signal operation does "
-                                   "not support killing by filepath.");
-    emit finished(m_errorMessage);
+    m_result = Result::Error("The android signal operation does not support killing by filepath.");
+    emit finished(m_result);
 }
 
 void AndroidSignalOperation::interruptProcess(qint64 pid)

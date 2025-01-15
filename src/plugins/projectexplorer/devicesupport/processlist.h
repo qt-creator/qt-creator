@@ -38,8 +38,6 @@ signals:
 
 private:
     void handleUpdate();
-    void reportDelayedKillStatus(const QString &errorMessage);
-
     void setFinished();
 
     const std::unique_ptr<Internal::DeviceProcessListPrivate> d;

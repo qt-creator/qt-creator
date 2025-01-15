@@ -14,6 +14,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/id.h>
 #include <utils/portlist.h>
+#include <utils/result.h>
 #include <utils/store.h>
 
 #include <QAbstractSocket>
@@ -67,13 +68,13 @@ public:
 
 signals:
     // If the error message is empty the operation was successful
-    void finished(const QString &errorMessage);
+    void finished(const Utils::Result &result);
 
 protected:
     explicit DeviceProcessSignalOperation();
 
     Utils::FilePath m_debuggerCommand;
-    QString m_errorMessage;
+    Utils::Result m_result = Utils::Result::Ok;
 };
 
 // See cpp file for documentation.
@@ -316,7 +317,7 @@ signals:
 private:
     Utils::FilePath m_processPath;
     DeviceProcessSignalOperation::Ptr m_signalOperation;
-    QString m_errorString;
+    QString m_errorString; // TODO: Replace with Result
 };
 
 class PROJECTEXPLORER_EXPORT DeviceProcessKillerTaskAdapter final
