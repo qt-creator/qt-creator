@@ -4206,6 +4206,32 @@
          height="100%"
          transform="matrix(2,0,0,2,2040,-520)" />
     </g>
+    <g
+       id="src/plugins/axivion/images/user">
+      <use
+         style="display:inline"
+         transform="translate(2218,132)"
+         height="100%"
+         width="100%"
+         id="use22"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <g
+         id="g1">
+        <circle
+           style="fill:none;stroke:#000000"
+           id="path2-3"
+           cy="574"
+           cx="2210"
+           r="2.5" />
+        <path
+           style="fill:none;stroke:#000000"
+           d="m 2205.5,582 c 0,-1 1,-5 4.5,-5 3.5,0 4.5,4 4.5,5"
+           id="path3-1"
+           sodipodi:nodetypes="czc" />
+      </g>
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"
