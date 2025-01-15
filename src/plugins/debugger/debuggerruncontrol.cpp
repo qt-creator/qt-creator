@@ -632,7 +632,7 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
                 if (m_runParameters.serverAttachPid().isValid())
                     cmd.addArgs({"--attach", QString::number(m_runParameters.serverAttachPid().pid())});
                 else
-                    cmd.addCommandLineAsArgs(runControl()->runnable().command);
+                    cmd.addCommandLineAsArgs(runControl()->commandLine());
             } else {
                 // Something resembling gdbserver
                 if (m_runParameters.serverUseMulti())

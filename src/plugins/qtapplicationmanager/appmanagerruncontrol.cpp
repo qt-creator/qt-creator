@@ -193,7 +193,7 @@ public:
             worker->setId("ApplicationManagerPlugin.Run.TargetRunner");
             QObject::connect(worker, &RunWorker::stopped, worker, [worker, runControl] {
                 worker->appendMessage(
-                    Tr::tr("%1 exited.").arg(runControl->runnable().command.toUserOutput()),
+                    Tr::tr("%1 exited.").arg(runControl->commandLine().toUserOutput()),
                     OutputFormat::NormalMessageFormat);
             });
 

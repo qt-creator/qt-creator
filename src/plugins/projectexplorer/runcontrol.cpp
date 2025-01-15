@@ -1633,11 +1633,10 @@ void ProcessRunner::start()
     appendMessage(msg, NormalMessageFormat);
     if (runControl()->isPrintEnvironmentEnabled()) {
         appendMessage(Tr::tr("Environment:"), NormalMessageFormat);
-        runControl()->runnable().environment
-            .forEachEntry([this](const QString &key, const QString &value, bool enabled) {
-                if (enabled)
-                    appendMessage(key + '=' + value, StdOutFormat);
-            });
+        d->m_environment.forEachEntry([this](const QString &key, const QString &value, bool enabled) {
+            if (enabled)
+                appendMessage(key + '=' + value, StdOutFormat);
+        });
         appendMessage({}, StdOutFormat);
     }
 
