@@ -533,7 +533,7 @@ public:
     // Returns an object that blocks suggestions until it is destroyed.
     SuggestionBlocker blockSuggestions();
 
-    std::unique_ptr<EmbeddedWidgetInterface> insertWidget(QWidget *widget, int line);
+    std::unique_ptr<EmbeddedWidgetInterface> insertWidget(QWidget *widget, int pos);
 
     QList<QTextCursor> autoCompleteHighlightPositions() const;
 

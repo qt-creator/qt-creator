@@ -867,7 +867,7 @@ public:
     void openTypeUnderCursor(bool openInNextSplit);
     qreal charWidth() const;
 
-    std::unique_ptr<EmbeddedWidgetInterface> insertWidget(QWidget *widget, int line);
+    std::unique_ptr<EmbeddedWidgetInterface> insertWidget(QWidget *widget, int pos);
     void forceUpdateScrollbarSize();
 
     // actions
@@ -4128,7 +4128,7 @@ void TextEditorWidgetPrivate::forceUpdateScrollbarSize()
 }
 
 std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
-    QWidget *widget, int line)
+    QWidget *widget, int pos)
 {
     QPointer<CarrierWidget> carrier = new CarrierWidget(q, widget);
     std::unique_ptr<EmbeddedWidgetInterface> result(new EmbeddedWidgetInterface());
@@ -4148,7 +4148,7 @@ std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
 
     std::shared_ptr<State> pState = std::make_shared<State>();
     pState->cursor = QTextCursor(q->document());
-    pState->cursor.setPosition(line);
+    pState->cursor.setPosition(pos);
     pState->cursor.movePosition(QTextCursor::StartOfBlock);
 
     auto position = [this, pState, carrier] {
@@ -7434,9 +7434,9 @@ TextEditorWidget::SuggestionBlocker TextEditorWidget::blockSuggestions()
     return d->m_suggestionBlocker;
 }
 
-std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidget::insertWidget(QWidget *widget, int line)
+std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidget::insertWidget(QWidget *widget, int pos)
 {
-    return d->insertWidget(widget, line);
+    return d->insertWidget(widget, pos);
 }
 
 QList<QTextCursor> TextEditorWidget::autoCompleteHighlightPositions() const
