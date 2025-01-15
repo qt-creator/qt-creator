@@ -748,27 +748,28 @@ DeviceProcessSignalOperation::DeviceProcessSignalOperation() = default;
 void DeviceProcessKiller::start()
 {
     m_signalOperation.reset();
-    m_errorString.clear();
+    m_result = Result::Ok;
 
     const IDevice::ConstPtr device = DeviceManager::deviceForPath(m_processPath);
     if (!device) {
-        m_errorString = Tr::tr("No device for given path: \"%1\".").arg(m_processPath.toUserOutput());
+        m_result = Result::Error(Tr::tr("No device for given path: \"%1\".")
+                                     .arg(m_processPath.toUserOutput()));
         emit done(DoneResult::Error);
         return;
     }
 
     m_signalOperation = device->signalOperation();
     if (!m_signalOperation) {
-        m_errorString = Tr::tr("Device for path \"%1\" does not support killing processes.")
-                       .arg(m_processPath.toUserOutput());
+        m_result = Result::Error(Tr::tr("Device for path \"%1\" does not support killing processes.")
+                                     .arg(m_processPath.toUserOutput()));
         emit done(DoneResult::Error);
         return;
     }
 
     connect(m_signalOperation.get(), &DeviceProcessSignalOperation::finished,
             this, [this](const Result &result) {
-        m_errorString = result.error();
-        emit done(toDoneResult(m_errorString.isEmpty()));
+        m_result = result;
+        emit done(toDoneResult(result));
     });
 
     m_signalOperation->killProcess(m_processPath.path());
