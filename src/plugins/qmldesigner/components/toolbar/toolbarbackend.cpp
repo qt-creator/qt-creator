@@ -489,6 +489,14 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
             &RunManager::stateChanged,
             this,
             &ToolBarBackend::runManagerStateChanged);
+    connect(&QmlDesignerPlugin::runManager(),
+            &RunManager::progressChanged,
+            this,
+            &ToolBarBackend::runManagerProgressChanged);
+    connect(&QmlDesignerPlugin::runManager(),
+            &RunManager::errorChanged,
+            this,
+            &ToolBarBackend::runManagerErrorChanged);
 }
 
 void ToolBarBackend::registerDeclarativeType()
@@ -713,6 +721,11 @@ void ToolBarBackend::toggleRunning()
     QmlDesignerPlugin::runManager().toggleCurrentTarget();
 }
 
+void ToolBarBackend::cancelRunning()
+{
+    QmlDesignerPlugin::runManager().cancelCurrentTarget();
+}
+
 bool ToolBarBackend::canGoBack() const
 {
     QTC_ASSERT(designModeWidget(), return false);
@@ -899,6 +912,16 @@ int ToolBarBackend::runTargetIndex() const
 int ToolBarBackend::runManagerState() const
 {
     return QmlDesignerPlugin::runManager().state();
+}
+
+int ToolBarBackend::runManagerProgress() const
+{
+    return QmlDesignerPlugin::runManager().progress();
+}
+
+QString ToolBarBackend::runManagerError() const
+{
+    return QmlDesignerPlugin::runManager().error();
 }
 
 #ifdef DVCONNECTOR_ENABLED

@@ -45,7 +45,7 @@
     \list 1
         \li In the \uicontrol {Export path} field, specify the path where
             the metadata file and assets are exported.
-        \li Deselect the \uicontrol {Export assets} check box to disable
+        \li Clear the \uicontrol {Export assets} check box to disable
             exporting assets and only generate the metadata file.
         \li Select the \uicontrol {Export components separately} check box to
             generate separate metadata files for each component.

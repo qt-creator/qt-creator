@@ -145,7 +145,7 @@
     \row
         \li Check box - \uicontrol {Clean whitespace}
         \li Removes trailing whitespace upon saving.
-        \li Enable this check box to remove trailing whitespace upon saving.
+        \li Select this check box to remove trailing whitespace upon saving.
     \row
         \li Combo box - \uicontrol Size
         \li The font size used in the terminal (in points).

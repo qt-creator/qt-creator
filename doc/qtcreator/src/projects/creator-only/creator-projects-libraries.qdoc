@@ -85,7 +85,7 @@
     debug version. For example, if the release version is called example.lib,
     the debug version is called exampled.lib. You can specify that the letter
     is added for the debug version and removed for the release version.
-    If the library name ends in \e d, deselect the \uicontrol {Remove "d" suffix
+    If the library name ends in \e d, clear the \uicontrol {Remove "d" suffix
     for release version} option.
 
     For more information about the project file settings, see

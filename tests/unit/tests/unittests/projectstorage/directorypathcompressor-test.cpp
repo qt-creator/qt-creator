@@ -8,6 +8,8 @@
 
 #include <projectstorage/directorypathcompressor.h>
 
+#include <exception>
+
 namespace {
 
 using QmlDesigner::SourceContextId;
@@ -30,16 +32,26 @@ TEST_F(DirectoryPathCompressor, add_file_path)
 {
     compressor.addSourceContextId(sourceContextId1);
 
-    ASSERT_THAT(compressor.takeSourceContextIds(), ElementsAre(sourceContextId1));
+    ASSERT_THAT(compressor.sourceContextIds(), ElementsAre(sourceContextId1));
 }
 
-TEST_F(DirectoryPathCompressor, no_file_paths_afer_taken_them)
+TEST_F(DirectoryPathCompressor, clear__after_calling_callback)
 {
     compressor.addSourceContextId(sourceContextId1);
 
-    compressor.takeSourceContextIds();
+    compressor.timer().emitTimoutIfStarted();
 
-    ASSERT_THAT(compressor.takeSourceContextIds(), IsEmpty());
+    ASSERT_THAT(compressor.sourceContextIds(), IsEmpty());
+}
+
+TEST_F(DirectoryPathCompressor, dont_clear_for_thrown_exception)
+{
+    compressor.addSourceContextId(sourceContextId1);
+    compressor.setCallback([](const SourceContextIds &) { throw std::exception{}; });
+
+    compressor.timer().emitTimoutIfStarted();
+
+    ASSERT_THAT(compressor.sourceContextIds(), ElementsAre(sourceContextId1));
 }
 
 TEST_F(DirectoryPathCompressor, call_restart_timer_after_adding_path)

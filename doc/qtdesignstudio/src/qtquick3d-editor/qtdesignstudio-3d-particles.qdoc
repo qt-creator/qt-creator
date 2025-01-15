@@ -386,7 +386,7 @@
     when you select it again.
 
     To temporarily stop the simulation, select \uicontrol Paused. Particles
-    are not destroyed, and when you deselect the check box, the simulation
+    are not destroyed, and when you clear the check box, the simulation
     resumes from the point where you paused it.
 
     Select \uicontrol Logging to collect particle system statistics, such as
@@ -1131,7 +1131,7 @@
     them in \uicontrol Particles. Select \imageplus
     to add logical particles to the list.
 
-    Deselect \uicontrol Enabled to turn the affector off. Usually, this
+    Clear \uicontrol Enabled to turn the affector off. Usually, this
     property is used in code to conditionally turn affectors off and on.
 */
 

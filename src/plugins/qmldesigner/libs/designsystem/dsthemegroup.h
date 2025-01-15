@@ -54,7 +54,7 @@ public:
     std::vector<PropertyName> propertyNames() const;
 
 private:
-    void addProperty(ModelNode n, PropertyNameView propName, const PropertyData &data) const;
+    void addProperty(ModelNode n, PropertyNameView propName, const PropertyData &data, bool createNewProperty) const;
 
 private:
     const GroupType m_type;

@@ -88,7 +88,7 @@
     \endlist
 
     To use the built-in code model instead, select \preferences >
-    \uicontrol C++ > \uicontrol clangd, and deselect the \uicontrol {Use clangd} check box.
+    \uicontrol C++ > \uicontrol clangd, and clear the \uicontrol {Use clangd} check box.
     This setting also exists on the project level, so that you can have the Clang-based
     services generally enabled, but switch them off for certain projects, or vice versa.
 
@@ -337,7 +337,7 @@
         \li Select \uicontrol Projects > \uicontrol {Project Settings} >
             \uicontrol {Clangd}.
             \image qtcreator-projects-settings-clangd.webp {Clangd preferences for a project}
-        \li Deselect \uicontrol {Use global settings}.
+        \li Clear \uicontrol {Use global settings}.
         \li Select \uicontrol {Use clangd}.
         \li Specify \uicontrol Clangd preferences for the project.
     \endlist

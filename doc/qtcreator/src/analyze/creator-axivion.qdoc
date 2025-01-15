@@ -19,7 +19,7 @@
 
     The editor shows found issues as inline annotations if the project matches
     the currently open one and the respective file is part of the project.
-    Hover the mouse over an annotation to bring up a tooltip with a short
+   hover over an annotation to bring up a tooltip with a short
     description of the issue.
 
     \image qtcreator-axivion-annotation.webp {Annotation popup}

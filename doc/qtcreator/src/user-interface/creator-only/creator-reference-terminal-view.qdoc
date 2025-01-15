@@ -42,7 +42,7 @@
             in the context menu or select \key {Ctrl+A}.
 
         \li To open links in a browser, files in the editor, or folders in the
-            \l Projects view, hover the mouse over them, and select \key Ctrl.
+            \l Projects view, hover over them, and select \key Ctrl.
 
         \li To \l{Search in current file}{search} through the output, press
             \key {Ctrl+F}.

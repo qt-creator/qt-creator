@@ -94,7 +94,7 @@
     source files are located. To hide the subfolder names and arrange the files
     only according to their source group, select \preferences >
     \uicontrol CMake > \uicontrol General, and then
-    deselect the \uicontrol {Show subfolders inside source group folders} check
+    clear the \uicontrol {Show subfolders inside source group folders} check
     box. The change takes effect after you select \uicontrol Build >
     \uicontrol {Run CMake}.
 

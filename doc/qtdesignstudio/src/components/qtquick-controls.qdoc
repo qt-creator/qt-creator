@@ -124,7 +124,7 @@
     \section3 Flat buttons
 
     A flat button typically does not draw a background unless it is pressed or
-    checked. To create a flat button, select the \uicontrol Flat check box in
+    selected. To create a flat button, select the \uicontrol Flat check box in
     the \uicontrol Button section.
 
     The following image shows an example of a flat button:
@@ -134,7 +134,7 @@
     \section3 Icon buttons
 
     To create a button that contains an icon, use the wizard template to
-    \l{Creating Custom Controls}{create a custom button} and drag-and-drop
+    \l{Creating Custom Controls}{create a custom button} and drag
     the icon to the button background component. For an example of using the
     wizard template, see \l{Creating a Push Button}.
 

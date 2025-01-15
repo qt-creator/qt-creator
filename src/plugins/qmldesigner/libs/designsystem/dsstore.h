@@ -38,6 +38,8 @@ public:
     std::optional<Utils::FilePath> moduleDirPath() const;
     QStringList collectionNames() const;
 
+    ThemeProperty resolvedDSBinding(QStringView binding) const;
+
 private:
     QString uniqueCollectionName(const QString &hint) const;
     std::optional<QString> loadCollection(const QString &typeName, const Utils::FilePath &qmlFilePath);

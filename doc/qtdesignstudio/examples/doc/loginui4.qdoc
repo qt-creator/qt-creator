@@ -158,7 +158,7 @@
             (\uicontrol {Per Property Recording}) button for the
             \uicontrol opacity property of \e repeatPassword to start
             recording property changes.
-        \li In \uicontrol Visibility > \uicontrol Opacity, type \e 0 to hide the button, and press
+        \li In \uicontrol Visibility > \uicontrol Opacity, enter \e 0 to hide the button, and press
             \key Enter to save the value.
         \li Move the playhead to frame \e 1000 and change the opacity value to \e 1
             to show the button.

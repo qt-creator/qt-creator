@@ -27,7 +27,7 @@
 
     \image qtquick-designer-image-type.png "Image component in different views"
 
-    When you drag-and-drop an image file from \uicontrol Assets to \l Navigator
+    When you drag an image file from \uicontrol Assets to \l Navigator
     or the \l {2D} view, \QDS automatically
     creates an instance of the Image component for you with the path to the
     image file set as the value of the \uicontrol Source field in
@@ -181,7 +181,7 @@
     (\uicontrol Paused) check box.
 
     When the \uicontrol Cache check box is selected, every frame of the
-    animation is cached. Deselect the check box if you are playing a long
+    animation is cached. Clear the check box if you are playing a long
     or large animation and you want to conserve memory.
 
     If the image data comes from a sequential device (such as a socket),

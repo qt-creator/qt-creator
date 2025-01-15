@@ -9,7 +9,7 @@
 #include <QWebEngineProfile>
 #include <QWebEngineView>
 
-#include "resourcegeneratorproxy.h"
+#include <qmldesigner/components/componentcore/resourcegenerator.h>
 
 namespace QmlDesigner::DesignViewer {
 
@@ -99,7 +99,7 @@ private:
     QByteArray m_userInfo;
 
     // other internals
-    ResourceGeneratorProxy m_resourceGenerator;
+    ResourceGenerator m_resourceGenerator;
 
     struct ReplyEvaluatorData
     {

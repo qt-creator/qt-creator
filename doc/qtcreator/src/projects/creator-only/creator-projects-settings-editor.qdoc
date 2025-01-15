@@ -26,7 +26,7 @@
         \li Select \uicontrol Projects > \uicontrol {Project Settings} >
             \uicontrol Editor.
 
-        \li Deselect \uicontrol {Use global settings}.
+        \li Clear \uicontrol {Use global settings}.
 
         \li Specify text editor settings for the project.
 

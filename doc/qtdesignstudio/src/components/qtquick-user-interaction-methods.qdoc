@@ -79,7 +79,7 @@
     pressed.
 
     Even though \uicontrol {Mouse Area} is an invisible component, it has a
-    \uicontrol Visible property. Deselect the \uicontrol Visible check box in
+    \uicontrol Visible property. Clear the \uicontrol Visible check box in
     the \uicontrol Visibility section to make the mouse area transparent to
     mouse events.
 

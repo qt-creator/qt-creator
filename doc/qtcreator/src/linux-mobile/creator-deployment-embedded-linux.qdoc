@@ -100,7 +100,7 @@
     deployment time and only copies files that have changed since the last
     deployment. However, when you make major changes on the device, such as
     removing files from the device manually or flashing a new disk image, or
-    when you use another device with the same IP address, deselect the check box
+    when you use another device with the same IP address, clear the check box
     once, to have \QC deploy all files again.
 
     \section2 Creating a Tarball

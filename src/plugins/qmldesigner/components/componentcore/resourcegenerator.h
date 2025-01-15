@@ -3,15 +3,41 @@
 
 #pragma once
 
-#include <utils/filepath.h>
-
 #include <qmldesignercomponents_global.h>
+#include <utils/filepath.h>
+#include <utils/qtcprocess.h>
 
-namespace QmlDesigner::ResourceGenerator {
+namespace QmlDesigner {
+class ResourceGenerator : public QObject
+{
+    Q_OBJECT
+public:
+    ResourceGenerator(QObject *parent = nullptr);
+    static void generateMenuEntry(QObject *parent);
 
-QMLDESIGNERCOMPONENTS_EXPORT void generateMenuEntry(QObject *parent);
-QMLDESIGNERCOMPONENTS_EXPORT QStringList getProjectFileList();
-QMLDESIGNERCOMPONENTS_EXPORT bool createQrcFile(const Utils::FilePath &qrcFilePath);
-QMLDESIGNERCOMPONENTS_EXPORT bool createQmlrcFile(const Utils::FilePath &qmlrcFilePath);
+    Q_INVOKABLE bool createQrc(const Utils::FilePath &qrcFilePath);
+    Q_INVOKABLE std::optional<Utils::FilePath> createQrc(const QString &projectName = "share");
 
-} // namespace QmlDesigner::ResourceGenerator
+    Q_INVOKABLE bool createQmlrcWithPath(const Utils::FilePath &qmlrcFilePath);
+    Q_INVOKABLE std::optional<Utils::FilePath> createQmlrcWithName(
+        const QString &projectName = "share");
+    Q_INVOKABLE void createQmlrcAsyncWithPath(const Utils::FilePath &qmlrcFilePath);
+    Q_INVOKABLE void createQmlrcAsyncWithName(const QString &projectName = "share");
+
+    Q_INVOKABLE void cancel();
+
+private:
+    Utils::Process m_rccProcess;
+    Utils::FilePath m_qmlrcFilePath;
+
+private:
+    bool runRcc(const Utils::FilePath &qmlrcFilePath,
+                const Utils::FilePath &qrcFilePath,
+                const bool runAsync = false);
+
+signals:
+    void errorOccurred(const QString &error);
+    void qmlrcCreated(const Utils::FilePath &filePath);
+};
+
+} // namespace QmlDesigner

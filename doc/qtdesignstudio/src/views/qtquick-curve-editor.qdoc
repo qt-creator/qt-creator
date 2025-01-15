@@ -47,11 +47,11 @@
     in \l Navigator, you can select \imagelockon
     to unlock it. You can also lock individual easing curves for editing.
 
-    To lock an animation curve, hover the mouse over the property in the list,
+    To lock an animation curve, hover over the property in the list,
     and then select \imagelockoff
     .
 
-    To pin an animation curve, hover the mouse over the property in the list,
+    To pin an animation curve, hover over the property in the list,
     and then select \imagepin
     .
 

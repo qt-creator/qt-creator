@@ -121,13 +121,14 @@ Rectangle {
     }
 
     component Cell: Rectangle {
-        required property string display
+        required property var display
         required property int row
         required property int column
 
         required property bool editing
 
         required property bool isBinding
+        required property var propertyValue
 
         color: root.backgroundColor
         implicitWidth: root.cellWidth
@@ -227,7 +228,7 @@ Rectangle {
                     anchors.fill: parent
                     leftPadding: root.leftPadding
 
-                    value: parseInt(numberDelegate.display)
+                    value: numberDelegate.display
                     from: -1000 // TODO define min/max
                     to: 1000
                     editable: true
@@ -261,7 +262,7 @@ Rectangle {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.leftMargin: root.leftPadding
 
-                    checked: flagDelegate.display === "true"
+                    checked: flagDelegate.display
                     text: flagDelegate.display
 
                     onToggled: {
@@ -328,7 +329,7 @@ Rectangle {
                         height: parent.height
                         verticalAlignment: Qt.AlignVCenter
                         color: StudioTheme.Values.themeTextColor
-                        text: colorDelegate.display
+                        text: colorDelegate.propertyValue
                     }
                 }
 

@@ -149,7 +149,7 @@
     the UI we will create. We use the imported components to create the
     UI in the \e {MainApp.ui.qml} file. The imported components are
     listed in \uicontrol Components > \uicontrol {My Components},
-    and we can drag-and-drop them to the \l {2D} view.
+    and we can drag them to the \l {2D} view.
 
     \image webinardemo-mainappui.png "Main app UI in Design mode"
 

@@ -147,7 +147,7 @@
             not part of a view.
         \li In \uicontrol States, select the \uicontrol + symbol to create
             a new state and give it a name. For example, \c Normal.
-        \li In \l Properties (2), deselect the \uicontrol Visibility
+        \li In \l Properties (2), clear the \uicontrol Visibility
             check box or set \uicontrol Opacity to 0 for each component that
             is not needed in this view. If you specify the setting for the
             parent component, all child components inherit it and are also

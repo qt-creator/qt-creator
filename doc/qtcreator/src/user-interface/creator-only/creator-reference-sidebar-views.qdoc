@@ -24,7 +24,7 @@
             \inlineimage icons/sort_alphabetically.png
             (\uicontrol {Sort Alphabetically}).
         \li To stop the synchronization with the type or symbol selected in the
-            editor, deselect \inlineimage icons/linkicon.png
+            editor, clear \inlineimage icons/linkicon.png
             (\uicontrol {Synchronize with Editor}).
     \endlist
 */

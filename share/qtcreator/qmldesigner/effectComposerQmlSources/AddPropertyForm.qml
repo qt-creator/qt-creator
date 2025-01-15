@@ -748,6 +748,10 @@ Item {
                     enabled: !root.propNameError && !root.uniNameError
 
                     onClicked: {
+                        // Remove the focus from the editing control. It fixes a mac bug where a
+                        // control's value doesn't get applied when the Apply button is clicked
+                        acceptButton.forceActiveFocus()
+
                         root.accepted()
                         root.visible = false
                     }

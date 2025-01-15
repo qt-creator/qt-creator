@@ -34,14 +34,14 @@
     percentage for viewing the text. You can also zoom in or out by pressing
     \key {Ctrl++} or \key {Ctrl+-}, or by pressing \key Ctrl and rolling
     the mouse button up or down. To disable the mouse wheel function, select
-    \preferences > \uicontrol {Text Editor} > \uicontrol Behavior and deselect
+    \preferences > \uicontrol {Text Editor} > \uicontrol Behavior and clear
     the \uicontrol {Enable scroll wheel zooming} check box.
 
     To improve the readability of text in the editor, adjust the line spacing in
     the \uicontrol {Line spacing} field.
 
     Antialiasing is used by default to make text look smoother and more readable
-    on the screen. Deselect the \uicontrol Antialias check box to turn off
+    on the screen. Clear the \uicontrol Antialias check box to turn off
     antialiasing.
 
     \sa {Behavior}, {Change editor colors}
