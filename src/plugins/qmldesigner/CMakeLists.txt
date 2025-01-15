@@ -47,7 +47,7 @@ find_package(Qt6 QUIET COMPONENTS WebSockets WebEngineWidgets)
 
 add_qtc_plugin(QmlDesigner
   PLUGIN_RECOMMENDS QmlPreview
-  CONDITION TARGET QmlDesignerCore AND TARGET Qt::QuickWidgets AND TARGET Qt::Svg AND TARGET Qt::WebSockets
+  CONDITION TARGET QmlDesignerCore AND TARGET Qt::QuickWidgets AND TARGET Qt::Svg
   PLUGIN_DEPENDS
     Core
     ProjectExplorer
