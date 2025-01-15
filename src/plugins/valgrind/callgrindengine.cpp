@@ -30,7 +30,6 @@ CallgrindToolRunner::CallgrindToolRunner(RunControl *runControl)
     : ValgrindToolRunner(runControl)
 {
     setId("CallgrindToolRunner");
-    runControl->setSupportsReRunning(false);
 
     connect(&m_runner, &ValgrindProcess::valgrindStarted, this, [this](qint64 pid) {
         m_pid = pid;

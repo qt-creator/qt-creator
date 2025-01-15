@@ -708,19 +708,32 @@ void CallgrindTool::setupRunner(CallgrindToolRunner *toolRunner)
 
     connect(toolRunner, &CallgrindToolRunner::parserDataReady, this, &CallgrindTool::setParserData);
     connect(runControl, &RunControl::stopped, this, &CallgrindTool::engineFinished);
+    connect(runControl, &RunControl::aboutToStart, this, [this, toolRunner] {
+        toolRunner->setPaused(m_pauseAction->isChecked());
+        // we may want to toggle collect for one function only in this run
+        toolRunner->setToggleCollectFunction(m_toggleCollectFunction);
+        m_toggleCollectFunction.clear();
+
+        m_toolBusy = true;
+        updateRunActions();
+
+        // enable/disable actions
+        m_resetAction->setEnabled(true);
+        m_dumpAction->setEnabled(true);
+        m_loadExternalLogFile->setEnabled(false);
+        clearTextMarks();
+        doClear();
+        Debugger::showPermanentStatusMessage(Tr::tr("Starting Function Profiler..."));
+    });
+    connect(runControl, &RunControl::started, this, [] {
+        Debugger::showPermanentStatusMessage(Tr::tr("Function Profiler running..."));
+    });
 
     connect(this, &CallgrindTool::dumpRequested, toolRunner, &CallgrindToolRunner::dump);
     connect(this, &CallgrindTool::resetRequested, toolRunner, &CallgrindToolRunner::reset);
     connect(this, &CallgrindTool::pauseToggled, toolRunner, &CallgrindToolRunner::setPaused);
 
     connect(m_stopAction, &QAction::triggered, toolRunner, [runControl] { runControl->initiateStop(); });
-
-    // initialize run control
-    toolRunner->setPaused(m_pauseAction->isChecked());
-
-    // we may want to toggle collect for one function only in this run
-    toolRunner->setToggleCollectFunction(m_toggleCollectFunction);
-    m_toggleCollectFunction.clear();
 
     QTC_ASSERT(m_visualization, return);
 
@@ -730,16 +743,6 @@ void CallgrindTool::setupRunner(CallgrindToolRunner *toolRunner)
     m_visualization->setMinimumInclusiveCostRatio(settings.visualizationMinimumInclusiveCostRatio() / 100.0);
     m_proxyModel.setMinimumInclusiveCostRatio(settings.minimumInclusiveCostRatio() / 100.0);
     m_dataModel.setVerboseToolTipsEnabled(settings.enableEventToolTips());
-
-    m_toolBusy = true;
-    updateRunActions();
-
-    // enable/disable actions
-    m_resetAction->setEnabled(true);
-    m_dumpAction->setEnabled(true);
-    m_loadExternalLogFile->setEnabled(false);
-    clearTextMarks();
-    doClear();
 }
 
 void CallgrindTool::updateRunActions()
