@@ -2538,6 +2538,32 @@ void tst_Dumpers::dumper_data()
                + Check5("it3.key", "33", "int")
                + Check5("it3.value", FloatValue("33"), "float");
 
+    // clang-format off
+    QTest::newRow("QMultiHash")
+            << Data("#include <QMultiHash>",
+
+                    R"(const QMultiHash<int, int> empty;
+                    QMultiHash<int, int> mh;
+                    mh.insert(1, 1);
+                    mh.insert(2, 2);
+                    mh.insert(1, 3);
+                    mh.insert(2, 4);
+                    mh.insert(1, 5);)",
+
+            "&empty, &mh")
+
+               + CoreProfile()
+
+               + Check("empty", "<0 items>", "QMultiHash<int, int>")
+               + Check("mh", "<5 items>", "QMultiHash<int, int>")
+               // due to unordered nature of the container, checking specific item values
+               // is not possible
+               + Check("mh.0.key", ValuePattern("[1,2]"), "int")
+               + Check("mh.0.value", ValuePattern("[1-5]"), "int")
+               + Check("mh.4.key", ValuePattern("[1,2]"), "int")
+               + Check("mh.4.value", ValuePattern("[1-5]"), "int");
+    // clang-format on
+
 
     QTest::newRow("QHostAddress")
             << Data("#include <QHostAddress>\n",

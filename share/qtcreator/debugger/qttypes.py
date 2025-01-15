@@ -928,6 +928,13 @@ def qform__QHash():
 def qdump__QHash(d, value):
     qdumpHelper_QHash(d, value, value.type[0], value.type[1])
 
+def qdump__QMultiHash(d, value):
+    key_type = value.type[0]
+    value_type = value.type[1]
+    if d.qtVersionAtLeast(0x060000):
+        qdumpHelper_QMultiHash_6(d, value, key_type, value_type)
+    else:
+        qdumpHelper_QHash_5(d, value, key_type, value_type)
 
 def qdump__QVariantHash(d, value):
     qdumpHelper_QHash(d, value, d.createType('@QString'), d.createType('@QVariant'))
@@ -1031,6 +1038,40 @@ def qdumpHelper_QHash_6(d, value, keyType, valueType):
                         entry_pos += 1
             #with SubItem(d, 'total'):
             #    d.putValue('total: %s item size: %s' % (count, entry_size))
+
+
+def qdumpHelper_QMultiHash_6(d, value, key_type, value_type):
+    dptr, size = d.split('pq', value)
+    if dptr == 0:
+        d.putItemCount(0)
+        return
+
+    ref, _pad, _d_size, buckets, _seed, spans = d.split('i@qqqp', dptr)
+
+    d.check(0 <= size and size <= 100 * 1000 * 1000)
+    d.check(-1 <= ref and ref < 100000)
+    d.putItemCount(size)
+
+    if d.isExpanded():
+        type_code = f'{{{key_type.name}}}@p'
+        _pp, entry_size, _fields = d.describeStruct(type_code)
+        with Children(d, size):
+            span_size = 128 + 2 * d.ptrSize() # Including tail padding.
+            nspans = int((buckets + 127) / 128)
+            count = 0
+            for b in range(nspans):
+                span = spans + b * span_size
+                offsets, entries, _allocated, _next_free = d.split('128spbb', span)
+                for i in range(128):
+                    offset = offsets[i]
+                    if offset != 255: # Entry is used
+                        entry = entries + offset * entry_size
+                        key, _pad, chain = d.split(type_code, entry)
+                        next = chain
+                        while next != 0:
+                            val, _pad, next = d.split(f'{{{value_type.name}}}@p', next)
+                            d.putPairItem(count, (key, val), 'key', 'value')
+                            count += 1
 
 
 def qform__QHashNode():
