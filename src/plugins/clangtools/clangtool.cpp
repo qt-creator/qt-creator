@@ -686,7 +686,8 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
 
     if (buildBeforeAnalysis) {
         QPointer<RunControl> runControl(m_runControl);
-        const auto onSetup = [runControl](QPointer<RunControl> &buildRunControl) {
+        const auto onSetup = [this, runControl](QPointer<RunControl> &buildRunControl) {
+            m_infoBarWidget->setInfoText("Waiting for build to finish...");
             buildRunControl = runControl;
         };
         const auto onError = [this] {
@@ -861,15 +862,11 @@ void ClangTool::startTool(FileSelection fileSelection, const RunSettings &runSet
     if (fileInfos.empty())
         return;
 
-    // Reset
-    reset();
-
     // Run control
     m_runControl = new RunControl(Constants::CLANGTIDYCLAZY_RUN_MODE);
     m_runControl->setDisplayName(m_name);
     m_runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
     m_runControl->setTarget(project->activeTarget());
-    m_runControl->setSupportsReRunning(false);
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, m_runControl, [this] {
         m_runControl->postMessage(Tr::tr("%1 tool stopped by user.").arg(m_name),
@@ -882,6 +879,13 @@ void ClangTool::startTool(FileSelection fileSelection, const RunSettings &runSet
             setState(State::AnalyzerFinished);
         emit finished(m_infoBarWidget->errorText());
     });
+    connect(m_runControl, &RunControl::aboutToStart, this, [this, project] {
+        TaskHub::clearTasks(taskCategory());
+        reset();
+        m_diagnosticFilterModel->setProject(project);
+        m_perspective.select();
+        setState(State::PreparationStarted);
+    });
 
     const bool preventBuild = std::holds_alternative<FilePath>(fileSelection)
                               || std::get<FileSelectionType>(fileSelection)
@@ -889,13 +893,6 @@ void ClangTool::startTool(FileSelection fileSelection, const RunSettings &runSet
     const bool buildBeforeAnalysis = !preventBuild && runSettings.buildBeforeAnalysis();
     m_runControl->setRunRecipe(runRecipe(runSettings, diagnosticConfig, fileInfos,
                                          buildBeforeAnalysis));
-    // More init and UI update
-    m_diagnosticFilterModel->setProject(project);
-    m_perspective.select();
-    if (buildBeforeAnalysis)
-        m_infoBarWidget->setInfoText("Waiting for build to finish...");
-    setState(State::PreparationStarted);
-
     m_runControl->start();
 }
 
@@ -1028,9 +1025,7 @@ void ClangTool::reset()
     m_infoBarWidget->reset();
 
     m_state = State::Initial;
-    m_runControl = nullptr;
 
-    m_filesCount = 0;
     m_filesSucceeded = 0;
     m_filesFailed = 0;
 }

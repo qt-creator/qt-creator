@@ -485,22 +485,20 @@ void RunControl::setRunRecipe(const Group &group)
 
 void RunControl::initiateStart()
 {
-    if (d->isUsingTaskTree()) {
+    emit aboutToStart();
+    if (d->isUsingTaskTree())
         d->startTaskTree();
-    } else {
-        emit aboutToStart();
+    else
         d->initiateStart();
-    }
 }
 
 void RunControl::initiateReStart()
 {
-    if (d->isUsingTaskTree()) {
+    emit aboutToStart();
+    if (d->isUsingTaskTree())
         d->startTaskTree();
-    } else {
-        emit aboutToStart();
+    else
         d->initiateReStart();
-    }
 }
 
 void RunControl::initiateStop()
