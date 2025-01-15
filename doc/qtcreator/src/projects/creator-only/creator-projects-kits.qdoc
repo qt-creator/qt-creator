@@ -116,19 +116,13 @@
             used for the \c CurrentKit:FileSystemName variable, which determines
             the name of the shadow build directory, for example.
     \row
-        \li \uicontrol{Run device type}
-        \li Type of the run device.
-    \row
         \li \uicontrol {Run device}
-        \li The device to run applications on.
+        \li \uicontrol {Type} is the type of the run device, and
+            \uicontrol {Device} is the device to run applications on.
     \row
         \li \uicontrol {Build device}
-        \li The device to build applications on.
-
-    \row
-        \li \uicontrol Sysroot
-        \li Directory where the device image is located. If you are not
-            cross-compiling, leave this field empty.
+        \li \uicontrol {Type} is the type of the build device, and
+            \uicontrol {Device} is the device to build applications on.
     \row
         \li \uicontrol {Emulator skin}
         \li Skin to use for the \l {Emulator}{\B2Q Emulator Device}.
@@ -172,6 +166,10 @@
             For Android kits, the \uicontrol {Android GDB server} field will
             display the path to GDB server executable.
     \row
+        \li \uicontrol Sysroot
+        \li Directory where the device image is located. If you are not
+            cross-compiling, leave this field empty.
+    \row
         \li \uicontrol {Qt version}
         \li Qt version to use for building the project. You can add Qt versions
             that \QC did not detect automatically. For more information, see
@@ -181,12 +179,12 @@
             variable for the qmake executable. It refers to the qmake executable
             it finds as \b{Qt in PATH} and selects it as the Qt version
             to use for the \uicontrol Desktop kit that is created by default.
+
+            \uicontrol {mkspec} is the name of the mkspec configuration that
+            qmake uses. If you leave this field empty, qmake uses the default
+            mkspec of the selected Qt version.
     \row
-        \li \uicontrol {Qt mkspec}
-        \li Name of the mkspec configuration that qmake uses. If you leave this
-            field empty, it uses the default mkspec of the selected Qt version.
-    \row
-        \li \uicontrol {Additional Qbs profile settings}
+        \li \uicontrol {Qbs profile additions}
         \li Select \uicontrol Change to add settings to Qbs build profiles.
             For more information, see \l {Edit Qbs profiles}.
     \row
@@ -206,6 +204,11 @@
         \li \uicontrol {CMake configuration}
         \li Select \uicontrol Change to edit the parameters of the CMake
             configuration for the kit.
+    \row
+        \li \uicontrol {Python}
+        \li Select the Python version for the kit. Select \uicontrol Manage
+            to add Python versions. For more information, see
+            \l{Select the Python version}.
     \row
         \li \uicontrol {Meson tool}
         \li Meson tool to use for building the project. Select \uicontrol Manage

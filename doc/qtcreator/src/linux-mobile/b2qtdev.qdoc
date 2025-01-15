@@ -68,7 +68,9 @@
         \li Go to \preferences > \uicontrol Kits.
         \li Select \uicontrol Add to add a kit for building for the device.
         \li Select the Qt version, compiler, and device that you added above.
-        \li In \uicontrol {Run device type}, select \uicontrol {Boot2Qt Device}.
+        \li In \uicontrol {Run device}, select \uicontrol {Boot2Qt Device} in
+            \uicontrol {Type}, and then select the actual device to run on in
+            \uicontrol {Device}.
         \li To specify build settings:
         \list 1
             \li Open a project for an application you want to develop for the

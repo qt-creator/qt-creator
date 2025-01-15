@@ -92,8 +92,9 @@
 
         \li Select the Qt version, compiler, and device that you added above.
 
-        \li In \uicontrol {Run device type}, select
-            \uicontrol {Remote Linux Device}.
+        \li In \uicontrol {Run device}, select \uicontrol {Remote Linux Device}
+            in \uicontrol {Type}, and then select the actual device to run on in
+            \uicontrol {Device}.
 
         \li To specify build settings:
 
