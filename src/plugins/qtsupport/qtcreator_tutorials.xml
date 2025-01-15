@@ -91,7 +91,7 @@
 
   <!-- Learning - first steps -->
 
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtc.webp" difficulty="" projectPath="" name="Getting Started: Qt Creator" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/4007722" videoLength="20:00">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtc.webp" difficulty="" projectPath="" name="Getting Started: Qt Creator" docUrl="https://academy.qt.io/catalog/courses/4007722">
       <description><![CDATA[Learn about Qt Creator.]]></description>
       <tags>qt creator,ui,welcome,qt widgets designer,widgets,editing,debugging,learning,2024</tags>
       <meta>
@@ -129,7 +129,7 @@
 
   <!-- Learning - dig deeper -->
 
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtqui.webp" difficulty="" projectPath="" name="Introduction to Qt Quick" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3799368" videoLength="60:00">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtqui.webp" difficulty="" projectPath="" name="Introduction to Qt Quick" docUrl="https://academy.qt.io/catalog/courses/3799368">
       <description><![CDATA[Learn about Qt Quick.]]></description>
       <tags>qt,qt quick,2024</tags>
       <meta>
