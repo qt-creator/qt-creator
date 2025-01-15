@@ -65,6 +65,27 @@
         custom effect.
     \endlist
 
+    \section1 Adding custom properties to an effect composition
+
+    You can use custom properties in your effect composition, for example, to modify pre-made
+    effects or to create completely unique effects. You can set the name, description, type, and
+    default value for your custom property.
+
+    To add a custom property to any effect composition:
+
+    \list 1
+        \li Select \imageadvancedCodeView to enable advanced mode.
+        \li Select \uicontrol {Add Property}.
+        \li Edit the property and select \uicontrol Apply.
+    \endlist
+
+    To make properties effective, use them in the shader code.
+
+    You can edit the custom properties you create and also customize the properties of pre-made
+    effects. To edit a property, select \imagemorebutton > \uicontrol Edit.
+
+    To remove a property from your effect composition, select \imagemorebutton > \uicontrol Remove.
+
     \section1 Assigning an effect composition to a component
 
     To assign your newly created effect composition to a component, do one of the following:
