@@ -261,6 +261,7 @@ public:
     void setNormalMargins(int = 0);
     void setContentsMargins(int left, int top, int right, int bottom);
     void setCursor(Qt::CursorShape shape);
+    void setMinimumWidth(int);
 
     void activateWindow();
     void close();

@@ -792,6 +792,11 @@ void Widget::setCursor(Qt::CursorShape shape)
     access(this)->setCursor(shape);
 }
 
+void Widget::setMinimumWidth(int minw)
+{
+    access(this)->setMinimumWidth(minw);
+}
+
 void Widget::setSizePolicy(const QSizePolicy &policy)
 {
     access(this)->setSizePolicy(policy);

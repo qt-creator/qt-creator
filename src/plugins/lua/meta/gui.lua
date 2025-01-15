@@ -41,6 +41,7 @@ gui.baseWidgetOptions = {}
 ---@field fixedSize? integer[] Two integers representing the width and height
 ---@field contentMargins? integer[] Four integers represending left, top, right and bottom margins.
 ---@field cursor? CursorShape The cursor shape for the widget.
+---@field minimumWidth? integer The minimum width in pixels.
 gui.widgetOptions = {}
 
 ---@param options WidgetOptions

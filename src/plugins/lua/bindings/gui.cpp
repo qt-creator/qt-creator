@@ -114,6 +114,7 @@ CREATE_HAS_FUNC(setVisible, bool())
 CREATE_HAS_FUNC(setIcon, Utils::Icon());
 CREATE_HAS_FUNC(setContentsMargins, int(), int(), int(), int());
 CREATE_HAS_FUNC(setCursor, Qt::CursorShape())
+CREATE_HAS_FUNC(setMinimumWidth, int());
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
@@ -128,6 +129,12 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         const auto cursor = children.get<sol::optional<Qt::CursorShape>>("cursor");
         if (cursor)
             item->setCursor(*cursor);
+    }
+
+    if constexpr (has_setMinimumWidth<T>) {
+        const auto minw = children.get<sol::optional<int>>("minimumWidth");
+        if (minw)
+            item->setMinimumWidth(*minw);
     }
 
     if constexpr (has_setVisible<T>) {
