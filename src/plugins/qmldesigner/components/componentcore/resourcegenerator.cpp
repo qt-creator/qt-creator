@@ -192,11 +192,11 @@ std::optional<Utils::FilePath> ResourceGenerator::createQrc(const QString &proje
 
 bool ResourceGenerator::createQrc(const Utils::FilePath &qrcFilePath)
 {
-    QFile qrcFile(qrcFilePath.toUrlishString());
+    QFile qrcFile(qrcFilePath.toFSPathString());
 
     if (!qrcFile.open(QIODeviceBase::WriteOnly | QIODevice::Truncate)) {
         Core::MessageManager::writeDisrupting(
-            Tr::tr("Failed to open file to write QRC XML: %1").arg(qrcFilePath.toString()));
+            Tr::tr("Failed to open file to write QRC XML: %1").arg(qrcFilePath.toUserOutput()));
         return false;
     }
 
