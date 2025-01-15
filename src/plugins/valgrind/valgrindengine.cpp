@@ -29,7 +29,6 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
     : RunWorker(runControl)
 {
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
-    runControl->setSupportsReRunning(false);
 
     m_settings.fromMap(runControl->settingsData(ANALYZER_VALGRIND_SETTINGS));
 

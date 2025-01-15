@@ -945,16 +945,20 @@ void MemcheckTool::setupRunner(MemcheckToolRunner *runTool)
             this, &MemcheckTool::internalParserError);
     connect(runControl, &RunControl::stopped,
             this, &MemcheckTool::engineFinished);
+    connect(runControl, &RunControl::aboutToStart, this, [this] {
+        m_toolBusy = true;
+        updateRunActions();
+        setBusyCursor(true);
+        clearErrorView();
+        m_loadExternalLogFile->setDisabled(true);
+        Debugger::showPermanentStatusMessage(Tr::tr("Starting Memory Analyzer..."));
+    });
+    connect(runControl, &RunControl::started, this, [] {
+        Debugger::showPermanentStatusMessage(Tr::tr("Memory Analyzer running..."));
+    });
 
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, runControl, &RunControl::initiateStop);
-
-    m_toolBusy = true;
-    updateRunActions();
-
-    setBusyCursor(true);
-    clearErrorView();
-    m_loadExternalLogFile->setDisabled(true);
 
     const FilePath dir = runControl->project()->projectDirectory();
     const QString name = runControl->commandLine().executable().fileName();
