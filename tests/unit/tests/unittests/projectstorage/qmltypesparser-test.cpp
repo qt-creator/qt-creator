@@ -291,6 +291,26 @@ TEST_F(QmlTypesParser, extension)
                                             qmltypesFileSourceId)));
 }
 
+TEST_F(QmlTypesParser, ignore_java_script_extensions)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"}
+                        Component { name: "QQmlComponent"
+                                    extension: "QObject"
+                                    extensionIsJavaScript: true
+                                    }})"};
+
+    parser.parse(source, imports, types, directoryInfo);
+
+    ASSERT_THAT(types,
+                Contains(IsType("QQmlComponent",
+                                Synchronization::ImportedType{},
+                                Synchronization::ImportedType{},
+                                Storage::TypeTraitsKind::Reference,
+                                qmltypesFileSourceId)));
+}
+
 TEST_F(QmlTypesParser, exported_types)
 {
     QString source{R"(import QtQuick.tooling 1.2

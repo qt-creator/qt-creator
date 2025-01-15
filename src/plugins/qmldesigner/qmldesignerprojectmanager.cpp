@@ -47,6 +47,8 @@
 #include <QQmlEngine>
 #include <QStandardPaths>
 
+#include <source_location>
+
 using namespace std::chrono;
 using namespace std::chrono_literals;
 
@@ -355,7 +357,7 @@ void QmlDesignerProjectManager::editorsClosed(const QList<::Core::IEditor *> &) 
 
 namespace {
 
-QString qmlPath(::ProjectExplorer::Target *target)
+[[maybe_unused]] QString qmlPath(::ProjectExplorer::Target *target)
 {
     auto qt = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (qt)
@@ -431,11 +433,6 @@ QString qmlPath(::ProjectExplorer::Target *target)
     QStringList qmldirPaths;
     qmldirPaths.reserve(2);
 
-    const QString qmlRootPath = qmlPath(target);
-
-    qmldirPaths.append(qmlRootPath + "/builtins.qmltypes");
-    qmldirPaths.append(qmlRootPath + "/jsroot.qmltypes");
-
     qmldirPaths.append(
         Core::ICore::resourcePath("qmldesigner/projectstorage/fake.qmltypes").toString());
 
@@ -446,11 +443,6 @@ QString qmlPath(::ProjectExplorer::Target *target)
 {
     QStringList qmldirPaths;
     qmldirPaths.reserve(2);
-
-    const auto qmlRootPath = QLibraryInfo::path(QLibraryInfo::QmlImportsPath);
-
-    qmldirPaths.append(qmlRootPath + "/builtins.qmltypes");
-    qmldirPaths.append(qmlRootPath + "/jsroot.qmltypes");
 
     qmldirPaths.append(
         Core::ICore::resourcePath("qmldesigner/projectstorage/fake.qmltypes").toString());
@@ -617,7 +609,10 @@ void QmlDesignerProjectManager::update()
                                                                propertyEditorResourcesPath(),
                                                                {qtCreatorItemLibraryPath()}});
         }
-    } catch (const std::exception &) {
+    } catch (const std::exception &e) {
+        auto location = std::source_location::current();
+        std::cout << location.file_name() << ":" << location.function_name() << ":"
+                  << location.line() << ": " << e.what() << "\n";
     }
 }
 
