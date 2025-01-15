@@ -32,7 +32,7 @@
     another kit. To specify the debugger and compiler to use for each kit, go to
     \preferences > \uicontrol Kits.
 
-    \image qtcreator-kits.png {Kits preferences}
+    \image qtcreator-preferences-kits.webp {Kits preferences}
 
     You need to set up the debugger only if the automatic setup fails because
     the debugger is missing (for example, you must install the CDB

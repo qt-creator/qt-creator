@@ -44,7 +44,7 @@
         \li Select \preferences > \uicontrol Kits.
         \li Select \uicontrol Add to start from an empty kit or \uicontrol Clone
             to clone the selected kit and edit its preferences.
-            \image qtcreator-kits.png
+            \image qtcreator-preferences-kits.webp {Kits preferences}
         \li Set \l{Kits}{kit preferences} according to the build system and
             device type.
 
@@ -80,7 +80,7 @@
     \uicontrol Kits. For example, if you use CMake to build all your projects,
     you can hide Qbs and qmake preferences by default.
 
-    \image qtcreator-kits.png
+    \image qtcreator-preferences-kits.webp {Kits preferences}
 
     \section1 Filtering Kit Preferences
 
@@ -147,9 +147,15 @@
             information from \uicontrol {Qt mkspec}, which you can change.
     \row
         \li \uicontrol Environment
-        \li Select \uicontrol Change to modify environment variable values for
-            build environments in the \uicontrol {Edit Environment Changes}
-            dialog. For more information about how to add and remove variable
+        \li Select \uicontrol {Edit Build Environment} to modify
+            environment variable values for build environments in
+            the \uicontrol {Edit Build Environment} dialog.
+
+            Select \uicontrol {Edit Run Environment} to modify
+            environment variable values for run environments in
+            the \uicontrol {Edit Run Environment} dialog.
+
+            For more information about how to add and remove variable
             values, see \l{Edit environment settings}.
     \row
         \li \uicontrol {Force UTF-8 MSVC compiler output}
