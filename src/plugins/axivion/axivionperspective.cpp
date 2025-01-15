@@ -66,6 +66,7 @@ using namespace Utils;
 namespace Axivion::Internal {
 
 static const Icon MARKER_ICON({{":/axivion/images/marker.png", Theme::IconsBaseColor}});
+static const Icon USER_ICON({{":/axivion/images/user.png", Theme::PanelTextColorDark}}, Icon::Tint);
 
 static QPixmap trendIcon(qint64 added, qint64 removed)
 {
@@ -471,11 +472,13 @@ void IssuesWidget::updateNamedFilters()
     GuardLocker lock(m_signalBlocker);
     m_namedFilters->clear();
 
-    m_namedFilters->addItem(Tr::tr("Show all")); // no active named filter
+    const QIcon global = Utils::Icons::LOCKED.icon();
+    const QIcon user = USER_ICON.icon();
+    m_namedFilters->addItem(global, Tr::tr("Show all")); // no active named filter
     for (const auto &it : userFilters)
-        m_namedFilters->addItem(it.displayName, QVariant::fromValue(it));
+        m_namedFilters->addItem(user, it.displayName, QVariant::fromValue(it));
     for (const auto &it : globalFilters)
-        m_namedFilters->addItem(it.displayName, QVariant::fromValue(it));
+        m_namedFilters->addItem(global, it.displayName, QVariant::fromValue(it));
 }
 
 void IssuesWidget::initDashboardList(const QString &preferredProject)
