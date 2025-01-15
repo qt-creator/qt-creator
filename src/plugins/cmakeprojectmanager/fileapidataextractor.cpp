@@ -1021,6 +1021,7 @@ FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input
     auto rootProjectNode = generateRootProjectNode(cancelFuture, data, sourceDir, buildDir);
     if (cancelFuture.isCanceled())
         return {};
+    rootProjectNode.get()->compress();
     ProjectTree::applyTreeManager(rootProjectNode.get(), ProjectTree::AsyncPhase); // QRC nodes
     result.rootProjectNode = std::move(rootProjectNode);
 
