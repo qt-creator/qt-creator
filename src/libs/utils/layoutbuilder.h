@@ -119,7 +119,7 @@ public:
     void setNoMargins();
     void setNormalMargins();
     void setContentsMargins(int left, int top, int right, int bottom);
-    void setColumnStretch(int cols, int rows);
+    void setColumnStretch(int column, int stretch);
     void setSpacing(int space);
     void setFieldGrowthPolicy(int policy);
 
