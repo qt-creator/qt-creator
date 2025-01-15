@@ -143,8 +143,8 @@ public:
     template<typename String>
     friend void convertToString(String &string, CompoundBasicId id)
     {
-        int mainId = id;
-        int contextId = id >> 32;
+        int mainId = id.id;
+        int contextId = id.id >> 32;
         convertToString(string, mainId);
         convertToString(string, contextId);
     }
