@@ -289,13 +289,7 @@ void ProjectStorageUpdater::update(Update update)
         std::move(package.updatedFileStatusSourceIds),
         std::move(notUpdatedSourceIds.fileStatusSourceIds));
 
-    try {
-        m_projectStorage.synchronize(std::move(package));
-    } catch (const TypeNameDoesNotExists &exception) {
-        qDebug() << "missing type: " << exception.what();
-    } catch (...) {
-        qWarning() << "Project storage could not been updated!";
-    }
+    m_projectStorage.synchronize(std::move(package));
 
     m_pathWatcher.updateIdPaths(createIdPaths(watchedSourceIds, m_projectPartId));
 }
