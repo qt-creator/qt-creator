@@ -292,9 +292,6 @@ private:
     void start() final;
     void stop() final;
 
-    const Utils::ProcessRunData &runnable() const = delete;
-    void setRunnable(const Utils::ProcessRunData &) = delete;
-
     const std::unique_ptr<Internal::ProcessRunnerPrivate> d;
 };
 
