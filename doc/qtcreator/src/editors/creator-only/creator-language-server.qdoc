@@ -243,9 +243,12 @@
 
     \image qtcreator-preferences-language-client-qmlls.webp {QML Language Server in Language Client preferences}
 
-    \section1 Turn off \QMLLS
+    \section1 Turn off \QMLLS for all projects
 
-    To turn off \QMLLS, clear the \uicontrol {\QMLLS} checkbox.
+    To globally turn off \QMLLS, clear the \uicontrol {\QMLLS} checkbox.
+
+    For more information about how to turn on and off language servers for a
+    particular project, see \l{Configure language servers for projects}.
 
     \section1 Use advanced features
 
