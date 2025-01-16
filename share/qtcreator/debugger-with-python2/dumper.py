@@ -188,6 +188,7 @@ class DumperBase():
         self.typeData = {}
         self.isBigEndian = False
         self.packCode = '<'
+        self.byteorder = 'little'
 
         self.resetCaches()
         self.resetStats()
@@ -1560,17 +1561,17 @@ class DumperBase():
             primaryOpcode = data[0]
             if primaryOpcode == relativeJumpCode:
                 # relative jump on 32 and 64 bit with a 32bit offset
-                offset = int.from_bytes(data[1:5], byteorder='little')
+                offset = int.from_bytes(data[1:5], byteorder=self.byteorder)
                 return address + 5 + offset
             if primaryOpcode == jumpCode:
                 if data[1] != 0x25:  # check for known extended opcode
                     return 0
                 # 0xff25 is a relative jump on 64bit and an absolute jump on 32 bit
                 if self.ptrSize() == 8:
-                    offset = int.from_bytes(data[2:6], byteorder='little')
+                    offset = int.from_bytes(data[2:6], byteorder=self.byteorder)
                     return address + 6 + offset
                 else:
-                    return int.from_bytes(data[2:6], byteorder='little')
+                    return int.from_bytes(data[2:6], byteorder=self.byteorder)
             return 0
 
         # Do not try to extract a function pointer if there are no values to compare with

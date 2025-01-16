@@ -463,6 +463,11 @@ void startCrashpad(const AppInfo &appInfo, bool crashReportingEnabled)
             ->set_gather_indirectly_referenced_memory(crashpad::TriState::kEnabled, 0);
     }
 
+    // Explicitly enable Crashpad handling. This is the default in vanilla Crashpad,
+    // but we use a version that only handles processes that enable it explicitly,
+    // so we do not handle arbitrary subprocesses
+    CrashpadInfo::GetCrashpadInfo()->set_crashpad_handler_behavior(crashpad::TriState::kEnabled);
+
     // Optional arguments to pass to the handler
     std::vector<std::string> arguments;
     arguments.push_back("--no-rate-limit");

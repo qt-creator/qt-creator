@@ -420,11 +420,11 @@ public:
         setTitle(Tr::tr("Accept Terms and Conditions"));
 
         const QLatin1String legal = QLatin1String(
-            "I confirm that I have reviewed and accept the terms and conditions "
-            "of this extension. I confirm that I have the authority and ability to "
-            "accept the terms and conditions of this extension for the customer. "
-            "I acknowledge that if the customer and the Qt Company already have a "
-            "valid agreement in place, that agreement shall apply, but these terms "
+            "I confirm that I have reviewed and accept the terms and conditions\n"
+            "of this extension. I confirm that I have the authority and ability to\n"
+            "accept the terms and conditions of this extension for the customer.\n"
+            "I acknowledge that if the customer and the Qt Company already have a\n"
+            "valid agreement in place, that agreement shall apply, but these terms\n"
             "shall govern the use of this extension.");
 
         using namespace Layouting;

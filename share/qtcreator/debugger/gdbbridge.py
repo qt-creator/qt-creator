@@ -679,6 +679,7 @@ class Dumper(DumperBase):
 
         self.isBigEndian = gdb.execute('show endian', to_string=True).find('big endian') > 0
         self.packCode = '>' if self.isBigEndian else '<'
+        self.byteorder = 'big' if self.isBigEndian else 'little'
 
         #(ok, res) = self.tryFetchInterpreterVariables(args)
         #if ok:
