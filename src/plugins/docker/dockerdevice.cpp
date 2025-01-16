@@ -305,6 +305,8 @@ private:
 
     Process m_process;
     qint64 m_remotePID = 0;
+    bool m_forwardStdout = false;
+    bool m_forwardStderr = false;
     bool m_hasReceivedFirstOutput = false;
 };
 
@@ -360,17 +362,35 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
             return;
         }
 
+        m_hasReceivedFirstOutput = true;
+
+        if (m_forwardStdout && rest.size() > 0) {
+            fprintf(stdout, "%s", rest.constData());
+            rest.clear();
+        }
+
         // In case we already received some error output, send it now.
-        const QByteArray stdErr = m_process.readAllRawStandardError();
+        QByteArray stdErr = m_process.readAllRawStandardError();
+        if (stdErr.size() > 0 && m_forwardStderr) {
+            fprintf(stderr, "%s", stdErr.constData());
+            stdErr.clear();
+        }
+
         if (rest.size() > 0 || stdErr.size() > 0)
             emit readyRead(rest, stdErr);
 
-        m_hasReceivedFirstOutput = true;
     });
 
     connect(&m_process, &Process::readyReadStandardError, this, [this] {
-        if (m_remotePID)
-            emit readyRead({}, m_process.readAllRawStandardError());
+        if (!m_remotePID)
+            return;
+
+        if (m_forwardStderr) {
+            fprintf(stderr, "%s", m_process.readAllRawStandardError().constData());
+            return;
+        }
+
+        emit readyRead({}, m_process.readAllRawStandardError());
     });
 
     connect(&m_process, &Process::done, this, [this] {
@@ -408,7 +428,6 @@ void DockerProcessImpl::start()
     m_process.setReaperTimeout(m_setup.m_reaperTimeout);
     m_process.setWriteData(m_setup.m_writeData);
     // We need separate channels so we can intercept our Process ID markers.
-    QTC_CHECK(m_setup.m_processChannelMode == QProcess::ProcessChannelMode::SeparateChannels);
     m_process.setProcessChannelMode(QProcess::ProcessChannelMode::SeparateChannels);
     m_process.setExtraData(m_setup.m_extraData);
     m_process.setStandardInputFile(m_setup.m_standardInputFile);
@@ -416,6 +435,11 @@ void DockerProcessImpl::start()
     m_process.setCreateConsoleOnWindows(m_setup.m_createConsoleOnWindows);
     if (m_setup.m_lowPriority)
         m_process.setLowPriority();
+
+    m_forwardStdout = m_setup.m_processChannelMode == QProcess::ForwardedChannels
+                      || m_setup.m_processChannelMode == QProcess::ForwardedOutputChannel;
+    m_forwardStderr = m_setup.m_processChannelMode == QProcess::ForwardedChannels
+                      || m_setup.m_processChannelMode == QProcess::ForwardedErrorChannel;
 
     const bool inTerminal = m_setup.m_terminalMode != TerminalMode::Off
                             || m_setup.m_ptyData.has_value();
