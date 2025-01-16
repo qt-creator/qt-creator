@@ -127,10 +127,10 @@ expected_str<Unarchiver::SourceAndCommand> Unarchiver::sourceAndCommand(const Fi
 static CommandLine unarchiveCommand(const CommandLine &commandTemplate, const FilePath &sourceFile,
                                     const FilePath &destDir)
 {
-    CommandLine command = commandTemplate;
-    command.setArguments(command.arguments().replace("%{src}", sourceFile.path())
-                                            .replace("%{dest}", destDir.path()));
-    return command;
+    const QStringList args = Utils::transform(commandTemplate.splitArguments(), [&](auto arg) {
+        return arg.replace("%{src}", sourceFile.path()).replace("%{dest}", destDir.path());
+    });
+    return CommandLine(commandTemplate.executable(), args);
 }
 
 void Unarchiver::start()

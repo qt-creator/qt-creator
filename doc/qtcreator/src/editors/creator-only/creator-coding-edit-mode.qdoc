@@ -103,7 +103,8 @@
         \li \l{Change text encoding}
     \row
         \li \inlineimage icons/languageclient.png
-        \li View the language server for the current project, restart it, select
+        \li View the language server for the current project (such as clangd),
+            restart it, select
             another one, \l{Inspect language clients}{inspect the communication}
             between \QC and language servers, view server capabilities, and set
             language server preferences.

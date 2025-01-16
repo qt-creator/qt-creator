@@ -122,6 +122,7 @@ public:
     void setColumnStretch(int column, int stretch);
     void setSpacing(int space);
     void setFieldGrowthPolicy(int policy);
+    void setStretch(int index, int stretch);
 
     void attachTo(QWidget *);
 
@@ -264,6 +265,7 @@ public:
     void setNormalMargins(int = 0);
     void setContentsMargins(int left, int top, int right, int bottom);
     void setCursor(Qt::CursorShape shape);
+    void setMinimumWidth(int);
 
     void activateWindow();
     void close();
@@ -617,6 +619,7 @@ QTCREATOR_UTILS_EXPORT void hr(Layout *);
 QTCREATOR_UTILS_EXPORT void tight(Layout *); // noMargin + spacing(0)
 
 QTCREATOR_UTILS_EXPORT LayoutModifier spacing(int space);
+QTCREATOR_UTILS_EXPORT LayoutModifier stretch(int index, int stretch);
 
 // Convenience
 

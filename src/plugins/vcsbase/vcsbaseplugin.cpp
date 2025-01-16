@@ -308,10 +308,13 @@ void StateListener::slotStateChanged()
         state.clearPatchFile(); // Need a repository to patch
 
     qCDebug(stateLog).noquote() << "VC:" << (vc ? vc->displayName() : QString("None")) << state;
-    QTimer::singleShot(500, this, [this, state, vc] {
+
+    auto updateState = [this, state, vc] {
         EditorManager::updateWindowTitles();
         emit stateChanged(state, vc);
-    });
+    };
+    updateState();
+    QTimer::singleShot(500, this, updateState); // QTCREATORBUG-31815
 }
 
 } // namespace Internal

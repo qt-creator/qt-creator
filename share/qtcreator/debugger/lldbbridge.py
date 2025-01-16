@@ -146,7 +146,7 @@ class Dumper(DumperBase):
             target_typeid = self.from_native_type(nativeTargetType)
             target_address = nativeValue.GetValueAsUnsigned()
             val = self.Value(self)
-            val.ldata = target_address.to_bytes(self.ptrSize(), 'little')
+            val.ldata = target_address.to_bytes(self.ptrSize(), self.byteorder)
             if self.useDynamicType:
                 target_typeid = self.dynamic_typeid_at_address(target_typeid, target_address)
             val.typeid = self.create_reference_typeid(target_typeid)
@@ -1381,6 +1381,9 @@ class Dumper(DumperBase):
             return
 
         self.isArmMac = frame.module.triple.startswith('arm64-apple')
+        self.isBigEndian = frame.module.byte_order == lldb.eByteOrderBig
+        self.packCode = '>' if self.isBigEndian else '<'
+        self.byteorder = 'big' if self.isBigEndian else 'little'
 
         self.output = []
         isPartial = len(self.partialVariable) > 0
