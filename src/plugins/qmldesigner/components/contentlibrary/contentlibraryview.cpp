@@ -96,6 +96,23 @@ WidgetInfo ContentLibraryView::widgetInfo()
             m_draggedBundleItem = item;
         });
 
+        connect(m_widget, &ContentLibraryWidget::acceptTextureDrop, this,
+                [this](const QString &internalId) {
+            ModelNode texNode = QmlDesignerPlugin::instance()->viewManager()
+                                     .view()->modelNodeForInternalId(internalId.toInt());
+            auto [qmlString, depAssets] = m_bundleHelper->modelNodeToQmlString(texNode);
+            QStringList paths;
+
+            for (const AssetPath &depAsset : std::as_const(depAssets)) {
+                QString path = depAsset.absFilPath().toString();
+
+                if (Asset(path).isValidTextureSource())
+                    paths.append(path);
+            }
+
+            addLibAssets(paths);
+        });
+
         connect(m_widget, &ContentLibraryWidget::acceptTexturesDrop, this,
                 [this](const QList<QUrl> &urls) {
             QStringList paths;
@@ -103,7 +120,7 @@ WidgetInfo ContentLibraryView::widgetInfo()
             for (const QUrl &url : urls) {
                 QString path = url.toLocalFile();
 
-                if (Asset(path).isImage())
+                if (Asset(path).isValidTextureSource())
                     paths.append(path);
             }
             addLibAssets(paths);

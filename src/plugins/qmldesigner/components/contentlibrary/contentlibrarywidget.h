@@ -101,7 +101,8 @@ public:
     Q_INVOKABLE void addLightProbe(QmlDesigner::ContentLibraryTexture *tex);
     Q_INVOKABLE void updateSceneEnvState();
     Q_INVOKABLE void markTextureUpdated(const QString &textureKey);
-    Q_INVOKABLE bool areNodes3D(const QByteArray &data) const;
+    Q_INVOKABLE bool has3DNode(const QByteArray &data) const;
+    Q_INVOKABLE bool hasTexture(const QString &format, const QVariant &data) const;
     Q_INVOKABLE void addQtQuick3D();
 
     QSize sizeHint() const override;
@@ -127,6 +128,7 @@ signals:
     void importBundle();
     void requestTab(int tabIndex);
     void acceptTexturesDrop(const QList<QUrl> &urls);
+    void acceptTextureDrop(const QString &internalId);
     void acceptMaterialDrop(const QString &internalId);
     void accept3DDrop(const QByteArray &internalIds);
     void importQtQuick3D();

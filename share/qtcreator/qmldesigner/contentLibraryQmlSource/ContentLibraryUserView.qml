@@ -116,12 +116,15 @@ Item {
                     onCountChanged: root.assignMaxCount()
 
                     onDropEnter: (drag) => {
-                        let areNodes3D = ContentLibraryBackend.rootView
-                                     .areNodes3D(drag.getDataAsArrayBuffer(drag.formats[0]))
+                        let has3DNode = ContentLibraryBackend.rootView
+                                     .has3DNode(drag.getDataAsArrayBuffer(drag.formats[0]))
 
-                        drag.accepted = (categoryTitle === "Textures" && drag.formats[0] === "application/vnd.qtdesignstudio.assets")
+                        let hasTexture = ContentLibraryBackend.rootView
+                                     .hasTexture(drag.formats[0], drag.urls)
+
+                        drag.accepted = (categoryTitle === "Textures" && hasTexture)
                                      || (categoryTitle === "Materials" && drag.formats[0] === "application/vnd.qtdesignstudio.material")
-                                     || (categoryTitle === "3D" && areNodes3D)
+                                     || (categoryTitle === "3D" && has3DNode)
 
                         section.highlight = drag.accepted
                     }
@@ -135,12 +138,16 @@ Item {
                         drag.accept()
                         section.expandSection()
 
-                        if (categoryTitle === "Textures")
-                            ContentLibraryBackend.rootView.acceptTexturesDrop(drag.urls)
-                        else if (categoryTitle === "Materials")
+                        if (categoryTitle === "Textures") {
+                            if (drag.formats[0] === "application/vnd.qtdesignstudio.assets")
+                                ContentLibraryBackend.rootView.acceptTexturesDrop(drag.urls)
+                            else if (drag.formats[0] === "application/vnd.qtdesignstudio.texture")
+                                ContentLibraryBackend.rootView.acceptTextureDrop(drag.getDataAsString(drag.formats[0]))
+                        } else if (categoryTitle === "Materials") {
                             ContentLibraryBackend.rootView.acceptMaterialDrop(drag.getDataAsString(drag.formats[0]))
-                        else if (categoryTitle === "3D")
+                        } else if (categoryTitle === "3D") {
                             ContentLibraryBackend.rootView.accept3DDrop(drag.getDataAsArrayBuffer(drag.formats[0]))
+                        }
                     }
 
                     Grid {
