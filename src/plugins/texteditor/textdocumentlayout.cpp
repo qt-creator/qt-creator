@@ -738,6 +738,19 @@ void TextDocumentLayout::requestUpdateNow()
     requestUpdate();
 }
 
+int TextDocumentLayout::embeddedWidgetOffset(const QTextBlock &block, QWidget *widget)
+{
+    if (auto userData = textUserData(block)) {
+        int offset = QPlainTextDocumentLayout::blockBoundingRect(block).height();
+        for (auto embeddedWidget : userData->embeddedWidgets()) {
+            if (embeddedWidget == widget)
+                return offset;
+            offset += embeddedWidget->height();
+        }
+    }
+    return -1;
+}
+
 void TextDocumentLayout::resetReloadMarks()
 {
     for (TextMark *mark : std::as_const(m_reloadMarks))
