@@ -2110,6 +2110,35 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
             };
 
             appTargetList.append(bti);
+        } else if (ct.targetType == UtilityType && ct.qtcRunnable) {
+            const QString buildKey = ct.title;
+            CMakeTool *cmakeTool = CMakeKitAspect::cmakeTool(target()->kit());
+            if (!cmakeTool)
+                continue;
+
+            // Skip the "all", "clean", "install" special targets.
+            if (CMakeBuildStep::specialTargets(m_reader.usesAllCapsTargets()).contains(buildKey))
+                continue;
+
+            BuildTargetInfo bti;
+            bti.displayName = ct.title;
+
+            // We need the build directory, which is proper set to the "clean" target
+            // and "clean" doesn't differ between single and multi-config generators
+            const FilePath workingDirectory
+                = Utils::findOrDefault(m_buildTargets, [](const CMakeBuildTarget &bt) {
+                      return bt.title == "clean";
+                  }).workingDirectory;
+
+            bti.targetFilePath = cmakeTool->cmakeExecutable();
+            bti.projectFilePath = ct.sourceDirectory.cleanPath();
+            bti.workingDirectory = workingDirectory;
+            bti.buildKey = buildKey;
+            bti.isQtcRunnable = ct.qtcRunnable;
+            bti.additionalData = QVariantMap{
+                {"arguments", QStringList{"--build", ".", "--target", buildKey}}};
+
+            appTargetList.append(bti);
         }
     }
 

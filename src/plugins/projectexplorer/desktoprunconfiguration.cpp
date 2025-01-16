@@ -143,8 +143,14 @@ void DesktopRunConfiguration::updateTargetInformation()
         }
         aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
         aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
-        emit aspect<EnvironmentAspect>()->environmentChanged();
 
+        auto argumentsAsString = [bti]() {
+            return CommandLine{"", bti.additionalData.toMap()["arguments"].toStringList()}
+                .arguments();
+        };
+        aspect<ArgumentsAspect>()->setArguments(argumentsAsString());
+
+        emit aspect<EnvironmentAspect>()->environmentChanged();
     }
 }
 

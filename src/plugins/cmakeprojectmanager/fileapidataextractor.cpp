@@ -263,6 +263,9 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
         ct.sourceFiles.append(sourceDirectory.resolvePath(si.path));
     }
 
+    // FIXME: remove the usage of "qtc_runnable" by parsing the CMake code instead
+    ct.qtcRunnable = t.folderTargetProperty == QTC_RUNNABLE;
+
     if (ct.targetType == ExecutableType) {
         FilePaths librarySeachPaths;
         // Is this a GUI application?
@@ -271,9 +274,6 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                    && (f.fragment.contains("QtGui") || f.fragment.contains("Qt5Gui")
                        || f.fragment.contains("Qt6Gui"));
         });
-
-        // FIXME: remove the usage of "qtc_runnable" by parsing the CMake code instead
-        ct.qtcRunnable = t.folderTargetProperty == QTC_RUNNABLE;
 
         // Extract library directories for executables:
         for (const FragmentInfo &f : t.link->fragments) {
