@@ -72,6 +72,48 @@ private slots:
         QCOMPARE(run(cmd), expected);
     }
 
+    void testMultiQuote_unix()
+    {
+        CommandLine cmd("echo", {"This is a long argument"}, OsTypeLinux);
+        CommandLine outer("echo", {}, OsTypeLinux);
+
+        outer.addCommandLineAsSingleArg(cmd, OsTypeLinux);
+        QCOMPARE(outer.toUserOutput(), R"(echo 'echo '"'"'This is a long argument'"'"'')");
+
+        CommandLine triple("echo", {}, OsTypeLinux);
+        QString expectedTriple
+            = R"(echo 'echo '"'"'echo '"'"'"'"'"'"'"'"'This is a long argument'"'"'"'"'"'"'"'"''"'"'')";
+
+        triple.addCommandLineAsSingleArg(outer, OsTypeLinux);
+        QCOMPARE(triple.toUserOutput(), expectedTriple);
+    }
+
+    void testMultiQuote_win()
+    {
+        CommandLine cmd("echo", {"This is a long argument"}, OsTypeWindows);
+        CommandLine outer("echo", {}, OsTypeWindows);
+
+        outer.addCommandLineAsSingleArg(cmd);
+        QCOMPARE(outer.toUserOutput(), R"(echo 'echo "This is a long argument"')");
+
+        CommandLine triple("echo", {}, OsTypeWindows);
+        triple.addCommandLineAsSingleArg(outer, OsTypeWindows);
+        QString expectedTriple = R"(echo "echo 'echo "\^""This is a long argument"\^""'")";
+        QCOMPARE(triple.toUserOutput(), expectedTriple);
+    }
+
+    void testMixedMultiQuote()
+    {
+        CommandLine
+            dockerExec("docker", {"exec", "not really an ID", "/bin/sh", "-c"}, OsTypeWindows);
+        CommandLine binsh("/bin/sh", {"-c", "echo 'Hello World'"}, OsTypeLinux);
+
+        dockerExec.addCommandLineAsSingleArg(binsh, OsTypeLinux);
+        QString expected
+            = R"(docker exec "not really an ID" /bin/sh -c '/bin/sh -c '"'"'echo '"'"'"'"'"'"'"'"'Hello World'"'"'"'"'"'"'"'"''"'"'')";
+        QCOMPARE(dockerExec.toUserOutput(), expected);
+    }
+
     void testAnd()
     {
         QStringList args = {"foo", "bar", "baz"};

@@ -516,7 +516,7 @@ QString ProcessArgs::quoteArgUnix(const QString &arg)
         if (arg == "&&" || arg == "||" || arg == "&" || arg == ';')
             return ret;
 
-        ret.replace(QLatin1Char('\''), QLatin1String("'\\''"));
+        ret.replace(QLatin1Char('\''), QLatin1String(R"('"'"')"));
         ret.prepend(QLatin1Char('\''));
         ret.append(QLatin1Char('\''));
     }
