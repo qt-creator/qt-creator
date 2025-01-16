@@ -736,13 +736,13 @@ static ExecutableItem waitForAvdRecipe(const QString &avdName, const Storage<QSt
         Forever {
             stopOnSuccess,
             serialNumberRecipe(avdName, serialNumberStorage),
-            TimeoutTask([](std::chrono::milliseconds &timeout) { timeout = 100ms; }, DoneResult::Error)
+            timeoutTask(100ms)
         }.withTimeout(30s),
         Forever {
             stopStorage,
             stopOnSuccess,
             isAvdBootedRecipe(serialNumberStorage),
-            TimeoutTask([](std::chrono::milliseconds &timeout) { timeout = 100ms; }, DoneResult::Error),
+            timeoutTask(100ms),
             Group {
                 outputStorage,
                 AndroidConfig::devicesCommandOutputRecipe(outputStorage),

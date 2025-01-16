@@ -3635,6 +3635,11 @@ void TimeoutTaskAdapter::start()
     });
 }
 
+ExecutableItem timeoutTask(const std::chrono::milliseconds &timeout, DoneResult result)
+{
+    return TimeoutTask([timeout](std::chrono::milliseconds &t) { t = timeout; }, result);
+}
+
 /*!
     \typealias Tasking::TaskTreeTask
 
