@@ -1586,8 +1586,13 @@ void SimpleTargetRunnerPrivate::start()
     m_stopRequested = false;
 
     QVariantHash extraData = m_extraData;
-    extraData[TERMINAL_SHELL_NAME]
-        = q->runControl()->target()->activeRunConfiguration()->displayName();
+    if (q->runControl() && q->runControl()->target()
+        && q->runControl()->target()->activeRunConfiguration()) {
+        extraData[TERMINAL_SHELL_NAME]
+            = q->runControl()->target()->activeRunConfiguration()->displayName();
+    } else {
+        extraData[TERMINAL_SHELL_NAME] = m_command.executable().fileName();
+    }
 
     m_process.setCommand(cmdLine);
     m_process.setEnvironment(env);
