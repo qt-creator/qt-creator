@@ -7,7 +7,10 @@
 
 #include <QProgressDialog>
 
-namespace Utils { class FilePath; }
+namespace Utils {
+class FilePath;
+class Result;
+}
 
 namespace RemoteLinux::Internal {
 
@@ -28,7 +31,7 @@ public:
     ~PublicKeyDeploymentDialog() override;
 
 private:
-    void handleDeploymentDone(bool succeeded, const QString &errorMessage);
+    void handleDeploymentDone(const Utils::Result &result);
 
     Internal::PublicKeyDeploymentDialogPrivate * const d;
 };

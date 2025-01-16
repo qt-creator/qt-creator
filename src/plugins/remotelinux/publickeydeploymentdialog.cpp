@@ -57,20 +57,20 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(
             [this] { d->m_done ? accept() : reject(); });
     connect(&d->m_process, &Process::done, this, [this] {
         const bool succeeded = d->m_process.result() == ProcessResult::FinishedWithSuccess;
-        QString finalMessage;
+        Result result = Result::Ok;
         if (!succeeded) {
             const QString errorString = d->m_process.errorString();
             const QString errorMessage = errorString.isEmpty() ? d->m_process.cleanedStdErr()
                                                                : errorString;
-            finalMessage = Utils::joinStrings({Tr::tr("Key deployment failed."),
-                                               Utils::trimBack(errorMessage, '\n')}, '\n');
+            result = Result::Error(Utils::joinStrings({Tr::tr("Key deployment failed."),
+                                               Utils::trimBack(errorMessage, '\n')}, '\n'));
         }
-        handleDeploymentDone(succeeded, finalMessage);
+        handleDeploymentDone(result);
     });
 
     FileReader reader;
     if (!reader.fetch(publicKeyFileName)) {
-        handleDeploymentDone(false, Tr::tr("Public key error: %1").arg(reader.errorString()));
+        handleDeploymentDone(Result::Error(Tr::tr("Public key error: %1").arg(reader.errorString())));
         return;
     }
 
@@ -111,16 +111,16 @@ PublicKeyDeploymentDialog::~PublicKeyDeploymentDialog()
     delete d;
 }
 
-void PublicKeyDeploymentDialog::handleDeploymentDone(bool succeeded, const QString &errorMessage)
+void PublicKeyDeploymentDialog::handleDeploymentDone(const Result &result)
 {
-    QString buttonText = succeeded ? Tr::tr("Deployment finished successfully.") : errorMessage;
+    QString buttonText = result ? Tr::tr("Deployment finished successfully.") : result.error();
     const QString textColor = creatorColor(
-                succeeded ? Theme::TextColorNormal : Theme::TextColorError).name();
+                                  result ? Theme::TextColorNormal : Theme::TextColorError).name();
     setLabelText(QString::fromLatin1("<font color=\"%1\">%2</font>")
             .arg(textColor, buttonText.replace("\n", "<br/>")));
     setCancelButtonText(Tr::tr("Close"));
 
-    if (!succeeded)
+    if (!result)
         return;
 
     setValue(1);
