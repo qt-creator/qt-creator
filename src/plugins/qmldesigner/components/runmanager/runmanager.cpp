@@ -7,6 +7,7 @@
 #include <projectexplorer/projectexplorer.h>
 
 #include <qmldesigner/qmldesignerplugin.h>
+#include <qmldesignertr.h>
 
 #include <devicesharing/device.h>
 
@@ -374,7 +375,7 @@ void RunManager::handleError(const QString &deviceId, const QString &error)
 
 QString NormalTarget::name() const
 {
-    return "Default";
+    return Tr::tr("Run App");
 }
 
 Utils::Id NormalTarget::id() const
@@ -394,7 +395,7 @@ void NormalTarget::run() const
 
 QString LivePreviewTarget::name() const
 {
-    return "Live Preview";
+    return Tr::tr("Live Preview");
 }
 
 Utils::Id LivePreviewTarget::id() const
