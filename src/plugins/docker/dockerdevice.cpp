@@ -706,6 +706,10 @@ expected_str<CommandLine> DockerDevicePrivate::withDockerExecCmd(
     if (const auto result = updateContainerAccess(); !result)
         return make_unexpected(result.error());
 
+    auto osAndArch = osTypeAndArch();
+    if (!osAndArch)
+        return make_unexpected(osAndArch.error());
+
     CommandLine dockerCmd{settings().dockerBinaryPath(), {"exec"}};
 
     if (interactive)
@@ -728,7 +732,7 @@ expected_str<CommandLine> DockerDevicePrivate::withDockerExecCmd(
 
     dockerCmd.addArg(m_container);
 
-    dockerCmd.addArgs({"/bin/sh", "-c"});
+    dockerCmd.addArgs({"/bin/sh", "-c"}, osAndArch->first);
 
     CommandLine exec("exec");
     exec.addCommandLineAsArgs(cmd, CommandLine::Raw);
@@ -736,7 +740,7 @@ expected_str<CommandLine> DockerDevicePrivate::withDockerExecCmd(
     if (withMarker) {
         // Check the executable for existence.
         CommandLine testType({"type", {}});
-        testType.addArg(cmd.executable().path());
+        testType.addArg(cmd.executable().path(), osAndArch->first);
         testType.addArgs(">/dev/null", CommandLine::Raw);
 
         // Send PID only if existence was confirmed, so we can correctly notify
@@ -747,9 +751,9 @@ expected_str<CommandLine> DockerDevicePrivate::withDockerExecCmd(
 
         testType.addCommandLineWithAnd(echo);
 
-        dockerCmd.addCommandLineAsSingleArg(testType);
+        dockerCmd.addCommandLineAsSingleArg(testType, osAndArch->first);
     } else {
-        dockerCmd.addCommandLineAsSingleArg(exec);
+        dockerCmd.addCommandLineAsSingleArg(exec, osAndArch->first);
     }
 
     return dockerCmd;
