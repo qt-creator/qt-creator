@@ -284,7 +284,7 @@ Rectangle {
         id: questionPopup
 
         contentItem: Item {
-            implicitWidth: 400
+            implicitWidth: 520
             implicitHeight: questionColumnLayout.height
 
             ColumnLayout {
@@ -294,7 +294,7 @@ Rectangle {
 
                 Text {
                     Layout.fillWidth: true
-                    text: qsTr("How to see a preview on Android device")
+                    text: qsTr("To preview your application on an Android device:")
                     color: StudioTheme.Values.themeTextColor
                     wrapMode: Text.WordWrap
                     font.bold: true
@@ -325,11 +325,12 @@ Rectangle {
 
                 CollationItem {
                     number: 1
-                    text: qsTr("Scan the QR code below or click on the link to go to the Google Play store with your device and seek for Qt Viewer application.")
+                    text: qsTr("Select the “GET IT ON Google Play” link or scan the QR code below with your Android device.")
                 }
 
                 RowLayout {
                     Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignHCenter
 
                     Image {
                         Layout.maximumWidth: 200
@@ -361,12 +362,37 @@ Rectangle {
 
                 CollationItem {
                     number: 2
-                    text: qsTr("Install the Qt Viewer application on your phone.")
+                    text: qsTr("Install Qt UI Viewer on your Android device.")
                 }
 
                 CollationItem {
                     number: 3
-                    text: qsTr("Open up this window again, if you already closed it, and click on \"Add Run Target\" button in this window.")
+                    text: qsTr("Connect your Android device to the same network as your Qt Design Studio. For secured office networks contact the network admin to identify the correct network.")
+                }
+
+                CollationItem {
+                    number: 4
+                    text: qsTr("Open Qt UI Viewer and find the IP address of the device.")
+                }
+
+                CollationItem {
+                    number: 5
+                    text: qsTr("Open the application you want to preview in Qt Design Studio.")
+                }
+
+                CollationItem {
+                    number: 6
+                    text: qsTr("Go to Run dropdown in the top toolbar and select Device Manager.")
+                }
+
+                CollationItem {
+                    number: 7
+                    text: qsTr("Add your Qt UI Viewer IP address in the Device Manager.")
+                }
+
+                CollationItem {
+                    number: 8
+                    text: qsTr("Select your Android device from the Run dropdown from the Qt Design Studio top toolbar and select Run.")
                 }
             }
         }
