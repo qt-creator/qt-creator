@@ -359,7 +359,7 @@ private:
     template <typename Handler>
     static GroupDoneHandler wrapGroupDone(Handler &&handler)
     {
-        static constexpr bool isDoneResultType = std::is_same_v<Handler, DoneResult>;
+        static constexpr bool isDoneResultType = std::is_same_v<std::decay_t<Handler>, DoneResult>;
         // R, B, V, D stands for: Done[R]esult, [B]ool, [V]oid, [D]oneWith
         static constexpr bool isRD = isInvocable<DoneResult, Handler, DoneWith>();
         static constexpr bool isR = isInvocable<DoneResult, Handler>();
@@ -564,7 +564,7 @@ private:
     static InterfaceDoneHandler wrapDone(Handler &&handler) {
         if constexpr (std::is_same_v<Handler, TaskDoneHandler>)
             return {}; // User passed {} for the done handler.
-        static constexpr bool isDoneResultType = std::is_same_v<Handler, DoneResult>;
+        static constexpr bool isDoneResultType = std::is_same_v<std::decay_t<Handler>, DoneResult>;
         // R, B, V, T, D stands for: Done[R]esult, [B]ool, [V]oid, [T]ask, [D]oneWith
         static constexpr bool isRTD = isInvocable<DoneResult, Handler, const Task &, DoneWith>();
         static constexpr bool isRT = isInvocable<DoneResult, Handler, const Task &>();
