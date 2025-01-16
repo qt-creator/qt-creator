@@ -596,6 +596,8 @@ void RunControlPrivate::startPortsGathererIfNeededAndContinueStart()
         return;
     }
 
+    QTC_ASSERT(device, continueStart(); return);
+
     const Storage<PortsOutputData> portsStorage;
 
     const auto onDone = [this, portsStorage] {
