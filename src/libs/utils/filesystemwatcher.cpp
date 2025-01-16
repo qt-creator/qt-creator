@@ -461,7 +461,7 @@ void FileSystemWatcher::slotDirectoryChanged(const QString &path)
     QStringList toReadd;
     const auto dir = FilePath::fromString(path);
     for (const FilePath &entry : dir.dirEntries(QDir::Files)) {
-        const QString file = entry.toUrlishString();
+        const QString file = entry.toFSPathString();
         if (d->m_files.contains(file))
             toReadd.append(file);
     }
