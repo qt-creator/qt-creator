@@ -109,14 +109,20 @@ public:
         layout->addWidget(pasteStdOutCB);
 
         connect(pasteStdOutCB, &QCheckBox::clicked, bc, &BuildConfiguration::setParseStdOut);
-        const auto selectionWidget = new CustomParsersSelectionWidget(this);
+        const auto selectionWidget =
+                new CustomParsersSelectionWidget(CustomParsersSelectionWidget::InBuildConfig, this);
         layout->addWidget(selectionWidget);
 
+        QList<Utils::Id> parsers = bc->customParsers();
+        for (const auto &s : ProjectExplorerPlugin::customParsers()) {
+            if (s.buildDefault && !parsers.contains(s.id))
+                parsers.append(s.id);
+        }
+        selectionWidget->setSelectedParsers(parsers);
         connect(selectionWidget, &CustomParsersSelectionWidget::selectionChanged, this,
                 [selectionWidget, bc] {
             bc->setCustomParsers(selectionWidget->selectedParsers());
         });
-        selectionWidget->setSelectedParsers(bc->customParsers());
     }
 };
 
