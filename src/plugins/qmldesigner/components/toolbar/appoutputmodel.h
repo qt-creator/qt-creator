@@ -6,8 +6,9 @@
 #include <QAbstractListModel>
 #include <QQmlEngine>
 
-#include <utils/outputformat.h>
 #include <projectexplorer/runcontrol.h>
+#include <utils/outputformat.h>
+#include <utils/utilsicons.h>
 
 #include <QColor>
 
@@ -97,6 +98,9 @@ public:
     QColor debugColor() const;
     void setDebugColor(const QColor &color);
 
+    QColor warningColor() const;
+    void setWarningColor(const QColor &color);
+
     int messageCount(int row) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QHash<int, QByteArray> roleNames() const override;
@@ -111,10 +115,11 @@ private:
     void initializeRuns(const QString &message = {});
     QColor colorFromFormat(Utils::OutputFormat format) const;
 
-    QColor m_historyColor = Qt::gray;
-    QColor m_messageColor = Qt::green;
-    QColor m_errorColor = Qt::red;
-    QColor m_debugColor = Qt::magenta;
+    QColor m_messageColor = Utils::creatorColor(Utils::Theme::Token_Notification_Success_Default);
+    QColor m_historyColor = Utils::creatorColor(Utils::Theme::Token_Text_Default);
+    QColor m_errorColor = Utils::creatorColor(Utils::Theme::CodeModel_Error_TextMarkColor);
+    QColor m_debugColor = Utils::creatorColor(Utils::Theme::Token_Notification_Success_Muted);
+    QColor m_warningColor = Utils::creatorColor(Utils::Theme::CodeModel_Warning_TextMarkColor);
 
     std::vector<Run> m_runs = {};
 };

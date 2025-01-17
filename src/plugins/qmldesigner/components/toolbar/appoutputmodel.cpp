@@ -147,6 +147,19 @@ void AppOutputParentModel::setDebugColor(const QColor &color)
     }
 }
 
+QColor AppOutputParentModel::warningColor() const
+{
+    return m_warningColor;
+}
+
+void AppOutputParentModel::setWarningColor(const QColor &color)
+{
+    if (m_warningColor != color) {
+        m_warningColor = color;
+        emit colorChanged();
+    }
+}
+
 void AppOutputParentModel::resetModel()
 {
     beginResetModel();
@@ -244,7 +257,12 @@ void AppOutputParentModel::setupRunControls()
                     initializeRuns();
 
                 int row = static_cast<int>(m_runs.size()) - 1;
-                emit messageAdded(row, logs.trimmed(), m_messageColor);
+                if (logs.startsWith("Debug:"))
+                    emit messageAdded(row, logs.trimmed(), m_messageColor);
+                else if (logs.startsWith("Error:"))
+                    emit messageAdded(row, logs.trimmed(), m_errorColor);
+                else if (logs.startsWith("Warning:"))
+                    emit messageAdded(row, logs.trimmed(), m_warningColor);
             });
 }
 
