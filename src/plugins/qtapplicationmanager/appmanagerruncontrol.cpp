@@ -45,7 +45,6 @@ static RunWorker *createInferiorRunner(RunControl *runControl, QmlDebugServicesP
 {
     auto worker = new ProcessRunner(runControl);
     worker->setId(AppManager::Constants::DEBUG_LAUNCHER_ID);
-    worker->setEssential(true);
 
     worker->setStartModifier([worker, runControl, qmlServices] {
         FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
@@ -119,6 +118,7 @@ public:
 
         addStartDependency(debuggee);
         addStopDependency(debuggee);
+        debuggee->addStopDependency(this);
     }
 
 private:
