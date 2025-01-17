@@ -108,10 +108,6 @@ public:
                 runner->setEnvironment(runControl->environment());
                 runControl->appendMessage("Starting Perf: " + cmd.toUserOutput(), NormalMessageFormat);
             });
-
-            // In the local case, the parser won't automatically stop when the recorder does. So we need
-            // to mark the recorder as essential, too.
-            runner->setEssential(true);
             return runner;
         });
 
@@ -143,6 +139,7 @@ public:
 
             perfParserWorker->addStartDependency(perfRecordWorker);
             perfParserWorker->addStopDependency(perfRecordWorker);
+            perfRecordWorker->addStopDependency(perfParserWorker);
             PerfProfilerTool::instance()->onWorkerCreation(runControl);
 
             auto tool = PerfProfilerTool::instance();
