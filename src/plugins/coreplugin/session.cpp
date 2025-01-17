@@ -140,26 +140,30 @@ SessionManager::SessionManager()
             SessionManager::saveSession();
     });
 
-    // session menu
-    ActionContainer *mfile = ActionManager::actionContainer(Core::Constants::M_FILE);
-    ActionContainer *msession = ActionManager::createMenu(M_SESSION);
-    msession->menu()->setTitle(PE::Tr::tr("S&essions"));
-    msession->setOnAllDisabledBehavior(ActionContainer::Show);
-    mfile->addMenu(msession, Core::Constants::G_FILE_SESSION);
-    d->m_sessionMenu = msession->menu();
-    connect(mfile->menu(), &QMenu::aboutToShow, this, [] { d->updateSessionMenu(); });
+    if (!ICore::isQtDesignStudio()) {
+        // session menu
+        ActionContainer *mfile = ActionManager::actionContainer(Core::Constants::M_FILE);
+        ActionContainer *msession = ActionManager::createMenu(M_SESSION);
 
-    // session manager action
-    d->m_sessionManagerAction = new QAction(PE::Tr::tr("&Manage..."), this);
-    d->m_sessionMenu->addAction(d->m_sessionManagerAction);
-    d->m_sessionMenu->addSeparator();
-    Command *cmd = ActionManager::registerAction(d->m_sessionManagerAction,
-                                                 "ProjectExplorer.ManageSessions");
-    cmd->setDefaultKeySequence(QKeySequence());
-    connect(d->m_sessionManagerAction,
+        msession->menu()->setTitle(PE::Tr::tr("S&essions"));
+        msession->setOnAllDisabledBehavior(ActionContainer::Show);
+        mfile->addMenu(msession, Core::Constants::G_FILE_SESSION);
+        d->m_sessionMenu = msession->menu();
+        connect(mfile->menu(), &QMenu::aboutToShow, this, [] { d->updateSessionMenu(); });
+
+        // session manager action
+        d->m_sessionManagerAction = new QAction(PE::Tr::tr("&Manage..."), this);
+        d->m_sessionMenu->addAction(d->m_sessionManagerAction);
+        d->m_sessionMenu->addSeparator();
+        Command *cmd = ActionManager::registerAction(
+            d->m_sessionManagerAction, "ProjectExplorer.ManageSessions");
+        cmd->setDefaultKeySequence(QKeySequence());
+        connect(
+            d->m_sessionManagerAction,
             &QAction::triggered,
             SessionManager::instance(),
             &SessionManager::showSessionManager);
+    }
 
     MacroExpander *expander = Utils::globalMacroExpander();
     expander->registerFileVariables("Session",
