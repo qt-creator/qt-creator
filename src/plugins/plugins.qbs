@@ -54,6 +54,7 @@ Project {
         "ios/ios.qbs",
         "languageclient/languageclient.qbs",
         "languageclient/lualanguageclient/lualanguageclient.qbs",
+        "learning/learning.qbs",
         "lua/lua.qbs",
         "macros/macros.qbs",
         "mcusupport/mcusupport.qbs",
