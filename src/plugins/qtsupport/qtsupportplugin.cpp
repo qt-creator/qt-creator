@@ -50,7 +50,9 @@ static void processRunnerCallback(ProcessData *data)
     FilePath rootPath = FilePath::fromString(data->deviceRoot);
 
     Process proc;
-    proc.setProcessChannelMode(data->processChannelMode);
+    // Docker and others do not support different processChannelModes (yet).
+    // So we have to ignore what the caller wants here.
+    //proc.setProcessChannelMode(data->processChannelMode);
     proc.setCommand({rootPath.withNewPath("/bin/sh"), {QString("-c"), data->command}});
     proc.setWorkingDirectory(FilePath::fromString(data->workingDirectory));
     proc.setEnvironment(Environment(data->environment.toStringList(), OsTypeLinux));
