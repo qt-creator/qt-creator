@@ -320,7 +320,7 @@ private:
 */
 
 /*!
-    \typealias GroupItems
+    \typealias Tasking::GroupItems
 
     Type alias for QList<GroupItem>.
 */
@@ -423,7 +423,7 @@ private:
 */
 
 /*!
-    \fn GroupItem::GroupItem(std::initializer_list<GroupItem> items)
+    \fn Tasking::GroupItem(std::initializer_list<GroupItem> items)
     \overload
     \sa GroupItem(const GroupItems &items)
 */
@@ -973,6 +973,14 @@ private:
 */
 
 /*!
+    \variable Tasking::parallelLimit
+    A convenient global group's element describing the parallel execution mode
+    with a limited number of tasks running simultanously.
+
+    \sa sequential, parallel
+*/
+
+/*!
     \variable Tasking::parallelIdealThreadCountLimit
     A convenient global group's element describing the parallel execution mode with a limited
     number of tasks running simultanously. The limit is equal to the ideal number of threads
@@ -1021,6 +1029,11 @@ private:
 /*!
     \variable Tasking::finishAllAndError
     A convenient global group's element describing the FinishAllAndError workflow policy.
+*/
+
+/*!
+    \variable Tasking::workflowPolicy
+    A convenient global group's element that describes workflow policies.
 */
 
 /*!
