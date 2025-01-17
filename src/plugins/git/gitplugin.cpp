@@ -677,7 +677,10 @@ GitPluginPrivate::GitPluginPrivate()
     createRepositoryAction(localRepositoryMenu, "Status", "Git.StatusRepository",
                            context, true, &GitClient::status);
 
-    createRepositoryAction(localRepositoryMenu, "Status (Include all untracked)", "Git.FullStatusRepository",
+    createRepositoryAction(localRepositoryMenu,
+                           //: Avoid translating "Status"
+                           Tr::tr("Status (Include All Untracked)"),
+                           "Git.FullStatusRepository",
                            context, true, &GitClient::fullStatus);
 
     // --------------
