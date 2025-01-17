@@ -457,6 +457,7 @@ void startCrashpad(const AppInfo &appInfo, bool crashReportingEnabled)
     annotations["sha1"] = Core::Constants::IDE_REVISION_STR;
 #endif
 
+    CrashpadInfo::GetCrashpadInfo()->set_crashpad_handler_behavior(crashpad::TriState::kEnabled);
     if (HostOsInfo::isWindowsHost()) {
         // reduces the size of crash reports, which can be large on Windows
         CrashpadInfo::GetCrashpadInfo()
