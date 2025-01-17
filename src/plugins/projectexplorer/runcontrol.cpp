@@ -232,8 +232,6 @@ public:
     QList<RunWorker *> startDependencies;
     QList<RunWorker *> stopDependencies;
     QString id;
-
-    bool essential = false;
 };
 
 enum class RunControlState
@@ -924,10 +922,6 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
 
     if (state == RunControlState::Stopping) {
         continueStopOrFinish();
-        return;
-    } else if (worker->isEssential()) {
-        debugMessage(workerId + " is essential. Stopping all others.");
-        initiateStop();
         return;
     }
 
@@ -1913,16 +1907,6 @@ QString RunWorker::userMessageForProcessError(QProcess::ProcessError error, cons
             break;
     }
     return msg;
-}
-
-bool RunWorker::isEssential() const
-{
-    return d->essential;
-}
-
-void RunWorker::setEssential(bool essential)
-{
-    d->essential = essential;
 }
 
 void RunWorker::start()

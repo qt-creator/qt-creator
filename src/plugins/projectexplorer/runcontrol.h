@@ -73,9 +73,6 @@ public:
     static QString userMessageForProcessError(QProcess::ProcessError,
                                               const Utils::FilePath &programName);
 
-    bool isEssential() const;
-    void setEssential(bool essential);
-
 signals:
     void started();
     void stopped();
