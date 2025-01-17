@@ -35,8 +35,9 @@ void ExceptionWithMessage::printWarning() const
     qWarning() << what() << m_sqliteErrorMessage;
 }
 
-StatementIsBusy::StatementIsBusy(Utils::SmallString &&sqliteErrorMessage)
-    : ExceptionWithMessage{std::move(sqliteErrorMessage)}
+StatementIsBusy::StatementIsBusy(Utils::SmallString &&sqliteErrorMessage,
+                                 const source_location &location)
+    : ExceptionWithMessage{std::move(sqliteErrorMessage), location}
 {
     sqliteHighLevelCategory().threadEvent("StatementIsBusy",
                                           keyValue("error message", std::string_view{what()}));
@@ -52,8 +53,9 @@ const char *DatabaseIsBusy::what() const noexcept
     return "Sqlite::DatabaseIsBusy";
 }
 
-StatementHasError::StatementHasError(Utils::SmallString &&sqliteErrorMessage)
-    : ExceptionWithMessage{std::move(sqliteErrorMessage)}
+StatementHasError::StatementHasError(Utils::SmallString &&sqliteErrorMessage,
+                                     const source_location &location)
+    : ExceptionWithMessage{std::move(sqliteErrorMessage), location}
 {
     sqliteHighLevelCategory().threadEvent("StatementHasError",
                                           keyValue("error message", std::string_view{what()}));

@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "sourcelocation.h"
 #include "sqlite3_fwd.h"
 #include "sqliteglobal.h"
 
@@ -16,15 +17,25 @@ namespace Sqlite {
 class SQLITE_EXPORT Exception : public std::exception
 {
 public:
-    Exception() = default;
+    Exception(const source_location &location = source_location::current())
+        : m_location{location}
+    {}
+
     const char *what() const noexcept override;
+
+    const source_location &location() const { return m_location; }
+
+private:
+    [[no_unique_address]] source_location m_location;
 };
 
 class SQLITE_EXPORT ExceptionWithMessage : public Exception
 {
 public:
-    ExceptionWithMessage(Utils::SmallString &&sqliteErrorMessage = {})
-        : m_sqliteErrorMessage(std::move(sqliteErrorMessage))
+    ExceptionWithMessage(Utils::SmallString &&sqliteErrorMessage = {},
+                         const source_location &location = source_location::current())
+        : Exception{location}
+        , m_sqliteErrorMessage(std::move(sqliteErrorMessage))
     {}
 
     const char *what() const noexcept override;
@@ -39,7 +50,8 @@ private:
 class SQLITE_EXPORT StatementIsBusy : public ExceptionWithMessage
 {
 public:
-    StatementIsBusy(Utils::SmallString &&sqliteErrorMessage);
+    StatementIsBusy(Utils::SmallString &&sqliteErrorMessage,
+                    const source_location &location = source_location::current());
     const char *what() const noexcept override;
 };
 
@@ -92,8 +104,8 @@ public:
 class SQLITE_EXPORT StatementHasError : public ExceptionWithMessage
 {
 public:
-    StatementHasError(Utils::SmallString &&sqliteErrorMessage);
-
+    StatementHasError(Utils::SmallString &&sqliteErrorMessage,
+                      const source_location &location = source_location::current());
     const char *what() const noexcept override;
 };
 

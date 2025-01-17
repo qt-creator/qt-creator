@@ -47,9 +47,7 @@
 #include <QQmlEngine>
 #include <QStandardPaths>
 
-#if defined(__cpp_lib_source_location) && __cpp_lib_source_location >= 201907L
-#  include <source_location>
-#endif
+#include <sourcelocation.h>
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
@@ -611,12 +609,14 @@ void QmlDesignerProjectManager::update()
                                                                propertyEditorResourcesPath(),
                                                                {qtCreatorItemLibraryPath()}});
         }
-    } catch (const std::exception &e) {
-#if defined(__cpp_lib_source_location) && __cpp_lib_source_location >= 201907L
-        auto location = std::source_location::current();
+    } catch (const Sqlite::Exception &exception) {
+        const auto &location = exception.location();
         std::cout << location.file_name() << ":" << location.function_name() << ":"
-                  << location.line() << ": " << e.what() << "\n";
-#endif
+                  << location.line() << ": " << exception.what() << "\n";
+    } catch (const std::exception &exception) {
+        auto location = Sqlite::source_location::current();
+        std::cout << location.file_name() << ":" << location.function_name() << ":"
+                  << location.line() << ": " << exception.what() << "\n";
     }
 }
 
