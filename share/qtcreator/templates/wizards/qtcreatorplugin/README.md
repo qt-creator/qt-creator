@@ -14,7 +14,12 @@ relative or absolute path to this plugin directory.
 
 ## How to Run
 
-Run a compatible Qt Creator with the additional command line argument
+From the command line run
+
+    cmake --build . --target RunQtCreator
+
+`RunQtCreator` is a custom CMake target that will use the <path to qtcreator> referenced above to
+start the Qt Creator executable with the following parameters
 
     -pluginpath <path_to_plugin>
 
@@ -24,13 +29,3 @@ where `<path_to_plugin>` is the path to the resulting plugin library in the buil
 
 You might want to add `-temporarycleansettings` (or `-tcs`) to ensure that the opened Qt Creator
 instance cannot mess with your user-global Qt Creator settings.
-
-When building and running the plugin from Qt Creator, you can use
-
-    -pluginpath "%{buildDir}/lib/qtcreator/plugins" -tcs
-
-on Windows and Linux, or
-
-    -pluginpath "%{buildDir}/Qt Creator.app/Contents/PlugIns" -tcs
-
-for the `Command line arguments` field in the run settings.
