@@ -230,8 +230,6 @@ const char windowStateKey[] = "WindowState";
 const char modeSelectorLayoutKey[] = "ModeSelectorLayout";
 const char menubarVisibleKey[] = "MenubarVisible";
 
-const char DEFAULT_ALT_BUTTON_TEXT[] = QT_TRANSLATE_NOOP("QtC::Core", "Later");
-
 namespace Internal {
 
 class MainWindow : public AppMainWindow
@@ -880,7 +878,7 @@ bool ICore::askForRestart(const QString &text, const QString &altButtonText)
     mb.setText(text);
     mb.setIcon(QMessageBox::Information);
 
-    QString translatedAltButtonText = altButtonText.isEmpty() ? Tr::tr(DEFAULT_ALT_BUTTON_TEXT) : altButtonText;
+    QString translatedAltButtonText = altButtonText.isEmpty() ? Tr::tr("Later") : altButtonText;
 
     mb.addButton(translatedAltButtonText, QMessageBox::NoRole);
     mb.addButton(Tr::tr("Restart Now"), QMessageBox::YesRole);
