@@ -717,6 +717,14 @@ jobs:
         path: build/build/qtcreator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.deb
         name: qtcreator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.deb
 
+    - name: Upload MSI package
+      if: runner.os == 'Windows'
+      uses: actions/upload-artifact@v4
+      with:
+        path: build/build/qtcreator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.msi
+        name: qtcreator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.msi
+
+
     - name: Upload disk image
       if: runner.os == 'macOS' && contains(github.ref, 'tags/v')
       uses: actions/upload-artifact@v4
