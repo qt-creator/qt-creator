@@ -79,12 +79,70 @@
         \li Edit the property and select \uicontrol Apply.
     \endlist
 
-    To make properties effective, use them in the shader code.
+    To make properties effective, use them in the shader code. For more information, see
+    \l {Modifying the shader code of an effect composition}.
 
     You can edit the custom properties you create and also customize the properties of pre-made
     effects. To edit a property, select \imagemorebutton > \uicontrol Edit.
 
     To remove a property from your effect composition, select \imagemorebutton > \uicontrol Remove.
+
+    \section1 Modifying the shader code of an effect composition
+
+    You can modify the shader code of your effect composition using
+    \uicontrol {Shaders Code Editor}.
+
+    \image shaders-code-editor.webp Shaders Code Editor
+
+    To open \uicontrol {Shaders Code Editor}:
+
+    \list 1
+        \li Select \imageadvancedCodeView to enable advanced mode.
+        \li Select \uicontrol {Show Code}.
+    \endlist
+
+    In the code section (1), you can switch between editing the Fragment shader and Vertex shader.
+
+    To switch between the effect nodes in your effect composition, select the effect node from the
+    dropdown menu (2). To edit the main effect shader, select \uicontrol Main.
+
+    The properties in the effect node are visible in the property table (3). To change the visible
+    columns in the property table, select columns from the dropdown menu (4).
+
+    To automatically update the effect as you edit it, select \uicontrol {Live Update} (5). If
+    \uicontrol {Live Update} is not selected, select \uicontrol Apply (6) to update the effect
+    composition with the latest changes.
+
+    If there are issues or errors in the code, they are visible in the
+    \uicontrol {Effect Composer} view.
+
+    To close \uicontrol {Shaders Code Editor}, select \uicontrol {Close} (7).
+
+    \section2 Using tags in shader code
+
+    The following table describes @-tags in shader code.
+
+    \table
+    \header
+        \li Tag
+        \li Description
+    \row
+        \li @main
+        \li Indicates that code before this tag is inserted before the main function in the
+            shader code. Code after this tag is inserted inside the main function at the position
+            of the @nodes tag.
+    \row
+        \li @nodes
+        \li Specifies the location of node specific shader code inside the main function.
+    \row
+        \li @mesh
+        \li Specifies the size of the mesh in effects that modify vertices, such as the Swirl
+            effect.
+    \row
+        \li @requires
+        \li Indicates that the effect depends on another node, typically used to include a helper
+            node, such as BlurHelper or NoiseHelper.
+    \endtable
 
     \section1 Assigning an effect composition to a component
 
