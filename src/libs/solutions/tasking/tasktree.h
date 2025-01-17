@@ -427,22 +427,11 @@ static GroupItem onGroupDone(Handler &&handler, CallDoneIf callDoneIf = CallDone
     return Group::onGroupDone(std::forward<Handler>(handler), callDoneIf);
 }
 
-class TASKING_EXPORT ParallelLimitFunctor
-{
-public:
-    // Default: 1 (sequential). 0 means unlimited (parallel).
-    GroupItem operator()(int limit) const;
-};
+// Default: 1 (sequential). 0 means unlimited (parallel).
+TASKING_EXPORT GroupItem parallelLimit(int limit);
 
-class TASKING_EXPORT WorkflowPolicyFunctor
-{
-public:
-    // Default: WorkflowPolicy::StopOnError.
-    GroupItem operator()(WorkflowPolicy policy) const;
-};
-
-TASKING_EXPORT extern const ParallelLimitFunctor parallelLimit;
-TASKING_EXPORT extern const WorkflowPolicyFunctor workflowPolicy;
+// Default: WorkflowPolicy::StopOnError.
+TASKING_EXPORT GroupItem workflowPolicy(WorkflowPolicy policy);
 
 TASKING_EXPORT extern const GroupItem sequential;
 TASKING_EXPORT extern const GroupItem parallel;
