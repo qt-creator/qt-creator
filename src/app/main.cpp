@@ -593,7 +593,7 @@ int main(int argc, char **argv)
         const FilePaths addedPaths
             = Environment::pathListFromValue(item.value, HostOsInfo::hostOs());
         FilePaths allPaths = Environment::systemEnvironment().pathListValue(varName);
-        Utils::eraseOne(allPaths, [&addedPaths](const FilePath &p) {
+        Utils::erase(allPaths, [&addedPaths](const FilePath &p) {
             return addedPaths.contains(p);
         });
         diff.emplaceBack(
