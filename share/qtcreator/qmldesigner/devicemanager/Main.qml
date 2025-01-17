@@ -429,7 +429,7 @@ Rectangle {
 
                     width: 200
                     buttonIcon: StudioTheme.Constants.add_medium
-                    placeholderText: qsTr("Run target IP")
+                    placeholderText: qsTr("Set target device IP")
                     validator: RegularExpressionValidator {
                         regularExpression: /^(\d{1,3}\.){3}\d{1,3}$/
                     }
