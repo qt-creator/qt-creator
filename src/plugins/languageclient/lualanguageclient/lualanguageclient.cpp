@@ -16,6 +16,7 @@
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
@@ -200,7 +201,7 @@ public:
 protected:
     Client *createClient(BaseClientInterface *interface) const final;
 
-    BaseClientInterface *createInterface(ProjectExplorer::Project *project) const override;
+    BaseClientInterface *createInterface(ProjectExplorer::BuildConfiguration *bc) const override;
 };
 enum class TransportType { StdIO, LocalSocket };
 
@@ -452,7 +453,7 @@ public:
             Project *project = ProjectManager::projectForFile(document->filePath());
             const auto clients = LanguageClientManager::clientsForSettingId(m_clientSettingsId);
             result = Utils::filtered(clients, [project](Client *c) {
-                return c && c->project() == project;
+                return c && c->project() && c->project() == project;
             });
         }
         else
@@ -595,21 +596,21 @@ public:
         return {};
     }
 
-    BaseClientInterface *createInterface(ProjectExplorer::Project *project)
+    BaseClientInterface *createInterface(BuildConfiguration *bc)
     {
         if (m_transportType == TransportType::StdIO) {
             auto interface = new StdIOClientInterface;
             interface->setCommandLine(m_cmdLine);
-            if (project)
-                interface->setWorkingDirectory(project->projectDirectory());
+            if (bc)
+                interface->setWorkingDirectory(bc->project()->projectDirectory());
             return interface;
         } else if (m_transportType == TransportType::LocalSocket) {
             if (m_serverName.isEmpty())
                 return nullptr;
 
             auto interface = new LuaLocalSocketClientInterface(m_cmdLine, m_serverName);
-            if (project)
-                interface->setWorkingDirectory(project->projectDirectory());
+            if (bc)
+                interface->setWorkingDirectory(bc->project()->projectDirectory());
             return interface;
         }
         return nullptr;
@@ -700,10 +701,10 @@ Client *LuaClientSettings::createClient(BaseClientInterface *interface) const
     return client;
 }
 
-BaseClientInterface *LuaClientSettings::createInterface(ProjectExplorer::Project *project) const
+BaseClientInterface *LuaClientSettings::createInterface(BuildConfiguration *bc) const
 {
     if (auto w = m_wrapper.lock())
-        return w->createInterface(project);
+        return w->createInterface(bc);
 
     return nullptr;
 }

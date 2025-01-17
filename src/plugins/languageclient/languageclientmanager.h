@@ -20,7 +20,10 @@ class IEditor;
 class IDocument;
 }
 
-namespace ProjectExplorer { class Project; }
+namespace ProjectExplorer {
+class BuildConfiguration;
+class Project;
+}
 
 namespace LanguageClient {
 
@@ -37,7 +40,7 @@ public:
 
     static void clientStarted(Client *client);
     static void clientFinished(Client *client);
-    static Client *startClient(const BaseSettings *setting, ProjectExplorer::Project *project = nullptr);
+    static Client *startClient(const BaseSettings *setting, ProjectExplorer::BuildConfiguration *bc = nullptr);
     static const QList<Client *> clients();
     static void addClient(Client *client);
     static void restartClient(Client *client);
@@ -69,7 +72,8 @@ public:
 
     static Client *clientForDocument(TextEditor::TextDocument *document);
     static Client *clientForFilePath(const Utils::FilePath &filePath);
-    static const QList<Client *> clientsForProject(const ProjectExplorer::Project *project);
+    static const QList<Client *> clientsForBuildConfiguration(const ProjectExplorer::BuildConfiguration *bc);
+
     template<typename T> static bool hasClients();
 
     ///
@@ -104,8 +108,8 @@ private:
 
     friend void setupLanguageClientManager();
 
-    void updateProject(ProjectExplorer::Project *project);
-    void projectAdded(ProjectExplorer::Project *project);
+    void updateProject(ProjectExplorer::BuildConfiguration *bc);
+    void buildConfigurationAdded(ProjectExplorer::BuildConfiguration *bc);
 
     void trackClientDeletion(Client *client);
 

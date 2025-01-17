@@ -9,7 +9,11 @@
 #include <utils/filepath.h>
 #include <utils/store.h>
 
-namespace ProjectExplorer { class Project; }
+namespace ProjectExplorer {
+class BuildConfiguration;
+class Project;
+}
+
 namespace Utils { class MacroExpander; }
 
 namespace CppEditor {
@@ -146,6 +150,7 @@ class CPPEDITOR_EXPORT ClangdProjectSettings
 {
 public:
     ClangdProjectSettings(ProjectExplorer::Project *project);
+    ClangdProjectSettings(ProjectExplorer::BuildConfiguration *bc);
 
     ClangdSettings::Data settings() const;
     void setSettings(const ClangdSettings::Data &data);

@@ -39,6 +39,7 @@
 #include <languageserverprotocol/shutdownmessages.h>
 #include <languageserverprotocol/workspace.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
@@ -68,6 +69,7 @@
 #include <QThread>
 #include <QTimer>
 
+using namespace ProjectExplorer;
 using namespace LanguageServerProtocol;
 using namespace Utils;
 
@@ -150,8 +152,8 @@ public:
         m_documentUpdateTimer.setInterval(500);
         connect(&m_documentUpdateTimer, &QTimer::timeout, this,
                 [this] { sendPostponedDocumentUpdates(Schedule::Now); });
-        connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
-                q, &Client::projectClosed);
+        connect(ProjectManager::instance(), &ProjectManager::buildConfigurationRemoved,
+                q, &Client::buildConfigurationClosed);
 
         QTC_ASSERT(clientInterface, return);
         connect(m_clientInterface, &InterfaceController::messageReceived, q, &Client::handleMessage);
@@ -351,7 +353,7 @@ public:
     DocumentSymbolCache m_documentSymbolCache;
     HoverHandler m_hoverHandler;
     QHash<LanguageServerProtocol::DocumentUri, TextEditor::HighlightingResults> m_highlights;
-    ProjectExplorer::Project *m_project = nullptr;
+    QPointer<BuildConfiguration> m_bc;
     QSet<TextEditor::IAssistProcessor *> m_runningAssistProcessors;
     SymbolSupport m_symbolSupport;
     MessageId m_runningFindLinkRequest;
@@ -386,9 +388,13 @@ void Client::setName(const QString &name)
 
 QString Client::name() const
 {
-    if (d->m_project && !d->m_project->displayName().isEmpty())
-        //: <language client> for <project>
-        return Tr::tr("%1 for %2").arg(d->m_displayName, d->m_project->displayName());
+    if (d->m_bc) {
+        const QString projectDisplayName = d->m_bc->project()->displayName();
+        if (!projectDisplayName.isEmpty()) {
+            //: <language client> for <project>
+            return Tr::tr("%1 for %2").arg(d->m_displayName, projectDisplayName);
+        }
+    }
     return d->m_displayName;
 }
 
@@ -552,8 +558,8 @@ void Client::initialize()
     params.setClientInfo(d->m_clientInfo);
     params.setCapabilities(d->m_clientCapabilities);
     params.setInitializationOptions(d->m_initializationOptions);
-    if (d->m_project)
-        params.setRootUri(hostPathToServerUri(d->m_project->projectDirectory()));
+    if (d->m_bc && d->m_bc->project())
+        params.setRootUri(hostPathToServerUri(d->m_bc->project()->projectDirectory()));
 
     auto projectFilter = [this](Project *project) { return canOpenProject(project); };
     auto toWorkSpaceFolder = [this](Project *pro) {
@@ -1485,30 +1491,29 @@ void Client::executeCommand(const Command &command)
         sendMessage(ExecuteCommandRequest(ExecuteCommandParams(command)));
 }
 
-ProjectExplorer::Project *Client::project() const
+Project *Client::project() const
 {
-    return d->m_project;
+    return d->m_bc ? d->m_bc->project() : nullptr;
 }
 
-void Client::setCurrentProject(ProjectExplorer::Project *project)
+BuildConfiguration *Client::buildConfiguration() const
 {
-    QTC_ASSERT(canOpenProject(project), return);
-    if (d->m_project == project)
+    return d->m_bc;
+}
+
+void Client::setCurrentBuildConfiguration(BuildConfiguration *bc)
+{
+    QTC_ASSERT(!bc ||canOpenProject(bc->project()), return);
+    if (d->m_bc == bc)
         return;
-    if (d->m_project)
-        d->m_project->disconnect(this);
-    d->m_project = project;
-    if (d->m_project) {
-        connect(d->m_project, &ProjectExplorer::Project::destroyed, this, [this] {
-            // the project of the client should already be null since we expect the session and
-            // the language client manager to reset it before it gets deleted.
-            QTC_ASSERT(d->m_project == nullptr, projectClosed(d->m_project));
-        });
-    }
+    if (d->m_bc)
+        d->m_bc->disconnect(this);
+    d->m_bc = bc;
 }
 
-void Client::projectOpened(ProjectExplorer::Project *project)
+void Client::buildConfigurationOpened(BuildConfiguration *bc)
 {
+    Project *project = bc->project();
     if (!d->sendWorkspceFolderChanges() || !canOpenProject(project))
         return;
     WorkspaceFoldersChangeEvent event;
@@ -1520,8 +1525,9 @@ void Client::projectOpened(ProjectExplorer::Project *project)
     sendMessage(change);
 }
 
-void Client::projectClosed(ProjectExplorer::Project *project)
+void Client::buildConfigurationClosed(BuildConfiguration *bc)
 {
+    Project *project = bc->project();
     if (d->sendWorkspceFolderChanges() && canOpenProject(project)) {
         WorkspaceFoldersChangeEvent event;
         event.setRemoved({WorkSpaceFolder(hostPathToServerUri(project->projectDirectory()),
@@ -1531,18 +1537,18 @@ void Client::projectClosed(ProjectExplorer::Project *project)
         DidChangeWorkspaceFoldersNotification change(params);
         sendMessage(change);
     }
-    if (project == d->m_project) {
+    if (bc == d->m_bc) {
         if (d->m_state == Initialized) {
             LanguageClientManager::shutdownClient(this);
         } else {
             d->setState(Shutdown); // otherwise the manager would try to restart this server
             emit finished();
         }
-        d->m_project = nullptr;
+        d->m_bc = nullptr;
     }
 }
 
-bool Client::canOpenProject(ProjectExplorer::Project *project)
+bool Client::canOpenProject(Project *project)
 {
     Q_UNUSED(project)
     return true;

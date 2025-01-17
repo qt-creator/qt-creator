@@ -68,11 +68,6 @@ QmllsClientSettings::QmllsClientSettings()
     m_enabled = false; // disabled by default
 }
 
-static QtVersion *qtVersionFromProject(const Project *project)
-{
-    return QtKitAspect::qtVersion(activeKit(project));
-}
-
 static std::pair<FilePath, QVersionNumber> evaluateLatestQmlls()
 {
     if (!QtVersionManager::isLoaded())
@@ -113,18 +108,16 @@ static std::pair<FilePath, QVersionNumber> evaluateQmlls(const QtVersion *qtVers
                      qtVersion->qtVersion());
 }
 
-static CommandLine commandLineForQmlls(Project *project)
+static CommandLine commandLineForQmlls(BuildConfiguration *bc)
 {
-    const auto *qtVersion = qtVersionFromProject(project);
+    const QtVersion *qtVersion = QtKitAspect::qtVersion(bc->kit());
     QTC_ASSERT(qtVersion, return {});
 
     auto [executable, version] = evaluateQmlls(qtVersion);
 
     CommandLine result{executable, {}};
 
-    const QString buildDirectory = project->activeBuildConfiguration()
-                                       ? project->activeBuildConfiguration()->buildDirectory().path()
-                                       : QString();
+    const QString buildDirectory = bc->buildDirectory().path();
     if (!buildDirectory.isEmpty())
         result.addArgs({"-b", buildDirectory});
 
@@ -134,7 +127,7 @@ static CommandLine commandLineForQmlls(Project *project)
 
         // add custom import paths that the embedded codemodel uses too
         const QmlJS::ModelManagerInterface::ProjectInfo projectInfo
-            = QmlJS::ModelManagerInterface::instance()->projectInfo(project);
+            = QmlJS::ModelManagerInterface::instance()->projectInfo(bc->project());
         for (QmlJS::PathAndLanguage path : projectInfo.importPaths) {
             if (path.language() == QmlJS::Dialect::Qml)
                 result.addArgs({"-I", path.path().path()});
@@ -152,15 +145,15 @@ static CommandLine commandLineForQmlls(Project *project)
     return result;
 }
 
-bool QmllsClientSettings::isValidOnProject(ProjectExplorer::Project *project) const
+bool QmllsClientSettings::isValidOnBuildConfiguration(BuildConfiguration *bc) const
 {
-    if (!BaseSettings::isValidOnProject(project))
+    if (!BaseSettings::isValidOnBuildConfiguration(bc))
         return false;
 
-    if (!project || !QtVersionManager::isLoaded())
+    if (!bc || !QtVersionManager::isLoaded())
         return false;
 
-    const QtVersion *qtVersion = qtVersionFromProject(project);
+    const QtVersion *qtVersion = QtKitAspect::qtVersion(bc->kit());
     if (!qtVersion) {
         Core::MessageManager::writeSilently(
             Tr::tr("Current kit does not have a valid Qt version, disabling QML Language Server."));
@@ -183,10 +176,10 @@ public:
     FilePath qmllsFilePath() const { return m_cmd.executable(); }
 };
 
-BaseClientInterface *QmllsClientSettings::createInterface(Project *project) const
+BaseClientInterface *QmllsClientSettings::createInterface(BuildConfiguration *bc) const
 {
     auto interface = new QmllsClientInterface;
-    interface->setCommandLine(commandLineForQmlls(project));
+    interface->setCommandLine(commandLineForQmlls(bc));
     return interface;
 }
 
@@ -290,14 +283,14 @@ bool QmllsClientSettings::isEnabledOnProjectFile(const Utils::FilePath &file) co
     return isEnabledOnProject(project);
 }
 
-bool QmllsClientSettings::useQmllsWithBuiltinCodemodelOnProject(const Utils::FilePath &file) const
+bool QmllsClientSettings::useQmllsWithBuiltinCodemodelOnProject(Project *project,
+                                                                const FilePath &file) const
 {
     if (m_disableBuiltinCodemodel)
         return false;
 
     // disableBuitinCodemodel only makes sense when qmlls is enabled
-    Project *project = ProjectManager::projectForFile(file);
-    return isEnabledOnProject(project);
+    return isEnabledOnProject(project) && project->isKnownFile(file);
 }
 
 // first time initialization: port old settings from the QmlJsEditingSettings AspectContainer

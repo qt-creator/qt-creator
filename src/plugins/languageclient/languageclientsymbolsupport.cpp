@@ -12,6 +12,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultwindow.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
@@ -26,6 +27,7 @@
 #include <QLabel>
 
 using namespace LanguageServerProtocol;
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace LanguageClient {
@@ -319,15 +321,13 @@ Utils::SearchResultItems generateSearchResultItems(
         item.setFilePath(filePath);
         item.setUseTextEditorFont(true);
         if (renaming && limitToProjects) {
-            const ProjectExplorer::Node * const node
-                = ProjectExplorer::ProjectTree::nodeForFile(filePath);
+            const Node * const node = ProjectTree::nodeForFile(filePath);
             if (node) {
                 item.setSelectForReplacement(!node->isGenerated());
             } else {
                 item.setSelectForReplacement(
-                    client->project()
-                    && ProjectExplorer::ProjectManager::isInProjectSourceDir(
-                        filePath, *client->project()));
+                    client->buildConfiguration()
+                    && ProjectManager::isInProjectSourceDir(filePath, *client->project()));
             }
             if (item.selectForReplacement()
                 && filePath.baseName().compare(oldSymbolName, Qt::CaseInsensitive) == 0) {

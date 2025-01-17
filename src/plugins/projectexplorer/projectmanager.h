@@ -97,8 +97,6 @@ public:
     static Utils::FilePaths projectsForSessionName(const QString &session);
 
 signals:
-    void targetAdded(ProjectExplorer::Target *target);
-    void targetRemoved(ProjectExplorer::Target *target);
     void projectAdded(ProjectExplorer::Project *project);
     void aboutToRemoveProject(ProjectExplorer::Project *project);
     void projectDisplayNameChanged(ProjectExplorer::Project *project);
@@ -106,6 +104,8 @@ signals:
 
     void startupProjectChanged(ProjectExplorer::Project *project);
 
+    void buildConfigurationAdded(ProjectExplorer::BuildConfiguration *bc);
+    void buildConfigurationRemoved(ProjectExplorer::BuildConfiguration *bc);
     // bc == activeBuildConfigForActiveProject()
     void activeBuildConfigurationChanged(BuildConfiguration *bc);
 

@@ -218,7 +218,7 @@ void PyLSClient::openDocument(TextEditor::TextDocument *document)
                 if (BuildStepList *buildSteps = buildConfig->buildSteps()) {
                     BuildStep *buildStep = buildSteps->firstStepWithId(PySideBuildStep::id());
                     if (auto *pythonBuildStep = qobject_cast<PySideBuildStep *>(buildStep))
-                        updateExtraCompilers(project, pythonBuildStep->extraCompilers());
+                        updateExtraCompilers(pythonBuildStep->extraCompilers());
                 }
             }
         } else if (isSupportedDocument(document)) {
@@ -238,22 +238,21 @@ void PyLSClient::openDocument(TextEditor::TextDocument *document)
     Client::openDocument(document);
 }
 
-void PyLSClient::projectClosed(ProjectExplorer::Project *project)
+void PyLSClient::buildConfigurationClosed(BuildConfiguration *bc)
 {
-    for (ProjectExplorer::ExtraCompiler *compiler : m_extraCompilers.value(project))
+    for (ExtraCompiler *compiler : m_extraCompilers)
         closeExtraCompiler(compiler, compiler->targets().first());
-    Client::projectClosed(project);
+    Client::buildConfigurationClosed(bc);
 }
 
-void PyLSClient::updateExtraCompilers(ProjectExplorer::Project *project,
-                                      const QList<PySideUicExtraCompiler *> &extraCompilers)
+void PyLSClient::updateExtraCompilers(const QList<PySideUicExtraCompiler *> &extraCompilers)
 {
-    auto oldCompilers = m_extraCompilers.take(project);
+    auto oldCompilers = m_extraCompilers;
     for (PySideUicExtraCompiler *extraCompiler : extraCompilers) {
         QTC_ASSERT(extraCompiler->targets().size() == 1 , continue);
         int index = oldCompilers.indexOf(extraCompiler);
         if (index < 0) {
-            m_extraCompilers[project] << extraCompiler;
+            m_extraCompilers << extraCompiler;
             connect(
                 extraCompiler,
                 &ExtraCompiler::contentsChanged,
@@ -265,21 +264,17 @@ void PyLSClient::updateExtraCompilers(ProjectExplorer::Project *project,
                 extraCompiler,
                 &QObject::destroyed,
                 this,
-                [this, extraCompiler, file = extraCompiler->targets().constFirst()]() {
-                    for (QList<ProjectExplorer::ExtraCompiler *> &extraCompilers :
-                         m_extraCompilers) {
-                        QTC_CHECK(extraCompilers.removeAll(extraCompiler) == 0);
-                    }
+                [this, extraCompiler, file = extraCompiler->targets().constFirst()] {
+                    QTC_CHECK(m_extraCompilers.removeAll(extraCompiler) == 0);
                     closeExtraCompiler(extraCompiler, file);
                 });
-
             if (extraCompiler->isDirty())
                 extraCompiler->compileFile();
         } else {
-            m_extraCompilers[project] << oldCompilers.takeAt(index);
+            m_extraCompilers << oldCompilers.takeAt(index);
         }
     }
-    for (ProjectExplorer::ExtraCompiler *compiler : std::as_const(oldCompilers))
+    for (ExtraCompiler *compiler : std::as_const(oldCompilers))
         closeExtraCompiler(compiler, compiler->targets().first());
 }
 
