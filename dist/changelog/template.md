@@ -62,6 +62,8 @@ Projects
 
 ### Workspace
 
+### Autotools
+
 ### vcpkg
 
 ### Qt Safe Renderer
