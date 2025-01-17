@@ -19,15 +19,14 @@ namespace TextEditor {
     class CodeStyleEditorWidget;
 }
 
-namespace CppEditor {
-
-namespace Internal {
+namespace CppEditor::Internal {
 
 class CppCodeStylePreferencesWidgetPrivate;
 
 class CppCodeStylePreferencesWidget : public TextEditor::CodeStyleEditorWidget
 {
     Q_OBJECT
+
 public:
     explicit CppCodeStylePreferencesWidget(QWidget *parent = nullptr);
     ~CppCodeStylePreferencesWidget() override;
@@ -36,6 +35,10 @@ public:
     void addTab(TextEditor::CodeStyleEditorWidget *page, QString tabName);
     void apply() override;
     void finish() override;
+
+signals:
+    void applyEmitted();
+    void finishEmitted();
 
 private:
     void decorateEditors(const TextEditor::FontSettings &fontSettings);
@@ -56,14 +59,8 @@ private:
     TextEditor::TabSettings m_originalTabSettings;
     bool m_blockUpdates = false;
     friend class CppCodeStylePreferencesWidgetPrivate;
-signals:
-    void codeStyleSettingsChanged(const CppEditor::CppCodeStyleSettings &);
-    void tabSettingsChanged(const TextEditor::TabSettings &);
-    void applyEmitted();
-    void finishEmitted();
 };
 
 void setupCppCodeStyleSettings();
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal
