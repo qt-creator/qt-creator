@@ -5,6 +5,8 @@
 #include "device.h"
 #include "devicemanager.h"
 
+#include <qmldesignertr.h>
+
 namespace QmlDesigner::DeviceShare {
 
 DeviceManagerModel::DeviceManagerModel(DeviceManager &deviceManager, QObject *parent)
@@ -57,7 +59,7 @@ QVariant DeviceManagerModel::data(const QModelIndex &index, int role) const
         const auto deviceSettings = m_deviceManager.devices()[index.row()]->deviceSettings();
         bool isConnected = m_deviceManager.devices()[index.row()]->isConnected();
         switch (index.column()) {
-        case DeviceColumns::Active:
+        case DeviceColumns::Enabled:
             return deviceSettings.active();
         case DeviceColumns::Status:
             return static_cast<DeviceStatus>(isConnected);
@@ -87,7 +89,7 @@ QVariant DeviceManagerModel::data(const QModelIndex &index, int role) const
         switch (index.column()) {
         case DeviceColumns::Alias:
             return deviceSettings.alias();
-        case DeviceColumns::Active:
+        case DeviceColumns::Enabled:
             return deviceSettings.active();
         case DeviceColumns::IPv4Addr:
             return deviceSettings.ipAddress();
@@ -104,28 +106,28 @@ QVariant DeviceManagerModel::headerData(int section, Qt::Orientation orientation
 
     if (orientation == Qt::Horizontal) {
         switch (section) {
-        case DeviceColumns::Active:
-            return tr("Active");
+        case DeviceColumns::Enabled:
+            return Tr::tr("Enabled");
         case DeviceColumns::Status:
-            return tr("Status");
+            return Tr::tr("Status");
         case DeviceColumns::Alias:
-            return tr("Alias");
+            return Tr::tr("Alias");
         case DeviceColumns::IPv4Addr:
-            return tr("IPv4 Address");
+            return Tr::tr("IP Address");
         case DeviceColumns::OS:
-            return tr("OS");
+            return Tr::tr("OS");
         case DeviceColumns::OSVersion:
-            return tr("OS Version");
+            return Tr::tr("OS Version");
         case DeviceColumns::Architecture:
-            return tr("Architecture");
+            return Tr::tr("Architecture");
         case DeviceColumns::ScreenSize:
-            return tr("Screen Size");
+            return Tr::tr("Screen Size");
         case DeviceColumns::AppVersion:
-            return tr("App Version");
+            return Tr::tr("App Version");
         case DeviceColumns::SelfId:
-            return tr("Self ID");
+            return Tr::tr("Self ID");
         case DeviceColumns::DeviceId:
-            return tr("Device ID");
+            return Tr::tr("Device ID");
         }
     }
 
@@ -144,7 +146,7 @@ bool DeviceManagerModel::setData(const QModelIndex &index, const QVariant &value
     case DeviceColumns::Alias:
         m_deviceManager.setDeviceAlias(deviceSettings.deviceId(), value.toString());
         break;
-    case DeviceColumns::Active:
+    case DeviceColumns::Enabled:
         m_deviceManager.setDeviceActive(deviceSettings.deviceId(), value.toBool());
         break;
     case DeviceColumns::IPv4Addr:
@@ -162,7 +164,7 @@ Qt::ItemFlags DeviceManagerModel::flags(const QModelIndex &index) const
 
     Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
-    if (index.column() == DeviceColumns::Active || index.column() == DeviceColumns::Alias
+    if (index.column() == DeviceColumns::Enabled || index.column() == DeviceColumns::Alias
         || index.column() == DeviceColumns::IPv4Addr)
         flags |= Qt::ItemIsEditable;
 
