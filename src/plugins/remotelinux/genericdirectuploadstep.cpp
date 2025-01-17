@@ -16,13 +16,11 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
-#include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 
 #include <QDateTime>
-#include <QTextCodec>
 
 using namespace ProjectExplorer;
 using namespace Tasking;
