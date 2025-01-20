@@ -684,6 +684,14 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_MODELNODE_LIST)) {
             handleInternalDrop(mimeData, rowNumber, dropModelIndex);
         }
+
+        if (qApp->keyboardModifiers().testFlag(Qt::AltModifier)) {
+            if (auto *actionInterface = DesignerActionManager::instance().actionByMenuId(
+                    ComponentCoreConstants::anchorsFillCommandId);
+                actionInterface) {
+                actionInterface->action()->trigger();
+            }
+        }
     }
 
     if (m_view && m_view->model())

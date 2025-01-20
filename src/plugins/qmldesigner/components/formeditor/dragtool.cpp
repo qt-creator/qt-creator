@@ -9,6 +9,7 @@
 #include "formeditorview.h"
 #include "materialutils.h"
 #include "qmldesignerconstants.h"
+#include <designeractionmanager.h>
 #include <itemlibraryentry.h>
 #include <modelnodeoperations.h>
 #include <nodehints.h>
@@ -288,6 +289,14 @@ void DragTool::dropEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSceneD
                     view()->emitCustomNotification("item_library_created_by_drop", nodeList);
             }
             m_dragNodes.clear();
+        }
+
+        if (qApp->keyboardModifiers().testFlag(Qt::AltModifier)) {
+            if (auto *actionInterface = DesignerActionManager::instance().actionByMenuId(
+                    ComponentCoreConstants::anchorsFillCommandId);
+                actionInterface) {
+                actionInterface->action()->trigger();
+            }
         }
 
         view()->changeToSelectionTool();
