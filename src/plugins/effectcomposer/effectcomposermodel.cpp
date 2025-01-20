@@ -1208,7 +1208,7 @@ void EffectComposerModel::createCodeEditorData()
     });
 }
 
-void EffectComposerModel::saveComposition(const QString &name)
+void EffectComposerModel::writeComposition(const QString &name)
 {
     resetEffectError(ErrorCommon);
     resetEffectError(ErrorQMLParsing);
@@ -1220,8 +1220,9 @@ void EffectComposerModel::saveComposition(const QString &name)
 
     const QString effectsAssetsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
 
-    const QString path = !m_compositionPath.isEmpty() ? m_compositionPath.parentDir().pathAppended(name + ".qep").toString()
-                                                      : effectsAssetsDir + '/' + name + ".qep";
+    const QString path = !m_compositionPath.isEmpty()
+                             ? m_compositionPath.parentDir().pathAppended(name + ".qep").toString()
+                             : effectsAssetsDir + '/' + name + ".qep";
 
     auto saveFile = QFile(path);
     if (!saveFile.open(QIODevice::WriteOnly)) {
@@ -1279,6 +1280,13 @@ void EffectComposerModel::saveComposition(const QString &name)
 
     saveResources(name);
     setHasUnsavedChanges(false);
+}
+
+void EffectComposerModel::saveComposition(const QString &name)
+{
+    writeComposition(name);
+    m_pendingSaveBakeCounter = m_currentBakeCounter + 1; // next bake counter
+    startRebakeTimer();
 }
 
 void EffectComposerModel::openCodeEditor(int idx)
@@ -1977,12 +1985,14 @@ QString EffectComposerModel::generateFragmentShader(bool includeUniforms)
     return s;
 }
 
-void EffectComposerModel::handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader,
-                                               bool preview, int bakeCounter)
+void EffectComposerModel::handleQsbProcessExit(
+    Utils::Process *qsbProcess, const QString &shader, bool preview, int bakeCounter)
 {
     if (bakeCounter == m_currentBakeCounter) {
-        if (m_remainingQsbTargets == 2)
+        if (!m_qsbFirstProcessIsDone) {
+            m_qsbFirstProcessIsDone = true;
             resetEffectError(ErrorShader, false);
+        }
 
         --m_remainingQsbTargets;
 
@@ -2011,7 +2021,46 @@ void EffectComposerModel::handleQsbProcessExit(Utils::Process *qsbProcess, const
         }
     }
 
+    if (bakeCounter == m_pendingSaveBakeCounter && !preview)
+        copyProcessTargetToEffectDir(qsbProcess);
+
     qsbProcess->deleteLater();
+}
+
+void EffectComposerModel::copyProcessTargetToEffectDir(Utils::Process *qsbProcess)
+{
+    auto getShaderFormat = [](const Utils::FilePath &path) -> QString {
+        static const QStringList acceptedFormats = {"frag.qsb", "vert.qsb"};
+        QString shaderFormat = path.completeSuffix();
+        for (const QString &checkFormat : acceptedFormats) {
+            if (shaderFormat.endsWith(checkFormat))
+                return checkFormat;
+        }
+        return {};
+    };
+
+    auto findOutputFileFromArgs = [](Utils::Process *qsbProcess) -> Utils::FilePath {
+        QStringList qsbProcessArgs = qsbProcess->commandLine().splitArguments();
+        int outputIndex = qsbProcessArgs.indexOf("-o", 0, Qt::CaseInsensitive);
+        if (outputIndex > 0) {
+            if (++outputIndex < qsbProcessArgs.size())
+                return Utils::FilePath::fromString(qsbProcessArgs.at(outputIndex));
+        }
+        return {};
+    };
+
+    const Utils::FilePath &outputFile = findOutputFileFromArgs(qsbProcess);
+    const QString &shaderFormat = getShaderFormat(outputFile);
+    const QString &effectName = currentComposition();
+    const Utils::FilePath &effectsResDir
+        = QmlDesigner::ModelNodeOperations::getEffectsImportDirectory();
+    Utils::FilePath destFile = effectsResDir.pathAppended(
+        "/" + effectName + "/" + effectName + "." + shaderFormat);
+
+    if (destFile.exists())
+        destFile.removeFile();
+
+    outputFile.copyFile(destFile);
 }
 
 // Generates string of the custom properties (uniforms) into ShaderEffect component
@@ -2171,29 +2220,40 @@ void EffectComposerModel::bakeShaders()
         return;
     }
 
-    m_remainingQsbTargets = 2; // We only have 2 shaders
+    m_remainingQsbTargets = 0;
     const QStringList srcPaths = {m_vertexSourceFilename, m_fragmentSourceFilename};
     const QStringList outPaths = {m_vertexShaderFilename, m_fragmentShaderFilename};
     const QStringList outPrevPaths = {m_vertexShaderPreviewFilename, m_fragmentShaderPreviewFilename};
 
-    auto runQsb = [this, srcPaths](const Utils::FilePath &qsbPath, const QStringList &outPaths, bool preview) {
+    auto runQsb = [this, srcPaths](
+                      const Utils::FilePath &qsbPath, const QStringList &outPaths, bool preview) {
         for (int i = 0; i < 2; ++i) {
             const auto workDir = Utils::FilePath::fromString(outPaths[i]);
             // TODO: Optional legacy glsl support like standalone effect maker needs to add "100es,120"
             QStringList args = {"-s", "--glsl", "300es,140,330,410", "--hlsl", "50", "--msl", "12"};
             args << "-o" << outPaths[i] << srcPaths[i];
 
+            ++m_remainingQsbTargets;
+
             auto qsbProcess = new Utils::Process(this);
-            connect(qsbProcess, &Utils::Process::done, this,
-                    [this, qsbProcess, path = srcPaths[i], bakeCounter = m_currentBakeCounter, preview] {
-                handleQsbProcessExit(qsbProcess, path, preview, bakeCounter);
-            });
+            connect(
+                qsbProcess,
+                &Utils::Process::done,
+                this,
+                std::bind(
+                    &EffectComposerModel::handleQsbProcessExit,
+                    this,
+                    qsbProcess,
+                    srcPaths[i],
+                    preview,
+                    std::move(m_currentBakeCounter)));
             qsbProcess->setWorkingDirectory(workDir.absolutePath());
             qsbProcess->setCommand({qsbPath, args});
             qsbProcess->start();
         }
     };
 
+    m_qsbFirstProcessIsDone = false;
     runQsb(qsbPath, outPaths, false);
     runQsb(qsbPrevPath, outPrevPaths, true);
 
