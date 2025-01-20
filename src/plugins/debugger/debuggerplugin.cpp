@@ -645,7 +645,7 @@ public:
     void dumpLog();
     void setInitialState();
 
-    void onStartupProjectChanged(Project *project);
+    void onStartupProjectChanged();
 
     bool parseArgument(QStringList::const_iterator &it,
         const QStringList::const_iterator &cend, QString *errorMessage);
@@ -1588,18 +1588,12 @@ void DebuggerPluginPrivate::updatePresetState()
     m_enableOrDisableBreakpointAction.setEnabled(true);
 }
 
-void DebuggerPluginPrivate::onStartupProjectChanged(Project *project)
+void DebuggerPluginPrivate::onStartupProjectChanged()
 {
-    RunConfiguration *activeRc = nullptr;
-    if (project) {
-        Target *target = project->activeTarget();
-        if (target)
-            activeRc = target->activeRunConfiguration();
-        if (!activeRc)
-            return;
-    }
     for (DebuggerEngine *engine : EngineManager::engines()) {
-        // Run controls might be deleted during exit.
+        // Run controls might be deleted during exit. We disconnect
+        // in aboutToShutdown(). Nevertheless double-check.
+        QTC_ASSERT(engine, continue);
         engine->updateState();
     }
 
