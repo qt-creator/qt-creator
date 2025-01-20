@@ -111,7 +111,7 @@ public:
         auto const deployButton = new QPushButton(Tr::tr("Deploy Public Key"), this);
         connect(deployButton, &QPushButton::clicked, this, [this] {
             Internal::PublicKeyDeploymentDialog dlg(
-                m_device, m_keyFileChooser.filePath().stringAppended(".pub"), this);
+                m_device, m_keyFileChooser.filePath().stringAppended(".pub"));
             m_iconLabel.setPixmap((dlg.exec() == QDialog::Accepted ? Icons::OK : Icons::BROKEN).pixmap());
         });
         auto const createButton = new QPushButton(Tr::tr("Create New Key Pair"), this);

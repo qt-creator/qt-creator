@@ -21,12 +21,10 @@ class PublicKeyDeploymentDialog : public QProgressDialog
     Q_OBJECT
 public:
     // Asks for public key and returns null if the file dialog is canceled.
-    static PublicKeyDeploymentDialog *createDialog(const ProjectExplorer::DeviceConstRef &device,
-                                                   QWidget *parent = nullptr);
+    static PublicKeyDeploymentDialog *createDialog(const ProjectExplorer::DeviceConstRef &device);
 
     PublicKeyDeploymentDialog(const ProjectExplorer::DeviceConstRef &device,
-                              const Utils::FilePath &publicKeyFileName,
-                              QWidget *parent = nullptr);
+                              const Utils::FilePath &publicKeyFileName);
 
     ~PublicKeyDeploymentDialog() override;
 

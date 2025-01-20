@@ -1029,7 +1029,7 @@ LinuxDevice::LinuxDevice()
     setSshParameters(sshParams);
 
     addDeviceAction({Tr::tr("Deploy Public Key..."), [](const IDevice::Ptr &device) {
-        if (auto d = Internal::PublicKeyDeploymentDialog::createDialog(device, Core::ICore::dialogParent())) {
+        if (auto d = Internal::PublicKeyDeploymentDialog::createDialog(device)) {
             d->exec();
             delete d;
         }

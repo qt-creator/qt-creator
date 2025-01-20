@@ -5,6 +5,8 @@
 
 #include "remotelinuxtr.h"
 
+#include <coreplugin/icore.h>
+
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/devicesupport/sshsettings.h>
@@ -27,8 +29,7 @@ public:
     bool m_done;
 };
 
-PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(
-        const DeviceConstRef &device, QWidget *parent) // TODO: Use Core::ICore::dialogParent()
+PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(const DeviceConstRef &device)
 {
     const FilePath dir = device.sshParameters().privateKeyFile.parentDir();
     const FilePath publicKeyFileName = FileUtils::getOpenFilePath(
@@ -36,14 +37,12 @@ PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(
         Tr::tr("Public Key Files (*.pub);;All Files (*)"));
     if (publicKeyFileName.isEmpty())
         return nullptr;
-    return new PublicKeyDeploymentDialog(device, publicKeyFileName, parent);
+    return new PublicKeyDeploymentDialog(device, publicKeyFileName);
 }
 
-PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(
-        const DeviceConstRef &device,
-        const FilePath &publicKeyFileName,
-        QWidget *parent)
-    : QProgressDialog(parent), d(new PublicKeyDeploymentDialogPrivate)
+PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const DeviceConstRef &device,
+                                                     const FilePath &publicKeyFileName)
+    : QProgressDialog(Core::ICore::dialogParent()), d(new PublicKeyDeploymentDialogPrivate)
 {
     setAutoReset(false);
     setAutoClose(false);
