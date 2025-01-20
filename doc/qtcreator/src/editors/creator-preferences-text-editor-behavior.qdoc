@@ -21,7 +21,7 @@
     QML code (such as Python code files), select \preferences >
     \uicontrol {Text Editor} > \uicontrol Behavior.
 
-    \image qtcreator-preferences-texteditor-behavior.webp {Text Editor Behavior preferences}
+    \image qtcreator-preferences-texteditor-behavior-indentation.webp {Text Editor Behavior preferences}
 
     You can specify how to interpret the \key Tab and \key Backspace key
     presses and how to align continuation lines.

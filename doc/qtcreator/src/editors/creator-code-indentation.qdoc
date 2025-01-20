@@ -16,12 +16,29 @@
 
     When you type text or code, it is indented automatically according to the
     selected text editor or code style preferences. Select a block to indent it when
-    you select \key Tab. Select \key {Shift+Tab} to decrease the indentation. You
-    can disable automatic indentation.
+    you select \key Tab. Select \key {Shift+Tab} to decrease the indentation.
 
-    To fix the indentation in the file currently open in the editor,
-    select options in the \uicontrol Edit > \uicontrol Advanced menu
-    or use \l{Keyboard Shortcuts}{keyboard shortcuts}:
+    \section1 Don't detect indentation settings
+
+    To turn off the automatic detection of indentation settings, go to
+    \preferences > \uicontrol {Text Editor} > \uicontrol Behavior
+    and clear \uicontrol {Auto detect}.
+
+    \image qtcreator-preferences-texteditor-behavior-indentation.webp {Text Editor Behavior indentation preferences}
+
+    \section1 Fix indentation in an open file
+
+    To fix the indentation in the file currently open in the editor:
+
+    \list
+        \li On the editor toolbar, select \uicontrol {Spaces}, and then select
+            \uicontrol {Auto-indent Selection} to automatically indent the
+            selected text using the current settings.
+        \li Go to \uicontrol Edit > \uicontrol Advanced, and select an
+            indentation option or use \l{Keyboard Shortcuts}{keyboard shortcuts}.
+    \endlist
+
+    \section2 Indentation options
 
     \list
         \li To automatically indent the highlighted text, select
@@ -40,20 +57,20 @@
             select \uicontrol {Clean Whitespace}.
     \endlist
 
-    \section1 Automatically fix indentation
+    \section1 Automatically fix indentation upon file save
 
     To automatically fix indentation according to the indentation settings
-    when you save the file, select \preferences > \uicontrol {Text Editor} >
-    \uicontrol Behavior > \uicontrol {Clean whitespace} >
+    when you save the file, go to \preferences > \uicontrol {Text Editor} >
+    \uicontrol Behavior > \uicontrol {Clean whitespace} and select
     \uicontrol {Clean indentation}. Select
-    the \uicontrol {Skip clean whitespace for file types} check box to
+    \uicontrol {Skip clean whitespace for file types} to
     exclude the specified file types.
 
     \image qtcreator-preferences-texteditor-behavior.webp {Text Editor Behavior preferences}
 
     \section1 Show whitespace in editor
 
-    To visualize whitespace in the editor, select \preferences >
+    To visualize whitespace in the editor, go to \preferences >
     \uicontrol {Text Editor} > \uicontrol Display >
     \uicontrol {Visualize whitespace}.
 
@@ -66,13 +83,13 @@
     \section1 Display right margin
 
     To help you keep line length at a particular number of characters, set the
-    number of characters in the \uicontrol {Display right margin at column}
-    field. To use a different color for the margin area, select the
-    \uicontrol {Tint whole margin area} check box. Clear the check box to show
+    number of characters in \uicontrol {Display right margin at column}.
+    To use a different color for the margin area, select
+    \uicontrol {Tint whole margin area}. Clear it to show
     the margin as a vertical line.
 
-    To use a context-specific margin when available, select the
-    \uicontrol {Use context-specific margin} check box.
+    To use a context-specific margin when available, select
+    \uicontrol {Use context-specific margin}.
     \if defined(qtcreator)
     Then, use the \l{ClangFormat Style Options}{ClangFormat} \c ColumnLimit
     option to set the margin, for example.
