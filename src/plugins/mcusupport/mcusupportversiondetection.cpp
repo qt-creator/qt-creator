@@ -74,7 +74,8 @@ QString McuPackageXmlVersionDetector::parseVersion(const FilePath &packagePath) 
     const auto files = QDir(packagePath.toUrlishString(), m_filePattern).entryInfoList();
     for (const auto &xmlFile : files) {
         QFile sdkXmlFile = QFile(xmlFile.absoluteFilePath());
-        sdkXmlFile.open(QFile::OpenModeFlag::ReadOnly);
+        if (!sdkXmlFile.open(QFile::OpenModeFlag::ReadOnly))
+            return {};
         QXmlStreamReader xmlReader(&sdkXmlFile);
         while (xmlReader.readNext()) {
             if (xmlReader.name() == m_versionElement) {

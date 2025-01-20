@@ -267,7 +267,7 @@ void CMakeGenerator::readQmlDir(const Utils::FilePath &filePath, NodePtr &node) 
         node->type = Node::Type::Module;
 
     QFile f(filePath.toUrlishString());
-    f.open(QIODevice::ReadOnly);
+    QTC_CHECK(f.open(QIODevice::ReadOnly));
     QTextStream stream(&f);
 
     Utils::FilePath dir = filePath.parentDir();

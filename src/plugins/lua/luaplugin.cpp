@@ -165,7 +165,7 @@ public:
         m_readCallback = {};
 
         QFile f(":/lua/scripts/ilua.lua");
-        f.open(QIODevice::ReadOnly);
+        QTC_CHECK(f.open(QIODevice::ReadOnly));
         const auto ilua = QString::fromUtf8(f.readAll());
         m_luaState = runScript(ilua, "ilua.lua", [this](sol::state &lua) {
             lua["print"] = [this](sol::variadic_args va) {

@@ -183,7 +183,7 @@ void QmlProfilerDetailsRewriterTest::seedRewriter()
                                              lPaths, m_modelManager, false);
 
     QFile file(filename);
-    file.open(QFile::ReadOnly | QFile::Text);
+    QTC_CHECK(file.open(QFile::ReadOnly | QFile::Text));
     const QString content = QString::fromUtf8(file.readAll());
     file.close();
 

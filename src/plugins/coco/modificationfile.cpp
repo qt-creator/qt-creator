@@ -49,7 +49,7 @@ QStringList ModificationFile::defaultModificationFile() const
 QStringList ModificationFile::contentOf(const Utils::FilePath &filePath) const
 {
     QFile resource(filePath.nativePath());
-    resource.open(QIODevice::ReadOnly | QIODevice::Text);
+    QTC_CHECK(resource.open(QIODevice::ReadOnly | QIODevice::Text));
     QTextStream inStream(&resource);
 
     QStringList result;

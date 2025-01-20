@@ -383,7 +383,8 @@ static expected_str<void> loadXFCE4ColorScheme(const FilePath &path)
     arr->replace(';', ',');
 
     QTemporaryFile f;
-    f.open();
+    if (!f.open())
+        return make_unexpected(f.errorString());
     f.write(*arr);
     f.close();
 

@@ -135,12 +135,15 @@ private:
     QString exeExt;
 };
 
-static void touch(const QDir &dir, const QString &filename, bool fill, bool executable = false)
+static bool touch(const QDir &dir, const QString &filename, bool fill, bool executable = false)
 {
     QFile file(dir.absoluteFilePath(filename));
-    file.open(QIODevice::WriteOnly);
-    if (executable)
-        file.setPermissions(file.permissions() | QFileDevice::ExeUser);
+    if (!file.open(QIODevice::WriteOnly))
+        return false;
+    if (executable) {
+        if (!file.setPermissions(file.permissions() | QFileDevice::ExeUser))
+            return false;
+    }
 
     if (fill) {
         QRandomGenerator *random = QRandomGenerator::global();
@@ -148,6 +151,7 @@ static void touch(const QDir &dir, const QString &filename, bool fill, bool exec
             file.write(QString::number(random->generate(), 16).toUtf8());
     }
     file.close();
+    return true;
 }
 
 void tst_filepath::initTestCase()
@@ -160,13 +164,13 @@ void tst_filepath::initTestCase()
     dir.mkpath("a/x/y/z");
     dir.mkpath("a/b/x/y/z");
     dir.mkpath("x/y/z");
-    touch(dir, "a/b/c/d/file1.txt", false);
-    touch(dir, "a/x/y/z/file2.txt", false);
-    touch(dir, "a/file3.txt", false);
-    touch(dir, "x/y/file4.txt", false);
+    QVERIFY(touch(dir, "a/b/c/d/file1.txt", false));
+    QVERIFY(touch(dir, "a/x/y/z/file2.txt", false));
+    QVERIFY(touch(dir, "a/file3.txt", false));
+    QVERIFY(touch(dir, "x/y/file4.txt", false));
 
     // initialize test for tst_filepath::asyncLocalCopy()
-    touch(dir, "x/y/fileToCopy.txt", true);
+    QVERIFY(touch(dir, "x/y/fileToCopy.txt", true));
 
 // initialize test for tst_filepath::searchIn()
 #ifdef Q_OS_WIN
@@ -175,8 +179,8 @@ void tst_filepath::initTestCase()
 
     dir.mkpath("s/1");
     dir.mkpath("s/2");
-    touch(dir, "s/1/testexe" + exeExt, false, true);
-    touch(dir, "s/2/testexe" + exeExt, false, true);
+    QVERIFY(touch(dir, "s/1/testexe" + exeExt, false, true));
+    QVERIFY(touch(dir, "s/2/testexe" + exeExt, false, true));
 }
 
 void tst_filepath::searchInWithFilter()
@@ -1550,7 +1554,7 @@ void tst_filepath::isSameFile_data()
                             << false;
 
     QDir dir(tempDir.path());
-    touch(dir, "target-file", false);
+    QVERIFY(touch(dir, "target-file", false));
 
     QFile file(dir.absoluteFilePath("target-file"));
     if (file.link(dir.absoluteFilePath("source-file"))) {

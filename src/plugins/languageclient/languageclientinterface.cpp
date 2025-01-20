@@ -84,7 +84,7 @@ StdIOClientInterface::StdIOClientInterface()
     : m_logFile("lspclient.XXXXXX.log")
 {
     m_logFile.setAutoRemove(false);
-    m_logFile.open();
+    QTC_CHECK(m_logFile.open());
 }
 
 StdIOClientInterface::~StdIOClientInterface()

@@ -26,6 +26,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/filepath.h>
 
+#include <optional>
+
 using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJS::StaticAnalysis;
@@ -49,9 +51,10 @@ struct TestData
     const int staticMessages;
 };
 
-static TestData testData(const QString &path) {
+static std::optional<TestData> testData(const QString &path) {
     QFile file(path);
-    file.open(QFile::ReadOnly | QFile::Text);
+    if (!file.open(QFile::ReadOnly | QFile::Text))
+        return {};
     const QString content = QString::fromUtf8(file.readAll());
     file.close();
 
@@ -129,10 +132,11 @@ void tst_Dependencies::test()
     ModelManagerInterface::importScan(ModelManagerInterface::workingCopy(), lPaths,
                                       ModelManagerInterface::instance(), false);
     ModelManagerInterface::instance()->test_joinAllThreads();
-    TestData data = testData(filename);
-    Document::MutablePtr doc = data.doc;
-    int nExpectedSemanticMessages = data.semanticMessages;
-    int nExpectedStaticMessages = data.staticMessages;
+    const auto data = testData(filename);
+    QVERIFY(data);
+    Document::MutablePtr doc = data->doc;
+    int nExpectedSemanticMessages = data->semanticMessages;
+    int nExpectedStaticMessages = data->staticMessages;
     QVERIFY(!doc->source().isEmpty());
 
     Snapshot snapshot = modelManager->snapshot();

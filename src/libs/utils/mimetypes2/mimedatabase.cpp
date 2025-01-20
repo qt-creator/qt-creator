@@ -558,7 +558,7 @@ MimeType MimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileName
         return matchOnContent(device);
 
     QFile fallbackFile(fileName);
-    fallbackFile.open(QIODevice::ReadOnly); // error handling: matchOnContent() will check isOpen()
+    (void) fallbackFile.open(QIODevice::ReadOnly); // error handling: matchOnContent() will check isOpen()
     return matchOnContent(&fallbackFile);
 }
 

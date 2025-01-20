@@ -47,11 +47,8 @@ template<typename T>
 inline std::optional<T> load(const QString &jsonFile)
 {
     QFile js(jsonFile);
-    js.open(QIODevice::ReadOnly | QIODevice::Text);
-    if (js.isOpen()) {
-        auto data = js.readAll();
-        return load<T>(QJsonDocument::fromJson(data));
-    }
+    if (js.open(QIODevice::ReadOnly | QIODevice::Text))
+        return load<T>(QJsonDocument::fromJson(js.readAll()));
     return std::nullopt;
 }
 

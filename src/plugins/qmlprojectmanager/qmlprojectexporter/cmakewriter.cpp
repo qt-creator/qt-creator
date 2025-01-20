@@ -101,7 +101,8 @@ CMakeWriter::Version CMakeWriter::versionFromIgnoreFile(const Utils::FilePath &p
 QString CMakeWriter::readTemplate(const QString &templatePath)
 {
     QFile templatefile(templatePath);
-    templatefile.open(QIODevice::ReadOnly | QIODevice::Text);
+    if (!templatefile.open(QIODevice::ReadOnly | QIODevice::Text))
+        return {};
     QTextStream stream(&templatefile);
     QString content = stream.readAll();
     templatefile.close();

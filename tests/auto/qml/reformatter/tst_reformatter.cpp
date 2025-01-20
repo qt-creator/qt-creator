@@ -68,7 +68,7 @@ void tst_Reformatter::test()
 
     Document::MutablePtr doc = Document::create(fPath, ModelManagerInterface::guessLanguageOfFile(fPath));
     QFile file(doc->fileName().toUrlishString());
-    file.open(QFile::ReadOnly | QFile::Text);
+    QVERIFY2(file.open(QFile::ReadOnly | QFile::Text), qPrintable(file.fileName()));
     QString source = QString::fromUtf8(file.readAll());
     doc->setSource(source);
     file.close();
