@@ -616,8 +616,8 @@ void QmlDesignerProjectManager::update()
         auto location = std::source_location::current();
         std::cout << location.file_name() << ":" << location.function_name() << ":"
                   << location.line() << ": " << e.what() << "\n";
-    }
 #endif
+    }
 }
 
 } // namespace QmlDesigner
