@@ -16,6 +16,7 @@
 #include "rewriterview.h"
 #include "modelmerger.h"
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QUrl>
@@ -325,6 +326,16 @@ static QString imagePlaceHolderPath(AbstractView *view)
     return QString::fromLatin1(imagePlaceHolder);
 }
 
+static QByteArray getSourceForUrl(const QString &fileURl)
+{
+    Utils::FileReader fileReader;
+
+    if (fileReader.fetch(Utils::FilePath::fromString(fileURl)))
+        return fileReader.data();
+    else
+        return Utils::FileReader::fetchQrc(fileURl);
+}
+
 QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
                                                  const ItemLibraryEntry &itemLibraryEntry,
                                                  const Position &position,
@@ -345,7 +356,7 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
         using PropertyBindingEntry = QPair<PropertyName, QString>;
         QList<PropertyBindingEntry> propertyBindingList;
         QList<PropertyBindingEntry> propertyEnumList;
-        if (itemLibraryEntry.qmlSource().isEmpty()) {
+        if (auto templatePath = itemLibraryEntry.templatePath(); templatePath.isEmpty()) {
             QList<QPair<PropertyName, QVariant> > propertyPairList;
 
             for (const auto &property : itemLibraryEntry.properties()) {
@@ -385,7 +396,8 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
                                                                    nodeSourceType));
 #endif
         } else {
-            newQmlObjectNode = createQmlObjectNodeFromSource(view, itemLibraryEntry.qmlSource(), position);
+            const auto templateContent = QString::fromUtf8(getSourceForUrl(templatePath));
+            newQmlObjectNode = createQmlObjectNodeFromSource(view, templateContent, position);
         }
 
         if (parentProperty.isValid()) {
