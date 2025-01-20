@@ -59,13 +59,12 @@ class AppOutputParentModel : public QAbstractListModel
 
     enum { RunRole = Qt::DisplayRole, ColorRole = Qt::UserRole };
 
-    Q_PROPERTY(QColor historyColor READ historyColor WRITE setHistoryColor NOTIFY colorChanged)
-    Q_PROPERTY(QColor messageColor READ messageColor WRITE setMessageColor NOTIFY colorChanged)
-    Q_PROPERTY(QColor errorColor READ errorColor WRITE setErrorColor NOTIFY colorChanged)
-    Q_PROPERTY(QColor debugColor READ debugColor WRITE setDebugColor NOTIFY colorChanged)
+    Q_PROPERTY(QColor historyColor READ historyColor)
+    Q_PROPERTY(QColor messageColor READ messageColor)
+    Q_PROPERTY(QColor errorColor READ errorColor)
+    Q_PROPERTY(QColor debugColor READ debugColor)
 
 signals:
-    void colorChanged();
     void modelChanged();
     void messageAdded(int row, const QString &message, const QColor &color);
 
@@ -87,19 +86,10 @@ public:
     Q_INVOKABLE void resetModel();
 
     QColor historyColor() const;
-    void setHistoryColor(const QColor &color);
-
     QColor messageColor() const;
-    void setMessageColor(const QColor &color);
-
     QColor errorColor() const;
-    void setErrorColor(const QColor &color);
-
     QColor debugColor() const;
-    void setDebugColor(const QColor &color);
-
     QColor warningColor() const;
-    void setWarningColor(const QColor &color);
 
     int messageCount(int row) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -115,11 +105,11 @@ private:
     void initializeRuns(const QString &message = {});
     QColor colorFromFormat(Utils::OutputFormat format) const;
 
-    QColor m_messageColor = Utils::creatorColor(Utils::Theme::Token_Notification_Success_Default);
-    QColor m_historyColor = Utils::creatorColor(Utils::Theme::Token_Text_Default);
-    QColor m_errorColor = Utils::creatorColor(Utils::Theme::CodeModel_Error_TextMarkColor);
-    QColor m_debugColor = Utils::creatorColor(Utils::Theme::Token_Notification_Success_Muted);
-    QColor m_warningColor = Utils::creatorColor(Utils::Theme::CodeModel_Warning_TextMarkColor);
+    const QColor m_messageColor = Utils::creatorColor(Utils::Theme::Token_Notification_Success_Default);
+    const QColor m_historyColor = Utils::creatorColor(Utils::Theme::Token_Text_Muted);
+    const QColor m_errorColor = Utils::creatorColor(Utils::Theme::CodeModel_Error_TextMarkColor);
+    const QColor m_debugColor = Utils::creatorColor(Utils::Theme::Token_Notification_Success_Muted);
+    const QColor m_warningColor = Utils::creatorColor(Utils::Theme::CodeModel_Warning_TextMarkColor);
 
     std::vector<Run> m_runs = {};
 };

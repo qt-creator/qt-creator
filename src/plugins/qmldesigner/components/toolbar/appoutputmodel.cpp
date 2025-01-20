@@ -100,25 +100,9 @@ QColor AppOutputParentModel::historyColor() const
     return m_historyColor;
 }
 
-void AppOutputParentModel::setHistoryColor(const QColor &color)
-{
-    if (m_historyColor != color) {
-        m_historyColor = color;
-        emit colorChanged();
-    }
-}
-
 QColor AppOutputParentModel::messageColor() const
 {
     return m_messageColor;
-}
-
-void AppOutputParentModel::setMessageColor(const QColor &color)
-{
-    if (m_messageColor != color) {
-        m_messageColor = color;
-        emit colorChanged();
-    }
 }
 
 QColor AppOutputParentModel::errorColor() const
@@ -126,38 +110,14 @@ QColor AppOutputParentModel::errorColor() const
     return m_errorColor;
 }
 
-void AppOutputParentModel::setErrorColor(const QColor &color)
-{
-    if (m_errorColor != color) {
-        m_errorColor = color;
-        emit colorChanged();
-    }
-}
-
 QColor AppOutputParentModel::debugColor() const
 {
     return m_debugColor;
 }
 
-void AppOutputParentModel::setDebugColor(const QColor &color)
-{
-    if (m_debugColor != color) {
-        m_debugColor = color;
-        emit colorChanged();
-    }
-}
-
 QColor AppOutputParentModel::warningColor() const
 {
     return m_warningColor;
-}
-
-void AppOutputParentModel::setWarningColor(const QColor &color)
-{
-    if (m_warningColor != color) {
-        m_warningColor = color;
-        emit colorChanged();
-    }
 }
 
 void AppOutputParentModel::resetModel()

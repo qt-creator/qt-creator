@@ -48,9 +48,6 @@ ScrollView {
 
             model: AppOutputParentModel {
                 id: parentListModel
-                historyColor: "grey"
-                messageColor: "#007b7b"
-                errorColor: "#ff6666"
 
                 onMessageAdded: {
                     if (!root.visible)
