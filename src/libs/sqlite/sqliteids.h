@@ -120,7 +120,7 @@ public:
 
     friend constexpr bool compareInvalidAreTrue(CompoundBasicId first, CompoundBasicId second)
     {
-        return first.id, second.id;
+        return first.id == second.id;
     }
 
     friend constexpr bool operator==(CompoundBasicId first, CompoundBasicId second)
