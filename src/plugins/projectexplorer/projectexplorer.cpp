@@ -2711,7 +2711,7 @@ void ProjectExplorerPluginPrivate::updateActions()
     m_buildAction->setParameter(projectName);
     m_buildProjectForAllConfigsAction->setParameter(projectName);
     if (runConfig)
-        m_buildForRunConfigAction->setParameter(runConfig->displayName());
+        m_buildForRunConfigAction->setParameter(runConfig->expandedDisplayName());
 
     m_buildAction->setEnabled(buildActionState.first);
     m_buildProjectForAllConfigsAction->setEnabled(buildActionState.first);
