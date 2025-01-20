@@ -3,41 +3,14 @@
 
 #include "pythongenerator.h"
 #include "cmakewriter.h"
+#include "resourcegenerator.h"
 
 #include "projectexplorer/projectmanager.h"
 #include "qmlprojectmanager/qmlproject.h"
 
 #include <QMenu>
 
-namespace QmlProjectManager {
-
-namespace QmlProjectExporter {
-
-const char *PYTHON_MAIN_FILE_TEMPLATE = R"(
-import os
-import sys
-from pathlib import Path
-
-from PySide6.QtGui import QGuiApplication
-from PySide6.QtQml import QQmlApplicationEngine
-
-from autogen.settings import url, import_paths
-
-if __name__ == '__main__':
-    app = QGuiApplication(sys.argv)
-    engine = QQmlApplicationEngine()
-
-    app_dir = Path(__file__).parent.parent
-
-    engine.addImportPath(os.fspath(app_dir))
-    for path in import_paths:
-        engine.addImportPath(os.fspath(app_dir / path))
-
-    engine.load(os.fspath(app_dir/url))
-    if not engine.rootObjects():
-        sys.exit(-1)
-    sys.exit(app.exec())
-)";
+namespace QmlProjectManager::QmlProjectExporter {
 
 void PythonGenerator::createMenuAction(QObject *parent)
 {
@@ -66,9 +39,8 @@ PythonGenerator::PythonGenerator(QmlBuildSystem *bs)
 
 void PythonGenerator::updateMenuAction()
 {
-    FileGenerator::updateMenuAction(
-        "QmlProject.EnablePythonGenerator",
-        [this]() { return buildSystem()->enablePythonGeneration(); });
+    FileGenerator::updateMenuAction("QmlProject.EnablePythonGenerator",
+                                    [this]() { return buildSystem()->enablePythonGeneration(); });
 }
 
 void PythonGenerator::updateProject(QmlProject *project)
@@ -77,38 +49,47 @@ void PythonGenerator::updateProject(QmlProject *project)
         return;
 
     Utils::FilePath projectPath = project->rootProjectDirectory();
-    Utils::FilePath pythonPath = projectPath.pathAppended("Python");
-    if (!pythonPath.exists())
-        pythonPath.createDir();
+    Utils::FilePath pythonFolderPath = projectPath.pathAppended("Python");
+    if (!pythonFolderPath.exists())
+        pythonFolderPath.createDir();
 
-    Utils::FilePath mainFile = pythonPath.pathAppended("main.py");
-    if (!mainFile.exists()) {
-        const QString mainContent = QString::fromUtf8(PYTHON_MAIN_FILE_TEMPLATE);
-        CMakeWriter::writeFile(mainFile, mainContent);
+    Utils::FilePath mainFilePath = pythonFolderPath.pathAppended("main.py");
+    if (!mainFilePath.exists()) {
+        const QString mainFileTemplate = CMakeWriter::readTemplate(
+            ":/templates/python_generator_main");
+        CMakeWriter::writeFile(mainFilePath, mainFileTemplate);
     }
 
-    Utils::FilePath autogenPath = pythonPath.pathAppended("autogen");
-    if (!autogenPath.exists())
-        autogenPath.createDir();
+    Utils::FilePath pyprojectFilePath = pythonFolderPath.pathAppended("pyproject.toml");
+    if (!pyprojectFilePath.exists()) {
+        const QString pyprojectFileTemplate = CMakeWriter::readTemplate(
+            ":/templates/python_pyproject_toml");
+        const QString pyprojectFileContent = pyprojectFileTemplate.arg(project->displayName());
+        CMakeWriter::writeFile(pyprojectFilePath, pyprojectFileContent);
+    }
 
-    Utils::FilePath settingsPath = autogenPath.pathAppended("settings.py");
-    CMakeWriter::writeFile(settingsPath, settingsFileContent());
+    Utils::FilePath autogenFolderPath = pythonFolderPath.pathAppended("autogen");
+    if (!autogenFolderPath.exists())
+        autogenFolderPath.createDir();
+
+    Utils::FilePath settingsFilePath = autogenFolderPath.pathAppended("settings.py");
+    const QString settingsFileTemplate = CMakeWriter::readTemplate(
+        ":/templates/python_generator_settings");
+    const QString settingsFileContent = settingsFileTemplate.arg(buildSystem()->mainFile());
+    CMakeWriter::writeFile(settingsFilePath, settingsFileContent);
+
+    // Python code uses the Qt resources collection file (.qrc)
+    ResourceGenerator::createQrc(project);
 }
 
-QString PythonGenerator::settingsFileContent() const
-{
-    QTC_ASSERT(buildSystem(), return {});
+/*!
+    Regenerates the .qrc resources file
+*/
+void PythonGenerator::update(const QSet<QString> &added, const QSet<QString> &removed) {
+    Q_UNUSED(added);
+    Q_UNUSED(removed);
+    ResourceGenerator::createQrc(qmlProject());
+    // Generated Python code does not need to be updated
+};
 
-    QString content("\n");
-    content.append("url = \"" + buildSystem()->mainFile() + "\"\n");
-
-    content.append("import_paths = [\n");
-    for (const QString &path : buildSystem()->importPaths())
-        content.append("\t\"" + path + "\",\n");
-    content.append("]\n");
-
-    return content;
-}
-
-} // namespace QmlProjectExporter.
-} // namespace QmlProjectManager.
+} // namespace QmlProjectExporter::QmlProjectManager.
