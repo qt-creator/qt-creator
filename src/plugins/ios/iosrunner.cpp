@@ -430,7 +430,8 @@ void DeviceCtlPollingRunner::checkProcess()
             m_pollTimer.stop();
             reportStoppedImpl();
         }
-        m_pollTask.release()->deleteLater();
+        if (m_pollTask)
+            m_pollTask.release()->deleteLater();
         return DoneResult::Success;
     };
     m_pollTask.reset(new TaskTree(Group{ProcessTask(onSetup, onDone)}));
