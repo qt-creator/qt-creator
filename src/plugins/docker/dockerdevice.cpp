@@ -668,7 +668,7 @@ DockerDevice::DockerDevice()
     });
 
     addDeviceAction(
-        {Tr::tr("Open Shell in Container"), [](const IDevice::Ptr &device, QWidget *) {
+        {Tr::tr("Open Shell in Container"), [](const IDevice::Ptr &device) {
              expected_str<Environment> env = device->systemEnvironmentWithError();
              if (!env) {
                  QMessageBox::warning(ICore::dialogParent(), Tr::tr("Error"), env.error());

@@ -388,8 +388,7 @@ AndroidDevice::AndroidDevice()
     setOsType(OsType::OsTypeOtherUnix);
     setDeviceState(DeviceDisconnected);
 
-    addDeviceAction({Tr::tr("Refresh"), [](const IDevice::Ptr &device, QWidget *parent) {
-        Q_UNUSED(parent)
+    addDeviceAction({Tr::tr("Refresh"), [](const IDevice::Ptr &device) {
         updateDeviceState(device);
     }});
 }
@@ -419,27 +418,26 @@ void AndroidDevice::addActionsIfNotFound()
 
     if (machineType() == Emulator) {
         if (!hasStartAction) {
-            addDeviceAction({startAvdAction, [](const IDevice::Ptr &device, QWidget *) {
+            addDeviceAction({startAvdAction, [](const IDevice::Ptr &device) {
                 static_cast<AndroidDevice *>(device.get())->startAvd();
             }});
         }
 
         if (!hasEraseAction) {
-            addDeviceAction({eraseAvdAction, [](const IDevice::Ptr &device, QWidget *) {
+            addDeviceAction({eraseAvdAction, [](const IDevice::Ptr &device) {
                 s_instance->eraseAvd(device);
             }});
         }
 
         if (!hasAvdArgumentsAction) {
-            addDeviceAction({avdArgumentsAction, [](const IDevice::Ptr &device, QWidget *) {
-                Q_UNUSED(device)
+            addDeviceAction({avdArgumentsAction, [](const IDevice::Ptr &) {
                 setEmulatorArguments();
             }});
         }
     } else if (machineType() == Hardware && !ipRegex.match(id().toString()).hasMatch()) {
         if (!hasSetupWifi) {
-            addDeviceAction({setupWifi, [](const IDevice::Ptr &device, QWidget *parent) {
-                setupWifiForDevice(device, parent);
+            addDeviceAction({setupWifi, [](const IDevice::Ptr &device) {
+                setupWifiForDevice(device, Core::ICore::dialogParent());
             }});
         }
     }

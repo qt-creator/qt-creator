@@ -28,7 +28,7 @@ public:
 };
 
 PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(
-        const DeviceConstRef &device, QWidget *parent)
+        const DeviceConstRef &device, QWidget *parent) // TODO: Use Core::ICore::dialogParent()
 {
     const FilePath dir = device.sshParameters().privateKeyFile.parentDir();
     const FilePath publicKeyFileName = FileUtils::getOpenFilePath(

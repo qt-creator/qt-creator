@@ -1028,8 +1028,8 @@ LinuxDevice::LinuxDevice()
     sshParams.timeout = 10;
     setSshParameters(sshParams);
 
-    addDeviceAction({Tr::tr("Deploy Public Key..."), [](const IDevice::Ptr &device, QWidget *parent) {
-        if (auto d = Internal::PublicKeyDeploymentDialog::createDialog(device, parent)) {
+    addDeviceAction({Tr::tr("Deploy Public Key..."), [](const IDevice::Ptr &device) {
+        if (auto d = Internal::PublicKeyDeploymentDialog::createDialog(device, Core::ICore::dialogParent())) {
             d->exec();
             delete d;
         }
@@ -1062,7 +1062,7 @@ LinuxDevice::LinuxDevice()
         return {};
     });
 
-    addDeviceAction({Tr::tr("Open Remote Shell"), [](const IDevice::Ptr &device, QWidget *) {
+    addDeviceAction({Tr::tr("Open Remote Shell"), [](const IDevice::Ptr &device) {
                          Result result = device->openTerminal(Environment(), FilePath());
 
                          if (!result)

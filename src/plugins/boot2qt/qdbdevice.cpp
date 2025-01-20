@@ -110,11 +110,11 @@ QdbDevice::QdbDevice()
     setDisplayType(Tr::tr("Boot to Qt Device"));
     setType(Constants::QdbLinuxOsType);
 
-    addDeviceAction({Tr::tr("Reboot Device"), [](const IDevice::Ptr &device, QWidget *) {
+    addDeviceAction({Tr::tr("Reboot Device"), [](const IDevice::Ptr &device) {
         (void) new DeviceApplicationObserver(device, CommandLine{device->filePath("reboot")});
     }});
 
-    addDeviceAction({Tr::tr("Restore Default App"), [](const IDevice::Ptr &device, QWidget *) {
+    addDeviceAction({Tr::tr("Restore Default App"), [](const IDevice::Ptr &device) {
         (void) new DeviceApplicationObserver(device, {device->filePath("appcontroller"), {"--remove-default"}});
     }});
 }
