@@ -26,8 +26,10 @@
 #include <utils/unixutils.h>
 
 #include <QComboBox>
+#include <QDesktopServices>
 #include <QGuiApplication>
 #include <QLineEdit>
+#include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QToolButton>
@@ -167,7 +169,7 @@ public:
         , m_terminalExecuteArgs(new QLineEdit)
         , m_environmentChangesLabel(new Utils::ElidingLabel)
 #ifdef ENABLE_CRASHPAD
-        , m_clearCrashReportsButton(new QPushButton(Tr::tr("Clear Local Crash Reports"), this))
+        , m_clearCrashReportsButton(new QPushButton(Tr::tr("Clear Crash Reports"), this))
         , m_crashReportsSizeText(new QLabel(this))
 #endif
 
@@ -238,6 +240,8 @@ public:
                                     .arg(appInfo().crashReports.toUserOutput());
         m_clearCrashReportsButton->setToolTip(toolTip);
         m_crashReportsSizeText->setToolTip(toolTip);
+        auto clearButtonMenu = new QMenu(m_clearCrashReportsButton);
+        m_clearCrashReportsButton->setMenu(clearButtonMenu);
         Row crashDetails
             = Row{m_clearCrashReportsButton, m_crashReportsSizeText, helpCrashReportingButton, st};
         if (qtcEnvironmentVariableIsSet("QTC_SHOW_CRASHBUTTON")) {
@@ -283,6 +287,15 @@ public:
         const FilePath reportsPath = ICore::crashReportsPath()
                                      / QLatin1String(
                                          HostOsInfo::isMacHost() ? "completed" : "reports");
+
+        auto openLocationAction = new QAction(Tr::tr("Open Location"), clearButtonMenu);
+        connect(openLocationAction, &QAction::triggered, this, [this, reportsPath] {
+            if (!QDesktopServices::openUrl(reportsPath.toUrl())) {
+                qWarning() << "Failed to open path:" << reportsPath;
+            }
+        });
+        clearButtonMenu->addAction(openLocationAction);
+
         const auto updateClearCrashWidgets = [this, reportsPath] {
             qint64 size = 0;
             const FilePaths crashFiles = reportsPath.dirEntries(QDir::Files);
