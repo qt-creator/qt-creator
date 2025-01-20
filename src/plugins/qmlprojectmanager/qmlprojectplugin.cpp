@@ -213,14 +213,8 @@ static QmlBuildSystem *qmlBuildSystemforFileNode(const FileNode *fileNode)
     if (!fileNode)
         return nullptr;
 
-    if (QmlProject *qmlProject = qobject_cast<QmlProject*>(fileNode->getProject())) {
-        Target *target = qmlProject->activeTarget();
-        if (!target)
-            return nullptr;
-
-        return qobject_cast<QmlProjectManager::QmlBuildSystem *>(target->buildSystem());
-
-    }
+    if (QmlProject *qmlProject = qobject_cast<QmlProject*>(fileNode->getProject()))
+        return qobject_cast<QmlProjectManager::QmlBuildSystem *>(qmlProject->activeBuildSystem());
 
     return nullptr;
 }

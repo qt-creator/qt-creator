@@ -69,16 +69,7 @@ QmllsClientSettings::QmllsClientSettings()
 
 static QtVersion *qtVersionFromProject(const Project *project)
 {
-    if (!project)
-        return {};
-    auto *target = project->activeTarget();
-    if (!target)
-        return {};
-    auto *kit = target->kit();
-    if (!kit)
-        return {};
-    auto qtVersion = QtKitAspect::qtVersion(kit);
-    return qtVersion;
+    return project ? QtKitAspect::qtVersion(project->activeKit()) : nullptr;
 }
 
 static std::pair<FilePath, QVersionNumber> evaluateLatestQmlls()
@@ -134,7 +125,7 @@ static CommandLine commandLineForQmlls(Project *project)
 
     CommandLine result{executable, {}};
 
-    if (auto *configuration = project->activeTarget()->activeBuildConfiguration())
+    if (auto *configuration = project->activeBuildConfiguration())
         result.addArgs({"-b", configuration->buildDirectory().path()});
 
     // qmlls 6.8 and later require the import path

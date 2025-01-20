@@ -666,8 +666,8 @@ Project::RestoreResult GenericProject::fromMap(const Store &map, QString *errorM
             t->addRunConfiguration(new CustomExecutableRunConfiguration(t));
     }
 
-    if (Target *t = activeTarget())
-        static_cast<GenericBuildSystem *>(t->buildSystem())->refresh(Everything);
+    if (auto bs = activeBuildSystem())
+        static_cast<GenericBuildSystem *>(bs)->refresh(Everything);
 
     return RestoreResult::Ok;
 }
@@ -700,8 +700,8 @@ Result GenericProjectFile::reload(IDocument::ReloadFlag flag, IDocument::ChangeT
 {
     Q_UNUSED(flag)
     Q_UNUSED(type)
-    if (Target *t = m_project->activeTarget())
-        static_cast<GenericBuildSystem *>(t->buildSystem())->refresh(m_options);
+    if (auto bs = m_project->activeBuildSystem())
+        static_cast<GenericBuildSystem *>(bs)->refresh(m_options);
 
     return Result::Ok;
 }
@@ -712,17 +712,15 @@ void GenericProject::editFilesTriggered()
                                        files(Project::AllFiles),
                                        ICore::dialogParent());
     if (sfd.exec() == QDialog::Accepted) {
-        if (Target *t = activeTarget()) {
-            auto bs = static_cast<GenericBuildSystem *>(t->buildSystem());
+        if (auto bs = static_cast<GenericBuildSystem *>(activeBuildSystem()))
             bs->setFiles(transform(sfd.selectedFiles(), &FilePath::toUrlishString));
-        }
     }
 }
 
 void GenericProject::removeFilesTriggered(const FilePaths &filesToRemove)
 {
-    if (Target *t = activeTarget())
-        static_cast<GenericBuildSystem *>(t->buildSystem())->removeFiles(filesToRemove);
+    if (const auto bs = activeBuildSystem())
+        static_cast<GenericBuildSystem *>(bs)->removeFiles(filesToRemove);
 }
 
 void setupGenericProject(QObject *guard)

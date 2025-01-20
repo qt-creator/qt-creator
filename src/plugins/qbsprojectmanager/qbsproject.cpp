@@ -132,16 +132,16 @@ void QbsProject::configureAsExampleProject(Kit *kit)
         }
     }
     setup(infoList);
-    if (activeTarget())
-        static_cast<QbsBuildSystem *>(activeTarget()->buildSystem())->prepareForParsing();
+    if (activeBuildSystem())
+        static_cast<QbsBuildSystem *>(activeBuildSystem())->prepareForParsing();
 }
 
 
 static bool supportsNodeAction(ProjectAction action, const Node *node)
 {
     const auto project = static_cast<QbsProject *>(node->getProject());
-    Target *t = project ? project->activeTarget() : nullptr;
-    QbsBuildSystem *bs = t ? static_cast<QbsBuildSystem *>(t->buildSystem()) : nullptr;
+    QbsBuildSystem *bs = project ? static_cast<QbsBuildSystem *>(project->activeBuildSystem())
+                                 : nullptr;
     if (!bs)
         return false;
     if (!bs->isProjectEditable())
@@ -508,8 +508,7 @@ void QbsBuildSystem::updateProjectNodes(const std::function<void ()> &continuati
         OpTimer("updateProjectNodes continuation");
         m_treeCreationWatcher->deleteLater();
         m_treeCreationWatcher = nullptr;
-        if (target() != project()->activeTarget()
-                || target()->activeBuildConfiguration()->buildSystem() != this) {
+        if (project()->activeBuildSystem() != this) {
             return;
         }
         project()->setDisplayName(rootNode->displayName());
@@ -560,8 +559,7 @@ void QbsBuildSystem::handleQbsParsingDone(bool success)
     bool dataChanged = false;
     bool envChanged = m_lastParseEnv != m_qbsProjectParser->environment();
     m_lastParseEnv = m_qbsProjectParser->environment();
-    const bool isActiveBuildSystem = project()->activeTarget()
-            && project()->activeTarget()->buildSystem() == this;
+    const bool isActiveBuildSystem = project()->activeBuildSystem() == this;
     if (success) {
         const QJsonObject projectData = m_qbsProjectParser->session()->projectData();
         if (projectData != m_projectData) {

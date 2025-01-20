@@ -270,14 +270,10 @@ void ExtraCompiler::onEditorAboutToClose(IEditor *editor)
 
 Environment ExtraCompiler::buildEnvironment() const
 {
-    Target *target = project()->activeTarget();
-    if (!target)
-        return Environment::systemEnvironment();
-
-    if (BuildConfiguration *bc = target->activeBuildConfiguration())
+    if (BuildConfiguration *bc = project()->activeBuildConfiguration())
         return bc->environment();
 
-    const EnvironmentItems changes = EnvironmentKitAspect::buildEnvChanges(target->kit());
+    const EnvironmentItems changes = EnvironmentKitAspect::buildEnvChanges(project()->activeKit());
     Environment env = Environment::systemEnvironment();
     env.modify(changes);
     return env;

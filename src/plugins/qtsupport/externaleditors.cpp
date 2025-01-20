@@ -183,9 +183,7 @@ static bool getEditorLaunchData(const CommandForQtVersion &commandForQtVersion,
     if (const Project *project = ProjectManager::projectForFile(filePath)) {
         data->workingDirectory = project->projectDirectory();
         // active kit
-        if (const Target *target = project->activeTarget()) {
-            qtVersionsToCheck << QtSupport::QtKitAspect::qtVersion(target->kit());
-        }
+        qtVersionsToCheck << QtSupport::QtKitAspect::qtVersion(project->activeKit());
         // all kits of project
         qtVersionsToCheck += Utils::transform<QVector>(project->targets(), [](Target *t) {
             return QTC_GUARD(t) ? QtSupport::QtKitAspect::qtVersion(t->kit()) : nullptr;

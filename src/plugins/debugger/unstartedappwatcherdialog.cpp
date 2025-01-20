@@ -82,8 +82,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(std::optional<QPoint> pos, 
     m_kitChooser->setVisible(true);
 
     Project *project = ProjectTree::currentProject();
-    Target *activeTarget = project ? project->activeTarget() : nullptr;
-    Kit *kit = activeTarget ? activeTarget->kit() : nullptr;
+    Kit *kit = project ? project->activeKit() : nullptr;
 
     if (kit)
         m_kitChooser->setCurrentKitId(kit->id());
@@ -100,15 +99,13 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(std::optional<QPoint> pos, 
     resetExecutable->setEnabled(false);
     pathLayout->addWidget(m_pathChooser);
     pathLayout->addWidget(resetExecutable);
-    if (activeTarget) {
-        if (RunConfiguration *runConfig = activeTarget->activeRunConfiguration()) {
-            const ProcessRunData runnable = runConfig->runnable();
-            if (isLocal(runConfig)) {
-                resetExecutable->setEnabled(true);
-                connect(resetExecutable, &QPushButton::clicked, this, [this, runnable] {
-                    m_pathChooser->setFilePath(runnable.command.executable());
-                });
-            }
+    if (RunConfiguration *runConfig = project->activeRunConfiguration()) {
+        const ProcessRunData runnable = runConfig->runnable();
+        if (isLocal(runConfig)) {
+            resetExecutable->setEnabled(true);
+            connect(resetExecutable, &QPushButton::clicked, this, [this, runnable] {
+                m_pathChooser->setFilePath(runnable.command.executable());
+            });
         }
     }
 
@@ -179,10 +176,8 @@ void UnstartedAppWatcherDialog::selectExecutable()
     Utils::FilePath path;
 
     Project *project = ProjectTree::currentProject();
-    Target *activeTarget = project ? project->activeTarget() : nullptr;
-
-    if (activeTarget) {
-        if (RunConfiguration *runConfig = activeTarget->activeRunConfiguration()) {
+    if (project) {
+        if (RunConfiguration *runConfig = project->activeRunConfiguration()) {
             const ProcessRunData runnable = runConfig->runnable();
             if (isLocal(runConfig))
                 path = runnable.command.executable().parentDir();
@@ -190,8 +185,8 @@ void UnstartedAppWatcherDialog::selectExecutable()
     }
 
     if (path.isEmpty()) {
-        if (activeTarget && activeTarget->activeBuildConfiguration())
-            path = activeTarget->activeBuildConfiguration()->buildDirectory();
+        if (project && project->activeBuildConfiguration())
+            path = project->activeBuildConfiguration()->buildDirectory();
         else if (project)
             path = project->projectDirectory();
     }

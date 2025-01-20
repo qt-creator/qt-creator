@@ -67,9 +67,8 @@ void updateMCUProjectTree(ProjectExplorer::Project *p)
 {
     if (!p || !p->rootProjectNode())
         return;
-    ProjectExplorer::Target *target = p->activeTarget();
-    if (!target || !target->kit()
-        || !target->kit()->hasValue(Constants::KIT_MCUTARGET_KITVERSION_KEY))
+    ProjectExplorer::Kit *kit = p->activeKit();
+    if (!kit || !kit->hasValue(Constants::KIT_MCUTARGET_KITVERSION_KEY))
         return;
 
     p->rootProjectNode()->forEachProjectNode([](const ProjectNode *node) {

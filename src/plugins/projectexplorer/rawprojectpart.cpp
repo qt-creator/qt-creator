@@ -201,8 +201,8 @@ ProjectUpdateInfo::ProjectUpdateInfo(Project *project,
     if (project) {
         projectName = project->displayName();
         projectFilePath = project->projectFilePath();
-        if (project->activeTarget() && project->activeTarget()->activeBuildConfiguration())
-            buildRoot = project->activeTarget()->activeBuildConfiguration()->buildDirectory();
+        if (project->activeBuildConfiguration())
+            buildRoot = project->activeBuildConfiguration()->buildDirectory();
     }
 }
 

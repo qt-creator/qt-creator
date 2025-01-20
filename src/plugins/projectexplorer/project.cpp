@@ -445,6 +445,31 @@ void Project::setActiveTarget(Target *target, SetActive cascade)
     }
 }
 
+Kit *Project::activeKit() const
+{
+    return activeTarget() ? activeTarget()->kit() : nullptr;
+}
+
+RunConfiguration *Project::activeRunConfiguration() const
+{
+    return activeTarget() ? activeTarget()->activeRunConfiguration() : nullptr;
+}
+
+BuildConfiguration *Project::activeBuildConfiguration() const
+{
+    return activeTarget() ? activeTarget()->activeBuildConfiguration() : nullptr;
+}
+
+DeployConfiguration *Project::activeDeployConfiguration() const
+{
+    return activeTarget() ? activeTarget()->activeDeployConfiguration() : nullptr;
+}
+
+BuildSystem *Project::activeBuildSystem() const
+{
+    return activeTarget() ? activeTarget()->buildSystem() : nullptr;
+}
+
 QList<Store> Project::vanishedTargets() const
 {
     return d->m_vanishedTargets;
@@ -1206,10 +1231,8 @@ const QList<QPair<Id, QString>> Project::allGenerators() const
     QList<QPair<Id, QString>> generators;
     for (auto it = d->m_generators.cbegin(); it != d->m_generators.cend(); ++it)
         generators << qMakePair(it.key(), it.value().first);
-    if (const Target * const t = activeTarget()) {
-        if (const BuildSystem * const bs = t->buildSystem())
-            generators += bs->generators();
-    }
+    if (const BuildSystem * const bs = activeBuildSystem())
+        generators += bs->generators();
     return generators;
 }
 
@@ -1220,10 +1243,8 @@ void Project::runGenerator(Utils::Id id)
         it.value().second();
         return;
     }
-    if (const Target * const t = activeTarget()) {
-        if (BuildSystem * const bs = t->buildSystem())
-            bs->runGenerator(id);
-    }
+    if (BuildSystem * const bs = activeBuildSystem())
+        bs->runGenerator(id);
 }
 
 void Project::addVariablesToMacroExpander(const QByteArray &prefix,
@@ -1231,19 +1252,19 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                                           MacroExpander *expander,
                                           const std::function<Project *()> &projectGetter)
 {
-    const auto targetGetter = [projectGetter]() -> Target * {
-        if (const Project *const project = projectGetter())
-            return project->activeTarget();
+    const auto kitGetter = [projectGetter]() -> Kit * {
+        if (const Project * const project = projectGetter())
+            return project->activeKit();
         return nullptr;
     };
-    const auto bcGetter = [targetGetter]() -> BuildConfiguration * {
-        if (const Target *const target = targetGetter())
-            return target->activeBuildConfiguration();
+    const auto bcGetter = [projectGetter]() -> BuildConfiguration * {
+        if (const Project * const project = projectGetter())
+            return project->activeBuildConfiguration();
         return nullptr;
     };
-    const auto rcGetter = [targetGetter]() -> RunConfiguration * {
-        if (const Target *const target = targetGetter())
-            return target->activeRunConfiguration();
+    const auto rcGetter = [projectGetter]() -> RunConfiguration * {
+        if (const Project * const project = projectGetter())
+            return project->activeRunConfiguration();
         return nullptr;
     };
     const QByteArray fullPrefix = (prefix.endsWith(':') ? prefix : prefix + ':');
@@ -1275,9 +1296,9 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
     expander->registerVariable(fullPrefix + "Kit:Name",
                                //: %1 is something like "Active project"
                                ::PE::Tr::tr("%1: The name of the active kit.").arg(descriptor),
-                               [targetGetter]() -> QString {
-                                   if (const Target *const target = targetGetter())
-                                       return target->kit()->displayName();
+                               [kitGetter]() -> QString {
+                                   if (const Kit *const kit = kitGetter())
+                                       return kit->displayName();
                                    return {};
                                });
     expander->registerVariable(fullPrefix + "BuildConfig:Name",
@@ -1593,7 +1614,7 @@ void ProjectExplorerTest::testProject_multipleBuildConfigs()
     QVERIFY(target);
     QCOMPARE(target->buildConfigurations().size(), 6);
     target->setActiveBuildConfiguration(target->buildConfigurations().at(1), SetActive::Cascade);
-    BuildSystem * const bs = theProject.project()->activeTarget()->buildSystem();
+    BuildSystem * const bs = theProject.project()->activeBuildSystem();
     QVERIFY(bs);
     QCOMPARE(bs, target->activeBuildConfiguration()->buildSystem());
     if (bs->isWaitingForParse() || bs->isParsing()) {
@@ -1661,11 +1682,9 @@ void ProjectExplorerTest::testSourceToBinaryMapping()
     QVERIFY2(theProject, qPrintable(theProject.errorMessage()));
     theProject.project()->configureAsExampleProject(kit);
     QCOMPARE(theProject.project()->targets().size(), 1);
-    Target * const target = theProject.project()->activeTarget();
-    QVERIFY(target);
-    BuildSystem * const bs = target->buildSystem();
+    BuildSystem * const bs = theProject.project()->activeBuildSystem();
     QVERIFY(bs);
-    QCOMPARE(bs, target->activeBuildConfiguration()->buildSystem());
+    QCOMPARE(bs, theProject.project()->activeBuildConfiguration()->buildSystem());
     if (bs->isWaitingForParse() || bs->isParsing()) {
         QSignalSpy parsingFinishedSpy(bs, &BuildSystem::parsingFinished);
         QVERIFY(parsingFinishedSpy.wait(10000));

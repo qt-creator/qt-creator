@@ -163,8 +163,7 @@ void PythonEditorWidget::updateInterpretersSelector()
                 const QString name = buildConfiguration->displayName();
                 QAction *action = interpretersGroup->addAction(buildConfiguration->displayName());
                 action->setCheckable(true);
-                if (target == project->activeTarget()
-                    && target->activeBuildConfiguration() == buildConfiguration) {
+                if (project->activeBuildConfiguration() == buildConfiguration) {
                     action->setChecked(true);
                     setButtonText(name);
                     if (auto pbc = qobject_cast<PythonBuildConfiguration *>(buildConfiguration))

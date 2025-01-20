@@ -42,10 +42,9 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor)
         const QList<Project *> projects = ProjectManager::projects();
         for (Project *project : projects) {
             const auto cmakeProject = qobject_cast<const CMakeProject *>(project);
-            if (!cmakeProject || !cmakeProject->activeTarget())
+            if (!cmakeProject)
                 continue;
-            const auto bs = qobject_cast<CMakeBuildSystem *>(
-                cmakeProject->activeTarget()->buildSystem());
+            const auto bs = qobject_cast<CMakeBuildSystem *>(cmakeProject->activeBuildSystem());
             if (!bs)
                 continue;
 

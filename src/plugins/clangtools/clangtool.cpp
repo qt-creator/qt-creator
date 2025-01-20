@@ -841,7 +841,7 @@ void ClangTool::startTool(FileSelection fileSelection, const RunSettings &runSet
     QTC_ASSERT(project->activeTarget(), return);
 
     // Continue despite release mode?
-    if (BuildConfiguration *bc = project->activeTarget()->activeBuildConfiguration()) {
+    if (BuildConfiguration *bc = project->activeBuildConfiguration()) {
         if (bc->buildType() == BuildConfiguration::Release)
             if (!continueDespiteReleaseBuild(m_name))
                 return;
@@ -1032,16 +1032,13 @@ void ClangTool::reset()
 
 static bool canAnalyzeProject(Project *project)
 {
-    if (const Target *target = project->activeTarget()) {
-        const Id c = ProjectExplorer::Constants::C_LANGUAGE_ID;
-        const Id cxx = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
-        const bool projectSupportsLanguage = project->projectLanguages().contains(c)
-                                             || project->projectLanguages().contains(cxx);
-        return projectSupportsLanguage
-               && CppModelManager::projectInfo(project)
-               && ToolchainKitAspect::cxxToolchain(target->kit());
-    }
-    return false;
+    const Id c = ProjectExplorer::Constants::C_LANGUAGE_ID;
+    const Id cxx = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
+    const bool projectSupportsLanguage = project->projectLanguages().contains(c)
+                                         || project->projectLanguages().contains(cxx);
+    return projectSupportsLanguage
+           && CppModelManager::projectInfo(project)
+           && ToolchainKitAspect::cxxToolchain(project->activeKit());
 }
 
 struct CheckResult {

@@ -40,9 +40,8 @@ MesonTargetNode::MesonTargetNode(const FilePath &directory, const QString &name,
 void MesonTargetNode::build()
 {
     Project *p = getProject();
-    ProjectExplorer::Target *t = p ? p->activeTarget() : nullptr;
-    if (t)
-        static_cast<MesonBuildConfiguration *>(t->buildSystem()->buildConfiguration())->build(m_name);
+    if (const auto bc = p ? p->activeBuildConfiguration() : nullptr)
+        static_cast<MesonBuildConfiguration *>(bc)->build(m_name);
 }
 
 QString MesonTargetNode::tooltip() const

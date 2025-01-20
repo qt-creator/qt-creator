@@ -387,10 +387,10 @@ void QmakeProjectManagerPluginPrivate::runQMakeImpl(Project *p, Node *node)
     auto *qmakeProject = qobject_cast<QmakeProject *>(p);
     QTC_ASSERT(qmakeProject, return);
 
-    if (!qmakeProject->activeTarget() || !qmakeProject->activeTarget()->activeBuildConfiguration())
+    if (!qmakeProject->activeBuildConfiguration())
         return;
 
-    auto *bc = static_cast<QmakeBuildConfiguration *>(qmakeProject->activeTarget()->activeBuildConfiguration());
+    auto *bc = static_cast<QmakeBuildConfiguration *>(qmakeProject->activeBuildConfiguration());
     QMakeStep *qs = bc->qmakeStep();
     if (!qs)
         return;
@@ -420,11 +420,7 @@ void QmakeProjectManagerPluginPrivate::buildFile()
     Project *project = ProjectManager::projectForFile(file);
     if (!project)
         return;
-    Target *target = project->activeTarget();
-    if (!target)
-        return;
-
-    if (auto bs = qobject_cast<QmakeBuildSystem *>(target->buildSystem()))
+    if (auto bs = qobject_cast<QmakeBuildSystem *>(project->activeBuildSystem()))
         bs->buildHelper(QmakeBuildSystem::BUILD, true, buildableFileProFile(node), node);
 }
 
@@ -472,10 +468,7 @@ void QmakeProjectManagerPluginPrivate::updateRunQMakeAction()
         enable = false;
     auto pro = qobject_cast<QmakeProject *>(m_previousStartupProject);
     m_runQMakeAction->setVisible(pro);
-    if (!pro
-            || !pro->rootProjectNode()
-            || !pro->activeTarget()
-            || !pro->activeTarget()->activeBuildConfiguration())
+    if (!pro || !pro->rootProjectNode() || !pro->activeBuildConfiguration())
         enable = false;
 
     m_runQMakeAction->setEnabled(enable);
@@ -515,8 +508,9 @@ void QmakeProjectManagerPluginPrivate::updateContextActions(Node *node)
     m_buildSubProjectAction->setParameter(subProjectName);
     m_buildSubProjectContextMenu->setParameter(proFileNode ? proFileNode->displayName() : QString());
 
-    auto buildConfiguration = (qmakeProject && qmakeProject->activeTarget()) ?
-                static_cast<QmakeBuildConfiguration *>(qmakeProject->activeTarget()->activeBuildConfiguration()) : nullptr;
+    auto buildConfiguration = qmakeProject ? static_cast<QmakeBuildConfiguration *>(
+                                                 qmakeProject->activeBuildConfiguration())
+                                           : nullptr;
     bool isProjectNode = qmakeProject && proFileNode && buildConfiguration;
     bool isBuilding = BuildManager::isBuilding(project);
     bool enabled = subProjectActionsVisible && !isBuilding;

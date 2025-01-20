@@ -178,9 +178,9 @@ void QtSupportPlugin::extensionsInitialized()
 
     static const auto currentQtVersion = []() -> const QtVersion * {
         ProjectExplorer::Project *project = ProjectExplorer::ProjectTree::currentProject();
-        if (!project || !project->activeTarget())
+        if (!project)
             return nullptr;
-        return QtKitAspect::qtVersion(project->activeTarget()->kit());
+        return QtKitAspect::qtVersion(project->activeKit());
     };
     static const char kCurrentHostBins[] = "CurrentDocument:Project:QT_HOST_BINS";
     expander->registerVariable(
@@ -213,9 +213,9 @@ void QtSupportPlugin::extensionsInitialized()
 
     static const auto activeQtVersion = []() -> const QtVersion * {
         ProjectExplorer::Project *project = ProjectManager::startupProject();
-        if (!project || !project->activeTarget())
+        if (!project)
             return nullptr;
-        return QtKitAspect::qtVersion(project->activeTarget()->kit());
+        return QtKitAspect::qtVersion(project->activeKit());
     };
     static const char kActiveHostBins[] = "ActiveProject:QT_HOST_BINS";
     expander->registerVariable(
@@ -251,8 +251,7 @@ void QtSupportPlugin::extensionsInitialized()
         if (filePath.isEmpty())
             return links;
         const Project *project = ProjectManager::projectForFile(filePath);
-        Target *target = project ? project->activeTarget() : nullptr;
-        QtVersion *qt = target ? QtKitAspect::qtVersion(target->kit()) : nullptr;
+        QtVersion *qt = project ? QtKitAspect::qtVersion(project->activeKit()) : nullptr;
         if (!qt)
             return links;
 

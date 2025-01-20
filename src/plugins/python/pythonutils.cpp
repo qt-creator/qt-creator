@@ -45,12 +45,10 @@ FilePath detectPython(const FilePath &documentPath)
     FilePaths dirs = Environment::systemEnvironment().path();
 
     if (project && project->mimeType() == Constants::C_PY_PROJECT_MIME_TYPE) {
-        if (const Target *target = project->activeTarget()) {
-            if (auto bc = qobject_cast<PythonBuildConfiguration *>(target->activeBuildConfiguration()))
-                return bc->python();
-            if (const std::optional<Interpreter> python = PythonKitAspect::python(target->kit()))
-                return python->command;
-        }
+        if (auto bc = qobject_cast<PythonBuildConfiguration *>(project->activeBuildConfiguration()))
+            return bc->python();
+        if (const std::optional<Interpreter> python = PythonKitAspect::python(project->activeKit()))
+            return python->command;
     }
 
     const FilePath userDefined = userDefinedPythonsForDocument().value(documentPath);

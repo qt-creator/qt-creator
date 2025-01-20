@@ -1040,8 +1040,7 @@ void ProjectNode::setFallbackData(Utils::Id key, const QVariant &value)
 BuildSystem *ProjectNode::buildSystem() const
 {
     Project *p = getProject();
-    Target *t = p ? p->activeTarget() : nullptr;
-    return t ? t->buildSystem() : nullptr;
+    return p ? p->activeBuildSystem() : nullptr;
 }
 
 bool FolderNode::isEmpty() const
