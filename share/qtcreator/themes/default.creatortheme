@@ -1,5 +1,5 @@
 [General]
-Includes=light.figmatokens, light-palette.inc
+Includes=light.figmatokens, ds.tokenmapping, light-palette.inc
 ThemeName=Classic (2009)
 PreferredStyles=
 

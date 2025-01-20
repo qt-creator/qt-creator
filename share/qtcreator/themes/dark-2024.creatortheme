@@ -1,5 +1,5 @@
 [General]
-Includes=dark.figmatokens, 2024.tokenmapping
+Includes=dark.figmatokens, 2024.tokenmapping, ds.tokenmapping
 ThemeName=Dark (2024)
 PreferredStyles=
 DefaultTextEditorColorScheme=dark-2024.xml
