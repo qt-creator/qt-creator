@@ -208,7 +208,7 @@ static void updateParserConfig(ClangdClient *client)
 static bool projectIsParsing(const ClangdClient *client)
 {
     for (const Project * const p : projectsForClient(client)) {
-        const BuildSystem * const bs = p ? p->activeBuildSystem() : nullptr;
+        const BuildSystem * const bs = activeBuildSystem(p);
         if (bs && (bs->isParsing() || bs->isWaitingForParse()))
             return true;
     }

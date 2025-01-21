@@ -37,7 +37,7 @@ void setupMesonActions(QObject *guard)
         .addToContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT,
                         ProjectExplorer::Constants::G_PROJECT_BUILD)
         .addOnTriggered(guard, [] {
-            auto bs = dynamic_cast<MesonBuildSystem *>(ProjectTree::currentBuildSystem());
+            auto bs = dynamic_cast<MesonBuildSystem *>(activeBuildSystemForCurrentProject());
             QTC_ASSERT(bs, return);
             if (ProjectExplorerPlugin::saveModifiedFiles())
                 bs->configure();
@@ -54,7 +54,7 @@ void setupMesonActions(QObject *guard)
         .addToContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT,
                         ProjectExplorer::Constants::G_PROJECT_BUILD)
         .addOnTriggered(guard, [] {
-            if (qobject_cast<MesonBuildSystem *>(ProjectTree::currentBuildSystem())) {
+            if (qobject_cast<MesonBuildSystem *>(activeBuildSystemForCurrentProject())) {
                 auto targetNode = dynamic_cast<MesonTargetNode *>(ProjectTree::currentNode());
                 targetNode->build();
             }

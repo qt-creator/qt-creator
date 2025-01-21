@@ -1253,21 +1253,9 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                                           MacroExpander *expander,
                                           const std::function<Project *()> &projectGetter)
 {
-    const auto kitGetter = [projectGetter]() -> Kit * {
-        if (const Project * const project = projectGetter())
-            return project->activeKit();
-        return nullptr;
-    };
-    const auto bcGetter = [projectGetter]() -> BuildConfiguration * {
-        if (const Project * const project = projectGetter())
-            return project->activeBuildConfiguration();
-        return nullptr;
-    };
-    const auto rcGetter = [projectGetter]() -> RunConfiguration * {
-        if (const Project * const project = projectGetter())
-            return project->activeRunConfiguration();
-        return nullptr;
-    };
+    const auto kitGetter = [projectGetter] { return ProjectExplorer::activeKit(projectGetter()); };
+    const auto bcGetter = [projectGetter] { return activeBuildConfig(projectGetter()); };
+    const auto rcGetter = [projectGetter] { return activeRunConfig(projectGetter()); };
     const QByteArray fullPrefix = (prefix.endsWith(':') ? prefix : prefix + ':');
     const QByteArray prefixWithoutColon = fullPrefix.chopped(1);
     expander->registerVariable(fullPrefix + "Name",

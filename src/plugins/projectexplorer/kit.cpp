@@ -10,8 +10,11 @@
 #include "kitmanager.h"
 #include "ioutputparser.h"
 #include "osparser.h"
+#include "project.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
+#include "projecttree.h"
 
 #include <utils/algorithm.h>
 #include <utils/displayname.h>
@@ -777,6 +780,21 @@ static Id replacementKey() { return "IsReplacementKit"; }
 bool Kit::isReplacementKit() const
 {
     return value(replacementKey()).toBool();
+}
+
+Kit *activeKit(const Project *project)
+{
+    return project ? project->activeKit() : nullptr;
+}
+
+Kit *activeKitForActiveProject()
+{
+    return activeKit(ProjectManager::startupProject());
+}
+
+Kit *activeKitForCurrentProject()
+{
+    return activeKit(ProjectTree::currentProject());
 }
 
 } // namespace ProjectExplorer

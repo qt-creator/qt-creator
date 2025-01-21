@@ -139,9 +139,7 @@ void QbsProject::configureAsExampleProject(Kit *kit)
 
 static bool supportsNodeAction(ProjectAction action, const Node *node)
 {
-    const auto project = static_cast<QbsProject *>(node->getProject());
-    QbsBuildSystem *bs = project ? static_cast<QbsBuildSystem *>(project->activeBuildSystem())
-                                 : nullptr;
+    QbsBuildSystem *bs = static_cast<QbsBuildSystem *>(activeBuildSystem(node->getProject()));
     if (!bs)
         return false;
     if (!bs->isProjectEditable())

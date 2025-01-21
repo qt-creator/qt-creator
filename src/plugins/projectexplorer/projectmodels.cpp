@@ -196,7 +196,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
     const FileNode * const fileNode = node->asFileNode();
     const ContainerNode * const containerNode = node->asContainerNode();
     const Project * const project = containerNode ? containerNode->project() : nullptr;
-    const BuildSystem * const bs = project ? project->activeBuildSystem() : nullptr;
+    const BuildSystem * const bs = activeBuildSystem(project);
 
     switch (role) {
     case Qt::DisplayRole:

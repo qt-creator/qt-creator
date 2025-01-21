@@ -21,6 +21,7 @@ class OutputLineParser;
 } // namespace Utils
 
 namespace ProjectExplorer {
+class Project;
 
 namespace Internal {
 class KitManagerPrivate;
@@ -163,6 +164,10 @@ private:
 };
 
 using TasksGenerator = std::function<Tasks(const Kit *)>;
+
+PROJECTEXPLORER_EXPORT Kit *activeKit(const Project *project);
+PROJECTEXPLORER_EXPORT Kit *activeKitForActiveProject();
+PROJECTEXPLORER_EXPORT Kit *activeKitForCurrentProject();
 
 } // namespace ProjectExplorer
 

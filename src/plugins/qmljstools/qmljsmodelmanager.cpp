@@ -128,7 +128,7 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
                                                                     MimeMatchMode::MatchExtension).name());
         });
     }
-    Kit *activeKit = project ? project->activeKit() : nullptr;
+    Kit *activeKit = ProjectExplorer::activeKit(project);
     Kit *kit = activeKit ? activeKit : KitManager::defaultKit();
     QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
 

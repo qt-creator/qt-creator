@@ -248,14 +248,8 @@ bool QmlProject::allowOnlySingleProject()
 
 bool QmlProject::isMCUs()
 {
-    if (!ProjectExplorer::ProjectManager::startupTarget())
-        return false;
-
     const QmlProjectManager::QmlBuildSystem *buildSystem
-        = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
-            ProjectExplorer::ProjectManager::startupTarget()->buildSystem());
-    QTC_ASSERT(buildSystem, return false);
-
+        = qobject_cast<QmlProjectManager::QmlBuildSystem *>(activeBuildSystemForActiveProject());
     return buildSystem && buildSystem->qtForMCUs();
 }
 

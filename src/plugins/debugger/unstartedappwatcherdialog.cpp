@@ -81,9 +81,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(std::optional<QPoint> pos, 
     m_kitChooser->populate();
     m_kitChooser->setVisible(true);
 
-    Project *project = ProjectTree::currentProject();
-    Kit *kit = project ? project->activeKit() : nullptr;
-
+    Kit *kit = activeKitForCurrentProject();
     if (kit)
         m_kitChooser->setCurrentKitId(kit->id());
     else if (KitManager::waitForLoaded() && KitManager::defaultKit())
@@ -99,7 +97,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(std::optional<QPoint> pos, 
     resetExecutable->setEnabled(false);
     pathLayout->addWidget(m_pathChooser);
     pathLayout->addWidget(resetExecutable);
-    if (RunConfiguration *runConfig = project->activeRunConfiguration()) {
+    if (RunConfiguration *runConfig = activeRunConfigForCurrentProject()) {
         const ProcessRunData runnable = runConfig->runnable();
         if (isLocal(runConfig)) {
             resetExecutable->setEnabled(true);
@@ -176,17 +174,15 @@ void UnstartedAppWatcherDialog::selectExecutable()
     Utils::FilePath path;
 
     Project *project = ProjectTree::currentProject();
-    if (project) {
-        if (RunConfiguration *runConfig = project->activeRunConfiguration()) {
-            const ProcessRunData runnable = runConfig->runnable();
-            if (isLocal(runConfig))
-                path = runnable.command.executable().parentDir();
-        }
+    if (RunConfiguration *runConfig = activeRunConfig(project)) {
+        const ProcessRunData runnable = runConfig->runnable();
+        if (isLocal(runConfig))
+            path = runnable.command.executable().parentDir();
     }
 
     if (path.isEmpty()) {
-        if (project && project->activeBuildConfiguration())
-            path = project->activeBuildConfiguration()->buildDirectory();
+        if (const BuildConfiguration * const bc = activeBuildConfig(project))
+            path = bc->buildDirectory();
         else if (project)
             path = project->projectDirectory();
     }

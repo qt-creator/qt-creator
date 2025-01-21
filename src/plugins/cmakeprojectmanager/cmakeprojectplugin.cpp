@@ -99,7 +99,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
             .addToContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT,
                             ProjectExplorer::Constants::G_PROJECT_BUILD)
             .addOnTriggered(this, [] {
-                if (auto bs = qobject_cast<CMakeBuildSystem *>(ProjectTree::currentBuildSystem())) {
+                if (auto bs = qobject_cast<CMakeBuildSystem *>(activeBuildSystemForCurrentProject())) {
                     auto targetNode = dynamic_cast<const CMakeTargetNode *>(ProjectTree::currentNode());
                     bs->buildCMakeTarget(targetNode ? targetNode->displayName() : QString());
                 }

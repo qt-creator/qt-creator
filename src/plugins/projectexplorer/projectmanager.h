@@ -69,8 +69,6 @@ public:
 
     static Project *startupProject();
     static Target *startupTarget();
-    static BuildSystem *startupBuildSystem();
-    static RunConfiguration *startupRunConfiguration();
 
     static const QList<Project *> projects();
     static bool hasProjects();

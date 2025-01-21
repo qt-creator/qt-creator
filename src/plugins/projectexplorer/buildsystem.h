@@ -170,4 +170,8 @@ private:
     class BuildSystemPrivate *d = nullptr;
 };
 
+PROJECTEXPLORER_EXPORT BuildSystem *activeBuildSystem(const Project *project);
+PROJECTEXPLORER_EXPORT BuildSystem *activeBuildSystemForActiveProject();
+PROJECTEXPLORER_EXPORT BuildSystem *activeBuildSystemForCurrentProject();
+
 } // namespace ProjectExplorer

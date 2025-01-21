@@ -377,8 +377,8 @@ bool TestCase::waitUntilProjectIsFullyOpened(Project *project, int timeOutInMs)
 
     return QTest::qWaitFor(
         [project]() {
-            return ProjectManager::startupBuildSystem()
-                    && !ProjectManager::startupBuildSystem()->isParsing()
+            return activeBuildSystemForActiveProject()
+                    && !activeBuildSystemForActiveProject()->isParsing()
                     && CppModelManager::projectInfo(project);
         },
         timeOutInMs);

@@ -88,8 +88,7 @@ void KitChooser::populate()
     const Id lastKit = Id::fromSetting(ICore::settings()->value(lastKitKey));
     bool didActivate = false;
 
-    if (Target *target = ProjectManager::startupTarget()) {
-        Kit *kit = target->kit();
+    if (Kit *kit = activeKitForActiveProject()) {
         if (m_kitPredicate(kit)) {
             QString display = Tr::tr("Kit of Active Project: %1").arg(kitText(kit));
             m_chooser->addItem(display, kit->id().toSetting());

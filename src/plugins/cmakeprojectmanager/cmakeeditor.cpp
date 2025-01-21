@@ -328,7 +328,7 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     if (auto project = ProjectTree::currentProject()) {
         buffer.replace("${CMAKE_SOURCE_DIR}", project->projectDirectory().path());
-        auto bs = ProjectTree::currentBuildSystem();
+        auto bs = activeBuildSystemForCurrentProject();
         if (bs && bs->buildConfiguration()) {
             buffer.replace("${CMAKE_BINARY_DIR}", bs->buildConfiguration()->buildDirectory().path());
 

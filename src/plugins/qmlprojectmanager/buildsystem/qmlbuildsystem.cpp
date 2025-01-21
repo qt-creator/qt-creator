@@ -438,12 +438,7 @@ Utils::FilePath QmlBuildSystem::getStartupQmlFileWithFallback() const
 
 QmlBuildSystem *QmlBuildSystem::getStartupBuildSystem()
 {
-    auto project = ProjectExplorer::ProjectManager::startupProject();
-    if (project && project->activeBuildSystem()) {
-        return qobject_cast<QmlProjectManager::QmlBuildSystem *>(
-            project->activeBuildSystem());
-    }
-    return nullptr;
+    return qobject_cast<QmlProjectManager::QmlBuildSystem *>(activeBuildSystemForActiveProject());
 }
 
 void QmlBuildSystem::addQmlProjectModule(const Utils::FilePath &path)
