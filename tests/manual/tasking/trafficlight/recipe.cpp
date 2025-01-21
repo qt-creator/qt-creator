@@ -26,28 +26,23 @@ ExecutableItem recipe(GlueInterface *iface)
                 TimeoutTask( // "red" state
                     [iface](milliseconds &timeout) {
                         timeout = 3s;
-                        iface->setRed(true);
-                    },
-                    [iface] { iface->setRed(false); }),
+                        iface->setLights(Light::Red);
+                    }),
                 TimeoutTask( // "redGoingGreen" state
                     [iface](milliseconds &timeout) {
                         timeout = 1s;
-                        iface->setRed(true);
-                        iface->setYellow(true);
-                    },
-                    [iface] { iface->setRed(false); iface->setYellow(false); }),
+                        iface->setLights(Light::Red | Light::Yellow);
+                    }),
                 TimeoutTask( // "green" state
                     [iface](milliseconds &timeout) {
                         timeout = 3s;
-                        iface->setGreen(true);
-                    },
-                    [iface] { iface->setGreen(false); }),
+                        iface->setLights(Light::Green);
+                    }),
                 TimeoutTask( // "greenGoingRed" state
                     [iface](milliseconds &timeout) {
                         timeout = 1s;
-                        iface->setYellow(true);
-                    },
-                    [iface] { iface->setYellow(false); }),
+                        iface->setLights(Light::Yellow);
+                    }),
             }
         },
         Group { // "broken" state
@@ -61,9 +56,9 @@ ExecutableItem recipe(GlueInterface *iface)
                 TimeoutTask( // "blinking" state
                     [iface](milliseconds &timeout) {
                         timeout = 1s;
-                        iface->setYellow(true);
+                        iface->setLights(Light::Yellow);
                     },
-                    [iface] { iface->setYellow(false); }),
+                    [iface] { iface->setLights(Light::Off); }),
                 TimeoutTask([](milliseconds &timeout) { timeout = 1s; }) // "unblinking" state
             }
         }

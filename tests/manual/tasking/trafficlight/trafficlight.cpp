@@ -118,9 +118,11 @@ TrafficLight::TrafficLight(GlueInterface *iface)
     connect(button, &QAbstractButton::toggled, this, setButtonGeometry);
     setButtonGeometry();
 
-    connect(iface, &GlueInterface::redChanged, widget->redLight(), &LightWidget::setOn);
-    connect(iface, &GlueInterface::yellowChanged, widget->yellowLight(), &LightWidget::setOn);
-    connect(iface, &GlueInterface::greenChanged, widget->greenLight(), &LightWidget::setOn);
+    connect(iface, &GlueInterface::lightsChanged, this, [widget](Lights lights) {
+        widget->redLight()->setOn(lights & Light::Red);
+        widget->yellowLight()->setOn(lights & Light::Yellow);
+        widget->greenLight()->setOn(lights & Light::Green);
+    });
 
     connect(button, &QAbstractButton::toggled, this, [iface](bool pause) {
         pause ? iface->smash() : iface->repair();

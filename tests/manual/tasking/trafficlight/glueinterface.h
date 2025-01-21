@@ -6,24 +6,31 @@
 
 #include <QObject>
 
+enum class Light
+{
+    Off    = 0,
+    Red    = 1 << 0,
+    Yellow = 1 << 1,
+    Green  = 1 << 2,
+};
+
+Q_DECLARE_FLAGS(Lights, Light)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Lights)
+
 class GlueInterface final : public QObject
 {
     Q_OBJECT
 
 public:
     // business logic -> GUI
-    void setRed(bool on) { emit redChanged(on); }
-    void setYellow(bool on) { emit yellowChanged(on); }
-    void setGreen(bool on) { emit greenChanged(on); }
+    void setLights(Lights lights) { emit lightsChanged(lights); }
 
     // GUI -> business logic
     void smash() { emit smashed(); }
     void repair() { emit repaired(); }
 
 signals:
-    void redChanged(bool on);
-    void yellowChanged(bool on);
-    void greenChanged(bool on);
+    void lightsChanged(Lights lights);
 
     void smashed();
     void repaired();
