@@ -3149,6 +3149,24 @@ bool NodeMetaInfo::isQtQuickRepeater() const
     }
 }
 
+bool NodeMetaInfo::isQtQuickShapesShape() const
+{
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Shapes.Shape",
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick_Shapes, Shape>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && isSubclassOf("QtQuick.Shapes.Shape");
+    }
+}
+
 bool NodeMetaInfo::isQtQuickControlsTabBar() const
 {
     if constexpr (useProjectStorage()) {
@@ -3599,6 +3617,24 @@ bool NodeMetaInfo::isQtQuickStateOperation() const
     }
 }
 
+bool NodeMetaInfo::isQtQuickStudioComponentsArcItem() const
+{
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Studio.Components.ArcItem",
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick_Studio_Components, ArcItem>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && isSubclassOf("QtQuick.Studio.Components.ArcItem");
+    }
+}
+
 bool NodeMetaInfo::isQtQuickText() const
 {
     if constexpr (useProjectStorage()) {
@@ -3765,6 +3801,24 @@ bool NodeMetaInfo::isQtQuickStudioComponentsGroupItem() const
         return isBasedOnCommonType<QtQuick_Studio_Components, GroupItem>(m_projectStorage, m_typeId);
     } else {
         return isValid() && isSubclassOf("QtQuick.Studio.Components.GroupItem");
+    }
+}
+
+bool NodeMetaInfo::isQtQuickStudioComponentsSvgPathItem() const
+{
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Studio.Components.SvgPathItem",
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick_Studio_Components, SvgPathItem>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && isSubclassOf("QtQuick.Studio.Components.SvgPathItem");
     }
 }
 

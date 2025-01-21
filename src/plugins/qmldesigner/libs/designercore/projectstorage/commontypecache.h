@@ -25,6 +25,7 @@ QT_END_NAMESPACE
 namespace QmlDesigner::Storage::Info {
 
 inline constexpr char Affector3D[] = "Affector3D";
+inline constexpr char ArcItem[] = "ArcItem";
 inline constexpr char Attractor3D[] = "Attractor3D";
 inline constexpr char BakedLightmap[] = "BakedLightmap";
 inline constexpr char BoolType[] = "bool";
@@ -100,6 +101,7 @@ inline constexpr char QtQuick_Controls[] = "QtQuick.Controls";
 inline constexpr char QtQuick_Dialogs[] = "QtQuick.Dialogs";
 inline constexpr char QtQuick_Extras[] = "QtQuick.Extras";
 inline constexpr char QtQuick_Layouts[] = "QtQuick.Layouts";
+inline constexpr char QtQuick_Shapes[] = "QtQuick.Shapes";
 inline constexpr char QtQuick_Studio_Components[] = "QtQuick.Studio.Components";
 inline constexpr char QtQuick_Templates[] = "QtQuick.Templates";
 inline constexpr char QtQuick_Timeline[] = "QtQuick.Timeline";
@@ -111,6 +113,7 @@ inline constexpr char SafePicture[] = "SafePicture";
 inline constexpr char SafeRendererPicture[] = "SafeRendererPicture";
 inline constexpr char SceneEnvironment[] = "SceneEnvironment";
 inline constexpr char Shader[] = "Shader";
+inline constexpr char Shape[] = "Shape";
 inline constexpr char SoundEffect[] = "SoundEffect";
 inline constexpr char SpecularGlossyMaterial[] = "SpecularGlossyMaterial";
 inline constexpr char SplitView[] = "SplitView";
@@ -118,6 +121,7 @@ inline constexpr char SpotLight[] = "SpotLight";
 inline constexpr char SpriteParticle3D[] = "SpriteParticle3D";
 inline constexpr char StateGroup[] = "StateGroup";
 inline constexpr char State[] = "State";
+inline constexpr char SvgPathItem[] = "SvgPathItem";
 inline constexpr char SwipeView[] = "SwipeView";
 inline constexpr char TabBar[] = "TabBar";
 inline constexpr char TextArea[] = "TextArea";
@@ -247,8 +251,11 @@ class CommonTypeCache
         CacheType<QtQuick_Dialogs, ModuleKind::QmlLibrary, Dialog>,
         CacheType<QtQuick_Extras, ModuleKind::QmlLibrary, Picture>,
         CacheType<QtQuick_Layouts, ModuleKind::QmlLibrary, Layout>,
+        CacheType<QtQuick_Shapes, ModuleKind::QmlLibrary, Shape>,
+        CacheType<QtQuick_Studio_Components, ModuleKind::QmlLibrary, ArcItem>,
         CacheType<QtQuick_Studio_Components, ModuleKind::QmlLibrary, GroupItem>,
         CacheType<QtQuick_Studio_Components, ModuleKind::QmlLibrary, JsonListModel>,
+        CacheType<QtQuick_Studio_Components, ModuleKind::QmlLibrary, SvgPathItem>,
         CacheType<QtQuick_Templates, ModuleKind::QmlLibrary, Control>,
         CacheType<QtQuick_Timeline, ModuleKind::QmlLibrary, Keyframe>,
         CacheType<QtQuick_Timeline, ModuleKind::QmlLibrary, KeyframeGroup>,

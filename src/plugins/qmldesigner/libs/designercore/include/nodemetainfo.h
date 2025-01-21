@@ -222,10 +222,13 @@ public:
     bool isQtQuickPropertyChanges() const;
     bool isQtQuickRectangle() const;
     bool isQtQuickRepeater() const;
+    bool isQtQuickShapesShape() const;
     bool isQtQuickState() const;
     bool isQtQuickStateGroup() const;
     bool isQtQuickStateOperation() const;
+    bool isQtQuickStudioComponentsArcItem() const;
     bool isQtQuickStudioComponentsGroupItem() const;
+    bool isQtQuickStudioComponentsSvgPathItem() const;
     bool isQtQuickStudioUtilsJsonListModel() const;
     bool isQtQuickText() const;
     bool isQtQuickTimelineKeyframe() const;
