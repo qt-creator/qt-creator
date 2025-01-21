@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "texteditor_global.h"
-
 #include <KSyntaxHighlighting/Definition>
 
 #include <QFuture>

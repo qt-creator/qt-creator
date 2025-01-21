@@ -3987,10 +3987,8 @@ void TextEditorWidgetPrivate::configureGenericHighlighter(
         q->setCodeFoldingSupported(false);
     }
 
-    const QString definitionFilesPath
-        = TextEditorSettings::highlighterSettings().definitionFilesPath().toUrlishString();
-    m_document->resetSyntaxHighlighter([definitionFilesPath, definition] {
-        auto highlighter = new Highlighter(definitionFilesPath);
+    m_document->resetSyntaxHighlighter([definition] {
+        auto highlighter = new Highlighter;
         highlighter->setDefinition(definition);
         return highlighter;
     });
