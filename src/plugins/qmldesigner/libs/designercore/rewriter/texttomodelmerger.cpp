@@ -1191,16 +1191,18 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         if (auto source = AST::cast<AST::UiSourceElement *>(member)) {
             auto function = AST::cast<AST::FunctionDeclaration *>(source->sourceElement);
 
-            AbstractProperty modelProperty = modelNode.property(function->name.toUtf8());
+            if (function) {
+                AbstractProperty modelProperty = modelNode.property(function->name.toUtf8());
 
-            QString astValue;
-            if (function->body) {
-                astValue = textAt(context->doc(), function->lbraceToken, function->rbraceToken);
-                astValue = astValue.trimmed();
+                QString astValue;
+                if (function->body) {
+                    astValue = textAt(context->doc(), function->lbraceToken, function->rbraceToken);
+                    astValue = astValue.trimmed();
+                }
+
+                syncSignalHandler(modelProperty, astValue, differenceHandler);
+                modelPropertyNames.remove(function->name.toUtf8());
             }
-
-            syncSignalHandler(modelProperty, astValue, differenceHandler);
-            modelPropertyNames.remove(function->name.toUtf8());
         } else if (auto array = AST::cast<AST::UiArrayBinding *>(member)) {
             const QString astPropertyName = toString(array->qualifiedId);
             if (isPropertyChangesType(typeName) || isConnectionsType(typeName)
