@@ -122,6 +122,8 @@ Q_LOGGING_CATEGORY(coreLog, "qtc.core", QtWarningMsg)
            Uses a regular epression as a search term.
     \value FindPreserveCase
            Preserves the case when replacing search terms.
+    \value DontFindBinaryFiles
+           Does not include binary files in search results.
 */
 
 /*!
@@ -868,8 +870,14 @@ Utils::InfoBar *ICore::infoBar()
 
 /*!
     Shows a modal dialog that asks the user if they want to restart \QC.
+
     Uses \a text as the main text in the dialog, and triggers a restart
-    of \QC if the user chooses that option.
+    of \QC if the user selects the \uicontrol {Restart Now} button.
+
+    The dialog also has a \uicontrol Later button. To change the text of the
+    \uicontrol Later button, set \a altButtonText.
+
+    Returns \c true if the user selects \uicontrol {Restart Now}.
 */
 bool ICore::askForRestart(const QString &text, const QString &altButtonText)
 {

@@ -19,19 +19,6 @@ namespace Utils {
  */
 
 /*!
-   \class Utils::TreeWidget
-   \inmodule QtCreator
-
-    \brief The TreeWidget adds setActivationMode to QTreeWidget
-    to allow for single click/double click behavior on
-    platforms where the default is different. Use with care.
-
-    Also adds sane keyboard navigation for mac.
-
-    Note: This uses setUniformRowHeights(true) by default.
- */
-
-/*!
    \class Utils::ListView
    \inmodule QtCreator
 

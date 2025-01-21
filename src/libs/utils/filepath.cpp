@@ -332,6 +332,14 @@ bool FilePath::equalsCaseSensitive(const FilePath &other) const
 }
 
 /*!
+    \class Utils::FilePathWatcher
+    \inmodule QtCreator
+
+    \brief The FilePathWatcher class watches a file at a path for editing,
+    renaming, or deletion.
+*/
+
+/*!
     Returns a FilePathWatcher for this path.
 
     The returned FilePathWatcher emits its signal when the file at this path

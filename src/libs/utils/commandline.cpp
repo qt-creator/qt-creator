@@ -702,7 +702,7 @@ static int quoteArgInternalWin(QString &ret, int bslashes)
 
 // TODO: This documentation is relevant for end-users. Where to put it?
 /*!
- * Uses the macro expander \a mx to perform in-place macro expansion
+ * Searches macros with the function \a findMacro and performs in-place macro expansion
  * (substitution) on the string \a cmd, which is expected to contain a shell
  * command. \a osType specifies the syntax, which is Bourne Shell compatible
  * for Unix and \c cmd compatible for Windows.
