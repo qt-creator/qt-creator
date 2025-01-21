@@ -11,6 +11,14 @@
 using namespace Tasking;
 using namespace std::chrono;
 
+static Group lightState(GlueInterface *iface, Lights lights, const milliseconds &timeout)
+{
+    return {
+        Sync([iface, lights] { iface->setLights(lights); }),
+        timeoutTask(timeout, DoneResult::Success)
+    };
+}
+
 ExecutableItem recipe(GlueInterface *iface)
 {
     return Forever {
@@ -19,39 +27,18 @@ ExecutableItem recipe(GlueInterface *iface)
             parallel,
             signalAwaiter(iface, &GlueInterface::smashed) && DoneResult::Error, // transitions to the "broken" state
             Forever {
-                TimeoutTask( // "red" state
-                    [iface](milliseconds &timeout) {
-                        timeout = 3s;
-                        iface->setLights(Light::Red);
-                    }),
-                TimeoutTask( // "redGoingGreen" state
-                    [iface](milliseconds &timeout) {
-                        timeout = 1s;
-                        iface->setLights(Light::Red | Light::Yellow);
-                    }),
-                TimeoutTask( // "green" state
-                    [iface](milliseconds &timeout) {
-                        timeout = 3s;
-                        iface->setLights(Light::Green);
-                    }),
-                TimeoutTask( // "greenGoingRed" state
-                    [iface](milliseconds &timeout) {
-                        timeout = 1s;
-                        iface->setLights(Light::Yellow);
-                    }),
+                lightState(iface, Light::Red, 3s), // "red" state
+                lightState(iface, Light::Red | Light::Yellow, 1s), // "redGoingGreen" state
+                lightState(iface, Light::Green, 3s), // "green" state
+                lightState(iface, Light::Yellow, 1s), // "greenGoingRed" state
             }
         },
         Group { // "broken" state
             parallel,
             signalAwaiter(iface, &GlueInterface::repaired) && DoneResult::Error, // transitions to the "working" state
             Forever {
-                TimeoutTask( // "blinking" state
-                    [iface](milliseconds &timeout) {
-                        timeout = 1s;
-                        iface->setLights(Light::Yellow);
-                    },
-                    [iface] { iface->setLights(Light::Off); }),
-                TimeoutTask([](milliseconds &timeout) { timeout = 1s; }) // "unblinking" state
+                lightState(iface, Light::Yellow, 1s), // "blinking" state
+                lightState(iface, Light::Off, 1s), // "unblinking" state
             }
         }
     };
