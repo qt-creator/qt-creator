@@ -439,9 +439,9 @@ Utils::FilePath QmlBuildSystem::getStartupQmlFileWithFallback() const
 QmlBuildSystem *QmlBuildSystem::getStartupBuildSystem()
 {
     auto project = ProjectExplorer::ProjectManager::startupProject();
-    if (project && project->activeTarget() && project->activeTarget()->buildSystem()) {
+    if (project && project->activeBuildSystem()) {
         return qobject_cast<QmlProjectManager::QmlBuildSystem *>(
-            project->activeTarget()->buildSystem());
+            project->activeBuildSystem());
     }
     return nullptr;
 }

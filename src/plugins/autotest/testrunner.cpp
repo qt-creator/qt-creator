@@ -563,8 +563,8 @@ void TestRunner::debugTests()
     debugger->runParameters().setDisplayName(config->displayName());
 
     bool useOutputProcessor = true;
-    if (Target *targ = config->project()->activeTarget()) {
-        if (Debugger::DebuggerKitAspect::engineType(targ->kit()) == Debugger::CdbEngineType) {
+    if (Kit *kit = config->project()->activeKit()) {
+        if (Debugger::DebuggerKitAspect::engineType(kit) == Debugger::CdbEngineType) {
             reportResult(ResultType::MessageWarn,
                          Tr::tr("Unable to display test results when using CDB."));
             useOutputProcessor = false;

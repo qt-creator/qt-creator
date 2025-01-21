@@ -2128,8 +2128,8 @@ void EffectComposerModel::bakeShaders()
     resetEffectError(ErrorQMLParsing);
     resetEffectError(ErrorPreprocessor);
 
-    const ProjectExplorer::Target *target = ProjectExplorer::ProjectTree::currentTarget();
-    if (!target) {
+    const ProjectExplorer::Kit *kit = ProjectExplorer::ProjectTree::currentKit();
+    if (!kit) {
         setEffectError(failMessage.arg("Target not found"));
         return;
     }
@@ -2151,7 +2151,7 @@ void EffectComposerModel::bakeShaders()
     QString fs = m_fragmentShader;
     writeToFile(fs.toUtf8(), m_fragmentSourceFilename, FileType::Text);
 
-    QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(target->kit());
+    QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(kit);
     if (!qtVer) {
         setEffectError(failMessage.arg("Qt version not found"));
         return;

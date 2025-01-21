@@ -69,16 +69,7 @@ QmllsClientSettings::QmllsClientSettings()
 
 static QtVersion *qtVersionFromProject(const Project *project)
 {
-    if (!project)
-        return {};
-    auto *target = project->activeTarget();
-    if (!target)
-        return {};
-    auto *kit = target->kit();
-    if (!kit)
-        return {};
-    auto qtVersion = QtKitAspect::qtVersion(kit);
-    return qtVersion;
+    return project ? QtKitAspect::qtVersion(project->activeKit()) : nullptr;
 }
 
 static std::pair<FilePath, QVersionNumber> evaluateLatestQmlls()
@@ -115,21 +106,26 @@ static std::pair<FilePath, QVersionNumber> evaluateLatestQmlls()
     return std::make_pair(latestQmlls, latestVersion);
 }
 
+static std::pair<FilePath, QVersionNumber> evaluateQmlls(const QtVersion *qtVersion)
+{
+    return qmllsSettings()->m_useLatestQmlls
+               ? evaluateLatestQmlls()
+               : std::make_pair(
+                     QmlJS::ModelManagerInterface::qmllsForBinPath(
+                         qtVersion->hostBinPath(), qtVersion->qtVersion()),
+                     qtVersion->qtVersion());
+}
+
 static CommandLine commandLineForQmlls(Project *project)
 {
     const auto *qtVersion = qtVersionFromProject(project);
     QTC_ASSERT(qtVersion, return {});
 
-    auto [executable, version] = qmllsSettings()->m_useLatestQmlls
-                                     ? evaluateLatestQmlls()
-                                     : std::make_pair(
-                                           QmlJS::ModelManagerInterface::qmllsForBinPath(
-                                               qtVersion->hostBinPath(), qtVersion->qtVersion()),
-                                           qtVersion->qtVersion());
+    auto [executable, version] = evaluateQmlls(qtVersion);
 
     CommandLine result{executable, {}};
 
-    if (auto *configuration = project->activeTarget()->activeBuildConfiguration())
+    if (auto *configuration = project->activeBuildConfiguration())
         result.addArgs({"-b", configuration->buildDirectory().path()});
 
     // qmlls 6.8 and later require the import path
@@ -160,13 +156,18 @@ bool QmllsClientSettings::isValidOnProject(ProjectExplorer::Project *project) co
     if (!project || !QtVersionManager::isLoaded())
         return false;
 
-    if (!qtVersionFromProject(project)) {
-        Core::MessageManager::writeSilently(
-            Tr::tr("Current kit does not have a valid Qt version, disabling QML Language Server..."));
+    const QtVersion *qtVersion = qtVersionFromProject(project);
+    if (!qtVersion) {
+        Core::MessageManager::writeSilently(Tr::tr(
+            "Current kit does not have a valid Qt version, disabling QML Language Server..."));
         return false;
     }
 
-    if (m_useLatestQmlls && evaluateLatestQmlls().first.isEmpty())
+    const auto &[filePath, version] = evaluateQmlls(qtVersion);
+
+    if (filePath.isEmpty())
+        return false;
+    if (!m_ignoreMinimumQmllsVersion && version < QmllsClientSettings::mininumQmllsVersion)
         return false;
 
     return true;

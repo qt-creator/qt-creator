@@ -76,11 +76,11 @@ void QmlProject::parsingFinished(const Target *target, bool success)
     // trigger only once
     disconnect(this, &QmlProject::anyParsingFinished, this, &QmlProject::parsingFinished);
 
-    if (!target || !success || !activeTarget())
+    if (!target || !success || !activeBuildSystem())
         return;
 
     const auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
-        activeTarget()->buildSystem());
+        activeBuildSystem());
     if (!qmlBuildSystem)
         return;
 

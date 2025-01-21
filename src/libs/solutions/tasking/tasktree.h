@@ -359,7 +359,7 @@ private:
     template <typename Handler>
     static GroupDoneHandler wrapGroupDone(Handler &&handler)
     {
-        static constexpr bool isDoneResultType = std::is_same_v<Handler, DoneResult>;
+        static constexpr bool isDoneResultType = std::is_same_v<std::decay_t<Handler>, DoneResult>;
         // R, B, V, D stands for: Done[R]esult, [B]ool, [V]oid, [D]oneWith
         static constexpr bool isRD = isInvocable<DoneResult, Handler, DoneWith>();
         static constexpr bool isR = isInvocable<DoneResult, Handler>();
@@ -427,22 +427,11 @@ static GroupItem onGroupDone(Handler &&handler, CallDoneIf callDoneIf = CallDone
     return Group::onGroupDone(std::forward<Handler>(handler), callDoneIf);
 }
 
-class TASKING_EXPORT ParallelLimitFunctor
-{
-public:
-    // Default: 1 (sequential). 0 means unlimited (parallel).
-    GroupItem operator()(int limit) const;
-};
+// Default: 1 (sequential). 0 means unlimited (parallel).
+TASKING_EXPORT GroupItem parallelLimit(int limit);
 
-class TASKING_EXPORT WorkflowPolicyFunctor
-{
-public:
-    // Default: WorkflowPolicy::StopOnError.
-    GroupItem operator()(WorkflowPolicy policy) const;
-};
-
-TASKING_EXPORT extern const ParallelLimitFunctor parallelLimit;
-TASKING_EXPORT extern const WorkflowPolicyFunctor workflowPolicy;
+// Default: WorkflowPolicy::StopOnError.
+TASKING_EXPORT GroupItem workflowPolicy(WorkflowPolicy policy);
 
 TASKING_EXPORT extern const GroupItem sequential;
 TASKING_EXPORT extern const GroupItem parallel;
@@ -575,7 +564,7 @@ private:
     static InterfaceDoneHandler wrapDone(Handler &&handler) {
         if constexpr (std::is_same_v<Handler, TaskDoneHandler>)
             return {}; // User passed {} for the done handler.
-        static constexpr bool isDoneResultType = std::is_same_v<Handler, DoneResult>;
+        static constexpr bool isDoneResultType = std::is_same_v<std::decay_t<Handler>, DoneResult>;
         // R, B, V, T, D stands for: Done[R]esult, [B]ool, [V]oid, [T]ask, [D]oneWith
         static constexpr bool isRTD = isInvocable<DoneResult, Handler, const Task &, DoneWith>();
         static constexpr bool isRT = isInvocable<DoneResult, Handler, const Task &>();

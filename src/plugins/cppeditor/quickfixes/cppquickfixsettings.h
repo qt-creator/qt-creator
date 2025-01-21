@@ -68,6 +68,8 @@ public:
     void saveAsGlobalSettings();
     void setDefaultSettings();
 
+    static QString memberBaseName(
+        const QString &name, const std::optional<QString> &baseNameTemplate = {});
     static QString replaceNamePlaceholders(const QString &nameTemplate, const QString &name);
     bool isValueType(QString type) const;
     GetterSetterTemplate findGetterSetterTemplate(QString fullyQualifiedType) const;

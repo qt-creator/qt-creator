@@ -169,11 +169,9 @@ std::optional<Utils::FilePath> clangdExecutableFromBuildDevice(Project *project)
     if (!project)
         return std::nullopt;
 
-    if (ProjectExplorer::Target *target = project->activeTarget()) {
-        if (const ProjectExplorer::IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(
-                target->kit())) {
-            return buildDevice->clangdExecutable();
-        }
+    if (const ProjectExplorer::IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(
+            project->activeKit())) {
+        return buildDevice->clangdExecutable();
     }
 
     return std::nullopt;

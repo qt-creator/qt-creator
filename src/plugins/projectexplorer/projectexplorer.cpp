@@ -283,9 +283,9 @@ static std::optional<Environment> sysEnv(const Project *)
 
 static std::optional<Environment> buildEnv(const Project *project)
 {
-    if (!project || !project->activeTarget() || !project->activeTarget()->activeBuildConfiguration())
+    if (!project || !project->activeBuildConfiguration())
         return {};
-    return project->activeTarget()->activeBuildConfiguration()->environment();
+    return project->activeBuildConfiguration()->environment();
 }
 
 static const RunConfiguration *runConfigForNode(const Target *target, const ProjectNode *node)
@@ -323,33 +323,26 @@ static bool canOpenTerminalWithRunEnv(const Project *project, const ProjectNode 
     IDevice::ConstPtr device
         = DeviceManager::deviceForPath(runConfig->runnable().command.executable());
     if (!device)
-        device = RunDeviceKitAspect::device(target->kit());
+        device = RunDeviceKitAspect::device(project->activeKit());
     return device && device->canOpenTerminal();
 }
 
 static BuildConfiguration *currentBuildConfiguration()
 {
     const Project * const project = ProjectTree::currentProject();
-    const Target * const target = project ? project->activeTarget() : nullptr;
-    return target ? target->activeBuildConfiguration() : nullptr;
-}
-
-static Target *activeTarget()
-{
-    const Project * const project = ProjectManager::startupProject();
-    return project ? project->activeTarget() : nullptr;
+    return project ? project->activeBuildConfiguration() : nullptr;
 }
 
 static BuildConfiguration *activeBuildConfiguration()
 {
-    const Target * const target = activeTarget();
-    return target ? target->activeBuildConfiguration() : nullptr;
+    const Project * const project = ProjectManager::startupProject();
+    return project ? project->activeBuildConfiguration() : nullptr;
 }
 
 static RunConfiguration *activeRunConfiguration()
 {
-    const Target * const target = activeTarget();
-    return target ? target->activeRunConfiguration() : nullptr;
+    const Project * const project = ProjectManager::startupProject();
+    return project ? project->activeRunConfiguration() : nullptr;
 }
 
 static bool isTextFile(const FilePath &filePath)
@@ -1741,9 +1734,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(dd->m_buildForRunConfigAction, &QAction::triggered, dd, [] {
         const Project * const project = ProjectManager::startupProject();
         QTC_ASSERT(project, return);
-        const Target * const target = project->activeTarget();
-        QTC_ASSERT(target, return);
-        const RunConfiguration * const runConfig = target->activeRunConfiguration();
+        const RunConfiguration * const runConfig = project->activeRunConfiguration();
         QTC_ASSERT(runConfig, return);
         ProjectNode * const productNode = runConfig->productNode();
         QTC_ASSERT(productNode, return);
@@ -1928,8 +1919,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     EnvironmentProvider::addProvider(
         {"CurrentDocument:Project:RunConfig:Env", Tr::tr("Current Run Environment"), [] {
              const Project *const project = ProjectTree::currentProject();
-             const Target *const target = project ? project->activeTarget() : nullptr;
-             const RunConfiguration *const rc = target ? target->activeRunConfiguration() : nullptr;
+             const RunConfiguration *const rc = project ? project->activeRunConfiguration() : nullptr;
              if (rc) {
                  if (auto envAspect = rc->aspect<EnvironmentAspect>())
                      return envAspect->environment();
@@ -2704,14 +2694,13 @@ void ProjectExplorerPluginPrivate::updateActions()
                                   ? Icons::CANCELBUILD_FLAT.icon()
                                   : buildAction->icon());
 
-    const RunConfiguration * const runConfig = project && project->activeTarget()
-            ? project->activeTarget()->activeRunConfiguration() : nullptr;
+    const RunConfiguration * const runConfig = project ? project->activeRunConfiguration() : nullptr;
 
     // Normal actions
     m_buildAction->setParameter(projectName);
     m_buildProjectForAllConfigsAction->setParameter(projectName);
     if (runConfig)
-        m_buildForRunConfigAction->setParameter(runConfig->displayName());
+        m_buildForRunConfigAction->setParameter(runConfig->expandedDisplayName());
 
     m_buildAction->setEnabled(buildActionState.first);
     m_buildProjectForAllConfigsAction->setEnabled(buildActionState.first);
@@ -2928,9 +2917,7 @@ void ProjectExplorerPluginPrivate::runProjectContextMenu(RunConfiguration *rc)
 static bool hasBuildSettings(const Project *pro)
 {
     return Utils::anyOf(ProjectManager::projectOrder(pro), [](const Project *project) {
-        return project
-                && project->activeTarget()
-                && project->activeTarget()->activeBuildConfiguration();
+        return project && project->activeBuildConfiguration();
     });
 }
 
@@ -2941,14 +2928,13 @@ static QPair<bool, QString> subprojectEnabledState(const Project *pro)
 
     const QList<Project *> &projects = ProjectManager::projectOrder(pro);
     for (const Project *project : projects) {
-        if (project && project->activeTarget()
-            && project->activeTarget()->activeBuildConfiguration()
-            && !project->activeTarget()->activeBuildConfiguration()->isEnabled()) {
+        if (project && project->activeBuildConfiguration()
+            && !project->activeBuildConfiguration()->isEnabled()) {
             result.first = false;
             result.second
                 += Tr::tr("Building \"%1\" is disabled: %2<br>")
                        .arg(project->displayName(),
-                            project->activeTarget()->activeBuildConfiguration()->disabledReason());
+                            project->activeBuildConfiguration()->disabledReason());
         }
     }
 
@@ -3040,8 +3026,7 @@ void ProjectExplorerPlugin::handleCommandLineArguments(const QStringList &argume
 static bool hasDeploySettings(Project *pro)
 {
     return Utils::anyOf(ProjectManager::projectOrder(pro), [](Project *project) {
-        return project->activeTarget()
-                && project->activeTarget()->activeDeployConfiguration();
+        return project->activeDeployConfiguration();
     });
 }
 
@@ -3050,9 +3035,8 @@ void ProjectExplorerPlugin::runProject(Project *pro, Id mode, const bool forceSk
     if (!pro)
         return;
 
-    if (Target *target = pro->activeTarget())
-        if (RunConfiguration *rc = target->activeRunConfiguration())
-            runRunConfiguration(rc, mode, forceSkipDeploy);
+    if (RunConfiguration *rc = pro->activeRunConfiguration())
+        runRunConfiguration(rc, mode, forceSkipDeploy);
 }
 
 void ProjectExplorerPlugin::runStartupProject(Id runMode, bool forceSkipDeploy)
@@ -3153,9 +3137,8 @@ void ProjectExplorerPluginPrivate::updateDeployActions()
     bool enableDeploySessionAction = true;
     if (projectExplorerSettings().buildBeforeDeploy != BuildBeforeRunMode::Off) {
         auto hasDisabledBuildConfiguration = [](Project *project) {
-            return project && project->activeTarget()
-                    && project->activeTarget()->activeBuildConfiguration()
-                    && !project->activeTarget()->activeBuildConfiguration()->isEnabled();
+            return project && project->activeBuildConfiguration()
+                    && !project->activeBuildConfiguration()->isEnabled();
         };
 
         if (Utils::anyOf(ProjectManager::projectOrder(nullptr), hasDisabledBuildConfiguration))
@@ -3179,17 +3162,17 @@ Result ProjectExplorerPlugin::canRunStartupProject(Utils::Id runMode)
                                    .arg(project->displayName()));
     }
 
-    Target *target = project->activeTarget();
-    if (!target) {
+    Kit *kit = project->activeKit();
+    if (!kit) {
         return Result::Error(Tr::tr("The project \"%1\" has no active kit.")
                                    .arg(project->displayName()));
     }
 
-    RunConfiguration *activeRC = target->activeRunConfiguration();
+    RunConfiguration *activeRC = project->activeRunConfiguration();
     if (!activeRC) {
         return Result::Error(
             Tr::tr("The kit \"%1\" for the project \"%2\" has no active run configuration.")
-                .arg(target->displayName(), project->displayName()));
+                .arg(kit->displayName(), project->displayName()));
     }
 
     if (!activeRC->isEnabled(runMode))
@@ -3208,10 +3191,8 @@ Result ProjectExplorerPlugin::canRunStartupProject(Utils::Id runMode)
     }
 
     // shouldn't actually be shown to the user...
-    if (!RunControl::canRun(runMode, RunDeviceTypeKitAspect::deviceTypeId(target->kit()),
-                            activeRC->id())) {
+    if (!RunControl::canRun(runMode, RunDeviceTypeKitAspect::deviceTypeId(kit), activeRC->id()))
         return Result::Error(Tr::tr("Cannot run \"%1\".").arg(activeRC->displayName()));
-    }
 
     if (dd->m_delayedRunConfiguration && dd->m_delayedRunConfiguration->project() == project)
         return Result::Error(Tr::tr("A run action is already scheduled for the active project."));
@@ -3414,10 +3395,11 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
         };
 
         bool canEditProject = true;
-        if (project && project->activeTarget()) {
-            const BuildSystem * const bs = project->activeTarget()->buildSystem();
-            if (bs->isParsing() || bs->isWaitingForParse())
+        if (project) {
+            if (const BuildSystem * const bs = project->activeBuildSystem();
+                    bs && (bs->isParsing() || bs->isWaitingForParse())) {
                 canEditProject = false;
+            }
         }
         if (currentNode->asFolderNode()) {
             // Also handles ProjectNode
@@ -3800,9 +3782,9 @@ void ProjectExplorerPluginPrivate::showInFileSystemPane()
 
 static BuildConfiguration *activeBuildConfiguration(Project *project)
 {
-    if (!project || !project->activeTarget() || !project->activeTarget()->activeBuildConfiguration())
+    if (!project || !project->activeBuildConfiguration())
         return {};
-    return project->activeTarget()->activeBuildConfiguration();
+    return project->activeBuildConfiguration();
 }
 
 void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env)

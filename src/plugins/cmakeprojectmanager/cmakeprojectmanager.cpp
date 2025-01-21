@@ -421,10 +421,7 @@ void CMakeManager::enableBuildFileMenus(Node *node)
     Project *project = ProjectTree::projectForNode(node);
     if (!project)
         return;
-    Target *target = project->activeTarget();
-    if (!target)
-        return;
-    const QString generator = CMakeGeneratorKitAspect::generator(target->kit());
+    const QString generator = CMakeGeneratorKitAspect::generator(project->activeKit());
     if (generator != "Ninja" && !generator.contains("Makefiles"))
         return;
 
@@ -630,12 +627,10 @@ void CMakeManager::buildFile(Node *node)
         if (wasHeader && !sourceFile.isEmpty())
             filePath = sourceFile;
     }
-    Target *target = project->activeTarget();
-    QTC_ASSERT(target, return);
-    const QString generator = CMakeGeneratorKitAspect::generator(target->kit());
+    const QString generator = CMakeGeneratorKitAspect::generator(project->activeKit());
     const FilePath relativeSource = filePath.relativeChildPath(targetNode->filePath());
     Utils::FilePath targetBase;
-    BuildConfiguration *bc = target->activeBuildConfiguration();
+    BuildConfiguration *bc = project->activeBuildConfiguration();
     QTC_ASSERT(bc, return);
     if (generator == "Ninja") {
         const Utils::FilePath relativeBuildDir = targetNode->buildDirectory().relativeChildPath(
@@ -659,8 +654,8 @@ void CMakeManager::buildFile(Node *node)
             return extension;
 
         const auto toolchain = ProjectFile::isCxx(sourceKind)
-                                   ? ToolchainKitAspect::cxxToolchain(target->kit())
-                                   : ToolchainKitAspect::cToolchain(target->kit());
+                                   ? ToolchainKitAspect::cxxToolchain(project->activeKit())
+                                   : ToolchainKitAspect::cToolchain(project->activeKit());
         using namespace ProjectExplorer::Constants;
         static QSet<Id> objIds{
             CLANG_CL_TOOLCHAIN_TYPEID,

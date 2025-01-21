@@ -1025,8 +1025,7 @@ void InternalLibraryDetailsController::updateProFile()
 
     m_rootProjectPath = project->projectDirectory().toUrlishString();
 
-    auto t = project->activeTarget();
-    auto bs = dynamic_cast<QmakeBuildSystem *>(t ? t->buildSystem() : nullptr);
+    auto bs = dynamic_cast<QmakeBuildSystem *>(project ? project->activeBuildSystem() : nullptr);
     QTC_ASSERT(bs, return);
 
     QDir rootDir(m_rootProjectPath);
@@ -1106,9 +1105,8 @@ QString InternalLibraryDetailsController::snippet() const
     // the build directory of the active build configuration
     QDir rootBuildDir = rootDir; // If the project is unconfigured use the project dir
     if (const Project *project = ProjectManager::projectForFile(proFile())) {
-        if (ProjectExplorer::Target *t = project->activeTarget())
-            if (ProjectExplorer::BuildConfiguration *bc = t->activeBuildConfiguration())
-                rootBuildDir.setPath(bc->buildDirectory().toUrlishString());
+        if (ProjectExplorer::BuildConfiguration *bc = project->activeBuildConfiguration())
+            rootBuildDir.setPath(bc->buildDirectory().toUrlishString());
     }
 
     // the project for which we insert the snippet inside build tree

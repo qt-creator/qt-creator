@@ -51,11 +51,11 @@ public:
     TextBlockUserData() = default;
     ~TextBlockUserData() override;
 
-    inline TextMarks marks() const { return m_marks; }
+    TextMarks marks() const { return m_marks; }
     void addMark(TextMark *mark);
-    inline bool removeMark(TextMark *mark) { return m_marks.removeAll(mark); }
+    bool removeMark(TextMark *mark) { return m_marks.removeAll(mark); }
 
-    inline TextMarks documentClosing() {
+    TextMarks documentClosing() {
         const TextMarks marks = m_marks;
         for (TextMark *mrk : marks)
             mrk->setBaseTextDocument(nullptr);
@@ -63,18 +63,20 @@ public:
         return marks;
     }
 
-    inline void setFolded(bool b) { m_folded = b; }
-    inline bool folded() const { return m_folded; }
+    void setFolded(bool b) { m_folded = b; }
+    bool folded() const { return m_folded; }
 
-    inline void setParentheses(const Parentheses &parentheses) { m_parentheses = parentheses; }
-    inline void clearParentheses() { m_parentheses.clear(); }
-    inline const Parentheses &parentheses() const { return m_parentheses; }
-    inline bool hasParentheses() const { return !m_parentheses.isEmpty(); }
+    void setParentheses(const Parentheses &parentheses) { m_parentheses = parentheses; }
+    void clearParentheses() { m_parentheses.clear(); }
+    const Parentheses &parentheses() const { return m_parentheses; }
+    bool hasParentheses() const { return !m_parentheses.isEmpty(); }
     int braceDepthDelta() const;
+    int braceDepth() const { return m_braceDepth; }
+    void setBraceDepth(int depth) { m_braceDepth = depth; }
 
-    inline bool setIfdefedOut() { bool result = m_ifdefedOut; m_ifdefedOut = true; return !result; }
-    inline bool clearIfdefedOut() { bool result = m_ifdefedOut; m_ifdefedOut = false; return result;}
-    inline bool ifdefedOut() const { return m_ifdefedOut; }
+    bool setIfdefedOut() { bool result = m_ifdefedOut; m_ifdefedOut = true; return !result; }
+    bool clearIfdefedOut() { bool result = m_ifdefedOut; m_ifdefedOut = false; return result;}
+    bool ifdefedOut() const { return m_ifdefedOut; }
 
 
     enum MatchType { NoMatch, Match, Mismatch  };
@@ -90,30 +92,30 @@ public:
     static bool findNextBlockClosingParenthesis(QTextCursor *cursor);
 
     // Get the code folding level
-    inline int foldingIndent() const { return m_foldingIndent; }
+    int foldingIndent() const { return m_foldingIndent; }
     /* Set the code folding level.
      *
      * A code folding marker will appear the line *before* the one where the indention
      * level increases. The code folding reagion will end in the last line that has the same
      * indention level (or higher).
      */
-    inline void setFoldingIndent(int indent) { m_foldingIndent = indent; }
+    void setFoldingIndent(int indent) { m_foldingIndent = indent; }
     // Set whether the first character of the folded region will show when the code is folded.
-    inline void setFoldingStartIncluded(bool included) { m_foldingStartIncluded = included; }
-    inline bool foldingStartIncluded() const { return m_foldingStartIncluded; }
+    void setFoldingStartIncluded(bool included) { m_foldingStartIncluded = included; }
+    bool foldingStartIncluded() const { return m_foldingStartIncluded; }
     // Set whether the last character of the folded region will show when the code is folded.
-    inline void setFoldingEndIncluded(bool included) { m_foldingEndIncluded = included; }
-    inline bool foldingEndIncluded() const { return m_foldingEndIncluded; }
-    inline int lexerState() const { return m_lexerState; }
-    inline void setLexerState(int state) { m_lexerState = state; }
+    void setFoldingEndIncluded(bool included) { m_foldingEndIncluded = included; }
+    bool foldingEndIncluded() const { return m_foldingEndIncluded; }
+    int lexerState() const { return m_lexerState; }
+    void setLexerState(int state) { m_lexerState = state; }
 
-    inline void setAdditionalAnnotationHeight(int annotationHeight)
+    void setAdditionalAnnotationHeight(int annotationHeight)
     { m_additionalAnnotationHeight = annotationHeight; }
-    inline int additionalAnnotationHeight() const { return m_additionalAnnotationHeight; }
+    int additionalAnnotationHeight() const { return m_additionalAnnotationHeight; }
 
-    inline void addEmbeddedWidget(QWidget *widget) { m_embeddedWidgets.append(widget); }
-    inline void removeEmbeddedWidget(QWidget *widget) { m_embeddedWidgets.removeAll(widget); }
-    inline QList<QPointer<QWidget>> embeddedWidgets() const { return m_embeddedWidgets; }
+    void addEmbeddedWidget(QWidget *widget) { m_embeddedWidgets.append(widget); }
+    void removeEmbeddedWidget(QWidget *widget) { m_embeddedWidgets.removeAll(widget); }
+    QList<QPointer<QWidget>> embeddedWidgets() const { return m_embeddedWidgets; }
 
     CodeFormatterData *codeFormatterData() const { return m_codeFormatterData; }
     void setCodeFormatterData(CodeFormatterData *data);
@@ -134,12 +136,13 @@ public:
 private:
     TextMarks m_marks;
     int m_foldingIndent : 16 = 0;
+    int m_braceDepth : 16 = 0;
+    int m_additionalAnnotationHeight : 16 = 0;
     int m_lexerState : 8 = 0;
     uint m_folded : 1 = false;
     uint m_ifdefedOut : 1 = false;
     uint m_foldingStartIncluded : 1 = false;
     uint m_foldingEndIncluded : 1 = false;
-    int m_additionalAnnotationHeight = 0;
     Parentheses m_parentheses;
     CodeFormatterData *m_codeFormatterData = nullptr;
     KSyntaxHighlighting::State m_syntaxState;
@@ -167,8 +170,8 @@ public:
     static bool ifdefedOut(const QTextBlock &block);
     static int braceDepthDelta(const QTextBlock &block);
     static int braceDepth(const QTextBlock &block);
-    static void setBraceDepth(QTextBlock &block, int depth);
-    static void changeBraceDepth(QTextBlock &block, int delta);
+    static void setBraceDepth(const QTextBlock &block, int depth);
+    static void changeBraceDepth(const QTextBlock &block, int delta);
     static void setFoldingIndent(const QTextBlock &block, int indent);
     static int foldingIndent(const QTextBlock &block);
     static void setLexerState(const QTextBlock &block, int state);
@@ -183,8 +186,7 @@ public:
     static TextSuggestion *suggestion(const QTextBlock &block);
     static void setAttributeState(const QTextBlock &block, quint8 attrState);
     static quint8 attributeState(const QTextBlock &block);
-    static void updateSuggestionFormats(const QTextBlock &block,
-                                        const FontSettings &fontSettings);
+    static void updateSuggestionFormats(const QTextBlock &block, const FontSettings &fontSettings);
 
     class TEXTEDITOR_EXPORT FoldValidator
     {
@@ -231,6 +233,8 @@ public:
     void updateMarksBlock(const QTextBlock &block);
     void scheduleUpdate();
     void requestUpdateNow();
+
+    int embeddedWidgetOffset(const QTextBlock &block, QWidget *widget);
 
 private:
     bool m_updateScheduled = false;

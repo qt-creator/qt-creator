@@ -199,13 +199,11 @@ void PyLSClient::openDocument(TextEditor::TextDocument *document)
     if (reachable()) {
         const FilePath documentPath = document->filePath();
         if (PythonProject *project = pythonProjectForFile(documentPath)) {
-            if (Target *target = project->activeTarget()) {
-                if (BuildConfiguration *buildConfig = target->activeBuildConfiguration()) {
-                    if (BuildStepList *buildSteps = buildConfig->buildSteps()) {
-                        BuildStep *buildStep = buildSteps->firstStepWithId(PySideBuildStep::id());
-                        if (auto *pythonBuildStep = qobject_cast<PySideBuildStep *>(buildStep))
-                            updateExtraCompilers(project, pythonBuildStep->extraCompilers());
-                    }
+            if (BuildConfiguration *buildConfig = project->activeBuildConfiguration()) {
+                if (BuildStepList *buildSteps = buildConfig->buildSteps()) {
+                    BuildStep *buildStep = buildSteps->firstStepWithId(PySideBuildStep::id());
+                    if (auto *pythonBuildStep = qobject_cast<PySideBuildStep *>(buildStep))
+                        updateExtraCompilers(project, pythonBuildStep->extraCompilers());
                 }
             }
         } else if (isSupportedDocument(document)) {

@@ -144,14 +144,9 @@ public:
     QdbQmlToolingWorkerFactory()
     {
         setProducer([](RunControl *runControl) {
-            auto worker = new RunWorker(runControl);
-            worker->setId("QdbDeviceQmlToolingSupport");
-
             runControl->requestQmlChannel();
             const QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
-            auto runner = createQdbDeviceInferiorWorker(runControl, services);
-            worker->addStartDependency(runner);
-            worker->addStopDependency(runner);
+            auto worker = createQdbDeviceInferiorWorker(runControl, services);
 
             auto extraWorker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
             extraWorker->addStartDependency(worker);

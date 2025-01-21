@@ -416,8 +416,7 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
     }
 
     const Project * const project = ProjectTree::currentProject();
-    if (!project || !project->activeTarget()
-            || !project->activeTarget()->activeBuildConfiguration()) {
+    if (!project || !project->activeBuildConfiguration()) {
         showFallbackWarning(Tr::tr("Could not determine which compiler to invoke."));
         useBuiltinPreprocessor();
         return;
@@ -426,9 +425,9 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
     const Toolchain * tc = nullptr;
     const ProjectFile classifier(filePath, ProjectFile::classify(filePath.toUrlishString()));
     if (classifier.isC()) {
-        tc = ToolchainKitAspect::cToolchain(project->activeTarget()->kit());
+        tc = ToolchainKitAspect::cToolchain(project->activeKit());
     } else if (classifier.isCxx() || classifier.isHeader()) {
-        tc = ToolchainKitAspect::cxxToolchain(project->activeTarget()->kit());
+        tc = ToolchainKitAspect::cxxToolchain(project->activeKit());
     } else {
         showFallbackWarning(Tr::tr("Could not determine which compiler to invoke."));
         useBuiltinPreprocessor();
@@ -468,7 +467,7 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
     const CommandLine compilerCommandLine(tc->compilerCommand(), compilerArgs);
     const auto compiler = new Process(instance());
     compiler->setCommand(compilerCommandLine);
-    compiler->setEnvironment(project->activeTarget()->activeBuildConfiguration()->environment());
+    compiler->setEnvironment(project->activeBuildConfiguration()->environment());
     connect(compiler, &Process::done, instance(), [compiler, outFilePath, inNextSplit,
                                                       useBuiltinPreprocessor, isMsvc] {
         compiler->deleteLater();

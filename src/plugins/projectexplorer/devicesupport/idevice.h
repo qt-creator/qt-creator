@@ -74,7 +74,6 @@ protected:
     explicit DeviceProcessSignalOperation();
 
     Utils::FilePath m_debuggerCommand;
-    Utils::Result m_result = Utils::Result::Ok;
 };
 
 // See cpp file for documentation.
@@ -309,7 +308,7 @@ class PROJECTEXPLORER_EXPORT DeviceProcessKiller : public QObject
 public:
     void setProcessPath(const Utils::FilePath &path) { m_processPath = path; }
     void start();
-    QString errorString() const { return m_errorString; }
+    Utils::Result result() const { return m_result; }
 
 signals:
     void done(Tasking::DoneResult result);
@@ -317,7 +316,7 @@ signals:
 private:
     Utils::FilePath m_processPath;
     DeviceProcessSignalOperation::Ptr m_signalOperation;
-    QString m_errorString; // TODO: Replace with Result
+    Utils::Result m_result = Utils::Result::Ok;
 };
 
 class PROJECTEXPLORER_EXPORT DeviceProcessKillerTaskAdapter final

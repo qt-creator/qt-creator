@@ -77,8 +77,7 @@ void AndroidSignalOperation::killProcess(qint64 pid)
 void AndroidSignalOperation::killProcess(const QString &filePath)
 {
     Q_UNUSED(filePath)
-    m_result = Result::Error("The android signal operation does not support killing by filepath.");
-    emit finished(m_result);
+    emit finished(Result::Error("The android signal operation does not support killing by filepath."));
 }
 
 void AndroidSignalOperation::interruptProcess(qint64 pid)

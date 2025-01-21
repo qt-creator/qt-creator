@@ -217,10 +217,7 @@ void PySideInstaller::handleDocumentOpened(Core::IDocument *document)
     PythonProject *project = pythonProjectForFile(textDocument->filePath());
     if (!project)
         return;
-    Target *target = project->activeTarget();
-    if (!target)
-        return;
-    BuildConfiguration *buildConfig = target->activeBuildConfiguration();
+    BuildConfiguration *buildConfig = project->activeBuildConfiguration();
     if (!buildConfig)
         return;
     auto *pythonBuildConfig = qobject_cast<PythonBuildConfiguration *>(buildConfig);

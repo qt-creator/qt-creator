@@ -97,7 +97,6 @@ const char CMAKE_BUILD_TYPE[] = "CMake.Build.Type";
 const char CLEAR_SYSTEM_ENVIRONMENT_KEY[] = "CMake.Configure.ClearSystemEnvironment";
 const char USER_ENVIRONMENT_CHANGES_KEY[] = "CMake.Configure.UserEnvironmentChanges";
 const char BASE_ENVIRONMENT_KEY[] = "CMake.Configure.BaseEnvironment";
-const char GENERATE_QMLLS_INI_SETTING[] = "J.QtQuick/QmlJSEditor.GenerateQmllsIniFiles";
 
 const char CMAKE_TOOLCHAIN_FILE[] = "CMAKE_TOOLCHAIN_FILE";
 const char CMAKE_C_FLAGS_INIT[] = "CMAKE_C_FLAGS_INIT";
@@ -648,13 +647,29 @@ void CMakeBuildSettingsWidget::updatePackageManagerAutoSetup(CMakeConfig &initia
     }
 }
 
+static bool isGenerateQmllsSettingsEnabled()
+{
+    constexpr char settingsKey[] = "LanguageClient/typedClients";
+    constexpr char qmllsTypeId[] = "LanguageClient::QmllsClientSettingsID";
+    constexpr char typeIdKey[] = "typeId";
+    constexpr char generateQmllsIniFilesKey[] = "generateQmllsIniFiles";
+
+    const QtcSettings *settings = Core::ICore::settings();
+    for (const QVariant &client : settings->value(settingsKey).toList()) {
+        const Store map = storeFromVariant(client);
+        if (map.value(typeIdKey).toString() == qmllsTypeId)
+            return map[generateQmllsIniFilesKey].toBool();
+    }
+    QTC_ASSERT(false, return false);
+}
+
 void CMakeBuildSettingsWidget::updateInitialCMakeArguments()
 {
     CMakeConfig initialList = m_buildConfig->initialCMakeArguments.cmakeConfiguration();
 
     // set QT_QML_GENERATE_QMLLS_INI if it is enabled via the settings checkbox and if its not part
     // of the initial CMake arguments yet
-    if (Core::ICore::settings()->value(GENERATE_QMLLS_INI_SETTING).toBool()) {
+    if (isGenerateQmllsSettingsEnabled()) {
         if (std::none_of(
                 initialList.constBegin(), initialList.constEnd(), [](const CMakeConfigItem &item) {
                     return item.key == "QT_QML_GENERATE_QMLLS_INI";
@@ -1594,7 +1609,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                 QLatin1String("-D") + CMAKE_CXX_FLAGS_INIT + ":STRING=%{" + QT_QML_DEBUG_FLAG + "}");
 
         // QT_QML_GENERATE_QMLLS_INI, if enabled via the settings checkbox:
-        if (Core::ICore::settings()->value(GENERATE_QMLLS_INI_SETTING).toBool()) {
+        if (isGenerateQmllsSettingsEnabled()) {
             cmd.addArg("-DQT_QML_GENERATE_QMLLS_INI:BOOL=ON");
         }
 

@@ -94,11 +94,9 @@ static void reportRenamingError(const QString &oldName, const QString &reason)
 
 static std::optional<QVersionNumber> qtVersionFromProject(const Project *project)
 {
-    if (const auto *target = project->activeTarget()) {
-        if (const auto *kit = target->kit(); kit->isValid()) {
-            if (const auto *qtVersion = QtSupport::QtKitAspect::qtVersion(kit))
-                return qtVersion->qtVersion();
-        }
+    if (const auto *kit = project->activeKit(); kit->isValid()) {
+        if (const auto *qtVersion = QtSupport::QtKitAspect::qtVersion(kit))
+            return qtVersion->qtVersion();
     }
     return std::nullopt;
 }
@@ -716,10 +714,7 @@ void QtCreatorIntegration::handleSymbolRenameStage1(
         return reportRenamingError(oldName, Designer::Tr::tr("File \"%1\" not found in project.")
                                    .arg(uiFile.toUserOutput()));
     }
-    const Target * const target = project->activeTarget();
-    if (!target)
-        return reportRenamingError(oldName, Designer::Tr::tr("No active target."));
-    BuildSystem * const buildSystem = target->buildSystem();
+    BuildSystem * const buildSystem = project->activeBuildSystem();
     if (!buildSystem)
         return reportRenamingError(oldName, Designer::Tr::tr("No active build system."));
     ExtraCompiler * const ec = buildSystem->extraCompilerForSource(uiFile);

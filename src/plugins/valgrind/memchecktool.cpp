@@ -908,9 +908,8 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
 
     ValgrindSettings *settings = nullptr;
     if (Project *project = ProjectManager::startupProject())
-        if (Target *target = project->activeTarget())
-            if (RunConfiguration *rc = target->activeRunConfiguration())
-                settings = rc->currentSettings<ValgrindSettings>(ANALYZER_VALGRIND_SETTINGS);
+        if (RunConfiguration *rc = project->activeRunConfiguration())
+            settings = rc->currentSettings<ValgrindSettings>(ANALYZER_VALGRIND_SETTINGS);
 
     if (!settings) // fallback to global settings
         settings = &globalSettings();

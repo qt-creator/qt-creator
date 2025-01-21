@@ -62,6 +62,10 @@ Projects
 
 ### Workspace
 
+### Autotools
+
+### Meson
+
 ### vcpkg
 
 ### Qt Safe Renderer
@@ -80,7 +84,11 @@ Analyzer
 
 ### Clang
 
+### QML Profiler
+
 ### Axivion
+
+### Coco
 
 ### CTF Visualizer
 

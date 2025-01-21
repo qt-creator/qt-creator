@@ -88,7 +88,7 @@ CocoProjectWidget::CocoProjectWidget(Project *project, BuildConfiguration *build
     connect(&m_revertButton, &QPushButton::clicked, this, &CocoProjectWidget::onRevertButtonClicked);
     connect(&m_saveButton, &QPushButton::clicked, this, &CocoProjectWidget::onSaveButtonClicked);
 
-    connect(GlobalSettingsPage::instance().widget(), &GlobalSettingsWidget::updateCocoDir, this, &CocoProjectWidget::reloadSettings);
+    connect(&cocoSettings(), &CocoSettings::updateCocoDir, this, &CocoProjectWidget::reloadSettings);
 }
 
 // Read the build settings again and show them in the widget.

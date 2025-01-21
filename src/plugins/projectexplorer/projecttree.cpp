@@ -89,16 +89,16 @@ Project *ProjectTree::currentProject()
     return s_instance->m_currentProject;
 }
 
-Target *ProjectTree::currentTarget()
+Kit *ProjectTree::currentKit()
 {
     Project *p = currentProject();
-    return p ? p->activeTarget() : nullptr;
+    return p ? p->activeKit() : nullptr;
 }
 
 BuildSystem *ProjectTree::currentBuildSystem()
 {
-    Target *t = currentTarget();
-    return t ? t->buildSystem() : nullptr;
+    Project *p = currentProject();
+    return p ? p->activeBuildSystem() : nullptr;
 }
 
 Node *ProjectTree::currentNode()

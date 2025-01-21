@@ -124,40 +124,6 @@ static FullySpecifiedType typeAtDifferentLocation(
     return rewriteType(type, &env, control);
 }
 
-static QString memberBaseName(const QString &name)
-{
-    const auto validName = [](const QString &name) {
-        return !name.isEmpty() && !name.at(0).isDigit();
-    };
-    QString baseName = name;
-
-    const CppQuickFixSettings * const settings = CppQuickFixProjectsSettings::getQuickFixSettings(
-        ProjectExplorer::ProjectTree::currentProject());
-    if (!settings->nameFromMemberVariableTemplate.isEmpty()) {
-        return CppQuickFixSettings::replaceNamePlaceholders(
-                    settings->nameFromMemberVariableTemplate, name);
-    }
-
-    // Remove leading and trailing "_"
-    while (baseName.startsWith(QLatin1Char('_')))
-        baseName.remove(0, 1);
-    while (baseName.endsWith(QLatin1Char('_')))
-        baseName.chop(1);
-    if (baseName != name && validName(baseName))
-        return baseName;
-
-    // If no leading/trailing "_": remove "m_" and "m" prefix
-    if (baseName.startsWith(QLatin1String("m_"))) {
-        baseName.remove(0, 2);
-    } else if (baseName.startsWith(QLatin1Char('m')) && baseName.length() > 1
-               && baseName.at(1).isUpper()) {
-        baseName.remove(0, 1);
-        baseName[0] = baseName.at(0).toLower();
-    }
-
-    return validName(baseName) ? baseName : name;
-}
-
 static std::optional<FullySpecifiedType> getFirstTemplateParameter(const Name *name)
 {
     if (const QualifiedNameId *qualifiedName = name->asQualifiedNameId())
@@ -203,7 +169,7 @@ static void findExistingFunctions(ExistingGetterSetterData &existing, QStringLis
 {
     const CppQuickFixSettings *settings = CppQuickFixProjectsSettings::getQuickFixSettings(
         ProjectExplorer::ProjectTree::currentProject());
-    const QString lowerBaseName = memberBaseName(existing.memberVariableName).toLower();
+    const QString lowerBaseName = CppQuickFixSettings::memberBaseName(existing.memberVariableName).toLower();
     const QStringList getterNames{lowerBaseName,
                                   "get_" + lowerBaseName,
                                   "get" + lowerBaseName,
@@ -522,7 +488,7 @@ class ConstructorMemberInfo
 public:
     ConstructorMemberInfo(const QString &name, Symbol *symbol, int numberOfMember)
         : memberVariableName(name)
-        , parameterName(memberBaseName(name))
+        , parameterName(CppQuickFixSettings::memberBaseName(name))
         , symbol(symbol)
         , type(symbol->type())
         , numberOfMember(numberOfMember)
@@ -1787,7 +1753,7 @@ public:
             existing.clazz = theClass;
 
             // check if a Q_PROPERTY exist
-            const QString baseName = memberBaseName(existing.memberVariableName);
+            const QString baseName = CppQuickFixSettings::memberBaseName(existing.memberVariableName);
             if (qPropertyNames.contains(baseName)
                 || qPropertyNames.contains(existing.memberVariableName))
                 continue;
@@ -1897,7 +1863,7 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
     const FullySpecifiedType parameterType = isValueType ? memberVariableType
                                                          : makeConstRef(memberVariableType);
 
-    QString baseName = memberBaseName(data.memberVariableName);
+    QString baseName = CppQuickFixSettings::memberBaseName(data.memberVariableName);
     if (baseName.isEmpty())
         baseName = data.memberVariableName;
 
@@ -2222,9 +2188,10 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
             type = ref->elementType();
         type.setConst(false);
 
-        QString propertyDeclaration = QLatin1String("Q_PROPERTY(")
-                                      + overview.prettyType(type,
-                                                            memberBaseName(data.memberVariableName));
+        QString propertyDeclaration
+                = QLatin1String("Q_PROPERTY(")
+                + overview
+                .prettyType(type, CppQuickFixSettings::memberBaseName(data.memberVariableName));
         bool needMember = false;
         if (data.getterName.isEmpty())
             needMember = true;
@@ -2377,7 +2344,7 @@ private:
 
         auto file = interface.currentFile();
         // check if a Q_PROPERTY exist
-        const QString baseName = memberBaseName(existing.memberVariableName);
+        const QString baseName = CppQuickFixSettings::memberBaseName(existing.memberVariableName);
         // eg: we have 'int m_test' and now 'Q_PROPERTY(int foo WRITE setTest MEMBER m_test NOTIFY tChanged)'
         for (auto it = classSpecifier->member_specifier_list; it; it = it->next) {
             if (it->value->asQtPropertyDeclaration()) {
@@ -2401,7 +2368,7 @@ private:
         }
 
         findExistingFunctions(existing, toStringList(getMemberFunctions(existing.clazz)));
-        existing.qPropertyName = memberBaseName(existing.memberVariableName);
+        existing.qPropertyName = CppQuickFixSettings::memberBaseName(existing.memberVariableName);
 
         const int possibleFlags = existing.computePossibleFlags();
         GenerateGetterSetterOp::generateQuickFixes(result, interface, existing, possibleFlags);
@@ -2561,7 +2528,7 @@ private:
                         generateFlags &= ~Flag::GenerateMemberVariable;
                     }
                 } else {
-                    const QString baseName = memberBaseName(name);
+                    const QString baseName = CppQuickFixSettings::memberBaseName(name);
                     if (existing.qPropertyName == baseName) {
                         existing.memberVariableName = name;
                         generateFlags &= ~Flag::GenerateMemberVariable;

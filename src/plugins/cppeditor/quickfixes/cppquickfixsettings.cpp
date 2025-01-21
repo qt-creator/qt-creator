@@ -3,11 +3,15 @@
 
 #include "cppquickfixsettings.h"
 
+#include "cppquickfixprojectsettings.h"
+
 #include "../cppcodestylesettings.h"
 #include "../cppeditorconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/jsexpander.h>
+
+#include <projectexplorer/projecttree.h>
 
 #include <utils/qtcsettings.h>
 
@@ -220,6 +224,47 @@ void CppQuickFixSettings::setDefaultSettings()
     unique_ptr.returnType = "<T>*";
     unique_ptr.returnExpression = "<cur>.get()";
     customTemplates.push_back(unique_ptr);
+}
+
+QString CppQuickFixSettings::memberBaseName(
+    const QString &name, const std::optional<QString> &baseNameTemplate)
+{
+    const auto validName = [](const QString &name) {
+        return !name.isEmpty() && !name.at(0).isDigit();
+    };
+    QString baseName = name;
+
+    QString baseNameTemplateValue;
+    if (baseNameTemplate) {
+        baseNameTemplateValue = *baseNameTemplate;
+    } else {
+        const CppQuickFixSettings *const settings
+            = Internal::CppQuickFixProjectsSettings::getQuickFixSettings(
+                ProjectExplorer::ProjectTree::currentProject());
+        baseNameTemplateValue = settings->nameFromMemberVariableTemplate;
+    }
+    if (!baseNameTemplateValue.isEmpty())
+        return CppQuickFixSettings::replaceNamePlaceholders(baseNameTemplateValue, name);
+
+    // Remove leading and trailing "_"
+    while (baseName.startsWith(QLatin1Char('_')))
+        baseName.remove(0, 1);
+    while (baseName.endsWith(QLatin1Char('_')))
+        baseName.chop(1);
+    if (baseName != name && validName(baseName))
+        return baseName;
+
+    // If no leading/trailing "_": remove "m_" and "m" prefix
+    if (baseName.startsWith(QLatin1String("m_"))) {
+        baseName.remove(0, 2);
+    } else if (baseName.startsWith(QLatin1Char('m')) && baseName.length() > 1
+               && baseName.at(1).isUpper()) {
+        baseName.remove(0, 1);
+        baseName[0] = baseName.at(0).toLower();
+    }
+
+    return validName(baseName) ? baseName : name;
+
 }
 
 QString CppQuickFixSettings::replaceNamePlaceholders(const QString &nameTemplate,

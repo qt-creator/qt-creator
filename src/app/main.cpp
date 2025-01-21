@@ -457,6 +457,7 @@ void startCrashpad(const AppInfo &appInfo, bool crashReportingEnabled)
     annotations["sha1"] = Core::Constants::IDE_REVISION_STR;
 #endif
 
+    CrashpadInfo::GetCrashpadInfo()->set_crashpad_handler_behavior(crashpad::TriState::kEnabled);
     if (HostOsInfo::isWindowsHost()) {
         // reduces the size of crash reports, which can be large on Windows
         CrashpadInfo::GetCrashpadInfo()
@@ -592,7 +593,7 @@ int main(int argc, char **argv)
         const FilePaths addedPaths
             = Environment::pathListFromValue(item.value, HostOsInfo::hostOs());
         FilePaths allPaths = Environment::systemEnvironment().pathListValue(varName);
-        Utils::eraseOne(allPaths, [&addedPaths](const FilePath &p) {
+        Utils::erase(allPaths, [&addedPaths](const FilePath &p) {
             return addedPaths.contains(p);
         });
         diff.emplaceBack(

@@ -15,6 +15,7 @@ General
 * Fixed the loading of plugins from the user-specific plugin directory
 * Fixed a crash when selecting a dynamic library directly in the plugin
   installation wizard
+* Fixed the extraction of plugins from or to paths with spaces
 
 Help
 ----
@@ -72,14 +73,28 @@ Projects
   ([QTCREATORBUG-32196](https://bugreports.qt.io/browse/QTCREATORBUG-32196))
 * Fixed an issue with watching for external CMake changes
   ([QTCREATORBUG-31536](https://bugreports.qt.io/browse/QTCREATORBUG-31536))
+* Fixed that files were wrongly marked as generated
+  ([QTCREATORBUG-32283](https://bugreports.qt.io/browse/QTCREATORBUG-32283),
+   [QTCREATORBUG-32298](https://bugreports.qt.io/browse/QTCREATORBUG-32298))
 * Conan
     * Fixed the loading of projects that specify a `CMakeDeps` generator
       ([QTCREATORBUG-32076](https://bugreports.qt.io/browse/QTCREATORBUG-32076))
+
+### Python
+
+* Fixed that simple output from `print` was added to the `Issues` view
+  ([QTCREATORBUG-32214](https://bugreports.qt.io/browse/QTCREATORBUG-32214))
+
+### Autotools
+
+* Fixed the initial project parsing
+  ([QTCREATORBUG-32305](https://bugreports.qt.io/browse/QTCREATORBUG-32305))
 
 Debugging
 ---------
 
 * Fixed a crash when enabling or disabling all breakpoints with the context menu
+* Fixed issues with big endian targets
 
 Analyzer
 --------
@@ -131,11 +146,18 @@ Platforms
 
 * Fixed a potential crash after reloading packages
 
+### Remote Linux
+
+* Fixed the working directory for `gdbserver`
+  ([QTCREATORBUG-32122](https://bugreports.qt.io/browse/QTCREATORBUG-32122))
+
 Credits for these changes go to:
 --------------------------------
 Alessandro Portale  
+Andre Hartmann  
 André Pönitz  
 Andrii Semkiv  
+Artur Twardy  
 Christian Kandeler  
 Christian Stenger  
 Cristian Adam  

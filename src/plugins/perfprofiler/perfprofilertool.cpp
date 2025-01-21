@@ -597,8 +597,7 @@ void PerfProfilerTool::showLoadTraceDialog()
     startLoading();
 
     const Project *currentProject = ProjectManager::startupProject();
-    const Target *target = currentProject ?  currentProject->activeTarget() : nullptr;
-    const Kit *kit = target ? target->kit() : nullptr;
+    const Kit *kit = currentProject ? currentProject->activeKit() : nullptr;
     populateFileFinder(currentProject, kit);
 
     traceManager().loadFromTraceFile(filePath);

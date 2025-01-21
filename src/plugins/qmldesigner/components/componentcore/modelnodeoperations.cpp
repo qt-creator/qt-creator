@@ -1776,8 +1776,8 @@ void openEffectComposer(const QString &filePath)
 
 void openOldEffectMaker(const QString &filePath)
 {
-    const ProjectExplorer::Target *target = ProjectExplorer::ProjectTree::currentTarget();
-    if (!target) {
+    const ProjectExplorer::Kit *kit = ProjectExplorer::ProjectTree::currentKit();
+    if (!kit) {
         qWarning() << __FUNCTION__ << "No project open";
         return;
     }
@@ -1789,7 +1789,7 @@ void openOldEffectMaker(const QString &filePath)
     if (!effectResPath.exists())
         effectResPath.createDir();
 
-    const QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
+    const QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(kit);
     if (baseQtVersion) {
         Utils::Environment env = Utils::Environment::systemEnvironment();
 

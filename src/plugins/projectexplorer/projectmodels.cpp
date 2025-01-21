@@ -196,8 +196,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
     const FileNode * const fileNode = node->asFileNode();
     const ContainerNode * const containerNode = node->asContainerNode();
     const Project * const project = containerNode ? containerNode->project() : nullptr;
-    const Target * const target = project ? project->activeTarget() : nullptr;
-    const BuildSystem * const bs = target ? target->buildSystem() : nullptr;
+    const BuildSystem * const bs = project ? project->activeBuildSystem() : nullptr;
 
     switch (role) {
     case Qt::DisplayRole:
@@ -207,8 +206,8 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
     case Qt::ToolTipRole: {
         QString tooltip = node->tooltip();
         if (project) {
-            if (target) {
-                QString projectIssues = toHtml(project->projectIssues(project->activeTarget()->kit()));
+            if (project->activeKit()) {
+                QString projectIssues = toHtml(project->projectIssues(project->activeKit()));
                 if (!projectIssues.isEmpty())
                     tooltip += "<p>" + projectIssues;
             } else {
@@ -234,7 +233,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
             return warnIcon;
         if (bs && bs->isParsing())
             return emptyIcon;
-        if (!target || !project->projectIssues(target->kit()).isEmpty())
+        if (!project->activeKit() || !project->projectIssues(project->activeKit()).isEmpty())
             return warnIcon;
         return containerNode->rootProjectNode() ? containerNode->rootProjectNode()->icon()
                                                 : folderNode->icon();

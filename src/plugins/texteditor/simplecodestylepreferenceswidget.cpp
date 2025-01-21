@@ -6,17 +6,20 @@
 #include "tabsettings.h"
 #include "tabsettingswidget.h"
 
-#include <QVBoxLayout>
+#include <utils/layoutbuilder.h>
 
 namespace TextEditor {
 
 SimpleCodeStylePreferencesWidget::SimpleCodeStylePreferencesWidget(QWidget *parent) :
     QWidget(parent)
 {
-    m_tabSettingsWidget = new TabSettingsWidget(this);
-    auto layout = new QVBoxLayout(this);
-    layout->addWidget(m_tabSettingsWidget);
-    layout->setContentsMargins(QMargins());
+    m_tabSettingsWidget = new TabSettingsWidget;
+    m_tabSettingsWidget->setParent(this);
+    using namespace Layouting;
+    Column {
+        m_tabSettingsWidget,
+        noMargin
+    }.attachTo(this);
 }
 
 void SimpleCodeStylePreferencesWidget::setPreferences(ICodeStylePreferences *preferences)

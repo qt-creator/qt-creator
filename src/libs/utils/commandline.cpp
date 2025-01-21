@@ -629,6 +629,12 @@ void ProcessArgs::addArgs(QString *args, const QStringList &inArgs)
         addArg(args, arg);
 }
 
+void ProcessArgs::addArgs(QString *args, const QStringList &inArgs, OsType osType)
+{
+    for (const QString &arg : inArgs)
+        addArg(args, arg, osType);
+}
+
 CommandLine &CommandLine::operator<<(const QString &arg)
 {
     addArg(arg);
@@ -696,7 +702,7 @@ static int quoteArgInternalWin(QString &ret, int bslashes)
 
 // TODO: This documentation is relevant for end-users. Where to put it?
 /*!
- * Uses the macro expander \a mx to perform in-place macro expansion
+ * Searches macros with the function \a findMacro and performs in-place macro expansion
  * (substitution) on the string \a cmd, which is expected to contain a shell
  * command. \a osType specifies the syntax, which is Bourne Shell compatible
  * for Unix and \c cmd compatible for Windows.
@@ -1543,6 +1549,15 @@ void CommandLine::addCommandLineAsSingleArg(const CommandLine &cmd)
     ProcessArgs::addArgs(&combined, cmd.arguments());
 
     addArg(combined);
+}
+
+void CommandLine::addCommandLineAsSingleArg(const CommandLine &cmd, OsType osType)
+{
+    QString combined;
+    ProcessArgs::addArg(&combined, cmd.executable().path(), osType);
+    ProcessArgs::addArgs(&combined, cmd.arguments());
+
+    addArg(combined, osType);
 }
 
 void CommandLine::addCommandLineWithAnd(const CommandLine &cmd)

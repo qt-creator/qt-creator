@@ -100,7 +100,7 @@ QString LineInfo::trimmedCodeLine(const QString &t)
     Scanner scanner;
 
     QTextBlock currentLine = yyLinizerState.iter;
-    int startState = qMax(0, currentLine.previous().userState()) & 0xff;
+    int startState = qMax(0, currentLine.previous().userState());
 
     yyLinizerState.tokens = scanner(t, startState);
     QString trimmed;
@@ -359,7 +359,7 @@ bool LineInfo::bottomLineStartsInMultilineComment()
     QTextBlock currentLine = yyProgram.lastBlock().previous();
     QTextBlock previousLine = currentLine.previous();
 
-    int startState = qMax(0, previousLine.userState()) & 0xff;
+    int startState = qMax(0, previousLine.userState());
     if (startState > 0)
         return true;
 

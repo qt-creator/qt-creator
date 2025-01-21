@@ -16,11 +16,11 @@ namespace ProjectExplorer {
 class BuildSystem;
 class FileNode;
 class FolderNode;
+class Kit;
 class Node;
 class Project;
 class ProjectNode;
 class SessionNode;
-class Target;
 
 namespace Internal { class ProjectTreeWidget; }
 
@@ -34,7 +34,7 @@ public:
     static ProjectTree *instance();
 
     static Project *currentProject();
-    static Target *currentTarget();
+    static Kit *currentKit();
     static BuildSystem *currentBuildSystem();
     static Node *currentNode();
     static Utils::FilePath currentFilePath();

@@ -320,7 +320,7 @@ private:
 */
 
 /*!
-    \typealias GroupItems
+    \typealias Tasking::GroupItems
 
     Type alias for QList<GroupItem>.
 */
@@ -423,7 +423,7 @@ private:
 */
 
 /*!
-    \fn GroupItem::GroupItem(std::initializer_list<GroupItem> items)
+    \fn Tasking::GroupItem(std::initializer_list<GroupItem> items)
     \overload
     \sa GroupItem(const GroupItems &items)
 */
@@ -973,6 +973,14 @@ private:
 */
 
 /*!
+    \variable Tasking::parallelLimit
+    A convenient global group's element describing the parallel execution mode
+    with a limited number of tasks running simultanously.
+
+    \sa sequential, parallel
+*/
+
+/*!
     \variable Tasking::parallelIdealThreadCountLimit
     A convenient global group's element describing the parallel execution mode with a limited
     number of tasks running simultanously. The limit is equal to the ideal number of threads
@@ -1021,6 +1029,11 @@ private:
 /*!
     \variable Tasking::finishAllAndError
     A convenient global group's element describing the FinishAllAndError workflow policy.
+*/
+
+/*!
+    \variable Tasking::workflowPolicy
+    A convenient global group's element that describes workflow policies.
 */
 
 /*!
@@ -1248,9 +1261,13 @@ private:
 
     \sa sequential, parallel
 */
-GroupItem ParallelLimitFunctor::operator()(int limit) const
+
+GroupItem parallelLimit(int limit)
 {
-    return GroupItem({{}, limit});
+    struct ParallelLimit : GroupItem {
+         ParallelLimit(int limit) : GroupItem({{}, limit}) {}
+    };
+    return ParallelLimit(limit);
 }
 
 /*!
@@ -1261,13 +1278,13 @@ GroupItem ParallelLimitFunctor::operator()(int limit) const
     \sa stopOnError, continueOnError, stopOnSuccess, continueOnSuccess, stopOnSuccessOrError,
         finishAllAndSuccess, finishAllAndError, WorkflowPolicy
 */
-GroupItem WorkflowPolicyFunctor::operator()(WorkflowPolicy policy) const
+GroupItem workflowPolicy(WorkflowPolicy policy)
 {
-    return GroupItem({{}, {}, policy});
+    struct WorkflowPolicyItem : GroupItem {
+         WorkflowPolicyItem(WorkflowPolicy policy) : GroupItem({{}, {}, policy}) {}
+    };
+    return WorkflowPolicyItem(policy);
 }
-
-const ParallelLimitFunctor parallelLimit = ParallelLimitFunctor();
-const WorkflowPolicyFunctor workflowPolicy = WorkflowPolicyFunctor();
 
 const GroupItem sequential = parallelLimit(1);
 const GroupItem parallel = parallelLimit(0);

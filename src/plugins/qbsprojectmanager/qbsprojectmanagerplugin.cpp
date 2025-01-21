@@ -325,8 +325,8 @@ void QbsProjectManagerPlugin::updateContextActions(Node *node)
 {
     auto project = qobject_cast<Internal::QbsProject *>(ProjectTree::currentProject());
     bool isEnabled = !BuildManager::isBuilding(project)
-            && project && project->activeTarget()
-            && !project->activeTarget()->buildSystem()->isParsing()
+            && project && project->activeBuildSystem()
+            && !project->activeBuildSystem()->isParsing()
             && node && node->isEnabled();
 
     const bool isFile = project && node && node->asFileNode();
@@ -349,8 +349,8 @@ void QbsProjectManagerPlugin::updateReparseQbsAction()
     auto project = qobject_cast<QbsProject *>(ProjectManager::startupProject());
     m_reparseQbs->setEnabled(project
                              && !BuildManager::isBuilding(project)
-                             && project && project->activeTarget()
-                             && !project->activeTarget()->buildSystem()->isParsing());
+                             && project && project->activeBuildSystem()
+                             && !project->activeBuildSystem()->isParsing());
 }
 
 void QbsProjectManagerPlugin::updateBuildActions()
@@ -380,8 +380,8 @@ void QbsProjectManagerPlugin::updateBuildActions()
 
         if (QbsProject *editorProject = currentEditorProject()) {
             enabled = !BuildManager::isBuilding(editorProject)
-                    && editorProject->activeTarget()
-                    && !editorProject->activeTarget()->buildSystem()->isParsing();
+                    && editorProject->activeBuildSystem()
+                    && !editorProject->activeBuildSystem()->isParsing();
             fileVisible = productNode
                     || dynamic_cast<QbsProjectNode *>(parentProjectNode)
                     || dynamic_cast<QbsGroupNode *>(parentProjectNode);
@@ -536,10 +536,7 @@ void QbsProjectManagerPlugin::buildFiles(QbsProject *project, const QStringList 
     QTC_ASSERT(project, return);
     QTC_ASSERT(!files.isEmpty(), return);
 
-    Target *t = project->activeTarget();
-    if (!t)
-        return;
-    auto bc = qobject_cast<QbsBuildConfiguration *>(t->activeBuildConfiguration());
+    auto bc = qobject_cast<QbsBuildConfiguration *>(project->activeBuildConfiguration());
     if (!bc)
         return;
 
@@ -568,10 +565,7 @@ void QbsProjectManagerPlugin::runStepsForProducts(QbsProject *project,
     QTC_ASSERT(project, return);
     QTC_ASSERT(!products.isEmpty(), return);
 
-    Target *t = project->activeTarget();
-    if (!t)
-        return;
-    auto bc = qobject_cast<QbsBuildConfiguration *>(t->activeBuildConfiguration());
+    auto bc = qobject_cast<QbsBuildConfiguration *>(project->activeBuildConfiguration());
     if (!bc)
         return;
 
@@ -608,11 +602,7 @@ void QbsProjectManagerPlugin::reparseProject(QbsProject *project)
     if (!project)
         return;
 
-    Target *t = project->activeTarget();
-    if (!t)
-        return;
-
-    if (auto bs = qobject_cast<QbsBuildSystem *>(t->buildSystem());
+    if (auto bs = qobject_cast<QbsBuildSystem *>(project->activeBuildSystem());
         bs && bs->session()->apiLevel() >= 8) {
         bs->scheduleParsing({{Constants::QBS_RESTORE_BEHAVIOR_KEY, "restore-and-resolve"}});
     }

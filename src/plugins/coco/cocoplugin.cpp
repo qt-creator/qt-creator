@@ -116,8 +116,7 @@ void CocoPlugin::initialize()
         QCoreApplication::translate("Coco", "Coco"),
         ":/cocoplugin/images/SquishCoco_48x48.png");
 
-    cocoSettings().read();
-    GlobalSettingsPage::instance().widget();
+    setupCocoSettings();
 
     setupCocoProjectPanel();
 

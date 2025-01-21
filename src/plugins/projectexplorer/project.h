@@ -31,12 +31,14 @@ class BuildConfiguration;
 class BuildInfo;
 class BuildSystem;
 class ContainerNode;
+class DeployConfiguration;
 class EditorConfiguration;
 class FolderNode;
 class Node;
 class ProjectImporter;
 class ProjectNode;
 class ProjectPrivate;
+class RunConfiguration;
 class Target;
 enum class SetActive : int;
 
@@ -92,6 +94,12 @@ public:
     Target *target(Utils::Id id) const;
     Target *target(Kit *k) const;
     void setActiveTarget(Target *target, SetActive cascade);
+
+    Kit *activeKit() const;
+    RunConfiguration *activeRunConfiguration() const;
+    BuildConfiguration *activeBuildConfiguration() const;
+    DeployConfiguration *activeDeployConfiguration() const;
+    BuildSystem *activeBuildSystem() const;
 
     virtual Tasks projectIssues(const Kit *k) const;
 

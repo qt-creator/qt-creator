@@ -232,8 +232,6 @@ public:
     QList<RunWorker *> startDependencies;
     QList<RunWorker *> stopDependencies;
     QString id;
-
-    bool essential = false;
 };
 
 enum class RunControlState
@@ -925,10 +923,6 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
     if (state == RunControlState::Stopping) {
         continueStopOrFinish();
         return;
-    } else if (worker->isEssential()) {
-        debugMessage(workerId + " is essential. Stopping all others.");
-        initiateStop();
-        return;
     }
 
     for (RunWorker *dependent : std::as_const(worker->d->stopDependencies)) {
@@ -1540,8 +1534,13 @@ void ProcessRunnerPrivate::start()
     m_stopRequested = false;
 
     QVariantHash extraData = q->runControl()->extraData();
-    extraData[TERMINAL_SHELL_NAME]
-        = q->runControl()->target()->activeRunConfiguration()->displayName();
+    if (q->runControl() && q->runControl()->target()
+        && q->runControl()->target()->activeRunConfiguration()) {
+        extraData[TERMINAL_SHELL_NAME]
+            = q->runControl()->target()->activeRunConfiguration()->displayName();
+    } else {
+        extraData[TERMINAL_SHELL_NAME] = m_command.executable().fileName();
+    }
 
     m_process.setCommand(cmdLine);
     m_process.setEnvironment(env);
@@ -1913,16 +1912,6 @@ QString RunWorker::userMessageForProcessError(QProcess::ProcessError error, cons
             break;
     }
     return msg;
-}
-
-bool RunWorker::isEssential() const
-{
-    return d->essential;
-}
-
-void RunWorker::setEssential(bool essential)
-{
-    d->essential = essential;
 }
 
 void RunWorker::start()

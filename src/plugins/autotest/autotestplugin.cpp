@@ -419,15 +419,13 @@ TestFrameworks activeTestFrameworks()
 void updateMenuItemsEnabledState()
 {
     const Project *project = ProjectManager::startupProject();
-    const Target *target = project ? project->activeTarget() : nullptr;
     const bool disabled = dd->m_testCodeParser.state() == TestCodeParser::DisabledTemporarily;
     const bool canScan = disabled || (!dd->m_testRunner.isTestRunning()
                                       && dd->m_testCodeParser.state() == TestCodeParser::Idle);
     const bool hasTests = dd->m_testTreeModel.hasTests();
     // avoid expensive call to PE::canRunStartupProject() - limit to minimum necessary checks
     const bool canRun = !disabled && hasTests && canScan
-            && project && !project->needsConfiguration()
-            && target && target->activeRunConfiguration()
+            && project && !project->needsConfiguration() && project->activeRunConfiguration()
             && !BuildManager::isBuilding();
     const bool canRunFailed = canRun && dd->m_testTreeModel.hasFailedTests();
 

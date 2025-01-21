@@ -33,9 +33,7 @@ public:
         setGlobalSettingsId(Constants::COCO_SETTINGS_PAGE_ID);
 
         auto layout = new QVBoxLayout;
-        if (auto *target = project->activeTarget()) {
-            auto abc = target->activeBuildConfiguration();
-
+        if (auto *abc = project->activeBuildConfiguration()) {
             if (abc->id() == QmakeProjectManager::Constants::QMAKE_BC_ID
                     || abc->id() == CMakeProjectManager::Constants::CMAKE_BUILDCONFIGURATION_ID)
                 layout->addWidget(new CocoProjectWidget(project, abc));
@@ -52,10 +50,8 @@ public:
         setPriority(50);
         setDisplayName(Tr::tr("Coco Code Coverage"));
         setSupportsFunction([](Project *project) {
-            if (Target *target = project->activeTarget()) {
-                if (BuildConfiguration *abc = target->activeBuildConfiguration())
-                    return BuildSettings::supportsBuildConfig(*abc);
-            }
+            if (BuildConfiguration *abc = project->activeBuildConfiguration())
+                return BuildSettings::supportsBuildConfig(*abc);
             return false;
         });
         setCreateWidgetFunction(

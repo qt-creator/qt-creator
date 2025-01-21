@@ -148,10 +148,8 @@ static FileInfo getFileInfo(const FilePath &file, Project *project)
 static Environment projectBuildEnvironment(Project *project)
 {
     Environment env;
-    if (Target *target = project->activeTarget()) {
-        if (BuildConfiguration *buildConfig = target->activeBuildConfiguration())
-            env = buildConfig->environment();
-    }
+    if (BuildConfiguration *buildConfig = project->activeBuildConfiguration())
+        env = buildConfig->environment();
     if (!env.hasChanges())
         env = Environment::systemEnvironment();
     return env;

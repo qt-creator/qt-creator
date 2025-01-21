@@ -782,10 +782,8 @@ void CppEditorWidget::showRenameWarningIfFileIsGenerated(const Utils::FilePath &
                     "This is normally not a good idea, as the file will likely get "
                     "overwritten during the build process.")
                 .arg(filePath.toUserOutput());
-        if (const Target * const target = project->activeTarget()) {
-            if (const BuildSystem * const bs = target->buildSystem())
-                ec = bs->extraCompilerForTarget(filePath);
-        }
+        if (const BuildSystem * const bs = project->activeBuildSystem())
+            ec = bs->extraCompilerForTarget(filePath);
         if (ec) {
             warning.append('\n').append(CppEditor::Tr::tr(
                                             "Do you want to edit \"%1\" instead?")

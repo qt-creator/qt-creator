@@ -29,71 +29,63 @@ namespace ProjectExplorer {
 
 void DesktopProcessSignalOperation::killProcess(qint64 pid)
 {
-    killProcessSilently(pid);
-    emit finished(m_result);
+    emit finished(killProcessSilently(pid));
 }
 
 void DesktopProcessSignalOperation::killProcess(const QString &filePath)
 {
-    m_result = Result::Ok;
+    Result result = Result::Ok;
     const QList<ProcessInfo> processInfoList = ProcessInfo::processInfoList();
     for (const ProcessInfo &processInfo : processInfoList) {
         if (processInfo.commandLine == filePath)
-            killProcessSilently(processInfo.processId);
+            result = killProcessSilently(processInfo.processId);
     }
-    emit finished(m_result);
+    emit finished(result);
 }
 
 void DesktopProcessSignalOperation::interruptProcess(qint64 pid)
 {
-    m_result = Result::Ok;
-    interruptProcessSilently(pid);
-    emit finished(m_result);
+    emit finished(interruptProcessSilently(pid));
 }
 
-void DesktopProcessSignalOperation::appendMsgCannotKill(qint64 pid, const QString &why)
+static Result cannotKillError(qint64 pid, const QString &why)
 {
-    QString result = m_result.error();
-    if (!result.isEmpty())
-        result += QChar::fromLatin1('\n');
-    result += Tr::tr("Cannot kill process with pid %1: %2").arg(pid).arg(why);
-    result += QLatin1Char(' ');
-    m_result = Result::Error(result);
+    return Result::Error(Tr::tr("Cannot kill process with pid %1: %2").arg(pid).arg(why));
 }
 
-void DesktopProcessSignalOperation::appendMsgCannotInterrupt(qint64 pid, const QString &why)
+static Result appendCannotInterruptError(qint64 pid, const QString &why,
+                                         const Result &previousResult = Result::Ok)
 {
-    QString result = m_result.error();
-    if (!result.isEmpty())
-        result += QChar::fromLatin1('\n');
-    result += Tr::tr("Cannot interrupt process with pid %1: %2").arg(pid).arg(why);
-    result += QLatin1Char(' ');
-    m_result = Result::Error(result);
+    const QString error = Tr::tr("Cannot interrupt process with pid %1: %2").arg(pid).arg(why);
+    return Result::Error(previousResult ? QStringList{previousResult, error}.join('\n') : error);
 }
 
-void DesktopProcessSignalOperation::killProcessSilently(qint64 pid)
+Result DesktopProcessSignalOperation::killProcessSilently(qint64 pid)
 {
 #ifdef Q_OS_WIN
     const DWORD rights = PROCESS_QUERY_INFORMATION|PROCESS_SET_INFORMATION
             |PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ
             |PROCESS_DUP_HANDLE|PROCESS_TERMINATE|PROCESS_CREATE_THREAD|PROCESS_SUSPEND_RESUME;
     if (const HANDLE handle = OpenProcess(rights, FALSE, DWORD(pid))) {
-        if (!TerminateProcess(handle, UINT(-1)))
-            appendMsgCannotKill(pid, winErrorMessage(GetLastError()));
+        const Result result = TerminateProcess(handle, UINT(-1))
+                            ? Result::Ok : cannotKillError(pid, winErrorMessage(GetLastError()));
         CloseHandle(handle);
+        return result;
     } else {
-        appendMsgCannotKill(pid, Tr::tr("Cannot open process."));
+        return cannotKillError(pid, Tr::tr("Cannot open process."));
     }
 #else
     if (pid <= 0)
-        appendMsgCannotKill(pid, Tr::tr("Invalid process id."));
+        return cannotKillError(pid, Tr::tr("Invalid process id."));
     else if (kill(pid, SIGKILL))
-        appendMsgCannotKill(pid, QString::fromLocal8Bit(strerror(errno)));
+        return cannotKillError(pid, QString::fromLocal8Bit(strerror(errno)));
+    return Result::Ok;
 #endif // Q_OS_WIN
 }
 
-void DesktopProcessSignalOperation::interruptProcessSilently(qint64 pid)
+Result DesktopProcessSignalOperation::interruptProcessSilently(qint64 pid)
 {
+    Result result = Result::Ok;
 #ifdef Q_OS_WIN
     enum SpecialInterrupt { NoSpecialInterrupt, Win32Interrupt, Win64Interrupt };
 
@@ -137,9 +129,8 @@ GDB 32bit | Api             | Api             | N/A             | Win32         
                 |PROCESS_DUP_HANDLE|PROCESS_TERMINATE|PROCESS_CREATE_THREAD|PROCESS_SUSPEND_RESUME;
         inferior = OpenProcess(rights, FALSE, pid);
         if (inferior == NULL) {
-            appendMsgCannotInterrupt(pid, Tr::tr("Cannot open process: %1")
-                                     + winErrorMessage(GetLastError()));
-            break;
+            return appendCannotInterruptError(pid, Tr::tr("Cannot open process: %1")
+                                            + winErrorMessage(GetLastError()), result);
         }
         bool creatorIs64Bit = is64BitWindowsBinary(
             FilePath::fromUserInput(QCoreApplication::applicationFilePath()));
@@ -148,8 +139,8 @@ GDB 32bit | Api             | Api             | N/A             | Win32         
                 || (si == Win64Interrupt && creatorIs64Bit)
                 || (si == Win32Interrupt && !creatorIs64Bit)) {
             if (!DebugBreakProcess(inferior)) {
-                appendMsgCannotInterrupt(pid, Tr::tr("DebugBreakProcess failed:")
-                                          + QLatin1Char(' ') + winErrorMessage(GetLastError()));
+                result = appendCannotInterruptError(pid, Tr::tr("DebugBreakProcess failed:")
+                    + QLatin1Char(' ') + winErrorMessage(GetLastError()), result);
             }
         } else if (si == Win32Interrupt || si == Win64Interrupt) {
             QString executable = QCoreApplication::applicationDirPath();
@@ -157,35 +148,36 @@ GDB 32bit | Api             | Api             | N/A             | Win32         
                     ? QLatin1String("/win32interrupt.exe")
                     : QLatin1String("/win64interrupt.exe");
             if (!QFileInfo::exists(executable)) {
-                appendMsgCannotInterrupt(pid,
+                result = appendCannotInterruptError(pid,
                                          Tr::tr("%1 does not exist. If you built %2 "
                                                 "yourself, check out https://code.qt.io/cgit/"
                                                 "qt-creator/binary-artifacts.git/.")
                                              .arg(QDir::toNativeSeparators(executable),
-                                                  QGuiApplication::applicationDisplayName()));
+                                                  QGuiApplication::applicationDisplayName()), result);
             }
             switch (QProcess::execute(executable, QStringList(QString::number(pid)))) {
             case -2:
-                appendMsgCannotInterrupt(pid, Tr::tr(
+                return appendCannotInterruptError(pid, Tr::tr(
                             "Cannot start %1. Check src\\tools\\win64interrupt\\win64interrupt.c "
-                            "for more information.").arg(QDir::toNativeSeparators(executable)));
-                break;
+                            "for more information.").arg(QDir::toNativeSeparators(executable)), result);
             case 0:
                 break;
             default:
-                appendMsgCannotInterrupt(pid, QDir::toNativeSeparators(executable)
-                                         + QLatin1Char(' ') + Tr::tr("could not break the process."));
+                return appendCannotInterruptError(pid, QDir::toNativeSeparators(executable)
+                            + QLatin1Char(' ') + Tr::tr("could not break the process."), result);
                 break;
             }
         }
     } while (false);
     if (inferior != NULL)
         CloseHandle(inferior);
+    return result;
 #else
     if (pid <= 0)
-        appendMsgCannotInterrupt(pid, Tr::tr("Invalid process id."));
+        return appendCannotInterruptError(pid, Tr::tr("Invalid process id."));
     else if (kill(pid, SIGINT))
-        appendMsgCannotInterrupt(pid, QString::fromLocal8Bit(strerror(errno)));
+        return appendCannotInterruptError(pid, QString::fromLocal8Bit(strerror(errno)));
+    return Result::Ok;
 #endif // Q_OS_WIN
 }
 

@@ -53,7 +53,7 @@ void setupProjectModule()
             "directory",
             sol::property(&Project::projectDirectory),
             "activeRunConfiguration",
-            [](Project *project) { return project->activeTarget()->activeRunConfiguration(); });
+            [](Project *project) { return project->activeRunConfiguration(); });
 
         result["startupProject"] = [] { return ProjectManager::instance()->startupProject(); };
 
@@ -72,7 +72,7 @@ void setupProjectModule()
                 if (!project)
                     throw sol::error("No startup project");
 
-                auto runConfiguration = project->activeTarget()->activeRunConfiguration();
+                auto runConfiguration = project->activeRunConfiguration();
 
                 if (!runConfiguration)
                     throw sol::error("No active run configuration");

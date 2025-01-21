@@ -32,6 +32,7 @@
 #include <utils/qtcassert.h>
 
 #include <QCheckBox>
+#include <QGroupBox>
 #include <QTabWidget>
 #include <QTextBlock>
 #include <QVBoxLayout>
@@ -164,12 +165,6 @@ public:
         , m_tabSettingsWidget(new TabSettingsWidget)
         , m_statementMacros(new QPlainTextEdit)
     {
-        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(m_tabSettingsWidget->sizePolicy().hasHeightForWidth());
-        m_tabSettingsWidget->setSizePolicy(sizePolicy);
-        m_tabSettingsWidget->setFocusPolicy(Qt::TabFocus);
         QObject::connect(m_tabSettingsWidget, &TabSettingsWidget::settingsChanged,
                          q, &CppCodeStylePreferencesWidget::slotTabSettingsChanged);
 
@@ -241,6 +236,7 @@ public:
             }
         };
 
+        QSizePolicy sizePolicy;
         sizePolicy.setVerticalPolicy(QSizePolicy::Preferred);
         m_statementMacros->setToolTip(
             Tr::tr("Macros that can be used as statements without a trailing semicolon."));
@@ -273,7 +269,6 @@ public:
 
         m_categoryTab->setProperty("_q_custom_style_disabled", true);
 
-        m_controllers.append(m_tabSettingsWidget);
         m_controllers.append(contentGroupWidget);
         m_controllers.append(bracesGroupWidget);
         m_controllers.append(switchGroupWidget);
@@ -460,6 +455,7 @@ void CppCodeStylePreferencesWidget::slotCurrentPreferencesChanged(ICodeStylePref
 
     for (QWidget *widget : d->m_controllers)
         widget->setEnabled(enable);
+    d->m_tabSettingsWidget->setEnabled(enable);
 
     if (preview)
         updatePreview();

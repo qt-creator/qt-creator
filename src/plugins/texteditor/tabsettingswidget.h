@@ -5,20 +5,13 @@
 
 #include "texteditor_global.h"
 
-#include <QGroupBox>
-
-QT_BEGIN_NAMESPACE
-class QCheckBox;
-class QComboBox;
-class QLabel;
-class QSpinBox;
-QT_END_NAMESPACE
+#include <utils/aspects.h>
 
 namespace TextEditor {
 
 class TabSettings;
 
-class TEXTEDITOR_EXPORT TabSettingsWidget : public QGroupBox
+class TEXTEDITOR_EXPORT TabSettingsWidget : public Utils::AspectContainer
 {
     Q_OBJECT
 
@@ -28,7 +21,7 @@ public:
         QtQuickLink
     };
 
-    explicit TabSettingsWidget(QWidget *parent = nullptr);
+    TabSettingsWidget();
     ~TabSettingsWidget() override;
 
     TabSettings tabSettings() const;
@@ -41,15 +34,16 @@ signals:
     void codingStyleLinkClicked(TextEditor::TabSettingsWidget::CodingStyleLink link);
 
 private:
-    void slotSettingsChanged();
+    void addToLayoutImpl(Layouting::Layout &parent) override;
     void codingStyleLinkActivated(const QString &linkString);
 
+    Utils::BoolAspect autoDetect{this};
+    Utils::SelectionAspect tabPolicy{this};
+    Utils::IntegerAspect tabSize{this};
+    Utils::IntegerAspect indentSize{this};
+    Utils::SelectionAspect continuationAlignBehavior{this};
+
     QLabel *m_codingStyleWarning;
-    QCheckBox *m_autoDetect;
-    QComboBox *m_tabPolicy;
-    QSpinBox *m_tabSize;
-    QSpinBox *m_indentSize;
-    QComboBox *m_continuationAlignBehavior;
 };
 
 } // namespace TextEditor

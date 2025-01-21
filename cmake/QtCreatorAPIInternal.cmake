@@ -193,7 +193,7 @@ endfunction()
 
 function(qtc_add_link_flags_no_undefined target)
   # needs CheckLinkerFlags
-  if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.18 AND NOT MSVC)
+  if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.18 AND NOT MSVC AND NOT APPLE)
     set(no_undefined_flag "-Wl,--no-undefined")
     check_linker_flag(CXX ${no_undefined_flag} QTC_LINKER_SUPPORTS_NO_UNDEFINED)
     if (NOT QTC_LINKER_SUPPORTS_NO_UNDEFINED)

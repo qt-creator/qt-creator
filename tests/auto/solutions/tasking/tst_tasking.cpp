@@ -133,6 +133,8 @@ private slots:
 
 void tst_Tasking::validConstructs()
 {
+    const DoneResult result = DoneResult::Success;
+
     const Group task {
         parallel,
         TestTask([](TaskObject &) {}, [](const TaskObject &, DoneWith) {}),
@@ -146,6 +148,8 @@ void tst_Tasking::validConstructs()
         TestTask({}, [](DoneWith) {}),
         TestTask({}, [] {}),
         TestTask({}, {}),
+        TestTask({}, DoneResult::Error),
+        TestTask({}, result),
         TestTask({})
     };
 

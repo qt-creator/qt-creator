@@ -40,8 +40,9 @@ protected:
 
 FilePath UicGenerator::command() const
 {
-    Target *target = project()->activeTarget();
-    Kit *kit = target ? target->kit() : KitManager::defaultKit();
+    Kit *kit = project()->activeKit();
+    if (!kit)
+        kit = KitManager::defaultKit();
     QtVersion *version = QtKitAspect::qtVersion(kit);
 
     if (!version)

@@ -31,12 +31,10 @@ static const char setupUiC[] = "setupUi";
 static FilePath generatedHeaderOf(const FilePath &uiFileName)
 {
     if (const Project *uiProject = ProjectManager::projectForFile(uiFileName)) {
-        if (Target *t = uiProject->activeTarget()) {
-            if (BuildSystem *bs = t->buildSystem()) {
-                FilePaths files = bs->filesGeneratedFrom(uiFileName);
-                if (!files.isEmpty()) // There should be at most one header generated from a .ui
-                    return files.front();
-            }
+        if (BuildSystem *bs = uiProject->activeBuildSystem()) {
+            FilePaths files = bs->filesGeneratedFrom(uiFileName);
+            if (!files.isEmpty()) // There should be at most one header generated from a .ui
+                return files.front();
         }
     }
     return {};
