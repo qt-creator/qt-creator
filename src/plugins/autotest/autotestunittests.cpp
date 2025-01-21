@@ -326,6 +326,8 @@ static int executeScenario(const QString &scenario)
 
 void AutotestUnitTests::testModelManagerInterface()
 {
+    if (qtcEnvironmentVariableIsSet("QTC_SKIP_AUTOTEST_SCENARIO"))
+        QSKIP("Test skipped due to set environment variable QTC_SKIP_AUTOTEST_SCENARIO.");
     QCOMPARE(executeScenario("TestModelManagerInterface"), 0);
 }
 
