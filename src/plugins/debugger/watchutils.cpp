@@ -254,8 +254,8 @@ QString escapeUnprintable(const QString &str, int unprintableBase)
     QString encoded;
 
     while (arrayView.size() >= 4) {
-        char32_t c;
-        memcpy(&c, arrayView.constData(), sizeof(char32_t));
+        int32_t c;
+        memcpy(&c, arrayView.constData(), sizeof(int32_t));
 
         if (QChar::isPrint(c))
             encoded += toQString(arrayView.sliced(0, 4));

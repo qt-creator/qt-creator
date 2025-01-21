@@ -46,7 +46,7 @@
             \li Enable the plugin to use it.
              \row
             \li \l{Git}
-            \li \l{http://git-scm.com/}
+            \li \l{https://git-scm.com/}
             \li Git version 1.9.0, or later
 
                 Gerrit version 2.6, or later
@@ -71,7 +71,8 @@
     \endtable
 
     \sa {Create VCS repositories for new projects}, {Enable and disable plugins},
-    {Set up version control systems}, {Use common VCS functions}
+    {Use Git}{How To: Use Git}, {Set up version control systems},
+    {Use common VCS functions}
 */
 
 /*!
@@ -80,23 +81,30 @@
 
     \ingroup creator-how-to-projects-create
     \ingroup creator-how-to-projects-configure
+    \ingroup creator-how-to-git
 
     \title Create VCS repositories for new projects
 
-    \QC allows you to create repositories for version control systems that
-    support local repository creation, such as Git, Mercurial, or Bazaar.
-    When creating a new project by selecting \uicontrol File > \uicontrol{New File or
-    Project}, you can choose a version control system on the final wizard page.
+    You can create repositories for version control systems that
+    support local repository creation, such as Git, Mercurial, or Bazaar in
+    the following ways:
 
-    You can also select \uicontrol Tools and then select \uicontrol {Create Repository}
-    in the submenu for the version control system.
+    \list
+        \li To create a new project, go to \uicontrol File >
+            \uicontrol {New Project}, and select a version
+            control system on the last wizard page.
+        \li To place a project directory under version control, go to
+            \uicontrol Tools, and then select \uicontrol {Create Repository} in
+            the submenu for a version control system.
+        \li To import a project that is already under version control, go to
+            \uicontrol File > \uicontrol {New Project} >
+            \uicontrol {Project from Version Control} and select the version
+            control system that you use. Follow the instructions of the wizard
+            to import the project.
+    \endlist
 
-    To import a project that is under version control, choose \uicontrol File >
-    \uicontrol {New Project} > \uicontrol {Project from Version Control}
-    and select the version control system that you use. Follow the instructions
-    of the wizard to import the project.
-
-    \sa {Creating Projects}, {Use project wizards}, {Version Control Systems}
+    \sa {Use Git}{How To: Use Git}, {Use project wizards}, {Creating Projects},
+    {Git}, {Version Control Systems}
 */
 
 /*!
@@ -104,6 +112,7 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-use
+    \ingroup creator-how-to-git
 
     \title Use common VCS functions
 
@@ -136,15 +145,18 @@
     All version control systems have menu options to \e{diff} the current
     file or project: to compare it with the latest version stored in the
     repository and to display the differences. In \QC, a diff is displayed in a
-    read-only editor. If the file is accessible, you can double-click on a
+    read-only editor.
+
+    \image qtcreator-git-diff-repository.webp {Git Diff Repository view}
+    \caption Git Diff Repository view
+
+    If the file is accessible, you can double-click on a
     selected diff chunk and \QC opens an editor displaying the file, scrolled to
     the line in question.
 
-    \image qtcreator-vcs-diff.png
-
     With Git, Mercurial, and Subversion, the diff is displayed side-by-side in
     a \l{Compare files}{diff editor} by default. To use the inline diff view
-    instead, select the \uicontrol {Switch to Text Diff Editor} (1) option from
+    instead, select the \uicontrol {Unified Diff Editor} option from
     the toolbar. In the inline
     diff view, you can use context menu commands to apply, revert, stage, and
     unstage chunks or selected lines, as well as send chunks to a code pasting
@@ -160,7 +172,7 @@
 
     To open annotation views, select \uicontrol {Annotate} or \uicontrol {Blame}.
     They show the lines of the file and the identifier of the change the lines
-    originate from. Click the change identifier to see a detailed description of
+    originate from. Select the change identifier to see a detailed description of
     the change.
 
     To show the annotation of a previous version, right-click on the
@@ -204,5 +216,6 @@
 
     You can select \uicontrol Delete to delete obsolete files from the repository.
 
-    \sa {Set up version control systems}, {Version Control Systems}
+    \sa {Use Git}{How To: Use Git}, {Set up version control systems},
+    {Version Control Systems}
 */

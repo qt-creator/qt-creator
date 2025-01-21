@@ -228,6 +228,8 @@
             \list
                 \li \l{Finding the Qt runtime version}
                 \li \l{Using Git}
+                    \generatelist studio-how-to-git-gs
+                    \generatelist studio-how-to-git
                 \li \l{Use external tools}
                 \li \l{Accessing output, issue, and warning messages}
                 \li \l{\QDS on MCUs}

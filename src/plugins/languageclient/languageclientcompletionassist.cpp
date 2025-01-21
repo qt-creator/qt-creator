@@ -347,10 +347,15 @@ public:
     {}
 
     // IAssistProposal interface
-    bool hasItemsToPropose(const QString &/*text*/, AssistReason reason) const override
+    bool hasItemsToPropose(const QString &prefix, AssistReason reason) const override
     {
         if (m_model->size() <= 0 || m_document.isNull())
             return false;
+
+        if (!prefix.isEmpty()) {
+            m_model->filter(prefix);
+            m_model->setPrefilterPrefix(prefix);
+        }
 
         return m_model->keepPerfectMatch(reason)
                 || !Utils::anyOf(m_model->items(), [this](AssistProposalItemInterface *item){

@@ -196,7 +196,7 @@ static inline FilePaths getPluginPaths()
     //    "%LOCALAPPDATA%\QtProject\qtcreator" on Windows Vista and later
     //    "$XDG_DATA_HOME/data/QtProject/qtcreator" or "~/.local/share/data/QtProject/qtcreator" on Linux
     //    "~/Library/Application Support/QtProject/Qt Creator" on Mac
-    const FilePath userPluginPath = appInfo().userPluginsRoot;
+    const FilePath userPluginPath = appInfo().userPluginsRoot.parentDir();
 
     // Qt Creator X.Y.Z can load plugins from X.Y.(Z-1) etc, so add current and previous
     // patch versions
@@ -457,11 +457,17 @@ void startCrashpad(const AppInfo &appInfo, bool crashReportingEnabled)
     annotations["sha1"] = Core::Constants::IDE_REVISION_STR;
 #endif
 
+    CrashpadInfo::GetCrashpadInfo()->set_crashpad_handler_behavior(crashpad::TriState::kEnabled);
     if (HostOsInfo::isWindowsHost()) {
         // reduces the size of crash reports, which can be large on Windows
         CrashpadInfo::GetCrashpadInfo()
             ->set_gather_indirectly_referenced_memory(crashpad::TriState::kEnabled, 0);
     }
+
+    // Explicitly enable Crashpad handling. This is the default in vanilla Crashpad,
+    // but we use a version that only handles processes that enable it explicitly,
+    // so we do not handle arbitrary subprocesses
+    CrashpadInfo::GetCrashpadInfo()->set_crashpad_handler_behavior(crashpad::TriState::kEnabled);
 
     // Optional arguments to pass to the handler
     std::vector<std::string> arguments;

@@ -45,6 +45,7 @@ static QHash<FilePath, QmllsClient *> &qmllsClients()
 
 QmllsClient *QmllsClient::clientForQmlls(const FilePath &qmlls)
 {
+    QTC_ASSERT(!qmlls.isEmpty(), return nullptr);
     if (auto client = qmllsClients()[qmlls]) {
         switch (client->state()) {
         case Client::State::Uninitialized:

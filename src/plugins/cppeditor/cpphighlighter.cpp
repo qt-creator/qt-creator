@@ -4,6 +4,7 @@
 #include "cpphighlighter.h"
 
 #include "cppdoxygen.h"
+#include "cppeditordocument.h"
 #include "cppeditorlogging.h"
 #include "cpptoolsreuse.h"
 
@@ -13,7 +14,6 @@
 #include <utils/textutils.h>
 
 #include <cplusplus/SimpleLexer.h>
-#include <cplusplus/Lexer.h>
 
 #include <QFile>
 #include <QTextCharFormat>
@@ -836,7 +836,7 @@ class CodeFoldingTest : public QObject
 private slots:
     void test()
     {
-        const QByteArray content = R"(cpp // 0,0
+        const QByteArray content = R"cpp( // 0,0
 int main() {                              // 1,0
 #if 0                                     // 1,1
     if (true) {                           // 1,1
@@ -852,7 +852,7 @@ int main() {                              // 1,0
 #endif                                    // 1,1
 }                                         // 0,0
                                           // 0,0
-cpp)";
+)cpp";
         TemporaryDir temporaryDir;
         QVERIFY(temporaryDir.isValid());
         CppTestDocument testDocument("file.cpp", content);
@@ -904,10 +904,16 @@ cpp)";
                 QCOMPARE(actual, expected);
             }
         };
-        connect(testDocument.m_editorWidget, &CppEditorWidget::ifdefedOutBlocksChanged,
-                this, check);
-        t.start(5000);
-        QCOMPARE(loop.exec(), 0);
+
+        if (testDocument.m_editorWidget->cppEditorDocument()->ifdefedOutBlocks().isEmpty()) {
+            connect(testDocument.m_editorWidget->cppEditorDocument(),
+                    &CppEditorDocument::ifdefedOutBlocksApplied,
+                    this, check);
+            t.start(5000);
+            QCOMPARE(loop.exec(), 0);
+        } else {
+            check();
+        }
     }
 
     void cleanup()

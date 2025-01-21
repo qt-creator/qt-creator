@@ -206,8 +206,8 @@ Client *LanguageClientManager::startClient(const BaseSettings *setting,
     QTC_ASSERT(setting, return nullptr);
     QTC_ASSERT(setting->isValid(), return nullptr);
     Client *client = setting->createClient(project);
-    qCDebug(Log) << "start client: " << client->name() << client;
     QTC_ASSERT(client, return nullptr);
+    qCDebug(Log) << "start client: " << client->name() << client;
     client->start();
     managerInstance->m_clientsForSetting[setting->m_id].append(client);
     return client;
@@ -285,6 +285,11 @@ QList<Client *> LanguageClientManager::clientsSupportingDocument(
         [doc](Client *client) { return client->isSupportedDocument(doc); });
 }
 
+void LanguageClientManager::writeSettings()
+{
+    LanguageClientSettings::toSettings(Core::ICore::settings(), managerInstance->m_currentSettings);
+}
+
 void LanguageClientManager::applySettings()
 {
     QTC_ASSERT(managerInstance, return);
@@ -292,75 +297,74 @@ void LanguageClientManager::applySettings()
     managerInstance->m_currentSettings
         = Utils::transform(LanguageClientSettings::pageSettings(), &BaseSettings::copy);
     const QList<BaseSettings *> restarts = LanguageClientSettings::changedSettings();
-    LanguageClientSettings::toSettings(Core::ICore::settings(), managerInstance->m_currentSettings);
+    writeSettings();
 
-    for (BaseSettings *setting : restarts) {
-        QList<TextEditor::TextDocument *> documents;
-        const QList<Client *> currentClients = clientsForSetting(setting);
-        for (Client *client : currentClients) {
-            documents << managerInstance->m_clientForDocument.keys(client);
-            shutdownClient(client);
+    for (BaseSettings *settings : restarts)
+        applySettings(settings);
+}
+
+void LanguageClientManager::applySettings(BaseSettings *setting)
+{
+    QList<TextEditor::TextDocument *> documents;
+    const QList<Client *> currentClients = clientsForSetting(setting);
+    for (Client *client : currentClients) {
+        documents << managerInstance->m_clientForDocument.keys(client);
+        shutdownClient(client);
+    }
+    for (auto document : std::as_const(documents))
+        managerInstance->m_clientForDocument.remove(document);
+    if (!setting->isValid() || !setting->m_enabled)
+        return;
+    if (setting->m_startBehavior == BaseSettings::AlwaysOn
+        || setting->m_startBehavior == BaseSettings::RequiresFile) {
+        auto ensureClient = [setting, client = static_cast<Client *>(nullptr)]() mutable {
+            if (!client)
+                client = startClient(setting);
+            return client;
+        };
+        if (setting->m_startBehavior == BaseSettings::AlwaysOn)
+            ensureClient();
+
+        for (TextEditor::TextDocument *previousDocument : std::as_const(documents)) {
+            if (setting->m_languageFilter.isSupported(previousDocument)) {
+                auto client = ensureClient();
+                QTC_ASSERT(client, return);
+                openDocumentWithClient(previousDocument, client);
+            }
         }
-        for (auto document : std::as_const(documents))
-            managerInstance->m_clientForDocument.remove(document);
-        if (!setting->isValid() || !setting->m_enabled)
-            continue;
-        switch (setting->m_startBehavior) {
-        case BaseSettings::AlwaysOn: {
-            Client *client = startClient(setting);
-            for (TextEditor::TextDocument *document : std::as_const(documents))
-                managerInstance->m_clientForDocument[document] = client;
-            break;
-        }
-        case BaseSettings::RequiresFile: {
-            Client *client = nullptr;
-            for (TextEditor::TextDocument *previousDocument : std::as_const(documents)) {
-                if (setting->m_languageFilter.isSupported(previousDocument)) {
-                    if (!client)
-                        client = startClient(setting);
-                    openDocumentWithClient(previousDocument, client);
+        const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
+        for (Core::IDocument *document : openedDocuments) {
+            if (documents.contains(document))
+                continue; // already handled above
+            if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document)) {
+                if (setting->m_languageFilter.isSupported(document)) {
+                    auto client = ensureClient();
+                    QTC_ASSERT(client, return);
+                    client->openDocument(textDocument);
                 }
             }
-            const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
-            for (Core::IDocument *document : openedDocuments) {
-                if (documents.contains(document))
-                    continue; // already handled above
-                if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document)) {
-                    if (setting->m_languageFilter.isSupported(document)) {
+        }
+    } else if (setting->m_startBehavior == BaseSettings::RequiresProject) {
+        const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
+        QHash<ProjectExplorer::Project *, Client *> clientForProject;
+        for (Core::IDocument *document : openedDocuments) {
+            auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
+            if (!textDocument || !setting->m_languageFilter.isSupported(textDocument))
+                continue;
+            const Utils::FilePath filePath = textDocument->filePath();
+            for (ProjectExplorer::Project *project :
+                 ProjectExplorer::ProjectManager::projects()) {
+                if (project->isKnownFile(filePath)) {
+                    Client *client = clientForProject[project];
+                    if (!client) {
+                        client = startClient(setting, project);
                         if (!client)
-                            client = startClient(setting);
-                        client->openDocument(textDocument);
+                            continue;
+                        clientForProject[project] = client;
                     }
+                    client->openDocument(textDocument);
                 }
             }
-            break;
-        }
-        case BaseSettings::RequiresProject: {
-            const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
-            QHash<ProjectExplorer::Project *, Client *> clientForProject;
-            for (Core::IDocument *document : openedDocuments) {
-                auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
-                if (!textDocument || !setting->m_languageFilter.isSupported(textDocument))
-                    continue;
-                const Utils::FilePath filePath = textDocument->filePath();
-                for (ProjectExplorer::Project *project :
-                     ProjectExplorer::ProjectManager::projects()) {
-                    if (project->isKnownFile(filePath)) {
-                        Client *client = clientForProject[project];
-                        if (!client) {
-                            client = startClient(setting, project);
-                            if (!client)
-                                continue;
-                            clientForProject[project] = client;
-                        }
-                        client->openDocument(textDocument);
-                    }
-                }
-            }
-            break;
-        }
-        default:
-            break;
         }
     }
 }

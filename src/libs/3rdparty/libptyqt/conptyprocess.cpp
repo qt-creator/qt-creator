@@ -582,18 +582,6 @@ void _ClosePseudoConsoleMembers(_In_ PseudoConsole* pPty)
         //      has yet to send before we hard kill it.
         if (_HandleIsValid(pPty->hConPtyProcess))
         {
-            // If the conhost is already dead, then that's fine. Presumably
-            //      it's finished flushing it's output already.
-            DWORD dwExit = 0;
-            // If GetExitCodeProcess failed, it's likely conhost is already dead
-            //      If so, skip waiting regardless of whatever error
-            //      GetExitCodeProcess returned.
-            //      We'll just go straight to killing conhost.
-            if (GetExitCodeProcess(pPty->hConPtyProcess, &dwExit) && dwExit == STILL_ACTIVE)
-            {
-                WaitForSingleObject(pPty->hConPtyProcess, INFINITE);
-            }
-
             TerminateProcess(pPty->hConPtyProcess, 0);
             CloseHandle(pPty->hConPtyProcess);
             pPty->hConPtyProcess = nullptr;
@@ -754,7 +742,7 @@ public:
     typedef HRESULT (*CreatePseudoConsolePtr)(
             COORD size,         // ConPty Dimensions
             HANDLE hInput,      // ConPty Input
-            HANDLE hOutput,	    // ConPty Output
+            HANDLE hOutput,     // ConPty Output
             DWORD dwFlags,      // ConPty Flags
             HPCON* phPC);       // ConPty Reference
 
@@ -762,7 +750,7 @@ public:
 
     typedef VOID (*ClosePseudoConsolePtr)(HPCON hPC);
 
-    static WindowsContext &instance() 
+    static WindowsContext &instance()
     {
         static WindowsContext ctx;
         return ctx;

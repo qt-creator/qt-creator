@@ -765,7 +765,7 @@ void QmlJSEditorDocumentPrivate::settingsChanged()
         return;
 
     FilePath newQmlls = qmllsForFile(q->filePath(), ModelManagerInterface::instance());
-    if (m_qmllsStatus.qmllsPath == newQmlls) {
+    if (!newQmlls.isEmpty() && m_qmllsStatus.qmllsPath == newQmlls) {
         if (QmllsClient *client = QmllsClient::clientForQmlls(newQmlls)) {
             client->updateQmllsSemanticHighlightingCapability();
             setSourcesWithCapabilities(client->capabilities());
@@ -781,9 +781,7 @@ void QmlJSEditorDocumentPrivate::settingsChanged()
         if (LanguageClientManager::clientForDocument(q) != nullptr) {
             qCDebug(qmllsLog) << "deactivating " << q->filePath() << "in qmlls" << newQmlls;
             LanguageClientManager::openDocumentWithClient(q, nullptr);
-        } else
-            qCWarning(qmllsLog) << "Could not find client to disable for document " << q->filePath()
-                                << " in LanguageClient::LanguageClientManager";
+        }
         setCompletionSource(QmllsStatus::Source::EmbeddedCodeModel);
         setSemanticWarningSource(QmllsStatus::Source::EmbeddedCodeModel);
         setSemanticHighlightSource(QmllsStatus::Source::EmbeddedCodeModel);

@@ -7,16 +7,18 @@
 #include "updateinfotr.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
 
 #include <utils/qtcassert.h>
 #include <utils/progressindicator.h>
 #include <utils/layoutbuilder.h>
 
-#include <QDate>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDate>
 #include <QGroupBox>
 #include <QLabel>
+#include <QLocale>
 #include <QPointer>
 #include <QPushButton>
 
@@ -172,14 +174,21 @@ void UpdateInfoSettingsPageWidget::checkRunningChanged(bool running)
     m_messageLabel->setText(message);
 }
 
+static QString localizedDate(const QDate &date)
+{
+    static QLocale locale(Core::ICore::userInterfaceLanguage());
+    return locale.toString(date, locale.dateFormat());
+}
+
 void UpdateInfoSettingsPageWidget::updateLastCheckDate()
 {
     const QDate date = m_plugin->lastCheckDate();
     QString lastCheckDateString;
-    if (date.isValid())
-        lastCheckDateString = date.toString();
-    else
+    if (date.isValid()) {
+        lastCheckDateString = localizedDate(date);
+    } else {
         lastCheckDateString = Tr::tr("Not checked yet");
+    }
 
     m_lastCheckDateLabel->setText(lastCheckDateString);
 
@@ -192,7 +201,7 @@ void UpdateInfoSettingsPageWidget::updateNextCheckDate()
     if (!date.isValid() || date < QDate::currentDate())
         date = QDate::currentDate();
 
-    m_nextCheckDateLabel->setText(date.toString());
+    m_nextCheckDateLabel->setText(localizedDate(date));
 }
 
 void UpdateInfoSettingsPageWidget::apply()

@@ -1883,17 +1883,17 @@ foo::foo2::MyType<int> foo::foo2::bar()
         QByteArray original =
             "class Foo\n"
             "{\n"
-            "    template<class U>\n"
+            "    template<class U, auto N>\n"
             "    void fun@c();\n"
             "};\n";
         QByteArray expected =
             "class Foo\n"
             "{\n"
-            "    template<class U>\n"
+            "    template<class U, auto N>\n"
             "    void fun@c();\n"
             "};\n"
             "\n"
-            "template<class U>\n"
+            "template<class U, auto N>\n"
             "inline void Foo::func()\n"
             "{\n"
             "\n"

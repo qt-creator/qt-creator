@@ -332,8 +332,6 @@ IDocument::OpenResult IDocument::open(QString *errorString, const Utils::FilePat
     document should avoid cleanups or other operations that it does for
     user-requested saves.
 
-    Use \a errorString to return an error message if saving failed.
-
     Returns whether saving was successful.
 
     If saving was successful saved is emitted.
@@ -451,9 +449,6 @@ IDocument::ReloadBehavior IDocument::reloadBehavior(ChangeTrigger trigger, Chang
 
     The \a type specifies whether only the file permissions changed or if the
     contents of the file changed.
-
-    Use \a errorString to return an error message, if this document cannot
-    handle the file contents.
 
     Returns if the file was reloaded successfully.
 

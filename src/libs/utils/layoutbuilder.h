@@ -31,6 +31,7 @@ class QObject;
 class QPushButton;
 class QScrollArea;
 class QSize;
+class QSizePolicy;
 class QSpinBox;
 class QSplitter;
 class QStackedWidget;
@@ -121,6 +122,7 @@ public:
     void setColumnStretch(int cols, int rows);
     void setSpacing(int space);
     void setFieldGrowthPolicy(int policy);
+    void setStretch(int index, int stretch);
 
     void attachTo(QWidget *);
 
@@ -250,6 +252,7 @@ public:
     void setAutoFillBackground(bool);
     void setLayout(const Layout &layout);
     void setSize(int, int);
+    void setSizePolicy(const QSizePolicy &policy);
     void setFixedSize(const QSize &);
     void setWindowTitle(const QString &);
     void setWindowFlags(Qt::WindowFlags);
@@ -259,6 +262,7 @@ public:
     void setNormalMargins(int = 0);
     void setContentsMargins(int left, int top, int right, int bottom);
     void setCursor(Qt::CursorShape shape);
+    void setMinimumWidth(int);
 
     void activateWindow();
     void close();
@@ -537,6 +541,7 @@ QTC_DEFINE_BUILDER_SETTER(widgetAttribute, setWidgetAttribute);
 QTC_DEFINE_BUILDER_SETTER(autoFillBackground, setAutoFillBackground);
 QTC_DEFINE_BUILDER_SETTER(readOnly, setReadOnly);
 QTC_DEFINE_BUILDER_SETTER(markdown, setMarkdown);
+QTC_DEFINE_BUILDER_SETTER(sizePolicy, setSizePolicy);
 QTC_DEFINE_BUILDER_SETTER(basePath, setBasePath);
 QTC_DEFINE_BUILDER_SETTER(fixedSize, setFixedSize);
 
@@ -610,6 +615,7 @@ QTCREATOR_UTILS_EXPORT void hr(Layout *);
 QTCREATOR_UTILS_EXPORT void tight(Layout *); // noMargin + spacing(0)
 
 QTCREATOR_UTILS_EXPORT LayoutModifier spacing(int space);
+QTCREATOR_UTILS_EXPORT LayoutModifier stretch(int index, int stretch);
 
 // Convenience
 

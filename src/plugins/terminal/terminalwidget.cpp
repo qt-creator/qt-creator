@@ -42,7 +42,6 @@
 #include <QPixmapCache>
 #include <QRawFont>
 #include <QRegularExpression>
-#include <QScrollBar>
 #include <QTextItem>
 #include <QTextLayout>
 #include <QToolTip>
@@ -336,10 +335,13 @@ qint64 TerminalWidget::writeToPty(const QByteArray &data)
     return data.size();
 }
 
-void TerminalWidget::resizePty(QSize newSize)
+bool TerminalWidget::resizePty(QSize newSize)
 {
-    if (m_process && m_process->ptyData() && m_process->isRunning())
-        m_process->ptyData()->resize(newSize);
+    if (!m_process || !m_process->ptyData() || !m_process->isRunning())
+        return false;
+
+    m_process->ptyData()->resize(newSize);
+    return true;
 }
 
 void TerminalWidget::surfaceChanged()

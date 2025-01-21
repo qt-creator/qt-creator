@@ -125,11 +125,12 @@ void addCMakePresets(FolderNode *root, const Utils::FilePath &sourceDir)
     presetFileNames << "CMakePresets.json";
     presetFileNames << "CMakeUserPresets.json";
 
-    const CMakeProject *cp = static_cast<const CMakeProject *>(
+    const auto cmakeProject = qobject_cast<const CMakeProject *>(
         ProjectManager::projectForFile(sourceDir.pathAppended(Constants::CMAKE_LISTS_TXT)));
+    QTC_ASSERT(cmakeProject, return);
 
-    if (cp && cp->presetsData().include)
-        presetFileNames.append(cp->presetsData().include.value());
+    if (cmakeProject->presetsData().include)
+        presetFileNames.append(cmakeProject->presetsData().include.value());
 
     std::vector<std::unique_ptr<FileNode>> presets;
     for (const auto &fileName : presetFileNames) {

@@ -53663,19 +53663,19 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Ctrl+Alt+.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+.</translation>
     </message>
     <message>
         <source>Ctrl+Alt+,</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+,</translation>
     </message>
     <message>
         <source>Sort by Filenames</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach Dateiname sortieren</translation>
     </message>
     <message>
         <source>Ctrl+Alt+P</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+P</translation>
     </message>
     <message>
         <source>Alt+Meta+M</source>
@@ -54910,19 +54910,19 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Fold Recursively</source>
-        <translation type="unfinished"></translation>
+        <translation>Rekursiv einklappen</translation>
     </message>
     <message>
         <source>Fold All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle einklappen</translation>
     </message>
     <message>
         <source>Unfold Recursively</source>
-        <translation type="unfinished"></translation>
+        <translation>Rekursiv aufklappen</translation>
     </message>
     <message>
         <source>Unfold All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle aufklappen</translation>
     </message>
     <message>
         <source>Zoom: %1%</source>
@@ -56062,11 +56062,11 @@ Um den Stil von benutzerdefinierten Operatoren festzulegen, verwenden Sie &quot;
     </message>
     <message>
         <source>Attribute</source>
-        <translation type="unfinished"></translation>
+        <translation>Attribut</translation>
     </message>
     <message>
         <source>Attributes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Attribute.</translation>
     </message>
     <message>
         <source>Comment</source>
@@ -56545,7 +56545,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Copy Hash to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Hash in die Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>&lt;b&gt;Note:&lt;/b&gt; &quot;%1&quot; or &quot;%2&quot; is enabled in the instant blame settings.</source>
@@ -56598,23 +56598,23 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Select Previous Suggestion</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorangehenden Vorschlag auswählen</translation>
     </message>
     <message>
         <source>Select Next Suggestion</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächsten Vorschlag auswählen</translation>
     </message>
     <message>
         <source>Apply (%1)</source>
-        <translation type="unfinished">Anwenden (%1)</translation>
+        <translation>Anwenden (%1)</translation>
     </message>
     <message>
         <source>Apply Word (%1)</source>
-        <translation type="unfinished">Wort anwenden (%1)</translation>
+        <translation>Wort anwenden (%1)</translation>
     </message>
     <message>
         <source>Apply Line</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeile anwenden</translation>
     </message>
 </context>
 <context>
@@ -57107,11 +57107,11 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Add to project:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu Projekt hinzufügen:</translation>
     </message>
     <message>
         <source>Chosen project wizard does not support the build system.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Buildsystem wird vom gewählten Assistenten nicht unterstützt.</translation>
     </message>
     <message>
         <source>Directory &quot;%1&quot; will be created.</source>
@@ -57368,7 +57368,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>renameFile is not implemented for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>renameFile ist für &quot;%1&quot; nicht implementiert.</translation>
     </message>
     <message>
         <source>fileContents is not implemented for &quot;%1&quot;.</source>
@@ -57388,11 +57388,11 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Failed to watch &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Watch für &quot;%1&quot; ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Failed to watch &quot;%1&quot;, it does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Watch für &quot;%1&quot; ist fehlgeschlagen, es existiert nicht.</translation>
     </message>
     <message>
         <source>Refusing to remove the standard directory &quot;%1&quot;.</source>
@@ -57416,7 +57416,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Failed to rename file &quot;%1&quot; to &quot;%2&quot;: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; konnte nicht in &quot;%2&quot; umbenannt werden: %3</translation>
     </message>
     <message>
         <source>File &quot;%1&quot; does not exist.</source>
@@ -57448,7 +57448,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>removeFile is not implemented for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>removeFile ist für &quot;%1&quot; nicht implementiert.</translation>
     </message>
     <message>
         <source>Cannot copy &quot;%1&quot; to &quot;%2&quot;: %3</source>
@@ -57531,7 +57531,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Failed to set up scratch buffer in &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Notizbereich in &quot;%1&quot; konnte nicht erzeugt werden.</translation>
     </message>
     <message>
         <source>%1 on %2</source>
@@ -57557,7 +57557,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Failed to move %1 to %2. Removing the source file failed: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Verschieben von %1 nach %2 ist fehlgeschlagen. Das Entfernen der Quelldatei ist fehlgeschlagen: %3</translation>
     </message>
     <message>
         <source>No &quot;localSource&quot; device hook set.</source>
@@ -57724,7 +57724,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Failed to expand macros in process arguments: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Expandieren von Makros in Prozessargumenten ist fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>%1: Full path including file name.</source>
@@ -59562,7 +59562,7 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>Cannot commit: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Commit fehlgeschlagen: %1</translation>
     </message>
     <message numerus="yes">
         <source>%1 %2/%n File(s)</source>
@@ -59922,19 +59922,19 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>The chosen directory is an emsdk location.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das gewählte Verzeichnis ist der Ort eines emsdk.</translation>
     </message>
     <message>
         <source>An SDK is installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein SDK ist installiert.</translation>
     </message>
     <message>
         <source>An SDK is activated.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein SDK ist aktiviert.</translation>
     </message>
     <message>
         <source>The activated SDK is usable by %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das aktivierte SDK ist von %1 benutzbar.</translation>
     </message>
     <message>
         <source>The activated version %1 is not supported by %2. Activate version %3 or higher.</source>

@@ -53,6 +53,8 @@ public:
                                const Environment *env = nullptr, const FilePath *pwd = nullptr);
     //! Quote and append each argument to a shell command
     static void addArgs(QString *args, const QStringList &inArgs);
+    //! Quote and append each argument to a shell command
+    static void addArgs(QString *args, const QStringList &inArgs, OsType osType);
     //! Append already quoted arguments to a shell command
     static void addArgs(QString *args, const QString &inArgs);
     //! Split a shell command into separate arguments.
@@ -170,6 +172,7 @@ public:
     void addCommandLineAsArgs(const CommandLine &cmd, RawType);
 
     void addCommandLineAsSingleArg(const CommandLine &cmd);
+    void addCommandLineAsSingleArg(const CommandLine &cmd, OsType osType);
     void addCommandLineWithAnd(const CommandLine &cmd);
 
     QString toUserOutput() const;

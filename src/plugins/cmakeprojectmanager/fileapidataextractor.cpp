@@ -113,11 +113,6 @@ static CMakeFileResult extractCMakeFilesData(const QFuture<void> &cancelFuture,
         auto node = std::make_unique<FileNode>(info.path, FileType::Project);
         node->setIsGenerated(info.isGenerated);
 
-        // We will have the CMakeLists.txt file in the Target nodes as a child node.
-        // Except the root CMakeLists.txt file.
-        if (info.isCMakeListsDotTxt && info.path.parentDir() != sourceDirectory)
-            node->setIsGenerated(true);
-
         if (info.isCMakeListsDotTxt) {
             result.cmakeListNodes.emplace_back(std::move(node));
         } else if (info.path.isChildOf(sourceDirectory)) {
@@ -825,6 +820,9 @@ static void addTargets(FolderNode *root,
                     folderDir, createSourceGroupNode(td.folderTargetProperty, folderDir, root));
 
             tNode = createTargetNode(folderNodes, folderDir, t.name);
+
+            // Set the correct source directory, not the FOLDER property value
+            tNode->setFilePath(dir);
         } else {
             tNode = createTargetNode(cmakeListsNodes, dir, t.name);
         }

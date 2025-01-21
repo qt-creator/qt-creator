@@ -88,6 +88,7 @@ CREATE_HAS_FUNC(onTextChanged, nullptr, nullptr)
 CREATE_HAS_FUNC(onClicked, nullptr, nullptr)
 CREATE_HAS_FUNC(setText, QString())
 CREATE_HAS_FUNC(setMarkdown, QString())
+CREATE_HAS_FUNC(setSizePolicy, QSizePolicy())
 CREATE_HAS_FUNC(setReadOnly, bool())
 CREATE_HAS_FUNC(setTitle, QString())
 CREATE_HAS_FUNC(setValue, int())
@@ -113,6 +114,7 @@ CREATE_HAS_FUNC(setVisible, bool())
 CREATE_HAS_FUNC(setIcon, Utils::Icon());
 CREATE_HAS_FUNC(setContentsMargins, int(), int(), int(), int());
 CREATE_HAS_FUNC(setCursor, Qt::CursorShape())
+CREATE_HAS_FUNC(setMinimumWidth, int());
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
@@ -127,6 +129,12 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         const auto cursor = children.get<sol::optional<Qt::CursorShape>>("cursor");
         if (cursor)
             item->setCursor(*cursor);
+    }
+
+    if constexpr (has_setMinimumWidth<T>) {
+        const auto minw = children.get<sol::optional<int>>("minimumWidth");
+        if (minw)
+            item->setMinimumWidth(*minw);
     }
 
     if constexpr (has_setVisible<T>) {
@@ -289,6 +297,19 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         auto markdown = children.get<sol::optional<QString>>("markdown");
         if (markdown)
             item->setMarkdown(*markdown);
+    }
+    if constexpr (has_setSizePolicy<T>) {
+        auto sizePolicy = children.get<sol::optional<sol::table>>("sizePolicy");
+        if (sizePolicy) {
+            QTC_ASSERT(
+                sizePolicy->size() == 2,
+                throw sol::error(
+                    "sizePolicy must be array of 2 elements: horizontalPolicy, verticalPolicy.")
+                );
+            auto horizontalPolicy = sizePolicy->get<QSizePolicy::Policy>(1);
+            auto verticalPolicy = sizePolicy->get<QSizePolicy::Policy>(2);
+            item->setSizePolicy(QSizePolicy(horizontalPolicy, verticalPolicy));
+        }
     }
     if constexpr (has_setTitle<T>) {
         item->setTitle(children.get_or<QString>("title", ""));
@@ -500,6 +521,10 @@ void setupGuiModule()
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<PushButton>(children, guard);
             }),
+            "setText",
+            &PushButton::setText,
+            "setIconPath",
+            &PushButton::setIconPath,
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
@@ -551,6 +576,9 @@ void setupGuiModule()
         mirrorEnum(gui, QMetaEnum::fromType<Qt::TextFormat>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::TextInteractionFlag>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::CursorShape>());
+
+        auto sizePolicy = gui.create_named("QSizePolicy");
+        mirrorEnum(sizePolicy, QMetaEnum::fromType<QSizePolicy::Policy>());
 
         gui.new_usertype<Stack>(
             "Stack",
@@ -672,6 +700,7 @@ void setupGuiModule()
         gui["normalMargin"] = &normalMargin;
         gui["withFormAlignment"] = &withFormAlignment;
         gui["spacing"] = &spacing;
+        gui["stretch"] = &stretch;
 
         return gui;
     });

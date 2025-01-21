@@ -62,6 +62,8 @@ Projects
 
 ### Workspace
 
+### Autotools
+
 ### vcpkg
 
 ### Qt Safe Renderer
@@ -102,6 +104,8 @@ Test Integration
 ----------------
 
 ### Qt Test
+
+### Boost
 
 ### Catch2
 

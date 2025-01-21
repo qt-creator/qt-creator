@@ -225,6 +225,7 @@ AxivionSettings &settings()
 AxivionSettings::AxivionSettings()
 {
     setSettingsGroup("Axivion");
+    setAutoApply(false);
 
     highlightMarks.setSettingsKey("HighlightMarks");
     highlightMarks.setLabelText(Tr::tr("Highlight marks"));
@@ -490,6 +491,7 @@ void AxivionSettingsWidget::apply()
                                           : servers.at(m_dashboardServers->currentIndex()).id;
     if (settings().updateDashboardServers(servers, selected))
         settings().toSettings();
+    settings().apply();
 }
 
 void AxivionSettingsWidget::updateDashboardServers()

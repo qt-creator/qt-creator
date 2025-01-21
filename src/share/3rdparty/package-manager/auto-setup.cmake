@@ -110,6 +110,14 @@ macro(qtc_auto_setup_conan)
 
       file(COPY "${conanfile_txt}" DESTINATION "${CMAKE_BINARY_DIR}/conan-dependencies/")
 
+      # conanfile should have a generator specified, when both file and conan_install
+      # specifcy the CMakeDeps generator, conan_install will issue an error
+      file(READ "${conanfile_txt}" conanfile_text_content)
+      unset(conan_generator)
+      if (NOT "${conanfile_text_content}" MATCHES ".*CMakeDeps.*")
+        set(conan_generator "-g CMakeDeps")
+      endif()
+
       file(WRITE "${CMAKE_BINARY_DIR}/conan-dependencies/toolchain.cmake" "
         set(CMAKE_C_COMPILER \"${CMAKE_C_COMPILER}\")
         set(CMAKE_CXX_COMPILER \"${CMAKE_CXX_COMPILER}\")
@@ -143,7 +151,7 @@ macro(qtc_auto_setup_conan)
               -pr \"${CMAKE_BINARY_DIR}/conan-dependencies/conan_host_profile\"
               --build=${QT_CREATOR_CONAN_BUILD_POLICY}
               -s build_type=\${type}
-              -g CMakeDeps)
+              ${conan_generator})
           endforeach()
 
           get_property(CONAN_INSTALL_SUCCESS GLOBAL PROPERTY CONAN_INSTALL_SUCCESS)

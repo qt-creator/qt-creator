@@ -127,9 +127,10 @@ QString QMakeStep::allArguments(const QtVersion *v, ArgumentFlags flags) const
             }
         }
     }
-    const QString specArg = mkspec();
+    const FilePath specArg = FilePath::fromString(mkspec());
+    QTC_CHECK(specArg.isSameDevice(v->qmakeFilePath()));
     if (!userProvidedMkspec && !specArg.isEmpty())
-        arguments << "-spec" << QDir::toNativeSeparators(specArg);
+        arguments << "-spec" << specArg.path();
 
     // Find out what flags we pass on to qmake
     arguments << bc->configCommandLineArguments();

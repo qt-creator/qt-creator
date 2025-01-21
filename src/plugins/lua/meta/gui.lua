@@ -26,6 +26,7 @@ gui.widget = {}
 ---@field windowFlags? WindowType[] The window flags of the widget.
 ---@field widgetAttributes? WidgetAttributeMapT<boolean> The widget attributes of the widget.
 ---@field autoFillBackground? boolean A boolean, representing whether the widget should automatically fill its background.
+---@field sizePolicy? SizePolicy.Policy[] Two size policies of the widget, horizontal and vertical.
 gui.baseWidgetOptions = {}
 
 ---@class (exact) WidgetOptions : BaseWidgetOptions
@@ -40,6 +41,7 @@ gui.baseWidgetOptions = {}
 ---@field fixedSize? integer[] Two integers representing the width and height
 ---@field contentMargins? integer[] Four integers represending left, top, right and bottom margins.
 ---@field cursor? CursorShape The cursor shape for the widget.
+---@field minimumWidth? integer The minimum width in pixels.
 gui.widgetOptions = {}
 
 ---@param options WidgetOptions
@@ -258,6 +260,11 @@ function gui.normalMargin() end
 ---Sets the alignment of a Grid layout according to the Form layout rules.
 function gui.withFormAlignment() end
 
+---Sets the stretch factor at position index to stretch.
+---@param index integer The widget index.
+---@param stretch integer The stretch factor.
+function gui.stretch(index, stretch) end
+
 --- Enum representing Text interaction flags
 ---@enum TextInteractionFlag
 gui.TextInteractionFlag {
@@ -458,6 +465,20 @@ gui.CursorShape = {
     LastCursor = DragLinkCursor,
     BitmapCursor = 0,
     CustomCursor = 0
+}
+
+gui.SizePolicy = {
+    --- Enum representing size policy.
+    ---@enum Policy
+    Policy = {
+        Fixed = 0,
+        Minimum = 0,
+        Maximum = 0,
+        Preferred = 0,
+        MinimumExpanding = 0,
+        Expanding = 0,
+        Ignored = 0
+    }
 }
 
 ---@class Space : Layout

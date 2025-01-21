@@ -570,7 +570,9 @@ static QStringList filteredFlags(const QStringList &allFlags, bool considerSysro
                    || a == "-gcc-toolchain" || a == "-target" || a == "-mllvm" || a == "-isystem") {
             if (++i < allFlags.length())
                 filtered << a << allFlags.at(i);
-        } else if (a.startsWith("-m") || a.startsWith("-f") || a.startsWith("-O")
+        } else if (a.startsWith("-m")
+                   || (a.startsWith("-f") && !a.startsWith("-fcolor") && !a.startsWith("-fno-color"))
+                   || a.startsWith("-O")
                    || a.startsWith("-std=") || a.startsWith("-stdlib=")
                    || a.startsWith("-specs=") || a == "-ansi" || a == "-undef"
                    || a.startsWith("-D") || a.startsWith("-U")
@@ -1406,6 +1408,7 @@ static FilePaths findCompilerCandidates(OsType os,
         if (os == OsTypeWindows && fileName.endsWith(u".exe", Qt::CaseInsensitive))
             fileName.chop(4);
 
+        // Do not `continue`, proceed to detect further variants
         if (fileName == compilerName)
             compilerPaths << executable;
 
@@ -1426,7 +1429,7 @@ static FilePaths findCompilerCandidates(OsType os,
         // if not at the end, it must by followed by a hyphen and a digit between 1 and 9
         pos += cl;
         if (pos != fileName.size()) {
-            if (pos + 2 >= fileName.size())
+            if (pos + 1 >= fileName.size())
                 continue;
             if (fileName.at(pos) != '-')
                 continue;
@@ -1626,7 +1629,6 @@ FilePath GccToolchainFactory::correspondingCompilerCommand(
 Toolchains GccToolchainFactory::autoDetectSdkClangToolchain(const Toolchains &known)
 {
     const expected_str<FilePath> compilerPath = Core::ICore::clangExecutable(CLANG_BINDIR);
-    QTC_CHECK_EXPECTED(compilerPath);
     if (!compilerPath)
         return {};
 

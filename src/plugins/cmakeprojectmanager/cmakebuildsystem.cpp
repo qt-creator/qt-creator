@@ -2389,16 +2389,31 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
         }
     }
 
-    // Handle MSVC C/C++ compiler update, by udating also the linker, otherwise projects
-    // will fail to compile by using a linker that doesn't exist
+    // Handle MSVC C/C++ compiler update, by udating also the linker and librarian,
+    // otherwise projects will fail to compile by using a linker (link.exe) and
+    // a librarian (lib.exe) that do not exit
     const FilePath cxxCompiler = config.filePathValueOf("CMAKE_CXX_COMPILER");
     if (!cxxCompiler.isEmpty() && cxxCompiler.fileName() == "cl.exe") {
         const FilePath linker = cm.filePathValueOf("CMAKE_LINKER");
-        if (!linker.exists())
+        if (!linker.exists()) {
+            const QString linkerFileName = linker.fileName() != "CMAKE_LINKER-NOTFOUND"
+                                               ? linker.fileName()
+                                               : "link.exe";
             config << CMakeConfigItem(
                 "CMAKE_LINKER",
                 CMakeConfigItem::FILEPATH,
-                cxxCompiler.parentDir().pathAppended(linker.fileName()).path().toUtf8());
+                cxxCompiler.parentDir().pathAppended(linkerFileName).path().toUtf8());
+        }
+        const FilePath librarian = cm.filePathValueOf("CMAKE_AR");
+        if (!librarian.exists()) {
+            const QString librarianFileName = librarian.fileName() != "CMAKE_AR-NOTFOUND"
+                                                  ? librarian.fileName()
+                                                  : "lib.exe";
+            config << CMakeConfigItem(
+                "CMAKE_AR",
+                CMakeConfigItem::FILEPATH,
+                cxxCompiler.parentDir().pathAppended(librarianFileName).path().toUtf8());
+        }
     }
 
     if (!config.isEmpty())

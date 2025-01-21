@@ -3,6 +3,7 @@
 
 #include "documentclangtoolrunner.h"
 
+#include "clangtoolscompilationdb.h"
 #include "clangtoolsconstants.h"
 #include "clangtoolrunner.h"
 #include "clangtoolsutils.h"
@@ -158,6 +159,18 @@ static Environment projectBuildEnvironment(Project *project)
 
 void DocumentClangToolRunner::run()
 {
+    for (const ClangToolType type : {ClangToolType::Tidy, ClangToolType::Clazy}) {
+        ClangToolsCompilationDb &db = ClangToolsCompilationDb::getDb(type);
+        db.disconnect(this);
+        if (db.generateIfNecessary()) {
+            connect(&db, &ClangToolsCompilationDb::generated, this, [this](bool success) {
+                if (success)
+                    run();
+            }, Qt::SingleShotConnection);
+            return;
+        }
+    }
+
     if (m_projectSettingsUpdate)
         disconnect(m_projectSettingsUpdate);
     m_taskTreeRunner.reset();

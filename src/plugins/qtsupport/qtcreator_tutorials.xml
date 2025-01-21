@@ -91,35 +91,35 @@
 
   <!-- Learning - first steps -->
 
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtc.webp" difficulty="" projectPath="" name="Getting Started: Qt Creator" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/4007722" videoLength="20:00">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtc.webp" difficulty="" projectPath="" name="Getting Started: Qt Creator" docUrl="https://academy.qt.io/catalog/courses/4007722">
       <description><![CDATA[Learn about Qt Creator.]]></description>
       <tags>qt creator,ui,welcome,qt widgets designer,widgets,editing,debugging,learning,2024</tags>
       <meta>
         <entry name="category">Learning - first steps</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtmcu.webp" difficulty="" projectPath="" name="Getting Started: Qt for MCUs" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3918603" videoLength="30:00">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtmcu.webp" difficulty="" projectPath="" name="Getting Started: Qt for MCUs" docUrl="https://academy.qt.io/catalog/courses/3918603">
       <description><![CDATA[Learn about using Qt on MCUs.]]></description>
       <tags>qt,mcu,2024</tags>
       <meta>
         <entry name="category">Learning - first steps</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-boot2.webp" difficulty="" projectPath="" name="Getting Started: Qt Embedded - Boot 2 Qt" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3649816" videoLength="45:00">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-boot2.webp" difficulty="" projectPath="" name="Getting Started: Qt Embedded - Boot 2 Qt" docUrl="https://academy.qt.io/catalog/courses/3649816">
       <description><![CDATA[Learn about using Boot 2 Qt.]]></description>
       <tags>qt,mcu,2024</tags>
       <meta>
         <entry name="category">Learning - first steps</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtand.webp" difficulty="" projectPath="" name="Getting Started: Qt for Android" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3518738" videoLength="25:00">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtand.webp" difficulty="" projectPath="" name="Getting Started: Qt for Android" docUrl="https://academy.qt.io/catalog/courses/3518738">
       <description><![CDATA[Learn about developing applications for Android.]]></description>
       <tags>qt,android,2024</tags>
       <meta>
         <entry name="category">Learning - first steps</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtios.webp" difficulty="" projectPath="" name="Getting Started: Qt for iOS" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3520889" videoLength="20:00">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtios.webp" difficulty="" projectPath="" name="Getting Started: Qt for iOS" docUrl="https://academy.qt.io/catalog/courses/3520889">
       <description><![CDATA[Learn about developing applications for iOS.]]></description>
       <tags>qt,ios,2024</tags>
       <meta>
@@ -129,70 +129,70 @@
 
   <!-- Learning - dig deeper -->
 
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtqui.webp" difficulty="" projectPath="" name="Introduction to Qt Quick" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3799368" videoLength="60:00">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtqui.webp" difficulty="" projectPath="" name="Introduction to Qt Quick" docUrl="https://academy.qt.io/catalog/courses/3799368">
       <description><![CDATA[Learn about Qt Quick.]]></description>
       <tags>qt,qt quick,2024</tags>
       <meta>
         <entry name="category">Learning - dig deeper</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtqco.webp" difficulty="" projectPath="" name="Introduction to Qt Quick Controls" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3890472" videoLength="65:00">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtqco.webp" difficulty="" projectPath="" name="Introduction to Qt Quick Controls" docUrl="https://academy.qt.io/catalog/courses/3890472">
       <description><![CDATA[Learn about Qt Quick Controls.]]></description>
       <tags>qt,qt quick,qt quick controls,2024</tags>
       <meta>
         <entry name="category">Learning - dig deeper</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtwi1.webp" difficulty="" projectPath="" name="Introduction to Qt Widgets: Part 1" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3657828" videoLength="3:10:00">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtwi1.webp" difficulty="" projectPath="" name="Introduction to Qt Widgets: Part 1" docUrl="https://academy.qt.io/catalog/courses/3657828">
       <description><![CDATA[Learn about Qt Widgets. This is the first part of the course.]]></description>
       <tags>qt,widgets,2024</tags>
       <meta>
         <entry name="category">Learning - dig deeper</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtwi2.webp" difficulty="" projectPath="" name="Introduction to Qt Widgets: Part 2" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3711691" videoLength="2:15:00">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtwi2.webp" difficulty="" projectPath="" name="Introduction to Qt Widgets: Part 2" docUrl="https://academy.qt.io/catalog/courses/3711691">
       <description><![CDATA[Learn about Qt Widgets. This is the second part of the course.]]></description>
       <tags>qt,widgets,2024</tags>
       <meta>
         <entry name="category">Learning - dig deeper</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtwi3.webp" difficulty="" projectPath="" name="Introduction to Qt Widgets: Part 3" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3921518" videoLength="2:40:00">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtwi3.webp" difficulty="" projectPath="" name="Introduction to Qt Widgets: Part 3" docUrl="https://academy.qt.io/catalog/courses/3921518">
       <description><![CDATA[Learn about Qt Widgets. This is the third part of the course.]]></description>
       <tags>qt,widgets,2024</tags>
       <meta>
         <entry name="category">Learning - dig deeper</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtwi4.webp" difficulty="" projectPath="" name="Introduction to Qt Widgets: Part 4" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/4000578" videoLength="1:10:00">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtwi4.webp" difficulty="" projectPath="" name="Introduction to Qt Widgets: Part 4" docUrl="https://academy.qt.io/catalog/courses/4000578">
       <description><![CDATA[Learn about Qt Widgets. This is the fourth part of the course.]]></description>
       <tags>qt,widgets,2024</tags>
       <meta>
         <entry name="category">Learning - dig deeper</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-cmake.webp" difficulty="" projectPath="" name="Introduction to CMake" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3872545" videoLength="20:00">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-cmake.webp" difficulty="" projectPath="" name="Introduction to CMake" docUrl="https://academy.qt.io/catalog/courses/3872545">
       <description><![CDATA[Learn about CMake building system.]]></description>
       <tags>qt,cmake,2024</tags>
       <meta>
         <entry name="category">Learning - dig deeper</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-expcq.webp" difficulty="" projectPath="" name="Exposing C++ to QML" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3521380" videoLength="30:00">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-expcq.webp" difficulty="" projectPath="" name="Exposing C++ to QML" docUrl="https://academy.qt.io/catalog/courses/3521380">
       <description><![CDATA[Learn about accessing C++ functionality from QML.]]></description>
       <tags>qt,c++,qml,2024</tags>
       <meta>
         <entry name="category">Learning - dig deeper</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-inqml.webp" difficulty="" projectPath="" name="Introduction to QML" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3699024" videoLength="1:30:00">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-inqml.webp" difficulty="" projectPath="" name="Introduction to QML" docUrl="https://academy.qt.io/catalog/courses/3699024">
       <description><![CDATA[Learn about the QML language.]]></description>
       <tags>qt,qml,2024</tags>
       <meta>
         <entry name="category">Learning - dig deeper</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-inq3d.webp" difficulty="" projectPath="" name="Introduction to Qt Quick3D" isVideo="false" videoUrl="https://academy.qt.io/catalog/learning-paths/74670" videoLength="10:40:00">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-inq3d.webp" difficulty="" projectPath="" name="Introduction to Qt Quick3D" docUrl="https://academy.qt.io/catalog/learning-paths/74670">
       <description><![CDATA[Learn about Qt Quick3D. This learning path consists of six courses.]]></description>
       <tags>qt,qt quick,qt quick3d,2024</tags>
       <meta>

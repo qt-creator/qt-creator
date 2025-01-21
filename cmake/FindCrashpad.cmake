@@ -69,10 +69,16 @@ if(Crashpad_FOUND)
     "${CRASHPAD_INCLUDE_DIR}/third_party/mini_chromium/mini_chromium"
     "${CRASHPAD_GEN_DIR}")
   if(WIN32)
+    set(COMMON_LIB "${CRASHPAD_LIB_DIR}/client/common.lib")
+    # might not exist in older versions
+    if (NOT EXISTS "${COMMON_LIB}")
+      set(COMMON_LIB "")
+    endif()
     target_link_libraries(Crashpad::Crashpad INTERFACE
       "${CRASHPAD_LIB_DIR}/third_party/mini_chromium/mini_chromium/base/base.lib"
       "${CRASHPAD_LIB_DIR}/util/util.lib"
       "${CRASHPAD_LIB_DIR}/client/client.lib"
+      "${COMMON_LIB}"
       advapi32)
     set_target_properties(Crashpad::Crashpad PROPERTIES
       IMPORTED_LOCATION "${CRASHPAD_LIB_DIR}/client/client.lib")

@@ -4,10 +4,10 @@ import qbs.FileInfo
 import qbs.Utilities
 
 Module {
-    property string qtcreator_display_version: '15.0.0'
+    property string qtcreator_display_version: '15.0.1'
     property string ide_version_major: '15'
     property string ide_version_minor: '0'
-    property string ide_version_release: '0'
+    property string ide_version_release: '1'
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.'
                                        + ide_version_release
 
@@ -91,6 +91,8 @@ Module {
         "QT_RESTRICTED_CAST_FROM_ASCII",
         "QT_NO_FOREACH",
         "QT_DISABLE_DEPRECATED_BEFORE=0x050900",
+        "QT_WARN_DEPRECATED_BEFORE=0x060400",
+        "QT_WARN_DEPRECATED_UP_TO=0x060400",
         "QT_USE_QSTRINGBUILDER",
         "QT_NO_QSNPRINTF",
     ].concat(withPluginTests ? ["WITH_TESTS"] : [])

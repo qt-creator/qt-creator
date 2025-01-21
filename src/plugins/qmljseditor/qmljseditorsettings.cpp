@@ -218,10 +218,11 @@ static QVariant fromSettingsTransformation(const QVariant &v)
 
 QmlJsEditingSettings::QmlJsEditingSettings()
 {
+    setAutoApply(false);
     const Key group = QmlJSEditor::Constants::SETTINGS_CATEGORY_QML;
 
     useQmlls.setSettingsKey(group, USE_QMLLS);
-    useQmlls.setDefaultValue(true);
+    useQmlls.setDefaultValue(false);
     useQmlls.setLabelText(Tr::tr("Turn on"));
 
     enableContextPane.setSettingsKey(group, QML_CONTEXTPANE_KEY);

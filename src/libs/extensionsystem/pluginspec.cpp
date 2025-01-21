@@ -36,12 +36,12 @@ namespace ExtensionSystem {
     \inheaderfile extensionsystem/pluginspec.h
     \inmodule QtCreator
 
-    \brief The PluginDependency class contains the name and required compatible
+    \brief The PluginDependency class contains the ID and required compatible
     version number of a plugin's dependency.
 
     This reflects the data of a dependency object in the plugin's meta data.
-    The name and version are used to resolve the dependency. That is,
-    a plugin with the given name and
+    The ID and version are used to resolve the dependency. That is,
+    a plugin with the given ID and
     plugin \c {compatibility version <= dependency version <= plugin version} is searched for.
 
     See also ExtensionSystem::IPlugin for more information about plugin dependencies and
@@ -49,7 +49,7 @@ namespace ExtensionSystem {
 */
 
 /*!
-    \variable ExtensionSystem::PluginDependency::name
+    \variable ExtensionSystem::PluginDependency::id
     String identifier of the plugin.
 */
 

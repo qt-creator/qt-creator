@@ -61,7 +61,12 @@ AutotoolsBuildSystem::AutotoolsBuildSystem(BuildConfiguration *bc)
     : BuildSystem(bc)
     , m_cppCodeModelUpdater(ProjectUpdaterFactory::createCppProjectUpdater())
 {
-    connect(project(), &Project::projectFileIsDirty, this, [this] { requestParse(); });
+    const auto reparseIfActive = [this] {
+        if (target()->activeBuildConfiguration() == buildConfiguration())
+            requestDelayedParse();
+    };
+    connect(project(), &Project::projectFileIsDirty, this, reparseIfActive);
+    connect(target(), &Target::activeBuildConfigurationChanged, this, reparseIfActive);
 }
 
 static void parseMakefileImpl(QPromise<MakefileParserOutputData> &promise, const QString &makefile)

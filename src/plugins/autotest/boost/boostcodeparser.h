@@ -44,7 +44,7 @@ private:
     const QByteArray &m_source;
     const CPlusPlus::LanguageFeatures &m_features;
     const CPlusPlus::Document::Ptr &m_doc;
-    const CPlusPlus::Snapshot &m_snapshot;
+    const CPlusPlus::Snapshot m_snapshot;
     CPlusPlus::LookupContext m_lookupContext;
     CPlusPlus::TypeOfExpression m_typeOfExpression;
     CPlusPlus::Tokens m_tokens;

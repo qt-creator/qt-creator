@@ -481,7 +481,7 @@
         \row
             \li  Output
             \li  Views to display output from Qt Creator.
-                 \image qtcreator-output-pane.png {Output}
+                 \image qtcreator-application-output.webp {Application Output}
             \li  Use descriptive names for output views.
         \row
             \li  Sidebar

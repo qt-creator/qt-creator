@@ -31,7 +31,9 @@ def commit(commitMessage, expectedLogMessage, uncheckUntracked=False):
 
 def verifyItemsInGit(commitMessages):
     gitEditor = waitForObject(":Qt Creator_Git::Internal::GitEditor")
-    waitFor("len(str(gitEditor.plainText)) > 0 and str(gitEditor.plainText) != 'Working...'", 20000)
+    if not waitFor("len(str(gitEditor.plainText))>0 and str(gitEditor.plainText)!='Working...'",
+                   40000):
+        test.warning("Waiting for GitEditor timed out.")
     plainText = str(gitEditor.plainText)
     verifyItemOrder(commitMessages, plainText)
     return plainText

@@ -5,6 +5,7 @@
 #include "welcometr.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/modemanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
@@ -40,7 +41,7 @@ struct Item
 class IntroductionWidget : public QWidget
 {
 public:
-    IntroductionWidget();
+    IntroductionWidget(Core::ModeManager::Style previousModeStyle);
 
 protected:
     bool event(QEvent *e) override;
@@ -63,12 +64,16 @@ private:
     std::vector<Item> m_items;
     QPointer<QWidget> m_stepPointerAnchor;
     uint m_step = 0;
+    Core::ModeManager::Style m_previousModeStyle;
 };
 
-IntroductionWidget::IntroductionWidget()
+IntroductionWidget::IntroductionWidget(Core::ModeManager::Style previousModeStyle)
     : QWidget(ICore::dialogParent()),
-      m_borderImage(":/welcome/images/border.png")
+      m_borderImage(":/welcome/images/border.png"),
+      m_previousModeStyle(previousModeStyle)
 {
+    Core::ModeManager::setModeStyle(Core::ModeManager::Style::IconsAndText);
+
     setFocusPolicy(Qt::StrongFocus);
     setFocus();
     parentWidget()->installEventFilter(this);
@@ -363,6 +368,7 @@ void IntroductionWidget::mouseReleaseEvent(QMouseEvent *me)
 
 void IntroductionWidget::finish()
 {
+    Core::ModeManager::setModeStyle(m_previousModeStyle);
     hide();
     deleteLater();
 }
@@ -405,7 +411,7 @@ void IntroductionWidget::resizeToParent()
 
 void runUiTour()
 {
-    auto intro = new IntroductionWidget;
+    auto intro = new IntroductionWidget(Core::ModeManager::modeStyle());
     intro->show();
 }
 

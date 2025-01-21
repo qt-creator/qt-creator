@@ -6,6 +6,10 @@
     \title Qt Documentation
 */
 /*!
+    \externalpage https://www.qt.io/terms-conditions/qt-dev-framework
+    \title Terms & Conditions - Qt Development Framework
+*/
+/*!
     \externalpage https://www.lua.org/
     \title Lua
 */
@@ -268,4 +272,12 @@
 /*!
     \externalpage https://clang.llvm.org/docs/LibFormat.html
     \title LibFormat: Documentation
+*/
+/*!
+    \externalpage https://git-scm.com/downloads
+    \title Git Downloads
+*/
+/*!
+    \externalpage https://www.gerritcodereview.com/
+    \title Gerrit Code Review
 */

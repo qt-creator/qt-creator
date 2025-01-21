@@ -20,6 +20,7 @@
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSize>
+#include <QSizePolicy>
 #include <QSpacerItem>
 #include <QSpinBox>
 #include <QSplitter>
@@ -685,6 +686,12 @@ void Layout::setFieldGrowthPolicy(int policy)
         lt->setFieldGrowthPolicy(QFormLayout::FieldGrowthPolicy(policy));
 }
 
+void Layout::setStretch(int index, int stretch)
+{
+    if (auto lt = asBox())
+        lt->setStretch(index, stretch);
+}
+
 QWidget *Layout::emerge() const
 {
     const_cast<Layout *>(this)->flush();
@@ -789,6 +796,16 @@ void Widget::setContentsMargins(int left, int top, int right, int bottom)
 void Widget::setCursor(Qt::CursorShape shape)
 {
     access(this)->setCursor(shape);
+}
+
+void Widget::setMinimumWidth(int minw)
+{
+    access(this)->setMinimumWidth(minw);
+}
+
+void Widget::setSizePolicy(const QSizePolicy &policy)
+{
+    access(this)->setSizePolicy(policy);
 }
 
 void Widget::activateWindow()
@@ -1130,6 +1147,11 @@ void addToLayout(Layout *layout, const Span &inner)
 LayoutModifier spacing(int space)
 {
     return [space](Layout *layout) { layout->setSpacing(space); };
+}
+
+LayoutModifier stretch(int index, int stretch)
+{
+    return [index, stretch](Layout *layout) { layout->setStretch(index, stretch); };
 }
 
 void addToLayout(Layout *layout, const Space &inner)

@@ -5058,5 +5058,7 @@ void FakeVimTester::test_vim_qtcreator()
 
 } // FakeVim::Internal
 
-#include "fakevim_test.moc"
+#undef N
+#undef X
 
+#include "fakevim_test.moc"

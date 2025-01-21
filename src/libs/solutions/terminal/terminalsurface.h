@@ -105,6 +105,7 @@ public:
     void mouseButton(Qt::MouseButton button, bool pressed, Qt::KeyboardModifiers modifiers);
 
     void sendFocus(bool hasFocus);
+    bool isInAltScreen();
 signals:
     void invalidated(QRect grid);
     void fullSizeChanged(QSize newSize);
