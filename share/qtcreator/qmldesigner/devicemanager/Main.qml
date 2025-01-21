@@ -136,7 +136,7 @@ Rectangle {
         }
 
         DelegateChoice {
-            column: DeviceManagerModel.Active
+            column: DeviceManagerModel.Enabled
 
             Cell {
                 id: activeDelegate
@@ -471,7 +471,7 @@ Rectangle {
 
                     Component.onCompleted: {
                         tableView.setColumnWidth(DeviceManagerModel.Status, 80)
-                        tableView.setColumnWidth(DeviceManagerModel.Active, 70)
+                        tableView.setColumnWidth(DeviceManagerModel.Eabled, 70)
                         tableView.setColumnWidth(DeviceManagerModel.Alias, 200)
                         tableView.setColumnWidth(DeviceManagerModel.IPv4Addr, 110)
                         tableView.setColumnWidth(DeviceManagerModel.OS, 100)
