@@ -555,10 +555,11 @@ bool executePluginInstallWizard(const FilePath &archive)
     // so we can safely set them as accepted here.
     PluginManager::instance()->setTermsAndConditionsAccepted(data.pluginSpec.get());
 
+    auto spec = data.pluginSpec.release();
+    PluginManager::addPlugins({spec});
+
     if (data.loadImmediately) {
-        auto spec = data.pluginSpec.release();
         spec->setEnabledBySettings(true);
-        PluginManager::addPlugins({spec});
         PluginManager::loadPluginsAtRuntime({spec});
     }
     return true;
