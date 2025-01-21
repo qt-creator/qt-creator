@@ -101,6 +101,37 @@ QVariant DeviceManagerModel::data(const QModelIndex &index, int role) const
 
 QVariant DeviceManagerModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+    if (role == Qt::ToolTipRole) {
+        if (orientation == Qt::Horizontal) {
+            switch (section) {
+            case DeviceColumns::Enabled:
+                return Tr::tr("Enables or disables the targeted device in the Run dropdown.");
+            case DeviceColumns::Status:
+                return Tr::tr("Indicates whether the Qt UI Viewer on the targeted device is turned "
+                              "on or off.");
+            case DeviceColumns::Alias:
+                return Tr::tr("Sets the name of the targeted device.");
+            case DeviceColumns::IPv4Addr:
+                return Tr::tr("Displays the IP address of the targeted device.");
+            case DeviceColumns::OS:
+                return Tr::tr("Displays the operating system of the targeted device.");
+            case DeviceColumns::OSVersion:
+                return Tr::tr(
+                    "Displays the version of the operating system on the targeted device.");
+            case DeviceColumns::Architecture:
+                return Tr::tr("Displays the CPU architecture information of the targeted device.");
+            case DeviceColumns::ScreenSize:
+                return Tr::tr("Displays the screen dimensions of the targeted device.");
+            case DeviceColumns::AppVersion:
+                return Tr::tr("Displays the version ID of the Qt UI Viewer application.");
+            case DeviceColumns::SelfId:
+                return Tr::tr("Displays the ID created by the target device.");
+            case DeviceColumns::DeviceId:
+                return Tr::tr("Displays the ID created by Qt Design Studio for the target device.");
+            }
+        }
+    }
+
     if (role != Qt::DisplayRole)
         return QVariant();
 

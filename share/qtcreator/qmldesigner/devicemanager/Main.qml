@@ -543,6 +543,11 @@ Rectangle {
                             color: StudioTheme.Values.themeStateSeparator
                         }
 
+                        StudioControls.ToolTipArea {
+                            anchors.fill: parent
+                            text: toolTip
+                        }
+
                         Text {
                             color: StudioTheme.Values.themeTextColor
                             text: display
