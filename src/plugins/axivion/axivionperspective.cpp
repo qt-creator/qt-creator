@@ -1054,7 +1054,6 @@ public:
 private:
     IssuesWidget *m_issuesWidget = nullptr;
     LazyImageBrowser *m_issueDetails = nullptr;
-    QAction *m_showFilterHelp = nullptr;
 };
 
 void AxivionPerspective::initPerspective()
