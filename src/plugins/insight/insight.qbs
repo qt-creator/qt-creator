@@ -1,0 +1,4 @@
+Product {
+    name: "Insight"
+    files: ["*", "**/*"]
+}
