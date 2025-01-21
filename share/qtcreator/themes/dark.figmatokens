@@ -1,48 +1,50 @@
 ; Qt Creator Color Tokens - dark mode
+[General]
+Includes=primitive-colors.inc
 
 [Colors]
 
-Token_Basic_Black=ff181818
-Token_Basic_White=ffFCFCFC
+Token_Basic_Black=Primitive-Neutral-900
+Token_Basic_White=Primitive-Neutral-100
 
-Token_Accent_Default=ff12A75D
-Token_Accent_Muted=ff12834B
-Token_Accent_Subtle=ff14673E
+Token_Accent_Default=Primitive-Neon-600
+Token_Accent_Muted=Primitive-Neon-700
+Token_Accent_Subtle=Primitive-Neon-800
 
-Token_Background_Default=ff1f1f1f
-Token_Background_Muted=ff262626
-Token_Background_Subtle=ff2D2D2D
+Token_Background_Default=Primitive-Neutral-850
+Token_Background_Muted=Primitive-Neutral-800
+Token_Background_Subtle=Primitive-Neutral-750
 
-Token_Foreground_Default=ff4A4A4A
-Token_Foreground_Muted=ff3F3F3F
-Token_Foreground_Subtle=ff353535
+Token_Foreground_Default=Primitive-Neutral-600
+Token_Foreground_Muted=Primitive-Neutral-650
+Token_Foreground_Subtle=Primitive-Neutral-700
 
-Token_Text_Default=ffF2F2F2
-Token_Text_Muted=ffAEAEAE
-Token_Text_Subtle=ff595959
-Token_Text_Accent=ff1EC974
+Token_Text_Default=Primitive-Neutral-150
+Token_Text_Muted=Primitive-Neutral-350
+Token_Text_Subtle=Primitive-Neutral-550
+Token_Text_Accent=Primitive-Neon-500
 
-Token_Stroke_Strong=ffE3E3E3
-Token_Stroke_Muted=ff909090
-Token_Stroke_Subtle=ff4A4A4A
+Token_Stroke_Strong=Primitive-Neutral-200
+Token_Stroke_Muted=Primitive-Neutral-450
+Token_Stroke_Subtle=Primitive-Neutral-650
 
-Token_Notification_Alert_Default=ffEFAD4C
-Token_Notification_Alert_Muted=ffBC7A19
-Token_Notification_Alert_Subtle=ff31240F
+Token_Notification_Alert_Default=Primitive-Yellow-400
+Token_Notification_Alert_Muted=Primitive-Yellow-600
+Token_Notification_Alert_Subtle=Primitive-Yellow-900
 
-Token_Notification_Neutral_Default=ff8671EC
-Token_Notification_Neutral_Muted=ff361EAB
-Token_Notification_Neutral_Subtle=ff1E1450
+Token_Notification_Neutral_Default=Primitive-Blue-400
+Token_Notification_Neutral_Muted=Primitive-Blue-500
+Token_Notification_Neutral_Subtle=Primitive-Blue-900
 
-Token_Notification_Danger_Default=ffE34269
-Token_Notification_Danger_Muted=ffB00F36
-Token_Notification_Danger_Subtle=ff33161C
+Token_Notification_Danger_Default=Primitive-Red-400
+Token_Notification_Danger_Muted=Primitive-Red-600
+Token_Notification_Danger_Subtle=Primitive-Red-1000
 
-Token_Notification_Success_Default=ff1EC974
-Token_Notification_Success_Muted=ff12834B
-Token_Notification_Success_Subtle=ff092C1B
+Token_Notification_Success_Default=Primitive-Neon-500
+Token_Notification_Success_Muted=Primitive-Neon-700
+Token_Notification_Success_Subtle=Primitive-Neon-1000
 
-Token_Gradient01_Start=ff00414A
-Token_Gradient01_End=ff12A75D
-Token_Gradient02_Start=ff4A4A4A
-Token_Gradient02_End=ff909090
+Token_Gradient01_Start=Primitive-Pine-1000
+Token_Gradient01_End=Primitive-Neon-600
+Token_Gradient02_Start=Primitive-Neutral-600
+Token_Gradient02_End=Primitive-Neutral-450
