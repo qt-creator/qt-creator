@@ -28,10 +28,12 @@ namespace Sqlite {
 
 using NanotraceHR::keyValue;
 
-BaseStatement::BaseStatement(Utils::SmallStringView sqlStatement, Database &database)
+BaseStatement::BaseStatement(Utils::SmallStringView sqlStatement,
+                             Database &database,
+                             const source_location &sourceLocation)
     : m_database(database)
 {
-    prepare(sqlStatement);
+    prepare(sqlStatement, sourceLocation);
 }
 
 class UnlockNotification
@@ -67,15 +69,15 @@ private:
     std::mutex m_mutex;
 };
 
-void BaseStatement::waitForUnlockNotify() const
+void BaseStatement::waitForUnlockNotify(const source_location &sourceLocation) const
 {
     UnlockNotification unlockNotification;
-    int resultCode = sqlite3_unlock_notify(sqliteDatabaseHandle(),
+    int resultCode = sqlite3_unlock_notify(sqliteDatabaseHandle(sourceLocation),
                                            UnlockNotification::unlockNotifyCallBack,
                                            &unlockNotification);
 
     if (resultCode == SQLITE_LOCKED)
-        throw DeadLock();
+        throw DeadLock(sourceLocation);
 
     unlockNotification.wait();
 }
@@ -89,7 +91,7 @@ void BaseStatement::reset() const noexcept
     sqlite3_reset(m_compiledStatement.get());
 }
 
-bool BaseStatement::next() const
+bool BaseStatement::next(const source_location &sourceLocation) const
 {
     NanotraceHR::Tracer tracer{"next",
                                sqliteLowLevelCategory(),
@@ -99,7 +101,7 @@ bool BaseStatement::next() const
     do {
         resultCode = sqlite3_step(m_compiledStatement.get());
         if (resultCode == SQLITE_LOCKED) {
-            waitForUnlockNotify();
+            waitForUnlockNotify(sourceLocation);
             sqlite3_reset(m_compiledStatement.get());
         }
 
@@ -110,15 +112,15 @@ bool BaseStatement::next() const
     else if (resultCode == SQLITE_DONE)
         return false;
 
-    Sqlite::throwError(resultCode, sqliteDatabaseHandle());
+    Sqlite::throwError(resultCode, sqliteDatabaseHandle(sourceLocation), sourceLocation);
 }
 
-void BaseStatement::step() const
+void BaseStatement::step(const source_location &sourceLocation) const
 {
-    next();
+    next(sourceLocation);
 }
 
-void BaseStatement::bindNull(int index)
+void BaseStatement::bindNull(int index, const source_location &sourceLocation)
 {
     NanotraceHR::Tracer tracer{"bind null",
                                sqliteLowLevelCategory(),
@@ -127,15 +129,15 @@ void BaseStatement::bindNull(int index)
 
     int resultCode = sqlite3_bind_null(m_compiledStatement.get(), index);
     if (resultCode != SQLITE_OK)
-        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle(sourceLocation), sourceLocation);
 }
 
-void BaseStatement::bind(int index, NullValue)
+void BaseStatement::bind(int index, NullValue, const source_location &sourceLocation)
 {
-    bindNull(index);
+    bindNull(index, sourceLocation);
 }
 
-void BaseStatement::bind(int index, int value)
+void BaseStatement::bind(int index, int value, const source_location &sourceLocation)
 {
     NanotraceHR::Tracer tracer{"bind int",
                                sqliteLowLevelCategory(),
@@ -145,10 +147,10 @@ void BaseStatement::bind(int index, int value)
 
     int resultCode = sqlite3_bind_int(m_compiledStatement.get(), index, value);
     if (resultCode != SQLITE_OK)
-        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle(sourceLocation), sourceLocation);
 }
 
-void BaseStatement::bind(int index, long long value)
+void BaseStatement::bind(int index, long long value, const source_location &sourceLocation)
 {
     NanotraceHR::Tracer tracer{"bind long long",
                                sqliteLowLevelCategory(),
@@ -158,10 +160,10 @@ void BaseStatement::bind(int index, long long value)
 
     int resultCode = sqlite3_bind_int64(m_compiledStatement.get(), index, value);
     if (resultCode != SQLITE_OK)
-        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle(sourceLocation), sourceLocation);
 }
 
-void BaseStatement::bind(int index, double value)
+void BaseStatement::bind(int index, double value, const source_location &sourceLocation)
 {
     NanotraceHR::Tracer tracer{"bind double",
                                sqliteLowLevelCategory(),
@@ -171,10 +173,10 @@ void BaseStatement::bind(int index, double value)
 
     int resultCode = sqlite3_bind_double(m_compiledStatement.get(), index, value);
     if (resultCode != SQLITE_OK)
-        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle(sourceLocation), sourceLocation);
 }
 
-void BaseStatement::bind(int index, void *pointer)
+void BaseStatement::bind(int index, void *pointer, const source_location &sourceLocation)
 {
     NanotraceHR::Tracer tracer{"bind pointer",
                                sqliteLowLevelCategory(),
@@ -184,10 +186,10 @@ void BaseStatement::bind(int index, void *pointer)
 
     int resultCode = sqlite3_bind_pointer(m_compiledStatement.get(), index, pointer, "carray", nullptr);
     if (resultCode != SQLITE_OK)
-        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle(sourceLocation), sourceLocation);
 }
 
-void BaseStatement::bind(int index, Utils::span<const int> values)
+void BaseStatement::bind(int index, Utils::span<const int> values, const source_location &sourceLocation)
 {
     NanotraceHR::Tracer tracer{"bind int span",
                                sqliteLowLevelCategory(),
@@ -203,10 +205,12 @@ void BaseStatement::bind(int index, Utils::span<const int> values)
                                          CARRAY_INT32,
                                          SQLITE_STATIC);
     if (resultCode != SQLITE_OK)
-        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle(sourceLocation), sourceLocation);
 }
 
-void BaseStatement::bind(int index, Utils::span<const long long> values)
+void BaseStatement::bind(int index,
+                         Utils::span<const long long> values,
+                         const source_location &sourceLocation)
 {
     NanotraceHR::Tracer tracer{"bind long long span",
                                sqliteLowLevelCategory(),
@@ -222,10 +226,12 @@ void BaseStatement::bind(int index, Utils::span<const long long> values)
                                          CARRAY_INT64,
                                          SQLITE_STATIC);
     if (resultCode != SQLITE_OK)
-        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle(sourceLocation), sourceLocation);
 }
 
-void BaseStatement::bind(int index, Utils::span<const double> values)
+void BaseStatement::bind(int index,
+                         Utils::span<const double> values,
+                         const source_location &sourceLocation)
 {
     NanotraceHR::Tracer tracer{"bind double span",
                                sqliteLowLevelCategory(),
@@ -241,10 +247,12 @@ void BaseStatement::bind(int index, Utils::span<const double> values)
                                          CARRAY_DOUBLE,
                                          SQLITE_STATIC);
     if (resultCode != SQLITE_OK)
-        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle(sourceLocation), sourceLocation);
 }
 
-void BaseStatement::bind(int index, Utils::span<const char *> values)
+void BaseStatement::bind(int index,
+                         Utils::span<const char *> values,
+                         const source_location &sourceLocation)
 {
     NanotraceHR::Tracer tracer{"bind const char* span",
                                sqliteLowLevelCategory(),
@@ -260,10 +268,10 @@ void BaseStatement::bind(int index, Utils::span<const char *> values)
                                          CARRAY_TEXT,
                                          SQLITE_STATIC);
     if (resultCode != SQLITE_OK)
-        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle(sourceLocation), sourceLocation);
 }
 
-void BaseStatement::bind(int index, Utils::SmallStringView text)
+void BaseStatement::bind(int index, Utils::SmallStringView text, const source_location &sourceLocation)
 {
     NanotraceHR::Tracer tracer{"bind string",
                                sqliteLowLevelCategory(),
@@ -277,10 +285,10 @@ void BaseStatement::bind(int index, Utils::SmallStringView text)
                                        int(text.size()),
                                        SQLITE_STATIC);
     if (resultCode != SQLITE_OK)
-        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle(sourceLocation), sourceLocation);
 }
 
-void BaseStatement::bind(int index, BlobView blobView)
+void BaseStatement::bind(int index, BlobView blobView, const source_location &sourceLocation)
 {
     NanotraceHR::Tracer tracer{"bind blob",
                                sqliteLowLevelCategory(),
@@ -302,10 +310,10 @@ void BaseStatement::bind(int index, BlobView blobView)
     }
 
     if (resultCode != SQLITE_OK)
-        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle(sourceLocation), sourceLocation);
 }
 
-void BaseStatement::bind(int index, const Value &value)
+void BaseStatement::bind(int index, const Value &value, const source_location &sourceLocation)
 {
     NanotraceHR::Tracer tracer{
         "bind value",
@@ -315,24 +323,24 @@ void BaseStatement::bind(int index, const Value &value)
 
     switch (value.type()) {
     case ValueType::Integer:
-        bind(index, value.toInteger());
+        bind(index, value.toInteger(), sourceLocation);
         break;
     case ValueType::Float:
-        bind(index, value.toFloat());
+        bind(index, value.toFloat(), sourceLocation);
         break;
     case ValueType::String:
-        bind(index, value.toStringView());
+        bind(index, value.toStringView(), sourceLocation);
         break;
     case ValueType::Blob:
-        bind(index, value.toBlobView());
+        bind(index, value.toBlobView(), sourceLocation);
         break;
     case ValueType::Null:
-        bind(index, NullValue{});
+        bind(index, NullValue{}, sourceLocation);
         break;
     }
 }
 
-void BaseStatement::bind(int index, ValueView value)
+void BaseStatement::bind(int index, ValueView value, const source_location &sourceLocation)
 {
     NanotraceHR::Tracer tracer{
         "bind value",
@@ -342,37 +350,37 @@ void BaseStatement::bind(int index, ValueView value)
 
     switch (value.type()) {
     case ValueType::Integer:
-        bind(index, value.toInteger());
+        bind(index, value.toInteger(), sourceLocation);
         break;
     case ValueType::Float:
-        bind(index, value.toFloat());
+        bind(index, value.toFloat(), sourceLocation);
         break;
     case ValueType::String:
-        bind(index, value.toStringView());
+        bind(index, value.toStringView(), sourceLocation);
         break;
     case ValueType::Blob:
-        bind(index, value.toBlobView());
+        bind(index, value.toBlobView(), sourceLocation);
         break;
     case ValueType::Null:
-        bind(index, NullValue{});
+        bind(index, NullValue{}, sourceLocation);
         break;
     }
 }
 
-void BaseStatement::prepare(Utils::SmallStringView sqlStatement)
+void BaseStatement::prepare(Utils::SmallStringView sqlStatement, const source_location &sourceLocation)
 {
     NanotraceHR::Tracer tracer{"prepare",
                                sqliteLowLevelCategory(),
                                keyValue("sql statement", sqlStatement)};
 
     if (!m_database.isLocked())
-        throw DatabaseIsNotLocked{};
+        throw DatabaseIsNotLocked{sourceLocation};
 
     int resultCode;
 
     do {
         sqlite3_stmt *sqliteStatement = nullptr;
-        resultCode = sqlite3_prepare_v2(sqliteDatabaseHandle(),
+        resultCode = sqlite3_prepare_v2(sqliteDatabaseHandle(sourceLocation),
                                         sqlStatement.data(),
                                         int(sqlStatement.size()),
                                         &sqliteStatement,
@@ -381,33 +389,34 @@ void BaseStatement::prepare(Utils::SmallStringView sqlStatement)
 
         if (resultCode == SQLITE_LOCKED) {
             tracer.tick("wait for unlock");
-            waitForUnlockNotify();
+            waitForUnlockNotify(sourceLocation);
         }
 
     } while (resultCode == SQLITE_LOCKED);
 
 
     if (resultCode != SQLITE_OK)
-        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle(sourceLocation), sourceLocation);
 
     tracer.end(keyValue("sqlite statement", handle()));
 }
 
-sqlite3 *BaseStatement::sqliteDatabaseHandle() const
+sqlite3 *BaseStatement::sqliteDatabaseHandle(const source_location &sourceLocation) const
 {
-    return m_database.backend().sqliteDatabaseHandle();
+    return m_database.backend().sqliteDatabaseHandle(sourceLocation);
 }
 
-void BaseStatement::checkBindingParameterCount(int bindingParameterCount) const
+void BaseStatement::checkBindingParameterCount(int bindingParameterCount,
+                                               const source_location &sourceLocation) const
 {
     if (bindingParameterCount != sqlite3_bind_parameter_count(m_compiledStatement.get()))
-        throw WrongBindingParameterCount{};
+        throw WrongBindingParameterCount{sourceLocation};
 }
 
-void BaseStatement::checkColumnCount(int columnCount) const
+void BaseStatement::checkColumnCount(int columnCount, const source_location &sourceLocation) const
 {
     if (columnCount != sqlite3_column_count(m_compiledStatement.get()))
-        throw WrongColumnCount{};
+        throw WrongColumnCount{sourceLocation};
 }
 
 bool BaseStatement::isReadOnlyStatement() const

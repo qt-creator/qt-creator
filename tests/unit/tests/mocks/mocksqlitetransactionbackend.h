@@ -11,14 +11,14 @@
 class MockSqliteTransactionBackend : public Sqlite::TransactionInterface
 {
 public:
-    MOCK_METHOD0(deferredBegin, void ());
-    MOCK_METHOD0(immediateBegin, void ());
-    MOCK_METHOD0(exclusiveBegin, void ());
-    MOCK_METHOD0(commit, void ());
-    MOCK_METHOD0(rollback, void ());
-    MOCK_METHOD0(lock, void ());
-    MOCK_METHOD0(unlock, void ());
-    MOCK_METHOD0(immediateSessionBegin, void());
-    MOCK_METHOD0(sessionCommit, void());
-    MOCK_METHOD0(sessionRollback, void());
+    MOCK_METHOD(void, deferredBegin, (const Sqlite::source_location &sourceLocation));
+    MOCK_METHOD(void, immediateBegin, (const Sqlite::source_location &sourceLocation));
+    MOCK_METHOD(void, exclusiveBegin, (const Sqlite::source_location &sourceLocation));
+    MOCK_METHOD(void, commit, (const Sqlite::source_location &sourceLocation));
+    MOCK_METHOD(void, rollback, (const Sqlite::source_location &sourceLocation));
+    MOCK_METHOD(void, lock, ());
+    MOCK_METHOD(void, unlock, ());
+    MOCK_METHOD(void, immediateSessionBegin, (const Sqlite::source_location &sourceLocation));
+    MOCK_METHOD(void, sessionCommit, (const Sqlite::source_location &sourceLocation));
+    MOCK_METHOD(void, sessionRollback, (const Sqlite::source_location &sourceLocation));
 };

@@ -147,198 +147,231 @@ public:
 class SQLITE_EXPORT InputOutputCannotAuthenticate : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotBeginAtomic : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotCommitAtomic : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotRollbackAtomic : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputDataError : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputBlocked : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputFileSystemIsCorrupt : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputVNodeError : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputConvPathFailed : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotGetTemporaryPath : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotMemoryMap : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotDeleteNonExistingFile : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotSeek : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotMapSharedMemory : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotLockSharedMemory : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotEnlargeSharedMemory : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotOpenSharedMemory : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotCloseDirectory : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotClose : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotLock : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotCheckReservedLock : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotAccess : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputNoMemory : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotDelete : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotReadLock : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotUnlock : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotFsStat : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotTruncate : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotSynchronizeDirectory : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotSynchronizeFile : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotWrite : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotShortRead : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
 class SQLITE_EXPORT InputOutputCannotRead : public InputOutputError
 {
 public:
+    using InputOutputError::InputOutputError;
     const char *what() const noexcept override;
 };
 
@@ -896,6 +929,8 @@ public:
     const char *what() const noexcept override;
 };
 
-[[noreturn]] SQLITE_EXPORT void throwError(int resultCode, sqlite3 *sqliteHandle);
+[[noreturn]] SQLITE_EXPORT void throwError(int resultCode,
+                                           sqlite3 *sqliteHandle,
+                                           const source_location &sourceLocation);
 
 } // namespace Sqlite

@@ -6,6 +6,7 @@
 #include "sqlite3_fwd.h"
 #include "sqliteglobal.h"
 
+#include "sourcelocation.h"
 #include "sqliteblob.h"
 #include "sqliteexception.h"
 #include "sqliteids.h"
@@ -41,14 +42,16 @@ class SQLITE_EXPORT BaseStatement
 public:
     using Database = ::Sqlite::Database;
 
-    explicit BaseStatement(Utils::SmallStringView sqlStatement, Database &database);
+    explicit BaseStatement(Utils::SmallStringView sqlStatement,
+                           Database &database,
+                           const source_location &sourceLocation);
 
     BaseStatement(const BaseStatement &) = delete;
     BaseStatement &operator=(const BaseStatement &) = delete;
     BaseStatement(BaseStatement &&) = default;
 
-    bool next() const;
-    void step() const;
+    bool next(const source_location &sourceLocation) const;
+    void step(const source_location &sourceLocation) const;
     void reset() const noexcept;
 
     Type fetchType(int column) const;
@@ -62,52 +65,56 @@ public:
     template<typename Type>
     Type fetchValue(int column) const;
 
-    void bindNull(int index);
-    void bind(int index, NullValue);
-    void bind(int index, int value);
-    void bind(int index, long long value);
-    void bind(int index, double value);
-    void bind(int index, void *pointer);
-    void bind(int index, Utils::span<const int> values);
-    void bind(int index, Utils::span<const long long> values);
-    void bind(int index, Utils::span<const double> values);
-    void bind(int index, Utils::span<const char *> values);
-    void bind(int index, Utils::SmallStringView value);
-    void bind(int index, const Value &value);
-    void bind(int index, ValueView value);
-    void bind(int index, BlobView blobView);
+    void bindNull(int index, const source_location &sourceLocation);
+    void bind(int index, NullValue, const source_location &sourceLocation);
+    void bind(int index, int value, const source_location &sourceLocation);
+    void bind(int index, long long value, const source_location &sourceLocation);
+    void bind(int index, double value, const source_location &sourceLocation);
+    void bind(int index, void *pointer, const source_location &sourceLocation);
+    void bind(int index, Utils::span<const int> values, const source_location &sourceLocation);
+    void bind(int index, Utils::span<const long long> values, const source_location &sourceLocation);
+    void bind(int index, Utils::span<const double> values, const source_location &sourceLocation);
+    void bind(int index, Utils::span<const char *> values, const source_location &sourceLocation);
+    void bind(int index, Utils::SmallStringView value, const source_location &sourceLocation);
+    void bind(int index, const Value &value, const source_location &sourceLocation);
+    void bind(int index, ValueView value, const source_location &sourceLocation);
+    void bind(int index, BlobView blobView, const source_location &sourceLocation);
 
     template<typename Type, typename std::enable_if_t<Type::IsBasicId::value, bool> = true>
-    void bind(int index, Type id)
+    void bind(int index, Type id, const source_location &sourceLocation)
     {
         if (!id.isNull())
-            bind(index, id.internalId());
+            bind(index, id.internalId(), sourceLocation);
         else
-            bindNull(index);
+            bindNull(index, sourceLocation);
     }
 
     template<typename Enumeration, std::enable_if_t<std::is_enum_v<Enumeration>, bool> = true>
-    void bind(int index, Enumeration enumeration)
+    void bind(int index, Enumeration enumeration, const source_location &sourceLocation)
     {
-        bind(index, Utils::to_underlying(enumeration));
+        bind(index, Utils::to_underlying(enumeration), sourceLocation);
     }
 
-    void bind(int index, uint value) { bind(index, static_cast<long long>(value)); }
-
-    void bind(int index, long value)
+    void bind(int index, uint value, const source_location &sourceLocation)
     {
-        bind(index, static_cast<long long>(value));
+        bind(index, static_cast<long long>(value), sourceLocation);
     }
 
-    void prepare(Utils::SmallStringView sqlStatement);
-    void waitForUnlockNotify() const;
+    void bind(int index, long value, const source_location &sourceLocation)
+    {
+        bind(index, static_cast<long long>(value), sourceLocation);
+    }
 
-    sqlite3 *sqliteDatabaseHandle() const;
+    void prepare(Utils::SmallStringView sqlStatement, const source_location &sourceLocation);
+    void waitForUnlockNotify(const source_location &sourceLocation) const;
+
+    sqlite3 *sqliteDatabaseHandle(const source_location &sourceLocation) const;
 
     void setIfIsReadyToFetchValues(int resultCode) const;
     void checkBindingName(int index) const;
-    void checkBindingParameterCount(int bindingParameterCount) const;
-    void checkColumnCount(int columnCount) const;
+    void checkBindingParameterCount(int bindingParameterCount,
+                                    const source_location &sourceLocation) const;
+    void checkColumnCount(int columnCount, const source_location &sourceLocation) const;
     bool isReadOnlyStatement() const;
 
     QString columnName(int column) const;
@@ -150,7 +157,7 @@ public:
     using BaseStatement::BaseStatement;
     StatementImplementation(StatementImplementation &&) = default;
 
-    void execute()
+    void execute(const source_location &sourceLocation = source_location::current())
     {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{
@@ -160,11 +167,11 @@ public:
         };
 
         Resetter resetter{this};
-        BaseStatement::next();
+        BaseStatement::next(sourceLocation);
     }
 
     template<typename... ValueType>
-    void bindValues(const ValueType &...values)
+    void bindValues(const source_location &sourceLocation, const ValueType &...values)
     {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"bind",
@@ -174,11 +181,11 @@ public:
         static_assert(BindParameterCount == sizeof...(values), "Wrong binding parameter count!");
 
         int index = 0;
-        (BaseStatement::bind(++index, values), ...);
+        (BaseStatement::bind(++index, values, sourceLocation), ...);
     }
 
     template<typename... ValueType>
-    void write(const ValueType&... values)
+    void write(const source_location &sourceLocation, const ValueType &...values)
     {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"write",
@@ -186,8 +193,15 @@ public:
                                    keyValue("sqlite statement", BaseStatement::handle())};
 
         Resetter resetter{this};
-        bindValues(values...);
-        BaseStatement::next();
+        bindValues(sourceLocation, values...);
+        BaseStatement::next(sourceLocation);
+    }
+
+    template<typename... ValueType>
+    void write(const ValueType &...values)
+    {
+        static constexpr auto sourceLocation = source_location::current();
+        write(sourceLocation, values...);
     }
 
     template<typename T>
@@ -213,9 +227,9 @@ public:
 
     template<typename Container,
              std::size_t capacity = 32,
-             typename = std::enable_if_t<is_container<Container>::value>,
+             typename std::enable_if_t<is_container<Container>::value, bool> = true,
              typename... QueryTypes>
-    auto values(const QueryTypes &...queryValues)
+    auto values(const source_location &sourceLocation, const QueryTypes &...queryValues)
     {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"values",
@@ -228,9 +242,9 @@ public:
         if constexpr (!is_small_container<Container>::value)
             resultValues.reserve(static_cast<size_tupe>(std::max(capacity, m_maximumResultCount)));
 
-        bindValues(queryValues...);
+        bindValues(sourceLocation, queryValues...);
 
-        while (BaseStatement::next())
+        while (BaseStatement::next(sourceLocation))
             emplaceBackValues(resultValues);
 
         setMaximumResultCount(static_cast<std::size_t>(resultValues.size()));
@@ -238,18 +252,39 @@ public:
         return resultValues;
     }
 
-    template<typename ResultType,
+    template<typename Container,
              std::size_t capacity = 32,
-             template<typename...> typename Container = std::vector,
-             typename = std::enable_if_t<!is_container<ResultType>::value>,
+             typename std::enable_if_t<is_container<Container>::value, bool> = true,
              typename... QueryTypes>
     auto values(const QueryTypes &...queryValues)
     {
-        return values<Container<ResultType>, capacity>(queryValues...);
+        static constexpr auto sourceLocation = source_location::current();
+        return value<Container, capacity>(sourceLocation, queryValues...);
+    }
+
+    template<typename ResultType,
+             std::size_t capacity = 32,
+             template<typename...> typename Container = std::vector,
+             typename std::enable_if_t<!is_container<ResultType>::value, bool> = true,
+             typename... QueryTypes>
+    auto values(const source_location &sourceLocation, const QueryTypes &...queryValues)
+    {
+        return values<Container<ResultType>, capacity>(sourceLocation, queryValues...);
+    }
+
+    template<typename ResultType,
+             std::size_t capacity = 32,
+             template<typename...> typename Container = std::vector,
+             typename std::enable_if_t<!is_container<ResultType>::value, bool> = true,
+             typename... QueryTypes>
+    auto values(const QueryTypes &...queryValues)
+    {
+        static constexpr auto sourceLocation = source_location::current();
+        return values<ResultType, capacity, Container>(sourceLocation, queryValues...);
     }
 
     template<typename ResultType, typename... QueryTypes>
-    auto value(const QueryTypes &...queryValues)
+    auto value(const source_location &sourceLocation, const QueryTypes &...queryValues)
     {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"value",
@@ -259,16 +294,23 @@ public:
         Resetter resetter{this};
         ResultType resultValue{};
 
-        bindValues(queryValues...);
+        bindValues(sourceLocation, queryValues...);
 
-        if (BaseStatement::next())
+        if (BaseStatement::next(sourceLocation))
             resultValue = createValue<ResultType>();
 
         return resultValue;
     }
 
     template<typename ResultType, typename... QueryTypes>
-    auto optionalValue(const QueryTypes &...queryValues)
+    auto value(const QueryTypes &...queryValues)
+    {
+        static constexpr auto sourceLocation = source_location::current();
+        return value<ResultType>(sourceLocation, queryValues...);
+    }
+
+    template<typename ResultType, typename... QueryTypes>
+    auto optionalValue(const source_location &sourceLocation, const QueryTypes &...queryValues)
     {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"optionalValue",
@@ -278,31 +320,42 @@ public:
         Resetter resetter{this};
         std::optional<ResultType> resultValue;
 
-        bindValues(queryValues...);
+        bindValues(sourceLocation, queryValues...);
 
-        if (BaseStatement::next())
+        if (BaseStatement::next(sourceLocation))
             resultValue = createOptionalValue<std::optional<ResultType>>();
 
         return resultValue;
     }
 
+    template<typename ResultType, typename... QueryTypes>
+    auto optionalValue(const QueryTypes &...queryValues)
+    {
+        static constexpr auto sourceLocation = source_location::current();
+        return optionalValue<ResultType>(sourceLocation, queryValues...);
+    }
+
     template<typename Type>
-    static auto toValue(Utils::SmallStringView sqlStatement, Database &database)
+    static auto toValue(Utils::SmallStringView sqlStatement,
+                        Database &database,
+                        const source_location &sourceLocation = source_location::current())
     {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"toValue", sqliteHighLevelCategory()};
 
-        StatementImplementation statement(sqlStatement, database);
+        StatementImplementation statement(sqlStatement, database, sourceLocation);
 
-        statement.checkColumnCount(1);
+        statement.checkColumnCount(1, sourceLocation);
 
-        statement.next();
+        statement.next(sourceLocation);
 
         return statement.template fetchValue<Type>(0);
     }
 
     template<typename Callable, typename... QueryTypes>
-    void readCallback(Callable &&callable, const QueryTypes &...queryValues)
+    void readCallback(Callable &&callable,
+                      const source_location &sourceLocation,
+                      const QueryTypes &...queryValues)
     {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"readCallback",
@@ -311,9 +364,9 @@ public:
 
         Resetter resetter{this};
 
-        bindValues(queryValues...);
+        bindValues(sourceLocation, queryValues...);
 
-        while (BaseStatement::next()) {
+        while (BaseStatement::next(sourceLocation)) {
             auto control = callCallable(callable);
 
             if (control == CallbackControl::Abort)
@@ -321,8 +374,17 @@ public:
         }
     }
 
+    template<typename Callable, typename... QueryTypes>
+    void readCallback(Callable &&callable, const QueryTypes &...queryValues)
+    {
+        static constexpr auto sourceLocation = source_location::current();
+        readCallback(callable, sourceLocation, queryValues...);
+    }
+
     template<typename Container, typename... QueryTypes>
-    void readTo(Container &container, const QueryTypes &...queryValues)
+    void readTo(Container &container,
+                const source_location &sourceLocation,
+                const QueryTypes &...queryValues)
     {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"readTo",
@@ -331,22 +393,43 @@ public:
 
         Resetter resetter{this};
 
-        bindValues(queryValues...);
+        bindValues(sourceLocation, queryValues...);
 
-        while (BaseStatement::next())
+        while (BaseStatement::next(sourceLocation))
             emplaceBackValues(container);
+    }
+
+    template<typename Container, typename... QueryTypes>
+    void readTo(Container &container, const QueryTypes &...queryValues)
+    {
+        static constexpr auto sourceLocation = source_location::current();
+        readTo(container, sourceLocation, queryValues...);
+    }
+
+    template<typename ResultType, typename... QueryTypes>
+    auto range(const source_location &sourceLocation, const QueryTypes &...queryValues)
+    {
+        return SqliteResultRange<ResultType>{*this, sourceLocation, queryValues...};
     }
 
     template<typename ResultType, typename... QueryTypes>
     auto range(const QueryTypes &...queryValues)
     {
-        return SqliteResultRange<ResultType>{*this, queryValues...};
+        static constexpr auto sourceLocation = source_location::current();
+        return SqliteResultRange<ResultType>{*this, sourceLocation, queryValues...};
+    }
+
+    template<typename ResultType, typename... QueryTypes>
+    auto rangeWithTransaction(const source_location &sourceLocation, const QueryTypes &...queryValues)
+    {
+        return SqliteResultRangeWithTransaction<ResultType>{*this, sourceLocation, queryValues...};
     }
 
     template<typename ResultType, typename... QueryTypes>
     auto rangeWithTransaction(const QueryTypes &...queryValues)
     {
-        return SqliteResultRangeWithTransaction<ResultType>{*this, queryValues...};
+        static constexpr auto sourceLocation = source_location::current();
+        return SqliteResultRangeWithTransaction<ResultType>{*this, sourceLocation, queryValues...};
     }
 
     template<typename ResultType>
@@ -362,23 +445,28 @@ public:
             using pointer = ResultType *;
             using reference = ResultType &;
 
-            SqliteResultIteratator(StatementImplementation &statement)
+            SqliteResultIteratator(StatementImplementation &statement,
+                                   const source_location &sourceLocation)
                 : m_statement{statement}
-                , m_hasNext{m_statement.next()}
+                , m_sourceLocation{sourceLocation}
+                , m_hasNext{m_statement.next(sourceLocation)}
             {}
 
-            SqliteResultIteratator(StatementImplementation &statement, bool hasNext)
+            SqliteResultIteratator(StatementImplementation &statement,
+                                   const source_location &sourceLocation,
+                                   bool hasNext)
                 : m_statement{statement}
+                , m_sourceLocation{sourceLocation}
                 , m_hasNext{hasNext}
             {}
 
             SqliteResultIteratator &operator++()
             {
-                m_hasNext = m_statement.next();
+                m_hasNext = m_statement.next(m_sourceLocation);
                 return *this;
             }
 
-            void operator++(int) { m_hasNext = m_statement.next(); }
+            void operator++(int) { m_hasNext = m_statement.next(m_sourceLocation); }
 
             friend bool operator==(const SqliteResultIteratator &first,
                                    const SqliteResultIteratator &second)
@@ -396,6 +484,7 @@ public:
 
         private:
             StatementImplementation &m_statement;
+            const source_location &m_sourceLocation;
             bool m_hasNext = false;
         };
 
@@ -404,8 +493,9 @@ public:
         using const_iterator = iterator;
 
         template<typename... QueryTypes>
-        BaseSqliteResultRange(StatementImplementation &statement)
+        BaseSqliteResultRange(StatementImplementation &statement, const source_location &sourceLocation)
             : m_statement{statement}
+            , m_sourceLocation{sourceLocation}
         {
         }
 
@@ -413,8 +503,9 @@ public:
         BaseSqliteResultRange &operator=(BaseSqliteResultRange &) = delete;
         BaseSqliteResultRange &operator=(BaseSqliteResultRange &&) = delete;
 
-        iterator begin() & { return iterator{m_statement}; }
-        iterator end() & { return iterator{m_statement, false}; }
+        iterator begin() & { return iterator{m_statement, m_sourceLocation}; }
+
+        iterator end() & { return iterator{m_statement, m_sourceLocation, false}; }
 
         const_iterator begin() const & { return iterator{m_statement}; }
         const_iterator end() const & { return iterator{m_statement, false}; }
@@ -422,6 +513,7 @@ public:
     private:
         using TracerCategory = std::decay_t<decltype(sqliteHighLevelCategory())>;
         StatementImplementation &m_statement;
+        const source_location &m_sourceLocation;
         NanotraceHR::Tracer<TracerCategory, typename TracerCategory::IsActive> tracer{
             "range",
             sqliteHighLevelCategory(),
@@ -433,11 +525,13 @@ public:
     {
     public:
         template<typename... QueryTypes>
-        SqliteResultRange(StatementImplementation &statement, const QueryTypes &...queryValues)
-            : BaseSqliteResultRange<ResultType>{statement}
+        SqliteResultRange(StatementImplementation &statement,
+                          const source_location &sourceLocation,
+                          const QueryTypes &...queryValues)
+            : BaseSqliteResultRange<ResultType>{statement, sourceLocation}
             , resetter{&statement}
         {
-            statement.bindValues(queryValues...);
+            statement.bindValues(sourceLocation, queryValues...);
         }
 
     private:
@@ -450,12 +544,14 @@ public:
     public:
         template<typename... QueryTypes>
         SqliteResultRangeWithTransaction(StatementImplementation &statement,
+                                         const source_location &sourceLocation,
                                          const QueryTypes &...queryValues)
-            : BaseSqliteResultRange<ResultType>{statement}
-            , m_transaction{statement.database()}
+            : BaseSqliteResultRange<ResultType>{statement, sourceLocation}
+            , m_transaction{statement.database(), sourceLocation}
             , resetter{&statement}
+            , sourceLocation{sourceLocation}
         {
-            statement.bindValues(queryValues...);
+            statement.bindValues(sourceLocation, queryValues...);
         }
 
         ~SqliteResultRangeWithTransaction()
@@ -463,13 +559,14 @@ public:
             resetter.reset();
 
             if (!std::uncaught_exceptions()) {
-                m_transaction.commit();
+                m_transaction.commit(sourceLocation);
             }
         }
 
     private:
         DeferredTransaction<typename BaseStatement::Database> m_transaction;
         Resetter resetter;
+        source_location sourceLocation;
     };
 
 protected:

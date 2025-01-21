@@ -19,34 +19,40 @@ namespace Sqlite {
 class Database::Statements
 {
 public:
-    Statements(Database &database)
+    Statements(Database &database, const source_location &sourceLocation)
         : database(database)
+        , sourceLocation(sourceLocation)
     {}
 
 public:
     Database &database;
-    ReadWriteStatement<> deferredBegin{"BEGIN", database};
-    ReadWriteStatement<> immediateBegin{"BEGIN IMMEDIATE", database};
-    ReadWriteStatement<> exclusiveBegin{"BEGIN EXCLUSIVE", database};
-    ReadWriteStatement<> commitBegin{"COMMIT", database};
-    ReadWriteStatement<> rollbackBegin{"ROLLBACK", database};
+    source_location sourceLocation;
+    ReadWriteStatement<> deferredBegin{"BEGIN", database, sourceLocation};
+    ReadWriteStatement<> immediateBegin{"BEGIN IMMEDIATE", database, sourceLocation};
+    ReadWriteStatement<> exclusiveBegin{"BEGIN EXCLUSIVE", database, sourceLocation};
+    ReadWriteStatement<> commitBegin{"COMMIT", database, sourceLocation};
+    ReadWriteStatement<> rollbackBegin{"ROLLBACK", database, sourceLocation};
     Sessions sessions{database, "main", "databaseSessions"};
 };
 
-Database::Database()
-    : m_databaseBackend(*this)
+Database::Database(const source_location &sourceLocation)
+    : m_databaseBackend(*this, sourceLocation)
 {
 }
 
-Database::Database(Utils::PathString databaseFilePath, JournalMode journalMode, LockingMode lockingMode)
-    : Database{std::move(databaseFilePath), 0ms, journalMode, lockingMode}
+Database::Database(Utils::PathString databaseFilePath,
+                   JournalMode journalMode,
+                   LockingMode lockingMode,
+                   const source_location &sourceLocation)
+    : Database{std::move(databaseFilePath), 0ms, journalMode, lockingMode, sourceLocation}
 {}
 
 Database::Database(Utils::PathString databaseFilePath,
                    std::chrono::milliseconds busyTimeout,
                    JournalMode journalMode,
-                   LockingMode lockingMode)
-    : m_databaseBackend(*this)
+                   LockingMode lockingMode,
+                   const source_location &sourceLocation)
+    : m_databaseBackend(*this, sourceLocation)
     , m_busyTimeout(busyTimeout)
 {
     std::lock_guard lock{*this};
@@ -62,36 +68,38 @@ Database::Database(Utils::PathString databaseFilePath,
 
 Database::~Database() = default;
 
-void Database::activateLogging()
+void Database::activateLogging(const source_location &sourceLocation)
 {
-    DatabaseBackend::activateLogging();
+    DatabaseBackend::activateLogging(sourceLocation);
 }
 
-void Database::open(LockingMode lockingMode)
+void Database::open(LockingMode lockingMode, const source_location &sourceLocation)
 {
-    m_databaseBackend.open(m_databaseFilePath, m_openMode, m_journalMode);
+    m_databaseBackend.open(m_databaseFilePath, m_openMode, m_journalMode, sourceLocation);
     if (m_busyTimeout > 0ms)
         m_databaseBackend.setBusyTimeout(m_busyTimeout);
     else
-        m_databaseBackend.registerBusyHandler();
-    m_databaseBackend.setLockingMode(lockingMode);
-    m_databaseBackend.setJournalMode(m_journalMode);
-    registerTransactionStatements();
+        m_databaseBackend.registerBusyHandler(sourceLocation);
+    m_databaseBackend.setLockingMode(lockingMode, sourceLocation);
+    m_databaseBackend.setJournalMode(m_journalMode, sourceLocation);
+    registerTransactionStatements(sourceLocation);
     m_isOpen = true;
 }
 
-void Database::open(Utils::PathString &&databaseFilePath, LockingMode lockingMode)
+void Database::open(Utils::PathString &&databaseFilePath,
+                    LockingMode lockingMode,
+                    const source_location &sourceLocation)
 {
     m_isInitialized = QFileInfo::exists(QString(databaseFilePath));
     setDatabaseFilePath(std::move(databaseFilePath));
-    open(lockingMode);
+    open(lockingMode, sourceLocation);
 }
 
-void Database::close()
+void Database::close(const source_location &sourceLocation)
 {
     m_isOpen = false;
     deleteTransactionStatements();
-    m_databaseBackend.close();
+    m_databaseBackend.close(sourceLocation);
 }
 
 bool Database::isInitialized() const
@@ -124,9 +132,9 @@ void Database::applyAndUpdateSessions()
     m_statements->sessions.applyAndUpdateSessions();
 }
 
-SessionChangeSets Database::changeSets() const
+SessionChangeSets Database::changeSets(const source_location &sourceLocation) const
 {
-    return m_statements->sessions.changeSets();
+    return m_statements->sessions.changeSets(sourceLocation);
 }
 
 const Utils::PathString &Database::databaseFilePath() const
@@ -144,9 +152,9 @@ JournalMode Database::journalMode() const
     return m_journalMode;
 }
 
-LockingMode Database::lockingMode() const
+LockingMode Database::lockingMode(const source_location &sourceLocation) const
 {
-    return m_databaseBackend.lockingMode();
+    return m_databaseBackend.lockingMode(sourceLocation);
 }
 
 void Database::setOpenMode(OpenMode openMode)
@@ -159,14 +167,14 @@ OpenMode Database::openMode() const
     return m_openMode;
 }
 
-void Database::execute(Utils::SmallStringView sqlStatement)
+void Database::execute(Utils::SmallStringView sqlStatement, const source_location &sourceLocation)
 {
-    m_databaseBackend.execute(sqlStatement);
+    m_databaseBackend.execute(sqlStatement, sourceLocation);
 }
 
-void Database::registerTransactionStatements()
+void Database::registerTransactionStatements(const source_location &sourceLocation)
 {
-    m_statements = std::make_unique<Statements>(*this);
+    m_statements = std::make_unique<Statements>(*this, sourceLocation);
 }
 
 void Database::deleteTransactionStatements()
@@ -174,68 +182,70 @@ void Database::deleteTransactionStatements()
     m_statements.reset();
 }
 
-void Database::deferredBegin()
+void Database::deferredBegin(const source_location &sourceLocation)
 {
-    m_statements->deferredBegin.execute();
+    m_statements->deferredBegin.execute(sourceLocation);
 }
 
-void Database::immediateBegin()
+void Database::immediateBegin(const source_location &sourceLocation)
 {
-    m_statements->immediateBegin.execute();
+    m_statements->immediateBegin.execute(sourceLocation);
 }
 
-void Database::exclusiveBegin()
+void Database::exclusiveBegin(const source_location &sourceLocation)
 {
-    m_statements->exclusiveBegin.execute();
+    m_statements->exclusiveBegin.execute(sourceLocation);
 }
 
-void Database::commit()
+void Database::commit(const source_location &sourceLocation)
 {
-    m_statements->commitBegin.execute();
+    m_statements->commitBegin.execute(sourceLocation);
 }
 
-void Database::rollback()
+void Database::rollback(const source_location &sourceLocation)
 {
-    m_statements->rollbackBegin.execute();
+    m_statements->rollbackBegin.execute(sourceLocation);
 }
 
-void Database::immediateSessionBegin()
+void Database::immediateSessionBegin(const source_location &sourceLocation)
 {
-    m_statements->immediateBegin.execute();
-    m_statements->sessions.create();
+    m_statements->immediateBegin.execute(sourceLocation);
+    m_statements->sessions.create(sourceLocation);
 }
-void Database::sessionCommit()
+
+void Database::sessionCommit(const source_location &sourceLocation)
 {
-    m_statements->sessions.commit();
-    m_statements->commitBegin.execute();
+    m_statements->sessions.commit(sourceLocation);
+    m_statements->commitBegin.execute(sourceLocation);
 }
-void Database::sessionRollback()
+
+void Database::sessionRollback(const source_location &sourceLocation)
 {
     m_statements->sessions.rollback();
-    m_statements->rollbackBegin.execute();
+    m_statements->rollbackBegin.execute(sourceLocation);
 }
 
-void Database::resetDatabaseForTestsOnly()
+void Database::resetDatabaseForTestsOnly(const source_location &sourceLocation)
 {
-    m_databaseBackend.resetDatabaseForTestsOnly();
+    m_databaseBackend.resetDatabaseForTestsOnly(sourceLocation);
     setIsInitialized(false);
 }
 
-void Database::clearAllTablesForTestsOnly()
+void Database::clearAllTablesForTestsOnly(const source_location &sourceLocation)
 {
-    m_databaseBackend.disableForeignKeys();
+    m_databaseBackend.disableForeignKeys(sourceLocation);
     {
-        Sqlite::ImmediateTransaction transaction{*this};
+        Sqlite::ImmediateTransaction transaction{*this, sourceLocation};
 
         ReadStatement<1> tablesStatement{"SELECT name FROM sqlite_schema WHERE type='table'", *this};
-        auto tables = tablesStatement.template values<Utils::SmallString>();
+        auto tables = tablesStatement.template values<Utils::SmallString>(sourceLocation);
         for (const auto &table : tables)
-            execute("DELETE FROM " + table);
+            execute("DELETE FROM " + table, sourceLocation);
 
-        transaction.commit();
+        transaction.commit(sourceLocation);
     }
 
-    m_databaseBackend.enableForeignKeys();
+    m_databaseBackend.enableForeignKeys(sourceLocation);
 }
 
 DatabaseBackend &Database::backend()

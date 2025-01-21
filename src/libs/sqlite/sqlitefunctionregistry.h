@@ -7,6 +7,7 @@
 
 namespace Sqlite::FunctionRegistry {
 
-SQLITE_EXPORT void registerPathExists(Sqlite::Database &database);
+SQLITE_EXPORT void registerPathExists(
+    Sqlite::Database &database, const source_location &sourceLocation = source_location::current());
 
 } // namespace Sqlite::FunctionRegistry

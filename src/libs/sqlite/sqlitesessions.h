@@ -15,13 +15,15 @@ namespace Internal {
 class SQLITE_EXPORT SessionsBase
 {
 public:
-    SessionsBase(Database &database, Utils::SmallStringView sessionsTableName)
+    SessionsBase(Database &database,
+                 Utils::SmallStringView sessionsTableName,
+                 const source_location &sourceLocation)
         : sessionsTableName(sessionsTableName)
     {
-        createSessionTable(database);
+        createSessionTable(database, sourceLocation);
     }
 
-    void createSessionTable(Database &database);
+    void createSessionTable(Database &database, const source_location &sourceLocation);
 
 public:
     Utils::SmallString sessionsTableName;
@@ -33,31 +35,33 @@ class SQLITE_EXPORT Sessions : public Internal::SessionsBase
 public:
     Sessions(Database &database,
              Utils::SmallStringView databaseName,
-             Utils::SmallStringView sessionsTableName)
-        : SessionsBase(database, sessionsTableName)
+             Utils::SmallStringView sessionsTableName,
+             const source_location &sourceLocation = source_location::current())
+        : SessionsBase(database, sessionsTableName, sourceLocation)
         , database(database)
         , insertSession{Utils::PathString::join(
                             {"INSERT INTO ", sessionsTableName, "(changeset) VALUES(?)"}),
-                        database}
+                        database,
+                        sourceLocation}
         , databaseName(databaseName)
     {}
     ~Sessions();
 
     void setAttachedTables(Utils::SmallStringVector tables);
 
-    void create();
-    void commit();
+    void create(const source_location &sourceLocation = source_location::current());
+    void commit(const source_location &sourceLocation = source_location::current());
     void rollback();
 
-    void revert();
-    void apply();
-    void applyAndUpdateSessions();
-    void deleteAll();
+    void revert(const source_location &sourceLocation = source_location::current());
+    void apply(const source_location &sourceLocation = source_location::current());
+    void applyAndUpdateSessions(const source_location &sourceLocation = source_location::current());
+    void deleteAll(const source_location &sourceLocation = source_location::current());
 
-    SessionChangeSets changeSets() const;
+    SessionChangeSets changeSets(const source_location &sourceLocation = source_location::current()) const;
 
 private:
-    void attachTables(const Utils::SmallStringVector &tables);
+    void attachTables(const Utils::SmallStringVector &tables, const source_location &sourceLocation);
 
     struct Deleter
     {

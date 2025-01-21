@@ -12,12 +12,14 @@ class WriteStatement : protected StatementImplementation<BaseStatement, -1, Bind
     using Base = StatementImplementation<BaseStatement, -1, BindParameterCount>;
 
 public:
-    WriteStatement(Utils::SmallStringView sqlStatement, Database &database)
-        : Base(sqlStatement, database)
+    WriteStatement(Utils::SmallStringView sqlStatement,
+                   Database &database,
+                   const source_location &sourceLocation = source_location::current())
+        : Base(sqlStatement, database, sourceLocation)
     {
-        checkIsWritableStatement();
-        Base::checkBindingParameterCount(BindParameterCount);
-        Base::checkColumnCount(0);
+        checkIsWritableStatement(sourceLocation);
+        Base::checkBindingParameterCount(BindParameterCount, sourceLocation);
+        Base::checkColumnCount(0, sourceLocation);
     }
 
     using Base::database;
@@ -25,10 +27,10 @@ public:
     using Base::write;
 
 protected:
-    void checkIsWritableStatement()
+    void checkIsWritableStatement(const source_location &sourceLocation)
     {
         if (Base::isReadOnlyStatement())
-            throw NotWriteSqlStatement();
+            throw NotWriteSqlStatement(sourceLocation);
     }
 };
 

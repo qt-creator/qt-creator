@@ -2267,7 +2267,7 @@ SmallSourceIds<32> ProjectStorage::fetchSubdirectorySourceIds(SourceId directory
 
 void ProjectStorage::setPropertyEditorPathId(TypeId typeId, SourceId pathId)
 {
-    Sqlite::ImmediateSessionTransaction transaction{database};
+    Sqlite::ImmediateTransaction transaction{database};
 
     s->upsertPropertyEditorPathIdStatement.write(typeId, pathId);
 
