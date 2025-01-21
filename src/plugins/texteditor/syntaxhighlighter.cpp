@@ -238,12 +238,15 @@ void SyntaxHighlighterPrivate::reformatBlocks()
             break;
 
         const int stateBeforeHighlight = block.userState();
+        const int braceDepthBeforeHighlight = TextDocumentLayout::braceDepth(block);
 
         if (forceHighlightOfNextBlock || forceRehighlightBlocks.contains(block.blockNumber())
                 || block.blockNumber() <= highlightEndBlock) {
             reformatBlock(block);
             forceRehighlightBlocks.remove(block.blockNumber());
-            forceHighlightOfNextBlock = (block.userState() != stateBeforeHighlight);
+            forceHighlightOfNextBlock = (block.userState() != stateBeforeHighlight)
+                                        || (braceDepthBeforeHighlight
+                                            != TextDocumentLayout::braceDepth(block));
         }
 
         if (block == endBlock && !forceHighlightOfNextBlock)
