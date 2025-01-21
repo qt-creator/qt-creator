@@ -533,7 +533,15 @@ bool executePluginInstallWizard(const FilePath &archive)
             const FilePath installPath = data.pluginSpec->installLocation(
                 !data.installIntoApplication);
             if (hasLibSuffix(data.sourcePath)) {
-                return copyPluginFile(data.sourcePath, installPath);
+                if (!copyPluginFile(data.sourcePath, installPath))
+                    return false;
+
+                auto specs = pluginSpecsFromArchive(installPath.resolvePath(
+                    data.pluginSpec->filePath().relativePathFrom(data.extractedPath)));
+
+                QTC_ASSERT(specs.size() == 1, return false);
+                data.pluginSpec.reset(specs.front());
+
             } else {
                 QString error;
                 FileUtils::CopyAskingForOverwrite copy(ICore::dialogParent(), postCopyOperation());
@@ -542,6 +550,13 @@ bool executePluginInstallWizard(const FilePath &archive)
                         ICore::dialogParent(), Tr::tr("Failed to Copy Plugin Files"), error);
                     return false;
                 }
+
+                auto specs = pluginSpecsFromArchive(installPath.resolvePath(
+                    data.pluginSpec->filePath().relativePathFrom(data.extractedPath)));
+
+                QTC_ASSERT(specs.size() == 1, return false);
+                data.pluginSpec.reset(specs.front());
+
                 return true;
             }
         }

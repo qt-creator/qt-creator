@@ -1405,6 +1405,16 @@ static QList<PluginSpec *> createCppPluginsFromArchive(const FilePath &path)
 {
     QList<PluginSpec *> results;
 
+    if (path.isFile()) {
+        if (QLibrary::isLibrary(path.toFSPathString())) {
+            expected_str<std::unique_ptr<PluginSpec>> spec = readCppPluginSpec(path);
+            QTC_CHECK_EXPECTED(spec);
+            if (spec)
+                results.push_back(spec->release());
+        }
+        return results;
+    }
+
     // look for plugin
     QDirIterator
         it(path.path(),
