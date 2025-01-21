@@ -81,7 +81,11 @@ DesignDocument::DesignDocument([[maybe_unused]] const QUrl &filePath,
     , m_currentTarget(nullptr)
     , m_projectStorageDependencies(projectStorageDependencies)
     , m_externalDependencies{externalDependencies}
-{}
+{
+#ifndef QDS_USE_PROJECTSTORAGE
+    m_rewriterView->setIsDocumentRewriterView(true);
+#endif
+}
 
 DesignDocument::~DesignDocument() = default;
 

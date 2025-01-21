@@ -989,7 +989,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         time.start();
 
 #ifndef QDS_USE_PROJECTSTORAGE
-    ModelManagerInterface::instance()->waitForFinished();
+    if (m_rewriterView->isDocumentRewriterView())
+        ModelManagerInterface::instance()->waitForFinished();
 #endif
 
     const QUrl url = m_rewriterView->model()->fileUrl();

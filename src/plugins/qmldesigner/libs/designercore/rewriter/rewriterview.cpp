@@ -674,6 +674,18 @@ void RewriterView::forceAmend()
     amendQmlText();
 }
 
+#ifndef QDS_USE_PROJECTSTORAGE
+bool RewriterView::isDocumentRewriterView() const
+{
+    return m_isDocumentRewriterView;
+}
+
+void RewriterView::setIsDocumentRewriterView(bool b)
+{
+    m_isDocumentRewriterView = b;
+}
+#endif
+
 Internal::ModelNodePositionStorage *RewriterView::positionStorage() const
 {
     return m_positionStorage.get();
