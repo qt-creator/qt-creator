@@ -3174,7 +3174,6 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Backspace:
         if (ro) break;
         if ((e->modifiers() & (Qt::ControlModifier
-                               | Qt::ShiftModifier
                                | Qt::AltModifier
                                | Qt::MetaModifier)) == Qt::NoModifier) {
             e->accept();
