@@ -11,17 +11,21 @@
 using namespace Tasking;
 using namespace std::chrono;
 
+template <typename Func>
+static GroupItem transition(GlueInterface *iface, Func trigger)
+{
+    return BarrierTask([iface, trigger](Barrier &barrier) {
+        QObject::connect(iface, trigger, &barrier, &Barrier::advance);
+    }, DoneResult::Error);
+}
+
 ExecutableItem recipe(GlueInterface *iface)
 {
     return Forever {
         finishAllAndSuccess,
         Group { // "working" state
             parallel,
-            BarrierTask( // transitions to the "broken" state
-                [iface](Barrier &barrier) {
-                    QObject::connect(iface, &GlueInterface::smashed, &barrier, &Barrier::advance);
-                },
-                DoneResult::Error),
+            transition(iface, &GlueInterface::smashed), // transitions to the "broken" state
             Forever {
                 TimeoutTask( // "red" state
                     [iface](milliseconds &timeout) {
@@ -47,11 +51,7 @@ ExecutableItem recipe(GlueInterface *iface)
         },
         Group { // "broken" state
             parallel,
-            BarrierTask( // transitions to the "working" state
-                [iface](Barrier &barrier) {
-                    QObject::connect(iface, &GlueInterface::repaired, &barrier, &Barrier::advance);
-                },
-                DoneResult::Error),
+            transition(iface, &GlueInterface::repaired), // transitions to the "working" state
             Forever {
                 TimeoutTask( // "blinking" state
                     [iface](milliseconds &timeout) {
