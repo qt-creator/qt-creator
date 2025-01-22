@@ -580,10 +580,12 @@ void Internal::setupCMakeToolManager(QObject *guard)
 CMakeToolManagerPrivate::CMakeToolManagerPrivate()
 {
     if (HostOsInfo::isWindowsHost()) {
-        const QStringList locations = QStandardPaths::standardLocations(
+        QStringList locations = QStandardPaths::standardLocations(
             QStandardPaths::GenericConfigLocation);
-        m_junctionsDir = FilePath::fromString(*std::min_element(locations.begin(), locations.end()))
-                             .pathAppended("QtCreator/Links");
+        Utils::sort(locations, [](const QString &lhs, const QString &rhs) {
+            return lhs.length() < rhs.length();
+        });
+        m_junctionsDir = FilePath::fromString(locations.first()).pathAppended("QtCreator/Links");
 
         auto project = ProjectManager::startupProject();
         auto environment = Environment::systemEnvironment();
