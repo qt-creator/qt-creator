@@ -2398,6 +2398,16 @@ NodeMetaInfo Model::qtQuickRectangleMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::qtQuickShapesShapeMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick_Shapes, Shape>();
+    } else {
+        return metaInfo("QtQuick.Shapes.Shape");
+    }
+}
+
 NodeMetaInfo Model::qtQuickImageMetaInfo() const
 {
     if constexpr (useProjectStorage()) {

@@ -190,6 +190,7 @@ public:
     NodeMetaInfo qtQuickPropertyAnimationMetaInfo() const;
     NodeMetaInfo qtQuickPropertyChangesMetaInfo() const;
     NodeMetaInfo qtQuickRectangleMetaInfo() const;
+    NodeMetaInfo qtQuickShapesShapeMetaInfo() const;
     NodeMetaInfo qtQuickStateGroupMetaInfo() const;
     NodeMetaInfo qtQuickTextEditMetaInfo() const;
     NodeMetaInfo qtQuickTextMetaInfo() const;
