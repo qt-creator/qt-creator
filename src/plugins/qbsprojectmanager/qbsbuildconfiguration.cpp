@@ -33,6 +33,8 @@
 
 #include <QCryptographicHash>
 
+#include <tuple>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -298,53 +300,28 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
         return version ? version->reportIssues(projectPath, buildDir) : Tasks();
     });
 
-    setBuildGenerator([this](const Kit *k, const FilePath &projectPath, bool forSetup) {
+    setBuildGenerator([](const Kit *k, const FilePath &projectPath, bool forSetup) {
         QList<BuildInfo> result;
-
-        if (forSetup) {
-            BuildInfo info = createBuildInfo(BuildConfiguration::Debug);
-            info.displayName = ProjectExplorer::Tr::tr("Debug");
-            //: Non-ASCII characters in directory suffix may cause build issues.
-            const QString dbg = QbsProjectManager::Tr::tr("Debug", "Shadow build directory suffix");
-            info.buildDirectory = defaultBuildDirectory(projectPath, k, dbg, info.buildType);
+        for (const auto &[type, name, configName] :
+             {std::make_tuple(BuildConfiguration::Debug, ProjectExplorer::Tr::tr("Debug"), "Debug"),
+              std::make_tuple(
+                  BuildConfiguration::Release, ProjectExplorer::Tr::tr("Release"), "Release"),
+              std::make_tuple(
+                  BuildConfiguration::Profile, ProjectExplorer::Tr::tr("Profile"), "Profile")}) {
+            BuildInfo info;
+            info.buildType = type;
+            info.typeName = name;
+            if (forSetup) {
+                info.displayName = name;
+                info.buildDirectory = defaultBuildDirectory(projectPath, k, name, type);
+            }
+            QVariantMap config;
+            config.insert("configName", configName);
+            info.extraInfo = config;
             result << info;
-
-            info = createBuildInfo(BuildConfiguration::Release);
-            info.displayName = ProjectExplorer::Tr::tr("Release");
-            //: Non-ASCII characters in directory suffix may cause build issues.
-            const QString rel = QbsProjectManager::Tr::tr("Release", "Shadow build directory suffix");
-            info.buildDirectory = defaultBuildDirectory(projectPath, k, rel, info.buildType);
-            result << info;
-
-            info = createBuildInfo(BuildConfiguration::Profile);
-            info.displayName = ProjectExplorer::Tr::tr("Profile");
-            //: Non-ASCII characters in directory suffix may cause build issues.
-            const QString prof = QbsProjectManager::Tr::tr("Profile", "Shadow build directory suffix");
-            info.buildDirectory = defaultBuildDirectory(projectPath, k, prof, info.buildType);
-            result << info;
-        } else {
-            result << createBuildInfo(BuildConfiguration::Debug);
-            result << createBuildInfo(BuildConfiguration::Release);
-            result << createBuildInfo(BuildConfiguration::Profile);
         }
-
         return result;
     });
-}
-
-BuildInfo QbsBuildConfigurationFactory::createBuildInfo(BuildConfiguration::BuildType type) const
-{
-    BuildInfo info;
-    info.buildType = type;
-    info.typeName = type == BuildConfiguration::Profile
-            ? ProjectExplorer::Tr::tr("Profiling") : type == BuildConfiguration::Release
-            ? ProjectExplorer::Tr::tr("Release") : ProjectExplorer::Tr::tr("Debug");
-    QVariantMap config;
-    config.insert("configName", type == BuildConfiguration::Release
-                  ? "Release" : type == BuildConfiguration::Profile
-                  ? "Profile" : "Debug");
-    info.extraInfo = config;
-    return info;
 }
 
 } // namespace Internal

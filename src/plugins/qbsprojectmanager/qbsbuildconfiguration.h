@@ -3,13 +3,10 @@
 
 #pragma once
 
-#include "qbsprojectmanager_global.h"
-
 #include "qbsproject.h"
 
 #include <projectexplorer/buildaspects.h>
 #include <projectexplorer/buildconfiguration.h>
-#include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtbuildaspects.h>
 
 namespace ProjectExplorer { class BuildStep; }
@@ -85,9 +82,6 @@ class QbsBuildConfigurationFactory final : public ProjectExplorer::BuildConfigur
 {
 public:
     QbsBuildConfigurationFactory();
-
-private:
-    ProjectExplorer::BuildInfo createBuildInfo(ProjectExplorer::BuildConfiguration::BuildType type) const;
 };
 
 } // namespace Internal
