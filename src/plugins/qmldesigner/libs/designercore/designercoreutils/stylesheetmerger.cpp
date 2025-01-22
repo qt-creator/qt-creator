@@ -4,9 +4,6 @@
 
 #include <abstractview.h>
 #include <bindingproperty.h>
-#include <invalididexception.h>
-#include <invalidmodelnodeexception.h>
-#include <invalidreparentingexception.h>
 #include <modelmerger.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
@@ -250,20 +247,10 @@ void StylesheetMerger::preprocessStyleSheet()
                 newParentProperty.slide(styleParentIndex, templateParentIndex);
         }
         transaction.commit();
-    }catch (InvalidIdException &ide) {
-        qDebug().noquote() << "Invalid id exception while preprocessing the style sheet.";
-        ide.createWarning();
-    } catch (InvalidReparentingException &rpe) {
-        qDebug().noquote() << "Invalid reparenting exception while preprocessing the style sheet.";
-        rpe.createWarning();
-    } catch (InvalidModelNodeException &mne) {
-        qDebug().noquote() << "Invalid model node exception while preprocessing the style sheet.";
-        mne.createWarning();
-    } catch (Exception &e) {
+    } catch (Exception &exception) {
         qDebug().noquote() << "Exception while preprocessing the style sheet.";
-        e.createWarning();
+        qDebug() << exception;
     }
-
 }
 
 void StylesheetMerger::replaceNode(ModelNode &replacedNode, ModelNode &newNode)
@@ -313,18 +300,9 @@ void StylesheetMerger::replaceRootNode(ModelNode& templateRootNode)
         ModelNode newRoot = m_templateView->rootModelNode();
         newRoot.setIdWithoutRefactoring(rootId);
         transaction.commit();
-    }  catch (InvalidIdException &ide) {
-        qDebug().noquote() << "Invalid id exception while replacing root node of template.";
-        ide.createWarning();
-    } catch (InvalidReparentingException &rpe) {
-        qDebug().noquote() << "Invalid reparenting exception while replacing root node of template.";
-        rpe.createWarning();
-    } catch (InvalidModelNodeException &mne) {
-        qDebug().noquote() << "Invalid model node exception while replacing root node of template.";
-        mne.createWarning();
-    } catch (Exception &e) {
+    } catch (Exception &exception) {
         qDebug().noquote() << "Exception while replacing root node of template.";
-        e.createWarning();
+        qDebug() << exception;
     }
 }
 
@@ -397,18 +375,9 @@ void StylesheetMerger::parseTemplateOptions()
         RewriterTransaction transaction(m_templateView, "remove-options-node");
         optionsNode.destroy();
         transaction.commit();
-    } catch (InvalidIdException &ide) {
-        qDebug().noquote() << "Invalid id exception while removing options from template.";
-        ide.createWarning();
-    } catch (InvalidReparentingException &rpe) {
-        qDebug().noquote() << "Invalid reparenting exception while removing options from template.";
-        rpe.createWarning();
-    } catch (InvalidModelNodeException &mne) {
-        qDebug().noquote() << "Invalid model node exception while removing options from template.";
-        mne.createWarning();
-    } catch (Exception &e) {
+    } catch (Exception &exception) {
         qDebug().noquote() << "Exception while removing options from template.";
-        e.createWarning();
+        qDebug() << exception;
     }
 }
 
@@ -483,9 +452,9 @@ void StylesheetMerger::mergeStates(ModelNode &outputNode, const ModelNode &input
             ModelNode stateClone = merger.insertModel(inputStateNode);
             if (stateClone.isValid())
                 outputNode.nodeListProperty("states").reparentHere(stateClone);
-        } catch (Exception &e) {
+        } catch (Exception &exception) {
             qDebug().noquote() << "Exception while merging states.";
-            e.createWarning();
+            qDebug() << exception;
         }
     }
 }
@@ -542,21 +511,9 @@ void StylesheetMerger::merge()
 
                 replaceNode(replacedNode, replacementNode);
                 transaction.commit();
-            } catch (InvalidIdException &ide) {
-                qDebug().noquote() << "Invalid id exception while replacing template node";
-                ide.createWarning();
-                continue;
-            } catch (InvalidReparentingException &rpe) {
-                qDebug().noquote() << "Invalid reparenting exception while replacing template node";
-                rpe.createWarning();
-                continue;
-            } catch (InvalidModelNodeException &mne) {
-                qDebug().noquote() << "Invalid model node exception while replacing template node";
-                mne.createWarning();
-                continue;
-            } catch (Exception &e) {
+            } catch (Exception &exception) {
                 qDebug().noquote() << "Exception while replacing template node.";
-                e.createWarning();
+                qDebug() << exception;
                 continue;
             }
         }
@@ -584,21 +541,9 @@ void StylesheetMerger::merge()
                     }
                 }
                 transaction.commit();
-            } catch (InvalidIdException &ide) {
-                qDebug().noquote() << "Invalid id exception while syncing style properties to template";
-                ide.createWarning();
-                continue;
-            } catch (InvalidReparentingException &rpe) {
-                qDebug().noquote() << "Invalid reparenting exception while syncing style properties to template";
-                rpe.createWarning();
-                continue;
-            } catch (InvalidModelNodeException &mne) {
-                qDebug().noquote() << "Invalid model node exception while syncing style properties to template";
-                mne.createWarning();
-                continue;
-            } catch (Exception &e) {
+            } catch (Exception &exception) {
                 qDebug().noquote() << "Exception while syncing style properties.";
-                e.createWarning();
+                qDebug() << exception;
                 continue;
             }
         }

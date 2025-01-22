@@ -10,7 +10,6 @@
 #include <QString>
 
 #include "qmldesignercorelib_global.h"
-#include "invalidmetainfoexception.h"
 
 QT_BEGIN_NAMESPACE
 class QDeclarativeContext;

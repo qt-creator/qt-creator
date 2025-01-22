@@ -46,14 +46,14 @@ void MetaInfoReader::readMetaInfoFile(const QString &path, bool overwriteDuplica
         qWarning() << "readMetaInfoFile()" << path;
         qWarning() << errors();
         m_parserState = Error;
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        throw InvalidMetaInfoException();
     }
 
     if (!errors().isEmpty()) {
         qWarning() << "readMetaInfoFile()" << path;
         qWarning() << errors();
         m_parserState = Error;
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        throw InvalidMetaInfoException();
     }
     syncItemLibraryEntries();
 }

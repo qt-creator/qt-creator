@@ -19,7 +19,6 @@
 #include <designersettings.h>
 #include <designmodewidget.h>
 #include <import.h>
-#include <invalididexception.h>
 #include <itemlibraryentry.h>
 #include <materialutils.h>
 #include <modelutils.h>

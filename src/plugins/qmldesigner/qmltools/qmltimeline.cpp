@@ -8,7 +8,6 @@
 #include "qmltimelinekeyframegroup.h"
 
 #include <auxiliarydataproperties.h>
-#include <invalidmodelnodeexception.h>
 #include <nodelistproperty.h>
 #include <variantproperty.h>
 

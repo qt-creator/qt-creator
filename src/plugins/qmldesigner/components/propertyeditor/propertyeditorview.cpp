@@ -14,7 +14,6 @@
 #include <qmldesignerconstants.h>
 #include <qmltimeline.h>
 
-#include <invalididexception.h>
 #include <rewritingexception.h>
 #include <variantproperty.h>
 

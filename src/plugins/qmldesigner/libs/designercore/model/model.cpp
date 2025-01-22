@@ -915,11 +915,7 @@ void ModelPrivate::resetModelByRewriter(const QString &description)
     if (m_rewriterView) {
         m_rewriterView->resetToLastCorrectQml();
 
-        throw RewritingException(__LINE__,
-                                 __FUNCTION__,
-                                 __FILE__,
-                                 description.toUtf8(),
-                                 rewriterView()->textModifierContent());
+        throw RewritingException(description, rewriterView()->textModifierContent());
     }
 }
 

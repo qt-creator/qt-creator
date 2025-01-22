@@ -3,26 +3,19 @@
 
 #include "invalidmetainfoexception.h"
 
-/*!
-\class QmlDesigner::InvalidMetaInfoException
-\ingroup CoreExceptions
-\brief The InvalidMetaInfoException class provides an exception for invalid meta
-info.
-
-\see NodeMetaInfo PropertyMetaInfo MetaInfo
-*/
 namespace QmlDesigner {
-/*!
-    Constructs an exception. \a line uses the __LINE__ macro,
-    \a function uses the __FUNCTION__ or the Q_FUNC_INFO macro, and \a file uses
-    the __FILE__ macro.
-*/
-InvalidMetaInfoException::InvalidMetaInfoException(int line,
-                                                   const QByteArray &function,
-                                                   const QByteArray &file)
-    : Exception(line, function, file)
+
+using namespace Qt::StringLiterals;
+
+InvalidMetaInfoException::InvalidMetaInfoException(const Sqlite::source_location &location)
+    : Exception(location)
 {
     createWarning();
+}
+
+QString InvalidMetaInfoException::description() const
+{
+    return defaultDescription(location());
 }
 
 /*!
@@ -30,7 +23,7 @@ InvalidMetaInfoException::InvalidMetaInfoException(int line,
 */
 QString InvalidMetaInfoException::type() const
 {
-    return QLatin1String("InvalidMetaInfoException");
+    return "InvalidMetaInfoException"_L1;
 }
 
 }

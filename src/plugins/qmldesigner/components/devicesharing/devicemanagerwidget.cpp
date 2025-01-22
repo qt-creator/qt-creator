@@ -9,8 +9,6 @@
 #include <qrcodegen/src/qrcodeimageprovider.h>
 #include <theme.h>
 
-#include <invalidqmlsourceexception.h>
-
 #include <coreplugin/messagebox.h>
 #include <coreplugin/icore.h>
 

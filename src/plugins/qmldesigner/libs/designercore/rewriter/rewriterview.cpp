@@ -480,11 +480,7 @@ void RewriterView::applyChanges()
         qDebug().noquote() << "RewriterView::applyChanges() got called while in error state. Will "
                               "do a quick-exit now.";
         qDebug().noquote() << "Content: " << content;
-        throw RewritingException(__LINE__,
-                                 __FUNCTION__,
-                                 __FILE__,
-                                 "RewriterView::applyChanges() already in error state",
-                                 content);
+        throw RewritingException("RewriterView::applyChanges() already in error state", content);
     }
 
     m_differenceHandling = Validate;
@@ -508,11 +504,7 @@ void RewriterView::applyChanges()
         qDebug().noquote() << "Content: " << content;
         if (!errors().isEmpty())
             qDebug().noquote() << "Error:" << errors().constFirst().description();
-        throw RewritingException(__LINE__,
-                                 __FUNCTION__,
-                                 __FILE__,
-                                 qPrintable(m_rewritingErrorMessage),
-                                 content);
+        throw RewritingException(m_rewritingErrorMessage, content);
     }
 }
 

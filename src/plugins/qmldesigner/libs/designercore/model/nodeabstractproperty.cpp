@@ -3,9 +3,6 @@
 
 #include "nodeabstractproperty.h"
 #include "nodeproperty.h"
-#include "invalidmodelnodeexception.h"
-#include "invalidpropertyexception.h"
-#include "invalidreparentingexception.h"
 #include "internalnodeabstractproperty.h"
 #include "internalnode_p.h"
 #include "model.h"

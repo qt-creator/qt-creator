@@ -233,12 +233,6 @@ static bool documentIsAlreadyOpen(DesignDocument *designDocument, Core::IEditor 
            && designDocument->fileName() == editor->document()->filePath();
 }
 
-static bool shouldAssertInException()
-{
-    QProcessEnvironment processEnvironment = QProcessEnvironment::systemEnvironment();
-    return !processEnvironment.value("QMLDESIGNER_ASSERT_ON_EXCEPTION").isEmpty();
-}
-
 static bool warningsForQmlFilesInsteadOfUiQmlEnabled()
 {
     return QmlDesignerPlugin::settings().value(DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES).toBool();
@@ -247,18 +241,6 @@ static bool warningsForQmlFilesInsteadOfUiQmlEnabled()
 QmlDesignerPlugin::QmlDesignerPlugin()
 {
     m_instance = this;
-    // Exceptions should never ever assert: they are handled in a number of
-    // places where it is actually VALID AND EXPECTED BEHAVIOUR to get an
-    // exception.
-    // If you still want to see exactly where the exception originally
-    // occurred, then you have various ways to do this:
-    //  1. set a breakpoint on the constructor of the exception
-    //  2. in gdb: "catch throw" or "catch throw Exception"
-    //  3. set a breakpoint on __raise_exception()
-    // And with gdb, you can even do this from your ~/.gdbinit file.
-    // DnD is not working with gdb so this is still needed to get a good stacktrace
-
-    Exception::setShouldAssert(shouldAssertInException());
 }
 
 QmlDesignerPlugin::~QmlDesignerPlugin()

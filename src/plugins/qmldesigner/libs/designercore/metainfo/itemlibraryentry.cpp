@@ -5,7 +5,6 @@
 #include "nodemetainfo.h"
 #include "qregularexpression.h"
 
-#include <invalidmetainfoexception.h>
 #include <propertycontainer.h>
 #include <sourcepathcache.h>
 

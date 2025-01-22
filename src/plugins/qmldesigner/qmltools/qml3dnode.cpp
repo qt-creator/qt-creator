@@ -4,7 +4,6 @@
 #include "qml3dnode.h"
 #include "auxiliarydataproperties.h"
 #include "bindingproperty.h"
-#include "invalidmodelnodeexception.h"
 #include "nodehints.h"
 #include "nodelistproperty.h"
 #include "qmlanchors.h"

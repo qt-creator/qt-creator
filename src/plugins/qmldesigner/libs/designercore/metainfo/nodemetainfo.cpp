@@ -34,23 +34,6 @@ QT_WARNING_DISABLE_MSVC(4996)
 
 namespace QmlDesigner {
 
-/*!
-\class QmlDesigner::NodeMetaInfo
-\ingroup CoreModel
-\brief The NodeMetaInfo class provides meta information about a qml type.
-
-A NodeMetaInfo object can be created via ModelNode::metaInfo, or MetaInfo::nodeMetaInfo.
-
-The object can be invalid - you can check this by calling isValid().
-The object is invalid if you ask for meta information for
-an non-existing qml property. Also the node meta info can become invalid
-if the enclosing type is deregistered from the meta type system (e.g.
-a sub component qml file is deleted). Trying to call any accessor functions on an invalid
-NodeMetaInfo object will result in an InvalidMetaInfoException being thrown.
-
-\see QmlDesigner::MetaInfo, QmlDesigner::PropertyMetaInfo, QmlDesigner::EnumeratorMetaInfo
-*/
-
 namespace {
 
 using Storage::ModuleKind;
