@@ -493,6 +493,7 @@ static void layoutHelperFunction(const SelectionContext &selectionContext,
                 const ModelNode layoutNode = selectionContext.view()->createModelNode(layoutType, metaInfo.majorVersion(), metaInfo.minorVersion());
 #endif
                 reparentTo(layoutNode, parentNode);
+                layoutNode.ensureIdExists();
 
                 QList<ModelNode> sortedSelectedNodes =  selectionContext.selectedModelNodes();
                 Utils::sort(sortedSelectedNodes, lessThan);
