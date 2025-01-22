@@ -94,6 +94,14 @@ ExecutableItem waitForBarrierTask(const MultiBarrier<Limit> &sharedBarrier)
     });
 }
 
+template <typename Signal>
+ExecutableItem signalAwaiter(const typename QtPrivate::FunctionPointer<Signal>::Object *sender, Signal signal)
+{
+    return BarrierTask([sender, signal](Barrier &barrier) {
+        QObject::connect(sender, signal, &barrier, &Barrier::advance, Qt::SingleShotConnection);
+    });
+}
+
 } // namespace Tasking
 
 QT_END_NAMESPACE
