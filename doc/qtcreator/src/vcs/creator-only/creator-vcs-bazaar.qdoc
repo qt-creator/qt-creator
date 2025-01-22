@@ -19,6 +19,8 @@
 
     Bazaar is a free version control system sponsored by Canonical.
 
+    \note Enable the Bazaar plugin to use it.
+
     In addition to the standard version control system functions described in
     \l {Use common VCS Functions}, you can select \uicontrol Tools >
     \uicontrol Bazaar > \uicontrol Pull to turn a branch into a mirror of
@@ -62,6 +64,6 @@
         \li \uicontrol Timeout sets a timeout for version control operations.
     \endlist
 
-    \sa {Set up version control systems}, {Use common VCS functions},
-    {Version Control Systems}
+    \sa {Enable and disable plugins}, {Set up version control systems},
+    {Use common VCS functions}, {Version Control Systems}
 */
