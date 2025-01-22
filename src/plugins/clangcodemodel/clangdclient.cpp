@@ -477,6 +477,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
     });
     registerCustomMethod(inactiveRegionsMethodName(), [this](const JsonRpcMessage &msg) {
         handleInactiveRegions(this, msg);
+        return true;
     });
 
     connect(this, &Client::workDone, this,

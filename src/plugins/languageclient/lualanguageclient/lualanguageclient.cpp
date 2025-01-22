@@ -391,6 +391,9 @@ public:
 
     void registerMessageCallback(const QString &msg, const sol::main_function &callback)
     {
+        if (m_messageCallbacks.contains(msg))
+            qWarning() << "Overwriting existing callback for message:" << msg;
+
         m_messageCallbacks.insert(msg, callback);
         updateMessageCallbacks();
     }
@@ -406,7 +409,7 @@ public:
                     [self = QPointer<LuaClientWrapper>(this),
                      name = msg](const LanguageServerProtocol::JsonRpcMessage &m) {
                         if (!self)
-                            return;
+                            return false;
 
                         auto func = self->m_messageCallbacks.value(name);
                         auto table = ::Lua::toTable(func.lua_state(), m.toJsonObject());
@@ -414,7 +417,14 @@ public:
                         if (!result.valid()) {
                             qWarning() << "Error calling message callback for:" << name << ":"
                                        << (result.get<sol::error>().what());
+                            return false;
                         }
+                        if (result.get_type() != sol::type::boolean) {
+                            qWarning() << "Callback for:" << name << " did not return a boolean";
+                            return false;
+                        }
+
+                        return result.get<bool>();
                     });
             }
         }
