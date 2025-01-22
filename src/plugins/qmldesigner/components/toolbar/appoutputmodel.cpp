@@ -245,9 +245,10 @@ void AppOutputParentModel::setupRunControls()
     auto &deviceManager = QmlDesigner::QmlDesignerPlugin::instance()->deviceManager();
 
     connect(&deviceManager,
-            &QmlDesigner::DeviceShare::DeviceManager::projectStarted,
-            [this](const QString &deviceId) {
-                initializeRuns("Project started on device " + deviceId);
+            &QmlDesigner::DeviceShare::DeviceManager::projectStarting,
+            [this, &deviceManager](const QString &deviceId) {
+                const QString alias = deviceManager.deviceSettings(deviceId)->alias();
+                initializeRuns("Project starting on device " + alias);
             });
 
     connect(&deviceManager,
@@ -263,6 +264,8 @@ void AppOutputParentModel::setupRunControls()
                     emit messageAdded(row, logs.trimmed(), m_errorColor);
                 else if (logs.startsWith("Warning:"))
                     emit messageAdded(row, logs.trimmed(), m_warningColor);
+                else if (logs.startsWith("Critical:"))
+                    emit messageAdded(row, logs.trimmed(), m_errorColor);
             });
 }
 
