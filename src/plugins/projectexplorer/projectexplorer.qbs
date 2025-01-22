@@ -26,7 +26,7 @@ QtcPlugin {
             "baseprojectwizarddialog.cpp", "baseprojectwizarddialog.h",
             "buildaspects.cpp", "buildaspects.h",
             "buildconfiguration.cpp", "buildconfiguration.h",
-            "buildinfo.cpp", "buildinfo.h",
+            "buildinfo.h",
             "buildmanager.cpp", "buildmanager.h",
             "buildpropertiessettings.cpp", "buildpropertiessettings.h",
             "buildsettingspropertiespage.cpp", "buildsettingspropertiespage.h",
