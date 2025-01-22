@@ -204,30 +204,40 @@ FormEditorItem *AbstractFormEditorTool::topMovableFormEditorItem(const QList<QGr
     return nullptr;
 }
 
-FormEditorItem* AbstractFormEditorTool::nearestFormEditorItem(const QPointF &point, const QList<QGraphicsItem*> &itemList)
+FormEditorItem *AbstractFormEditorTool::nearestFormEditorItem(const QPointF &point,
+                                                              const QList<QGraphicsItem *> &itemList)
 {
     NanotraceHR::Tracer tracer{"abstract form editor tool nearest form editor item", category()};
 
     FormEditorItem *nearestItem = nullptr;
+
     for (QGraphicsItem *item : itemList) {
-        FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
-
-        if (formEditorItem && formEditorItem->flowHitTest(point))
-            return formEditorItem;
-
-        if (!formEditorItem || !formEditorItem->qmlItemNode().isValid())
+        auto formEditorItem = FormEditorItem::fromQGraphicsItem(item);
+        if (!formEditorItem)
             continue;
+
+        if (formEditorItem->flowHitTest(point))
+            return formEditorItem;
 
         if (formEditorItem->parentItem() && !formEditorItem->parentItem()->isContentVisible())
             continue;
 
-        if (formEditorItem && ModelUtils::isThisOrAncestorLocked(formEditorItem->qmlItemNode().modelNode()))
+        auto qmlItemNode = formEditorItem->qmlItemNode();
+        if (ModelUtils::isThisOrAncestorLocked(qmlItemNode.modelNode()))
             continue;
 
-        if (!nearestItem)
+        if (!nearestItem) {
             nearestItem = formEditorItem;
-        else if (formEditorItem->selectionWeigth(point, 1) < nearestItem->selectionWeigth(point, 0))
+            continue;
+        }
+
+        bool isVisible = qmlItemNode.instanceIsVisible();
+        if (isVisible != nearestItem->qmlItemNode().instanceIsVisible()) {
+            if (isVisible)
+                nearestItem = formEditorItem;
+        } else if (formEditorItem->selectionWeigth(point, 1) < nearestItem->selectionWeigth(point, 0)) {
             nearestItem = formEditorItem;
+        }
     }
 
     if (nearestItem && nearestItem->qmlItemNode().isInStackedContainer())
