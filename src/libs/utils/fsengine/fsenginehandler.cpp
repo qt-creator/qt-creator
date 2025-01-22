@@ -67,7 +67,6 @@ public:
     QDateTime fileTime(FileTime time) const final;
     void setFileName(const QString &file) final;
     int handle() const final;
-    bool cloneTo(QAbstractFileEngine *target) final;
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     IteratorUniquePtr beginEntryList(
@@ -374,11 +373,6 @@ void FSEngineImpl::setFileName(const QString &file)
 int FSEngineImpl::handle() const
 {
     return 0;
-}
-
-bool FSEngineImpl::cloneTo(QAbstractFileEngine *target)
-{
-    return QAbstractFileEngine::cloneTo(target);
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
