@@ -541,7 +541,7 @@ bool executePluginInstallWizard(const FilePath &archive)
 
                 QTC_ASSERT(specs.size() == 1, return false);
                 data.pluginSpec.reset(specs.front());
-
+                return true;
             } else {
                 QString error;
                 FileUtils::CopyAskingForOverwrite copy(ICore::dialogParent(), postCopyOperation());
