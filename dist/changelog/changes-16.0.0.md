@@ -173,6 +173,8 @@ Analyzer
 ### Coco
 
 * Added support for configuring CMake and qmake projects for code coverage
+  in `Projects > Project Settings > Coco Code Coverage`
+  ([Documentation]https://doc-snapshots.qt.io/qtcreator-16.0/creator-coco.html)
 
 Version Control Systems
 -----------------------
