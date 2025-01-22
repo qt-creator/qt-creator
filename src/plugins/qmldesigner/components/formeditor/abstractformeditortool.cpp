@@ -176,17 +176,27 @@ FormEditorItem* AbstractFormEditorTool::nearestFormEditorItem(const QPointF &poi
         if (formEditorItem && formEditorItem->flowHitTest(point))
             return formEditorItem;
 
-        if (!formEditorItem || !formEditorItem->qmlItemNode().isValid())
+        if (!formEditorItem)
+            continue;
+        auto qmlItemNode = formEditorItem->qmlItemNode();
+        if (!qmlItemNode.isValid())
             continue;
 
         if (formEditorItem->parentItem() && !formEditorItem->parentItem()->isContentVisible())
             continue;
 
-        if (formEditorItem && ModelUtils::isThisOrAncestorLocked(formEditorItem->qmlItemNode().modelNode()))
+        if (formEditorItem && ModelUtils::isThisOrAncestorLocked(qmlItemNode.modelNode()))
             continue;
 
         if (!nearestItem)
             nearestItem = formEditorItem;
+
+        if (!qmlItemNode.instanceIsVisible() && nearestItem->qmlItemNode().instanceIsVisible())
+            continue;
+
+        if (qmlItemNode.instanceIsVisible() && !nearestItem->qmlItemNode().instanceIsVisible())
+            nearestItem = formEditorItem;
+
         else if (formEditorItem->selectionWeigth(point, 1) < nearestItem->selectionWeigth(point, 0))
             nearestItem = formEditorItem;
     }
