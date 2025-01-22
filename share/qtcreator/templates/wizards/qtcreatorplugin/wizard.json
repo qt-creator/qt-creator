@@ -165,14 +165,6 @@
                     "target": ".github/workflows/README.md"
                 },
                 {
-                    "source": "github_scripts_registerPlugin.js",
-                    "target": ".github/scripts/registerPlugin.js"
-                },
-                {
-                    "source": "github_scripts_plugin.json",
-                    "target": ".github/scripts/plugin.json"
-                },
-                {
                     "source": "myplugin.cpp",
                     "target": "%{SrcFileName}"
                 },
