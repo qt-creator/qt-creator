@@ -974,6 +974,7 @@ Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url, co
     return doc;
 }
 
+static bool firstTimeLoad = true;
 
 bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceHandler)
 {
@@ -989,8 +990,12 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         time.start();
 
 #ifndef QDS_USE_PROJECTSTORAGE
-    if (m_rewriterView->isDocumentRewriterView())
+    if (m_rewriterView->isDocumentRewriterView()) {
         ModelManagerInterface::instance()->waitForFinished();
+        if (firstTimeLoad)
+            QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        firstTimeLoad = false;
+    }
 #endif
 
     const QUrl url = m_rewriterView->model()->fileUrl();
