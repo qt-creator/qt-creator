@@ -1122,8 +1122,6 @@ void Project::setup(const QList<BuildInfo> &infoList)
 
 BuildConfiguration *Project::setup(const BuildInfo &info)
 {
-    QTC_ASSERT(info.factory, return nullptr);
-
     Kit *k = KitManager::kit(info.kitId);
     if (!k)
         return nullptr;
@@ -1136,9 +1134,12 @@ BuildConfiguration *Project::setup(const BuildInfo &info)
 
     QTC_ASSERT(t, return nullptr);
 
-    BuildConfiguration * const bc = info.factory->create(t, info);
-    if (bc)
-        t->addBuildConfiguration(bc);
+    BuildConfiguration *bc = nullptr;
+    if (info.factory) {
+        bc = info.factory->create(t, info);
+        if (bc)
+            t->addBuildConfiguration(bc);
+    }
     if (newTarget) {
         newTarget->updateDefaultDeployConfigurations();
         newTarget->updateDefaultRunConfigurations();
