@@ -1,0 +1,129 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page ai-shader-tutorial.html
+    \ingroup gstutorials
+
+    \sa {Effect Composer}
+
+    \brief Illustrates how to take AI-genetrated shader code into use in Effect Composer.
+
+    \title Using AI-generated shader code in Effect Composer
+
+    This tutorial describes how you can use ChatGPT to create a \e {northern lights}
+    shader, and then use it in \QDS.
+
+    \section1 Creating the shader code
+
+    \list 1
+      \li Go to the \l{https://chatgpt.com/}{ChatGPT web site} and enter the following prompt:
+        \code
+            Create a northern lights shader that works in Shadertoy
+        \endcode
+        The output from ChatGPT is something like this:
+        \note The output can vary but should be similar in most cases.
+        \code
+            // Northern Lights Shader
+            // Shadertoy GLSL Code
+
+            void mainImage(out vec4 fragColor, in vec2 fragCoord)
+            {
+                // Normalize coordinates
+                vec2 uv = fragCoord / iResolution.xy;
+                uv.x *= iResolution.x / iResolution.y; // Aspect ratio correction
+
+                // Time variable for animation
+                float t = iTime;
+
+                // Gradient background
+                vec3 bgColor = mix(vec3(0.02, 0.02, 0.1), vec3(0.0, 0.1, 0.3), uv.y);
+
+                // Northern lights parameters
+                float noiseScale = 10.0;
+                float waveSpeed = 0.5;
+                float waveAmplitude = 0.2;
+
+                // Perlin-like noise for dynamic patterns
+                float noise = sin(uv.y * noiseScale + t * waveSpeed) * waveAmplitude;
+                noise += sin(uv.x * noiseScale + t * waveSpeed * 0.5) * waveAmplitude * 0.5;
+
+                // Aurora color
+                vec3 auroraColor = vec3(0.3, 0.8, 0.5);
+
+                // Combine noise with aurora color
+                auroraColor *= smoothstep(0.2, 0.8, uv.y + noise);
+
+                // Add aurora effect to background
+                vec3 finalColor = bgColor + auroraColor * 0.8;
+
+                // Output final color
+                fragColor = vec4(finalColor, 1.0);
+            }
+        \endcode
+      \li Copy only the code inside the \c mainImage function.
+    \endlist
+
+    \section1 Adding the generated shader code to \QDS
+
+    Next, you create a custom effect in \QDS and copy the generated code there.
+
+    \list 1
+      \li In \QDS, open the \uicontrol {Effect Composer} view.
+      \li From the \uicontrol {Add Effect} dropdown menu (1), select \uicontrol {Custom} (2). The
+      custom effect node is an empty effect node.
+      \image add-custom-effect-node.webp Adding a custom effect node to an effect in Effect Composer.
+      \li Select \uicontrol {Show Code}.
+      \li On the \uicontrol {Fragment Shader} tab, paste the AI-generated shader code inside the
+      \c {@main} function like this:
+      \code
+        @main
+        {
+            // Normalize coordinates
+            vec2 uv = fragCoord / iResolution.xy;
+            uv.x *= iResolution.x / iResolution.y; // Aspect ratio correction
+
+            // Time variable for animation
+            float t = iTime;
+
+            // Gradient background
+            vec3 bgColor = mix(vec3(0.02, 0.02, 0.1), vec3(0.0, 0.1, 0.3), uv.y);
+
+            // Northern lights parameters
+            float noiseScale = 10.0;
+            float waveSpeed = 0.5;
+            float waveAmplitude = 0.2;
+
+            // Perlin-like noise for dynamic patterns
+            float noise = sin(uv.y * noiseScale + t * waveSpeed) * waveAmplitude;
+            noise += sin(uv.x * noiseScale + t * waveSpeed * 0.5) * waveAmplitude * 0.5;
+
+            // Aurora color
+            vec3 auroraColor = vec3(0.3, 0.8, 0.5);
+
+            // Combine noise with aurora color
+            auroraColor *= smoothstep(0.2, 0.8, uv.y + noise);
+
+            // Add aurora effect to background
+            vec3 finalColor = bgColor + auroraColor * 0.8;
+
+            // Output final color
+            fragColor = vec4(finalColor, 1.0);
+        }
+      \endcode
+    \endlist
+
+    You should now see the effect in the preview window in the \uicontrol {Effect Composer} view.
+    If you don't see the effect, ensure that \uicontrol {Live Update} is selected. To update the
+    preview window manually, select \uicontrol Apply.
+
+    If the effect is animated, select \imagerunproject to run the animation in the preview window.
+
+    \image northern-lights-effect.webp The northern lights effect and code displayed in Effect Composer.
+
+    \section1 Using the effect in your project
+
+    To add the effect to a component in your project, see
+    \l{Assigning an effect composition to a component}.
+
+*/
