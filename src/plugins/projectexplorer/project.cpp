@@ -41,6 +41,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
+#include <utils/mimeutils.h>
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -1661,7 +1662,8 @@ void ProjectExplorerTest::testSourceToBinaryMapping()
     // Load Project.
     QFETCH(QString, projectFileName);
     const auto theProject = ProjectExplorerPlugin::openProject(projectDir.pathAppended(projectFileName));
-    if (theProject.errorMessage().contains("text/")) {
+    if (!theProject
+        && !ProjectManager::canOpenProjectForMimeType(Utils::mimeTypeForFile(projectFileName))) {
         QSKIP("This test requires the presence of the qmake/cmake/qbs project managers "
               "to be fully functional");
     }
