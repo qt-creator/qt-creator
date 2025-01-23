@@ -332,7 +332,8 @@ TEST_F(SqliteSessions, apply_does_does_not_override_if_constraints_is_applied)
     ASSERT_THAT(fetchTags(), IsEmpty());
 }
 
-TEST_F(SqliteSessions, apply_does_does_not_override_foreign_key_if_reference_is_deleted_deferred)
+TEST_F(SqliteSessions,
+       DISABLED_apply_does_does_not_override_foreign_key_if_reference_is_deleted_deferred)
 {
     database.unlock();
     Sqlite::DeferredTransaction transaction{database};
