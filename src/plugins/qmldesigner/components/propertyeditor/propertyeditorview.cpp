@@ -556,12 +556,14 @@ void setupWidget(PropertyEditorQmlBackend *currentQmlBackend,
         if (sourceId) {
             auto path = pathCache.sourcePath(sourceId);
             if (path.endsWith("Pane.qml")) {
-                panePath = path;
-                if (panePath.size() && specificsPath.size())
+                if (!panePath.size())
+                    panePath = path;
+                if (specificsPath.size())
                     return std::make_tuple(panePath, specificsPath);
             } else if (path.endsWith("Specifics.qml")) {
-                specificsPath = path;
-                if (panePath.size() && specificsPath.size())
+                if (!specificsPath.size())
+                    specificsPath = path;
+                if (panePath.size())
                     return std::make_tuple(panePath, specificsPath);
             }
         }
