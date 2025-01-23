@@ -12,6 +12,7 @@
 
     \list
       \li \l {Creating the glow and the bloom effects}
+      \li \l {Working with shader code in Effect Composer}
     \endlist
 
     \section1 Performance

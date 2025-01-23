@@ -1,0 +1,153 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page best-practices-shader-code.html
+
+    \title Working with shader code in Effect Composer
+
+    This page contains tips, tricks, and best practices for working with shader code in the
+    \uicontrol {Effect Composer} view.
+
+    To get started with the the \uicontrol {Effect Composer} view, see \l{Effect Composer}.
+
+    \section1 Shader code structure
+
+    The shader code structure for shaders of individual nodes in \QDS is as follows:
+    \list
+      \li The \c main function content should be listed below the \c @main tag.
+      \li Other functions should be listed above the \c @main tag.
+    \endlist
+
+    \note The main shader code structure is different from the code structure of indivudal nodes.
+    The main shader has a \c{@nodes} tag instead of a \c{@main} tag to indicate where the
+    node specific main function content goes.
+
+    \section2 Example shader code
+
+    In this example, you can see a comparison of shader code that works in
+    \l{http:www.shadertoy.com}{ShaderToy} and shader code in \QDS:
+
+    Shadertoy
+    \code
+      vec3 waveEffect(vec2 uv, float time) {
+        float wave = sin(uv.x * 10.0 + time) * 0.1;
+        return vec3(uv.y + wave, uv.y + wave, 1.0);
+      }
+
+      void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+        vec2 uv = fragCoord / iResolution.xy;
+        vec3 color = waveEffect(uv, iTime);
+        fragColor = vec4(color, 1.0);
+      }
+    \endcode
+
+    \QDS
+    \code
+      vec3 waveEffect(vec2 uv, float time) {
+        float wave = sin(uv.x * 10.0 + time) * 0.1;
+        return vec3(uv.y + wave, uv.y + wave, 1.0);
+      }
+
+      @main
+      {
+        vec2 uv = fragCoord / iResolution.xy;
+        vec3 color = waveEffect(uv, iTime);
+        fragColor = vec4(color, 1.0);
+      }
+    \endcode
+
+    \section1 Built-in uniforms
+
+    In \QDS, you can use uniforms for shaders you build and also use custom shaders.
+
+    \section2 Inputs and outputs
+
+    \table
+      \header
+          \li Type
+          \li Name
+          \li Description
+      \row
+          \li vec4
+          \li fragColor
+          \li Fragment shader's output for the color. The format is RGBA and is multiplied
+          by default with the item opacity (qt_opacity).
+      \row
+          \li vec2
+          \li texCoord
+          \li Normalized position of the fragment (0.0 - 1.0).
+      \row
+          \li vec2
+          \li fragCoord
+          \li Position of the fragment in pixels (0.0 - iResolution.xy).
+      \row
+          \li vec2
+          \li vertCoord
+          \li Position of the vertex in pixels (0.0 - iResolution.xy). Modify this in the vertex
+          shader to move the vertices.
+      \row
+          \li vec3
+          \li iResolution
+          \li Size of the source item or image in pixels. The z parameter is always 1.0.
+      \row
+          \li float
+          \li iTime
+          \li Animated time in seconds.
+      \row
+          \li int
+          \li iFrame
+          \li Animated frame number.
+      \row
+          \li sampler2D
+          \li iSource
+          \li Texture sampler of the source item or image.
+    \endtable
+
+    \section2 External resources
+
+    If you copy shader code from external resources, consider the following:
+
+    \section3 ShaderToy
+
+    ShaderToy is using the same naming as \QDS for uniforms.
+
+    \section3 The Book of Shaders
+
+    If you use shader code from \l{https://thebookofshaders.com/}{The Book of Shaders}, you need
+    to rename the uniforms.
+
+    Example uniforms.
+
+    \table
+      \header
+        \li The Book of Shaders uniforms
+        \li In \QDS, rename to this
+      \row
+        \li \c {uniform vec2 u_resolution;}
+        \li \c {iResolution}
+      \row
+        \li \c {uniform float u_time;}
+        \li \c {iTime}
+    \endtable
+
+    \section1 Controlling animations with iTime
+
+    If you are using \c iTime in your shader code, you can start and sop the animation with the
+    \c timeRunning property in \QDS.
+
+    If you set \c timeRunning to false, you can freeze the effect to a specific point in the
+    elapsed time of the animation by setting a value for the \c animatedTime property.
+
+    You can control these settings either from the \uicontrol Properties view or from code.
+
+    \image timeRunning_property.webp
+
+    \code
+        NorthernLights {
+            id: northernLights
+            animatedTime: 1
+            timeRunning: false
+        }
+    \endcode
+*/
