@@ -28,6 +28,7 @@
 #include <QFileInfo>
 #include <QLabel>
 #include <QScrollArea>
+#include <QScrollBar>
 #include <QVBoxLayout>
 
 using namespace Utils;
@@ -375,7 +376,11 @@ void TargetSetupPagePrivate::ensureSelectedKitIsVisible()
 {
     if (TargetSetupWidget * const w
         = Utils::findOrDefault(widgets, &TargetSetupWidget::isKitSelected)) {
+        const int xScrollPos = scrollArea->horizontalScrollBar()
+            ? scrollArea->horizontalScrollBar()->value() : 0;
         scrollArea->ensureWidgetVisible(w);
+        if (scrollArea->horizontalScrollBar())
+            scrollArea->horizontalScrollBar()->setValue(xScrollPos);
     }
 }
 
