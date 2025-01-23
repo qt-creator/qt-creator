@@ -1082,10 +1082,7 @@ bool isNotInLayout(const SelectionContext &context)
 
 bool selectionCanBeLayouted(const SelectionContext &context)
 {
-    return  multiSelection(context)
-            && selectionHasSameParentAndInBaseState(context)
-            && inBaseState(context)
-            && isNotInLayout(context);
+    return multiSelection(context) && selectionHasSameParentAndInBaseState(context);
 }
 
 bool selectionCanBeLayoutedAndQtQuickLayoutPossible(const SelectionContext &context)

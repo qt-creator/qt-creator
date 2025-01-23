@@ -40,8 +40,6 @@ static inline bool itemsHaveSameParent(const QList<ModelNode> &siblingList)
         QmlItemNode currentParent = currentItem.instanceParent().toQmlItemNode();
         if (!currentParent.isValid())
             return false;
-        if (currentItem.instanceIsInLayoutable())
-            return false;
         if (currentParent != parent)
             return false;
     }
