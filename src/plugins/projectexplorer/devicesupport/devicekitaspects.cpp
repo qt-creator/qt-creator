@@ -376,7 +376,7 @@ public:
     {
         setDisplayName(Tr::tr("Run device"));
         setDescription(Tr::tr("The device to run the applications on."));
-        setPriority(32000);
+        setPriority(31899);
     }
 };
 
@@ -435,7 +435,7 @@ public:
     {
         setDisplayName(Tr::tr("Build device type"));
         setDescription(Tr::tr("The type of device to build on."));
-        setPriority(31899);
+        setPriority(32000);
     }
 
 private:
