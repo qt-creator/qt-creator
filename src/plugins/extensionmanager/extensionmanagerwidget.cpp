@@ -268,14 +268,15 @@ public:
         : QWidget(parent)
     {
         m_label = new InfoLabel;
+        m_label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         m_switch = new Switch(Tr::tr("Active"));
         m_pluginView.hide();
         setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
 
         using namespace Layouting;
-        Column {
-            m_label,
-            m_switch,
+        Grid {
+            Span(2, m_label), br,
+            m_switch, empty, br,
         }.attachTo(this);
 
         connect(m_switch, &QCheckBox::clicked, this, [this](bool checked) {
