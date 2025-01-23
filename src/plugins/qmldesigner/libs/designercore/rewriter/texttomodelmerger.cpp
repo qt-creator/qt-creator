@@ -974,8 +974,6 @@ Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url, co
     return doc;
 }
 
-static bool firstTimeLoad = true;
-
 bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceHandler)
 {
     QmlJS::ScopeChain::setSkipmakeComponentChain(true);
@@ -992,6 +990,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 #ifndef QDS_USE_PROJECTSTORAGE
     if (m_rewriterView->isDocumentRewriterView()) {
         ModelManagerInterface::instance()->waitForFinished();
+        static bool firstTimeLoad = true;
         if (firstTimeLoad)
             QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         firstTimeLoad = false;
