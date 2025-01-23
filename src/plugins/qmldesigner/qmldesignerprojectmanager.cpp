@@ -181,7 +181,13 @@ class ProjectStorageData
 {
 public:
     ProjectStorageData(::ProjectExplorer::Project *project, PathCacheType &pathCache)
-        : database{project->projectDirectory().pathAppended("projectstorage.db").toString()}
+#ifdef QT_DEBUG
+        : database{project->projectDirectory().pathAppended("projectstorage.db").toString(),
+                   Sqlite::JournalMode::Wal}
+#else
+        : database{project->projectDirectory().pathAppended("projectstorage.db").toString(),
+                   Sqlite::JournalMode::Memory}
+#endif
         , errorNotifier{pathCache}
         , fileSystem{pathCache}
         , qmlDocumentParser{storage, pathCache}
