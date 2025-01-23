@@ -48,8 +48,6 @@
 #include <QFileDialog>
 #include <QHash>
 
-#include <limits>
-
 #ifdef WITH_TESTS
 #include "projectexplorer_test.h"
 #include <coreplugin/editormanager/editormanager.h>
@@ -172,7 +170,6 @@ public:
     bool m_canBuildProducts = false;
     bool m_hasMakeInstallEquivalent = false;
     bool m_needsBuildConfigurations = true;
-    bool m_needsDeployConfigurations = true;
     bool m_shuttingDown = false;
 
     std::function<BuildSystem *(Target *)> m_buildSystemCreator;
@@ -661,8 +658,7 @@ bool Project::setupTarget(Target *t)
 {
     if (d->m_needsBuildConfigurations)
         t->updateDefaultBuildConfigurations();
-    if (d->m_needsDeployConfigurations)
-        t->updateDefaultDeployConfigurations();
+    t->updateDefaultDeployConfigurations();
     t->updateDefaultRunConfigurations();
     return true;
 }
@@ -1046,11 +1042,6 @@ void Project::setNeedsBuildConfigurations(bool value)
     d->m_needsBuildConfigurations = value;
 }
 
-void Project::setNeedsDeployConfigurations(bool value)
-{
-    d->m_needsDeployConfigurations = value;
-}
-
 Task Project::createProjectTask(Task::TaskType type, const QString &description)
 {
     return Task(type, description, FilePath(), -1, Id());
@@ -1405,6 +1396,17 @@ public:
     QString name() const final { return QLatin1String("test"); }
 };
 
+class TestBuildConfigurationFactory : public BuildConfigurationFactory
+{
+public:
+    TestBuildConfigurationFactory()
+    {
+        setSupportedProjectType(TEST_PROJECT_ID);
+        setBuildGenerator([](const Kit *, const FilePath &, bool){ return QList<BuildInfo>(); });
+        registerBuildConfiguration<BuildConfiguration>("TestProject.BuildConfiguration");
+    }
+};
+
 class TestProject : public Project
 {
 public:
@@ -1413,9 +1415,6 @@ public:
         setId(TEST_PROJECT_ID);
         setDisplayName(TEST_PROJECT_DISPLAYNAME);
         setBuildSystemCreator<TestBuildSystem>();
-        setNeedsBuildConfigurations(false);
-        setNeedsDeployConfigurations(false);
-
         target = addTargetForKit(&testKit);
     }
 
@@ -1707,6 +1706,8 @@ void ProjectExplorerTest::testSourceToBinaryMapping_data()
     QTest::addRow("qbs") << "multi-target-project.qbs";
     QTest::addRow("qmake") << "multi-target-project.pro";
 }
+
+static TestBuildConfigurationFactory testBuildConfigFactory;
 
 } // ProjectExplorer::Internal
 

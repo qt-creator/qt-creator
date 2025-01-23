@@ -236,7 +236,6 @@ protected:
     void setHasMakeInstallEquivalent(bool enabled);
 
     void setNeedsBuildConfigurations(bool value);
-    void setNeedsDeployConfigurations(bool value);
 
     static ProjectExplorer::Task createProjectTask(ProjectExplorer::Task::TaskType type,
                                                    const QString &description);
