@@ -39,8 +39,7 @@ MesonTargetNode::MesonTargetNode(const FilePath &directory, const QString &name,
 
 void MesonTargetNode::build()
 {
-    Project *p = getProject();
-    if (const auto bc = p ? p->activeBuildConfiguration() : nullptr)
+    if (const auto bc = activeBuildConfig(getProject()))
         static_cast<MesonBuildConfiguration *>(bc)->build(m_name);
 }
 

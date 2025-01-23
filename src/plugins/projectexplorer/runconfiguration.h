@@ -286,4 +286,8 @@ private:
     const bool m_decorateTargetName;
 };
 
+PROJECTEXPLORER_EXPORT RunConfiguration *activeRunConfig(const Project *project);
+PROJECTEXPLORER_EXPORT RunConfiguration *activeRunConfigForActiveProject();
+PROJECTEXPLORER_EXPORT RunConfiguration *activeRunConfigForCurrentProject();
+
 } // namespace ProjectExplorer

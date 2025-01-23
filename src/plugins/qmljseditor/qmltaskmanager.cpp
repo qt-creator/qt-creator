@@ -116,7 +116,7 @@ void QmlTaskManager::updateMessages()
 void QmlTaskManager::updateSemanticMessagesNow()
 {
     // note: this can only be called for the startup project
-    BuildSystem *buildSystem = ProjectManager::startupBuildSystem();
+    BuildSystem *buildSystem = activeBuildSystemForActiveProject();
     if (!buildSystem)
         return;
 

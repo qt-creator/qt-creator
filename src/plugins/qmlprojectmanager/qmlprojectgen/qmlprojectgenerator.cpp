@@ -65,8 +65,7 @@ bool QmlProjectFileGenerator::execute()
             .arg(contentEntry, imageEntry, jsEntry, assetEntry, importPaths);
 
     QFile file(m_targetFile.toUrlishString());
-    file.open(QIODevice::WriteOnly);
-    if (!file.isOpen())
+    if (!file.open(QIODevice::WriteOnly))
         return false;
 
     file.reset();

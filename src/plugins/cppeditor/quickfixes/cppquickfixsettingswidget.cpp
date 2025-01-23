@@ -102,7 +102,6 @@ CppQuickFixSettingsWidget::CppQuickFixSettingsWidget()
         return label;
     };
 
-    const QString placeHolderTect = Tr::tr("See tool tip for more information");
     const QString toolTip = Tr::tr(
         "A JavaScript expression acting as the return value of a function taking a parameter "
         "called \"name\"");

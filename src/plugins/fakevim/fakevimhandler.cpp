@@ -6345,7 +6345,8 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
         }
         // Check result by reading back.
         QFile file3(fileName);
-        file3.open(QIODevice::ReadOnly);
+        if (!file3.open(QIODevice::ReadOnly))
+            return false;
         QByteArray ba = file3.readAll();
         showMessage(MessageInfo, Tr::tr("\"%1\" %2 %3L, %4C written.")
             .arg(fileName).arg(exists ? QString(" ") : Tr::tr(" [New] "))
@@ -6375,7 +6376,8 @@ bool FakeVimHandler::Private::handleExReadCommand(const ExCommand &cmd)
 
     m_currentFileName = replaceTildeWithHome(cmd.args);
     QFile file(m_currentFileName);
-    file.open(QIODevice::ReadOnly);
+    if (!file.open(QIODevice::ReadOnly))
+        return false;
     QTextStream ts(&file);
     QString data = ts.readAll();
     insertText(data);

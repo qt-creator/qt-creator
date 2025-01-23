@@ -3174,7 +3174,6 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Backspace:
         if (ro) break;
         if ((e->modifiers() & (Qt::ControlModifier
-                               | Qt::ShiftModifier
                                | Qt::AltModifier
                                | Qt::MetaModifier)) == Qt::NoModifier) {
             e->accept();
@@ -3987,10 +3986,8 @@ void TextEditorWidgetPrivate::configureGenericHighlighter(
         q->setCodeFoldingSupported(false);
     }
 
-    const QString definitionFilesPath
-        = TextEditorSettings::highlighterSettings().definitionFilesPath().toUrlishString();
-    m_document->resetSyntaxHighlighter([definitionFilesPath, definition] {
-        auto highlighter = new Highlighter(definitionFilesPath);
+    m_document->resetSyntaxHighlighter([definition] {
+        auto highlighter = new Highlighter;
         highlighter->setDefinition(definition);
         return highlighter;
     });

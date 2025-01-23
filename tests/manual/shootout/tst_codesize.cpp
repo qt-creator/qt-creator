@@ -120,7 +120,7 @@ void tst_CodeSize::cleanup()
 {
     if (!t->buildTemp.autoRemove()) {
         QFile logger(t->buildPath + QLatin1String("/input.txt"));
-        logger.open(QIODevice::ReadWrite);
+        QVERIFY2(logger.open(QIODevice::ReadWrite), qPrintable(logger.fileName()));
         logger.write(t->input);
     }
     delete t;

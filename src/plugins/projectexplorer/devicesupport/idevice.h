@@ -128,7 +128,7 @@ public:
 
     struct DeviceAction {
         QString display;
-        std::function<void(const IDevice::Ptr &device, QWidget *parent)> execute;
+        std::function<void(const IDevice::Ptr &device)> execute;
     };
     void addDeviceAction(const DeviceAction &deviceAction);
     const QList<DeviceAction> deviceActions() const;

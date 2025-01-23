@@ -119,7 +119,7 @@ void showAttachToProcessDialog()
         return;
 
     // FIXME: That should be somehow related to the selected kit.
-    auto runConfig = ProjectManager::startupRunConfiguration();
+    auto runConfig = activeRunConfigForActiveProject();
 
     const int pid = dlg.currentProcess().processId;
 //    QString projectSourceDirectory = dlg.projectSource();

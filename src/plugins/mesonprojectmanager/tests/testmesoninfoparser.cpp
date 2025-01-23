@@ -82,7 +82,7 @@ private slots:
         {
             // With unconfigured project
             QTemporaryFile introFile;
-            introFile.open();
+            QVERIFY(introFile.open());
             const auto tool = findMeson();
             QVERIFY(tool.has_value());
             const MesonToolWrapper meson("name", *tool);

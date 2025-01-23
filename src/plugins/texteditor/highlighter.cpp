@@ -68,25 +68,13 @@ TextStyle categoryForTextStyle(int style)
     return C_TEXT;
 }
 
-Highlighter::Highlighter(const QString &definitionFilesPath)
-    : m_repository(new KSyntaxHighlighting::Repository())
+Highlighter::Highlighter()
 {
-    m_repository->addCustomSearchPath(definitionFilesPath);
-    const Utils::FilePath dir = Core::ICore::resourcePath("generic-highlighter/syntax");
-    if (dir.exists())
-        m_repository->addCustomSearchPath(dir.parentDir().path());
-    m_repository->reload();
-
     setTextFormatCategories(QMetaEnum::fromType<KSyntaxHighlighting::Theme::TextStyle>().keyCount(),
                             &categoryForTextStyle);
 }
 
 Highlighter::~Highlighter() = default;
-
-void Highlighter::setDefinitionName(const QString &name)
-{
-    KSyntaxHighlighting::AbstractHighlighter::setDefinition(m_repository->definitionForName(name));
-}
 
 static bool isOpeningParenthesis(QChar c)
 {

@@ -214,10 +214,9 @@ void PySideInstaller::handleDocumentOpened(Core::IDocument *document)
     TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(document);
     if (!textDocument)
         return;
-    PythonProject *project = pythonProjectForFile(textDocument->filePath());
-    if (!project)
-        return;
-    BuildConfiguration *buildConfig = project->activeBuildConfiguration();
+
+    BuildConfiguration *buildConfig = activeBuildConfig(
+        pythonProjectForFile(textDocument->filePath()));
     if (!buildConfig)
         return;
     auto *pythonBuildConfig = qobject_cast<PythonBuildConfiguration *>(buildConfig);

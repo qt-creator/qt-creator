@@ -608,7 +608,8 @@ bool AndroidBuildApkWidget::isOpenSslLibsIncluded()
     Utils::FilePath projectPath = appProjectFilePath();
     const QString searchStr = openSslIncludeFileContent(projectPath);
     QFile projectFile(projectPath.toFSPathString());
-    projectFile.open(QIODevice::ReadOnly);
+    if (!projectFile.open(QIODevice::ReadOnly))
+        return false;
     QTextStream textStream(&projectFile);
     QString fileContent = textStream.readAll();
     projectFile.close();

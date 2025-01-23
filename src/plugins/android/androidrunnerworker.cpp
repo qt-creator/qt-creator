@@ -5,7 +5,6 @@
 
 #include "androidconfigurations.h"
 #include "androidconstants.h"
-#include "androiddeviceinfo.h"
 #include "androidtr.h"
 #include "androidutils.h"
 
@@ -874,8 +873,7 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
         Forever {
             stopOnSuccess,
             ProcessTask(onPidSetup, onPidDone, CallDoneIf::Success),
-            TimeoutTask([](std::chrono::milliseconds &timeout) { timeout = 200ms; },
-                        DoneResult::Error)
+            timeoutTask(200ms)
         }.withTimeout(45s),
         ProcessTask(onUserSetup, onUserDone, CallDoneIf::Success),
         ProcessTask(onArtSetup, onArtDone),

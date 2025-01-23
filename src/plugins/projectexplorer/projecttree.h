@@ -34,8 +34,6 @@ public:
     static ProjectTree *instance();
 
     static Project *currentProject();
-    static Kit *currentKit();
-    static BuildSystem *currentBuildSystem();
     static Node *currentNode();
     static Utils::FilePath currentFilePath();
 

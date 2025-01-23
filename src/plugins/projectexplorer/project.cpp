@@ -1122,8 +1122,6 @@ void Project::setup(const QList<BuildInfo> &infoList)
 
 BuildConfiguration *Project::setup(const BuildInfo &info)
 {
-    QTC_ASSERT(info.factory, return nullptr);
-
     Kit *k = KitManager::kit(info.kitId);
     if (!k)
         return nullptr;
@@ -1136,9 +1134,12 @@ BuildConfiguration *Project::setup(const BuildInfo &info)
 
     QTC_ASSERT(t, return nullptr);
 
-    BuildConfiguration * const bc = info.factory->create(t, info);
-    if (bc)
-        t->addBuildConfiguration(bc);
+    BuildConfiguration *bc = nullptr;
+    if (info.factory) {
+        bc = info.factory->create(t, info);
+        if (bc)
+            t->addBuildConfiguration(bc);
+    }
     if (newTarget) {
         newTarget->updateDefaultDeployConfigurations();
         newTarget->updateDefaultRunConfigurations();
@@ -1252,21 +1253,9 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                                           MacroExpander *expander,
                                           const std::function<Project *()> &projectGetter)
 {
-    const auto kitGetter = [projectGetter]() -> Kit * {
-        if (const Project * const project = projectGetter())
-            return project->activeKit();
-        return nullptr;
-    };
-    const auto bcGetter = [projectGetter]() -> BuildConfiguration * {
-        if (const Project * const project = projectGetter())
-            return project->activeBuildConfiguration();
-        return nullptr;
-    };
-    const auto rcGetter = [projectGetter]() -> RunConfiguration * {
-        if (const Project * const project = projectGetter())
-            return project->activeRunConfiguration();
-        return nullptr;
-    };
+    const auto kitGetter = [projectGetter] { return ProjectExplorer::activeKit(projectGetter()); };
+    const auto bcGetter = [projectGetter] { return activeBuildConfig(projectGetter()); };
+    const auto rcGetter = [projectGetter] { return activeRunConfig(projectGetter()); };
     const QByteArray fullPrefix = (prefix.endsWith(':') ? prefix : prefix + ':');
     const QByteArray prefixWithoutColon = fullPrefix.chopped(1);
     expander->registerVariable(fullPrefix + "Name",

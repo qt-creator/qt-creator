@@ -13,6 +13,7 @@
 #include "projectexplorertr.h"
 #include "projectmanager.h"
 #include "projectnodes.h"
+#include "projecttree.h"
 #include "runconfigurationaspects.h"
 #include "target.h"
 
@@ -762,6 +763,21 @@ bool FixedRunConfigurationFactory::supportsBuildKey(Target *target, const QStrin
     Q_UNUSED(target)
     Q_UNUSED(key)
     return true;
+}
+
+RunConfiguration *activeRunConfig(const Project *project)
+{
+    return project ? project->activeRunConfiguration() : nullptr;
+}
+
+RunConfiguration *activeRunConfigForActiveProject()
+{
+    return activeRunConfig(ProjectManager::startupProject());
+}
+
+RunConfiguration *activeRunConfigForCurrentProject()
+{
+    return activeRunConfig(ProjectTree::currentProject());
 }
 
 } // namespace ProjectExplorer

@@ -226,7 +226,7 @@ void PyLSClient::openDocument(TextEditor::TextDocument *document)
 void PyLSClient::projectClosed(ProjectExplorer::Project *project)
 {
     for (ProjectExplorer::ExtraCompiler *compiler : m_extraCompilers.value(project))
-        closeExtraCompiler(compiler);
+        closeExtraCompiler(compiler, compiler->targets().first());
     Client::projectClosed(project);
 }
 
@@ -239,12 +239,23 @@ void PyLSClient::updateExtraCompilers(ProjectExplorer::Project *project,
         int index = oldCompilers.indexOf(extraCompiler);
         if (index < 0) {
             m_extraCompilers[project] << extraCompiler;
-            connect(extraCompiler,
-                    &ExtraCompiler::contentsChanged,
-                    this,
-                    [this, extraCompiler](const FilePath &file) {
-                        updateExtraCompilerContents(extraCompiler, file);
-                    });
+            connect(
+                extraCompiler,
+                &ExtraCompiler::contentsChanged,
+                this,
+                [this, extraCompiler](const FilePath &file) {
+                    updateExtraCompilerContents(extraCompiler, file);
+                });
+            connect(
+                extraCompiler,
+                &QObject::destroyed,
+                this,
+                [this, extraCompiler, file = extraCompiler->targets().constFirst()]() {
+                    for (QList<ProjectExplorer::ExtraCompiler *> &extraCompilers : m_extraCompilers)
+                        QTC_CHECK(extraCompilers.removeAll(extraCompiler) == 0);
+                    closeExtraCompiler(extraCompiler, file);
+                });
+
             if (extraCompiler->isDirty())
                 extraCompiler->compileFile();
         } else {
@@ -252,7 +263,7 @@ void PyLSClient::updateExtraCompilers(ProjectExplorer::Project *project,
         }
     }
     for (ProjectExplorer::ExtraCompiler *compiler : oldCompilers)
-        closeExtraCompiler(compiler);
+        closeExtraCompiler(compiler, compiler->targets().first());
 }
 
 void PyLSClient::updateExtraCompilerContents(ExtraCompiler *compiler, const FilePath &file)
@@ -262,9 +273,8 @@ void PyLSClient::updateExtraCompilerContents(ExtraCompiler *compiler, const File
     target.writeFileContents(compiler->content(file));
 }
 
-void PyLSClient::closeExtraCompiler(ProjectExplorer::ExtraCompiler *compiler)
+void PyLSClient::closeExtraCompiler(ProjectExplorer::ExtraCompiler *compiler, const FilePath &file)
 {
-    const FilePath file = compiler->targets().constFirst();
     m_extraCompilerOutputDir.pathAppended(file.fileName()).removeFile();
     compiler->disconnect(this);
 }

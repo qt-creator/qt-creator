@@ -2855,7 +2855,7 @@ static void handleShowModuleSymbols(const DebuggerResponse &response,
     if (response.resultClass == ResultDone) {
         Symbols symbols;
         QFile file(fileName);
-        file.open(QIODevice::ReadOnly);
+        QTC_CHECK(file.open(QIODevice::ReadOnly));
         // Object file /opt/dev/qt/lib/libQtNetworkMyns.so.4:
         // [ 0] A 0x16bd64 _DYNAMIC  moc_qudpsocket.cpp
         // [12] S 0xe94680 _ZN4myns5QFileC1Ev section .plt  myns::QFile::QFile()

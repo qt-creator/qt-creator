@@ -640,7 +640,7 @@ MemcheckTool::MemcheckTool(QObject *parent)
     menu->addAction(ActionManager::registerAction(action, "Memcheck.Remote"),
                     Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
     QObject::connect(action, &QAction::triggered, this, [this, action] {
-        RunConfiguration *runConfig = ProjectManager::startupRunConfiguration();
+        RunConfiguration *runConfig = activeRunConfigForActiveProject();
         if (!runConfig) {
             showCannotStartDialog(action->text());
             return;
@@ -682,18 +682,16 @@ void MemcheckTool::heobAction()
     Abi abi;
     bool hasLocalRc = false;
     Kit *kit = nullptr;
-    if (Target *target = ProjectManager::startupTarget()) {
-        if (RunConfiguration *rc = target->activeRunConfiguration()) {
-            kit = target->kit();
-            if (kit) {
-                abi = ToolchainKitAspect::targetAbi(kit);
-                sr = rc->runnable();
-                const IDevice::ConstPtr device
-                        = DeviceManager::deviceForPath(sr.command.executable());
-                hasLocalRc = device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-                if (!hasLocalRc)
-                    hasLocalRc = RunDeviceTypeKitAspect::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-            }
+    if (RunConfiguration *rc = activeRunConfigForActiveProject()) {
+        kit = rc->kit();
+        if (kit) {
+            abi = ToolchainKitAspect::targetAbi(kit);
+            sr = rc->runnable();
+            const IDevice::ConstPtr device
+                = DeviceManager::deviceForPath(sr.command.executable());
+            hasLocalRc = device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+            if (!hasLocalRc)
+                hasLocalRc = RunDeviceTypeKitAspect::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
         }
     }
     if (!hasLocalRc) {
@@ -907,9 +905,8 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     updateRunActions();
 
     ValgrindSettings *settings = nullptr;
-    if (Project *project = ProjectManager::startupProject())
-        if (RunConfiguration *rc = project->activeRunConfiguration())
-            settings = rc->currentSettings<ValgrindSettings>(ANALYZER_VALGRIND_SETTINGS);
+    if (RunConfiguration *rc = activeRunConfigForActiveProject())
+        settings = rc->currentSettings<ValgrindSettings>(ANALYZER_VALGRIND_SETTINGS);
 
     if (!settings) // fallback to global settings
         settings = &globalSettings();

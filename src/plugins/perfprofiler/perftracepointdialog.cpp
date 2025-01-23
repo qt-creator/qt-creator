@@ -51,13 +51,10 @@ PerfTracePointDialog::PerfTracePointDialog()
         m_buttonBox,
     }.attachTo(this);
 
-    if (const Target *target = ProjectManager::startupTarget()) {
-        const Kit *kit = target->kit();
-        QTC_ASSERT(kit, return);
-
+    if (const Kit *kit = activeKitForActiveProject()) {
         m_device = RunDeviceKitAspect::device(kit);
         if (!m_device) {
-            m_textEdit->setPlainText(Tr::tr("Error: No device available for active target."));
+            m_textEdit->setPlainText(Tr::tr("Error: No device available for active kit."));
             return;
         }
     }

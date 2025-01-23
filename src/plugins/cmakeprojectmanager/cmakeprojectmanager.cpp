@@ -133,14 +133,14 @@ CMakeManager::CMakeManager()
         .bindContextAction(&m_runCMakeAction)
         .setCommandAttribute(Command::CA_Hide)
         .addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD)
-        .addOnTriggered(this, [this] { runCMake(ProjectManager::startupBuildSystem()); });
+        .addOnTriggered(this, [this] { runCMake(activeBuildSystemForActiveProject()); });
 
     ActionBuilder(this, Constants::CLEAR_CMAKE_CACHE)
         .setText(Tr::tr("Clear CMake Configuration"))
         .bindContextAction(&m_clearCMakeCacheAction)
         .setCommandAttribute(Command::CA_Hide)
         .addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD)
-        .addOnTriggered(this, [this] { clearCMakeCache(ProjectManager::startupBuildSystem()); });
+        .addOnTriggered(this, [this] { clearCMakeCache(activeBuildSystemForActiveProject()); });
 
     ActionBuilder(this, Constants::RUN_CMAKE_CONTEXT_MENU)
         .setText(Tr::tr("Run CMake"))
@@ -149,7 +149,7 @@ CMakeManager::CMakeManager()
         .bindContextAction(&m_runCMakeActionContextMenu)
         .setCommandAttribute(Command::CA_Hide)
         .addToContainer(PEC::M_PROJECTCONTEXT, PEC::G_PROJECT_BUILD)
-        .addOnTriggered(this, [this] { runCMake(ProjectTree::currentBuildSystem()); });
+        .addOnTriggered(this, [this] { runCMake(activeBuildSystemForCurrentProject()); });
 
     ActionBuilder(this, Constants::CLEAR_CMAKE_CACHE_CONTEXT_MENU)
         .setText(Tr::tr("Clear CMake Configuration"))
@@ -157,7 +157,7 @@ CMakeManager::CMakeManager()
         .bindContextAction(&m_clearCMakeCacheActionContextMenu)
         .setCommandAttribute(Command::CA_Hide)
         .addToContainer(PEC::M_PROJECTCONTEXT, PEC::G_PROJECT_REBUILD)
-        .addOnTriggered(this, [this] { clearCMakeCache(ProjectManager::startupBuildSystem()); });
+        .addOnTriggered(this, [this] { clearCMakeCache(activeBuildSystemForCurrentProject()); });
 
     ActionBuilder(this, Constants::BUILD_FILE_CONTEXT_MENU)
         .setText(Tr::tr("Build"))
@@ -172,7 +172,7 @@ CMakeManager::CMakeManager()
         .bindContextAction(&m_rescanProjectAction)
         .setCommandAttribute(Command::CA_Hide)
         .addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD)
-        .addOnTriggered(this, [this] { rescanProject(ProjectTree::currentBuildSystem()); });
+        .addOnTriggered(this, [this] { rescanProject(activeBuildSystemForCurrentProject()); });
 
     ActionBuilder(this, Constants::RELOAD_CMAKE_PRESETS)
         .setText(Tr::tr("Reload CMake Presets"))
@@ -262,7 +262,7 @@ CMakeManager::CMakeManager()
                         Debugger::Constants::G_ANALYZER_TOOLS,
                         false)
         .addOnTriggered(this, [this] {
-            runCMakeWithProfiling(ProjectManager::startupBuildSystem());
+            runCMakeWithProfiling(activeBuildSystemForActiveProject());
         });
 
     // CMake Debugger
@@ -284,7 +284,7 @@ CMakeManager::CMakeManager()
 
     connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, this, [this] {
         auto cmakeBuildSystem = qobject_cast<CMakeBuildSystem *>(
-            ProjectManager::startupBuildSystem());
+            activeBuildSystemForActiveProject());
         if (cmakeBuildSystem) {
             const BuildDirParameters parameters(cmakeBuildSystem);
             const auto tool = parameters.cmakeTool();
@@ -340,7 +340,7 @@ void CMakeManager::updateCMakeBuildTarget(Node *node)
     if (!node)
         return;
 
-    auto bs = qobject_cast<CMakeBuildSystem *>(ProjectTree::currentBuildSystem());
+    auto bs = qobject_cast<CMakeBuildSystem *>(activeBuildSystemForCurrentProject());
     if (!bs)
         return;
 
@@ -540,7 +540,7 @@ void CMakeManager::enableBuildSubprojectMenu()
 
 void CMakeManager::runSubprojectOperation(const QString &clean, const QString &build)
 {
-    if (auto bs = qobject_cast<CMakeBuildSystem *>(ProjectTree::currentBuildSystem())) {
+    if (auto bs = qobject_cast<CMakeBuildSystem *>(activeBuildSystemForCurrentProject())) {
         auto subProject = dynamic_cast<const CMakeListsNode *>(ProjectTree::currentNode());
 
         // We want to allow the build action from a source file when triggered from a keyboard seqnuence
@@ -580,7 +580,7 @@ const CMakeListsNode *CMakeManager::currentListsNodeForEditor()
     if (!targetNode)
         return nullptr;
 
-    auto bs = qobject_cast<CMakeBuildSystem *>(ProjectTree::currentBuildSystem());
+    auto bs = qobject_cast<CMakeBuildSystem *>(activeBuildSystemForCurrentProject());
     if (!bs)
         return nullptr;
 

@@ -245,7 +245,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
     menu->addAction(ActionManager::registerAction(action, CallgrindRemoteActionId),
                     Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
     QObject::connect(action, &QAction::triggered, this, [this, action] {
-        auto runConfig = ProjectManager::startupRunConfiguration();
+        auto runConfig = activeRunConfigForActiveProject();
         if (!runConfig) {
             showCannotStartDialog(action->text());
             return;

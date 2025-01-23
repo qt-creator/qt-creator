@@ -2128,7 +2128,7 @@ void EffectComposerModel::bakeShaders()
     resetEffectError(ErrorQMLParsing);
     resetEffectError(ErrorPreprocessor);
 
-    const ProjectExplorer::Kit *kit = ProjectExplorer::ProjectTree::currentKit();
+    const ProjectExplorer::Kit *kit = ProjectExplorer::activeKitForCurrentProject();
     if (!kit) {
         setEffectError(failMessage.arg("Target not found"));
         return;

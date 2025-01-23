@@ -63,7 +63,7 @@ static bool generateEnvironmentSettings(Utils::Environment &env,
     QString tempOutFile;
     QTemporaryFile* pVarsTempFile = new QTemporaryFile(QDir::tempPath() + "/XXXXXX.txt");
     pVarsTempFile->setAutoRemove(false);
-    pVarsTempFile->open();
+    QTC_CHECK(pVarsTempFile->open());
     pVarsTempFile->close();
     tempOutFile = pVarsTempFile->fileName();
     delete pVarsTempFile;
@@ -1372,7 +1372,7 @@ void tst_Dumpers::cleanup()
 {
     if (!t->buildTemp.autoRemove()) {
         QFile logger(t->buildPath + "/input.txt");
-        logger.open(QIODevice::ReadWrite);
+        QTC_CHECK(logger.open(QIODevice::ReadWrite));
         logger.write(t->input.toUtf8());
     }
     delete t;
@@ -1839,7 +1839,7 @@ void tst_Dumpers::dumper()
     } else if (m_debuggerEngine == LldbEngine) {
         QFile fullLldb(t->buildPath + "/lldbcommand.txt");
         fullLldb.setPermissions(QFile::ReadOwner|QFile::WriteOwner|QFile::ExeOwner|QFile::ReadGroup|QFile::ReadOther);
-        fullLldb.open(QIODevice::WriteOnly);
+        QVERIFY2(fullLldb.open(QIODevice::WriteOnly), qPrintable(fullLldb.fileName()));
         fullLldb.write((exe + ' ' + args.join(' ') + '\n').toUtf8());
 
 #ifdef Q_OS_WIN
@@ -1894,7 +1894,7 @@ void tst_Dumpers::dumper()
 
     if (keepTemp()) {
         QFile logger(t->buildPath + "/output.txt");
-        logger.open(QIODevice::ReadWrite);
+        QVERIFY2(logger.open(QIODevice::ReadWrite), qPrintable(logger.fileName()));
         logger.write("=== STDOUT ===\n");
         logger.write(output);
         logger.write("\n=== STDERR ===\n");

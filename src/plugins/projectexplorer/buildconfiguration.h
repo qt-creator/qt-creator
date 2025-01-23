@@ -22,6 +22,7 @@ class BuildSystem;
 class BuildStepList;
 class Kit;
 class Node;
+class Project;
 class RunConfiguration;
 class Target;
 
@@ -198,5 +199,9 @@ private:
     IssueReporter m_issueReporter;
     BuildGenerator m_buildGenerator;
 };
+
+PROJECTEXPLORER_EXPORT BuildConfiguration *activeBuildConfig(const Project *project);
+PROJECTEXPLORER_EXPORT BuildConfiguration *activeBuildConfigForActiveProject();
+PROJECTEXPLORER_EXPORT BuildConfiguration *activeBuildConfigForCurrentProject();
 
 } // namespace ProjectExplorer

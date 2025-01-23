@@ -32,6 +32,8 @@ public:
 
     void showEvent(QShowEvent *event) override;
 
+    QModelIndex currentIndex() const;
+
 signals:
     void itemSelected(const QModelIndex &current, const QModelIndex &previous);
 

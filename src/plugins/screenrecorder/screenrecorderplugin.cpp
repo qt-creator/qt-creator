@@ -46,7 +46,7 @@ public:
         setWindowTitle(Tr::tr("Record Screen"));
         StyleHelper::setPanelWidget(this);
 
-        m_recordFile.open();
+        QTC_CHECK(m_recordFile.open());
         m_recordWidget = new RecordWidget(FilePath::fromString(m_recordFile.fileName()));
 
         m_cropAndTrimStatusWidget = new CropAndTrimWidget;

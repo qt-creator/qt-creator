@@ -272,13 +272,12 @@ namespace CppEditor::Internal {
 
 static inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
 
-static void createTempFile(const FilePath &filePath)
+static bool createTempFile(const FilePath &filePath)
 {
     QString fileName = filePath.toUrlishString();
     QFile file(fileName);
     QDir(QFileInfo(fileName).absolutePath()).mkpath(_("."));
-    file.open(QFile::WriteOnly);
-    file.close();
+    return file.open(QFile::WriteOnly);
 }
 
 static QString baseTestDir()
@@ -309,8 +308,8 @@ void HeaderSourceTest::test()
     const QDir path = QDir(temporaryDir.path() + QLatin1Char('/') + _(QTest::currentDataTag()));
     const FilePath sourcePath = FilePath::fromString(path.absoluteFilePath(sourceFileName));
     const FilePath headerPath = FilePath::fromString(path.absoluteFilePath(headerFileName));
-    createTempFile(sourcePath);
-    createTempFile(headerPath);
+    QVERIFY2(createTempFile(sourcePath), qPrintable(sourcePath.toUserOutput()));
+    QVERIFY2(createTempFile(headerPath), qPrintable(headerPath.toUserOutput()));
 
     bool wasHeader;
     clearHeaderSourceCache();

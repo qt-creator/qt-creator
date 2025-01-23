@@ -1508,7 +1508,7 @@ void tst_Json::fromJsonErrors()
 void tst_Json::fromBinary()
 {
     QFile file(testDataDir + QLatin1String("/test.json"));
-    file.open(QFile::ReadOnly);
+    QVERIFY2(file.open(QFile::ReadOnly), qPrintable(file.fileName()));
     std::string testJson = file.readAll().data();
 
     JsonDocument doc = JsonDocument::fromJson(testJson);
@@ -1524,7 +1524,7 @@ void tst_Json::fromBinary()
 //    b1file.close();
 
     QFile bfile(testDataDir + QLatin1String("/test.bjson"));
-    bfile.open(QFile::ReadOnly);
+    QVERIFY2(bfile.open(QFile::ReadOnly), qPrintable(bfile.fileName()));
     std::string binary = bfile.readAll().toStdString();
 
     JsonDocument bdoc = JsonDocument::fromBinaryData(binary);
@@ -1722,7 +1722,7 @@ void tst_Json::parseDuplicateKeys()
 void tst_Json::testParser()
 {
     QFile file(testDataDir + QLatin1String("/test.json"));
-    file.open(QFile::ReadOnly);
+    QVERIFY2(file.open(QFile::ReadOnly), qPrintable(file.fileName()));
     std::string testJson = file.readAll().data();
 
     JsonDocument doc = JsonDocument::fromJson(testJson);
@@ -1828,7 +1828,7 @@ void tst_Json::validation()
 
 
     QFile file2(testDataDir + QLatin1String("/test3.json"));
-    file2.open(QFile::ReadOnly);
+    QVERIFY2(file2.open(QFile::ReadOnly), qPrintable(file2.fileName()));
     testJson = file2.readAll().data();
     QVERIFY(!testJson.empty());
 
@@ -2207,7 +2207,7 @@ void tst_Json::arrayEquals()
 void tst_Json::bom()
 {
     QFile file(testDataDir + QLatin1String("/bom.json"));
-    file.open(QFile::ReadOnly);
+    QVERIFY2(file.open(QFile::ReadOnly), qPrintable(file.fileName()));
     std::string json = file.readAll().data();
 
     // Import json document into a JsonDocument

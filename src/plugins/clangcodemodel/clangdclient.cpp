@@ -166,11 +166,8 @@ void setupClangdConfigFile()
 
 std::optional<Utils::FilePath> clangdExecutableFromBuildDevice(Project *project)
 {
-    if (!project)
-        return std::nullopt;
-
     if (const ProjectExplorer::IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(
-            project->activeKit())) {
+            activeKit(project))) {
         return buildDevice->clangdExecutable();
     }
 

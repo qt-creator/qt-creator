@@ -189,7 +189,7 @@ void tst_CppSelectionChanger::initTestCase()
     // Read cpp file contents into QTextDocument and CppEditor::Document::Ptr.
     QString fileName(SRCDIR "/testCppFile.cpp");
     QFile file(fileName);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QVERIFY2(file.open(QIODevice::ReadOnly | QIODevice::Text), qPrintable(fileName));
     QTextStream s(&file);
     cppFileString = s.readAll();
     file.close();

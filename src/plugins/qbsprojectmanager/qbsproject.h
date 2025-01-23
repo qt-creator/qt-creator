@@ -131,6 +131,7 @@ private:
     Utils::FilePath installRoot();
     Utils::FilePath locationFilePath(const QJsonObject &loc) const;
     Utils::FilePath groupFilePath(const QJsonObject &group) const;
+    QbsBuildConfiguration *qbsBuildConfig() const;
 
     static bool ensureWriteableQbsFile(const Utils::FilePath &file);
 
@@ -152,7 +153,6 @@ private:
     QHash<QString, Utils::Environment> m_envCache;
 
     ProjectExplorer::BuildSystem::ParseGuard m_guard;
-    QbsBuildConfiguration *m_buildConfiguration = nullptr;
 };
 
 } // namespace Internal

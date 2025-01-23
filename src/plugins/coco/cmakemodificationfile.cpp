@@ -54,7 +54,7 @@ void CMakeModificationFile::read()
 void CMakeModificationFile::write() const
 {
     QFile out(nativePath());
-    out.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTC_CHECK(out.open(QIODevice::WriteOnly | QIODevice::Text));
 
     QTextStream outStream(&out);
     for (QString &line : defaultModificationFile()) {

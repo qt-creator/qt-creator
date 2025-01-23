@@ -227,7 +227,7 @@ void PerfProfilerTool::createViews()
         PerfSettings *settings = nullptr;
         Target *target = ProjectManager::startupTarget();
         if (target) {
-            if (auto runConfig = target->activeRunConfiguration())
+            if (auto runConfig = activeRunConfigForActiveProject())
                 settings = runConfig->currentSettings<PerfSettings>(Constants::PerfSettingsId);
         }
 
@@ -596,9 +596,9 @@ void PerfProfilerTool::showLoadTraceDialog()
 
     startLoading();
 
-    const Project *currentProject = ProjectManager::startupProject();
-    const Kit *kit = currentProject ? currentProject->activeKit() : nullptr;
-    populateFileFinder(currentProject, kit);
+    const Project *activeProject = ProjectManager::startupProject();
+    const Kit *kit = activeKit(activeProject);
+    populateFileFinder(activeProject, kit);
 
     traceManager().loadFromTraceFile(filePath);
 }

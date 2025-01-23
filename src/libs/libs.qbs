@@ -25,7 +25,6 @@ Project {
         "tracing/tracing.qbs",
         "utils/process_ctrlc_stub.qbs",
         "utils/utils.qbs",
-        "3rdparty/karchive/karchive.qbs",
         "3rdparty/libptyqt/ptyqt.qbs",
         "3rdparty/libvterm/vterm.qbs",
         "3rdparty/lua/lua.qbs",

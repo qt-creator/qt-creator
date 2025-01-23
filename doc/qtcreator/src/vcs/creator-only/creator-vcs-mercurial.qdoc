@@ -19,6 +19,8 @@
 
     Mercurial is a free, distributed source control management tool.
 
+    \note Enable the Mercurial plugin to use it.
+
     In addition to the standard version control system functions described in
     \l {Use common VCS Functions}, you can select the following functions in the
     \uicontrol Tools > \uicontrol Mercurial submenu:
@@ -64,6 +66,6 @@
         \li \uicontrol Timeout sets a timeout for version control operations.
     \endlist
 
-    \sa {Set up version control systems}, {Use common VCS functions},
-    {Version Control Systems}
+    \sa {Enable and disable plugins}, {Set up version control systems},
+    {Use common VCS functions}, {Version Control Systems}
 */

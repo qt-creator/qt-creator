@@ -84,8 +84,8 @@ void TestTreeModel::setupParsingConnections()
         onBuildSystemTestsUpdated(); // we may have old results if project was open before switching
         m_failedStateCache.clear();
         if (project) {
-            if (sm->startupBuildSystem()) {
-                connect(sm->startupBuildSystem(), &BuildSystem::testInformationUpdated,
+            if (activeBuildSystemForActiveProject()) {
+                connect(activeBuildSystemForActiveProject(), &BuildSystem::testInformationUpdated,
                         this, &TestTreeModel::onBuildSystemTestsUpdated, Qt::UniqueConnection);
             } else {
                 connect(project, &Project::activeTargetChanged,
@@ -239,7 +239,7 @@ void TestTreeModel::onTargetChanged(Target *target)
 
 void TestTreeModel::onBuildSystemTestsUpdated()
 {
-    const BuildSystem *bs = ProjectManager::startupBuildSystem();
+    const BuildSystem *bs = activeBuildSystemForActiveProject();
     if (!bs || !bs->project())
         return;
 

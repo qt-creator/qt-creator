@@ -89,18 +89,6 @@ Project *ProjectTree::currentProject()
     return s_instance->m_currentProject;
 }
 
-Kit *ProjectTree::currentKit()
-{
-    Project *p = currentProject();
-    return p ? p->activeKit() : nullptr;
-}
-
-BuildSystem *ProjectTree::currentBuildSystem()
-{
-    Project *p = currentProject();
-    return p ? p->activeBuildSystem() : nullptr;
-}
-
 Node *ProjectTree::currentNode()
 {
     s_instance->update();

@@ -139,9 +139,7 @@ void QbsProject::configureAsExampleProject(Kit *kit)
 
 static bool supportsNodeAction(ProjectAction action, const Node *node)
 {
-    const auto project = static_cast<QbsProject *>(node->getProject());
-    QbsBuildSystem *bs = project ? static_cast<QbsBuildSystem *>(project->activeBuildSystem())
-                                 : nullptr;
+    QbsBuildSystem *bs = static_cast<QbsBuildSystem *>(activeBuildSystem(node->getProject()));
     if (!bs)
         return false;
     if (!bs->isProjectEditable())
@@ -152,11 +150,10 @@ static bool supportsNodeAction(ProjectAction action, const Node *node)
 }
 
 QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
-    : BuildSystem(bc->target()),
+    : BuildSystem(bc),
       m_session(new QbsSession(this, BuildDeviceKitAspect::device(bc->kit()))),
       m_cppCodeModelUpdater(
-        ProjectUpdaterFactory::createProjectUpdater(ProjectExplorer::Constants::CXX_LANGUAGE_ID)),
-      m_buildConfiguration(bc)
+          ProjectUpdaterFactory::createProjectUpdater(ProjectExplorer::Constants::CXX_LANGUAGE_ID))
 {
     connect(m_session, &QbsSession::newGeneratedFilesForSources, this,
             [this](const QHash<QString, QStringList> &generatedFiles) {
@@ -522,6 +519,11 @@ void QbsBuildSystem::updateProjectNodes(const std::function<void ()> &continuati
             projectData()));
 }
 
+QbsBuildConfiguration *QbsBuildSystem::qbsBuildConfig() const
+{
+    return static_cast<QbsBuildConfiguration *>(buildConfiguration());
+}
+
 FilePath QbsBuildSystem::locationFilePath(const QJsonObject &loc) const
 {
     return projectDirectory().withNewPath(loc.value("file-path").toString());
@@ -544,7 +546,7 @@ FilePath QbsBuildSystem::installRoot()
                 return qbsInstallStep->installRoot();
         }
     }
-    const QbsBuildStep * const buildStep = m_buildConfiguration->qbsStep();
+    const QbsBuildStep * const buildStep = qbsBuildConfig()->qbsStep();
     return buildStep && buildStep->install() ? buildStep->installRoot() : FilePath();
 }
 
@@ -608,7 +610,7 @@ void QbsBuildSystem::triggerParsing()
 
 void QbsBuildSystem::delayParsing()
 {
-    if (m_buildConfiguration->isActive())
+    if (buildConfiguration()->isActive())
         requestDelayedParse();
 }
 
@@ -631,18 +633,18 @@ void QbsBuildSystem::startParsing(const QVariantMap &extraConfig)
 {
     QTC_ASSERT(!m_qbsProjectParser, return);
 
-    FilePath dir = m_buildConfiguration->buildDirectory();
-    Store config = m_buildConfiguration->qbsConfiguration();
+    FilePath dir = buildConfiguration()->buildDirectory();
+    Store config = qbsBuildConfig()->qbsConfiguration();
     QString installRoot = config.value(Constants::QBS_INSTALL_ROOT_KEY).toString();
     if (installRoot.isEmpty()) {
-        installRoot = m_buildConfiguration->macroExpander()->expand(
+        installRoot = buildConfiguration()->macroExpander()->expand(
             QbsSettings::defaultInstallDirTemplate());
     }
     config.insert(Constants::QBS_INSTALL_ROOT_KEY, FilePath::fromString(installRoot).path());
     config.insert(Constants::QBS_RESTORE_BEHAVIOR_KEY, "restore-and-track-changes");
     for (auto it = extraConfig.begin(); it != extraConfig.end(); ++it)
         config.insert(keyFromString(it.key()), it.value());
-    Environment env = m_buildConfiguration->environment();
+    Environment env = buildConfiguration()->environment();
 
     m_guard = guardParsingRun();
 
@@ -657,7 +659,7 @@ void QbsBuildSystem::startParsing(const QVariantMap &extraConfig)
             this, &QbsBuildSystem::handleQbsParsingDone);
 
     QbsProfileManager::updateProfileIfNecessary(target()->kit());
-    m_qbsProjectParser->parse(config, env, dir, m_buildConfiguration->configurationName());
+    m_qbsProjectParser->parse(config, env, dir, qbsBuildConfig()->configurationName());
 }
 
 void QbsBuildSystem::cancelParsing()

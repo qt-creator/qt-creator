@@ -69,7 +69,7 @@ QmllsClientSettings::QmllsClientSettings()
 
 static QtVersion *qtVersionFromProject(const Project *project)
 {
-    return project ? QtKitAspect::qtVersion(project->activeKit()) : nullptr;
+    return QtKitAspect::qtVersion(activeKit(project));
 }
 
 static std::pair<FilePath, QVersionNumber> evaluateLatestQmlls()

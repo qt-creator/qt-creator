@@ -849,4 +849,19 @@ BuildConfiguration *BuildConfigurationFactory::restore(Target *parent, const Sto
     return nullptr;
 }
 
+BuildConfiguration *activeBuildConfig(const Project *project)
+{
+    return project ? project->activeBuildConfiguration() : nullptr;
+}
+
+BuildConfiguration *activeBuildConfigForActiveProject()
+{
+    return activeBuildConfig(ProjectManager::startupProject());
+}
+
+BuildConfiguration *activeBuildConfigForCurrentProject()
+{
+    return activeBuildConfig(ProjectTree::currentProject());
+}
+
 } // namespace ProjectExplorer

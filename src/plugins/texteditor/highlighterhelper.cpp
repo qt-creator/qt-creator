@@ -258,12 +258,7 @@ QFuture<QTextDocument *> highlightCode(const QString &code, const QString &mimeT
         return promise->future();
     }
 
-    auto definition = definitions.first();
-
-    const QString definitionFilesPath
-        = TextEditorSettings::highlighterSettings().definitionFilesPath().toUrlishString();
-
-    Highlighter *highlighter = new Highlighter(definitionFilesPath);
+    Highlighter *highlighter = new Highlighter;
     QObject::connect(highlighter, &Highlighter::finished, document, [document, promise]() {
         promise->addResult(document);
         promise->finish();
@@ -275,7 +270,7 @@ QFuture<QTextDocument *> highlightCode(const QString &code, const QString &mimeT
     });
     watcher->setFuture(promise->future());
 
-    highlighter->setDefinition(definition);
+    highlighter->setDefinition(definitions.first());
     highlighter->setParent(document);
     highlighter->setFontSettings(TextEditorSettings::fontSettings());
     highlighter->setMimeType(mimeType);

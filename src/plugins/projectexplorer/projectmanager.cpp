@@ -269,24 +269,6 @@ Target *ProjectManager::startupTarget()
     return d->m_startupProject ? d->m_startupProject->activeTarget() : nullptr;
 }
 
-BuildSystem *ProjectManager::startupBuildSystem()
-{
-    Target *t = startupTarget();
-    return t ? t->buildSystem() : nullptr;
-}
-
-/*!
- * Returns the RunConfiguration of the currently active target
- * of the startup project, if such exists, or \c nullptr otherwise.
- */
-
-
-RunConfiguration *ProjectManager::startupRunConfiguration()
-{
-    Target *t = startupTarget();
-    return t ? t->activeRunConfiguration() : nullptr;
-}
-
 void ProjectManager::addProject(Project *pro)
 {
     QTC_ASSERT(pro, return);

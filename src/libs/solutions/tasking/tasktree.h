@@ -707,6 +707,9 @@ private:
 using TaskTreeTask = CustomTask<TaskTreeTaskAdapter>;
 using TimeoutTask = CustomTask<TimeoutTaskAdapter>;
 
+TASKING_EXPORT ExecutableItem timeoutTask(const std::chrono::milliseconds &timeout,
+                                          DoneResult result = DoneResult::Error);
+
 } // namespace Tasking
 
 QT_END_NAMESPACE

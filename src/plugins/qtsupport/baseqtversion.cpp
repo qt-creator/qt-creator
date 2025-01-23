@@ -1085,6 +1085,9 @@ void QtVersionPrivate::updateMkspec()
     if (m_mkspecFullPath.isEmpty())
         return;
 
+    if (!m_mkspec.isLocal())
+        return;
+
     FilePath baseMkspecDir = mkspecDirectoryFromVersionInfo(versionInfo(), m_qmakeCommand);
 
     if (m_mkspec.isChildOf(baseMkspecDir)) {

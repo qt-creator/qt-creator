@@ -245,7 +245,7 @@ QVariantMap JsonWizardFactory::loadDefaultValues(const QString &fileName)
                     + "\n");
             if (current.pathAppended(fileName).exists()) {
                 QFile configFile(current.pathAppended(fileName).toUrlishString());
-                configFile.open(QIODevice::ReadOnly);
+                QTC_CHECK(configFile.open(QIODevice::ReadOnly));
                 QJsonParseError error;
                 const QByteArray fileData = configFile.readAll();
                 const QJsonDocument json = QJsonDocument::fromJson(fileData, &error);

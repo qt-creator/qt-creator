@@ -1487,7 +1487,7 @@ void DebuggerPluginPrivate::updatePresetState()
         return;
 
     Project *startupProject = ProjectManager::startupProject();
-    RunConfiguration *startupRunConfig = ProjectManager::startupRunConfiguration();
+    RunConfiguration *startupRunConfig = activeRunConfigForActiveProject();
     DebuggerEngine *currentEngine = EngineManager::currentEngine();
 
     const auto canRun = ProjectExplorerPlugin::canRunStartupProject(
@@ -2134,7 +2134,7 @@ static bool buildTypeAccepted(QFlags<ToolMode> toolMode, BuildConfiguration::Bui
 static BuildConfiguration::BuildType startupBuildType()
 {
     BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
-    if (RunConfiguration *runConfig = ProjectManager::startupRunConfiguration()) {
+    if (RunConfiguration *runConfig = activeRunConfigForActiveProject()) {
         if (const BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration())
             buildType = buildConfig->buildType();
     }

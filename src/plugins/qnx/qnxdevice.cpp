@@ -70,8 +70,8 @@ public:
         setFreePorts(PortList::fromString("10000-10100"));
         setExtraData(RemoteLinux::Constants::SourceProfile, true);
 
-        addDeviceAction({Tr::tr("Deploy Qt libraries..."), [](const IDevice::Ptr &device, QWidget *parent) {
-            QnxDeployQtLibrariesDialog dialog(device, parent);
+        addDeviceAction({Tr::tr("Deploy Qt libraries..."), [](const IDevice::Ptr &device) {
+            QnxDeployQtLibrariesDialog dialog(device, Core::ICore::dialogParent());
             dialog.exec();
         }});
     }

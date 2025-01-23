@@ -17,18 +17,13 @@ class Highlighter : public SyntaxHighlighter, public KSyntaxHighlighting::Abstra
     Q_OBJECT
     Q_INTERFACES(KSyntaxHighlighting::AbstractHighlighter)
 public:
-    Highlighter(const QString &definitionFilesPath);
+    Highlighter();
     ~Highlighter() override;
-
-    void setDefinitionName(const QString &name) override;
 
 protected:
     void highlightBlock(const QString &text) override;
     void applyFormat(int offset, int length, const KSyntaxHighlighting::Format &format) override;
     void applyFolding(int offset, int length, KSyntaxHighlighting::FoldingRegion region) override;
-
-private:
-    std::unique_ptr<KSyntaxHighlighting::Repository> m_repository;
 };
 
 } // namespace TextEditor

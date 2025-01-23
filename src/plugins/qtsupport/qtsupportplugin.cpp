@@ -177,10 +177,7 @@ void QtSupportPlugin::extensionsInitialized()
     Utils::MacroExpander *expander = Utils::globalMacroExpander();
 
     static const auto currentQtVersion = []() -> const QtVersion * {
-        ProjectExplorer::Project *project = ProjectExplorer::ProjectTree::currentProject();
-        if (!project)
-            return nullptr;
-        return QtKitAspect::qtVersion(project->activeKit());
+        return QtKitAspect::qtVersion(activeKitForCurrentProject());
     };
     static const char kCurrentHostBins[] = "CurrentDocument:Project:QT_HOST_BINS";
     expander->registerVariable(
@@ -212,10 +209,7 @@ void QtSupportPlugin::extensionsInitialized()
         });
 
     static const auto activeQtVersion = []() -> const QtVersion * {
-        ProjectExplorer::Project *project = ProjectManager::startupProject();
-        if (!project)
-            return nullptr;
-        return QtKitAspect::qtVersion(project->activeKit());
+        return QtKitAspect::qtVersion(activeKitForActiveProject());
     };
     static const char kActiveHostBins[] = "ActiveProject:QT_HOST_BINS";
     expander->registerVariable(
@@ -250,8 +244,8 @@ void QtSupportPlugin::extensionsInitialized()
         const FilePath filePath = item.filePath();
         if (filePath.isEmpty())
             return links;
-        const Project *project = ProjectManager::projectForFile(filePath);
-        QtVersion *qt = project ? QtKitAspect::qtVersion(project->activeKit()) : nullptr;
+        QtVersion *qt = QtKitAspect::qtVersion(
+            activeKit(ProjectManager::projectForFile(filePath)));
         if (!qt)
             return links;
 

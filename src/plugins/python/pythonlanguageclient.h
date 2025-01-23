@@ -37,7 +37,7 @@ private:
     void updateExtraCompilerContents(ProjectExplorer::ExtraCompiler *compiler,
                                      const Utils::FilePath &file);
     void closeExtraDoc(const Utils::FilePath &file);
-    void closeExtraCompiler(ProjectExplorer::ExtraCompiler *compiler);
+    void closeExtraCompiler(ProjectExplorer::ExtraCompiler *compiler, const Utils::FilePath &file);
 
     Utils::FilePaths m_extraWorkspaceDirs;
     Utils::FilePath m_extraCompilerOutputDir;

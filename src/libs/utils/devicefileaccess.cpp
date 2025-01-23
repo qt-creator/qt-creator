@@ -949,7 +949,8 @@ bool DesktopDeviceFileAccess::ensureExistingFile(const FilePath &filePath) const
     QFile f(filePath.path());
     if (f.exists())
         return true;
-    f.open(QFile::WriteOnly);
+    if (!f.open(QFile::WriteOnly))
+        return false;
     f.close();
     return f.exists();
 }

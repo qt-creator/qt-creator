@@ -737,10 +737,8 @@ void setupWorkspaceProject(QObject *guard)
             if (visible) {
                 excludeAction->setEnabled(node->isEnabled());
                 bool enableRescan = false;
-                if (Project *project = node->getProject()) {
-                    if (BuildSystem *buildSystem = project->activeBuildSystem())
-                        enableRescan = !buildSystem->isParsing();
-                }
+                if (BuildSystem *buildSystem = activeBuildSystem(node->getProject()))
+                    enableRescan = !buildSystem->isParsing();
                 rescanAction->setEnabled(enableRescan);
             }
         });

@@ -1776,7 +1776,7 @@ void openEffectComposer(const QString &filePath)
 
 void openOldEffectMaker(const QString &filePath)
 {
-    const ProjectExplorer::Kit *kit = ProjectExplorer::ProjectTree::currentKit();
+    const ProjectExplorer::Kit *kit = ProjectExplorer::activeKitForCurrentProject();
     if (!kit) {
         qWarning() << __FUNCTION__ << "No project open";
         return;

@@ -206,7 +206,10 @@ static Group installRecipe(
                 {
                     QTemporaryFile tempFile(QDir::tempPath() + "/XXXXXX" + ext);
                     tempFile.setAutoRemove(false);
-                    tempFile.open();
+                    if (!tempFile.open()) {
+                        emitResult(Tr::tr("Cannot open temporary file."));
+                        return SetupResult::StopWithError;
+                    }
                     (*storage).setFileName(tempFile.fileName());
                 }
 

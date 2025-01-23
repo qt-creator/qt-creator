@@ -652,7 +652,7 @@ void InsightModel::parseMainQml()
 void InsightModel::parseDefaultConfig()
 {
     // Load default insight config from plugin
-    const ProjectExplorer::Kit *kit = ProjectExplorer::ProjectTree::currentKit();
+    const ProjectExplorer::Kit *kit = ProjectExplorer::activeKitForCurrentProject();
     if (kit) {
         const QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
 

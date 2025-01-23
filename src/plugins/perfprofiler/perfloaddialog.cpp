@@ -108,13 +108,13 @@ void PerfLoadDialog::on_browseExecutableDirButton_pressed()
 
 void PerfLoadDialog::chooseDefaults()
 {
-    ProjectExplorer::Target *target = ProjectExplorer::ProjectManager::startupTarget();
-    if (!target)
+    ProjectExplorer::Kit *kit = ProjectExplorer::activeKitForActiveProject();
+    if (!kit)
         return;
 
-    m_kitChooser->setCurrentKitId(target->kit()->id());
+    m_kitChooser->setCurrentKitId(kit->id());
 
-    if (auto *bc = target->activeBuildConfiguration())
+    if (auto *bc = ProjectExplorer::activeBuildConfigForActiveProject())
         m_executableDirLineEdit->setText(bc->buildDirectory().toUrlishString());
 }
 

@@ -113,7 +113,7 @@ void DebuggerRunTool::startCoreFileSetupIfNeededAndContinueStartup()
 
     {
         TemporaryFile tmp("tmpcore-XXXXXX");
-        tmp.open();
+        QTC_CHECK(tmp.open());
         d->m_tempCoreFilePath = FilePath::fromString(tmp.fileName());
     }
 
@@ -139,7 +139,7 @@ void DebuggerRunTool::startCoreFileSetupIfNeededAndContinueStartup()
 
     if (coreFile.endsWith(".gz")) {
         d->m_tempCoreFile.setFileName(d->m_tempCoreFilePath.path());
-        d->m_tempCoreFile.open(QFile::WriteOnly);
+        QTC_CHECK(d->m_tempCoreFile.open(QFile::WriteOnly));
         connect(&d->m_coreUnpackProcess, &Process::readyReadStandardOutput, this, [this] {
             d->m_tempCoreFile.write(d->m_coreUnpackProcess.readAllRawStandardOutput());
         });

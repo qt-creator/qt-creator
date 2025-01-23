@@ -993,6 +993,15 @@ public:
         }
         return QTextBrowser::loadResource(type, name);
     }
+
+    void setHtmlAfterCheckingCacheSize(const QString &html)
+    {
+        if (m_cachedImagesSize >= 1024 * 1024 * 250) { // if we exceeded 250MB reset the doc
+            m_cachedImagesSize = 0;
+            setDocument(new QTextDocument(this)); // create a new document to clear resources
+        }
+        setHtml(html);
+    }
 private:
     Group recipe() {
         const LoopUntil iterator([this](int) { return !m_loadingQueue.isEmpty(); });
@@ -1011,7 +1020,8 @@ private:
             if (!document() || !async.isResultAvailable())
                 return;
             const QImage image = async.result();
-            // FIXME use a self-implemented resource handler instead!
+            m_cachedImagesSize += image.sizeInBytes();
+
             document()->addResource(QTextDocument::ImageResource, m_loadingQueue.first(), QVariant(image));
             document()->markContentsDirty(0, document()->characterCount());
         };
@@ -1033,6 +1043,7 @@ private:
     const Group m_recipe = recipe();
     QList<QUrl> m_loadingQueue;
     TaskTreeRunner m_loaderTaskTree;
+    unsigned int m_cachedImagesSize = 0;
 };
 
 class AxivionPerspective : public Perspective
@@ -1047,14 +1058,13 @@ public:
     void reinitDashboardList(const QString &preferredProject);
     void resetDashboard();
     bool handleContextMenu(const QString &issue, const ItemViewEvent &e);
-    void setIssueDetailsHtml(const QString &html) { m_issueDetails->setHtml(html); }
+    void setIssueDetailsHtml(const QString &html);
     void handleAnchorClicked(const QUrl &url);
     void updateNamedFilters();
 
 private:
     IssuesWidget *m_issuesWidget = nullptr;
     LazyImageBrowser *m_issueDetails = nullptr;
-    QAction *m_showFilterHelp = nullptr;
 };
 
 void AxivionPerspective::initPerspective()
@@ -1183,6 +1193,11 @@ bool AxivionPerspective::handleContextMenu(const QString &issue, const ItemViewE
     QObject::connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(e.globalPos());
     return true;
+}
+
+void AxivionPerspective::setIssueDetailsHtml(const QString &html)
+{
+    m_issueDetails->setHtmlAfterCheckingCacheSize(html);
 }
 
 void AxivionPerspective::handleAnchorClicked(const QUrl &url)

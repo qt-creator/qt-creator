@@ -101,7 +101,7 @@ void DebuggerUnitTests::testStateMachine()
 
     const QScopeGuard cleanup([] { EditorManager::closeAllEditors(false); });
 
-    RunConfiguration *rc = ProjectManager::startupRunConfiguration();
+    RunConfiguration *rc = activeRunConfigForActiveProject();
     QVERIFY(rc);
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);

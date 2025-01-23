@@ -161,7 +161,7 @@ void CocoCMakeSettings::writeToolchainFile(const QString &internalPath)
     const Utils::FilePath projectDirectory = buildConfig()->project()->projectDirectory();
 
     QFile internalFile{internalPath};
-    internalFile.open(QIODeviceBase::ReadOnly);
+    QTC_CHECK(internalFile.open(QIODeviceBase::ReadOnly));
     const QByteArray internalContent = internalFile.readAll();
 
     const QString fileName = Utils::FilePath::fromString(internalPath).fileName();
@@ -170,7 +170,7 @@ void CocoCMakeSettings::writeToolchainFile(const QString &internalPath)
 
     if (toolchainPath.exists()) {
         QFile currentFile{toolchainNative};
-        currentFile.open(QIODeviceBase::ReadOnly);
+        QTC_CHECK(currentFile.open(QIODeviceBase::ReadOnly));
 
         QByteArray currentContent = currentFile.readAll();
         if (internalContent == currentContent)
@@ -181,7 +181,7 @@ void CocoCMakeSettings::writeToolchainFile(const QString &internalPath)
         logSilently(Tr::tr("Write file %1").arg(maybeQuote(toolchainNative)));
 
     QFile out{toolchainNative};
-    out.open(QIODeviceBase::WriteOnly);
+    QTC_CHECK(out.open(QIODeviceBase::WriteOnly));
     out.write(internalContent);
     out.close();
 }
