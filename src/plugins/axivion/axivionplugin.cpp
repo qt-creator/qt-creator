@@ -952,10 +952,9 @@ Group lineMarkerRecipe(const FilePath &filePath, const LineMarkerHandler &handle
 {
     QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected?
     QTC_ASSERT(!filePath.isEmpty(), return {}); // TODO: Call handler with unexpected?
-    QTC_ASSERT(dd->m_analysisVersion, return {}); // TODO: Call handler with unexpected?
 
     const QString fileName = QString::fromUtf8(QUrl::toPercentEncoding(filePath.path()));
-    const QUrlQuery query({{"filename", fileName}, {"version", *dd->m_analysisVersion}});
+    const QUrlQuery query({{"filename", fileName}});
     const QUrl url = constructUrl(dd->m_currentProjectInfo->name, "files", query);
     return fetchDataRecipe<Dto::FileViewDto>(url, handler);
 }
@@ -1257,9 +1256,6 @@ void setAnalysisVersion(const QString &version)
     if (dd->m_analysisVersion.value_or("") == version)
         return;
     dd->m_analysisVersion = version;
-    // refetch issues for already opened docs
-    dd->clearAllMarks();
-    dd->handleOpenedDocs();
 }
 
 void enableInlineIssues(bool enable)
