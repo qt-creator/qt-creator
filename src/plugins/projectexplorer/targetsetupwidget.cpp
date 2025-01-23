@@ -241,10 +241,7 @@ const QList<BuildInfo> TargetSetupWidget::buildInfoList(const Kit *k, const File
 {
     if (auto factory = BuildConfigurationFactory::find(k, projectPath))
         return factory->allAvailableSetups(k, projectPath);
-
-    BuildInfo info;
-    info.kitId = k->id();
-    return {info};
+    return {};
 }
 
 bool TargetSetupWidget::hasSelectableBuildConfigurations() const
