@@ -379,6 +379,7 @@ namespace {
 {
     if constexpr (useProjectStorage()) {
         auto qmlRootPath = qmlPath(target);
+        qmldirPaths.push_back(qmlRootPath + "/QML");
         qmldirPaths.push_back(qmlRootPath + "/QtQml");
         qmldirPaths.push_back(qmlRootPath + "/QtQuick");
         qmldirPaths.push_back(qmlRootPath + "/QtQuick3D");
@@ -390,6 +391,7 @@ namespace {
 {
     if constexpr (useProjectStorage()) {
         auto qmlRootPath = QLibraryInfo::path(QLibraryInfo::QmlImportsPath);
+        qmldirPaths.push_back(qmlRootPath + "/QML");
         qmldirPaths.push_back(qmlRootPath + "/QtQml");
         qmldirPaths.push_back(qmlRootPath + "/QtQuick");
     }

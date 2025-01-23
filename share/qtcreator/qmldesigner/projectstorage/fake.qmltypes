@@ -284,10 +284,6 @@ Component {
 }
 
 Component {
-  name: "Qt::InputMethodHints"
-}
-
-Component {
   name: "QRgb"
 }
 
