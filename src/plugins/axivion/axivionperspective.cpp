@@ -402,7 +402,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setWidgetResizable(true);
 
-    connect(&settings(), &AxivionSettings::changed,
+    connect(&settings(), &AxivionSettings::serversChanged,
             this, [this] { initDashboardList(); });
 }
 

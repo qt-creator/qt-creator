@@ -293,7 +293,7 @@ bool AxivionSettings::updateDashboardServers(const QList<AxivionServer> &other,
 
     m_defaultServerId.setValue(selected.toString(), BeQuiet);
     m_allServers = other;
-    emit changed(); // should we be more detailed? (id)
+    emit serversChanged(); // should we be more detailed? (id)
 
     const LoopList iterator(keysToRemove);
 

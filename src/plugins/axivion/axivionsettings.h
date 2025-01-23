@@ -51,6 +51,7 @@ public:
 
 class AxivionSettings : public Utils::AspectContainer
 {
+    Q_OBJECT
 public:
     AxivionSettings();
 
@@ -65,6 +66,8 @@ public:
     const QList<PathMapping> validPathMappings() const;
 
     Utils::BoolAspect highlightMarks{this};
+signals:
+    void serversChanged();
 private:
     Utils::StringAspect m_defaultServerId{this};
     QList<AxivionServer> m_allServers;
