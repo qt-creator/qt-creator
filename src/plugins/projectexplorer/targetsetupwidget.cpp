@@ -126,11 +126,19 @@ void TargetSetupWidget::addBuildInfo(const BuildInfo &info, bool isImport)
     store.buildInfo = info;
     store.isEnabled = info.enabledByDefault;
     store.hasIssues = false;
+    store.isImported = isImport;
 
-    const auto it
-        = std::find_if(m_infoStore.begin(), m_infoStore.end(), [&info](const BuildInfoStore &bsi) {
-              return bsi.buildInfo.buildDirectory == info.buildDirectory;
-          });
+    // imported configurations may overwrite non-imported configurations,
+    // but nothing else overwrites anything
+    const auto it = isImport
+                        ? std::find_if(
+                              m_infoStore.begin(),
+                              m_infoStore.end(),
+                              [&info](const BuildInfoStore &bsi) {
+                                  return !bsi.isImported
+                                         && bsi.buildInfo.buildDirectory == info.buildDirectory;
+                              })
+                        : m_infoStore.end();
     const bool replace = it != m_infoStore.end();
     const int pos = replace ? std::distance(m_infoStore.begin(), it) : int(m_infoStore.size());
     if (!replace || (isImport && m_selected == 0))
@@ -405,6 +413,7 @@ TargetSetupWidget::BuildInfoStore &TargetSetupWidget::BuildInfoStore::operator=(
     std::swap(other.pathChooser, pathChooser);
     std::swap(other.isEnabled, isEnabled);
     std::swap(other.hasIssues, hasIssues);
+    std::swap(other.isImported, isImported);
     return *this;
 }
 
