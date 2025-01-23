@@ -40,6 +40,7 @@ ExtensionManagerSettings::ExtensionManagerSettings()
 
     setLayouter([this] {
         using namespace Layouting;
+        using namespace Core;
         return Column {
             Group {
                 title(Tr::tr("Note")),
@@ -65,9 +66,10 @@ ExtensionManagerSettings::ExtensionManagerSettings()
                 PushButton {
                     text(Tr::tr("Install Extension...")),
                     onClicked(this, [] {
-                        if (Core::executePluginInstallWizard())
-                            Core::ICore::askForRestart(
-                                    Tr::tr("Plugin changes will take effect after restart."));
+                        if (executePluginInstallWizard() == InstallResult::NeedsRestart) {
+                            ICore::askForRestart(
+                                Tr::tr("Plugin changes will take effect after restart."));
+                        }
                     }),
                 },
                 st,
