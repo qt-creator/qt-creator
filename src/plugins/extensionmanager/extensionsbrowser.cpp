@@ -701,6 +701,11 @@ void ExtensionsBrowser::showEvent(QShowEvent *event)
     QWidget::showEvent(event);
 }
 
+QModelIndex ExtensionsBrowser::currentIndex() const
+{
+    return d->selectionModel->currentIndex();
+}
+
 void ExtensionsBrowser::fetchExtensions()
 {
 #ifdef WITH_TESTS

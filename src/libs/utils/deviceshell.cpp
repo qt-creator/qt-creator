@@ -88,13 +88,12 @@ RunResult DeviceShell::run(const CommandLine &cmd, const QByteArray &stdInData)
         qCDebug(deviceShellLog) << "Running fallback:" << fallbackCmd;
         proc.setCommand(fallbackCmd);
         proc.setWriteData(stdInData);
-        proc.runBlocking();
-
-        return RunResult{
-            proc.exitCode(),
-            proc.rawStdOut(),
-            proc.rawStdErr()
-        };
+        // Practically unlimited timeout since we are most probably running dd for copying
+        // data to a device here (=deployment), so a) we have no idea how long that might take
+        // for large files, and b) the user can cancel this manually.
+        proc.runBlocking(/*timout=*/1h);
+        // TODO This misses interesting data like proc.errorMessage() and/or proc.exitMessage()
+        return RunResult{proc.exitCode(), proc.rawStdOut(), proc.rawStdErr()};
     }
 
     const RunResult errorResult{-1, {}, {}};

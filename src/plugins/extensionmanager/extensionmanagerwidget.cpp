@@ -716,6 +716,7 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QStrin
         storage,
         NetworkQueryTask{onQuerySetup, onQueryDone},
         Sync{onPluginInstallation},
+        Sync{[this]() { updateView(m_extensionBrowser->currentIndex()); }},
         NetworkQueryTask{onDownloadSetup, onDownloadDone},
     };
 

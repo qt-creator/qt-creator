@@ -321,7 +321,17 @@ public:
 
         setupLuaExpander(globalMacroExpander());
 
-        pluginSpecsFromArchiveFactories().push_back([](const FilePath &path) {
+        pluginSpecsFromArchiveFactories().push_back([](const FilePath &path) -> QList<PluginSpec *> {
+            if (path.isFile()) {
+                if (path.suffix() == "lua") {
+                    Utils::expected_str<PluginSpec *> spec = loadPlugin(path);
+                    QTC_CHECK_EXPECTED(spec);
+                    if (spec)
+                        return {*spec};
+                }
+                return {};
+            }
+
             QList<PluginSpec *> plugins;
             auto dirs = path.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
             for (const auto &dir : dirs) {
