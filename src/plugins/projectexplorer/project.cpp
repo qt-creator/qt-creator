@@ -169,7 +169,7 @@ public:
     bool m_needsInitialExpansion = false;
     bool m_canBuildProducts = false;
     bool m_hasMakeInstallEquivalent = false;
-    bool m_needsBuildConfigurations = true;
+    bool m_supportsBuilding = true;
     bool m_shuttingDown = false;
 
     std::function<BuildSystem *(Target *)> m_buildSystemCreator;
@@ -656,8 +656,7 @@ bool Project::copySteps(const Utils::Store &store, Kit *targetKit)
 
 bool Project::setupTarget(Target *t)
 {
-    if (d->m_needsBuildConfigurations)
-        t->updateDefaultBuildConfigurations();
+    t->updateDefaultBuildConfigurations();
     t->updateDefaultDeployConfigurations();
     t->updateDefaultRunConfigurations();
     return true;
@@ -1037,9 +1036,9 @@ void Project::setHasMakeInstallEquivalent(bool enabled)
     d->m_hasMakeInstallEquivalent = enabled;
 }
 
-void Project::setNeedsBuildConfigurations(bool value)
+void Project::setSupportsBuilding(bool value)
 {
-    d->m_needsBuildConfigurations = value;
+    d->m_supportsBuilding = value;
 }
 
 Task Project::createProjectTask(Task::TaskType type, const QString &description)
@@ -1091,9 +1090,9 @@ bool Project::needsConfiguration() const
     return d->m_targets.size() == 0;
 }
 
-bool Project::needsBuildConfigurations() const
+bool Project::supportsBuilding() const
 {
-    return d->m_needsBuildConfigurations;
+    return d->m_supportsBuilding;
 }
 
 void Project::configureAsExampleProject(Kit * /*kit*/)

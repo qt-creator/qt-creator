@@ -136,7 +136,7 @@ public:
     Utils::EnvironmentItems additionalEnvironment() const;
 
     virtual bool needsConfiguration() const;
-    bool needsBuildConfigurations() const;
+    bool supportsBuilding() const;
     virtual void configureAsExampleProject(ProjectExplorer::Kit *kit);
 
     virtual ProjectImporter *projectImporter() const;
@@ -235,7 +235,7 @@ protected:
     void setProjectLanguages(Core::Context language);
     void setHasMakeInstallEquivalent(bool enabled);
 
-    void setNeedsBuildConfigurations(bool value);
+    void setSupportsBuilding(bool value);
 
     static ProjectExplorer::Task createProjectTask(ProjectExplorer::Task::TaskType type,
                                                    const QString &description);

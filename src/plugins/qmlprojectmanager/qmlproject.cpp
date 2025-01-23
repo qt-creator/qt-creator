@@ -50,7 +50,7 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID));
     setDisplayName(fileName.completeBaseName());
 
-    setNeedsBuildConfigurations(false);
+    setSupportsBuilding(false);
     setBuildSystemCreator<QmlBuildSystem>();
 
     if (Core::ICore::isQtDesignStudio()) {

@@ -773,7 +773,7 @@ void TargetItem::updateSubItems()
         m_currentChild = DefaultPage; // We will add children below.
     removeChildren();
     if (isEnabled() && !m_kitErrorsForProject) {
-        if (m_project->needsBuildConfigurations())
+        if (m_project->supportsBuilding())
             appendChild(new BuildOrRunItem(m_project, m_kitId, BuildOrRunItem::BuildPage));
         appendChild(new BuildOrRunItem(m_project, m_kitId, BuildOrRunItem::RunPage));
     }
