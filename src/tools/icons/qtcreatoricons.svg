@@ -5545,13 +5545,13 @@
            sodipodi:nodetypes="cc"
            inkscape:connector-curvature="0"
            id="path4755"
-           d="m 506.5,570 c 0,6.5 0.40625,6.5 5.40625,6.5625"
+           d="m 506.5,570 c 0,4 0.5,4.5 5.40625,4.5625"
            style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
         <path
            sodipodi:nodetypes="cccc"
            inkscape:connector-curvature="0"
            id="path4757"
-           d="m 510,579.5 3,-3 -3,-3 z"
+           d="m 510,577.5 3,-3 -3,-3 z"
            style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
       </g>
     </g>
@@ -5578,7 +5578,7 @@
          id="use4766">
         <path
            style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           d="m 505.74408,571.7441 c 1e-5,4 1,4.5 7,4.5"
+           d="m 507.74408,571.7441 c 0,4 1,4.5 5,4.5"
            id="path4772"
            inkscape:connector-curvature="0"
            sodipodi:nodetypes="cc" />
