@@ -344,9 +344,71 @@
     In the \uicontrol {Git Log} view, select a commit identifier to view commit
     details.
 
-    Right-click a commit identifier to \l{Apply actions to commits}
-    {apply actions to the commit}, such as cherry-pick, checkout,
-    or revert it.
+    Right-click a commit identifier to apply actions to the commit.
+
+    \table
+        \header
+            \li Menu Item
+            \li Description
+            \li Learn More
+        \row
+            \li \uicontrol {Add Tag for <hash>}
+            \li Add a tag reference to the change.
+            \li
+        \row
+            \li \uicontrol {Checkout <hash>}
+            \li Check out the commit in a headless state.
+            \li
+        \row
+            \li \uicontrol {Cherry-Pick <hash>}
+            \li Cherry-pick the selected commit to the current branch.
+            \li
+        \row
+            \li \uicontrol {Create branch from <hash>}
+            \li Create a branch based on the commit.
+            \li \l {git branch}
+        \row
+            \li \uicontrol {Copy <hash>}
+            \li Copy the commit's <hash> to the clipboard.
+            \li
+        \row
+            \li \uicontrol {Describe Change <hash>}
+            \li View a description of the change including the diff in the
+                \uicontrol {Git Show} view.
+            \li
+        \row
+            \li \uicontrol {Diff Against <hash>}
+            \li Show the changes between the commit and the current HEAD.
+            \li \l {git diff}
+        \row
+            \li \uicontrol {Interactive Rebase from <hash>}
+            \li Rebase the current branch on top of <hash>, and choose what to do
+                with each commit.
+            \li \l {Interactive rebase}
+        \row
+            \li \uicontrol {Log for <hash>}
+            \li Show the versioning history the commit.
+            \li
+        \row
+            \li \uicontrol {Reset to Change <hash>}
+            \li Reset the working directory to the commit.
+            \li \l {git reset}
+        \row
+            \li \uicontrol {Revert <hash>}
+            \li Revert the changes introduced by this commit. All other commits
+                remain unchanged.
+            \li
+        \row
+            \li \uicontrol {Save for Diff}
+            \li Save to the current commit to prepare for
+                \uicontrol {Diff Against Saved <hash>}.
+            \li
+\row
+            \li \uicontrol {Diff Against Saved <hash>}
+            \li Show the changes between the commit and the saved <hash>.
+            \li \l {git diff}
+    \endtable
+
 
     \section1 Toggle the diff view
 
@@ -400,7 +462,7 @@
     \section1 Show details
 
     To display a description of the change including the diff in the
-    \uicontrol {Git Show} view, select \uicontrol {Describe Change} in the
+    \uicontrol {Git Show} view, select \uicontrol {Describe Change <hash>} in the
     context menu.
 
     \image qtcreator-vcs-show.png {Commit description in Git Show}
@@ -775,7 +837,7 @@
 
     To start the interactive rebase from the change log, go to \uicontrol Tools
     > \uicontrol Git > \uicontrol Branches > \uicontrol Log. Select the change,
-    and then select \uicontrol {Interactive Rebase from Change} in the context
+    and then select \uicontrol {Interactive Rebase from <hash>} in the context
     menu.
 
     \if defined(qtcreator)
@@ -815,7 +877,7 @@
 
     To add a tag to a change in the change log, select \uicontrol Branches >
     \uicontrol Log. Select the change, and then select \uicontrol {Add Tag
-    for Change} in the context menu.
+    for <hash>} in the context menu.
 
     If you checked out a specific commit, the list of branches displays a
     \e {Detached HEAD} entry.
@@ -1194,7 +1256,7 @@
 
     \table
         \header
-            \li Action
+            \li Menu Item
             \li Description
         \row
             \li Blame <hash>

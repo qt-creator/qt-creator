@@ -159,7 +159,8 @@ Version Control Systems
 
 ### Git
 
-* Added `Create Branch From` to the context menu on commits
+* Added `Create Branch From` to the context menu on commits in `Git Log`
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-16.0/creator-how-to-git-log.html))
 * Added the option to show the log of the branch in the submit editor by
   clicking on it
 * Added the action `Status (Including All Untracked)`, and changed the standard
