@@ -988,7 +988,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         time.start();
 
 #ifndef QDS_USE_PROJECTSTORAGE
-    if (m_rewriterView->isDocumentRewriterView()) {
+    if (m_rewriterView->isDocumentRewriterView() && Utils::HostOsInfo::isWindowsHost()) {
         ModelManagerInterface::instance()->waitForFinished();
         static bool firstTimeLoad = true;
         if (firstTimeLoad)
