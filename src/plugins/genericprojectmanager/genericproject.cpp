@@ -22,6 +22,7 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projectnodes.h>
@@ -160,6 +161,61 @@ private:
 
     FileSystemWatcher m_deployFileWatcher;
 };
+
+//
+// GenericBuildConfiguration
+//
+
+class GenericBuildConfiguration final : public BuildConfiguration
+{
+public:
+    GenericBuildConfiguration(Target *target, Id id)
+        : BuildConfiguration(target, id)
+    {
+        setConfigWidgetDisplayName(GenericProjectManager::Tr::tr("Generic Manager"));
+        setBuildDirectoryHistoryCompleter("Generic.BuildDir.History");
+
+        setInitializer([this](const BuildInfo &) {
+            buildSteps()->appendStep(Constants::GENERIC_MS_ID);
+            cleanSteps()->appendStep(Constants::GENERIC_MS_ID);
+            updateCacheAndEmitEnvironmentChanged();
+        });
+
+        updateCacheAndEmitEnvironmentChanged();
+    }
+
+    void addToEnvironment(Environment &env) const final
+    {
+        QtSupport::QtKitAspect::addHostBinariesToPath(kit(), env);
+    }
+};
+
+class GenericBuildConfigurationFactory final : public BuildConfigurationFactory
+{
+public:
+    GenericBuildConfigurationFactory()
+    {
+        registerBuildConfiguration<GenericBuildConfiguration>
+            ("GenericProjectManager.GenericBuildConfiguration");
+
+        setSupportedProjectType(Constants::GENERICPROJECT_ID);
+        setSupportedProjectMimeTypeName(Constants::GENERICMIMETYPE);
+
+        setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
+            BuildInfo info;
+            info.typeName = ProjectExplorer::Tr::tr("Build");
+            info.buildDirectory = forSetup ? projectPath.absolutePath() : projectPath;
+
+            if (forSetup)  {
+                //: The name of the build configuration created by default for a generic project.
+                info.displayName = ProjectExplorer::Tr::tr("Default");
+            }
+
+            return QList<BuildInfo>{info};
+        });
+    }
+};
+
 
 //
 // GenericProject
@@ -725,6 +781,8 @@ void GenericProject::removeFilesTriggered(const FilePaths &filesToRemove)
 
 void setupGenericProject(QObject *guard)
 {
+    static GenericBuildConfigurationFactory theGenericBuildConfigurationFactory;
+
     namespace PEC = ProjectExplorer::Constants;
 
     ProjectManager::registerProjectType<GenericProject>(Constants::GENERICMIMETYPE);
