@@ -418,7 +418,7 @@ MetaInfo {
             libraryIcon: "images/particle-system-24px.png"
             version: "6.2"
             requiredImport: "QtQuick3D.Particles3D"
-            QmlSource { source: "./source/particleeffect_rainmist.qml" }
+            QmlSource { source: "source/particleeffect_rainmist.qml" }
             ExtraFile { source: "images/smoke2.png" }
         }
         ItemLibraryEntry {
