@@ -117,8 +117,8 @@ static NimbleMetadata parseMetadata(const FilePath &nimblePath, const FilePath &
     return result;
 }
 
-NimbleBuildSystem::NimbleBuildSystem(Target *target)
-    : BuildSystem(target), m_projectScanner(target->project())
+NimbleBuildSystem::NimbleBuildSystem(BuildConfiguration *bc)
+    : BuildSystem(bc), m_projectScanner(bc->project())
 {
     m_projectScanner.watchProjectFilePath();
 
@@ -140,9 +140,9 @@ NimbleBuildSystem::NimbleBuildSystem(Target *target)
             requestDelayedParse();
     });
 
-    connect(target->project(), &ProjectExplorer::Project::settingsLoaded,
+    connect(bc->project(), &ProjectExplorer::Project::settingsLoaded,
             this, &NimbleBuildSystem::loadSettings);
-    connect(target->project(), &ProjectExplorer::Project::aboutToSaveSettings,
+    connect(bc->project(), &ProjectExplorer::Project::aboutToSaveSettings,
             this, &NimbleBuildSystem::saveSettings);
     requestDelayedParse();
 }
@@ -286,7 +286,10 @@ class NimbleBuildConfiguration : public ProjectExplorer::BuildConfiguration
         });
     }
 
+    ~NimbleBuildConfiguration() { delete m_buildSystem; }
+
     BuildType buildType() const override { return m_buildType; }
+    BuildSystem *buildSystem() const override { return m_buildSystem; }
 
     void fromMap(const Utils::Store &map) override
     {
@@ -310,6 +313,7 @@ private:
         emit buildTypeChanged();
     }
 
+    NimbleBuildSystem * const m_buildSystem{new NimbleBuildSystem(this)};
     BuildType m_buildType = ProjectExplorer::BuildConfiguration::Unknown;
 };
 
@@ -348,7 +352,6 @@ NimbleProject::NimbleProject(const FilePath &fileName)
     setDisplayName(fileName.completeBaseName());
     // ensure debugging is enabled (Nim plugin translates nim code to C code)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
-    setBuildSystemCreator<NimbleBuildSystem>();
 }
 
 void NimbleProject::toMap(Store &map) const
