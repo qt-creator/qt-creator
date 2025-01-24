@@ -1,4 +1,4 @@
-// Copyright (C) 2024 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -28,13 +28,16 @@
                 \li Right-click anywhere in the \uicontrol Assets view (1) and select
                     \uicontrol {New Effect}. Name your effect composition and select
                     \uicontrol Create.
-                \li Open the \uicontrol {Effect Composer} view (2), select \uicontrol {Add Effect},
-                    and then select the effects you wish to use from the dropdown menu. You can
-                    also add a \l {Using a custom effect in an effect composition}{Custom} effect
-                    as a part of your effect composition. The added effects appear in the effect stack
-                    (3). You cannot add the same pre-made effect twice to the composition. You can,
-                    however, add more than one custom effect to the same composition.
+                \li Open the \uicontrol {Effect Composer} view (2). If
+                    \uicontrol {Effect Composer} shows a previous effect composition,
+                    select \imageplus to create a new one.
             \endlist
+        \li To add effects to your composition, select \uicontrol {Add Effect}, and
+            then select the effects you wish to use from the dropdown menu. You can
+            also add a \l {Using a custom effect in an effect composition}{Custom} effect
+            as a part of your effect composition. The added effects appear in the effect stack
+            (3). You cannot add the same pre-made effect twice to the composition. You can,
+            however, add more than one custom effect to the same composition.
         \li Adjust the effect parameters to modify your effect composition. View the preview panel
             (4) to see how the composition affects a component before assigning it to one. Use the
             preview panel toolbar to select the preview image and the preview panel background
@@ -65,31 +68,31 @@
         custom effect.
     \endlist
 
-    \section1 Adding custom properties to an effect composition
+    \section1 Adding custom properties to an effect
 
     You can use custom properties in your effect composition, for example, to modify pre-made
     effects or to create completely unique effects. You can set the name, description, type, and
     default value for your custom property.
 
-    To add a custom property to any effect composition:
+    To add a custom property to any effect in your effect composition:
 
     \list 1
-        \li Select \imageadvancedCodeView to enable advanced mode.
+        \li Select \imageadvancedCodeView to enable the advanced mode.
         \li Select \uicontrol {Add Property}.
         \li Edit the property and select \uicontrol Apply.
     \endlist
 
     To make properties effective, use them in the shader code. For more information, see
-    \l {Modifying the shader code of an effect composition}.
+    \l {Modifying the shader code of an effect}.
 
     You can edit the custom properties you create and also customize the properties of pre-made
     effects. To edit a property, select \imagemorebutton > \uicontrol Edit.
 
     To remove a property from your effect composition, select \imagemorebutton > \uicontrol Remove.
 
-    \section1 Modifying the shader code of an effect composition
+    \section1 Modifying the shader code of an effect
 
-    You can modify the shader code of your effect composition using
+    You can modify the shader code of an effect in your effect composition using
     \uicontrol {Shaders Code Editor}.
 
     \image shaders-code-editor.webp Shaders Code Editor
@@ -144,6 +147,37 @@
             node, such as BlurHelper or NoiseHelper.
     \endtable
 
+    \section1 Using shaders from Shadertoy
+
+    Copy shaders as code from \l{https://www.shadertoy.com/}{Shadertoy} and use them as a part of your
+    effect composition.
+
+    First, add a \l{Using a custom effect in an effect composition}{custom effect} to your effect
+    composition. Then, copy the shader code and paste it to \uicontrol {Shaders Code Editor}:
+        \list 1
+            \li Copy the functions of the shader and paste them to before the \c {@main} tag.
+            \li Copy the code inside \c {mainImage} and paste it after the \c {@main} tag, inside {}.
+        \endlist
+
+    \uicontrol {Effect Composer} doesn't support all the features of Shadertoy:
+        \list
+            \li Effects with multipass (buffer tabs) can't be created.
+            \li Audio, cubemaps and 3D textures are not supported.
+            \li Currently iMouse has not been implemented
+        \endlist
+
+    For more information, see \l {Using a shader from Shadertoy in Effect Composer}.
+
+    \note Shadertoy only supports fragment shaders and built-in textures. You may achieve
+    better performance by moving some of the calculations to a vertex shader.
+
+    \note The origin (0,0) of the Qt coordinate system is in top-left corner, while it is in
+    the bottom-left corner in the Shadertoy and OpenGL coordinate systems. If this is important
+    for the effect, consider flipping the y-coordinate of the shader in a suitable way. For
+    example, to flip fragCoord in Main node, switch to
+    \c {fragCoord = vec2(qt_Vertex.x, iResolution.y - qt_Vertex.y)}. You may need to adjust
+    \c texCoord in a similar manner.
+
     \section1 Assigning an effect composition to a component
 
     To assign your newly created effect composition to a component, do one of the following:
@@ -160,7 +194,7 @@
 
     \section1 Editing effect compositions
 
-    To edit an effect composition in the \uicontrol {Effect Composer}, do one
+    To edit an effect composition in \uicontrol {Effect Composer}, do one
     of the following:
 
     \list
