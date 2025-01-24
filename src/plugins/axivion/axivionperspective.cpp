@@ -36,6 +36,7 @@
 #include <utils/basetreeview.h>
 #include <utils/utilsicons.h>
 #include <utils/overlaywidget.h>
+#include <utils/shutdownguard.h>
 
 #include <QButtonGroup>
 #include <QClipboard>
@@ -1049,8 +1050,7 @@ private:
 class AxivionPerspective : public Perspective
 {
 public:
-    AxivionPerspective() : Perspective("Axivion.Perspective", Tr::tr("Axivion")) {}
-    void initPerspective();
+    AxivionPerspective();
 
     void handleShowIssues(const QString &kind);
     void handleShowFilterException(const QString &errorMessage);
@@ -1067,7 +1067,8 @@ private:
     LazyImageBrowser *m_issueDetails = nullptr;
 };
 
-void AxivionPerspective::initPerspective()
+AxivionPerspective::AxivionPerspective()
+    : Perspective("Axivion.Perspective", Tr::tr("Axivion"))
 {
     m_issuesWidget = new IssuesWidget;
     m_issuesWidget->setObjectName("AxivionIssuesWidget");
@@ -1232,66 +1233,69 @@ void AxivionPerspective::updateNamedFilters()
     m_issuesWidget->updateNamedFilters();
 }
 
-static QPointer<AxivionPerspective> theAxivionPerspective;
-
-void setupAxivionPerspective()
+static AxivionPerspective *axivionPerspective()
 {
-    QTC_ASSERT(!theAxivionPerspective, return);
-    theAxivionPerspective = new AxivionPerspective();
-    theAxivionPerspective->initPerspective();
+    static GuardedObject<AxivionPerspective> theAxivionPerspective;
+    return theAxivionPerspective.get();
 }
 
 void updateDashboard()
 {
-    QTC_ASSERT(theAxivionPerspective, return);
-    theAxivionPerspective->handleShowIssues({});
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->handleShowIssues({});
 }
 
 void reinitDashboard(const QString &preferredProject)
 {
-    QTC_ASSERT(theAxivionPerspective, return);
-    theAxivionPerspective->reinitDashboardList(preferredProject);
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->reinitDashboardList(preferredProject);
 }
 
 void resetDashboard()
 {
-    QTC_ASSERT(theAxivionPerspective, return);
-    theAxivionPerspective->resetDashboard();
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->resetDashboard();
 }
 
 static bool issueListContextMenuEvent(const ItemViewEvent &ev)
 {
-    QTC_ASSERT(theAxivionPerspective, return false);
+    QTC_ASSERT(axivionPerspective(), return false);
     const QModelIndexList selectedIndices = ev.selectedRows();
     const QModelIndex first = selectedIndices.isEmpty() ? QModelIndex() : selectedIndices.first();
     if (!first.isValid())
         return false;
     const QString issue = first.data().toString();
-    return theAxivionPerspective->handleContextMenu(issue, ev);
+    return axivionPerspective()->handleContextMenu(issue, ev);
 }
 
 void showFilterException(const QString &errorMessage)
 {
-    QTC_ASSERT(theAxivionPerspective, return);
-    theAxivionPerspective->handleShowFilterException(errorMessage);
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->handleShowFilterException(errorMessage);
 }
 
 void showErrorMessage(const QString &errorMessage)
 {
-    QTC_ASSERT(theAxivionPerspective, return);
-    theAxivionPerspective->handleShowErrorMessage(errorMessage);
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->handleShowErrorMessage(errorMessage);
 }
 
 void updateIssueDetails(const QString &html)
 {
-    QTC_ASSERT(theAxivionPerspective, return);
-    theAxivionPerspective->setIssueDetailsHtml(html);
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->setIssueDetailsHtml(html);
 }
 
 void updateNamedFilters()
 {
-    QTC_ASSERT(theAxivionPerspective, return);
-    theAxivionPerspective->updateNamedFilters();
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->updateNamedFilters();
+}
+
+void setupAxivionPerspective()
+{
+    // Trigger initialization.
+    (void) axivionPerspective();
 }
 
 } // Axivion::Internal

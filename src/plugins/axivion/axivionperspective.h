@@ -7,7 +7,6 @@
 
 namespace Axivion::Internal {
 
-void setupAxivionPerspective();
 void updateDashboard();
 void showFilterException(const QString &errorMessage);
 void showErrorMessage(const QString &errorMessage);
@@ -15,5 +14,7 @@ void reinitDashboard(const QString &projectName);
 void resetDashboard();
 void updateIssueDetails(const QString &html);
 void updateNamedFilters();
+
+void setupAxivionPerspective();
 
 } // Axivion::Internal
