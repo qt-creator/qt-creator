@@ -3,10 +3,11 @@
 
 #include "nimblerunconfiguration.h"
 
-#include "nimbuildsystem.h"
 #include "nimconstants.h"
+#include "nimproject.h"
 #include "nimtr.h"
 
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>

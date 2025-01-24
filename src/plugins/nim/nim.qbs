@@ -38,8 +38,6 @@ QtcPlugin {
         name: "Project"
         prefix: "project/"
         files: [
-            "nimbuildsystem.cpp", "nimbuildsystem.h",
-            "nimbuildconfiguration.h", "nimbuildconfiguration.cpp",
             "nimcompilerbuildstep.h", "nimcompilerbuildstep.cpp",
             "nimcompilercleanstep.h", "nimcompilercleanstep.cpp",
             "nimoutputtaskparser.h", "nimoutputtaskparser.cpp",
@@ -50,8 +48,6 @@ QtcPlugin {
             "nimbleproject.h", "nimbleproject.cpp",
             "nimblerunconfiguration.h", "nimblerunconfiguration.cpp",
             "nimbletaskstep.h", "nimbletaskstep.cpp",
-            "nimblebuildsystem.h", "nimblebuildsystem.cpp",
-            "nimblebuildconfiguration.h", "nimblebuildconfiguration.cpp",
         ]
     }
 

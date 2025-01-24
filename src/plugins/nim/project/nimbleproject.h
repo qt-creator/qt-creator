@@ -3,9 +3,62 @@
 
 #pragma once
 
+#include "nimproject.h"
+
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 
 namespace Nim {
+
+struct NimbleTask
+{
+    QString name;
+    QString description;
+
+    bool operator==(const NimbleTask &o) const {
+        return name == o.name && description == o.description;
+    }
+};
+
+class NimbleBuildSystem final : public ProjectExplorer::BuildSystem
+{
+    Q_OBJECT
+
+public:
+    NimbleBuildSystem(ProjectExplorer::Target *target);
+
+    std::vector<NimbleTask> tasks() const;
+
+signals:
+    void tasksChanged();
+
+private:
+    void loadSettings();
+    void saveSettings();
+
+    void updateProject();
+
+    bool supportsAction(ProjectExplorer::Node *,
+                        ProjectExplorer::ProjectAction action,
+                        const ProjectExplorer::Node *node) const override;
+    bool addFiles(ProjectExplorer::Node *node,
+                  const Utils::FilePaths &filePaths, Utils::FilePaths *) override;
+    ProjectExplorer::RemovedFilesFromProject removeFiles(ProjectExplorer::Node *node,
+                                                         const Utils::FilePaths &filePaths,
+                                                         Utils::FilePaths *) override;
+    bool deleteFiles(ProjectExplorer::Node *, const Utils::FilePaths &) override;
+    bool renameFiles(
+        ProjectExplorer::Node *,
+        const Utils::FilePairs &filesToRename,
+        Utils::FilePaths *notRenamed) override;
+    QString name() const final { return QLatin1String("mimble"); }
+    void triggerParsing() final;
+
+    std::vector<NimbleTask> m_tasks;
+
+    NimProjectScanner m_projectScanner;
+    ParseGuard m_guard;
+};
 
 class NimbleProject final : public ProjectExplorer::Project
 {

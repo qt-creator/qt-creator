@@ -243,9 +243,10 @@ protected:
     void setBuildSystemCreator() {
         setBuildSystemCreator([](Target *t) { return new BuildSystemImpl(t); });
     }
-    void setBuildSystemCreator(const std::function<BuildSystem *(Target *)> &creator);
 
 private:
+    void setBuildSystemCreator(const std::function<BuildSystem *(Target *)> &creator);
+
     void addTarget(std::unique_ptr<Target> &&target);
 
     void addProjectLanguage(Utils::Id id);

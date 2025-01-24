@@ -4,12 +4,10 @@
 #include "nimconstants.h"
 #include "nimtr.h"
 #include "editor/nimeditorfactory.h"
-#include "project/nimblebuildconfiguration.h"
 #include "project/nimblebuildstep.h"
 #include "project/nimbleproject.h"
 #include "project/nimblerunconfiguration.h"
 #include "project/nimbletaskstep.h"
-#include "project/nimbuildconfiguration.h"
 #include "project/nimcompilerbuildstep.h"
 #include "project/nimcompilercleanstep.h"
 #include "project/nimoutputtaskparser.h"
@@ -44,8 +42,6 @@ class NimPluginPrivate
 {
 public:
     NimEditorFactory editorFactory;
-    NimBuildConfigurationFactory buildConfigFactory;
-    NimbleBuildConfigurationFactory nimbleBuildConfigFactory;
     NimRunConfigurationFactory nimRunConfigFactory;
     NimbleRunConfigurationFactory nimbleRunConfigFactory;
     NimbleTestConfigurationFactory nimbleTestConfigFactory;
