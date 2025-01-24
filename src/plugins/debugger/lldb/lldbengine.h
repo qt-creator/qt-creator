@@ -116,9 +116,7 @@ private:
     Utils::Process m_lldbProc;
 
     // FIXME: Make generic.
-    int m_lastAgentId = 0;
     int m_continueAtNextSpontaneousStop = false;
-    QMap<QPointer<DisassemblerAgent>, int> m_disassemblerAgents;
 
     QHash<int, DebuggerCommand> m_commandForToken;
     DebuggerCommandSequence m_onStop;
