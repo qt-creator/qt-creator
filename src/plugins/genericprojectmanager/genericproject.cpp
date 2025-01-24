@@ -101,7 +101,7 @@ private:
 class GenericBuildSystem final : public BuildSystem
 {
 public:
-    explicit GenericBuildSystem(Target *target);
+    explicit GenericBuildSystem(BuildConfiguration *bc);
     ~GenericBuildSystem();
 
     void triggerParsing() final;
@@ -170,7 +170,7 @@ class GenericBuildConfiguration final : public BuildConfiguration
 {
 public:
     GenericBuildConfiguration(Target *target, Id id)
-        : BuildConfiguration(target, id)
+        : BuildConfiguration(target, id), m_buildSystem(new GenericBuildSystem(this))
     {
         setConfigWidgetDisplayName(GenericProjectManager::Tr::tr("Generic Manager"));
         setBuildDirectoryHistoryCompleter("Generic.BuildDir.History");
@@ -184,10 +184,17 @@ public:
         updateCacheAndEmitEnvironmentChanged();
     }
 
+    ~GenericBuildConfiguration() { delete m_buildSystem; }
+
+private:
     void addToEnvironment(Environment &env) const final
     {
         QtSupport::QtKitAspect::addHostBinariesToPath(kit(), env);
     }
+
+    BuildSystem *buildSystem() const { return m_buildSystem; }
+
+    GenericBuildSystem * const m_buildSystem;
 };
 
 class GenericBuildConfigurationFactory final : public BuildConfigurationFactory
@@ -239,7 +246,6 @@ public:
         setId(Constants::GENERICPROJECT_ID);
         setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
         setDisplayName(filePath.completeBaseName());
-        setBuildSystemCreator<GenericBuildSystem>();
     }
 
     void editFilesTriggered();
@@ -251,12 +257,12 @@ private:
     void configureAsExampleProject(Kit *kit) final;
 };
 
-GenericBuildSystem::GenericBuildSystem(Target *target)
-    : BuildSystem(target)
+GenericBuildSystem::GenericBuildSystem(BuildConfiguration *bc)
+    : BuildSystem(bc)
 {
     m_cppCodeModelUpdater = ProjectUpdaterFactory::createCppProjectUpdater();
 
-    connect(target->project(), &Project::projectFileIsDirty, this, [this](const FilePath &p) {
+    connect(bc->project(), &Project::projectFileIsDirty, this, [this](const FilePath &p) {
         if (p.endsWith(".files"))
             refresh(Files);
         else if (p.endsWith(".includes") || p.endsWith(".config") || p.endsWith(".cxxflags")
@@ -296,13 +302,11 @@ GenericBuildSystem::GenericBuildSystem(Target *target)
     connect(&m_deployFileWatcher, &FileSystemWatcher::fileChanged,
             this, &GenericBuildSystem::updateDeploymentData);
 
-    connect(target, &Target::activeBuildConfigurationChanged, this, [this, target] {
-        if (target == project()->activeTarget())
-            refresh(Everything);
+    connect(bc->target(), &Target::activeBuildConfigurationChanged, this, [this] {
+        refresh(Everything);
     });
-    connect(project(), &Project::activeTargetChanged, this, [this, target] {
-        if (target == project()->activeTarget())
-            refresh(Everything);
+    connect(project(), &Project::activeTargetChanged, this, [this] {
+        refresh(Everything);
     });
 }
 
@@ -539,6 +543,11 @@ FilePath GenericBuildSystem::findCommonSourceRoot()
 
 void GenericBuildSystem::refresh(RefreshOptions options)
 {
+    // TODO: This stanza will have to appear in every BuildSystem and should eventually
+    //       be centralized.
+    if (this != project()->activeBuildSystem())
+        return;
+
     ParseGuard guard = guardParsingRun();
     parse(options);
 
