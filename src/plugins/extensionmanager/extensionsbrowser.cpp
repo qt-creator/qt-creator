@@ -718,7 +718,7 @@ void ExtensionsBrowser::fetchExtensions()
     using namespace Tasking;
 
     const auto onQuerySetup = [this](NetworkQuery &query) {
-        const QString url = "%1/api/v1/search";
+        const QString url = "%1/api/v1/getAll";
         const QString request = url.arg(settings().externalRepoUrl());
         query.setRequest(QNetworkRequest(QUrl::fromUserInput(request)));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
