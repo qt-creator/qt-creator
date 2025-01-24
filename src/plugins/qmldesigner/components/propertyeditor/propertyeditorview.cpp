@@ -571,6 +571,15 @@ void setupWidget(PropertyEditorQmlBackend *currentQmlBackend,
 
     return std::make_tuple(panePath, specificsPath);
 }
+
+[[maybe_unused]] QUrl createPaneUrl(Utils::SmallStringView panePath)
+{
+    if (panePath.empty())
+        return PropertyEditorQmlBackend::emptyPaneUrl();
+
+    return QUrl::fromLocalFile(QString{panePath});
+}
+
 } // namespace
 
 void PropertyEditorView::setupQmlBackend()
@@ -583,8 +592,9 @@ void PropertyEditorView::setupQmlBackend()
     auto specificQmlData = m_propertyEditorComponentGenerator.create(selfAndPrototypes,
                                                                      isEditableComponent);
     auto [panePath, specificsPath] = findPaneAndSpecificsPath(selfAndPrototypes, model()->pathCache());
+
     PropertyEditorQmlBackend *currentQmlBackend = getQmlBackend(m_qmlBackendHash,
-                                                                QUrl::fromLocalFile(QString{panePath}),
+                                                                createPaneUrl(panePath),
                                                                 m_imageCache,
                                                                 m_stackedWidget,
                                                                 this);
