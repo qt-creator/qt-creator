@@ -6,7 +6,6 @@
 #include "projectstorage.h"
 
 #include <designercoretr.h>
-#include <invalidmetainfoexception.h>
 
 #include <utils/algorithm.h>
 
