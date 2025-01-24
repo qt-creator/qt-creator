@@ -528,7 +528,6 @@ public:
     void start() override;
     void stop() final;
 
-    Port qmlServerPort() const;
     Port gdbServerPort() const;
     qint64 pid() const;
     bool isAppRunning() const;
@@ -634,13 +633,8 @@ void IosRunner::start()
         return;
     }
     if (m_device->type() == Ios::Constants::IOS_DEVICE_TYPE) {
-        IosDevice::ConstPtr iosDevice = std::dynamic_pointer_cast<const IosDevice>(m_device);
-        if (!m_device) {
-            reportFailure();
-            return;
-        }
         if (m_qmlDebugServices != NoQmlDebugServices)
-            m_qmlServerPort = iosDevice->nextPort();
+            m_qmlServerPort = Port(runControl()->qmlChannel().port());
     } else {
         IosSimulator::ConstPtr sim = std::dynamic_pointer_cast<const IosSimulator>(m_device);
         if (!sim) {
@@ -696,6 +690,13 @@ void IosRunner::handleGotServerPorts(IosToolHandler *handler, const FilePath &bu
 
     m_gdbServerPort = gdbPort;
     m_qmlServerPort = qmlPort;
+    // The run control so far knows about the port on the device side,
+    // but the QML Profiler has to actually connect to a corresponding
+    // local port. That port is reported here, so we need to adapt the runControl's
+    // "qmlChannel", so the QmlProfilerRunner uses the right port.
+    QUrl qmlChannel = runControl()->qmlChannel();
+    qmlChannel.setPort(qmlPort.number());
+    runControl()->setQmlChannel(qmlChannel);
 
     bool prerequisiteOk = false;
     if (cppDebug() && qmlDebug())
@@ -813,11 +814,6 @@ Port IosRunner::gdbServerPort() const
     return m_gdbServerPort;
 }
 
-Port IosRunner::qmlServerPort() const
-{
-    return m_qmlServerPort;
-}
-
 //
 // IosQmlProfilerSupport
 //
@@ -849,12 +845,7 @@ IosQmlProfilerSupport::IosQmlProfilerSupport(RunControl *runControl)
 
 void IosQmlProfilerSupport::start()
 {
-    QTcpServer server;
-    const bool isListening = server.listen(QHostAddress::LocalHost)
-                          || server.listen(QHostAddress::LocalHostIPv6);
-    QTC_ASSERT(isListening, return);
-
-    const Port qmlPort = m_runner->qmlServerPort();
+    const Port qmlPort = Port(runControl()->qmlChannel().port());
     if (qmlPort.isValid())
         reportStarted();
     else
@@ -909,6 +900,12 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
 
     IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(runControl->device());
     DebuggerRunParameters &rp = runParameters();
+    // TODO cannot use setupPortsGatherer() from DebuggerRunTool, because that also requests
+    // the "debugChannel", which then results in runControl trying to retrieve ports&URL for that
+    // via IDevice, which doesn't really work with the iOS setup, and also completely changes
+    // how the DebuggerRunTool works, breaking debugging on iOS <= 16 devices.
+    if (rp.isQmlDebugging())
+        runControl->requestQmlChannel();
 
     if (dev->type() == Ios::Constants::IOS_SIMULATOR_TYPE
         || dev->handler() == IosDevice::Handler::IosTool) {
@@ -978,7 +975,7 @@ void IosDebugSupport::start()
     }
 
     const Port gdbServerPort = m_iosRunner->gdbServerPort();
-    const Port qmlServerPort = m_iosRunner->qmlServerPort();
+    const Port qmlServerPort = Port(runControl()->qmlChannel().port());
     rp.setAttachPid(m_iosRunner->pid());
 
     const bool cppDebug = rp.isCppDebugging();
