@@ -75,7 +75,15 @@
 */
 /*!
     \externalpage https://doc.qt.io/QtForMCUs/qtul-getting-started-on-nxp.html
-    \title Getting Started on NXP
+    \title Getting started on NXP (BareMetal and FreeRTOS)
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-getting-started-on-nxp-linux.html
+    \title Getting started on NXP (Linux)
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-getting-started-on-nxp-zephyr.html
+    \title Getting started on NXP (Zephyr)
 */
 /*!
     \externalpage https://doc.qt.io/QtForMCUs/qtul-getting-started-on-infineon.html
