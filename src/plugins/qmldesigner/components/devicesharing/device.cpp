@@ -100,9 +100,16 @@ void Device::initPingPong()
             &QWebSocket::pong,
             this,
             [this](quint64 elapsedTime, [[maybe_unused]] const QByteArray &payload) {
-                qCDebug(deviceSharePluginLog)
-                    << "Pong received from Device" << m_deviceSettings.deviceId() << "in"
-                    << elapsedTime << "ms";
+                if (elapsedTime > 1000)
+                    qCWarning(deviceSharePluginLog)
+                        << "Device pong is too slow:" << m_deviceSettings.alias() << "("
+                        << m_deviceSettings.deviceId() << ") in" << elapsedTime
+                        << "ms. Network issue?";
+                else if (elapsedTime > 500)
+                    qCWarning(deviceSharePluginLog)
+                        << "Device pong is slow:" << m_deviceSettings.alias() << "("
+                        << m_deviceSettings.deviceId() << ") in" << elapsedTime << "ms";
+
                 m_pongTimer.stop();
                 m_pingTimer.start();
             });
