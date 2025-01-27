@@ -381,7 +381,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_errorEdit->setPalette(palette);
     QPushButton *openPref = new QPushButton(Tr::tr("Open Preferences..."), errorWidget);
     connect(openPref, &QPushButton::clicked,
-            this, []{ ICore::showOptionsDialog("Axivion.Settings.General"); });
+            this, []{ ICore::showOptionsDialog("Analyzer.Axivion.Settings"); });
     using namespace Layouting;
     Column {
         m_errorEdit,
@@ -492,7 +492,7 @@ void IssuesWidget::initDashboardList(const QString &preferredProject)
     if (servers.isEmpty()) {
         switchActiveDashboardId({});
         m_showFilterHelp->setEnabled(false);
-        showOverlay(Tr::tr("Configure dashboards in Preferences > Axivion > General."), SettingsIcon);
+        showOverlay(Tr::tr("Configure dashboards in Preferences > Analyzer > Axivion."), SettingsIcon);
         return;
     }
     hideOverlays();
