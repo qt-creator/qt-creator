@@ -62,8 +62,15 @@ QmlDesigner::WidgetInfo EffectComposerView::widgetInfo()
             if (!document)
                 return;
 
+#ifdef QDS_USE_PROJECTSTORAGE
+            auto module = model()->module(QString("%1.%2").arg(m_componentUtils.composedEffectsTypePrefix(),
+                                                               typeName).toUtf8(),
+                                          QmlDesigner::Storage::ModuleKind::QmlLibrary);
+            auto effectMetaInfo = model()->metaInfo(module, typeName.toUtf8());
+#else
             const QByteArray fullType = QString("%1.%2.%2").arg(m_componentUtils.composedEffectsTypePrefix(),
                                                              typeName).toUtf8();
+#endif
             const QList<QmlDesigner::ModelNode> allNodes = allModelNodes();
             QList<QmlDesigner::ModelNode> typeNodes;
             QList<QmlDesigner::ModelNode> propertyChangeNodes;
@@ -71,11 +78,11 @@ QmlDesigner::WidgetInfo EffectComposerView::widgetInfo()
                 if (QmlDesigner::QmlPropertyChanges::isValidQmlPropertyChanges(node))
                     propertyChangeNodes.append(node);
 #ifdef QDS_USE_PROJECTSTORAGE
-// TODO: typeName() shouldn't be used with projectstorage. Needs alternative solution (using modules?)
+                else if (node.metaInfo() == effectMetaInfo)
 #else
                 else if (node.metaInfo().typeName() == fullType)
-                    typeNodes.append(node);
 #endif
+                    typeNodes.append(node);
             }
             if (!typeNodes.isEmpty()) {
                 bool clearStacks = false;
