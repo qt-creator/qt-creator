@@ -43,3 +43,8 @@ Token_Notification_Danger_Subtle=Primitive-Red-1000
 Token_Notification_Success_Default=Primitive-Neon-500
 Token_Notification_Success_Muted=Primitive-Neon-700
 Token_Notification_Success_Subtle=Primitive-Neon-1000
+
+Token_Gradient01_Start=Primitive-Pine-1000
+Token_Gradient01_End=Primitive-Pine-600
+Token_Gradient02_Start=Primitive-Neutral-600
+Token_Gradient02_End=Primitive-Neutral-450
