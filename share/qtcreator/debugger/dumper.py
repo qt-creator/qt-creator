@@ -3917,18 +3917,8 @@ typename))
                 alignment = self.type_size(typeid)
         elif code in (TypeCode.Pointer, TypeCode.Reference, TypeCode.RValueReference):
             alignment = self.ptrSize()
-        elif self.isCdb:
-            alignment = self.nativeStructAlignment(self.type_nativetype(typeid))
         else:
-            size = self.type_size(typeid)
-            if size is None:
-                self.dump_type_cache()
-                self.warn("NO ALIGNMENT FOUND FOR SIZE OF TYPE %s" % str(typeid))
-                return 1
-            if size >= self.ptrSize():
-                alignment = self.ptrSize()
-            else:
-                alignment = size
+            alignment = self.nativeStructAlignment(self.type_nativetype(typeid))
             #self.warn("GUESSING ALIGNMENT %s FOR TYPEID %s" % (alignment, typeid))
         self.type_alignment_cache[typeid] = alignment
         return alignment

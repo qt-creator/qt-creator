@@ -577,6 +577,17 @@ class Dumper(DumperBase):
         return fields
 
 
+    def nativeStructAlignment(self, nativeType):
+        #DumperBase.warn("NATIVE ALIGN FOR %s" % nativeType.name)
+        def handleItem(nativeFieldType, align):
+            a = self.type_alignment(self.from_native_type(nativeFieldType))
+            return a if a > align else align
+        align = 1
+        for f in nativeType.fields():
+            align = handleItem(f.type, align)
+        return align
+
+
     def listLocals(self, partialVar):
         frame = gdb.selected_frame()
 
