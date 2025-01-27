@@ -677,11 +677,7 @@ private slots:
 
         bool parentFound = finder.findFileOrDirectory(
             testProjectDirectory, nullptr, [](const QStringList &entries, int) {
-                qDebug() << "entries: " << entries;
-                //QDEBUG : tst_fileinprojectfinder::check_root_directory_content() entries:  QList(".", "..", "InSubdir.qml")
-                QEXPECT_FAIL("", "Known issue: Parent directory contains subdir's files.", Continue);
                 QVERIFY(entries.contains("InParent.qml"));
-                //FAIL!  : tst_fileinprojectfinder::check_root_directory_content() 'entries.contains("InParent.qml")' returned FALSE. ()
             });
 
         QVERIFY(parentFound);

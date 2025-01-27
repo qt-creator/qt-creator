@@ -169,6 +169,13 @@ bool FileInProjectFinder::findFileOrDirectory(const FilePath &originalPath, File
         return false;
     }
 
+    if (directoryHandler && originalPath == m_projectDir && originalPath.isDir()) {
+        const QStringList realEntries = QDir(originalPath.toFSPathString())
+        .entryList(QDir::NoDotAndDotDot | QDir::Files | QDir::Dirs);
+        directoryHandler(realEntries, originalPath.toFSPathString().size());
+        return true;
+    }
+
     const auto segments = originalPath.toFSPathString().split('/', Qt::SkipEmptyParts);
     const PathMappingNode *node = &m_pathMapRoot;
     for (const auto &segment : segments) {
