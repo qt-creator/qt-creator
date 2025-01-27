@@ -3342,13 +3342,13 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         if (!autoText.isEmpty())
             cursor.setPosition(autoText.length() == 1 ? cursor.position() : cursor.anchor());
 
+        if (doEditBlock)
+            cursor.endEditBlock();
+
         setTextCursor(cursor);
 
-        if (doEditBlock) {
-            cursor.endEditBlock();
-            if (cursorWithinSnippet)
-                d->m_snippetOverlay->updateEquivalentSelections(textCursor());
-        }
+        if (doEditBlock && cursorWithinSnippet)
+            d->m_snippetOverlay->updateEquivalentSelections(textCursor());
     }
 
     if (!ro && e->key() == Qt::Key_Delete && d->m_parenthesesMatchingEnabled)
