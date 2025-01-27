@@ -130,18 +130,17 @@ def qdump__std____1__map(d, value):
     d.putItemCount(size)
 
     if d.isExpanded():
-        keyType = value.type[0]
-        valType = value.type[1]
+        pair_type = alloc_type[0]
 
         def in_order_traversal(node):
-            (left, right, parent, color, _pad_1, key, _pad_2, val) = d.split(
-                f'pppB@{{{keyType.name}}}@{{{valType.name}}}', node)
+            (left, right, _parent, _is_black, _pad, pair) = d.split(
+                f'pppB@{{{pair_type.name}}}', node)
 
             if left:
                 for res in in_order_traversal(left):
                     yield res
 
-            yield key, val
+            yield pair
 
             if right:
                 for res in in_order_traversal(right):
@@ -306,6 +305,10 @@ def qdump__std____1__string(d, value):
             data = value.laddress + charType.size()
             size = (r0 & 255) // 2
     d.putCharArrayHelper(data, size, charType)
+
+
+def qdump__std____1__basic_string(d, value):
+    qdump__std____1__string(d, value)
 
 
 def qdump__std____1__shared_ptr(d, value):
