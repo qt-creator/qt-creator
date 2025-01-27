@@ -695,8 +695,13 @@ static void addCompileGroups(ProjectNode *targetRoot,
                                        && td.type.endsWith("_LIBRARY")
                                        && sourcePath.fileName().startsWith(td.name)
                                        && sourcePath.fileName().endsWith("Plugin.cpp");
+        const bool buildRccInitCpp = sourcePath.isChildOf(buildDirectory)
+                                     && td.type.endsWith("_LIBRARY")
+                                     && (sourcePath.parentDir().fileName() == "rcc")
+                                     && sourcePath.fileName().startsWith("qrc_")
+                                     && sourcePath.fileName().endsWith("_init.cpp");
 
-        if (buildDirQmldirOrRcc || otherDirQmldirOrMetatypes || buildDirPluginCpp)
+        if (buildDirQmldirOrRcc || otherDirQmldirOrMetatypes || buildDirPluginCpp || buildRccInitCpp)
             node->setIsGenerated(true);
 
         const bool showSourceFolders = settings(targetRoot->getProject()).showSourceSubFolders()
