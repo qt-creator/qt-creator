@@ -90,7 +90,7 @@ Window {
                         id: deleteDialog
                         visible: false
                         modality: Qt.WindowModal
-                        buttons: StandardButton.No | StandardButton.Yes
+                        buttons: MessageDialog.No | MessageDialog.Yes
                         title: qsTr("Delete preset?")
                         text: qsTr("Are you sure you want to delete this preset?")
                         onAccepted: customPresetListModel.deletePreset(customTabContent.deleteId)
