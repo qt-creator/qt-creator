@@ -49,7 +49,7 @@ struct Data
     FilePath sourcePath;
     FilePath extractedPath;
     std::unique_ptr<PluginSpec> pluginSpec = nullptr;
-    bool loadImmediately = false;
+    bool loadImmediately = true;
     bool prepareForUpdate = false;
 };
 
@@ -347,6 +347,7 @@ public:
         m_summaryLabel->setOpenExternalLinks(true);
 
         m_loadImmediately = new QCheckBox(Tr::tr("Load plugin immediately"));
+        m_loadImmediately->setChecked(m_data->loadImmediately);
         connect(m_loadImmediately, &QCheckBox::toggled, this, [this](bool checked) {
             m_data->loadImmediately = checked;
         });
