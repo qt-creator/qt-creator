@@ -408,8 +408,10 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
         if (cancelFuture.isCanceled())
             return {};
 
-        bool needPostfix = t.compileGroups.size() > 1;
-        int count = 1;
+        QHash<QString, QPair<int, int>> compileLanguageCountHash;
+        for (const CompileInfo &ci : t.compileGroups)
+            compileLanguageCountHash[ci.language].first++;
+
         for (const CompileInfo &ci : t.compileGroups) {
             if (ci.language != "C" && ci.language != "CXX" && ci.language != "OBJC"
                 && ci.language != "OBJCXX" && ci.language != "CUDA")
@@ -441,9 +443,12 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             RawProjectPart rpp;
             rpp.setProjectFileLocation(t.sourceDir.pathAppended(Constants::CMAKE_LISTS_TXT));
             rpp.setBuildSystemTarget(t.name);
-            const QString postfix = needPostfix ? QString("_%1_%2").arg(ci.language).arg(count)
-                                                : QString();
-            rpp.setDisplayName(t.id + postfix);
+            const QString postfix = compileLanguageCountHash[ci.language].first > 1
+                                        ? QString("%1_%2")
+                                              .arg(ci.language)
+                                              .arg(++compileLanguageCountHash[ci.language].second)
+                                        : ci.language;
+            rpp.setDisplayName(t.name + "_" + postfix);
             rpp.setMacros(transform<QVector>(ci.defines, &DefineInfo::define));
             rpp.setHeaderPaths(transform<QVector>(ci.includes, &IncludeInfo::path));
 
@@ -567,7 +572,6 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             rpp.setBuildTargetType(isExecutable ? BuildTargetType::Executable
                                                 : BuildTargetType::Library);
             rpps.append(rpp);
-            ++count;
         }
     }
 
