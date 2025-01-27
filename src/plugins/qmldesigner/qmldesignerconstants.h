@@ -123,7 +123,6 @@ inline constexpr char EVENT_EFFECTCOMPOSER_TIME[] = "effectComposerTime";
 inline constexpr char EVENT_ITEMLIBRARY_TIME[] = "itemLibrary";
 inline constexpr char EVENT_TRANSLATIONVIEW_TIME[] = "translationView";
 inline constexpr char EVENT_NAVIGATORVIEW_TIME[] = "navigatorView";
-inline constexpr char EVENT_DESIGNMODE_TIME[] = "designMode";
 inline constexpr char EVENT_MATERIALEDITOR_TIME[] = "materialEditor";
 inline constexpr char EVENT_MATERIALBROWSER_TIME[] = "materialBrowser";
 inline constexpr char EVENT_CONTENTLIBRARY_TIME[] = "contentLibrary";

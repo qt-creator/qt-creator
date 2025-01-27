@@ -103,11 +103,11 @@ signals:
 
 private slots:
     void closeFeedbackPopup();
-    void lauchFeedbackPopup(const QString &identifier);
+    void launchFeedbackPopup(const QString &identifier);
     void handleFeedback(const QString &feedback, int rating);
 
 private: // functions
-    void lauchFeedbackPopupInternal(const QString &identifier);
+    void launchFeedbackPopupInternal(const QString &identifier);
     void integrateIntoQtCreator(Internal::DesignModeWidget *modeWidget);
     void clearDesigner();
     void resetDesignerDocument();
@@ -120,6 +120,7 @@ private: // functions
     void activateAutoSynchronization();
     void deactivateAutoSynchronization();
     void resetModelSelection();
+    void initializeShutdownSettings();
     QString identiferToDisplayString(const QString &identifier);
 
     RewriterView *rewriterView() const;
@@ -133,6 +134,8 @@ private: // variables
     static QmlDesignerPlugin *m_instance;
     QElapsedTimer m_usageTimer;
     bool m_delayedInitialized = false;
+    bool m_shutdownPending = false;
+    QString m_lastShutdownType;
 };
 
 } // namespace QmlDesigner

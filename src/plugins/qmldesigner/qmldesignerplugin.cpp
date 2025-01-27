@@ -277,7 +277,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString * 
         ->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
 
     connect(action, &QAction::triggered, this, [this] {
-        lauchFeedbackPopupInternal(QGuiApplication::applicationDisplayName());
+        launchFeedbackPopupInternal(QGuiApplication::applicationDisplayName());
     });
 
     d = new QmlDesignerPluginPrivate;
@@ -319,6 +319,8 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString * 
             QMetaObject::invokeMethod(usageStatistic->plugin(), "useSimpleUi", true);
     }
 
+    initializeShutdownSettings();
+
     return true;
 }
 
@@ -353,12 +355,33 @@ void QmlDesignerPlugin::extensionsInitialized()
         Core::IWizardFactory::registerFeatureProvider(new FullQDSFeatureProvider);
 }
 
+void QmlDesignerPlugin::initializeShutdownSettings()
+{
+    auto settings = Core::ICore::settings();
+
+    if (!settings->contains("ShutdownCount"))
+        settings->setValue("ShutdownCount", 0);
+
+    m_lastShutdownType = settings->value("LastShutdownType", "UserQuit").toString();
+    settings->setValue("LastShutdownType", "Crash"); // value will persist unless changed in aboutToShutdown()
+}
+
 ExtensionSystem::IPlugin::ShutdownFlag QmlDesignerPlugin::aboutToShutdown()
 {
-    if (Core::ICore::isQtDesignStudio())
-        emitUsageStatistics("qdsShutdownCount");
+    Utils::QtcSettings *settings = Core::ICore::settings();
 
-    return SynchronousShutdown;
+    int shutdownCount = settings->value("ShutdownCount", 0).toInt();
+    if (m_lastShutdownType == "UserQuit")
+        settings->setValue("ShutdownCount", ++shutdownCount);
+
+    settings->setValue("LastShutdownType", "UserQuit");
+    if (shutdownCount != 5) // feedback popup should be displayed on the 5th shutdown
+        return SynchronousShutdown;
+
+    m_shutdownPending = true;
+    launchFeedbackPopupInternal(QGuiApplication::applicationDisplayName());
+
+    return AsynchronousShutdown;
 }
 
 static QStringList allUiQmlFilesforCurrentProject(const Utils::FilePath &fileName)
@@ -506,7 +529,6 @@ void QmlDesignerPlugin::hideDesigner()
 {
     clearDesigner();
     resetDesignerDocument();
-    emitUsageStatisticsTime(Constants::EVENT_DESIGNMODE_TIME, m_usageTimer.elapsed());
 }
 
 void QmlDesignerPlugin::changeEditor()
@@ -668,10 +690,8 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
     if (Core::ICore::isQtDesignStudio()) {
         d->mainWidget.initialize();
 
-        emitUsageStatistics("StandaloneMode");
         if (QmlProjectManager::QmlProject::isQtDesignStudioStartedFromQtC())
             emitUsageStatistics("QDSlaunchedFromQtC");
-        emitUsageStatistics("qdsStartupCount");
 
         FoundLicense license = checkLicense();
         if (license == FoundLicense::enterprise)
@@ -809,10 +829,10 @@ void QmlDesignerPlugin::registerCombinedTracedPoints(const QString &identifierFi
                                                                             maxDuration));
 }
 
-void QmlDesignerPlugin::lauchFeedbackPopup(const QString &identifier)
+void QmlDesignerPlugin::launchFeedbackPopup(const QString &identifier)
 {
     if (Core::ModeManager::currentModeId() == Core::Constants::MODE_DESIGN)
-        lauchFeedbackPopupInternal(identifier);
+        launchFeedbackPopupInternal(identifier);
 }
 
 void QmlDesignerPlugin::handleFeedback(const QString &feedback, int rating)
@@ -821,7 +841,7 @@ void QmlDesignerPlugin::handleFeedback(const QString &feedback, int rating)
     emit usageStatisticsInsertFeedback(identifier, feedback, rating);
 }
 
-void QmlDesignerPlugin::lauchFeedbackPopupInternal(const QString &identifier)
+void QmlDesignerPlugin::launchFeedbackPopupInternal(const QString &identifier)
 {
     m_feedbackWidget = new QQuickWidget(Core::ICore::dialogParent());
     m_feedbackWidget->setObjectName(Constants::OBJECT_NAME_TOP_FEEDBACK);
@@ -845,7 +865,7 @@ void QmlDesignerPlugin::lauchFeedbackPopupInternal(const QString &identifier)
     QTC_ASSERT(root, return );
 
     QObject *title = root->findChild<QObject *>("title");
-    QString name = Tr::tr("Enjoying the %1?").arg(identiferToDisplayString(identifier));
+    QString name = Tr::tr("Enjoying %1?").arg(identiferToDisplayString(identifier));
     title->setProperty("text", name);
     root->setProperty("identifier", identifier);
 
@@ -865,6 +885,9 @@ void QmlDesignerPlugin::closeFeedbackPopup()
         m_feedbackWidget->deleteLater();
         m_feedbackWidget = nullptr;
     }
+
+    if (m_shutdownPending)
+        emit asynchronousShutdownFinished();
 }
 
 void QmlDesignerPlugin::emitUsageStatisticsTime(const QString &identifier, int elapsed)
