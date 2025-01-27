@@ -411,7 +411,8 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
         bool needPostfix = t.compileGroups.size() > 1;
         int count = 1;
         for (const CompileInfo &ci : t.compileGroups) {
-            if (ci.language != "C" && ci.language != "CXX" && ci.language != "CUDA")
+            if (ci.language != "C" && ci.language != "CXX" && ci.language != "OBJC"
+                && ci.language != "OBJCXX" && ci.language != "CUDA")
                 continue; // No need to bother the C++ codemodel
 
             // CMake users worked around Creator's inability of listing header files by creating
@@ -429,13 +430,12 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
 
             QString ending;
             QString qtcPchFile;
-            if (ci.language == "C") {
-                ending = "/cmake_pch.h";
-                qtcPchFile = "qtc_cmake_pch.h";
-            }
-            else if (ci.language == "CXX") {
-                ending = "/cmake_pch.hxx";
-                qtcPchFile = "qtc_cmake_pch.hxx";
+            static const QHash<QString, QString> languageToExtension
+                = {{"C", ".h"}, {"CXX", ".hxx"}, {"OBJC", ".objc.h"}, {"OBJCXX", ".objcxx.hxx"}};
+
+            if (languageToExtension.contains(ci.language)) {
+                ending = "/cmake_pch" + languageToExtension[ci.language];
+                qtcPchFile = "qtc_cmake_pch" + languageToExtension[ci.language];
             }
 
             RawProjectPart rpp;
@@ -473,9 +473,9 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             });
 
             const QString headerMimeType = [&]() -> QString {
-                if (ci.language == "C") {
+                if (ci.language == "C" || ci.language == "OBJC") {
                     return Utils::Constants::C_HEADER_MIMETYPE;
-                } else if (ci.language == "CXX") {
+                } else if (ci.language == "CXX" || ci.language == "OBJCXX") {
                     return Utils::Constants::CPP_HEADER_MIMETYPE;
                 }
                 return {};
@@ -485,9 +485,9 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                 if (kind == CppEditor::ProjectFile::AmbiguousHeader)
                     return true;
 
-                if (ci.language == "C")
+                if (ci.language == "C" || ci.language == "OBJC")
                     return CppEditor::ProjectFile::isC(kind);
-                else if (ci.language == "CXX")
+                else if (ci.language == "CXX" || ci.language == "OBJCXX")
                     return CppEditor::ProjectFile::isCxx(kind);
 
                 return false;
@@ -558,9 +558,9 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
 
             RawProjectPartFlags projectFlags;
             projectFlags.commandLineFlags = fragments;
-            if (ci.language == "C")
+            if (ci.language == "C" || ci.language == "OBJC")
                 rpp.setFlagsForC(projectFlags);
-            else if (ci.language == "CXX")
+            else if (ci.language == "CXX" || ci.language == "OBJCXX")
                 rpp.setFlagsForCxx(projectFlags);
 
             const bool isExecutable = t.type == "EXECUTABLE";
