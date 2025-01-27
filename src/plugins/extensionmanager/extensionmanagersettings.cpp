@@ -47,11 +47,7 @@ ExtensionManagerSettings::ExtensionManagerSettings()
                 Column {
                     Label {
                         wordWrap(true),
-                        text(Tr::tr("%1 does not check extensions from external vendors for security "
-                                    "flaws or malicious intent, so be careful when installing them, "
-                                    "as it might leave your computer vulnerable to attacks such as "
-                                    "hacking, malware, and phishing.")
-                             .arg(QGuiApplication::applicationDisplayName()))
+                        text(externalRepoWarningNote()),
                     }
                 }
             },
@@ -95,5 +91,15 @@ public:
 };
 
 const ExtensionManagerSettingsPage settingsPage;
+
+QString externalRepoWarningNote()
+{
+    return
+    Tr::tr("%1 does not check extensions from external vendors for security "
+           "flaws or malicious intent, so be careful when installing them, "
+           "as it might leave your computer vulnerable to attacks such as "
+           "hacking, malware, and phishing.")
+        .arg(QGuiApplication::applicationDisplayName());
+}
 
 } // ExtensionManager::Internal

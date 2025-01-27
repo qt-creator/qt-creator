@@ -548,6 +548,10 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     auto titleLabel = new ElidingLabel(Tr::tr("Manage Extensions"));
     applyTf(titleLabel, titleTF);
 
+    auto externalRepoSwitch = new Switch("Use External Repository");
+    externalRepoSwitch->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
+    externalRepoSwitch->setToolTip("<html>" + externalRepoWarningNote());
+
     d->searchBox = new SearchBox;
     d->searchBox->setPlaceholderText(Tr::tr("Search"));
 
@@ -592,11 +596,13 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
         Row {
             titleLabel,
             settingsToolButton,
-            customMargins(0, VPaddingM, rightMargin, VPaddingM),
+            customMargins(0, VPaddingM, rightMargin, 0),
         },
         Row {
-            d->searchBox,
-            spacing(gapSize),
+            Column {
+                Row{ st, externalRepoSwitch },
+                d->searchBox,
+            },
             customMargins(0, VPaddingM, rightMargin, VPaddingM),
         },
         Row {
@@ -640,6 +646,12 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
         extensionViewStack->setCurrentIndex(d->sortFilterProxyModel->rowCount() == 0 ? 1 : 0);
     };
 
+    auto updateExternalRepoSwitch = [externalRepoSwitch] {
+        const QSignalBlocker blocker(externalRepoSwitch);
+        externalRepoSwitch->setChecked(settings().useExternalRepo());
+    };
+    updateExternalRepoSwitch();
+
     connect(PluginManager::instance(), &PluginManager::pluginsChanged, this, updateModel);
     connect(d->searchBox, &QLineEdit::textChanged,
             d->searchProxyModel, &QSortFilterProxyModel::setFilterWildcard);
@@ -654,7 +666,11 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     connect(settingsToolButton, &QAbstractButton::clicked, this, []() {
         ICore::showOptionsDialog(Constants::EXTENSIONMANAGER_SETTINGSPAGE_ID);
     });
-    connect(&settings(), &AspectContainer::changed, this, [this]() {
+    connect(&settings().useExternalRepo, &BaseAspect::changed, this, updateExternalRepoSwitch);
+    connect(externalRepoSwitch, &QAbstractButton::toggled, this, [](bool checked) {
+        settings().useExternalRepo.setValue(checked);
+    });
+    connect(&settings(), &AspectContainer::changed, this, [this] {
         d->dataFetched = false;
         fetchExtensions();
     });
