@@ -509,7 +509,7 @@ Switch::Switch(const QString &text, QWidget *parent)
 QSize Switch::sizeHint() const
 {
     const QFontMetrics fm(SwitchLabelTf.font());
-    const int textWidth = fm.horizontalAdvance(text());
+    const int textWidth = fm.size(Qt::TextShowMnemonic, text()).width();
     const int width = switchTrackS.width() + HGapS + textWidth;
     return {width, ExPaddingGapM + SwitchLabelTf.lineHeight() + ExPaddingGapM};
 }
