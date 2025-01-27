@@ -179,7 +179,7 @@ def isMsvcConfig(currentKit):
     index = waitForObject(wantedKitIndexString)
     toolTip = str(index.data(Qt.ToolTipRole).toString())
     compilerPattern = re.compile('<dt style="font-weight:bold">Compiler:</dt><dd>(?P<compiler>.+)'
-                                 '</dd><dt style="font-weight:bold">Environment:')
+                                 '</dd><dt style="font-weight:bold">Debugger:')
     match = compilerPattern.search(toolTip)
     if match is None:
         test.warning("UI seems to have changed - failed to check for compiler.")
