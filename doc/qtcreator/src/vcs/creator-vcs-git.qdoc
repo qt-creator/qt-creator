@@ -724,6 +724,9 @@
     \uicontrol Tools > \uicontrol Git > \uicontrol {Local Repository} and select
     \uicontrol Status.
 
+    To include untracked files, select
+    \uicontrol {Status (Including All Untracked)}.
+
     \if defined(qtcreator)
     \sa {Use Git}{How To: Use Git}, {Git}
     \endif
