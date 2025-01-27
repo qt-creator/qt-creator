@@ -632,18 +632,8 @@ void IosRunner::start()
         reportFailure();
         return;
     }
-    if (m_device->type() == Ios::Constants::IOS_DEVICE_TYPE) {
-        if (m_qmlDebugServices != NoQmlDebugServices)
-            m_qmlServerPort = Port(runControl()->qmlChannel().port());
-    } else {
-        IosSimulator::ConstPtr sim = std::dynamic_pointer_cast<const IosSimulator>(m_device);
-        if (!sim) {
-            reportFailure();
-            return;
-        }
-        if (m_qmlDebugServices != NoQmlDebugServices)
-            m_qmlServerPort = sim->nextPort();
-    }
+    if (m_qmlDebugServices != NoQmlDebugServices)
+        m_qmlServerPort = Port(runControl()->qmlChannel().port());
 
     m_toolHandler = new IosToolHandler(m_deviceType, this);
     connect(m_toolHandler, &IosToolHandler::appOutput,
@@ -899,6 +889,10 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
     setId("IosDebugSupport");
 
     IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(runControl->device());
+    const bool isIosDeviceType = runControl->device()->type() == Ios::Constants::IOS_DEVICE_TYPE;
+    const bool isIosDeviceInstance = bool(dev);
+    // type info and device class must match
+    QTC_ASSERT(isIosDeviceInstance == isIosDeviceType, return);
     DebuggerRunParameters &rp = runParameters();
     // TODO cannot use setupPortsGatherer() from DebuggerRunTool, because that also requests
     // the "debugChannel", which then results in runControl trying to retrieve ports&URL for that
@@ -907,8 +901,7 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
     if (rp.isQmlDebugging())
         runControl->requestQmlChannel();
 
-    if (dev->type() == Ios::Constants::IOS_SIMULATOR_TYPE
-        || dev->handler() == IosDevice::Handler::IosTool) {
+    if (!isIosDeviceInstance /*== simulator */ || dev->handler() == IosDevice::Handler::IosTool) {
         m_iosRunner = new IosRunner(runControl);
         m_iosRunner->setCppDebugging(rp.isCppDebugging());
         m_iosRunner->setQmlDebugging(rp.isQmlDebugging() ? QmlDebuggerServices : NoQmlDebugServices);
@@ -920,7 +913,7 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
         addStartDependency(m_deviceCtlRunner);
     }
 
-    if (runControl->device()->type() == Ios::Constants::IOS_DEVICE_TYPE) {
+    if (isIosDeviceInstance) {
         if (dev->handler() == IosDevice::Handler::DeviceCtl) {
             QTC_CHECK(IosDeviceManager::isDeviceCtlDebugSupported());
             rp.setStartMode(AttachToIosDevice);
@@ -950,8 +943,12 @@ void IosDebugSupport::start()
     rp.setContinueAfterAttach(true);
 
     IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(runControl()->device());
-    if (dev->type() == Ios::Constants::IOS_DEVICE_TYPE
-        && dev->handler() == IosDevice::Handler::DeviceCtl) {
+    const bool isIosDeviceType = runControl()->device()->type() == Ios::Constants::IOS_DEVICE_TYPE;
+    const bool isIosDeviceInstance = bool(dev);
+    // type info and device class must match
+    QTC_ASSERT(isIosDeviceInstance == isIosDeviceType, reportFailure(Tr::tr("Internal error."));
+               return);
+    if (isIosDeviceInstance && dev->handler() == IosDevice::Handler::DeviceCtl) {
         const auto msgOnlyCppDebuggingSupported = [] {
             return Tr::tr("Only C++ debugging is supported for devices with iOS 17 and later.");
         };
