@@ -267,6 +267,21 @@ void Device::processTextMessage(const QString &data)
     if (dataType == PackageFromDevice::deviceInfo) {
         QJsonObject deviceInfo = jsonObj.value("data").toObject();
         m_deviceInfo.setJsonObject(deviceInfo);
+
+        const QString os = m_deviceInfo.os();
+        if (os.contains("Android", Qt::CaseInsensitive))
+            m_deviceInfo.setOs("Android");
+        else if (os.contains("iOS", Qt::CaseInsensitive))
+            m_deviceInfo.setOs("iOS");
+        else if (os.contains("iPadOS", Qt::CaseInsensitive))
+            m_deviceInfo.setOs("iPadOS");
+        else if (os.contains("Windows", Qt::CaseInsensitive))
+            m_deviceInfo.setOs("Windows");
+        else if (os.contains("Linux", Qt::CaseInsensitive))
+            m_deviceInfo.setOs("Linux");
+        else if (os.contains("Mac", Qt::CaseInsensitive))
+            m_deviceInfo.setOs("macOS");
+
         emit deviceInfoReady(m_deviceSettings.deviceId());
     } else if (dataType == PackageFromDevice::projectRunning) {
         qCDebug(deviceSharePluginLog) << "Project started on device" << m_deviceSettings.deviceId();
