@@ -265,6 +265,7 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
 
     // FIXME: remove the usage of "qtc_runnable" by parsing the CMake code instead
     ct.qtcRunnable = t.folderTargetProperty == QTC_RUNNABLE;
+    ct.targetFolder = t.folderTargetProperty;
 
     if (ct.targetType == ExecutableType) {
         FilePaths librarySeachPaths;
@@ -944,7 +945,8 @@ static void setupLocationInfoForTargets(const QFuture<void> &cancelFuture,
 
             folderNode->setLocationInfo(result);
 
-            if (!t.backtrace.isEmpty() && t.targetType != TargetType::UtilityType) {
+            if (!t.targetFolder.isEmpty() && !t.backtrace.isEmpty()
+                && t.targetType != TargetType::UtilityType) {
                 auto cmakeDefinition = std::make_unique<FileNode>(
                     t.backtrace.last().path, Node::fileTypeForFileName(t.backtrace.last().path));
                 cmakeDefinition->setLine(t.backtrace.last().line);
