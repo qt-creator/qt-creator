@@ -769,6 +769,9 @@
         \li Select \uicontrol Commit to start committing.
     \endlist
 
+    To view the log of the current branch, select the branch name in
+    \uicontrol {Branch}.
+
     \if defined(qtcreator)
     \sa {Use Git}{How To: Use Git}, {Git}
     \endif
@@ -792,7 +795,10 @@
     \uicontrol Git > \uicontrol {Local Repository} >
     \uicontrol {Amend Last Commit}.
 
-    \image qtcreator-git-amend.png {Amending a Git commit}
+    \image qtcreator-git-amend.webp {Amending a Git commit}
+
+    To view the log of the current branch, select the branch name in
+    \uicontrol Branch.
 
     To view the commit in its current form before amending, select
     \uicontrol {Show HEAD}.
