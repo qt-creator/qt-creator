@@ -338,17 +338,27 @@ void fetchNamedFilters()
     dd->fetchNamedFilters();
 }
 
-void knownNamedFilters(QList<NamedFilter> *global, QList<NamedFilter> *user)
+static QList<Dto::NamedFilterInfoDto> withoutRestricted(const QString &kind, const QList<Dto::NamedFilterInfoDto> &f)
 {
-    QTC_ASSERT(dd, return);
-    QTC_ASSERT(global, return);
-    QTC_ASSERT(user, return);
-
-    *global = Utils::transform(dd->m_globalNamedFilters, [](const Dto::NamedFilterInfoDto &dto) {
-        return NamedFilter{dto.key, dto.displayName, true};
+    return Utils::filtered(f, [kind](const Dto::NamedFilterInfoDto &dto) {
+        if (dto.supportsAllIssueKinds)
+            return true;
+        return !dto.issueKindRestrictions || dto.issueKindRestrictions->contains(kind)
+               || dto.issueKindRestrictions->contains("UNIVERSAL");
     });
-    *user = Utils::transform(dd->m_userNamedFilters, [](const Dto::NamedFilterInfoDto &dto) {
-        return NamedFilter{dto.key, dto.displayName, false};
+};
+
+// TODO: Introduce FilterScope enum { Global, User } and use it instead of bool global.
+QList<NamedFilter> knownNamedFiltersFor(const QString &issueKind, bool global)
+{
+    QTC_ASSERT(dd, return {});
+
+    if (issueKind.isEmpty()) // happens after initial dashboad and filters fetch
+        return {};
+
+    return Utils::transform(withoutRestricted(issueKind, global ? dd->m_globalNamedFilters : dd->m_userNamedFilters),
+                               [global](const Dto::NamedFilterInfoDto &dto) {
+        return NamedFilter{dto.key, dto.displayName, global};
     });
 }
 

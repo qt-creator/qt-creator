@@ -461,9 +461,8 @@ void IssuesWidget::resetDashboard()
 
 void IssuesWidget::updateNamedFilters()
 {
-    QList<NamedFilter> globalFilters;
-    QList<NamedFilter> userFilters;
-    knownNamedFilters(&globalFilters, &userFilters);
+    QList<NamedFilter> globalFilters = knownNamedFiltersFor(m_currentPrefix, true);
+    QList<NamedFilter> userFilters = knownNamedFiltersFor(m_currentPrefix, false);
 
     Utils::sort(globalFilters, [](const NamedFilter &lhs, const NamedFilter &rhs) {
         return lhs.displayName < rhs.displayName;
@@ -778,6 +777,7 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
         button->setCheckable(true);
         connect(button, &QToolButton::clicked, this, [this, prefix = kind.prefix]{
             m_currentPrefix = prefix;
+            updateNamedFilters();
             fetchTable();
         });
         m_typesButtonGroup->addButton(button, ++buttonId);

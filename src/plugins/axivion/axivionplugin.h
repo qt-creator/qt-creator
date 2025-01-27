@@ -113,7 +113,7 @@ struct NamedFilter
 };
 
 void fetchNamedFilters();
-void knownNamedFilters(QList<NamedFilter> *global, QList<NamedFilter> *user);
+QList<NamedFilter> knownNamedFiltersFor(const QString &issueKind, bool global);
 std::optional<Dto::NamedFilterInfoDto> namedFilterInfoForKey(const QString &key, bool global);
 
 bool handleCertificateIssue();
