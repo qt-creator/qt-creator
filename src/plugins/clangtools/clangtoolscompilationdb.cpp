@@ -13,18 +13,24 @@
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
 #include <cppeditor/compilationdb.h>
 #include <cppeditor/cppmodelmanager.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <utils/async.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/temporarydirectory.h>
 
 #include <QFutureWatcher>
+#include <QHash>
 
-#include <memory>
+#include <utility>
 
 using namespace CppEditor;
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace ClangTools::Internal {
+namespace {
+static QHash<std::pair<ClangToolType, BuildConfiguration *>, ClangToolsCompilationDb *> dbs;
+} // namespace
 
 class ClangToolsCompilationDb::Private
 {
@@ -34,20 +40,21 @@ public:
     void generate();
     QString toolName() const { return clangToolName(toolType); }
 
-    static inline std::unique_ptr<ClangToolsCompilationDb> clangTidyDb;
-    static inline std::unique_ptr<ClangToolsCompilationDb> clazyDb;
-
     ClangToolsCompilationDb * const q;
     const ClangToolType toolType;
-    TemporaryDirectory dir{toolName()};
+    TemporaryDirectory dir{toolName() + "XXXXXX"};
     QFutureWatcher<GenerateCompilationDbResult> generatorWatcher;
     FutureSynchronizer generatorSynchronizer;
     bool readyAndUpToDate = false;
 };
 
-ClangToolsCompilationDb::ClangToolsCompilationDb(ClangToolType toolType)
-    : d(new Private(toolType, this))
+ClangToolsCompilationDb::ClangToolsCompilationDb(ClangToolType toolType, BuildConfiguration *bc)
+    : QObject(bc), d(new Private(toolType, this))
 {
+    connect(bc, &BuildConfiguration::destroyed, [bc, toolType] {
+        dbs.remove(std::make_pair(toolType, bc));
+    });
+
     connect(&d->generatorWatcher, &QFutureWatcher<GenerateCompilationDbResult>::finished,
             this, [this] {
         const auto result = d->generatorWatcher.result();
@@ -66,10 +73,14 @@ ClangToolsCompilationDb::ClangToolsCompilationDb(ClangToolType toolType)
         emit generated(success);
     });
 
-    connect(ClangToolsSettings::instance(), &BaseAspect::changed,
+    connect(ClangToolsProjectSettings::getSettings(bc->project()).get(),
+            &ClangToolsProjectSettings::changed,
             this, &ClangToolsCompilationDb::invalidate);
-    connect(CppModelManager::instance(), &CppModelManager::projectPartsUpdated,
-            this, &ClangToolsCompilationDb::invalidate);
+    connect(CppModelManager::instance(), &CppModelManager::projectPartsUpdated, this,
+        [this, bc](Project *p) {
+            if (p == bc->project())
+                invalidate();
+        });
 }
 
 ClangToolsCompilationDb::~ClangToolsCompilationDb() { delete d; }
@@ -86,16 +97,15 @@ bool ClangToolsCompilationDb::generateIfNecessary()
     return true;
 }
 
-ClangToolsCompilationDb &ClangToolsCompilationDb::getDb(ClangToolType toolType)
+ClangToolsCompilationDb &ClangToolsCompilationDb::getDb(
+    ClangToolType toolType, BuildConfiguration *bc)
 {
-    if (toolType == ClangToolType::Tidy) {
-        if (!Private::clangTidyDb)
-            Private::clangTidyDb.reset(new ClangToolsCompilationDb(toolType));
-        return *Private::clangTidyDb;
-    }
-    if (!Private::clazyDb)
-        Private::clazyDb.reset(new ClangToolsCompilationDb(toolType));
-    return *Private::clazyDb;
+    const auto key = std::make_pair(toolType, bc);
+    if (const auto it = dbs.constFind(key); it != dbs.constEnd())
+        return *it.value();
+    const auto db = new ClangToolsCompilationDb(toolType, bc);
+    dbs.insert(key, db);
+    return *db;
 }
 
 void ClangToolsCompilationDb::Private::generate()
@@ -109,24 +119,21 @@ void ClangToolsCompilationDb::Private::generate()
         Tr::tr("Generating compilation database for %1 at \"%2\" ...")
             .arg(clangToolName(toolType), dir.path().toUserOutput()));
 
-    const auto getCompilerOptionsBuilder = [this](const ProjectPart &pp) {
-        const auto projectSettings = ClangToolsProjectSettings::getSettings(pp.project());
-        QTC_ASSERT(projectSettings, return CompilerOptionsBuilder(pp));
-        connect(projectSettings.get(), &ClangToolsProjectSettings::changed,
-                q, &ClangToolsCompilationDb::invalidate);
-        const Id configId = projectSettings->runSettings().diagnosticConfigId();
-        const ClangDiagnosticConfig config = Utils::findOrDefault(
-            ClangToolsSettings::instance()->diagnosticConfigs(),
-            [configId](const ClangDiagnosticConfig &c) { return c.id() == configId; });
-        const auto useBuildSystemWarnings = config.useBuildSystemWarnings()
-                                                ? UseBuildSystemWarnings::Yes
-                                                : UseBuildSystemWarnings::No;
-
-        const FilePath executable = toolExecutable(toolType);
-        const auto [includeDir, clangVersion] = getClangIncludeDirAndVersion(executable);
-        const FilePath actualClangIncludeDir = Core::ICore::clangIncludeDirectory(
-            clangVersion, includeDir);
-
+    const auto bc = static_cast<BuildConfiguration *>(q->parent());
+    const auto projectSettings = ClangToolsProjectSettings::getSettings(bc->project());
+    QTC_ASSERT(projectSettings, return);
+    const Id configId = projectSettings->runSettings().diagnosticConfigId();
+    const ClangDiagnosticConfig config = Utils::findOrDefault(
+        ClangToolsSettings::instance()->diagnosticConfigs(),
+        [configId](const ClangDiagnosticConfig &c) { return c.id() == configId; });
+    const auto useBuildSystemWarnings = config.useBuildSystemWarnings()
+                                            ? UseBuildSystemWarnings::Yes
+                                            : UseBuildSystemWarnings::No;
+    const FilePath executable = toolExecutable(toolType);
+    const auto [includeDir, clangVersion] = getClangIncludeDirAndVersion(executable);
+    const FilePath actualClangIncludeDir = Core::ICore::clangIncludeDirectory(
+        clangVersion, includeDir);
+    const auto getCompilerOptionsBuilder = [=](const ProjectPart &pp) {
         CompilerOptionsBuilder optionsBuilder(pp,
                                               UseSystemHeader::No,
                                               UseTweakedHeaderPaths::Tools,
@@ -144,14 +151,13 @@ void ClangToolsCompilationDb::Private::generate()
         const QStringList extraArgsToAppend = extraClangToolsAppendOptions();
         for (const QString &arg : extraArgsToAppend)
             optionsBuilder.add(arg);
-
         return optionsBuilder;
     };
 
     generatorWatcher.setFuture(
         Utils::asyncRun(
             &generateCompilationDB,
-            CppModelManager::projectInfos(),
+            QList<ProjectInfo::ConstPtr>{CppModelManager::projectInfo(bc->project())},
             dir.path(),
             CompilationDbPurpose::Analysis,
             ClangDiagnosticConfigsModel::globalDiagnosticOptions(),
