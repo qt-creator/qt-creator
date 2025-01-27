@@ -407,6 +407,12 @@ void ItemLibraryModel::update(Model *model)
 
             if (blockTypes.contains(QString::fromUtf8(entry.typeName())))
                 blocked = true;
+
+            // we need to exclude all items from unsupported imports but only if they are not user-defined modules
+            if (!(entry.category() == ItemLibraryImport::userComponentsTitle())
+                && !mcuManager.allowedImports().contains(entry.requiredImport())) {
+                blocked = true;
+            }
         }
 
 #ifndef QDS_USE_PROJECTSTORAGE
