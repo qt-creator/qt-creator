@@ -30,6 +30,8 @@ public:
     friend bool operator==(const ActionFilterEntryData &a, const ActionFilterEntryData &b);
 };
 
+class ActionEntryCache;
+
 class ActionsFilter : public ILocatorFilter
 {
 public:
@@ -40,17 +42,13 @@ private:
     void saveState(QJsonObject &object) const override;
     void restoreState(const QJsonObject &object) override;
     LocatorFilterEntry::Acceptor acceptor(const ActionFilterEntryData &data) const;
-    void collectEntriesForAction(QAction *action,
-                                 const QStringList &path,
-                                 QList<const QMenu *> &processedMenus);
-    void collectEntriesForCommands();
-    void collectEntriesForLastTriggered();
-    void collectEntriesForPreferences();
-    void updateEntry(const QPointer<QAction> action, const LocatorFilterEntry &entry);
+    void collectEntriesForAction(QAction *action, const QStringList &path,
+                                 QList<const QMenu *> &processedMenus, ActionEntryCache *cache) const;
+    void collectEntriesForCommands(ActionEntryCache *cache) const;
+    void collectEntriesForLastTriggered(ActionEntryCache *cache) const;
+    LocatorFilterEntries collectEntriesForPreferences() const;
     void updateEnabledActionCache();
 
-    LocatorFilterEntries m_entries;
-    QMap<QPointer<QAction>, int> m_indexes;
     QSet<QPointer<QAction>> m_enabledActions;
     mutable QList<ActionFilterEntryData> m_lastTriggered;
 };
