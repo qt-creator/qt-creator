@@ -30,13 +30,6 @@ using namespace Utils;
 
 static const char lastTriggeredC[] = "LastTriggeredActions";
 
-QT_BEGIN_NAMESPACE
-size_t qHash(const QPointer<QAction> &p, size_t seed)
-{
-    return qHash(p.data(), seed);
-}
-QT_END_NAMESPACE
-
 namespace Core::Internal {
 
 static const QList<QAction *> menuBarActions()
@@ -44,6 +37,44 @@ static const QList<QAction *> menuBarActions()
     QMenuBar *menuBar = Core::ActionManager::actionContainer(Constants::MENU_BAR)->menuBar();
     QTC_ASSERT(menuBar, return {});
     return menuBar->actions();
+}
+
+static void requestMenuUpdate(const QAction* action)
+{
+    if (QMenu *menu = action->menu()) {
+        emit menu->aboutToShow();
+        const QList<QAction *> &actions = menu->actions();
+        for (const QAction *menuActions : actions)
+            requestMenuUpdate(menuActions);
+    }
+}
+
+static QList<QPointer<QAction>> collectEnabledActions()
+{
+    QSet<QAction *> enabledActions;
+    QList<QAction *> queue = menuBarActions();
+    for (QAction *action : std::as_const(queue))
+        requestMenuUpdate(action);
+    while (!queue.isEmpty()) {
+        QAction *action = queue.takeFirst();
+        if (action->isEnabled() && !action->isSeparator() && action->isVisible()) {
+            enabledActions.insert(action);
+            if (QMenu *menu = action->menu()) {
+                if (menu->isEnabled())
+                    queue.append(menu->actions());
+            }
+        }
+    }
+    const QList<Command *> commands = Core::ActionManager::commands();
+    for (const Command *command : commands) {
+        if (command && command->action() && command->action()->isEnabled()
+            && !command->action()->isSeparator()) {
+            enabledActions.insert(command->action());
+        }
+    }
+    return Utils::transform<QList>(enabledActions, [](QAction *action) {
+        return QPointer<QAction>(action);
+    });
 }
 
 ActionsFilter::ActionsFilter()
@@ -57,8 +88,9 @@ ActionsFilter::ActionsFilter()
     setDefaultSearchText({});
     setDefaultKeySequence(QKeySequence("Ctrl+Shift+K"));
     connect(ICore::instance(), &ICore::contextAboutToChange, this, [this] {
-        if (LocatorManager::locatorHasFocus())
-            updateEnabledActionCache();
+        if (LocatorManager::locatorHasFocus()) {
+            m_enabledActions = collectEnabledActions();
+        }
     });
 }
 
@@ -177,6 +209,10 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
 class ActionEntryCache
 {
 public:
+    ActionEntryCache(const QSet<QAction *> &enabledActions)
+        : m_enabledActions(enabledActions)
+    {}
+
     void update(QAction *action, const LocatorFilterEntry &entry)
     {
         const int index = m_actionIndexCache.value(action, -1);
@@ -188,17 +224,25 @@ public:
         }
     }
 
+    bool isEnabled(QAction *action) const { return m_enabledActions.contains(action); }
+
     LocatorFilterEntries entries() const { return m_entries; }
 
 private:
     LocatorFilterEntries m_entries;
     QHash<QAction *, int> m_actionIndexCache;
+    QSet<QAction *> m_enabledActions;
 };
 
 LocatorMatcherTasks ActionsFilter::matchers()
 {
     const auto onSetup = [this](Async<void> &async) {
-        ActionEntryCache cache;
+        m_enabledActions = Utils::filtered(m_enabledActions, [](const QPointer<QAction> &action) {
+            return action.get();
+        });
+        ActionEntryCache cache(Utils::transform<QSet>(m_enabledActions, [](const QPointer<QAction> &action) {
+            return action.get();
+        }));
         QList<const QMenu *> processedMenus;
         collectEntriesForLastTriggered(&cache);
         for (QAction* action : menuBarActions())
@@ -257,7 +301,7 @@ void ActionsFilter::collectEntriesForAction(QAction *action,
                                             QList<const QMenu *> &processedMenus,
                                             ActionEntryCache *cache) const
 {
-    if (!m_enabledActions.contains(action))
+    if (!cache->isEnabled(action))
         return;
     const QString text = actionText(action);
     if (QMenu *menu = action->menu()) {
@@ -286,7 +330,7 @@ void ActionsFilter::collectEntriesForCommands(ActionEntryCache *cache) const
     const QList<Command *> commands = Core::ActionManager::commands();
     for (const Command *command : commands) {
         QAction *action = command->action();
-        if (!m_enabledActions.contains(action))
+        if (!cache->isEnabled(action))
             continue;
 
         QString text = command->description();
@@ -319,7 +363,7 @@ void ActionsFilter::collectEntriesForLastTriggered(ActionEntryCache *cache) cons
             if (Command *command = Core::ActionManager::command(data.commandId))
                 data.action = command->action();
         }
-        if (!data.action || !m_enabledActions.contains(data.action))
+        if (!data.action || !cache->isEnabled(data.action))
             continue;
         LocatorFilterEntry filterEntry;
         filterEntry.displayName = actionText(data.action);
@@ -377,41 +421,6 @@ LocatorFilterEntries ActionsFilter::collectEntriesForPreferences() const
     for (const LocatorFilterEntries &entries : std::as_const(entriesForPages))
         result.append(entries);
     return result;
-}
-
-static void requestMenuUpdate(const QAction* action)
-{
-    if (QMenu *menu = action->menu()) {
-        emit menu->aboutToShow();
-        const QList<QAction *> &actions = menu->actions();
-        for (const QAction *menuActions : actions)
-            requestMenuUpdate(menuActions);
-    }
-}
-
-void ActionsFilter::updateEnabledActionCache()
-{
-    m_enabledActions.clear();
-    QList<QAction *> queue = menuBarActions();
-    for (QAction *action : std::as_const(queue))
-        requestMenuUpdate(action);
-    while (!queue.isEmpty()) {
-        QAction *action = queue.takeFirst();
-        if (action->isEnabled() && !action->isSeparator() && action->isVisible()) {
-            m_enabledActions.insert(action);
-            if (QMenu *menu = action->menu()) {
-                if (menu->isEnabled())
-                    queue.append(menu->actions());
-            }
-        }
-    }
-    const QList<Command *> commands = Core::ActionManager::commands();
-    for (const Command *command : commands) {
-        if (command && command->action() && command->action()->isEnabled()
-                && !command->action()->isSeparator()) {
-            m_enabledActions.insert(command->action());
-        }
-    }
 }
 
 void ActionsFilter::saveState(QJsonObject &object) const

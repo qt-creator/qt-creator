@@ -7,10 +7,8 @@
 
 #include <QAction>
 #include <QPointer>
-#include <QSet>
 
 QT_BEGIN_NAMESPACE
-class QAction;
 class QMenu;
 QT_END_NAMESPACE
 
@@ -47,9 +45,8 @@ private:
     void collectEntriesForCommands(ActionEntryCache *cache) const;
     void collectEntriesForLastTriggered(ActionEntryCache *cache) const;
     LocatorFilterEntries collectEntriesForPreferences() const;
-    void updateEnabledActionCache();
 
-    QSet<QPointer<QAction>> m_enabledActions;
+    QList<QPointer<QAction>> m_enabledActions;
     mutable QList<ActionFilterEntryData> m_lastTriggered;
 };
 
