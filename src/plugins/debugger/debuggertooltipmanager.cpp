@@ -81,7 +81,7 @@ public:
                 this, &DebuggerToolTipManagerPrivate::slotEditorOpened);
         connect(em, &EditorManager::editorAboutToClose, this, [this](IEditor *editor) {
             if (auto textEditor = qobject_cast<BaseTextEditor *>(editor))
-                m_tooltips.erase(textEditor->editorWidget());
+                removeToolTipsForWidget(textEditor->editorWidget());
         });
 
         for (IEditor *e : DocumentModel::editorsForOpenedDocuments())
@@ -90,6 +90,13 @@ public:
         // Position tooltips delayed once all the editor placeholder layouting is done.
         if (!m_tooltips.empty())
             QTimer::singleShot(0, this, &DebuggerToolTipManagerPrivate::updateVisibleToolTips);
+    }
+
+    void removeToolTipsForWidget(TextEditorWidget *widget)
+    {
+        m_tooltips = Utils::filtered(m_tooltips, [widget](const auto &pair) {
+            return pair.first == widget;
+        });
     }
 
     void slotTooltipOverrideRequested(TextEditor::TextEditorWidget *editorWidget,
@@ -116,9 +123,12 @@ public:
 
     bool debugModeActive() const { return ModeManager::currentModeId() == Constants::MODE_DEBUG; }
 
+    DebuggerToolTipWidget *findToolTip(TextEditorWidget *editorWidget,
+                                       const DebuggerToolTipContext &context);
+
 public:
     DebuggerEngine *m_engine;
-    std::map<QPointer<TextEditorWidget>, QList<QPointer<DebuggerToolTipWidget>>> m_tooltips;
+    QList<QPair<QPointer<TextEditorWidget>, QPointer<DebuggerToolTipWidget>>> m_tooltips;
 };
 
 // A label that can be dragged to drag something else.
@@ -764,8 +774,8 @@ DebuggerToolTipManager::~DebuggerToolTipManager()
 void DebuggerToolTipManagerPrivate::hideAllToolTips()
 {
     purgeClosedToolTips();
-    for (const auto &[editor, tooltips] : m_tooltips) {
-        for (DebuggerToolTipWidget *tooltip : std::as_const(tooltips))
+    for (const auto &[editor, tooltip] : m_tooltips) {
+        if (tooltip)
             tooltip->hide();
     }
 }
@@ -794,8 +804,10 @@ void DebuggerToolTipManagerPrivate::updateVisibleToolTips()
 
     TextEditorWidget *editorWidget = toolTipEditor->editorWidget();
     // Reposition and show all tooltips of that file.
-    for (DebuggerToolTipWidget *tooltip : std::as_const(m_tooltips.at(editorWidget)))
-        tooltip->positionShow(editorWidget);
+    for (const auto &[editor, tooltip] : m_tooltips) {
+        if (editor && editor == editorWidget && tooltip)
+            tooltip->positionShow(editorWidget);
+    }
 }
 
 void DebuggerToolTipManager::updateToolTips()
@@ -806,8 +818,8 @@ void DebuggerToolTipManager::updateToolTips()
 
     // Stack frame changed: All tooltips of that file acquire the engine,
     // all others release (arguable, this could be more precise?)
-    for (const auto &[editor, tooltips] : d->m_tooltips) {
-        for (DebuggerToolTipWidget *tooltip : std::as_const(tooltips))
+    for (const auto &[editor, tooltip] : d->m_tooltips) {
+        if (tooltip)
             tooltip->updateTooltip();
     }
     d->updateVisibleToolTips(); // Move tooltip when stepping in same file.
@@ -819,15 +831,14 @@ void DebuggerToolTipManager::deregisterEngine()
 
     d->purgeClosedToolTips();
 
-    for (const auto &[editor, tooltips] : d->m_tooltips) {
-        for (DebuggerToolTipWidget *tooltip : std::as_const(tooltips))
-            if (tooltip->context.engineType == d->m_engine->objectName())
-                tooltip->releaseEngine();
+    for (const auto &[editor, tooltip] : d->m_tooltips) {
+        if (tooltip && tooltip->context.engineType == d->m_engine->objectName())
+            tooltip->releaseEngine();
     }
 
     // FIXME: For now remove all.
-    for (const auto &[window, tooltips] : d->m_tooltips) {
-        for (DebuggerToolTipWidget *tooltip : std::as_const(tooltips))
+    for (const auto &[editor, tooltip] : d->m_tooltips) {
+        if (tooltip)
             tooltip->destroy();
     }
     d->purgeClosedToolTips();
@@ -850,11 +861,9 @@ void DebuggerToolTipManager::closeAllToolTips()
 
 void DebuggerToolTipManagerPrivate::closeAllToolTips()
 {
-    for (const auto &[editor, tooltips] : m_tooltips) {
-        for (DebuggerToolTipWidget *tooltip : std::as_const(tooltips)) {
-            if (tooltip)
-                tooltip->destroy();
-        }
+    for (const auto &[editor, tooltip] : m_tooltips) {
+        if (tooltip)
+            tooltip->destroy();
     }
     m_tooltips.clear();
 }
@@ -862,8 +871,8 @@ void DebuggerToolTipManagerPrivate::closeAllToolTips()
 void DebuggerToolTipManager::resetLocation()
 {
     d->purgeClosedToolTips();
-    for (const auto &[editor, tooltips] : d->m_tooltips) {
-        for (DebuggerToolTipWidget *tooltip : std::as_const(tooltips))
+    for (const auto &[editor, tooltip] : d->m_tooltips) {
+        if (tooltip)
             tooltip->pin();
     }
 }
@@ -909,48 +918,44 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
             context.expression = localVariable->name;
         context.iname = localVariable->iname;
 
-        auto reusable = [context](DebuggerToolTipWidget *tooltip) {
-            return tooltip->context.isSame(context);
-        };
-        DebuggerToolTipWidget *tooltip = Utils::findOrDefault(m_tooltips.at(editorWidget), reusable);
-        if (tooltip) {
+        DebuggerToolTipWidget *tooltipWidget = findToolTip(editorWidget, context);
+
+        if (tooltipWidget) {
             DEBUG("REUSING LOCALS TOOLTIP");
-            tooltip->context.mousePosition = point;
+            tooltipWidget->context.mousePosition = point;
             ToolTip::move(point);
         } else {
             DEBUG("CREATING LOCALS, WAITING...");
-            tooltip = new DebuggerToolTipWidget(m_engine, context);
-            tooltip->setState(Acquired);
-            m_tooltips.at(editorWidget).push_back(tooltip);
-            ToolTip::show(point, tooltip, editorWidget);
+            tooltipWidget = new DebuggerToolTipWidget(m_engine, context);
+            tooltipWidget->setState(Acquired);
+            m_tooltips.append({editorWidget, tooltipWidget});
+            ToolTip::show(point, tooltipWidget, editorWidget);
         }
-        DEBUG("SYNC IN STATE" << tooltip->state);
-        tooltip->updateTooltip();
+        DEBUG("SYNC IN STATE" << tooltipWidget->state);
+        tooltipWidget->updateTooltip();
 
     } else {
 
         context.iname = "tooltip." + toHex(context.expression);
-        auto reusable = [&context](DebuggerToolTipWidget *tooltip) {
-            return tooltip->context.isSame(context);
-        };
-        DebuggerToolTipWidget *tooltip = Utils::findOrDefault(m_tooltips.at(editorWidget), reusable);
 
-        if (tooltip) {
+        DebuggerToolTipWidget *tooltipWidget = findToolTip(editorWidget, context);
+
+        if (tooltipWidget) {
             //tooltip->destroy();
-            tooltip->context.mousePosition = point;
+            tooltipWidget->context.mousePosition = point;
             ToolTip::move(point);
             DEBUG("UPDATING DELAYED.");
         } else {
             DEBUG("CREATING DELAYED.");
-            tooltip = new DebuggerToolTipWidget(m_engine, context);
-            tooltip->context.mousePosition = point;
-            m_tooltips.at(editorWidget).push_back(tooltip);
-            tooltip->setState(PendingUnshown);
+            tooltipWidget = new DebuggerToolTipWidget(m_engine, context);
+            tooltipWidget->context.mousePosition = point;
+            m_tooltips.append({editorWidget, tooltipWidget});
+            tooltipWidget->setState(PendingUnshown);
             if (m_engine->canHandleToolTip(context)) {
                 m_engine->updateItem(context.iname);
             } else {
                 ToolTip::show(point, Tr::tr("Expression too complex"), editorWidget);
-                tooltip->destroy();
+                tooltipWidget->destroy();
             }
         }
     }
@@ -963,7 +968,7 @@ void DebuggerToolTipManagerPrivate::slotEditorOpened(IEditor *e)
     // Move tooltip along when scrolled.
     if (auto textEditor = qobject_cast<BaseTextEditor *>(e)) {
         TextEditorWidget *widget = textEditor->editorWidget();
-        m_tooltips.insert({widget, {}});
+        removeToolTipsForWidget(widget);
         QObject::connect(widget->verticalScrollBar(), &QScrollBar::valueChanged,
                          this, &DebuggerToolTipManagerPrivate::updateVisibleToolTips);
         QObject::connect(widget, &TextEditorWidget::tooltipOverrideRequested,
@@ -984,12 +989,9 @@ DebuggerToolTipContexts DebuggerToolTipManager::pendingTooltips() const
     StackFrame frame = d->m_engine->stackHandler()->currentFrame();
     DebuggerToolTipContexts rc;
     d->purgeClosedToolTips();
-    for (const auto &[editor, tooltips] : d->m_tooltips) {
-        for (DebuggerToolTipWidget *tooltip : std::as_const(tooltips)) {
-            const DebuggerToolTipContext &context = tooltip->context;
-            if (context.iname.startsWith("tooltip") && context.matchesFrame(frame))
-                rc.push_back(context);
-        }
+    for (const auto &[editor, tooltip] : d->m_tooltips) {
+        if (tooltip && tooltip->context.iname.startsWith("tooltip") && tooltip->context.matchesFrame(frame))
+            rc.push_back(tooltip->context);
     }
     return rc;
 }
@@ -1036,17 +1038,21 @@ bool DebuggerToolTipManagerPrivate::eventFilter(QObject *o, QEvent *e)
     return false;
 }
 
+DebuggerToolTipWidget *DebuggerToolTipManagerPrivate::findToolTip(TextEditorWidget *editorWidget,
+                                                                  const DebuggerToolTipContext &context)
+{
+    for (const auto &[editor, tooltip] : m_tooltips) {
+        if (editor && editor == editorWidget && tooltip && tooltip->context.isSame(context))
+            return tooltip;
+    }
+    return nullptr;
+}
+
 void DebuggerToolTipManagerPrivate::purgeClosedToolTips()
 {
-    for (auto &[editor, tooltips] : m_tooltips) {
-        for (int i = tooltips.size(); --i >= 0;) {
-            const QPointer<DebuggerToolTipWidget> tooltip = tooltips.at(i);
-            if (!tooltip) {
-                DEBUG("PURGE TOOLTIP, LEFT: " << m_tooltips.size());
-                tooltips.removeAt(i);
-            }
-        }
-    }
+    m_tooltips = Utils::filtered(m_tooltips, [](const auto &pair) {
+        return pair.second;
+    });
 }
 
 } // Debugger::Internal
