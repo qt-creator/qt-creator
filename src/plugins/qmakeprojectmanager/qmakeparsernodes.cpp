@@ -90,6 +90,7 @@ public:
     ProFile *proFile;
     FilePath name;
     QmakePriFileEvalResult result;
+    bool fromExactParse = true;
     QMap<FilePath, QmakeIncludedPriFile *> children;
 
     ~QmakeIncludedPriFile()
@@ -1464,6 +1465,7 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
                 auto childTree = new QmakeIncludedPriFile;
                 childTree->proFile = child;
                 childTree->name = childName;
+                childTree->fromExactParse = false;
                 current->children.insert(childName, childTree);
                 proToResult[child->id()] = &childTree->result;
             }
@@ -1611,7 +1613,7 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
                 else
                     result->directChildren << qmakePriFileNode;
                 qmakePriFileNode->setIncludedInExactParse(input.includedInExcactParse
-                        && result->state == QmakeEvalResult::EvalOk);
+                        && priFile->fromExactParse && result->state == QmakeEvalResult::EvalOk);
                 result->priFiles.push_back({qmakePriFileNode, priFile->result});
                 toCompare.push_back({qmakePriFileNode, priFile});
             } else {
