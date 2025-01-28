@@ -478,10 +478,14 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             });
 
             const QString headerMimeType = [&]() -> QString {
-                if (ci.language == "C" || ci.language == "OBJC") {
+                if (ci.language == "C") {
                     return Utils::Constants::C_HEADER_MIMETYPE;
-                } else if (ci.language == "CXX" || ci.language == "OBJCXX") {
+                } else if (ci.language == "CXX") {
                     return Utils::Constants::CPP_HEADER_MIMETYPE;
+                } else if (ci.language == "OBJC") {
+                    return Utils::Constants::OBJECTIVE_C_SOURCE_MIMETYPE;
+                } else if (ci.language == "OBJCXX") {
+                    return Utils::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE;
                 }
                 return {};
             }();
