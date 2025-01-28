@@ -211,6 +211,7 @@ public:
     bool isQtQuickControlsSwipeView() const;
     bool isQtQuickControlsTabBar() const;
     bool isQtQuickExtrasPicture() const;
+    bool isQtQuickGradient() const;
     bool isQtQuickImage() const;
     bool isQtQuickItem() const;
     bool isQtQuickLayoutsLayout() const;

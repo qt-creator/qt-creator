@@ -1830,6 +1830,24 @@ TEST_F(NodeMetaInfo, default_is_not_QtQuickExtras_Picture)
     ASSERT_THAT(isType, IsFalse());
 }
 
+TEST_F(NodeMetaInfo, is_QtQuick_Gradient)
+{
+    auto metaInfo = createDerivedDummyMetaInfo("QtQuick", ModuleKind::QmlLibrary, "Gradient");
+
+    bool isType = metaInfo.isQtQuickGradient();
+
+    ASSERT_THAT(isType, IsTrue());
+}
+
+TEST_F(NodeMetaInfo, default_is_not_QtQuick_Gradient)
+{
+    QmlDesigner::NodeMetaInfo metaInfo;
+
+    bool isType = metaInfo.isQtQuickGradient();
+
+    ASSERT_THAT(isType, IsFalse());
+}
+
 TEST_F(NodeMetaInfo, is_QtQuick_Image)
 {
     auto metaInfo = createDerivedDummyMetaInfo("QtQuick", ModuleKind::QmlLibrary, "Image");

@@ -185,6 +185,7 @@ public:
     NodeMetaInfo qtQuickBorderImageMetaInfo() const;
     NodeMetaInfo qtQuickControlsLabelMetaInfo() const;
     NodeMetaInfo qtQuickControlsTextAreaMetaInfo() const;
+    NodeMetaInfo qtQuickGradientMetaInfo() const;
     NodeMetaInfo qtQuickImageMetaInfo() const;
     NodeMetaInfo qtQuickItemMetaInfo() const;
     NodeMetaInfo qtQuickPropertyAnimationMetaInfo() const;

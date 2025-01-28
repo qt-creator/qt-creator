@@ -3011,6 +3011,23 @@ bool NodeMetaInfo::isQtQuickExtrasPicture() const
     }
 }
 
+bool NodeMetaInfo::isQtQuickGradient() const
+{
+#ifdef QDS_USE_PROJECTSTORAGE
+
+    if (!isValid())
+        return false;
+
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is QtQuick.Gradient", category(), keyValue("type id", m_typeId)};
+
+    using namespace Storage::Info;
+    return isBasedOnCommonType<QtQuick, Gradient>(m_projectStorage, m_typeId);
+#else
+    return isValid() && (isSubclassOf("QtQuick.Gradient"));
+#endif
+}
+
 bool NodeMetaInfo::isQtQuickImage() const
 {
     if constexpr (useProjectStorage()) {

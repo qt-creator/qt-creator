@@ -2404,6 +2404,16 @@ NodeMetaInfo Model::qtQuickShapesShapeMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::qtQuickGradientMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick, Gradient>();
+    } else {
+        return metaInfo("QtQuick.Gradient");
+    }
+}
+
 NodeMetaInfo Model::qtQuickImageMetaInfo() const
 {
     if constexpr (useProjectStorage()) {

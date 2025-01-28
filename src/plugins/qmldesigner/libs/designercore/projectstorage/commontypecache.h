@@ -49,6 +49,7 @@ inline constexpr char FlowItem[] = "FlowItem";
 inline constexpr char FlowTransition[] = "FlowTransition";
 inline constexpr char FlowView[] = "FlowView";
 inline constexpr char FlowWildcard[] = "FlowWildcard";
+inline constexpr char Gradient[] = "Gradient";
 inline constexpr char GridView[] = "GridView";
 inline constexpr char GroupItem[] = "GroupItem";
 inline constexpr char Image[] = "Image";
@@ -183,6 +184,7 @@ class CommonTypeCache
         CacheType<QtQml_Models, ModuleKind::QmlLibrary, ListModel>,
         CacheType<QtQml_XmlListModel, ModuleKind::QmlLibrary, XmlListModelRole>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, BorderImage>,
+        CacheType<QtQuick, ModuleKind::QmlLibrary, Gradient>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, GridView>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, Image>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, Item>,
