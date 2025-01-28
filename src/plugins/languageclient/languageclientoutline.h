@@ -18,6 +18,10 @@ class LANGUAGECLIENT_EXPORT LanguageClientOutlineItem
     : public Utils::TypedTreeItem<LanguageClientOutlineItem>
 {
 public:
+    enum ItemDataRoles {
+        AnnotationRole = Qt::UserRole + 1,
+    };
+
     LanguageClientOutlineItem() = default;
     LanguageClientOutlineItem(const LanguageServerProtocol::SymbolInformation &info);
     LanguageClientOutlineItem(Client *client, const LanguageServerProtocol::DocumentSymbol &info);

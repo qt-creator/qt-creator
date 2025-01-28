@@ -139,7 +139,11 @@ private:
                     return creatorColor(Theme::TextColorDisabled);
                 }
                 break;
+            case AnnotationRole:
+                // Item details are integrated into the displayname through the DisplayRole
+                return {};
             }
+
         }
         return LanguageClientOutlineItem::data(column, role);
     }
