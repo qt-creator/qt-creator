@@ -30,8 +30,6 @@ const char IosCmakeGenerator[] = "IosCmakeGenerator";
 
 const quint16 IOS_DEVICE_PORT_START = 30000;
 const quint16 IOS_DEVICE_PORT_END = 31000;
-const quint16 IOS_SIMULATOR_PORT_START = 30000;
-const quint16 IOS_SIMULATOR_PORT_END = 31000;
 
 const char EXTRA_INFO_KEY[] = "extraInfo";
 

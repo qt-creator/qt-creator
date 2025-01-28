@@ -47,16 +47,16 @@ public:
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
 
     ProjectExplorer::IDeviceWidget *createWidget() override;
-    Utils::Port nextPort() const;
 
-protected:
+private:
+    Tasking::ExecutableItem portsGatheringRecipe(
+        const Tasking::Storage<Utils::PortsOutputData> &output) const override;
+    QUrl toolControlChannel(const ControlChannelHint &) const override;
+
     friend class IosSimulatorFactory;
     friend class IosConfigurations;
     IosSimulator();
     IosSimulator(Utils::Id id);
-
-private:
-    mutable quint16 m_lastPort;
 };
 
 class IosSimulatorFactory final : public ProjectExplorer::IDeviceFactory

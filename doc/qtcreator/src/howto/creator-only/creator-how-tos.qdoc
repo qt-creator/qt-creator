@@ -595,6 +595,11 @@
         \li \c %$VARIABLE%: Contents of environment variable \c{VARIABLE}.
 
     \endlist
+
+    In addition, placeholders in the form %{..} are replaced by the
+    value of the corresponding \QC variable.
+
+    \sa {Use \QC variables}
 */
 
 /*!

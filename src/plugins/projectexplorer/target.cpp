@@ -635,7 +635,9 @@ Store Target::toMap() const
 
 void Target::updateDefaultBuildConfigurations()
 {
-    BuildConfigurationFactory *bcFactory = BuildConfigurationFactory::find(this);
+    if (!project()->supportsBuilding())
+        return;
+    BuildConfigurationFactory * bcFactory = BuildConfigurationFactory::find(this);
     if (!bcFactory) {
         qWarning("No build configuration factory found for target id '%s'.", qPrintable(id().toString()));
         return;

@@ -442,7 +442,7 @@ public:
             painter->setPen(sessionNameTF.color());
             painter->setFont(sessionNameTF.font(switchActive));
             const QString fullSessionNameElided = painter->fontMetrics().elidedText(
-                fullSessionName, Qt::ElideRight, sessionNameWidth);
+                fullSessionName, Qt::ElideMiddle, sessionNameWidth);
             painter->drawText(sessionNameR, sessionNameTF.drawTextFlags,
                               fullSessionNameElided);
             if (switchActive)

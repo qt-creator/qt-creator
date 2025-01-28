@@ -1022,42 +1022,36 @@ void LldbEngine::fetchStack(int limit, bool extraQml)
 void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)
 {
     QPointer<DisassemblerAgent> p(agent);
-    int id = m_disassemblerAgents.value(p, -1);
-    if (id == -1) {
-        id = ++m_lastAgentId;
-        m_disassemblerAgents.insert(p, id);
-    }
     const Location &loc = agent->location();
     DebuggerCommand cmd("fetchDisassembler");
     cmd.arg("address", loc.address());
     cmd.arg("function", loc.functionName());
     cmd.arg("flavor", settings().intelFlavor() ? "intel" : "att");
-    cmd.callback = [this, id](const DebuggerResponse &response) {
+    cmd.callback = [agent = QPointer<DisassemblerAgent>(agent)](const DebuggerResponse &response) {
+        if (!agent)
+            return;
         DisassemblerLines result;
-        QPointer<DisassemblerAgent> agent = m_disassemblerAgents.key(id);
-        if (!agent.isNull()) {
-            for (const GdbMi &line : response.data["lines"]) {
-                DisassemblerLine dl;
-                dl.address = line["address"].toAddress();
-                //dl.data = line["data"].data();
-                //dl.rawData = line["rawdata"].data();
-                dl.data = line["rawdata"].data();
-                if (!dl.data.isEmpty())
-                    dl.data += QString(30 - dl.data.size(), ' ');
-                dl.data += fromHex(line["hexdata"].data());
-                dl.data += line["data"].data();
-                dl.offset = line["offset"].toInt();
-                dl.lineNumber = line["line"].toInt();
-                dl.fileName = line["file"].data();
-                dl.function = line["function"].data();
-                dl.hunk = line["hunk"].toInt();
-                QString comment = fromHex(line["comment"].data());
-                if (!comment.isEmpty())
-                    dl.data += " # " + comment;
-                result.appendLine(dl);
-            }
-            agent->setContents(result);
+        for (const GdbMi &line : response.data["lines"]) {
+            DisassemblerLine dl;
+            dl.address = line["address"].toAddress();
+            //dl.data = line["data"].data();
+            //dl.rawData = line["rawdata"].data();
+            dl.data = line["rawdata"].data();
+            if (!dl.data.isEmpty())
+                dl.data += QString(30 - dl.data.size(), ' ');
+            dl.data += fromHex(line["hexdata"].data());
+            dl.data += line["data"].data();
+            dl.offset = line["offset"].toInt();
+            dl.lineNumber = line["line"].toInt();
+            dl.fileName = line["file"].data();
+            dl.function = line["function"].data();
+            dl.hunk = line["hunk"].toInt();
+            QString comment = fromHex(line["comment"].data());
+            if (!comment.isEmpty())
+                dl.data += " # " + comment;
+            result.appendLine(dl);
         }
+        agent->setContents(result);
     };
     runCommand(cmd);
 }

@@ -3,10 +3,10 @@
 
 #include "nimcompilerbuildstep.h"
 
-#include "nimbuildconfiguration.h"
 #include "nimconstants.h"
 #include "nimoutputtaskparser.h"
 #include "nimtr.h"
+#include "project/nimproject.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/ioutputparser.h>

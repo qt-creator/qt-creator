@@ -22,6 +22,7 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projectnodes.h>
@@ -100,7 +101,7 @@ private:
 class GenericBuildSystem final : public BuildSystem
 {
 public:
-    explicit GenericBuildSystem(Target *target);
+    explicit GenericBuildSystem(BuildConfiguration *bc);
     ~GenericBuildSystem();
 
     void triggerParsing() final;
@@ -162,6 +163,68 @@ private:
 };
 
 //
+// GenericBuildConfiguration
+//
+
+class GenericBuildConfiguration final : public BuildConfiguration
+{
+public:
+    GenericBuildConfiguration(Target *target, Id id)
+        : BuildConfiguration(target, id), m_buildSystem(new GenericBuildSystem(this))
+    {
+        setConfigWidgetDisplayName(GenericProjectManager::Tr::tr("Generic Manager"));
+        setBuildDirectoryHistoryCompleter("Generic.BuildDir.History");
+
+        setInitializer([this](const BuildInfo &) {
+            buildSteps()->appendStep(Constants::GENERIC_MS_ID);
+            cleanSteps()->appendStep(Constants::GENERIC_MS_ID);
+            updateCacheAndEmitEnvironmentChanged();
+        });
+
+        updateCacheAndEmitEnvironmentChanged();
+    }
+
+    ~GenericBuildConfiguration() { delete m_buildSystem; }
+
+private:
+    void addToEnvironment(Environment &env) const final
+    {
+        QtSupport::QtKitAspect::addHostBinariesToPath(kit(), env);
+    }
+
+    BuildSystem *buildSystem() const { return m_buildSystem; }
+
+    GenericBuildSystem * const m_buildSystem;
+};
+
+class GenericBuildConfigurationFactory final : public BuildConfigurationFactory
+{
+public:
+    GenericBuildConfigurationFactory()
+    {
+        registerBuildConfiguration<GenericBuildConfiguration>
+            ("GenericProjectManager.GenericBuildConfiguration");
+
+        setSupportedProjectType(Constants::GENERICPROJECT_ID);
+        setSupportedProjectMimeTypeName(Constants::GENERICMIMETYPE);
+
+        setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
+            BuildInfo info;
+            info.typeName = ProjectExplorer::Tr::tr("Build");
+            info.buildDirectory = forSetup ? projectPath.absolutePath() : projectPath;
+
+            if (forSetup)  {
+                //: The name of the build configuration created by default for a generic project.
+                info.displayName = ProjectExplorer::Tr::tr("Default");
+            }
+
+            return QList<BuildInfo>{info};
+        });
+    }
+};
+
+
+//
 // GenericProject
 //
 
@@ -183,7 +246,6 @@ public:
         setId(Constants::GENERICPROJECT_ID);
         setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
         setDisplayName(filePath.completeBaseName());
-        setBuildSystemCreator<GenericBuildSystem>();
     }
 
     void editFilesTriggered();
@@ -195,12 +257,12 @@ private:
     void configureAsExampleProject(Kit *kit) final;
 };
 
-GenericBuildSystem::GenericBuildSystem(Target *target)
-    : BuildSystem(target)
+GenericBuildSystem::GenericBuildSystem(BuildConfiguration *bc)
+    : BuildSystem(bc)
 {
     m_cppCodeModelUpdater = ProjectUpdaterFactory::createCppProjectUpdater();
 
-    connect(target->project(), &Project::projectFileIsDirty, this, [this](const FilePath &p) {
+    connect(bc->project(), &Project::projectFileIsDirty, this, [this](const FilePath &p) {
         if (p.endsWith(".files"))
             refresh(Files);
         else if (p.endsWith(".includes") || p.endsWith(".config") || p.endsWith(".cxxflags")
@@ -240,13 +302,11 @@ GenericBuildSystem::GenericBuildSystem(Target *target)
     connect(&m_deployFileWatcher, &FileSystemWatcher::fileChanged,
             this, &GenericBuildSystem::updateDeploymentData);
 
-    connect(target, &Target::activeBuildConfigurationChanged, this, [this, target] {
-        if (target == project()->activeTarget())
-            refresh(Everything);
+    connect(bc->target(), &Target::activeBuildConfigurationChanged, this, [this] {
+        refresh(Everything);
     });
-    connect(project(), &Project::activeTargetChanged, this, [this, target] {
-        if (target == project()->activeTarget())
-            refresh(Everything);
+    connect(project(), &Project::activeTargetChanged, this, [this] {
+        refresh(Everything);
     });
 }
 
@@ -483,6 +543,11 @@ FilePath GenericBuildSystem::findCommonSourceRoot()
 
 void GenericBuildSystem::refresh(RefreshOptions options)
 {
+    // TODO: This stanza will have to appear in every BuildSystem and should eventually
+    //       be centralized.
+    if (this != project()->activeBuildSystem())
+        return;
+
     ParseGuard guard = guardParsingRun();
     parse(options);
 
@@ -725,6 +790,8 @@ void GenericProject::removeFilesTriggered(const FilePaths &filesToRemove)
 
 void setupGenericProject(QObject *guard)
 {
+    static GenericBuildConfigurationFactory theGenericBuildConfigurationFactory;
+
     namespace PEC = ProjectExplorer::Constants;
 
     ProjectManager::registerProjectType<GenericProject>(Constants::GENERICMIMETYPE);

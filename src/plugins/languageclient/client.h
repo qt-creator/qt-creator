@@ -188,7 +188,7 @@ public:
     Utils::OsType osType() const;
 
     // custom methods
-    using CustomMethodHandler = std::function<void(
+    using CustomMethodHandler = std::function<bool(
         const LanguageServerProtocol::JsonRpcMessage &message)>;
     void registerCustomMethod(const QString &method, const CustomMethodHandler &handler);
 

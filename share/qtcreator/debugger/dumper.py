@@ -2315,7 +2315,7 @@ typename))
                                 with SubItem(self, propertyCount + dynamicPropertyCount):
                                     if not self.isCli:
                                         self.putField('key', self.encodeByteArray(k))
-                                        self.putField('keyencoded', 'latin1')
+                                        self.putField('keyencoded', 'latin1:1:0')
                                     self.putItem(v)
                                     dynamicPropertyCount += 1
                     self.putItemCount(propertyCount + dynamicPropertyCount)

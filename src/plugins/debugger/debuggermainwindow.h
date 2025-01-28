@@ -78,20 +78,20 @@ public:
     enum OperationType { SplitVertical, SplitHorizontal, AddToTab, Raise };
 
     void setCentralWidget(QWidget *centralWidget);
-    void addWindow(QWidget *widget,
+    void addWindow(QWidget *widget, // Perspective takes ownership.
                    OperationType op,
                    QWidget *anchorWidget,
                    bool visibleByDefault = true,
                    Qt::DockWidgetArea area = Qt::BottomDockWidgetArea);
 
-    void addToolBarAction(QAction *action);
-    void addToolBarAction(OptionalAction *action);
-    void addToolBarWidget(QWidget *widget);
+    void addToolBarAction(QAction *action); // Perspective takes ownership.
+    void addToolBarAction(OptionalAction *action); // Perspective takes ownership.
+    void addToolBarWidget(QWidget *widget); // Perspecive takes ownership.
     void addToolbarSeparator();
 
     void registerNextPrevShortcuts(QAction *next, QAction *prev);
 
-    void useSubPerspectiveSwitcher(QWidget *widget);
+    void useSubPerspectiveSwitcher(QWidget *widget); // No ownership passed.
 
     using ShouldPersistChecker = std::function<bool()>;
     void setShouldPersistChecker(const ShouldPersistChecker &checker);

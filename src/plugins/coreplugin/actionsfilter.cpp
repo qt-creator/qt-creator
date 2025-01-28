@@ -174,23 +174,43 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
                                          LocatorFilterEntries()));
 }
 
+class ActionEntryCache
+{
+public:
+    void update(QAction *action, const LocatorFilterEntry &entry)
+    {
+        const int index = m_actionIndexCache.value(action, -1);
+        if (index < 0) {
+            m_actionIndexCache[action] = m_entries.size();
+            m_entries << entry;
+        } else {
+            m_entries[index] = entry;
+        }
+    }
+
+    LocatorFilterEntries entries() const { return m_entries; }
+
+private:
+    LocatorFilterEntries m_entries;
+    QHash<QAction *, int> m_actionIndexCache;
+};
+
 LocatorMatcherTasks ActionsFilter::matchers()
 {
     const auto onSetup = [this](Async<void> &async) {
-        m_entries.clear();
-        m_indexes.clear();
+        ActionEntryCache cache;
         QList<const QMenu *> processedMenus;
-        collectEntriesForLastTriggered();
+        collectEntriesForLastTriggered(&cache);
         for (QAction* action : menuBarActions())
-            collectEntriesForAction(action, {}, processedMenus);
-        collectEntriesForCommands();
-        collectEntriesForPreferences();
+            collectEntriesForAction(action, {}, processedMenus, &cache);
+        collectEntriesForCommands(&cache);
+        const LocatorFilterEntries entries = cache.entries() + collectEntriesForPreferences();
         const LocatorStorage &storage = *LocatorStorage::storage();
         if (storage.input().simplified().isEmpty()) {
-            storage.reportOutput(m_entries);
+            storage.reportOutput(entries);
             return SetupResult::StopWithSuccess;
         }
-        async.setConcurrentCallData(matches, storage, m_entries);
+        async.setConcurrentCallData(matches, storage, entries);
         return SetupResult::Continue;
     };
 
@@ -234,7 +254,8 @@ static QString actionText(QAction *action)
 
 void ActionsFilter::collectEntriesForAction(QAction *action,
                                             const QStringList &path,
-                                            QList<const QMenu *> &processedMenus)
+                                            QList<const QMenu *> &processedMenus,
+                                            ActionEntryCache *cache) const
 {
     if (!m_enabledActions.contains(action))
         return;
@@ -248,7 +269,7 @@ void ActionsFilter::collectEntriesForAction(QAction *action,
             QStringList menuPath(path);
             menuPath << text;
             for (QAction *menuAction : actions)
-                collectEntriesForAction(menuAction, menuPath, processedMenus);
+                collectEntriesForAction(menuAction, menuPath, processedMenus, cache);
         }
     } else if (!text.isEmpty()) {
         LocatorFilterEntry filterEntry;
@@ -256,11 +277,11 @@ void ActionsFilter::collectEntriesForAction(QAction *action,
         filterEntry.acceptor = acceptor(ActionFilterEntryData{action, {}});
         filterEntry.displayIcon = action->icon();
         filterEntry.extraInfo = path.join(" > ");
-        updateEntry(action, filterEntry);
+        cache->update(action, filterEntry);
     }
 }
 
-void ActionsFilter::collectEntriesForCommands()
+void ActionsFilter::collectEntriesForCommands(ActionEntryCache *cache) const
 {
     const QList<Command *> commands = Core::ActionManager::commands();
     for (const Command *command : commands) {
@@ -287,11 +308,11 @@ void ActionsFilter::collectEntriesForCommands()
         filterEntry.displayExtra = command->keySequence().toString(QKeySequence::NativeText);
         if (path.size() >= 2)
             filterEntry.extraInfo = path.mid(0, path.size() - 1).join(" > ");
-        updateEntry(action, filterEntry);
+        cache->update(action, filterEntry);
     }
 }
 
-void ActionsFilter::collectEntriesForLastTriggered()
+void ActionsFilter::collectEntriesForLastTriggered(ActionEntryCache *cache) const
 {
     for (ActionFilterEntryData &data : m_lastTriggered) {
         if (!data.action) {
@@ -304,11 +325,11 @@ void ActionsFilter::collectEntriesForLastTriggered()
         filterEntry.displayName = actionText(data.action);
         filterEntry.acceptor = acceptor(data);
         filterEntry.displayIcon = data.action->icon();
-        updateEntry(data.action, filterEntry);
+        cache->update(data.action, filterEntry);
     }
 }
 
-void ActionsFilter::collectEntriesForPreferences()
+LocatorFilterEntries ActionsFilter::collectEntriesForPreferences() const
 {
     static QHash<IOptionsPage *, LocatorFilterEntries> entriesForPages;
     static QMap<Utils::Id, QString> categoryDisplay;
@@ -352,19 +373,10 @@ void ActionsFilter::collectEntriesForPreferences()
     }
     for (auto oldPage : oldPages)
         entriesForPages.remove(oldPage);
+    LocatorFilterEntries result;
     for (const LocatorFilterEntries &entries : std::as_const(entriesForPages))
-        m_entries.append(entries);
-}
-
-void ActionsFilter::updateEntry(const QPointer<QAction> action, const LocatorFilterEntry &entry)
-{
-    const int index = m_indexes.value(action, -1);
-    if (index < 0) {
-        m_indexes[action] = m_entries.size();
-        m_entries << entry;
-    } else {
-        m_entries[index] = entry;
-    }
+        result.append(entries);
+    return result;
 }
 
 static void requestMenuUpdate(const QAction* action)

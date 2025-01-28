@@ -248,6 +248,19 @@ private:
 
 const char kRestartSetting[] = "RestartAfterPluginEnabledChanged";
 
+static void requestRestart()
+{
+    if (ICore::infoBar()->canInfoBeAdded(kRestartSetting)) {
+        Utils::InfoBarEntry
+            info(kRestartSetting, Core::Tr::tr("Plugin changes will take effect after restart."));
+        info.addCustomButton(Tr::tr("Restart Now"), [] {
+            ICore::infoBar()->removeInfo(kRestartSetting);
+            QTimer::singleShot(0, ICore::instance(), &ICore::restart);
+        });
+        ICore::infoBar()->addInfo(info);
+    }
+}
+
 class PluginStatusWidget : public QWidget
 {
 public:
@@ -255,14 +268,15 @@ public:
         : QWidget(parent)
     {
         m_label = new InfoLabel;
+        m_label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         m_switch = new Switch(Tr::tr("Active"));
         m_pluginView.hide();
         setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
 
         using namespace Layouting;
-        Column {
-            m_label,
-            m_switch,
+        Grid {
+            Span(2, m_label), br,
+            m_switch, empty, br,
         }.attachTo(this);
 
         connect(m_switch, &QCheckBox::clicked, this, [this](bool checked) {
@@ -271,18 +285,10 @@ public:
                 return;
             const bool doIt = m_pluginView.data().setPluginsEnabled({spec}, checked);
             if (doIt) {
-                if (checked && spec->isEffectivelySoftloadable()) {
+                if (checked && spec->isEffectivelySoftloadable())
                     ExtensionSystem::PluginManager::loadPluginsAtRuntime({spec});
-                } else if (ICore::infoBar()->canInfoBeAdded(kRestartSetting)) {
-                    Utils::InfoBarEntry info(
-                        kRestartSetting,
-                        Core::Tr::tr("Plugin changes will take effect after restart."));
-                    info.addCustomButton(Tr::tr("Restart Now"), [] {
-                        ICore::infoBar()->removeInfo(kRestartSetting);
-                        QTimer::singleShot(0, ICore::instance(), &ICore::restart);
-                    });
-                    ICore::infoBar()->addInfo(info);
-                }
+                else
+                    requestRestart();
 
                 ExtensionSystem::PluginManager::writeSettings();
             } else {
@@ -689,8 +695,18 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QStrin
             TemporaryDirectory::masterDirectoryPath() + "/XXXXXX-" + source.fileName());
 
         saver.write(storage->packageData);
-        if (saver.finalize(ICore::dialogParent()))
-            return executePluginInstallWizard(saver.filePath());
+        if (saver.finalize(ICore::dialogParent())) {
+            auto result = executePluginInstallWizard(saver.filePath());
+            switch (result) {
+            case InstallResult::Success:
+                return true;
+            case InstallResult::NeedsRestart:
+                requestRestart();
+                return true;
+            case InstallResult::Error:
+                return false;
+            }
+        }
         return false;
     };
 

@@ -11,6 +11,12 @@
 
 namespace Core {
 
-CORE_EXPORT bool executePluginInstallWizard(const Utils::FilePath &archive = {});
+enum class InstallResult {
+    Success,
+    Error,
+    NeedsRestart,
+};
+
+CORE_EXPORT InstallResult executePluginInstallWizard(const Utils::FilePath &archive = {});
 
 } // namespace Core

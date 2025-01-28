@@ -22,6 +22,7 @@
 #include <utils/portlist.h>
 #include <utils/qtcprocess.h>
 #include <utils/shutdownguard.h>
+#include <utils/url.h>
 
 #include <solutions/tasking/tasktree.h>
 
@@ -48,6 +49,7 @@
 #include <exception>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace {
@@ -105,7 +107,6 @@ public:
 };
 
 IosDevice::IosDevice(CtorHelper)
-    : m_lastPort(Constants::IOS_DEVICE_PORT_START)
 {
     setType(Constants::IOS_DEVICE_TYPE);
     setDefaultDisplayName(IosDevice::name());
@@ -157,6 +158,12 @@ void IosDevice::fromMap(const Store &map)
     for (auto i = vMap.cbegin(), end = vMap.cend(); i != end; ++i)
         m_extraInfo.insert(stringFromKey(i.key()), i.value().toString());
     m_handler = Handler(map.value(kHandler).toInt());
+    // TODO IDevice::fromMap overrides the port list that we set in the constructor
+    //      this shouldn't happen
+    Utils::PortList ports;
+    ports.addRange(
+        Utils::Port(Constants::IOS_DEVICE_PORT_START), Utils::Port(Constants::IOS_DEVICE_PORT_END));
+    setFreePorts(ports);
 }
 
 void IosDevice::toMap(Store &map) const
@@ -168,6 +175,25 @@ void IosDevice::toMap(Store &map) const
         vMap.insert(keyFromString(i.key()), i.value());
     map.insert(Constants::EXTRA_INFO_KEY, variantFromStore(vMap));
     map.insert(kHandler, int(m_handler));
+}
+
+ExecutableItem IosDevice::portsGatheringRecipe(
+    [[maybe_unused]] const Storage<PortsOutputData> &output) const
+{
+    // We don't really know how to get all used ports on the device.
+    // The code in <= 15.0 cycled through the list (30001 for the first run,
+    // 30002 for the second run etc)
+    // I guess that would be needed if we could run/profile multiple applications on
+    // the device simultaneously, we cannot
+    return Group{nullItem};
+}
+
+QUrl IosDevice::toolControlChannel(const ControlChannelHint &) const
+{
+    QUrl url;
+    url.setScheme(Utils::urlTcpScheme());
+    url.setHost("localhost");
+    return url;
 }
 
 QString IosDevice::deviceName() const
@@ -203,14 +229,6 @@ QString IosDevice::productType() const
 QString IosDevice::cpuArchitecture() const
 {
     return m_extraInfo.value(kCpuArchitecture);
-}
-
-Utils::Port IosDevice::nextPort() const
-{
-    // use qrand instead?
-    if (++m_lastPort >= Constants::IOS_DEVICE_PORT_END)
-        m_lastPort = Constants::IOS_DEVICE_PORT_START;
-    return Utils::Port(m_lastPort);
 }
 
 IosDevice::Handler IosDevice::handler() const
@@ -290,8 +308,6 @@ void IosDeviceManager::deviceDisconnected(const QString &uid)
 
 void IosDeviceManager::updateInfo(const QString &devId)
 {
-    using namespace Tasking;
-
     const auto getDeviceCtlVersion = ProcessTask(
         [](Process &process) {
             process.setCommand({FilePath::fromString("/usr/bin/xcrun"), {"devicectl", "--version"}});

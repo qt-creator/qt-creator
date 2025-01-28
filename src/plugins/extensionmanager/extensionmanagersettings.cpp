@@ -40,17 +40,14 @@ ExtensionManagerSettings::ExtensionManagerSettings()
 
     setLayouter([this] {
         using namespace Layouting;
+        using namespace Core;
         return Column {
             Group {
                 title(Tr::tr("Note")),
                 Column {
                     Label {
                         wordWrap(true),
-                        text(Tr::tr("%1 does not check extensions from external vendors for security "
-                                    "flaws or malicious intent, so be careful when installing them, "
-                                    "as it might leave your computer vulnerable to attacks such as "
-                                    "hacking, malware, and phishing.")
-                             .arg(QGuiApplication::applicationDisplayName()))
+                        text(externalRepoWarningNote()),
                     }
                 }
             },
@@ -65,9 +62,10 @@ ExtensionManagerSettings::ExtensionManagerSettings()
                 PushButton {
                     text(Tr::tr("Install Extension...")),
                     onClicked(this, [] {
-                        if (Core::executePluginInstallWizard())
-                            Core::ICore::askForRestart(
-                                    Tr::tr("Plugin changes will take effect after restart."));
+                        if (executePluginInstallWizard() == InstallResult::NeedsRestart) {
+                            ICore::askForRestart(
+                                Tr::tr("Plugin changes will take effect after restart."));
+                        }
                     }),
                 },
                 st,
@@ -93,5 +91,15 @@ public:
 };
 
 const ExtensionManagerSettingsPage settingsPage;
+
+QString externalRepoWarningNote()
+{
+    return
+    Tr::tr("%1 does not check extensions from external vendors for security "
+           "flaws or malicious intent, so be careful when installing them, "
+           "as it might leave your computer vulnerable to attacks such as "
+           "hacking, malware, and phishing.")
+        .arg(QGuiApplication::applicationDisplayName());
+}
 
 } // ExtensionManager::Internal

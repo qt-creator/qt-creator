@@ -73,6 +73,7 @@ CopilotClient::CopilotClient(const FilePath &nodePath, const FilePath &distPath)
                                       &CopilotClient::proxyAuthenticationFailed,
                                       Qt::QueuedConnection);
         }
+        return true;
     });
 
     start();

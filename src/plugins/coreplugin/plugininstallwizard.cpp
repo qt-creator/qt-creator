@@ -500,7 +500,7 @@ static bool copyPluginFile(const FilePath &src, const FilePath &dest)
     return true;
 }
 
-bool executePluginInstallWizard(const FilePath &archive)
+InstallResult executePluginInstallWizard(const FilePath &archive)
 {
     Wizard wizard;
     wizard.setWindowTitle(Tr::tr("Install Plugin"));
@@ -562,7 +562,7 @@ bool executePluginInstallWizard(const FilePath &archive)
     };
 
     if (!install())
-        return false;
+        return InstallResult::Error;
 
     // install() would have failed if the user did not accept the terms and conditions
     // so we can safely set them as accepted here.
@@ -571,11 +571,17 @@ bool executePluginInstallWizard(const FilePath &archive)
     auto spec = data.pluginSpec.release();
     PluginManager::addPlugins({spec});
 
-    if (data.loadImmediately) {
-        spec->setEnabledBySettings(true);
-        PluginManager::loadPluginsAtRuntime({spec});
+    if (spec->isEffectivelySoftloadable()) {
+        spec->setEnabledBySettings(data.loadImmediately);
+        if (data.loadImmediately)
+            PluginManager::loadPluginsAtRuntime({spec});
+        return InstallResult::Success;
     }
-    return true;
+
+    if (spec->isEffectivelyEnabled())
+        return InstallResult::NeedsRestart;
+
+    return InstallResult::Success;
 }
 
 } // namespace Core

@@ -44,7 +44,6 @@
 
 #include <utils/action.h>
 #include <utils/algorithm.h>
-#include <utils/async.h>
 #include <utils/commandline.h>
 #include <utils/fileutils.h>
 #include <utils/infobar.h>
@@ -134,8 +133,6 @@ class GitLogEditorWidgetT : public GitLogEditorWidget
 public:
     GitLogEditorWidgetT() : GitLogEditorWidget(new Editor) {}
 };
-
-static const QVersionNumber minimumRequiredVersion{1, 9};
 
 // GitPlugin
 
@@ -296,7 +293,6 @@ public:
     void cleanCommitMessageFile();
     void cleanRepository(const FilePath &directory);
     void applyPatch(const FilePath &workingDirectory, QString file = {});
-    void updateVersionWarning();
 
     void instantBlameOnce();
 
@@ -1382,26 +1378,6 @@ void GitPluginPrivate::startCommit(CommitType commitType)
     openSubmitEditor(m_commitMessageFileName, data);
 }
 
-void GitPluginPrivate::updateVersionWarning()
-{
-    QPointer<IDocument> curDocument = EditorManager::currentDocument();
-    if (!curDocument)
-        return;
-    Utils::onResultReady(gitClient().gitVersion(), this, [curDocument](const QVersionNumber &version) {
-        if (!curDocument || version.isNull() || version >= minimumRequiredVersion)
-            return;
-        InfoBar *infoBar = curDocument->infoBar();
-        Id gitVersionWarning("GitVersionWarning");
-        if (!infoBar->canInfoBeAdded(gitVersionWarning))
-            return;
-        infoBar->addInfo(
-            InfoBarEntry(gitVersionWarning,
-                         Tr::tr("Unsupported version of Git found. Git %1 or later required.")
-                             .arg(minimumRequiredVersion.toString()),
-                         InfoBarEntry::GlobalSuppression::Enabled));
-    });
-}
-
 void GitPluginPrivate::instantBlameOnce()
 {
     m_instantBlame.once();
@@ -1715,8 +1691,6 @@ void GitPluginPrivate::updateActions(VersionControlBase::ActionState as)
     m_commandLocator->setEnabled(repositoryEnabled);
     if (!enableMenuAction(as, m_menuAction))
         return;
-    if (repositoryEnabled)
-        updateVersionWarning();
     // Note: This menu is visible if there is no repository. Only
     // 'Create Repository'/'Show' actions should be available.
     const QString fileName = Utils::quoteAmpersands(state.currentFileName());

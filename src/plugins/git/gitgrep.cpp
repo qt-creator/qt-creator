@@ -200,13 +200,9 @@ GitGrep::GitGrep()
     m_treeLineEdit->setValidator(new QRegularExpressionValidator(refExpression, this));
     layout->addWidget(m_treeLineEdit);
     // asynchronously check git version, add "recurse submodules" option if available
-    Utils::onResultReady(gitClient().gitVersion(), this,
-                         [this, pLayout = QPointer<QHBoxLayout>(layout)](const QVersionNumber &version) {
-        if (version >= QVersionNumber{2, 13} && pLayout) {
-            m_recurseSubmodules = new QCheckBox(Tr::tr("Recurse submodules"));
-            pLayout->addWidget(m_recurseSubmodules);
-        }
-    });
+
+    m_recurseSubmodules = new QCheckBox(Tr::tr("Recurse submodules"));
+    layout->addWidget(m_recurseSubmodules);
     FindInFiles *findInFiles = FindInFiles::instance();
     QTC_ASSERT(findInFiles, return);
     connect(findInFiles, &FindInFiles::searchDirChanged, m_widget, [this](const FilePath &path) {

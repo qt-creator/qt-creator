@@ -41,14 +41,13 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
+#include <utils/mimeutils.h>
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
 #include <QFileDialog>
 #include <QHash>
-
-#include <limits>
 
 #ifdef WITH_TESTS
 #include "projectexplorer_test.h"
@@ -171,8 +170,7 @@ public:
     bool m_needsInitialExpansion = false;
     bool m_canBuildProducts = false;
     bool m_hasMakeInstallEquivalent = false;
-    bool m_needsBuildConfigurations = true;
-    bool m_needsDeployConfigurations = true;
+    bool m_supportsBuilding = true;
     bool m_shuttingDown = false;
 
     std::function<BuildSystem *(Target *)> m_buildSystemCreator;
@@ -659,10 +657,8 @@ bool Project::copySteps(const Utils::Store &store, Kit *targetKit)
 
 bool Project::setupTarget(Target *t)
 {
-    if (d->m_needsBuildConfigurations)
-        t->updateDefaultBuildConfigurations();
-    if (d->m_needsDeployConfigurations)
-        t->updateDefaultDeployConfigurations();
+    t->updateDefaultBuildConfigurations();
+    t->updateDefaultDeployConfigurations();
     t->updateDefaultRunConfigurations();
     return true;
 }
@@ -1041,14 +1037,9 @@ void Project::setHasMakeInstallEquivalent(bool enabled)
     d->m_hasMakeInstallEquivalent = enabled;
 }
 
-void Project::setNeedsBuildConfigurations(bool value)
+void Project::setSupportsBuilding(bool value)
 {
-    d->m_needsBuildConfigurations = value;
-}
-
-void Project::setNeedsDeployConfigurations(bool value)
-{
-    d->m_needsDeployConfigurations = value;
+    d->m_supportsBuilding = value;
 }
 
 Task Project::createProjectTask(Task::TaskType type, const QString &description)
@@ -1100,9 +1091,9 @@ bool Project::needsConfiguration() const
     return d->m_targets.size() == 0;
 }
 
-bool Project::needsBuildConfigurations() const
+bool Project::supportsBuilding() const
 {
-    return d->m_needsBuildConfigurations;
+    return d->m_supportsBuilding;
 }
 
 void Project::configureAsExampleProject(Kit * /*kit*/)
@@ -1405,6 +1396,17 @@ public:
     QString name() const final { return QLatin1String("test"); }
 };
 
+class TestBuildConfigurationFactory : public BuildConfigurationFactory
+{
+public:
+    TestBuildConfigurationFactory()
+    {
+        setSupportedProjectType(TEST_PROJECT_ID);
+        setBuildGenerator([](const Kit *, const FilePath &, bool){ return QList<BuildInfo>(); });
+        registerBuildConfiguration<BuildConfiguration>("TestProject.BuildConfiguration");
+    }
+};
+
 class TestProject : public Project
 {
 public:
@@ -1413,9 +1415,6 @@ public:
         setId(TEST_PROJECT_ID);
         setDisplayName(TEST_PROJECT_DISPLAYNAME);
         setBuildSystemCreator<TestBuildSystem>();
-        setNeedsBuildConfigurations(false);
-        setNeedsDeployConfigurations(false);
-
         target = addTargetForKit(&testKit);
     }
 
@@ -1663,7 +1662,8 @@ void ProjectExplorerTest::testSourceToBinaryMapping()
     // Load Project.
     QFETCH(QString, projectFileName);
     const auto theProject = ProjectExplorerPlugin::openProject(projectDir.pathAppended(projectFileName));
-    if (theProject.errorMessage().contains("text/")) {
+    if (!theProject
+        && !ProjectManager::canOpenProjectForMimeType(Utils::mimeTypeForFile(projectFileName))) {
         QSKIP("This test requires the presence of the qmake/cmake/qbs project managers "
               "to be fully functional");
     }
@@ -1707,6 +1707,8 @@ void ProjectExplorerTest::testSourceToBinaryMapping_data()
     QTest::addRow("qbs") << "multi-target-project.qbs";
     QTest::addRow("qmake") << "multi-target-project.pro";
 }
+
+static TestBuildConfigurationFactory testBuildConfigFactory;
 
 } // ProjectExplorer::Internal
 

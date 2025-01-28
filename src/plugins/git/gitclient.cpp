@@ -636,11 +636,6 @@ public:
     }
 };
 
-static bool gitHasRgbColors()
-{
-    return gitClient().gitVersion().result() >= QVersionNumber{2, 3};
-}
-
 class GitLogConfig : public GitBaseConfig
 {
 public:
@@ -678,7 +673,6 @@ public:
     QStringList graphArguments() const
     {
         const ColorNames colors = GitClient::colorNames();
-
         const QString formatArg = QStringLiteral(
                     "--pretty=format:"
                     "%C(%1)%h%Creset "
@@ -687,15 +681,7 @@ public:
                     "%C(%4)%s%Creset "
                     "%C(%5)%ci%Creset"
                     ).arg(colors.hash, colors.decoration, colors.author, colors.subject, colors.date);
-
-        QStringList graphArgs = {graphOption, "--oneline", "--topo-order"};
-
-        if (gitHasRgbColors())
-            graphArgs << formatArg;
-        else
-            graphArgs << "--pretty=format:%h %d %aN %s %ci";
-
-        return graphArgs;
+        return {graphOption, "--oneline", "--topo-order", formatArg};
     }
 };
 
@@ -1105,11 +1091,7 @@ void GitClient::fullStatus(const FilePath &workingDirectory) const
 
 static QStringList normalLogArguments()
 {
-    if (!gitHasRgbColors())
-        return {};
-
-    ColorNames colors = GitClient::colorNames();
-
+    const ColorNames colors = GitClient::colorNames();
     const QString logArgs = QStringLiteral(
                 "--pretty=format:"
                 "commit %C(%1)%H%Creset %C(%2)%d%Creset%n"
@@ -1117,7 +1099,6 @@ static QStringList normalLogArguments()
                 "Date:   %C(%4)%cD %Creset%n%n"
                 "%C(%5)%w(0,4,4)%s%Creset%n%n%b"
                 ).arg(colors.hash, colors.decoration, colors.author, colors.date, colors.subject);
-
     return {logArgs};
 }
 
@@ -1160,7 +1141,7 @@ void GitClient::log(const FilePath &workingDirectory, const QString &fileName,
     if (arguments.contains(patchOption)) {
         arguments.removeAll(colorOption);
         editor->setHighlightingEnabled(true);
-    } else if (gitHasRgbColors()) {
+    } else {
         editor->setHighlightingEnabled(false);
     }
     if (!arguments.contains(graphOption) && !arguments.contains(patchOption))
@@ -3559,40 +3540,6 @@ static QVersionNumber parseGitVersion(const QString &output)
     const QRegularExpressionMatch match = versionPattern.match(output);
     QTC_ASSERT(match.hasMatch(), return {});
     return {match.captured(1).toInt(), match.captured(2).toInt(), match.captured(3).toInt()};
-}
-
-QFuture<QVersionNumber> GitClient::gitVersion() const
-{
-    QFutureInterface<QVersionNumber> fi;
-    fi.reportStarted();
-
-    // Do not execute repeatedly if that fails (due to git
-    // not being installed) until settings are changed.
-    const FilePath newGitBinary = vcsBinary({});
-    const bool needToRunGit = m_gitVersionForBinary != newGitBinary && !newGitBinary.isEmpty();
-    if (needToRunGit) {
-        auto proc = new Process(const_cast<GitClient *>(this));
-        connect(proc, &Process::done, this, [this, proc, fi, newGitBinary] {
-            auto fiCopy = fi; // In order to avoid mutable lambda.
-            if (proc->result() == ProcessResult::FinishedWithSuccess) {
-                m_cachedGitVersion = parseGitVersion(proc->cleanedStdOut());
-                m_gitVersionForBinary = newGitBinary;
-                fiCopy.reportResult(m_cachedGitVersion);
-                fiCopy.reportFinished();
-            }
-            proc->deleteLater();
-        });
-
-        proc->setEnvironment(processEnvironment(newGitBinary));
-        proc->setCommand({newGitBinary, {"--version"}});
-        proc->start();
-    } else {
-        // already cached
-        fi.reportResult(m_cachedGitVersion);
-        fi.reportFinished();
-    }
-
-    return fi.future();
 }
 
 bool GitClient::StashInfo::init(const FilePath &workingDirectory, const QString &command,

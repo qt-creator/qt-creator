@@ -29,6 +29,19 @@
 
     \note Install and load the Qt AI Assistant extension to use it.
 
+    \section1 Install Qt AI Assistant
+
+    To load the Qt AI Assistant extension from the web:
+
+    \list 1
+        \li Go to \uicontrol Extensions, and select \inlineimage icons/settings.png.
+            \image qtcreator-preferences-extensions.webp {Extensions in Preferences}
+        \li Select \uicontrol {Use external repository}.
+        \li Select \uicontrol {OK}.
+        \li Back in \uicontrol Extensions, select \uicontrol {AI Assistant}, and
+            then select \uicontrol Install.
+    \endlist
+
     \section1 Connect to an LLM
 
     You can connect to the following LLMs:

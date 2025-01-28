@@ -16,6 +16,8 @@ public:
     Utils::BoolAspect useExternalRepo{this};
 };
 
+QString externalRepoWarningNote();
+
 ExtensionManagerSettings &settings();
 
 } // ExtensionManager::Internal

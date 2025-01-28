@@ -1948,6 +1948,13 @@ static ResponseError<T> createInvalidParamsError(const QString &message)
 
 void ClientPrivate::handleMethod(const QString &method, const MessageId &id, const JsonRpcMessage &message)
 {
+    const auto customHandler = m_customHandlers.constFind(method);
+    if (customHandler != m_customHandlers.constEnd()) {
+        const bool isHandled = (*customHandler)(message);
+        if (isHandled)
+            return;
+    }
+
     auto invalidParamsErrorMessage = [&](const JsonObject &params) {
         return Tr::tr("Invalid parameter in \"%1\":\n%2")
             .arg(method, QString::fromUtf8(QJsonDocument(params).toJson(QJsonDocument::Indented)));
@@ -1962,7 +1969,6 @@ void ClientPrivate::handleMethod(const QString &method, const MessageId &id, con
     };
 
     const bool isRequest = id.isValid();
-
     bool responseSend = false;
     auto sendResponse =
         [&](const JsonRpcMessage &response) {
@@ -2102,12 +2108,6 @@ void ClientPrivate::handleMethod(const QString &method, const MessageId &id, con
         error.setMessage(QString("The client cannot handle the method '%1'.").arg(method));
         response.setError(error);
         sendResponse(response);
-    } else {
-        const auto customHandler = m_customHandlers.constFind(method);
-        if (customHandler != m_customHandlers.constEnd()) {
-            (*customHandler)(message);
-            return;
-        }
     }
 
     // we got a request and handled it somewhere above but we missed to generate a response for it
@@ -2334,6 +2334,8 @@ OsType Client::osType() const
 
 void Client::registerCustomMethod(const QString &method, const CustomMethodHandler &handler)
 {
+    if (d->m_customHandlers.contains(method))
+        qCWarning(LOGLSPCLIENT) << "Overwriting custom method handler for:" << method;
     d->m_customHandlers.insert(method, handler);
 }
 

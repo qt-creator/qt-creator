@@ -96,6 +96,7 @@ private:
         bool isEnabled = false;
         bool hasIssues = false;
         bool customBuildDir = false;
+        bool isImported = false;
     };
     std::vector<BuildInfoStore> m_infoStore;
 

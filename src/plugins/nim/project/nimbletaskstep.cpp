@@ -3,8 +3,8 @@
 
 #include "nimbletaskstep.h"
 
+#include "nimbleproject.h"
 #include "nimconstants.h"
-#include "nimblebuildsystem.h"
 #include "nimtr.h"
 
 #include <projectexplorer/abstractprocessstep.h>
