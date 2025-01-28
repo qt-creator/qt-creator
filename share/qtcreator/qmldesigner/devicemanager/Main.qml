@@ -463,15 +463,13 @@ Rectangle {
                     text: qsTr("Columns")
                     model: ListModel {
                         id: columnModel
-                        onDataChanged: {
-                            tableView.forceLayout()
-                        }
+                        onDataChanged: tableView.forceLayout()
                     }
                     style: StudioTheme.Values.viewBarControlStyle
 
                     Component.onCompleted: {
                         tableView.setColumnWidth(DeviceManagerModel.Status, 80)
-                        tableView.setColumnWidth(DeviceManagerModel.Eabled, 70)
+                        tableView.setColumnWidth(DeviceManagerModel.Enabled, 70)
                         tableView.setColumnWidth(DeviceManagerModel.Alias, 200)
                         tableView.setColumnWidth(DeviceManagerModel.IPv4Addr, 110)
                         tableView.setColumnWidth(DeviceManagerModel.OS, 100)
