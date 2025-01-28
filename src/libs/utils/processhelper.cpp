@@ -140,6 +140,8 @@ void Utils::ProcessHelper::setAllowCoreDumps(bool enabled)
     UnixProcessParameters params = unixProcessParameters();
     params.flags.setFlag(UnixProcessFlag::DisableCoreDumps, enabled);
     setUnixProcessParameters(params);
+#else
+    Q_UNUSED(enabled)
 #endif
 }
 
