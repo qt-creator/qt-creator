@@ -4216,6 +4216,12 @@ namespace qthread {
                 ++j;
             }
             if (m_id == 3) {
+                /*
+                    NOTE:
+
+                    See the NOTE below.
+
+                */
                 BREAK_HERE;
                 // Expand this.
                 // Expand this.@1.
@@ -4235,6 +4241,19 @@ namespace qthread {
 
     void testQThread()
     {
+        /*
+            NOTE:
+
+            The outcome here is inherently non-deterministic as several threads may hit
+            the breakpoint simultaneously, so the breakpoint can be hit less than N=14
+            times.
+
+            It is however expected that the breakpoint is hit at least once, and when
+            this happens, the thread should be expandable in the Locals pane and the
+            result should look sane.
+
+        */
+
         //return;
         const int N = 14;
         Thread thread[N];
