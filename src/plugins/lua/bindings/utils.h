@@ -7,6 +7,7 @@
 
 #include <utils/filepath.h>
 #include <utils/icon.h>
+#include <utils/id.h>
 
 #include <QMetaEnum>
 
@@ -60,5 +61,14 @@ inline QFlags<E> tableToFlags(const sol::table &table) noexcept {
 
     return flags;
 }
+
+class InfoBarCleaner
+{
+    QList<Utils::Id> openInfoBars;
+
+public:
+    ~InfoBarCleaner();
+    void infoBarEntryAdded(const Utils::Id &id) { openInfoBars.append(id); }
+};
 
 } // namespace Lua::Internal
