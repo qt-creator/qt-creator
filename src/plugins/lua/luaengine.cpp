@@ -342,7 +342,12 @@ expected_str<sol::protected_function> prepareSetup(
     // TODO: only register what the plugin requested
     for (const auto &[name, func] : d->m_providers.asKeyValueRange()) {
         lua["package"]["preload"][name.toStdString()] = [func = func](const sol::this_state &s) {
-            return func(s);
+            sol::state_view lua = s;
+            // We need to make sure that providers work on the main_thread, otherwise they might
+            // crash when trying to access the lua state on destruction.
+            if (isCoroutine(lua))
+                lua = sol::main_thread(lua);
+            return func(lua);
         };
     }
 
