@@ -4,6 +4,7 @@
 #include "unarchiver.h"
 
 #include "algorithm.h"
+#include "hostosinfo.h"
 #include "mimeutils.h"
 #include "qtcassert.h"
 #include "utilstr.h"
@@ -53,16 +54,11 @@ static const QList<Tool> &sTools()
         tools << Tool{{"7z", {"x", "-o%{dest}", "-y", "-bb", "%{src}"}},
                       {"application/zip", "application/x-7z-compressed"},
                       additionalInstallDirs("HKEY_CURRENT_USER\\Software\\7-Zip", "Path")};
-        tools << Tool{{"tar", {"xvf", "%{src}"}},
-                      {"application/zip", "application/x-tar", "application/x-7z-compressed"},
-                      {}};
-        tools << Tool{{"tar", {"xvzf", "%{src}"}}, {"application/x-compressed-tar"}, {}};
-        tools << Tool{{"tar", {"xvJf", "%{src}"}}, {"application/x-xz-compressed-tar"}, {}};
-        tools << Tool{{"tar", {"xvjf", "%{src}"}}, {"application/x-bzip-compressed-tar"}, {}};
-
         const FilePaths additionalCMakeDirs =
                 additionalInstallDirs("HKEY_LOCAL_MACHINE\\SOFTWARE\\Kitware\\CMake",
                                       "InstallDir");
+        // CMake does not rely on tar, but actually uses libarchive directly, so this
+        // is more reliable than tar itself
         tools << Tool{{"cmake", {"-E", "tar", "xvf", "%{src}"}},
                       {"application/zip", "application/x-tar", "application/x-7z-compressed"},
                       additionalCMakeDirs};
@@ -75,6 +71,14 @@ static const QList<Tool> &sTools()
         tools << Tool{{"cmake", {"-E", "tar", "xvjf", "%{src}"}},
                       {"application/x-bzip-compressed-tar"},
                       additionalCMakeDirs};
+        // Put tar near the end. It might not work for 7z, and also the other methods
+        // depend on other tools being installed.
+        tools << Tool{{"tar", {"xvf", "%{src}"}},
+                      {"application/zip", "application/x-tar", "application/x-7z-compressed"},
+                      {}};
+        tools << Tool{{"tar", {"xvzf", "%{src}"}}, {"application/x-compressed-tar"}, {}};
+        tools << Tool{{"tar", {"xvJf", "%{src}"}}, {"application/x-xz-compressed-tar"}, {}};
+        tools << Tool{{"tar", {"xvjf", "%{src}"}}, {"application/x-bzip-compressed-tar"}, {}};
         // Keep this at the end so its only used as last resort. Otherwise it might be used for
         // .tar.gz files.
         tools << Tool{{"gzip", {"-d", "%{src}", "-c"}}, {"application/gzip"}, {}};
