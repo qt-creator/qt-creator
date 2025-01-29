@@ -23,13 +23,13 @@ bool sol_lua_check(sol::types<QString>,
 QString sol_lua_get(sol::types<QString>, lua_State *L, int index, sol::stack::record &tracking)
 {
     const char *str = sol::stack::get<const char *>(L, index, tracking);
-    return QString::fromLocal8Bit(str);
+    return QString::fromUtf8(str);
 }
 
 int sol_lua_push(sol::types<QString>, lua_State *L, const QString &qStr)
 {
     sol::state_view lua(L);
-    return sol::stack::push(L, qStr.toLocal8Bit().data());
+    return sol::stack::push(L, qStr.toUtf8().data());
 }
 
 // QRect
