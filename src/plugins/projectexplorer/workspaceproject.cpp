@@ -536,7 +536,7 @@ public:
 
         setBuildGenerator([this](const Kit *, const FilePath &projectPath, bool forSetup) {
             QList<BuildInfo> result = parseBuildConfigurations(projectPath, forSetup);
-            if (!forSetup) {
+            if (!forSetup || result.isEmpty()) {
                 BuildInfo info;
                 info.factory = this;
                 info.typeName = ::ProjectExplorer::Tr::tr("Build");
