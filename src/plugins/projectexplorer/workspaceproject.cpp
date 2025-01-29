@@ -62,7 +62,7 @@ static QFlags<QDir::Filter> workspaceDirFilter = QDir::AllEntries | QDir::NoDotA
 class WorkspaceBuildSystem final : public BuildSystem
 {
 public:
-    WorkspaceBuildSystem(Target *t);
+    WorkspaceBuildSystem(BuildConfiguration *bc);
 
     void reparse(bool force);
     void triggerParsing() final;
@@ -102,8 +102,8 @@ static FolderNode *findAvailableParent(ProjectNode *root, const FilePath &path)
     return result;
 }
 
-WorkspaceBuildSystem::WorkspaceBuildSystem(Target *t)
-    :BuildSystem(t)
+WorkspaceBuildSystem::WorkspaceBuildSystem(BuildConfiguration *bc)
+    : BuildSystem(bc)
 {
     connect(&m_scanner, &TreeScanner::finished, this, [this] {
         QTC_ASSERT(!m_scanQueue.isEmpty(), return);
@@ -472,6 +472,8 @@ public:
         setConfigWidgetDisplayName(Tr::tr("Workspace Manager"));
     }
 
+    ~WorkspaceBuildConfiguration() { delete m_buildSystem; }
+
     void initializeExtraInfo(const QVariantMap &extraInfos)
     {
         resetExtraInfo();
@@ -506,6 +508,8 @@ public:
         return clone;
     }
 
+    BuildSystem *buildSystem() const override { return m_buildSystem; }
+
     void resetExtraInfo()
     {
         originalExtraInfo.reset();
@@ -517,6 +521,7 @@ public:
 
     std::optional<QVariantMap> originalExtraInfo;
     QMetaObject::Connection buildInfoResetConnection;
+    WorkspaceBuildSystem * const m_buildSystem{new WorkspaceBuildSystem(this)};
 };
 
 class WorkspaceBuildConfigurationFactory : public BuildConfigurationFactory
@@ -606,7 +611,6 @@ public:
 
         setId(WORKSPACE_PROJECT_ID);
         setDisplayName(projectDirectory().fileName());
-        setBuildSystemCreator<WorkspaceBuildSystem>();
 
         connect(this, &Project::projectFileIsDirty, this, &WorkspaceProject::updateBuildConfigurations);
     }
@@ -654,6 +658,20 @@ public:
     FilePath projectDirectory() const override
     {
         return Project::projectDirectory().parentDir();
+    }
+
+    RestoreResult fromMap(const Store &map, QString *errorMessage) override
+    {
+        if (const RestoreResult res = Project::fromMap(map, errorMessage); res != RestoreResult::Ok)
+            return res;
+
+        // For projects created with Qt Creator < 17.
+        for (Target * const t : targets()) {
+            if (t->buildConfigurations().isEmpty())
+                t->updateDefaultBuildConfigurations();
+            QTC_CHECK(!t->buildConfigurations().isEmpty());
+        }
+        return RestoreResult::Ok;
     }
 
     void saveProjectDefinition(const QJsonObject &json)
