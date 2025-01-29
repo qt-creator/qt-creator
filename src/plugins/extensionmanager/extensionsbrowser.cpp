@@ -549,7 +549,6 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     applyTf(titleLabel, titleTF);
 
     auto externalRepoSwitch = new Switch("Use external repository");
-    externalRepoSwitch->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
     externalRepoSwitch->setToolTip("<html>" + externalRepoWarningNote());
 
     d->searchBox = new SearchBox;

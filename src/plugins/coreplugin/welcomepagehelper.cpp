@@ -502,7 +502,6 @@ Switch::Switch(const QString &text, QWidget *parent)
     setText(text);
     setCheckable(true);
     setAttribute(Qt::WA_Hover);
-    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
     setLayoutDirection(Qt::RightToLeft); // Switch right, label left
 }
 
