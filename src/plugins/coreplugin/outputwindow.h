@@ -52,8 +52,8 @@ public:
 
     void scrollToBottom();
 
-    void setMaxCharCount(int count);
-    int maxCharCount() const;
+    void setMaxCharCount(qsizetype count);
+    qsizetype maxCharCount() const;
 
     void setBaseFont(const QFont &newFont);
     float fontZoom() const;
@@ -106,7 +106,7 @@ private:
     void discardExcessiveOutput();
     void discardPendingToolOutput();
     void updateAutoScroll();
-    int totalQueuedSize() const;
+    qsizetype totalQueuedSize() const;
 
     using TextMatchingFunction = std::function<bool(const QString &text)>;
     TextMatchingFunction makeMatchingFunction() const;

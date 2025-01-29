@@ -42,8 +42,8 @@
 using namespace Utils;
 using namespace std::chrono_literals;
 
-const int defaultChunkSize = 10000;
-const int minChunkSize = 1000;
+const qsizetype defaultChunkSize = 10000;
+const qsizetype minChunkSize = 1000;
 
 const auto defaultInterval = 10ms;
 const auto maxInterval = 1000ms;
@@ -65,7 +65,7 @@ public:
     OutputFormatter formatter;
     QList<QPair<QString, OutputFormat>> queuedOutput;
     QTimer queueTimer;
-    QList<int> queuedSizeHistory;
+    QList<qsizetype> queuedSizeHistory;
     int formatterCalls = 0;
     bool discardExcessiveOutput = false;
 
@@ -75,12 +75,12 @@ public:
     bool zoomEnabled = false;
     float originalFontSize = 0.;
     bool originalReadOnly = false;
-    int maxCharCount = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
+    qsizetype maxCharCount = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
     Qt::MouseButton mouseButtonPressed = Qt::NoButton;
     QTextCursor cursor;
     QString filterText;
     int lastFilteredBlockNumber = -1;
-    int chunkSize = defaultChunkSize;
+    qsizetype chunkSize = defaultChunkSize;
     QPalette originalPalette;
     OutputWindow::FilterModeFlags filterMode = OutputWindow::FilterModeFlag::Default;
     int beforeContext = 0;
@@ -508,8 +508,8 @@ void OutputWindow::handleNextOutputChunk()
 
     // We want to break off the chunks along line breaks, if possible.
     // Otherwise we can get ugly temporary artifacts e.g. for ANSI escape codes.
-    int actualChunkSize = std::min(d->chunkSize, int(chunk.first.size()));
-    const int minEndPos = std::max(0, actualChunkSize - 1000);
+    qsizetype actualChunkSize = std::min(d->chunkSize, chunk.first.size());
+    const qsizetype minEndPos = std::max(qsizetype(0), actualChunkSize - 1000);
     for (int i = actualChunkSize - 1; i >= minEndPos; --i) {
         if (chunk.first.at(i) == '\n') {
             actualChunkSize = i + 1;
@@ -541,7 +541,7 @@ void OutputWindow::handleOutputChunk(
     QString out = output;
     if (out.size() > d->maxCharCount) {
         // Current chunk alone exceeds limit, we need to cut it.
-        const int elided = out.size() - d->maxCharCount;
+        const qsizetype elided = out.size() - d->maxCharCount;
         out = out.left(d->maxCharCount / 2)
                 + "[[[... "
                 + Tr::tr("Elided %n characters due to Application Output settings", nullptr, elided)
@@ -549,7 +549,7 @@ void OutputWindow::handleOutputChunk(
                 + out.right(d->maxCharCount / 2);
         setMaximumBlockCount(out.count('\n') + 1);
     } else {
-        int plannedChars = document()->characterCount() + out.size();
+        qsizetype plannedChars = document()->characterCount() + out.size();
         if (plannedChars > d->maxCharCount) {
             int plannedBlockCount = document()->blockCount();
             QTextBlock tb = document()->firstBlock();
@@ -604,7 +604,7 @@ void OutputWindow::discardExcessiveOutput()
     // Criterion 1: Are we being flooded?
     // If the pending output has been growing for the last ten times the output formatter
     // was invoked and it is considerably larger than the chunk size, we discard it.
-    const int queuedSize = totalQueuedSize();
+    const qsizetype queuedSize = totalQueuedSize();
     if (!d->queuedSizeHistory.isEmpty() && d->queuedSizeHistory.last() > queuedSize)
         d->queuedSizeHistory.clear();
     d->queuedSizeHistory << queuedSize;
@@ -644,22 +644,22 @@ void OutputWindow::updateAutoScroll()
     d->scrollToBottom = verticalScrollBar()->sliderPosition() >= verticalScrollBar()->maximum() - 1;
 }
 
-int OutputWindow::totalQueuedSize() const
+qsizetype OutputWindow::totalQueuedSize() const
 {
     return std::accumulate(
         d->queuedOutput.cbegin(),
         d->queuedOutput.cend(),
         0,
-        [](int val, const QPair<QString, OutputFormat> &c) { return val + c.first.size(); });
+        [](qsizetype val, const QPair<QString, OutputFormat> &c) { return val + c.first.size(); });
 }
 
-void OutputWindow::setMaxCharCount(int count)
+void OutputWindow::setMaxCharCount(qsizetype count)
 {
     d->maxCharCount = count;
     setMaximumBlockCount(count / 100);
 }
 
-int OutputWindow::maxCharCount() const
+qsizetype OutputWindow::maxCharCount() const
 {
     return d->maxCharCount;
 }
