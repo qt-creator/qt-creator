@@ -74,6 +74,15 @@ WidgetInfo ContentLibraryView::widgetInfo()
 
         m_bundleHelper = std::make_unique<BundleHelper>(this, m_widget);
 
+        connect(m_widget, &ContentLibraryWidget::importQtQuick3D, this, [&] {
+            DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
+            if (document && !document->inFileComponentModelActive() && model()) {
+                ModelUtils::addImportWithCheck(
+                    "QtQuick3D",
+                    [](const Import &import) { return !import.hasVersion() || import.majorVersion() >= 6; },
+                    model());
+            }
+        });
         connect(m_widget, &ContentLibraryWidget::bundleMaterialDragStarted, this,
                 [&] (QmlDesigner::ContentLibraryMaterial *mat) {
             m_draggedBundleMaterial = mat;

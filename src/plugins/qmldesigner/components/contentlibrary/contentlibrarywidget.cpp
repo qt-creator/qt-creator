@@ -679,6 +679,11 @@ bool ContentLibraryWidget::areNodes3D(const QByteArray &data) const
     return true;
 }
 
+void ContentLibraryWidget::addQtQuick3D()
+{
+    emit importQtQuick3D();
+}
+
 QSize ContentLibraryWidget::sizeHint() const
 {
     return {420, 420};

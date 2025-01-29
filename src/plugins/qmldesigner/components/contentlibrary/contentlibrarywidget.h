@@ -102,6 +102,7 @@ public:
     Q_INVOKABLE void updateSceneEnvState();
     Q_INVOKABLE void markTextureUpdated(const QString &textureKey);
     Q_INVOKABLE bool areNodes3D(const QByteArray &data) const;
+    Q_INVOKABLE void addQtQuick3D();
 
     QSize sizeHint() const override;
 
@@ -128,6 +129,7 @@ signals:
     void acceptTexturesDrop(const QList<QUrl> &urls);
     void acceptMaterialDrop(const QString &internalId);
     void accept3DDrop(const QByteArray &internalIds);
+    void importQtQuick3D();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;

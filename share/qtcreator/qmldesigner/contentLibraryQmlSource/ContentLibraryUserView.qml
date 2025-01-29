@@ -206,11 +206,13 @@ Item {
                         text: {
                             let categoryName = (categoryTitle === "3D") ? categoryTitle + " assets"
                                                                         : categoryTitle.toLowerCase()
-
                             if (!ContentLibraryBackend.rootView.isQt6Project)
                                 qsTr("<b>Content Library</b> is not supported in Qt5 projects.")
                             else if (!ContentLibraryBackend.rootView.hasQuick3DImport && categoryTitle !== "Textures")
-                                qsTr("To use " +  categoryName + ", first add the QtQuick3D module in the <b>Components</b> view.")
+                                qsTr(`To use %1, first <a href="#add_import" style="text-decoration:none;color:%2">
+                                     add the <b>QtQuick3D</b> module</a> in the <b>Components</b> view.`)
+                                        .arg(categoryName)
+                                        .arg(StudioTheme.Values.themeInteraction)
                             else if (!ContentLibraryBackend.rootView.hasMaterialLibrary && categoryTitle !== "Textures")
                                 qsTr("<b>Content Library</b> is disabled inside a non-visual component.")
                             else if (categoryEmpty)
@@ -218,11 +220,14 @@ Item {
                             else
                                 ""
                         }
+                        textFormat: Text.RichText
                         color: StudioTheme.Values.themeTextColor
                         font.pixelSize: StudioTheme.Values.baseFontSize
                         topPadding: 10
                         leftPadding: 10
                         visible: infoText.text !== ""
+
+                        onLinkActivated: ContentLibraryBackend.rootView.addQtQuick3D()
                     }
                 }
             }
