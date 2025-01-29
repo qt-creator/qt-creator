@@ -30,6 +30,8 @@
 #include <utils/algorithm.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcolorbutton.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -65,6 +67,8 @@ const char MERGE_CHANNELS_KEY[] = "ProjectExplorer/Settings/MergeStdErrAndStdOut
 const char WRAP_OUTPUT_KEY[] = "ProjectExplorer/Settings/WrapAppOutput";
 const char DISCARD_OUTPUT_KEY[] = "ProjectExplorer/Settings/DiscardAppOutput";
 const char MAX_LINES_KEY[] = "ProjectExplorer/Settings/MaxAppOutputLines";
+const char OVERWRITE_BG_KEY[] = "ProjectExplorer/Settings/OverwriteBackground";
+const char BACKGROUND_COLOR_KEY[] = "ProjectExplorer/Settings/BackgroundColor";
 
 static QObject *debuggerPlugin()
 {
@@ -433,6 +437,10 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     ow->setMaxCharCount(m_settings.maxCharCount);
     ow->setDiscardExcessiveOutput(m_settings.discardExcessiveOutput);
 
+    const QColor bgColor = m_settings.effectiveBackgroundColor();
+    ow->outputFormatter()->setExplicitBackgroundColor(bgColor);
+    StyleHelper::modifyPaletteBase(ow, bgColor);
+
     auto updateFontSettings = [ow] {
         ow->setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
     };
@@ -473,10 +481,13 @@ void AppOutputPane::handleOldOutput(Core::OutputWindow *window) const
 
 void AppOutputPane::updateFromSettings()
 {
+    const QColor bgColor = m_settings.effectiveBackgroundColor();
     for (const RunControlTab &tab : std::as_const(m_runControlTabs)) {
         tab.window->setWordWrapEnabled(m_settings.wrapOutput);
         tab.window->setMaxCharCount(m_settings.maxCharCount);
         tab.window->setDiscardExcessiveOutput(m_settings.discardExcessiveOutput);
+        tab.window->outputFormatter()->setExplicitBackgroundColor(bgColor);
+        StyleHelper::modifyPaletteBase(tab.window, bgColor);
     }
 }
 
@@ -547,6 +558,7 @@ const bool kCleanOldOutputDefault = false;
 const bool kMergeChannelsDefault = false;
 const bool kWrapOutputDefault = true;
 const bool kDiscardOutputDefault = false;
+const bool kOverwriteBGDefault = false;
 
 void AppOutputPane::storeSettings() const
 {
@@ -565,6 +577,9 @@ void AppOutputPane::storeSettings() const
     s->setValueWithDefault(MAX_LINES_KEY,
                            m_settings.maxCharCount / 100,
                            Core::Constants::DEFAULT_MAX_CHAR_COUNT / 100);
+    s->setValueWithDefault(OVERWRITE_BG_KEY, m_settings.overwriteBackground, kOverwriteBGDefault);
+    s->setValueWithDefault(BACKGROUND_COLOR_KEY, m_settings.backgroundColor,
+                           AppOutputSettings::defaultBackgroundColor());
 }
 
 void AppOutputPane::loadSettings()
@@ -582,6 +597,10 @@ void AppOutputPane::loadSettings()
     m_settings.discardExcessiveOutput = s->value(DISCARD_OUTPUT_KEY, kDiscardOutputDefault).toBool();
     m_settings.maxCharCount = s->value(MAX_LINES_KEY,
                                        Core::Constants::DEFAULT_MAX_CHAR_COUNT / 100).toInt() * 100;
+    m_settings.overwriteBackground = s->value(OVERWRITE_BG_KEY, kOverwriteBGDefault).toBool();
+    const QColor background = s->value(BACKGROUND_COLOR_KEY, QColor()).value<QColor>();
+    m_settings.backgroundColor = background.isValid() ? background
+                                                      : AppOutputSettings::defaultBackgroundColor();
 }
 
 void AppOutputPane::showTabFor(RunControl *rc)
@@ -876,6 +895,20 @@ public:
                                                   .findData(int(settings.debugOutputMode)));
         m_maxCharsBox.setMaximum(100000000);
         m_maxCharsBox.setValue(settings.maxCharCount);
+        m_overwriteColor.setText(Tr::tr("Overwrite background color"));
+        m_overwriteColor.setChecked(settings.overwriteBackground);
+        m_overwriteColor.setToolTip(Tr::tr("Customize background color of the application output.\n"
+                                           "Note: existing output will not get recolored."));
+        m_backgroundColor.setMinimumSize(QSize(64, 0));
+        m_backgroundColor.setAlphaAllowed(false);
+        QColor bgColor = settings.backgroundColor;
+        if (bgColor == AppOutputSettings::defaultBackgroundColor())
+            bgColor = QColor();
+        m_backgroundColor.setColor(bgColor);
+        connect(&m_overwriteColor, &QCheckBox::clicked,
+                &m_backgroundColor, &QtColorButton::setEnabled);
+        m_backgroundColor.setEnabled(m_overwriteColor.isChecked());
+
         const auto layout = new QVBoxLayout(this);
         layout->addWidget(&m_wrapOutputCheckBox);
         layout->addWidget(&m_cleanOldOutputCheckBox);
@@ -892,8 +925,13 @@ public:
         outputModeLayout->addRow(Tr::tr("Open Application Output when running:"), &m_runOutputModeComboBox);
         outputModeLayout->addRow(Tr::tr("Open Application Output when debugging:"),
                                  &m_debugOutputModeComboBox);
+        const auto bgColorLayout = new QHBoxLayout;
+        bgColorLayout->addWidget(&m_overwriteColor);
+        bgColorLayout->addWidget(&m_backgroundColor);
+        bgColorLayout->addStretch(1);
         layout->addLayout(outputModeLayout);
         layout->addLayout(maxCharsLayout);
+        layout->addLayout(bgColorLayout);
         layout->addStretch(1);
     }
 
@@ -909,6 +947,11 @@ public:
         s.debugOutputMode = static_cast<AppOutputPaneMode>(
                     m_debugOutputModeComboBox.currentData().toInt());
         s.maxCharCount = m_maxCharsBox.value();
+        s.overwriteBackground = m_overwriteColor.isChecked();
+        QColor bgColor = m_backgroundColor.color();
+        if (!bgColor.isValid())
+            bgColor = AppOutputSettings::defaultBackgroundColor();
+        s.backgroundColor = bgColor;
 
         appOutputPane().setSettings(s);
     }
@@ -918,9 +961,11 @@ private:
     QCheckBox m_discardOutputCheckBox;
     QCheckBox m_cleanOldOutputCheckBox;
     QCheckBox m_mergeChannelsCheckBox;
+    QCheckBox m_overwriteColor;
     QComboBox m_runOutputModeComboBox;
     QComboBox m_debugOutputModeComboBox;
     QSpinBox m_maxCharsBox;
+    QtColorButton m_backgroundColor;
 };
 
 AppOutputSettingsPage::AppOutputSettingsPage()
@@ -949,6 +994,16 @@ void destroyAppOutputPane()
 {
     QTC_CHECK(!theAppOutputPane.isNull());
     delete theAppOutputPane;
+}
+
+QColor AppOutputSettings::defaultBackgroundColor()
+{
+    return Utils::creatorColor(Theme::PaletteBase);
+}
+
+QColor AppOutputSettings::effectiveBackgroundColor() const
+{
+    return overwriteBackground ? backgroundColor : defaultBackgroundColor();
 }
 
 } // namespace Internal

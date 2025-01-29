@@ -145,6 +145,7 @@ public:
     void handleLink(const QString &href);
     void setBoldFontEnabled(bool enabled);
     void setForwardStdOutToStdError(bool enabled);
+    void setExplicitBackgroundColor(const QColor &color);
 
     bool hasFatalErrors() const;
 

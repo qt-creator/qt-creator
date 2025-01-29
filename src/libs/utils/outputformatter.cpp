@@ -219,6 +219,7 @@ public:
     bool boldFontEnabled = true;
     bool prependCarriageReturn = false;
     bool forwardStdOutToStdError = false;
+    QColor explicitBackground;
 };
 
 OutputFormatter::OutputFormatter() : d(new Private) { }
@@ -286,12 +287,15 @@ void OutputFormatter::overridePostPrintAction(const PostPrintAction &postPrintAc
     d->postPrintAction = postPrintAction;
 }
 
-static void checkAndFineTuneColors(QTextCharFormat *format)
+static void checkAndFineTuneColors(QTextCharFormat *format, const QColor &background)
 {
     QTC_ASSERT(format, return);
-    const QColor background = format->hasProperty(QTextCharFormat::BackgroundBrush)
-            ? format->background().color() : Utils::creatorColor(Theme::BackgroundColorNormal);
-    const QColor fgColor = StyleHelper::ensureReadableOn(background,
+    const QColor bgColor = background.isValid()
+            ? background
+            : (format->hasProperty(QTextCharFormat::BackgroundBrush)
+               ? format->background().color()
+               : Utils::creatorColor(Theme::PaletteBase));
+    const QColor fgColor = StyleHelper::ensureReadableOn(bgColor,
                                                          format->foreground().color());
     format->setForeground(fgColor);
 }
@@ -319,7 +323,7 @@ void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format, 
                 ? *res.formatOverride : outputTypeForParser(involvedParsers.last(), format);
         if (formatForParser != format && cleanLine == text && formattedText.length() == 1) {
             charFmt = charFormat(formatForParser);
-            checkAndFineTuneColors(&charFmt);
+            checkAndFineTuneColors(&charFmt, d->explicitBackground);
             formattedText.first().format = charFmt;
         }
     }
@@ -332,7 +336,7 @@ void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format, 
 
     const QList<FormattedText> linkified = linkifiedText(formattedText, res.linkSpecs);
     for (FormattedText output : linkified) {
-        checkAndFineTuneColors(&output.format);
+        checkAndFineTuneColors(&output.format, d->explicitBackground);
         append(output.text, output.format);
         charFmt = output.format;
     }
@@ -599,6 +603,11 @@ void OutputFormatter::setBoldFontEnabled(bool enabled)
 void OutputFormatter::setForwardStdOutToStdError(bool enabled)
 {
     d->forwardStdOutToStdError = enabled;
+}
+
+void Utils::OutputFormatter::setExplicitBackgroundColor(const QColor &color)
+{
+    d->explicitBackground = color;
 }
 
 void OutputFormatter::flush()

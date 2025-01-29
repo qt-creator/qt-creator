@@ -8,6 +8,7 @@
 #include <coreplugin/ioutputpane.h>
 
 #include <utils/outputformat.h>
+#include <utils/theme/theme.h>
 
 #include <QPointer>
 
@@ -33,13 +34,18 @@ enum class AppOutputPaneMode { FlashOnOutput, PopupOnOutput, PopupOnFirstOutput 
 class AppOutputSettings
 {
 public:
+    static QColor defaultBackgroundColor();
+    QColor effectiveBackgroundColor() const;
+
     AppOutputPaneMode runOutputMode = AppOutputPaneMode::PopupOnFirstOutput;
     AppOutputPaneMode debugOutputMode = AppOutputPaneMode::FlashOnOutput;
     bool cleanOldOutput = false;
     bool mergeChannels = false;
     bool wrapOutput = false;
     bool discardExcessiveOutput = false;
+    bool overwriteBackground = false;
     int maxCharCount = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
+    QColor backgroundColor;
 };
 
 class AppOutputPane final : public Core::IOutputPane
