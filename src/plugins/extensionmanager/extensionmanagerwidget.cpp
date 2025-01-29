@@ -326,6 +326,7 @@ private:
             m_label->setType(InfoLabel::NotOk);
             m_label->setText(Tr::tr("Not loaded"));
         }
+        m_label->setAdditionalToolTip(spec->errorString());
 
         m_switch->setChecked(spec->isRequired() || spec->isEnabledBySettings());
         m_switch->setEnabled(!spec->isRequired());
