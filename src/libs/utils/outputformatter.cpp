@@ -289,7 +289,9 @@ void OutputFormatter::overridePostPrintAction(const PostPrintAction &postPrintAc
 static void checkAndFineTuneColors(QTextCharFormat *format)
 {
     QTC_ASSERT(format, return);
-    const QColor fgColor = StyleHelper::ensureReadableOn(format->background().color(),
+    const QColor background = format->hasProperty(QTextCharFormat::BackgroundBrush)
+            ? format->background().color() : Utils::creatorColor(Theme::BackgroundColorNormal);
+    const QColor fgColor = StyleHelper::ensureReadableOn(background,
                                                          format->foreground().color());
     format->setForeground(fgColor);
 }
