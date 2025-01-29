@@ -669,6 +669,7 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     connect(&settings().useExternalRepo, &BaseAspect::changed, this, updateExternalRepoSwitch);
     connect(externalRepoSwitch, &QAbstractButton::toggled, this, [](bool checked) {
         settings().useExternalRepo.setValue(checked);
+        settings().writeSettings();
     });
     connect(&settings(), &AspectContainer::changed, this, [this] {
         d->dataFetched = false;
