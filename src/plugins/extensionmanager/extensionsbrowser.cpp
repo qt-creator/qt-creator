@@ -548,7 +548,7 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     auto titleLabel = new ElidingLabel(Tr::tr("Manage Extensions"));
     applyTf(titleLabel, titleTF);
 
-    auto externalRepoSwitch = new Switch("Use External Repository");
+    auto externalRepoSwitch = new Switch("Use external repository");
     externalRepoSwitch->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
     externalRepoSwitch->setToolTip("<html>" + externalRepoWarningNote());
 
