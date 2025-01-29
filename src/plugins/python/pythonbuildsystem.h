@@ -13,7 +13,6 @@ class PythonBuildSystem final : public ProjectExplorer::BuildSystem
 {
 public:
     explicit PythonBuildSystem(PythonBuildConfiguration *buildConfig);
-    explicit PythonBuildSystem(ProjectExplorer::Target *target);
 
     bool supportsAction(ProjectExplorer::Node *context,
                         ProjectExplorer::ProjectAction action,
@@ -48,7 +47,6 @@ private:
 
     QList<FileEntry> m_files;
     QList<FileEntry> m_qmlImportPaths;
-    PythonBuildConfiguration *m_buildConfig = nullptr;
 };
 
 

@@ -5,7 +5,6 @@
 
 #include "pythonbuildconfiguration.h"
 #include "pythonconstants.h"
-#include "pythonkitaspect.h"
 #include "pythonproject.h"
 #include "pythontr.h"
 
@@ -126,17 +125,6 @@ PythonBuildSystem::PythonBuildSystem(PythonBuildConfiguration *buildConfig)
             &Project::projectFileIsDirty,
             this,
             &PythonBuildSystem::requestDelayedParse);
-    m_buildConfig = buildConfig;
-    requestParse();
-}
-
-PythonBuildSystem::PythonBuildSystem(ProjectExplorer::Target *target)
-    : BuildSystem(target)
-{
-    connect(project(),
-            &Project::projectFileIsDirty,
-            this,
-            &PythonBuildSystem::requestDelayedParse);
     requestParse();
 }
 
@@ -176,12 +164,7 @@ void PythonBuildSystem::triggerParsing()
 
     auto newRoot = std::make_unique<PythonProjectNode>(projectDirectory());
 
-    FilePath python;
-    if (m_buildConfig)
-        python = m_buildConfig->python();
-    else if (auto kitPython = PythonKitAspect::python(kit()))
-        python = kitPython->command;
-
+    const FilePath python = static_cast<PythonBuildConfiguration *>(buildConfiguration())->python();
     const FilePath projectFile = projectFilePath();
     const QString displayName = projectFile.relativePathFrom(projectDirectory()).toUserOutput();
     newRoot->addNestedNode(
