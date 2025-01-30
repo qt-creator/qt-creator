@@ -136,10 +136,14 @@ Tasking::GroupItem AndroidPackageInstallationStep::runRecipe()
             if (!dir.isEmpty() && androidDir.exists()) {
                 emit addOutput(Tr::tr("Removing directory %1").arg(dir), OutputFormat::NormalMessage);
                 QString error;
-                if (!androidDir.removeRecursively(&error)) {
-                    reportWarningOrError(Tr::tr("Failed to clean \"%1\" from the previous build, "
-                                         "with error:\n%2").arg(androidDir.toUserOutput()).arg(error),
-                                         Task::TaskType::Error);
+                Result result = androidDir.removeRecursively();
+                if (!result) {
+                    reportWarningOrError(
+                        Tr::tr("Failed to clean \"%1\" from the previous build, "
+                               "with error:\n%2")
+                            .arg(androidDir.toUserOutput())
+                            .arg(result.error()),
+                        Task::TaskType::Error);
                     return SetupResult::StopWithError;
                 }
             }

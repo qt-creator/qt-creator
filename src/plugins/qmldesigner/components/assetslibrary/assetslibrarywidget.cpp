@@ -348,12 +348,10 @@ void AssetsLibraryWidget::handleDeleteEffects([[maybe_unused]] const QStringList
     for (const QString &effectName : effectNames) {
         Utils::FilePath eDir = effectsDir.pathAppended(effectName);
         if (eDir.exists() && eDir.toUrlishString().startsWith(m_assetsModel->currentProjectDirPath())) {
-            QString error;
-            eDir.removeRecursively(&error);
-            if (!error.isEmpty()) {
+            if (!eDir.removeRecursively()) {
                 QMessageBox::warning(Core::ICore::dialogParent(),
                                      Tr::tr("Failed to Delete Effect Resources"),
-                                     Tr::tr("Could not delete \"%1\".").arg(eDir.toUrlishString()));
+                                     Tr::tr("Could not delete \"%1\".").arg(eDir.toUserOutput()));
             }
         }
     }

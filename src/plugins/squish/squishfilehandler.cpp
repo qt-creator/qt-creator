@@ -339,11 +339,10 @@ void SquishFileHandler::deleteTestCase(const QString &suiteName, const QString &
     SuiteConf suiteConf = SuiteConf::readSuiteConf(suiteConfPath);
     const Utils::FilePath testCaseDirectory = suiteConfPath.parentDir().pathAppended(testCaseName);
     closeOpenedEditorsFor(testCaseDirectory, false);
-    QString error;
-    if (!testCaseDirectory.removeRecursively(&error)) {
+    Utils::Result result = testCaseDirectory.removeRecursively();
+    if (!result) {
         QString detail = Tr::tr("Deletion of Test Case failed.");
-        if (!error.isEmpty())
-            detail.append('\n').append(error);
+        detail.append('\n').append(result.error());
         SquishMessages::criticalMessage(detail);
     } else {
         Core::DocumentManager::expectFileChange(suiteConfPath);

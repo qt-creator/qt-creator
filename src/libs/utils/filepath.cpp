@@ -2022,16 +2022,7 @@ Result FilePath::removeFile() const
 
 /*!
     Removes the directory this filePath refers too and its subdirectories recursively.
-
-    \note The \a error parameter is optional.
-
-    Returns a Bool indicating whether the operation succeeded.
 */
-bool FilePath::removeRecursively(QString *error) const
-{
-    return fileAccess()->removeRecursively(*this, error);
-}
-
 Result FilePath::removeRecursively() const
 {
     QString error;

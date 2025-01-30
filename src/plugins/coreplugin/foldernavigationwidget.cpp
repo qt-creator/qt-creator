@@ -717,10 +717,9 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         RemoveFileDialog dialog(filePath, ICore::dialogParent());
         dialog.setDeleteFileVisible(false);
         if (dialog.exec() == QDialog::Accepted) {
-            QString errorMessage;
-            filePath.removeRecursively(&errorMessage);
-            if (!errorMessage.isEmpty())
-                QMessageBox::critical(ICore::dialogParent(), Tr::tr("Error"), errorMessage);
+            Utils::Result result = filePath.removeRecursively();
+            if (!result)
+                QMessageBox::critical(ICore::dialogParent(), Tr::tr("Error"), result.error());
         }
     } else if (action == collapseAllAction) {
         m_listView->collapseAll();

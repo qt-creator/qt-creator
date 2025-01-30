@@ -212,7 +212,10 @@ bool FSEngineImpl::isSequential() const
 
 bool FSEngineImpl::remove()
 {
-    return m_filePath.removeRecursively();
+    Result result = m_filePath.removeRecursively();
+    if (!result)
+        setError(QFile::RemoveError, result.error());
+    return result;
 }
 
 bool FSEngineImpl::copy(const QString &newName)
