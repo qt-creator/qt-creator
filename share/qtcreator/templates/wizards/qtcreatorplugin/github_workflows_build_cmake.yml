@@ -55,10 +55,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-
     - name: Checkout submodules
       id: git
       shell: cmake -P {0}
@@ -295,56 +291,14 @@ jobs:
       if: matrix.config.platform == 'linux_x64'
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.PLUGIN_NAME }}-origin-json
+        name: ${{ env.PLUGIN_NAME }}.json
         path: ./build/build/${{ env.PLUGIN_NAME }}.json
 
-  update_json:
-    if: contains(github.ref, 'tags/v')
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-
-    - name: Download the JSON file
-      uses: actions/download-artifact@v4
-      with:
-        name: ${{ env.PLUGIN_NAME }}-origin-json
-        path: ./${{ env.PLUGIN_NAME }}-origin
-
-    - name: Store Release upload_url
-      run: |
-        RELEASE_HTML_URL=$(echo "${{github.event.repository.html_url}}/releases/download/v${{ needs.build.outputs.tag }}")
-        echo "RELEASE_HTML_URL=${RELEASE_HTML_URL}" >> $GITHUB_ENV
-
-    - name: Run the Node.js script to update JSON
-      env:
-        QT_TOKEN: ${{ secrets.TOKEN }}
-        API_URL: ${{ secrets.API_URL }}
-      run: |
-        node .github/scripts/registerPlugin.js \
-        ${{ env.RELEASE_HTML_URL }} ${{ env.PLUGIN_NAME }} \
-        ${{ env.QT_CREATOR_VERSION }} ${{ env.QT_CREATOR_VERSION_INTERNAL }} \
-        ${{ env.QT_TOKEN }} ${{ env.API_URL }}
-
-    - name: Delete previous json artifacts
-      uses: geekyeggo/delete-artifact@v5
-      with:
-        name: ${{ env.PLUGIN_NAME }}*-json
-
-    - name: Upload the modified JSON file as an artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: plugin-json
-        path: .github/scripts/${{ env.PLUGIN_NAME }}.json
 
   release:
     if: contains(github.ref, 'tags/v')
     runs-on: ubuntu-latest
-    needs: [build, update_json]
+    needs: [build]
 
     steps:
     - name: Download artifacts
@@ -364,6 +318,26 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: v${{ needs.build.outputs.tag }}
-        files: release/*
+        files: |
+          release/${{ env.PLUGIN_NAME}}-${{ env.QT_CREATOR_VERSION }}-Linux-arm64.7z
+          release/${{ env.PLUGIN_NAME}}-${{ env.QT_CREATOR_VERSION }}-Linux-x64.7z
+          release/${{ env.PLUGIN_NAME}}-${{ env.QT_CREATOR_VERSION }}-macOS-universal.7z
+          release/${{ env.PLUGIN_NAME}}-${{ env.QT_CREATOR_VERSION }}-Windows-arm64.7z
+          release/${{ env.PLUGIN_NAME}}-${{ env.QT_CREATOR_VERSION }}-Windows-x64.7z
         draft: false
         prerelease: false
+
+    - name: Release on Extension Store
+      continue-on-error: true
+      uses: qt-creator/deploy-qtc-plugin@v0.3
+      with:
+        api: ${{ secrets.EXTENSION_STORE_API_URL }}
+        token: ${{ secrets.EXTENSION_STORE_API_TOKEN }}
+        publish: true
+        spec: release/${{ env.PLUGIN_NAME }}.json
+        download-url-linux-arm64: ${{ fromJSON(steps.create_release.outputs.assets)[0].browser_download_url }}
+        download-url-linux-x64: ${{ fromJSON(steps.create_release.outputs.assets)[1].browser_download_url }}
+        download-url-macos-arm64: ${{ fromJSON(steps.create_release.outputs.assets)[2].browser_download_url }}
+        download-url-macos-x64: ${{ fromJSON(steps.create_release.outputs.assets)[2].browser_download_url }}
+        download-url-win-arm64: ${{ fromJSON(steps.create_release.outputs.assets)[3].browser_download_url }}
+        download-url-win-x64: ${{ fromJSON(steps.create_release.outputs.assets)[4].browser_download_url }}

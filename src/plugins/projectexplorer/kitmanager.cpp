@@ -627,6 +627,8 @@ void KitManager::completeKit(Kit *k)
     QTC_ASSERT(k, return);
     KitGuard g(k);
     for (KitAspectFactory *factory : kitAspectFactories()) {
+        if (!k->isAspectRelevant(factory->id()))
+            continue;
         factory->upgrade(k);
         if (!k->hasValue(factory->id()))
             factory->setup(k);

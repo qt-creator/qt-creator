@@ -40,17 +40,17 @@ template<typename Statement> Statement *asControlStatement(AST *node)
 }
 
 template<typename Statement>
-int triggerToken(const Statement *statement)
+QList<int> triggerTokens(const Statement *statement)
 {
     if constexpr (std::is_same_v<Statement, IfStatementAST>)
-        return statement->if_token;
+        return {statement->if_token, statement->else_token};
     if constexpr (std::is_same_v<Statement, WhileStatementAST>)
-        return statement->while_token;
+        return {statement->while_token};
     if constexpr (std::is_same_v<Statement, DoStatementAST>)
-        return statement->do_token;
+        return {statement->do_token};
     if constexpr (std::is_same_v<Statement, ForStatementAST>
                   || std::is_same_v<Statement, RangeBasedForStatementAST>) {
-        return statement->for_token;
+        return {statement->for_token};
     }
 }
 
@@ -120,10 +120,11 @@ bool checkControlStatementsHelper(const CppQuickFixInterface &interface, QuickFi
         return false;
 
     QList<Statement *> statements;
-    if (interface.isCursorOn(triggerToken(statement)) && statement->statement
-        && !statement->statement->asCompoundStatement()) {
+    if (!Utils::anyOf(triggerTokens(statement), [&](int tok) { return interface.isCursorOn(tok); }))
+        return false;
+
+    if (statement->statement && !statement->statement->asCompoundStatement())
         statements << statement;
-    }
 
     StatementAST *elseStmt = nullptr;
     int elseToken = 0;
@@ -1095,11 +1096,11 @@ void MyObject::f()
         original = R"delim(
 void MyObject::f()
 {
-    @if (x == 1) {
+    if (x == 1) {
         emit sig1();
     } else if (x == 2)
         emit sig2();
-    else if (x == 3)
+    @else if (x == 3)
         emit sig3();
     else
         emit otherSig();

@@ -25,7 +25,7 @@ class NimbleBuildSystem final : public ProjectExplorer::BuildSystem
     Q_OBJECT
 
 public:
-    NimbleBuildSystem(ProjectExplorer::Target *target);
+    NimbleBuildSystem(ProjectExplorer::BuildConfiguration *bc);
 
     std::vector<NimbleTask> tasks() const;
 

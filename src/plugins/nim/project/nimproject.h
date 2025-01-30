@@ -10,6 +10,7 @@
 #include <utils/filesystemwatcher.h>
 
 namespace Nim {
+class NimBuildSystem;
 
 class NimBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
@@ -19,8 +20,15 @@ class NimBuildConfiguration : public ProjectExplorer::BuildConfiguration
     NimBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
 
 public:
+    ~NimBuildConfiguration();
+
     Utils::FilePath cacheDirectory() const;
     Utils::FilePath outFilePath() const;
+
+private:
+    ProjectExplorer::BuildSystem *buildSystem() const;
+
+    NimBuildSystem * const m_buildSystem;
 };
 
 Utils::FilePath nimPathFromKit(ProjectExplorer::Kit *kit);

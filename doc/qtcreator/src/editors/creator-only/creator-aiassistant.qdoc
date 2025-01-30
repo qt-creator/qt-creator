@@ -47,11 +47,18 @@
     You can connect to the following LLMs:
 
     \list
-        \li Meta Code Llama 13B (running in a cloud deployment of your choice)
-        \li Meta Llama 3.1 70B (running in a cloud deployment of your choice)
+        \li Meta Code Llama 13B QML (for Qt 6, running in a cloud deployment
+            of your choice)
+        \li Meta Code Llama 13B (for Qt 5, running in a cloud deployment of your
+            choice)
+        \li Meta Code Llama 13 QML through Ollama (running locally on your
+            computer)
+        \li Meta Llama 3.3 70B QML (running in a cloud deployment of your choice)
         \li Anthropic Claude 3.5 Sonnet (provided as subscription-based service
             by Anthropic)
+        \li OpenAI GPT-4o (provided as subscription-based service by OpenAI)
         \li Meta Code Llama 7B through Ollama (running locally on your computer)
+        \li BigCode StarCoder2 through Ollama (running locally on your computer)
     \endlist
 
     To connect to an LLM:

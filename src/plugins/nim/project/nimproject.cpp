@@ -147,7 +147,7 @@ bool NimProjectScanner::renameFile(const QString &, const QString &to)
 class NimBuildSystem final : public BuildSystem
 {
 public:
-    explicit NimBuildSystem(Target *target);
+    explicit NimBuildSystem(BuildConfiguration *bc);
 
     bool supportsAction(Node *, ProjectAction action, const Node *node) const final;
     bool addFiles(Node *node, const FilePaths &filePaths, FilePaths *) final;
@@ -168,8 +168,8 @@ protected:
     NimProjectScanner m_projectScanner;
 };
 
-NimBuildSystem::NimBuildSystem(Target *target)
-    : BuildSystem(target), m_projectScanner(target->project())
+NimBuildSystem::NimBuildSystem(BuildConfiguration *bc)
+    : BuildSystem(bc), m_projectScanner(bc->project())
 {
     connect(&m_projectScanner, &NimProjectScanner::finished, this, [this] {
         m_guard.markAsSuccess();
@@ -267,7 +267,7 @@ static FilePath defaultBuildDirectory(const Kit *k,
 }
 
 NimBuildConfiguration::NimBuildConfiguration(Target *target, Utils::Id id)
-    : BuildConfiguration(target, id)
+    : BuildConfiguration(target, id), m_buildSystem(new NimBuildSystem(this))
 {
     setConfigWidgetDisplayName(Tr::tr("General"));
     setConfigWidgetHasFrame(true);
@@ -289,6 +289,8 @@ NimBuildConfiguration::NimBuildConfiguration(Target *target, Utils::Id id)
     });
 }
 
+NimBuildConfiguration::~NimBuildConfiguration() { delete m_buildSystem; }
+BuildSystem *NimBuildConfiguration::buildSystem() const { return m_buildSystem; }
 
 FilePath NimBuildConfiguration::cacheDirectory() const
 {
@@ -359,8 +361,6 @@ NimProject::NimProject(const FilePath &filePath) : Project(Constants::C_NIM_MIME
     setDisplayName(filePath.completeBaseName());
     // ensure debugging is enabled (Nim plugin translates nim code to C code)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
-
-    setBuildSystemCreator<NimBuildSystem>();
 }
 
 Tasks NimProject::projectIssues(const Kit *k) const

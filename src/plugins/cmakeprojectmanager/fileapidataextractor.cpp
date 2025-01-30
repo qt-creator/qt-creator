@@ -265,6 +265,7 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
 
     // FIXME: remove the usage of "qtc_runnable" by parsing the CMake code instead
     ct.qtcRunnable = t.folderTargetProperty == QTC_RUNNABLE;
+    ct.targetFolder = t.folderTargetProperty;
 
     if (ct.targetType == ExecutableType) {
         FilePaths librarySeachPaths;
@@ -408,8 +409,10 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
         if (cancelFuture.isCanceled())
             return {};
 
-        bool needPostfix = t.compileGroups.size() > 1;
-        int count = 1;
+        QHash<QString, QPair<int, int>> compileLanguageCountHash;
+        for (const CompileInfo &ci : t.compileGroups)
+            compileLanguageCountHash[ci.language].first++;
+
         for (const CompileInfo &ci : t.compileGroups) {
             if (ci.language != "C" && ci.language != "CXX" && ci.language != "OBJC"
                 && ci.language != "OBJCXX" && ci.language != "CUDA")
@@ -441,9 +444,12 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             RawProjectPart rpp;
             rpp.setProjectFileLocation(t.sourceDir.pathAppended(Constants::CMAKE_LISTS_TXT));
             rpp.setBuildSystemTarget(t.name);
-            const QString postfix = needPostfix ? QString("_%1_%2").arg(ci.language).arg(count)
-                                                : QString();
-            rpp.setDisplayName(t.id + postfix);
+            const QString postfix = compileLanguageCountHash[ci.language].first > 1
+                                        ? QString("%1_%2")
+                                              .arg(ci.language)
+                                              .arg(++compileLanguageCountHash[ci.language].second)
+                                        : ci.language;
+            rpp.setDisplayName(t.name + "_" + postfix);
             rpp.setMacros(transform<QVector>(ci.defines, &DefineInfo::define));
             rpp.setHeaderPaths(transform<QVector>(ci.includes, &IncludeInfo::path));
 
@@ -473,10 +479,14 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             });
 
             const QString headerMimeType = [&]() -> QString {
-                if (ci.language == "C" || ci.language == "OBJC") {
+                if (ci.language == "C") {
                     return Utils::Constants::C_HEADER_MIMETYPE;
-                } else if (ci.language == "CXX" || ci.language == "OBJCXX") {
+                } else if (ci.language == "CXX") {
                     return Utils::Constants::CPP_HEADER_MIMETYPE;
+                } else if (ci.language == "OBJC") {
+                    return Utils::Constants::OBJECTIVE_C_SOURCE_MIMETYPE;
+                } else if (ci.language == "OBJCXX") {
+                    return Utils::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE;
                 }
                 return {};
             }();
@@ -567,7 +577,6 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             rpp.setBuildTargetType(isExecutable ? BuildTargetType::Executable
                                                 : BuildTargetType::Library);
             rpps.append(rpp);
-            ++count;
         }
     }
 
@@ -686,8 +695,13 @@ static void addCompileGroups(ProjectNode *targetRoot,
                                        && td.type.endsWith("_LIBRARY")
                                        && sourcePath.fileName().startsWith(td.name)
                                        && sourcePath.fileName().endsWith("Plugin.cpp");
+        const bool buildRccInitCpp = sourcePath.isChildOf(buildDirectory)
+                                     && td.type.endsWith("_LIBRARY")
+                                     && (sourcePath.parentDir().fileName() == "rcc")
+                                     && sourcePath.fileName().startsWith("qrc_")
+                                     && sourcePath.fileName().endsWith("_init.cpp");
 
-        if (buildDirQmldirOrRcc || otherDirQmldirOrMetatypes || buildDirPluginCpp)
+        if (buildDirQmldirOrRcc || otherDirQmldirOrMetatypes || buildDirPluginCpp || buildRccInitCpp)
             node->setIsGenerated(true);
 
         const bool showSourceFolders = settings(targetRoot->getProject()).showSourceSubFolders()
@@ -936,7 +950,8 @@ static void setupLocationInfoForTargets(const QFuture<void> &cancelFuture,
 
             folderNode->setLocationInfo(result);
 
-            if (!t.backtrace.isEmpty() && t.targetType != TargetType::UtilityType) {
+            if (!t.targetFolder.isEmpty() && !t.backtrace.isEmpty()
+                && t.targetType != TargetType::UtilityType) {
                 auto cmakeDefinition = std::make_unique<FileNode>(
                     t.backtrace.last().path, Node::fileTypeForFileName(t.backtrace.last().path));
                 cmakeDefinition->setLine(t.backtrace.last().line);

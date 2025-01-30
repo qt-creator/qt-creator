@@ -19,6 +19,7 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditortr.h>
 
+#include <utils/delegates.h>
 #include <utils/dropsupport.h>
 #include <utils/itemviews.h>
 #include <utils/navigationtreeview.h>
@@ -132,6 +133,7 @@ private:
     LanguageClientOutlineModel m_model;
     DragSortFilterProxyModel m_proxyModel;
     Utils::NavigationTreeView m_view;
+    Utils::AnnotatedItemDelegate m_delegate;
     DocumentUri m_uri;
     bool m_sync = false;
     bool m_sorted = false;
@@ -163,12 +165,15 @@ LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
     setLayout(layout);
     m_model.setFilePath(editor->textDocument()->filePath());
     m_proxyModel.setSourceModel(&m_model);
+    m_delegate.setDelimiter(" ");
+    m_delegate.setAnnotationRole(LanguageClientOutlineItem::AnnotationRole);
     m_view.setModel(&m_proxyModel);
     m_view.setHeaderHidden(true);
     m_view.setExpandsOnDoubleClick(false);
     m_view.setFrameStyle(QFrame::NoFrame);
     m_view.setDragEnabled(true);
     m_view.setDragDropMode(QAbstractItemView::DragOnly);
+    m_view.setItemDelegate(&m_delegate);
     connect(&m_view, &QAbstractItemView::activated,
             this, &LanguageClientOutlineWidget::onItemActivated);
     connect(m_editor->editorWidget(), &TextEditor::TextEditorWidget::cursorPositionChanged,
@@ -430,6 +435,8 @@ QVariant LanguageClientOutlineItem::data(int column, int role) const
         return symbolIcon(m_type);
     case Qt::DisplayRole:
         return valid() ? m_name : Tr::tr("<Select Symbol>");
+    case AnnotationRole:
+        return m_detail;
     default:
         return Utils::TreeItem::data(column, role);
     }

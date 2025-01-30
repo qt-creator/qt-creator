@@ -22,6 +22,8 @@ Editing
 * Added a button for indentation settings to the editor toolbar
 * Fixed that `File > Close` / `Ctrl + W` closed pinned files
   ([QTCREATORBUG-25964](https://bugreports.qt.io/browse/QTCREATORBUG-25964))
+* Fixed the behavior of `Shift + Backspace` for multi-cursor editing
+  ([QTCREATORBUG-32374](https://bugreports.qt.io/browse/QTCREATORBUG-32374))
 
 ### C++
 
@@ -88,6 +90,10 @@ Projects
 * Fixed that the project specific editor settings were not applied to the
   Markdown editor
   ([QTCREATORBUG-31875](https://bugreports.qt.io/browse/QTCREATORBUG-31875))
+* Fixed the title of `Build for Run Configuration <name>`
+  ([QTCREATORBUG-32350](https://bugreports.qt.io/browse/QTCREATORBUG-32350))
+* Fixed a crash when an application outputs lots of lines
+  ([QTCREATORBUG-32371](https://bugreports.qt.io/browse/QTCREATORBUG-32371))
 * Qt
     * Improved performance of Qt ABI detection when module `.json` files are
       available
@@ -96,14 +102,30 @@ Projects
     * Removed unnecessary warning when the Qt version in a kit does not
       have a QML utility
       ([QTCREATORBUG-32052](https://bugreports.qt.io/browse/QTCREATORBUG-32052))
+* Qt Creator Plugin Wizard
+    * Added support for building for Windows and Linux on ARM on GitHub
+    * Added a run configuration that runs the Qt Creator that the plugin was
+      built with
 
 ### CMake
 
 * Simplified the project tree hierarchy for empty subdirectories
   ([QTCREATORBUG-32217](https://bugreports.qt.io/browse/QTCREATORBUG-32217))
+* Added support for creating run configurations for custom CMake targets
+  with the `qtc_runnable` `FOLDER` property
+  ([QTCREATORBUG-32324](https://bugreports.qt.io/browse/QTCREATORBUG-32324))
 * Fixed that manually created run configurations could be removed if
   `Create suitable run configurations automatically` was turned off
   ([QTCREATORBUG-32289](https://bugreports.qt.io/browse/QTCREATORBUG-32289))
+* Fixed issues with Objective-C/C++ files if `OBJCXX` is added to the
+  list of languages in the project file
+  ([QTCREATORBUG-32282](https://bugreports.qt.io/browse/QTCREATORBUG-32282))
+
+### Qmake
+
+* Fixed that `.pri` files that are included but unused were not marked as
+  inactive in the project tree
+  ([QTCREATORBUG-32405](https://bugreports.qt.io/browse/QTCREATORBUG-32405))
 
 ### Meson
 
@@ -131,6 +153,11 @@ Debugging
 
 Analyzer
 --------
+
+### Clang
+
+* Fixed a crash when the tool is run in parallel
+  ([QTCREATORBUG-32411](https://bugreports.qt.io/browse/QTCREATORBUG-32411))
 
 ### QML Profiler
 
@@ -186,6 +213,8 @@ Platforms
 * Added support for application output and C++ debugging for devices with iOS 17
   and later
 * Fixed a crash when stopping applications on devices with iOS 16 and earlier
+* Fixed QML profiling on devices with iOS 16 and earlier
+  ([QTCREATORBUG-32403](https://bugreports.qt.io/browse/QTCREATORBUG-32403))
 
 ### Remote Linux
 
@@ -225,6 +254,7 @@ Kai Köhne
 Knud Dollereder  
 Leena Miettinen  
 Liu Zhangjian  
+Lukasz Papierkowski  
 Mahmoud Badri  
 Marco Bubke  
 Marcus Tillmanns  
@@ -241,6 +271,7 @@ Patryk Stachniak
 Pranta Dastider  
 Przemyslaw Lewandowski  
 Rafal Stawarski  
+Ralf Habacker  
 Robert Löhning  
 Sami Shalayel  
 Semih Yavuz  

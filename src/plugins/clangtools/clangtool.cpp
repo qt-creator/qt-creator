@@ -800,8 +800,10 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
         const AnalyzeInputData input{tool, runSettings, diagnosticConfig, tempDir->path(),
                                      environment};
 
+        ClangToolsCompilationDb &db
+            = ClangToolsCompilationDb::getDb(tool, project->activeBuildConfiguration());
         taskTree.setRecipe(
-            {clangToolTask(tool, unitsToProcess, input, setupHandler, outputHandler)});
+            {clangToolTask(unitsToProcess, input, setupHandler, outputHandler, db.parentDir())});
         return SetupResult::Continue;
     };
 
@@ -833,12 +835,13 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
 void ClangTool::startTool(FileSelection fileSelection, const RunSettings &runSettings,
                           const ClangDiagnosticConfig &diagnosticConfig)
 {
-    ClangToolsCompilationDb &db = ClangToolsCompilationDb::getDb(m_type);
-    db.disconnect(this);
-
     Project *project = ProjectManager::startupProject();
     QTC_ASSERT(project, return);
-    QTC_ASSERT(project->activeTarget(), return);
+    QTC_ASSERT(project->activeBuildConfiguration(), return);
+
+    ClangToolsCompilationDb &db
+        = ClangToolsCompilationDb::getDb(m_type, project->activeBuildConfiguration());
+    db.disconnect(this);
 
     // Continue despite release mode?
     if (BuildConfiguration *bc = project->activeBuildConfiguration()) {

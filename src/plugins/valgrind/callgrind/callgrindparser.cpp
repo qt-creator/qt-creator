@@ -172,7 +172,7 @@ ParseDataPtr ParserPrivate::parse(const FilePath &filePath)
     while (!file.atEnd()) {
         const QByteArray line = file.readLine();
         // empty lines actually have no meaning - only fn= starts a new function
-        if (line.length() > 1)
+        if (!line.trimmed().isEmpty())
             dispatchLine(line);
     }
 

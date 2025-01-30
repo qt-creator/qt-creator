@@ -132,6 +132,7 @@ static void createTree(QmakeBuildSystem *buildSystem,
     QTC_ASSERT(node, return);
 
     node->setDisplayName(pri->displayName());
+    node->setEnabled(pri->includedInExactParse());
 
     // .pro/.pri-file itself:
     node->addNode(std::make_unique<FileNode>(pri->filePath(), FileType::Project));
