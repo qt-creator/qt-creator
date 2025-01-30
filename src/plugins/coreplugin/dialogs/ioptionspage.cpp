@@ -339,7 +339,8 @@ IOptionsPage::~IOptionsPage()
 }
 
 /*!
-    Registers a category with user-visible name and icon.
+    Registers a category with the ID \a id, user-visible name \a displayName, and
+    icon specified by \a iconPath.
  */
 void IOptionsPage::registerCategory(
     Utils::Id id, const QString &displayName, const Utils::FilePath &iconPath)
