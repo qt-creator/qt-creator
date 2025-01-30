@@ -48,7 +48,7 @@ protected:
     virtual bool createDirectory(const FilePath &filePath) const;
     virtual bool exists(const FilePath &filePath) const;
     virtual Result removeFile(const FilePath &filePath) const;
-    virtual bool removeRecursively(const FilePath &filePath, QString *error) const;
+    virtual Result removeRecursively(const FilePath &filePath) const;
     virtual Result copyFile(const FilePath &filePath, const FilePath &target) const;
     virtual Result copyRecursively(const FilePath &filePath, const FilePath &target) const;
     virtual Result renameFile(const FilePath &filePath, const FilePath &target) const;
@@ -110,7 +110,7 @@ protected:
     bool createDirectory(const FilePath &filePath) const override;
     bool exists(const FilePath &filePath) const override;
     Result removeFile(const FilePath &filePath) const override;
-    bool removeRecursively(const FilePath &filePath, QString *error) const override;
+    Result removeRecursively(const FilePath &filePath) const override;
     Result copyFile(const FilePath &filePath, const FilePath &target) const override;
     Result copyRecursively(const FilePath &filePath, const FilePath &target) const override;
     Result renameFile(const FilePath &filePath, const FilePath &target) const override;
@@ -168,7 +168,7 @@ protected:
     bool createDirectory(const FilePath &filePath) const override;
     bool exists(const FilePath &filePath) const override;
     Result removeFile(const FilePath &filePath) const override;
-    bool removeRecursively(const FilePath &filePath, QString *error) const override;
+    Result removeRecursively(const FilePath &filePath) const override;
     Result copyFile(const FilePath &filePath, const FilePath &target) const override;
     Result renameFile(const FilePath &filePath, const FilePath &target) const override;
 
@@ -229,7 +229,7 @@ protected:
     bool createDirectory(const FilePath &filePath) const override;
     bool exists(const FilePath &filePath) const override;
     Result removeFile(const FilePath &filePath) const override;
-    bool removeRecursively(const FilePath &filePath, QString *error) const override;
+    Result removeRecursively(const FilePath &filePath) const override;
     Result copyFile(const FilePath &filePath, const FilePath &target) const override;
     Result renameFile(const FilePath &filePath, const FilePath &target) const override;
 

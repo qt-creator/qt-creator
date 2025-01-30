@@ -164,12 +164,11 @@ Result DeviceFileAccess::removeFile(const FilePath &filePath) const
         Tr::tr("removeFile is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
-bool DeviceFileAccess::removeRecursively(const FilePath &filePath, QString *error) const
+Result DeviceFileAccess::removeRecursively(const FilePath &filePath) const
 {
     Q_UNUSED(filePath)
-    Q_UNUSED(error)
     QTC_CHECK(false);
-    return false;
+    return Result::Error(Result::Unimplemented);
 }
 
 Result DeviceFileAccess::copyFile(const FilePath &filePath, const FilePath &target) const
@@ -513,11 +512,10 @@ Result UnavailableDeviceFileAccess::removeFile(const FilePath &filePath) const
     return Result::Error(unavailableMessage());
 }
 
-bool UnavailableDeviceFileAccess::removeRecursively(const FilePath &filePath, QString *error) const
+Result UnavailableDeviceFileAccess::removeRecursively(const FilePath &filePath) const
 {
     Q_UNUSED(filePath)
-    Q_UNUSED(error)
-    return false;
+    return Result::Error(Result::Unimplemented);
 }
 
 Result UnavailableDeviceFileAccess::copyFile(const FilePath &filePath, const FilePath &target) const
@@ -974,82 +972,66 @@ Result DesktopDeviceFileAccess::removeFile(const FilePath &filePath) const
     return Result::Ok;
 }
 
-static bool checkToRefuseRemoveStandardLocationDirectory(const QString &dirPath,
-                                                         QStandardPaths::StandardLocation location,
-                                                         QString *error)
+static Result checkToRefuseRemoveStandardLocationDirectory(const QString &dirPath,
+                                                           QStandardPaths::StandardLocation location)
 {
-    if (QStandardPaths::standardLocations(location).contains(dirPath)) {
-        if (error) {
-            *error = Tr::tr("Refusing to remove the standard directory \"%1\".")
-                         .arg(QStandardPaths::displayName(location));
-        }
-        return false;
-    }
-    return true;
+    if (QStandardPaths::standardLocations(location).contains(dirPath))
+        return Result::Error(Tr::tr("Refusing to remove the standard directory \"%1\".")
+                         .arg(QStandardPaths::displayName(location)));
+    return Result::Ok;
 }
 
-static bool checkToRefuseRemoveDirectory(const QDir &dir, QString *error)
+static Result checkToRefuseRemoveDirectory(const QDir &dir)
 {
-    if (dir.isRoot()) {
-        if (error)
-            *error = Tr::tr("Refusing to remove root directory.");
-        return false;
-    }
+    if (dir.isRoot())
+        return Result::Error(Tr::tr("Refusing to remove root directory."));
+
     const QString dirPath = dir.path();
-    if (dirPath == QDir::home().canonicalPath()) {
-        if (error)
-            *error = Tr::tr("Refusing to remove your home directory.");
-        return false;
-    }
-    if (checkToRefuseRemoveStandardLocationDirectory(dirPath, QStandardPaths::DocumentsLocation, error))
-        return false;
-    if (checkToRefuseRemoveStandardLocationDirectory(dirPath, QStandardPaths::DownloadLocation, error))
-        return false;
-    if (checkToRefuseRemoveStandardLocationDirectory(dirPath, QStandardPaths::AppDataLocation, error))
-        return false;
-    if (checkToRefuseRemoveStandardLocationDirectory(dirPath, QStandardPaths::AppLocalDataLocation, error))
-        return false;
-    return true;
+    if (dirPath == QDir::home().canonicalPath())
+        return Result::Error(Tr::tr("Refusing to remove your home directory."));
+
+    if (Result res = checkToRefuseRemoveStandardLocationDirectory(dirPath, QStandardPaths::DocumentsLocation); !res)
+        return res;
+    if (Result res = checkToRefuseRemoveStandardLocationDirectory(dirPath, QStandardPaths::DownloadLocation); !res)
+        return res;
+    if (Result res = checkToRefuseRemoveStandardLocationDirectory(dirPath, QStandardPaths::AppDataLocation); !res)
+        return res;
+    if (Result res = checkToRefuseRemoveStandardLocationDirectory(dirPath, QStandardPaths::AppLocalDataLocation); !res)
+        return res;
+    return Result::Ok;
 }
 
-bool DesktopDeviceFileAccess::removeRecursively(const FilePath &filePath, QString *error) const
+Result DesktopDeviceFileAccess::removeRecursively(const FilePath &filePath) const
 {
-    QTC_ASSERT(filePath.isLocal(), return false);
+    QTC_ASSERT(filePath.isLocal(), return Result::Error(Result::Assert));
     QFileInfo fileInfo = filePath.toFileInfo();
     if (!fileInfo.exists() && !fileInfo.isSymLink())
-        return true;
+        return Result::Ok;
 
     QFile::setPermissions(fileInfo.absoluteFilePath(), fileInfo.permissions() | QFile::WriteUser);
 
     if (fileInfo.isDir()) {
         QDir dir(fileInfo.absoluteFilePath());
         dir.setPath(dir.canonicalPath());
-        if (checkToRefuseRemoveDirectory(dir, error))
-            return false;
+        if (Result res = checkToRefuseRemoveDirectory(dir); !res)
+            return res;
 
         const QStringList fileNames = dir.entryList(QDir::Files | QDir::Hidden | QDir::System
                                                     | QDir::Dirs | QDir::NoDotAndDotDot);
         for (const QString &fileName : fileNames) {
-            if (!removeRecursively(filePath / fileName, error))
-                return false;
+            if (Result res = removeRecursively(filePath / fileName); !res)
+                return res;
         }
-        if (!QDir::root().rmdir(dir.path())) {
-            if (error)
-                *error = Tr::tr("Failed to remove directory \"%1\".").arg(filePath.toUserOutput());
-            return false;
-        }
+        if (!QDir::root().rmdir(dir.path()))
+            return Result::Error(Tr::tr("Failed to remove directory \"%1\".").arg(filePath.toUserOutput()));
     } else {
-        if (!QFile::remove(filePath.path())) {
-            if (error)
-                *error = Tr::tr("Failed to remove file \"%1\".").arg(filePath.toUserOutput());
-            return false;
-        }
+        if (!QFile::remove(filePath.path()))
+            return Result::Error(Tr::tr("Failed to remove file \"%1\".").arg(filePath.toUserOutput()));
     }
-    return true;
+    return Result::Ok;
 }
 
-Result DesktopDeviceFileAccess::copyFile(const FilePath &filePath,
-                                                     const FilePath &target) const
+Result DesktopDeviceFileAccess::copyFile(const FilePath &filePath, const FilePath &target) const
 {
     QFile srcFile(filePath.path());
 
@@ -1409,23 +1391,25 @@ Result UnixDeviceFileAccess::removeFile(const FilePath &filePath) const
     return Result::Ok;
 }
 
-bool UnixDeviceFileAccess::removeRecursively(const FilePath &filePath, QString *error) const
+Result UnixDeviceFileAccess::removeRecursively(const FilePath &filePath) const
 {
-    QTC_ASSERT(filePath.path().startsWith('/'), return false);
+    QTC_ASSERT(filePath.path().startsWith('/'), return Result::Error(Result::Assert));
 
     const QString path = filePath.cleanPath().path();
     // We are expecting this only to be called in a context of build directories or similar.
     // Chicken out in some cases that _might_ be user code errors.
-    QTC_ASSERT(path.startsWith('/'), return false);
+    QTC_ASSERT(path.startsWith('/'), return Result::Error(Result::Assert));
     int levelsNeeded = path.startsWith("/home/") ? 4 : 3;
     if (path.startsWith("/tmp/"))
         levelsNeeded = 2;
-    QTC_ASSERT(path.count('/') >= levelsNeeded, return false);
+    QTC_ASSERT(path.count('/') >= levelsNeeded, return Result::Error(Result::Assert));
 
     RunResult result = runInShell({"rm", {"-rf", "--", path}, OsType::OsTypeLinux});
-    if (error)
-        *error = QString::fromUtf8(result.stdErr);
-    return result.exitCode == 0;
+
+    if (result.exitCode != 0)
+        return Result::Error(QString::fromUtf8(result.stdErr));
+
+    return Result::Ok;
 }
 
 Result UnixDeviceFileAccess::copyFile(const FilePath &filePath, const FilePath &target) const

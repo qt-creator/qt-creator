@@ -3,6 +3,8 @@
 
 #include "result.h"
 
+#include "utilstr.h"
+
 namespace Utils {
 
 const Result Result::Ok;
@@ -20,5 +22,21 @@ Result::Result(const expected_str<void> &res)
 }
 
 Result::~Result() = default;
+
+Result Result::Error(const QString &errorString)
+{
+    return Result(errorString);
+}
+
+Result Result::Error(SpecialError specialError)
+{
+    switch (specialError) {
+    case Unimplemented:
+        return Error(Tr::tr("Not implemented"));
+    case Assert:
+        return Error(Tr::tr("Internal error"));
+    }
+    return Error(Tr::tr("Internal error"));
+}
 
 } // Utils

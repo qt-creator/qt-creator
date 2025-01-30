@@ -497,18 +497,16 @@ Result FileAccess::removeFile(const FilePath &filePath) const
     return Result::Ok;
 }
 
-bool FileAccess::removeRecursively(const Utils::FilePath &filePath, QString *error) const
+Result FileAccess::removeRecursively(const Utils::FilePath &filePath) const
 {
     try {
         auto f = m_client->removeRecursively(filePath.nativePath());
-        QTC_ASSERT_EXPECTED(f, return false);
+        QTC_ASSERT_EXPECTED(f, return Result::Error(Result::Assert));
         f->waitForFinished();
-        return true;
+        return Result::Ok;
     } catch (const std::exception &e) {
         qCWarning(faLog) << "Error removing directory:" << e.what();
-        if (error)
-            *error = QString::fromLocal8Bit(e.what());
-        return false;
+        return Result::Error(QString::fromLocal8Bit(e.what()));
     }
 }
 
@@ -524,6 +522,7 @@ bool FileAccess::ensureExistingFile(const Utils::FilePath &filePath) const
         return false;
     }
 }
+
 bool FileAccess::createDirectory(const Utils::FilePath &filePath) const
 {
     try {

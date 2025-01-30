@@ -26,8 +26,10 @@ public:
     Result &operator=(const Result &) = default;
     Result &operator=(Result &&) = default;
 
+    enum SpecialError { Unimplemented, Assert };
     static const Result Ok;
-    static Result Error(const QString &errorString) { return Result(errorString); };
+    static Result Error(const QString &errorString);
+    static Result Error(SpecialError specialError);
 
     QString error() const { return m_error ? *m_error : QString(); }
     operator bool() const { return !m_error; }

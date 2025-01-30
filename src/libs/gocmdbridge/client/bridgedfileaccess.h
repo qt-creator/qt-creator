@@ -70,7 +70,7 @@ protected:
                                                   const QByteArray &data) const override;
 
     Utils::Result removeFile(const Utils::FilePath &filePath) const override;
-    bool removeRecursively(const Utils::FilePath &filePath, QString *error) const override;
+    Utils::Result removeRecursively(const Utils::FilePath &filePath) const override;
 
     bool ensureExistingFile(const Utils::FilePath &filePath) const override;
     bool createDirectory(const Utils::FilePath &filePath) const override;

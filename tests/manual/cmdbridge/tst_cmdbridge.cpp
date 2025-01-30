@@ -220,7 +220,7 @@ The end.
         QVERIFY(fileAccess.createDirectory(dir));
         QVERIFY(fileAccess.exists(dir));
         QVERIFY(fileAccess.isReadableDirectory(dir));
-        QVERIFY(fileAccess.removeRecursively(dir, nullptr));
+        QVERIFY(fileAccess.removeRecursively(dir));
         QVERIFY(!fileAccess.exists(dir));
     }
 

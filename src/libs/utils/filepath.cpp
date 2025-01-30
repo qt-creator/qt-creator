@@ -2025,10 +2025,7 @@ Result FilePath::removeFile() const
 */
 Result FilePath::removeRecursively() const
 {
-    QString error;
-    if (fileAccess()->removeRecursively(*this, &error))
-        return Result::Ok;
-    return Result::Error(error);
+    return fileAccess()->removeRecursively(*this);
 }
 
 Result FilePath::copyRecursively(const FilePath &target) const
