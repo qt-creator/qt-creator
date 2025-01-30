@@ -16,6 +16,7 @@
 #include "settingspage.h"
 #include "shortcutmanager.h"
 #include "toolbar.h"
+#include "utils/checkablemessagebox.h"
 
 #include <colortool/colortool.h>
 #include <connectionview.h>
@@ -271,14 +272,17 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString * 
     Sqlite::LibraryInitializer::initialize();
     QDir{}.mkpath(Core::ICore::cacheResourcePath().toUrlishString());
 
-    QAction *action = new QAction(tr("Give Feedback..."), this);
-    Core::Command *cmd = Core::ActionManager::registerAction(action, "Help.GiveFeedback");
-    Core::ActionManager::actionContainer(Core::Constants::M_HELP)
-        ->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
+    if (Core::ICore::isQtDesignStudio()) {
+        QAction *action = new QAction(tr("Give Feedback..."), this);
+        action->setVisible(false); // keep hidden unless UsageStatistic plugin activates it
+        Core::Command *cmd = Core::ActionManager::registerAction(action, "Help.GiveFeedback");
+        Core::ActionManager::actionContainer(Core::Constants::M_HELP)
+            ->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
 
-    connect(action, &QAction::triggered, this, [this] {
-        launchFeedbackPopupInternal(QGuiApplication::applicationDisplayName());
-    });
+        connect(action, &QAction::triggered, this, [this] {
+            launchFeedbackPopupInternal(QGuiApplication::applicationDisplayName());
+        });
+    }
 
     d = new QmlDesignerPluginPrivate;
     d->timer.start();
@@ -309,17 +313,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString * 
     if (Core::ICore::isQtDesignStudio()) {
         d->toolBar = ToolBar::create();
         d->statusBar = ToolBar::createStatusBar();
-
-        // uses simplified Telemetry settings page in case of Qt Design Studio
-        ExtensionSystem::PluginSpec *usageStatistic = Utils::findOrDefault(ExtensionSystem::PluginManager::plugins(), [](ExtensionSystem::PluginSpec *p) {
-            return p->id() == "usagestatistic";
-        });
-
-        if (usageStatistic && usageStatistic->plugin())
-            QMetaObject::invokeMethod(usageStatistic->plugin(), "useSimpleUi", true);
     }
-
-    initializeShutdownSettings();
 
     return true;
 }
@@ -355,33 +349,26 @@ void QmlDesignerPlugin::extensionsInitialized()
         Core::IWizardFactory::registerFeatureProvider(new FullQDSFeatureProvider);
 }
 
-void QmlDesignerPlugin::initializeShutdownSettings()
-{
-    auto settings = Core::ICore::settings();
-
-    if (!settings->contains("ShutdownCount"))
-        settings->setValue("ShutdownCount", 0);
-
-    m_lastShutdownType = settings->value("LastShutdownType", "UserQuit").toString();
-    settings->setValue("LastShutdownType", "Crash"); // value will persist unless changed in aboutToShutdown()
-}
-
 ExtensionSystem::IPlugin::ShutdownFlag QmlDesignerPlugin::aboutToShutdown()
 {
     Utils::QtcSettings *settings = Core::ICore::settings();
 
-    int shutdownCount = settings->value("ShutdownCount", 0).toInt();
-    if (m_lastShutdownType == "UserQuit")
-        settings->setValue("ShutdownCount", ++shutdownCount);
-
-    settings->setValue("LastShutdownType", "UserQuit");
-    if (shutdownCount != 5) // feedback popup should be displayed on the 5th shutdown
+    if (!Utils::CheckableDecider("FeedbackPopup").shouldAskAgain())
         return SynchronousShutdown;
 
-    m_shutdownPending = true;
-    launchFeedbackPopupInternal(QGuiApplication::applicationDisplayName());
+    int shutdownCount = settings->value("ShutdownCount", 0).toInt();
+    settings->setValue("ShutdownCount", ++shutdownCount);
 
-    return AsynchronousShutdown;
+    if (!settings->value("UsageStatistic/TrackingEnabled").toBool())
+        return SynchronousShutdown;
+
+    if (shutdownCount >= 5) {
+        m_shutdownPending = true;
+        launchFeedbackPopupInternal(QGuiApplication::applicationDisplayName());
+        return AsynchronousShutdown;
+    }
+
+    return SynchronousShutdown;
 }
 
 static QStringList allUiQmlFilesforCurrentProject(const Utils::FilePath &fileName)
@@ -886,8 +873,10 @@ void QmlDesignerPlugin::closeFeedbackPopup()
         m_feedbackWidget = nullptr;
     }
 
-    if (m_shutdownPending)
+    if (m_shutdownPending) {
+        Utils::CheckableDecider("FeedbackPopup").doNotAskAgain();
         emit asynchronousShutdownFinished();
+    }
 }
 
 void QmlDesignerPlugin::emitUsageStatisticsTime(const QString &identifier, int elapsed)
