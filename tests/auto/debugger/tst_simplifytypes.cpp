@@ -47,6 +47,8 @@ const char *description[] =
 
     "boost_shared_ptr",
     "boost_unordered_set",
+
+    "template_whitespace_handling"
 };
 
 const char *input[] =
@@ -94,6 +96,15 @@ const char *input[] =
 // boost
 "boost::shared_ptr<int>::element_type",
 "boost::unordered_set<int, boost::hash<int>, std::equal_to<int>, std::allocator<int> >",
+// a random tepmlated type to make sure that we handle excessive spaces accordingly
+"class std::map < std::basic_string  <  unsigned short,  std::char_traits   <   unsigned short   >,"
+" std::allocator   <  unsigned short  >  >, std::basic_string  <  unsigned short,  std::char_traits"
+"<   unsigned short   >   ,  std::allocator   <   unsigned short   >    >  ,  std::less   <        "
+"std::basic_string    <    unsigned short,    std::char_traits      <     unsigned short     >,    "
+"std::allocator      <unsigned short    >     >    >,     std::allocator      <        std::pair<  "
+"         std::basic_string     <   unsigned short,    std::char_traits  < unsigned short        >,"
+"std::allocator  < unsigned short > > const , std::basic_string<unsigned short, std::char_traits   "
+"<unsigned short>,std::allocator<unsigned short> > > > >                                          ",
 };
 
 const char *output[] =
@@ -135,6 +146,8 @@ const char *output[] =
     // boost
     "int",
     "boost::unordered_set<int>",
+    // a random tepmlated type to make sure that we handle excessive spaces accordingly
+    "std::map<std::wstring, std::wstring>",
 };
 
 class SimplifyTypesTest : public QObject

@@ -5107,7 +5107,9 @@ void tst_Dumpers::dumper_data()
                + Check("map5.0", "[0] 12", "42", "")
 
                + Check("map6", "<1 items>", "std::map<short, std::string>")
-               + Check("map6.0", "[0] 12", "\"42\"", "");
+               // LLDB bridge reports incorrect alignment for `std::string` (1 instead of 8)
+               // causing this check to fail.
+               + Check("map6.0", "[0] 12", "\"42\"", "") % NoLldbEngine;
 
 
     QTest::newRow("StdMapQt")
@@ -5366,13 +5368,12 @@ void tst_Dumpers::dumper_data()
 
                + CoreProfile()
 
-               + Check("set1", "<1 items>", "std::set<@QString>")
-               + Check("set1.0", "[0]", "\"22.0\"", "@QString")
+               + Check("set1", "<1 items>", "std::set<QString>")
+               + Check("set1.0", "[0]", "\"22.0\"", "QString")
 
-               + Check("set2", "<1 items>", "std::set<@QPointer<@QObject>, "
-                    "std::less<@QPointer<@QObject>>, std::allocator<@QPointer<@QObject>>>")
-               + Check("ob", "", "@QObject")
-               + Check("ptr", "", "@QPointer<@QObject>");
+               + Check("set2", "<1 items>", "std::set<QPointer<QObject>>")
+               + Check("ob", "", "QObject")
+               + Check("ptr", "", "QPointer<QObject>");
 
 
     QTest::newRow("StdStack")
@@ -5485,8 +5486,11 @@ void tst_Dumpers::dumper_data()
                + Cxx17Profile{}
                + Check("view", "\"test\"", TypeDef("std::basic_string_view<char, std::char_traits<char> >", "std::string_view"))
                + Check("u16view", "\"test\"", TypeDef("std::basic_string_view<char16_t, std::char_traits<char16_t> >", "std::u16string_view"))
-               + Check("basicview", "\"test\"", "std::basic_string_view<char, std::char_traits<char> >")
-               + Check("u16basicview", "\"test\"", "std::basic_string_view<char16_t, std::char_traits<char16_t> >");
+               + Check("basicview", "\"test\"", "std::basic_string_view<char, std::char_traits<char> >") % NoLldbEngine
+               + Check("u16basicview", "\"test\"", "std::basic_string_view<char16_t, std::char_traits<char16_t> >") % NoLldbEngine
+               // LLDB resolves type to `std::string_view` anyway
+               + Check("basicview", "\"test\"", "std::string_view") % LldbEngine
+               + Check("u16basicview", "\"test\"", "std::u16string_view") % LldbEngine;
 
 
     QTest::newRow("StdStringQt")
@@ -5521,9 +5525,15 @@ void tst_Dumpers::dumper_data()
 
                     "&tuple")
 
-               + Check("tuple.0", "[0]", "123", "int")
-               + Check("tuple.1", "[1]", "\"hello\"", "std::string")
-               + Check("tuple.2", "[2]", "456", "int");
+               + Check("tuple.0", "[0]", "123", "int") % NoLldbEngine
+               + Check("tuple.1", "[1]", "\"hello\"", "std::string") % NoLldbEngine
+               + Check("tuple.2", "[2]", "456", "int") % NoLldbEngine
+               // With LLDB the tuple elements have actual names (of the form '[N]')
+               // in the GDB/MI data, so the usual fallback scheme ('N') does not come into play.
+               // See `WatchItem::parseHelper` for more details.
+               + Check("tuple.[0]", "[0]", "123", "int") % LldbEngine
+               + Check("tuple.[1]", "[1]", "\"hello\"", "std::string") % LldbEngine
+               + Check("tuple.[2]", "[2]", "456", "int") % LldbEngine;
 
 
     QTest::newRow("StdValArray")
@@ -5741,16 +5751,24 @@ void tst_Dumpers::dumper_data()
                + Cxx11Profile()
 
                + Check("map1", "<2 items>", "std::unordered_map<unsigned int, unsigned int>")
-               + Check("map1.0", "[0] 22", "2", "") % NoCdbEngine
-               + Check("map1.1", "[1] 11", "1", "") % NoCdbEngine
+               + Check("map1.0", "[0] 22", "2", "") % GdbEngine
+               // LDDB bridge reports `childtype` to the key type
+               + Check("map1.0", "[0] 22", "2", "unsigned int") % LldbEngine
+               + Check("map1.1", "[1] 11", "1", "") % GdbEngine
+               // LDDB bridge reports `childtype` to the key type
+               + Check("map1.1", "[1] 11", "1", "unsigned int") % LldbEngine
                + Check("map1.0", "[0] 11", "1", "") % CdbEngine
                + Check("map1.1", "[1] 22", "2", "") % CdbEngine
 
                + Check("map2", "<2 items>", "std::unordered_map<std::string, float>")
-               + Check("map2.0", "[0] \"22.0\"", FloatValue("22.0"), "") % NoCdbEngine
+               + Check("map2.0", "[0] \"22.0\"", FloatValue("22.0"), "") % GdbEngine
+               // LDDB bridge reports `childtype` to the key type
+               + Check("map2.0", "[0] \"22.0\"", FloatValue("22.0"), "std::string") % LldbEngine
                + Check("map2.0.first", "\"22.0\"", "std::string")        % NoCdbEngine
                + Check("map2.0.second", FloatValue("22"), "float")       % NoCdbEngine
-               + Check("map2.1", "[1] \"11.0\"", FloatValue("11.0"), "") % NoCdbEngine
+               + Check("map2.1", "[1] \"11.0\"", FloatValue("11.0"), "") % GdbEngine
+               // LDDB bridge reports `childtype` to the key type
+               + Check("map2.1", "[1] \"11.0\"", FloatValue("11.0"), "std::string") % LldbEngine
                + Check("map2.1.first", "\"11.0\"", "std::string")        % NoCdbEngine
                + Check("map2.1.second", FloatValue("11"), "float")       % NoCdbEngine
                + Check("map2.0", "[0] \"11.0\"", FloatValue("11.0"), "") % CdbEngine
@@ -5761,8 +5779,10 @@ void tst_Dumpers::dumper_data()
                + Check("map2.1.second", FloatValue("22"), "float")       % CdbEngine
 
                + Check("map3", "<2 items>", "std::unordered_multimap<int, std::string>")
-               + Check("map3.0", "[0] 1", "\"Bar\"", "") % NoCdbEngine
-               + Check("map3.1", "[1] 1", "\"Foo\"", "") % NoCdbEngine
+               // LLDB bridge reports incorrect alignment for `std::string` (1 instead of 8)
+               // causing these checks to fail.
+               + Check("map3.0", "[0] 1", "\"Bar\"", "") % GdbEngine
+               + Check("map3.1", "[1] 1", "\"Foo\"", "") % GdbEngine
                + Check("map3.0", "[0] 1", "\"Foo\"", "") % CdbEngine
                + Check("map3.1", "[1] 1", "\"Bar\"", "") % CdbEngine;
 

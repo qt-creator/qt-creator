@@ -19,6 +19,24 @@ namespace Debugger::Internal {
 // such as 'std::basic_string<char,std::char_traits<char>,std::allocator<char> >'
 // -> 'std::string' and helpers.
 
+static QString removeExcessiveSpacesInTemplateTypes(const QString &type)
+{
+    const QString simplified = type.simplified();
+    QString ret;
+    QString::size_type start = 0;
+    for (QString::size_type i = 0; i < simplified.size(); ++i) {
+        const QChar chr = simplified[i];
+        if (chr == '<' || chr == '>') {
+            ret += simplified.mid(start, i - start).trimmed();
+            ret += chr;
+            start = i + 1;
+        }
+    }
+    ret += simplified.mid(start).trimmed();
+
+    return ret;
+}
+
 static QString chopConst(QString type)
 {
     while (true) {
@@ -44,7 +62,7 @@ static inline QRegularExpression stdStringRegExp(const QString &charType)
     rc += charType;
     rc += ">,[ ]?std::allocator<";
     rc += charType;
-    rc += "> >";
+    rc += ">>";
     const QRegularExpression re(rc);
     QTC_ASSERT(re.isValid(), /**/);
     return re;
@@ -66,25 +84,7 @@ static inline void simplifyStdString(const QString &charType, const QString &rep
         const int matchedLength = match.capturedLength();
         type->replace(matchPos, matchedLength, replacement);
         pos = matchPos + replacementSize;
-        // If we were inside an 'allocator<std::basic_string..char > >'
-        // kill the following blank -> 'allocator<std::string>'
-        if (pos + 1 < type->size() && type->at(pos) == ' '
-                && type->at(pos + 1) == '>')
-            type->remove(pos, 1);
     }
-}
-
-// Fix 'std::allocator<std::string >' -> 'std::allocator<std::string>',
-// which can happen when replacing/simplifying
-static inline QString fixNestedTemplates(QString s)
-{
-    const int size = s.size();
-    if (size > 3
-            && s.at(size - 1) == '>'
-            && s.at(size - 2) == ' '
-            && s.at(size - 3) != '>')
-        s.remove(size - 2, 1);
-    return s;
 }
 
 static void simplifyAllocator(
@@ -109,10 +109,10 @@ static void simplifyAllocator(
                     break;
             }
         }
-        const QString alloc = fixNestedTemplates(type.mid(start, pos + 1 - start).trimmed());
-        const QString inner = fixNestedTemplates(
-            alloc.mid(allocatorTemplateHeadLength, alloc.size() - allocatorTemplateHeadLength - 1)
-                .trimmed());
+        const QString alloc = type.mid(start, pos + 1 - start).trimmed();
+        const QString inner
+            = alloc.mid(allocatorTemplateHeadLength, alloc.size() - allocatorTemplateHeadLength - 1)
+                  .trimmed();
 
         const QString allocEsc = QRegularExpression::escape(alloc);
         const QString innerEsc = QRegularExpression::escape(inner);
@@ -135,7 +135,7 @@ static void simplifyAllocator(
 
         // std::stack
         QRegularExpression stackRE(
-            QString::fromLatin1("stack<%1, ?std::deque<%2> >").arg(innerEsc, innerEsc));
+            QString::fromLatin1("stack<%1, ?std::deque<%2>>").arg(innerEsc, innerEsc));
         QTC_ASSERT(stackRE.isValid(), return);
         match = stackRE.match(type);
         if (match.hasMatch())
@@ -294,7 +294,11 @@ QString simplifyType(const QString &typeIn)
     type.replace("std::__cxx11::", "std::");
     type.replace("std::__1::", "std::");
     type.replace("std::__debug::", "std::");
-    static const QRegularExpression simpleStringRE("std::basic_string<char> ?");
+
+    type = removeExcessiveSpacesInTemplateTypes(type);
+
+    static const QRegularExpression simpleStringRE(
+        "std::basic_string<char(, ?std::char_traits<char>)?(, ?std::allocator<char>)? ?>");
     type.replace(simpleStringRE, "std::string");
 
     // Normalize space + ptr.
@@ -338,7 +342,6 @@ QString simplifyType(const QString &typeIn)
         simplifyAllocator("std::pmr::polymorphic_allocator<", "pmr::", isLibCpp, type);
     }
     type.replace('@', " *");
-    type.replace(" >", ">");
     return type;
 }
 
