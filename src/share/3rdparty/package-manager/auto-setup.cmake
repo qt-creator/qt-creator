@@ -14,6 +14,16 @@ if (QT_CREATOR_SOURCE_GROUPS)
   source_group("State charts" REGULAR_EXPRESSION "\\.(scxml)$")
 endif()
 
+#
+# Set a better default value for CMAKE_INSTALL_PREFIX
+#
+function(qtc_modify_default_install_prefix)
+  if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set_property(CACHE CMAKE_INSTALL_PREFIX PROPERTY VALUE "/tmp")
+  endif()
+endfunction()
+cmake_language(DEFER CALL qtc_modify_default_install_prefix)
+
 if (EXISTS "${CMAKE_SOURCE_DIR}/QtCreatorPackageManager.cmake")
   include("${CMAKE_SOURCE_DIR}/QtCreatorPackageManager.cmake")
 endif()
