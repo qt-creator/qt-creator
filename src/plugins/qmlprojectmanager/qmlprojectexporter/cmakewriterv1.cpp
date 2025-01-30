@@ -3,6 +3,7 @@
 #include "cmakewriterv1.h"
 #include "cmakegenerator.h"
 
+#include "qmlprojectmanager/qmlprojectmanagertr.h"
 #include "qmlprojectmanager/buildsystem/qmlbuildsystem.h"
 
 #include <coreplugin/icore.h>
@@ -99,6 +100,28 @@ void CMakeWriterV1::writeRootCMakeFile(const NodePtr &node) const
                 QString depsTemplate =
                     QString::fromUtf8(TEMPLATE_DEPENDENCIES_CMAKELISTS, -1).arg(COMPONENTS_DIR);
                 writeFile(dependenciesPath.pathAppended("CMakeLists.txt"), depsTemplate);
+
+                const Utils::FilePath qmlComponentsFilePath =
+                    cmakeFolderPath.pathAppended("qmlcomponents.cmake");
+
+                if (qmlComponentsFilePath.exists()) {
+
+                    const QString warningMsg = Tr::tr(
+                        "The project structure has changed.\n"
+                        "Please clean the build folder before rebuilding\n");
+
+                    CMakeGenerator::logIssue(
+                        ProjectExplorer::Task::Warning, warningMsg, componentsPath);
+
+                    auto removeResult = qmlComponentsFilePath.removeFile();
+                    if (!removeResult) {
+                        QString removeMsg = Tr::tr("Failed to remove the qmlcomponents.cmake file.\n");
+                        removeMsg.append(removeResult.error());
+
+                        CMakeGenerator::logIssue(
+                            ProjectExplorer::Task::Warning, removeMsg, qmlComponentsFilePath);
+                    }
+                }
             } else {
                 CMakeGenerator::logIssue(
                     ProjectExplorer::Task::Error, cpyResult.error(), componentsSrc);
