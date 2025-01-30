@@ -177,7 +177,7 @@ void DragTool::clearMoveDelay()
 {
     if (m_blockMove) {
         m_blockMove = false;
-        if (!m_dragNodes.isEmpty())
+        if (!m_dragNodes.isEmpty() && m_dragNodes.first().isValid())
             beginWithPoint(m_startPoint);
     }
 }
