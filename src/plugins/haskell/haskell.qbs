@@ -12,7 +12,6 @@ QtcPlugin {
 
     files: [
         "haskell.qrc",
-        "haskellbuildconfiguration.cpp", "haskellbuildconfiguration.h",
         "haskellconstants.h",
         "haskelleditorfactory.cpp", "haskelleditorfactory.h",
         "haskell_global.h",

@@ -1,7 +1,6 @@
 // Copyright (c) 2017 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "haskellbuildconfiguration.h"
 #include "haskellconstants.h"
 #include "haskelleditorfactory.h"
 #include "haskellmanager.h"
@@ -13,8 +12,6 @@
 #include <extensionsystem/iplugin.h>
 
 #include <coreplugin/dialogs/ioptionspage.h>
-
-#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
 #include <texteditor/snippets/snippetprovider.h>
 
@@ -32,7 +29,6 @@ public:
             "J.Z.Haskell", Tr::tr("Haskell"), ":/haskell/images/settingscategory_haskell.png");
 
         setupHaskellStackBuildStep();
-        setupHaskellBuildConfiguration();
 
         setupHaskellRunSupport();
 

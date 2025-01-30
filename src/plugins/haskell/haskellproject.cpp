@@ -4,7 +4,10 @@
 #include "haskellproject.h"
 
 #include "haskellconstants.h"
+#include "haskelltr.h"
 
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/project.h>
@@ -14,11 +17,14 @@
 #include <projectexplorer/treescanner.h>
 
 #include <utils/algorithm.h>
+#include <utils/detailswidget.h>
 #include <utils/filepath.h>
-#include <utils/qtcassert.h>
 
 #include <QFile>
+#include <QHBoxLayout>
+#include <QLabel>
 #include <QTextStream>
+#include <QVBoxLayout>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -125,10 +131,106 @@ public:
     }
 };
 
+class HaskellBuildConfiguration final : public BuildConfiguration
+{
+public:
+    HaskellBuildConfiguration(Target *target, Utils::Id id)
+        : BuildConfiguration(target, id)
+    {
+        setConfigWidgetDisplayName(Tr::tr("General"));
+        setInitializer([this](const BuildInfo &info) {
+            setBuildDirectory(info.buildDirectory);
+            setBuildType(info.buildType);
+            setDisplayName(info.displayName);
+        });
+        appendInitialBuildStep(Constants::C_STACK_BUILD_STEP_ID);
+    }
+
+    QWidget *createConfigWidget() final;
+
+    BuildType buildType() const final
+    {
+        return m_buildType;
+    }
+
+    void setBuildType(BuildType type)
+    {
+        m_buildType = type;
+    }
+
+private:
+    BuildType m_buildType = BuildType::Release;
+};
+
+class HaskellBuildConfigurationWidget final : public QWidget
+{
+public:
+    HaskellBuildConfigurationWidget(HaskellBuildConfiguration *bc)
+    {
+        setLayout(new QVBoxLayout);
+        layout()->setContentsMargins(0, 0, 0, 0);
+        auto box = new Utils::DetailsWidget;
+        box->setState(Utils::DetailsWidget::NoSummary);
+        layout()->addWidget(box);
+        auto details = new QWidget;
+        box->setWidget(details);
+        details->setLayout(new QHBoxLayout);
+        details->layout()->setContentsMargins(0, 0, 0, 0);
+        details->layout()->addWidget(new QLabel(Tr::tr("Build directory:")));
+
+        auto buildDirectoryInput = new Utils::PathChooser;
+        buildDirectoryInput->setExpectedKind(Utils::PathChooser::Directory);
+        buildDirectoryInput->setFilePath(bc->buildDirectory());
+        details->layout()->addWidget(buildDirectoryInput);
+
+        connect(bc,
+                &BuildConfiguration::buildDirectoryChanged,
+                buildDirectoryInput,
+                [bc, buildDirectoryInput] {
+                    buildDirectoryInput->setFilePath(bc->buildDirectory());
+                });
+        connect(buildDirectoryInput,
+                &Utils::PathChooser::textChanged,
+                bc,
+                [bc, buildDirectoryInput](const QString &) {
+                    bc->setBuildDirectory(buildDirectoryInput->unexpandedFilePath());
+                });
+    }
+};
+
+QWidget *HaskellBuildConfiguration::createConfigWidget()
+{
+    return new HaskellBuildConfigurationWidget(this);
+}
+
+class HaskellBuildConfigurationFactory final : public BuildConfigurationFactory
+{
+public:
+    HaskellBuildConfigurationFactory()
+    {
+        registerBuildConfiguration<HaskellBuildConfiguration>("Haskell.BuildConfiguration");
+
+        setSupportedProjectType(Constants::C_HASKELL_PROJECT_ID);
+        setSupportedProjectMimeTypeName(Constants::C_HASKELL_PROJECT_MIMETYPE);
+
+        setBuildGenerator([](const Kit *k, const Utils::FilePath &projectPath, bool forSetup)  {
+            BuildInfo info;
+            info.typeName = Tr::tr("Release");
+            if (forSetup) {
+                info.displayName = info.typeName;
+                info.buildDirectory = projectPath.parentDir().pathAppended(".stack-work");
+            }
+            info.kitId = k->id();
+            info.buildType = BuildConfiguration::BuildType::Release;
+            return QList<BuildInfo>{info};
+        });
+    }
+};
+
 void setupHaskellProject()
 {
-    ProjectManager::registerProjectType<HaskellProject>(
-        Constants::C_HASKELL_PROJECT_MIMETYPE);
+    static const HaskellBuildConfigurationFactory theHaskellBuildConfigurationFactory;
+    ProjectManager::registerProjectType<HaskellProject>(Constants::C_HASKELL_PROJECT_MIMETYPE);
 }
 
 } // Haskell::Internal

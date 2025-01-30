@@ -4,7 +4,6 @@ add_qtc_plugin(Haskell
   SOURCES
     haskell.qrc
     haskell_global.h
-    haskellbuildconfiguration.cpp haskellbuildconfiguration.h
     haskellconstants.h
     haskelleditorfactory.cpp haskelleditorfactory.h
     haskellhighlighter.cpp haskellhighlighter.h
