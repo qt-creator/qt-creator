@@ -976,6 +976,11 @@ void QmlAnchorBindingProxy::setVerticalCentered(bool centered)
     if (verticalCentered() == centered)
         return;
 
+    if (centered && horizontalCentered()) {
+        centerIn();
+        return;
+    }
+
     m_locked = true;
 
     executeInTransaction("QmlAnchorBindingProxy::setVerticalCentered", [this, centered](){
@@ -1003,6 +1008,11 @@ void QmlAnchorBindingProxy::setHorizontalCentered(bool centered)
 
     if (horizontalCentered() == centered)
         return;
+
+    if (centered && verticalCentered()) {
+        centerIn();
+        return;
+    }
 
     m_locked = true;
 
@@ -1103,9 +1113,6 @@ void QmlAnchorBindingProxy::fill()
 
         m_qmlItemNode.anchors().fill();
 
-        setHorizontalCentered(false);
-        setVerticalCentered(false);
-
         m_qmlItemNode.anchors().removeMargin(AnchorLineRight);
         m_qmlItemNode.anchors().removeMargin(AnchorLineLeft);
         m_qmlItemNode.anchors().removeMargin(AnchorLineTop);
@@ -1118,6 +1125,23 @@ void QmlAnchorBindingProxy::fill()
     emit leftAnchorChanged();
     emit rightAnchorChanged();
     emit anchorsChanged();
+}
+
+void QmlAnchorBindingProxy::centerIn()
+{
+    executeInTransaction("QmlAnchorBindingProxy::centerIn", [this]() {
+        backupPropertyAndRemove(modelNode(), "x");
+        backupPropertyAndRemove(modelNode(), "y");
+
+        m_qmlItemNode.anchors().centerIn();
+
+        m_qmlItemNode.anchors().removeMargin(AnchorLineRight);
+        m_qmlItemNode.anchors().removeMargin(AnchorLineLeft);
+        m_qmlItemNode.anchors().removeMargin(AnchorLineTop);
+        m_qmlItemNode.anchors().removeMargin(AnchorLineBottom);
+    });
+
+    emitAnchorSignals();
 }
 
 void QmlAnchorBindingProxy::setDefaultAnchorTarget(const ModelNode &modelNode)

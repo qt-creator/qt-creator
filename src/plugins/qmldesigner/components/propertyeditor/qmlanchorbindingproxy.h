@@ -129,6 +129,7 @@ public:
 public slots:
     void resetLayout();
     void fill();
+    void centerIn();
     void setTopAnchor(bool anchor =true);
     void setBottomAnchor(bool anchor = true);
     void setLeftAnchor(bool anchor = true);
