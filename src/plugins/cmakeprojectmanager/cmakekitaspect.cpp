@@ -702,6 +702,11 @@ QVariant CMakeGeneratorKitAspectFactory::defaultValue(const Kit *k) const
 
 bool CMakeGeneratorKitAspectFactory::isNinjaPresent(const Kit *k, const CMakeTool *tool) const
 {
+    const CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
+    const FilePath makeProgram = config.filePathValueOf("CMAKE_MAKE_PROGRAM");
+    if (makeProgram.baseName().startsWith("ninja", makeProgram.caseSensitivity()))
+        return true;
+
     if (Internal::settings(nullptr).ninjaPath().isEmpty()) {
         auto findNinja = [](const Environment &env) -> bool {
             return !env.searchInPath("ninja").isEmpty();
