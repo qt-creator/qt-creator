@@ -71,14 +71,14 @@ public:
 
     BuildSystem *createBuildSystem(Target *target) const;
 
-    virtual Utils::FilePath projectFilePath() const;
+    Utils::FilePath projectFilePath() const;
     virtual Utils::FilePath projectDirectory() const;
 
     // This does not affect nodes, only the root path.
     void changeRootProjectDirectory();
     Utils::FilePath rootProjectDirectory() const;
 
-    virtual ProjectNode *rootProjectNode() const;
+    ProjectNode *rootProjectNode() const;
     ContainerNode *containerNode() const;
 
     // EditorConfiguration:
