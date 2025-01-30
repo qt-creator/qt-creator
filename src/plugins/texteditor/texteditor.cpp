@@ -8236,7 +8236,7 @@ void TextEditorWidgetPrivate::addSearchResultsToScrollBar(
                 }
             } else {
                 m_highlightScrollBarController->addHighlight(
-                    {category, block.blockNumber(), color, prio});
+                    {category, block.firstLineNumber(), color, prio});
             }
         }
     }
