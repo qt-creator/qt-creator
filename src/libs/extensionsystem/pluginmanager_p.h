@@ -52,6 +52,8 @@ public:
     void loadPluginsAtRuntime(const QSet<PluginSpec *> &plugins);
     void addPlugins(const QVector<PluginSpec *> &specs);
 
+    bool removePlugin(const QString &pluginId);
+
     void shutdown();
     void setPluginPaths(const Utils::FilePaths &paths);
     const QVector<ExtensionSystem::PluginSpec *> loadQueue();
@@ -70,6 +72,13 @@ public:
 
     bool acceptTermsAndConditions(PluginSpec *spec);
     void setAcceptTermsAndConditionsCallback(const std::function<bool(PluginSpec *)> &callback);
+    void readPluginPaths();
+
+    void removePluginsAfterRestart();
+    void installPluginsAfterRestart();
+
+    void removePluginOnNextRestart(const QString &pluginId);
+    void installPluginOnNextRestart(const Utils::FilePath &src, const Utils::FilePath &dest);
 
     class TestSpec {
     public:
@@ -143,12 +152,13 @@ public:
 
     PluginManager::ProcessData m_creatorProcessData;
 
+    QSet<QString> m_pluginsToRemove;
+
 private:
     PluginManager *q;
 
     void startDelayedInitialize();
 
-    void readPluginPaths();
     bool loadQueue(PluginSpec *spec,
                    QVector<ExtensionSystem::PluginSpec *> &queue,
                    QVector<ExtensionSystem::PluginSpec *> &circularityCheckQueue);

@@ -416,9 +416,25 @@ public:
             FilePaths folders = path.dirEntries(FileFilter({}, QDir::Dirs | QDir::NoDotAndDotDot));
 
             for (const FilePath &folder : folders) {
-                const FilePath script = folder / (folder.baseName() + ".lua");
-                if (!script.exists())
+                FilePath script = folder / (folder.baseName() + ".lua");
+                if (!script.exists()) {
+                    FilePaths contents = folder.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+                    if (contents.empty())
+                        continue;
+
+                    for (const FilePath &subfolder : contents) {
+                        script = subfolder / (subfolder.baseName() + ".lua");
+                        if (!script.exists()) {
+                            script.clear();
+                            continue;
+                        }
+                        break;
+                    }
+                }
+
+                if (script.isEmpty()) {
                     continue;
+                }
 
                 const expected_str<LuaPluginSpec *> result = loadPlugin(script);
 
@@ -427,6 +443,19 @@ public:
                     MessageManager::writeFlashing(Tr::tr("Failed to load plugin %1: %2")
                                                       .arg(script.toUserOutput())
                                                       .arg(result.error()));
+                    continue;
+                }
+
+                if (PluginManager::takePluginIdForRemoval((*result)->id())) {
+                    auto removeResult = (*result)->removePluginFiles();
+                    if (!removeResult) {
+                        qWarning() << "Failed to remove plugin files" << script << ":"
+                                   << removeResult.error();
+                        MessageManager::writeFlashing(
+                            Tr::tr("Failed to remove plugin files of %1: %2")
+                                .arg((*result)->id())
+                                .arg(removeResult.error()));
+                    }
                     continue;
                 }
 

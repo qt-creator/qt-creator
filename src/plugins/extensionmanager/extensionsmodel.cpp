@@ -48,7 +48,7 @@ public:
 
 void ExtensionsModelPrivate::addUnlistedLocalPlugins()
 {
-    QStringList responseExtensions;
+    QSet<QString> responseExtensions;
     for (const QJsonValueConstRef &responseItem : qAsConst(responseItems))
         responseExtensions << responseItem.toObject().value("id").toString();
 
@@ -124,6 +124,8 @@ QVariant ExtensionsModelPrivate::dataFromRemotePlugin(const QJsonObject &json, i
         }
         break;
     }
+    case RoleVersion:
+        return metaData.value("Version");
     case RoleItemType:
         return ItemTypeExtension;
     case RoleDescriptionLong: {

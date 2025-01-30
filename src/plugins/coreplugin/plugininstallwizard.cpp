@@ -51,6 +51,7 @@ struct Data
     bool installIntoApplication = false;
     std::unique_ptr<PluginSpec> pluginSpec = nullptr;
     bool loadImmediately = false;
+    bool prepareForUpdate = false;
 };
 
 static bool hasLibSuffix(const FilePath &path)
@@ -127,13 +128,20 @@ public:
 
 using CheckResult = expected_str<PluginSpec *>;
 
-static Result checkPlugin(PluginSpec *spec)
+static Result checkPlugin(PluginSpec *spec, bool update)
 {
-    if (Utils::anyOf(PluginManager::plugins(), [spec](PluginSpec *other) {
-            return other->id() == spec->id();
-        }))
+    const bool pluginAlreadyExists
+        = Utils::anyOf(PluginManager::plugins(), [spec](PluginSpec *other) {
+              return other->id() == spec->id();
+          });
+
+    if (!update && pluginAlreadyExists) {
         return Result::Error(
             Tr::tr("A plugin with ID \"%1\" is already installed.").arg(spec->id()));
+    } else if (update && !pluginAlreadyExists) {
+        return Result::Error(Tr::tr("No plugin with ID \"%1\" is installed.").arg(spec->id()));
+    }
+
     if (!spec->resolveDependencies(PluginManager::plugins())) {
         return Result::Error(
             Tr::tr("Plugin failed to resolve dependencies:") + " " + spec->errorString());
@@ -142,18 +150,18 @@ static Result checkPlugin(PluginSpec *spec)
 }
 
 static expected_str<std::unique_ptr<PluginSpec>> checkPlugin(
-    expected_str<std::unique_ptr<PluginSpec>> spec)
+    expected_str<std::unique_ptr<PluginSpec>> spec, bool update)
 {
     if (!spec)
         return spec;
-    const Result ok = checkPlugin(spec->get());
+    const Result ok = checkPlugin(spec->get(), update);
     if (ok)
         return spec;
     return Utils::make_unexpected(ok.error());
 }
 
 // Async. Result is set if any issue was found.
-void checkContents(QPromise<CheckResult> &promise, const FilePath &tempDir)
+void checkContents(QPromise<CheckResult> &promise, const FilePath &tempDir, bool update)
 {
     QList<PluginSpec *> plugins = pluginSpecsFromArchive(tempDir);
     if (plugins.isEmpty()) {
@@ -167,7 +175,7 @@ void checkContents(QPromise<CheckResult> &promise, const FilePath &tempDir)
     }
 
     PluginSpec *plugin = plugins.front();
-    const Result ok = checkPlugin(plugin);
+    const Result ok = checkPlugin(plugin, update);
     if (!ok) {
         promise.addResult(Utils::make_unexpected(ok.error()));
         delete plugin;
@@ -214,8 +222,8 @@ public:
         emit completeChanged();
         if (hasLibSuffix(m_data->sourcePath)) {
             m_cancelButton->setVisible(false);
-            expected_str<std::unique_ptr<PluginSpec>> spec = checkPlugin(
-                readCppPluginSpec(m_data->sourcePath));
+            expected_str<std::unique_ptr<PluginSpec>> spec
+                = checkPlugin(readCppPluginSpec(m_data->sourcePath), m_data->prepareForUpdate);
             if (!spec) {
                 m_label->setType(InfoLabel::Error);
                 m_label->setText(spec.error());
@@ -228,8 +236,18 @@ public:
             return;
         }
 
-        m_tempDir = std::make_unique<TemporaryDirectory>("plugininstall");
-        m_data->extractedPath = m_tempDir->path();
+        FilePath tmpDirBase;
+        if (m_data->prepareForUpdate)
+            tmpDirBase = appInfo().userResources / "install-prep-area";
+        else
+            tmpDirBase = TemporaryDirectory::masterDirectoryFilePath();
+
+        tmpDirBase.ensureWritableDir();
+
+        m_tempDir = std::make_unique<QTemporaryDir>((tmpDirBase / "plugininstall").path());
+        m_tempDir->setAutoRemove(false);
+
+        m_data->extractedPath = FilePath::fromString(m_tempDir->path());
         m_label->setText(Tr::tr("Checking archive..."));
         m_label->setType(InfoLabel::None);
 
@@ -244,7 +262,7 @@ public:
 
         const auto onUnarchiverSetup = [this, sourceAndCommand](Unarchiver &unarchiver) {
             unarchiver.setSourceAndCommand(*sourceAndCommand);
-            unarchiver.setDestDir(m_tempDir->path());
+            unarchiver.setDestDir(m_data->extractedPath);
             connect(&unarchiver, &Unarchiver::outputReceived, this, [this](const QString &output) {
                 m_output->append(output);
             });
@@ -255,10 +273,11 @@ public:
         };
 
         const auto onCheckerSetup = [this](Async<CheckResult> &async) {
-            if (!m_tempDir)
+            if (!m_data->extractedPath.exists())
                 return SetupResult::StopWithError;
 
-            async.setConcurrentCallData(checkContents, m_tempDir->path());
+            async.setConcurrentCallData(
+                checkContents, m_data->extractedPath, m_data->prepareForUpdate);
             return SetupResult::Continue;
         };
         const auto onCheckerDone = [this](const Async<CheckResult> &async) {
@@ -289,7 +308,10 @@ public:
     {
         // back button pressed
         m_taskTreeRunner.reset();
-        m_tempDir.reset();
+        if (m_tempDir) {
+            m_tempDir->remove();
+            m_tempDir.reset();
+        }
     }
 
     bool isComplete() const final { return m_isComplete; }
@@ -301,7 +323,7 @@ public:
         return WizardPage::nextId();
     }
 
-    std::unique_ptr<TemporaryDirectory> m_tempDir;
+    std::unique_ptr<QTemporaryDir> m_tempDir;
     TaskTreeRunner m_taskTreeRunner;
     InfoLabel *m_label = nullptr;
     QPushButton *m_cancelButton = nullptr;
@@ -489,7 +511,13 @@ static bool copyPluginFile(const FilePath &src, const FilePath &dest)
             return false;
         destFile.removeFile();
     }
-    dest.parentDir().ensureWritableDir();
+    if (!destFile.parentDir().ensureWritableDir()) {
+        QMessageBox::warning(
+            ICore::dialogParent(),
+            Tr::tr("Failed to Write File"),
+            Tr::tr("Failed to create directory \"%1\".").arg(dest.toUserOutput()));
+        return false;
+    }
     if (!src.copyFile(destFile)) {
         QMessageBox::warning(ICore::dialogParent(),
                              Tr::tr("Failed to Write File"),
@@ -500,12 +528,18 @@ static bool copyPluginFile(const FilePath &src, const FilePath &dest)
     return true;
 }
 
-InstallResult executePluginInstallWizard(const FilePath &archive)
+QString extensionId(PluginSpec *spec)
+{
+    return spec->vendorId() + "." + spec->id();
+}
+
+InstallResult executePluginInstallWizard(const FilePath &archive, bool prepareForUpdate)
 {
     Wizard wizard;
     wizard.setWindowTitle(Tr::tr("Install Plugin"));
 
     Data data;
+    data.prepareForUpdate = prepareForUpdate;
 
     if (archive.isEmpty()) {
         auto filePage = new SourcePage(&data, &wizard);
@@ -526,10 +560,23 @@ InstallResult executePluginInstallWizard(const FilePath &archive)
     auto summaryPage = new SummaryPage(&data, &wizard);
     wizard.addPage(summaryPage);
 
-    auto install = [&wizard, &data]() {
+    auto install = [&wizard, &data, prepareForUpdate]() {
         if (wizard.exec()) {
             const FilePath installPath = data.pluginSpec->installLocation(
-                !data.installIntoApplication);
+                                             !data.installIntoApplication)
+                                         / extensionId(data.pluginSpec.get());
+
+            if (prepareForUpdate) {
+                if (hasLibSuffix(data.sourcePath)) {
+                    ExtensionSystem::PluginManager::installPluginOnRestart(
+                        data.pluginSpec->filePath(), installPath);
+                } else {
+                    ExtensionSystem::PluginManager::installPluginOnRestart(
+                        data.extractedPath, installPath);
+                }
+                return true;
+            }
+
             if (hasLibSuffix(data.sourcePath)) {
                 if (!copyPluginFile(data.sourcePath, installPath))
                     return false;
@@ -567,6 +614,9 @@ InstallResult executePluginInstallWizard(const FilePath &archive)
     // install() would have failed if the user did not accept the terms and conditions
     // so we can safely set them as accepted here.
     PluginManager::instance()->setTermsAndConditionsAccepted(data.pluginSpec.get());
+
+    if (prepareForUpdate)
+        return InstallResult::NeedsRestart;
 
     auto spec = data.pluginSpec.release();
     PluginManager::addPlugins({spec});
