@@ -14,6 +14,7 @@ DesignSystemInterface::DesignSystemInterface(DSStore *store)
 {
     qmlRegisterUncreatableMetaObject(
         QmlDesigner::staticMetaObject, "QmlDesigner.DesignSystem", 1, 0, "GroupType", "");
+    qmlRegisterUncreatableType<CollectionModel>("QmlDesigner.DesignSystem", 1, 0, "CollectionModel", "");
 }
 
 DesignSystemInterface::~DesignSystemInterface() {}

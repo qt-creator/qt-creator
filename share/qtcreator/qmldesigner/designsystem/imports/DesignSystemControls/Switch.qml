@@ -4,7 +4,7 @@
 import QtQuick
 import QtQuick.Templates as T
 
-import StudioTheme 1.0 as StudioTheme
+import StudioTheme as StudioTheme
 
 T.Switch {
     id: control
@@ -14,6 +14,7 @@ T.Switch {
     // This property is used to indicate the global hover state
     property bool hover: control.hovered && control.enabled
     property bool edit: false
+    property bool readonly: false
 
     property alias labelVisible: label.visible
     property alias labelColor: label.color
@@ -32,6 +33,8 @@ T.Switch {
     spacing: label.visible ? control.style.controlSpacing : 0
     hoverEnabled: true
     activeFocusOnTab: false
+
+    enabled: !control.readonly
 
     indicator: Rectangle {
         id: switchBackground
@@ -60,6 +63,7 @@ T.Switch {
             color: control.style.icon.idle
             border.width: 0
         }
+
     }
 
     contentItem: T.Label {
@@ -133,7 +137,7 @@ T.Switch {
         },
         State {
             name: "disable"
-            when: !control.enabled && !control.checked
+            when: !control.enabled && !control.checked && !control.readonly
             PropertyChanges {
                 target: switchBackground
                 color: control.style.background.disabled
@@ -186,8 +190,19 @@ T.Switch {
         },
         State {
             name: "disableChecked"
-            when: !control.enabled && control.checked
+            when: !control.enabled && control.checked  && !control.readonly
             extend: "disable"
+        },
+
+        State {
+            name: "readonly"
+            when: !control.enabled && !control.checked && control.readonly
+            extend: "default"
+        },
+        State {
+            name: "readonlyChecked"
+            when: !control.enabled && control.checked && control.readonly
+            extend: "defaultChecked"
         }
     ]
 }
