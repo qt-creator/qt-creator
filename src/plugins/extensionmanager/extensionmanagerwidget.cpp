@@ -665,6 +665,7 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QStrin
         std::unique_ptr<QProgressDialog> progressDialog;
         QByteArray packageData;
         QUrl url;
+        QString filename;
     };
     Storage<StorageStruct> storage;
 
@@ -677,6 +678,37 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QStrin
         storage->progressDialog->close();
         if (result == DoneWith::Success) {
             storage->packageData = query.reply()->readAll();
+
+            QString contentDispo = QString::fromUtf8(
+                query.reply()->headers().value(QHttpHeaders::WellKnownHeader::ContentDisposition));
+
+            if (contentDispo.isEmpty())
+                return;
+
+            // Example: `content-disposition: attachment; filename=project-build-windows-.7z`
+            // see also: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition
+            static QRegularExpression re(
+                R"(^(?P<disposition>attachment|inline)(?:\s*;\s*(?P<paramlist>.*))?$)");
+
+            QRegularExpressionMatch matches = re.match(contentDispo);
+            if (!matches.hasMatch())
+                return;
+
+            const QString disposition = matches.captured("disposition");
+            if (disposition != "attachment")
+                return;
+
+            const QString paramlist = matches.captured("paramlist");
+
+            // Parse the "filename" parameter from the Content-Disposition header
+            static QRegularExpression reParam(
+                R"(filename\*?=['"]?(?:UTF-\d['"]*)?([^;\r\n"']*)['"]?;?)");
+
+            QRegularExpressionMatch match = reParam.match(paramlist);
+            if (!match.hasMatch())
+                return;
+
+            storage->filename = match.captured(1);
         } else {
             QMessageBox::warning(
                 ICore::dialogParent(),
@@ -690,8 +722,9 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QStrin
         if (storage->packageData.isEmpty())
             return false;
         const FilePath source = FilePath::fromUrl(storage->url);
-        TempFileSaver saver(
-            TemporaryDirectory::masterDirectoryPath() + "/XXXXXX-" + source.fileName());
+        const QString filename = storage->filename.isEmpty() ? source.fileName()
+                                                             : storage->filename;
+        TempFileSaver saver(TemporaryDirectory::masterDirectoryPath() + "/XXXXXX-" + filename);
 
         saver.write(storage->packageData);
         if (saver.finalize(ICore::dialogParent()))
