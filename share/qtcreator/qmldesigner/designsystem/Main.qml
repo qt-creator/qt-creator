@@ -13,6 +13,7 @@ import DesignSystemControls as DSC
 
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import StudioQuickUtils
 
 Rectangle {
     id: root
@@ -33,6 +34,11 @@ Rectangle {
     readonly property int iconSize: 16
 
     readonly property int leftPadding: 14
+    readonly property int rightPadding: 14
+
+    property var customStyle: StudioTheme.ControlStyle {
+        border.idle: root.borderColor
+    }
 
     width: 400
     height: 400
@@ -41,6 +47,10 @@ Rectangle {
     function loadModel(name) {
         root.currentCollectionName = name
         tableView.model = DesignSystemBackend.dsInterface.model(name)
+
+        topLeftCell.visible = tableView.model.columnCount()
+        createModeButton.enabled = tableView.model.rowCount()
+        modelConnections.target = tableView.model
     }
 
     function groupString(gt) {
@@ -54,6 +64,178 @@ Rectangle {
             return "bool"
 
         return "unknow_group"
+    }
+
+    function setValue(value: var, row: int, column: int, isBinding: bool): bool {
+        console.log("setValue(", value, row, column, isBinding, ")")
+        return tableView.model.setData(tableView.index(row, column),
+                                       DesignSystemBackend.dsInterface.createThemeProperty("", value, isBinding),
+                                       Qt.EditRole)
+    }
+
+    Connections {
+        id: modelConnections
+        ignoreUnknownSignals: true // model might initially be null
+
+        function onModelReset() {
+            topLeftCell.visible = tableView.model.columnCount()
+            createModeButton.enabled = tableView.model.rowCount()
+        }
+    }
+
+    StudioControls.Dialog {
+        id: renameCollectionDialog
+        title: qsTr("Rename collection")
+        width: Math.min(300, root.width)
+        closePolicy: Popup.CloseOnEscape
+        anchors.centerIn: parent
+        modal: true
+
+        onOpened: renameCollectionTextField.forceActiveFocus()
+
+        contentItem: Column {
+            spacing: 20
+            width: parent.width
+
+            StudioControls.TextField {
+                id: renameCollectionTextField
+                actionIndicatorVisible: false
+                translationIndicatorVisible: false
+                width: parent.width
+
+                onAccepted: renameCollectionDialog.accept()
+                onRejected: renameCollectionDialog.reject()
+            }
+
+            Row {
+                spacing: 10
+                anchors.right: parent.right
+
+                StudioControls.DialogButton {
+                    text: qsTr("Rename")
+                    enabled: (renameCollectionDialog.previousString !== renameCollectionTextField.text)
+                    onClicked: renameCollectionDialog.accept()
+                }
+
+                StudioControls.DialogButton {
+                    text: qsTr("Cancel")
+                    onClicked: renameCollectionDialog.reject()
+                }
+            }
+        }
+
+        onAccepted: {
+            DesignSystemBackend.dsInterface.renameCollection(collectionsComboBox.currentText,
+                                                             renameCollectionTextField.text)
+            renameCollectionDialog.close()
+        }
+
+        property string previousString
+
+        onAboutToShow: {
+            renameCollectionTextField.text = collectionsComboBox.currentText
+            renameCollectionDialog.previousString = collectionsComboBox.currentText
+        }
+    }
+
+    StudioControls.Dialog {
+        id: createCollectionDialog
+        title: qsTr("Create collection")
+        width: Math.min(300, root.width)
+        closePolicy: Popup.CloseOnEscape
+        anchors.centerIn: parent
+        modal: true
+
+        onOpened: createCollectionTextField.forceActiveFocus()
+
+        contentItem: Column {
+            spacing: 20
+            width: parent.width
+
+            StudioControls.TextField {
+                id: createCollectionTextField
+                actionIndicatorVisible: false
+                translationIndicatorVisible: false
+                width: parent.width
+
+                text: qsTr("NewCollection")
+
+                onAccepted: createCollectionDialog.accept()
+                onRejected: createCollectionDialog.reject()
+            }
+
+            Row {
+                spacing: 10
+                anchors.right: parent.right
+
+                StudioControls.DialogButton {
+                    text: qsTr("Create")
+                    onClicked: createCollectionDialog.accept()
+                }
+
+                StudioControls.DialogButton {
+                    text: qsTr("Cancel")
+                    onClicked: createCollectionDialog.reject()
+                }
+            }
+        }
+
+        onAccepted: {
+            DesignSystemBackend.dsInterface.addCollection(createCollectionTextField.text)
+            root.loadModel(createCollectionTextField.text)
+            collectionsComboBox.currentIndex = collectionsComboBox.indexOfValue(createCollectionTextField.text)
+            createCollectionDialog.close()
+        }
+    }
+
+    StudioControls.Dialog {
+        id: removeCollectionDialog
+        title: qsTr("Remove collection")
+        width: Math.min(300, root.width)
+        closePolicy: Popup.CloseOnEscape
+        anchors.centerIn: parent
+        modal: true
+
+        onOpened: removeCollectionDialog.forceActiveFocus()
+
+        contentItem: Column {
+            spacing: 20
+            width: parent.width
+
+            Text {
+                id: warningText
+
+                text: qsTr("Are you sure? The action cannot be undone.")
+                color: StudioTheme.Values.themeTextColor
+                wrapMode: Text.WordWrap
+                width: parent.width
+            }
+
+            Row {
+                spacing: 10
+                anchors.right: parent.right
+
+                StudioControls.DialogButton {
+                    text: qsTr("Remove")
+                    onClicked: removeCollectionDialog.accept()
+                }
+
+                StudioControls.DialogButton {
+                    text: qsTr("Cancel")
+                    onClicked: removeCollectionDialog.reject()
+                }
+            }
+        }
+
+        onAccepted: {
+            let currentCollectionName = collectionsComboBox.currentText
+            let currentCollectionIndex = collectionsComboBox.currentIndex
+            let previousCollectionIndex = (currentCollectionIndex === 0) ? 1 : currentCollectionIndex - 1
+
+            root.loadModel(collectionsComboBox.textAt(previousCollectionIndex))
+            DesignSystemBackend.dsInterface.removeCollection(currentCollectionName)
+            removeCollectionDialog.close()
+        }
     }
 
     Rectangle {
@@ -77,6 +259,15 @@ Rectangle {
                 onActivated: root.loadModel(collectionsComboBox.currentText)
             }
 
+            StudioControls.ComboBox {
+                id: themesComboBox
+                style: StudioTheme.Values.viewBarControlStyle
+                anchors.verticalCenter: parent.verticalCenter
+                actionIndicatorVisible: false
+                model: tableView.model.themeNames
+                onActivated: tableView.model.setActiveTheme(themesComboBox.currentText)
+            }
+
             StudioControls.IconTextButton {
                 id: moreButton
                 anchors.verticalCenter: parent.verticalCenter
@@ -84,26 +275,33 @@ Rectangle {
                 checkable: true
                 checked: moreMenu.visible
 
-                onClicked: moreMenu.popup(0, moreButton.height)
+                onToggled: {
+                    if (moreMenu.visible)
+                        moreMenu.close()
+                    else
+                        moreMenu.popup(0, moreButton.height)
+                }
 
                 StudioControls.Menu {
                     id: moreMenu
 
+                    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+
                     StudioControls.MenuItem {
                         text: qsTr("Rename")
-                        onTriggered: console.log(">>> Rename collection")
+                        onTriggered: renameCollectionDialog.open()
                     }
 
                     StudioControls.MenuItem {
                         text: qsTr("Delete")
-                        onTriggered: console.log(">>> Delete collection")
+                        onTriggered: removeCollectionDialog.open()
                     }
 
                     StudioControls.MenuSeparator {}
 
                     StudioControls.MenuItem {
                         text: qsTr("Create collection")
-                        onTriggered: console.log(">>> Create collection")
+                        onTriggered: createCollectionDialog.open()
                     }
                 }
             }
@@ -127,8 +325,14 @@ Rectangle {
 
         required property bool editing
 
+        required property var resolvedValue
+        required property bool isActive
         required property bool isBinding
         required property var propertyValue
+
+        property bool creatingBinding: false
+
+        readonly property bool bindingEditor: isBinding || creatingBinding
 
         color: root.backgroundColor
         implicitWidth: root.cellWidth
@@ -140,18 +344,24 @@ Rectangle {
     }
 
     component DataCell: Cell {
+        id: dataCell
+
         HoverHandler { id: cellHoverHandler }
 
-        StudioControls.IconIndicator {
-            icon: isBinding ? StudioTheme.Constants.actionIconBinding
-                            : StudioTheme.Constants.actionIcon
+        DSC.BindingIndicator {
+            icon.text: dataCell.isBinding ? StudioTheme.Constants.actionIconBinding
+                                          : StudioTheme.Constants.actionIcon
+            icon.color: dataCell.isBinding ? StudioTheme.Values.themeInteraction
+                                           : StudioTheme.Values.themeTextColor
+
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
             anchors.rightMargin: 10
-            visible: cellHoverHandler.hovered
+            visible: !dataCell.editing && (cellHoverHandler.hovered || dataCell.isBinding)
 
             onClicked: {
                 tableView.closeEditor()
+                menu.show(dataCell.row, dataCell.column)
             }
         }
     }
@@ -171,37 +381,39 @@ Rectangle {
                     leftPadding: root.leftPadding
                     horizontalAlignment: TextInput.AlignLeft
                     verticalAlignment: TextInput.AlignVCenter
-                    color: StudioTheme.Values.themeTextColor
-                    text: stringDelegate.display
+                    color: stringDelegate.isBinding ? StudioTheme.Values.themeInteraction
+                                                    : StudioTheme.Values.themeTextColor
+                    text: stringDelegate.resolvedValue
                     visible: !stringDelegate.editing
                 }
 
+                // This edit delegate combines the binding editor and string value editor
                 TableView.editDelegate: DSC.TextField {
                     id: stringEditDelegate
+
+                    style: root.customStyle
 
                     anchors.fill: parent
                     leftPadding: root.leftPadding
 
-                    // Only apply more to right padding when hovered
-                    //rightPadding
-
                     horizontalAlignment: TextInput.AlignLeft
                     verticalAlignment: TextInput.AlignVCenter
 
-                    text: stringDelegate.display
+                    text: stringDelegate.bindingEditor ? stringDelegate.propertyValue
+                                                       : stringDelegate.resolvedValue
+
                     Component.onCompleted: stringEditDelegate.selectAll()
+                    Component.onDestruction: stringDelegate.creatingBinding = false
 
                     TableView.onCommit: {
-                        console.log("onCommit", stringEditDelegate.text)
-                        let index = TableView.view.index(stringDelegate.row, stringDelegate.column)
-                        var prop = DesignSystemBackend.dsInterface.createThemeProperty("",
-                                                                                       stringEditDelegate.text,
-                                                                                       stringDelegate.isBinding)
-                        TableView.view.model.setData(index, prop, Qt.EditRole)
+                        root.setValue(stringEditDelegate.text,
+                                      stringDelegate.row,
+                                      stringDelegate.column,
+                                      stringDelegate.bindingEditor)
                     }
                 }
 
-                Component.onCompleted: console.log("DelegateChoice - string", stringDelegate.display)
+                //Component.onCompleted: console.log("DelegateChoice - string", stringDelegate.resolvedValue)
             }
         }
 
@@ -214,38 +426,107 @@ Rectangle {
                 Text {
                     anchors.fill: parent
                     leftPadding: root.leftPadding
+                    rightPadding: root.rightPadding
+
                     horizontalAlignment: TextInput.AlignLeft
                     verticalAlignment: TextInput.AlignVCenter
 
-                    color: StudioTheme.Values.themeTextColor
-                    text: numberDelegate.display
-                    visible: !numberDelegate.editing
+                    color: numberDelegate.isBinding ? StudioTheme.Values.themeInteraction
+                                                    : StudioTheme.Values.themeTextColor
+                    // -128 is the value of QLocale::FloatingPointShortest
+                    text: Number(numberDelegate.resolvedValue).toLocaleString(Utils.locale, 'f', -128)
                 }
 
-                TableView.editDelegate: SpinBox {
-                    id: numberEditDelegate
-
+                // This edit delegate has two different controls, one for number editing and one for
+                // binding editing. Depending on the mode one is hidden and the other is shown.
+                TableView.editDelegate: FocusScope {
+                    id: numberEditDelegateFocusScope
                     anchors.fill: parent
-                    leftPadding: root.leftPadding
 
-                    value: numberDelegate.display
-                    from: -1000 // TODO define min/max
-                    to: 1000
-                    editable: true
+                    property bool alreadyCommited: false
+
+                    DSC.SpinBox {
+                        id: numberEditDelegate
+
+                        property real previousValue: 0
+
+                        style: root.customStyle
+
+                        anchors.fill: parent
+
+                        realValue: numberDelegate.resolvedValue
+                        realFrom: -1000 // TODO define min/max
+                        realTo: 1000
+                        editable: true
+                        decimals: 2
+
+                        focus: !numberDelegate.bindingEditor
+                        visible: !numberDelegate.bindingEditor
+
+                        Component.onCompleted: {
+                            numberEditDelegate.previousValue = numberDelegate.resolvedValue
+                            numberEditDelegate.contentItem.selectAll()
+                        }
+                        Component.onDestruction: {
+                            if (numberEditDelegateFocusScope.alreadyCommited || numberDelegate.bindingEditor)
+                                return
+
+                            let val = numberEditDelegate.realValue
+
+                            if (numberEditDelegate.previousValue === val)
+                                return
+
+                            root.setValue(val,
+                                          numberDelegate.row,
+                                          numberDelegate.column,
+                                          numberDelegate.bindingEditor)
+                        }
+                    }
+
+                    DSC.TextField {
+                        id: numberBindingEditDelegate
+
+                        style: root.customStyle
+
+                        anchors.fill: parent
+                        leftPadding: root.leftPadding
+                        rightPadding: root.rightPadding
+
+                        horizontalAlignment: TextInput.AlignLeft
+                        verticalAlignment: TextInput.AlignVCenter
+
+                        text: numberDelegate.propertyValue
+
+                        focus: numberDelegate.bindingEditor
+                        visible: numberDelegate.bindingEditor
+
+                        Component.onCompleted: numberBindingEditDelegate.selectAll()
+                        Component.onDestruction: numberDelegate.creatingBinding = false
+                    }
 
                     TableView.onCommit: {
-                        let val = numberEditDelegate.valueFromText(numberEditDelegate.contentItem.text,
-                                                                   numberEditDelegate.locale)
-                        console.log("onCommit", val)
-                        let index = TableView.view.index(numberDelegate.row, numberDelegate.column)
-                        var prop = DesignSystemBackend.dsInterface.createThemeProperty("",
-                                                                                       val,
-                                                                                       numberDelegate.isBinding)
-                        TableView.view.model.setData(index, prop, Qt.EditRole)
+                        // By default assume binding edit delegate is used
+                        let val = numberBindingEditDelegate.text
+
+                        // If binding editor isn't used then the SpinBox value needs to be written
+                        if (!numberDelegate.bindingEditor) {
+                            numberEditDelegate.valueFromText(numberEditDelegate.contentItem.text,
+                                                             numberEditDelegate.locale)
+                            // Don't use return value of valueFromText as it is of type int.
+                            // Internally the float value is set on realValue property.
+                            val = numberEditDelegate.realValue
+                        }
+
+                        root.setValue(val,
+                                      numberDelegate.row,
+                                      numberDelegate.column,
+                                      numberDelegate.bindingEditor)
+
+                        numberEditDelegateFocusScope.alreadyCommited = true
                     }
                 }
 
-                Component.onCompleted: console.log("DelegateChoice - number", display)
+                //Component.onCompleted: console.log("DelegateChoice - number", numberDelegate.resolvedValue)
             }
         }
 
@@ -262,20 +543,62 @@ Rectangle {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.leftMargin: root.leftPadding
 
-                    checked: flagDelegate.display
-                    text: flagDelegate.display
+                    checked: flagDelegate.resolvedValue
+                    text: flagDelegate.resolvedValue
+
+                    labelColor: flagDelegate.isBinding ? StudioTheme.Values.themeInteraction
+                                                       : StudioTheme.Values.themeTextColor
+
+                    readonly: flagDelegate.isBinding
 
                     onToggled: {
-                        console.log("onCommit", flagEditDelegate.checked)
-                        let index = flagDelegate.TableView.view.index(flagDelegate.row, flagDelegate.column)
-                        var prop = DesignSystemBackend.dsInterface.createThemeProperty("",
-                                                                                       flagEditDelegate.checked,
-                                                                                       flagEditDelegate.isBinding)
-                        flagDelegate.TableView.view.model.setData(index, prop, Qt.EditRole)
+                        root.setValue(flagEditDelegate.checked,
+                                      flagDelegate.row,
+                                      flagDelegate.column,
+                                      false)
                     }
                 }
 
-                Component.onCompleted: console.log("DelegateChoice - bool", flagDelegate.display)
+                // Dummy item to show forbidden cursor when hovering over bound switch control
+                Item {
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.leftMargin: root.leftPadding
+
+                    width: flagEditDelegate.indicator.width
+                    height: flagEditDelegate.indicator.height
+
+                    visible: !flagEditDelegate.enabled
+
+                    HoverHandler {
+                        enabled: !flagEditDelegate.enabled
+                        cursorShape: Qt.ForbiddenCursor
+                    }
+                }
+
+                TableView.editDelegate: DSC.TextField {
+                    id: flagBindingEditDelegate
+
+                    anchors.fill: parent
+                    leftPadding: root.leftPadding
+
+                    horizontalAlignment: TextInput.AlignLeft
+                    verticalAlignment: TextInput.AlignVCenter
+
+                    text: flagDelegate.bindingEditor ? flagDelegate.propertyValue
+                                                     : flagDelegate.resolvedValue
+                    Component.onCompleted: flagBindingEditDelegate.selectAll()
+                    Component.onDestruction: flagDelegate.creatingBinding = false
+
+                    TableView.onCommit: {
+                        root.setValue(flagBindingEditDelegate.text,
+                                      flagDelegate.row,
+                                      flagDelegate.column,
+                                      true)
+                    }
+                }
+
+                //Component.onCompleted: console.log("DelegateChoice - bool", flagDelegate.resolvedValue)
             }
         }
 
@@ -286,18 +609,20 @@ Rectangle {
                 id: colorDelegate
 
                 Row {
+                    id: colorDelegateRow
                     anchors.fill: parent
                     leftPadding: root.leftPadding
                     spacing: 8
 
                     Rectangle {
+                        id: colorDelegatePreview
                         anchors.verticalCenter: parent.verticalCenter
 
                         width: 20
                         height: 20
-                        color: colorDelegate.display
+                        color: colorDelegate.resolvedValue
                         border.color: "black"
-                        border.width: 1
+                        border.width: StudioTheme.Values.border
 
                         Image {
                             anchors.fill: parent
@@ -309,38 +634,338 @@ Rectangle {
                         MouseArea {
                             id: colorMouseArea
                             anchors.fill: parent
+                            enabled: !colorDelegate.isBinding
 
-                            onClicked: {
-                                if (popupDialog.visibility) {
-                                    popupDialog.close()
+                            cursorShape: colorDelegate.isBinding ? Qt.ForbiddenCursor
+                                                                 : Qt.PointingHandCursor
+
+                            function togglePopup() {
+                                if (colorPopup.visibility) {
+                                    colorPopup.close()
                                 } else {
-                                    popupDialog.ensureLoader()
-                                    popupDialog.show(colorDelegate)
+                                    colorPopup.modelIndex = tableView.index(colorDelegate.row, colorDelegate.column)
 
-                                    if (loader.status === Loader.Ready)
-                                        loader.item.originalColor = root.color
+                                    colorPopup.ensureLoader()
+                                    colorPopup.show(colorDelegate)
+
+                                    if (loader.status === Loader.Ready) {
+                                        loader.item.color = colorDelegate.resolvedValue
+                                        loader.item.originalColor = colorDelegate.resolvedValue
+                                    }
                                 }
+                                tableView.closeEditor()
                                 colorMouseArea.forceActiveFocus()
                             }
+
+                            onClicked: colorMouseArea.togglePopup()
                         }
                     }
 
                     Text {
                         height: parent.height
                         verticalAlignment: Qt.AlignVCenter
-                        color: StudioTheme.Values.themeTextColor
-                        text: colorDelegate.propertyValue
+                        color: colorDelegate.isBinding ? StudioTheme.Values.themeInteraction
+                                                       : StudioTheme.Values.themeTextColor
+                        text: colorDelegate.resolvedValue
                     }
                 }
 
-                Component.onCompleted: console.log("DelegateChoice - color", colorDelegate.display)
+                // This edit delegate combines the binding editor and hex value editor
+                TableView.editDelegate: DSC.TextField {
+                    id: colorEditDelegate
+
+                    anchors.fill: parent
+                    leftPadding: root.leftPadding
+                                 + (colorDelegate.bindingEditor ? 0
+                                                                : (colorDelegatePreview.width
+                                                                   + colorDelegateRow.spacing))
+
+                    horizontalAlignment: TextInput.AlignLeft
+                    verticalAlignment: TextInput.AlignVCenter
+
+                    text: colorDelegate.bindingEditor ? colorDelegate.propertyValue
+                                                      : colorDelegate.resolvedValue
+
+                    RegularExpressionValidator {
+                        id: hexValidator
+                        regularExpression: /#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?/g
+                    }
+
+                    validator: colorDelegate.bindingEditor ? null : hexValidator
+
+                    Component.onCompleted: colorEditDelegate.selectAll()
+                    Component.onDestruction: colorDelegate.creatingBinding = false
+
+                    TableView.onCommit: {
+                        root.setValue(colorEditDelegate.text,
+                                      colorDelegate.row,
+                                      colorDelegate.column,
+                                      colorDelegate.bindingEditor)
+                    }
+
+                    // Extra color Rectangle to be shown on top of edit delegate
+                    Rectangle {
+                        anchors.left: parent.left
+                        anchors.leftMargin: root.leftPadding
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        width: colorDelegatePreview.width
+                        height: colorDelegatePreview.height
+                        color: colorDelegate.resolvedValue
+                        border.color: "black"
+                        border.width: StudioTheme.Values.border
+
+                        visible: !colorDelegate.bindingEditor
+
+                        Image {
+                            anchors.fill: parent
+                            source: "qrc:/navigator/icon/checkers.png"
+                            fillMode: Image.Tile
+                            z: -1
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            enabled: !colorDelegate.isBinding
+
+                            onClicked: colorMouseArea.togglePopup()
+                        }
+                    }
+                }
+
+                //Component.onCompleted: console.log("DelegateChoice - color", colorDelegate.resolvedValue)
             }
         }
     }
 
-    StudioControls.PopupDialog {
-        id: popupDialog
+    StudioControls.Menu {
+        id: menu
 
+        property var modelIndex
+
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        function show(row, column) {
+            menu.modelIndex = tableView.index(row, column)
+            menu.popup()
+        }
+
+        StudioControls.MenuItem {
+            enabled: {
+                if (menu.modelIndex)
+                    return tableView.itemAtIndex(menu.modelIndex).isBinding
+
+                return false
+            }
+            text: qsTr("Reset")
+            onTriggered: {
+                let data = tableView.model.data(menu.modelIndex, CollectionModel.ResolvedValueRole)
+                var prop = DesignSystemBackend.dsInterface.createThemeProperty("", data, false)
+                let result = tableView.model.setData(menu.modelIndex, prop, Qt.EditRole)
+            }
+        }
+
+        StudioControls.MenuItem {
+            text: qsTr("Set Binding")
+            onTriggered: {
+                let cell = tableView.itemAtIndex(menu.modelIndex)
+                cell.creatingBinding = true
+                tableView.edit(menu.modelIndex)
+            }
+        }
+    }
+
+    StudioControls.Menu {
+        id: modeMenu
+
+        property int column
+
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        function show(column) { // Qt.Horizontal
+            tableView.closeEditor() // Close all currently visible edit delegates
+            modeMenu.column = column
+            modeMenu.popup()
+        }
+
+        StudioControls.MenuItem {
+            enabled: false
+            text: qsTr("Duplicate mode")
+            onTriggered: { console.log("Duplicate mode") }
+        }
+
+        StudioControls.MenuItem {
+            text: qsTr("Rename mode")
+            onTriggered: overlay.show(modeMenu.column, Qt.Horizontal)
+        }
+
+        StudioControls.MenuItem {
+            text: qsTr("Delete mode")
+            onTriggered: tableView.model.removeColumns(modeMenu.column, 1)
+        }
+    }
+
+    StudioControls.Menu {
+        id: variableMenu
+
+        property int row
+
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        function show(row) { // Qt.Vertical
+            tableView.closeEditor() // Close all currently visible edit delegates
+            variableMenu.row = row
+            variableMenu.popup()
+        }
+
+        StudioControls.MenuItem {
+            enabled: false
+            text: qsTr("Duplicate variable")
+            onTriggered: { console.log("Duplicate variable") }
+        }
+
+        StudioControls.MenuItem {
+            text: qsTr("Rename variable")
+            onTriggered: overlay.show(variableMenu.row, Qt.Vertical)
+        }
+
+        StudioControls.MenuItem {
+            text: qsTr("Delete variable")
+            onTriggered: tableView.model.removeRows(variableMenu.row, 1)
+        }
+    }
+
+    Rectangle {
+        id: overlay
+
+        property int section
+        property var orientation
+        property var group
+
+        width: 200
+        height: 200
+        color: "red"
+        visible: false
+
+        z: 111
+        parent: tableView.contentItem
+
+        DSC.TextField {
+            id: overlayTextField
+            anchors.fill: parent
+            leftPadding: root.leftPadding + (overlayIcon.visible ? overlayIcon.width + 8 : 0)
+
+            horizontalAlignment: TextInput.AlignLeft
+            verticalAlignment: TextInput.AlignVCenter
+
+            onActiveFocusChanged: {
+                if (!overlayTextField.activeFocus)
+                    overlay.hide()
+            }
+
+            onAccepted: {
+                let result = tableView.model.setHeaderData(overlay.section,
+                                                           overlay.orientation,
+                                                           overlayTextField.text,
+                                                           Qt.EditRole)
+
+                // Revoke active focus from text field by forcing active focus on another item
+                tableView.forceActiveFocus()
+            }
+
+            Text {
+                id: overlayIcon
+                anchors.left: parent.left
+                anchors.leftMargin: root.leftPadding
+
+                height: parent.height
+                verticalAlignment: Qt.AlignVCenter
+                font.family: StudioTheme.Constants.iconFont.family
+                font.pixelSize: root.iconSize
+                color: StudioTheme.Values.themeTextColor
+
+                visible: overlay.group !== undefined
+
+                text: {
+                    if (overlay.group === GroupType.Strings)
+                        return StudioTheme.Constants.string_medium
+
+                    if (overlay.group === GroupType.Numbers)
+                        return StudioTheme.Constants.number_medium
+
+                    if (overlay.group === GroupType.Flags)
+                        return StudioTheme.Constants.flag_medium
+
+                    if (overlay.group === GroupType.Colors)
+                        return StudioTheme.Constants.colorSelection_medium
+
+                    return StudioTheme.Constants.error_medium
+                }
+            }
+        }
+
+        function show(section, orientation) {
+            // Close all currently visible edit delegates
+            tableView.closeEditor()
+
+            if (orientation === Qt.Horizontal)
+                overlay.parent = horizontalHeaderView.contentItem
+            else
+                overlay.parent = verticalHeaderView.contentItem
+
+            overlay.visible = true
+            overlay.section = section
+            overlay.orientation = orientation
+            overlay.group = tableView.model.headerData(section,
+                                                       orientation,
+                                                       CollectionModel.GroupRole)
+
+            overlay.layout()
+
+            overlayTextField.text = tableView.model.headerData(section,
+                                                               orientation,
+                                                               CollectionModel.EditRole)
+            overlayTextField.forceActiveFocus()
+            overlayTextField.selectAll()
+        }
+
+        function hide() {
+            overlay.visible = false
+        }
+
+        function layout() {
+            if (!overlay.visible)
+                return
+
+            let item = null
+
+            if (overlay.orientation === Qt.Horizontal)
+                item = horizontalHeaderView.itemAtCell(Qt.point(overlay.section, 0))
+            else
+                item = verticalHeaderView.itemAtCell(Qt.point(0, overlay.section))
+
+            let insideViewport = item !== null
+
+            //overlay.visible = insideViewport
+            if (insideViewport) {
+                overlay.x = item.x
+                overlay.y = item.y
+                overlay.width = item.width
+                overlay.height = item.height
+            }
+        }
+
+        Connections {
+            target: tableView
+
+            function onLayoutChanged() { overlay.layout() }
+        }
+    }
+
+    StudioControls.PopupDialog {
+        id: colorPopup
+
+        property var modelIndex
         property QtObject loaderItem: loader.item
 
         keepOpen: loader.item?.eyeDropperActive ?? false
@@ -357,27 +982,18 @@ Rectangle {
 
             sourceComponent: StudioControls.ColorEditorPopup {
                 id: popup
-                width: popupDialog.contentWidth
-                visible: popupDialog.visible
-                parentWindow: popupDialog.window
+                width: colorPopup.contentWidth
+                visible: colorPopup.visible
+                parentWindow: colorPopup.window
 
                 onActivateColor: function(color) {
-                    console.log("set color", color)
-                    //colorBackend.activateColor(color)
+                    popup.color = color
+                    var prop = DesignSystemBackend.dsInterface.createThemeProperty("", color, false)
+                    let result = tableView.model.setData(colorPopup.modelIndex, prop, Qt.EditRole)
                 }
             }
 
-            Binding {
-                target: loader.item
-                property: "color"
-                value: root.color
-                when: loader.status === Loader.Ready
-            }
-
-            onLoaded: {
-                loader.item.originalColor = root.color
-                popupDialog.titleBar = loader.item.titleBarContent
-            }
+            onLoaded: colorPopup.titleBar = loader.item.titleBarContent
         }
     }
 
@@ -403,21 +1019,22 @@ Rectangle {
             // top left cell
             // TODO Can't use Cell as it contains required properties
             Rectangle {
-                anchors.right: horizontalHeader.left
-                anchors.bottom: verticalHeader.top
+                id: topLeftCell
+                anchors.right: horizontalHeaderView.left
+                anchors.bottom: verticalHeaderView.top
                 anchors.rightMargin: -root.borderWidth
                 anchors.bottomMargin: -root.borderWidth
 
                 color: root.backgroundColor
-                implicitWidth: verticalHeader.width
-                implicitHeight: horizontalHeader.height
+                implicitWidth: verticalHeaderView.width
+                implicitHeight: horizontalHeaderView.height
                 border {
                     width: root.borderWidth
                     color: root.borderColor
                 }
 
-                visible: tableView.model // TODO good enough?
-                z: 101
+                visible: tableView.model
+                z: 99
 
                 Row { // TODO might not be necessary
                     anchors.fill: parent
@@ -428,13 +1045,13 @@ Rectangle {
                         height: parent.height
                         verticalAlignment: Qt.AlignVCenter
                         color: StudioTheme.Values.themeTextColor
-                        text: "Name"
+                        text: qsTr("Name")
                     }
                 }
             }
 
             HorizontalHeaderView {
-                id: horizontalHeader
+                id: horizontalHeaderView
 
                 anchors.left: scrollView.left
                 anchors.top: parent.top
@@ -442,62 +1059,52 @@ Rectangle {
                 syncView: tableView
                 clip: true
 
-                z: 100
+                z: overlay.visible ? 102 : 100
 
                 delegate: Cell {
                     id: horizontalHeaderDelegate
 
-                    property bool customEditing: false
-
                     TapHandler {
-                        onTapped: {
-                            console.log("onTapped")
-                            tableView.closeEditor()
-                            horizontalHeaderDelegate.customEditing = true
-                            horizontalHeaderTextField.forceActiveFocus()
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                        onTapped: function(eventPoint, button) {
+                            if (button === Qt.LeftButton)
+                                overlay.show(horizontalHeaderDelegate.column, Qt.Horizontal)
+
+                            if (button === Qt.RightButton)
+                                modeMenu.show(horizontalHeaderDelegate.column)
                         }
                     }
 
-                    Text {
+                    Row {
                         anchors.fill: parent
-                        leftPadding: root.leftPadding
-                        verticalAlignment: Qt.AlignVCenter
-                        color: StudioTheme.Values.themeTextColor
-                        text: horizontalHeaderDelegate.display
-                        visible: !horizontalHeaderDelegate.customEditing
-                    }
+                        spacing: 8
 
-                    DSC.TextField {
-                        id: horizontalHeaderTextField
-
-                        anchors.fill: parent
-                        leftPadding: root.leftPadding
-                        horizontalAlignment: TextInput.AlignLeft
-                        verticalAlignment: TextInput.AlignVCenter
-                        text: horizontalHeaderDelegate.display
-
-                        visible: horizontalHeaderDelegate.customEditing
-
-                        //Component.onCompleted: stringEditDelegate.selectAll()
-
-                        onActiveFocusChanged: {
-                            if (!horizontalHeaderTextField.activeFocus)
-                                horizontalHeaderDelegate.customEditing = false
+                        Text {
+                            id: activeIcon
+                            height: parent.height
+                            leftPadding: root.leftPadding
+                            verticalAlignment: Qt.AlignVCenter
+                            font.family: StudioTheme.Constants.iconFont.family
+                            font.pixelSize: StudioTheme.Values.baseIconFontSize
+                            color: StudioTheme.Values.themeTextColor
+                            text: StudioTheme.Constants.apply_small
+                            visible: horizontalHeaderDelegate.isActive
                         }
 
-                        onEditingFinished: {
-                            console.log("onEditingFinished", horizontalHeaderTextField.text)
-                            horizontalHeaderDelegate.TableView.view.model.setHeaderData(horizontalHeaderDelegate.column,
-                                                                                        Qt.Horizontal,
-                                                                                        horizontalHeaderTextField.text,
-                                                                                        Qt.EditRole)
+                        Text {
+                            height: parent.height
+
+                            leftPadding: horizontalHeaderDelegate.isActive ? 0 : root.leftPadding
+                            verticalAlignment: Qt.AlignVCenter
+                            color: StudioTheme.Values.themeTextColor
+                            text: horizontalHeaderDelegate.display
                         }
                     }
                 }
             }
 
             VerticalHeaderView {
-                id: verticalHeader
+                id: verticalHeaderView
 
                 anchors.top: scrollView.top
                 anchors.left: parent.left
@@ -505,12 +1112,23 @@ Rectangle {
                 syncView: tableView
                 clip: true
 
-                z: 100
+                z: overlay.visible ? 102 : 100
 
                 delegate: Cell {
                     id: verticalHeaderDelegate
 
                     required property int group
+
+                    TapHandler {
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                        onTapped: function(eventPoint, button) {
+                            if (button === Qt.LeftButton)
+                                overlay.show(verticalHeaderDelegate.row, Qt.Vertical)
+
+                            if (button === Qt.RightButton)
+                                variableMenu.show(verticalHeaderDelegate.row)
+                        }
+                    }
 
                     Row {
                         anchors.fill: parent
@@ -555,14 +1173,16 @@ Rectangle {
 
             ScrollView {
                 id: scrollView
-                anchors.left: verticalHeader.right
-                anchors.top: horizontalHeader.bottom
+                anchors.left: verticalHeaderView.right
+                anchors.top: horizontalHeaderView.bottom
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
 
                 anchors.leftMargin: -root.borderWidth
                 anchors.topMargin: -root.borderWidth
                 anchors.rightMargin: -root.borderWidth
+
+                z: 101
 
                 contentItem: TableView {
                     id: tableView
@@ -577,7 +1197,6 @@ Rectangle {
                     }
 
                     onModelChanged: {
-                        console.log("onModelChanged")
                         tableView.clearColumnWidths()
                         tableView.contentX = 0
                         tableView.contentY = 0
@@ -588,8 +1207,14 @@ Rectangle {
                     columnSpacing: -root.borderWidth
                     rowSpacing: -root.borderWidth
                     clip: true
+                    boundsBehavior: Flickable.StopAtBounds
 
                     delegate: chooser
+
+                    onActiveFocusChanged: {
+                        if (!tableView.activeFocus)
+                            tableView.closeEditor()
+                    }
                 }
 
                 ScrollBar.horizontal: StudioControls.TransientScrollBar {
@@ -634,14 +1259,14 @@ Rectangle {
             Layout.fillHeight: true
 
             StudioControls.IconTextButton {
+                id: createModeButton
                 anchors.centerIn: parent
                 buttonIcon: StudioTheme.Constants.add_medium
                 text: qsTr("Create mode")
                 rotation: -90
+                enabled: false
 
-                onClicked: {
-                    tableView.model.insertColumn(0)
-                }
+                onClicked: tableView.model.insertColumns(0, 1)
             }
         }
 
@@ -671,15 +1296,22 @@ Rectangle {
 
                     width: createVariableButton.width
 
+                    function insertInitalMode() {
+                        if (tableView.model.columnCount())
+                            return
+
+                        tableView.model.insertColumn(0)
+                    }
+
                     DSC.MenuItem {
                         text: qsTr("Color")
                         buttonIcon: StudioTheme.Constants.colorSelection_medium
                         onTriggered: {
-                            console.log(">>> Add Color Property")
+                            createVariableMenu.insertInitalMode()
                             tableView.model.addProperty(GroupType.Colors,
-                                                         "color_new",
-                                                         "#800080",
-                                                         false)
+                                                        "color_new",
+                                                        "#800080",
+                                                        false)
                         }
                     }
 
@@ -687,11 +1319,11 @@ Rectangle {
                         text: qsTr("Number")
                         buttonIcon: StudioTheme.Constants.number_medium
                         onTriggered: {
-                            console.log(">>> Add Number Property")
+                            createVariableMenu.insertInitalMode()
                             tableView.model.addProperty(GroupType.Numbers,
-                                                         "number_new",
-                                                         0,
-                                                         false)
+                                                        "number_new",
+                                                        0,
+                                                        false)
                         }
                     }
 
@@ -699,11 +1331,11 @@ Rectangle {
                         text: qsTr("String")
                         buttonIcon: StudioTheme.Constants.string_medium
                         onTriggered: {
-                            console.log(">>> Add String Property")
-                            tableView.model.addProperty(GroupType.Flags,
-                                                         "string_new",
-                                                         "String value",
-                                                         false)
+                            createVariableMenu.insertInitalMode()
+                            tableView.model.addProperty(GroupType.Strings,
+                                                        "string_new",
+                                                        "String value",
+                                                        false)
                         }
                     }
 
@@ -711,11 +1343,11 @@ Rectangle {
                         text: qsTr("Boolean")
                         buttonIcon: StudioTheme.Constants.flag_medium
                         onTriggered: {
-                            console.log(">>> Add Boolean Property")
+                            createVariableMenu.insertInitalMode()
                             tableView.model.addProperty(GroupType.Flags,
-                                                         "boolean_new",
-                                                         true,
-                                                         false)
+                                                        "boolean_new",
+                                                        true,
+                                                        false)
                         }
                     }
                 }

@@ -1,3 +1,7 @@
+BindingIndicator 1.0 BindingIndicator.qml
 MenuItem 1.0 MenuItem.qml
+SpinBox 1.0 SpinBox.qml
+SpinBoxIndicator 1.0 SpinBoxIndicator.qml
+SpinBoxInput 1.0 SpinBoxInput.qml
 Switch 1.0 Switch.qml
 TextField 1.0 TextField.qml
