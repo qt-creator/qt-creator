@@ -13,26 +13,27 @@
     devices, the preview shows the snapshot of your project from the moment
     you start the preview on the device, not your changes.
 
-    \image studio-live-preview.webp
+    \image studio-live-preview.webp Live preview of the application
 
     Or, use \QDV to run applications in most widely-used web browsers on the
     desktop and in mobile devices and share your designs with reviewers who
-    don't have \QC.
+    don't have \QDS.
 
+    To learn more follow the topics below:
     \list
+        \li \l{Running a \QDS project}
+            {Run a project created with \QDS}.
+
         \li \l{Previewing on desktop}
+            {Preview individual QML files or the whole UI}.
 
-            Preview individual QML files or the whole UI.
         \li \l{Previewing on devices}
-
-            Connect your devices to your computer.
+            {Connect your devices to your computer}.
 
         \li \l{Sharing applications online}
-
-            Share applications online and view them in a web browser.
+            {Share applications online and view them in a web browser}.
 
         \li \l{Viewing applications on Android}
-
-           Preview \QDS projects with \QUV on an Android device.
+           {Preview \QDS projects with \QUV on an Android device}.
     \endlist
 */
