@@ -906,7 +906,7 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
     QString raw = cppExpressionAt(editorWidget, context.position, &context.line, &context.column,
                                   &context.function, &context.scopeFromLine, &context.scopeToLine);
     context.expression = fixCppExpression(raw);
-    context.isCppEditor = CppEditor::ProjectFile::classify(document->filePath().toUrlishString())
+    context.isCppEditor = CppEditor::ProjectFile::classify(document->filePath())
                             != CppEditor::ProjectFile::Unsupported;
 
     if (context.expression.isEmpty()) {
