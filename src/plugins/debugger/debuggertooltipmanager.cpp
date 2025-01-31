@@ -85,10 +85,6 @@ public:
 
         for (IEditor *e : DocumentModel::editorsForOpenedDocuments())
             slotEditorOpened(e);
-
-        // Position tooltips delayed once all the editor placeholder layouting is done.
-        if (!m_tooltips.empty())
-            QTimer::singleShot(0, this, &DebuggerToolTipManagerPrivate::updateVisibleToolTips);
     }
 
     void removeToolTipsForWidget(TextEditorWidget *widget)
