@@ -102,29 +102,35 @@ Project::RestoreResult QmlProject::fromMap(const Store &map, QString *errorMessa
     if (result != RestoreResult::Ok)
         return result;
 
-    if (activeTarget())
-        return RestoreResult::Ok;
+    if (!activeTarget()) {
+        // find a kit that matches prerequisites (prefer default one)
+        const QList<Kit *> kits = Utils::filtered(KitManager::kits(), [this](const Kit *k) {
+            return !containsType(projectIssues(k), Task::TaskType::Error)
+                   && RunDeviceTypeKitAspect::deviceTypeId(k)
+                          == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+        });
 
-    // find a kit that matches prerequisites (prefer default one)
-    const QList<Kit *> kits = Utils::filtered(KitManager::kits(), [this](const Kit *k) {
-        return !containsType(projectIssues(k), Task::TaskType::Error)
-               && RunDeviceTypeKitAspect::deviceTypeId(k)
-                      == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-    });
+        if (!kits.isEmpty()) {
+            if (kits.contains(KitManager::defaultKit()))
+                addTargetForDefaultKit();
+            else
+                addTargetForKit(kits.first());
+        }
 
-    if (!kits.isEmpty()) {
-        if (kits.contains(KitManager::defaultKit()))
-            addTargetForDefaultKit();
-        else
-            addTargetForKit(kits.first());
+        // FIXME: are there any other way?
+        // What if it's not a Design Studio project? What should we do then?
+        if (Core::ICore::isQtDesignStudio()) {
+            int preferedVersion = preferedQtTarget(activeTarget());
+
+            setKitWithVersion(preferedVersion, kits);
+        }
     }
 
-    // FIXME: are there any other way?
-    // What if it's not a Design Studio project? What should we do then?
-    if (Core::ICore::isQtDesignStudio()) {
-        int preferedVersion = preferedQtTarget(activeTarget());
-
-        setKitWithVersion(preferedVersion, kits);
+    // For projects created with Qt Creator < 17.
+    for (Target * const t : targets()) {
+        if (t->buildConfigurations().isEmpty())
+            t->updateDefaultBuildConfigurations();
+        QTC_CHECK(!t->buildConfigurations().isEmpty());
     }
 
     return RestoreResult::Ok;

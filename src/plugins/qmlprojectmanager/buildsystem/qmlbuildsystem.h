@@ -149,4 +149,6 @@ private:
     QmlProjectExporter::Exporter* m_fileGen;
 };
 
+void setupQmlBuildConfiguration();
+
 } // namespace QmlProjectManager

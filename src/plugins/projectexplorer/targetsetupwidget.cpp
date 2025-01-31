@@ -188,7 +188,9 @@ void TargetSetupWidget::targetCheckBoxToggled(bool b)
     if (m_ignoreChanges.isLocked())
         return;
     m_detailsWidget->widget()->setEnabled(b);
-    m_detailsWidget->setState(b ? DetailsWidget::Expanded : DetailsWidget::Collapsed);
+    m_detailsWidget->setState(
+        b && hasSelectableBuildConfigurations() ? DetailsWidget::Expanded
+                                                : DetailsWidget::Collapsed);
     emit selectedToggled();
 }
 
@@ -214,7 +216,8 @@ void TargetSetupWidget::setProjectPath(const FilePath &projectPath)
 
 void TargetSetupWidget::expandWidget()
 {
-    m_detailsWidget->setState(DetailsWidget::Expanded);
+    if (hasSelectableBuildConfigurations())
+        m_detailsWidget->setState(DetailsWidget::Expanded);
 }
 
 void TargetSetupWidget::update(const TasksGenerator &generator)
@@ -254,7 +257,7 @@ const QList<BuildInfo> TargetSetupWidget::buildInfoList(const Kit *k, const File
 
 bool TargetSetupWidget::hasSelectableBuildConfigurations() const
 {
-    return !m_infoStore.empty();
+    return !m_infoStore.empty() && m_infoStore.front().buildInfo.showBuildConfigs;
 }
 
 void TargetSetupWidget::setValid(bool valid)

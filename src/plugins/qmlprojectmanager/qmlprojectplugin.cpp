@@ -3,6 +3,7 @@
 
 #include "qmlprojectplugin.h"
 
+#include "buildsystem/qmlbuildsystem.h"
 #include "qdslandingpage.h"
 #include "qmlproject.h"
 #include "qmlprojectconstants.h"
@@ -305,6 +306,7 @@ void QmlProjectPlugin::initialize()
     }
 
     ProjectManager::registerProjectType<QmlProject>(Utils::Constants::QMLPROJECT_MIMETYPE);
+    setupQmlBuildConfiguration();
     FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png",
                                                    "qmlproject");
 

@@ -26,6 +26,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildinfo.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -37,6 +39,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/filesystemwatcher.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 
 #include <texteditor/textdocument.h>
@@ -45,6 +48,8 @@
 #include <QtCore5Compat/qtextcodec.h>
 
 using namespace ProjectExplorer;
+using namespace Utils;
+
 namespace QmlProjectManager {
 
 namespace {
@@ -798,6 +803,29 @@ QString QmlBuildSystem::versionQtQuick() const
 QString QmlBuildSystem::versionDesignStudio() const
 {
     return m_projectItem->versionDesignStudio();
+}
+
+class QmlBuildConfigurationFactory final : public BuildConfigurationFactory
+{
+public:
+    QmlBuildConfigurationFactory()
+    {
+        registerBuildConfiguration<BuildConfiguration>("QmlBuildConfiguration");
+        setSupportedProjectMimeTypeName(Utils::Constants::QMLPROJECT_MIMETYPE);
+        setBuildGenerator(
+            [](const Kit *, const FilePath &projectPath, bool /* forSetup */) -> QList<BuildInfo> {
+                BuildInfo bi;
+                bi.buildDirectory = projectPath;
+                bi.displayName = bi.typeName = Tr::tr("Default");
+                bi.showBuildConfigs = bi.showBuildDirConfigWidget = false;
+                return {bi};
+            });
+    }
+};
+
+void setupQmlBuildConfiguration()
+{
+    static const QmlBuildConfigurationFactory theQmlBuildConfigurationFactory;
 }
 
 } // namespace QmlProjectManager
