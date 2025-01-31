@@ -22,7 +22,8 @@
 #   3. Note that sometimes the size of `std::pmr::polymorphic_allocator` is bizarrely reported
 #      as exactly 0, for example this happens with
 #      `std::__1::pmr::polymorphic_allocator<std::__1::pair<const int, int>>` from `std::pmr::map`,
-#      so dumping pmr containers still may still have some breakages for libcxx
+#      so dumping pmr containers still may still have some breakages for libcxx.
+#      Also see QTCREATORBUG-32455.
 
 from stdtypes import qdump__std__array, qdump__std__complex, qdump__std__once_flag, qdump__std__unique_ptr, qdumpHelper__std__deque__libcxx, qdumpHelper__std__vector__libcxx, qdump__std__forward_list
 from utils import DisplayFormat

@@ -5107,8 +5107,8 @@ void tst_Dumpers::dumper_data()
                + Check("map5.0", "[0] 12", "42", "")
 
                + Check("map6", "<1 items>", "std::map<short, std::string>")
-               // LLDB bridge reports incorrect alignment for `std::string` (1 instead of 8)
-               // causing this check to fail.
+               // QTCREATORBUG-32455: LLDB bridge reports incorrect alignment for `std::string`
+               // so we end up reading garbage.
                + Check("map6.0", "[0] 12", "\"42\"", "") % NoLldbEngine;
 
 
@@ -6044,8 +6044,12 @@ void tst_Dumpers::dumper_data()
                            {"a.b", "43", "int"}})   // CDB, old GDB
                + CheckSet({{"a.#1.i", "42", "int"},
                            {"a.i", "42", "int"}})
+               // QTCREATORBUG-32455: LLDB bridge gets confused when there are multiple
+               // unnamed structs around. Here it is somewhat stubborn and says
+               // that `a.#2` is the same as the currently active `a.#1`
+               // and so there is no `a.#2.f`, only `a.#2.b` and `a.#2.i`
                + CheckSet({{"a.#2.f", ff, "float"},
-                           {"a.f", ff, "float"}});
+                           {"a.f", ff, "float"}}) % NoLldbEngine;
 
 
     QTest::newRow("Chars")
@@ -7613,24 +7617,26 @@ void tst_Dumpers::dumper_data()
                 "&m, &it")
 
          + Check("m", "<2 items>", TypeDef("std::map<std::string, std::list<std::string>>","map_t"))
-         + Check("m.0.first", "\"one\"", "std::string")
-         + Check("m.0.second", "<3 items>", "std::list<std::string>")
-         + Check("m.0.second.0", "[0]", "\"a\"", "std::string")
-         + Check("m.0.second.1", "[1]", "\"b\"", "std::string")
-         + Check("m.0.second.2", "[2]", "\"c\"", "std::string")
-         + Check("m.1.first", "\"two\"", "std::string")
-         + Check("m.1.second", "<3 items>", "std::list<std::string>")
-         + Check("m.1.second.0", "[0]", "\"1\"", "std::string")
-         + Check("m.1.second.1", "[1]", "\"2\"", "std::string")
-         + Check("m.1.second.2", "[2]", "\"3\"", "std::string")
+         // QTCREATORBUG-32455: LLDB bridge misreports alignment of `std::string` and `std::list`
+         // so we end up reading garbage
+         + Check("m.0.first", "\"one\"", "std::string") % NoLldbEngine
+         + Check("m.0.second", "<3 items>", "std::list<std::string>") % NoLldbEngine
+         + Check("m.0.second.0", "[0]", "\"a\"", "std::string") % NoLldbEngine
+         + Check("m.0.second.1", "[1]", "\"b\"", "std::string") % NoLldbEngine
+         + Check("m.0.second.2", "[2]", "\"c\"", "std::string") % NoLldbEngine
+         + Check("m.1.first", "\"two\"", "std::string") % NoLldbEngine
+         + Check("m.1.second", "<3 items>", "std::list<std::string>") % NoLldbEngine
+         + Check("m.1.second.0", "[0]", "\"1\"", "std::string") % NoLldbEngine
+         + Check("m.1.second.1", "[1]", "\"2\"", "std::string") % NoLldbEngine
+         + Check("m.1.second.2", "[2]", "\"3\"", "std::string") % NoLldbEngine
          + Check("it", AnyValue, TypeDef("std::_Tree_const_iterator<std::_Tree_val<"
                                     "std::_Tree_simple_types<std::pair<"
                                     "std::string const ,std::list<std::string>>>>>",
                                     "std::map<std::string, std::list<std::string> >::const_iterator"))
-         + CheckSet({{"it.first", "\"one\"", "std::string"},    // NoCdbEngine
-                     {"it.0.first", "\"one\"", "std::string"}}) // CdbEngine
+         + CheckSet({{"it.first", "\"one\"", "std::string"},                   // NoCdbEngine
+                     {"it.0.first", "\"one\"", "std::string"}}) % NoLldbEngine // CdbEngine
          + CheckSet({{"it.second", "<3 items>", "std::list<std::string>"},
-                     {"it.0.second", "<3 items>", "std::list<std::string>"}});
+                     {"it.0.second", "<3 items>", "std::list<std::string>"}}) % NoLldbEngine;
 
 
     QTest::newRow("Varargs")
@@ -7840,7 +7846,7 @@ void tst_Dumpers::dumper_data()
                     "&v, &n")
 
                + Check("v", "", "{...}") % GdbEngine
-               + Check("v", "", TypePattern(".*anonymous .*")) % LldbEngine
+               + Check("v", "", TypePattern(".*unnamed .*")) % LldbEngine
                + Check("v", "", TypePattern(".*<unnamed-type-.*")) % CdbEngine
                + Check("n", "", "S") % NoCdbEngine
                + Check("n", "", TypePattern("main::.*::S")) % CdbEngine
@@ -7850,8 +7856,11 @@ void tst_Dumpers::dumper_data()
                            {"v.a", "2", "int"}})
                //+ Check("v.b", "3", "int") % GdbVersion(0, 70699)
                //+ Check("v.1.b", "3", "int") % GdbVersion(70700)
+               // QTCREATORBUG-32455: LLDB bridge gets confused when there are multiple
+               // unnamed structs around. Here it thinks that `v.#1` and `v.#2` are the same type
+               // and so there is no `v.#2.b`, only `v.#2.a`
                + CheckSet({{"v.#2.b", "3", "int"},
-                           {"v.b", "3", "int"}})
+                           {"v.b", "3", "int"}}) % NoLldbEngine
                + Check("v.x", "1", "int")
                + Check("n.x", "10", "int")
                + Check("n.y", "20", "int");
@@ -8826,8 +8835,8 @@ void tst_Dumpers::dumper_data()
         + Check{"ums", "<10 items>", "std::pmr::unordered_multiset<int>"} % NoGdbEngine
         + Check{"ums", "<10 items>", "std::pmr::unordered_multiset"} % GdbEngine
 
-        // There is a bizzare interaction of `DumperBase.Type.size` (see Python scripts) and libcxx
-        // that results in the size of
+        // QTCREATORBUG-32455: there is a bizzare interaction of `DumperBase.Type.size`
+        // (see Python scripts) and libcxx that results in the size of
         // `std::__1::pmr::polymorphic_allocator<std::__1::pair<const int, int>>`
         // from `std::pmr::map` being reported as exactly 0 which breaks dumping
         + Check{"m", "<10 items>", "std::pmr::map<int, int>"} % CdbEngine
