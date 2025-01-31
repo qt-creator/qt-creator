@@ -1698,7 +1698,8 @@ static QString pluginListString(const QSet<PluginSpec *> &plugins)
 
 /*!
     Collects the dependencies of the \a plugins and asks the user if the
-    corresponding plugins should be enabled or disabled (dependening on \a enable).
+    corresponding plugins should be enabled or disabled (dependening on
+    \a enable and using \a dialogParent as the parent for the dialog).
 
     Returns a (possibly) empty set of additional plugins that should be enabled or disabled
     respectively. Returns \c{std::nullopt} if the user canceled.
