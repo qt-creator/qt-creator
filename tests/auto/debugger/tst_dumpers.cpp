@@ -3166,9 +3166,9 @@ void tst_Dumpers::dumper_data()
                + Check("test.[properties].myProp3", "54", "@QVariant (long)")
                + Check("test.[properties].myProp4", "44", "@QVariant (int)")
 #endif
-               + Check("test.[properties].4", "\"New\"",
+               + Check("test.[properties].4", "New",
                     "\"Stuff\"", "@QVariant (QByteArray)")
-               + Check("test.[properties].5", "\"Old\"",
+               + Check("test.[properties].5", "Old",
                     "\"Cruft\"", "@QVariant (QString)")
                + Check5("mm", "destroyed", "@QMetaMethod")
                + Check4("mm", "destroyed(QObject*)", "@QMetaMethod")
