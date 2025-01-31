@@ -1,4 +1,4 @@
-// Copyright (C) 2024 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -9,100 +9,84 @@
 
     \title Viewing applications on Android
 
-    View \QDS projects that you have shared online in \QUV.
-    Bring all the projects from a \QDS ID to \QUV, or establish a direct
-    network connection for a real-time preview of your current \QDS project.
-    These projects then run on your Android device. You can also
-    adjust settings, view logs, and run example projects.
-
-    \note This feature is included in the
-          \l{https://www.qt.io/pricing}{Qt Design Studio Enterprise license}.
-          \uicontrol {Share Application Online} and \uicontrol {Deploy Project to Android}
-          are unavailable in \QDS without the Enterprise license.
+    Run and preview your \QDS projects in \QUV with a
+    direct network connection in real-time.
 
     \section1 Installing Qt UI Viewer
-
-    \image qtuiviewer-appstore.webp
 
     To install \QUV on your Android device:
     \list 1
       \li Open the Google Play store on your Android device.
       \li Search for \QUV.
       \li Select \uicontrol Install.
-      \li Open \QUV.
     \endlist
-
-    \section1 Connecting a \QDS ID with \QUV
-
-    Connect your \QDS ID to \QUV to access all your shared \QDS projects in \QUV:
-    \list 1
-      \li Open \QDS on your computer.
-      \li Open or create a project in \QDS.
-      \li Go to \uicontrol File > \uicontrol {Share Application Online}.
-
-          \inlineimage menu-share-application-online.webp
-          \inlineimage studio-share-application-online.webp
-
-      \li Open \QUV on your Android device.
-      \li Select \uicontrol {Scan QR Code}.
-          \image qtuiviewer-scan-qr-code.webp
-      \li Scan the QR code from Share Application Online in the \QDS.
-    \endlist
-
-    \note Only one \QDS ID can be connected to the \QUV at a time.
-
-    \section1 Running a \QDS project in \QUV
-
-     Once the projects are in \QUV:
-      \list 1
-            \li Select a project from the drop-down.
-            \li Select \uicontrol {Run Project}.
-              \image qtuiviewer-live-project.webp
-      \endlist
-
-      Control how frequently \QUV updates the projects or make the project
-      fit the device display from \QUV \uicontrol {Settings}.
-
-      To specify these settings:
-      \list 1
-        \li Go to \uicontrol File > \uicontrol {Settings}.
-        \li Toggle the \uicontrol {Update user projects in the background} or
-            the \uicontrol {Auto scale the project} setting.
-        \image qtuiviewer-settings.webp
-
-        \note The setting "Auto scale the project" works independent of the \QDS
-              ID connection.
-      \endlist
+    \image qtuiviewer-appstore.webp Qt UI Viewer in the Google Play Store
 
     \section1 Creating a network connection between \QDS and \QUV
 
-      To create a direct connection with a \QDS project without using a
-      \QDS ID, first, get your Android device's \e {Local IP} from \QUV.
-      Then, use the \e {Local IP} in \QDS.
+    \note Use the same network to connect both \QDS and your
+        Android device where you have installed \QUV.
+    \list 1
+      \li Open \QUV on your Android device. Find the IP address and note it down.
+      \li Open or create a project in \QDS.
+      \li Select \uicontrol Run dropdown from the top toolbar and select
+          \uicontrol {Device Manager}.
 
-      To get the \e {Local IP} from \QUV:
+          \image studio-run-dropdown.webp Device Manager in the Run dropdown
+
+      \li In \uicontrol {Set target device IP} write the IP address you have
+          noted from \QUV. Then, select \imageplus. Your device is now added
+          to the list of available devices.
+        \list
+            \li To update the device name, edit \uicontrol Alias.
+            \li To show your device in the \uicontrol Run dropdow,
+                always keep \uicontrol Enabled turned on.
+            \li If you are connected to the same network, and \QUV is running on your
+                Android device, the \uicontrol Status is Online.
+        \endlist
+
+        \image studio-devicemanager-add-device.webp {Add an device in the Device Manager}
+    \endlist
+
+
+    \note You can connect multiple Android devices to \QDS. Then, run a \QDS
+          project on any of the devices by selecting them from
+          \uicontrol Run dropdown, and selecting \imagerunproject.
+
+    \section1 Previewing a \QDS project in \QUV
+
+     Once you have created a network connection between \QDS and \QUV:
+
       \list 1
-        \li Go to \uicontrol Menu > \uicontrol Network.
-        \li Note the \e {Local IP} of your Android device.
-          \image qtuiviewer-network.webp
+            \li Open or create a project in \QDS.
+            \li Open \QUV on your Android device.
+            \li Select your Android device from the \uicontrol Run dropdown.
+                \image studio-run-dropdown-with-added-device.webp {Android device listed in the Run dropdown}
+
+            \li Select \imagerunproject.
       \endlist
 
-      To establish a direct connection between \QUV and \QDS:
+      Every time you close \QUV or \QDS, you need to follow the above process
+      to preview it again in \QUV.
+
+      To fit the preview on your Android device's screen, select \uicontrol Settings
+      in the \QUV and turn on \uicontrol Auto-scale. \QUV follows the orientation of your
+      Android device.
+
+      To keep your Android device awake, select \uicontrol Settings
+      in the \QUV and turn on \uicontrol {Keep screen on}.
+
+      \image qtuiviewer-settings.webp Settings of the Qt UI Viewer
+
+    \section1 Removing a connected Android device from \QDS
+
       \list 1
-        \li Open \QDS on your computer.
-        \li Open the project you want to connect directly.
-        \li Go to \uicontrol File > \uicontrol {Deploy Project to Android}.
-        \li Enter the \e {Local IP} you got from \QUV into \uicontrol {Device IP}.
-        \li Select \uicontrol Connect.
-          \image studio-deploy-project-to-android.webp
-
-        \li Select \uicontrol {Send Project}.
-        \li In \QUV, select \uicontrol Menu > \uicontrol Network. The \QDS project
-            now runs in \QUV.
+            \li Open or create a project in \QDS.
+            \li Select \uicontrol Run dropdown from the top toolbar and select
+                \uicontrol {Device Manager}.
+            \li Select the device you want to remove from the list of devices and
+                select \imageminus.
+            \image studio-devicemanager-remove-device.webp Remove a device from the Device Manager
       \endlist
-
-      \note The Android device needs to be on the same network as the \QDS
-      workstation for the connection to work. Also, automatic synchronization
-      is not possible. To update your project manually send it again.
 
 */

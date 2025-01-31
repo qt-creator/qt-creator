@@ -127,6 +127,7 @@
                     \endlist
                 \li \l{Validating with target hardware}
                     \list
+                        \li \l{Running a \QDS project}
                         \li \l{Previewing on desktop}
                         \li \l{Previewing on devices}
                         \li \l{Sharing applications online}
