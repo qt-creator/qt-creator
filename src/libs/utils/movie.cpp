@@ -782,14 +782,14 @@ void QtcMovie::setPaused(bool paused)
 }
 
 /*!
+ *  \internal
     \property QtcMovie::speed
     \brief the movie's speed
 
     The speed is measured in percentage of the original movie speed.
     The default speed is 100%.
-    Example:
 
-    \snippet code/src_gui_image_Qtcmovie.cpp 1
+    \sa QMovie
 */
 void QtcMovie::setSpeed(int percentSpeed)
 {
