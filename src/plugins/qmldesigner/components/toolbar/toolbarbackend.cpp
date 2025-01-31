@@ -550,6 +550,8 @@ void ToolBarBackend::triggerModeChange()
             Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
         else if (Core::ModeManager::currentModeId() == Core::Constants::MODE_WELCOME)
             openUiFile();
+        else if (Core::ModeManager::currentModeId() == Core::Constants::MODE_EDIT)
+            openUiFile();
         else
             Core::ModeManager::activateMode(Core::Constants::MODE_WELCOME);
     });
