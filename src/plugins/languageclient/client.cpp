@@ -613,6 +613,8 @@ QString Client::stateString() const
     case Shutdown: return Tr::tr("shut down");
     //: language client state
     case Error: return Tr::tr("error");
+    //: language client state
+    case FailedToShutdown: return Tr::tr("failed to shutdown");
     }
     return {};
 }
