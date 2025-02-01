@@ -188,6 +188,7 @@ Version Control Systems
 
 ### Git
 
+* Increased minimum Git version to 2.13.0
 * Added `Create Branch From` to the context menu on commits in `Git Log`
   ([Documentation](https://doc-snapshots.qt.io/qtcreator-16.0/creator-how-to-git-log.html))
 * Added the option to show the log of the branch in the `Git Commit` and `Amend`
