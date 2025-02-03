@@ -177,17 +177,23 @@ public:
 };
 
 namespace {
+
+Sqlite::JournalMode projectStorageJournalMode()
+{
+#ifdef QT_NO_DEBUG
+    if (qEnvironmentVariableIsEmpty("QDS_STORE_PROJECTSTORAGE_IN_PROJECT"))
+        return Sqlite::JournalMode::Memory;
+#endif
+
+    return Sqlite::JournalMode::Wal;
+}
+
 class ProjectStorageData
 {
 public:
     ProjectStorageData(::ProjectExplorer::Project *project, PathCacheType &pathCache)
-#ifdef QT_DEBUG
         : database{project->projectDirectory().pathAppended("projectstorage.db").toString(),
-                   Sqlite::JournalMode::Wal}
-#else
-        : database{project->projectDirectory().pathAppended("projectstorage.db").toString(),
-                   Sqlite::JournalMode::Memory}
-#endif
+                   projectStorageJournalMode()}
         , errorNotifier{pathCache}
         , fileSystem{pathCache}
         , qmlDocumentParser{storage, pathCache}
