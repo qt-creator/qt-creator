@@ -2003,7 +2003,7 @@ void TextEditorWidgetPrivate::clearCurrentSuggestion()
 void TextEditorWidget::selectEncoding()
 {
     TextDocument *doc = d->m_document.data();
-    const CodecSelectorResult result = Core::askForCodec(Core::ICore::dialogParent(), doc);
+    const CodecSelectorResult result = Core::askForCodec(doc);
     switch (result.action) {
     case Core::CodecSelectorResult::Reload: {
         if (Result res = doc->reload(result.codec); !res) {

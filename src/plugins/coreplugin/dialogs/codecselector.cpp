@@ -4,6 +4,7 @@
 #include "codecselector.h"
 
 #include "../coreplugintr.h"
+#include "../icore.h"
 #include "../textdocument.h"
 
 #include <utils/algorithm.h>
@@ -26,8 +27,7 @@ namespace Internal {
 class CodecSelector : public QDialog
 {
 public:
-    CodecSelector(QWidget *parent, Core::BaseTextDocument *doc);
-    ~CodecSelector() override;
+    explicit CodecSelector(BaseTextDocument *doc);
 
     QByteArray selectedCodec() const;
 
@@ -56,8 +56,8 @@ public:
     }
 };
 
-CodecSelector::CodecSelector(QWidget *parent, Core::BaseTextDocument *doc)
-    : QDialog(parent)
+CodecSelector::CodecSelector(BaseTextDocument *doc)
+    : QDialog(ICore::dialogParent())
 {
     m_hasDecodingError = doc->hasDecodingError();
     m_isModified = doc->isModified();
@@ -134,8 +134,6 @@ CodecSelector::CodecSelector(QWidget *parent, Core::BaseTextDocument *doc)
     updateButtons();
 }
 
-CodecSelector::~CodecSelector() = default;
-
 void CodecSelector::updateButtons()
 {
     bool hasCodec = (selectedCodec() != nullptr);
@@ -168,9 +166,9 @@ void CodecSelector::buttonClicked(QAbstractButton *button)
 
 } // namespace Internal
 
-CodecSelectorResult askForCodec(QWidget *parent, BaseTextDocument *doc)
+CodecSelectorResult askForCodec(BaseTextDocument *doc)
 {
-    Internal::CodecSelector dialog(parent, doc);
+    Internal::CodecSelector dialog(doc);
     const CodecSelectorResult::Action result = CodecSelectorResult::Action(dialog.exec());
     return {result, dialog.selectedCodec()};
 }

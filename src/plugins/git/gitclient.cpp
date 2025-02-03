@@ -3531,17 +3531,6 @@ QString GitClient::styleColorName(TextEditor::TextStyle style)
     return color.name();
 }
 
-static QVersionNumber parseGitVersion(const QString &output)
-{
-    // cut 'git version 1.6.5.1.sha'
-    // another form: 'git version 1.9.rc1'
-    const QRegularExpression versionPattern("^[^\\d]+(\\d+)\\.(\\d+)\\.(\\d+|rc\\d).*$");
-    QTC_ASSERT(versionPattern.isValid(), return {});
-    const QRegularExpressionMatch match = versionPattern.match(output);
-    QTC_ASSERT(match.hasMatch(), return {});
-    return {match.captured(1).toInt(), match.captured(2).toInt(), match.captured(3).toInt()};
-}
-
 bool GitClient::StashInfo::init(const FilePath &workingDirectory, const QString &command,
                                 StashFlag flag, PushAction pushAction)
 {

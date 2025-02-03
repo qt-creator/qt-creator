@@ -12,7 +12,6 @@
 
 #include <coreplugin/dialogs/codecselector.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
 
 using namespace Core;
 using namespace Utils;
@@ -303,7 +302,7 @@ Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const
 
 bool DiffEditorDocument::selectEncoding()
 {
-    const CodecSelectorResult result = askForCodec(Core::ICore::dialogParent(), this);
+    const CodecSelectorResult result = askForCodec(this);
     switch (result.action) {
     case CodecSelectorResult::Reload: {
         setCodec(result.codec);

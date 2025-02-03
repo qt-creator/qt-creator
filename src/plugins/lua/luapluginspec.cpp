@@ -174,15 +174,19 @@ bool LuaPluginSpec::initializeExtensions()
 
 bool LuaPluginSpec::delayedInitialize()
 {
-    return true;
+    return false;
 }
 ExtensionSystem::IPlugin::ShutdownFlag LuaPluginSpec::stop()
 {
-    d->activeLuaState->stack_clear();
+    setState(PluginSpec::State::Stopped);
     return ExtensionSystem::IPlugin::ShutdownFlag::SynchronousShutdown;
 }
 
-void LuaPluginSpec::kill() {}
+void LuaPluginSpec::kill()
+{
+    d->activeLuaState.reset();
+    setState(PluginSpec::State::Deleted);
+}
 
 bool LuaPluginSpec::printToOutputPane() const
 {

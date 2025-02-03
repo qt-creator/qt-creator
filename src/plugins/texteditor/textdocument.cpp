@@ -890,12 +890,12 @@ Result TextDocument::reload(ReloadFlag flag, ChangeType type)
 
 void TextDocument::resetSyntaxHighlighter(const std::function<SyntaxHighlighter *()> &creator)
 {
-    SyntaxHighlighter *highlighter = creator();
-    highlighter->setParent(this);
-    highlighter->setDocument(this->document());
-    highlighter->setFontSettings(TextEditorSettings::fontSettings());
-    highlighter->setMimeType(mimeType());
-    d->m_highlighter = highlighter;
+    delete d->m_highlighter;
+    d->m_highlighter = creator();
+    d->m_highlighter->setParent(this);
+    d->m_highlighter->setDocument(this->document());
+    d->m_highlighter->setFontSettings(TextEditorSettings::fontSettings());
+    d->m_highlighter->setMimeType(mimeType());
 }
 
 SyntaxHighlighter *TextDocument::syntaxHighlighter() const

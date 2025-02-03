@@ -11,6 +11,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
+#include <utils/shutdownguard.h>
 
 using namespace ProjectExplorer;
 using namespace TextEditor;
@@ -140,7 +141,7 @@ QByteArray CurrentProjectFind::settingsKey() const
 
 void setupCurrentProjectFind()
 {
-    static CurrentProjectFind theCurrentProjectFind;
+    static GuardedObject<CurrentProjectFind> theCurrentProjectFind;
 }
 
 } // ProjectExplorer::Internal

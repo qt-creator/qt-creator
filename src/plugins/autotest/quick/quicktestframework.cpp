@@ -7,12 +7,13 @@
 
 #include "../autotesttr.h"
 
-namespace Autotest {
-namespace Internal {
+#include <utils/shutdownguard.h>
+
+namespace Autotest::Internal {
 
 QuickTestFramework &theQuickTestFramework()
 {
-    static QuickTestFramework framework;
+    static Utils::GuardedObject<QuickTestFramework> framework;
     return framework;
 }
 
@@ -33,5 +34,4 @@ ITestTreeItem *QuickTestFramework::createRootNode()
     return new QuickTestTreeItem(this, displayName(), {}, ITestTreeItem::Root);
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

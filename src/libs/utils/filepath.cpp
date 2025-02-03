@@ -2032,6 +2032,14 @@ bool FilePath::removeRecursively(QString *error) const
     return fileAccess()->removeRecursively(*this, error);
 }
 
+Result FilePath::removeRecursively() const
+{
+    QString error;
+    if (fileAccess()->removeRecursively(*this, &error))
+        return Result::Ok;
+    return Result::Error(error);
+}
+
 Result FilePath::copyRecursively(const FilePath &target) const
 {
     return fileAccess()->copyRecursively(*this, target);

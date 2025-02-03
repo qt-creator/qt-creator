@@ -81,6 +81,7 @@ public:
         FailedToInitialize,
         Initialized,
         ShutdownRequested,
+        FailedToShutdown,
         Shutdown,
         Error
     };

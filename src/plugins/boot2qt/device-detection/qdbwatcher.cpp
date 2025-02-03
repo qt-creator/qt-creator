@@ -117,7 +117,7 @@ void QdbWatcher::forkHostServer()
         showMessage(message, true);
         return;
     }
-    if (Utils::Process::startDetached({qdbFilePath, {"server"}}))
+    if (Utils::Process::startDetached({qdbFilePath, {"server"}}, qdbFilePath.parentDir()))
         showMessage(Tr::tr("QDB host server started."), false);
     else
         showMessage(

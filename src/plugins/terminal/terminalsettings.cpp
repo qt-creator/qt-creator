@@ -16,6 +16,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
+#include <utils/shutdownguard.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
@@ -435,7 +436,7 @@ static expected_str<void> loadColorScheme(const FilePath &path)
 
 TerminalSettings &settings()
 {
-    static TerminalSettings theSettings;
+    static GuardedObject<TerminalSettings> theSettings;
     return theSettings;
 }
 

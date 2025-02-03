@@ -1,117 +1,149 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page creator-coco.html
-    \previouspage creator-how-tos.html
+    \previouspage creator-reference.html
 
-    \ingroup creator-how-to-analyze
+    \ingroup creator-reference-analyzer
 
-    \title Measure and check code coverage
+    \title Coco
 
-    With Coco, you can measure and the code coverage of tests. The Coco plugin
-    supports the setup of a project for code coverage and the display of the
-    coverage inside Qt Creator.
+    \brief Measure and analyze the code coverage of tests.
+
+    With Coco, you can measure and analyze the code coverage of tests. You can
+    set up a project for code coverage and display the coverage in \QC.
 
     To use the plugin, you must download and install Coco version 6.0 or later.
 
     \note Enable the Coco plugin to use it.
 
-    \section1 Configuring the plugin
+    \section1 Set Coco installation directory
 
-    There is a settings page at \preferences > \uicontrol Coco with which you
-    can set the directory in which Coco is installed. But in most cases, the default
-    settings need not to be changed.
+    Go to \preferences > \uicontrol Coco to set the Coco installation directory.
+    Usually, you don't need to change the default value.
 
-    \section1 Measure code coverage
+    \section1 Create a build configuration for Coco
 
-    With the Coco plugin, it is possible to set up code coverage easily for Qt Creator
-    projects that are built with QMake or CMake.
+    To create a build configuration for \QC projects that you build with qmake or
+    CMake:
 
-    The general idea is that you take an existing build configuration, like "Debug",
-    clone it with a new name (like "DebugCoverage") and then use the plugin to
-    configure it for the use with Coco. Switching back and forth between coverage
-    and normal builds on the same build configuration is not recommended.
-
-    \section2 Components of the plugin
-
-    With the plugin enabled, C/C++ projects get
-    \list
-        \li A project settings menu at \uicontrol Projects > \uicontrol {Project settings}
-            > \uicontrol {Coco Code Coverage} with which you can enable and configure
-            code coverage.
-        \li In the Build Settings, an additional pseudo build step that shows whether
-            code coverage was enabled. There is also a button to directly disable or
-            enable code coverage from this build step.
-
-            \image qtcreator-coco-buildstep.png {Ficticious build step for code coverage}
+    \list 1
+        \li Go to \uicontrol Projects > \uicontrol {Build & Run} >
+            \uicontrol Build > \uicontrol {Build Settings}.
+        \li Select an existing build configuration, such as \e Debug, and then
+            select \uicontrol Clone to clone it with a new name, such as
+            \e DebugCoverage.
+        \li Configure the clone for use with Coco.
     \endlist
 
-    If code coverage is enabled, the plugin generates a \e {settings} file that is read
-    by the build tool before the other configuration files and which changes the
-    build process so that the Coco compiler wrappers are used instead of the original
-    compiler. The settings file is always located in the root directory of the
-    project sources. It also contains the coverage flags and possible overrides and
-    can be checked in into version control to preserve the settings.
+    Do not switch back and forth between coverage and normal builds using the
+    same build configuration.
 
-    \section2 The Project settings page
+    \uicontrol {Build Settings} > \uicontrol {Build Steps} >
+    \uicontrol {Coco code coverage} shows whether code coverage is on or
+    off for the build configuration. Select \uicontrol {Enable Coverage}
+    or \uicontrol {Disable Coverage} to turn on or off code coverage.
 
-    \image qtcreator-coco-configpage.png {Settings page}
+    \image qtcreator-projects-settings-build-coco.webp {Setting code coverage from a build step}
 
-    The pages for QMake and CMake projects do not differ very much. They contain:
-    \list
-        \li A checkbox to enable and disable code coverage.
-        \li A field to enter code coverage options. There are no settings that are
-            needed to enable code coverage. Below the field are buttons:
-            \list
-                \li \uicontrol {Exclude file...} to exclude a file from instrumentation
-                    more easily.
-                \li \uicontrol {Exclude directory...} to exclude a directory from
-                    instrumentation more easily.
-                \li \uicontrol Override to open another entry field in which you can
-                    enter additional commands at the end of the settings file. It is
-                    meant for special cases in which the usual configuration flags are
-                    not enough.
-            \endlist
-        \li A button \uicontrol Revert to reload the coverage settings from the current
-            settings file.
-        \li A button \uicontrol Save or \uicontrol {Save & Re-configure} to write
-            the settings to the settings file and reconfigure the project, if
-            necessary.
-        \li A list with the project build settings that were changed by the plugin.
-    \endlist
+    \section1 Set code coverage for a project
 
-    \section2 QMake projects
+    To specify code coverage settings for a project, go to \uicontrol Projects >
+    \uicontrol {Project Settings} > \uicontrol {Coco Code Coverage}.
 
-    The settings file is \c {cocoplugin.prf}. It is a QMake "feature file".
+    \image qtcreator-projects-settings-coco.webp {Coco Code Coverage settings}
 
-    For a command line build, \c {qmake} must be run with the additional options
-    \tt {CONFIG+=cocoplugin COCOPATH=\e{<Coco directory>}}. It is also necessary
-    to set the environment variable \c {QMAKEFEATURES} to the directory in which
+    \table
+    \header
+        \li Setting
+        \li Purpose
+    \row
+        \li \uicontrol {Enable code coverage for build configuration <name>}
+        \li Turns on and off code coverage for a build configuration.
+    \row
+        \li \uicontrol {CoverageScanner Options}
+        \li Code coverage options (optional).
+    \row
+        \li \uicontrol {Exclude File}
+        \li Excludes a file from instrumentation.
+    \row
+        \li \uicontrol {Exclude Directory}
+        \li Excludes a directory from instrumentation.
+    \row
+        \li \uicontrol Override
+        \li Enter commands to add them to the end of the settings file. Use this
+            option when the usual configuration flags are not enough.
+    \row
+        \li \uicontrol {Changed Build Settings}
+        \li Lists the changed project build settings.
+    \row
+        \li \uicontrol Revert
+        \li Reloads the coverage settings from the current settings file.
+    \row
+        \li \uicontrol Save and \uicontrol {Save & Re-configure}
+        \li Write the settings to the settings file and reconfigure the project
+            if necessary.
+    \endtable
+
+    If code coverage is on, the plugin generates a \e {settings} file that the
+    build tool reads first. It changes the build process to use Coco compiler
+    wrappers instead of the original compiler. The settings file is always
+    located in the root directory of the project sources. It also has the
+    coverage flags and possible overrides. Check it into version control to
+    preserve the settings.
+
+    \section2 qmake projects
+
+    For qmake projects, the settings file is the \c {cocoplugin.prf}
+    \e {feature file}.
+
+    For a command-line build, run \c {qmake} with the additional options:
+
+    \badcode
+    CONFIG+=cocoplugin COCOPATH=<Coco directory>
+    \endcode
+
+    Also, set the environment variable \c {QMAKEFEATURES} to the directory where
     \c {cocoplugin.prf} is located.
 
     \section2 CMake projects
 
-    The settings file is \c {cocoplugin.cmake}. It is a CMake cache preload script.
-    Apart from this file, the "compiler files" \c {cocoplugin-gcc.cmake},
-    \c {cocoplugin-clang.cmake} and  \c {cocoplugin-visualstudio.cmake} are created
-    in the same directory. They are needed for a command line build.
+    For CMake projects, the settings file is the \c {cocoplugin.cmake} CMake
+    cache preload script. Also, the \e {compiler files} \c {cocoplugin-gcc.cmake},
+    \c {cocoplugin-clang.cmake}, and \c {cocoplugin-visualstudio.cmake} are created
+    in the same directory. They are needed for a command-line build.
 
-    In a command-line build, run CMake in the form
-    "\tt {cmake \e{<other options>} -C\e{<project dir>}/cocoplugin-gcc.cmake}"
-    (if you are compiling with GCC). The file \c {cocoplugin-gcc.cmake} includes
-    then \c {cocoplugin.cmake}.
+    To build the project from the command line (when compiling with GCC), enter:
 
-    If you use a compiler different from GCC, clang or Visual Studio, one of the
-    compiler files must be modified for the new compiler.
+    \badcode
+    cmake <other options> -C <project dir>/cocoplugin-gcc.cmake
+    \endcode
 
-    \section1 Check code coverage
+    The file \c {cocoplugin-gcc.cmake} includes \c {cocoplugin.cmake}.
 
-    With the help of Coco CoverageBrowser, you can analyze the test coverage by
+    If you use some other compiler than GCC, Clang, or MSVC, modify one
+    of the compiler files for that compiler.
+
+    \sa {Configure projects for building}, {Enable and disable plugins},
+    {View code coverage reports from Coco}, {Font & Colors}, {Analyzing Code}
+*/
+
+/*!
+    \page creator-how-to-view-code-coverage-with-coco.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-analyze
+
+    \title View code coverage reports from Coco
+
+    \note Enable the Coco plugin to use it.
+
+    With Coco CoverageBrowser, you can analyze the test coverage by
     loading an instrumentation database (a \c .csmes file), which was generated by
     Coco CoverageScanner.
 
-    \section2 Configure Coco
+    To measure and check code coverage:
 
     \list 1
         \li Go to \uicontrol Analyze > \uicontrol {Squish Coco}.
@@ -130,7 +162,7 @@
     after the code in \uicontrol Edit mode. You can change the fonts and colors
     used for different types of results.
 
-    \section2 Changing Fonts and Colors
+    \section1 Change fonts and colors
 
     To change the default fonts and colors, go to \preferences >
     \uicontrol {Text Editor} > \uicontrol {Font & Colors}.
@@ -150,6 +182,5 @@
         \li Implicit Manual Coverage Validation
     \endlist
 
-    \sa {Enable and disable plugins}, {Analyze}{How To: Analyze}, {Analyzers},
-    {Font & Colors}, {Analyzing Code}
+    \sa {Enable and disable plugins}, {Font & Colors}, {Analyzing Code}, {Coco}
 */

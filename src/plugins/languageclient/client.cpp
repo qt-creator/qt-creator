@@ -613,6 +613,8 @@ QString Client::stateString() const
     case Shutdown: return Tr::tr("shut down");
     //: language client state
     case Error: return Tr::tr("error");
+    //: language client state
+    case FailedToShutdown: return Tr::tr("failed to shutdown");
     }
     return {};
 }
@@ -1740,7 +1742,22 @@ bool ClientPrivate::reset()
 void Client::setError(const QString &message)
 {
     log(message);
-    d->setState(d->m_state < Initialized ? FailedToInitialize : Error);
+    switch (d->m_state) {
+    case Uninitialized:
+    case InitializeRequested:
+    case FailedToInitialize:
+        d->setState(FailedToInitialize);
+        return;
+    case Initialized:
+    case Error:
+        d->setState(Error);
+        return;
+    case ShutdownRequested:
+    case FailedToShutdown:
+    case Shutdown:
+        d->setState(FailedToShutdown);
+        return;
+    }
 }
 
 ProgressManager *Client::progressManager()
