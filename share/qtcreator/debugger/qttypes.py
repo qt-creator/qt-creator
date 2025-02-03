@@ -1258,14 +1258,15 @@ def qdump__QImage(d, value):
     ref, width, height = d.split('iii', image_data)
     d.putValue('(%dx%d)' % (width, height))
 
+    if d.qtVersionAtLeast(0x060000):
+        (ref, width, height, depth, nbytes, pad, devicePixelRatio, _, _, _,
+            bits, iformat) = d.split('iiiii@dppppi', image_data)
+    else:
+        (ref, width, height, depth, nbytes, pad, devicePixelRatio, colorTable,
+            bits, iformat) = d.split('iiiii@dppi', image_data)
+
     d.putExpandable()
     if d.isExpanded():
-        if d.qtVersionAtLeast(0x060000):
-            (ref, width, height, depth, nbytes, pad, devicePixelRatio, _, _, _,
-                bits, iformat) = d.split('iiiii@dppppi', image_data)
-        else:
-            (ref, width, height, depth, nbytes, pad, devicePixelRatio, colorTable,
-                bits, iformat) = d.split('iiiii@dppi', image_data)
         with Children(d):
             d.putIntItem('width', width)
             d.putIntItem('height', height)
