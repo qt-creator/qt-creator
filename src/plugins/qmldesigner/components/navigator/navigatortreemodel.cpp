@@ -843,8 +843,13 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
 
 void NavigatorTreeModel::addImport(const QString &importName)
 {
+#ifdef QDS_USE_PROJECTSTORAGE
+    Import import = Import::createLibraryImport(importName);
+    m_view->model()->changeImports({import}, {});
+#else
     if (!ModelUtils::addImportWithCheck(importName, m_view->model()))
         qWarning() << __FUNCTION__ << "Adding import failed:" << importName;
+#endif
 }
 
 bool QmlDesigner::NavigatorTreeModel::moveNodeToParent(const NodeAbstractProperty &targetProperty,

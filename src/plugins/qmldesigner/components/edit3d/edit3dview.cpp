@@ -1399,12 +1399,19 @@ Edit3DBakeLightsAction *Edit3DView::bakeLightsAction() const
 void Edit3DView::addQuick3DImport()
 {
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
-    if (document && !document->inFileComponentModelActive() && model()
-        && ModelUtils::addImportWithCheck(
-            "QtQuick3D",
-            [](const Import &import) { return !import.hasVersion() || import.majorVersion() >= 6; },
-            model())) {
+    if (document && !document->inFileComponentModelActive() && model()) {
+#ifdef QDS_USE_PROJECTSTORAGE
+        Import import = Import::createLibraryImport("QtQuick3D");
+        model()->changeImports({import}, {});
         return;
+#else
+        if (ModelUtils::addImportWithCheck(
+                "QtQuick3D",
+                [](const Import &import) { return !import.hasVersion() || import.majorVersion() >= 6; },
+                model())) {
+            return;
+        }
+#endif
     }
     Core::AsynchronousMessageBox::warning(tr("Failed to Add Import"),
                                           tr("Could not add QtQuick3D import to project."));

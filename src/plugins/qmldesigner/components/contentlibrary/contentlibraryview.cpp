@@ -35,6 +35,8 @@
 
 #include <utils/algorithm.h>
 
+#include <coreplugin/messagebox.h>
+
 #ifndef QMLDESIGNER_TEST
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectmanager.h>
@@ -77,11 +79,21 @@ WidgetInfo ContentLibraryView::widgetInfo()
         connect(m_widget, &ContentLibraryWidget::importQtQuick3D, this, [&] {
             DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
             if (document && !document->inFileComponentModelActive() && model()) {
-                ModelUtils::addImportWithCheck(
+#ifdef QDS_USE_PROJECTSTORAGE
+                Import import = Import::createLibraryImport("QtQuick3D");
+                model()->changeImports({import}, {});
+                return;
+#else
+                if (ModelUtils::addImportWithCheck(
                     "QtQuick3D",
                     [](const Import &import) { return !import.hasVersion() || import.majorVersion() >= 6; },
-                    model());
+                        model())) {
+                    return;
+                }
+#endif
             }
+            Core::AsynchronousMessageBox::warning(tr("Failed to Add Import"),
+                                                  tr("Could not add QtQuick3D import to project."));
         });
         connect(m_widget, &ContentLibraryWidget::bundleMaterialDragStarted, this,
                 [&] (QmlDesigner::ContentLibraryMaterial *mat) {

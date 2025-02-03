@@ -91,11 +91,18 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 
                 // For drag to be handled correctly, we must have the component properly imported
                 // beforehand, so we import the module immediately when the drag starts
+#ifdef QDS_USE_PROJECTSTORAGE
+                if (!entry.requiredImport().isEmpty()) {
+                    Import import = Import::createLibraryImport(entry.requiredImport());
+                    m_model->changeImports({import}, {});
+                }
+#else
                 if (!entry.requiredImport().isEmpty()
                     && !ModelUtils::addImportWithCheck(entry.requiredImport(), m_model)) {
                     qWarning() << __FUNCTION__ << "Required import adding failed:"
                                << entry.requiredImport();
                 }
+#endif
 
                 if (model) {
                     model->startDrag(m_itemLibraryModel->getMimeData(entry),
