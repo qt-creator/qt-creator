@@ -3,9 +3,9 @@
 
 import QtQuick
 import QtQuick.Templates as T
-import StudioTheme 1.0 as StudioTheme
+import StudioTheme as StudioTheme
 
-Rectangle {
+Item {
     id: control
 
     property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
@@ -17,8 +17,6 @@ Rectangle {
     property bool hover: false
     property bool pressed: false
     property bool forceVisible: false
-
-    color: "transparent"
 
     implicitWidth: control.style.actionIndicatorSize.width
     implicitHeight: control.style.actionIndicatorSize.height
