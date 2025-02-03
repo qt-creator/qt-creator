@@ -678,6 +678,8 @@ void IosRunner::handleGotServerPorts(IosToolHandler *handler, const FilePath &bu
     if (m_toolHandler != handler)
         return;
 
+    const Port portOnDevice = m_qmlServerPort;
+
     m_gdbServerPort = gdbPort;
     m_qmlServerPort = qmlPort;
     // The run control so far knows about the port on the device side,
@@ -688,21 +690,28 @@ void IosRunner::handleGotServerPorts(IosToolHandler *handler, const FilePath &bu
     qmlChannel.setPort(qmlPort.number());
     runControl()->setQmlChannel(qmlChannel);
 
-    bool prerequisiteOk = false;
-    if (cppDebug() && qmlDebug())
-        prerequisiteOk = m_gdbServerPort.isValid() && m_qmlServerPort.isValid();
-    else if (cppDebug())
-        prerequisiteOk = m_gdbServerPort.isValid();
-    else if (qmlDebug())
-        prerequisiteOk = m_qmlServerPort.isValid();
-    else
-        prerequisiteOk = true; // Not debugging. Ports not required.
+    if (cppDebug()) {
+        if (!m_gdbServerPort.isValid()) {
+            reportFailure(Tr::tr("Failed to get a local debugger port."));
+            return;
+        }
+        appendMessage(
+            Tr::tr("Listening for debugger on local port %1.").arg(m_gdbServerPort.number()),
+            LogMessageFormat);
+    }
+    if (qmlDebug()) {
+        if (!m_qmlServerPort.isValid()) {
+            reportFailure(Tr::tr("Failed to get a local debugger port."));
+            return;
+        }
+        appendMessage(
+            Tr::tr("Listening for QML debugger on local port %1 (port %2 on the device).")
+                .arg(m_qmlServerPort.number())
+                .arg(portOnDevice.number()),
+            LogMessageFormat);
+    }
 
-
-    if (prerequisiteOk)
-        reportStarted();
-    else
-        reportFailure(Tr::tr("Could not get necessary ports for the debugger connection."));
+    reportStarted();
 }
 
 void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const FilePath &bundlePath,
@@ -736,22 +745,12 @@ void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const FilePath &bu
 void IosRunner::handleAppOutput(IosToolHandler *handler, const QString &output)
 {
     Q_UNUSED(handler)
-    static const QRegularExpression qmlPortRe(QString::fromLatin1(QML_DEBUGGER_WAITING));
-    const QRegularExpressionMatch match = qmlPortRe.match(output);
-    QString res(output);
-    if (match.hasMatch() && m_qmlServerPort.isValid())
-       res.replace(match.captured(1), QString::number(m_qmlServerPort.number()));
     appendMessage(output, StdOutFormat);
 }
 
 void IosRunner::handleMessage(const QString &msg)
 {
-    QString res(msg);
-    static const QRegularExpression qmlPortRe(QString::fromLatin1(QML_DEBUGGER_WAITING));
-    const QRegularExpressionMatch match = qmlPortRe.match(msg);
-    if (match.hasMatch() && m_qmlServerPort.isValid())
-        res.replace(match.captured(1), QString::number(m_qmlServerPort.number()));
-    appendMessage(res, StdOutFormat);
+    appendMessage(msg, StdOutFormat);
 }
 
 void IosRunner::handleErrorMsg(IosToolHandler *handler, const QString &msg)
