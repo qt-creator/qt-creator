@@ -184,6 +184,7 @@ Module {
         prototype: "QQuickItem"
         Property { name: "alwaysRun"; type: "bool" }
         Property { name: "auxiliaryInputs"; type: "string"; isList: true }
+        Property { name: "auxiliaryInputsFromDependencies"; type: "string"; isList: true }
         Property { name: "condition"; type: "bool" }
         Property { name: "excludedAuxiliaryInputs"; type: "string"; isList: true }
         Property { name: "excludedInputs"; type: "string"; isList: true }
