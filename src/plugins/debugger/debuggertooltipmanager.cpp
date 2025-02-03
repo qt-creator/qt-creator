@@ -57,7 +57,6 @@ enum DebuggerTooltipState
     PendingUnshown, // Widget not (yet) shown, async.
     PendingShown, // Widget shown, async
     Acquired, // Widget shown sync, engine attached
-    Released // Widget shown, engine released
 };
 
 class DebuggerToolTip;
@@ -345,14 +344,11 @@ public:
 
     ~DebuggerToolTip() override { DEBUG("DESTROY DEBUGGERTOOLTIP WIDGET"); }
 
-    void releaseEngine();
-
     void positionShow();
 
     void updateTooltip();
 
     void setState(DebuggerTooltipState newState);
-    void destroy() { close(); }
 
     void closeEvent(QCloseEvent *) override { DEBUG("CLOSE DEBUGGERTOOLTIP WIDGET"); }
 
@@ -641,7 +637,7 @@ QDebug operator<<(QDebug d, const DebuggerToolTipContext &c)
 void DebuggerToolTip::updateTooltip()
 {
     if (!engine) {
-        setState(Released);
+        close();
         return;
     }
 
@@ -661,7 +657,7 @@ void DebuggerToolTip::updateTooltip()
         DEBUG("ACQUIRE ENGINE: STATE " << state);
         setContents(new ToolTipWatchItem(item));
     } else {
-        releaseEngine();
+        close();
     }
     titleLabel->setToolTip(context.toolTip());
 }
@@ -670,38 +666,13 @@ void DebuggerToolTip::setState(DebuggerTooltipState newState)
 {
     bool ok = (state == New && newState == PendingUnshown)
         || (state == New && newState == Acquired)
-        || (state == PendingUnshown && newState == PendingShown)
-        || newState == Released;
+        || (state == PendingUnshown && newState == PendingShown);
 
     DEBUG("TRANSITION STATE FROM " << state << " TO " << newState);
     QTC_ASSERT(ok, qDebug() << "Unexpected tooltip state transition from "
                             << state << " to " << newState);
 
     state = newState;
-}
-
-void DebuggerToolTip::releaseEngine()
-{
-    DEBUG("RELEASE ENGINE: STATE " << state);
-    if (state == Released)
-        return;
-
-    if (state == PendingShown) {
-        setState(Released);
-        // This happens after hovering over something that looks roughly like
-        // a valid expression but can't be resolved by the debugger backend.
-        // (Out of scope items, keywords, ...)
-        ToolTip::show(context.mousePosition,
-                      Tr::tr("No valid expression"),
-                      DebuggerMainWindow::instance());
-        deleteLater();
-        return;
-    }
-
-    setState(Released);
-    model.m_enabled = false;
-    emit model.layoutChanged();
-    titleLabel->setText(Tr::tr("%1 (Previous)").arg(context.expression));
 }
 
 void DebuggerToolTip::positionShow()
@@ -824,13 +795,13 @@ void DebuggerToolTipManager::deregisterEngine()
 
     for (const auto &tooltip : d->m_tooltips) {
         if (tooltip && tooltip->context.engineType == d->m_engine->objectName())
-            tooltip->releaseEngine();
+            tooltip->close();
     }
 
     // FIXME: For now remove all.
     for (const auto &tooltip : d->m_tooltips) {
         if (tooltip)
-            tooltip->destroy();
+            tooltip->close();
     }
     d->purgeClosedToolTips();
 }
@@ -854,7 +825,7 @@ void DebuggerToolTipManagerPrivate::closeAllToolTips()
 {
     for (const auto &tooltip : m_tooltips) {
         if (tooltip)
-            tooltip->destroy();
+            tooltip->close();
     }
     m_tooltips.clear();
 }
@@ -932,7 +903,6 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
         DebuggerToolTip *tooltip = findToolTip(editorWidget, context);
 
         if (tooltip) {
-            //tooltip->destroy();
             tooltip->context.mousePosition = point;
             ToolTip::move(point);
             DEBUG("UPDATING DELAYED.");
@@ -946,7 +916,7 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
                 m_engine->updateItem(context.iname);
             } else {
                 ToolTip::show(point, Tr::tr("Expression too complex"), editorWidget);
-                tooltip->destroy();
+                tooltip->close();
             }
         }
     }
