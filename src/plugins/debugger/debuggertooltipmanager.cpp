@@ -78,20 +78,9 @@ public:
                 this, &DebuggerToolTipManagerPrivate::updateVisibleToolTips);
         connect(em, &EditorManager::editorOpened,
                 this, &DebuggerToolTipManagerPrivate::slotEditorOpened);
-        connect(em, &EditorManager::editorAboutToClose, this, [this](IEditor *editor) {
-            if (auto textEditor = qobject_cast<BaseTextEditor *>(editor))
-                removeToolTipsForWidget(textEditor->editorWidget());
-        });
 
         for (IEditor *e : DocumentModel::editorsForOpenedDocuments())
             slotEditorOpened(e);
-    }
-
-    void removeToolTipsForWidget(TextEditorWidget *widget)
-    {
-        m_tooltips = Utils::filtered(m_tooltips, [widget](const auto &tooltip) {
-            return tooltip && tooltip->editorWidget == widget;
-        });
     }
 
     void slotTooltipOverrideRequested(TextEditor::TextEditorWidget *editorWidget,
@@ -786,30 +775,29 @@ void DebuggerToolTipManagerPrivate::updateVisibleToolTips()
     purgeClosedToolTips();
     if (m_tooltips.empty())
         return;
+
     if (!debugModeActive()) {
         hideAllToolTips();
         return;
     }
 
-    BaseTextEditor *toolTipEditor = BaseTextEditor::currentTextEditor();
-    if (!toolTipEditor) {
-        hideAllToolTips();
-        return;
-    }
+    const QList<IEditor *> visibleEditors = EditorManager::visibleEditors();
 
-    const FilePath filePath = toolTipEditor->textDocument()->filePath();
-    if (filePath.isEmpty()) {
-        hideAllToolTips();
-        return;
-    }
-
-    TextEditorWidget *editorWidget = toolTipEditor->editorWidget();
-    QTC_ASSERT(editorWidget, return);
-
-    // Reposition and show all tooltips of that file.
     for (const auto &tooltip : m_tooltips) {
-        if (tooltip && tooltip->editorWidget == editorWidget)
+        QTC_ASSERT(tooltip, continue);
+        bool found = false;
+        for (const IEditor *editor : visibleEditors) {
+            QWidget *w = TextEditorWidget::fromEditor(editor);
+            if (w == tooltip->editorWidget) {
+                found = true;
+                break;
+            }
+        }
+
+        if (found)
             tooltip->positionShow();
+        else
+            tooltip->hide();
     }
 }
 
@@ -971,7 +959,6 @@ void DebuggerToolTipManagerPrivate::slotEditorOpened(IEditor *e)
     // Move tooltip along when scrolled.
     if (auto textEditor = qobject_cast<BaseTextEditor *>(e)) {
         TextEditorWidget *widget = textEditor->editorWidget();
-        removeToolTipsForWidget(widget);
         QObject::connect(widget->verticalScrollBar(), &QScrollBar::valueChanged,
                          this, &DebuggerToolTipManagerPrivate::updateVisibleToolTips);
         QObject::connect(widget, &TextEditorWidget::tooltipOverrideRequested,
