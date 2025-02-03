@@ -689,16 +689,29 @@ TEST_F(PropertyMetaInfo, cast_url_to_url)
     ASSERT_THAT(castedValue, IsQVariant<QUrl>(url));
 }
 
-TEST_F(PropertyMetaInfo, cast_string_to_empty_url)
+TEST_F(PropertyMetaInfo, cast_empty_string_to_empty_url)
+{
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "url", {});
+    projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
+    auto propertyInfo = nodeInfo.property("bar");
+    auto value = QVariant::fromValue(QString{});
+
+    auto castedValue = propertyInfo.castedValue(value);
+
+    ASSERT_THAT(castedValue, IsQVariant<QUrl>(IsEmpty()));
+}
+
+TEST_F(PropertyMetaInfo, cast_string_to_url)
 {
     auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "url", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(QString{"http://www.qt.io/future"});
+    auto url = QUrl{"http://www.qt.io/future"};
 
     auto castedValue = propertyInfo.castedValue(value);
 
-    ASSERT_THAT(castedValue, IsQVariant<QUrl>(IsEmpty()));
+    ASSERT_THAT(castedValue, IsQVariant<QUrl>(url));
 }
 
 TEST_F(PropertyMetaInfo, cast_default_to_empty_url)

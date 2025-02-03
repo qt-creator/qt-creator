@@ -4600,6 +4600,8 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
         } else if (typeId == m_projectStorage->builtinTypeId<QUrl>()) {
             if (isType(value.metaType(), qUrlType))
                 return value;
+            else if (isType(value.metaType(), qStringType))
+                return value.toUrl();
             else
                 return QUrl{};
         } else if (typeId == m_projectStorage->builtinTypeId<QColor>()) {
