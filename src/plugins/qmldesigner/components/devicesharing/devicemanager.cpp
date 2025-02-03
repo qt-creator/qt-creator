@@ -433,12 +433,15 @@ void DeviceManager::runProject(const QString &deviceId)
 void DeviceManager::projectPacked(const Utils::FilePath &filePath)
 {
     qCDebug(deviceSharePluginLog) << "Project packed" << filePath.toString();
-    emit projectSendingProgress(m_currentDeviceId, 0);
 
-    m_currentState = OpTypes::Sending;
+    // it is possible that the device was disconnected while the project was being packed
+    if (m_currentDeviceId.isEmpty()) {
+        qCDebug(deviceSharePluginLog) << "Device disconnected while project was being packed";
+        return;
+    }
+
     qCDebug(deviceSharePluginLog) << "Sending project file to device" << m_currentDeviceId;
     QFile file(filePath.toString());
-
     if (!file.open(QIODevice::ReadOnly)) {
         handleError(ErrTypes::ProjectSendingError, m_currentDeviceId, "Failed to open project file");
         return;
@@ -450,10 +453,19 @@ void DeviceManager::projectPacked(const Utils::FilePath &filePath)
             m_currentQtKitVersion = qtVer->qtVersion().toString();
     }
 
-    if (!findDevice(m_currentDeviceId)->sendProjectData(file.readAll(), m_currentQtKitVersion)) {
+    auto device = findDevice(m_currentDeviceId);
+    if (!device) {
+        handleError(ErrTypes::InternalError, m_currentDeviceId, "Device not found");
+        return;
+    }
+
+    if (!device->sendProjectData(file.readAll(), m_currentQtKitVersion)) {
         handleError(ErrTypes::ProjectSendingError, m_currentDeviceId, "Failed to send project file");
         return;
     }
+
+    m_currentState = OpTypes::Sending;
+    emit projectSendingProgress(m_currentDeviceId, 0);
 }
 
 void DeviceManager::stopProject()
