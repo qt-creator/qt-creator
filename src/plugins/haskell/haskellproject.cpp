@@ -52,7 +52,7 @@ static QVector<QString> parseExecutableNames(const FilePath &projectFilePath)
 class HaskellBuildSystem final : public BuildSystem
 {
 public:
-    HaskellBuildSystem(Target *t);
+    HaskellBuildSystem(BuildConfiguration *bc);
 
     void triggerParsing() final;
 
@@ -66,8 +66,8 @@ private:
     TreeScanner m_scanner;
 };
 
-HaskellBuildSystem::HaskellBuildSystem(Target *t)
-    : BuildSystem(t)
+HaskellBuildSystem::HaskellBuildSystem(BuildConfiguration *bc)
+    : BuildSystem(bc)
 {
     connect(&m_scanner, &TreeScanner::finished, this, [this] {
         auto root = std::make_unique<ProjectNode>(projectDirectory());
@@ -127,7 +127,6 @@ public:
     {
         setId(Constants::C_HASKELL_PROJECT_ID);
         setDisplayName(fileName.toFileInfo().completeBaseName());
-        setBuildSystemCreator<HaskellBuildSystem>();
     }
 };
 
@@ -147,6 +146,7 @@ public:
     }
 
     QWidget *createConfigWidget() final;
+    BuildSystem *buildSystem() const final { return m_buildSystem; }
 
     BuildType buildType() const final
     {
@@ -160,6 +160,7 @@ public:
 
 private:
     BuildType m_buildType = BuildType::Release;
+    HaskellBuildSystem * const m_buildSystem{new HaskellBuildSystem(this)};
 };
 
 class HaskellBuildConfigurationWidget final : public QWidget
