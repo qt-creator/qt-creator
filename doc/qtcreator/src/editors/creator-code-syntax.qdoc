@@ -48,7 +48,7 @@
     When writing QML or JavaScript code, the annotations may have error codes.
 
     If you turn on \QMLLS for a project, it uses \c {qmllint} to check QML and
-    JavaScript code. For more information, see\ l {qmllint Reference}.
+    JavaScript code. For more information, see \l {qmllint Reference}.
 
     If you turn off \QMLLS, \QC uses a static analyzer. For more information,
     see \l{JavaScript and QML Error Codes}.
