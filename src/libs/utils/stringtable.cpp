@@ -103,14 +103,14 @@ static int bytesSaved = 0;
 
 static inline bool isQStringInUse(const QString &string)
 {
-    QStringPrivate &data_ptr = const_cast<QString&>(string).data_ptr();
     if (DebugStringTable) {
+        QStringPrivate &data_ptr = const_cast<QString&>(string).data_ptr();
         const int ref = data_ptr->d_ptr()->ref_;
         bytesSaved += (ref - 1) * string.size();
         if (ref > 10)
             qDebug() << ref << string.size() << string.left(50);
     }
-    return data_ptr->isShared() || !data_ptr->isMutable() /* QStringLiteral ? */;
+    return !string.isDetached();
 }
 
 void StringTablePrivate::GC(QPromise<void> &promise)
