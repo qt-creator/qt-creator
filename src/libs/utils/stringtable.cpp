@@ -103,7 +103,7 @@ static int bytesSaved = 0;
 
 static inline bool isQStringInUse(const QString &string)
 {
-    QStringPrivate data_ptr = const_cast<QString&>(string).data_ptr();
+    QStringPrivate &data_ptr = const_cast<QString&>(string).data_ptr();
     if (DebugStringTable) {
         const int ref = data_ptr->d_ptr()->ref_;
         bytesSaved += (ref - 1) * string.size();
