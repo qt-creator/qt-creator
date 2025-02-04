@@ -147,16 +147,23 @@
             node, such as BlurHelper or NoiseHelper.
     \endtable
 
-    \section1 Using shaders from Shadertoy
+    \section1 Using shaders from external sources
 
-    Copy shaders as code from \l{https://www.shadertoy.com/}{Shadertoy} and use them as a part of your
-    effect composition.
+    You can use shader code from external sources, such as \l{https://www.shadertoy.com/}{Shadertoy}
+    and l{https://thebookofshaders.com}{The Book of Shaders} to create custom effects that you
+    can use as a part of your effect composition. For some sources, such as
+    \e {The Book of Shaders}, you may have to re-name the uniforms to use them in the \QDS
+    \uicontrol {Effect Composer}. For more information, see
+    \l {Working with Shadercode in Effect Composer}.
+
+    \section2 Using shaders from Shadertoy
 
     First, add a \l{Using a custom effect in an effect composition}{custom effect} to your effect
-    composition. Then, copy the shader code and paste it to \uicontrol {Shaders Code Editor}:
+    composition. Then, copy the shader code and paste it to the \uicontrol {Fragment Shader}
+    tab of \uicontrol {Shaders Code Editor} with some adjustments:
         \list 1
-            \li Copy the functions of the shader and paste them to before the \c {@main} tag.
-            \li Copy the code inside \c {mainImage} and paste it after the \c {@main} tag, inside {}.
+            \li Copy the functions of the shader and paste them above the \c {@main} tag.
+            \li Copy the code inside \c {mainImage} and paste it below the \c {@main} tag, inside {}.
         \endlist
 
     \uicontrol {Effect Composer} doesn't support all the features of Shadertoy:
@@ -177,6 +184,19 @@
     example, to flip fragCoord in Main node, switch to
     \c {fragCoord = vec2(qt_Vertex.x, iResolution.y - qt_Vertex.y)}. You may need to adjust
     \c texCoord in a similar manner.
+
+    \section2 Using shaders from The Book of Shaders
+
+    First, add a \l{Using a custom effect in an effect composition}{custom effect} to your effect
+    composition. Then, copy the shader code and paste it to the \uicontrol {Fragment Shader}
+    tab of \uicontrol {Shaders Code Editor} with some adjustments:
+    \list 1
+        \li Copy the functions of the shader and paste them above the \c {@main} tag.
+        \li Copy the code inside \c {void main} and paste it below the \c {@main} tag, inside {}.
+        \li Edit the uniforms of the original shader code in \uicontrol {Shaders Code Editor} as
+        described in \l {External resources}{Working with Shadercode in Effect Composer}.
+
+    For more information, see \l{Using a shader from The Book of Shaders in Effect Composer}.
 
     \section1 Assigning an effect composition to a component
 
