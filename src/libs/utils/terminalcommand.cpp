@@ -116,9 +116,14 @@ TerminalCommand TerminalCommand::terminalEmulator()
         if (HostOsInfo::isMacHost() && command.endsWith("openTerminal.py"))
             command = FilePath::fromString("Terminal.app");
 
+        const TerminalCommand knownCommand = Utils::findOrDefault(
+            *knownTerminals(), [fileName = command.fileName()](const TerminalCommand &known) {
+                return known.command.fileName() == fileName;
+            });
         return {command,
                 s_settings->value(kTerminalOpenOptionsKey).toString(),
-                s_settings->value(kTerminalExecuteOptionsKey).toString()};
+                s_settings->value(kTerminalExecuteOptionsKey).toString(),
+                knownCommand.needsQuotes};
     }
 
     return defaultTerminalEmulator();
