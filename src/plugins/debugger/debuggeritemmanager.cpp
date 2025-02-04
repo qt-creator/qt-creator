@@ -743,7 +743,7 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPath
                     detectionSource);
                 addDebuggerItem(dapItem);
                 logMessages.append(
-                    Tr::tr("Added a surrogate GDB DAP item for existing entry \"%1\"")
+                    Tr::tr("Added a surrogate GDB DAP item for existing entry \"%1\".")
                         .arg(command.toUserOutput()));
             }
             continue;
@@ -778,7 +778,7 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPath
                 detectionSource);
             addDebuggerItem(dapItem);
             logMessages.append(
-                Tr::tr("Added a surrogate GDB DAP item for \"%1\"").arg(command.toUserOutput()));
+                Tr::tr("Added a surrogate GDB DAP item for \"%1\".").arg(command.toUserOutput()));
         }
     }
     if (logMessage)

@@ -398,7 +398,7 @@ void StartApplicationDialog::run(bool attachRemote)
     IDevice::ConstPtr dev = RunDeviceKitAspect::device(k);
     if (!dev) {
         QMessageBox::critical(
-            &dialog, Tr::tr("Cannot debug"), Tr::tr("Cannot debug application: Kit has no device"));
+            &dialog, Tr::tr("Cannot Debug"), Tr::tr("Cannot debug application: Kit has no device."));
         return;
     }
 
