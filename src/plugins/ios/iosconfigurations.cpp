@@ -71,7 +71,6 @@ const bool IgnoreAllDevicesDefault = false;
 const char SettingsGroup[] = "IosConfigurations";
 const char ignoreAllDevicesKey[] = "IgnoreAllDevices";
 
-const char provisioningTeamsTag[] = "IDEProvisioningTeams";
 const char freeTeamTag[] = "isFreeProvisioningTeam";
 const char emailTag[] = "eMail";
 const char teamNameTag[] = "teamName";
@@ -430,6 +429,46 @@ void IosConfigurations::initializeProvisioningData()
             std::bind(&IosConfigurations::loadProvisioningData, this, true));
 }
 
+static QVariantMap getTeamMap(const QSettings &xcodeSettings)
+{
+    // Check the version for Xcode 16.2 and later
+    const QVariantMap teamMap = xcodeSettings.value("IDEProvisioningTeamByIdentifier").toMap();
+    if (!teamMap.isEmpty())
+        return teamMap;
+    // Fall back to setting from Xcode < 16.2
+    return xcodeSettings.value("IDEProvisioningTeams").toMap();
+}
+
+static QHash<QString, QString> getIdentifierToEmail(const QSettings &xcodeSettings)
+{
+    // Available for Xcode 16.2 and later, where the keys for the IDEProvisioningTeamByIdentifier
+    // (see getTeamMap) are identifiers, and the "email" is in yet another "map":
+    // "DVTDeveloperAccountManagerAppleIDLists" => {
+    //   "IDE.Identifiers.Prod" => [
+    //     0 => {
+    //       "identifier" => "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    //     }
+    //   ]
+    //   "IDE.Prod" => [
+    //     0 => {
+    //       "username" => "xxxx"
+    //     }
+    //   ]
+    // }
+    const QVariantMap accountMap
+        = xcodeSettings.value("DVTDeveloperAccountManagerAppleIDLists").toMap();
+    const QVariantList idList = accountMap.value("IDE.Identifiers.Prod").toList();
+    const QVariantList emailList = accountMap.value("IDE.Prod").toList();
+    QHash<QString, QString> result;
+    const int size = std::min(idList.size(), emailList.size());
+    for (int i = 0; i < size; ++i) {
+        result.insert(
+            idList.at(i).toMap().value("identifier").toString(),
+            emailList.at(i).toMap().value("username").toString());
+    }
+    return result;
+}
+
 void IosConfigurations::loadProvisioningData(bool notify)
 {
     m_developerTeams.clear();
@@ -437,7 +476,8 @@ void IosConfigurations::loadProvisioningData(bool notify)
 
     // Populate Team id's
     const QSettings xcodeSettings(xcodePlistPath, QSettings::NativeFormat);
-    const QVariantMap teamMap = xcodeSettings.value(provisioningTeamsTag).toMap();
+    const QVariantMap teamMap = getTeamMap(xcodeSettings);
+    const QHash<QString, QString> identifierToName = getIdentifierToEmail(xcodeSettings);
     QList<QVariantMap> teams;
     for (auto accountiterator = teamMap.cbegin(), end = teamMap.cend();
             accountiterator != end; ++accountiterator) {
@@ -449,7 +489,8 @@ void IosConfigurations::loadProvisioningData(bool notify)
             QVariantMap teamInfo = teamInfoIt.toMap();
             int provisioningTeamIsFree = teamInfo.value(freeTeamTag).toBool() ? 1 : 0;
             teamInfo[freeTeamTag] = provisioningTeamIsFree;
-            teamInfo[emailTag] = accountiterator.key();
+            teamInfo[emailTag]
+                = identifierToName.value(accountiterator.key(), /*default=*/accountiterator.key());
             teams.append(teamInfo);
         }
     }

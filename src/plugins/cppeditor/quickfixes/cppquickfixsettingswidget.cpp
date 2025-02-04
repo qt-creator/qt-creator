@@ -104,7 +104,7 @@ CppQuickFixSettingsWidget::CppQuickFixSettingsWidget()
 
     const QString toolTip = Tr::tr(
         "A JavaScript expression acting as the return value of a function taking a parameter "
-        "called \"name\"");
+        "called \"name\".");
     CppQuickFixSettings defaultSettings;
 
     const auto makeJsField = [] {

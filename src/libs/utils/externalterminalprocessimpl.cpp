@@ -184,7 +184,10 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
         CommandLine cmdLine{terminal.command};
         if (!extraArgsFromOptions.isEmpty())
             cmdLine.addArgs(extraArgsFromOptions, CommandLine::Raw);
-        cmdLine.addCommandLineAsArgs(setupData.m_commandLine, CommandLine::Raw);
+        if (terminal.needsQuotes)
+            cmdLine.addCommandLineAsSingleArg(setupData.m_commandLine);
+        else
+            cmdLine.addCommandLineAsArgs(setupData.m_commandLine, CommandLine::Raw);
         process->setCommand(cmdLine);
     }
     process->setEnvironment(

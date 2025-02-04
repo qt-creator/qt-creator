@@ -196,7 +196,7 @@ DebuggerSettings::DebuggerSettings() :
         "<p>"
         + Tr::tr("Allocate memory using the debug heap rather than the normal heap. The debug heap "
                  "enables additional checks to help diagnose heap related bugs. However it comes "
-                 "at a performance cost when allocating memory in the debugged process"));
+                 "at a performance cost when allocating memory in the debugged process."));
 
     //
     // Locals & Watchers

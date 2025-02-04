@@ -57,7 +57,6 @@ enum DebuggerTooltipState
     PendingUnshown, // Widget not (yet) shown, async.
     PendingShown, // Widget shown, async
     Acquired, // Widget shown sync, engine attached
-    Released // Widget shown, engine released
 };
 
 class DebuggerToolTip;
@@ -78,20 +77,9 @@ public:
                 this, &DebuggerToolTipManagerPrivate::updateVisibleToolTips);
         connect(em, &EditorManager::editorOpened,
                 this, &DebuggerToolTipManagerPrivate::slotEditorOpened);
-        connect(em, &EditorManager::editorAboutToClose, this, [this](IEditor *editor) {
-            if (auto textEditor = qobject_cast<BaseTextEditor *>(editor))
-                removeToolTipsForWidget(textEditor->editorWidget());
-        });
 
         for (IEditor *e : DocumentModel::editorsForOpenedDocuments())
             slotEditorOpened(e);
-    }
-
-    void removeToolTipsForWidget(TextEditorWidget *widget)
-    {
-        m_tooltips = Utils::filtered(m_tooltips, [widget](const auto &tooltip) {
-            return tooltip && tooltip->editorWidget == widget;
-        });
     }
 
     void slotTooltipOverrideRequested(TextEditor::TextEditorWidget *editorWidget,
@@ -356,14 +344,11 @@ public:
 
     ~DebuggerToolTip() override { DEBUG("DESTROY DEBUGGERTOOLTIP WIDGET"); }
 
-    void releaseEngine();
-
     void positionShow();
 
     void updateTooltip();
 
     void setState(DebuggerTooltipState newState);
-    void destroy() { close(); }
 
     void closeEvent(QCloseEvent *) override { DEBUG("CLOSE DEBUGGERTOOLTIP WIDGET"); }
 
@@ -652,7 +637,7 @@ QDebug operator<<(QDebug d, const DebuggerToolTipContext &c)
 void DebuggerToolTip::updateTooltip()
 {
     if (!engine) {
-        setState(Released);
+        close();
         return;
     }
 
@@ -672,7 +657,7 @@ void DebuggerToolTip::updateTooltip()
         DEBUG("ACQUIRE ENGINE: STATE " << state);
         setContents(new ToolTipWatchItem(item));
     } else {
-        releaseEngine();
+        close();
     }
     titleLabel->setToolTip(context.toolTip());
 }
@@ -681,38 +666,13 @@ void DebuggerToolTip::setState(DebuggerTooltipState newState)
 {
     bool ok = (state == New && newState == PendingUnshown)
         || (state == New && newState == Acquired)
-        || (state == PendingUnshown && newState == PendingShown)
-        || newState == Released;
+        || (state == PendingUnshown && newState == PendingShown);
 
     DEBUG("TRANSITION STATE FROM " << state << " TO " << newState);
     QTC_ASSERT(ok, qDebug() << "Unexpected tooltip state transition from "
                             << state << " to " << newState);
 
     state = newState;
-}
-
-void DebuggerToolTip::releaseEngine()
-{
-    DEBUG("RELEASE ENGINE: STATE " << state);
-    if (state == Released)
-        return;
-
-    if (state == PendingShown) {
-        setState(Released);
-        // This happens after hovering over something that looks roughly like
-        // a valid expression but can't be resolved by the debugger backend.
-        // (Out of scope items, keywords, ...)
-        ToolTip::show(context.mousePosition,
-                      Tr::tr("No valid expression"),
-                      DebuggerMainWindow::instance());
-        deleteLater();
-        return;
-    }
-
-    setState(Released);
-    model.m_enabled = false;
-    emit model.layoutChanged();
-    titleLabel->setText(Tr::tr("%1 (Previous)").arg(context.expression));
 }
 
 void DebuggerToolTip::positionShow()
@@ -786,30 +746,29 @@ void DebuggerToolTipManagerPrivate::updateVisibleToolTips()
     purgeClosedToolTips();
     if (m_tooltips.empty())
         return;
+
     if (!debugModeActive()) {
         hideAllToolTips();
         return;
     }
 
-    BaseTextEditor *toolTipEditor = BaseTextEditor::currentTextEditor();
-    if (!toolTipEditor) {
-        hideAllToolTips();
-        return;
-    }
+    const QList<IEditor *> visibleEditors = EditorManager::visibleEditors();
 
-    const FilePath filePath = toolTipEditor->textDocument()->filePath();
-    if (filePath.isEmpty()) {
-        hideAllToolTips();
-        return;
-    }
-
-    TextEditorWidget *editorWidget = toolTipEditor->editorWidget();
-    QTC_ASSERT(editorWidget, return);
-
-    // Reposition and show all tooltips of that file.
     for (const auto &tooltip : m_tooltips) {
-        if (tooltip && tooltip->editorWidget == editorWidget)
+        QTC_ASSERT(tooltip, continue);
+        bool found = false;
+        for (const IEditor *editor : visibleEditors) {
+            QWidget *w = TextEditorWidget::fromEditor(editor);
+            if (w == tooltip->editorWidget) {
+                found = true;
+                break;
+            }
+        }
+
+        if (found)
             tooltip->positionShow();
+        else
+            tooltip->hide();
     }
 }
 
@@ -836,13 +795,13 @@ void DebuggerToolTipManager::deregisterEngine()
 
     for (const auto &tooltip : d->m_tooltips) {
         if (tooltip && tooltip->context.engineType == d->m_engine->objectName())
-            tooltip->releaseEngine();
+            tooltip->close();
     }
 
     // FIXME: For now remove all.
     for (const auto &tooltip : d->m_tooltips) {
         if (tooltip)
-            tooltip->destroy();
+            tooltip->close();
     }
     d->purgeClosedToolTips();
 }
@@ -866,7 +825,7 @@ void DebuggerToolTipManagerPrivate::closeAllToolTips()
 {
     for (const auto &tooltip : m_tooltips) {
         if (tooltip)
-            tooltip->destroy();
+            tooltip->close();
     }
     m_tooltips.clear();
 }
@@ -944,7 +903,6 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
         DebuggerToolTip *tooltip = findToolTip(editorWidget, context);
 
         if (tooltip) {
-            //tooltip->destroy();
             tooltip->context.mousePosition = point;
             ToolTip::move(point);
             DEBUG("UPDATING DELAYED.");
@@ -958,7 +916,7 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
                 m_engine->updateItem(context.iname);
             } else {
                 ToolTip::show(point, Tr::tr("Expression too complex"), editorWidget);
-                tooltip->destroy();
+                tooltip->close();
             }
         }
     }
@@ -971,7 +929,6 @@ void DebuggerToolTipManagerPrivate::slotEditorOpened(IEditor *e)
     // Move tooltip along when scrolled.
     if (auto textEditor = qobject_cast<BaseTextEditor *>(e)) {
         TextEditorWidget *widget = textEditor->editorWidget();
-        removeToolTipsForWidget(widget);
         QObject::connect(widget->verticalScrollBar(), &QScrollBar::valueChanged,
                          this, &DebuggerToolTipManagerPrivate::updateVisibleToolTips);
         QObject::connect(widget, &TextEditorWidget::tooltipOverrideRequested,

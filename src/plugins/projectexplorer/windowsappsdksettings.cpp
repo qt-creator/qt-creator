@@ -144,13 +144,13 @@ WindowsSettingsWidget::WindowsSettingsWidget()
 
     m_downloadPathChooser = new PathChooser;
     m_downloadPathChooser->setToolTip(Tr::tr("Select the download path of NuGet and Windows App SDK."));
-    m_downloadPathChooser->setPromptDialogTitle(Tr::tr("Select download path"));
+    m_downloadPathChooser->setPromptDialogTitle(Tr::tr("Select Download Path"));
     m_downloadPathChooser->setExpectedKind(PathChooser::ExistingDirectory);
     m_downloadPathChooser->setFilePath(windowsAppSdkSettings().downloadLocation());
 
     m_nugetPathChooser = new PathChooser;
-    m_nugetPathChooser->setToolTip(Tr::tr("Select the path of the NuGet."));
-    m_nugetPathChooser->setPromptDialogTitle(Tr::tr("Select nuget.exe file"));
+    m_nugetPathChooser->setToolTip(Tr::tr("Select the path of NuGet."));
+    m_nugetPathChooser->setPromptDialogTitle(Tr::tr("Select nuget.exe File"));
     m_nugetPathChooser->setExpectedKind(PathChooser::Any);
     m_nugetPathChooser->setFilePath(windowsAppSdkSettings().nugetLocation());
 
@@ -162,16 +162,16 @@ WindowsSettingsWidget::WindowsSettingsWidget()
     m_winAppSdkPathChooser = new PathChooser;
     m_winAppSdkPathChooser->setToolTip(Tr::tr("Select the path of the Windows App SDK."));
 
-    auto downloadWindowsAppSdk = new QPushButton(Tr::tr("Download WindowsAppSDK"));
+    auto downloadWindowsAppSdk = new QPushButton(Tr::tr("Download Windows App SDK"));
     downloadWindowsAppSdk->setToolTip(
-        Tr::tr("Automatically download Windows App Sdk with NuGet.\n\n"
+        Tr::tr("Automatically download Windows App SDK with NuGet.\n\n"
                "If the automatic download fails, Qt Creator proposes to open the download URL\n"
-               "in the system's browser for manual download."));
+               "in the system browser for manual download."));
 
     const QMap<int, QString> winAppSdkValidationPoints = {
         { DownloadPathExistsRow, Tr::tr("Download path exists.") },
         { NugetPathExistsRow, Tr::tr("NuGet path exists.") },
-        { WindowsAppSdkPathExists, Tr::tr("WindowsAppSDK path exists.") }
+        { WindowsAppSdkPathExists, Tr::tr("Windows App SDK path exists.") }
     };
     m_winAppSdkSummary = new SummaryWidget(winAppSdkValidationPoints,
                                          Tr::tr("Windows App SDK Settings are OK."),

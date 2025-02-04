@@ -529,6 +529,7 @@ public:
     void stop() final;
 
     Port gdbServerPort() const;
+    Port qmlServerPort();
     qint64 pid() const;
     bool isAppRunning() const;
 
@@ -557,7 +558,6 @@ private:
     QmlDebugServicesPreset m_qmlDebugServices = NoQmlDebugServices;
 
     bool m_cleanExit = false;
-    Port m_qmlServerPort;
     Port m_gdbServerPort;
     qint64 m_pid = 0;
 };
@@ -619,21 +619,23 @@ bool IosRunner::qmlDebug() const
     return m_qmlDebugServices != NoQmlDebugServices;
 }
 
+Port IosRunner::qmlServerPort()
+{
+    return Port(runControl()->qmlChannel().port());
+}
+
 void IosRunner::start()
 {
     if (m_toolHandler && isAppRunning())
         m_toolHandler->stop();
 
     m_cleanExit = false;
-    m_qmlServerPort = Port();
     if (!m_bundleDir.exists()) {
         TaskHub::addTask(DeploymentTask(Task::Warning,
             Tr::tr("Could not find %1.").arg(m_bundleDir.toUserOutput())));
         reportFailure();
         return;
     }
-    if (m_qmlDebugServices != NoQmlDebugServices)
-        m_qmlServerPort = Port(runControl()->qmlChannel().port());
 
     m_toolHandler = new IosToolHandler(m_deviceType, this);
     connect(m_toolHandler, &IosToolHandler::appOutput,
@@ -651,9 +653,10 @@ void IosRunner::start()
 
     const CommandLine command = runControl()->commandLine();
     QStringList args = ProcessArgs::splitArgs(command.arguments(), OsTypeMac);
-    if (m_qmlServerPort.isValid()) {
+    const Port portOnDevice = qmlServerPort();
+    if (portOnDevice.isValid()) {
         QUrl qmlServer;
-        qmlServer.setPort(m_qmlServerPort.number());
+        qmlServer.setPort(portOnDevice.number());
         args.append(qmlDebugTcpArguments(m_qmlDebugServices, qmlServer));
     }
 
@@ -678,8 +681,9 @@ void IosRunner::handleGotServerPorts(IosToolHandler *handler, const FilePath &bu
     if (m_toolHandler != handler)
         return;
 
+    const Port portOnDevice = qmlServerPort();
+
     m_gdbServerPort = gdbPort;
-    m_qmlServerPort = qmlPort;
     // The run control so far knows about the port on the device side,
     // but the QML Profiler has to actually connect to a corresponding
     // local port. That port is reported here, so we need to adapt the runControl's
@@ -688,21 +692,28 @@ void IosRunner::handleGotServerPorts(IosToolHandler *handler, const FilePath &bu
     qmlChannel.setPort(qmlPort.number());
     runControl()->setQmlChannel(qmlChannel);
 
-    bool prerequisiteOk = false;
-    if (cppDebug() && qmlDebug())
-        prerequisiteOk = m_gdbServerPort.isValid() && m_qmlServerPort.isValid();
-    else if (cppDebug())
-        prerequisiteOk = m_gdbServerPort.isValid();
-    else if (qmlDebug())
-        prerequisiteOk = m_qmlServerPort.isValid();
-    else
-        prerequisiteOk = true; // Not debugging. Ports not required.
+    if (cppDebug()) {
+        if (!m_gdbServerPort.isValid()) {
+            reportFailure(Tr::tr("Failed to get a local debugger port."));
+            return;
+        }
+        appendMessage(
+            Tr::tr("Listening for debugger on local port %1.").arg(m_gdbServerPort.number()),
+            LogMessageFormat);
+    }
+    if (qmlDebug()) {
+        if (!qmlPort.isValid()) {
+            reportFailure(Tr::tr("Failed to get a local debugger port."));
+            return;
+        }
+        appendMessage(
+            Tr::tr("Listening for QML debugger on local port %1 (port %2 on the device).")
+                .arg(qmlPort.number())
+                .arg(portOnDevice.number()),
+            LogMessageFormat);
+    }
 
-
-    if (prerequisiteOk)
-        reportStarted();
-    else
-        reportFailure(Tr::tr("Could not get necessary ports for the debugger connection."));
+    reportStarted();
 }
 
 void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const FilePath &bundlePath,
@@ -715,43 +726,27 @@ void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const FilePath &bu
     if (m_toolHandler != handler)
         return;
 
-    m_pid = pid;
-    bool prerequisiteOk = false;
-    if (m_pid > 0) {
-        prerequisiteOk = true;
-    } else {
+    if (pid <= 0) {
         reportFailure(Tr::tr("Could not get inferior PID."));
         return;
     }
+    m_pid = pid;
 
-    if (qmlDebug())
-        prerequisiteOk = m_qmlServerPort.isValid();
-
-    if (prerequisiteOk)
-        reportStarted();
-    else
+    if (qmlDebug() && !qmlServerPort().isValid())
         reportFailure(Tr::tr("Could not get necessary ports for the debugger connection."));
+    else
+        reportStarted();
 }
 
 void IosRunner::handleAppOutput(IosToolHandler *handler, const QString &output)
 {
     Q_UNUSED(handler)
-    static const QRegularExpression qmlPortRe(QString::fromLatin1(QML_DEBUGGER_WAITING));
-    const QRegularExpressionMatch match = qmlPortRe.match(output);
-    QString res(output);
-    if (match.hasMatch() && m_qmlServerPort.isValid())
-       res.replace(match.captured(1), QString::number(m_qmlServerPort.number()));
     appendMessage(output, StdOutFormat);
 }
 
 void IosRunner::handleMessage(const QString &msg)
 {
-    QString res(msg);
-    static const QRegularExpression qmlPortRe(QString::fromLatin1(QML_DEBUGGER_WAITING));
-    const QRegularExpressionMatch match = qmlPortRe.match(msg);
-    if (match.hasMatch() && m_qmlServerPort.isValid())
-        res.replace(match.captured(1), QString::number(m_qmlServerPort.number()));
-    appendMessage(res, StdOutFormat);
+    appendMessage(msg, StdOutFormat);
 }
 
 void IosRunner::handleErrorMsg(IosToolHandler *handler, const QString &msg)
@@ -972,7 +967,7 @@ void IosDebugSupport::start()
     }
 
     const Port gdbServerPort = m_iosRunner->gdbServerPort();
-    const Port qmlServerPort = Port(runControl()->qmlChannel().port());
+    const Port qmlServerPort = m_iosRunner->qmlServerPort();
     rp.setAttachPid(m_iosRunner->pid());
 
     const bool cppDebug = rp.isCppDebugging();

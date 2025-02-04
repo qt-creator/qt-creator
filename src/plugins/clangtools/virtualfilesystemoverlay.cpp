@@ -50,9 +50,9 @@ void VirtualFileSystemOverlay::update()
     }
 
     for (const AutoSavedPath &path : std::as_const(m_saved)) {
-        QString error;
-        if (!path.path.removeRecursively(&error))
-            qCDebug(LOG) << error;
+        Utils::Result result = path.path.removeRecursively();
+        if (!result)
+            qCDebug(LOG) << result.error();
     }
     m_saved = newSaved;
     m_mapping.clear();

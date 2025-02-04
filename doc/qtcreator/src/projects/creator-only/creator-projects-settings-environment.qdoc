@@ -43,9 +43,9 @@
 
     To change the system environment for a project from the one in which
     \QC is started, select \uicontrol Projects > \uicontrol {Project Settings}
-    > \uicontrol Environment.
+    > \uicontrol {Project Environment}.
 
-    \image qtcreator-projects-environment.webp {Environment tab in Project Settings}
+    \image qtcreator-projects-environment.webp {Project Environment view in Project Settings}
 
     You can edit existing environment variables or add, reset, unset, or
     temporarily disable variables.

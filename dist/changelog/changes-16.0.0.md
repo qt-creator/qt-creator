@@ -169,6 +169,7 @@ Analyzer
 ### Axivion
 
 * Added support for images in the issue details
+* Moved Axivion preferences to `Preferences > Analyzer > Axivion`
 
 ### Coco
 

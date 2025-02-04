@@ -53,7 +53,8 @@ Q_GLOBAL_STATIC_WITH_ARGS(const QList<TerminalCommand>, knownTerminals, (
     {"urxvt", "", "-e"},
     {"xfce4-terminal", "", "-x"},
     {"konsole", "--separate --workdir .", "-e"},
-    {"gnome-terminal", "", "--"}
+    {"gnome-terminal", "", "--"},
+    {"terminator", "", "-e", true},
 }));
 
 TerminalCommand TerminalCommand::defaultTerminalEmulator()
@@ -108,6 +109,7 @@ const char kTerminalExecuteOptionsKey[] = "General/Terminal/ExecuteOptions";
 
 TerminalCommand TerminalCommand::terminalEmulator()
 {
+    TerminalCommand cmd;
     if (s_settings && HostOsInfo::isAnyUnixHost() && s_settings->contains(kTerminalCommandKey)) {
         FilePath command = FilePath::fromSettings(s_settings->value(kTerminalCommandKey));
 
@@ -116,12 +118,29 @@ TerminalCommand TerminalCommand::terminalEmulator()
         if (HostOsInfo::isMacHost() && command.endsWith("openTerminal.py"))
             command = FilePath::fromString("Terminal.app");
 
-        return {command,
-                s_settings->value(kTerminalOpenOptionsKey).toString(),
-                s_settings->value(kTerminalExecuteOptionsKey).toString()};
+        const TerminalCommand knownCommand = Utils::findOrDefault(
+            *knownTerminals(), [fileName = command.fileName()](const TerminalCommand &known) {
+                return known.command.fileName() == fileName;
+            });
+        cmd = {command,
+               s_settings->value(kTerminalOpenOptionsKey).toString(),
+               s_settings->value(kTerminalExecuteOptionsKey).toString(),
+               knownCommand.needsQuotes};
+    } else {
+        cmd = defaultTerminalEmulator();
     }
 
-    return defaultTerminalEmulator();
+    // Special handling for the "terminator" application, which may not work when invoked
+    // via a generic symlink. See QTCREATORBUG-32111.
+    if (cmd.command.fileName() == "x-terminal-emulator") {
+        const FilePath canonicalCommand = cmd.command.canonicalPath();
+        if (canonicalCommand.fileName() == "terminator") {
+            cmd.command = canonicalCommand;
+            cmd.needsQuotes = true;
+        }
+    }
+
+    return cmd;
 }
 
 void TerminalCommand::setTerminalEmulator(const TerminalCommand &term)

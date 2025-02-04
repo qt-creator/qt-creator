@@ -557,7 +557,7 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
                 case McuAbstractPackage::Status::InvalidPath: {
                     const QString message
                         = Tr::tr("Path %1 does not exist. Add the path in Edit > Preferences > "
-                                 "Devices > MCU.")
+                                 "SDKs > MCU.")
                               .arg(qtForMCUsPackage->path().toUserOutput());
                     autoGenerationMessages.push_back({qtForMCUsPackage->label(), "", message});
                     printMessage(message, true);
@@ -565,7 +565,7 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
                 }
                 case McuAbstractPackage::Status::EmptyPath: {
                     const QString message
-                        = Tr::tr("Missing %1. Add the path in Edit > Preferences > Devices > MCU.")
+                        = Tr::tr("Missing %1. Add the path in Edit > Preferences > SDKs > MCU.")
                               .arg(qtForMCUsPackage->detectionPathsToString());
                     autoGenerationMessages.push_back({qtForMCUsPackage->label(), "", message});
                     printMessage(message, true);
