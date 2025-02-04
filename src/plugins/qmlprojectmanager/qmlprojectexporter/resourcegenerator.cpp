@@ -3,14 +3,13 @@
 
 #include <resourcegenerator.h>
 
-#include <qmldesignertr.h>
+#include <qmlprojectmanagertr.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/messagemanager.h>
 
-#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
@@ -25,21 +24,26 @@
 
 using namespace Utils;
 
-namespace QmlDesigner {
-QStringList getProjectFileList()
-{
-    const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
-    const FilePaths paths = project->files(ProjectExplorer::Project::AllFiles);
+namespace QmlProjectManager::QmlProjectExporter {
 
-    QStringList selectedFileList;
+/*!
+    Returns a list of paths of the project resource files relative to the project root directory
+    \param project The project to get the resource files from
+*/
+QStringList getProjectResourceFilesPaths(const ProjectExplorer::Project *project)
+{
+    QTC_ASSERT(project, return {});
+
+    QStringList resourceFilesPaths;
     const Utils::FilePath dir(project->projectFilePath().parentDir());
-    for (const FilePath &path : paths) {
+
+    for (const FilePath &path : project->files(ProjectExplorer::Project::AllFiles)) {
         const Utils::FilePath relativePath = path.relativePathFrom(dir);
         if (QmlProjectManager::isResource(relativePath))
-            selectedFileList.append(relativePath.path());
+            resourceFilesPaths.append(relativePath.path());
     }
 
-    return selectedFileList;
+    return resourceFilesPaths;
 }
 
 ResourceGenerator::ResourceGenerator(QObject *parent)
@@ -48,9 +52,10 @@ ResourceGenerator::ResourceGenerator(QObject *parent)
     connect(&m_rccProcess, &Utils::Process::done, this, [this]() {
         const int exitCode = m_rccProcess.exitCode();
         if (exitCode != 0) {
-            Core::MessageManager::writeDisrupting(Tr::tr("\"%1\" failed (exit code %2).")
-                                                      .arg(m_rccProcess.commandLine().toUserOutput())
-                                                      .arg(m_rccProcess.exitCode()));
+            auto errorMessage = Tr::tr("\"%1\" failed (exit code %2).")
+                                    .arg(m_rccProcess.commandLine().toUserOutput())
+                                    .arg(m_rccProcess.exitCode());
+            Core::MessageManager::writeDisrupting(errorMessage);
             emit errorOccurred(Tr::tr("Failed to generate deployable package!"));
             return;
         }
@@ -78,18 +83,19 @@ void ResourceGenerator::generateMenuEntry(QObject *parent)
 {
     const Core::Context projectContext(QmlProjectManager::Constants::QML_PROJECT_ID);
     // ToDo: move this to QtCreator and add tr to the string then
-    auto action = new QAction(Tr::tr("Generate QRC Resource File..."), parent);
-    action->setEnabled(ProjectExplorer::ProjectManager::startupProject() != nullptr);
+    auto qrcAction = new QAction(Tr::tr("Generate QRC Resource File..."), parent);
+    qrcAction->setEnabled(ProjectExplorer::ProjectManager::startupProject() != nullptr);
     // todo make it more intelligent when it gets enabled
+    auto onStartupProjectChanged = [qrcAction]() {
+        if (auto buildSystem = QmlProjectManager::QmlBuildSystem::getStartupBuildSystem())
+            qrcAction->setEnabled(!buildSystem->qtForMCUs());
+    };
     QObject::connect(ProjectExplorer::ProjectManager::instance(),
                      &ProjectExplorer::ProjectManager::startupProjectChanged,
-                     [action]() {
-                         if (auto buildSystem = QmlProjectManager::QmlBuildSystem::getStartupBuildSystem())
-                             action->setEnabled(!buildSystem->qtForMCUs());
-                     });
+                     onStartupProjectChanged);
 
-    Core::Command *cmd = Core::ActionManager::registerAction(action, "QmlProject.CreateResource");
-    QObject::connect(action, &QAction::triggered, []() {
+    auto qrcCmd = Core::ActionManager::registerAction(qrcAction, "QmlProject.CreateResource");
+    QObject::connect(qrcAction, &QAction::triggered, []() {
         auto project = ProjectExplorer::ProjectManager::startupProject();
         QTC_ASSERT(project, return);
         const FilePath projectPath = project->projectFilePath().parentDir();
@@ -101,8 +107,13 @@ void ResourceGenerator::generateMenuEntry(QObject *parent)
         if (qrcFilePath.toString().isEmpty())
             return;
 
-        ResourceGenerator resourceGenerator;
-        resourceGenerator.createQrc(qrcFilePath);
+        bool success = ResourceGenerator::createQrc(project, qrcFilePath);
+        if (!success) {
+            Core::AsynchronousMessageBox::critical(
+                Tr::tr("Error"),
+                Tr::tr("Failed to generate QRC resource file\n %1").arg(qrcFilePath.toString()));
+            return;
+        }
 
         Core::AsynchronousMessageBox::information(
             Tr::tr("Success"),
@@ -118,8 +129,7 @@ void ResourceGenerator::generateMenuEntry(QObject *parent)
                          rccAction->setEnabled(ProjectExplorer::ProjectManager::startupProject());
                      });
 
-    Core::Command *cmd2 = Core::ActionManager::registerAction(rccAction,
-                                                              "QmlProject.CreateRCCResource");
+    auto rccCmd = Core::ActionManager::registerAction(rccAction, "QmlProject.CreateRCCResource");
     QObject::connect(rccAction, &QAction::triggered, []() {
         auto project = ProjectExplorer::ProjectManager::startupProject();
         QTC_ASSERT(project, return);
@@ -140,9 +150,9 @@ void ResourceGenerator::generateMenuEntry(QObject *parent)
         progress.setCancelButton(nullptr);
         progress.show();
 
-        QFuture<bool> future = QtConcurrent::run([qmlrcFilePath]() {
+        QFuture<bool> future = QtConcurrent::run([project, qmlrcFilePath]() {
             ResourceGenerator resourceGenerator;
-            return resourceGenerator.createQmlrcWithPath(qmlrcFilePath);
+            return resourceGenerator.createQmlrc(project, qmlrcFilePath);
         });
 
         while (!future.isFinished())
@@ -173,24 +183,40 @@ void ResourceGenerator::generateMenuEntry(QObject *parent)
 
     Core::ActionContainer *exportMenu = Core::ActionManager::actionContainer(
         QmlProjectManager::Constants::EXPORT_MENU);
-    exportMenu->addAction(cmd, QmlProjectManager::Constants::G_EXPORT_GENERATE);
-    exportMenu->addAction(cmd2, QmlProjectManager::Constants::G_EXPORT_GENERATE);
+    exportMenu->addAction(qrcCmd, QmlProjectManager::Constants::G_EXPORT_GENERATE);
+    exportMenu->addAction(rccCmd, QmlProjectManager::Constants::G_EXPORT_GENERATE);
 }
 
-std::optional<Utils::FilePath> ResourceGenerator::createQrc(const QString &projectName)
+/*!
+    Creates a QRC resource file for the specified \a project in the project root directory
+    Overwrites the existing file if it exists.
+    \param project The project to create the QRC resource file for
+    \return the path to the QRC resource file if it was created successfully, an empty optional
+            otherwise
+*/
+std::optional<Utils::FilePath> ResourceGenerator::createQrc(const ProjectExplorer::Project *project)
 {
-    const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+    QTC_ASSERT(project, return std::nullopt);
     const FilePath projectPath = project->projectFilePath().parentDir();
-    const FilePath qrcFilePath = projectPath.pathAppended(projectName + ".qrc");
+    const FilePath qrcFilePath = projectPath.pathAppended(project->displayName() + ".qrc");
 
-    if (!createQrc(qrcFilePath))
-        return {};
+    if (!ResourceGenerator::createQrc(project, qrcFilePath))
+        return std::nullopt;
 
     return qrcFilePath;
 }
 
-bool ResourceGenerator::createQrc(const Utils::FilePath &qrcFilePath)
+/*!
+    Creates a QRC resource file for the specified \a project in the specified \a qrcFilePath
+    \param project The project to create the QRC resource file for
+    \param qrcFilePath The path to the QRC resource file to create
+    \return true if the QRC resource file was created successfully, false otherwise
+*/
+bool ResourceGenerator::createQrc(const ProjectExplorer::Project *project,
+                                  const Utils::FilePath &qrcFilePath)
 {
+    QTC_ASSERT(project, return false);
+    const QStringList projectResources = getProjectResourceFilesPaths(project);
     QFile qrcFile(qrcFilePath.toString());
 
     if (!qrcFile.open(QIODeviceBase::WriteOnly | QIODevice::Truncate)) {
@@ -201,37 +227,49 @@ bool ResourceGenerator::createQrc(const Utils::FilePath &qrcFilePath)
 
     QXmlStreamWriter writer(&qrcFile);
     writer.setAutoFormatting(true);
-    writer.setAutoFormattingIndent(0);
 
     writer.writeStartElement("RCC");
     writer.writeStartElement("qresource");
 
-    for (const QString &fileName : getProjectFileList())
-        writer.writeTextElement("file", fileName.trimmed());
+    for (const QString &resourcePath : projectResources)
+        writer.writeTextElement("file", resourcePath.trimmed());
 
-    writer.writeEndElement();
-    writer.writeEndElement();
+    writer.writeEndElement(); // qresource
+    writer.writeEndElement(); // RCC
+
     qrcFile.close();
 
     return true;
 }
 
-void ResourceGenerator::createQmlrcAsyncWithName(const QString &projectName)
+/*!
+    Compiles the \a project resources into a QML compiled resources file (.qmlrc) saved in the
+    project root directory
+    \param project The project to compile the resources for
+*/
+void ResourceGenerator::createQmlrcAsync(const ProjectExplorer::Project *project)
 {
+    QTC_ASSERT(project, return);
     if (m_rccProcess.state() != QProcess::NotRunning) {
         Core::MessageManager::writeDisrupting(Tr::tr("Resource generator is already running."));
         return;
     }
 
-    const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     const FilePath projectPath = project->projectFilePath().parentDir();
-    const FilePath qmlrcFilePath = projectPath.pathAppended(projectName + ".qmlrc");
-
-    createQmlrcAsyncWithPath(qmlrcFilePath);
+    const FilePath qmlrcFilePath = projectPath.pathAppended(project->displayName() + ".qmlrc");
+    createQmlrcAsync(project, qmlrcFilePath);
 }
 
-void ResourceGenerator::createQmlrcAsyncWithPath(const FilePath &qmlrcFilePath)
+/*!
+    Compiles the \a project resources into a QML compiled resources file (.qmlrc) saved in
+    \a qmlrcFilePath
+    \param project The project to create the QML resource file for
+    \param qmlrcFilePath The path to the QML resource file to create
+*/
+void ResourceGenerator::createQmlrcAsync(const ProjectExplorer::Project *project,
+                                         const FilePath &qmlrcFilePath)
 {
+    QTC_ASSERT(project, return);
     if (m_rccProcess.state() != QProcess::NotRunning) {
         Core::MessageManager::writeDisrupting(Tr::tr("Resource generator is already running."));
         return;
@@ -239,26 +277,42 @@ void ResourceGenerator::createQmlrcAsyncWithPath(const FilePath &qmlrcFilePath)
 
     m_qmlrcFilePath = qmlrcFilePath;
     const FilePath tempQrcFile = m_qmlrcFilePath.parentDir().pathAppended("temp.qrc");
-    if (!createQrc(tempQrcFile))
+    if (!ResourceGenerator::createQrc(project, tempQrcFile))
         return;
 
     runRcc(qmlrcFilePath, tempQrcFile, true);
 }
 
-std::optional<Utils::FilePath> ResourceGenerator::createQmlrcWithName(const QString &projectName)
+/*!
+    Compiles the \a project resources into a QML compiled resources file (.qmlrc) saved in the
+    project root directory
+    \param project The project to compile the resources for
+    \return the path to the compiled QML resource file if it was created successfully, an empty
+            optional otherwise
+*/
+std::optional<Utils::FilePath> ResourceGenerator::createQmlrc(const ProjectExplorer::Project *project)
 {
-    const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+    QTC_ASSERT(project, return std::nullopt);
     const FilePath projectPath = project->projectFilePath().parentDir();
-    const FilePath qmlrcFilePath = projectPath.pathAppended(projectName + ".qmlrc");
+    const FilePath qmlrcFilePath = projectPath.pathAppended(project->displayName() + ".qmlrc");
 
-    if (!createQmlrcWithPath(qmlrcFilePath))
+    if (!createQmlrc(project, qmlrcFilePath))
         return {};
 
     return qmlrcFilePath;
 }
 
-bool ResourceGenerator::createQmlrcWithPath(const FilePath &qmlrcFilePath)
+/*!
+    Compiles the \a project resources into the specified \a qmlrcFilePath
+    \param project The project to compile the resources for
+    \param qmlrcFilePath The path to the compiled QML resource file to create
+    \return true if the resource file was created successfully, false otherwise
+*/
+bool ResourceGenerator::createQmlrc(const ProjectExplorer::Project *project,
+                                    const FilePath &qmlrcFilePath)
 {
+    QTC_ASSERT(project, return false);
+
     if (m_rccProcess.state() != QProcess::NotRunning) {
         Core::MessageManager::writeDisrupting(Tr::tr("Resource generator is already running."));
         return false;
@@ -266,7 +320,7 @@ bool ResourceGenerator::createQmlrcWithPath(const FilePath &qmlrcFilePath)
 
     m_qmlrcFilePath = qmlrcFilePath;
     const FilePath tempQrcFile = m_qmlrcFilePath.parentDir().pathAppended("temp.qrc");
-    if (!createQrc(tempQrcFile))
+    if (!ResourceGenerator::createQrc(project, tempQrcFile))
         return false;
 
     bool retVal = true;
@@ -280,11 +334,22 @@ bool ResourceGenerator::createQmlrcWithPath(const FilePath &qmlrcFilePath)
     return retVal;
 }
 
+/*!
+    Runs the Qt resource compiler (rcc) on the specified \a qmlrcFilePath and \a qrcFilePath
+    \param qmlrcFilePath The output compiled file path
+    \param qrcFilePath The path of the QRC resource file to compile
+    \param runAsync Whether to run the rcc process asynchronously. False by default
+    \return If runAsync is true, returns true if the rcc process was started successfully
+            and false otherwise. If runAsync is false, returns true if the rcc process was
+            started successfully and finished successfully, false otherwise.
+*/
 bool ResourceGenerator::runRcc(const FilePath &qmlrcFilePath,
                                const Utils::FilePath &qrcFilePath,
                                const bool runAsync)
 {
     const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+    QTC_ASSERT(project, return false);
+
     const QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(
         project->activeTarget()->kit());
     QTC_ASSERT(qtVersion, return false);
@@ -332,4 +397,4 @@ void ResourceGenerator::cancel()
 {
     m_rccProcess.kill();
 }
-} // namespace QmlDesigner
+} // namespace QmlProjectManager::QmlProjectExporter

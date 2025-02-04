@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <qmldesigner/components/componentcore/resourcegenerator.h>
+#include <qmlprojectmanager/qmlprojectexporter/resourcegenerator.h>
 
 #include "deviceinfo.h"
 
@@ -68,7 +68,7 @@ private:
     QString m_currentQtKitVersion;
     bool m_processInterrupted;
 
-    QmlDesigner::ResourceGenerator m_resourceGenerator;
+    QmlProjectManager::QmlProjectExporter::ResourceGenerator m_resourceGenerator;
 
     QPointer<DeviceManagerWidget> m_widget;
 

@@ -13,7 +13,6 @@
 #include "qmldesignerexternaldependencies.h"
 #include "qmldesignerprojectmanager.h"
 #include "quick2propertyeditorview.h"
-#include "resourcegenerator.h"
 #include "settingspage.h"
 #include "shortcutmanager.h"
 #include "toolbar.h"
@@ -44,6 +43,7 @@
 #include <qmljstools/qmljstoolsconstants.h>
 
 #include <qmlprojectmanager/qmlproject.h>
+#include <qmlprojectmanager/qmlprojectexporter/resourcegenerator.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -283,7 +283,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString * 
     d = new QmlDesignerPluginPrivate;
     d->timer.start();
     if (Core::ICore::isQtDesignStudio())
-        ResourceGenerator::generateMenuEntry(this);
+        QmlProjectManager::QmlProjectExporter::ResourceGenerator::generateMenuEntry(this);
 
     const QString fontPath
         = Core::ICore::resourcePath(

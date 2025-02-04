@@ -40,7 +40,7 @@ DeviceManager::DeviceManager(QObject *parent)
     initUdpDiscovery();
 
     connect(&m_resourceGenerator,
-            &QmlDesigner::ResourceGenerator::errorOccurred,
+            &QmlProjectManager::QmlProjectExporter::ResourceGenerator::errorOccurred,
             this,
             [this](const QString &error) {
                 qCDebug(deviceSharePluginLog) << "ResourceGenerator error:" << error;
@@ -48,7 +48,7 @@ DeviceManager::DeviceManager(QObject *parent)
             });
 
     connect(&m_resourceGenerator,
-            &QmlDesigner::ResourceGenerator::qmlrcCreated,
+            &QmlProjectManager::QmlProjectExporter::ResourceGenerator::qmlrcCreated,
             this,
             &DeviceManager::projectPacked);
 }
@@ -427,7 +427,7 @@ void DeviceManager::runProject(const QString &deviceId)
 
     m_currentState = OpTypes::Packing;
     m_currentDeviceId = deviceId;
-    m_resourceGenerator.createQmlrcAsyncWithName();
+    m_resourceGenerator.createQmlrcAsync(ProjectExplorer::ProjectManager::startupProject());
     emit projectPacking(deviceId);
     qCDebug(deviceSharePluginLog) << "Packing project for device" << deviceId;
 }

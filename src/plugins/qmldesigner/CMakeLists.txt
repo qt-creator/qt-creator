@@ -222,7 +222,6 @@ extend_qtc_plugin(QmlDesigner
     qmldesignercomponents_global.h
     qmldesignericonprovider.cpp qmldesignericonprovider.h
     qmleditormenu.cpp qmleditormenu.h
-    resourcegenerator.cpp resourcegenerator.h
     selectioncontext.cpp selectioncontext.h
     theme.cpp theme.h
     zoomaction.cpp zoomaction.h

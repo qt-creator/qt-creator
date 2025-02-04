@@ -43,6 +43,7 @@ extend_qtc_plugin(QmlProjectManager
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/qmlprojectexporter
   SOURCES
       pythongenerator.cpp pythongenerator.h
+      resourcegenerator.cpp resourcegenerator.h
       cmakegenerator.cpp cmakegenerator.h
       cmakewriter.cpp cmakewriter.h
       cmakewriterv0.cpp cmakewriterv0.h
