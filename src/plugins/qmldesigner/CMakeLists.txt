@@ -231,6 +231,7 @@ extend_qtc_plugin(QmlDesigner
     viewmanager.cpp viewmanager.h
     utils3d.cpp utils3d.h
     dialogutils.cpp dialogutils.h
+    modelnodeutils.cpp modelnodeutils.h
 )
 
 extend_qtc_plugin(QmlDesigner
