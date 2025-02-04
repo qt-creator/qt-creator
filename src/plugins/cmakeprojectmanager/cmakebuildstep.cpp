@@ -782,7 +782,8 @@ Environment CMakeBuildStep::baseEnvironment() const
         ProjectExplorer::IDevice::ConstPtr devicePtr = BuildDeviceKitAspect::device(kit());
         result = devicePtr ? devicePtr->systemEnvironment() : Environment::systemEnvironment();
     }
-    buildConfiguration()->addToEnvironment(result);
+    if (buildConfiguration())
+        buildConfiguration()->addToEnvironment(result);
     kit()->addToBuildEnvironment(result);
     result.modify(project()->additionalEnvironment());
     return result;
