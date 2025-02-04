@@ -5,6 +5,7 @@
 
 #include "async.h"
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QElapsedTimer>
 #include <QMutex>
@@ -15,21 +16,21 @@
 // thread and execute destructor of StringTable in main thread. In this case the test should
 // ensure that destructor of StringTable waits for its internal thread to finish.
 
-namespace Utils::StringTable {
+using namespace std::chrono;
 
-enum {
-    GCTimeOut = 10 * 1000 // 10 seconds
-};
+namespace Utils::StringTable {
 
 enum {
     DebugStringTable = 0
 };
 
-class StringTablePrivate : public QObject
+static std::atomic_bool s_isScheduled = false;
+
+class StringTablePrivate
 {
 public:
-    StringTablePrivate();
-    ~StringTablePrivate() override { cancelAndWait(); }
+    StringTablePrivate() { m_strings.reserve(1000); }
+    ~StringTablePrivate() { cancelAndWait(); }
 
     void cancelAndWait();
     QString insert(const QString &string);
@@ -39,23 +40,12 @@ public:
     QFuture<void> m_future;
     QMutex m_lock;
     QSet<QString> m_strings;
-    QTimer m_gcCountDown;
 };
 
 static StringTablePrivate &stringTable()
 {
     static StringTablePrivate theStringTable;
     return theStringTable;
-}
-
-StringTablePrivate::StringTablePrivate()
-{
-    m_strings.reserve(1000);
-
-    m_gcCountDown.setObjectName(QLatin1String("StringTable::m_gcCountDown"));
-    m_gcCountDown.setSingleShot(true);
-    m_gcCountDown.setInterval(GCTimeOut);
-    connect(&m_gcCountDown, &QTimer::timeout, this, &StringTablePrivate::startGC);
 }
 
 QTCREATOR_UTILS_EXPORT QString insert(const QString &string)
@@ -88,6 +78,7 @@ QString StringTablePrivate::insert(const QString &string)
 
 void StringTablePrivate::startGC()
 {
+    s_isScheduled.exchange(false);
     QMutexLocker locker(&m_lock);
     cancelAndWait();
     m_future = Utils::asyncRun(&StringTablePrivate::GC, this);
@@ -95,8 +86,8 @@ void StringTablePrivate::startGC()
 
 QTCREATOR_UTILS_EXPORT void scheduleGC()
 {
-    QMetaObject::invokeMethod(&stringTable().m_gcCountDown, QOverload<>::of(&QTimer::start),
-                              Qt::QueuedConnection);
+    if (!s_isScheduled.exchange(true))
+        QTimer::singleShot(10s, qApp, [] { stringTable().startGC(); });
 }
 
 static int bytesSaved = 0;
