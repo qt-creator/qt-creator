@@ -430,7 +430,10 @@ static QTextCharFormat tweakedBlueFormat()
     // foreground gets tweaked when passing doAppendMessage()
     QTextCharFormat tweakedBlue = blueFormat();
     QColor foreground = tweakedBlue.foreground().color();
-    foreground = StyleHelper::ensureReadableOn(tweakedBlue.background().color(), foreground);
+    const QColor background = tweakedBlue.hasProperty(QTextCharFormat::BackgroundBrush)
+                                  ? tweakedBlue.background().color()
+                                  : Utils::creatorColor(Theme::BackgroundColorNormal);
+    foreground = StyleHelper::ensureReadableOn(background, foreground);
     tweakedBlue.setForeground(foreground);
     return tweakedBlue;
 }
