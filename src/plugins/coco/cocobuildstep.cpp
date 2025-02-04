@@ -98,7 +98,7 @@ QWidget *CocoBuildStep::createConfigWidget()
 void CocoBuildStep::updateDisplay()
 {
     if (!cocoSettings().isValid()) {
-        setSummaryText("<i>" + Tr::tr("Coco Code Coverage: No working Coco installation") + "</i>");
+        setSummaryText("<i>" + Tr::tr("Coco Code Coverage: No working Coco installation.") + "</i>");
         emit setButtonState(false);
         return;
     }
@@ -106,10 +106,10 @@ void CocoBuildStep::updateDisplay()
     m_valid = m_buildSettings->validSettings();
 
     if (m_valid) {
-        setSummaryText("<b>" + Tr::tr("Coco Code Coverage: Enabled") + "</b>");
+        setSummaryText("<b>" + Tr::tr("Coco Code Coverage: Enabled.") + "</b>");
         emit setButtonState(true, Tr::tr("Disable Coverage"));
     } else {
-        setSummaryText(Tr::tr("Coco Code Coverage: Disabled"));
+        setSummaryText(Tr::tr("Coco Code Coverage: Disabled."));
         // m_reconfigureButton->setText(Tr::tr("Enable Coverage"));
         emit setButtonState(true, Tr::tr("Enable Coverage"));
     }

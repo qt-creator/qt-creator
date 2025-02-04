@@ -44,7 +44,7 @@ CocoProjectWidget::CocoProjectWidget(Project *project, BuildConfiguration *build
     m_coverageGroupbox
         = {groupChecker(m_coverageGroupBoxEnabled.groupChecker()),
            Column{
-               Row{Tr::tr("CoverageScanner Options"), st, docLink},
+               Row{Tr::tr("CoverageScanner options:"), st, docLink},
                m_optionEdit,
                Row{PushButton{
                        text(Tr::tr("Exclude File...")),
@@ -109,7 +109,7 @@ void CocoProjectWidget::reloadSettings()
     m_configerrorLabel.setVisible(!valid);
     if (!valid) {
         m_configerrorLabel.setText(
-            Tr::tr("Coco is not installed correctly: \"%1\"").arg(cocoSettings().errorMessage()));
+            Tr::tr("Coco is not installed correctly: %1").arg(cocoSettings().errorMessage()));
     }
 }
 
@@ -125,7 +125,7 @@ void CocoProjectWidget::buildSystemUpdated(ProjectExplorer::BuildSystem *bs)
 
     if (m_buildConfigurationName != newBuildConfigurationName) {
         m_buildConfigurationName = newBuildConfigurationName;
-        logSilently(Tr::tr("Build Configuration changed to %1.").arg(newBuildConfigurationName));
+        logSilently(Tr::tr("Build Configuration changed to \"%1\".").arg(newBuildConfigurationName));
         reloadSettings();
     } else if (m_configState == configRunning)
         setState(configDone);
@@ -142,7 +142,7 @@ void CocoProjectWidget::configurationErrorOccurred(const QString &error)
         // The variable error seems to contain no usable information.
         setMessageLabel(
             Utils::InfoLabel::Error,
-            Tr::tr("Error when configuring with <i>%1</i>. "
+            Tr::tr("Error when configuring with \"%1\". "
                    "Check General Messages for more information.")
                 .arg(m_buildSettings->featureFilenName()));
         setState(configDone);
@@ -255,7 +255,7 @@ void Internal::CocoProjectWidget::onCoverageGroupBoxClicked()
 void CocoProjectWidget::onSaveButtonClicked()
 {
     if (m_configState == configRunning) {
-        logSilently(Tr::tr("Stop re-configuring"));
+        logSilently(Tr::tr("Stop re-configuring."));
         m_buildSettings->stopReconfigure();
         setState(configEdited);
         return;
@@ -265,11 +265,11 @@ void CocoProjectWidget::onSaveButtonClicked()
     QString tweaks = m_tweaksEdit();
     clearMessageLabel();
 
-    logSilently(Tr::tr("Write file \"%1\"").arg(m_buildSettings->featureFilePath()));
+    logSilently(Tr::tr("Write file \"%1\".").arg(m_buildSettings->featureFilePath()));
     m_buildSettings->write(options, tweaks);
 
     if (m_buildSettings->needsReconfigure()) {
-        logSilently(Tr::tr("Re-configure"));
+        logSilently(Tr::tr("Re-configure."));
         setState(configRunning);
         m_buildSettings->reconfigure();
     } else
@@ -279,7 +279,7 @@ void CocoProjectWidget::onSaveButtonClicked()
 void CocoProjectWidget::onRevertButtonClicked()
 {
     clearMessageLabel();
-    logSilently(Tr::tr("Reload file \"%1\"").arg(m_buildSettings->featureFilePath()));
+    logSilently(Tr::tr("Reload file \"%1\".").arg(m_buildSettings->featureFilePath()));
     reloadSettings();
 }
 

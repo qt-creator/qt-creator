@@ -176,9 +176,9 @@ void CocoCMakeSettings::writeToolchainFile(const QString &internalPath)
         if (internalContent == currentContent)
             return;
 
-        logSilently(Tr::tr("Overwrite file %1").arg(maybeQuote(toolchainNative)));
+        logSilently(Tr::tr("Overwrite file \"%1\".").arg(toolchainNative));
     } else
-        logSilently(Tr::tr("Write file %1").arg(maybeQuote(toolchainNative)));
+        logSilently(Tr::tr("Write file \"%1\".").arg(toolchainNative));
 
     QFile out{toolchainNative};
     QTC_CHECK(out.open(QIODeviceBase::WriteOnly));
