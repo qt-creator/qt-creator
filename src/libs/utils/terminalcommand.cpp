@@ -53,7 +53,8 @@ Q_GLOBAL_STATIC_WITH_ARGS(const QList<TerminalCommand>, knownTerminals, (
     {"urxvt", "", "-e"},
     {"xfce4-terminal", "", "-x"},
     {"konsole", "--separate --workdir .", "-e"},
-    {"gnome-terminal", "", "--"}
+    {"gnome-terminal", "", "--"},
+    {"terminator", "", "-e", true},
 }));
 
 TerminalCommand TerminalCommand::defaultTerminalEmulator()
