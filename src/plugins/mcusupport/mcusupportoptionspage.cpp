@@ -320,7 +320,7 @@ void McuSupportOptionsWidget::apply()
 
     QMessageBox warningPopup(QMessageBox::Icon::Warning,
                              Tr::tr("Warning"),
-                             Tr::tr("Cannot apply changes in Devices > MCU."),
+                             Tr::tr("Cannot apply changes in SDKs > MCU."),
                              QMessageBox::Ok,
                              this);
 
