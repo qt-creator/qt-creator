@@ -114,13 +114,13 @@ public:
     {
         WatchedSourceIdsIds(std::size_t reserve)
         {
-            directorySourceIds.reserve(reserve);
+            directoryIds.reserve(reserve);
             qmldirSourceIds.reserve(reserve);
             qmlSourceIds.reserve(reserve * 30);
             qmltypesSourceIds.reserve(reserve * 30);
         }
 
-        SourceIds directorySourceIds;
+        SourceIds directoryIds;
         SourceIds qmldirSourceIds;
         SourceIds qmlSourceIds;
         SourceIds qmltypesSourceIds;
@@ -150,17 +150,16 @@ private:
                          NotUpdatedSourceIds &notUpdatedSourceIds,
                          WatchedSourceIdsIds &watchedSourceIdsIds);
     void updateSubdirectories(const Utils::PathString &directory,
-                              SourceId directorySourceId,
+                              SourceContextId directoryId,
                               FileState directoryFileState,
                               const SourceContextIds &subdirecoriesToIgnore,
                               Storage::Synchronization::SynchronizationPackage &package,
                               NotUpdatedSourceIds &notUpdatedSourceIds,
                               WatchedSourceIdsIds &watchedSourceIdsIds);
-    void updateDirectoryChanged(std::string_view directoryPath,
+    void updateDirectoryChanged(Utils::SmallStringView directoryPath,
                                 FileState qmldirState,
                                 SourcePath qmldirSourcePath,
                                 SourceId qmldirSourceId,
-                                SourceId directorySourceId,
                                 SourceContextId directoryId,
                                 Storage::Synchronization::SynchronizationPackage &package,
                                 NotUpdatedSourceIds &notUpdatedSourceIds,
@@ -173,31 +172,32 @@ private:
     void updateTypeAnnotations(const QString &directoryPath,
                                Storage::Synchronization::SynchronizationPackage &package,
                                NotUpdatedSourceIds &notUpdatedSourceIds,
-                               std::map<SourceId, SmallSourceIds<16>> &updatedSourceIdsDictonary);
-    void updateTypeAnnotationDirectories(Storage::Synchronization::SynchronizationPackage &package,
-                                         NotUpdatedSourceIds &notUpdatedSourceIds,
-                                         std::map<SourceId, SmallSourceIds<16>> &updatedSourceIdsDictonary);
+                               std::map<SourceContextId, SmallSourceIds<16>> &updatedSourceIdsDictonary);
+    void updateTypeAnnotationDirectories(
+        Storage::Synchronization::SynchronizationPackage &package,
+        NotUpdatedSourceIds &notUpdatedSourceIds,
+        std::map<SourceContextId, SmallSourceIds<16>> &updatedSourceIdsDictonary);
     void updateTypeAnnotations(const QStringList &directoryPath,
                                Storage::Synchronization::SynchronizationPackage &package,
                                NotUpdatedSourceIds &notUpdatedSourceIds);
     void updateTypeAnnotation(const QString &directoryPath,
                               const QString &filePath,
                               SourceId sourceId,
-                              SourceId directorySourceId,
+                              SourceContextId directoryId,
                               Storage::Synchronization::SynchronizationPackage &package);
     void updatePropertyEditorPath(const QString &path,
                                   Storage::Synchronization::SynchronizationPackage &package,
-                                  SourceId directorySourceId,
+                                  SourceContextId directoryId,
                                   long long pathOffset);
     void updatePropertyEditorFilePath(const QString &filePath,
                                       Storage::Synchronization::SynchronizationPackage &package,
-                                      SourceId directorySourceId,
+                                      SourceContextId directoryId,
                                       long long pathOffset);
     void parseTypeInfos(const QStringList &typeInfos,
                         const QList<QmlDirParser::Import> &qmldirDependencies,
                         const QList<QmlDirParser::Import> &qmldirImports,
-                        SourceId directorySourceId,
-                        Utils::SmallStringView directoryPath,
+                        SourceContextId directoryId,
+                        const QString &directoryPath,
                         ModuleId moduleId,
                         Storage::Synchronization::SynchronizationPackage &package,
                         NotUpdatedSourceIds &notUpdatedSourceIds,
@@ -207,11 +207,10 @@ private:
                              NotUpdatedSourceIds &notUpdatedSourceIds,
                              WatchedSourceIdsIds &watchedSourceIdsIds);
     FileState parseTypeInfo(const Storage::Synchronization::DirectoryInfo &directoryInfo,
-                            Utils::SmallStringView qmltypesPath,
+                            const QString &qmltypesPath,
                             Storage::Synchronization::SynchronizationPackage &package,
                             NotUpdatedSourceIds &notUpdatedSourceIds);
     void parseQmlComponents(Components components,
-                            SourceId directorySourceId,
                             SourceContextId directoryId,
                             Storage::Synchronization::SynchronizationPackage &package,
                             NotUpdatedSourceIds &notUpdatedSourceIds,
@@ -221,7 +220,7 @@ private:
     void parseQmlComponent(Utils::SmallStringView fileName,
                            Utils::SmallStringView directory,
                            Storage::Synchronization::ExportedTypes exportedTypes,
-                           SourceId directorySourceId,
+                           SourceContextId directoryId,
                            Storage::Synchronization::SynchronizationPackage &package,
                            NotUpdatedSourceIds &notUpdatedSourceIds,
                            WatchedSourceIdsIds &watchedSourceIdsIds,
@@ -232,6 +231,9 @@ private:
                            NotUpdatedSourceIds &notUpdatedSourceIds);
 
     FileState fileState(SourceId sourceId,
+                        Storage::Synchronization::SynchronizationPackage &package,
+                        NotUpdatedSourceIds &notUpdatedSourceIds) const;
+    FileState fileState(SourceContextId sourceContextId,
                         Storage::Synchronization::SynchronizationPackage &package,
                         NotUpdatedSourceIds &notUpdatedSourceIds) const;
 

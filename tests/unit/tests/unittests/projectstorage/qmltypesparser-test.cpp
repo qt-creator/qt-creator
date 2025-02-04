@@ -189,10 +189,10 @@ protected:
     Synchronization::Types types;
     SourceId qmltypesFileSourceId{sourcePathCache.sourceId("path/to/types.qmltypes")};
     ModuleId qtQmlNativeModuleId = storage.moduleId("QtQml", ModuleKind::CppLibrary);
-    Synchronization::DirectoryInfo directoryInfo{qmltypesFileSourceId,
-                                             qmltypesFileSourceId,
-                                             qtQmlNativeModuleId,
-                                             Synchronization::FileType::QmlTypes};
+    Synchronization::DirectoryInfo directoryInfo{qmltypesFileSourceId.contextId(),
+                                                 qmltypesFileSourceId,
+                                                 qtQmlNativeModuleId,
+                                                 Synchronization::FileType::QmlTypes};
     SourceContextId qmltypesFileSourceContextId{qmltypesFileSourceId.contextId()};
 };
 
@@ -886,10 +886,10 @@ TEST_F(QmlTypesParser, default_property)
 TEST_F(QmlTypesParser, skip_template_item)
 {
     ModuleId moduleId = storage.moduleId("QtQuick.Templates", ModuleKind::CppLibrary);
-    Synchronization::DirectoryInfo directoryInfo{qmltypesFileSourceId,
-                                             qmltypesFileSourceId,
-                                             moduleId,
-                                             Synchronization::FileType::QmlTypes};
+    Synchronization::DirectoryInfo directoryInfo{qmltypesFileSourceId.contextId(),
+                                                 qmltypesFileSourceId,
+                                                 moduleId,
+                                                 Synchronization::FileType::QmlTypes};
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
                         Component { name: "QQuickItem"}

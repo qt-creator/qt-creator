@@ -1149,7 +1149,10 @@ using Types = std::vector<Type>;
 class PropertyEditorQmlPath
 {
 public:
-    PropertyEditorQmlPath(ModuleId moduleId, TypeNameString typeName, SourceId pathId, SourceId directoryId)
+    PropertyEditorQmlPath(ModuleId moduleId,
+                          TypeNameString typeName,
+                          SourceId pathId,
+                          SourceContextId directoryId)
         : typeName{typeName}
         , pathId{pathId}
         , directoryId{directoryId}
@@ -1174,7 +1177,7 @@ public:
     TypeNameString typeName;
     TypeId typeId;
     SourceId pathId;
-    SourceId directoryId;
+    SourceContextId directoryId;
     ModuleId moduleId;
 };
 
@@ -1183,8 +1186,8 @@ using PropertyEditorQmlPaths = std::vector<class PropertyEditorQmlPath>;
 class DirectoryInfo
 {
 public:
-    DirectoryInfo(SourceId directorySourceId, SourceId sourceId, ModuleId moduleId, FileType fileType)
-        : directorySourceId{directorySourceId}
+    DirectoryInfo(SourceContextId directoryId, SourceId sourceId, ModuleId moduleId, FileType fileType)
+        : directoryId{directoryId}
         , sourceId{sourceId}
         , moduleId{moduleId}
         , fileType{fileType}
@@ -1192,7 +1195,7 @@ public:
 
     friend bool operator==(const DirectoryInfo &first, const DirectoryInfo &second)
     {
-        return first.directorySourceId == second.directorySourceId && first.sourceId == second.sourceId
+        return first.directoryId == second.directoryId && first.sourceId == second.sourceId
                && first.moduleId.internalId() == second.moduleId.internalId()
                && first.fileType == second.fileType;
     }
@@ -1202,7 +1205,7 @@ public:
     {
         using NanotraceHR::dictonary;
         using NanotraceHR::keyValue;
-        auto dict = dictonary(keyValue("project source id", directoryInfo.directorySourceId),
+        auto dict = dictonary(keyValue("directory id", directoryInfo.directoryId),
                               keyValue("source id", directoryInfo.sourceId),
                               keyValue("module id", directoryInfo.moduleId),
                               keyValue("file type", directoryInfo.fileType));
@@ -1211,7 +1214,7 @@ public:
     }
 
 public:
-    SourceId directorySourceId;
+    SourceContextId directoryId;
     SourceId sourceId;
     ModuleId moduleId;
     FileType fileType;
@@ -1222,13 +1225,13 @@ using DirectoryInfos = std::vector<DirectoryInfo>;
 class TypeAnnotation
 {
 public:
-    TypeAnnotation(SourceId sourceId, SourceId directorySourceId)
+    TypeAnnotation(SourceId sourceId, SourceContextId directoryId)
         : sourceId{sourceId}
-        , directorySourceId{directorySourceId}
+        , directoryId{directoryId}
     {}
 
     TypeAnnotation(SourceId sourceId,
-                   SourceId directorySourceId,
+                   SourceContextId directoryId,
                    Utils::SmallStringView typeName,
                    ModuleId moduleId,
                    Utils::SmallStringView iconPath,
@@ -1242,7 +1245,7 @@ public:
         , sourceId{sourceId}
         , moduleId{moduleId}
         , traits{traits}
-        , directorySourceId{directorySourceId}
+        , directoryId{directoryId}
     {}
 
     template<typename String>
@@ -1271,7 +1274,7 @@ public:
     SourceId sourceId;
     ModuleId moduleId;
     TypeTraits traits;
-    SourceId directorySourceId;
+    SourceContextId directoryId;
 };
 
 using TypeAnnotations = std::vector<TypeAnnotation>;
@@ -1311,9 +1314,10 @@ public:
         , fileStatuses(std::move(fileStatuses))
     {}
 
-    SynchronizationPackage(SourceIds updatedDirectoryInfoSourceIds, DirectoryInfos directoryInfos)
+    SynchronizationPackage(SourceContextIds updatedDirectoryInfoDirectoryIds,
+                           DirectoryInfos directoryInfos)
         : directoryInfos(std::move(directoryInfos))
-        , updatedDirectoryInfoSourceIds(std::move(updatedDirectoryInfoSourceIds))
+        , updatedDirectoryInfoDirectoryIds(std::move(updatedDirectoryInfoDirectoryIds))
     {}
 
 public:
@@ -1323,13 +1327,13 @@ public:
     SourceIds updatedFileStatusSourceIds;
     FileStatuses fileStatuses;
     DirectoryInfos directoryInfos;
-    SourceIds updatedDirectoryInfoSourceIds;
+    SourceContextIds updatedDirectoryInfoDirectoryIds;
     Imports moduleDependencies;
     SourceIds updatedModuleDependencySourceIds;
     ModuleExportedImports moduleExportedImports;
     ModuleIds updatedModuleIds;
     PropertyEditorQmlPaths propertyEditorQmlPaths;
-    SourceIds updatedPropertyEditorQmlPathSourceIds;
+    SourceContextIds updatedPropertyEditorQmlPathSourceContextIds;
     TypeAnnotations typeAnnotations;
     SourceIds updatedTypeAnnotationSourceIds;
 };

@@ -28,10 +28,10 @@ constexpr auto extraFileElementName = "ExtraFile"_L1;
 } // namespace
 
 Synchronization::TypeAnnotations TypeAnnotationReader::parseTypeAnnotation(
-    const QString &content, const QString &directoryPath, SourceId sourceId, SourceId directorySourceId)
+    const QString &content, const QString &directoryPath, SourceId sourceId, SourceContextId directoryId)
 {
     m_sourceId = sourceId;
-    m_directorySourceId = directorySourceId;
+    m_directoryId = directoryId;
     m_directoryPath = directoryPath;
     m_parserState = ParsingDocument;
     if (!SimpleAbstractStreamReader::readFromSource(content)) {
@@ -178,7 +178,7 @@ TypeAnnotationReader::ParserSate TypeAnnotationReader::readDocument(const QStrin
 TypeAnnotationReader::ParserSate TypeAnnotationReader::readMetaInfoRootElement(const QString &name)
 {
     if (name == typeElementName) {
-        auto &annotation = m_typeAnnotations.emplace_back(m_sourceId, m_directorySourceId);
+        auto &annotation = m_typeAnnotations.emplace_back(m_sourceId, m_directoryId);
         annotation.traits.canBeContainer = FlagIs::True;
         annotation.traits.canBeDroppedInFormEditor = FlagIs::True;
         annotation.traits.canBeDroppedInNavigator = FlagIs::True;
