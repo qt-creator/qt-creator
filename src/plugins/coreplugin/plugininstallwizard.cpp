@@ -48,7 +48,6 @@ struct Data
 {
     FilePath sourcePath;
     FilePath extractedPath;
-    bool installIntoApplication = false;
     std::unique_ptr<PluginSpec> pluginSpec = nullptr;
     bool loadImmediately = false;
     bool prepareForUpdate = false;
@@ -332,52 +331,6 @@ public:
     bool m_isComplete = false;
 };
 
-class InstallLocationPage : public WizardPage
-{
-public:
-    InstallLocationPage(Data *data, QWidget *parent)
-        : WizardPage(parent)
-        , m_data(data)
-    {
-        setTitle(Tr::tr("Install Location"));
-
-        auto label = new QLabel("<p>" + Tr::tr("Choose install location.") + "</p>");
-        label->setWordWrap(true);
-
-        auto localInstall = new QRadioButton(Tr::tr("User plugins"));
-        localInstall->setChecked(!m_data->installIntoApplication);
-        auto localLabel = new QLabel(Tr::tr("The plugin will be available to all compatible %1 "
-                                            "installations, but only for the current user.")
-                                         .arg(QGuiApplication::applicationDisplayName()));
-        localLabel->setWordWrap(true);
-        localLabel->setAttribute(Qt::WA_MacSmallSize, true);
-
-        auto appInstall = new QRadioButton(
-            Tr::tr("%1 installation").arg(QGuiApplication::applicationDisplayName()));
-        appInstall->setChecked(m_data->installIntoApplication);
-        auto appLabel = new QLabel(Tr::tr("The plugin will be available only to this %1 "
-                                          "installation, but for all users that can access it.")
-                                       .arg(QGuiApplication::applicationDisplayName()));
-        appLabel->setWordWrap(true);
-        appLabel->setAttribute(Qt::WA_MacSmallSize, true);
-
-        using namespace Layouting;
-        Column {
-            label, Space(10), localInstall, localLabel, Space(10), appInstall, appLabel,
-        }.attachTo(this);
-
-        auto group = new QButtonGroup(this);
-        group->addButton(localInstall);
-        group->addButton(appInstall);
-
-        connect(appInstall, &QRadioButton::toggled, this, [this](bool toggled) {
-            m_data->installIntoApplication = toggled;
-        });
-    }
-
-    Data *m_data = nullptr;
-};
-
 class SummaryPage : public WizardPage
 {
 public:
@@ -410,8 +363,7 @@ public:
     void initializePage() final
     {
         QTC_ASSERT(m_data && m_data->pluginSpec, return);
-        const FilePath installLocation = m_data->pluginSpec->installLocation(
-            !m_data->installIntoApplication);
+        const FilePath installLocation = m_data->pluginSpec->installLocation(true);
         installLocation.ensureWritableDir();
 
         m_summaryLabel->setText(
@@ -554,16 +506,12 @@ InstallResult executePluginInstallWizard(const FilePath &archive, bool prepareFo
     auto acceptTAndCPage = new AcceptTermsAndConditionsPage(&data, &wizard);
     wizard.addPage(acceptTAndCPage);
 
-    auto installLocationPage = new InstallLocationPage(&data, &wizard);
-    wizard.addPage(installLocationPage);
-
     auto summaryPage = new SummaryPage(&data, &wizard);
     wizard.addPage(summaryPage);
 
     auto install = [&wizard, &data, prepareForUpdate]() {
         if (wizard.exec()) {
-            const FilePath installPath = data.pluginSpec->installLocation(
-                                             !data.installIntoApplication)
+            const FilePath installPath = data.pluginSpec->installLocation(true)
                                          / extensionId(data.pluginSpec.get());
 
             if (prepareForUpdate) {
