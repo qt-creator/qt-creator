@@ -91,7 +91,7 @@
                 \li \l{Specify dependencies}{Dependencies}
                 \li \l{Document code}{Documentation Comments}
                 \li \l{Specify editor settings}{Editor}
-                \li \l{Specify the environment for projects}{Environment}
+                \li \l{Specify the environment for projects}{Project Environment}
                 \li \l{Link projects with GitLab}{GitLab}
                 \li \l{Configure language servers for projects}{Language Server}
                 \li \l{Specify settings for quick fixes}{Quick Fixes}
