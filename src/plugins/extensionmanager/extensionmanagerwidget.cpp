@@ -679,8 +679,8 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QStrin
         if (result == DoneWith::Success) {
             storage->packageData = query.reply()->readAll();
 
-            QString contentDispo = QString::fromUtf8(
-                query.reply()->headers().value(QHttpHeaders::WellKnownHeader::ContentDisposition));
+            QString contentDispo
+                = query.reply()->header(QNetworkRequest::ContentDispositionHeader).toString();
 
             if (contentDispo.isEmpty())
                 return;
