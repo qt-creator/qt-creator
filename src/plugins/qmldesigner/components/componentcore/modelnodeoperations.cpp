@@ -14,12 +14,13 @@
 
 #include <bindingproperty.h>
 #include <choosefrompropertylistdialog.h>
-#include <designmodewidget.h>
 #include <designermcumanager.h>
+#include <designmodewidget.h>
 #include <documentmanager.h>
 #include <itemlibraryentry.h>
 #include <materialutils.h>
 #include <modelnode.h>
+#include <modelnodeutils.h>
 #include <nodehints.h>
 #include <nodeinstanceview.h>
 #include <nodelistproperty.h>
@@ -374,25 +375,12 @@ void reverse(const SelectionContext &selectionState)
 
 inline static void backupPropertyAndRemove(const ModelNode &node, const PropertyName &propertyName)
 {
-    if (node.hasVariantProperty(propertyName)) {
-        node.setAuxiliaryData(AuxiliaryDataType::Document,
-                              auxPropertyString(propertyName),
-                              node.variantProperty(propertyName).value());
-        node.removeProperty(propertyName);
-
-    }
-    if (node.hasBindingProperty(propertyName)) {
-        node.setAuxiliaryData(AuxiliaryDataType::Document,
-                              auxPropertyString(propertyName),
-                              QmlItemNode(node).instanceValue(propertyName));
-        node.removeProperty(propertyName);
-    }
+    ModelNodeUtils::backupPropertyAndRemove(node, propertyName, auxPropertyString(propertyName));
 }
 
 static void restoreProperty(const ModelNode &node, const PropertyName &propertyName)
 {
-    if (auto data = node.auxiliaryData(AuxiliaryDataType::Document, auxPropertyString(propertyName)))
-        node.variantProperty(propertyName).setValue(*data);
+    ModelNodeUtils::restoreProperty(node, propertyName, auxPropertyString(propertyName));
 }
 
 void anchorsFill(const SelectionContext &selectionState)
