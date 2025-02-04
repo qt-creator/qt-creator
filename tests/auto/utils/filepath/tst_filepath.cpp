@@ -129,6 +129,9 @@ private slots:
     void isRelativePath();
     void isRelativePath_data();
 
+    void pathComponents();
+    void pathComponents_data();
+
 private:
     QTemporaryDir tempDir;
     QString rootPath;
@@ -1881,6 +1884,56 @@ void tst_filepath::dontBreakPathOnWierdWindowsPaths()
     // Make sure unix paths with device also work
     FilePath path4 = FilePath::fromString("device://host/./foo/bar");
     QCOMPARE(path4.toUrlishString(), "device://host/./foo/bar");
+}
+
+void tst_filepath::pathComponents_data()
+{
+    QTest::addColumn<QString>("path");
+    QTest::addColumn<QStringList>("expected");
+
+    QTest::newRow("empty") << "" << QStringList{};
+    QTest::newRow("root") << "/" << QStringList{"/"};
+    QTest::newRow("relative") << "foo" << QStringList{"foo"};
+    QTest::newRow("relative-path") << "foo/bar" << QStringList{"foo", "bar"};
+    QTest::newRow("absolute") << "/foo" << QStringList{"/", "foo"};
+    QTest::newRow("absolute-path") << "/foo/bar" << QStringList{"/", "foo", "bar"};
+    QTest::newRow("remote") << "device://host/foo" << QStringList{"/", "foo"};
+    QTest::newRow("remote-path") << "device://host/foo/bar" << QStringList{"/", "foo", "bar"};
+    QTest::newRow("remote-relative") << "device://host/./foo" << QStringList{"foo"};
+    QTest::newRow("windows-current-dir") << "c:" << QStringList{"c:"};
+
+    QTest::newRow("single-letter") << "c" << QStringList{"c"};
+    QTest::newRow("single-letter-path") << "c/b" << QStringList{"c", "b"};
+    QTest::newRow("single-letter-path-with-root") << "/c/b" << QStringList{"/", "c", "b"};
+
+    if (HostOsInfo::isWindowsHost()) {
+        QTest::newRow("cwd-windows-path") << "c:foo" << QStringList{"c:", "foo"};
+        QTest::newRow("windows-path") << "c:/" << QStringList{"c:", "/"};
+        QTest::newRow("windows-path-2") << "c:/test" << QStringList{"c:", "/", "test"};
+        QTest::newRow("single-letter-path-with-windows-root")
+            << "c:/a/b/c" << QStringList{"c:", "/", "a", "b", "c"};
+        QTest::newRow("windows-path-with-dir") << "c:/foo" << QStringList{"c:", "/", "foo"};
+    } else {
+        QTest::newRow("cwd-windows-path") << "c:foo" << QStringList{"c:foo"};
+        QTest::newRow("windows-path") << "c:/" << QStringList{"c:"};
+        QTest::newRow("windows-path-2") << "c:/test" << QStringList{"c:", "test"};
+        QTest::newRow("single-letter-path-with-windows-root")
+            << "c:/a/b/c" << QStringList{"c:", "a", "b", "c"};
+        QTest::newRow("windows-path-with-dir") << "c:/foo" << QStringList{"c:", "foo"};
+    }
+}
+
+void tst_filepath::pathComponents()
+{
+    QFETCH(QString, path);
+    QFETCH(QStringList, expected);
+
+    const auto components
+        = Utils::transform<QStringList>(FilePath::fromString(path).pathComponents(), [](auto view) {
+              return QString(view);
+          });
+
+    QCOMPARE(components, expected);
 }
 
 } // Utils

@@ -138,6 +138,8 @@ public:
     QStringView suffixView() const;
     QString completeSuffix() const;
 
+    [[nodiscard]] QList<QStringView> pathComponents() const;
+
     [[nodiscard]] FilePath pathAppended(const QString &str) const;
     [[nodiscard]] FilePath stringAppended(const QString &str) const;
     [[nodiscard]] std::optional<FilePath> tailRemoved(const QString &str) const;

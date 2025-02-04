@@ -531,6 +531,37 @@ QString FilePath::completeSuffix() const
     return {};
 }
 
+QList<QStringView> FilePath::pathComponents() const
+{
+    QList<QStringView> result;
+    QStringView path = pathView();
+    int start = 0;
+
+    if (osType() == OsTypeWindows && startsWithDriveLetter()) {
+        start = 2;
+        result.append(path.mid(0, 2));
+        if (path.size() == 2)
+            return result;
+        else if (path.at(2) == '/') {
+            result.append(path.mid(2, 1));
+            start = 3;
+        }
+    }
+
+    while (start < path.size()) {
+        int end = path.indexOf('/', start);
+        if (end == -1)
+            end = path.size();
+        // Consider "/" as a path component
+        if (end == 0)
+            result.append(path.mid(start, 1));
+        else
+            result.append(path.mid(start, end - start));
+        start = end + 1;
+    }
+    return result;
+}
+
 QStringView FilePath::scheme() const
 {
     return QStringView{m_data}.mid(m_pathLen, m_schemeLen);
