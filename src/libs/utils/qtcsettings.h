@@ -9,6 +9,8 @@
 
 #include <QSettings>
 
+#include <functional>
+
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT QtcSettings : private QSettings
@@ -28,6 +30,8 @@ public:
     using QSettings::childGroups;
     using QSettings::status;
     using QSettings::clear;
+
+    void withGroup(const Key &prefix, const std::function<void(QtcSettings *)> &function);
 
     void beginGroup(const Key &prefix);
 

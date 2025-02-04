@@ -31,6 +31,19 @@ namespace Utils {
     \sa QSettings::setValue()
 */
 
+/*!
+    Begins the settings group \a prefix, calls the \a function, and ends the settings group.
+
+    \sa beginGroup()
+    \sa endGroup()
+*/
+void QtcSettings::withGroup(const Key &prefix, const std::function<void(QtcSettings *)> &function)
+{
+    beginGroup(prefix);
+    function(this);
+    endGroup();
+}
+
 void QtcSettings::beginGroup(const Key &prefix)
 {
     QSettings::beginGroup(stringFromKey(prefix));
