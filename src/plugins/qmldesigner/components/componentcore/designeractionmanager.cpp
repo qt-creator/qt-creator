@@ -1616,6 +1616,28 @@ void DesignerActionManager::createDefaultDesignerActions()
                           24,
                           AnchorLineRight));
 
+    addDesignerAction(new SeparatorDesignerAction(anchorsCategory, 30));
+
+    addDesignerAction(
+        new ParentAnchorAction(anchorParentVerticalCenterCommandId,
+                               anchorParentVerticalCenterDisplayName,
+                               createResetIcon({":/qmldesigner/images/anchor_vertical.png"}),
+                               {},
+                               anchorsCategory,
+                               QKeySequence(),
+                               31,
+                               AnchorLineVerticalCenter));
+
+    addDesignerAction(
+        new ParentAnchorAction(anchorParentHorizontalCenterCommandId,
+                               anchorParentHorizontalCenterDisplayName,
+                               createResetIcon({":/qmldesigner/images/anchor_horizontal.png"}),
+                               {},
+                               anchorsCategory,
+                               QKeySequence(),
+                               32,
+                               AnchorLineHorizontalCenter));
+
     addDesignerAction(new ActionGroup(
                           positionerCategoryDisplayName,
                           positionerCategory,
