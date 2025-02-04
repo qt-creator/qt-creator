@@ -233,7 +233,7 @@ expected_str<void> connectHooks(
     for (const auto &[k, v] : table) {
         if (k.get_type() != sol::type::string)
             return make_unexpected(
-                Tr::tr("Non-string key encountered in Lua table at path \"%1\"").arg(path));
+                Tr::tr("Non-string key encountered in Lua table at path \"%1\".").arg(path));
 
         const auto keyName = k.as<QString>();
         const auto currentPath = QStringList{path, keyName}.join(".");
