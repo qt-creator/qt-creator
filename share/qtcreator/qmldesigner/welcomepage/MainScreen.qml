@@ -98,6 +98,10 @@ Rectangle {
         spacing: 15
         visible: !Constants.projectModel.liteDesignerEnabled
 
+        UiTourButton {
+            active: isFirstUsage
+        }
+
         PageButton {
             text: qsTr("Recent Projects")
             pageId: 0
@@ -113,9 +117,8 @@ Rectangle {
             pageId: 2
         }
 
-        PageButton {
-            text: qsTr("UI Tour")
-            pageId: 3
+        UiTourButton {
+            active: !isFirstUsage
         }
     }
 
@@ -295,5 +298,14 @@ Rectangle {
         }
 
         onClicked: appBackground.pageIndex = pageButton.pageId
+    }
+
+    component UiTourButton: Loader {
+        Layout.fillWidth: true
+
+        sourceComponent: PageButton {
+            text: qsTr("UI Tour")
+            pageId: 3
+        }
     }
 }
