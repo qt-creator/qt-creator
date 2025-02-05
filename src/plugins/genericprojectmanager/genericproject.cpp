@@ -65,36 +65,6 @@ enum RefreshOptions {
 };
 
 //
-// GenericProjectFile
-//
-
-class GenericProject;
-
-class GenericProjectFile final : public IDocument
-{
-public:
-    GenericProjectFile(GenericProject *parent, const FilePath &fileName, RefreshOptions options)
-        : m_project(parent), m_options(options)
-    {
-        setId("Generic.ProjectFile");
-        setMimeType(Constants::GENERICMIMETYPE);
-        setFilePath(fileName);
-    }
-
-    ReloadBehavior reloadBehavior(ChangeTrigger, ChangeType) const final
-    {
-        return BehaviorSilent;
-    }
-
-    Result reload(ReloadFlag flag, ChangeType type) final;
-
-private:
-    GenericProject *m_project = nullptr;
-    RefreshOptions m_options;
-};
-
-
-//
 // GenericBuildSystem
 //
 
@@ -759,16 +729,6 @@ void GenericProject::configureAsExampleProject(Kit *kit)
         }
     }
     setup(infoList);
-}
-
-Result GenericProjectFile::reload(IDocument::ReloadFlag flag, IDocument::ChangeType type)
-{
-    Q_UNUSED(flag)
-    Q_UNUSED(type)
-    if (auto bs = m_project->activeBuildSystem())
-        static_cast<GenericBuildSystem *>(bs)->refresh(m_options);
-
-    return Result::Ok;
 }
 
 void GenericProject::editFilesTriggered()
