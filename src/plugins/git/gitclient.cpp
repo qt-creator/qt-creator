@@ -2182,13 +2182,6 @@ bool GitClient::beginStashScope(const FilePath &workingDirectory, const QString 
     return stashInfo.init(repoDirectory, command, flag, pushAction);
 }
 
-GitClient::StashInfo &GitClient::stashInfo(const FilePath &workingDirectory)
-{
-    const FilePath repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
-    QTC_CHECK(m_stashInfo.contains(repoDirectory));
-    return m_stashInfo[repoDirectory];
-}
-
 void GitClient::endStashScope(const FilePath &workingDirectory)
 {
     const FilePath repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
