@@ -290,12 +290,18 @@ bool FileFilterItem::fileMatches(const QString &fileName) const
 
 bool FileFilterItem::ignoreDirectory(const QFileInfo &file) const
 {
-    static const QStringList blackList = {"CMakeCache.txt", "build.ninja", "ignore-in-qds"};
+    static const QSet<QString> blackList = {
+        "CMakeCache.txt", "build.ninja", "ignore-in-qds", "pyvenv.cfg"
+    };
     return blackList.contains(file.fileName());
 }
 
 QSet<QString> FileFilterItem::filesInSubTree(const QDir &rootDir, const QDir &dir, QSet<QString> *parsedDirs)
 {
+    QFileInfo dirInfo(dir.absolutePath());
+    if (dirInfo.isHidden())
+        return {};
+
     QSet<QString> fileSet;
     for (const QFileInfo &file : dir.entryInfoList(QDir::Files)) {
         if (ignoreDirectory(file))
