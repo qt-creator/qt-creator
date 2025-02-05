@@ -3,6 +3,7 @@
 
 #include "mesonproject.h"
 
+#include "mesonbuildsystem.h"
 #include "mesonpluginconstants.h"
 #include "mesonprojectimporter.h"
 #include "mesonprojectmanagertr.h"
@@ -30,6 +31,7 @@ public:
         setDisplayName(projectDirectory().fileName());
         setCanBuildProducts();
         setHasMakeInstallEquivalent(true);
+        setBuildSystemCreator<MesonBuildSystem>();
     }
 
     Tasks projectIssues(const Kit *k) const final

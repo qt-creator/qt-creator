@@ -79,11 +79,6 @@ public:
         m_runConfigurationModel(t)
     { }
 
-    ~TargetPrivate()
-    {
-        delete m_buildSystem;
-    }
-
     QIcon m_overlayIcon;
 
     QList<BuildConfiguration *> m_buildConfigurations;
@@ -96,7 +91,6 @@ public:
 
     Kit *const m_kit;
     MacroExpander m_macroExpander;
-    BuildSystem *m_buildSystem = nullptr;
 
     ProjectConfigurationModel m_buildConfigurationModel;
     ProjectConfigurationModel m_deployConfigurationModel;
@@ -110,9 +104,6 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
     QObject(project),
     d(std::make_unique<TargetPrivate>(this, k))
 {
-    // Note: nullptr is a valid state for the per-buildConfig systems.
-    d->m_buildSystem = project->createBuildSystem(this);
-
     QTC_CHECK(d->m_kit);
     connect(DeviceManager::instance(), &DeviceManager::updated, this, &Target::updateDeviceState);
 
@@ -198,15 +189,8 @@ Kit *Target::kit() const
 
 BuildSystem *Target::buildSystem() const
 {
-    if (d->m_activeBuildConfiguration)
-        return d->m_activeBuildConfiguration->buildSystem();
-
-    return d->m_buildSystem;
-}
-
-BuildSystem *Target::fallbackBuildSystem() const
-{
-    return d->m_buildSystem;
+    QTC_ASSERT(d->m_activeBuildConfiguration, return nullptr);
+    return d->m_activeBuildConfiguration->buildSystem();
 }
 
 DeploymentData Target::deploymentData() const

@@ -7,12 +7,10 @@
 
 namespace Python::Internal {
 
-class PythonBuildConfiguration;
-
 class PythonBuildSystem final : public ProjectExplorer::BuildSystem
 {
 public:
-    explicit PythonBuildSystem(PythonBuildConfiguration *buildConfig);
+    explicit PythonBuildSystem(ProjectExplorer::BuildConfiguration *buildConfig);
 
     bool supportsAction(ProjectExplorer::Node *context,
                         ProjectExplorer::ProjectAction action,

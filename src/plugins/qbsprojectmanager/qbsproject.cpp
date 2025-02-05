@@ -107,6 +107,7 @@ QbsProject::QbsProject(const FilePath &fileName)
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setCanBuildProducts();
     setDisplayName(fileName.completeBaseName());
+    setBuildSystemCreator<QbsBuildSystem>();
 }
 
 QbsProject::~QbsProject()
@@ -149,7 +150,7 @@ static bool supportsNodeAction(ProjectAction action, const Node *node)
     return false;
 }
 
-QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
+QbsBuildSystem::QbsBuildSystem(BuildConfiguration *bc)
     : BuildSystem(bc),
       m_session(new QbsSession(this, BuildDeviceKitAspect::device(bc->kit()))),
       m_cppCodeModelUpdater(

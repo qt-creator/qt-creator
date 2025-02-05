@@ -5,6 +5,6 @@
 
 namespace AutotoolsProjectManager::Internal {
 
-void setupAutotoolsBuildConfiguration();
+void setupAutotoolsProject();
 
 } // AutotoolsProjectManager::Internal

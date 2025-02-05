@@ -54,7 +54,7 @@ class QbsBuildSystem final : public ProjectExplorer::BuildSystem
     Q_OBJECT
 
 public:
-    explicit QbsBuildSystem(QbsBuildConfiguration *bc);
+    explicit QbsBuildSystem(ProjectExplorer::BuildConfiguration *bc);
     ~QbsBuildSystem() final;
 
     void triggerParsing() final;

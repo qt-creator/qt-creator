@@ -88,8 +88,6 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
     setConfigWidgetDisplayName(Tr::tr("General"));
     setConfigWidgetHasFrame(true);
 
-    m_buildSystem = new QmakeBuildSystem(this);
-
     appendInitialBuildStep(Constants::QMAKE_BS_ID);
     appendInitialBuildStep(Constants::MAKESTEP_BS_ID);
     appendInitialCleanStep(Constants::MAKESTEP_BS_ID);
@@ -186,11 +184,6 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
     runSystemFunctions.setDefaultValue(2);
 }
 
-QmakeBuildConfiguration::~QmakeBuildConfiguration()
-{
-    delete m_buildSystem;
-}
-
 void QmakeBuildConfiguration::toMap(Store &map) const
 {
     BuildConfiguration::toMap(map);
@@ -215,7 +208,7 @@ void QmakeBuildConfiguration::kitChanged()
         // This only checks if the ids have changed!
         // For that reason the QmakeBuildConfiguration is also connected
         // to the toolchain and qtversion managers
-        m_buildSystem->scheduleUpdateAllNowOrLater();
+        qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
         m_lastKitState = newState;
     }
 }
@@ -320,11 +313,6 @@ void QmakeBuildConfiguration::updateProblemLabel()
     buildDirectoryAspect()->setProblem({});
 }
 
-BuildSystem *QmakeBuildConfiguration::buildSystem() const
-{
-    return m_buildSystem;
-}
-
 /// If only a sub tree should be build this function returns which sub node
 /// should be build
 /// \see QMakeBuildConfiguration::setSubNodeBuild
@@ -356,7 +344,7 @@ void QmakeBuildConfiguration::setFileNodeBuild(FileNode *node)
 
 FilePath QmakeBuildConfiguration::makefile() const
 {
-    return FilePath::fromString(m_buildSystem->rootProFile()->singleVariableValue(Variable::Makefile));
+    return FilePath::fromString(qmakeBuildSystem()->rootProFile()->singleVariableValue(Variable::Makefile));
 }
 
 QtVersion::QmakeBuildConfigs QmakeBuildConfiguration::qmakeBuildConfiguration() const
@@ -371,7 +359,7 @@ void QmakeBuildConfiguration::setQMakeBuildConfiguration(QtVersion::QmakeBuildCo
     m_qmakeBuildConfiguration = config;
 
     emit qmakeBuildConfigurationChanged();
-    m_buildSystem->scheduleUpdateAllNowOrLater();
+    qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
     emit buildTypeChanged();
 }
 
@@ -485,7 +473,7 @@ MakeStep *QmakeBuildConfiguration::makeStep() const
 
 QmakeBuildSystem *QmakeBuildConfiguration::qmakeBuildSystem() const
 {
-    return m_buildSystem;
+    return qobject_cast<QmakeBuildSystem *>(buildSystem());
 }
 
 // Returns true if both are equal.

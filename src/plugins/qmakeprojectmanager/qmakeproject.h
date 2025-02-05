@@ -61,7 +61,7 @@ class QmakeBuildSystem final : public ProjectExplorer::BuildSystem
     Q_OBJECT
 
 public:
-    explicit QmakeBuildSystem(QmakeBuildConfiguration *bc);
+    explicit QmakeBuildSystem(ProjectExplorer::BuildConfiguration *bc);
     ~QmakeBuildSystem();
 
     bool supportsAction(ProjectExplorer::Node *context,

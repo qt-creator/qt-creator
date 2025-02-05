@@ -197,7 +197,7 @@ void MachineFileManager::cleanupMachineFiles()
 
 // MesonBuildSystem
 
-MesonBuildSystem::MesonBuildSystem(MesonBuildConfiguration *bc)
+MesonBuildSystem::MesonBuildSystem(BuildConfiguration *bc)
     : BuildSystem(bc)
     , m_parser(MesonToolKitAspect::mesonToolId(bc->kit()), bc->environment(), project())
     , m_cppCodeModelUpdater(ProjectUpdaterFactory::createCppProjectUpdater())
@@ -210,7 +210,8 @@ MesonBuildSystem::MesonBuildSystem(MesonBuildConfiguration *bc)
         updateKit(kit());
         this->triggerParsing();
     });
-    connect(bc, &MesonBuildConfiguration::parametersChanged, this, [this] {
+    connect(qobject_cast<MesonBuildConfiguration *>(bc),
+            &MesonBuildConfiguration::parametersChanged, this, [this] {
         updateKit(kit());
         wipe();
     });

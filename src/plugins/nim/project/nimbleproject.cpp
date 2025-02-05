@@ -286,10 +286,7 @@ class NimbleBuildConfiguration : public ProjectExplorer::BuildConfiguration
         });
     }
 
-    ~NimbleBuildConfiguration() { delete m_buildSystem; }
-
     BuildType buildType() const override { return m_buildType; }
-    BuildSystem *buildSystem() const override { return m_buildSystem; }
 
     void fromMap(const Utils::Store &map) override
     {
@@ -313,7 +310,6 @@ private:
         emit buildTypeChanged();
     }
 
-    NimbleBuildSystem * const m_buildSystem{new NimbleBuildSystem(this)};
     BuildType m_buildType = ProjectExplorer::BuildConfiguration::Unknown;
 };
 
@@ -352,6 +348,7 @@ NimbleProject::NimbleProject(const FilePath &fileName)
     setDisplayName(fileName.completeBaseName());
     // ensure debugging is enabled (Nim plugin translates nim code to C code)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+    setBuildSystemCreator<NimbleBuildSystem>();
 }
 
 void NimbleProject::toMap(Store &map) const

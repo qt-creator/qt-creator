@@ -81,8 +81,8 @@ void updateMcuBuildStep(Target *target, bool mcuEnabled)
     }
 }
 
-QmlBuildSystem::QmlBuildSystem(Target *target)
-    : BuildSystem(target)
+QmlBuildSystem::QmlBuildSystem(BuildConfiguration *bc)
+    : BuildSystem(bc)
     , m_fileGen(new QmlProjectExporter::Exporter(this))
 {
     // refresh first - project information is used e.g. to decide the default RC's

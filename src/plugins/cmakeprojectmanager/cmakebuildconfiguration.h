@@ -67,7 +67,6 @@ public:
     // Context menu action:
     void buildTarget(const QString &buildTarget);
     void reBuildTarget(const QString &cleanTarget, const QString &buildTarget);
-    ProjectExplorer::BuildSystem *buildSystem() const final;
 
     void addToEnvironment(Utils::Environment &env) const override;
 
@@ -112,7 +111,6 @@ private:
     void setBuildPresetToBuildSteps();
     void filterConfigArgumentsFromAdditionalCMakeArguments();
 
-    Internal::CMakeBuildSystem *m_buildSystem = nullptr;
     QStringList m_unrestrictedBuildTargets;
     Internal::CMakeBuildSettingsWidget *m_configWidget = nullptr;
 

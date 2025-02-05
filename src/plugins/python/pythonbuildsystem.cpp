@@ -118,7 +118,7 @@ static QStringList readImportPathsJson(const FilePath &projectFile, QString *err
     return importPaths;
 }
 
-PythonBuildSystem::PythonBuildSystem(PythonBuildConfiguration *buildConfig)
+PythonBuildSystem::PythonBuildSystem(BuildConfiguration *buildConfig)
     : BuildSystem(buildConfig)
 {
     connect(project(),

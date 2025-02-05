@@ -20,7 +20,6 @@
 #include <projectexplorer/makestep.h>
 
 #include <utils/algorithm.h>
-#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 
 #include <QTimer>
@@ -36,7 +35,6 @@ namespace ProjectExplorer {
 class BuildSystemPrivate
 {
 public:
-    Target *m_target = nullptr;
     BuildConfiguration *m_buildConfiguration = nullptr;
 
     QTimer m_delayedParsingTimer;
@@ -48,17 +46,10 @@ public:
     QList<BuildTargetInfo> m_appTargets;
 };
 
-BuildSystem::BuildSystem(BuildConfiguration *bc)
-    : BuildSystem(bc->target())
+BuildSystem::BuildSystem(BuildConfiguration *bc) : d(new BuildSystemPrivate)
 {
+    QTC_CHECK(bc);
     d->m_buildConfiguration = bc;
-}
-
-BuildSystem::BuildSystem(Target *target)
-    : d(new BuildSystemPrivate)
-{
-    QTC_CHECK(target);
-    d->m_target = target;
 
     // Timer:
     d->m_delayedParsingTimer.setSingleShot(true);
@@ -78,17 +69,17 @@ BuildSystem::~BuildSystem()
 
 Project *BuildSystem::project() const
 {
-    return d->m_target->project();
+    return d->m_buildConfiguration->project();
 }
 
 Target *BuildSystem::target() const
 {
-    return d->m_target;
+    return d->m_buildConfiguration->target();
 }
 
 Kit *BuildSystem::kit() const
 {
-    return d->m_target->kit();
+    return d->m_buildConfiguration->kit();
 }
 
 BuildConfiguration *BuildSystem::buildConfiguration() const
@@ -102,7 +93,7 @@ void BuildSystem::emitParsingStarted()
 
     d->m_isParsing = true;
     emit parsingStarted();
-    emit d->m_target->parsingStarted();
+    emit target()->parsingStarted();
 }
 
 void BuildSystem::emitParsingFinished(bool success)
@@ -114,7 +105,7 @@ void BuildSystem::emitParsingFinished(bool success)
     d->m_isParsing = false;
     d->m_hasParsingData = success;
     emit parsingFinished(success);
-    emit d->m_target->parsingFinished(success);
+    emit target()->parsingFinished(success);
 }
 
 FilePath BuildSystem::projectFilePath() const
@@ -159,15 +150,8 @@ bool BuildSystem::hasParsingData() const
 
 Environment BuildSystem::activeParseEnvironment() const
 {
-    const BuildConfiguration *const bc = d->m_target->activeBuildConfiguration();
-    if (bc)
-        return bc->environment();
-
-    const RunConfiguration *const rc = d->m_target->activeRunConfiguration();
-    if (rc)
-        return rc->runnable().environment;
-
-    return kit()->buildEnvironment();
+    QTC_ASSERT(d->m_buildConfiguration, return {});
+    return d->m_buildConfiguration->environment();
 }
 
 void BuildSystem::requestParseHelper(int delay)

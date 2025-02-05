@@ -81,18 +81,7 @@ MesonBuildConfiguration::MesonBuildConfiguration(ProjectExplorer::Target *target
                                                    info.displayName,
                                                    info.buildType));
         }
-        m_buildSystem = new MesonBuildSystem{this};
     });
-}
-
-MesonBuildConfiguration::~MesonBuildConfiguration()
-{
-    delete m_buildSystem;
-}
-
-ProjectExplorer::BuildSystem *MesonBuildConfiguration::buildSystem() const
-{
-    return m_buildSystem;
 }
 
 void MesonBuildConfiguration::build(const QString &target)
@@ -146,7 +135,6 @@ void MesonBuildConfiguration::toMap(Store &map) const
 void MesonBuildConfiguration::fromMap(const Store &map)
 {
     ProjectExplorer::BuildConfiguration::fromMap(map);
-    m_buildSystem = new MesonBuildSystem{this};
     m_buildType = mesonBuildType(
         map.value(Constants::BuildConfiguration::BUILD_TYPE_KEY).toString());
     m_parameters = map.value(Constants::BuildConfiguration::PARAMETERS_KEY).toString();

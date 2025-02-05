@@ -6,6 +6,7 @@
 #include "cpptoolstestcase.h"
 #include "projectinfo.h"
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectmanager.h>
 
 #include <utils/algorithm.h>
@@ -17,6 +18,12 @@
 using namespace Utils;
 
 namespace CppEditor::Tests {
+
+class TestBuildSystem : public ProjectExplorer::BuildSystem
+{
+    QString name() const override { return "ModelManagerTest"; }
+    void triggerParsing() override {}
+};
 
 TestProject::TestProject(const QString &name, QObject *parent, const FilePath &filePath) :
     ProjectExplorer::Project("x-binary/foo", filePath),

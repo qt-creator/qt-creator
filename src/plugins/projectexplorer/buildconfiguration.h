@@ -41,7 +41,7 @@ public:
     Utils::FilePath rawBuildDirectory() const;
     void setBuildDirectory(const Utils::FilePath &dir);
 
-    virtual BuildSystem *buildSystem() const;
+    BuildSystem *buildSystem() const;
 
     virtual QWidget *createConfigWidget();
 

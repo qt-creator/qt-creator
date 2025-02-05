@@ -468,8 +468,6 @@ public:
         setConfigWidgetDisplayName(Tr::tr("Workspace Manager"));
     }
 
-    ~WorkspaceBuildConfiguration() { delete m_buildSystem; }
-
     void initializeExtraInfo(const QVariantMap &extraInfos)
     {
         resetExtraInfo();
@@ -504,8 +502,6 @@ public:
         return clone;
     }
 
-    BuildSystem *buildSystem() const override { return m_buildSystem; }
-
     void resetExtraInfo()
     {
         originalExtraInfo.reset();
@@ -517,7 +513,6 @@ public:
 
     std::optional<QVariantMap> originalExtraInfo;
     QMetaObject::Connection buildInfoResetConnection;
-    WorkspaceBuildSystem * const m_buildSystem{new WorkspaceBuildSystem(this)};
 };
 
 class WorkspaceBuildConfigurationFactory : public BuildConfigurationFactory
@@ -607,6 +602,7 @@ public:
 
         setId(WORKSPACE_PROJECT_ID);
         setDisplayName(projectDirectory().fileName());
+        setBuildSystemCreator<WorkspaceBuildSystem>();
 
         connect(this, &Project::projectFileIsDirty, this, &WorkspaceProject::updateBuildConfigurations);
     }

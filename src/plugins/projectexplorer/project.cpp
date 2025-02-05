@@ -172,7 +172,7 @@ public:
     bool m_supportsBuilding = true;
     bool m_shuttingDown = false;
 
-    std::function<BuildSystem *(Target *)> m_buildSystemCreator;
+    std::function<BuildSystem *(BuildConfiguration *)> m_buildSystemCreator;
 
     std::unique_ptr<IDocument> m_document;
     std::vector<std::unique_ptr<IDocument>> m_extraProjectDocuments;
@@ -254,9 +254,10 @@ bool Project::canBuildProducts() const
     return d->m_canBuildProducts;
 }
 
-BuildSystem *Project::createBuildSystem(Target *target) const
+BuildSystem *Project::createBuildSystem(BuildConfiguration *bc) const
 {
-    return d->m_buildSystemCreator ? d->m_buildSystemCreator(target) : nullptr;
+    QTC_ASSERT(d->m_buildSystemCreator, return nullptr);
+    return d->m_buildSystemCreator(bc);
 }
 
 FilePath Project::projectFilePath() const
@@ -1046,7 +1047,7 @@ Task Project::createProjectTask(Task::TaskType type, const QString &description)
     return Task(type, description, FilePath(), -1, Id());
 }
 
-void Project::setBuildSystemCreator(const std::function<BuildSystem *(Target *)> &creator)
+void Project::setBuildSystemCreator(const std::function<BuildSystem *(BuildConfiguration *)> &creator)
 {
     d->m_buildSystemCreator = creator;
 }
@@ -1413,7 +1414,12 @@ public:
     TestBuildConfigurationFactory()
     {
         setSupportedProjectType(TEST_PROJECT_ID);
-        setBuildGenerator([](const Kit *, const FilePath &, bool){ return QList<BuildInfo>(); });
+        setBuildGenerator([](const Kit *, const FilePath &projectFilePath, bool) {
+            BuildInfo bi;
+            bi.buildDirectory = projectFilePath.parentDir();
+            bi.displayName = "default";
+            return QList<BuildInfo>{bi};
+        });
         registerBuildConfiguration<BuildConfiguration>("TestProject.BuildConfiguration");
     }
 };

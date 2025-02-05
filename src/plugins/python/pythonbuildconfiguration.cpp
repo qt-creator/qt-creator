@@ -257,7 +257,6 @@ void setupPySideBuildStep()
 
 PythonBuildConfiguration::PythonBuildConfiguration(Target *target, const Id &id)
     : BuildConfiguration(target, id)
-    , m_buildSystem(std::make_unique<PythonBuildSystem>(this))
 {
     setInitializer([this](const BuildInfo &info) { initialize(info); });
     setConfigWidgetDisplayName(Tr::tr("Python"));
@@ -271,7 +270,7 @@ PythonBuildConfiguration::PythonBuildConfiguration(Target *target, const Id &id)
 
     auto update = [this] {
         if (isActive()) {
-            m_buildSystem->emitBuildSystemUpdated();
+            buildSystem()->emitBuildSystemUpdated();
             updateDocuments();
         }
     };
@@ -332,7 +331,7 @@ void PythonBuildConfiguration::updatePython(const FilePath &python)
     if (auto buildStep = buildSteps()->firstOfType<PySideBuildStep>())
         buildStep->checkForPySide(python);
     updateDocuments();
-    m_buildSystem->requestParse();
+    buildSystem()->requestParse();
 }
 
 void PythonBuildConfiguration::updateDocuments()
@@ -373,11 +372,6 @@ void PythonBuildConfiguration::toMap(Store &map) const
     map[pythonKey] = m_python.toSettings();
     if (m_venv)
         map[venvKey] = m_venv->toSettings();
-}
-
-BuildSystem *PythonBuildConfiguration::buildSystem() const
-{
-    return m_buildSystem.get();
 }
 
 FilePath PythonBuildConfiguration::python() const

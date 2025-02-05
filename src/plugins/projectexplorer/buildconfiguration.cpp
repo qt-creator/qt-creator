@@ -135,7 +135,10 @@ public:
         , m_cleanSteps(bc, Constants::BUILDSTEPS_CLEAN)
         , m_buildDirectoryAspect(bc, bc)
         , m_tooltipAspect(bc)
+        , m_buildSystem(bc->project()->createBuildSystem(bc))
     {}
+
+    ~BuildConfigurationPrivate() { delete m_buildSystem; }
 
     bool m_clearSystemEnvironment = false;
     EnvironmentItems m_userEnvironmentChanges;
@@ -151,6 +154,7 @@ public:
     QList<Utils::Id> m_initialCleanSteps;
     bool m_parseStdOut = false;
     QList<Utils::Id> m_customParsers;
+    BuildSystem * const m_buildSystem;
 
     // FIXME: Remove.
     BuildConfiguration::BuildType m_initialBuildType = BuildConfiguration::Unknown;
@@ -357,8 +361,7 @@ void BuildConfiguration::addSubConfigWidgets(const WidgetAdder &adder)
 
 BuildSystem *BuildConfiguration::buildSystem() const
 {
-    QTC_CHECK(target()->fallbackBuildSystem());
-    return target()->fallbackBuildSystem();
+    return d->m_buildSystem;
 }
 
 BuildStepList *BuildConfiguration::buildSteps() const

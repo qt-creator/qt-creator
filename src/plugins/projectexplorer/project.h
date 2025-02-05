@@ -69,7 +69,7 @@ public:
     QString mimeType() const;
     bool canBuildProducts() const;
 
-    BuildSystem *createBuildSystem(Target *target) const;
+    BuildSystem *createBuildSystem(BuildConfiguration *bc) const;
 
     Utils::FilePath projectFilePath() const;
     virtual Utils::FilePath projectDirectory() const;
@@ -242,11 +242,11 @@ protected:
                                                    const QString &description);
     template <typename BuildSystemImpl>
     void setBuildSystemCreator() {
-        setBuildSystemCreator([](Target *t) { return new BuildSystemImpl(t); });
+        setBuildSystemCreator([](BuildConfiguration *bc) { return new BuildSystemImpl(bc); });
     }
 
 private:
-    void setBuildSystemCreator(const std::function<BuildSystem *(Target *)> &creator);
+    void setBuildSystemCreator(const std::function<BuildSystem *(BuildConfiguration *)> &creator);
 
     void addTarget(std::unique_ptr<Target> &&target);
 

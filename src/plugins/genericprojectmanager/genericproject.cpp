@@ -170,7 +170,7 @@ class GenericBuildConfiguration final : public BuildConfiguration
 {
 public:
     GenericBuildConfiguration(Target *target, Id id)
-        : BuildConfiguration(target, id), m_buildSystem(new GenericBuildSystem(this))
+        : BuildConfiguration(target, id)
     {
         setConfigWidgetDisplayName(GenericProjectManager::Tr::tr("Generic Manager"));
         setBuildDirectoryHistoryCompleter("Generic.BuildDir.History");
@@ -184,17 +184,11 @@ public:
         updateCacheAndEmitEnvironmentChanged();
     }
 
-    ~GenericBuildConfiguration() { delete m_buildSystem; }
-
 private:
     void addToEnvironment(Environment &env) const final
     {
         QtSupport::QtKitAspect::addHostBinariesToPath(kit(), env);
     }
-
-    BuildSystem *buildSystem() const { return m_buildSystem; }
-
-    GenericBuildSystem * const m_buildSystem;
 };
 
 class GenericBuildConfigurationFactory final : public BuildConfigurationFactory
@@ -246,6 +240,7 @@ public:
         setId(Constants::GENERICPROJECT_ID);
         setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
         setDisplayName(filePath.completeBaseName());
+        setBuildSystemCreator<GenericBuildSystem>();
     }
 
     void editFilesTriggered();

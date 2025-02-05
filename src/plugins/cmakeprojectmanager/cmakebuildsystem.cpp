@@ -71,7 +71,7 @@ static Q_LOGGING_CATEGORY(cmakeBuildSystemLog, "qtc.cmake.buildsystem", QtWarnin
 // CMakeBuildSystem:
 // --------------------------------------------------------------------
 
-CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
+CMakeBuildSystem::CMakeBuildSystem(BuildConfiguration *bc)
     : BuildSystem(bc)
     , m_cppCodeModelUpdater(ProjectUpdaterFactory::createCppProjectUpdater())
 {

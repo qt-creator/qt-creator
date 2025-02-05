@@ -1425,7 +1425,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
     : BuildConfiguration(target, id)
 {
     setConfigWidgetDisplayName(Tr::tr("CMake"));
-    m_buildSystem = new CMakeBuildSystem(this);
 
     buildDirectoryAspect()->setValueAcceptor(
         [](const QString &oldDir, const QString &newDir) -> std::optional<QString> {
@@ -1503,7 +1502,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
     setInitialBuildAndCleanSteps();
 
-    setInitializer([this, target](const BuildInfo &info) {
+    setInitializer([this](const BuildInfo &info) {
         const Kit *k = kit();
         const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
         const Store extraInfoMap = storeFromVariant(info.extraInfo);
@@ -1512,7 +1511,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                                       : info.typeName;
 
         CommandLine cmd = defaultInitialCMakeCommand(k, project(), buildType);
-        m_buildSystem->setIsMultiConfig(CMakeGeneratorKitAspect::isMultiConfigGenerator(k));
+        cmakeBuildSystem()->setIsMultiConfig(CMakeGeneratorKitAspect::isMultiConfigGenerator(k));
 
         // Android magic:
         if (RunDeviceTypeKitAspect::deviceTypeId(k) == Android::Constants::ANDROID_DEVICE_TYPE) {
@@ -1630,10 +1629,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
     });
 }
 
-CMakeBuildConfiguration::~CMakeBuildConfiguration()
-{
-    delete m_buildSystem;
-}
+CMakeBuildConfiguration::~CMakeBuildConfiguration() = default;
 
 FilePath CMakeBuildConfiguration::shadowBuildDirectory(const FilePath &projectFilePath,
                                                        const Kit *k,
@@ -2130,7 +2126,7 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
 
 BuildConfiguration::BuildType CMakeBuildConfiguration::buildType() const
 {
-    return m_buildSystem->buildType();
+    return cmakeBuildSystem()->buildType();
 }
 
 BuildConfiguration::BuildType CMakeBuildSystem::buildType() const
@@ -2147,14 +2143,9 @@ BuildConfiguration::BuildType CMakeBuildSystem::buildType() const
     return CMakeBuildConfigurationFactory::cmakeBuildTypeToBuildType(cmakeBuildType);
 }
 
-BuildSystem *CMakeBuildConfiguration::buildSystem() const
-{
-    return m_buildSystem;
-}
-
 CMakeBuildSystem *CMakeBuildConfiguration::cmakeBuildSystem() const
 {
-    return m_buildSystem;
+    return qobject_cast<CMakeBuildSystem *>(buildSystem());
 }
 
 void CMakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const

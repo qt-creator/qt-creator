@@ -3,6 +3,7 @@
 
 #include "cmakeproject.h"
 
+#include "cmakebuildsystem.h"
 #include "cmakekitaspect.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectimporter.h"
@@ -54,6 +55,7 @@ CMakeProject::CMakeProject(const FilePath &fileName)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
     setCanBuildProducts();
+    setBuildSystemCreator<CMakeBuildSystem>();
 
     // This only influences whether 'Install into temporary host directory'
     // will show up by default enabled in some remote deploy configurations.

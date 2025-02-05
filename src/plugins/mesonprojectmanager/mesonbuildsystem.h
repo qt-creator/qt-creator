@@ -15,14 +15,12 @@ namespace ProjectExplorer { class ProjectUpdater; }
 
 namespace MesonProjectManager::Internal {
 
-class MesonBuildConfiguration;
-
 class MesonBuildSystem final : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
 
 public:
-    MesonBuildSystem(MesonBuildConfiguration *bc);
+    MesonBuildSystem(ProjectExplorer::BuildConfiguration *bc);
     ~MesonBuildSystem() final;
 
     void triggerParsing() final;

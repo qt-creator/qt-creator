@@ -267,7 +267,7 @@ static FilePath defaultBuildDirectory(const Kit *k,
 }
 
 NimBuildConfiguration::NimBuildConfiguration(Target *target, Utils::Id id)
-    : BuildConfiguration(target, id), m_buildSystem(new NimBuildSystem(this))
+    : BuildConfiguration(target, id)
 {
     setConfigWidgetDisplayName(Tr::tr("General"));
     setConfigWidgetHasFrame(true);
@@ -288,9 +288,6 @@ NimBuildConfiguration::NimBuildConfiguration(Target *target, Utils::Id id)
         nimCompilerBuildStep->setBuildType(info.buildType);
     });
 }
-
-NimBuildConfiguration::~NimBuildConfiguration() { delete m_buildSystem; }
-BuildSystem *NimBuildConfiguration::buildSystem() const { return m_buildSystem; }
 
 FilePath NimBuildConfiguration::cacheDirectory() const
 {
@@ -361,6 +358,7 @@ NimProject::NimProject(const FilePath &filePath) : Project(Constants::C_NIM_MIME
     setDisplayName(filePath.completeBaseName());
     // ensure debugging is enabled (Nim plugin translates nim code to C code)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+    setBuildSystemCreator<NimBuildSystem>();
 }
 
 Tasks NimProject::projectIssues(const Kit *k) const

@@ -40,7 +40,7 @@ class CMakeBuildSystem final : public ProjectExplorer::BuildSystem
     Q_OBJECT
 
 public:
-    explicit CMakeBuildSystem(CMakeBuildConfiguration *bc);
+    explicit CMakeBuildSystem(ProjectExplorer::BuildConfiguration *bc);
     ~CMakeBuildSystem() final;
 
     void triggerParsing() final;

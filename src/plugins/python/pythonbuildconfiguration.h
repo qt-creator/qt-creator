@@ -55,7 +55,6 @@ public:
     QWidget *createConfigWidget() override;
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
-    ProjectExplorer::BuildSystem *buildSystem() const override;
 
     Utils::FilePath python() const;
     std::optional<Utils::FilePath> venv() const;
@@ -69,7 +68,6 @@ private:
 
     Utils::FilePath m_python;
     std::optional<Utils::FilePath> m_venv;
-    std::unique_ptr<PythonBuildSystem> m_buildSystem;
 };
 
 void setupPySideBuildStep();

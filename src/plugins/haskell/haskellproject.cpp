@@ -123,6 +123,7 @@ public:
     {
         setId(Constants::C_HASKELL_PROJECT_ID);
         setDisplayName(fileName.toFileInfo().completeBaseName());
+        setBuildSystemCreator<HaskellBuildSystem>();
     }
 };
 
@@ -142,7 +143,6 @@ public:
     }
 
     QWidget *createConfigWidget() final;
-    BuildSystem *buildSystem() const final { return m_buildSystem; }
 
     BuildType buildType() const final
     {
@@ -156,7 +156,6 @@ public:
 
 private:
     BuildType m_buildType = BuildType::Release;
-    HaskellBuildSystem * const m_buildSystem{new HaskellBuildSystem(this)};
 };
 
 class HaskellBuildConfigurationWidget final : public QWidget

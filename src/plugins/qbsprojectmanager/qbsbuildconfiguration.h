@@ -38,11 +38,8 @@ class QbsBuildConfiguration final : public ProjectExplorer::BuildConfiguration
 
     friend class ProjectExplorer::BuildConfigurationFactory;
     QbsBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
-    ~QbsBuildConfiguration() final;
 
 public:
-    ProjectExplorer::BuildSystem *buildSystem() const final;
-
     QbsBuildStep *qbsStep() const;
     Utils::Store qbsConfiguration() const;
 
@@ -75,7 +72,6 @@ private:
     QStringList m_changedFiles;
     QStringList m_activeFileTags;
     QStringList m_products;
-    QbsBuildSystem *m_buildSystem = nullptr;
 };
 
 class QbsBuildConfigurationFactory final : public ProjectExplorer::BuildConfigurationFactory

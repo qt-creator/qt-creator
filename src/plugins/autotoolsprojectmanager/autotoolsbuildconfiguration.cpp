@@ -7,6 +7,8 @@
 #include "autotoolsprojectmanagertr.h"
 #include "makefileparser.h"
 
+#include <coreplugin/icontext.h>
+
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
@@ -14,6 +16,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorertr.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectupdater.h>
 #include <projectexplorer/target.h>
 
@@ -194,7 +197,6 @@ class AutotoolsBuildConfiguration final : public BuildConfiguration
 public:
     AutotoolsBuildConfiguration(Target *target, Id id)
         : BuildConfiguration(target, id)
-        , m_buildSystem(new AutotoolsBuildSystem(this))
     {
         // /<foobar> is used so the un-changed check in setBuildDirectory() works correctly.
         // The leading / is to avoid the relative the path expansion in BuildConfiguration::buildDirectory.
@@ -215,13 +217,6 @@ public:
         // ### Build Steps Clean ###
         appendInitialCleanStep(Constants::MAKE_STEP_ID); // make clean
     }
-
-    ~AutotoolsBuildConfiguration() override { delete m_buildSystem; }
-
-private:
-    BuildSystem *buildSystem() const override { return m_buildSystem; }
-
-    AutotoolsBuildSystem * const m_buildSystem;
 };
 
 class AutotoolsBuildConfigurationFactory final : public BuildConfigurationFactory
@@ -249,9 +244,32 @@ public:
     }
 };
 
-void setupAutotoolsBuildConfiguration()
+/**
+ * @brief Implementation of the ProjectExplorer::Project interface.
+ *
+ * Loads the autotools project and embeds it into the QtCreator project tree.
+ * The class AutotoolsProject is the core of the autotools project plugin.
+ * It is responsible to parse the Makefile.am files and do trigger project
+ * updates if a Makefile.am file or a configure.ac file has been changed.
+ */
+class AutotoolsProject : public Project
+{
+public:
+    explicit AutotoolsProject(const Utils::FilePath &fileName)
+        : Project(Utils::Constants::MAKEFILE_MIMETYPE, fileName)
+    {
+        setId(Constants::AUTOTOOLS_PROJECT_ID);
+        setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+        setDisplayName(projectDirectory().fileName());
+        setHasMakeInstallEquivalent(true);
+        setBuildSystemCreator<AutotoolsBuildSystem>();
+    }
+};
+
+void setupAutotoolsProject()
 {
     static AutotoolsBuildConfigurationFactory theAutotoolsBuildConfigurationFactory;
+    ProjectManager::registerProjectType<AutotoolsProject>(Utils::Constants::MAKEFILE_MIMETYPE);
 }
 
 } // AutotoolsProjectManager::Internal

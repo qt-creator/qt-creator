@@ -18,7 +18,6 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
@@ -28,7 +27,6 @@
 
 #include <utils/mimeconstants.h>
 #include <utils/fileutils.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QCryptographicHash>
@@ -134,24 +132,12 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Utils::Id id)
     macroExpander()->registerVariable("CurrentBuild:QbsBuildRoot",
                                       QbsProjectManager::Tr::tr("The qbs project build root"),
         [this] { return buildDirectory().pathAppended(configurationName()).toUserOutput(); });
-
-    m_buildSystem = new QbsBuildSystem(this);
-}
-
-QbsBuildConfiguration::~QbsBuildConfiguration()
-{
-    delete m_buildSystem;
-}
-
-BuildSystem *QbsBuildConfiguration::buildSystem() const
-{
-    return m_buildSystem;
 }
 
 void QbsBuildConfiguration::triggerReparseIfActive()
 {
     if (isActive())
-        m_buildSystem->delayParsing();
+        qobject_cast<QbsBuildSystem *>(buildSystem())->delayParsing();
 }
 
 void QbsBuildConfiguration::fromMap(const Store &map)

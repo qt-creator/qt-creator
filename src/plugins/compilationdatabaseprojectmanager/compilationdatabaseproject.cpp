@@ -419,6 +419,7 @@ CompilationDatabaseProject::CompilationDatabaseProject(const FilePath &projectFi
     setId(Constants::COMPILATIONDATABASEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
+    setBuildSystemCreator<CompilationDatabaseBuildSystem>();
     setExtraProjectFiles(
         {projectFile.stringAppended(Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX)});
 }
@@ -526,13 +527,6 @@ public:
     CompilationDatabaseBuildConfiguration(Target *target, Id id)
         : BuildConfiguration(target, id)
     {}
-
-    ~CompilationDatabaseBuildConfiguration() { delete m_buildSystem; }
-
-private:
-    BuildSystem *buildSystem() const { return m_buildSystem; }
-
-    CompilationDatabaseBuildSystem * const m_buildSystem{new CompilationDatabaseBuildSystem(this)};
 };
 
 class CompilationDatabaseBuildConfigurationFactory final : public BuildConfigurationFactory

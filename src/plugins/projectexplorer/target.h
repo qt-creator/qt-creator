@@ -103,8 +103,6 @@ public:
     ProjectConfigurationModel *deployConfigurationModel() const;
     ProjectConfigurationModel *runConfigurationModel() const;
 
-    BuildSystem *fallbackBuildSystem() const;
-
     DeploymentData deploymentData() const;
     DeploymentData buildSystemDeploymentData() const;
     BuildTargetInfo buildTarget(const QString &buildKey) const;

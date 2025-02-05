@@ -40,7 +40,6 @@ class PROJECTEXPLORER_EXPORT BuildSystem : public QObject
     Q_OBJECT
 
 public:
-    explicit BuildSystem(Target *target);
     explicit BuildSystem(BuildConfiguration *bc);
     ~BuildSystem() override;
 

@@ -162,6 +162,7 @@ QmakeProject::QmakeProject(const FilePath &fileName) :
     setDisplayName(fileName.completeBaseName());
     setCanBuildProducts();
     setHasMakeInstallEquivalent(true);
+    setBuildSystemCreator<QmakeBuildSystem>();
 }
 
 QmakeProject::~QmakeProject()
@@ -201,7 +202,7 @@ DeploymentKnowledge QmakeProject::deploymentKnowledge() const
 // QmakeBuildSystem
 //
 
-QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
+QmakeBuildSystem::QmakeBuildSystem(BuildConfiguration *bc)
     : BuildSystem(bc)
     , m_qmakeVfs(new QMakeVfs)
     , m_cppCodeModelUpdater(ProjectUpdaterFactory::createCppProjectUpdater())
