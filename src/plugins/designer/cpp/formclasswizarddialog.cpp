@@ -19,7 +19,8 @@ namespace Designer::Internal {
 
 enum { FormPageId, ClassPageId };
 
-FormClassWizardDialog::FormClassWizardDialog(const Core::BaseFileWizardFactory *factory)
+FormClassWizardDialog::FormClassWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                             const FilePath &filePath)
     : Core::BaseFileWizard(factory, QVariantMap())
     , m_formPage(new FormTemplateWizardPage)
     , m_classPage(new FormClassWizardPage)
@@ -32,16 +33,8 @@ FormClassWizardDialog::FormClassWizardDialog(const Core::BaseFileWizardFactory *
     const auto pages = extensionPages();
     for (QWizardPage *p : pages)
         addPage(p);
-}
 
-FilePath FormClassWizardDialog::filePath() const
-{
-    return m_classPage->filePath();
-}
-
-void FormClassWizardDialog::setFilePath(const FilePath &p)
-{
-    m_classPage->setFilePath(p);
+    m_classPage->setFilePath(filePath);
 }
 
 void FormClassWizardDialog::initializePage(int id)
