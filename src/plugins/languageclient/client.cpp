@@ -799,6 +799,7 @@ void Client::closeDocument(TextEditor::TextDocument *document,
         if (d->m_state == Initialized)
             d->sendCloseNotification(overwriteFilePath.value_or(document->filePath()));
     }
+    d->m_tokenSupport.clearCache(document);
 
     if (d->m_state != Initialized)
         return;
@@ -1037,7 +1038,7 @@ void Client::deactivateDocument(TextEditor::TextDocument *document)
         d->m_diagnosticManager->hideDiagnostics(document->filePath());
     d->resetAssistProviders(document);
     document->setFormatter(nullptr);
-    d->m_tokenSupport.clearHighlight(document);
+    d->m_tokenSupport.deactivateDocument(document);
     for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document)) {
         if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor)) {
             TextEditor::TextEditorWidget *widget = textEditor->editorWidget();

@@ -48,7 +48,8 @@ public:
     void refresh();
     void reloadSemanticTokens(TextEditor::TextDocument *doc);
     void updateSemanticTokens(TextEditor::TextDocument *doc);
-    void clearHighlight(TextEditor::TextDocument *doc);
+    void deactivateDocument(TextEditor::TextDocument *doc);
+    void clearCache(TextEditor::TextDocument *doc);
     void rehighlight();
     void setLegend(const LanguageServerProtocol::SemanticTokensLegend &legend);
     void clearTokens();
