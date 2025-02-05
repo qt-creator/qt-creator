@@ -167,7 +167,7 @@ Item {
 
     ColumnLayout {
         anchors.fill: parent
-
+        visible: !EffectComposerBackend.rootView.isMCUProject()
         spacing: 1
 
         EffectComposerTopBar {
@@ -402,6 +402,13 @@ Item {
             } // Column
         } // SplitView
     } // ColumnLayout
+
+    Text {
+        visible: EffectComposerBackend.rootView.isMCUProject()
+        text: qsTr("Effect Composer is not supported in MCU projects.")
+        color: StudioTheme.Values.themeTextColor
+        anchors.centerIn: parent
+    }
 
     DropArea {
         id: dropArea

@@ -19,6 +19,7 @@
 
 #include <qmldesigner/components/componentcore/theme.h>
 #include <qmldesigner/components/propertyeditor/assetimageprovider.h>
+#include <qmldesigner/designermcumanager.h>
 #include <qmldesigner/documentmanager.h>
 #include <qmldesigner/qmldesignerconstants.h>
 #include <qmldesigner/qmldesignerplugin.h>
@@ -247,6 +248,11 @@ void EffectComposerWidget::updateCanBeAdded()
 {
     m_effectComposerNodesModel->updateCanBeAdded(m_effectComposerModel->uniformNames(),
                                                  m_effectComposerModel->nodeNames());
+}
+
+bool EffectComposerWidget::isMCUProject() const
+{
+    return QmlDesigner::DesignerMcuManager::instance().isMCUProject();
 }
 
 QSize EffectComposerWidget::sizeHint() const
