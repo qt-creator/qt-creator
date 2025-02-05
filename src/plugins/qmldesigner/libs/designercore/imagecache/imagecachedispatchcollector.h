@@ -4,8 +4,11 @@
 #pragma once
 
 #include "imagecachecollectorinterface.h"
+#include <QLoggingCategory>
 
 namespace QmlDesigner {
+
+Q_LOGGING_CATEGORY(log, "qtc.imagecache.imagecachedispatchcollector", QtCriticalMsg)
 
 template<typename CollectorEntries>
 class ImageCacheDispatchCollector final : public ImageCacheCollectorInterface
@@ -93,7 +96,7 @@ private:
                        AbortCallback abortCallback,
                        ImageCache::TraceToken traceToken)
     {
-        qWarning() << "ImageCacheDispatchCollector: cannot handle file type.";
+        qCWarning(log) << "ImageCacheDispatchCollector: cannot handle file type.";
         abortCallback(ImageCache::AbortReason::Failed, std::move(traceToken));
     }
 
@@ -115,7 +118,7 @@ private:
                              Utils::SmallStringView,
                              const ImageCache::AuxiliaryData &)
     {
-        qWarning() << "ImageCacheDispatchCollector: cannot handle file type.";
+        qCWarning(log) << "ImageCacheDispatchCollector: cannot handle file type.";
 
         return {};
     }
@@ -138,7 +141,7 @@ private:
                                    Utils::SmallStringView,
                                    const ImageCache::AuxiliaryData &)
     {
-        qWarning() << "ImageCacheDispatchCollector: cannot handle file type.";
+        qCWarning(log) << "ImageCacheDispatchCollector: cannot handle file type.";
 
         return {};
     }
