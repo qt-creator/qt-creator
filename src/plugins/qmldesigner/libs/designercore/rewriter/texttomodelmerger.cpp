@@ -765,6 +765,8 @@ bool skipModule(QStringView moduleName)
         StartsWith(u"QtQuick.Studio.EventSystem"),
         StartsWith(u"QtQuick.Templates"),
         StartsWith(u"QtQuick.tooling"),
+        StartsWith(u"QtQuick.VirtualKeyboard.Plugins"),
+        StartsWith(u"QtQuick.VirtualKeyboard.Styles.Builtin"),
         StartsWith(u"QtQuick3D MateriablacklistImportslEditor"),
         StartsWith(u"QtQuick3D.ParticleEffects"),
         StartsWith(u"QtRemoteObjects"),
