@@ -188,19 +188,6 @@ unsigned FossilClient::makeVersionNumber(int major, int minor, int patch)
            (QString().setNum(patch).toUInt(0,16));
 }
 
-static inline QString versionPart(unsigned part)
-{
-    return QString::number(part & 0xff, 16);
-}
-
-QString FossilClient::makeVersionString(unsigned version)
-{
-    return QString::fromLatin1("%1.%2.%3")
-                    .arg(versionPart(version >> 16))
-                    .arg(versionPart(version >> 8))
-                    .arg(versionPart(version));
-}
-
 FossilSettings &FossilClient::settings() const
 {
     return Internal::settings();
@@ -767,16 +754,6 @@ unsigned int FossilClient::binaryVersion() const
     }
 
     return cachedBinaryVersion;
-}
-
-QString FossilClient::binaryVersionString() const
-{
-    const unsigned int version = binaryVersion();
-
-    // Fossil itself does not report patch version, only maj.min
-    // Here we include the patch part for general convention consistency
-
-    return makeVersionString(version);
 }
 
 FossilClient::SupportedFeatures FossilClient::supportedFeatures() const
