@@ -190,7 +190,7 @@
     The kit also specifies the CMake generator that is used for producing
     project files for \QC and the initial configuration parameters:
 
-    \image qtcreator-kits-cmake.png {Kits preferences}
+    \image qtcreator-preferences-kits.webp {Kits preferences}
 
     \sa {Build applications on remote Linux devices}, {Build on Docker devices},
     {Build with CMake}{How To: Build with CMake},
