@@ -124,7 +124,7 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
     } else if (ExactMatch match = summary.match(line)) {
         if (!m_testName.isEmpty())
             sendCompleteInformation();
-        TestResult testResult = createDefaultResult();
+        CTestResult testResult(id(), {}, {});
         testResult.setResult(ResultType::MessageInfo);
         testResult.setDescription(match.captured());
         reportResult(testResult);
@@ -135,8 +135,8 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
     } else if (ExactMatch match = summaryTime.match(line)) {
         if (!m_testName.isEmpty()) // possible?
             sendCompleteInformation();
-        TestResult testResult = createDefaultResult();
-        testResult.setResult(ResultType::TestEnd);
+        CTestResult testResult(id(), {}, {});
+        testResult.setResult(ResultType::MessageInfo);
         testResult.setDescription(match.captured());
         m_executionDuration = qRound(match.captured(1).toDouble() * 1000.);
         reportResult(testResult);
