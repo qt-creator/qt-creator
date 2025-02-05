@@ -649,7 +649,6 @@ struct PaintEventData
         , documentLayout(qobject_cast<TextDocumentLayout *>(doc->documentLayout()))
         , documentWidth(int(doc->size().width()))
         , textCursor(editor->textCursor())
-        , textCursorBlock(textCursor.block())
         , isEditable(!editor->isReadOnly())
         , fontSettings(editor->textDocument()->fontSettings())
         , lineSpacing(fontSettings.lineSpacing())
@@ -670,7 +669,6 @@ struct PaintEventData
     TextDocumentLayout *documentLayout;
     const int documentWidth;
     const QTextCursor textCursor;
-    const QTextBlock textCursorBlock;
     const bool isEditable;
     const FontSettings fontSettings;
     const int lineSpacing;
