@@ -377,7 +377,6 @@ LocatorFilterEntries ActionsFilter::collectEntriesForPreferences() const
 {
     static QHash<IOptionsPage *, LocatorFilterEntries> entriesForPages;
     static QMap<Utils::Id, QString> categoryDisplay;
-    const QString conjunction = " > ";
     for (IOptionsPage *page : IOptionsPage::allOptionsPages()) {
         if (!categoryDisplay.contains(page->category()) && !page->displayCategory().isEmpty())
             categoryDisplay[page->category()] = page->displayCategory();

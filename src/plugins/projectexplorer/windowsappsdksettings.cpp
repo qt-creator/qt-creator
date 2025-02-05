@@ -138,8 +138,6 @@ WindowsSettingsWidget::WindowsSettingsWidget()
 {
     setWindowTitle(Tr::tr("Windows Configuration"));
 
-    const QIcon downloadIcon = Icons::ONLINE.icon();
-
     auto winAppSdkDetailsWidget = new DetailsWidget;
 
     m_downloadPathChooser = new PathChooser;
