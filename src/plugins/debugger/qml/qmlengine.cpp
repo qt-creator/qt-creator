@@ -1681,12 +1681,12 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
 
                 memorizeRefs(resp.value(REFS));
 
-                bool success = resp.value("success").toBool();
+                const bool success = resp.value("success").toBool();
                 if (!success) {
                     SDEBUG("Request was unsuccessful");
                 }
 
-                int requestSeq = resp.value("request_seq").toInt();
+                const int requestSeq = resp.value("request_seq").toInt();
                 if (callbackForToken.contains(requestSeq)) {
                     callbackForToken[requestSeq](resp);
 
@@ -1708,12 +1708,12 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                     //                  "success"     : true
                     //                }
 
-                    int seq = resp.value("request_seq").toInt();
+                    const int seq = resp.value("request_seq").toInt();
                     const QVariantMap breakpointData = resp.value(BODY).toMap();
                     const QString index = QString::number(breakpointData.value("breakpoint").toInt());
 
                     if (breakpointsSync.contains(seq)) {
-                        Breakpoint bp = breakpointsSync.take(seq);
+                        const Breakpoint bp = breakpointsSync.take(seq);
                         QTC_ASSERT(bp, return);
                         bp->setParameters(bp->requestedParameters()); // Assume it worked.
                         bp->setResponseId(index);
