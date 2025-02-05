@@ -265,21 +265,16 @@ std::vector<IdPaths> createIdPaths(ProjectStorageUpdater::WatchedSourceIdsIds wa
 void ProjectStorageUpdater::update(Update update)
 {
     QStringList directories = std::move(update.directories);
-    QStringList qmlTypesPaths = std::move(update.qmlTypesPaths);
     const QString &propertyEditorResourcesPath = update.propertyEditorResourcesPath;
     const QStringList &typeAnnotationPaths = update.typeAnnotationPaths;
 
-    NanotraceHR::Tracer tracer{"update",
-                               category(),
-                               keyValue("directories", directories),
-                               keyValue("qml types paths", qmlTypesPaths)};
+    NanotraceHR::Tracer tracer{"update", category(), keyValue("directories", directories)};
 
     Storage::Synchronization::SynchronizationPackage package;
     WatchedSourceIdsIds watchedSourceIds{Utils::usize(directories)};
     NotUpdatedSourceIds notUpdatedSourceIds{Utils::usize(directories)};
 
     updateDirectories(directories, package, notUpdatedSourceIds, watchedSourceIds);
-    updateQmlTypes(qmlTypesPaths, package, notUpdatedSourceIds, watchedSourceIds);
     updatePropertyEditorPaths(propertyEditorResourcesPath, package, notUpdatedSourceIds);
     updateTypeAnnotations(typeAnnotationPaths, package, notUpdatedSourceIds);
 
@@ -292,42 +287,6 @@ void ProjectStorageUpdater::update(Update update)
     m_projectStorage.synchronize(std::move(package));
 
     m_pathWatcher.updateIdPaths(createIdPaths(watchedSourceIds, m_projectPartId));
-}
-
-void ProjectStorageUpdater::updateQmlTypes(const QStringList &qmlTypesPaths,
-                                           Storage::Synchronization::SynchronizationPackage &package,
-                                           NotUpdatedSourceIds &notUpdatedSourceIds,
-                                           WatchedSourceIdsIds &watchedSourceIdsIds)
-{
-    if (qmlTypesPaths.empty())
-        return;
-
-    NanotraceHR::Tracer tracer{"update qmltypes file", category()};
-
-    ModuleId moduleId = m_projectStorage.moduleId("QML", Storage::ModuleKind::CppLibrary);
-
-    for (const QString &qmlTypesPath : qmlTypesPaths) {
-        SourceId sourceId = m_pathCache.sourceId(SourcePath{qmlTypesPath});
-        watchedSourceIdsIds.qmltypesSourceIds.push_back(sourceId);
-        tracer.tick("append watched qml types source id",
-                    keyValue("source id", sourceId),
-                    keyValue("qml types path", qmlTypesPath));
-
-        Storage::Synchronization::DirectoryInfo directoryInfo{
-            sourceId, sourceId, moduleId, Storage::Synchronization::FileType::QmlTypes};
-
-        FileState state = parseTypeInfo(directoryInfo,
-                                        Utils::PathString{qmlTypesPath},
-                                        package,
-                                        notUpdatedSourceIds);
-
-        if (state == FileState::Changed) {
-            tracer.tick("append project data", keyValue("project data", directoryInfo));
-            package.directoryInfos.push_back(std::move(directoryInfo));
-            tracer.tick("append updated project source ids", keyValue("source id", sourceId));
-            package.updatedDirectoryInfoSourceIds.push_back(sourceId);
-        }
-    }
 }
 
 namespace {

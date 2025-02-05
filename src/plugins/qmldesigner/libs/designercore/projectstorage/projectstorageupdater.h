@@ -65,7 +65,6 @@ public:
     struct Update
     {
         QStringList directories = {};
-        QStringList qmlTypesPaths = {};
         const QString propertyEditorResourcesPath = {};
         const QStringList typeAnnotationPaths = {};
     };
@@ -140,11 +139,6 @@ public:
     };
 
 private:
-    void updateQmlTypes(const QStringList &qmlTypesPaths,
-                        Storage::Synchronization::SynchronizationPackage &package,
-                        NotUpdatedSourceIds &notUpdatedSourceIds,
-                        WatchedSourceIdsIds &watchedSourceIdsIds);
-
     void updateDirectories(const QStringList &directories,
                            Storage::Synchronization::SynchronizationPackage &package,
                            NotUpdatedSourceIds &notUpdatedSourceIds,

@@ -439,31 +439,6 @@ namespace {
     return qmldirPaths;
 }
 
-[[maybe_unused]] QStringList qmlTypes(::ProjectExplorer::Target *target)
-{
-    if (!target)
-        return {};
-
-    QStringList qmldirPaths;
-    qmldirPaths.reserve(2);
-
-    qmldirPaths.append(
-        Core::ICore::resourcePath("qmldesigner/projectstorage/fake.qmltypes").toString());
-
-    return qmldirPaths;
-}
-
-[[maybe_unused]] QStringList qmlTypesForLiteDesigner()
-{
-    QStringList qmldirPaths;
-    qmldirPaths.reserve(2);
-
-    qmldirPaths.append(
-        Core::ICore::resourcePath("qmldesigner/projectstorage/fake.qmltypes").toString());
-
-    return qmldirPaths;
-}
-
 QString propertyEditorResourcesPath()
 {
 #ifdef SHARE_QML_PATH
@@ -614,12 +589,10 @@ void QmlDesignerProjectManager::update()
     try {
         if constexpr (isUsingQmlDesignerLite()) {
             m_projectData->projectStorageData->updater.update({directoriesForLiteDesigner(),
-                                                               qmlTypesForLiteDesigner(),
                                                                propertyEditorResourcesPath(),
                                                                {qtCreatorItemLibraryPath()}});
         } else {
             m_projectData->projectStorageData->updater.update({directories(m_projectData->activeTarget),
-                                                               qmlTypes(m_projectData->activeTarget),
                                                                propertyEditorResourcesPath(),
                                                                {qtCreatorItemLibraryPath()}});
         }
