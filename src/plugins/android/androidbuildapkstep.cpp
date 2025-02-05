@@ -966,7 +966,7 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
                 if (!copyFileIfNewer(target, androidLibsDir.pathAppended(target.fileName()))) {
                     reportWarningOrError(
                         Tr::tr("Cannot copy file \"%1\" to Android build libs folder \"%2\".")
-                            .arg(target.toUserOutput()).arg(androidLibsDir.toUserOutput()),
+                            .arg(target.toUserOutput(), androidLibsDir.toUserOutput()),
                         Task::Error);
                     return false;
                 }
@@ -991,7 +991,7 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
                         if (!copyFileIfNewer(target, destination)) {
                             reportWarningOrError(
                                 Tr::tr("Cannot copy file \"%1\" to Android build libs folder \"%2\".")
-                                    .arg(target.toUserOutput()).arg(androidLibsDir.toUserOutput()),
+                                    .arg(target.toUserOutput(), androidLibsDir.toUserOutput()),
                                 Task::Error);
                             return false;
                         }

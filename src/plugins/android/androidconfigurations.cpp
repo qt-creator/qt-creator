@@ -1503,8 +1503,7 @@ void AndroidConfigurations::updateAutomaticKitList()
                 if (!qt->isAutodetected())
                     versionStr = QString("%1").arg(qt->displayName());
                 k->setUnexpandedDisplayName(Tr::tr("Android %1 Clang %2")
-                                                .arg(versionStr)
-                                                .arg(getMultiOrSingleAbiString(abis)));
+                                                .arg(versionStr, getMultiOrSingleAbiString(abis)));
                 k->setValueSilently(
                     Constants::ANDROID_KIT_NDK, AndroidConfig::ndkLocation(qt).toSettings());
                 k->setValueSilently(

@@ -218,7 +218,7 @@ void AvdDialog::collectInitialData()
         if (result == DoneWith::Error) {
             QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("Create new AVD"),
                                  Tr::tr("Avd list command failed. %1 %2")
-                                     .arg(output).arg(AndroidConfig::sdkToolsVersion().toString()));
+                                     .arg(output, AndroidConfig::sdkToolsVersion().toString()));
             reject();
             return;
         }

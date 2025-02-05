@@ -227,8 +227,7 @@ bool AndroidDeployQtStep::init()
         const QString error = Tr::tr("The deployment device \"%1\" does not support the "
                                      "architectures used by the kit.\n"
                                      "The kit supports \"%2\", but the device uses \"%3\".")
-                .arg(dev->displayName()).arg(selectedAbis.join(", "))
-                .arg(dev->supportedAbis().join(", "));
+                .arg(dev->displayName(), selectedAbis.join(", "), dev->supportedAbis().join(", "));
         reportWarningOrError(error, Task::Error);
         return false;
     }
