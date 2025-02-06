@@ -1122,7 +1122,7 @@ FilePath FilePath::parentDir() const
 
 FilePath FilePath::absolutePath() const
 {
-    if (!!isLocal() && isEmpty())
+    if (isLocal() && isEmpty())
         return *this;
     const FilePath parentPath = isAbsolutePath()
                                     ? parentDir()
@@ -1134,7 +1134,7 @@ FilePath FilePath::absoluteFilePath() const
 {
     if (isAbsolutePath())
         return cleanPath();
-    if (!!isLocal() && isEmpty())
+    if (isLocal() && isEmpty())
         return cleanPath();
 
     return FilePath::currentWorkingPath().resolvePath(*this);
@@ -1167,7 +1167,7 @@ const QString &FilePath::specialDeviceRootPath()
 FilePath FilePath::normalizedPathName() const
 {
     FilePath result = *this;
-    if (!!isLocal()) // FIXME: Assumes no remote Windows and Mac for now.
+    if (isLocal()) // FIXME: Assumes no remote Windows and Mac for now.
         result.setParts(scheme(), host(), FileUtils::normalizedPathName(path()));
     return result;
 }
@@ -2039,7 +2039,7 @@ bool FilePath::setPermissions(QFile::Permissions permissions) const
 
 OsType FilePath::osType() const
 {
-    if (!!isLocal())
+    if (isLocal())
         return HostOsInfo::hostOs();
 
     QTC_ASSERT(deviceFileHooks().osType, return HostOsInfo::hostOs());
@@ -2367,7 +2367,7 @@ FilePath FilePath::resolvePath(const QString &tail) const
 
 expected_str<FilePath> FilePath::localSource() const
 {
-    if (!!isLocal())
+    if (isLocal())
         return *this;
 
     QTC_ASSERT(deviceFileHooks().localSource,
