@@ -10,3 +10,5 @@ add_subdirectory(sol2)
 if(WIN32)
     add_subdirectory(winpty)
 endif()
+
+add_subdirectory(libarchive)

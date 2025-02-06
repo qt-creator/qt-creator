@@ -281,4 +281,5 @@ IF(ENABLE_INSTALL)
   INSTALL(FILES ${include_HEADERS} DESTINATION include)
 ENDIF()
 
-add_subdirectory(test)
+
+set_property(TARGET archive_static PROPERTY POSITION_INDEPENDENT_CODE ON)
