@@ -342,10 +342,8 @@ void PyLSConfigureAssistant::installPythonLanguageServer(const FilePath &python,
 void PyLSConfigureAssistant::openDocument(const FilePath &python, TextEditor::TextDocument *document)
 {
     resetEditorInfoBar(document);
-    if (!PythonSettings::pylsEnabled() || !python.exists()
-        || !Core::DocumentModel::entryForDocument(document)) {
+    if (!PythonSettings::pylsEnabled() || !python.exists() || document->isTemporary())
         return;
-    }
 
     if (auto client = pythonClients().value(python)) {
         LanguageClientManager::openDocumentWithClient(document, client);
