@@ -165,11 +165,6 @@ Timeline::TimelineModelAggregator *CtfVisualizerTool::modelAggregator() const
     return m_modelAggregator.get();
 }
 
-CtfTraceManager *CtfVisualizerTool::traceManager() const
-{
-    return m_traceManager.get();
-}
-
 Timeline::TimelineZoomControl *CtfVisualizerTool::zoomControl() const
 {
     return m_zoomControl.get();

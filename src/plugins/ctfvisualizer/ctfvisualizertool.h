@@ -32,7 +32,6 @@ public:
     ~CtfVisualizerTool();
 
     Timeline::TimelineModelAggregator *modelAggregator() const;
-    CtfTraceManager *traceManager() const;
     Timeline::TimelineZoomControl *zoomControl() const;
 
     void loadJson(const QString &fileName);
