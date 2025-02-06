@@ -121,24 +121,6 @@ static const wchar_t	*ae_wcstofflags(const wchar_t *stringp,
 static const char	*ae_strtofflags(const char *stringp, size_t length,
 		    unsigned long *setp, unsigned long *clrp);
 
-#ifndef HAVE_WCSCPY
-static wchar_t * wcscpy(wchar_t *s1, const wchar_t *s2)
-{
-	wchar_t *dest = s1;
-	while ((*s1 = *s2) != L'\0')
-		++s1, ++s2;
-	return dest;
-}
-#endif
-#ifndef HAVE_WCSLEN
-static size_t wcslen(const wchar_t *s)
-{
-	const wchar_t *p = s;
-	while (*p != L'\0')
-		++p;
-	return p - s;
-}
-#endif
 #ifndef HAVE_WMEMCMP
 /* Good enough for simple equality testing, but not for sorting. */
 #define wmemcmp(a,b,i)  memcmp((a), (b), (i) * sizeof(wchar_t))

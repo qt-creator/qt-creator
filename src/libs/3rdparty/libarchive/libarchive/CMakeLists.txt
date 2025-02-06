@@ -106,7 +106,8 @@ SET(libarchive_SOURCES
   archive_read_support_format_iso9660.c
   archive_read_support_format_lha.c
   archive_read_support_format_mtree.c
-  archive_read_support_format_rar.c
+  # RAR has trouble on windows, so we disable it.
+  #archive_read_support_format_rar.c
   archive_read_support_format_rar5.c
   archive_read_support_format_raw.c
   archive_read_support_format_tar.c
@@ -256,8 +257,7 @@ ENDIF(BUILD_SHARED_LIBS)
 ADD_LIBRARY(archive_static STATIC ${libarchive_SOURCES} ${include_HEADERS})
 TARGET_INCLUDE_DIRECTORIES(archive_static PUBLIC .)
 TARGET_LINK_LIBRARIES(archive_static ${ADDITIONAL_LIBS})
-SET_TARGET_PROPERTIES(archive_static PROPERTIES COMPILE_DEFINITIONS
-  LIBARCHIVE_STATIC)
+target_compile_definitions(archive_static PUBLIC LIBARCHIVE_STATIC)
 # On Posix systems, libarchive.so and libarchive.a can co-exist.
 IF(NOT WIN32 OR CYGWIN OR NOT BUILD_SHARED_LIBS)
   SET_TARGET_PROPERTIES(archive_static PROPERTIES OUTPUT_NAME archive)
