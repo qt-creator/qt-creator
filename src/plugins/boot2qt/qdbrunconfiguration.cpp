@@ -55,7 +55,7 @@ public:
             const BuildTargetInfo bti = buildTargetInfo();
             const FilePath localExecutable = bti.targetFilePath;
             const DeployableFile depFile = target->deploymentData().deployableForLocalFile(localExecutable);
-            IDevice::ConstPtr dev = RunDeviceKitAspect::device(target->kit());
+            IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit());
             QTC_ASSERT(dev, return);
             executable.setExecutable(dev->filePath(depFile.remoteFilePath()));
             symbolFile.setValue(localExecutable);

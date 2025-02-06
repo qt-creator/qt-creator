@@ -472,7 +472,7 @@ bool QbsBuildSystem::renameFilesInProduct(
 
 QString QbsBuildSystem::profile() const
 {
-    return QbsProfileManager::ensureProfileForKit(target()->kit());
+    return QbsProfileManager::ensureProfileForKit(kit());
 }
 
 void QbsBuildSystem::updateAfterParse()
@@ -658,7 +658,7 @@ void QbsBuildSystem::startParsing(const QVariantMap &extraConfig)
     connect(m_qbsProjectParser, &QbsProjectParser::done,
             this, &QbsBuildSystem::handleQbsParsingDone);
 
-    QbsProfileManager::updateProfileIfNecessary(target()->kit());
+    QbsProfileManager::updateProfileIfNecessary(kit());
     m_qbsProjectParser->parse(config, env, dir, qbsBuildConfig()->configurationName());
 }
 

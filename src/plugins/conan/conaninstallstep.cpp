@@ -105,7 +105,7 @@ ConanInstallStep::ConanInstallStep(BuildStepList *bsl, Id id)
     });
 
     setSummaryUpdater([this]() -> QString {
-        QList<Toolchain *> tcList = ToolchainKitAspect::toolChains(target()->kit());
+        QList<Toolchain *> tcList = ToolchainKitAspect::toolChains(kit());
         if (tcList.isEmpty())
             return "<b>" + ToolchainKitAspect::msgNoToolchainInTarget() + "</b>";
         ProcessParameters param;
@@ -125,7 +125,7 @@ bool ConanInstallStep::init()
     if (!AbstractProcessStep::init())
         return false;
 
-    const QList<Toolchain *> tcList = ToolchainKitAspect::toolChains(target()->kit());
+    const QList<Toolchain *> tcList = ToolchainKitAspect::toolChains(kit());
     if (tcList.isEmpty()) {
         emit addTask(Task::compilerMissingTask());
         emitFaultyConfigurationMessage();

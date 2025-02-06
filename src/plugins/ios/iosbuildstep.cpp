@@ -198,8 +198,7 @@ QStringList IosBuildStep::allArguments() const
 QStringList IosBuildStep::defaultArguments() const
 {
     QStringList res;
-    Kit *kit = target()->kit();
-    Toolchain *tc = ToolchainKitAspect::cxxToolchain(kit);
+    Toolchain *tc = ToolchainKitAspect::cxxToolchain(kit());
     switch (buildConfiguration()->buildType()) {
     case BuildConfiguration::Debug :
         res << "-configuration" << "Debug";
@@ -218,8 +217,8 @@ QStringList IosBuildStep::defaultArguments() const
         auto gtc = static_cast<GccToolchain *>(tc);
         res << gtc->platformCodeGenFlags();
     }
-    if (!SysRootKitAspect::sysRoot(kit).isEmpty())
-        res << "-sdk" << SysRootKitAspect::sysRoot(kit).toUrlishString();
+    if (!SysRootKitAspect::sysRoot(kit()).isEmpty())
+        res << "-sdk" << SysRootKitAspect::sysRoot(kit()).toUrlishString();
     res << "SYMROOT=" + buildDirectory().toUrlishString();
     return res;
 }

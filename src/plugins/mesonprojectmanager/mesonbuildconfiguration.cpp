@@ -72,9 +72,9 @@ MesonBuildConfiguration::MesonBuildConfiguration(ProjectExplorer::Target *target
     setConfigWidgetDisplayName(Tr::tr("Meson"));
     appendInitialBuildStep(Constants::MESON_BUILD_STEP_ID);
     appendInitialCleanStep(Constants::MESON_BUILD_STEP_ID);
-    setInitializer([this, target](const ProjectExplorer::BuildInfo &info) {
+    setInitializer([this](const ProjectExplorer::BuildInfo &info) {
         m_buildType = mesonBuildType(info.typeName);
-        auto k = target->kit();
+        auto k = kit();
         if (info.buildDirectory.isEmpty()) {
             setBuildDirectory(shadowBuildDirectory(project()->projectFilePath(),
                                                    k,

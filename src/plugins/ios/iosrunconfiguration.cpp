@@ -64,8 +64,8 @@ IosRunConfiguration::IosRunConfiguration(Target *target, Id id)
 {
     executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
 
-    setUpdater([this, target] {
-        IDevice::ConstPtr dev = RunDeviceKitAspect::device(target->kit());
+    setUpdater([this] {
+        IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit());
         const QString devName = dev ? dev->displayName() : IosDevice::name();
         setDefaultDisplayName(Tr::tr("Run on %1").arg(devName));
         setDisplayName(Tr::tr("Run %1 on %2").arg(applicationName()).arg(devName));

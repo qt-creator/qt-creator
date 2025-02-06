@@ -546,7 +546,7 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
         if (appAbis.isEmpty())
             return;
 
-        const IDevice::ConstPtr device = RunDeviceKitAspect::device(currentTarget->kit());
+        const IDevice::ConstPtr device = RunDeviceKitAspect::device(kit());
         const AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromDevice(device);
         if (!info.isValid()) // aborted
             return;

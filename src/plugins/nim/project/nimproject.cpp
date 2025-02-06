@@ -276,9 +276,9 @@ NimBuildConfiguration::NimBuildConfiguration(Target *target, Utils::Id id)
     appendInitialBuildStep(Constants::C_NIMCOMPILERBUILDSTEP_ID);
     appendInitialCleanStep(Constants::C_NIMCOMPILERCLEANSTEP_ID);
 
-    setInitializer([this, target](const BuildInfo &info) {
+    setInitializer([this](const BuildInfo &info) {
         // Create the build configuration and initialize it from build info
-        setBuildDirectory(defaultBuildDirectory(target->kit(),
+        setBuildDirectory(defaultBuildDirectory(kit(),
                                                 project()->projectFilePath(),
                                                 displayName(),
                                                 buildType()));

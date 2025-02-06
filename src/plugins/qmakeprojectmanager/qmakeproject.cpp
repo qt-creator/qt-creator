@@ -1454,7 +1454,7 @@ void QmakeBuildSystem::testToolChain(Toolchain *tc, const FilePath &path) const
 
 QString QmakeBuildSystem::deviceRoot() const
 {
-    IDeviceConstPtr device = BuildDeviceKitAspect::device(target()->kit());
+    IDeviceConstPtr device = BuildDeviceKitAspect::device(kit());
     QTC_ASSERT(device, return {});
     FilePath deviceRoot = device->rootPath();
     if (!deviceRoot.isLocal())

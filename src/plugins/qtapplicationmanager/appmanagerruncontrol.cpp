@@ -136,8 +136,8 @@ private:
 
         if (targetInformation.manifest.isQmlRuntime()) {
             symbolFile = getToolFilePath(Constants::APPMAN_LAUNCHER_QML,
-                                         target->kit(),
-                                         RunDeviceKitAspect::device(target->kit()));
+                                         runControl()->kit(),
+                                         RunDeviceKitAspect::device(runControl()->kit()));
         } else if (targetInformation.manifest.isNativeRuntime()) {
             symbolFile = Utils::findOrDefault(target->buildSystem()->applicationTargets(),
                [&](const BuildTargetInfo &ti) {

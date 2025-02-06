@@ -3773,7 +3773,7 @@ void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env
         return;
     }
 
-    IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(bc->target()->kit());
+    IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(bc->kit());
 
     if (!buildDevice)
         return;

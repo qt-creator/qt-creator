@@ -311,11 +311,11 @@ void PythonBuildConfiguration::initialize(const BuildInfo &info)
 
         if (info.extraInfo.toMap().value("createVenv", false).toBool()
             && !info.buildDirectory.exists()) {
-            if (std::optional<Interpreter> python = PythonKitAspect::python(target()->kit()))
+            if (std::optional<Interpreter> python = PythonKitAspect::python(kit()))
                 PythonSettings::createVirtualEnvironment(python->command, info.buildDirectory);
         }
     } else {
-        updateInterpreter(PythonKitAspect::python(target()->kit()));
+        updateInterpreter(PythonKitAspect::python(kit()));
     }
 
     updateCacheAndEmitEnvironmentChanged();

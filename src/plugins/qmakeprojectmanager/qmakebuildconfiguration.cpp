@@ -99,7 +99,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
         QTC_ASSERT(qmakeStep, return);
 
         const QmakeExtraBuildInfo qmakeExtra = info.extraInfo.value<QmakeExtraBuildInfo>();
-        QtVersion *version = QtKitAspect::qtVersion(target->kit());
+        QtVersion *version = QtKitAspect::qtVersion(kit());
 
         QtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
         if (info.buildType == BuildConfiguration::Debug)
@@ -120,13 +120,13 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
         FilePath directory = info.buildDirectory;
         if (directory.isEmpty()) {
             directory = shadowBuildDirectory(project()->projectFilePath(),
-                                             target->kit(), info.displayName,
+                                             kit(), info.displayName,
                                              info.buildType);
         }
 
         setBuildDirectory(directory);
 
-        if (RunDeviceTypeKitAspect::deviceTypeId(target->kit())
+        if (RunDeviceTypeKitAspect::deviceTypeId(kit())
                         == Android::Constants::ANDROID_DEVICE_TYPE) {
             buildSteps()->appendStep(Android::Constants::ANDROID_PACKAGE_INSTALL_STEP_ID);
             buildSteps()->appendStep(Android::Constants::ANDROID_BUILD_APK_ID);
@@ -554,7 +554,7 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
     FilePath workingDirectory = makefile.parentDir();
     QStringList actualArgs;
     expected_str<QString> expandResult = macroExpander()->expandProcessArgs(
-        qs->allArguments(QtKitAspect::qtVersion(target()->kit()), QMakeStep::ArgumentFlag::Expand));
+        qs->allArguments(QtKitAspect::qtVersion(kit()), QMakeStep::ArgumentFlag::Expand));
 
     if (!expandResult) {
         if (errorString)

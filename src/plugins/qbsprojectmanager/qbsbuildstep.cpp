@@ -188,7 +188,7 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Id id) :
 
     selectedAbis.setLabelText(QbsProjectManager::Tr::tr("ABIs:"));
     selectedAbis.setDisplayStyle(MultiSelectionAspect::DisplayStyle::ListView);
-    selectedAbis.setKit(target()->kit());
+    selectedAbis.setKit(kit());
 
     keepGoing.setSettingsKey(QBS_KEEP_GOING);
     keepGoing.setToolTip(
@@ -263,7 +263,7 @@ bool QbsBuildStep::init()
 
 void QbsBuildStep::setupOutputFormatter(OutputFormatter *formatter)
 {
-    formatter->addLineParsers(target()->kit()->createOutputParsers());
+    formatter->addLineParsers(kit()->createOutputParsers());
     BuildStep::setupOutputFormatter(formatter);
 }
 

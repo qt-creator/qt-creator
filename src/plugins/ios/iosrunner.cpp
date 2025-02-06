@@ -76,8 +76,7 @@ static void stopRunningRunControl(RunControl *runControl)
     // clean up deleted
     Utils::erase(activeRunControls, [](const QPointer<RunControl> &rc) { return !rc; });
 
-    Target *target = runControl->target();
-    const Id devId = RunDeviceKitAspect::deviceId(target->kit());
+    const Id devId = RunDeviceKitAspect::deviceId(runControl->kit());
     const QString identifier = identifierForRunControl(runControl);
 
     // The device can only run an application at a time, if an app is running stop it.

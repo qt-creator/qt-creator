@@ -108,8 +108,8 @@ private:
     QWidget *createConfigWidget() override;
     virtual CMakeConfig signingFlags() const;
 
-    void setInitialBuildAndCleanSteps(const ProjectExplorer::Target *target);
-    void setBuildPresetToBuildSteps(const ProjectExplorer::Target *target);
+    void setInitialBuildAndCleanSteps();
+    void setBuildPresetToBuildSteps();
     void filterConfigArgumentsFromAdditionalCMakeArguments();
 
     Internal::CMakeBuildSystem *m_buildSystem = nullptr;

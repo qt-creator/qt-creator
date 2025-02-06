@@ -92,7 +92,7 @@ public:
         addStartDependency(m_runner);
 
         Target *target = runControl->target();
-        Kit *kit = target->kit();
+        Kit *kit = runControl->kit();
         rp.setStartMode(AttachToRemoteServer);
         const QString packageName = Internal::packageName(target);
         rp.setDisplayName(packageName);

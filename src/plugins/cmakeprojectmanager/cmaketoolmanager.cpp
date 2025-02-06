@@ -298,7 +298,7 @@ CMakeTool *CMakeToolManager::defaultProjectOrDefaultCMakeTool()
     CMakeTool *tool = nullptr;
 
     if (auto bs = activeBuildSystemForCurrentProject())
-        tool = CMakeKitAspect::cmakeTool(bs->target()->kit());
+        tool = CMakeKitAspect::cmakeTool(bs->kit());
     if (!tool)
         tool = CMakeToolManager::defaultCMakeTool();
 

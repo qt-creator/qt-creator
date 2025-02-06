@@ -565,7 +565,7 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
        "&lt;type&gt; can have one of the following values: FILEPATH, PATH, BOOL, INTERNAL, or STRING.<br/>"
                       "To unset a variable, use -U&lt;variable&gt;.<br/>"));
     connect(label, &QLabel::linkActivated, this, [this](const QString &) {
-        const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfig->target()->kit());
+        const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfig->kit());
         CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake-variables.7.html");
     });
     editor->setMinimumSize(800, 200);
@@ -1082,7 +1082,7 @@ bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
     connect(help, &QAction::triggered, this, [this, idx] {
         const CMakeConfigItem item = ConfigModel::dataItemFromIndex(idx).toCMakeConfigItem();
 
-        const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfig->target()->kit());
+        const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfig->kit());
         const QString linkUrl = "%1/variable/" + QString::fromUtf8(item.key) + ".html";
         CMakeTool::openCMakeHelpUrl(tool, linkUrl);
     });
@@ -1501,10 +1501,10 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
     qmlDebugging.setBuildConfiguration(this);
 
-    setInitialBuildAndCleanSteps(target);
+    setInitialBuildAndCleanSteps();
 
     setInitializer([this, target](const BuildInfo &info) {
-        const Kit *k = target->kit();
+        const Kit *k = kit();
         const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
         const Store extraInfoMap = storeFromVariant(info.extraInfo);
         const QString buildType = extraInfoMap.contains(CMAKE_BUILD_TYPE)
@@ -1626,7 +1626,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         setInitialCMakeArguments(initialCMakeArguments);
         setCMakeBuildType(buildType);
 
-        setBuildPresetToBuildSteps(target);
+        setBuildPresetToBuildSteps();
     });
 }
 
@@ -1906,14 +1906,13 @@ CMakeConfig CMakeBuildConfiguration::signingFlags() const
 }
 
 
-void CMakeBuildConfiguration::setInitialBuildAndCleanSteps(const Target *target)
+void CMakeBuildConfiguration::setInitialBuildAndCleanSteps()
 {
-    const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(
-        target->kit());
+    const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(kit());
 
     int buildSteps = 1;
     if (!presetItem.isNull()) {
-        const QString presetName = presetItem.expandedValue(target->kit());
+        const QString presetName = presetItem.expandedValue(kit());
         const CMakeProject *project = static_cast<const CMakeProject *>(this->project());
 
         const auto buildPresets = project->presetsData().buildPresets;
@@ -1939,15 +1938,14 @@ void CMakeBuildConfiguration::setInitialBuildAndCleanSteps(const Target *target)
     appendInitialCleanStep(Constants::CMAKE_BUILD_STEP_ID);
 }
 
-void CMakeBuildConfiguration::setBuildPresetToBuildSteps(const ProjectExplorer::Target *target)
+void CMakeBuildConfiguration::setBuildPresetToBuildSteps()
 {
-    const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(
-        target->kit());
+    const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(kit());
 
     if (presetItem.isNull())
         return;
 
-    const QString presetName = presetItem.expandedValue(target->kit());
+    const QString presetName = presetItem.expandedValue(kit());
     const CMakeProject *project = static_cast<const CMakeProject *>(this->project());
 
     const auto allBuildPresets = project->presetsData().buildPresets;
@@ -1973,7 +1971,7 @@ void CMakeBuildConfiguration::setBuildPresetToBuildSteps(const ProjectExplorer::
         CMakeBuildStep *cbs = qobject_cast<CMakeBuildStep *>(buildStepList[i]);
         cbs->setBuildPreset(buildPresets[i].name);
         cbs->setUserEnvironmentChanges(
-            getEnvironmentItemsFromCMakeBuildPreset(project, target->kit(), buildPresets[i].name));
+            getEnvironmentItemsFromCMakeBuildPreset(project, kit(), buildPresets[i].name));
 
         if (buildPresets[i].targets) {
             QString targets = buildPresets[i].targets->join(" ");

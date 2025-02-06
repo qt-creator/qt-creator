@@ -156,7 +156,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
         return env;
     };
 
-    const Id deviceTypeId = RunDeviceTypeKitAspect::deviceTypeId(target->kit());
+    const Id deviceTypeId = RunDeviceTypeKitAspect::deviceTypeId(kit());
     if (deviceTypeId == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         environment.addPreferredBaseEnvironment(Tr::tr("System Environment"), [envModifier] {
             return envModifier(Environment::systemEnvironment());
@@ -200,11 +200,9 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
     if (!qmlViewer().isEmpty())
         return qmlViewer();
 
-    Kit *kit = target()->kit();
-
     // We might not have a full Qt version for building, but the device
     // might know what is good for running.
-    IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit);
+    IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit());
     if (dev) {
         const FilePath qmlRuntime = dev->qmlRunCommand();
         if (!qmlRuntime.isEmpty())
@@ -217,7 +215,7 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
 
     // The Qt version might know, but we need to make sure
     // that the device can reach it.
-    if (QtVersion *version = QtKitAspect::qtVersion(kit)) {
+    if (QtVersion *version = QtKitAspect::qtVersion(kit())) {
         // look for QML Puppet as qmlruntime only in QtStudio Qt versions
         if (version->features().contains("QtStudio") &&
             version->qtVersion().majorVersion() > 5 && !hasDeployStep()) {
@@ -248,8 +246,7 @@ void QmlProjectRunConfiguration::setupQtVersionAspect()
     qtversion.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     qtversion.setLabelText(Tr::tr("Qt Version:"));
 
-    Kit *kit = target()->kit();
-    QtVersion *version = QtKitAspect::qtVersion(kit);
+    QtVersion *version = QtKitAspect::qtVersion(kit());
 
     if (version) {
         const QmlBuildSystem *buildSystem = qobject_cast<QmlBuildSystem *>(target()->buildSystem());
@@ -273,7 +270,7 @@ void QmlProjectRunConfiguration::setupQtVersionAspect()
 
                 int oldValue = !qtversion();
                 const int preferedQtVersion = qtversion() > 0 ? 6 : 5;
-                Kit *currentKit = target()->kit();
+                Kit *currentKit = kit();
 
                 const QList<Kit *> kits = Utils::filtered(KitManager::kits(), [&](const Kit *k) {
                     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);

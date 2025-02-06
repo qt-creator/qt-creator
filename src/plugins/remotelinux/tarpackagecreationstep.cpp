@@ -223,11 +223,9 @@ void TarPackageCreationStep::deployFinished(bool success)
     if (!success)
         return;
 
-    const Kit *kit = target()->kit();
-
     // Store files that have been tar'd and successfully deployed
     for (const DeployableFile &file : std::as_const(m_files))
-        m_deployTimes.saveDeploymentTimeStamp(file, kit, QDateTime());
+        m_deployTimes.saveDeploymentTimeStamp(file, kit(), QDateTime());
 }
 
 void TarPackageCreationStep::addNeededDeploymentFiles(

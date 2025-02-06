@@ -80,7 +80,7 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Id id)
     effectiveCall.setEnabled(true);
 
     auto updateSummary = [this] {
-        QtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
+        QtVersion *qtVersion = QtKitAspect::qtVersion(kit());
         if (!qtVersion)
             return Tr::tr("<b>qmake:</b> No Qt version set. Cannot run qmake.");
         const QString program = qtVersion->qmakeFilePath().fileName();
@@ -149,19 +149,18 @@ QString QMakeStep::allArguments(const QtVersion *v, ArgumentFlags flags) const
 
 QMakeStepConfig QMakeStep::deducedArguments() const
 {
-    Kit *kit = target()->kit();
     QMakeStepConfig config;
     Abi targetAbi;
-    if (Toolchain *tc = ToolchainKitAspect::cxxToolchain(kit)) {
+    if (Toolchain *tc = ToolchainKitAspect::cxxToolchain(kit())) {
         targetAbi = tc->targetAbi();
         if (HostOsInfo::isWindowsHost()
             && tc->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
-            config.sysRoot = SysRootKitAspect::sysRoot(kit).toUrlishString();
+            config.sysRoot = SysRootKitAspect::sysRoot(kit()).toUrlishString();
             config.targetTriple = tc->originalTargetTriple();
         }
     }
 
-    QtVersion *version = QtKitAspect::qtVersion(kit);
+    QtVersion *version = QtKitAspect::qtVersion(kit());
 
     config.osType = QMakeStepConfig::osTypeFor(targetAbi, version);
     config.separateDebugInfo = qmakeBuildConfiguration()->separateDebugInfo();
@@ -401,7 +400,7 @@ QString QMakeStep::mkspec() const
     if (pos > 0 && pos < args.size())
         return FilePath::fromUserInput(args[pos]).toUrlishString();
 
-    return QmakeKitAspect::effectiveMkspec(target()->kit());
+    return QmakeKitAspect::effectiveMkspec(kit());
 }
 
 void QMakeStep::toMap(Store &map) const
@@ -539,7 +538,7 @@ void QMakeStep::abisChanged()
             m_selectedAbis << item->text();
     }
 
-    if (QtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit())) {
+    if (QtVersion *qtVersion = QtKitAspect::qtVersion(kit())) {
         if (qtVersion->hasAbi(Abi::LinuxOS, Abi::AndroidLinuxFlavor)) {
             const QString prefix = QString("%1=").arg(Android::Constants::ANDROID_ABIS);
             QStringList args = m_extraArgs;
@@ -553,7 +552,7 @@ void QMakeStep::abisChanged()
                 args << prefix + '"' + m_selectedAbis.join(' ') + '"';
             setExtraArguments(args);
             buildSystem()->setProperty(Android::Constants::AndroidAbis, m_selectedAbis);
-        } else if (qtVersion->hasAbi(Abi::DarwinOS) && !isIos(target()->kit())) {
+        } else if (qtVersion->hasAbi(Abi::DarwinOS) && !isIos(kit())) {
             const QString prefix = "QMAKE_APPLE_DEVICE_ARCHS=";
             QStringList args = m_extraArgs;
             for (auto it = args.begin(); it != args.end(); ++it) {
@@ -621,7 +620,7 @@ void QMakeStep::updateAbiWidgets()
     if (!abisLabel)
         return;
 
-    QtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
+    QtVersion *qtVersion = QtKitAspect::qtVersion(kit());
     if (!qtVersion)
         return;
 

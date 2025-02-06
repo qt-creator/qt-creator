@@ -60,8 +60,8 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
             &environment, &EnvironmentAspect::environmentChanged);
 
     setUpdater([this, target] {
-        const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(target->kit());
-        const IDeviceConstPtr runDevice = RunDeviceKitAspect::device(target->kit());
+        const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit());
+        const IDeviceConstPtr runDevice = RunDeviceKitAspect::device(kit());
         QTC_ASSERT(buildDevice, return);
         QTC_ASSERT(runDevice, return);
         const BuildTargetInfo bti = buildTargetInfo();

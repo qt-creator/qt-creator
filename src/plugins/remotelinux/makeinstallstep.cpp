@@ -73,7 +73,7 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent
 
     // FIXME: Hack, Part#1: If the build device is not local, start with a temp dir
     // inside the build dir. On Docker that's typically shared with the host.
-    const IDevice::ConstPtr device = BuildDeviceKitAspect::device(target()->kit());
+    const IDevice::ConstPtr device = BuildDeviceKitAspect::device(kit());
     const bool hack = device && device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
     FilePath rootPath;
     if (hack) {

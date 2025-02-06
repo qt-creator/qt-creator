@@ -401,7 +401,7 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
 
     // Application group
 
-    QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_step->target()->kit());
+    QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_step->kit());
     const int minApiSupported = defaultMinimumSDK(qt);
     QStringList targets = AndroidConfig::apiLevelNamesFor(
         sdkManager().filteredSdkPlatforms(minApiSupported));

@@ -62,8 +62,7 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Utils::Id id)
     appendInitialBuildStep(Constants::QBS_BUILDSTEP_ID);
     appendInitialCleanStep(Constants::QBS_CLEANSTEP_ID);
 
-    setInitializer([this, target](const BuildInfo &info) {
-        const Kit *kit = target->kit();
+    setInitializer([this](const BuildInfo &info) {
         Store configData = storeFromVariant(info.extraInfo);
         const QString buildVariant = [](BuildConfiguration::BuildType buildType) -> QString {
             switch (buildType) {
@@ -79,7 +78,7 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Utils::Id id)
         FilePath buildDir = info.buildDirectory;
         if (buildDir.isEmpty())
             buildDir = defaultBuildDirectory(project()->projectFilePath(),
-                                             kit, info.displayName,
+                                             kit(), info.displayName,
                                              buildType());
         setBuildDirectory(buildDir);
 
@@ -87,16 +86,16 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Utils::Id id)
         Store bd = configData;
         QString configName = bd.take("configName").toString();
         if (configName.isEmpty()) {
-            configName = "qtc_" + kit->fileSystemFriendlyName() + '_'
+            configName = "qtc_" + kit()->fileSystemFriendlyName() + '_'
                             + FileUtils::fileSystemFriendlyName(info.displayName);
         }
 
-        const QString kitName = kit->displayName();
+        const QString kitName = kit()->displayName();
         const QByteArray hash = QCryptographicHash::hash((kitName + info.displayName).toUtf8(),
                                                          QCryptographicHash::Sha1);
 
         const QString uniqueConfigName = configName
-                        + '_' + kit->fileSystemFriendlyName().left(8)
+                        + '_' + kit()->fileSystemFriendlyName().left(8)
                         + '_' + hash.toHex().left(16);
 
         configurationName.setValue(uniqueConfigName);
@@ -162,7 +161,7 @@ void QbsBuildConfiguration::fromMap(const Store &map)
         return;
 
     if (configurationName().isEmpty()) { // pre-4.4 backwards compatibility
-        const QString profileName = QbsProfileManager::profileNameForKit(target()->kit());
+        const QString profileName = QbsProfileManager::profileNameForKit(kit());
         const QString buildVariant = qbsConfiguration()
                 .value(Constants::QBS_CONFIG_VARIANT_KEY).toString();
         configurationName.setValue(profileName + '-' + buildVariant);
@@ -270,7 +269,7 @@ QString QbsBuildConfiguration::equivalentCommandLine(const QbsBuildStepData &ste
     if (jobCount > 0)
         commandLine.addArgs({"--jobs", QString::number(jobCount)});
 
-    const QString profileName = QbsProfileManager::profileNameForKit(target()->kit());
+    const QString profileName = QbsProfileManager::profileNameForKit(kit());
     const QString buildVariant = qbsConfiguration()
             .value(Constants::QBS_CONFIG_VARIANT_KEY).toString();
     commandLine.addArg("config:" + configurationName());

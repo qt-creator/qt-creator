@@ -1845,7 +1845,7 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
 
     const std::string fphsFunctionName = "find_package_handle_standard_args";
     CMakeKeywords keywords;
-    if (auto tool = CMakeKitAspect::cmakeTool(target()->kit()))
+    if (auto tool = CMakeKitAspect::cmakeTool(kit()))
         keywords = tool->keywords();
     QSet<std::string> fphsFunctionArgs;
     if (keywords.functionArgs.contains(QString::fromStdString(fphsFunctionName))) {
@@ -2112,7 +2112,7 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
             appTargetList.append(bti);
         } else if (ct.targetType == UtilityType && ct.qtcRunnable) {
             const QString buildKey = ct.title;
-            CMakeTool *cmakeTool = CMakeKitAspect::cmakeTool(target()->kit());
+            CMakeTool *cmakeTool = CMakeKitAspect::cmakeTool(kit());
             if (!cmakeTool)
                 continue;
 
@@ -2461,7 +2461,7 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
 MakeInstallCommand CMakeBuildSystem::makeInstallCommand(const FilePath &installRoot) const
 {
     MakeInstallCommand cmd;
-    if (CMakeTool *tool = CMakeKitAspect::cmakeTool(target()->kit()))
+    if (CMakeTool *tool = CMakeKitAspect::cmakeTool(kit()))
         cmd.command.setExecutable(tool->cmakeExecutable());
 
     QString installTarget = "install";
@@ -2491,8 +2491,7 @@ QList<QPair<Id, QString>> CMakeBuildSystem::generators() const
 {
     if (!buildConfiguration())
         return {};
-    const CMakeTool * const cmakeTool
-            = CMakeKitAspect::cmakeTool(buildConfiguration()->target()->kit());
+    const CMakeTool * const cmakeTool = CMakeKitAspect::cmakeTool(kit());
     if (!cmakeTool)
         return {};
     QList<QPair<Id, QString>> result;
@@ -2511,8 +2510,7 @@ void CMakeBuildSystem::runGenerator(Id id)
         Core::MessageManager::writeDisrupting(
             addCMakePrefix(Tr::tr("cmake generator failed: %1.").arg(detail)));
     };
-    const CMakeTool * const cmakeTool
-            = CMakeKitAspect::cmakeTool(buildConfiguration()->target()->kit());
+    const CMakeTool * const cmakeTool = CMakeKitAspect::cmakeTool(kit());
     if (!cmakeTool) {
         showError(Tr::tr("Kit does not have a cmake binary set."));
         return;

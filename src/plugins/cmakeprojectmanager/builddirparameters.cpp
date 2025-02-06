@@ -91,8 +91,7 @@ BuildDirParameters::BuildDirParameters(CMakeBuildSystem *buildSystem)
                                                 [this](const QString &s) {
                                                     return expander->expand(s);
                                                 });
-    const Target *t = bc->target();
-    const Kit *k = t->kit();
+    const Kit *k = bc->kit();
 
     project = bc->project();
     projectName = project->displayName();
