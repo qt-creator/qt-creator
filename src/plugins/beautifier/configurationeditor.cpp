@@ -22,8 +22,6 @@ ConfigurationSyntaxHighlighter::ConfigurationSyntaxHighlighter(QTextDocument *pa
     const TextEditor::FontSettings fs = TextEditor::TextEditorSettings::fontSettings();
     m_formatKeyword = fs.toTextCharFormat(TextEditor::C_FIELD);
     m_formatComment = fs.toTextCharFormat(TextEditor::C_COMMENT);
-
-    m_expressionComment.setPattern("#[^\\n]*");
 }
 
 void ConfigurationSyntaxHighlighter::setKeywords(const QStringList &keywords)
@@ -41,11 +39,6 @@ void ConfigurationSyntaxHighlighter::setKeywords(const QStringList &keywords)
     m_expressionKeyword.setPattern("(?:\\s|^)(" + pattern.join('|') + ")(?=\\s|\\:|\\=|\\,|$)");
 }
 
-void ConfigurationSyntaxHighlighter::setCommentExpression(const QRegularExpression &rx)
-{
-    m_expressionComment = rx;
-}
-
 void ConfigurationSyntaxHighlighter::highlightBlock(const QString &text)
 {
     QRegularExpressionMatchIterator it = m_expressionKeyword.globalMatch(text);
@@ -54,7 +47,8 @@ void ConfigurationSyntaxHighlighter::highlightBlock(const QString &text)
         setFormat(match.capturedStart(), match.capturedLength(), m_formatKeyword);
     }
 
-    it = m_expressionComment.globalMatch(text);
+    static const QRegularExpression expressionComment("#[^\\n]*");
+    it = expressionComment.globalMatch(text);
     while (it.hasNext()) {
         const QRegularExpressionMatch match = it.next();
         setFormat(match.capturedStart(), match.capturedLength(), m_formatComment);
@@ -91,11 +85,6 @@ void ConfigurationEditor::setSettings(AbstractSettings *settings)
     keywords << m_settings->completerWords();
     keywords.sort(Qt::CaseInsensitive);
     m_model->setStringList(keywords);
-}
-
-void ConfigurationEditor::setCommentExpression(const QRegularExpression &rx)
-{
-    m_highlighter->setCommentExpression(rx);
 }
 
 // Workaround for handling "ESC" right when popup is shown.
