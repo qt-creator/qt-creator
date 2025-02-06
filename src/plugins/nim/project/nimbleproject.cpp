@@ -28,13 +28,6 @@ struct NimbleMetadata
     QStringList bin;
     QString binDir;
     QString srcDir;
-
-    bool operator==(const NimbleMetadata &o) const {
-        return bin == o.bin && binDir == o.binDir && srcDir == o.srcDir;
-    }
-    bool operator!=(const NimbleMetadata &o) const {
-        return  !operator==(o);
-    }
 };
 
 const char C_NIMBLEPROJECT_TASKS[] = "Nim.NimbleProject.Tasks";

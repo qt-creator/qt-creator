@@ -340,9 +340,6 @@ public:
     // Keep for compatibility with Qt Creator 4.10
     void toMap(Store &map) const final;
 
-    QStringList excludedFiles() const;
-    void setExcludedFiles(const QStringList &excludedFiles);
-
 protected:
     // Keep for compatibility with Qt Creator 4.10
     RestoreResult fromMap(const Store &map, QString *errorMessage) final;
@@ -370,16 +367,6 @@ Project::RestoreResult NimProject::fromMap(const Store &map, QString *errorMessa
     auto result = Project::fromMap(map, errorMessage);
     m_excludedFiles = map.value(Constants::C_NIMPROJECT_EXCLUDEDFILES).toStringList();
     return result;
-}
-
-QStringList NimProject::excludedFiles() const
-{
-    return m_excludedFiles;
-}
-
-void NimProject::setExcludedFiles(const QStringList &excludedFiles)
-{
-    m_excludedFiles = excludedFiles;
 }
 
 // Setup

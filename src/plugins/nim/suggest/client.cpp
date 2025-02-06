@@ -85,11 +85,6 @@ void NimSuggestClient::clear()
     m_lastMessageId = 0;
 }
 
-void NimSuggestClient::onDisconnectedFromServer()
-{
-    clear();
-}
-
 void NimSuggestClient::onReadyRead()
 {
     std::array<char, 2048> buffer;
