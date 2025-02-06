@@ -28,7 +28,6 @@ public:
 
     bool waitForFinished();
 
-    bool useOverideCursor() const;
     void setUseOverideCursor(bool v);
 
 signals:
