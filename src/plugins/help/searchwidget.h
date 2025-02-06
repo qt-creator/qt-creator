@@ -42,10 +42,6 @@ public:
     SearchWidget();
     ~SearchWidget() override;
 
-    void zoomIn();
-    void zoomOut();
-    void resetZoom();
-
     void reindexDocumentation();
 
 signals:
@@ -66,8 +62,6 @@ private:
     bool eventFilter(QObject* o, QEvent *e) override;
     void contextMenuEvent(QContextMenuEvent *contextMenuEvent) override;
     QStringList currentSearchTerms() const;
-
-    int zoomCount = 0;
 
     QFutureWatcher<void> m_watcher;
     QFutureInterface<void> *m_progress = nullptr;

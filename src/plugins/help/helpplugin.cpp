@@ -118,7 +118,6 @@ public:
     static void activateHelpMode() { ModeManager::activateMode(Constants::ID_MODE_HELP); }
     static bool canShowHelpSideBySide();
 
-    HelpViewer *viewerForContextHelp();
     HelpWidget *createHelpWidget(const Core::Context &context, HelpWidget::WidgetStyle style);
     void createRightPaneContextViewer();
     HelpViewer *externalHelpViewer();
@@ -304,11 +303,6 @@ HelpViewer *HelpPluginPrivate::externalHelpViewer()
     return m_externalWindow->currentViewer();
 }
 
-void showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocation location)
-{
-    dd->showHelpUrl(url, location);
-}
-
 void showLinksInCurrentViewer(const QMultiMap<QString, QUrl> &links, const QString &key)
 {
     dd->showLinksInCurrentViewer(links, key);
@@ -448,11 +442,6 @@ void HelpPluginPrivate::showInHelpViewer(const QUrl &url, HelpViewer *viewer)
     ICore::raiseWindow(viewer);
     // Show the parent top-level-widget in case it was closed previously.
     viewer->window()->show();
-}
-
-HelpViewer *HelpPluginPrivate::viewerForContextHelp()
-{
-    return viewerForHelpViewerLocation(LocalHelpManager::contextHelpOption());
 }
 
 void HelpPluginPrivate::requestContextHelp()

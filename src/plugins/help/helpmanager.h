@@ -49,9 +49,6 @@ public:
     static QString fileFromNamespace(const QString &nameSpace);
 
     static void setCustomValue(const QString &key, const QVariant &value);
-    static QVariant customValue(const QString &key, const QVariant &value = QVariant());
-
-    static void aboutToShutdown();
 
     Q_INVOKABLE void showHelpUrl(
         const QUrl &url,

@@ -62,7 +62,6 @@ struct HelpManagerPrivate
     QSet<QString> m_userRegisteredFiles;
 
     QMutex m_helpengineMutex;
-    QFuture<bool> m_registerFuture;
 };
 
 static HelpManager *m_instance = nullptr;
@@ -314,20 +313,6 @@ void HelpManager::setCustomValue(const QString &key, const QVariant &value)
     }
     if (d->m_helpEngine->setCustomValue(key, value))
         emit m_instance->collectionFileChanged();
-}
-
-QVariant HelpManager::customValue(const QString &key, const QVariant &value)
-{
-    QTC_ASSERT(!d->m_needsSetup, return {});
-    return d->m_helpEngine->customValue(key, value);
-}
-
-void HelpManager::aboutToShutdown()
-{
-    if (d && d->m_registerFuture.isRunning()) {
-        d->m_registerFuture.cancel();
-        d->m_registerFuture.waitForFinished();
-    }
 }
 
 // -- private

@@ -85,12 +85,6 @@ QComboBox *OpenPagesManager::openPagesComboBox() const
     return m_comboBox;
 }
 
-QStringList splitString(const QVariant &value)
-{
-    using namespace Help::Constants;
-    return value.toString().split(ListSeparator, Qt::SkipEmptyParts);
-}
-
 void OpenPagesManager::setupInitialPages()
 {
     const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
@@ -132,25 +126,6 @@ void OpenPagesManager::setupInitialPages()
         m_helpWidget->addViewer(homePage);
 
     m_helpWidget->setCurrentIndex(std::max(initialPage, m_helpWidget->viewerCount() - 1));
-}
-
-void OpenPagesManager::closeCurrentPage()
-{
-    if (!m_openPagesWidget)
-        return;
-
-    QModelIndexList indexes = m_openPagesWidget->selectionModel()->selectedRows();
-    if (indexes.isEmpty())
-        return;
-
-    const bool returnOnClose = LocalHelpManager::returnOnClose();
-
-    if (m_helpWidget->viewerCount() == 1 && returnOnClose) {
-        ModeManager::activateMode(Core::Constants::MODE_EDIT);
-    } else {
-        QTC_ASSERT(indexes.count() == 1, return );
-        removePage(indexes.first().row());
-    }
 }
 
 void OpenPagesManager::closePage(const QModelIndex &index)
