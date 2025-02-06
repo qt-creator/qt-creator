@@ -121,6 +121,9 @@ QmlJSEditorWidget::QmlJSEditorWidget()
 {
     m_findReferences = new FindReferences(this);
     setLanguageSettingsId(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
+
+    connect(this, &QmlJSEditorWidget::toolbarOutlineChanged,
+            this, &QmlJSEditorWidget::updateOutline);
 }
 
 void QmlJSEditorWidget::finalizeInitialization()
@@ -581,8 +584,6 @@ void QmlJSEditorWidget::createToolBar()
 
     connect(this, &QmlJSEditorWidget::cursorPositionChanged,
             &m_updateOutlineIndexTimer, QOverload<>::of(&QTimer::start));
-    connect(this, &QmlJSEditorWidget::toolbarOutlineChanged,
-            this, &QmlJSEditorWidget::updateOutline);
 
     setToolbarOutline(m_outlineCombo);
 }
