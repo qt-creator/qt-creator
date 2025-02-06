@@ -55,6 +55,5 @@ const ViewData viewData();
 void setStatus(const QString &file, FileStatus::Status status, bool update);
 const ClearCaseSettings &settings();
 void setSettings(const ClearCaseSettings &s);
-std::shared_ptr<StatusMap> statusMap();
 
 } // ClearCase::Internal

@@ -178,7 +178,6 @@ public:
                   const QString &fileName, const QString &file2 = {});
     FileStatus vcsStatus(const FilePath &file) const;
     void checkAndReIndexUnknownFile(const FilePath &file);
-    QString currentView() const { return m_viewData.name; }
     QString viewRoot() const { return m_viewData.root; }
     void refreshActivities();
     inline bool isUcm() const { return m_viewData.isUcm; }
@@ -2470,11 +2469,6 @@ const ClearCaseSettings &settings()
 void setSettings(const ClearCaseSettings &s)
 {
     dd->setSettings(s);
-}
-
-std::shared_ptr<StatusMap> statusMap()
-{
-    return dd->m_statusMap;
 }
 
 #ifdef WITH_TESTS
