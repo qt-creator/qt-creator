@@ -1204,7 +1204,9 @@ void QmakeBuildSystem::updateBuildSystemData()
         bti.targetFilePath = executableFor(node->proFile());
         bti.projectFilePath = node->filePath();
         bti.workingDirectory = workingDir;
-        bti.displayName = bti.projectFilePath.completeBaseName();
+        bti.displayName = node->proFile()->singleVariableValue(Variable::QmakeProjectName);
+        if (bti.displayName.isEmpty())
+            bti.displayName = bti.projectFilePath.completeBaseName();
         const FilePath relativePathInProject
                 = bti.projectFilePath.relativeChildPath(projectDirectory());
         if (!relativePathInProject.isEmpty()) {
