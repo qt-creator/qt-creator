@@ -325,6 +325,11 @@ bool QmlItemNode::hasResources() const
     return !resources().isEmpty();
 }
 
+bool QmlItemNode::instanceHasAnchor(AnchorLineType sourceAnchorLineType) const
+{
+    return anchors().instanceHasAnchor(sourceAnchorLineType);
+}
+
 bool QmlItemNode::instanceHasAnchors() const
 {
     return anchors().instanceHasAnchors();

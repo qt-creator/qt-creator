@@ -398,6 +398,11 @@ void anchorsFill(const SelectionContext &selectionState)
             backupPropertyAndRemove(modelNode, "y");
             backupPropertyAndRemove(modelNode, "width");
             backupPropertyAndRemove(modelNode, "height");
+
+            node.anchors().removeMargin(AnchorLineRight);
+            node.anchors().removeMargin(AnchorLineLeft);
+            node.anchors().removeMargin(AnchorLineTop);
+            node.anchors().removeMargin(AnchorLineBottom);
         }
     });
 }

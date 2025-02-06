@@ -1112,6 +1112,12 @@ bool singleSelectionItemIsNotAnchoredAndSingleSelectionNotRoot(const SelectionCo
             && singleSelectionNotRoot(context);
 }
 
+bool singleSelectionItemHasNoFillAnchorAndSingleSelectionNotRoot(const SelectionContext &context)
+{
+    return singleSelection(context) && !singleSelectionItemHasAnchor(context, AnchorLineFill)
+           && singleSelectionNotRoot(context);
+}
+
 bool selectionNotEmptyAndHasXorYProperty(const SelectionContext &context)
 {
     return selectionNotEmpty(context)
@@ -1528,15 +1534,15 @@ void DesignerActionManager::createDefaultDesignerActions()
                                       &anchorsMenuEnabled));
 
     addDesignerAction(new ModelNodeAction(
-                          anchorsFillCommandId,
-                          anchorsFillDisplayName,
-                          Utils::Icon({{":/qmldesigner/images/anchor_fill.png", Utils::Theme::IconsBaseColor}}).icon(),
-                          anchorsFillToolTip,
-                          anchorsCategory,
-                          QKeySequence(QKeySequence("shift+f")),
-                          2,
-                          &anchorsFill,
-                          &singleSelectionItemIsNotAnchoredAndSingleSelectionNotRoot));
+        anchorsFillCommandId,
+        anchorsFillDisplayName,
+        Utils::Icon({{":/qmldesigner/images/anchor_fill.png", Utils::Theme::IconsBaseColor}}).icon(),
+        anchorsFillToolTip,
+        anchorsCategory,
+        QKeySequence(QKeySequence("shift+f")),
+        2,
+        &anchorsFill,
+        &singleSelectionItemHasNoFillAnchorAndSingleSelectionNotRoot));
 
     addDesignerAction(new ModelNodeAction(
                           anchorsResetCommandId,
