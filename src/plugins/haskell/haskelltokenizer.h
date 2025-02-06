@@ -54,10 +54,9 @@ enum class TokenType {
     Unknown
 };
 
-class Token {
+class Token
+{
 public:
-    bool isValid() const;
-
     TokenType type = TokenType::Unknown;
     int startCol = -1;
     int length = -1;
@@ -76,8 +75,6 @@ public:
     };
 
     Tokens(std::shared_ptr<QString> source);
-
-    Token tokenAtColumn(int col) const;
 
     std::shared_ptr<QString> source;
     int state = int(State::None);

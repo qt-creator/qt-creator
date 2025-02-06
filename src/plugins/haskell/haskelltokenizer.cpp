@@ -128,19 +128,6 @@ Tokens::Tokens(std::shared_ptr<QString> source)
 {
 }
 
-Token Tokens::tokenAtColumn(int col) const
-{
-    auto it = std::upper_bound(begin(), end(), col, [](int c, const Token &i) {
-        return c < i.startCol;
-    });
-    if (it == begin())
-        return Token();
-    --it;
-    if (it->startCol + it->length > col)
-        return *it;
-    return Token();
-}
-
 static int grab(const QString &line, int begin,
                 const std::function<bool(const QChar&)> &test)
 {
@@ -610,11 +597,6 @@ Tokens HaskellTokenizer::tokenize(const QString &line, int startState)
     else if (multiLineCommentLevel > 0)
         result.state = int(Tokens::State::MultiLineCommentGuard) + multiLineCommentLevel;
     return result;
-}
-
-bool Token::isValid() const
-{
-    return type != TokenType::Unknown;
 }
 
 } // Internal

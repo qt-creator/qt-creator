@@ -9,7 +9,6 @@ namespace Utils { class FilePath; }
 
 namespace Haskell::Internal {
 
-Utils::FilePath findProjectDirectory(const Utils::FilePath &filePath);
 void openGhci(const Utils::FilePath &haskellFile);
 
 void setupHaskellActions(QObject *guard);
