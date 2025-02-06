@@ -5,6 +5,7 @@
 
 #include <QNetworkCookieJar>
 #include <QNetworkReply>
+#include <QNetworkRequest>
 #include <QWebEnginePage>
 #include <QWebEngineProfile>
 #include <QWebEngineView>
@@ -101,11 +102,12 @@ private:
     // other internals
     ResourceGenerator m_resourceGenerator;
 
+    typedef QPair<QByteArray, QByteArray> RawHeaderPair;
     struct ReplyEvaluatorData
     {
         QNetworkReply *reply = nullptr;
         QString description;
-        std::function<void(const QByteArray &)> successCallback = nullptr;
+        std::function<void(const QByteArray &, const QList<RawHeaderPair> &)> successCallback = nullptr;
         std::function<void(const int, const QString &)> errorPreCallback = nullptr;
         std::function<void(const int, const QString &)> errorCodeUnauthorizedCallback = nullptr;
         std::function<void(const int, const QString &)> errorCodeOtherCallback = nullptr;
@@ -122,6 +124,9 @@ private:
 private:
     void evaluateReply(const ReplyEvaluatorData &evaluator);
     bool eventFilter(QObject *obj, QEvent *e) override;
+    void internalLogin();
+    void refreshToken();
+    void fetchUserInfoInternal(const bool checkLogin = false);
 
 signals:
     // service integration - project related signals
