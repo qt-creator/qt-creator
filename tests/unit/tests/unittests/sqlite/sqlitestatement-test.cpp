@@ -113,7 +113,10 @@ protected:
     template<typename Range>
     static auto toValues(Range &&range)
     {
-        return std::vector<typename Range::value_type>{range.begin(), range.end()};
+        std::vector<typename Range::value_type> values;
+        for (auto &&elem : range)
+            values.push_back(std::move(elem));
+        return values;
     }
 
 protected:
@@ -909,8 +912,7 @@ TEST_F(SqliteStatement, get_single_range_without_arguments)
 {
     ReadStatement<1> statement("SELECT name FROM test", database);
 
-    auto range = statement.range<Utils::SmallStringView>();
-    std::vector<Utils::SmallString> values{range.begin(), range.end()};
+    auto values = toValues(statement.range<Utils::SmallString>());
 
     ASSERT_THAT(values, UnorderedElementsAre("bar", "foo", "poo"));
 }
@@ -960,8 +962,7 @@ TEST_F(SqliteStatement, get_single_sqlite_range_without_arguments)
     ReadStatement<1> statement("SELECT number FROM test", database);
     database.execute("INSERT INTO  test VALUES (NULL, NULL, NULL)");
 
-    auto range = statement.range<FooValue>();
-    std::vector<FooValue> values{range.begin(), range.end()};
+    auto values = toValues(statement.range<FooValue>());
 
     ASSERT_THAT(values, UnorderedElementsAre(Eq("blah"), Eq(23.3), Eq(40), IsNull()));
 }
@@ -994,8 +995,7 @@ TEST_F(SqliteStatement, get_struct_range_without_arguments)
 {
     ReadStatement<3> statement("SELECT name, number, value FROM test", database);
 
-    auto range = statement.range<Output>();
-    std::vector<Output> values{range.begin(), range.end()};
+    auto values = toValues(statement.range<Output>());
 
     ASSERT_THAT(values,
                 UnorderedElementsAre(Output{"bar", "blah", 1},
@@ -1032,8 +1032,7 @@ TEST_F(SqliteStatement, get_range_for_single_output_with_binding_multiple_times)
     ReadStatement<1, 1> statement("SELECT name FROM test WHERE number=?", database);
     statement.values<Utils::SmallString, 3>(40);
 
-    auto range = statement.range<Utils::SmallStringView>(40);
-    std::vector<Utils::SmallString> values{range.begin(), range.end()};
+    auto values = toValues(statement.range<Utils::SmallString>(40));
 
     ASSERT_THAT(values, ElementsAre("poo"));
 }
@@ -1044,8 +1043,7 @@ TEST_F(SqliteStatement, get_range_with_transaction_for_single_output_with_bindin
     statement.values<Utils::SmallString, 3>(40);
     database.unlock();
 
-    std::vector<Utils::SmallString> values = toValues(
-        statement.rangeWithTransaction<Utils::SmallString>(40));
+    auto values = toValues(statement.rangeWithTransaction<Utils::SmallString>(40));
 
     ASSERT_THAT(values, ElementsAre("poo"));
     database.lock();
@@ -1068,8 +1066,7 @@ TEST_F(SqliteStatement, get_range_for_multiple_output_values_and_multiple_query_
     ReadStatement<3, 3> statement(
         "SELECT name, number, value FROM test WHERE name=? AND number=? AND value=?", database);
 
-    auto range = statement.range<Tuple>("bar", "blah", 1);
-    std::vector<Tuple> values{range.begin(), range.end()};
+    auto values = toValues(statement.range<Tuple>("bar", "blah", 1));
 
     ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
 }
@@ -1105,12 +1102,10 @@ TEST_F(SqliteStatement, call_get_range_for_multiple_output_values_and_multiple_q
     ReadStatement<3, 2> statement("SELECT name, number, value FROM test WHERE name=? AND number=?",
                                   database);
     {
-        auto range = statement.range<Tuple>("bar", "blah");
-        std::vector<Tuple> values1{range.begin(), range.end()};
+        auto values1 = toValues(statement.range<Tuple>("bar", "blah"));
     }
 
-    auto range2 = statement.range<Tuple>("bar", "blah");
-    std::vector<Tuple> values{range2.begin(), range2.end()};
+    auto values = toValues(statement.range<Tuple>("bar", "blah"));
 
     ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
 }

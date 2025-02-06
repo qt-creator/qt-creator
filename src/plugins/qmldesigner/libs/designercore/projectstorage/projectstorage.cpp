@@ -2373,11 +2373,9 @@ SourceIds ProjectStorage::filterSourceIdsWithoutType(const SourceIds &updatedSou
 
     SourceIds sourceIdsWithoutTypeSourceIds;
     sourceIdsWithoutTypeSourceIds.reserve(updatedSourceIds.size());
-    std::set_difference(updatedSourceIds.begin(),
-                        updatedSourceIds.end(),
-                        sourceIdsOfTypes.begin(),
-                        sourceIdsOfTypes.end(),
-                        std::back_inserter(sourceIdsWithoutTypeSourceIds));
+    std::ranges::set_difference(updatedSourceIds,
+                                sourceIdsOfTypes,
+                                std::back_inserter(sourceIdsWithoutTypeSourceIds));
 
     return sourceIdsWithoutTypeSourceIds;
 }
@@ -2395,8 +2393,8 @@ TypeIds ProjectStorage::fetchTypeIds(const SourceIds &sourceIds)
 void ProjectStorage::unique(SourceIds &sourceIds)
 {
     std::ranges::sort(sourceIds);
-    auto newEnd = std::unique(sourceIds.begin(), sourceIds.end());
-    sourceIds.erase(newEnd, sourceIds.end());
+    auto removed = std::ranges::unique(sourceIds);
+    sourceIds.erase(removed.begin(), removed.end());
 }
 
 void ProjectStorage::synchronizeTypeTraits(TypeId typeId, Storage::TypeTraits traits)
@@ -4847,7 +4845,7 @@ bool ProjectStorage::isBasedOn_(TypeId typeId, TypeIds... baseTypeIds) const
 
     auto range = s->selectPrototypeAndExtensionIdsStatement.rangeWithTransaction<TypeId>(typeId);
 
-    auto isBasedOn = std::any_of(range.begin(), range.end(), [&](TypeId currentTypeId) {
+    auto isBasedOn = std::ranges::any_of(range, [&](TypeId currentTypeId) {
         return ((currentTypeId == baseTypeIds) || ...);
     });
 

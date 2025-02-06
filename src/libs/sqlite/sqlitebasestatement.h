@@ -140,13 +140,20 @@ private:
     Database &m_database;
 };
 
-template <> SQLITE_EXPORT int BaseStatement::fetchValue<int>(int column) const;
-template <> SQLITE_EXPORT long BaseStatement::fetchValue<long>(int column) const;
-template <> SQLITE_EXPORT long long BaseStatement::fetchValue<long long>(int column) const;
-template <> SQLITE_EXPORT double BaseStatement::fetchValue<double>(int column) const;
-extern template SQLITE_EXPORT Utils::SmallStringView BaseStatement::fetchValue<Utils::SmallStringView>(int column) const;
-extern template SQLITE_EXPORT Utils::SmallString BaseStatement::fetchValue<Utils::SmallString>(int column) const;
-extern template SQLITE_EXPORT Utils::PathString BaseStatement::fetchValue<Utils::PathString>(int column) const;
+template<>
+SQLITE_EXPORT int BaseStatement::fetchValue<int>(int column) const;
+template<>
+SQLITE_EXPORT long BaseStatement::fetchValue<long>(int column) const;
+template<>
+SQLITE_EXPORT long long BaseStatement::fetchValue<long long>(int column) const;
+template<>
+SQLITE_EXPORT double BaseStatement::fetchValue<double>(int column) const;
+extern template SQLITE_EXPORT Utils::SmallStringView BaseStatement::fetchValue<Utils::SmallStringView>(
+    int column) const;
+extern template SQLITE_EXPORT Utils::SmallString BaseStatement::fetchValue<Utils::SmallString>(
+    int column) const;
+extern template SQLITE_EXPORT Utils::PathString BaseStatement::fetchValue<Utils::PathString>(
+    int column) const;
 
 template<typename BaseStatement, int ResultCount, int BindParameterCount>
 class StatementImplementation : public BaseStatement
@@ -207,12 +214,15 @@ public:
     template<typename T>
     struct is_container : std::false_type
     {};
+
     template<typename... Args>
     struct is_container<std::vector<Args...>> : std::true_type
     {};
+
     template<typename... Args>
     struct is_container<QList<Args...>> : std::true_type
     {};
+
     template<typename T, qsizetype Prealloc>
     struct is_container<QVarLengthArray<T, Prealloc>> : std::true_type
     {};
@@ -436,6 +446,9 @@ public:
     class BaseSqliteResultRange
     {
     public:
+        class SqliteResultSentinel
+        {};
+
         class SqliteResultIteratator
         {
         public:
@@ -447,44 +460,58 @@ public:
 
             SqliteResultIteratator(StatementImplementation &statement,
                                    const source_location &sourceLocation)
-                : m_statement{statement}
-                , m_sourceLocation{sourceLocation}
-                , m_hasNext{m_statement.next(sourceLocation)}
+                : m_statement{&statement}
+                , m_sourceLocation{&sourceLocation}
+                , m_hasNext{m_statement->next(sourceLocation)}
             {}
 
             SqliteResultIteratator(StatementImplementation &statement,
                                    const source_location &sourceLocation,
                                    bool hasNext)
-                : m_statement{statement}
-                , m_sourceLocation{sourceLocation}
+                : m_statement{&statement}
+                , m_sourceLocation{&sourceLocation}
                 , m_hasNext{hasNext}
             {}
 
+            SqliteResultIteratator(const SqliteResultIteratator &) = delete;
+            SqliteResultIteratator &operator=(const SqliteResultIteratator &) = delete;
+
+            SqliteResultIteratator(SqliteResultIteratator &&other) noexcept
+                : m_statement{other.m_statement}
+                , m_sourceLocation{other.m_sourceLocation}
+                , m_hasNext{std::exchange(other.m_hasNext, false)}
+            {}
+
+            SqliteResultIteratator &operator=(SqliteResultIteratator &&other) noexcept
+            {
+                m_statement = other.m_statement;
+                m_sourceLocation = other.m_sourceLocation;
+                m_hasNext = std::exchange(other.m_hasNext, false);
+            }
+
             SqliteResultIteratator &operator++()
             {
-                m_hasNext = m_statement.next(m_sourceLocation);
+                m_hasNext = m_statement->next(*m_sourceLocation);
                 return *this;
             }
 
-            void operator++(int) { m_hasNext = m_statement.next(m_sourceLocation); }
-
-            friend bool operator==(const SqliteResultIteratator &first,
-                                   const SqliteResultIteratator &second)
+            friend bool operator==(const SqliteResultIteratator &first, SqliteResultSentinel)
             {
-                return first.m_hasNext == second.m_hasNext;
+                return !first.m_hasNext;
             }
 
-            friend bool operator!=(const SqliteResultIteratator &first,
-                                   const SqliteResultIteratator &second)
+            friend bool operator!=(const SqliteResultIteratator &first, SqliteResultSentinel)
             {
-                return !(first == second);
+                return first.m_hasNext;
             }
 
-            value_type operator*() const { return m_statement.createValue<ResultType>(); }
+            void operator++(int) { m_hasNext = m_statement->next(*m_sourceLocation); }
 
-        private:
-            StatementImplementation &m_statement;
-            const source_location &m_sourceLocation;
+            value_type operator*() const { return m_statement->createValue<ResultType>(); }
+
+        public:
+            StatementImplementation *m_statement;
+            const source_location *m_sourceLocation;
             bool m_hasNext = false;
         };
 
@@ -496,19 +523,20 @@ public:
         BaseSqliteResultRange(StatementImplementation &statement, const source_location &sourceLocation)
             : m_statement{statement}
             , m_sourceLocation{sourceLocation}
-        {
-        }
+        {}
 
-        BaseSqliteResultRange(BaseSqliteResultRange &) = delete;
-        BaseSqliteResultRange &operator=(BaseSqliteResultRange &) = delete;
-        BaseSqliteResultRange &operator=(BaseSqliteResultRange &&) = delete;
+        BaseSqliteResultRange(const BaseSqliteResultRange &) = default;
+        BaseSqliteResultRange(BaseSqliteResultRange &&) = default;
+        BaseSqliteResultRange &operator=(const BaseSqliteResultRange &) = default;
+        BaseSqliteResultRange &operator=(BaseSqliteResultRange &&) = default;
 
         iterator begin() & { return iterator{m_statement, m_sourceLocation}; }
 
-        iterator end() & { return iterator{m_statement, m_sourceLocation, false}; }
+        auto end() & { return SqliteResultSentinel{}; }
 
         const_iterator begin() const & { return iterator{m_statement}; }
-        const_iterator end() const & { return iterator{m_statement, false}; }
+
+        auto end() const & { return SqliteResultSentinel{}; }
 
     private:
         using TracerCategory = std::decay_t<decltype(sqliteHighLevelCategory())>;
@@ -587,9 +615,16 @@ private:
         Resetter(Resetter &) = delete;
         Resetter &operator=(Resetter &) = delete;
 
-        Resetter(Resetter &&other)
+        Resetter(Resetter &&other) noexcept
             : statement{std::exchange(other.statement, nullptr)}
         {}
+
+        Resetter &operator=(Resetter &&other) noexcept
+        {
+            statement = std::exchange(other.statement, nullptr);
+
+            return *this;
+        }
 
         void reset() noexcept
         {
@@ -601,7 +636,7 @@ private:
 
         ~Resetter() noexcept { reset(); }
 
-        StatementImplementation *statement;
+        StatementImplementation *statement = nullptr;
     };
 
     struct ValueGetter
@@ -612,12 +647,19 @@ private:
         {}
 
         explicit operator bool() const { return statement.fetchIntValue(column); }
+
         operator int() const { return statement.fetchIntValue(column); }
+
         operator long() const { return statement.fetchLongValue(column); }
+
         operator long long() const { return statement.fetchLongLongValue(column); }
+
         operator double() const { return statement.fetchDoubleValue(column); }
+
         operator Utils::SmallStringView() { return statement.fetchSmallStringViewValue(column); }
+
         operator BlobView() { return statement.fetchBlobValue(column); }
+
         operator ValueView() { return statement.fetchValueView(column); }
 
         template<typename ConversionType, typename = std::enable_if_t<ConversionType::IsBasicId::value>>
@@ -694,8 +736,7 @@ private:
     template<typename Callable, int... ColumnIndices>
     CallbackControl callCallable(Callable &&callable, std::integer_sequence<int, ColumnIndices...>)
     {
-        return invokeCallable(std::forward<Callable>(callable),
-                              ValueGetter(*this, ColumnIndices)...);
+        return invokeCallable(std::forward<Callable>(callable), ValueGetter(*this, ColumnIndices)...);
     }
 
     template<typename Callable>
