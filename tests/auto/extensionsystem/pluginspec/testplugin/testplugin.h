@@ -18,7 +18,7 @@ class MYPLUGIN_EXPORT MyPluginImpl : public ExtensionSystem::IPlugin
 public:
     MyPluginImpl();
 
-    bool initialize(const QStringList &arguments, QString *errorString) override;
+    void initialize() override;
     void extensionsInitialized() override;
 
 public slots:

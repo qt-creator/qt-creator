@@ -25,8 +25,6 @@ class PLUGIN3_EXPORT MyPlugin3 : public ExtensionSystem::IPlugin
 
 public:
     MyPlugin3();
-
-    bool initialize(const QStringList &arguments, QString *errorString) override;
 };
 
 } // namespace Plugin3

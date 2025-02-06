@@ -22,8 +22,6 @@ class PLUGIN2_EXPORT MyPlugin2 : public ExtensionSystem::IPlugin
 
 public:
     MyPlugin2() = default;
-
-    bool initialize(const QStringList &arguments, QString *errorString) final;
 };
 
 } // Plugin2
