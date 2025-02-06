@@ -94,7 +94,9 @@ void DeviceManager::incomingDatagram()
             if (device->deviceInfo().selfId() == id) {
                 found = true;
                 if (device->deviceSettings().ipAddress() != ip) {
-                    qCDebug(deviceSharePluginLog) << "Updating IP address for device" << id;
+                    qCDebug(deviceSharePluginLog)
+                        << "Updating IP address for device" << id << "from"
+                        << device->deviceSettings().ipAddress() << "to" << ip;
                     setDeviceIP(device->deviceSettings().deviceId(), ip);
                 }
             }
