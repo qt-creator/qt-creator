@@ -97,7 +97,6 @@ class SplashScreenWidget : public QWidget
     };
 
 public:
-    explicit SplashScreenWidget(QWidget *parent) : QWidget(parent) {}
     SplashScreenWidget(QWidget *parent,
                        const QSize &size,
                        const QSize &screenSize,

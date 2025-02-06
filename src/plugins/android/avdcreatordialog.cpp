@@ -76,8 +76,6 @@ private:
     QString abi() const { return m_abiComboBox->currentText(); }
     QString deviceDefinition() const { return m_deviceDefinitionComboBox->currentText(); }
     int sdcardSize() const { return m_sdcardSizeSpinBox->value(); }
-    bool isValid() const
-    { return !name().isEmpty() && systemImage() && systemImage()->isValid() && !abi().isEmpty(); }
 
     bool eventFilter(QObject *obj, QEvent *event) override;
     void updateDeviceDefinitionComboBox();

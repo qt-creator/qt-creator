@@ -123,7 +123,6 @@ public:
     bool operator <(const AndroidSdkPackage &other) const override;
 
     int apiLevel() const;
-    QVersionNumber version() const;
     void addSystemImage(SystemImage *image);
     SystemImageList systemImages(AndroidSdkPackage::PackageState state
                                  = AndroidSdkPackage::Installed) const;
@@ -131,7 +130,6 @@ public:
 private:
     SystemImageList m_systemImages;
     int m_apiLevel = -1;
-    QVersionNumber m_version;
 };
 using SdkPlatformList = QList<SdkPlatform *>;
 
