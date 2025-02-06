@@ -68,6 +68,16 @@ bool singleSelectionItemIsNotAnchored(const SelectionContext &selectionState)
     return false;
 }
 
+bool singleSelectionItemHasAnchor(const SelectionContext &selectionState, AnchorLineType anchor)
+{
+    QmlItemNode itemNode(selectionState.currentSingleSelectedNode());
+    if (selectionState.isInBaseState() && itemNode.isValid()) {
+        bool hasAnchor = itemNode.instanceHasAnchor(anchor);
+        return hasAnchor;
+    }
+    return false;
+}
+
 bool selectionHasSameParent(const SelectionContext &selectionState)
 {
     return !selectionState.selectedModelNodes().isEmpty() && itemsHaveSameParent(selectionState.selectedModelNodes());
