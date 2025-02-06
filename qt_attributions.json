@@ -647,6 +647,20 @@
         "Copyright": "Copyright (C) 1995-2024 Jean-loup Gailly and Mark Adler"
     },
     {
+        "Id": "libarchive",
+        "Name": "libarchive",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used for reading and writing archives.",
+        "Path": "src/libs/3rdparty/libarchive",
+        "Description": "Libarchive is a programming library that can create and read several different streaming archive formats, including most popular tar variants, several cpio formats, and both BSD and GNU ar variants.",
+        "Homepage": "https://www.libarchive.org",
+        "Version": "3.7.7",
+        "License": "BSD 2-Clause \"Simplified\" License",
+        "LicenseFile": "src/libs/3rdparty/libarchive/COPYING",
+        "Copyright": "Copyright (c) 2003-2018 <author(s)>"
+    },
+    {
         "Id": "tika-mimetypes",
         "Name": "Apache Tika MimeType Definitions",
         "QDocModule": "qtcreator",
