@@ -36,6 +36,7 @@ constexpr auto shareThumbnail = "/api/v2/share/image"_L1;
 constexpr auto login = "/api/v2/auth/login"_L1;
 constexpr auto logout = "/api/v2/auth/logout"_L1;
 constexpr auto userInfo = "/api/v2/auth/userinfo"_L1;
+constexpr auto refreshToken = "/api/v2/auth/token"_L1;
 }; // namespace DVEndpoints
 
 CustomWebEnginePage::CustomWebEnginePage(QWebEngineProfile *profile, QObject *parent)
@@ -80,6 +81,7 @@ void CustomCookieJar::loadCookies()
         QString line = in.readLine();
         QList<QNetworkCookie> lineCookies = QNetworkCookie::parseCookies(line.toUtf8());
         cookies.append(lineCookies);
+        qCDebug(deploymentPluginLog) << "Loaded cookie:" << line;
     }
     setAllCookies(cookies);
     file.close();
@@ -116,7 +118,7 @@ void CustomCookieJar::clearCookies()
 DVConnector::DVConnector(QObject *parent)
     : QObject{parent}
     , m_isWebViewerVisible(false)
-    , m_connectorStatus(ConnectorStatus::FetchingUserInfo)
+    , m_connectorStatus(ConnectorStatus::NotLoggedIn)
 {
     m_webEngineProfile.reset(new QWebEngineProfile("DesignViewer", this));
     m_webEngineProfile->setPersistentCookiesPolicy(QWebEngineProfile::ForcePersistentCookies);
@@ -139,8 +141,7 @@ DVConnector::DVConnector(QObject *parent)
             this,
             [&](const QNetworkCookie &cookie) {
                 const QByteArray cookieName = cookie.name();
-                qCDebug(deploymentPluginLog)
-                    << "Cookie added: " << cookieName << ", value: " << cookie.value();
+                qCDebug(deploymentPluginLog) << "Login Cookie:" << cookieName << cookie.value();
                 if (cookieName != "jwt" && cookieName != "jwt_refresh")
                     return;
                 m_networkAccessManager->cookieJar()->insertCookie(cookie);
@@ -149,7 +150,8 @@ DVConnector::DVConnector(QObject *parent)
                 if (cookieName == "jwt") {
                     qCDebug(deploymentPluginLog) << "Got JWT";
                     m_webEngineView->hide();
-                    fetchUserInfo();
+                    m_connectorStatus = ConnectorStatus::LoggedIn;
+                    emit connectorStatusUpdated(m_connectorStatus);
                 }
             });
 
@@ -167,7 +169,7 @@ DVConnector::DVConnector(QObject *parent)
         emit projectPackingFailed(errorString);
     });
 
-    fetchUserInfo();
+    refreshToken();
 }
 
 DVConnector::ConnectorStatus DVConnector::connectorStatus() const
@@ -209,7 +211,7 @@ void DVConnector::projectList()
     ReplyEvaluatorData evaluatorData;
     evaluatorData.reply = m_networkAccessManager->get(request);
     evaluatorData.description = "Project list";
-    evaluatorData.successCallback = [this](const QByteArray &reply) {
+    evaluatorData.successCallback = [this](const QByteArray &reply, const QList<RawHeaderPair> &) {
         emit projectListReceived(reply);
     };
     evaluatorData.connectCallbacks(this);
@@ -280,7 +282,7 @@ void DVConnector::uploadProject(const QString &projectId, const QString &filePat
     ReplyEvaluatorData evaluatorData;
     evaluatorData.reply = m_networkAccessManager->post(request, multiPart);
     evaluatorData.description = "Upload project";
-    evaluatorData.successCallback = [this](const QByteArray &) {
+    evaluatorData.successCallback = [this](const QByteArray &, const QList<RawHeaderPair> &) {
         emit projectUploaded();
         // call userInfo to update storage info in the UI
         fetchUserInfo();
@@ -334,7 +336,7 @@ void DVConnector::uploadProjectThumbnail(const QString &projectId, const QString
     ReplyEvaluatorData evaluatorData;
     evaluatorData.reply = m_networkAccessManager->post(request, multiPart);
     evaluatorData.description = "Upload project thumbnail";
-    evaluatorData.successCallback = [this](const QByteArray &) {
+    evaluatorData.successCallback = [this](const QByteArray &, const QList<RawHeaderPair> &) {
         emit thumbnailUploaded();
         // call userInfo to update storage info in the UI
         fetchUserInfo();
@@ -366,7 +368,7 @@ void DVConnector::deleteProject(const QString &projectId)
     ReplyEvaluatorData evaluatorData;
     evaluatorData.reply = m_networkAccessManager->deleteResource(request);
     evaluatorData.description = "Delete project";
-    evaluatorData.successCallback = [this](const QByteArray &) {
+    evaluatorData.successCallback = [this](const QByteArray &, const QList<RawHeaderPair> &) {
         emit projectDeleted();
         // call userInfo to update storage info in the UI
         fetchUserInfo();
@@ -389,7 +391,7 @@ void DVConnector::deleteProjectThumbnail(const QString &projectId)
     ReplyEvaluatorData evaluatorData;
     evaluatorData.reply = m_networkAccessManager->deleteResource(request);
     evaluatorData.description = "Delete project thumbnail";
-    evaluatorData.successCallback = [this](const QByteArray &) {
+    evaluatorData.successCallback = [this](const QByteArray &, const QList<RawHeaderPair> &) {
         emit thumbnailDeleted();
         // call userInfo to update storage info in the UI
         fetchUserInfo();
@@ -412,7 +414,8 @@ void DVConnector::downloadProject(const QString &projectId, const QString &fileP
     ReplyEvaluatorData evaluatorData;
     evaluatorData.reply = m_networkAccessManager->get(request);
     evaluatorData.description = "Download project";
-    evaluatorData.successCallback = [this, filePath](const QByteArray &reply) {
+    evaluatorData.successCallback = [this, filePath](const QByteArray &reply,
+                                                     const QList<RawHeaderPair> &) {
         QFile file(filePath);
         if (!file.open(QIODevice::WriteOnly)) {
             qCWarning(deploymentPluginLog) << "Failed to open file for writing:" << filePath;
@@ -440,7 +443,8 @@ void DVConnector::downloadProjectThumbnail(const QString &projectId, const QStri
     ReplyEvaluatorData evaluatorData;
     evaluatorData.reply = m_networkAccessManager->get(request);
     evaluatorData.description = "Download project thumbnail";
-    evaluatorData.successCallback = [this, filePath](const QByteArray &reply) {
+    evaluatorData.successCallback = [this, filePath](const QByteArray &reply,
+                                                     const QList<RawHeaderPair> &) {
         QFile file(filePath);
         if (!file.open(QIODevice::WriteOnly)) {
             qCWarning(deploymentPluginLog) << "Failed to open file for writing:" << filePath;
@@ -465,7 +469,7 @@ void DVConnector::sharedProjectList()
     ReplyEvaluatorData evaluatorData;
     evaluatorData.reply = m_networkAccessManager->get(request);
     evaluatorData.description = "Shared project list";
-    evaluatorData.successCallback = [this](const QByteArray &reply) {
+    evaluatorData.successCallback = [this](const QByteArray &reply, const QList<RawHeaderPair> &) {
         emit sharedProjectListReceived(reply);
     };
     evaluatorData.connectCallbacks(this);
@@ -496,7 +500,8 @@ void DVConnector::shareProject(const QString &projectId,
     ReplyEvaluatorData evaluatorData;
     evaluatorData.reply = m_networkAccessManager->post(request, data);
     evaluatorData.description = "Share project";
-    evaluatorData.successCallback = [this, projectId](const QByteArray &reply) {
+    evaluatorData.successCallback = [this, projectId](const QByteArray &reply,
+                                                      const QList<RawHeaderPair> &) {
         qCDebug(deploymentPluginLog) << "Project shared: " << reply;
         const QString shareUuid = QJsonDocument::fromJson(reply).object()["id"].toString();
         emit projectShared(projectId, shareUuid);
@@ -519,7 +524,9 @@ void DVConnector::unshareProject(const QString &shareUUID)
     ReplyEvaluatorData evaluatorData;
     evaluatorData.reply = m_networkAccessManager->deleteResource(request);
     evaluatorData.description = "Unshare project";
-    evaluatorData.successCallback = [this](const QByteArray &) { emit projectUnshared(); };
+    evaluatorData.successCallback = [this](const QByteArray &, const QList<RawHeaderPair> &) {
+        emit projectUnshared();
+    };
     evaluatorData.errorPreCallback = [this](const int errorCode, const QString &errorString) {
         emit projectUnshareError(errorCode, errorString);
     };
@@ -537,7 +544,9 @@ void DVConnector::unshareAllProjects()
     ReplyEvaluatorData evaluatorData;
     evaluatorData.reply = m_networkAccessManager->deleteResource(request);
     evaluatorData.description = "Unshare all projects";
-    evaluatorData.successCallback = [this](const QByteArray &) { emit allProjectsUnshared(); };
+    evaluatorData.successCallback = [this](const QByteArray &, const QList<RawHeaderPair> &) {
+        emit allProjectsUnshared();
+    };
     evaluatorData.errorPreCallback = [this](const int errorCode, const QString &errorString) {
         emit allProjectsUnshareError(errorCode, errorString);
     };
@@ -553,7 +562,8 @@ void DVConnector::downloadSharedProject(const QString &projectId, const QString 
     ReplyEvaluatorData evaluatorData;
     evaluatorData.reply = m_networkAccessManager->get(request);
     evaluatorData.description = "Download shared project";
-    evaluatorData.successCallback = [this, filePath](const QByteArray &reply) {
+    evaluatorData.successCallback = [this, filePath](const QByteArray &reply,
+                                                     const QList<RawHeaderPair> &) {
         QFile file(filePath);
         if (!file.open(QIODevice::WriteOnly)) {
             qCWarning(deploymentPluginLog) << "Failed to open file for writing:" << filePath;
@@ -578,7 +588,8 @@ void DVConnector::downloadSharedProjectThumbnail(const QString &projectId, const
     ReplyEvaluatorData evaluatorData;
     evaluatorData.reply = m_networkAccessManager->get(request);
     evaluatorData.description = "Download shared project thumbnail";
-    evaluatorData.successCallback = [this, filePath](const QByteArray &reply) {
+    evaluatorData.successCallback = [this, filePath](const QByteArray &reply,
+                                                     const QList<RawHeaderPair> &) {
         QFile file(filePath);
         if (!file.open(QIODevice::WriteOnly)) {
             qCWarning(deploymentPluginLog) << "Failed to open file for writing:" << filePath;
@@ -607,6 +618,24 @@ void DVConnector::login()
     m_webEngineView->raise();
 }
 
+void DVConnector::internalLogin()
+{
+    qCDebug(deploymentPluginLog) << "Internal login";
+    QUrl url(DVEndpoints::serviceUrl + DVEndpoints::login);
+    QNetworkRequest request(url);
+
+    ReplyEvaluatorData evaluatorData;
+    evaluatorData.reply = m_networkAccessManager->get(request);
+    evaluatorData.description = "Internal Login";
+    evaluatorData.successCallback = [this](const QByteArray &, const QList<RawHeaderPair> &) {
+        m_connectorStatus = ConnectorStatus::LoggedIn;
+        emit connectorStatusUpdated(m_connectorStatus);
+        fetchUserInfo();
+    };
+
+    evaluatorData.connectCallbacks(this);
+}
+
 void DVConnector::logout()
 {
     if (m_connectorStatus == ConnectorStatus::NotLoggedIn) {
@@ -621,7 +650,7 @@ void DVConnector::logout()
     ReplyEvaluatorData evaluatorData;
     evaluatorData.reply = m_networkAccessManager->get(request);
     evaluatorData.description = "Logout";
-    evaluatorData.successCallback = [this](const QByteArray &) {
+    evaluatorData.successCallback = [this](const QByteArray &, const QList<RawHeaderPair> &) {
         m_webEngineProfile->cookieStore()->deleteAllCookies();
         m_connectorStatus = ConnectorStatus::NotLoggedIn;
         emit connectorStatusUpdated(m_connectorStatus);
@@ -632,19 +661,58 @@ void DVConnector::logout()
 
 void DVConnector::fetchUserInfo()
 {
+    refreshToken();
+}
+
+void DVConnector::refreshToken()
+{
+    qCDebug(deploymentPluginLog) << "Refreshing token";
+    QUrl url(DVEndpoints::serviceUrl + DVEndpoints::refreshToken);
+    QNetworkRequest request(url);
+
+    ReplyEvaluatorData evaluatorData;
+    evaluatorData.reply = m_networkAccessManager->post(request, QByteArray());
+    evaluatorData.description = "Refresh token";
+    evaluatorData.successCallback = [this](const QByteArray &, const QList<RawHeaderPair> &headers) {
+        qCDebug(deploymentPluginLog) << "Token refreshed";
+        for (const RawHeaderPair &header : headers) {
+            if (header.first.compare("Set-Cookie", Qt::CaseInsensitive) == 0) {
+                const QList<QNetworkCookie> cookies = QNetworkCookie::parseCookies(header.second);
+                for (const QNetworkCookie &cookie : cookies) {
+                    qCDebug(deploymentPluginLog)
+                        << "Refresh Cookie:" << cookie.name() << cookie.value();
+                    m_networkAccessManager->cookieJar()->insertCookie(cookie);
+                    m_networkCookieJar->saveCookies();
+                }
+            }
+        }
+        m_connectorStatus = ConnectorStatus::LoggedIn;
+        emit connectorStatusUpdated(m_connectorStatus);
+        fetchUserInfoInternal();
+    };
+
+    evaluatorData.connectCallbacks(this);
+}
+
+void DVConnector::fetchUserInfoInternal(const bool checkLogin)
+{
     qCDebug(deploymentPluginLog) << "Fetching user info";
+
     QUrl url(DVEndpoints::serviceUrl + DVEndpoints::userInfo);
     QNetworkRequest request(url);
 
     ReplyEvaluatorData evaluatorData;
     evaluatorData.description = "User info";
     evaluatorData.reply = m_networkAccessManager->get(request);
-    evaluatorData.successCallback = [this](const QByteArray &reply) {
-        m_connectorStatus = ConnectorStatus::LoggedIn;
-        emit connectorStatusUpdated(m_connectorStatus);
+    evaluatorData.successCallback = [&](const QByteArray &reply, const QList<RawHeaderPair> &) {
+        if (checkLogin) {
+            m_connectorStatus = ConnectorStatus::LoggedIn;
+            emit connectorStatusUpdated(m_connectorStatus);
+        }
         m_userInfo = reply;
         emit userInfoReceived(reply);
     };
+
     evaluatorData.errorCodeOtherCallback = [this](const int, const QString &) {
         QTimer::singleShot(1000, this, &DVConnector::fetchUserInfo);
     };
@@ -655,10 +723,13 @@ void DVConnector::fetchUserInfo()
 void DVConnector::evaluateReply(const ReplyEvaluatorData &evaluatorData)
 {
     if (evaluatorData.reply->error() == QNetworkReply::NoError) {
-        qCDebug(deploymentPluginLog) << evaluatorData.description << " request finished successfully";
+        qCDebug(deploymentPluginLog) << evaluatorData.description << "request finished successfully";
+
         if (evaluatorData.successCallback) {
-            qCDebug(deploymentPluginLog) << "Executing success callback";
-            evaluatorData.successCallback(evaluatorData.reply->readAll());
+            qCDebug(deploymentPluginLog)
+                << evaluatorData.description << ": Executing success callback";
+            evaluatorData.successCallback(evaluatorData.reply->readAll(),
+                                          evaluatorData.reply->rawHeaderPairs());
         }
         return;
     }
@@ -669,25 +740,29 @@ void DVConnector::evaluateReply(const ReplyEvaluatorData &evaluatorData)
                                         .toInt()
                                  << ", Message:" << evaluatorData.reply->errorString();
     if (evaluatorData.errorPreCallback) {
-        qCDebug(deploymentPluginLog) << "Executing custom error pre callback";
+        qCDebug(deploymentPluginLog)
+            << evaluatorData.description << ": Executing custom error pre callback";
         evaluatorData.errorPreCallback(evaluatorData.reply->error(),
                                        evaluatorData.reply->errorString());
     }
 
     if (evaluatorData.reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 401) {
         if (evaluatorData.errorCodeUnauthorizedCallback) {
-            qCDebug(deploymentPluginLog) << "Executing custom unauthorized callback";
+            qCDebug(deploymentPluginLog)
+                << evaluatorData.description << ": Executing custom unauthorized callback";
             evaluatorData.errorCodeUnauthorizedCallback(
                 evaluatorData.reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt(),
                 evaluatorData.reply->errorString());
         } else {
-            qCDebug(deploymentPluginLog) << "Executing default unauthorized callback";
+            qCDebug(deploymentPluginLog)
+                << evaluatorData.description << ": Executing default unauthorized callback";
             m_connectorStatus = ConnectorStatus::NotLoggedIn;
             emit connectorStatusUpdated(m_connectorStatus);
         }
     } else {
         if (evaluatorData.errorCodeOtherCallback) {
-            qCDebug(deploymentPluginLog) << "Executing custom error callback";
+            qCDebug(deploymentPluginLog)
+                << evaluatorData.description << ": Executing custom error callback";
             evaluatorData.errorCodeOtherCallback(
                 evaluatorData.reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt(),
                 evaluatorData.reply->errorString());
