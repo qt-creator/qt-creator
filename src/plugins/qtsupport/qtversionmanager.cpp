@@ -411,7 +411,7 @@ void QtVersionManagerImpl::saveQtVersions()
         data.insert(numberedKey(QTVERSION_DATA_KEY, count), variantFromStore(tmp));
         ++count;
     }
-    m_writer->save(data, Core::ICore::dialogParent());
+    m_writer->save(data);
 }
 
 // Executes qtchooser with arguments in a process and returns its output

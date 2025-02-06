@@ -934,7 +934,7 @@ void DebuggerItemModel::saveDebuggers()
         }
     });
     data.insert(DEBUGGER_COUNT_KEY, count);
-    m_writer.save(data, ICore::dialogParent());
+    m_writer.save(data);
 
     // Do not save default debuggers as they are set by the SDK.
 }

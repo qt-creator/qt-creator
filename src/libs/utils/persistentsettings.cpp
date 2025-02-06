@@ -19,6 +19,7 @@
 #include <QXmlStreamWriter>
 
 #ifdef QT_GUI_LIB
+#include "guiutils.h"
 #include <QMessageBox>
 #endif
 
@@ -389,12 +390,12 @@ bool PersistentSettingsWriter::save(const Store &data, QString *errorString) con
 }
 
 #ifdef QT_GUI_LIB
-bool PersistentSettingsWriter::save(const Store &data, QWidget *parent) const
+bool PersistentSettingsWriter::save(const Store &data) const
 {
     QString errorString;
     const bool success = save(data, &errorString);
     if (!success)
-        QMessageBox::critical(parent, Tr::tr("File Error"), errorString);
+        QMessageBox::critical(dialogParent(), Tr::tr("File Error"), errorString);
     return success;
 }
 #endif // QT_GUI_LIB

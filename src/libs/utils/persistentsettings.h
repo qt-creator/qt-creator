@@ -8,12 +8,6 @@
 #include "filepath.h"
 #include "store.h"
 
-#include <QVariant>
-
-QT_BEGIN_NAMESPACE
-class QWidget;
-QT_END_NAMESPACE
-
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT PersistentSettingsReader
@@ -37,7 +31,7 @@ public:
 
     bool save(const Store &data, QString *errorString) const;
 #ifdef QT_GUI_LIB
-    bool save(const Store &data, QWidget *parent) const;
+    bool save(const Store &data) const;
 #endif
 
     FilePath fileName() const;

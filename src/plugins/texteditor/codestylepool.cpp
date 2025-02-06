@@ -262,7 +262,7 @@ void CodeStylePool::exportCodeStyle(const FilePath &fileName, ICodeStylePreferen
         {codeStyleDataKey, variantFromStore(map)}
     };
     PersistentSettingsWriter writer(fileName, QLatin1String(codeStyleDocKey));
-    writer.save(tmp, Core::ICore::dialogParent());
+    writer.save(tmp);
 }
 
 } // TextEditor

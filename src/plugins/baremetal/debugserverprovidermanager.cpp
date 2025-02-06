@@ -147,7 +147,7 @@ void DebugServerProviderManager::saveProviders()
         }
     }
     data.insert(countKeyC, count);
-    m_writer->save(data, Core::ICore::dialogParent());
+    m_writer->save(data);
 }
 
 QList<IDebugServerProvider *> DebugServerProviderManager::providers()

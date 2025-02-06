@@ -451,7 +451,7 @@ public:
         }
 
         data.insert(QNXConfigCountKey, count);
-        m_writer.save(data, Core::ICore::dialogParent());
+        m_writer.save(data);
     }
 
     void restoreConfigurations()
