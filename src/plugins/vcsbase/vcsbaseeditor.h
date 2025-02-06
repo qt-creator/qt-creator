@@ -67,10 +67,6 @@ class VCSBASE_EXPORT VcsBaseEditor : public TextEditor::BaseTextEditor
 public:
     VcsBaseEditor();
 
-    // Utility to find a parameter set by type in an array.
-    static const VcsBaseEditorParameters *
-    findType(const VcsBaseEditorParameters *array, int arraySize, EditorContentType et);
-
     // Utility to find the codec for a source (file or directory), querying
     // the editor manager and the project managers (defaults to system codec).
     // The codec should be set on editors displaying diff or annotation
@@ -187,8 +183,6 @@ public:
 
     int firstLineNumber() const;
     void setFirstLineNumber(int firstLineNumber);
-
-    bool isModified() const;
 
     EditorContentType contentType() const;
 

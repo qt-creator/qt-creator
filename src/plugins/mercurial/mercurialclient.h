@@ -20,10 +20,6 @@ class MercurialClient : public VcsBase::VcsBaseClient
 public:
     MercurialClient();
 
-    bool synchronousClone(const Utils::FilePath &workingDir,
-                          const QString &srcLocation,
-                          const QString &dstLocation,
-                          const QStringList &extraOptions = {}) override;
     bool synchronousPull(const Utils::FilePath &workingDir,
                          const QString &srcLocation,
                          const QStringList &extraOptions = {}) override;

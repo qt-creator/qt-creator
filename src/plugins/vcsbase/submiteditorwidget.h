@@ -49,9 +49,6 @@ public:
     bool isDescriptionMandatory() const;
     void setDescriptionMandatory(bool);
 
-    QAbstractItemView::SelectionMode fileListSelectionMode() const;
-    void setFileListSelectionMode(QAbstractItemView::SelectionMode sm);
-
     void setFileModel(SubmitFileModel *model);
     SubmitFileModel *fileModel() const;
 
@@ -61,7 +58,6 @@ public:
     Utils::CompletingTextEdit *descriptionEdit() const;
 
     void addDescriptionEditContextMenuAction(QAction *a);
-    void insertDescriptionEditContextMenuAction(int pos, QAction *a);
 
     void addSubmitFieldWidget(SubmitFieldWidget *f);
     QList<SubmitFieldWidget *> submitFieldWidgets() const;

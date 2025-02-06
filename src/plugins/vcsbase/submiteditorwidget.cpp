@@ -413,16 +413,6 @@ void SubmitEditorWidget::setDescriptionMandatory(bool v)
     d->m_descriptionMandatory = v;
 }
 
-QAbstractItemView::SelectionMode SubmitEditorWidget::fileListSelectionMode() const
-{
-    return d->fileView->selectionMode();
-}
-
-void SubmitEditorWidget::setFileListSelectionMode(QAbstractItemView::SelectionMode sm)
-{
-    d->fileView->setSelectionMode(sm);
-}
-
 void SubmitEditorWidget::setFileModel(SubmitFileModel *model)
 {
     d->fileView->clearSelection(); // trigger the change signals
@@ -752,12 +742,6 @@ void SubmitEditorWidget::addDescriptionEditContextMenuAction(QAction *a)
 {
     d->descriptionEditContextMenuActions
             .push_back(SubmitEditorWidgetPrivate::AdditionalContextMenuAction(-1, a));
-}
-
-void SubmitEditorWidget::insertDescriptionEditContextMenuAction(int pos, QAction *a)
-{
-    d->descriptionEditContextMenuActions
-            .push_back(SubmitEditorWidgetPrivate::AdditionalContextMenuAction(pos, a));
 }
 
 void SubmitEditorWidget::editorCustomContextMenuRequested(const QPoint &pos)

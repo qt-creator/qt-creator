@@ -52,9 +52,6 @@ public:
     void accept(VersionControlBase *plugin);
     bool promptSubmit(VersionControlBase *plugin);
 
-    QAbstractItemView::SelectionMode fileListSelectionMode() const;
-    void setFileListSelectionMode(QAbstractItemView::SelectionMode sm);
-
     // 'Commit' action enabled despite empty file list
     bool isEmptyFileListEnabled() const;
     void setEmptyFileListEnabled(bool e);
