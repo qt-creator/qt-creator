@@ -85,8 +85,6 @@ public:
                                              const QString &localName,
                                              const QStringList &extraArgs) final;
 
-    bool sccManaged(const QString &filename);
-
     // To be connected to the HgTask's success signal to emit the repository/
     // files changed signals according to the variant's type:
     // String -> repository, StringList -> files
@@ -738,17 +736,6 @@ VcsCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const QString &
                    mercurialClient().processEnvironment(baseDirectory));
     command->addJob({settings().binaryPath(), {"clone", extraArgs, url, localName}}, -1);
     return command;
-}
-
-bool MercurialPluginPrivate::sccManaged(const QString &filename)
-{
-    const QFileInfo fi(filename);
-    FilePath topLevel;
-    const bool managed = managesDirectory(FilePath::fromString(fi.absolutePath()), &topLevel);
-    if (!managed || topLevel.isEmpty())
-        return false;
-    const QDir topLevelDir(topLevel.toUrlishString());
-    return mercurialClient().manifestSync(topLevel, topLevelDir.relativeFilePath(filename));
 }
 
 void MercurialPluginPrivate::changed(const QVariant &v)

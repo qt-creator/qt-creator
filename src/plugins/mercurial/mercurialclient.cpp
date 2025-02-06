@@ -81,29 +81,7 @@ QStringList MercurialDiffEditorController::addConfigurationArguments(const QStri
 
 /////////////////////////////////////////////////////////////
 
-MercurialClient::MercurialClient()
-    : VcsBaseClient(&Internal::settings())
-{
-}
-
-bool MercurialClient::manifestSync(const FilePath &repository, const QString &relativeFilename)
-{
-    // This  only works when called from the repo and outputs paths relative to it.
-    const QStringList args(QLatin1String("manifest"));
-
-    const CommandResult result = vcsSynchronousExec(repository, args);
-
-    const QDir repositoryDir(repository.toUrlishString());
-    const QFileInfo needle = QFileInfo(repositoryDir, relativeFilename);
-
-    const QStringList files = result.cleanedStdOut().split(QLatin1Char('\n'));
-    for (const QString &fileName : files) {
-        const QFileInfo managedFile(repositoryDir, fileName);
-        if (needle == managedFile)
-            return true;
-    }
-    return false;
-}
+MercurialClient::MercurialClient() : VcsBaseClient(&Internal::settings()) {}
 
 //bool MercurialClient::clone(const QString &directory, const QString &url)
 bool MercurialClient::synchronousClone(const FilePath &workingDirectory,

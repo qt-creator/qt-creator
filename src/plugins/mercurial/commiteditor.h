@@ -24,7 +24,6 @@ public:
                    const QList<VcsBase::VcsBaseClient::StatusItem> &repoStatus);
 
     QString committerInfo() const;
-    QString repoRoot() const;
 
 private:
     MercurialCommitWidget *commitWidget() const;

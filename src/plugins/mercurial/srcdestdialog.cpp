@@ -75,11 +75,6 @@ SrcDestDialog::SrcDestDialog(const VcsBasePluginState &state, Direction dir, QWi
 
 SrcDestDialog::~SrcDestDialog() = default;
 
-void SrcDestDialog::setPathChooserKind(Utils::PathChooser::Kind kind)
-{
-    m_localPathChooser->setExpectedKind(kind);
-}
-
 QString SrcDestDialog::getRepositoryString() const
 {
     if (m_defaultButton->isChecked()) {
