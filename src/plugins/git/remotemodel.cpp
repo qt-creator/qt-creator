@@ -174,14 +174,5 @@ bool RemoteModel::refresh(const FilePath &workingDirectory, QString *errorMessag
     return true;
 }
 
-int RemoteModel::findRemoteByName(const QString &name) const
-{
-    const int count = remoteCount();
-    for (int i = 0; i < count; i++)
-        if (remoteName(i) == name)
-            return i;
-    return -1;
-}
-
 } // Git::Internal
 
