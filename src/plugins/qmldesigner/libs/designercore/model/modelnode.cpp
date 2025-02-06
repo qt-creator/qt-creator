@@ -714,7 +714,7 @@ bool ModelNode::isSelected() const
     if (!isValid())
         return false;
 
-    return view()->selectedModelNodes().contains(ModelNode(m_internalNode, m_model.data(), view()));
+    return model()->d->selectedNodes().contains(internalNode());
 }
 
 /*! \briefis this node the root node of the model
@@ -890,7 +890,7 @@ void ModelNode::selectNode()
     QList<ModelNode> selectedNodeList;
     selectedNodeList.append(*this);
 
-    view()->setSelectedModelNodes(selectedNodeList);
+    model()->setSelectedModelNodes(selectedNodeList);
 }
 
 void ModelNode::deselectNode()
@@ -898,10 +898,9 @@ void ModelNode::deselectNode()
     if (!isValid())
         return;
 
-    QList<ModelNode> selectedNodeList(view()->selectedModelNodes());
-    selectedNodeList.removeAll(*this);
-
-    view()->setSelectedModelNodes(selectedNodeList);
+    auto selectedNodes = model()->d->selectedNodes();
+    selectedNodes.removeAll(internalNode());
+    model()->d->setSelectedNodes(selectedNodes);
 }
 
 int ModelNode::variantTypeId()
