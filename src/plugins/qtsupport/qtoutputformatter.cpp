@@ -425,17 +425,21 @@ static QTextCharFormat blueFormat()
     return result;
 }
 
-static QTextCharFormat tweakedBlueFormat()
+static QTextCharFormat tweakedFormat(QTextCharFormat format)
 {
     // foreground gets tweaked when passing doAppendMessage()
-    QTextCharFormat tweakedBlue = blueFormat();
-    QColor foreground = tweakedBlue.foreground().color();
-    const QColor background = tweakedBlue.hasProperty(QTextCharFormat::BackgroundBrush)
-                                  ? tweakedBlue.background().color()
+    QColor foreground = format.foreground().color();
+    const QColor background = format.hasProperty(QTextCharFormat::BackgroundBrush)
+                                  ? format.background().color()
                                   : Utils::creatorColor(Theme::BackgroundColorNormal);
     foreground = StyleHelper::ensureReadableOn(background, foreground);
-    tweakedBlue.setForeground(foreground);
-    return tweakedBlue;
+    format.setForeground(foreground);
+    return format;
+}
+
+static QTextCharFormat tweakedBlueFormat()
+{
+    return tweakedFormat(blueFormat());
 }
 
 static QTextCharFormat greenFormat()
@@ -443,6 +447,11 @@ static QTextCharFormat greenFormat()
     QTextCharFormat result;
     result.setForeground(QColor(0, 127, 0));
     return result;
+}
+
+static QTextCharFormat tweakedGreenFormat()
+{
+    return tweakedFormat(greenFormat());
 }
 
 void QtOutputFormatterTest::testQtOutputFormatter_appendMessage_data()
@@ -518,7 +527,7 @@ void QtOutputFormatterTest::testQtOutputFormatter_appendMixedAssertAndAnsi()
     QCOMPARE(edit.toPlainText(), outputText);
 
     edit.moveCursor(QTextCursor::Start);
-    QCOMPARE(edit.currentCharFormat(), greenFormat());
+    QCOMPARE(edit.currentCharFormat(), tweakedGreenFormat());
 
     edit.moveCursor(QTextCursor::WordRight);
     edit.moveCursor(QTextCursor::Right);
