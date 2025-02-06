@@ -1511,16 +1511,18 @@ void GdbEngine::handlePythonSetup(const DebuggerResponse &response)
         GdbMi data = response.data;
         watchHandler()->addDumpers(data["dumpers"]);
         m_pythonVersion = data["python"].toInt();
-        if (m_pythonVersion < 20700) {
+        if (m_pythonVersion < 30700) {
             int pythonMajor = m_pythonVersion / 10000;
             int pythonMinor = (m_pythonVersion / 100) % 100;
             QString out = "<p>"
                           + Tr::tr("The selected build of GDB supports Python scripting, "
                                    "but the used version %1.%2 is not sufficient for "
-                                   "%3. Supported versions are Python 2.7 and 3.x.")
+                                   "%3. Python %4 or later is required.")
                                 .arg(pythonMajor)
                                 .arg(pythonMinor)
-                                .arg(QGuiApplication::applicationDisplayName());
+                                .arg(QGuiApplication::applicationDisplayName())
+                                .arg("3.7");
+
             showStatusMessage(out);
             AsynchronousMessageBox::critical(Tr::tr("Execution Error"), out);
         }
