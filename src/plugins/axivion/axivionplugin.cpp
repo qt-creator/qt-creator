@@ -681,7 +681,7 @@ static Group authorizationRecipe()
         const AxivionServer server = settings().serverForId(serverId);
         const QString text(Tr::tr("Enter the password for:\nDashboard: %1\nUser: %2")
                                .arg(server.dashboard, server.username));
-        *passwordStorage = QInputDialog::getText(ICore::mainWindow(),
+        *passwordStorage = QInputDialog::getText(ICore::dialogParent(),
             Tr::tr("Axivion Server Password"), text, QLineEdit::Password, {}, &ok);
         if (!ok)
             return SetupResult::StopWithError;
