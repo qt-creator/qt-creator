@@ -11,6 +11,9 @@
 
 #include <devicesharing/device.h>
 
+#include <coreplugin/icore.h>
+#include <utils/checkablemessagebox.h>
+
 namespace QmlDesigner {
 
 Q_LOGGING_CATEGORY(runManagerLog, "qtc.designer.runManager", QtWarningMsg)
@@ -442,6 +445,14 @@ void AndroidTarget::run() const
 {
     if (!ProjectExplorer::ProjectExplorerPlugin::saveModifiedFiles())
         return;
+
+    Utils::CheckableDecider decider(Utils::Key("WarnAboutQtUIViewerStyleIncompatiblity"));
+    Utils::CheckableMessageBox::information(
+        Core::ICore::dialogParent(),
+        Tr::tr("Style Incompatibility"),
+        Tr::tr("Qt UI Viewer only supports the default Android style (Material). "
+               "Different styles may not be displayed correctly."),
+        decider);
 
     deviceManager()->runProject(m_deviceId);
 }
