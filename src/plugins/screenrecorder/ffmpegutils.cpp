@@ -149,23 +149,6 @@ static QVersionNumber parseVersionNumber(const QByteArray &toolOutput)
     return result;
 }
 
-QVersionNumber toolVersion()
-{
-    Process proc;
-    const CommandLine cl{
-        Internal::settings().ffprobeTool(),
-        {
-            "-v", "quiet",
-            "-print_format", "json",
-            "-show_versions",
-        }
-    };
-    proc.setCommand(cl);
-    proc.runBlocking();
-    const QByteArray output = proc.allRawOutput();
-    return parseVersionNumber(output);
-}
-
 static ClipInfo parseClipInfo(const QByteArray &toolOutput)
 {
     ClipInfo result;
