@@ -36,6 +36,7 @@
 
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDialog>
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QLabel>
@@ -48,12 +49,30 @@ using namespace ProjectExplorer;
 using namespace Tasking;
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 static Q_LOGGING_CATEGORY(runnerLog, "qtc.autotest.testrunner", QtWarningMsg)
 
 static TestRunner *s_instance = nullptr;
+
+class RunConfigurationSelectionDialog final : public QDialog
+{
+public:
+    explicit RunConfigurationSelectionDialog(const QString &buildTargetKey);
+    QString displayName() const;
+    QString executable() const;
+    bool rememberChoice() const;
+private:
+    void populate();
+    void updateLabels();
+    QLabel *m_details;
+    QLabel *m_executable;
+    QLabel *m_arguments;
+    QLabel *m_workingDir;
+    QComboBox *m_rcCombo;
+    QCheckBox *m_rememberCB;
+    QDialogButtonBox *m_buttonBox;
+};
 
 TestRunner *TestRunner::instance()
 {
@@ -252,7 +271,7 @@ static RunConfiguration *getRunConfiguration(const QString &buildTargetKey)
     if (runConfigurations.size() == 1)
         return runConfigurations.first();
 
-    RunConfigurationSelectionDialog dialog(buildTargetKey, ICore::dialogParent());
+    RunConfigurationSelectionDialog dialog(buildTargetKey);
     if (dialog.exec() == QDialog::Accepted) {
         const QString dName = dialog.displayName();
         if (dName.isEmpty())
@@ -720,9 +739,8 @@ void TestRunner::reportResult(ResultType type, const QString &description)
 
 /*************************************************************************************************/
 
-RunConfigurationSelectionDialog::RunConfigurationSelectionDialog(const QString &buildTargetKey,
-                                                                 QWidget *parent)
-    : QDialog(parent)
+RunConfigurationSelectionDialog::RunConfigurationSelectionDialog(const QString &buildTargetKey)
+    : QDialog(ICore::dialogParent())
 {
     setWindowTitle(Tr::tr("Select Run Configuration"));
 
@@ -807,5 +825,4 @@ void RunConfigurationSelectionDialog::updateLabels()
     m_workingDir->setText(values.at(2));
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Internal::Autotest
