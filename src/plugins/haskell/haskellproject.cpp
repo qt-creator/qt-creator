@@ -71,7 +71,7 @@ HaskellBuildSystem::HaskellBuildSystem(BuildConfiguration *bc)
 {
     connect(&m_scanner, &TreeScanner::finished, this, [this] {
         auto root = std::make_unique<ProjectNode>(projectDirectory());
-        root->setDisplayName(target()->project()->displayName());
+        root->setDisplayName(project()->displayName());
         std::vector<std::unique_ptr<FileNode>> nodePtrs
             = Utils::transform<std::vector>(m_scanner.release().takeAllFiles(), [](FileNode *fn) {
                   return std::unique_ptr<FileNode>(fn);
@@ -87,18 +87,14 @@ HaskellBuildSystem::HaskellBuildSystem(BuildConfiguration *bc)
         emitBuildSystemUpdated();
     });
 
-    connect(target()->project(),
-            &Project::projectFileIsDirty,
-            this,
-            &BuildSystem::requestDelayedParse);
-
+    connect(project(), &Project::projectFileIsDirty, this, &BuildSystem::requestDelayedParse);
     requestDelayedParse();
 }
 
 void HaskellBuildSystem::triggerParsing()
 {
     m_parseGuard = guardParsingRun();
-    m_scanner.asyncScanForFiles(target()->project()->projectDirectory());
+    m_scanner.asyncScanForFiles(project()->projectDirectory());
 }
 
 void HaskellBuildSystem::updateApplicationTargets()

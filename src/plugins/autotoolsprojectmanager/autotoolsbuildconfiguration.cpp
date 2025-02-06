@@ -203,7 +203,7 @@ public:
         setConfigWidgetDisplayName(Tr::tr("Autotools Manager"));
 
         // ### Build Steps Build ###
-        const FilePath autogenFile = target->project()->projectDirectory() / "autogen.sh";
+        const FilePath autogenFile = project()->projectDirectory() / "autogen.sh";
         if (autogenFile.exists())
             appendInitialBuildStep(Constants::AUTOGEN_STEP_ID); // autogen.sh
         else

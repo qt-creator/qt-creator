@@ -78,7 +78,7 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Utils::Id id)
         configData.insert(Constants::QBS_CONFIG_VARIANT_KEY, buildVariant);
         FilePath buildDir = info.buildDirectory;
         if (buildDir.isEmpty())
-            buildDir = defaultBuildDirectory(target->project()->projectFilePath(),
+            buildDir = defaultBuildDirectory(project()->projectFilePath(),
                                              kit, info.displayName,
                                              buildType());
         setBuildDirectory(buildDir);

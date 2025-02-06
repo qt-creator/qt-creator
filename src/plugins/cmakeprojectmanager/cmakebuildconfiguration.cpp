@@ -524,7 +524,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         updateInitialCMakeArguments();
     });
 
-    connect(m_buildConfig->target()->project(), &Project::aboutToSaveSettings, this, [this] {
+    connect(m_buildConfig->project(), &Project::aboutToSaveSettings, this, [this] {
         updateInitialCMakeArguments();
     });
 
@@ -1511,7 +1511,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                                       ? extraInfoMap.value(CMAKE_BUILD_TYPE).toString()
                                       : info.typeName;
 
-        CommandLine cmd = defaultInitialCMakeCommand(k, target->project(), buildType);
+        CommandLine cmd = defaultInitialCMakeCommand(k, project(), buildType);
         m_buildSystem->setIsMultiConfig(CMakeGeneratorKitAspect::isMultiConfigGenerator(k));
 
         // Android magic:
@@ -1591,7 +1591,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         }
 
         if (info.buildDirectory.isEmpty()) {
-            setBuildDirectory(shadowBuildDirectory(target->project()->projectFilePath(),
+            setBuildDirectory(shadowBuildDirectory(project()->projectFilePath(),
                                                    k,
                                                    info.displayName,
                                                    info.buildType));
@@ -1613,7 +1613,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             cmd.addArg("-DQT_QML_GENERATE_QMLLS_INI:BOOL=ON");
         }
 
-        CMakeProject *cmakeProject = static_cast<CMakeProject *>(target->project());
+        CMakeProject *cmakeProject = static_cast<CMakeProject *>(project());
         configureEnv.setUserEnvironmentChanges(
             getEnvironmentItemsFromCMakeConfigurePreset(cmakeProject, k));
 
@@ -1914,7 +1914,7 @@ void CMakeBuildConfiguration::setInitialBuildAndCleanSteps(const Target *target)
     int buildSteps = 1;
     if (!presetItem.isNull()) {
         const QString presetName = presetItem.expandedValue(target->kit());
-        const CMakeProject *project = static_cast<const CMakeProject *>(target->project());
+        const CMakeProject *project = static_cast<const CMakeProject *>(this->project());
 
         const auto buildPresets = project->presetsData().buildPresets;
         const int count
@@ -1948,7 +1948,7 @@ void CMakeBuildConfiguration::setBuildPresetToBuildSteps(const ProjectExplorer::
         return;
 
     const QString presetName = presetItem.expandedValue(target->kit());
-    const CMakeProject *project = static_cast<const CMakeProject *>(target->project());
+    const CMakeProject *project = static_cast<const CMakeProject *>(this->project());
 
     const auto allBuildPresets = project->presetsData().buildPresets;
     const auto buildPresets = Utils::filtered(
@@ -2394,7 +2394,7 @@ ConfigureEnvironmentAspect::ConfigureEnvironmentAspect(AspectContainer *containe
 
     setBaseEnvironmentBase(presetItem.isNull() ? buildEnvIndex : systemEnvIndex);
 
-    connect(target->project(),
+    connect(bc->project(),
             &Project::environmentChanged,
             this,
             &EnvironmentAspect::environmentChanged);

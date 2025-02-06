@@ -29,13 +29,13 @@ static FilePath cmakeFilePath(const Target *target)
     return tool->filePath();
 }
 
-static QStringList flashAndRunArgs(const RunConfiguration *rc, const Target *target)
+static QStringList flashAndRunArgs(const RunConfiguration *rc)
 {
     // Use buildKey if provided, fallback to projectName
     const QString targetName = QLatin1String("flash_%1")
                                    .arg(!rc->buildKey().isEmpty()
                                             ? rc->buildKey()
-                                            : target->project()->displayName());
+                                            : rc->project()->displayName());
 
     return {"--build", ".", "--target", targetName};
 }
@@ -50,13 +50,9 @@ public:
         flashAndRunParameters.setDisplayStyle(StringAspect::TextEditDisplay);
         flashAndRunParameters.setSettingsKey("FlashAndRunConfiguration.Parameters");
 
-        setUpdater([target, this] {
-            flashAndRunParameters.setValue(flashAndRunArgs(this, target).join(' '));
-        });
-
+        setUpdater([this] { flashAndRunParameters.setValue(flashAndRunArgs(this).join(' ')); });
         update();
-
-        connect(target->project(), &Project::displayNameChanged, this, &RunConfiguration::update);
+        connect(project(), &Project::displayNameChanged, this, &RunConfiguration::update);
     }
 
     bool isEnabled(Utils::Id runMode) const override

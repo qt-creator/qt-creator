@@ -107,7 +107,7 @@ public:
 
         if (rp.isCppDebugging()) {
             qCDebug(androidDebugSupportLog) << "C++ debugging enabled";
-            const ProjectNode *node = target->project()->findNodeForBuildKey(runControl->buildKey());
+            const ProjectNode *node = runControl->project()->findNodeForBuildKey(runControl->buildKey());
             FilePaths solibSearchPath = getSoLibSearchPath(node);
             if (qtVersion)
                 solibSearchPath.append(qtVersion->qtSoPaths());

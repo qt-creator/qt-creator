@@ -2524,7 +2524,7 @@ void CMakeBuildSystem::runGenerator(Id id)
         showError(Tr::tr("Cannot create output directory \"%1\".").arg(outDir.toUrlishString()));
         return;
     }
-    CommandLine cmdLine(cmakeTool->cmakeExecutable(), {"-S", buildConfiguration()->target()
+    CommandLine cmdLine(cmakeTool->cmakeExecutable(), {"-S", buildConfiguration()
                         ->project()->projectDirectory().toUserOutput(), "-G", generator});
     if (!cmdLine.executable().isExecutableFile()) {
         showError(Tr::tr("No valid cmake executable."));

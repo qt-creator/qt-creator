@@ -202,7 +202,7 @@ void ChooseDirectoryPage::initializePage()
     const BuildTargetInfo bti = target->buildTarget(buildKey);
 
     FilePath androidPackageDir;
-    if (const ProjectNode *node = target->project()->findNodeForBuildKey(buildKey))
+    if (const ProjectNode *node = m_wizard->buildSystem()->project()->findNodeForBuildKey(buildKey))
         androidPackageDir = FilePath::fromVariant(node->data(Android::Constants::AndroidPackageSourceDir));
 
     if (androidPackageDir.isEmpty()) {
@@ -270,7 +270,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
     }
 
     QString androidPackageDir;
-    ProjectNode *node = target->project()->findNodeForBuildKey(m_buildKey);
+    ProjectNode *node = m_buildSystem->project()->findNodeForBuildKey(m_buildKey);
     if (node) {
         node->addFiles(copy.files());
         androidPackageDir = node->data(Android::Constants::AndroidPackageSourceDir).toString();

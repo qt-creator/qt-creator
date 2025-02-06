@@ -56,7 +56,7 @@ void AndroidRunner::start()
 
     std::optional<ExecutableItem> avdRecipe;
 
-    if (!projectExplorerSettings().deployBeforeRun && target->project()) {
+    if (!projectExplorerSettings().deployBeforeRun && runControl()->project()) {
         qCDebug(androidRunnerLog) << "Run without deployment";
 
         const IDevice::ConstPtr device = RunDeviceKitAspect::device(target->kit());

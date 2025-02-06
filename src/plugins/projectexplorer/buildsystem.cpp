@@ -119,12 +119,12 @@ void BuildSystem::emitParsingFinished(bool success)
 
 FilePath BuildSystem::projectFilePath() const
 {
-    return d->m_target->project()->projectFilePath();
+    return project()->projectFilePath();
 }
 
 FilePath BuildSystem::projectDirectory() const
 {
-    return d->m_target->project()->projectDirectory();
+    return project()->projectDirectory();
 }
 
 bool BuildSystem::isWaitingForParse() const
@@ -242,7 +242,7 @@ ExtraCompiler *BuildSystem::extraCompilerForTarget(const Utils::FilePath &target
 
 MakeInstallCommand BuildSystem::makeInstallCommand(const FilePath &installRoot) const
 {
-    QTC_ASSERT(target()->project()->hasMakeInstallEquivalent(), return {});
+    QTC_ASSERT(project()->hasMakeInstallEquivalent(), return {});
     QTC_ASSERT(buildConfiguration(), return {});
 
     BuildStepList *buildSteps = buildConfiguration()->buildSteps();
@@ -338,7 +338,7 @@ BuildTargetInfo BuildSystem::buildTarget(const QString &buildKey) const
 
 void BuildSystem::setRootProjectNode(std::unique_ptr<ProjectNode> &&root)
 {
-    d->m_target->project()->setRootProjectNode(std::move(root));
+    project()->setRootProjectNode(std::move(root));
 }
 
 void BuildSystem::emitBuildSystemUpdated()
@@ -348,14 +348,14 @@ void BuildSystem::emitBuildSystemUpdated()
 
 void BuildSystem::setExtraData(const QString &buildKey, Utils::Id dataKey, const QVariant &data)
 {
-    const ProjectNode *node = d->m_target->project()->findNodeForBuildKey(buildKey);
+    const ProjectNode *node = project()->findNodeForBuildKey(buildKey);
     QTC_ASSERT(node, return);
     node->setData(dataKey, data);
 }
 
 QVariant BuildSystem::extraData(const QString &buildKey, Utils::Id dataKey) const
 {
-    const ProjectNode *node = d->m_target->project()->findNodeForBuildKey(buildKey);
+    const ProjectNode *node = project()->findNodeForBuildKey(buildKey);
     QTC_ASSERT(node, return {});
     return node->data(dataKey);
 }

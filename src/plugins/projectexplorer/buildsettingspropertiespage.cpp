@@ -281,7 +281,7 @@ void BuildSettingsWidget::cloneConfiguration()
         return;
 
     // Save the current build configuration settings, so that the clone gets all the settings
-    m_target->project()->saveSettings();
+    m_buildConfiguration->project()->saveSettings();
 
     BuildConfiguration *bc = m_buildConfiguration->clone(m_target);
     if (!bc)
@@ -289,7 +289,7 @@ void BuildSettingsWidget::cloneConfiguration()
 
     bc->setDisplayName(name);
     const FilePath buildDirectory = bc->buildDirectory();
-    if (buildDirectory != m_target->project()->projectDirectory()) {
+    if (buildDirectory != bc->project()->projectDirectory()) {
         const FilePathPredicate isBuildDirOk = [this](const FilePath &candidate) {
             if (candidate.exists())
                 return false;

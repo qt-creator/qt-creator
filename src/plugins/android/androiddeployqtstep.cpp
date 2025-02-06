@@ -260,7 +260,7 @@ bool AndroidDeployQtStep::init()
 
     m_uninstallPreviousPackageRun = m_uninstallPreviousPackage();
 
-    const ProjectNode *node = target()->project()->findNodeForBuildKey(buildKey);
+    const ProjectNode *node = project()->findNodeForBuildKey(buildKey);
     if (!node) {
         reportWarningOrError(Tr::tr("The deployment step's project node is invalid."), Task::Error);
         return false;

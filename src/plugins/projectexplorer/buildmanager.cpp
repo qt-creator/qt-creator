@@ -583,7 +583,7 @@ BuildForRunConfigStatus BuildManager::potentiallyBuildForRunConfig(RunConfigurat
             stepIds << Id(Constants::BUILDSTEPS_DEPLOY);
     }
 
-    Project * const pro = rc->target()->project();
+    Project * const pro = rc->project();
     const int queueCount = queue(projectWithDependencies(pro, stepIds),
                                  ConfigSelection::Active, rc);
     if (rc->target()->activeBuildConfiguration())

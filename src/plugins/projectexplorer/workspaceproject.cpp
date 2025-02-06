@@ -132,7 +132,7 @@ WorkspaceBuildSystem::WorkspaceBuildSystem(BuildConfiguration *bc)
         if (scannedDir == projectDirectory()) {
             qCDebug(wsbs) << "Finished scanning new root" << scannedDir;
             auto root = std::make_unique<ProjectNode>(scannedDir);
-            root->setDisplayName(target()->project()->displayName());
+            root->setDisplayName(project()->displayName());
             m_watcher.reset(new FileSystemWatcher);
             connect(
                 m_watcher.get(),
@@ -165,11 +165,7 @@ WorkspaceBuildSystem::WorkspaceBuildSystem(BuildConfiguration *bc)
         });
     });
 
-    connect(target()->project(),
-            &Project::projectFileIsDirty,
-            this,
-            &BuildSystem::requestDelayedParse);
-
+    connect(project(), &Project::projectFileIsDirty, this, &BuildSystem::requestDelayedParse);
     requestDelayedParse();
 }
 
@@ -231,7 +227,7 @@ void WorkspaceBuildSystem::reparse(bool force)
     setApplicationTargets(targetInfos);
 
     if (force || oldFilters != m_filters)
-        scan(target()->project()->projectDirectory());
+        scan(project()->projectDirectory());
     else
         emitBuildSystemUpdated();
 }

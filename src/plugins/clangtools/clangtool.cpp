@@ -86,7 +86,7 @@ public:
         Target *target = runControl->target();
         QTC_ASSERT(target, emit done(DoneResult::Error); return);
         if (!BuildManager::isBuilding(target)) {
-            BuildManager::buildProjectWithDependencies(target->project(), ConfigSelection::Active,
+            BuildManager::buildProjectWithDependencies(runControl->project(), ConfigSelection::Active,
                                                        runControl);
         }
     }
@@ -700,7 +700,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
     }
 
     const ProjectInfo::ConstPtr projectInfoBeforeBuild
-        = CppModelManager::projectInfo(target->project());
+        = CppModelManager::projectInfo(buildConfiguration->project());
 
     const auto onTreeSetup = [this, storage, runSettings, diagnosticConfig, fileInfos, tempDir,
                               environment, projectInfoBeforeBuild](TaskTree &taskTree) {

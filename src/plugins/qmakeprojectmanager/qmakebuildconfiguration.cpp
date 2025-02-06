@@ -119,7 +119,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
 
         FilePath directory = info.buildDirectory;
         if (directory.isEmpty()) {
-            directory = shadowBuildDirectory(target->project()->projectFilePath(),
+            directory = shadowBuildDirectory(project()->projectFilePath(),
                                              target->kit(), info.displayName,
                                              info.buildType);
         }
@@ -145,7 +145,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
         return QLatin1String("Makefile");
     });
 
-    buildDirectoryAspect()->allowInSourceBuilds(target->project()->projectDirectory());
+    buildDirectoryAspect()->allowInSourceBuilds(project()->projectDirectory());
     connect(this, &BuildConfiguration::buildDirectoryInitialized,
             this, &QmakeBuildConfiguration::updateProblemLabel);
     connect(this, &BuildConfiguration::buildDirectoryChanged,

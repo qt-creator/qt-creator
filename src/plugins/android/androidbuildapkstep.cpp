@@ -159,7 +159,7 @@ QVariant LibraryListModel::data(const QModelIndex &index, int role) const
 void LibraryListModel::addEntries(const QStringList &list)
 {
     const QString buildKey = m_buildSystem->target()->activeBuildKey();
-    const ProjectNode *node = m_buildSystem->target()->project()->findNodeForBuildKey(buildKey);
+    const ProjectNode *node = m_buildSystem->project()->findNodeForBuildKey(buildKey);
     QTC_ASSERT(node, return);
 
     beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size() + list.size());
@@ -205,7 +205,7 @@ void LibraryListModel::removeEntries(QModelIndexList list)
 void LibraryListModel::updateModel()
 {
     const QString buildKey = m_buildSystem->target()->activeBuildKey();
-    const ProjectNode *node = m_buildSystem->target()->project()->findNodeForBuildKey(buildKey);
+    const ProjectNode *node = m_buildSystem->project()->findNodeForBuildKey(buildKey);
     if (!node)
         return;
 
@@ -532,7 +532,7 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
 
     Target *target = m_step->target();
     const QString buildKey = target->activeBuildKey();
-    const ProjectNode *node = target->project()->findNodeForBuildKey(buildKey);
+    const ProjectNode *node = m_step->project()->findNodeForBuildKey(buildKey);
     additionalLibrariesGroup->setEnabled(node && !node->parseInProgress());
 
     // main layout
@@ -1017,7 +1017,7 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
 
         QString qmlRootPath = bs->extraData(buildKey, "QML_ROOT_PATH").toString();
         if (qmlRootPath.isEmpty())
-            qmlRootPath = target()->project()->rootProjectDirectory().path();
+            qmlRootPath = project()->rootProjectDirectory().path();
         deploySettings["qml-root-path"] = qmlRootPath;
 
         const expected_str<qint64> result = m_inputFile.writeFileContents(QJsonDocument{deploySettings}.toJson());

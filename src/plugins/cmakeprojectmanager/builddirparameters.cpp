@@ -94,7 +94,7 @@ BuildDirParameters::BuildDirParameters(CMakeBuildSystem *buildSystem)
     const Target *t = bc->target();
     const Kit *k = t->kit();
 
-    project = t->project();
+    project = bc->project();
     projectName = project->displayName();
 
     sourceDirectory = bc->sourceDirectory();

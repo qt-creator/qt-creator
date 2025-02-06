@@ -76,7 +76,7 @@ MesonBuildConfiguration::MesonBuildConfiguration(ProjectExplorer::Target *target
         m_buildType = mesonBuildType(info.typeName);
         auto k = target->kit();
         if (info.buildDirectory.isEmpty()) {
-            setBuildDirectory(shadowBuildDirectory(target->project()->projectFilePath(),
+            setBuildDirectory(shadowBuildDirectory(project()->projectFilePath(),
                                                    k,
                                                    info.displayName,
                                                    info.buildType));

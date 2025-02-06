@@ -188,13 +188,13 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
             this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
     connect(this, &BuildConfiguration::environmentChanged,
             this, &BuildConfiguration::emitBuildDirectoryChanged);
-    connect(target->project(), &Project::environmentChanged,
+    connect(project(), &Project::environmentChanged,
             this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
     // Many macroexpanders are based on the current project, so they may change the environment:
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
 
-    d->m_buildDirectoryAspect.setBaseFileName(target->project()->projectDirectory());
+    d->m_buildDirectoryAspect.setBaseFileName(project()->projectDirectory());
     d->m_buildDirectoryAspect.setEnvironment(environment());
     connect(&d->m_buildDirectoryAspect, &StringAspect::changed,
             this, &BuildConfiguration::emitBuildDirectoryChanged);
@@ -236,9 +236,7 @@ FilePath BuildConfiguration::buildDirectory() const
     path = macroExpander()->expand(path);
     path = path.cleanPath();
 
-    const FilePath projectDir = target()->project()->projectDirectory();
-
-    return projectDir.resolvePath(path);
+    return project()->projectDirectory().resolvePath(path);
 }
 
 FilePath BuildConfiguration::rawBuildDirectory() const

@@ -130,7 +130,7 @@ FilePath IosRunConfiguration::bundleDirectory() const
     FilePath res;
     bool shouldAppendBuildTypeAndPlatform = true;
     if (BuildConfiguration *bc = target()->activeBuildConfiguration()) {
-        Project *project = target()->project();
+        Project *project = bc->project();
         if (ProjectNode *node = project->findNodeForBuildKey(buildKey())) {
             QString pathStr = node->data(Constants::IosBuildDir).toString();
             const QString cmakeGenerator = node->data(Constants::IosCmakeGenerator).toString();

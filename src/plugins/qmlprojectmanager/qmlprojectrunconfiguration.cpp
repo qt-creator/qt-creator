@@ -268,7 +268,7 @@ void QmlProjectRunConfiguration::setupQtVersionAspect()
 
             connect(&qtversion, &BaseAspect::changed, this, [this] {
                 QTC_ASSERT(target(), return );
-                auto project = target()->project();
+                auto project = this->project();
                 QTC_ASSERT(project, return );
 
                 int oldValue = !qtversion();
@@ -286,7 +286,7 @@ void QmlProjectRunConfiguration::setupQtVersionAspect()
                     return;
 
                 if (!kits.isEmpty()) {
-                    auto newTarget = target()->project()->target(kits.first());
+                    auto newTarget = project->target(kits.first());
                     if (!newTarget)
                         newTarget = project->addTargetForKit(kits.first());
 

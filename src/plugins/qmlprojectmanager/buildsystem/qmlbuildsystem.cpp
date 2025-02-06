@@ -91,12 +91,12 @@ QmlBuildSystem::QmlBuildSystem(Target *target)
     updateDeploymentData();
 //    registerMenuButtons(); //is wip
 
-    connect(target->project(), &Project::activeTargetChanged, this, [this](Target *target) {
+    connect(project(), &Project::activeTargetChanged, this, [this](Target *target) {
         refresh(RefreshOptions::NoFileRefresh);
         m_fileGen->updateProject(qmlProject());
         updateMcuBuildStep(target, qtForMCUs());
     });
-    connect(target->project(), &Project::projectFileIsDirty, this, [this] {
+    connect(project(), &Project::projectFileIsDirty, this, [this] {
         refresh(RefreshOptions::Project);
         m_fileGen->updateProject(qmlProject());
         m_fileGen->updateMenuAction();
