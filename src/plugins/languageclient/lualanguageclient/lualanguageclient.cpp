@@ -476,7 +476,7 @@ public:
         }
     }
 
-    void sendMessageWithIdForDocument_cb(
+    QString sendMessageWithIdForDocument_cb(
         TextEditor::TextDocument *document, const sol::table &message, const sol::main_function callback)
     {
         const QJsonValue messageValue = ::Lua::toJson(message);
@@ -484,7 +484,8 @@ public:
             throw sol::error("Message is not an object");
 
         QJsonObject obj = messageValue.toObject();
-        obj["id"] = QUuid::createUuid().toString();
+        const auto id = QUuid::createUuid().toString();
+        obj["id"] = id;
 
         const RequestWithResponse request{obj, callback};
 
@@ -495,6 +496,15 @@ public:
         QTC_ASSERT(clients.front(), throw sol::error("Client is null"));
 
         clients.front()->sendMessage(request);
+        return id;
+    }
+
+    void cancelRequest(const QString &id)
+    {
+        for (Client *c : LanguageClientManager::clientsForSettingId(m_clientSettingsId)) {
+            if (c)
+                c->cancelRequest(LanguageServerProtocol::MessageId(id));
+        }
     }
 
     void updateAsyncOptions()
@@ -722,6 +732,8 @@ static void registerLuaApi()
             &LuaClientWrapper::sendMessageForDocument,
             "sendMessageWithIdForDocument_cb",
             &LuaClientWrapper::sendMessageWithIdForDocument_cb,
+            "cancelRequest",
+            &LuaClientWrapper::cancelRequest,
             "create",
             [](const sol::main_table &options) -> std::shared_ptr<LuaClientWrapper> {
                 auto luaClientWrapper = std::make_shared<LuaClientWrapper>(options);
