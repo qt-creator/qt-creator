@@ -118,14 +118,13 @@ DataModelDownloader::DataModelDownloader(QObject * /* parent */)
 
         if (m_fileDownloader.finished()) {
             const FilePath archiveFile = FilePath::fromString(m_fileDownloader.outputFile());
-            const auto sourceAndCommand = Unarchiver::sourceAndCommand(archiveFile);
-            QTC_ASSERT(sourceAndCommand, return);
-            auto unarchiver = new Unarchiver;
-            unarchiver->setSourceAndCommand(*sourceAndCommand);
-            unarchiver->setDestDir(tempFilePath());
-            QObject::connect(unarchiver, &Unarchiver::done, this,
-                             [this, unarchiver](DoneResult result) {
-                QTC_CHECK(result == DoneResult::Success);
+            auto unarchiver = new Unarchiver();
+
+            unarchiver->setArchive(archiveFile);
+            unarchiver->setDestination(tempFilePath());
+
+            QObject::connect(unarchiver, &Unarchiver::done, this, [this, unarchiver]() {
+                QTC_CHECK(unarchiver->result());
                 unarchiver->deleteLater();
                 emit finished();
             });

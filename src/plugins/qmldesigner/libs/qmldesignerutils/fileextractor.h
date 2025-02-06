@@ -6,7 +6,9 @@
 #include <QObject>
 #include <QTimer>
 
+#include <utils/async.h>
 #include <utils/filepath.h>
+#include <utils/uniqueobjectptr.h>
 
 namespace Utils { class Unarchiver; }
 
@@ -92,7 +94,7 @@ private:
 
     qint64 m_bytesBefore = 0;
     qint64 m_compressedSize = 0;
-    std::unique_ptr<Utils::Unarchiver> m_unarchiver;
+    Utils::UniqueObjectLatePtr<Utils::Unarchiver> m_unarchiver;
 };
 
 } // QmlDesigner
