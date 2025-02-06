@@ -112,7 +112,7 @@ void DeployConfiguration::fromMap(const Store &map)
 
 bool DeployConfiguration::isActive() const
 {
-    return target()->isActive() && target()->activeDeployConfiguration() == this;
+    return project()->activeDeployConfiguration() == this;
 }
 
 

@@ -44,8 +44,6 @@ public:
     Target(Project *parent, Kit *k, _constructor_tag);
     ~Target() override;
 
-    bool isActive() const;
-
     void markAsShuttingDown();
     bool isShuttingDown() const;
 

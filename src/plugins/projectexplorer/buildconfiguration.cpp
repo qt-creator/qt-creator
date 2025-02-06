@@ -600,7 +600,7 @@ QString BuildConfiguration::buildTypeName(BuildConfiguration::BuildType type)
 
 bool BuildConfiguration::isActive() const
 {
-    return target()->isActive() && target()->activeBuildConfiguration() == this;
+    return project()->activeBuildConfiguration() == this;
 }
 
 FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectDir,

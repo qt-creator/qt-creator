@@ -176,11 +176,6 @@ void Target::handleKitRemoval(Kit *k)
     project()->removeTarget(this);
 }
 
-bool Target::isActive() const
-{
-    return project()->activeTarget() == this;
-}
-
 void Target::markAsShuttingDown()
 {
     d->m_shuttingDown = true;

@@ -409,9 +409,7 @@ void RunConfiguration::update()
 
     emit enabledChanged();
 
-    const bool isActive = target()->isActive() && target()->activeRunConfiguration() == this;
-
-    if (isActive && project() == ProjectManager::startupProject())
+    if (activeRunConfigForActiveProject() == this)
         ProjectExplorerPlugin::updateRunActions();
 }
 
