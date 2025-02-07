@@ -48,6 +48,8 @@
 
 #include <QQmlEngine>
 
+#include <memory>
+
 namespace QmlDesigner {
 
 static Internal::DesignModeWidget *designModeWidget()
@@ -348,6 +350,10 @@ void ActionSubscriber::setupNotifier()
 
     emit tooltipChanged();
 }
+
+#ifdef DVCONNECTOR_ENABLED
+static std::unique_ptr<DesignViewer::DVConnector> s_designViewerConnector;
+#endif
 
 ToolBarBackend::ToolBarBackend(QObject *parent)
     : QObject(parent)
@@ -929,7 +935,10 @@ QString ToolBarBackend::runManagerError() const
 #ifdef DVCONNECTOR_ENABLED
 DesignViewer::DVConnector *ToolBarBackend::designViewerConnector()
 {
-    return &m_designViewerConnector;
+    if (!s_designViewerConnector)
+        s_designViewerConnector = std::make_unique<DesignViewer::DVConnector>();
+
+    return s_designViewerConnector.get();
 }
 #endif
 
