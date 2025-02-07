@@ -277,6 +277,11 @@ int RunManager::currentTargetIndex() const
     return runTargetIndex(m_currentTargetId);
 }
 
+RunManager::TargetType RunManager::currentTargetType() const
+{
+    return m_currentTargetType;
+}
+
 bool RunManager::selectRunTarget(Utils::Id id)
 {
     if (m_currentTargetId == id)
@@ -291,6 +296,20 @@ bool RunManager::selectRunTarget(Utils::Id id)
 
     m_currentTargetId = id;
     emit runTargetChanged();
+
+    TargetType type;
+
+    if (m_currentTargetId == ProjectExplorer::Constants::NORMAL_RUN_MODE)
+        type = TargetType::Normal;
+    else if (m_currentTargetId == ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE)
+        type = TargetType::LivePreview;
+    else
+        type = TargetType::Android;
+
+    if (m_currentTargetType != type) {
+        m_currentTargetType = type;
+        emit runTargetTypeChanged();
+    }
 
     return true;
 }

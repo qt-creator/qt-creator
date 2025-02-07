@@ -129,6 +129,15 @@ Rectangle {
             onCancelClicked: backend.cancelRunning()
             onRunTargetSelected: function(targetName) { backend.selectRunTarget(targetName) }
             onOpenRunTargets: backend.openDeviceManager()
+
+            TapHandler {
+                enabled: backend.runTargetType === RunManager.LivePreview
+                acceptedButtons: Qt.RightButton
+                onTapped: {
+                    var p = splitButton.mapToGlobal(0, 0)
+                    backend.showZoomMenu(p.x, p.y)
+                }
+            }
         }
 
         StudioControls.TopLevelComboBox {

@@ -492,6 +492,10 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
             this,
             &ToolBarBackend::runTargetIndexChanged);
     connect(&QmlDesignerPlugin::runManager(),
+            &RunManager::runTargetTypeChanged,
+            this,
+            &ToolBarBackend::runTargetTypeChanged);
+    connect(&QmlDesignerPlugin::runManager(),
             &RunManager::stateChanged,
             this,
             &ToolBarBackend::runManagerStateChanged);
@@ -915,6 +919,11 @@ bool ToolBarBackend::isLiteModeEnabled() const
 int ToolBarBackend::runTargetIndex() const
 {
     return QmlDesignerPlugin::runManager().currentTargetIndex();
+}
+
+int ToolBarBackend::runTargetType() const
+{
+    return QmlDesignerPlugin::runManager().currentTargetType();
 }
 
 int ToolBarBackend::runManagerState() const
