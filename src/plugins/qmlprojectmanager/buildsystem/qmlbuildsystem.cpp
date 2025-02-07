@@ -811,6 +811,7 @@ public:
     QmlBuildConfigurationFactory()
     {
         registerBuildConfiguration<BuildConfiguration>("QmlBuildConfiguration");
+        setSupportedProjectType(QmlProjectManager::Constants::QML_PROJECT_ID);
         setSupportedProjectMimeTypeName(Utils::Constants::QMLPROJECT_MIMETYPE);
         setBuildGenerator(
             [](const Kit *, const FilePath &projectPath, bool /* forSetup */) -> QList<BuildInfo> {
