@@ -1255,8 +1255,6 @@ public:
         using NanotraceHR::keyValue;
         auto dict = dictonary(keyValue("type name", typeAnnotation.typeName),
                               keyValue("icon path", typeAnnotation.iconPath),
-                              keyValue("item library json", typeAnnotation.itemLibraryJson),
-                              keyValue("hints json", typeAnnotation.hintsJson),
                               keyValue("type id", typeAnnotation.typeId),
                               keyValue("source id", typeAnnotation.sourceId),
                               keyValue("module id", typeAnnotation.moduleId),
