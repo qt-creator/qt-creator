@@ -79,43 +79,58 @@ static FilePath pyLspPath(const FilePath &python)
 
 static PythonLanguageServerState checkPythonLanguageServer(const FilePath &python)
 {
+    static QHash<FilePath, PythonLanguageServerState> m_stateCache;
     using namespace LanguageClient;
-    auto lspPath = pyLspPath(python);
-    if (lspPath.isEmpty())
-        return {PythonLanguageServerState::NotInstallable, FilePath()};
+    using namespace std::chrono;
 
-    Process pythonProcess;
-    pythonProcess.setCommand({python, {"-m", "pip", "-V"}});
-    using namespace std::chrono_literals;
-    pythonProcess.runBlocking(2s);
-    bool pipAvailable = pythonProcess.allOutput().startsWith("pip ");
+    if (auto it = m_stateCache.find(python); it != m_stateCache.end())
+        return it.value();
 
-    if (lspPath.pathAppended("bin").pathAppended("pylsp").withExecutableSuffix().exists()) {
-        if (pipAvailable) {
-            Process pythonProcess;
-            Environment env = pythonProcess.environment();
-            env.set("PYTHONPATH", lspPath.toUserOutput());
-            pythonProcess.setEnvironment(env);
-            pythonProcess.setCommand({python, {"-m", "pip", "list", "--outdated", "--format=json"}});
-            pythonProcess.runBlocking(20s);
-            QString output = pythonProcess.allOutput();
+    const FilePath lspPath = pyLspPath(python);
+    if (!lspPath.isEmpty()) {
+        bool pipAvailable = pipIsUsable(python);
 
-            // Only the first line contains the json data. Following lines might contain warnings.
-            if (int index = output.indexOf('\n'); index >= 0)
-                output.truncate(index);
+        const FilePath pylsp = (lspPath / "bin" / "pylsp").withExecutableSuffix();
+        if (pylsp.exists()) {
+            if (pipAvailable) {
+                Process pythonProcess;
+                Environment env = pylsp.deviceEnvironment();
+                env.appendOrSet("PYTHONPATH", lspPath.toUserOutput());
+                pythonProcess.setEnvironment(env);
+                pythonProcess.setCommand(
+                    {python, {"-m", "pip", "list", "--outdated", "--format=json"}});
+                pythonProcess.runBlocking(20s);
+                QString output = pythonProcess.allOutput();
 
-            const QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
-            for (const QJsonValue &value : doc.array()) {
-                if (value.toObject().value("name") == "python-lsp-server")
-                    return {PythonLanguageServerState::Updatable, lspPath};
+                // Only the first line contains the json data. Following lines might contain warnings.
+                if (int index = output.indexOf('\n'); index >= 0)
+                    output.truncate(index);
+
+                const QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
+                for (const QJsonValue &value : doc.array()) {
+                    if (value.toObject().value("name") == "python-lsp-server") {
+                        Process pylsProcess;
+                        Environment env = pylsp.deviceEnvironment();
+                        env.appendOrSet("PYTHONPATH", lspPath.toUserOutput());
+                        pylsProcess.setEnvironment(env);
+                        pylsProcess.setCommand({pylsp, {"--version"}});
+                        pylsProcess.runBlocking(20s);
+                        output = pylsProcess.allOutput();
+                        if (!output.contains(value.toObject().value("latest_version").toString()))
+                            return {PythonLanguageServerState::Updatable, lspPath};
+                        break;
+                    }
+                }
             }
+            return m_stateCache.insert(python, {PythonLanguageServerState::Installed, lspPath})
+                .value();
         }
-        return {PythonLanguageServerState::Installed, lspPath};
-    }
 
-    if (pipAvailable)
-        return {PythonLanguageServerState::Installable, lspPath};
-    return {PythonLanguageServerState::NotInstallable, FilePath()};
+        if (pipAvailable)
+            return {PythonLanguageServerState::Installable, lspPath};
+    }
+    return m_stateCache.insert(python, {PythonLanguageServerState::NotInstallable, FilePath()})
+        .value();
 }
 
 
