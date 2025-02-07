@@ -58,7 +58,6 @@ public:
 
     void paint(QPainter *painter,
                const QStyleOptionGraphicsItem *option, QWidget *widget) override;
-    FunctionGraphicsTextItem *textItem() const;
 
 private:
     FunctionGraphicsTextItem *m_text = nullptr;
@@ -137,11 +136,6 @@ FunctionGraphicsItem::FunctionGraphicsItem(const QString &text,
 
     m_text = new FunctionGraphicsTextItem(text, this);
     m_text->setPos(rect().center().x(), y);
-}
-
-FunctionGraphicsTextItem *FunctionGraphicsItem::textItem() const
-{
-    return m_text;
 }
 
 void FunctionGraphicsItem::paint(QPainter *painter,
@@ -263,16 +257,6 @@ Visualization::~Visualization()
 const Function *Visualization::functionForItem(QGraphicsItem *item) const
 {
     return item->data(FunctionGraphicsItem::FunctionCallKey).value<const Function *>();
-}
-
-QGraphicsItem *Visualization::itemForFunction(const Function *function) const
-{
-    const QList<QGraphicsItem *> itemList = items();
-    for (QGraphicsItem *item : itemList) {
-        if (functionForItem(item) == function)
-            return item;
-    }
-    return nullptr;
 }
 
 void Visualization::setFunction(const Function *function)

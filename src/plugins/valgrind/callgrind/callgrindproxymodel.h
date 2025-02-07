@@ -19,9 +19,7 @@ public:
 
     void setSourceModel(QAbstractItemModel *sourceModel) override;
 
-    QString filterBaseDir() const { return m_baseDir; }
     const Function *filterFunction() const;
-    int filterMaximumRows() const { return m_maxRows; }
 
     /// Only functions with an inclusive cost ratio above this minimum will be shown in the model
     double minimumInclusiveCostRatio() const { return m_minimumInclusiveCostRatio; }

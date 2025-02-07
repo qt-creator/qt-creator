@@ -24,7 +24,6 @@ public:
     void setModel(QAbstractItemModel *model);
 
     const Valgrind::Callgrind::Function *functionForItem(QGraphicsItem *item) const;
-    QGraphicsItem *itemForFunction(const Valgrind::Callgrind::Function *function) const;
 
     void setFunction(const Valgrind::Callgrind::Function *function);
     const Valgrind::Callgrind::Function *function() const;

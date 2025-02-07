@@ -48,24 +48,9 @@ void CallModel::setCalls(const QList<const FunctionCall *> &calls, const Functio
     endResetModel();
 }
 
-QList<const FunctionCall *> CallModel::calls() const
-{
-    return d->m_calls;
-}
-
-const Function *CallModel::function() const
-{
-    return d->m_function;
-}
-
 void CallModel::setCostEvent(int event)
 {
     d->m_event = event;
-}
-
-int CallModel::costEvent() const
-{
-    return d->m_event;
 }
 
 void CallModel::setParseData(const ParseDataPtr &data)
@@ -77,11 +62,6 @@ void CallModel::setParseData(const ParseDataPtr &data)
         clear();
 
     d->m_data = data;
-}
-
-ParseDataPtr CallModel::parseData() const
-{
-    return d->m_data;
 }
 
 int CallModel::rowCount(const QModelIndex &parent) const
