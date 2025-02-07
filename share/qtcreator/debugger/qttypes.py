@@ -421,7 +421,7 @@ def qdump__QDateTime(d, value):
     d.putExpandable()
     if d.isExpanded():
         with Children(d):
-            d.putCallItem('toTime_t', 'unsigned int', value, 'toTime_t')
+            d.putCallItem('toSecsSinceEpoch', 'unsigned long', value, 'toSecsSinceEpoch')
             if d.canCallLocale():
                 d.putCallItem('toString', '@QString', value, 'toString',
                               d.enumExpression('DateFormat', 'TextDate'))
