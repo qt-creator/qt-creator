@@ -232,9 +232,6 @@ private:
 
     QStringList m_openDocuments;
     QMetaObject::Connection m_kitConnection;
-#ifdef DVCONNECTOR_ENABLED
-    DesignViewer::DVConnector m_designViewerConnector;
-#endif
 };
 
 } // namespace QmlDesigner
