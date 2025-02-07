@@ -1929,9 +1929,7 @@ void tst_filepath::pathComponents()
     QFETCH(QStringList, expected);
 
     const auto components
-        = Utils::transform<QStringList>(FilePath::fromString(path).pathComponents(), [](auto view) {
-              return QString(view);
-          });
+        = Utils::transform(FilePath::fromString(path).pathComponents(), &QStringView::toString);
 
     QCOMPARE(components, expected);
 }
