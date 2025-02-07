@@ -15,6 +15,7 @@
 #include <cppeditor/cppcodestylesnippets.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppeditortr.h>
+#include <projectexplorer/project.h>
 #include <texteditor/codestyleeditor.h>
 #include <texteditor/codestylepool.h>
 #include <texteditor/codestyleselectorwidget.h>
@@ -69,13 +70,13 @@ private:
 
     void init(
         const ICodeStylePreferencesFactory *factory,
-        Project *project,
+        const ProjectWrapper &project,
         ICodeStylePreferences *codeStyle) override;
     void apply() override;
     void finish() override;
 
     CodeStyleEditorWidget *createEditorWidget(
-        const Project *project,
+        const void *project,
         ICodeStylePreferences *codeStyle,
         QWidget *parent = nullptr) const override;
     CodeStyleSelectorWidget *createCodeStyleSelectorWidget(
@@ -109,7 +110,7 @@ public:
     static void setup(QObject *guard);
 
     TextEditor::CodeStyleEditorWidget *createCodeStyleEditor(
-        ProjectExplorer::Project *project,
+        const TextEditor::ProjectWrapper &project,
         TextEditor::ICodeStylePreferences *codeStyle,
         QWidget *parent = nullptr) const override;
 
@@ -253,7 +254,7 @@ ClangFormatCodeStyleEditor *ClangFormatCodeStyleEditor::create(
     QWidget *parent)
 {
     auto editor = new ClangFormatCodeStyleEditor{parent};
-    editor->init(factory, project, codeStyle);
+    editor->init(factory, wrapProject(project), codeStyle);
     return editor;
 }
 
@@ -262,9 +263,10 @@ ClangFormatCodeStyleEditor::ClangFormatCodeStyleEditor(QWidget *parent)
 {}
 
 void ClangFormatCodeStyleEditor::init(
-    const ICodeStylePreferencesFactory *factory, Project *project, ICodeStylePreferences *codeStyle)
+    const ICodeStylePreferencesFactory *factory, const ProjectWrapper &project, ICodeStylePreferences *codeStyle)
 {
-    m_globalSettings = new ClangFormatGlobalConfigWidget{project, codeStyle, this};
+    m_globalSettings
+        = new ClangFormatGlobalConfigWidget{unwrapProject(project), codeStyle, this};
     m_layout->addWidget(m_globalSettings);
     CodeStyleEditor::init(factory, project, codeStyle);
 
@@ -315,9 +317,10 @@ void ClangFormatCodeStyleEditor::finish()
 }
 
 CodeStyleEditorWidget *ClangFormatCodeStyleEditor::createEditorWidget(
-    const Project *project, ICodeStylePreferences *codeStyle, QWidget *parent) const
+    const void *project, ICodeStylePreferences *codeStyle, QWidget *parent) const
 {
-    return new ClangFormatCodeStyleEditorWidget{project, codeStyle, parent};
+    return new ClangFormatCodeStyleEditorWidget{
+            reinterpret_cast<const Project *>(project), codeStyle, parent};
 }
 
 CodeStyleSelectorWidget *ClangFormatCodeStyleEditor::createCodeStyleSelectorWidget(
@@ -352,9 +355,9 @@ void ClangFormatCodeStylePreferencesFactory::setup(QObject *guard)
 }
 
 CodeStyleEditorWidget *ClangFormatCodeStylePreferencesFactory::createCodeStyleEditor(
-    Project *project, ICodeStylePreferences *codeStyle, QWidget *parent) const
+    const ProjectWrapper &project, ICodeStylePreferences *codeStyle, QWidget *parent) const
 {
-    return ClangFormatCodeStyleEditor::create(this, project, codeStyle, parent);
+    return ClangFormatCodeStyleEditor::create(this, unwrapProject(project), codeStyle, parent);
 }
 
 Id ClangFormatCodeStylePreferencesFactory::languageId()

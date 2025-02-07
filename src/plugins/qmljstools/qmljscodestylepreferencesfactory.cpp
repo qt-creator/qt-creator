@@ -10,6 +10,7 @@
 #include "qmljstoolsconstants.h"
 #include "qmljstoolstr.h"
 
+#include <projectexplorer/project.h>
 #include <texteditor/codestyleeditor.h>
 #include <texteditor/indenter.h>
 #include <utils/id.h>
@@ -33,7 +34,7 @@ private:
     QmlJsCodeStyleEditor(QWidget *parent = nullptr);
 
     CodeStyleEditorWidget *createEditorWidget(
-        const ProjectExplorer::Project * /*project*/,
+        const void * /*project*/,
         TextEditor::ICodeStylePreferences *codeStyle,
         QWidget *parent = nullptr) const override;
     QString previewText() const override;
@@ -47,7 +48,7 @@ QmlJsCodeStyleEditor *QmlJsCodeStyleEditor::create(
     QWidget *parent)
 {
     auto editor = new QmlJsCodeStyleEditor{parent};
-    editor->init(factory, project, codeStyle);
+    editor->init(factory, wrapProject(project), codeStyle);
     return editor;
 }
 
@@ -56,7 +57,7 @@ QmlJsCodeStyleEditor::QmlJsCodeStyleEditor(QWidget *parent)
 {}
 
 TextEditor::CodeStyleEditorWidget *QmlJsCodeStyleEditor::createEditorWidget(
-    const ProjectExplorer::Project * /*project*/,
+    const void * /*project*/,
     TextEditor::ICodeStylePreferences *codeStyle,
     QWidget *parent) const
 {
@@ -96,11 +97,12 @@ QString QmlJsCodeStyleEditor::snippetProviderGroupId() const
 }
 
 TextEditor::CodeStyleEditorWidget *QmlJSCodeStylePreferencesFactory::createCodeStyleEditor(
-    ProjectExplorer::Project *project,
+    const TextEditor::ProjectWrapper &project,
     TextEditor::ICodeStylePreferences *codeStyle,
     QWidget *parent) const
 {
-    return QmlJsCodeStyleEditor::create(this, project, codeStyle, parent);
+    return QmlJsCodeStyleEditor::create(
+        this, ProjectExplorer::unwrapProject(project), codeStyle, parent);
 }
 
 Utils::Id QmlJSCodeStylePreferencesFactory::languageId()

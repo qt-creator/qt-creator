@@ -5,19 +5,41 @@
 
 #include "texteditor_global.h"
 
+#include <utils/filepath.h>
+
 #include <QString>
 #include <QWidget>
+
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 class QVBoxLayout;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer { class Project; }
 namespace TextEditor {
 class CodeStyleSelectorWidget;
 class ICodeStylePreferencesFactory;
 class ICodeStylePreferences;
 class SnippetEditorWidget;
+
+class TEXTEDITOR_EXPORT ProjectWrapper
+{
+public:
+    using PathRetriever = std::function<Utils::FilePath(const void *)>;
+    ProjectWrapper() : ProjectWrapper({}, {}) {}
+    ProjectWrapper(void *project, const PathRetriever &pathRetriever)
+        : m_project(project)
+        , m_pathRetriever(pathRetriever)
+    {}
+
+    void *project() const { return m_project; }
+    operator bool() const { return m_project; }
+    Utils::FilePath projectFilePath() const { return m_pathRetriever(m_project); }
+
+private:
+    void * const m_project;
+    const PathRetriever m_pathRetriever;
+};
 
 class TEXTEDITOR_EXPORT CodeStyleEditorWidget : public QWidget
 {
@@ -40,7 +62,7 @@ protected:
     CodeStyleEditor(QWidget *parent = nullptr);
     virtual void init(
         const ICodeStylePreferencesFactory *factory,
-        ProjectExplorer::Project *project,
+        const ProjectWrapper &project,
         ICodeStylePreferences *codeStyle);
 
     QVBoxLayout *m_layout = nullptr;
@@ -53,11 +75,11 @@ private:
         ICodeStylePreferences *codeStyle, QWidget *parent = nullptr) const;
     virtual SnippetEditorWidget *createPreviewWidget(
         const ICodeStylePreferencesFactory *factory,
-        const ProjectExplorer::Project *project,
+        const ProjectWrapper &project,
         ICodeStylePreferences *codeStyle,
         QWidget *parent = nullptr) const;
     virtual CodeStyleEditorWidget *createEditorWidget(
-        const ProjectExplorer::Project *project,
+        const void *project,
         ICodeStylePreferences *codeStyle,
         QWidget *parent = nullptr) const
         = 0;

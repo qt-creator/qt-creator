@@ -14,7 +14,6 @@
 #include "texteditortr.h"
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/project.h>
 #include <utils/filepath.h>
 
 #include <QChar>
@@ -27,13 +26,13 @@ namespace TextEditor {
 
 void CodeStyleEditor::init(
     const ICodeStylePreferencesFactory *factory,
-    ProjectExplorer::Project *project,
+    const ProjectWrapper &project,
     ICodeStylePreferences *codeStyle)
 {
     m_selector = createCodeStyleSelectorWidget(codeStyle);
     m_layout->addWidget(m_selector);
     if (!project) {
-        m_editor = createEditorWidget(project, codeStyle);
+        m_editor = createEditorWidget(project.project(), codeStyle);
         if (m_editor)
             m_layout->addWidget(m_editor);
         return;
@@ -64,7 +63,7 @@ CodeStyleSelectorWidget *CodeStyleEditor::createCodeStyleSelectorWidget(
 
 SnippetEditorWidget *CodeStyleEditor::createPreviewWidget(
     const ICodeStylePreferencesFactory *factory,
-    const ProjectExplorer::Project *project,
+    const ProjectWrapper &project,
     ICodeStylePreferences *codeStyle,
     QWidget *parent) const
 {
@@ -79,7 +78,7 @@ SnippetEditorWidget *CodeStyleEditor::createPreviewWidget(
     Indenter *indenter = factory->createIndenter(preview->document());
     if (indenter) {
         indenter->setOverriddenPreferences(codeStyle);
-        const Utils::FilePath fileName = project ? project->projectFilePath().pathAppended(
+        const Utils::FilePath fileName = project ? project.projectFilePath().pathAppended(
                                                        "snippet.cpp")
                                                  : Core::ICore::userResourcePath("snippet.cpp");
         indenter->setFileName(fileName);

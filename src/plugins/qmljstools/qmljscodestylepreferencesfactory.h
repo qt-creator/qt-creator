@@ -21,7 +21,7 @@ class QmlJSCodeStylePreferencesFactory final : public TextEditor::ICodeStylePref
 {
 public:
     TextEditor::CodeStyleEditorWidget *createCodeStyleEditor(
-        ProjectExplorer::Project *project,
+        const TextEditor::ProjectWrapper &project,
         TextEditor::ICodeStylePreferences *codeStyle,
         QWidget *parent = nullptr) const override;
 

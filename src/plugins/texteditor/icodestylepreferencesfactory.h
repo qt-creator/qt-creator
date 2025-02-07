@@ -13,14 +13,11 @@ class QTextDocument;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
-class Project;
-}
-
 namespace TextEditor {
 class CodeStyleEditorWidget;
 class ICodeStylePreferences;
 class Indenter;
+class ProjectWrapper;
 
 class TEXTEDITOR_EXPORT ICodeStylePreferencesFactory
 {
@@ -34,7 +31,7 @@ public:
     virtual ~ICodeStylePreferencesFactory() = default;
 
     virtual CodeStyleEditorWidget *createCodeStyleEditor(
-        ProjectExplorer::Project *project,
+        const ProjectWrapper &project,
         ICodeStylePreferences *codeStyle,
         QWidget *parent = nullptr) const
         = 0;

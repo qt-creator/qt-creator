@@ -5,18 +5,21 @@
 
 #include "buildconfiguration.h"
 #include "buildinfo.h"
+#include "buildmanager.h"
 #include "buildsystem.h"
 #include "deployconfiguration.h"
 #include "devicesupport/devicekitaspects.h"
 #include "editorconfiguration.h"
 #include "environmentaspect.h"
 #include "kit.h"
+#include "kitmanager.h"
 #include "msvctoolchain.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "projectmanager.h"
 #include "projectnodes.h"
+#include "projecttree.h"
 #include "runconfiguration.h"
 #include "runconfigurationaspects.h"
 #include "target.h"
@@ -30,12 +33,8 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/iversioncontrol.h>
-#include <coreplugin/vcsmanager.h>
 
-#include <projectexplorer/buildmanager.h>
-#include <projectexplorer/kitmanager.h>
-#include <projectexplorer/projecttree.h>
+#include <texteditor/codestyleeditor.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -1363,6 +1362,18 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                                    }
                                    return {};
                                });
+}
+
+TextEditor::ProjectWrapper wrapProject(Project *p)
+{
+    return TextEditor::ProjectWrapper(p, [](const void *p) {
+        return reinterpret_cast<const Project *>(p)->projectFilePath();
+    });
+}
+
+Project *unwrapProject(const TextEditor::ProjectWrapper &w)
+{
+    return reinterpret_cast<Project *>(w.project());
 }
 
 } // ProjectExplorer

@@ -102,7 +102,7 @@ public:
 
         auto factory = TextEditorSettings::codeStyleFactory(Nim::Constants::C_NIMLANGUAGE_ID);
         CodeStyleEditorWidget *editor
-            = factory->createCodeStyleEditor(nullptr, m_nimCodeStylePreferences);
+            = factory->createCodeStyleEditor({}, m_nimCodeStylePreferences);
 
         auto layout = new QVBoxLayout(this);
         layout->addWidget(editor);

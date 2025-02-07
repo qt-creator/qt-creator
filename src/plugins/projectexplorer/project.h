@@ -20,6 +20,7 @@
 #include <memory>
 
 namespace Core { class Context; }
+namespace TextEditor { class ProjectWrapper; }
 namespace Utils {
 class Environment;
 class MacroExpander;
@@ -258,6 +259,9 @@ private:
     friend class ContainerNode;
     ProjectPrivate *d;
 };
+
+PROJECTEXPLORER_EXPORT TextEditor::ProjectWrapper wrapProject(Project *p);
+PROJECTEXPLORER_EXPORT Project *unwrapProject(const TextEditor::ProjectWrapper &w);
 
 } // namespace ProjectExplorer
 

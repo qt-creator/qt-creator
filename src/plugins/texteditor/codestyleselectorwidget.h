@@ -14,8 +14,6 @@ class QComboBox;
 class QPushButton;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer { class Project; }
-
 namespace TextEditor {
 
 class ICodeStylePreferences;

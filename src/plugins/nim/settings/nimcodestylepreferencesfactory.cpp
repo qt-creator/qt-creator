@@ -26,7 +26,7 @@ class NimCodeStyleEditor final : public TextEditor::CodeStyleEditor
 public:
     static NimCodeStyleEditor *create(
         const TextEditor::ICodeStylePreferencesFactory *factory,
-        ProjectExplorer::Project *project,
+        const ProjectWrapper &project,
         TextEditor::ICodeStylePreferences *codeStyle,
         QWidget *parent = nullptr);
 
@@ -34,7 +34,7 @@ private:
     NimCodeStyleEditor(QWidget *parent = nullptr);
 
     CodeStyleEditorWidget *createEditorWidget(
-        const ProjectExplorer::Project * /*project*/,
+        const void * /*project*/,
         TextEditor::ICodeStylePreferences *codeStyle,
         QWidget *parent = nullptr) const override;
     QString previewText() const override;
@@ -43,7 +43,7 @@ private:
 
 NimCodeStyleEditor *NimCodeStyleEditor::create(
     const ICodeStylePreferencesFactory *factory,
-    ProjectExplorer::Project *project,
+    const ProjectWrapper &project,
     ICodeStylePreferences *codeStyle,
     QWidget *parent)
 {
@@ -57,7 +57,7 @@ NimCodeStyleEditor::NimCodeStyleEditor(QWidget *parent)
 {}
 
 CodeStyleEditorWidget *NimCodeStyleEditor::createEditorWidget(
-    const ProjectExplorer::Project * /*project*/,
+    const void * /*project*/,
     ICodeStylePreferences *codeStyle,
     QWidget *parent) const
 {
@@ -75,7 +75,7 @@ QString NimCodeStyleEditor::snippetProviderGroupId() const
 }
 
 TextEditor::CodeStyleEditorWidget *NimCodeStylePreferencesFactory::createCodeStyleEditor(
-    ProjectExplorer::Project *project,
+    const ProjectWrapper &project,
     TextEditor::ICodeStylePreferences *codeStyle,
     QWidget *parent) const
 {

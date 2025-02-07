@@ -10,6 +10,7 @@
 #include "cppeditortr.h"
 #include "cppqtstyleindenter.h"
 
+#include <projectexplorer/project.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/indenter.h>
 
@@ -33,7 +34,7 @@ private:
     CppCodeStyleEditor(QWidget *parent = nullptr);
 
     CodeStyleEditorWidget *createEditorWidget(
-        const ProjectExplorer::Project * /*project*/,
+        const void * /*project*/,
         TextEditor::ICodeStylePreferences *codeStyle,
         QWidget *parent = nullptr) const override;
     QString previewText() const override;
@@ -47,7 +48,7 @@ CppCodeStyleEditor *CppCodeStyleEditor::create(
     QWidget *parent)
 {
     auto editor = new CppCodeStyleEditor{parent};
-    editor->init(factory, project, codeStyle);
+    editor->init(factory, wrapProject(project), codeStyle);
     return editor;
 }
 
@@ -56,7 +57,7 @@ CppCodeStyleEditor::CppCodeStyleEditor(QWidget *parent)
 {}
 
 TextEditor::CodeStyleEditorWidget *CppCodeStyleEditor::createEditorWidget(
-    const ProjectExplorer::Project * /*project*/,
+    const void * /*project*/,
     TextEditor::ICodeStylePreferences *codeStyle,
     QWidget *parent) const
 {
@@ -83,11 +84,12 @@ QString CppCodeStyleEditor::snippetProviderGroupId() const
 }
 
 TextEditor::CodeStyleEditorWidget *CppCodeStylePreferencesFactory::createCodeStyleEditor(
-    ProjectExplorer::Project *project,
+    const TextEditor::ProjectWrapper &project,
     TextEditor::ICodeStylePreferences *codeStyle,
     QWidget *parent) const
 {
-    return CppCodeStyleEditor::create(this, project, codeStyle, parent);
+    return CppCodeStyleEditor::create(
+        this, ProjectExplorer::unwrapProject(project), codeStyle, parent);
 }
 
 Utils::Id CppCodeStylePreferencesFactory::languageId()

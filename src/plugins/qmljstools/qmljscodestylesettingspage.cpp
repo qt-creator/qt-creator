@@ -140,7 +140,7 @@ public:
         auto vbox = new QVBoxLayout(this);
         vbox->addWidget(
             TextEditorSettings::codeStyleFactory(QmlJSTools::Constants::QML_JS_SETTINGS_ID)
-                ->createCodeStyleEditor(nullptr, &m_preferences));
+                ->createCodeStyleEditor({}, &m_preferences));
     }
 
     void apply() final
