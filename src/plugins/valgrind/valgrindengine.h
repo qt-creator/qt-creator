@@ -21,7 +21,7 @@ public:
     void stop() override;
 
 protected:
-    virtual QString progressTitle() const = 0;
+    void setProgressTitle(const QString &title) { m_progressTitle = title; }
     virtual void addToolArguments(Utils::CommandLine &cmd) const = 0;
 
     ValgrindSettings m_settings{false};
@@ -39,6 +39,7 @@ private:
 
 private:
     bool m_isStopping = false;
+    QString m_progressTitle;
 };
 
 } // Valgrind::Internal

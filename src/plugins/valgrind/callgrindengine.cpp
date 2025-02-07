@@ -30,6 +30,7 @@ CallgrindToolRunner::CallgrindToolRunner(RunControl *runControl)
     : ValgrindToolRunner(runControl)
 {
     setId("CallgrindToolRunner");
+    setProgressTitle(Tr::tr("Profiling"));
 
     connect(&m_runner, &ValgrindProcess::valgrindStarted, this, [this](qint64 pid) {
         m_pid = pid;
@@ -75,11 +76,6 @@ void CallgrindToolRunner::addToolArguments(CommandLine &cmd) const
     cmd << "--callgrind-out-file=" + m_valgrindOutputFile.path();
 
     cmd.addArgs(m_settings.callgrindArguments(), CommandLine::Raw);
-}
-
-QString CallgrindToolRunner::progressTitle() const
-{
-    return Tr::tr("Profiling");
 }
 
 void CallgrindToolRunner::start()

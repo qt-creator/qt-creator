@@ -47,7 +47,6 @@ public:
 
 protected:
     void addToolArguments(Utils::CommandLine &cmd) const override;
-    QString progressTitle() const override;
 
 signals:
     void parserDataReady(const Callgrind::ParseDataPtr &data);

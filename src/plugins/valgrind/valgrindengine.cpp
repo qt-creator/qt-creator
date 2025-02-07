@@ -57,7 +57,7 @@ void ValgrindToolRunner::start()
 
     using namespace std::chrono_literals;
     FutureProgress *fp
-        = ProgressManager::addTimedTask(m_progress, progressTitle(), "valgrind", 100s);
+        = ProgressManager::addTimedTask(m_progress, m_progressTitle, "valgrind", 100s);
     connect(fp, &FutureProgress::canceled,
             this, &ValgrindToolRunner::handleProgressCanceled);
     connect(fp, &FutureProgress::finished,

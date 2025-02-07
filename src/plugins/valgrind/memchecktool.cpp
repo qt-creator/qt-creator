@@ -106,7 +106,6 @@ signals:
     void parserError(const Valgrind::XmlProtocol::Error &error);
 
 private:
-    QString progressTitle() const final;
     void addToolArguments(CommandLine &cmd) const final;
 
     void startDebugger(qint64 valgrindPid);
@@ -115,11 +114,6 @@ private:
     const bool m_withGdb;
     std::unique_ptr<Process> m_process;
 };
-
-QString MemcheckToolRunner::progressTitle() const
-{
-    return Tr::tr("Analyzing Memory");
-}
 
 void MemcheckToolRunner::start()
 {
@@ -1120,6 +1114,8 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
     , m_withGdb(runControl->runMode() == MEMCHECK_WITH_GDB_RUN_MODE)
 {
     setId("MemcheckToolRunner");
+    setProgressTitle(Tr::tr("Analyzing Memory"));
+
     connect(&m_runner, &ValgrindProcess::error, this, &MemcheckToolRunner::parserError);
 
     if (m_withGdb) {
