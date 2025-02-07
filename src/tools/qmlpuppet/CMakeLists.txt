@@ -128,6 +128,12 @@ extend_qtc_executable(qmlpuppet
 )
 
 extend_qtc_executable(qmlpuppet
+  SOURCES_PREFIX qmlpuppet/renderer
+  SOURCES
+    qmlrenderer.cpp qmlrenderer.h
+)
+
+extend_qtc_executable(qmlpuppet
   SOURCES_PREFIX qmlpuppet/instances
   SOURCES
     anchorchangesnodeinstance.cpp anchorchangesnodeinstance.h
