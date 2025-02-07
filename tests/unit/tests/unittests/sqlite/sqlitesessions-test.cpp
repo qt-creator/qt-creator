@@ -332,24 +332,23 @@ TEST_F(SqliteSessions, apply_does_does_not_override_if_constraints_is_applied)
     ASSERT_THAT(fetchTags(), IsEmpty());
 }
 
-TEST_F(SqliteSessions, commit_throws_if_foreign_key_if_reference_is_deleted_deferred)
+TEST_F(SqliteSessions, apply_does_does_not_override_foreign_key_if_reference_is_deleted_deferred)
 {
     database.unlock();
-    {
-        Sqlite::DeferredTransaction transaction{database};
-        insertData.write("foo2", "bar", 3.14);
-        insertData.write("foo", "bar", 3.14);
-        sessions.create();
-        insertTag.write("foo2", 4321);
-        insertTag.write("foo", 1234);
-        sessions.commit();
-        deleteData.write("foo");
+    Sqlite::DeferredTransaction transaction{database};
+    insertData.write("foo2", "bar", 3.14);
+    insertData.write("foo", "bar", 3.14);
+    sessions.create();
+    insertTag.write("foo2", 4321);
+    insertTag.write("foo", 1234);
+    sessions.commit();
+    deleteData.write("foo");
 
-        sessions.apply();
+    sessions.apply();
 
-        ASSERT_THROW(transaction.commit(), Sqlite::ConstraintPreventsModification);
-    }
+    transaction.commit();
     database.lock();
+    ASSERT_THAT(fetchTags(), ElementsAre(HasTag("foo2", 4321)));
 }
 
 TEST_F(SqliteSessions, end_session_on_rollback)
