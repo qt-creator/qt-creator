@@ -127,6 +127,7 @@ class ToolBarBackend : public QObject
     Q_PROPERTY(bool isLiteModeEnabled READ isLiteModeEnabled CONSTANT)
 
     Q_PROPERTY(int runTargetIndex READ runTargetIndex NOTIFY runTargetIndexChanged)
+    Q_PROPERTY(int runTargetType READ runTargetType NOTIFY runTargetTypeChanged)
     Q_PROPERTY(int runManagerState READ runManagerState NOTIFY runManagerStateChanged)
     Q_PROPERTY(int runManagerProgress READ runManagerProgress NOTIFY runManagerProgressChanged)
     Q_PROPERTY(QString runManagerError READ runManagerError NOTIFY runManagerErrorChanged)
@@ -192,6 +193,7 @@ public:
     bool isLiteModeEnabled() const;
 
     int runTargetIndex() const;
+    int runTargetType() const;
     int runManagerState() const;
     int runManagerProgress() const;
     QString runManagerError() const;
@@ -221,6 +223,7 @@ signals:
     void isDocumentDirtyChanged();
 
     void runTargetIndexChanged();
+    void runTargetTypeChanged();
     void runManagerStateChanged();
     void runManagerProgressChanged();
     void runManagerErrorChanged();
