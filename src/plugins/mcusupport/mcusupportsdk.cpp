@@ -678,10 +678,7 @@ static Utils::PathChooser::Kind parseLineEditType(const QJsonValue &type)
 static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
 {
     const QVariantList versionsVariantList = cmakeEntry["versions"].toArray().toVariantList();
-    const auto versions = Utils::transform<QStringList>(versionsVariantList,
-                                                        [&](const QVariant &version) {
-                                                            return version.toString();
-                                                        });
+    const auto versions = Utils::transform(versionsVariantList, &QVariant::toString);
 
     //Parse the default value depending on the operating system
     QString defaultPathString = getOsSpecificValue(cmakeEntry["defaultValue"]).toString();
@@ -742,16 +739,11 @@ McuTargetDescription parseDescriptionJson(const QByteArray &data, const Utils::F
     const PackageDescription freeRtosPackage{parsePackage(freeRTOS)};
 
     const QVariantList toolchainVersions = toolchain.value("versions").toArray().toVariantList();
-    const auto toolchainVersionsList = Utils::transform<QStringList>(toolchainVersions,
-                                                                     [&](const QVariant &version) {
-                                                                         return version.toString();
-                                                                     });
+    const auto toolchainVersionsList = Utils::transform(toolchainVersions, &QVariant::toString);
 
     const QVariantList colorDepths = platform.value("colorDepths").toArray().toVariantList();
-    const auto colorDepthsVector = Utils::transform<QVector<int>>(colorDepths,
-                                                                  [&](const QVariant &colorDepth) {
-                                                                      return colorDepth.toInt();
-                                                                  });
+    const auto colorDepthsVector = Utils::transform(colorDepths,
+                                                    [](const QVariant &v) { return v.toInt(); });
     const QString platformName = platform.value("platformName").toString();
 
     return {sourceFile,

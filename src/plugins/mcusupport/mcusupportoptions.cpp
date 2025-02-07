@@ -177,9 +177,7 @@ void McuSupportOptions::registerQchFiles() const
         return;
 
     const QFileInfoList qchFiles = QDir(docsDir, "*.qch").entryInfoList();
-    Core::HelpManager::registerDocumentation(
-        Utils::transform<QStringList>(qchFiles,
-                                      [](const QFileInfo &fi) { return fi.absoluteFilePath(); }));
+    Core::HelpManager::registerDocumentation(Utils::transform(qchFiles, &QFileInfo::absoluteFilePath));
 }
 
 void McuSupportOptions::registerExamples() const
