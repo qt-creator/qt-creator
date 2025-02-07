@@ -454,7 +454,7 @@ void MaterialBrowserModel::copyMaterialProperties(int idx, const QString &sectio
     }
 
     m_copiedMaterialProps.clear();
-    for (const PropertyName &propName : copiedProps) {
+    for (const PropertyName &propName : std::as_const(copiedProps)) {
         PropertyCopyData data;
         data.name = propName;
         data.isValid = m_allPropsCopied || validProps.contains(propName);
