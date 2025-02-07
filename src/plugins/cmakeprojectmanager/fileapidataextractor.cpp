@@ -139,7 +139,7 @@ public:
     std::vector<std::unique_ptr<FileNode>> cmakeNodesOther;
     std::vector<std::unique_ptr<FileNode>> cmakeListNodes;
 
-    Configuration codemodel;
+    ConfigurationInfo codemodel;
     std::vector<TargetDetails> targetDetails;
 };
 
@@ -583,7 +583,7 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
     return rpps;
 }
 
-static FilePath directorySourceDir(const Configuration &c,
+static FilePath directorySourceDir(const ConfigurationInfo &c,
                                    const FilePath &sourceDir,
                                    int directoryIndex)
 {
@@ -593,7 +593,7 @@ static FilePath directorySourceDir(const Configuration &c,
     return sourceDir.resolvePath(c.directories[di].sourcePath);
 }
 
-static FilePath directoryBuildDir(const Configuration &c,
+static FilePath directoryBuildDir(const ConfigurationInfo &c,
                                   const FilePath &buildDir,
                                   int directoryIndex)
 {
@@ -605,10 +605,10 @@ static FilePath directoryBuildDir(const Configuration &c,
 
 static void addProjects(const QFuture<void> &cancelFuture,
                         const QHash<FilePath, ProjectNode *> &cmakeListsNodes,
-                        const Configuration &config,
+                        const ConfigurationInfo &config,
                         const FilePath &sourceDir)
 {
-    for (const FileApiDetails::Project &p : config.projects) {
+    for (const FileApiDetails::ProjectInfo &p : config.projects) {
         if (cancelFuture.isCanceled())
             return;
 
@@ -777,7 +777,7 @@ static void addGeneratedFilesNode(ProjectNode *targetRoot, const FilePath &topLe
 static void addTargets(FolderNode *root,
                        const QFuture<void> &cancelFuture,
                        const QHash<FilePath, ProjectNode *> &cmakeListsNodes,
-                       const Configuration &config,
+                       const ConfigurationInfo &config,
                        const std::vector<TargetDetails> &targetDetails,
                        const FilePath &sourceDir,
                        const FilePath &buildDir)
@@ -815,7 +815,7 @@ static void addTargets(FolderNode *root,
 
     QHash<FilePath, FolderNode *> folderNodes;
 
-    for (const FileApiDetails::Target &t : config.targets) {
+    for (const FileApiDetails::TargetInfo &t : config.targets) {
         if (cancelFuture.isCanceled())
             return;
 
@@ -855,8 +855,8 @@ static std::unique_ptr<CMakeProjectNode> generateRootProjectNode(const QFuture<v
 {
     std::unique_ptr<CMakeProjectNode> result = std::make_unique<CMakeProjectNode>(sourceDirectory);
 
-    const FileApiDetails::Project topLevelProject
-        = findOrDefault(data.codemodel.projects, equal(&FileApiDetails::Project::parent, -1));
+    const FileApiDetails::ProjectInfo topLevelProject
+        = findOrDefault(data.codemodel.projects, equal(&FileApiDetails::ProjectInfo::parent, -1));
     if (!topLevelProject.name.isEmpty())
         result->setDisplayName(topLevelProject.name);
     else

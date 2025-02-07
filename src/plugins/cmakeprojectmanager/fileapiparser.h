@@ -47,7 +47,7 @@ public:
     Utils::FilePath jsonFile(const QString &kind, const Utils::FilePath &replyDir) const;
 };
 
-class Directory
+class DirectoryInfo
 {
 public:
     QString buildPath;
@@ -59,7 +59,7 @@ public:
     bool hasInstallRule = false;
 };
 
-class Project
+class ProjectInfo
 {
 public:
     QString name;
@@ -69,7 +69,7 @@ public:
     std::vector<int> targets;
 };
 
-class Target
+class TargetInfo
 {
 public:
     // From codemodel file:
@@ -80,13 +80,13 @@ public:
     QString jsonFile;
 };
 
-class Configuration
+class ConfigurationInfo
 {
 public:
     QString name;
-    std::vector<Directory> directories;
-    std::vector<Project> projects;
-    std::vector<Target> targets;
+    std::vector<DirectoryInfo> directories;
+    std::vector<ProjectInfo> projects;
+    std::vector<TargetInfo> targets;
 };
 
 class InstallDestination
@@ -211,7 +211,7 @@ public:
     FileApiDetails::ReplyFileContents replyFile;
     CMakeConfig cache;
     std::vector<CMakeFileInfo> cmakeFiles;
-    FileApiDetails::Configuration codemodel;
+    FileApiDetails::ConfigurationInfo codemodel;
     std::vector<FileApiDetails::TargetDetails> targetDetails;
 };
 
