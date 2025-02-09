@@ -1055,7 +1055,7 @@ void GitClient::diffFile(const FilePath &workingDirectory, const QString &fileNa
     const QString title = Tr::tr("Git Diff \"%1\"").arg(fileName);
     const FilePath sourceFile = VcsBaseEditor::getSource(workingDirectory, fileName);
     const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
-            + QLatin1String(".DifFile.") + sourceFile.toUrlishString();
+            + QLatin1String(".DiffFile.") + sourceFile.toUrlishString();
     requestReload(documentId, sourceFile, title, workingDirectory,
                   [&fileName](IDocument *doc) {
         return new GitDiffEditorController(doc, {}, {}, {"--", fileName});
