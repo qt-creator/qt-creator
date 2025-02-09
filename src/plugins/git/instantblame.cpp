@@ -115,15 +115,19 @@ QString BlameMark::toolTipText(const CommitInfo &info) const
 
     QString actions;
     if (!info.modified) {
-         actions = QString(
+        const QString blameRevision = Tr::tr("Blame %1").arg(info.hash.left(8));
+        const QString blameParent = Tr::tr("Blame Parent");
+        const QString showFile = Tr::tr("File at %1").arg(info.hash.left(8));
+        const QString logForLine = Tr::tr("Log for line %1").arg(info.line);
+        actions = QString(
                       "<table cellspacing=\"10\"><tr>"
-                      "  <td><a href=\"blame\">Blame %1</a></td>"
-                      "  <td><a href=\"blameParent\">Blame Parent</a></td>"
-                      "  <td><a href=\"showFile\">File at %1</a></td>"
-                      "  <td><a href=\"logLine\">Log for line %2</a></td>"
+                      "  <td><a href=\"blame\">%1</a></td>"
+                      "  <td><a href=\"blameParent\">%2</a></td>"
+                      "  <td><a href=\"showFile\">%3</a></td>"
+                      "  <td><a href=\"logLine\">%4</a></td>"
                       "</tr></table>"
                       "<p></p>")
-                      .arg(info.hash.left(8), QString::number(info.line));
+                      .arg(blameRevision, blameParent, showFile, logForLine);
     }
 
     const QString header = QString(
