@@ -303,15 +303,20 @@ static CommitInfo parseBlameOutput(const QStringList &blame, const Utils::FilePa
     const QStringList firstLineParts = blame.at(0).split(" ");
     result.hash = firstLineParts.first();
     result.modified = result.hash == uncommittedHash;
-    result.author = blame.at(1).mid(7);
-    result.authorMail = blame.at(2).mid(13).chopped(1);
+    if (result.modified) {
+        result.author = Tr::tr("Not Committed Yet");
+        result.subject = Tr::tr("Modified line in %1").arg(filePath.fileName());
+    } else {
+        result.author = blame.at(1).mid(7);
+        result.authorMail = blame.at(2).mid(13).chopped(1);
+        result.subject = blame.at(9).mid(8);
+    }
     if (result.author == author.name || result.authorMail == author.email)
         result.shortAuthor = Tr::tr("You");
     else
         result.shortAuthor = result.author;
     const uint timeStamp = blame.at(3).mid(12).toUInt();
     result.authorDate = QDateTime::fromSecsSinceEpoch(timeStamp);
-    result.subject = blame.at(9).mid(8);
     result.filePath = filePath;
     // blame.at(10) can be "boundary", "previous" or "filename"
     if (blame.at(10).startsWith("filename"))
