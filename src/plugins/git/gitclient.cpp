@@ -1027,38 +1027,59 @@ void GitClient::diffFiles(const FilePath &workingDirectory,
                   });
 }
 
-void GitClient::diffProject(const FilePath &workingDirectory, const QString &projectDirectory) const
+static QStringList diffModeArguments(GitClient::DiffMode diffMode, QStringList args = {})
 {
+    if (diffMode == GitClient::Staged)
+        args.prepend("--cached");
+    return args;
+}
+
+void GitClient::diffProject(const FilePath &workingDirectory, const QString &projectDirectory,
+                            DiffMode diffMode) const
+{
+    const QString title = (diffMode == Staged)
+        ? Tr::tr("Git Diff Staged Project Changes")
+        : Tr::tr("Git Diff Project");
     const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
             + QLatin1String(".DiffProject.") + workingDirectory.toUrlishString();
+    const QStringList args = diffModeArguments(diffMode, {"--", projectDirectory});
     requestReload(documentId,
-                  workingDirectory, Tr::tr("Git Diff Project"), workingDirectory,
-                  [projectDirectory](IDocument *doc){
-                      return new GitDiffEditorController(doc, {}, {}, {"--", projectDirectory});
+                  workingDirectory, title, workingDirectory,
+                  [&args](IDocument *doc) {
+                      return new GitDiffEditorController(doc, {}, {}, args);
                   });
 }
 
 void GitClient::diffRepository(const FilePath &workingDirectory,
                                const QString &leftCommit,
-                               const QString &rightCommit) const
+                               const QString &rightCommit,
+                               DiffMode diffMode) const
 {
+    const QString title = (diffMode == Staged)
+        ? Tr::tr("Git Diff Staged Repository Changes")
+        : Tr::tr("Git Diff Repository");
     const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
             + QLatin1String(".DiffRepository.") + workingDirectory.toUrlishString();
-    requestReload(documentId, workingDirectory, Tr::tr("Git Diff Repository"), workingDirectory,
-                  [&leftCommit, &rightCommit](IDocument *doc) {
-        return new GitDiffEditorController(doc, leftCommit, rightCommit, {});
+    const QStringList args = diffModeArguments(diffMode);
+    requestReload(documentId, workingDirectory, title, workingDirectory,
+                  [&leftCommit, &rightCommit, &args](IDocument *doc) {
+        return new GitDiffEditorController(doc, leftCommit, rightCommit, args);
     });
 }
 
-void GitClient::diffFile(const FilePath &workingDirectory, const QString &fileName) const
+void GitClient::diffFile(const FilePath &workingDirectory, const QString &fileName,
+                         DiffMode diffMode) const
 {
-    const QString title = Tr::tr("Git Diff \"%1\"").arg(fileName);
+    const QString title = (diffMode == Staged)
+        ? Tr::tr("Git Diff Staged \"%1\" Changes").arg(fileName)
+        : Tr::tr("Git Diff \"%1\"").arg(fileName);
     const FilePath sourceFile = VcsBaseEditor::getSource(workingDirectory, fileName);
     const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
             + QLatin1String(".DiffFile.") + sourceFile.toUrlishString();
+    const QStringList args = diffModeArguments(diffMode, {"--", fileName});
     requestReload(documentId, sourceFile, title, workingDirectory,
-                  [&fileName](IDocument *doc) {
-        return new GitDiffEditorController(doc, {}, {}, {"--", fileName});
+                  [&args](IDocument *doc) {
+        return new GitDiffEditorController(doc, {}, {}, args);
     });
 }
 

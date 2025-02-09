@@ -141,19 +141,26 @@ public:
     void monitorDirectory(const Utils::FilePath &path);
     void stopMonitoring(const Utils::FilePath &path);
 
-    void diffFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
+    enum DiffMode { Unstaged, Staged };
+    void diffFile(const Utils::FilePath &workingDirectory, const QString &fileName,
+                  DiffMode diffMode = Unstaged) const;
     void diffFiles(const Utils::FilePath &workingDirectory,
                    const QStringList &unstagedFileNames,
                    const QStringList &stagedFileNames) const;
     void diffProject(const Utils::FilePath &workingDirectory,
-                     const QString &projectDirectory) const;
-    void diffRepository(const Utils::FilePath &workingDirectory) const
+                     const QString &projectDirectory, DiffMode diffMode = Unstaged) const;
+    void diffUnstagedRepository(const Utils::FilePath &workingDirectory) const
     {
-        return diffRepository(workingDirectory, {}, {});
+        return diffRepository(workingDirectory, {}, {}, Unstaged);
+    }
+    void diffStagedRepository(const Utils::FilePath &workingDirectory) const
+    {
+        return diffRepository(workingDirectory, {}, {}, Staged);
     }
     void diffRepository(const Utils::FilePath &workingDirectory,
                         const QString &leftCommit,
-                        const QString &rightCommit) const;
+                        const QString &rightCommit,
+                        DiffMode diffMode = Unstaged) const;
     void diffBranch(const Utils::FilePath &workingDirectory,
                     const QString &branchName) const;
     void merge(const Utils::FilePath &workingDirectory, const QStringList &unmergedFileNames = {});

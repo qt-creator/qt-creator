@@ -217,8 +217,12 @@ public:
     bool activateCommit() override;
     void discardCommit() override { cleanCommitMessageFile(); }
 
-    void diffCurrentFile();
-    void diffProjectDirectory();
+    void diffCurrentFile(GitClient::DiffMode diffMode);
+    void diffUnstagedCurrentFile() { diffCurrentFile(GitClient::Unstaged); }
+    void diffStagedCurrentFile() { diffCurrentFile(GitClient::Staged); }
+    void diffProjectDirectory(GitClient::DiffMode diffMode);
+    void diffUnstagedProjectDirectory() { diffProjectDirectory(GitClient::Unstaged); }
+    void diffStagedProjectDirectory() { diffProjectDirectory(GitClient::Staged); }
     void logFile();
     void logSelection();
     void blameFile();
@@ -596,8 +600,17 @@ GitPluginPrivate::GitPluginPrivate()
                      Tr::tr("Diff Current File"),
                      //: Avoid translating "Diff"
                      Tr::tr("Diff of \"%1\""),
-                     "Git.Diff", context, true, std::bind(&GitPluginPrivate::diffCurrentFile, this),
-                      QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+D") : Tr::tr("Alt+G,Alt+D")));
+                     "Git.Diff", context, true,
+                     std::bind(&GitPluginPrivate::diffUnstagedCurrentFile, this),
+                     QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+D") : Tr::tr("Alt+G,Alt+D")));
+
+    createFileAction(currentFileMenu,
+                     //: Avoid translating "Diff"
+                     Tr::tr("Diff Staged Current File Changes"),
+                     //: Avoid translating "Diff"
+                     Tr::tr("Diff Staged Changes in \"%1\""),
+                     "Git.DiffStaged", context, true,
+                     std::bind(&GitPluginPrivate::diffStagedCurrentFile, this));
 
     createFileAction(currentFileMenu,
                      //: Avoid translating "Log"
@@ -661,7 +674,15 @@ GitPluginPrivate::GitPluginPrivate()
                         //: Avoid translating "Diff"
                         Tr::tr("Diff Directory of Project \"%1\""),
                         "Git.DiffProjectDirectory", context, true,
-                        &GitPluginPrivate::diffProjectDirectory);
+                        &GitPluginPrivate::diffUnstagedProjectDirectory);
+
+    createProjectAction(currentProjectDirectoryMenu,
+                        //: Avoid translating "Diff"
+                        Tr::tr("Diff Staged Project Directory Changes"),
+                        //: Avoid translating "Diff"
+                        Tr::tr("Diff Staged Directory of Project \"%1\" Changes"),
+                        "Git.DiffStagedProjectDirectory", context, true,
+                        &GitPluginPrivate::diffStagedProjectDirectory);
 
     createProjectAction(currentProjectDirectoryMenu,
                         //: Avoid translating "Log"
@@ -686,8 +707,11 @@ GitPluginPrivate::GitPluginPrivate()
     gitContainer->addMenu(localRepositoryMenu);
 
     createRepositoryAction(localRepositoryMenu, "Diff", "Git.DiffRepository",
-                           context, true, &GitClient::diffRepository,
+                           context, true, &GitClient::diffUnstagedRepository,
                            QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+Shift+D") : Tr::tr("Alt+G,Alt+Shift+D")));
+
+    createRepositoryAction(localRepositoryMenu, "Diff Staged", "Git.DiffStagedRepository",
+                           context, true, &GitClient::diffStagedRepository);
 
     createRepositoryAction(localRepositoryMenu, "Log", "Git.LogRepository",
                            context, true, std::bind(&GitPluginPrivate::logRepository, this),
@@ -993,22 +1017,22 @@ GitPluginPrivate::GitPluginPrivate()
     });
 }
 
-void GitPluginPrivate::diffCurrentFile()
+void GitPluginPrivate::diffCurrentFile(GitClient::DiffMode diffMode)
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    gitClient().diffFile(state.currentFileTopLevel(), state.relativeCurrentFile());
+    gitClient().diffFile(state.currentFileTopLevel(), state.relativeCurrentFile(), diffMode);
 }
 
-void GitPluginPrivate::diffProjectDirectory()
+void GitPluginPrivate::diffProjectDirectory(GitClient::DiffMode diffMode)
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
     const QString relativeProject = state.relativeCurrentProject();
     if (relativeProject.isEmpty())
-        gitClient().diffRepository(state.currentProjectTopLevel());
+        gitClient().diffRepository(state.currentProjectTopLevel(), {}, {}, diffMode);
     else
-        gitClient().diffProject(state.currentProjectTopLevel(), relativeProject);
+        gitClient().diffProject(state.currentProjectTopLevel(), relativeProject, diffMode);
 }
 
 void GitPluginPrivate::logFile()
