@@ -25,6 +25,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
 #include <utils/proxyaction.h>
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
@@ -127,6 +128,10 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
             Tr::tr("Discarded excessive compile output."),
             Constants::TASK_CATEGORY_COMPILE);
     });
+    connect(&s.overwriteColor, &Utils::BaseAspect::changed,
+            this, &CompileOutputWindow::updateFromSettings);
+    connect(&s.backgroundColor, &Utils::BaseAspect::changed,
+            this, &CompileOutputWindow::updateFromSettings);
 }
 
 CompileOutputWindow::~CompileOutputWindow()
@@ -139,7 +144,16 @@ CompileOutputWindow::~CompileOutputWindow()
 
 void CompileOutputWindow::updateFromSettings()
 {
+    QColor background;
+    if (compileOutputSettings().overwriteColor())
+            background = compileOutputSettings().backgroundColor();
+    if (!background.isValid())
+            background = Utils::creatorColor(Utils::Theme::PaletteBase);
+
+    m_outputWindow->outputFormatter()->setExplicitBackgroundColor(background);
+    Utils::StyleHelper::modifyPaletteBase(m_outputWindow, background);
 }
+
 bool CompileOutputWindow::hasFocus() const
 {
     return m_outputWindow->window()->focusWidget() == m_outputWindow;
@@ -279,6 +293,20 @@ CompileOutputSettings::CompileOutputSettings()
     maxCharCount.setToSettingsTransformation([](const QVariant &v) { return v.toInt() / 100; });
     maxCharCount.setFromSettingsTransformation([](const QVariant &v) { return v.toInt() * 100; });
 
+    overwriteColor.setSettingsKey("ProjectExplorer/CompileOutput/OverwriteBackground");
+    overwriteColor.setLabelText(Tr::tr("Overwrite background color"));
+    overwriteColor.setToolTip("Customize background color of the compile output.\n"
+                              "Note: existing output will not get recolored.");
+
+    backgroundColor.setSettingsKey("ProjectExplorer/CompileOutput/BackgroundColor");
+    backgroundColor.setDefaultValue(QColor{});
+    backgroundColor.setMinimumSize({64, 0});
+    backgroundColor.setFromSettingsTransformation([](const QVariant &var) {
+        const QColor color = var.value<QColor>();
+        return color.isValid() ? color : Utils::creatorColor(Utils::Theme::PaletteBase);
+    });
+    backgroundColor.setEnabler(&overwriteColor);
+
     setLayouter([this] {
         using namespace Layouting;
         const QString msg = Tr::tr("Limit output to %1 characters");
@@ -288,6 +316,7 @@ CompileOutputSettings::CompileOutputSettings()
             popUp,
             discardOutput,
             Row { parts.at(0), maxCharCount, parts.at(1), st },
+            Row { overwriteColor, backgroundColor, st },
             st
         };
     });

@@ -34,7 +34,9 @@ public:
     Utils::BoolAspect popUp{this};
     Utils::BoolAspect wrapOutput{this};
     Utils::BoolAspect discardOutput{this};
+    Utils::BoolAspect overwriteColor{this};
     Utils::IntegerAspect maxCharCount{this};
+    Utils::ColorAspect backgroundColor{this};
 };
 
 CompileOutputSettings &compileOutputSettings();
