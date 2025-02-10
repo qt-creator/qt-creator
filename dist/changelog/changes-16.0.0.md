@@ -2,6 +2,7 @@ Qt Creator 16
 =============
 
 Qt Creator version 16 contains bug fixes and new features.
+It is a free upgrade for commercial license holders.
 
 The most important changes are listed in this document. For a complete list of
 changes, see the Git log for the Qt Creator sources that you can check out from
