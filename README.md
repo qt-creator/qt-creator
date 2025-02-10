@@ -268,6 +268,12 @@ available to the installed Qt Creator, run
 
     cmake --install . --prefix /path/to/qtcreator_install --component DebugInfo
 
+### QML Designer
+
+To disable the build of the experimental QML Designer plugins and their dependencies,
+use the CMake option `-DWITH_QMLDESIGNER=OFF`. The QML Designer plugin requires additional
+testing for specific Qt versions. If that can not be provided we suggest to disable it.
+
 ### Perf Profiler Support
 
 Support for the [perf](https://perf.wiki.kernel.org/index.php/Main_Page) profiler
