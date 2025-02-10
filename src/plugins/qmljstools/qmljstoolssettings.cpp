@@ -31,7 +31,7 @@ QmlJSToolsSettings::QmlJSToolsSettings()
     QTC_ASSERT(!m_globalCodeStyle, return);
 
     // code style factory
-    ICodeStylePreferencesFactory *factory = new QmlJSCodeStylePreferencesFactory();
+    ICodeStylePreferencesFactory *factory = createQmlJSCodeStylePreferencesFactory();
     TextEditorSettings::registerCodeStyleFactory(factory);
 
     // code style pool

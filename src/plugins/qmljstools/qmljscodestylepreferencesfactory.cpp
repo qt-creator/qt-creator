@@ -12,12 +12,15 @@
 
 #include <projectexplorer/project.h>
 #include <texteditor/codestyleeditor.h>
+#include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/indenter.h>
 #include <utils/id.h>
 
 #include <QString>
 #include <QTextDocument>
 #include <QWidget>
+
+using namespace TextEditor;
 
 namespace QmlJSTools {
 
@@ -96,33 +99,47 @@ QString QmlJsCodeStyleEditor::snippetProviderGroupId() const
     return QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID;
 }
 
-TextEditor::CodeStyleEditorWidget *QmlJSCodeStylePreferencesFactory::createCodeStyleEditor(
-    const TextEditor::ProjectWrapper &project,
-    TextEditor::ICodeStylePreferences *codeStyle,
-    QWidget *parent) const
-{
-    return QmlJsCodeStyleEditor::create(
-        this, ProjectExplorer::unwrapProject(project), codeStyle, parent);
-}
+// QmlJSCodeStylePreferencesFactory
 
-Utils::Id QmlJSCodeStylePreferencesFactory::languageId()
+class QmlJSCodeStylePreferencesFactory final : public ICodeStylePreferencesFactory
 {
-    return Constants::QML_JS_SETTINGS_ID;
-}
+public:
+    QmlJSCodeStylePreferencesFactory() = default;
 
-QString QmlJSCodeStylePreferencesFactory::displayName()
-{
-    return Tr::tr("Qt Quick");
-}
+private:
+    CodeStyleEditorWidget *createCodeStyleEditor(
+            const ProjectWrapper &project,
+            ICodeStylePreferences *codeStyle,
+            QWidget *parent) const final
+    {
+        return QmlJsCodeStyleEditor::create(
+                    this, ProjectExplorer::unwrapProject(project), codeStyle, parent);
+    }
 
-TextEditor::ICodeStylePreferences *QmlJSCodeStylePreferencesFactory::createCodeStyle() const
-{
-    return new QmlJSCodeStylePreferences;
-}
+    Utils::Id languageId() final
+    {
+        return Constants::QML_JS_SETTINGS_ID;
+    }
 
-TextEditor::Indenter *QmlJSCodeStylePreferencesFactory::createIndenter(QTextDocument *doc) const
+    QString displayName() final
+    {
+        return Tr::tr("Qt Quick");
+    }
+
+    ICodeStylePreferences *createCodeStyle() const final
+    {
+        return new QmlJSCodeStylePreferences;
+    }
+
+    Indenter *createIndenter(QTextDocument *doc) const final
+    {
+        return QmlJSEditor::createQmlJsIndenter(doc);
+    }
+};
+
+ICodeStylePreferencesFactory *createQmlJSCodeStylePreferencesFactory()
 {
-    return QmlJSEditor::createQmlJsIndenter(doc);
+    return new QmlJSCodeStylePreferencesFactory;
 }
 
 } // namespace QmlJSTools

@@ -46,7 +46,7 @@ CppToolsSettings::CppToolsSettings()
     qRegisterMetaType<CppCodeStyleSettings>("CppEditor::CppCodeStyleSettings");
 
     // code style factory
-    ICodeStylePreferencesFactory *factory = new CppCodeStylePreferencesFactory();
+    ICodeStylePreferencesFactory *factory = createCppCodeStylePreferencesFactory();
     TextEditorSettings::registerCodeStyleFactory(factory);
 
     // code style pool

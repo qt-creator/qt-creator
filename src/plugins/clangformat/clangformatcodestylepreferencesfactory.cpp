@@ -104,25 +104,6 @@ private:
     ClangFormatConfigWidget *m_clangFormatSettings = nullptr;
 };
 
-class ClangFormatCodeStylePreferencesFactory final : public TextEditor::ICodeStylePreferencesFactory
-{
-public:
-    static void setup(QObject *guard);
-
-    TextEditor::CodeStyleEditorWidget *createCodeStyleEditor(
-        const TextEditor::ProjectWrapper &project,
-        TextEditor::ICodeStylePreferences *codeStyle,
-        QWidget *parent = nullptr) const override;
-
-private:
-    ClangFormatCodeStylePreferencesFactory() = default;
-
-    Utils::Id languageId() override;
-    QString displayName() override;
-    TextEditor::ICodeStylePreferences *createCodeStyle() const override;
-    TextEditor::Indenter *createIndenter(QTextDocument *doc) const override;
-};
-
 ClangFormatSelectorWidget::ClangFormatSelectorWidget(QWidget *parent)
     : CodeStyleSelectorWidget{parent}
 {}
@@ -341,7 +322,43 @@ QString ClangFormatCodeStyleEditor::snippetProviderGroupId() const
     return CppEditor::Constants::CPP_SNIPPETS_GROUP_ID;
 }
 
-void ClangFormatCodeStylePreferencesFactory::setup(QObject *guard)
+// ClangFormatCodeStylePreferencesFactory
+
+class ClangFormatCodeStylePreferencesFactory final : public ICodeStylePreferencesFactory
+{
+public:
+    ClangFormatCodeStylePreferencesFactory() = default;
+
+    CodeStyleEditorWidget *createCodeStyleEditor(
+            const ProjectWrapper &project,
+            ICodeStylePreferences *codeStyle,
+            QWidget *parent = nullptr) const override
+    {
+        return ClangFormatCodeStyleEditor::create(this, unwrapProject(project), codeStyle, parent);
+    }
+
+    Id languageId() override
+    {
+        return CppEditor::Constants::CPP_SETTINGS_ID;
+    }
+
+    QString displayName() override
+    {
+        return CppEditor::Tr::tr(CppEditor::Constants::CPP_SETTINGS_NAME);
+    }
+
+    ICodeStylePreferences *createCodeStyle() const override
+    {
+        return new CppEditor::CppCodeStylePreferences;
+    }
+
+    Indenter *createIndenter(QTextDocument *doc) const override
+    {
+        return new ClangFormatForwardingIndenter(doc);
+    }
+};
+
+void setupCodeStyleFactory(QObject *guard)
 {
     static ClangFormatCodeStylePreferencesFactory theClangFormatStyleFactory;
 
@@ -352,37 +369,6 @@ void ClangFormatCodeStylePreferencesFactory::setup(QObject *guard)
     QObject::connect(guard, &QObject::destroyed, [=] {
         TextEditorSettings::unregisterCodeStyleFactory(factoryId);
     });
-}
-
-CodeStyleEditorWidget *ClangFormatCodeStylePreferencesFactory::createCodeStyleEditor(
-    const ProjectWrapper &project, ICodeStylePreferences *codeStyle, QWidget *parent) const
-{
-    return ClangFormatCodeStyleEditor::create(this, unwrapProject(project), codeStyle, parent);
-}
-
-Id ClangFormatCodeStylePreferencesFactory::languageId()
-{
-    return CppEditor::Constants::CPP_SETTINGS_ID;
-}
-
-QString ClangFormatCodeStylePreferencesFactory::displayName()
-{
-    return CppEditor::Tr::tr(CppEditor::Constants::CPP_SETTINGS_NAME);
-}
-
-ICodeStylePreferences *ClangFormatCodeStylePreferencesFactory::createCodeStyle() const
-{
-    return new CppEditor::CppCodeStylePreferences;
-}
-
-Indenter *ClangFormatCodeStylePreferencesFactory::createIndenter(QTextDocument *doc) const
-{
-    return new ClangFormatForwardingIndenter(doc);
-}
-
-void setupCodeStyleFactory(QObject *guard)
-{
-    ClangFormatCodeStylePreferencesFactory::setup(guard);
 }
 
 } // namespace ClangFormat

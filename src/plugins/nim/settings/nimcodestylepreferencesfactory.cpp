@@ -11,11 +11,12 @@
 #include <texteditor/codestyleeditor.h>
 #include <texteditor/indenter.h>
 #include <texteditor/simplecodestylepreferences.h>
+#include <texteditor/codestyleeditor.h>
+#include <texteditor/icodestylepreferencesfactory.h>
+
 #include <utils/id.h>
 
-#include <QString>
 #include <QTextDocument>
-#include <QWidget>
 
 using namespace TextEditor;
 
@@ -74,32 +75,46 @@ QString NimCodeStyleEditor::snippetProviderGroupId() const
     return Constants::C_NIMSNIPPETSGROUP_ID;
 }
 
-TextEditor::CodeStyleEditorWidget *NimCodeStylePreferencesFactory::createCodeStyleEditor(
-    const ProjectWrapper &project,
-    TextEditor::ICodeStylePreferences *codeStyle,
-    QWidget *parent) const
-{
-    return NimCodeStyleEditor::create(this, project, codeStyle, parent);
-}
+// NimCodeStylePreferencesFactory
 
-Utils::Id NimCodeStylePreferencesFactory::languageId()
+class NimCodeStylePreferencesFactory final : public ICodeStylePreferencesFactory
 {
-    return Constants::C_NIMLANGUAGE_ID;
-}
+public:
+    NimCodeStylePreferencesFactory() = default;
 
-QString NimCodeStylePreferencesFactory::displayName()
-{
-    return Tr::tr(Constants::C_NIMLANGUAGE_NAME);
-}
+private:
+    CodeStyleEditorWidget *createCodeStyleEditor(
+            const ProjectWrapper &project,
+            ICodeStylePreferences *codeStyle,
+            QWidget *parent) const final
+    {
+        return NimCodeStyleEditor::create(this, project, codeStyle, parent);
+    }
 
-ICodeStylePreferences *NimCodeStylePreferencesFactory::createCodeStyle() const
-{
-    return new SimpleCodeStylePreferences();
-}
+    Utils::Id languageId() final
+    {
+        return Constants::C_NIMLANGUAGE_ID;
+    }
 
-Indenter *NimCodeStylePreferencesFactory::createIndenter(QTextDocument *doc) const
+    QString displayName() final
+    {
+        return Tr::tr(Constants::C_NIMLANGUAGE_NAME);
+    }
+
+    ICodeStylePreferences *createCodeStyle() const final
+    {
+        return new SimpleCodeStylePreferences();
+    }
+
+    Indenter *createIndenter(QTextDocument *doc) const final
+    {
+        return createNimIndenter(doc);
+    }
+};
+
+ICodeStylePreferencesFactory *createNimCodeStylePreferencesFactory()
 {
-    return createNimIndenter(doc);
+    return new NimCodeStylePreferencesFactory;
 }
 
 } // Nim

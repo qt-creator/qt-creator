@@ -11,13 +11,14 @@
 #include "cppqtstyleindenter.h"
 
 #include <projectexplorer/project.h>
+
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/indenter.h>
 
 #include <QLayout>
-#include <QString>
 #include <QTextDocument>
-#include <QWidget>
+
+using namespace TextEditor;
 
 namespace CppEditor {
 
@@ -83,33 +84,47 @@ QString CppCodeStyleEditor::snippetProviderGroupId() const
     return CppEditor::Constants::CPP_SNIPPETS_GROUP_ID;
 }
 
-TextEditor::CodeStyleEditorWidget *CppCodeStylePreferencesFactory::createCodeStyleEditor(
-    const TextEditor::ProjectWrapper &project,
-    TextEditor::ICodeStylePreferences *codeStyle,
-    QWidget *parent) const
-{
-    return CppCodeStyleEditor::create(
-        this, ProjectExplorer::unwrapProject(project), codeStyle, parent);
-}
+// CppCodeStylePreferencesFactory
 
-Utils::Id CppCodeStylePreferencesFactory::languageId()
+class CppCodeStylePreferencesFactory final : public ICodeStylePreferencesFactory
 {
-    return Constants::CPP_SETTINGS_ID;
-}
+public:
+    CppCodeStylePreferencesFactory() = default;
 
-QString CppCodeStylePreferencesFactory::displayName()
-{
-    return Tr::tr(Constants::CPP_SETTINGS_NAME);
-}
+private:
+    CodeStyleEditorWidget *createCodeStyleEditor(
+            const ProjectWrapper &project,
+            ICodeStylePreferences *codeStyle,
+            QWidget *parent) const final
+    {
+        return CppCodeStyleEditor::create(
+                    this, ProjectExplorer::unwrapProject(project), codeStyle, parent);
+    }
 
-TextEditor::ICodeStylePreferences *CppCodeStylePreferencesFactory::createCodeStyle() const
-{
-    return new CppCodeStylePreferences;
-}
+    Utils::Id languageId() final
+    {
+        return Constants::CPP_SETTINGS_ID;
+    }
 
-TextEditor::Indenter *CppCodeStylePreferencesFactory::createIndenter(QTextDocument *doc) const
+    QString displayName() final
+    {
+        return Tr::tr(Constants::CPP_SETTINGS_NAME);
+    }
+
+    ICodeStylePreferences *createCodeStyle() const final
+    {
+        return new CppCodeStylePreferences;
+    }
+
+    Indenter *createIndenter(QTextDocument *doc) const final
+    {
+        return createCppQtStyleIndenter(doc);
+    }
+};
+
+ICodeStylePreferencesFactory *createCppCodeStylePreferencesFactory()
 {
-    return createCppQtStyleIndenter(doc);
+    return new CppCodeStylePreferencesFactory;
 }
 
 } // namespace CppEditor

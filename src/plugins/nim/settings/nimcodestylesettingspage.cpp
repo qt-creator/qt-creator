@@ -34,7 +34,7 @@ SimpleCodeStylePreferences *globalCodeStyle()
 
 static void createGlobalCodeStyle()
 {
-    auto factory = new NimCodeStylePreferencesFactory();
+    auto factory = createNimCodeStylePreferencesFactory();
     TextEditorSettings::registerCodeStyleFactory(factory);
 
     // code style pool
