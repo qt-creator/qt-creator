@@ -52,8 +52,6 @@ public:
     void loadPluginsAtRuntime(const QSet<PluginSpec *> &plugins);
     void addPlugins(const QVector<PluginSpec *> &specs);
 
-    bool removePlugin(const QString &pluginId);
-
     void shutdown();
     void setPluginPaths(const Utils::FilePaths &paths);
     const QVector<ExtensionSystem::PluginSpec *> loadQueue();
@@ -77,8 +75,8 @@ public:
     void removePluginsAfterRestart();
     void installPluginsAfterRestart();
 
-    void removePluginOnNextRestart(const QString &pluginId);
-    void installPluginOnNextRestart(const Utils::FilePath &src, const Utils::FilePath &dest);
+    Utils::Result removePluginOnRestart(const QString &pluginId);
+    void installPluginOnRestart(const Utils::FilePath &src, const Utils::FilePath &dest);
 
     class TestSpec {
     public:
@@ -151,8 +149,6 @@ public:
     QWaitCondition m_scenarioWaitCondition;
 
     PluginManager::ProcessData m_creatorProcessData;
-
-    QSet<QString> m_pluginsToRemove;
 
 private:
     PluginManager *q;

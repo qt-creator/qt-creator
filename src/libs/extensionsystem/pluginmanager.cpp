@@ -357,15 +357,15 @@ void PluginManager::installPluginsAfterRestart()
     d->installPluginsAfterRestart();
 }
 
-void PluginManager::removePluginOnRestart(const QString &id)
+Result PluginManager::removePluginOnRestart(const QString &id)
 {
-    d->removePluginOnNextRestart(id);
+    return d->removePluginOnRestart(id);
 }
 
 void PluginManager::installPluginOnRestart(
     const Utils::FilePath &source, const Utils::FilePath &destination)
 {
-    d->installPluginOnNextRestart(source, destination);
+    d->installPluginOnRestart(source, destination);
 }
 
 /*!
@@ -1710,11 +1710,6 @@ PluginSpec *PluginManager::specForPlugin(IPlugin *plugin)
     return findOrDefault(d->pluginSpecs, equal(&PluginSpec::plugin, plugin));
 }
 
-bool PluginManager::takePluginIdForRemoval(const QString &id)
-{
-    return d->m_pluginsToRemove.remove(id);
-}
-
 static QString pluginListString(const QSet<PluginSpec *> &plugins)
 {
     QStringList names = Utils::transform<QList>(plugins, &PluginSpec::name);
@@ -1925,36 +1920,6 @@ static const FilePaths pluginFiles(const FilePaths &pluginPaths)
     return pluginFiles;
 }
 
-bool PluginManagerPrivate::removePlugin(const QString &pluginId)
-{
-    PluginSpec *existingSpec
-        = Utils::findOrDefault(pluginSpecs, Utils::equal(&PluginSpec::id, pluginId));
-
-    if (existingSpec) {
-        QTC_ASSERT(existingSpec->state() == PluginSpec::State::Resolved, return false);
-
-        const Result removeResult = existingSpec->removePluginFiles();
-        if (!removeResult) {
-            qCWarning(pluginLog) << "Failed to remove plugin files for" << pluginId << ":"
-                                 << removeResult.error();
-            return false;
-        }
-
-        for (QList<PluginSpec *> &category : pluginCategories) {
-            category.removeOne(existingSpec);
-        }
-
-        if (pluginSpecs.removeOne(existingSpec)) {
-            delete existingSpec;
-            return true;
-        }
-    }
-
-    // This is used by other plugin managers like Lua that is not loaded yet.
-    m_pluginsToRemove << pluginId;
-    return true;
-}
-
 void PluginManagerPrivate::addPlugins(const PluginSpecs &specs)
 {
     pluginSpecs += specs;
@@ -1987,11 +1952,24 @@ void PluginManagerPrivate::addPlugins(const PluginSpecs &specs)
 static const char PLUGINS_TO_INSTALL_KEY[] = "PluginsToInstall";
 static const char PLUGINS_TO_REMOVE_KEY[] = "PluginsToRemove";
 
-void PluginManagerPrivate::removePluginOnNextRestart(const QString &pluginId)
+Result PluginManagerPrivate::removePluginOnRestart(const QString &pluginId)
 {
-    settings->setValue(
-        PLUGINS_TO_REMOVE_KEY, settings->value(PLUGINS_TO_REMOVE_KEY).toStringList() << pluginId);
+    const PluginSpec *pluginSpec
+        = findOrDefault(pluginSpecs, Utils::equal(&PluginSpec::id, pluginId));
+
+    if (!pluginSpec)
+        return Result::Error(Tr::tr("Plugin not found."));
+
+    const expected_str<FilePaths> filePaths = pluginSpec->filesToUninstall();
+    if (!filePaths)
+        return Result::Error(filePaths.error());
+
+    const QVariantList list = Utils::transform(*filePaths, &FilePath::toVariant);
+
+    settings->setValue(PLUGINS_TO_REMOVE_KEY, settings->value(PLUGINS_TO_REMOVE_KEY).toList() + list);
+
     settings->sync();
+    return Result::Ok;
 }
 
 static QList<QPair<FilePath, FilePath>> readPluginInstallList(QtcSettings *settings)
@@ -2009,7 +1987,7 @@ static QList<QPair<FilePath, FilePath>> readPluginInstallList(QtcSettings *setti
     return installList;
 }
 
-void PluginManagerPrivate::installPluginOnNextRestart(
+void PluginManagerPrivate::installPluginOnRestart(
     const Utils::FilePath &src, const Utils::FilePath &dest)
 {
     const QList<QPair<FilePath, FilePath>> list = readPluginInstallList(settings)
@@ -2028,9 +2006,19 @@ void PluginManagerPrivate::installPluginOnNextRestart(
 
 void PluginManagerPrivate::removePluginsAfterRestart()
 {
-    const QStringList removeList = settings->value(PLUGINS_TO_REMOVE_KEY).toStringList();
-    for (const QString &pluginId : removeList)
-        removePlugin(pluginId);
+    const FilePaths removeList
+        = Utils::transform(settings->value(PLUGINS_TO_REMOVE_KEY).toList(), &FilePath::fromVariant);
+
+    for (const FilePath &path : removeList) {
+        Result r = Result::Error(Tr::tr("It does not exist."));
+        if (path.isFile())
+            r = path.removeFile();
+        else if (path.isDir())
+            r = path.removeRecursively();
+
+        if (!r)
+            qCWarning(pluginLog()) << "Failed to remove" << path << ":" << r.error();
+    }
 
     settings->remove(PLUGINS_TO_REMOVE_KEY);
 }

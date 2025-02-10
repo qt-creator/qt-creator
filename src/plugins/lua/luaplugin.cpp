@@ -446,19 +446,6 @@ public:
                     continue;
                 }
 
-                if (PluginManager::takePluginIdForRemoval((*result)->id())) {
-                    auto removeResult = (*result)->removePluginFiles();
-                    if (!removeResult) {
-                        qWarning() << "Failed to remove plugin files" << script << ":"
-                                   << removeResult.error();
-                        MessageManager::writeFlashing(
-                            Tr::tr("Failed to remove plugin files of %1: %2")
-                                .arg((*result)->id())
-                                .arg(removeResult.error()));
-                    }
-                    continue;
-                }
-
                 plugins.insert(*result);
             }
         }

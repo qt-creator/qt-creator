@@ -515,6 +515,14 @@ InstallResult executePluginInstallWizard(const FilePath &archive, bool prepareFo
                                          / extensionId(data.pluginSpec.get());
 
             if (prepareForUpdate) {
+                const Result result = ExtensionSystem::PluginManager::removePluginOnRestart(
+                    data.pluginSpec->id());
+                if (!result) {
+                    qWarning() << "Failed to remove plugin" << data.pluginSpec->id() << ":"
+                               << result.error();
+                    return false;
+                }
+
                 if (hasLibSuffix(data.sourcePath)) {
                     ExtensionSystem::PluginManager::installPluginOnRestart(
                         data.pluginSpec->filePath(), installPath);

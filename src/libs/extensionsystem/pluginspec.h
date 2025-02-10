@@ -161,7 +161,7 @@ public:
 
     virtual Utils::FilePath installLocation(bool inUserFolder) const = 0;
 
-    virtual Utils::Result removePluginFiles() const;
+    virtual Utils::expected_str<Utils::FilePaths> filesToUninstall() const;
     virtual bool isSystemPlugin() const;
 
 protected:

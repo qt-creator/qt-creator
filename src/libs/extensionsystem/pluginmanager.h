@@ -80,13 +80,12 @@ public:
     static const QSet<PluginSpec *> pluginsRequiredByPlugin(PluginSpec *spec);
     static void checkForProblematicPlugins();
     static PluginSpec *specForPlugin(IPlugin *plugin);
-    static bool takePluginIdForRemoval(const QString &id);
 
     static void addPlugins(const QVector<PluginSpec *> &specs);
 
     static void reInstallPlugins();
 
-    static void removePluginOnRestart(const QString &id);
+    static Utils::Result removePluginOnRestart(const QString &id);
     static void installPluginOnRestart(
         const Utils::FilePath &source, const Utils::FilePath &destination);
 

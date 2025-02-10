@@ -1453,27 +1453,27 @@ QList<PluginSpec *> pluginSpecsFromArchive(const Utils::FilePath &path)
     return results;
 }
 
-Utils::Result PluginSpec::removePluginFiles() const
+expected_str<FilePaths> PluginSpec::filesToUninstall() const
 {
     if (isSystemPlugin())
-        return Result::Error(Tr::tr("Cannot remove system plugins."));
+        return make_unexpected(Tr::tr("Cannot remove system plugins."));
 
     // Try to figure out where we are ...
-    const Utils::FilePaths pluginPaths = PluginManager::pluginPaths();
+    const FilePaths pluginPaths = PluginManager::pluginPaths();
 
     for (const FilePath &pluginPath : pluginPaths) {
         if (location().isChildOf(pluginPath)) {
             const FilePath rootFolder = location().relativeChildPath(pluginPath);
             if (rootFolder.isEmpty())
-                return Result::Error(Tr::tr("Could not determine root folder."));
+                return make_unexpected(Tr::tr("Could not determine root folder."));
 
             const FilePath pathToDelete = pluginPath
                                           / rootFolder.pathComponents().first().toString();
-            return pathToDelete.removeRecursively();
+            return FilePaths{pathToDelete};
         }
     }
 
-    return filePath().removeFile();
+    return FilePaths{filePath()};
 }
 
 bool PluginSpec::isSystemPlugin() const
