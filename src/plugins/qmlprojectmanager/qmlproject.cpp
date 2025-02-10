@@ -45,6 +45,7 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     setDisplayName(fileName.completeBaseName());
 
     setSupportsBuilding(false);
+    setIsEditModePreferred(!Core::ICore::isQtDesignStudio());
     setBuildSystemCreator<QmlBuildSystem>();
 
     if (Core::ICore::isQtDesignStudio()) {
@@ -184,11 +185,6 @@ bool QmlProject::isQtDesignStudioStartedFromQtC()
 DeploymentKnowledge QmlProject::deploymentKnowledge() const
 {
     return DeploymentKnowledge::Perfect;
-}
-
-bool QmlProject::isEditModePreferred() const
-{
-    return !Core::ICore::isQtDesignStudio();
 }
 
 int QmlProject::preferedQtTarget(Target *target)

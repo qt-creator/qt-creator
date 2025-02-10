@@ -170,6 +170,7 @@ public:
     bool m_canBuildProducts = false;
     bool m_hasMakeInstallEquivalent = false;
     bool m_supportsBuilding = true;
+    bool m_isEditModePreferred = true;
     bool m_shuttingDown = false;
 
     std::function<BuildSystem *(BuildConfiguration *)> m_buildSystemCreator;
@@ -1165,6 +1166,11 @@ void Project::setCanBuildProducts()
     d->m_canBuildProducts = true;
 }
 
+void Project::setIsEditModePreferred(bool preferEditMode)
+{
+    d->m_isEditModePreferred = preferEditMode;
+}
+
 void Project::setExtraData(const Key &key, const QVariant &data)
 {
     d->m_extraData.insert(key, data);
@@ -1210,7 +1216,7 @@ bool Project::isModified() const
 
 bool Project::isEditModePreferred() const
 {
-    return true;
+    return d->m_isEditModePreferred;
 }
 
 void Project::registerGenerator(Utils::Id id, const QString &displayName,

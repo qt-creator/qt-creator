@@ -42,12 +42,6 @@ public:
     }
 
 private:
-    DeploymentKnowledge deploymentKnowledge() const final
-    {
-        // TODO in next releases
-        return DeploymentKnowledge::Bad;
-    }
-
     mutable std::unique_ptr<MesonProjectImporter> m_projectImporter;
 };
 

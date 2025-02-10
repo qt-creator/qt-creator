@@ -180,7 +180,7 @@ public:
     QList<Core::IDocument *> modifiedDocuments() const;
     bool isModified() const;
 
-    virtual bool isEditModePreferred() const;
+    bool isEditModePreferred() const;
 
     void registerGenerator(Utils::Id id, const QString &displayName,
                            const std::function<void()> &runner);
@@ -233,6 +233,7 @@ protected:
     void createTargetFromMap(const Utils::Store &map, int index);
 
     void setCanBuildProducts();
+    void setIsEditModePreferred(bool preferEditMode);
 
     void setId(Utils::Id id);
     void setProjectLanguages(Core::Context language);

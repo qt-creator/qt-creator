@@ -20,7 +20,6 @@ public:
     explicit QmlProject(const Utils::FilePath &filename);
 
     static bool isQtDesignStudioStartedFromQtC();
-    bool isEditModePreferred() const override;
 
     static bool isMCUs();
 
