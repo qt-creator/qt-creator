@@ -918,7 +918,7 @@ def qdump__QFlags(d, value):
     v = value.cast(enumType.name)
     size = enumType.size()
     # One byte is 2 hex digits
-    d.putValue(v.displayEnum(f'0x%0{2 * size}x'))
+    d.putValue(v.displayEnum('0x%0{}x'.format(2 * size)))
 
 
 def qform__QHash():
@@ -1053,7 +1053,7 @@ def qdumpHelper_QMultiHash_6(d, value, key_type, value_type):
     d.putItemCount(size)
 
     if d.isExpanded():
-        type_code = f'{{{key_type.name}}}@p'
+        type_code = '{{{}}}@p'.format(key_type.name)
         _pp, entry_size, _fields = d.describeStruct(type_code)
         with Children(d, size):
             span_size = 128 + 2 * d.ptrSize() # Including tail padding.
@@ -1069,7 +1069,7 @@ def qdumpHelper_QMultiHash_6(d, value, key_type, value_type):
                         key, _pad, chain = d.split(type_code, entry)
                         next = chain
                         while next != 0:
-                            val, _pad, next = d.split(f'{{{value_type.name}}}@p', next)
+                            val, _pad, next = d.split('{{{}}}@p'.format(value_type.name), next)
                             d.putPairItem(count, (key, val), 'key', 'value')
                             count += 1
 

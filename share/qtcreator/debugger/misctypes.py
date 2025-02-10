@@ -604,7 +604,7 @@ def qdump__tl__expected(d: DumperBase, value: DumperBase.Value):
 
         # Result and error (and a initialized flag) are packed into a union storage
         largerType = max(okType, errType, key=lambda t: t.size())
-        storage, has_value = value.split(f'{{{largerType.name}}}b')
+        storage, has_value = value.split('{{{}}}b'.format(largerType.name))
         val = storage.cast(okType.name) if has_value else storage.cast(errType.name)
 
     if has_value:
