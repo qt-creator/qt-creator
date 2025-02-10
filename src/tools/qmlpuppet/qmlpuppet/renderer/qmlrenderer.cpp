@@ -12,13 +12,9 @@
 #endif
 
 #include <private/qquickdesignersupport_p.h>
-#include <private/qquickrendercontrol_p.h>
-#include <private/qquickrendertarget_p.h>
-#include <private/qrhi_p.h>
 
 #include <QFileInfo>
 #include <QQmlComponent>
-#include <QQmlEngine>
 
 void QmlRenderer::initCoreApp()
 {
@@ -32,24 +28,25 @@ void QmlRenderer::initCoreApp()
 void QmlRenderer::populateParser()
 {
     m_argParser.addOptions({
-        {QStringList() << "i" << "importpath",
+        {QStringList{"i", "importpath"},
          "Prepend the given path to the import paths.",
          "path"},
 
-        {QStringList() << "o" << "outfile",
+        {QStringList{"o", "outfile"},
          "Output image file path.",
          "path"},
 
         // "h" is reserved arg for help, so use capital letters for height/width
-        {QStringList() << "H" << "height",
+        {QStringList{"H", "height"},
          "Height of the final rendered image.",
          "pixels"},
 
-        {QStringList() << "W" << "width",
+        {QStringList{"W", "width"},
          "Width of the final rendered image.",
          "pixels"},
 
-        {QStringList() << "v" << "verbose", "Display additional output."}
+        {QStringList{"v", "verbose"},
+         "Display additional output."}
     });
 
     m_argParser.addPositionalArgument("file", "QML file to render.", "file");
@@ -104,29 +101,37 @@ bool QmlRenderer::setupRenderer()
 
     QQuickDesignerSupport::activateDesignerMode();
 
-    QQmlEngine *engine = new QQmlEngine;
+    m_engine = std::make_unique<QQmlEngine>();
 
     for (const QString &path : std::as_const(m_importPaths))
-        engine->addImportPath(path);
+        m_engine->addImportPath(path);
 
-    m_renderControl = new QQuickRenderControl;
-    m_window = new QQuickWindow(m_renderControl);
+    m_renderControl = std::make_unique<QQuickRenderControl>();
+    m_window = std::make_unique<QQuickWindow>(m_renderControl.get());
     m_window->setDefaultAlphaBuffer(true);
     m_window->setColor(Qt::transparent);
     m_renderControl->initialize();
 
-    QQmlComponent component(engine);
+    QQmlComponent component(m_engine.get());
     component.loadUrl(QUrl::fromLocalFile(m_sourceFile));
+
+    if (component.isError()) {
+        error(QString("Failed to load url: %1").arg(m_sourceFile));
+        error(component.errorString());
+        return false;
+    }
+
     QObject *renderObj = component.create();
 
     if (renderObj) {
 #ifdef QUICK3D_MODULE
         QQuickItem *contentItem3D = nullptr;
+        renderObj->setParent(m_window->contentItem());
         if (qobject_cast<QQuick3DObject *>(renderObj)) {
-            auto helper = new QmlDesigner::Internal::GeneralHelper();
-            engine->rootContext()->setContextProperty("_generalHelper", helper);
+            m_helper = std::make_unique<QmlDesigner::Internal::GeneralHelper>();
+            m_engine->rootContext()->setContextProperty("_generalHelper", m_helper.get());
 
-            QQmlComponent component(engine);
+            QQmlComponent component(m_engine.get());
             component.loadUrl(QUrl("qrc:/qtquickplugin/mockfiles/qt6/ModelNode3DImageView.qml"));
             m_containerItem = qobject_cast<QQuickItem *>(component.create());
             if (!m_containerItem) {
@@ -167,14 +172,22 @@ bool QmlRenderer::setupRenderer()
         } else if (auto renderWindow = qobject_cast<QQuickWindow *>(renderObj)) {
             // Hack to render Window items: reparent window content to m_window->contentItem()
             m_renderSize = renderWindow->size();
-            renderWindow->setVisible(false);
             m_containerItem = m_window->contentItem();
+            // Suppress the original window.
+            // Offscreen position ensures we don't get even brief flash of it.
+            renderWindow->setPosition(-100000, -100000);
+            renderWindow->setVisible(false);
             const QList<QQuickItem *> childItems = renderWindow->contentItem()->childItems();
-            for (QQuickItem *item : childItems)
+            for (QQuickItem *item : childItems) {
+                item->setParent(m_window->contentItem());
                 item->setParentItem(m_window->contentItem());
+            }
+        } else {
+            error("Invalid root object type.");
+            return false;
         }
 
-        if ((m_containerItem) && (contentItem3D || !m_is3D)) {
+        if (m_containerItem && (contentItem3D || !m_is3D)) {
             m_window->setGeometry(0, 0, m_renderSize.width(), m_renderSize.height());
             m_window->contentItem()->setSize(m_renderSize);
             m_containerItem->setSize(m_renderSize);
@@ -196,7 +209,7 @@ bool QmlRenderer::setupRenderer()
 bool QmlRenderer::initRhi()
 {
     if (!m_rhi) {
-        QQuickRenderControlPrivate *rd = QQuickRenderControlPrivate::get(m_renderControl);
+        QQuickRenderControlPrivate *rd = QQuickRenderControlPrivate::get(m_renderControl.get());
         m_rhi = rd->rhi;
         if (!m_rhi) {
             error("Rhi is null.");
@@ -204,36 +217,31 @@ bool QmlRenderer::initRhi()
         }
     }
 
-    m_texTarget = nullptr;
-    m_rpDesc = nullptr;
-    m_buffer = nullptr;
-    m_texture = nullptr;
-
-    m_texture = m_rhi->newTexture(QRhiTexture::RGBA8, m_renderSize, 1,
-                                  QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource);
+    m_texture.reset(m_rhi->newTexture(QRhiTexture::RGBA8, m_renderSize, 1,
+                                      QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
     if (!m_texture->create()) {
         error("QRhiTexture creation failed.");
         return false;
     }
 
-    m_buffer = m_rhi->newRenderBuffer(QRhiRenderBuffer::DepthStencil, m_renderSize, 1);
+    m_buffer.reset(m_rhi->newRenderBuffer(QRhiRenderBuffer::DepthStencil, m_renderSize, 1));
     if (!m_buffer->create()) {
         error("Depth/stencil buffer creation failed.");
         return false;
     }
 
-    QRhiTextureRenderTargetDescription rtDesc {QRhiColorAttachment(m_texture)};
-    rtDesc.setDepthStencilBuffer(m_buffer);
-    m_texTarget = m_rhi->newTextureRenderTarget(rtDesc);
-    m_rpDesc = m_texTarget->newCompatibleRenderPassDescriptor();
-    m_texTarget->setRenderPassDescriptor(m_rpDesc);
+    QRhiTextureRenderTargetDescription rtDesc {QRhiColorAttachment(m_texture.get())};
+    rtDesc.setDepthStencilBuffer(m_buffer.get());
+    m_texTarget.reset(m_rhi->newTextureRenderTarget(rtDesc));
+    m_rpDesc.reset(m_texTarget->newCompatibleRenderPassDescriptor());
+    m_texTarget->setRenderPassDescriptor(m_rpDesc.get());
     if (!m_texTarget->create()) {
         error("Texture render target creation failed.");
         return false;
     }
 
     // redirect Qt Quick rendering into our texture
-    m_window->setRenderTarget(QQuickRenderTarget::fromRhiRenderTarget(m_texTarget));
+    m_window->setRenderTarget(QQuickRenderTarget::fromRhiRenderTarget(m_texTarget.get()));
 
     return true;
 }
@@ -241,15 +249,6 @@ bool QmlRenderer::initRhi()
 void QmlRenderer::render()
 {
     info(QString("Rendering: %1").arg(m_sourceFile));
-
-    std::function<void (QQuickItem *)> updateNodesRecursive;
-    updateNodesRecursive = [&updateNodesRecursive](QQuickItem *item) {
-        const auto childItems = item->childItems();
-        for (QQuickItem *childItem : childItems)
-            updateNodesRecursive(childItem);
-        if (item->flags() & QQuickItem::ItemHasContents)
-            item->update();
-    };
 
     QImage renderImage;
 
@@ -259,7 +258,6 @@ void QmlRenderer::render()
         if (m_fit3D && i == 1)
             QMetaObject::invokeMethod(m_containerItem, "fitToViewPort", Qt::DirectConnection);
 
-        updateNodesRecursive(m_containerItem);
         m_renderControl->polishItems();
         m_renderControl->beginFrame();
         m_renderControl->sync();
@@ -277,14 +275,16 @@ void QmlRenderer::render()
                             readResult.pixelSize.width(), readResult.pixelSize.height(),
                             QImage::Format_RGBA8888_Premultiplied);
         if (m_rhi->isYUpInFramebuffer())
-            renderImage = wrapperImage.mirrored().scaled(m_requestedSize);
+            renderImage = wrapperImage.mirrored().scaled(m_requestedSize, Qt::IgnoreAspectRatio,
+                                                         Qt::SmoothTransformation);
         else
-            renderImage = wrapperImage.copy().scaled(m_requestedSize);
+            renderImage = wrapperImage.copy().scaled(m_requestedSize, Qt::IgnoreAspectRatio,
+                                                     Qt::SmoothTransformation);
     };
     QRhiResourceUpdateBatch *readbackBatch = m_rhi->nextResourceUpdateBatch();
-    readbackBatch->readBackTexture(m_texture, &readResult);
+    readbackBatch->readBackTexture(m_texture.get(), &readResult);
 
-    QQuickRenderControlPrivate *rd = QQuickRenderControlPrivate::get(m_renderControl);
+    QQuickRenderControlPrivate *rd = QQuickRenderControlPrivate::get(m_renderControl.get());
     rd->cb->resourceUpdate(readbackBatch);
 
     m_renderControl->endFrame();

@@ -5,15 +5,16 @@
 
 #include "../qmlbase.h"
 
+#include <rhi/qrhi.h>
+
+#include <private/qquickrendercontrol_p.h>
+#include <private/qquickrendertarget_p.h>
+
+#include <QQmlEngine>
+#include <QQuickWindow>
+
 QT_BEGIN_NAMESPACE
 class QQuickItem;
-class QQuickRenderControl;
-class QQuickWindow;
-class QRhi;
-class QRhiRenderBuffer;
-class QRhiRenderPassDescriptor;
-class QRhiTexture;
-class QRhiTextureRenderTarget;
 QT_END_NAMESPACE
 
 class QmlRenderer : public QmlBase
@@ -42,13 +43,15 @@ private:
     bool m_is3D = false;
     bool m_fit3D = false;
 
-    QQuickWindow *m_window = nullptr;
     QQuickItem *m_containerItem = nullptr;
-
-    QQuickRenderControl *m_renderControl = nullptr;
     QRhi *m_rhi = nullptr;
-    QRhiTexture *m_texture = nullptr;
-    QRhiRenderBuffer *m_buffer = nullptr;
-    QRhiTextureRenderTarget *m_texTarget = nullptr;
-    QRhiRenderPassDescriptor *m_rpDesc = nullptr;
+
+    std::unique_ptr<QQmlEngine> m_engine;
+    std::unique_ptr<QQuickRenderControl> m_renderControl;
+    std::unique_ptr<QQuickWindow> m_window;
+    std::unique_ptr<QObject> m_helper;
+    std::unique_ptr<QRhiTexture> m_texture;
+    std::unique_ptr<QRhiRenderBuffer> m_buffer;
+    std::unique_ptr<QRhiTextureRenderTarget> m_texTarget;
+    std::unique_ptr<QRhiRenderPassDescriptor> m_rpDesc;
 };
