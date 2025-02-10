@@ -840,6 +840,7 @@ class ColorAspectPrivate
 {
 public:
     QPointer<QtColorButton> m_colorButton; // Owned by configuration widget
+    QSize m_size;
 };
 
 class SelectionAspectPrivate
@@ -1907,11 +1908,18 @@ void ColorAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
     QTC_CHECK(!d->m_colorButton);
     d->m_colorButton = createSubWidget<QtColorButton>();
+    if (d->m_size.isValid())
+        d->m_colorButton->setMinimumSize(d->m_size);
     parent.addItem(d->m_colorButton.data());
 
     bufferToGui();
     connect(d->m_colorButton.data(), &QtColorButton::colorChanged,
             this, &ColorAspect::handleGuiChanged);
+}
+
+void ColorAspect::setMinimumSize(const QSize &size)
+{
+    d->m_size = size;
 }
 
 bool ColorAspect::guiToBuffer()
