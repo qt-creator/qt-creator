@@ -120,23 +120,25 @@ DVConnector::DVConnector(QObject *parent)
     , m_isWebViewerVisible(false)
     , m_connectorStatus(ConnectorStatus::NotLoggedIn)
 {
-    m_webEngineProfile.reset(new QWebEngineProfile("DesignViewer", this));
-    m_webEngineProfile->setPersistentCookiesPolicy(QWebEngineProfile::ForcePersistentCookies);
-    m_webEnginePage.reset(new CustomWebEnginePage(m_webEngineProfile.data(), this));
-    m_webEngineView.reset(new QWebEngineView(Core::ICore::instance()->dialogParent()));
-    m_webEngineView->setPage(m_webEnginePage.data());
+    QWebEngineProfile *webEngineProfile = new QWebEngineProfile("DesignViewer");
+    webEngineProfile->setPersistentCookiesPolicy(QWebEngineProfile::ForcePersistentCookies);
+
+    m_webEnginePage = new CustomWebEnginePage(webEngineProfile);
+    webEngineProfile->setParent(m_webEnginePage);
+
+    m_webEngineView = new QWebEngineView(m_webEnginePage, Core::ICore::instance()->dialogParent());
     m_webEngineView->resize(1024, 750);
     m_webEngineView->setWindowFlag(Qt::Dialog);
     m_webEngineView->installEventFilter(this);
     m_webEngineView->hide();
 
     m_networkCookieJar.reset(
-        new CustomCookieJar(this, m_webEngineProfile->persistentStoragePath() + "/dv_cookies.txt"));
+        new CustomCookieJar(this, webEngineProfile->persistentStoragePath() + "/dv_cookies.txt"));
     m_networkAccessManager.reset(new QNetworkAccessManager(this));
     m_networkAccessManager->setCookieJar(m_networkCookieJar.data());
     m_networkCookieJar->loadCookies();
 
-    connect(m_webEngineProfile->cookieStore(),
+    connect(webEngineProfile->cookieStore(),
             &QWebEngineCookieStore::cookieAdded,
             this,
             [&](const QNetworkCookie &cookie) {
@@ -194,7 +196,7 @@ QString DVConnector::loginUrl() const
 
 bool DVConnector::eventFilter(QObject *obj, QEvent *e)
 {
-    if (obj == m_webEngineView.data()) {
+    if (obj == m_webEngineView) {
         if (m_isWebViewerVisible != m_webEngineView->isVisible()) {
             m_isWebViewerVisible = m_webEngineView->isVisible();
             emit webViewerVisibleChanged();
@@ -651,7 +653,8 @@ void DVConnector::logout()
     evaluatorData.reply = m_networkAccessManager->get(request);
     evaluatorData.description = "Logout";
     evaluatorData.successCallback = [this](const QByteArray &, const QList<RawHeaderPair> &) {
-        m_webEngineProfile->cookieStore()->deleteAllCookies();
+        QWebEngineCookieStore *cookieStore = m_webEnginePage->profile()->cookieStore();
+        cookieStore->deleteAllCookies();
         m_connectorStatus = ConnectorStatus::NotLoggedIn;
         emit connectorStatusUpdated(m_connectorStatus);
     };

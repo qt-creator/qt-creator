@@ -90,9 +90,8 @@ private:
     QScopedPointer<CustomCookieJar> m_networkCookieJar;
 
     // login
-    QScopedPointer<QWebEngineProfile> m_webEngineProfile;
-    QScopedPointer<QWebEnginePage> m_webEnginePage;
-    QScopedPointer<QWebEngineView> m_webEngineView;
+    QWebEnginePage *m_webEnginePage;
+    QWebEngineView *m_webEngineView;
     bool m_isWebViewerVisible;
 
     // status
