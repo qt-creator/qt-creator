@@ -1335,7 +1335,7 @@ void ProjectStorage::synchronize(Storage::Synchronization::SynchronizationPackag
                          package.updatedSourceIds);
         synchronizeTypeAnnotations(package.typeAnnotations, package.updatedTypeAnnotationSourceIds);
         synchronizePropertyEditorQmlPaths(package.propertyEditorQmlPaths,
-                                          package.updatedPropertyEditorQmlPathSourceContextIds);
+                                          package.updatedPropertyEditorQmlPathDirectoryIds);
 
         deleteNotUpdatedTypes(updatedTypeIds,
                               package.updatedSourceIds,
@@ -1412,6 +1412,9 @@ ModuleId ProjectStorage::moduleId(Utils::SmallStringView moduleName, Storage::Mo
     NanotraceHR::Tracer tracer{"get module id",
                                projectStorageCategory(),
                                keyValue("module name", moduleName)};
+
+    if (moduleName.empty())
+        return ModuleId{};
 
     auto moduleId = moduleCache.id({moduleName, kind});
 

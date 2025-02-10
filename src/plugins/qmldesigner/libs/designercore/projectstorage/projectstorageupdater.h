@@ -104,11 +104,7 @@ public:
         const_iterator m_end;
     };
 
-    enum class FileState {
-        NotChanged,
-        Changed,
-        NotExists,
-    };
+    enum class FileState { Unchanged, Changed, NotExists, NotExistsUnchanged, Added, Removed };
 
     struct WatchedSourceIdsIds
     {
@@ -157,15 +153,33 @@ private:
                               NotUpdatedSourceIds &notUpdatedSourceIds,
                               WatchedSourceIdsIds &watchedSourceIdsIds);
     void updateDirectoryChanged(Utils::SmallStringView directoryPath,
+                                Utils::SmallStringView annotationDirectoryPath,
                                 FileState qmldirState,
+                                FileState annotationDirectoryState,
                                 SourcePath qmldirSourcePath,
                                 SourceId qmldirSourceId,
                                 SourceContextId directoryId,
+                                SourceContextId annotationDirectoryId,
                                 Storage::Synchronization::SynchronizationPackage &package,
                                 NotUpdatedSourceIds &notUpdatedSourceIds,
                                 WatchedSourceIdsIds &watchedSourceIdsIds,
                                 ProjectStorageTracing::Category::TracerType &tracer);
-
+    void annotationDirectoryChanged(Utils::SmallStringView directoryPath,
+                                    SourceContextId directoryId,
+                                    SourceContextId annotationDirectoryId,
+                                    ModuleId moduleId,
+                                    Storage::Synchronization::SynchronizationPackage &package,
+                                    NotUpdatedSourceIds &notUpdatedSourceIds);
+    void updatePropertyEditorFiles(Utils::SmallStringView directyPath,
+                                   SourceContextId directoryId,
+                                   ModuleId moduleId,
+                                   Storage::Synchronization::SynchronizationPackage &package,
+                                   NotUpdatedSourceIds &notUpdatedSourceIds);
+    void updatePropertyEditorFile(const QString &fileName,
+                                  SourceContextId directoryId,
+                                  ModuleId moduleId,
+                                  Storage::Synchronization::SynchronizationPackage &package,
+                                  NotUpdatedSourceIds &notUpdatedSourceIds);
     void updatePropertyEditorPaths(const QString &propertyEditorResourcesPath,
                                    Storage::Synchronization::SynchronizationPackage &package,
                                    NotUpdatedSourceIds &notUpdatedSourceIds);

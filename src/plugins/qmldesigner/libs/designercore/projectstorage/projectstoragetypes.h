@@ -1331,7 +1331,7 @@ public:
     ModuleExportedImports moduleExportedImports;
     ModuleIds updatedModuleIds;
     PropertyEditorQmlPaths propertyEditorQmlPaths;
-    SourceContextIds updatedPropertyEditorQmlPathSourceContextIds;
+    SourceContextIds updatedPropertyEditorQmlPathDirectoryIds;
     TypeAnnotations typeAnnotations;
     SourceIds updatedTypeAnnotationSourceIds;
 };

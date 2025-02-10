@@ -853,11 +853,11 @@ std::ostream &operator<<(std::ostream &out, const SynchronizationPackage &packag
                << ", updatedSourceIds: " << package.updatedSourceIds
                << ", fileStatuses: " << package.fileStatuses
                << ", updatedFileStatusSourceIds: " << package.updatedFileStatusSourceIds
-               << ", updatedDirectoryInfoDirectoryIds: " << package.updatedDirectoryInfoDirectoryIds
                << ", directoryInfos: " << package.directoryInfos
+               << ", updatedDirectoryInfoDirectoryIds: " << package.updatedDirectoryInfoDirectoryIds
                << ", propertyEditorQmlPaths: " << package.propertyEditorQmlPaths
                << ", updatedPropertyEditorQmlPathSourceIds: "
-               << package.updatedPropertyEditorQmlPathSourceContextIds
+               << package.updatedPropertyEditorQmlPathDirectoryIds
                << ", typeAnnotations: " << package.typeAnnotations
                << ", updatedTypeAnnotationSourceIds: " << package.updatedTypeAnnotationSourceIds
                << ")";
@@ -963,7 +963,8 @@ std::ostream &operator<<(std::ostream &out, const ModuleExportedImport &import)
 
 std::ostream &operator<<(std::ostream &out, const PropertyEditorQmlPath &path)
 {
-    return out << "(" << path.moduleId << ", " << path.typeName << ", " << path.pathId << ")";
+    return out << "(" << path.moduleId << ", " << path.typeName << ", " << path.pathId << ", "
+               << path.directoryId << ", " << path.typeId << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const TypeAnnotation &annotation)

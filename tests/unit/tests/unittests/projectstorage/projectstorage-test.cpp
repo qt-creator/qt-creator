@@ -1079,7 +1079,7 @@ protected:
                                                     "Item3D",
                                                     sourceId3,
                                                     sourceContextIdPath6);
-        package.updatedPropertyEditorQmlPathSourceContextIds.emplace_back(sourceContextIdPath6);
+        package.updatedPropertyEditorQmlPathDirectoryIds.emplace_back(sourceContextIdPath6);
 
         return package;
     }
@@ -5772,6 +5772,13 @@ TEST_F(ProjectStorage, get_module_id)
     auto id = storage.moduleId("Qml", ModuleKind::QmlLibrary);
 
     ASSERT_TRUE(id);
+}
+
+TEST_F(ProjectStorage, get_invalid_module_id_for_empty_name)
+{
+    auto id = storage.moduleId("", ModuleKind::QmlLibrary);
+
+    ASSERT_FALSE(id);
 }
 
 TEST_F(ProjectStorage, get_same_module_id_again)
