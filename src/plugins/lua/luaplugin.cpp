@@ -416,9 +416,25 @@ public:
             FilePaths folders = path.dirEntries(FileFilter({}, QDir::Dirs | QDir::NoDotAndDotDot));
 
             for (const FilePath &folder : folders) {
-                const FilePath script = folder / (folder.baseName() + ".lua");
-                if (!script.exists())
+                FilePath script = folder / (folder.baseName() + ".lua");
+                if (!script.exists()) {
+                    FilePaths contents = folder.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+                    if (contents.empty())
+                        continue;
+
+                    for (const FilePath &subfolder : contents) {
+                        script = subfolder / (subfolder.baseName() + ".lua");
+                        if (!script.exists()) {
+                            script.clear();
+                            continue;
+                        }
+                        break;
+                    }
+                }
+
+                if (script.isEmpty()) {
                     continue;
+                }
 
                 const expected_str<LuaPluginSpec *> result = loadPlugin(script);
 

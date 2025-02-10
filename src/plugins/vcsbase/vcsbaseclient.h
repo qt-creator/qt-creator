@@ -123,10 +123,6 @@ public:
 
     virtual bool synchronousCreateRepository(const Utils::FilePath &workingDir,
                                              const QStringList &extraOptions = {});
-    virtual bool synchronousClone(const Utils::FilePath &workingDir,
-                                  const QString &srcLocation,
-                                  const QString &dstLocation,
-                                  const QStringList &extraOptions = {});
     virtual bool synchronousAdd(const Utils::FilePath &workingDir,
                                 const QString &relFileName,
                                 const QStringList &extraOptions = {});

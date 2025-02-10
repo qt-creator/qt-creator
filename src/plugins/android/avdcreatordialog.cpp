@@ -76,8 +76,6 @@ private:
     QString abi() const { return m_abiComboBox->currentText(); }
     QString deviceDefinition() const { return m_deviceDefinitionComboBox->currentText(); }
     int sdcardSize() const { return m_sdcardSizeSpinBox->value(); }
-    bool isValid() const
-    { return !name().isEmpty() && systemImage() && systemImage()->isValid() && !abi().isEmpty(); }
 
     bool eventFilter(QObject *obj, QEvent *event) override;
     void updateDeviceDefinitionComboBox();
@@ -218,7 +216,7 @@ void AvdDialog::collectInitialData()
         if (result == DoneWith::Error) {
             QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("Create new AVD"),
                                  Tr::tr("Avd list command failed. %1 %2")
-                                     .arg(output).arg(AndroidConfig::sdkToolsVersion().toString()));
+                                     .arg(output, AndroidConfig::sdkToolsVersion().toString()));
             reject();
             return;
         }

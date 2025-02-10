@@ -1453,4 +1453,33 @@ QList<PluginSpec *> pluginSpecsFromArchive(const Utils::FilePath &path)
     return results;
 }
 
+expected_str<FilePaths> PluginSpec::filesToUninstall() const
+{
+    if (isSystemPlugin())
+        return make_unexpected(Tr::tr("Cannot remove system plugins."));
+
+    // Try to figure out where we are ...
+    const FilePaths pluginPaths = PluginManager::pluginPaths();
+
+    for (const FilePath &pluginPath : pluginPaths) {
+        if (location().isChildOf(pluginPath)) {
+            const FilePath rootFolder = location().relativeChildPath(pluginPath);
+            if (rootFolder.isEmpty())
+                return make_unexpected(Tr::tr("Could not determine root folder."));
+
+            const FilePath pathToDelete = pluginPath
+                                          / rootFolder.pathComponents().first().toString();
+            return FilePaths{pathToDelete};
+        }
+    }
+
+    return FilePaths{filePath()};
+}
+
+bool PluginSpec::isSystemPlugin() const
+{
+    return !filePath().isChildOf(appInfo().userPluginsRoot)
+           && !filePath().isChildOf(appInfo().userLuaPlugins);
+}
+
 } // namespace ExtensionSystem

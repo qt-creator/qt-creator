@@ -25,14 +25,12 @@ class ConfigurationSyntaxHighlighter : public QSyntaxHighlighter
 public:
     explicit ConfigurationSyntaxHighlighter(QTextDocument *parent);
     void setKeywords(const QStringList &keywords);
-    void setCommentExpression(const QRegularExpression &rx);
 
 protected:
     void highlightBlock(const QString &text) override;
 
 private:
     QRegularExpression m_expressionKeyword;
-    QRegularExpression m_expressionComment;
     QTextCharFormat m_formatKeyword;
     QTextCharFormat m_formatComment;
 };
@@ -44,7 +42,6 @@ class ConfigurationEditor : public QPlainTextEdit
 public:
     explicit ConfigurationEditor(QWidget *parent = nullptr);
     void setSettings(AbstractSettings *settings);
-    void setCommentExpression(const QRegularExpression &rx);
 
 protected:
     bool eventFilter(QObject *object, QEvent *event) override;

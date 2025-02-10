@@ -13,7 +13,9 @@ def main():
     # run project for debug and release and verify results
     expectToFail = None
     if platform.system() in ('Microsoft', 'Windows'):
-        expectToFail = [Targets.DESKTOP_5_4_1_GCC]
+        expectToFail = [Targets.DESKTOP_5_10_1_DEFAULT] # fails to handle constexpr correctly
+        if os.getenv('SYSTEST_NEW_SETTINGS') != '1':
+            expectToFail.append(Targets.DESKTOP_5_4_1_GCC)
     runVerify(expectToFail)
     #close Qt Creator
     invokeMenuItem("File", "Exit")

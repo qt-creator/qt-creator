@@ -836,7 +836,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     act = new QAction(Tr::tr("Memory..."), this);
     act->setVisible(false);
     act->setEnabled(false);
-    Command *cmd = ActionManager::registerAction(act, Constants::OPEN_MEMORY_EDITOR);
+    ActionManager::registerAction(act, Constants::OPEN_MEMORY_EDITOR);
 
     TaskHub::addCategory({TASK_CATEGORY_DEBUGGER_RUNTIME,
                           Tr::tr("Debugger Runtime"),
@@ -906,7 +906,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
 
     const QKeySequence startShortcut(useMacShortcuts ? Tr::tr("Ctrl+Y") : Tr::tr("F5"));
 
-    cmd = ActionManager::registerAction(&m_visibleStartAction, "Debugger.Debug");
+    Command *cmd = ActionManager::registerAction(&m_visibleStartAction, "Debugger.Debug");
 
     cmd->setDescription(Tr::tr("Start Debugging or Continue"));
     cmd->setAttribute(Command::CA_UpdateText);

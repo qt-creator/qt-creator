@@ -137,23 +137,20 @@ static expected_str<void> testJavaC(const FilePath &jdkPath)
     if (javacProcess.exitCode() != 0)
         return make_unexpected(
             Tr::tr("The selected path does not contain a valid JDK. (%1 failed: %2)")
-                .arg(cmd.toUserOutput())
-                .arg(stdOut));
+                .arg(cmd.toUserOutput(), stdOut));
 
     // We expect "javac <version>" where <version> is "major.minor.patch"
     const QString outputPrefix = javacCommand + " ";
     if (!stdOut.startsWith(outputPrefix))
         return make_unexpected(Tr::tr("Unexpected output from \"%1\": %2")
-                                   .arg(cmd.toUserOutput())
-                                   .arg(stdOut));
+                                   .arg(cmd.toUserOutput(), stdOut));
 
     jdkVersion = QVersionNumber::fromString(stdOut.mid(outputPrefix.length()).split('\n').first());
 
     if (jdkVersion.isNull() /* || jdkVersion.majorVersion() != requiredJavaMajorVersion */ ) {
         return make_unexpected(Tr::tr("Unsupported JDK version (needs to be %1): %2 (parsed: %3)")
                                    .arg(requiredJavaMajorVersion)
-                                   .arg(stdOut)
-                                   .arg(jdkVersion.toString()));
+                                   .arg(stdOut, jdkVersion.toString()));
     }
 
     return {};

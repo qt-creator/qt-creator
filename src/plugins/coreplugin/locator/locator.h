@@ -65,6 +65,9 @@ private:
     struct Settings
     {
         bool useCenteredPopup = false;
+        bool relativePaths = false;
+        // only for the default:
+        const std::chrono::minutes refreshInterval = std::chrono::minutes(60);
     };
 
     bool m_settingsInitialized = false;
@@ -75,7 +78,6 @@ private:
     QTimer m_refreshTimer;
     Tasking::TaskTreeRunner m_taskTreeRunner;
     QList<ILocatorFilter *> m_refreshingFilters;
-    bool m_relativePaths = false;
 };
 
 } // namespace Internal

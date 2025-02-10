@@ -17,6 +17,7 @@ enum class InstallResult {
     NeedsRestart,
 };
 
-CORE_EXPORT InstallResult executePluginInstallWizard(const Utils::FilePath &archive = {});
+CORE_EXPORT InstallResult
+executePluginInstallWizard(const Utils::FilePath &archive = {}, bool prepareForUpdate = false);
 
 } // namespace Core

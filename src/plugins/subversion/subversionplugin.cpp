@@ -167,9 +167,6 @@ public:
     bool vcsAdd(const FilePath &workingDir, const QString &fileName);
     bool vcsDelete(const FilePath &workingDir, const QString &fileName);
     bool vcsMove(const FilePath &workingDir, const QString &from, const QString &to);
-    bool vcsCheckout(const FilePath &directory, const QByteArray &url);
-
-    static SubversionPluginPrivate *instance();
 
     QString monitorFile(const FilePath &repository) const;
     QString synchronousTopic(const FilePath &repository) const;
@@ -939,12 +936,6 @@ IEditor *SubversionPluginPrivate::showOutputInEditor(const QString &title, const
     return editor;
 }
 
-SubversionPluginPrivate *SubversionPluginPrivate::instance()
-{
-    QTC_ASSERT(dd, return dd);
-    return dd;
-}
-
 QString SubversionPluginPrivate::monitorFile(const FilePath &repository) const
 {
     QTC_ASSERT(!repository.isEmpty(), return QString());
@@ -991,33 +982,6 @@ bool SubversionPluginPrivate::vcsMove(const FilePath &workingDir, const QString 
          << QDir::toNativeSeparators(SubversionClient::escapeFile(from))
          << QDir::toNativeSeparators(SubversionClient::escapeFile(to));
     return runSvn(workingDir, args, RunFlags::ShowStdOut).result()
-            == ProcessResult::FinishedWithSuccess;
-}
-
-bool SubversionPluginPrivate::vcsCheckout(const FilePath &directory, const QByteArray &url)
-{
-    QUrl tempUrl = QUrl::fromEncoded(url);
-    const QString username = tempUrl.userName();
-    const QString password = tempUrl.password();
-    CommandLine args{settings().binaryPath(), {"checkout"}};
-    args << Constants::NON_INTERACTIVE_OPTION;
-
-    if (!username.isEmpty()) {
-        // If url contains username and password we have to use separate username and password
-        // arguments instead of passing those in the url. Otherwise the subversion 'non-interactive'
-        // authentication will always fail (if the username and password data are not stored locally),
-        // if for example we are logging into a new host for the first time using svn. There seems to
-        // be a bug in subversion, so this might get fixed in the future.
-        tempUrl.setUserInfo({});
-        args << "--username" << username;
-        if (!password.isEmpty())
-            args << "--password";
-        args.addMaskedArg(password);
-    }
-
-    args << QString::fromLatin1(tempUrl.toEncoded()) << directory.toUrlishString();
-
-    return runSvn(directory, args, RunFlags::None, nullptr, 10).result()
             == ProcessResult::FinishedWithSuccess;
 }
 

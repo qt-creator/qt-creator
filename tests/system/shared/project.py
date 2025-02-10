@@ -534,7 +534,10 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False, ignoreVali
                                        Targets.DESKTOP_5_14_1_DEFAULT,
                                        Targets.DESKTOP_6_2_4]))
             if platform.system() in ('Windows', 'Microsoft'):
-                result.add(Targets.DESKTOP_5_4_1_GCC)
+                if os.getenv('SYSTEST_NEW_SETTINGS') == '1':
+                    result.add(Targets.DESKTOP_6_7_3_GCC)
+                else:
+                    result.add(Targets.DESKTOP_5_4_1_GCC)
     elif 'Platform independent' in text:
         result = Targets.desktopTargetClasses()
     else:

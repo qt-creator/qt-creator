@@ -102,9 +102,16 @@ CppQuickFixSettingsWidget::CppQuickFixSettingsWidget()
         return label;
     };
 
-    const QString toolTip = Tr::tr(
-        "A JavaScript expression acting as the return value of a function taking a parameter "
-        "called \"name\".");
+    const QString description1 = Tr::tr(
+        "A JavaScript expression acting as the return value of a function with two parameters "
+        "<b>name</b> and <b>memberName</b>, where"
+        "<ul><li><b>name</b> is the \"semantic name\" as it would be used for a Qt property</li>"
+        "<li><b>memberName</b> is the name of the member variable.</li></ul>");
+    const QString toolTip1 = QString("<html><body>%1</body></html>").arg(description1);
+    const QString description2 = Tr::tr(
+        "A JavaScript expression acting as the return value of a function with a parameter "
+        "<b>name</b>, which is the \"semantic name\" as it would be used for a Qt property.");
+    const QString toolTip2 = QString("<html><body>%1</body></html>").arg(description2);
     CppQuickFixSettings defaultSettings;
 
     const auto makeJsField = [] {
@@ -118,25 +125,25 @@ CppQuickFixSettingsWidget::CppQuickFixSettingsWidget()
     m_lineEdit_getterAttribute->setPlaceholderText(Tr::tr("For example, [[nodiscard]]"));
     m_lineEdit_getterName = makeJsField();
     m_lineEdit_getterName->setPlaceholderText(defaultSettings.getterNameTemplate);
-    m_lineEdit_getterName->setToolTip(toolTip);
+    m_lineEdit_getterName->setToolTip(toolTip1);
     m_lineEdit_setterName = makeJsField();
     m_lineEdit_setterName->setPlaceholderText(defaultSettings.setterNameTemplate);
-    m_lineEdit_setterName->setToolTip(toolTip);
+    m_lineEdit_setterName->setToolTip(toolTip1);
     m_lineEdit_setterParameter = makeJsField();
     m_lineEdit_setterParameter->setPlaceholderText(defaultSettings.setterParameterNameTemplate);
-    m_lineEdit_setterParameter->setToolTip(toolTip);
+    m_lineEdit_setterParameter->setToolTip(toolTip1);
     m_checkBox_setterSlots = new QCheckBox(Tr::tr("Setters should be slots"));
     m_lineEdit_resetName = makeJsField();
     m_lineEdit_resetName->setPlaceholderText(defaultSettings.resetNameTemplate);
-    m_lineEdit_resetName->setToolTip(toolTip);
+    m_lineEdit_resetName->setToolTip(toolTip1);
     m_lineEdit_signalName = makeJsField();
     m_lineEdit_signalName->setPlaceholderText(defaultSettings.signalNameTemplate);
-    m_lineEdit_signalName->setToolTip(toolTip);
+    m_lineEdit_signalName->setToolTip(toolTip1);
     m_checkBox_signalWithNewValue = new QCheckBox(
                 Tr::tr("Generate signals with the new value as parameter"));
     m_lineEdit_memberVariableName = makeJsField();
     m_lineEdit_memberVariableName->setPlaceholderText(defaultSettings.memberVariableNameTemplate);
-    m_lineEdit_memberVariableName->setToolTip(toolTip);
+    m_lineEdit_memberVariableName->setToolTip(toolTip2);
     m_lineEdit_nameFromMemberVariable = makeJsField();
     m_lineEdit_nameFromMemberVariable->setToolTip(
         Tr::tr(
@@ -162,17 +169,20 @@ CppQuickFixSettingsWidget::CppQuickFixSettingsWidget()
     QLineEdit * const memberTestResultField = makeResultField();
     QLineEdit * const nameFromMemberTestResultField = makeResultField();
     const auto runTests = [=, this] {
+        const QString memberName = CppQuickFixSettings::replaceNamePlaceholders(
+            m_lineEdit_memberVariableName->text(), jsTestInputField->text(), {});
+        memberTestResultField->show();
+        memberTestResultField->setText(memberName);
         for (const auto &[codeField, resultField] :
              {std::make_pair(m_lineEdit_getterName, getterTestResultField),
               std::make_pair(m_lineEdit_setterName, setterTestResultField),
               std::make_pair(m_lineEdit_setterParameter, setterParameterTestResultField),
               std::make_pair(m_lineEdit_resetName, resetterTestResultField),
-              std::make_pair(m_lineEdit_signalName, signalTestResultField),
-              std::make_pair(m_lineEdit_memberVariableName, memberTestResultField),}) {
+              std::make_pair(m_lineEdit_signalName, signalTestResultField),}) {
             resultField->show();
             resultField->setText(
                 CppQuickFixSettings::replaceNamePlaceholders(
-                    codeField->text(), jsTestInputField->text()));
+                    codeField->text(), jsTestInputField->text(), memberName));
         }
         nameFromMemberTestResultField->show();
         nameFromMemberTestResultField->setText(

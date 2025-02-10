@@ -839,6 +839,11 @@ int main(int argc, char **argv)
     // Make sure we honor the system's proxy settings
     QNetworkProxyFactory::setUseSystemConfiguration(true);
 
+    PluginManager::removePluginsAfterRestart();
+
+    // We need to install plugins before we scan for them.
+    PluginManager::installPluginsAfterRestart();
+
     // Load
     const QStringList pluginPaths = installPluginPaths + options.customPluginPaths;
     PluginManager::setPluginPaths(

@@ -87,7 +87,7 @@ def qdump__std____1__set(d, value):
     alloc_size = alloc_type.size()
     # see disclaimer #2
     if alloc_size > 1:
-        (proxy, head, alloc, size) = value.split(f'pp{{{alloc_type.name}}}p')
+        (proxy, head, alloc, size) = value.split('pp{{{}}}p'.format(alloc_type.name))
     else:
         (proxy, head, size) = value.split("ppp")
 
@@ -128,7 +128,7 @@ def qdump__std____1__map(d, value):
     alloc_size = alloc_type.size()
     # see disclaimers #2 and #3
     if alloc_size > 1:
-        (begin_node_ptr, head, alloc, size) = value.split(f'pp{{{alloc_type.name}}}p')
+        (begin_node_ptr, head, alloc, size) = value.split('pp{{{}}}p'.format(alloc_type.name))
     else:
         (begin_node_ptr, head, size) = value.split("ppp")
 

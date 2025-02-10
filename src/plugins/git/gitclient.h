@@ -104,8 +104,6 @@ public:
                   StashFlag flag = Default, PushAction pushAction = NoPush);
         bool stashingFailed() const;
         void end();
-        StashResult result() const { return m_stashResult; }
-        QString stashMessage() const { return m_message; }
 
     private:
         void stashPrompt(const QString &command, const QString &statusOutput, QString *errorMessage);
@@ -330,7 +328,6 @@ public:
 
     bool beginStashScope(const Utils::FilePath &workingDirectory, const QString &command,
                          StashFlag flag = Default, PushAction pushAction = NoPush);
-    StashInfo &stashInfo(const Utils::FilePath &workingDirectory);
     void endStashScope(const Utils::FilePath &workingDirectory);
     bool isValidRevision(const QString &revision) const;
     void handleMergeConflicts(const Utils::FilePath &workingDir, const QString &commit,

@@ -85,7 +85,6 @@ public:
     bool isVcsFileOrDirectory(const Utils::FilePath &filePath) const;
     bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
     unsigned int binaryVersion() const;
-    QString binaryVersionString() const;
     SupportedFeatures supportedFeatures() const;
     void view(const Utils::FilePath &source, const QString &id, const QStringList &extraOptions = {}) final;
 

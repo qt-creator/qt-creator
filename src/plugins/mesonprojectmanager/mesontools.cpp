@@ -258,16 +258,13 @@ MesonTools::Tool_t MesonTools::autoDetectedTool()
 
 static void ensureAutoDetected()
 {
-    MesonTools::Tool_t autoDetected = MesonTools::autoDetectedTool();
-    if (!autoDetected) {
-        QStringList exeNames;
-        QString toolName;
-            if (std::optional<FilePath> path = findMeson()) {
-                s_tools.emplace_back(
-                    std::make_shared<MesonToolWrapper>(
-                        QString("System %1 at %2").arg("Meson").arg(path->toUrlishString()), *path, Id{}, true));
+    if (MesonTools::autoDetectedTool())
+        return;
 
-        }
+    if (const std::optional<FilePath> path = findMeson()) {
+        s_tools.emplace_back(std::make_shared<MesonToolWrapper>(
+                QString("System %1 at %2").arg("Meson", path->toUrlishString()), *path, Id{}, true));
+
     }
 }
 

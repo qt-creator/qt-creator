@@ -17,9 +17,12 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    # open example project, supports only Qt 5
+    # open example project
     targets = Targets.desktopTargetClasses()
-    targets.discard(Targets.DESKTOP_5_4_1_GCC)
+    if os.getenv('SYSTEST_NEW_SETTINGS') != '1':
+        targets.discard(Targets.DESKTOP_5_4_1_GCC)
+    targets.discard(Targets.DESKTOP_5_10_1_DEFAULT) # fails to handle constexpr correctly
+
     openQmakeProject(examplePath, targets)
     # build and wait until finished - on all build configurations
     availableConfigs = iterateBuildConfigs()

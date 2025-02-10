@@ -117,7 +117,7 @@ def qdumpHelper__std__deque__libcxx(d, value):
     alloc_size = alloc_type.size()
     # see disclaimer #2
     if alloc_size > 1:
-        mptr, mfirst, mbegin, mend, alloc, start, size = value.split(f'pppp{{{alloc_type.name}}}tt')
+        mptr, mfirst, mbegin, mend, alloc, start, size = value.split('pppp{{{}}}tt'.format(alloc_type.name))
     else:
         mptr, mfirst, mbegin, mend, start, size = value.split("pppptt")
     d.check(0 <= size and size <= 1000 * 1000 * 1000)
@@ -495,12 +495,12 @@ def qdump____gnu_debug___Safe_iterator(d, value):
             if is_map:
                 key_type = inner_type[0]
                 value_type = inner_type[1]
-                typecode = f'pppp@{{{key_type.name}}}@{{{value_type.name}}}'
+                typecode = 'pppp@{{{}}}@{{{}}}'.format(key_type.name, value_type.name)
                 (color, parent, left, right, pad1, key, pad2, value) = d.split(typecode, node)
                 d.putSubItem("first", key)
                 d.putSubItem("second", value)
             else:
-                typecode = f'pppp@{{{inner_type.name}}}'
+                typecode = 'pppp@{{{}}}'.format(inner_type.name)
                 (color, parent, left, right, pad1, key) = d.split(typecode, node)
                 d.putSubItem("value", key)
             with SubItem(d, "[node]"):
@@ -1151,7 +1151,7 @@ def qdumpHelper__std__vector__msvc(d, value):
         if d.isDebugBuild:
             offset += d.ptrSize() # _MyVal2._Myproxy
         core = d.createValue(value.address() + offset, value.type)
-        first, last, end = core.split(f'ppp')
+        first, last, end = core.split('ppp')
         size = (last - first) // inner_type.size()
         d.check(0 <= size and size <= 1000 * 1000 * 1000)
         qdumpHelper__std__vector__nonbool(d, first, last, end, inner_type)

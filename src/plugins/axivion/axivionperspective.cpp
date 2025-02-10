@@ -202,6 +202,7 @@ private:
     void updateTable();
     void addIssues(const Dto::IssueTableDto &dto, int startRow);
     void onSearchParameterChanged();
+    void onSortParameterChanged();
     void updateVersionItemsEnabledState();
     void updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDto> &info);
     void updateAllFilters(const QVariant &namedFilter);
@@ -362,7 +363,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_headerView = new IssueHeaderView(this);
     m_headerView->setSectionsMovable(true);
     connect(m_headerView, &IssueHeaderView::sortTriggered,
-            this, &IssuesWidget::onSearchParameterChanged);
+            this, &IssuesWidget::onSortParameterChanged);
     connect(m_headerView, &IssueHeaderView::filterChanged,
             this, &IssuesWidget::onSearchParameterChanged);
     m_issuesView->setHeader(m_headerView);
@@ -693,6 +694,14 @@ void IssuesWidget::onSearchParameterChanged()
     m_totalRowCount = 0;
     IssueListSearch search = searchFromUi();
     search.computeTotalRowCount = true;
+    fetchIssues(search);
+}
+
+void IssuesWidget::onSortParameterChanged()
+{
+    m_issuesModel->clear();
+    m_issuesModel->setExpectedRowCount(m_totalRowCount);
+    IssueListSearch search = searchFromUi();
     fetchIssues(search);
 }
 

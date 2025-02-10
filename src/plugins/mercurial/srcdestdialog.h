@@ -25,7 +25,6 @@ public:
     explicit SrcDestDialog(const VcsBase::VcsBasePluginState &state, Direction dir, QWidget *parent = nullptr);
     ~SrcDestDialog() override;
 
-    void setPathChooserKind(Utils::PathChooser::Kind kind);
     QString getRepositoryString() const;
     Utils::FilePath workingDir() const;
 

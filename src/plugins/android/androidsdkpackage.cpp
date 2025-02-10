@@ -151,11 +151,6 @@ int SdkPlatform::apiLevel() const
     return m_apiLevel;
 }
 
-QVersionNumber SdkPlatform::version() const
-{
-    return m_version;
-}
-
 void SdkPlatform::addSystemImage(SystemImage *image)
 {
     // Ordered insert. Installed images on top with lexical comparison of the display name.

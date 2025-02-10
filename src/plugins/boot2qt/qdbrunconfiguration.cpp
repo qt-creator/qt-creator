@@ -89,11 +89,6 @@ private:
         return tasks;
     }
 
-    QString defaultDisplayName() const
-    {
-        return RunConfigurationFactory::decoratedTargetName(buildKey(), target());
-    }
-
     ExecutableAspect executable{this};
     SymbolFileAspect symbolFile{this};
     RemoteLinux::RemoteLinuxEnvironmentAspect environment{this};

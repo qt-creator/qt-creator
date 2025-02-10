@@ -22,7 +22,6 @@ public:
                    const QString &userName, const QString &email);
 
     QString committer() const;
-    QString repoRoot() const;
 
 protected:
     QString cleanupDescription(const QString &input) const override;

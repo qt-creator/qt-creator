@@ -21,10 +21,8 @@ class FormClassWizardDialog : public Core::BaseFileWizard
 public:
     typedef QList<QWizardPage *> WizardPageList;
 
-    explicit FormClassWizardDialog(const Core::BaseFileWizardFactory *factory);
-
-    Utils::FilePath filePath() const;
-    void setFilePath(const Utils::FilePath &);
+    explicit FormClassWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                   const Utils::FilePath &filePath);
 
     Designer::FormClassWizardParameters parameters() const;
 

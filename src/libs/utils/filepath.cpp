@@ -531,6 +531,37 @@ QString FilePath::completeSuffix() const
     return {};
 }
 
+QList<QStringView> FilePath::pathComponents() const
+{
+    QList<QStringView> result;
+    QStringView path = pathView();
+    int start = 0;
+
+    if (osType() == OsTypeWindows && startsWithDriveLetter()) {
+        start = 2;
+        result.append(path.mid(0, 2));
+        if (path.size() == 2)
+            return result;
+        else if (path.at(2) == '/') {
+            result.append(path.mid(2, 1));
+            start = 3;
+        }
+    }
+
+    while (start < path.size()) {
+        int end = path.indexOf('/', start);
+        if (end == -1)
+            end = path.size();
+        // Consider "/" as a path component
+        if (end == 0)
+            result.append(path.mid(start, 1));
+        else
+            result.append(path.mid(start, end - start));
+        start = end + 1;
+    }
+    return result;
+}
+
 QStringView FilePath::scheme() const
 {
     return QStringView{m_data}.mid(m_pathLen, m_schemeLen);
@@ -1091,7 +1122,7 @@ FilePath FilePath::parentDir() const
 
 FilePath FilePath::absolutePath() const
 {
-    if (!!isLocal() && isEmpty())
+    if (isLocal() && isEmpty())
         return *this;
     const FilePath parentPath = isAbsolutePath()
                                     ? parentDir()
@@ -1103,7 +1134,7 @@ FilePath FilePath::absoluteFilePath() const
 {
     if (isAbsolutePath())
         return cleanPath();
-    if (!!isLocal() && isEmpty())
+    if (isLocal() && isEmpty())
         return cleanPath();
 
     return FilePath::currentWorkingPath().resolvePath(*this);
@@ -1136,7 +1167,7 @@ const QString &FilePath::specialDeviceRootPath()
 FilePath FilePath::normalizedPathName() const
 {
     FilePath result = *this;
-    if (!!isLocal()) // FIXME: Assumes no remote Windows and Mac for now.
+    if (isLocal()) // FIXME: Assumes no remote Windows and Mac for now.
         result.setParts(scheme(), host(), FileUtils::normalizedPathName(path()));
     return result;
 }
@@ -2008,7 +2039,7 @@ bool FilePath::setPermissions(QFile::Permissions permissions) const
 
 OsType FilePath::osType() const
 {
-    if (!!isLocal())
+    if (isLocal())
         return HostOsInfo::hostOs();
 
     QTC_ASSERT(deviceFileHooks().osType, return HostOsInfo::hostOs());
@@ -2333,7 +2364,7 @@ FilePath FilePath::resolvePath(const QString &tail) const
 
 expected_str<FilePath> FilePath::localSource() const
 {
-    if (!!isLocal())
+    if (isLocal())
         return *this;
 
     QTC_ASSERT(deviceFileHooks().localSource,

@@ -48,7 +48,6 @@
 #include <QLineEdit>
 #include <QListView>
 #include <QLoggingCategory>
-#include <QPainter>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QScrollArea>
@@ -103,12 +102,7 @@ public:
     }
     void setIconFromPath(const FilePath &iconPath);
     bool hasIcon() const { return !m_iconPath.isEmpty(); }
-    void setScaledToOriginalAspectRatio(bool scaled) { m_scaledToOriginalAspectRatio = scaled; }
-    void setScaledWithoutStretching(bool scaled) { m_scaledWithoutStretching = scaled; }
     void setTargetIconFileName(const QString &fileName) { m_targetIconFileName = fileName; }
-    void setTargetIconPath(const QString &targetIconPath) { m_targetIconPath = targetIconPath; }
-    QString targetIconFileName() const { return m_targetIconFileName; }
-    QString targetIconPath() const { return m_targetIconPath; }
 
 signals:
     void iconSelected(const FilePath &path);
@@ -132,8 +126,6 @@ private:
     QString m_targetIconPath;
     QString m_targetIconFileName;
     QString m_iconSelectionText;
-    bool m_scaledToOriginalAspectRatio = false;
-    bool m_scaledWithoutStretching = false;
 };
 
 IconWidget::IconWidget(QWidget *parent,
@@ -207,24 +199,9 @@ void IconWidget::setIconFromPath(const FilePath &iconPath)
     if (!m_textEditorWidget)
         return;
     m_iconPath = iconPath;
-    FilePath baseDir = manifestDir(m_textEditorWidget);
-    QImage original(iconPath.toFSPathString());
-    if (!original.isNull() && m_scaledToOriginalAspectRatio) {
-        if ((original.width() > original.height() && m_buttonSize.height() > m_buttonSize.width())
-            || (original.height() > original.width() && m_buttonSize.width() > m_buttonSize.height())) {
-            auto width = m_buttonSize.height();
-            auto height = m_buttonSize.width();
-            m_buttonSize = QSize(width, height);
-            m_button->setMinimumSize(m_buttonSize);
-            m_button->setMaximumSize(m_buttonSize);
-            m_button->setIconSize(m_buttonSize);
-            auto targetWidth = m_iconSize.height();
-            auto targetHeight = m_iconSize.width();
-            m_iconSize = QSize(targetWidth, targetHeight);
-        }
-    }
+    const FilePath baseDir = manifestDir(m_textEditorWidget);
     copyIcon();
-    FilePath iconFile = baseDir / m_targetIconPath / m_targetIconFileName;
+    const FilePath iconFile = baseDir / m_targetIconPath / m_targetIconFileName;
     m_button->setIcon(QIcon(iconFile.toFSPathString()));
 }
 
@@ -254,32 +231,6 @@ void IconWidget::removeIcon()
     m_iconPath.clear();
     setScaleWarningLabelVisible(false);
     m_button->setIcon(QIcon());
-}
-
-static QImage scaleWithoutStretching(const QImage& original, const QSize& targetSize)
-{
-    QImage ret(targetSize, QImage::Format_ARGB32);
-    ret.fill(Qt::white);
-    if (targetSize.height() > targetSize.width()) {
-        // portrait target, scale to width and paint in the vertical middle
-        QImage scaled = original.scaledToWidth(targetSize.width());
-        int heightDiffHalf = (targetSize.height() - scaled.height()) / 2;
-        QPainter painter(&ret);
-        QRect targetRect(0, heightDiffHalf, targetSize.width(), scaled.height());
-        QRect sourceRect(0, 0, scaled.width(), scaled.height());
-        painter.drawImage(targetRect, scaled, sourceRect);
-    } else if (targetSize.width() > targetSize.height()) {
-        // landscape target, scale to height and paint in the horizontal middle
-        QImage scaled = original.scaledToHeight(targetSize.height());
-        int widthDiffHalf = (targetSize.width() - scaled.width()) / 2;
-        QPainter painter(&ret);
-        QRect targetRect(widthDiffHalf, 0, scaled.width(), targetSize.height());
-        QRect sourceRect(0, 0, scaled.width(), scaled.height());
-        painter.drawImage(targetRect, scaled, sourceRect);
-    } else
-        ret = original.scaled(targetSize.width(), targetSize.height(),
-                              Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    return ret;
 }
 
 static bool similarFilesExist(const FilePath &path)
@@ -315,12 +266,8 @@ void IconWidget::copyIcon()
             m_iconPath.clear();
             return;
         }
-        QImage scaled;
-        if (!m_scaledWithoutStretching)
-            scaled = original.scaled(m_iconSize.width(), m_iconSize.height(),
-                                     Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        else
-            scaled = scaleWithoutStretching(original, m_iconSize);
+        const QImage scaled = original.scaled(m_iconSize.width(), m_iconSize.height(),
+                                              Qt::KeepAspectRatio, Qt::SmoothTransformation);
         setScaleWarningLabelVisible(scaled.width() > original.width() || scaled.height() > original.height());
         scaled.save(targetPath.toFSPathString());
         m_iconPath = targetPath;

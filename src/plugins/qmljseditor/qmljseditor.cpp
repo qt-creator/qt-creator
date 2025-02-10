@@ -97,9 +97,16 @@ using namespace Utils;
 
 namespace QmlJSEditor {
 
-static LanguageClient::Client *getQmllsClient(const Utils::FilePath &fileName)
+enum QmllsFunctionality {
+    DefaultFunctionality,
+    ExperimentalFunctionality,
+};
+
+static LanguageClient::Client *getQmllsClient(
+    const Utils::FilePath &fileName, QmllsFunctionality functionality)
 {
-    if (qmllsSettings()->useQmllsWithBuiltinCodemodelOnProject(fileName))
+    if (functionality == ExperimentalFunctionality
+        && qmllsSettings()->useQmllsWithBuiltinCodemodelOnProject(fileName))
         return nullptr;
 
     auto client = LanguageClient::LanguageClientManager::clientForFilePath(fileName);
@@ -114,6 +121,9 @@ QmlJSEditorWidget::QmlJSEditorWidget()
 {
     m_findReferences = new FindReferences(this);
     setLanguageSettingsId(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
+
+    connect(this, &QmlJSEditorWidget::toolbarOutlineChanged,
+            this, &QmlJSEditorWidget::updateOutline);
 }
 
 void QmlJSEditorWidget::finalizeInitialization()
@@ -574,8 +584,6 @@ void QmlJSEditorWidget::createToolBar()
 
     connect(this, &QmlJSEditorWidget::cursorPositionChanged,
             &m_updateOutlineIndexTimer, QOverload<>::of(&QTimer::start));
-    connect(this, &QmlJSEditorWidget::toolbarOutlineChanged,
-            this, &QmlJSEditorWidget::updateOutline);
 
     setToolbarOutline(m_outlineCombo);
 }
@@ -764,7 +772,7 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
                                    bool resolveTarget,
                                    bool /*inNextSplit*/)
 {
-    if (auto client = getQmllsClient(textDocument()->filePath())) {
+    if (auto client = getQmllsClient(textDocument()->filePath(), DefaultFunctionality)) {
         client->findLinkAt(textDocument(),
                            cursor,
                            processLinkCallback,
@@ -916,7 +924,7 @@ void QmlJSEditorWidget::findUsages()
 {
     const Utils::FilePath fileName = textDocument()->filePath();
 
-    if (auto client = getQmllsClient(fileName)) {
+    if (auto client = getQmllsClient(fileName, ExperimentalFunctionality)) {
         client->symbolSupport().findUsages(textDocument(), textCursor());
     } else {
         const int offset = textCursor().position();
@@ -928,7 +936,7 @@ void QmlJSEditorWidget::renameSymbolUnderCursor()
 {
     const Utils::FilePath fileName = textDocument()->filePath();
 
-    if (auto client = getQmllsClient(fileName)) {
+    if (auto client = getQmllsClient(fileName, ExperimentalFunctionality)) {
         client->symbolSupport().renameSymbol(textDocument(), textCursor(), QString());
     } else {
         const int offset = textCursor().position();

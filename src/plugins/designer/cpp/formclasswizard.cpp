@@ -44,9 +44,7 @@ QString FormClassWizard::formSuffix() const
 
 Core::BaseFileWizard *FormClassWizard::create(const Core::WizardDialogParameters &parameters) const
 {
-    auto wizardDialog = new FormClassWizardDialog(this);
-    wizardDialog->setFilePath(parameters.defaultPath());
-    return wizardDialog;
+    return new FormClassWizardDialog(this, parameters.defaultPath());
 }
 
 Core::GeneratedFiles FormClassWizard::generateFiles(const QWizard *w, QString *errorMessage) const

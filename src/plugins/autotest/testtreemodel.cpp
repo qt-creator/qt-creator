@@ -74,8 +74,8 @@ void TestTreeModel::setupParsingConnections()
     m_parser->setDirty();
     m_parser->setState(TestCodeParser::Idle);
 
-    ProjectManager *sm = ProjectManager::instance();
-    connect(sm, &ProjectManager::startupProjectChanged, this, [this, sm](Project *project) {
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, this,
+            [this](Project *project) {
         synchronizeTestFrameworks(); // we might have project settings
         m_parser->onStartupProjectChanged(project);
         removeAllTestToolItems();

@@ -6,6 +6,7 @@ DefaultTextEditorColorScheme=light-2024.xml
 DefaultToolbarStyle=Relaxed
 
 [Palette]
+warning=ffecbc1c
 
 ;DS Theme Palette START
 ;greyscale
@@ -39,6 +40,8 @@ splitterBlue=ff64daff
 rgbBlue=ff64daff
 highlightBlue=ff57b9fc
 highlightHover=ff74CBFC
+ds300=ff71d1ef
+ds800=ff08475B
 ;DS Theme Palette END
 
 [Colors]
@@ -120,7 +123,7 @@ DSredLight=ffff0401
 
 DSinteraction=highlightBlue
 DSerrorColor=ffdf3a3a
-DSwarningColor=ffecbc1c
+DSwarningColor=warning
 DSdisabledColor=ff8e8e8e
 
 DSinteractionHover=highlightHover
@@ -193,13 +196,13 @@ DSactionKeyframe=ffe0e01b
 DSactionJIT=ff2db543
 
 DStableHeaderBackground=ffff0000
+DStableCellCurrent=ds300
 DStableHeaderText=ff00ff00
 
 DSdockContainerBackground=ff323232
 DSdockContainerSplitter=ff323232
-DSdockAreaBackground=ff262728
-
-DSdockWidgetBackground=dawnGrey
+DSdockAreaBackground=ffeaeaea
+DSdockWidgetBackground=ffeaeaea
 DSdockWidgetSplitter=ff595959
 DSdockWidgetTitleBar=ffeaeaea
 

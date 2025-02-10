@@ -273,16 +273,6 @@ void VcsBaseSubmitEditor::registerActions(QAction *editorUndoAction, QAction *ed
     d->m_submitAction = submitAction;
 }
 
-QAbstractItemView::SelectionMode VcsBaseSubmitEditor::fileListSelectionMode() const
-{
-    return d->m_widget->fileListSelectionMode();
-}
-
-void VcsBaseSubmitEditor::setFileListSelectionMode(QAbstractItemView::SelectionMode sm)
-{
-    d->m_widget->setFileListSelectionMode(sm);
-}
-
 bool VcsBaseSubmitEditor::isEmptyFileListEnabled() const
 {
     return d->m_widget->isEmptyFileListEnabled();

@@ -83,6 +83,15 @@ public:
 
     static void addPlugins(const QVector<PluginSpec *> &specs);
 
+    static void reInstallPlugins();
+
+    static Utils::Result removePluginOnRestart(const QString &id);
+    static void installPluginOnRestart(
+        const Utils::FilePath &source, const Utils::FilePath &destination);
+
+    static void removePluginsAfterRestart();
+    static void installPluginsAfterRestart();
+
     // UI
     static std::optional<QSet<PluginSpec *>> askForEnablingPlugins(
         QWidget *dialogParent, const QSet<PluginSpec *> &plugins, bool enable);

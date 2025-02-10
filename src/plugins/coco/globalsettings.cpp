@@ -119,12 +119,12 @@ bool CocoSettings::verifyCocoDirectory(const FilePath &cocoDir)
     proc.start();
 
     if (!proc.waitForStarted()) {
-        logError(Tr::tr("Error: Coveragescanner at \"%1\" did not start.").arg(coveragescanner));
+        logError(Tr::tr("Error: CoverageScanner at \"%1\" did not start.").arg(coveragescanner));
         return false;
     }
 
     if (!proc.waitForFinished()) {
-        logError(Tr::tr("Error: Coveragescanner at \"%1\" did not finish.").arg(coveragescanner));
+        logError(Tr::tr("Error: CoverageScanner at \"%1\" did not finish.").arg(coveragescanner));
         return false;
     }
 
@@ -140,7 +140,7 @@ bool CocoSettings::verifyCocoDirectory(const FilePath &cocoDir)
         return true;
     } else {
         logError(
-            Tr::tr("Error: Coveragescanner at \"%1\" did not run correctly.").arg(coveragescanner));
+            Tr::tr("Error: CoverageScanner at \"%1\" did not run correctly.").arg(coveragescanner));
         for (const QString &l : lines) {
             logSilently(l);
         }

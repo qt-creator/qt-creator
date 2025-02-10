@@ -158,7 +158,7 @@ QString CocoQMakeSettings::configChanges() const
            + tableRow(
                Tr::tr("Build environment: "),
                maybeQuote(QString(featuresVar) + "=" + projectDirectory()))
-           + tableRow(Tr::tr("Feature File: "), maybeQuote(featureFilePath())) + "</tbody></table>";
+           + tableRow(Tr::tr("Feature file: "), maybeQuote(featureFilePath())) + "</tbody></table>";
 }
 
 QString CocoQMakeSettings::projectDirectory() const

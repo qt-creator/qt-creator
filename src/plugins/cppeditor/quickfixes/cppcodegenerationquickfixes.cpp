@@ -175,16 +175,16 @@ static void findExistingFunctions(ExistingGetterSetterData &existing, QStringLis
                                   "get" + lowerBaseName,
                                   "is_" + lowerBaseName,
                                   "is" + lowerBaseName,
-                                  settings->getGetterName(lowerBaseName)};
+                                  settings->getGetterName(lowerBaseName, existing.memberVariableName)};
     const QStringList setterNames{"set_" + lowerBaseName,
                                   "set" + lowerBaseName,
-                                  settings->getSetterName(lowerBaseName)};
+                                  settings->getSetterName(lowerBaseName, existing.memberVariableName)};
     const QStringList resetNames{"reset_" + lowerBaseName,
                                  "reset" + lowerBaseName,
-                                 settings->getResetName(lowerBaseName)};
+                                 settings->getResetName(lowerBaseName, existing.memberVariableName)};
     const QStringList signalNames{lowerBaseName + "_changed",
                                   lowerBaseName + "changed",
-                                  settings->getSignalName(lowerBaseName)};
+                                  settings->getSignalName(lowerBaseName, existing.memberVariableName)};
     for (const auto &memberFunctionName : memberFunctionNames) {
         const QString lowerName = memberFunctionName.toLower();
         if (getterNames.contains(lowerName))
@@ -1833,18 +1833,18 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
     using Flag = GenerateGetterSetterOp::GenerateFlag;
 
     if (generateFlags & Flag::GenerateGetter && data.getterName.isEmpty()) {
-        data.getterName = m_settings->getGetterName(data.qPropertyName);
+        data.getterName = m_settings->getGetterName(data.qPropertyName, data.memberVariableName);
         if (data.getterName == data.memberVariableName) {
             data.getterName = "get" + data.memberVariableName.left(1).toUpper()
                               + data.memberVariableName.mid(1);
         }
     }
     if (generateFlags & Flag::GenerateSetter && data.setterName.isEmpty())
-        data.setterName = m_settings->getSetterName(data.qPropertyName);
+        data.setterName = m_settings->getSetterName(data.qPropertyName, data.memberVariableName);
     if (generateFlags & Flag::GenerateSignal && data.signalName.isEmpty())
-        data.signalName = m_settings->getSignalName(data.qPropertyName);
+        data.signalName = m_settings->getSignalName(data.qPropertyName, data.memberVariableName);
     if (generateFlags & Flag::GenerateReset && data.resetName.isEmpty())
-        data.resetName = m_settings->getResetName(data.qPropertyName);
+        data.resetName = m_settings->getResetName(data.qPropertyName, data.memberVariableName);
 
     FullySpecifiedType memberVariableType = data.declarationSymbol->type();
     memberVariableType.setConst(false);
@@ -1867,7 +1867,7 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
     if (baseName.isEmpty())
         baseName = data.memberVariableName;
 
-    const QString parameterName = m_settings->getSetterParameterName(baseName);
+    const QString parameterName = m_settings->getSetterParameterName(baseName, data.memberVariableName);
     if (parameterName == data.memberVariableName)
         data.memberVariableName = "this->" + data.memberVariableName;
 

@@ -502,7 +502,6 @@ Switch::Switch(const QString &text, QWidget *parent)
     setText(text);
     setCheckable(true);
     setAttribute(Qt::WA_Hover);
-    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
     setLayoutDirection(Qt::RightToLeft); // Switch right, label left
 }
 
@@ -986,7 +985,6 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 
     const QFont tagsLabelFont = tagsLabelTF.font();
     const QFontMetrics tagsLabelFM(tagsLabelFont);
-    const QFont descriptionFont = descriptionTF.font();
 
     const QRect bgRGlobal = option.rect.adjusted(0, 0, -ExVPaddingGapXl, -ExVPaddingGapXl);
     const QRect bgR = bgRGlobal.translated(-option.rect.topLeft());

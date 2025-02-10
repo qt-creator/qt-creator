@@ -203,12 +203,17 @@ void SemanticTokenSupport::queueDocumentReload(TextEditor::TextDocument *doc)
         Qt::QueuedConnection);
 }
 
-void SemanticTokenSupport::clearHighlight(TextEditor::TextDocument *doc)
+void SemanticTokenSupport::deactivateDocument(TextEditor::TextDocument *doc)
 {
     if (m_tokens.contains(doc->filePath())){
         if (TextEditor::SyntaxHighlighter *highlighter = doc->syntaxHighlighter())
             highlighter->clearAllExtraFormats();
     }
+}
+
+void SemanticTokenSupport::clearCache(TextEditor::TextDocument *doc)
+{
+    m_tokens.remove(doc->filePath());
 }
 
 void SemanticTokenSupport::rehighlight()

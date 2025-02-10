@@ -60,6 +60,8 @@ public:
 
     void activateDocument(TextEditor::TextDocument *document) override;
     void deactivateDocument(TextEditor::TextDocument *document) override;
+
+    bool supportsDocumentSymbols(const TextEditor::TextDocument *doc) const override;
 private:
     static QMap<QString, int> semanticTokenTypesMap();
 };

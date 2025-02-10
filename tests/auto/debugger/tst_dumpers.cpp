@@ -543,66 +543,66 @@ struct Check
             && matchesAdditionalCriteria(additionalCriteria);
     }
 
-    const Check &operator%(Optional) const
+    Check &operator%(Optional)
     {
         optionallyPresent = true;
         return *this;
     }
 
-    const Check &operator%(DebuggerEngine engine) const
+    Check &operator%(DebuggerEngine engine)
     {
         enginesForCheck = engine;
         return *this;
     }
 
-    const Check &operator%(GdbVersion version) const
+    Check &operator%(GdbVersion version)
     {
         enginesForCheck = GdbEngine;
         debuggerVersionForCheck = version;
         return *this;
     }
 
-    const Check &operator%(LldbVersion version) const
+    Check &operator%(LldbVersion version)
     {
         enginesForCheck = LldbEngine;
         debuggerVersionForCheck = version;
         return *this;
     }
 
-    const Check &operator%(GccVersion version) const
+    Check &operator%(GccVersion version)
     {
         enginesForCheck = NoCdbEngine;
         gccVersionForCheck = version;
         return *this;
     }
 
-    const Check &operator%(ClangVersion version) const
+    Check &operator%(ClangVersion version)
     {
         enginesForCheck = GdbEngine;
         clangVersionForCheck = version;
         return *this;
     }
 
-    const Check &operator%(MsvcVersion version) const
+    Check &operator%(MsvcVersion version)
     {
         enginesForCheck = CdbEngine;
         msvcVersionForCheck = version;
         return *this;
     }
 
-    const Check &operator%(BoostVersion version) const
+    Check &operator%(BoostVersion version)
     {
         boostVersionForCheck = version;
         return *this;
     }
 
-    const Check &operator%(QtVersion version) const
+    Check &operator%(QtVersion version)
     {
         qtVersionForCheck = version;
         return *this;
     }
 
-    const Check &operator%(AdditionalCriteria criteria) const
+    Check &operator%(AdditionalCriteria criteria)
     {
         additionalCriteria = criteria;
         return *this;
@@ -624,7 +624,98 @@ struct Check
     mutable bool optionallyPresent = false;
 };
 
-struct CheckSet : public Check
+// We sometimes have a pattern like this:
+// Data(...) + Check(...) + DerivedCheck(...) % SomeCondition
+// Where DerivedCheck is a subclass of Check but does not override operator %.
+// This is  problem, because the base class implementation of operator % returns Check&,
+// which means that the subclass checks are mistreated as the base class checks.
+// In order to make it work correctly, we either must override the entire operator % overload set
+// in all subclass or get clever about it.
+// With C++23 we can *in theory* simply have:
+// struct Check
+// {
+//     void doOp(...)
+//     {
+//         ...
+//     }
+//
+//     template <typename Self>
+//     Self& operatorOp(this Self& self, ...)
+//     {
+//         Check::doOp(...);
+//         return self;
+//     }
+//     ...
+// };
+// And the derived check types can directly inherit Check.
+// But we are currently C++20 and for now we need a CRTP middle struct.
+template<typename Derived>
+struct CrtpCheckHelper : public Check
+{
+    using Check::Check;
+
+    Derived &operator%(Optional)
+    {
+        Check::operator%(Optional{});
+        return static_cast<Derived&>(*this);
+    }
+
+    Derived &operator%(DebuggerEngine engine)
+    {
+        Check::operator%(engine);
+        return static_cast<Derived&>(*this);
+    }
+
+    Derived &operator%(GdbVersion version)
+    {
+        Check::operator%(version);
+        return static_cast<Derived&>(*this);
+    }
+
+    Derived &operator%(LldbVersion version)
+    {
+        Check::operator%(version);
+        return static_cast<Derived&>(*this);
+    }
+
+    Derived &operator%(GccVersion version)
+    {
+        Check::operator%(version);
+        return static_cast<Derived&>(*this);
+    }
+
+    Derived &operator%(ClangVersion version)
+    {
+        Check::operator%(version);
+        return static_cast<Derived&>(*this);
+    }
+
+    Derived &operator%(MsvcVersion version)
+    {
+        Check::operator%(version);
+        return static_cast<Derived&>(*this);
+    }
+
+    Derived &operator%(BoostVersion version)
+    {
+        Check::operator%(version);
+        return static_cast<Derived&>(*this);
+    }
+
+    Derived &operator%(QtVersion version)
+    {
+        Check::operator%(version);
+        return static_cast<Derived&>(*this);
+    }
+
+    Derived &operator%(AdditionalCriteria criteria)
+    {
+        Check::operator%(criteria);
+        return static_cast<Derived&>(*this);
+    }
+};
+
+struct CheckSet : public CrtpCheckHelper<CheckSet>
 {
     CheckSet(std::initializer_list<Check> checks) : checks(checks) {}
     QList<Check> checks;
@@ -634,43 +725,43 @@ const QtVersion Qt4 = QtVersion(0, 0x4ffff);
 const QtVersion Qt5 = QtVersion(0x50000, 0x5ffff);
 const QtVersion Qt6 = QtVersion(0x60000, 0x6ffff);
 
-struct Check4 : Check
+struct Check4 : public CrtpCheckHelper<Check4>
 {
     Check4(const QByteArray &iname, const Value &value, const Type &type)
-        : Check(QString::fromUtf8(iname), value, type)
+        : CrtpCheckHelper(QString::fromUtf8(iname), value, type)
     { qtVersionForCheck = Qt4; }
 
     Check4(const QByteArray &iname, const Name &name, const Value &value, const Type &type)
-        : Check(QString::fromUtf8(iname), name, value, type)
+        : CrtpCheckHelper(QString::fromUtf8(iname), name, value, type)
     { qtVersionForCheck = Qt4; }
 };
 
-struct Check5 : Check
+struct Check5 : public CrtpCheckHelper<Check5>
 {
     Check5(const QByteArray &iname, const Value &value, const Type &type)
-        : Check(QString::fromUtf8(iname), value, type)
+        : CrtpCheckHelper(QString::fromUtf8(iname), value, type)
     { qtVersionForCheck = Qt5; }
 
     Check5(const QByteArray &iname, const Name &name, const Value &value, const Type &type)
-        : Check(QString::fromUtf8(iname), name, value, type)
+        : CrtpCheckHelper(QString::fromUtf8(iname), name, value, type)
     { qtVersionForCheck = Qt5; }
 };
 
-struct Check6 : Check
+struct Check6 : public CrtpCheckHelper<Check6>
 {
     Check6(const QByteArray &iname, const Value &value, const Type &type)
-        : Check(QString::fromUtf8(iname), value, type)
+        : CrtpCheckHelper(QString::fromUtf8(iname), value, type)
     { qtVersionForCheck = Qt6; }
 
     Check6(const QByteArray &iname, const Name &name, const Value &value, const Type &type)
-        : Check(QString::fromUtf8(iname), name, value, type)
+        : CrtpCheckHelper(QString::fromUtf8(iname), name, value, type)
     { qtVersionForCheck = Qt6; }
 };
 
 // To brush over uses of 'key'/'value' vs 'first'/'second' in inames
-struct CheckPairish : Check
+struct CheckPairish : public CrtpCheckHelper<CheckPairish>
 {
-    using Check::Check;
+    using CrtpCheckHelper::CrtpCheckHelper;
 };
 
 
@@ -1808,6 +1899,7 @@ void tst_Dumpers::dumper()
                 "up " + QString::number(data.skipLevels) + "\n"
                 "python theDumper.fetchVariables({" + dumperOptions +
                     "'token':2,'fancy':1,'forcens':1,"
+                    "'allowinferiorcalls':1,"
                     "'autoderef':1,'dyntype':1,'passexceptions':1,"
                     "'qtversion':" + QString::number(m_qtVersion) + ",'qtnamespace':'',"
                     "'testing':1,'qobjectnames':1,"

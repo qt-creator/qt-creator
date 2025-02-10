@@ -273,20 +273,6 @@ bool VcsBaseClient::synchronousCreateRepository(const FilePath &workingDirectory
     return true;
 }
 
-bool VcsBaseClient::synchronousClone(const FilePath &workingDir,
-                                     const QString &srcLocation,
-                                     const QString &dstLocation,
-                                     const QStringList &extraOptions)
-{
-    QStringList args;
-    args << vcsCommandString(CloneCommand)
-         << extraOptions << srcLocation << dstLocation;
-
-    const CommandResult result = vcsSynchronousExec(workingDir, args);
-    resetCachedVcsInfo(workingDir);
-    return result.result() == ProcessResult::FinishedWithSuccess;
-}
-
 bool VcsBaseClient::synchronousAdd(const FilePath &workingDir,
                                    const QString &relFileName,
                                    const QStringList &extraOptions)

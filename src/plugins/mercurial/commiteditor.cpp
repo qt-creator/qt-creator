@@ -64,9 +64,4 @@ QString CommitEditor::committerInfo() const
     return commitWidget()->committer();
 }
 
-QString CommitEditor::repoRoot() const
-{
-    return commitWidget()->repoRoot();
-}
-
 } // Mercurial::Internal

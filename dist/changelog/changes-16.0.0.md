@@ -2,6 +2,7 @@ Qt Creator 16
 =============
 
 Qt Creator version 16 contains bug fixes and new features.
+It is a free upgrade for commercial license holders.
 
 The most important changes are listed in this document. For a complete list of
 changes, see the Git log for the Qt Creator sources that you can check out from
@@ -46,9 +47,15 @@ Editing
 * qmlls
     * Added the value of the `QML_IMPORT_PATH` CMake variable to the imports
       passed to `qmlls`
+    * Changed `Go to Definition` to be a non-advanced feature
+      ([QTBUG-131920](https://bugreports.qt.io/browse/QTBUG-131920))
+    * Changed the outline to be an advanced feature
+      ([QTCREATORBUG-31767](https://bugreports.qt.io/browse/QTCREATORBUG-31767))
     * Fixed that the language server was not restarted after changing the Qt
       version in the kit
       ([QTCREATORBUG-32044](https://bugreports.qt.io/browse/QTCREATORBUG-32044))
+    * Fixed that toolbars where created over and over again
+      ([QTCREATORBUG-32356](https://bugreports.qt.io/browse/QTCREATORBUG-32356))
 
 ### Language Server Protocol
 
@@ -120,6 +127,14 @@ Projects
 * Fixed issues with Objective-C/C++ files if `OBJCXX` is added to the
   list of languages in the project file
   ([QTCREATORBUG-32282](https://bugreports.qt.io/browse/QTCREATORBUG-32282))
+* Fixed that Ninja was not detected even when `CMAKE_MAKE_PROGRAM` was set
+  to the `ninja` executable
+  ([QTCREATORBUG-32436](https://bugreports.qt.io/browse/QTCREATORBUG-32436))
+* Package Manager Auto Setup
+    * Changed the default installation directory to `/tmp` to ensure that the
+      directory is writable
+      ([QTCREATORBUG-31570](https://bugreports.qt.io/browse/QTCREATORBUG-31570),
+       [QTCREATORBUG-32430](https://bugreports.qt.io/browse/QTCREATORBUG-32430))
 
 ### Qmake
 
@@ -207,6 +222,11 @@ Platforms
   system and removed only at Qt Creator shutdown
   ([QTCREATORBUG-29942](https://bugreports.qt.io/browse/QTCREATORBUG-29942))
 
+### Linux
+
+* Added support for the `terminator` terminal emulator
+  ([QTCREATORBUG-32111](https://bugreports.qt.io/browse/QTCREATORBUG-32111))
+
 ### Android
 
 * Fixed a performance problem when detecting the Android ABI
@@ -219,6 +239,9 @@ Platforms
 * Fixed a crash when stopping applications on devices with iOS 16 and earlier
 * Fixed QML profiling on devices with iOS 16 and earlier
   ([QTCREATORBUG-32403](https://bugreports.qt.io/browse/QTCREATORBUG-32403))
+* Fixed that the development teams could not be determined with Xcode 16.2
+  and later
+  ([QTCREATORBUG-32447](https://bugreports.qt.io/browse/QTCREATORBUG-32447))
 
 ### Remote Linux
 
@@ -246,6 +269,7 @@ Burak Hancerli
 Christian Kandeler  
 Christian Stenger  
 Cristian Adam  
+David Faure  
 David Schulz  
 Eike Ziller  
 Esa Törmänen  

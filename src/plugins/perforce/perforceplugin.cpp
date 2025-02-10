@@ -255,7 +255,6 @@ public:
                                         const QByteArray &stdInput,
                                         QTextCodec *outputCodec) const;
 
-    QString clientFilePath(const QString &serverFilePath);
     void annotate(const FilePath &workingDir, const QString &fileName,
                   const QString &changeList = QString(), int lineNumber = -1);
     void filelog(const FilePath &workingDir, const QString &fileName = QString(),
@@ -1435,22 +1434,6 @@ bool PerforcePluginPrivate::activateCommit()
 
     cleanCommitMessageFile();
     return true;
-}
-
-QString PerforcePluginPrivate::clientFilePath(const QString &serverFilePath)
-{
-    QTC_ASSERT(settings().isValid(), return QString());
-
-    QStringList args;
-    args << QLatin1String("fstat") << serverFilePath;
-    const PerforceResponse response = runP4Cmd(settings().topLevelSymLinkTarget(), args,
-                                               ShowBusyCursor|RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow);
-    if (response.error)
-        return {};
-
-    static const QRegularExpression r("\\.\\.\\.\\sclientFile\\s(.+?)\n");
-    const QRegularExpressionMatch match = r.match(response.stdOut);
-    return match.hasMatch() ? match.captured(1).trimmed() : QString();
 }
 
 QString PerforcePluginPrivate::pendingChangesData()

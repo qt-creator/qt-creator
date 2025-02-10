@@ -296,7 +296,7 @@ PythonDocument::PythonDocument()
 
 void PythonDocument::updateCurrentPython()
 {
-    if (Core::DocumentModel::entryForDocument(this))
+    if (!isTemporary())
         updatePython(detectPython(filePath()));
 }
 

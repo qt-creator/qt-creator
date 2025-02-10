@@ -203,15 +203,16 @@ def substituteDefaultCompiler(settingsDir):
 
 
 def substituteMsvcPaths(settingsDir, version, targetBitness=64):
-    if not version in ['2017', '2019']:
+    if not version in ['2017', '2019', '2022']:
         test.fatal('Unexpected MSVC version - "%s" not implemented yet.' % version)
         return
 
     hostArch = "Hostx64" if targetBitness == 64 else "Hostx86"
     targetArch = "x64" if targetBitness == 64 else "x86"
+    baseFolder = "C:\\Program Files" if version == "2022" else "C:\\Program Files (x86)"
     for msvcFlavor in ["Community", "BuildTools"]:
         try:
-            msvcPath = os.path.join("C:\\Program Files (x86)", "Microsoft Visual Studio",
+            msvcPath = os.path.join(baseFolder, "Microsoft Visual Studio",
                                     version, msvcFlavor, "VC", "Tools", "MSVC")
             foundVersions = os.listdir(msvcPath) # undetermined order
             foundVersions.sort(reverse=True) # we explicitly want the latest and greatest
@@ -273,9 +274,13 @@ def copySettingsToTmpDir(destination=None, omitFiles=[]):
         substituteTildeWithinQtVersion(tmpSettingsDir)
         substituteDefaultCompiler(tmpSettingsDir)
     elif platform.system() in ('Windows', 'Microsoft'):
-        substituteMsvcPaths(tmpSettingsDir, '2017', 64)
-        substituteMsvcPaths(tmpSettingsDir, '2017', 32)
-        substituteMsvcPaths(tmpSettingsDir, '2019', 64)
+        if os.getenv('SYSTEST_NEW_SETTINGS') == '1':
+            substituteMsvcPaths(tmpSettingsDir, '2022', 32)
+            substituteMsvcPaths(tmpSettingsDir, '2022', 64)
+        else:
+            substituteMsvcPaths(tmpSettingsDir, '2017', 64)
+            substituteMsvcPaths(tmpSettingsDir, '2017', 32)
+            substituteMsvcPaths(tmpSettingsDir, '2019', 64)
         prependWindowsKit(tmpSettingsDir, 32)
     substituteOnlineInstallerPath(tmpSettingsDir)
     SettingsPath = ['-settingspath', '"%s"' % tmpSettingsDir]
@@ -285,7 +290,10 @@ test.log("Test is running on Python %s" % sys.version)
 origSettingsDir = os.path.abspath(os.path.join(os.getcwd(), "..", "..", "settings"))
 
 if platform.system() in ('Windows', 'Microsoft'):
-    origSettingsDir = os.path.join(origSettingsDir, "windows")
+    if os.getenv("SYSTEST_NEW_SETTINGS") == "1":
+        origSettingsDir = os.path.join(origSettingsDir, "windows2022")
+    else:
+        origSettingsDir = os.path.join(origSettingsDir, "windows")
 elif platform.system() == 'Darwin':
     origSettingsDir = os.path.join(origSettingsDir, "mac")
 else:

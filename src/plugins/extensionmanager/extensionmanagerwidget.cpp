@@ -25,6 +25,7 @@
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/algorithm.h>
+#include <utils/appinfo.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
@@ -86,6 +87,21 @@ static QWidget *toScrollableColumn(QWidget *widget)
 
     return scrollArea;
 };
+
+const char kRestartSetting[] = "RestartAfterPluginEnabledChanged";
+
+static void requestRestart()
+{
+    if (ICore::infoBar()->canInfoBeAdded(kRestartSetting)) {
+        Utils::InfoBarEntry
+            info(kRestartSetting, Core::Tr::tr("Plugin changes will take effect after restart."));
+        info.addCustomButton(Tr::tr("Restart Now"), [] {
+            ICore::infoBar()->removeInfo(kRestartSetting);
+            QTimer::singleShot(0, ICore::instance(), &ICore::restart);
+        });
+        ICore::infoBar()->addInfo(info);
+    }
+}
 
 class CollapsingWidget : public QWidget
 {
@@ -153,6 +169,24 @@ public:
         installButton = new Button(Tr::tr("Install..."), Button::LargePrimary);
         installButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         installButton->hide();
+        connect(
+            installButton,
+            &QAbstractButton::pressed,
+            this,
+            &HeadingWidget::pluginInstallationRequested);
+
+        removeButton = new Button(Tr::tr("Remove ..."), Button::SmallSecondary);
+        removeButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+        removeButton->hide();
+        connect(removeButton, &QAbstractButton::pressed, this, [this]() {
+            ExtensionSystem::PluginManager::removePluginOnRestart(m_currentPluginId);
+            requestRestart();
+        });
+
+        updateButton = new Button(Tr::tr("Update ..."), Button::LargePrimary);
+        updateButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+        updateButton->hide();
+        connect(updateButton, &QAbstractButton::pressed, this, &HeadingWidget::pluginUpdateRequested);
 
         using namespace Layouting;
         Row {
@@ -181,6 +215,8 @@ public:
             },
             Column {
                 installButton,
+                updateButton,
+                removeButton,
                 st,
             },
             noMargin, spacing(SpacingTokens::ExPaddingGapL),
@@ -189,8 +225,6 @@ public:
         setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
         m_dlCountItems->setVisible(false);
 
-        connect(installButton, &QAbstractButton::pressed,
-                this, &HeadingWidget::pluginInstallationRequested);
         connect(m_vendor, &QAbstractButton::pressed, this, [this]() {
             emit vendorClicked(m_currentVendor);
         });
@@ -202,6 +236,8 @@ public:
     {
         if (!current.isValid())
             return;
+
+        m_currentPluginId = current.data(RoleId).toString();
 
         m_icon->setPixmap(itemIcon(current, SizeBig));
 
@@ -220,17 +256,27 @@ public:
         const QString description = current.data(RoleDescriptionShort).toString();
         m_details->setText(description);
 
+        ExtensionSystem::PluginSpec *pluginSpec = pluginSpecForId(current.data(RoleId).toString());
+
         const ItemType itemType = current.data(RoleItemType).value<ItemType>();
         const bool isPack = itemType == ItemTypePack;
-        const bool isRemotePlugin = !(isPack || pluginSpecForId(current.data(RoleId).toString()));
+        const bool isRemotePlugin = !(isPack || pluginSpec);
         const QString downloadUrl = current.data(RoleDownloadUrl).toString();
+        removeButton->setVisible(!isRemotePlugin && pluginSpec && !pluginSpec->isSystemPlugin());
         installButton->setVisible(isRemotePlugin && !downloadUrl.isEmpty());
         if (installButton->isVisible())
             installButton->setToolTip(downloadUrl);
+
+        updateButton->setVisible(
+            pluginSpec
+            && ExtensionSystem::PluginSpec::versionCompare(
+                   pluginSpec->version(), current.data(RoleVersion).toString())
+                   < 0);
     }
 
 signals:
     void pluginInstallationRequested();
+    void pluginUpdateRequested();
     void vendorClicked(const QString &vendor);
 
 private:
@@ -243,23 +289,11 @@ private:
     QWidget *m_dlCountItems;
     QLabel *m_details;
     QAbstractButton *installButton;
+    QAbstractButton *removeButton;
+    QAbstractButton *updateButton;
     QString m_currentVendor;
+    QString m_currentPluginId;
 };
-
-const char kRestartSetting[] = "RestartAfterPluginEnabledChanged";
-
-static void requestRestart()
-{
-    if (ICore::infoBar()->canInfoBeAdded(kRestartSetting)) {
-        Utils::InfoBarEntry
-            info(kRestartSetting, Core::Tr::tr("Plugin changes will take effect after restart."));
-        info.addCustomButton(Tr::tr("Restart Now"), [] {
-            ICore::infoBar()->removeInfo(kRestartSetting);
-            QTimer::singleShot(0, ICore::instance(), &ICore::restart);
-        });
-        ICore::infoBar()->addInfo(info);
-    }
-}
 
 class PluginStatusWidget : public QWidget
 {
@@ -394,7 +428,7 @@ public:
 
 private:
     void updateView(const QModelIndex &current);
-    void fetchAndInstallPlugin(const QUrl &url, const QString &id);
+    void fetchAndInstallPlugin(const QUrl &url, const QString &id, bool update);
 
     QString m_currentItemName;
     ExtensionsModel *m_extensionModel;
@@ -562,7 +596,10 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         m_secondaryDescriptionWidget->setWidth(secondaryDescriptionWidth);
     });
     connect(m_headingWidget, &HeadingWidget::pluginInstallationRequested, this, [this]() {
-        fetchAndInstallPlugin(QUrl::fromUserInput(m_currentDownloadUrl), m_currentId);
+        fetchAndInstallPlugin(QUrl::fromUserInput(m_currentDownloadUrl), m_currentId, false);
+    });
+    connect(m_headingWidget, &HeadingWidget::pluginUpdateRequested, this, [this]() {
+        fetchAndInstallPlugin(QUrl::fromUserInput(m_currentDownloadUrl), m_currentId, true);
     });
     connect(m_tags, &TagList::tagSelected, m_extensionBrowser, &ExtensionsBrowser::setFilter);
     connect(m_headingWidget, &HeadingWidget::vendorClicked,
@@ -649,7 +686,7 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
     }
 }
 
-void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QString &id)
+void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QString &id, bool update)
 {
     using namespace Tasking;
 
@@ -720,7 +757,7 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QStrin
         }
     };
 
-    const auto onPluginInstallation = [storage]() {
+    const auto onPluginInstallation = [storage, update]() {
         if (storage->packageData.isEmpty())
             return false;
         const FilePath source = FilePath::fromUrl(storage->url);
@@ -730,7 +767,7 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QStrin
 
         saver.write(storage->packageData);
         if (saver.finalize(ICore::dialogParent())) {
-            auto result = executePluginInstallWizard(saver.filePath());
+            auto result = executePluginInstallWizard(saver.filePath(), update);
             switch (result) {
             case InstallResult::Success:
                 return true;

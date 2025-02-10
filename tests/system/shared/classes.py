@@ -7,16 +7,28 @@ import builtins
 class Targets:
     ALL_TARGETS = tuple(range(4))
 
-    (DESKTOP_5_4_1_GCC,
-     DESKTOP_5_10_1_DEFAULT,
-     DESKTOP_5_14_1_DEFAULT,
-     DESKTOP_6_2_4) = ALL_TARGETS
+    if os.getenv("SYSTEST_NEW_SETTINGS") != "1":
+        (DESKTOP_5_4_1_GCC,
+         DESKTOP_5_10_1_DEFAULT,
+         DESKTOP_5_14_1_DEFAULT,
+         DESKTOP_6_2_4) = ALL_TARGETS
 
-    __TARGET_NAME_DICT__ = dict(zip(ALL_TARGETS,
-                                    ["Desktop 5.4.1 GCC",
-                                     "Desktop 5.10.1 default",
-                                     "Desktop 5.14.1 default",
-                                     "Desktop 6.2.4"]))
+        __TARGET_NAME_DICT__ = dict(zip(ALL_TARGETS,
+                                        ["Desktop 5.4.1 GCC",
+                                         "Desktop 5.10.1 default",
+                                         "Desktop 5.14.1 default",
+                                         "Desktop 6.2.4"]))
+    else:
+        (DESKTOP_6_7_3_GCC,
+         DESKTOP_5_10_1_DEFAULT,
+         DESKTOP_5_14_1_DEFAULT,
+         DESKTOP_6_2_4) = ALL_TARGETS
+
+        __TARGET_NAME_DICT__ = dict(zip(ALL_TARGETS,
+                                        ["Desktop 6.7.3 GCC",
+                                         "Desktop 5.10.1 default",
+                                         "Desktop 5.14.1 default",
+                                         "Desktop 6.2.4"]))
 
     @staticmethod
     def isOnlineInstaller(target):
@@ -26,7 +38,10 @@ class Targets:
     def availableTargetClasses(ignoreValidity=False):
         availableTargets = set(Targets.ALL_TARGETS)
         if platform.system() not in ('Windows', 'Microsoft'):
-            availableTargets.remove(Targets.DESKTOP_5_4_1_GCC)
+            if os.getenv("SYSTEST_NEW_SETTINGS") == "1":
+                availableTargets.remove(Targets.DESKTOP_6_7_3_GCC)
+            else:
+                availableTargets.remove(Targets.DESKTOP_5_4_1_GCC)
         return availableTargets
 
     @staticmethod
@@ -85,7 +100,10 @@ class QtPath:
         qtTargets = [Targets.DESKTOP_5_10_1_DEFAULT, Targets.DESKTOP_5_14_1_DEFAULT,
                      Targets.DESKTOP_6_2_4]
         if platform.system() in ('Windows', 'Microsoft'):
-            qtTargets.append(Targets.DESKTOP_5_4_1_GCC)
+            if os.getenv("SYSTEST_NEW_SETTINGS") == "1":
+                qtTargets.append(Targets.DESKTOP_6_7_3_GCC)
+            else:
+                qtTargets.append(Targets.DESKTOP_5_4_1_GCC)
         if pathSpec == QtPath.DOCS:
             return map(lambda target: QtPath.docsPath(target), qtTargets)
         elif pathSpec == QtPath.EXAMPLES:

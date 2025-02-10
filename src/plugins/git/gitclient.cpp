@@ -1055,7 +1055,7 @@ void GitClient::diffFile(const FilePath &workingDirectory, const QString &fileNa
     const QString title = Tr::tr("Git Diff \"%1\"").arg(fileName);
     const FilePath sourceFile = VcsBaseEditor::getSource(workingDirectory, fileName);
     const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
-            + QLatin1String(".DifFile.") + sourceFile.toUrlishString();
+            + QLatin1String(".DiffFile.") + sourceFile.toUrlishString();
     requestReload(documentId, sourceFile, title, workingDirectory,
                   [&fileName](IDocument *doc) {
         return new GitDiffEditorController(doc, {}, {}, {"--", fileName});
@@ -2180,13 +2180,6 @@ bool GitClient::beginStashScope(const FilePath &workingDirectory, const QString 
     QTC_ASSERT(!repoDirectory.isEmpty(), return false);
     StashInfo &stashInfo = m_stashInfo[repoDirectory];
     return stashInfo.init(repoDirectory, command, flag, pushAction);
-}
-
-GitClient::StashInfo &GitClient::stashInfo(const FilePath &workingDirectory)
-{
-    const FilePath repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
-    QTC_CHECK(m_stashInfo.contains(repoDirectory));
-    return m_stashInfo[repoDirectory];
 }
 
 void GitClient::endStashScope(const FilePath &workingDirectory)

@@ -5,7 +5,6 @@
 
 #include "cppquickfixprojectsettings.h"
 
-#include "../cppcodestylesettings.h"
 #include "../cppeditorconstants.h"
 
 #include <coreplugin/icore.h>
@@ -244,7 +243,7 @@ QString CppQuickFixSettings::memberBaseName(
         baseNameTemplateValue = settings->nameFromMemberVariableTemplate;
     }
     if (!baseNameTemplateValue.isEmpty())
-        return CppQuickFixSettings::replaceNamePlaceholders(baseNameTemplateValue, name);
+        return CppQuickFixSettings::replaceNamePlaceholders(baseNameTemplateValue, name, {});
 
     // Remove leading and trailing "_"
     while (baseName.startsWith(QLatin1Char('_')))
@@ -267,12 +266,19 @@ QString CppQuickFixSettings::memberBaseName(
 
 }
 
-QString CppQuickFixSettings::replaceNamePlaceholders(const QString &nameTemplate,
-                                                     const QString &name)
+QString CppQuickFixSettings::replaceNamePlaceholders(
+    const QString &nameTemplate, const QString &name, const std::optional<QString> &memberName)
 {
     Core::JsExpander expander;
     QString jsError;
-    const auto jsExpr = QString("(function(name) { return %1; })(\"%2\")").arg(nameTemplate, name);
+    QString jsExpr;
+    if (memberName) {
+        QTC_CHECK(!memberName->isEmpty());
+        jsExpr = QString("(function(name, memberName) { return %1; })(\"%2\", \"%3\")")
+                     .arg(nameTemplate, name, *memberName);
+    } else {
+        jsExpr = QString("(function(name) { return %1; })(\"%2\")").arg(nameTemplate, name);
+    }
     const QString jsRes = expander.evaluate(jsExpr, &jsError);
     if (!jsError.isEmpty())
         return jsError; // TODO: Use Utils::Result?

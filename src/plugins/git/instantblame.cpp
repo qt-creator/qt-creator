@@ -115,15 +115,19 @@ QString BlameMark::toolTipText(const CommitInfo &info) const
 
     QString actions;
     if (!info.modified) {
-         actions = QString(
+        const QString blameRevision = Tr::tr("Blame %1").arg(info.hash.left(8));
+        const QString blameParent = Tr::tr("Blame Parent");
+        const QString showFile = Tr::tr("File at %1").arg(info.hash.left(8));
+        const QString logForLine = Tr::tr("Log for line %1").arg(info.line);
+        actions = QString(
                       "<table cellspacing=\"10\"><tr>"
-                      "  <td><a href=\"blame\">Blame %1</a></td>"
-                      "  <td><a href=\"blameParent\">Blame Parent</a></td>"
-                      "  <td><a href=\"showFile\">File at %1</a></td>"
-                      "  <td><a href=\"logLine\">Log for line %2</a></td>"
+                      "  <td><a href=\"blame\">%1</a></td>"
+                      "  <td><a href=\"blameParent\">%2</a></td>"
+                      "  <td><a href=\"showFile\">%3</a></td>"
+                      "  <td><a href=\"logLine\">%4</a></td>"
                       "</tr></table>"
                       "<p></p>")
-                      .arg(info.hash.left(8), QString::number(info.line));
+                      .arg(blameRevision, blameParent, showFile, logForLine);
     }
 
     const QString header = QString(
@@ -299,15 +303,20 @@ static CommitInfo parseBlameOutput(const QStringList &blame, const Utils::FilePa
     const QStringList firstLineParts = blame.at(0).split(" ");
     result.hash = firstLineParts.first();
     result.modified = result.hash == uncommittedHash;
-    result.author = blame.at(1).mid(7);
-    result.authorMail = blame.at(2).mid(13).chopped(1);
+    if (result.modified) {
+        result.author = Tr::tr("Not Committed Yet");
+        result.subject = Tr::tr("Modified line in %1").arg(filePath.fileName());
+    } else {
+        result.author = blame.at(1).mid(7);
+        result.authorMail = blame.at(2).mid(13).chopped(1);
+        result.subject = blame.at(9).mid(8);
+    }
     if (result.author == author.name || result.authorMail == author.email)
         result.shortAuthor = Tr::tr("You");
     else
         result.shortAuthor = result.author;
     const uint timeStamp = blame.at(3).mid(12).toUInt();
     result.authorDate = QDateTime::fromSecsSinceEpoch(timeStamp);
-    result.subject = blame.at(9).mid(8);
     result.filePath = filePath;
     // blame.at(10) can be "boundary", "previous" or "filename"
     if (blame.at(10).startsWith("filename"))

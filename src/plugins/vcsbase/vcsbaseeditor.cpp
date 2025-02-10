@@ -851,11 +851,6 @@ EditorContentType VcsBaseEditorWidget::contentType() const
     return d->m_parameters.type;
 }
 
-bool VcsBaseEditorWidget::isModified() const
-{
-    return false;
-}
-
 void VcsBaseEditorWidget::slotPopulateDiffBrowser()
 {
     QComboBox *entriesComboBox = d->entriesComboBox();
@@ -1232,16 +1227,6 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
     rc.chunk = cd ? cd->fromUnicode(unicode) : unicode.toLocal8Bit();
     rc.header = cd ? cd->fromUnicode(header) : header.toLocal8Bit();
     return rc;
-}
-
-const VcsBaseEditorParameters *VcsBaseEditor::findType(const VcsBaseEditorParameters *array,
-                                                       int arraySize,
-                                                       EditorContentType et)
-{
-    for (int i = 0; i < arraySize; i++)
-        if (array[i].type == et)
-            return array + i;
-    return nullptr;
 }
 
 // Find the codec used for a file querying the editor.
