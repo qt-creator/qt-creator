@@ -384,7 +384,7 @@ static QString selectedText(QWidget *widget, bool useAll)
         }
     }, model, QModelIndex());
 
-    return str;
+    return str.trimmed();
 }
 
 // Write stack frames as task file for displaying it in the build issues pane.
