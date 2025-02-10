@@ -376,7 +376,8 @@ public:
                          .arg(installLocation.fileName())
                          .arg(installLocation.toUrl().toString(QUrl::FullyEncoded))));
 
-        m_loadImmediately->setVisible(m_data->pluginSpec && m_data->pluginSpec->isSoftLoadable());
+        m_loadImmediately->setVisible(
+            m_data->pluginSpec && m_data->pluginSpec->isSoftLoadable() && !m_data->prepareForUpdate);
     }
 
 private:
