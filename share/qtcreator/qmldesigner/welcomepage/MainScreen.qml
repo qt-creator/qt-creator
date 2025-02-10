@@ -113,7 +113,7 @@ Rectangle {
         }
 
         PageButton {
-            text: qsTr("Tutorials")
+            text: qsTr("Qt Academy")
             pageId: 2
         }
 
