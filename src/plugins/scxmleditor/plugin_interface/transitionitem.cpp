@@ -15,6 +15,8 @@
 #include "tagtextitem.h"
 #include "transitionitem.h"
 
+#include <utils/theme/theme.h>
+
 #include <QBrush>
 #include <QDebug>
 #include <QGraphicsScene>
@@ -57,11 +59,11 @@ TransitionItem::TransitionItem(BaseItem *parent)
 {
     setFlag(ItemIsSelectable, true);
 
-    m_highlightPen = QPen(QColor(0xff, 0x00, 0x60));
+    m_highlightPen = QPen(Utils::creatorColor(Utils::Theme::TextColorError));
     m_highlightPen.setWidth(8);
     m_highlightPen.setJoinStyle(Qt::MiterJoin);
 
-    m_pen = QPen(QColor(0x12, 0x12, 0x12));
+    m_pen = QPen(Utils::creatorColor(Utils::Theme::TextColorDisabled));
     m_pen.setWidth(2);
 
     m_arrow << QPointF(0, 0)
@@ -991,12 +993,13 @@ void TransitionItem::updateEditorInfo(bool allChilds)
 {
     BaseItem::updateEditorInfo(allChilds);
 
+    const QColor textDisabled = Utils::creatorColor(Utils::Theme::TextColorDisabled);
     const QColor fontColor = editorInfo(Constants::C_SCXML_EDITORINFO_FONTCOLOR);
-    m_eventTagItem->setDefaultTextColor(fontColor.isValid() ? fontColor : Qt::black);
-    m_condTagItem->setDefaultTextColor(fontColor.isValid() ? fontColor : Qt::black);
+    m_eventTagItem->setDefaultTextColor(fontColor.isValid() ? fontColor : textDisabled);
+    m_condTagItem->setDefaultTextColor(fontColor.isValid() ? fontColor : textDisabled);
 
     const QColor stateColor = editorInfo(Constants::C_SCXML_EDITORINFO_STATECOLOR);
-    m_pen.setColor(stateColor.isValid() ? stateColor : qRgb(0x12, 0x12, 0x12));
+    m_pen.setColor(stateColor.isValid() ? stateColor : textDisabled);
 }
 
 void TransitionItem::updateTarget(bool fixValue)
