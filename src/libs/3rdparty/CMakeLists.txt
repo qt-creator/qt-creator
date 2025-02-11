@@ -13,6 +13,7 @@ endif()
 
 add_subdirectory(xz)
 add_subdirectory(bzip2)
+add_subdirectory(zlib)
 
 set(ENABLE_WERROR OFF)
 add_subdirectory(libarchive)

@@ -637,7 +637,7 @@
         "Name": "ZLib",
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
-        "QtUsage": "Used by ZipWriter/ZipReader to support compress and uncompress operations.",
+        "QtUsage": "Used by libarchive/ZipWriter/ZipReader to support compress and uncompress operations.",
         "Path": "src/libs/3rdparty/zlib",
         "Description": "Zlib is a lossless data-compression library.",
         "Homepage": "https://www.zlib.net",
