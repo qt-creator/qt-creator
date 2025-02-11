@@ -1260,6 +1260,9 @@ void tst_filepath::resolvePath_data()
     QTest::newRow("s6") << FilePath("/a") << FilePath("b") << FilePath("/a/b");
     QTest::newRow("s7") << FilePath("/a") << FilePath(".") << FilePath("/a");
     QTest::newRow("s8") << FilePath("/a") << FilePath("./b") << FilePath("/a/b");
+    QTest::newRow("s9") << FilePath("../..") << FilePath("/b") << FilePath("/b");
+    QTest::newRow("sa") << FilePath("../..") << FilePath("b") << FilePath("../../b");
+    QTest::newRow("sb") << FilePath("a/A") << FilePath("..") << FilePath("a");
 }
 
 void tst_filepath::resolvePath()
