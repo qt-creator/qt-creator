@@ -1,4 +1,4 @@
 add_qtc_test(tst_utils_unarchiver
-  DEPENDS Utils archive_static
+  DEPENDS Utils QtCLibArchive
   SOURCES tst_unarchiver.cpp
 )
