@@ -22,8 +22,7 @@ EventItem::EventItem(const QPointF &pos, BaseItem *parent)
     m_eventNameItem->setFont(serifFont);
 
     QString color = editorInfo("fontColor");
-    if (!color.isEmpty())
-        m_eventNameItem->setDefaultTextColor(QColor(color));
+    m_eventNameItem->setDefaultTextColor(color.isEmpty() ? QColor(Qt::black) : QColor(color));
 
     setPos(pos);
     m_eventNameItem->setTextInteractionFlags(Qt::NoTextInteraction);
@@ -52,6 +51,7 @@ OnEntryExitItem::OnEntryExitItem(BaseItem *parent)
     m_eventNameItem->setParentItem(this);
     QFont serifFont("Times", 10, QFont::Normal);
     m_eventNameItem->setFont(serifFont);
+    m_eventNameItem->setDefaultTextColor(Qt::black);
     m_eventNameItem->setTextInteractionFlags(Qt::NoTextInteraction);
 }
 

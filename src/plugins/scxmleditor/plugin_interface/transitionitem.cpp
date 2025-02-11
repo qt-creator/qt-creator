@@ -57,6 +57,11 @@ TransitionItem::TransitionItem(BaseItem *parent)
 {
     setFlag(ItemIsSelectable, true);
 
+    m_highlightPen = QPen(QColor(0xff, 0x00, 0x60));
+    m_highlightPen.setWidth(8);
+    m_highlightPen.setJoinStyle(Qt::MiterJoin);
+
+    m_pen = QPen(QColor(0x12, 0x12, 0x12));
     m_pen.setWidth(2);
 
     m_arrow << QPointF(0, 0)
@@ -948,15 +953,9 @@ void TransitionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     Q_UNUSED(widget)
 
     painter->save();
+
     painter->setRenderHint(QPainter::Antialiasing, true);
-
-    m_pen.setColor(painter->pen().color());
     painter->setPen(m_pen);
-
-    QPen highlightPen;
-    highlightPen.setWidth(8);
-    highlightPen.setJoinStyle(Qt::MiterJoin);
-    highlightPen.setColor(scene()->palette().color(QPalette::HighlightedText));
 
     if (m_cornerPoints.count() >= 2) {
         if (m_targetType == InternalSameTarget) {
@@ -966,7 +965,7 @@ void TransitionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
             painter->drawArc(rect, 0, 180 * 16);
         } else {
             if (highlight()) {
-                painter->setPen(highlightPen);
+                painter->setPen(m_highlightPen);
                 painter->drawPolyline(m_cornerPoints);
             }
             painter->setPen(m_pen);
@@ -978,7 +977,7 @@ void TransitionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
         painter->drawEllipse(m_cornerPoints[i], 2, 2);
 
     if (highlight()) {
-        painter->setPen(highlightPen);
+        painter->setPen(m_highlightPen);
         painter->drawPolyline(m_arrow);
     }
 
@@ -993,15 +992,11 @@ void TransitionItem::updateEditorInfo(bool allChilds)
     BaseItem::updateEditorInfo(allChilds);
 
     const QColor fontColor = editorInfo(Constants::C_SCXML_EDITORINFO_FONTCOLOR);
-
-    if (fontColor.isValid()) {
-        m_eventTagItem->setDefaultTextColor(fontColor);
-        m_condTagItem->setDefaultTextColor(fontColor);
-    }
+    m_eventTagItem->setDefaultTextColor(fontColor.isValid() ? fontColor : Qt::black);
+    m_condTagItem->setDefaultTextColor(fontColor.isValid() ? fontColor : Qt::black);
 
     const QColor stateColor = editorInfo(Constants::C_SCXML_EDITORINFO_STATECOLOR);
-    if (stateColor.isValid())
-        m_pen.setColor(stateColor);
+    m_pen.setColor(stateColor.isValid() ? stateColor : qRgb(0x12, 0x12, 0x12));
 }
 
 void TransitionItem::updateTarget(bool fixValue)
