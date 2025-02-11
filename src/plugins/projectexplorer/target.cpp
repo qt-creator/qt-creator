@@ -446,13 +446,17 @@ DeployConfiguration *Target::activeDeployConfiguration() const
 
 void Target::setActiveDeployConfiguration(DeployConfiguration *dc)
 {
-    if ((!dc && d->m_deployConfigurations.isEmpty()) ||
-        (dc && d->m_deployConfigurations.contains(dc) &&
-         dc != d->m_activeDeployConfiguration)) {
-        d->m_activeDeployConfiguration = dc;
-        emit activeDeployConfigurationChanged(d->m_activeDeployConfiguration);
+    if (dc) {
+        QTC_ASSERT(d->m_deployConfigurations.contains(dc), return);
+    } else {
+        QTC_ASSERT(d->m_deployConfigurations.isEmpty(), return);
     }
-    updateDeviceState();
+    if (dc == d->m_activeDeployConfiguration)
+        return;
+
+    d->m_activeDeployConfiguration = dc;
+    emit activeDeployConfigurationChanged(d->m_activeDeployConfiguration);
+    updateDeviceState(); // FIXME: Does not belong here?
 }
 
 const QList<RunConfiguration *> Target::runConfigurations() const
