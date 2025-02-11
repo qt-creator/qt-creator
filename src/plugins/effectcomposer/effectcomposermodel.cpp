@@ -4,6 +4,7 @@
 #include "effectcomposermodel.h"
 
 #include "compositionnode.h"
+#include "effectcomposertr.h"
 #include "effectshaderscodeeditor.h"
 #include "effectutils.h"
 #include "propertyhandler.h"
@@ -292,9 +293,9 @@ QString EffectComposerModel::getUniqueEffectName() const
 
 QString EffectComposerModel::getUniqueDisplayName(const QStringList reservedNames) const
 {
-    return QmlDesigner::UniqueName::generate(tr("New Property"), [&reservedNames] (const QString &name) {
-        return reservedNames.contains(name);
-    });
+    return QmlDesigner::UniqueName::generate(
+        Tr::tr("New Property"),
+        [&reservedNames](const QString &name) { return reservedNames.contains(name); });
 }
 
 bool EffectComposerModel::nameExists(const QString &name) const
@@ -315,10 +316,11 @@ void EffectComposerModel::chooseCustomPreviewImage()
         QmlDesigner::DesignDocument *document = QmlDesigner::QmlDesignerPlugin::instance()->currentDesignDocument();
         const FilePath currentDir = lastDir.isEmpty() ? document->fileName().parentDir()
                                                              : lastDir;
-        const QStringList fileNames = QFileDialog::getOpenFileNames(Core::ICore::dialogParent(),
-                                                  tr("Select custom effect background image"),
-                                                  currentDir.toFSPathString(),
-                                                  tr("Image Files (%1)").arg(suffixes.join(" ")));
+        const QStringList fileNames = QFileDialog::getOpenFileNames(
+            Core::ICore::dialogParent(),
+            Tr::tr("Select Custom Effect Background Image"),
+            currentDir.toFSPathString(),
+            Tr::tr("Image Files (%1)").arg(suffixes.join(" ")));
 
         if (!fileNames.isEmpty()) {
             FilePath imageFile = FilePath::fromString(fileNames.first());
@@ -618,22 +620,20 @@ void EffectComposerModel::setEffectError(const QString &errorMessage, int type,
 
 QString EffectComposerModel::effectErrors() const
 {
-    static const QStringList errorTypeStrings {
-        "Common",
-        "QML parsing",
-        "Shader",
-        "Preprocessor"
-    };
-    static const QString messageTemplate = tr("%1 error: %2\n");
-    QString retval;
+    static const QStringList errorTypeStrings{
+        Tr::tr("Common error: %1"),
+        Tr::tr("QML parsing error: %1"),
+        Tr::tr("Shader error: %1"),
+        Tr::tr("Preprocessor error: %1")};
 
+    QString retval;
     for (const QList<EffectError> &errors : std::as_const(m_effectErrors)) {
         for (const EffectError &e : errors) {
             if (!e.m_message.isEmpty()) {
                 int index = e.m_type;
                 if (index < 0 || index >= errorTypeStrings.size())
                     index = 0;
-                retval.append(messageTemplate.arg(errorTypeStrings[index], e.m_message));
+                retval.append(errorTypeStrings[index].arg(e.m_message) + "\n");
             }
         }
     }
@@ -860,7 +860,10 @@ R"(
                 ExpandingSpacer {}
             }
 )";
-        s += animSec.arg(tr("Animation"), tr("Running"), tr("Set this property to animate the effect."));
+        s += animSec.arg(
+            Tr::tr("Animation"),
+            Tr::tr("Running"),
+            Tr::tr("Set this property to animate the effect."));
 
         if (m_shaderFeatures.enabled(ShaderFeatures::Time)) {
             QString timeProp =
@@ -884,7 +887,10 @@ R"(
                 ExpandingSpacer {}
             }
 )";
-            s += timeProp.arg(tr("Time"), tr("This property allows explicit control of current animation time when Running property is false."));
+            s += timeProp.arg(
+                Tr::tr("Time"),
+                Tr::tr("This property allows explicit control of current animation time when "
+                       "Running property is false."));
         }
 
         if (m_shaderFeatures.enabled(ShaderFeatures::Frame)) {
@@ -909,7 +915,10 @@ R"(
                 ExpandingSpacer {}
             }
 )";
-            s += frameProp.arg(tr("Frame"), tr("This property allows explicit control of current animation frame when Running property is false."));
+            s += frameProp.arg(
+                Tr::tr("Frame"),
+                Tr::tr("This property allows explicit control of current animation frame when "
+                       "Running property is false."));
         }
 
         s += "        }\n";
@@ -945,8 +954,11 @@ R"(
         }
     }
 )";
-        s += generalSection.arg(tr("General"), tr("Extra Margin"),
-                                tr("This property specifies how much of extra space is reserved for the effect outside the parent geometry."));
+        s += generalSection.arg(
+            Tr::tr("General"),
+            Tr::tr("Extra Margin"),
+            Tr::tr("This property specifies how much of extra space is reserved for the effect "
+                   "outside the parent geometry."));
     }
 
     for (const auto &node : std::as_const(m_nodes)) {

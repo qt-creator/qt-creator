@@ -3,6 +3,7 @@
 
 #include "effectcodeeditorwidget.h"
 
+#include "effectcomposertr.h"
 #include "effectsautocomplete.h"
 #include "syntaxhighlighter.h"
 
@@ -49,14 +50,12 @@ EffectCodeEditorWidget::EffectCodeEditorWidget()
      * We have to register our own active auto completion shortcut, because the original shortcut will
      * use the cursor position of the original editor in the editor manager.
      */
-    m_completionAction = new QAction(tr("Trigger Completion"), this);
+    m_completionAction = new QAction(Tr::tr("Trigger Completion"), this);
 
     Core::Command *command = Core::ActionManager::registerAction(
                 m_completionAction, TextEditor::Constants::COMPLETE_THIS, context);
-    command->setDefaultKeySequence(QKeySequence(
-                                       Core::useMacShortcuts
-                                       ? tr("Meta+Space")
-                                       : tr("Ctrl+Space")));
+    command->setDefaultKeySequence(
+        QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+Space") : Tr::tr("Ctrl+Space")));
 
     connect(m_completionAction, &QAction::triggered, this, [this] {
         invokeAssist(TextEditor::Completion);
@@ -149,7 +148,7 @@ void EffectDocument::triggerPendingUpdates()
 EffectCodeEditorFactory::EffectCodeEditorFactory()
 {
     setId(EFFECTEDITOR_CONTEXT_ID);
-    setDisplayName(::Core::Tr::tr("Effect Code Editor"));
+    setDisplayName(Tr::tr("Effect Code Editor"));
     addMimeType(EFFECTEDITOR_CONTEXT_ID);
     addMimeType(Utils::Constants::QML_MIMETYPE);
     addMimeType(Utils::Constants::QMLTYPES_MIMETYPE);

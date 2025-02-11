@@ -4,6 +4,7 @@
 #include "effectcomposereditablenodesmodel.h"
 
 #include "effectcomposermodel.h"
+#include "effectcomposertr.h"
 
 namespace EffectComposer {
 
@@ -140,7 +141,7 @@ void EffectComposerEditableNodesModel::reload()
 
     const int mainIdx = m_sourceModel->mainCodeEditorIndex();
 
-    m_data.append(Item{tr("Main"), mainIdx});
+    m_data.append(Item{Tr::tr("Main"), mainIdx});
     m_sourceToItemMap.insert(mainIdx, 0);
     const int sourceSize = m_sourceModel->rowCount();
     for (int i = 0; i < sourceSize; ++i) {

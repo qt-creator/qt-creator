@@ -5,6 +5,7 @@
 
 #include "effectcomposermodel.h"
 #include "effectcomposernodesmodel.h"
+#include "effectcomposertr.h"
 #include "effectcomposerwidget.h"
 #include "listmodelwidthcalculator.h"
 #include "studioquickwidget.h"
@@ -120,10 +121,11 @@ QmlDesigner::WidgetInfo EffectComposerView::widgetInfo()
         });
     }
 
-    return createWidgetInfo(m_widget.data(),
-                            "EffectComposer",
-                            QmlDesigner::WidgetInfo::LeftPane,
-                            tr("Effect Composer [beta]"));
+    return createWidgetInfo(
+        m_widget.data(),
+        "EffectComposer",
+        QmlDesigner::WidgetInfo::LeftPane,
+        Tr::tr("Effect Composer [beta]"));
 }
 
 void EffectComposerView::customNotification([[maybe_unused]] const AbstractView *view,
