@@ -205,10 +205,10 @@ QVariant QmlProfilerStatisticsModel::dataForMainEntry(const QModelIndex &index, 
     case SortRole:
         switch (index.column()) {
         case MainTimeInPercent:
-            return 100;
+            return double(100);
         case MainSelfTimeInPercent:
         case MainSelfTime:
-            return 0;
+            return double(0);
         case MainTotalTime:
         case MainTimePerCall:
         case MainMedianTime:
