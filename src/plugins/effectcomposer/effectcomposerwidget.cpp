@@ -6,6 +6,7 @@
 #include "effectcomposercontextobject.h"
 #include "effectcomposermodel.h"
 #include "effectcomposernodesmodel.h"
+#include "effectcomposertr.h"
 #include "effectcomposerview.h"
 #include "effectutils.h"
 #include "propertyhandler.h"
@@ -76,7 +77,7 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
     , m_effectComposerView(view)
     , m_quickWidget{new StudioQuickWidget(this)}
 {
-    setWindowTitle(tr("Effect Composer", "Title of effect composer widget"));
+    setWindowTitle(Tr::tr("Effect Composer", "Title of effect composer widget"));
     setMinimumWidth(400);
 
     // create the inner widget

@@ -5,6 +5,7 @@
 
 #include "effectcomposereditablenodesmodel.h"
 #include "effectcomposermodel.h"
+#include "effectcomposertr.h"
 #include "effectcomposeruniformsmodel.h"
 #include "effectcomposeruniformstablemodel.h"
 #include "effectcomposerwidget.h"
@@ -271,7 +272,7 @@ void EffectShadersCodeEditor::insertTextToCursorPosition(const QString &text)
 EffectShadersCodeEditor *EffectShadersCodeEditor::instance()
 {
     static EffectShadersCodeEditor *editorInstance
-        = new EffectShadersCodeEditor(tr("Shaders Code Editor"), Core::ICore::dialogParent());
+        = new EffectShadersCodeEditor(Tr::tr("Shaders Code Editor"), Core::ICore::dialogParent());
     return editorInstance;
 }
 
