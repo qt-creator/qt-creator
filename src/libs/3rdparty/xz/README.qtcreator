@@ -1,0 +1,4 @@
+This directory contains a stripped down version of `https://github.com/tukaani-project/xz` with the following modifications:
+
+* Branch v5.6 was checked out (6084b25c29ce50a5ec86daa1bb0bcb5e9afb5c32 which is a CMake build system fix directly after v5.6.3)
+* All unnecessary files have been removed.

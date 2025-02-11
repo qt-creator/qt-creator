@@ -647,6 +647,20 @@
         "Copyright": "Copyright (C) 1995-2024 Jean-loup Gailly and Mark Adler"
     },
     {
+        "Id": "xz",
+        "Name": "xz",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used by libarchive to support compress and uncompress operations.",
+        "Path": "src/libs/3rdparty/xz",
+        "Description": "XZ is a lossless data-compression library.",
+        "Homepage": "https://tukaani.org/xz/",
+        "Version": "5.6.3",
+        "License": "BSD Zero Clause License (0BSD)",
+        "LicenseFile": "src/libs/3rdparty/xz/COPYING",
+        "Copyright": "Copyright (C) The XZ Utils authors and contributors"
+    },
+    {
         "Id": "libarchive",
         "Name": "libarchive",
         "QDocModule": "qtcreator",

@@ -11,5 +11,7 @@ if(WIN32)
     add_subdirectory(winpty)
 endif()
 
+add_subdirectory(xz)
+
 set(ENABLE_WERROR OFF)
 add_subdirectory(libarchive)
