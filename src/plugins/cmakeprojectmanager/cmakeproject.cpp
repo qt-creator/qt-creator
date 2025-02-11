@@ -356,15 +356,6 @@ FilePath CMakeProject::buildDirectoryToImport() const
     return m_buildDirToImport;
 }
 
-bool CMakeProject::setupTarget(Target *t)
-{
-    t->updateDefaultBuildConfigurations();
-    if (t->buildConfigurations().isEmpty())
-        return false;
-    t->updateDefaultDeployConfigurations();
-    return true;
-}
-
 ProjectExplorer::DeploymentKnowledge CMakeProject::deploymentKnowledge() const
 {
     return !files([](const ProjectExplorer::Node *n) {

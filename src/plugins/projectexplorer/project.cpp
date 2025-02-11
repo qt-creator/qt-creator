@@ -294,10 +294,7 @@ Target *Project::addTargetForKit(Kit *kit)
 
     auto t = std::make_unique<Target>(this, kit, Target::_constructor_tag{});
     Target *pointer = t.get();
-
-    if (!setupTarget(pointer))
-        return {};
-
+    QTC_ASSERT(setupTarget(pointer), return {});
     addTarget(std::move(t));
 
     return pointer;
@@ -658,6 +655,7 @@ bool Project::copySteps(const Utils::Store &store, Kit *targetKit)
 bool Project::setupTarget(Target *t)
 {
     t->updateDefaultBuildConfigurations();
+    QTC_ASSERT(!t->buildConfigurations().isEmpty(), return false);
     t->updateDefaultDeployConfigurations();
     t->updateDefaultRunConfigurations();
     return true;

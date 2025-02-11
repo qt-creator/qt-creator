@@ -38,9 +38,6 @@ public:
 
     Internal::CMakeSpecificSettings &settings();
 
-protected:
-    bool setupTarget(ProjectExplorer::Target *t) final;
-
 private:
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
     void configureAsExampleProject(ProjectExplorer::Kit *kit) override;
