@@ -1,0 +1,113 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject" ],
+    "id": "U.QtQuickXRApplicationEmpty",
+    "category": "H.Project",
+    "trDescription": "Creates a Qt Quick 3D XR application with QML and C++ code. You can build and deploy the application to desktop VR and standalone XR platforms. For the Apple Vision Pro, you can develop in Qt Creator but must deploy the CMake project with XCode.",
+    "trDisplayName": "XR Application",
+    "trDisplayCategory": "Application (Qt)",
+    "icon": "icon.png",
+    "iconKind": "Themed",
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQt.6.8" ],
+    "enabled": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0 }",
+
+    "options":
+    [
+        { "key": "ProjectFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
+        { "key": "MainCppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src') }" },
+        { "key": "TargetName", "value": "%{JS: 'app' + value('ProjectName') }" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project"
+        },
+        {
+            "trDisplayName": "XR Features",
+            "trShortTitle": "Features",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "Passthrough",
+            "trDisplayName": "Request passthrough",
+                    "type": "CheckBox",
+                    "trToolTip": "Request permissions for passthrough mode.",
+                    "data": {
+                        "checked": true
+            }
+                },
+                {
+                    "name": "Hands",
+            "trDisplayName": "Request hand tracking",
+                    "type": "CheckBox",
+                    "trToolTip": "Request permissions for hand tracking.",
+                    "data": {
+                        "checked": true
+            }
+                },
+                {
+                    "name": "Anchors",
+            "trDisplayName": "Request spatial anchors",
+                    "type": "CheckBox",
+                    "trToolTip": "Request permissions for anchors API.",
+                    "data": {
+                        "checked": true
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Kit Selection: For Apple Vision Pro, select any kit.",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "enabled": "%{JS: !value('IsSubproject')}",
+            "data": {
+                "projectFilePath": "%{ProjectFile}"
+            }
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "CMakeLists.txt",
+                    "openAsProject": true
+                },
+                {
+                    "source": "main.cpp",
+                    "target": "%{MainCppFileName}"
+                },
+                {
+                    "source": "Main.qml.tpl",
+                    "target": "Main.qml",
+                    "openInEditor": true
+                },
+                {
+                    "source": "../git.ignore",
+                    "target": ".gitignore",
+                    "condition": "%{JS: !value('IsSubproject') && value('VersionControl') === 'G.Git' }"
+                },
+                {
+                    "source": "AndroidManifest.xml.tpl",
+                    "target": "android/AndroidManifest.xml"
+                },
+                                {
+                    "source": "MacOSXBundleInfo.plist.in",
+                    "target": "visionos/MacOSXBundleInfo.plist.in"
+                }
+            ]
+        }
+    ]
+}
