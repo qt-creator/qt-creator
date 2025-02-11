@@ -6,6 +6,8 @@
 
 #include <designsystem/dsconstants.h>
 #include <designsystem/dsthememanager.h>
+#include <qmldesignerutils/memory.h>
+
 #include <QQmlEngine>
 
 namespace QmlDesigner {
@@ -74,8 +76,8 @@ QStringList DesignSystemInterface::collections() const
 CollectionModel *DesignSystemInterface::createModel(const QString &typeName, DSThemeManager *collection)
 {
     auto [newItr, success] = m_models.try_emplace(typeName,
-                                                  std::make_unique<CollectionModel>(collection,
-                                                                                    m_store));
+                                                  makeLazyUniquePtr<CollectionModel>(collection,
+                                                                                     m_store));
     if (success) {
         // Otherwise the model will be deleted by the QML engine.
         QQmlEngine::setObjectOwnership(newItr->second.get(), QQmlEngine::CppOwnership);

@@ -263,9 +263,7 @@ void DSThemeManager::decorateThemeInterface(ModelNode rootNode) const
 
 DSThemeGroup *DSThemeManager::propertyGroup(GroupType type)
 {
-    auto itr = m_groups.find(type);
-    if (itr == m_groups.end())
-        itr = m_groups.try_emplace(type, std::make_unique<DSThemeGroup>(type)).first;
+    auto itr = m_groups.try_emplace(type, makeLazySharedPtr<DSThemeGroup>(type)).first;
 
     return itr->second.get();
 }
