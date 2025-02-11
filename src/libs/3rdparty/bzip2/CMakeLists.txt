@@ -1,0 +1,15 @@
+add_qtc_library(qtcBZip2
+  STATIC
+  SKIP_AUTOMOC
+  SOURCES
+    bzlib.h
+    blocksort.c
+    huffman.c
+    crctable.c
+    randtable.c
+    compress.c
+    decompress.c
+    bzlib.c
+  PUBLIC_INCLUDES
+    .
+)

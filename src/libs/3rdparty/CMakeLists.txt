@@ -12,6 +12,7 @@ if(WIN32)
 endif()
 
 add_subdirectory(xz)
+add_subdirectory(bzip2)
 
 set(ENABLE_WERROR OFF)
 add_subdirectory(libarchive)

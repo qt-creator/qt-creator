@@ -647,6 +647,20 @@
         "Copyright": "Copyright (C) 1995-2024 Jean-loup Gailly and Mark Adler"
     },
     {
+        "Id": "bzip2",
+        "Name": "bzip2",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used by libarchive to support compress and uncompress operations.",
+        "Path": "src/libs/3rdparty/bzip2",
+        "Description": "BZip2 is a lossless data-compression library.",
+        "Homepage": "https://sourceware.org/bzip2/",
+        "Version": "1.0.8",
+        "License": "bzip2 and libbzip2 License v1.0.6",
+        "LicenseFile": "src/libs/3rdparty/bzip2/LICENSE",
+        "Copyright": "copyright (C) 1996-2019 Julian R Seward."
+    },
+    {
         "Id": "xz",
         "Name": "xz",
         "QDocModule": "qtcreator",
