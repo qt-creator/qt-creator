@@ -7,7 +7,7 @@
 #include "qmljseditorplugin.h"
 #include "qmljseditortr.h"
 #include "qmljshighlighter.h"
-#include "qmljsquickfixassist.h"
+#include "qmljsquickfixassist.h" // required to resolve type of Internal::quickFixAssistProvider()
 #include "qmljssemantichighlighter.h"
 #include "qmljssemanticinfoupdater.h"
 #include "qmljstextmark.h"
@@ -22,6 +22,8 @@
 #include <qmljstools/qmljsindenter.h>
 #include <qmljstools/qmljsmodelmanager.h>
 #include <qmljstools/qmljsqtstylecodeformatter.h>
+
+#include <qmljs/parser/qmljsast_p.h>
 
 #include <utils/fileutils.h>
 #include <utils/infobar.h>

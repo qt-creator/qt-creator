@@ -13,7 +13,6 @@
 #include "qmltaskmanager.h"
 
 #include <qmljs/jsoncheck.h>
-#include <qmljs/qmljsicons.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsreformatter.h>
 
@@ -369,7 +368,6 @@ class QmlJSEditorPlugin final : public ExtensionSystem::IPlugin
 
     ~QmlJSEditorPlugin() final
     {
-        delete QmlJS::Icons::instance(); // delete object held by singleton
         delete dd;
         dd = nullptr;
     }
