@@ -22,58 +22,43 @@ using namespace TextEditor;
 
 namespace Nim {
 
-class NimCodeStyleEditor final : public TextEditor::CodeStyleEditor
+class NimCodeStyleEditor final : public CodeStyleEditor
 {
 public:
     static NimCodeStyleEditor *create(
-        const TextEditor::ICodeStylePreferencesFactory *factory,
+        const ICodeStylePreferencesFactory *factory,
         const ProjectWrapper &project,
-        TextEditor::ICodeStylePreferences *codeStyle,
-        QWidget *parent = nullptr);
+        ICodeStylePreferences *codeStyle,
+        QWidget *parent )
+    {
+        auto editor = new NimCodeStyleEditor{parent};
+        editor->init(factory, project, codeStyle);
+        return editor;
+    }
 
 private:
-    NimCodeStyleEditor(QWidget *parent = nullptr);
+    NimCodeStyleEditor(QWidget *parent)
+        : CodeStyleEditor{parent}
+    {}
 
     CodeStyleEditorWidget *createEditorWidget(
         const void * /*project*/,
-        TextEditor::ICodeStylePreferences *codeStyle,
-        QWidget *parent = nullptr) const override;
-    QString previewText() const override;
-    QString snippetProviderGroupId() const override;
+        ICodeStylePreferences *codeStyle,
+        QWidget *parent) const final
+    {
+        return new NimCodeStylePreferencesWidget(codeStyle, parent);
+    }
+
+    QString previewText() const final
+    {
+        return Constants::C_NIMCODESTYLEPREVIEWSNIPPET;
+    }
+
+    QString snippetProviderGroupId() const final
+    {
+        return Constants::C_NIMSNIPPETSGROUP_ID;
+    }
 };
-
-NimCodeStyleEditor *NimCodeStyleEditor::create(
-    const ICodeStylePreferencesFactory *factory,
-    const ProjectWrapper &project,
-    ICodeStylePreferences *codeStyle,
-    QWidget *parent)
-{
-    auto editor = new NimCodeStyleEditor{parent};
-    editor->init(factory, project, codeStyle);
-    return editor;
-}
-
-NimCodeStyleEditor::NimCodeStyleEditor(QWidget *parent)
-    : CodeStyleEditor{parent}
-{}
-
-CodeStyleEditorWidget *NimCodeStyleEditor::createEditorWidget(
-    const void * /*project*/,
-    ICodeStylePreferences *codeStyle,
-    QWidget *parent) const
-{
-    return new NimCodeStylePreferencesWidget(codeStyle, parent);
-}
-
-QString NimCodeStyleEditor::previewText() const
-{
-    return Constants::C_NIMCODESTYLEPREVIEWSNIPPET;
-}
-
-QString NimCodeStyleEditor::snippetProviderGroupId() const
-{
-    return Constants::C_NIMSNIPPETSGROUP_ID;
-}
 
 // NimCodeStylePreferencesFactory
 

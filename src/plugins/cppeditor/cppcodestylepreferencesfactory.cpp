@@ -16,73 +16,57 @@
 #include <texteditor/indenter.h>
 
 #include <QLayout>
-#include <QTextDocument>
 
 using namespace TextEditor;
 
 namespace CppEditor {
 
-class CppCodeStyleEditor final : public TextEditor::CodeStyleEditor
+class CppCodeStyleEditor final : public CodeStyleEditor
 {
 public:
     static CppCodeStyleEditor *create(
-        const TextEditor::ICodeStylePreferencesFactory *factory,
+        const ICodeStylePreferencesFactory *factory,
         ProjectExplorer::Project *project,
-        TextEditor::ICodeStylePreferences *codeStyle,
-        QWidget *parent = nullptr);
+        ICodeStylePreferences *codeStyle,
+        QWidget *parent)
+    {
+        auto editor = new CppCodeStyleEditor{parent};
+        editor->init(factory, wrapProject(project), codeStyle);
+        return editor;
+    }
 
 private:
-    CppCodeStyleEditor(QWidget *parent = nullptr);
+    CppCodeStyleEditor(QWidget *parent)
+        : CodeStyleEditor{parent}
+    {}
 
     CodeStyleEditorWidget *createEditorWidget(
         const void * /*project*/,
-        TextEditor::ICodeStylePreferences *codeStyle,
-        QWidget *parent = nullptr) const override;
-    QString previewText() const override;
-    QString snippetProviderGroupId() const override;
+        ICodeStylePreferences *codeStyle,
+        QWidget *parent) const final
+    {
+        auto cppPreferences = dynamic_cast<CppCodeStylePreferences *>(codeStyle);
+        if (cppPreferences == nullptr)
+            return nullptr;
+
+        auto widget = new CppCodeStylePreferencesWidget(parent);
+
+        widget->layout()->setContentsMargins(0, 0, 0, 0);
+        widget->setCodeStyle(cppPreferences);
+
+        return widget;
+    }
+
+    QString previewText() const final
+    {
+        return QString::fromLatin1(Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]);
+    }
+
+    QString snippetProviderGroupId() const final
+    {
+        return CppEditor::Constants::CPP_SNIPPETS_GROUP_ID;
+    }
 };
-
-CppCodeStyleEditor *CppCodeStyleEditor::create(
-    const TextEditor::ICodeStylePreferencesFactory *factory,
-    ProjectExplorer::Project *project,
-    TextEditor::ICodeStylePreferences *codeStyle,
-    QWidget *parent)
-{
-    auto editor = new CppCodeStyleEditor{parent};
-    editor->init(factory, wrapProject(project), codeStyle);
-    return editor;
-}
-
-CppCodeStyleEditor::CppCodeStyleEditor(QWidget *parent)
-    : CodeStyleEditor{parent}
-{}
-
-TextEditor::CodeStyleEditorWidget *CppCodeStyleEditor::createEditorWidget(
-    const void * /*project*/,
-    TextEditor::ICodeStylePreferences *codeStyle,
-    QWidget *parent) const
-{
-    auto cppPreferences = dynamic_cast<CppCodeStylePreferences *>(codeStyle);
-    if (cppPreferences == nullptr)
-        return nullptr;
-
-    auto widget = new CppCodeStylePreferencesWidget(parent);
-
-    widget->layout()->setContentsMargins(0, 0, 0, 0);
-    widget->setCodeStyle(cppPreferences);
-
-    return widget;
-}
-
-QString CppCodeStyleEditor::previewText() const
-{
-    return QString::fromLatin1(Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]);
-}
-
-QString CppCodeStyleEditor::snippetProviderGroupId() const
-{
-    return CppEditor::Constants::CPP_SNIPPETS_GROUP_ID;
-}
 
 // CppCodeStylePreferencesFactory
 

@@ -11,70 +11,52 @@
 #include "qmljstoolstr.h"
 
 #include <projectexplorer/project.h>
+
 #include <texteditor/codestyleeditor.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/indenter.h>
-#include <utils/id.h>
 
-#include <QString>
-#include <QTextDocument>
-#include <QWidget>
+#include <utils/id.h>
 
 using namespace TextEditor;
 
 namespace QmlJSTools {
 
-class QmlJsCodeStyleEditor final : public TextEditor::CodeStyleEditor
+class QmlJsCodeStyleEditor final : public CodeStyleEditor
 {
 public:
     static QmlJsCodeStyleEditor *create(
-        const TextEditor::ICodeStylePreferencesFactory *factory,
+        const ICodeStylePreferencesFactory *factory,
         ProjectExplorer::Project *project,
-        TextEditor::ICodeStylePreferences *codeStyle,
-        QWidget *parent = nullptr);
+        ICodeStylePreferences *codeStyle,
+        QWidget *parent)
+    {
+        auto editor = new QmlJsCodeStyleEditor{parent};
+        editor->init(factory, wrapProject(project), codeStyle);
+        return editor;
+    }
 
 private:
-    QmlJsCodeStyleEditor(QWidget *parent = nullptr);
+    QmlJsCodeStyleEditor(QWidget *parent)
+        : CodeStyleEditor{parent}
+    {}
 
     CodeStyleEditorWidget *createEditorWidget(
         const void * /*project*/,
-        TextEditor::ICodeStylePreferences *codeStyle,
-        QWidget *parent = nullptr) const override;
-    QString previewText() const override;
-    QString snippetProviderGroupId() const override;
-};
+        ICodeStylePreferences *codeStyle,
+        QWidget *parent) const final
+    {
+        auto qmlJSPreferences = dynamic_cast<QmlJSCodeStylePreferences *>(codeStyle);
+        if (qmlJSPreferences == nullptr)
+            return nullptr;
+        auto widget = new Internal::QmlJSCodeStylePreferencesWidget(previewText(), parent);
+        widget->setPreferences(qmlJSPreferences);
+        return widget;
+    }
 
-QmlJsCodeStyleEditor *QmlJsCodeStyleEditor::create(
-    const TextEditor::ICodeStylePreferencesFactory *factory,
-    ProjectExplorer::Project *project,
-    TextEditor::ICodeStylePreferences *codeStyle,
-    QWidget *parent)
-{
-    auto editor = new QmlJsCodeStyleEditor{parent};
-    editor->init(factory, wrapProject(project), codeStyle);
-    return editor;
-}
-
-QmlJsCodeStyleEditor::QmlJsCodeStyleEditor(QWidget *parent)
-    : CodeStyleEditor{parent}
-{}
-
-TextEditor::CodeStyleEditorWidget *QmlJsCodeStyleEditor::createEditorWidget(
-    const void * /*project*/,
-    TextEditor::ICodeStylePreferences *codeStyle,
-    QWidget *parent) const
-{
-    auto qmlJSPreferences = dynamic_cast<QmlJSCodeStylePreferences *>(codeStyle);
-    if (qmlJSPreferences == nullptr)
-        return nullptr;
-    auto widget = new Internal::QmlJSCodeStylePreferencesWidget(previewText(), parent);
-    widget->setPreferences(qmlJSPreferences);
-    return widget;
-}
-
-QString QmlJsCodeStyleEditor::previewText() const
-{
-    static const QString defaultPreviewText = R"(import QtQuick 1.0
+    QString previewText() const final
+    {
+        static const QString defaultPreviewText = R"(import QtQuick 1.0
 
 Rectangle {
     width: 360
@@ -91,13 +73,15 @@ Rectangle {
     }
 })";
 
-    return defaultPreviewText;
-}
+        return defaultPreviewText;
+    }
 
-QString QmlJsCodeStyleEditor::snippetProviderGroupId() const
-{
-    return QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID;
-}
+    QString snippetProviderGroupId() const final
+    {
+        return QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID;
+    }
+};
+
 
 // QmlJSCodeStylePreferencesFactory
 
