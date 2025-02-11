@@ -14,8 +14,8 @@
 
     \QDS enables designers and developers to work together on common
     projects to develop applications. Designers use the \l{Design views}{views}
-    in the \uicontrol Design mode to modify \l{UI files} (\e .ui.qml),
-    whereas developers use Qt Creator to work on the Qt Quick (\e .qml) and
+    in the \uicontrol Design mode to modify \l{UI files} (\c .ui.qml),
+    whereas developers use Qt Creator to work on the Qt Quick (\c .qml) and
     other files that are needed to implement the application logic and to
     prepare the application for production.
 
@@ -23,13 +23,13 @@
     working Qt 6 application that you can build and run in Qt Creator using
     CMake. Therefore, you can open, build, and run the projects with Qt Creator.
 
-    \QDS continues to use the \e .qmlproject file format, while Qt Creator uses a
-    \e CMakeLists.txt file as the project file. This enables you to share
+    \QDS continues to use the \c .qmlproject file format, while Qt Creator uses a
+    \c CMakeLists.txt file as the project file. This enables you to share
     your project as a fully working C++ application with developers.
 
     You can also enable \QDS projects for Python development. When enabled,
     \QDS creates a Python folder within the project folder with the file
-    \e {main.py}. Use this file to start the development in Python for the UI
+    \c {main.py}. Use this file to start the development in Python for the UI
     made with \QDS.
 
     \section1 Exporting a \QDS project for C++ development
@@ -52,7 +52,7 @@
 
             \li Go to \uicontrol {File} > \uicontrol {Export Project}
                 > \uicontrol {Enable CMake Generator}. This creates a
-                \e {CMakeLists.txt} file in your project folder.
+                \c {CMakeLists.txt} file in your project folder.
 
                 \note Enabling this option tracks the changes made to the project in \QDS
                     and automatically updates in Qt Creator. The connection works unless you
@@ -63,11 +63,11 @@
 
     \section1 Opening the \QDS project in Qt Creator
 
-        Open the \e {CMakeLists.txt} file in Qt Creator:
+        Open the \c {CMakeLists.txt} file in Qt Creator:
 
         \list 1
             \li In Qt Creator, select \uicontrol File > \uicontrol {Open File or Project}.
-            \li Browse through your project directory and select the \e {CMakeLists.txt}.
+            \li Browse through your project directory and select \c {CMakeLists.txt}.
                 Then select \uicontrol Open.
 
                 \image studio-project-cmake-generation.webp "Project folder after CMake generation"
@@ -85,7 +85,7 @@
         \endlist
 
         \note \QDS 4.4 and earlier versions have a project structure where
-        different explicit import paths such as \e imports or \e asset_imports
+        different explicit import paths such as \c imports or \c asset_imports
         reference assets such as images or mesh files separately in their own
         scope. So, linking them from one module to another does not work in the
         generated CMake-based C++ application. Such cross-modular references are
@@ -93,30 +93,27 @@
         All the import assets are now bundled in the same folder, so the CMake
         generation works properly.
 
-    \section1 CMake Generator
-        \details {FAQ}
+    \section1 Learn more about the CMake Generator
 
-        Learn how the CMake generator works.
-
-        \section2 What does the CMake Generator convert?
-            The CMake Generator converts the contents of the \e .qmlproject file
+        \section2 Converted contents of the CMake Generator
+            The CMake Generator converts the contents of the \c .qmlproject file
             to CMake.
             \note A \QDS project can run with a missing path or file filter.
                 However, CMake generation can fail due to missing elements in the
-                \e .qmlproject file.
+                \c .qmlproject file.
 
-        \section2 Which changes are tracked by the CMake Generator?
-            All the files that are listed in \e .qmlproject are tracked by the
-            CMake Generator. Editing the \e .qmlproject file triggers a CMake
+        \section2 Changes tracked by the CMake Generator
+            All the files that are listed in \c .qmlproject are tracked by the
+            CMake Generator. Editing the \c .qmlproject file triggers a CMake
             generation. Adding, removing, and renaming files are tracked.
 
-        \section2 Why do you need Stubb or Mock QML data for \QDS?
+        \section2 Stubb or mock QML data for \QDS
             \QDS doesn't understand C++ code, so the CMake Generator ignores any
             components or properties made with C++. If you want a similar
             representation in \QDS for the components or properties created with
             C++, add a QML mock file for \QDS. Keep these mock files in a dedicated
             folder within your project folder. You can later add a \c mockImports
-            variable within the \e .qmlproject file and include the folder path
+            variable within the \c .qmlproject file and include the folder path
             with mock files in the \c mockImports variable. CMake ignores all folders
             and files included in the \c mockImports variable. So they only stay in the
             \QDS space and are not converted with CMake Generator.
@@ -126,17 +123,101 @@
                 mockImports: [ "MockDatas" ]
             \endcode
             Here, MockDatas is a folder in your project folder with all the files
-            with QML mock data. If you include this code in the \e .qmlproject file,
+            with QML mock data. If you include this code in the \c .qmlproject file,
             the CMake Generator ignores everything inside the MockDatas folder.
 
-        \section2 Is it possible to manually change the contents of the \e CMakeLists.txt files?
-            Yes, you can make changes to the \e CMakeLists.txt files existing in the
-            App and the Root folders of your project. The \e CMakeLists.txt files
+        \section2 Manually changing the contents of the \c CMakeLists.txt files
+            You can change the \c CMakeLists.txt files existing in the
+            App and the Root folders of your project. The \c CMakeLists.txt files
             in other folders of your project are overwritten as soon as the
-            CMake generator runs next time. Only the \e CMakeLists.txt files in
+            CMake generator runs next time. Only the \c CMakeLists.txt files in
             the App and the Root folders of your project are not overwritten.
 
-    \enddetails
+        \section2 Changes in the project structure since \QDS 4.5
+            \QDS project structure has been changed since \QDS 4.5. Now, there is
+            only a common import path (./) at the root of the project. This makes
+            the project in line with the QML compiler and tooling. Learn more about
+            the \l {Qt Quick Compiler} {QML compiler}.
+
+            Find the difference between the project structures from the table below:
+
+            \table
+                \header
+                    \li Project structure before \QDS 4.5
+                    \li Project structure since \QDS 4.5
+                \row
+                    \li Two import folders: \c imports and \c assets_imports.
+                    \li Imports directly to the root project folder.
+                \row
+                    \li 2D assets imported to \c assets imports.
+                    \li 2D assets imported to \c Generated.
+                \row
+                    \li 3D assets imported to \c assets_imports/QtQuick3DAssets.
+                    \li 3D assets imported to \c Generated/QtQuick3D.
+            \endtable
+
+        \section2 Converting a project to the current \QDS project structure
+
+            To convert the structure of a project created with a \QDS version
+            earlier than 4.5 to the current project structure:
+            \list 1
+                \li Move the project files from \c ./import/ProjectName to the
+                    \c ./ProjectName folder. If you have additional modules in
+                    \c {./import/}, move them similarly. You do not need to adjust the URI.
+                \li Move the project files from \c ./assets_imports to the
+                    \c ./Generated folder. Adjust the import URIs throughout the project.
+                \li Rename \c ./content to \c ./ProjectNameContent.
+                    Adjust the import URIs throughout the project.
+                \li Make sure that URIs in \c qmldir files match the folder structure.
+                    \note  A qmldir defined in \c ./Generated/QtQuick3D/DangerArrow/qmldir
+                        should be defined as \c {module Generated.QtQuick3D.DangerArrow}.
+                        This ensures the same URIs between \QDS and the generated
+                        \c CMakeLists files. Ensure that \c import in \c .qml files
+                        matches these URIs.
+                \li Add missing filters to the \c .qmlproject file.
+                    \list
+                        \li If a folder contains \c QML and \c JavaScript files, define
+                            \c QMLFiles and \c JavaScriptFiles in the \c .qmlproject file.
+                        \li For the files that don't have dedicated keywords, such as
+                            \c ImageFiles or \c FontFiles, add them to the
+                            \c .qmlproject as a filter. To add \c WAV or \c MP3 files,
+                            define filters in the \c .qmlproject file like this:
+                            \code
+                                Files {
+                                    filter: "*.wav;*.mp3"
+                                }
+                            \endcode
+                            To learn more about the defined file formats, see
+                            \l {https://doc.qt.io/archives/QtForMCUs-2.5/qtul-qmlproject-reference.html#imagefiles} {here}.
+                    \endlist
+                \li Remove all the \c CMakeLists.txt files. The \e CMakeLists.txt files are
+                    automatically generated when you access CMake generation using
+                    \uicontrol File > \uicontrol {Export Project} >
+                    \uicontrol {Enable CMake Generator}.
+                \li In the \c examples/dataImports/DataModels/ folder, update the
+                    \c ExamplesModel.qml and \c ExamplesModelV2.qml files to reflect
+                    \c qmlFileName correctly after a successful CMake generation.
+                \li If the project uses shaders, add the following snippet to the
+                    \c .qmlproject file:
+                    \code
+                        ShaderTool {
+                            args: "-s --glsl \"100 es,120,150\" --hlsl 50 --msl 12"
+                            files: [ "UntitledProject3DContent/shaders/*" ]
+                        }
+                    \endcode
+            \endlist
+
+        \section2 Importing Qt Quick Designer Components with CMake Generator
+            Some Qt Quick components, such as \uicontrol {Pie}, \uicontrol {Regular Polygon},
+            \uicontrol Star, and others are exclucive to \QDS. For more information, see
+            \l {https://doc.qt.io/qtquickstudiocomponents/qtquickstudio-components-index.html}{here}.
+            These components get bundled within the \c Dependencies
+            folder after the CMake generation.
+            In the previous versions of \QDS, you had to manually include these components
+            from a \l {https://github.com/qt-labs/qtquickdesigner-components}{git repository}
+            after the CMake generation.
+
+            \image studio-cmake-dependencies.webp "Dependencies folder having all the exclusive Qt Design Studio components after CMake generation"
 
     \section1 Exporting a \QDS project for Python development
 
@@ -150,10 +231,10 @@
             \li Go to \uicontrol {File} > \uicontrol {Export Project}
                 > \uicontrol {Enable Python Generator}. This creates a
                 Python folder in your project folder. You can find the
-                \e {main.py} file in the Python folder. This file is
+                \c {main.py} file in the Python folder. This file is
                 necessary for working in Python.
 
-                \note Do not modify the contents of the \e {autogen} folder inside
+                \note Do not modify the contents of the \c {autogen} folder inside
                     the Python folder manually; they are overwritten with each
                     change you make in the project.
 
@@ -162,7 +243,7 @@
 
     \section1 Opening the \QDS project with Python
 
-        After your project have the Python folder and the \e {main.py} file
+        After your project have the Python folder and the \c {main.py} file
         available, you can start setting up your Python environment for developing
         with \QDS projects.
 
@@ -196,13 +277,13 @@
                 \endcode
 
             \li Run the command below in the command prompt to open the
-                \e {main.py} file from your project.
+                \c {main.py} file from your project.
                 \code
                     python Python\main.py
                 \endcode
 
                 \note Any extra data or Python files you add to the project and,
-                    import from \e {main.py} must remain inside the \c {Python} folder.
+                    import from \c {main.py} must remain inside the \c {Python} folder.
         \endlist
 
         Your \QDS project now runs in Python. Use Python to add more
