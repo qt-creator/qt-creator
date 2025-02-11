@@ -153,7 +153,7 @@ public:
         wrapConcurrent(std::forward<Function>(function), std::forward<Args>(args)...);
     }
 
-    void setFutureSynchronizer(FutureSynchronizer *synchorizer) { m_synchronizer = synchorizer; }
+    void setFutureSynchronizer(FutureSynchronizer *synchronizer) { m_synchronizer = synchronizer; }
     void setThreadPool(QThreadPool *pool) { m_threadPool = pool; }
     void setPriority(QThread::Priority priority) { m_priority = priority; }
 
