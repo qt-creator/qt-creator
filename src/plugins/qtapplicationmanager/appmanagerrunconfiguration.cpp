@@ -36,7 +36,8 @@ public:
         setDefaultDisplayName(Tr::tr("Run an Application Manager Package"));
 
         setUpdater([this, target] {
-            QList<TargetInformation> tis = TargetInformation::readFromProject(target, buildKey());
+            QList<TargetInformation> tis
+                = TargetInformation::readFromProject(target->activeBuildConfiguration(), buildKey());
             if (tis.isEmpty())
                 return;
             const TargetInformation targetInformation = tis.at(0);
@@ -87,7 +88,8 @@ public:
 
     virtual bool supportsBuildKey(Target *target, const QString &key) const final
     {
-        QList<TargetInformation> tis = TargetInformation::readFromProject(target, key);
+        QList<TargetInformation> tis
+            = TargetInformation::readFromProject(target->activeBuildConfiguration(), key);
         return !tis.isEmpty();
     }
 
@@ -103,7 +105,7 @@ public:
                          target->project(), &Project::displayNameChanged,
                          Qt::UniqueConnection);
 
-        const auto buildTargets = TargetInformation::readFromProject(target);
+        const auto buildTargets = TargetInformation::readFromProject(target->activeBuildConfiguration());
         const auto filteredTargets = Utils::filtered(buildTargets, [this, target](const TargetInformation &ti) {
             return filterTarget(target, ti);
         });

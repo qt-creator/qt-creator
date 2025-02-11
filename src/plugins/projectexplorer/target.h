@@ -64,12 +64,6 @@ public:
 
     const QList<BuildConfiguration *> buildConfigurations() const;
     BuildConfiguration *activeBuildConfiguration() const;
-
-    // DeployConfiguration
-    void addDeployConfiguration(DeployConfiguration *dc);
-    bool removeDeployConfiguration(DeployConfiguration *dc);
-
-    const QList<DeployConfiguration *> deployConfigurations() const;
     DeployConfiguration *activeDeployConfiguration() const;
 
     // Running
@@ -100,7 +94,6 @@ public:
     Utils::MacroExpander *macroExpander() const;
 
     ProjectConfigurationModel *buildConfigurationModel() const;
-    ProjectConfigurationModel *deployConfigurationModel() const;
     ProjectConfigurationModel *runConfigurationModel() const;
 
     DeploymentData deploymentData() const;
@@ -110,7 +103,10 @@ public:
     QString activeBuildKey() const; // Build key of active run configuaration
 
     void setActiveBuildConfiguration(BuildConfiguration *bc, SetActive cascade);
-    void setActiveDeployConfiguration(DeployConfiguration *dc, SetActive cascade);
+
+    // Do not use, only for QtAM.
+    void setActiveDeployConfiguration(DeployConfiguration *dc);
+    QList<DeployConfiguration *> deployConfigurations() const;
 
 signals:
     void targetEnabled(bool);
@@ -153,7 +149,6 @@ private:
     void handleKitRemoval(ProjectExplorer::Kit *k);
 
     void setActiveBuildConfiguration(BuildConfiguration *configuration);
-    void setActiveDeployConfiguration(DeployConfiguration *configuration);
     const std::unique_ptr<TargetPrivate> d;
 
     friend class Project;

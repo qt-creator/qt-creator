@@ -17,7 +17,6 @@
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -72,7 +71,7 @@ AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, I
         if (customizeStep.value())
             return;
 
-        const TargetInformation targetInformation(target());
+        const TargetInformation targetInformation(buildConfiguration());
 
         IDeviceConstPtr device = RunDeviceKitAspect::device(kit());
         if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
@@ -97,7 +96,7 @@ AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, I
 
 GroupItem AppManagerInstallPackageStep::deployRecipe()
 {
-    const TargetInformation targetInformation(target());
+    const TargetInformation targetInformation(buildConfiguration());
 
     const FilePath controllerPath = controller().isEmpty() ?
                                         FilePath::fromString(controller.defaultValue()) :

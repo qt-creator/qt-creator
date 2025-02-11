@@ -11,7 +11,7 @@
 
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/processparameters.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
@@ -31,7 +31,7 @@ public:
         setExtraInit([] (BuildStep *step) {
             // We update the build targets when the active run configuration changes
             const auto updaterSlot = [step] {
-                const TargetInformation targetInformation(step->target());
+                const TargetInformation targetInformation(step->buildConfiguration());
                 step->setBuildTargets({targetInformation.cmakeBuildTarget});
                 step->setStepEnabled(!targetInformation.isBuiltin);
             };

@@ -13,7 +13,6 @@
 
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerruncontrol.h>
-#include <debugger/debuggerkitaspect.h>
 
 #include <perfprofiler/perfprofilerconstants.h>
 
@@ -28,13 +27,12 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcprocess.h>
-#include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -126,7 +124,7 @@ private:
     {
         Target *target = runControl()->target();
 
-        const Internal::TargetInformation targetInformation(target);
+        const Internal::TargetInformation targetInformation(target->activeBuildConfiguration());
         if (!targetInformation.isValid()) {
             reportFailure(Tr::tr("Cannot debug: Invalid target information."));
             return;

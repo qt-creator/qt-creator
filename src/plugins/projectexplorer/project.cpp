@@ -299,7 +299,6 @@ Target *Project::addTargetForKit(Kit *kit)
 
     t->updateDefaultBuildConfigurations();
     QTC_ASSERT(!t->buildConfigurations().isEmpty(), return nullptr);
-    t->updateDefaultDeployConfigurations();
     t->updateDefaultRunConfigurations();
 
     addTarget(std::move(t));
@@ -541,6 +540,7 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
     QStringList runconfigurationError;
 
     const Project * const project = newTarget->project();
+    int dcCount = 0;
     for (BuildConfiguration *sourceBc : sourceTarget->buildConfigurations()) {
         BuildConfiguration *newBc = sourceBc->clone(newTarget);
         if (!newBc) {
@@ -556,28 +556,29 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
         newTarget->addBuildConfiguration(newBc);
         if (sourceTarget->activeBuildConfiguration() == sourceBc)
             newTarget->setActiveBuildConfiguration(newBc, SetActive::NoCascade);
+
+        for (DeployConfiguration *sourceDc : sourceBc->deployConfigurations()) {
+            ++dcCount;
+            DeployConfiguration *newDc = DeployConfigurationFactory::clone(newBc, sourceDc);
+            if (!newDc) {
+                deployconfigurationError << sourceDc->displayName();
+                continue;
+            }
+            newDc->setDisplayName(sourceDc->displayName());
+            newBc->addDeployConfiguration(newDc);
+            if (sourceBc->activeDeployConfiguration() == sourceDc)
+                newBc->setActiveDeployConfiguration(newDc, SetActive::NoCascade);
+        }
+        if (!newTarget->activeDeployConfiguration()) {
+            QList<DeployConfiguration *> dcs = newBc->deployConfigurations();
+            if (!dcs.isEmpty())
+                newBc->setActiveDeployConfiguration(dcs.first(), SetActive::NoCascade);
+        }
     }
     if (!newTarget->activeBuildConfiguration()) {
         QList<BuildConfiguration *> bcs = newTarget->buildConfigurations();
         if (!bcs.isEmpty())
             newTarget->setActiveBuildConfiguration(bcs.first(), SetActive::NoCascade);
-    }
-
-    for (DeployConfiguration *sourceDc : sourceTarget->deployConfigurations()) {
-        DeployConfiguration *newDc = DeployConfigurationFactory::clone(newTarget, sourceDc);
-        if (!newDc) {
-            deployconfigurationError << sourceDc->displayName();
-            continue;
-        }
-        newDc->setDisplayName(sourceDc->displayName());
-        newTarget->addDeployConfiguration(newDc);
-        if (sourceTarget->activeDeployConfiguration() == sourceDc)
-            newTarget->setActiveDeployConfiguration(newDc, SetActive::NoCascade);
-    }
-    if (!newTarget->activeBuildConfiguration()) {
-        QList<DeployConfiguration *> dcs = newTarget->deployConfigurations();
-        if (!dcs.isEmpty())
-            newTarget->setActiveDeployConfiguration(dcs.first(), SetActive::NoCascade);
     }
 
     for (RunConfiguration *sourceRc : sourceTarget->runConfigurations()) {
@@ -600,7 +601,7 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
     if (buildconfigurationError.count() == sourceTarget->buildConfigurations().count())
         fatalError = true;
 
-    if (deployconfigurationError.count() == sourceTarget->deployConfigurations().count())
+    if (deployconfigurationError.count() == dcCount)
         fatalError = true;
 
     if (runconfigurationError.count() == sourceTarget->runConfigurations().count())
@@ -1134,7 +1135,6 @@ BuildConfiguration *Project::setup(const BuildInfo &info)
             t->addBuildConfiguration(bc);
     }
     if (newTarget) {
-        newTarget->updateDefaultDeployConfigurations();
         newTarget->updateDefaultRunConfigurations();
         addTarget(std::move(newTarget));
     }

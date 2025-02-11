@@ -7,36 +7,34 @@
 
 #include "appmanagerconstants.h"
 
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/environmentkitaspect.h>
-#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
-#include <utils/qtcassert.h>
-
-#include <qmakeprojectmanager/qmakeproject.h>
-
-#include <qtsupport/profilereader.h>
-
 #include <yaml-cpp/yaml.h>
 
 using namespace ProjectExplorer;
-using namespace QmakeProjectManager;
-using namespace QtSupport;
 using namespace Utils;
 
 namespace AppManager {
 namespace Internal {
 
-QList<TargetInformation> TargetInformation::readFromProject(const Target *target , const QString &buildKey)
+QList<TargetInformation> TargetInformation::readFromProject(
+    const BuildConfiguration *bc, const QString &buildKey)
 {
+    if (!bc)
+        return {};
+
     QList<TargetInformation> result;
-    if (!target->project()->rootProjectNode())
+    if (!bc->project()->rootProjectNode())
         return result;
 
-    QVariantList packageTargets = target->project()->extraData(AppManager::Constants::APPMAN_PACKAGE_TARGETS).toList();
+    QVariantList packageTargets = bc->project()->extraData(AppManager::Constants::APPMAN_PACKAGE_TARGETS).toList();
 //        qDebug() << "APPMAN TARGETS" << packageTargets;
 
     for (const auto &packageTarget : packageTargets) {
@@ -100,17 +98,17 @@ QList<TargetInformation> TargetInformation::readFromProject(const Target *target
     return result;
 }
 
-TargetInformation::TargetInformation(const Target *target)
+TargetInformation::TargetInformation(const BuildConfiguration *bc)
 {
-    if (!target)
+    if (!bc)
         return;
-    if (target->buildSystem() && target->buildSystem()->isParsing())
+    if (bc->buildSystem()->isParsing())
         return;
-    auto project = target->project();
+    auto project = bc->project();
     if (!project)
         return;
 
-    const RunConfiguration *rc = target->activeRunConfiguration();
+    const RunConfiguration *rc = bc->target()->activeRunConfiguration();
     if (!rc)
         return;
     if (rc->id() != Constants::RUNCONFIGURATION_ID &&
@@ -121,7 +119,7 @@ TargetInformation::TargetInformation(const Target *target)
     if (buildKey.isEmpty())
         return;
 
-    const auto targetInfoList = TargetInformation::readFromProject(target, buildKey);
+    const auto targetInfoList = TargetInformation::readFromProject(bc, buildKey);
     if (targetInfoList.isEmpty())
         return;
 

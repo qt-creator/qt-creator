@@ -5,6 +5,7 @@
 
 #include "projectexplorer_export.h"
 #include "projectconfiguration.h"
+#include "target.h"
 #include "task.h"
 
 #include <utils/environment.h>
@@ -20,6 +21,7 @@ class BuildDirectoryAspect;
 class BuildInfo;
 class BuildSystem;
 class BuildStepList;
+class DeployConfiguration;
 class Kit;
 class Node;
 class Project;
@@ -32,6 +34,7 @@ class PROJECTEXPLORER_EXPORT BuildConfiguration : public ProjectConfiguration
 
 protected:
     friend class BuildConfigurationFactory;
+    friend class Target;
     explicit BuildConfiguration(Target *target, Utils::Id id);
 
 public:
@@ -70,6 +73,14 @@ public:
 
     void appendInitialBuildStep(Utils::Id id);
     void appendInitialCleanStep(Utils::Id id);
+
+    void addDeployConfiguration(DeployConfiguration *dc);
+    bool removeDeployConfiguration(DeployConfiguration *dc);
+    const QList<DeployConfiguration *> deployConfigurations() const;
+    DeployConfiguration *activeDeployConfiguration() const;
+    void setActiveDeployConfiguration(DeployConfiguration *dc, SetActive cascade);
+    void updateDefaultDeployConfigurations();
+    ProjectConfigurationModel *deployConfigurationModel() const;
 
     virtual BuildConfiguration *clone(Target *target) const;
     void fromMap(const Utils::Store &map) override;
@@ -132,6 +143,10 @@ protected:
     void setInitializer(const std::function<void(const BuildInfo &info)> &initializer);
 
 private:
+    bool addConfigurationsFromMap(const Utils::Store &map, bool setActiveConfigurations);
+    void storeConfigurationsToMap(Utils::Store &map) const;
+    void setActiveDeployConfiguration(DeployConfiguration *dc);
+
     void emitBuildDirectoryChanged();
     Internal::BuildConfigurationPrivate *d = nullptr;
 };

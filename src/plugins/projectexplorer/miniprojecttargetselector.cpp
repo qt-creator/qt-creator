@@ -737,7 +737,7 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
             });
     connect(m_listWidgets[DEPLOY], &GenericListWidget::changeActiveProjectConfiguration,
             this, [this](QObject *pc) {
-                 m_project->activeTarget()->setActiveDeployConfiguration(
+                 m_project->activeBuildConfiguration()->setActiveDeployConfiguration(
                     static_cast<DeployConfiguration *>(pc), SetActive::Cascade);
             });
     connect(m_listWidgets[RUN], &GenericListWidget::changeActiveProjectConfiguration,
@@ -1027,8 +1027,6 @@ void MiniProjectTargetSelector::addedTarget(Target *target)
 
     for (BuildConfiguration *bc : target->buildConfigurations())
         addedBuildConfiguration(bc, false);
-    for (DeployConfiguration *dc : target->deployConfigurations())
-        addedDeployConfiguration(dc, false);
     for (RunConfiguration *rc : target->runConfigurations())
         addedRunConfiguration(rc, false);
 }
@@ -1042,8 +1040,6 @@ void MiniProjectTargetSelector::removedTarget(Target *target)
 
     for (BuildConfiguration *bc : target->buildConfigurations())
         removedBuildConfiguration(bc, false);
-    for (DeployConfiguration *dc : target->deployConfigurations())
-        removedDeployConfiguration(dc, false);
     for (RunConfiguration *rc : target->runConfigurations())
         removedRunConfiguration(rc, false);
 }
@@ -1052,6 +1048,9 @@ void MiniProjectTargetSelector::addedBuildConfiguration(BuildConfiguration *bc, 
 {
     if (!m_project || bc->target() != m_project->activeTarget())
         return;
+
+    for (DeployConfiguration *dc : bc->deployConfigurations())
+        addedDeployConfiguration(dc, false);
 
     m_listWidgets[BUILD]->addProjectConfiguration(bc);
     if (update)
@@ -1063,6 +1062,9 @@ void MiniProjectTargetSelector::removedBuildConfiguration(BuildConfiguration *bc
     if (!m_project || bc->target() != m_project->activeTarget())
         return;
 
+    for (DeployConfiguration *dc : bc->deployConfigurations())
+        removedDeployConfiguration(dc, false);
+
     m_listWidgets[BUILD]->removeProjectConfiguration(bc);
     if (update)
         updateBuildListVisible();
@@ -1070,7 +1072,7 @@ void MiniProjectTargetSelector::removedBuildConfiguration(BuildConfiguration *bc
 
 void MiniProjectTargetSelector::addedDeployConfiguration(DeployConfiguration *dc, bool update)
 {
-    if (!m_project || dc->target() != m_project->activeTarget())
+    if (!m_project || dc->buildConfiguration() != m_project->activeBuildConfiguration())
         return;
 
     m_listWidgets[DEPLOY]->addProjectConfiguration(dc);
@@ -1080,7 +1082,7 @@ void MiniProjectTargetSelector::addedDeployConfiguration(DeployConfiguration *dc
 
 void MiniProjectTargetSelector::removedDeployConfiguration(DeployConfiguration *dc, bool update)
 {
-    if (!m_project || dc->target() != m_project->activeTarget())
+    if (!m_project || dc->buildConfiguration() != m_project->activeBuildConfiguration())
         return;
 
     m_listWidgets[DEPLOY]->removeProjectConfiguration(dc);
@@ -1154,8 +1156,10 @@ void MiniProjectTargetSelector::updateDeployListVisible()
     int maxCount = 0;
     for (Project *p : ProjectManager::projects()) {
         const QList<Target *> targets = p->targets();
-        for (Target *t : targets)
-            maxCount = qMax(t->deployConfigurations().size(), maxCount);
+        for (Target *t : targets) {
+            for (const BuildConfiguration * const bc : t->buildConfigurations())
+                maxCount = qMax(bc->deployConfigurations().size(), maxCount);
+        }
     }
 
     bool visible = maxCount > 1;
@@ -1246,25 +1250,13 @@ void MiniProjectTargetSelector::activeTargetChanged(Target *target)
         for (BuildConfiguration *bc : target->buildConfigurations())
             bl.append(bc);
         m_listWidgets[BUILD]->setProjectConfigurations(bl, target->activeBuildConfiguration());
-
-        QObjectList dl;
-        for (DeployConfiguration *dc : target->deployConfigurations())
-            dl.append(dc);
-        m_listWidgets[DEPLOY]->setProjectConfigurations(dl, target->activeDeployConfiguration());
+        activeBuildConfigurationChanged(target->activeBuildConfiguration());
 
         QObjectList rl;
         for (RunConfiguration *rc : target->runConfigurations())
             rl.append(rc);
         m_listWidgets[RUN]->setProjectConfigurations(rl, target->activeRunConfiguration());
 
-        m_buildConfiguration = m_target->activeBuildConfiguration();
-        if (m_buildConfiguration)
-            connect(m_buildConfiguration, &ProjectConfiguration::displayNameChanged,
-                    this, &MiniProjectTargetSelector::updateActionAndSummary);
-        m_deployConfiguration = m_target->activeDeployConfiguration();
-        if (m_deployConfiguration)
-            connect(m_deployConfiguration, &ProjectConfiguration::displayNameChanged,
-                    this, &MiniProjectTargetSelector::updateActionAndSummary);
         m_runConfiguration = m_target->activeRunConfiguration();
         if (m_runConfiguration)
             connect(m_runConfiguration, &ProjectConfiguration::displayNameChanged,
@@ -1299,13 +1291,25 @@ void MiniProjectTargetSelector::kitChanged(Kit *k)
 
 void MiniProjectTargetSelector::activeBuildConfigurationChanged(BuildConfiguration *bc)
 {
-    if (m_buildConfiguration)
+    if (m_buildConfiguration) {
         disconnect(m_buildConfiguration, &ProjectConfiguration::displayNameChanged,
                    this, &MiniProjectTargetSelector::updateActionAndSummary);
+    }
+
     m_buildConfiguration = bc;
     if (m_buildConfiguration)
         connect(m_buildConfiguration, &ProjectConfiguration::displayNameChanged,
                 this, &MiniProjectTargetSelector::updateActionAndSummary);
+    if (m_buildConfiguration) {
+        QObjectList dl;
+        for (DeployConfiguration *dc : bc->deployConfigurations())
+            dl.append(dc);
+        m_listWidgets[DEPLOY]->setProjectConfigurations(dl, bc->activeDeployConfiguration());
+        activeDeployConfigurationChanged(m_buildConfiguration->activeDeployConfiguration());
+    } else {
+        m_listWidgets[DEPLOY]->setProjectConfigurations({}, nullptr);
+        activeDeployConfigurationChanged(nullptr);
+    }
     m_listWidgets[BUILD]->setActiveProjectConfiguration(bc);
     updateActionAndSummary();
 }

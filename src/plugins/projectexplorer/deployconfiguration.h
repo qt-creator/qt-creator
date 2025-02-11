@@ -11,6 +11,7 @@
 
 namespace ProjectExplorer {
 
+class BuildConfiguration;
 class BuildStepList;
 class Target;
 class DeployConfigurationFactory;
@@ -21,7 +22,7 @@ class PROJECTEXPLORER_EXPORT DeployConfiguration final : public ProjectConfigura
 
 private:
     friend class DeployConfigurationFactory;
-    explicit DeployConfiguration(Target *target, Utils::Id id);
+    explicit DeployConfiguration(BuildConfiguration *bc, Utils::Id id);
 
 public:
     ~DeployConfiguration() override = default;
@@ -42,7 +43,10 @@ public:
     DeploymentData customDeploymentData() const { return m_customDeploymentData; }
     void setCustomDeploymentData(const DeploymentData &data) { m_customDeploymentData = data; }
 
+    BuildConfiguration *buildConfiguration() const { return m_buildConfiguration; }
+
 private:
+    BuildConfiguration * const m_buildConfiguration;
     BuildStepList m_stepList;
     using WidgetCreator = std::function<QWidget *(DeployConfiguration *)>;
     WidgetCreator m_configWidgetCreator;
@@ -63,11 +67,11 @@ public:
     // the name to display to the user
     QString defaultDisplayName() const;
 
-    DeployConfiguration *create(Target *parent);
+    DeployConfiguration *create(BuildConfiguration *bc);
 
     static const QList<DeployConfigurationFactory *> find(Target *parent);
-    static DeployConfiguration *restore(Target *parent, const Utils::Store &map);
-    static DeployConfiguration *clone(Target *parent, const DeployConfiguration *dc);
+    static DeployConfiguration *restore(BuildConfiguration *bc, const Utils::Store &map);
+    static DeployConfiguration *clone(BuildConfiguration *bc, const DeployConfiguration *dc);
 
     void addSupportedTargetDeviceType(Utils::Id id);
     void setDefaultDisplayName(const QString &defaultDisplayName);
@@ -90,7 +94,7 @@ protected:
     void setConfigBaseId(Utils::Id deployConfigBaseId);
 
 private:
-    DeployConfiguration *createDeployConfiguration(Target *target);
+    DeployConfiguration *createDeployConfiguration(BuildConfiguration *bc);
     Utils::Id m_deployConfigBaseId;
     Utils::Id m_supportedProjectType;
     QList<Utils::Id> m_supportedTargetDeviceTypes;

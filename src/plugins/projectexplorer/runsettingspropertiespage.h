@@ -49,6 +49,7 @@ private:
     void removeDeployConfiguration();
     void activeDeployConfigurationChanged();
     void renameDeployConfiguration();
+    void initForActiveBuildConfig();
 
     void updateRemoveToolButtons();
 

@@ -51,7 +51,7 @@ public:
             if (customizeStep.value())
                 return;
 
-            const TargetInformation targetInformation(target());
+            const TargetInformation targetInformation(buildConfiguration());
 
             packageFilePath.setValue(targetInformation.packageFilePath);
             packageFilePath.setDefaultValue(packageFilePath.value());
@@ -75,7 +75,7 @@ public:
 private:
     bool init() final
     {
-        return TargetInformation(target()).isValid();
+        return TargetInformation(buildConfiguration()).isValid();
     }
 
     GroupItem runRecipe() final

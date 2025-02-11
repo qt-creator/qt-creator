@@ -40,6 +40,7 @@ public:
     void nextOrShow();
 
 private:
+    friend class ProjectExplorer::BuildConfiguration;
     friend class ProjectExplorer::Target;
     void projectAdded(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);

@@ -13,9 +13,6 @@
 #include "runconfiguration.h"
 #include "target.h"
 
-#include <coreplugin/session.h>
-
-#include <utils/algorithm.h>
 #include <utils/guiutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -107,24 +104,12 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     m_deployLayout->setContentsMargins(0, 0, 0, 0);
     m_deployLayout->setSpacing(5);
 
-    m_deployConfigurationCombo->setModel(m_target->deployConfigurationModel());
-
     m_addDeployMenu = new QMenu(m_addDeployToolButton);
     m_addDeployToolButton->setMenu(m_addDeployMenu);
 
-    updateDeployConfiguration(m_target->activeDeployConfiguration());
-
-    // Some projects may not support deployment, so we need this:
-    m_addDeployToolButton->setEnabled(m_target->activeDeployConfiguration());
-    m_deployConfigurationCombo->setEnabled(m_target->activeDeployConfiguration());
-
-    m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().count() > 1);
-    m_renameDeployButton->setEnabled(m_target->activeDeployConfiguration());
-
+    initForActiveBuildConfig();
     connect(m_addDeployMenu, &QMenu::aboutToShow,
             this, &RunSettingsWidget::aboutToShowDeployMenu);
-    connect(m_deployConfigurationCombo, &QComboBox::currentIndexChanged,
-            this, &RunSettingsWidget::currentDeployConfigurationChanged);
     connect(m_removeDeployToolButton, &QAbstractButton::clicked,
             this, &RunSettingsWidget::removeDeployConfiguration);
     connect(m_renameDeployButton, &QAbstractButton::clicked,
@@ -132,6 +117,9 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
 
     connect(m_target, &Target::activeDeployConfigurationChanged,
             this, &RunSettingsWidget::activeDeployConfigurationChanged);
+
+    connect(m_target, &Target::activeBuildConfigurationChanged,
+            this, &RunSettingsWidget::initForActiveBuildConfig);
 
     // run part
     runWidget->setContentsMargins(0, 10, 0, 0);
@@ -315,11 +303,13 @@ void RunSettingsWidget::currentDeployConfigurationChanged(int index)
 {
     if (m_ignoreChanges.isLocked())
         return;
-    if (index == -1)
-        m_target->setActiveDeployConfiguration(nullptr, SetActive::Cascade);
-    else
-        m_target->setActiveDeployConfiguration(qobject_cast<DeployConfiguration *>(m_target->deployConfigurationModel()->projectConfigurationAt(index)),
-                                               SetActive::Cascade);
+    BuildConfiguration * const bc = m_target->activeBuildConfiguration();
+    QTC_ASSERT(bc, return);
+    QTC_ASSERT(index != -1, bc->setActiveDeployConfiguration(nullptr, SetActive::Cascade); return);
+    bc->setActiveDeployConfiguration(
+        qobject_cast<DeployConfiguration *>(
+            bc->deployConfigurationModel()->projectConfigurationAt(index)),
+        SetActive::Cascade);
 }
 
 void RunSettingsWidget::aboutToShowDeployMenu()
@@ -329,12 +319,13 @@ void RunSettingsWidget::aboutToShowDeployMenu()
     for (DeployConfigurationFactory *factory : DeployConfigurationFactory::find(m_target)) {
         QAction *action = m_addDeployMenu->addAction(factory->defaultDisplayName());
         connect(action, &QAction::triggered, this, [factory, this] {
-            DeployConfiguration *newDc = factory->create(m_target);
+            BuildConfiguration * const bc = m_target->activeBuildConfiguration();
+            DeployConfiguration *newDc = factory->create(bc);
             if (!newDc)
                 return;
-            m_target->addDeployConfiguration(newDc);
-            m_target->setActiveDeployConfiguration(newDc, SetActive::Cascade);
-            m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().size() > 1);
+            bc->addDeployConfiguration(newDc);
+            bc->setActiveDeployConfiguration(newDc, SetActive::Cascade);
+            m_removeDeployToolButton->setEnabled(bc->deployConfigurations().size() > 1);
         });
     }
 }
@@ -364,9 +355,11 @@ void RunSettingsWidget::removeDeployConfiguration()
             return;
     }
 
-    m_target->removeDeployConfiguration(dc);
+    BuildConfiguration * const bc = m_target->activeBuildConfiguration();
+    QTC_ASSERT(bc, return);
+    bc->removeDeployConfiguration(dc);
 
-    m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().size() > 1);
+    m_removeDeployToolButton->setEnabled(bc->deployConfigurations().size() > 1);
 }
 
 void RunSettingsWidget::activeDeployConfigurationChanged()
@@ -391,9 +384,31 @@ void RunSettingsWidget::renameDeployConfiguration()
     m_target->activeDeployConfiguration()->setDisplayName(name);
 }
 
+void RunSettingsWidget::initForActiveBuildConfig()
+{
+    disconnect(m_deployConfigurationCombo, &QComboBox::currentIndexChanged,
+               this, &RunSettingsWidget::currentDeployConfigurationChanged);
+    m_deployConfigurationCombo->setModel(
+        m_target->activeBuildConfiguration()->deployConfigurationModel());
+    connect(m_deployConfigurationCombo, &QComboBox::currentIndexChanged,
+            this, &RunSettingsWidget::currentDeployConfigurationChanged);
+
+    // Some projects may not support deployment, so we need this:
+    // FIXME: Not true anymore? There should always be an active deploy config.
+    m_addDeployToolButton->setEnabled(m_target->activeDeployConfiguration());
+    m_deployConfigurationCombo->setEnabled(m_target->activeDeployConfiguration());
+    m_renameDeployButton->setEnabled(m_target->activeDeployConfiguration());
+
+    m_removeDeployToolButton->setEnabled(
+        m_target->activeBuildConfiguration()->deployConfigurations().count() > 1);
+    updateDeployConfiguration(m_target->activeDeployConfiguration());
+}
+
 void RunSettingsWidget::updateRemoveToolButtons()
 {
-    m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().count() > 1);
+    const BuildConfiguration * const bc = m_target->activeBuildConfiguration();
+    QTC_ASSERT(bc, return);
+    m_removeDeployToolButton->setEnabled(bc->deployConfigurations().count() > 1);
     const bool hasRunConfigs = !m_target->runConfigurations().isEmpty();
     m_removeRunToolButton->setEnabled(hasRunConfigs);
     m_removeAllRunConfigsButton->setEnabled(hasRunConfigs);
@@ -416,7 +431,9 @@ void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
     if (!dc)
         return;
 
-    int index = m_target->deployConfigurationModel()->indexFor(dc);
+    const BuildConfiguration * const bc = m_target->activeBuildConfiguration();
+    QTC_ASSERT(bc, return);
+    int index = bc->deployConfigurationModel()->indexFor(dc);
 
     {
         const Utils::GuardLocker locker(m_ignoreChanges);
@@ -457,9 +474,11 @@ QString RunSettingsWidget::uniqueDCName(const QString &name)
     QString result = name.trimmed();
     if (!result.isEmpty()) {
         QStringList dcNames;
-        const QList<DeployConfiguration *> configurations = m_target->deployConfigurations();
+        const BuildConfiguration * const bc = m_target->activeBuildConfiguration();
+        QTC_ASSERT(bc, return name);
+        const QList<DeployConfiguration *> configurations = bc->deployConfigurations();
         for (DeployConfiguration *dc : configurations) {
-            if (dc == m_target->activeDeployConfiguration())
+            if (dc == bc->activeDeployConfiguration())
                 continue;
             dcNames.append(dc->displayName());
         }

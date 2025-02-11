@@ -5,14 +5,18 @@
 
 #include "buildaspects.h"
 #include "buildinfo.h"
+#include "buildmanager.h"
 #include "buildpropertiessettings.h"
 #include "buildsteplist.h"
 #include "buildstepspage.h"
 #include "buildsystem.h"
 #include "customparser.h"
+#include "deployconfiguration.h"
 #include "devicesupport/devicekitaspects.h"
 #include "environmentwidget.h"
 #include "kit.h"
+#include "miniprojecttargetselector.h"
+#include "projectconfigurationmodel.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorer.h"
 #include "projectexplorertr.h"
@@ -33,6 +37,7 @@
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/variablechooser.h>
 
 #include <QCheckBox>
@@ -47,6 +52,10 @@ const char BUILD_STEP_LIST_COUNT[] = "ProjectExplorer.BuildConfiguration.BuildSt
 const char BUILD_STEP_LIST_PREFIX[] = "ProjectExplorer.BuildConfiguration.BuildStepList.";
 const char CUSTOM_PARSERS_KEY[] = "ProjectExplorer.BuildConfiguration.CustomParsers";
 const char PARSE_STD_OUT_KEY[] = "ProjectExplorer.BuildConfiguration.ParseStandardOutput";
+
+const char ACTIVE_DC_KEY[] = "ProjectExplorer.Target.ActiveDeployConfiguration";
+const char DC_KEY_PREFIX[] = "ProjectExplorer.Target.DeployConfiguration.";
+const char DC_COUNT_KEY[] = "ProjectExplorer.Target.DeployConfigurationCount";
 
 Q_LOGGING_CATEGORY(bcLog, "qtc.buildconfig", QtWarningMsg)
 
@@ -136,6 +145,7 @@ public:
         , m_buildDirectoryAspect(bc, bc)
         , m_tooltipAspect(bc)
         , m_buildSystem(bc->project()->createBuildSystem(bc))
+        , m_deployConfigurationModel(bc->target())
     {}
 
     ~BuildConfigurationPrivate() { delete m_buildSystem; }
@@ -155,6 +165,10 @@ public:
     bool m_parseStdOut = false;
     QList<Utils::Id> m_customParsers;
     BuildSystem * const m_buildSystem;
+    QList<DeployConfiguration *> m_deployConfigurations;
+    DeployConfiguration *m_activeDeployConfiguration = nullptr;
+
+    ProjectConfigurationModel m_deployConfigurationModel;
 
     // FIXME: Remove.
     BuildConfiguration::BuildType m_initialBuildType = BuildConfiguration::Unknown;
@@ -227,6 +241,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
 
 BuildConfiguration::~BuildConfiguration()
 {
+    qDeleteAll(d->m_deployConfigurations);
     delete d;
 }
 
@@ -321,6 +336,66 @@ void BuildConfiguration::setInitializer(const std::function<void(const BuildInfo
     d->m_initializer = initializer;
 }
 
+bool BuildConfiguration::addConfigurationsFromMap(
+    const Utils::Store &map, bool setActiveConfigurations)
+{
+    bool ok = true;
+    int dcCount = map.value(DC_COUNT_KEY, 0).toInt(&ok);
+    if (!ok || dcCount < 0)
+        dcCount = 0;
+    int activeDc = map.value(ACTIVE_DC_KEY, 0).toInt(&ok);
+    if (!ok || 0 > activeDc || dcCount < activeDc)
+        activeDc = 0;
+    if (!setActiveConfigurations)
+        activeDc = -1;
+
+    for (int i = 0; i < dcCount; ++i) {
+        const Key key = numberedKey(DC_KEY_PREFIX, i);
+        if (!map.contains(key))
+            return false;
+        Store valueMap = storeFromVariant(map.value(key));
+        DeployConfiguration *dc = DeployConfigurationFactory::restore(this, valueMap);
+        if (!dc) {
+            Utils::Id id = idFromMap(valueMap);
+            qWarning("No factory found to restore deployment configuration of id '%s'!",
+                     id.isValid() ? qPrintable(id.toString()) : "UNKNOWN");
+            continue;
+        }
+        QTC_CHECK(dc->id() == ProjectExplorer::idFromMap(valueMap));
+        addDeployConfiguration(dc);
+        if (i == activeDc)
+            setActiveDeployConfiguration(dc);
+    }
+    return true;
+}
+
+void BuildConfiguration::storeConfigurationsToMap(Utils::Store &map) const
+{
+    const QList<DeployConfiguration *> dcs = deployConfigurations();
+    map.insert(ACTIVE_DC_KEY, dcs.indexOf(d->m_activeDeployConfiguration));
+    map.insert(DC_COUNT_KEY, dcs.size());
+    for (int i = 0; i < dcs.size(); ++i) {
+        Store data;
+        dcs.at(i)->toMap(data);
+        map.insert(numberedKey(DC_KEY_PREFIX, i), variantFromStore(data));
+    }
+}
+
+void BuildConfiguration::setActiveDeployConfiguration(DeployConfiguration *dc)
+{
+    if (dc) {
+        QTC_ASSERT(d->m_deployConfigurations.contains(dc), return);
+    } else {
+        QTC_ASSERT(d->m_deployConfigurations.isEmpty(), return);
+    }
+    if (dc == d->m_activeDeployConfiguration)
+        return;
+
+    d->m_activeDeployConfiguration = dc;
+    if (this == target()->activeBuildConfiguration())
+        emit target()->activeDeployConfigurationChanged(d->m_activeDeployConfiguration);
+}
+
 QWidget *BuildConfiguration::createConfigWidget()
 {
     QWidget *named = new QWidget;
@@ -384,6 +459,139 @@ void BuildConfiguration::appendInitialCleanStep(Utils::Id id)
     d->m_initialCleanSteps.append(id);
 }
 
+void BuildConfiguration::addDeployConfiguration(DeployConfiguration *dc)
+{
+    QTC_ASSERT(dc && !d->m_deployConfigurations.contains(dc), return);
+    QTC_ASSERT(dc->buildConfiguration() == this, return);
+
+    // Check that we don't have a configuration with the same displayName
+    QString configurationDisplayName = dc->displayName();
+    QStringList displayNames = Utils::transform(d->m_deployConfigurations, &DeployConfiguration::displayName);
+    configurationDisplayName = Utils::makeUniquelyNumbered(configurationDisplayName, displayNames);
+    dc->setDisplayName(configurationDisplayName);
+
+    // add it
+    d->m_deployConfigurations.push_back(dc);
+
+    ProjectExplorerPlugin::targetSelector()->addedDeployConfiguration(dc); // TODO: Use signal instead?
+    d->m_deployConfigurationModel.addProjectConfiguration(dc);
+    if (this == target()->activeBuildConfiguration())
+        emit target()->addedDeployConfiguration(dc);
+
+    if (!d->m_activeDeployConfiguration)
+        setActiveDeployConfiguration(dc);
+    Q_ASSERT(activeDeployConfiguration());
+
+}
+
+bool BuildConfiguration::removeDeployConfiguration(DeployConfiguration *dc)
+{
+    if (!d->m_deployConfigurations.contains(dc))
+        return false;
+
+    if (BuildManager::isBuilding(dc))
+        return false;
+
+    d->m_deployConfigurations.removeOne(dc);
+
+    if (activeDeployConfiguration() == dc) {
+        if (d->m_deployConfigurations.isEmpty())
+            setActiveDeployConfiguration(nullptr, SetActive::Cascade);
+        else
+            setActiveDeployConfiguration(d->m_deployConfigurations.at(0), SetActive::Cascade);
+    }
+
+    ProjectExplorerPlugin::targetSelector()->removedDeployConfiguration(dc);
+    d->m_deployConfigurationModel.removeProjectConfiguration(dc);
+    emit target()->removedDeployConfiguration(dc); // TODO: Own signal?
+
+    delete dc;
+    return true;
+
+}
+
+const QList<DeployConfiguration *> BuildConfiguration::deployConfigurations() const
+{
+    return d->m_deployConfigurations;
+}
+
+DeployConfiguration *BuildConfiguration::activeDeployConfiguration() const
+{
+    return d->m_activeDeployConfiguration;
+}
+
+void BuildConfiguration::setActiveDeployConfiguration(DeployConfiguration *dc, SetActive cascade)
+{
+    QTC_ASSERT(project(), return);
+
+    if (project()->isShuttingDown() || target()->isShuttingDown()) // Do we need our own isShuttungDown()?
+        return;
+
+    setActiveDeployConfiguration(dc);
+
+    if (!dc)
+        return;
+    if (cascade != SetActive::Cascade || !ProjectManager::isProjectConfigurationCascading())
+        return;
+
+    Id kitId = kit()->id();
+    QString name = dc->displayName(); // We match on displayname
+    for (Project *otherProject : ProjectManager::projects()) {
+        if (otherProject == project())
+            continue;
+        Target *otherTarget = otherProject->activeTarget();
+        if (!otherTarget || otherTarget->kit()->id() != kitId)
+            continue;
+
+        for (BuildConfiguration *otherBc : otherTarget->buildConfigurations()) {
+            for (DeployConfiguration *otherDc : otherBc->deployConfigurations()) {
+                if (otherDc->displayName() == name) {
+                    otherBc->setActiveDeployConfiguration(otherDc);
+                    break;
+                }
+            }
+        }
+    }
+}
+
+void BuildConfiguration::updateDefaultDeployConfigurations()
+{
+    const QList<DeployConfigurationFactory *> dcFactories = DeployConfigurationFactory::find(
+        target());
+    QTC_ASSERT(!dcFactories.isEmpty(), qDebug() << target()->id(); return);
+
+    QList<Utils::Id> dcIds;
+    for (const DeployConfigurationFactory *dcFactory : dcFactories)
+        dcIds.append(dcFactory->creationId());
+
+    const QList<DeployConfiguration *> dcList = deployConfigurations();
+    QList<Utils::Id> toCreate = dcIds;
+
+    for (DeployConfiguration *dc : dcList) {
+        if (dcIds.contains(dc->id()))
+            toCreate.removeOne(dc->id());
+        else
+            removeDeployConfiguration(dc);
+    }
+
+    for (Utils::Id id : std::as_const(toCreate)) {
+        for (DeployConfigurationFactory *dcFactory : dcFactories) {
+            if (dcFactory->creationId() == id) {
+                DeployConfiguration *dc = dcFactory->create(this);
+                if (dc) {
+                    QTC_CHECK(dc->id() == id);
+                    addDeployConfiguration(dc);
+                }
+            }
+        }
+    }
+}
+
+ProjectConfigurationModel *BuildConfiguration::deployConfigurationModel() const
+{
+    return &d->m_deployConfigurationModel;
+}
+
 BuildConfiguration *BuildConfiguration::clone(Target *target) const
 {
     Store map;
@@ -405,6 +613,8 @@ void BuildConfiguration::toMap(Store &map) const
 
     map.insert(PARSE_STD_OUT_KEY, d->m_parseStdOut);
     map.insert(CUSTOM_PARSERS_KEY, transform(d->m_customParsers, &Id::toSetting));
+
+    storeConfigurationsToMap(map);
 }
 
 void BuildConfiguration::fromMap(const Store &map)
@@ -442,6 +652,7 @@ void BuildConfiguration::fromMap(const Store &map)
 
     ProjectConfiguration::fromMap(map);
     setToolTip(d->m_tooltipAspect());
+    addConfigurationsFromMap(map, true);
 }
 
 void BuildConfiguration::updateCacheAndEmitEnvironmentChanged()

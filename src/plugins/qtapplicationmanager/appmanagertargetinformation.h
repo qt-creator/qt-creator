@@ -8,7 +8,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/runcontrol.h>
 
-#include <cmakeprojectmanager/cmakebuildsystem.h>
+namespace ProjectExplorer { class BuildConfiguration; }
 
 namespace AppManager {
 namespace Internal {
@@ -44,9 +44,10 @@ public:
     bool isValid() const;
 
     TargetInformation() = default;
-    TargetInformation(const ProjectExplorer::Target *target);
+    TargetInformation(const ProjectExplorer::BuildConfiguration *bc);
 
-    static QList<TargetInformation> readFromProject(const ProjectExplorer::Target *target, const QString &buildKey = QString());
+    static QList<TargetInformation> readFromProject(
+        const ProjectExplorer::BuildConfiguration *bc, const QString &buildKey = QString());
 };
 
 } // namespace Internal

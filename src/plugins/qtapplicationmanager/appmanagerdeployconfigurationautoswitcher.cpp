@@ -80,7 +80,7 @@ void AppManagerDeployConfigurationAutoSwitcher::onActiveRunConfigurationChanged(
                 if (stored) {
                     // deploy selection stored -> restore
                     auto deployConfiguration = m_deployConfigurationsUsageHistory.value(runConfiguration, nullptr);
-                    target->setActiveDeployConfiguration(deployConfiguration, SetActive::NoCascade);
+                    target->setActiveDeployConfiguration(deployConfiguration);
                 } else if (auto activeDeployConfiguration = target->activeDeployConfiguration()) {
                     // active deploy configuration exists
                     if (isApplicationManagerRunConfiguration(runConfiguration)) {
@@ -91,7 +91,7 @@ void AppManagerDeployConfigurationAutoSwitcher::onActiveRunConfigurationChanged(
                                 // find AM deploy configuration
                                 if (isApplicationManagerDeployConfiguration(deployConfiguration)) {
                                     // make it active
-                                    target->setActiveDeployConfiguration(deployConfiguration, SetActive::NoCascade);
+                                    target->setActiveDeployConfiguration(deployConfiguration);
                                     break;
                                 }
                             }
@@ -104,7 +104,7 @@ void AppManagerDeployConfigurationAutoSwitcher::onActiveRunConfigurationChanged(
                                 // find not AM deploy configuration
                                 if (!isApplicationManagerDeployConfiguration(deployConfiguration)) {
                                     // make it active
-                                    target->setActiveDeployConfiguration(deployConfiguration, SetActive::NoCascade);
+                                    target->setActiveDeployConfiguration(deployConfiguration);
                                     break;
                                 }
                             }
