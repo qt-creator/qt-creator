@@ -125,8 +125,11 @@ static CommandLine commandLineForQmlls(Project *project)
 
     CommandLine result{executable, {}};
 
-    if (auto *configuration = project->activeBuildConfiguration())
-        result.addArgs({"-b", configuration->buildDirectory().path()});
+    const QString buildDirectory = project->activeBuildConfiguration()
+                                       ? project->activeBuildConfiguration()->buildDirectory().path()
+                                       : QString();
+    if (!buildDirectory.isEmpty())
+        result.addArgs({"-b", buildDirectory});
 
     // qmlls 6.8 and later require the import path
     if (version >= QVersionNumber(6, 8, 0)) {
@@ -139,6 +142,10 @@ static CommandLine commandLineForQmlls(Project *project)
             if (path.language() == QmlJS::Dialect::Qml)
                 result.addArgs({"-I", path.path().path()});
         }
+
+        // work around QTBUG-132263 for qmlls 6.8.2
+        if (!buildDirectory.isEmpty())
+            result.addArgs({"-I", buildDirectory});
     }
 
     // qmlls 6.8.1 and later require the documentation path
