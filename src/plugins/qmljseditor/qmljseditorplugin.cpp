@@ -73,6 +73,10 @@ public:
 
     void reformatFile();
 
+    QmlJS::JsonSchemaManager *jsonManager() { return &m_jsonManager;}
+    QmlJSQuickFixAssistProvider *quickFixAssistProvider() { return &m_quickFixAssistProvider; }
+
+private:
     QmlJSQuickFixAssistProvider m_quickFixAssistProvider;
     QmlTaskManager m_qmlTaskManager;
 
@@ -184,75 +188,84 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
 
 QmlJS::JsonSchemaManager *jsonManager()
 {
-    return &dd->m_jsonManager;
+    return dd->jsonManager();
+}
+
+static void reformatByQmlFormat(QPointer<QmlJSEditorDocument> document)
+{
+    QString formatCommand = settings().formatCommand();
+    if (formatCommand.isEmpty())
+        formatCommand = settings().defaultFormatCommand();
+    const auto exe = FilePath::fromUserInput(globalMacroExpander()->expand(formatCommand));
+    const QString args = globalMacroExpander()->expand(
+        settings().formatCommandOptions());
+    const CommandLine commandLine(exe, args, CommandLine::Raw);
+    TextEditor::Command command;
+    command.setExecutable(commandLine.executable());
+    command.setProcessing(TextEditor::Command::FileProcessing);
+    command.addOptions(commandLine.splitArguments());
+    command.addOption("--inplace");
+    command.addOption("%file");
+
+    if (!command.isValid())
+        return;
+
+    const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForDocument(document);
+    if (editors.isEmpty())
+        return;
+    IEditor *currentEditor = EditorManager::currentEditor();
+    IEditor *editor = editors.contains(currentEditor) ? currentEditor : editors.first();
+    if (auto widget = TextEditor::TextEditorWidget::fromEditor(editor))
+        TextEditor::formatEditor(widget, command);
+}
+
+static void reformatByBuiltInFormatter(QPointer<QmlJSEditorDocument> document)
+{
+    QmlJS::Document::Ptr documentPtr = document->semanticInfo().document;
+    QmlJS::Snapshot snapshot = QmlJS::ModelManagerInterface::instance()->snapshot();
+
+    if (document->isSemanticInfoOutdated()) {
+        QmlJS::Document::MutablePtr latestDocument;
+
+        const Utils::FilePath fileName = document->filePath();
+        latestDocument = snapshot.documentFromSource(
+            QString::fromUtf8(document->contents()),
+            fileName,
+            QmlJS::ModelManagerInterface::guessLanguageOfFile(fileName));
+        latestDocument->parseQml();
+        snapshot.insert(latestDocument);
+        documentPtr = latestDocument;
+    }
+
+    if (!documentPtr->isParsedCorrectly())
+        return;
+
+    TextEditor::TabSettings tabSettings = document->tabSettings();
+    const QString newText = QmlJS::reformat(
+        documentPtr,
+        tabSettings.m_indentSize,
+        tabSettings.m_tabSize,
+        QmlJSTools::QmlJSToolsSettings::globalCodeStyle()->currentCodeStyleSettings().lineLength);
+    auto ed = qobject_cast<TextEditor::BaseTextEditor *>(EditorManager::currentEditor());
+    if (ed) {
+        TextEditor::updateEditorText(ed->editorWidget(), newText);
+    } else {
+        QTextCursor tc(document->document());
+        tc.movePosition(QTextCursor::Start);
+        tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        tc.insertText(newText);
+    }
 }
 
 void QmlJSEditorPluginPrivate::reformatFile()
 {
-    if (m_currentDocument) {
-        if (settings().useCustomFormatCommand()) {
-            QString formatCommand = settings().formatCommand();
-            if (formatCommand.isEmpty())
-                formatCommand = settings().defaultFormatCommand();
-            const auto exe = FilePath::fromUserInput(globalMacroExpander()->expand(formatCommand));
-            const QString args = globalMacroExpander()->expand(
-                settings().formatCommandOptions());
-            const CommandLine commandLine(exe, args, CommandLine::Raw);
-            TextEditor::Command command;
-            command.setExecutable(commandLine.executable());
-            command.setProcessing(TextEditor::Command::FileProcessing);
-            command.addOptions(commandLine.splitArguments());
-            command.addOption("--inplace");
-            command.addOption("%file");
+    if (!m_currentDocument)
+        return;
 
-            if (!command.isValid())
-                return;
+    if (settings().useCustomFormatCommand())
+        reformatByQmlFormat(m_currentDocument);
 
-            const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForDocument(m_currentDocument);
-            if (editors.isEmpty())
-                return;
-            IEditor *currentEditor = EditorManager::currentEditor();
-            IEditor *editor = editors.contains(currentEditor) ? currentEditor : editors.first();
-            if (auto widget = TextEditor::TextEditorWidget::fromEditor(editor))
-                TextEditor::formatEditor(widget, command);
-
-            return;
-        }
-
-        QmlJS::Document::Ptr document = m_currentDocument->semanticInfo().document;
-        QmlJS::Snapshot snapshot = QmlJS::ModelManagerInterface::instance()->snapshot();
-
-        if (m_currentDocument->isSemanticInfoOutdated()) {
-            QmlJS::Document::MutablePtr latestDocument;
-
-            const Utils::FilePath fileName = m_currentDocument->filePath();
-            latestDocument = snapshot.documentFromSource(m_currentDocument->plainText(),
-                                                         fileName,
-                                                         QmlJS::ModelManagerInterface::guessLanguageOfFile(fileName));
-            latestDocument->parseQml();
-            snapshot.insert(latestDocument);
-            document = latestDocument;
-        }
-
-        if (!document->isParsedCorrectly())
-            return;
-
-        TextEditor::TabSettings tabSettings = m_currentDocument->tabSettings();
-        const QString &newText = QmlJS::reformat(document,
-                                                 tabSettings.m_indentSize,
-                                                 tabSettings.m_tabSize,
-                                                 QmlJSTools::QmlJSToolsSettings::globalCodeStyle()->currentCodeStyleSettings().lineLength);
-
-        auto ed = qobject_cast<TextEditor::BaseTextEditor *>(EditorManager::currentEditor());
-        if (ed) {
-            TextEditor::updateEditorText(ed->editorWidget(), newText);
-        } else {
-            QTextCursor tc(m_currentDocument->document());
-            tc.movePosition(QTextCursor::Start);
-            tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-            tc.insertText(newText);
-        }
-    }
+    reformatByBuiltInFormatter(m_currentDocument);
 }
 
 Command *QmlJSEditorPluginPrivate::addToolAction(QAction *a,
@@ -268,7 +281,7 @@ Command *QmlJSEditorPluginPrivate::addToolAction(QAction *a,
 
 QmlJSQuickFixAssistProvider *quickFixAssistProvider()
 {
-    return &dd->m_quickFixAssistProvider;
+    return dd->quickFixAssistProvider();
 }
 
 void QmlJSEditorPluginPrivate::currentEditorChanged(IEditor *editor)
