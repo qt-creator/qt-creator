@@ -92,7 +92,7 @@ QTCREATOR_UTILS_EXPORT void scheduleGC()
 
 static int bytesSaved = 0;
 
-static inline bool isQStringInUse(const QString &string)
+static inline bool isDetached(const QString &string)
 {
     if (DebugStringTable) {
         QStringPrivate &data_ptr = const_cast<QString&>(string).data_ptr();
@@ -101,7 +101,7 @@ static inline bool isQStringInUse(const QString &string)
         if (ref > 10)
             qDebug() << ref << string.size() << string.left(50);
     }
-    return !string.isDetached();
+    return string.isDetached();
 }
 
 void StringTablePrivate::GC(QPromise<void> &promise)
@@ -119,7 +119,7 @@ void StringTablePrivate::GC(QPromise<void> &promise)
         if (promise.isCanceled())
             return;
 
-        if (!isQStringInUse(*i))
+        if (isDetached(*i))
             i = m_strings.erase(i);
         else
             ++i;
