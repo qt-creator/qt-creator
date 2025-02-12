@@ -11,17 +11,17 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/messagemanager.h>
 
-#include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
 
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -221,7 +221,6 @@ bool PythonBuildSystem::save()
     const FilePath filePath = projectFilePath();
     const QStringList rawList = Utils::transform(m_files, &FileEntry::rawEntry);
     const FileChangeBlocker changeGuard(filePath);
-    bool result = false;
 
     QByteArray newContents;
 
@@ -242,39 +241,40 @@ bool PythonBuildSystem::save()
     }
 
     const expected_str<qint64> writeResult = filePath.writeFileContents(newContents);
-    if (writeResult)
-        result = true;
-    else
+    if (!writeResult) {
         MessageManager::writeDisrupting(writeResult.error());
-
-    return result;
+        return false;
+    }
+    return true;
 }
 
 bool PythonBuildSystem::addFiles(Node *, const FilePaths &filePaths, FilePaths *)
 {
     const FilePath projectDir = projectDirectory();
+    const auto existingPaths = Utils::transform(m_files, &FileEntry::filePath);
 
-    auto comp = [](const FileEntry &left, const FileEntry &right) {
+    auto filesComp = [](const FileEntry &left, const FileEntry &right) {
         return left.rawEntry < right.rawEntry;
     };
 
-    const bool isSorted = std::is_sorted(m_files.begin(), m_files.end(), comp);
+    const bool projectFilesWereSorted = std::is_sorted(m_files.begin(), m_files.end(), filesComp);
 
     for (const FilePath &filePath : filePaths) {
         if (!projectDir.isSameDevice(filePath))
             return false;
-        m_files.append(FileEntry{filePath.relativePathFrom(projectDir).toUrlishString(), filePath});
+        if (existingPaths.contains(filePath))
+            continue;
+        m_files.append(FileEntry{filePath.relativePathFrom(projectDir).path(), filePath});
     }
 
-    if (isSorted)
-        std::sort(m_files.begin(), m_files.end(), comp);
+    if (projectFilesWereSorted)
+        std::sort(m_files.begin(), m_files.end(), filesComp);
 
     return save();
 }
 
 RemovedFilesFromProject PythonBuildSystem::removeFiles(Node *, const FilePaths &filePaths, FilePaths *)
 {
-
     for (const FilePath &filePath : filePaths) {
         Utils::eraseOne(m_files,
                         [filePath](const FileEntry &entry) { return filePath == entry.filePath; });
@@ -347,10 +347,10 @@ void PythonBuildSystem::parse()
     m_qmlImportPaths = processEntries(qmlImportPaths);
 }
 
-/**
- * Expands environment variables in the given \a string when they are written
- * like $$(VARIABLE).
- */
+/*!
+    \brief Expands environment variables in the given \a string when they are written like
+    $$(VARIABLE).
+*/
 static void expandEnvironmentVariables(const Environment &env, QString &string)
 {
     static const QRegularExpression candidate("\\$\\$\\((.+)\\)");
@@ -367,14 +367,17 @@ static void expandEnvironmentVariables(const Environment &env, QString &string)
     }
 }
 
-/**
- * Expands environment variables and converts the path from relative to the
- * project to an absolute path for all given raw paths
- */
+/*!
+    \brief Expands environment variables and converts the path from relative to the project root
+    folder to an absolute path for all given raw paths.
+    \note Duplicated resolved paths are removed
+*/
 QList<PythonBuildSystem::FileEntry> PythonBuildSystem::processEntries(
     const QStringList &rawPaths) const
 {
-    QList<FileEntry> processed;
+    QList<FileEntry> files;
+    QList<FilePath> seenResolvedPaths;
+
     const FilePath projectDir = projectDirectory();
     const Environment env = projectDirectory().deviceEnvironment();
 
@@ -385,9 +388,14 @@ QList<PythonBuildSystem::FileEntry> PythonBuildSystem::processEntries(
             expandEnvironmentVariables(env, path);
             resolvedPath = projectDir.resolvePath(path);
         }
-        processed << FileEntry{rawPath, resolvedPath};
+        if (seenResolvedPaths.contains(resolvedPath))
+            continue;
+
+        seenResolvedPaths << resolvedPath;
+        files << FileEntry{rawPath, resolvedPath};
     }
-    return processed;
+
+    return files;
 }
 
-} // namespace Internal
+} // namespace Python::Internal
