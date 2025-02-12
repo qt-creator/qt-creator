@@ -77,7 +77,7 @@ def qdump__std____1__list(d, value):
 
 
 def qdumpHelper_split_tree_node(d, node, data_type):
-    left, right, parent, _is_black, _pad, data = d.split(f'pppB@{{{data_type.name}}}', node)
+    left, right, parent, _is_black, _pad, data = d.split('pppB@{{{}}}'.format(data_type.name), node)
     return left, right, parent, data
 
 
@@ -180,7 +180,7 @@ def qdump__std____1__map__iterator(d, value):
             pair_type = alloc_type[0]
             node = value['__i_']['__ptr_'].dereference()
             _left, _rigt, _parent, pair = qdumpHelper_split_tree_node(d, node, pair_type)
-            key, _pad, val = d.split(f'{{{key_type.name}}}@{{{mapped_type.name}}}', pair)
+            key, _pad, val = d.split('{{{}}}@{{{}}}'.format(key_type.name, mapped_type.name), pair)
             d.putSubItem('first', key)
             d.putSubItem('second', val)
 
