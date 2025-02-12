@@ -154,6 +154,7 @@ DVConnector::DVConnector(QObject *parent)
                     m_webEngineView->hide();
                     m_connectorStatus = ConnectorStatus::LoggedIn;
                     emit connectorStatusUpdated(m_connectorStatus);
+                    fetchUserInfoInternal();
                 }
             });
 
@@ -656,6 +657,7 @@ void DVConnector::logout()
         QWebEngineCookieStore *cookieStore = m_webEnginePage->profile()->cookieStore();
         cookieStore->deleteAllCookies();
         m_connectorStatus = ConnectorStatus::NotLoggedIn;
+        m_userInfo.clear();
         emit connectorStatusUpdated(m_connectorStatus);
     };
 
@@ -697,7 +699,7 @@ void DVConnector::refreshToken()
     evaluatorData.connectCallbacks(this);
 }
 
-void DVConnector::fetchUserInfoInternal(const bool checkLogin)
+void DVConnector::fetchUserInfoInternal()
 {
     qCDebug(deploymentPluginLog) << "Fetching user info";
 
@@ -708,10 +710,6 @@ void DVConnector::fetchUserInfoInternal(const bool checkLogin)
     evaluatorData.description = "User info";
     evaluatorData.reply = m_networkAccessManager->get(request);
     evaluatorData.successCallback = [&](const QByteArray &reply, const QList<RawHeaderPair> &) {
-        if (checkLogin) {
-            m_connectorStatus = ConnectorStatus::LoggedIn;
-            emit connectorStatusUpdated(m_connectorStatus);
-        }
         m_userInfo = reply;
         emit userInfoReceived(reply);
     };

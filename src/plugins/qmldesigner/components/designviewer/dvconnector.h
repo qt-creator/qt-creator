@@ -125,7 +125,7 @@ private:
     bool eventFilter(QObject *obj, QEvent *e) override;
     void internalLogin();
     void refreshToken();
-    void fetchUserInfoInternal(const bool checkLogin = false);
+    void fetchUserInfoInternal();
 
 signals:
     // service integration - project related signals
