@@ -640,7 +640,7 @@ void QbsBuildSystem::startParsing(const QVariantMap &extraConfig)
         installRoot = buildConfiguration()->macroExpander()->expand(
             QbsSettings::defaultInstallDirTemplate());
     }
-    config.insert(Constants::QBS_INSTALL_ROOT_KEY, FilePath::fromString(installRoot).path());
+    config.insert(Constants::QBS_INSTALL_ROOT_KEY, FilePath::fromUserInput(installRoot).path());
     config.insert(Constants::QBS_RESTORE_BEHAVIOR_KEY, "restore-and-track-changes");
     for (auto it = extraConfig.begin(); it != extraConfig.end(); ++it)
         config.insert(keyFromString(it.key()), it.value());
