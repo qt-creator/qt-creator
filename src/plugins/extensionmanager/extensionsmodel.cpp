@@ -248,7 +248,15 @@ static QString badgeText(const QModelIndex &index)
 {
     if (index.data(RoleDownloadUrl).isNull())
         return {};
-    return Tr::tr("New");
+
+    const PluginSpec *ps = pluginSpecForId(index.data(RoleId).toString());
+    if (!ps)
+        return Tr::tr("New");
+
+    const QVersionNumber remoteVersion = QVersionNumber::fromString(
+        index.data(RoleVersion).toString());
+    const QVersionNumber localVersion = QVersionNumber::fromString(ps->version());
+    return remoteVersion > localVersion ? Tr::tr("Updated") : QString();
 }
 
 ExtensionState extensionState(const QModelIndex &index)

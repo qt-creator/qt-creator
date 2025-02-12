@@ -1036,7 +1036,7 @@ expected_str<void> DockerDevicePrivate::startContainer()
 
     if (deadline.hasExpired() && !DockerApi::instance()->isContainerRunning(m_container)) {
         m_startProcess->stop();
-        return make_unexpected(Tr::tr("Failed to start container: %1").arg(m_container));
+        return make_unexpected(Tr::tr("Failed to start container \"%1\".").arg(m_container));
     }
 
     qCDebug(dockerDeviceLog) << "Started container: " << m_startProcess->commandLine();

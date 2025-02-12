@@ -158,8 +158,8 @@ bool QmllsClientSettings::isValidOnProject(ProjectExplorer::Project *project) co
 
     const QtVersion *qtVersion = qtVersionFromProject(project);
     if (!qtVersion) {
-        Core::MessageManager::writeSilently(Tr::tr(
-            "Current kit does not have a valid Qt version, disabling QML Language Server..."));
+        Core::MessageManager::writeSilently(
+            Tr::tr("Current kit does not have a valid Qt version, disabling QML Language Server."));
         return false;
     }
 

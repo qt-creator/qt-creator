@@ -21,7 +21,6 @@
 
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
-#include <utils/theme/theme.h>
 
 #include <QAction>
 #include <QGuiApplication>
@@ -37,8 +36,6 @@ GraphicsScene::GraphicsScene(QObject *parent)
 {
     //setMinimumRenderSize(5);
     setItemIndexMethod(QGraphicsScene::NoIndex);
-
-    setPalette(Utils::creatorTheme()->palette());
 }
 
 GraphicsScene::~GraphicsScene()
