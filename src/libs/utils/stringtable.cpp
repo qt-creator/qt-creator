@@ -90,9 +90,7 @@ QTCREATOR_UTILS_EXPORT void scheduleGC()
         QTimer::singleShot(10s, qApp, [] { stringTable().startGC(); });
 }
 
-static int bytesSaved = 0;
-
-static inline bool isDetached(const QString &string)
+static inline bool isDetached(const QString &string, int &bytesSaved)
 {
     if (DebugStringTable) {
         QStringPrivate &data_ptr = const_cast<QString&>(string).data_ptr();
@@ -107,7 +105,7 @@ static inline bool isDetached(const QString &string)
 void StringTablePrivate::GC(QPromise<void> &promise)
 {
     int initialSize = 0;
-    bytesSaved = 0;
+    int bytesSaved = 0;
     QElapsedTimer timer;
     if (DebugStringTable) {
         initialSize = m_strings.size();
@@ -119,7 +117,7 @@ void StringTablePrivate::GC(QPromise<void> &promise)
         if (promise.isCanceled())
             return;
 
-        if (isDetached(*i))
+        if (isDetached(*i, bytesSaved))
             i = m_strings.erase(i);
         else
             ++i;
