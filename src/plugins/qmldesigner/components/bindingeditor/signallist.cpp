@@ -72,7 +72,7 @@ void SignalList::prepareDialog()
     m_dialog = Utils::makeUniqueObjectPtr<SignalListDialog>(Core::ICore::dialogParent());
     m_dialog->setAttribute(Qt::WA_DeleteOnClose);
     m_dialog->initialize(m_model.get());
-    m_dialog->setWindowTitle(Tr::tr("Signal List for %1").arg(m_modelNode.validId()));
+    m_dialog->setWindowTitle(::QmlDesigner::Tr::tr("Signal List for %1").arg(m_modelNode.validId()));
 
     auto delegate = m_dialog->signalListDelegate();
     connect(delegate, &SignalListDelegate::connectClicked, this, &SignalList::connectClicked);

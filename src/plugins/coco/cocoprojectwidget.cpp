@@ -220,7 +220,7 @@ void CocoProjectWidget::clearMessageLabel()
     m_messageLabel.setIconType(Utils::InfoLabel::None);
 }
 
-void Internal::CocoProjectWidget::onCoverageGroupBoxClicked()
+void CocoProjectWidget::onCoverageGroupBoxClicked()
 {
     bool checked = m_coverageGroupBoxEnabled();
 
