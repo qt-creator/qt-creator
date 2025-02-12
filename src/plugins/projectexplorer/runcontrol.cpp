@@ -1536,8 +1536,11 @@ void ProcessRunnerPrivate::start()
     QVariantHash extraData = q->runControl()->extraData();
     if (q->runControl() && q->runControl()->target()
         && q->runControl()->target()->activeRunConfiguration()) {
-        extraData[TERMINAL_SHELL_NAME]
-            = q->runControl()->target()->activeRunConfiguration()->displayName();
+        QString shellName = q->runControl()->target()->activeRunConfiguration()->displayName();
+        if (BuildConfiguration *buildConfig = q->runControl()->target()->activeBuildConfiguration())
+            shellName += " - " + buildConfig->displayName();
+
+        extraData[TERMINAL_SHELL_NAME] = shellName;
     } else {
         extraData[TERMINAL_SHELL_NAME] = m_command.executable().fileName();
     }

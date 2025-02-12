@@ -171,10 +171,11 @@ WindowsSettingsWidget::WindowsSettingsWidget()
         { NugetPathExistsRow, Tr::tr("NuGet path exists.") },
         { WindowsAppSdkPathExists, Tr::tr("Windows App SDK path exists.") }
     };
-    m_winAppSdkSummary = new SummaryWidget(winAppSdkValidationPoints,
-                                         Tr::tr("Windows App SDK Settings are OK."),
-                                         Tr::tr("Windows App SDK settings have errors."),
-                                         winAppSdkDetailsWidget);
+    m_winAppSdkSummary = new SummaryWidget(
+        winAppSdkValidationPoints,
+        Tr::tr("Windows App SDK settings are OK."),
+        Tr::tr("Windows App SDK settings have errors."),
+        winAppSdkDetailsWidget);
 
     m_winAppSdkPathChooser->setPromptDialogTitle(Tr::tr("Select Windows App SDK Path"));
     WindowsAppSdkSettings &settings = windowsAppSdkSettings();
@@ -294,10 +295,10 @@ GroupItem WindowsSettingsWidget::downloadNugetRecipe()
 
     const auto failDialog = [=](const QString &msgSuffix = {}) {
         QStringList sl;
-        sl << Tr::tr("NuGet downloading failed.");
+        sl << Tr::tr("NuGet download failed.");
         if (!msgSuffix.isEmpty())
             sl << msgSuffix;
-        sl << Tr::tr("Opening NuGet URL for manual download.");
+        sl << Tr::tr("Open NuGet URL for manual download?");
         QMessageBox msgBox;
         msgBox.setText(sl.join(" "));
         msgBox.addButton(Tr::tr("Cancel"), QMessageBox::RejectRole);
@@ -429,7 +430,7 @@ void WindowsSettingsWidget::downloadWindowsAppSdk()
     const FilePath downloadPath = m_downloadPathChooser->filePath();
     const FilePath winAppSdkPath = m_winAppSdkPathChooser->filePath();
     const FilePath nugetPath = m_nugetPathChooser->filePath();
-    const QString winAppSdkDownloadTitle(Tr::tr("Windows App SDK Downloading"));
+    const QString winAppSdkDownloadTitle(Tr::tr("Downloading Windows App SDK"));
     const QString winAppSdkDownloadUrl = "https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads";
 
     if (m_winAppSdkSummary->rowsOk({WindowsAppSdkPathExists})) {
@@ -467,10 +468,10 @@ void WindowsSettingsWidget::downloadWindowsAppSdk()
 
     const auto failDialog = [=](const QString &msgSuffix = {}) {
         QStringList sl;
-        sl << Tr::tr("Windows App SDK downloading failed.");
+        sl << Tr::tr("Windows App SDK download failed.");
         if (!msgSuffix.isEmpty())
             sl << msgSuffix;
-        sl << Tr::tr("Opening Windows App SDK URL for manual download.");
+        sl << Tr::tr("Open Windows App SDK URL for manual download?");
         QMessageBox msgBox;
         msgBox.setText(sl.join(" "));
         msgBox.addButton(Tr::tr("Cancel"), QMessageBox::RejectRole);

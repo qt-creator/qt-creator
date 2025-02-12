@@ -152,9 +152,9 @@ CppQuickFixSettingsWidget::CppQuickFixSettingsWidget()
             "Leave empty to apply heuristics."));
 
     const auto jsTestButton = new QPushButton(Tr::tr("Test"));
-    const auto hideJsTestResultsButton = new QPushButton(Tr::tr("Hide test results"));
+    const auto hideJsTestResultsButton = new QPushButton(Tr::tr("Hide Test Results"));
     const auto jsTestInputField = new QLineEdit;
-    jsTestInputField->setToolTip(Tr::tr("The content of the \"name\" variable"));
+    jsTestInputField->setToolTip(Tr::tr("The content of the \"name\" variable."));
     jsTestInputField->setText("myValue");
     const auto makeResultField = [] {
         const auto resultField = new QLineEdit;
