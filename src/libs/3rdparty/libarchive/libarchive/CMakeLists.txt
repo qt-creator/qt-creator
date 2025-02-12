@@ -111,7 +111,6 @@ SET(libarchive_SOURCES
   archive_read_support_format_raw.c
   archive_read_support_format_tar.c
   archive_read_support_format_warc.c
-  archive_read_support_format_xar.c
   archive_read_support_format_zip.c
   archive_string.c
   archive_string.h
@@ -163,7 +162,6 @@ SET(libarchive_SOURCES
   archive_write_set_format_ustar.c
   archive_write_set_format_v7tar.c
   archive_write_set_format_warc.c
-  archive_write_set_format_xar.c
   archive_write_set_format_zip.c
   archive_write_set_options.c
   archive_write_set_passphrase.c

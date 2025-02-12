@@ -145,11 +145,8 @@ archive_entry_linkresolver_set_strategy(struct archive_entry_linkresolver *res,
 		break;
 	case ARCHIVE_FORMAT_ISO9660:
 	case ARCHIVE_FORMAT_SHAR:
-	case ARCHIVE_FORMAT_TAR:
-	case ARCHIVE_FORMAT_XAR:
-		res->strategy = ARCHIVE_ENTRY_LINKIFY_LIKE_TAR;
-		break;
-	default:
+    case ARCHIVE_FORMAT_TAR:
+    default:
 		res->strategy = ARCHIVE_ENTRY_LINKIFY_LIKE_OLD_CPIO;
 		break;
 	}

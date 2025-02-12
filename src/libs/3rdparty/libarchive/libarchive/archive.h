@@ -337,7 +337,8 @@ typedef const char *archive_passphrase_callback(struct archive *,
 #define	ARCHIVE_FORMAT_AR_BSD			(ARCHIVE_FORMAT_AR | 2)
 #define	ARCHIVE_FORMAT_MTREE			0x80000
 #define	ARCHIVE_FORMAT_RAW			0x90000
-#define	ARCHIVE_FORMAT_XAR			0xA0000
+// Not supported since it needs xml and regex libraries we don't want to include
+//#define	ARCHIVE_FORMAT_XAR			0xA0000
 #define	ARCHIVE_FORMAT_LHA			0xB0000
 #define	ARCHIVE_FORMAT_CAB			0xC0000
 #define	ARCHIVE_FORMAT_RAR			0xD0000
@@ -458,7 +459,6 @@ __LA_DECL int archive_read_support_format_rar5(struct archive *);
 __LA_DECL int archive_read_support_format_raw(struct archive *);
 __LA_DECL int archive_read_support_format_tar(struct archive *);
 __LA_DECL int archive_read_support_format_warc(struct archive *);
-__LA_DECL int archive_read_support_format_xar(struct archive *);
 /* archive_read_support_format_zip() enables both streamable and seekable
  * zip readers. */
 __LA_DECL int archive_read_support_format_zip(struct archive *);
@@ -822,7 +822,6 @@ __LA_DECL int archive_write_set_format_shar_dump(struct archive *);
 __LA_DECL int archive_write_set_format_ustar(struct archive *);
 __LA_DECL int archive_write_set_format_v7tar(struct archive *);
 __LA_DECL int archive_write_set_format_warc(struct archive *);
-__LA_DECL int archive_write_set_format_xar(struct archive *);
 __LA_DECL int archive_write_set_format_zip(struct archive *);
 __LA_DECL int archive_write_set_format_filter_by_ext(struct archive *a, const char *filename);
 __LA_DECL int archive_write_set_format_filter_by_ext_def(struct archive *a, const char *filename, const char * def_ext);

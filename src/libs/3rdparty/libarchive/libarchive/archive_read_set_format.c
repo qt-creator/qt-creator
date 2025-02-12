@@ -87,9 +87,6 @@ archive_read_set_format(struct archive *_a, int code)
     case ARCHIVE_FORMAT_WARC:
       strcpy(str, "warc");
       break;
-    case ARCHIVE_FORMAT_XAR:
-      strcpy(str, "xar");
-      break;
     case ARCHIVE_FORMAT_ZIP:
       strcpy(str, "zip");
       break;

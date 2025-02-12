@@ -77,11 +77,8 @@ archive_read_support_format_by_code(struct archive *a, int format_code)
 		break;
 	case ARCHIVE_FORMAT_WARC:
 		return archive_read_support_format_warc(a);
-		break;
-	case ARCHIVE_FORMAT_XAR:
-		return archive_read_support_format_xar(a);
-		break;
-	case ARCHIVE_FORMAT_ZIP:
+        break;
+    case ARCHIVE_FORMAT_ZIP:
 		return archive_read_support_format_zip(a);
 		break;
 	}
