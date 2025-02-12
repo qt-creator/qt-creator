@@ -94,7 +94,8 @@ static void reportRenamingError(const QString &oldName, const QString &reason)
 
 static std::optional<QVersionNumber> qtVersionFromProject(const Project *project)
 {
-    if (const auto *kit = project->activeKit(); kit->isValid()) {
+    const auto *kit = project->activeKit();
+    if (kit && kit->isValid()) {
         if (const auto *qtVersion = QtSupport::QtKitAspect::qtVersion(kit))
             return qtVersion->qtVersion();
     }
