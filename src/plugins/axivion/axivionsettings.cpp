@@ -98,7 +98,7 @@ static bool analysisPathValid(const FilePath &analysisPath, QString *error)
     static const QRegularExpression invalid("^(.*/)?\\.\\.?(/.*)?$");
     if (invalid.match(analysisPath.path()).hasMatch()) {
         if (error)
-            *error = Tr::tr("Invalid path elements (. or ..)");
+            *error = Tr::tr("Invalid path elements (. or ..).");
         return false;
     }
     return true;

@@ -128,7 +128,7 @@ private:
 
         const Internal::TargetInformation targetInformation(target);
         if (!targetInformation.isValid()) {
-            reportFailure(Tr::tr("Cannot debug: Invalid target information"));
+            reportFailure(Tr::tr("Cannot debug: Invalid target information."));
             return;
         }
 

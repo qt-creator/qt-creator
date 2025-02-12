@@ -175,7 +175,7 @@ public:
             this,
             &HeadingWidget::pluginInstallationRequested);
 
-        removeButton = new Button(Tr::tr("Remove ..."), Button::SmallSecondary);
+        removeButton = new Button(Tr::tr("Remove..."), Button::SmallSecondary);
         removeButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         removeButton->hide();
         connect(removeButton, &QAbstractButton::pressed, this, [this]() {
@@ -183,7 +183,7 @@ public:
             requestRestart();
         });
 
-        updateButton = new Button(Tr::tr("Update ..."), Button::LargePrimary);
+        updateButton = new Button(Tr::tr("Update..."), Button::LargePrimary);
         updateButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         updateButton->hide();
         connect(updateButton, &QAbstractButton::pressed, this, &HeadingWidget::pluginUpdateRequested);
