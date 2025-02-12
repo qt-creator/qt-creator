@@ -8,6 +8,7 @@
 #include "androidtr.h"
 #include "androidutils.h"
 
+#include <debugger/debuggeritem.h>
 #include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
 
@@ -41,6 +42,7 @@ static Q_LOGGING_CATEGORY(androidRunWorkerLog, "qtc.android.run.androidrunnerwor
 static const int GdbTempFileMaxCounter = 20;
 }
 
+using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Tasking;
 using namespace Utils;
@@ -102,7 +104,11 @@ static FilePath debugServer(bool useLldb, const Target *target)
 
     if (useLldb) {
         // Search suitable lldb-server binary.
-        const FilePath prebuilt = AndroidConfig::ndkLocation(qtVersion) / "toolchains/llvm/prebuilt";
+        const DebuggerItem *debugger = DebuggerKitAspect::debugger(target->kit());
+        if (!debugger || debugger->command().isEmpty())
+            return {};
+        // .../ndk/<ndk-version>/toolchains/llvm/prebuilt/<host-arch>/bin/lldb
+        const FilePath prebuilt = debugger->command().parentDir().parentDir();
         const QString abiNeedle = lldbServerArch2(preferredAbi);
 
         // The new, built-in LLDB.
