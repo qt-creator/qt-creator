@@ -1883,9 +1883,26 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
                 return; // Maybe report error to the user
         }
     }
-    const FullySpecifiedType returnTypeHeader = [&] {
-        if (!getSetTemplate.returnTypeTemplate.has_value())
-            return m_settings->returnByConstRef ? parameterType : memberVariableType;
+
+    enum class HeaderContext { InsideClass, OutsideClass };
+    const auto getReturnTypeHeader = [&](HeaderContext headerContext) {
+        Control *control = m_operation->currentFile()->cppDocument()->control();
+        if (!getSetTemplate.returnTypeTemplate.has_value()) {
+            const FullySpecifiedType &t = m_settings->returnByConstRef ? parameterType
+                                                                       : memberVariableType;
+            if (headerContext == HeaderContext::InsideClass)
+                return t;
+            LookupContext context(m_operation->currentFile()->cppDocument(), m_changes.snapshot());
+            SubstitutionEnvironment env;
+            env.setContext(context);
+            env.switchScope(m_class);
+            ClassOrNamespace *targetCoN = context.lookupType(m_class->enclosingScope());
+            if (!targetCoN)
+                targetCoN = context.globalNamespace();
+            UseMinimalNames q(targetCoN);
+            env.enter(&q);
+            return rewriteType(t, &env, control);
+        }
         QString typeTemplate = getSetTemplate.returnTypeTemplate.value();
         if (returnTypeTemplateParameter.has_value())
             typeTemplate.replace(Pattern::TEMPLATE_PARAMETER_PATTERN,
@@ -1893,10 +1910,11 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
         if (typeTemplate.contains(Pattern::TYPE_PATTERN))
             typeTemplate.replace(Pattern::TYPE_PATTERN,
                                  overview.prettyType(data.declarationSymbol->type()));
-        Control *control = m_operation->currentFile()->cppDocument()->control();
         std::string utf8TypeName = typeTemplate.toUtf8().toStdString();
         return FullySpecifiedType(control->namedType(control->identifier(utf8TypeName.c_str())));
-    }();
+    };
+    const FullySpecifiedType returnTypeHeader = getReturnTypeHeader(HeaderContext::OutsideClass);
+    const FullySpecifiedType returnTypeClass = getReturnTypeHeader(HeaderContext::InsideClass);
 
     // getter declaration
     if (generateFlags & Flag::GenerateGetter) {
@@ -1904,7 +1922,7 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
         // but here the 'this->' is not needed
         const QString returnExpression = QString{getSetTemplate.returnExpression}.replace("this->",
                                                                                           "");
-        QString getterInClassDeclaration = overview.prettyType(returnTypeHeader, data.getterName)
+        QString getterInClassDeclaration = overview.prettyType(returnTypeClass, data.getterName)
                                            + QLatin1String("()");
         if (isMemberVariableStatic)
             getterInClassDeclaration.prepend(QLatin1String("static "));
@@ -2162,7 +2180,7 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
 
     // signal declaration
     if (generateFlags & Flag::GenerateSignal) {
-        const auto &parameter = overview.prettyType(returnTypeHeader, data.qPropertyName);
+        const auto &parameter = overview.prettyType(returnTypeClass, data.qPropertyName);
         const QString newValue = m_settings->signalWithNewValue ? parameter : QString();
         const QString declaration = QString("void %1(%2);\n").arg(data.signalName, newValue);
         addHeaderCode(InsertionPointLocator::Signals, declaration);
@@ -2183,7 +2201,7 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
     if (generateFlags & Flag::GenerateProperty || generateFlags & Flag::GenerateConstantProperty) {
         // Use the returnTypeHeader as base because of custom types in getSetTemplates.
         // Remove const reference from type.
-        FullySpecifiedType type = returnTypeHeader;
+        FullySpecifiedType type = returnTypeClass;
         if (ReferenceType *ref = type.type()->asReferenceType())
             type = ref->elementType();
         type.setConst(false);
@@ -4274,6 +4292,58 @@ void Foo::setBar(const custom<N2::test> &newBar)
         const QByteArray input = "class Something { void @a[10]; };\n";
         GenerateGetterSetter factory;
         QuickFixOperationTest({CppTestDocument::create("file.h", input, {})}, &factory);
+    }
+
+    void testGetterSetterReturnTypeClassScope()
+    {
+        const QByteArray headerInput = R"cpp(
+class Foo
+{
+public:
+    enum Bar { b1, b2 };
+
+private:
+    Bar @m_bar;
+};
+)cpp";
+        const QByteArray headerOutput = R"cpp(
+class Foo
+{
+public:
+    enum Bar { b1, b2 };
+
+    Bar bar() const;
+    void setBar(Bar newBar);
+
+private:
+    Bar m_bar;
+};
+)cpp";
+        const QByteArray srcInput = "#include \"foo.h\"\n";
+        const QByteArray srcOutput = R"cpp(#include "foo.h"
+
+Foo::Bar Foo::bar() const
+{
+    return m_bar;
+}
+
+void Foo::setBar(Bar newBar)
+{
+    m_bar = newBar;
+}
+)cpp";
+
+        QList<TestDocumentPtr> testDocuments{
+             CppTestDocument::create("foo.h", headerInput, headerOutput),
+             CppTestDocument::create("foo.cpp", srcInput, srcOutput),
+        };
+
+        // QuickFixSettings s;
+        // s->getterOutsideClassFrom = 0;
+        // s->getterInCppFileFrom = 0;
+
+        GenerateGetterSetter factory;
+        QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 2);
     }
 };
 
