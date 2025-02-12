@@ -29,13 +29,8 @@ void DesignSystemInterface::loadDesignSystem()
 
 CollectionModel *DesignSystemInterface::model(const QString &typeName)
 {
-    if (auto collection = m_store->collection(typeName)) {
-        auto itr = m_models.find(typeName);
-        if (itr != m_models.end())
-            return itr->second.get();
-
+    if (auto collection = m_store->collection(typeName))
         return createModel(typeName, collection);
-    }
 
     return nullptr;
 }
@@ -75,14 +70,14 @@ QStringList DesignSystemInterface::collections() const
 
 CollectionModel *DesignSystemInterface::createModel(const QString &typeName, DSThemeManager *collection)
 {
-    auto [newItr, success] = m_models.try_emplace(typeName,
-                                                  makeLazyUniquePtr<CollectionModel>(collection,
-                                                                                     m_store));
-    if (success) {
+    auto [iterator, inserted] = m_models.try_emplace(typeName,
+                                                     makeLazyUniquePtr<CollectionModel>(collection,
+                                                                                        m_store));
+    if (inserted) {
         // Otherwise the model will be deleted by the QML engine.
-        QQmlEngine::setObjectOwnership(newItr->second.get(), QQmlEngine::CppOwnership);
-        return newItr->second.get();
+        QQmlEngine::setObjectOwnership(iterator->second.get(), QQmlEngine::CppOwnership);
     }
-    return nullptr;
+
+    return iterator->second.get();
 }
 } // namespace QmlDesigner
