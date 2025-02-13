@@ -18,6 +18,7 @@ QtcPlugin {
     Group {
         name: "General"
         files: [
+            "../../libs/3rdparty/toml11/toml.hpp",
             "pipsupport.cpp",
             "pipsupport.h",
             "pyside.cpp",

@@ -660,5 +660,19 @@
         "License": "Apache License 2.0",
         "LicenseFile": "doc/qtcreator/src/overview/license-Apache-2.0.txt",
         "Copyright": "Copyright 2011 The Apache Software Foundation"
+    },
+    {
+        "Id": "toml11",
+        "Name": "TOML C++ Parser",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used for reading and writing pyproject.toml files.",
+        "Path": "src/libs/3rdparty/toml11",
+        "Description": "Header-only TOML config file parser and serializer for C++.",
+        "Homepage": "https://github.com/ToruNiina/toml11",
+        "Version": "4.3.0",
+        "License": "MIT License",
+        "LicenseFile": "src/libs/3rdparty/toml11/LICENSE",
+        "Copyright": "Copyright (c) 2017-2024 Toru Niina."
     }
 ]
