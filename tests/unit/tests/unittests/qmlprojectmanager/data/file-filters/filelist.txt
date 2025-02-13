@@ -119,6 +119,7 @@ asset_imports/ComponentBundles/MaterialBundle/GlassTintedMaterial.qml
 asset_imports/ComponentBundles/MaterialBundle/designer/images/material.png
 asset_imports/ComponentBundles/MaterialBundle/images/DiamondPlate001_2K_Roughness.png
 asset_imports/ComponentBundles/MaterialBundle/WoodPlanksMaterial.qml
+asset_imports/ComponentBundles/MaterialBundle/images/blurrynoise.tga
 content/CustomRoundButton.qml
 content/images/groundAlpha.png
 asset_imports/ComponentBundles/MaterialBundle/images/Paint006_2K_NormalGL.png

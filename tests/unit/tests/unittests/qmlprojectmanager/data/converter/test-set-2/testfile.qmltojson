@@ -59,7 +59,8 @@
                 "*.ttf",
                 "*.webp",
                 "*.xbm",
-                "*.xpm"
+                "*.xpm",
+                "*.tga"
             ],
             "mcuProperties": {
             },

@@ -89,7 +89,8 @@
                 "*.ttf",
                 "*.webp",
                 "*.xbm",
-                "*.xpm"
+                "*.xpm",
+                "*.tga"
             ],
             "mcuProperties": {
             },
@@ -121,7 +122,8 @@
                 "*.ttf",
                 "*.webp",
                 "*.xbm",
-                "*.xpm"
+                "*.xpm",
+                "*.tga"
             ],
             "mcuProperties": {
             },
