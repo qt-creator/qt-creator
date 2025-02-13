@@ -1,0 +1,5 @@
+[project]
+name = "FileWrongTypeTest"
+
+[tool.pyside6-project]
+files = ["main.py", 33]

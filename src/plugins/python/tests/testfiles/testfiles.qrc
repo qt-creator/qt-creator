@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/unittests/Python">
+        <file>correct_after_update.toml</file>
+        <file>correct.toml</file>
+        <file>empty.toml</file>
+        <file>filemissing.toml</file>
+        <file>filesblank.toml</file>
+        <file>fileswrongtype.toml</file>
+        <file>filewrongtype.toml</file>
+        <file>projectempty.toml</file>
+        <file>projectmissing.toml</file>
+        <file>projectwrongtype.toml</file>
+        <file>pysideempty.toml</file>
+        <file>pysidemissing.toml</file>
+        <file>pysidewrongtype.toml</file>
+        <file>toolempty.toml</file>
+        <file>toolmissing.toml</file>
+        <file>toolwrongtype.toml</file>
+        <file>main.py</file>
+    </qresource>
+</RCC>

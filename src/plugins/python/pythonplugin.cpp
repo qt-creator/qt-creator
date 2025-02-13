@@ -13,6 +13,10 @@
 #include "pythontr.h"
 #include "pythonwizardpage.h"
 
+#ifdef WITH_TESTS
+#include "tests/pyprojecttoml_test.h"
+#endif // WITH_TESTS
+
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/buildtargetinfo.h>
@@ -72,6 +76,9 @@ class PythonPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
+#ifdef WITH_TESTS
+        addTestCreator(createPyProjectTomlTest);
+#endif
         Core::IOptionsPage::registerCategory(
             Constants::C_PYTHON_SETTINGS_CATEGORY,
             Tr::tr("Python"),
