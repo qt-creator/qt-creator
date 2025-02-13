@@ -144,11 +144,9 @@ void DesktopRunConfiguration::updateTargetInformation()
         aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
         aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
 
-        auto argumentsAsString = [bti]() {
-            return CommandLine{"", bti.additionalData.toMap()["arguments"].toStringList()}
-                .arguments();
-        };
-        aspect<ArgumentsAspect>()->setArguments(argumentsAsString());
+        const QStringList argumentsList = bti.additionalData.toMap()["arguments"].toStringList();
+        if (!argumentsList.isEmpty())
+            aspect<ArgumentsAspect>()->setArguments(CommandLine{"", argumentsList}.arguments());
 
         emit aspect<EnvironmentAspect>()->environmentChanged();
     }
