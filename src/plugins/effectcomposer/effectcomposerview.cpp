@@ -125,7 +125,7 @@ QmlDesigner::WidgetInfo EffectComposerView::widgetInfo()
         m_widget.data(),
         "EffectComposer",
         QmlDesigner::WidgetInfo::LeftPane,
-        Tr::tr("Effect Composer [beta]"));
+        Tr::tr("Effect Composer"));
 }
 
 void EffectComposerView::customNotification([[maybe_unused]] const AbstractView *view,
