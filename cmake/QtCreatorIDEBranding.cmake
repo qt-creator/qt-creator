@@ -1,6 +1,6 @@
-set(IDE_VERSION "15.0.83")                            # The IDE version.
-set(IDE_VERSION_COMPAT "15.0.83")                     # The IDE Compatibility version.
-set(IDE_VERSION_DISPLAY "16.0.0-beta2")               # The IDE display version.
+set(IDE_VERSION "15.0.84")                            # The IDE version.
+set(IDE_VERSION_COMPAT "15.0.84")                     # The IDE Compatibility version.
+set(IDE_VERSION_DISPLAY "16.0.0-rc1")               # The IDE display version.
 
 set(IDE_SETTINGSVARIANT "QtProject")                  # The IDE settings variation.
 set(IDE_DISPLAY_NAME "Qt Creator")                    # The IDE display name.
