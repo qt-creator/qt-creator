@@ -135,9 +135,12 @@ class PlainDumper():
         if isinstance(val, str):
             # encode and avoid extra quotes ('"') at beginning and end
             d.putValue(d.hexencode(val), 'utf8:1:0')
-        elif val is not None:  # Assuming LazyString
-            d.putCharArrayValue(val.address, val.length,
-                                val.type.target().sizeof)
+        # It might as well be just another gdb.Value, see
+        # https://sourceware.org/gdb/current/onlinedocs/gdb.html/Pretty-Printing-API.html#:~:text=Function%3A%20pretty_printer.to_string%20(self)
+        elif isinstance(val, gdb.Value):
+            d.putItem(d.fromNativeValue(val))
+        else:
+            return
 
         lister = getattr(printer, 'children', None)
         if lister is None:
@@ -1041,7 +1044,8 @@ class Dumper(DumperBase):
                 for printer in printers.subprinters:
                     self.importPlainDumper(printer)
             else:
-                self.warn('Loading a printer without the subprinters attribute not supported.')
+                self.warn("Failed to load printer '{}': loading printers without "
+                          "the subprinters attribute not supported.".format(printers.name))
 
     def importPlainDumpers(self):
         for obj in gdb.objfiles():

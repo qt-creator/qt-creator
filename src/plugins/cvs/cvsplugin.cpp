@@ -944,7 +944,10 @@ void CvsPluginPrivate::filelog(const FilePath &workingDir,
     // no need for temp file
     const QString id = VcsBaseEditor::getTitleId(workingDir, QStringList(file));
     const FilePath source = VcsBaseEditor::getSource(workingDir, file);
-    const auto response = runCvs(workingDir, {"log", file}, RunFlags::None, codec);
+    QStringList args = {"log"};
+    if (!file.isEmpty())
+        args.append(file);
+    const auto response = runCvs(workingDir, args, RunFlags::None, codec);
     if (response.result() != ProcessResult::FinishedWithSuccess)
         return;
 
