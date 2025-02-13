@@ -3706,7 +3706,7 @@ void GitClient::addChangeActions(QMenu *menu, const FilePath &source, const QStr
         menu->addAction(Tr::tr("C&heckout %1").arg(change), [workingDir, change] {
             gitClient().checkout(workingDir, change);
         });
-        menu->addAction(tr("Create &Branch from %1...").arg(change), [workingDir, change] {
+        menu->addAction(Tr::tr("Create &Branch from %1...").arg(change), [workingDir, change] {
             const QStringList localBranches =
                 gitClient().synchronousRepositoryBranches(workingDir.toFSPathString());
             BranchAddDialog dialog(localBranches, BranchAddDialog::Type::AddBranch,

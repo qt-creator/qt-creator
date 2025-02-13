@@ -9,6 +9,7 @@ add_qtc_plugin(EffectComposer
     effectcomposereditablenodesmodel.cpp effectcomposereditablenodesmodel.h
     effectcodeeditorwidget.cpp effectcodeeditorwidget.h
     effectcomposerplugin.cpp
+    effectcomposertr.h
     effectcomposerwidget.cpp effectcomposerwidget.h
     effectcomposerview.cpp effectcomposerview.h
     effectcomposermodel.cpp effectcomposermodel.h

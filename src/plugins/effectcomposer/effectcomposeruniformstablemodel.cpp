@@ -3,6 +3,7 @@
 
 #include "effectcomposeruniformstablemodel.h"
 
+#include "effectcomposertr.h"
 #include "uniform.h"
 
 #include <utils/algorithm.h>
@@ -14,14 +15,6 @@
 namespace EffectComposer {
 
 namespace {
-
-struct Tr
-{
-    static inline QString tr(const auto &text)
-    {
-        return EffectComposerUniformsTableModel::tr(text);
-    }
-};
 
 struct RoleColMap
 {

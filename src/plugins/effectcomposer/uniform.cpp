@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "uniform.h"
+
+#include "effectcomposertr.h"
+
 #include <qmldesignerplugin.h>
 
 #include "propertyhandler.h"
@@ -328,27 +331,27 @@ R"(
     case Type::Vec2: {
         QVector2D minVal = m_minValue.value<QVector2D>();
         QVector2D maxVal = m_maxValue.value<QVector2D>();
-        appendVectorSpinbox("x", tr("X"), minVal.x(), maxVal.x(), true);
-        appendVectorSpinbox("y", tr("Y"), minVal.y(), maxVal.y(), false);
+        appendVectorSpinbox("x", Tr::tr("X"), minVal.x(), maxVal.x(), true);
+        appendVectorSpinbox("y", Tr::tr("Y"), minVal.y(), maxVal.y(), false);
         break;
     }
     case Type::Vec3: {
         QVector3D minVal = m_minValue.value<QVector3D>();
         QVector3D maxVal = m_maxValue.value<QVector3D>();
-        appendVectorSpinbox("x", tr("X"), minVal.x(), maxVal.x(), true);
-        appendVectorSpinbox("y", tr("Y"), minVal.y(), maxVal.y(), false);
+        appendVectorSpinbox("x", Tr::tr("X"), minVal.x(), maxVal.x(), true);
+        appendVectorSpinbox("y", Tr::tr("Y"), minVal.y(), maxVal.y(), false);
         appendVectorSeparator();
-        appendVectorSpinbox("z", tr("Z"), minVal.z(), maxVal.z(), true);
+        appendVectorSpinbox("z", Tr::tr("Z"), minVal.z(), maxVal.z(), true);
         break;
     }
     case Type::Vec4: {
         QVector4D minVal = m_minValue.value<QVector4D>();
         QVector4D maxVal = m_maxValue.value<QVector4D>();
-        appendVectorSpinbox("x", tr("X"), minVal.x(), maxVal.x(), true);
-        appendVectorSpinbox("y", tr("Y"), minVal.y(), maxVal.y(), false);
+        appendVectorSpinbox("x", Tr::tr("X"), minVal.x(), maxVal.x(), true);
+        appendVectorSpinbox("y", Tr::tr("Y"), minVal.y(), maxVal.y(), false);
         appendVectorSeparator();
-        appendVectorSpinbox("z", tr("Z"), minVal.z(), maxVal.z(), true);
-        appendVectorSpinbox("w", tr("W"), minVal.w(), maxVal.w(), false);
+        appendVectorSpinbox("z", Tr::tr("Z"), minVal.z(), maxVal.z(), true);
+        appendVectorSpinbox("w", Tr::tr("W"), minVal.w(), maxVal.w(), false);
         break;
     }
     case Type::Color: {
@@ -383,11 +386,14 @@ R"(
                     backendValue: backendValues.%2
                 }
 )";
-        specs += typeSpec.arg(m_name + "Url")
-                     .arg(m_name)
-                     .arg(m_displayName + tr(" Item"))
-                     .arg(tr("Set this to use an item in the scene as %1 instead of the above image.")
-                              .arg(m_displayName));
+        specs
+            += typeSpec.arg(m_name + "Url")
+                   .arg(m_name)
+                   .arg(Tr::tr("%1 Item").arg(m_displayName))
+                   .arg(
+                       Tr::tr(
+                           "Set this to use an item in the scene as %1 instead of the above image.")
+                           .arg(m_displayName));
         break;
     }
     case Type::Define:
