@@ -21,6 +21,8 @@ QtcPlugin {
             "../../libs/3rdparty/toml11/toml.hpp",
             "pipsupport.cpp",
             "pipsupport.h",
+            "pyprojecttoml.cpp",
+            "pyprojecttoml.h",
             "pyside.cpp",
             "pyside.h",
             "pythonbuildconfiguration.cpp",

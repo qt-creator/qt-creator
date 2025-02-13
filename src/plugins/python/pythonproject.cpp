@@ -18,7 +18,7 @@ using namespace Utils;
 namespace Python::Internal {
 
 PythonProject::PythonProject(const FilePath &fileName)
-    : Project(Constants::C_PY_PROJECT_MIME_TYPE, fileName)
+    : Project(Constants::C_PY_PROJECT_MIME_TYPE_TOML, fileName)
 {
     setId(PythonProjectId);
     setProjectLanguages(Context(ProjectExplorer::Constants::PYTHON_LANGUAGE_ID));
@@ -45,4 +45,4 @@ QString PythonFileNode::displayName() const
     return m_displayName;
 }
 
-} // Python::Internal
+} // namespace Python::Internal

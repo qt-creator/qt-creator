@@ -192,10 +192,13 @@ void setupPythonDebugWorker()
 void setupPythonOutputParser()
 {
     addOutputParserFactory([](Target *t) -> OutputLineParser * {
-        if (t && t->project()->mimeType() == Constants::C_PY_PROJECT_MIME_TYPE)
+        if (!t)
+            return nullptr;
+        if (t->project()->mimeType() == Constants::C_PY_PROJECT_MIME_TYPE
+            || t->project()->mimeType() == Constants::C_PY_PROJECT_MIME_TYPE_TOML)
             return new PythonOutputLineParser;
         return nullptr;
     });
 }
 
-} // Python::Internal
+} // namespace Python::Internal

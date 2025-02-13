@@ -146,12 +146,12 @@ void PythonEditorWidget::updateInterpretersSelector()
     };
 
     const FilePath documentPath = textDocument()->filePath();
-    Project *project = Utils::findOrDefault(ProjectManager::projects(),
-                                            [documentPath](Project *project) {
-                                                return project->mimeType()
-                                                           == Constants::C_PY_PROJECT_MIME_TYPE
-                                                       && project->isKnownFile(documentPath);
-                                            });
+    const auto isPythonProject = [documentPath](Project *project) {
+        return project->isKnownFile(documentPath) && (
+            project->mimeType() == Constants::C_PY_PROJECT_MIME_TYPE ||
+            project->mimeType() == Constants::C_PY_PROJECT_MIME_TYPE_TOML);
+    };
+    Project *project = Utils::findOrDefault(ProjectManager::projects(), isPythonProject);
 
     if (project) {
         auto interpretersGroup = new QActionGroup(menu);
