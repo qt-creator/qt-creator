@@ -86,6 +86,7 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
         "generate image in standard collector");
 
     RewriterView rewriterView{m_externalDependencies, RewriterView::Amend};
+    rewriterView.setPossibleImportsEnabled(false);
     NodeInstanceView nodeInstanceView{m_connectionManager, m_externalDependencies};
     nodeInstanceView.setCaptureImageMinimumAndMaximumSize(captureImageMinimumSize,
                                                           captureImageMaximumSize);
