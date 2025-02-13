@@ -26,13 +26,17 @@
             \li Meaning
         \row
             \li Id
-            \li String
+            \li String (must be lowercase)
             \li This is used as an identifier for the plugin and can e.g.
                 be referenced in other plugin's dependencies.
         \row
             \li Name
             \li String
             \li This is used as the display name of your plugin in the UI.
+       \row
+            \li VendorId
+            \li String (must be lowercase)
+            \li A unique identifier for the vendor, like \c{mycompany}.
         \row
             \li Version
             \li String
