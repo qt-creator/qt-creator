@@ -211,6 +211,7 @@ bool Toolchain::canShareBundle(const Toolchain &other) const
 {
     QTC_ASSERT(typeId() == other.typeId(), return false);
     QTC_ASSERT(language() != other.language(), return false);
+    QTC_ASSERT(factory(), return false);
 
     if (int(factory()->supportedLanguages().size()) == 1)
         return false;
@@ -711,7 +712,7 @@ Toolchain *ToolchainFactory::restore(const Store &data)
     QTC_ASSERT(tc, return nullptr);
 
     tc->fromMap(data);
-    if (!tc->hasError())
+    if (!tc->hasError() && QTC_GUARD(tc->typeId() == supportedToolchainType()))
         return tc;
 
     delete tc;
@@ -921,6 +922,7 @@ ToolchainBundle::ToolchainBundle(const Toolchains &toolchains, HandleMissing han
 {
     // Check pre-conditions.
     QTC_ASSERT(!m_toolchains.isEmpty(), return);
+    QTC_ASSERT(factory(), return);
     QTC_ASSERT(m_toolchains.size() <= factory()->supportedLanguages().size(), return);
     for (const Toolchain * const tc : toolchains) {
         QTC_ASSERT(factory()->supportedLanguages().contains(tc->language()), return);
