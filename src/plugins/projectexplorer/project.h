@@ -228,7 +228,6 @@ signals:
 protected:
     virtual RestoreResult fromMap(const Utils::Store &map, QString *errorMessage);
     void createTargetFromMap(const Utils::Store &map, int index);
-    bool setupTarget(Target *t);
 
     void setCanBuildProducts();
 

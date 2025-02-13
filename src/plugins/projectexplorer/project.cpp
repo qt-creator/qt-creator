@@ -294,7 +294,12 @@ Target *Project::addTargetForKit(Kit *kit)
 
     auto t = std::make_unique<Target>(this, kit, Target::_constructor_tag{});
     Target *pointer = t.get();
-    QTC_ASSERT(setupTarget(pointer), return {});
+
+    t->updateDefaultBuildConfigurations();
+    QTC_ASSERT(!t->buildConfigurations().isEmpty(), return nullptr);
+    t->updateDefaultDeployConfigurations();
+    t->updateDefaultRunConfigurations();
+
     addTarget(std::move(t));
 
     return pointer;
@@ -650,15 +655,6 @@ bool Project::copySteps(const Utils::Store &store, Kit *targetKit)
         return true;
     }
     return t->addConfigurationsFromMap(store, /*setActiveConfigurations=*/false);
-}
-
-bool Project::setupTarget(Target *t)
-{
-    t->updateDefaultBuildConfigurations();
-    QTC_ASSERT(!t->buildConfigurations().isEmpty(), return false);
-    t->updateDefaultDeployConfigurations();
-    t->updateDefaultRunConfigurations();
-    return true;
 }
 
 void Project::setDisplayName(const QString &name)
