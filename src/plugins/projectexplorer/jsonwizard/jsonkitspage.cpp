@@ -41,7 +41,9 @@ void JsonKitsPage::initializePage()
                                        wiz->value(QLatin1String("RequiredFeatures")),
                                        wiz);
 
-    setTasksGenerator([required, preferred, platform](const Kit *k) -> Tasks {
+    const FilePath projectFilePath = wiz->expander()->expand(
+        Utils::FilePath::fromString(unexpandedProjectPath()));
+    setTasksGenerator([required, preferred, platform, projectFilePath](const Kit *k) -> Tasks {
         if (!k->hasFeatures(required))
             return {CompileTask(Task::Error, Tr::tr("At least one required feature is not present."))};
         if (platform.isValid() && !k->supportedPlatforms().contains(platform))
@@ -49,9 +51,11 @@ void JsonKitsPage::initializePage()
         if (!k->hasFeatures(preferred))
             return {
                 CompileTask(Task::Unknown, Tr::tr("At least one preferred feature is not present."))};
+        if (const auto issuesGenerator = ProjectManager::getIssuesGenerator(projectFilePath))
+            return issuesGenerator(k);
         return {};
     });
-    setProjectPath(wiz->expander()->expand(Utils::FilePath::fromString(unexpandedProjectPath())));
+    setProjectPath(projectFilePath);
 
     TargetSetupPage::initializePage();
 }

@@ -752,13 +752,8 @@ void QmakeBuildSystem::buildFinished(bool success)
 Tasks QmakeProject::projectIssues(const Kit *k) const
 {
     Tasks result = Project::projectIssues(k);
-    const QtSupport::QtVersion *const qtFromKit = QtSupport::QtKitAspect::qtVersion(k);
-    if (!qtFromKit)
-        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No Qt version set in kit.")));
-    else if (!qtFromKit->isValid())
-        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Qt version is invalid.")));
-    if (!ToolchainKitAspect::cxxToolchain(k))
-        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No C++ compiler set in kit.")));
+    const QtSupport::QtVersion * const qtFromKit = QtSupport::QtKitAspect::qtVersion(k);
+    QTC_ASSERT(qtFromKit, return {}); // Checked by "static" issues generator in base class.
 
     // A project can be considered part of more than one Qt version, for instance if it is an
     // example shipped via the installer.

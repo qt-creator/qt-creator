@@ -4,6 +4,7 @@
 #pragma once
 
 #include "projectexplorer_export.h"
+#include "task.h"
 
 #include <QString>
 #include <QObject>
@@ -21,6 +22,7 @@ class MimeType;
 namespace ProjectExplorer {
 
 class BuildSystem;
+class Kit;
 class Project;
 class RunConfiguration;
 class Target;
@@ -39,13 +41,21 @@ public:
     static bool canOpenProjectForMimeType(const Utils::MimeType &mt);
     static Project *openProject(const Utils::MimeType &mt, const Utils::FilePath &fileName);
 
-    template <typename T>
-    static void registerProjectType(const QString &mimeType)
+    using IssuesGenerator = std::function<Tasks(const Kit *)>;
+    template<typename T>
+    static void registerProjectType(const QString &mimeType,
+                                    const IssuesGenerator &issuesGenerator = {})
     {
-        ProjectManager::registerProjectCreator(mimeType, [](const Utils::FilePath &fileName) {
-            return new T(fileName);
-        });
+        registerProjectCreator(
+            mimeType,
+            [issuesGenerator](const Utils::FilePath &fileName) {
+                auto * const p = new T(fileName);
+                p->setIssuesGenerator(issuesGenerator);
+                return p;
+            },
+            issuesGenerator);
     }
+    static IssuesGenerator getIssuesGenerator(const Utils::FilePath &projectFilePath);
 
     static void closeAllProjects();
 
@@ -105,7 +115,8 @@ private:
     static void configureEditors(Project *project);
 
     static void registerProjectCreator(const QString &mimeType,
-                                       const std::function<Project *(const Utils::FilePath &)> &);
+                                       const std::function<Project *(const Utils::FilePath &)> &,
+                                       const IssuesGenerator &issuesGenerator);
 };
 
 } // namespace ProjectExplorer

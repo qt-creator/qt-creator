@@ -22,8 +22,6 @@ public:
     static bool isQtDesignStudioStartedFromQtC();
     bool isEditModePreferred() const override;
 
-    ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
-
     static bool isMCUs();
 
 protected:

@@ -7,6 +7,7 @@
 
 #include "deploymentdata.h"
 #include "kit.h"
+#include "task.h"
 
 #include <coreplugin/idocument.h>
 
@@ -102,6 +103,7 @@ public:
     DeployConfiguration *activeDeployConfiguration() const;
     BuildSystem *activeBuildSystem() const;
 
+    void setIssuesGenerator(const std::function<Tasks(const Kit *)> &generator);
     virtual Tasks projectIssues(const Kit *k) const;
 
     static bool copySteps(Target *sourceTarget, Target *newTarget);
@@ -189,6 +191,7 @@ public:
                                             const QString &descriptor,
                                             Utils::MacroExpander *expander,
                                             const std::function<Project *()> &projectGetter);
+    static Task createTask(ProjectExplorer::Task::TaskType type, const QString &description);
 
     QList<Utils::Store> vanishedTargets() const;
     void removeVanishedTarget(int index);
@@ -237,8 +240,6 @@ protected:
 
     void setSupportsBuilding(bool value);
 
-    static ProjectExplorer::Task createProjectTask(ProjectExplorer::Task::TaskType type,
-                                                   const QString &description);
     template <typename BuildSystemImpl>
     void setBuildSystemCreator() {
         setBuildSystemCreator([](BuildConfiguration *bc) { return new BuildSystemImpl(bc); });

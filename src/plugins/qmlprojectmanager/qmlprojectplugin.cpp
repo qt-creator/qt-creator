@@ -25,7 +25,11 @@
 #include <debugger/debuggerruncontrol.h>
 
 #include <extensionsystem/iplugin.h>
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
@@ -34,21 +38,18 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
-#include <qmlprofiler/qmlprofilerruncontrol.h>
-
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <qmljseditor/qmljseditor.h>
 #include <qmljseditor/qmljseditorconstants.h>
 
-#include <qmljstools/qmljstoolsconstants.h>
+#include <qmlprofiler/qmlprofilerruncontrol.h>
 
 #include <qmlpreview/qmlpreviewruncontrol.h>
 
-#include <extensionsystem/pluginmanager.h>
-#include <extensionsystem/pluginspec.h>
+#include <qtsupport/qtkitaspect.h>
+#include <qtsupport/qtsupportconstants.h>
 
-#include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/mimeconstants.h>
 #include <utils/qtcprocess.h>
@@ -305,7 +306,46 @@ void QmlProjectPlugin::initialize()
                 this, &QmlProjectPlugin::editorModeChanged);
     }
 
-    ProjectManager::registerProjectType<QmlProject>(Utils::Constants::QMLPROJECT_MIMETYPE);
+    const auto issuesGenerator = [](const Kit *k) {
+        Tasks result;
+        const QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
+        if (!version) {
+            result.append(
+                Project::createTask(Task::TaskType::Warning, Tr::tr("No Qt version set in kit.")));
+        }
+
+        IDevice::ConstPtr dev = RunDeviceKitAspect::device(k);
+        if (!dev)
+            result.append(Project::createTask(Task::TaskType::Error, Tr::tr("Kit has no device.")));
+
+        if (version && version->qtVersion() < QVersionNumber(5, 0, 0))
+            result.append(Project::createTask(Task::TaskType::Error, Tr::tr("Qt version is too old.")));
+
+        if (!dev || !version)
+            return result; // No need to check deeper than this
+
+        if (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+            if (version->type() == QtSupport::Constants::DESKTOPQT) {
+                if (version->qmlRuntimeFilePath().isEmpty()) {
+                    result.append(Project::createTask(Task::TaskType::Error,
+                                                      Tr::tr("Qt version has no QML utility.")));
+                }
+            } else {
+                // Non-desktop Qt on a desktop device? We don't support that.
+                result.append(
+                    Project::createTask(Task::TaskType::Error,
+                                        Tr::tr("Non-desktop Qt is used with a desktop device.")));
+            }
+        } else {
+            // If not a desktop device, don't check the Qt version for qml runtime binary.
+            // The device is responsible for providing it and we assume qml runtime can be found
+            // in $PATH if it's not explicitly given.
+        }
+
+        return result;
+    };
+    ProjectManager::registerProjectType<QmlProject>(Utils::Constants::QMLPROJECT_MIMETYPE,
+                                                    issuesGenerator);
     setupQmlBuildConfiguration();
     FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png",
                                                    "qmlproject");

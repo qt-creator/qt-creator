@@ -5,8 +5,6 @@
 
 #include "pythonbuildsystem.h"
 #include "pythonconstants.h"
-#include "pythonkitaspect.h"
-#include "pythontr.h"
 
 #include <coreplugin/icontext.h>
 
@@ -26,14 +24,6 @@ PythonProject::PythonProject(const FilePath &fileName)
     setProjectLanguages(Context(ProjectExplorer::Constants::PYTHON_LANGUAGE_ID));
     setDisplayName(fileName.completeBaseName());
     setBuildSystemCreator<PythonBuildSystem>();
-}
-
-Tasks PythonProject::projectIssues(const Kit *k) const
-{
-    if (PythonKitAspect::python(k))
-        return {};
-    return {BuildSystemTask{
-        Task::Error, Tr::tr("No Python interpreter set for kit \"%1\".").arg(k->displayName())}};
 }
 
 PythonProjectNode::PythonProjectNode(const FilePath &path)

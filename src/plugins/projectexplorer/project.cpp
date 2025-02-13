@@ -185,6 +185,7 @@ public:
     Store m_pluginSettings;
     std::unique_ptr<Internal::UserFileAccessor> m_accessor;
     QHash<Id, QPair<QString, std::function<void()>>> m_generators;
+    std::function<Tasks(const Kit *)> m_issuesGenerator;
 
     QString m_displayName;
 
@@ -470,6 +471,11 @@ BuildSystem *Project::activeBuildSystem() const
     return activeTarget() ? activeTarget()->buildSystem() : nullptr;
 }
 
+void Project::setIssuesGenerator(const std::function<Tasks(const Kit *)> &generator)
+{
+    d->m_issuesGenerator = generator;
+}
+
 QList<Store> Project::vanishedTargets() const
 {
     return d->m_vanishedTargets;
@@ -518,9 +524,10 @@ Target *Project::createKitAndTargetFromStore(const Utils::Store &store)
 
 Tasks Project::projectIssues(const Kit *k) const
 {
-    Tasks result;
     if (!k->isValid())
-        result.append(createProjectTask(Task::TaskType::Error, ::PE::Tr::tr("Kit is not valid.")));
+        return {createTask(Task::TaskType::Error, ::PE::Tr::tr("Kit is not valid."))};
+    if (d->m_issuesGenerator)
+        return d->m_issuesGenerator(k);
     return {};
 }
 
@@ -1036,7 +1043,7 @@ void Project::setSupportsBuilding(bool value)
     d->m_supportsBuilding = value;
 }
 
-Task Project::createProjectTask(Task::TaskType type, const QString &description)
+Task Project::createTask(Task::TaskType type, const QString &description)
 {
     return Task(type, description, FilePath(), -1, Id());
 }

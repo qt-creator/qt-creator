@@ -167,6 +167,7 @@
 #include <functional>
 #include <iterator>
 #include <memory>
+#include <utility>
 #include <vector>
 
 /*!
@@ -596,7 +597,7 @@ public:
     int m_activeRunControlCount = 0;
     int m_shutdownWatchDogId = -1;
 
-    QHash<QString, std::function<Project *(const FilePath &)>> m_projectCreators;
+    QHash<QString, std::pair<std::function<Project *(const FilePath &)>, ProjectManager::IssuesGenerator>> m_projectCreators;
     RecentProjectsEntries m_recentProjects; // pair of filename, displayname
     QFuture<RecentProjectsEntry> m_recentProjectsFuture;
     QThreadPool m_recentProjectsPool;
@@ -4146,9 +4147,22 @@ void ProjectExplorerPlugin::renameFilesForSymbol(const QString &oldSymbolName,
 }
 
 void ProjectManager::registerProjectCreator(const QString &mimeType,
-    const std::function<Project *(const FilePath &)> &creator)
+    const std::function<Project *(const FilePath &)> &creator,
+    const IssuesGenerator &issuesGenerator)
 {
-    dd->m_projectCreators[mimeType] = creator;
+    dd->m_projectCreators[mimeType] = std::make_pair(creator, issuesGenerator);
+}
+
+ProjectManager::IssuesGenerator ProjectManager::getIssuesGenerator(
+        const Utils::FilePath &projectFilePath)
+{
+    if (const MimeType mt = mimeTypeForFile(projectFilePath); mt.isValid()) {
+        for (auto it = dd->m_projectCreators.cbegin(); it != dd->m_projectCreators.cend(); ++it) {
+            if (mt.matchesName(it.key()))
+                return it.value().second;
+        }
+    }
+    return {};
 }
 
 Project *ProjectManager::openProject(const MimeType &mt, const FilePath &fileName)
@@ -4156,7 +4170,7 @@ Project *ProjectManager::openProject(const MimeType &mt, const FilePath &fileNam
     if (mt.isValid()) {
         for (auto it = dd->m_projectCreators.cbegin(); it != dd->m_projectCreators.cend(); ++it) {
             if (mt.matchesName(it.key()))
-                return it.value()(fileName);
+                return it.value().first(fileName);
         }
     }
     return nullptr;

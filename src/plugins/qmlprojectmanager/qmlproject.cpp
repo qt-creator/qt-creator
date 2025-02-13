@@ -4,7 +4,6 @@
 #include "qmlproject.h"
 
 #include "qmlprojectconstants.h"
-#include "qmlprojectmanagertr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icontext.h>
@@ -21,14 +20,9 @@
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
-#include <qtsupport/qtsupportconstants.h>
-
-#include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
-#include <utils/infobar.h>
 #include <utils/mimeconstants.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -180,45 +174,6 @@ Utils::FilePaths QmlProject::collectQmlFiles() const
         return node->filePath().completeSuffix() == "qml";
     });
     return qmlFiles;
-}
-
-Tasks QmlProject::projectIssues(const Kit *k) const
-{
-    Tasks result = Project::projectIssues(k);
-
-    const QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
-    if (!version)
-        result.append(createProjectTask(Task::TaskType::Warning, Tr::tr("No Qt version set in kit.")));
-
-    IDevice::ConstPtr dev = RunDeviceKitAspect::device(k);
-    if (!dev)
-        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Kit has no device.")));
-
-    if (version && version->qtVersion() < QVersionNumber(5, 0, 0))
-        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Qt version is too old.")));
-
-    if (!dev || !version)
-        return result; // No need to check deeper than this
-
-    if (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        if (version->type() == QtSupport::Constants::DESKTOPQT) {
-            if (version->qmlRuntimeFilePath().isEmpty()) {
-                result.append(
-                    createProjectTask(Task::TaskType::Error,
-                                      Tr::tr("Qt version has no QML utility.")));
-            }
-        } else {
-            // Non-desktop Qt on a desktop device? We don't support that.
-            result.append(createProjectTask(Task::TaskType::Error,
-                                            Tr::tr("Non-desktop Qt is used with a desktop device.")));
-        }
-    } else {
-        // If not a desktop device, don't check the Qt version for qml runtime binary.
-        // The device is responsible for providing it and we assume qml runtime can be found
-        // in $PATH if it's not explicitly given.
-    }
-
-    return result;
 }
 
 bool QmlProject::isQtDesignStudioStartedFromQtC()

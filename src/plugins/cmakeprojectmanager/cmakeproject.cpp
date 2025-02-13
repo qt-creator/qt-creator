@@ -76,17 +76,9 @@ CMakeProject::~CMakeProject()
 Tasks CMakeProject::projectIssues(const Kit *k) const
 {
     Tasks result = Project::projectIssues(k);
-
-    if (!CMakeKitAspect::cmakeTool(k))
-        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No cmake tool set.")));
-    if (ToolchainKitAspect::toolChains(k).isEmpty())
-        result.append(createProjectTask(Task::TaskType::Warning, Tr::tr("No compilers set in kit.")));
-
     result.append(m_issues);
-
     return result;
 }
-
 
 ProjectImporter *CMakeProject::projectImporter() const
 {
@@ -97,7 +89,7 @@ ProjectImporter *CMakeProject::projectImporter() const
 
 void CMakeProject::addIssue(IssueType type, const QString &text)
 {
-    m_issues.append(createProjectTask(type, text));
+    m_issues.append(createTask(type, text));
 }
 
 void CMakeProject::clearIssues()

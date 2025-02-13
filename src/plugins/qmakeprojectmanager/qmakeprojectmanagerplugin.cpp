@@ -33,6 +33,9 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
+#include <projectexplorer/toolchainkitaspect.h>
+
+#include <qtsupport/qtkitaspect.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
@@ -137,7 +140,24 @@ void QmakeProjectManagerPlugin::initialize()
     d = new QmakeProjectManagerPluginPrivate;
 
     //create and register objects
-    ProjectManager::registerProjectType<QmakeProject>(Utils::Constants::PROFILE_MIMETYPE);
+    const auto issuesGenerator = [](const Kit *k) {
+        Tasks result;
+        const QtSupport::QtVersion * const qtFromKit = QtSupport::QtKitAspect::qtVersion(k);
+        if (!qtFromKit) {
+            result.append(
+                Project::createTask(Task::TaskType::Error, Tr::tr("No Qt version set in kit.")));
+        } else if (!qtFromKit->isValid()) {
+            result.append(
+                Project::createTask(Task::TaskType::Error, Tr::tr("Qt version is invalid.")));
+        }
+        if (!ToolchainKitAspect::cxxToolchain(k)) {
+            result.append(
+                Project::createTask(Task::TaskType::Error, Tr::tr("No C++ compiler set in kit.")));
+        }
+        return result;
+    };
+    ProjectManager::registerProjectType<QmakeProject>(
+        Utils::Constants::PROFILE_MIMETYPE, issuesGenerator);
 
     IWizardFactory::registerFactoryCreator([] { return new SubdirsProjectWizard; });
     IWizardFactory::registerFactoryCreator([] { return new CustomWidgetWizard; });

@@ -98,8 +98,17 @@ class PythonPlugin final : public ExtensionSystem::IPlugin
         KitManager::setIrrelevantAspects(KitManager::irrelevantAspects()
                                          + QSet<Id>{PythonKitAspect::id()});
 
-        ProjectManager::registerProjectType<PythonProject>(Constants::C_PY_PROJECT_MIME_TYPE);
-        ProjectManager::registerProjectType<PythonProject>(Constants::C_PY_PROJECT_MIME_TYPE_LEGACY);
+        const auto issuesGenerator = [](const Kit *k) -> Tasks {
+            if (!PythonKitAspect::python(k))
+                return {BuildSystemTask(
+                    Task::Error,
+                    Tr::tr("No Python interpreter set for kit \"%1\".").arg(k->displayName()))};
+            return {};
+        };
+        ProjectManager::registerProjectType<PythonProject>(
+            Constants::C_PY_PROJECT_MIME_TYPE, issuesGenerator);
+        ProjectManager::registerProjectType<PythonProject>(
+            Constants::C_PY_PROJECT_MIME_TYPE_LEGACY, issuesGenerator);
 
         auto oldHighlighter = Utils::Text::codeHighlighter();
         Utils::Text::setCodeHighlighter(

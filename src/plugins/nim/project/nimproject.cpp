@@ -337,8 +337,6 @@ class NimProject final : public Project
 public:
     explicit NimProject(const FilePath &filePath);
 
-    Tasks projectIssues(const Kit *k) const final;
-
     // Keep for compatibility with Qt Creator 4.10
     void toMap(Store &map) const final;
 
@@ -359,20 +357,6 @@ NimProject::NimProject(const FilePath &filePath) : Project(Constants::C_NIM_MIME
     // ensure debugging is enabled (Nim plugin translates nim code to C code)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setBuildSystemCreator<NimBuildSystem>();
-}
-
-Tasks NimProject::projectIssues(const Kit *k) const
-{
-    Tasks result = Project::projectIssues(k);
-    auto tc = ToolchainKitAspect::toolchain(k, Constants::C_NIMLANGUAGE_ID);
-    if (!tc) {
-        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No Nim compiler set.")));
-        return result;
-    }
-    if (!tc->compilerCommand().exists())
-        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Nim compiler does not exist.")));
-
-    return result;
 }
 
 void NimProject::toMap(Store &map) const
@@ -403,7 +387,21 @@ void NimProject::setExcludedFiles(const QStringList &excludedFiles)
 void setupNimProject()
 {
     static const NimBuildConfigurationFactory buildConfigFactory;
-    ProjectManager::registerProjectType<NimProject>(Constants::C_NIM_PROJECT_MIMETYPE);
+    const auto issuesGenerator = [](const Kit *k) {
+        Tasks result;
+        auto tc = ToolchainKitAspect::toolchain(k, Constants::C_NIMLANGUAGE_ID);
+        if (!tc) {
+            result.append(
+                Project::createTask(Task::TaskType::Error, Tr::tr("No Nim compiler set.")));
+            return result;
+        }
+        if (!tc->compilerCommand().exists())
+            result.append(
+                Project::createTask(Task::TaskType::Error, Tr::tr("Nim compiler does not exist.")));
+        return result;
+    };
+    ProjectManager::registerProjectType<NimProject>(
+        Constants::C_NIM_PROJECT_MIMETYPE, issuesGenerator);
 }
 
 } // Nim
