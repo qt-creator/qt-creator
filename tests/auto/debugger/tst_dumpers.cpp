@@ -624,98 +624,7 @@ struct Check
     mutable bool optionallyPresent = false;
 };
 
-// We sometimes have a pattern like this:
-// Data(...) + Check(...) + DerivedCheck(...) % SomeCondition
-// Where DerivedCheck is a subclass of Check but does not override operator %.
-// This is  problem, because the base class implementation of operator % returns Check&,
-// which means that the subclass checks are mistreated as the base class checks.
-// In order to make it work correctly, we either must override the entire operator % overload set
-// in all subclass or get clever about it.
-// With C++23 we can *in theory* simply have:
-// struct Check
-// {
-//     void doOp(...)
-//     {
-//         ...
-//     }
-//
-//     template <typename Self>
-//     Self& operatorOp(this Self& self, ...)
-//     {
-//         Check::doOp(...);
-//         return self;
-//     }
-//     ...
-// };
-// And the derived check types can directly inherit Check.
-// But we are currently C++20 and for now we need a CRTP middle struct.
-template<typename Derived>
-struct CrtpCheckHelper : public Check
-{
-    using Check::Check;
-
-    Derived &operator%(Optional)
-    {
-        Check::operator%(Optional{});
-        return static_cast<Derived&>(*this);
-    }
-
-    Derived &operator%(DebuggerEngine engine)
-    {
-        Check::operator%(engine);
-        return static_cast<Derived&>(*this);
-    }
-
-    Derived &operator%(GdbVersion version)
-    {
-        Check::operator%(version);
-        return static_cast<Derived&>(*this);
-    }
-
-    Derived &operator%(LldbVersion version)
-    {
-        Check::operator%(version);
-        return static_cast<Derived&>(*this);
-    }
-
-    Derived &operator%(GccVersion version)
-    {
-        Check::operator%(version);
-        return static_cast<Derived&>(*this);
-    }
-
-    Derived &operator%(ClangVersion version)
-    {
-        Check::operator%(version);
-        return static_cast<Derived&>(*this);
-    }
-
-    Derived &operator%(MsvcVersion version)
-    {
-        Check::operator%(version);
-        return static_cast<Derived&>(*this);
-    }
-
-    Derived &operator%(BoostVersion version)
-    {
-        Check::operator%(version);
-        return static_cast<Derived&>(*this);
-    }
-
-    Derived &operator%(QtVersion version)
-    {
-        Check::operator%(version);
-        return static_cast<Derived&>(*this);
-    }
-
-    Derived &operator%(AdditionalCriteria criteria)
-    {
-        Check::operator%(criteria);
-        return static_cast<Derived&>(*this);
-    }
-};
-
-struct CheckSet : public CrtpCheckHelper<CheckSet>
+struct CheckSet : public Check
 {
     CheckSet(std::initializer_list<Check> checks) : checks(checks) {}
     QList<Check> checks;
@@ -725,43 +634,43 @@ const QtVersion Qt4 = QtVersion(0, 0x4ffff);
 const QtVersion Qt5 = QtVersion(0x50000, 0x5ffff);
 const QtVersion Qt6 = QtVersion(0x60000, 0x6ffff);
 
-struct Check4 : public CrtpCheckHelper<Check4>
+struct Check4 : public Check
 {
     Check4(const QByteArray &iname, const Value &value, const Type &type)
-        : CrtpCheckHelper(QString::fromUtf8(iname), value, type)
+        : Check(QString::fromUtf8(iname), value, type)
     { qtVersionForCheck = Qt4; }
 
     Check4(const QByteArray &iname, const Name &name, const Value &value, const Type &type)
-        : CrtpCheckHelper(QString::fromUtf8(iname), name, value, type)
+        : Check(QString::fromUtf8(iname), name, value, type)
     { qtVersionForCheck = Qt4; }
 };
 
-struct Check5 : public CrtpCheckHelper<Check5>
+struct Check5 : public Check
 {
     Check5(const QByteArray &iname, const Value &value, const Type &type)
-        : CrtpCheckHelper(QString::fromUtf8(iname), value, type)
+        : Check(QString::fromUtf8(iname), value, type)
     { qtVersionForCheck = Qt5; }
 
     Check5(const QByteArray &iname, const Name &name, const Value &value, const Type &type)
-        : CrtpCheckHelper(QString::fromUtf8(iname), name, value, type)
+        : Check(QString::fromUtf8(iname), name, value, type)
     { qtVersionForCheck = Qt5; }
 };
 
-struct Check6 : public CrtpCheckHelper<Check6>
+struct Check6 : public Check
 {
     Check6(const QByteArray &iname, const Value &value, const Type &type)
-        : CrtpCheckHelper(QString::fromUtf8(iname), value, type)
+        : Check(QString::fromUtf8(iname), value, type)
     { qtVersionForCheck = Qt6; }
 
     Check6(const QByteArray &iname, const Name &name, const Value &value, const Type &type)
-        : CrtpCheckHelper(QString::fromUtf8(iname), name, value, type)
+        : Check(QString::fromUtf8(iname), name, value, type)
     { qtVersionForCheck = Qt6; }
 };
 
 // To brush over uses of 'key'/'value' vs 'first'/'second' in inames
-struct CheckPairish : public CrtpCheckHelper<CheckPairish>
+struct CheckPairish : public Check
 {
-    using CrtpCheckHelper::CrtpCheckHelper;
+    using Check::Check;
 };
 
 
@@ -6140,8 +6049,8 @@ void tst_Dumpers::dumper_data()
                // unnamed structs around. Here it is somewhat stubborn and says
                // that `a.#2` is the same as the currently active `a.#1`
                // and so there is no `a.#2.f`, only `a.#2.b` and `a.#2.i`
-               + CheckSet({{"a.#2.f", ff, "float"},
-                           {"a.f", ff, "float"}}) % NoLldbEngine;
+               + CheckSet({Check{"a.#2.f", ff, "float"} % NoLldbEngine,
+                           Check{"a.f", ff, "float"} % NoLldbEngine});
 
 
     QTest::newRow("Chars")
@@ -7725,10 +7634,10 @@ void tst_Dumpers::dumper_data()
                                     "std::_Tree_simple_types<std::pair<"
                                     "std::string const ,std::list<std::string>>>>>",
                                     "std::map<std::string, std::list<std::string> >::const_iterator"))
-         + CheckSet({{"it.first", "\"one\"", "std::string"},                   // NoCdbEngine
-                     {"it.0.first", "\"one\"", "std::string"}}) % NoLldbEngine // CdbEngine
-         + CheckSet({{"it.second", "<3 items>", "std::list<std::string>"},
-                     {"it.0.second", "<3 items>", "std::list<std::string>"}}) % NoLldbEngine;
+         + CheckSet({Check{"it.first", "\"one\"", "std::string"} % NoLldbEngine, // NoCdbEngine
+                     Check{"it.0.first", "\"one\"", "std::string"} % NoLldbEngine}) // CdbEngine
+         + CheckSet({Check{"it.second", "<3 items>", "std::list<std::string>"} % NoLldbEngine,
+                     Check{"it.0.second", "<3 items>", "std::list<std::string>"} % NoLldbEngine});
 
 
     QTest::newRow("Varargs")
@@ -7951,8 +7860,8 @@ void tst_Dumpers::dumper_data()
                // QTCREATORBUG-32455: LLDB bridge gets confused when there are multiple
                // unnamed structs around. Here it thinks that `v.#1` and `v.#2` are the same type
                // and so there is no `v.#2.b`, only `v.#2.a`
-               + CheckSet({{"v.#2.b", "3", "int"},
-                           {"v.b", "3", "int"}}) % NoLldbEngine
+               + CheckSet({Check{"v.#2.b", "3", "int"} % NoLldbEngine,
+                           Check{"v.b", "3", "int"} % NoLldbEngine})
                + Check("v.x", "1", "int")
                + Check("n.x", "10", "int")
                + Check("n.y", "20", "int");
