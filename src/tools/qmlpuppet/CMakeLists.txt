@@ -168,7 +168,6 @@ extend_qtc_executable(qmlpuppet
     qt5capturepreviewnodeinstanceserver.cpp qt5capturepreviewnodeinstanceserver.h
     nodeinstanceserverdispatcher.cpp nodeinstanceserverdispatcher.h
     capturenodeinstanceserverdispatcher.cpp capturenodeinstanceserverdispatcher.h
-    qt5captureimagenodeinstanceserver.cpp qt5captureimagenodeinstanceserver.h
     viewconfig.cpp viewconfig.h
     animationdriver.cpp animationdriver.h
 )

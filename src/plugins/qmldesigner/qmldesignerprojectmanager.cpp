@@ -33,7 +33,6 @@
 #include <imagecache/imagecachestorage.h>
 #include <imagecache/timestampprovider.h>
 #include <imagecachecollectors/imagecachecollector.h>
-#include <imagecachecollectors/imagecacheconnectionmanager.h>
 #include <imagecachecollectors/meshimagecachecollector.h>
 #include <imagecachecollectors/textureimagecachecollector.h>
 
@@ -124,8 +123,8 @@ class QmlDesignerProjectManager::ImageCacheData
 {
 public:
     ImageCacheData(ExternalDependenciesInterface &externalDependencies)
-        : meshImageCollector{connectionManager, QSize{300, 300}, QSize{600, 600}, externalDependencies}
-        , nodeInstanceCollector{connectionManager, QSize{300, 300}, QSize{600, 600}, externalDependencies}
+        : meshImageCollector{QSize{300, 300}, QSize{600, 600}, externalDependencies}
+        , nodeInstanceCollector{QSize{300, 300}, QSize{600, 600}, externalDependencies}
     {}
 
 public:
@@ -134,7 +133,6 @@ public:
                               Sqlite::JournalMode::Wal,
                               Sqlite::LockingMode::Normal};
     ImageCacheStorage<Sqlite::Database> storage{database};
-    ImageCacheConnectionManager connectionManager;
     MeshImageCacheCollector meshImageCollector;
     TextureImageCacheCollector textureImageCollector;
     ImageCacheCollector nodeInstanceCollector;
@@ -153,8 +151,7 @@ class QmlDesignerProjectManager::PreviewImageCacheData
 {
 public:
     PreviewImageCacheData(ExternalDependenciesInterface &externalDependencies)
-        : collector{connectionManager,
-                    QSize{300, 300},
+        : collector{QSize{300, 300},
                     QSize{1000, 1000},
                     externalDependencies,
                     ImageCacheCollectorNullImageHandling::CaptureNullImage}
@@ -168,7 +165,6 @@ public:
                               Sqlite::JournalMode::Wal,
                               Sqlite::LockingMode::Normal};
     ImageCacheStorage<Sqlite::Database> storage{database};
-    ImageCacheConnectionManager connectionManager;
     ImageCacheCollector collector;
     PreviewTimeStampProvider timeStampProvider;
     AsynchronousExplicitImageCache cache{storage};
@@ -255,8 +251,7 @@ public:
                                          ::ProjectExplorer::Project *project,
                                          PathCacheType &pathCache,
                                          ExternalDependenciesInterface &externalDependencies)
-        : collector{connectionManager,
-                    QSize{300, 300},
+        : collector{QSize{300, 300},
                     QSize{1000, 1000},
                     externalDependencies,
                     ImageCacheCollectorNullImageHandling::CaptureNullImage}
@@ -264,7 +259,6 @@ public:
         , projectStorageData{createProjectStorageData(project, pathCache)}
     {}
 
-    ImageCacheConnectionManager connectionManager;
     ImageCacheCollector collector;
     PreviewTimeStampProvider timeStampProvider;
     AsynchronousImageFactory factory;

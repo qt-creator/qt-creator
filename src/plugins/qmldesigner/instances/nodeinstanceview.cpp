@@ -1272,8 +1272,6 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
                               m_externalDependencies.currentResourcePath(),
                               sceneStates,
                               lastUsedLanguage,
-                              m_captureImageMinimumSize,
-                              m_captureImageMaximumSize,
                               stateInstanceId);
 }
 

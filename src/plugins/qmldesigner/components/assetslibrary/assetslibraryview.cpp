@@ -13,7 +13,6 @@
 #include <imagecache/imagecachestorage.h>
 #include <imagecache/timestampprovider.h>
 #include <imagecachecollectors/imagecachecollector.h>
-#include <imagecachecollectors/imagecacheconnectionmanager.h>
 #include <imagecachecollectors/imagecachefontcollector.h>
 #include <modelnodeoperations.h>
 #include <nodelistproperty.h>

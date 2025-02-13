@@ -38,6 +38,7 @@ Item {
             width: ItemLibraryBackend.itemLibraryIconWidth  // to be set in Qml context
             height: ItemLibraryBackend.itemLibraryIconHeight   // to be set in Qml context
             source: itemLibraryIconPath     // to be set by model
+            fillMode: Image.PreserveAspectFit
 
             // Icons generated for components can change if the component is edited,
             // so don't cache them locally at Image level.

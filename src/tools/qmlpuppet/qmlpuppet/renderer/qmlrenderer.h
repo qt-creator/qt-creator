@@ -34,14 +34,18 @@ private:
     void error(const QString &msg);
     void asyncQuit(int errorCode);
 
+    void setRenderSize(QSize size);
+
     QStringList m_importPaths;
-    QSize m_requestedSize;
+    QSize m_reqMinSize;
+    QSize m_reqMaxSize;
     QSize m_renderSize;
     QString m_sourceFile;
     QString m_outFile;
     bool m_verbose = false;
     bool m_is3D = false;
     bool m_fit3D = false;
+    bool m_isLibIcon = false;
 
     QQuickItem *m_containerItem = nullptr;
     QRhi *m_rhi = nullptr;

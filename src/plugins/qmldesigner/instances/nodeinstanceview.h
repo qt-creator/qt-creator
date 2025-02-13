@@ -156,13 +156,6 @@ public:
         m_crashCallback = std::move(crashCallback);
     }
 
-    void setCaptureImageMinimumAndMaximumSize(QSize captureImageMinimumSize,
-                                              QSize captureImageMaximumSize)
-    {
-        m_captureImageMinimumSize = captureImageMinimumSize;
-        m_captureImageMaximumSize = captureImageMaximumSize;
-    }
-
     void startNanotrace();
     void endNanotrace();
 
@@ -313,8 +306,6 @@ private:
     QHash<QString, QStringList> m_qsbPathToFilterMap;
     int m_remainingQsbTargets = 0;
     QTimer m_rotBlockTimer;
-    QSize m_captureImageMinimumSize{150, 150};
-    QSize m_captureImageMaximumSize{1000, 1000};
     bool m_qsbEnabled = false;
 };
 

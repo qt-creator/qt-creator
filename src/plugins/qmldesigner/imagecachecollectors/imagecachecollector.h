@@ -5,13 +5,7 @@
 
 #include <imagecache/imagecachecollectorinterface.h>
 
-#include <modelfwd.h>
-
 #include <QPointer>
-
-QT_BEGIN_NAMESPACE
-class QTextDocument;
-QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 class Target;
@@ -19,11 +13,6 @@ class Target;
 
 namespace QmlDesigner {
 
-class Model;
-class NotIndentingTextEditModifier;
-class ImageCacheConnectionManager;
-class RewriterView;
-class NodeInstanceView;
 class ExternalDependenciesInterface;
 
 enum class ImageCacheCollectorNullImageHandling { CaptureNullImage, DontCaptureNullImage };
@@ -31,8 +20,7 @@ enum class ImageCacheCollectorNullImageHandling { CaptureNullImage, DontCaptureN
 class ImageCacheCollector final : public ImageCacheCollectorInterface
 {
 public:
-    ImageCacheCollector(ImageCacheConnectionManager &connectionManager,
-                        QSize captureImageMinimumSize,
+    ImageCacheCollector(QSize captureImageMinimumSize,
                         QSize captureImageMaximumSize,
                         ExternalDependenciesInterface &externalDependencies,
                         ImageCacheCollectorNullImageHandling nullImageHandling = {});
@@ -58,16 +46,17 @@ public:
     ProjectExplorer::Target *target() const;
 
 private:
-    ImageCacheConnectionManager &m_connectionManager;
+    bool runProcess(const QStringList &arguments) const;
+    QStringList createArguments(Utils::SmallStringView name,
+                                const QString &outFile,
+                                const ImageCache::AuxiliaryData &auxiliaryData) const;
+
+private:
     QPointer<ProjectExplorer::Target> m_target;
     QSize captureImageMinimumSize;
     QSize captureImageMaximumSize;
     ExternalDependenciesInterface &m_externalDependencies;
     ImageCacheCollectorNullImageHandling nullImageHandling{};
-#ifdef QDS_USE_PROJECTSTORAGE
-    ProjectStorageType *m_projectStorage = nullptr;
-    PathCacheType *m_pathCache = nullptr;
-#endif
 };
 
 } // namespace QmlDesigner

@@ -16,6 +16,9 @@
 #include <QFileInfo>
 #include <QQmlComponent>
 
+constexpr int DEFAULT_RENDER_DIM = 300;
+constexpr int DEFAULT_MAX_DIM = 1024;
+
 void QmlRenderer::initCoreApp()
 {
 #if defined QT_WIDGETS_LIB
@@ -36,14 +39,28 @@ void QmlRenderer::populateParser()
          "Output image file path.",
          "path"},
 
-        // "h" is reserved arg for help, so use capital letters for height/width
-        {QStringList{"H", "height"},
-         "Height of the final rendered image.",
+        // The qml component is rendered at its preferred size if available
+        // Min/max dimensions specify a range of acceptable final scaled sizes
+        // If the size of rendered item is outside the min/max range, it is cropped in final scaling
+        {QStringList{"minW"},
+         "Minimum width of the final scaled rendered image.",
          "pixels"},
 
-        {QStringList{"W", "width"},
-         "Width of the final rendered image.",
+        {QStringList{"minH"},
+         "Minimum height of the final scaled rendered image.",
          "pixels"},
+
+        {QStringList{"maxW"},
+         QString("Maximum width of the final scaled rendered image."),
+         "pixels"},
+
+        {QStringList{"maxH"},
+         "Maximum height of the final scaled rendered image.",
+         "pixels"},
+
+        {QStringList{"libIcon"},
+         "Render library icon rather than regular preview."
+         "It zooms 3D objects bit more aggressively and suppresses the background."},
 
         {QStringList{"v", "verbose"},
          "Display additional output."}
@@ -56,10 +73,14 @@ void QmlRenderer::initQmlRunner()
 {
     if (m_argParser.isSet("importpath"))
         m_importPaths = m_argParser.value("importpath").split(";");
-    if (m_argParser.isSet("width"))
-        m_requestedSize.setWidth(m_argParser.value("width").toInt());
-    if (m_argParser.isSet("height"))
-        m_requestedSize.setHeight(m_argParser.value("height").toInt());
+    if (m_argParser.isSet("minW"))
+        m_reqMinSize.setWidth(m_argParser.value("minW").toInt());
+    if (m_argParser.isSet("minH"))
+        m_reqMinSize.setHeight(m_argParser.value("minH").toInt());
+    if (m_argParser.isSet("maxW"))
+        m_reqMaxSize.setWidth(m_argParser.value("maxW").toInt());
+    if (m_argParser.isSet("maxH"))
+        m_reqMaxSize.setHeight(m_argParser.value("maxH").toInt());
     if (m_argParser.isSet("verbose"))
         m_verbose = true;
 
@@ -76,17 +97,18 @@ void QmlRenderer::initQmlRunner()
     else
         m_outFile = m_sourceFile + ".png";
 
-    if (m_requestedSize.width() <= 0)
-        m_requestedSize.setWidth(150);
-    if (m_requestedSize.height() <= 0)
-        m_requestedSize.setHeight(150);
+    if (m_argParser.isSet("libIcon"))
+        m_isLibIcon = true;
 
     if (m_verbose) {
-        info(QString("Import path    = %1").arg(m_importPaths.join(";")));
-        info(QString("Requested size = %1 x %2").arg(m_requestedSize.width())
-                                                .arg(m_requestedSize.height()));
-        info(QString("Source file    = %1").arg(m_sourceFile));
-        info(QString("Output file    = %1").arg(m_outFile));
+        info(QString("Import path        = %1").arg(m_importPaths.join(";")));
+        info(QString("Requested min size = %1 x %2").arg(m_reqMinSize.width())
+                                                    .arg(m_reqMinSize.height()));
+        info(QString("Requested max size = %1 x %2").arg(m_reqMaxSize.width())
+                                                    .arg(m_reqMaxSize.height()));
+        info(QString("Source file        = %1").arg(m_sourceFile));
+        info(QString("Output file        = %1").arg(m_outFile));
+        info(QString("Is library icon    = %1").arg(m_isLibIcon ? QString("true") : QString("false")));
     }
 
     if (setupRenderer()) {
@@ -140,6 +162,9 @@ bool QmlRenderer::setupRenderer()
             }
             m_containerItem->setParentItem(m_window->contentItem());
 
+            if (m_isLibIcon)
+                QMetaObject::invokeMethod(m_containerItem, "setIconMode", Q_ARG(QVariant, true));
+
             contentItem3D = QQmlProperty::read(m_containerItem, "contentItem").value<QQuickItem *>();
             if (qobject_cast<QQuick3DNode *>(renderObj)) {
                 QMetaObject::invokeMethod(
@@ -155,28 +180,25 @@ bool QmlRenderer::setupRenderer()
             }
 
             m_is3D = true;
-            m_renderSize = m_requestedSize;
-            contentItem3D->setSize(m_requestedSize);
+            setRenderSize({});
+            contentItem3D->setSize(m_renderSize);
         } else
 #endif // QUICK3D_MODULE
         if (auto renderItem = qobject_cast<QQuickItem *>(renderObj)) {
-            m_renderSize = renderItem->size().toSize();
-            if (m_renderSize.width() <= 0)
-                m_renderSize.setWidth(m_requestedSize.width());
-            if (m_renderSize.height() <= 0)
-                m_renderSize.setHeight(m_requestedSize.height());
+            setRenderSize(renderItem->size().toSize());
             renderItem->setSize(m_renderSize);
             renderItem->setParentItem(m_window->contentItem());
             // When rendering 2D scenes, we just render the given QML without extra container
             m_containerItem = renderItem;
         } else if (auto renderWindow = qobject_cast<QQuickWindow *>(renderObj)) {
             // Hack to render Window items: reparent window content to m_window->contentItem()
-            m_renderSize = renderWindow->size();
+            setRenderSize(renderWindow->size());
             m_containerItem = m_window->contentItem();
             // Suppress the original window.
             // Offscreen position ensures we don't get even brief flash of it.
-            renderWindow->setPosition(-100000, -100000);
             renderWindow->setVisible(false);
+            renderWindow->resize(2, 2);
+            renderWindow->setPosition(-10000, -10000);
             const QList<QQuickItem *> childItems = renderWindow->contentItem()->childItems();
             for (QQuickItem *item : childItems) {
                 item->setParent(m_window->contentItem());
@@ -274,12 +296,32 @@ void QmlRenderer::render()
         QImage wrapperImage(reinterpret_cast<const uchar *>(readResult.data.constData()),
                             readResult.pixelSize.width(), readResult.pixelSize.height(),
                             QImage::Format_RGBA8888_Premultiplied);
-        if (m_rhi->isYUpInFramebuffer())
-            renderImage = wrapperImage.mirrored().scaled(m_requestedSize, Qt::IgnoreAspectRatio,
+
+        QSize maxSize = m_reqMaxSize;
+        if (maxSize.width() <= 0) {
+            m_reqMinSize.width() > DEFAULT_MAX_DIM ? maxSize.setWidth(m_reqMinSize.width())
+                                                   : maxSize.setWidth(DEFAULT_MAX_DIM);
+        }
+        if (maxSize.height() <= 0) {
+            m_reqMinSize.height() > DEFAULT_MAX_DIM ? maxSize.setHeight(m_reqMinSize.height())
+                                                    : maxSize.setHeight(DEFAULT_MAX_DIM);
+        }
+
+        QSize scaledSize = m_renderSize.scaled(m_renderSize.expandedTo(m_reqMinSize).boundedTo(maxSize),
+                                               Qt::KeepAspectRatio);
+
+        info(QString("Rendered size = %1 x %2").arg(m_renderSize.width())
+                                               .arg(m_renderSize.height()));
+        info(QString("Scaled size = %1 x %2").arg(scaledSize.width())
+                                             .arg(scaledSize.height()));
+
+        if (m_rhi->isYUpInFramebuffer()) {
+            renderImage = wrapperImage.mirrored().scaled(scaledSize, Qt::IgnoreAspectRatio,
                                                          Qt::SmoothTransformation);
-        else
-            renderImage = wrapperImage.copy().scaled(m_requestedSize, Qt::IgnoreAspectRatio,
+        } else {
+            renderImage = wrapperImage.copy().scaled(scaledSize, Qt::IgnoreAspectRatio,
                                                      Qt::SmoothTransformation);
+        }
     };
     QRhiResourceUpdateBatch *readbackBatch = m_rhi->nextResourceUpdateBatch();
     readbackBatch->readBackTexture(m_texture.get(), &readResult);
@@ -315,4 +357,17 @@ void QmlRenderer::asyncQuit(int errorCode)
     QTimer::singleShot(0, qGuiApp, [errorCode]() {
         exit(errorCode);
     });
+}
+
+void QmlRenderer::setRenderSize(QSize size)
+{
+    m_renderSize = size;
+    if (m_renderSize.width() <= 0) {
+        m_reqMaxSize.width() > 0 ? m_renderSize.setWidth(m_reqMaxSize.width())
+                                 : m_renderSize.setWidth(DEFAULT_RENDER_DIM);
+    }
+    if (m_renderSize.height() <= 0) {
+        m_reqMaxSize.height() > 0 ? m_renderSize.setHeight(m_reqMaxSize.height())
+                                  : m_renderSize.setHeight(DEFAULT_RENDER_DIM);
+    }
 }
