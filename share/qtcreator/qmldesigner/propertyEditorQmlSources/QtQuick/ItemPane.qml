@@ -90,9 +90,17 @@ PropertyEditorPane {
 
         StudioControls.TabButton {
             text: backendValues.__classNamePrivateInternal.value
+            onClicked: () => {
+                if (itemPane.searchBar.hasDoneSearch)
+                    itemPane.searchBar.search();
+            }
         }
         StudioControls.TabButton {
             text: qsTr("Layout")
+            onClicked: () => {
+                if (itemPane.searchBar.hasDoneSearch)
+                    itemPane.searchBar.search();
+            }
         }
     }
 

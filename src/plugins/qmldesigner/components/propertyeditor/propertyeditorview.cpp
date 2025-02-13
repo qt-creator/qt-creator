@@ -446,8 +446,10 @@ void PropertyEditorView::resetView()
 
     setupQmlBackend();
 
-    if (m_qmlBackEndForCurrentType)
+    if (m_qmlBackEndForCurrentType) {
         m_qmlBackEndForCurrentType->emitSelectionChanged();
+        QMetaObject::invokeMethod(m_qmlBackEndForCurrentType->widget()->rootObject(), "clearSearch");
+    }
 
     m_locked = false;
 
