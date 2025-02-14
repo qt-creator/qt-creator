@@ -57,7 +57,6 @@ struct HelpManagerPrivate
     QSet<QString> m_filesToRegister;
     QSet<QString> m_blockedDocumentation;
     QSet<QString> m_filesToUnregister;
-    QHash<QString, QVariant> m_customValues;
 
     QSet<QString> m_userRegisteredFiles;
 
@@ -305,16 +304,6 @@ QString HelpManager::fileFromNamespace(const QString &nameSpace)
     return d->m_helpEngine->documentationFileName(nameSpace);
 }
 
-void HelpManager::setCustomValue(const QString &key, const QVariant &value)
-{
-    if (d->m_needsSetup) {
-        d->m_customValues.insert(key, value);
-        return;
-    }
-    if (d->m_helpEngine->setCustomValue(key, value))
-        emit m_instance->collectionFileChanged();
-}
-
 // -- private
 
 void HelpManager::setupHelpManager()
@@ -351,10 +340,6 @@ void HelpManager::setupHelpManager()
         m_instance->registerDocumentation(Utils::toList(d->m_filesToRegister));
         d->m_filesToRegister.clear();
     }
-
-    QHash<QString, QVariant>::const_iterator it;
-    for (it = d->m_customValues.constBegin(); it != d->m_customValues.constEnd(); ++it)
-        setCustomValue(it.key(), it.value());
 
     emit Core::HelpManager::Signals::instance()->setupFinished();
 }

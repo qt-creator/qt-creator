@@ -48,8 +48,6 @@ public:
     static QString namespaceFromFile(const QString &file);
     static QString fileFromNamespace(const QString &nameSpace);
 
-    static void setCustomValue(const QString &key, const QVariant &value);
-
     Q_INVOKABLE void showHelpUrl(
         const QUrl &url,
         Core::HelpManager::HelpViewerLocation location = Core::HelpManager::HelpModeAlways) override;
