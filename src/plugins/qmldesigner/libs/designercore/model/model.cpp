@@ -341,7 +341,7 @@ InternalNodePointer ModelPrivate::createNode(TypeNameView typeName,
     using PropertyPair = QPair<PropertyName, QVariant>;
 
     for (const PropertyPair &propertyPair : propertyList) {
-        newNode->addVariantProperty(propertyPair.first);
+        newNode->getVariantProperty(propertyPair.first);
         newNode->variantProperty(propertyPair.first)->setValue(propertyPair.second);
     }
 
@@ -1379,14 +1379,7 @@ void ModelPrivate::setBindingProperty(const InternalNodePointer &node,
                                       PropertyNameView name,
                                       const QString &expression)
 {
-    AbstractView::PropertyChangeFlags propertyChange = AbstractView::NoAdditionalChanges;
-    InternalBindingProperty *bindingProperty = nullptr;
-    if (auto property = node->property(name)) {
-        bindingProperty = property->to<PropertyType::Binding>();
-    } else {
-        bindingProperty = node->addBindingProperty(name);
-        propertyChange = AbstractView::PropertiesAdded;
-    }
+    auto [bindingProperty, propertyChange] = node->getBindingProperty(name);
 
     notifyBindingPropertiesAboutToBeChanged({bindingProperty});
     bindingProperty->setExpression(expression);
@@ -1415,14 +1408,7 @@ void ModelPrivate::setSignalHandlerProperty(const InternalNodePointer &node,
                                             PropertyNameView name,
                                             const QString &source)
 {
-    AbstractView::PropertyChangeFlags propertyChange = AbstractView::NoAdditionalChanges;
-    InternalSignalHandlerProperty *signalHandlerProperty = nullptr;
-    if (auto property = node->property(name)) {
-        signalHandlerProperty = property->to<PropertyType::SignalHandler>();
-    } else {
-        signalHandlerProperty = node->addSignalHandlerProperty(name);
-        propertyChange = AbstractView::PropertiesAdded;
-    }
+    auto [signalHandlerProperty, propertyChange] = node->getSignalHandlerProperty(name);
 
     signalHandlerProperty->setSource(source);
     notifySignalHandlerPropertiesChanged({signalHandlerProperty}, propertyChange);
@@ -1432,14 +1418,7 @@ void ModelPrivate::setSignalDeclarationProperty(const InternalNodePointer &node,
                                                 PropertyNameView name,
                                                 const QString &signature)
 {
-    AbstractView::PropertyChangeFlags propertyChange = AbstractView::NoAdditionalChanges;
-    InternalSignalDeclarationProperty *signalDeclarationProperty = nullptr;
-    if (auto property = node->property(name)) {
-        signalDeclarationProperty = property->to<PropertyType::SignalDeclaration>();
-    } else {
-        signalDeclarationProperty = node->addSignalDeclarationProperty(name);
-        propertyChange = AbstractView::PropertiesAdded;
-    }
+    auto [signalDeclarationProperty, propertyChange] = node->getSignalDeclarationProperty(name);
 
     signalDeclarationProperty->setSignature(signature);
     notifySignalDeclarationPropertiesChanged({signalDeclarationProperty}, propertyChange);
@@ -1449,14 +1428,7 @@ void ModelPrivate::setVariantProperty(const InternalNodePointer &node,
                                       PropertyNameView name,
                                       const QVariant &value)
 {
-    AbstractView::PropertyChangeFlags propertyChange = AbstractView::NoAdditionalChanges;
-    InternalVariantProperty *variantProperty = nullptr;
-    if (auto property = node->property(name)) {
-        variantProperty = property->to<PropertyType::Variant>();
-    } else {
-        variantProperty = node->addVariantProperty(name);
-        propertyChange = AbstractView::PropertiesAdded;
-    }
+    auto [variantProperty, propertyChange] = node->getVariantProperty(name);
 
     variantProperty->setValue(value);
     variantProperty->resetDynamicTypeName();
@@ -1468,14 +1440,7 @@ void ModelPrivate::setDynamicVariantProperty(const InternalNodePointer &node,
                                              const TypeName &dynamicPropertyType,
                                              const QVariant &value)
 {
-    AbstractView::PropertyChangeFlags propertyChange = AbstractView::NoAdditionalChanges;
-    InternalVariantProperty *variantProperty = nullptr;
-    if (auto property = node->property(name)) {
-        variantProperty = property->to<PropertyType::Variant>();
-    } else {
-        variantProperty = node->addVariantProperty(name);
-        propertyChange = AbstractView::PropertiesAdded;
-    }
+    auto [variantProperty, propertyChange] = node->getVariantProperty(name);
 
     variantProperty->setDynamicValue(dynamicPropertyType, value);
     notifyVariantPropertiesChanged(node, PropertyNameViews({name}), propertyChange);
@@ -1486,14 +1451,7 @@ void ModelPrivate::setDynamicBindingProperty(const InternalNodePointer &node,
                                              const TypeName &dynamicPropertyType,
                                              const QString &expression)
 {
-    AbstractView::PropertyChangeFlags propertyChange = AbstractView::NoAdditionalChanges;
-    InternalBindingProperty *bindingProperty = nullptr;
-    if (auto property = node->property(name)) {
-        bindingProperty = property->to<PropertyType::Binding>();
-    } else {
-        bindingProperty = node->addBindingProperty(name);
-        propertyChange = AbstractView::PropertiesAdded;
-    }
+    auto [bindingProperty, propertyChange] = node->getBindingProperty(name);
 
     notifyBindingPropertiesAboutToBeChanged({bindingProperty});
     bindingProperty->setDynamicExpression(dynamicPropertyType, expression);
@@ -1524,16 +1482,14 @@ void ModelPrivate::reparentNode(const InternalNodePointer &parentNode,
                                 propertyChange);
 
     InternalNodeAbstractProperty *newParentProperty = nullptr;
-    if (auto property = parentNode->property(name)) {
-        newParentProperty = property->to<PropertyType::Node, PropertyType::NodeList>();
-    } else {
-        if (list)
-            newParentProperty = parentNode->addNodeListProperty(name);
-        else
-            newParentProperty = parentNode->addNodeProperty(name, dynamicTypeName);
+    AbstractView::PropertyChangeFlags newPropertyChange = AbstractView::NoAdditionalChanges;
 
-        propertyChange |= AbstractView::PropertiesAdded;
-    }
+    if (list)
+        std::tie(newParentProperty, newPropertyChange) = parentNode->getNodeListProperty(name);
+    else
+        std::tie(newParentProperty, newPropertyChange) = parentNode->getNodeProperty(name,
+                                                                                     dynamicTypeName);
+    propertyChange |= newPropertyChange;
 
     Q_ASSERT(newParentProperty);
 

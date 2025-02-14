@@ -11,8 +11,10 @@
 #include "internalsignalhandlerproperty.h"
 #include "internalvariantproperty.h"
 
+#include <abstractview.h>
 #include <auxiliarydata.h>
 #include <projectstorageids.h>
+#include <qmldesignerutils/memory.h>
 #include <tracing/qmldesignertracing.h>
 #include <utils/smallstring.h>
 
@@ -146,46 +148,47 @@ public:
     auto nodeProperty(PropertyNameView name) const { return property<InternalNodeProperty>(name); }
 
     template<typename Type>
-    Type *addProperty(PropertyNameView name)
+    std::tuple<Type *, AbstractView::PropertyChangeFlag> getProperty(PropertyNameView name)
     {
         auto [iter, inserted] = m_nameProperties.try_emplace(
-            name, std::make_shared<Type>(name, shared_from_this()));
+            name, makeLazySharedPtr<Type, InternalProperty>(name, shared_from_this()));
 
+        auto flags = AbstractView::NoAdditionalChanges;
         if (inserted)
-            return static_cast<Type *>(iter->second.get());
+            flags = AbstractView::PropertiesAdded;
 
-        return nullptr;
+        return std::make_tuple(static_cast<Type *>(iter->second.get()), flags);
     }
 
-    auto addBindingProperty(PropertyNameView name)
+    auto getBindingProperty(PropertyNameView name)
     {
-        return addProperty<InternalBindingProperty>(name);
+        return getProperty<InternalBindingProperty>(name);
     }
 
-    auto addSignalHandlerProperty(PropertyNameView name)
+    auto getSignalHandlerProperty(PropertyNameView name)
     {
-        return addProperty<InternalSignalHandlerProperty>(name);
+        return getProperty<InternalSignalHandlerProperty>(name);
     }
 
-    auto addSignalDeclarationProperty(PropertyNameView name)
+    auto getSignalDeclarationProperty(PropertyNameView name)
     {
-        return addProperty<InternalSignalDeclarationProperty>(name);
+        return getProperty<InternalSignalDeclarationProperty>(name);
     }
 
-    auto addNodeListProperty(PropertyNameView name)
+    auto getNodeListProperty(PropertyNameView name)
     {
-        return addProperty<InternalNodeListProperty>(name);
+        return getProperty<InternalNodeListProperty>(name);
     }
 
-    auto addVariantProperty(PropertyNameView name)
+    auto getVariantProperty(PropertyNameView name)
     {
-        return addProperty<InternalVariantProperty>(name);
+        return getProperty<InternalVariantProperty>(name);
     }
 
-    auto addNodeProperty(PropertyNameView name, const TypeName &dynamicTypeName)
+    auto getNodeProperty(PropertyNameView name, const TypeName &dynamicTypeName)
     {
-        auto property = addProperty<InternalNodeProperty>(name);
-        property->setDynamicTypeName(dynamicTypeName);
+        auto property = getProperty<InternalNodeProperty>(name);
+        std::get<0>(property)->setDynamicTypeName(dynamicTypeName);
 
         return property;
     }
