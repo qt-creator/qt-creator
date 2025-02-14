@@ -34,8 +34,6 @@
 #include <QTreeView>
 #include <QVariantMap>
 
-Q_DECLARE_METATYPE(Core::IWizardFactory*)
-
 using namespace Utils;
 
 namespace Core {

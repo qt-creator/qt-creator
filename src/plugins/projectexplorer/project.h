@@ -263,5 +263,3 @@ PROJECTEXPLORER_EXPORT TextEditor::ProjectWrapper wrapProject(Project *p);
 PROJECTEXPLORER_EXPORT Project *unwrapProject(const TextEditor::ProjectWrapper &w);
 
 } // namespace ProjectExplorer
-
-Q_DECLARE_METATYPE(ProjectExplorer::Project *)

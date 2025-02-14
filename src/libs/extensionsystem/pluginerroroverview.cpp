@@ -18,8 +18,6 @@
 #include <QPushButton>
 #include <QTextEdit>
 
-Q_DECLARE_METATYPE(ExtensionSystem::PluginSpec *)
-
 namespace ExtensionSystem {
 
 PluginErrorOverview::PluginErrorOverview(QWidget *parent)

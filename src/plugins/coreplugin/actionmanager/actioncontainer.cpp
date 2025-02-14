@@ -14,8 +14,6 @@
 #include <QAction>
 #include <QMenuBar>
 
-Q_DECLARE_METATYPE(Core::Internal::MenuActionContainer*)
-
 using namespace Utils;
 
 namespace Core {

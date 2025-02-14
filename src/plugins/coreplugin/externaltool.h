@@ -138,5 +138,3 @@ private:
 };
 
 } // Core
-
-Q_DECLARE_METATYPE(Core::ExternalTool *)

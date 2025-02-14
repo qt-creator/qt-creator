@@ -18,8 +18,6 @@
 #include <QPushButton>
 #include <QTreeWidget>
 
-Q_DECLARE_METATYPE(Core::IDocument*)
-
 using namespace Utils;
 
 namespace Core::Internal {

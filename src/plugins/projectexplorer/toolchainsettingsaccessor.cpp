@@ -357,8 +357,6 @@ QList<TTC *> TTC::m_toolChains;
 
 } // namespace ProjectExplorer
 
-Q_DECLARE_METATYPE(ProjectExplorer::Toolchain *)
-
 namespace ProjectExplorer::Internal {
 
 void ProjectExplorerTest::testToolChainMerging_data()
