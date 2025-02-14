@@ -208,6 +208,7 @@ public:
             rp.setCloseMode(KillAtClose);
             rp.setUseCtrlCStub(true);
             rp.setSolibSearchPath(FileUtils::toFilePathList(searchPaths(k)));
+            rp.setSkipDebugServer(true);
             if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(k))) {
                 rp.setSysRoot(qtVersion->qnxTarget());
                 rp.modifyDebuggerEnvironment(qtVersion->environment());
