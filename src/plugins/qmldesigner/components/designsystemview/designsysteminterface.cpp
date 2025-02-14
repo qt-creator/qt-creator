@@ -70,14 +70,12 @@ QStringList DesignSystemInterface::collections() const
 
 CollectionModel *DesignSystemInterface::createModel(const QString &typeName, DSThemeManager *collection)
 {
-    auto [iterator, inserted] = m_models.try_emplace(typeName,
-                                                     makeLazyUniquePtr<CollectionModel>(collection,
-                                                                                        m_store));
+    auto [iterator, inserted] = m_models.try_emplace(typeName, collection, m_store);
     if (inserted) {
         // Otherwise the model will be deleted by the QML engine.
-        QQmlEngine::setObjectOwnership(iterator->second.get(), QQmlEngine::CppOwnership);
+        QQmlEngine::setObjectOwnership(&iterator->second, QQmlEngine::CppOwnership);
     }
 
-    return iterator->second.get();
+    return &iterator->second;
 }
 } // namespace QmlDesigner

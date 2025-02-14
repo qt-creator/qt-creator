@@ -79,7 +79,7 @@ private:
 
 private:
     std::map<ThemeId, ThemeName> m_themes;
-    std::map<GroupType, std::shared_ptr<DSThemeGroup>> m_groups;
+    mutable std::map<GroupType, DSThemeGroup> m_groups;
     ThemeId m_activeTheme = static_cast<ThemeId>(0);
 };
 

@@ -190,7 +190,7 @@ DSThemeManager *DSStore::addCollection(const QString &qmlTypeName)
 {
     const QString componentType = uniqueCollectionName(qmlTypeName);
 
-    auto [itr, success] = m_collections.try_emplace(componentType, DSThemeManager{});
+    auto [itr, success] = m_collections.try_emplace(componentType);
     if (success)
         return &itr->second;
 
