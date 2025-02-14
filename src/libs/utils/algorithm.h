@@ -1101,9 +1101,7 @@ Q_REQUIRED_RESULT R filteredCast(const C &container, F predicate)
 /////////////////
 
 // Recommended usage:
-// C hit;
-// C miss;
-// std::tie(hit, miss) = Utils::partition(container, predicate);
+// const auto [hit, miss] = Utils::partition(container, predicate);
 
 template<typename C, typename F>
 Q_REQUIRED_RESULT
