@@ -6,6 +6,11 @@
 
     \title Working with shader code in Effect Composer
 
+    \sa {Effect Composer}, {Effect Composer example},
+    {Using a shader from Shadertoy in Effect Composer},
+    {Using a shader from The Book of Shaders in Effect Composer},
+    {Using AI-generated shader code in Effect Composer}
+
     This page contains tips, tricks, and best practices for working with shader code in the
     \uicontrol {Effect Composer} view.
 

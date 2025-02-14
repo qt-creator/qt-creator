@@ -5,7 +5,7 @@
     \page ai-shader-tutorial.html
     \ingroup gstutorials
 
-    \sa {Effect Composer}
+    \sa {Effect Composer}, {Effect Composer example}, {Working with shader code in Effect Composer}
 
     \brief Illustrates how to take AI-genetrated shader code into use in Effect Composer.
 

@@ -6,6 +6,11 @@
     \previouspage studio-qt-insight.html
     \nextpage studio-model-editor.html
 
+    \sa {Effect Composer example}, {Using a shader from Shadertoy in Effect Composer},
+    {Using a shader from The Book of Shaders in Effect Composer},
+    {Using AI-generated shader code in Effect Composer},
+    {Working with shader code in Effect Composer}
+
     \ingroup studio-views
 
     \title Effect Composer
@@ -154,7 +159,7 @@
     can use as a part of your effect composition. For some sources, such as
     \e {The Book of Shaders}, you may have to re-name the uniforms to use them in the \QDS
     \uicontrol {Effect Composer}. For more information, see
-    \l {Working with Shadercode in Effect Composer}.
+    \l {Working with shader code in Effect Composer}.
 
     \section2 Using shaders from Shadertoy
 
@@ -195,6 +200,7 @@
         \li Copy the code inside \c {void main} and paste it below the \c {@main} tag, inside {}.
         \li Edit the uniforms of the original shader code in \uicontrol {Shaders Code Editor} as
         described in \l {External resources}{Working with Shadercode in Effect Composer}.
+    \endlist
 
     For more information, see \l{Using a shader from The Book of Shaders in Effect Composer}.
 
@@ -303,5 +309,4 @@
             in the first step as \uicontrol {Source Item}.
     \endlist
 
-    \sa {Effect Composer example}
 */

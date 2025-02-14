@@ -5,7 +5,7 @@
     \page effect-composer-thebookofshaders.html
     \ingroup gstutorials
 
-    \sa {Effect Composer}
+    \sa {Effect Composer}, {Effect Composer example}, {Working with shader code in Effect Composer}
 
     \title Using a shader from The Book of Shaders in Effect Composer
 
@@ -84,7 +84,7 @@
         \li In \QDS, open the \uicontrol {Effect Composer} view.
         \li From the \uicontrol {Add Effect} dropdown menu (1), select
             \uicontrol {Custom} (2). The custom effect node is an empty effect node.
-
+    \endlist
     \image add-custom-effect-node.webp Adding a custom effect to an effect composition.
 
     \section1 Copying the shader code to Shaders Code Editor
@@ -134,7 +134,7 @@
                 \li \c gl_FragCoord to \c fragCoord
                 \li \c gl_FragColor to \c fragColor
             \endlist
-
+    \endlist
     The code in \uicontrol{Shaders Code Editor} should now look like this:
             \code
                 // 2D Random

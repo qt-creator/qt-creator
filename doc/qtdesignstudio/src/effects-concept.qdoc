@@ -6,6 +6,11 @@
     \previouspage
     \nextpage
 
+    \sa {Effect Composer}, {Effect Composer example},
+    {Using a shader from Shadertoy in Effect Composer},
+    {Using a shader from The Book of Shaders in Effect Composer},
+    {Using AI-generated shader code in Effect Composer}
+
     \title Effects and shaders in \QDS
 
     \brief Effects in \QDS.
@@ -41,14 +46,14 @@ To get started with Effect Composer, see the following documentation:
     \li \l {Effect Composer}
     \li Learn how to work with Effect Composer.
   \row
-    \li \l {Effect Composer example}{Example: The Effect Composer Exampler}
+    \li \l {Effect Composer example}{Example: The Effect Composer Example}
     \li Download and explore this example to learn how you can create, add and control effects.
   \row
     \li \l {Using a shader from Shadertoy in Effect Composer}{Tutorial: Using a shader from Shadertoy in Effect Composer}
-    \li A step-by-step guide describing how to create a shader in ShaderToy and use it in \QDS.
+    \li A step-by-step guide describing how to copy a shader from ShaderToy and use it in \QDS.
   \row
     \li \l {Using a shader from The Book of Shaders in Effect Composer}{Tutorial: Use a shader from Book of Shaders}
-    \li A step-by-step guide describing how to use a shader from Book of Shaders and use it in \QDS.
+    \li A step-by-step guide describing how to copy a shader from Book of Shaders and use it in \QDS.
   \row
     \li \l {Using AI-generated shader code in Effect Composer}{Tutorial: Using AI-generated shader code in Effect Composer}
     \li A step-by-step guide describing how to use chatGPT to create a shader and use it in \QDS.
@@ -56,7 +61,7 @@ To get started with Effect Composer, see the following documentation:
     \li \l {Working with shader code in Effect Composer}{Best practices}
     \li Tips, tricks, and best practices on how to work with shader code in \QDS.
   \row
-    \li \l{https://wiki.qt.io/QtDesignStudio/EffectComposer}{Known Issues}
+    \li \l{https://wiki.qt.io/QtDesignStudio/EffectComposer}{Known issues}
     \li Known issues and work arounds.
 \endtable
 

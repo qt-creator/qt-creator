@@ -5,7 +5,7 @@
     \page effect-composer-shadertoy.html
     \ingroup gstutorials
 
-    \sa {Effect Composer}
+    \sa {Effect Composer}, {Effect Composer example}, {Working with shader code in Effect Composer}
 
     \title Using a shader from Shadertoy in Effect Composer
 
