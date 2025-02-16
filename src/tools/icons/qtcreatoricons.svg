@@ -441,25 +441,45 @@
        x2="510.75"
        y2="75.5" />
     <inkscape:path-effect
+       effect="clone_original"
+       css_properties=""
+       attributes=""
+       linkeditem="#path2259-2-0-1"
        is_visible="true"
-       effect="fill_between_many"
-       linkedpaths="#path2259-2-0-1,0"
-       id="path-effect2403-9" />
+       method="bsplinespiro"
+       allow_transforms="false"
+       id="path-effect109-2"
+       lpeversion="1" />
     <inkscape:path-effect
+       effect="clone_original"
+       css_properties=""
+       attributes=""
+       linkeditem="#path2259-2"
        is_visible="true"
-       effect="fill_between_many"
-       linkedpaths="#path2259-2,0"
-       id="path-effect2425-7" />
+       method="bsplinespiro"
+       allow_transforms="false"
+       id="path-effect110-5"
+       lpeversion="1" />
     <inkscape:path-effect
+       effect="clone_original"
+       css_properties=""
+       attributes=""
+       linkeditem="#path2259-2-0"
        is_visible="true"
-       effect="fill_between_many"
-       linkedpaths="#path2259-2-0,0"
-       id="path-effect2447-8" />
+       method="bsplinespiro"
+       allow_transforms="false"
+       id="path-effect111-1"
+       lpeversion="1" />
     <inkscape:path-effect
+       effect="clone_original"
+       css_properties=""
+       attributes=""
+       linkeditem="#path2259-2-0-6"
        is_visible="true"
-       effect="fill_between_many"
-       linkedpaths="#path2259-2-0-6,0"
-       id="path-effect2469-8" />
+       method="bsplinespiro"
+       allow_transforms="false"
+       id="path-effect112-1"
+       lpeversion="1" />
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient2550"
@@ -8824,12 +8844,11 @@
          height="100%"
          style="stroke-width:0.82734" />
       <path
-         inkscape:connector-curvature="0"
-         style="fill:#bfbfbf;stroke:#000000"
          d="m 240.5,518.5 4,-9.5 -4,-9.5 h -10 v 19 z"
-         id="path2405"
-         inkscape:path-effect="#path-effect2403-9"
-         inkscape:original-d="M -64,0" />
+         id="path109"
+         inkscape:path-effect="#path-effect109-2"
+         inkscape:original-d="m 240.5,518.5 4,-9.5 -4,-9.5 h -10 v 19 z"
+         style="fill:#bfbfbf;stroke:#000000" />
     </g>
     <g
        id="src/libs/utils/images/crumblepath-segment-middle-hover"
@@ -8845,12 +8864,11 @@
          height="100%"
          style="display:inline;stroke-width:0.82734" />
       <path
-         inkscape:connector-curvature="0"
-         style="fill:#bfbfbf;stroke:#000000"
          d="m 246.5,499.5 h -10 l 4,9.5 -4,9.5 h 10 l 4,-9.5 z"
-         id="path2427"
-         inkscape:path-effect="#path-effect2425-7"
-         inkscape:original-d="M -75,-2" />
+         id="path110"
+         inkscape:path-effect="#path-effect110-5"
+         inkscape:original-d="m 246.5,499.5 h -10 l 4,9.5 -4,9.5 h 10 l 4,-9.5 z"
+         style="fill:#bfbfbf;stroke:#000000" />
     </g>
     <g
        id="src/libs/utils/images/crumblepath-segment-last-hover"
@@ -8866,12 +8884,11 @@
          height="100%"
          style="display:inline;stroke-width:0.82734" />
       <path
-         inkscape:connector-curvature="0"
-         style="fill:#bfbfbf;stroke:#000000"
          d="m 250.5,499.5 h -14 l 4,9.5 -4,9.5 h 14 z"
-         id="path2449"
-         inkscape:path-effect="#path-effect2447-8"
-         inkscape:original-d="M -94,-1" />
+         id="path112"
+         inkscape:path-effect="#path-effect111-1"
+         inkscape:original-d="m 250.5,499.5 h -14 l 4,9.5 -4,9.5 h 14 z"
+         style="fill:#bfbfbf;stroke:#000000" />
     </g>
     <g
        id="src/libs/utils/images/crumblepath-segment-single-hover"
@@ -8887,12 +8904,11 @@
          height="100%"
          style="display:inline;stroke-width:0.82734" />
       <path
-         inkscape:connector-curvature="0"
-         style="fill:#bfbfbf;stroke:#000000"
          d="m 250.5,499.5 h -14 v 19 h 14 z"
-         id="path2471"
-         inkscape:path-effect="#path-effect2469-8"
-         inkscape:original-d="M -111,0" />
+         id="path113"
+         inkscape:path-effect="#path-effect112-1"
+         inkscape:original-d="m 250.5,499.5 h -14 v 19 h 14 z"
+         style="fill:#bfbfbf;stroke:#000000" />
     </g>
   </g>
   <g
