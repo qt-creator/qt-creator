@@ -71,10 +71,9 @@ static QVariant evaluateExpression(const QString &expression, const ModelNode &m
 QmlDesigner::NodeHints::NodeHints(const ModelNode &node)
 #ifdef QDS_USE_PROJECTSTORAGE
     : NodeHints{node.metaInfo()}
-#else
-    : m_modelNode(node)
 #endif
 {
+    m_modelNode = node;
 #ifndef QDS_USE_PROJECTSTORAGE
 
     if (!isValid())
@@ -124,7 +123,7 @@ NodeHints::NodeHints(const ItemLibraryEntry &entry, [[maybe_unused]] Model *mode
 namespace {
 bool convert(FlagIs flagIs)
 {
-    return flagIs == FlagIs::True ? true : false;
+    return flagIs == FlagIs::True;
 }
 } // namespace
 
@@ -326,7 +325,7 @@ bool NodeHints::hideInNavigator() const
     if (!isValid())
         return false;
 
-    auto flagIs = m_modelNode.metaInfo().hideInNavigator();
+    auto flagIs = m_metaInfo.hideInNavigator();
 
     if (flagIs != FlagIs::Set)
         return convert(flagIs);
