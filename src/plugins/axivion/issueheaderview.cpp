@@ -41,19 +41,14 @@ static QString infoText()
                   "!\"\" matches issues having any non-empty value in this column");
 }
 
-static void fixGlobalPosOnScreen(QPoint *globalPos, const QSize &size)
+static QPoint globalPosOnScreen(const QPoint &orig, const QSize &size)
 {
-    QScreen *qscreen = QGuiApplication::screenAt(*globalPos);
+    QScreen *qscreen = QGuiApplication::screenAt(orig);
     if (!qscreen)
         qscreen = QGuiApplication::primaryScreen();
     const QRect screen = qscreen->availableGeometry();
 
-    if (globalPos->x() + size.width() > screen.width())
-        globalPos->setX(screen.width() - size.width());
-    if (globalPos->y() + size.height() > screen.height())
-        globalPos->setY(screen.height() - size.height());
-    if (globalPos->y() < 0)
-        globalPos->setY(0);
+    return QPoint(std::max(screen.x(), orig.x() - size.width()), orig.y() - size.height());
 }
 
 class FilterPopupWidget : public QFrame
@@ -326,9 +321,8 @@ void IssueHeaderView::mouseReleaseEvent(QMouseEvent *event)
                 popup->setOnApply(onApply);
                 const int right = sectionViewportPosition(logical) + sectionSize(logical);
                 const QSize size = popup->sizeHint();
-                QPoint globalPos = mapToGlobal(QPoint{std::max(0, x() + right - size.width()),
-                                                      this->y() - size.height()});
-                fixGlobalPosOnScreen(&globalPos, size);
+                const QPoint globalPos
+                        = globalPosOnScreen(mapToGlobal(QPoint{x() + right, this->y()}), size);
                 popup->move(globalPos);
                 popup->show();
             }

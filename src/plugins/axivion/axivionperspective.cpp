@@ -66,6 +66,8 @@ using namespace Utils;
 
 namespace Axivion::Internal {
 
+constexpr int ListItemIdRole = Qt::UserRole + 2;
+
 static const Icon MARKER_ICON({{":/axivion/images/marker.png", Theme::IconsBaseColor}});
 static const Icon USER_ICON({{":/axivion/images/user.png", Theme::PanelTextColorDark}}, Icon::Tint);
 
@@ -130,6 +132,8 @@ public:
             return m_data.at(column);
         if (role == Qt::ToolTipRole && column >= 0 && column < m_toolTips.size())
             return m_toolTips.at(column);
+        if (role == ListItemIdRole)
+            return m_id;
         return {};
     }
 
@@ -162,8 +166,6 @@ public:
                 if (link.targetFilePath.exists())
                     EditorManager::openEditorAt(link);
             }
-            if (!m_id.isEmpty())
-                fetchIssueInfo(m_id);
             return true;
         } else if (role == BaseTreeView::ItemViewEventRole && !m_id.isEmpty()) {
             ItemViewEvent ev = value.value<ItemViewEvent>();
@@ -372,6 +374,14 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_issuesModel = new DynamicListModel(this);
     m_issuesView->setModel(m_issuesModel);
     connect(m_issuesModel, &DynamicListModel::fetchRequested, this, &IssuesWidget::onFetchRequested);
+    connect(m_issuesView->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, [this](const QItemSelection &selected, const QItemSelection &) {
+        if (selected.isEmpty())
+            return;
+        const QString id = m_issuesModel->data(m_issuesView->currentIndex(), ListItemIdRole).toString();
+        QTC_ASSERT(!id.isEmpty(), return);
+        fetchIssueInfo(id);
+    });
     m_totalRows = new QLabel(Tr::tr("Total rows:"), this);
 
     QWidget *errorWidget = new QWidget(this);
@@ -461,9 +471,8 @@ void IssuesWidget::resetDashboard()
 
 void IssuesWidget::updateNamedFilters()
 {
-    QList<NamedFilter> globalFilters;
-    QList<NamedFilter> userFilters;
-    knownNamedFilters(&globalFilters, &userFilters);
+    QList<NamedFilter> globalFilters = knownNamedFiltersFor(m_currentPrefix, true);
+    QList<NamedFilter> userFilters = knownNamedFiltersFor(m_currentPrefix, false);
 
     Utils::sort(globalFilters, [](const NamedFilter &lhs, const NamedFilter &rhs) {
         return lhs.displayName < rhs.displayName;
@@ -661,16 +670,12 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto, int startRow)
         for (const auto &column : tableColumns) {
             const auto it = row.find(column.key);
             if (it != row.end()) {
-                QString value = anyToSimpleString(it->second);
+                QString value = anyToSimpleString(it->second, column.type, column.typeOptions);
                 if (column.key == "id") {
                     value.prepend(m_currentPrefix);
                     id = value;
                 }
                 toolTips << value;
-                if (column.key.toLower().endsWith("path")) {
-                    const FilePath fp = FilePath::fromUserInput(value);
-                    value = QString("%1 [%2]").arg(fp.fileName(), fp.path());
-                }
                 data << value;
             }
         }
@@ -782,6 +787,7 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
         button->setCheckable(true);
         connect(button, &QToolButton::clicked, this, [this, prefix = kind.prefix]{
             m_currentPrefix = prefix;
+            updateNamedFilters();
             fetchTable();
         });
         m_typesButtonGroup->addButton(button, ++buttonId);

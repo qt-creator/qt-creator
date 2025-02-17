@@ -244,7 +244,8 @@ static void setToolchainsFromAbis(Kit *k, const LanguagesAndAbis &abisByLanguage
     for (auto it = abisByCategory.cbegin(); it != abisByCategory.cend(); ++it) {
         const QList<ToolchainBundle> matchingBundles
             = Utils::filtered(bundles, [&it](const ToolchainBundle &b) {
-                  return b.factory()->languageCategory() == it.key() && b.targetAbi() == it.value();
+                  return b.factory() && b.factory()->languageCategory() == it.key()
+                         && b.targetAbi() == it.value();
               });
 
         if (matchingBundles.isEmpty()) {

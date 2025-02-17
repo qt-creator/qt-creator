@@ -321,7 +321,7 @@ class Dumper(DumperBase):
             target_typeid = self.from_native_type(nativeType.target().unqualified())
             typeid = self.create_reference_typeid(target_typeid)
 
-        elif code == gdb.TYPE_CODE_RVALUE_REF and hasattr(gdb, "TYPE_CODE_RVALUE_REF"):
+        elif hasattr(gdb, "TYPE_CODE_RVALUE_REF") and code == gdb.TYPE_CODE_RVALUE_REF:
             #self.warn('RVALUEREF')
             target_typeid = self.from_native_type(nativeType.target())
             typeid = self.create_rvalue_reference_typeid(target_typeid)

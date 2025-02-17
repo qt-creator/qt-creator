@@ -65,15 +65,10 @@ public:
         auto ideIconLabel = new QLabel;
         {
             const QPixmap logo = Core::Icons::QTCREATORLOGO_BIG.pixmap();
-            const int size = logo.width();
-            const QRect cropR = size == 128 ? QRect(9, 22, 110, 84) : QRect(17, 45, 222, 166);
-            const QPixmap croppedLogo = logo.copy(cropR);
-            const int lineHeight = welcomeTF.lineHeight();
-            const QPixmap scaledCroppedLogo =
-                croppedLogo.scaledToHeight((lineHeight - 12) * croppedLogo.devicePixelRatioF(),
-                                           Qt::SmoothTransformation);
-            ideIconLabel->setPixmap(scaledCroppedLogo);
-            ideIconLabel->setFixedHeight(lineHeight);
+            const int iconSize = 40 * logo.devicePixelRatio();
+            const QPixmap scaledLogo = logo.scaledToHeight(iconSize, Qt::SmoothTransformation);
+            ideIconLabel->setPixmap(scaledLogo);
+            ideIconLabel->setFixedHeight(welcomeTF.lineHeight());
         }
 
         auto welcomeLabel = new ElidingLabel(Tr::tr("Welcome to %1")
@@ -88,7 +83,7 @@ public:
                 ideIconLabel,
                 welcomeLabel,
                 st,
-                spacing(ExVPaddingGapXl),
+                spacing(HGapM),
                 customMargins(HPaddingM, VPaddingM, HPaddingM, VPaddingM),
             },
             createRule(Qt::Horizontal),

@@ -1555,7 +1555,14 @@ Toolchains GccToolchainFactory::autoDetect(const ToolchainDetector &detector) co
                                    detector.alreadyKnown,
                                    GccToolchain::RealGcc /*sic!*/);
 
-    return result;
+    // Filter out toolchains with a type that we actually do not have a factory for
+    // e.g. when finding a MinGW toolchain on macOS
+    const auto [filteredResult, toDelete] = Utils::partition(result, [](Toolchain *tc) {
+        return factoryForType(tc->typeId()) != nullptr;
+    });
+    qDeleteAll(toDelete);
+
+    return filteredResult;
 }
 
 Toolchains GccToolchainFactory::detectForImport(const ToolchainDescription &tcd) const

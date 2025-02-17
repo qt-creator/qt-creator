@@ -113,13 +113,14 @@ struct NamedFilter
 };
 
 void fetchNamedFilters();
-void knownNamedFilters(QList<NamedFilter> *global, QList<NamedFilter> *user);
+QList<NamedFilter> knownNamedFiltersFor(const QString &issueKind, bool global);
 std::optional<Dto::NamedFilterInfoDto> namedFilterInfoForKey(const QString &key, bool global);
 
 bool handleCertificateIssue();
 
 QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind);
-QString anyToSimpleString(const Dto::Any &any);
+QString anyToSimpleString(const Dto::Any &any, const QString &type,
+                          const std::optional<std::vector<Dto::ColumnTypeOptionDto>> &options);
 void fetchIssueInfo(const QString &id);
 
 void switchActiveDashboardId(const Utils::Id &toDashboardId);

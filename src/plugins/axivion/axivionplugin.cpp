@@ -74,41 +74,82 @@ QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind)
     return prefixToIcon.insert(*issueKind, icon.icon()).value();
 }
 
-QString anyToSimpleString(const Dto::Any &any)
+static QString anyToString(const Dto::Any &any)
 {
-    if (any.isString())
-        return any.getString();
-    if (any.isBool())
-        return QString("%1").arg(any.getBool());
-    if (any.isDouble()) {
-        const double value = any.getDouble();
-        double intPart;
-        const double fragPart = std::modf(value, &intPart);
-        if (fragPart != 0)
-            return QString::number(value);
-        return QString::number(value, 'f', 0);
+   if (any.isNull() || !any.isString())
+        return {};
+    return any.getString();
+}
+
+static QString anyToPathString(const Dto::Any &any)
+{
+    const QString pathStr = anyToString(any);
+    if (pathStr.isEmpty())
+        return {};
+    const FilePath fp = FilePath::fromUserInput(pathStr);
+    return fp.contains("/") ? QString("%1 [%2]").arg(fp.fileName(), fp.path()) : fp.fileName();
+}
+
+// only the first found innerKey is used to add its value to the list
+static QString anyListOfMapToString(const Dto::Any &any, const QStringList &innerKeys)
+{
+    if (any.isNull() || !any.isList())
+        return {};
+    const std::vector<Dto::Any> anyList = any.getList();
+    QStringList list;
+    for (const Dto::Any &inner : anyList) {
+        if (!inner.isMap())
+            continue;
+        const std::map<QString, Dto::Any> innerMap = inner.getMap();
+        for (const QString &innerKey : innerKeys) {
+            auto value = innerMap.find(innerKey);
+            if (value == innerMap.end())
+                continue;
+            list << anyToString(value->second);
+            break;
+        }
     }
+    return list.join(", ");
+}
+
+static QString anyToNumberString(const Dto::Any &any)
+{
     if (any.isNull())
-        return QString(); // or NULL??
-    if (any.isList()) {
-        const std::vector<Dto::Any> anyList = any.getList();
-        QStringList list;
-        for (const Dto::Any &inner : anyList)
-            list << anyToSimpleString(inner);
-        return list.join(',');
+        return {};
+    if (any.isString()) // handle Infinity/NaN/...
+        return any.getString();
+
+    const double value = any.getDouble();
+    double intPart;
+    const double frac = std::modf(value, &intPart);
+    if (frac != 0)
+        return QString::number(value, 'f');
+    return QString::number(value, 'f', 0);
+}
+
+QString anyToSimpleString(const Dto::Any &any, const QString &type,
+                          const std::optional<std::vector<Dto::ColumnTypeOptionDto>> &options)
+{
+    if (type == "path")
+        return anyToPathString(any);
+    if (type == "string" || type == "state")
+        return anyToString(any);
+    if (type == "tags")
+        return anyListOfMapToString(any, {"tag"});
+    if (type == "number")
+        return anyToNumberString(any);
+    if (type == "owners") {
+        return anyListOfMapToString(any, {"displayName", "name"});
     }
-    if (any.isMap()) { // TODO
-        const std::map<QString, Dto::Any> anyMap = any.getMap();
-        auto value = anyMap.find("displayName");
-        if (value != anyMap.end())
-            return anyToSimpleString(value->second);
-        value = anyMap.find("name");
-        if (value != anyMap.end())
-            return anyToSimpleString(value->second);
-        value = anyMap.find("tag");
-        if (value != anyMap.end())
-            return anyToSimpleString(value->second);
+    if (type == "boolean") {
+        if (!any.isBool())
+            return {};
+        if (options && options->size() == 2)
+            return any.getBool() ? options->at(1).key : options->at(0).key;
+        return any.getBool() ? QString("true") : QString("false");
     }
+
+    QTC_ASSERT(false, qDebug() << "unhandled" << type);
     return {};
 }
 
@@ -297,17 +338,27 @@ void fetchNamedFilters()
     dd->fetchNamedFilters();
 }
 
-void knownNamedFilters(QList<NamedFilter> *global, QList<NamedFilter> *user)
+static QList<Dto::NamedFilterInfoDto> withoutRestricted(const QString &kind, const QList<Dto::NamedFilterInfoDto> &f)
 {
-    QTC_ASSERT(dd, return);
-    QTC_ASSERT(global, return);
-    QTC_ASSERT(user, return);
-
-    *global = Utils::transform(dd->m_globalNamedFilters, [](const Dto::NamedFilterInfoDto &dto) {
-        return NamedFilter{dto.key, dto.displayName, true};
+    return Utils::filtered(f, [kind](const Dto::NamedFilterInfoDto &dto) {
+        if (dto.supportsAllIssueKinds)
+            return true;
+        return !dto.issueKindRestrictions || dto.issueKindRestrictions->contains(kind)
+               || dto.issueKindRestrictions->contains("UNIVERSAL");
     });
-    *user = Utils::transform(dd->m_userNamedFilters, [](const Dto::NamedFilterInfoDto &dto) {
-        return NamedFilter{dto.key, dto.displayName, false};
+};
+
+// TODO: Introduce FilterScope enum { Global, User } and use it instead of bool global.
+QList<NamedFilter> knownNamedFiltersFor(const QString &issueKind, bool global)
+{
+    QTC_ASSERT(dd, return {});
+
+    if (issueKind.isEmpty()) // happens after initial dashboad and filters fetch
+        return {};
+
+    return Utils::transform(withoutRestricted(issueKind, global ? dd->m_globalNamedFilters : dd->m_userNamedFilters),
+                               [global](const Dto::NamedFilterInfoDto &dto) {
+        return NamedFilter{dto.key, dto.displayName, global};
     });
 }
 
@@ -911,10 +962,9 @@ Group lineMarkerRecipe(const FilePath &filePath, const LineMarkerHandler &handle
 {
     QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected?
     QTC_ASSERT(!filePath.isEmpty(), return {}); // TODO: Call handler with unexpected?
-    QTC_ASSERT(dd->m_analysisVersion, return {}); // TODO: Call handler with unexpected?
 
     const QString fileName = QString::fromUtf8(QUrl::toPercentEncoding(filePath.path()));
-    const QUrlQuery query({{"filename", fileName}, {"version", *dd->m_analysisVersion}});
+    const QUrlQuery query({{"filename", fileName}});
     const QUrl url = constructUrl(dd->m_currentProjectInfo->name, "files", query);
     return fetchDataRecipe<Dto::FileViewDto>(url, handler);
 }
@@ -1216,9 +1266,6 @@ void setAnalysisVersion(const QString &version)
     if (dd->m_analysisVersion.value_or("") == version)
         return;
     dd->m_analysisVersion = version;
-    // refetch issues for already opened docs
-    dd->clearAllMarks();
-    dd->handleOpenedDocs();
 }
 
 void enableInlineIssues(bool enable)
