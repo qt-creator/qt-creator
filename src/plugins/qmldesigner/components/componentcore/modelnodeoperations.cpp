@@ -1884,7 +1884,7 @@ FilePath getImported3dDefaultDirectory()
 {
     return Utils::FilePath::fromString(getAssetDefaultDirectory(
         "3d",
-        QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString()));
+        QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toUrlishString()));
 }
 
 void jumpToCode(const ModelNode &modelNode)

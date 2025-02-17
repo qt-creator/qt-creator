@@ -111,7 +111,7 @@ void ResourceGenerator::generateMenuEntry(QObject *parent)
         if (!success) {
             Core::AsynchronousMessageBox::critical(
                 Tr::tr("Error"),
-                Tr::tr("Failed to generate QRC resource file\n %1").arg(qrcFilePath.toString()));
+                Tr::tr("Failed to generate QRC resource file\n %1").arg(qrcFilePath.toUserOutput()));
             return;
         }
 

@@ -116,7 +116,7 @@ WidgetInfo ContentLibraryView::widgetInfo()
             QStringList paths;
 
             for (const AssetPath &depAsset : std::as_const(depAssets)) {
-                QString path = depAsset.absFilPath().toString();
+                QString path = depAsset.absFilPath().toUrlishString();
 
                 if (Asset(path).isValidTextureSource())
                     paths.append(path);

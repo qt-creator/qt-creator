@@ -164,7 +164,7 @@ DVConnector::DVConnector(QObject *parent)
             [this](const std::optional<Utils::FilePath> &resourcePath) {
                 emit projectIsUploading();
                 QString projectName = ProjectExplorer::ProjectManager::startupProject()->displayName();
-                uploadProject(projectName, resourcePath->toString());
+                uploadProject(projectName, resourcePath->toUrlishString());
             });
 
     connect(&m_resourceGenerator,
