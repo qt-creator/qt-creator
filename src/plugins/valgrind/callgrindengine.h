@@ -9,7 +9,6 @@
 #include "callgrind/callgrindparser.h"
 
 #include <utils/qtcprocess.h>
-#include <utils/processinterface.h>
 
 namespace Valgrind::Internal {
 
@@ -71,7 +70,6 @@ private:
     bool m_markAsPaused = false;
 
     std::unique_ptr<Utils::Process> m_controllerProcess;
-    Utils::ProcessRunData m_valgrindRunnable;
     qint64 m_pid = 0;
 
     Option m_lastOption = Unknown;

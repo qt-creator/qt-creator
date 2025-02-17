@@ -10,6 +10,7 @@
 
 #include <utils/filepath.h>
 #include <utils/filestreamermanager.h>
+#include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>
@@ -36,8 +37,6 @@ CallgrindToolRunner::CallgrindToolRunner(RunControl *runControl)
         m_pid = pid;
     });
     connect(&m_runner, &ValgrindProcess::done, this, &CallgrindToolRunner::triggerParse);
-
-    m_valgrindRunnable = runControl->runnable();
 
     static int fileCount = 100;
     m_valgrindOutputFile = runControl->workingDirectory() / QString("callgrind.out.f%1").arg(++fileCount);
@@ -177,11 +176,11 @@ void CallgrindToolRunner::run(Option option)
     connect(m_controllerProcess.get(), &Process::done,
             this, &CallgrindToolRunner::controllerProcessDone);
 
-    const FilePath control =
-            m_valgrindRunnable.command.executable().withNewPath(CALLGRIND_CONTROL_BINARY);
+    const ProcessRunData runnable = runControl()->runnable();
+    const FilePath control = runnable.command.executable().withNewPath(CALLGRIND_CONTROL_BINARY);
     m_controllerProcess->setCommand({control, {toOptionString(option), QString::number(m_pid)}});
-    m_controllerProcess->setWorkingDirectory(m_valgrindRunnable.workingDirectory);
-    m_controllerProcess->setEnvironment(m_valgrindRunnable.environment);
+    m_controllerProcess->setWorkingDirectory(runnable.workingDirectory);
+    m_controllerProcess->setEnvironment(runnable.environment);
     m_controllerProcess->start();
 }
 
