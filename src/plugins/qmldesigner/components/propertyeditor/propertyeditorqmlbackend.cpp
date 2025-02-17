@@ -8,6 +8,8 @@
 #include "propertyeditorvalue.h"
 #include "propertymetainfo.h"
 
+#include "componentcore/utils3d.h"
+
 #include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
 #include <nodemetainfo.h>
@@ -580,6 +582,12 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
 #endif
         contextObject()->setMajorQtQuickVersion(qmlObjectNode.view()->majorQtQuickVersion());
         contextObject()->setMinorQtQuickVersion(qmlObjectNode.view()->minorQtQuickVersion());
+
+        contextObject()->setHasMaterialLibrary(Utils3D::materialLibraryNode(propertyEditor).isValid());
+        contextObject()->setIsQt6Project(propertyEditor->externalDependencies().isQt6Project());
+        contextObject()->set3DHasModelSelection(!Utils3D::getSelectedModels(propertyEditor).isEmpty());
+        contextObject()->setSelectedNode(qmlObjectNode);
+        contextObject()->setHasQuick3DImport(propertyEditor->model()->hasImport("QtQuick3D"));
 
         qCInfo(propertyEditorBenchmark) << "final:" << time.elapsed();
     } else {

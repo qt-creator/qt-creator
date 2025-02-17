@@ -47,6 +47,8 @@ enum {
 
 namespace QmlDesigner {
 
+constexpr QStringView quick3dImport{u"QtQuick3D"};
+
 static bool propertyIsAttachedLayoutProperty(PropertyNameView propertyName)
 {
     return propertyName.contains("Layout.");
@@ -57,17 +59,11 @@ static bool propertyIsAttachedInsightProperty(PropertyNameView propertyName)
     return propertyName.contains("InsightCategory.");
 }
 
-static bool containsTexture(const ModelNode &node)
+template<typename Range, typename Value, typename Projection = std::identity>
+bool anyOf(Range &&range, Value &&value, Projection projection = {})
 {
-    if (node.metaInfo().isQtQuick3DTexture())
-        return true;
-
-    const ModelNodes children = node.allSubModelNodes();
-    for (const ModelNode &child : children) {
-        if (child.metaInfo().isQtQuick3DTexture())
-            return true;
-    }
-    return false;
+    return std::ranges::find(std::forward<Range>(range), std::forward<Value>(value), projection)
+           != std::ranges::end(range);
 }
 
 PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,
@@ -718,8 +714,16 @@ void PropertyEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
     if (m_selectedNode.isValid() && removedNode.isValid() && m_selectedNode == removedNode)
         select();
-    if (containsTexture(removedNode))
+
+    const ModelNodes &allRemovedNodes = removedNode.allSubModelNodesAndThisNode();
+
+    if (anyOf(allRemovedNodes, model()->qtQuick3DTextureMetaInfo(), &ModelNode::metaInfo))
         m_textureAboutToBeRemoved = true;
+
+    if (m_qmlBackEndForCurrentType) {
+        if (anyOf(allRemovedNodes, QLatin1String{Constants::MATERIAL_LIB_ID}, &ModelNode::id))
+            m_qmlBackEndForCurrentType->contextObject()->setHasMaterialLibrary(false);
+    }
 }
 
 void PropertyEditorView::nodeRemoved(const ModelNode &, const NodeAbstractProperty &, PropertyChangeFlags)
@@ -907,7 +911,7 @@ void PropertyEditorView::instanceInformationsChanged(const QMultiHash<ModelNode,
     m_locked = false;
 }
 
-void PropertyEditorView::nodeIdChanged(const ModelNode& node, const QString& newId, const QString& /*oldId*/)
+void PropertyEditorView::nodeIdChanged(const ModelNode &node, const QString &newId, const QString &oldId)
 {
     if (noValidSelection())
         return;
@@ -916,6 +920,11 @@ void PropertyEditorView::nodeIdChanged(const ModelNode& node, const QString& new
         return;
 
     if (m_qmlBackEndForCurrentType) {
+        if (newId == Constants::MATERIAL_LIB_ID)
+            m_qmlBackEndForCurrentType->contextObject()->setHasMaterialLibrary(true);
+        else if (oldId == Constants::MATERIAL_LIB_ID)
+            m_qmlBackEndForCurrentType->contextObject()->setHasMaterialLibrary(false);
+
         if (node == m_selectedNode)
             setValue(node, "id", newId);
         if (node.metaInfo().isQtQuick3DTexture())
@@ -929,12 +938,6 @@ void PropertyEditorView::select()
         m_qmlBackEndForCurrentType->emitSelectionToBeChanged();
 
     resetView();
-
-    auto nodes = selectedModelNodes();
-
-    for (const auto &n : nodes) {
-        n.metaInfo().isFileComponent();
-    }
 }
 
 void PropertyEditorView::setSelelectedModelNode()
@@ -1027,8 +1030,26 @@ void PropertyEditorView::nodeReparented(const ModelNode &node,
 {
     if (node == m_selectedNode)
         m_qmlBackEndForCurrentType->backendAnchorBinding().setup(QmlItemNode(m_selectedNode));
-    if (containsTexture(node))
+
+    const ModelNodes &allNodes = node.allSubModelNodesAndThisNode();
+    if (anyOf(allNodes, model()->qtQuick3DTextureMetaInfo(), &ModelNode::metaInfo))
         m_qmlBackEndForCurrentType->refreshBackendModel();
+
+    if (m_qmlBackEndForCurrentType) {
+        if (anyOf(allNodes, QLatin1String{Constants::MATERIAL_LIB_ID}, &ModelNode::id))
+            m_qmlBackEndForCurrentType->contextObject()->setHasMaterialLibrary(true);
+    }
+}
+
+void PropertyEditorView::importsChanged(const Imports &addedImports, const Imports &removedImports)
+{
+    if (!m_qmlBackEndForCurrentType)
+        return;
+
+    if (anyOf(removedImports, quick3dImport, &Import::url))
+        m_qmlBackEndForCurrentType->contextObject()->setHasQuick3DImport(false);
+    else if (anyOf(addedImports, quick3dImport, &Import::url))
+        m_qmlBackEndForCurrentType->contextObject()->setHasQuick3DImport(true);
 }
 
 void PropertyEditorView::highlightTextureProperties(bool highlight)

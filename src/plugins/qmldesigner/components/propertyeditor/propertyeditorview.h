@@ -73,6 +73,8 @@ public:
                         const NodeAbstractProperty &oldPropertyParent,
                         AbstractView::PropertyChangeFlags propertyChange) override;
 
+    void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
+
     void dragStarted(QMimeData *mimeData) override;
     void dragEnded() override;
 

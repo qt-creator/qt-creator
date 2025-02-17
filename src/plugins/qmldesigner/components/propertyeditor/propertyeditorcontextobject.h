@@ -5,7 +5,6 @@
 
 #include "model.h"
 #include "modelnode.h"
-#include "quick2propertyeditorview.h"
 
 #include <QColor>
 #include <QObject>
@@ -14,6 +13,8 @@
 #include <QQmlComponent>
 #include <QQmlPropertyMap>
 #include <QUrl>
+
+QT_FORWARD_DECLARE_CLASS(QQuickWidget)
 
 namespace QmlDesigner {
 
@@ -51,8 +52,13 @@ class PropertyEditorContextObject : public QObject
     Q_PROPERTY(bool insightEnabled MEMBER m_insightEnabled NOTIFY insightEnabledChanged)
     Q_PROPERTY(QStringList insightCategories MEMBER m_insightCategories NOTIFY insightCategoriesChanged)
 
+    Q_PROPERTY(bool hasQuick3DImport READ hasQuick3DImport NOTIFY hasQuick3DImportChanged)
+    Q_PROPERTY(bool hasMaterialLibrary READ hasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
+    Q_PROPERTY(bool isQt6Project READ isQt6Project NOTIFY isQt6ProjectChanged)
+    Q_PROPERTY(bool has3DModelSelection READ has3DModelSelection NOTIFY has3DModelSelectionChanged)
+
 public:
-    PropertyEditorContextObject(Quick2PropertyEditorView *widget, QObject *parent = nullptr);
+    PropertyEditorContextObject(QQuickWidget *widget, QObject *parent = nullptr);
 
     QUrl specificsUrl() const {return m_specificsUrl; }
     QString specificQmlData() const {return m_specificQmlData; }
@@ -115,11 +121,24 @@ public:
     bool hasAliasExport() const { return m_aliasExport; }
 
     bool hasMultiSelection() const;
-
     void setHasMultiSelection(bool);
 
     void setInsightEnabled(bool value);
     void setInsightCategories(const QStringList &categories);
+
+    bool hasQuick3DImport() const;
+    void setHasQuick3DImport(bool value);
+
+    bool hasMaterialLibrary() const;
+    void setHasMaterialLibrary(bool value);
+
+    bool isQt6Project() const;
+    void setIsQt6Project(bool value);
+
+    bool has3DModelSelection() const;
+    void set3DHasModelSelection(bool value);
+
+    void setSelectedNode(const ModelNode &node);
 
 signals:
     void specificsUrlChanged();
@@ -138,6 +157,10 @@ signals:
     void hasActiveTimelineChanged();
     void activeDragSuffixChanged();
     void hasMultiSelectionChanged();
+    void hasQuick3DImportChanged();
+    void hasMaterialLibraryChanged();
+    void has3DModelSelectionChanged();
+    void isQt6ProjectChanged();
 
     void insightEnabledChanged();
     void insightCategoriesChanged();
@@ -179,9 +202,15 @@ private:
     int m_minorVersion = 1;
     int m_majorQtQuickVersion = 1;
     int m_minorQtQuickVersion = -1;
+
+    bool m_hasQuick3DImport = false;
+    bool m_hasMaterialLibrary = false;
+    bool m_has3DModelSelection = false;
+    bool m_isQt6Project = false;
+
     QQmlComponent *m_qmlComponent;
     QQmlContext *m_qmlContext;
-    Quick2PropertyEditorView *m_quickWidget = nullptr;
+    QQuickWidget *m_quickWidget = nullptr;
 
     QPoint m_lastPos;
 
@@ -197,6 +226,8 @@ private:
 
     bool m_insightEnabled = false;
     QStringList m_insightCategories;
+
+    ModelNode m_selectedNode;
 };
 
 class EasingCurveEditor : public QObject
