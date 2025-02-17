@@ -1227,6 +1227,9 @@ const QList<BuildInfo> CMakeProjectImporter::buildInfoList(void *directoryData) 
     config.insert(Constants::QML_DEBUG_SETTING,
                   data->hasQmlDebugging ? TriState::Enabled.toVariant()
                                         : TriState::Default.toVariant());
+    if (!data->cmakePreset.isEmpty())
+        config["hideImportedSuffix"] = true;
+
     info.extraInfo = config;
 
     qCDebug(cmInputLog) << "BuildInfo configured.";

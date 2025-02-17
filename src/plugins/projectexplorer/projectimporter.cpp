@@ -143,7 +143,9 @@ const QList<BuildInfo> ProjectImporter::import(const Utils::FilePath &importPath
                 continue;
             }
             for (BuildInfo i : infoList) {
-                i.displayName = Tr::tr("%1 (imported)").arg(i.displayName);
+                const QVariantMap extraInfo = i.extraInfo.toMap();
+                if (!extraInfo["hideImportedSuffix"].toBool())
+                    i.displayName = Tr::tr("%1 (imported)").arg(i.displayName);
                 i.kitId = k->id();
                 i.factory = factory;
                 if (!result.contains(i))
