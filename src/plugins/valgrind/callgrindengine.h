@@ -35,14 +35,11 @@ public:
     void setToggleCollectFunction(const QString &toggleCollectFunction);
 
     enum Option {
-        Unknown,
         Dump,
         ResetEventCounters,
         Pause,
         UnPause
     };
-
-    Q_ENUM(Option)
 
 protected:
     void addToolArguments(Utils::CommandLine &cmd) const override;
@@ -72,7 +69,7 @@ private:
     std::unique_ptr<Utils::Process> m_controllerProcess;
     qint64 m_pid = 0;
 
-    Option m_lastOption = Unknown;
+    std::optional<Option> m_lastOption;
 
     // remote callgrind support
     Utils::FilePath m_valgrindOutputFile; // On the device that runs valgrind

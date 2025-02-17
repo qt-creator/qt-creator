@@ -141,6 +141,21 @@ static QString toOptionString(CallgrindToolRunner::Option option)
     }
 }
 
+static QString statusMessage(CallgrindToolRunner::Option option)
+{
+    switch (option) {
+    case CallgrindToolRunner::Dump:
+        return Tr::tr("Dumping profile data...");
+    case CallgrindToolRunner::ResetEventCounters:
+        return Tr::tr("Resetting event counters...");
+    case CallgrindToolRunner::Pause:
+        return Tr::tr("Pausing instrumentation...");
+    case CallgrindToolRunner::UnPause:
+        return Tr::tr("Unpausing instrumentation...");
+    }
+    return {};
+}
+
 void CallgrindToolRunner::run(Option option)
 {
     if (m_controllerProcess) {
@@ -150,25 +165,9 @@ void CallgrindToolRunner::run(Option option)
 
     // save back current running operation
     m_lastOption = option;
+    showStatusMessage(statusMessage(option));
 
     m_controllerProcess.reset(new Process);
-
-    switch (option) {
-        case CallgrindToolRunner::Dump:
-            showStatusMessage(Tr::tr("Dumping profile data..."));
-            break;
-        case CallgrindToolRunner::ResetEventCounters:
-            showStatusMessage(Tr::tr("Resetting event counters..."));
-            break;
-        case CallgrindToolRunner::Pause:
-            showStatusMessage(Tr::tr("Pausing instrumentation..."));
-            break;
-        case CallgrindToolRunner::UnPause:
-            showStatusMessage(Tr::tr("Unpausing instrumentation..."));
-            break;
-        default:
-            break;
-    }
 
 #if CALLGRIND_CONTROL_DEBUG
     m_controllerProcess->setProcessChannelMode(QProcess::ForwardedChannels);
@@ -197,8 +196,9 @@ void CallgrindToolRunner::controllerProcessDone()
         return;
     }
 
+    QTC_ASSERT(m_lastOption, return);
     // this call went fine, we might run another task after this
-    switch (m_lastOption) {
+    switch (*m_lastOption) {
         case ResetEventCounters:
             // lets dump the new reset profiling info
             run(Dump);
@@ -217,8 +217,7 @@ void CallgrindToolRunner::controllerProcessDone()
         default:
             break;
     }
-
-    m_lastOption = Unknown;
+    m_lastOption.reset();
 }
 
 void CallgrindToolRunner::triggerParse()
