@@ -19509,215 +19509,215 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>CSMes file:</source>
-        <translation type="unfinished"></translation>
+        <translation>CSMes-Datei:</translation>
     </message>
     <message>
         <source>No valid CoverageScanner found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein gültiger CoverageScanner gefunden.</translation>
     </message>
     <message>
         <source>Configure</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurieren</translation>
     </message>
     <message>
         <source>Coco Code Coverage: Reconfiguring...</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco Code Coverage: Konfiguriere neu...</translation>
     </message>
     <message>
         <source>Coco Code Coverage: No working Coco installation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco Code Coverage: Keine funktionierende Coco-Installation.</translation>
     </message>
     <message>
         <source>Coco Code Coverage: Enabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco Code Coverage: Aktiviert.</translation>
     </message>
     <message>
         <source>Disable Coverage</source>
-        <translation type="unfinished"></translation>
+        <translation>Coverage deaktivieren</translation>
     </message>
     <message>
         <source>Coco Code Coverage: Disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco Code Coverage: Deaktiviert.</translation>
     </message>
     <message>
         <source>Enable Coverage</source>
-        <translation type="unfinished"></translation>
+        <translation>Coverage aktivieren</translation>
     </message>
     <message>
         <source>Save &amp;&amp; Re-configure</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichern &amp;&amp; neu konfigurieren</translation>
     </message>
     <message>
         <source>Additional CMake options: </source>
-        <translation type="unfinished"></translation>
+        <translation>Zusätzliche CMake-Optionen: </translation>
     </message>
     <message>
         <source>Initial cache script: </source>
-        <translation type="unfinished"></translation>
+        <translation>Skript für initialen Cache: </translation>
     </message>
     <message>
         <source>Overwrite file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei &quot;%1&quot; überschreiben.</translation>
     </message>
     <message>
         <source>Write file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei &quot;%1&quot; schreiben.</translation>
     </message>
     <message>
         <source>Coco Code Coverage</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco Code Coverage</translation>
     </message>
     <message>
         <source>Documentation</source>
-        <translation type="unfinished">Dokumentation</translation>
+        <translation>Dokumentation</translation>
     </message>
     <message>
         <source>Revert</source>
-        <translation type="unfinished">Rückgängig machen</translation>
+        <translation>Rückgängig machen</translation>
     </message>
     <message>
         <source>CoverageScanner options:</source>
-        <translation type="unfinished"></translation>
+        <translation>CoverageScanner-Optionen:</translation>
     </message>
     <message>
         <source>Exclude File...</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei ausschließen...</translation>
     </message>
     <message>
         <source>Exclude Directory...</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis ausschließen...</translation>
     </message>
     <message>
         <source>These settings are stored in</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Einstellungen werden gespeichert in</translation>
     </message>
     <message>
         <source>Changed Build Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Geänderte Build-Einstellungen</translation>
     </message>
     <message>
         <source>Code for the end of the file &quot;%1&quot; to override the built-in declarations. Only needed in special cases.</source>
-        <translation type="unfinished"></translation>
+        <translation>Code für das Ende der Datei &quot;%1&quot;, um die integrierten Deklarationen zu überschreiben. Wird nur in Ausnahmefällen benötigt.</translation>
     </message>
     <message>
         <source>Enable code coverage for build configuration &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Code Coverage für Build-Konfiguration &quot;%1&quot; aktivieren</translation>
     </message>
     <message>
         <source>Coco is not installed correctly: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco ist nicht korrekt installiert: %1</translation>
     </message>
     <message>
         <source>Build Configuration changed to &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Konfiguration wurde zu &quot;%1&quot; geändert.</translation>
     </message>
     <message>
         <source>Re-configuring stopped by user.</source>
-        <translation type="unfinished"></translation>
+        <translation>Neukonfiguration wurde durch den Benutzer gestoppt.</translation>
     </message>
     <message>
         <source>Error when configuring with &quot;%1&quot;. Check General Messages for more information.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Konfigurieren mit &quot;%1&quot;. Prüfen Sie die Allgemeinen Ausgaben für weitere Informationen.</translation>
     </message>
     <message>
         <source>Stop Re-configuring</source>
-        <translation type="unfinished"></translation>
+        <translation>Neukonfiguration stoppen</translation>
     </message>
     <message>
         <source>Re-configure</source>
-        <translation type="unfinished"></translation>
+        <translation>Neu konfigurieren</translation>
     </message>
     <message>
         <source>Override &lt;&lt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;&lt; Überschreiben</translation>
     </message>
     <message>
         <source>Override &gt;&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&gt;&gt; Überschreiben</translation>
     </message>
     <message>
         <source>The Coco installation path is not set correctly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Installationspfad von Coco ist nicht korrekt gesetzt.</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Bearbeiten</translation>
     </message>
     <message>
         <source>Stop re-configuring.</source>
-        <translation type="unfinished"></translation>
+        <translation>Neukonfiguration stoppen.</translation>
     </message>
     <message>
         <source>Re-configure.</source>
-        <translation type="unfinished"></translation>
+        <translation>Neu konfigurieren.</translation>
     </message>
     <message>
         <source>Reload file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei &quot;%1&quot; neu laden.</translation>
     </message>
     <message>
         <source>File to Exclude from Instrumentation</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei, die von der Instrumentierung ausgeschlossen werden soll</translation>
     </message>
     <message>
         <source>Directory to Exclude from Instrumentation</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis, das von der Instrumentierung ausgeschlossen werden soll</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Speichern</translation>
+        <translation>Speichern</translation>
     </message>
     <message>
         <source>Additional qmake arguments: </source>
-        <translation type="unfinished"></translation>
+        <translation>Zusätzliche qmake-Argumente: </translation>
     </message>
     <message>
         <source>Build environment: </source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Umgebung: </translation>
     </message>
     <message>
         <source>Feature file: </source>
-        <translation type="unfinished"></translation>
+        <translation>Feature-Datei: </translation>
     </message>
     <message>
         <source>Error: Coco installation directory not set. (This can&apos;t happen.)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler: Das Installationsverzeichnis von Coco ist nicht gesetzt. (Dies kann nicht passieren.)</translation>
     </message>
     <message>
         <source>Coco Installation Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Installationsverzeichnis von Coco</translation>
     </message>
     <message>
         <source>Error: Coco installation directory not found at &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler: Installationsverzeichnis von Coco wurde nicht in &quot;%1&quot; gefunden.</translation>
     </message>
     <message>
         <source>Error: CoverageScanner at &quot;%1&quot; did not start.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler: Der CoverageScanner in &quot;%1&quot; ist nicht gestartet.</translation>
     </message>
     <message>
         <source>Error: CoverageScanner at &quot;%1&quot; did not finish.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler: Der CoverageScanner in &quot;%1&quot; wurde nicht beendet.</translation>
     </message>
     <message>
         <source>Valid CoverageScanner found at &quot;%1&quot;:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein gültiger CoverageScanner wurde in &quot;%1&quot; gefunden:</translation>
     </message>
     <message>
         <source>Error: CoverageScanner at &quot;%1&quot; did not run correctly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler: Der CoverageScanner in &quot;%1&quot; wurde nicht korrekt ausgeführt.</translation>
     </message>
     <message>
         <source>Found Coco directory &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco-Verzeichnis &quot;%1&quot; gefunden.</translation>
     </message>
     <message>
         <source>Checked Coco directory &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco-Verzeichnis &quot;%1&quot; wurde überprüft.</translation>
     </message>
     <message>
         <source>Coco Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco-Verzeichnis</translation>
     </message>
 </context>
 <context>
