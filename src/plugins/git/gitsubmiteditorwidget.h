@@ -51,6 +51,7 @@ protected:
 
 signals:
     void showRequested(const QString &commit);
+    void logRequested(const QStringList &range);
 
 private:
     void authorInformationChanged();
@@ -69,6 +70,7 @@ private:
     QValidator *m_emailValidator;
     QString m_originalAuthor;
     QString m_originalEmail;
+    QStringList m_range;
     bool m_hasUnmerged = false;
     bool m_isInitialized = false;
 };

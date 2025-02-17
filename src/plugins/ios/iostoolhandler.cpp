@@ -58,7 +58,7 @@ public:
         if (promise.isCanceled())
             return;
 
-        // The future is canceled when app on simulator is stoped.
+        // The future is canceled when app on simulator is stopped.
         QEventLoop loop;
         QFutureWatcher<void> watcher;
         connect(&watcher, &QFutureWatcher<void>::canceled, &loop, [&] { loop.quit(); });
@@ -68,19 +68,19 @@ public:
         auto logProcess = [&](Process *tailProcess, std::shared_ptr<QTemporaryFile> file) {
             QObject::connect(tailProcess, &Process::readyReadStandardOutput, &loop, [&, tailProcess] {
                 if (!promise.isCanceled())
-                    emit logMessage(QString::fromLocal8Bit(tailProcess->readAllRawStandardOutput()));
+                    emit logMessage(tailProcess->readAllStandardOutput());
             });
-            tailProcess->setCommand({FilePath::fromString("tail"), {"-f", file->fileName()}});
+            tailProcess->setCommand({"tail", {"-f", file->fileName()}});
             tailProcess->start();
         };
 
-        std::unique_ptr<Process> tailStdout(new Process);
+        Process tailStdout;
         if (stdoutFile)
-            logProcess(tailStdout.get(), stdoutFile);
+            logProcess(&tailStdout, stdoutFile);
 
-        std::unique_ptr<Process> tailStderr(new Process);
+        Process tailStderr;
         if (stderrFile)
-            logProcess(tailStderr.get(), stderrFile);
+            logProcess(&tailStderr, stderrFile);
 
         // Blocks untill tool is deleted or toolexited is called.
         loop.exec();
@@ -628,7 +628,7 @@ void IosDeviceToolHandlerPrivate::requestTransferApp(const FilePath &bundlePath,
 {
     m_bundlePath = bundlePath;
     m_deviceId = deviceId;
-    QString tmpDeltaPath = TemporaryDirectory::masterDirectoryFilePath().pathAppended("ios").toString();
+    QString tmpDeltaPath = TemporaryDirectory::masterDirectoryFilePath().pathAppended("ios").toUrlishString();
     QStringList args;
     args << QLatin1String("--id") << deviceId << QLatin1String("--bundle")
          << bundlePath.path() << QLatin1String("--timeout") << QString::number(timeout)
@@ -941,7 +941,7 @@ bool IosSimulatorToolHandlerPrivate::isResponseValid(const SimulatorControl::Res
 
 QString IosToolHandler::iosDeviceToolPath()
 {
-    return Core::ICore::libexecPath("ios/iostool").toString();
+    return Core::ICore::libexecPath("ios/iostool").toUrlishString();
 }
 
 IosToolHandler::IosToolHandler(const Internal::IosDeviceType &devType, QObject *parent) :

@@ -12,8 +12,8 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -65,7 +65,7 @@ IosRunConfiguration::IosRunConfiguration(Target *target, Id id)
     executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
 
     setUpdater([this, target] {
-        IDevice::ConstPtr dev = DeviceKitAspect::device(target->kit());
+        IDevice::ConstPtr dev = RunDeviceKitAspect::device(target->kit());
         const QString devName = dev ? dev->displayName() : IosDevice::name();
         setDefaultDisplayName(Tr::tr("Run on %1").arg(devName));
         setDisplayName(Tr::tr("Run %1 on %2").arg(applicationName()).arg(devName));
@@ -82,7 +82,7 @@ void IosDeviceTypeAspect::deviceChanges()
 
 void IosDeviceTypeAspect::updateDeviceType()
 {
-    if (DeviceTypeKitAspect::deviceTypeId(m_runConfiguration->kit())
+    if (RunDeviceTypeKitAspect::deviceTypeId(m_runConfiguration->kit())
             == Constants::IOS_DEVICE_TYPE)
         m_deviceType = IosDeviceType(IosDeviceType::IosDevice);
     else if (m_deviceType.type == IosDeviceType::IosDevice)
@@ -91,19 +91,20 @@ void IosDeviceTypeAspect::updateDeviceType()
 
 bool IosRunConfiguration::isEnabled(Id runMode) const
 {
-    Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
+    Utils::Id devType = RunDeviceTypeKitAspect::deviceTypeId(kit());
     if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
         return false;
     if (devType == Constants::IOS_SIMULATOR_TYPE)
         return true;
 
-    IDevice::ConstPtr dev = DeviceKitAspect::device(kit());
+    IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit());
     if (!dev || dev->deviceState() != IDevice::DeviceReadyToUse)
         return false;
 
     IosDevice::ConstPtr iosdevice = std::dynamic_pointer_cast<const IosDevice>(dev);
     if (iosdevice && iosdevice->handler() == IosDevice::Handler::DeviceCtl
-        && runMode != ProjectExplorer::Constants::NORMAL_RUN_MODE) {
+        && runMode != ProjectExplorer::Constants::NORMAL_RUN_MODE
+        && !IosDeviceManager::isDeviceCtlDebugSupported()) {
         return false;
     }
 
@@ -120,7 +121,7 @@ QString IosRunConfiguration::applicationName() const
 
 FilePath IosRunConfiguration::bundleDirectory() const
 {
-    Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
+    Utils::Id devType = RunDeviceTypeKitAspect::deviceTypeId(kit());
     bool isDevice = (devType == Constants::IOS_DEVICE_TYPE);
     if (!isDevice && devType != Constants::IOS_SIMULATOR_TYPE) {
         qCWarning(iosLog) << "unexpected device type in bundleDirForTarget: " << devType.toString();
@@ -233,10 +234,10 @@ void IosDeviceTypeAspect::toMap(Store &map) const
 
 QString IosRunConfiguration::disabledReason(Id runMode) const
 {
-    Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
+    Utils::Id devType = RunDeviceTypeKitAspect::deviceTypeId(kit());
     if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
         return Tr::tr("Kit has incorrect device type for running on iOS devices.");
-    IDevice::ConstPtr dev = DeviceKitAspect::device(kit());
+    IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit());
     QString validDevName;
     bool hasConncetedDev = false;
     if (devType == Constants::IOS_DEVICE_TYPE) {
@@ -280,9 +281,9 @@ QString IosRunConfiguration::disabledReason(Id runMode) const
         }
         IosDevice::ConstPtr iosdevice = std::dynamic_pointer_cast<const IosDevice>(dev);
         if (iosdevice && iosdevice->handler() == IosDevice::Handler::DeviceCtl
-            && runMode != ProjectExplorer::Constants::NORMAL_RUN_MODE) {
-            return Tr::tr("Debugging and profiling is currently not supported for devices with iOS "
-                          "17 and later.");
+            && runMode != ProjectExplorer::Constants::NORMAL_RUN_MODE
+            && !IosDeviceManager::isDeviceCtlDebugSupported()) {
+            return Tr::tr("Debugging on devices with iOS 17 and later requires Xcode 16 or later.");
         }
     }
     return RunConfiguration::disabledReason(runMode);

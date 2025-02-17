@@ -130,6 +130,7 @@ public:
     static bool autoSaveAfterRefactoring();
 
     static QTextCodec *defaultTextCodec();
+    static QByteArray defaultTextCodecName();
 
     static Utils::TextFileFormat::LineTerminationMode defaultLineEnding();
 

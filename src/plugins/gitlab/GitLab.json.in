@@ -1,5 +1,6 @@
 {
     "Id" : "gitlab",
+    "DisplayName" : "GitLab",
     "Name" : "GitLab",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

@@ -30,14 +30,10 @@ static const char setupUiC[] = "setupUi";
 // Find the generated "ui_form.h" header of the form via project.
 static FilePath generatedHeaderOf(const FilePath &uiFileName)
 {
-    if (const Project *uiProject = ProjectManager::projectForFile(uiFileName)) {
-        if (Target *t = uiProject->activeTarget()) {
-            if (BuildSystem *bs = t->buildSystem()) {
-                FilePaths files = bs->filesGeneratedFrom(uiFileName);
-                if (!files.isEmpty()) // There should be at most one header generated from a .ui
-                    return files.front();
-            }
-        }
+    if (BuildSystem *bs = activeBuildSystem(ProjectManager::projectForFile(uiFileName))) {
+        FilePaths files = bs->filesGeneratedFrom(uiFileName);
+        if (!files.isEmpty()) // There should be at most one header generated from a .ui
+            return files.front();
     }
     return {};
 }

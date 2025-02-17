@@ -5,14 +5,16 @@
 #include "iosconstants.h"
 #include "iostr.h"
 
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 
 #include <utils/port.h>
 #include <utils/qtcprocess.h>
+#include <utils/url.h>
 
 #include <QMapIterator>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace Ios::Internal {
@@ -22,7 +24,6 @@ const char iosDeviceTypeTypeKey[] = "type";
 const char iosDeviceTypeIdentifierKey[] = "identifier";
 
 IosSimulator::IosSimulator(Id id)
-    : m_lastPort(Constants::IOS_SIMULATOR_PORT_START)
 {
     setupId(IDevice::AutoDetected, id);
     setType(Constants::IOS_SIMULATOR_TYPE);
@@ -47,24 +48,23 @@ IDeviceWidget *IosSimulator::createWidget()
     return nullptr;
 }
 
-Utils::Port IosSimulator::nextPort() const
+ExecutableItem IosSimulator::portsGatheringRecipe(const Storage<PortsOutputData> &output) const
 {
-    for (int i = 0; i < 100; ++i) {
-        // use qrand instead?
-        if (++m_lastPort >= Constants::IOS_SIMULATOR_PORT_END)
-            m_lastPort = Constants::IOS_SIMULATOR_PORT_START;
-        Utils::Process portVerifier;
-        // this is a bit too broad (it does not check just listening sockets, but also connections
-        // to that port from this computer)
-        portVerifier.setCommand({"lsof", {"-n", "-P", "-i", QString(":%1").arg(m_lastPort)}});
-        portVerifier.start();
-        if (!portVerifier.waitForFinished())
-            break;
-        if (portVerifier.exitStatus() != QProcess::NormalExit
-                || portVerifier.exitCode() != 0)
-            break;
-    }
-    return Utils::Port(m_lastPort);
+    // This is the same as in IDevice::portsGatheringRecipe, but running netstat locally
+    const Storage<PortsInputData> input;
+    const auto onSetup = [this, input] {
+        const CommandLine cmd = CommandLine{"netstat", {"-a", "-n"}};
+        *input = {freePorts(), cmd};
+    };
+    return Group{input, onGroupSetup(onSetup), portsFromProcessRecipe(input, output)};
+}
+
+QUrl IosSimulator::toolControlChannel(const ControlChannelHint &) const
+{
+    QUrl url;
+    url.setScheme(Utils::urlTcpScheme());
+    url.setHost("localhost");
+    return url;
 }
 
 // IosDeviceType

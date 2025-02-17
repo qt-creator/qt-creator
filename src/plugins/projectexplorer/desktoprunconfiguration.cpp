@@ -3,7 +3,7 @@
 
 #include "desktoprunconfiguration.h"
 
-#include "buildsystem.h"
+#include "deploymentdata.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "runconfigurationaspects.h"
@@ -100,8 +100,8 @@ void DesktopRunConfiguration::updateTargetInformation()
     BuildTargetInfo bti = buildTargetInfo();
 
     auto terminalAspect = aspect<TerminalAspect>();
-    terminalAspect->setUseTerminalHint(bti.targetFilePath.needsDevice() ? false : bti.usesTerminal);
-    terminalAspect->setEnabled(!bti.targetFilePath.needsDevice());
+    terminalAspect->setUseTerminalHint(!bti.targetFilePath.isLocal() ? false : bti.usesTerminal);
+    terminalAspect->setEnabled(bti.targetFilePath.isLocal());
     auto launcherAspect = aspect<LauncherAspect>();
     launcherAspect->setVisible(false);
 
@@ -143,8 +143,12 @@ void DesktopRunConfiguration::updateTargetInformation()
         }
         aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
         aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
-        emit aspect<EnvironmentAspect>()->environmentChanged();
 
+        const QStringList argumentsList = bti.additionalData.toMap()["arguments"].toStringList();
+        if (!argumentsList.isEmpty())
+            aspect<ArgumentsAspect>()->setArguments(CommandLine{"", argumentsList}.arguments());
+
+        emit aspect<EnvironmentAspect>()->environmentChanged();
     }
 }
 
@@ -237,7 +241,7 @@ void setupDesktopRunConfigurations()
 
 void setupDesktopRunWorker()
 {
-    static SimpleTargetRunnerFactory theDesktopRunWorkerFactory({
+    static ProcessRunnerFactory theDesktopRunWorkerFactory({
         Constants::CMAKE_RUNCONFIG_ID,
         Constants::QBS_RUNCONFIG_ID,
         Constants::QMAKE_RUNCONFIG_ID

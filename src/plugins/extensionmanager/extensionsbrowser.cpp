@@ -28,7 +28,6 @@
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/algorithm.h>
-#include <utils/elidinglabel.h>
 #include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
@@ -210,20 +209,26 @@ public:
 
         m_iconLabel = new QLabel;
         m_iconLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-        m_itemNameLabel = tfLabel(itemNameTF);
+        m_itemNameLabel = new ElidingLabel;
+        applyTf(m_itemNameLabel, itemNameTF);
         m_itemNameLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-        m_releaseStatus = tfLabel(releaseStatusTF, false);
+        m_releaseStatus = new QLabel;
+        applyTf(m_releaseStatus, releaseStatusTF, false);
         m_releaseStatus->setAlignment(Qt::AlignLeft);
         m_releaseStatus->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-        m_installStateLabel = tfLabel(stateActiveTF, false);
+        m_installStateLabel = new QLabel;
+        applyTf(m_installStateLabel, stateActiveTF, false);
         m_installStateLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         m_installStateIcon = new QLabel;
         m_installStateIcon->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-        m_vendorLabel = tfLabel(vendorTF);
+        m_vendorLabel = new ElidingLabel;
+        applyTf(m_vendorLabel, vendorTF);
         m_downloadDividerLabel = new QLabel;
         m_downloadIconLabel = new QLabel;
-        m_downloadCountLabel = tfLabel(countTF);
-        m_shortDescriptionLabel = tfLabel(descriptionTF);
+        m_downloadCountLabel = new QLabel;
+        applyTf(m_downloadCountLabel, countTF);
+        m_shortDescriptionLabel = new ElidingLabel;
+        applyTf(m_shortDescriptionLabel, descriptionTF);
 
         using namespace Layouting;
         Row {
@@ -443,10 +448,8 @@ public:
     {
         static const QList<FilterOption> options = {
             {
-                Tr::tr("All"),
-                []([[maybe_unused]] const QModelIndex &index) {
-                    return true;
-                },
+                Tr::tr("All", "Extensions filter"),
+                []([[maybe_unused]] const QModelIndex &index) { return true; },
             },
             {
                 Tr::tr("Extension packs"),
@@ -515,7 +518,8 @@ public:
 static QWidget *extensionViewPlaceHolder()
 {
     static const TextFormat tF {Theme::Token_Text_Muted, UiElementH4};
-    auto text = tfLabel(tF, false);
+    auto text = new QLabel;
+    applyTf(text, tF, false);
     text->setAlignment(Qt::AlignCenter);
     text->setText(Tr::tr("No extension found!"));
     text->setWordWrap(true);
@@ -541,8 +545,11 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
 
     static const TextFormat titleTF
         {Theme::Token_Text_Default, UiElementH2};
-    QLabel *titleLabel = tfLabel(titleTF);
-    titleLabel->setText(Tr::tr("Manage Extensions"));
+    auto titleLabel = new ElidingLabel(Tr::tr("Manage Extensions"));
+    applyTf(titleLabel, titleTF);
+
+    auto externalRepoSwitch = new Switch("Use external repository");
+    externalRepoSwitch->setToolTip("<html>" + externalRepoWarningNote());
 
     d->searchBox = new SearchBox;
     d->searchBox->setPlaceholderText(Tr::tr("Search"));
@@ -588,11 +595,13 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
         Row {
             titleLabel,
             settingsToolButton,
-            customMargins(0, VPaddingM, rightMargin, VPaddingM),
+            customMargins(0, VPaddingM, rightMargin, 0),
         },
         Row {
-            d->searchBox,
-            spacing(gapSize),
+            Column {
+                Row{ st, externalRepoSwitch },
+                d->searchBox,
+            },
             customMargins(0, VPaddingM, rightMargin, VPaddingM),
         },
         Row {
@@ -636,6 +645,12 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
         extensionViewStack->setCurrentIndex(d->sortFilterProxyModel->rowCount() == 0 ? 1 : 0);
     };
 
+    auto updateExternalRepoSwitch = [externalRepoSwitch] {
+        const QSignalBlocker blocker(externalRepoSwitch);
+        externalRepoSwitch->setChecked(settings().useExternalRepo());
+    };
+    updateExternalRepoSwitch();
+
     connect(PluginManager::instance(), &PluginManager::pluginsChanged, this, updateModel);
     connect(d->searchBox, &QLineEdit::textChanged,
             d->searchProxyModel, &QSortFilterProxyModel::setFilterWildcard);
@@ -650,7 +665,12 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     connect(settingsToolButton, &QAbstractButton::clicked, this, []() {
         ICore::showOptionsDialog(Constants::EXTENSIONMANAGER_SETTINGSPAGE_ID);
     });
-    connect(&settings(), &AspectContainer::changed, this, [this]() {
+    connect(&settings().useExternalRepo, &BaseAspect::changed, this, updateExternalRepoSwitch);
+    connect(externalRepoSwitch, &QAbstractButton::toggled, this, [](bool checked) {
+        settings().useExternalRepo.setValue(checked);
+        settings().writeSettings();
+    });
+    connect(&settings(), &AspectContainer::changed, this, [this] {
         d->dataFetched = false;
         fetchExtensions();
     });
@@ -697,6 +717,11 @@ void ExtensionsBrowser::showEvent(QShowEvent *event)
     QWidget::showEvent(event);
 }
 
+QModelIndex ExtensionsBrowser::currentIndex() const
+{
+    return d->selectionModel->currentIndex();
+}
+
 void ExtensionsBrowser::fetchExtensions()
 {
 #ifdef WITH_TESTS
@@ -713,7 +738,7 @@ void ExtensionsBrowser::fetchExtensions()
     using namespace Tasking;
 
     const auto onQuerySetup = [this](NetworkQuery &query) {
-        const QString url = "%1/api/v1/search";
+        const QString url = "%1/api/v1/getAll";
         const QString request = url.arg(settings().externalRepoUrl());
         query.setRequest(QNetworkRequest(QUrl::fromUserInput(request)));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
@@ -739,22 +764,6 @@ void ExtensionsBrowser::fetchExtensions()
     };
 
     d->taskTreeRunner.start(group);
-}
-
-QLabel *tfLabel(const TextFormat &tf, bool singleLine)
-{
-    QLabel *label = singleLine ? new Utils::ElidingLabel : new QLabel;
-    if (singleLine)
-        label->setFixedHeight(tf.lineHeight());
-    label->setFont(tf.font());
-    label->setAlignment(Qt::Alignment(tf.drawTextFlags));
-    label->setTextInteractionFlags(Qt::TextSelectableByMouse);
-
-    QPalette pal = label->palette();
-    pal.setColor(QPalette::WindowText, tf.color());
-    label->setPalette(pal);
-
-    return label;
 }
 
 const int iconRectRounding = 4;

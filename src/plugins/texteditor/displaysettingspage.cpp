@@ -92,6 +92,7 @@ public:
         visualizeIndent = new QCheckBox(Tr::tr("Visualize indent"));
         displayFileLineEnding = new QCheckBox(Tr::tr("Display file line ending"));
         displayFileEncoding = new QCheckBox(Tr::tr("Display file encoding"));
+        displayTabSettings = new QCheckBox(Tr::tr("Display tab settings"));
         openLinksInNextSplit = new QCheckBox(Tr::tr("Always open links in another split"));
         highlightMatchingParentheses = new QCheckBox(Tr::tr("&Highlight matching parentheses"));
 
@@ -158,6 +159,7 @@ public:
                         openLinksInNextSplit,
                         displayFileEncoding,
                         displayFileLineEnding,
+                        displayTabSettings,
                         st
                     }
                 }
@@ -197,6 +199,7 @@ public:
     QCheckBox *visualizeIndent;
     QCheckBox *displayFileLineEnding;
     QCheckBox *displayFileEncoding;
+    QCheckBox *displayTabSettings;
     QCheckBox *openLinksInNextSplit;
     QCheckBox *highlightMatchingParentheses;
     QCheckBox *visualizeWhitespace;
@@ -240,6 +243,7 @@ void DisplaySettingsWidget::settingsFromUI(DisplaySettings &displaySettings,
     displaySettings.m_centerCursorOnScroll = centerOnScroll->isChecked();
     displaySettings.m_openLinksInNextSplit = openLinksInNextSplit->isChecked();
     displaySettings.m_displayFileEncoding = displayFileEncoding->isChecked();
+    displaySettings.m_displayTabSettings = displayTabSettings->isChecked();
     displaySettings.m_displayFileLineEnding = displayFileLineEnding->isChecked();
     displaySettings.m_scrollBarHighlights = scrollBarHighlights->isChecked();
     displaySettings.m_animateNavigationWithinFile = animateNavigationWithinFile->isChecked();
@@ -280,6 +284,7 @@ void DisplaySettingsWidget::settingsToUI()
     openLinksInNextSplit->setChecked(displaySettings.m_openLinksInNextSplit);
     displayFileEncoding->setChecked(displaySettings.m_displayFileEncoding);
     displayFileLineEnding->setChecked(displaySettings.m_displayFileLineEnding);
+    displayTabSettings->setChecked(displaySettings.m_displayTabSettings);
     scrollBarHighlights->setChecked(displaySettings.m_scrollBarHighlights);
     animateNavigationWithinFile->setChecked(displaySettings.m_animateNavigationWithinFile);
     displayAnnotations->setChecked(displaySettings.m_displayAnnotations);
@@ -326,8 +331,6 @@ DisplaySettingsPage::DisplaySettingsPage()
     setId(Constants::TEXT_EDITOR_DISPLAY_SETTINGS);
     setDisplayName(Tr::tr("Display"));
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("Text Editor"));
-    setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
     setWidgetCreator([this] { return new DisplaySettingsWidget(d); });
 }
 

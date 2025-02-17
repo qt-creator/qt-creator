@@ -14,13 +14,22 @@ const char MODE_DEBUG[]             = "Mode.Debug";
 // Debug mode context
 const char C_DEBUGMODE[]            = "Debugger.DebugMode";
 
-const char DEBUGGER_RUN_FACTORY[]         = "RunWorkerFactory.DebuggerRunWorkerFactory";
+const char DEBUGGER_RUN_FACTORY[]   = "RunWorkerFactory.DebuggerRunWorkerFactory";
+
+// Analyze menu
+const char M_DEBUG_ANALYZER[]        = "Analyzer.Menu.StartAnalyzer";
+
+const char G_ANALYZER_CONTROL[]      = "Menu.Group.Analyzer.Control";
+const char G_ANALYZER_TOOLS[]        = "Menu.Group.Analyzer.Tools";
+const char G_ANALYZER_REMOTE_TOOLS[] = "Menu.Group.Analyzer.RemoteTools";
+const char G_ANALYZER_OPTIONS[]      = "Menu.Group.Analyzer.Options";
+
+const char ANALYZERTASK_ID[]         = "Analyzer.TaskId";
 
 } // namespace Constants
 
-// Keep in sync with dumper.py
-enum DebuggerStartMode
-{
+// Keep in sync with debugger/utils.py
+enum DebuggerStartMode {
     NoStartMode,
     StartInternal,          // Start current start project's binary
     StartExternal,          // Start binary found in file system
@@ -30,7 +39,8 @@ enum DebuggerStartMode
     AttachToRemoteServer,   // Attach to a running gdbserver
     AttachToRemoteProcess,  // Attach to a running remote process
     AttachToQmlServer,      // Attach to a running QmlServer
-    StartRemoteProcess      // Start and attach to a remote process
+    StartRemoteProcess,     // Start and attach to a remote process
+    AttachToIosDevice       // Attach to an application on a iOS 17+ device
 };
 
 enum DebuggerCloseMode

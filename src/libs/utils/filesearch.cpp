@@ -461,7 +461,7 @@ static QList<QRegularExpression> filtersToRegExps(const QStringList &filters)
 static bool matches(const QList<QRegularExpression> &exprList, const FilePath &filePath)
 {
     return Utils::anyOf(exprList, [&filePath](const QRegularExpression &reg) {
-        return (reg.match(filePath.toString()).hasMatch()
+        return (reg.match(filePath.toUrlishString()).hasMatch()
                 || reg.match(filePath.fileName()).hasMatch());
     });
 }

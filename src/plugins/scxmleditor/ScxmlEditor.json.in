@@ -1,5 +1,6 @@
 {
     "Id" : "scxmleditor",
+    "DisplayName" : "SCXML Editor",
     "Name" : "ScxmlEditor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

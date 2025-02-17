@@ -1,5 +1,6 @@
 {
     "Id" : "webassembly",
+    "DisplayName" : "WebAssembly",
     "Name" : "WebAssembly",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

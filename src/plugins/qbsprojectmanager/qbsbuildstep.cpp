@@ -382,7 +382,7 @@ Tasking::GroupItem QbsBuildStep::runRecipe()
 {
     using namespace Tasking;
     const auto onPreParserSetup = [this](QbsRequest &request) {
-        request.setParseData(qbsBuildSystem());
+        request.setParseData({qbsBuildSystem(), {}});
     };
     const auto onBuildSetup = [this](QbsRequest &request) {
         QbsSession *session = qbsBuildSystem()->session();
@@ -603,7 +603,7 @@ void QbsBuildStepConfigWidget::changeUseDefaultInstallDir(bool useDefault)
     if (useDefault)
         config.remove(Constants::QBS_INSTALL_ROOT_KEY);
     else
-        config.insert(Constants::QBS_INSTALL_ROOT_KEY, installDirChooser->unexpandedFilePath().toString());
+        config.insert(Constants::QBS_INSTALL_ROOT_KEY, installDirChooser->unexpandedFilePath().toUrlishString());
     m_qbsStep->setQbsConfiguration(config);
 }
 
@@ -613,7 +613,7 @@ void QbsBuildStepConfigWidget::changeInstallDir()
         return;
     const GuardLocker locker(m_ignoreChanges);
     Store config = m_qbsStep->qbsConfiguration(QbsBuildStep::PreserveVariables);
-    config.insert(Constants::QBS_INSTALL_ROOT_KEY, installDirChooser->unexpandedFilePath().toString());
+    config.insert(Constants::QBS_INSTALL_ROOT_KEY, installDirChooser->unexpandedFilePath().toUrlishString());
     m_qbsStep->setQbsConfiguration(config);
 }
 

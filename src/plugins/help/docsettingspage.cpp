@@ -3,10 +3,10 @@
 
 #include "docsettingspage.h"
 
-#include "helpconstants.h"
 #include "helpmanager.h"
 #include "helptr.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
@@ -213,8 +213,7 @@ DocSettingsPageWidget::DocSettingsPageWidget()
 
 void DocSettingsPageWidget::addDocumentation()
 {
-    const FilePaths files = FileUtils::getOpenFilePaths(Core::ICore::dialogParent(),
-                                                        Tr::tr("Add Documentation"),
+    const FilePaths files = FileUtils::getOpenFilePaths(Tr::tr("Add Documentation"),
                                                         m_recentDialogPath,
                                                         Tr::tr("Qt Help Files (*.qch)"));
 
@@ -224,7 +223,7 @@ void DocSettingsPageWidget::addDocumentation()
 
     NameSpaceToPathHash docsUnableToRegister;
     for (const FilePath &file : files) {
-        const QString filePath = file.cleanPath().toString();
+        const QString filePath = file.cleanPath().toUrlishString();
         const QString &nameSpace = HelpManager::namespaceFromFile(filePath);
         if (nameSpace.isEmpty()) {
             docsUnableToRegister.insert("UnknownNamespace", file.toUserOutput());
@@ -236,7 +235,7 @@ void DocSettingsPageWidget::addDocumentation()
             continue;
         }
 
-        m_model.insertEntry(createEntry(nameSpace, file.toString(), true /* user managed */));
+        m_model.insertEntry(createEntry(nameSpace, file.toUrlishString(), true /* user managed */));
 
         m_filesToRegister.insert(nameSpace, filePath);
         m_filesToRegisterUserManaged.insert(nameSpace, true/*user managed*/);
@@ -356,7 +355,7 @@ DocSettingsPage::DocSettingsPage()
 {
     setId("B.Documentation");
     setDisplayName(Tr::tr("Documentation"));
-    setCategory(Help::Constants::HELP_CATEGORY);
+    setCategory(Core::Constants::HELP_CATEGORY);
     setWidgetCreator([] { return new DocSettingsPageWidget; });
 }
 

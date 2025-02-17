@@ -147,7 +147,7 @@ PluginDetailsView::~PluginDetailsView()
 void PluginDetailsView::update(PluginSpec *spec)
 {
     d->id->setText(spec->id());
-    d->name->setText(spec->name());
+    d->name->setText(spec->displayName());
     const QString revision = spec->revision();
     const QString versionString = spec->version()
             + (revision.isEmpty() ? QString() : " (" + revision + ")");
@@ -155,7 +155,8 @@ void PluginDetailsView::update(PluginSpec *spec)
     d->compatVersion->setText(spec->compatVersion());
     d->vendor->setText(spec->vendor());
     d->vendorId->setText(spec->vendorId());
-    d->component->setText(spec->category().isEmpty() ? Tr::tr("None") : spec->category());
+    d->component->setText(
+        spec->category().isEmpty() ? Tr::tr("None", "No category") : spec->category());
     const auto toHtmlLink = [](const QString &url) {
         return QString::fromLatin1("<a href=\"%1\">%1</a>").arg(url);
     };
@@ -163,7 +164,7 @@ void PluginDetailsView::update(PluginSpec *spec)
     d->documentationUrl->setText(toHtmlLink(spec->documentationUrl()));
     d->location->setText(spec->filePath().toUserOutput());
     const QString pattern = spec->platformSpecification().pattern();
-    const QString platform = pattern.isEmpty() ? Tr::tr("All") : pattern;
+    const QString platform = pattern.isEmpty() ? Tr::tr("All", "Platforms: All") : pattern;
     const QString platformString = Tr::tr("%1 (current: \"%2\")")
                                    .arg(platform, PluginManager::platformName());
     d->platforms->setText(platformString);
@@ -185,7 +186,7 @@ void PluginDetailsView::showModal(QWidget *parent, PluginSpec *spec)
     auto dialog = new QDialog(parent);
     dialog->setModal(true);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->setWindowTitle(Tr::tr("Plugin Details of %1").arg(spec->name()));
+    dialog->setWindowTitle(Tr::tr("Plugin Details of %1").arg(spec->displayName()));
     auto details = new ExtensionSystem::PluginDetailsView(dialog);
     details->update(spec);
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Close,

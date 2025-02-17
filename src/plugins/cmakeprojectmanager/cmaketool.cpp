@@ -183,8 +183,7 @@ Store CMakeTool::toMap() const
     data.insert(CMAKE_INFORMATION_QCH_FILE_PATH, m_qchFilePath.toSettings());
     data.insert(CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY, m_autoCreateBuildDirectory);
     if (m_readerType)
-        data.insert(CMAKE_INFORMATION_READERTYPE,
-                    Internal::readerTypeToString(m_readerType.value()));
+        data.insert(CMAKE_INFORMATION_READERTYPE, Internal::readerTypeToString(*m_readerType));
     data.insert(CMAKE_INFORMATION_AUTODETECTED, m_isAutoDetected);
     data.insert(CMAKE_INFORMATION_DETECTIONSOURCE, m_detectionSource);
     return data;
@@ -208,7 +207,7 @@ FilePath CMakeTool::qchFilePath() const
 FilePath CMakeTool::cmakeExecutable(const FilePath &path)
 {
     if (path.osType() == OsTypeMac) {
-        const QString executableString = path.toString();
+        const QString executableString = path.toUrlishString();
         const int appIndex = executableString.lastIndexOf(".app");
         const int appCutIndex = appIndex + 4;
         const bool endsWithApp = appIndex >= 0 && appCutIndex >= executableString.size();
@@ -381,7 +380,7 @@ std::optional<CMakeTool::ReaderType> CMakeTool::readerType() const
 
 FilePath CMakeTool::searchQchFile(const FilePath &executable)
 {
-    if (executable.isEmpty() || executable.needsDevice()) // do not register docs from devices
+    if (executable.isEmpty() || !executable.isLocal()) // do not register docs from devices
         return {};
 
     FilePath prefixDir = executable.parentDir().parentDir();

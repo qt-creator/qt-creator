@@ -34,7 +34,7 @@ static QString propertyEditorResourcesPath()
     if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
+    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toUrlishString();
 }
 
 DeviceManagerWidget::DeviceManagerWidget(DeviceManager &deviceManager, QWidget *parent)
@@ -75,7 +75,7 @@ QString DeviceManagerWidget::qmlSourcesPath()
     if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/devicemanager";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/devicemanager").toString();
+    return Core::ICore::resourcePath("qmldesigner/devicemanager").toUrlishString();
 }
 
 void DeviceManagerWidget::showEvent(QShowEvent *event)

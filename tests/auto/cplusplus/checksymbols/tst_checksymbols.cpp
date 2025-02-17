@@ -1155,7 +1155,7 @@ void tst_CheckSymbols::test_checksymbols_infiniteLoop()
     document1->addIncludeFile(Document::Include("file2.h", filePath2, 1, Client::IncludeLocal));
     Snapshot snapshot;
     snapshot.insert(document1);
-    snapshot.insert(TestCase::createDocument(filePath2.toString(), source2));
+    snapshot.insert(TestCase::createDocument(filePath2.toUrlishString(), source2));
 
     TestCase::runCheckSymbols(document1, snapshot);
 }

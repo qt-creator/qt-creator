@@ -5,8 +5,9 @@
 
 #include "qmljseditor_global.h"
 
-#include <qmljstools/qmljssemanticinfo.h>
+#include <languageserverprotocol/servercapabilities.h>
 #include <texteditor/textdocument.h>
+#include <qmljstools/qmljssemanticinfo.h>
 
 #include <QTextLayout>
 
@@ -24,7 +25,7 @@ public:
     QmlJSEditorDocument(Utils::Id id);
     ~QmlJSEditorDocument() override;
 
-    bool supportsCodec(const QTextCodec *codec) const override;
+    bool supportsCodec(const QByteArray &codec) const override;
 
     const QmlJSTools::SemanticInfo &semanticInfo() const;
     bool isSemanticInfoOutdated() const;
@@ -36,6 +37,8 @@ public:
 
     void setIsDesignModePreferred(bool value);
     bool isDesignModePreferred() const;
+
+    void setSourcesWithCapabilities(const LanguageServerProtocol::ServerCapabilities &cap);
 
 signals:
     void updateCodeWarnings(QmlJS::Document::Ptr doc);

@@ -92,12 +92,10 @@ private: ////////// General Interface //////////
     void readGdbStandardError();
     void readDebuggeeOutput(const QByteArray &ba);
 
-    QTextCodec *m_gdbOutputCodec;
-    QTextCodec::ConverterState m_gdbOutputCodecState;
     QTextCodec *m_inferiorOutputCodec;
     QTextCodec::ConverterState m_inferiorOutputCodecState;
 
-    QByteArray m_inbuffer;
+    QString m_inbuffer;
     bool m_busy = false;
 
     // Name of the convenience variable containing the last
@@ -362,7 +360,6 @@ private: ////////// General Interface //////////
     bool isPlainEngine() const;
     bool isCoreEngine() const;
     bool isRemoteEngine() const;
-    bool isLocalAttachEngine() const;
     bool isTermEngine() const;
 
     void setupEngine() final;

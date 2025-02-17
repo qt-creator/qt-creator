@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "qbsprojectmanager_global.h"
+#include <projectexplorer/devicesupport/idevicefwd.h>
 
 #include <QList>
 #include <QVariant>
@@ -30,7 +30,11 @@ public:
     static QString profileNameForKit(const ProjectExplorer::Kit *kit);
     static void updateProfileIfNecessary(const ProjectExplorer::Kit *kit);
     enum class QbsConfigOp { Get, Set, Unset, AddProfile };
-    static QString runQbsConfig(QbsConfigOp op, const QString &key, const QVariant &value = {});
+    static QString runQbsConfig(
+            const ProjectExplorer::IDeviceConstPtr &device,
+            QbsConfigOp op,
+            const QString &key,
+            const QVariant &value = {});
 
 signals:
     void qbsProfilesUpdated();

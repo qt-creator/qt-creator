@@ -55,3 +55,21 @@ add_qtc_plugin(%{PluginName}
     %{ConstantsHdrFileName}
     %{TrHdrFileName}
 )
+
+# Enable the Run button in Qt Creator
+get_target_property(QtCreatorCorePath QtCreator::Core LOCATION)
+find_program(QtCreatorExecutable
+  NAMES
+    qtcreator "Qt Creator"
+  PATHS
+    "${QtCreatorCorePath}/../../../bin"
+    "${QtCreatorCorePath}/../../../MacOS"
+  NO_DEFAULT_PATH
+)
+if (QtCreatorExecutable)
+  add_custom_target(RunQtCreator
+    COMMAND ${QtCreatorExecutable} -pluginpath $<TARGET_FILE_DIR:%{PluginName}>
+    DEPENDS %{PluginName}
+  )
+  set_target_properties(RunQtCreator PROPERTIES FOLDER "qtc_runnable")
+endif()

@@ -1,0 +1,35 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-manage-winappsdk.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-sdks
+
+    \title Manage Windows App SDK packages
+
+    Use the components and tools of the \l{Latest Windows App SDK downloads}
+    {Windows App SDK} to develop applications for the Windows desktop. The
+    Windows App SDK complements the Windows SDK and existing desktop Windows
+    application types, such as .NET.
+
+    Create a folder for downloading the Windows App SDK, and then use
+    \l{Available NuGet Distribution Versions}{NuGet} to download and
+    install the SDK.
+
+    To download and install Windows App SDK:
+
+    \list 1
+        \li Go to \preferences > \uicontrol SDKs > \uicontrol {Windows App SDK}.
+            \image qtcreator-preferences-windows-app-sdk.webp {Win App SDK Preferences}
+        \li In \uicontrol {Download location}, specify the path to a folder where
+            NuGet and the SDK will be downloaded.
+        \li In \uicontrol {NuGet location}, specify the path to NuGet, or
+            select \uicontrol {Download NuGet} to automatically download and
+            install NuGet.
+        \li In \uicontrol {Windows App SDK location} specify the directory where
+            the SDK is installed, or select \uicontrol {Download WindowsAppSDK}
+            to automatically download and install the SDK with NuGet.
+    \endlist
+*/

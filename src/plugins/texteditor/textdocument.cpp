@@ -5,6 +5,7 @@
 
 #include "extraencodingsettings.h"
 #include "fontsettings.h"
+#include "icodestylepreferences.h"
 #include "storagesettings.h"
 #include "syntaxhighlighter.h"
 #include "tabsettings.h"
@@ -76,6 +77,7 @@ public:
     QString m_suggestedFileName;
     TypingSettings m_typingSettings;
     StorageSettings m_storageSettings;
+    ICodeStylePreferences *m_codeStylePreferences = nullptr;
     TabSettings m_tabSettings;
     ExtraEncodingSettings m_extraEncodingSettings;
     FontSettings m_fontSettings;
@@ -151,7 +153,7 @@ MultiTextCursor TextDocumentPrivate::indentOrUnindent(const MultiTextCursor &cur
                         = tabSettings.indentedColumn(tabSettings.columnAt(text, indentPosition),
                                                      doIndent);
                     cursor.setPosition(block.position() + indentPosition);
-                    cursor.insertText(tabSettings.indentationString(0, targetColumn, 0, block));
+                    cursor.insertText(tabSettings.indentationString(0, targetColumn, 0));
                     cursor.setPosition(block.position());
                     cursor.setPosition(block.position() + indentPosition, QTextCursor::KeepAnchor);
                     cursor.removeSelectedText();
@@ -182,7 +184,7 @@ MultiTextCursor TextDocumentPrivate::indentOrUnindent(const MultiTextCursor &cur
                                QTextCursor::KeepAnchor);
             cursor.removeSelectedText();
             cursor.insertText(
-                tabSettings.indentationString(startColumn, targetColumn, 0, startBlock));
+                tabSettings.indentationString(startColumn, targetColumn, 0));
         }
 
         cursor.endEditBlock();
@@ -270,16 +272,16 @@ QMap<FilePath, QString> TextDocument::openedTextDocumentContents()
     return workingCopy;
 }
 
-QMap<FilePath, QTextCodec *> TextDocument::openedTextDocumentEncodings()
+QMap<FilePath, QByteArray> TextDocument::openedTextDocumentEncodings()
 {
-    QMap<FilePath, QTextCodec *> workingCopy;
+    QMap<FilePath, QByteArray> workingCopy;
     const QList<IDocument *> documents = DocumentModel::openedDocuments();
     for (IDocument *document : documents) {
         auto textEditorDocument = qobject_cast<TextDocument *>(document);
         if (!textEditorDocument)
             continue;
         const FilePath fileName = textEditorDocument->filePath();
-        workingCopy[fileName] = const_cast<QTextCodec *>(textEditorDocument->codec());
+        workingCopy[fileName] = textEditorDocument->codecName();
     }
     return workingCopy;
 }
@@ -332,7 +334,7 @@ QString TextDocument::plainText() const
 
 QString TextDocument::textAt(int pos, int length) const
 {
-    return Utils::Text::textAt(QTextCursor(document()), pos, length);
+    return Utils::Text::textAt(document(), pos, length);
 }
 
 QChar TextDocument::characterAt(int pos) const
@@ -365,13 +367,13 @@ const StorageSettings &TextDocument::storageSettings() const
     return d->m_storageSettings;
 }
 
-void TextDocument::setTabSettings(const TabSettings &newTabSettings)
+void TextDocument::setTabSettings(const TabSettings &tabSettings)
 {
-    if (newTabSettings == d->m_tabSettings)
-        return;
-    d->m_tabSettings = newTabSettings;
-
-    emit tabSettingsChanged();
+    if (const TabSettings candidate = tabSettings.autoDetect(document());
+        candidate != d->m_tabSettings) {
+        d->m_tabSettings = candidate;
+        emit tabSettingsChanged();
+    }
 }
 
 TabSettings TextDocument::tabSettings() const
@@ -394,8 +396,8 @@ QAction *TextDocument::createDiffAgainstCurrentFileAction(
     const auto diffAgainstCurrentFile = [filePath]() {
         auto diffService = DiffService::instance();
         auto textDocument = TextEditor::TextDocument::currentTextDocument();
-        const QString leftFilePath = textDocument ? textDocument->filePath().toString() : QString();
-        const QString rightFilePath = filePath().toString();
+        const QString leftFilePath = textDocument ? textDocument->filePath().toUrlishString() : QString();
+        const QString rightFilePath = filePath().toUrlishString();
         if (diffService && !leftFilePath.isEmpty() && !rightFilePath.isEmpty())
             diffService->diffFiles(leftFilePath, rightFilePath);
     };
@@ -457,6 +459,31 @@ IAssistProvider *TextDocument::quickFixAssistProvider() const
     return d->m_quickFixProvider;
 }
 
+void TextDocument::setCodeStyle(ICodeStylePreferences *preferences)
+{
+    indenter()->setCodeStylePreferences(preferences);
+    if (d->m_codeStylePreferences) {
+        disconnect(d->m_codeStylePreferences, &ICodeStylePreferences::currentTabSettingsChanged,
+                   this, &TextDocument::setTabSettings);
+        disconnect(d->m_codeStylePreferences, &ICodeStylePreferences::currentValueChanged,
+                   this, &TextDocument::slotCodeStyleSettingsChanged);
+    }
+    d->m_codeStylePreferences = preferences;
+    if (d->m_codeStylePreferences) {
+        connect(d->m_codeStylePreferences, &ICodeStylePreferences::currentTabSettingsChanged,
+                this, &TextDocument::setTabSettings);
+        connect(d->m_codeStylePreferences, &ICodeStylePreferences::currentValueChanged,
+                this, &TextDocument::slotCodeStyleSettingsChanged);
+        setTabSettings(d->m_codeStylePreferences->currentTabSettings());
+        slotCodeStyleSettingsChanged();
+    }
+}
+
+ICodeStylePreferences *TextDocument::codeStyle() const
+{
+    return d->m_codeStylePreferences;
+}
+
 void TextDocument::applyFontSettings()
 {
     d->m_fontSettingsNeedsApply = false;
@@ -471,6 +498,8 @@ void TextDocument::applyFontSettings()
         d->m_highlighter->scheduleRehighlight();
     }
 }
+
+void TextDocument::slotCodeStyleSettingsChanged() { }
 
 const FontSettings &TextDocument::fontSettings() const
 {
@@ -633,7 +662,7 @@ Result TextDocument::saveImpl(const FilePath &filePath, bool autoSave)
 
     // check if UTF8-BOM has to be added or removed
     Utils::TextFileFormat saveFormat = format();
-    if (saveFormat.codec->name() == "UTF-8" && supportsUtf8Bom()) {
+    if (saveFormat.codecName() == "UTF-8" && supportsUtf8Bom()) {
         switch (d->m_extraEncodingSettings.m_utf8BomSetting) {
         case ExtraEncodingSettings::AlwaysAdd:
             saveFormat.hasUtf8Bom = true;
@@ -723,6 +752,7 @@ Core::IDocument::OpenResult TextDocument::open(QString *errorString,
     OpenResult success = openImpl(errorString, filePath, realFilePath, /*reload =*/ false);
     if (success == OpenResult::Success) {
         setMimeType(Utils::mimeTypeForFile(filePath, MimeMatchMode::MatchDefaultAndRemote).name());
+        setTabSettings(d->m_tabSettings);
         emit openFinishedSuccessfully();
     }
     return success;
@@ -793,9 +823,9 @@ Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString,
     return OpenResult::Success;
 }
 
-Result TextDocument::reload(QTextCodec *codec)
+Result TextDocument::reload(const QByteArray &codec)
 {
-    QTC_ASSERT(codec, return Result::Error("No codec given"));
+    QTC_ASSERT(!codec.isEmpty(), return Result::Error("No codec given"));
     setCodec(codec);
     return reload();
 }
@@ -860,12 +890,12 @@ Result TextDocument::reload(ReloadFlag flag, ChangeType type)
 
 void TextDocument::resetSyntaxHighlighter(const std::function<SyntaxHighlighter *()> &creator)
 {
-    SyntaxHighlighter *highlighter = creator();
-    highlighter->setParent(this);
-    highlighter->setDocument(this->document());
-    highlighter->setFontSettings(TextEditorSettings::fontSettings());
-    highlighter->setMimeType(mimeType());
-    d->m_highlighter = highlighter;
+    delete d->m_highlighter;
+    d->m_highlighter = creator();
+    d->m_highlighter->setParent(this);
+    d->m_highlighter->setDocument(this->document());
+    d->m_highlighter->setFontSettings(TextEditorSettings::fontSettings());
+    d->m_highlighter->setMimeType(mimeType());
 }
 
 SyntaxHighlighter *TextDocument::syntaxHighlighter() const
@@ -931,8 +961,7 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool inEntireDocument,
             } else {
                 int column = currentTabSettings.columnAt(blockText, firstNonSpace);
                 cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, firstNonSpace);
-                QString indentationString = currentTabSettings.indentationString(0, column, column - indent, block);
-                cursor.insertText(indentationString);
+                cursor.insertText(currentTabSettings.indentationString(0, column, column - indent));
             }
         }
     }

@@ -20,8 +20,7 @@ class CORE_EXPORT BaseFileWizard : public Utils::Wizard
     Q_OBJECT
 
 public:
-    explicit BaseFileWizard(const BaseFileWizardFactory *factory, const QVariantMap &extraValues,
-                            QWidget *parent = nullptr);
+    explicit BaseFileWizard(const BaseFileWizardFactory *factory, const QVariantMap &extraValues);
 
     void initializePage(int id) override;
 

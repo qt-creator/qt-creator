@@ -7,9 +7,9 @@
 #include "buildsystem.h"
 #include "compileoutputwindow.h"
 #include "deployconfiguration.h"
+#include "devicesupport/devicekitaspects.h"
 #include "devicesupport/devicemanager.h"
 #include "kit.h"
-#include "kitaspects.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
@@ -266,7 +266,7 @@ static int queue(
                         IDevice::ConstPtr device = DeviceManager::deviceForPath(executable);
                         for (const Target *const t : targetsForSelection(p.first, configSelection)) {
                             if (!device)
-                                device = DeviceKitAspect::device(t->kit());
+                                device = RunDeviceKitAspect::device(t->kit());
                             if (!device || device->type() != Constants::DESKTOP_DEVICE_TYPE)
                                 continue;
                             for (const BuildConfiguration *const bc :

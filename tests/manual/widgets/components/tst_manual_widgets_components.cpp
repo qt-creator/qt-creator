@@ -27,10 +27,12 @@ QWidget *widgets()
         Group {
             title("Core::Button"),
             Column {
-                new Core::Button("MediumPrimary", Core::Button::MediumPrimary),
-                new Core::Button("MediumSecondary", Core::Button::MediumSecondary),
+                new Core::Button("LargePrimary", Core::Button::LargePrimary),
+                new Core::Button("LargeSecondary", Core::Button::LargeSecondary),
+                new Core::Button("LargeTertiary", Core::Button::LargeTertiary),
                 new Core::Button("SmallPrimary", Core::Button::SmallPrimary),
                 new Core::Button("SmallSecondary", Core::Button::SmallSecondary),
+                new Core::Button("SmallTertiary", Core::Button::SmallTertiary),
                 new Core::Button("SmallList", Core::Button::SmallList),
                 new Core::Button("SmallLink", Core::Button::SmallLink),
                 new Core::Button("Tag", Core::Button::Tag),

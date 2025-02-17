@@ -1,5 +1,6 @@
 {
     "Id" : "modeleditor",
+    "DisplayName" : "Model Editor",
     "Name" : "ModelEditor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

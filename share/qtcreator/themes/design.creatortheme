@@ -19,6 +19,7 @@ normalBackground=ff262728
 alternateBackground=ff353637
 error=ffdf4f4f
 warning=ffecbc1c
+info=ff4f8fff
 splitter=ff474747
 textColorLink=ff007af4
 textColorLinkVisited=ffa57aff
@@ -418,6 +419,7 @@ ProjectExplorer_TaskWarn_TextMarkColor=warning
 
 CodeModel_Error_TextMarkColor=error
 CodeModel_Warning_TextMarkColor=warning
+CodeModel_Info_TextMarkColor=info
 
 ;Designer Main colors
 

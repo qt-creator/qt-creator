@@ -32,7 +32,7 @@ class AssetsLibraryView::ImageCacheData
 {
 public:
     Sqlite::Database database{Utils::PathString{
-                                  Core::ICore::cacheResourcePath("fontimagecache.db").toString()},
+                                  Core::ICore::cacheResourcePath("fontimagecache.db").toUrlishString()},
                               Sqlite::JournalMode::Wal,
                               Sqlite::LockingMode::Normal};
     ImageCacheStorage<Sqlite::Database> storage{database};

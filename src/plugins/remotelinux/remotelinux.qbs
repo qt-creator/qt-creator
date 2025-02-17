@@ -2,6 +2,8 @@ QtcPlugin {
     name: "RemoteLinux"
 
     Depends { name: "Qt.widgets" }
+
+    Depends { name: "CmdBridgeClient" }
     Depends { name: "QmlDebug" }
     Depends { name: "Utils" }
 
@@ -44,6 +46,8 @@ QtcPlugin {
         "remotelinuxdeploysupport.h",
         "remotelinuxenvironmentaspect.cpp",
         "remotelinuxenvironmentaspect.h",
+        "remotelinuxfiletransfer.cpp",
+        "remotelinuxfiletransfer.h",
         "remotelinuxplugin.cpp",
         "remotelinuxrunconfiguration.cpp",
         "remotelinuxrunconfiguration.h",

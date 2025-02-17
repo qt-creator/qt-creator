@@ -96,7 +96,7 @@ QmlJSTools::SemanticInfo SemanticInfoUpdater::makeNewSemanticInfo(const QmlJS::D
 
     if (doc->language() == Dialect::Json) {
         JsonSchema *schema = jsonManager()->schemaForFile(
-            doc->fileName().toString());
+            doc->fileName().toUrlishString());
         if (schema) {
             JsonCheck jsonChecker(doc);
             semanticInfo.staticAnalysisMessages = jsonChecker(schema);

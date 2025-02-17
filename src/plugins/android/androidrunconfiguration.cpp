@@ -2,13 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "androidconstants.h"
-#include "androidglobal.h"
 #include "androidrunconfiguration.h"
-#include "androidtoolchain.h"
 #include "androidtr.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
@@ -23,7 +22,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Android {
+namespace Android::Internal {
 
 class BaseStringListAspect final : public Utils::StringAspect
 {
@@ -109,4 +108,4 @@ void setupAndroidRunConfiguration()
     static AndroidRunConfigurationFactory theAndroidRunConfigurationFactory;
 }
 
-} // namespace Android
+} // namespace Android::Internal

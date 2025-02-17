@@ -297,7 +297,7 @@ CMakeTool *CMakeToolManager::defaultProjectOrDefaultCMakeTool()
 {
     CMakeTool *tool = nullptr;
 
-    if (auto bs = ProjectExplorer::ProjectTree::currentBuildSystem())
+    if (auto bs = activeBuildSystemForCurrentProject())
         tool = CMakeKitAspect::cmakeTool(bs->target()->kit());
     if (!tool)
         tool = CMakeToolManager::defaultCMakeTool();
@@ -441,7 +441,7 @@ FilePath CMakeToolManager::mappedFilePath(Project *project, const FilePath &path
     if (!HostOsInfo::isWindowsHost())
         return path;
 
-    if (path.needsDevice())
+    if (!path.isLocal())
         return path;
 
     auto environment = Environment::systemEnvironment();
@@ -560,7 +560,7 @@ void CMakeToolManager::ensureDefaultCMakeToolIsValid()
         if (findById(d->m_defaultCMake))
             return;
         auto cmakeTool = Utils::findOrDefault(cmakeTools(), [](CMakeTool *tool) {
-            return tool->detectionSource().isEmpty() && !tool->cmakeExecutable().needsDevice();
+            return tool->detectionSource().isEmpty() && tool->cmakeExecutable().isLocal();
         });
         if (cmakeTool)
             d->m_defaultCMake = cmakeTool->id();
@@ -580,10 +580,12 @@ void Internal::setupCMakeToolManager(QObject *guard)
 CMakeToolManagerPrivate::CMakeToolManagerPrivate()
 {
     if (HostOsInfo::isWindowsHost()) {
-        const QStringList locations = QStandardPaths::standardLocations(
+        QStringList locations = QStandardPaths::standardLocations(
             QStandardPaths::GenericConfigLocation);
-        m_junctionsDir = FilePath::fromString(*std::min_element(locations.begin(), locations.end()))
-                             .pathAppended("QtCreator/Links");
+        Utils::sort(locations, [](const QString &lhs, const QString &rhs) {
+            return lhs.length() < rhs.length();
+        });
+        m_junctionsDir = FilePath::fromString(locations.first()).pathAppended("QtCreator/Links");
 
         auto project = ProjectManager::startupProject();
         auto environment = Environment::systemEnvironment();

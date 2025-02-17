@@ -15,8 +15,8 @@
 
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -56,7 +56,7 @@ AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, I
 
     controller.setDefaultPathValue(getToolFilePath(Constants::APPMAN_CONTROLLER,
                                                    target()->kit(),
-                                                   DeviceKitAspect::device(target()->kit())));
+                                                   RunDeviceKitAspect::device(target()->kit())));
 
     arguments.setSettingsKey(SETTINGSPREFIX "Arguments");
     arguments.setResetter([] { return QLatin1String(ArgumentsDefault); });
@@ -74,7 +74,7 @@ AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, I
 
         const TargetInformation targetInformation(target());
 
-        IDeviceConstPtr device = DeviceKitAspect::device(kit());
+        IDeviceConstPtr device = RunDeviceKitAspect::device(kit());
         if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
             packageFile.setDefaultPathValue(targetInformation.packageFilePath);
         } else {

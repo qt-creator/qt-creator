@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "androiddeviceinfo.h"
-#include "androidsdkmanager.h"
 #include "androidsdkpackage.h"
 
 #include <projectexplorer/toolchain.h>
@@ -21,9 +19,7 @@
 
 namespace ProjectExplorer { class Abi; }
 
-namespace Android {
-
-namespace Internal { class AndroidSdkManager; }
+namespace Android::Internal {
 
 class CreateAvdInfo
 {
@@ -55,10 +51,10 @@ QVersionNumber ndkVersion(const Utils::FilePath &ndkPath);
 QUrl sdkToolsUrl();
 QByteArray getSdkToolsSha256();
 
-QString optionalSystemImagePackage(Internal::AndroidSdkManager *sdkManager);
+QString optionalSystemImagePackage();
 
 QStringList allEssentials();
-bool allEssentialsInstalled(Internal::AndroidSdkManager *sdkManager);
+bool allEssentialsInstalled();
 bool sdkToolsOk();
 
 Utils::FilePath openJDKLocation();
@@ -125,7 +121,6 @@ class AndroidConfigurations : public QObject
     Q_OBJECT
 
 public:
-    static Internal::AndroidSdkManager *sdkManager();
     static void applyConfig();
     static AndroidConfigurations *instance();
 
@@ -138,7 +133,6 @@ public:
 
 signals:
     void aboutToUpdate();
-    void updated();
 
 private:
     friend void setupAndroidConfigurations();
@@ -148,7 +142,6 @@ private:
     void save();
 
     static void updateAndroidDevice();
-    std::unique_ptr<Internal::AndroidSdkManager> m_sdkManager;
 };
 
 #ifdef WITH_TESTS
@@ -157,7 +150,7 @@ QObject *createAndroidConfigurationsTest();
 
 void setupAndroidConfigurations();
 
-} // namespace Android
+} // namespace Android::Internal
 
 Q_DECLARE_METATYPE(ProjectExplorer::Abis)
 Q_DECLARE_METATYPE(Utils::OsType)

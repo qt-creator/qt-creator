@@ -15,9 +15,12 @@
 #include <optional>
 #include <variant>
 
-namespace {
-Q_LOGGING_CATEGORY(avdOutputParserLog, "qtc.android.avdOutputParser", QtWarningMsg)
-}
+using namespace ProjectExplorer;
+using namespace Utils;
+
+namespace Android::Internal {
+
+static Q_LOGGING_CATEGORY(avdOutputParserLog, "qtc.android.avdOutputParser", QtWarningMsg)
 
 // Avd list keys to parse avd
 const char avdInfoNameKey[] = "Name:";
@@ -26,16 +29,15 @@ const char avdInfoAbiKey[] = "abi.type";
 const char avdInfoTargetKey[] = "target";
 const char avdInfoErrorKey[] = "Error:";
 
-namespace Android {
-namespace Internal {
+const char avdManufacturerError[] = "no longer exists as a device";
 
 /*!
     Parses the \a line for a [spaces]key[spaces]value[spaces] pattern and returns
     \c true if the key is found, \c false otherwise. The value is copied into \a value.
  */
-static bool valueForKey(QString key, const QString &line, QString *value = nullptr)
+static bool valueForKey(const QString &key, const QString &line, QString *value = nullptr)
 {
-    auto trimmedInput = line.trimmed();
+    const QString trimmedInput = line.trimmed();
     if (trimmedInput.startsWith(key)) {
         if (value)
             *value = trimmedInput.section(key, 1, 1).trimmed();
@@ -55,11 +57,11 @@ static std::optional<AndroidDeviceInfo> parseAvd(const QStringList &deviceInfo)
         } else if (valueForKey(avdInfoNameKey, line, &value)) {
             avd.avdName = value;
         } else if (valueForKey(avdInfoPathKey, line, &value)) {
-            const Utils::FilePath avdPath = Utils::FilePath::fromUserInput(value);
+            const FilePath avdPath = FilePath::fromUserInput(value);
             avd.avdPath = avdPath;
             if (avdPath.exists()) {
                 // Get ABI.
-                const Utils::FilePath configFile = avdPath.pathAppended("config.ini");
+                const FilePath configFile = avdPath.pathAppended("config.ini");
                 QSettings config(configFile.toFSPathString(), QSettings::IniFormat);
                 value = config.value(avdInfoAbiKey).toString();
                 if (!value.isEmpty())
@@ -69,8 +71,7 @@ static std::optional<AndroidDeviceInfo> parseAvd(const QStringList &deviceInfo)
 
                 // Get Target
                 const QString avdInfoFileName = avd.avdName + ".ini";
-                const Utils::FilePath avdInfoFile = avdPath.parentDir().pathAppended(
-                    avdInfoFileName);
+                const FilePath avdInfoFile = avdPath.parentDir().pathAppended(avdInfoFileName);
                 QSettings avdInfo(avdInfoFile.toFSPathString(), QSettings::IniFormat);
                 value = avdInfo.value(avdInfoTargetKey).toString();
                 if (!value.isEmpty())
@@ -89,16 +90,16 @@ static std::optional<AndroidDeviceInfo> parseAvd(const QStringList &deviceInfo)
 ParsedAvdList parseAvdList(const QString &output)
 {
     AndroidDeviceInfoList avdList;
-    Utils::FilePaths errorPaths;
+    FilePaths errorPaths;
     QStringList avdInfo;
-    using ErrorPath = Utils::FilePath;
+    using ErrorPath = FilePath;
     using AvdResult = std::variant<std::monostate, AndroidDeviceInfo, ErrorPath>;
     const auto parseAvdInfo = [](const QStringList &avdInfo) {
         if (!avdInfo.filter(avdManufacturerError).isEmpty()) {
             for (const QString &line : avdInfo) {
                 QString value;
                 if (valueForKey(avdInfoPathKey, line, &value))
-                    return AvdResult(Utils::FilePath::fromString(value)); // error path
+                    return AvdResult(FilePath::fromString(value)); // error path
             }
         } else if (std::optional<AndroidDeviceInfo> avd = parseAvd(avdInfo)) {
             // armeabi-v7a devices can also run armeabi code
@@ -164,5 +165,4 @@ QString convertNameToExtension(const QString &name)
     return {};
 }
 
-} // namespace Internal
-} // namespace Android
+} // namespace Android::Internal

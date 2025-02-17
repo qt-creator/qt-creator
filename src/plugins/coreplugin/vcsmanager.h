@@ -76,6 +76,13 @@ public:
 
     static void clearVersionControlCache();
 
+    // Convenience that searches for the repository specifically for version control
+    // systems that do not have directories like "CVS" in each managed subdirectory
+    // but have a directory at the top of the repository like ".git" containing
+    // a well known file. See implementation for gory details.
+    static Utils::FilePath findRepositoryForFiles(
+        const Utils::FilePath &fileOrDir, const QStringList &checkFiles);
+
 signals:
     void repositoryChanged(const Utils::FilePath &repository);
     void configurationChanged(const IVersionControl *vcs);

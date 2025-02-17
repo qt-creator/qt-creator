@@ -13,6 +13,7 @@
 
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
+#include <utils/shutdownguard.h>
 
 using namespace Layouting;
 using namespace Utils;
@@ -21,7 +22,7 @@ namespace Autotest::Internal {
 
 QtTestFramework &theQtTestFramework()
 {
-    static QtTestFramework framework;
+    static GuardedObject<QtTestFramework> framework;
     return framework;
 }
 

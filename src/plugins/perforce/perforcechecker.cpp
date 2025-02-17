@@ -16,8 +16,7 @@
 
 using namespace Utils;
 
-namespace Perforce {
-namespace Internal {
+namespace Perforce::Internal {
 
 PerforceChecker::PerforceChecker(QObject *parent) : QObject(parent)
 {
@@ -186,16 +185,9 @@ void PerforceChecker::emitSucceeded(const QString &m)
     emit succeeded(FilePath::fromString(m));
 }
 
-bool PerforceChecker::useOverideCursor() const
-{
-    return m_useOverideCursor;
-}
-
 void PerforceChecker::setUseOverideCursor(bool v)
 {
     m_useOverideCursor = v;
 }
 
-}
-}
-
+} // Perforce::Internal

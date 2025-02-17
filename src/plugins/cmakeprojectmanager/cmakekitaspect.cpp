@@ -15,15 +15,16 @@
 
 #include <ios/iosconstants.h>
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitaspect.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
@@ -56,7 +57,7 @@ namespace Internal {
 
 static bool isIos(const Kit *k)
 {
-    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+    const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(k);
     return deviceType == Ios::Constants::IOS_DEVICE_TYPE
            || deviceType == Ios::Constants::IOS_SIMULATOR_TYPE;
 }
@@ -79,13 +80,15 @@ public:
     {
         clear();
 
-        const FilePath rootPath = BuildDeviceKitAspect::device(&m_kit)->rootPath();
-        const QList<CMakeTool *> toolsForBuildDevice
-            = Utils::filtered(CMakeToolManager::cmakeTools(), [rootPath](CMakeTool *item) {
-                  return item->cmakeExecutable().isSameDevice(rootPath);
-              });
-        for (CMakeTool *item : toolsForBuildDevice)
-            rootItem()->appendChild(new CMakeToolTreeItem(item, false));
+        if (const IDevice::ConstPtr dev = BuildDeviceKitAspect::device(&m_kit)) {
+            const FilePath rootPath = dev->rootPath();
+            const QList<CMakeTool *> toolsForBuildDevice
+                = Utils::filtered(CMakeToolManager::cmakeTools(), [rootPath](CMakeTool *item) {
+                      return item->cmakeExecutable().isSameDevice(rootPath);
+                  });
+            for (CMakeTool *item : toolsForBuildDevice)
+                rootItem()->appendChild(new CMakeToolTreeItem(item, false));
+        }
         rootItem()->appendChild(new CMakeToolTreeItem); // The "none" item.
     }
 
@@ -169,7 +172,7 @@ public:
             CMakeKitAspect::setCMakeTool(&k, Id::fromSetting(id));
         };
         auto resetModel = [model] { model->reset(); };
-        setListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
+        addListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
 
         CMakeToolManager *cmakeMgr = CMakeToolManager::instance();
         connect(cmakeMgr, &CMakeToolManager::cmakeAdded, this, &CMakeKitAspectImpl::refresh);
@@ -348,11 +351,11 @@ private:
     // KitAspectWidget interface
     void makeReadOnly() override { m_changeButton->setEnabled(false); }
 
-    void addToInnerLayout(Layouting::Layout &parent) override
+    void addToInnerLayout(Layouting::Layout &layout) override
     {
         addMutableAction(m_label);
-        parent.addItem(m_label);
-        parent.addItem(m_changeButton);
+        layout.addItem(m_label);
+        layout.addItem(m_changeButton);
     }
 
     void refresh() override
@@ -699,6 +702,11 @@ QVariant CMakeGeneratorKitAspectFactory::defaultValue(const Kit *k) const
 
 bool CMakeGeneratorKitAspectFactory::isNinjaPresent(const Kit *k, const CMakeTool *tool) const
 {
+    const CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
+    const FilePath makeProgram = config.filePathValueOf("CMAKE_MAKE_PROGRAM");
+    if (makeProgram.baseName().startsWith("ninja", makeProgram.caseSensitivity()))
+        return true;
+
     if (Internal::settings(nullptr).ninjaPath().isEmpty()) {
         auto findNinja = [](const Environment &env) -> bool {
             return !env.searchInPath("ninja").isEmpty();
@@ -859,11 +867,11 @@ public:
 
 private:
     // KitAspectWidget interface
-    void addToInnerLayout(Layouting::Layout &parent) override
+    void addToInnerLayout(Layouting::Layout &layout) override
     {
         addMutableAction(m_summaryLabel);
-        parent.addItem(m_summaryLabel);
-        parent.addItem(m_manageButton);
+        layout.addItem(m_summaryLabel);
+        layout.addItem(m_manageButton);
     }
 
     void makeReadOnly() override

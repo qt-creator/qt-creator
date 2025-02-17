@@ -40,6 +40,8 @@
   <style name="Namespace"/>
   <style name="VirtualMethod" italic="true"/>
   <style name="Occurrences.Unused" underlineColor="#8F8F8F" underlineStyle="SingleUnderline"/>
+  <style name="Info" underlineColor="#707070" underlineStyle="DashUnderline"/>
+  <style name="InfoContext" underlineColor="#707070" underlineStyle="DotLine"/>
   <style name="Warning" underlineColor="#505050" underlineStyle="SingleUnderline"/>
   <style name="WarningContext" underlineColor="#505050" underlineStyle="DotLine"/>
   <style name="Error" underlineColor="#000000" underlineStyle="WaveUnderline"/>

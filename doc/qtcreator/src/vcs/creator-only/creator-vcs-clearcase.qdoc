@@ -21,6 +21,8 @@
     development support, and build automation solution developed by IBM. Use the
     ClearCase client plugin on Linux and Windows to access a ClearCase server.
 
+    \note Enable the ClearCase plugin to use it.
+
     \section1 Using GNU Diffutils with ClearCase
 
     You can use the GNU Diffutils tool With ClearCase to compare files and
@@ -95,6 +97,6 @@
 
     Set a timeout for version control operations in \uicontrol Timeout.
 
-    \sa {Set up version control systems}, {Use common VCS functions},
-    {Version Control Systems}
+    \sa {Enable and disable plugins}, {Set up version control systems},
+    {Use common VCS functions}, {Version Control Systems}
 */

@@ -8,6 +8,7 @@
 #include "projectexplorer.h"
 #include "projectexplorertr.h"
 #include "projectmanager.h"
+#include "projecttree.h"
 #include "runconfiguration.h"
 #include "target.h"
 
@@ -381,7 +382,7 @@ QString BuildSystem::disabledReason(const QString &buildKey) const
                                   : Tr::tr("The project could not be fully parsed.");
         const FilePath projectFilePath = buildTarget(buildKey).projectFilePath;
         if (!projectFilePath.isEmpty() && !projectFilePath.exists())
-            msg += '\n' + Tr::tr("The project file \"%1\" does not exist.").arg(projectFilePath.toString());
+            msg += '\n' + Tr::tr("The project file \"%1\" does not exist.").arg(projectFilePath.toUrlishString());
         return msg;
     }
     return {};
@@ -391,6 +392,21 @@ CommandLine BuildSystem::commandLineForTests(const QList<QString> & /*tests*/,
                                              const QStringList & /*options*/) const
 {
     return {};
+}
+
+BuildSystem *activeBuildSystem(const Project *project)
+{
+    return project ? project->activeBuildSystem() : nullptr;
+}
+
+BuildSystem *activeBuildSystemForActiveProject()
+{
+    return activeBuildSystem(ProjectManager::startupProject());
+}
+
+BuildSystem *activeBuildSystemForCurrentProject()
+{
+    return activeBuildSystem(ProjectTree::currentProject());
 }
 
 } // namespace ProjectExplorer

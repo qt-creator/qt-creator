@@ -38,7 +38,7 @@ using namespace ProjectExplorer;
 
 static bool isProjectParsing()
 {
-    const BuildSystem *bs = ProjectManager::startupBuildSystem();
+    const BuildSystem *bs = activeBuildSystemForActiveProject();
     return bs && (bs->isParsing() || bs->isWaitingForParse());
 }
 

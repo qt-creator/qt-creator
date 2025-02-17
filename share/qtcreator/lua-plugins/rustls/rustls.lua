@@ -2,7 +2,8 @@
 -- SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 return {
     Id = "rustlanguageserver",
-    Name = "Rust Language Server",
+    DisplayName = "Rust Language Server",
+    Name = "RustLanguageServer",
     Version = "1.0.0",
     CompatVersion = "1.0.0",
     VendorId = "theqtcompany",

@@ -189,7 +189,7 @@ public:
 
     bool applyFromSettingsWidget(QWidget *widget) override;
 
-    Utils::Store toMap() const override;
+    void toMap(Utils::Store &map) const override;
     void fromMap(const Utils::Store &map) override;
 
     QWidget *createSettingsWidget(QWidget *parent = nullptr) const override;
@@ -391,6 +391,9 @@ public:
 
     void registerMessageCallback(const QString &msg, const sol::main_function &callback)
     {
+        if (m_messageCallbacks.contains(msg))
+            qWarning() << "Overwriting existing callback for message:" << msg;
+
         m_messageCallbacks.insert(msg, callback);
         updateMessageCallbacks();
     }
@@ -406,7 +409,7 @@ public:
                     [self = QPointer<LuaClientWrapper>(this),
                      name = msg](const LanguageServerProtocol::JsonRpcMessage &m) {
                         if (!self)
-                            return;
+                            return false;
 
                         auto func = self->m_messageCallbacks.value(name);
                         auto table = ::Lua::toTable(func.lua_state(), m.toJsonObject());
@@ -414,7 +417,14 @@ public:
                         if (!result.valid()) {
                             qWarning() << "Error calling message callback for:" << name << ":"
                                        << (result.get<sol::error>().what());
+                            return false;
                         }
+                        if (result.get_type() != sol::type::boolean) {
+                            qWarning() << "Callback for:" << name << " did not return a boolean";
+                            return false;
+                        }
+
+                        return result.get<bool>();
                     });
             }
         }
@@ -466,7 +476,7 @@ public:
         }
     }
 
-    void sendMessageWithIdForDocument_cb(
+    QString sendMessageWithIdForDocument_cb(
         TextEditor::TextDocument *document, const sol::table &message, const sol::main_function callback)
     {
         const QJsonValue messageValue = ::Lua::toJson(message);
@@ -474,7 +484,8 @@ public:
             throw sol::error("Message is not an object");
 
         QJsonObject obj = messageValue.toObject();
-        obj["id"] = QUuid::createUuid().toString();
+        const auto id = QUuid::createUuid().toString();
+        obj["id"] = id;
 
         const RequestWithResponse request{obj, callback};
 
@@ -485,6 +496,15 @@ public:
         QTC_ASSERT(clients.front(), throw sol::error("Client is null"));
 
         clients.front()->sendMessage(request);
+        return id;
+    }
+
+    void cancelRequest(const QString &id)
+    {
+        for (Client *c : LanguageClientManager::clientsForSettingId(m_clientSettingsId)) {
+            if (c)
+                c->cancelRequest(LanguageServerProtocol::MessageId(id));
+        }
     }
 
     void updateAsyncOptions()
@@ -642,15 +662,14 @@ bool LuaClientSettings::applyFromSettingsWidget(QWidget *widget)
     return true;
 }
 
-Utils::Store LuaClientSettings::toMap() const
+void LuaClientSettings::toMap(Store &store) const
 {
-    auto store = BaseSettings::toMap();
+    BaseSettings::toMap(store);
     if (auto w = m_wrapper.lock())
         w->toMap(store);
-    return store;
 }
 
-void LuaClientSettings::fromMap(const Utils::Store &map)
+void LuaClientSettings::fromMap(const Store &map)
 {
     BaseSettings::fromMap(map);
     if (auto w = m_wrapper.lock()) {
@@ -702,7 +721,7 @@ static void registerLuaApi()
                 [](const LuaClientWrapper *c) -> sol::function {
                     if (!c->m_onInstanceStart)
                         return sol::lua_nil;
-                    return c->m_onInstanceStart.value();
+                    return *c->m_onInstanceStart;
                 },
                 [](LuaClientWrapper *c, const sol::main_function &f) { c->m_onInstanceStart = f; }),
             "registerMessage",
@@ -713,6 +732,8 @@ static void registerLuaApi()
             &LuaClientWrapper::sendMessageForDocument,
             "sendMessageWithIdForDocument_cb",
             &LuaClientWrapper::sendMessageWithIdForDocument_cb,
+            "cancelRequest",
+            &LuaClientWrapper::cancelRequest,
             "create",
             [](const sol::main_table &options) -> std::shared_ptr<LuaClientWrapper> {
                 auto luaClientWrapper = std::make_shared<LuaClientWrapper>(options);

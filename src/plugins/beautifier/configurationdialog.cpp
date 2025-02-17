@@ -114,14 +114,6 @@ void ConfigurationDialog::setSettings(AbstractSettings *settings)
     m_editor->setSettings(m_settings);
 }
 
-void ConfigurationDialog::clear()
-{
-    m_name->clear();
-    m_editor->clear();
-    m_currentKey.clear();
-    updateOkButton();
-}
-
 QString ConfigurationDialog::key() const
 {
     return m_name->text().simplified();

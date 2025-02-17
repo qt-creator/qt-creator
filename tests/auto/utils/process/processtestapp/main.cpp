@@ -5,7 +5,7 @@
 
 #include <app/app_version.h>
 
-#include <utils/launcherinterface.h>
+#include <utils/processreaper.h>
 #include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 
@@ -28,13 +28,10 @@ int main(int argc, char **argv)
 #endif
     QCoreApplication app(argc, argv);
 
-    const QScopeGuard cleanup([] { Singleton::deleteAll(); });
+    const QScopeGuard cleanup([] { ProcessReaper::deleteAll(); });
 
     TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/"
                                                     + Core::Constants::IDE_CASED_ID + "-XXXXXX");
-    const QString libExecPath(qApp->applicationDirPath() + '/'
-                              + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
-    LauncherInterface::setPathToLauncher(libExecPath);
     SubProcessConfig::setPathToProcessTestApp(QLatin1String(PROCESS_TESTAPP));
 
     QMetaObject::invokeMethod(&app, [] { ProcessTestApp::invokeSubProcess(); }, Qt::QueuedConnection);

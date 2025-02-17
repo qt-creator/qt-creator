@@ -4667,8 +4667,6 @@ int NoExceptOperatorExpressionAST::lastToken() const
 
 int TypeConstraintAST::firstToken() const
 {
-    if (nestedName)
-        return nestedName->firstToken();
     return conceptName->firstToken();
 }
 

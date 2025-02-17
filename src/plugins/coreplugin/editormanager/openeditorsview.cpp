@@ -105,7 +105,7 @@ void OpenEditorsWidget::updateCurrentItem(IEditor *editor)
     }
     const std::optional<int> index = DocumentModel::indexOfDocument(editor->document());
     if (QTC_GUARD(index))
-        setCurrentIndex(m_model->index(index.value(), 0));
+        setCurrentIndex(m_model->index(*index, 0));
     selectionModel()->select(currentIndex(),
                              QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     scrollTo(currentIndex());

@@ -1338,8 +1338,9 @@ bool Parser::parseTypeConstraint(TypeConstraintAST *&node)
     if (!parseUnqualifiedName(conceptName, false))
         return false;
     const auto typeConstraint = new (_pool) TypeConstraintAST;
-    typeConstraint->nestedName = nestedName;
-    typeConstraint->conceptName = conceptName;
+    typeConstraint->conceptName = new (_pool) QualifiedNameAST;
+    typeConstraint->conceptName->nested_name_specifier_list = nestedName;
+    typeConstraint->conceptName->unqualified_name = conceptName;
     if (LA() != T_LESS) {
         node = typeConstraint;
         return true;
@@ -3987,6 +3988,18 @@ bool Parser::parseForStatement(StatementAST *&node)
         RangeBasedForStatementAST *ast = new (_pool) RangeBasedForStatementAST;
         ast->for_token = for_token;
         ast->lparen_token = lparen_token;
+
+        // C++20: init-statement
+        if (_languageFeatures.cxx20Enabled) {
+            const int savedCursor = cursor();
+            const bool savedBlockErrors = _translationUnit->blockErrors(true);
+            if (!parseSimpleDeclaration(ast->initDecl)) {
+                rewind(savedCursor);
+                if (!parseExpressionStatement(ast->initStmt))
+                    rewind(savedCursor);
+            }
+            _translationUnit->blockErrors(savedBlockErrors);
+        }
 
         if (parseTypeSpecifier(ast->type_specifier_list))
             parseDeclarator(ast->declarator, ast->type_specifier_list);

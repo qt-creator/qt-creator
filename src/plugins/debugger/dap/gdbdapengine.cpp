@@ -57,9 +57,9 @@ public:
     void start() override
     {
         m_proc.setProcessMode(ProcessMode::Writer);
-        if (m_runParameters.debugger.workingDirectory.isDir())
-            m_proc.setWorkingDirectory(m_runParameters.debugger.workingDirectory);
-        m_proc.setEnvironment(m_runParameters.debugger.environment);
+        if (m_runParameters.debugger().workingDirectory.isDir())
+            m_proc.setWorkingDirectory(m_runParameters.debugger().workingDirectory);
+        m_proc.setEnvironment(m_runParameters.debugger().environment);
         m_proc.setCommand(m_cmd);
         m_proc.start();
     }
@@ -113,7 +113,7 @@ GdbDapEngine::GdbDapEngine()
 
 void GdbDapEngine::handleDapInitialize()
 {
-    if (!isLocalAttachEngine()) {
+    if (!runParameters().isLocalAttachEngine()) {
         DapEngine::handleDapInitialize();
         return;
     }
@@ -123,14 +123,9 @@ void GdbDapEngine::handleDapInitialize()
     qCDebug(logCategory()) << "handleDapAttach";
 }
 
-bool GdbDapEngine::isLocalAttachEngine() const
-{
-    return runParameters().startMode == AttachToLocalProcess;
-}
-
 void GdbDapEngine::handleDapConfigurationDone()
 {
-    if (!isLocalAttachEngine()) {
+    if (!runParameters().isLocalAttachEngine()) {
         DapEngine::handleDapConfigurationDone();
         return;
     }
@@ -143,16 +138,16 @@ void GdbDapEngine::setupEngine()
     QTC_ASSERT(state() == EngineSetupRequested, qCDebug(logCategory()) << state());
 
     const DebuggerRunParameters &rp = runParameters();
-    CommandLine cmd{rp.debugger.command.executable(), {"-i", "dap"}};
+    CommandLine cmd{rp.debugger().command.executable(), {"-i", "dap"}};
 
-    if (isLocalAttachEngine())
-        cmd.addArgs({"-p", QString::number(rp.attachPID.pid())});
+    if (runParameters().isLocalAttachEngine())
+        cmd.addArgs({"-p", QString::number(rp.attachPid().pid())});
 
     QVersionNumber oldestVersion(14, 0, 50);
-    QVersionNumber version = QVersionNumber::fromString(rp.version);
+    QVersionNumber version = QVersionNumber::fromString(rp.version());
     if (version < oldestVersion) {
         notifyEngineSetupFailed();
-        MessageManager::writeDisrupting("Debugger version " + rp.version
+        MessageManager::writeDisrupting("Debugger version " + rp.version()
                                         + " is too old. Please upgrade to at least "
                                         + oldestVersion.toString());
         return;

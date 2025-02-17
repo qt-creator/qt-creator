@@ -220,7 +220,7 @@ static QString getInitialDetails(const QmlEventType &event)
             if (event.rangeType() == Javascript)
                 details = Tr::tr("anonymous function");
         } else {
-            QRegularExpression rewrite(QLatin1String("^\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)$"));
+            static const QRegularExpression rewrite("^\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)$");
             QRegularExpressionMatch match = rewrite.match(details);
             if (match.hasMatch())
                 details = match.captured(1) + QLatin1String(": ") + match.captured(3);
@@ -301,7 +301,7 @@ int QmlProfilerModelManager::appendEventType(QmlEventType &&type)
     if (location.isValid()) {
         const RangeType rangeType = type.rangeType();
         const QmlEventLocation localLocation(d->detailsRewriter->getLocalFile(location.filename())
-                                                 .toString(),
+                                                 .toUrlishString(),
                                              location.line(),
                                              location.column());
 
@@ -332,7 +332,7 @@ void QmlProfilerModelManager::setEventType(int typeIndex, QmlEventType &&type)
         d->textMarkModel->addTextMarkId(typeIndex,
                                         QmlEventLocation(d->detailsRewriter
                                                              ->getLocalFile(location.filename())
-                                                             .toString(),
+                                                             .toUrlishString(),
                                                          location.line(),
                                                          location.column()));
     }

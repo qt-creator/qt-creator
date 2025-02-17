@@ -72,7 +72,7 @@ bool RefactoringFile::create(const QString &contents, bool reindent, bool openIn
 
     // Write the file to disk:
     TextFileFormat format;
-    format.codec = EditorManager::defaultTextCodec();
+    format.setCodecName(EditorManager::defaultTextCodecName());
     QString error;
     bool saveOk = format.writeFile(m_filePath, m_document->toPlainText(), &error);
     delete m_document;
@@ -121,7 +121,7 @@ QTextDocument *RefactoringFile::mutableDocument() const
                                                                          &error);
             if (result != TextFileFormat::ReadSuccess) {
                 qWarning() << "Could not read " << m_filePath << ". Error: " << error;
-                m_textFileFormat.codec = nullptr;
+                m_textFileFormat.setCodec(nullptr);
             }
         }
         // always make a QTextDocument to avoid excessive null checks
@@ -264,7 +264,7 @@ bool RefactoringFile::apply()
             c.endEditBlock();
 
             // if this document doesn't have an editor, write the result to a file
-            if (!m_editor && m_textFileFormat.codec) {
+            if (!m_editor && m_textFileFormat.codec()) {
                 QTC_ASSERT(!m_filePath.isEmpty(), return false);
                 QString error;
                 // suppress "file has changed" warnings if the file is open in a read-only editor

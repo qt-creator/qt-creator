@@ -6,8 +6,8 @@
 #include "qdbconstants.h"
 #include "qdbtr.h"
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
@@ -40,7 +40,7 @@ public:
 GroupItem QdbStopApplicationStep::deployRecipe()
 {
     const auto onSetup = [this](Process &process) {
-        const auto device = DeviceKitAspect::device(target()->kit());
+        const auto device = RunDeviceKitAspect::device(target()->kit());
         if (!device) {
             addErrorMessage(Tr::tr("No device to stop the application on."));
             return SetupResult::StopWithError;

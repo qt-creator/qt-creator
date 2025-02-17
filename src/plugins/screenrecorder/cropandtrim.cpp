@@ -338,7 +338,7 @@ CropWidget::CropWidget(QWidget *parent)
     connect(saveImageButton, &QToolButton::clicked, this, [this] {
         FilePathAspect &lastDir = Internal::settings().lastSaveImageDirectory;
         const QString ext(".png");
-        FilePath file = FileUtils::getSaveFilePath(nullptr, Tr::tr("Save Current Frame As"),
+        FilePath file = FileUtils::getSaveFilePath(Tr::tr("Save Current Frame As"),
                                                    lastDir(), "*" + ext);
         if (!file.isEmpty()) {
             if (!file.endsWith(ext))
@@ -346,7 +346,7 @@ CropWidget::CropWidget(QWidget *parent)
             lastDir.setValue(file.parentDir());
             lastDir.writeToSettingsImmediatly();
             const QImage image = m_cropScene->croppedImage();
-            image.save(file.toString());
+            image.save(file.toUrlishString());
         }
     });
     connect(copyImageToClipboardAction, &QAction::triggered, this, [this] {

@@ -45,10 +45,15 @@
     annotated.
     \endif
 
-    When writing QML or JavaScript code, the annotations may have error codes
-    listed in \l{JavaScript and QML Error Codes}.
+    When writing QML or JavaScript code, the annotations may have error codes.
 
-    \image qml-syntax-check.png
+    If you turn on \QMLLS for a project, it uses \c {qmllint} to check QML and
+    JavaScript code. For more information, see \l {qmllint Reference}.
+
+    If you turn off \QMLLS, \QC uses a static analyzer. For more information,
+    see \l{JavaScript and QML Error Codes}.
+
+    \image qml-syntax-check.png {Selecting checks for the static analyzer}
 
     \section1 Manage messages
 
@@ -108,9 +113,14 @@
     View the results in the \uicontrol QML and \uicontrol {QML Analysis}
     filters in \l Issues.
 
+    \note If you turn on \QMLLS for a project, it uses \l {qmllint Reference}
+    {qmllint} to check QML and JavaScript code and to generate warnings, so the
+    error codes and messages differ from those in
+    \l{JavaScript and QML Error Codes}.
+
     \section1 Enabling and Disabling Messages
 
-    To enable and disable QML and JavaScript messages:
+    To enable and disable QML and JavaScript messages of the static analyzer:
 
     \list 1
         \li Go to \preferences > \uicontrol {Qt Quick} >
@@ -119,7 +129,7 @@
             \image qtcreator-preferences-qtquick-qmljs-editing.webp {QML/JS Editing tab in Qt Quick preferences}
         \li In \uicontrol Enabled, select the messages that you want to see.
         \li To disable messages for non-Qt Quick UI files, select them in
-            \uicontrol {Disable messages for non Qt Quick UI}. You cannot
+            \uicontrol {Disabled for non Qt Quick UI}. You cannot
             enable messages just for non-Qt Quick UI files.
     \endlist
 

@@ -1,5 +1,6 @@
 {
     "Id" : "welcome",
+    "DisplayName" : "Welcome",
     "Name" : "Welcome",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

@@ -36,7 +36,7 @@ static QString styleConfigFileName(const QString &qmlFileName)
                                                           &Utils::FilePath::fileName);
 
                 if (foundFile != std::end(fileNames))
-                    return foundFile->toString();
+                    return foundFile->toUrlishString();
             }
         }
     }
@@ -105,7 +105,7 @@ void ChangeStyleWidgetAction::changeCurrentStyle(const QString &style, const QSt
         styleConfigFileName(qmlFileName));
 
     if (configFileName.exists()) {
-        QSettings infiFile(configFileName.toString(), QSettings::IniFormat);
+        QSettings infiFile(configFileName.toUrlishString(), QSettings::IniFormat);
 
         int contains = -1;
 

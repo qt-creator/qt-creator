@@ -22,8 +22,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -94,9 +94,6 @@ static std::unique_ptr<QmlDebugTranslationClient> defaultCreateDebugTranslationC
     return client;
 }
 
-static void defaultRefreshTranslationFunction()
-{}
-
 class QmlPreviewPluginPrivate : public QObject
 {
 public:
@@ -134,7 +131,6 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
     m_settings.fileClassifier = &defaultFileClassifier;
     m_settings.fpsHandler = &defaultFpsHandler;
     m_settings.createDebugTranslationClientMethod = &defaultCreateDebugTranslationClientMethod;
-    m_settings.refreshTranslationsFunction = &defaultRefreshTranslationFunction;
 
     Core::ActionContainer *menu = Core::ActionManager::actionContainer(
                 Constants::M_BUILDPROJECT);
@@ -148,10 +144,10 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
         if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current())
             m_localeIsoCode = multiLanguageAspect->currentLocale();
         bool skipDeploy = false;
-        const Kit *kit = ProjectManager::startupTarget()->kit();
-        if (ProjectManager::startupTarget() && kit)
+        if (const Kit *kit = activeKitForActiveProject()) {
             skipDeploy = kit->supportedPlatforms().contains(Android::Constants::ANDROID_DEVICE_TYPE)
-                || DeviceTypeKitAspect::deviceTypeId(kit) == Android::Constants::ANDROID_DEVICE_TYPE;
+                || RunDeviceTypeKitAspect::deviceTypeId(kit) == Android::Constants::ANDROID_DEVICE_TYPE;
+        }
         ProjectExplorerPlugin::runStartupProject(Constants::QML_PREVIEW_RUN_MODE, skipDeploy);
     });
     menu->addAction(
@@ -340,7 +336,7 @@ void QmlPreviewPlugin::previewCurrentFile()
                              Tr::tr("Start the QML Preview for the project before selecting "
                                     "a specific file for preview."));
 
-    const QString file = currentNode->filePath().toString();
+    const QString file = currentNode->filePath().toUrlishString();
     if (file != d->m_previewedFile)
         setPreviewedFile(file);
     else
@@ -459,7 +455,7 @@ void QmlPreviewPluginPrivate::checkEditor()
         dialect = QmlJS::Dialect::QmlQtQuick2Ui;
     else
         dialect = QmlJS::Dialect::NoLanguage;
-    checkDocument(doc->filePath().toString(), doc->contents(), dialect);
+    checkDocument(doc->filePath().toUrlishString(), doc->contents(), dialect);
 }
 
 void QmlPreviewPluginPrivate::checkFile(const QString &fileName)

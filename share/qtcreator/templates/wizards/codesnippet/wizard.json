@@ -7,7 +7,7 @@
     "trDisplayName": "Code Snippet",
     "trDisplayCategory": "Other Project",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQt" ],
-    "enabled": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}",
+    "enabled": "%{JS: isPluginRunning('cmakeprojectmanager')}",
 
     "options":
     [

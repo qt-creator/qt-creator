@@ -3,36 +3,32 @@
 
 #pragma once
 
-#include "projectexplorer_export.h"
 #include "projectsettingswidget.h"
-
-#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QVBoxLayout;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
+namespace ProjectExplorer::Internal {
 
-class PROJECTEXPLORER_EXPORT PanelsWidget : public QWidget
+class PanelsWidget final : public QWidget
 {
-    Q_OBJECT
+    explicit PanelsWidget(bool addStretch);
 
 public:
-    explicit PanelsWidget(QWidget *parent = nullptr, bool addStretch = true);
-    PanelsWidget(const QString &displayName, QWidget *widget);
+    PanelsWidget(const QString &displayName, QWidget *widget, bool addStretch = true);
     PanelsWidget(const QString &displayName, ProjectSettingsWidget *widget);
-    ~PanelsWidget() override;
-
-    void addPropertiesPanel(const QString &displayName);
-    void addGlobalSettingsProperties(ProjectSettingsWidget *widget);
-    void addWidget(QWidget *widget);
+    ~PanelsWidget() final;
 
     static int constexpr PanelVMargin = 14;
 
 private:
+    void addPropertiesPanel(const QString &displayName);
+    void addGlobalSettingsProperties(ProjectSettingsWidget *widget);
+    void addWidget(QWidget *widget);
+
     QVBoxLayout *m_layout;
     QWidget *m_root;
 };
 
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal

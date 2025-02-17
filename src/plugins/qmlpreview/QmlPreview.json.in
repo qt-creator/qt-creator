@@ -1,5 +1,6 @@
 {
     "Id" : "qmlpreview",
+    "DisplayName" : "QML Preview",
     "Name" : "QmlPreview",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

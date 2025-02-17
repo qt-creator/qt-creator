@@ -4,16 +4,14 @@
 
 #include <utils/algorithm.h>
 
-namespace Android {
+namespace Android::Internal {
 
 AndroidSdkPackage::AndroidSdkPackage(const QVersionNumber &version, const QString &sdkStylePathStr,
-                                     QObject *parent) :
-    QObject(parent),
-    m_revision(version),
-    m_sdkStylePath(sdkStylePathStr)
-{
-
-}
+                                     QObject *parent)
+    : QObject(parent)
+    , m_revision(version)
+    , m_sdkStylePath(sdkStylePathStr)
+{}
 
 bool AndroidSdkPackage::operator <(const AndroidSdkPackage &other) const
 {
@@ -153,11 +151,6 @@ int SdkPlatform::apiLevel() const
     return m_apiLevel;
 }
 
-QVersionNumber SdkPlatform::version() const
-{
-    return m_version;
-}
-
 void SdkPlatform::addSystemImage(SystemImage *image)
 {
     // Ordered insert. Installed images on top with lexical comparison of the display name.
@@ -183,4 +176,4 @@ SystemImageList SdkPlatform::systemImages(PackageState state) const
     });
 }
 
-} // namespace Android
+} // namespace Android::Internal

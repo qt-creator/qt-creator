@@ -80,9 +80,12 @@ public:
     virtual QWidget *createSettingsWidget(QWidget *parent = nullptr) const;
     virtual BaseSettings *copy() const = 0;
     virtual bool isValid() const;
+    virtual bool isValidOnProject(ProjectExplorer::Project *project) const;
     Client *createClient() const;
     Client *createClient(ProjectExplorer::Project *project) const;
-    virtual Utils::Store toMap() const;
+    bool isEnabledOnProject(ProjectExplorer::Project *project) const;
+
+    virtual void toMap(Utils::Store &map) const;
     virtual void fromMap(const Utils::Store &map);
 
 protected:
@@ -108,7 +111,7 @@ public:
     QWidget *createSettingsWidget(QWidget *parent = nullptr) const override;
     BaseSettings *copy() const override { return new StdIOSettings(*this); }
     bool isValid() const override;
-    Utils::Store toMap() const override;
+    void toMap(Utils::Store &map) const override;
     void fromMap(const Utils::Store &map) override;
     QString arguments() const;
     Utils::CommandLine command() const;
@@ -208,9 +211,18 @@ public:
     QByteArray json() const;
     void setJson(const QByteArray &json);
 
+    void enableSetting(const QString &id);
+    void disableSetting(const QString &id);
+    void clearOverride(const QString &id);
+
+    QStringList enabledSettings();
+    QStringList disabledSettings();
+
 private:
     ProjectExplorer::Project *m_project = nullptr;
     QByteArray m_json;
+    QStringList m_enabledSettings;
+    QStringList m_disabledSettings;
 };
 
 LANGUAGECLIENT_EXPORT TextEditor::BaseTextEditor *createJsonEditor(QObject *parent = nullptr);

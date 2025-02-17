@@ -16,15 +16,15 @@
 #include <coreplugin/messagebox.h>
 #include <coreplugin/modemanager.h>
 
-#include <debugger/analyzer/analyzerconstants.h>
-#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerutils.h>
+#include <debugger/debuggerconstants.h>
 #include <debugger/debuggericons.h>
 
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
@@ -227,7 +227,7 @@ void PerfProfilerTool::createViews()
         PerfSettings *settings = nullptr;
         Target *target = ProjectManager::startupTarget();
         if (target) {
-            if (auto runConfig = target->activeRunConfiguration())
+            if (auto runConfig = activeRunConfigForActiveProject())
                 settings = runConfig->currentSettings<PerfSettings>(Constants::PerfSettingsId);
         }
 
@@ -439,7 +439,7 @@ void PerfProfilerTool::updateRunActions()
         const auto canRun = ProjectExplorerPlugin::canRunStartupProject(
             ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
         m_startAction->setToolTip(canRun ? Tr::tr("Start a performance analysis.") : canRun.error());
-        m_startAction->setEnabled(bool(canRun));
+        m_startAction->setEnabled(canRun);
         m_loadPerfData->setEnabled(true);
         m_loadTrace->setEnabled(true);
     }
@@ -518,7 +518,7 @@ void PerfProfilerTool::gotoSourceLocation(QString filePath, int lineNumber, int 
 
     QFileInfo fi(filePath);
     if (!fi.isAbsolute() || !fi.exists() || !fi.isReadable()) {
-        fi.setFile(m_fileFinder.findFile(filePath).constFirst().toString());
+        fi.setFile(m_fileFinder.findFile(filePath).constFirst().toUrlishString());
         if (!fi.exists() || !fi.isReadable())
             return;
     }
@@ -537,7 +537,7 @@ static Utils::FilePaths collectQtIncludePaths(const ProjectExplorer::Kit *kit)
     if (qt == nullptr)
         return Utils::FilePaths();
     Utils::FilePaths paths{qt->headerPath()};
-    QDirIterator dit(paths.first().toString(), QStringList(), QDir::Dirs | QDir::NoDotAndDotDot,
+    QDirIterator dit(paths.first().toUrlishString(), QStringList(), QDir::Dirs | QDir::NoDotAndDotDot,
                      QDirIterator::Subdirectories);
     while (dit.hasNext()) {
         dit.next();
@@ -589,17 +589,16 @@ void PerfProfilerTool::showLoadTraceDialog()
 {
     m_perspective.select();
 
-    FilePath filePath = FileUtils::getOpenFilePath(nullptr, Tr::tr("Load Trace File"),
+    FilePath filePath = FileUtils::getOpenFilePath(Tr::tr("Load Trace File"),
                                                    {}, Tr::tr("Trace File (*.ptq)"));
     if (filePath.isEmpty())
         return;
 
     startLoading();
 
-    const Project *currentProject = ProjectManager::startupProject();
-    const Target *target = currentProject ?  currentProject->activeTarget() : nullptr;
-    const Kit *kit = target ? target->kit() : nullptr;
-    populateFileFinder(currentProject, kit);
+    const Project *activeProject = ProjectManager::startupProject();
+    const Kit *kit = activeKit(activeProject);
+    populateFileFinder(activeProject, kit);
 
     traceManager().loadFromTraceFile(filePath);
 }
@@ -608,7 +607,7 @@ void PerfProfilerTool::showSaveTraceDialog()
 {
     m_perspective.select();
 
-    FilePath filePath = FileUtils::getSaveFilePath(nullptr, Tr::tr("Save Trace File"),
+    FilePath filePath = FileUtils::getSaveFilePath(Tr::tr("Save Trace File"),
                                                    {}, Tr::tr("Trace File (*.ptq)"));
     if (filePath.isEmpty())
         return;

@@ -324,11 +324,13 @@ void FileApiReader::makeBackupConfiguration(bool store)
     if (!store)
         std::swap(cmakeCacheTxt, cmakeCacheTxtPrev);
 
-    if (cmakeCacheTxt.exists())
-        if (!FileUtils::copyIfDifferent(cmakeCacheTxt, cmakeCacheTxtPrev))
+    if (cmakeCacheTxt.exists()) {
+        if (Result res = FileUtils::copyIfDifferent(cmakeCacheTxt, cmakeCacheTxtPrev); !res) {
             Core::MessageManager::writeFlashing(addCMakePrefix(
-                Tr::tr("Failed to copy \"%1\" to \"%2\".")
-                    .arg(cmakeCacheTxt.toUserOutput(), cmakeCacheTxtPrev.toUserOutput())));
+                Tr::tr("Failed to copy \"%1\" to \"%2\": %3")
+                    .arg(cmakeCacheTxt.toUserOutput(), cmakeCacheTxtPrev.toUserOutput(), res.error())));
+        }
+    }
 }
 
 void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &configurationArguments)
@@ -419,7 +421,7 @@ void FileApiReader::handleReplyDirectoryChange(const QString &directory)
     const FilePath dir = reply.absolutePath();
     if (dir.isEmpty())
         return; // CMake started to fill the result dir, but has not written a result file yet
-    QTC_CHECK(!dir.needsDevice());
+    QTC_CHECK(dir.isLocal());
     QTC_ASSERT(dir.path() == directory, return);
 
     if (m_lastReplyTimestamp.isValid() && reply.lastModified() > m_lastReplyTimestamp) {

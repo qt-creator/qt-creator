@@ -122,7 +122,7 @@ static QString locateBinary(const QString &path, const QString &binary)
 static QString designerBinary(const QtSupport::QtVersion *qtVersion)
 {
     if (qtVersion)
-        return qtVersion->designerFilePath().toString();
+        return qtVersion->designerFilePath().toUrlishString();
     return QLatin1String(HostOsInfo::isMacHost() ? "Designer" : "designer");
 }
 
@@ -183,9 +183,7 @@ static bool getEditorLaunchData(const CommandForQtVersion &commandForQtVersion,
     if (const Project *project = ProjectManager::projectForFile(filePath)) {
         data->workingDirectory = project->projectDirectory();
         // active kit
-        if (const Target *target = project->activeTarget()) {
-            qtVersionsToCheck << QtSupport::QtKitAspect::qtVersion(target->kit());
-        }
+        qtVersionsToCheck << QtSupport::QtKitAspect::qtVersion(project->activeKit());
         // all kits of project
         qtVersionsToCheck += Utils::transform<QVector>(project->targets(), [](Target *t) {
             return QTC_GUARD(t) ? QtSupport::QtKitAspect::qtVersion(t->kit()) : nullptr;
@@ -210,7 +208,7 @@ static bool getEditorLaunchData(const CommandForQtVersion &commandForQtVersion,
     }
 
     // Setup binary + arguments, use Mac Open if appropriate
-    data->arguments.push_back(filePath.toString());
+    data->arguments.push_back(filePath.toUrlishString());
     if (HostOsInfo::isMacHost())
         *data = createMacOpenCommand(*data);
     if (debug)
@@ -281,7 +279,7 @@ public:
                 if (debug)
                     qDebug() << Q_FUNC_INFO << "\nWriting to socket:" << data.binary << filePath;
                 QTcpSocket *socket = it.value();
-                if (!socket->write(filePath.toString().toUtf8() + '\n')) {
+                if (!socket->write(filePath.toUrlishString().toUtf8() + '\n')) {
                     *errorMessage = Tr::tr("Qt Widgets Designer is not responding (%1).")
                                         .arg(socket->errorString());
                     return false;
@@ -329,7 +327,7 @@ void setupExternalDesigner(QObject *guard)
 static QString linguistBinary(const QtSupport::QtVersion *qtVersion)
 {
     if (qtVersion)
-        return qtVersion->linguistFilePath().toString();
+        return qtVersion->linguistFilePath().toUrlishString();
     return QLatin1String(HostOsInfo::isMacHost() ? "Linguist" : "linguist");
 }
 

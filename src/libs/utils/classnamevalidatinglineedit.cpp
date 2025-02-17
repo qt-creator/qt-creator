@@ -131,7 +131,7 @@ QString ClassNameValidatingLineEdit::createClassName(const QString &name)
 {
     // Remove spaces and convert the adjacent characters to uppercase
     QString className = name;
-    const QRegularExpression spaceMatcher(" +(\\w)");
+    static const QRegularExpression spaceMatcher(" +(\\w)");
     QTC_CHECK(spaceMatcher.isValid());
     while (true) {
         const QRegularExpressionMatch match = spaceMatcher.match(className);
@@ -141,7 +141,8 @@ QString ClassNameValidatingLineEdit::createClassName(const QString &name)
     }
 
     // Filter out any remaining invalid characters
-    className.remove(QRegularExpression("[^a-zA-Z0-9_]"));
+    static const QRegularExpression regexp("[^a-zA-Z0-9_]");
+    className.remove(regexp);
 
     // If the first character is numeric, prefix the name with a "_"
     if (className.at(0).isNumber()) {

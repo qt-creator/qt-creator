@@ -9,9 +9,10 @@
 
 #include <QMetaType>
 
+namespace Debugger { class DebuggerRunParameters; }
+
 namespace Debugger::Internal {
 
-class DebuggerRunParameters;
 class GdbMi;
 
 class StackFrame

@@ -14,18 +14,20 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <debugger/analyzer/analyzerconstants.h>
+#include <debugger/debuggerconstants.h>
 #include <debugger/debuggermainwindow.h>
 
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
+#include <solutions/tasking/conditional.h>
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>
@@ -34,6 +36,7 @@
 #include <utils/basetreeview.h>
 #include <utils/utilsicons.h>
 #include <utils/overlaywidget.h>
+#include <utils/shutdownguard.h>
 
 #include <QButtonGroup>
 #include <QClipboard>
@@ -63,7 +66,10 @@ using namespace Utils;
 
 namespace Axivion::Internal {
 
+constexpr int ListItemIdRole = Qt::UserRole + 2;
+
 static const Icon MARKER_ICON({{":/axivion/images/marker.png", Theme::IconsBaseColor}});
+static const Icon USER_ICON({{":/axivion/images/user.png", Theme::PanelTextColorDark}}, Icon::Tint);
 
 static QPixmap trendIcon(qint64 added, qint64 removed)
 {
@@ -96,7 +102,7 @@ static std::optional<PathMapping> findPathMappingMatch(const QString &projectNam
         if (mapping.analysisPath.isEmpty())
             return mapping;
 
-        QString analysis = mapping.analysisPath.toString();
+        QString analysis = mapping.analysisPath.toUrlishString();
         // ensure we use complete paths
         if (!analysis.endsWith('/'))
             analysis.append('/');
@@ -126,6 +132,8 @@ public:
             return m_data.at(column);
         if (role == Qt::ToolTipRole && column >= 0 && column < m_toolTips.size())
             return m_toolTips.at(column);
+        if (role == ListItemIdRole)
+            return m_id;
         return {};
     }
 
@@ -146,9 +154,9 @@ public:
                     if (const std::optional<Dto::ProjectInfoDto> pInfo = projectInfo()) {
                         if (auto mapping = findPathMappingMatch(pInfo->name, link)) {
                             std::optional<FilePath> fp = link.targetFilePath.prefixRemoved(
-                                        mapping->analysisPath.toString());
+                                        mapping->analysisPath.toUrlishString());
                             QTC_CHECK(fp);
-                            fp = mapping->localPath.pathAppended(fp->toString());
+                            fp = mapping->localPath.pathAppended(fp->toUrlishString());
                             if (fp->exists())
                                 targetFilePath = *fp;
                         }
@@ -158,8 +166,6 @@ public:
                 if (link.targetFilePath.exists())
                     EditorManager::openEditorAt(link);
             }
-            if (!m_id.isEmpty())
-                fetchIssueInfo(m_id);
             return true;
         } else if (role == BaseTreeView::ItemViewEventRole && !m_id.isEmpty()) {
             ItemViewEvent ev = value.value<ItemViewEvent>();
@@ -183,6 +189,7 @@ public:
     void updateUi(const QString &kind);
     void initDashboardList(const QString &preferredProject = {});
     void resetDashboard();
+    void updateNamedFilters();
 
     const std::optional<Dto::TableInfoDto> currentTableInfo() const { return m_currentTableInfo; }
     IssueListSearch searchFromUi() const;
@@ -197,13 +204,16 @@ private:
     void updateTable();
     void addIssues(const Dto::IssueTableDto &dto, int startRow);
     void onSearchParameterChanged();
+    void onSortParameterChanged();
     void updateVersionItemsEnabledState();
     void updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDto> &info);
+    void updateAllFilters(const QVariant &namedFilter);
     void setFiltersEnabled(bool enabled);
     void fetchTable();
     void fetchIssues(const IssueListSearch &search);
     void onFetchRequested(int startRow, int limit);
     void hideOverlays();
+    void openFilterHelp();
 
     QString m_currentPrefix;
     QString m_currentProject;
@@ -217,6 +227,8 @@ private:
     QComboBox *m_ownerFilter = nullptr;
     QComboBox *m_versionStart = nullptr;
     QComboBox *m_versionEnd = nullptr;
+    QComboBox *m_namedFilters = nullptr;
+    QToolButton *m_showFilterHelp = nullptr;
     Guard m_signalBlocker;
     QLineEdit *m_pathGlobFilter = nullptr; // FancyLineEdit instead?
     QLabel *m_totalRows = nullptr;
@@ -332,13 +344,28 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_pathGlobFilter->setPlaceholderText(Tr::tr("Path globbing"));
     connect(m_pathGlobFilter, &QLineEdit::textEdited, this, &IssuesWidget::onSearchParameterChanged);
 
+    m_namedFilters = new QComboBox(this);
+    m_namedFilters->setToolTip(Tr::tr("Named filters"));
+    m_namedFilters->setMinimumContentsLength(25);
+    connect(m_namedFilters, &QComboBox::currentIndexChanged, this, [this] {
+        if (m_signalBlocker.isLocked())
+            return;
+        updateAllFilters(m_namedFilters->currentData());
+    });
+
+    m_showFilterHelp = new QToolButton(this);
+    m_showFilterHelp->setIcon(Utils::Icons::INFO.icon());
+    m_showFilterHelp->setToolTip(Tr::tr("Show Online Filter Help"));
+    m_showFilterHelp->setEnabled(false);
+    connect(m_showFilterHelp, &QToolButton::clicked, this, &IssuesWidget::openFilterHelp);
+
     m_issuesView = new BaseTreeView(this);
     m_issuesView->setFrameShape(QFrame::StyledPanel); // Bring back Qt default
     m_issuesView->setFrameShadow(QFrame::Sunken);     // Bring back Qt default
     m_headerView = new IssueHeaderView(this);
     m_headerView->setSectionsMovable(true);
     connect(m_headerView, &IssueHeaderView::sortTriggered,
-            this, &IssuesWidget::onSearchParameterChanged);
+            this, &IssuesWidget::onSortParameterChanged);
     connect(m_headerView, &IssueHeaderView::filterChanged,
             this, &IssuesWidget::onSearchParameterChanged);
     m_issuesView->setHeader(m_headerView);
@@ -347,6 +374,14 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_issuesModel = new DynamicListModel(this);
     m_issuesView->setModel(m_issuesModel);
     connect(m_issuesModel, &DynamicListModel::fetchRequested, this, &IssuesWidget::onFetchRequested);
+    connect(m_issuesView->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, [this](const QItemSelection &selected, const QItemSelection &) {
+        if (selected.isEmpty())
+            return;
+        const QString id = m_issuesModel->data(m_issuesView->currentIndex(), ListItemIdRole).toString();
+        QTC_ASSERT(!id.isEmpty(), return);
+        fetchIssueInfo(id);
+    });
     m_totalRows = new QLabel(Tr::tr("Total rows:"), this);
 
     QWidget *errorWidget = new QWidget(this);
@@ -357,7 +392,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_errorEdit->setPalette(palette);
     QPushButton *openPref = new QPushButton(Tr::tr("Open Preferences..."), errorWidget);
     connect(openPref, &QPushButton::clicked,
-            this, []{ ICore::showOptionsDialog("Axivion.Settings.General"); });
+            this, []{ ICore::showOptionsDialog("Analyzer.Axivion.Settings"); });
     using namespace Layouting;
     Column {
         m_errorEdit,
@@ -370,7 +405,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
 
     Column {
         Row { m_dashboards, m_dashboardProjects, empty, m_typesLayout, st, m_versionStart, m_versionEnd, st },
-        Row { m_addedFilter, m_removedFilter, Space(1), m_ownerFilter, m_pathGlobFilter },
+        Row { m_addedFilter, m_removedFilter, Space(1), m_ownerFilter, m_pathGlobFilter, m_namedFilters, m_showFilterHelp },
         m_stack,
         Row { st, m_totalRows }
     }.attachTo(widget);
@@ -379,7 +414,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setWidgetResizable(true);
 
-    connect(&settings(), &AxivionSettings::changed,
+    connect(&settings(), &AxivionSettings::serversChanged,
             this, [this] { initDashboardList(); });
 }
 
@@ -434,6 +469,29 @@ void IssuesWidget::resetDashboard()
     m_dashboardListUninitialized = true;
 }
 
+void IssuesWidget::updateNamedFilters()
+{
+    QList<NamedFilter> globalFilters = knownNamedFiltersFor(m_currentPrefix, true);
+    QList<NamedFilter> userFilters = knownNamedFiltersFor(m_currentPrefix, false);
+
+    Utils::sort(globalFilters, [](const NamedFilter &lhs, const NamedFilter &rhs) {
+        return lhs.displayName < rhs.displayName;
+    });
+    Utils::sort(userFilters, [](const NamedFilter &lhs, const NamedFilter &rhs) {
+        return lhs.displayName < rhs.displayName;
+    });
+    GuardLocker lock(m_signalBlocker);
+    m_namedFilters->clear();
+
+    const QIcon global = Utils::Icons::LOCKED.icon();
+    const QIcon user = USER_ICON.icon();
+    m_namedFilters->addItem(global, Tr::tr("Show All")); // no active named filter
+    for (const auto &it : userFilters)
+        m_namedFilters->addItem(user, it.displayName, QVariant::fromValue(it));
+    for (const auto &it : globalFilters)
+        m_namedFilters->addItem(global, it.displayName, QVariant::fromValue(it));
+}
+
 void IssuesWidget::initDashboardList(const QString &preferredProject)
 {
     const QString currentProject = preferredProject.isEmpty() ? m_dashboardProjects->currentText()
@@ -443,13 +501,14 @@ void IssuesWidget::initDashboardList(const QString &preferredProject)
     const QList<AxivionServer> servers = settings().allAvailableServers();
     if (servers.isEmpty()) {
         switchActiveDashboardId({});
-        showOverlay(Tr::tr("Configure dashboards in Preferences > Axivion > General."), SettingsIcon);
+        m_showFilterHelp->setEnabled(false);
+        showOverlay(Tr::tr("Configure dashboards in Preferences > Analyzer > Axivion."), SettingsIcon);
         return;
     }
     hideOverlays();
 
     GuardLocker lock(m_signalBlocker);
-    m_dashboards->addItem(Tr::tr("None"));
+    m_dashboards->addItem(Tr::tr("No Dashboard"));
     for (const AxivionServer &server : servers)
         m_dashboards->addItem(server.displayString(), QVariant::fromValue(server));
 
@@ -475,10 +534,13 @@ void IssuesWidget::reinitProjectList(const QString &currentProject)
             m_issuesView->hideProgressIndicator();
             return;
         }
-        GuardLocker lock(m_signalBlocker);
-        m_dashboardProjects->addItems(info->projects);
-        if (!currentProject.isEmpty() && info->projects.contains(currentProject))
-            m_dashboardProjects->setCurrentText(currentProject);
+        {
+            GuardLocker lock(m_signalBlocker);
+            m_dashboardProjects->addItems(info->projects);
+            if (!currentProject.isEmpty() && info->projects.contains(currentProject))
+                m_dashboardProjects->setCurrentText(currentProject);
+        }
+        fetchNamedFilters();
     };
     {
         GuardLocker lock(m_signalBlocker);
@@ -589,14 +651,14 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto, int startRow)
 {
     QTC_ASSERT(m_currentTableInfo.has_value(), return);
     if (dto.totalRowCount.has_value()) {
-        m_totalRowCount = dto.totalRowCount.value();
+        m_totalRowCount = *dto.totalRowCount;
         m_issuesModel->setExpectedRowCount(m_totalRowCount);
         m_totalRows->setText(Tr::tr("Total rows:") + ' ' + QString::number(m_totalRowCount));
     }
     if (dto.totalAddedCount.has_value())
-        m_addedFilter->setText(QString::number(dto.totalAddedCount.value()));
+        m_addedFilter->setText(QString::number(*dto.totalAddedCount));
     if (dto.totalRemovedCount.has_value())
-        m_removedFilter->setText(QString::number(dto.totalRemovedCount.value()));
+        m_removedFilter->setText(QString::number(*dto.totalRemovedCount));
 
     const std::vector<Dto::ColumnInfoDto> &tableColumns = m_currentTableInfo->columns;
     const std::vector<std::map<QString, Dto::Any>> &rows = dto.rows;
@@ -608,16 +670,12 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto, int startRow)
         for (const auto &column : tableColumns) {
             const auto it = row.find(column.key);
             if (it != row.end()) {
-                QString value = anyToSimpleString(it->second);
+                QString value = anyToSimpleString(it->second, column.type, column.typeOptions);
                 if (column.key == "id") {
                     value.prepend(m_currentPrefix);
                     id = value;
                 }
                 toolTips << value;
-                if (column.key.toLower().endsWith("path")) {
-                    const FilePath fp = FilePath::fromUserInput(value);
-                    value = QString("%1 [%2]").arg(fp.fileName(), fp.path());
-                }
                 data << value;
             }
         }
@@ -641,6 +699,14 @@ void IssuesWidget::onSearchParameterChanged()
     m_totalRowCount = 0;
     IssueListSearch search = searchFromUi();
     search.computeTotalRowCount = true;
+    fetchIssues(search);
+}
+
+void IssuesWidget::onSortParameterChanged()
+{
+    m_issuesModel->clear();
+    m_issuesModel->setExpectedRowCount(m_totalRowCount);
+    IssueListSearch search = searchFromUi();
     fetchIssues(search);
 }
 
@@ -691,6 +757,7 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
         m_versionStart->clear();
         m_versionEnd->clear();
         m_pathGlobFilter->clear();
+        m_namedFilters->clear();
 
         m_currentProject.clear();
         m_currentPrefix.clear();
@@ -698,6 +765,7 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
         m_addedFilter->setText("0");
         m_removedFilter->setText("0");
         setFiltersEnabled(false);
+        m_showFilterHelp->setEnabled(false);
         m_issuesModel->clear();
         m_issuesModel->setHeader({});
         hideOverlays();
@@ -719,6 +787,7 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
         button->setCheckable(true);
         connect(button, &QToolButton::clicked, this, [this, prefix = kind.prefix]{
             m_currentPrefix = prefix;
+            updateNamedFilters();
             fetchTable();
         });
         m_typesButtonGroup->addButton(button, ++buttonId);
@@ -751,6 +820,31 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
     m_versionEnd->addItems(versionLabels);
     m_versionStart->setCurrentIndex(m_versionDates.count() - 1);
     updateVersionItemsEnabledState();
+    m_showFilterHelp->setEnabled(info->issueFilterHelp.has_value());
+}
+
+void IssuesWidget::updateAllFilters(const QVariant &namedFilter)
+{
+    NamedFilter nf;
+    if (namedFilter.isValid())
+        nf = namedFilter.value<NamedFilter>();
+    const bool clearOnly = nf.key.isEmpty();
+    const std::optional<Dto::NamedFilterInfoDto> filterInfo
+            = clearOnly ? std::nullopt : namedFilterInfoForKey(nf.key, nf.global);
+
+    GuardLocker lock(m_signalBlocker);
+    if (filterInfo) {
+        m_headerView->updateExistingColumnInfos(filterInfo->filters, filterInfo->sorters);
+        const auto it = filterInfo->filters.find("any path");
+        if (it != filterInfo->filters.cend())
+            m_pathGlobFilter->setText(it->second);
+        else
+            m_pathGlobFilter->clear();
+    } else {
+        // clear all filters / sorters
+        m_headerView->updateExistingColumnInfos({}, std::nullopt);
+        m_pathGlobFilter->clear();
+    }
 }
 
 void IssuesWidget::setFiltersEnabled(bool enabled)
@@ -761,6 +855,7 @@ void IssuesWidget::setFiltersEnabled(bool enabled)
     m_versionStart->setEnabled(enabled);
     m_versionEnd->setEnabled(enabled);
     m_pathGlobFilter->setEnabled(enabled);
+    m_namedFilters->setEnabled(enabled);
 }
 
 IssueListSearch IssuesWidget::searchFromUi() const
@@ -887,11 +982,90 @@ void IssuesWidget::hideOverlays()
     m_stack->setCurrentIndex(0);
 }
 
+void IssuesWidget::openFilterHelp()
+{
+    const std::optional<Dto::ProjectInfoDto> projInfo = projectInfo();
+    if (projInfo && projInfo->issueFilterHelp)
+        QDesktopServices::openUrl(resolveDashboardInfoUrl(*projInfo->issueFilterHelp));
+}
+
+static void loadImage(QPromise<QImage> &promise, const QByteArray &data)
+{
+    promise.addResult(QImage::fromData(data));
+}
+
+class LazyImageBrowser : public QTextBrowser
+{
+public:
+    QVariant loadResource(int type, const QUrl &name) override
+    {
+        if (type == QTextDocument::ImageResource) {
+            if (!m_loadingQueue.contains(name)) {
+                m_loadingQueue.append(name);
+                if (!m_loaderTaskTree.isRunning())
+                    m_loaderTaskTree.start(m_recipe);
+            }
+            return QImage();
+        }
+        return QTextBrowser::loadResource(type, name);
+    }
+
+    void setHtmlAfterCheckingCacheSize(const QString &html)
+    {
+        if (m_cachedImagesSize >= 1024 * 1024 * 250) { // if we exceeded 250MB reset the doc
+            m_cachedImagesSize = 0;
+            setDocument(new QTextDocument(this)); // create a new document to clear resources
+        }
+        setHtml(html);
+    }
+private:
+    Group recipe() {
+        const LoopUntil iterator([this](int) { return !m_loadingQueue.isEmpty(); });
+
+        const Storage<DownloadData> storage;
+
+        const auto onSetup = [this, storage] {
+            storage->inputUrl = resolveDashboardInfoUrl(m_loadingQueue.first());
+            storage->expectedContentType = ContentType::Svg;
+        };
+
+        const auto onImageLoadSetup = [storage](Async<QImage> &async) {
+            async.setConcurrentCallData(&loadImage, storage->outputData);
+        };
+        const auto onImageLoadDone = [this, storage](const Async<QImage> &async) {
+            if (!document() || !async.isResultAvailable())
+                return;
+            const QImage image = async.result();
+            m_cachedImagesSize += image.sizeInBytes();
+
+            document()->addResource(QTextDocument::ImageResource, m_loadingQueue.first(), QVariant(image));
+            document()->markContentsDirty(0, document()->characterCount());
+        };
+
+        const auto onDone = [this] { m_loadingQueue.removeFirst(); };
+
+        return For (iterator) >> Do {
+            Group {
+                storage,
+                onGroupSetup(onSetup),
+                If (downloadDataRecipe(storage)) >> Then {
+                    AsyncTask<QImage>(onImageLoadSetup, onImageLoadDone, CallDoneIf::Success) || successItem
+                },
+                onGroupDone(onDone)
+            }
+        };
+    }
+
+    const Group m_recipe = recipe();
+    QList<QUrl> m_loadingQueue;
+    TaskTreeRunner m_loaderTaskTree;
+    unsigned int m_cachedImagesSize = 0;
+};
+
 class AxivionPerspective : public Perspective
 {
 public:
-    AxivionPerspective() : Perspective("Axivion.Perspective", Tr::tr("Axivion")) {}
-    void initPerspective();
+    AxivionPerspective();
 
     void handleShowIssues(const QString &kind);
     void handleShowFilterException(const QString &errorMessage);
@@ -899,19 +1073,17 @@ public:
     void reinitDashboardList(const QString &preferredProject);
     void resetDashboard();
     bool handleContextMenu(const QString &issue, const ItemViewEvent &e);
-    void setIssueDetailsHtml(const QString &html) { m_issueDetails->setHtml(html); }
+    void setIssueDetailsHtml(const QString &html);
     void handleAnchorClicked(const QUrl &url);
-    void updateToolbarButtons();
+    void updateNamedFilters();
 
 private:
-    void openFilterHelp();
-
     IssuesWidget *m_issuesWidget = nullptr;
-    QTextBrowser *m_issueDetails = nullptr;
-    QAction *m_showFilterHelp = nullptr;
+    LazyImageBrowser *m_issueDetails = nullptr;
 };
 
-void AxivionPerspective::initPerspective()
+AxivionPerspective::AxivionPerspective()
+    : Perspective("Axivion.Perspective", Tr::tr("Axivion"))
 {
     m_issuesWidget = new IssuesWidget;
     m_issuesWidget->setObjectName("AxivionIssuesWidget");
@@ -920,7 +1092,7 @@ void AxivionPerspective::initPerspective()
     pal.setColor(QPalette::Window, creatorColor(Theme::Color::BackgroundColorNormal));
     m_issuesWidget->setPalette(pal);
 
-    m_issueDetails = new QTextBrowser;
+    m_issueDetails = new LazyImageBrowser;
     m_issueDetails->setFrameStyle(QFrame::NoFrame);
     m_issueDetails->setObjectName("AxivionIssuesDetails");
     m_issueDetails->setWindowTitle(Tr::tr("Issue Details"));
@@ -942,7 +1114,7 @@ void AxivionPerspective::initPerspective()
 
     auto showIssuesAct = new QAction(this);
     showIssuesAct->setIcon(MARKER_ICON.icon());
-    showIssuesAct->setToolTip(Tr::tr("Show Inline Issues"));
+    showIssuesAct->setToolTip(Tr::tr("Show Issues in Editor"));
     showIssuesAct->setCheckable(true);
     showIssuesAct->setChecked(true);
     connect(showIssuesAct, &QAction::toggled,
@@ -959,18 +1131,10 @@ void AxivionPerspective::initPerspective()
             TextEditor::TextDocument::temporaryHideMarksAnnotation("AxivionTextMark");
     });
 
-    m_showFilterHelp = new QAction(this);
-    m_showFilterHelp->setIcon(Utils::Icons::INFO_TOOLBAR.icon());
-    m_showFilterHelp->setToolTip(Tr::tr("Show Online Filter Help"));
-    m_showFilterHelp->setEnabled(false);
-    connect(m_showFilterHelp, &QAction::triggered, this, &AxivionPerspective::openFilterHelp);
-
     addToolBarAction(reloadDataAct);
     addToolbarSeparator();
     addToolBarAction(showIssuesAct);
     addToolBarAction(toggleIssuesAct);
-    addToolbarSeparator();
-    addToolBarAction(m_showFilterHelp); // FIXME move to IssuesWidget when named filters are added
 
     addWindow(m_issuesWidget, Perspective::SplitVertical, nullptr);
     addWindow(m_issueDetails, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
@@ -1010,18 +1174,17 @@ void AxivionPerspective::resetDashboard()
 
 bool AxivionPerspective::handleContextMenu(const QString &issue, const ItemViewEvent &e)
 {
-    std::optional<Dto::TableInfoDto> tableInfoOpt = m_issuesWidget->currentTableInfo();
+    if (!currentDashboardInfo())
+        return false;
+    const std::optional<Dto::TableInfoDto> tableInfoOpt = m_issuesWidget->currentTableInfo();
     if (!tableInfoOpt)
         return false;
     const QString baseUri = tableInfoOpt->issueBaseViewUri.value_or(QString());
     if (baseUri.isEmpty())
         return false;
-    auto info = currentDashboardInfo();
-    if (!info)
-        return false;
 
-    QUrl issueBaseUrl = info->source.resolved(baseUri).resolved(issue);
-    QUrl dashboardUrl = info->source.resolved(baseUri);
+    QUrl dashboardUrl = resolveDashboardInfoUrl(baseUri);
+    QUrl issueBaseUrl = dashboardUrl.resolved(issue);
     const IssueListSearch search = m_issuesWidget->searchFromUi();
     issueBaseUrl.setQuery(search.toUrlQuery(QueryMode::SimpleQuery));
     dashboardUrl.setQuery(search.toUrlQuery(QueryMode::FilterQuery));
@@ -1048,6 +1211,11 @@ bool AxivionPerspective::handleContextMenu(const QString &issue, const ItemViewE
     return true;
 }
 
+void AxivionPerspective::setIssueDetailsHtml(const QString &html)
+{
+    m_issueDetails->setHtmlAfterCheckingCacheSize(html);
+}
+
 void AxivionPerspective::handleAnchorClicked(const QUrl &url)
 {
     if (!url.scheme().isEmpty()) {
@@ -1055,8 +1223,7 @@ void AxivionPerspective::handleAnchorClicked(const QUrl &url)
                                       "Do you want to open \"%1\" with its default application?")
                 .arg(url.toString());
         const QMessageBox::StandardButton pressed
-            = CheckableMessageBox::question(Core::ICore::dialogParent(),
-                                            Tr::tr("Open External Links"),
+            = CheckableMessageBox::question(Tr::tr("Open External Links"),
                                             detail,
                                             Key("AxivionOpenExternalLinks"));
         if (pressed == QMessageBox::Yes)
@@ -1076,81 +1243,74 @@ void AxivionPerspective::handleAnchorClicked(const QUrl &url)
         EditorManager::openEditorAt(link);
 }
 
-void AxivionPerspective::updateToolbarButtons()
+void AxivionPerspective::updateNamedFilters()
 {
-    const std::optional<Dto::ProjectInfoDto> pInfo = projectInfo();
-    m_showFilterHelp->setEnabled(pInfo && pInfo->issueFilterHelp);
+    m_issuesWidget->updateNamedFilters();
 }
 
-void AxivionPerspective::openFilterHelp()
+static AxivionPerspective *axivionPerspective()
 {
-    std::optional<DashboardInfo> dashboardInfo = currentDashboardInfo();
-    QTC_ASSERT(dashboardInfo, return);
-    std::optional<Dto::ProjectInfoDto> projInfo = projectInfo();
-    if (projInfo && projInfo->issueFilterHelp)
-        QDesktopServices::openUrl(dashboardInfo->source.resolved(*projInfo->issueFilterHelp));
-}
-
-static QPointer<AxivionPerspective> theAxivionPerspective;
-
-void setupAxivionPerspective()
-{
-    QTC_ASSERT(!theAxivionPerspective, return);
-    theAxivionPerspective = new AxivionPerspective();
-    theAxivionPerspective->initPerspective();
+    static GuardedObject<AxivionPerspective> theAxivionPerspective;
+    return theAxivionPerspective.get();
 }
 
 void updateDashboard()
 {
-    QTC_ASSERT(theAxivionPerspective, return);
-    theAxivionPerspective->handleShowIssues({});
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->handleShowIssues({});
 }
 
 void reinitDashboard(const QString &preferredProject)
 {
-    QTC_ASSERT(theAxivionPerspective, return);
-    theAxivionPerspective->reinitDashboardList(preferredProject);
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->reinitDashboardList(preferredProject);
 }
 
 void resetDashboard()
 {
-    QTC_ASSERT(theAxivionPerspective, return);
-    theAxivionPerspective->resetDashboard();
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->resetDashboard();
 }
 
 static bool issueListContextMenuEvent(const ItemViewEvent &ev)
 {
-    QTC_ASSERT(theAxivionPerspective, return false);
+    QTC_ASSERT(axivionPerspective(), return false);
     const QModelIndexList selectedIndices = ev.selectedRows();
     const QModelIndex first = selectedIndices.isEmpty() ? QModelIndex() : selectedIndices.first();
     if (!first.isValid())
         return false;
     const QString issue = first.data().toString();
-    return theAxivionPerspective->handleContextMenu(issue, ev);
+    return axivionPerspective()->handleContextMenu(issue, ev);
 }
 
 void showFilterException(const QString &errorMessage)
 {
-    QTC_ASSERT(theAxivionPerspective, return);
-    theAxivionPerspective->handleShowFilterException(errorMessage);
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->handleShowFilterException(errorMessage);
 }
 
 void showErrorMessage(const QString &errorMessage)
 {
-    QTC_ASSERT(theAxivionPerspective, return);
-    theAxivionPerspective->handleShowErrorMessage(errorMessage);
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->handleShowErrorMessage(errorMessage);
 }
 
 void updateIssueDetails(const QString &html)
 {
-    QTC_ASSERT(theAxivionPerspective, return);
-    theAxivionPerspective->setIssueDetailsHtml(html);
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->setIssueDetailsHtml(html);
 }
 
-void updatePerspectiveToolbar()
+void updateNamedFilters()
 {
-    QTC_ASSERT(theAxivionPerspective, return);
-    theAxivionPerspective->updateToolbarButtons();
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->updateNamedFilters();
+}
+
+void setupAxivionPerspective()
+{
+    // Trigger initialization.
+    (void) axivionPerspective();
 }
 
 } // Axivion::Internal

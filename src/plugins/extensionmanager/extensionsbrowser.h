@@ -32,6 +32,8 @@ public:
 
     void showEvent(QShowEvent *event) override;
 
+    QModelIndex currentIndex() const;
+
 signals:
     void itemSelected(const QModelIndex &current, const QModelIndex &previous);
 
@@ -40,8 +42,6 @@ private:
 
     class ExtensionsBrowserPrivate *d = nullptr;
 };
-
-QLabel *tfLabel(const Core::WelcomePageHelpers::TextFormat &tf, bool singleLine = true);
 
 constexpr static QSize iconBgSizeSmall{50, 50};
 constexpr static QSize iconBgSizeBig{68, 68};

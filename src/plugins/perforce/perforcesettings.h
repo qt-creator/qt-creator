@@ -42,7 +42,6 @@ public:
                         QString *errorMessage);
 
     int longTimeOutS() const { return timeOutS() * 10; }
-    int timeOutMS() const { return timeOutS() * 1000;  }
 
     Utils::FilePath topLevel() const;
     Utils::FilePath topLevelSymLinkTarget() const;

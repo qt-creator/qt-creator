@@ -3,9 +3,9 @@
 
 #include "deviceprocessesdialog.h"
 
+#include "devicekitaspects.h"
 #include "idevice.h"
 #include "processlist.h"
-#include "../kitaspects.h"
 #include "../kitchooser.h"
 #include "../projectexplorertr.h"
 
@@ -237,7 +237,7 @@ void DeviceProcessesDialogPrivate::killProcess()
 
 void DeviceProcessesDialogPrivate::updateDevice()
 {
-    setDevice(DeviceKitAspect::device(kitChooser->currentKit()));
+    setDevice(RunDeviceKitAspect::device(kitChooser->currentKit()));
 }
 
 void DeviceProcessesDialogPrivate::handleProcessKilled()

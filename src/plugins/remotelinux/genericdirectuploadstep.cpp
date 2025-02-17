@@ -16,7 +16,6 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
-#include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
@@ -110,14 +109,14 @@ QDateTime GenericDirectUploadStep::timestampFromStat(const DeployableFile &file,
                               .arg(file.remoteFilePath(), error));
         return {};
     }
-    const QByteArray output = statProc->readAllRawStandardOutput().trimmed();
+    const QString output = statProc->readAllStandardOutput().trimmed();
     const QString warningString(Tr::tr("Unexpected stat output for remote file \"%1\": %2")
-                                .arg(file.remoteFilePath()).arg(QString::fromUtf8(output)));
-    if (!output.startsWith(file.remoteFilePath().toUtf8())) {
+                                .arg(file.remoteFilePath()).arg(output));
+    if (!output.startsWith(file.remoteFilePath())) {
         addWarningMessage(warningString);
         return {};
     }
-    const QByteArrayList columns = output.mid(file.remoteFilePath().toUtf8().size() + 1).split(' ');
+    const QStringList columns = output.mid(file.remoteFilePath().size() + 1).split(' ');
     if (columns.size() < 14) { // Normal Linux stat: 16 columns in total, busybox stat: 15 columns
         addWarningMessage(warningString);
         return {};

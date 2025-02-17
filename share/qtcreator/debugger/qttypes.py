@@ -5,6 +5,7 @@ import platform
 import struct
 import re
 from dumper import Children, SubItem, UnnamedSubItem, toInteger, DumperBase
+from stdtypes import qdump__std__pair
 from utils import DisplayFormat, TypeCode
 
 
@@ -420,7 +421,7 @@ def qdump__QDateTime(d, value):
     d.putExpandable()
     if d.isExpanded():
         with Children(d):
-            d.putCallItem('toTime_t', 'unsigned int', value, 'toTime_t')
+            d.putCallItem('toSecsSinceEpoch', 'unsigned long', value, 'toSecsSinceEpoch')
             if d.canCallLocale():
                 d.putCallItem('toString', '@QString', value, 'toString',
                               d.enumExpression('DateFormat', 'TextDate'))
@@ -917,7 +918,7 @@ def qdump__QFlags(d, value):
     v = value.cast(enumType.name)
     size = enumType.size()
     # One byte is 2 hex digits
-    d.putValue(v.displayEnum(f'0x%0{2 * size}x'))
+    d.putValue(v.displayEnum('0x%0{}x'.format(2 * size)))
 
 
 def qform__QHash():
@@ -927,6 +928,13 @@ def qform__QHash():
 def qdump__QHash(d, value):
     qdumpHelper_QHash(d, value, value.type[0], value.type[1])
 
+def qdump__QMultiHash(d, value):
+    key_type = value.type[0]
+    value_type = value.type[1]
+    if d.qtVersionAtLeast(0x060000):
+        qdumpHelper_QMultiHash_6(d, value, key_type, value_type)
+    else:
+        qdumpHelper_QHash_5(d, value, key_type, value_type)
 
 def qdump__QVariantHash(d, value):
     qdumpHelper_QHash(d, value, d.createType('@QString'), d.createType('@QVariant'))
@@ -1030,6 +1038,40 @@ def qdumpHelper_QHash_6(d, value, keyType, valueType):
                         entry_pos += 1
             #with SubItem(d, 'total'):
             #    d.putValue('total: %s item size: %s' % (count, entry_size))
+
+
+def qdumpHelper_QMultiHash_6(d, value, key_type, value_type):
+    dptr, size = d.split('pq', value)
+    if dptr == 0:
+        d.putItemCount(0)
+        return
+
+    ref, _pad, _d_size, buckets, _seed, spans = d.split('i@qqqp', dptr)
+
+    d.check(0 <= size and size <= 100 * 1000 * 1000)
+    d.check(-1 <= ref and ref < 100000)
+    d.putItemCount(size)
+
+    if d.isExpanded():
+        type_code = '{{{}}}@p'.format(key_type.name)
+        _pp, entry_size, _fields = d.describeStruct(type_code)
+        with Children(d, size):
+            span_size = 128 + 2 * d.ptrSize() # Including tail padding.
+            nspans = int((buckets + 127) / 128)
+            count = 0
+            for b in range(nspans):
+                span = spans + b * span_size
+                offsets, entries, _allocated, _next_free = d.split('128spbb', span)
+                for i in range(128):
+                    offset = offsets[i]
+                    if offset != 255: # Entry is used
+                        entry = entries + offset * entry_size
+                        key, _pad, chain = d.split(type_code, entry)
+                        next = chain
+                        while next != 0:
+                            val, _pad, next = d.split('{{{}}}@p'.format(value_type.name), next)
+                            d.putPairItem(count, (key, val), 'key', 'value')
+                            count += 1
 
 
 def qform__QHashNode():
@@ -1216,14 +1258,15 @@ def qdump__QImage(d, value):
     ref, width, height = d.split('iii', image_data)
     d.putValue('(%dx%d)' % (width, height))
 
+    if d.qtVersionAtLeast(0x060000):
+        (ref, width, height, depth, nbytes, pad, devicePixelRatio, _, _, _,
+            bits, iformat) = d.split('iiiii@dppppi', image_data)
+    else:
+        (ref, width, height, depth, nbytes, pad, devicePixelRatio, colorTable,
+            bits, iformat) = d.split('iiiii@dppi', image_data)
+
     d.putExpandable()
     if d.isExpanded():
-        if d.qtVersionAtLeast(0x060000):
-            (ref, width, height, depth, nbytes, pad, devicePixelRatio, _, _, _,
-                bits, iformat) = d.split('iiiii@dppppi', image_data)
-        else:
-            (ref, width, height, depth, nbytes, pad, devicePixelRatio, colorTable,
-                bits, iformat) = d.split('iiiii@dppi', image_data)
         with Children(d):
             d.putIntItem('width', width)
             d.putIntItem('height', height)
@@ -1492,9 +1535,11 @@ if False:
             d.putSpecialValue('minimumitemcount', 0)
 
 
-# FIXME: Qt 5
-# remvign the _xxxx makes GDB work with Qt 5 but breaks LLDB
-def qdump__QPair_xxxx(d, value):
+def qdump__QPair(d, value):
+    if d.qtVersionAtLeast(0x060000):
+        qdump__std__pair(d, value) # `QPair` is just an alias for `std::pair` in Qt6
+        return
+
     typeCode = '{%s}@{%s}' % (value.type[0].name, value.type[1].name)
     first, pad, second = value.split(typeCode)
     with Children(d):

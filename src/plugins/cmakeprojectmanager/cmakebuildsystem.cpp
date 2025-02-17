@@ -26,8 +26,8 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/extracompiler.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectupdater.h>
@@ -853,6 +853,15 @@ bool CMakeBuildSystem::hasSubprojectBuildSupport() const
     return cmakeGenerator().contains("Ninja") || cmakeGenerator().contains("Makefiles");
 }
 
+QVariant CMakeBuildSystem::additionalData(Id id) const
+{
+    if (id == "FoundPackages") {
+        // for analytics
+        return QVariant::fromValue(m_findPackagesFilesHash);
+    }
+    return {};
+}
+
 RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
                                                       const FilePaths &filePaths,
                                                       FilePaths *notRemoved)
@@ -997,7 +1006,7 @@ bool CMakeBuildSystem::renameFile(
 {
     const FilePath projDir = context->filePath().canonicalPath();
     const FilePath newRelPath = newFilePath.canonicalPath().relativePathFrom(projDir).cleanPath();
-    const QString newRelPathName = newRelPath.toString();
+    const QString newRelPathName = newRelPath.toUrlishString();
 
     const QString targetName = context->buildKey();
     const QString key
@@ -1948,7 +1957,7 @@ void CMakeBuildSystem::ensureBuildDirectory(const BuildDirParameters &parameters
         return;
     }
 
-    if (tool->cmakeExecutable().needsDevice()) {
+    if (!tool->cmakeExecutable().isLocal()) {
         if (!tool->cmakeExecutable().ensureReachable(bdir)) {
             // Make sure that the build directory is available on the device.
             handleParsingFailed(
@@ -2067,7 +2076,7 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
     QString emulator = cm.stringValueOf("CMAKE_CROSSCOMPILING_EMULATOR");
 
     QList<BuildTargetInfo> appTargetList;
-    const bool forAndroid = DeviceTypeKitAspect::deviceTypeId(kit())
+    const bool forAndroid = RunDeviceTypeKitAspect::deviceTypeId(kit())
                             == Android::Constants::ANDROID_DEVICE_TYPE;
     for (const CMakeBuildTarget &ct : m_buildTargets) {
         if (CMakeBuildSystem::filteredOutTarget(ct))
@@ -2099,6 +2108,35 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
                 if (enabled)
                     env.prependOrSetLibrarySearchPaths(librarySearchPaths(this, buildKey));
             };
+
+            appTargetList.append(bti);
+        } else if (ct.targetType == UtilityType && ct.qtcRunnable) {
+            const QString buildKey = ct.title;
+            CMakeTool *cmakeTool = CMakeKitAspect::cmakeTool(target()->kit());
+            if (!cmakeTool)
+                continue;
+
+            // Skip the "all", "clean", "install" special targets.
+            if (CMakeBuildStep::specialTargets(m_reader.usesAllCapsTargets()).contains(buildKey))
+                continue;
+
+            BuildTargetInfo bti;
+            bti.displayName = ct.title;
+
+            // We need the build directory, which is proper set to the "clean" target
+            // and "clean" doesn't differ between single and multi-config generators
+            const FilePath workingDirectory
+                = Utils::findOrDefault(m_buildTargets, [](const CMakeBuildTarget &bt) {
+                      return bt.title == "clean";
+                  }).workingDirectory;
+
+            bti.targetFilePath = cmakeTool->cmakeExecutable();
+            bti.projectFilePath = ct.sourceDirectory.cleanPath();
+            bti.workingDirectory = workingDirectory;
+            bti.buildKey = buildKey;
+            bti.isQtcRunnable = ct.qtcRunnable;
+            bti.additionalData = QVariantMap{
+                {"arguments", QStringList{"--build", ".", "--target", buildKey}}};
 
             appTargetList.append(bti);
         }
@@ -2483,7 +2521,7 @@ void CMakeBuildSystem::runGenerator(Id id)
     const FilePath outDir = buildConfiguration()->buildDirectory()
             / ("qtc_" + FileUtils::fileSystemFriendlyName(generator));
     if (!outDir.ensureWritableDir()) {
-        showError(Tr::tr("Cannot create output directory \"%1\".").arg(outDir.toString()));
+        showError(Tr::tr("Cannot create output directory \"%1\".").arg(outDir.toUrlishString()));
         return;
     }
     CommandLine cmdLine(cmakeTool->cmakeExecutable(), {"-S", buildConfiguration()->target()

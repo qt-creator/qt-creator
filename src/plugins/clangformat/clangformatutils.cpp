@@ -7,7 +7,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <cppeditor/cppcodestylepreferences.h>
 #include <cppeditor/cppcodestylesettings.h>
 
 #include <texteditor/icodestylepreferences.h>
@@ -246,13 +245,10 @@ void fromTabSettings(clang::format::FormatStyle &style, const TextEditor::TabSet
     style.TabWidth = settings.m_tabSize;
 
     switch (settings.m_tabPolicy) {
-    case TextEditor::TabSettings::TabPolicy::MixedTabPolicy:
-        style.UseTab = FormatStyle::UT_ForContinuationAndIndentation;
-        break;
-    case TextEditor::TabSettings::TabPolicy::SpacesOnlyTabPolicy:
+    case TextEditor::TabSettings::SpacesOnlyTabPolicy:
         style.UseTab = FormatStyle::UT_Never;
         break;
-    case TextEditor::TabSettings::TabPolicy::TabsOnlyTabPolicy:
+    case TextEditor::TabSettings::TabsOnlyTabPolicy:
         style.UseTab = FormatStyle::UT_Always;
         break;
     }
@@ -263,7 +259,7 @@ QString projectUniqueId(ProjectExplorer::Project *project)
     if (!project)
         return QString();
 
-    return QString::fromUtf8(QCryptographicHash::hash(project->projectFilePath().toString().toUtf8(),
+    return QString::fromUtf8(QCryptographicHash::hash(project->projectFilePath().toUrlishString().toUtf8(),
                                                       QCryptographicHash::Md5)
                                  .toHex(0));
 }

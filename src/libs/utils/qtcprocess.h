@@ -91,8 +91,6 @@ public:
     void setControlEnvironment(const Environment &env); // Possible helper process (ssh on host etc)
     const Environment &controlEnvironment() const;
 
-    void setProcessImpl(ProcessImpl processImpl);
-
     void setPtyData(const std::optional<Pty::Data> &data);
     std::optional<Pty::Data> ptyData() const;
 
@@ -145,9 +143,9 @@ public:
     void runBlocking(std::chrono::seconds timeout = std::chrono::seconds(10),
                      EventLoopMode eventLoopMode = EventLoopMode::Off);
 
-    void setCodec(QTextCodec *c); // for stdOut and stdErr
-    void setStdOutCodec(QTextCodec *c);
-    void setStdErrCodec(QTextCodec *c);
+    void setCodec(QTextCodec *codec); // for stdOut and stdErr
+    void setUtf8Codec(); // for stdOut and stdErr
+    void setUtf8StdOutCodec(); // for stdOut, stdErr uses executable.processStdErrCodec()
 
     void setTimeOutMessageBoxEnabled(bool);
 

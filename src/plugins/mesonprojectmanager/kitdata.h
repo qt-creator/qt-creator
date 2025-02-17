@@ -14,7 +14,9 @@ struct KitData
     QString cCompilerPath;
     QString cxxCompilerPath;
     QString cmakePath;
+    QString pythonPath;
     QString qmakePath;
+    QString qtPrefixPath;
     QString qtVersionStr;
     Utils::QtMajorVersion qtVersion;
 };

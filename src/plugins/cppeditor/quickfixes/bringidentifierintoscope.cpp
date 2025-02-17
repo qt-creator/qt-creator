@@ -276,9 +276,9 @@ private:
         } else if (visitor.firstNamespace()) {
             insertPos = file->startOf(visitor.firstNamespace());
         } else {
+            static const QRegularExpression regexp("^\\s*#include .*$");
             const QTextCursor tc = file->document()->find(
-                QRegularExpression("^\\s*#include .*$"),
-                m_symbolPos,
+                regexp, m_symbolPos,
                 QTextDocument::FindBackward | QTextDocument::FindCaseSensitively);
             if (!tc.isNull())
                 insertPos = tc.position() + 1;
@@ -348,7 +348,7 @@ private:
             return;
 
         QString className;
-        const QString currentDocumentFilePath = interface.semanticInfo().doc->filePath().toString();
+        const QString currentDocumentFilePath = interface.semanticInfo().doc->filePath().toUrlishString();
         const HeaderPaths headerPaths = relevantHeaderPaths(currentDocumentFilePath);
         FilePaths headers;
 
@@ -370,7 +370,7 @@ private:
 
                 for (const FilePath &header : std::as_const(headerAndItsForwardingHeaders)) {
                     const QString include = findShortestInclude(currentDocumentFilePath,
-                                                                header.toString(),
+                                                                header.toUrlishString(),
                                                                 headerPaths);
                     if (include.size() > 2) {
                         const QString headerFileName = info->filePath().fileName();

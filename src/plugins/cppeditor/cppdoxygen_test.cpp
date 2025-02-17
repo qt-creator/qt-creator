@@ -485,7 +485,7 @@ void DoxygenTest::runTest(const QByteArray &original,
     }
 
     // Update Code Model
-    QVERIFY(TestCase::parseFiles(testDocument.filePath().toString()));
+    QVERIFY(TestCase::parseFiles(testDocument.filePath().toUrlishString()));
 
     // Open Editor
     QVERIFY(TestCase::openCppEditor(testDocument.filePath(), &testDocument.m_editor,

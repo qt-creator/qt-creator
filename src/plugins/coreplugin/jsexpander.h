@@ -8,7 +8,6 @@
 #include <functional>
 
 QT_BEGIN_NAMESPACE
-class QJSEngine;
 class QObject;
 class QString;
 QT_END_NAMESPACE
@@ -41,7 +40,6 @@ public:
     void registerObject(const QString &name, QObject *obj);
     QString evaluate(const QString &expression, QString *errorMessage = nullptr);
 
-    QJSEngine &engine();
     void registerForExpander(Utils::MacroExpander *macroExpander);
 
 private:

@@ -99,7 +99,7 @@ PathListEditor::PathListEditor(QWidget *parent) :
 {
     setLayout(d->layout);
     addButton(Tr::tr("Insert..."), this, [this] {
-        const FilePath dir = FileUtils::getExistingDirectory(this, d->fileDialogTitle);
+        const FilePath dir = FileUtils::getExistingDirectory(d->fileDialogTitle);
         if (!dir.isEmpty())
             insertPathAtCursor(dir.toUserOutput());
     });

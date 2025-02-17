@@ -140,8 +140,9 @@ public:
                         for (const QString &key : std::as_const(keys))
                             stream.writeTextElement(Constants::DOCUMENTATION_XMLKEY, key);
                         stream.writeEndElement();
+                        static const QRegularExpression regexp("^\\-");
                         const QString text = "<p><span class=\"option\">"
-                                             + keys.filter(QRegularExpression("^\\-")).join(", ") + "</span></p><p>"
+                                             + keys.filter(regexp).join(", ") + "</span></p><p>"
                                              + (docu.join(' ').toHtmlEscaped()) + "</p>";
                         stream.writeTextElement(Constants::DOCUMENTATION_XMLDOC, text);
                         stream.writeEndElement();

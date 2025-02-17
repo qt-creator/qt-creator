@@ -5,7 +5,9 @@
 #include "todooutputpane.h"
 #include "todoitemsprovider.h"
 #include "todoprojectpanel.h"
+#include "todotr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <extensionsystem/iplugin.h>
 
 namespace Todo::Internal {
@@ -23,6 +25,9 @@ public:
 
     void initialize() final
     {
+        Core::IOptionsPage::registerCategory(
+            "To-Do", Tr::tr("To-Do"), ":/todoplugin/images/settingscategory_todo.png");
+
         todoSettings().load();
 
         setupTodoItemsProvider(this);

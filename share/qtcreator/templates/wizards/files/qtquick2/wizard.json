@@ -7,7 +7,7 @@
     "trDisplayName": "QML File (Qt Quick 2)",
     "trDisplayCategory": "Qt",
     "iconText": "qml",
-    "enabled": "%{JS: value('Plugins').indexOf('QmlJSEditor') >= 0}",
+    "enabled": "%{JS: isPluginRunning('qmljseditor')}",
 
     "options": [
         {"key": "DefaultSuffix", "value": "%{JS: Util.preferredSuffix('text/x-qml')}"},

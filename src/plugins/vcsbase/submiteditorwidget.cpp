@@ -19,11 +19,11 @@
 #include <utils/utilsicons.h>
 
 #include <QCheckBox>
-#include <QDebug>
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
+#include <QLoggingCategory>
 #include <QMenu>
 #include <QPointer>
 #include <QScopedPointer>
@@ -39,8 +39,7 @@
 using namespace Core;
 using namespace Utils;
 
-enum { debug = 0 };
-enum { defaultLineWidth = 72 };
+static Q_LOGGING_CATEGORY(log, "qtc.vcs.submiteditor", QtWarningMsg);
 
 /*!
     \class VcsBase::SubmitEditorWidget
@@ -67,6 +66,8 @@ enum { defaultLineWidth = 72 };
 */
 
 namespace VcsBase {
+
+enum { MinSubjectLength = 20, MaxSubjectLength = 72, WarningSubjectLength = 55 };
 
 // QActionPushButton: A push button tied to an action
 // (similar to a QToolButton)
@@ -116,7 +117,7 @@ struct SubmitEditorWidgetPrivate
     QTimer delayedVerifyDescriptionTimer;
     int m_delayedVerifyDescriptionInterval = 2000;
 
-    int m_lineWidth = defaultLineWidth;
+    int m_lineWidth = MaxSubjectLength;
     int m_activatedRow = -1;
 
     bool m_filesSelected = false;
@@ -186,7 +187,7 @@ SubmitEditorWidget::SubmitEditorWidget() :
 
     d->buttonLayout = new QHBoxLayout();
     d->buttonLayout->setContentsMargins(0, -1, -1, -1);
-    QToolButton *openSettingsButton = new QToolButton;
+    auto openSettingsButton = new QToolButton;
     openSettingsButton->setIcon(Utils::Icons::SETTINGS.icon());
     openSettingsButton->setToolTip(ICore::msgShowOptionsDialog());
     connect(openSettingsButton, &QToolButton::clicked,  this, [] {
@@ -269,11 +270,10 @@ void SubmitEditorWidget::registerActions(QAction *editorUndoAction, QAction *edi
             }
         };
 
-        if (debug) {
-            const SubmitFileModel *model = fileModel();
-            int count = model ? model->rowCount() : 0;
-            qDebug() << Q_FUNC_INFO << submitAction << count << "items";
-        }
+        const SubmitFileModel *model = fileModel();
+        const int itemCount = model ? model->rowCount() : 0;
+        qCDebug(log) << Q_FUNC_INFO << submitAction << itemCount << "items";
+
         updateSubmitEnabled();
         connect(this, &SubmitEditorWidget::submitActionEnabledChanged, this, updateSubmitEnabled);
         connect(this, &SubmitEditorWidget::submitActionTextChanged, this, updateSubmitEnabled);
@@ -290,8 +290,7 @@ void SubmitEditorWidget::registerActions(QAction *editorUndoAction, QAction *edi
         });
     }
     if (diffAction) {
-        if (debug)
-            qDebug() << diffAction << d->m_filesSelected;
+        qCDebug(log) << diffAction << d->m_filesSelected;
         diffAction->setEnabled(d->m_filesSelected);
         connect(this, &SubmitEditorWidget::fileSelectionChanged, diffAction, &QAction::setEnabled);
         connect(diffAction, &QAction::triggered, this, &SubmitEditorWidget::triggerDiffSelected);
@@ -378,8 +377,7 @@ bool SubmitEditorWidget::lineWrap() const
 
 void SubmitEditorWidget::setLineWrap(bool v)
 {
-    if (debug)
-        qDebug() << Q_FUNC_INFO << v;
+    qCDebug(log) << Q_FUNC_INFO << v;
     if (v) {
         d->description->setLineWrapColumnOrWidth(d->m_lineWidth);
         d->description->setLineWrapMode(QTextEdit::FixedColumnWidth);
@@ -396,8 +394,7 @@ int SubmitEditorWidget::lineWrapWidth() const
 
 void SubmitEditorWidget::setLineWrapWidth(int v)
 {
-    if (debug)
-        qDebug() << Q_FUNC_INFO << v << lineWrap();
+    qCDebug(log) << Q_FUNC_INFO << v << lineWrap();
     if (d->m_lineWidth == v)
         return;
     d->m_lineWidth = v;
@@ -414,16 +411,6 @@ bool SubmitEditorWidget::isDescriptionMandatory() const
 void SubmitEditorWidget::setDescriptionMandatory(bool v)
 {
     d->m_descriptionMandatory = v;
-}
-
-QAbstractItemView::SelectionMode SubmitEditorWidget::fileListSelectionMode() const
-{
-    return d->fileView->selectionMode();
-}
-
-void SubmitEditorWidget::setFileListSelectionMode(QAbstractItemView::SelectionMode sm)
-{
-    d->fileView->setSelectionMode(sm);
 }
 
 void SubmitEditorWidget::setFileModel(SubmitFileModel *model)
@@ -755,12 +742,6 @@ void SubmitEditorWidget::addDescriptionEditContextMenuAction(QAction *a)
 {
     d->descriptionEditContextMenuActions
             .push_back(SubmitEditorWidgetPrivate::AdditionalContextMenuAction(-1, a));
-}
-
-void SubmitEditorWidget::insertDescriptionEditContextMenuAction(int pos, QAction *a)
-{
-    d->descriptionEditContextMenuActions
-            .push_back(SubmitEditorWidgetPrivate::AdditionalContextMenuAction(pos, a));
 }
 
 void SubmitEditorWidget::editorCustomContextMenuRequested(const QPoint &pos)

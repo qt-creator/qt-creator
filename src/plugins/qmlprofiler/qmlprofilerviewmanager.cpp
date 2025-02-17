@@ -6,7 +6,8 @@
 #include "qmlprofilertr.h"
 #include "qmlprofilerviewmanager.h"
 
-#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerutils.h>
+#include <debugger/debuggermainwindow.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 

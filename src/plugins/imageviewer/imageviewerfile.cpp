@@ -81,7 +81,7 @@ Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString,
     if (!filePath.isReadableFile())
         return OpenResult::ReadError;
 
-    const QString &fileName = filePath.toString();
+    const QString &fileName = filePath.toUrlishString();
     QByteArray format = QImageReader::imageFormat(fileName);
     // if it is impossible to recognize a file format - file will not be open correctly
     if (format.isEmpty()) {
@@ -176,7 +176,7 @@ QGraphicsItem *ImageViewerFile::createGraphicsItem() const
             val = m_tempSvgItem;
             m_tempSvgItem = nullptr;
         } else {
-            val = new QGraphicsSvgItem(filePath().toString());
+            val = new QGraphicsSvgItem(filePath().toUrlishString());
         }
 #endif
         break;

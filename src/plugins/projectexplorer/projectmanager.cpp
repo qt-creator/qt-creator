@@ -87,7 +87,7 @@ static ProjectManagerPrivate *d = nullptr;
 
 static QString projectFolderId(Project *pro)
 {
-    return pro->projectFilePath().toString();
+    return pro->projectFilePath().toUrlishString();
 }
 
 const int PROJECT_SORT_VALUE = 100;
@@ -269,24 +269,6 @@ Target *ProjectManager::startupTarget()
     return d->m_startupProject ? d->m_startupProject->activeTarget() : nullptr;
 }
 
-BuildSystem *ProjectManager::startupBuildSystem()
-{
-    Target *t = startupTarget();
-    return t ? t->buildSystem() : nullptr;
-}
-
-/*!
- * Returns the RunConfiguration of the currently active target
- * of the startup project, if such exists, or \c nullptr otherwise.
- */
-
-
-RunConfiguration *ProjectManager::startupRunConfiguration()
-{
-    Target *t = startupTarget();
-    return t ? t->activeRunConfiguration() : nullptr;
-}
-
 void ProjectManager::addProject(Project *pro)
 {
     QTC_ASSERT(pro, return);
@@ -349,18 +331,18 @@ void ProjectManagerPrivate::saveSession()
 
     SessionManager::setSessionValue("ProjectList",
                                     Utils::transform<QStringList>(projectFiles,
-                                                                  &FilePath::toString));
+                                                                  &FilePath::toUrlishString));
     SessionManager::setSessionValue("CascadeSetActive", m_casadeSetActive);
     SessionManager::setSessionValue("DeployProjectDependencies", m_deployProjectDependencies);
 
     QVariantMap depMap;
     auto i = m_depMap.constBegin();
     while (i != m_depMap.constEnd()) {
-        QString key = i.key().toString();
+        QString key = i.key().toUrlishString();
         QStringList values;
         const FilePaths valueList = i.value();
         for (const FilePath &value : valueList)
-            values << value.toString();
+            values << value.toUrlishString();
         depMap.insert(key, values);
         ++i;
     }
@@ -567,11 +549,9 @@ Project *ProjectManager::projectWithProjectFilePath(const FilePath &filePath)
 
 void ProjectManager::configureEditor(IEditor *editor, const FilePath &filePath)
 {
-    if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor)) {
-        // Global settings are the default.
-        if (Project *project = projectForFile(filePath))
-            project->editorConfiguration()->configureEditor(textEditor);
-    }
+    // Global settings are the default.
+    if (Project *project = projectForFile(filePath))
+        project->editorConfiguration()->configureEditor(editor);
 }
 
 void ProjectManager::configureEditors(Project *project)
@@ -580,11 +560,8 @@ void ProjectManager::configureEditors(Project *project)
     for (IDocument *document : documents) {
         if (project->isKnownFile(document->filePath())) {
             const QList<IEditor *> editors = DocumentModel::editorsForDocument(document);
-            for (IEditor *editor : editors) {
-                if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor)) {
-                        project->editorConfiguration()->configureEditor(textEditor);
-                }
-            }
+            for (IEditor *editor : editors)
+                project->editorConfiguration()->configureEditor(editor);
         }
     }
 }

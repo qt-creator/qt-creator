@@ -741,6 +741,11 @@ void PerspectivePrivate::populatePerspective()
     ICore::addAdditionalContext(context());
 
     restoreLayout();
+
+    if (!m_centralWidget) {
+        if (IEditor *editor = EditorManager::currentEditor())
+            editor->widget()->setFocus();
+    }
 }
 
 // Perspective

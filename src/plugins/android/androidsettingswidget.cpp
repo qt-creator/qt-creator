@@ -20,12 +20,12 @@
 #include <utils/async.h>
 #include <utils/detailswidget.h>
 #include <utils/hostosinfo.h>
-#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/summarywidget.h>
 #include <utils/utilsicons.h>
 
 #include <QCheckBox>
@@ -53,107 +53,6 @@ namespace Android::Internal {
 static Q_LOGGING_CATEGORY(androidsettingswidget, "qtc.android.androidsettingswidget", QtWarningMsg);
 constexpr int requiredJavaMajorVersion = 17;
 
-class SummaryWidget : public QWidget
-{
-    class RowData {
-    public:
-        InfoLabel *m_infoLabel = nullptr;
-        bool m_valid = false;
-        QString m_validText;
-    };
-
-public:
-    SummaryWidget(const QMap<int, QString> &validationPoints, const QString &validText,
-                  const QString &invalidText, DetailsWidget *detailsWidget) :
-        QWidget(detailsWidget),
-        m_validText(validText),
-        m_invalidText(invalidText),
-        m_detailsWidget(detailsWidget)
-    {
-        QTC_CHECK(m_detailsWidget);
-        auto layout = new QVBoxLayout(this);
-        layout->setContentsMargins(22, 0, 0, 12);
-        layout->setSpacing(4);
-        for (auto itr = validationPoints.cbegin(); itr != validationPoints.cend(); ++itr) {
-            RowData data;
-            data.m_infoLabel = new InfoLabel(itr.value());
-            data.m_validText = itr.value();
-            layout->addWidget(data.m_infoLabel);
-            m_validationData[itr.key()] = data;
-            setPointValid(itr.key(), false);
-        }
-        m_detailsWidget->setWidget(this);
-        setContentsMargins(0, 0, 0, 0);
-    }
-
-    template<class T>
-    void setPointValid(int key, const expected_str<T> &test)
-    {
-        setPointValid(key, test.has_value(), test.has_value() ? QString{} : test.error());
-    }
-
-    void setPointValid(int key, bool valid, const QString errorText = {})
-    {
-        if (!m_validationData.contains(key))
-            return;
-        RowData &data = m_validationData[key];
-        data.m_valid = valid;
-        data.m_infoLabel->setType(valid ? InfoLabel::Ok : InfoLabel::NotOk);
-        data.m_infoLabel->setText(valid || errorText.isEmpty() ? data.m_validText : errorText);
-        updateUi();
-    }
-
-    bool rowsOk(const QList<int> &keys) const
-    {
-        for (auto key : keys) {
-            if (!m_validationData[key].m_valid)
-                return false;
-        }
-        return true;
-    }
-
-    bool allRowsOk() const
-    {
-        return rowsOk(m_validationData.keys());
-    }
-
-    void setInfoText(const QString &text)
-    {
-        m_infoText = text;
-        updateUi();
-    }
-
-    void setInProgressText(const QString &text)
-    {
-        m_detailsWidget->setIcon({});
-        m_detailsWidget->setSummaryText(QString("%1...").arg(text));
-        m_detailsWidget->setState(DetailsWidget::Collapsed);
-    }
-
-    void setSetupOk(bool ok)
-    {
-        m_detailsWidget->setState(ok ? DetailsWidget::Collapsed : DetailsWidget::Expanded);
-    }
-
-    void setState(DetailsWidget::State state)
-    {
-        m_detailsWidget->setState(state);
-    }
-
-private:
-    void updateUi() {
-        bool ok = allRowsOk();
-        m_detailsWidget->setIcon(ok ? Icons::OK.icon() : Icons::CRITICAL.icon());
-        m_detailsWidget->setSummaryText(ok ? QString("%1 %2").arg(m_validText).arg(m_infoText)
-                                           : m_invalidText);
-    }
-    QString m_validText;
-    QString m_invalidText;
-    QString m_infoText;
-    DetailsWidget *m_detailsWidget = nullptr;
-    QMap<int, RowData> m_validationData;
-};
-
 class AndroidSettingsWidget final : public Core::IOptionsPageWidget
 {
 public:
@@ -180,7 +79,6 @@ private:
     bool isDefaultNdkSelected() const;
     void validateOpenSsl();
 
-    AndroidSdkManager *m_sdkManager;
     Tasking::TaskTreeRunner m_sdkDownloader;
     bool m_isInitialReloadDone = false;
 
@@ -239,23 +137,20 @@ static expected_str<void> testJavaC(const FilePath &jdkPath)
     if (javacProcess.exitCode() != 0)
         return make_unexpected(
             Tr::tr("The selected path does not contain a valid JDK. (%1 failed: %2)")
-                .arg(cmd.toUserOutput())
-                .arg(stdOut));
+                .arg(cmd.toUserOutput(), stdOut));
 
     // We expect "javac <version>" where <version> is "major.minor.patch"
     const QString outputPrefix = javacCommand + " ";
     if (!stdOut.startsWith(outputPrefix))
         return make_unexpected(Tr::tr("Unexpected output from \"%1\": %2")
-                                   .arg(cmd.toUserOutput())
-                                   .arg(stdOut));
+                                   .arg(cmd.toUserOutput(), stdOut));
 
     jdkVersion = QVersionNumber::fromString(stdOut.mid(outputPrefix.length()).split('\n').first());
 
     if (jdkVersion.isNull() /* || jdkVersion.majorVersion() != requiredJavaMajorVersion */ ) {
         return make_unexpected(Tr::tr("Unsupported JDK version (needs to be %1): %2 (parsed: %3)")
                                    .arg(requiredJavaMajorVersion)
-                                   .arg(stdOut)
-                                   .arg(jdkVersion.toString()));
+                                   .arg(stdOut, jdkVersion.toString()));
     }
 
     return {};
@@ -263,7 +158,6 @@ static expected_str<void> testJavaC(const FilePath &jdkPath)
 
 AndroidSettingsWidget::AndroidSettingsWidget()
 {
-    m_sdkManager = AndroidConfigurations::sdkManager();
     setWindowTitle(Tr::tr("Android Configuration"));
 
     const QIcon downloadIcon = Icons::ONLINE.icon();
@@ -288,7 +182,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
                                               "be compatible with all registered Qt versions."));
 
     auto androidDetailsWidget = new DetailsWidget;
-    m_sdkManager->setSpinnerTarget(androidDetailsWidget);
+    sdkManager().setSpinnerTarget(androidDetailsWidget);
 
     m_ndkListWidget = new QListWidget;
     m_ndkListWidget->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
@@ -478,9 +372,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             this, &AndroidSettingsWidget::downloadOpenSslRepo);
     connect(downloadOpenJdkToolButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::openOpenJDKDownloadUrl);
-    connect(sdkManagerToolButton, &QAbstractButton::clicked, this, [this] {
-        executeAndroidSdkManagerDialog(m_sdkManager, this);
-    });
+    connect(sdkManagerToolButton, &QAbstractButton::clicked, this, &executeAndroidSdkManagerDialog);
     connect(sdkToolsAutoDownloadButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::downloadSdk);
     connect(&m_sdkDownloader, &Tasking::TaskTreeRunner::done, this, [this](Tasking::DoneWith result) {
@@ -493,11 +385,11 @@ AndroidSettingsWidget::AndroidSettingsWidget()
                                  Tr::tr("Failed to create the SDK Tools path %1.")
                                  .arg("\n\"" + sdkPath.toUserOutput() + "\""));
         }
-        m_sdkManager->reloadPackages();
+        sdkManager().reloadPackages();
         updateUI();
         apply();
 
-        connect(m_sdkManager, &AndroidSdkManager::packagesReloaded, this, [this] {
+        connect(&sdkManager(), &AndroidSdkManager::packagesReloaded, this, [this] {
             downloadOpenSslRepo(true);
         }, Qt::SingleShotConnection);
     });
@@ -513,10 +405,10 @@ void AndroidSettingsWidget::showEvent(QShowEvent *event)
         // Reloading SDK packages (force) is still synchronous. Use zero timer
         // to let settings dialog open first.
         QTimer::singleShot(0, this, [this] {
-            m_sdkManager->refreshPackages();
+            sdkManager().refreshPackages();
             validateSdk();
             // Validate SDK again after any change in SDK packages.
-            connect(m_sdkManager, &AndroidSdkManager::packagesReloaded, this, [this] {
+            connect(&sdkManager(), &AndroidSdkManager::packagesReloaded, this, [this] {
                 m_androidSummary->setInProgressText("Packages reloaded");
                 m_sdkLocationPathChooser->triggerChanged();
                 validateSdk();
@@ -533,7 +425,7 @@ void AndroidSettingsWidget::showEvent(QShowEvent *event)
 void AndroidSettingsWidget::updateNdkList()
 {
     m_ndkListWidget->clear();
-    const auto installedPkgs = m_sdkManager->installedNdkPackages();
+    const auto installedPkgs = sdkManager().installedNdkPackages();
     for (const Ndk *ndk : installedPkgs) {
         m_ndkListWidget->addItem(new QListWidgetItem(Icons::LOCKED.icon(),
                                                         ndk->installedLocation().toUserOutput()));
@@ -547,8 +439,6 @@ void AndroidSettingsWidget::updateNdkList()
             AndroidConfig::removeCustomNdk(ndk);
         }
     }
-
-    m_ndkListWidget->setCurrentRow(0);
 
     updateUI();
 }
@@ -596,7 +486,7 @@ void AndroidSettingsWidget::validateJdk()
     updateUI();
 
     if (m_isInitialReloadDone)
-        m_sdkManager->reloadPackages();
+        sdkManager().reloadPackages();
 }
 
 void AndroidSettingsWidget::validateOpenSsl()
@@ -623,7 +513,7 @@ void AndroidSettingsWidget::onSdkPathChanged()
         currentOpenSslPath = sdkPath.pathAppended("android_openssl");
     m_openSslPathChooser->setFilePath(currentOpenSslPath);
     // Package reload will trigger validateSdk.
-    m_sdkManager->refreshPackages();
+    sdkManager().refreshPackages();
 }
 
 void AndroidSettingsWidget::validateSdk()
@@ -636,17 +526,17 @@ void AndroidSettingsWidget::validateSdk()
     m_androidSummary->setPointValid(SdkToolsInstalledRow,
                                     !AndroidConfig::sdkToolsVersion().isNull());
     m_androidSummary->setPointValid(SdkManagerSuccessfulRow, // TODO: track me
-                                    m_sdkManager->packageListingSuccessful());
+                                    sdkManager().packageListingSuccessful());
     m_androidSummary->setPointValid(PlatformToolsInstalledRow, // TODO: track me
                                     AndroidConfig::adbToolPath().exists());
     m_androidSummary->setPointValid(AllEssentialsInstalledRow,
-                                    AndroidConfig::allEssentialsInstalled(m_sdkManager));
+                                    AndroidConfig::allEssentialsInstalled());
     m_androidSummary->setPointValid(BuildToolsInstalledRow,
                                     !AndroidConfig::buildToolsVersion().isNull());
     // installedSdkPlatforms should not trigger a package reload as validate SDK is only called
     // after AndroidSdkManager::packageReloadFinished.
     m_androidSummary->setPointValid(PlatformSdkInstalledRow,
-                                    !m_sdkManager->installedSdkPlatforms().isEmpty());
+                                    !sdkManager().installedSdkPlatforms().isEmpty());
 
     const bool sdkToolsOk = m_androidSummary->rowsOk({SdkPathExistsAndWritableRow,
                                                       SdkToolsInstalledRow,
@@ -657,7 +547,7 @@ void AndroidSettingsWidget::validateSdk()
                                                         AllEssentialsInstalledRow});
     AndroidConfig::setSdkFullyConfigured(sdkToolsOk && componentsOk);
     if (sdkToolsOk && !componentsOk) {
-        const QStringList notFoundEssentials = m_sdkManager->notFoundEssentialSdkPackages();
+        const QStringList notFoundEssentials = sdkManager().notFoundEssentialSdkPackages();
         if (!notFoundEssentials.isEmpty()) {
             QMessageBox::warning(Core::ICore::dialogParent(),
                 Tr::tr("Android SDK Changes"),
@@ -666,15 +556,15 @@ void AndroidSettingsWidget::validateSdk()
                     .arg(QGuiApplication::applicationDisplayName(),
                          notFoundEssentials.join("\", \"")));
         }
-        QStringList missingPkgs = m_sdkManager->missingEssentialSdkPackages();
+        QStringList missingPkgs = sdkManager().missingEssentialSdkPackages();
         // Add the a system image with highest API level only if there are other
         // essentials needed, so it would practicaly be somewhat optional.
         if (!missingPkgs.isEmpty()) {
-            const QString sysImage = AndroidConfig::optionalSystemImagePackage(m_sdkManager);
+            const QString sysImage = AndroidConfig::optionalSystemImagePackage();
             if (!sysImage.isEmpty())
                 missingPkgs.append(sysImage);
         }
-        m_sdkManager->runInstallationChange({missingPkgs},
+        sdkManager().runInstallationChange({missingPkgs},
             Tr::tr("Android SDK installation is missing necessary packages. "
                    "Do you want to install the missing packages?"));
     }
@@ -793,11 +683,8 @@ void AndroidSettingsWidget::updateUI()
     const bool androidSetupOk = m_androidSummary->allRowsOk();
     const bool openSslOk = m_openSslSummary->allRowsOk();
 
-    const QListWidgetItem *currentItem = m_ndkListWidget->currentItem();
-    const FilePath currentNdk = FilePath::fromUserInput(currentItem ? currentItem->text() : "");
-    const QString infoText = Tr::tr("(SDK Version: %1, NDK Version: %2)")
-            .arg(AndroidConfig::sdkToolsVersion().toString())
-            .arg(currentNdk.isEmpty() ? "" : AndroidConfig::ndkVersion(currentNdk).toString());
+    const QString infoText = Tr::tr("(SDK Version: %1)")
+            .arg(AndroidConfig::sdkToolsVersion().toString());
     m_androidSummary->setInfoText(androidSetupOk ? infoText : "");
 
     m_androidSummary->setSetupOk(androidSetupOk);
@@ -816,7 +703,7 @@ void AndroidSettingsWidget::updateUI()
         }
     }
 
-    m_makeDefaultNdkButton->setEnabled(m_ndkListWidget->count() > 0);
+    m_makeDefaultNdkButton->setEnabled(m_ndkListWidget->currentItem() != nullptr);
     m_makeDefaultNdkButton->setText(isDefaultNdkSelected() ? Tr::tr("Unset Default")
                                                            : Tr::tr("Make Default"));
 }
@@ -848,7 +735,7 @@ public:
     {
         setId(Constants::ANDROID_SETTINGS_ID);
         setDisplayName(Tr::tr("Android"));
-        setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
+        setCategory(ProjectExplorer::Constants::SDK_SETTINGS_CATEGORY);
         setWidgetCreator([] { return new AndroidSettingsWidget; });
     }
 };

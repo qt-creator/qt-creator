@@ -121,11 +121,10 @@ QmlDesigner::WidgetInfo EffectComposerView::widgetInfo()
         });
     }
 
-    return createWidgetInfo(
-        m_widget.data(),
-        "EffectComposer",
-        QmlDesigner::WidgetInfo::LeftPane,
-        Tr::tr("Effect Composer"));
+    return createWidgetInfo(m_widget.data(),
+                            "EffectComposer",
+                            QmlDesigner::WidgetInfo::LeftPane,
+                            tr("Effect Composer"));
 }
 
 void EffectComposerView::customNotification([[maybe_unused]] const AbstractView *view,
@@ -150,7 +149,7 @@ void EffectComposerView::modelAttached(QmlDesigner::Model *model)
     AbstractView::modelAttached(model);
 
 
-    QString currProjectPath = QmlDesigner::DocumentManager::currentProjectDirPath().toString();
+    QString currProjectPath = QmlDesigner::DocumentManager::currentProjectDirPath().toUrlishString();
 
     if (m_currProjectPath != currProjectPath) { // starting a new project
         m_widget->effectComposerNodesModel()->loadModel();

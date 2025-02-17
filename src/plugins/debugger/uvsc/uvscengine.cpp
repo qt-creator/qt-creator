@@ -79,7 +79,7 @@ void UvscEngine::setupEngine()
     const DebuggerRunParameters &rp = runParameters();
 
     // Extract the TCP/IP port for running uVision server.
-    const QUrl channel(rp.remoteChannel);
+    const QUrl channel(rp.remoteChannel());
     const int port = channel.port();
     if (port <= 0) {
         handleSetupFailure(Tr::tr("Internal error: Invalid TCP/IP port specified %1.")
@@ -88,16 +88,16 @@ void UvscEngine::setupEngine()
     }
 
     // Check for valid uVision executable.
-    if (rp.debugger.command.isEmpty()) {
+    if (rp.debugger().command.isEmpty()) {
         handleSetupFailure(Tr::tr("Internal error: No uVision executable specified."));
         return;
-    } else if (!rp.debugger.command.executable().exists()) {
+    } else if (!rp.debugger().command.executable().exists()) {
         handleSetupFailure(Tr::tr("Internal error: The specified uVision executable does not exist."));
         return;
     }
 
     showMessage("UVSC: RESOLVING LIBRARY SYMBOLS...");
-    m_client.reset(new UvscClient(rp.debugger.command.executable().parentDir().toString()));
+    m_client.reset(new UvscClient(rp.debugger().command.executable().parentDir().toUrlishString()));
     if (m_client->error() != UvscClient::NoError) {
         handleSetupFailure(Tr::tr("Internal error: Cannot resolve the library: %1.")
                            .arg(m_client->errorString()));
@@ -353,11 +353,11 @@ void UvscEngine::insertBreakpoint(const Breakpoint &bp)
     if (requested.type == BreakpointByFileAndLine) {
         // Add target executable name.
         const DebuggerRunParameters &rp = runParameters();
-        QString exe = rp.inferior.command.executable().baseName();
+        QString exe = rp.inferior().command.executable().baseName();
         exe.replace('-', '_');
         expression += "\\\\" + exe;
         // Add file name.
-        expression += "\\" + requested.fileName.toString();
+        expression += "\\" + requested.fileName.toUrlishString();
         // Add line number.
         expression += "\\" + QString::number(requested.textPosition.line);
     }
@@ -514,8 +514,8 @@ void UvscEngine::updateAll()
 bool UvscEngine::configureProject(const DebuggerRunParameters &rp)
 {
     // Fetch patchs for the generated uVision project files.
-    const FilePath optionsPath = rp.uVisionOptionsFilePath;
-    const FilePath projectPath = rp.uVisionProjectFilePath;
+    const FilePath optionsPath = rp.uVisionOptionsFilePath();
+    const FilePath projectPath = rp.uVisionProjectFilePath();
 
     showMessage("UVSC: LOADING PROJECT...");
     if (!optionsPath.exists()) {
@@ -526,14 +526,14 @@ bool UvscEngine::configureProject(const DebuggerRunParameters &rp)
         return false;
     } else if (!m_client->openProject(projectPath)) {
         handleSetupFailure(Tr::tr("Internal error: Unable to open the uVision project %1: %2.")
-                           .arg(projectPath.toString(), m_client->errorString()));
+                           .arg(projectPath.toUrlishString(), m_client->errorString()));
         return false;
     } else {
         showMessage("UVSC: PROJECT LOADED");
     }
 
     showMessage("UVSC: SETTING PROJECT DEBUG TARGET...");
-    m_simulator = rp.uVisionSimulator;
+    m_simulator = rp.uVisionSimulator();
     if (!m_client->setProjectDebugTarget(m_simulator)) {
         handleSetupFailure(Tr::tr("Internal error: Unable to set the uVision debug target: %1.")
                            .arg(m_client->errorString()));
@@ -544,13 +544,13 @@ bool UvscEngine::configureProject(const DebuggerRunParameters &rp)
 
     // We need to use the relative output target path.
     showMessage("UVSC: SETTING PROJECT OUTPUT TARGET...");
-    const FilePath targetPath = rp.inferior.command.executable().relativeChildPath(projectPath.parentDir());
-    if (!rp.inferior.command.executable().exists()) {
+    const FilePath targetPath = rp.inferior().command.executable().relativeChildPath(projectPath.parentDir());
+    if (!rp.inferior().command.executable().exists()) {
         handleSetupFailure(Tr::tr("Internal error: The specified output file does not exist."));
         return false;
     } else if (!m_client->setProjectOutputTarget(targetPath)) {
         handleSetupFailure(Tr::tr("Internal error: Unable to set the uVision output file %1: %2.")
-                           .arg(targetPath.toString(), m_client->errorString()));
+                           .arg(targetPath.toUrlishString(), m_client->errorString()));
         return false;
     } else {
         showMessage("UVSC: PROJECT OUTPUT TARGET SET");
@@ -582,7 +582,7 @@ void UvscEngine::handleProjectClosed()
     m_loadingRequired = false;
 
     const DebuggerRunParameters &rp = runParameters();
-    const FilePath projectPath = rp.uVisionProjectFilePath;
+    const FilePath projectPath = rp.uVisionProjectFilePath();
 
     // This magic function removes specific files from the uVision
     // project directory. Without of this we can't enumerate the local
@@ -592,7 +592,7 @@ void UvscEngine::handleProjectClosed()
     // Re-open the project again.
     if (!m_client->openProject(projectPath)) {
         handleSetupFailure(Tr::tr("Internal error: Unable to open the uVision project %1: %2.")
-                           .arg(projectPath.toString(), m_client->errorString()));
+                           .arg(projectPath.toUrlishString(), m_client->errorString()));
         return;
     }
 
@@ -600,7 +600,7 @@ void UvscEngine::handleProjectClosed()
     Module module;
     module.startAddress = 0;
     module.endAddress = 0;
-    module.modulePath = rp.inferior.command.executable();
+    module.modulePath = rp.inferior().command.executable();
     module.moduleName = "<executable>";
     modulesHandler()->updateModule(module);
 

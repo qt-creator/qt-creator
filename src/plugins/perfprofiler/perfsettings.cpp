@@ -11,12 +11,9 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
-#include <debugger/analyzer/analyzericons.h>
-#include <debugger/debuggertr.h>
-
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/target.h>
 
 #include <utils/aspects.h>
@@ -125,7 +122,7 @@ PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, Target *target)
 
     IDevice::ConstPtr device;
     if (target)
-        device = DeviceKitAspect::device(target->kit());
+        device = RunDeviceKitAspect::device(target->kit());
 
     if (!device) {
         useTracePointsButton->setEnabled(false);
@@ -495,8 +492,6 @@ public:
         setId(Constants::PerfSettingsId);
         setDisplayName(Tr::tr("CPU Usage"));
         setCategory("T.Analyzer");
-        setDisplayCategory(::Debugger::Tr::tr("Analyzer"));
-        setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
         setSettingsProvider([] { return &globalSettings(); });
     }
 };

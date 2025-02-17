@@ -3,12 +3,12 @@
 
 #include "idevice.h"
 
+#include "devicekitaspects.h"
 #include "devicemanager.h"
 #include "idevicefactory.h"
 #include "sshparameters.h"
 
 #include "../kit.h"
-#include "../kitaspects.h"
 #include "../projectexplorericons.h"
 #include "../projectexplorertr.h"
 #include "../target.h"
@@ -18,6 +18,7 @@
 #include <utils/commandline.h>
 #include <utils/devicefileaccess.h>
 #include <utils/displayname.h>
+#include <utils/environment.h>
 #include <utils/icon.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
@@ -82,6 +83,7 @@
  * Creates an identical copy of a device object.
  */
 
+using namespace Tasking;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -259,8 +261,7 @@ DeviceFileAccess *IDevice::fileAccess() const
 
 FilePath IDevice::filePath(const QString &pathOnDevice) const
 {
-    // match DeviceManager::deviceForPath
-    return FilePath::fromParts(u"device", id().toString(), pathOnDevice);
+    return rootPath().withNewPath(pathOnDevice);
 }
 
 FilePath IDevice::debugServerPath() const
@@ -413,16 +414,6 @@ Id IDevice::id() const
     return d->id;
 }
 
-/*!
-    Tests whether a device can be compatible with the given kit. The default
-    implementation will match the device type specified in the kit against
-    the device's own type.
-*/
-bool IDevice::isCompatibleWith(const Kit *k) const
-{
-    return DeviceTypeKitAspect::deviceTypeId(k) == type();
-}
-
 QList<Task> IDevice::validate() const
 {
     return {};
@@ -438,25 +429,22 @@ const QList<IDevice::DeviceAction> IDevice::deviceActions() const
     return d->deviceActions;
 }
 
-PortsGatheringMethod IDevice::portsGatheringMethod() const
+ExecutableItem IDevice::portsGatheringRecipe(const Storage<PortsOutputData> &output) const
 {
-    return {[this](QAbstractSocket::NetworkLayerProtocol protocol) -> CommandLine {
-                // We might encounter the situation that protocol is given IPv6
-                // but the consumer of the free port information decides to open
-                // an IPv4(only) port. As a result the next IPv6 scan will
-                // report the port again as open (in IPv6 namespace), while the
-                // same port in IPv4 namespace might still be blocked, and
-                // re-use of this port fails.
-                // GDBserver behaves exactly like this.
+    const Storage<PortsInputData> input;
 
-                Q_UNUSED(protocol)
+    const auto onSetup = [this, input] {
+        const CommandLine cmd = filePath("/proc/net").isReadableDir()
+                              ? CommandLine{filePath("/bin/sh"), {"-c", "cat /proc/net/tcp*"}}
+                              : CommandLine{filePath("netstat"), {"-a", "-n"}};
+        *input = {freePorts(), cmd};
+    };
 
-                if (filePath("/proc/net").isReadableDir())
-                    return {filePath("/bin/sh"), {"-c", "cat /proc/net/tcp*"}};
-
-                return {filePath("netstat"), {"-a", "-n"}};
-            },
-            &Port::parseFromCommandOutput};
+    return Group {
+        input,
+        onGroupSetup(onSetup),
+        portsFromProcessRecipe(input, output)
+    };
 }
 
 DeviceTester *IDevice::createDeviceTester()
@@ -693,6 +681,7 @@ void IDevice::setMachineType(MachineType machineType)
 
 FilePath IDevice::rootPath() const
 {
+    // match DeviceManager::deviceForPath
     return FilePath::fromParts(u"device", id().toString(), u"/");
 }
 
@@ -756,32 +745,31 @@ void DeviceProcessSignalOperation::setDebuggerCommand(const FilePath &cmd)
 
 DeviceProcessSignalOperation::DeviceProcessSignalOperation() = default;
 
-using namespace Tasking;
-
 void DeviceProcessKiller::start()
 {
     m_signalOperation.reset();
-    m_errorString.clear();
+    m_result = Result::Ok;
 
     const IDevice::ConstPtr device = DeviceManager::deviceForPath(m_processPath);
     if (!device) {
-        m_errorString = Tr::tr("No device for given path: \"%1\".").arg(m_processPath.toUserOutput());
+        m_result = Result::Error(Tr::tr("No device for given path: \"%1\".")
+                                     .arg(m_processPath.toUserOutput()));
         emit done(DoneResult::Error);
         return;
     }
 
     m_signalOperation = device->signalOperation();
     if (!m_signalOperation) {
-        m_errorString = Tr::tr("Device for path \"%1\" does not support killing processes.")
-                       .arg(m_processPath.toUserOutput());
+        m_result = Result::Error(Tr::tr("Device for path \"%1\" does not support killing processes.")
+                                     .arg(m_processPath.toUserOutput()));
         emit done(DoneResult::Error);
         return;
     }
 
     connect(m_signalOperation.get(), &DeviceProcessSignalOperation::finished,
-            this, [this](const QString &errorMessage) {
-        m_errorString = errorMessage;
-        emit done(toDoneResult(m_errorString.isEmpty()));
+            this, [this](const Result &result) {
+        m_result = result;
+        emit done(toDoneResult(result));
     });
 
     m_signalOperation->killProcess(m_processPath.path());
@@ -795,6 +783,83 @@ DeviceProcessKillerTaskAdapter::DeviceProcessKillerTaskAdapter()
 void DeviceProcessKillerTaskAdapter::start()
 {
     task()->start();
+}
+
+// DeviceConstRef
+
+DeviceConstRef::DeviceConstRef(const IDevice::ConstPtr &device)
+    : m_constDevice(device)
+{}
+
+DeviceConstRef::DeviceConstRef(const IDevice::Ptr &device)
+    : m_constDevice(device)
+{}
+
+IDevice::ConstPtr DeviceConstRef::lock() const
+{
+    return m_constDevice.lock();
+}
+
+DeviceConstRef::~DeviceConstRef() = default;
+
+Id DeviceConstRef::id() const
+{
+    const IDevice::ConstPtr device = m_constDevice.lock();
+    QTC_ASSERT(device, return {});
+    return device->id();
+}
+
+QString DeviceConstRef::displayName() const
+{
+    const IDevice::ConstPtr device = m_constDevice.lock();
+    QTC_ASSERT(device, return {});
+    return device->displayName();
+}
+
+SshParameters DeviceConstRef::sshParameters() const
+{
+    const IDevice::ConstPtr device = m_constDevice.lock();
+    QTC_ASSERT(device, return {});
+    return device->sshParameters();
+}
+
+QVariant DeviceConstRef::extraData(Id kind) const
+{
+    const IDevice::ConstPtr device = m_constDevice.lock();
+    QTC_ASSERT(device, return {});
+    return device->extraData(kind);
+}
+
+FilePath DeviceConstRef::filePath(const QString &pathOnDevice) const
+{
+    const IDevice::ConstPtr device = m_constDevice.lock();
+    QTC_ASSERT(device, return {});
+    return device->filePath(pathOnDevice);
+}
+
+// DeviceRef, mutable
+
+DeviceRef::DeviceRef(const IDevice::Ptr &device)
+    : DeviceConstRef(device), m_mutableDevice(device)
+{}
+
+IDevice::Ptr DeviceRef::lock() const
+{
+    return m_mutableDevice.lock();
+}
+
+void DeviceRef::setDisplayName(const QString &displayName)
+{
+    const IDevice::Ptr device = m_mutableDevice.lock();
+    QTC_ASSERT(device, return);
+    device->setDisplayName(displayName);
+}
+
+void DeviceRef::setSshParameters(const SshParameters &params)
+{
+    const IDevice::Ptr device = m_mutableDevice.lock();
+    QTC_ASSERT(device, return);
+    device->setSshParameters(params);
 }
 
 } // namespace ProjectExplorer

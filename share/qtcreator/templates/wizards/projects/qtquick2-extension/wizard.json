@@ -9,7 +9,7 @@
     "icon": "lib.png",
     "iconKind": "Themed",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQtQuick", "QtSupport.Wizards.FeatureQtQuick.2" ],
-    "enabled": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}",
+    "enabled": "%{JS: isPluginRunning('qmakeprojectmanager')}",
 
     "options":
     [
@@ -60,12 +60,12 @@
                             {
                                 "trKey": "CMake",
                                 "value": "cmake",
-                                "condition": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}"
+                                "condition": "%{JS: isPluginRunning('cmakeprojectmanager')}"
                             },
                             {
                                 "trKey": "qmake",
                                 "value": "qmake",
-                                "condition": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}"
+                                "condition": "%{JS: isPluginRunning('qmakeprojectmanager')}"
                             }
                         ]
                     }

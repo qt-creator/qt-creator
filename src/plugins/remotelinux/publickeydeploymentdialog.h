@@ -7,7 +7,10 @@
 
 #include <QProgressDialog>
 
-namespace Utils { class FilePath; }
+namespace Utils {
+class FilePath;
+class Result;
+}
 
 namespace RemoteLinux::Internal {
 
@@ -18,16 +21,15 @@ class PublicKeyDeploymentDialog : public QProgressDialog
     Q_OBJECT
 public:
     // Asks for public key and returns null if the file dialog is canceled.
-    static PublicKeyDeploymentDialog *createDialog(
-        const ProjectExplorer::IDeviceConstPtr &deviceConfig, QWidget *parent = nullptr);
+    static PublicKeyDeploymentDialog *createDialog(const ProjectExplorer::DeviceConstRef &device);
 
-    PublicKeyDeploymentDialog(const ProjectExplorer::IDeviceConstPtr &deviceConfig,
-                              const Utils::FilePath &publicKeyFileName, QWidget *parent = nullptr);
+    PublicKeyDeploymentDialog(const ProjectExplorer::DeviceConstRef &device,
+                              const Utils::FilePath &publicKeyFileName);
 
     ~PublicKeyDeploymentDialog() override;
 
 private:
-    void handleDeploymentDone(bool succeeded, const QString &errorMessage);
+    void handleDeploymentDone(const Utils::Result &result);
 
     Internal::PublicKeyDeploymentDialogPrivate * const d;
 };

@@ -74,8 +74,8 @@ void TestTreeModel::setupParsingConnections()
     m_parser->setDirty();
     m_parser->setState(TestCodeParser::Idle);
 
-    ProjectManager *sm = ProjectManager::instance();
-    connect(sm, &ProjectManager::startupProjectChanged, this, [this, sm](Project *project) {
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, this,
+            [this](Project *project) {
         synchronizeTestFrameworks(); // we might have project settings
         m_parser->onStartupProjectChanged(project);
         removeAllTestToolItems();
@@ -84,8 +84,8 @@ void TestTreeModel::setupParsingConnections()
         onBuildSystemTestsUpdated(); // we may have old results if project was open before switching
         m_failedStateCache.clear();
         if (project) {
-            if (sm->startupBuildSystem()) {
-                connect(sm->startupBuildSystem(), &BuildSystem::testInformationUpdated,
+            if (activeBuildSystemForActiveProject()) {
+                connect(activeBuildSystemForActiveProject(), &BuildSystem::testInformationUpdated,
                         this, &TestTreeModel::onBuildSystemTestsUpdated, Qt::UniqueConnection);
             } else {
                 connect(project, &Project::activeTargetChanged,
@@ -239,7 +239,7 @@ void TestTreeModel::onTargetChanged(Target *target)
 
 void TestTreeModel::onBuildSystemTestsUpdated()
 {
-    const BuildSystem *bs = ProjectManager::startupBuildSystem();
+    const BuildSystem *bs = activeBuildSystemForActiveProject();
     if (!bs || !bs->project())
         return;
 
@@ -879,7 +879,7 @@ QMap<QString, int> TestTreeModel::boostTestSuitesAndTests() const
 
     if (TestTreeItem *rootNode = boostTestRootNode()) {
         rootNode->forFirstLevelChildItems([&result](TestTreeItem *child) {
-            result.insert(child->name() + '|' + child->proFile().toString(), child->childCount());
+            result.insert(child->name() + '|' + child->proFile().toUrlishString(), child->childCount());
         });
     }
     return result;

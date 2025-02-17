@@ -83,7 +83,7 @@ public:
         connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
         connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
         connect(addButton, &QPushButton::clicked, this, [this] {
-            const FilePath dir = FileUtils::getExistingDirectory(this, Tr::tr("Choose Directory"));
+            const FilePath dir = FileUtils::getExistingDirectory(Tr::tr("Choose Directory"));
             if (!dir.isEmpty())
                 addPath(dir.toUserOutput());
         });
@@ -495,7 +495,7 @@ void EnvironmentWidget::unsetEnvironmentButtonClicked()
 void EnvironmentWidget::amendPathList(Utils::EnvironmentItem::Operation op)
 {
     const QString varName = d->m_model->indexToVariable(d->m_environmentView->currentIndex());
-    const FilePath dir = FileUtils::getExistingDirectory(this, Tr::tr("Choose Directory"));
+    const FilePath dir = FileUtils::getExistingDirectory(Tr::tr("Choose Directory"));
     if (dir.isEmpty())
         return;
     Utils::EnvironmentItems changes = d->m_model->userChanges();

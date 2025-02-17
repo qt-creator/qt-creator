@@ -3,20 +3,15 @@
 
 #pragma once
 
-#include "dialogs/ioptionspage.h"
-
 #include <utils/id.h>
 
 #include <QWidget>
 
 namespace Utils { class Theme; }
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
-class ThemeChooserPrivate;
-
-class ThemeEntry
+class ThemeEntry final
 {
 public:
     ThemeEntry() = default;
@@ -35,19 +30,16 @@ private:
     mutable QString m_displayName;
 };
 
-class ThemeChooser : public QWidget
+class ThemeChooser final : public QWidget
 {
-    Q_OBJECT
-
 public:
-    ThemeChooser(QWidget *parent = nullptr);
-    ~ThemeChooser() override;
+    ThemeChooser();
+    ~ThemeChooser() final;
 
     void apply();
 
 private:
-    ThemeChooserPrivate *d;
+    class ThemeChooserPrivate *d;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

@@ -66,7 +66,8 @@ QString QnxVersionNumber::segment(int index) const
 
 QnxVersionNumber QnxVersionNumber::fromTargetName(const QString &targetName)
 {
-    return fromFileName(targetName, QRegularExpression("^target_(.*)$"));
+    static const QRegularExpression regexp("^target_(.*)$");
+    return fromFileName(targetName, regexp);
 }
 
 QnxVersionNumber QnxVersionNumber::fromFileName(const QString &fileName, const QRegularExpression &regExp)

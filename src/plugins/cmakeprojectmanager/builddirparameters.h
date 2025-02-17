@@ -15,9 +15,7 @@ class MacroExpander;
 class OutputLineParser;
 } // namespace Utils
 
-namespace ProjectExplorer {
-class Project;
-}
+namespace ProjectExplorer { class Project; }
 
 namespace CMakeProjectManager::Internal {
 

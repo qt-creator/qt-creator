@@ -129,7 +129,7 @@ static QString findResourceInProject(const QString &resName)
             const QFileInfo fi = file.toFileInfo();
             if (!fi.isReadable())
                 continue;
-            const QString fileName = findResourceInFile(s, file.toString());
+            const QString fileName = findResourceInFile(s, file.toUrlishString());
             if (fileName.isEmpty())
                 continue;
 

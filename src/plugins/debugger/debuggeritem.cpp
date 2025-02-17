@@ -22,23 +22,64 @@
 
 #include <QUuid>
 
+using namespace Debugger;
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Debugger {
+static expected_str<QString> fetchVersionOutput(const FilePath &executable, Environment environment)
+{
+    // CDB only understands the single-dash -version, whereas GDB and LLDB are
+    // happy with both -version and --version. So use the "working" -version
+    // except for the experimental LLDB-MI which insists on --version.
+    QString version = "-version";
+    if (executable.baseName().toLower().contains("lldb-mi")
+        || executable.baseName().startsWith("LLDBFrontend")) { // Comes with Android Studio
+        version = "--version";
+    }
 
-const char DEBUGGER_INFORMATION_COMMAND[] = "Binary";
-const char DEBUGGER_INFORMATION_DISPLAYNAME[] = "DisplayName";
-const char DEBUGGER_INFORMATION_ID[] = "Id";
-const char DEBUGGER_INFORMATION_ENGINETYPE[] = "EngineType";
-const char DEBUGGER_INFORMATION_AUTODETECTED[] = "AutoDetected"; // FIXME: Merge into DetectionSource
-const char DEBUGGER_INFORMATION_DETECTION_SOURCE[] = "DetectionSource";
-const char DEBUGGER_INFORMATION_VERSION[] = "Version";
-const char DEBUGGER_INFORMATION_ABIS[] = "Abis";
-const char DEBUGGER_INFORMATION_LASTMODIFIED[] = "LastModified";
-const char DEBUGGER_INFORMATION_WORKINGDIRECTORY[] = "WorkingDirectory";
+    // QNX gdb unconditionally checks whether the QNX_TARGET env variable is
+    // set and bails otherwise, even when it is not used by the specific
+    // codepath triggered by the --version and --configuration arguments. The
+    // hack below tricks it into giving us the information we want.
+    environment.set("QNX_TARGET", QString());
 
+    // On Windows, we need to prevent the Windows Error Reporting dialog from
+    // popping up when a candidate is missing required DLLs.
+    const WindowsCrashDialogBlocker blocker;
+
+    Process proc;
+    proc.setEnvironment(environment);
+    proc.setCommand({executable, {version}});
+    proc.runBlocking();
+    QString output = proc.allOutput().trimmed();
+    if (proc.result() != ProcessResult::FinishedWithSuccess)
+        return make_unexpected(output);
+
+    return output;
+}
+
+static std::optional<QString> extractLldbVersion(const QString &fromOutput)
+{
+    // Self-build binaries also emit clang and llvm revision.
+    const QString line = fromOutput.split('\n')[0];
+
+    // Linux typically, or some Windows builds
+    const QString nonMacOSPrefix = "lldb version ";
+    if (line.contains(nonMacOSPrefix)) {
+        const qsizetype pos1 = line.indexOf(nonMacOSPrefix) + nonMacOSPrefix.length();
+        const qsizetype pos2 = line.indexOf(' ', pos1);
+        return line.mid(pos1, pos2 - pos1);
+    }
+
+    // Mac typically
+    const QString macOSPrefix = "lldb-";
+    if (line.startsWith(macOSPrefix, Qt::CaseInsensitive)) {
+        return line.mid(macOSPrefix.length());
+    }
+
+    return {};
+}
 
 //! Return the configuration of gdb as a list of --key=value
 //! \note That the list will also contain some output not in this format.
@@ -54,26 +95,186 @@ static QString getGdbConfiguration(const FilePath &command, const Environment &s
 
 //! Extract the target ABI identifier from GDB output
 //! \return QString() (aka Null) if unable to find something
-static QString extractGdbTargetAbiStringFromGdbOutput(const QString &gdbOutput)
+static std::optional<QString> extractGdbTargetAbiStringFromGdbOutput(const QString &gdbOutput)
 {
     const auto outputLines = gdbOutput.split('\n');
     const auto whitespaceSeparatedTokens = outputLines.join(' ').split(' ', Qt::SkipEmptyParts);
 
     const QString targetKey{"--target="};
-    const QString targetValue = Utils::findOrDefault(whitespaceSeparatedTokens,
-                                                [&targetKey](const QString &token) { return token.startsWith(targetKey); });
+    const QString targetValue
+        = Utils::findOrDefault(whitespaceSeparatedTokens, [&targetKey](const QString &token) {
+              return token.startsWith(targetKey);
+          });
     if (!targetValue.isEmpty())
         return targetValue.mid(targetKey.size());
 
     return {};
 }
 
+static std::optional<Abi> extractGdbTargetAbi(
+    const FilePath &fromExecutable, const int version, const Environment &env)
+{
+    // ABI
+    const bool unableToFindAVersion = (0 == version);
+    const bool gdbSupportsConfigurationFlag = (version >= 70700);
+    if (!unableToFindAVersion && !gdbSupportsConfigurationFlag)
+        return {};
+
+    const std::optional<QString> gdbTargetAbiString = extractGdbTargetAbiStringFromGdbOutput(
+        getGdbConfiguration(fromExecutable, env));
+    if (!gdbTargetAbiString)
+        return {};
+
+    return Abi::abiFromTargetTriplet(*gdbTargetAbiString);
+}
+
+static std::optional<Abi> extractLegacyGdbTargetAbi(const QString &fromOutput)
+{
+    // ABI: legacy: the target was removed from the output of --version with
+    // https://sourceware.org/git/gitweb.cgi?p=binutils-gdb.git;a=commit;h=c61b06a19a34baab66e3809c7b41b0c31009ed9f
+    std::optional<QString> legacyGdbTargetAbiString = extractGdbTargetAbiStringFromGdbOutput(
+        fromOutput);
+    if (!legacyGdbTargetAbiString)
+        return {};
+
+    legacyGdbTargetAbiString->chop(1); // remove trailing "
+    return Abi::abiFromTargetTriplet(*legacyGdbTargetAbiString);
+}
+
+static Utils::expected_str<DebuggerItem::TechnicalData> extractLldbTechnicalData(
+    const FilePath &fromExecutable, const Environment &env, const QString &dapServerSuffix)
+{
+    // As of LLVM 19.1.4 `lldb-dap`/`lldb-vscode` has no `--version` switch
+    // so we cannot use that binary directly.
+    // However it should be pretty safe to assume that if there is an `lldb` binary
+    // next to it both are of the same version.
+    // It also makes sense that both follow the same naming scheme,
+    // so replacing the name should work.
+    QString binaryName = fromExecutable.fileName();
+    binaryName.replace(dapServerSuffix, QString{});
+    const FilePath lldb = fromExecutable.parentDir() / binaryName;
+    if (!lldb.exists()) {
+        return make_unexpected(QString{"%1 does not exist alongside %2"}
+                                   .arg(lldb.fileNameView(), fromExecutable.toUserOutput()));
+    }
+    if (!lldb.isExecutableFile()) {
+        return make_unexpected(QString{"%1 exists alongside %2 but is not executable"}
+                                   .arg(lldb.fileNameView(), fromExecutable.toUserOutput()));
+    }
+
+    const expected_str<QString> output = fetchVersionOutput(lldb, env);
+    if (!output)
+        return make_unexpected(output.error());
+
+    return DebuggerItem::TechnicalData{
+        .engineType = LldbDapEngineType,
+        .abis = Abi::abisOfBinary(fromExecutable),
+        .version = extractLldbVersion(*output).value_or(""),
+    };
+}
+
+namespace Debugger {
+
+const char DEBUGGER_INFORMATION_COMMAND[] = "Binary";
+const char DEBUGGER_INFORMATION_DISPLAYNAME[] = "DisplayName";
+const char DEBUGGER_INFORMATION_ID[] = "Id";
+const char DEBUGGER_INFORMATION_ENGINETYPE[] = "EngineType";
+const char DEBUGGER_INFORMATION_AUTODETECTED[] = "AutoDetected"; // FIXME: Merge into DetectionSource
+const char DEBUGGER_INFORMATION_DETECTION_SOURCE[] = "DetectionSource";
+const char DEBUGGER_INFORMATION_VERSION[] = "Version";
+const char DEBUGGER_INFORMATION_ABIS[] = "Abis";
+const char DEBUGGER_INFORMATION_LASTMODIFIED[] = "LastModified";
+const char DEBUGGER_INFORMATION_WORKINGDIRECTORY[] = "WorkingDirectory";
 
 // --------------------------------------------------------------------------
 // DebuggerItem
 // --------------------------------------------------------------------------
 
-DebuggerItem::DebuggerItem() = default;
+Utils::expected_str<DebuggerItem::TechnicalData> DebuggerItem::TechnicalData::extract(
+    const FilePath &fromExecutable, const std::optional<Utils::Environment> &customEnvironment)
+{
+    Environment env = customEnvironment.value_or(fromExecutable.deviceEnvironment());
+    DebuggerItem::addAndroidLldbPythonEnv(fromExecutable, env);
+
+    if (qgetenv("QTC_ENABLE_NATIVE_DAP_DEBUGGERS").toInt() != 0) {
+        for (const auto &dapServerSuffix : {QString{"-dap"}, QString{"-vscode"}}) {
+            const QString dapServerName = QString{"lldb%1"}.arg(dapServerSuffix);
+            if (fromExecutable.fileName().startsWith(dapServerName, Qt::CaseInsensitive)) {
+                return extractLldbTechnicalData(fromExecutable, env, dapServerSuffix);
+            }
+        }
+    }
+
+    // We don't need to start the uVision executable to determine its version.
+    if (HostOsInfo::isWindowsHost() && fromExecutable.baseName() == "UV4") {
+        QString errorMessage;
+        QString version = winGetDLLVersion(
+            WinDLLFileVersion, fromExecutable.absoluteFilePath().path(), &errorMessage);
+
+        if (!errorMessage.isEmpty())
+            return make_unexpected(std::move(errorMessage));
+
+        return DebuggerItem::TechnicalData{
+            .engineType = UvscEngineType,
+            .abis = {},
+            .version = std::move(version),
+        };
+    }
+
+    const expected_str<QString> output = fetchVersionOutput(fromExecutable, env);
+    if (!output) {
+        return make_unexpected(output.error());
+    }
+
+    if (output->contains("gdb")) {
+        // Version
+        bool isMacGdb = false;
+        bool isQnxGdb = false;
+        int version = 0;
+        int buildVersion = 0;
+        Debugger::Internal::extractGdbVersion(*output, &version, &buildVersion, &isMacGdb, &isQnxGdb);
+        QString versionStr = version != 0 ? QString::fromLatin1("%1.%2.%3")
+                                                .arg(version / 10000)
+                                                .arg((version / 100) % 100)
+                                                .arg(version % 100)
+                                          : "";
+        Abis abis;
+        if (std::optional<Abi> abi = extractGdbTargetAbi(fromExecutable, version, env)) {
+            abis = {std::move(*abi)};
+        } else if (std::optional<Abi> abi = extractLegacyGdbTargetAbi(*output)) {
+            abis = {std::move(*abi)};
+        } else {
+            qWarning() << "Unable to determine gdb target ABI from" << *output;
+        }
+
+        return DebuggerItem::TechnicalData{
+            .engineType = GdbEngineType, .abis = abis, .version = std::move(versionStr)};
+    }
+
+    if (output->contains("lldb") || output->startsWith("LLDB")) {
+        return DebuggerItem::TechnicalData{
+            .engineType = LldbEngineType,
+            .abis = Abi::abisOfBinary(fromExecutable),
+            .version = extractLldbVersion(*output).value_or(""),
+        };
+    }
+    if (output->startsWith("cdb")) {
+        // "cdb version 6.2.9200.16384"
+        return DebuggerItem::TechnicalData{
+            .engineType = CdbEngineType,
+            .abis = Abi::abisOfBinary(fromExecutable),
+            .version = output->section(' ', 2),
+        };
+    }
+
+    return make_unexpected(
+        QString{"Failed to determine debugger engine type from '%1'"}.arg(*output));
+}
+
+bool DebuggerItem::TechnicalData::isEmpty() const
+{
+    return version.isEmpty() && abis.isEmpty() && engineType == NoEngineType;
+}
 
 DebuggerItem::DebuggerItem(const QVariant &id)
 {
@@ -88,28 +289,28 @@ DebuggerItem::DebuggerItem(const Store &data)
     m_unexpandedDisplayName = data.value(DEBUGGER_INFORMATION_DISPLAYNAME).toString();
     m_isAutoDetected = data.value(DEBUGGER_INFORMATION_AUTODETECTED, false).toBool();
     m_detectionSource = data.value(DEBUGGER_INFORMATION_DETECTION_SOURCE).toString();
-    m_version = data.value(DEBUGGER_INFORMATION_VERSION).toString();
-    m_engineType = DebuggerEngineType(data.value(DEBUGGER_INFORMATION_ENGINETYPE,
-                                                 static_cast<int>(NoEngineType)).toInt());
+    m_technicalData.version = data.value(DEBUGGER_INFORMATION_VERSION).toString();
+    m_technicalData.engineType = DebuggerEngineType(
+        data.value(DEBUGGER_INFORMATION_ENGINETYPE, static_cast<int>(NoEngineType)).toInt());
     m_lastModified = data.value(DEBUGGER_INFORMATION_LASTMODIFIED).toDateTime();
 
     const QStringList abis = data.value(DEBUGGER_INFORMATION_ABIS).toStringList();
     for (const QString &a : abis) {
         Abi abi = Abi::fromString(a);
         if (!abi.isNull())
-            m_abis.append(abi);
+            m_technicalData.abis.append(abi);
     }
 
-    bool mightBeAPreQnxSeparateOSQnxDebugger = m_command.fileName().startsWith("nto")
-            && m_abis.count() == 1
-            && m_abis[0].os() == Abi::UnknownOS
-            && m_abis[0].osFlavor() == Abi::UnknownFlavor
-            && m_abis[0].binaryFormat() == Abi::UnknownFormat;
+    const Abis &validAbis = m_technicalData.abis;
+    const bool mightBeAPreQnxSeparateOSQnxDebugger = m_command.fileName().startsWith("nto")
+                                                     && validAbis.count() == 1
+                                                     && validAbis.front().os() == Abi::UnknownOS
+                                                     && validAbis.front().osFlavor()
+                                                            == Abi::UnknownFlavor
+                                                     && validAbis.front().binaryFormat()
+                                                            == Abi::UnknownFormat;
 
-    bool needsReinitialization = m_version.isEmpty() && m_abis.isEmpty()
-                                 && m_engineType == NoEngineType;
-
-    if (needsReinitialization || mightBeAPreQnxSeparateOSQnxDebugger)
+    if (m_technicalData.isEmpty() || mightBeAPreQnxSeparateOSQnxDebugger)
         reinitializeFromFile();
 }
 
@@ -124,118 +325,17 @@ void DebuggerItem::reinitializeFromFile(QString *error, Utils::Environment *cust
     if (isGeneric())
         return;
 
-    // CDB only understands the single-dash -version, whereas GDB and LLDB are
-    // happy with both -version and --version. So use the "working" -version
-    // except for the experimental LLDB-MI which insists on --version.
-    QString version = "-version";
-    m_lastModified = m_command.lastModified();
-    if (m_command.baseName().toLower().contains("lldb-mi")
-            || m_command.baseName().startsWith("LLDBFrontend")) // Comes with Android Studio
-        version = "--version";
-
-    // We don't need to start the uVision executable to
-    // determine its version.
-    if (HostOsInfo::isWindowsHost() && m_command.baseName() == "UV4") {
-        QString errorMessage;
-        m_version = winGetDLLVersion(WinDLLFileVersion,
-                                     m_command.absoluteFilePath().path(),
-                                     &errorMessage);
-        m_engineType = UvscEngineType;
-        m_abis.clear();
-        return;
-    }
-
-    Environment env = customEnv ? *customEnv : m_command.deviceEnvironment();
-    DebuggerItem::addAndroidLldbPythonEnv(m_command, env);
-
-    // QNX gdb unconditionally checks whether the QNX_TARGET env variable is
-    // set and bails otherwise, even when it is not used by the specific
-    // codepath triggered by the --version and --configuration arguments. The
-    // hack below tricks it into giving us the information we want.
-    env.set("QNX_TARGET", QString());
-
-    // On Windows, we need to prevent the Windows Error Reporting dialog from
-    // popping up when a candidate is missing required DLLs.
-    WindowsCrashDialogBlocker blocker;
-
-    Process proc;
-    proc.setEnvironment(env);
-    proc.setCommand({m_command, {version}});
-    proc.runBlocking();
-    const QString output = proc.allOutput().trimmed();
-    if (proc.result() != ProcessResult::FinishedWithSuccess) {
+    auto env = customEnv ? std::optional<Environment>{*customEnv} : std::optional<Environment>{};
+    expected_str<TechnicalData> technicalData = TechnicalData::extract(m_command, env);
+    if (!technicalData) {
         if (error)
-            *error = output;
-        m_engineType = NoEngineType;
-        return;
-    }
-    m_abis.clear();
-
-    if (output.contains("gdb")) {
-        m_engineType = GdbEngineType;
-
-        // Version
-        bool isMacGdb, isQnxGdb;
-        int version = 0, buildVersion = 0;
-        Debugger::Internal::extractGdbVersion(output,
-            &version, &buildVersion, &isMacGdb, &isQnxGdb);
-        if (version)
-            m_version = QString::fromLatin1("%1.%2.%3")
-                .arg(version / 10000).arg((version / 100) % 100).arg(version % 100);
-
-        // ABI
-        const bool unableToFindAVersion = (0 == version);
-        const bool gdbSupportsConfigurationFlag = (version >= 70700);
-        if (gdbSupportsConfigurationFlag || unableToFindAVersion) {
-            const QString gdbTargetAbiString = extractGdbTargetAbiStringFromGdbOutput(
-                getGdbConfiguration(m_command, env));
-            if (!gdbTargetAbiString.isEmpty()) {
-                m_abis.append(Abi::abiFromTargetTriplet(gdbTargetAbiString));
-                return;
-            }
-        }
-
-        // ABI: legacy: the target was removed from the output of --version with
-        // https://sourceware.org/git/gitweb.cgi?p=binutils-gdb.git;a=commit;h=c61b06a19a34baab66e3809c7b41b0c31009ed9f
-        QString legacyGdbTargetAbiString = extractGdbTargetAbiStringFromGdbOutput(output);
-        if (!legacyGdbTargetAbiString.isEmpty()) {
-            legacyGdbTargetAbiString.chop(1); // remove trailing "
-            m_abis.append(Abi::abiFromTargetTriplet(legacyGdbTargetAbiString));
-            return;
-        }
-
-        qWarning() << "Unable to determine gdb target ABI via" << proc.commandLine().toUserOutput();
-        //! \note If unable to determine the GDB ABI, no ABI is appended to m_abis here.
+            *error = technicalData.error();
+        m_technicalData.engineType = NoEngineType;
         return;
     }
 
-    if (output.contains("lldb") || output.startsWith("LLDB")) {
-        m_engineType = LldbEngineType;
-        m_abis = Abi::abisOfBinary(m_command);
-
-        // Version
-        // Self-build binaries also emit clang and llvm revision.
-        const QString line = output.split('\n')[0];
-        const QString nonMacOSPrefix = "lldb version ";
-        if (line.contains(nonMacOSPrefix)) { // Linux typically, or some Windows builds.
-            int pos1 = line.indexOf(nonMacOSPrefix) + nonMacOSPrefix.length();
-            int pos2 = line.indexOf(' ', pos1);
-            m_version = line.mid(pos1, pos2 - pos1);
-        } else if (line.startsWith("lldb-") || line.startsWith("LLDB-")) { // Mac typically.
-            m_version = line.mid(5);
-        }
-        return;
-    }
-    if (output.startsWith("cdb")) {
-        // "cdb version 6.2.9200.16384"
-        m_engineType = CdbEngineType;
-        m_abis = Abi::abisOfBinary(m_command);
-        m_version = output.section(' ', 2);
-        return;
-    }
-    if (error)
-        *error = output;
-    m_engineType = NoEngineType;
+    m_technicalData = std::move(*technicalData);
+    m_lastModified = m_command.lastModified();
 }
 
 bool DebuggerItem::addAndroidLldbPythonEnv(const Utils::FilePath &lldbCmd, Utils::Environment &env)
@@ -263,7 +363,7 @@ bool DebuggerItem::addAndroidLldbPythonEnv(const Utils::FilePath &lldbCmd, Utils
 
 QString DebuggerItem::engineTypeName() const
 {
-    switch (m_engineType) {
+    switch (m_technicalData.engineType) {
     case NoEngineType:
         return Tr::tr("Not recognized");
     case GdbEngineType:
@@ -296,7 +396,7 @@ bool DebuggerItem::isGeneric() const
 QStringList DebuggerItem::abiNames() const
 {
     QStringList list;
-    for (const Abi &abi : m_abis)
+    for (const Abi &abi : m_technicalData.abis)
         list.append(abi.toString());
     return list;
 }
@@ -306,11 +406,16 @@ QDateTime DebuggerItem::lastModified() const
     return m_lastModified;
 }
 
+void DebuggerItem::setLastModified(const QDateTime &timestamp)
+{
+    m_lastModified = timestamp;
+}
+
 DebuggerItem::Problem DebuggerItem::problem() const
 {
     if (isGeneric() || !m_id.isValid()) // Id can only be invalid for the "none" item.
         return Problem::None;
-    if (m_engineType == NoEngineType)
+    if (m_technicalData.engineType == NoEngineType)
         return Problem::NoEngine;
     if (!m_command.isExecutableFile())
         return Problem::InvalidCommand;
@@ -365,10 +470,10 @@ Store DebuggerItem::toMap() const
     data.insert(DEBUGGER_INFORMATION_ID, m_id);
     data.insert(DEBUGGER_INFORMATION_COMMAND, m_command.toSettings());
     data.insert(DEBUGGER_INFORMATION_WORKINGDIRECTORY, m_workingDirectory.toSettings());
-    data.insert(DEBUGGER_INFORMATION_ENGINETYPE, int(m_engineType));
+    data.insert(DEBUGGER_INFORMATION_ENGINETYPE, int(m_technicalData.engineType));
     data.insert(DEBUGGER_INFORMATION_AUTODETECTED, m_isAutoDetected);
     data.insert(DEBUGGER_INFORMATION_DETECTION_SOURCE, m_detectionSource);
-    data.insert(DEBUGGER_INFORMATION_VERSION, m_version);
+    data.insert(DEBUGGER_INFORMATION_VERSION, m_technicalData.version);
     data.insert(DEBUGGER_INFORMATION_ABIS, abiNames());
     data.insert(DEBUGGER_INFORMATION_LASTMODIFIED, m_lastModified);
     return data;
@@ -380,12 +485,17 @@ QString DebuggerItem::displayName() const
         return m_unexpandedDisplayName;
 
     MacroExpander expander;
-    expander.registerVariable("Debugger:Type", Tr::tr("Type of Debugger Backend"),
-        [this] { return engineTypeName(); });
-    expander.registerVariable("Debugger:Version", Tr::tr("Debugger"),
-        [this] { return !m_version.isEmpty() ? m_version : Tr::tr("Unknown debugger version"); });
-    expander.registerVariable("Debugger:Abi", Tr::tr("Debugger"),
-        [this] { return !m_abis.isEmpty() ? abiNames().join(' ') : Tr::tr("Unknown debugger ABI"); });
+    expander.registerVariable("Debugger:Type", Tr::tr("Type of Debugger Backend"), [this] {
+        return engineTypeName();
+    });
+    expander.registerVariable(
+        "Debugger:Version", Tr::tr("Debugger"), [&version = m_technicalData.version] {
+            return !version.isEmpty() ? version : Tr::tr("Unknown debugger version");
+        });
+    expander.registerVariable("Debugger:Abi", Tr::tr("Debugger"), [this] {
+        return !m_technicalData.abis.isEmpty() ? abiNames().join(' ')
+                                               : Tr::tr("Unknown debugger ABI");
+    });
     return expander.expand(m_unexpandedDisplayName);
 }
 
@@ -396,7 +506,7 @@ void DebuggerItem::setUnexpandedDisplayName(const QString &displayName)
 
 void DebuggerItem::setEngineType(const DebuggerEngineType &engineType)
 {
-    m_engineType = engineType;
+    m_technicalData.engineType = engineType;
 }
 
 void DebuggerItem::setCommand(const FilePath &command)
@@ -411,23 +521,23 @@ void DebuggerItem::setAutoDetected(bool isAutoDetected)
 
 QString DebuggerItem::version() const
 {
-    return m_version;
+    return m_technicalData.version;
 }
 
 void DebuggerItem::setVersion(const QString &version)
 {
-    m_version = version;
+    m_technicalData.version = version;
 }
 
 void DebuggerItem::setAbis(const Abis &abis)
 {
-    m_abis = abis;
+    m_technicalData.abis = abis;
 }
 
 void DebuggerItem::setAbi(const Abi &abi)
 {
-    m_abis.clear();
-    m_abis.append(abi);
+    m_technicalData.abis.clear();
+    m_technicalData.abis.append(abi);
 }
 
 static DebuggerItem::MatchLevel matchSingle(const Abi &debuggerAbi, const Abi &targetAbi, DebuggerEngineType engineType)
@@ -486,8 +596,8 @@ static DebuggerItem::MatchLevel matchSingle(const Abi &debuggerAbi, const Abi &t
 DebuggerItem::MatchLevel DebuggerItem::matchTarget(const Abi &targetAbi) const
 {
     MatchLevel bestMatch = DoesNotMatch;
-    for (const Abi &debuggerAbi : m_abis) {
-        MatchLevel currentMatch = matchSingle(debuggerAbi, targetAbi, m_engineType);
+    for (const Abi &debuggerAbi : m_technicalData.abis) {
+        MatchLevel currentMatch = matchSingle(debuggerAbi, targetAbi, m_technicalData.engineType);
         if (currentMatch > bestMatch)
             bestMatch = currentMatch;
     }

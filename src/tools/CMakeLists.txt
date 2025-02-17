@@ -26,7 +26,6 @@ if (APPLE)
   add_subdirectory(iostool)
 endif()
 
-add_subdirectory(processlauncher)
 if (WITH_QMLDESIGNER)
   add_subdirectory(qmlpuppet)
   add_subdirectory(sqlitetester)

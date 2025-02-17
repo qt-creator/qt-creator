@@ -5,8 +5,8 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace Android {
+namespace Android::Internal {
 
 void setupAndroidRunConfiguration();
 
-} // namespace Android
+} // namespace Android::Internal

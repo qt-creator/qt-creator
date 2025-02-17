@@ -24,7 +24,8 @@ namespace QmakeProjectManager::Internal {
 
 static QString headerGuard(const QString &header)
 {
-    return header.toUpper().replace(QRegularExpression("[^A-Z0-9]+"), QString("_"));
+    static const QRegularExpression regexp("[^A-Z0-9]+");
+    return header.toUpper().replace(regexp, QString("_"));
 }
 
 struct ProjectContents {

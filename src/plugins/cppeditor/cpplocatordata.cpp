@@ -88,7 +88,7 @@ void CppLocatorData::flushPendingDocument(bool force) const
         return;
 
     for (CPlusPlus::Document::Ptr doc : std::as_const(m_pendingDocuments))
-        m_infosByFile.insert(StringTable::insert(doc->filePath().toString()), m_search(doc));
+        m_infosByFile.insert(StringTable::insert(doc->filePath().toUrlishString()), m_search(doc));
 
     m_pendingDocuments.clear();
     m_pendingDocuments.reserve(MaxPendingDocuments);

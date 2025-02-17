@@ -232,7 +232,7 @@ void SquishFileHandler::openTestSuites()
     const Utils::FilePaths chosenSuites = dialog.chosenSuites();
     for (const Utils::FilePath &suiteDir : chosenSuites) {
         const QString suiteName = suiteDir.fileName();
-        const QStringList cases = SuiteConf::validTestCases(suiteDir.toString());
+        const QStringList cases = SuiteConf::validTestCases(suiteDir.toUrlishString());
         const Utils::FilePath suiteConf = suiteDir.pathAppended("suite.conf");
 
         if (m_suites.contains(suiteName)) {
@@ -268,7 +268,7 @@ void SquishFileHandler::openTestSuites()
 void SquishFileHandler::openTestSuite(const Utils::FilePath &suiteConfPath, bool isReopen)
 {
     const QString suiteName = suiteConfPath.parentDir().fileName();
-    const QStringList cases = SuiteConf::validTestCases(suiteConfPath.parentDir().toString());
+    const QStringList cases = SuiteConf::validTestCases(suiteConfPath.parentDir().toUrlishString());
 
     if (m_suites.contains(suiteName)) {
         if (isReopen) {
@@ -339,11 +339,10 @@ void SquishFileHandler::deleteTestCase(const QString &suiteName, const QString &
     SuiteConf suiteConf = SuiteConf::readSuiteConf(suiteConfPath);
     const Utils::FilePath testCaseDirectory = suiteConfPath.parentDir().pathAppended(testCaseName);
     closeOpenedEditorsFor(testCaseDirectory, false);
-    QString error;
-    if (!testCaseDirectory.removeRecursively(&error)) {
+    Utils::Result result = testCaseDirectory.removeRecursively();
+    if (!result) {
         QString detail = Tr::tr("Deletion of Test Case failed.");
-        if (!error.isEmpty())
-            detail.append('\n').append(error);
+        detail.append('\n').append(result.error());
         SquishMessages::criticalMessage(detail);
     } else {
         Core::DocumentManager::expectFileChange(suiteConfPath);
@@ -467,7 +466,7 @@ void addAllEntriesRecursively(SquishTestTreeItem *item)
 void SquishFileHandler::addSharedFolder()
 {
     const Utils::FilePath chosen = Utils::FileUtils::getExistingDirectory(
-                Core::ICore::dialogParent(), Tr::tr("Select Global Script Folder"));
+                Tr::tr("Select Global Script Folder"));
     if (chosen.isEmpty())
         return;
 
@@ -565,7 +564,7 @@ void SquishFileHandler::updateSquishServerGlobalScripts()
 
 QStringList SquishFileHandler::suitePathsAsStringList() const
 {
-    return Utils::transform(m_suites.values(), &Utils::FilePath::toString);
+    return Utils::transform(m_suites.values(), &Utils::FilePath::toUrlishString);
 }
 
 } // namespace Internal

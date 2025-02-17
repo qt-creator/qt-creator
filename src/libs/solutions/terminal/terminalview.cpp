@@ -973,6 +973,8 @@ void TerminalView::keyPressEvent(QKeyEvent *event)
             verticalScrollBar()->setValue(0);
             break;
         default:
+            if (event->key() < Qt::Key_Shift || event->key() > Qt::Key_ScrollLock)
+                verticalScrollBar()->setValue(verticalScrollBar()->maximum());
             d->m_surface->sendKey(event);
             break;
         }
@@ -1108,6 +1110,8 @@ void TerminalView::focusOutEvent(QFocusEvent *)
 
 void TerminalView::inputMethodEvent(QInputMethodEvent *event)
 {
+    verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+
     d->m_preEditString = event->preeditString();
 
     if (event->commitString().isEmpty()) {

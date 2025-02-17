@@ -6,8 +6,8 @@
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidrunner.h"
-#include "androidmanager.h"
 #include "androidqtversion.h"
+#include "androidutils.h"
 
 #include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
@@ -86,13 +86,81 @@ public:
     explicit AndroidDebugSupport(RunControl *runControl) : Debugger::DebuggerRunTool(runControl)
     {
         setId("AndroidDebugger");
-        setLldbPlatform("remote-android");
+        DebuggerRunParameters &rp = runParameters();
+        rp.setLldbPlatform("remote-android");
         m_runner = new AndroidRunner(runControl);
         addStartDependency(m_runner);
+
+        Target *target = runControl->target();
+        Kit *kit = target->kit();
+        rp.setStartMode(AttachToRemoteServer);
+        const QString packageName = Internal::packageName(target);
+        rp.setDisplayName(packageName);
+        rp.setUseContinueInsteadOfRun(true);
+
+        QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
+        if (!HostOsInfo::isWindowsHost()
+            && (qtVersion && AndroidConfig::ndkVersion(qtVersion) >= QVersionNumber(11, 0, 0))) {
+            qCDebug(androidDebugSupportLog) << "UseTargetAsync: " << true;
+            rp.setUseTargetAsync(true);
+        }
+
+        if (rp.isCppDebugging()) {
+            qCDebug(androidDebugSupportLog) << "C++ debugging enabled";
+            const ProjectNode *node = target->project()->findNodeForBuildKey(runControl->buildKey());
+            FilePaths solibSearchPath = getSoLibSearchPath(node);
+            if (qtVersion)
+                solibSearchPath.append(qtVersion->qtSoPaths());
+            const FilePaths extraLibs = getExtraLibs(node);
+            solibSearchPath.append(extraLibs);
+
+            FilePath buildDir = Internal::buildDirectory(target);
+            const RunConfiguration *activeRunConfig = target->activeRunConfiguration();
+            if (activeRunConfig)
+                solibSearchPath.append(activeRunConfig->buildTargetInfo().workingDirectory);
+            solibSearchPath.append(buildDir);
+            const FilePath androidLibsPath = androidBuildDirectory(target)
+                                                 .pathAppended("libs")
+                                                 .pathAppended(apkDevicePreferredAbi(target));
+            solibSearchPath.append(androidLibsPath);
+            FilePath::removeDuplicates(solibSearchPath);
+            rp.setSolibSearchPath(solibSearchPath);
+            qCDebug(androidDebugSupportLog).noquote() << "SoLibSearchPath: " << solibSearchPath;
+            rp.setSymbolFile(androidAppProcessDir(target).pathAppended("app_process"));
+            rp.setUseExtendedRemote(true);
+            const QString devicePreferredAbi = apkDevicePreferredAbi(target);
+            rp.setToolChainAbi(androidAbi2Abi(devicePreferredAbi));
+
+            auto qt = static_cast<AndroidQtVersion *>(qtVersion);
+            const int minimumNdk = qt ? qt->minimumNDK() : 0;
+
+            int sdkVersion = qMax(Internal::minimumSDK(kit), minimumNdk);
+            if (qtVersion) {
+                const FilePath ndkLocation = AndroidConfig::ndkLocation(qtVersion);
+                FilePath sysRoot = ndkLocation
+                                   / "platforms"
+                                   / QString("android-%1").arg(sdkVersion)
+                                   / devicePreferredAbi; // Legacy Ndk structure
+                if (!sysRoot.exists())
+                    sysRoot = AndroidConfig::toolchainPathFromNdk(ndkLocation) / "sysroot";
+                rp.setSysRoot(sysRoot);
+                qCDebug(androidDebugSupportLog).noquote() << "Sysroot: " << sysRoot.toUserOutput();
+            }
+        }
+        if (rp.isQmlDebugging()) {
+            qCDebug(androidDebugSupportLog) << "QML debugging enabled. QML server: "
+                                            << runControl->qmlChannel().toDisplayString();
+            //TODO: Not sure if these are the right paths.
+            if (qtVersion)
+                rp.addSearchDirectory(qtVersion->qmlPath());
+        }
+        connect(this, &RunWorker::started, this, [this, packageName] {
+            qCDebug(androidDebugSupportLog) << "Starting debugger - package name: " << packageName
+                                            << ", PID: " << m_runner->pid().pid();
+        });
     }
 
     void start() override;
-    void stop() override;
 
 private:
     AndroidRunner *m_runner = nullptr;
@@ -100,100 +168,28 @@ private:
 
 void AndroidDebugSupport::start()
 {
-    Target *target = runControl()->target();
-    Kit *kit = target->kit();
-
-    setStartMode(AttachToRemoteServer);
-    const QString packageName = AndroidManager::packageName(target);
-    setRunControlName(packageName);
-    setUseContinueInsteadOfRun(true);
-    setAttachPid(m_runner->pid());
-
-    QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
-    if (!HostOsInfo::isWindowsHost()
-        && (qtVersion && AndroidConfig::ndkVersion(qtVersion) >= QVersionNumber(11, 0, 0))) {
-        qCDebug(androidDebugSupportLog) << "UseTargetAsync: " << true;
-        setUseTargetAsync(true);
-    }
-
-    if (isCppDebugging()) {
-        qCDebug(androidDebugSupportLog) << "C++ debugging enabled";
-        const ProjectNode *node = target->project()->findNodeForBuildKey(runControl()->buildKey());
-        FilePaths solibSearchPath = getSoLibSearchPath(node);
-        if (qtVersion)
-            solibSearchPath.append(qtVersion->qtSoPaths());
-        const FilePaths extraLibs = getExtraLibs(node);
-        solibSearchPath.append(extraLibs);
-
-        FilePath buildDir = AndroidManager::buildDirectory(target);
-        const RunConfiguration *activeRunConfig = target->activeRunConfiguration();
-        if (activeRunConfig)
-            solibSearchPath.append(activeRunConfig->buildTargetInfo().workingDirectory);
-        solibSearchPath.append(buildDir);
-        const FilePath androidLibsPath = AndroidManager::androidBuildDirectory(target)
-                                         .pathAppended("libs")
-                                         .pathAppended(AndroidManager::apkDevicePreferredAbi(target));
-        solibSearchPath.append(androidLibsPath);
-        FilePath::removeDuplicates(solibSearchPath);
-        setSolibSearchPath(solibSearchPath);
-        qCDebug(androidDebugSupportLog).noquote() << "SoLibSearchPath: " << solibSearchPath;
-        setSymbolFile(AndroidManager::androidAppProcessDir(target).pathAppended("app_process"));
-        setSkipExecutableValidation(true);
-        setUseExtendedRemote(true);
-        QString devicePreferredAbi = AndroidManager::apkDevicePreferredAbi(target);
-        setAbi(AndroidManager::androidAbi2Abi(devicePreferredAbi));
-
-        if (cppEngineType() == LldbEngineType) {
-            QString deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
+    DebuggerRunParameters &rp = runParameters();
+    rp.setAttachPid(m_runner->pid());
+    if (rp.isCppDebugging()) {
+        if (rp.cppEngineType() == LldbEngineType) {
+            QString deviceSerialNumber = Internal::deviceSerialNumber(runControl()->target());
             const int colonPos = deviceSerialNumber.indexOf(QLatin1Char(':'));
             if (colonPos > 0) {
                 // When wireless debugging is used then the device serial number will include a port number
                 // The port number must be removed to form a valid hostname
                 deviceSerialNumber.truncate(colonPos);
             }
-            setRemoteChannel("adb://" + deviceSerialNumber,
-                             m_runner->debugServerPort().number());
+            rp.setRemoteChannel("adb://" + deviceSerialNumber, m_runner->debugServerPort().number());
         } else {
             QUrl debugServer;
             debugServer.setPort(m_runner->debugServerPort().number());
             debugServer.setHost(QHostAddress(QHostAddress::LocalHost).toString());
-            setRemoteChannel(debugServer);
-        }
-
-        auto qt = static_cast<AndroidQtVersion *>(qtVersion);
-        const int minimumNdk = qt ? qt->minimumNDK() : 0;
-
-        int sdkVersion = qMax(AndroidManager::minimumSDK(kit), minimumNdk);
-        if (qtVersion) {
-            const FilePath ndkLocation = AndroidConfig::ndkLocation(qtVersion);
-            FilePath sysRoot = ndkLocation
-                    / "platforms"
-                    / QString("android-%1").arg(sdkVersion)
-                    / devicePreferredAbi; // Legacy Ndk structure
-            if (!sysRoot.exists())
-                sysRoot = AndroidConfig::toolchainPathFromNdk(ndkLocation) / "sysroot";
-            setSysRoot(sysRoot);
-            qCDebug(androidDebugSupportLog).noquote() << "Sysroot: " << sysRoot.toUserOutput();
+            rp.setRemoteChannel(debugServer);
         }
     }
-    if (isQmlDebugging()) {
-        qCDebug(androidDebugSupportLog) << "QML debugging enabled. QML server: "
-                                        << qmlChannel().toDisplayString();
-        setQmlServer(qmlChannel());
-        //TODO: Not sure if these are the right paths.
-        if (qtVersion)
-            addSearchDirectory(qtVersion->qmlPath());
-    }
-
-    qCDebug(androidDebugSupportLog) << "Starting debugger - package name: " << packageName
-                                    << ", PID: " << m_runner->pid().pid();
+    if (rp.isQmlDebugging())
+        rp.setQmlServer(runControl()->qmlChannel());
     DebuggerRunTool::start();
-}
-
-void AndroidDebugSupport::stop()
-{
-    qCDebug(androidDebugSupportLog) << "Stop";
-    DebuggerRunTool::stop();
 }
 
 // AndroidDebugWorkerFactory

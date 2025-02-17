@@ -35,8 +35,9 @@
         \li Select the device, CMake tool, Qt version, and compiler that you
             added above.
 
-        \li In \uicontrol {Run device type} and \uicontrol {Build device}, select
-            \uicontrol {\1}.
+        \li In \uicontrol {Type} in \uicontrol {Run device} and
+            \uicontrol {Build device}, select \uicontrol {\1}. Select
+            the actual device to run and build on in \uicontrol {Device}.
 
         \li To specify build settings:
 

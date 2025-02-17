@@ -7,7 +7,7 @@
     "trDisplayName": "Java File",
     "trDisplayCategory": "Java",
     "iconText": "java",
-    "enabled": "%{JS: value('Plugins').indexOf('Android') >= 0}",
+    "enabled": "%{JS: isPluginRunning('android')}",
 
     "options": [
         { "key": "ClassName", "value": "%{JS: value('FileName').charAt(0).toUpperCase() + value('FileName').substr(1).replace(/[.]java$/,'')}" },

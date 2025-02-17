@@ -5,6 +5,8 @@
 
 #include "remotelinuxtr.h"
 
+#include <coreplugin/icore.h>
+
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/devicesupport/sshsettings.h>
@@ -27,21 +29,20 @@ public:
     bool m_done;
 };
 
-PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(
-        const IDevice::ConstPtr &deviceConfig, QWidget *parent)
+PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(const DeviceConstRef &device)
 {
-    const FilePath dir = deviceConfig->sshParameters().privateKeyFile.parentDir();
-    const FilePath publicKeyFileName = FileUtils::getOpenFilePath(nullptr,
+    const FilePath dir = device.sshParameters().privateKeyFile.parentDir();
+    const FilePath publicKeyFileName = FileUtils::getOpenFilePath(
         Tr::tr("Choose Public Key File"), dir,
         Tr::tr("Public Key Files (*.pub);;All Files (*)"));
     if (publicKeyFileName.isEmpty())
         return nullptr;
-    return new PublicKeyDeploymentDialog(deviceConfig, publicKeyFileName, parent);
+    return new PublicKeyDeploymentDialog(device, publicKeyFileName);
 }
 
-PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const IDevice::ConstPtr &deviceConfig,
-        const FilePath &publicKeyFileName, QWidget *parent)
-    : QProgressDialog(parent), d(new PublicKeyDeploymentDialogPrivate)
+PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const DeviceConstRef &device,
+                                                     const FilePath &publicKeyFileName)
+    : QProgressDialog(Core::ICore::dialogParent()), d(new PublicKeyDeploymentDialogPrivate)
 {
     setAutoReset(false);
     setAutoClose(false);
@@ -55,20 +56,20 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const IDevice::ConstPtr &de
             [this] { d->m_done ? accept() : reject(); });
     connect(&d->m_process, &Process::done, this, [this] {
         const bool succeeded = d->m_process.result() == ProcessResult::FinishedWithSuccess;
-        QString finalMessage;
+        Result result = Result::Ok;
         if (!succeeded) {
             const QString errorString = d->m_process.errorString();
             const QString errorMessage = errorString.isEmpty() ? d->m_process.cleanedStdErr()
                                                                : errorString;
-            finalMessage = Utils::joinStrings({Tr::tr("Key deployment failed."),
-                                               Utils::trimBack(errorMessage, '\n')}, '\n');
+            result = Result::Error(Utils::joinStrings({Tr::tr("Key deployment failed."),
+                                               Utils::trimBack(errorMessage, '\n')}, '\n'));
         }
-        handleDeploymentDone(succeeded, finalMessage);
+        handleDeploymentDone(result);
     });
 
     FileReader reader;
     if (!reader.fetch(publicKeyFileName)) {
-        handleDeploymentDone(false, Tr::tr("Public key error: %1").arg(reader.errorString()));
+        handleDeploymentDone(Result::Error(Tr::tr("Public key error: %1").arg(reader.errorString())));
         return;
     }
 
@@ -76,11 +77,11 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const IDevice::ConstPtr &de
             + QString::fromLocal8Bit(reader.data())
             + "' >> .ssh/authorized_keys && chmod 0600 .ssh/authorized_keys";
 
-    const SshParameters params = deviceConfig->sshParameters();
+    const SshParameters params = device.sshParameters();
     const QString hostKeyCheckingString = params.hostKeyCheckingMode == SshHostKeyCheckingStrict
             ? QLatin1String("yes") : QLatin1String("no");
     const bool isWindows = HostOsInfo::isWindowsHost()
-            && SshSettings::sshFilePath().toString().toLower().contains("/system32/");
+            && SshSettings::sshFilePath().toUrlishString().toLower().contains("/system32/");
     const bool useTimeout = (params.timeout != 0) && !isWindows;
 
     Utils::CommandLine cmd{SshSettings::sshFilePath()};
@@ -109,16 +110,16 @@ PublicKeyDeploymentDialog::~PublicKeyDeploymentDialog()
     delete d;
 }
 
-void PublicKeyDeploymentDialog::handleDeploymentDone(bool succeeded, const QString &errorMessage)
+void PublicKeyDeploymentDialog::handleDeploymentDone(const Result &result)
 {
-    QString buttonText = succeeded ? Tr::tr("Deployment finished successfully.") : errorMessage;
+    QString buttonText = result ? Tr::tr("Deployment finished successfully.") : result.error();
     const QString textColor = creatorColor(
-                succeeded ? Theme::TextColorNormal : Theme::TextColorError).name();
+                                  result ? Theme::TextColorNormal : Theme::TextColorError).name();
     setLabelText(QString::fromLatin1("<font color=\"%1\">%2</font>")
             .arg(textColor, buttonText.replace("\n", "<br/>")));
     setCancelButtonText(Tr::tr("Close"));
 
-    if (!succeeded)
+    if (!result)
         return;
 
     setValue(1);

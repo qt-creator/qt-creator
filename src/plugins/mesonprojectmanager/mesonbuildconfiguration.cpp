@@ -7,7 +7,7 @@
 #include "mesonbuildsystem.h"
 #include "mesonpluginconstants.h"
 #include "mesonprojectmanagertr.h"
-#include "ninjabuildstep.h"
+#include "mesonbuildstep.h"
 
 #include <coreplugin/find/itemviewfind.h>
 
@@ -17,7 +17,6 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/namedwidget.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
@@ -70,6 +69,7 @@ static FilePath shadowBuildDirectory(const FilePath &projectFilePath,
 MesonBuildConfiguration::MesonBuildConfiguration(ProjectExplorer::Target *target, Id id)
     : BuildConfiguration(target, id)
 {
+    setConfigWidgetDisplayName(Tr::tr("Meson"));
     appendInitialBuildStep(Constants::MESON_BUILD_STEP_ID);
     appendInitialCleanStep(Constants::MESON_BUILD_STEP_ID);
     setInitializer([this, target](const ProjectExplorer::BuildInfo &info) {
@@ -97,7 +97,7 @@ ProjectExplorer::BuildSystem *MesonBuildConfiguration::buildSystem() const
 
 void MesonBuildConfiguration::build(const QString &target)
 {
-    auto mesonBuildStep = qobject_cast<NinjaBuildStep *>(
+    auto mesonBuildStep = qobject_cast<MesonBuildStep *>(
         Utils::findOrDefault(buildSteps()->steps(), [](const ProjectExplorer::BuildStep *bs) {
             return bs->id() == Constants::MESON_BUILD_STEP_ID;
         }));
@@ -152,11 +152,11 @@ void MesonBuildConfiguration::fromMap(const Store &map)
     m_parameters = map.value(Constants::BuildConfiguration::PARAMETERS_KEY).toString();
 }
 
-class MesonBuildSettingsWidget : public NamedWidget
+class MesonBuildSettingsWidget : public QWidget
 {
 public:
     explicit MesonBuildSettingsWidget(MesonBuildConfiguration *buildCfg)
-        : NamedWidget(Tr::tr("Meson")), m_progressIndicator(ProgressIndicatorSize::Large)
+        : m_progressIndicator(ProgressIndicatorSize::Large)
     {
         auto configureButton = new QPushButton(Tr::tr("Apply Configuration Changes"));
         configureButton->setEnabled(false);
@@ -300,7 +300,7 @@ private:
     QTimer m_showProgressTimer;
 };
 
-NamedWidget *MesonBuildConfiguration::createConfigWidget()
+QWidget *MesonBuildConfiguration::createConfigWidget()
 {
     return new MesonBuildSettingsWidget{this};
 }

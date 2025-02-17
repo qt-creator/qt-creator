@@ -67,9 +67,8 @@ void updateMCUProjectTree(ProjectExplorer::Project *p)
 {
     if (!p || !p->rootProjectNode())
         return;
-    ProjectExplorer::Target *target = p->activeTarget();
-    if (!target || !target->kit()
-        || !target->kit()->hasValue(Constants::KIT_MCUTARGET_KITVERSION_KEY))
+    ProjectExplorer::Kit *kit = p->activeKit();
+    if (!kit || !kit->hasValue(Constants::KIT_MCUTARGET_KITVERSION_KEY))
         return;
 
     p->rootProjectNode()->forEachProjectNode([](const ProjectNode *node) {
@@ -137,7 +136,7 @@ static void askUserAboutMcuSupportKitsSetup()
 
     Utils::InfoBarEntry info(setupMcuSupportKits,
                              Tr::tr("Create Kits for Qt for MCUs? "
-                                    "To do it later, select Edit > Preferences > Devices > MCU."),
+                                    "To do it later, select Edit > Preferences > SDKs > MCU."),
                              Utils::InfoBarEntry::GlobalSuppression::Enabled);
     // clazy:excludeall=connect-3arg-lambda
     info.addCustomButton(Tr::tr("Create Kits for Qt for MCUs"), [] {

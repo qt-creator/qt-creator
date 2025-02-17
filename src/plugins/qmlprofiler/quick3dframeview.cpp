@@ -81,19 +81,19 @@ Quick3DFrameView::Quick3DFrameView(QmlProfilerModelManager *profilerModelManager
     groupLayout->addLayout(hMainLayout);
     connect(model, &Quick3DFrameModel::modelReset, [model, view3DComboModel, frameComboModel](){
         QStringList list;
-        list << Tr::tr("All");
+        list << Tr::tr("All", "All View3D frames");
         list << model->view3DNames();
         view3DComboModel->setStringList(list);
         list.clear();
-        list << Tr::tr("None");
-        list << model->frameNames(Tr::tr("All"));
+        list << Tr::tr("None", "Compare Frame: None");
+        list << model->frameNames(Tr::tr("All", "Compare Frame: All"));
         frameComboModel->setStringList(list);
     });
     connect(view3DComboBox, &QComboBox::currentTextChanged, [this, model, frameComboModel](const QString &text){
         m_mainView->setFilterView3D(text);
         model->setFilterView3D(text);
         QStringList list;
-        list << Tr::tr("None");
+        list << Tr::tr("None", "Compare Frame: None");
         list << model->frameNames(text);
         frameComboModel->setStringList(list);
     });
@@ -161,7 +161,7 @@ Quick3DMainView::Quick3DMainView(Quick3DFrameModel *model, bool compareView, QWi
 
 void Quick3DMainView::setFilterView3D(const QString &objectName)
 {
-    if (objectName == Tr::tr("All"))
+    if (objectName == Tr::tr("All", "All View3D frames"))
         m_sortModel->setFilterFixedString("");
     else
         m_sortModel->setFilterFixedString(objectName);

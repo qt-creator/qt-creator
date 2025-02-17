@@ -138,10 +138,10 @@ void CustomWizard::setParameters(const CustomWizardParametersPtr &p)
     setFlags(p->flags);
 }
 
-BaseFileWizard *CustomWizard::create(QWidget *parent, const WizardDialogParameters &p) const
+BaseFileWizard *CustomWizard::create(const WizardDialogParameters &p) const
 {
     QTC_ASSERT(d->m_parameters, return nullptr);
-    auto wizard = new BaseFileWizard(this, p.extraValues(), parent);
+    auto wizard = new BaseFileWizard(this, p.extraValues());
 
     d->m_context->reset();
     auto customPage = new CustomWizardPage(d->m_context, parameters());
@@ -176,10 +176,8 @@ static bool createFile(CustomWizardFile cwFile,
         qDebug() << "generating " << targetPath << sourcePath << fm;
 
     // Read contents of source file
-    const QFile::OpenMode openMode
-            = cwFile.binary ? QIODevice::ReadOnly : (QIODevice::ReadOnly|QIODevice::Text);
     FileReader reader;
-    if (!reader.fetch(FilePath::fromString(sourcePath), openMode, errorMessage))
+    if (!reader.fetch(FilePath::fromString(sourcePath), errorMessage))
         return false;
 
     GeneratedFile generatedFile;
@@ -190,7 +188,7 @@ static bool createFile(CustomWizardFile cwFile,
         generatedFile.setBinaryContents(reader.data());
     } else {
         // Template file: Preprocess.
-        const QString contentsIn = QString::fromLocal8Bit(reader.data());
+        const QString contentsIn = QString::fromLocal8Bit(reader.text());
         generatedFile.setContents(CustomWizardContext::processFile(fm, contentsIn));
     }
 
@@ -221,7 +219,7 @@ static inline QString scriptWorkingDirectory(const std::shared_ptr<CustomWizardC
                                              const std::shared_ptr<CustomWizardParameters> &p)
 {
     if (p->filesGeneratorScriptWorkingDirectory.isEmpty())
-        return ctx->targetPath.toString();
+        return ctx->targetPath.toUrlishString();
     QString path = p->filesGeneratorScriptWorkingDirectory;
     CustomWizardContext::replaceFields(ctx->replacements, &path);
     return path;
@@ -282,7 +280,7 @@ bool CustomWizard::writeFiles(const GeneratedFiles &files, QString *errorMessage
             if (!generatedFile.filePath().isFile()) {
                 *errorMessage = QString::fromLatin1("%1 failed to generate %2").
                         arg(d->m_parameters->filesGeneratorScript.back()).
-                        arg(generatedFile.filePath().toString());
+                        arg(generatedFile.filePath().toUrlishString());
                 return false;
             }
     }
@@ -312,7 +310,7 @@ GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) const
     }
     // Add the template files specified by the <file> elements.
     for (const CustomWizardFile &file : std::as_const(d->m_parameters->files))
-        if (!createFile(file, d->m_parameters->directory, ctx->targetPath.toString(), context()->replacements,
+        if (!createFile(file, d->m_parameters->directory, ctx->targetPath.toUrlishString(), context()->replacements,
                         &rc, errorMessage))
             return {};
 
@@ -370,8 +368,8 @@ void CustomWizard::createWizards()
     QString errorMessage;
     QString verboseLog;
 
-    const QString templateDirName = ICore::resourcePath(templatePathC).toString();
-    const QString userTemplateDirName = ICore::userResourcePath(templatePathC).toString();
+    const QString templateDirName = ICore::resourcePath(templatePathC).toUrlishString();
+    const QString userTemplateDirName = ICore::userResourcePath(templatePathC).toUrlishString();
 
     const QDir templateDir(templateDirName);
     if (CustomWizardPrivate::verbose)
@@ -461,10 +459,9 @@ CustomProjectWizard::CustomProjectWizard() = default;
     initProjectWizardDialog() needs to be called.
 */
 
-BaseFileWizard *CustomProjectWizard::create(QWidget *parent,
-                                            const WizardDialogParameters &parameters) const
+BaseFileWizard *CustomProjectWizard::create(const WizardDialogParameters &parameters) const
 {
-    auto projectDialog = new BaseProjectWizardDialog(this, parent, parameters);
+    auto projectDialog = new BaseProjectWizardDialog(this, parameters);
     initProjectWizardDialog(projectDialog,
                             parameters.defaultPath(),
                             projectDialog->extensionPages());

@@ -3,7 +3,6 @@
 
 #include "insertfunctiondefinition.h"
 
-#include "../cppcodestylepreferences.h"
 #include "../cppcodestylesettings.h"
 #include "../cppeditortr.h"
 #include "../cppeditorwidget.h"
@@ -23,6 +22,7 @@
 #include <QDialogButtonBox>
 #include <QGridLayout>
 #include <QHBoxLayout>
+#include <QScrollArea>
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
@@ -172,7 +172,7 @@ public:
             QString input = prettyType;
             int index = 0;
             while (input.startsWith("template")) {
-                QRegularExpression templateRegex("template\\s*<[^>]*>");
+                static const QRegularExpression templateRegex("template\\s*<[^>]*>");
                 QRegularExpressionMatch match = templateRegex.match(input);
                 if (match.hasMatch()) {
                     index += match.captured().size() + 1;
@@ -239,7 +239,10 @@ public:
         setWindowTitle(Tr::tr("Member Function Implementations"));
 
         const auto defaultImplTargetComboBox = new QComboBox;
-        QStringList implTargetStrings{Tr::tr("None"), Tr::tr("Inline"), Tr::tr("Outside Class")};
+        QStringList implTargetStrings{
+            Tr::tr("None", "No default implementation location"),
+            Tr::tr("Inline"),
+            Tr::tr("Outside Class")};
         if (!implFile.isEmpty())
             implTargetStrings.append(implFile.fileName());
         defaultImplTargetComboBox->insertItems(0, implTargetStrings);
@@ -254,7 +257,8 @@ public:
         defaultImplTargetLayout->addWidget(new QLabel(Tr::tr("Default implementation location:")));
         defaultImplTargetLayout->addWidget(defaultImplTargetComboBox);
 
-        const auto candidatesLayout = new QGridLayout;
+        const auto candidatesWidget = new QWidget;
+        const auto candidatesLayout = new QGridLayout(candidatesWidget);
         Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
         oo.showFunctionSignatures = true;
         oo.showReturnTypes = true;
@@ -270,6 +274,8 @@ public:
                                         i, 0);
             candidatesLayout->addWidget(implTargetComboBox, i, 1);
         }
+        const auto scrollArea = new QScrollArea;
+        scrollArea->setWidget(candidatesWidget);
 
         const auto buttonBox
             = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -280,7 +286,7 @@ public:
         const auto mainLayout = new QVBoxLayout(this);
         mainLayout->addLayout(defaultImplTargetLayout);
         mainLayout->addWidget(Layouting::createHr(this));
-        mainLayout->addLayout(candidatesLayout);
+        mainLayout->addWidget(scrollArea);
         mainLayout->addWidget(buttonBox);
     }
 
@@ -352,7 +358,7 @@ private:
             return;
 
         CppRefactoringChanges refactoring(snapshot());
-        const bool isHeaderFile = ProjectFile::isHeader(ProjectFile::classify(filePath().toString()));
+        const bool isHeaderFile = ProjectFile::isHeader(ProjectFile::classify(filePath().toUrlishString()));
         FilePath cppFile; // Only set if the class is defined in a header file.
         if (isHeaderFile) {
             InsertionPointLocator locator(refactoring);
@@ -519,7 +525,7 @@ private:
                                 // Insert Position: Implementation File
                                 DeclaratorAST *declAST = simpleDecl->declarator_list->value;
                                 InsertDefOperation *op = nullptr;
-                                ProjectFile::Kind kind = ProjectFile::classify(interface.filePath().toString());
+                                ProjectFile::Kind kind = ProjectFile::classify(interface.filePath().toUrlishString());
                                 const bool isHeaderFile = ProjectFile::isHeader(kind);
                                 if (isHeaderFile) {
                                     CppRefactoringChanges refactoring(interface.snapshot());

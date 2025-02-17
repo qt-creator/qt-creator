@@ -81,71 +81,7 @@ QStringList MercurialDiffEditorController::addConfigurationArguments(const QStri
 
 /////////////////////////////////////////////////////////////
 
-MercurialClient::MercurialClient()
-    : VcsBaseClient(&Internal::settings())
-{
-}
-
-bool MercurialClient::manifestSync(const FilePath &repository, const QString &relativeFilename)
-{
-    // This  only works when called from the repo and outputs paths relative to it.
-    const QStringList args(QLatin1String("manifest"));
-
-    const CommandResult result = vcsSynchronousExec(repository, args);
-
-    const QDir repositoryDir(repository.toString());
-    const QFileInfo needle = QFileInfo(repositoryDir, relativeFilename);
-
-    const QStringList files = result.cleanedStdOut().split(QLatin1Char('\n'));
-    for (const QString &fileName : files) {
-        const QFileInfo managedFile(repositoryDir, fileName);
-        if (needle == managedFile)
-            return true;
-    }
-    return false;
-}
-
-//bool MercurialClient::clone(const QString &directory, const QString &url)
-bool MercurialClient::synchronousClone(const FilePath &workingDirectory,
-                                       const QString &srcLocation,
-                                       const QString &dstLocation,
-                                       const QStringList &extraOptions)
-{
-    Q_UNUSED(srcLocation)
-    Q_UNUSED(extraOptions)
-    const RunFlags flags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
-
-    if (workingDirectory.exists()) {
-        // Let's make first init
-        if (vcsSynchronousExec(workingDirectory, QStringList{"init"}).result()
-                != ProcessResult::FinishedWithSuccess) {
-            return false;
-        }
-
-        // Then pull remote repository
-        if (vcsSynchronousExec(workingDirectory, {"pull", dstLocation}, flags).result()
-                != ProcessResult::FinishedWithSuccess) {
-            return false;
-        }
-
-        // By now, there is no hgrc file -> create it
-        FileSaver saver(workingDirectory.pathAppended(".hg/hgrc"));
-        const QString hgrc = QLatin1String("[paths]\ndefault = ") + dstLocation + QLatin1Char('\n');
-        saver.write(hgrc.toUtf8());
-        if (!saver.finalize()) {
-            VcsOutputWindow::appendError(saver.errorString());
-            return false;
-        }
-
-        // And last update repository
-        return vcsSynchronousExec(workingDirectory, QStringList{"update"}, flags).result()
-                == ProcessResult::FinishedWithSuccess;
-    } else {
-        const QStringList arguments{"clone", dstLocation, workingDirectory.parentDir().toString()};
-        return vcsSynchronousExec(workingDirectory.parentDir(), arguments, flags).result()
-                == ProcessResult::FinishedWithSuccess;
-    }
-}
+MercurialClient::MercurialClient() : VcsBaseClient(&Internal::settings()) {}
 
 bool MercurialClient::synchronousPull(const FilePath &workingDir, const QString &srcLocation, const QStringList &extraOptions)
 {
@@ -264,7 +200,7 @@ void MercurialClient::incoming(const FilePath &repositoryRoot, const QString &re
     if (!repository.isEmpty())
         args.append(repository);
 
-    QString id = repositoryRoot.toString();
+    QString id = repositoryRoot.toUrlishString();
     if (!repository.isEmpty())
         id += QLatin1Char('/') + repository;
 
@@ -285,7 +221,7 @@ void MercurialClient::outgoing(const FilePath &repositoryRoot)
 
     VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot,
                                                   VcsBaseEditor::getCodec(repositoryRoot),
-                                                  "outgoing", repositoryRoot.toString());
+                                                  "outgoing", repositoryRoot.toUrlishString());
     enqueueJob(createCommand(repositoryRoot, editor), args, repositoryRoot);
 }
 
@@ -313,20 +249,20 @@ void MercurialClient::showDiffEditor(const FilePath &workingDir, const QStringLi
         const QString title = Tr::tr("Mercurial Diff");
         const FilePath sourceFile = VcsBaseEditor::getSource(workingDir, QString());
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
-                + ".DiffRepo." + sourceFile.toString();
+                + ".DiffRepo." + sourceFile.toUrlishString();
         requestReload(documentId, sourceFile, title, workingDir, {"diff"});
     } else if (files.size() == 1) {
         const QString &fileName = files.at(0);
         const QString title = Tr::tr("Mercurial Diff \"%1\"").arg(fileName);
         const FilePath sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
-                + ".DiffFile." + sourceFile.toString();
+                + ".DiffFile." + sourceFile.toUrlishString();
         requestReload(documentId, sourceFile, title, workingDir, {"diff", fileName});
     } else {
-        const QString title = Tr::tr("Mercurial Diff \"%1\"").arg(workingDir.toString());
+        const QString title = Tr::tr("Mercurial Diff \"%1\"").arg(workingDir.toUrlishString());
         const FilePath sourceFile = VcsBaseEditor::getSource(workingDir, QString());
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
-                + ".DiffFile." + workingDir.toString();
+                + ".DiffFile." + workingDir.toUrlishString();
         requestReload(documentId, sourceFile, title, workingDir, QStringList{"diff"} + files);
     }
 }
@@ -359,12 +295,6 @@ void MercurialClient::view(const FilePath &source, const QString &id,
     args << QLatin1String("-v") << QLatin1String("log")
          << QLatin1String("-p") << QLatin1String("-g");
     VcsBaseClient::view(source, id, args << extraOptions);
-}
-
-FilePath MercurialClient::findTopLevelForFile(const FilePath &file) const
-{
-    const QString repositoryCheckFile = QLatin1String(Constants::MERCURIALREPO) + QLatin1String("/requires");
-    return VcsBase::findRepositoryForFile(file, repositoryCheckFile);
 }
 
 Utils::Id MercurialClient::vcsEditorKind(VcsCommandTag cmd) const

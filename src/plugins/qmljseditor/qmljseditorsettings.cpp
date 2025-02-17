@@ -4,10 +4,17 @@
 #include "qmljseditorsettings.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditortr.h"
+#include "qmllsclient.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 
+#include <languageclient/languageclientinterface.h>
+#include <languageclient/languageclientmanager.h>
+#include <languageclient/languageclientsettings.h>
+
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projectsettingswidget.h>
 #include <projectexplorer/projecttree.h>
@@ -35,6 +42,7 @@
 #include <QLineEdit>
 #include <QLoggingCategory>
 #include <QMenu>
+#include <QPushButton>
 #include <QTextStream>
 #include <QTreeView>
 
@@ -49,21 +57,11 @@ using namespace ProjectExplorer;
 
 namespace QmlJSEditor::Internal {
 
-static Q_LOGGING_CATEGORY(qmllsLog, "qtc.qmlls.settings", QtWarningMsg)
-
-const char SETTINGS_KEY_MAIN[] = "QmlJSEditor";
 const char AUTO_FORMAT_ON_SAVE[] = "QmlJSEditor.AutoFormatOnSave";
 const char AUTO_FORMAT_ONLY_CURRENT_PROJECT[] = "QmlJSEditor.AutoFormatOnlyCurrentProject";
 const char QML_CONTEXTPANE_KEY[] = "QmlJSEditor.ContextPaneEnabled";
 const char QML_CONTEXTPANEPIN_KEY[] = "QmlJSEditor.ContextPanePinned";
 const char FOLD_AUX_DATA[] = "QmlJSEditor.FoldAuxData";
-const char USE_GLOBAL_SETTINGS[] = "QmlJSEditor.UseGlobalSettings";
-const char USE_QMLLS[] = "QmlJSEditor.UseQmlls";
-const char USE_LATEST_QMLLS[] = "QmlJSEditor.UseLatestQmlls";
-const char IGNORE_MINIMUM_QMLLS_VERSION[] = "QmlJSEditor.IgnoreMinimumQmllsVersion";
-const char USE_QMLLS_SEMANTIC_HIGHLIGHTING[] = "QmlJSEditor.EnableQmllsSemanticHighlighting";
-const char DISABLE_BUILTIN_CODEMODEL[] = "QmlJSEditor.DisableBuiltinCodemodel";
-const char GENERATE_QMLLS_INI_FILES[] = "QmlJSEditor.GenerateQmllsIniFiles";
 const char UIQML_OPEN_MODE[] = "QmlJSEditor.openUiQmlMode";
 const char FORMAT_COMMAND[] = "QmlJSEditor.formatCommand";
 const char FORMAT_COMMAND_OPTIONS[] = "QmlJSEditor.formatCommandOptions";
@@ -81,110 +79,7 @@ QmlJsEditingSettings &settings()
     return settings;
 }
 
-static FilePath evaluateLatestQmlls()
-{
-    // find latest qmlls, i.e. vals
-    if (!QtVersionManager::isLoaded())
-        return {};
-    const QtVersions versions = QtVersionManager::versions();
-    FilePath latestQmlls;
-    QVersionNumber latestVersion;
-    FilePath latestQmakeFilePath;
-    int latestUniqueId = std::numeric_limits<int>::min();
-    for (QtVersion *v : versions) {
-        // check if we find qmlls
-        QVersionNumber vNow = v->qtVersion();
-        FilePath qmllsNow = QmlJS::ModelManagerInterface::qmllsForBinPath(v->hostBinPath(), vNow);
-        if (!qmllsNow.isExecutableFile())
-            continue;
-        if (latestVersion > vNow)
-            continue;
-        FilePath qmakeNow = v->qmakeFilePath();
-        int uniqueIdNow = v->uniqueId();
-        if (latestVersion == vNow) {
-            if (latestQmakeFilePath > qmakeNow)
-                continue;
-            if (latestQmakeFilePath == qmakeNow && latestUniqueId >= v->uniqueId())
-                continue;
-        }
-        latestVersion = vNow;
-        latestQmlls = qmllsNow;
-        latestQmakeFilePath = qmakeNow;
-        latestUniqueId = uniqueIdNow;
-    }
-    return latestQmlls;
-}
-
-QmllsSettingsManager *QmllsSettingsManager::instance()
-{
-    static QmllsSettingsManager *manager = new QmllsSettingsManager;
-    return manager;
-}
-
-FilePath QmllsSettingsManager::latestQmlls()
-{
-    QMutexLocker l(&m_mutex);
-    return m_latestQmlls;
-}
-
-void QmllsSettingsManager::setupAutoupdate()
-{
-    QObject::connect(QtVersionManager::instance(),
-                     &QtVersionManager::qtVersionsChanged,
-                     this,
-                     &QmllsSettingsManager::checkForChanges);
-    if (QtVersionManager::isLoaded())
-        checkForChanges();
-    else
-        QObject::connect(QtVersionManager::instance(),
-                         &QtVersionManager::qtVersionsLoaded,
-                         this,
-                         &QmllsSettingsManager::checkForChanges);
-}
-
-void QmllsSettingsManager::checkForChanges()
-{
-    const QmlJsEditingSettings &newSettings = settings();
-    FilePath newLatest = newSettings.useLatestQmlls() && newSettings.useQmlls()
-            ? evaluateLatestQmlls() : m_latestQmlls;
-    if (m_useQmlls == newSettings.useQmlls()
-        && m_useLatestQmlls == newSettings.useLatestQmlls()
-        && m_disableBuiltinCodemodel == newSettings.disableBuiltinCodemodel()
-        && m_generateQmllsIniFiles == newSettings.generateQmllsIniFiles()
-        && m_enableQmllsSemanticHighlighting == newSettings.enableQmllsSemanticHighlighting()
-        && newLatest == m_latestQmlls)
-        return;
-    qCDebug(qmllsLog) << "qmlls settings changed:" << newSettings.useQmlls()
-                      << newSettings.useLatestQmlls() << newLatest;
-    {
-        QMutexLocker l(&m_mutex);
-        m_latestQmlls = newLatest;
-        m_useQmlls = newSettings.useQmlls();
-        m_useLatestQmlls = newSettings.useLatestQmlls();
-        m_disableBuiltinCodemodel = newSettings.disableBuiltinCodemodel();
-        m_enableQmllsSemanticHighlighting = newSettings.enableQmllsSemanticHighlighting();
-        m_generateQmllsIniFiles = newSettings.generateQmllsIniFiles();
-    }
-    emit settingsChanged();
-}
-
-bool QmllsSettingsManager::useLatestQmlls() const
-{
-    return m_useLatestQmlls;
-}
-
-bool QmllsSettingsManager::useQmlls(Project* onProject) const
-{
-    if (!onProject)
-        return m_useQmlls;
-    // check if disabled via project specific settings
-    ProjectSettings projectSettings{onProject};
-
-    const bool result = projectSettings.useGlobalSettings() ? m_useQmlls
-                                                            : projectSettings.useQmlls();
-
-    return result;
-}
+using namespace LanguageClient;
 
 static QList<int> defaultDisabledMessages()
 {
@@ -221,10 +116,6 @@ QmlJsEditingSettings::QmlJsEditingSettings()
     setAutoApply(false);
     const Key group = QmlJSEditor::Constants::SETTINGS_CATEGORY_QML;
 
-    useQmlls.setSettingsKey(group, USE_QMLLS);
-    useQmlls.setDefaultValue(false);
-    useQmlls.setLabelText(Tr::tr("Turn on"));
-
     enableContextPane.setSettingsKey(group, QML_CONTEXTPANE_KEY);
     enableContextPane.setLabelText(Tr::tr("Always show Qt Quick Toolbar"));
 
@@ -249,27 +140,6 @@ QmlJsEditingSettings::QmlJsEditingSettings()
     uiQmlOpenMode.addOption({Tr::tr("Always Ask")});
     uiQmlOpenMode.addOption({Tr::tr("Qt Design Studio"), {}, Core::Constants::MODE_DESIGN});
     uiQmlOpenMode.addOption({Tr::tr("Qt Creator"), {}, Core::Constants::MODE_EDIT});
-
-    useLatestQmlls.setSettingsKey(group, USE_LATEST_QMLLS);
-    useLatestQmlls.setLabelText(Tr::tr("Use from latest Qt version"));
-
-    disableBuiltinCodemodel.setSettingsKey(group, DISABLE_BUILTIN_CODEMODEL);
-    disableBuiltinCodemodel.setLabelText(
-        Tr::tr("Use advanced features (renaming, find usages, and so on) "
-               "(experimental)"));
-
-    generateQmllsIniFiles.setSettingsKey(group, GENERATE_QMLLS_INI_FILES);
-    generateQmllsIniFiles.setLabelText(
-        Tr::tr("Create .qmlls.ini files for new projects"));
-
-    ignoreMinimumQmllsVersion.setSettingsKey(group, IGNORE_MINIMUM_QMLLS_VERSION);
-    ignoreMinimumQmllsVersion.setLabelText(
-        Tr::tr("Allow versions below Qt %1")
-            .arg(QmlJsEditingSettings::mininumQmllsVersion.toString()));
-
-    enableQmllsSemanticHighlighting.setSettingsKey(group, USE_QMLLS_SEMANTIC_HIGHLIGHTING);
-    enableQmllsSemanticHighlighting.setLabelText(
-        Tr::tr("Enable semantic highlighting (experimental)"));
 
     useCustomFormatCommand.setSettingsKey(group, CUSTOM_COMMAND);
     useCustomFormatCommand.setLabelText(
@@ -300,11 +170,6 @@ QmlJsEditingSettings::QmlJsEditingSettings()
     readSettings();
 
     autoFormatOnlyCurrentProject.setEnabler(&autoFormatOnSave);
-    useLatestQmlls.setEnabler(&useQmlls);
-    disableBuiltinCodemodel.setEnabler(&useQmlls);
-    generateQmllsIniFiles.setEnabler(&useQmlls);
-    ignoreMinimumQmllsVersion.setEnabler(&useQmlls);
-    enableQmllsSemanticHighlighting.setEnabler(&useQmlls);
     formatCommand.setEnabler(&useCustomFormatCommand);
     formatCommandOptions.setEnabler(&useCustomFormatCommand);
 }
@@ -394,6 +259,7 @@ public:
         analyzerMessagesView->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(analyzerMessagesView, &QTreeView::customContextMenuRequested,
                 this, &QmlJsEditingSettingsPageWidget::showContextMenu);
+
         using namespace Layouting;
         // clang-format off
         QWidget *formattingGroup = nullptr;
@@ -425,15 +291,14 @@ public:
                     Row { s.uiQmlOpenMode, st }
                 },
             },
-            Group{
+            Group {
                 title(Tr::tr("QML Language Server")),
-                Column {
-                    s.useQmlls,
-                    s.ignoreMinimumQmllsVersion,
-                    s.disableBuiltinCodemodel,
-                    s.enableQmllsSemanticHighlighting,
-                    s.useLatestQmlls,
-                    s.generateQmllsIniFiles
+                Row {
+                    PushButton {
+                        text(Tr::tr("Open Language Server preferences...")),
+                        onClicked(this, [] { Core::ICore::showOptionsDialog(LanguageClient::Constants::LANGUAGECLIENT_SETTINGS_PAGE); })
+                    },
+                    st
                 },
             },
             Group {
@@ -470,7 +335,6 @@ public:
         s.disabledMessages.setValue(disabled);
         s.disabledMessagesForNonQuickUi.setValue(disabledForNonQuickUi);
         s.writeSettings();
-        QmllsSettingsManager::instance()->checkForChanges();
     }
 
 private:
@@ -518,72 +382,33 @@ QmlJsEditingSettingsPage::QmlJsEditingSettingsPage()
     setSettingsProvider([] { return &settings(); });
 }
 
-ProjectSettings::ProjectSettings(Project *project)
-{
-    setAutoApply(true);
-
-    const Key group = QmlJSEditor::Constants::SETTINGS_CATEGORY_QML;
-
-    useQmlls.setSettingsKey(group, USE_QMLLS);
-    useQmlls.setDefaultValue(true);
-    useQmlls.setLabelText(Tr::tr("Turn on"));
-    useQmlls.setToolTip(Tr::tr("Enable QML Language Server on this project."));
-
-    useGlobalSettings.setSettingsKey(group, USE_GLOBAL_SETTINGS);
-    useGlobalSettings.setDefaultValue(true);
-
-    Store map = storeFromVariant(project->namedSettings(SETTINGS_KEY_MAIN));
-    fromMap(map);
-
-    useQmlls.addOnChanged(this, [this, project] { save(project); });
-    useGlobalSettings.addOnChanged(this, [this, project] { save(project); });
-}
-
-void ProjectSettings::save(Project *project)
-{
-    Store map;
-    toMap(map);
-    project->setNamedSettings(SETTINGS_KEY_MAIN, variantFromStore(map));
-
-    emit QmllsSettingsManager::instance()->settingsChanged();
-}
-
 class QmlJsEditingProjectSettingsWidget final : public ProjectSettingsWidget
 {
 public:
-    explicit QmlJsEditingProjectSettingsWidget(Project *project)
-        : m_settings{project}
+    explicit QmlJsEditingProjectSettingsWidget(Project *)
     {
-        setUseGlobalSettingsCheckBoxVisible(true);
+        setUseGlobalSettingsCheckBoxVisible(false);
         setGlobalSettingsId(SETTINGS_PAGE);
         setExpanding(true);
-
-        setUseGlobalSettings(m_settings.useGlobalSettings());
-
-        setEnabled(!m_settings.useGlobalSettings());
 
         using namespace Layouting;
         // clang-format off
         Column {
-            Group{
+            Group {
                 title(Tr::tr("QML Language Server")),
-                Column{
-                    &m_settings.useQmlls,
+                Row {
+                    PushButton {
+                        text(Tr::tr("Open Language Server preferences...")),
+                        onClicked(this, [] { ProjectExplorerPlugin::activateProjectPanel(LanguageClient::Constants::LANGUAGECLIENT_SETTINGS_PANEL); })
+                    },
+                    st,
                 },
             },
+            tight,
             st,
         }.attachTo(this);
         // clang-format on
-
-        connect(
-            this, &ProjectSettingsWidget::useGlobalSettingsChanged, this, [this](bool newUseGlobal) {
-                setEnabled(!newUseGlobal);
-                m_settings.useGlobalSettings.setValue(newUseGlobal);
-            });
     }
-
-private:
-    ProjectSettings m_settings;
 };
 
 class QmlJsEditingProjectPanelFactory : public ProjectPanelFactory

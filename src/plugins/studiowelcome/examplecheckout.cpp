@@ -92,8 +92,8 @@ DataModelDownloader::DataModelDownloader(QObject * /* parent */)
 
     const ExtensionSystem::PluginSpec *pluginSpec
         = Utils::findOrDefault(ExtensionSystem::PluginManager::plugins(),
-                               Utils::equal(&ExtensionSystem::PluginSpec::name,
-                                            QString("StudioWelcome")));
+                               Utils::equal(&ExtensionSystem::PluginSpec::id,
+                                            QString("studiowelcome")));
 
     if (!pluginSpec)
         return;
@@ -183,7 +183,7 @@ bool DataModelDownloader::available() const
 
 FilePath DataModelDownloader::targetFolder() const
 {
-    return FilePath::fromUserInput(tempFilePath().toString() + "/" + "dataImports");
+    return FilePath::fromUserInput(tempFilePath().toUrlishString() + "/" + "dataImports");
 }
 
 void DataModelDownloader::setForceDownload(bool b)

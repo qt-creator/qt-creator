@@ -86,13 +86,13 @@ void CppTodoItemsScanner::processDocument(CPlusPlus::Document::Ptr doc)
             const int length = end - start + 1;
             if (length > 0) {
                 QString commentLine = QString::fromUtf8(start, length);
-                processCommentLine(doc->filePath().toString(), commentLine, lineNumber, itemList);
+                processCommentLine(doc->filePath().toUrlishString(), commentLine, lineNumber, itemList);
             }
 
             from = to + 1;
         }
     }
-    emit itemsFetched(doc->filePath().toString(), itemList);
+    emit itemsFetched(doc->filePath().toUrlishString(), itemList);
 }
 
 }

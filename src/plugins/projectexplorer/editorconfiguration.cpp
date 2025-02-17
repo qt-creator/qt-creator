@@ -24,7 +24,6 @@
 #include <texteditor/marginsettings.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 
-#include <QTextCodec>
 #include <QDebug>
 
 using namespace TextEditor;
@@ -45,7 +44,7 @@ struct EditorConfigurationPrivate
         m_storageSettings(globalStorageSettings()),
         m_behaviorSettings(globalBehaviorSettings()),
         m_extraEncodingSettings(globalExtraEncodingSettings()),
-        m_textCodec(Core::EditorManager::defaultTextCodec())
+        m_textCodec(Core::EditorManager::defaultTextCodecName())
     { }
 
     ICodeStylePreferences *m_defaultCodeStyle = nullptr;
@@ -55,10 +54,10 @@ struct EditorConfigurationPrivate
     bool m_useGlobal = true;
     ExtraEncodingSettings m_extraEncodingSettings;
     MarginSettings m_marginSettings;
-    QTextCodec *m_textCodec;
+    QByteArray m_textCodec;
 
     QMap<Utils::Id, ICodeStylePreferences *> m_languageCodeStylePreferences;
-    QList<BaseTextEditor *> m_editors;
+    QList<Core::IEditor *> m_editors;
 };
 
 EditorConfiguration::EditorConfiguration() : d(std::make_unique<EditorConfigurationPrivate>())
@@ -111,10 +110,10 @@ void EditorConfiguration::cloneGlobalSettings()
     setBehaviorSettings(globalBehaviorSettings());
     setExtraEncodingSettings(globalExtraEncodingSettings());
     setMarginSettings(TextEditorSettings::marginSettings());
-    d->m_textCodec = Core::EditorManager::defaultTextCodec();
+    d->m_textCodec = Core::EditorManager::defaultTextCodecName();
 }
 
-QTextCodec *EditorConfiguration::textCodec() const
+QByteArray EditorConfiguration::textCodec() const
 {
     return d->m_textCodec;
 }
@@ -169,7 +168,7 @@ Store EditorConfiguration::toMap() const
 {
     Store map = {
         {kUseGlobal, d->m_useGlobal},
-        {kCodec, d->m_textCodec->name()},
+        {kCodec, d->m_textCodec},
         {kCodeStyleCount, d->m_languageCodeStylePreferences.count()}
     };
 
@@ -197,10 +196,10 @@ Store EditorConfiguration::toMap() const
 
 void EditorConfiguration::fromMap(const Store &map)
 {
-    const QByteArray &codecName = map.value(kCodec, d->m_textCodec->name()).toByteArray();
-    d->m_textCodec = QTextCodec::codecForName(codecName);
-    if (!d->m_textCodec)
-        d->m_textCodec = Core::EditorManager::defaultTextCodec();
+    const QByteArray &codecName = map.value(kCodec, d->m_textCodec).toByteArray();
+    d->m_textCodec = codecName;
+    if (d->m_textCodec.isEmpty())
+        d->m_textCodec = Core::EditorManager::defaultTextCodecName();
 
     const int codeStyleCount = map.value(kCodeStyleCount, 0).toInt();
     for (int i = 0; i < codeStyleCount; ++i) {
@@ -230,29 +229,29 @@ void EditorConfiguration::fromMap(const Store &map)
     setUseGlobalSettings(map.value(kUseGlobal, d->m_useGlobal).toBool());
 }
 
-void EditorConfiguration::configureEditor(BaseTextEditor *textEditor) const
+void EditorConfiguration::configureEditor(Core::IEditor *editor) const
 {
-    TextEditorWidget *widget = textEditor->editorWidget();
-    if (widget)
-        widget->setCodeStyle(codeStyle(widget->languageSettingsId()));
-    if (!d->m_useGlobal) {
-        textEditor->textDocument()->setCodec(d->m_textCodec);
-        if (widget)
+    TextEditorWidget *widget = TextEditorWidget::fromEditor(editor);
+    if (widget) {
+        widget->textDocument()->setCodeStyle(codeStyle(widget->languageSettingsId()));
+        if (!d->m_useGlobal) {
+            widget->textDocument()->setCodec(d->m_textCodec);
             switchSettings(widget);
+        }
     }
-    d->m_editors.append(textEditor);
-    connect(textEditor, &BaseTextEditor::destroyed, this, [this, textEditor]() {
-        d->m_editors.removeOne(textEditor);
+    d->m_editors.append(editor);
+    connect(editor, &Core::IEditor::destroyed, this, [this, editor]() {
+        d->m_editors.removeOne(editor);
     });
 }
 
-void EditorConfiguration::deconfigureEditor(BaseTextEditor *textEditor) const
+void EditorConfiguration::deconfigureEditor(Core::IEditor *editor) const
 {
-    TextEditorWidget *widget = textEditor->editorWidget();
+    TextEditorWidget *widget = TextEditorWidget::fromEditor(editor);
     if (widget)
-        widget->setCodeStyle(TextEditorSettings::codeStyle(widget->languageSettingsId()));
+        widget->textDocument()->setCodeStyle(TextEditorSettings::codeStyle(widget->languageSettingsId()));
 
-    d->m_editors.removeOne(textEditor);
+    d->m_editors.removeOne(editor);
 
     // TODO: what about text codec and switching settings?
 }
@@ -349,7 +348,7 @@ void EditorConfiguration::setMarginSettings(const MarginSettings &settings)
     }
 }
 
-void EditorConfiguration::setTextCodec(QTextCodec *textCodec)
+void EditorConfiguration::setTextCodec(const QByteArray &textCodec)
 {
     d->m_textCodec = textCodec;
 }
@@ -391,7 +390,7 @@ void EditorConfiguration::slotAboutToRemoveProject(Project *project)
     if (project->editorConfiguration() != this)
         return;
 
-    for (BaseTextEditor *editor : std::as_const(d->m_editors))
+    for (Core::IEditor *editor : std::as_const(d->m_editors))
         deconfigureEditor(editor);
 }
 

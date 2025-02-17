@@ -312,6 +312,16 @@ void TerminalWidget::setupActions()
     selectAllAction.addOnTriggered(this, &TerminalWidget::selectAll);
     m_selectAll = make_registered(selectAllAction);
 
+    ActionBuilder deleteWordLeft(this, Constants::DELETE_WORD_LEFT);
+    deleteWordLeft.setContext(m_context);
+    deleteWordLeft.addOnTriggered(this, [this]() { writeToPty("\x17"); });
+    m_deleteWordLeft = make_registered(deleteWordLeft);
+
+    ActionBuilder deleteLineLeft(this, Constants::DELETE_LINE_LEFT);
+    deleteLineLeft.setContext(m_context);
+    deleteLineLeft.addOnTriggered(this, [this]() { writeToPty("\x15"); });
+    m_deleteLineLeft = make_registered(deleteLineLeft);
+
     // Ctrl+Q, the default "Quit" shortcut, is a useful key combination in a shell.
     // It can be used in combination with Ctrl+S to pause a program, and resume it with Ctrl+Q.
     // So we unlock the EXIT command only for macOS where the default is Cmd+Q to quit.
@@ -421,7 +431,7 @@ std::optional<TerminalSolution::TerminalView::Link> TerminalWidget::toLink(const
             if (link.hasValidTarget()
                 && (link.targetFilePath.scheme().toString().startsWith("http")
                     || link.targetFilePath.exists())) {
-                return Link{link.targetFilePath.toString(), link.targetLine, link.targetColumn};
+                return Link{link.targetFilePath.toUrlishString(), link.targetLine, link.targetColumn};
             }
         }
         if (!m_cwd.isEmpty() && Utils::allOf(text, [](QChar c) {
@@ -694,6 +704,16 @@ void TerminalWidget::initActions(QObject *parent)
     moveCursorWordRightAction.setText(Tr::tr("Move Cursor Word Right"));
     moveCursorWordRightAction.setContext(context);
     moveCursorWordRightAction.setDefaultKeySequence({QKeySequence("Alt+Right")});
+
+    ActionBuilder deleteWordLeft(parent, Constants::DELETE_WORD_LEFT);
+    deleteWordLeft.setText(Tr::tr("Delete Word Left"));
+    deleteWordLeft.setContext(context);
+    deleteWordLeft.setDefaultKeySequence({QKeySequence("Alt+Backspace")});
+
+    ActionBuilder deleteLineLeft(parent, Constants::DELETE_LINE_LEFT);
+    deleteLineLeft.setText(Tr::tr("Delete Line Left"));
+    deleteLineLeft.setContext(context);
+    deleteLineLeft.setDefaultKeySequence({QKeySequence("Ctrl+Backspace")});
 }
 
 void TerminalWidget::unlockGlobalAction(const Utils::Id &commandId)

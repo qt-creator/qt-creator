@@ -35,7 +35,6 @@
 #include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QSettings>
-#include <QTextCodec>
 #include <QVector>
 #include <QVersionNumber>
 
@@ -260,7 +259,7 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QSt
 {
     QVector<VisualStudioInstallation> installations;
     Process vsWhereProcess;
-    vsWhereProcess.setCodec(QTextCodec::codecForName("UTF-8"));
+    vsWhereProcess.setUtf8Codec();
     vsWhereProcess.setCommand({FilePath::fromString(vswhere),
                         {"-products", "*", "-prerelease", "-legacy", "-format", "json", "-utf8"}});
     vsWhereProcess.runBlocking(5s);
@@ -1055,7 +1054,7 @@ Toolchain::MacroInspectionRunner MsvcToolchain::createMacroInspectionRunner() co
 
         const std::optional<MacroInspectionReport> cachedMacros = macroCache->check(filteredFlags);
         if (cachedMacros)
-            return cachedMacros.value();
+            return *cachedMacros;
 
         const Macros macros = msvcPredefinedMacros(filteredFlags, env);
 
@@ -1746,7 +1745,7 @@ static Key llvmDirKey()
 void ClangClToolchain::toMap(Store &data) const
 {
     MsvcToolchain::toMap(data);
-    data.insert(llvmDirKey(), m_clangPath.toString());
+    data.insert(llvmDirKey(), m_clangPath.toUrlishString());
 }
 
 void ClangClToolchain::fromMap(const Store &data)
@@ -2114,7 +2113,7 @@ std::optional<QString> MsvcToolchain::generateEnvironmentSettings(const Utils::E
     CommandLine cmd(cmdPath, {"/D", "/E:ON", "/V:ON", "/c", saver.filePath().toUserOutput()});
     qCDebug(Log) << "readEnvironmentSetting: " << call << cmd.toUserOutput()
                  << " Env: " << runEnv.toStringList().size();
-    run.setCodec(QTextCodec::codecForName("UTF-8"));
+    run.setUtf8Codec();
     run.setCommand(cmd);
     run.runBlocking(1min);
 
@@ -2284,8 +2283,8 @@ ClangClInfo ClangClInfo::getInfo(const FilePath &filePath)
 
     static const auto parser = [](const QString &stdOut, const QString &) {
         ClangClInfo info;
-        const QRegularExpressionMatch versionMatch
-            = QRegularExpression("clang version (\\d+(\\.\\d+)+)").match(stdOut);
+        static const QRegularExpression regexp("clang version (\\d+(\\.\\d+)+)");
+        const QRegularExpressionMatch versionMatch = regexp.match(stdOut);
         if (versionMatch.hasMatch())
             info.m_version = QVersionNumber::fromString(versionMatch.captured(1));
         const QString targetKey = "Target:";

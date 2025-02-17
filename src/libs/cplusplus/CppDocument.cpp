@@ -130,6 +130,7 @@ protected:
     bool visit(NamespaceAlias *) override { return false; }
     bool visit(Argument *) override { return false; }
     bool visit(TypenameArgument *) override { return false; }
+    bool visit(TemplateTypeArgument *) override { return false; }
     bool visit(BaseClass *) override { return false; }
     bool visit(ForwardClassDeclaration *) override { return false; }
 

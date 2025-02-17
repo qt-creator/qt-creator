@@ -8,28 +8,15 @@
 
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginspec.h>
-#include <utils/environment.h>
-
-#include <memory>
-
-QT_BEGIN_NAMESPACE
-class QMenu;
-QT_END_NAMESPACE
-
-namespace Utils {
-class PathChooser;
-}
 
 namespace Core {
 
 class FolderNavigationWidgetFactory;
-class SessionManager;
 class ICore;
 
 namespace Internal {
 
 class EditMode;
-class MainWindow;
 class Locator;
 
 class CorePlugin : public ExtensionSystem::IPlugin
@@ -51,11 +38,7 @@ public:
                            const QString &workingDirectory,
                            const QStringList &args) override;
 
-    static Utils::EnvironmentItems environmentChanges();
-    static void setEnvironmentChanges(const Utils::EnvironmentItems &changes);
     static QString msgCrashpadInformation();
-
-    static void loadMimeFromPlugin(const ExtensionSystem::PluginSpec *plugin);
 
 public slots:
     void fileOpenRequest(const QString &);
@@ -70,17 +53,13 @@ private slots:
 #endif
 
 private:
-    static void addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QMenu *menu);
     void checkSettings();
     void warnAboutCrashReporing();
 
     ICore *m_core = nullptr;
     EditMode *m_editMode = nullptr;
     Locator *m_locator = nullptr;
-    std::unique_ptr<SessionManager> m_sessionManager;
     FolderNavigationWidgetFactory *m_folderNavigationWidgetFactory = nullptr;
-    const Utils::Environment m_startupSystemEnvironment;
-    Utils::EnvironmentItems m_environmentChanges;
 };
 
 } // namespace Internal

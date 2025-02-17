@@ -110,8 +110,8 @@ class SimpleProjectWizardDialog : public BaseFileWizard
     Q_OBJECT
 
 public:
-    SimpleProjectWizardDialog(const BaseFileWizardFactory *factory, QWidget *parent)
-        : BaseFileWizard(factory, QVariantMap(), parent)
+    explicit SimpleProjectWizardDialog(const BaseFileWizardFactory *factory)
+        : BaseFileWizard(factory, QVariantMap())
     {
         setWindowTitle(Tr::tr("Import Existing Project"));
 
@@ -162,10 +162,9 @@ SimpleProjectWizard::SimpleProjectWizard()
     setFlags(IWizardFactory::PlatformIndependent);
 }
 
-BaseFileWizard *SimpleProjectWizard::create(QWidget *parent,
-                                            const WizardDialogParameters &parameters) const
+BaseFileWizard *SimpleProjectWizard::create(const WizardDialogParameters &parameters) const
 {
-    auto wizard = new SimpleProjectWizardDialog(this, parent);
+    auto wizard = new SimpleProjectWizardDialog(this);
     wizard->setProjectDir(parameters.defaultPath());
 
     for (QWizardPage *p : wizard->extensionPages())
@@ -178,11 +177,11 @@ GeneratedFiles generateQmakeFiles(const SimpleProjectWizardDialog *wizard,
                                   QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
-    const QString projectPath = wizard->projectDir().toString();
+    const QString projectPath = wizard->projectDir().toUrlishString();
     const QDir dir(projectPath);
     const QString projectName = wizard->projectName();
     const FilePath proFileName = Utils::FilePath::fromString(QFileInfo(dir, projectName + ".pro").absoluteFilePath());
-    const QStringList paths = Utils::transform(wizard->selectedPaths(), &FilePath::toString);
+    const QStringList paths = Utils::transform(wizard->selectedPaths(), &FilePath::toUrlishString);
 
     MimeType headerType = Utils::mimeTypeForName(Utils::Constants::C_HEADER_MIMETYPE);
 
@@ -203,7 +202,7 @@ GeneratedFiles generateQmakeFiles(const SimpleProjectWizardDialog *wizard,
     QString proHeaders = "HEADERS = \\\n";
 
     for (const FilePath &fileName : wizard->selectedFiles()) {
-        QString source = dir.relativeFilePath(fileName.toString());
+        QString source = dir.relativeFilePath(fileName.toUrlishString());
         MimeType mimeType = Utils::mimeTypeForFile(fileName);
         if (mimeType.matchesName(Utils::Constants::C_HEADER_MIMETYPE)
             || mimeType.matchesName(Utils::Constants::CPP_HEADER_MIMETYPE))
@@ -237,10 +236,10 @@ GeneratedFiles generateCmakeFiles(const SimpleProjectWizardDialog *wizard,
                                   QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
-    const QDir dir(wizard->projectDir().toString());
+    const QDir dir(wizard->projectDir().toUrlishString());
     const QString projectName = wizard->projectName();
     const FilePath projectFileName = Utils::FilePath::fromString(QFileInfo(dir, "CMakeLists.txt").absoluteFilePath());
-    const QStringList paths = Utils::transform(wizard->selectedPaths(), &FilePath::toString);
+    const QStringList paths = Utils::transform(wizard->selectedPaths(), &FilePath::toUrlishString);
 
     MimeType headerType = Utils::mimeTypeForName(Utils::Constants::C_HEADER_MIMETYPE);
 
@@ -266,7 +265,7 @@ GeneratedFiles generateCmakeFiles(const SimpleProjectWizardDialog *wizard,
 
     QString srcs = "set (SRCS\n";
     for (const FilePath &fileName : wizard->selectedFiles())
-        srcs += "    " + dir.relativeFilePath(fileName.toString()) + "\n";
+        srcs += "    " + dir.relativeFilePath(fileName.toUrlishString()) + "\n";
     srcs += ")\n";
 
     QString components = "find_package(Qt5 COMPONENTS";

@@ -21,6 +21,8 @@ QtcPlugin {
         "qmlexpressionundercursor.h",
         "qmllsclient.cpp",
         "qmllsclient.h",
+        "qmllsclientsettings.cpp",
+        "qmllsclientsettings.h",
         "qmljsautocompleter.cpp",
         "qmljsautocompleter.h",
         "qmljscompletionassist.cpp",

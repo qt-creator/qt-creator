@@ -7,7 +7,7 @@
 #include "buildsteplist.h"
 #include "customparser.h"
 #include "deployconfiguration.h"
-#include "kitaspects.h"
+#include "devicesupport/devicekitaspects.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
 #include "sanitizerparser.h"
@@ -278,7 +278,7 @@ bool BuildStepFactory::canHandle(BuildStepList *bsl) const
     if (!m_supportedDeviceTypes.isEmpty()) {
         Target *target = bsl->target();
         QTC_ASSERT(target, return false);
-        Id deviceType = DeviceTypeKitAspect::deviceTypeId(target->kit());
+        Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(target->kit());
         if (!m_supportedDeviceTypes.contains(deviceType))
             return false;
     }

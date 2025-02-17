@@ -55,11 +55,11 @@ struct AnalyzeOutputData
 using AnalyzeSetupHandler = std::function<bool(const AnalyzeUnit &)>;
 using AnalyzeOutputHandler = std::function<void(const AnalyzeOutputData &)>;
 
-Tasking::GroupItem clangToolTask(CppEditor::ClangToolType toolType,
-                                 const AnalyzeUnits &units,
+Tasking::GroupItem clangToolTask(const AnalyzeUnits &units,
                                  const AnalyzeInputData &input,
                                  const AnalyzeSetupHandler &setupHandler,
-                                 const AnalyzeOutputHandler &outputHandler);
+                                 const AnalyzeOutputHandler &outputHandler,
+                                 const Utils::FilePath &compilationDb);
 
 } // namespace Internal
 } // namespace ClangTools

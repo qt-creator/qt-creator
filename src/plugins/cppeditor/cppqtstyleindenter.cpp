@@ -5,7 +5,7 @@
 
 #include "cppcodeformatter.h"
 #include "cpptoolssettings.h"
-#include "cppcodestylepreferences.h"
+#include "cppcodestylesettings.h"
 
 #include <QChar>
 #include <QTextDocument>
@@ -162,7 +162,7 @@ void CppQtStyleIndenter::indent(const QTextCursor &cursor,
 
 void CppQtStyleIndenter::setCodeStylePreferences(ICodeStylePreferences *preferences)
 {
-    auto cppCodeStylePreferences = qobject_cast<CppCodeStylePreferences *>(preferences);
+    auto cppCodeStylePreferences = dynamic_cast<CppCodeStylePreferences *>(preferences);
     if (cppCodeStylePreferences)
         m_cppCodeStylePreferences = cppCodeStylePreferences;
 }

@@ -142,7 +142,8 @@ void prepareLuaState(
     const expected_str<FilePath> tmpDir = HostOsInfo::root().tmpDir();
     QTC_ASSERT_EXPECTED(tmpDir, return);
     QString id = name;
-    id = id.replace(QRegularExpression("[^a-zA-Z0-9_]"), "_").toLower();
+    static const QRegularExpression regexp("[^a-zA-Z0-9_]");
+    id = id.replace(regexp, "_").toLower();
     ScriptPluginSpec::setup(lua, id, name, appDataPath, *tmpDir);
 
     for (const auto &[name, func] : d->m_providers.asKeyValueRange()) {
@@ -232,7 +233,7 @@ expected_str<void> connectHooks(
     for (const auto &[k, v] : table) {
         if (k.get_type() != sol::type::string)
             return make_unexpected(
-                Tr::tr("Non-string key encountered in Lua table at path \"%1\"").arg(path));
+                Tr::tr("Non-string key encountered in Lua table at path \"%1\".").arg(path));
 
         const auto keyName = k.as<QString>();
         const auto currentPath = QStringList{path, keyName}.join(".");
@@ -342,7 +343,12 @@ expected_str<sol::protected_function> prepareSetup(
     // TODO: only register what the plugin requested
     for (const auto &[name, func] : d->m_providers.asKeyValueRange()) {
         lua["package"]["preload"][name.toStdString()] = [func = func](const sol::this_state &s) {
-            return func(s);
+            sol::state_view lua = s;
+            // We need to make sure that providers work on the main_thread, otherwise they might
+            // crash when trying to access the lua state on destruction.
+            if (isCoroutine(lua))
+                lua = sol::main_thread(lua);
+            return func(lua);
         };
     }
 

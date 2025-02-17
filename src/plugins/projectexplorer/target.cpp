@@ -10,9 +10,9 @@
 #include "buildtargetinfo.h"
 #include "deployconfiguration.h"
 #include "deploymentdata.h"
+#include "devicesupport/devicekitaspects.h"
 #include "devicesupport/devicemanager.h"
 #include "kit.h"
-#include "kitaspects.h"
 #include "kitmanager.h"
 #include "miniprojecttargetselector.h"
 #include "project.h"
@@ -578,7 +578,7 @@ void Target::setOverlayIcon(const QIcon &icon)
 
 QString Target::overlayIconToolTip()
 {
-    IDevice::ConstPtr current = DeviceKitAspect::device(kit());
+    IDevice::ConstPtr current = RunDeviceKitAspect::device(kit());
     return current ? formatDeviceInfo(current->deviceInformation()) : QString();
 }
 
@@ -589,7 +589,7 @@ Store Target::toMap() const
 
     Store map;
     map.insert(displayNameKey(), displayName());
-    map.insert(deviceTypeKey(), DeviceTypeKitAspect::deviceTypeId(kit()).toSetting());
+    map.insert(deviceTypeKey(), RunDeviceTypeKitAspect::deviceTypeId(kit()).toSetting());
 
     {
         // FIXME: For compatibility within the 4.11 cycle, remove this block later.
@@ -635,7 +635,9 @@ Store Target::toMap() const
 
 void Target::updateDefaultBuildConfigurations()
 {
-    BuildConfigurationFactory *bcFactory = BuildConfigurationFactory::find(this);
+    if (!project()->supportsBuilding())
+        return;
+    BuildConfigurationFactory * bcFactory = BuildConfigurationFactory::find(this);
     if (!bcFactory) {
         qWarning("No build configuration factory found for target id '%s'.", qPrintable(id().toString()));
         return;
@@ -716,8 +718,11 @@ void Target::updateDefaultRunConfigurations()
                 present = true;
             }
         }
-        if (!present && !rc->isCustomized())
+        if (!present &&
+            projectExplorerSettings().automaticallyCreateRunConfigurations &&
+            !rc->isCustomized()) {
             toRemove.append(rc);
+        }
     }
     configuredCount -= toRemove.count();
 
@@ -854,7 +859,7 @@ ProjectConfigurationModel *Target::runConfigurationModel() const
 
 void Target::updateDeviceState()
 {
-    IDevice::ConstPtr current = DeviceKitAspect::device(kit());
+    IDevice::ConstPtr current = RunDeviceKitAspect::device(kit());
 
     QIcon overlay;
     static const QIcon disconnected = Icons::DEVICE_DISCONNECTED_INDICATOR_OVERLAY.icon();

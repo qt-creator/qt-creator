@@ -132,11 +132,8 @@ void Node::setIsGenerated(bool g)
         m_flags = static_cast<NodeFlag>(m_flags & ~FlagIsGenerated);
 }
 
-void Node::setAbsoluteFilePathAndLine(const Utils::FilePath &path, int line)
+void Node::setAbsoluteFilePathAndLine(const FilePath &path, int line)
 {
-    if (m_filePath == path && m_line == line)
-        return;
-
     m_filePath = path;
     m_line = line;
 }
@@ -375,7 +372,7 @@ FilePath Node::pathOrDirectory(bool dir) const
     if (m_filePath.isEmpty())
         return {};
 
-    if (m_filePath.needsDevice()) {
+    if (!m_filePath.isLocal()) {
         if (dir)
             return m_filePath.isDir() ? m_filePath.absoluteFilePath() : m_filePath.absolutePath();
         return m_filePath;
@@ -413,7 +410,7 @@ FileNode::FileNode(const Utils::FilePath &filePath, const FileType fileType) :
     setFilePath(filePath);
     const bool ignored = (fileType == FileType::Project || fileType == FileType::App
                           || fileType == FileType::Lib);
-    setUseUnavailableMarker(!ignored && !filePath.needsDevice() && !filePath.exists());
+    setUseUnavailableMarker(!ignored && filePath.isLocal() && !filePath.exists());
     setListInProject(true);
     if (fileType == FileType::Project)
         setPriority(DefaultProjectFilePriority);
@@ -1042,9 +1039,7 @@ void ProjectNode::setFallbackData(Utils::Id key, const QVariant &value)
 
 BuildSystem *ProjectNode::buildSystem() const
 {
-    Project *p = getProject();
-    Target *t = p ? p->activeTarget() : nullptr;
-    return t ? t->buildSystem() : nullptr;
+    return activeBuildSystem(getProject());
 }
 
 bool FolderNode::isEmpty() const

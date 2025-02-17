@@ -8,12 +8,13 @@
 #include "qtversionmanager.h"
 
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/sysrootkitaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
@@ -108,6 +109,8 @@ Kit *QtProjectImporter::createTemporaryKit(const QtVersionData &versionData,
 
 #if WITH_TESTS
 
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
 
@@ -116,6 +119,23 @@ Kit *QtProjectImporter::createTemporaryKit(const QtVersionData &versionData,
 #include <QTest>
 
 namespace QtSupport::Internal {
+
+class TestBuildConfigFactory : public BuildConfigurationFactory
+{
+public:
+    TestBuildConfigFactory()
+    {
+        for (ExtensionSystem::PluginSpec * const spec : ExtensionSystem::PluginManager::plugins()) {
+            if (spec->id() == "qmakeprojectmanager") {
+                if (spec->state() == ExtensionSystem::PluginSpec::Running)
+                    return;
+                break;
+            }
+        }
+        registerBuildConfiguration<BuildConfiguration>("QtSupport.Test");
+        setSupportedProjectMimeTypeName(Utils::Constants::PROFILE_MIMETYPE);
+    }
+};
 
 struct DirectoryData {
     DirectoryData(const QString &ip,
@@ -162,6 +182,7 @@ protected:
     void deleteDirectoryData(void *directoryData) const override;
 
 private:
+    const TestBuildConfigFactory m_bcFactory;
     const QList<void *> m_testData;
     mutable Utils::FilePath m_path;
     mutable QVector<void*> m_deletedTestData;
@@ -247,7 +268,7 @@ static QStringList additionalFilesToCopy(const QtVersion *qt)
     const int major = qt->qtVersion().majorVersion();
     if (major >= 6) {
         if (HostOsInfo::isMacHost()) {
-            return {qt->libraryPath().pathAppended("/QtCore.framework/Versions/A/QtCore").toString()};
+            return {qt->libraryPath().pathAppended("/QtCore.framework/Versions/A/QtCore").toUrlishString()};
         } else if (HostOsInfo::isWindowsHost()) {
             const QString release = QString("bin/Qt%1Core.dll").arg(major);
             const QString debug = QString("bin/Qt%1Cored.dll").arg(major);
@@ -257,14 +278,14 @@ static QStringList additionalFilesToCopy(const QtVersion *qt)
             const FilePath base = qt->qmakeFilePath().parentDir().parentDir();
             const QStringList allFiles = Utils::transform(
                         {release, debug, mingwGcc, mingwStd, mingwPthread}, [&base](const QString &s) {
-                return base.pathAppended(s).toString();
+                return base.pathAppended(s).toUrlishString();
             });
             const QStringList existingFiles = Utils::filtered(allFiles, [](const QString &f) {
                 return FilePath::fromUserInput(f).exists();
             });
             return !existingFiles.empty() ? existingFiles : QStringList(release);
         } else if (HostOsInfo::isLinuxHost()) {
-            const QDir base(qt->libraryPath().toString());
+            const QDir base(qt->libraryPath().toUrlishString());
             const QString core = base.absolutePath() + QString("/libQt%1Core.so.%1").arg(major);
             const QStringList icuLibs
                 = Utils::transform(base.entryInfoList({"libicu*.so.*"}), [](const QFileInfo &fi) {
@@ -288,12 +309,12 @@ static Utils::FilePath setupQmake(const QtVersion *qt, const QString &path)
         return fp.path();
     };
 
-    const QStringList filesToCopy = QStringList(qmake.toString()) + additionalFilesToCopy(qt);
+    const QStringList filesToCopy = QStringList(qmake.toUrlishString()) + additionalFilesToCopy(qt);
     for (const QString &file : filesToCopy) {
         const FilePath sourceFile = FilePath::fromString(file);
         const FilePath targetFile = target.pathAppended(removeDriveLetter(sourceFile));
         if (!targetFile.parentDir().ensureWritableDir() || !sourceFile.copyFile(targetFile)) {
-            qDebug() << "Failed to copy" << sourceFile.toString() << "to" << targetFile.toString();
+            qDebug() << "Failed to copy" << sourceFile.toUrlishString() << "to" << targetFile.toUrlishString();
             return {};
         }
     }
@@ -443,7 +464,7 @@ void QtProjectImporterTest::testQtProjectImporter_oneProject()
 
     // Finally set up importer:
     // Copy the directoryData so that importer is free to delete it later.
-    TestQtProjectImporter importer(tempDir1.path(),
+    TestQtProjectImporter importer(tempDir1.filePath("test.pro"),
                                    Utils::transform(testData, [](DirectoryData *i) {
                                        return static_cast<void *>(new DirectoryData(*i));
                                    }));
@@ -456,7 +477,7 @@ void QtProjectImporterTest::testQtProjectImporter_oneProject()
     const QList<BuildInfo> buildInfo = importer.import(Utils::FilePath::fromString(appDir), true);
 
     // VALIDATE: Basic TestImporter state:
-    QCOMPARE(importer.projectFilePath(), tempDir1.path());
+    QCOMPARE(importer.projectFilePath(), tempDir1.filePath("test.pro"));
     QCOMPARE(importer.allDeleted(), true);
 
     // VALIDATE: Result looks reasonable:
@@ -560,7 +581,7 @@ void QtProjectImporterTest::testQtProjectImporter_oneProject()
         QCOMPARE(newKitId, newKitIdAfterImport);
 
         // VALIDATE: Importer state
-        QCOMPARE(importer.projectFilePath(), tempDir1.path());
+        QCOMPARE(importer.projectFilePath(), tempDir1.filePath("test.pro"));
         QCOMPARE(importer.allDeleted(), true);
 
         if (kitIsPersistent) {

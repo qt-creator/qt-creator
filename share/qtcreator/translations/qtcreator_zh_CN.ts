@@ -1956,8 +1956,8 @@ in the system&apos;s browser for manual download.</source>
         <translation>Git 工具可能没有正确安装。</translation>
     </message>
     <message>
-        <source>(SDK Version: %1, NDK Version: %2)</source>
-        <translation>（SDK 版本：%1， NDK 版本：%2）</translation>
+        <source>(SDK Version: %1)</source>
+        <translation>（SDK 版本：%1）</translation>
     </message>
     <message>
         <source>Unset Default</source>
@@ -38550,7 +38550,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Linking with a Qt installation automatically registers Qt versions and kits, and other tools that were installed with that Qt installer, in this Qt Creator installation. Other Qt Creator installations are not affected.</source>
+        <source>Linking with a Qt installation automatically registers Qt versions and kits, and other tools that were installed with that Qt installer, in this %1 installation. Other %1 installations are not affected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

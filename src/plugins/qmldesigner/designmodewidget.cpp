@@ -224,7 +224,7 @@ void DesignModeWidget::setup()
     m_dockManager->setLiteMode(QmlDesignerBasePlugin::isLiteModeEnabled());
     m_dockManager->setSettings(settings);
     m_dockManager->setWorkspacePresetsPath(
-        Core::ICore::resourcePath("qmldesigner/workspacePresets/").toString());
+        Core::ICore::resourcePath("qmldesigner/workspacePresets/").toUrlishString());
 
     QString sheet = QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/dockwidgets.css"));
     m_dockManager->setStyleSheet(Theme::replaceCssColors(sheet));
@@ -685,9 +685,9 @@ void DesignModeWidget::setupNavigatorHistory(Core::IEditor *editor)
 void DesignModeWidget::addNavigatorHistoryEntry(const Utils::FilePath &fileName)
 {
     if (m_navigatorHistoryCounter > 0)
-        m_navigatorHistory.insert(m_navigatorHistoryCounter + 1, fileName.toString());
+        m_navigatorHistory.insert(m_navigatorHistoryCounter + 1, fileName.toUrlishString());
     else
-        m_navigatorHistory.append(fileName.toString());
+        m_navigatorHistory.append(fileName.toUrlishString());
 
     ++m_navigatorHistoryCounter;
 }

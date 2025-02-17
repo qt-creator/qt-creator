@@ -3,8 +3,8 @@
 
 #include "nimbletaskstep.h"
 
+#include "nimbleproject.h"
 #include "nimconstants.h"
-#include "nimblebuildsystem.h"
 #include "nimtr.h"
 
 #include <projectexplorer/abstractprocessstep.h>
@@ -45,7 +45,7 @@ private:
     void onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
     void uncheckedAllDifferentFrom(QStandardItem *item);
 
-    bool validate();
+    bool init() override;
 
     StringAspect m_taskName{this};
     StringAspect m_taskArgs{this};
@@ -202,7 +202,7 @@ void NimbleTaskStep::setTaskName(const QString &name)
     selectTask(name);
 }
 
-bool NimbleTaskStep::validate()
+bool NimbleTaskStep::init()
 {
     if (m_taskName().isEmpty())
         return true;
@@ -217,8 +217,7 @@ bool NimbleTaskStep::validate()
         emitFaultyConfigurationMessage();
         return false;
     }
-
-    return true;
+    return AbstractProcessStep::init();
 }
 
 // Factory

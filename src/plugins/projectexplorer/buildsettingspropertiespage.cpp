@@ -6,7 +6,6 @@
 #include "buildconfiguration.h"
 #include "buildinfo.h"
 #include "buildmanager.h"
-#include "namedwidget.h"
 #include "project.h"
 #include "projectconfigurationmodel.h"
 #include "projectexplorertr.h"
@@ -121,13 +120,13 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target) :
     connect(m_target, &Target::kitChanged, this, &BuildSettingsWidget::updateAddButtonMenu);
 }
 
-void BuildSettingsWidget::addSubWidget(NamedWidget *widget)
+void BuildSettingsWidget::addSubWidget(QWidget *widget, const QString &displayName)
 {
     widget->setParent(this);
     widget->setContentsMargins(0, 2, 0, 0);
 
     auto label = new QLabel(this);
-    label->setText(widget->displayName());
+    label->setText(displayName);
     label->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
 
     label->setContentsMargins(0, 18, 0, 0);
@@ -174,8 +173,11 @@ void BuildSettingsWidget::updateBuildSettings()
     m_renameButton->setEnabled(!bcs.isEmpty());
     m_cloneButton->setEnabled(!bcs.isEmpty());
 
-    if (m_buildConfiguration)
-        m_buildConfiguration->addConfigWidgets([this](NamedWidget *w) { addSubWidget(w); });
+    if (m_buildConfiguration) {
+        m_buildConfiguration->addConfigWidgets([this](QWidget *w, const QString &displayName) {
+            addSubWidget(w, displayName);
+        });
+    }
 }
 
 void BuildSettingsWidget::currentIndexChanged(int index)

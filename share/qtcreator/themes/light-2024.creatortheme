@@ -6,18 +6,7 @@ DefaultTextEditorColorScheme=light-2024.xml
 DefaultToolbarStyle=Relaxed
 
 [Palette]
-shadowBackground=PaletteDark
-text=PaletteWindowText
-textDisabled=PaletteTextDisabled
-selectedBackground=a8ffffff
-alternateBackground=PaletteAlternateBase
-stop_error=ffec7373
-splitter=ffbdbebf
-error=ffdf4f4f
 warning=ffecbc1c
-textColorLinkVisited=PaletteLinkVisited
-backgroundColorDisabled=PaletteWindowDisabled
-qmlDesignerButtonColor=fff8f8f8
 
 ;DS Theme Palette START
 ;greyscale
@@ -51,6 +40,8 @@ splitterBlue=ff64daff
 rgbBlue=ff64daff
 highlightBlue=ff57b9fc
 highlightHover=ff74CBFC
+ds300=ff71d1ef
+ds800=ff08475B
 ;DS Theme Palette END
 
 [Colors]
@@ -205,13 +196,13 @@ DSactionKeyframe=ffe0e01b
 DSactionJIT=ff2db543
 
 DStableHeaderBackground=ffff0000
+DStableCellCurrent=ds300
 DStableHeaderText=ff00ff00
 
 DSdockContainerBackground=ff323232
 DSdockContainerSplitter=ff323232
-DSdockAreaBackground=ff262728
-
-DSdockWidgetBackground=ff00ff00
+DSdockAreaBackground=ffeaeaea
+DSdockWidgetBackground=ffeaeaea
 DSdockWidgetSplitter=ff595959
 DSdockWidgetTitleBar=ffeaeaea
 
@@ -285,7 +276,7 @@ IconsCodeModelOverlayBackgroundColor=70ffffff
 IconsCodeModelOverlayForegroundColor=ff232425
 TextColorHighlightBackground=ffef0b
 
-OutputPanes_DebugTextColor=text
+OutputPanes_DebugTextColor=Token_Text_Default
 OutputPanes_ErrorMessageTextColor=ffaa0000
 OutputPanes_MessageOutput=ff0000aa
 OutputPanes_NormalMessageTextColor=ff0000aa
@@ -305,21 +296,6 @@ Debugger_LogWindow_LogInput=ff00acac
 Debugger_LogWindow_LogStatus=ff00875a
 Debugger_LogWindow_LogTime=ffbf0303
 
-Debugger_WatchItem_ValueNormal=text
-Debugger_WatchItem_ValueInvalid=textDisabled
-Debugger_WatchItem_ValueChanged=ffbf0303
-
-Debugger_Breakpoint_TextMarkColor=ffff4040
-
-Timeline_TextColor=text
-Timeline_BackgroundColor2=fff6f6f6
-Timeline_DividerColor=ffd6d6d6
-Timeline_HighlightColor=ff3099dc
-Timeline_PanelBackgroundColor=ffd6d6d6
-Timeline_PanelHeaderColor=ff888888
-Timeline_HandleColor=ff888888
-Timeline_RangeColor=selectedBackground
-
 VcsBase_FileStatusUnknown_TextColor=ff000000
 VcsBase_FileAdded_TextColor=ff00aa00
 VcsBase_FileModified_TextColor=ff0000ee
@@ -327,20 +303,18 @@ VcsBase_FileDeleted_TextColor=ff800000
 VcsBase_FileRenamed_TextColor=ffd77d00
 VcsBase_FileUnmerged_TextColor=ffee0000
 
-Bookmarks_TextMarkColor=ffa0a0ff
-
-QmlDesigner_BackgroundColor=qmlDesignerButtonColor
+QmlDesigner_BackgroundColor=fff8f8f8
 QmlDesigner_HighlightColor=ff46a2da
 QmlDesigner_FormEditorSelectionColor=ff4ba2ff
 QmlDesigner_FormEditorForegroundColor=ffffffff
 QmlDesigner_BackgroundColorDarkAlternate=ffeaeaea
 QmlDesigner_BackgroundColorDarker=fff5f5f5
-QmlDesigner_BorderColor=splitter
+QmlDesigner_BorderColor=ffbdbebf
 QmlDesigner_ButtonColor=ffcccccc
 QmlDesigner_TabDark=ff585858
 QmlDesigner_TabLight=ffd0d0d0
-QmlDesigner_FormeditorBackgroundColor=qmlDesignerButtonColor
-QmlDesigner_AlternateBackgroundColor=qmlDesignerButtonColor
+QmlDesigner_FormeditorBackgroundColor=fff8f8f8
+QmlDesigner_AlternateBackgroundColor=fff8f8f8
 QmlDesigner_ScrollBarHandleColor=ffcccccc
 
 TerminalForeground=ff000000

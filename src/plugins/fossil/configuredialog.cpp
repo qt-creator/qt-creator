@@ -22,7 +22,7 @@ public:
     RepositorySettings settings() const
     {
         return {m_userLineEdit->text().trimmed(),
-                m_sslIdentityFilePathChooser->filePath().toString(),
+                m_sslIdentityFilePathChooser->filePath().toUrlishString(),
                 m_disableAutosyncCheckBox->isChecked()
                     ? RepositorySettings::AutosyncOff : RepositorySettings::AutosyncOn};
     }

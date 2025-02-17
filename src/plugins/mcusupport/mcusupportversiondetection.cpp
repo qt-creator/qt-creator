@@ -71,10 +71,11 @@ McuPackageXmlVersionDetector::McuPackageXmlVersionDetector(const QString &filePa
 
 QString McuPackageXmlVersionDetector::parseVersion(const FilePath &packagePath) const
 {
-    const auto files = QDir(packagePath.toString(), m_filePattern).entryInfoList();
+    const auto files = QDir(packagePath.toUrlishString(), m_filePattern).entryInfoList();
     for (const auto &xmlFile : files) {
         QFile sdkXmlFile = QFile(xmlFile.absoluteFilePath());
-        sdkXmlFile.open(QFile::OpenModeFlag::ReadOnly);
+        if (!sdkXmlFile.open(QFile::OpenModeFlag::ReadOnly))
+            return {};
         QXmlStreamReader xmlReader(&sdkXmlFile);
         while (xmlReader.readNext()) {
             if (xmlReader.name() == m_versionElement) {
@@ -97,7 +98,7 @@ McuPackageDirectoryEntriesVersionDetector::McuPackageDirectoryEntriesVersionDete
 
 QString McuPackageDirectoryEntriesVersionDetector::parseVersion(const FilePath &packagePath) const
 {
-    const auto files = QDir(packagePath.toString(), m_filePattern).entryInfoList();
+    const auto files = QDir(packagePath.toUrlishString(), m_filePattern).entryInfoList();
     for (const auto &entry : files) {
         const QString matched = matchRegExp(entry.fileName(), m_versionRegExp);
         if (!matched.isEmpty())
@@ -114,7 +115,7 @@ QString McuPackagePathVersionDetector::parseVersion(const FilePath &packagePath)
 {
     if (!packagePath.exists())
         return {};
-    return matchRegExp(packagePath.toString(), m_versionRegExp);
+    return matchRegExp(packagePath.toUrlishString(), m_versionRegExp);
 }
 
 } // namespace Internal

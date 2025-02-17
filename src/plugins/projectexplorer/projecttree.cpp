@@ -89,18 +89,6 @@ Project *ProjectTree::currentProject()
     return s_instance->m_currentProject;
 }
 
-Target *ProjectTree::currentTarget()
-{
-    Project *p = currentProject();
-    return p ? p->activeTarget() : nullptr;
-}
-
-BuildSystem *ProjectTree::currentBuildSystem()
-{
-    Target *t = currentTarget();
-    return t ? t->buildSystem() : nullptr;
-}
-
 Node *ProjectTree::currentNode()
 {
     s_instance->update();
@@ -482,7 +470,7 @@ const QList<Node *> ProjectTree::siblingsWithSameBaseName(const Node *fileNode)
         return n->asFileNode()
                 && n->filePath().toFileInfo().dir() == fi.dir()
                 && n->filePath().completeBaseName() == fi.completeBaseName()
-                && n->filePath().toString() != fi.filePath();
+                && n->filePath().toUrlishString() != fi.filePath();
     };
     return productNode->findNodes(filter);
 }

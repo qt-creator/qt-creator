@@ -16,15 +16,17 @@
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/gnumakeparser.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/makestep.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -154,7 +156,7 @@ QMakeStepConfig QMakeStep::deducedArguments() const
         targetAbi = tc->targetAbi();
         if (HostOsInfo::isWindowsHost()
             && tc->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
-            config.sysRoot = SysRootKitAspect::sysRoot(kit).toString();
+            config.sysRoot = SysRootKitAspect::sysRoot(kit).toUrlishString();
             config.targetTriple = tc->originalTargetTriple();
         }
     }
@@ -364,7 +366,7 @@ QString QMakeStep::effectiveQMakeCall() const
     if (make.isEmpty())
         make = FilePath::fromPathPart(Tr::tr("<no Make step found>"));
 
-    QString result = qmake.toString();
+    QString result = qmake.toUrlishString();
     if (qtVersion) {
         QmakeBuildConfiguration *qmakeBc = qmakeBuildConfiguration();
         const FilePath makefile = qmakeBc ? qmakeBc->makefile() : FilePath();
@@ -390,14 +392,14 @@ QStringList QMakeStep::parserArguments()
 
 QString QMakeStep::mkspec() const
 {
-    QString additionalArguments = userArguments();
-    ProcessArgs::addArgs(&additionalArguments, m_extraArgs);
-    for (ProcessArgs::ArgIterator ait(&additionalArguments); ait.next(); ) {
-        if (ait.value() == "-spec") {
-            if (ait.next())
-                return FilePath::fromUserInput(ait.value()).toString();
-        }
-    }
+    CommandLine cmd;
+    cmd.addArgs(userArguments(), CommandLine::Raw);
+    cmd.addArgs(m_extraArgs);
+
+    const QStringList args = cmd.splitArguments();
+    const int pos = args.indexOf("-spec") + 1;
+    if (pos > 0 && pos < args.size())
+        return FilePath::fromUserInput(args[pos]).toUrlishString();
 
     return QmakeKitAspect::effectiveMkspec(target()->kit());
 }
@@ -523,7 +525,7 @@ void QMakeStep::separateDebugInfoChanged()
 
 static bool isIos(const Kit *k)
 {
-    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+    const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(k);
     return deviceType == Ios::Constants::IOS_DEVICE_TYPE
            || deviceType == Ios::Constants::IOS_SIMULATOR_TYPE;
 }
@@ -567,6 +569,8 @@ void QMakeStep::abisChanged()
                     archs << "x86_64";
                 else if (abi.architecture() == Abi::ArmArchitecture)
                     archs << "arm64";
+                else if (abi.architecture() == Abi::LoongArchArchitecture)
+                    archs << "loongarch64";
             }
             if (!archs.isEmpty())
                 args << prefix + '"' + archs.join(' ') + '"';

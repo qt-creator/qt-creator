@@ -7,7 +7,6 @@
 #include "genericprojectmanagertr.h"
 
 #include <coreplugin/basefilewizard.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/iwizardfactory.h>
 
 #include <projectexplorer/customwizard/customwizard.h>
@@ -98,8 +97,8 @@ class GenericProjectWizard final : public BaseFileWizard
     Q_OBJECT
 
 public:
-    GenericProjectWizard(const BaseFileWizardFactory *factory, QWidget *parent)
-        : BaseFileWizard(factory, QVariantMap(), parent)
+    GenericProjectWizard(const BaseFileWizardFactory *factory)
+        : BaseFileWizard(factory, QVariantMap())
     {
         setWindowTitle(Tr::tr("Import Existing Project"));
 
@@ -172,9 +171,9 @@ public:
     }
 
 protected:
-    BaseFileWizard *create(QWidget *parent, const WizardDialogParameters &parameters) const final
+    BaseFileWizard *create(const WizardDialogParameters &parameters) const final
     {
-        auto wizard = new GenericProjectWizard(this, parent);
+        auto wizard = new GenericProjectWizard(this);
         wizard->setFilePath(parameters.defaultPath());
         const QList<QWizardPage *> pages = wizard->extensionPages();
         for (QWizardPage *p : pages)
@@ -196,14 +195,14 @@ protected:
         const FilePath configFileName = projectPath.pathAppended(projectName + ".config");
         const FilePath cxxflagsFileName = projectPath.pathAppended(projectName + ".cxxflags");
         const FilePath cflagsFileName = projectPath.pathAppended(projectName + ".cflags");
-        const QStringList paths = Utils::transform(wizard->selectedPaths(), &FilePath::toString);
+        const QStringList paths = Utils::transform(wizard->selectedPaths(), &FilePath::toUrlishString);
 
         MimeType headerTy = Utils::mimeTypeForName(QLatin1String("text/x-chdr"));
 
         QStringList nameFilters = headerTy.globPatterns();
 
         QStringList includePaths;
-        const QDir dir(projectPath.toString());
+        const QDir dir(projectPath.toUrlishString());
         for (const QString &path : paths) {
             QFileInfo fileInfo(path);
             if (fileInfo.fileName() != "include")
@@ -223,7 +222,7 @@ protected:
         generatedCreatorFile.setContents(QLatin1String("[General]\n"));
         generatedCreatorFile.setAttributes(GeneratedFile::OpenProjectAttribute);
 
-        QStringList sources = Utils::transform(wizard->selectedFiles(), &FilePath::toString);
+        QStringList sources = Utils::transform(wizard->selectedFiles(), &FilePath::toUrlishString);
         for (int i = 0; i < sources.length(); ++i)
             sources[i] = dir.relativeFilePath(sources[i]);
         Utils::sort(sources);

@@ -16,6 +16,8 @@ def main():
     if platform.system() in ('Microsoft', 'Windows'):
         # Qt5.10 has constructs that do not work on Win because of limitation to older C++
         targets = [Targets.DESKTOP_5_14_1_DEFAULT, Targets.DESKTOP_6_2_4]
+        if os.getenv('SYSTEST_NEW_SETTINGS') == '1':
+            targets.append(Targets.DESKTOP_6_7_3_GCC)
     createProject_Qt_Console(tempDir(), project, targets=targets)
 
     mainEditor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
@@ -56,13 +58,7 @@ def main():
             appOutput = str(waitForObject(":Qt Creator_Core::OutputWindow").plainText)
             verifyOutput(appOutput, outputStdOut, "std::cout", "Application Output")
             verifyOutput(appOutput, outputStdErr, "std::cerr", "Application Output")
-            if (kit == Targets.DESKTOP_5_4_1_GCC
-                and platform.system() in ('Windows', 'Microsoft')):
-                test.log("Skipping qDebug() from %s (unstable, QTCREATORBUG-15067)"
-                         % Targets.getStringForTarget(Targets.DESKTOP_5_4_1_GCC))
-            else:
-                verifyOutput(appOutput, outputQDebug,
-                             "qDebug()", "Application Output")
+            verifyOutput(appOutput, outputQDebug, "qDebug()", "Application Output")
             clickButton(waitForObject(":Qt Creator_CloseButton"))
         except:
             test.fatal("Could not find Application Output Window",

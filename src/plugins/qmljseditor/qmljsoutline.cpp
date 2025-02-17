@@ -12,9 +12,12 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <texteditor/ioutlinewidget.h>
+
 #include <QAction>
-#include <QVBoxLayout>
+#include <QSortFilterProxyModel>
 #include <QTextBlock>
+#include <QVBoxLayout>
 
 using namespace QmlJS;
 
@@ -22,14 +25,33 @@ enum {
     debug = false
 };
 
-namespace QmlJSEditor {
-namespace Internal {
+namespace QmlJSEditor::Internal {
 
-QmlJSOutlineFilterModel::QmlJSOutlineFilterModel(QObject *parent) :
-    QSortFilterProxyModel(parent)
+// QmlJSOutlineFilterModel
+
+class QmlJSOutlineFilterModel final : public QSortFilterProxyModel
 {
-    setDynamicSortFilter(true);
-}
+public:
+    QmlJSOutlineFilterModel()
+    {
+        setDynamicSortFilter(true);
+    }
+
+    Qt::ItemFlags flags(const QModelIndex &index) const final;
+    bool filterAcceptsRow(int sourceRow,
+                          const QModelIndex &sourceParent) const final;
+    bool lessThan(const QModelIndex &sourceLeft, const QModelIndex &sourceRight) const final;
+    QVariant data(const QModelIndex &index, int role) const final;
+    Qt::DropActions supportedDragActions() const final;
+
+    bool filterBindings() const;
+    void setFilterBindings(bool filterBindings);
+    void setSorted(bool sorted);
+
+private:
+    bool m_filterBindings = false;
+    bool m_sorted = false;
+};
 
 Qt::ItemFlags QmlJSOutlineFilterModel::flags(const QModelIndex &index) const
 {
@@ -98,14 +120,49 @@ void QmlJSOutlineFilterModel::setSorted(bool sorted)
     invalidate();
 }
 
-QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent)
-    : TextEditor::IOutlineWidget(parent)
-    , m_treeView(new QmlJSOutlineTreeView(this))
-    , m_filterModel(new QmlJSOutlineFilterModel(this))
-{
-    m_filterModel->setFilterBindings(false);
+// QmlJSOutlineWidget
 
-    m_treeView->setModel(m_filterModel);
+class QmlJSOutlineWidget final : public TextEditor::IOutlineWidget
+{
+public:
+    QmlJSOutlineWidget();
+
+    void setEditor(QmlJSEditorWidget *editor);
+
+    // IOutlineWidget
+    QList<QAction*> filterMenuActions() const final;
+    void setCursorSynchronization(bool syncWithCursor) final;
+    bool isSorted() const final { return m_sorted; };
+    void setSorted(bool sorted) final;
+    void restoreSettings(const QVariantMap &map) final;
+    QVariantMap settings() const final;
+
+private:
+    void updateSelectionInTree(const QModelIndex &index);
+    void updateSelectionInText(const QItemSelection &selection);
+    void updateTextCursor(const QModelIndex &index);
+    void focusEditor();
+    void setShowBindings(bool showBindings);
+    bool syncCursor();
+
+private:
+    QmlJSOutlineTreeView *m_treeView = nullptr;
+    QmlJSOutlineFilterModel m_filterModel;
+    QmlJSEditorWidget *m_editor = nullptr;
+
+    QAction *m_showBindingsAction = nullptr;
+
+    bool m_enableCursorSync = true;
+    bool m_blockCursorSync = false;
+    bool m_sorted = false;
+};
+
+QmlJSOutlineWidget::QmlJSOutlineWidget()
+    : m_treeView(new QmlJSOutlineTreeView(this))
+{
+    m_filterModel.setFilterBindings(false);
+
+    m_treeView->setModel(&m_filterModel);
     m_treeView->setSortingEnabled(true);
 
     setFocusProxy(m_treeView);
@@ -129,7 +186,7 @@ void QmlJSOutlineWidget::setEditor(QmlJSEditorWidget *editor)
 {
     m_editor = editor;
 
-    m_filterModel->setSourceModel(m_editor->qmlJsEditorDocument()->outlineModel());
+    m_filterModel.setSourceModel(m_editor->qmlJsEditorDocument()->outlineModel());
     m_treeView->expandAll();
     connect(m_editor->qmlJsEditorDocument()->outlineModel(), &QAbstractItemModel::modelAboutToBeReset, m_treeView, [this] {
         if (m_treeView->selectionModel())
@@ -173,7 +230,7 @@ void QmlJSOutlineWidget::setCursorSynchronization(bool syncWithCursor)
 void QmlJSOutlineWidget::setSorted(bool sorted)
 {
     m_sorted = sorted;
-    m_filterModel->setSorted(m_sorted);
+    m_filterModel.setSorted(m_sorted);
 }
 
 void QmlJSOutlineWidget::restoreSettings(const QVariantMap &map)
@@ -199,10 +256,10 @@ void QmlJSOutlineWidget::updateSelectionInTree(const QModelIndex &index)
     m_blockCursorSync = true;
 
     QModelIndex baseIndex = index;
-    QModelIndex filterIndex = m_filterModel->mapFromSource(baseIndex);
+    QModelIndex filterIndex = m_filterModel.mapFromSource(baseIndex);
     while (baseIndex.isValid() && !filterIndex.isValid()) { // Search for ancestor index actually shown
         baseIndex = baseIndex.parent();
-        filterIndex = m_filterModel->mapFromSource(baseIndex);
+        filterIndex = m_filterModel.mapFromSource(baseIndex);
     }
 
     m_treeView->setCurrentIndex(filterIndex);
@@ -226,7 +283,7 @@ void QmlJSOutlineWidget::updateTextCursor(const QModelIndex &index)
 {
     const auto update = [this](const QModelIndex &index) {
         if (!m_editor->isOutlineCursorChangesBlocked()) {
-            QModelIndex sourceIndex = m_filterModel->mapToSource(index);
+            QModelIndex sourceIndex = m_filterModel.mapToSource(index);
 
             SourceLocation location
                     = m_editor->qmlJsEditorDocument()->outlineModel()->sourceLocation(sourceIndex);
@@ -261,7 +318,7 @@ void QmlJSOutlineWidget::focusEditor()
 
 void QmlJSOutlineWidget::setShowBindings(bool showBindings)
 {
-    m_filterModel->setFilterBindings(!showBindings);
+    m_filterModel.setFilterBindings(!showBindings);
     m_treeView->expandAll();
     m_editor->updateOutlineIndexNow();
 }
@@ -271,25 +328,36 @@ bool QmlJSOutlineWidget::syncCursor()
     return m_enableCursorSync && !m_blockCursorSync;
 }
 
-bool QmlJSOutlineWidgetFactory::supportsEditor(Core::IEditor *editor) const
+class QmlJSOutlineWidgetFactory final : public TextEditor::IOutlineWidgetFactory
 {
-    if (qobject_cast<QmlJSEditor*>(editor))
+public:
+    bool supportsEditor(Core::IEditor *editor) const final
+    {
+        return bool(qobject_cast<QmlJSEditor*>(editor));
+    }
+
+    bool supportsSorting() const final
+    {
         return true;
-    return false;
-}
+    }
 
-TextEditor::IOutlineWidget *QmlJSOutlineWidgetFactory::createWidget(Core::IEditor *editor)
+    TextEditor::IOutlineWidget *createWidget(Core::IEditor *editor) final
+    {
+        auto widget = new QmlJSOutlineWidget;
+
+        auto qmlJSEditable = qobject_cast<const QmlJSEditor*>(editor);
+        auto qmlJSEditor = qobject_cast<QmlJSEditorWidget*>(qmlJSEditable->widget());
+        Q_ASSERT(qmlJSEditor);
+
+        widget->setEditor(qmlJSEditor);
+
+        return widget;
+    }
+};
+
+void setupQmlJsOutline()
 {
-    auto widget = new QmlJSOutlineWidget;
-
-    auto qmlJSEditable = qobject_cast<const QmlJSEditor*>(editor);
-    auto qmlJSEditor = qobject_cast<QmlJSEditorWidget*>(qmlJSEditable->widget());
-    Q_ASSERT(qmlJSEditor);
-
-    widget->setEditor(qmlJSEditor);
-
-    return widget;
+    static QmlJSOutlineWidgetFactory theQmlJSOutlineWidgetFactory;
 }
 
-} // namespace Internal
-} // namespace QmlJSEditor
+} // namespace QmlJSEditor::Internal

@@ -77,7 +77,7 @@ TestSettingsWidget::TestSettingsWidget()
         text(Tr::tr("Reset Cached Choices")),
         Layouting::toolTip(Tr::tr("Clear all cached choices of run configurations for "
                        "tests where the executable could not be deduced.")),
-        onClicked(&clearChoiceCache, this)
+        onClicked(this, &clearChoiceCache)
     };
 
     TestSettings &s = Internal::testSettings();
@@ -263,8 +263,6 @@ public:
         setId(Constants::AUTOTEST_SETTINGS_ID);
         setDisplayName(Tr::tr("General"));
         setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
-        setDisplayCategory(Tr::tr("Testing"));
-        setCategoryIconPath(":/autotest/images/settingscategory_autotest.png");
         setWidgetCreator([] { return new TestSettingsWidget; });
     }
 };

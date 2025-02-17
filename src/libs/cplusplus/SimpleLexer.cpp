@@ -54,7 +54,7 @@ Tokens SimpleLexer::operator()(const QString &text, int state)
         lex.setScanCommentTokens(true);
 
     if (state != -1)
-        lex.setState(state & 0xff);
+        lex.setState(state);
 
     bool inPreproc = false;
 

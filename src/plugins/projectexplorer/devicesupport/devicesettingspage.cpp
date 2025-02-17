@@ -34,8 +34,6 @@
 #include <QVBoxLayout>
 #include <QValidator>
 
-#include <algorithm>
-
 using namespace Core;
 using namespace Utils;
 
@@ -373,7 +371,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
             const IDevice::Ptr device = m_deviceManager->mutableDevice(currentDevice()->id());
             QTC_ASSERT(device, return);
             updateDeviceFromUi();
-            deviceAction.execute(device, this);
+            deviceAction.execute(device);
             // Widget must be set up from scratch, because the action could have
             // changed random attributes.
             currentDeviceChanged(currentIndex());
@@ -413,8 +411,6 @@ DeviceSettingsPage::DeviceSettingsPage()
     setId(Constants::DEVICE_SETTINGS_PAGE_ID);
     setDisplayName(Tr::tr("Devices"));
     setCategory(Constants::DEVICE_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("Devices"));
-    setCategoryIconPath(":/projectexplorer/images/settingscategory_devices.png");
     setWidgetCreator([] { return new DeviceSettingsWidget; });
 }
 

@@ -12,7 +12,9 @@
 #include <QMessageBox>
 #include <QPointer>
 #include <QTimer>
+#include <QVersionNumber>
 
+#include <optional>
 #include <unordered_map>
 
 namespace Ios {
@@ -39,14 +41,17 @@ public:
     QString osVersion() const;
     QString productType() const;
     QString cpuArchitecture() const;
-    Utils::Port nextPort() const;
     Handler handler() const;
 
     static QString name();
 
-protected:
+private:
     void fromMap(const Utils::Store &map) final;
     void toMap(Utils::Store &map) const final;
+
+    Tasking::ExecutableItem portsGatheringRecipe(
+        const Tasking::Storage<Utils::PortsOutputData> &output) const override;
+    QUrl toolControlChannel(const ControlChannelHint &) const override;
 
     friend class IosDeviceFactory;
     friend class Ios::Internal::IosDeviceManager;
@@ -59,7 +64,6 @@ protected:
     Dict m_extraInfo;
     Handler m_handler = Handler::IosTool;
     bool m_ignoreDevice = false;
-    mutable quint16 m_lastPort;
 };
 
 class IosDeviceManager : public QObject
@@ -80,6 +84,9 @@ public:
                     const Ios::IosToolHandler::Dict &info);
     void monitorAvailableDevices();
 
+    static bool isDeviceCtlOutputSupported();
+    static bool isDeviceCtlDebugSupported();
+
 private:
     void updateUserModeDevices();
     IosDeviceManager(QObject *parent = nullptr);
@@ -87,6 +94,7 @@ private:
     QTimer m_userModeDevicesTimer;
     QStringList m_userModeDeviceIds;
     QPointer<QMessageBox> m_devModeDialog;
+    std::optional<QVersionNumber> m_deviceCtlVersion;
 };
 
 void setupIosDevice();

@@ -5,8 +5,6 @@
 
 #include <QtGlobal>
 
-#include <memory>
-
 QT_BEGIN_NAMESPACE
 class QJsonObject;
 class QString;
@@ -14,19 +12,13 @@ QT_END_NAMESPACE
 
 namespace Utils { class FilePath; }
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 class QbsProjectNode;
 
-class QbsNodeTreeBuilder
-{
-public:
-    static QbsProjectNode *buildTree(const QString &projectName,
-                                     const Utils::FilePath &projectFile,
-                                     const Utils::FilePath &projectDir,
-                                     const QJsonObject &projectData);
-};
+QbsProjectNode *buildQbsProjectTree(const QString &projectName,
+                                    const Utils::FilePath &projectFile,
+                                    const Utils::FilePath &projectDir,
+                                    const QJsonObject &projectData);
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // namespace QbsProjectManager::Internal

@@ -40,6 +40,7 @@
 #include <languageserverprotocol/clientcapabilities.h>
 #include <languageserverprotocol/progresssupport.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/project.h>
@@ -127,16 +128,22 @@ class ClangdOutlineItem : public LanguageClientOutlineItem
 private:
     QVariant data(int column, int role) const override
     {
-        switch (role) {
-        case Qt::DisplayRole:
-            return ClangdClient::displayNameFromDocumentSymbol(
-                static_cast<SymbolKind>(type()), name(), detail());
-        case Qt::ForegroundRole:
-            if ((detail().endsWith("class") || detail().endsWith("struct"))
-                && range().end() == selectionRange().end()) {
-                return creatorColor(Theme::TextColorDisabled);
+        if (valid()) {
+            switch (role) {
+            case Qt::DisplayRole:
+                return ClangdClient::displayNameFromDocumentSymbol(
+                    static_cast<SymbolKind>(type()), name(), detail());
+            case Qt::ForegroundRole:
+                if ((detail().endsWith("class") || detail().endsWith("struct"))
+                    && range().end() == selectionRange().end()) {
+                    return creatorColor(Theme::TextColorDisabled);
+                }
+                break;
+            case AnnotationRole:
+                // Item details are integrated into the displayname through the DisplayRole
+                return {};
             }
-            break;
+
         }
         return LanguageClientOutlineItem::data(column, role);
     }
@@ -163,14 +170,9 @@ void setupClangdConfigFile()
 
 std::optional<Utils::FilePath> clangdExecutableFromBuildDevice(Project *project)
 {
-    if (!project)
-        return std::nullopt;
-
-    if (ProjectExplorer::Target *target = project->activeTarget()) {
-        if (const ProjectExplorer::IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(
-                target->kit())) {
-            return buildDevice->clangdExecutable();
-        }
+    if (const ProjectExplorer::IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(
+            activeKit(project))) {
+        return buildDevice->clangdExecutable();
     }
 
     return std::nullopt;
@@ -443,6 +445,14 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
                 = textCaps->completion();
         if (completionCaps)
             clangdTextCaps.setCompletion(ClangdCompletionCapabilities(*completionCaps));
+
+        // https://clangd.llvm.org/extensions#reference-container
+        if (const auto references = textCaps->references()) {
+            QJsonObject obj = *references;
+            obj.insert("container", true);
+            clangdTextCaps.setReferences(DynamicRegistrationCapabilities(obj));
+        }
+
         caps.setTextDocument(clangdTextCaps);
     }
     caps.clearExperimental();
@@ -471,6 +481,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
     });
     registerCustomMethod(inactiveRegionsMethodName(), [this](const JsonRpcMessage &msg) {
         handleInactiveRegions(this, msg);
+        return true;
     });
 
     connect(this, &Client::workDone, this,
@@ -783,7 +794,7 @@ QVersionNumber ClangdClient::versionNumber() const
     if (d->versionNumber)
         return d->versionNumber.value();
 
-    const QRegularExpression versionPattern("^clangd version (\\d+)\\.(\\d+)\\.(\\d+).*$");
+    static const QRegularExpression versionPattern("^clangd version (\\d+)\\.(\\d+)\\.(\\d+).*$");
     QTC_CHECK(versionPattern.isValid());
     const QRegularExpressionMatch match = versionPattern.match(serverVersion());
     if (match.isValid()) {
@@ -972,7 +983,7 @@ MessageId ClangdClient::requestSymbolInfo(const Utils::FilePath &filePath, const
         // According to the documentation, we should receive a single
         // object here, but it's a list. No idea what it means if there's
         // more than one entry. We choose the first one.
-        const auto list = std::get_if<QList<SymbolDetails>>(&result.value());
+        const auto list = std::get_if<QList<SymbolDetails>>(&(*result));
         if (!list || list->isEmpty()) {
             handler({}, {}, reqId);
             return;
@@ -1555,7 +1566,7 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
     }
 
     const auto runner = [tokens, filePath = doc->filePath(),
-                         text = doc->document()->toPlainText(),
+                         text = doc->plainText(),
                          rev = doc->document()->revision(), this] {
         try {
             return Utils::asyncRun(doSemanticHighlighting, filePath, tokens, text,

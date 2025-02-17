@@ -9,12 +9,12 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
-#include <debugger/analyzer/analyzerrunconfigwidget.h>
 #include <debugger/analyzer/analyzericons.h>
 
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/runconfiguration.h>
 
 #ifdef WITH_TESTS
 #   include "valgrindmemcheckparsertest.h"
@@ -37,7 +37,7 @@ public:
         setDisplayName(Tr::tr("Valgrind Settings"));
         setUsingGlobalSettings(true);
         resetProjectToGlobalSettings();
-        setConfigWidgetCreator([this] { return new Debugger::AnalyzerRunConfigWidget(this); });
+        setConfigWidgetCreator([this] { return createRunConfigAspectWidget(this); });
     }
 };
 

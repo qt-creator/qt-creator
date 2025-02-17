@@ -37,7 +37,7 @@ static CppFileSettings fileSettings()
 
 static QString fileName(const QString &path, const QString &extension)
 {
-    return Utils::FilePath::fromStringWithExtension(path, extension).toString();
+    return Utils::FilePath::fromStringWithExtension(path, extension).toUrlishString();
 }
 
 QString CppToolsJsExtension::headerGuard(const QString &in) const

@@ -573,14 +573,14 @@ static QStringList merge(const QStringList &first, const QStringList &second)
 
 void PresetsDetails::ConfigurePreset::inheritFrom(const ConfigurePreset &other)
 {
-    if (!condition && other.condition && !other.condition.value().isNull())
+    if (!condition && other.condition && !other.condition->isNull())
         condition = other.condition;
 
     if (!vendor && other.vendor)
         vendor = other.vendor;
 
     if (vendor && other.vendor)
-        vendor = merge(other.vendor.value(), vendor.value());
+        vendor = merge(*other.vendor, *vendor);
 
     if (!generator && other.generator)
         generator = other.generator;
@@ -606,12 +606,12 @@ void PresetsDetails::ConfigurePreset::inheritFrom(const ConfigurePreset &other)
     if (!cacheVariables && other.cacheVariables)
         cacheVariables = other.cacheVariables;
     else if (cacheVariables && other.cacheVariables)
-        cacheVariables = merge(other.cacheVariables.value(), cacheVariables.value());
+        cacheVariables = merge(*other.cacheVariables, *cacheVariables);
 
     if (!environment && other.environment)
         environment = other.environment;
     else if (environment && other.environment)
-        environment = environment.value().appliedToEnvironment(other.environment.value());
+        environment = environment->appliedToEnvironment(*other.environment);
 
     if (!warnings && other.warnings)
         warnings = other.warnings;
@@ -625,19 +625,19 @@ void PresetsDetails::ConfigurePreset::inheritFrom(const ConfigurePreset &other)
 
 void PresetsDetails::BuildPreset::inheritFrom(const BuildPreset &other)
 {
-    if (!condition && other.condition && !other.condition.value().isNull())
+    if (!condition && other.condition && !other.condition->isNull())
         condition = other.condition;
 
     if (!vendor && other.vendor)
         vendor = other.vendor;
 
     if (vendor && other.vendor)
-        vendor = merge(other.vendor.value(), vendor.value());
+        vendor = merge(*other.vendor, *vendor);
 
     if (!environment && other.environment)
         environment = other.environment;
     else if (environment && other.environment)
-        environment = environment.value().appliedToEnvironment(other.environment.value());
+        environment = environment->appliedToEnvironment(*other.environment);
 
     if (!configurePreset && other.configurePreset)
         configurePreset = other.configurePreset;
@@ -651,7 +651,7 @@ void PresetsDetails::BuildPreset::inheritFrom(const BuildPreset &other)
     if (!targets && other.targets)
         targets = other.targets;
     else if (targets && other.targets)
-        targets = merge(other.targets.value(), targets.value());
+        targets = merge(*other.targets, *targets);
 
     if (!configuration && other.configuration)
         configuration = other.configuration;
@@ -665,7 +665,7 @@ void PresetsDetails::BuildPreset::inheritFrom(const BuildPreset &other)
     if (!nativeToolOptions && other.nativeToolOptions)
         nativeToolOptions = other.nativeToolOptions;
     else if (nativeToolOptions && other.nativeToolOptions)
-        nativeToolOptions = merge(other.nativeToolOptions.value(), nativeToolOptions.value());
+        nativeToolOptions = merge(*other.nativeToolOptions, *nativeToolOptions);
 }
 
 bool PresetsDetails::Condition::evaluate() const
@@ -674,38 +674,38 @@ bool PresetsDetails::Condition::evaluate() const
         return true;
 
     if (isConst() && constValue)
-        return constValue.value();
+        return *constValue;
 
     if (isEquals() && lhs && rhs)
-        return lhs.value() == rhs.value();
+        return *lhs == *rhs;
 
     if (isNotEquals() && lhs && rhs)
-        return lhs.value() != rhs.value();
+        return *lhs != *rhs;
 
     if (isInList() && string && list)
-        return list.value().contains(string.value());
+        return list->contains(*string);
 
     if (isNotInList() && string && list)
-        return !list.value().contains(string.value());
+        return !list->contains(*string);
 
     if (isMatches() && string && regex) {
-        QRegularExpression qRegex(regex.value());
-        return qRegex.match(string.value()).hasMatch();
+        QRegularExpression qRegex(*regex);
+        return qRegex.match(*string).hasMatch();
     }
 
     if (isNotMatches() && string && regex) {
-        QRegularExpression qRegex(regex.value());
-        return !qRegex.match(string.value()).hasMatch();
+        QRegularExpression qRegex(*regex);
+        return !qRegex.match(*string).hasMatch();
     }
 
     if (isAnyOf() && conditions)
-        return Utils::anyOf(conditions.value(), [](const ConditionPtr &c) { return c->evaluate(); });
+        return Utils::anyOf(*conditions, [](const ConditionPtr &c) { return c->evaluate(); });
 
     if (isAllOf() && conditions)
-        return Utils::allOf(conditions.value(), [](const ConditionPtr &c) { return c->evaluate(); });
+        return Utils::allOf(*conditions, [](const ConditionPtr &c) { return c->evaluate(); });
 
     if (isNot() && condition)
-        return !condition.value()->evaluate();
+        return !(*condition)->evaluate();
 
     return false;
 }

@@ -89,6 +89,7 @@ public:
     Utils::BoolAspect firstChanceExceptionTaskEntry;
     Utils::BoolAspect secondChanceExceptionTaskEntry;
     Utils::BoolAspect ignoreFirstChanceAccessViolation;
+    Utils::BoolAspect enableHeapDebugging;
 
     // Page 6: CDB Paths
     Utils::StringListAspect cdbSymbolPaths;

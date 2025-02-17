@@ -71,7 +71,6 @@ public:
 class QTCREATOR_UTILS_EXPORT ProcessSetupData
 {
 public:
-    ProcessImpl m_processImpl = ProcessImpl::Default;
     ProcessMode m_processMode = ProcessMode::Reader;
     TerminalMode m_terminalMode = TerminalMode::Off;
 
@@ -120,18 +119,6 @@ enum class ProcessSignalType {
     Done
 };
 
-class QTCREATOR_UTILS_EXPORT ProcessBlockingInterface : public QObject
-{
-private:
-    // Wait for:
-    // - Started is being called only in Starting state.
-    // - ReadyRead is being called in Starting or Running state.
-    // - Done is being called in Starting or Running state.
-    virtual bool waitForSignal(ProcessSignalType signalType, QDeadlineTimer timeout) = 0;
-
-    friend class Internal::ProcessPrivate;
-};
-
 class QTCREATOR_UTILS_EXPORT ProcessInterface : public QObject
 {
     Q_OBJECT
@@ -164,8 +151,6 @@ private:
 
     // It's being called in Starting or Running state.
     virtual void sendControlSignal(ControlSignal controlSignal) = 0;
-
-    virtual ProcessBlockingInterface *processBlockingInterface() const { return nullptr; }
 
     friend class Process;
     friend class Internal::ProcessPrivate;

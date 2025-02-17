@@ -5,9 +5,7 @@
 
 #include "linuxdevice.h"
 #include "remotelinuxtr.h"
-#include "utils/async.h"
 
-#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -161,28 +159,33 @@ GroupItem GenericLinuxDeviceTesterPrivate::unameTask() const
 
 GroupItem GenericLinuxDeviceTesterPrivate::gathererTask() const
 {
-    const auto onSetup = [this](DeviceUsedPortsGatherer &gatherer) {
+    const Storage<PortsOutputData> portsStorage;
+
+    const auto onSetup = [this] {
         emit q->progressMessage(Tr::tr("Checking if specified ports are available..."));
-        gatherer.setDevice(m_device);
     };
-    const auto onDone = [this](const DeviceUsedPortsGatherer &gatherer, DoneWith result) {
-        if (result != DoneWith::Success) {
-            emit q->errorMessage(Tr::tr("Error gathering ports: %1").arg(gatherer.errorString()) + '\n'
+    const auto onDone = [this, portsStorage] {
+        const auto ports = *portsStorage;
+        if (!ports) {
+            emit q->errorMessage(Tr::tr("Error gathering ports: %1").arg(ports.error()) + '\n'
                                  + Tr::tr("Some tools will not work out of the box.\n"));
-        } else if (gatherer.usedPorts().isEmpty()) {
+        } else if (ports->isEmpty()) {
             emit q->progressMessage(Tr::tr("All specified ports are available.") + '\n');
         } else {
-            const QString portList = transform(gatherer.usedPorts(), [](const Port &port) {
+            const QString portList = transform(*ports, [](const Port &port) {
                 return QString::number(port.number());
             }).join(", ");
             emit q->errorMessage(Tr::tr("The following specified ports are currently in use: %1")
                 .arg(portList) + '\n');
         }
+        return true;
     };
 
     return Group {
-        finishAllAndSuccess,
-        DeviceUsedPortsGathererTask(onSetup, onDone)
+        portsStorage,
+        onGroupSetup(onSetup),
+        m_device->portsGatheringRecipe(portsStorage),
+        onGroupDone(onDone)
     };
 }
 

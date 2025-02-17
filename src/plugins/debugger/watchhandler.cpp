@@ -910,7 +910,7 @@ static QString displayName(const WatchItem *item)
     // prepend '*'s to indicate where autodereferencing has taken place
     if (item->autoDerefCount > 0) {
         // add parentheses for everything except simple variable names (e.g. pointer arithmetics,...)
-        QRegularExpression variableNameRegex("^[a-zA-Z0-9_]+$");
+        static const QRegularExpression variableNameRegex("^[a-zA-Z0-9_]+$");
         bool addParanthesis = !variableNameRegex.match(result).hasMatch();
         if (addParanthesis)
             result = "(" + result;
@@ -1926,12 +1926,9 @@ QMenu *WatchModel::createMemoryMenu(WatchItem *item, QWidget *parent)
     addAction(this, menu, Tr::tr("Open Memory Editor..."),
               true,
               [this, item] {
-                    AddressDialog dialog;
-                    if (item->address)
-                        dialog.setAddress(item->address);
-                    if (dialog.exec() == QDialog::Accepted) {
+                    if (std::optional<quint64> result = runAddressDialog(item->address)) {
                         MemoryViewSetupData data;
-                        data.startAddress = dialog.address();
+                        data.startAddress = *result;
                         m_engine->openMemoryView(data);
                     }
                });
@@ -2573,7 +2570,6 @@ void WatchModel::clearWatches()
         return;
 
     const QMessageBox::StandardButton ret = CheckableMessageBox::question(
-        ICore::dialogParent(),
         Tr::tr("Remove All Expression Evaluators"),
         Tr::tr("Are you sure you want to remove all expression evaluators?"),
         Key("RemoveAllWatchers"));

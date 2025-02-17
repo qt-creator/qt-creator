@@ -167,9 +167,6 @@ public:
     bool vcsAdd(const FilePath &workingDir, const QString &fileName);
     bool vcsDelete(const FilePath &workingDir, const QString &fileName);
     bool vcsMove(const FilePath &workingDir, const QString &from, const QString &to);
-    bool vcsCheckout(const FilePath &directory, const QByteArray &url);
-
-    static SubversionPluginPrivate *instance();
 
     QString monitorFile(const FilePath &repository) const;
     QString synchronousTopic(const FilePath &repository) const;
@@ -216,7 +213,6 @@ private:
                  bool enableAnnotationContextMenu = false);
     void svnStatus(const FilePath &workingDir, const QString &relativePath = {});
     void svnUpdate(const FilePath &workingDir, const QString &relativePath = {});
-    bool checkSVNSubDir(const QDir &directory) const;
     void startCommit(const FilePath &workingDir, const QStringList &files = {});
 
     const QStringList m_svnDirectories;
@@ -603,7 +599,7 @@ void SubversionPluginPrivate::revertAll()
     // NoteL: Svn "revert ." doesn not work.
     CommandLine args{settings().binaryPath(), {"revert"}};
     args << SubversionClient::AddAuthOptions();
-    args << QLatin1String("--recursive") << state.topLevel().toString();
+    args << QLatin1String("--recursive") << state.topLevel().toUrlishString();
     const auto revertResponse = runSvn(state.topLevel(), args, RunFlags::ShowStdOut);
     if (revertResponse.result() != ProcessResult::FinishedWithSuccess) {
         QMessageBox::warning(ICore::dialogParent(), title, Tr::tr("Revert failed: %1")
@@ -642,7 +638,7 @@ void SubversionPluginPrivate::revertCurrentFile()
 
     const auto revertResponse = runSvn(state.currentFileTopLevel(), args, RunFlags::ShowStdOut);
     if (revertResponse.result() == ProcessResult::FinishedWithSuccess)
-        emit filesChanged(QStringList(state.currentFile().toString()));
+        emit filesChanged(QStringList(state.currentFile().toUrlishString()));
 }
 
 void SubversionPluginPrivate::diffProjectDirectory()
@@ -724,7 +720,7 @@ void SubversionPluginPrivate::startCommit(const FilePath &workingDir, const QStr
         VcsOutputWindow::appendError(saver.errorString());
         return;
     }
-    m_commitMessageFileName = saver.filePath().toString();
+    m_commitMessageFileName = saver.filePath().toUrlishString();
     // Create a submit editor and set file list
     SubversionSubmitEditor *editor = openSubversionSubmitEditor(m_commitMessageFileName);
     QTC_ASSERT(editor, return);
@@ -940,16 +936,10 @@ IEditor *SubversionPluginPrivate::showOutputInEditor(const QString &title, const
     return editor;
 }
 
-SubversionPluginPrivate *SubversionPluginPrivate::instance()
-{
-    QTC_ASSERT(dd, return dd);
-    return dd;
-}
-
 QString SubversionPluginPrivate::monitorFile(const FilePath &repository) const
 {
     QTC_ASSERT(!repository.isEmpty(), return QString());
-    QDir repoDir(repository.toString());
+    QDir repoDir(repository.toUrlishString());
     for (const QString &svnDir : std::as_const(m_svnDirectories)) {
         if (repoDir.exists(svnDir)) {
             QFileInfo fi(repoDir.absoluteFilePath(svnDir + QLatin1String("/wc.db")));
@@ -995,54 +985,15 @@ bool SubversionPluginPrivate::vcsMove(const FilePath &workingDir, const QString 
             == ProcessResult::FinishedWithSuccess;
 }
 
-bool SubversionPluginPrivate::vcsCheckout(const FilePath &directory, const QByteArray &url)
-{
-    QUrl tempUrl = QUrl::fromEncoded(url);
-    const QString username = tempUrl.userName();
-    const QString password = tempUrl.password();
-    CommandLine args{settings().binaryPath(), {"checkout"}};
-    args << Constants::NON_INTERACTIVE_OPTION;
-
-    if (!username.isEmpty()) {
-        // If url contains username and password we have to use separate username and password
-        // arguments instead of passing those in the url. Otherwise the subversion 'non-interactive'
-        // authentication will always fail (if the username and password data are not stored locally),
-        // if for example we are logging into a new host for the first time using svn. There seems to
-        // be a bug in subversion, so this might get fixed in the future.
-        tempUrl.setUserInfo({});
-        args << "--username" << username;
-        if (!password.isEmpty())
-            args << "--password";
-        args.addMaskedArg(password);
-    }
-
-    args << QString::fromLatin1(tempUrl.toEncoded()) << directory.toString();
-
-    return runSvn(directory, args, RunFlags::None, nullptr, 10).result()
-            == ProcessResult::FinishedWithSuccess;
-}
-
 bool SubversionPluginPrivate::managesDirectory(const FilePath &directory, FilePath *topLevel /* = 0 */) const
 {
-    const QDir dir(directory.toString());
+    const QStringList filesToCheck = transform(m_svnDirectories, [](const QString &s) {
+        return QString(s + "/wc.db");
+    });
+    const FilePath topLevelFound = VcsManager::findRepositoryForFiles(directory, filesToCheck);
     if (topLevel)
-        topLevel->clear();
-
-    /* Subversion >= 1.7 has ".svn" directory in the root of the working copy. Check for
-     * furthest parent containing ".svn/wc.db". Need to check for furthest parent as closer
-     * parents may be svn:externals. */
-    QDir parentDir = dir;
-    while (!parentDir.isRoot()) {
-        if (checkSVNSubDir(parentDir)) {
-            if (topLevel)
-                *topLevel = FilePath::fromString(parentDir.absolutePath());
-            return true;
-        }
-        if (!parentDir.cdUp())
-            break;
-    }
-
-    return false;
+        *topLevel = topLevelFound;
+    return !topLevelFound.isEmpty();
 }
 
 bool SubversionPluginPrivate::managesFile(const FilePath &workingDirectory, const QString &fileName) const
@@ -1052,21 +1003,6 @@ bool SubversionPluginPrivate::managesFile(const FilePath &workingDirectory, cons
          << QDir::toNativeSeparators(SubversionClient::escapeFile(fileName));
     const QString output = runSvn(workingDirectory, args).cleanedStdOut();
     return output.isEmpty() || output.front() != QLatin1Char('?');
-}
-
-// Check whether SVN management subdirs exist.
-bool SubversionPluginPrivate::checkSVNSubDir(const QDir &directory) const
-{
-    const int dirCount = m_svnDirectories.size();
-    for (int i = 0; i < dirCount; i++) {
-        const QDir svnDir(directory.absoluteFilePath(m_svnDirectories.at(i)));
-        if (!svnDir.exists())
-            continue;
-        if (!svnDir.exists(QLatin1String("wc.db")))
-            continue;
-        return true;
-    }
-    return false;
 }
 
 Utils::Id SubversionPluginPrivate::id() const

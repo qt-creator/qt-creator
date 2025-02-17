@@ -26,6 +26,7 @@ class CMAKE_EXPORT CMakeBuildTarget
 {
 public:
     QString title;
+    QString targetFolder;
     Utils::FilePath executable; // TODO: rename to output?
     QList<ProjectExplorer::Launcher> launchers;
     TargetType targetType = UtilityType;

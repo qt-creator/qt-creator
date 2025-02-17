@@ -103,21 +103,21 @@ void ClangCodeModelPlugin::initialize()
 
 void ClangCodeModelPlugin::generateCompilationDB()
 {
-    Target *target = ProjectManager::startupTarget();
-    if (!target)
+    Project * project = ProjectManager::startupProject();
+    if (!project || !project->activeKit())
         return;
 
-    const auto projectInfo = CppModelManager::projectInfo(target->project());
+    const auto projectInfo = CppModelManager::projectInfo(project);
     if (!projectInfo)
         return;
     FilePath baseDir = projectInfo->buildRoot();
-    if (baseDir == target->project()->projectDirectory())
+    if (baseDir == project->projectDirectory())
         baseDir = TemporaryDirectory::masterDirectoryFilePath();
 
     QFuture<GenerateCompilationDbResult> task
             = Utils::asyncRun(&Internal::generateCompilationDB, ProjectInfoList{projectInfo},
                               baseDir, CompilationDbPurpose::Project,
-                              warningsConfigForProject(target->project()),
+                              warningsConfigForProject(project),
                               globalClangOptions(),
                               FilePath());
     ProgressManager::addTask(task, Tr::tr("Generating Compilation DB"), "generate compilation db");

@@ -3,8 +3,8 @@
 
 #include "qmljscodestylesettingspage.h"
 
-#include "qmljscodestylepreferences.h"
 #include "qmljscodestylepreferenceswidget.h"
+#include "qmljscodestylesettings.h"
 #include "qmljsqtstylecodeformatter.h"
 #include "qmljstoolsconstants.h"
 #include "qmljstoolssettings.h"
@@ -74,7 +74,7 @@ void QmlJSCodeStylePreferencesWidget::setPreferences(QmlJSCodeStylePreferences *
     {
         connect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
                 this, &QmlJSCodeStylePreferencesWidget::slotSettingsChanged);
-        connect(m_preferences, &QmlJSCodeStylePreferences::currentCodeStyleSettingsChanged,
+        connect(m_preferences, &QmlJSCodeStylePreferences::currentValueChanged,
                 this, &QmlJSCodeStylePreferencesWidget::slotSettingsChanged);
     }
     updatePreview();
@@ -169,8 +169,6 @@ QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage()
     setId(Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
     setDisplayName(Tr::tr(Constants::QML_JS_CODE_STYLE_SETTINGS_NAME));
     setCategory(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
-    setDisplayCategory(Tr::tr("Qt Quick"));
-    setCategoryIconPath(":/qmljstools/images/settingscategory_qml.png");
     setWidgetCreator([] { return new QmlJSCodeStyleSettingsPageWidget; });
 }
 

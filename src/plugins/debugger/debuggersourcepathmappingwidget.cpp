@@ -142,7 +142,7 @@ SourcePathMap SourcePathMappingModel::sourcePathMap() const
     for (int r = 0; r < rows; ++r) {
         const Mapping m = mappingAt(r); // Skip placeholders.
         if (!m.first.isEmpty() && !m.second.isEmpty())
-            rc.insert(m.first.toString(), m.second.toString());
+            rc.insert(m.first.toUrlishString(), m.second.toUrlishString());
     }
     return rc;
 }
@@ -154,10 +154,10 @@ bool SourcePathMappingModel::isNewPlaceHolder(const Mapping &m) const
     const QChar greaterThan('>');
     return m.first.isEmpty() || m.first.startsWith(lessThan)
            || m.first.endsWith(greaterThan)
-           || m.first.toString() == m_newSourcePlaceHolder
+           || m.first.toUrlishString() == m_newSourcePlaceHolder
            || m.second.isEmpty() || m.second.startsWith(lessThan)
            || m.second.endsWith(greaterThan)
-           || m.second.toString() == m_newTargetPlaceHolder;
+           || m.second.toUrlishString() == m_newTargetPlaceHolder;
 }
 
 // Return raw, unfixed mapping
@@ -310,7 +310,7 @@ QString DebuggerSourcePathMappingWidget::editSourceField() const
 
 QString DebuggerSourcePathMappingWidget::editTargetField() const
 {
-    return m_targetChooser->unexpandedFilePath().toString();
+    return m_targetChooser->unexpandedFilePath().toUrlishString();
 }
 
 void DebuggerSourcePathMappingWidget::setEditFieldMapping(const Mapping &m)
@@ -381,11 +381,11 @@ void DebuggerSourcePathMappingWidget::slotAdd()
 void DebuggerSourcePathMappingWidget::slotAddQt()
 {
     // Add a mapping for various Qt build locations in case of unpatched builds.
-    const FilePath qtSourcesPath = FileUtils::getExistingDirectory(this, Tr::tr("Qt Sources"));
+    const FilePath qtSourcesPath = FileUtils::getExistingDirectory(Tr::tr("Qt Sources"));
     if (qtSourcesPath.isEmpty())
         return;
     for (const QString &buildPath : qtBuildPaths())
-        m_model->addMapping(buildPath, qtSourcesPath.toString());
+        m_model->addMapping(buildPath, qtSourcesPath.toUrlishString());
     resizeColumns();
     setCurrentRow(m_model->rowCount() - 1);
 }
@@ -419,7 +419,7 @@ void DebuggerSourcePathMappingWidget::slotEditTargetFieldChanged()
 SourcePathMap mergePlatformQtPath(const DebuggerRunParameters &sp, const SourcePathMap &in)
 {
     static const QString qglobal = "qtbase/src/corelib/global/qglobal.h";
-    const FilePath sourceLocation = sp.qtSourceLocation;
+    const FilePath sourceLocation = sp.qtSourceLocation();
     if (!(sourceLocation / qglobal).exists())
         return in;
 

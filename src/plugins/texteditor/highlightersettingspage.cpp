@@ -40,7 +40,7 @@ public:
 
     void migrateGenericHighlighterFiles()
     {
-        QDir userDefinitionPath(m_settings.definitionFilesPath().toString());
+        QDir userDefinitionPath(m_settings.definitionFilesPath().toUrlishString());
         if (userDefinitionPath.mkdir("syntax")) {
             const auto link = Utils::HostOsInfo::isAnyUnixHost()
                                   ? static_cast<bool(*)(const QString &, const QString &)>(&QFile::link)
@@ -154,8 +154,6 @@ HighlighterSettingsPage::HighlighterSettingsPage()
     setId(Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS);
     setDisplayName(Tr::tr("Generic Highlighter"));
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("Text Editor"));
-    setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
     setWidgetCreator([this] { return new HighlighterSettingsPageWidget(d); });
 }
 

@@ -3,7 +3,7 @@
 
 #include "cppcodestylepreferencesfactory.h"
 
-#include "cppcodestylepreferences.h"
+#include "cppcodestylesettings.h"
 #include "cppcodestylesettingspage.h"
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
@@ -73,7 +73,7 @@ QString CppCodeStylePreferencesFactory::displayName()
 
 TextEditor::ICodeStylePreferences *CppCodeStylePreferencesFactory::createCodeStyle() const
 {
-    return new CppCodeStylePreferences();
+    return new CppCodeStylePreferences;
 }
 
 TextEditor::CodeStyleEditorWidget *CppCodeStylePreferencesFactory::createEditor(
@@ -81,7 +81,7 @@ TextEditor::CodeStyleEditorWidget *CppCodeStylePreferencesFactory::createEditor(
     ProjectExplorer::Project *project,
     QWidget *parent) const
 {
-    auto cppPreferences = qobject_cast<CppCodeStylePreferences *>(preferences);
+    auto cppPreferences = dynamic_cast<CppCodeStylePreferences *>(preferences);
     if (!cppPreferences)
         return nullptr;
     auto widget = new Internal::CppCodeStylePreferencesWidget(parent);

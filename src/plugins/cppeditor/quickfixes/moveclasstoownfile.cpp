@@ -412,7 +412,7 @@ private:
             ChangeSet changes;
             if (isDeclFile) {
                 QString relInclude = headerFilePath.relativePathFrom(
-                                                       refactoringFile->filePath().parentDir()).toString();
+                                                       refactoringFile->filePath().parentDir()).toUrlishString();
                 if (!relInclude.isEmpty())
                     relInclude.append('/');
                 relInclude.append('"').append(headerFileName).append('"');

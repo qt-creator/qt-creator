@@ -276,7 +276,7 @@ QString MaterialEditorQmlBackend::materialEditorResourcesPath()
     if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/materialEditorQmlSources";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/materialEditorQmlSources").toString();
+    return Core::ICore::resourcePath("qmldesigner/materialEditorQmlSources").toUrlishString();
 }
 
 void MaterialEditorQmlBackend::emitSelectionToBeChanged()

@@ -377,8 +377,6 @@ public:
         setId(Constants::TODO_SETTINGS);
         setDisplayName(Tr::tr("To-Do"));
         setCategory("To-Do");
-        setDisplayCategory(Tr::tr("To-Do"));
-        setCategoryIconPath(":/todoplugin/images/settingscategory_todo.png");
         setWidgetCreator([] { return new OptionsDialog; });
     }
 };

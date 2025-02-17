@@ -46,7 +46,7 @@ bool isClangFormatPresent()
 {
     using namespace ExtensionSystem;
     return Utils::contains(PluginManager::plugins(), [](const PluginSpec *plugin) {
-        return plugin->name() == "ClangFormat" && plugin->isEffectivelyEnabled();
+        return plugin->id() == "clangformat" && plugin->isEffectivelyEnabled();
     });
 };
 
@@ -192,7 +192,7 @@ static bool snapshotContains(const CPlusPlus::Snapshot &snapshot, const QSet<Fil
 {
     for (const FilePath &filePath : filePaths) {
         if (!snapshot.contains(filePath)) {
-            qWarning() << "Missing file in snapshot:" << qPrintable(filePath.toString());
+            qWarning() << "Missing file in snapshot:" << qPrintable(filePath.toUrlishString());
             return false;
         }
     }
@@ -377,8 +377,8 @@ bool TestCase::waitUntilProjectIsFullyOpened(Project *project, int timeOutInMs)
 
     return QTest::qWaitFor(
         [project]() {
-            return ProjectManager::startupBuildSystem()
-                    && !ProjectManager::startupBuildSystem()->isParsing()
+            return activeBuildSystemForActiveProject()
+                    && !activeBuildSystemForActiveProject()->isParsing()
                     && CppModelManager::projectInfo(project);
         },
         timeOutInMs);

@@ -3,10 +3,10 @@
 
 #include "filtersettingspage.h"
 
-#include "helpconstants.h"
 #include "helptr.h"
 #include "localhelpmanager.h"
 
+#include <coreplugin/coreconstants.h>
 #include <utils/layoutbuilder.h>
 
 #include <QHelpFilterEngine>
@@ -55,7 +55,7 @@ FilterSettingsPage::FilterSettingsPage(const std::function<void ()> &onChanged)
 {
     setId("D.Filters");
     setDisplayName(Tr::tr("Filters"));
-    setCategory(Help::Constants::HELP_CATEGORY);
+    setCategory(Core::Constants::HELP_CATEGORY);
     setWidgetCreator([onChanged] { return new FilterSettingsPageWidget(onChanged); });
 }
 

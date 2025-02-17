@@ -12,7 +12,7 @@
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cpptoolsreuse.h>
 
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projecttree.h>
@@ -82,7 +82,7 @@ bool QtWizard::qt4ProjectPostGenerateFiles(const QWizard *w,
 
 QString QtWizard::templateDir()
 {
-    return Core::ICore::resourcePath("templates/qt4project").toString();
+    return Core::ICore::resourcePath("templates/qt4project").toUrlishString();
 }
 
 bool QtWizard::lowerCaseFiles()
@@ -97,10 +97,9 @@ bool QtWizard::lowerCaseFiles()
 // ------------ CustomQmakeProjectWizard
 CustomQmakeProjectWizard::CustomQmakeProjectWizard() = default;
 
-Core::BaseFileWizard *CustomQmakeProjectWizard::create(QWidget *parent,
-                                          const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *CustomQmakeProjectWizard::create(const Core::WizardDialogParameters &parameters) const
 {
-    auto *wizard = new BaseQmakeProjectWizardDialog(this, parent, parameters);
+    auto *wizard = new BaseQmakeProjectWizardDialog(this, parameters);
 
     if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
         wizard->addTargetSetupPage(targetPageId);
@@ -118,9 +117,8 @@ bool CustomQmakeProjectWizard::postGenerateFiles(const QWizard *w, const Core::G
 // ----------------- BaseQmakeProjectWizardDialog
 BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(
     const Core::BaseFileWizardFactory *factory,
-    QWidget *parent,
     const Core::WizardDialogParameters &parameters)
-    : ProjectExplorer::BaseProjectWizardDialog(factory, parent, parameters)
+    : ProjectExplorer::BaseProjectWizardDialog(factory, parameters)
 {
     m_profileIds = Utils::transform(parameters.extraValues()
                                         .value(ProjectExplorer::Constants::PROJECT_KIT_IDS)
@@ -135,9 +133,8 @@ BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(
     const Core::BaseFileWizardFactory *factory,
     Utils::ProjectIntroPage *introPage,
     int introId,
-    QWidget *parent,
     const Core::WizardDialogParameters &parameters)
-    : ProjectExplorer::BaseProjectWizardDialog(factory, introPage, introId, parent, parameters)
+    : ProjectExplorer::BaseProjectWizardDialog(factory, introPage, introId, parameters)
 {
     m_profileIds = Utils::transform(parameters.extraValues()
                                         .value(ProjectExplorer::Constants::PROJECT_KIT_IDS)

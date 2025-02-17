@@ -28,8 +28,8 @@ FilePath findProjectDirectory(const FilePath &filePath)
     if (filePath.isEmpty())
         return {};
 
-    QDir directory(filePath.toFileInfo().isDir() ? filePath.toString()
-                                                 : filePath.parentDir().toString());
+    QDir directory(filePath.toFileInfo().isDir() ? filePath.toUrlishString()
+                                                 : filePath.parentDir().toUrlishString());
     directory.setNameFilters({"stack.yaml", "*.cabal"});
     directory.setFilter(QDir::Files | QDir::Readable);
     do {
@@ -41,7 +41,7 @@ FilePath findProjectDirectory(const FilePath &filePath)
 
 void openGhci(const FilePath &haskellFile)
 {
-    const QList<MimeType> mimeTypes = mimeTypesForFileName(haskellFile.toString());
+    const QList<MimeType> mimeTypes = mimeTypesForFileName(haskellFile.toUrlishString());
     const bool isHaskell = Utils::anyOf(mimeTypes, [](const MimeType &mt) {
         return mt.inherits("text/x-haskell") || mt.inherits("text/x-literate-haskell");
     });

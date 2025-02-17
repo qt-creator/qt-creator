@@ -635,7 +635,7 @@ static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
 
     for (IDocument *document : documents) {
         if (document && document->isModified() && !document->isTemporary()) {
-            QString name = document->filePath().toString();
+            QString name = document->filePath().toUrlishString();
             if (name.isEmpty())
                 name = document->fallbackSaveAsFileName();
 
@@ -717,7 +717,7 @@ bool DocumentManager::saveDocument(IDocument *document,
 
     if (const Result res = document->save(savePath, false); !res) {
         if (isReadOnly) {
-            QFile ofi(savePath.toString());
+            QFile ofi(savePath.toUrlishString());
             // Check whether the existing file is writable
             if (!ofi.open(QIODevice::ReadWrite) && ofi.open(QIODevice::ReadOnly)) {
                 *isReadOnly = true;
@@ -795,7 +795,7 @@ FilePath DocumentManager::getSaveFileName(const QString &title, const FilePath &
     bool repeat;
     do {
         repeat = false;
-        filePath = FileUtils::getSaveFilePath(nullptr, title, path, filter, selectedFilter);
+        filePath = FileUtils::getSaveFilePath(title, path, filter, selectedFilter);
         if (!filePath.isEmpty()) {
             // If the selected filter is All Files (*) we leave the name exactly as the user
             // specified. Otherwise the suffix must be one available in the selected filter. If
@@ -803,7 +803,7 @@ FilePath DocumentManager::getSaveFileName(const QString &title, const FilePath &
             // first one from the filter is appended.
             if (selectedFilter && *selectedFilter != allFilesFilterString()) {
                 // Mime database creates filter strings like this: Anything here (*.foo *.bar)
-                const QRegularExpression regExp(QLatin1String(".*\\s+\\((.*)\\)$"));
+                static const QRegularExpression regExp(QLatin1String(".*\\s+\\((.*)\\)$"));
                 QRegularExpressionMatchIterator matchIt = regExp.globalMatch(*selectedFilter);
                 if (matchIt.hasNext()) {
                     bool suffixOk = false;
@@ -1040,7 +1040,7 @@ FilePaths DocumentManager::getOpenFileNames(const QString &filters,
                                             QFileDialog::Options options)
 {
     const FilePath path = pathIn.isEmpty() ? fileDialogInitialDirectory() : pathIn;
-    const FilePaths files = FileUtils::getOpenFilePaths(nullptr, Tr::tr("Open File"), path, filters,
+    const FilePaths files = FileUtils::getOpenFilePaths(Tr::tr("Open File"), path, filters,
                                                         selectedFilter, options);
     if (!files.isEmpty())
         setFileDialogLastVisitedDirectory(files.front().absolutePath());
@@ -1250,7 +1250,7 @@ void DocumentManager::checkForReload()
                     }
                 }
                 if (previousReloadAnswer == ReloadNoneAndDiff)
-                    filesToDiff.append(document->filePath().toString());
+                    filesToDiff.append(document->filePath().toUrlishString());
 
             // IDocument wants us to ask, and it's the TypeRemoved case
             } else {
@@ -1259,7 +1259,7 @@ void DocumentManager::checkForReload()
                 while (unhandled) {
                     if (previousDeletedAnswer != FileDeletedCloseAll) {
                         previousDeletedAnswer =
-                                fileDeletedPrompt(document->filePath().toString(),
+                                fileDeletedPrompt(document->filePath().toUrlishString(),
                                                   ICore::dialogParent());
                     }
                     switch (previousDeletedAnswer) {
@@ -1370,8 +1370,8 @@ void DocumentManager::saveSettings()
     s->endGroup();
     s->beginGroup(directoryGroupC);
     s->setValueWithDefault(projectDirectoryKeyC,
-                           d->m_projectsDirectory.toString(),
-                           PathChooser::homePath().toString());
+                           d->m_projectsDirectory.toUrlishString(),
+                           PathChooser::homePath().toUrlishString());
     s->setValueWithDefault(useProjectDirectoryKeyC,
                            d->m_useProjectsDirectory,
                            kUseProjectsDirectoryDefault);

@@ -17,6 +17,7 @@
 #include "qtcassert.h"
 #include "qtcolorbutton.h"
 #include "qtcsettings.h"
+#include "stylehelper.h"
 #include "utilsicons.h"
 #include "utilstr.h"
 #include "variablechooser.h"
@@ -1586,7 +1587,7 @@ FilePath FilePathAspect::effectiveBinary() const
     if (kind != PathChooser::ExistingCommand && kind != PathChooser::Command)
         return current;
 
-    if (current.needsDevice())
+    if (!current.isLocal())
         return current;
 
     d->m_effectiveBinary.emplace(current.searchInPath());
@@ -2094,6 +2095,19 @@ void BoolAspect::addToLayoutHelper(Layouting::Layout &parent, QAbstractButton *b
     case LabelPlacement::InExtraLabel:
         addLabeledItem(parent, button);
         break;
+    case LabelPlacement::ShowTip: {
+        parent.addItem(empty);
+        button->setText(labelText());
+        auto ttLabel = new QLabel(toolTip());
+        ttLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementLabelSmall));
+        auto lt = new QVBoxLayout;
+        lt->setContentsMargins({});
+        lt->setSpacing(StyleHelper::SpacingTokens::VGapXxs);
+        lt->addWidget(button);
+        lt->addWidget(ttLabel);
+        parent.addItem(lt);
+        break;
+    }
     }
 
     connect(button, &QAbstractButton::clicked, this, [button, this] {

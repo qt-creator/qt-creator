@@ -235,7 +235,7 @@ void MultiExportDialog::suggestSizes()
 QVector<ExportData> MultiExportDialog::exportData() const
 {
     const QVector<QSize> sizeList = sizes();
-    const QString pattern = exportFileName().toString();
+    const QString pattern = exportFileName().toUrlishString();
      QVector<ExportData> result;
      result.reserve(sizeList.size());
      for (const QSize &s : sizeList)

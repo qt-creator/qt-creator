@@ -15,10 +15,10 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <qtsupport/qtkitaspect.h>
 
@@ -284,7 +284,7 @@ void AutotestUnitTests::testCodeParserBoostTest()
     QMap<QString, int> expectedSuitesAndTests;
 
     auto pathConstructor = [basePath, extension](const QString &name, const QString &subPath) {
-        return QString(name + '|' + basePath.pathAppended(subPath + extension).toString());
+        return QString(name + '|' + basePath.pathAppended(subPath + extension).toUrlishString());
     };
     expectedSuitesAndTests.insert(pathConstructor("Master Test Suite", "tests/deco/deco"), 2); // decorators w/o suite
     expectedSuitesAndTests.insert(pathConstructor("Master Test Suite", "tests/fix/fix"), 2); // fixtures
@@ -326,6 +326,8 @@ static int executeScenario(const QString &scenario)
 
 void AutotestUnitTests::testModelManagerInterface()
 {
+    if (qtcEnvironmentVariableIsSet("QTC_SKIP_AUTOTEST_SCENARIO"))
+        QSKIP("Test skipped due to set environment variable QTC_SKIP_AUTOTEST_SCENARIO.");
     QCOMPARE(executeScenario("TestModelManagerInterface"), 0);
 }
 

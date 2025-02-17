@@ -1,5 +1,6 @@
 {
     "Id" : "compilerexplorer",
+    "DisplayName" : "Compiler Explorer",
     "Name" : "CompilerExplorer",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

@@ -10,8 +10,8 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
@@ -61,7 +61,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
 
     setUpdater([this, target] {
         const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(target->kit());
-        const IDeviceConstPtr runDevice = DeviceKitAspect::device(target->kit());
+        const IDeviceConstPtr runDevice = RunDeviceKitAspect::device(target->kit());
         QTC_ASSERT(buildDevice, return);
         QTC_ASSERT(runDevice, return);
         const BuildTargetInfo bti = buildTargetInfo();
@@ -71,6 +71,11 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
 
         executable.setExecutable(runDevice->filePath(depFile.remoteFilePath()));
         symbolFile.setValue(localExecutable);
+
+        // Hack for remote build == run: deploymentData is empty when the deploy step is disabled.
+        if (executable().isEmpty() && buildDevice == runDevice)
+            executable.setExecutable(localExecutable);
+
         useLibraryPath.setEnabled(buildDevice == runDevice);
     });
 

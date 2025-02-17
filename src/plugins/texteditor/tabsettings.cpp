@@ -4,11 +4,12 @@
 #include "tabsettings.h"
 
 #include <QDebug>
+#include <QRandomGenerator>
 #include <QTextCursor>
 #include <QTextDocument>
 
 static const char spacesForTabsKey[] = "SpacesForTabs";
-static const char autoSpacesForTabsKey[] = "AutoSpacesForTabs";
+static const char autoDetectKey[] = "AutoDetect";
 static const char tabSizeKey[] = "TabSize";
 static const char indentSizeKey[] = "IndentSize";
 static const char paddingModeKey[] = "PaddingMode";
@@ -32,7 +33,7 @@ Store TabSettings::toMap() const
 {
     return {
         {spacesForTabsKey, m_tabPolicy != TabsOnlyTabPolicy},
-        {autoSpacesForTabsKey, m_tabPolicy == MixedTabPolicy},
+        {autoDetectKey, m_autoDetect},
         {tabSizeKey, m_tabSize},
         {indentSizeKey, m_indentSize},
         {paddingModeKey, m_continuationAlignBehavior}
@@ -42,12 +43,106 @@ Store TabSettings::toMap() const
 void TabSettings::fromMap(const Store &map)
 {
     const bool spacesForTabs = map.value(spacesForTabsKey, true).toBool();
-    const bool autoSpacesForTabs = map.value(autoSpacesForTabsKey, false).toBool();
-    m_tabPolicy = spacesForTabs ? (autoSpacesForTabs ? MixedTabPolicy : SpacesOnlyTabPolicy) : TabsOnlyTabPolicy;
+    m_autoDetect = map.value(autoDetectKey, true).toBool();
+    m_tabPolicy = spacesForTabs ? SpacesOnlyTabPolicy : TabsOnlyTabPolicy;
     m_tabSize = map.value(tabSizeKey, m_tabSize).toInt();
     m_indentSize = map.value(indentSizeKey, m_indentSize).toInt();
     m_continuationAlignBehavior = (ContinuationAlignBehavior)
         map.value(paddingModeKey, m_continuationAlignBehavior).toInt();
+}
+
+TabSettings TabSettings::autoDetect(const QTextDocument *document) const
+{
+    QTC_ASSERT(document, return *this);
+
+    if (!m_autoDetect)
+        return *this;
+
+    int totalIndentations = 0;
+    int indentationWithTabs = 0;
+    QMap<int, int> indentCount;
+
+    auto checkText =
+        [this, document, &totalIndentations, &indentCount, &indentationWithTabs](const QTextBlock &block) {
+            if (block.length() == 0)
+                return;
+            int pos = block.position();
+            bool hasTabs = false;
+            int indentation = 0;
+            // iterate ove the characters in the document is faster since we do not have to allocate
+            // a string for each block text when we are only interested in the first few characters
+            QChar c = document->characterAt(pos);
+            while (c.isSpace() && c != QChar::ParagraphSeparator) {
+                if (c == QChar::Tabulation) {
+                    hasTabs = true;
+                    indentation += m_tabSize;
+                } else {
+                    ++indentation;
+                }
+                c = document->characterAt(++pos);
+            }
+            // only track indentations that are at least 2 columns wide
+            if (indentation > 1) {
+                if (hasTabs)
+                    ++indentationWithTabs;
+                ++indentCount[indentation];
+                ++totalIndentations;
+            }
+        };
+
+    const int blockCount = document->blockCount();
+    if (blockCount < 200) {
+        // check the indentation of all blocks if the document is shorter than 200 lines
+        for (QTextBlock block = document->firstBlock(); block.isValid(); block = block.next())
+            checkText(block);
+    } else {
+        // scanning the first and last 25 lines specifically since those most probably contain
+        // different indentations
+        const int startEndDelta = 25;
+        for (int delta = 0; delta < startEndDelta; ++delta) {
+            checkText(document->findBlockByNumber(delta));
+            checkText(document->findBlockByNumber(blockCount - 1 - delta));
+        }
+
+        // scan random lines until we have 100 indentations or checked a maximum of 2000 lines
+        // to limit the number of checks for large documents
+        QRandomGenerator gen(QDateTime::currentDateTime().toMSecsSinceEpoch());
+        int checks = 0;
+        while (totalIndentations < 100) {
+            ++checks;
+            if (checks > 2000)
+                break;
+            const int blockNummer = gen.bounded(startEndDelta + 1, blockCount - startEndDelta - 2);
+            checkText(document->findBlockByNumber(blockNummer));
+        }
+    }
+
+    if (indentCount.size() < 3)
+        return *this;
+
+    // find the most common indent
+    int mostCommonIndent = 0;
+    int mostCommonIndentCount = 0;
+    for (auto it = indentCount.cbegin(); it != indentCount.cend(); ++it) {
+        if (const int count = it.value(); count > mostCommonIndentCount) {
+            mostCommonIndentCount = count;
+            mostCommonIndent = it.key();
+        }
+    }
+
+    for (auto it = indentCount.cbegin(); it != indentCount.cend(); ++it) {
+        // check whether the smallest indent is a fraction of the most common indent
+        // to filter out some false positives
+        if (mostCommonIndent % it.key() == 0) {
+            TabSettings result = *this;
+            result.m_indentSize = it.key();
+            double relativeTabCount = double(indentationWithTabs) / double(totalIndentations);
+            result.m_tabPolicy = relativeTabCount > 0.5 ? TabSettings::TabsOnlyTabPolicy
+                                                        : TabSettings::SpacesOnlyTabPolicy;
+            return result;
+        }
+    }
+    return *this;
 }
 
 bool TabSettings::cursorIsAtBeginningOfLine(const QTextCursor &cursor)
@@ -80,7 +175,7 @@ int TabSettings::firstNonSpace(const QString &text)
     return i;
 }
 
-QString TabSettings::indentationString(const QString &text) const
+QString TabSettings::indentationString(const QString &text)
 {
     return text.left(firstNonSpace(text));
 }
@@ -129,7 +224,6 @@ bool TabSettings::isIndentationClean(const QTextBlock &block, const int indent) 
     int i = 0;
     int spaceCount = 0;
     QString text = block.text();
-    bool spacesForTabs = guessSpacesForTabs(block);
     while (i < text.size()) {
         QChar c = text.at(i);
         if (!c.isSpace())
@@ -138,13 +232,13 @@ bool TabSettings::isIndentationClean(const QTextBlock &block, const int indent) 
         if (c == QLatin1Char(' ')) {
             ++spaceCount;
             if (spaceCount == m_tabSize)
-                if (!spacesForTabs)
+                if (m_tabPolicy == TabsOnlyTabPolicy)
                     if ((m_continuationAlignBehavior != ContinuationAlignWithSpaces) || (i < indent))
                         return false;
             if (spaceCount > indent && m_continuationAlignBehavior == NoContinuationAlign)
                 return false;
         } else if (c == QLatin1Char('\t')) {
-            if (spacesForTabs || (spaceCount != 0))
+            if (m_tabPolicy == SpacesOnlyTabPolicy || (spaceCount != 0))
                 return false;
             if ((m_continuationAlignBehavior != ContinuationAlignWithIndent) && ((i + 1) * m_tabSize > indent))
                 return false;
@@ -223,41 +317,10 @@ int TabSettings::indentedColumn(int column, bool doIndent) const
     return qMax(0, aligned - m_indentSize);
 }
 
-bool TabSettings::guessSpacesForTabs(const QTextBlock &_block) const
-{
-    if (m_tabPolicy == MixedTabPolicy && _block.isValid()) {
-        const QTextDocument *doc = _block.document();
-        QVector<QTextBlock> currentBlocks(2, _block); // [0] looks back; [1] looks forward
-        int maxLookAround = 100;
-        while (maxLookAround-- > 0) {
-            if (currentBlocks.at(0).isValid())
-                currentBlocks[0] = currentBlocks.at(0).previous();
-            if (currentBlocks.at(1).isValid())
-                currentBlocks[1] = currentBlocks.at(1).next();
-            bool done = true;
-            for (const QTextBlock &block : std::as_const(currentBlocks)) {
-                if (block.isValid())
-                    done = false;
-                if (!block.isValid() || block.length() == 0)
-                    continue;
-                const QChar firstChar = doc->characterAt(block.position());
-                if (firstChar == QLatin1Char(' '))
-                    return true;
-                else if (firstChar == QLatin1Char('\t'))
-                    return false;
-            }
-            if (done)
-                break;
-        }
-    }
-    return m_tabPolicy != TabsOnlyTabPolicy;
-}
-
-QString TabSettings::indentationString(int startColumn, int targetColumn, int padding,
-                                       const QTextBlock &block) const
+QString TabSettings::indentationString(int startColumn, int targetColumn, int padding) const
 {
     targetColumn = qMax(startColumn, targetColumn);
-    if (guessSpacesForTabs(block))
+    if (m_tabPolicy == SpacesOnlyTabPolicy)
         return QString(targetColumn - startColumn, QLatin1Char(' '));
 
     QString s;
@@ -297,7 +360,7 @@ void TabSettings::indentLine(const QTextBlock &block, int newIndent, int padding
 //    if (indentationColumn(text) == newIndent)
 //        return;
 
-    const QString indentString = indentationString(0, newIndent, padding, block);
+    const QString indentString = indentationString(0, newIndent, padding);
 
     if (oldBlockLength == indentString.length() && text == indentString)
         return;
@@ -326,7 +389,7 @@ void TabSettings::reindentLine(QTextBlock block, int delta) const
     // user likes tabs for spaces and uses tabs for indentation, preserve padding
     if (m_tabPolicy == TabsOnlyTabPolicy && m_tabSize == m_indentSize)
         padding = qMin(maximumPadding(text), newIndent);
-    const QString indentString = indentationString(0, newIndent, padding, block);
+    const QString indentString = indentationString(0, newIndent, padding);
 
     if (oldBlockLength == indentString.length() && text == indentString)
         return;
@@ -341,7 +404,8 @@ void TabSettings::reindentLine(QTextBlock block, int delta) const
 
 bool TabSettings::equals(const TabSettings &ts) const
 {
-    return m_tabPolicy == ts.m_tabPolicy
+    return m_autoDetect == ts.m_autoDetect
+        && m_tabPolicy == ts.m_tabPolicy
         && m_tabSize == ts.m_tabSize
         && m_indentSize == ts.m_indentSize
         && m_continuationAlignBehavior == ts.m_continuationAlignBehavior;

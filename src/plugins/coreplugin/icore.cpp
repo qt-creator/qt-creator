@@ -232,8 +232,6 @@ const char windowStateKey[] = "WindowState";
 const char modeSelectorLayoutKey[] = "ModeSelectorLayout";
 const char menubarVisibleKey[] = "MenubarVisible";
 
-const char DEFAULT_ALT_BUTTON_TEXT[] = QT_TRANSLATE_NOOP("QtC::Core", "Later");
-
 namespace Internal {
 
 class MainWindow : public AppMainWindow
@@ -391,7 +389,6 @@ ICore::ICore()
     Utils::setDialogParentGetter(&ICore::dialogParent);
 
     d->m_progressManager->init(); // needs the status bar manager
-    MessageManager::init();
     OutputPaneManager::create();
 }
 
@@ -889,7 +886,7 @@ bool ICore::askForRestart(const QString &text, const QString &altButtonText)
     mb.setText(text);
     mb.setIcon(QMessageBox::Information);
 
-    QString translatedAltButtonText = altButtonText.isEmpty() ? Tr::tr(DEFAULT_ALT_BUTTON_TEXT) : altButtonText;
+    QString translatedAltButtonText = altButtonText.isEmpty() ? Tr::tr("Later") : altButtonText;
 
     mb.addButton(translatedAltButtonText, QMessageBox::NoRole);
     mb.addButton(Tr::tr("Restart Now"), QMessageBox::YesRole);
@@ -1018,6 +1015,10 @@ QString uiConfigInformation()
     info.append(QString("Color: %1\n").arg(StyleHelper::requestedBaseColor().name()));
     info.append(QString("Theme: %1 \"%2\"\n").arg(creatorTheme()->id())
                            .arg(creatorTheme()->displayName()));
+    info.append(QString("Theme color scheme: Qt::ColorScheme::%1\n")
+                .arg(QVariant::fromValue(creatorTheme()->colorScheme()).toString()));
+    info.append(QString("System color scheme: Qt::ColorScheme::%1\n")
+                .arg(QVariant::fromValue(Theme::systemColorScheme()).toString()));
     const QString toolbarStyle =
         StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyle::Compact ? "Compact" : "Relaxed";
     info.append(QString("Toolbar style: Utils::StyleHelper::ToolbarStyle%1\n").arg(toolbarStyle));
@@ -1133,6 +1134,35 @@ void ICore::restart()
 {
     setRestart(true);
     exit();
+}
+
+/*!
+    Asks the user if they want to enable the \a plugins and their dependencies.
+    If the user agrees, the plugins are enabled.
+    If all plugins are soft loadable without restart, they get loaded directly.
+    Otherwise the "Restart Required" dialog is shown.
+
+    Returns whether the user agreed to enabling the plugins.
+*/
+bool ICore::enablePlugins(const QSet<ExtensionSystem::PluginSpec *> &plugins)
+{
+    std::optional<QSet<PluginSpec *>> additionalPlugins
+        = PluginManager::askForEnablingPlugins(dialogParent(), plugins, /*enable=*/true);
+    if (!additionalPlugins) // canceled
+        return false;
+    const QSet<PluginSpec *> affectedPlugins = plugins + *additionalPlugins;
+    bool softloadable = true;
+    for (PluginSpec *spec : affectedPlugins) {
+        spec->setEnabledBySettings(true);
+        softloadable = softloadable && spec->isSoftLoadable();
+    }
+    ExtensionSystem::PluginManager::writeSettings();
+    if (softloadable) {
+        PluginManager::loadPluginsAtRuntime(affectedPlugins);
+    } else {
+        ICore::askForRestart(Tr::tr("Plugin changes will take effect after restart."));
+    }
+    return true;
 }
 
 /*!
@@ -1289,7 +1319,7 @@ QString ICore::aboutInformationHtml()
                   wrapBr(appInfo.copyright))
           + br
           + Tr::tr("The Qt logo, axivion stopping software erosion logo, Qt Group logo, as well as "
-                   "Qt®, Axivion®, avixion stopping software erosion®, Boot to Qt®, Built with "
+                   "Qt®, Axivion®, axivion stopping software erosion®, Boot to Qt®, Built with "
                    "Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, "
                    "Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® "
                    "are registered trademarks of The Qt Company Ltd. or its subsidiaries.");
@@ -1449,7 +1479,6 @@ ICorePrivate::~ICorePrivate()
 
     delete m_externalToolManager;
     m_externalToolManager = nullptr;
-    MessageManager::destroy();
     delete m_vcsManager;
     m_vcsManager = nullptr;
     //we need to delete editormanager and statusbarmanager explicitly before the end of the destructor,
@@ -2017,7 +2046,6 @@ void ICorePrivate::registerDefaultActions()
                     "Locator.Actions from the menu");
 
                 CheckableMessageBox::information(
-                    Core::ICore::dialogParent(),
                     Tr::tr("Hide Menu Bar"),
                     Tr::tr("This will hide the menu bar completely. "
                            "You can show it again by typing %1."
@@ -2147,7 +2175,7 @@ IDocument *ICore::openFiles(const FilePaths &filePaths,
                 emFlags |= EditorManager::SwitchSplitIfAlreadyVisible;
             IEditor *editor = nullptr;
             if (flags & ICore::CanContainLineAndColumnNumbers) {
-                const Link &link = Link::fromString(absoluteFilePath.toString(), true);
+                const Link &link = Link::fromString(absoluteFilePath.toUrlishString(), true);
                 editor = EditorManager::openEditorAt(link, {}, emFlags);
             } else {
                 editor = EditorManager::openEditor(absoluteFilePath, {}, emFlags);
@@ -2549,9 +2577,9 @@ void ICorePrivate::changeLog()
     connect(showInExplorer, &QPushButton::clicked, this, [versionCombo, versionedFiles] {
         const int index = versionCombo->currentIndex();
         if (index >= 0 && index < versionedFiles.size())
-            FileUtils::showInGraphicalShell(ICore::dialogParent(), versionedFiles.at(index).second);
+            FileUtils::showInGraphicalShell(versionedFiles.at(index).second);
         else
-            FileUtils::showInGraphicalShell(ICore::dialogParent(), ICore::resourcePath("changelog"));
+            FileUtils::showInGraphicalShell(ICore::resourcePath("changelog"));
     });
 
     dialog->show();

@@ -166,7 +166,7 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
                         includeFilePath = includes.at(0).resolvedFileName();
                     }
                 }
-                qmt::MComponent *includeComponent = findComponentFromFilePath(includeFilePath.toString());
+                qmt::MComponent *includeComponent = findComponentFromFilePath(includeFilePath.toUrlishString());
                 if (includeComponent && includeComponent != component) {
                     // add dependency between components
                     if (!m_modelUtilities->haveDependency(component, includeComponent)) {
@@ -223,7 +223,7 @@ void UpdateIncludeDependenciesVisitor::collectElementPaths(const ProjectExplorer
         QFileInfo fileInfo = fileNode->filePath().toFileInfo();
         QString nodePath = fileInfo.path();
         QStringList elementsPath = qmt::NameController::buildElementsPath(FilePath::fromString(nodePath), false);
-        filePathsMap->insert(elementName, Node(fileNode->filePath().toString(), elementsPath));
+        filePathsMap->insert(elementName, Node(fileNode->filePath().toUrlishString(), elementsPath));
     });
     folderNode->forEachFolderNode([&](FolderNode *subNode) {
         collectElementPaths(subNode, filePathsMap);

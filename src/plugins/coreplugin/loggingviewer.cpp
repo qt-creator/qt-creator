@@ -33,6 +33,9 @@
 #include <QSplitter>
 #include <QToolButton>
 #include <QVBoxLayout>
+
+using namespace Utils;
+
 namespace Core::Internal {
 
 static QColor colorForCategory(const QString &category);
@@ -947,10 +950,7 @@ void LoggingViewManagerWidget::showLogCategoryContextMenu(const QPoint &pos) con
 
 void LoggingViewManagerWidget::saveLoggingsToFile() const
 {
-    const Utils::FilePath fp = Utils::FileUtils::getSaveFilePath(ICore::dialogParent(),
-                                                                 Tr::tr("Save Logs As"),
-                                                                 {},
-                                                                 "*.log");
+    const FilePath fp = FileUtils::getSaveFilePath(Tr::tr("Save Logs As"), {}, "*.log");
     if (fp.isEmpty())
         return;
 
@@ -980,10 +980,7 @@ void LoggingViewManagerWidget::saveLoggingsToFile() const
 
 void LoggingCategoryModel::saveEnabledCategoryPreset() const
 {
-    Utils::FilePath fp = Utils::FileUtils::getSaveFilePath(ICore::dialogParent(),
-                                                           Tr::tr("Save Enabled Categories As..."),
-                                                           {},
-                                                           "*.json");
+    FilePath fp = FileUtils::getSaveFilePath(Tr::tr("Save Enabled Categories As..."), {}, "*.json");
     if (fp.isEmpty())
         return;
 
@@ -1023,8 +1020,7 @@ void LoggingCategoryModel::saveEnabledCategoryPreset() const
 
 void LoggingCategoryModel::loadAndUpdateFromPreset()
 {
-    Utils::FilePath fp = Utils::FileUtils::getOpenFilePath(ICore::dialogParent(),
-                                                           Tr::tr("Load Enabled Categories From"));
+    FilePath fp = FileUtils::getOpenFilePath(Tr::tr("Load Enabled Categories From"));
     if (fp.isEmpty())
         return;
     // read file, update categories

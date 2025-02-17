@@ -627,6 +627,11 @@ void withFormAlignment(Layout *layout)
 
 // Flow
 
+Flow::Flow()
+{
+    ptr = new FlowLayout;
+}
+
 Flow::Flow(std::initializer_list<I> ps)
 {
     ptr = new FlowLayout;
@@ -634,13 +639,25 @@ Flow::Flow(std::initializer_list<I> ps)
     flush();
 }
 
-// Row & Column
+// Row
+
+Row::Row()
+{
+    ptr = new QHBoxLayout;
+}
 
 Row::Row(std::initializer_list<I> ps)
 {
     ptr = new QHBoxLayout;
     apply(this, ps);
     flush();
+}
+
+// Column
+
+Column::Column()
+{
+    ptr = new QVBoxLayout;
 }
 
 Column::Column(std::initializer_list<I> ps)
@@ -867,7 +884,7 @@ void Label::setOpenExternalLinks(bool on)
     access(this)->setOpenExternalLinks(on);
 }
 
-void Label::onLinkHovered(const std::function<void (const QString &)> &func, QObject *guard)
+void Label::onLinkHovered(QObject *guard, const std::function<void (const QString &)> &func)
 {
     QObject::connect(access(this), &QLabel::linkHovered, guard, func);
 }
@@ -904,7 +921,7 @@ void SpinBox::setValue(int val)
     access(this)->setValue(val);
 }
 
-void SpinBox::onTextChanged(const std::function<void(QString)> &func, QObject *guard)
+void SpinBox::onTextChanged(QObject *guard, const std::function<void(QString)> &func)
 {
     QObject::connect(access(this), &QSpinBox::textChanged, guard, func);
 }
@@ -915,6 +932,11 @@ TextEdit::TextEdit(std::initializer_list<I> ps)
 {
     ptr = new Implementation;
     apply(this, ps);
+}
+
+QString TextEdit::markdown() const
+{
+    return access(this)->toMarkdown();
 }
 
 void TextEdit::setText(const QString &text)
@@ -966,7 +988,7 @@ void PushButton::setFlat(bool flat)
     access(this)->setFlat(flat);
 }
 
-void PushButton::onClicked(const std::function<void ()> &func, QObject *guard)
+void PushButton::onClicked(QObject *guard, const std::function<void ()> &func)
 {
     QObject::connect(access(this), &QAbstractButton::clicked, guard, func);
 }
@@ -1228,13 +1250,13 @@ void LineEdit::setMinimumHeight(int height)
     access(this)->setMinimumHeight(height);
 }
 
-void LineEdit::onReturnPressed(const std::function<void()> &func, QObject *guard)
+void LineEdit::onReturnPressed(QObject *guard, const std::function<void()> &func)
 {
     static_cast<LineEditImpl *>(access(this))->acceptReturnKeys = true;
     QObject::connect(access(this), &Utils::FancyLineEdit::returnPressed, guard, func);
 }
 
-void LineEdit::onRightSideIconClicked(const std::function<void()> &func, QObject *guard)
+void LineEdit::onRightSideIconClicked(QObject *guard, const std::function<void()> &func)
 {
     QObject::connect(access(this), &Utils::FancyLineEdit::rightButtonClicked, guard, func);
 }

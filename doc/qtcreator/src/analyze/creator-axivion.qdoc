@@ -151,25 +151,26 @@
     You can connect to an Axivion dashboard server and map dashboard projects to
     local projects.
 
+    \note Enable the Axivion plugin to use it.
+
     \section1 Connecting to a Dashboard Server
 
     To connect to an Axivion dashboard server:
 
-    \list
-        \li Go to \preferences > \uicontrol Axivion > \uicontrol General.
-            \image qtcreator-preferences-axivion-general.webp {General tab in Axivion Preferences}
+    \list 1
+        \li Go to \preferences > \uicontrol Analyzer > \uicontrol Axivion.
+            \image qtcreator-preferences-axivion.webp {Axivion tab in Analyzer Preferences}
         \li Select \uicontrol Add to add a new connection to an Axivion
-            dashboard server.
-        \li Select \uicontrol Edit to modify an existing connection to
-            an Axivion dashboard server.
+            dashboard server or \uicontrol Edit to change an existing connection:
             \image qtcreator-edit-dashboard-configuration.webp {Edit Dashboard Configuration dialog}
             \list
                 \li In \uicontrol {Dashboard URL}, enter the URL of the server.
                 \li In \uicontrol Username, enter the username to access the server.
             \endlist
-        \li Select \uicontrol Remove to remove the current selected connection
-            to an Axivion dashboard server.
     \endlist
+
+    Select \uicontrol Remove to remove the current selected connection to an
+    Axivion dashboard server.
 
     The first time you access the server, you must enter the password that
     matches the username. It is stored safely in your keychain that is provided
@@ -186,13 +187,12 @@
     To map dashboard projects to local projects:
 
     \list 1
-        \li Go to \preferences > \uicontrol Axivion > \uicontrol {Path Mapping}.
-            \image qtcreator-preferences-axivion-path-mapping.webp {Path Mapping tab in Axivion Preferences}
+        \li In \uicontrol {Path Mapping}, select \uicontrol Add.
         \li In \uicontrol {Project name}, enter the project name on the dashboard.
-        \li In \uicontrol {Local path}, enter the path to the project on the
-            computer.
         \li In \uicontrol {Analysis path}, enter the path to the analysis of a
             subproject. You need this only to map analyses of subprojects.
+        \li In \uicontrol {Local path}, enter the path to the project on the
+            computer.
     \endlist
 
     \sa {Enable and disable plugins}, {View Axivion static code analysis results}

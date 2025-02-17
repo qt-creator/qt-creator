@@ -90,15 +90,22 @@ public:
     QtSupport::QmlDebuggingAspect qmlDebugging{this};
     Internal::ConfigureEnvironmentAspect configureEnv{this, this};
 
+    void updateInitialCMakeArguments();
+    QStringList initialCMakeOptions() const;
+
+    void setInitialArgs(const QStringList &args) override;
+    QStringList initialArgs() const override;
+    QStringList additionalArgs() const override;
+    void reconfigure() override;
+    void stopReconfigure() override;
+
 signals:
     void signingFlagsChanged();
     void configureEnvironmentChanged();
 
 private:
     BuildType buildType() const override;
-
-    ProjectExplorer::NamedWidget *createConfigWidget() override;
-
+    QWidget *createConfigWidget() override;
     virtual CMakeConfig signingFlags() const;
 
     void setInitialBuildAndCleanSteps(const ProjectExplorer::Target *target);
@@ -107,6 +114,7 @@ private:
 
     Internal::CMakeBuildSystem *m_buildSystem = nullptr;
     QStringList m_unrestrictedBuildTargets;
+    Internal::CMakeBuildSettingsWidget *m_configWidget = nullptr;
 
     friend class Internal::CMakeBuildSettingsWidget;
     friend class Internal::CMakeBuildSystem;

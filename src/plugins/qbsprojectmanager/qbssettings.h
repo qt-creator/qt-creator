@@ -4,11 +4,12 @@
 #pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
-
+#include <projectexplorer/devicesupport/idevicefwd.h>
 #include <utils/filepath.h>
 
 #include <QVersionNumber>
 
+namespace ProjectExplorer { class Kit; }
 namespace Utils { class Environment; }
 
 namespace QbsProjectManager::Internal {
@@ -18,7 +19,6 @@ class QbsSettingsData
 public:
     Utils::FilePath qbsExecutableFilePath;
     QString defaultInstallDirTemplate;
-    QVersionNumber qbsVersion; // Ephemeral
     bool useCreatorSettings = true;
 };
 
@@ -28,15 +28,16 @@ class QbsSettings : public QObject
 public:
     static QbsSettings &instance();
 
-    static Utils::FilePath qbsExecutableFilePath();
+    static Utils::FilePath qbsExecutableFilePath(const ProjectExplorer::Kit &kit);
+    static Utils::FilePath qbsExecutableFilePath(const ProjectExplorer::IDeviceConstPtr &device);
     static Utils::FilePath defaultQbsExecutableFilePath();
-    static Utils::FilePath qbsConfigFilePath();
-    static Utils::Environment qbsProcessEnvironment();
+    static Utils::FilePath qbsConfigFilePath(const ProjectExplorer::IDeviceConstPtr &device);
+    static Utils::Environment qbsProcessEnvironment(const ProjectExplorer::IDeviceConstPtr &device);
     static bool hasQbsExecutable();
     static QString defaultInstallDirTemplate();
-    static bool useCreatorSettingsDirForQbs();
-    static QString qbsSettingsBaseDir();
-    static QVersionNumber qbsVersion();
+    static bool useCreatorSettingsDirForQbs(const ProjectExplorer::IDeviceConstPtr &device);
+    static Utils::FilePath qbsSettingsBaseDir(const ProjectExplorer::IDeviceConstPtr &device);
+    static QVersionNumber qbsVersion(const ProjectExplorer::IDeviceConstPtr &device);
 
     static void setSettingsData(const QbsSettingsData &settings);
     static QbsSettingsData rawSettingsData();

@@ -70,7 +70,8 @@ QVariant ModuleItem::data(int column, int role) const
         if (role == Qt::DisplayRole)
             switch (module.elfData.symbolsType) {
             case UnknownSymbols: return Tr::tr("Unknown");
-            case NoSymbols:      return Tr::tr("None");
+            case NoSymbols:
+                return Tr::tr("None", "Symbols Type (No debug information found)");
             case PlainSymbols:   return Tr::tr("Plain");
             case FastSymbols:    return Tr::tr("Fast");
             case LinkedSymbols:  return Tr::tr("debuglnk");
@@ -171,10 +172,10 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
 
     addAction(this, menu, Tr::tr("Show Dependencies of \"%1\"").arg(moduleName),
               Tr::tr("Show Dependencies"),
-              moduleNameValid && !modulePath.needsDevice() && modulePath.exists()
+              moduleNameValid && modulePath.isLocal() && modulePath.exists()
                   && dependsCanBeFound(),
               [modulePath] {
-                  Process::startDetached({{"depends"}, {modulePath.toString()}});
+                  Process::startDetached({{"depends"}, {modulePath.nativePath()}});
               });
 
     addAction(this, menu, Tr::tr("Load Symbols for All Modules"),

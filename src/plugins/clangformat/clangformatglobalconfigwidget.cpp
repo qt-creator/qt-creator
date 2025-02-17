@@ -376,7 +376,6 @@ private:
     void slotImportClicked() final
     {
         const FilePath filePath = FileUtils::getOpenFilePath(
-            this,
             Tr::tr("Import Code Format"),
             {},
             Tr::tr("ClangFormat (*clang-format*);;All files (*)"));
@@ -406,7 +405,6 @@ private:
     {
         ICodeStylePreferences *currentPreferences = m_codeStyle->currentPreferences();
         const FilePath filePath = FileUtils::getSaveFilePath(
-            this,
             Tr::tr("Export Code Format"),
             FileUtils::homePath(),
             Tr::tr("ClangFormat (*clang-format*);;All files (*)"));

@@ -1,5 +1,6 @@
 {
     "Id" : "appstatisticsmonitor",
+    "DisplayName" : "Application Statistics Monitor",
     "Name" : "AppStatisticsMonitor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

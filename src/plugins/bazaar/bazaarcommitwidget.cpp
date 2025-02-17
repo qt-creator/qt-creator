@@ -172,7 +172,8 @@ QString BazaarCommitWidget::committer() const
 
 QStringList BazaarCommitWidget::fixedBugs() const
 {
-    return m_bazaarCommitPanel->fixedBugsLineEdit->text().split(QRegularExpression("\\s+"));
+    static const QRegularExpression regexp("\\s+");
+    return m_bazaarCommitPanel->fixedBugsLineEdit->text().split(regexp);
 }
 
 bool BazaarCommitWidget::isLocalOptionEnabled() const

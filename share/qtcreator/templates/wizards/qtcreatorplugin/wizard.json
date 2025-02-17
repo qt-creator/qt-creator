@@ -9,7 +9,7 @@
     "icon": "qtcreatorplugin.png",
     "iconKind": "Themed",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQt", "QtSupport.Wizards.FeatureDesktop" ],
-    "enabled": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}",
+    "enabled": "%{JS: isPluginRunning('cmakeprojectmanager')}",
 
     "options":
     [
@@ -163,14 +163,6 @@
                 {
                     "source": "github_workflows_README.md",
                     "target": ".github/workflows/README.md"
-                },
-                {
-                    "source": "github_scripts_registerPlugin.js",
-                    "target": ".github/scripts/registerPlugin.js"
-                },
-                {
-                    "source": "github_scripts_plugin.json",
-                    "target": ".github/scripts/plugin.json"
                 },
                 {
                     "source": "myplugin.cpp",

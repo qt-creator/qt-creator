@@ -14,7 +14,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
-#include <cppeditor/cppcodestylepreferences.h>
 #include <cppeditor/cppcodestylesettings.h>
 #include <cppeditor/cppcodestylesettingspage.h>
 #include <cppeditor/cppcodestylesnippets.h>

@@ -1,8 +1,10 @@
 {
     "Id" : "bazaar",
+    "DisplayName" : "Bazaar",
     "Name" : "Bazaar",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "DisabledByDefault" : true,
     "VendorId" : "huguesdelorme",
     "Vendor" : "Hugues Delorme",
     "Copyright" : "(C) 2016 Hugues Delorme, ${IDE_COPYRIGHT}",
@@ -22,5 +24,8 @@
     ],
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-vcs-bazaar.html",
+    "VcsDetectionFiles" : [
+        ".bzr/branch-format"
+    ],
     ${IDE_PLUGIN_DEPENDENCIES}
 }

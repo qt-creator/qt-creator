@@ -36,18 +36,22 @@ private:
     void initialize() final;
     void extensionsInitialized() final;
     ShutdownFlag aboutToShutdown() final;
-
-    LanguageClientOutlineWidgetFactory m_outlineFactory;
 };
 
 void LanguageClientPlugin::initialize()
 {
     using namespace Core;
 
+    IOptionsPage::registerCategory(
+        Constants::LANGUAGECLIENT_SETTINGS_CATEGORY,
+        Constants::LANGUAGECLIENT_SETTINGS_TR,
+        ":/languageclient/images/settingscategory_languageclient.png");
+
     setupCallHierarchyFactory();
     setupTypeHierarchyFactory();
     setupLanguageClientProjectPanel();
-    setupLanguageClientManager(this);
+    setupLanguageClientManager();
+    setupLanguageClientOutline();
 
 #ifdef WITH_TESTS
     addTestCreator(&createSnippetParsingTest);

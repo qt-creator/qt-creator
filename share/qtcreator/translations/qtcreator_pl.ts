@@ -9973,8 +9973,8 @@ in the system&apos;s browser for manual download.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>(SDK Version: %1, NDK Version: %2)</source>
-        <translation>(Wersja SDK: %1, wersja NDK: %2)</translation>
+        <source>(SDK Version: %1)</source>
+        <translation>(Wersja SDK: %1)</translation>
     </message>
     <message>
         <source>Unset Default</source>
@@ -47548,7 +47548,7 @@ Are you sure you want to continue?</source>
         <translation>Nie można dodać pliku wykonywalnego qmake %1: %2</translation>
     </message>
     <message>
-        <source>Linking with a Qt installation automatically registers Qt versions and kits, and other tools that were installed with that Qt installer, in this Qt Creator installation. Other Qt Creator installations are not affected.</source>
+        <source>Linking with a Qt installation automatically registers Qt versions and kits, and other tools that were installed with that Qt installer, in this %1 installation. Other %1 installations are not affected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

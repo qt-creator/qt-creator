@@ -133,7 +133,7 @@ private:
 
     void setProjectName(const QString &name);
     void setProjectLocation(const QString &location);
-    QString projectLocation() const { return m_qmlProjectLocation.toString(); }
+    QString projectLocation() const { return m_qmlProjectLocation.toUrlishString(); }
 
     void setProjectDescription(const QString &description)
     {

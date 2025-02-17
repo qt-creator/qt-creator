@@ -340,8 +340,8 @@ void CustomWizardFieldPage::cleanupPage()
         PathChooserData &ped = m_pathChoosers[i];
         QString defaultText = ped.defaultText;
         CustomWizardContext::replaceFields(m_context->baseReplacements, &defaultText);
-        if (ped.pathChooser->filePath().toString() != ped.defaultText)
-            ped.userChange = ped.pathChooser->filePath().toString();
+        if (ped.pathChooser->filePath().toUrlishString() != ped.defaultText)
+            ped.userChange = ped.pathChooser->filePath().toUrlishString();
         else
             ped.userChange.clear();
     }

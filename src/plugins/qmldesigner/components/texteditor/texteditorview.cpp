@@ -250,7 +250,7 @@ void TextEditorView::reformatFile()
             qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(Core::EditorManager::currentDocument());
 
     // Reformat document if we have a .ui.qml file
-    if (document && document->filePath().toString().endsWith(".ui.qml")
+    if (document && document->filePath().toUrlishString().endsWith(".ui.qml")
                  && QmlDesignerPlugin::settings().value(DesignerSettingsKey::REFORMAT_UI_QML_FILES).toBool()) {
 
         QmlJS::Document::Ptr currentDocument(document->semanticInfo().document);

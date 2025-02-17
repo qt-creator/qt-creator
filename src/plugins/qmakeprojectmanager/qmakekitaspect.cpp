@@ -7,9 +7,9 @@
 #include "qmakeprojectmanagertr.h"
 
 #include <projectexplorer/kitaspect.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <qtsupport/qtkitaspect.h>
@@ -35,16 +35,19 @@ public:
     {
         refresh(); // set up everything according to kit
         m_lineEdit->setToolTip(ki->description());
+        QSizePolicy p = m_lineEdit->sizePolicy();
+        p.setHorizontalStretch(1);
+        m_lineEdit->setSizePolicy(p);
         connect(m_lineEdit, &QLineEdit::textEdited, this, &QmakeKitAspectImpl::mkspecWasChanged);
     }
 
     ~QmakeKitAspectImpl() override { delete m_lineEdit; }
 
 private:
-    void addToInnerLayout(Layouting::Layout &parent) override
+    void addToInnerLayout(Layouting::Layout &layout) override
     {
         addMutableAction(m_lineEdit);
-        parent.addItem(m_lineEdit);
+        layout.addItem(m_lineEdit);
     }
 
     void makeReadOnly() override { m_lineEdit->setEnabled(false); }

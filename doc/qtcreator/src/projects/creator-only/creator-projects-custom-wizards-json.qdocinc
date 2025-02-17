@@ -156,7 +156,7 @@
                 "trDisplayName": "C++ Class",
                 "trDisplayCategory": "C++",
                 "iconText": "h/cpp",
-                "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0}",
+                "enabled": "%{JS: isPluginRunning('cppeditor')}",
                 \endcode
 
             \list

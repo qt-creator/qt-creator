@@ -23,10 +23,8 @@
 
     \QC detects iOS devices, and you can deploy and run applications on them.
 
-    For iOS devices with iOS 16 or earlier, \QC also supports accessing the application
-    output, debugging, and profiling. However, these features are not supported for
-    physical devices with iOS 17 or later because of limitations of the Apple tool for
-    accessing these devices.
+    Only C++ debugging is supported for devices with iOS 17 and later, and it
+    requires Xcode 16 or later.
 
     \section1 Specifying Supported iOS Versions
 

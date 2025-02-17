@@ -36,7 +36,8 @@ public:
     void setSession(QbsSession *session) { m_session = session; }
     QbsSession *session() const { return m_session; }
     void setRequestData(const QJsonObject &requestData) { m_requestData = requestData; }
-    void setParseData(const QPointer<QbsBuildSystem> &buildSystem) { m_parseData = buildSystem; }
+    void setParseData(const ParseData &parseData) { m_parseData = parseData; }
+
     void start();
     void cancel();
 
@@ -49,7 +50,7 @@ signals:
 private:
     QbsSession *m_session = nullptr;
     QJsonObject m_requestData;
-    QPointer<QbsBuildSystem> m_parseData;
+    ParseData m_parseData;
     QString m_description;
     int m_maxProgress = 100;
 };
@@ -112,13 +113,15 @@ static QbsRequestManager &manager()
 
 void QbsRequestObject::start()
 {
-    if (m_parseData) {
-        connect(m_parseData->target(), &Target::parsingFinished, this, [this](bool success) {
-            disconnect(m_parseData->target(), &Target::parsingFinished, this, nullptr);
+    if (m_parseData.first) {
+        connect(m_parseData.first->target(), &Target::parsingFinished, this, [this](bool success) {
+            disconnect(m_parseData.first->target(), &Target::parsingFinished, this, nullptr);
             emit done(toDoneResult(success));
         });
-        QMetaObject::invokeMethod(m_parseData.get(), &QbsBuildSystem::startParsing,
-                                  Qt::QueuedConnection);
+        QMetaObject::invokeMethod(
+            m_parseData.first.get(),
+            [parseData = m_parseData] { parseData.first->startParsing(parseData.second); },
+            Qt::QueuedConnection);
         return;
     }
 
@@ -172,8 +175,8 @@ void QbsRequestObject::start()
 
 void QbsRequestObject::cancel()
 {
-    if (m_parseData)
-        m_parseData->cancelParsing();
+    if (m_parseData.first)
+        m_parseData.first->cancelParsing();
     else
         m_session->cancelCurrentJob();
 }
@@ -189,14 +192,15 @@ QbsRequest::~QbsRequest()
 void QbsRequest::start()
 {
     QTC_ASSERT(!m_requestObject, return);
-    QTC_ASSERT(m_parseData || (m_session && m_requestData), emit done(DoneResult::Error); return);
+    QTC_ASSERT(m_parseData.first || (m_session && m_requestData), emit done(DoneResult::Error);
+               return);
 
     m_requestObject = new QbsRequestObject;
     m_requestObject->setSession(m_session);
     if (m_requestData)
         m_requestObject->setRequestData(*m_requestData);
-    if (m_parseData) {
-        m_requestObject->setSession(m_parseData->session());
+    if (m_parseData.first) {
+        m_requestObject->setSession(m_parseData.first->session());
         m_requestObject->setParseData(m_parseData);
     }
 

@@ -171,6 +171,7 @@ public:
 
         CodeModel_Error_TextMarkColor,
         CodeModel_Warning_TextMarkColor,
+        CodeModel_Info_TextMarkColor,
 
         /* Output panes */
 
@@ -596,7 +597,8 @@ public:
 
     void readSettings(QSettings &settings);
 
-    static bool systemUsesDarkMode();
+    Qt::ColorScheme colorScheme() const;
+    static Qt::ColorScheme systemColorScheme();
     static QPalette initialPalette();
 
     static void setInitialPalette(Theme *initTheme);

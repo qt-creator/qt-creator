@@ -52,7 +52,7 @@ class EffectShadersCodeEditor : public QWidget
 
 public:
     EffectShadersCodeEditor(
-        const QString &title = Tr::tr("Untitled Editor"), QWidget *parent = nullptr);
+        const QString &title = tr("Untitled Editor"), QWidget *parent = nullptr);
     ~EffectShadersCodeEditor() override;
 
     void showWidget();

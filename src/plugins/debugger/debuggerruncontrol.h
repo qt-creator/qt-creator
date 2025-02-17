@@ -9,7 +9,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <utils/environmentfwd.h>
 
@@ -17,99 +17,24 @@ namespace Debugger {
 
 namespace Internal { class DebuggerRunToolPrivate; }
 
-class SubChannelProvider;
-
 class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::RunWorker
 {
 public:
-    enum AllowTerminal { DoAllowTerminal, DoNotAllowTerminal };
-    explicit DebuggerRunTool(ProjectExplorer::RunControl *runControl,
-                             AllowTerminal allowTerminal = DoAllowTerminal);
+    explicit DebuggerRunTool(ProjectExplorer::RunControl *runControl);
     ~DebuggerRunTool() override;
-
-    void startRunControl();
 
     void start() override;
     void stop() override;
 
-    void setSolibSearchPath(const Utils::FilePaths &list);
-
-    static void setBreakOnMainNextTime();
-
-    void setInferior(const Utils::ProcessRunData &runnable);
-    void setInferiorExecutable(const Utils::FilePath &executable);
-    void setInferiorEnvironment(const Utils::Environment &env); // Used by GammaRay plugin
-    void setRunControlName(const QString &name);
-    void setStartMessage(const QString &msg);
-    void setCrashParameter(const QString &event);
-
-    void addExpectedSignal(const QString &signal);
-
-    void setStartMode(DebuggerStartMode startMode);
-    void setCloseMode(DebuggerCloseMode closeMode);
-
-    void setAttachPid(Utils::ProcessHandle pid);
-    void setAttachPid(qint64 pid);
-
-    void setSysRoot(const Utils::FilePath &sysRoot);
-    void setSymbolFile(const Utils::FilePath &symbolFile);
-    void setRemoteChannel(const QString &channel);
-    void setRemoteChannel(const QString &host, int port);
-    QString remoteChannel() const;
-
-    void setUseExtendedRemote(bool on);
-    void setUseContinueInsteadOfRun(bool on);
-    void setContinueAfterAttach(bool on);
-    void setBreakOnMain(bool on);
-    void setUseTerminal(bool on);
-    void setUseDebugServer(Utils::ProcessHandle attachPid, bool essential, bool useMulti);
-
-    void setCommandsAfterConnect(const QString &commands);
-    void setCommandsForReset(const QString &commands);
-
-    void setDebugInfoLocation(const Utils::FilePath &debugInfoLocation);
-
-    void setQmlServer(const QUrl &qmlServer);
-
-    void setCoreFilePath(const Utils::FilePath &core, bool isSnapshot = false);
-
-    void setTestCase(int testCase);
-    void setOverrideStartScript(const Utils::FilePath &script);
-
     void kickoffTerminalProcess();
     void interruptTerminal();
 
-    Internal::DebuggerRunParameters &runParameters() { return m_runParameters; }
+    void setupPortsGatherer();
 
-protected:
-    bool isCppDebugging() const;
-    bool isQmlDebugging() const;
-
-    void setUsePortsGatherer(bool useCpp, bool useQml);
-
-    void addSolibSearchDir(const QString &str);
-    void addQmlServerInferiorCommandLineArgumentIfNeeded();
-    void modifyDebuggerEnvironment(const Utils::EnvironmentItems &item);
-    void addSearchDirectory(const Utils::FilePath &dir);
-
-    void setLldbPlatform(const QString &platform);
-    void setRemoteChannel(const QUrl &url);
-    void setUseTargetAsync(bool on);
-    void setSkipExecutableValidation(bool on);
-    void setUseCtrlCStub(bool on);
-
-    void setIosPlatform(const QString &platform);
-    void setDeviceSymbolsRoot(const QString &deviceSymbolsRoot);
-    void setAbi(const ProjectExplorer::Abi &abi);
-
-    DebuggerEngineType cppEngineType() const;
+    DebuggerRunParameters &runParameters() { return m_runParameters; }
 
 private:
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);
-
-    bool fixupParameters();
-    void handleEngineStarted(Internal::DebuggerEngine *engine);
-    void handleEngineFinished(Internal::DebuggerEngine *engine);
 
     void startCoreFileSetupIfNeededAndContinueStartup();
     void continueAfterCoreFileSetup();
@@ -122,14 +47,10 @@ private:
 
     Internal::DebuggerRunToolPrivate *d;
     QList<QPointer<Internal::DebuggerEngine>> m_engines;
-    Internal::DebuggerRunParameters m_runParameters;
+    DebuggerRunParameters m_runParameters;
 };
 
-class DebuggerRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    DebuggerRunWorkerFactory();
-};
+void setupDebuggerRunWorker();
 
 class SimpleDebugRunnerFactory final : public ProjectExplorer::RunWorkerFactory
 {

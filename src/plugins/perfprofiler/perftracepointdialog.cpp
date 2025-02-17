@@ -4,8 +4,8 @@
 #include "perfprofilertr.h"
 #include "perftracepointdialog.h"
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
@@ -51,13 +51,10 @@ PerfTracePointDialog::PerfTracePointDialog()
         m_buttonBox,
     }.attachTo(this);
 
-    if (const Target *target = ProjectManager::startupTarget()) {
-        const Kit *kit = target->kit();
-        QTC_ASSERT(kit, return);
-
-        m_device = DeviceKitAspect::device(kit);
+    if (const Kit *kit = activeKitForActiveProject()) {
+        m_device = RunDeviceKitAspect::device(kit);
         if (!m_device) {
-            m_textEdit->setPlainText(Tr::tr("Error: No device available for active target."));
+            m_textEdit->setPlainText(Tr::tr("Error: No device available for active kit."));
             return;
         }
     }

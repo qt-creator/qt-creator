@@ -10,32 +10,30 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 
-using namespace ProjectExplorer;
-
-namespace Android {
+namespace Android::Internal {
 
 class AndroidDeviceInfo
 {
 public:
+    bool isValid() const { return !serialNumber.isEmpty() || !avdName.isEmpty(); }
+
     QString serialNumber;
     QString avdName;
     QStringList cpuAbi;
     int sdk = -1;
-    IDevice::DeviceState state = IDevice::DeviceDisconnected;
-    IDevice::MachineType type = IDevice::Emulator;
+    ProjectExplorer::IDevice::DeviceState state = ProjectExplorer::IDevice::DeviceDisconnected;
+    ProjectExplorer::IDevice::MachineType type = ProjectExplorer::IDevice::Emulator;
     Utils::FilePath avdPath;
 
-    static QStringList adbSelector(const QString &serialNumber);
-
-    bool isValid() const { return !serialNumber.isEmpty() || !avdName.isEmpty(); }
-    bool operator<(const AndroidDeviceInfo &other) const;
-    bool operator==(const AndroidDeviceInfo &other) const; // should be = default with C++20
-    bool operator!=(const AndroidDeviceInfo &other) const { return !(*this == other); }
+private:
+    friend bool operator<(const AndroidDeviceInfo &lhs, const AndroidDeviceInfo &rhs);
+    friend bool operator==(const AndroidDeviceInfo &lhs, const AndroidDeviceInfo &rhs) = default;
+    friend bool operator!=(const AndroidDeviceInfo &lhs, const AndroidDeviceInfo &rhs) = default;
+    friend QDebug &operator<<(QDebug &stream, const AndroidDeviceInfo &device);
 };
+
 using AndroidDeviceInfoList = QList<AndroidDeviceInfo>;
 
-QDebug &operator<<(QDebug &stream, const AndroidDeviceInfo &device);
+} // namespace Android::Internal
 
-} // namespace Android
-
-Q_DECLARE_METATYPE(Android::AndroidDeviceInfo)
+Q_DECLARE_METATYPE(Android::Internal::AndroidDeviceInfo)

@@ -36,10 +36,10 @@ QmlJSCodeStyleSettingsWidget::QmlJSCodeStyleSettingsWidget(QWidget *parent)
             this, &QmlJSCodeStyleSettingsWidget::slotSettingsChanged);
 }
 
-void QmlJSCodeStyleSettingsWidget::setCodeStyleSettings(const QmlJSCodeStyleSettings& s)
+void QmlJSCodeStyleSettingsWidget::setCodeStyleSettings(const QmlJSCodeStyleSettings &settings)
 {
     QSignalBlocker blocker(this);
-    m_lineLengthSpinBox->setValue(s.lineLength);
+    m_lineLengthSpinBox->setValue(settings.lineLength);
 }
 
 QmlJSCodeStyleSettings QmlJSCodeStyleSettingsWidget::codeStyleSettings() const

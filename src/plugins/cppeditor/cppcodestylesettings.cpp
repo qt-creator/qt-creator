@@ -3,7 +3,7 @@
 
 #include "cppcodestylesettings.h"
 
-#include "cppcodestylepreferences.h"
+#include "cppcodestylesettings.h"
 #include "cppeditorconstants.h"
 #include "cpptoolssettings.h"
 
@@ -228,6 +228,11 @@ CPlusPlus::Overview CppCodeStyleSettings::currentGlobalCodeStyleOverview()
     CPlusPlus::Overview overview;
     configureOverviewWithCodeStyleSettings(overview, currentGlobalCodeStyle());
     return overview;
+}
+
+Id CppCodeStyleSettings::settingsId()
+{
+    return Constants::CPP_CODE_STYLE_SETTINGS_ID;
 }
 
 } // namespace CppEditor

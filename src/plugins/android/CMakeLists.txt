@@ -6,21 +6,14 @@ add_qtc_plugin(Android
   SOURCES
     android.qrc
     androidtr.h
-    androidavdmanager.cpp androidavdmanager.h
     androidbuildapkstep.cpp androidbuildapkstep.h
     androidconfigurations.cpp androidconfigurations.h
     androidconstants.h
-    androidcreatekeystorecertificate.cpp androidcreatekeystorecertificate.h
     androiddebugsupport.cpp androiddebugsupport.h
     androiddeployqtstep.cpp androiddeployqtstep.h
     androiddevice.cpp androiddevice.h
     androiddeviceinfo.cpp androiddeviceinfo.h
-    androidextralibrarylistmodel.cpp androidextralibrarylistmodel.h
-    androidglobal.h
-    androidmanager.cpp androidmanager.h
     androidmanifesteditor.cpp androidmanifesteditor.h
-    androidmanifesteditoriconwidget.cpp androidmanifesteditoriconwidget.h
-    androidmanifesteditoriconcontainerwidget.cpp androidmanifesteditoriconcontainerwidget.h
     androidpackageinstallationstep.cpp androidpackageinstallationstep.h
     androidplugin.cpp
     androidqmltoolingsupport.cpp androidqmltoolingsupport.h
@@ -31,19 +24,18 @@ add_qtc_plugin(Android
     androidsdkdownloader.cpp androidsdkdownloader.h
     androidsdkmanager.cpp androidsdkmanager.h
     androidsdkmanagerdialog.cpp androidsdkmanagerdialog.h
-    androidsdkmodel.cpp androidsdkmodel.h
     androidsdkpackage.cpp androidsdkpackage.h
     androidsettingswidget.cpp androidsettingswidget.h
     androidsignaloperation.cpp androidsignaloperation.h
     androidtoolchain.cpp androidtoolchain.h
-    avddialog.cpp avddialog.h
+    androidutils.cpp androidutils.h
+    avdcreatordialog.cpp avdcreatordialog.h
     avdmanageroutputparser.cpp avdmanageroutputparser.h
-    certificatesmodel.cpp certificatesmodel.h
-    createandroidmanifestwizard.cpp createandroidmanifestwizard.h
     javaeditor.cpp javaeditor.h
-    javaindenter.cpp javaindenter.h
     javalanguageserver.cpp javalanguageserver.h
     javaparser.cpp javaparser.h
+    keystorecertificatedialog.cpp keystorecertificatedialog.h
+    manifestwizard.cpp manifestwizard.h
     splashscreencontainerwidget.cpp splashscreencontainerwidget.h
     sdkmanageroutputparser.cpp sdkmanageroutputparser.h
 )

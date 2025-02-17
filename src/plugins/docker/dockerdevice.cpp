@@ -19,7 +19,7 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/devicesupport/processlist.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorertr.h>
@@ -215,7 +215,7 @@ public:
     {
         if (q->clangdExecutableAspect().isEmpty())
             return std::nullopt;
-        if (!q->clangdExecutableAspect().needsDevice())
+        if (q->clangdExecutableAspect().isLocal())
             return q->rootPath().withNewMappedPath(q->clangdExecutableAspect());
         return q->clangdExecutableAspect();
     }
@@ -305,6 +305,8 @@ private:
 
     Process m_process;
     qint64 m_remotePID = 0;
+    bool m_forwardStdout = false;
+    bool m_forwardStderr = false;
     bool m_hasReceivedFirstOutput = false;
 };
 
@@ -360,17 +362,35 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
             return;
         }
 
+        m_hasReceivedFirstOutput = true;
+
+        if (m_forwardStdout && rest.size() > 0) {
+            fprintf(stdout, "%s", rest.constData());
+            rest.clear();
+        }
+
         // In case we already received some error output, send it now.
-        const QByteArray stdErr = m_process.readAllRawStandardError();
+        QByteArray stdErr = m_process.readAllRawStandardError();
+        if (stdErr.size() > 0 && m_forwardStderr) {
+            fprintf(stderr, "%s", stdErr.constData());
+            stdErr.clear();
+        }
+
         if (rest.size() > 0 || stdErr.size() > 0)
             emit readyRead(rest, stdErr);
 
-        m_hasReceivedFirstOutput = true;
     });
 
     connect(&m_process, &Process::readyReadStandardError, this, [this] {
-        if (m_remotePID)
-            emit readyRead({}, m_process.readAllRawStandardError());
+        if (!m_remotePID)
+            return;
+
+        if (m_forwardStderr) {
+            fprintf(stderr, "%s", m_process.readAllRawStandardError().constData());
+            return;
+        }
+
+        emit readyRead({}, m_process.readAllRawStandardError());
     });
 
     connect(&m_process, &Process::done, this, [this] {
@@ -402,19 +422,24 @@ DockerProcessImpl::~DockerProcessImpl()
 
 void DockerProcessImpl::start()
 {
-    m_process.setProcessImpl(m_setup.m_processImpl);
     m_process.setProcessMode(m_setup.m_processMode);
     m_process.setTerminalMode(m_setup.m_terminalMode);
     m_process.setPtyData(m_setup.m_ptyData);
     m_process.setReaperTimeout(m_setup.m_reaperTimeout);
     m_process.setWriteData(m_setup.m_writeData);
-    m_process.setProcessChannelMode(m_setup.m_processChannelMode);
+    // We need separate channels so we can intercept our Process ID markers.
+    m_process.setProcessChannelMode(QProcess::ProcessChannelMode::SeparateChannels);
     m_process.setExtraData(m_setup.m_extraData);
     m_process.setStandardInputFile(m_setup.m_standardInputFile);
     m_process.setAbortOnMetaChars(m_setup.m_abortOnMetaChars);
     m_process.setCreateConsoleOnWindows(m_setup.m_createConsoleOnWindows);
     if (m_setup.m_lowPriority)
         m_process.setLowPriority();
+
+    m_forwardStdout = m_setup.m_processChannelMode == QProcess::ForwardedChannels
+                      || m_setup.m_processChannelMode == QProcess::ForwardedOutputChannel;
+    m_forwardStderr = m_setup.m_processChannelMode == QProcess::ForwardedChannels
+                      || m_setup.m_processChannelMode == QProcess::ForwardedErrorChannel;
 
     const bool inTerminal = m_setup.m_terminalMode != TerminalMode::Off
                             || m_setup.m_ptyData.has_value();
@@ -557,7 +582,7 @@ DockerDevice::DockerDevice()
 
     mounts.setSettingsKey(DockerDeviceMappedPaths);
     mounts.setLabelText(Tr::tr("Paths to mount:"));
-    mounts.setDefaultValue({Core::DocumentManager::projectsDirectory().toString()});
+    mounts.setDefaultValue({Core::DocumentManager::projectsDirectory().toUrlishString()});
     mounts.setToolTip(Tr::tr("Maps paths in this list one-to-one to the docker container."));
     mounts.setPlaceHolderText(Tr::tr("Host directories to mount into the container."));
 
@@ -612,7 +637,7 @@ DockerDevice::DockerDevice()
             return asyncRun([rootPath, newValue]() -> expected_str<QString> {
                 QString changedValue = newValue;
                 FilePath path = FilePath::fromUserInput(newValue);
-                if (!path.needsDevice()) {
+                if (path.isLocal()) {
                     const FilePath onDevicePath = rootPath.withNewMappedPath(path);
                     if (onDevicePath.exists()) {
                         changedValue = onDevicePath.toUserOutput();
@@ -669,7 +694,7 @@ DockerDevice::DockerDevice()
     });
 
     addDeviceAction(
-        {Tr::tr("Open Shell in Container"), [](const IDevice::Ptr &device, QWidget *) {
+        {Tr::tr("Open Shell in Container"), [](const IDevice::Ptr &device) {
              expected_str<Environment> env = device->systemEnvironmentWithError();
              if (!env) {
                  QMessageBox::warning(ICore::dialogParent(), Tr::tr("Error"), env.error());
@@ -707,6 +732,10 @@ expected_str<CommandLine> DockerDevicePrivate::withDockerExecCmd(
     if (const auto result = updateContainerAccess(); !result)
         return make_unexpected(result.error());
 
+    auto osAndArch = osTypeAndArch();
+    if (!osAndArch)
+        return make_unexpected(osAndArch.error());
+
     CommandLine dockerCmd{settings().dockerBinaryPath(), {"exec"}};
 
     if (interactive)
@@ -729,7 +758,7 @@ expected_str<CommandLine> DockerDevicePrivate::withDockerExecCmd(
 
     dockerCmd.addArg(m_container);
 
-    dockerCmd.addArgs({"/bin/sh", "-c"});
+    dockerCmd.addArgs({"/bin/sh", "-c"}, osAndArch->first);
 
     CommandLine exec("exec");
     exec.addCommandLineAsArgs(cmd, CommandLine::Raw);
@@ -737,7 +766,7 @@ expected_str<CommandLine> DockerDevicePrivate::withDockerExecCmd(
     if (withMarker) {
         // Check the executable for existence.
         CommandLine testType({"type", {}});
-        testType.addArg(cmd.executable().path());
+        testType.addArg(cmd.executable().path(), osAndArch->first);
         testType.addArgs(">/dev/null", CommandLine::Raw);
 
         // Send PID only if existence was confirmed, so we can correctly notify
@@ -748,9 +777,9 @@ expected_str<CommandLine> DockerDevicePrivate::withDockerExecCmd(
 
         testType.addCommandLineWithAnd(echo);
 
-        dockerCmd.addCommandLineAsSingleArg(testType);
+        dockerCmd.addCommandLineAsSingleArg(testType, osAndArch->first);
     } else {
-        dockerCmd.addCommandLineAsSingleArg(exec);
+        dockerCmd.addCommandLineAsSingleArg(exec, osAndArch->first);
     }
 
     return dockerCmd;
@@ -828,7 +857,7 @@ QStringList toMountArg(const DockerDevicePrivate::MountPair &mi)
 
 expected_str<void> isValidMountInfo(const DockerDevicePrivate::MountPair &mi)
 {
-    if (mi.path.needsDevice())
+    if (!mi.path.isLocal())
         return make_unexpected(QString("The path \"%1\" is not local.").arg(mi.path.toUserOutput()));
 
     if (mi.path.isEmpty() && mi.containerPath.isEmpty())
@@ -1007,7 +1036,7 @@ expected_str<void> DockerDevicePrivate::startContainer()
 
     if (deadline.hasExpired() && !DockerApi::instance()->isContainerRunning(m_container)) {
         m_startProcess->stop();
-        return make_unexpected(Tr::tr("Failed to start container: %1").arg(m_container));
+        return make_unexpected(Tr::tr("Failed to start container \"%1\".").arg(m_container));
     }
 
     qCDebug(dockerDeviceLog) << "Started container: " << m_startProcess->commandLine();
@@ -1072,18 +1101,6 @@ DeviceTester *DockerDevice::createDeviceTester()
     return nullptr;
 }
 
-bool DockerDevice::usableAsBuildDevice() const
-{
-    return true;
-}
-
-FilePath DockerDevice::filePath(const QString &pathOnDevice) const
-{
-    return FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME,
-                               repoAndTagEncoded(),
-                               pathOnDevice);
-}
-
 bool DockerDevice::handlesFile(const FilePath &filePath) const
 {
     if (filePath.scheme() == u"device" && filePath.host() == id().toString())
@@ -1111,7 +1128,7 @@ bool DockerDevice::ensureReachable(const FilePath &other) const
     if (other.isSameDevice(rootPath()))
         return true;
 
-    if (other.needsDevice())
+    if (!other.isLocal())
         return false;
 
     if (other.isDir())
@@ -1446,7 +1463,7 @@ expected_str<FilePath> DockerDevicePrivate::localSource(const FilePath &other) c
         }
     }
 
-    return make_unexpected(Tr::tr("localSource: No mount point found for %1").arg(other.toString()));
+    return make_unexpected(Tr::tr("localSource: No mount point found for %1").arg(other.toUrlishString()));
 }
 
 bool DockerDevicePrivate::ensureReachable(const FilePath &other)

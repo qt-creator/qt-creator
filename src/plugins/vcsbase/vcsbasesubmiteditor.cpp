@@ -57,8 +57,6 @@
 
 #include <cstring>
 
-enum { debug = 0 };
-
 // Return true if word is meaningful and can be added to a completion model
 static bool acceptsWordForCompletion(const QString &word)
 {
@@ -244,11 +242,13 @@ static inline QStringList fieldTexts(const QString &fileContents)
 void VcsBaseSubmitEditor::createUserFields(const FilePath &fieldConfigFile)
 {
     FileReader reader;
-    if (!reader.fetch(fieldConfigFile, QIODevice::Text, ICore::dialogParent()))
+    if (!reader.fetch(fieldConfigFile)) {
+        QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), reader.errorString());
         return;
+    }
 
     // Parse into fields
-    const QStringList fields = fieldTexts(QString::fromUtf8(reader.data()));
+    const QStringList fields = fieldTexts(QString::fromUtf8(reader.text()));
     if (fields.empty())
         return;
     // Create a completer on user names
@@ -271,16 +271,6 @@ void VcsBaseSubmitEditor::registerActions(QAction *editorUndoAction, QAction *ed
     d->m_widget->registerActions(editorUndoAction, editorRedoAction, submitAction, diffAction);
     d->m_diffAction = diffAction;
     d->m_submitAction = submitAction;
-}
-
-QAbstractItemView::SelectionMode VcsBaseSubmitEditor::fileListSelectionMode() const
-{
-    return d->m_widget->fileListSelectionMode();
-}
-
-void VcsBaseSubmitEditor::setFileListSelectionMode(QAbstractItemView::SelectionMode sm)
-{
-    d->m_widget->setFileListSelectionMode(sm);
 }
 
 bool VcsBaseSubmitEditor::isEmptyFileListEnabled() const
@@ -537,7 +527,7 @@ static QString msgCheckScript(const FilePath &workingDir, const FilePath &cmd)
 
 bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const FilePath &checkScript, QString *errorMessage) const
 {
-    QTC_ASSERT(!checkScript.needsDevice(), return false); // Not supported below.
+    QTC_ASSERT(checkScript.isLocal(), return false); // Not supported below.
     // Write out message
     TempFileSaver saver(TemporaryDirectory::masterDirectoryPath() + "/msgXXXXXX.txt");
     saver.write(fileContents());

@@ -24,6 +24,7 @@ QT_BEGIN_NAMESPACE
 class QDateTime;
 class QDebug;
 class QFileInfo;
+class QTextCodec;
 class QUrl;
 QT_END_NAMESPACE
 
@@ -137,6 +138,8 @@ public:
     QStringView suffixView() const;
     QString completeSuffix() const;
 
+    [[nodiscard]] QList<QStringView> pathComponents() const;
+
     [[nodiscard]] FilePath pathAppended(const QString &str) const;
     [[nodiscard]] FilePath stringAppended(const QString &str) const;
     [[nodiscard]] std::optional<FilePath> tailRemoved(const QString &str) const;
@@ -171,7 +174,7 @@ public:
     bool setPermissions(QFile::Permissions permissions) const;
     OsType osType() const;
     Result removeFile() const;
-    bool removeRecursively(QString *error = nullptr) const;
+    Result removeRecursively() const;
     Result copyRecursively(const FilePath &target) const;
     Result copyFile(const FilePath &target) const;
     Result renameFile(const FilePath &target) const;
@@ -190,6 +193,9 @@ public:
     Qt::CaseSensitivity caseSensitivity() const;
     QChar pathComponentSeparator() const;
     QChar pathListSeparator() const;
+
+    QTextCodec *processStdOutCodec() const;
+    QTextCodec *processStdErrCodec() const;
 
     void clear();
     bool isEmpty() const;
@@ -277,11 +283,12 @@ public:
                                 const WriteContinuation &cont = {}) const;
 
     // Prefer not to use
-    // Using needsDevice() in "user" code is likely to result in code that
+    // Using isLocal() in "user" code is likely to result in code that
     // makes a local/remote distinction which should be avoided in general.
     // There are usually other means available. E.g. distinguishing based
     // on FilePath::osType().
-    bool needsDevice() const;
+    bool isLocal() const;
+    [[deprecated]] bool needsDevice() const { return !isLocal(); }
     bool hasFileAccess() const;
 
     bool isSameDevice(const FilePath &other) const;
@@ -309,7 +316,10 @@ public:
     expected_str<FilePath> localSource() const;
 
     // FIXME: Avoid. See toSettings, toVariant, toUserOutput, toFSPathString, path, nativePath.
-    QString toString() const;
+    QString toUrlishString() const;
+
+    [[deprecated("Check the documentation for toUrlishString() and choose a better replacement.")]]
+    QString toString() const { return toUrlishString(); }
 
     bool equalsCaseSensitive(const FilePath &other) const;
 

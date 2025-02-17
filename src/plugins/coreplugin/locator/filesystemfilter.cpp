@@ -59,8 +59,7 @@ static ILocatorFilter::MatchLevel matchLevelFor(const QRegularExpressionMatch &m
 static bool askForCreating(const QString &title, const FilePath &filePath)
 {
     QMessageBox::StandardButton selected
-        = CheckableMessageBox::question(ICore::dialogParent(),
-                                        title,
+        = CheckableMessageBox::question(title,
                                         Tr::tr("Create \"%1\"?").arg(filePath.shortNativePath()),
                                         Key(kAlwaysCreate),
                                         QMessageBox::Yes | QMessageBox::Cancel,
@@ -141,7 +140,7 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
                                            ? expandedEntryPath
                                            : currentDocumentDir.resolvePath(expandedEntryPath);
     // The case of e.g. "ssh://", "ssh://*p", etc
-    const bool isPartOfDeviceRoot = expandedEntryPath.needsDevice()
+    const bool isPartOfDeviceRoot = !expandedEntryPath.isLocal()
                                     && expandedEntryPath.path().isEmpty();
 
     // Consider the entered path a directory if it ends with slash/backslash.
@@ -201,7 +200,7 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
     }
     // file names can match with +linenumber or :linenumber
     const Link link = Link::fromString(entryFileName, true);
-    regExp = ILocatorFilter::createRegExp(link.targetFilePath.toString(), caseSensitivity);
+    regExp = ILocatorFilter::createRegExp(link.targetFilePath.toUrlishString(), caseSensitivity);
     if (regExp.isValid()) {
         for (const FilePath &file : files) {
             if (promise.isCanceled())

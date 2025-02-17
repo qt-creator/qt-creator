@@ -4,6 +4,8 @@
 #include "../luaengine.h"
 #include "../luaqttypes.h"
 
+#include <coreplugin/icore.h>
+
 #include "utils.h"
 
 #include <utils/async.h>
@@ -12,6 +14,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
 #include <utils/id.h>
+#include <utils/infobar.h>
 #include <utils/processinterface.h>
 
 #include <QDesktopServices>
@@ -244,7 +247,7 @@ void setupUtilsModule()
                     return QString("ProcessRunData{\n  command=%1,\n  workingDirectory=%2,\n  "
                                    "environment={\n    %3\n}\n}")
                         .arg(prd.command.toUserOutput())
-                        .arg(prd.workingDirectory.toString())
+                        .arg(prd.workingDirectory.toUrlishString())
                         .arg(prd.environment.toStringList().join(",\n    "));
                 });
 
@@ -316,6 +319,12 @@ void setupUtilsModule()
 
             return utils;
         });
+}
+
+InfoBarCleaner::~InfoBarCleaner()
+{
+    for (const auto &id : openInfoBars)
+        Core::ICore::infoBar()->removeInfo(id);
 }
 
 } // namespace Lua::Internal

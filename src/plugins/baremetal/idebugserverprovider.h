@@ -40,10 +40,10 @@ class IDebugServerProviderConfigWidget;
 
 class IDebugServerProvider
 {
+    Q_DISABLE_COPY_MOVE(IDebugServerProvider)
+
 protected:
     explicit IDebugServerProvider(const QString &id);
-    IDebugServerProvider(const IDebugServerProvider &provider) = delete;
-    IDebugServerProvider &operator=(const IDebugServerProvider &provider) = delete;
 
 public:
     virtual ~IDebugServerProvider();

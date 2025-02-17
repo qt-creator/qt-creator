@@ -9,6 +9,8 @@
 #include "qbssettings.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/kitmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -16,6 +18,7 @@
 #include <QFutureWatcher>
 #include <QJsonArray>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace QbsProjectManager::Internal {
@@ -26,7 +29,8 @@ namespace QbsProjectManager::Internal {
 
 QbsProjectParser::QbsProjectParser(QbsBuildSystem *buildSystem)
     : m_projectFilePath(buildSystem->project()->projectFilePath()),
-      m_session(buildSystem->session())
+      m_session(buildSystem->session()),
+      m_device(BuildDeviceKitAspect::device(buildSystem->kit()))
 {
     m_fi = new QFutureInterface<bool>();
     m_fi->setProgressRange(0, 0);
@@ -69,8 +73,12 @@ void QbsProjectParser::parse(const Store &config, const Environment &env,
     request.insert("configuration-name", configName);
     request.insert("force-probe-execution",
                    userConfig.take(Constants::QBS_FORCE_PROBES_KEY).toBool());
-    if (QbsSettings::useCreatorSettingsDirForQbs())
-        request.insert("settings-directory", QbsSettings::qbsSettingsBaseDir());
+    request.insert(Constants::QBS_RESTORE_BEHAVIOR_KEY,
+                   userConfig.take(Constants::QBS_RESTORE_BEHAVIOR_KEY).toString());
+    const IDeviceConstPtr device = m_device.lock();
+    QTC_ASSERT(device, return);
+    if (QbsSettings::useCreatorSettingsDirForQbs(device))
+        request.insert("settings-directory", QbsSettings::qbsSettingsBaseDir(device).path());
     request.insert("overridden-properties", QJsonObject::fromVariantMap(mapFromStore(userConfig)));
 
     // People don't like it when files are created as a side effect of opening a project,

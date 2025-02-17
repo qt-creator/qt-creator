@@ -3335,7 +3335,7 @@ public:
     SourceLocation propertyToken() const { return m_propertyToken; }
 
     template<bool InvalidIsLargest = true>
-    static bool compareLocationsByBegin(const SourceLocation *&lhs, const SourceLocation *&rhs)
+    static bool compareLocationsByBegin(const SourceLocation *lhs, const SourceLocation *rhs)
     {
         if (lhs->isValid() && rhs->isValid())
             return lhs->begin() < rhs->begin();

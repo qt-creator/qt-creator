@@ -64,7 +64,7 @@ public:
 
     // Can be reimplemented to create custom wizards. initWizardDialog() needs to be
     // called.
-    Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const override;
+    Core::BaseFileWizard *create(const Core::WizardDialogParameters &parameters) const override;
 
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const override;
 
@@ -110,7 +110,7 @@ signals:
     void projectLocationChanged(const Utils::FilePath &path);
 
 protected:
-    Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const override;
+    Core::BaseFileWizard *create(const Core::WizardDialogParameters &parameters) const override;
 
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const override;
 

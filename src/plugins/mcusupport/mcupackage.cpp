@@ -223,8 +223,8 @@ QString McuPackage::statusText() const
                                                            : QString("%1 %2").arg(outDetectionPath,
                                                                                   displayVersions);
     const QString displayDetectedPath = m_versions.empty()
-                                            ? m_usedDetectionPath.toString()
-                                            : QString("%1 %2").arg(m_usedDetectionPath.toString(),
+                                            ? m_usedDetectionPath.toUrlishString()
+                                            : QString("%1 %2").arg(m_usedDetectionPath.toUrlishString(),
                                                                    m_detectedVersion);
 
     QString response;
@@ -299,7 +299,7 @@ QWidget *McuPackage::widget()
     if (!m_downloadUrl.isEmpty()) {
         auto downLoadButton = new QToolButton(widget);
         downLoadButton->setIcon(Icons::ONLINE.icon());
-        downLoadButton->setToolTip(Tr::tr("Download from \"%1\"").arg(m_downloadUrl));
+        downLoadButton->setToolTip(Tr::tr("Download from \"%1\".").arg(m_downloadUrl));
         QObject::connect(downLoadButton, &QToolButton::pressed, this, [this] {
             QDesktopServices::openUrl(m_downloadUrl);
         });

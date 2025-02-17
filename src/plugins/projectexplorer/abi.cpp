@@ -145,6 +145,8 @@ static Abi::Architecture architectureFromQt()
         return Abi::AvrArchitecture;
     if (arch.startsWith("asmjs"))
         return Abi::AsmJsArchitecture;
+    if (arch.startsWith("loongarch"))
+        return Abi::LoongArchArchitecture;
 
     return Abi::UnknownArchitecture;
 }
@@ -377,6 +379,9 @@ static Abis abiOf(const QByteArray &data)
         case 50: // EM_IA_64
             result.append(Abi(Abi::ItaniumArchitecture, os, flavor, Abi::ElfFormat, 64));
             break;
+        case 258: // EM_LOONGARCH
+            result.append(Abi(Abi::LoongArchArchitecture, os, flavor, Abi::ElfFormat, 64));
+            break;
         default:
             ;
         }
@@ -438,18 +443,6 @@ static Abis abiOf(const QByteArray &data)
     return result;
 }
 
-static QString androidAbiFromAbi(const Abi &abi)
-{
-    QString androidAbi;
-    if (abi.architecture() == Abi::Architecture::ArmArchitecture)
-        androidAbi = QLatin1String(abi.wordWidth() == 64 ? Constants::ANDROID_ABI_ARM64_V8A
-                                                         : Constants::ANDROID_ABI_ARMEABI_V7A);
-    else
-        androidAbi = QLatin1String(abi.wordWidth() == 64 ? Constants::ANDROID_ABI_X86_64
-                                                         : Constants::ANDROID_ABI_X86);
-    return androidAbi;
-}
-
 // --------------------------------------------------------------------------
 // Abi
 // --------------------------------------------------------------------------
@@ -467,7 +460,8 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
     if (machine.isEmpty())
         return {};
 
-    const QStringList parts = machine.split(QRegularExpression("[ /-]"));
+    static const QRegularExpression splitRegexp("[ /-]");
+    const QStringList parts = machine.split(splitRegexp);
 
     Architecture arch = UnknownArchitecture;
     OS os = UnknownOS;
@@ -639,6 +633,9 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             os = BareMetalOS;
             flavor = GenericFlavor;
             format = ElfFormat;
+        } else if (p == "loongarch64") {
+            arch = LoongArchArchitecture;
+            width = 64;
         }
     }
 
@@ -678,6 +675,22 @@ QString Abi::param() const
     if (m_param.isEmpty())
         return toString();
     return m_param;
+}
+
+QString Abi::toAndroidAbi() const
+{
+    if (architecture() == Abi::Architecture::ArmArchitecture) {
+        if (wordWidth() == 32)
+            return Constants::ANDROID_ABI_ARMEABI_V7A;
+        if (wordWidth() == 64)
+            return Constants::ANDROID_ABI_ARM64_V8A;
+    } else if (architecture() == Abi::Architecture::X86Architecture) {
+        if (wordWidth() == 32)
+            return Constants::ANDROID_ABI_X86;
+        if (wordWidth() == 64)
+            return Constants::ANDROID_ABI_X86_64;
+    }
+    return {};
 }
 
 bool Abi::operator != (const Abi &other) const
@@ -812,6 +825,8 @@ QString Abi::toString(const Architecture &a)
         return QLatin1String("cr16");
     case RiscVArchitecture:
         return QLatin1String("riscv");
+    case LoongArchArchitecture:
+        return QLatin1String("loongarch");
     case UnknownArchitecture:
         Q_FALLTHROUGH();
     default:
@@ -925,7 +940,7 @@ Abi Abi::fromString(const QString &abiString)
 
     Abi abi(architecture, os, flavor, format, wordWidth);
     if (abi.os() == LinuxOS && abi.osFlavor() == AndroidLinuxFlavor)
-        abi.m_param = androidAbiFromAbi(abi);
+        abi.m_param = abi.toAndroidAbi();
 
     return abi;
 }
@@ -990,6 +1005,8 @@ Abi::Architecture Abi::architectureFromString(const QString &a)
         return XtensaArchitecture;
     if (a == "asmjs")
         return AsmJsArchitecture;
+    if (a == "loongarch")
+        return LoongArchArchitecture;
 
     return UnknownArchitecture;
 }
@@ -1186,7 +1203,7 @@ Abis Abi::abisOfBinary(const Utils::FilePath &path)
 
         while (!data.isEmpty()) {
             if ((getUint8(data, 58) != 0x60 || getUint8(data, 59) != 0x0a)) {
-                qWarning() << path.toString() << ": Thought it was an ar-file, but it is not!";
+                qWarning() << path.toUrlishString() << ": Thought it was an ar-file, but it is not!";
                 break;
             }
 
@@ -1550,6 +1567,10 @@ void ProjectExplorerTest::testAbiFromTargetTriplet_data()
     QTest::newRow("asmjs-unknown-emscripten") << int(Abi::AsmJsArchitecture)
                                               << int(Abi::UnknownOS) << int(Abi::UnknownFlavor)
                                               << int(Abi::EmscriptenFormat) << 32;
+
+    QTest::newRow("loongarch64-linux-gnuabi") << int(Abi::LoongArchArchitecture)
+                                    << int(Abi::LinuxOS) << int(Abi::GenericFlavor)
+                                    << int(Abi::ElfFormat) << 64;
 }
 
 void ProjectExplorerTest::testAbiFromTargetTriplet()

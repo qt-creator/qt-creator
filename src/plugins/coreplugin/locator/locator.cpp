@@ -165,9 +165,22 @@ void Locator::loadSettings()
                                                                 : QString("QuickOpen");
     const Settings def;
     DB::beginGroup(settingsGroup);
-    m_refreshTimer.setInterval(minutes(DB::value("RefreshInterval", 60).toInt()));
-    m_relativePaths = DB::value("RelativePaths", false).toBool();
-    m_settings.useCenteredPopup = DB::value(kUseCenteredPopup, def.useCenteredPopup).toBool();
+    // TODO SettingsDatabase just for old settings from QtC < 16.0
+    // when removed, the defaults need to move to the ICore::settings() code path below
+    {
+        m_refreshTimer.setInterval(
+            minutes(DB::value("RefreshInterval", int(def.refreshInterval / 1min)).toInt()));
+        m_settings.relativePaths = DB::value("RelativePaths", def.relativePaths).toBool();
+        m_settings.useCenteredPopup = DB::value(kUseCenteredPopup, def.useCenteredPopup).toBool();
+    }
+    ICore::settings()->withGroup("Locator", [this](QtcSettings *settings) {
+        m_refreshTimer.setInterval(
+            minutes(settings->value("RefreshInterval", refreshInterval()).toInt()));
+        m_settings.relativePaths
+            = settings->value("RelativePaths", m_settings.relativePaths).toBool();
+        m_settings.useCenteredPopup
+            = settings->value(kUseCenteredPopup, m_settings.useCenteredPopup).toBool();
+    });
 
     for (ILocatorFilter *filter : std::as_const(m_filters)) {
         if (DB::contains(filter->id().toString())) {
@@ -294,9 +307,12 @@ void Locator::saveSettings() const
     DB::beginTransaction();
     DB::beginGroup("Locator");
     DB::remove(QString());
-    DB::setValue("RefreshInterval", refreshInterval());
-    DB::setValue("RelativePaths", relativePaths());
-    DB::setValueWithDefault(kUseCenteredPopup, m_settings.useCenteredPopup, def.useCenteredPopup);
+    // TODO SettingsDatabase only for backward compatibility < 16.0
+    {
+        DB::setValue("RefreshInterval", refreshInterval());
+        DB::setValue("RelativePaths", relativePaths());
+        DB::setValueWithDefault(kUseCenteredPopup, m_settings.useCenteredPopup, def.useCenteredPopup);
+    }
     for (ILocatorFilter *filter : m_filters) {
         if (!m_customFilters.contains(filter) && filter->id().isValid()) {
             const QByteArray state = filter->saveState();
@@ -317,6 +333,14 @@ void Locator::saveSettings() const
     DB::endGroup();
     DB::endGroup();
     DB::endTransaction();
+
+    ICore::settings()->withGroup("Locator", [this, &def](QtcSettings *settings) {
+        settings->setValueWithDefault(
+            "RefreshInterval", refreshInterval(), int(def.refreshInterval / 1min));
+        settings->setValueWithDefault("RelativePaths", m_settings.relativePaths, def.relativePaths);
+        settings->setValueWithDefault(
+            kUseCenteredPopup, m_settings.useCenteredPopup, def.useCenteredPopup);
+    });
 }
 
 /*!
@@ -367,12 +391,12 @@ void Locator::setRefreshInterval(int interval)
 
 bool Locator::relativePaths() const
 {
-    return m_relativePaths;
+    return m_settings.relativePaths;
 }
 
 void Locator::setRelativePaths(bool use)
 {
-    m_relativePaths = use;
+    m_settings.relativePaths = use;
 }
 
 bool Locator::useCenteredPopupForShortcut()

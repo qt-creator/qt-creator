@@ -70,6 +70,13 @@ public:
 
     bool acceptTermsAndConditions(PluginSpec *spec);
     void setAcceptTermsAndConditionsCallback(const std::function<bool(PluginSpec *)> &callback);
+    void readPluginPaths();
+
+    void removePluginsAfterRestart();
+    void installPluginsAfterRestart();
+
+    Utils::Result removePluginOnRestart(const QString &pluginId);
+    void installPluginOnRestart(const Utils::FilePath &src, const Utils::FilePath &dest);
 
     class TestSpec {
     public:
@@ -148,7 +155,6 @@ private:
 
     void startDelayedInitialize();
 
-    void readPluginPaths();
     bool loadQueue(PluginSpec *spec,
                    QVector<ExtensionSystem::PluginSpec *> &queue,
                    QVector<ExtensionSystem::PluginSpec *> &circularityCheckQueue);

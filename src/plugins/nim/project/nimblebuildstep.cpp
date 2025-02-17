@@ -4,12 +4,13 @@
 #include "nimblebuildstep.h"
 
 #include "nimconstants.h"
-#include "nimbuildsystem.h"
 #include "nimoutputtaskparser.h"
+#include "nimproject.h"
 #include "nimtr.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/processparameters.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
 

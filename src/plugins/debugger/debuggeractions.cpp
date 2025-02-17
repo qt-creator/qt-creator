@@ -190,6 +190,14 @@ DebuggerSettings::DebuggerSettings() :
     ignoreFirstChanceAccessViolation.setSettingsKey(cdbSettingsGroup, "IgnoreFirstChanceAccessViolation");
     ignoreFirstChanceAccessViolation.setLabelText(Tr::tr("Ignore first chance access violations"));
 
+    enableHeapDebugging.setSettingsKey(cdbSettingsGroup, "EnableHeapDebugging");
+    enableHeapDebugging.setLabelText(Tr::tr("Enable heap debugging"));
+    enableHeapDebugging.setToolTip(
+        "<p>"
+        + Tr::tr("Allocate memory using the debug heap rather than the normal heap. The debug heap "
+                 "enables additional checks to help diagnose heap related bugs. However it comes "
+                 "at a performance cost when allocating memory in the debugged process."));
+
     //
     // Locals & Watchers
     sortStructMembers.setSettingsKey(debugModeGroup, "SortStructMembers");
@@ -255,6 +263,7 @@ DebuggerSettings::DebuggerSettings() :
     page5.registerAspect(&firstChanceExceptionTaskEntry);
     page5.registerAspect(&secondChanceExceptionTaskEntry);
     page5.registerAspect(&ignoreFirstChanceAccessViolation);
+    page5.registerAspect(&enableHeapDebugging);
 
     // Page 6
     page6.registerAspect(&cdbSymbolPaths);

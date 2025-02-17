@@ -11,9 +11,6 @@
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
 #include <cppeditor/clangdiagnosticconfigsselectionwidget.h>
 
-#include <debugger/analyzer/analyzericons.h>
-#include <debugger/debuggertr.h>
-
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 
@@ -114,8 +111,6 @@ ClangToolsOptionsPage::ClangToolsOptionsPage()
     setId(Constants::SETTINGS_PAGE_ID);
     setDisplayName(Tr::tr("Clang Tools"));
     setCategory("T.Analyzer");
-    setDisplayCategory(::Debugger::Tr::tr("Analyzer"));
-    setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
     setWidgetCreator([] { return new SettingsWidget; });
 }
 

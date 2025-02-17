@@ -17,7 +17,8 @@ def main():
     expectConfigureToFail = []
     expectBuildToFail = []
     if platform.system() in ('Microsoft', 'Windows'):
-        expectConfigureToFail = [ Targets.DESKTOP_5_4_1_GCC ] # gcc 4.9 does not know C++17
+        if os.getenv('SYSTEST_NEW_SETTINGS') != '1':
+            expectConfigureToFail = [ Targets.DESKTOP_5_4_1_GCC ] # gcc 4.9 does not know C++17
         expectBuildToFail = [ Targets.DESKTOP_5_10_1_DEFAULT ] # fails to handle constexpr correctly
 
     for kit, config in availableConfigs:

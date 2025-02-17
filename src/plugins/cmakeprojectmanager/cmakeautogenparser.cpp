@@ -116,18 +116,17 @@ void CMakeAutogenParserTest::testCMakeAutogenParser_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
-    QTest::addColumn<QString>("childStdOutLines");
-    QTest::addColumn<QString>("childStdErrLines");
+    QTest::addColumn<QStringList>("childStdOutLines");
+    QTest::addColumn<QStringList>("childStdErrLines");
     QTest::addColumn<Tasks>("tasks");
-    QTest::addColumn<QString>("outputLines");
 
     // negative tests
     QTest::newRow("pass-through stdout")
         << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
-        << QString::fromLatin1("Sometext\n") << QString() << Tasks() << QString();
+        << QStringList("Sometext") << QStringList() << Tasks();
     QTest::newRow("pass-through stderr")
-        << QString::fromLatin1("Sometext") << OutputParserTester::STDERR << QString()
-        << QString::fromLatin1("Sometext\n") << Tasks() << QString();
+        << QString::fromLatin1("Sometext") << OutputParserTester::STDERR << QStringList()
+        << QStringList("Sometext") << Tasks();
 
     // positive tests
     QTest::newRow("AutoMoc error") << R"(AutoMoc error
@@ -137,7 +136,7 @@ contains a "Q_OBJECT" macro, but does not include "main.moc"!
 Consider to
   - add #include "main.moc"
   - enable SKIP_AUTOMOC for this file)"
-                                   << OutputParserTester::STDERR << QString() << QString()
+                                   << OutputParserTester::STDERR << QStringList() << QStringList()
                                    << (Tasks() << BuildSystemTask(
                                            Task::Error,
                                            R"(AutoMoc error
@@ -145,8 +144,7 @@ Consider to
 contains a "Q_OBJECT" macro, but does not include "main.moc"!
 Consider to
   - add #include "main.moc"
-  - enable SKIP_AUTOMOC for this file)"))
-                                   << QString();
+  - enable SKIP_AUTOMOC for this file)"));
 
     QTest::newRow("AutoMoc subprocess error") << R"(AutoMoc subprocess error
 ------------------------
@@ -157,7 +155,7 @@ into
 included by
   "BIN:/src/quickcontrols/basic/impl/qtquickcontrols2basicstyleimplplugin_QtQuickControls2BasicStyleImplPlugin.cpp"
 Process failed with return value 1)" << OutputParserTester::STDERR
-                                              << QString() << QString()
+                                              << QStringList() << QStringList()
                                               << (Tasks() << BuildSystemTask(
                                                       Task::Error,
                                                       R"(AutoMoc subprocess error
@@ -167,7 +165,7 @@ into
   "BIN:/src/quickcontrols/basic/impl/qtquickcontrols2basicstyleimplplugin_autogen/include/qtquickcontrols2basicstyleimplplugin_QtQuickControls2BasicStyleImplPlugin.moc"
 included by
   "BIN:/src/quickcontrols/basic/impl/qtquickcontrols2basicstyleimplplugin_QtQuickControls2BasicStyleImplPlugin.cpp"
-Process failed with return value 1)")) << QString();
+Process failed with return value 1)"));
 
     QTest::newRow("AUTOMOC: warning:") << R"(AUTOMOC: warning:
 /home/alex/src/CMake/tests/solid.orig/solid/solid/device.cpp: The file
@@ -175,7 +173,7 @@ includes the moc file "device_p.moc" instead of "moc_device_p.cpp". Running
 moc on "/home/alex/src/CMake/tests/solid.orig/solid/solid/device_p.h" !
 Include "moc_device_p.cpp" for compatibility with strict mode (see
 CMAKE_AUTOMOC_RELAXED_MODE).)" << OutputParserTester::STDERR
-                                       << QString() << QString()
+                                       << QStringList() << QStringList()
                                        << (Tasks() << BuildSystemTask(
                                                Task::Warning,
                                                R"(AUTOMOC: warning:
@@ -183,19 +181,18 @@ CMAKE_AUTOMOC_RELAXED_MODE).)" << OutputParserTester::STDERR
 includes the moc file "device_p.moc" instead of "moc_device_p.cpp". Running
 moc on "/home/alex/src/CMake/tests/solid.orig/solid/solid/device_p.h" !
 Include "moc_device_p.cpp" for compatibility with strict mode (see
-CMAKE_AUTOMOC_RELAXED_MODE).)")) << QString();
+CMAKE_AUTOMOC_RELAXED_MODE).)"));
 
     QTest::newRow("AutoMoc warning") << R"(AutoMoc warning
 ---------------
 "SRC:/src/main.cpp"
 includes the moc file "main.moc", but does not contain a Q_OBJECT, Q_GADGET, Q_NAMESPACE, Q_NAMESPACE_EXPORT, Q_GADGET_EXPORT, Q_ENUM_NS, K_PLUGIN_FACTORY, K_PLUGIN_CLASS, K_PLUGIN_FACTORY_WITH_JSON or K_PLUGIN_CLASS_WITH_JSON macro.)"
-                                     << OutputParserTester::STDERR << QString() << QString()
+                                     << OutputParserTester::STDERR << QStringList() << QStringList()
                                      << (Tasks() << BuildSystemTask(
                                              Task::Warning,
                                              R"(AutoMoc warning
 "SRC:/src/main.cpp"
-includes the moc file "main.moc", but does not contain a Q_OBJECT, Q_GADGET, Q_NAMESPACE, Q_NAMESPACE_EXPORT, Q_GADGET_EXPORT, Q_ENUM_NS, K_PLUGIN_FACTORY, K_PLUGIN_CLASS, K_PLUGIN_FACTORY_WITH_JSON or K_PLUGIN_CLASS_WITH_JSON macro.)"))
-                                     << QString();
+includes the moc file "main.moc", but does not contain a Q_OBJECT, Q_GADGET, Q_NAMESPACE, Q_NAMESPACE_EXPORT, Q_GADGET_EXPORT, Q_ENUM_NS, K_PLUGIN_FACTORY, K_PLUGIN_CLASS, K_PLUGIN_FACTORY_WITH_JSON or K_PLUGIN_CLASS_WITH_JSON macro.)"));
 
     QTest::newRow("AutoUic error") << R"(AutoUic error
 -------------
@@ -204,7 +201,7 @@ includes the uic file "ui_global.h",
 but the user interface file "global.ui"
 could not be found in the following directories
   "SRC:/monitor/ui")" << OutputParserTester::STDERR
-                                   << QString() << QString()
+                                   << QStringList() << QStringList()
                                    << (Tasks() << BuildSystemTask(
                                            Task::Error,
                                            R"(AutoUic error
@@ -212,7 +209,7 @@ could not be found in the following directories
 includes the uic file "ui_global.h",
 but the user interface file "global.ui"
 could not be found in the following directories
-  "SRC:/monitor/ui")")) << QString();
+  "SRC:/monitor/ui")"));
 }
 
 void CMakeAutogenParserTest::testCMakeAutogenParser()
@@ -222,12 +219,10 @@ void CMakeAutogenParserTest::testCMakeAutogenParser()
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
     QFETCH(Tasks, tasks);
-    QFETCH(QString, childStdOutLines);
-    QFETCH(QString, childStdErrLines);
-    QFETCH(QString, outputLines);
+    QFETCH(QStringList, childStdOutLines);
+    QFETCH(QStringList, childStdErrLines);
 
-    testbench
-        .testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines, outputLines);
+    testbench.testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines);
 }
 
 QObject *createCMakeAutogenParserTest()

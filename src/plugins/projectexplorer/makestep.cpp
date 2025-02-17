@@ -4,16 +4,17 @@
 #include "makestep.h"
 
 #include "buildconfiguration.h"
+#include "devicesupport/devicekitaspects.h"
 #include "devicesupport/idevice.h"
 #include "gnumakeparser.h"
 #include "kit.h"
-#include "kitaspects.h"
 #include "processparameters.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "target.h"
 #include "toolchain.h"
+#include "toolchainkitaspect.h"
 
 #include <utils/aspects.h>
 #include <utils/environment.h>

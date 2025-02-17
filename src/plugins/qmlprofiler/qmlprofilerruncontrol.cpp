@@ -3,14 +3,18 @@
 
 #include "qmlprofilerruncontrol.h"
 
+#include "qmlprofilerclientmanager.h"
+#include "qmlprofilerstatemanager.h"
 #include "qmlprofilertool.h"
+#include "qmlprofilertr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
+#include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
@@ -18,12 +22,11 @@
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 
-#include <qmldebug/qmldebugcommandlinearguments.h>
-
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/url.h>
 
+#include <QGuiApplication>
 #include <QMessageBox>
 
 using namespace Core;
@@ -31,57 +34,102 @@ using namespace ProjectExplorer;
 
 namespace QmlProfiler::Internal {
 
-//
-// QmlProfilerRunControlPrivate
-//
-
-class QmlProfilerRunner::QmlProfilerRunnerPrivate
-{
-public:
-    QPointer<QmlProfilerStateManager> m_profilerState;
-};
-
-//
-// QmlProfilerRunControl
-//
-
 QmlProfilerRunner::QmlProfilerRunner(RunControl *runControl)
     : RunWorker(runControl)
-    , d(new QmlProfilerRunnerPrivate)
 {
     setId("QmlProfilerRunner");
     runControl->requestQmlChannel();
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
-    setSupportsReRunning(false);
-}
-
-QmlProfilerRunner::~QmlProfilerRunner()
-{
-    delete d;
 }
 
 void QmlProfilerRunner::start()
 {
-    if (!d->m_profilerState)
-        QmlProfilerTool::instance()->finalizeRunControl(this);
-    QTC_ASSERT(d->m_profilerState, return);
+    QmlProfilerTool::instance()->finalizeRunControl(runControl());
+    connect(this, &QmlProfilerRunner::stopped,
+            QmlProfilerTool::instance(), &QmlProfilerTool::handleStop);
+    QmlProfilerStateManager *stateManager = QmlProfilerTool::instance()->stateManager();
+    QTC_ASSERT(stateManager, return);
+
+    connect(stateManager, &QmlProfilerStateManager::stateChanged, this, [this, stateManager] {
+        if (stateManager->currentState() == QmlProfilerStateManager::Idle)
+            reportStopped();
+    });
+
+    QmlProfilerClientManager *clientManager = QmlProfilerTool::instance()->clientManager();
+    connect(clientManager, &QmlProfilerClientManager::connectionFailed, this, [this, clientManager, stateManager] {
+        auto infoBox = new QMessageBox(ICore::dialogParent());
+        infoBox->setIcon(QMessageBox::Critical);
+        infoBox->setWindowTitle(QGuiApplication::applicationDisplayName());
+
+        const int interval = clientManager->retryInterval();
+        const int retries = clientManager->maximumRetries();
+
+        infoBox->setText(Tr::tr("Could not connect to the in-process QML profiler "
+                                "within %1 s.\n"
+                                "Do you want to retry and wait %2 s?")
+                             .arg(interval * retries / 1000.0)
+                             .arg(interval * 2 * retries / 1000.0));
+        infoBox->setStandardButtons(QMessageBox::Retry | QMessageBox::Cancel | QMessageBox::Help);
+        infoBox->setDefaultButton(QMessageBox::Retry);
+        infoBox->setModal(true);
+
+        connect(infoBox, &QDialog::finished, this, [this, clientManager, stateManager, interval](int result) {
+            const auto cancelProcess = [this, stateManager] {
+                switch (stateManager->currentState()) {
+                case QmlProfilerStateManager::Idle:
+                    break;
+                case QmlProfilerStateManager::AppRunning:
+                    stateManager->setCurrentState(QmlProfilerStateManager::AppDying);
+                    break;
+                default: {
+                    const QString message = QString::fromLatin1("Unexpected process termination requested with state %1 in %2:%3")
+                    .arg(stateManager->currentStateAsString(), QString::fromLatin1(__FILE__), QString::number(__LINE__));
+                    qWarning("%s", qPrintable(message));
+                    return;
+                }
+                }
+                runControl()->initiateStop();
+            };
+
+            switch (result) {
+            case QMessageBox::Retry:
+                clientManager->setRetryInterval(interval * 2);
+                clientManager->retryConnect();
+                break;
+            case QMessageBox::Help:
+                HelpManager::showHelpUrl(
+                    "qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html");
+                Q_FALLTHROUGH();
+            case QMessageBox::Cancel:
+                // The actual error message has already been logged.
+                QmlProfilerTool::logState(Tr::tr("Failed to connect."));
+                cancelProcess();
+                break;
+            }
+        });
+
+        infoBox->show();
+    }, Qt::QueuedConnection); // Queue any connection failures after reportStarted()
+    clientManager->connectToServer(runControl()->qmlChannel());
+
     reportStarted();
 }
 
 void QmlProfilerRunner::stop()
 {
-    if (!d->m_profilerState) {
+    QmlProfilerStateManager *stateManager = QmlProfilerTool::instance()->stateManager();
+    if (!stateManager) {
         reportStopped();
         return;
     }
 
-    switch (d->m_profilerState->currentState()) {
+    switch (stateManager->currentState()) {
     case QmlProfilerStateManager::AppRunning:
-        d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStopRequested);
+        stateManager->setCurrentState(QmlProfilerStateManager::AppStopRequested);
         break;
     case QmlProfilerStateManager::AppStopRequested:
         // Pressed "stop" a second time. Kill the application without collecting data
-        d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
+        stateManager->setCurrentState(QmlProfilerStateManager::Idle);
         reportStopped();
         break;
     case QmlProfilerStateManager::Idle:
@@ -90,116 +138,27 @@ void QmlProfilerRunner::stop()
         break;
     default: {
         const QString message = QString::fromLatin1("Unexpected engine stop from state %1 in %2:%3")
-            .arg(d->m_profilerState->currentStateAsString(), QString::fromLatin1(__FILE__), QString::number(__LINE__));
+            .arg(stateManager->currentStateAsString(), QString::fromLatin1(__FILE__), QString::number(__LINE__));
         qWarning("%s", qPrintable(message));
     }
         break;
     }
 }
 
-void QmlProfilerRunner::notifyRemoteFinished()
+RunWorker *createLocalQmlProfilerWorker(RunControl *runControl)
 {
-    QTC_ASSERT(d->m_profilerState, return);
+    auto worker = new ProcessRunner(runControl);
 
-    switch (d->m_profilerState->currentState()) {
-    case QmlProfilerStateManager::AppRunning:
-        d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
-        break;
-    case QmlProfilerStateManager::Idle:
-        break;
-    default:
-        const QString message = QString::fromLatin1("Process died unexpectedly from state %1 in %2:%3")
-            .arg(d->m_profilerState->currentStateAsString(), QString::fromLatin1(__FILE__), QString::number(__LINE__));
-        qWarning("%s", qPrintable(message));
-        break;
-    }
-}
-
-void QmlProfilerRunner::cancelProcess()
-{
-    QTC_ASSERT(d->m_profilerState, return);
-
-    switch (d->m_profilerState->currentState()) {
-    case QmlProfilerStateManager::Idle:
-        break;
-    case QmlProfilerStateManager::AppRunning:
-        d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
-        break;
-    default: {
-        const QString message = QString::fromLatin1("Unexpected process termination requested with state %1 in %2:%3")
-            .arg(d->m_profilerState->currentStateAsString(), QString::fromLatin1(__FILE__), QString::number(__LINE__));
-        qWarning("%s", qPrintable(message));
-        return;
-    }
-    }
-    runControl()->initiateStop();
-}
-
-void QmlProfilerRunner::registerProfilerStateManager( QmlProfilerStateManager *profilerState )
-{
-    // disconnect old
-    if (d->m_profilerState)
-        disconnect(d->m_profilerState, &QmlProfilerStateManager::stateChanged,
-                   this, &QmlProfilerRunner::profilerStateChanged);
-
-    d->m_profilerState = profilerState;
-
-    // connect
-    if (d->m_profilerState)
-        connect(d->m_profilerState, &QmlProfilerStateManager::stateChanged,
-                this, &QmlProfilerRunner::profilerStateChanged);
-}
-
-void QmlProfilerRunner::profilerStateChanged()
-{
-    switch (d->m_profilerState->currentState()) {
-    case QmlProfilerStateManager::Idle:
-        reportStopped();
-        break;
-    default:
-        break;
-    }
-}
-
-//
-// LocalQmlProfilerSupport
-//
-
-static QUrl localServerUrl(RunControl *runControl)
-{
-    QUrl serverUrl;
-    Kit *kit = runControl->kit();
-    const QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
-    if (version) {
-        if (version->qtVersion() >= QVersionNumber(5, 6, 0))
-            serverUrl = Utils::urlFromLocalSocket();
-        else
-            serverUrl = Utils::urlFromLocalHostAndFreePort();
-    } else {
-        qWarning("Running QML profiler on Kit without Qt version?");
-        serverUrl = Utils::urlFromLocalHostAndFreePort();
-    }
-    return serverUrl;
-}
-
-LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl)
-    : LocalQmlProfilerSupport(runControl, localServerUrl(runControl))
-{
-}
-
-LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const QUrl &serverUrl)
-    : SimpleTargetRunner(runControl)
-{
-    setId("LocalQmlProfilerSupport");
+    worker->setId("LocalQmlProfilerSupport");
 
     auto profiler = new QmlProfilerRunner(runControl);
 
-    addStopDependency(profiler);
+    worker->addStopDependency(profiler);
     // We need to open the local server before the application tries to connect.
     // In the TCP case, it doesn't hurt either to start the profiler before.
-    addStartDependency(profiler);
+    worker->addStartDependency(profiler);
 
-    setStartModifier([this, runControl, serverUrl] {
+    worker->setStartModifier([worker, runControl] {
 
         QUrl serverUrl = runControl->qmlChannel();
         QString code;
@@ -211,16 +170,16 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
             QTC_CHECK(false);
 
         QString arguments = Utils::ProcessArgs::quoteArg(
-                                QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlProfilerServices, code, true));
+            qmlDebugCommandLineArguments(QmlProfilerServices, code, true));
 
-        Utils::CommandLine cmd = commandLine();
+        Utils::CommandLine cmd = worker->commandLine();
         const QString oldArgs = cmd.arguments();
         cmd.setArguments(arguments);
         cmd.addArgs(oldArgs, Utils::CommandLine::Raw);
-        setCommandLine(cmd);
-
-        forceRunOnHost();
+        worker->setCommandLine(cmd.toLocal());
     });
+
+    return worker;
 }
 
 // Factories
@@ -243,7 +202,7 @@ public:
     LocalQmlProfilerRunWorkerFactory()
     {
         setId(ProjectExplorer::Constants::QML_PROFILER_RUN_FACTORY);
-        setProduct<LocalQmlProfilerSupport>();
+        setProducer(&createLocalQmlProfilerWorker);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
 
@@ -256,6 +215,5 @@ void setupQmlProfilerRunning()
     static QmlProfilerRunWorkerFactory theQmlProfilerRunWorkerFactory;
     static LocalQmlProfilerRunWorkerFactory theLocalQmlProfilerRunWorkerFactory;
 }
-
 
 } // QmlProfiler::Internal

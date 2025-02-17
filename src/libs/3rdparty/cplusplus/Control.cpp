@@ -336,6 +336,14 @@ public:
         return argument;
     }
 
+    TemplateTypeArgument *newTemplateTypeArgument(unsigned sourceLocation, const Name *name)
+    {
+        TemplateTypeArgument *argument = new TemplateTypeArgument(translationUnit, sourceLocation, name);
+        symbols.push_back(argument);
+        return argument;
+    }
+
+
     Function *newFunction(unsigned sourceLocation, const Name *name)
     {
         Function *function = new Function(translationUnit, sourceLocation, name);
@@ -697,6 +705,9 @@ Argument *Control::newArgument(int sourceLocation, const Name *name)
 
 TypenameArgument *Control::newTypenameArgument(int sourceLocation, const Name *name)
 { return d->newTypenameArgument(sourceLocation, name); }
+
+TemplateTypeArgument *Control::newTemplateTypeArgument(int sourceLocation, const Name *name)
+{ return d->newTemplateTypeArgument(sourceLocation, name); }
 
 Function *Control::newFunction(int sourceLocation, const Name *name)
 { return d->newFunction(sourceLocation, name); }

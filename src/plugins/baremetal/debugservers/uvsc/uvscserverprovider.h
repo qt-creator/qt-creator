@@ -61,7 +61,6 @@ public:
 
 protected:
     explicit UvscServerProvider(const QString &id);
-    explicit UvscServerProvider(const UvscServerProvider &other);
 
     void setToolsetNumber(ToolsetNumber toolsetNumber);
     void setSupportedDrivers(const QStringList &supportedDrivers);
@@ -113,21 +112,6 @@ protected:
     Utils::PathChooser *m_toolsIniChooser = nullptr;
     Uv::DeviceSelector *m_deviceSelector = nullptr;
     Uv::DriverSelector *m_driverSelector = nullptr;
-};
-
-// UvscServerProviderRunner
-
-class UvscServerProviderRunner final : public ProjectExplorer::RunWorker
-{
-public:
-    explicit UvscServerProviderRunner(ProjectExplorer::RunControl *runControl,
-                                      const Utils::ProcessRunData &runnable);
-
-private:
-    void start() final;
-    void stop() final;
-
-    Utils::Process m_process;
 };
 
 } // namespace Internal

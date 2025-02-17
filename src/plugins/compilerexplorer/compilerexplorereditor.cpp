@@ -185,7 +185,6 @@ class SourceEditorWidget : public QWidget
 public:
     SourceEditorWidget(const std::shared_ptr<SourceSettings> &settings, QUndoStack *undoStack);
 
-    QString sourceCode();
     SourceSettings *sourceSettings() { return m_sourceSettings.get(); }
 
     void focusInEvent(QFocusEvent *) override { emit gotFocus(); }
@@ -520,13 +519,6 @@ SourceEditorWidget::SourceEditorWidget(const std::shared_ptr<SourceSettings> &se
     setObjectName("source_code");
 
     setFocusProxy(m_codeEditor);
-}
-
-QString SourceEditorWidget::sourceCode()
-{
-    if (m_codeEditor && m_codeEditor->textDocument())
-        return QString::fromUtf8(m_codeEditor->textDocument()->contents());
-    return {};
 }
 
 void SourceEditorWidget::markSourceLocation(

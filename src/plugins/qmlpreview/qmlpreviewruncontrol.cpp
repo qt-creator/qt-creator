@@ -1,65 +1,26 @@
 // Copyright (C) 2019 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "qmlpreviewconnectionmanager.h"
 #include "qmlpreviewruncontrol.h"
 
-#include <qmlprojectmanager/qmlproject.h>
-#include <qmlprojectmanager/qmlmainfileaspect.h>
+#include "qmlpreviewconnectionmanager.h"
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/target.h>
 
-#include <qmldebug/qmldebugcommandlinearguments.h>
+#include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
+#include <qmlprojectmanager/qmlmainfileaspect.h>
 #include <qmlprojectmanager/qmlmultilanguageaspect.h>
-#include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitaspect.h>
 
 #include <utils/async.h>
 #include <utils/filepath.h>
-#include <utils/port.h>
-#include <utils/qtcprocess.h>
 #include <utils/url.h>
-
-#include <QFutureWatcher>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace QmlPreview {
-
-static const Key QmlServerUrl = "QmlServerUrl";
-
-class RefreshTranslationWorker final : public RunWorker
-{
-public:
-    explicit RefreshTranslationWorker(ProjectExplorer::RunControl *runControl,
-                                      const QmlPreviewRunnerSetting &runnerSettings)
-        : ProjectExplorer::RunWorker(runControl), m_runnerSettings(runnerSettings)
-    {
-        setId("RefreshTranslationWorker");
-        connect(this, &RunWorker::started, this, &RefreshTranslationWorker::startRefreshTranslationsAsync);
-        connect(this, &RunWorker::stopped, &m_futureWatcher, &QFutureWatcher<void>::cancel);
-        connect(&m_futureWatcher, &QFutureWatcherBase::finished, this, &RefreshTranslationWorker::stop);
-    }
-    ~RefreshTranslationWorker()
-    {
-        m_futureWatcher.cancel();
-        m_futureWatcher.waitForFinished();
-    }
-
-private:
-    void startRefreshTranslationsAsync()
-    {
-        m_futureWatcher.setFuture(Utils::asyncRun([this] {
-            m_runnerSettings.refreshTranslationsFunction();
-        }));
-    }
-    QmlPreviewRunnerSetting m_runnerSettings;
-    QFutureWatcher<void> m_futureWatcher;
-};
 
 class QmlPreviewRunner : public ProjectExplorer::RunWorker
 {
@@ -69,9 +30,6 @@ public:
     QmlPreviewRunner(ProjectExplorer::RunControl *runControl,
                      const QmlPreviewRunnerSetting &settings);
 
-    void setServerUrl(const QUrl &serverUrl);
-    QUrl serverUrl() const;
-
 signals:
     void loadFile(const QString &previewedFile, const QString &changedFile,
                   const QByteArray &contents);
@@ -79,11 +37,14 @@ signals:
     void zoom(float zoomFactor);
     void rerun();
     void ready();
+
 private:
     void start() override;
     void stop() override;
+    QUrl serverUrl() const;
 
     QmlPreviewConnectionManager m_connectionManager;
+    std::unique_ptr<Utils::Async<void>> m_translationUpdater;
 };
 
 QmlPreviewRunner::QmlPreviewRunner(RunControl *runControl, const QmlPreviewRunnerSetting &settings)
@@ -127,36 +88,35 @@ QmlPreviewRunner::QmlPreviewRunner(RunControl *runControl, const QmlPreviewRunne
                       [runControl] {
                           auto rc = new RunControl(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
                           rc->copyDataFromRunControl(runControl);
-                          ProjectExplorerPlugin::startRunControl(rc);
+                          rc->start();
                       });
 
         runControl->initiateStop();
     });
 
-    addStartDependency(new RefreshTranslationWorker(runControl, settings));
+    if (settings.refreshTranslationsFunction) {
+        m_translationUpdater.reset(new Async<void>);
+        m_translationUpdater->setParent(this);
+        m_translationUpdater->setConcurrentCallData(settings.refreshTranslationsFunction);
+        // Cancel and blocking wait for finished when deleting m_translationUpdater.
+        m_translationUpdater->setFutureSynchronizer(nullptr);
+    }
 }
 
 void QmlPreviewRunner::start()
 {
+    if (m_translationUpdater)
+        m_translationUpdater->start();
     m_connectionManager.setTarget(runControl()->target());
-    m_connectionManager.connectToServer(serverUrl());
+    m_connectionManager.connectToServer(runControl()->qmlChannel());
     reportStarted();
 }
 
 void QmlPreviewRunner::stop()
 {
+    m_translationUpdater.reset();
     m_connectionManager.disconnectFromServer();
     reportStopped();
-}
-
-void QmlPreviewRunner::setServerUrl(const QUrl &serverUrl)
-{
-    recordData(QmlServerUrl, serverUrl);
-}
-
-QUrl QmlPreviewRunner::serverUrl() const
-{
-    return recordedData(QmlServerUrl).toUrl();
 }
 
 QmlPreviewRunWorkerFactory::QmlPreviewRunWorkerFactory(QmlPreviewPlugin *plugin,
@@ -187,24 +147,24 @@ QmlPreviewRunWorkerFactory::QmlPreviewRunWorkerFactory(QmlPreviewPlugin *plugin,
     addSupportedRunMode(Constants::QML_PREVIEW_RUNNER);
 }
 
-class LocalQmlPreviewSupport final : public SimpleTargetRunner
+LocalQmlPreviewSupportFactory::LocalQmlPreviewSupportFactory()
 {
-public:
-    LocalQmlPreviewSupport(RunControl *runControl)
-        : SimpleTargetRunner(runControl)
-    {
-        setId("LocalQmlPreviewSupport");
-        const QUrl serverUrl = Utils::urlFromLocalSocket();
+    setId(ProjectExplorer::Constants::QML_PREVIEW_RUN_FACTORY);
+    setProducer([](RunControl *runControl) {
+        auto worker = new ProcessRunner(runControl);
+        worker->setId("LocalQmlPreviewSupport");
 
-        QmlPreviewRunner *preview = qobject_cast<QmlPreviewRunner *>(
-            runControl->createWorker(ProjectExplorer::Constants::QML_PREVIEW_RUNNER));
-        preview->setServerUrl(serverUrl);
+        runControl->setQmlChannel(Utils::urlFromLocalSocket());
 
-        addStopDependency(preview);
-        addStartDependency(preview);
+        // Create QmlPreviewRunner
+        RunWorker *preview =
+            runControl->createWorker(ProjectExplorer::Constants::QML_PREVIEW_RUNNER);
 
-        setStartModifier([this, runControl, serverUrl] {
-            CommandLine cmd = commandLine();
+        worker->addStopDependency(preview);
+        worker->addStartDependency(preview);
+
+        worker->setStartModifier([worker, runControl] {
+            CommandLine cmd = worker->commandLine();
 
             if (const auto aspect = runControl->aspectData<QmlProjectManager::QmlMainFileAspect>()) {
                 const auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
@@ -225,18 +185,11 @@ public:
                 }
             }
 
-            cmd.addArg(QmlDebug::qmlDebugLocalArguments(QmlDebug::QmlPreviewServices, serverUrl.path()));
-            setCommandLine(cmd);
-
-            forceRunOnHost();
+            cmd.addArg(qmlDebugLocalArguments(QmlPreviewServices, runControl->qmlChannel().path()));
+            worker->setCommandLine(cmd.toLocal());
         });
-    }
-};
-
-LocalQmlPreviewSupportFactory::LocalQmlPreviewSupportFactory()
-{
-    setId(ProjectExplorer::Constants::QML_PREVIEW_RUN_FACTORY);
-    setProduct<LocalQmlPreviewSupport>();
+        return worker;
+    });
     addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
     addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
 

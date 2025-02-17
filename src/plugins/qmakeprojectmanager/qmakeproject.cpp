@@ -25,19 +25,21 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/headerpath.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectupdater.h>
 #include <projectexplorer/rawprojectpart.h>
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <proparser/qmakevfs.h>
@@ -322,7 +324,7 @@ void QmakeBuildSystem::updateCppCodeModel()
         RawProjectPart rpp;
         rpp.setDisplayName(pro->displayName());
         rpp.setProjectFileLocation(pro->filePath());
-        rpp.setBuildSystemTarget(pro->filePath().toString());
+        rpp.setBuildSystemTarget(pro->filePath().toUrlishString());
         switch (pro->projectType()) {
         case ProjectType::ApplicationTemplate:
             rpp.setBuildTargetType(BuildTargetType::Executable);
@@ -390,11 +392,11 @@ void QmakeBuildSystem::updateCppCodeModel()
         const QList<ProjectExplorer::ExtraCompiler *> proGenerators = pro->extraCompilers();
         for (ProjectExplorer::ExtraCompiler *ec : proGenerators) {
             ec->forEachTarget([&](const FilePath &generatedFile) {
-                fileList += generatedFile.toString();
+                fileList += generatedFile.toUrlishString();
             });
         }
         generators.append(proGenerators);
-        fileList.prepend(CppEditor::CppModelManager::configurationFileName().toString());
+        fileList.prepend(CppEditor::CppModelManager::configurationFileName().toUrlishString());
         rpp.setFiles(fileList, [cumulativeSourceFiles](const QString &filePath) {
             // Keep this lambda thread-safe!
             return !cumulativeSourceFiles.contains(filePath);
@@ -811,17 +813,17 @@ FilePath QmakeBuildSystem::buildDir(const FilePath &proFilePath) const
     // the convoluted existing local version for now.
     // For starters, compute a 'new' version to check what it would look like,
     // but don't use it.
-    if (!proFilePath.needsDevice()) {
+    if (proFilePath.isLocal()) {
         // This branch should not exist.
-        const QDir srcDirRoot = QDir(projectDirectory().toString());
-        const QString relativeDir = srcDirRoot.relativeFilePath(proFilePath.parentDir().toString());
+        const QDir srcDirRoot = QDir(projectDirectory().toUrlishString());
+        const QString relativeDir = srcDirRoot.relativeFilePath(proFilePath.parentDir().toUrlishString());
         // FIXME: Convoluted. Try to migrate to newRes once we feel confident enough.
         const FilePath oldResult = buildDir.withNewPath(
                     QDir::cleanPath(QDir(buildDir.path()).absoluteFilePath(relativeDir)));
         const FilePath newResult = buildDir.resolvePath(relativeDir);
         QTC_ASSERT(oldResult == newResult,
                    qDebug() << "New build dir construction failed. Not equal:"
-                            << oldResult.toString() << newResult.toString());
+                            << oldResult.toUrlishString() << newResult.toUrlishString());
         return oldResult;
     }
 
@@ -1208,7 +1210,7 @@ void QmakeBuildSystem::updateBuildSystemData()
             bti.displayNameUniquifier = QString::fromLatin1(" (%1)")
                     .arg(relativePathInProject.toUserOutput());
         }
-        bti.buildKey = bti.projectFilePath.toString();
+        bti.buildKey = bti.projectFilePath.toUrlishString();
         bti.isQtcRunnable = config.contains("qtc_runnable");
 
         if (config.contains("console") && !config.contains("testcase")) {
@@ -1225,7 +1227,7 @@ void QmakeBuildSystem::updateBuildSystemData()
         if (!libDirectories.isEmpty()) {
             QmakeProFile *proFile = node->proFile();
             QTC_ASSERT(proFile, return);
-            const QString proDirectory = buildDir(proFile->filePath()).toString();
+            const QString proDirectory = buildDir(proFile->filePath()).toUrlishString();
             for (QString dir : libDirectories) {
                 // Fix up relative entries like "LIBS+=-L.."
                 const QFileInfo fi(dir);
@@ -1455,7 +1457,7 @@ QString QmakeBuildSystem::deviceRoot() const
     IDeviceConstPtr device = BuildDeviceKitAspect::device(target()->kit());
     QTC_ASSERT(device, return {});
     FilePath deviceRoot = device->rootPath();
-    if (deviceRoot.needsDevice())
+    if (!deviceRoot.isLocal())
         return deviceRoot.toFSPathString();
 
     return {};
@@ -1600,10 +1602,10 @@ void QmakeBuildSystem::runGenerator(Utils::Id id)
     const auto proc = new Process(this);
     connect(proc, &Process::done, proc, &Process::deleteLater);
     connect(proc, &Process::readyReadStandardOutput, this, [proc] {
-        Core::MessageManager::writeFlashing(QString::fromLocal8Bit(proc->readAllRawStandardOutput()));
+        Core::MessageManager::writeFlashing(proc->readAllStandardOutput());
     });
     connect(proc, &Process::readyReadStandardError, this, [proc] {
-        Core::MessageManager::writeDisrupting(QString::fromLocal8Bit(proc->readAllRawStandardError()));
+        Core::MessageManager::writeDisrupting(proc->readAllStandardError());
     });
     proc->setWorkingDirectory(outDir);
     proc->setEnvironment(buildConfiguration()->environment());

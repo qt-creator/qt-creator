@@ -30,7 +30,7 @@ static QVector<QString> parseExecutableNames(const FilePath &projectFilePath)
     static const QString EXECUTABLE = "executable";
     static const int EXECUTABLE_LEN = EXECUTABLE.length();
     QVector<QString> result;
-    QFile file(projectFilePath.toString());
+    QFile file(projectFilePath.toUrlishString());
     if (file.open(QFile::ReadOnly)) {
         QTextStream stream(&file);
         while (!stream.atEnd()) {

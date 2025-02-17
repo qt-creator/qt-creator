@@ -209,7 +209,7 @@ QList<IWizardFactory*> IWizardFactory::allWizardFactories()
                     .addOnTriggered(newFactory, [newFactory] {
                         if (!ICore::isNewItemDialogRunning()) {
                             FilePath path = newFactory->runPath({});
-                            newFactory->runWizard(path, ICore::dialogParent(), Id(), QVariantMap());
+                            newFactory->runWizard(path, Id(), QVariantMap());
                         }
                     });
 
@@ -247,7 +247,6 @@ FilePath IWizardFactory::runPath(const FilePath &defaultPath) const
     Creates the wizard that the user selected for execution on the operating
     system \a platform with \a variables.
 
-    Any dialogs the wizard opens should use the given \a parent.
     The \a path argument is a suggestion for the location where files should be
     created. The wizard should fill this in its path selection elements as a
     default path.
@@ -255,7 +254,7 @@ FilePath IWizardFactory::runPath(const FilePath &defaultPath) const
     When \a showWizard is \c false, the wizard instance is created and set up
     but not actually shown.
 */
-Wizard *IWizardFactory::runWizard(const FilePath &path, QWidget *parent, Id platform,
+Wizard *IWizardFactory::runWizard(const FilePath &path, Id platform,
                                   const QVariantMap &variables,
                                   bool showWizard)
 {
@@ -264,7 +263,7 @@ Wizard *IWizardFactory::runWizard(const FilePath &path, QWidget *parent, Id plat
     s_isWizardRunning = true;
     ICore::updateNewItemDialogState();
 
-    Utils::Wizard *wizard = runWizardImpl(path, parent, platform, variables, showWizard);
+    Wizard *wizard = runWizardImpl(path, platform, variables, showWizard);
 
 
     if (wizard) {

@@ -220,7 +220,7 @@ struct Attribute {
 static QList<Attribute> toAttributes(QStringView attributes)
 {
     QList<Attribute> result;
-    const QRegularExpression att("\\s+([a-zA-Z]+)\\s*=\\s*('.*?'|\".*?\")");
+    static const QRegularExpression att("\\s+([a-zA-Z]+)\\s*=\\s*('.*?'|\".*?\")");
     QRegularExpressionMatchIterator it = att.globalMatch(attributes.toString());
     while (it.hasNext()) {
         const QRegularExpressionMatch match = it.next();
@@ -338,7 +338,7 @@ static inline QStringList parseLists(QIODevice *io, QString *errorMessage)
 
     QString dataStr = QString::fromUtf8(data);
     // remove comments if any
-    const QRegularExpression comment("<!--.*--!>", QRegularExpression::MultilineOption);
+    static const QRegularExpression comment("<!--.*--!>", QRegularExpression::MultilineOption);
     for ( ;; ) {
         const QRegularExpressionMatch match = comment.match(dataStr);
         if (!match.hasMatch())
@@ -346,9 +346,9 @@ static inline QStringList parseLists(QIODevice *io, QString *errorMessage)
         dataStr.remove(match.capturedStart(), match.capturedLength());
     }
 
-    const QRegularExpression tag("<(/?)\\s*([a-zA-Z][a-zA-Z0-9]*)(.*?)(/?)\\s*>",
-                                 QRegularExpression::MultilineOption);
-    const QRegularExpression wsOnly("^\\s+$", QRegularExpression::MultilineOption);
+    static const QRegularExpression tag("<(/?)\\s*([a-zA-Z][a-zA-Z0-9]*)(.*?)(/?)\\s*>",
+                                        QRegularExpression::MultilineOption);
+    static const QRegularExpression wsOnly("^\\s+$", QRegularExpression::MultilineOption);
     QRegularExpressionMatchIterator it = tag.globalMatch(dataStr);
     while (it.hasNext()) {
         const QRegularExpressionMatch match = it.next();

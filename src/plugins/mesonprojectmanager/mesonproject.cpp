@@ -10,10 +10,10 @@
 
 #include <coreplugin/icontext.h>
 
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 using namespace ProjectExplorer;
 
@@ -39,9 +39,6 @@ public:
         if (!MesonToolKitAspect::isValid(k))
             result.append(
                 createProjectTask(Task::TaskType::Error, Tr::tr("No Meson tool set.")));
-        if (!NinjaToolKitAspect::isValid(k))
-            result.append(
-                createProjectTask(Task::TaskType::Error, Tr::tr("No Ninja tool set.")));
         if (ToolchainKitAspect::toolChains(k).isEmpty())
             result.append(createProjectTask(Task::TaskType::Warning,
                                             Tr::tr("No compilers set in kit.")));

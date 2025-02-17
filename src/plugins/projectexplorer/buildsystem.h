@@ -151,6 +151,8 @@ signals:
     void parsingFinished(bool success);
     void testInformationUpdated();
     void debuggingStarted();
+    void errorOccurred(const QString &message);
+    void warningOccurred(const QString &message);
 
 protected:
     // Helper methods to manage parsing state and signalling
@@ -167,5 +169,9 @@ private:
 
     class BuildSystemPrivate *d = nullptr;
 };
+
+PROJECTEXPLORER_EXPORT BuildSystem *activeBuildSystem(const Project *project);
+PROJECTEXPLORER_EXPORT BuildSystem *activeBuildSystemForActiveProject();
+PROJECTEXPLORER_EXPORT BuildSystem *activeBuildSystemForCurrentProject();
 
 } // namespace ProjectExplorer

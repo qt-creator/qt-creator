@@ -54,6 +54,7 @@ public:
 
 signals:
     void selectedToggled() const;
+    void validToggled() const;
 
 private:
     static const QList<BuildInfo> buildInfoList(const Kit *k, const Utils::FilePath &projectPath);
@@ -85,7 +86,7 @@ private:
         BuildInfoStore(const BuildInfoStore &other) = delete;
         BuildInfoStore(BuildInfoStore &&other);
         BuildInfoStore &operator=(const BuildInfoStore &other) = delete;
-        BuildInfoStore &operator=(BuildInfoStore &&other) = delete;
+        BuildInfoStore &operator=(BuildInfoStore &&other);
 
         BuildInfo buildInfo;
         QCheckBox *checkbox = nullptr;
@@ -95,6 +96,7 @@ private:
         bool isEnabled = false;
         bool hasIssues = false;
         bool customBuildDir = false;
+        bool isImported = false;
     };
     std::vector<BuildInfoStore> m_infoStore;
 

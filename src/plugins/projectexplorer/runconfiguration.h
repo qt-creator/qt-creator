@@ -115,6 +115,8 @@ private:
     Utils::AspectContainer *m_globalSettings = nullptr;  // Not owned.
 };
 
+PROJECTEXPLORER_EXPORT QWidget *createRunConfigAspectWidget(GlobalOrProjectAspect *);
+
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
 {
@@ -283,5 +285,9 @@ private:
     const QString m_fixedBuildTarget;
     const bool m_decorateTargetName;
 };
+
+PROJECTEXPLORER_EXPORT RunConfiguration *activeRunConfig(const Project *project);
+PROJECTEXPLORER_EXPORT RunConfiguration *activeRunConfigForActiveProject();
+PROJECTEXPLORER_EXPORT RunConfiguration *activeRunConfigForCurrentProject();
 
 } // namespace ProjectExplorer

@@ -162,15 +162,10 @@ QString MercurialCommitWidget::committer() const
     return user;
 }
 
-QString MercurialCommitWidget::repoRoot() const
-{
-    return mercurialCommitPanel->m_repositoryLabel->text();
-}
-
 QString MercurialCommitWidget::cleanupDescription(const QString &input) const
 {
-    const QRegularExpression commentLine(QLatin1String("^HG:[^\\n]*(\\n|$)"),
-                                         QRegularExpression::MultilineOption);
+    static const QRegularExpression commentLine(QLatin1String("^HG:[^\\n]*(\\n|$)"),
+                                                QRegularExpression::MultilineOption);
     QString message = input;
     message.remove(commentLine);
     return message;

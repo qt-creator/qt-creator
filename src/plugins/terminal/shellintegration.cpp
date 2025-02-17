@@ -58,7 +58,7 @@ struct
 
 bool ShellIntegration::canIntegrate(const Utils::CommandLine &cmdLine)
 {
-    if (cmdLine.executable().needsDevice())
+    if (!cmdLine.executable().isLocal())
         return false; // TODO: Allow integration for remote shells
 
     if (cmdLine.executable().baseName() == "zsh")

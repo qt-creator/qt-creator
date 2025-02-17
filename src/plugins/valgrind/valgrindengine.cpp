@@ -13,8 +13,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorericons.h>
 
 #include <QApplication>
@@ -29,7 +29,6 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
     : RunWorker(runControl)
 {
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
-    setSupportsReRunning(false);
 
     m_settings.fromMap(runControl->settingsData(ANALYZER_VALGRIND_SETTINGS));
 
@@ -44,7 +43,7 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
 void ValgrindToolRunner::start()
 {
     FilePath valgrindExecutable = m_settings.valgrindExecutable();
-    if (IDevice::ConstPtr dev = DeviceKitAspect::device(runControl()->kit()))
+    if (IDevice::ConstPtr dev = RunDeviceKitAspect::device(runControl()->kit()))
         valgrindExecutable = dev->filePath(valgrindExecutable.path());
 
     const FilePath found = valgrindExecutable.searchInPath();

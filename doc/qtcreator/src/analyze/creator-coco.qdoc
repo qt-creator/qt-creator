@@ -1,34 +1,157 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page creator-coco.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-analyzer
+
+    \title Coco
+
+    \brief Measure and analyze the code coverage of tests.
+
+    With Coco, you can measure and analyze the code coverage of tests. You can
+    set up a project for code coverage and display the coverage in \QC.
+
+    To use the plugin, you must download and install Coco version 6.0 or later.
+
+    \note Enable the Coco plugin to use it.
+
+    \section1 Set Coco installation directory
+
+    Go to \preferences > \uicontrol Coco to set the Coco installation directory.
+    Usually, you don't need to change the default value.
+
+    \section1 Create a build configuration for Coco
+
+    To create a build configuration for \QC projects that you build with qmake or
+    CMake:
+
+    \list 1
+        \li Go to \uicontrol Projects > \uicontrol {Build & Run} >
+            \uicontrol Build > \uicontrol {Build Settings}.
+        \li Select an existing build configuration, such as \e Debug, and then
+            select \uicontrol Clone to clone it with a new name, such as
+            \e DebugCoverage.
+        \li Configure the clone for use with Coco.
+    \endlist
+
+    Do not switch back and forth between coverage and normal builds using the
+    same build configuration.
+
+    \uicontrol {Build Settings} > \uicontrol {Build Steps} >
+    \uicontrol {Coco code coverage} shows whether code coverage is on or
+    off for the build configuration. Select \uicontrol {Enable Coverage}
+    or \uicontrol {Disable Coverage} to turn on or off code coverage.
+
+    \image qtcreator-projects-settings-build-coco.webp {Setting code coverage from a build step}
+
+    \section1 Set code coverage for a project
+
+    To specify code coverage settings for a project, go to \uicontrol Projects >
+    \uicontrol {Project Settings} > \uicontrol {Coco Code Coverage}.
+
+    \image qtcreator-projects-settings-coco.webp {Coco Code Coverage settings}
+
+    \table
+    \header
+        \li Setting
+        \li Purpose
+    \row
+        \li \uicontrol {Enable code coverage for build configuration <name>}
+        \li Turns on and off code coverage for a build configuration.
+    \row
+        \li \uicontrol {CoverageScanner Options}
+        \li Code coverage options (optional).
+    \row
+        \li \uicontrol {Exclude File}
+        \li Excludes a file from instrumentation.
+    \row
+        \li \uicontrol {Exclude Directory}
+        \li Excludes a directory from instrumentation.
+    \row
+        \li \uicontrol Override
+        \li Enter commands to add them to the end of the settings file. Use this
+            option when the usual configuration flags are not enough.
+    \row
+        \li \uicontrol {Changed Build Settings}
+        \li Lists the changed project build settings.
+    \row
+        \li \uicontrol Revert
+        \li Reloads the coverage settings from the current settings file.
+    \row
+        \li \uicontrol Save and \uicontrol {Save & Re-configure}
+        \li Write the settings to the settings file and reconfigure the project
+            if necessary.
+    \endtable
+
+    If code coverage is on, the plugin generates a \e {settings} file that the
+    build tool reads first. It changes the build process to use Coco compiler
+    wrappers instead of the original compiler. The settings file is always
+    located in the root directory of the project sources. It also has the
+    coverage flags and possible overrides. Check it into version control to
+    preserve the settings.
+
+    \section2 qmake projects
+
+    For qmake projects, the settings file is the \c {cocoplugin.prf}
+    \e {feature file}.
+
+    For a command-line build, run \c {qmake} with the additional options:
+
+    \badcode
+    CONFIG+=cocoplugin COCOPATH=<Coco directory>
+    \endcode
+
+    Also, set the environment variable \c {QMAKEFEATURES} to the directory where
+    \c {cocoplugin.prf} is located.
+
+    \section2 CMake projects
+
+    For CMake projects, the settings file is the \c {cocoplugin.cmake} CMake
+    cache preload script. Also, the \e {compiler files} \c {cocoplugin-gcc.cmake},
+    \c {cocoplugin-clang.cmake}, and \c {cocoplugin-visualstudio.cmake} are created
+    in the same directory. They are needed for a command-line build.
+
+    To build the project from the command line (when compiling with GCC), enter:
+
+    \badcode
+    cmake <other options> -C <project dir>/cocoplugin-gcc.cmake
+    \endcode
+
+    The file \c {cocoplugin-gcc.cmake} includes \c {cocoplugin.cmake}.
+
+    If you use some other compiler than GCC, Clang, or MSVC, modify one
+    of the compiler files for that compiler.
+
+    \sa {Configure projects for building}, {Enable and disable plugins},
+    {View code coverage reports from Coco}, {Font & Colors}, {Analyzing Code}
+*/
+
+/*!
+    \page creator-how-to-view-code-coverage-with-coco.html
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-analyze
 
-    \title Check code coverage
-
-    With Coco CoverageBrowser, you can analyze the test coverage by loading an
-    instrumentation database (a .csmes file), which was generated by Coco
-    CoverageScanner. The experimental Coco plugin is currently supported only on
-    Windows, with Coco version 6.0, or later.
-
-    To use the plugin, you must download and install Coco.
+    \title View code coverage reports from Coco
 
     \note Enable the Coco plugin to use it.
 
-    \section1 Configure Coco
+    With Coco CoverageBrowser, you can analyze the test coverage by
+    loading an instrumentation database (a \c .csmes file), which was generated by
+    Coco CoverageScanner.
+
+    To measure and check code coverage:
 
     \list 1
         \li Go to \uicontrol Analyze > \uicontrol {Squish Coco}.
             \image qtcreator-coco.png {Coco CoverageBrowser and CSMes file}
-        \li In \uicontrol {CoverageBrowser}, enter the path to the Coco
-            coverage browser to use for analyzing a .csmes file.
         \li In \uicontrol CSMes, select the instrumentation database to load.
         \li Select \uicontrol Open to start CoverageBrowser.
         \li In CoverageBrowser, go to \uicontrol File >
-            \uicontrol {Load Execution Report} and select the .csexe for the
+            \uicontrol {Load Execution Report} and select the \c .csexe file for the
             coverage scan.
             \image coco-coveragebrowser-load-execution-report.png {Load Execution Report dialog}
         \li To keep the execution report, clear
@@ -39,7 +162,7 @@
     after the code in \uicontrol Edit mode. You can change the fonts and colors
     used for different types of results.
 
-    \section1 Changing Fonts and Colors
+    \section1 Change fonts and colors
 
     To change the default fonts and colors, go to \preferences >
     \uicontrol {Text Editor} > \uicontrol {Font & Colors}.
@@ -59,6 +182,5 @@
         \li Implicit Manual Coverage Validation
     \endlist
 
-    \sa {Enable and disable plugins}, {Analyze}{How To: Analyze}, {Analyzers},
-    {Font & Colors}, {Analyzing Code}
+    \sa {Enable and disable plugins}, {Font & Colors}, {Analyzing Code}, {Coco}
 */

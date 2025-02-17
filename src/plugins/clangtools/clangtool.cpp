@@ -24,11 +24,11 @@
 
 #include <cppeditor/cppmodelmanager.h>
 
-#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerutils.h>
+#include <debugger/debuggerconstants.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
@@ -36,6 +36,7 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <solutions/tasking/tasktree.h>
 
@@ -637,8 +638,7 @@ static bool continueDespiteReleaseBuild(const QString &toolName)
                                     "<p>%2</p>"
                                     "</body></html>")
                                 .arg(problem, question);
-    return CheckableMessageBox::question(ICore::dialogParent(),
-                                         title,
+    return CheckableMessageBox::question(title,
                                          message,
                                          Key("ClangToolsCorrectModeWarning"))
            == QMessageBox::Yes;
@@ -686,7 +686,8 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
 
     if (buildBeforeAnalysis) {
         QPointer<RunControl> runControl(m_runControl);
-        const auto onSetup = [runControl](QPointer<RunControl> &buildRunControl) {
+        const auto onSetup = [this, runControl](QPointer<RunControl> &buildRunControl) {
+            m_infoBarWidget->setInfoText("Waiting for build to finish...");
             buildRunControl = runControl;
         };
         const auto onError = [this] {
@@ -799,8 +800,10 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
         const AnalyzeInputData input{tool, runSettings, diagnosticConfig, tempDir->path(),
                                      environment};
 
+        ClangToolsCompilationDb &db
+            = ClangToolsCompilationDb::getDb(tool, project->activeBuildConfiguration());
         taskTree.setRecipe(
-            {clangToolTask(tool, unitsToProcess, input, setupHandler, outputHandler)});
+            {clangToolTask(unitsToProcess, input, setupHandler, outputHandler, db.parentDir())});
         return SetupResult::Continue;
     };
 
@@ -832,15 +835,16 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
 void ClangTool::startTool(FileSelection fileSelection, const RunSettings &runSettings,
                           const ClangDiagnosticConfig &diagnosticConfig)
 {
-    ClangToolsCompilationDb &db = ClangToolsCompilationDb::getDb(m_type);
-    db.disconnect(this);
-
     Project *project = ProjectManager::startupProject();
     QTC_ASSERT(project, return);
-    QTC_ASSERT(project->activeTarget(), return);
+    QTC_ASSERT(project->activeBuildConfiguration(), return);
+
+    ClangToolsCompilationDb &db
+        = ClangToolsCompilationDb::getDb(m_type, project->activeBuildConfiguration());
+    db.disconnect(this);
 
     // Continue despite release mode?
-    if (BuildConfiguration *bc = project->activeTarget()->activeBuildConfiguration()) {
+    if (BuildConfiguration *bc = project->activeBuildConfiguration()) {
         if (bc->buildType() == BuildConfiguration::Release)
             if (!continueDespiteReleaseBuild(m_name))
                 return;
@@ -861,15 +865,11 @@ void ClangTool::startTool(FileSelection fileSelection, const RunSettings &runSet
     if (fileInfos.empty())
         return;
 
-    // Reset
-    reset();
-
     // Run control
     m_runControl = new RunControl(Constants::CLANGTIDYCLAZY_RUN_MODE);
     m_runControl->setDisplayName(m_name);
     m_runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
     m_runControl->setTarget(project->activeTarget());
-    m_runControl->setSupportsReRunning(false);
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, m_runControl, [this] {
         m_runControl->postMessage(Tr::tr("%1 tool stopped by user.").arg(m_name),
@@ -882,6 +882,13 @@ void ClangTool::startTool(FileSelection fileSelection, const RunSettings &runSet
             setState(State::AnalyzerFinished);
         emit finished(m_infoBarWidget->errorText());
     });
+    connect(m_runControl, &RunControl::aboutToStart, this, [this, project] {
+        TaskHub::clearTasks(taskCategory());
+        reset();
+        m_diagnosticFilterModel->setProject(project);
+        m_perspective.select();
+        setState(State::PreparationStarted);
+    });
 
     const bool preventBuild = std::holds_alternative<FilePath>(fileSelection)
                               || std::get<FileSelectionType>(fileSelection)
@@ -889,14 +896,7 @@ void ClangTool::startTool(FileSelection fileSelection, const RunSettings &runSet
     const bool buildBeforeAnalysis = !preventBuild && runSettings.buildBeforeAnalysis();
     m_runControl->setRunRecipe(runRecipe(runSettings, diagnosticConfig, fileInfos,
                                          buildBeforeAnalysis));
-    // More init and UI update
-    m_diagnosticFilterModel->setProject(project);
-    m_perspective.select();
-    if (buildBeforeAnalysis)
-        m_infoBarWidget->setInfoText("Waiting for build to finish...");
-    setState(State::PreparationStarted);
-
-    ProjectExplorerPlugin::startRunControl(m_runControl);
+    m_runControl->start();
 }
 
 FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelection)
@@ -967,8 +967,7 @@ void ClangTool::loadDiagnosticsFromFiles()
 {
     // Ask user for files
     const FilePaths filePaths
-        = FileUtils::getOpenFilePaths(nullptr,
-                                      Tr::tr("Select YAML Files with Diagnostics"),
+        = FileUtils::getOpenFilePaths(Tr::tr("Select YAML Files with Diagnostics"),
                                       FileUtils::homePath(),
                                       Tr::tr("YAML Files (*.yml *.yaml);;All Files (*)"));
     if (filePaths.isEmpty())
@@ -1012,7 +1011,7 @@ DiagnosticItem *ClangTool::diagnosticItem(const QModelIndex &index) const
 
 void ClangTool::showOutputPane()
 {
-    ProjectExplorerPlugin::showOutputPaneForRunControl(m_runControl);
+    m_runControl->showOutputPane();
 }
 
 void ClangTool::reset()
@@ -1029,25 +1028,20 @@ void ClangTool::reset()
     m_infoBarWidget->reset();
 
     m_state = State::Initial;
-    m_runControl = nullptr;
 
-    m_filesCount = 0;
     m_filesSucceeded = 0;
     m_filesFailed = 0;
 }
 
 static bool canAnalyzeProject(Project *project)
 {
-    if (const Target *target = project->activeTarget()) {
-        const Id c = ProjectExplorer::Constants::C_LANGUAGE_ID;
-        const Id cxx = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
-        const bool projectSupportsLanguage = project->projectLanguages().contains(c)
-                                             || project->projectLanguages().contains(cxx);
-        return projectSupportsLanguage
-               && CppModelManager::projectInfo(project)
-               && ToolchainKitAspect::cxxToolchain(target->kit());
-    }
-    return false;
+    const Id c = ProjectExplorer::Constants::C_LANGUAGE_ID;
+    const Id cxx = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
+    const bool projectSupportsLanguage = project->projectLanguages().contains(c)
+                                         || project->projectLanguages().contains(cxx);
+    return projectSupportsLanguage
+           && CppModelManager::projectInfo(project)
+           && ToolchainKitAspect::cxxToolchain(project->activeKit());
 }
 
 struct CheckResult {

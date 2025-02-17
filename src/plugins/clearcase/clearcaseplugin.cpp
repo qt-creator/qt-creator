@@ -178,7 +178,6 @@ public:
                   const QString &fileName, const QString &file2 = {});
     FileStatus vcsStatus(const FilePath &file) const;
     void checkAndReIndexUnknownFile(const FilePath &file);
-    QString currentView() const { return m_viewData.name; }
     QString viewRoot() const { return m_viewData.root; }
     void refreshActivities();
     inline bool isUcm() const { return m_viewData.isUcm; }
@@ -434,7 +433,8 @@ FileStatus::Status ClearCasePluginPrivate::getFileStatus(const FilePath &fileNam
             return FileStatus::Derived;
 
         // find first whitespace. anything before that is not interesting
-        const int wspos = buffer.indexOf(QRegularExpression("\\s"));
+        static const QRegularExpression regexp("\\s");
+        const int wspos = buffer.indexOf(regexp);
         if (buffer.lastIndexOf(QLatin1String("CHECKEDOUT"), wspos) != -1)
             return FileStatus::CheckedOut;
         else
@@ -1281,7 +1281,8 @@ void ClearCasePluginPrivate::diffActivity()
 
             // pre-first version. only for the first occurrence
             if (filever[file].first.isEmpty()) {
-                int verpos = shortver.lastIndexOf(QRegularExpression("[^0-9]")) + 1;
+                static const QRegularExpression regexp("[^0-9]");
+                int verpos = shortver.lastIndexOf(regexp) + 1;
                 int vernum = shortver.mid(verpos).toInt();
                 if (vernum)
                     --vernum;
@@ -1839,7 +1840,7 @@ bool ClearCasePluginPrivate::vcsCheckIn(const FilePath &messageFile, const QStri
     }
     const CommandResult result = runCleartool(m_checkInView, args, RunFlags::ShowStdOut, nullptr,
                                               10);
-    const QRegularExpression checkedIn("Checked in \\\"([^\"]*)\\\"");
+    static const QRegularExpression checkedIn("Checked in \\\"([^\"]*)\\\"");
     QRegularExpressionMatch match = checkedIn.match(result.cleanedStdOut());
     bool anySucceeded = false;
     int offset = match.capturedStart();
@@ -2077,7 +2078,8 @@ bool ClearCasePluginPrivate::ccCheckUcm(const QString &viewname, const FilePath 
     const QString catcsData = runCleartoolProc(workingDir,
                                                {"catcs", "-tag", viewname}).cleanedStdOut();
     // check output for the word "ucm"
-    return catcsData.indexOf(QRegularExpression("(^|\\n)ucm\\n")) != -1;
+    static const QRegularExpression regexp("(^|\\n)ucm\\n");
+    return catcsData.indexOf(regexp) != -1;
 }
 
 bool ClearCasePluginPrivate::managesFile(const FilePath &workingDirectory, const QString &fileName) const
@@ -2115,7 +2117,7 @@ void ClearCasePluginPrivate::updateStreamAndView()
                            {"lsstream", "-fmt", "%n\\t%[def_deliver_tgt]Xp"}).cleanedStdOut();
     const int tabPos = result.indexOf(QLatin1Char('\t'));
     m_stream = result.left(tabPos);
-    const QRegularExpression intStreamExp("stream:([^@]*)");
+    static const QRegularExpression intStreamExp("stream:([^@]*)");
     const QRegularExpressionMatch match = intStreamExp.match(result.mid(tabPos + 1));
     if (match.hasMatch())
         m_intStream = match.captured(1);
@@ -2467,11 +2469,6 @@ const ClearCaseSettings &settings()
 void setSettings(const ClearCaseSettings &s)
 {
     dd->setSettings(s);
-}
-
-std::shared_ptr<StatusMap> statusMap()
-{
-    return dd->m_statusMap;
 }
 
 #ifdef WITH_TESTS

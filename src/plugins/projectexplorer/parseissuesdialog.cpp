@@ -3,11 +3,11 @@
 
 #include "parseissuesdialog.h"
 
-#include "kitaspects.h"
+#include "devicesupport/devicekitaspects.h"
 #include "kitchooser.h"
 #include "kitmanager.h"
-#include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
+#include "projectexplorerconstants.h"
 #include "taskhub.h"
 
 #include <utils/fileutils.h>
@@ -50,10 +50,10 @@ ParseIssuesDialog::ParseIssuesDialog(QWidget *parent) : QDialog(parent), d(new P
 
     const auto loadFileButton = new QPushButton(Tr::tr("Load from File..."));
     connect(loadFileButton, &QPushButton::clicked, this, [this] {
-        const FilePath filePath = FileUtils::getOpenFilePath(this, Tr::tr("Choose File"));
+        const FilePath filePath = FileUtils::getOpenFilePath(Tr::tr("Choose File"));
         if (filePath.isEmpty())
             return;
-        QFile file(filePath.toString());
+        QFile file(filePath.toUrlishString());
         if (!file.open(QIODevice::ReadOnly)) {
             QMessageBox::critical(this, Tr::tr("Could Not Open File"),
                                   Tr::tr("Could not open file: \"%1\": %2")
@@ -66,7 +66,7 @@ ParseIssuesDialog::ParseIssuesDialog(QWidget *parent) : QDialog(parent), d(new P
     d->kitChooser.populate();
     if (!d->kitChooser.hasStartupKit()) {
         for (const Kit * const k : KitManager::kits()) {
-            if (DeviceTypeKitAspect::deviceTypeId(k) == Constants::DESKTOP_DEVICE_TYPE) {
+            if (RunDeviceTypeKitAspect::deviceTypeId(k) == Constants::DESKTOP_DEVICE_TYPE) {
                 d->kitChooser.setCurrentKitId(k->id());
                 break;
             }

@@ -6,10 +6,9 @@
 #include "screenrecorderconstants.h"
 #include "screenrecordertr.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
-
-#include <help/helpconstants.h>
 
 #include <utils/fileutils.h>
 #include <utils/environment.h>
@@ -136,18 +135,18 @@ ScreenRecorderSettings::ScreenRecorderSettings()
 
     lastOpenDirectory.setSettingsKey("LastOpenDir");
     lastOpenDirectory.setExpectedKind(PathChooser::ExistingDirectory);
-    lastOpenDirectory.setDefaultValue(FileUtils::homePath().toString());
+    lastOpenDirectory.setDefaultValue(FileUtils::homePath().toUrlishString());
 
     exportLastDirectory.setSettingsKey("ExportLastDir");
     exportLastDirectory.setExpectedKind(PathChooser::ExistingDirectory);
-    exportLastDirectory.setDefaultValue(FileUtils::homePath().toString());
+    exportLastDirectory.setDefaultValue(FileUtils::homePath().toUrlishString());
 
     exportLastFormat.setSettingsKey("ExportLastFormat");
     exportLastFormat.setDefaultValue("WebP");
 
     lastSaveImageDirectory.setSettingsKey("LastSaveImageDir");
     lastSaveImageDirectory.setExpectedKind(PathChooser::ExistingDirectory);
-    lastSaveImageDirectory.setDefaultValue(FileUtils::homePath().toString());
+    lastSaveImageDirectory.setDefaultValue(FileUtils::homePath().toUrlishString());
 
     recordFrameRate.setSettingsKey("RecordFrameRate");
     recordFrameRate.setDefaultValue(24);
@@ -263,7 +262,7 @@ public:
     {
         setId(Constants::TOOLSSETTINGSPAGE_ID);
         setDisplayName(Tr::tr("Screen Recording"));
-        setCategory(Help::Constants::HELP_CATEGORY);
+        setCategory(Core::Constants::HELP_CATEGORY);
         setSettingsProvider([] { return &settings(); });
     }
 };

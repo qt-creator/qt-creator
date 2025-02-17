@@ -6,8 +6,11 @@
 #include "core_global.h"
 
 #include <utils/aspects.h>
+#include <utils/environment.h>
 
 namespace Core::Internal {
+
+const char kEnvironmentChanges[] = "Core/EnvironmentChanges";
 
 class CORE_TEST_EXPORT SystemSettings final : public Utils::AspectContainer
 {
@@ -36,6 +39,13 @@ public:
 #endif
 
     Utils::BoolAspect askBeforeExit{this};
+
+    Utils::EnvironmentItems environmentChanges() const;
+    void setEnvironmentChanges(const Utils::EnvironmentItems &changes);
+
+private:
+    Utils::EnvironmentItems m_environmentChanges;
+    const Utils::Environment m_startupSystemEnvironment;
 };
 
 CORE_TEST_EXPORT SystemSettings &systemSettings();

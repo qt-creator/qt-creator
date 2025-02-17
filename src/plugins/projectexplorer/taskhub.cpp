@@ -73,8 +73,8 @@ void TaskMark::updateLineNumber(int lineNumber)
 
 void TaskMark::updateFilePath(const FilePath &fileName)
 {
-    TaskHub::updateTaskFileName(m_task, fileName.toString());
-    TextMark::updateFilePath(FilePath::fromString(fileName.toString()));
+    TaskHub::updateTaskFileName(m_task, fileName.toUrlishString());
+    TextMark::updateFilePath(FilePath::fromString(fileName.toUrlishString()));
 }
 
 void TaskMark::removedFromEditor()

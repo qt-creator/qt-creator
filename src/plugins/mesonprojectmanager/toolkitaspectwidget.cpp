@@ -20,14 +20,12 @@ using namespace Utils;
 
 namespace MesonProjectManager::Internal {
 
-// Meson/Ninja KitAspect base
+// Meson KitAspect base
 
 class MesonToolKitAspectImpl final : public KitAspect
 {
 public:
-    MesonToolKitAspectImpl(Kit *kit,
-                           const KitAspectFactory *factory,
-                           ToolType type);
+    MesonToolKitAspectImpl(Kit *kit, const KitAspectFactory *factory);
     ~MesonToolKitAspectImpl() { delete m_toolsComboBox; }
 
 private:
@@ -35,38 +33,29 @@ private:
     void removeTool(const MesonTools::Tool_t &tool);
     void setCurrentToolIndex(int index);
     int indexOf(const Id &id);
-    bool isCompatible(const MesonTools::Tool_t &tool);
     void loadTools();
     void setToDefault();
 
     void makeReadOnly() final { m_toolsComboBox->setEnabled(false); }
 
-    void addToInnerLayout(Layouting::Layout &parent) final
+    void addToInnerLayout(Layouting::Layout &layout) final
     {
         addMutableAction(m_toolsComboBox);
-        parent.addItem(m_toolsComboBox);
+        layout.addItem(m_toolsComboBox);
     }
 
     void refresh() final
     {
-        const auto id = [this] {
-            if (m_type == ToolType::Meson)
-                return MesonToolKitAspect::mesonToolId(kit());
-            return NinjaToolKitAspect::ninjaToolId(kit());
-        }();
+        const auto id = MesonToolKitAspect::mesonToolId(kit());
         m_toolsComboBox->setCurrentIndex(indexOf(id));
     }
 
     QComboBox *m_toolsComboBox;
-    ToolType m_type;
 };
 
-MesonToolKitAspectImpl::MesonToolKitAspectImpl(Kit *kit,
-                                               const KitAspectFactory *factory,
-                                               ToolType type)
+MesonToolKitAspectImpl::MesonToolKitAspectImpl(Kit *kit, const KitAspectFactory *factory)
     : KitAspect(kit, factory)
     , m_toolsComboBox(createSubWidget<QComboBox>())
-    , m_type{type}
 {
     setManagingPage(Constants::SettingsPage::TOOLS_ID);
 
@@ -87,15 +76,12 @@ MesonToolKitAspectImpl::MesonToolKitAspectImpl(Kit *kit,
 void MesonToolKitAspectImpl::addTool(const MesonTools::Tool_t &tool)
 {
     QTC_ASSERT(tool, return );
-    if (isCompatible(tool))
         m_toolsComboBox->addItem(tool->name(), tool->id().toSetting());
 }
 
 void MesonToolKitAspectImpl::removeTool(const MesonTools::Tool_t &tool)
 {
     QTC_ASSERT(tool, return );
-    if (!isCompatible(tool))
-        return;
     const int index = indexOf(tool->id());
     QTC_ASSERT(index >= 0, return );
     if (index == m_toolsComboBox->currentIndex())
@@ -108,10 +94,7 @@ void MesonToolKitAspectImpl::setCurrentToolIndex(int index)
     if (m_toolsComboBox->count() == 0)
         return;
     const Id id = Id::fromSetting(m_toolsComboBox->itemData(index));
-    if (m_type == ToolType::Meson)
-        MesonToolKitAspect::setMesonTool(kit(), id);
-    else
-        NinjaToolKitAspect::setNinjaTool(kit(), id);
+    MesonToolKitAspect::setMesonTool(kit(), id);
 }
 
 int MesonToolKitAspectImpl::indexOf(const Id &id)
@@ -121,11 +104,6 @@ int MesonToolKitAspectImpl::indexOf(const Id &id)
             return i;
     }
     return -1;
-}
-
-bool MesonToolKitAspectImpl::isCompatible(const MesonTools::Tool_t &tool)
-{
-    return m_type == tool->toolType();
 }
 
 void MesonToolKitAspectImpl::loadTools()
@@ -139,7 +117,7 @@ void MesonToolKitAspectImpl::loadTools()
 
 void MesonToolKitAspectImpl::setToDefault()
 {
-    const MesonTools::Tool_t autoDetected = MesonTools::autoDetectedTool(m_type);
+    const MesonTools::Tool_t autoDetected = MesonTools::autoDetectedTool();
 
     if (autoDetected) {
         const auto index = indexOf(autoDetected->id());
@@ -167,9 +145,9 @@ Id MesonToolKitAspect::mesonToolId(const Kit *kit)
     return Id::fromSetting(kit->value(MESON_TOOL_ID));
 }
 
-std::shared_ptr<ToolWrapper> MesonToolKitAspect::mesonTool(const Kit *kit)
+std::shared_ptr<MesonToolWrapper> MesonToolKitAspect::mesonTool(const Kit *kit)
 {
-    return MesonTools::toolById(MesonToolKitAspect::mesonToolId(kit), ToolType::Meson);
+    return MesonTools::toolById(MesonToolKitAspect::mesonToolId(kit));
 }
 
 bool MesonToolKitAspect::isValid(const Kit *kit)
@@ -205,7 +183,7 @@ public:
     {
         const auto tool = MesonToolKitAspect::mesonTool(k);
         if (!tool) {
-            const auto autoDetected = MesonTools::autoDetectedTool(ToolType::Meson);
+            const auto autoDetected = MesonTools::autoDetectedTool();
             if (autoDetected)
                 MesonToolKitAspect::setMesonTool(k, autoDetected->id());
         }
@@ -217,7 +195,7 @@ public:
 
     KitAspect *createKitAspect(Kit *k) const final
     {
-        return new MesonToolKitAspectImpl(k, this, ToolType::Meson);
+        return new MesonToolKitAspectImpl(k, this);
     }
 
     ItemList toUserOutput(const Kit *k) const final
@@ -231,85 +209,5 @@ public:
 
 const MesonToolKitAspectFactory theMesonKitAspectFactory;
 
-
-// NinjaToolKitAspect
-
-const char NINJA_TOOL_ID[] = "MesonProjectManager.MesonKitInformation.Ninja";
-
-void NinjaToolKitAspect::setNinjaTool(Kit *kit, Id id)
-{
-    QTC_ASSERT(kit && id.isValid(), return );
-    kit->setValue(NINJA_TOOL_ID, id.toSetting());
-}
-
-Id NinjaToolKitAspect::ninjaToolId(const Kit *kit)
-{
-    QTC_ASSERT(kit, return {});
-    return Id::fromSetting(kit->value(NINJA_TOOL_ID));
-}
-
-std::shared_ptr<ToolWrapper> NinjaToolKitAspect::ninjaTool(const Kit *kit)
-{
-    return MesonTools::toolById(NinjaToolKitAspect::ninjaToolId(kit), ToolType::Ninja);
-}
-
-bool NinjaToolKitAspect::isValid(const Kit *kit)
-{
-    auto tool = ninjaTool(kit);
-    return tool && tool->isValid();
-}
-
-// NinjaToolKitAspectFactory
-
-class NinjaToolKitAspectFactory final : public KitAspectFactory
-{
-public:
-    NinjaToolKitAspectFactory()
-    {
-        setId(NINJA_TOOL_ID);
-        setDisplayName(Tr::tr("Ninja Tool"));
-        setDescription(Tr::tr("The Ninja tool to use when building a project with Meson.<br>"
-                              "This setting is ignored when using other build systems."));
-        setPriority(9000);
-    }
-
-    Tasks validate(const Kit *k) const final
-    {
-        Tasks tasks;
-        const auto tool = NinjaToolKitAspect::ninjaTool(k);
-        if (tool && !tool->isValid())
-            tasks << BuildSystemTask{Task::Warning, Tr::tr("Cannot validate this Ninja executable.")};
-        return tasks;
-    }
-
-    void setup(Kit *k) final
-    {
-        const auto tool = NinjaToolKitAspect::ninjaTool(k);
-        if (!tool) {
-            const auto autoDetected = MesonTools::autoDetectedTool(ToolType::Ninja);
-            if (autoDetected)
-                NinjaToolKitAspect::setNinjaTool(k, autoDetected->id());
-        }
-    }
-    void fix(Kit *k) final
-    {
-        setup(k);
-    }
-
-    ItemList toUserOutput(const Kit *k) const final
-    {
-        const auto tool = NinjaToolKitAspect::ninjaTool(k);
-        if (tool)
-            return {{Tr::tr("Ninja"), tool->name()}};
-        return {{Tr::tr("Ninja"), Tr::tr("Unconfigured")}};
-    }
-
-    KitAspect *createKitAspect(Kit *k) const final
-    {
-        return new MesonToolKitAspectImpl(k, this, ToolType::Ninja);
-    }
-};
-
-const NinjaToolKitAspectFactory theNinjaToolKitAspectFactory;
 
 } // MesonProjectManager::Internal

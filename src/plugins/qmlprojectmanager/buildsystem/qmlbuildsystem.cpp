@@ -27,8 +27,8 @@
 #include <extensionsystem/pluginspec.h>
 
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
@@ -55,7 +55,7 @@ ExtensionSystem::IPlugin *findMcuSupportPlugin()
 {
     const ExtensionSystem::PluginSpec *pluginSpec = Utils::findOrDefault(
         ExtensionSystem::PluginManager::plugins(),
-        Utils::equal(&ExtensionSystem::PluginSpec::name, QString("McuSupport")));
+        Utils::equal(&ExtensionSystem::PluginSpec::id, QString("mcusupport")));
 
     if (pluginSpec)
         return pluginSpec->plugin();
@@ -110,7 +110,7 @@ void QmlBuildSystem::updateDeploymentData()
     if (!m_projectItem)
         return;
 
-    if (DeviceTypeKitAspect::deviceTypeId(kit())
+    if (RunDeviceTypeKitAspect::deviceTypeId(kit())
         == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         return;
     }
@@ -438,12 +438,7 @@ Utils::FilePath QmlBuildSystem::getStartupQmlFileWithFallback() const
 
 QmlBuildSystem *QmlBuildSystem::getStartupBuildSystem()
 {
-    auto project = ProjectExplorer::ProjectManager::startupProject();
-    if (project && project->activeTarget() && project->activeTarget()->buildSystem()) {
-        return qobject_cast<QmlProjectManager::QmlBuildSystem *>(
-            project->activeTarget()->buildSystem());
-    }
-    return nullptr;
+    return qobject_cast<QmlProjectManager::QmlBuildSystem *>(activeBuildSystemForActiveProject());
 }
 
 void QmlBuildSystem::addQmlProjectModule(const Utils::FilePath &path)
@@ -516,9 +511,9 @@ bool QmlBuildSystem::setMainUiFileInMainFile(const Utils::FilePath &newMainUiFil
 Utils::FilePath QmlBuildSystem::targetDirectory() const
 {
     Utils::FilePath result;
-    if (DeviceTypeKitAspect::deviceTypeId(kit()) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+    if (RunDeviceTypeKitAspect::deviceTypeId(kit()) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         result = canonicalProjectDir();
-    } else if (IDevice::ConstPtr device = DeviceKitAspect::device(kit())) {
+    } else if (IDevice::ConstPtr device = RunDeviceKitAspect::device(kit())) {
         if (m_projectItem)
             result = device->filePath(m_projectItem->targetDirectory());
     }
@@ -609,9 +604,9 @@ QVariant QmlBuildSystem::additionalData(Utils::Id id) const
     if (id == Constants::customQt6Project)
         return qt6Project();
     if (id == Constants::mainFilePath)
-        return mainFilePath().toString();
+        return mainFilePath().toUrlishString();
     if (id == Constants::canonicalProjectDir)
-        return canonicalProjectDir().toString();
+        return canonicalProjectDir().toUrlishString();
     return {};
 }
 
@@ -639,7 +634,7 @@ bool QmlBuildSystem::addFiles(Node *context, const Utils::FilePaths &filePaths, 
 
     Utils::FilePaths toAdd;
     for (const Utils::FilePath &filePath : filePaths) {
-        if (!m_projectItem->matchesFile(filePath.toString()))
+        if (!m_projectItem->matchesFile(filePath.toUrlishString()))
             toAdd << filePaths;
     }
     return toAdd.isEmpty();

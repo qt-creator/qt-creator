@@ -13803,7 +13803,7 @@ The minimum API level required by the kit is %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>(SDK Version: %1, NDK Version: %2)</source>
+        <source>(SDK Version: %1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

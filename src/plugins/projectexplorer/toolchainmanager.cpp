@@ -202,7 +202,7 @@ Toolchains ToolchainManager::registerToolchains(const Toolchains &toolchains)
         QTC_ASSERT(isLanguageSupported(tc->language()),
                    qDebug() << qPrintable("language \"" + tc->language().toString()
                                           + "\" unknown while registering \""
-                                          + tc->compilerCommand().toString() + "\"");
+                                          + tc->compilerCommand().toUrlishString() + "\"");
                    notRegistered << tc;
                    continue);
         QTC_ASSERT(d->m_accessor, notRegistered << tc; continue);
@@ -265,9 +265,9 @@ void ToolchainManager::registerLanguageCategory(const LanguageCategory &language
 
 QString ToolchainManager::displayNameOfLanguageId(const Utils::Id &id)
 {
-    QTC_ASSERT(id.isValid(), return Tr::tr("None"));
+    QTC_ASSERT(id.isValid(), return Tr::tr("None", "No compiler language"));
     QString display = d->m_displayNameForLanguage.value(id);
-    QTC_ASSERT(!display.isEmpty(), return Tr::tr("None"));
+    QTC_ASSERT(!display.isEmpty(), return Tr::tr("None", "No compiler language"));
     return display;
 }
 
@@ -276,7 +276,7 @@ QString ToolchainManager::displayNameOfLanguageCategory(const LanguageCategory &
     if (int(category.size()) == 1)
         return displayNameOfLanguageId(*category.begin());
     QString name = d->m_displayNameForCategory.value(category);
-    QTC_ASSERT(!name.isEmpty(), return Tr::tr("None"));
+    QTC_ASSERT(!name.isEmpty(), return Tr::tr("None", "No compiler category"));
     return name;
 }
 
@@ -373,7 +373,7 @@ bool ToolchainManager::isBetterToolchain(
     // Hack to prefer a tool chain from PATH (e.g. autodetected) over other matches.
     // This improves the situation a bit if a cross-compilation tool chain has the
     // same ABI as the host.
-    if (!bundle1.get(&Toolchain::compilerCommand).needsDevice()) {
+    if (bundle1.get(&Toolchain::compilerCommand).isLocal()) {
         const FilePaths envPathVar = Environment::systemEnvironment().path();
         const auto toolchainIsInPath = [&envPathVar](const ToolchainBundle &b) {
             return Utils::contains(b.toolchains(), [&envPathVar](const Toolchain *tc) {
@@ -390,7 +390,7 @@ bool ToolchainManager::isBetterToolchain(
         }
     }
 
-    if (!path1.needsDevice() && !path2.needsDevice()) {
+    if (path1.isLocal() && path2.isLocal()) {
         const QVersionNumber v1 = bundle1.get(&Toolchain::version);
         const QVersionNumber v2 = bundle2.get(&Toolchain::version);
         if (!v1.isNull() && !v2.isNull()) {

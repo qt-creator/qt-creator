@@ -7,12 +7,11 @@
 #include "qbsprojectmanagertr.h"
 #include "qbssettings.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/projectexplorer.h>
-#include <qmljstools/qmljstoolsconstants.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 #include <utils/environment.h>
@@ -23,6 +22,8 @@
 #include <QJSEngine>
 #include <QRegularExpression>
 #include <QVariantMap>
+
+using namespace ProjectExplorer;
 
 namespace QbsProjectManager {
 
@@ -48,7 +49,8 @@ static QString toJSLiteral(const bool b)
 static QString toJSLiteral(const QString &str)
 {
     QString js = str;
-    js.replace(QRegularExpression("([\\\\\"])"), "\\\\1");
+    static const QRegularExpression regexp("([\\\\\"])");
+    js.replace(regexp, "\\\\1");
     js.prepend('"');
     js.append('"');
     return js;
@@ -93,7 +95,7 @@ static PropertyProvider &defaultPropertyProvider()
     return theDefaultPropertyProvider;
 }
 
-static QString kitNameKeyInQbsSettings(const ProjectExplorer::Kit *kit)
+static QString kitNameKeyInQbsSettings(const Kit *kit)
 {
     return "preferences.qtcreator.kit." + kit->id().toString();
 }
@@ -102,17 +104,17 @@ QbsProfileManager::QbsProfileManager()
 {
     setObjectName(QLatin1String("QbsProjectManager"));
 
-    if (ProjectExplorer::KitManager::instance()->isLoaded()) {
-        m_kitsToBeSetupForQbs = ProjectExplorer::KitManager::kits();
+    if (KitManager::instance()->isLoaded()) {
+        m_kitsToBeSetupForQbs = KitManager::kits();
     } else {
-        connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitsLoaded,
-                this, [this] { m_kitsToBeSetupForQbs = ProjectExplorer::KitManager::kits(); } );
+        connect(KitManager::instance(), &KitManager::kitsLoaded,
+                this, [this] { m_kitsToBeSetupForQbs = KitManager::kits(); } );
     }
-    connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitAdded, this,
+    connect(KitManager::instance(), &KitManager::kitAdded, this,
             &QbsProfileManager::addProfileFromKit);
-    connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitUpdated, this,
+    connect(KitManager::instance(), &KitManager::kitUpdated, this,
             &QbsProfileManager::handleKitUpdate);
-    connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitRemoved, this,
+    connect(KitManager::instance(), &KitManager::kitRemoved, this,
             &QbsProfileManager::handleKitRemoval);
     connect(&QbsSettings::instance(), &QbsSettings::settingsChanged,
             this, &QbsProfileManager::updateAllProfiles);
@@ -126,7 +128,7 @@ QbsProfileManager *QbsProfileManager::instance()
     return &theQbsProfileManager;
 }
 
-QString QbsProfileManager::ensureProfileForKit(const ProjectExplorer::Kit *k)
+QString QbsProfileManager::ensureProfileForKit(const Kit *k)
 {
     if (!k)
         return QString();
@@ -134,60 +136,64 @@ QString QbsProfileManager::ensureProfileForKit(const ProjectExplorer::Kit *k)
     return profileNameForKit(k);
 }
 
-void QbsProfileManager::updateProfileIfNecessary(const ProjectExplorer::Kit *kit)
+void QbsProfileManager::updateProfileIfNecessary(const Kit *kit)
 {
     // kit in list <=> profile update is necessary
     // Note that the const_cast is safe, as we do not call any non-const methods on the object.
-    if (instance()->m_kitsToBeSetupForQbs.removeOne(const_cast<ProjectExplorer::Kit *>(kit)))
+    if (instance()->m_kitsToBeSetupForQbs.removeOne(const_cast<Kit *>(kit)))
         instance()->addProfileFromKit(kit);
 }
 
 void QbsProfileManager::updateAllProfiles()
 {
-    for (const auto * const kit : ProjectExplorer::KitManager::kits())
+    for (const auto * const kit : KitManager::kits())
         addProfileFromKit(kit);
 }
 
-void QbsProfileManager::addProfileFromKit(const ProjectExplorer::Kit *k)
+void QbsProfileManager::addProfileFromKit(const Kit *k)
 {
-    const QString name = profileNameForKit(k);
-    runQbsConfig(QbsConfigOp::Unset, "profiles." + name);
-    runQbsConfig(QbsConfigOp::Set, kitNameKeyInQbsSettings(k), name);
+    if (const IDeviceConstPtr dev = BuildDeviceKitAspect::device(k)) {
+        const QString name = profileNameForKit(k);
+        runQbsConfig(dev, QbsConfigOp::Unset, "profiles." + name);
+        runQbsConfig(dev, QbsConfigOp::Set, kitNameKeyInQbsSettings(k), name);
 
-    // set up properties:
-    QVariantMap data = defaultPropertyProvider().properties(k, QVariantMap());
-    for (PropertyProvider *provider : std::as_const(g_propertyProviders)) {
-        if (provider->canHandle(k))
-            data = provider->properties(k, data);
-    }
-    if (const QtSupport::QtVersion * const qt = QtSupport::QtKitAspect::qtVersion(k))
-        data.insert("moduleProviders.Qt.qmakeFilePaths", qt->qmakeFilePath().toString());
+        // set up properties:
+        QVariantMap data = defaultPropertyProvider().properties(k, QVariantMap());
+        for (PropertyProvider *provider : std::as_const(g_propertyProviders)) {
+            if (provider->canHandle(k))
+                data = provider->properties(k, data);
+        }
+        if (const QtSupport::QtVersion * const qt = QtSupport::QtKitAspect::qtVersion(k))
+            data.insert("moduleProviders.Qt.qmakeFilePaths", qt->qmakeFilePath().toUrlishString());
 
-    if (QbsSettings::qbsVersion() < QVersionNumber({1, 20})) {
-        const QString keyPrefix = "profiles." + name + ".";
-        for (auto it = data.begin(); it != data.end(); ++it)
-            runQbsConfig(QbsConfigOp::Set, keyPrefix + it.key(), it.value());
-    } else {
-        runQbsConfig(QbsConfigOp::AddProfile, name, data);
+        if (QbsSettings::qbsVersion(dev) < QVersionNumber({1, 20})) {
+            const QString keyPrefix = "profiles." + name + ".";
+            for (auto it = data.begin(); it != data.end(); ++it)
+                runQbsConfig(dev, QbsConfigOp::Set, keyPrefix + it.key(), it.value());
+        } else {
+            runQbsConfig(dev, QbsConfigOp::AddProfile, name, data);
+        }
     }
     emit qbsProfilesUpdated();
 }
 
-void QbsProfileManager::handleKitUpdate(ProjectExplorer::Kit *kit)
+void QbsProfileManager::handleKitUpdate(Kit *kit)
 {
     if (!m_kitsToBeSetupForQbs.contains(kit))
         addProfileFromKit(kit);
 }
 
-void QbsProfileManager::handleKitRemoval(ProjectExplorer::Kit *kit)
+void QbsProfileManager::handleKitRemoval(Kit *kit)
 {
     m_kitsToBeSetupForQbs.removeOne(kit);
-    runQbsConfig(QbsConfigOp::Unset, kitNameKeyInQbsSettings(kit));
-    runQbsConfig(QbsConfigOp::Unset, "profiles." + profileNameForKit(kit));
+    if (const IDeviceConstPtr dev = BuildDeviceKitAspect::device(kit)) {
+        runQbsConfig(dev, QbsConfigOp::Unset, kitNameKeyInQbsSettings(kit));
+        runQbsConfig(dev, QbsConfigOp::Unset, "profiles." + profileNameForKit(kit));
+    }
     emit qbsProfilesUpdated();
 }
 
-QString QbsProfileManager::profileNameForKit(const ProjectExplorer::Kit *kit)
+QString QbsProfileManager::profileNameForKit(const Kit *kit)
 {
     if (!kit)
         return QString();
@@ -196,11 +202,16 @@ QString QbsProfileManager::profileNameForKit(const ProjectExplorer::Kit *kit)
                                     kit->id().name(), QCryptographicHash::Sha1).toHex().left(8)));
 }
 
-QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, const QVariant &value)
+QString QbsProfileManager::runQbsConfig(
+    const IDeviceConstPtr &device,
+    QbsConfigOp op,
+    const QString &key,
+    const QVariant &value)
 {
+    QTC_ASSERT(device, return {});
     QStringList args;
-    if (QbsSettings::useCreatorSettingsDirForQbs())
-        args << "--settings-dir" << QbsSettings::qbsSettingsBaseDir();
+    if (QbsSettings::useCreatorSettingsDirForQbs(device))
+        args << "--settings-dir" << QbsSettings::qbsSettingsBaseDir(device).path();
     switch (op) {
     case QbsConfigOp::Get:
         args << key;
@@ -221,23 +232,23 @@ QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, cons
         break;
     }
     }
-    const Utils::FilePath qbsConfigExe = QbsSettings::qbsConfigFilePath();
+    const Utils::FilePath qbsConfigExe = QbsSettings::qbsConfigFilePath(device);
     if (qbsConfigExe.isEmpty() || !qbsConfigExe.exists())
         return {};
     Utils::Process qbsConfig;
-    qbsConfig.setEnvironment(QbsSettings::qbsProcessEnvironment());
+    qbsConfig.setEnvironment(QbsSettings::qbsProcessEnvironment(device));
     qbsConfig.setCommand({qbsConfigExe, args});
     qbsConfig.start();
     using namespace std::chrono_literals;
     if (!qbsConfig.waitForFinished(5s)) {
         Core::MessageManager::writeFlashing(
-            Tr::tr("Failed to run qbs config: %1").arg(qbsConfig.errorString()));
+            Tr::tr("Failed to run qbs config: %1").arg(qbsConfig.exitMessage()));
     } else if (qbsConfig.exitCode() != 0) {
         Core::MessageManager::writeFlashing(
             Tr::tr("Failed to run qbs config: %1")
                 .arg(QString::fromLocal8Bit(qbsConfig.rawStdErr())));
     }
-    return QString::fromLocal8Bit(qbsConfig.rawStdOut()).trimmed();
+    return qbsConfig.stdOut().trimmed();
 }
 
 QVariant fromJSLiteral(const QString &str)

@@ -15,7 +15,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
@@ -39,7 +39,7 @@ public:
     explicit BareMetalDebugSupport(RunControl *runControl)
         : Debugger::DebuggerRunTool(runControl)
     {
-        const auto dev = std::static_pointer_cast<const BareMetalDevice>(device());
+        const auto dev = std::static_pointer_cast<const BareMetalDevice>(runControl->device());
         if (!dev) {
             reportFailure(Tr::tr("Cannot debug: Kit has no device."));
             return;
@@ -59,7 +59,7 @@ public:
 private:
     void start() final
     {
-        const auto dev = std::static_pointer_cast<const BareMetalDevice>(device());
+        const auto dev = std::static_pointer_cast<const BareMetalDevice>(runControl()->device());
         QTC_ASSERT(dev, reportFailure(); return);
         IDebugServerProvider *p = DebugServerProviderManager::findProvider(
             dev->debugServerProviderId());

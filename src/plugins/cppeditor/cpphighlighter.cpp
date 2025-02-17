@@ -55,8 +55,8 @@ void CppHighlighter::highlightBlock(const QString &text)
     const int previousBlockState_ = previousBlockState();
     int lexerState = 0, initialBraceDepth = 0;
     if (previousBlockState_ != -1) {
-        lexerState = previousBlockState_ & 0xff;
-        initialBraceDepth = previousBlockState_ >> 8;
+        lexerState = previousBlockState_;
+        initialBraceDepth = TextDocumentLayout::braceDepth(currentBlock().previous());
         qCDebug(highlighterLog) << "initial brace depth carried over from previous block"
                                 << initialBraceDepth;
     } else {
@@ -92,7 +92,8 @@ void CppHighlighter::highlightBlock(const QString &text)
     attrState.state = TextDocumentLayout::attributeState(prevBlock);
 
     if (tokens.isEmpty()) {
-        setCurrentBlockState((braceDepth << 8) | lexerState);
+        setCurrentBlockState(lexerState);
+        TextDocumentLayout::setBraceDepth(currentBlock(), braceDepth);
         TextDocumentLayout::clearParentheses(currentBlock());
         if (!text.isEmpty())  {// the empty line can still contain whitespace
             if (initialLexerState == T_COMMENT)
@@ -331,7 +332,8 @@ void CppHighlighter::highlightBlock(const QString &text)
     TextDocumentLayout::setAttributeState(currentBlock(), attrState.state);
 
     TextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
-    setCurrentBlockState(rehighlightNextBlock | (braceDepth << 8) | tokenize.state());
+    TextDocumentLayout::setBraceDepth(currentBlock(), braceDepth);
+    setCurrentBlockState(rehighlightNextBlock | tokenize.state());
     qCDebug(highlighterLog) << "storing brace depth" << braceDepth << "and folding indent" << foldingIndent;
 
     TextDocumentLayout::setExpectedRawStringSuffix(currentBlock(),
@@ -889,7 +891,7 @@ int main() {                              // 1,0
                 return std::make_pair(braceDepth, foldingIndent);
             };
             const auto getActualBraceDepthAndFoldingIndent = [](const QTextBlock &block) {
-                const int braceDepth = block.userState() >> 8;
+                const int braceDepth = TextDocumentLayout::braceDepth(block);
                 const int foldingIndent = TextDocumentLayout::foldingIndent(block);
                 return std::make_pair(braceDepth, foldingIndent);
             };

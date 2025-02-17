@@ -92,7 +92,9 @@ void tst_PluginSpec::read()
     QVERIFY(spec.readMetaData(metaData("testspecs/spec1.json")));
     QCOMPARE(spec.errorString(), QString());
     QVERIFY(spec.errorString().isEmpty());
-    QCOMPARE(spec.name(), QString("test"));
+    QCOMPARE(spec.id(), QString("test"));
+    QCOMPARE(spec.name(), QString("TestPlugin"));
+    QCOMPARE(spec.displayName(), QString("Test Plugin"));
     QCOMPARE(spec.version(), QString("1.0.1"));
     QCOMPARE(spec.compatVersion(), QString("1.0.0"));
     QCOMPARE(spec.isRequired(), false);

@@ -25,6 +25,7 @@
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/algorithm.h>
+#include <utils/appinfo.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
@@ -67,8 +68,8 @@ constexpr TextFormat h6CapitalTF
 
 static QLabel *sectionTitle(const TextFormat &tf, const QString &title)
 {
-    QLabel *label = tfLabel(tf, true);
-    label->setText(title);
+    auto *label = new ElidingLabel(title);
+    applyTf(label, tf);
     return label;
 };
 
@@ -86,6 +87,21 @@ static QWidget *toScrollableColumn(QWidget *widget)
 
     return scrollArea;
 };
+
+const char kRestartSetting[] = "RestartAfterPluginEnabledChanged";
+
+static void requestRestart()
+{
+    if (ICore::infoBar()->canInfoBeAdded(kRestartSetting)) {
+        Utils::InfoBarEntry
+            info(kRestartSetting, Core::Tr::tr("Plugin changes will take effect after restart."));
+        info.addCustomButton(Tr::tr("Restart Now"), [] {
+            ICore::infoBar()->removeInfo(kRestartSetting);
+            QTimer::singleShot(0, ICore::instance(), &ICore::restart);
+        });
+        ICore::infoBar()->addInfo(info);
+    }
+}
 
 class CollapsingWidget : public QWidget
 {
@@ -134,7 +150,8 @@ public:
         static const TextFormat detailsTF
             {titleTF.themeColor, Utils::StyleHelper::UiElementCaption};
 
-        m_title = tfLabel(titleTF);
+        m_title = new ElidingLabel;
+        applyTf(m_title, titleTF);
         m_vendor = new Button({}, Button::SmallLink);
         m_vendor->setContentsMargins({});
         m_divider = new QLabel;
@@ -144,12 +161,32 @@ public:
         const QPixmap dlIcon = Icon({{":/extensionmanager/images/download.png", dlTF.themeColor}},
                                     Icon::Tint).pixmap();
         m_dlIcon->setPixmap(dlIcon);
-        m_dlCount = tfLabel(dlTF);
+        m_dlCount = new ElidingLabel;
+        applyTf(m_dlCount, dlTF);
         m_dlCount->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-        m_details = tfLabel(detailsTF);
-        installButton = new Button(Tr::tr("Install..."), Button::MediumPrimary);
+        m_details = new ElidingLabel;
+        applyTf(m_details, detailsTF);
+        installButton = new Button(Tr::tr("Install..."), Button::LargePrimary);
         installButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         installButton->hide();
+        connect(
+            installButton,
+            &QAbstractButton::pressed,
+            this,
+            &HeadingWidget::pluginInstallationRequested);
+
+        removeButton = new Button(Tr::tr("Remove..."), Button::SmallSecondary);
+        removeButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+        removeButton->hide();
+        connect(removeButton, &QAbstractButton::pressed, this, [this]() {
+            ExtensionSystem::PluginManager::removePluginOnRestart(m_currentPluginId);
+            requestRestart();
+        });
+
+        updateButton = new Button(Tr::tr("Update..."), Button::LargePrimary);
+        updateButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+        updateButton->hide();
+        connect(updateButton, &QAbstractButton::pressed, this, &HeadingWidget::pluginUpdateRequested);
 
         using namespace Layouting;
         Row {
@@ -178,6 +215,8 @@ public:
             },
             Column {
                 installButton,
+                updateButton,
+                removeButton,
                 st,
             },
             noMargin, spacing(SpacingTokens::ExPaddingGapL),
@@ -186,8 +225,6 @@ public:
         setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
         m_dlCountItems->setVisible(false);
 
-        connect(installButton, &QAbstractButton::pressed,
-                this, &HeadingWidget::pluginInstallationRequested);
         connect(m_vendor, &QAbstractButton::pressed, this, [this]() {
             emit vendorClicked(m_currentVendor);
         });
@@ -199,6 +236,8 @@ public:
     {
         if (!current.isValid())
             return;
+
+        m_currentPluginId = current.data(RoleId).toString();
 
         m_icon->setPixmap(itemIcon(current, SizeBig));
 
@@ -217,17 +256,27 @@ public:
         const QString description = current.data(RoleDescriptionShort).toString();
         m_details->setText(description);
 
+        ExtensionSystem::PluginSpec *pluginSpec = pluginSpecForId(current.data(RoleId).toString());
+
         const ItemType itemType = current.data(RoleItemType).value<ItemType>();
         const bool isPack = itemType == ItemTypePack;
-        const bool isRemotePlugin = !(isPack || pluginSpecForId(current.data(RoleId).toString()));
+        const bool isRemotePlugin = !(isPack || pluginSpec);
         const QString downloadUrl = current.data(RoleDownloadUrl).toString();
+        removeButton->setVisible(!isRemotePlugin && pluginSpec && !pluginSpec->isSystemPlugin());
         installButton->setVisible(isRemotePlugin && !downloadUrl.isEmpty());
         if (installButton->isVisible())
             installButton->setToolTip(downloadUrl);
+
+        updateButton->setVisible(
+            pluginSpec
+            && ExtensionSystem::PluginSpec::versionCompare(
+                   pluginSpec->version(), current.data(RoleVersion).toString())
+                   < 0);
     }
 
 signals:
     void pluginInstallationRequested();
+    void pluginUpdateRequested();
     void vendorClicked(const QString &vendor);
 
 private:
@@ -240,21 +289,11 @@ private:
     QWidget *m_dlCountItems;
     QLabel *m_details;
     QAbstractButton *installButton;
+    QAbstractButton *removeButton;
+    QAbstractButton *updateButton;
     QString m_currentVendor;
+    QString m_currentPluginId;
 };
-
-const char kRestartSetting[] = "RestartAfterPluginEnabledChanged";
-
-// Copy paste from Core::Internal::CorePlugin::loadMimeFromPlugin
-// TODO make code usable by other plugins.
-static void loadMimeFromPlugin(const ExtensionSystem::PluginSpec *plugin)
-{
-    const QJsonObject metaData = plugin->metaData();
-    const QJsonValue mimetypes = metaData.value("Mimetypes");
-    QString mimetypeString;
-    if (Utils::readMultiLineString(mimetypes, &mimetypeString))
-        Utils::addMimeTypes(plugin->name() + ".mimetypes", mimetypeString.trimmed().toUtf8());
-}
 
 class PluginStatusWidget : public QWidget
 {
@@ -263,14 +302,15 @@ public:
         : QWidget(parent)
     {
         m_label = new InfoLabel;
+        m_label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         m_switch = new Switch(Tr::tr("Active"));
         m_pluginView.hide();
         setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
 
         using namespace Layouting;
-        Column {
-            m_label,
-            m_switch,
+        Grid {
+            Span(2, m_label), br,
+            m_switch, empty, br,
         }.attachTo(this);
 
         connect(m_switch, &QCheckBox::clicked, this, [this](bool checked) {
@@ -279,19 +319,10 @@ public:
                 return;
             const bool doIt = m_pluginView.data().setPluginsEnabled({spec}, checked);
             if (doIt) {
-                if (checked && spec->isEffectivelySoftloadable()) {
+                if (checked && spec->isEffectivelySoftloadable())
                     ExtensionSystem::PluginManager::loadPluginsAtRuntime({spec});
-                    loadMimeFromPlugin(spec);
-                } else if (ICore::infoBar()->canInfoBeAdded(kRestartSetting)) {
-                    Utils::InfoBarEntry info(
-                        kRestartSetting,
-                        Core::Tr::tr("Plugin changes will take effect after restart."));
-                    info.addCustomButton(Tr::tr("Restart Now"), [] {
-                        ICore::infoBar()->removeInfo(kRestartSetting);
-                        QTimer::singleShot(0, ICore::instance(), &ICore::restart);
-                    });
-                    ICore::infoBar()->addInfo(info);
-                }
+                else
+                    requestRestart();
 
                 ExtensionSystem::PluginManager::writeSettings();
             } else {
@@ -329,6 +360,7 @@ private:
             m_label->setType(InfoLabel::NotOk);
             m_label->setText(Tr::tr("Not loaded"));
         }
+        m_label->setAdditionalToolTip(spec->errorString());
 
         m_switch->setChecked(spec->isRequired() || spec->isEnabledBySettings());
         m_switch->setEnabled(!spec->isRequired());
@@ -396,7 +428,7 @@ public:
 
 private:
     void updateView(const QModelIndex &current);
-    void fetchAndInstallPlugin(const QUrl &url, const QString &id);
+    void fetchAndInstallPlugin(const QUrl &url, const QString &id, bool update);
 
     QString m_currentItemName;
     ExtensionsModel *m_extensionModel;
@@ -428,12 +460,12 @@ static QWidget *descriptionPlaceHolder()
     static const TextFormat tF {
         Theme::Token_Text_Muted, UiElement::UiElementH4
     };
-    auto title = tfLabel(tF);
+    auto title = new ElidingLabel(Tr::tr("No details to show"));
+    applyTf(title, tF);
     title->setAlignment(Qt::AlignCenter);
-    title->setText(Tr::tr("No details to show"));
-    auto text = tfLabel(tF, false);
+    auto text = new QLabel(Tr::tr("Select an extension to see more information about it."));
+    applyTf(text, tF, false);
     text->setAlignment(Qt::AlignCenter);
-    text->setText(Tr::tr("Select an extension to see more information about it."));
     text->setFont({});
     using namespace Layouting;
     // clang-format off
@@ -475,15 +507,19 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     m_description->setMargins({verticalPadding, 0, verticalPadding, 0});
 
     m_dateUpdatedTitle = sectionTitle(h6TF, Tr::tr("Last Update"));
-    m_dateUpdated = tfLabel(contentTF, false);
+    m_dateUpdated = new QLabel;
+    applyTf(m_dateUpdated, contentTF, false);
     m_tagsTitle = sectionTitle(h6TF, Tr::tr("Tags"));
     m_tags = new TagList;
     m_platformsTitle = sectionTitle(h6TF, Tr::tr("Platforms"));
-    m_platforms = tfLabel(contentTF, false);
+    m_platforms = new QLabel;
+    applyTf(m_platforms, contentTF, false);
     m_dependenciesTitle = sectionTitle(h6TF, Tr::tr("Dependencies"));
-    m_dependencies = tfLabel(contentTF, false);
+    m_dependencies = new QLabel;
+    applyTf(m_dependencies, contentTF, false);
     m_packExtensionsTitle = sectionTitle(h6TF, Tr::tr("Extensions in pack"));
-    m_packExtensions = tfLabel(contentTF, false);
+    m_packExtensions = new QLabel;
+    applyTf(m_packExtensions, contentTF, false);
     m_pluginStatus = new PluginStatusWidget;
 
     auto secondary = new QWidget;
@@ -560,7 +596,10 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         m_secondaryDescriptionWidget->setWidth(secondaryDescriptionWidth);
     });
     connect(m_headingWidget, &HeadingWidget::pluginInstallationRequested, this, [this]() {
-        fetchAndInstallPlugin(QUrl::fromUserInput(m_currentDownloadUrl), m_currentId);
+        fetchAndInstallPlugin(QUrl::fromUserInput(m_currentDownloadUrl), m_currentId, false);
+    });
+    connect(m_headingWidget, &HeadingWidget::pluginUpdateRequested, this, [this]() {
+        fetchAndInstallPlugin(QUrl::fromUserInput(m_currentDownloadUrl), m_currentId, true);
     });
     connect(m_tags, &TagList::tagSelected, m_extensionBrowser, &ExtensionsBrowser::setFilter);
     connect(m_headingWidget, &HeadingWidget::vendorClicked,
@@ -647,7 +686,7 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
     }
 }
 
-void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QString &id)
+void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QString &id, bool update)
 {
     using namespace Tasking;
 
@@ -665,6 +704,7 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QStrin
         std::unique_ptr<QProgressDialog> progressDialog;
         QByteArray packageData;
         QUrl url;
+        QString filename;
     };
     Storage<StorageStruct> storage;
 
@@ -677,6 +717,37 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QStrin
         storage->progressDialog->close();
         if (result == DoneWith::Success) {
             storage->packageData = query.reply()->readAll();
+
+            QString contentDispo
+                = query.reply()->header(QNetworkRequest::ContentDispositionHeader).toString();
+
+            if (contentDispo.isEmpty())
+                return;
+
+            // Example: `content-disposition: attachment; filename=project-build-windows-.7z`
+            // see also: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition
+            static QRegularExpression re(
+                R"(^(?P<disposition>attachment|inline)(?:\s*;\s*(?P<paramlist>.*))?$)");
+
+            QRegularExpressionMatch matches = re.match(contentDispo);
+            if (!matches.hasMatch())
+                return;
+
+            const QString disposition = matches.captured("disposition");
+            if (disposition != "attachment")
+                return;
+
+            const QString paramlist = matches.captured("paramlist");
+
+            // Parse the "filename" parameter from the Content-Disposition header
+            static QRegularExpression reParam(
+                R"(filename\*?=['"]?(?:UTF-\d['"]*)?([^;\r\n"']*)['"]?;?)");
+
+            QRegularExpressionMatch match = reParam.match(paramlist);
+            if (!match.hasMatch())
+                return;
+
+            storage->filename = match.captured(1);
         } else {
             QMessageBox::warning(
                 ICore::dialogParent(),
@@ -686,16 +757,27 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QStrin
         }
     };
 
-    const auto onPluginInstallation = [storage]() {
+    const auto onPluginInstallation = [storage, update]() {
         if (storage->packageData.isEmpty())
             return false;
         const FilePath source = FilePath::fromUrl(storage->url);
-        TempFileSaver saver(
-            TemporaryDirectory::masterDirectoryPath() + "/XXXXXX-" + source.fileName());
+        const QString filename = storage->filename.isEmpty() ? source.fileName()
+                                                             : storage->filename;
+        TempFileSaver saver(TemporaryDirectory::masterDirectoryPath() + "/XXXXXX-" + filename);
 
         saver.write(storage->packageData);
-        if (saver.finalize(ICore::dialogParent()))
-            return executePluginInstallWizard(saver.filePath());
+        if (saver.finalize(ICore::dialogParent())) {
+            auto result = executePluginInstallWizard(saver.filePath(), update);
+            switch (result) {
+            case InstallResult::Success:
+                return true;
+            case InstallResult::NeedsRestart:
+                requestRestart();
+                return true;
+            case InstallResult::Error:
+                return false;
+            }
+        }
         return false;
     };
 
@@ -721,6 +803,7 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QStrin
         storage,
         NetworkQueryTask{onQuerySetup, onQueryDone},
         Sync{onPluginInstallation},
+        Sync{[this]() { updateView(m_extensionBrowser->currentIndex()); }},
         NetworkQueryTask{onDownloadSetup, onDownloadDone},
     };
 

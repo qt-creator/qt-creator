@@ -96,7 +96,7 @@ public:
     static ProjectExplorer::FileType fileTypeFor(const QSet<QString> &tags);
 
     QString profile() const;
-    void scheduleParsing();
+    void scheduleParsing(const QVariantMap &extraConfig);
     void updateAfterBuild();
 
     QbsSession *session() const { return m_session; }
@@ -110,7 +110,7 @@ private:
     friend class QbsProject;
     friend class QbsRequestObject;
 
-    void startParsing();
+    void startParsing(const QVariantMap &extraConfig);
     void cancelParsing();
 
     ProjectExplorer::ExtraCompiler *findExtraCompiler(
@@ -129,8 +129,11 @@ private:
     void updateAfterParse();
     void updateProjectNodes(const std::function<void()> &continuation);
     Utils::FilePath installRoot();
+    Utils::FilePath locationFilePath(const QJsonObject &loc) const;
+    Utils::FilePath groupFilePath(const QJsonObject &group) const;
+    QbsBuildConfiguration *qbsBuildConfig() const;
 
-    static bool ensureWriteableQbsFile(const QString &file);
+    static bool ensureWriteableQbsFile(const Utils::FilePath &file);
 
     QbsSession * const m_session;
     QSet<Core::IDocument *> m_qbsDocuments;
@@ -150,7 +153,6 @@ private:
     QHash<QString, Utils::Environment> m_envCache;
 
     ProjectExplorer::BuildSystem::ParseGuard m_guard;
-    QbsBuildConfiguration *m_buildConfiguration = nullptr;
 };
 
 } // namespace Internal

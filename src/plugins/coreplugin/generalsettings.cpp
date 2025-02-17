@@ -243,7 +243,7 @@ void GeneralSettingsWidget::fillLanguageBox() const
         int end = name.lastIndexOf('.');
         const QString locale = name.mid(start, end - start);
         // no need to show a language that creator will not load anyway
-        if (hasQmFilesForLocale(locale, creatorTrPath.toString())) {
+        if (hasQmFilesForLocale(locale, creatorTrPath.toUrlishString())) {
             QLocale tmpLocale(locale);
             const auto languageItem = QString("%1 (%2) - %3 (%4)")
                                           .arg(
@@ -426,8 +426,6 @@ public:
         setId(Constants::SETTINGS_ID_INTERFACE);
         setDisplayName(Tr::tr("Interface"));
         setCategory(Constants::SETTINGS_CATEGORY_CORE);
-        setDisplayCategory(Tr::tr("Environment"));
-        setCategoryIconPath(":/core/images/settingscategory_core.png");
         setWidgetCreator([] { return new GeneralSettingsWidget; });
     }
 };

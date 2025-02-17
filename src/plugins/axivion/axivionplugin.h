@@ -19,7 +19,11 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
 
-namespace Tasking { class Group; }
+namespace Tasking {
+class Group;
+template <typename StorageStruct>
+class Storage;
+}
 
 namespace Utils { class FilePath; }
 
@@ -58,7 +62,28 @@ public:
     QStringList projects;
     QHash<QString, QUrl> projectUrls;
     std::optional<QUrl> checkCredentialsUrl;
+    std::optional<QUrl> globalNamedFilters;
+    std::optional<QUrl> userNamedFilters;
 };
+
+enum class ContentType {
+    Html,
+    Json,
+    PlainText,
+    Svg
+};
+
+class DownloadData
+{
+public:
+    QUrl inputUrl;
+    ContentType expectedContentType = ContentType::Html;
+    QByteArray outputData;
+};
+
+QUrl resolveDashboardInfoUrl(const QUrl &url);
+
+Tasking::Group downloadDataRecipe(const Tasking::Storage<DownloadData> &storage);
 
 using DashboardInfoHandler = std::function<void(const Utils::expected_str<DashboardInfo> &)>;
 Tasking::Group dashboardInfoRecipe(const DashboardInfoHandler &handler = {});
@@ -77,15 +102,25 @@ Tasking::Group issueTableRecipe(const IssueListSearch &search, const IssueTableH
 using LineMarkerHandler = std::function<void(const Dto::FileViewDto &)>;
 Tasking::Group lineMarkerRecipe(const Utils::FilePath &filePath, const LineMarkerHandler &handler);
 
-using HtmlHandler = std::function<void(const QByteArray &)>;
-Tasking::Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler);
-
 void fetchDashboardAndProjectInfo(const DashboardInfoHandler &handler, const QString &projectName);
 std::optional<Dto::ProjectInfoDto> projectInfo();
+
+struct NamedFilter
+{
+    QString key;
+    QString displayName;
+    bool global = false;
+};
+
+void fetchNamedFilters();
+QList<NamedFilter> knownNamedFiltersFor(const QString &issueKind, bool global);
+std::optional<Dto::NamedFilterInfoDto> namedFilterInfoForKey(const QString &key, bool global);
+
 bool handleCertificateIssue();
 
 QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind);
-QString anyToSimpleString(const Dto::Any &any);
+QString anyToSimpleString(const Dto::Any &any, const QString &type,
+                          const std::optional<std::vector<Dto::ColumnTypeOptionDto>> &options);
 void fetchIssueInfo(const QString &id);
 
 void switchActiveDashboardId(const Utils::Id &toDashboardId);
@@ -98,3 +133,4 @@ Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath);
 
 } // Axivion::Internal
 
+Q_DECLARE_METATYPE(Axivion::Internal::NamedFilter)

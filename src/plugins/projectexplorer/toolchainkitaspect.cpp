@@ -3,17 +3,16 @@
 
 #include "toolchainkitaspect.h"
 
+#include "devicesupport/devicekitaspects.h"
 #include "devicesupport/idevice.h"
 #include "kit.h"
 #include "kitaspect.h"
-#include "kitaspects.h"
 #include "kitmanager.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "toolchainmanager.h"
 #include "toolchainoptionspage.h"
 
-#include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/stringutils.h>
@@ -41,18 +40,18 @@ public:
     {
         clear();
 
-        const Toolchains ltcList = ToolchainManager::toolchains(
-            [this](const Toolchain *tc) { return m_category.contains(tc->language()); });
-        IDeviceConstPtr device = BuildDeviceKitAspect::device(&m_kit);
-
-        const QList<Toolchain *> toolchainsForBuildDevice
-            = Utils::filtered(ltcList, [device](Toolchain *tc) {
-                  return tc->compilerCommand().isSameDevice(device->rootPath());
-              });
-        const QList<ToolchainBundle> bundlesForBuildDevice = ToolchainBundle::collectBundles(
-            toolchainsForBuildDevice, ToolchainBundle::HandleMissing::CreateAndRegister);
-        for (const ToolchainBundle &b : bundlesForBuildDevice)
-            rootItem()->appendChild(new ToolchainTreeItem(b));
+        if (const IDeviceConstPtr device = BuildDeviceKitAspect::device(&m_kit)) {
+            const Toolchains ltcList = ToolchainManager::toolchains(
+                [this](const Toolchain *tc) { return m_category.contains(tc->language()); });
+            const Toolchains toolchainsForBuildDevice
+                = Utils::filtered(ltcList, [device](Toolchain *tc) {
+                      return tc->compilerCommand().isSameDevice(device->rootPath());
+                  });
+            const QList<ToolchainBundle> bundlesForBuildDevice = ToolchainBundle::collectBundles(
+                toolchainsForBuildDevice, ToolchainBundle::HandleMissing::CreateAndRegister);
+            for (const ToolchainBundle &b : bundlesForBuildDevice)
+                rootItem()->appendChild(new ToolchainTreeItem(b));
+        }
         rootItem()->appendChild(new ToolchainTreeItem);
     }
 
@@ -61,157 +60,75 @@ private:
     const LanguageCategory m_category;
 };
 
-class ToolchainSortModel : public SortModel
-{
-public:
-    ToolchainSortModel(QObject *parent) : SortModel(parent) {}
-
-    void reset() { static_cast<ToolchainListModel *>(sourceModel())->reset(); }
-
-private:
-    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override
-    {
-        const auto source = static_cast<ToolchainListModel *>(sourceModel());
-        const ToolchainTreeItem *item1 = source->itemForIndex(source_left);
-        const ToolchainTreeItem *item2 = source->itemForIndex(source_right);
-        QTC_ASSERT(item1 && item2, return false);
-        if (!item1->bundle)
-            return false;
-        if (!item2->bundle)
-            return true;
-        if (item1->bundle->type() != item2->bundle->type()) {
-            return caseFriendlyCompare(
-                       item1->bundle->typeDisplayName(), item2->bundle->typeDisplayName())
-                   < 0;
-        }
-        return SortModel::lessThan(source_left, source_right);
-    }
-};
-
 class ToolchainKitAspectImpl final : public KitAspect
 {
 public:
     ToolchainKitAspectImpl(Kit *k, const KitAspectFactory *factory) : KitAspect(k, factory)
     {
-        m_mainWidget = createSubWidget<QWidget>();
-        m_mainWidget->setContentsMargins(0, 0, 0, 0);
-
-        auto layout = new QGridLayout(m_mainWidget);
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->setColumnStretch(1, 2);
-
-        const QList<LanguageCategory> languageCategories = sorted(
+        m_sortedLanguageCategories = sorted(
             ToolchainManager::languageCategories(),
             [](const LanguageCategory &l1, const LanguageCategory &l2) {
                 return ToolchainManager::displayNameOfLanguageCategory(l1)
                 < ToolchainManager::displayNameOfLanguageCategory(l2);
             });
-        QTC_ASSERT(!languageCategories.isEmpty(), return);
-        int row = 0;
-        for (const LanguageCategory &lc : std::as_const(languageCategories)) {
-            layout->addWidget(
-                new QLabel(ToolchainManager::displayNameOfLanguageCategory(lc) + ':'), row, 0);
-            auto cb = new QComboBox;
-            cb->setSizePolicy(QSizePolicy::Ignored, cb->sizePolicy().verticalPolicy());
-            cb->setToolTip(factory->description());
-            setWheelScrollingWithoutFocusBlocked(cb);
-
+        QTC_ASSERT(!m_sortedLanguageCategories.isEmpty(), return);
+        for (const LanguageCategory &lc : std::as_const(m_sortedLanguageCategories)) {
             const auto model = new ToolchainListModel(*kit(), lc, this);
-            const auto sortModel = new ToolchainSortModel(this);
-            sortModel->setSourceModel(model);
-            cb->setModel(sortModel);
-
-            m_languageComboboxMap.insert(lc, cb);
-            layout->addWidget(cb, row, 1);
-            ++row;
-
-            connect(cb, &QComboBox::currentIndexChanged, this, [this, lc](int idx) {
-                currentToolchainChanged(lc, idx);
-            });
+            auto getter = [lc](const Kit &k) {
+                for (const Id lang : lc) {
+                    if (Toolchain * const currentTc = ToolchainKitAspect::toolchain(&k, lang))
+                        return currentTc->bundleId().toSetting();
+                }
+                return QVariant();
+            };
+            auto setter = [lc](Kit &k, const QVariant &v) {
+                const Id bundleId = Id::fromSetting(v);
+                const Toolchains bundleTcs = ToolchainManager::toolchains(
+                    [bundleId](const Toolchain *tc) { return tc->bundleId() == bundleId; });
+                for (const Id lang : lc) {
+                    Toolchain * const tc = Utils::findOrDefault(bundleTcs, [lang](const Toolchain *tc) {
+                        return tc->language() == lang;
+                    });
+                    if (tc)
+                        ToolchainKitAspect::setToolchain(&k, tc);
+                    else
+                        ToolchainKitAspect::clearToolchain(&k, lang);
+                }
+            };
+            auto resetModel = [model] { model->reset(); };
+            addListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
         }
 
-        refresh();
+        connect(ToolchainManager::instance(), &ToolchainManager::toolchainUpdated,
+                this, &KitAspect::refresh);
 
         setManagingPage(Constants::TOOLCHAIN_SETTINGS_PAGE_ID);
     }
 
-    ~ToolchainKitAspectImpl() override
-    {
-        delete m_mainWidget;
-    }
-
 private:
-    void addToInnerLayout(Layouting::Layout &builder) override
+    void addToInnerLayout(Layouting::Layout &layout) override
     {
-        addMutableAction(m_mainWidget);
-        builder.addItem(m_mainWidget);
-    }
+        const auto mainWidget = createSubWidget<QWidget>();
+        mainWidget->setContentsMargins(0, 0, 0, 0);
 
-    void refresh() override
-    {
-        IDeviceConstPtr device = BuildDeviceKitAspect::device(kit());
+        const auto grid = new QGridLayout(mainWidget);
+        grid->setContentsMargins(0, 0, 0, 0);
+        grid->setColumnStretch(1, 2);
 
-        const GuardLocker locker(m_ignoreChanges);
-        for (auto it = m_languageComboboxMap.cbegin(); it != m_languageComboboxMap.cend(); ++it) {
-            const LanguageCategory lc = it.key();
-            const Toolchains ltcList = ToolchainManager::toolchains(
-                [lc](const Toolchain *tc) { return lc.contains(tc->language()); });
-
-            QComboBox *cb = *it;
-            static_cast<ToolchainSortModel *>(cb->model())->reset();
-            cb->model()->sort(0);
-            cb->setEnabled(cb->count() > 1 && !m_isReadOnly);
-
-            Id currentBundleId;
-            for (const Id lang : lc) {
-                if (Toolchain * const currentTc = ToolchainKitAspect::toolchain(kit(), lang)) {
-                    currentBundleId = currentTc->bundleId();
-                    break;
-                }
-            }
-            cb->setCurrentIndex(indexOf(cb, currentBundleId));
+        int row = 0;
+        const QList<QComboBox *> cbList = comboBoxes();
+        QTC_ASSERT(cbList.size() == m_sortedLanguageCategories.size(), return);
+        for (const LanguageCategory &lc : std::as_const(m_sortedLanguageCategories)) {
+            grid->addWidget(
+                new QLabel(ToolchainManager::displayNameOfLanguageCategory(lc) + ':'), row, 0);
+            grid->addWidget(cbList.at(row), row, 1);
+            ++row;
         }
+        addMutableAction(mainWidget);
+        layout.addItem(mainWidget);
     }
 
-    void makeReadOnly() override
-    {
-        m_isReadOnly = true;
-        for (QComboBox *cb : std::as_const(m_languageComboboxMap))
-            cb->setEnabled(false);
-    }
-
-    void currentToolchainChanged(const LanguageCategory &languageCategory, int idx)
-    {
-        if (m_ignoreChanges.isLocked() || idx < 0)
-            return;
-
-        const QAbstractItemModel *const model
-            = m_languageComboboxMap.value(languageCategory)->model();
-        const Id bundleId = Id::fromSetting(
-            model->data(model->index(idx, 0), ToolchainTreeItem::BundleIdRole));
-
-        const Toolchains bundleTcs = ToolchainManager::toolchains(
-            [bundleId](const Toolchain *tc) { return tc->bundleId() == bundleId; });
-        for (const Id lang : languageCategory) {
-            Toolchain *const tc = Utils::findOrDefault(bundleTcs, [lang](const Toolchain *tc) {
-                return tc->language() == lang;
-            });
-            if (tc)
-                ToolchainKitAspect::setToolchain(kit(), tc);
-            else
-                ToolchainKitAspect::clearToolchain(kit(), lang);
-        }
-    }
-
-    int indexOf(QComboBox *cb, Id bundleId)
-    {
-        return cb->findData(bundleId.toSetting(), ToolchainTreeItem::BundleIdRole);
-    }
-
-    QWidget *m_mainWidget = nullptr;
-    QHash<LanguageCategory, QComboBox *> m_languageComboboxMap;
-    Guard m_ignoreChanges;
-    bool m_isReadOnly = false;
+    QList<LanguageCategory> m_sortedLanguageCategories;
 };
 
 class ToolchainKitAspectFactory : public KitAspectFactory
@@ -327,7 +244,8 @@ static void setToolchainsFromAbis(Kit *k, const LanguagesAndAbis &abisByLanguage
     for (auto it = abisByCategory.cbegin(); it != abisByCategory.cend(); ++it) {
         const QList<ToolchainBundle> matchingBundles
             = Utils::filtered(bundles, [&it](const ToolchainBundle &b) {
-                  return b.factory()->languageCategory() == it.key() && b.targetAbi() == it.value();
+                  return b.factory() && b.factory()->languageCategory() == it.key()
+                         && b.targetAbi() == it.value();
               });
 
         if (matchingBundles.isEmpty()) {
@@ -336,9 +254,9 @@ static void setToolchainsFromAbis(Kit *k, const LanguagesAndAbis &abisByLanguage
             continue;
         }
 
-        const auto bestBundle = std::min_element(
-            matchingBundles.begin(), matchingBundles.end(), &ToolchainManager::isBetterToolchain);
-        ToolchainKitAspect::setBundle(k, *bestBundle);
+        const ToolchainBundle bestBundle = Utils::minElementOr(
+            matchingBundles, &ToolchainManager::isBetterToolchain, matchingBundles.first());
+        ToolchainKitAspect::setBundle(k, bestBundle);
     }
 }
 
@@ -421,7 +339,7 @@ QString ToolchainKitAspectFactory::displayNamePostfix(const Kit *k) const
 KitAspectFactory::ItemList ToolchainKitAspectFactory::toUserOutput(const Kit *k) const
 {
     Toolchain *tc = ToolchainKitAspect::cxxToolchain(k);
-    return {{Tr::tr("Compiler"), tc ? tc->displayName() : Tr::tr("None")}};
+    return {{Tr::tr("Compiler"), tc ? tc->displayName() : Tr::tr("None", "No compiler")}};
 }
 
 void ToolchainKitAspectFactory::addToBuildEnvironment(const Kit *k, Environment &env) const
@@ -439,7 +357,7 @@ void ToolchainKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expa
     expander->registerVariable("Compiler:Name", Tr::tr("Compiler"),
                                [kit] {
                                    const Toolchain *tc = ToolchainKitAspect::cxxToolchain(kit);
-                                   return tc ? tc->displayName() : Tr::tr("None");
+                                   return tc ? tc->displayName() : Tr::tr("None", "No compiler");
                                });
 
     expander->registerVariable("Compiler:Executable", Tr::tr("Path to the compiler executable"),
@@ -452,7 +370,7 @@ void ToolchainKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expa
     expander->registerPrefix("Compiler:Name", Tr::tr("Compiler for different languages"),
                              [kit](const QString &ls) {
                                  const Toolchain *tc = ToolchainKitAspect::toolchain(kit, findLanguage(ls));
-                                 return tc ? tc->displayName() : Tr::tr("None");
+                                 return tc ? tc->displayName() : Tr::tr("None", "No compiler");
                              });
     expander->registerPrefix("Compiler:Executable", Tr::tr("Compiler executable for different languages"),
                              [kit](const QString &ls) {

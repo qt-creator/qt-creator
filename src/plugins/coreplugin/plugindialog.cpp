@@ -108,8 +108,6 @@ void PluginDialog::closeDialog()
     PluginManager::writeSettings();
 
     PluginManager::loadPluginsAtRuntime(m_softLoad);
-    for (PluginSpec *plugin : std::as_const(m_softLoad))
-        CorePlugin::loadMimeFromPlugin(plugin);
 
     if (m_isRestartRequired)
         ICore::askForRestart(Tr::tr("Plugin changes will take effect after restart."));
@@ -118,7 +116,7 @@ void PluginDialog::closeDialog()
 
 void PluginDialog::showInstallWizard()
 {
-    if (executePluginInstallWizard())
+    if (executePluginInstallWizard() == InstallResult::NeedsRestart)
         m_isRestartRequired = true;
 }
 

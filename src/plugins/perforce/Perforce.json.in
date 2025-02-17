@@ -1,5 +1,6 @@
 {
     "Id" : "perforce",
+    "DisplayName" : "Perforce",
     "Name" : "Perforce",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

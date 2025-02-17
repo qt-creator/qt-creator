@@ -20,6 +20,7 @@
 #include <coreplugin/welcomepagehelper.h>
 
 #include <utils/algorithm.h>
+#include <utils/elidinglabel.h>
 #include <utils/fileutils.h>
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
@@ -419,9 +420,9 @@ public:
         if (withIcon()) {
             painter->drawPixmap(iconX, iconY, icon());
         }
+        const bool isActiveSession = idx.data(SessionModel::ActiveSessionRole).toBool();
         {
             const bool isLastSession = idx.data(SessionModel::LastSessionRole).toBool();
-            const bool isActiveSession = idx.data(SessionModel::ActiveSessionRole).toBool();
             const bool isDefaultVirgin = SessionManager::isDefaultVirgin();
 
             const int sessionNameWidth = hdR.right()
@@ -441,7 +442,7 @@ public:
             painter->setPen(sessionNameTF.color());
             painter->setFont(sessionNameTF.font(switchActive));
             const QString fullSessionNameElided = painter->fontMetrics().elidedText(
-                fullSessionName, Qt::ElideRight, sessionNameWidth);
+                fullSessionName, Qt::ElideMiddle, sessionNameWidth);
             painter->drawText(sessionNameR, sessionNameTF.drawTextFlags,
                               fullSessionNameElided);
             if (switchActive)
@@ -532,7 +533,8 @@ public:
                 const QString &action = actions.at(i);
                 const int ww = textWidths.at(i);
                 const QRect actionR(xx, yy, s(ExPaddingGapM) + ww + s(ExPaddingGapM), buttonHeight);
-                const bool isDisabled = i > 0 && SessionManager::isDefaultSession(sessionName);
+                const bool isDisabled = (i > 0 && SessionManager::isDefaultSession(sessionName))
+                                        || (i == 2 && isActiveSession);
                 const bool isActive = actionR.adjusted(-s(VPaddingXs), 0, s(VPaddingXs) + 1, 0)
                                           .contains(mousePos) && !isDisabled;
                 if (isActive) {
@@ -607,9 +609,9 @@ public:
                 if (m_activeSwitchToRect.contains(pos))
                     sessionModel->switchToSession(sessionName);
                 else if (m_activeActionRects[0].contains(pos))
-                    sessionModel->cloneSession(ICore::dialogParent(), sessionName);
+                    sessionModel->cloneSession(sessionName);
                 else if (m_activeActionRects[1].contains(pos))
-                    sessionModel->renameSession(ICore::dialogParent(), sessionName);
+                    sessionModel->renameSession(sessionName);
                 else if (m_activeActionRects[2].contains(pos))
                     sessionModel->deleteSessions(QStringList(sessionName));
                 return true;
@@ -630,104 +632,128 @@ private:
     mutable QRect m_activeActionRects[3];
 };
 
+class ProjectItemWidget final : public QWidget
+{
+public:
+    ProjectItemWidget(QWidget *parent = nullptr)
+        : QWidget(parent)
+    {
+        m_shortcut = new QLabel;
+        applyTf(m_shortcut, shortcutNumberTF, false);
+        const int shortcutWidth = HPaddingXs + shortcutNumberWidth + HGapXs;
+        m_shortcut->setMinimumWidth(shortcutWidth);
+
+        const QPixmap icon = pixmap("project", Theme::Token_Text_Muted);
+        const QSize iconS = icon.deviceIndependentSize().toSize();
+        auto iconLabel = new QLabel;
+        iconLabel->setFixedSize(iconS);
+        iconLabel->setPixmap(icon);
+
+        m_projectName = new ElidingLabel;
+        applyTf(m_projectName, projectNameTF);
+        m_projectName->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+
+        m_projectPath = new ElidingLabel;
+        applyTf(m_projectPath, projectPathTF);
+        m_projectPath->setElideMode(Qt::ElideMiddle);
+        m_projectPath->setSizePolicy(m_projectName->sizePolicy());
+
+        using namespace Layouting;
+        Row {
+            m_shortcut,
+            iconLabel,
+            Space(HGapXs),
+            Column {
+                m_projectName,
+                m_projectPath,
+                customMargins(0, VPaddingXs, 0, VPaddingXs),
+                spacing(VGapXs),
+            },
+            customMargins(0, 0, HPaddingXs, 0),
+            spacing(0),
+        }.attachTo(this);
+
+        setAutoFillBackground(false);
+    }
+
+    void setData(const QModelIndex &index)
+    {
+        const int row = index.row() + 1;
+        m_shortcut->setText(row <= 9 ? QString::number(row) : QString());
+
+        const QString projectName = index.data(Qt::DisplayRole).toString();
+        m_projectName->setText(projectName);
+
+        const FilePath projectPath =
+            FilePath::fromVariant(index.data(ProjectModel::FilePathRole));
+        const QString displayPath =
+            projectPath.osType() == OsTypeWindows ? projectPath.displayName()
+                                                  : projectPath.withTildeHomePath();
+        m_projectPath->setText(displayPath);
+    }
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option)
+    {
+        const bool hovered = option.widget->isActiveWindow()
+                             && option.state & QStyle::State_MouseOver;
+
+        const QRect bgRGlobal = option.rect.adjusted(0, 0, -s(HPaddingXs), -itemSpacing());
+        const QRect bgR = bgRGlobal.translated(-option.rect.topLeft());
+
+        QFont projectNameFont = m_projectName->font();
+        projectNameFont.setUnderline(hovered);
+        m_projectName->setFont(projectNameFont);
+        setFixedWidth(bgR.width());
+
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing);
+        painter->translate(bgRGlobal.topLeft());
+
+        drawBackgroundRect(painter, bgR, hovered);
+        render(painter, bgR.topLeft(), {}, QWidget::DrawChildren);
+
+        painter->restore();
+    }
+
+private:
+    QLabel *m_shortcut;
+    ElidingLabel *m_projectName;
+    ElidingLabel *m_projectPath;
+};
+
 class ProjectDelegate : public BaseDelegate
 {
+public:
+    explicit ProjectDelegate()
+        : BaseDelegate()
+    {}
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index)
+        const override
+    {
+        m_itemWidget.setData(index);
+        m_itemWidget.paint(painter, option);
+    }
+
+    QSize sizeHint([[maybe_unused]] const QStyleOptionViewItem &option,
+                   [[maybe_unused]] const QModelIndex &index) const override
+    {
+        return {-1, m_itemWidget.minimumSizeHint().height() + itemSpacing()};
+    }
+
+protected:
     QString entryType() override
     {
         return Tr::tr("project", "Appears in \"Open project <name>\"");
     }
-    int shortcutRole() const override { return ProjectModel::ShortcutRole; }
 
-public:
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &idx) const final
+    int shortcutRole() const override
     {
-        //                              visible on with Icon()               Extra margin right of project item
-        //                                         |                                         |
-        //                                +--------+-------+                          +------+-----+
-        //                                |                |                          |            |
-        //
-        // +------------+--------+--------+------+---------+-------------+------------+------------+
-        // |            |        |        |      |         | (VPaddingXs)|            |            |
-        // |            |        |        |      |         +-------------+            |            |
-        // |            |        |        |      |         |<projectName>|            |            |
-        // |            |        |        |      |         +-------------+            |            |
-        // |(HPaddingXs)|<number>|(HGapXs)|<icon>|(HGapXxs)|   (VGapXs)  |(HPaddingXs)|(HPaddingXs)|
-        // |            |(w:6)   |        |      |         +-------------+            |            |
-        // |            |        |        |      |         |<projectPath>|            |            |
-        // |            |        |        |      |         +-------------+            |            |
-        // |            |        |        |      |         | (VPaddingXs)|            |            |
-        // +------------+--------+--------+------+---------+-------------+------------+------------+  --+
-        // |                                        (VGapL)                                        |    +-- Gap between project items
-        // +---------------------------------------------------------------------------------------+  --+
-
-        const bool hovered = option.widget->isActiveWindow()
-                             && option.state & QStyle::State_MouseOver;
-
-        const QRect bgR = option.rect.adjusted(0, 0, -s(HPaddingXs), -itemSpacing());
-
-        static const QPixmap icon = pixmap("project", Theme::Token_Text_Muted);
-        const QSize iconS = icon.deviceIndependentSize().toSize();
-
-        const int x = bgR.x();
-        const int numberX = x + s(HPaddingXs);
-        const int iconX = numberX + shortcutNumberWidth + s(HGapXs);
-        const int iconWidth = iconS.width();
-        const int textX = withIcon() ? iconX + iconWidth + s(HGapXs) : iconX;
-        const int textWidth = bgR.width() - s(HPaddingXs) - textX;
-
-        const int y = bgR.y();
-        const int iconHeight = iconS.height();
-        const int iconY = y + (bgR.height() - iconHeight) / 2;
-        const int projectNameY = y + s(VPaddingXs);
-        const QRect projectNameR(textX, projectNameY, textWidth, projectNameTF.lineHeight());
-        const int projectPathY = projectNameY + projectNameR.height() + s(VGapXs);
-        const QRect projectPathR(textX, projectPathY, textWidth, projectPathTF.lineHeight());
-
-        QTC_CHECK(option.rect.bottom() == projectPathR.bottom() + s(VPaddingXs) + itemSpacing());
-
-        {
-            drawBackgroundRect(painter, bgR, hovered);
-        }
-        if (idx.row() < 9) {
-            painter->setPen(shortcutNumberTF.color());
-            painter->setFont(shortcutNumberTF.font());
-            const QRect numberR(numberX, y, shortcutNumberWidth, bgR.height());
-            const QString numberString = QString::number(idx.row() + 1);
-            painter->drawText(numberR, shortcutNumberTF.drawTextFlags, numberString);
-        }
-        if (withIcon()) {
-            painter->drawPixmap(iconX, iconY, icon);
-        }
-        {
-            painter->setPen(projectNameTF.color());
-            painter->setFont(projectNameTF.font(hovered));
-            const QString projectName = idx.data(Qt::DisplayRole).toString();
-            const QString projectNameElided =
-                    painter->fontMetrics().elidedText(projectName, Qt::ElideRight, textWidth);
-            painter->drawText(projectNameR, projectNameTF.drawTextFlags, projectNameElided);
-        }
-        {
-            painter->setPen(projectPathTF.color());
-            painter->setFont(projectPathTF.font());
-            const FilePath projectPath =
-                FilePath::fromVariant(idx.data(ProjectModel::FilePathRole));
-            const QString displayPath =
-                projectPath.osType() == OsTypeWindows ? projectPath.displayName()
-                                                      : projectPath.withTildeHomePath();
-            const QString displayPathElided =
-                painter->fontMetrics().elidedText(displayPath, Qt::ElideMiddle, textWidth);
-            painter->drawText(projectPathR, projectPathTF.drawTextFlags, displayPathElided);
-        }
-    }
-
-    QSize sizeHint([[maybe_unused]] const QStyleOptionViewItem &option,
-                   [[maybe_unused]] const QModelIndex &idx) const override
-    {
-        return QSize(-1, itemHeight() + itemSpacing());
+        return ProjectModel::ShortcutRole;
     }
 
     bool editorEvent(QEvent *ev, QAbstractItemModel *model,
-        const QStyleOptionViewItem &, const QModelIndex &idx) final
+                     const QStyleOptionViewItem &, const QModelIndex &idx) final
     {
         if (ev->type() == QEvent::MouseButtonRelease) {
             const QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(ev);
@@ -762,16 +788,7 @@ public:
     }
 
 private:
-    static int itemHeight()
-    {
-        const int height =
-            s(VPaddingXs)
-            + projectNameTF.lineHeight()
-            + s(VGapXs)
-            + projectPathTF.lineHeight()
-            + s(VPaddingXs);
-        return height;
-    }
+    mutable ProjectItemWidget m_itemWidget;
 };
 
 class TreeView : public QTreeView
@@ -810,7 +827,7 @@ public:
         auto sessions = new QWidget;
         {
             auto sessionsLabel = new Core::Label(Tr::tr("Sessions"), Core::Label::Primary);
-            auto manageSessionsButton = new Button(Tr::tr("Manage..."), Button::MediumSecondary);
+            auto manageSessionsButton = new Button(Tr::tr("Manage..."), Button::LargeSecondary);
             auto sessionsList = new TreeView(this, "Sessions");
             sessionsList->setModel(projectWelcomePage->m_sessionModel);
             sessionsList->header()->setSectionHidden(1, true); // The "last modified" column.

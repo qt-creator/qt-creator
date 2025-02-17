@@ -55,8 +55,8 @@ private:
         QStringList args;
         if (BuildConfiguration *buildConfiguration = target()->activeBuildConfiguration()) {
             args << "--work-dir"
-                 << QDir(projectDirectory.toString()).relativeFilePath(
-                        buildConfiguration->buildDirectory().toString());
+                 << QDir(projectDirectory.toUrlishString()).relativeFilePath(
+                        buildConfiguration->buildDirectory().toUrlishString());
         }
         args << "exec" << executable();
         if (!arguments.arguments().isEmpty())
@@ -91,7 +91,7 @@ public:
 void setupHaskellRunSupport()
 {
     static HaskellRunConfigurationFactory runConfigFactory;
-    static SimpleTargetRunnerFactory runWorkerFactory{{Constants::C_HASKELL_RUNCONFIG_ID}};
+    static ProcessRunnerFactory runWorkerFactory{{Constants::C_HASKELL_RUNCONFIG_ID}};
     static SimpleDebugRunnerFactory debugWorkerFactory{{Constants::C_HASKELL_RUNCONFIG_ID}};
 }
 

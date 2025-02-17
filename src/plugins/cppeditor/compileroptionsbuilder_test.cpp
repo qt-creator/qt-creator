@@ -4,18 +4,15 @@
 #include "compileroptionsbuilder_test.h"
 
 #include "compileroptionsbuilder.h"
-#include "projectinfo.h"
 #include "projectpart.h"
 
 #include <projectexplorer/headerpath.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
 #include <QtTest>
-
-#include <memory>
 
 using namespace ProjectExplorer;
 
@@ -28,7 +25,7 @@ public:
     const ProjectPart &finalize()
     {
         QFile pchFile(pchFileNativePath());
-        pchFile.open(QIODevice::WriteOnly);
+        QTC_CHECK(pchFile.open(QIODevice::WriteOnly));
         RawProjectPart rpp;
         rpp.setPreCompiledHeaders({pchFileNativePath()});
         rpp.setMacros({Macro{"projectFoo", "projectBar"}});

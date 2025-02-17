@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "qmlprofilerstatemanager.h"
-
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -18,37 +16,15 @@ namespace Internal {
 
 class QmlProfilerRunner : public ProjectExplorer::RunWorker
 {
-    Q_OBJECT
-
 public:
     QmlProfilerRunner(ProjectExplorer::RunControl *runControl);
-    ~QmlProfilerRunner() override;
-
-    void registerProfilerStateManager( QmlProfilerStateManager *profilerState );
-
-    void cancelProcess();
-    void notifyRemoteFinished();
 
 private:
     void start() override;
     void stop() override;
-
-    void profilerStateChanged();
-
-    class QmlProfilerRunnerPrivate;
-    QmlProfilerRunnerPrivate *d;
 };
 
-class LocalQmlProfilerSupport : public ProjectExplorer::SimpleTargetRunner
-{
-    Q_OBJECT
-
-public:
-    LocalQmlProfilerSupport(ProjectExplorer::RunControl *runControl);
-    LocalQmlProfilerSupport(ProjectExplorer::RunControl *runControl,
-                            const QUrl &serverUrl);
-};
-
+ProjectExplorer::RunWorker *createLocalQmlProfilerWorker(ProjectExplorer::RunControl *runControl);
 void setupQmlProfilerRunning();
 
 } // QmlProfiler::Internal

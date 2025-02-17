@@ -9,6 +9,7 @@
 #include "qmljseditortr.h"
 #include "qmljsoutline.h"
 #include "qmljsquickfixassist.h"
+#include "qmllsclientsettings.h"
 #include "qmltaskmanager.h"
 
 #include <qmljs/jsoncheck.h>
@@ -18,7 +19,6 @@
 
 #include <qmljstools/qmljstoolsconstants.h>
 #include <qmljstools/qmljstoolssettings.h>
-#include <qmljstools/qmljscodestylepreferences.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -28,6 +28,8 @@
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/iplugin.h>
+
+#include <languageclient/languageclientmanager.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -79,9 +81,8 @@ public:
     QPointer<QmlJSEditorDocument> m_currentDocument;
 
     QmlJS::JsonSchemaManager m_jsonManager{
-        {ICore::userResourcePath("json/").toString(),
-         ICore::resourcePath("json/").toString()}};
-    QmlJSOutlineWidgetFactory m_qmlJSOutlineWidgetFactory;
+        {ICore::userResourcePath("json/").toUrlishString(),
+         ICore::resourcePath("json/").toUrlishString()}};
     QmlJsEditingSettingsPage m_qmJSEditingSettingsPage;
 };
 
@@ -90,7 +91,7 @@ static QmlJSEditorPluginPrivate *dd = nullptr;
 QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
 {
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-    QmllsSettingsManager::instance();
+    setupQmllsClientSettings();
 
     // QML task updating manager
     connect(modelManager, &QmlJS::ModelManagerInterface::documentChangedOnDisk,
@@ -101,6 +102,12 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
     // recompute messages when project data changes (files added or removed)
     connect(modelManager, &QmlJS::ModelManagerInterface::projectInfoUpdated,
             &m_qmlTaskManager, &QmlTaskManager::updateMessages);
+    // restart qmlls when project data changes (qt kit changed, for example)
+    connect(
+        modelManager,
+        &QmlJS::ModelManagerInterface::projectInfoUpdated,
+        LanguageClient::LanguageClientManager::instance(),
+        []() { LanguageClient::LanguageClientManager::applySettings(qmllsSettings()); });
     connect(modelManager,
             &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
             &m_qmlTaskManager,
@@ -219,7 +226,7 @@ void QmlJSEditorPluginPrivate::reformatFile()
             QmlJS::Document::MutablePtr latestDocument;
 
             const Utils::FilePath fileName = m_currentDocument->filePath();
-            latestDocument = snapshot.documentFromSource(QString::fromUtf8(m_currentDocument->contents()),
+            latestDocument = snapshot.documentFromSource(m_currentDocument->plainText(),
                                                          fileName,
                                                          QmlJS::ModelManagerInterface::guessLanguageOfFile(fileName));
             latestDocument->parseQml();
@@ -330,6 +337,7 @@ class QmlJSEditorPlugin final : public ExtensionSystem::IPlugin
     {
         dd = new QmlJSEditorPluginPrivate;
 
+        setupQmlJsOutline();
         setupQmlJSEditor();
         setupQmlJsEditingProjectPanel();
     }
@@ -346,7 +354,6 @@ class QmlJSEditorPlugin final : public ExtensionSystem::IPlugin
                               Tr::tr("QML Analysis"),
                               Tr::tr("Issues that the QML static analyzer found."),
                               false});
-        QmllsSettingsManager::instance()->setupAutoupdate();
     }
 };
 

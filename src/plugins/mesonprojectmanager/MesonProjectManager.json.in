@@ -1,5 +1,6 @@
 {
     "Id" : "mesonprojectmanager",
+    "DisplayName" : "Meson",
     "Name" : "MesonProjectManager",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

@@ -15,6 +15,7 @@
 #include <QMetaEnum>
 #include <QPalette>
 #include <QSettings>
+#include <QStyleHints>
 
 namespace Utils {
 
@@ -41,18 +42,13 @@ QColor creatorColor(Theme::Color role)
     return m_creatorTheme->color(role);
 }
 
-static bool paletteIsDark(const QPalette &pal)
-{
-    return pal.color(QPalette::Window).lightnessF() < pal.color(QPalette::WindowText).lightnessF();
-}
-
 static bool isOverridingPalette(const Theme *theme)
 {
     if (theme->flag(Theme::DerivePaletteFromTheme))
         return true;
-    if (theme->flag(Theme::DerivePaletteFromThemeIfNeeded)
-        && paletteIsDark(Theme::initialPalette()) != theme->flag(Theme::DarkUserInterface)) {
-        return true;
+    if (theme->flag(Theme::DerivePaletteFromThemeIfNeeded)) {
+        const Qt::ColorScheme systemTheme = qGuiApp->styleHints()->colorScheme();
+        return systemTheme != Qt::ColorScheme::Unknown && systemTheme != theme->colorScheme();
     }
     return false;
 }
@@ -70,19 +66,9 @@ static void setMacAppearance(Theme *theme)
     // theme by forcing light aqua for light creator themes
     // and dark aqua for dark themes.
     if (theme)
-        Internal::forceMacAppearance(theme->flag(Theme::DarkUserInterface));
+        Internal::forceMacAppearance(theme->colorScheme() == Qt::ColorScheme::Dark);
 #else
     Q_UNUSED(theme)
-#endif
-}
-
-static bool macOSSystemIsDark()
-{
-#ifdef Q_OS_MACOS
-    static bool systemIsDark = Internal::currentAppearanceIsDark();
-    return systemIsDark;
-#else
-    return false;
 #endif
 }
 
@@ -122,7 +108,8 @@ QStringList Theme::preferredStyles() const
 {
     // Force Fusion style if we have a dark theme on Windows or Linux,
     // because the default QStyle might not be up for it
-    if (!HostOsInfo::isMacHost() && d->preferredStyles.isEmpty() && flag(DarkUserInterface))
+    if (!HostOsInfo::isMacHost() && d->preferredStyles.isEmpty()
+        && colorScheme() == Qt::ColorScheme::Dark)
         return {"Fusion"};
     return d->preferredStyles;
 }
@@ -217,7 +204,7 @@ void Theme::readSettingsInternal(QSettings &settings)
         const Utils::FilePath includedPath = path.parentDir().pathAppended(include);
 
         if (includedPath.exists()) {
-            QSettings themeSettings(includedPath.toString(), QSettings::IniFormat);
+            QSettings themeSettings(includedPath.toUrlishString(), QSettings::IniFormat);
             readSettingsInternal(themeSettings);
         } else {
             qWarning("Theme \"%s\" misses include \"%s\".",
@@ -326,26 +313,16 @@ void Theme::readSettings(QSettings &settings)
     }
 }
 
-bool Theme::systemUsesDarkMode()
+Qt::ColorScheme Theme::colorScheme() const
 {
-    if (HostOsInfo::isWindowsHost()) {
-        constexpr char regkey[]
-            = "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
-        bool ok;
-        const int setting = QSettings(regkey, QSettings::NativeFormat).value("AppsUseLightTheme").toInt(&ok);
-        return ok && setting == 0;
-    }
+    return flag(Theme::DarkUserInterface) ? Qt::ColorScheme::Dark
+                                          : Qt::ColorScheme::Light;
+}
 
-    if (HostOsInfo::isMacHost())
-        return macOSSystemIsDark();
-
-    // Avoid enforcing the initial palette.
-    // The initial palette must be set after setting the macOS appearance in setInitialPalette,
-    // but systemUsesDarkMode is used to determine the default theme, which is in turn required
-    // for the setInitialPalette call
-    if (m_initialPalette)
-        return paletteIsDark(*m_initialPalette);
-    return paletteIsDark(QApplication::palette());
+Qt::ColorScheme Theme::systemColorScheme()
+{
+    static const Qt::ColorScheme initialColorScheme = qGuiApp->styleHints()->colorScheme();
+    return initialColorScheme;
 }
 
 // If you copy QPalette, default values stay at default, even if that default is different
@@ -365,7 +342,7 @@ static QPalette copyPalette(const QPalette &p)
 
 void Theme::setInitialPalette(Theme *initTheme)
 {
-    macOSSystemIsDark(); // initialize value for system mode
+    systemColorScheme(); // initialize value for system mode
     setMacAppearance(initTheme);
     initialPalette();
 }

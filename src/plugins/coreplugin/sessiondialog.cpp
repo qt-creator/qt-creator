@@ -3,6 +3,7 @@
 
 #include "sessiondialog.h"
 
+#include "icore.h"
 #include "session.h"
 #include "sessionview.h"
 
@@ -69,8 +70,8 @@ void SessionValidator::fixup(QString &input) const
     input = copy;
 }
 
-SessionNameInputDialog::SessionNameInputDialog(QWidget *parent)
-    : QDialog(parent)
+SessionNameInputDialog::SessionNameInputDialog()
+    : QDialog(ICore::dialogParent())
 {
     m_newSessionLineEdit = new QLineEdit(this);
     m_newSessionLineEdit->setValidator(new SessionValidator(this, SessionManager::sessions()));
@@ -125,7 +126,8 @@ bool SessionNameInputDialog::isSwitchToRequested() const
     return m_usedSwitchTo;
 }
 
-SessionDialog::SessionDialog(QWidget *parent) : QDialog(parent)
+SessionDialog::SessionDialog()
+    : QDialog(ICore::dialogParent())
 {
     setObjectName("ProjectExplorer.SessionDialog");
     resize(550, 400);

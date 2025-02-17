@@ -14,8 +14,9 @@
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorertr.h>
@@ -31,6 +32,8 @@
 #include <utils/qtcassert.h>
 
 #include <QCryptographicHash>
+
+#include <tuple>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -238,16 +241,17 @@ QStringList QbsBuildConfiguration::products() const
 
 QString QbsBuildConfiguration::equivalentCommandLine(const QbsBuildStepData &stepData) const
 {
+    const IDeviceConstPtr dev = BuildDeviceKitAspect::device(kit());
+    if (!dev)
+        return Tr::tr("<No build device>");
     CommandLine commandLine;
-    commandLine.addArg(QDir::toNativeSeparators(QbsSettings::qbsExecutableFilePath().toString()));
+    commandLine.addArg(QbsSettings::qbsExecutableFilePath(dev).nativePath());
     commandLine.addArg(stepData.command);
-    const QString buildDir = buildDirectory().toUserOutput();
+    const QString buildDir = buildDirectory().nativePath();
     commandLine.addArgs({"-d", buildDir});
-    commandLine.addArgs({"-f", project()->projectFilePath().toUserOutput()});
-    if (QbsSettings::useCreatorSettingsDirForQbs()) {
-        commandLine.addArgs({"--settings-dir",
-                             QDir::toNativeSeparators(QbsSettings::qbsSettingsBaseDir())});
-    }
+    commandLine.addArgs({"-f", project()->projectFilePath().nativePath()});
+    if (QbsSettings::useCreatorSettingsDirForQbs(dev))
+        commandLine.addArgs({"--settings-dir", QbsSettings::qbsSettingsBaseDir(dev).nativePath()});
     if (stepData.dryRun)
         commandLine.addArg("--dry-run");
     if (stepData.keepGoing)
@@ -273,9 +277,9 @@ QString QbsBuildConfiguration::equivalentCommandLine(const QbsBuildStepData &ste
     commandLine.addArg(QString(Constants::QBS_CONFIG_VARIANT_KEY) + ':' + buildVariant);
     const FilePath installRoot = stepData.installRoot;
     if (!installRoot.isEmpty()) {
-        commandLine.addArg(QString(Constants::QBS_INSTALL_ROOT_KEY) + ':' + installRoot.toUserOutput());
+        commandLine.addArg(QString(Constants::QBS_INSTALL_ROOT_KEY) + ':' + installRoot.nativePath());
         if (stepData.isInstallStep)
-            commandLine.addArgs({"--installRoot", installRoot.toUserOutput()});
+            commandLine.addArgs({"--installRoot", installRoot.nativePath()});
     }
     commandLine.addArg("profile:" + profileName);
 
@@ -296,53 +300,28 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
         return version ? version->reportIssues(projectPath, buildDir) : Tasks();
     });
 
-    setBuildGenerator([this](const Kit *k, const FilePath &projectPath, bool forSetup) {
+    setBuildGenerator([](const Kit *k, const FilePath &projectPath, bool forSetup) {
         QList<BuildInfo> result;
-
-        if (forSetup) {
-            BuildInfo info = createBuildInfo(BuildConfiguration::Debug);
-            info.displayName = ProjectExplorer::Tr::tr("Debug");
-            //: Non-ASCII characters in directory suffix may cause build issues.
-            const QString dbg = QbsProjectManager::Tr::tr("Debug", "Shadow build directory suffix");
-            info.buildDirectory = defaultBuildDirectory(projectPath, k, dbg, info.buildType);
+        for (const auto &[type, name, configName] :
+             {std::make_tuple(BuildConfiguration::Debug, ProjectExplorer::Tr::tr("Debug"), "Debug"),
+              std::make_tuple(
+                  BuildConfiguration::Release, ProjectExplorer::Tr::tr("Release"), "Release"),
+              std::make_tuple(
+                  BuildConfiguration::Profile, ProjectExplorer::Tr::tr("Profile"), "Profile")}) {
+            BuildInfo info;
+            info.buildType = type;
+            info.typeName = name;
+            if (forSetup) {
+                info.displayName = name;
+                info.buildDirectory = defaultBuildDirectory(projectPath, k, name, type);
+            }
+            QVariantMap config;
+            config.insert("configName", configName);
+            info.extraInfo = config;
             result << info;
-
-            info = createBuildInfo(BuildConfiguration::Release);
-            info.displayName = ProjectExplorer::Tr::tr("Release");
-            //: Non-ASCII characters in directory suffix may cause build issues.
-            const QString rel = QbsProjectManager::Tr::tr("Release", "Shadow build directory suffix");
-            info.buildDirectory = defaultBuildDirectory(projectPath, k, rel, info.buildType);
-            result << info;
-
-            info = createBuildInfo(BuildConfiguration::Profile);
-            info.displayName = ProjectExplorer::Tr::tr("Profile");
-            //: Non-ASCII characters in directory suffix may cause build issues.
-            const QString prof = QbsProjectManager::Tr::tr("Profile", "Shadow build directory suffix");
-            info.buildDirectory = defaultBuildDirectory(projectPath, k, prof, info.buildType);
-            result << info;
-        } else {
-            result << createBuildInfo(BuildConfiguration::Debug);
-            result << createBuildInfo(BuildConfiguration::Release);
-            result << createBuildInfo(BuildConfiguration::Profile);
         }
-
         return result;
     });
-}
-
-BuildInfo QbsBuildConfigurationFactory::createBuildInfo(BuildConfiguration::BuildType type) const
-{
-    BuildInfo info;
-    info.buildType = type;
-    info.typeName = type == BuildConfiguration::Profile
-            ? ProjectExplorer::Tr::tr("Profiling") : type == BuildConfiguration::Release
-            ? ProjectExplorer::Tr::tr("Release") : ProjectExplorer::Tr::tr("Debug");
-    QVariantMap config;
-    config.insert("configName", type == BuildConfiguration::Release
-                  ? "Release" : type == BuildConfiguration::Profile
-                  ? "Profile" : "Debug");
-    info.extraInfo = config;
-    return info;
 }
 
 } // namespace Internal

@@ -344,7 +344,7 @@ Utils::SearchResultItems generateSearchResultItems(
         }
     }
     if (renaming) {
-        userData.append(Utils::transform(fileRenameCandidates, &Utils::FilePath::toString));
+        userData.append(Utils::transform(fileRenameCandidates, &Utils::FilePath::toUrlishString));
         search->setUserData(userData);
         const auto extraWidget = qobject_cast<ReplaceWidget *>(search->additionalReplaceWidget());
         extraWidget->updateCheckBox(fileRenameCandidates);

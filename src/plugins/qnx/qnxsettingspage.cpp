@@ -3,6 +3,7 @@
 
 #include "qnxsettingspage.h"
 
+#include "qnxconstants.h"
 #include "qnxqtversion.h"
 #include "qnxtoolchain.h"
 #include "qnxtr.h"
@@ -15,13 +16,16 @@
 #include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggerkitaspect.h>
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtversionmanager.h>
@@ -89,7 +93,7 @@ public:
     Store toMap() const
     {
         Store data;
-        data.insert(QNXEnvFileKey, m_envFile.toString());
+        data.insert(QNXEnvFileKey, m_envFile.toUrlishString());
         data.insert(QNXVersionKey, m_version.toString());
         return data;
     }
@@ -183,7 +187,7 @@ void QnxConfiguration::deactivate()
     const QList<Kit *> kits = KitManager::kits();
     for (Kit *kit : kits) {
         if (kit->isAutoDetected()
-                && DeviceTypeKitAspect::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
+                && RunDeviceTypeKitAspect::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
                 && toolChainsToRemove.contains(ToolchainKitAspect::cxxToolchain(kit))) {
             KitManager::deregisterKit(kit);
         }
@@ -264,7 +268,7 @@ void QnxConfiguration::createKit(const QnxTarget &target)
         if (debugger.isValid())
             DebuggerKitAspect::setDebugger(k, debugger);
 
-        DeviceTypeKitAspect::setDeviceTypeId(k, Constants::QNX_QNX_OS_TYPE);
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::QNX_QNX_OS_TYPE);
         // TODO: Add sysroot?
 
         k->setUnexpandedDisplayName(Tr::tr("Kit for %1 (%2)")
@@ -272,15 +276,15 @@ void QnxConfiguration::createKit(const QnxTarget &target)
                     .arg(target.shortDescription()));
 
         k->setAutoDetected(false);
-        k->setAutoDetectionSource(m_envFile.toString());
+        k->setAutoDetectionSource(m_envFile.toUrlishString());
 
         k->setSticky(ToolchainKitAspect::id(), true);
-        k->setSticky(DeviceTypeKitAspect::id(), true);
+        k->setSticky(RunDeviceTypeKitAspect::id(), true);
         k->setSticky(SysRootKitAspect::id(), true);
         k->setSticky(DebuggerKitAspect::id(), true);
         k->setSticky(QmakeProjectManager::Constants::KIT_INFORMATION_ID, true);
 
-        EnvironmentKitAspect::setEnvironmentChanges(k, qnxEnvironmentItems());
+        EnvironmentKitAspect::setBuildEnvChanges(k, qnxEnvironmentItems());
     };
 
     // add kit with device and qt version not sticky
@@ -569,11 +573,11 @@ QnxSettingsWidget::QnxSettingsWidget()
         Column {
             PushButton {
                 text(Tr::tr("Add...")),
-                onClicked([this] { addConfiguration(); }, this)
+                onClicked(this, [this] { addConfiguration(); })
             },
             PushButton {
                 text(Tr::tr("Remove")),
-                onClicked([this] { removeConfiguration(); }, this)
+                onClicked(this, [this] { removeConfiguration(); })
             },
             st
         }
@@ -593,7 +597,7 @@ void QnxSettingsWidget::addConfiguration()
     else
         filter = "*.sh file";
 
-    const FilePath envFile = FileUtils::getOpenFilePath(this, Tr::tr("Select QNX Environment File"),
+    const FilePath envFile = FileUtils::getOpenFilePath(Tr::tr("Select QNX Environment File"),
                                                         {}, filter);
     if (envFile.isEmpty())
         return;
@@ -651,8 +655,8 @@ void QnxSettingsWidget::updateInformation()
         config->ensureContents();
         m_configName->setText(config->m_configName);
         m_configVersion->setText(config->m_version.toString());
-        m_configHost->setText(config->m_qnxHost.toString());
-        m_configTarget->setText(config->m_qnxTarget.toString());
+        m_configHost->setText(config->m_qnxHost.toUrlishString());
+        m_configTarget->setText(config->m_qnxTarget.toUrlishString());
         m_compiler->setText(config->m_qccCompiler.toUserOutput());
         m_architectures->setText(config->architectureNames());
         m_kitCreation->setConfiguration(envFile);
@@ -744,7 +748,7 @@ QnxSettingsPage::QnxSettingsPage(QObject *guard)
 {
     setId("DD.Qnx Configuration");
     setDisplayName(Tr::tr("QNX"));
-    setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
+    setCategory(ProjectExplorer::Constants::SDK_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new QnxSettingsWidget; });
 
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,

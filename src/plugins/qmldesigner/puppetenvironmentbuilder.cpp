@@ -97,7 +97,7 @@ QString PuppetEnvironmentBuilder::getStyleConfigFileName() const
                                                           envVar->value,
                                                           &Utils::FilePath::fileName);
                 if (foundFile != std::end(sourceFiles))
-                    return foundFile->toString();
+                    return foundFile->toUrlishString();
             }
         }
     }
@@ -199,7 +199,7 @@ void PuppetEnvironmentBuilder::addMultiLanguageDatatbase() const
         const auto databaseFilePath = multiLanguageAspect->databaseFilePath();
         if (!databaseFilePath.isEmpty() && databaseFilePath.exists())
             m_environment.set("QT_MULTILANGUAGE_DATABASE",
-                              multiLanguageAspect->databaseFilePath().toString());
+                              multiLanguageAspect->databaseFilePath().toUrlishString());
     }
 }
 

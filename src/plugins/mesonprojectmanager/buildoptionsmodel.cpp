@@ -15,9 +15,9 @@
 
 namespace MesonProjectManager::Internal {
 
-static QRegularExpression &regExp()
+static const QRegularExpression &regExp()
 {
-    static QRegularExpression s_regexp{R"('([^']+)'+|([^', ]+)[, ]*)"};
+    static const QRegularExpression s_regexp{R"('([^']+)'+|([^', ]+)[, ]*)"};
     return s_regexp;
 }
 

@@ -66,7 +66,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QPromise<void> &promise,
     QString projectConfigFile;
     LanguageFeatures features = LanguageFeatures::defaultFeatures();
 
-    baseState.projectPartInfo = determineProjectPart(filePath().toString(),
+    baseState.projectPartInfo = determineProjectPart(filePath().toUrlishString(),
                                                      baseConfig.preferredProjectPartId,
                                                      baseState.projectPartInfo,
                                                      updateParams.activeProject,
@@ -206,7 +206,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QPromise<void> &promise,
         for (Snapshot::const_iterator i = state.snapshot.begin(), ei = state.snapshot.end();
              i != ei;
              ++i) {
-            if (Client::isInjectedFile(i.key().toString()))
+            if (Client::isInjectedFile(i.key().toUrlishString()))
                 newSnapshot.insert(i.value());
         }
         state.snapshot = newSnapshot;

@@ -729,6 +729,7 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
         QString newTargetParameters;
         bool hadChanges = newParamCount < existingParamCount; // below, additions and changes set this to true as well
         QHash<Symbol *, QString> renamedTargetParameters;
+        bool switchedOnly = true;
         for (int newParamIndex = 0; newParamIndex < newParamCount; ++newParamIndex) {
             const int existingParamIndex = newParamToSourceParam[newParamIndex];
             Symbol *newParam = newFunction->argumentAt(newParamIndex);
@@ -744,6 +745,7 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
                 FullySpecifiedType type = rewriteType(newParam->type(), &env, control);
                 newTargetParam = overview.prettyType(type, newParam->name());
                 hadChanges = true;
+                switchedOnly = false;
             // otherwise preserve as much as possible from the existing parameter
             } else {
                 Symbol *targetParam = targetFunction->argumentAt(existingParamIndex);
@@ -785,6 +787,7 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
                 FullySpecifiedType replacementType = rewriteType(newParam->type(), &env, control);
                 if (!newParam->type().match(sourceParam->type())
                         && !replacementType.match(targetParam->type())) {
+                    switchedOnly = false;
                     const int parameterTypeStart = targetFile->startOf(targetParamAst);
                     int parameterTypeEnd = 0;
                     if (targetParamAst->declarator)
@@ -800,6 +803,7 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
                     hadChanges = true;
                 // change the name only?
                 } else if (!namesEqual(targetParam->name(), replacementName)) {
+                    switchedOnly = false;
                     DeclaratorIdAST *id = getDeclaratorId(targetParamAst->declarator);
                     const QString &replacementNameStr = overview.prettyName(replacementName);
                     if (id) {
@@ -854,9 +858,27 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
             newTargetParameters += ensureCorrectParameterSpacing(newTargetParam, isFirstNewParam);
         }
         if (hadChanges) {
-            changes.replace(targetFile->endOf(targetFunctionDeclarator->lparen_token),
-                            targetFile->startOf(targetFunctionDeclarator->rparen_token),
-                            newTargetParameters);
+            // Special case for when there was purely a parameter switch:
+            // This operation can simply be mapped to the "flip" change operation, with
+            // no heuristics as to the formatting.
+            if (switchedOnly) {
+                QList<int> srcIndices;
+                for (int tgtIndex = 0; tgtIndex < newParamToSourceParam.size(); ++tgtIndex) {
+                    if (srcIndices.contains(tgtIndex))
+                        continue;
+                    const int srcIndex = newParamToSourceParam[tgtIndex];
+                    srcIndices << srcIndex;
+                    const ParameterDeclarationAST * const srcDecl = targetParameterDecls.at(srcIndex);
+                    const ParameterDeclarationAST * const tgtDecl = targetParameterDecls.at(tgtIndex);
+                    const ChangeSet::Range srcRange = targetFile->range(srcDecl);
+                    const ChangeSet::Range tgtRange = targetFile->range(tgtDecl);
+                    changes.flip(srcRange, tgtRange);
+                }
+            } else {
+                changes.replace(targetFile->endOf(targetFunctionDeclarator->lparen_token),
+                                targetFile->startOf(targetFunctionDeclarator->rparen_token),
+                                newTargetParameters);
+            }
         }
 
         // Change parameter names in function documentation.

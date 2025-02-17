@@ -28,7 +28,7 @@ public:
         setEditorStarter([](const FilePath &filePath, QString *errorMessage) {
             Q_UNUSED(errorMessage)
             QUrl url;
-            url.setPath(filePath.toString());
+            url.setPath(filePath.toUrlishString());
             url.setScheme(QLatin1String("file"));
             if (!QDesktopServices::openUrl(url)) {
                 if (errorMessage)

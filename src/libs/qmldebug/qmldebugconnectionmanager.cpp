@@ -71,15 +71,6 @@ void QmlDebugConnectionManager::connectToTcpServer()
                 // If the previous connection failed, recreate it.
                 createConnection();
                 m_connection->connectToHost(m_server.host(), port16(m_server));
-            } else if (m_numRetries < 3
-                       && m_connection->socketState() != QAbstractSocket::ConnectedState) {
-                // If we don't get connected in the first retry interval, drop the socket and try
-                // with a new one. On some operating systems (maxOS) the very first connection to a
-                // TCP server takes a very long time to get established and this helps.
-                // On other operating systems (windows) every connection takes forever to get
-                // established. So, after tearing down and rebuilding the socket twice, just
-                // keep trying with the same one.
-                m_connection->connectToHost(m_server.host(), port16(m_server));
             } // Else leave it alone and wait for hello.
         } else {
             // On final timeout, clear the connection.

@@ -77,6 +77,9 @@ find_package(Qt6
   REQUIRED
 )
 
+find_package(Qt6 OPTIONAL_COMPONENTS Quick QuickWidgets Designer DesignerComponentsPrivate
+                                     Help SerialPort Svg Tools LinguistTools QUIET)
+
 # depending on Qt version and compiler version enable or disable Qml Designer
 # can be overwritten by variable WITH_QMLDESIGNER / QTC_WITH_QMLDESIGNER (env)
 configure_qml_designer(${Qt6_VERSION})
@@ -105,9 +108,6 @@ include(QtCompilerFlags)
 if (MSVC AND QT_FEATURE_static_runtime)
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
-
-find_package(Qt6 OPTIONAL_COMPONENTS Quick QuickWidgets Designer DesignerComponentsPrivate
-                                     Help SerialPort Svg Tools LinguistTools QUIET)
 
 find_package(Threads)
 find_package(Clang QUIET)

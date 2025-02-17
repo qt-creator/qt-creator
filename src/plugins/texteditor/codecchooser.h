@@ -21,15 +21,15 @@ public:
     enum class Filter { All, SingleByte };
     explicit CodecChooser(Filter filter = Filter::All);
     void prependNone();
-    QTextCodec *currentCodec() const;
-    QTextCodec *codecAt(int index) const;
+    QByteArray currentCodec() const;
     void setAssignedCodec(QTextCodec *codec, const QString &name = {});
     QByteArray assignedCodecName() const;
 
 signals:
-    void codecChanged(QTextCodec *codec);
+    void codecChanged(const QByteArray &codec);
 
 private:
+    QByteArray codecAt(int index) const;
     QList<QTextCodec *> m_codecs;
 };
 

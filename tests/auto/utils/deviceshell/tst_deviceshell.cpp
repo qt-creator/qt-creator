@@ -7,7 +7,7 @@
 #include <utils/deviceshell.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
-#include <utils/launcherinterface.h>
+#include <utils/processreaper.h>
 #include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 
@@ -71,10 +71,6 @@ private slots:
         TemporaryDirectory::setMasterTemporaryDirectory(
             QDir::tempPath() + "/" + Core::Constants::IDE_CASED_ID + "-XXXXXX");
 
-        const QString libExecPath(qApp->applicationDirPath() + '/'
-                                  + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
-        LauncherInterface::setPathToLauncher(libExecPath);
-
         std::iota(m_asciiTestData.begin(), m_asciiTestData.end(), 0);
 
         const FilePath dockerExecutable = Environment::systemEnvironment()
@@ -120,7 +116,7 @@ private slots:
         }
     }
 
-    void cleanupTestCase() { Singleton::deleteAll(); }
+    void cleanupTestCase() { ProcessReaper::deleteAll(); }
 
     void testArguments_data()
     {
@@ -153,7 +149,7 @@ private slots:
         QFETCH(CommandLine, cmdLine);
         QFETCH(QString, testData);
 
-        if (cmdLine.executable().toString().contains("docker") && !m_dockerSetupCheckOk) {
+        if (cmdLine.executable().toUrlishString().contains("docker") && !m_dockerSetupCheckOk) {
             QSKIP("Docker was found, but does not seem to be set up correctly, skipping.");
         }
 
@@ -201,7 +197,7 @@ private slots:
         QFETCH(CommandLine, cmdLine);
         QFETCH(QString, testData);
 
-        if (cmdLine.executable().toString().contains("docker") && !m_dockerSetupCheckOk) {
+        if (cmdLine.executable().toUrlishString().contains("docker") && !m_dockerSetupCheckOk) {
             QSKIP("Docker was found, but does not seem to be set up correctly, skipping.");
         }
 
@@ -229,7 +225,7 @@ private slots:
     {
         QFETCH(CommandLine, cmdLine);
 
-        if (cmdLine.executable().toString().contains("docker") && !m_dockerSetupCheckOk) {
+        if (cmdLine.executable().toUrlishString().contains("docker") && !m_dockerSetupCheckOk) {
             QSKIP("Docker was found, but does not seem to be set up correctly, skipping.");
         }
 
@@ -252,7 +248,7 @@ private slots:
     {
         QFETCH(CommandLine, cmdLine);
 
-        if (cmdLine.executable().toString().contains("docker") && !m_dockerSetupCheckOk) {
+        if (cmdLine.executable().toUrlishString().contains("docker") && !m_dockerSetupCheckOk) {
             QSKIP("Docker was found, but does not seem to be set up correctly, skipping.");
         }
 
@@ -281,7 +277,7 @@ private slots:
     {
         QFETCH(CommandLine, cmdLine);
 
-        if (cmdLine.executable().toString().contains("docker") && !m_dockerSetupCheckOk) {
+        if (cmdLine.executable().toUrlishString().contains("docker") && !m_dockerSetupCheckOk) {
             QSKIP("Docker was found, but does not seem to be set up correctly, skipping.");
         }
 
@@ -305,7 +301,7 @@ private slots:
     {
         QFETCH(CommandLine, cmdLine);
 
-        if (cmdLine.executable().toString().contains("docker") && !m_dockerSetupCheckOk) {
+        if (cmdLine.executable().toUrlishString().contains("docker") && !m_dockerSetupCheckOk) {
             QSKIP("Docker was found, but does not seem to be set up correctly, skipping.");
         }
 

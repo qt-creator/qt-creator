@@ -19,6 +19,7 @@
 #include <coreplugin/welcomepagehelper.h>
 
 #include <utils/algorithm.h>
+#include <utils/elidinglabel.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
@@ -64,25 +65,16 @@ public:
         auto ideIconLabel = new QLabel;
         {
             const QPixmap logo = Core::Icons::QTCREATORLOGO_BIG.pixmap();
-            const int size = logo.width();
-            const QRect cropR = size == 128 ? QRect(9, 22, 110, 84) : QRect(17, 45, 222, 166);
-            const QPixmap croppedLogo = logo.copy(cropR);
-            const int lineHeight = welcomeTF.lineHeight();
-            const QPixmap scaledCroppedLogo =
-                croppedLogo.scaledToHeight((lineHeight - 12) * croppedLogo.devicePixelRatioF(),
-                                           Qt::SmoothTransformation);
-            ideIconLabel->setPixmap(scaledCroppedLogo);
-            ideIconLabel->setFixedHeight(lineHeight);
+            const int iconSize = 40 * logo.devicePixelRatio();
+            const QPixmap scaledLogo = logo.scaledToHeight(iconSize, Qt::SmoothTransformation);
+            ideIconLabel->setPixmap(scaledLogo);
+            ideIconLabel->setFixedHeight(welcomeTF.lineHeight());
         }
 
-        auto welcomeLabel = new QLabel(Tr::tr("Welcome to %1")
-                                           .arg(QGuiApplication::applicationDisplayName()));
-        {
-            welcomeLabel->setFont(welcomeTF.font());
-            QPalette pal = palette();
-            pal.setColor(QPalette::WindowText, welcomeTF.color());
-            welcomeLabel->setPalette(pal);
-        }
+        auto welcomeLabel = new ElidingLabel(Tr::tr("Welcome to %1")
+                                             .arg(QGuiApplication::applicationDisplayName()));
+        applyTf(welcomeLabel, welcomeTF);
+        welcomeLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 
         using namespace Layouting;
 
@@ -91,7 +83,7 @@ public:
                 ideIconLabel,
                 welcomeLabel,
                 st,
-                spacing(ExVPaddingGapXl),
+                spacing(HGapM),
                 customMargins(HPaddingM, VPaddingM, HPaddingM, VPaddingM),
             },
             createRule(Qt::Horizontal),
@@ -126,8 +118,8 @@ public:
         };
 
         {
-            auto newButton = new Button(Tr::tr("Create Project..."), Button::MediumPrimary);
-            auto openButton = new Button(Tr::tr("Open Project..."), Button::MediumSecondary);
+            auto newButton = new Button(Tr::tr("Create Project..."), Button::LargePrimary);
+            auto openButton = new Button(Tr::tr("Open Project..."), Button::LargeSecondary);
 
             Column projectButtons {
                 newButton,

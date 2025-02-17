@@ -4,13 +4,13 @@
 
 #include "androidrunner.h"
 
-#include "androidavdmanager.h"
 #include "androidconstants.h"
 #include "androiddevice.h"
-#include "androidmanager.h"
 #include "androidrunnerworker.h"
+#include "androidutils.h"
 
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/target.h>
 
@@ -43,9 +43,6 @@ AndroidRunner::AndroidRunner(RunControl *runControl)
         qRegisterMetaType<AndroidDeviceInfo>("Android::AndroidDeviceInfo")
     };
     Q_UNUSED(metaTypes)
-
-    connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
-            this, &AndroidRunner::qmlServerPortReady);
 }
 
 void AndroidRunner::start()
@@ -62,9 +59,9 @@ void AndroidRunner::start()
     if (!projectExplorerSettings().deployBeforeRun && target->project()) {
         qCDebug(androidRunnerLog) << "Run without deployment";
 
-        const IDevice::ConstPtr device = DeviceKitAspect::device(target->kit());
-        AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(device.get());
-        AndroidManager::setDeviceSerialNumber(target, info.serialNumber);
+        const IDevice::ConstPtr device = RunDeviceKitAspect::device(target->kit());
+        AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromDevice(device);
+        setDeviceSerialNumber(target, info.serialNumber);
         deviceSerialNumber = info.serialNumber;
         apiLevel = info.sdk;
         qCDebug(androidRunnerLog) << "Android Device Info changed" << deviceSerialNumber
@@ -75,14 +72,14 @@ void AndroidRunner::start()
 
             avdRecipe = Group {
                 serialNumberStorage,
-                AndroidAvdManager::startAvdRecipe(info.avdName, serialNumberStorage)
+                startAvdRecipe(info.avdName, serialNumberStorage)
             }.withCancel([glueStorage] {
                 return std::make_pair(glueStorage.activeStorage(), &RunnerInterface::canceled);
             });
         }
     } else {
-        deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
-        apiLevel = AndroidManager::deviceApiLevel(target);
+        deviceSerialNumber = Internal::deviceSerialNumber(target);
+        apiLevel = Internal::deviceApiLevel(target);
     }
 
     const auto onSetup = [this, glueStorage, deviceSerialNumber, apiLevel] {
@@ -114,19 +111,6 @@ void AndroidRunner::stop()
         return;
 
     emit canceled();
-}
-
-void AndroidRunner::qmlServerPortReady(Port port)
-{
-    // FIXME: Note that the passed is nonsense, as the port is on the
-    // device side. It only happens to work since we redirect
-    // host port n to target port n via adb.
-    QUrl serverUrl;
-    serverUrl.setHost(QHostAddress(QHostAddress::LocalHost).toString());
-    serverUrl.setPort(port.number());
-    serverUrl.setScheme(urlTcpScheme());
-    qCDebug(androidRunnerLog) << "Qml Server port ready"<< serverUrl;
-    emit qmlServerReady(serverUrl);
 }
 
 void AndroidRunner::remoteStarted(const Port &debugServerPort, qint64 pid)

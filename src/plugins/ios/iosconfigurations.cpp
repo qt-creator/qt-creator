@@ -12,14 +12,16 @@
 
 #include <coreplugin/icore.h>
 
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/sysrootkitaspect.h>
+#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/toolchainconfigwidget.h>
 
 #include <debugger/debuggeritemmanager.h>
@@ -69,7 +71,6 @@ const bool IgnoreAllDevicesDefault = false;
 const char SettingsGroup[] = "IosConfigurations";
 const char ignoreAllDevicesKey[] = "IgnoreAllDevices";
 
-const char provisioningTeamsTag[] = "IDEProvisioningTeams";
 const char freeTeamTag[] = "isFreeProvisioningTeam";
 const char emailTag[] = "eMail";
 const char teamNameTag[] = "teamName";
@@ -154,7 +155,7 @@ static QHash<XcodePlatform::ToolchainTarget, ToolchainPair> findToolchains(const
 static QSet<Kit *> existingAutoDetectedIosKits()
 {
     return toSet(filtered(KitManager::kits(), [](Kit *kit) -> bool {
-        Id deviceKind = DeviceTypeKitAspect::deviceTypeId(kit);
+        Id deviceKind = RunDeviceTypeKitAspect::deviceTypeId(kit);
         return kit->isAutoDetected() && (deviceKind == Constants::IOS_DEVICE_TYPE
                                          || deviceKind == Constants::IOS_SIMULATOR_TYPE);
     }));
@@ -169,7 +170,7 @@ static void printKits(const QSet<Kit *> &kits)
 static void setupKit(Kit *kit, Id pDeviceType, const ToolchainPair& toolchains,
                      const QVariant &debuggerId, const FilePath &sdkPath, QtVersion *qtVersion)
 {
-    DeviceTypeKitAspect::setDeviceTypeId(kit, pDeviceType);
+    RunDeviceTypeKitAspect::setDeviceTypeId(kit, pDeviceType);
     if (toolchains.first)
         ToolchainKitAspect::setToolchain(kit, toolchains.first);
     else
@@ -190,7 +191,7 @@ static void setupKit(Kit *kit, Id pDeviceType, const ToolchainPair& toolchains,
 
     kit->setSticky(QtKitAspect::id(), true);
     kit->setSticky(ToolchainKitAspect::id(), true);
-    kit->setSticky(DeviceTypeKitAspect::id(), true);
+    kit->setSticky(RunDeviceTypeKitAspect::id(), true);
     kit->setSticky(SysRootKitAspect::id(), true);
     kit->setSticky(DebuggerKitAspect::id(), false);
 
@@ -201,7 +202,7 @@ static QVersionNumber findXcodeVersion(const FilePath &developerPath)
 {
     const FilePath xcodeInfo = developerPath.parentDir().pathAppended("Info.plist");
     if (xcodeInfo.exists()) {
-        QSettings settings(xcodeInfo.toString(), QSettings::NativeFormat);
+        QSettings settings(xcodeInfo.toUrlishString(), QSettings::NativeFormat);
         return QVersionNumber::fromString(settings.value("CFBundleShortVersionString").toString());
     } else {
         qCDebug(iosCommonLog) << "Error finding Xcode version." << xcodeInfo.toUserOutput() <<
@@ -272,7 +273,7 @@ void IosConfigurations::updateAutomaticKitList()
                 Kit *kit = findOrDefault(existingKits, [&pDeviceType, &platformToolchains, &qtVersion](const Kit *kit) {
                     // we do not compare the sdk (thus automatically upgrading it in place if a
                     // new Xcode is used). Change?
-                    return DeviceTypeKitAspect::deviceTypeId(kit) == pDeviceType
+                    return RunDeviceTypeKitAspect::deviceTypeId(kit) == pDeviceType
                             && ToolchainKitAspect::cxxToolchain(kit) == platformToolchains.second
                             && ToolchainKitAspect::cToolchain(kit) == platformToolchains.first
                             && QtKitAspect::qtVersion(kit) == qtVersion;
@@ -428,6 +429,46 @@ void IosConfigurations::initializeProvisioningData()
             std::bind(&IosConfigurations::loadProvisioningData, this, true));
 }
 
+static QVariantMap getTeamMap(const QSettings &xcodeSettings)
+{
+    // Check the version for Xcode 16.2 and later
+    const QVariantMap teamMap = xcodeSettings.value("IDEProvisioningTeamByIdentifier").toMap();
+    if (!teamMap.isEmpty())
+        return teamMap;
+    // Fall back to setting from Xcode < 16.2
+    return xcodeSettings.value("IDEProvisioningTeams").toMap();
+}
+
+static QHash<QString, QString> getIdentifierToEmail(const QSettings &xcodeSettings)
+{
+    // Available for Xcode 16.2 and later, where the keys for the IDEProvisioningTeamByIdentifier
+    // (see getTeamMap) are identifiers, and the "email" is in yet another "map":
+    // "DVTDeveloperAccountManagerAppleIDLists" => {
+    //   "IDE.Identifiers.Prod" => [
+    //     0 => {
+    //       "identifier" => "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    //     }
+    //   ]
+    //   "IDE.Prod" => [
+    //     0 => {
+    //       "username" => "xxxx"
+    //     }
+    //   ]
+    // }
+    const QVariantMap accountMap
+        = xcodeSettings.value("DVTDeveloperAccountManagerAppleIDLists").toMap();
+    const QVariantList idList = accountMap.value("IDE.Identifiers.Prod").toList();
+    const QVariantList emailList = accountMap.value("IDE.Prod").toList();
+    QHash<QString, QString> result;
+    const int size = std::min(idList.size(), emailList.size());
+    for (int i = 0; i < size; ++i) {
+        result.insert(
+            idList.at(i).toMap().value("identifier").toString(),
+            emailList.at(i).toMap().value("username").toString());
+    }
+    return result;
+}
+
 void IosConfigurations::loadProvisioningData(bool notify)
 {
     m_developerTeams.clear();
@@ -435,7 +476,8 @@ void IosConfigurations::loadProvisioningData(bool notify)
 
     // Populate Team id's
     const QSettings xcodeSettings(xcodePlistPath, QSettings::NativeFormat);
-    const QVariantMap teamMap = xcodeSettings.value(provisioningTeamsTag).toMap();
+    const QVariantMap teamMap = getTeamMap(xcodeSettings);
+    const QHash<QString, QString> identifierToName = getIdentifierToEmail(xcodeSettings);
     QList<QVariantMap> teams;
     for (auto accountiterator = teamMap.cbegin(), end = teamMap.cend();
             accountiterator != end; ++accountiterator) {
@@ -447,7 +489,8 @@ void IosConfigurations::loadProvisioningData(bool notify)
             QVariantMap teamInfo = teamInfoIt.toMap();
             int provisioningTeamIsFree = teamInfo.value(freeTeamTag).toBool() ? 1 : 0;
             teamInfo[freeTeamTag] = provisioningTeamIsFree;
-            teamInfo[emailTag] = accountiterator.key();
+            teamInfo[emailTag]
+                = identifierToName.value(accountiterator.key(), /*default=*/accountiterator.key());
             teams.append(teamInfo);
         }
     }

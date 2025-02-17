@@ -324,7 +324,7 @@ FilePath GitEditorWidget::fileNameForLine(int line) const
     // 7971b6e7 share/qtcreator/dumper/dumper.py   (hjk
     QTextBlock block = document()->findBlockByLineNumber(line - 1);
     QTC_ASSERT(block.isValid(), return source());
-    static QRegularExpression renameExp("^" CHANGE_PATTERN "\\s+([^(]+)");
+    static const QRegularExpression renameExp("^" CHANGE_PATTERN "\\s+([^(]+)");
     const QRegularExpressionMatch match = renameExp.match(block.text());
     if (match.hasMatch()) {
         const QString fileName = match.captured(1).trimmed();

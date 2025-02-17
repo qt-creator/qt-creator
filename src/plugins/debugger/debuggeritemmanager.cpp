@@ -45,10 +45,48 @@
 #include <QTreeView>
 #include <QWidget>
 
+using namespace Debugger;
 using namespace Debugger::Internal;
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
+
+static DebuggerItem makeAutoDetectedDebuggerItem(
+    const FilePath &command,
+    const DebuggerItem::TechnicalData &technicalData,
+    const QString &detectionSource)
+{
+    DebuggerItem item;
+    item.createId();
+    item.setCommand(command);
+    item.setDetectionSource(detectionSource);
+    item.setAutoDetected(true);
+    item.setEngineType(technicalData.engineType);
+    item.setAbis(technicalData.abis);
+    item.setVersion(technicalData.version);
+    const QString name = detectionSource.isEmpty() ? Tr::tr("System %1 at %2")
+                                                   : Tr::tr("Detected %1 at %2");
+    item.setUnexpandedDisplayName(name.arg(item.engineTypeName()).arg(command.toUserOutput()));
+    item.setLastModified(command.lastModified());
+    return item;
+}
+
+static expected_str<DebuggerItem> makeAutoDetectedDebuggerItem(
+    const FilePath &command, const QString &detectionSource)
+{
+    expected_str<DebuggerItem::TechnicalData> technicalData
+        = DebuggerItem::TechnicalData::extract(command, {});
+
+    if (!technicalData)
+        return make_unexpected(std::move(technicalData).error());
+
+    return makeAutoDetectedDebuggerItem(command, *technicalData, detectionSource);
+}
+
+static bool doEnableNativeDapDebuggers()
+{
+    return qgetenv("QTC_ENABLE_NATIVE_DAP_DEBUGGERS").toInt() != 0;
+}
 
 namespace Debugger {
 namespace Internal {
@@ -607,9 +645,28 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPath
                                                      const QString &detectionSource,
                                                      QString *logMessage)
 {
-    const QStringList filters = {"gdb-i686-pc-mingw32", "gdb-i686-pc-mingw32.exe", "gdb",
-                                 "gdb.exe", "lldb", "lldb.exe", "lldb-[1-9]*",
-                                 "arm-none-eabi-gdb-py.exe", "*-*-*-gdb"};
+    QStringList filters
+        = {"gdb-i686-pc-mingw32",
+           "gdb-i686-pc-mingw32.exe",
+           "gdb",
+           "gdb.exe",
+           "lldb",
+           "lldb.exe",
+           "lldb-[1-9]*",
+           "arm-none-eabi-gdb-py.exe",
+           "*-*-*-gdb"};
+
+    if (doEnableNativeDapDebuggers()) {
+        filters.append({
+            "lldb-dap",
+            "lldb-dap.exe",
+            "lldb-dap-*",
+            // LLDB DAP server was named lldb-vscode prior LLVM 18.0.0
+            "lldb-vscode",
+            "lldb-vscode.exe",
+            "lldb-vscode-*",
+        });
+    }
 
     if (searchPaths.isEmpty())
         return;
@@ -629,7 +686,7 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPath
     }
 
     FilePaths paths = searchPaths;
-    if (!searchPaths.front().needsDevice()) {
+    if (searchPaths.front().isLocal()) {
         paths.append(searchGdbPathsFromRegistry());
 
         const expected_str<FilePath> lldb = Core::ICore::lldbExecutable(CLANG_BINDIR);
@@ -651,24 +708,78 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPath
         const auto commandMatches = [command](const DebuggerTreeItem *titem) {
             return titem->m_item.command() == command;
         };
-        if (DebuggerTreeItem *existingItem = findItemAtLevel<2>(commandMatches)) {
-            if (command.lastModified() != existingItem->m_item.lastModified())
-                existingItem->m_item.reinitializeFromFile();
+        if (DebuggerTreeItem *existingTreeItem = findItemAtLevel<2>(commandMatches)) {
+            DebuggerItem &existingItem = existingTreeItem->m_item;
+            if (command.lastModified() != existingItem.lastModified())
+                existingItem.reinitializeFromFile();
+
+            if (doEnableNativeDapDebuggers()) {
+                if (existingItem.engineType() != GdbEngineType)
+                    continue;
+
+                // GDB starting version 14.1.0 supports DAP interface, but unlike LLDB,
+                // it uses the same binary, hence this hack.
+                const QVersionNumber dapSupportMinVersion{14, 1, 0};
+                if (QVersionNumber::fromString(existingItem.version()) < dapSupportMinVersion)
+                    continue;
+                // This is the "update" path: there's already a capable GDB in the settings,
+                // we only need to add a corresponding DAP entry if it's missing.
+                const auto commandMatchesAndIsDap = [command, commandMatches](
+                                                        const DebuggerTreeItem *titem) {
+                    return commandMatches(titem) && titem->m_item.engineType() == GdbDapEngineType;
+                };
+                const DebuggerTreeItem *existingDapTreeItem = findItemAtLevel<2>(
+                    commandMatchesAndIsDap);
+                if (existingDapTreeItem)
+                    continue;
+
+                const DebuggerItem dapItem = makeAutoDetectedDebuggerItem(
+                    command,
+                    {
+                        .engineType = GdbDapEngineType,
+                        .abis = existingItem.abis(),
+                        .version = existingItem.version(),
+                    },
+                    detectionSource);
+                addDebuggerItem(dapItem);
+                logMessages.append(
+                    Tr::tr("Added a surrogate GDB DAP item for existing entry \"%1\".")
+                        .arg(command.toUserOutput()));
+            }
             continue;
         }
-        DebuggerItem item;
-        item.createId();
-        item.setDetectionSource(detectionSource);
-        item.setAutoDetected(true);
-        item.setCommand(command);
-        item.reinitializeFromFile();
-        if (item.engineType() == NoEngineType)
+
+        const expected_str<DebuggerItem> item
+            = makeAutoDetectedDebuggerItem(command, detectionSource);
+        if (!item) {
+            logMessages.append(item.error());
             continue;
-        //: %1: Debugger engine type (GDB, LLDB, CDB...), %2: Path
-        const QString name = detectionSource.isEmpty() ? Tr::tr("System %1 at %2") : Tr::tr("Detected %1 at %2");
-        item.setUnexpandedDisplayName(name.arg(item.engineTypeName()).arg(command.toUserOutput()));
-        addDebuggerItem(item);
+        }
+
+        addDebuggerItem(*item);
         logMessages.append(Tr::tr("Found: \"%1\"").arg(command.toUserOutput()));
+        if (doEnableNativeDapDebuggers()) {
+            if (item->engineType() != GdbEngineType)
+                continue;
+
+            // GDB starting version 14.1.0 supports DAP interface, but unlike LLDB,
+            // it uses the same binary, hence this hack
+            const QVersionNumber dapSupportMinVersion{14, 1, 0};
+            if (QVersionNumber::fromString(item->version()) < dapSupportMinVersion)
+                continue;
+
+            const DebuggerItem dapItem = makeAutoDetectedDebuggerItem(
+                command,
+                {
+                    .engineType = GdbDapEngineType,
+                    .abis = item->abis(),
+                    .version = item->version(),
+                },
+                detectionSource);
+            addDebuggerItem(dapItem);
+            logMessages.append(
+                Tr::tr("Added a surrogate GDB DAP item for \"%1\".").arg(command.toUserOutput()));
+        }
     }
     if (logMessage)
         *logMessage = logMessages.join('\n');
@@ -700,7 +811,7 @@ void DebuggerItemModel::autoDetectUvscDebuggers()
 
         QString errorMsg;
         const QString uVisionVersion = winGetDLLVersion(
-                    WinDLLFileVersion, uVision.toString(), &errorMsg);
+                    WinDLLFileVersion, uVision.toUrlishString(), &errorMsg);
 
         DebuggerItem item;
         item.createId();
@@ -777,7 +888,7 @@ void DebuggerItemModel::readDebuggers(const FilePath &fileName, bool isSystem)
                     continue;
                 }
                 // FIXME: During startup, devices are not yet available, so we cannot check if the file still exists.
-                if (!item.command().needsDevice() && !item.command().isExecutableFile()) {
+                if (item.command().isLocal() && !item.command().isExecutableFile()) {
                     qWarning() << QString("DebuggerItem \"%1\" (%2) read from \"%3\" dropped since the command is not executable.")
                                   .arg(item.command().toUserOutput(), item.id().toString(), fileName.toUserOutput());
                     continue;

@@ -4,13 +4,14 @@
 #include "projectimporter.h"
 
 #include "buildinfo.h"
+#include "devicesupport/devicekitaspects.h"
 #include "kit.h"
-#include "kitaspects.h"
 #include "kitmanager.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "target.h"
 #include "toolchain.h"
+#include "toolchainkitaspect.h"
 #include "toolchainmanager.h"
 
 #include <coreplugin/icore.h>
@@ -88,16 +89,16 @@ const QList<BuildInfo> ProjectImporter::import(const Utils::FilePath &importPath
                               Tr::tr("No build found in %1 matching project %2.")
                                   .arg(importPath.toUserOutput(), projectFilePath().toUserOutput()));
     };
-    qCDebug(log) << "Examining directory" << absoluteImportPath.toString();
+    qCDebug(log) << "Examining directory" << absoluteImportPath.toUrlishString();
     QString warningMessage;
     QList<void *> dataList = examineDirectory(absoluteImportPath, &warningMessage);
     if (dataList.isEmpty()) {
-        qCDebug(log) << "Nothing to import found in" << absoluteImportPath.toString();
+        qCDebug(log) << "Nothing to import found in" << absoluteImportPath.toUrlishString();
         handleFailure();
         return result;
     }
     if (!warningMessage.isEmpty()) {
-        qCDebug(log) << "Warning when examining" << absoluteImportPath.toString();
+        qCDebug(log) << "Warning when examining" << absoluteImportPath.toUrlishString();
         // we should ask user before importing
         if (silent)
             return result;
@@ -137,7 +138,14 @@ const QList<BuildInfo> ProjectImporter::import(const Utils::FilePath &importPath
             }
 
             auto factory = BuildConfigurationFactory::find(k, projectFilePath());
+            if (!factory) {
+                qCDebug(log) << "No factory for kit" << k->displayName();
+                continue;
+            }
             for (BuildInfo i : infoList) {
+                const QVariantMap extraInfo = i.extraInfo.toMap();
+                if (!extraInfo["hideImportedSuffix"].toBool())
+                    i.displayName = Tr::tr("%1 (imported)").arg(i.displayName);
                 i.kitId = k->id();
                 i.factory = factory;
                 if (!result.contains(i))
@@ -173,7 +181,7 @@ Target *ProjectImporter::preferredTarget(const QList<Target *> &possibleTargets)
             return t;
         if (pickedFallback)
             continue;
-        if (DeviceTypeKitAspect::deviceTypeId(t->kit()) == Constants::DESKTOP_DEVICE_TYPE) {
+        if (RunDeviceTypeKitAspect::deviceTypeId(t->kit()) == Constants::DESKTOP_DEVICE_TYPE) {
             activeTarget = t;
             pickedFallback = true;
         }
@@ -262,7 +270,7 @@ void ProjectImporter::addProject(Kit *k) const
 
     UpdateGuard guard(*this);
     QStringList projects = k->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
-    projects.append(m_projectPath.toString()); // note: There can be more than one instance of the project added!
+    projects.append(m_projectPath.toUrlishString()); // note: There can be more than one instance of the project added!
     k->setValueSilently(TEMPORARY_OF_PROJECTS, projects);
 }
 
@@ -274,7 +282,7 @@ void ProjectImporter::removeProject(Kit *k) const
 
     UpdateGuard guard(*this);
     QStringList projects = k->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
-    projects.removeOne(m_projectPath.toString());
+    projects.removeOne(m_projectPath.toUrlishString());
 
     if (projects.isEmpty()) {
         cleanupKit(k);

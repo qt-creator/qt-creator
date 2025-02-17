@@ -40,8 +40,9 @@ protected:
 
 FilePath UicGenerator::command() const
 {
-    Target *target = project()->activeTarget();
-    Kit *kit = target ? target->kit() : KitManager::defaultKit();
+    Kit *kit = project()->activeKit();
+    if (!kit)
+        kit = KitManager::defaultKit();
     QtVersion *version = QtKitAspect::qtVersion(kit);
 
     if (!version)
@@ -61,7 +62,7 @@ FileNameToContentsHash UicGenerator::handleProcessFinished(Process *process)
         return result;
     // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
     // conversion below is to normalize both the encoding, and the line terminators.
-    QByteArray content = QString::fromLocal8Bit(process->readAllRawStandardOutput()).toUtf8();
+    QByteArray content = process->readAllStandardOutput().toUtf8();
     content.prepend("#pragma once\n");
     result[targetList.first()] = content;
     return result;

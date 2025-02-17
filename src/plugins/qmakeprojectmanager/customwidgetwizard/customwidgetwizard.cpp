@@ -29,10 +29,9 @@ CustomWidgetWizard::CustomWidgetWizard()
     setRequiredFeatures({QtSupport::Constants::FEATURE_QWIDGETS});
 }
 
-Core::BaseFileWizard *CustomWidgetWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *CustomWidgetWizard::create(const Core::WizardDialogParameters &parameters) const
 {
-    CustomWidgetWizardDialog *rc = new CustomWidgetWizardDialog(this, displayName(),
-                                                                icon(), parent, parameters);
+    auto rc = new CustomWidgetWizardDialog(this, displayName(), icon(), parameters);
     rc->setProjectName(CustomWidgetWizardDialog::uniqueProjectName(parameters.defaultPath()));
     rc->setFileNamingParameters(FileNamingParameters(headerSuffix(), sourceSuffix(), QtWizard::lowerCaseFiles()));
     return rc;
@@ -45,7 +44,7 @@ Core::GeneratedFiles CustomWidgetWizard::generateFiles(const QWizard *w,
     Q_ASSERT(w);
     GenerationParameters p;
     p.fileName = cw->projectName();
-    p.path = cw->filePath().toString();
+    p.path = cw->filePath().toUrlishString();
     p.templatePath = QtWizard::templateDir();
     p.templatePath += QLatin1String("/customwidgetwizard");
     return PluginGenerator::generatePlugin(p, *(cw->pluginOptions()), errorMessage);

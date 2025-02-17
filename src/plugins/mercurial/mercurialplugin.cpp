@@ -85,8 +85,6 @@ public:
                                              const QString &localName,
                                              const QStringList &extraArgs) final;
 
-    bool sccManaged(const QString &filename);
-
     // To be connected to the HgTask's success signal to emit the repository/
     // files changed signals according to the variant's type:
     // String -> repository, StringList -> files
@@ -194,7 +192,7 @@ MercurialPluginPrivate::MercurialPluginPrivate()
         return repository.pathAppended(".hg/branch");
     });
     setTopicRefresher([](const FilePath &repository) {
-        return mercurialClient().branchQuerySync(repository.toString());
+        return mercurialClient().branchQuerySync(repository.toUrlishString());
     });
 
     Core::Context context(Constants::MERCURIAL_CONTEXT);
@@ -615,7 +613,7 @@ bool MercurialPluginPrivate::activateCommit()
         QStringList extraOptions;
         if (!commitEditor->committerInfo().isEmpty())
             extraOptions << QLatin1String("-u") << commitEditor->committerInfo();
-        mercurialClient().commit(m_submitRepository, files, editorFile->filePath().toString(),
+        mercurialClient().commit(m_submitRepository, files, editorFile->filePath().toUrlishString(),
                                  extraOptions);
     }
     return true;
@@ -655,7 +653,8 @@ bool MercurialPluginPrivate::isVcsFileOrDirectory(const FilePath &filePath) cons
 
 bool MercurialPluginPrivate::managesDirectory(const FilePath &filePath, FilePath *topLevel) const
 {
-    const FilePath topLevelFound = mercurialClient().findTopLevelForFile(filePath);
+    const FilePath topLevelFound = Core::VcsManager::findRepositoryForFiles(
+        filePath, {QString(Constants::MERCURIALREPO) + "/requires"});
     if (topLevel)
         *topLevel = topLevelFound;
     return !topLevelFound.isEmpty();
@@ -737,17 +736,6 @@ VcsCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const QString &
                    mercurialClient().processEnvironment(baseDirectory));
     command->addJob({settings().binaryPath(), {"clone", extraArgs, url, localName}}, -1);
     return command;
-}
-
-bool MercurialPluginPrivate::sccManaged(const QString &filename)
-{
-    const QFileInfo fi(filename);
-    FilePath topLevel;
-    const bool managed = managesDirectory(FilePath::fromString(fi.absolutePath()), &topLevel);
-    if (!managed || topLevel.isEmpty())
-        return false;
-    const QDir topLevelDir(topLevel.toString());
-    return mercurialClient().manifestSync(topLevel, topLevelDir.relativeFilePath(filename));
 }
 
 void MercurialPluginPrivate::changed(const QVariant &v)

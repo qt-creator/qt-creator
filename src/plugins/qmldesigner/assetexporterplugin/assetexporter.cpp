@@ -288,7 +288,7 @@ void AssetExporter::preprocessQmlFile(const Utils::FilePath &path)
     rewriterView->restoreAuxiliaryData();
     ModelNode rootNode = rewriterView->rootModelNode();
     if (!rootNode.isValid()) {
-        ExportNotification::addError(tr("Cannot preprocess file: %1").arg(path.toString()));
+        ExportNotification::addError(tr("Cannot preprocess file: %1").arg(path.toUrlishString()));
         return;
     }
 
@@ -317,7 +317,7 @@ void AssetExporter::preprocessQmlFile(const Utils::FilePath &path)
 
     // Cache component UUID
     const QString uuid = rootNode.auxiliaryDataWithDefault(uuidProperty).toString();
-    m_componentUuidCache[path.toString()] = uuid;
+    m_componentUuidCache[path.toUrlishString()] = uuid;
 }
 
 bool AssetExporter::assignUuids(const ModelNode &root)
@@ -394,7 +394,7 @@ void AssetExporter::writeMetadata() const
     auto writeFile = [](const Utils::FilePath &path, const QJsonArray &artboards) {
         if (!makeParentPath(path)) {
             ExportNotification::addError(tr("Writing metadata failed. Cannot create file %1").
-                                         arg(path.toString()));
+                                         arg(path.toUrlishString()));
             return;
         }
 
@@ -542,7 +542,7 @@ void AssetDumper::savePixmap(const QPixmap &p, Utils::FilePath &path) const
         return;
     }
 
-    if (!p.save(path.toString())) {
+    if (!p.save(path.toUrlishString())) {
         ExportNotification::addError(Tr::tr("Error saving asset. %1").arg(path.fileName()));
     }
 }

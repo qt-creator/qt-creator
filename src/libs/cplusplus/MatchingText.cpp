@@ -475,7 +475,7 @@ bool MatchingText::isInCommentHelper(const QTextCursor &cursor, Token *retToken)
             *retToken = tk;
         if (tk.is(T_CPP_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))
             return true;
-        return tk.isComment() && (cursor.block().userState() & 0xFF);
+        return tk.isComment() && cursor.block().userState();
     }
 
     Token tk = tokenAtPosition(tokens, pos);

@@ -26,7 +26,7 @@ inline ExtensionSystem::IPlugin *licenseCheckerPlugin()
 {
     const ExtensionSystem::PluginSpec *pluginSpec = Utils::findOrDefault(
         ExtensionSystem::PluginManager::plugins(),
-        Utils::equal(&ExtensionSystem::PluginSpec::name, QString("LicenseChecker")));
+        Utils::equal(&ExtensionSystem::PluginSpec::id, QString("licensechecker")));
 
     if (pluginSpec)
         return pluginSpec->plugin();
@@ -37,7 +37,7 @@ inline ExtensionSystem::IPlugin *dsLicenseCheckerPlugin()
 {
     const ExtensionSystem::PluginSpec *pluginSpec = Utils::findOrDefault(
         ExtensionSystem::PluginManager::plugins(),
-        Utils::equal(&ExtensionSystem::PluginSpec::name, QString("DSLicense")));
+        Utils::equal(&ExtensionSystem::PluginSpec::id, QString("dslicense")));
 
     if (pluginSpec)
         return pluginSpec->plugin();
@@ -48,7 +48,7 @@ inline bool dsLicenseCheckerPluginExists()
 {
     const ExtensionSystem::PluginSpec *pluginSpec = Utils::findOrDefault(
         ExtensionSystem::PluginManager::plugins(),
-        Utils::equal(&ExtensionSystem::PluginSpec::name, QString("DSLicense")));
+        Utils::equal(&ExtensionSystem::PluginSpec::id, QString("dslicense")));
 
     return pluginSpec;
 }

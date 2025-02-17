@@ -613,6 +613,8 @@ QString Client::stateString() const
     case Shutdown: return Tr::tr("shut down");
     //: language client state
     case Error: return Tr::tr("error");
+    //: language client state
+    case FailedToShutdown: return Tr::tr("failed to shutdown");
     }
     return {};
 }
@@ -797,6 +799,7 @@ void Client::closeDocument(TextEditor::TextDocument *document,
         if (d->m_state == Initialized)
             d->sendCloseNotification(overwriteFilePath.value_or(document->filePath()));
     }
+    d->m_tokenSupport.clearCache(document);
 
     if (d->m_state != Initialized)
         return;
@@ -1035,7 +1038,7 @@ void Client::deactivateDocument(TextEditor::TextDocument *document)
         d->m_diagnosticManager->hideDiagnostics(document->filePath());
     d->resetAssistProviders(document);
     document->setFormatter(nullptr);
-    d->m_tokenSupport.clearHighlight(document);
+    d->m_tokenSupport.deactivateDocument(document);
     for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document)) {
         if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor)) {
             TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
@@ -1622,6 +1625,12 @@ bool Client::hasDiagnostics(const TextEditor::TextDocument *document) const
     return false;
 }
 
+void Client::hideDiagnostics(const Utils::FilePath &documentPath)
+{
+    if (d->m_diagnosticManager)
+        d->m_diagnosticManager->hideDiagnostics(documentPath);
+}
+
 DiagnosticManager *Client::createDiagnosticManager()
 {
     return new DiagnosticManager(this);
@@ -1734,7 +1743,22 @@ bool ClientPrivate::reset()
 void Client::setError(const QString &message)
 {
     log(message);
-    d->setState(d->m_state < Initialized ? FailedToInitialize : Error);
+    switch (d->m_state) {
+    case Uninitialized:
+    case InitializeRequested:
+    case FailedToInitialize:
+        d->setState(FailedToInitialize);
+        return;
+    case Initialized:
+    case Error:
+        d->setState(Error);
+        return;
+    case ShutdownRequested:
+    case FailedToShutdown:
+    case Shutdown:
+        d->setState(FailedToShutdown);
+        return;
+    }
 }
 
 ProgressManager *Client::progressManager()
@@ -1942,6 +1966,13 @@ static ResponseError<T> createInvalidParamsError(const QString &message)
 
 void ClientPrivate::handleMethod(const QString &method, const MessageId &id, const JsonRpcMessage &message)
 {
+    const auto customHandler = m_customHandlers.constFind(method);
+    if (customHandler != m_customHandlers.constEnd()) {
+        const bool isHandled = (*customHandler)(message);
+        if (isHandled)
+            return;
+    }
+
     auto invalidParamsErrorMessage = [&](const JsonObject &params) {
         return Tr::tr("Invalid parameter in \"%1\":\n%2")
             .arg(method, QString::fromUtf8(QJsonDocument(params).toJson(QJsonDocument::Indented)));
@@ -1956,7 +1987,6 @@ void ClientPrivate::handleMethod(const QString &method, const MessageId &id, con
     };
 
     const bool isRequest = id.isValid();
-
     bool responseSend = false;
     auto sendResponse =
         [&](const JsonRpcMessage &response) {
@@ -2096,12 +2126,6 @@ void ClientPrivate::handleMethod(const QString &method, const MessageId &id, con
         error.setMessage(QString("The client cannot handle the method '%1'.").arg(method));
         response.setError(error);
         sendResponse(response);
-    } else {
-        const auto customHandler = m_customHandlers.constFind(method);
-        if (customHandler != m_customHandlers.constEnd()) {
-            (*customHandler)(message);
-            return;
-        }
     }
 
     // we got a request and handled it somewhere above but we missed to generate a response for it
@@ -2328,6 +2352,8 @@ OsType Client::osType() const
 
 void Client::registerCustomMethod(const QString &method, const CustomMethodHandler &handler)
 {
+    if (d->m_customHandlers.contains(method))
+        qCWarning(LOGLSPCLIENT) << "Overwriting custom method handler for:" << method;
     d->m_customHandlers.insert(method, handler);
 }
 

@@ -141,6 +141,12 @@
 
     \generatelist creator-how-to-remote-linux
 
+    \section2 SDKs
+
+    Manage SDKs for application development for different platforms.
+
+    \generatelist creator-how-to-sdks
+
     \section2 VxWorks
 
     Build \l {Qt for VxWorks}, and create VxWorks build and run kits.
@@ -589,6 +595,11 @@
         \li \c %$VARIABLE%: Contents of environment variable \c{VARIABLE}.
 
     \endlist
+
+    In addition, placeholders in the form %{..} are replaced by the
+    value of the corresponding \QC variable.
+
+    \sa {Use \QC variables}
 */
 
 /*!

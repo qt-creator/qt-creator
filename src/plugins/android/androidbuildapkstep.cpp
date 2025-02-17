@@ -5,14 +5,12 @@
 #include "androidbuildapkstep.h"
 #include "androidconfigurations.h"
 #include "androidconstants.h"
-#include "androidcreatekeystorecertificate.h"
-#include "androidextralibrarylistmodel.h"
-#include "androidmanager.h"
 #include "androidqtversion.h"
 #include "androidsdkmanager.h"
 #include "androidtr.h"
-#include "certificatesmodel.h"
-#include "createandroidmanifestwizard.h"
+#include "androidutils.h"
+#include "keystorecertificatedialog.h"
+#include "manifestwizard.h"
 #include "javaparser.h"
 
 #include <coreplugin/fileutils.h>
@@ -56,15 +54,180 @@
 #include <QPushButton>
 #include <QTimer>
 
-#include <memory>
-
 using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
 
+using namespace std::chrono_literals;
+
 namespace Android::Internal {
 
 static Q_LOGGING_CATEGORY(buildapkstepLog, "qtc.android.build.androidbuildapkstep", QtWarningMsg)
+
+const QLatin1String AliasString("Alias name:");
+const QLatin1String CertificateSeparator("*******************************************");
+
+class CertificatesModel : public QAbstractListModel
+{
+public:
+    CertificatesModel(const QString &rowCertificates, QObject *parent)
+        : QAbstractListModel(parent)
+    {
+        int from = rowCertificates.indexOf(AliasString);
+        QPair<QString, QString> item;
+        while (from > -1) {
+            from += 11;// strlen(AliasString);
+            const int eol = rowCertificates.indexOf(QLatin1Char('\n'), from);
+            item.first = rowCertificates.mid(from, eol - from).trimmed();
+            const int eoc = rowCertificates.indexOf(CertificateSeparator, eol);
+            item.second = rowCertificates.mid(eol + 1, eoc - eol - 2).trimmed();
+            from = rowCertificates.indexOf(AliasString, eoc);
+            m_certs.push_back(item);
+        }
+    }
+
+protected:
+    int rowCount(const QModelIndex &parent = {}) const override
+    {
+        if (parent.isValid())
+            return 0;
+        return m_certs.size();
+    }
+
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
+    {
+        if (!index.isValid() || (role != Qt::DisplayRole && role != Qt::ToolTipRole))
+            return {};
+        if (role == Qt::DisplayRole)
+            return m_certs[index.row()].first;
+        return m_certs[index.row()].second;
+    }
+
+private:
+    QList<QPair<QString, QString>> m_certs;
+};
+
+class LibraryListModel : public QAbstractItemModel
+{
+    Q_OBJECT
+
+public:
+    LibraryListModel(ProjectExplorer::BuildSystem *buildSystem, QObject *parent);
+
+    QModelIndex index(int row, int column, const QModelIndex &) const override
+    { return createIndex(row, column); }
+    QModelIndex parent(const QModelIndex &) const override { return {};  }
+    int rowCount(const QModelIndex &) const override { return m_entries.size(); }
+    int columnCount(const QModelIndex &) const override { return 1; }
+    QVariant data(const QModelIndex &index, int role) const override;
+
+    void removeEntries(QModelIndexList list);
+    void addEntries(const QStringList &list);
+
+signals:
+    void enabledChanged(bool);
+
+private:
+    void updateModel();
+
+    ProjectExplorer::BuildSystem *m_buildSystem;
+    QStringList m_entries;
+};
+
+LibraryListModel::LibraryListModel(BuildSystem *buildSystem, QObject *parent)
+    : QAbstractItemModel(parent)
+    , m_buildSystem(buildSystem)
+{
+    updateModel();
+
+    connect(buildSystem, &BuildSystem::parsingStarted, this, &LibraryListModel::updateModel);
+    connect(buildSystem, &BuildSystem::parsingFinished, this, &LibraryListModel::updateModel);
+    // Causes target()->activeBuildKey() result and consequently the node data
+    // extracted below to change.
+    connect(buildSystem->target(), &Target::activeRunConfigurationChanged,
+            this, &LibraryListModel::updateModel);
+}
+
+QVariant LibraryListModel::data(const QModelIndex &index, int role) const
+{
+    QTC_ASSERT(index.row() >= 0 && index.row() < m_entries.size(), return {});
+    if (role == Qt::DisplayRole)
+        return QDir::cleanPath(m_entries.at(index.row()));
+    return {};
+}
+
+void LibraryListModel::addEntries(const QStringList &list)
+{
+    const QString buildKey = m_buildSystem->target()->activeBuildKey();
+    const ProjectNode *node = m_buildSystem->target()->project()->findNodeForBuildKey(buildKey);
+    QTC_ASSERT(node, return);
+
+    beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size() + list.size());
+
+    const QDir dir = node->filePath().toFileInfo().absoluteDir();
+    for (const QString &path : list)
+        m_entries += "$$PWD/" + dir.relativeFilePath(path);
+
+    m_buildSystem->setExtraData(buildKey, Constants::AndroidExtraLibs, m_entries);
+    endInsertRows();
+}
+
+static bool greaterModelIndexByRow(const QModelIndex &a, const QModelIndex &b)
+{
+    return a.row() > b.row();
+}
+
+void LibraryListModel::removeEntries(QModelIndexList list)
+{
+    if (list.isEmpty())
+        return;
+
+    std::sort(list.begin(), list.end(), greaterModelIndexByRow);
+
+    int i = 0;
+    while (i < list.size()) {
+        int lastRow = list.at(i++).row();
+        int firstRow = lastRow;
+        while (i < list.size() && firstRow - list.at(i).row()  <= 1)
+            firstRow = list.at(i++).row();
+
+        beginRemoveRows(QModelIndex(), firstRow, lastRow);
+        int count = lastRow - firstRow + 1;
+        while (count-- > 0)
+            m_entries.removeAt(firstRow);
+        endRemoveRows();
+    }
+
+    const QString buildKey = m_buildSystem->target()->activeBuildKey();
+    m_buildSystem->setExtraData(buildKey, Constants::AndroidExtraLibs, m_entries);
+}
+
+void LibraryListModel::updateModel()
+{
+    const QString buildKey = m_buildSystem->target()->activeBuildKey();
+    const ProjectNode *node = m_buildSystem->target()->project()->findNodeForBuildKey(buildKey);
+    if (!node)
+        return;
+
+    if (node->parseInProgress()) {
+        emit enabledChanged(false);
+        return;
+    }
+
+    bool enabled;
+    beginResetModel();
+    if (node->validParse()) {
+        m_entries = node->data(Constants::AndroidExtraLibs).toStringList();
+        enabled = true;
+    } else {
+        // parsing error
+        m_entries.clear();
+        enabled = false;
+    }
+    endResetModel();
+
+    emit enabledChanged(enabled);
+}
 
 const char KeystoreLocationKey[] = "KeystoreLocation";
 const char BuildTargetSdkKey[] = "BuildTargetSdk";
@@ -79,11 +242,10 @@ public:
     };
 
     PasswordInputDialog(Context context, std::function<bool (const QString &)> callback,
-                        const QString &extraContextStr, QWidget *parent = nullptr);
+                        const QString &extraContextStr);
 
     static QString getPassword(Context context, std::function<bool (const QString &)> callback,
-                               const QString &extraContextStr, bool *ok = nullptr,
-                               QWidget *parent = nullptr);
+                               const QString &extraContextStr, bool *ok = nullptr);
 
 private:
     std::function<bool (const QString &)> verifyCallback = [](const QString &) { return true; };
@@ -94,6 +256,49 @@ private:
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                                        this);
 };
+
+static bool checkKeystorePassword(const FilePath &keystorePath, const QString &keystorePasswd)
+{
+    if (keystorePasswd.isEmpty())
+        return false;
+    const CommandLine cmd(AndroidConfig::keytoolPath(),
+                          {"-list", "-keystore", keystorePath.toUserOutput(),
+                           "--storepass", keystorePasswd});
+    Process proc;
+    proc.setCommand(cmd);
+    proc.runBlocking(10s);
+    return proc.result() == ProcessResult::FinishedWithSuccess;
+}
+
+static bool checkCertificatePassword(const FilePath &keystorePath, const QString &keystorePasswd,
+                                     const QString &alias, const QString &certificatePasswd)
+{
+    // assumes that the keystore password is correct
+    QStringList arguments = {"-certreq", "-keystore", keystorePath.toUserOutput(),
+                             "--storepass", keystorePasswd, "-alias", alias, "-keypass"};
+    if (certificatePasswd.isEmpty())
+        arguments << keystorePasswd;
+    else
+        arguments << certificatePasswd;
+
+    Process proc;
+    proc.setCommand({AndroidConfig::keytoolPath(), arguments});
+    proc.runBlocking(10s);
+    return proc.result() == ProcessResult::FinishedWithSuccess;
+}
+
+static bool checkCertificateExists(const FilePath &keystorePath, const QString &keystorePasswd,
+                                   const QString &alias)
+{
+    // assumes that the keystore password is correct
+    const QStringList arguments = {"-list", "-keystore", keystorePath.toUserOutput(),
+                                   "--storepass", keystorePasswd, "-alias", alias};
+
+    Process proc;
+    proc.setCommand({AndroidConfig::keytoolPath(), arguments});
+    proc.runBlocking(10s);
+    return proc.result() == ProcessResult::FinishedWithSuccess;
+}
 
 // AndroidBuildApkWidget
 
@@ -147,14 +352,14 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
 
     auto keystoreCreateButton = new QPushButton(Tr::tr("Create..."));
     connect(keystoreCreateButton, &QAbstractButton::clicked, this, [this, keystoreLocationChooser] {
-        AndroidCreateKeystoreCertificate d;
-        if (d.exec() != QDialog::Accepted)
+        const auto data = executeKeystoreCertificateDialog();
+        if (!data)
             return;
-        keystoreLocationChooser->setFilePath(d.keystoreFilePath());
-        m_step->setKeystorePath(d.keystoreFilePath());
-        m_step->setKeystorePassword(d.keystorePassword());
-        m_step->setCertificateAlias(d.certificateAlias());
-        m_step->setCertificatePassword(d.certificatePassword());
+        keystoreLocationChooser->setFilePath(data->keystoreFilePath);
+        m_step->setKeystorePath(data->keystoreFilePath);
+        m_step->setKeystorePassword(data->keystorePassword);
+        m_step->setCertificateAlias(data->certificateAlias);
+        m_step->setCertificatePassword(data->certificatePassword);
         setCertificates();
     });
 
@@ -197,9 +402,9 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     // Application group
 
     QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_step->target()->kit());
-    const int minApiSupported = AndroidManager::defaultMinimumSDK(qt);
-    QStringList targets = AndroidConfig::apiLevelNamesFor(AndroidConfigurations::sdkManager()->
-                                                          filteredSdkPlatforms(minApiSupported));
+    const int minApiSupported = defaultMinimumSDK(qt);
+    QStringList targets = AndroidConfig::apiLevelNamesFor(
+        sdkManager().filteredSdkPlatforms(minApiSupported));
     targets.removeDuplicates();
 
     auto targetSDKComboBox = new QComboBox();
@@ -212,8 +417,8 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
    });
     targetSDKComboBox->setCurrentIndex(targets.indexOf(m_step->buildTargetSdk()));
 
-    const QList<QVersionNumber> buildToolsVersions = Utils::transform(
-                AndroidConfigurations::sdkManager()->filteredBuildTools(minApiSupported),
+    const QList<QVersionNumber> buildToolsVersions
+        = Utils::transform(sdkManager().filteredBuildTools(minApiSupported),
                 [](const BuildTools *pkg) {
         return pkg->revision();
     });
@@ -237,8 +442,7 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     createAndroidTemplatesButton->setToolTip(
         Tr::tr("Create an Android package for Custom Java code, assets, and Gradle configurations."));
     connect(createAndroidTemplatesButton, &QAbstractButton::clicked, this, [this] {
-        CreateAndroidManifestWizard wizard(m_step->buildSystem());
-        wizard.exec();
+        executeManifestWizard(m_step->buildSystem());
     });
 
     Group applicationGroup {
@@ -277,8 +481,8 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     auto additionalLibrariesGroup = new QGroupBox(Tr::tr("Additional Libraries"));
     additionalLibrariesGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
-    auto libsModel = new AndroidExtraLibraryListModel(m_step->buildSystem(), this);
-    connect(libsModel, &AndroidExtraLibraryListModel::enabledChanged, this,
+    auto libsModel = new LibraryListModel(m_step->buildSystem(), this);
+    connect(libsModel, &LibraryListModel::enabledChanged, this,
             [this, additionalLibrariesGroup](const bool enabled) {
                 additionalLibrariesGroup->setEnabled(enabled);
                 m_openSslCheckBox->setChecked(isOpenSslLibsIncluded());
@@ -404,7 +608,8 @@ bool AndroidBuildApkWidget::isOpenSslLibsIncluded()
     Utils::FilePath projectPath = appProjectFilePath();
     const QString searchStr = openSslIncludeFileContent(projectPath);
     QFile projectFile(projectPath.toFSPathString());
-    projectFile.open(QIODevice::ReadOnly);
+    if (!projectFile.open(QIODevice::ReadOnly))
+        return false;
     QTextStream textStream(&projectFile);
     QString fileContent = textStream.readAll();
     projectFile.close();
@@ -441,8 +646,7 @@ void AndroidBuildApkWidget::updateSigningWarning()
 
 AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent, Utils::Id id)
     : AbstractProcessStep(parent, id),
-      m_buildTargetSdk(AndroidConfig::apiLevelNameFor(AndroidConfigurations::
-                                         sdkManager()->latestAndroidSdkPlatform()))
+      m_buildTargetSdk(AndroidConfig::apiLevelNameFor(sdkManager().latestAndroidSdkPlatform()))
 {
     setImmutable(true);
     setDisplayName(Tr::tr("Build Android APK"));
@@ -463,6 +667,25 @@ AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent, Utils::Id id)
         if (format == OutputFormat::Stderr)
             stdError(string);
     });
+}
+
+static QString packageSubPath(const AndroidBuildApkStep *step)
+{
+    const bool deb = (step->buildConfiguration()->buildType() == BuildConfiguration::Debug);
+    const bool sign = step->signPackage();
+    if (!step->buildAAB()) { // APK build
+        if (deb && !sign)
+            return "apk/debug/android-build-debug.apk";
+        return QLatin1String(sign ? "apk/release/android-build-release-signed.apk"
+                                  : "apk/release/android-build-release-unsigned.apk");
+    }
+    return QLatin1String(deb ? "bundle/debug/android-build-debug.aab"
+                             : "bundle/release/android-build-release.aab");
+}
+
+static FilePath packagePath(const AndroidBuildApkStep *step)
+{
+    return androidBuildDirectory(step->target()) / "build/outputs" / packageSubPath(step);
 }
 
 bool AndroidBuildApkStep::init()
@@ -493,16 +716,8 @@ bool AndroidBuildApkStep::init()
         return false;
     }
 
-    if (version->qtVersion() < AndroidManager::firstQtWithAndroidDeployQt) {
-        const QString error = Tr::tr("The minimum Qt version required for Gradle build to work is %1. "
-                                     "It is recommended to install the latest Qt version.")
-                .arg("5.4.0");
-        reportWarningOrError(error, Task::Error);
-        return false;
-    }
-
-    const int minSDKForKit = AndroidManager::minimumSDK(kit());
-    if (AndroidManager::minimumSDK(target()) < minSDKForKit) {
+    const int minSDKForKit = minimumSDK(kit());
+    if (minimumSDK(target()) < minSDKForKit) {
         const QString error
                 = Tr::tr("The API level set for the APK is less than the minimum required by the kit."
                          "\nThe minimum API level required by the kit is %1.")
@@ -512,8 +727,8 @@ bool AndroidBuildApkStep::init()
     }
 
     m_openPackageLocationForRun = openPackageLocation();
-    const FilePath outputDir = AndroidManager::androidBuildDirectory(target());
-    m_packagePath = AndroidManager::packagePath(target());
+    const FilePath outputDir = androidBuildDirectory(target());
+    m_packagePath = packagePath(this);
 
     qCDebug(buildapkstepLog).noquote() << "APK or AAB path:" << m_packagePath.toUserOutput();
 
@@ -596,7 +811,7 @@ void AndroidBuildApkStep::setupOutputFormatter(OutputFormatter *formatter)
     if (node)
         sourceDirPath = FilePath::fromVariant(node->data(Constants::AndroidPackageSourceDir));
     parser->setSourceDirectory(sourceDirPath.canonicalPath());
-    parser->setBuildDirectory(AndroidManager::androidBuildDirectory(target()));
+    parser->setBuildDirectory(androidBuildDirectory(target()));
     formatter->addLineParser(parser);
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
@@ -612,7 +827,7 @@ void AndroidBuildApkStep::showInGraphicalShell()
             return;
         }
     }
-    Core::FileUtils::showInGraphicalShell(Core::ICore::dialogParent(), packagePath);
+    Core::FileUtils::showInGraphicalShell(packagePath);
 }
 
 QWidget *AndroidBuildApkStep::createConfigWidget()
@@ -628,11 +843,11 @@ bool AndroidBuildApkStep::verifyKeystorePassword()
         return false;
     }
 
-    if (AndroidManager::checkKeystorePassword(m_keystorePath, m_keystorePasswd))
+    if (checkKeystorePassword(m_keystorePath, m_keystorePasswd))
         return true;
 
     bool success = false;
-    auto verifyCallback = std::bind(&AndroidManager::checkKeystorePassword,
+    auto verifyCallback = std::bind(&checkKeystorePassword,
                                     m_keystorePath, std::placeholders::_1);
     m_keystorePasswd = PasswordInputDialog::getPassword(PasswordInputDialog::KeystorePassword,
                                                         verifyCallback, "", &success);
@@ -641,20 +856,19 @@ bool AndroidBuildApkStep::verifyKeystorePassword()
 
 bool AndroidBuildApkStep::verifyCertificatePassword()
 {
-    if (!AndroidManager::checkCertificateExists(m_keystorePath, m_keystorePasswd,
-                                                m_certificateAlias)) {
+    if (!checkCertificateExists(m_keystorePath, m_keystorePasswd, m_certificateAlias)) {
         reportWarningOrError(Tr::tr("Cannot sign the package. Certificate alias %1 does not exist.")
                              .arg(m_certificateAlias), Task::Error);
         return false;
     }
 
-    if (AndroidManager::checkCertificatePassword(m_keystorePath, m_keystorePasswd,
-                                                 m_certificateAlias, m_certificatePasswd)) {
+    if (checkCertificatePassword(m_keystorePath, m_keystorePasswd,
+                                 m_certificateAlias, m_certificatePasswd)) {
         return true;
     }
 
     bool success = false;
-    auto verifyCallback = std::bind(&AndroidManager::checkCertificatePassword,
+    auto verifyCallback = std::bind(&checkCertificatePassword,
                                     m_keystorePath, m_keystorePasswd,
                                     m_certificateAlias, std::placeholders::_1);
 
@@ -665,8 +879,7 @@ bool AndroidBuildApkStep::verifyCertificatePassword()
 }
 
 
-static bool copyFileIfNewer(const FilePath &sourceFilePath,
-                            const FilePath &destinationFilePath)
+static bool copyFileIfNewer(const FilePath &sourceFilePath, const FilePath &destinationFilePath)
 {
     if (sourceFilePath == destinationFilePath)
         return true;
@@ -696,10 +909,10 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
             return false;
         }
 
-        const auto androidAbis = AndroidManager::applicationAbis(target());
+        const auto androidAbis = applicationAbis(target());
         const QString buildKey = target()->activeBuildKey();
         const FilePath buildDir = buildDirectory();
-        const FilePath androidBuildDir = AndroidManager::androidBuildDirectory(target());
+        const FilePath androidBuildDir = androidBuildDirectory(target());
         for (const auto &abi : androidAbis) {
             FilePath androidLibsDir = androidBuildDir / "libs" / abi;
             if (!androidLibsDir.exists()) {
@@ -733,7 +946,7 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
         }
 
         const bool inputExists = m_inputFile.exists();
-        if (inputExists && !AndroidManager::isQtCreatorGenerated(m_inputFile))
+        if (inputExists && !isQtCreatorGenerated(m_inputFile))
             return true; // use the generated file if it was not generated by qtcreator
 
         BuildSystem *bs = buildSystem();
@@ -743,7 +956,7 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
         if (targets.isEmpty())
             return inputExists; // qmake does this job for us
 
-        QJsonObject deploySettings = Android::AndroidManager::deploymentSettings(target());
+        QJsonObject deploySettings = deploymentSettings(target());
         QString applicationBinary;
         if (!version->supportsMultipleQtAbis()) {
             QTC_ASSERT(androidAbis.size() == 1, return false);
@@ -753,7 +966,7 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
                 if (!copyFileIfNewer(target, androidLibsDir.pathAppended(target.fileName()))) {
                     reportWarningOrError(
                         Tr::tr("Cannot copy file \"%1\" to Android build libs folder \"%2\".")
-                            .arg(target.toUserOutput()).arg(androidLibsDir.toUserOutput()),
+                            .arg(target.toUserOutput(), androidLibsDir.toUserOutput()),
                         Task::Error);
                     return false;
                 }
@@ -778,11 +991,11 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
                         if (!copyFileIfNewer(target, destination)) {
                             reportWarningOrError(
                                 Tr::tr("Cannot copy file \"%1\" to Android build libs folder \"%2\".")
-                                    .arg(target.toUserOutput()).arg(androidLibsDir.toUserOutput()),
+                                    .arg(target.toUserOutput(), androidLibsDir.toUserOutput()),
                                 Task::Error);
                             return false;
                         }
-                        architectures[abi] = AndroidManager::archTriplet(abi);
+                        architectures[abi] = archTriplet(abi);
                     }
                 }
             }
@@ -827,7 +1040,7 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
                                         "not building an APK."), Task::Error);
             return SetupResult::StopWithSuccess;
         }
-        if (AndroidManager::skipInstallationAndPackageSteps(target())) {
+        if (skipInstallationAndPackageSteps(target())) {
             reportWarningOrError(Tr::tr("Product type is not an application, not building an APK."),
                                  Task::Warning);
             return SetupResult::StopWithSuccess;
@@ -881,8 +1094,7 @@ void AndroidBuildApkStep::fromMap(const Store &map)
     m_buildTargetSdk = map.value(BuildTargetSdkKey).toString();
     m_buildToolsVersion = QVersionNumber::fromString(map.value(BuildToolsVersionKey).toString());
     if (m_buildTargetSdk.isEmpty()) {
-        m_buildTargetSdk = AndroidConfig::apiLevelNameFor(AndroidConfigurations::
-                                                          sdkManager()->latestAndroidSdkPlatform());
+        m_buildTargetSdk = AndroidConfig::apiLevelNameFor(sdkManager().latestAndroidSdkPlatform());
     }
     ProjectExplorer::BuildStep::fromMap(map);
 }
@@ -940,7 +1152,7 @@ QVariant AndroidBuildApkStep::data(Utils::Id id) const
 {
     if (id == Constants::AndroidNdkPlatform) {
         if (auto qtVersion = QtKitAspect::qtVersion(kit()))
-            return AndroidConfig::bestNdkPlatformMatch(AndroidManager::minimumSDK(target()), qtVersion);
+            return AndroidConfig::bestNdkPlatformMatch(minimumSDK(target()), qtVersion);
         return {};
     }
     if (id == Constants::NdkLocation) {
@@ -952,7 +1164,7 @@ QVariant AndroidBuildApkStep::data(Utils::Id id) const
         return QVariant::fromValue(AndroidConfig::sdkLocation());
 
     if (id == Constants::AndroidMkSpecAbis)
-        return AndroidManager::applicationAbis(target());
+        return applicationAbis(target());
 
     return AbstractProcessStep::data(id);
 }
@@ -1023,9 +1235,8 @@ QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
 
 PasswordInputDialog::PasswordInputDialog(PasswordInputDialog::Context context,
                                          std::function<bool (const QString &)> callback,
-                                         const QString &extraContextStr,
-                                         QWidget *parent) :
-    QDialog(parent, Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint),
+                                         const QString &extraContextStr) :
+    QDialog(Core::ICore::dialogParent(), Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint),
     verifyCallback(callback)
 
 {
@@ -1069,16 +1280,14 @@ PasswordInputDialog::PasswordInputDialog(PasswordInputDialog::Context context,
 }
 
 QString PasswordInputDialog::getPassword(Context context, std::function<bool (const QString &)> callback,
-                                         const QString &extraContextStr, bool *ok, QWidget *parent)
+                                         const QString &extraContextStr, bool *ok)
 {
-    std::unique_ptr<PasswordInputDialog> dlg(new PasswordInputDialog(context, callback,
-                                                                     extraContextStr, parent));
-    bool isAccepted = dlg->exec() == QDialog::Accepted;
+    PasswordInputDialog dlg(context, callback, extraContextStr);
+    bool isAccepted = dlg.exec() == QDialog::Accepted;
     if (ok)
         *ok = isAccepted;
-    return isAccepted ? dlg->inputEdit->text() : "";
+    return isAccepted ? dlg.inputEdit->text() : QString();
 }
-
 
 // AndroidBuildApkStepFactory
 
@@ -1101,3 +1310,5 @@ void setupAndroidBuildApkStep()
 }
 
 } // Android::Internal
+
+#include "androidbuildapkstep.moc"

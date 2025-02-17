@@ -15,7 +15,6 @@
 #include <vcsbase/vcsbaseclient.h>
 
 #include <QStringList>
-#include <QVersionNumber>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -105,8 +104,6 @@ public:
                   StashFlag flag = Default, PushAction pushAction = NoPush);
         bool stashingFailed() const;
         void end();
-        StashResult result() const { return m_stashResult; }
-        QString stashMessage() const { return m_message; }
 
     private:
         void stashPrompt(const QString &command, const QString &statusOutput, QString *errorMessage);
@@ -129,7 +126,6 @@ public:
     ~GitClient();
 
     Utils::FilePath vcsBinary(const Utils::FilePath &forDirectory) const override;
-    QFuture<QVersionNumber> gitVersion() const;
 
     void vcsExecAbortable(const Utils::FilePath &workingDirectory, const QStringList &arguments,
                           bool isRebase = false, const QString &abortCommand = {},
@@ -163,6 +159,7 @@ public:
     void merge(const Utils::FilePath &workingDirectory, const QStringList &unmergedFileNames = {});
 
     void status(const Utils::FilePath &workingDirectory) const;
+    void fullStatus(const Utils::FilePath &workingDirectory) const;
     void log(const Utils::FilePath &workingDirectory, const QString &fileName = {},
              bool enableAnnotationContextMenu = false, const QStringList &args = {});
     void reflog(const Utils::FilePath &workingDirectory, const QString &branch = {});
@@ -331,7 +328,6 @@ public:
 
     bool beginStashScope(const Utils::FilePath &workingDirectory, const QString &command,
                          StashFlag flag = Default, PushAction pushAction = NoPush);
-    StashInfo &stashInfo(const Utils::FilePath &workingDirectory);
     void endStashScope(const Utils::FilePath &workingDirectory);
     bool isValidRevision(const QString &revision) const;
     void handleMergeConflicts(const Utils::FilePath &workingDir, const QString &commit,
@@ -407,8 +403,6 @@ private:
                                     const QString &gitCommand, ContinueCommandMode continueMode);
 
     void setupTimer();
-    mutable Utils::FilePath m_gitVersionForBinary;
-    mutable QVersionNumber m_cachedGitVersion;
     mutable QMap<Utils::FilePath, Utils::FilePath> m_gitExecutableCache;
 
     QString m_gitQtcEditor;

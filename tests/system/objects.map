@@ -189,7 +189,7 @@
 :Send to Codepaster.protocolBox_QComboBox	{name='protocolBox' type='QComboBox' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
 :Send to Codepaster.qt_spinbox_lineedit_QLineEdit	{name='qt_spinbox_lineedit' type='QLineEdit' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
 :Send to Codepaster_CodePaster::PasteView	{name='CodePaster.ViewDialog' type='QDialog' visible='1' windowTitle='Send to Codepaster'}
-:Session Manager_ProjectExplorer::Internal::SessionDialog	{name='ProjectExplorer.SessionDialog' type='Core::Internal::SessionDialog' visible='1'}
+:Session Manager_ProjectExplorer::Internal::SessionDialog	{name='ProjectExplorer.SessionDialog' type='QDialog' visible='1'}
 :Startup.contextHelpComboBox_QComboBox	{container=':Form.Startup_QGroupBox' name='contextHelpComboBox' type='QComboBox' visible='1'}
 :User Interface.languageBox_QComboBox	{name='languageBox' type='QComboBox' visible='1'}
 :Utils::FakeToolTip	{type='Utils::FakeToolTip' unnamed='1' visible='1'}

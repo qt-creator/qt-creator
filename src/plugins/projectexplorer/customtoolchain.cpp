@@ -273,7 +273,7 @@ QString CustomToolchain::mkspecs() const
 void CustomToolchain::toMap(Store &data) const
 {
     Toolchain::toMap(data);
-    data.insert(makeCommandKeyC, m_makeCommand.toString());
+    data.insert(makeCommandKeyC, m_makeCommand.toUrlishString());
     QStringList macros = Utils::transform<QList>(m_predefinedMacros, [](const Macro &m) { return QString::fromUtf8(m.toByteArray()); });
     data.insert(predefinedMacrosKeyC, macros);
     data.insert(headerPathsKeyC, headerPathsList());

@@ -1020,8 +1020,8 @@ To add the Qt version, select Options &gt; Build &amp; Run &gt; Qt Versions.</so
 Vælg Valgmuligheder &gt; Byg &amp; kør &gt; Qt versioner, for at tilføje Qt versionerne.</translation>
     </message>
     <message>
-        <source>(SDK Version: %1, NDK Version: %2)</source>
-        <translation>(SDK version: %1, NDK version: %2)</translation>
+        <source>(SDK Version: %1)</source>
+        <translation>(SDK version: %1)</translation>
     </message>
     <message>
         <source>Select JDK Path</source>

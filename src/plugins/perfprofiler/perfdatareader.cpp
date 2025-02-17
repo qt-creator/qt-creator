@@ -11,12 +11,13 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runcontrol.h>
+#include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
@@ -385,7 +386,7 @@ void PerfDataReader::addTargetArguments(CommandLine *cmd, const RunControl *runC
     ProjectExplorer::Kit *kit = runControl->kit();
     QTC_ASSERT(kit, return);
     ProjectExplorer::BuildConfiguration *buildConfig = runControl->target()->activeBuildConfiguration();
-    QString buildDir = buildConfig ? buildConfig->buildDirectory().toString() : QString();
+    QString buildDir = buildConfig ? buildConfig->buildDirectory().toUrlishString() : QString();
     collectArguments(cmd, buildDir, kit);
 }
 

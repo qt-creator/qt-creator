@@ -11,10 +11,12 @@
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
+
+#include <remotelinux/remotelinux_constants.h>
 
 #include <utils/qtcprocess.h>
 
@@ -62,8 +64,8 @@ public:
     {
         CommandLine cmd{findPerfParser()};
         m_reader.addTargetArguments(&cmd, runControl());
-        if (usesPerfChannel()) { // The channel is only used with qdb currently.
-            const QUrl url = perfChannel();
+        if (runControl()->usesPerfChannel()) { // The channel is only used with qdb currently.
+            const QUrl url = runControl()->perfChannel();
             QTC_CHECK(url.isValid());
             cmd.addArgs({"--host", url.host(), "--port", QString::number(url.port())});
         }
@@ -83,152 +85,95 @@ private:
     PerfDataReader m_reader;
 };
 
-class LocalPerfRecordWorker final : public RunWorker
+// Factories
+
+class PerfRecordWorkerFactory final : public RunWorkerFactory
 {
-    Q_OBJECT
-
 public:
-    LocalPerfRecordWorker(RunControl *runControl)
-        : RunWorker(runControl)
+    PerfRecordWorkerFactory()
     {
-        setId("LocalPerfRecordWorker");
-    }
+        setProducer([](RunControl *runControl) {
+            auto runner = new ProcessRunner(runControl);
+            runner->setStartModifier([runner, runControl] {
+                const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
+                const QString recordArgs = perfArgs[Constants::PerfRecordArgsId].toString();
 
-    void start() final
-    {
-        m_process = new Process(this);
+                CommandLine cmd({runControl->device()->filePath("perf"), {"record"}});
+                cmd.addArgs(recordArgs, CommandLine::Raw);
+                cmd.addArgs({"-o", "-", "--"});
+                cmd.addCommandLineAsArgs(runControl->commandLine(), CommandLine::Raw);
 
-        connect(m_process, &Process::started, this, &RunWorker::reportStarted);
-        connect(m_process, &Process::done, this, [this] {
-            // The terminate() below will frequently lead to QProcess::Crashed. We're not interested
-            // in that. FailedToStart is the only actual failure.
-            if (m_process->error() == QProcess::FailedToStart) {
-                const QString msg = Tr::tr("Perf Process Failed to Start");
-                QMessageBox::warning(Core::ICore::dialogParent(), msg,
-                                     Tr::tr("Make sure that you are running a recent Linux kernel "
-                                            "and that the \"perf\" utility is available."));
-                reportFailure(msg);
-                return;
-            }
-            if (!m_process->cleanedStdErr().isEmpty())
-                appendMessage(m_process->cleanedStdErr(), StdErrFormat);
-            reportStopped();
+                runner->setCommandLine(cmd);
+                runner->setWorkingDirectory(runControl->workingDirectory());
+                runner->setEnvironment(runControl->environment());
+                runControl->appendMessage("Starting Perf: " + cmd.toUserOutput(), NormalMessageFormat);
+            });
+            return runner;
         });
 
-        const Store perfArgs = runControl()->settingsData(PerfProfiler::Constants::PerfSettingsId);
-        const QString recordArgs = perfArgs[Constants::PerfRecordArgsId].toString();
-
-        CommandLine cmd({device()->filePath("perf"), {"record"}});
-        cmd.addArgs(recordArgs, CommandLine::Raw);
-        cmd.addArgs({"-o", "-", "--"});
-        cmd.addCommandLineAsArgs(runControl()->commandLine(), CommandLine::Raw);
-
-        m_process->setCommand(cmd);
-        m_process->setWorkingDirectory(runControl()->workingDirectory());
-        m_process->setEnvironment(runControl()->environment());
-        appendMessage("Starting Perf: " + cmd.toUserOutput(), NormalMessageFormat);
-        m_process->start();
+        addSupportedRunMode("PerfRecorder");
+        addSupportForLocalRunConfigs();
+        addSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+        addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+        addSupportedDeviceType("DockerDeviceType");
     }
-
-    void stop() final
-    {
-        if (m_process)
-            m_process->terminate();
-    }
-
-    Process *recorder() { return m_process; }
-
-private:
-    QPointer<Process> m_process;
 };
-
-class PerfProfilerRunner final : public RunWorker
-{
-public:
-    explicit PerfProfilerRunner(RunControl *runControl)
-        : RunWorker(runControl)
-    {
-        setId("PerfProfilerRunner");
-
-        m_perfParserWorker = new PerfParserWorker(runControl);
-        addStopDependency(m_perfParserWorker);
-
-        // If the parser is gone, there is no point in going on.
-        m_perfParserWorker->setEssential(true);
-
-        if ((m_perfRecordWorker = runControl->createWorker("PerfRecorder"))) {
-            m_perfParserWorker->addStartDependency(m_perfRecordWorker);
-            addStartDependency(m_perfParserWorker);
-
-        } else {
-            m_perfRecordWorker = new LocalPerfRecordWorker(runControl);
-
-            m_perfRecordWorker->addStartDependency(m_perfParserWorker);
-            addStartDependency(m_perfRecordWorker);
-
-            // In the local case, the parser won't automatically stop when the recorder does. So we need
-            // to mark the recorder as essential, too.
-            m_perfRecordWorker->setEssential(true);
-        }
-
-        m_perfParserWorker->addStopDependency(m_perfRecordWorker);
-        PerfProfilerTool::instance()->onWorkerCreation(runControl);
-    }
-
-    void start() final
-    {
-        auto tool = PerfProfilerTool::instance();
-        connect(tool->stopAction(), &QAction::triggered, runControl(), &RunControl::initiateStop);
-        connect(runControl(), &RunControl::started, PerfProfilerTool::instance(),
-                &PerfProfilerTool::onRunControlStarted);
-        connect(runControl(), &RunControl::stopped, PerfProfilerTool::instance(),
-                &PerfProfilerTool::onRunControlFinished);
-
-        PerfDataReader *reader = m_perfParserWorker->reader();
-        Process *perfProcess = nullptr;
-        if (auto prw = qobject_cast<LocalPerfRecordWorker *>(m_perfRecordWorker)) {
-            // That's the local case.
-            perfProcess = prw->recorder();
-        } else {
-            perfProcess = runControl()->property("PerfProcess").value<Process *>();
-        }
-
-        if (perfProcess) {
-            connect(perfProcess, &Process::readyReadStandardError, this, [this, perfProcess] {
-                appendMessage(QString::fromLocal8Bit(perfProcess->readAllRawStandardError()),
-                              StdErrFormat);
-            });
-            connect(perfProcess, &Process::readyReadStandardOutput, this, [this, reader, perfProcess] {
-                if (!reader->feedParser(perfProcess->readAllRawStandardOutput()))
-                    reportFailure(Tr::tr("Failed to transfer Perf data to perfparser."));
-            });
-        }
-
-        reportStarted();
-    }
-
-private:
-    PerfParserWorker *m_perfParserWorker = nullptr;
-    RunWorker *m_perfRecordWorker = nullptr;
-};
-
-// PerfProfilerRunWorkerFactory
 
 class PerfProfilerRunWorkerFactory final : public RunWorkerFactory
 {
 public:
     PerfProfilerRunWorkerFactory()
     {
-        setProduct<PerfProfilerRunner>();
+        setProducer([](RunControl *runControl) -> RunWorker * {
+            PerfParserWorker *perfParserWorker = new PerfParserWorker(runControl);
+
+            // There are currently two RunWorkerFactories reacting to that:
+            // PerfRecordRunnerFactory above for the generic case and
+            // QdbPerfProfilerWorkerFactory in boot2qt.
+            ProcessRunner *perfRecordWorker
+                = qobject_cast<ProcessRunner *>(runControl->createWorker("PerfRecorder"));
+
+            QTC_ASSERT(perfRecordWorker, return nullptr);
+
+            perfRecordWorker->suppressDefaultStdOutHandling();
+
+            perfParserWorker->addStartDependency(perfRecordWorker);
+            perfParserWorker->addStopDependency(perfRecordWorker);
+            perfRecordWorker->addStopDependency(perfParserWorker);
+            PerfProfilerTool::instance()->onWorkerCreation(runControl);
+
+            auto tool = PerfProfilerTool::instance();
+            QObject::connect(tool->stopAction(), &QAction::triggered,
+                             runControl, &RunControl::initiateStop);
+            QObject::connect(runControl, &RunControl::started, PerfProfilerTool::instance(),
+                             &PerfProfilerTool::onRunControlStarted);
+            QObject::connect(runControl, &RunControl::stopped, PerfProfilerTool::instance(),
+                             &PerfProfilerTool::onRunControlFinished);
+
+            PerfDataReader *reader = perfParserWorker->reader();
+            QObject::connect(perfRecordWorker, &ProcessRunner::stdOutData,
+                             perfParserWorker, [perfParserWorker, reader](const QByteArray &data) {
+                if (reader->feedParser(data))
+                    return;
+
+                perfParserWorker->appendMessage(Tr::tr("Failed to transfer Perf data to perfparser."),
+                                                ErrorMessageFormat);
+                perfParserWorker->initiateStop();
+            });
+            return perfParserWorker;
+        });
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
+        addSupportForLocalRunConfigs();
+        addSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+        addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+        addSupportedDeviceType("DockerDeviceType");
     }
 };
 
 void setupPerfProfilerRunWorker()
 {
     static PerfProfilerRunWorkerFactory thePerfProfilerRunWorkerFactory;
+    static PerfRecordWorkerFactory thePerfRecordWorkerFactory;
 }
 
 } // PerfProfiler::Internal
-
-#include "perfprofilerruncontrol.moc"

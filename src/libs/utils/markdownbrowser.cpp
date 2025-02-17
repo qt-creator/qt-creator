@@ -6,6 +6,7 @@
 #include "algorithm.h"
 #include "async.h"
 #include "mimeutils.h"
+#include "movie.h"
 #include "networkaccessmanager.h"
 #include "stylehelper.h"
 #include "textutils.h"
@@ -19,7 +20,6 @@
 #include <QBuffer>
 #include <QCache>
 #include <QGuiApplication>
-#include <QMovie>
 #include <QPainter>
 #include <QTextBlock>
 #include <QTextBrowser>
@@ -145,7 +145,7 @@ public:
     class Entry
     {
     public:
-        using Pointer = std::unique_ptr<Entry>;
+        using Pointer = std::shared_ptr<Entry>;
 
         Entry(const QByteArray &data)
         {
@@ -154,10 +154,22 @@ public:
 
             buffer.setData(data);
             movie.setDevice(&buffer);
+            if (movie.isValid()) {
+                if (!movie.frameRect().isValid())
+                    movie.jumpToFrame(0);
+            }
+
+            moveToThread(nullptr);
+        }
+
+        void moveToThread(QThread *thread)
+        {
+            buffer.moveToThread(thread);
+            movie.moveToThread(thread);
         }
 
         QBuffer buffer;
-        QMovie movie;
+        QtcMovie movie;
     };
 
 public:
@@ -171,24 +183,41 @@ public:
         , m_entries(1024 * 1024 * 10) // 10 MB max image cache size
     {}
 
+    static Entry::Pointer makeEntry(const QByteArray &data, qsizetype maxSize)
+    {
+        // If the image is larger than what we allow in our cache,
+        // we still want to create an entry, but one with an empty image.
+        // So we clear it here, but still create the entry, so the painter can
+        // correctly show the "broken image" placeholder instead.
+        if (data.size() > maxSize)
+            return std::make_shared<Entry>(QByteArray());
+
+        return std::make_shared<Entry>(data);
+    }
+
     virtual QSizeF intrinsicSize(
         QTextDocument *doc, int posInDocument, const QTextFormat &format) override
     {
         Q_UNUSED(doc);
         Q_UNUSED(posInDocument);
+        QSize result = Utils::Icons::UNKNOWN_FILE.icon().actualSize(QSize(16, 16));
         QString name = format.toImageFormat().name();
 
-        Entry *entry = m_entries.object(name);
-
-        if (entry && entry->movie.isValid()) {
-            if (!entry->movie.frameRect().isValid())
-                entry->movie.jumpToFrame(0);
-            return entry->movie.frameRect().size();
-        } else if (!entry) {
+        Entry::Pointer *entryPtr = m_entries.object(name);
+        if (!entryPtr) {
             m_scheduleLoad(name);
+            return result;
         }
 
-        return Utils::Icons::UNKNOWN_FILE.icon().actualSize(QSize(16, 16));
+        Entry::Pointer entry = *entryPtr;
+
+        if (entry->movie.isValid()) {
+            if (!entry->movie.frameRect().isValid())
+                entry->movie.jumpToFrame(0);
+            result = entry->movie.frameRect().size();
+        }
+
+        return result;
     }
 
     void drawObject(
@@ -201,43 +230,48 @@ public:
         Q_UNUSED(document);
         Q_UNUSED(posInDocument);
 
-        Entry *entry = m_entries.object(format.toImageFormat().name());
+        Entry::Pointer *entryPtr = m_entries.object(format.toImageFormat().name());
 
-        if (entry) {
-            if (entry->movie.isValid())
-                painter->drawImage(rect, entry->movie.currentImage());
-            else
-                painter->drawPixmap(rect.toRect(), m_brokenImage.pixmap(rect.size().toSize()));
-            return;
-        }
-
-        painter->drawPixmap(
-            rect.toRect(), Utils::Icons::UNKNOWN_FILE.icon().pixmap(rect.size().toSize()));
+        if (!entryPtr)
+            painter->drawPixmap(
+                rect.toRect(), Utils::Icons::UNKNOWN_FILE.icon().pixmap(rect.size().toSize()));
+        else if (!(*entryPtr)->movie.isValid())
+            painter->drawPixmap(rect.toRect(), m_brokenImage.pixmap(rect.size().toSize()));
+        else
+            painter->drawImage(rect, (*entryPtr)->movie.currentImage());
     }
 
-    void set(const QString &name, QByteArray data)
+    void set(const QString &name, const QByteArray &data)
     {
-        if (data.size() > m_entries.maxCost())
-            data.clear();
-
-        set(name, std::make_unique<Entry>(data));
+        set(name, makeEntry(data, m_entries.maxCost()));
     }
 
-    void set(const QString &name, std::unique_ptr<Entry> entry)
+    void set(const QString &name, const Entry::Pointer &entry)
     {
+        entry->moveToThread(thread());
+
         if (entry->movie.frameCount() > 1) {
-            connect(&entry->movie, &QMovie::frameChanged, this, [this]() { m_redraw(); });
+            connect(&entry->movie, &QtcMovie::frameChanged, this, [this]() { m_redraw(); });
             entry->movie.start();
         }
         const qint64 size = qMax(1, entry->buffer.size());
-        if (m_entries.insert(name, entry.release(), size))
+
+        if (size > m_entries.maxCost()) {
+            return;
+        }
+
+        Entry::Pointer *entryPtr = new Entry::Pointer(entry);
+        if (m_entries.insert(name, entryPtr, size))
             m_redraw();
     }
+
+    void setMaximumCacheSize(qsizetype maxSize) { m_entries.setMaxCost(maxSize); }
+    qsizetype maximumCacheSize() const { return m_entries.maxCost(); }
 
 private:
     std::function<void()> m_redraw;
     std::function<void(const QString &)> m_scheduleLoad;
-    QCache<QString, Entry> m_entries;
+    QCache<QString, Entry::Pointer> m_entries;
 
     const Icon ErrorCloseIcon = Utils::Icon({{":/utils/images/close.png", Theme::IconsErrorColor}});
 
@@ -281,8 +315,8 @@ public:
                        || (url.isRelative() && isBaseHttp);
             };
 
-            QList<QUrl> remoteUrls = Utils::filtered(m_urlsToLoad, isRemoteUrl);
-            QList<QUrl> localUrls = Utils::filtered(m_urlsToLoad, std::not_fn(isRemoteUrl));
+            QSet<QUrl> remoteUrls = Utils::filtered(m_urlsToLoad, isRemoteUrl);
+            QSet<QUrl> localUrls = Utils::filtered(m_urlsToLoad, std::not_fn(isRemoteUrl));
 
             if (m_basePath.isEmpty())
                 localUrls.clear();
@@ -290,48 +324,85 @@ public:
             if (!m_loadRemoteImages)
                 remoteUrls.clear();
 
-            const LoopList remoteIterator(remoteUrls);
-            const LoopList localIterator(localUrls);
-
-            auto onQuerySetup = [remoteIterator, base = m_basePath.toUrl()](NetworkQuery &query) {
-                QUrl url = *remoteIterator;
-                if (url.isRelative())
-                    url = base.resolved(url);
-
-                query.setRequest(QNetworkRequest(*remoteIterator));
-                query.setNetworkAccessManager(NetworkAccessManager::instance());
+            struct RemoteData
+            {
+                QUrl url;
+                QByteArray data;
             };
 
-            auto onQueryDone = [this](const NetworkQuery &query, DoneWith result) {
+            Storage<RemoteData> remoteData;
+
+            const LoopList remoteIterator(Utils::toList(remoteUrls));
+            const LoopList localIterator(Utils::toList(localUrls));
+
+            auto onQuerySetup =
+                [remoteData, this, remoteIterator, base = m_basePath.toUrl()](NetworkQuery &query) {
+                    QUrl url = *remoteIterator;
+                    if (url.isRelative())
+                        url = base.resolved(url);
+
+                    QNetworkRequest request(url);
+                    if (m_requestHook)
+                        m_requestHook(&request);
+
+                    query.setRequest(request);
+                    query.setNetworkAccessManager(m_networkAccessManager);
+                    remoteData->url = *remoteIterator;
+                };
+
+            auto onQueryDone = [this, remoteData](const NetworkQuery &query, DoneWith result) {
                 if (result == DoneWith::Cancel)
                     return;
-                m_urlsToLoad.removeOne(query.reply()->url());
+                m_urlsToLoad.remove(query.reply()->url());
 
-                if (result == DoneWith::Success)
-                    m_imageHandler.set(query.reply()->url().toString(), query.reply()->readAll());
-                else
-                    m_imageHandler.set(query.reply()->url().toString(), QByteArray{});
-
-                markContentsDirty(0, this->characterCount());
+                if (result == DoneWith::Success) {
+                    remoteData->data = query.reply()->readAll();
+                } else {
+                    m_imageHandler.set(remoteData->url.toString(), QByteArray{});
+                    markContentsDirty(0, this->characterCount());
+                }
             };
 
             using EntryPointer = AnimatedImageHandler::Entry::Pointer;
 
-            auto onLocalSetup = [localIterator, basePath = m_basePath](Async<EntryPointer> &async) {
-                const FilePath u = basePath.resolvePath(localIterator->path());
+            auto onMakeEntrySetup = [remoteData, maxSize = m_imageHandler.maximumCacheSize()](
+                                        Async<EntryPointer> &async) {
                 async.setConcurrentCallData(
-                    [](FilePath f) -> EntryPointer {
-                        auto data = f.fileContents();
-                        if (!data)
-                            return nullptr;
-
-                        return std::make_unique<AnimatedImageHandler::Entry>(*data);
+                    [](const QByteArray &data, qsizetype maxSize) {
+                        return AnimatedImageHandler::makeEntry(data, maxSize);
                     },
-                    u);
+                    remoteData->data,
+                    maxSize);
+            };
+
+            auto onMakeEntryDone =
+                [this, remoteIterator, remoteData](const Async<EntryPointer> &async) {
+                    EntryPointer result = async.result();
+                    if (result) {
+                        m_imageHandler.set(remoteData->url.toString(), result);
+                        markContentsDirty(0, this->characterCount());
+                    }
+                };
+
+            auto onLocalSetup = [localIterator,
+                                 basePath = m_basePath,
+                                 maxSize = m_imageHandler.maximumCacheSize()](
+                                    Async<EntryPointer> &async) {
+                const FilePath path = basePath.resolvePath(localIterator->path());
+                async.setConcurrentCallData(
+                    [](QPromise<EntryPointer> &promise, const FilePath &path, qsizetype maxSize) {
+                        auto data = path.fileContents();
+                        if (!data || promise.isCanceled())
+                            return;
+
+                        promise.addResult(AnimatedImageHandler::makeEntry(*data, maxSize));
+                    },
+                    path,
+                    maxSize);
             };
 
             auto onLocalDone = [localIterator, this](const Async<EntryPointer> &async) {
-                EntryPointer result = async.takeResult();
+                EntryPointer result = async.result();
                 if (result)
                     m_imageHandler.set(localIterator->toString(), std::move(result));
             };
@@ -340,7 +411,11 @@ public:
             Group group {
                 parallelLimit(2),
                 For(remoteIterator) >> Do {
-                    NetworkQueryTask{onQuerySetup, onQueryDone} || successItem,
+                    remoteData,
+                    Group {
+                        NetworkQueryTask{onQuerySetup, onQueryDone},
+                        AsyncTask<EntryPointer>(onMakeEntrySetup, onMakeEntryDone),
+                    } || successItem,
                 },
                 For(localIterator) >> Do {
                     AsyncTask<EntryPointer>(onLocalSetup, onLocalDone) || successItem,
@@ -354,20 +429,26 @@ public:
 
     void scheduleLoad(const QUrl &url)
     {
-        m_urlsToLoad.append(url);
+        m_urlsToLoad.insert(url);
         m_needsToRestartLoading = true;
     }
 
     void setBasePath(const FilePath &filePath) { m_basePath = filePath; }
     void setAllowRemoteImages(bool allow) { m_loadRemoteImages = allow; }
 
+    void setNetworkAccessManager(QNetworkAccessManager *nam) { m_networkAccessManager = nam; }
+    void setRequestHook(const MarkdownBrowser::RequestHook &hook) { m_requestHook = hook; }
+    void setMaximumCacheSize(qsizetype maxSize) { m_imageHandler.setMaximumCacheSize(maxSize); }
+
 private:
     AnimatedImageHandler m_imageHandler;
-    QList<QUrl> m_urlsToLoad;
+    QSet<QUrl> m_urlsToLoad;
     bool m_needsToRestartLoading = false;
     bool m_loadRemoteImages = false;
     Tasking::TaskTreeRunner m_imageLoaderTree;
     FilePath m_basePath;
+    std::function<void(QNetworkRequest *)> m_requestHook;
+    QNetworkAccessManager *m_networkAccessManager = NetworkAccessManager::instance();
 };
 
 MarkdownBrowser::MarkdownBrowser(QWidget *parent)
@@ -402,6 +483,21 @@ void MarkdownBrowser::setMargins(const QMargins &margins)
 void MarkdownBrowser::setAllowRemoteImages(bool allow)
 {
     static_cast<AnimatedDocument *>(document())->setAllowRemoteImages(allow);
+}
+
+void MarkdownBrowser::setNetworkAccessManager(QNetworkAccessManager *nam)
+{
+    static_cast<AnimatedDocument *>(document())->setNetworkAccessManager(nam);
+}
+
+void MarkdownBrowser::setRequestHook(const RequestHook &hook)
+{
+    static_cast<AnimatedDocument *>(document())->setRequestHook(hook);
+}
+
+void MarkdownBrowser::setMaximumCacheSize(qsizetype maxSize)
+{
+    static_cast<AnimatedDocument *>(document())->setMaximumCacheSize(maxSize);
 }
 
 void MarkdownBrowser::setBasePath(const FilePath &filePath)

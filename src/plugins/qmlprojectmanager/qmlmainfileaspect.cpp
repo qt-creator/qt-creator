@@ -35,7 +35,7 @@ const char CURRENT_FILE[]  = QT_TRANSLATE_NOOP("QtC::QmlProjectManager", "<Curre
 
 static bool caseInsensitiveLessThan(const FilePath &s1, const FilePath &s2)
 {
-    return s1.toString().toCaseFolded() < s2.toString().toCaseFolded();
+    return s1.toUrlishString().toCaseFolded() < s2.toUrlishString().toCaseFolded();
 }
 
 QmlMainFileAspect::QmlMainFileAspect(AspectContainer *container)
@@ -96,7 +96,7 @@ void QmlMainFileAspect::updateFileComboBox()
     if (mainScriptSource() == FileInProjectFile) {
         const FilePath mainScriptInFilePath = mainScript().relativePathFrom(projectDir);
         m_fileListModel.clear();
-        m_fileListModel.appendRow(new QStandardItem(mainScriptInFilePath.toString()));
+        m_fileListModel.appendRow(new QStandardItem(mainScriptInFilePath.toUrlishString()));
         if (m_fileListCombo)
             m_fileListCombo->setEnabled(false);
         return;
@@ -126,7 +126,7 @@ void QmlMainFileAspect::updateFileComboBox()
         if (fn.suffixView() != u"qml")
             continue;
 
-        auto item = new QStandardItem(fn.toString());
+        auto item = new QStandardItem(fn.toUrlishString());
         m_fileListModel.appendRow(item);
 
         if (mainScriptPath == fn)

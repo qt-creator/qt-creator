@@ -52,7 +52,9 @@ public:
     void setFile(const Utils::FilePath &file);
     QString description(DescriptionTags tags = WithSummary) const;
     QIcon icon() const;
+    void setIcon(const QIcon &icon);
     QString formattedDescription(DescriptionTags tags, const QString &extraHeading = {}) const;
+    void addLinkDetail(const QString &link);
 
     friend PROJECTEXPLORER_EXPORT bool operator==(const Task &t1, const Task &t2);
     friend PROJECTEXPLORER_EXPORT bool operator<(const Task &a, const Task &b);

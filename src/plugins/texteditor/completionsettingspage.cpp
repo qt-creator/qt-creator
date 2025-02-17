@@ -65,7 +65,7 @@ CompletionSettingsPageWidget::CompletionSettingsPageWidget(CompletionSettingsPag
 {
     m_caseSensitivity = new QComboBox;
     m_caseSensitivity->addItem(Tr::tr("Full"));
-    m_caseSensitivity->addItem(Tr::tr("None"));
+    m_caseSensitivity->addItem(Tr::tr("None", "Case-sensitivity: None"));
     m_caseSensitivity->addItem(Tr::tr("First Letter"));
 
     auto caseSensitivityLabel = new QLabel(Tr::tr("&Case-sensitivity:"));
@@ -309,8 +309,6 @@ CompletionSettingsPage::CompletionSettingsPage()
     setId("P.Completion");
     setDisplayName(Tr::tr("Completion"));
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("Text Editor"));
-    setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
     setWidgetCreator([this] { return new CompletionSettingsPageWidget(this); });
 
     QtcSettings *s = Core::ICore::settings();

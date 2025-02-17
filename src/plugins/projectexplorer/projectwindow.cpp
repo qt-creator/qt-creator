@@ -927,7 +927,7 @@ public:
         QTC_ASSERT(projectImporter, return);
 
         FilePath importDir =
-                FileUtils::getExistingDirectory(nullptr, Tr::tr("Import Directory"),
+                FileUtils::getExistingDirectory(Tr::tr("Import Directory"),
                                                 project->projectDirectory());
 
         Target *lastTarget = nullptr;

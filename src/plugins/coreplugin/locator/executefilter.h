@@ -8,7 +8,6 @@
 #include <utils/commandline.h>
 
 #include <QStringList>
-#include <QTextCodec>
 
 namespace Utils { class Process; }
 
@@ -45,8 +44,6 @@ private:
     QList<ExecuteData> m_taskQueue;
     QStringList m_commandHistory;
     Utils::Process *m_process = nullptr;
-    QTextCodec::ConverterState m_stdoutState;
-    QTextCodec::ConverterState m_stderrState;
 };
 
 } // namespace Core::Internal

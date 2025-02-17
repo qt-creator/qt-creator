@@ -31,7 +31,7 @@
         \row
             \li \l{Bazaar}
             \li \l{http://bazaar.canonical.com/}
-            \li
+            \li Enable the plugin to use it.
         \row
             \li \l{ClearCase}
             \li \l{http://www-01.ibm.com/software/awdtools/clearcase/}
@@ -47,7 +47,7 @@
              \row
             \li \l{Git}
             \li \l{https://git-scm.com/}
-            \li Git version 1.9.0, or later
+            \li Git version 2.13.0, or later
 
                 Gerrit version 2.6, or later
         \row
@@ -57,7 +57,7 @@
         \row
             \li \l{Mercurial}
             \li \l{http://mercurial.selenic.com/}
-            \li
+            \li Enable the plugin to use it.
         \row
             \li \l{Perforce}
             \li \l{http://www.perforce.com}
@@ -68,6 +68,8 @@
             \li \l{Subversion}
             \li \l{http://subversion.apache.org/}
             \li Subversion version 1.7.0 and later
+
+                Enable the plugin to use it.
     \endtable
 
     \sa {Create VCS repositories for new projects}, {Enable and disable plugins},

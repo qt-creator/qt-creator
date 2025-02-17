@@ -5,8 +5,8 @@
 
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
-#include "cppcodestylepreferences.h"
 #include "cppcodestylepreferencesfactory.h"
+#include "cppcodestylesettings.h"
 
 #include <coreplugin/icore.h>
 
@@ -106,8 +106,8 @@ CppToolsSettings::CppToolsSettings()
     gnuCodeStyle->setDisplayName(Tr::tr("GNU"));
     gnuCodeStyle->setReadOnly(true);
     TabSettings gnuTabSettings;
-    gnuTabSettings.m_tabPolicy = TabSettings::MixedTabPolicy;
-    gnuTabSettings.m_tabSize = 8;
+    gnuTabSettings.m_tabPolicy = TabSettings::TabsOnlyTabPolicy;
+    gnuTabSettings.m_tabSize = 2;
     gnuTabSettings.m_indentSize = 2;
     gnuTabSettings.m_continuationAlignBehavior = TabSettings::ContinuationAlignWithIndent;
     gnuCodeStyle->setTabSettings(gnuTabSettings);

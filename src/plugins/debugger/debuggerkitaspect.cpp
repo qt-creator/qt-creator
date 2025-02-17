@@ -8,11 +8,12 @@
 #include "debuggertr.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitaspect.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <utils/environment.h>
 #include <utils/guard.h>
@@ -47,18 +48,19 @@ public:
     {
         clear();
 
-        const IDeviceConstPtr device = BuildDeviceKitAspect::device(&m_kit);
-        const Utils::FilePath rootPath = device->rootPath();
-        const QList<DebuggerItem> debuggersForBuildDevice
-            = Utils::filtered(DebuggerItemManager::debuggers(), [&](const DebuggerItem &item) {
-                  if (item.isGeneric())
-                      return device->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
-                  return item.command().isSameDevice(rootPath);
-              });
-        for (const DebuggerItem &item : debuggersForBuildDevice)
-            rootItem()->appendChild(new DebuggerTreeItem(item, false));
+        if (const IDeviceConstPtr device = BuildDeviceKitAspect::device(&m_kit)) {
+            const Utils::FilePath rootPath = device->rootPath();
+            const QList<DebuggerItem> debuggersForBuildDevice
+                = Utils::filtered(DebuggerItemManager::debuggers(), [&](const DebuggerItem &item) {
+                      if (item.isGeneric())
+                          return device->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
+                      return item.command().isSameDevice(rootPath);
+                  });
+            for (const DebuggerItem &item : debuggersForBuildDevice)
+                rootItem()->appendChild(new DebuggerTreeItem(item, false));
+        }
         DebuggerItem noneItem;
-        noneItem.setUnexpandedDisplayName(Tr::tr("None"));
+        noneItem.setUnexpandedDisplayName(Tr::tr("None", "No debugger"));
         rootItem()->appendChild(new DebuggerTreeItem(noneItem, false));
     }
 
@@ -82,7 +84,7 @@ public:
         };
         auto setter = [](Kit &k, const QVariant &id) { k.setValue(DebuggerKitAspect::id(), id); };
         auto resetModel = [model] { model->reset(); };
-        setListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
+        addListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
     }
 };
 } // namespace Internal
@@ -112,7 +114,7 @@ DebuggerKitAspect::ConfigurationErrors DebuggerKitAspect::configurationErrors(co
     const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
     if (item->matchTarget(tcAbi) == DebuggerItem::DoesNotMatch) {
         // currently restricting the check to desktop devices, may be extended to all device types
-        const IDevice::ConstPtr device = DeviceKitAspect::device(k);
+        const IDevice::ConstPtr device = RunDeviceKitAspect::device(k);
         if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
             result |= DebuggerDoesNotMatch;
     }
@@ -284,7 +286,7 @@ public:
                 // This improves the situation a bit if a cross-compilation tool chain has the
                 // same ABI as the host.
                 if (level == DebuggerItem::MatchesPerfectly
-                    && !item.command().needsDevice()
+                    && item.command().isLocal()
                     && systemEnvironment.path().contains(item.command().parentDir())) {
                     level = DebuggerItem::MatchesPerfectlyInPath;
                 }

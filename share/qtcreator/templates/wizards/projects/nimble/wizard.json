@@ -11,7 +11,7 @@
     ],
     "icon":"../nim/icon.png",
     "iconKind": "Themed",
-    "enabled":"%{JS: value('Plugins').indexOf('Nim') >= 0 }",
+    "enabled":"%{JS: isPluginRunning('nim') }",
     "options":[
         {
             "key":"ProjectFile",

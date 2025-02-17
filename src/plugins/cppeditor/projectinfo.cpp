@@ -4,7 +4,7 @@
 #include "projectinfo.h"
 
 #include <projectexplorer/abi.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/rawprojectpart.h>

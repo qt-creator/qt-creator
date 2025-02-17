@@ -24,17 +24,17 @@ static bool isMultilanguagePresent()
     const ExtensionSystem::PluginSpecs &specs = ExtensionSystem::PluginManager::plugins();
     return std::find_if(specs.cbegin(), specs.cend(),
                         [](ExtensionSystem::PluginSpec *spec) {
-                            return spec->name() == "MultiLanguage";
+                            return spec->id() == "multilanguage";
                         })
            != specs.cend();
 }
 
-static QObject *getPlugin(const QString &pluginName)
+static QObject *getPlugin(const QString &pluginId)
 {
     const ExtensionSystem::PluginSpecs &specs = ExtensionSystem::PluginManager::plugins();
     const auto pluginIt = std::find_if(
-        specs.cbegin(), specs.cend(), [pluginName](const ExtensionSystem::PluginSpec *p) {
-                                           return p->name() == pluginName;
+        specs.cbegin(), specs.cend(), [pluginId](const ExtensionSystem::PluginSpec *p) {
+                                           return p->id() == pluginId;
                                        });
 
     if (pluginIt != specs.cend())
@@ -81,7 +81,7 @@ void QmlMultiLanguageAspect::setCurrentLocale(const QString &locale)
     if (m_currentLocale == locale)
         return;
     m_currentLocale = locale;
-    if (auto previewPlugin = getPlugin("QmlPreview"))
+    if (auto previewPlugin = getPlugin("qmlpreview"))
         previewPlugin->setProperty("localeIsoCode", locale);
 }
 
@@ -92,7 +92,7 @@ QString QmlMultiLanguageAspect::currentLocale() const
 
 Utils::FilePath QmlMultiLanguageAspect::databaseFilePath() const
 {
-    if (auto previewPlugin = getPlugin("MultiLanguage")) {
+    if (auto previewPlugin = getPlugin("multilanguage")) {
         const auto multilanguageDatabaseFilePath = previewPlugin->property("multilanguageDatabaseFilePath");
         return Utils::FilePath::fromString(multilanguageDatabaseFilePath.toString());
     }

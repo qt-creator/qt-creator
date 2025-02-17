@@ -973,14 +973,6 @@ private:
 */
 
 /*!
-    \variable Tasking::parallelLimit
-    A convenient global group's element describing the parallel execution mode
-    with a limited number of tasks running simultanously.
-
-    \sa sequential, parallel
-*/
-
-/*!
     \variable Tasking::parallelIdealThreadCountLimit
     A convenient global group's element describing the parallel execution mode with a limited
     number of tasks running simultanously. The limit is equal to the ideal number of threads
@@ -1029,11 +1021,6 @@ private:
 /*!
     \variable Tasking::finishAllAndError
     A convenient global group's element describing the FinishAllAndError workflow policy.
-*/
-
-/*!
-    \variable Tasking::workflowPolicy
-    A convenient global group's element that describes workflow policies.
 */
 
 /*!
@@ -1261,9 +1248,13 @@ private:
 
     \sa sequential, parallel
 */
-GroupItem ParallelLimitFunctor::operator()(int limit) const
+
+GroupItem parallelLimit(int limit)
 {
-    return GroupItem({{}, limit});
+    struct ParallelLimit : GroupItem {
+         ParallelLimit(int limit) : GroupItem({{}, limit}) {}
+    };
+    return ParallelLimit(limit);
 }
 
 /*!
@@ -1274,13 +1265,13 @@ GroupItem ParallelLimitFunctor::operator()(int limit) const
     \sa stopOnError, continueOnError, stopOnSuccess, continueOnSuccess, stopOnSuccessOrError,
         finishAllAndSuccess, finishAllAndError, WorkflowPolicy
 */
-GroupItem WorkflowPolicyFunctor::operator()(WorkflowPolicy policy) const
+GroupItem workflowPolicy(WorkflowPolicy policy)
 {
-    return GroupItem({{}, {}, policy});
+    struct WorkflowPolicyItem : GroupItem {
+         WorkflowPolicyItem(WorkflowPolicy policy) : GroupItem({{}, {}, policy}) {}
+    };
+    return WorkflowPolicyItem(policy);
 }
-
-const ParallelLimitFunctor parallelLimit = ParallelLimitFunctor();
-const WorkflowPolicyFunctor workflowPolicy = WorkflowPolicyFunctor();
 
 const GroupItem sequential = parallelLimit(1);
 const GroupItem parallel = parallelLimit(0);
@@ -1873,17 +1864,16 @@ public:
 
     // If returned value != Continue, childDone() needs to be called in parent container (in caller)
     // in order to unwind properly.
-    SetupResult start(RuntimeTask *node);
-    void stop(RuntimeTask *node);
-    bool invokeDoneHandler(RuntimeTask *node, DoneWith doneWith);
+    void startTask(const std::shared_ptr<RuntimeTask> &node);
+    void stopTask(RuntimeTask *node);
+    bool invokeTaskDoneHandler(RuntimeTask *node, DoneWith doneWith);
 
     // Container related methods
 
-    SetupResult start(RuntimeContainer *container);
-    SetupResult continueStart(RuntimeContainer *container, SetupResult startAction);
-    SetupResult startChildren(RuntimeContainer *container);
-    SetupResult childDone(RuntimeIteration *iteration, bool success);
-    void stop(RuntimeContainer *container);
+    void continueContainer(RuntimeContainer *container);
+    void startChildren(RuntimeContainer *container);
+    void childDone(RuntimeIteration *iteration, bool success);
+    void stopContainer(RuntimeContainer *container);
     bool invokeDoneHandler(RuntimeContainer *container, DoneWith doneWith);
     bool invokeLoopHandler(RuntimeContainer *container);
 
@@ -1918,7 +1908,7 @@ public:
     QSet<StorageBase> m_storages;
     QHash<StorageBase, StorageHandler> m_storageHandlers;
     std::optional<TaskNode> m_root;
-    std::unique_ptr<RuntimeTask> m_runtimeRoot; // Keep me last in order to destruct first
+    std::shared_ptr<RuntimeTask> m_runtimeRoot; // Keep me last in order to destruct first
 };
 
 static bool initialSuccessBit(WorkflowPolicy workflowPolicy)
@@ -1947,13 +1937,13 @@ class RuntimeIteration
 public:
     RuntimeIteration(int index, RuntimeContainer *container);
     std::optional<Loop> loop() const;
-    void deleteChild(RuntimeTask *node);
+    void removeChild(RuntimeTask *node);
 
     const int m_iterationIndex = 0;
     const bool m_isProgressive = true;
     RuntimeContainer *m_container = nullptr;
     int m_doneCount = 0;
-    std::vector<std::unique_ptr<RuntimeTask>> m_children = {}; // Owning.
+    std::vector<std::shared_ptr<RuntimeTask>> m_children = {}; // Owning.
 };
 
 class RuntimeContainer
@@ -2012,8 +2002,7 @@ public:
     {
         if (m_task) {
             // Ensures the running task's d'tor doesn't emit done() signal. QTCREATORBUG-30204.
-            QObject::disconnect(m_task.get(), &TaskInterface::done,
-                                m_taskNode.m_container.m_taskTreePrivate->q, nullptr);
+            QObject::disconnect(m_task.get(), &TaskInterface::done, nullptr, nullptr);
         }
     }
 
@@ -2021,6 +2010,7 @@ public:
     RuntimeIteration *m_parentIteration = nullptr; // Not owning.
     std::optional<RuntimeContainer> m_container = {}; // Owning.
     std::unique_ptr<TaskInterface> m_task = {}; // Owning.
+    SetupResult m_setupResult = SetupResult::Continue;
 };
 
 static bool isProgressive(RuntimeContainer *container)
@@ -2083,7 +2073,7 @@ void TaskTreePrivate::start()
                   "exist in task tree. Its handlers will never be called."));
     }
     m_runtimeRoot.reset(new RuntimeTask{*m_root});
-    start(m_runtimeRoot.get());
+    startTask(m_runtimeRoot);
     bumpAsyncCount();
 }
 
@@ -2092,7 +2082,7 @@ void TaskTreePrivate::stop()
     QT_ASSERT(m_root, return);
     if (!m_runtimeRoot)
         return;
-    stop(m_runtimeRoot.get());
+    stopTask(m_runtimeRoot.get());
     m_runtimeRoot.reset();
     emitDone(DoneWith::Cancel);
 }
@@ -2135,7 +2125,7 @@ std::optional<Loop> RuntimeIteration::loop() const
     return m_container->m_containerNode.m_loop;
 }
 
-void RuntimeIteration::deleteChild(RuntimeTask *task)
+void RuntimeIteration::removeChild(RuntimeTask *task)
 {
     const auto it = std::find_if(m_children.cbegin(), m_children.cend(), [task](const auto &ptr) {
         return ptr.get() == task;
@@ -2212,36 +2202,21 @@ void RuntimeContainer::deleteFinishedIterations()
     }
 }
 
-SetupResult TaskTreePrivate::start(RuntimeContainer *container)
+void TaskTreePrivate::continueContainer(RuntimeContainer *container)
 {
-    const ContainerNode &containerNode = container->m_containerNode;
-    SetupResult startAction = SetupResult::Continue;
-    if (containerNode.m_groupHandler.m_setupHandler) {
-        startAction = invokeHandler(container, containerNode.m_groupHandler.m_setupHandler);
-        if (startAction != SetupResult::Continue) {
-            if (isProgressive(container))
-                advanceProgress(containerNode.m_taskCount);
-            // Non-Continue SetupResult takes precedence over the workflow policy.
-            container->m_successBit = startAction == SetupResult::StopWithSuccess;
-        }
-    }
-    return continueStart(container, startAction);
-}
-
-SetupResult TaskTreePrivate::continueStart(RuntimeContainer *container, SetupResult startAction)
-{
-    const SetupResult groupAction = startAction == SetupResult::Continue ? startChildren(container)
-                                                                         : startAction;
-    if (groupAction == SetupResult::Continue)
-        return groupAction;
-
-    const bool bit = container->updateSuccessBit(groupAction == SetupResult::StopWithSuccess);
-    RuntimeIteration *parentIteration = container->parentIteration();
     RuntimeTask *parentTask = container->m_parentTask;
+    if (parentTask->m_setupResult == SetupResult::Continue)
+        startChildren(container);
+    if (parentTask->m_setupResult == SetupResult::Continue)
+        return;
+
+    const bool bit = container->updateSuccessBit(parentTask->m_setupResult == SetupResult::StopWithSuccess);
+    RuntimeIteration *parentIteration = container->parentIteration();
     QT_CHECK(parentTask);
     const bool result = invokeDoneHandler(container, bit ? DoneWith::Success : DoneWith::Error);
+    parentTask->m_setupResult = toSetupResult(result);
     if (parentIteration) {
-        parentIteration->deleteChild(parentTask);
+        parentIteration->removeChild(parentTask);
         if (!parentIteration->m_container->isStarting())
             childDone(parentIteration, result);
     } else {
@@ -2249,10 +2224,9 @@ SetupResult TaskTreePrivate::continueStart(RuntimeContainer *container, SetupRes
         m_runtimeRoot.reset();
         emitDone(result ? DoneWith::Success : DoneWith::Error);
     }
-    return toSetupResult(result);
 }
 
-SetupResult TaskTreePrivate::startChildren(RuntimeContainer *container)
+void TaskTreePrivate::startChildren(RuntimeContainer *container)
 {
     const ContainerNode &containerNode = container->m_containerNode;
     const int childCount = int(containerNode.m_children.size());
@@ -2261,7 +2235,8 @@ SetupResult TaskTreePrivate::startChildren(RuntimeContainer *container)
         if (container->m_shouldIterate && !invokeLoopHandler(container)) {
             if (isProgressive(container))
                 advanceProgress(containerNode.m_taskCount);
-            return toSetupResult(container->m_successBit);
+            container->m_parentTask->m_setupResult = toSetupResult(container->m_successBit);
+            return;
         }
         container->m_iterations.emplace_back(
             std::make_unique<RuntimeIteration>(container->m_iterationCount, container));
@@ -2280,34 +2255,34 @@ SetupResult TaskTreePrivate::startChildren(RuntimeContainer *container)
                     std::make_unique<RuntimeIteration>(container->m_iterationCount, container));
                 ++container->m_iterationCount;
             } else if (container->m_iterations.empty()) {
-                return toSetupResult(container->m_successBit);
+                container->m_parentTask->m_setupResult = toSetupResult(container->m_successBit);
+                return;
             } else {
-                return SetupResult::Continue;
+                return;
             }
         }
         if (containerNode.m_children.size() == 0) // Empty loop body.
             continue;
 
         RuntimeIteration *iteration = container->m_iterations.back().get();
-        RuntimeTask *newTask = new RuntimeTask{containerNode.m_children.at(container->m_nextToStart),
-                                               iteration};
-        iteration->m_children.emplace_back(newTask);
+        const std::shared_ptr<RuntimeTask> task(
+            new RuntimeTask{containerNode.m_children.at(container->m_nextToStart), iteration});
+        iteration->m_children.emplace_back(task);
         ++container->m_runningChildren;
         ++container->m_nextToStart;
 
-        const SetupResult startAction = start(newTask);
-        if (startAction == SetupResult::Continue)
+        startTask(task);
+        if (task->m_setupResult == SetupResult::Continue)
             continue;
 
-        const SetupResult finalizeAction = childDone(iteration,
-                                                     startAction == SetupResult::StopWithSuccess);
-        if (finalizeAction != SetupResult::Continue)
-            return finalizeAction;
+        task->m_parentIteration->removeChild(task.get());
+        childDone(iteration, task->m_setupResult == SetupResult::StopWithSuccess);
+        if (container->m_parentTask->m_setupResult != SetupResult::Continue)
+            return;
     }
-    return SetupResult::Continue;
 }
 
-SetupResult TaskTreePrivate::childDone(RuntimeIteration *iteration, bool success)
+void TaskTreePrivate::childDone(RuntimeIteration *iteration, bool success)
 {
     RuntimeContainer *container = iteration->m_container;
     const WorkflowPolicy &workflowPolicy = container->m_containerNode.m_workflowPolicy;
@@ -2316,25 +2291,23 @@ SetupResult TaskTreePrivate::childDone(RuntimeIteration *iteration, bool success
                         || (workflowPolicy == WorkflowPolicy::StopOnError && !success);
     ++iteration->m_doneCount;
     --container->m_runningChildren;
-    if (shouldStop)
-        stop(container);
-
     const bool updatedSuccess = container->updateSuccessBit(success);
-    const SetupResult startAction = shouldStop ? toSetupResult(updatedSuccess)
-                                               : SetupResult::Continue;
+    container->m_parentTask->m_setupResult = shouldStop ? toSetupResult(updatedSuccess) : SetupResult::Continue;
+    if (shouldStop)
+        stopContainer(container);
 
     if (container->isStarting())
-        return startAction;
-    return continueStart(container, startAction);
+        return;
+    continueContainer(container);
 }
 
-void TaskTreePrivate::stop(RuntimeContainer *container)
+void TaskTreePrivate::stopContainer(RuntimeContainer *container)
 {
     const ContainerNode &containerNode = container->m_containerNode;
     for (auto &iteration : container->m_iterations) {
         for (auto &child : iteration->m_children) {
             ++iteration->m_doneCount;
-            stop(child.get());
+            stopTask(child.get());
         }
 
         if (iteration->m_isProgressive) {
@@ -2365,8 +2338,6 @@ bool TaskTreePrivate::invokeDoneHandler(RuntimeContainer *container, DoneWith do
     if (groupHandler.m_doneHandler && shouldCall(groupHandler.m_callDoneIf, doneWith))
         result = invokeHandler(container, groupHandler.m_doneHandler, doneWith);
     container->m_callStorageDoneHandlersOnDestruction = true;
-    // TODO: is it needed?
-    container->m_parentTask->m_container.reset();
     return result == DoneResult::Success;
 }
 
@@ -2384,61 +2355,69 @@ bool TaskTreePrivate::invokeLoopHandler(RuntimeContainer *container)
     return container->m_shouldIterate;
 }
 
-SetupResult TaskTreePrivate::start(RuntimeTask *node)
+void TaskTreePrivate::startTask(const std::shared_ptr<RuntimeTask> &node)
 {
     if (!node->m_taskNode.isTask()) {
-        node->m_container.emplace(node->m_taskNode.m_container, node);
-        return start(&*node->m_container);
+        const ContainerNode &containerNode = node->m_taskNode.m_container;
+        node->m_container.emplace(containerNode, node.get());
+        RuntimeContainer *container = &*node->m_container;
+        if (containerNode.m_groupHandler.m_setupHandler) {
+            container->m_parentTask->m_setupResult = invokeHandler(container, containerNode.m_groupHandler.m_setupHandler);
+            if (container->m_parentTask->m_setupResult != SetupResult::Continue) {
+                if (isProgressive(container))
+                    advanceProgress(containerNode.m_taskCount);
+                // Non-Continue SetupResult takes precedence over the workflow policy.
+                container->m_successBit = container->m_parentTask->m_setupResult == SetupResult::StopWithSuccess;
+            }
+        }
+        continueContainer(container);
+        return;
     }
 
     const GroupItem::TaskHandler &handler = node->m_taskNode.m_taskHandler;
     node->m_task.reset(handler.m_createHandler());
-    const SetupResult startAction = handler.m_setupHandler
+    node->m_setupResult = handler.m_setupHandler
         ? invokeHandler(node->m_parentIteration, handler.m_setupHandler, *node->m_task.get())
         : SetupResult::Continue;
-    if (startAction != SetupResult::Continue) {
+    if (node->m_setupResult != SetupResult::Continue) {
         if (node->m_parentIteration->m_isProgressive)
             advanceProgress(1);
-        node->m_parentIteration->deleteChild(node);
-        return startAction;
+        node->m_parentIteration->removeChild(node.get());
+        return;
     }
-    const std::shared_ptr<SetupResult> unwindAction
-        = std::make_shared<SetupResult>(SetupResult::Continue);
     QObject::connect(node->m_task.get(), &TaskInterface::done,
-                     q, [this, node, unwindAction](DoneResult doneResult) {
-        const bool result = invokeDoneHandler(node, toDoneWith(doneResult));
+                     q, [this, node](DoneResult doneResult) {
+        const bool result = invokeTaskDoneHandler(node.get(), toDoneWith(doneResult));
+        node->m_setupResult = toSetupResult(result);
         QObject::disconnect(node->m_task.get(), &TaskInterface::done, q, nullptr);
         node->m_task.release()->deleteLater();
         RuntimeIteration *parentIteration = node->m_parentIteration;
-        parentIteration->deleteChild(node);
-        if (parentIteration->m_container->isStarting()) {
-            *unwindAction = toSetupResult(result);
-        } else {
-            childDone(parentIteration, result);
-            bumpAsyncCount();
-        }
-    });
+        if (parentIteration->m_container->isStarting())
+            return;
 
+        parentIteration->removeChild(node.get());
+        childDone(parentIteration, result);
+        bumpAsyncCount();
+    });
     node->m_task->start();
-    return *unwindAction;
 }
 
-void TaskTreePrivate::stop(RuntimeTask *node)
+void TaskTreePrivate::stopTask(RuntimeTask *node)
 {
     if (!node->m_task) {
         if (!node->m_container)
             return;
-        stop(&*node->m_container);
+        stopContainer(&*node->m_container);
         node->m_container->updateSuccessBit(false);
         invokeDoneHandler(&*node->m_container, DoneWith::Cancel);
         return;
     }
 
-    invokeDoneHandler(node, DoneWith::Cancel);
+    invokeTaskDoneHandler(node, DoneWith::Cancel);
     node->m_task.reset();
 }
 
-bool TaskTreePrivate::invokeDoneHandler(RuntimeTask *node, DoneWith doneWith)
+bool TaskTreePrivate::invokeTaskDoneHandler(RuntimeTask *node, DoneWith doneWith)
 {
     DoneResult result = toDoneResult(doneWith);
     const GroupItem::TaskHandler &handler = node->m_taskNode.m_taskHandler;
@@ -3641,6 +3620,11 @@ void TimeoutTaskAdapter::start()
         m_timerId.reset();
         emit done(DoneResult::Success);
     });
+}
+
+ExecutableItem timeoutTask(const std::chrono::milliseconds &timeout, DoneResult result)
+{
+    return TimeoutTask([timeout](std::chrono::milliseconds &t) { t = timeout; }, result);
 }
 
 /*!

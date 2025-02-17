@@ -6,11 +6,11 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 
 #include <utils/filepath.h>
@@ -40,7 +40,7 @@ public:
                     ProjectExplorer::FileType::Source);
         root->addNode(std::move(fileNode));
         setRootProjectNode(std::move(root));
-        setDisplayName(file.toString());
+        setDisplayName(file.toUrlishString());
         setId("QmlProfilerDetailsRewriterTest.DummyProject");
     }
 
@@ -183,7 +183,7 @@ void QmlProfilerDetailsRewriterTest::seedRewriter()
                                              lPaths, m_modelManager, false);
 
     QFile file(filename);
-    file.open(QFile::ReadOnly | QFile::Text);
+    QTC_CHECK(file.open(QFile::ReadOnly | QFile::Text));
     const QString content = QString::fromUtf8(file.readAll());
     file.close();
 

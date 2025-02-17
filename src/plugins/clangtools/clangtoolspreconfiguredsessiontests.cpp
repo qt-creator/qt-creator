@@ -12,13 +12,13 @@
 #include <cppeditor/compileroptionsbuilder.h>
 #include <cppeditor/projectinfo.h>
 
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>

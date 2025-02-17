@@ -50,7 +50,7 @@ QString BundleImporter::importComponent(const QString &bundleDir,
         return "Failed to resolve bundle import folder";
 
     if (!bundleImportPath.exists() && !bundleImportPath.createDir())
-        return QStringLiteral("Failed to create bundle import folder: '%1'").arg(bundleImportPath.toString());
+        return QStringLiteral("Failed to create bundle import folder: '%1'").arg(bundleImportPath.toUrlishString());
 
     bool doScan = false;
     bool doReset = false;
@@ -85,7 +85,7 @@ QString BundleImporter::importComponent(const QString &bundleDir,
         FilePath target = bundleImportPath.pathAppended(file);
         FilePath parentDir = target.parentDir();
         if (!parentDir.exists() && !parentDir.createDir())
-            return QStringLiteral("Failed to create folder for: '%1'").arg(target.toString());
+            return QStringLiteral("Failed to create folder for: '%1'").arg(target.toUrlishString());
 
         FilePath source = bundleDirPath.pathAppended(file);
         if (target.exists()) {
@@ -94,7 +94,7 @@ QString BundleImporter::importComponent(const QString &bundleDir,
             target.removeFile(); // Remove existing file for update
         }
         if (!source.copyFile(target))
-            return QStringLiteral("Failed to copy file: '%1'").arg(source.toString());
+            return QStringLiteral("Failed to copy file: '%1'").arg(source.toUrlishString());
     }
 
     QVariantHash assetRefMap = loadAssetRefMap(bundleImportPath);
@@ -317,7 +317,7 @@ void BundleImporter::writeAssetRefMap(const FilePath &bundlePath, const QVariant
     QJsonObject jsonObj = QJsonObject::fromVariantHash(assetRefMap);
     if (!assetRefPath.writeFileContents(QJsonDocument{jsonObj}.toJson())) {
         // Failure to write asset refs is not considred fatal, so just print error
-        qWarning() << QStringLiteral("Failed to save bundle asset ref file: '%1'").arg(assetRefPath.toString()) ;
+        qWarning() << QStringLiteral("Failed to save bundle asset ref file: '%1'").arg(assetRefPath.toUrlishString()) ;
     }
 }
 
@@ -333,11 +333,11 @@ QString BundleImporter::unimportComponent(const TypeName &type, const QString &q
         return QStringLiteral("Failed to resolve bundle import folder for: '%1'").arg(qmlFile);
 
     if (!bundleImportPath.exists())
-        return QStringLiteral("Unable to find bundle path: '%1'").arg(bundleImportPath.toString());
+        return QStringLiteral("Unable to find bundle path: '%1'").arg(bundleImportPath.toUrlishString());
 
     FilePath qmlFilePath = bundleImportPath.resolvePath(qmlFile);
     if (!qmlFilePath.exists())
-        return QStringLiteral("Unable to find specified file: '%1'").arg(qmlFilePath.toString());
+        return QStringLiteral("Unable to find specified file: '%1'").arg(qmlFilePath.toUrlishString());
 
     QStringList removedFiles;
     removedFiles.append(qmlFile);
@@ -362,7 +362,7 @@ QString BundleImporter::unimportComponent(const TypeName &type, const QString &q
         }
         if (newContent != qmldirContent) {
             if (!qmldirPath.writeFileContents(newContent))
-                return QStringLiteral("Failed to write qmldir file: '%1'").arg(qmldirPath.toString());
+                return QStringLiteral("Failed to write qmldir file: '%1'").arg(qmldirPath.toUrlishString());
         }
     }
 

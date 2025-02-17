@@ -29,7 +29,7 @@ PendingChangesDialog::PendingChangesDialog(const QString &data, QWidget *parent)
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     if (!data.isEmpty()) {
-        const QRegularExpression r(QLatin1String("Change\\s(\\d+?).*?\\s\\*?pending\\*?\\s(.+?)\n"));
+        static const QRegularExpression r("Change\\s(\\d+?).*?\\s\\*?pending\\*?\\s(.+?)\n");
         QListWidgetItem *item;
         QRegularExpressionMatchIterator it = r.globalMatch(data);
         while (it.hasNext()) {

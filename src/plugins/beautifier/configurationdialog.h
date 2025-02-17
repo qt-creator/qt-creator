@@ -24,7 +24,6 @@ public:
     ~ConfigurationDialog() override;
     void setSettings(AbstractSettings *settings);
 
-    void clear();
     QString key() const;
     void setKey(const QString &key);
     QString value() const;

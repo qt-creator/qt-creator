@@ -784,11 +784,8 @@ bool RegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
     addAction(this, menu, Tr::tr("Open Disassembler..."),
               m_engine->hasCapability(DisassemblerCapability),
               [this, address] {
-                    AddressDialog dialog;
-                    if (address)
-                        dialog.setAddress(address);
-                    if (dialog.exec() == QDialog::Accepted)
-                        m_engine->openDisassemblerView(Location(dialog.address()));
+                    if (std::optional<quint64> result = runAddressDialog(address))
+                        m_engine->openDisassemblerView(Location(*result));
               });
 
     menu->addSeparator();

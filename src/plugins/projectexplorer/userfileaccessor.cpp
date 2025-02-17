@@ -176,7 +176,8 @@ namespace {
 static QString generateSuffix(const QString &suffix)
 {
     QString result = suffix;
-    result.replace(QRegularExpression("[^a-zA-Z0-9_.-]"), QString('_')); // replace fishy character
+    static const QRegularExpression regexp("[^a-zA-Z0-9_.-]");
+    result.replace(regexp, QString('_')); // replace fishy character
     if (!result.startsWith('.'))
         result.prepend('.');
     return result;
@@ -240,9 +241,8 @@ static FilePath externalUserFilePath(const Utils::FilePath &projectFilePath, con
     if (externalUserFileDir) {
         // Recreate the relative project file hierarchy under the shared directory.
         // PersistentSettingsWriter::write() takes care of creating the path.
-        return FilePath::fromString(externalUserFileDir.value()
-                                    + '/' + makeRelative(projectFilePath.toString())
-                                    + suffix);
+        return FilePath::fromString(
+            *externalUserFileDir + '/' + makeRelative(projectFilePath.toUrlishString()) + suffix);
     }
     return {};
 }

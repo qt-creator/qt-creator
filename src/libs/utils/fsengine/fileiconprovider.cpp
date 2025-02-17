@@ -164,7 +164,7 @@ QIcon FileIconProviderImplementation::icon(IconType type) const
 QString FileIconProviderImplementation::type(const QFileInfo &fi) const
 {
     const FilePath fPath = FilePath::fromString(fi.filePath());
-    if (fPath.needsDevice()) {
+    if (!fPath.isLocal()) {
         if (fi.isDir()) {
 #ifdef Q_OS_WIN
         return QGuiApplication::translate("QAbstractFileIconProvider", "File Folder", "Match Windows Explorer");
@@ -214,7 +214,7 @@ QIcon FileIconProviderImplementation::icon(const FilePath &filePath) const
     // Check if its one of the virtual devices directories
     if (filePath.path().startsWith(FilePath::specialRootPath())) {
         // If the filepath does not need a device, it is a virtual device directory
-        if (!filePath.needsDevice())
+        if (filePath.isLocal())
             return dirIcon();
     }
 
@@ -237,7 +237,7 @@ QIcon FileIconProviderImplementation::icon(const FilePath &filePath) const
             return *icon;
     }
 
-    if (filePath.needsDevice())
+    if (!filePath.isLocal())
         return isDir ? dirIcon() : unknownFileIcon();
 
     // Get icon from OS (and cache it based on suffix!)

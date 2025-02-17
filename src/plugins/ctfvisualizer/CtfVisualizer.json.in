@@ -1,5 +1,6 @@
 {
     "Id" : "ctfvisualizer",
+    "DisplayName" : "CTF Visualizer",
     "Name" : "CtfVisualizer",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

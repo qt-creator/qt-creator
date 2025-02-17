@@ -37,10 +37,10 @@ IDocument::OpenResult SubmitEditorFile::open(QString *errorString, const FilePat
         return OpenResult::ReadError;
 
     FileReader reader;
-    if (!reader.fetch(realFilePath, QIODevice::Text, errorString))
+    if (!reader.fetch(realFilePath, errorString))
         return OpenResult::ReadError;
 
-    const QString text = QString::fromLocal8Bit(reader.data());
+    const QString text = QString::fromLocal8Bit(reader.text());
     if (!m_editor->setFileContents(text.toUtf8()))
         return OpenResult::CannotHandle;
 

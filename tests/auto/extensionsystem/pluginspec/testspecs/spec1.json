@@ -2,7 +2,8 @@
     "IID" : "plugin",
     "MetaData" : {
         "Id": "test",
-        "Name" : "test",
+        "Name" : "TestPlugin",
+        "DisplayName" : "Test Plugin",
         "Version" : "1.0.1",
         "CompatVersion" : "1.0.0",
         "VendorId": "theqtcompanyltd",

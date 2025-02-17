@@ -298,8 +298,7 @@ void BookmarkView::keyPressEvent(QKeyEvent *event)
 
 void BookmarkView::removeAll()
 {
-    if (CheckableMessageBox::question(this,
-                                      Tr::tr("Remove All Bookmarks"),
+    if (CheckableMessageBox::question(Tr::tr("Remove All Bookmarks"),
                                       Tr::tr("Are you sure you want to remove all bookmarks from "
                                              "all files in the current session?"),
                                       Key("RemoveAllBookmarks"))
@@ -995,7 +994,7 @@ QString BookmarkManager::bookmarkToString(const Bookmark *b)
     const QLatin1Char colon(':');
     // Using \t as delimiter because any another symbol can be a part of note.
     const QLatin1Char noteDelimiter('\t');
-    return colon + b->filePath().toString() +
+    return colon + b->filePath().toUrlishString() +
             colon + QString::number(b->lineNumber()) +
             noteDelimiter + b->note();
 }

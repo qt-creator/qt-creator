@@ -25,8 +25,7 @@ public:
     using GetIconUnicodeFunc = QString (*)(const QString &);
 
 public:
-    WizardFactories(const QList<Core::IWizardFactory *> &factories, QWidget *wizardParent,
-                    const Utils::Id &platform);
+    WizardFactories(const QList<Core::IWizardFactory *> &factories, const Utils::Id &platform);
 
     const Core::IWizardFactory *front() const;
     const std::map<QString, WizardCategory> &presetsGroupedByCategory() const
@@ -42,11 +41,10 @@ private:
     void sortByCategoryAndId();
     void filter();
 
-    std::shared_ptr<PresetItem> makePresetItem(JsonWizardFactory *f, QWidget *parent, const Utils::Id &platform);
+    std::shared_ptr<PresetItem> makePresetItem(JsonWizardFactory *f, const Utils::Id &platform);
     std::map<QString, WizardCategory> makePresetItemsGroupedByCategory();
 
 private:
-    QWidget *m_wizardParent;
     Utils::Id m_platform; // filter wizards to only those supported by this platform.
 
     QList<JsonWizardFactory *> m_factories;

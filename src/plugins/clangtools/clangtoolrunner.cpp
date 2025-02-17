@@ -69,11 +69,11 @@ static FilePath createOutputFilePath(const FilePath &dirPath, const FilePath &fi
     return {};
 }
 
-GroupItem clangToolTask(CppEditor::ClangToolType toolType,
-                        const AnalyzeUnits &units,
+GroupItem clangToolTask(const AnalyzeUnits &units,
                         const AnalyzeInputData &input,
                         const AnalyzeSetupHandler &setupHandler,
-                        const AnalyzeOutputHandler &outputHandler)
+                        const AnalyzeOutputHandler &outputHandler,
+                        const FilePath &compilationDbDir)
 {
     struct ClangToolStorage {
         QString name;
@@ -83,9 +83,9 @@ GroupItem clangToolTask(CppEditor::ClangToolType toolType,
     const Storage<ClangToolStorage> storage;
     const LoopList iterator(units);
 
-    const auto mainToolArguments = [input, iterator, toolType](const ClangToolStorage &data) {
+    const auto mainToolArguments = [input, iterator, compilationDbDir](const ClangToolStorage &data) {
         QStringList result;
-        result << "-p" << ClangToolsCompilationDb::getDb(toolType).parentDir().nativePath();
+        result << "-p" << compilationDbDir.nativePath();
         result << "-export-fixes=" + data.outputFilePath.nativePath();
         if (!input.overlayFilePath.isEmpty() && isVFSOverlaySupported(data.executable))
             result << "--vfsoverlay=" + input.overlayFilePath;

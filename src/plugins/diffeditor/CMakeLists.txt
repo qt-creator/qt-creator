@@ -9,7 +9,7 @@ add_qtc_plugin(DiffEditor
     diffeditorcontroller.cpp diffeditorcontroller.h
     diffeditordocument.cpp diffeditordocument.h
     diffeditoricons.h
-    diffeditorplugin.cpp diffeditorplugin.h
+    diffeditorplugin.cpp
     diffeditorwidgetcontroller.cpp diffeditorwidgetcontroller.h
     diffenums.h
     diffutils.cpp diffutils.h

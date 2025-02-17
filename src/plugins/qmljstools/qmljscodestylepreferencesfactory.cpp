@@ -3,7 +3,7 @@
 
 #include "qmljscodestylepreferencesfactory.h"
 
-#include "qmljscodestylepreferences.h"
+#include "qmljscodestylesettings.h"
 #include "qmljscodestylesettingspage.h"
 #include "qmljsindenter.h"
 #include "qmljstoolsconstants.h"
@@ -45,7 +45,7 @@ QString QmlJSCodeStylePreferencesFactory::displayName()
 
 TextEditor::ICodeStylePreferences *QmlJSCodeStylePreferencesFactory::createCodeStyle() const
 {
-    return new QmlJSCodeStylePreferences();
+    return new QmlJSCodeStylePreferences;
 }
 
 TextEditor::CodeStyleEditorWidget *QmlJSCodeStylePreferencesFactory::createEditor(
@@ -54,7 +54,7 @@ TextEditor::CodeStyleEditorWidget *QmlJSCodeStylePreferencesFactory::createEdito
     QWidget *parent) const
 {
     Q_UNUSED(project)
-    auto qmlJSPreferences = qobject_cast<QmlJSCodeStylePreferences *>(preferences);
+    auto qmlJSPreferences = dynamic_cast<QmlJSCodeStylePreferences *>(preferences);
     if (!qmlJSPreferences)
         return nullptr;
     auto widget = new Internal::QmlJSCodeStylePreferencesWidget(this, parent);

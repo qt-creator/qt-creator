@@ -1,5 +1,6 @@
 {
     "Id" : "cmakeprojectmanager",
+    "DisplayName" : "CMake",
     "Name" : "CMakeProjectManager",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

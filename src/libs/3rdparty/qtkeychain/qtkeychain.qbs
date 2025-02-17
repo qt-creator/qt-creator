@@ -8,11 +8,11 @@ QtcLibrary {
     Depends { name: "Qt.dbus"; condition: qbs.targetOS.contains("linux") }
     Depends { name: "libsecret-1"; required: false }
 
-    cpp.defines: base.concat(["QTKEYCHAIN_LIBRARY"])
+    Properties { cpp.defines: base.concat(["QTKEYCHAIN_LIBRARY"]) }
 
     Properties {
         condition: useWinCredentialsStore
-        cpp.defines: outer.concat(["USE_CREDENTIAL_STORE=1"])
+        cpp.defines: "USE_CREDENTIAL_STORE=1"
         cpp.dynamicLibraries: ["advapi32"]
     }
 

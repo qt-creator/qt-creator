@@ -5,14 +5,15 @@
 
 #include "buildconfiguration.h"
 #include "buildsystem.h"
+#include "devicesupport/devicekitaspects.h"
 #include "environmentaspect.h"
-#include "kitaspects.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "projectmanager.h"
 #include "projectnodes.h"
+#include "projecttree.h"
 #include "runconfigurationaspects.h"
 #include "target.h"
 
@@ -32,9 +33,10 @@
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>
 
+#include <QComboBox>
 #include <QHash>
+#include <QLayout>
 #include <QPushButton>
-#include <QTimer>
 #include <QLoggingCategory>
 
 using namespace Utils;
@@ -119,6 +121,62 @@ void GlobalOrProjectAspect::resetProjectToGlobalSettings()
 }
 
 
+class RunConfigAspectWidget : public QWidget
+{
+public:
+    explicit RunConfigAspectWidget(GlobalOrProjectAspect *aspect)
+    {
+        using namespace Layouting;
+
+        auto settingsCombo = new QComboBox;
+        settingsCombo->addItem(Tr::tr("Global"));
+        settingsCombo->addItem(Tr::tr("Custom"));
+
+        auto restoreButton = new QPushButton(Tr::tr("Restore Global"));
+
+        auto innerPane = new QWidget;
+        auto configWidget = aspect->projectSettings()->layouter()().emerge();
+
+        auto details = new DetailsWidget;
+        details->setWidget(innerPane);
+
+        Column {
+            Row { settingsCombo, restoreButton, st },
+            configWidget
+        }.attachTo(innerPane);
+
+        Column { details }.attachTo(this);
+
+        details->layout()->setContentsMargins(0, 0, 0, 0);
+        innerPane->layout()->setContentsMargins(0, 0, 0, 0);
+        layout()->setContentsMargins(0, 0, 0, 0);
+
+        auto chooseSettings = [=](int setting) {
+            const bool isCustom = (setting == 1);
+
+            settingsCombo->setCurrentIndex(setting);
+            aspect->setUsingGlobalSettings(!isCustom);
+            configWidget->setEnabled(isCustom);
+            restoreButton->setEnabled(isCustom);
+            details->setSummaryText(isCustom
+                                    ? Tr::tr("Use Customized Settings")
+                                    : Tr::tr("Use Global Settings"));
+        };
+
+        chooseSettings(aspect->isUsingGlobalSettings() ? 0 : 1);
+
+        connect(settingsCombo, &QComboBox::activated, this, chooseSettings);
+        connect(restoreButton, &QPushButton::clicked,
+                aspect, &ProjectExplorer::GlobalOrProjectAspect::resetProjectToGlobalSettings);
+    }
+};
+
+QWidget *createRunConfigAspectWidget(GlobalOrProjectAspect *aspect)
+{
+    return new RunConfigAspectWidget(aspect);
+}
+
+
 /*!
     \class ProjectExplorer::RunConfiguration
     \inmodule QtCreator
@@ -164,7 +222,7 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
                                Tr::tr("The run configuration's working directory."),
                                [this] {
         const auto wdAspect = aspect<WorkingDirectoryAspect>();
-        return wdAspect ? wdAspect->workingDirectory().toString() : QString();
+        return wdAspect ? wdAspect->workingDirectory().toUrlishString() : QString();
     });
     expander.registerVariable("RunConfig:Name", Tr::tr("The run configuration's name."),
             [this] { return displayName(); });
@@ -188,7 +246,7 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
             return CommandLine{executable, arguments, CommandLine::Raw};
 
         CommandLine launcherCommand(launcher.command, launcher.arguments);
-        launcherCommand.addArg(executable.toString());
+        launcherCommand.addArg(executable.toUrlishString());
         launcherCommand.addArgs(arguments, CommandLine::Raw);
 
         return launcherCommand;
@@ -504,9 +562,9 @@ RunConfigurationFactory::~RunConfigurationFactory()
 QString RunConfigurationFactory::decoratedTargetName(const QString &targetName, Target *target)
 {
     QString displayName = targetName;
-    Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(target->kit());
+    Utils::Id devType = RunDeviceTypeKitAspect::deviceTypeId(target->kit());
     if (devType != Constants::DESKTOP_DEVICE_TYPE) {
-        if (IDevice::ConstPtr dev = DeviceKitAspect::device(target->kit())) {
+        if (IDevice::ConstPtr dev = RunDeviceKitAspect::device(target->kit())) {
             if (displayName.isEmpty()) {
                 //: Shown in Run configuration if no executable is given, %1 is device name
                 displayName = Tr::tr("Run on %{Device:Name}");
@@ -608,7 +666,7 @@ bool RunConfigurationFactory::canHandle(Target *target) const
 
     if (!m_supportedTargetDeviceTypes.isEmpty())
         if (!m_supportedTargetDeviceTypes.contains(
-                    DeviceTypeKitAspect::deviceTypeId(kit)))
+                    RunDeviceTypeKitAspect::deviceTypeId(kit)))
             return false;
 
     return true;
@@ -705,6 +763,21 @@ bool FixedRunConfigurationFactory::supportsBuildKey(Target *target, const QStrin
     Q_UNUSED(target)
     Q_UNUSED(key)
     return true;
+}
+
+RunConfiguration *activeRunConfig(const Project *project)
+{
+    return project ? project->activeRunConfiguration() : nullptr;
+}
+
+RunConfiguration *activeRunConfigForActiveProject()
+{
+    return activeRunConfig(ProjectManager::startupProject());
+}
+
+RunConfiguration *activeRunConfigForCurrentProject()
+{
+    return activeRunConfig(ProjectTree::currentProject());
 }
 
 } // namespace ProjectExplorer

@@ -4,13 +4,14 @@
 #include "kitmanager.h"
 
 #include "abi.h"
+#include "devicesupport/devicekitaspects.h"
 #include "devicesupport/idevicefactory.h"
 #include "kit.h"
 #include "kitfeatureprovider.h"
 #include "kitaspect.h"
-#include "kitaspects.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
+#include "toolchainkitaspect.h"
 #include "toolchainmanager.h"
 
 #include <coreplugin/icore.h>
@@ -285,7 +286,7 @@ void KitManager::restoreKits()
                 kit->setUnexpandedDisplayName(Tr::tr("Desktop (%1)").arg(it.key().toString()));
             else
                 kit->setUnexpandedDisplayName(it.key().toString());
-            DeviceTypeKitAspect::setDeviceTypeId(kit.get(), deviceTypeForKit(kit.get()));
+            RunDeviceTypeKitAspect::setDeviceTypeId(kit.get(), deviceTypeForKit(kit.get()));
             kit->setup();
             tempList.emplace_back(std::move(kit));
         }
@@ -626,6 +627,8 @@ void KitManager::completeKit(Kit *k)
     QTC_ASSERT(k, return);
     KitGuard g(k);
     for (KitAspectFactory *factory : kitAspectFactories()) {
+        if (!k->isAspectRelevant(factory->id()))
+            continue;
         factory->upgrade(k);
         if (!k->hasValue(factory->id()))
             factory->setup(k);

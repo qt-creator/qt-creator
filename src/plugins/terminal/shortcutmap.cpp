@@ -237,11 +237,7 @@ bool ShortcutMap::tryShortcut(QKeyEvent *e)
         return dispatchEvent(e);
     }
     }
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     Q_UNREACHABLE_RETURN(false);
-#else
-    return false;
-#endif
 }
 
 /*! \internal

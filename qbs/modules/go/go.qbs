@@ -43,8 +43,11 @@ Module {
                 var arch = product.go.architectures[i];
                 for (var j = 0; j < product.go.platforms.length; ++j) {
                     var plat = product.go.platforms[j];
+                    var targetName = product.targetName + '-' + plat + '-' + arch;
+                    if (plat == "windows")
+                        targetName = targetName.concat(".exe");
                     var artifact = {
-                        filePath: product.targetName + '-' + plat + '-' + arch,
+                        filePath: targetName,
                         fileTags: [ "application", plat, arch ]
                     };
                     result.push(artifact);

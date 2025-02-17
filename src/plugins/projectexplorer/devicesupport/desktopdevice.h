@@ -28,7 +28,6 @@ public:
     bool canCreateProcessModel() const override;
     DeviceProcessSignalOperation::Ptr signalOperation() const override;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
-    bool usableAsBuildDevice() const override;
 
     bool handlesFile(const Utils::FilePath &filePath) const override;
     Utils::expected_str<Utils::Environment> systemEnvironmentWithError() const override;

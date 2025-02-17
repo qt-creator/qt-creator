@@ -7,6 +7,7 @@
 
 using namespace Android;
 using namespace Android::Internal;
+using namespace ProjectExplorer;
 
 class tst_AvdManagerOutputParser : public QObject
 {

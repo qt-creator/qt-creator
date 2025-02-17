@@ -81,6 +81,7 @@ public:
         FailedToInitialize,
         Initialized,
         ShutdownRequested,
+        FailedToShutdown,
         Shutdown,
         Error
     };
@@ -114,9 +115,9 @@ public:
     virtual void openDocument(TextEditor::TextDocument *document);
     void closeDocument(TextEditor::TextDocument *document,
                        const std::optional<Utils::FilePath> &overwriteFilePath = {});
-    void activateDocument(TextEditor::TextDocument *document);
+    virtual void activateDocument(TextEditor::TextDocument *document);
     void activateEditor(Core::IEditor *editor);
-    void deactivateDocument(TextEditor::TextDocument *document);
+    virtual void deactivateDocument(TextEditor::TextDocument *document);
     bool documentOpen(const TextEditor::TextDocument *document) const;
     TextEditor::TextDocument *documentForFilePath(const Utils::FilePath &file) const;
     void setShadowDocument(const Utils::FilePath &filePath, const QString &contents);
@@ -171,6 +172,7 @@ public:
     bool hasDiagnostic(const Utils::FilePath &filePath,
                        const LanguageServerProtocol::Diagnostic &diag) const;
     bool hasDiagnostics(const TextEditor::TextDocument *document) const;
+    void hideDiagnostics(const Utils::FilePath &documentPath);
     void setSemanticTokensHandler(const SemanticTokensHandler &handler);
     void setSnippetsGroup(const QString &group);
     void setCompletionAssistProvider(LanguageClientCompletionAssistProvider *provider);
@@ -187,7 +189,7 @@ public:
     Utils::OsType osType() const;
 
     // custom methods
-    using CustomMethodHandler = std::function<void(
+    using CustomMethodHandler = std::function<bool(
         const LanguageServerProtocol::JsonRpcMessage &message)>;
     void registerCustomMethod(const QString &method, const CustomMethodHandler &handler);
 

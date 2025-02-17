@@ -16,19 +16,8 @@ using namespace Utils;
 
 namespace MesonProjectManager::Internal {
 
-static ToolType typeFromId(const QString &id)
-{
-    if (id == Constants::ToolsSettings::TOOL_TYPE_NINJA)
-        return ToolType::Ninja;
-    if (id == Constants::ToolsSettings::TOOL_TYPE_MESON)
-        return ToolType::Meson;
-    QTC_CHECK(false);
-    return ToolType::Meson;
-}
-
-ToolWrapper::ToolWrapper(const Store &data)
-    : ToolWrapper(
-          typeFromId(data.value(Constants::ToolsSettings::TOOL_TYPE_KEY).toString()),
+MesonToolWrapper::MesonToolWrapper(const Store &data)
+    : MesonToolWrapper(
           data[Constants::ToolsSettings::NAME_KEY].toString(),
           FilePath::fromSettings(data[Constants::ToolsSettings::EXE_KEY]),
           Id::fromSetting(data[Constants::ToolsSettings::ID_KEY]),
@@ -36,13 +25,11 @@ ToolWrapper::ToolWrapper(const Store &data)
 {
 }
 
-ToolWrapper::ToolWrapper(ToolType toolType,
-                         const QString &name,
+MesonToolWrapper::MesonToolWrapper(const QString &name,
                          const FilePath &path,
                          const Id &id,
                          bool autoDetected)
-    : m_toolType(toolType)
-    , m_version(read_version(path))
+    : m_version(read_version(path))
     , m_isValid{path.exists() && !m_version.isNull()}
     , m_autoDetected{autoDetected}
     , m_id{id.isValid() ? id : Id::generate()}
@@ -52,15 +39,15 @@ ToolWrapper::ToolWrapper(ToolType toolType,
     QTC_ASSERT(m_id.isValid(), m_id = Id::generate());
 }
 
-ToolWrapper::~ToolWrapper() = default;
+MesonToolWrapper::~MesonToolWrapper() = default;
 
-void ToolWrapper::setExe(const FilePath &newExe)
+void MesonToolWrapper::setExe(const FilePath &newExe)
 {
     m_exe = newExe;
     m_version = read_version(m_exe);
 }
 
-QVersionNumber ToolWrapper::read_version(const FilePath &toolPath)
+QVersionNumber MesonToolWrapper::read_version(const FilePath &toolPath)
 {
     if (toolPath.isExecutableFile()) {
         Process process;
@@ -72,43 +59,40 @@ QVersionNumber ToolWrapper::read_version(const FilePath &toolPath)
     return {};
 }
 
-Store ToolWrapper::toVariantMap() const
+
+Store MesonToolWrapper::toVariantMap() const
 {
     Store data;
     data.insert(Constants::ToolsSettings::NAME_KEY, m_name);
     data.insert(Constants::ToolsSettings::EXE_KEY, m_exe.toSettings());
     data.insert(Constants::ToolsSettings::AUTO_DETECTED_KEY, m_autoDetected);
     data.insert(Constants::ToolsSettings::ID_KEY, m_id.toSetting());
-    if (m_toolType == ToolType::Meson)
-        data.insert(Constants::ToolsSettings::TOOL_TYPE_KEY, Constants::ToolsSettings::TOOL_TYPE_MESON);
-    else
-        data.insert(Constants::ToolsSettings::TOOL_TYPE_KEY, Constants::ToolsSettings::TOOL_TYPE_NINJA);
-                  ;
+    data.insert(Constants::ToolsSettings::TOOL_TYPE_KEY, Constants::ToolsSettings::TOOL_TYPE_MESON);
     return data;
 }
 
-template<typename First>
-void impl_option_cat(QStringList &list, const First &first)
-{
-    list.append(first);
-}
-
-template<typename First, typename... T>
-void impl_option_cat(QStringList &list, const First &first, const T &...args)
-{
-    impl_option_cat(list, first);
-    impl_option_cat(list, args...);
-}
-
-template<typename... T>
-QStringList options_cat(const T &...args)
+QStringList options_cat(const auto &...args)
 {
     QStringList result;
-    impl_option_cat(result, args...);
+    (result.append(args), ...);
     return result;
 }
 
-ProcessRunData ToolWrapper::setup(const FilePath &sourceDirectory,
+QStringList make_verbose(QStringList list, bool verbose)
+{
+    if (verbose)
+        list.append("--verbose");
+    return list;
+}
+
+QStringList make_quiet(QStringList list, bool quiet)
+{
+    if (quiet)
+        list.append("--quiet");
+    return list;
+}
+
+ProcessRunData MesonToolWrapper::setup(const FilePath &sourceDirectory,
                                   const FilePath &buildDirectory,
                                   const QStringList &options) const
 {
@@ -116,7 +100,7 @@ ProcessRunData ToolWrapper::setup(const FilePath &sourceDirectory,
             sourceDirectory};
 }
 
-ProcessRunData ToolWrapper::configure(const FilePath &sourceDirectory,
+ProcessRunData MesonToolWrapper::configure(const FilePath &sourceDirectory,
                                       const FilePath &buildDirectory,
                                       const QStringList &options) const
 {
@@ -126,7 +110,7 @@ ProcessRunData ToolWrapper::configure(const FilePath &sourceDirectory,
             buildDirectory};
 }
 
-ProcessRunData ToolWrapper::regenerate(const FilePath &sourceDirectory,
+ProcessRunData MesonToolWrapper::regenerate(const FilePath &sourceDirectory,
                                        const FilePath &buildDirectory) const
 {
     return {{m_exe,
@@ -139,23 +123,81 @@ ProcessRunData ToolWrapper::regenerate(const FilePath &sourceDirectory,
             buildDirectory};
 }
 
-ProcessRunData ToolWrapper::introspect(const FilePath &sourceDirectory) const
+ProcessRunData MesonToolWrapper::introspect(const FilePath &sourceDirectory) const
 {
     return {{m_exe,
             {"introspect", "--all", QString("%1/meson.build").arg(sourceDirectory.path())}},
             sourceDirectory};
 }
 
-template<typename File_t>
-bool containsFiles(const QString &path, const File_t &file)
+ProcessRunData MesonToolWrapper::compile(const FilePath &buildDirectory, const QString &target, bool verbose) const
 {
-    return QFileInfo::exists(QString("%1/%2").arg(path).arg(file));
+    // Specific generic targets that needs to be handled differently
+    // with meson compile
+    if (target == Constants::Targets::clean)
+        return clean(buildDirectory, verbose);
+    if (target == Constants::Targets::all)
+        return compile(buildDirectory, verbose);
+    if (target == Constants::Targets::tests)
+        return test(buildDirectory, "", verbose);
+    if (target == Constants::Targets::benchmark)
+        return benchmark(buildDirectory, "", verbose);
+    if (target == Constants::Targets::install)
+        return install(buildDirectory, verbose);
+    return {{m_exe,
+            make_verbose(QStringList{"compile"}, verbose) + QStringList{target}},
+            buildDirectory};
 }
 
-template<typename File_t, typename... T>
-bool containsFiles(const QString &path, const File_t &file, const T &...files)
+Utils::ProcessRunData MesonProjectManager::Internal::MesonToolWrapper::compile(const Utils::FilePath &buildDirectory, bool verbose) const
 {
-    return containsFiles(path, file) && containsFiles(path, files...);
+    // implicit target is "all" and "all" doesn't exist as target with meson compile
+    return {{m_exe,
+            make_verbose(QStringList{"compile"}, verbose)},
+            buildDirectory};
+}
+
+Utils::ProcessRunData MesonProjectManager::Internal::MesonToolWrapper::test(const Utils::FilePath &buildDirectory, const QString &testSuite, bool verbose) const
+{
+    if (testSuite.isEmpty())
+        return {{m_exe,
+                make_verbose(QStringList{"test"}, verbose)},
+                buildDirectory};
+    else
+        return {{m_exe,
+                make_verbose(QStringList{"test"}, verbose) + QStringList{"--suite", testSuite}},
+                buildDirectory};
+}
+
+Utils::ProcessRunData MesonProjectManager::Internal::MesonToolWrapper::benchmark(const Utils::FilePath &buildDirectory, const QString &benchmark, bool verbose) const
+{
+    if (benchmark.isEmpty())
+        return {{m_exe,
+                make_verbose(QStringList{"test", "--benchmark"},  verbose)},
+                buildDirectory};
+    else
+        return {{m_exe,
+                make_verbose(QStringList{"test", "--benchmark"},  verbose ) + QStringList{"--suite", benchmark}},
+                buildDirectory};
+}
+
+ProcessRunData MesonToolWrapper::clean(const Utils::FilePath &buildDirectory, bool verbose) const
+{
+    return {{m_exe,
+            make_verbose({"compile", "--clean"}, verbose)},
+            buildDirectory};
+}
+
+Utils::ProcessRunData MesonProjectManager::Internal::MesonToolWrapper::install(const Utils::FilePath &buildDirectory, bool verbose) const
+{
+    return {{m_exe,
+            make_quiet({"install"},  !verbose)},
+            buildDirectory};
+}
+
+bool containsFiles(const QString &path, const auto &...files)
+{
+    return (QFileInfo::exists(QString("%1/%2").arg(path).arg(files)) && ...);
 }
 
 bool run_meson(const ProcessRunData &runData, QIODevice *output)
@@ -173,7 +215,7 @@ bool run_meson(const ProcessRunData &runData, QIODevice *output)
 
 bool isSetup(const FilePath &buildPath)
 {
-    return containsFiles(buildPath.pathAppended(Constants::MESON_INFO_DIR).toString(),
+    return containsFiles(buildPath.pathAppended(Constants::MESON_INFO_DIR).toUrlishString(),
                          Constants::MESON_INTRO_TESTS,
                          Constants::MESON_INTRO_TARGETS,
                          Constants::MESON_INTRO_INSTALLED,
@@ -195,12 +237,9 @@ static std::optional<FilePath> findToolHelper(const QStringList &exeNames)
     return std::nullopt;
 }
 
-std::optional<FilePath> findTool(ToolType toolType)
+std::optional<FilePath> findMeson()
 {
-    if (toolType == ToolType::Meson)
-        return findToolHelper({"meson.py", "meson"});
-    if (toolType == ToolType::Ninja)
-        return findToolHelper({"ninja", "ninja-build"});
+    return findToolHelper({"meson.py", "meson"});
     QTC_CHECK(false);
     return {};
 }
@@ -208,42 +247,31 @@ std::optional<FilePath> findTool(ToolType toolType)
 
 std::vector<MesonTools::Tool_t> s_tools;
 
-MesonTools::Tool_t MesonTools::autoDetectedTool(ToolType toolType)
+MesonTools::Tool_t MesonTools::autoDetectedTool()
 {
     for (const auto &tool : s_tools) {
-        if (tool->autoDetected() && tool->toolType() == toolType)
+        if (tool->autoDetected())
             return tool;
     }
     return nullptr;
 }
 
-static void fixAutoDetected(ToolType toolType)
+static void ensureAutoDetected()
 {
-    MesonTools::Tool_t autoDetected = MesonTools::autoDetectedTool(toolType);
-    if (!autoDetected) {
-        QStringList exeNames;
-        QString toolName;
-        if (toolType == ToolType::Meson) {
-            if (std::optional<FilePath> path = findTool(toolType)) {
-                s_tools.emplace_back(
-                    std::make_shared<ToolWrapper>(toolType,
-                        QString("System %1 at %2").arg("Meson").arg(path->toString()), *path, Id{}, true));
-            }
-        } else if (toolType == ToolType::Ninja) {
-            if (std::optional<FilePath> path = findTool(toolType)) {
-                s_tools.emplace_back(
-                    std::make_shared<ToolWrapper>(toolType,
-                        QString("System %1 at %2").arg("Ninja").arg(path->toString()), *path, Id{}, true));
-            }
-        }
+    if (MesonTools::autoDetectedTool())
+        return;
+
+    if (const std::optional<FilePath> path = findMeson()) {
+        s_tools.emplace_back(std::make_shared<MesonToolWrapper>(
+                QString("System %1 at %2").arg("Meson", path->toUrlishString()), *path, Id{}, true));
+
     }
 }
 
 void MesonTools::setTools(std::vector<MesonTools::Tool_t> &&tools)
 {
     std::swap(s_tools, tools);
-    fixAutoDetected(ToolType::Meson);
-    fixAutoDetected(ToolType::Ninja);
+    ensureAutoDetected();
 }
 
 const std::vector<MesonTools::Tool_t> &MesonTools::tools()
@@ -260,9 +288,7 @@ void MesonTools::updateTool(const Id &itemId, const QString &name, const FilePat
         (*item)->setExe(exe);
         (*item)->setName(name);
     } else {
-        // TODO improve this
-        const ToolType toolType = exe.fileName().contains("ninja") ? ToolType::Ninja : ToolType::Meson;
-        s_tools.emplace_back(std::make_shared<ToolWrapper>(toolType, name, exe, itemId));
+        s_tools.emplace_back(std::make_shared<MesonToolWrapper>( name, exe, itemId));
         emit instance()->toolAdded(s_tools.back());
     }
 }
@@ -274,14 +300,14 @@ void MesonTools::removeTool(const Id &id)
     emit instance()->toolRemoved(*item);
 }
 
-std::shared_ptr<ToolWrapper> MesonTools::toolById(const Id &id, ToolType toolType)
+std::shared_ptr<MesonToolWrapper> MesonTools::toolById(const Id &id)
 {
     const auto tool = std::find_if(std::cbegin(s_tools),
                                    std::cend(s_tools),
                                    [&id](const MesonTools::Tool_t &tool) {
                                        return tool->id() == id;
                                    });
-    if (tool != std::cend(s_tools) && (*tool)->toolType() == toolType)
+    if (tool != std::cend(s_tools))
         return *tool;
     return nullptr;
 }

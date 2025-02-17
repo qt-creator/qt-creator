@@ -93,7 +93,7 @@ void XcodeProbe::setupDefaultToolchains(const QString &devPath)
                 + QString(QLatin1String("/Platforms/%1.platform/Developer/SDKs/%1.sdk")).arg(
                     sdk.directoryName));
         sdk.architectures = sdkConfig.second;
-        const QFileInfo sdkPathInfo(sdk.path.toString());
+        const QFileInfo sdkPathInfo(sdk.path.toUrlishString());
         if (sdkPathInfo.exists() && sdkPathInfo.isDir()) {
             clangProfile.sdks.push_back(sdk);
             allArchitectures += Utils::toSet(sdk.architectures);

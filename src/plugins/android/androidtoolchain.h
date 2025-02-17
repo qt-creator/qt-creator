@@ -41,4 +41,4 @@ ToolchainList autodetectToolchainsFromNdks(const ToolchainList &alreadyKnown,
 
 void setupAndroidToolchain();
 
-} // Android
+} // Android::Internal

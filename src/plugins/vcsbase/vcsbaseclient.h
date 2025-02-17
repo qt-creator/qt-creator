@@ -123,10 +123,6 @@ public:
 
     virtual bool synchronousCreateRepository(const Utils::FilePath &workingDir,
                                              const QStringList &extraOptions = {});
-    virtual bool synchronousClone(const Utils::FilePath &workingDir,
-                                  const QString &srcLocation,
-                                  const QString &dstLocation,
-                                  const QStringList &extraOptions = {});
     virtual bool synchronousAdd(const Utils::FilePath &workingDir,
                                 const QString &relFileName,
                                 const QStringList &extraOptions = {});
@@ -173,8 +169,6 @@ public:
                         const QStringList &files,
                         const QString &commitMessageFile,
                         const QStringList &extraOptions = {});
-
-    virtual Utils::FilePath findTopLevelForFile(const Utils::FilePath &/*file*/) const { return {}; }
 
     virtual void view(const Utils::FilePath &source, const QString &id,
                       const QStringList &extraOptions = QStringList());

@@ -5,8 +5,8 @@
 
 #include "qmljseditor.h"
 #include "qmljseditordocument.h"
-#include "qmljseditorsettings.h"
 #include "qmljseditortr.h"
+#include "qmllsclientsettings.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -158,7 +158,7 @@ bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Docum
     const HelpItem::Links links = helpItem.links();
 
     // Check if the module name contains a major version.
-    static QRegularExpression version("^([^\\d]*)(\\d+)\\.*\\d*$");
+    static const QRegularExpression version("^([^\\d]*)(\\d+)\\.*\\d*$");
     const QRegularExpressionMatch m = version.match(moduleName);
     if (m.hasMatch()) {
         QMap<QString, QUrl> filteredUrlMap;
@@ -356,7 +356,7 @@ void QmlJSHoverHandler::handleImport(const ScopeChain &scopeChain, AST::UiImport
         if (import.info.ast() == node) {
             if (import.info.type() == ImportType::Library
                     && !import.libraryPath.isEmpty()) {
-                QString msg = Tr::tr("Library at %1").arg(import.libraryPath.toString());
+                QString msg = Tr::tr("Library at %1").arg(import.libraryPath.toUrlishString());
                 const LibraryInfo &libraryInfo = scopeChain.context()->snapshot().libraryInfo(import.libraryPath);
                 if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::DumpDone) {
                     msg += QLatin1Char('\n');
@@ -382,7 +382,8 @@ void QmlJSHoverHandler::reset()
 void QmlJSHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoint &point)
 {
     // disable hoverhandling in case qmlls is enabled
-    if (settings().useQmlls()) {
+    if (editorWidget->textDocument()
+        && qmllsSettings()->isEnabledOnProjectFile(editorWidget->textDocument()->filePath())) {
         BaseHoverHandler::operateTooltip(editorWidget, point);
         return;
     }

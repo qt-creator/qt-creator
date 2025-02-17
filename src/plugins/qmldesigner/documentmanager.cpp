@@ -234,7 +234,7 @@ void DocumentManager::setCurrentDesignDocument(Core::IEditor *editor)
         auto found = m_designDocuments.find(editor);
         if (found == m_designDocuments.end()) {
             auto &inserted = m_designDocuments[editor] = std::make_unique<DesignDocument>(
-                editor->document()->filePath().toString(),
+                editor->document()->filePath().toUrlishString(),
                 m_projectManager.projectStorageDependencies(),
                 m_externalDependencies);
             m_currentDesignDocument = inserted.get();
@@ -315,7 +315,7 @@ void DocumentManager::goIntoComponent(const QString &fileName)
 bool DocumentManager::createFile(const QString &filePath, const QString &contents)
 {
     Utils::TextFileFormat textFileFormat;
-    textFileFormat.codec = Core::EditorManager::defaultTextCodec();
+    textFileFormat.setCodecName(Core::EditorManager::defaultTextCodecName());
     QString errorMessage;
 
     return textFileFormat.writeFile(Utils::FilePath::fromString(filePath), contents, &errorMessage);
@@ -362,7 +362,7 @@ Utils::FilePath DocumentManager::currentProjectDirPath()
 
     const QList projects = ProjectExplorer::ProjectManager::projects();
     for (auto p : projects) {
-        if (qmlFileName.startsWith(p->projectDirectory().toString()))
+        if (qmlFileName.startsWith(p->projectDirectory().toUrlishString()))
             return p->projectDirectory();
     }
 
@@ -458,7 +458,7 @@ void DocumentManager::findPathToIsoProFile(bool *iconResourceFileAlreadyExists, 
                         qCDebug(documentManagerLog) << "Found" << isoIconsQrcFile << "in" << virtualFolderNode->filePath();
 
                         iconQrcFileNode = subFolderNode;
-                        *resourceFileProPath = iconQrcFileNode->parentProjectNode()->filePath().toString();
+                        *resourceFileProPath = iconQrcFileNode->parentProjectNode()->filePath().toUrlishString();
                     }
                 }
             }
@@ -474,14 +474,14 @@ void DocumentManager::findPathToIsoProFile(bool *iconResourceFileAlreadyExists, 
     if (!iconQrcFileNode) {
         // The QRC file that we want doesn't exist or is not listed under RESOURCES in the .pro.
         if (project)
-            *resourceFilePath = project->projectDirectory().toString() + "/" + isoIconsQrcFile;
+            *resourceFilePath = project->projectDirectory().toUrlishString() + "/" + isoIconsQrcFile;
 
         // We assume that the .pro containing the QML file is an acceptable place to add the .qrc file.
         ProjectExplorer::ProjectNode *projectNode = ProjectExplorer::ProjectTree::nodeForFile(qmlFileName)->parentProjectNode();
-        *resourceFileProPath = projectNode->filePath().toString();
+        *resourceFileProPath = projectNode->filePath().toUrlishString();
     } else {
         // We found the QRC file that we want.
-        QString projectDirectory = ProjectExplorer::ProjectTree::projectForNode(iconQrcFileNode)->projectDirectory().toString();
+        QString projectDirectory = ProjectExplorer::ProjectTree::projectForNode(iconQrcFileNode)->projectDirectory().toUrlishString();
         *resourceFilePath = projectDirectory + "/" + isoIconsQrcFile;
     }
 

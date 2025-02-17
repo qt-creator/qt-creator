@@ -116,7 +116,7 @@ QMap<QString, QList<QKeySequence>> CommandsFile::importCommands() const
 {
     QMap<QString, QList<QKeySequence>> result;
 
-    QFile file(m_filePath.toString());
+    QFile file(m_filePath.toUrlishString());
     if (!file.open(QIODevice::ReadOnly|QIODevice::Text))
         return result;
 
@@ -743,8 +743,7 @@ void ShortcutSettingsWidget::resetToDefault()
 
 void ShortcutSettingsWidget::importAction()
 {
-    FilePath fileName = FileUtils::getOpenFilePath(nullptr,
-                                                   Tr::tr("Import Keyboard Mapping Scheme"),
+    FilePath fileName = FileUtils::getOpenFilePath(Tr::tr("Import Keyboard Mapping Scheme"),
                                                    schemesPath(),
                                                    Tr::tr("Keyboard Mapping Scheme (*.kms)"));
     if (!fileName.isEmpty()) {

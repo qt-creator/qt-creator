@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljsast_p.h"
+
+#include "qmljsastvisitor_p.h"
+
+#include <utils/algorithm.h>
+
 #include <QLocale>
 #include <QString>
 
-#include "qmljsastvisitor_p.h"
-#include <qlocale.h>
-
-#include <algorithm>
 #include <array>
 
 QT_QML_BEGIN_NAMESPACE
@@ -1606,8 +1607,7 @@ SourceLocation UiPropertyAttributes::firstSourceLocation() const
                                                  &m_defaultToken,
                                                  &m_readonlyToken,
                                                  &m_requiredToken};
-    const auto it = std::min_element(tokens.begin(), tokens.end(), compareLocationsByBegin<true>);
-    return **it;
+    return *Utils::minElementOrDefault(tokens, compareLocationsByBegin<true>);
 }
 
 SourceLocation UiPropertyAttributes::lastSourceLocation() const
@@ -1616,8 +1616,7 @@ SourceLocation UiPropertyAttributes::lastSourceLocation() const
                                                  &m_defaultToken,
                                                  &m_readonlyToken,
                                                  &m_requiredToken};
-    const auto it = std::max_element(tokens.begin(), tokens.end(), compareLocationsByBegin<false>);
-    return **it;
+    return *Utils::maxElementOrDefault(tokens, compareLocationsByBegin<false>);
 }
 } } // namespace QmlJS::AST
 

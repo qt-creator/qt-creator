@@ -321,7 +321,7 @@ void CompilerOptionsBuilder::insertWrappedMingwHeaders()
 static QString creatorResourcePath()
 {
 #ifndef UNIT_TESTS
-    return Core::ICore::resourcePath().toString();
+    return Core::ICore::resourcePath().toUrlishString();
 #else
     return QDir::toNativeSeparators(QString::fromUtf8(QTC_RESOURCE_DIR ""));
 #endif
@@ -342,7 +342,8 @@ void CompilerOptionsBuilder::insertWrappedHeaders(const QStringList &relPaths)
         args << (includeUserPathOption + QDir::toNativeSeparators(fullPath));
     }
 
-    const int index = m_options.indexOf(QRegularExpression("\\A-I.*\\z"));
+    static const QRegularExpression regexp("\\A-I.*\\z");
+    const int index = m_options.indexOf(regexp);
     if (index < 0)
         add(args);
     else

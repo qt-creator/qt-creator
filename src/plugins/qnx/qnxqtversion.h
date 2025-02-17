@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "qnxconstants.h"
-
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtversionfactory.h>
 

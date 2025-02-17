@@ -44,7 +44,7 @@ void JsonProjectPage::initializePage()
         connect(ProjectTree::instance(), &ProjectTree::treeChanged,
                 this, &JsonProjectPage::initUiForSubProject);
     }
-    setProjectName(uniqueProjectName(filePath().toString()));
+    setProjectName(uniqueProjectName(filePath().toUrlishString()));
 }
 
 bool JsonProjectPage::validatePage()
@@ -87,8 +87,8 @@ bool JsonProjectPage::validatePage()
 
     const FilePath target = filePath().pathAppended(projectName());
 
-    wiz->setProperty("ProjectDirectory", target.toString());
-    wiz->setProperty("TargetPath", target.toString());
+    wiz->setProperty("ProjectDirectory", target.toUrlishString());
+    wiz->setProperty("TargetPath", target.toUrlishString());
 
     return Utils::ProjectIntroPage::validatePage();
 }
@@ -139,7 +139,12 @@ void JsonProjectPage::initUiForSubProject()
 
     const QList<Project *> currentProjects = ProjectManager::projects();
     QList<ProjectInfo> projectInfos;
-    projectInfos.append({Tr::tr("None"), Core::DocumentManager::projectsDirectory(), {}, {}, {}});
+    projectInfos.append(
+        {Tr::tr("None", "Add to project: None"),
+         Core::DocumentManager::projectsDirectory(),
+         {},
+         {},
+         {}});
     int index = -1;
     int counter = 1; // we've added None already
     for (const Project *proj : currentProjects) {

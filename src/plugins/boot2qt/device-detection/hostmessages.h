@@ -7,9 +7,6 @@
 #include <QtCore/qjsondocument.h>
 #include <QtCore/qjsonobject.h>
 
-const int qdbHostMessageVersion = 1;
-bool checkHostMessageVersion(const QJsonObject &obj);
-
 enum class RequestType
 {
     Unknown = 0,
@@ -22,8 +19,6 @@ enum class RequestType
 };
 
 QByteArray createRequest(const RequestType &type);
-RequestType requestType(const QJsonObject &obj);
-QString requestTypeString(const RequestType &type);
 
 enum class ResponseType
 {
@@ -37,7 +32,5 @@ enum class ResponseType
     Messages,
 };
 
-QJsonObject initializeResponse(const ResponseType &type);
 ResponseType responseType(const QJsonObject &obj);
 QString responseTypeString(const ResponseType &type);
-QByteArray serialiseResponse(const QJsonObject &obj);

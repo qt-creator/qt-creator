@@ -7,11 +7,11 @@
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagertr.h"
 
-#include <coreplugin/icore.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorericons.h>
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
@@ -53,36 +53,51 @@ private:
 class ProfileModel : public Utils::TreeModel<ProfileTreeItem>
 {
 public:
-    ProfileModel() : TreeModel(static_cast<QObject *>(nullptr))
+    ProfileModel(const QList<Kit *> &validKits) : TreeModel(static_cast<QObject *>(nullptr))
     {
         setHeader(QStringList{Tr::tr("Key"), Tr::tr("Value")});
-        reload();
+        reload(validKits);
     }
 
-    void reload()
+    void reload(const QList<Kit *> &validKits)
     {
         ProfileTreeItem * const newRoot = new ProfileTreeItem(QString(), QString());
         QHash<QStringList, ProfileTreeItem *> itemMap;
-        const QStringList output = QbsProfileManager::runQbsConfig(
-                    QbsProfileManager::QbsConfigOp::Get, "profiles").split('\n', Qt::SkipEmptyParts);
-        for (QString line : output) {
-            line = line.trimmed();
-            line = line.mid(QString("profiles.").length());
-            const int colonIndex = line.indexOf(':');
-            if (colonIndex == -1)
-                continue;
-            const QStringList key = line.left(colonIndex).trimmed().split('.', Qt::SkipEmptyParts);
-            const QString value = line.mid(colonIndex + 1).trimmed();
-            QStringList partialKey;
-            ProfileTreeItem *parent = newRoot;
-            for (const QString &keyComponent : key) {
-                partialKey << keyComponent;
-                ProfileTreeItem *&item = itemMap[partialKey];
-                if (!item) {
-                    item = new ProfileTreeItem(keyComponent, partialKey == key ? value : QString());
-                    parent->appendChild(item);
+        QHash<const IDeviceConstPtr, QList<const Kit *>> kitsPerBuildDevice;
+        for (const Kit * const k : validKits) {
+            if (const IDeviceConstPtr dev = BuildDeviceKitAspect::device(k))
+                kitsPerBuildDevice[dev] << k;
+        }
+        for (auto it = kitsPerBuildDevice.cbegin(); it != kitsPerBuildDevice.cend(); ++it) {
+            const QStringList output = QbsProfileManager::runQbsConfig(
+                                           it.key(), QbsProfileManager::QbsConfigOp::Get, "profiles")
+                                           .split('\n', Qt::SkipEmptyParts);
+            const QStringList profileNames = Utils::transform(it.value(), [](const Kit *k) {
+                return QbsProfileManager::profileNameForKit(k);
+            });
+            for (QString line : output) {
+                line = line.trimmed();
+                line = line.mid(QString("profiles.").length());
+                const int colonIndex = line.indexOf(':');
+                if (colonIndex == -1)
+                    continue;
+                const QStringList key
+                    = line.left(colonIndex).trimmed().split('.', Qt::SkipEmptyParts);
+                if (key.isEmpty() || !profileNames.contains(key.first()))
+                    continue;
+                const QString value = line.mid(colonIndex + 1).trimmed();
+                QStringList partialKey;
+                ProfileTreeItem *parent = newRoot;
+                for (const QString &keyComponent : key) {
+                    partialKey << keyComponent;
+                    ProfileTreeItem *&item = itemMap[partialKey];
+                    if (!item) {
+                        item = new ProfileTreeItem(
+                            keyComponent, partialKey == key ? value : QString());
+                        parent->appendChild(item);
+                    }
+                    parent = item;
                 }
-                parent = item;
             }
         }
         setRootItem(newRoot);
@@ -99,8 +114,9 @@ private:
 
     void refreshKitsList();
     void displayCurrentProfile();
+    const QList<Kit *> validKits() const;
 
-    ProfileModel m_model;
+    ProfileModel m_model{validKits()};
     QComboBox *m_kitsComboBox;
     QLabel *m_profileValueLabel;
     QTreeView *m_propertiesView;
@@ -133,11 +149,11 @@ QbsProfilesSettingsWidget::QbsProfilesSettingsWidget()
             Column {
                 PushButton {
                     text(Tr::tr("E&xpand All")),
-                    onClicked([this] { m_propertiesView->expandAll(); }, this),
+                    onClicked(this, [this] { m_propertiesView->expandAll(); }),
                 },
                 PushButton {
                     text(Tr::tr("&Collapse All")),
-                    onClicked([this] { m_propertiesView->collapseAll(); }, this),
+                    onClicked(this, [this] { m_propertiesView->collapseAll(); }),
                 },
                 st,
             },
@@ -153,17 +169,16 @@ void QbsProfilesSettingsWidget::refreshKitsList()
 {
     m_kitsComboBox->disconnect(this);
     m_propertiesView->setModel(nullptr);
-    m_model.reload();
+    const QList<Kit *> kits = validKits();
+    m_model.reload(validKits());
     m_profileValueLabel->clear();
     Utils::Id currentId;
     if (m_kitsComboBox->count() > 0)
         currentId = Utils::Id::fromSetting(m_kitsComboBox->currentData());
     m_kitsComboBox->clear();
     int newCurrentIndex = -1;
-    QList<Kit *> validKits = KitManager::kits();
-    Utils::erase(validKits, [](const Kit *k) { return !k->isValid(); });
-    const bool hasKits = !validKits.isEmpty();
-    for (const Kit * const kit : std::as_const(validKits)) {
+    const bool hasKits = !kits.isEmpty();
+    for (const Kit * const kit : kits) {
         if (kit->id() == currentId)
             newCurrentIndex = m_kitsComboBox->count();
         m_kitsComboBox->addItem(kit->displayName(), kit->id().toSetting());
@@ -196,6 +211,11 @@ void QbsProfilesSettingsWidget::displayCurrentProfile()
         m_propertiesView->setRootIndex(currentProfileIndex);
         return;
     }
+}
+
+const QList<Kit *> QbsProfilesSettingsWidget::validKits() const
+{
+    return Utils::filtered(KitManager::kits(), [](const Kit *k) { return k->isValid(); });
 }
 
 } // QbsProjectManager::Internal

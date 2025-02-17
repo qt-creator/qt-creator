@@ -4,7 +4,6 @@
 #include "cppcodestylesettingspage.h"
 
 #include "cppcodeformatter.h"
-#include "cppcodestylepreferences.h"
 #include "cppcodestylesnippets.h"
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
@@ -33,6 +32,7 @@
 #include <utils/qtcassert.h>
 
 #include <QCheckBox>
+#include <QGroupBox>
 #include <QTabWidget>
 #include <QTextBlock>
 #include <QVBoxLayout>
@@ -165,12 +165,6 @@ public:
         , m_tabSettingsWidget(new TabSettingsWidget)
         , m_statementMacros(new QPlainTextEdit)
     {
-        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(m_tabSettingsWidget->sizePolicy().hasHeightForWidth());
-        m_tabSettingsWidget->setSizePolicy(sizePolicy);
-        m_tabSettingsWidget->setFocusPolicy(Qt::TabFocus);
         QObject::connect(m_tabSettingsWidget, &TabSettingsWidget::settingsChanged,
                          q, &CppCodeStylePreferencesWidget::slotTabSettingsChanged);
 
@@ -242,6 +236,7 @@ public:
             }
         };
 
+        QSizePolicy sizePolicy;
         sizePolicy.setVerticalPolicy(QSizePolicy::Preferred);
         m_statementMacros->setToolTip(
             Tr::tr("Macros that can be used as statements without a trailing semicolon."));
@@ -274,7 +269,6 @@ public:
 
         m_categoryTab->setProperty("_q_custom_style_disabled", true);
 
-        m_controllers.append(m_tabSettingsWidget);
         m_controllers.append(contentGroupWidget);
         m_controllers.append(bracesGroupWidget);
         m_controllers.append(switchGroupWidget);
@@ -356,9 +350,8 @@ void CppCodeStylePreferencesWidget::setCodeStyle(CppCodeStylePreferences *codeSt
 
     connect(m_preferences, &CppCodeStylePreferences::currentTabSettingsChanged,
             this, &CppCodeStylePreferencesWidget::setTabSettings);
-    connect(m_preferences, &CppCodeStylePreferences::currentCodeStyleSettingsChanged,
-            this, [this](const CppCodeStyleSettings &codeStyleSettings) {
-        setCodeStyleSettings(codeStyleSettings);
+    connect(m_preferences, &CppCodeStylePreferences::currentValueChanged, this, [this] {
+        setCodeStyleSettings(m_preferences->currentCodeStyleSettings());
     });
 
     connect(m_preferences, &ICodeStylePreferences::currentPreferencesChanged,
@@ -462,6 +455,7 @@ void CppCodeStylePreferencesWidget::slotCurrentPreferencesChanged(ICodeStylePref
 
     for (QWidget *widget : d->m_controllers)
         widget->setEnabled(enable);
+    d->m_tabSettingsWidget->setEnabled(enable);
 
     if (preview)
         updatePreview();
@@ -473,12 +467,11 @@ void CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged()
         return;
 
     if (m_preferences) {
-        auto current = qobject_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
+        auto current = dynamic_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
         if (current)
             current->setCodeStyleSettings(cppCodeStyleSettings());
     }
 
-    emit codeStyleSettingsChanged(cppCodeStyleSettings());
     updatePreview();
 }
 
@@ -488,12 +481,11 @@ void CppCodeStylePreferencesWidget::slotTabSettingsChanged(const TabSettings &se
         return;
 
     if (m_preferences) {
-        auto current = qobject_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
+        auto current = dynamic_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
         if (current)
             current->setTabSettings(settings);
     }
 
-    emit tabSettingsChanged(settings);
     updatePreview();
 }
 
@@ -507,7 +499,7 @@ void CppCodeStylePreferencesWidget::updatePreview()
     QtStyleCodeFormatter formatter(ts, ccss);
     for (SnippetEditorWidget *preview : std::as_const(d->m_previews)) {
         preview->textDocument()->setTabSettings(ts);
-        preview->setCodeStyle(cppCodeStylePreferences);
+        preview->textDocument()->setCodeStyle(cppCodeStylePreferences);
 
         QTextDocument *doc = preview->document();
         formatter.invalidateCache(doc);
@@ -570,7 +562,7 @@ void CppCodeStylePreferencesWidget::apply()
 void CppCodeStylePreferencesWidget::finish()
 {
     if (m_preferences) {
-        auto current = qobject_cast<CppCodeStylePreferences *>(m_preferences->currentDelegate());
+        auto current = dynamic_cast<CppCodeStylePreferences *>(m_preferences->currentDelegate());
         if (current) {
             current->setCodeStyleSettings(m_originalCppCodeStyleSettings);
             current->setTabSettings(m_originalTabSettings);

@@ -15,6 +15,8 @@
 
 #include <cmath>
 
+Q_LOGGING_CATEGORY(Log, "qtc.editor.syntaxhighlighter", QtWarningMsg)
+
 namespace TextEditor {
 
 enum HighlighterTypeProperty
@@ -208,6 +210,7 @@ void SyntaxHighlighterPrivate::reformatBlocks(int from, int charsRemoved, int ch
     else if (block.blockNumber() > highlightEndBlock)
         highlightEndBlock = block.blockNumber();
 
+    qCDebug(Log) << "reformat blocks from:" << from << "to:" << from + charsAdded - charsRemoved;
     reformatBlocks();
 }
 
@@ -222,6 +225,8 @@ void SyntaxHighlighterPrivate::reformatBlocks()
     foldValidator.reset();
 
     bool forceHighlightOfNextBlock = false;
+    qCDebug(Log) << "continue reformat blocks start block:" << highlightStartBlock
+                 << "end block:" << highlightEndBlock << "blockCount:" << doc->blockCount();
     QTextBlock block = doc->findBlockByNumber(highlightStartBlock);
     QTC_ASSERT(block.isValid(), block = doc->firstBlock());
     QTextBlock endBlock = doc->findBlockByNumber(highlightEndBlock);
@@ -233,12 +238,15 @@ void SyntaxHighlighterPrivate::reformatBlocks()
             break;
 
         const int stateBeforeHighlight = block.userState();
+        const int braceDepthBeforeHighlight = TextDocumentLayout::braceDepth(block);
 
         if (forceHighlightOfNextBlock || forceRehighlightBlocks.contains(block.blockNumber())
                 || block.blockNumber() <= highlightEndBlock) {
             reformatBlock(block);
             forceRehighlightBlocks.remove(block.blockNumber());
-            forceHighlightOfNextBlock = (block.userState() != stateBeforeHighlight);
+            forceHighlightOfNextBlock = (block.userState() != stateBeforeHighlight)
+                                        || (braceDepthBeforeHighlight
+                                            != TextDocumentLayout::braceDepth(block));
         }
 
         if (block == endBlock && !forceHighlightOfNextBlock)
@@ -256,6 +264,7 @@ void SyntaxHighlighterPrivate::reformatBlocks()
     } else {
         highlightEndBlock = 0;
         highlightStartBlock = INT_MAX;
+        qCDebug(Log) << "reformat blocks done";
         syntaxInfoUpToDate = true;
         emit q->finished();
     }

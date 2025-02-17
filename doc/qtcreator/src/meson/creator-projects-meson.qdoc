@@ -19,8 +19,8 @@
     \note Many features available with Meson build or usually available from \QC
     are missing.
 
-    \QC automatically detects the Meson and Ninja executables specified in the
-    \c PATH. You can add paths to other Meson or Ninja executables and use them
+    \QC automatically detects the Meson executables specified in the
+    \c PATH. You can add paths to other Meson executables and use them
     in different build and run \l{Kits}{kits}.
 
     \note Enable the Meson plugin to use it.
@@ -30,7 +30,7 @@
     \QC does not have strong requirements on Meson build's version, any version
     above 0.49.0 should be compatible.
 
-    To specify paths to Meson or Ninja executables:
+    To specify paths to Meson executables:
 
     \list 1
 
@@ -41,8 +41,7 @@
 
         \li In the \uicontrol Name field, specify a name for the tool.
 
-        \li In the \uicontrol Path field, specify the path to the Meson or Ninja
-            executable.
+        \li In the \uicontrol Path field, specify the path to the Meson executable.
 
         \li Select \uicontrol Apply to save your changes.
 
@@ -50,7 +49,7 @@
 
     Select the
     \preferences > \uicontrol Kits > \uicontrol Kits
-    tab to add the Meson and Ninja tools to a build and run kit:
+    tab to add the Meson tools to a build and run kit:
 
     \image qtcreator-kits-meson.png "Setting Meson executable in Kit preferences"
 

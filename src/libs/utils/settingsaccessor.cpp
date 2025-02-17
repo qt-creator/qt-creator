@@ -63,7 +63,8 @@ bool SettingsAccessor::saveSettings(const Store &data, QWidget *parent) const
 
     const std::optional<Issue> result = writeData(m_baseFilePath, data, parent);
 
-    const ProceedInfo pi = result ? reportIssues(result.value(), m_baseFilePath, parent) : ProceedInfo::Continue;
+    const ProceedInfo pi = result ? reportIssues(*result, m_baseFilePath, parent)
+                                  : ProceedInfo::Continue;
     return pi == ProceedInfo::Continue;
 }
 
@@ -97,7 +98,7 @@ Store SettingsAccessor::restoreSettings(const FilePath &settingsPath, QWidget *p
 
     const RestoreData result = readData(settingsPath, parent);
 
-    const ProceedInfo pi = result.hasIssue() ? reportIssues(result.issue.value(), result.path, parent)
+    const ProceedInfo pi = result.hasIssue() ? reportIssues(*result.issue, result.path, parent)
                                              : ProceedInfo::Continue;
     return pi == ProceedInfo::DiscardAndContinue ? Store() : result.data;
 }

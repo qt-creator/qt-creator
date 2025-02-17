@@ -12,21 +12,13 @@
 
 #include <coreplugin/dialogs/codecselector.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
-
-#include <QCoreApplication>
-#include <QFile>
-#include <QDir>
-#include <QMenu>
-#include <QTextCodec>
 
 using namespace Core;
 using namespace Utils;
 
 namespace DiffEditor::Internal {
 
-DiffEditorDocument::DiffEditorDocument() :
-    Core::BaseTextDocument()
+DiffEditorDocument::DiffEditorDocument()
 {
     setId(Constants::DIFF_EDITOR_ID);
     setMimeType(Constants::DIFF_EDITOR_MIMETYPE);
@@ -310,7 +302,7 @@ Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const
 
 bool DiffEditorDocument::selectEncoding()
 {
-    const CodecSelectorResult result = askForCodec(Core::ICore::dialogParent(), this);
+    const CodecSelectorResult result = askForCodec(this);
     switch (result.action) {
     case CodecSelectorResult::Reload: {
         setCodec(result.codec);

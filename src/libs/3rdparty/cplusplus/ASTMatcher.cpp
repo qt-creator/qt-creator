@@ -218,10 +218,6 @@ bool ASTMatcher::match(DecltypeSpecifierAST *node, DecltypeSpecifierAST *pattern
 
 bool ASTMatcher::match(TypeConstraintAST *node, TypeConstraintAST *pattern)
 {
-    if (!pattern->nestedName)
-        pattern->nestedName = node->nestedName;
-    else if (!AST::match(node->nestedName, pattern->nestedName, this))
-        return false;
     if (!pattern->conceptName)
         pattern->conceptName = node->conceptName;
     else if (!AST::match(node->conceptName, pattern->conceptName, this))
@@ -1243,6 +1239,15 @@ bool ASTMatcher::match(RangeBasedForStatementAST *node, RangeBasedForStatementAS
     pattern->for_token = node->for_token;
 
     pattern->lparen_token = node->lparen_token;
+
+    if (!pattern->initDecl)
+        pattern->initDecl = node->initDecl;
+    else if (!AST::match(node->initDecl, pattern->initDecl, this))
+        return false;
+    if (!pattern->initStmt)
+        pattern->initStmt = node->initStmt;
+    else if (!AST::match(node->initStmt, pattern->initStmt, this))
+        return false;
 
     if (! pattern->type_specifier_list)
         pattern->type_specifier_list = node->type_specifier_list;

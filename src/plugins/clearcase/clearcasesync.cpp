@@ -95,14 +95,15 @@ void ClearCaseSync::processCleartoolLsLine(const QDir &viewRootDir, const QStrin
         return;
 
     // find first whitespace. anything before that is not interesting
-    const int wspos = buffer.indexOf(QRegularExpression("\\s"));
+    static const QRegularExpression regexp("\\s");
+    const int wspos = buffer.indexOf(regexp);
     const QString absFile =
             viewRootDir.absoluteFilePath(
                 QDir::fromNativeSeparators(buffer.left(atatpos)));
     QTC_CHECK(QFileInfo::exists(absFile));
     QTC_CHECK(!absFile.isEmpty());
 
-    const QRegularExpression reState("^\\s*\\[[^\\]]*\\]"); // [hijacked]; [loaded but missing]
+    static const QRegularExpression reState("^\\s*\\[[^\\]]*\\]"); // [hijacked]; [loaded but missing]
     const QRegularExpressionMatch match = reState.match(buffer.mid(wspos + 1));
     if (match.hasMatch()) {
         const QString ccState = match.captured();

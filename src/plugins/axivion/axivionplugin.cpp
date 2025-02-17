@@ -10,6 +10,7 @@
 #include "dashboard/error.h"
 
 #include <coreplugin/credentialquery.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -73,41 +74,82 @@ QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind)
     return prefixToIcon.insert(*issueKind, icon.icon()).value();
 }
 
-QString anyToSimpleString(const Dto::Any &any)
+static QString anyToString(const Dto::Any &any)
 {
-    if (any.isString())
-        return any.getString();
-    if (any.isBool())
-        return QString("%1").arg(any.getBool());
-    if (any.isDouble()) {
-        const double value = any.getDouble();
-        double intPart;
-        const double fragPart = std::modf(value, &intPart);
-        if (fragPart != 0)
-            return QString::number(value);
-        return QString::number(value, 'f', 0);
+   if (any.isNull() || !any.isString())
+        return {};
+    return any.getString();
+}
+
+static QString anyToPathString(const Dto::Any &any)
+{
+    const QString pathStr = anyToString(any);
+    if (pathStr.isEmpty())
+        return {};
+    const FilePath fp = FilePath::fromUserInput(pathStr);
+    return fp.contains("/") ? QString("%1 [%2]").arg(fp.fileName(), fp.path()) : fp.fileName();
+}
+
+// only the first found innerKey is used to add its value to the list
+static QString anyListOfMapToString(const Dto::Any &any, const QStringList &innerKeys)
+{
+    if (any.isNull() || !any.isList())
+        return {};
+    const std::vector<Dto::Any> anyList = any.getList();
+    QStringList list;
+    for (const Dto::Any &inner : anyList) {
+        if (!inner.isMap())
+            continue;
+        const std::map<QString, Dto::Any> innerMap = inner.getMap();
+        for (const QString &innerKey : innerKeys) {
+            auto value = innerMap.find(innerKey);
+            if (value == innerMap.end())
+                continue;
+            list << anyToString(value->second);
+            break;
+        }
     }
+    return list.join(", ");
+}
+
+static QString anyToNumberString(const Dto::Any &any)
+{
     if (any.isNull())
-        return QString(); // or NULL??
-    if (any.isList()) {
-        const std::vector<Dto::Any> anyList = any.getList();
-        QStringList list;
-        for (const Dto::Any &inner : anyList)
-            list << anyToSimpleString(inner);
-        return list.join(',');
+        return {};
+    if (any.isString()) // handle Infinity/NaN/...
+        return any.getString();
+
+    const double value = any.getDouble();
+    double intPart;
+    const double frac = std::modf(value, &intPart);
+    if (frac != 0)
+        return QString::number(value, 'f');
+    return QString::number(value, 'f', 0);
+}
+
+QString anyToSimpleString(const Dto::Any &any, const QString &type,
+                          const std::optional<std::vector<Dto::ColumnTypeOptionDto>> &options)
+{
+    if (type == "path")
+        return anyToPathString(any);
+    if (type == "string" || type == "state")
+        return anyToString(any);
+    if (type == "tags")
+        return anyListOfMapToString(any, {"tag"});
+    if (type == "number")
+        return anyToNumberString(any);
+    if (type == "owners") {
+        return anyListOfMapToString(any, {"displayName", "name"});
     }
-    if (any.isMap()) { // TODO
-        const std::map<QString, Dto::Any> anyMap = any.getMap();
-        auto value = anyMap.find("displayName");
-        if (value != anyMap.end())
-            return anyToSimpleString(value->second);
-        value = anyMap.find("name");
-        if (value != anyMap.end())
-            return anyToSimpleString(value->second);
-        value = anyMap.find("tag");
-        if (value != anyMap.end())
-            return anyToSimpleString(value->second);
+    if (type == "boolean") {
+        if (!any.isBool())
+            return {};
+        if (options && options->size() == 2)
+            return any.getBool() ? options->at(1).key : options->at(0).key;
+        return any.getBool() ? QString("true") : QString("false");
     }
+
+    QTC_ASSERT(false, qDebug() << "unhandled" << type);
     return {};
 }
 
@@ -154,7 +196,15 @@ static DashboardInfo toDashboardInfo(const GetDtoStorage<Dto::DashboardInfoDto> 
             projectUrls.insert(project.name, project.url);
         }
     }
-    return {dashboardStorage.url, versionNumber, projects, projectUrls, infoDto.checkCredentialsUrl};
+    return {
+        dashboardStorage.url,
+        versionNumber,
+        projects,
+        projectUrls,
+        infoDto.checkCredentialsUrl,
+        infoDto.namedFiltersUrl,
+        infoDto.userNamedFiltersUrl
+    };
 }
 
 QUrlQuery IssueListSearch::toUrlQuery(QueryMode mode) const
@@ -212,6 +262,7 @@ public:
     void handleIssuesForFile(const Dto::FileViewDto &fileView);
     void enableInlineIssues(bool enable);
     void fetchIssueInfo(const QString &id);
+    void fetchNamedFilters();
 
     void onSessionLoaded(const QString &sessionName);
     void onAboutToSaveSession();
@@ -228,11 +279,14 @@ public:
     std::optional<DashboardInfo> m_dashboardInfo;
     std::optional<Dto::ProjectInfoDto> m_currentProjectInfo;
     std::optional<QString> m_analysisVersion;
+    QList<Dto::NamedFilterInfoDto> m_globalNamedFilters;
+    QList<Dto::NamedFilterInfoDto> m_userNamedFilters;
     Project *m_project = nullptr;
     bool m_runningQuery = false;
     TaskTreeRunner m_taskTreeRunner;
     std::unordered_map<IDocument *, std::unique_ptr<TaskTree>> m_docMarksTrees;
     TaskTreeRunner m_issueInfoRunner;
+    TaskTreeRunner m_namedFilterRunner;
     FileInProjectFinder m_fileFinder; // FIXME maybe obsolete when path mapping is implemented
     QMetaObject::Connection m_fileFinderConnection;
     QHash<FilePath, QSet<TextMark *>> m_allMarks;
@@ -276,6 +330,56 @@ std::optional<Dto::ProjectInfoDto> projectInfo()
 {
     QTC_ASSERT(dd, return {});
     return dd->m_currentProjectInfo;
+}
+
+void fetchNamedFilters()
+{
+    QTC_ASSERT(dd, return);
+    dd->fetchNamedFilters();
+}
+
+static QList<Dto::NamedFilterInfoDto> withoutRestricted(const QString &kind, const QList<Dto::NamedFilterInfoDto> &f)
+{
+    return Utils::filtered(f, [kind](const Dto::NamedFilterInfoDto &dto) {
+        if (dto.supportsAllIssueKinds)
+            return true;
+        return !dto.issueKindRestrictions || dto.issueKindRestrictions->contains(kind)
+               || dto.issueKindRestrictions->contains("UNIVERSAL");
+    });
+};
+
+// TODO: Introduce FilterScope enum { Global, User } and use it instead of bool global.
+QList<NamedFilter> knownNamedFiltersFor(const QString &issueKind, bool global)
+{
+    QTC_ASSERT(dd, return {});
+
+    if (issueKind.isEmpty()) // happens after initial dashboad and filters fetch
+        return {};
+
+    return Utils::transform(withoutRestricted(issueKind, global ? dd->m_globalNamedFilters : dd->m_userNamedFilters),
+                               [global](const Dto::NamedFilterInfoDto &dto) {
+        return NamedFilter{dto.key, dto.displayName, global};
+    });
+}
+
+std::optional<Dto::NamedFilterInfoDto> namedFilterInfoForKey(const QString &key, bool global)
+{
+    QTC_ASSERT(dd, return std::nullopt);
+
+    const auto findFilter = [](const QList<Dto::NamedFilterInfoDto> filters, const QString &key)
+            -> std::optional<Dto::NamedFilterInfoDto> {
+        const int index = Utils::indexOf(filters, [key](const Dto::NamedFilterInfoDto &dto) {
+            return dto.key == key;
+        });
+        if (index == -1)
+            return std::nullopt;
+        return filters.at(index);
+    };
+
+    if (global)
+        return findFilter(dd->m_globalNamedFilters, key);
+    else
+        return findFilter(dd->m_userNamedFilters, key);
 }
 
 // FIXME: extend to give some details?
@@ -363,7 +467,7 @@ static QUrl constructUrl(const QString &projectName, const QString &subPath, con
         return {};
     const QByteArray encodedProjectName = QUrl::toPercentEncoding(projectName);
     const QUrl path(QString{"api/projects/" + QString::fromUtf8(encodedProjectName) + '/'});
-    QUrl url = dd->m_dashboardInfo->source.resolved(path);
+    QUrl url = resolveDashboardInfoUrl(path);
     if (!subPath.isEmpty() && QTC_GUARD(!subPath.startsWith('/')))
         url = url.resolved(subPath);
     if (!query.isEmpty())
@@ -374,6 +478,7 @@ static QUrl constructUrl(const QString &projectName, const QString &subPath, con
 static constexpr int httpStatusCodeOk = 200;
 constexpr char s_htmlContentType[] = "text/html";
 constexpr char s_plaintextContentType[] = "text/plain";
+constexpr char s_svgContentType[] = "image/svg+xml";
 constexpr char s_jsonContentType[] = "application/json";
 
 static bool isServerAccessEstablished()
@@ -382,17 +487,32 @@ static bool isServerAccessEstablished()
            || (dd->m_serverAccess == ServerAccess::WithAuthorization && dd->m_apiToken);
 }
 
-static Group fetchSimpleRecipe(const QUrl &url,
-                               const QByteArray &expectedContentType,
-                               const std::function<void(const QByteArray &)> &handler)
+static QByteArray contentTypeData(ContentType contentType)
 {
-    // TODO: Refactor so that it's a common code with fetchDataRecipe().
-    const auto onQuerySetup = [url, expectedContentType](NetworkQuery &query) {
+    switch (contentType) {
+    case ContentType::Html:      return s_htmlContentType;
+    case ContentType::Json:      return s_jsonContentType;
+    case ContentType::PlainText: return s_plaintextContentType;
+    case ContentType::Svg:       return s_svgContentType;
+    }
+    return {};
+}
+
+QUrl resolveDashboardInfoUrl(const QUrl &resource)
+{
+    QTC_ASSERT(dd, return {});
+    QTC_ASSERT(dd->m_dashboardInfo, return {});
+    return dd->m_dashboardInfo->source.resolved(resource);
+}
+
+Group downloadDataRecipe(const Storage<DownloadData> &storage)
+{
+    const auto onQuerySetup = [storage](NetworkQuery &query) {
         if (!isServerAccessEstablished())
             return SetupResult::StopWithError; // TODO: start authorizationRecipe()?
 
-        QNetworkRequest request(url);
-        request.setRawHeader("Accept", expectedContentType);
+        QNetworkRequest request(storage->inputUrl);
+        request.setRawHeader("Accept", contentTypeData(storage->expectedContentType));
         if (dd->m_serverAccess == ServerAccess::WithAuthorization && dd->m_apiToken)
             request.setRawHeader("Authorization", "AxToken " + *dd->m_apiToken);
         const QByteArray ua = "Axivion" + QCoreApplication::applicationName().toUtf8() +
@@ -402,7 +522,7 @@ static Group fetchSimpleRecipe(const QUrl &url,
         query.setNetworkAccessManager(&dd->m_networkAccessManager);
         return SetupResult::Continue;
     };
-    const auto onQueryDone = [url, expectedContentType, handler](const NetworkQuery &query, DoneWith doneWith) {
+    const auto onQueryDone = [storage](const NetworkQuery &query, DoneWith doneWith) {
         QNetworkReply *reply = query.reply();
         const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         const QString contentType = reply->header(QNetworkRequest::ContentTypeHeader)
@@ -412,23 +532,13 @@ static Group fetchSimpleRecipe(const QUrl &url,
                                         .trimmed()
                                         .toLower();
         if (doneWith == DoneWith::Success && statusCode == httpStatusCodeOk
-            && contentType == QString::fromUtf8(expectedContentType)) {
-            handler(reply->readAll());
+            && contentType == QString::fromUtf8(contentTypeData(storage->expectedContentType))) {
+            storage->outputData = reply->readAll();
             return DoneResult::Success;
         }
         return DoneResult::Error;
     };
     return {NetworkQueryTask(onQuerySetup, onQueryDone)};
-}
-
-static Group fetchHtmlRecipe(const QUrl &url, const std::function<void(const QByteArray &)> &handler)
-{
-    return fetchSimpleRecipe(url, s_htmlContentType, handler);
-}
-
-static Group fetchPlainTextRecipe(const QUrl &url, const std::function<void(const QByteArray &)> &handler)
-{
-    return fetchSimpleRecipe(url, s_plaintextContentType, handler);
 }
 
 template <typename DtoType, template <typename> typename DtoStorageType>
@@ -622,7 +732,7 @@ static Group authorizationRecipe()
         const AxivionServer server = settings().serverForId(serverId);
         const QString text(Tr::tr("Enter the password for:\nDashboard: %1\nUser: %2")
                                .arg(server.dashboard, server.username));
-        *passwordStorage = QInputDialog::getText(ICore::mainWindow(),
+        *passwordStorage = QInputDialog::getText(ICore::dialogParent(),
             Tr::tr("Axivion Server Password"), text, QLineEdit::Password, {}, &ok);
         if (!ok)
             return SetupResult::StopWithError;
@@ -645,8 +755,7 @@ static Group authorizationRecipe()
             return SetupResult::StopWithError;
 
         apiTokenStorage->credential = dashboardStorage->credential;
-        apiTokenStorage->url
-            = dd->m_dashboardInfo->source.resolved(*dashboardDto.userApiTokenUrl);
+        apiTokenStorage->url = resolveDashboardInfoUrl(*dashboardDto.userApiTokenUrl);
         apiTokenStorage->csrfToken = dashboardDto.csrfToken.toUtf8();
         const Dto::ApiTokenCreationRequestDto requestDto{*passwordStorage, "IdePlugin",
                                                          apiTokenDescription(), 0};
@@ -810,7 +919,6 @@ Group projectInfoRecipe(const QString &projectName)
         }
 
         if (dd->m_dashboardInfo->projects.isEmpty()) {
-            updatePerspectiveToolbar();
             updateDashboard();
             return SetupResult::StopWithSuccess;
         }
@@ -819,7 +927,6 @@ Group projectInfoRecipe(const QString &projectName)
             dd->m_currentProjectInfo = data;
             if (!dd->m_currentProjectInfo->versions.empty())
                 setAnalysisVersion(dd->m_currentProjectInfo->versions.back().date);
-            updatePerspectiveToolbar();
             updateDashboard();
         };
 
@@ -828,8 +935,8 @@ Group projectInfoRecipe(const QString &projectName)
         auto it = dd->m_dashboardInfo->projectUrls.constFind(targetProjectName);
         if (it == dd->m_dashboardInfo->projectUrls.constEnd())
             it = dd->m_dashboardInfo->projectUrls.constBegin();
-        taskTree.setRecipe(
-            fetchDataRecipe<Dto::ProjectInfoDto>(dd->m_dashboardInfo->source.resolved(*it), handler));
+        taskTree.setRecipe(fetchDataRecipe<Dto::ProjectInfoDto>(resolveDashboardInfoUrl(*it),
+                                                                handler));
         return SetupResult::Continue;
     };
 
@@ -855,36 +962,11 @@ Group lineMarkerRecipe(const FilePath &filePath, const LineMarkerHandler &handle
 {
     QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected?
     QTC_ASSERT(!filePath.isEmpty(), return {}); // TODO: Call handler with unexpected?
-    QTC_ASSERT(dd->m_analysisVersion, return {}); // TODO: Call handler with unexpected?
 
     const QString fileName = QString::fromUtf8(QUrl::toPercentEncoding(filePath.path()));
-    const QUrlQuery query({{"filename", fileName}, {"version", *dd->m_analysisVersion}});
+    const QUrlQuery query({{"filename", fileName}});
     const QUrl url = constructUrl(dd->m_currentProjectInfo->name, "files", query);
     return fetchDataRecipe<Dto::FileViewDto>(url, handler);
-}
-
-Group fileSourceRecipe(const FilePath &filePath, const std::function<void(const QByteArray &)> &handler)
-{
-    QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected
-    QTC_ASSERT(!filePath.isEmpty(), return {}); // TODO: Call handler with unexpected
-    QTC_ASSERT(dd->m_analysisVersion, return {}); // TODO: Call handler with unexpected
-
-    const QString fileName = QString::fromUtf8(QUrl::toPercentEncoding(filePath.path()));
-    const QUrlQuery query({{"filename", fileName}, {"version", *dd->m_analysisVersion}});
-    const QUrl url = constructUrl(dd->m_currentProjectInfo->name, "sourcecode", query);
-    return fetchPlainTextRecipe(url, handler);
-}
-
-Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler)
-{
-    QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected?
-    QTC_ASSERT(dd->m_analysisVersion, return {}); // TODO: Call handler with unexpected?
-
-    const QUrl url = constructUrl(
-        dd->m_currentProjectInfo->name,
-        QString("issues/" + issueId + "/properties/"),
-        {{"version", *dd->m_analysisVersion}});
-    return fetchHtmlRecipe(url, handler);
 }
 
 void AxivionPluginPrivate::fetchDashboardAndProjectInfo(const DashboardInfoHandler &handler,
@@ -902,19 +984,87 @@ Group tableInfoRecipe(const QString &prefix, const TableInfoHandler &handler)
 
 void AxivionPluginPrivate::fetchIssueInfo(const QString &id)
 {
-    if (!m_currentProjectInfo)
+    if (!m_currentProjectInfo || !dd->m_analysisVersion)
         return;
 
-    const auto ruleHandler = [](const QByteArray &htmlText) {
-        QByteArray fixedHtml = htmlText;
-        const int idx = htmlText.indexOf("<div class=\"ax-issuedetails-table-container\">");
-        if (idx >= 0)
-            fixedHtml = "<html><body>" + htmlText.mid(idx);
+    const QUrl url = constructUrl(dd->m_currentProjectInfo->name,
+                                  QString("issues/" + id + "/properties/"),
+                                  {{"version", *dd->m_analysisVersion}});
 
+    const Storage<DownloadData> storage;
+
+    const auto onSetup = [storage, url] { storage->inputUrl = url; };
+
+    const auto onDone = [storage] {
+        QByteArray fixedHtml = storage->outputData;
+        const int idx = fixedHtml.indexOf("<div class=\"ax-issuedetails-table-container\">");
+        if (idx >= 0)
+            fixedHtml = "<html><body>" + fixedHtml.mid(idx);
         updateIssueDetails(QString::fromUtf8(fixedHtml));
     };
 
-    m_issueInfoRunner.start(issueHtmlRecipe(id, ruleHandler));
+    m_issueInfoRunner.start({
+        storage,
+        onGroupSetup(onSetup),
+        downloadDataRecipe(storage),
+        onGroupDone(onDone, CallDoneIf::Success)
+    });
+}
+
+static QList<Dto::NamedFilterInfoDto> extractNamedFiltersFromJsonArray(const QByteArray &json)
+{
+    QList<Dto::NamedFilterInfoDto> result;
+    QJsonParseError error;
+    const QJsonDocument doc = QJsonDocument::fromJson(json, &error);
+    if (error.error != QJsonParseError::NoError)
+        return result;
+    if (!doc.isArray())
+        return result;
+    const QJsonArray array = doc.array();
+    for (const QJsonValue &value : array) {
+        if (!value.isObject())
+            continue;
+        const QJsonDocument objDocument(value.toObject());
+        const auto filter = Dto::NamedFilterInfoDto::deserializeExpected(objDocument.toJson());
+        if (filter)
+            result.append(*filter);
+    }
+    return result;
+}
+
+void AxivionPluginPrivate::fetchNamedFilters()
+{
+    QTC_ASSERT(m_dashboardInfo, return);
+
+    // use simple downloadDatarecipe() as we cannot handle an array of a dto at the moment
+    const Storage<DownloadData> globalStorage;
+    const Storage<DownloadData> userStorage;
+
+    const auto onSetup = [this, globalStorage, userStorage] {
+        QTC_ASSERT(m_dashboardInfo, return);
+        globalStorage->inputUrl = m_dashboardInfo->source.resolved(
+                    *m_dashboardInfo->globalNamedFilters);
+        globalStorage->expectedContentType = ContentType::Json;
+        userStorage->inputUrl = m_dashboardInfo->source.resolved(
+                    *m_dashboardInfo->userNamedFilters);
+        userStorage->expectedContentType = ContentType::Json;
+    };
+    const auto onDone = [this, globalStorage, userStorage] {
+        m_globalNamedFilters = extractNamedFiltersFromJsonArray(globalStorage->outputData);
+        m_userNamedFilters = extractNamedFiltersFromJsonArray(userStorage->outputData);
+        updateNamedFilters();
+    };
+
+    Group namedFiltersGroup = Group {
+            globalStorage,
+            userStorage,
+            onGroupSetup(onSetup),
+            downloadDataRecipe(globalStorage) || successItem,
+            downloadDataRecipe(userStorage) || successItem,
+            onGroupDone(onDone)
+    };
+
+    m_namedFilterRunner.start(namedFiltersGroup);
 }
 
 void AxivionPluginPrivate::handleOpenedDocs()
@@ -1063,6 +1213,9 @@ class AxivionPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
+        IOptionsPage::registerCategory(
+            "XY.Axivion", Tr::tr("Axivion"), ":/axivion/images/axivion.png");
+
         setupAxivionPerspective();
 
         dd = new AxivionPluginPrivate;
@@ -1090,7 +1243,9 @@ void switchActiveDashboardId(const Id &toDashboardId)
     dd->m_apiToken.reset();
     dd->m_dashboardInfo.reset();
     dd->m_currentProjectInfo.reset();
-    updatePerspectiveToolbar();
+    dd->m_globalNamedFilters.clear();
+    dd->m_userNamedFilters.clear();
+    updateNamedFilters();
 }
 
 const std::optional<DashboardInfo> currentDashboardInfo()
@@ -1111,9 +1266,6 @@ void setAnalysisVersion(const QString &version)
     if (dd->m_analysisVersion.value_or("") == version)
         return;
     dd->m_analysisVersion = version;
-    // refetch issues for already opened docs
-    dd->clearAllMarks();
-    dd->handleOpenedDocs();
 }
 
 void enableInlineIssues(bool enable)

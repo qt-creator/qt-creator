@@ -32,7 +32,7 @@
     another kit. To specify the debugger and compiler to use for each kit, go to
     \preferences > \uicontrol Kits.
 
-    \image qtcreator-kits.png {Kits preferences}
+    \image qtcreator-preferences-kits.webp {Kits preferences}
 
     You need to set up the debugger only if the automatic setup fails because
     the debugger is missing (for example, you must install the CDB
@@ -1228,7 +1228,7 @@
     for the specified modules, go to \preferences > \uicontrol Debugger >
     \uicontrol CDB.
 
-    \image qtcreator-cdb-options.png {CDB tab in Debugger preferences}
+    \image qtcreator-preferences-debugger-cdb.webp {CDB tab in Debugger preferences}
 
     For more information, see \l{CDB}.
 
@@ -1728,7 +1728,7 @@
     selecting \preferences > \uicontrol Debugger >
     \uicontrol CDB > \uicontrol {Use Python dumper}.
 
-    \image qtcreator-cdb-options.png {CDB preferences}
+    \image qtcreator-preferences-debugger-cdb.webp {CDB preferences}
 
     The following sections describe some of the widely-used Dumper classes and
     members specified in \c qtcreator\share\qtcreator\debugger\dumper.py.

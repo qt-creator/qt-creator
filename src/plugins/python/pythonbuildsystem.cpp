@@ -201,7 +201,7 @@ void PythonBuildSystem::triggerParsing()
             || mt.matchesName(Constants::C_PY_GUI_MIMETYPE)) {
             BuildTargetInfo bti;
             bti.displayName = displayName;
-            bti.buildKey = entry.filePath.toString();
+            bti.buildKey = entry.filePath.toUrlishString();
             bti.targetFilePath = entry.filePath;
             bti.projectFilePath = projectFile;
             bti.isQtcRunnable = entry.filePath.fileName() == "main.py";
@@ -280,7 +280,7 @@ bool PythonBuildSystem::addFiles(Node *, const FilePaths &filePaths, FilePaths *
     for (const FilePath &filePath : filePaths) {
         if (!projectDir.isSameDevice(filePath))
             return false;
-        m_files.append(FileEntry{filePath.relativePathFrom(projectDir).toString(), filePath});
+        m_files.append(FileEntry{filePath.relativePathFrom(projectDir).toUrlishString(), filePath});
     }
 
     if (isSorted)
@@ -314,7 +314,7 @@ bool PythonBuildSystem::renameFiles(Node *, const FilePairs &filesToRename, File
             if (entry.filePath == oldFilePath) {
                 found = true;
                 entry.filePath = newFilePath;
-                entry.rawEntry = newFilePath.relativeChildPath(projectDirectory()).toString();
+                entry.rawEntry = newFilePath.relativeChildPath(projectDirectory()).toUrlishString();
                 break;
             }
         }
@@ -370,7 +370,7 @@ void PythonBuildSystem::parse()
  */
 static void expandEnvironmentVariables(const Environment &env, QString &string)
 {
-    const QRegularExpression candidate("\\$\\$\\((.+)\\)");
+    static const QRegularExpression candidate("\\$\\$\\((.+)\\)");
 
     QRegularExpressionMatch match;
     int index = string.indexOf(candidate, 0, &match);

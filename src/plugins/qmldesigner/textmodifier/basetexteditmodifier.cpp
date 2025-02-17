@@ -7,15 +7,12 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljstools/qmljsindenter.h>
-#include <qmljstools/qmljscodestylepreferences.h>
 #include <qmljseditor/qmljseditordocument.h>
 #include <qmljseditor/qmljscomponentfromobjectdef.h>
 #include <qmljseditor/qmljscompletionassist.h>
 #include <qmljstools/qmljstoolssettings.h>
 #include <texteditor/tabsettings.h>
 #include <utils/changeset.h>
-
-#include <typeinfo>
 
 using namespace QmlDesigner;
 
@@ -102,7 +99,7 @@ bool BaseTextEditModifier::moveToComponent(int nodeOffset, const QString &import
 
             QmlJSEditor::performComponentFromObjectDef(qobject_cast<QmlJSEditor::QmlJSEditorWidget *>(
                                                            m_textEdit),
-                                                       document->filePath().toString(),
+                                                       document->filePath().toUrlishString(),
                                                        object,
                                                        importData);
             return true;

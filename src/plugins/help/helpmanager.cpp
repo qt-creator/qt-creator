@@ -94,7 +94,7 @@ HelpManager *HelpManager::instance()
 
 QString HelpManager::collectionFilePath()
 {
-    return ICore::userResourcePath("helpcollection.qhc").toString();
+    return ICore::userResourcePath("helpcollection.qhc").toUrlishString();
 }
 
 static void registerDocumentationNow(QPromise<bool> &promise, const QString &collectionFilePath,

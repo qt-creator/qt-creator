@@ -652,12 +652,12 @@ void InsightModel::parseMainQml()
 void InsightModel::parseDefaultConfig()
 {
     // Load default insight config from plugin
-    const ProjectExplorer::Target *target = ProjectExplorer::ProjectTree::currentTarget();
-    if (target) {
-        const QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
+    const ProjectExplorer::Kit *kit = ProjectExplorer::activeKitForCurrentProject();
+    if (kit) {
+        const QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
 
         if (qtVersion) {
-            m_defaultConfig = readJSON(qtVersion->dataPath().toString() + "/" + dataFolder + "/"
+            m_defaultConfig = readJSON(qtVersion->dataPath().toUrlishString() + "/" + dataFolder + "/"
                                        + insightConfFile);
         }
     }

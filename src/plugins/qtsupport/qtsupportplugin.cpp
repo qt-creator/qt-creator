@@ -50,7 +50,9 @@ static void processRunnerCallback(ProcessData *data)
     FilePath rootPath = FilePath::fromString(data->deviceRoot);
 
     Process proc;
-    proc.setProcessChannelMode(data->processChannelMode);
+    // Docker and others do not support different processChannelModes (yet).
+    // So we have to ignore what the caller wants here.
+    //proc.setProcessChannelMode(data->processChannelMode);
     proc.setCommand({rootPath.withNewPath("/bin/sh"), {QString("-c"), data->command}});
     proc.setWorkingDirectory(FilePath::fromString(data->workingDirectory));
     proc.setEnvironment(Environment(data->environment.toStringList(), OsTypeLinux));
@@ -175,10 +177,7 @@ void QtSupportPlugin::extensionsInitialized()
     Utils::MacroExpander *expander = Utils::globalMacroExpander();
 
     static const auto currentQtVersion = []() -> const QtVersion * {
-        ProjectExplorer::Project *project = ProjectExplorer::ProjectTree::currentProject();
-        if (!project || !project->activeTarget())
-            return nullptr;
-        return QtKitAspect::qtVersion(project->activeTarget()->kit());
+        return QtKitAspect::qtVersion(activeKitForCurrentProject());
     };
     static const char kCurrentHostBins[] = "CurrentDocument:Project:QT_HOST_BINS";
     expander->registerVariable(
@@ -210,10 +209,7 @@ void QtSupportPlugin::extensionsInitialized()
         });
 
     static const auto activeQtVersion = []() -> const QtVersion * {
-        ProjectExplorer::Project *project = ProjectManager::startupProject();
-        if (!project || !project->activeTarget())
-            return nullptr;
-        return QtKitAspect::qtVersion(project->activeTarget()->kit());
+        return QtKitAspect::qtVersion(activeKitForActiveProject());
     };
     static const char kActiveHostBins[] = "ActiveProject:QT_HOST_BINS";
     expander->registerVariable(
@@ -248,9 +244,8 @@ void QtSupportPlugin::extensionsInitialized()
         const FilePath filePath = item.filePath();
         if (filePath.isEmpty())
             return links;
-        const Project *project = ProjectManager::projectForFile(filePath);
-        Target *target = project ? project->activeTarget() : nullptr;
-        QtVersion *qt = target ? QtKitAspect::qtVersion(target->kit()) : nullptr;
+        QtVersion *qt = QtKitAspect::qtVersion(
+            activeKit(ProjectManager::projectForFile(filePath)));
         if (!qt)
             return links;
 

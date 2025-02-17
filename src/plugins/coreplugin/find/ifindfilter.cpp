@@ -371,7 +371,7 @@ QString IFindFilter::descriptionForFindFlags(FindFlags flags)
         flagStrings.append(Tr::tr("Preserve case"));
     QString description = Tr::tr("Flags: %1");
     if (flagStrings.isEmpty())
-        description = description.arg(Tr::tr("None"));
+        description = description.arg(Tr::tr("None", "No find flags"));
     else
         description = description.arg(flagStrings.join(Tr::tr(", ")));
     return description;

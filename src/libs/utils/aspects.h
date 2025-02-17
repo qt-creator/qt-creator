@@ -464,7 +464,7 @@ public:
 
     QAction *action() override;
 
-    enum class LabelPlacement { AtCheckBox, Compact, InExtraLabel };
+    enum class LabelPlacement { AtCheckBox, Compact, InExtraLabel, ShowTip };
     void setLabel(const QString &labelText,
                   LabelPlacement labelPlacement = LabelPlacement::InExtraLabel);
     void setLabelPlacement(LabelPlacement labelPlacement);
@@ -579,6 +579,18 @@ protected:
     bool guiToBuffer() override;
 
     std::unique_ptr<Internal::SelectionAspectPrivate> d;
+};
+
+template <class ValueType>
+class TypedSelectionAspect : public SelectionAspect
+{
+public:
+    using SelectionAspect::SelectionAspect;
+
+    ValueType operator()() const { return static_cast<ValueType>(SelectionAspect::operator()()); }
+    ValueType value() const { return static_cast<ValueType>(SelectionAspect::value()); }
+    ValueType defaultValue() const { return static_cast<ValueType>(SelectionAspect::defaultValue()); }
+    ValueType volatileValue() const { return static_cast<ValueType>(SelectionAspect::volatileValue()); }
 };
 
 class QTCREATOR_UTILS_EXPORT MultiSelectionAspect : public TypedAspect<QStringList>

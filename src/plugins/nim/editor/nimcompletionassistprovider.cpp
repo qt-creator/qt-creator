@@ -141,7 +141,7 @@ private:
         int line = 0, column = 0;
         Utils::Text::convertPosition(interface->textDocument(), pos, &line, &column);
         QTC_ASSERT(column >= 0, return nullptr);
-        return suggest->sug(interface->filePath().toString(), line, column, dirtyFile);
+        return suggest->sug(interface->filePath().toUrlishString(), line, column, dirtyFile);
     }
 
     static std::unique_ptr<QTemporaryFile> writeDirtyFile(const TextEditor::AssistInterface *interface)

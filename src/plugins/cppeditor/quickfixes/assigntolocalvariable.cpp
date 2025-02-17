@@ -123,8 +123,13 @@ private:
 //! Assigns the return value of a function call or a new expression to a local variable
 class AssignToLocalVariable : public CppQuickFixFactory
 {
-#ifdef WITH_TESTS
 public:
+    AssignToLocalVariable()
+    {
+        setClangdReplacement({20});
+    }
+
+#ifdef WITH_TESTS
     static QObject *createTest();
 #endif
 

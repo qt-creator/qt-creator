@@ -39,10 +39,10 @@ public:
     bool init() final
     {
         if (AbstractProcessStep::init()) {
-            const auto projectDir = QDir(project()->projectDirectory().toString());
+            const auto projectDir = QDir(project()->projectDirectory().toUrlishString());
             processParameters()->setCommandLine(
                 {settings().stackPath(),
-                 {"build", "--work-dir", projectDir.relativeFilePath(buildDirectory().toString())}});
+                 {"build", "--work-dir", projectDir.relativeFilePath(buildDirectory().toUrlishString())}});
             processParameters()->setEnvironment(buildEnvironment());
         }
         return true;

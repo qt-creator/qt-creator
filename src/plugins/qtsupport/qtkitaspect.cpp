@@ -10,14 +10,17 @@
 #include "qttestparser.h"
 #include "qtversionmanager.h"
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitaspect.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/toolchainmanager.h>
+
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <utils/algorithm.h>
 #include <utils/buildablehelperlibrary.h>
@@ -25,6 +28,8 @@
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
+
+#include <QHBoxLayout>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -44,13 +49,15 @@ public:
     {
         clear();
 
-        const FilePath deviceRoot = BuildDeviceKitAspect::device(&m_kit)->rootPath();
-        const QtVersions versionsForBuildDevice = QtVersionManager::versions(
-            [&deviceRoot](const QtVersion *qt) {
-                return qt->qmakeFilePath().isSameDevice(deviceRoot);
-            });
-        for (QtVersion *v : versionsForBuildDevice)
-            rootItem()->appendChild(new QtVersionItem(v->uniqueId()));
+        if (const IDevice::ConstPtr device = BuildDeviceKitAspect::device(&m_kit)) {
+            const FilePath deviceRoot = device->rootPath();
+            const QtVersions versionsForBuildDevice = QtVersionManager::versions(
+                [&deviceRoot](const QtVersion *qt) {
+                    return qt->qmakeFilePath().isSameDevice(deviceRoot);
+                });
+            for (QtVersion *v : versionsForBuildDevice)
+                rootItem()->appendChild(new QtVersionItem(v->uniqueId()));
+        }
         rootItem()->appendChild(new QtVersionItem(-1)); // The "No Qt" entry.
     }
 
@@ -71,12 +78,29 @@ public:
             QtKitAspect::setQtVersionId(&k, versionId.toInt());
         };
         auto resetModel = [model] { model->reset(); };
-        setListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
+        addListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
 
         connect(KitManager::instance(), &KitManager::kitUpdated, this, [this](Kit *k) {
             if (k == kit())
                 refresh();
         });
+    }
+
+private:
+    void addToInnerLayout(Layouting::Layout &layout) override
+    {
+        if (const QList<KitAspect *> embedded = aspectsToEmbed(); !embedded.isEmpty()) {
+            Layouting::Layout box(new QHBoxLayout);
+            KitAspect::addToInnerLayout(box);
+            QSizePolicy p = comboBoxes().first()->sizePolicy();
+            p.setHorizontalStretch(2);
+            comboBoxes().first()->setSizePolicy(p);
+            box.addItem(createSubWidget<QLabel>(Tr::tr("Mkspec:")));
+            embedded.first()->addToInnerLayout(box);
+            layout.addItem(box);
+        } else {
+            KitAspect::addToInnerLayout(layout);
+        }
     }
 };
 } // namespace Internal
@@ -123,6 +147,7 @@ QtKitAspectFactory::QtKitAspectFactory()
                           "A Qt version is required for qmake-based projects "
                           "and optional when using other build systems."));
     setPriority(26000);
+    setEmbeddableAspects({QmakeProjectManager::Constants::KIT_INFORMATION_ID});
 }
 
 void QtKitAspectFactory::setup(Kit *k)
@@ -130,7 +155,7 @@ void QtKitAspectFactory::setup(Kit *k)
     if (!k || k->hasValue(id()))
         return;
     const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
-    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+    const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(k);
 
     const QtVersions matches
             = QtVersionManager::versions([&tcAbi, &deviceType](const QtVersion *qt) {
@@ -148,12 +173,22 @@ void QtKitAspectFactory::setup(Kit *k)
     });
     const QtVersions &candidates = !exactMatches.empty() ? exactMatches : matches;
 
+    // Prefer higher versions to lower ones.
+    const QVersionNumber maxVersion
+        = Utils::maxElementOrDefault(candidates, [](const QtVersion *v1, const QtVersion *v2) {
+              return v1->qtVersion() < v2->qtVersion();
+          })->qtVersion();
+    const auto [highestVersions, lowerVersions]
+        = Utils::partition(candidates, [&maxVersion](const QtVersion *v) {
+              return v->qtVersion() == maxVersion;
+          });
+
     QtVersion * const qtFromPath = QtVersionManager::version(
                 equal(&QtVersion::detectionSource, QString("PATH")));
-    if (qtFromPath && candidates.contains(qtFromPath))
+    if (qtFromPath && highestVersions.contains(qtFromPath))
         k->setValue(id(), qtFromPath->uniqueId());
     else
-        k->setValue(id(), candidates.first()->uniqueId());
+        k->setValue(id(), highestVersions.first()->uniqueId());
 }
 
 Tasks QtKitAspectFactory::validate(const Kit *k) const
@@ -251,7 +286,8 @@ QString QtKitAspectFactory::displayNamePostfix(const Kit *k) const
 KitAspectFactory::ItemList QtKitAspectFactory::toUserOutput(const Kit *k) const
 {
     QtVersion *version = QtKitAspect::qtVersion(k);
-    return {{Tr::tr("Qt version"), version ? version->displayName() : Tr::tr("None")}};
+    return {
+        {Tr::tr("Qt version"), version ? version->displayName() : Tr::tr("None", "No Qt version")}};
 }
 
 void QtKitAspectFactory::addToBuildEnvironment(const Kit *k, Environment &env) const
@@ -426,7 +462,7 @@ int QtKitAspectFactory::weight(const Kit *k) const
     const QtVersion * const qt = QtKitAspect::qtVersion(k);
     if (!qt)
         return 0;
-    if (!qt->targetDeviceTypes().contains(DeviceTypeKitAspect::deviceTypeId(k)))
+    if (!qt->targetDeviceTypes().contains(RunDeviceTypeKitAspect::deviceTypeId(k)))
         return 0;
     const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
     if (qt->qtAbis().contains(tcAbi))

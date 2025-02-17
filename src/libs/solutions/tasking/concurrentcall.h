@@ -28,7 +28,7 @@ public:
     template <typename Function, typename ...Args>
     void setConcurrentCallData(Function &&function, Args &&...args)
     {
-        return wrapConcurrent(std::forward<Function>(function), std::forward<Args>(args)...);
+        wrapConcurrent(std::forward<Function>(function), std::forward<Args>(args)...);
     }
     void setThreadPool(QThreadPool *pool) { m_threadPool = pool; }
     ResultType result() const

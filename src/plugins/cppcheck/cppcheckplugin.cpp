@@ -14,17 +14,17 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 
-#include <debugger/analyzer/analyzerconstants.h>
+#include <debugger/debuggerconstants.h>
 #include <debugger/debuggermainwindow.h>
 
 #include <extensionsystem/iplugin.h>
 
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
@@ -160,10 +160,10 @@ void CppcheckPluginPrivate::startManualRun()
 void CppcheckPluginPrivate::updateManualRunAction()
 {
     const Project *project = ProjectManager::startupProject();
-    const Target *target = ProjectManager::startupTarget();
+    const Kit *kit = activeKitForActiveProject();
     const Utils::Id cxx = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
-    const bool canRun = target && project->projectLanguages().contains(cxx)
-                  && ToolchainKitAspect::cxxToolchain(target->kit());
+    const bool canRun = kit && project->projectLanguages().contains(cxx)
+                  && ToolchainKitAspect::cxxToolchain(kit);
     manualRunAction->setEnabled(canRun);
 }
 

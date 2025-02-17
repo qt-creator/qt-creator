@@ -27,15 +27,15 @@ MesonSettings::MesonSettings()
     autorunMeson.setLabelText(Tr::tr("Autorun Meson"));
     autorunMeson.setToolTip(Tr::tr("Automatically run Meson when needed."));
 
-    verboseNinja.setSettingsKey("ninja.verbose");
-    verboseNinja.setLabelText(Tr::tr("Ninja verbose mode"));
-    verboseNinja.setToolTip(Tr::tr("Enables verbose mode by default when invoking Ninja."));
+    verboseBuild.setSettingsKey("ninja.verbose");
+    verboseBuild.setLabelText(Tr::tr("Meson verbose mode"));
+    verboseBuild.setToolTip(Tr::tr("Enables verbose mode by default when invoking Meson."));
 
     setLayouter([this] {
         using namespace Layouting;
         return Column {
             autorunMeson,
-            verboseNinja,
+            verboseBuild,
             st,
         };
     });
@@ -50,9 +50,7 @@ public:
     {
         setId("A.MesonProjectManager.SettingsPage.General");
         setDisplayName(Tr::tr("General"));
-        setDisplayCategory("Meson");
         setCategory(Constants::SettingsPage::CATEGORY);
-        setCategoryIconPath(Constants::Icons::MESON_BW);
         setSettingsProvider([] { return &settings(); });
     }
 };

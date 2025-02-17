@@ -3,10 +3,14 @@
 
 #include "cppquickfixsettings.h"
 
-#include "../cppcodestylesettings.h"
+#include "cppquickfixprojectsettings.h"
+
 #include "../cppeditorconstants.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/jsexpander.h>
+
+#include <projectexplorer/projecttree.h>
 
 #include <utils/qtcsettings.h>
 
@@ -25,17 +29,7 @@ CppQuickFixSettings::CppQuickFixSettings(bool loadGlobalSettings)
 
 void CppQuickFixSettings::loadGlobalSettings()
 {
-    // TODO remove the conversion of the old setting preferGetterNameWithoutGetPrefix of the
-    // CppCodeStyleSettings in 4.16 (also remove the member preferGetterNameWithoutGetPrefix)
-    getterNameTemplate = "__dummy";
     loadSettingsFrom(Core::ICore::settings());
-    if (getterNameTemplate == "__dummy") {
-        // there was no saved property for getterNameTemplate
-        if (CppCodeStyleSettings::currentGlobalCodeStyle().preferGetterNameWithoutGetPrefix)
-            getterNameTemplate = "<name>";
-        else
-            getterNameTemplate = "get<Name>";
-    }
 }
 
 void CppQuickFixSettings::loadSettingsFrom(QtcSettings *s)
@@ -81,9 +75,13 @@ void CppQuickFixSettings::loadSettingsFrom(QtcSettings *s)
             .toInt());
     useAuto = s->value(Constants::QUICK_FIX_SETTING_USE_AUTO, def.useAuto).toBool();
 
-    memberVariableNameTemplate = s->value(Constants::QUICK_FIX_SETTING_MEMBER_VARIABEL_NAME_TEMPLATE,
+    memberVariableNameTemplate = s->value(Constants::QUICK_FIX_SETTING_MEMBER_VARIABLE_NAME_TEMPLATE,
                                           def.memberVariableNameTemplate)
                                      .toString();
+    nameFromMemberVariableTemplate
+        = s->value(Constants::QUICK_FIX_SETTING_REVERSE_MEMBER_VARIABLE_NAME_TEMPLATE,
+                   def.nameFromMemberVariableTemplate)
+              .toString();
     valueTypes = s->value(Constants::QUICK_FIX_SETTING_VALUE_TYPES, def.valueTypes).toStringList();
     returnByConstRef = s->value(Constants::QUICK_FIX_SETTING_RETURN_BY_CONST_REF,
                                 def.returnByConstRef).toBool();
@@ -151,9 +149,12 @@ void CppQuickFixSettings::saveSettingsTo(QtcSettings *s)
     s->setValueWithDefault(Constants::QUICK_FIX_SETTING_CPP_FILE_NAMESPACE_HANDLING,
                            int(cppFileNamespaceHandling),
                            int(def.cppFileNamespaceHandling));
-    s->setValueWithDefault(Constants::QUICK_FIX_SETTING_MEMBER_VARIABEL_NAME_TEMPLATE,
+    s->setValueWithDefault(Constants::QUICK_FIX_SETTING_MEMBER_VARIABLE_NAME_TEMPLATE,
                            memberVariableNameTemplate,
                            def.memberVariableNameTemplate);
+    s->setValueWithDefault(Constants::QUICK_FIX_SETTING_REVERSE_MEMBER_VARIABLE_NAME_TEMPLATE,
+                           nameFromMemberVariableTemplate,
+                           def.nameFromMemberVariableTemplate);
     s->setValueWithDefault(Constants::QUICK_FIX_SETTING_SETTER_PARAMETER_NAME,
                            setterParameterNameTemplate,
                            def.setterParameterNameTemplate);
@@ -224,84 +225,64 @@ void CppQuickFixSettings::setDefaultSettings()
     customTemplates.push_back(unique_ptr);
 }
 
-QString toUpperCamelCase(const QString &s)
+QString CppQuickFixSettings::memberBaseName(
+    const QString &name, const std::optional<QString> &baseNameTemplate)
 {
-    auto parts = s.split('_');
-    if (parts.size() == 1)
-        return s;
+    const auto validName = [](const QString &name) {
+        return !name.isEmpty() && !name.at(0).isDigit();
+    };
+    QString baseName = name;
 
-    QString camel;
-    camel.reserve(s.length() - parts.size() + 1);
-    for (const auto &part : parts) {
-        camel += part[0].toUpper();
-        camel += part.mid(1);
-    }
-    return camel;
-}
-
-QString toSnakeCase(const QString &s, bool upperSnakeCase)
-{
-    QString snake;
-    snake.reserve(s.length() + 5);
-    if (upperSnakeCase)
-        snake += s[0].toUpper();
-    else
-        snake += s[0].toLower();
-
-    for (int i = 1; i < s.length(); ++i) {
-        if (s[i].isUpper() && s[i - 1].isLower()) {
-            snake += '_';
-            if (upperSnakeCase)
-                snake += s[i].toUpper();
-            else
-                snake += s[i].toLower();
-
-        } else {
-            if (s[i - 1] == '_') {
-                if (upperSnakeCase)
-                    snake += s[i].toUpper();
-                else
-                    snake += s[i].toLower();
-            } else {
-                snake += s[i];
-            }
-        }
-    }
-    return snake;
-}
-
-QString CppQuickFixSettings::replaceNamePlaceholders(const QString &nameTemplate,
-                                                     const QString &name)
-{
-    const int start = nameTemplate.indexOf("<");
-    const int end = nameTemplate.indexOf(">");
-    if (start < 0 || end < 0)
-        return nameTemplate;
-
-    const auto before = nameTemplate.left(start);
-    const auto after = nameTemplate.right(nameTemplate.length() - end - 1);
-    if (name.isEmpty())
-        return before + after;
-
-    // const auto charBefore = start >= 1 ? nameTemplate.at(start - 1) : QChar{};
-    const auto nameType = nameTemplate.mid(start + 1, end - start - 1);
-    if (nameType == "name") {
-        return before + name + after;
-    } else if (nameType == "Name") {
-        return before + name.at(0).toUpper() + name.mid(1) + after;
-    } else if (nameType == "camel") {
-        auto camel = toUpperCamelCase(name);
-        camel.data()[0] = camel.data()[0].toLower();
-        return before + camel + after;
-    } else if (nameType == "Camel") {
-        return before + toUpperCamelCase(name) + after;
-    } else if (nameType == "snake") {
-        return before + toSnakeCase(name, false) + after;
-    } else if (nameType == "Snake") {
-        return before + toSnakeCase(name, true) + after;
+    QString baseNameTemplateValue;
+    if (baseNameTemplate) {
+        baseNameTemplateValue = *baseNameTemplate;
     } else {
-        return "templateHasErrors";
+        const CppQuickFixSettings *const settings
+            = Internal::CppQuickFixProjectsSettings::getQuickFixSettings(
+                ProjectExplorer::ProjectTree::currentProject());
+        baseNameTemplateValue = settings->nameFromMemberVariableTemplate;
     }
+    if (!baseNameTemplateValue.isEmpty())
+        return CppQuickFixSettings::replaceNamePlaceholders(baseNameTemplateValue, name, {});
+
+    // Remove leading and trailing "_"
+    while (baseName.startsWith(QLatin1Char('_')))
+        baseName.remove(0, 1);
+    while (baseName.endsWith(QLatin1Char('_')))
+        baseName.chop(1);
+    if (baseName != name && validName(baseName))
+        return baseName;
+
+    // If no leading/trailing "_": remove "m_" and "m" prefix
+    if (baseName.startsWith(QLatin1String("m_"))) {
+        baseName.remove(0, 2);
+    } else if (baseName.startsWith(QLatin1Char('m')) && baseName.length() > 1
+               && baseName.at(1).isUpper()) {
+        baseName.remove(0, 1);
+        baseName[0] = baseName.at(0).toLower();
+    }
+
+    return validName(baseName) ? baseName : name;
+
+}
+
+QString CppQuickFixSettings::replaceNamePlaceholders(
+    const QString &nameTemplate, const QString &name, const std::optional<QString> &memberName)
+{
+    Core::JsExpander expander;
+    QString jsError;
+    QString jsExpr;
+    if (memberName) {
+        QTC_CHECK(!memberName->isEmpty());
+        jsExpr = QString("(function(name, memberName) { return %1; })(\"%2\", \"%3\")")
+                     .arg(nameTemplate, name, *memberName);
+    } else {
+        jsExpr = QString("(function(name) { return %1; })(\"%2\")").arg(nameTemplate, name);
+    }
+    const QString jsRes = expander.evaluate(jsExpr, &jsError);
+    if (!jsError.isEmpty())
+        return jsError; // TODO: Use Utils::Result?
+    return jsRes;
 }
 
 auto removeAndExtractTemplate(QString type)

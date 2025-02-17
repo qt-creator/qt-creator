@@ -17,8 +17,8 @@
 #include <utils/fileutils.h>
 #include <utils/fsengine/fsengine.h>
 #include <utils/hostosinfo.h>
+#include <utils/processreaper.h>
 #include <utils/qtcsettings.h>
-#include <utils/singleton.h>
 #include <utils/stylehelper.h>
 #include <utils/temporarydirectory.h>
 #include <utils/terminalcommand.h>
@@ -418,8 +418,8 @@ QStringList lastSessionArgument()
 {
     // using insider information here is not particularly beautiful, anyhow
     const bool hasProjectExplorer = Utils::anyOf(PluginManager::plugins(),
-                                                 Utils::equal(&PluginSpec::name,
-                                                              QString("ProjectExplorer")));
+                                                 Utils::equal(&PluginSpec::id,
+                                                              QString("projectexplorer")));
     return hasProjectExplorer ? QStringList({"-lastsession"}) : QStringList();
 }
 
@@ -504,8 +504,7 @@ private:
             // Show some kind of GUI with collected messages before exiting.
             // For Windows, Qt already uses a dialog.
             if (HostOsInfo::isLinuxHost()) {
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0) && QT_VERSION < QT_VERSION_CHECK(6, 5, 3)) \
-    || (QT_VERSION >= QT_VERSION_CHECK(6, 6, 0) && QT_VERSION < QT_VERSION_CHECK(6, 6, 1))
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 6, 0) && QT_VERSION < QT_VERSION_CHECK(6, 6, 1))
                 // Information about potentially missing libxcb-cursor0 is printed by Qt since Qt 6.5.3 and Qt 6.6.1
                 // Add it manually for other versions >= 6.5.0
                 instance->messages.prepend("From 6.5.0, xcb-cursor0 or libxcb-cursor0 is needed to "
@@ -594,7 +593,7 @@ int main(int argc, char **argv)
         const FilePaths addedPaths
             = Environment::pathListFromValue(item.value, HostOsInfo::hostOs());
         FilePaths allPaths = Environment::systemEnvironment().pathListValue(varName);
-        Utils::eraseOne(allPaths, [&addedPaths](const FilePath &p) {
+        Utils::erase(allPaths, [&addedPaths](const FilePath &p) {
             return addedPaths.contains(p);
         });
         diff.emplaceBack(
@@ -712,7 +711,7 @@ int main(int argc, char **argv)
     QCoreApplication::setOrganizationName(QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR));
     QGuiApplication::setApplicationDisplayName(Core::Constants::IDE_DISPLAY_NAME);
 
-    const QScopeGuard cleanup([] { Singleton::deleteAll(); });
+    const QScopeGuard cleanup([] { ProcessReaper::deleteAll(); });
 
     const QStringList pluginArguments = app.arguments();
 
@@ -839,6 +838,11 @@ int main(int argc, char **argv)
 
     // Make sure we honor the system's proxy settings
     QNetworkProxyFactory::setUseSystemConfiguration(true);
+
+    PluginManager::removePluginsAfterRestart();
+
+    // We need to install plugins before we scan for them.
+    PluginManager::installPluginsAfterRestart();
 
     // Load
     const QStringList pluginPaths = installPluginPaths + options.customPluginPaths;

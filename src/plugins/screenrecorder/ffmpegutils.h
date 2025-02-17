@@ -82,7 +82,6 @@ private:
 
 namespace FFmpegUtils {
 
-QVersionNumber toolVersion();
 ClipInfo clipInfo(const Utils::FilePath &path);
 int parseFrameProgressFromOutput(const QByteArray &output);
 void sendQuitCommand(Utils::Process *proc);

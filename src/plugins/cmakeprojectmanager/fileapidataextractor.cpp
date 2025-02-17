@@ -263,22 +263,21 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
         ct.sourceFiles.append(sourceDirectory.resolvePath(si.path));
     }
 
+    // FIXME: remove the usage of "qtc_runnable" by parsing the CMake code instead
+    ct.qtcRunnable = t.folderTargetProperty == QTC_RUNNABLE;
+    ct.targetFolder = t.folderTargetProperty;
+
     if (ct.targetType == ExecutableType) {
         FilePaths librarySeachPaths;
         // Is this a GUI application?
-        ct.linksToQtGui = Utils::contains(t.link.value().fragments,
-                                          [](const FragmentInfo &f) {
-                                              return f.role == "libraries"
-                                                     && (f.fragment.contains("QtGui")
-                                                         || f.fragment.contains("Qt5Gui")
-                                                         || f.fragment.contains("Qt6Gui"));
-                                          });
-
-        // FIXME: remove the usage of "qtc_runnable" by parsing the CMake code instead
-        ct.qtcRunnable = t.folderTargetProperty == QTC_RUNNABLE;
+        ct.linksToQtGui = Utils::contains(t.link->fragments, [](const FragmentInfo &f) {
+            return f.role == "libraries"
+                   && (f.fragment.contains("QtGui") || f.fragment.contains("Qt5Gui")
+                       || f.fragment.contains("Qt6Gui"));
+        });
 
         // Extract library directories for executables:
-        for (const FragmentInfo &f : t.link.value().fragments) {
+        for (const FragmentInfo &f : t.link->fragments) {
             if (f.role == "flags") // ignore all flags fragments
                 continue;
 
@@ -410,10 +409,13 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
         if (cancelFuture.isCanceled())
             return {};
 
-        bool needPostfix = t.compileGroups.size() > 1;
-        int count = 1;
+        QHash<QString, QPair<int, int>> compileLanguageCountHash;
+        for (const CompileInfo &ci : t.compileGroups)
+            compileLanguageCountHash[ci.language].first++;
+
         for (const CompileInfo &ci : t.compileGroups) {
-            if (ci.language != "C" && ci.language != "CXX" && ci.language != "CUDA")
+            if (ci.language != "C" && ci.language != "CXX" && ci.language != "OBJC"
+                && ci.language != "OBJCXX" && ci.language != "CUDA")
                 continue; // No need to bother the C++ codemodel
 
             // CMake users worked around Creator's inability of listing header files by creating
@@ -431,21 +433,23 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
 
             QString ending;
             QString qtcPchFile;
-            if (ci.language == "C") {
-                ending = "/cmake_pch.h";
-                qtcPchFile = "qtc_cmake_pch.h";
-            }
-            else if (ci.language == "CXX") {
-                ending = "/cmake_pch.hxx";
-                qtcPchFile = "qtc_cmake_pch.hxx";
+            static const QHash<QString, QString> languageToExtension
+                = {{"C", ".h"}, {"CXX", ".hxx"}, {"OBJC", ".objc.h"}, {"OBJCXX", ".objcxx.hxx"}};
+
+            if (languageToExtension.contains(ci.language)) {
+                ending = "/cmake_pch" + languageToExtension[ci.language];
+                qtcPchFile = "qtc_cmake_pch" + languageToExtension[ci.language];
             }
 
             RawProjectPart rpp;
             rpp.setProjectFileLocation(t.sourceDir.pathAppended(Constants::CMAKE_LISTS_TXT));
             rpp.setBuildSystemTarget(t.name);
-            const QString postfix = needPostfix ? QString("_%1_%2").arg(ci.language).arg(count)
-                                                : QString();
-            rpp.setDisplayName(t.id + postfix);
+            const QString postfix = compileLanguageCountHash[ci.language].first > 1
+                                        ? QString("%1_%2")
+                                              .arg(ci.language)
+                                              .arg(++compileLanguageCountHash[ci.language].second)
+                                        : ci.language;
+            rpp.setDisplayName(t.name + "_" + postfix);
             rpp.setMacros(transform<QVector>(ci.defines, &DefineInfo::define));
             rpp.setHeaderPaths(transform<QVector>(ci.includes, &IncludeInfo::path));
 
@@ -479,6 +483,10 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                     return Utils::Constants::C_HEADER_MIMETYPE;
                 } else if (ci.language == "CXX") {
                     return Utils::Constants::CPP_HEADER_MIMETYPE;
+                } else if (ci.language == "OBJC") {
+                    return Utils::Constants::OBJECTIVE_C_SOURCE_MIMETYPE;
+                } else if (ci.language == "OBJCXX") {
+                    return Utils::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE;
                 }
                 return {};
             }();
@@ -487,9 +495,9 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                 if (kind == CppEditor::ProjectFile::AmbiguousHeader)
                     return true;
 
-                if (ci.language == "C")
+                if (ci.language == "C" || ci.language == "OBJC")
                     return CppEditor::ProjectFile::isC(kind);
-                else if (ci.language == "CXX")
+                else if (ci.language == "CXX" || ci.language == "OBJCXX")
                     return CppEditor::ProjectFile::isCxx(kind);
 
                 return false;
@@ -560,16 +568,15 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
 
             RawProjectPartFlags projectFlags;
             projectFlags.commandLineFlags = fragments;
-            if (ci.language == "C")
+            if (ci.language == "C" || ci.language == "OBJC")
                 rpp.setFlagsForC(projectFlags);
-            else if (ci.language == "CXX")
+            else if (ci.language == "CXX" || ci.language == "OBJCXX")
                 rpp.setFlagsForCxx(projectFlags);
 
             const bool isExecutable = t.type == "EXECUTABLE";
             rpp.setBuildTargetType(isExecutable ? BuildTargetType::Executable
                                                 : BuildTargetType::Library);
             rpps.append(rpp);
-            ++count;
         }
     }
 
@@ -688,8 +695,13 @@ static void addCompileGroups(ProjectNode *targetRoot,
                                        && td.type.endsWith("_LIBRARY")
                                        && sourcePath.fileName().startsWith(td.name)
                                        && sourcePath.fileName().endsWith("Plugin.cpp");
+        const bool buildRccInitCpp = sourcePath.isChildOf(buildDirectory)
+                                     && td.type.endsWith("_LIBRARY")
+                                     && (sourcePath.parentDir().fileName() == "rcc")
+                                     && sourcePath.fileName().startsWith("qrc_")
+                                     && sourcePath.fileName().endsWith("_init.cpp");
 
-        if (buildDirQmldirOrRcc || otherDirQmldirOrMetatypes || buildDirPluginCpp)
+        if (buildDirQmldirOrRcc || otherDirQmldirOrMetatypes || buildDirPluginCpp || buildRccInitCpp)
             node->setIsGenerated(true);
 
         const bool showSourceFolders = settings(targetRoot->getProject()).showSourceSubFolders()
@@ -938,7 +950,8 @@ static void setupLocationInfoForTargets(const QFuture<void> &cancelFuture,
 
             folderNode->setLocationInfo(result);
 
-            if (!t.backtrace.isEmpty() && t.targetType != TargetType::UtilityType) {
+            if (!t.targetFolder.isEmpty() && !t.backtrace.isEmpty()
+                && t.targetType != TargetType::UtilityType) {
                 auto cmakeDefinition = std::make_unique<FileNode>(
                     t.backtrace.last().path, Node::fileTypeForFileName(t.backtrace.last().path));
                 cmakeDefinition->setLine(t.backtrace.last().line);
@@ -1023,6 +1036,7 @@ FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input
     auto rootProjectNode = generateRootProjectNode(cancelFuture, data, sourceDir, buildDir);
     if (cancelFuture.isCanceled())
         return {};
+    rootProjectNode.get()->compress();
     ProjectTree::applyTreeManager(rootProjectNode.get(), ProjectTree::AsyncPhase); // QRC nodes
     result.rootProjectNode = std::move(rootProjectNode);
 

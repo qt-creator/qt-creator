@@ -88,6 +88,8 @@ enum TextStyle : quint8 {
     C_LOG_COMMIT_SUBJECT,
     C_LOG_DECORATION,
 
+    C_INFO,
+    C_INFO_CONTEXT,
     C_WARNING,
     C_WARNING_CONTEXT,
     C_ERROR,

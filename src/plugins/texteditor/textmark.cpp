@@ -135,8 +135,10 @@ void TextMark::paintAnnotation(QPainter &painter,
                                                    painter.fontMetrics(),
                                                    fadeInOffset,
                                                    fadeOutOffset);
-    if (m_staticAnnotationText.text() != rects.text)
+    if (m_staticAnnotationText.text() != rects.text) {
         m_staticAnnotationText.setText(rects.text);
+        m_staticAnnotationText.setTextFormat(m_annotationTextFormat);
+    }
     annotationRect->setRight(rects.fadeOutRect.right());
     const QRectF eventRectF(eventRect);
     if (!(rects.fadeInRect.intersects(eventRectF) || rects.annotationRect.intersects(eventRectF)
@@ -452,6 +454,16 @@ void TextMark::setActionsProvider(const std::function<QList<QAction *>()> &actio
 void TextMark::setSettingsPage(Id settingsPage)
 {
     m_settingsPage = settingsPage;
+}
+
+Qt::TextFormat TextMark::annotationTextFormat() const
+{
+    return m_annotationTextFormat;
+}
+
+void TextMark::setAnnotationTextFormat(Qt::TextFormat newTextFormat)
+{
+    m_annotationTextFormat = newTextFormat;
 }
 
 bool TextMark::isLocationMarker() const

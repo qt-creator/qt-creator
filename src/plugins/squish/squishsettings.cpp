@@ -133,8 +133,6 @@ public:
         setId("A.Squish.General");
         setDisplayName(Tr::tr("General"));
         setCategory(Constants::SQUISH_SETTINGS_CATEGORY);
-        setDisplayCategory("Squish");
-        setCategoryIconPath(":/squish/images/settingscategory_squish.png");
         setSettingsProvider([] { return &settings(); });
     }
 };
@@ -479,8 +477,7 @@ void SquishServerSettingsWidget::addMappedAut(TreeItem *categoryItem, SquishServ
 {
     FilePath entry = original ? FilePath::fromString(original->data(1, Qt::DisplayRole).toString())
                               : FilePath();
-    const FilePath aut = FileUtils::getOpenFilePath(nullptr, Tr::tr("Select Application to test"),
-                                                    entry);
+    const FilePath aut = FileUtils::getOpenFilePath(Tr::tr("Select Application to test"), entry);
     if (aut.isEmpty())
         return;
     const QString fileName = aut.completeBaseName();
@@ -506,11 +503,10 @@ void SquishServerSettingsWidget::addAutPath(TreeItem *categoryItem, SquishServer
     const QString originalPathStr = original ? original->data(0, Qt::DisplayRole).toString()
                                              : QString();
     FilePath entry = FilePath::fromString(originalPathStr);
-    const FilePath path = FileUtils::getExistingDirectory(nullptr,
-                                                          Tr::tr("Select Application Path"), entry);
+    const FilePath path = FileUtils::getExistingDirectory(Tr::tr("Select Application Path"), entry);
     if (path.isEmpty() || path == entry)
         return;
-    const QString pathStr = path.toString();
+    const QString pathStr = path.toUrlishString();
     if (original) {
         m_serverSettings.autPaths.removeOne(originalPathStr);
         m_model.destroyItem(original);

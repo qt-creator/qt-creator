@@ -13,6 +13,8 @@
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/id.h>
+#include <utils/portlist.h>
+#include <utils/result.h>
 #include <utils/store.h>
 
 #include <QAbstractSocket>
@@ -66,20 +68,12 @@ public:
 
 signals:
     // If the error message is empty the operation was successful
-    void finished(const QString &errorMessage);
+    void finished(const Utils::Result &result);
 
 protected:
     explicit DeviceProcessSignalOperation();
 
     Utils::FilePath m_debuggerCommand;
-    QString m_errorMessage;
-};
-
-class PROJECTEXPLORER_EXPORT PortsGatheringMethod final
-{
-public:
-    std::function<Utils::CommandLine(QAbstractSocket::NetworkLayerProtocol protocol)> commandLine;
-    std::function<QList<Utils::Port>(const QByteArray &commandOutput)> parsePorts;
 };
 
 // See cpp file for documentation.
@@ -125,10 +119,7 @@ public:
     bool isAutoDetected() const;
     Utils::Id id() const;
 
-    virtual bool isCompatibleWith(const Kit *k) const;
     virtual QList<Task> validate() const;
-
-    virtual bool usableAsBuildDevice() const { return false; }
 
     QString displayType() const;
     Utils::OsType osType() const;
@@ -137,12 +128,13 @@ public:
 
     struct DeviceAction {
         QString display;
-        std::function<void(const IDevice::Ptr &device, QWidget *parent)> execute;
+        std::function<void(const IDevice::Ptr &device)> execute;
     };
     void addDeviceAction(const DeviceAction &deviceAction);
     const QList<DeviceAction> deviceActions() const;
 
-    virtual PortsGatheringMethod portsGatheringMethod() const;
+    virtual Tasking::ExecutableItem portsGatheringRecipe(
+        const Tasking::Storage<Utils::PortsOutputData> &output) const;
     virtual bool canCreateProcessModel() const { return false; }
     virtual bool hasDeviceTester() const { return false; }
     virtual DeviceTester *createDeviceTester();
@@ -252,6 +244,39 @@ private:
     friend class DeviceManager;
 };
 
+class PROJECTEXPLORER_EXPORT DeviceConstRef
+{
+public:
+    DeviceConstRef(const IDevice::ConstPtr &device);
+    DeviceConstRef(const IDevice::Ptr &device);
+    virtual ~DeviceConstRef();
+
+    IDevice::ConstPtr lock() const;
+
+    Utils::Id id() const;
+    QString displayName() const;
+    SshParameters sshParameters() const;
+    Utils::FilePath filePath(const QString &pathOnDevice) const;
+    QVariant extraData(Utils::Id kind) const;
+
+private:
+    std::weak_ptr<const IDevice> m_constDevice;
+};
+
+class PROJECTEXPLORER_EXPORT DeviceRef : public DeviceConstRef
+{
+public:
+    DeviceRef(const IDevice::Ptr &device);
+
+    IDevice::Ptr lock() const;
+
+    void setDisplayName(const QString &displayName);
+    void setSshParameters(const SshParameters &params);
+
+private:
+    std::weak_ptr<IDevice> m_mutableDevice;
+};
+
 class PROJECTEXPLORER_EXPORT DeviceTester : public QObject
 {
     Q_OBJECT
@@ -283,7 +308,7 @@ class PROJECTEXPLORER_EXPORT DeviceProcessKiller : public QObject
 public:
     void setProcessPath(const Utils::FilePath &path) { m_processPath = path; }
     void start();
-    QString errorString() const { return m_errorString; }
+    Utils::Result result() const { return m_result; }
 
 signals:
     void done(Tasking::DoneResult result);
@@ -291,7 +316,7 @@ signals:
 private:
     Utils::FilePath m_processPath;
     DeviceProcessSignalOperation::Ptr m_signalOperation;
-    QString m_errorString;
+    Utils::Result m_result = Utils::Result::Ok;
 };
 
 class PROJECTEXPLORER_EXPORT DeviceProcessKillerTaskAdapter final

@@ -346,8 +346,9 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
     const QSizePolicy cbSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
     m_buildBeforeDeployComboBox->setSizePolicy(cbSizePolicy);
     m_stopBeforeBuildComboBox = new QComboBox;
-    m_stopBeforeBuildComboBox->addItem(Tr::tr("None"), int(StopBeforeBuild::None));
-    m_stopBeforeBuildComboBox->addItem(Tr::tr("All"), int(StopBeforeBuild::All));
+    m_stopBeforeBuildComboBox->addItem(
+        Tr::tr("None", "Stop applications before building: None"), int(StopBeforeBuild::None));
+    m_stopBeforeBuildComboBox->addItem(Tr::tr("All", "Stop all projects"), int(StopBeforeBuild::All));
     m_stopBeforeBuildComboBox->addItem(Tr::tr("Same Project"), int(StopBeforeBuild::SameProject));
     m_stopBeforeBuildComboBox->addItem(Tr::tr("Same Build Directory"),
                                        int(StopBeforeBuild::SameBuildDir));
@@ -384,8 +385,8 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
     appEnvButton->setSizePolicy(QSizePolicy::Fixed, appEnvButton->sizePolicy().verticalPolicy());
     appEnvButton->setToolTip(appEnvToolTip);
     connect(appEnvButton, &QPushButton::clicked, this, [appEnvButton, this] {
-        std::optional<EnvironmentItems> changes
-            = EnvironmentDialog::getEnvironmentItems(appEnvButton, m_appEnvChanges);
+        const std::optional<EnvironmentItems> changes =
+                runEnvironmentItemsDialog(appEnvButton, m_appEnvChanges);
         if (!changes)
             return;
         m_appEnvChanges = *changes;
@@ -547,8 +548,6 @@ public:
         setId(ProjectExplorer::Constants::BUILD_AND_RUN_SETTINGS_PAGE_ID);
         setDisplayName(Tr::tr("General"));
         setCategory(ProjectExplorer::Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
-        setDisplayCategory(Tr::tr("Build & Run"));
-        setCategoryIconPath(":/projectexplorer/images/settingscategory_buildrun.png");
         setWidgetCreator([] { return new ProjectExplorerSettingsWidget; });
     }
 };

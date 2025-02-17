@@ -1,5 +1,6 @@
 {
     "Id" : "autotoolsprojectmanager",
+    "DisplayName" : "Autotools",
     "Name" : "AutotoolsProjectManager",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

@@ -18,8 +18,6 @@ namespace QmlJSEditor::Internal {
 class QmlJsEditingSettings final : public Utils::AspectContainer
 {
 public:
-    static const inline QVersionNumber mininumQmllsVersion = QVersionNumber(6, 8);
-
     QmlJsEditingSettings();
 
     QString defaultFormatCommand() const;
@@ -31,45 +29,11 @@ public:
     Utils::BoolAspect foldAuxData{this};
     Utils::BoolAspect useCustomFormatCommand{this};
     Utils::BoolAspect useCustomAnalyzer{this};
-    Utils::BoolAspect useQmlls{this};
-    Utils::BoolAspect useLatestQmlls{this};
-    Utils::BoolAspect ignoreMinimumQmllsVersion{this};
-    Utils::BoolAspect enableQmllsSemanticHighlighting{this};
-    Utils::BoolAspect disableBuiltinCodemodel{this};
-    Utils::BoolAspect generateQmllsIniFiles{this};
     Utils::SelectionAspect uiQmlOpenMode{this};
     Utils::StringAspect formatCommand{this};
     Utils::StringAspect formatCommandOptions{this};
     Utils::IntegersAspect disabledMessages{this};
     Utils::IntegersAspect disabledMessagesForNonQuickUi{this};
-};
-
-class QmllsSettingsManager : public QObject
-{
-    Q_OBJECT
-
-public:
-    static QmllsSettingsManager *instance();
-
-    Utils::FilePath latestQmlls();
-    void setupAutoupdate();
-
-    bool useQmlls(ProjectExplorer::Project* project) const;
-    bool useLatestQmlls() const;
-
-public slots:
-    void checkForChanges();
-signals:
-    void settingsChanged();
-
-private:
-    QMutex m_mutex;
-    bool m_useQmlls = true;
-    bool m_useLatestQmlls = false;
-    bool m_disableBuiltinCodemodel = false;
-    bool m_generateQmllsIniFiles = false;
-    bool m_enableQmllsSemanticHighlighting = false;
-    Utils::FilePath m_latestQmlls;
 };
 
 QmlJsEditingSettings &settings();
@@ -78,17 +42,6 @@ class QmlJsEditingSettingsPage : public Core::IOptionsPage
 {
 public:
     QmlJsEditingSettingsPage();
-};
-
-class ProjectSettings : public Utils::AspectContainer
-{
-public:
-    ProjectSettings(ProjectExplorer::Project *project);
-
-    Utils::BoolAspect useQmlls{this};
-    Utils::BoolAspect useGlobalSettings{this};
-
-    void save(ProjectExplorer::Project *project);
 };
 
 void setupQmlJsEditingProjectPanel();

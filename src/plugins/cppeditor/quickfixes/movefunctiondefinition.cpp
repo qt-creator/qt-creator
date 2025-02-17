@@ -1203,6 +1203,20 @@ private slots:
         QuickFixOperationTest(singleDocument(original, expected, "file.h"), &factory);
     }
 
+    void testConcept()
+    {
+        QByteArray original =
+            "template<Pointer T>\n"
+            "class Foo { T operator@->() const { return nullptr; } };\n";
+        QByteArray expected =
+            "template<Pointer T>\n"
+            "class Foo { T operator->() const; };\n\n"
+            "template<Pointer T>\nT Foo<T>::operator->() const { return nullptr; }\n";
+
+        MoveFuncDefOutside factory;
+        QuickFixOperationTest(singleDocument(original, expected), &factory);
+    }
+
     void testMemberFunctionTemplate()
     {
         const QByteArray original = R"(

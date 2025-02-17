@@ -254,7 +254,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
         testFile->setBaseDirectory(temporaryDir.path());
         QVERIFY(testFile->writeToDisk());
         projectFileContent += QString::fromLatin1("\"%1\",")
-                .arg(testFile->filePath().toString());
+                .arg(testFile->filePath().toFSPathString());
     }
     projectFileContent += "]}\n";
 

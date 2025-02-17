@@ -23,7 +23,6 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/namedwidget.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectnodes.h>
@@ -211,11 +210,10 @@ Id PySideBuildStep::id()
     return Id("Python.PysideBuildStep");
 }
 
-class PythonBuildSettingsWidget : public NamedWidget
+class PythonBuildSettingsWidget : public QWidget
 {
 public:
     PythonBuildSettingsWidget(PythonBuildConfiguration *bc)
-        : NamedWidget(Tr::tr("Python"))
     {
         using namespace Layouting;
         m_configureDetailsWidget = new DetailsWidget;
@@ -262,6 +260,7 @@ PythonBuildConfiguration::PythonBuildConfiguration(Target *target, const Id &id)
     , m_buildSystem(std::make_unique<PythonBuildSystem>(this))
 {
     setInitializer([this](const BuildInfo &info) { initialize(info); });
+    setConfigWidgetDisplayName(Tr::tr("Python"));
 
     updateCacheAndEmitEnvironmentChanged();
 
@@ -288,7 +287,7 @@ PythonBuildConfiguration::PythonBuildConfiguration(Target *target, const Id &id)
             &PythonBuildConfiguration::handlePythonUpdated);
 }
 
-NamedWidget *PythonBuildConfiguration::createConfigWidget()
+QWidget *PythonBuildConfiguration::createConfigWidget()
 {
     return new PythonBuildSettingsWidget(this);
 }

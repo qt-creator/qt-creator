@@ -68,16 +68,16 @@ QChar static charForChannel(int channel)
     }
 }
 
-static bool writeLogContents(const QPlainTextEdit *editor, QWidget *parent)
+static bool writeLogContents(const QPlainTextEdit *editor)
 {
     bool success = false;
     while (!success) {
-        const FilePath filePath = FileUtils::getSaveFilePath(parent, Tr::tr("Log File"));
+        const FilePath filePath = FileUtils::getSaveFilePath(Tr::tr("Log File"));
         if (filePath.isEmpty())
             break;
         FileSaver saver(filePath, QIODevice::Text);
         saver.write(editor->toPlainText().toUtf8());
-        if (saver.finalize(parent))
+        if (saver.finalize())
             success = true;
     }
     return success;
@@ -228,7 +228,7 @@ public:
     QAction *clearContentsAction() const { return m_clearContentsAction; }
 
 private:
-    void saveContents() { writeLogContents(this, this); }
+    void saveContents() { writeLogContents(this); }
 
     QAction *m_clearContentsAction;
     QAction *m_saveContentsAction;

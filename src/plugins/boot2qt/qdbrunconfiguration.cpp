@@ -9,8 +9,8 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
@@ -55,7 +55,7 @@ public:
             const BuildTargetInfo bti = buildTargetInfo();
             const FilePath localExecutable = bti.targetFilePath;
             const DeployableFile depFile = target->deploymentData().deployableForLocalFile(localExecutable);
-            IDevice::ConstPtr dev = DeviceKitAspect::device(target->kit());
+            IDevice::ConstPtr dev = RunDeviceKitAspect::device(target->kit());
             QTC_ASSERT(dev, return);
             executable.setExecutable(dev->filePath(depFile.remoteFilePath()));
             symbolFile.setValue(localExecutable);
@@ -87,11 +87,6 @@ private:
                                                            "to run on a Boot to Qt device."));
         }
         return tasks;
-    }
-
-    QString defaultDisplayName() const
-    {
-        return RunConfigurationFactory::decoratedTargetName(buildKey(), target());
     }
 
     ExecutableAspect executable{this};

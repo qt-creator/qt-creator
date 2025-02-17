@@ -143,14 +143,14 @@ void tst_PluginManager::circularPlugins()
     const PluginSpecs plugins = PluginManager::plugins();
     QCOMPARE(plugins.count(), 3);
     for (PluginSpec *spec : plugins) {
-        if (spec->name() == "plugin1") {
+        if (spec->id() == "plugin1") {
             QVERIFY(spec->hasError());
             QCOMPARE(spec->state(), PluginSpec::Resolved);
             QCOMPARE(spec->plugin(), static_cast<IPlugin *>(0));
-        } else if (spec->name() == "plugin2") {
+        } else if (spec->id() == "plugin2") {
             QVERIFY2(!spec->hasError(), qPrintable(spec->errorString()));
             QCOMPARE(spec->state(), PluginSpec::Running);
-        } else if (spec->name() == "plugin3") {
+        } else if (spec->id() == "plugin3") {
             QVERIFY(spec->hasError());
             QCOMPARE(spec->state(), PluginSpec::Resolved);
             QCOMPARE(spec->plugin(), static_cast<IPlugin *>(0));

@@ -73,8 +73,7 @@ void ActivationSequenceContextProcessor::process()
 void ActivationSequenceContextProcessor::processActivationSequence()
 {
     const int nonSpacePosition = skipPrecedingWhitespace(m_document, m_startOfNamePosition);
-    const auto activationSequence = Utils::Text::textAt(QTextCursor(m_document),
-                                                        nonSpacePosition - 3, 3);
+    const auto activationSequence = Utils::Text::textAt(m_document, nonSpacePosition - 3, 3);
     ActivationSequenceProcessor activationSequenceProcessor(activationSequence,
                                                             nonSpacePosition,
                                                             true);

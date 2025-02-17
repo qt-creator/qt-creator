@@ -14,6 +14,7 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -29,7 +30,6 @@
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QFileInfo>
-#include <QJSEngine>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
@@ -128,8 +128,7 @@ private:
 
 } // namespace Internal
 
-JsonWizard::JsonWizard(QWidget *parent)
-    : Wizard(parent)
+JsonWizard::JsonWizard()
 {
     setMinimumSize(800, 500);
     m_expander.registerExtraResolver([this](const QString &name, QString *ret) -> bool {
@@ -145,9 +144,9 @@ JsonWizard::JsonWizard(QWidget *parent)
     });
     // override default JS macro by custom one that adds Wizard specific features
     m_jsExpander.registerObject("Wizard", new Internal::JsonWizardJsExtension(this));
-    m_jsExpander.engine().evaluate("var value = Wizard.value");
-    m_jsExpander.engine().evaluate("var isPluginRunning = Wizard.isPluginRunning");
-    m_jsExpander.engine().evaluate("var isAnyPluginRunning = Wizard.isAnyPluginRunning");
+    m_jsExpander.evaluate("var value = Wizard.value");
+    m_jsExpander.evaluate("var isPluginRunning = Wizard.isPluginRunning");
+    m_jsExpander.evaluate("var isAnyPluginRunning = Wizard.isAnyPluginRunning");
 
     m_jsExpander.registerForExpander(&m_expander);
 }
@@ -514,7 +513,7 @@ void JsonWizard::openProjectForNode(Node *node)
 
     if (projFilePath && !Core::EditorManager::openEditor(projFilePath.value())) {
             auto errorMessage = Tr::tr("Failed to open an editor for \"%1\".")
-                    .arg(QDir::toNativeSeparators(projFilePath.value().toString()));
+                    .arg(QDir::toNativeSeparators(projFilePath.value().toUrlishString()));
             QMessageBox::warning(nullptr, Tr::tr("Cannot Open Project"), errorMessage);
     }
 }

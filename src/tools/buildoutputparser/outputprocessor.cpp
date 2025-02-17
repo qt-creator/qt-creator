@@ -61,7 +61,7 @@ void CompilerOutputProcessor::start()
 
 void CompilerOutputProcessor::handleTask(const ProjectExplorer::Task &task)
 {
-    const QString &fileName = task.file.toString();
+    const QString &fileName = task.file.toUrlishString();
     if (!fileName.isEmpty()) {
         *m_ostream << fileName;
         if (task.line != -1)

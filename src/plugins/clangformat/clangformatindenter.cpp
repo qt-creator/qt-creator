@@ -7,8 +7,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <cppeditor/cppcodestylepreferences.h>
-#include <cppeditor/cppcodestylepreferencesfactory.h>
 #include <cppeditor/cppqtstyleindenter.h>
 #include <cppeditor/cpptoolssettings.h>
 
@@ -37,7 +35,7 @@ static bool isBeautifierPluginActivated()
     return std::find_if(specs.begin(),
                         specs.end(),
                         [](ExtensionSystem::PluginSpec *spec) {
-                            return spec->name() == "Beautifier" && spec->isEffectivelyEnabled();
+                            return spec->id() == "beautifier" && spec->isEffectivelyEnabled();
                         })
            != specs.end();
 }
@@ -78,14 +76,11 @@ std::optional<TabSettings> ClangFormatIndenter::tabSettings() const
     TabSettings tabSettings;
 
     switch (style.UseTab) {
-    case FormatStyle::UT_Never:
-        tabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
-        break;
     case FormatStyle::UT_Always:
         tabSettings.m_tabPolicy = TabSettings::TabsOnlyTabPolicy;
         break;
     default:
-        tabSettings.m_tabPolicy = TabSettings::MixedTabPolicy;
+        tabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
     }
 
     tabSettings.m_tabSize = static_cast<int>(style.TabWidth);
@@ -233,6 +228,11 @@ void ClangFormatForwardingIndenter::reindent(const QTextCursor &cursor,
 std::optional<int> ClangFormatForwardingIndenter::margin() const
 {
     return currentIndenter()->margin();
+}
+
+bool ClangFormatForwardingIndenter::respectsTabSettings() const
+{
+    return currentIndenter()->respectsTabSettings();
 }
 
 } // namespace ClangFormat

@@ -113,7 +113,7 @@ public:
     Utils::expected_str<QFuture<void>> signalProcess(int pid, Utils::ControlSignal signal);
 
 protected:
-    void exit();
+    bool exit();
 
 signals:
     void done(const Utils::ProcessResultData &resultData);

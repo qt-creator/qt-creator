@@ -351,15 +351,14 @@ void GeneralSettingsPageWidget::importBookmarks()
 {
     errorLabel->setVisible(false);
 
-    FilePath filePath = FileUtils::getOpenFilePath(nullptr,
-                                                   Tr::tr("Import Bookmarks"),
+    FilePath filePath = FileUtils::getOpenFilePath(Tr::tr("Import Bookmarks"),
                                                    FilePath::fromString(QDir::currentPath()),
                                                    Tr::tr("Files (*.xbel)"));
 
     if (filePath.isEmpty())
         return;
 
-    QFile file(filePath.toString());
+    QFile file(filePath.toUrlishString());
     if (file.open(QIODevice::ReadOnly)) {
         const BookmarkManager &manager = LocalHelpManager::bookmarkManager();
         XbelReader reader(manager.treeBookmarkModel(), manager.listBookmarkModel());
@@ -375,8 +374,7 @@ void GeneralSettingsPageWidget::exportBookmarks()
 {
     errorLabel->setVisible(false);
 
-    FilePath filePath = FileUtils::getSaveFilePath(nullptr,
-                                                   Tr::tr("Save File"),
+    FilePath filePath = FileUtils::getSaveFilePath(Tr::tr("Save File"),
                                                    "untitled.xbel",
                                                    Tr::tr("Files (*.xbel)"));
 
@@ -500,9 +498,7 @@ GeneralSettingsPage::GeneralSettingsPage()
 {
     setId("A.General settings");
     setDisplayName(Tr::tr("General"));
-    setCategory(Help::Constants::HELP_CATEGORY);
-    setDisplayCategory(Tr::tr("Help"));
-    setCategoryIconPath(":/help/images/settingscategory_help.png");
+    setCategory(Core::Constants::HELP_CATEGORY);
     setWidgetCreator([] { return new GeneralSettingsPageWidget; });
 }
 

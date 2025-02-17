@@ -38,7 +38,7 @@ class Target;
 namespace Internal {
 class RunControlPrivate;
 class RunWorkerPrivate;
-class SimpleTargetRunnerPrivate;
+class ProcessRunnerPrivate;
 } // Internal
 
 class PROJECTEXPLORER_EXPORT RunWorker : public QObject
@@ -56,12 +56,8 @@ public:
 
     void setId(const QString &id);
 
-    void recordData(const Utils::Key &channel, const QVariant &data);
-    QVariant recordedData(const Utils::Key &channel) const;
-
     // Part of read-only interface of RunControl for convenience.
     void appendMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
-    IDeviceConstPtr device() const;
 
     // States
     void initiateStart();
@@ -73,22 +69,9 @@ public:
     void reportDone();
 
     void reportFailure(const QString &msg = QString());
-    void setSupportsReRunning(bool reRunningSupported);
 
     static QString userMessageForProcessError(QProcess::ProcessError,
                                               const Utils::FilePath &programName);
-
-    bool isEssential() const;
-    void setEssential(bool essential);
-
-    QUrl debugChannel() const;
-    bool usesDebugChannel() const;
-
-    QUrl qmlChannel() const;
-    bool usesQmlChannel() const;
-
-    QUrl perfChannel() const;
-    bool usesPerfChannel() const;
 
 signals:
     void started();
@@ -153,6 +136,8 @@ class PROJECTEXPLORER_EXPORT RunControl final : public QObject
 public:
     explicit RunControl(Utils::Id mode);
     ~RunControl() final;
+
+    void start();
 
     void setTarget(Target *target);
     void setKit(Kit *kit);
@@ -243,9 +228,6 @@ public:
     static bool canRun(Utils::Id runMode, Utils::Id deviceType, Utils::Id runConfigId);
     void postMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
 
-    void enablePortsGatherer();
-    QUrl findEndPoint();
-
     void requestDebugChannel();
     bool usesDebugChannel() const;
     QUrl debugChannel() const;
@@ -263,6 +245,8 @@ public:
     void requestWorkerChannel();
     QUrl workerChannel() const;
 
+    void showOutputPane();
+
 signals:
     void appendMessage(const QString &msg, Utils::OutputFormat format);
     void aboutToStart();
@@ -279,21 +263,14 @@ private:
     const std::unique_ptr<Internal::RunControlPrivate> d;
 };
 
-
-/**
- * A simple TargetRunner for cases where a plain ApplicationLauncher is
- * sufficient for running purposes.
- */
-
-class PROJECTEXPLORER_EXPORT SimpleTargetRunner : public RunWorker
+class PROJECTEXPLORER_EXPORT ProcessRunner final : public RunWorker
 {
     Q_OBJECT
 
 public:
-    explicit SimpleTargetRunner(RunControl *runControl);
-    ~SimpleTargetRunner() override;
+    explicit ProcessRunner(RunControl *runControl);
+    ~ProcessRunner() override;
 
-protected:
     void setStartModifier(const std::function<void()> &startModifier);
 
     Utils::CommandLine commandLine() const;
@@ -302,26 +279,23 @@ protected:
     void setEnvironment(const Utils::Environment &environment);
     void setWorkingDirectory(const Utils::FilePath &workingDirectory);
     void setProcessMode(Utils::ProcessMode processMode);
-    Utils::Process *process() const;
 
     void suppressDefaultStdOutHandling();
-    void forceRunOnHost();
-    void addExtraData(const QString &key, const QVariant &value);
+
+signals:
+    void stdOutData(const QByteArray &data);
 
 private:
     void start() final;
     void stop() final;
 
-    const Utils::ProcessRunData &runnable() const = delete;
-    void setRunnable(const Utils::ProcessRunData &) = delete;
-
-    const std::unique_ptr<Internal::SimpleTargetRunnerPrivate> d;
+    const std::unique_ptr<Internal::ProcessRunnerPrivate> d;
 };
 
-class PROJECTEXPLORER_EXPORT SimpleTargetRunnerFactory : public RunWorkerFactory
+class PROJECTEXPLORER_EXPORT ProcessRunnerFactory : public RunWorkerFactory
 {
 public:
-    explicit SimpleTargetRunnerFactory(const QList<Utils::Id> &runConfig);
+    explicit ProcessRunnerFactory(const QList<Utils::Id> &runConfig);
 };
 
 

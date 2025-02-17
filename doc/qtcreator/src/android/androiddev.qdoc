@@ -69,7 +69,7 @@
     To set up the development environment for Android:
 
     \list 1
-        \li Go to \preferences > \uicontrol Devices > \uicontrol Android.
+        \li Go to \preferences > \uicontrol SDKs > \uicontrol Android.
             \image qtcreator-preferences-android.webp {Android preferences}
         \li In \uicontrol {JDK location}, set the path to the JDK.
             \QC checks the JDK installation and reports errors.
@@ -157,11 +157,12 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-android
+    \ingroup creator-how-to-sdks
 
     \title Manage Android NDK packages
 
     To view the \l{Android NDK} versions that \QC installed, go to \preferences >
-    \uicontrol Devices > \uicontrol Android.
+    \uicontrol SDKs > \uicontrol Android.
 
     \image qtcreator-preferences-android.webp {Android preferences}
 
@@ -195,6 +196,7 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-android
+    \ingroup creator-how-to-sdks
 
     \title Manage Android SDK packages
 
@@ -205,7 +207,7 @@
     \c sdkmanager for advanced SDK management.
 
     To view the installed Android SDK packages, select \preferences >
-    \uicontrol Devices > \uicontrol Android > \uicontrol {SDK Manager}.
+    \uicontrol SDKs > \uicontrol Android > \uicontrol {SDK Manager}.
 
     \image qtcreator-android-sdk-manager.webp {Android SDK Manager}
 

@@ -1,8 +1,10 @@
 {
     "Id" : "mercurial",
+    "DisplayName" : "Mercurial",
     "Name" : "Mercurial",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "DisabledByDefault" : true,
     "VendorId" : "brianmcgillion",
     "Vendor" : "Brian McGillion",
     "Copyright" : "(C) 2016 Brian McGillion, ${IDE_COPYRIGHT}",
@@ -22,5 +24,8 @@
     ],
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-vcs-mercurial.html",
+    "VcsDetectionFiles" : [
+        ".hg/requires"
+    ],
     ${IDE_PLUGIN_DEPENDENCIES}
 }

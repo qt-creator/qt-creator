@@ -7,7 +7,7 @@
     "trDisplayName": "Qt Resource File",
     "trDisplayCategory": "Qt",
     "iconText": "qrc",
-    "enabled": "%{JS: value('Plugins').indexOf('ResourceEditor') >= 0}",
+    "enabled": "%{JS: isPluginRunning('resourceeditor')}",
 
     "options": { "key": "DefaultSuffix", "value": "%{JS: Util.preferredSuffix('application/vnd.qt.xml.resource')}" },
 

@@ -54,7 +54,7 @@ FilePaths FileInSessionFinder::doFindFile(const FilePath &filePath)
         m_finder.setProjectFiles(allFiles);
         m_finderIsUpToDate = true;
     }
-    return m_finder.findFile(QUrl::fromLocalFile(filePath.toString()));
+    return m_finder.findFile(QUrl::fromLocalFile(filePath.toUrlishString()));
 }
 
 } // namespace Internal

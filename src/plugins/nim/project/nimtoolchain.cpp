@@ -107,7 +107,7 @@ bool NimToolchain::parseVersion(const FilePath &path, std::tuple<int, int, int> 
     const QString version = process.readAllStandardOutput().section('\n', 0, 0);
     if (version.isEmpty())
         return false;
-    const QRegularExpression regex("(\\d+)\\.(\\d+)\\.(\\d+)");
+    static const QRegularExpression regex("(\\d+)\\.(\\d+)\\.(\\d+)");
     const QRegularExpressionMatch match = regex.match(version);
     if (!match.hasMatch())
         return false;

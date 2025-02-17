@@ -32,6 +32,7 @@
 #include <utils/utilsicons.h>
 
 #include <QAbstractTextDocumentLayout>
+#include <QDesktopServices>
 #include <QLabel>
 #include <QMenu>
 #include <QPainter>
@@ -220,7 +221,7 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
 
     d->m_categoriesButton->setMenu(d->m_categoriesMenu);
 
-    setupFilterUi("IssuesPane.Filter");
+    setupFilterUi("IssuesPane.Filter", "ProjectExplorer::Internal::TaskWindow");
     setFilteringEnabled(true);
 
     TaskHub *hub = &taskHub();
@@ -439,7 +440,7 @@ void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
         const FilePath userChoice = Utils::chooseFileFromList(task.fileCandidates);
         if (!userChoice.isEmpty()) {
             task.file = userChoice;
-            updatedTaskFileName(task, task.file.toString());
+            updatedTaskFileName(task, task.file.toUrlishString());
         }
     }
 
@@ -695,8 +696,14 @@ void TaskView::mouseReleaseEvent(QMouseEvent *e)
 
     const QString anchor = anchorAt(e->pos());
     if (anchor == m_clickAnchor) {
-        Core::EditorManager::openEditorAt(OutputLineParser::parseLinkTarget(m_clickAnchor), {},
-                                          Core::EditorManager::SwitchSplitIfAlreadyVisible);
+        if (OutputLineParser::isLinkTarget(m_clickAnchor)) {
+            EditorManager::openEditorAt(
+                OutputLineParser::parseLinkTarget(m_clickAnchor),
+                {},
+                EditorManager::SwitchSplitIfAlreadyVisible);
+        } else {
+            QDesktopServices::openUrl(QUrl(m_clickAnchor));
+        }
     }
     m_clickAnchor.clear();
 }

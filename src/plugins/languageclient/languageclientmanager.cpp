@@ -29,6 +29,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/theme/theme.h>
+#include <utils/shutdownguard.h>
 #include <utils/utilsicons.h>
 
 #include <QTimer>
@@ -50,8 +51,7 @@ class LanguageClientManagerPrivate
     LanguageFunctionsFilter m_functionFilter;
 };
 
-LanguageClientManager::LanguageClientManager(QObject *parent)
-    : QObject(parent)
+LanguageClientManager::LanguageClientManager()
 {
     setObjectName("LanguageClientManager");
 
@@ -171,7 +171,8 @@ void LanguageClientManager::clientFinished(Client *client)
         = managerInstance->m_clientForDocument.keys(client);
     if (unexpectedFinish) {
         if (!PluginManager::isShuttingDown()) {
-            const bool shouldRestart = client->state() > Client::FailedToInitialize;
+            const bool shouldRestart = client->state() > Client::FailedToInitialize
+                                       && client->state() != Client::FailedToShutdown;
             if (shouldRestart && client->reset()) {
                 qCDebug(Log) << "restart unexpectedly finished client: " << client->name() << client;
                 client->log(
@@ -303,6 +304,14 @@ void LanguageClientManager::applySettings()
         applySettings(settings);
 }
 
+void LanguageClientManager::applySettings(const QString &settingsId)
+{
+    if (BaseSettings *settings = Utils::findOrDefault(
+            LanguageClientSettings::pageSettings(), Utils::equal(&BaseSettings::m_id, settingsId))) {
+        applySettings(settings);
+    }
+}
+
 void LanguageClientManager::applySettings(BaseSettings *setting)
 {
     QList<TextEditor::TextDocument *> documents;
@@ -313,10 +322,12 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
     }
     for (auto document : std::as_const(documents))
         managerInstance->m_clientForDocument.remove(document);
-    if (!setting->isValid() || !setting->m_enabled)
+    if (!setting->isValid())
         return;
     if (setting->m_startBehavior == BaseSettings::AlwaysOn
         || setting->m_startBehavior == BaseSettings::RequiresFile) {
+        if (!setting->m_enabled)
+            return;
         auto ensureClient = [setting, client = static_cast<Client *>(nullptr)]() mutable {
             if (!client)
                 client = startClient(setting);
@@ -354,6 +365,14 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
             const Utils::FilePath filePath = textDocument->filePath();
             for (ProjectExplorer::Project *project :
                  ProjectExplorer::ProjectManager::projects()) {
+                if (!setting->isValidOnProject(project))
+                    continue;
+                const bool settingIsEnabled
+                    = ProjectSettings(project).enabledSettings().contains(setting->m_id)
+                      || (setting->m_enabled
+                          && !ProjectSettings(project).disabledSettings().contains(setting->m_id));
+                if (!settingIsEnabled)
+                    continue;
                 if (project->isKnownFile(filePath)) {
                     Client *client = clientForProject[project];
                     if (!client) {
@@ -466,7 +485,14 @@ void LanguageClientManager::openDocumentWithClient(TextEditor::TextDocument *doc
     Client *currentClient = clientForDocument(document);
     if (client == currentClient)
         return;
-    managerInstance->m_clientForDocument.remove(document);
+    const bool firstOpen = !managerInstance->m_clientForDocument.remove(document);
+    if (firstOpen) {
+        connect(
+            document, &QObject::destroyed, managerInstance, [document, path = document->filePath()] {
+                const QPointer<Client> client = managerInstance->m_clientForDocument.take(document);
+                QTC_ASSERT(!client, client->hideDiagnostics(path));
+            });
+    }
     if (currentClient)
         currentClient->deactivateDocument(document);
     managerInstance->m_clientForDocument[document] = client;
@@ -590,7 +616,7 @@ static QList<BaseSettings *> sortedSettingsForDocument(Core::IDocument *document
             });
             return true; // continue
         });
-        return result;
+        return Utils::filteredUnique(result);
     }
 
     return Utils::filtered(prefilteredSettings, [document](BaseSettings *setting) {
@@ -619,8 +645,13 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
                 // check whether we already have a client running for this project
                 Client *clientForProject
                     = Utils::findOrDefault(clients, Utils::equal(&Client::project, project));
-                if (!clientForProject)
+
+                // create a client only when valid on the current project
+                if (!clientForProject) {
+                    if (!setting->isValidOnProject(project))
+                        continue;
                     clientForProject = startClient(setting, project);
+                }
 
                 QTC_ASSERT(clientForProject, continue);
                 openDocumentWithClient(textDocument, clientForProject);
@@ -712,9 +743,9 @@ bool LanguageClientManager::isShutdownFinished()
            && managerInstance->m_scheduledForDeletion.isEmpty();
 }
 
-void setupLanguageClientManager(QObject *guard)
+void setupLanguageClientManager()
 {
-    (void) new LanguageClientManager(guard);
+    static Utils::GuardedObject theLanguageClientManager{new LanguageClientManager};
 }
 
 } // namespace LanguageClient

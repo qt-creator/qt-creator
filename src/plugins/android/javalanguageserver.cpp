@@ -3,15 +3,16 @@
 
 #include "androidconfigurations.h"
 #include "androidconstants.h"
-#include "androidmanager.h"
 #include "androidtr.h"
+#include "androidutils.h"
 #include "javalanguageserver.h"
 
 #include <languageclient/client.h>
 #include <languageclient/languageclientinterface.h>
+#include <languageclient/languageclientsettings.h>
 #include <languageclient/languageclientutils.h>
 
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
@@ -28,13 +29,33 @@
 #include <QLineEdit>
 #include <QXmlStreamWriter>
 
+using namespace LanguageClient;
 using namespace ProjectExplorer;
 using namespace Utils;
 
 constexpr char languageServerKey[] = "languageServer";
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
+
+class JLSSettings final : public StdIOSettings
+{
+public:
+    JLSSettings();
+
+    bool applyFromSettingsWidget(QWidget *widget) final;
+    QWidget *createSettingsWidget(QWidget *parent) const final;
+    bool isValid() const final;
+    void toMap(Store &map) const final;
+    void fromMap(const Store &map) final;
+    BaseSettings *copy() const final;
+    Client *createClient(BaseClientInterface *interface) const final;
+    BaseClientInterface *createInterface(Project *project) const final;
+
+    FilePath m_languageServer;
+
+private:
+    JLSSettings(const JLSSettings &other) = default;
+};
 
 class JLSSettingsWidget : public QWidget
 {
@@ -137,11 +158,10 @@ bool JLSSettings::isValid() const
     return StdIOSettings::isValid() && !m_languageServer.isEmpty();
 }
 
-Store JLSSettings::toMap() const
+void JLSSettings::toMap(Store &map) const
 {
-    Store map = StdIOSettings::toMap();
+    StdIOSettings::toMap(map);
     map.insert(languageServerKey, m_languageServer.toSettings());
-    return map;
 }
 
 void JLSSettings::fromMap(const Store &map)
@@ -150,23 +170,21 @@ void JLSSettings::fromMap(const Store &map)
     m_languageServer = FilePath::fromSettings(map[languageServerKey]);
 }
 
-LanguageClient::BaseSettings *JLSSettings::copy() const
+BaseSettings *JLSSettings::copy() const
 {
     return new JLSSettings(*this);
 }
 
-class JLSInterface : public LanguageClient::StdIOClientInterface
+class JLSInterface : public StdIOClientInterface
 {
 public:
-    JLSInterface() = default;
-
     QString workspaceDir() const { return m_workspaceDir.path().path(); }
 
 private:
     TemporaryDirectory m_workspaceDir = TemporaryDirectory("QtCreator-jls-XXXXXX");
 };
 
-LanguageClient::BaseClientInterface *JLSSettings::createInterface(ProjectExplorer::Project *) const
+BaseClientInterface *JLSSettings::createInterface(Project *) const
 {
     auto interface = new JLSInterface();
     CommandLine cmd{m_executable, arguments(), CommandLine::Raw};
@@ -175,7 +193,7 @@ LanguageClient::BaseClientInterface *JLSSettings::createInterface(ProjectExplore
     return interface;
 }
 
-class JLSClient : public LanguageClient::Client
+class JLSClient : public Client
 {
 public:
     using Client::Client;
@@ -278,46 +296,46 @@ void JLSClient::updateProjectFiles()
 {
     if (!m_currentTarget)
         return;
-    if (Target *target = m_currentTarget) {
-        Kit *kit = m_currentTarget->kit();
-        if (DeviceTypeKitAspect::deviceTypeId(kit) != Android::Constants::ANDROID_DEVICE_TYPE)
+
+    Kit *kit = m_currentTarget->kit();
+    if (RunDeviceTypeKitAspect::deviceTypeId(kit) != Android::Constants::ANDROID_DEVICE_TYPE)
+        return;
+
+    if (ProjectNode *node = project()->findNodeForBuildKey(m_currentTarget->activeBuildKey())) {
+        QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
+        if (!version)
             return;
-        if (ProjectNode *node = project()->findNodeForBuildKey(target->activeBuildKey())) {
-            QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
-            if (!version)
-                return;
-            const FilePath qtSrc = version->prefix().pathAppended("src/android/java/src");
-            const FilePath &projectDir = project()->rootProjectDirectory();
-            if (!projectDir.exists())
-                return;
-            const FilePath packageSourceDir = FilePath::fromVariant(
-                node->data(Constants::AndroidPackageSourceDir));
+        const FilePath qtSrc = version->prefix().pathAppended("src/android/java/src");
+        const FilePath &projectDir = project()->rootProjectDirectory();
+        if (!projectDir.exists())
+            return;
+        const FilePath packageSourceDir = FilePath::fromVariant(
+            node->data(Constants::AndroidPackageSourceDir));
 
-            FilePath sourceDir = packageSourceDir.pathAppended("src/main/java");
+        FilePath sourceDir = packageSourceDir.pathAppended("src/main/java");
+        if (!sourceDir.exists()) {
+            sourceDir = packageSourceDir.pathAppended("src");
             if (!sourceDir.exists()) {
-                sourceDir = packageSourceDir.pathAppended("src");
-                if (!sourceDir.exists()) {
-                    return;
-                }
+                return;
             }
-
-            sourceDir = sourceDir.relativeChildPath(projectDir);
-
-            const QStringList classPaths = node->data(Constants::AndroidClassPaths).toStringList();
-
-            const FilePath &sdkLocation = AndroidConfig::sdkLocation();
-            const QString &targetSDK = AndroidManager::buildTargetSDK(m_currentTarget);
-            const FilePath androidJar = sdkLocation / QString("platforms/%2/android.jar")
-                                           .arg(targetSDK);
-            FilePaths libs = {androidJar};
-            libs << packageSourceDir.pathAppended("libs").dirEntries({{"*.jar"}, QDir::Files});
-
-            for (const QString &path : classPaths)
-                libs << FilePath::fromString(path);
-
-            generateProjectFile(projectDir, qtSrc.path(), project()->displayName());
-            generateClassPathFile(projectDir, sourceDir, libs);
         }
+
+        sourceDir = sourceDir.relativeChildPath(projectDir);
+
+        const QStringList classPaths = node->data(Constants::AndroidClassPaths).toStringList();
+
+        const FilePath &sdkLocation = AndroidConfig::sdkLocation();
+        const QString &targetSDK = buildTargetSDK(m_currentTarget);
+        const FilePath androidJar = sdkLocation / QString("platforms/%2/android.jar")
+                                       .arg(targetSDK);
+        FilePaths libs = {androidJar};
+        libs << packageSourceDir.pathAppended("libs").dirEntries({{"*.jar"}, QDir::Files});
+
+        for (const QString &path : classPaths)
+            libs << FilePath::fromString(path);
+
+        generateProjectFile(projectDir, qtSrc.path(), project()->displayName());
+        generateClassPathFile(projectDir, sourceDir, libs);
     }
 }
 
@@ -334,10 +352,16 @@ void JLSClient::updateTarget(Target *target)
     updateProjectFiles();
 }
 
-LanguageClient::Client *JLSSettings::createClient(LanguageClient::BaseClientInterface *interface) const
+Client *JLSSettings::createClient(BaseClientInterface *interface) const
 {
     return new JLSClient(interface);
 }
 
-} // namespace Internal
-} // namespace Android
+void setupJavaLanguageServer()
+{
+    LanguageClientSettings::registerClientType(
+        {Android::Constants::JLS_SETTINGS_ID, Tr::tr("Java Language Server"),
+         [] { return new JLSSettings; }});
+}
+
+} // namespace Android::Internal

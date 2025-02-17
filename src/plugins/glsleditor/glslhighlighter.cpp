@@ -197,8 +197,8 @@ void GlslHighlighter::highlightBlock(const QString &text)
     }
 
     TextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
-
-    setCurrentBlockState((braceDepth << 8) | lex.state());
+    TextDocumentLayout::setBraceDepth(currentBlock(), braceDepth);
+    setCurrentBlockState(lex.state());
 }
 
 void GlslHighlighter::highlightLine(const QString &text, int position, int length,

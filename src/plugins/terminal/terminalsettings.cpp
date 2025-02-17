@@ -16,6 +16,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
+#include <utils/shutdownguard.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
@@ -87,7 +88,7 @@ static expected_str<void> loadXdefaults(const FilePath &path)
     if (!readResult)
         return make_unexpected(readResult.error());
 
-    QRegularExpression re(R"(.*\*(color[0-9]{1,2}|foreground|background):\s*(#[0-9a-f]{6}))");
+    static const QRegularExpression re(R"(.*\*(color[0-9]{1,2}|foreground|background):\s*(#[0-9a-f]{6}))");
 
     for (const QByteArray &line : readResult->split('\n')) {
         if (line.trimmed().startsWith('!'))
@@ -383,7 +384,8 @@ static expected_str<void> loadXFCE4ColorScheme(const FilePath &path)
     arr->replace(';', ',');
 
     QTemporaryFile f;
-    f.open();
+    if (!f.open())
+        return make_unexpected(f.errorString());
     f.write(*arr);
     f.close();
 
@@ -434,7 +436,7 @@ static expected_str<void> loadColorScheme(const FilePath &path)
 
 TerminalSettings &settings()
 {
-    static TerminalSettings theSettings;
+    static GuardedObject<TerminalSettings> theSettings;
     return theSettings;
 }
 
@@ -575,7 +577,6 @@ TerminalSettings::TerminalSettings()
 
         connect(loadThemeButton, &QPushButton::clicked, this, [] {
             const FilePath path = FileUtils::getOpenFilePath(
-                Core::ICore::dialogParent(),
                 "Open Theme",
                 {},
                 "All Scheme formats (*.itermcolors *.json *.colorscheme *.theme *.theme.txt);;"
@@ -703,8 +704,6 @@ public:
         setId("Terminal.General");
         setDisplayName("Terminal");
         setCategory("ZY.Terminal");
-        setDisplayCategory("Terminal");
-        setCategoryIconPath(":/terminal/images/settingscategory_terminal.png");
         setSettingsProvider([] { return &settings(); });
     }
 };

@@ -90,7 +90,7 @@ public:
 
     Q_DECLARE_FLAGS(Platforms, Platform)
 
-    explicit AddLibraryWizard(const Utils::FilePath &proFile, QWidget *parent = nullptr);
+    explicit AddLibraryWizard(const Utils::FilePath &proFile);
     ~AddLibraryWizard() override;
 
     LibraryKind libraryKind() const;

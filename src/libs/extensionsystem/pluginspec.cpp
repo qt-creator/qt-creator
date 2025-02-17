@@ -187,6 +187,7 @@ public:
     ExtensionSystem::PerformanceData performanceData;
 
     QString id;
+    QString displayName;
     QString name;
     QString version;
     QString compatVersion;
@@ -267,12 +268,13 @@ QString PluginSpec::id() const
 }
 
 /*!
-    Returns either name(), or id() if name() is empty. If both are empty, returns "<unknown>".
+    Returns either DisplayName, name(), or id() if name() is empty. If all are empty,
+    returns "<unknown>".
 */
 QString PluginSpec::displayName() const
 {
     return Utils::findOr(
-        QStringList{name(), id(), filePath().fileName()},
+        QStringList{d->displayName, name(), id(), filePath().fileName()},
         "<Unknown>",
         std::not_fn(&QString::isEmpty));
 }
@@ -727,6 +729,7 @@ PluginSpecs PluginSpec::enableDependenciesIndirectly(bool enableTestDependencies
 namespace {
     const char PLUGIN_METADATA[] = "MetaData";
     const char PLUGIN_NAME[] = "Name";
+    const char PLUGIN_DISPLAYNAME[] = "DisplayName";
     const char PLUGIN_ID[] = "Id";
     const char PLUGIN_VERSION[] = "Version";
     const char PLUGIN_COMPATVERSION[] = "CompatVersion";
@@ -934,6 +937,9 @@ Utils::expected_str<void> PluginSpecPrivate::readMetaData(const QJsonObject &dat
         return reportError(::ExtensionSystem::Tr::tr("Plugin id \"%1\" must be lowercase").arg(id));
 
     if (auto r = assignOr(name, PLUGIN_NAME, id); !r.has_value())
+        return reportError(r.error());
+
+    if (auto r = assignOr(displayName, PLUGIN_DISPLAYNAME, name); !r.has_value())
         return reportError(r.error());
 
     if (auto r = assign(version, PLUGIN_VERSION); !r.has_value())
@@ -1405,6 +1411,16 @@ static QList<PluginSpec *> createCppPluginsFromArchive(const FilePath &path)
 {
     QList<PluginSpec *> results;
 
+    if (path.isFile()) {
+        if (QLibrary::isLibrary(path.toFSPathString())) {
+            expected_str<std::unique_ptr<PluginSpec>> spec = readCppPluginSpec(path);
+            QTC_CHECK_EXPECTED(spec);
+            if (spec)
+                results.push_back(spec->release());
+        }
+        return results;
+    }
+
     // look for plugin
     QDirIterator
         it(path.path(),
@@ -1435,6 +1451,35 @@ QList<PluginSpec *> pluginSpecsFromArchive(const Utils::FilePath &path)
         results += factory(path);
     }
     return results;
+}
+
+expected_str<FilePaths> PluginSpec::filesToUninstall() const
+{
+    if (isSystemPlugin())
+        return make_unexpected(Tr::tr("Cannot remove system plugins."));
+
+    // Try to figure out where we are ...
+    const FilePaths pluginPaths = PluginManager::pluginPaths();
+
+    for (const FilePath &pluginPath : pluginPaths) {
+        if (location().isChildOf(pluginPath)) {
+            const FilePath rootFolder = location().relativeChildPath(pluginPath);
+            if (rootFolder.isEmpty())
+                return make_unexpected(Tr::tr("Could not determine root folder."));
+
+            const FilePath pathToDelete = pluginPath
+                                          / rootFolder.pathComponents().first().toString();
+            return FilePaths{pathToDelete};
+        }
+    }
+
+    return FilePaths{filePath()};
+}
+
+bool PluginSpec::isSystemPlugin() const
+{
+    return !filePath().isChildOf(appInfo().userPluginsRoot)
+           && !filePath().isChildOf(appInfo().userLuaPlugins);
 }
 
 } // namespace ExtensionSystem

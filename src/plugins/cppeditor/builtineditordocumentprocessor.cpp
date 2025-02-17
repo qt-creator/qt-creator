@@ -327,7 +327,7 @@ SemanticInfo::Source BuiltinEditorDocumentProcessor::createSemanticInfoSource(bo
         source = entry->first;
         revision = entry->second;
     }
-    return SemanticInfo::Source(filePath().toString(), source, revision, m_documentSnapshot, force);
+    return SemanticInfo::Source(filePath().toUrlishString(), source, revision, m_documentSnapshot, force);
 }
 
 } // namespace CppEditor

@@ -30,9 +30,10 @@
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -131,16 +132,14 @@ void QbsProject::configureAsExampleProject(Kit *kit)
         }
     }
     setup(infoList);
-    if (activeTarget())
-        static_cast<QbsBuildSystem *>(activeTarget()->buildSystem())->prepareForParsing();
+    if (activeBuildSystem())
+        static_cast<QbsBuildSystem *>(activeBuildSystem())->prepareForParsing();
 }
 
 
 static bool supportsNodeAction(ProjectAction action, const Node *node)
 {
-    const auto project = static_cast<QbsProject *>(node->getProject());
-    Target *t = project ? project->activeTarget() : nullptr;
-    QbsBuildSystem *bs = t ? static_cast<QbsBuildSystem *>(t->buildSystem()) : nullptr;
+    QbsBuildSystem *bs = static_cast<QbsBuildSystem *>(activeBuildSystem(node->getProject()));
     if (!bs)
         return false;
     if (!bs->isProjectEditable())
@@ -151,11 +150,10 @@ static bool supportsNodeAction(ProjectAction action, const Node *node)
 }
 
 QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
-    : BuildSystem(bc->target()),
-      m_session(new QbsSession(this)),
+    : BuildSystem(bc),
+      m_session(new QbsSession(this, BuildDeviceKitAspect::device(bc->kit()))),
       m_cppCodeModelUpdater(
-        ProjectUpdaterFactory::createProjectUpdater(ProjectExplorer::Constants::CXX_LANGUAGE_ID)),
-      m_buildConfiguration(bc)
+          ProjectUpdaterFactory::createProjectUpdater(ProjectExplorer::Constants::CXX_LANGUAGE_ID))
 {
     connect(m_session, &QbsSession::newGeneratedFilesForSources, this,
             [this](const QHash<QString, QStringList> &generatedFiles) {
@@ -282,8 +280,8 @@ bool QbsBuildSystem::renameFiles(Node *context, const FilePairs &filesToRename, 
         bool success = true;
         for (const auto &[oldFilePath, newFilePath] : filesToRename) {
             if (!renameFileInProduct(
-                    oldFilePath.toString(),
-                    newFilePath.toString(),
+                    oldFilePath.toUrlishString(),
+                    newFilePath.toUrlishString(),
                     prdNode->productData(),
                     n->groupData())) {
                 success = false;
@@ -301,8 +299,8 @@ bool QbsBuildSystem::renameFiles(Node *context, const FilePairs &filesToRename, 
         bool success = true;
         for (const auto &[oldFilePath, newFilePath] : filesToRename) {
             if (!renameFileInProduct(
-                    oldFilePath.toString(),
-                    newFilePath.toString(),
+                    oldFilePath.toUrlishString(),
+                    newFilePath.toUrlishString(),
                     n->productData(),
                     n->mainGroup())) {
                 success = false;
@@ -339,7 +337,7 @@ ProjectExplorer::DeploymentKnowledge QbsProject::deploymentKnowledge() const
 
 FilePaths QbsBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
 {
-    return FileUtils::toFilePathList(session()->filesGeneratedFrom(sourceFile.toString()));
+    return FileUtils::toFilePathList(session()->filesGeneratedFrom(sourceFile.toUrlishString()));
 }
 
 bool QbsBuildSystem::isProjectEditable() const
@@ -347,20 +345,19 @@ bool QbsBuildSystem::isProjectEditable() const
     return !isParsing() && !BuildManager::isBuilding(target());
 }
 
-bool QbsBuildSystem::ensureWriteableQbsFile(const QString &file)
+// Ensure that the file is not read only
+bool QbsBuildSystem::ensureWriteableQbsFile(const FilePath &file)
 {
-    // Ensure that the file is not read only
-    QFileInfo fi(file);
-    if (!fi.isWritable()) {
+    if (!file.isWritableFile()) {
         // Try via vcs manager
         IVersionControl *versionControl =
-            VcsManager::findVersionControlForDirectory(FilePath::fromString(fi.absolutePath()));
-        if (!versionControl || !versionControl->vcsOpen(FilePath::fromString(file))) {
-            bool makeWritable = QFile::setPermissions(file, fi.permissions() | QFile::WriteUser);
+            VcsManager::findVersionControlForDirectory(file.parentDir());
+        if (!versionControl || !versionControl->vcsOpen(file)) {
+            bool makeWritable = file.setPermissions(file.permissions() | QFile::WriteUser);
             if (!makeWritable) {
                 QMessageBox::warning(ICore::dialogParent(),
                                      Tr::tr("Failed"),
-                                     Tr::tr("Could not write project file %1.").arg(file));
+                                     Tr::tr("Could not write project file %1.").arg(file.toUserOutput()));
                 return false;
             }
         }
@@ -374,10 +371,9 @@ bool QbsBuildSystem::addFilesToProduct(
         const QJsonObject &group,
         FilePaths *notAdded)
 {
-    const QString groupFilePath = group.value("location").toObject().value("file-path").toString();
-    ensureWriteableQbsFile(groupFilePath);
+    ensureWriteableQbsFile(groupFilePath(group));
     const FileChangeResult result = session()->addFiles(
-                Utils::transform(filePaths, &FilePath::toString),
+                Utils::transform(filePaths, &FilePath::path),
                 product.value("full-display-name").toString(),
                 group.value("name").toString());
     if (result.error().hasError()) {
@@ -393,27 +389,27 @@ RemovedFilesFromProject QbsBuildSystem::removeFilesFromProduct(
         const QJsonObject &group,
         FilePaths *notRemoved)
 {
-    const auto allWildcardsInGroup = transform<QStringList>(
+    const auto allWildcardsInGroup = transform<FilePaths>(
                 group.value("source-artifacts-from-wildcards").toArray(),
-                [](const QJsonValue &v) { return v.toObject().value("file-path").toString(); });
+                [this](const QJsonValue &v) { return locationFilePath(v.toObject()); });
     FilePaths wildcardFiles;
-    QStringList nonWildcardFiles;
+    FilePaths nonWildcardFiles;
     for (const FilePath &filePath : filePaths) {
-        if (allWildcardsInGroup.contains(filePath.toString()))
+        if (allWildcardsInGroup.contains(filePath))
             wildcardFiles << filePath;
         else
-            nonWildcardFiles << filePath.toString();
+            nonWildcardFiles << filePath;
     }
 
-    const QString groupFilePath = group.value("location")
-            .toObject().value("file-path").toString();
-    ensureWriteableQbsFile(groupFilePath);
+    ensureWriteableQbsFile(groupFilePath(group));
     const FileChangeResult result = session()->removeFiles(
-                nonWildcardFiles,
+                Utils::transform(nonWildcardFiles, &FilePath::path),
                 product.value("name").toString(),
                 group.value("name").toString());
 
-    *notRemoved = FileUtils::toFilePathList(result.failedFiles());
+    *notRemoved = Utils::transform(result.failedFiles(), [this](const QString &f) {
+        return projectFilePath().withNewPath(f);
+    });
     if (result.error().hasError())
         MessageManager::writeDisrupting(result.error().toString());
     const bool success = notRemoved->isEmpty();
@@ -449,29 +445,26 @@ bool QbsBuildSystem::renameFilesInProduct(
     const QJsonObject &group,
     Utils::FilePaths *notRenamed)
 {
-    const auto allWildcardsInGroup = transform<QStringList>(
+    const auto allWildcardsInGroup = transform<FilePaths>(
         group.value("source-artifacts-from-wildcards").toArray(),
-        [](const QJsonValue &v) { return v.toObject().value("file-path").toString(); });
+        [this](const QJsonValue &v) { return locationFilePath(v.toObject()); });
     using FileStringPair = std::pair<QString, QString>;
     using FileStringPairs = QList<FileStringPair>;
-    const FileStringPairs filesAsStrings = Utils::transform(files, [](const FilePair &fp) {
-        return std::make_pair(fp.first.path(), fp.second.path());
-    });
     FileStringPairs nonWildcardFiles;
-    for (const FileStringPair &file : filesAsStrings) {
+    for (const FilePair &file : files) {
         if (!allWildcardsInGroup.contains(file.first))
-            nonWildcardFiles << file;
+            nonWildcardFiles << std::make_pair(file.first.path(), file.second.path());
     }
 
-    const QString groupFilePath = group.value("location")
-                                      .toObject().value("file-path").toString();
-    ensureWriteableQbsFile(groupFilePath);
+    ensureWriteableQbsFile(groupFilePath(group));
     const FileChangeResult result = session()->renameFiles(
         nonWildcardFiles,
         product.value("name").toString(),
         group.value("name").toString());
 
-    *notRenamed = FileUtils::toFilePathList(result.failedFiles());
+    *notRenamed = Utils::transform(result.failedFiles(), [this](const QString &f) {
+        return projectFilePath().withNewPath(f);
+    });
     if (result.error().hasError())
         MessageManager::writeDisrupting(result.error().toString());
     return notRenamed->isEmpty();
@@ -512,8 +505,7 @@ void QbsBuildSystem::updateProjectNodes(const std::function<void ()> &continuati
         OpTimer("updateProjectNodes continuation");
         m_treeCreationWatcher->deleteLater();
         m_treeCreationWatcher = nullptr;
-        if (target() != project()->activeTarget()
-                || target()->activeBuildConfiguration()->buildSystem() != this) {
+        if (project()->activeBuildSystem() != this) {
             return;
         }
         project()->setDisplayName(rootNode->displayName());
@@ -522,9 +514,24 @@ void QbsBuildSystem::updateProjectNodes(const std::function<void ()> &continuati
             continuation();
     });
     m_treeCreationWatcher->setFuture(Utils::asyncRun(ProjectExplorerPlugin::sharedThreadPool(),
-            QThread::LowPriority, &QbsNodeTreeBuilder::buildTree,
+            QThread::LowPriority, &buildQbsProjectTree,
             project()->displayName(), project()->projectFilePath(), project()->projectDirectory(),
             projectData()));
+}
+
+QbsBuildConfiguration *QbsBuildSystem::qbsBuildConfig() const
+{
+    return static_cast<QbsBuildConfiguration *>(buildConfiguration());
+}
+
+FilePath QbsBuildSystem::locationFilePath(const QJsonObject &loc) const
+{
+    return projectDirectory().withNewPath(loc.value("file-path").toString());
+}
+
+FilePath QbsBuildSystem::groupFilePath(const QJsonObject &group) const
+{
+    return locationFilePath(group.value("location").toObject());
 }
 
 FilePath QbsBuildSystem::installRoot()
@@ -539,7 +546,7 @@ FilePath QbsBuildSystem::installRoot()
                 return qbsInstallStep->installRoot();
         }
     }
-    const QbsBuildStep * const buildStep = m_buildConfiguration->qbsStep();
+    const QbsBuildStep * const buildStep = qbsBuildConfig()->qbsStep();
     return buildStep && buildStep->install() ? buildStep->installRoot() : FilePath();
 }
 
@@ -554,8 +561,7 @@ void QbsBuildSystem::handleQbsParsingDone(bool success)
     bool dataChanged = false;
     bool envChanged = m_lastParseEnv != m_qbsProjectParser->environment();
     m_lastParseEnv = m_qbsProjectParser->environment();
-    const bool isActiveBuildSystem = project()->activeTarget()
-            && project()->activeTarget()->buildSystem() == this;
+    const bool isActiveBuildSystem = project()->activeBuildSystem() == this;
     if (success) {
         const QJsonObject projectData = m_qbsProjectParser->session()->projectData();
         if (projectData != m_projectData) {
@@ -599,12 +605,12 @@ void QbsBuildSystem::changeActiveTarget(Target *t)
 
 void QbsBuildSystem::triggerParsing()
 {
-    scheduleParsing();
+    scheduleParsing({});
 }
 
 void QbsBuildSystem::delayParsing()
 {
-    if (m_buildConfiguration->isActive())
+    if (buildConfiguration()->isActive())
         requestDelayedParse();
 }
 
@@ -613,27 +619,32 @@ ExtraCompiler *QbsBuildSystem::findExtraCompiler(const ExtraCompilerFilter &filt
     return Utils::findOrDefault(m_extraCompilers, filter);
 }
 
-void QbsBuildSystem::scheduleParsing()
+void QbsBuildSystem::scheduleParsing(const QVariantMap &extraConfig)
 {
     m_parseRequest.reset(new QbsRequest);
-    m_parseRequest->setParseData(this);
+    m_parseRequest->setParseData({this, extraConfig});
     connect(m_parseRequest.get(), &QbsRequest::done, this, [this] {
         m_parseRequest.release()->deleteLater();
     });
     m_parseRequest->start();
 }
 
-void QbsBuildSystem::startParsing()
+void QbsBuildSystem::startParsing(const QVariantMap &extraConfig)
 {
     QTC_ASSERT(!m_qbsProjectParser, return);
 
-    Store config = m_buildConfiguration->qbsConfiguration();
-    if (!config.contains(Constants::QBS_INSTALL_ROOT_KEY)) {
-        config.insert(Constants::QBS_INSTALL_ROOT_KEY, m_buildConfiguration->macroExpander()
-                      ->expand(QbsSettings::defaultInstallDirTemplate()));
+    FilePath dir = buildConfiguration()->buildDirectory();
+    Store config = qbsBuildConfig()->qbsConfiguration();
+    QString installRoot = config.value(Constants::QBS_INSTALL_ROOT_KEY).toString();
+    if (installRoot.isEmpty()) {
+        installRoot = buildConfiguration()->macroExpander()->expand(
+            QbsSettings::defaultInstallDirTemplate());
     }
-    Environment env = m_buildConfiguration->environment();
-    FilePath dir = m_buildConfiguration->buildDirectory();
+    config.insert(Constants::QBS_INSTALL_ROOT_KEY, FilePath::fromUserInput(installRoot).path());
+    config.insert(Constants::QBS_RESTORE_BEHAVIOR_KEY, "restore-and-track-changes");
+    for (auto it = extraConfig.begin(); it != extraConfig.end(); ++it)
+        config.insert(keyFromString(it.key()), it.value());
+    Environment env = buildConfiguration()->environment();
 
     m_guard = guardParsingRun();
 
@@ -648,7 +659,7 @@ void QbsBuildSystem::startParsing()
             this, &QbsBuildSystem::handleQbsParsingDone);
 
     QbsProfileManager::updateProfileIfNecessary(target()->kit());
-    m_qbsProjectParser->parse(config, env, dir, m_buildConfiguration->configurationName());
+    m_qbsProjectParser->parse(config, env, dir, qbsBuildConfig()->configurationName());
 }
 
 void QbsBuildSystem::cancelParsing()
@@ -679,10 +690,7 @@ void QbsBuildSystem::updateAfterBuild()
 
 void QbsBuildSystem::generateErrors(const ErrorInfo &e)
 {
-    for (const ErrorInfoItem &item : e.items) {
-        TaskHub::addTask(BuildSystemTask(Task::Error, item.description,
-                                         item.filePath, item.line));
-    }
+    e.generateTasks(Task::Error);
 }
 
 void QbsBuildSystem::prepareForParsing()
@@ -868,6 +876,7 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
 }
 
 static RawProjectPart generateProjectPart(
+        const FilePath &refFile,
         const QJsonObject &product,
         const QJsonObject &group,
         const std::shared_ptr<const Toolchain> &cToolchain,
@@ -915,12 +924,12 @@ static RawProjectPart generateProjectPart(
     list.append(arrayToStringList(props.value("cpp.systemFrameworkPaths")));
     list.removeDuplicates();
     for (const QString &p : std::as_const(list))
-        headerPaths += HeaderPath::makeFramework(FilePath::fromUserInput(p));
+        headerPaths += HeaderPath::makeFramework(refFile.withNewPath(p));
     rpp.setHeaderPaths(headerPaths);
     rpp.setDisplayName(groupName);
     const QJsonObject location = groupOrProduct.value("location").toObject();
     rpp.setProjectFileLocation(
-        FilePath::fromUserInput(location.value("file-path").toString()),
+        refFile.withNewPath(location.value("file-path").toString()),
         location.value("line").toInt(),
         location.value("column").toInt());
     rpp.setBuildSystemTarget(QbsProductNode::getBuildKey(product));
@@ -943,8 +952,10 @@ static RawProjectPart generateProjectPart(
     bool hasObjcFiles = false;
     bool hasObjcxxFiles = false;
     const auto artifactWorker = [&](const QJsonObject &source) {
-        const QString filePath = source.value("file-path").toString();
-        filePathToSourceArtifact.insert(filePath, source);
+        const QString filePath = refFile.withNewPath(source.value("file-path").toString()).toUrlishString();
+        QJsonObject translatedSource = source;
+        translatedSource.insert("file-path", filePath);
+        filePathToSourceArtifact.insert(filePath, translatedSource);
         for (const QJsonValue &tag : source.value("file-tags").toArray()) {
             if (tag == "c")
                 hasCFiles = true;
@@ -985,7 +996,10 @@ static RawProjectPart generateProjectPart(
         qCWarning(qbsPmLog) << "Expect problems with code model";
     }
     rpp.setPreCompiledHeaders(Utils::toList(pchFiles));
-    rpp.setIncludedFiles(arrayToStringList(props.value("cpp.prefixHeaders")));
+    rpp.setIncludedFiles(
+        Utils::transform(arrayToStringList(props.value("cpp.prefixHeaders")), [&](const QString &f) {
+            return refFile.withNewPath(f).toUrlishString();
+        }));
     rpp.setFiles(filePathToSourceArtifact.keys(), {},
                  [filePathToSourceArtifact](const QString &filePath) {
         // Keep this lambda thread-safe!
@@ -995,6 +1009,7 @@ static RawProjectPart generateProjectPart(
 }
 
 static RawProjectParts generateProjectParts(
+        const FilePath &refFile,
         const QJsonObject &projectData,
         const std::shared_ptr<const Toolchain> &cToolchain,
         const std::shared_ptr<const Toolchain> &cxxToolchain,
@@ -1002,21 +1017,25 @@ static RawProjectParts generateProjectParts(
         )
 {
     RawProjectParts rpps;
+    const auto translatedPath = [&](const QJsonValue &v) {
+        QTC_ASSERT(v.isString(), return QString());
+        return refFile.withNewPath(v.toString()).toUrlishString();
+    };
     forAllProducts(projectData, [&](const QJsonObject &prd) {
         QString cPch;
         QString cxxPch;
         QString objcPch;
         QString objcxxPch;
-        const auto &pchFinder = [&cPch, &cxxPch, &objcPch, &objcxxPch](const QJsonObject &artifact) {
+        const auto &pchFinder = [&](const QJsonObject &artifact) {
             const QJsonArray fileTags = artifact.value("file-tags").toArray();
             if (fileTags.contains("c_pch_src"))
-                cPch = artifact.value("file-path").toString();
+                cPch = translatedPath(artifact.value("file-path"));
             if (fileTags.contains("cpp_pch_src"))
-                cxxPch = artifact.value("file-path").toString();
+                cxxPch = translatedPath(artifact.value("file-path"));
             if (fileTags.contains("objc_pch_src"))
-                objcPch = artifact.value("file-path").toString();
+                objcPch = translatedPath(artifact.value("file-path"));
             if (fileTags.contains("objcpp_pch_src"))
-                objcxxPch = artifact.value("file-path").toString();
+                objcxxPch = translatedPath(artifact.value("file-path"));
         };
         forAllArtifacts(prd, ArtifactType::All, pchFinder);
         const Utils::QtMajorVersion qtVersionForPart
@@ -1030,11 +1049,11 @@ static RawProjectParts generateProjectParts(
         };
         for (const QJsonValue &g : groups) {
             appendIfNotEmpty(generateProjectPart(
-                                 prd, g.toObject(), cToolchain, cxxToolchain, qtVersionForPart,
+                                 refFile, prd, g.toObject(), cToolchain, cxxToolchain, qtVersionForPart,
                                  cPch, cxxPch, objcPch, objcxxPch));
         }
         appendIfNotEmpty(generateProjectPart(
-                             prd, {}, cToolchain, cxxToolchain, qtVersionForPart,
+                             refFile, prd, {}, cToolchain, cxxToolchain, qtVersionForPart,
                              cPch, cxxPch, objcPch, objcxxPch));
     });
     return rpps;
@@ -1055,8 +1074,8 @@ void QbsBuildSystem::updateCppCodeModel()
             ? kitInfo.cxxToolchain->clone() : nullptr);
 
     m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), {},
-            [projectData, kitInfo, cToolchain, cxxToolchain] {
-                    return generateProjectParts(projectData, cToolchain, cxxToolchain,
+            [projectData, kitInfo, cToolchain, cxxToolchain, refFile = project()->projectFilePath()] {
+                    return generateProjectParts(refFile, projectData, cToolchain, cxxToolchain,
                                                 kitInfo.projectPartQtVersion);
     }});
 }
@@ -1143,8 +1162,8 @@ void QbsBuildSystem::updateApplicationTargets()
         }
         BuildTargetInfo bti;
         bti.buildKey = QbsProductNode::getBuildKey(productData);
-        bti.targetFilePath = FilePath::fromString(targetFile);
-        bti.projectFilePath = FilePath::fromString(projectFile);
+        bti.targetFilePath = projectFilePath().withNewPath(targetFile);
+        bti.projectFilePath = projectFilePath().withNewPath(projectFile);
         bti.isQtcRunnable = isQtcRunnable; // Fixed up below.
         bti.usesTerminal = usesTerminal;
         bti.displayName = productData.value("full-display-name").toString();
@@ -1193,12 +1212,12 @@ void QbsBuildSystem::updateDeploymentInfo()
     if (session()->projectData().isEmpty())
         return;
     DeploymentData deploymentData;
-    forAllProducts(session()->projectData(), [&deploymentData](const QJsonObject &product) {
-        forAllArtifacts(product, ArtifactType::All, [&deploymentData](const QJsonObject &artifact) {
+    forAllProducts(session()->projectData(), [&](const QJsonObject &product) {
+        forAllArtifacts(product, ArtifactType::All, [&](const QJsonObject &artifact) {
             const QJsonObject installData = artifact.value("install-data").toObject();
             if (installData.value("is-installable").toBool()) {
                 deploymentData.addFile(
-                            FilePath::fromSettings(artifact.value("file-path")),
+                            projectFilePath().withNewPath(artifact.value("file-path").toString()),
                             QFileInfo(installData.value("install-file-path").toString()).path(),
                             artifact.value("is-executable").toBool()
                                 ? DeployableFile::TypeExecutable : DeployableFile::TypeNormal);

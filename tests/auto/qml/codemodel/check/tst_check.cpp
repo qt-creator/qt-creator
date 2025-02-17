@@ -106,8 +106,8 @@ void tst_Check::test()
     auto mm = ModelManagerInterface::instance();
     Snapshot snapshot =  mm->snapshot();
     Document::MutablePtr doc = Document::create(pathPath, Dialect::Qml);
-    QFile file(doc->fileName().toString());
-    file.open(QFile::ReadOnly | QFile::Text);
+    QFile file(doc->fileName().toUrlishString());
+    QVERIFY2(file.open(QFile::ReadOnly | QFile::Text), qPrintable(file.fileName()));
     doc->setSource(QString::fromUtf8(file.readAll()));
     file.close();
     doc->parse();

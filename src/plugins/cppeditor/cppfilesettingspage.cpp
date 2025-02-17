@@ -487,7 +487,7 @@ void CppFileSettingsWidget::slotEdit()
     FilePath path = licenseTemplatePath();
     if (path.isEmpty()) {
         // Pick a file name and write new template, edit with C++
-        path = FileUtils::getSaveFilePath(this, Tr::tr("Choose Location for New License Template File"));
+        path = FileUtils::getSaveFilePath(Tr::tr("Choose Location for New License Template File"));
         if (path.isEmpty())
             return;
         FileSaver saver(path, QIODevice::Text);

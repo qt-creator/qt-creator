@@ -1462,6 +1462,11 @@ bool Bind::visit(RangeBasedForStatementAST *ast)
 
     Scope *previousScope = switchScope(block);
 
+    if (ast->initDecl)
+        declaration(ast->initDecl);
+    else if (ast->initStmt)
+        statement(ast->initStmt);
+
     FullySpecifiedType type;
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
@@ -2525,9 +2530,10 @@ bool Bind::visit(TemplateTypeParameterAST *ast)
     const Name *name = this->name(ast->name);
     ExpressionTy type_id = this->expression(ast->type_id);
 
-    // ### introduce TemplateTypeArgument
-    TypenameArgument *arg = control()->newTypenameArgument(sourceLocation, name);
+    TemplateTypeArgument *arg = control()->newTemplateTypeArgument(sourceLocation, name);
     arg->setType(type_id);
+    if (ast->typeConstraint && ast->typeConstraint->conceptName)
+            arg->setConceptName(this->name(ast->typeConstraint->conceptName));
     ast->symbol = arg;
     _scope->addMember(arg);
 

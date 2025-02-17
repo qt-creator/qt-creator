@@ -9,13 +9,11 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <debugger/analyzer/analyzericons.h>
-#include <debugger/debuggertr.h>
-
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
+#include <utils/shutdownguard.h>
 #include <utils/utilsicons.h>
 
 #include <QListView>
@@ -60,14 +58,14 @@ void SuppressionAspect::addSuppressionFile(const FilePath &suppression)
 void SuppressionAspectPrivate::slotAddSuppression()
 {
     const FilePaths files =
-            FileUtils::getOpenFilePaths(nullptr,
+            FileUtils::getOpenFilePaths(
                       Tr::tr("Valgrind Suppression Files"),
                       globalSettings().lastSuppressionDirectory(),
                       Tr::tr("Valgrind Suppression File (*.supp);;All Files (*)"));
     //dialog.setHistory(conf->lastSuppressionDialogHistory());
     if (!files.isEmpty()) {
         for (const FilePath &file : files)
-            m_model.appendRow(new QStandardItem(file.toString()));
+            m_model.appendRow(new QStandardItem(file.toUrlishString()));
         globalSettings().lastSuppressionDirectory.setValue(files.at(0).absolutePath());
         //conf->setLastSuppressionDialogHistory(dialog.history());
         if (!isGlobal)
@@ -410,7 +408,7 @@ QString ValgrindSettings::leakCheckOnFinishOptionString() const
 
 ValgrindSettings &globalSettings()
 {
-    static ValgrindSettings theSettings{true};
+    static GuardedObject<ValgrindSettings> theSettings{true};
     return theSettings;
 }
 
@@ -424,8 +422,6 @@ public:
         setId(ANALYZER_VALGRIND_SETTINGS);
         setDisplayName(Tr::tr("Valgrind"));
         setCategory("T.Analyzer");
-        setDisplayCategory(::Debugger::Tr::tr("Analyzer"));
-        setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
         setSettingsProvider([] { return &globalSettings(); });
     }
 };

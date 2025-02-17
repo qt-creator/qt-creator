@@ -95,6 +95,9 @@ public:
 
     bool runQmakeSystemFunctions() const;
 
+    void setInitialArgs(const QStringList &) override;
+    QStringList initialArgs() const override;
+
 signals:
     /// emitted for setQMakeBuildConfig, not emitted for Qt version changes, even
     /// if those change the qmakebuildconfig

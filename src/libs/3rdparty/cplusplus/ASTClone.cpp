@@ -144,9 +144,6 @@ DecltypeSpecifierAST *DecltypeSpecifierAST::clone(MemoryPool *pool) const
 TypeConstraintAST *TypeConstraintAST::clone(MemoryPool *pool) const
 {
     const auto ast = new (pool) TypeConstraintAST;
-    for (NestedNameSpecifierListAST *iter = nestedName, **ast_iter = &ast->nestedName; iter;
-         iter = iter->next, ast_iter = &(*ast_iter)->next)
-        *ast_iter = new (pool) NestedNameSpecifierListAST((iter->value) ? iter->value->clone(pool) : nullptr);
     if (conceptName)
         ast->conceptName = conceptName->clone(pool);
     ast->lessToken = lessToken;
@@ -747,6 +744,10 @@ RangeBasedForStatementAST *RangeBasedForStatementAST::clone(MemoryPool *pool) co
     RangeBasedForStatementAST *ast = new (pool) RangeBasedForStatementAST;
     ast->for_token = for_token;
     ast->lparen_token = lparen_token;
+    if (initDecl)
+        ast->initDecl = initDecl->clone(pool);
+    if (initStmt)
+        ast->initStmt = initStmt->clone(pool);
     for (SpecifierListAST *iter = type_specifier_list, **ast_iter = &ast->type_specifier_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : nullptr);

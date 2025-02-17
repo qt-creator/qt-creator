@@ -22,11 +22,12 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <remotelinux/remotelinux_constants.h>
 
@@ -115,8 +116,8 @@ class QnxPlugin final : public ExtensionSystem::IPlugin
         connect(KitManager::instance(), &KitManager::kitsChanged, this,
                 [attachToQnxApplication, debugSeparator] {
             auto isQnxKit = [](const Kit *kit) {
-                return DeviceTypeKitAspect::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
-                       && DeviceKitAspect::device(kit) && kit->isValid();
+                return RunDeviceTypeKitAspect::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
+                       && RunDeviceKitAspect::device(kit) && kit->isValid();
             };
 
             const bool hasValidQnxKit = KitManager::kit(isQnxKit) != nullptr;

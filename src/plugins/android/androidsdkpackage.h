@@ -10,18 +10,16 @@
 
 #pragma once
 
-namespace Android {
+namespace Android::Internal {
 
 class AndroidSdkPackage;
-
-namespace Internal {
-    class SdkManagerOutputParser;
-    class AndroidToolOutputParser;
-    template <typename T>
-    AndroidSdkPackage *parsePackage(const QStringList &, int, const QString &);
-}
+class AndroidToolOutputParser;
+class SdkManagerOutputParser;
 class SdkPlatform;
 class SystemImage;
+
+template <typename T>
+AndroidSdkPackage *parsePackage(const QStringList &, int, const QString &);
 
 class AndroidSdkPackage : public QObject
 {
@@ -125,7 +123,6 @@ public:
     bool operator <(const AndroidSdkPackage &other) const override;
 
     int apiLevel() const;
-    QVersionNumber version() const;
     void addSystemImage(SystemImage *image);
     SystemImageList systemImages(AndroidSdkPackage::PackageState state
                                  = AndroidSdkPackage::Installed) const;
@@ -133,7 +130,6 @@ public:
 private:
     SystemImageList m_systemImages;
     int m_apiLevel = -1;
-    QVersionNumber m_version;
 };
 using SdkPlatformList = QList<SdkPlatform *>;
 
@@ -208,6 +204,7 @@ public:
     bool isValid() const override { return installedLocation().exists(); }
     PackageType type() const override { return AndroidSdkPackage::GenericSdkPackage; }
 };
-} // namespace Android
+
+} // namespace Android::Internal
 
 

@@ -125,7 +125,6 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project)
     m_setupPageContainer = new QVBoxLayout;
     layout->addLayout(m_setupPageContainer);
     layout->addLayout(hbox);
-    layout->addStretch(10);
     completeChanged();
     connect(m_configureButton, &QAbstractButton::clicked,
             this, &TargetSetupPageWrapper::done);
@@ -134,13 +133,12 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project)
 void TargetSetupPageWrapper::addTargetSetupPage()
 {
     m_targetSetupPage = new TargetSetupPage(this);
-    m_targetSetupPage->setUseScrollArea(false);
     m_targetSetupPage->setProjectPath(m_project->projectFilePath());
     m_targetSetupPage->setTasksGenerator(
         [this](const Kit *k) { return m_project->projectIssues(k); });
     m_targetSetupPage->setProjectImporter(m_project->projectImporter());
     m_targetSetupPage->initializePage();
-    m_targetSetupPage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    m_targetSetupPage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     m_setupPageContainer->addWidget(m_targetSetupPage);
 
     completeChanged();
@@ -159,15 +157,14 @@ public:
     TargetGroupItemPrivate(TargetGroupItem *q, Project *project);
     ~TargetGroupItemPrivate() override;
 
-    void handleRemovedKit(Kit *kit);
     void handleAddedKit(Kit *kit);
-    void handleUpdatedKit(Kit *kit);
 
     void handleTargetAdded(Target *target);
     void handleTargetRemoved(Target *target);
     void handleTargetChanged(Target *target);
 
     void ensureWidget();
+    void scheduleRebuildContents();
     void rebuildContents();
     void ensureShowMoreItem();
 
@@ -186,6 +183,7 @@ public:
     TargetGroupItem *q;
     QString m_displayName;
     Project *m_project;
+    bool m_rebuildScheduled = false;
 
     QPointer<QWidget> m_noKitLabel;
     QPointer<QWidget> m_configurePage;
@@ -288,7 +286,8 @@ void TargetGroupItemPrivate::ensureWidget()
 
     if (!m_configurePage) {
         m_targetSetupPageWrapper = new TargetSetupPageWrapper(m_project);
-        m_configurePage = new PanelsWidget(Tr::tr("Configure Project"), m_targetSetupPageWrapper);
+        m_configurePage
+            = new PanelsWidget(Tr::tr("Configure Project"), m_targetSetupPageWrapper, false);
         m_configurePage->setFocusProxy(m_targetSetupPageWrapper);
     }
     m_targetSetupPageWrapper->ensureSetupPage();
@@ -690,13 +689,13 @@ TargetGroupItemPrivate::TargetGroupItemPrivate(TargetGroupItem *q, Project *proj
     connect(KitManager::instance(), &KitManager::kitAdded,
             this, &TargetGroupItemPrivate::handleAddedKit);
     connect(KitManager::instance(), &KitManager::kitRemoved,
-            this, &TargetGroupItemPrivate::handleRemovedKit);
+            this, &TargetGroupItemPrivate::scheduleRebuildContents);
     connect(KitManager::instance(), &KitManager::kitUpdated,
-            this, &TargetGroupItemPrivate::handleUpdatedKit);
-    connect(KitManager::instance(), &KitManager::kitsChanged,
-            this, &TargetGroupItemPrivate::rebuildContents);
+            this, &TargetGroupItemPrivate::scheduleRebuildContents);
+    connect(KitManager::instance(), &KitManager::kitsLoaded,
+            this, &TargetGroupItemPrivate::scheduleRebuildContents);
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-            this, &TargetGroupItemPrivate::rebuildContents);
+            this, &TargetGroupItemPrivate::scheduleRebuildContents);
 
     rebuildContents();
 }
@@ -763,18 +762,6 @@ ITargetItem *TargetGroupItem::targetItem(Target *target) const
     return nullptr;
 }
 
-void TargetGroupItemPrivate::handleRemovedKit(Kit *kit)
-{
-    Q_UNUSED(kit)
-    rebuildContents();
-}
-
-void TargetGroupItemPrivate::handleUpdatedKit(Kit *kit)
-{
-    Q_UNUSED(kit)
-    rebuildContents();
-}
-
 void TargetGroupItemPrivate::handleAddedKit(Kit *kit)
 {
     q->appendChild(new TargetItem(m_project, kit->id(), m_project->projectIssues(kit)));
@@ -786,7 +773,7 @@ void TargetItem::updateSubItems()
         m_currentChild = DefaultPage; // We will add children below.
     removeChildren();
     if (isEnabled() && !m_kitErrorsForProject) {
-        if (m_project->needsBuildConfigurations())
+        if (m_project->supportsBuilding())
             appendChild(new BuildOrRunItem(m_project, m_kitId, BuildOrRunItem::BuildPage));
         appendChild(new BuildOrRunItem(m_project, m_kitId, BuildOrRunItem::RunPage));
     }
@@ -800,8 +787,17 @@ void TargetGroupItemPrivate::ensureShowMoreItem()
     q->appendChild(new ShowMoreItem(this));
 }
 
+void TargetGroupItemPrivate::scheduleRebuildContents()
+{
+    if (m_rebuildScheduled)
+        return;
+    m_rebuildScheduled = true;
+    QMetaObject::invokeMethod(this, &TargetGroupItemPrivate::rebuildContents, Qt::QueuedConnection);
+}
+
 void TargetGroupItemPrivate::rebuildContents()
 {
+    m_rebuildScheduled = false;
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
     const auto sortedKits = KitManager::sortedKits();
     bool isAnyKitNotEnabled = std::any_of(sortedKits.begin(), sortedKits.end(), [this](Kit *kit) {

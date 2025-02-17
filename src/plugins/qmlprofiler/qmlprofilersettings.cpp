@@ -76,8 +76,6 @@ public:
         setId(Constants::SETTINGS);
         setDisplayName(Tr::tr("QML Profiler"));
         setCategory("T.Analyzer");
-        setDisplayCategory(::Debugger::Tr::tr("Analyzer"));
-        setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
         setSettingsProvider([] { return &globalSettings(); });
     }
 };

@@ -451,6 +451,9 @@ void TypePrettyPrinter::visit(Function *type)
                             if (name.isEmpty())
                                 name.append('T').append(QString::number(i + 1));
                             templateScope.append(name);
+                        } else if (TemplateTypeArgument *arg = param->asTemplateTypeArgument()) {
+                            templateScope.append(_overview->prettyName(arg->conceptName()))
+                                    .append(' ').append(_overview->prettyName(arg->name()));
                         } else if (Argument *arg = param->asArgument()) {
                             templateScope.append(operator()(arg->type(),
                                                             _overview->prettyName(arg->name())));

@@ -10,10 +10,9 @@
 #include "buildstepspage.h"
 #include "buildsystem.h"
 #include "customparser.h"
+#include "devicesupport/devicekitaspects.h"
 #include "environmentwidget.h"
 #include "kit.h"
-#include "kitaspects.h"
-#include "namedwidget.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorer.h"
 #include "projectexplorertr.h"
@@ -54,12 +53,10 @@ Q_LOGGING_CATEGORY(bcLog, "qtc.buildconfig", QtWarningMsg)
 namespace ProjectExplorer {
 namespace Internal {
 
-class BuildEnvironmentWidget : public NamedWidget
+class BuildEnvironmentWidget : public QWidget
 {
-
 public:
     explicit BuildEnvironmentWidget(BuildConfiguration *bc)
-        : NamedWidget(Tr::tr("Build Environment"))
     {
         auto clearBox = new QCheckBox(Tr::tr("Clear system environment"), this);
         clearBox->setChecked(!bc->useSystemEnvironment());
@@ -97,10 +94,10 @@ public:
     }
 };
 
-class CustomParsersBuildWidget : public NamedWidget
+class CustomParsersBuildWidget : public QWidget
 {
 public:
-    CustomParsersBuildWidget(BuildConfiguration *bc) : NamedWidget(Tr::tr("Custom Output Parsers"))
+    CustomParsersBuildWidget(BuildConfiguration *bc)
     {
         const auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
@@ -254,17 +251,17 @@ void BuildConfiguration::setBuildDirectory(const FilePath &dir)
     emitBuildDirectoryChanged();
 }
 
-void BuildConfiguration::addConfigWidgets(const std::function<void(NamedWidget *)> &adder)
+void BuildConfiguration::addConfigWidgets(const WidgetAdder &adder)
 {
-    if (NamedWidget *generalConfigWidget = createConfigWidget())
-        adder(generalConfigWidget);
+    if (QWidget *generalConfigWidget = createConfigWidget())
+        adder(generalConfigWidget, d->m_configWidgetDisplayName);
 
-    adder(new Internal::BuildStepListWidget(buildSteps()));
-    adder(new Internal::BuildStepListWidget(cleanSteps()));
+    //: %1 is the name returned by BuildStepList::displayName
+    const QString title = Tr::tr("%1 Steps");
+    adder(new Internal::BuildStepListWidget(buildSteps()), title.arg(buildSteps()->displayName()));
+    adder(new Internal::BuildStepListWidget(cleanSteps()), title.arg(cleanSteps()->displayName()));
 
-    const QList<NamedWidget *> subConfigWidgets = createSubConfigWidgets();
-    for (NamedWidget *subConfigWidget : subConfigWidgets)
-        adder(subConfigWidget);
+    addSubConfigWidgets(adder);
 }
 
 void BuildConfiguration::doInitialize(const BuildInfo &info)
@@ -294,14 +291,31 @@ bool BuildConfiguration::createBuildDirectory()
     return result;
 }
 
+void BuildConfiguration::setInitialArgs(const QStringList &)
+{
+    QTC_CHECK(false);
+}
+
+QStringList BuildConfiguration::initialArgs() const
+{
+    QTC_CHECK(false);
+    return {};
+}
+
+QStringList BuildConfiguration::additionalArgs() const
+{
+    QTC_CHECK(false);
+    return {};
+}
+
 void BuildConfiguration::setInitializer(const std::function<void(const BuildInfo &)> &initializer)
 {
     d->m_initializer = initializer;
 }
 
-NamedWidget *BuildConfiguration::createConfigWidget()
+QWidget *BuildConfiguration::createConfigWidget()
 {
-    NamedWidget *named = new NamedWidget(d->m_configWidgetDisplayName);
+    QWidget *named = new QWidget;
 
     QWidget *widget = nullptr;
 
@@ -331,12 +345,10 @@ NamedWidget *BuildConfiguration::createConfigWidget()
     return named;
 }
 
-QList<NamedWidget *> BuildConfiguration::createSubConfigWidgets()
+void BuildConfiguration::addSubConfigWidgets(const WidgetAdder &adder)
 {
-    return {
-        new Internal::BuildEnvironmentWidget(this),
-        new Internal::CustomParsersBuildWidget(this)
-    };
+    adder(new Internal::BuildEnvironmentWidget(this), Tr::tr("Build Environment"));
+    adder(new Internal::CustomParsersBuildWidget(this), Tr::tr("Custom Output Parsers"));
 }
 
 BuildSystem *BuildConfiguration::buildSystem() const
@@ -632,6 +644,8 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
     buildDir = buildDir.withNewPath(buildDir.path().replace(" ", "-"));
 
     auto buildDevice = BuildDeviceKitAspect::device(kit);
+    if (!buildDevice)
+        return buildDir;
 
     if (buildDir.isAbsolutePath())
         return buildDevice->rootPath().withNewMappedPath(buildDir);
@@ -743,7 +757,7 @@ bool BuildConfigurationFactory::supportsTargetDeviceType(Utils::Id id) const
 BuildConfigurationFactory *BuildConfigurationFactory::find(const Kit *k, const FilePath &projectPath)
 {
     QTC_ASSERT(k, return nullptr);
-    const Utils::Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+    const Utils::Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(k);
     for (BuildConfigurationFactory *factory : std::as_const(g_buildConfigurationFactories)) {
         if (Utils::mimeTypeForFile(projectPath).matchesName(factory->m_supportedProjectMimeTypeName)
             && factory->supportsTargetDeviceType(deviceType))
@@ -785,7 +799,7 @@ bool BuildConfigurationFactory::canHandle(const Target *target) const
     if (containsType(target->project()->projectIssues(target->kit()), Task::TaskType::Error))
         return false;
 
-    if (!supportsTargetDeviceType(DeviceTypeKitAspect::deviceTypeId(target->kit())))
+    if (!supportsTargetDeviceType(RunDeviceTypeKitAspect::deviceTypeId(target->kit())))
         return false;
 
     return true;
@@ -833,6 +847,21 @@ BuildConfiguration *BuildConfigurationFactory::restore(Target *parent, const Sto
         return bc;
     }
     return nullptr;
+}
+
+BuildConfiguration *activeBuildConfig(const Project *project)
+{
+    return project ? project->activeBuildConfiguration() : nullptr;
+}
+
+BuildConfiguration *activeBuildConfigForActiveProject()
+{
+    return activeBuildConfig(ProjectManager::startupProject());
+}
+
+BuildConfiguration *activeBuildConfigForCurrentProject()
+{
+    return activeBuildConfig(ProjectTree::currentProject());
 }
 
 } // namespace ProjectExplorer

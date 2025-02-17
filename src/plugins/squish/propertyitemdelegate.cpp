@@ -137,7 +137,7 @@ ValidatingPropertyNameLineEdit::ValidatingPropertyNameLineEdit(const QStringList
         if (!edit)
             return false;
 
-        const QRegularExpression identifier("^[a-zA-Z0-9_]+$");
+        static const QRegularExpression identifier("^[a-zA-Z0-9_]+$");
         const QString &value = edit->text();
 
         return !m_forbidden.contains(value) && identifier.match(value).hasMatch();

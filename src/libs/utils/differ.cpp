@@ -178,9 +178,9 @@ static QList<Diff> cleanupOverlaps(const QList<Diff> &diffList)
 
 static int cleanupSemanticsScore(const QString &text1, const QString &text2)
 {
-    const QRegularExpression blankLineEnd("\\n\\r?\\n$");
-    const QRegularExpression blankLineStart("^\\r?\\n\\r?\\n");
-    const QRegularExpression sentenceEnd("\\. $");
+    static const QRegularExpression blankLineEnd("\\n\\r?\\n$");
+    static const QRegularExpression blankLineStart("^\\r?\\n\\r?\\n");
+    static const QRegularExpression sentenceEnd("\\. $");
 
     if (text1.isEmpty() || text2.isEmpty()) // Edges
         return 6;

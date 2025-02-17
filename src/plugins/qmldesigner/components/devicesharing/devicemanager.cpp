@@ -434,7 +434,7 @@ void DeviceManager::runProject(const QString &deviceId)
 
 void DeviceManager::projectPacked(const Utils::FilePath &filePath)
 {
-    qCDebug(deviceSharePluginLog) << "Project packed" << filePath.toString();
+    qCDebug(deviceSharePluginLog) << "Project packed" << filePath.toUserOutput();
 
     // it is possible that the device was disconnected while the project was being packed
     if (m_currentDeviceId.isEmpty()) {
@@ -443,7 +443,8 @@ void DeviceManager::projectPacked(const Utils::FilePath &filePath)
     }
 
     qCDebug(deviceSharePluginLog) << "Sending project file to device" << m_currentDeviceId;
-    QFile file(filePath.toString());
+    QFile file(filePath.toFSPathString());
+
     if (!file.open(QIODevice::ReadOnly)) {
         handleError(ErrTypes::ProjectSendingError, m_currentDeviceId, "Failed to open project file");
         return;

@@ -24,10 +24,10 @@
 
 #include <coreplugin/find/itemviewfind.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/gnumakeparser.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -35,6 +35,7 @@
 #include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/xcodebuildparser.h>
 
 #include <utils/algorithm.h>
@@ -201,8 +202,8 @@ static QString initialStagingDir(Kit *kit)
 
 static bool supportsStageForInstallation(const Kit *kit)
 {
-    IDeviceConstPtr runDevice = DeviceKitAspect::device(kit);
-    Id runDeviceType = DeviceTypeKitAspect::deviceTypeId(kit);
+    IDeviceConstPtr runDevice = RunDeviceKitAspect::device(kit);
+    Id runDeviceType = RunDeviceTypeKitAspect::deviceTypeId(kit);
     IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit);
     QTC_ASSERT(runDeviceType.isValid(), return false);
     QTC_ASSERT(buildDevice, return false);
@@ -491,7 +492,7 @@ CommandLine CMakeBuildStep::cmakeCommand() const
     if (bs && bs->isMultiConfigReader()) {
         cmd.addArg("--config");
         if (m_configuration)
-            cmd.addArg(m_configuration.value());
+            cmd.addArg(*m_configuration);
         else
             cmd.addArg(bs->cmakeBuildType());
     }
@@ -586,7 +587,7 @@ QWidget *CMakeBuildStep::createConfigWidget()
                       return bp.name == m_buildPreset;
                   });
 
-            const QString presetDisplayName = preset.displayName ? preset.displayName.value()
+            const QString presetDisplayName = preset.displayName ? *preset.displayName
                                                                  : preset.name;
             if (!presetDisplayName.isEmpty())
                 summaryText.append(QString("<br><b>Preset</b>: %1").arg(presetDisplayName));
@@ -781,7 +782,8 @@ Environment CMakeBuildStep::baseEnvironment() const
         ProjectExplorer::IDevice::ConstPtr devicePtr = BuildDeviceKitAspect::device(kit());
         result = devicePtr ? devicePtr->systemEnvironment() : Environment::systemEnvironment();
     }
-    buildConfiguration()->addToEnvironment(result);
+    if (buildConfiguration())
+        buildConfiguration()->addToEnvironment(result);
     kit()->addToBuildEnvironment(result);
     result.modify(project()->additionalEnvironment());
     return result;
@@ -821,7 +823,7 @@ void CMakeBuildStep::updateDeploymentData()
     DeploymentData deploymentData;
     deploymentData.setLocalInstallRoot(rootDir);
 
-    IDeviceConstPtr runDevice = DeviceKitAspect::device(buildSystem()->kit());
+    IDeviceConstPtr runDevice = RunDeviceKitAspect::device(buildSystem()->kit());
 
     if (!runDevice)
         return;

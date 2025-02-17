@@ -101,20 +101,21 @@ void DebuggerUnitTests::testStateMachine()
 
     const QScopeGuard cleanup([] { EditorManager::closeAllEditors(false); });
 
-    RunConfiguration *rc = ProjectManager::startupRunConfiguration();
+    RunConfiguration *rc = activeRunConfigForActiveProject();
     QVERIFY(rc);
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->copyDataFromRunConfiguration(rc);
     auto debugger = new DebuggerRunTool(runControl);
 
-    debugger->setInferior(rc->runnable());
-    debugger->setTestCase(TestNoBoundsOfCurrentFunction);
+    DebuggerRunParameters &rp = debugger->runParameters();
+    rp.setInferior(rc->runnable());
+    rp.setTestCase(TestNoBoundsOfCurrentFunction);
 
     connect(debugger, &DebuggerRunTool::stopped,
             &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);
 
-    debugger->startRunControl();
+    runControl->start();
 
     QTestEventLoop::instance().enterLoop(5);
 }

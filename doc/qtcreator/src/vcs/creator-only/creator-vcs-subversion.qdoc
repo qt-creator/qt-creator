@@ -19,6 +19,8 @@
 
     Subversion is an open source version control system.
 
+    \note Enable the Subversion plugin to use it.
+
     In addition to the standard version control system functions described in
     \l {Use common VCS Functions}, you can go to \uicontrol Tools >
     \uicontrol Subversion and select \uicontrol Describe to display commit log
@@ -47,6 +49,6 @@
             changes in annotation views.
     \endlist
 
-    \sa {Set up version control systems}, {Use common VCS functions},
-    {Version Control Systems}
+    \sa {Enable and disable plugins}, {Set up version control systems},
+    {Use common VCS functions}, {Version Control Systems}
 */

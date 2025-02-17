@@ -10,7 +10,7 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
@@ -84,7 +84,7 @@ TestConfiguration::~TestConfiguration()
 static bool isLocal(Target *target)
 {
     Kit *kit = target ? target->kit() : nullptr;
-    return DeviceTypeKitAspect::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+    return RunDeviceTypeKitAspect::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 
 static FilePath ensureExeEnding(const FilePath &file)
@@ -130,7 +130,7 @@ void TestConfiguration::completeTestInformation(RunConfiguration *rc,
         m_runnable.command.setExecutable(ensureExeEnding(targetInfo.targetFilePath));
 
     FilePath buildBase;
-    if (auto buildConfig = target->activeBuildConfiguration()) {
+    if (auto buildConfig = startupProject->activeBuildConfiguration()) {
         buildBase = buildConfig->buildDirectory();
         const FilePath projBase = startupProject->projectDirectory();
         if (m_projectFile.isChildOf(projBase)) {
@@ -167,14 +167,15 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     Target *target = startupProject->activeTarget();
     if (!target)
         return;
-    qCDebug(LOG) << "ActiveTargetName\n    " << target->displayName();
-    if (const auto kit = target->kit())
+    if (const auto kit = startupProject->activeKit()) {
+        qCDebug(LOG) << "ActiveTargetName\n    " << kit->displayName();
         qCDebug(LOG) << "SupportedPlatforms\n    " << kit->supportedPlatforms();
+    }
 
     const QSet<QString> buildSystemTargets = m_buildTargets;
     qCDebug(LOG) << "BuildSystemTargets\n    " << buildSystemTargets;
     const QList<BuildTargetInfo> buildTargets
-            = Utils::filtered(target->buildSystem()->applicationTargets(),
+            = Utils::filtered(startupProject->activeBuildSystem()->applicationTargets(),
                               [&buildSystemTargets](const BuildTargetInfo &bti) {
         return buildSystemTargets.contains(bti.buildKey);
     });
@@ -184,7 +185,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     BuildTargetInfo targetInfo = buildTargets.size() ? buildTargets.first()
                                                      : BuildTargetInfo();
 
-    if (DeviceTypeKitAspect::deviceTypeId(target->kit()) == ANDROID_DEVICE_TYPE) {
+    if (RunDeviceTypeKitAspect::deviceTypeId(startupProject->activeKit()) == ANDROID_DEVICE_TYPE) {
         // Android can have test runner scripts named as displayName(.bat)
         const FilePath script = ensureBatEnding(
             targetInfo.targetFilePath.parentDir() / targetInfo.displayName);
@@ -206,7 +207,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
         return;
 
     FilePath buildBase;
-    if (auto buildConfig = target->activeBuildConfiguration()) {
+    if (auto buildConfig = startupProject->activeBuildConfiguration()) {
         buildBase = buildConfig->buildDirectory();
         const FilePath projBase = startupProject->projectDirectory();
         if (m_projectFile.isChildOf(projBase)) {

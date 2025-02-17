@@ -95,7 +95,7 @@ void CppQuickFixProjectSettingsWidget::buttonCustomClicked()
 {
     if (useGlobalSettings()) {
         // delete file
-        QFile::remove(m_projectSettings->filePathOfSettingsFile().toString());
+        QFile::remove(m_projectSettings->filePathOfSettingsFile().toUrlishString());
         m_pushButton->setVisible(false);
     } else /*Custom*/ {
         m_projectSettings->resetOwnSettingsToGlobal();

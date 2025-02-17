@@ -316,15 +316,23 @@ SnippetsSettingsWidget::SnippetsSettingsWidget()
         Row {
             snippetSplitter,
             Column {
-                PushButton { text(Tr::tr("Add")),
-                             onClicked([this] { addSnippet(); }, this) },
-                PushButton { text(Tr::tr("Remove")),
-                             onClicked([this] { removeSnippet(); }, this) },
+                PushButton {
+                    text(Tr::tr("Add")),
+                    onClicked(this, [this] { addSnippet(); })
+                },
+                PushButton {
+                    text(Tr::tr("Remove")),
+                    onClicked(this, [this] { removeSnippet(); })
+                },
                 m_revertButton,
-                PushButton { text(Tr::tr("Restore Removed Built-ins")),
-                             onClicked([this] { restoreRemovedBuiltInSnippets(); }, this) },
-                PushButton { text(Tr::tr("Reset All")),
-                             onClicked([this] { resetAllSnippets(); }, this) },
+                PushButton {
+                    text(Tr::tr("Restore Removed Built-ins")),
+                    onClicked(this, [this] { restoreRemovedBuiltInSnippets(); })
+                },
+                PushButton {
+                    text(Tr::tr("Reset All")),
+                    onClicked(this, [this] { resetAllSnippets(); })
+                },
                 st,
             }
         }
@@ -538,9 +546,7 @@ SnippetsSettingsPage::SnippetsSettingsPage()
 {
     setId(Constants::TEXT_EDITOR_SNIPPETS_SETTINGS);
     setDisplayName(Tr::tr("Snippets"));
-    setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("Text Editor"));
-    setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
+    setCategory(Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new SnippetsSettingsWidget; });
 }
 

@@ -17,6 +17,8 @@
     wiki, and built-in web server. Fossil is available for Linux, Windows,
     and \macos.
 
+    \note Enable the Fossil plugin to use it.
+
     To use Fossil from \QC, you must install and configure it, as described in
     the following sections.
 
@@ -93,6 +95,6 @@
             creation.
     \endlist
 
-    \sa {Set up version control systems}, {Use common VCS functions},
-    {Version Control Systems}
+    \sa {Enable and disable plugins}, {Set up version control systems},
+    {Use common VCS functions}, {Version Control Systems}
 */

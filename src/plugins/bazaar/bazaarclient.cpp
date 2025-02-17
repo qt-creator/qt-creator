@@ -95,8 +95,8 @@ BranchInfo BazaarClient::synchronousBranchQuery(const FilePath &repositoryRoot) 
     QTextStream ts(&branchConfFile);
     QString branchLocation;
     QString isBranchBound;
-    QRegularExpression branchLocationRx("bound_location\\s*=\\s*(.+)$");
-    QRegularExpression isBranchBoundRx("bound\\s*=\\s*(.+)$");
+    static const QRegularExpression branchLocationRx("bound_location\\s*=\\s*(.+)$");
+    static const QRegularExpression isBranchBoundRx("bound\\s*=\\s*(.+)$");
     while (!ts.atEnd() && (branchLocation.isEmpty() || isBranchBound.isEmpty())) {
         const QString line = ts.readLine();
         QRegularExpressionMatch match = branchLocationRx.match(line);
@@ -149,13 +149,6 @@ bool BazaarClient::isVcsDirectory(const FilePath &filePath) const
 {
     return !filePath.fileName().compare(Constants::BAZAARREPO, HostOsInfo::fileNameCaseSensitivity())
            && filePath.isDir();
-}
-
-FilePath BazaarClient::findTopLevelForFile(const FilePath &file) const
-{
-    const QString repositoryCheckFile =
-            QLatin1String(Constants::BAZAARREPO) + QLatin1String("/branch-format");
-    return VcsBase::findRepositoryForFile(file, repositoryCheckFile);
 }
 
 bool BazaarClient::managesFile(const FilePath &workingDirectory, const QString &fileName) const

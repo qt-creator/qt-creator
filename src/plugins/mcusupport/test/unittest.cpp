@@ -38,7 +38,7 @@
 #include <gmock/gmock.h>
 
 #include <projectexplorer/customtoolchain.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -303,13 +303,13 @@ void verifyTargetToolchains(const Targets &targets,
     QVERIFY(toolchainFile);
     QCOMPARE(toolchainFile->cmakeVariableName(), TOOLCHAIN_FILE_CMAKE_VARIABLE);
     QCOMPARE(toolchainFile->settingsKey(), empty);
-    QCOMPARE(toolchainFile->path().toString(), toolchainFilePath);
-    QCOMPARE(toolchainFile->defaultPath().toString(), toolchainFileDefaultPath);
+    QCOMPARE(toolchainFile->path().toUrlishString(), toolchainFilePath);
+    QCOMPARE(toolchainFile->defaultPath().toUrlishString(), toolchainFileDefaultPath);
 
     const auto toolchainCompiler{target->toolChainPackage()};
     QVERIFY(toolchainCompiler);
     QCOMPARE(toolchainCompiler->cmakeVariableName(), TOOLCHAIN_DIR_CMAKE_VARIABLE);
-    QCOMPARE(toolchainCompiler->path().toString(), compilerPath);
+    QCOMPARE(toolchainCompiler->path().toUrlishString(), compilerPath);
     QCOMPARE(toolchainCompiler->settingsKey(), compilerSetting);
     QCOMPARE(toolchainCompiler->versions(), versions);
 }
@@ -338,8 +338,8 @@ void verifyFreeRtosPackage(const McuPackagePtr &freeRtos,
     QCOMPARE(freeRtos->environmentVariableName(), envVar);
     QCOMPARE(freeRtos->cmakeVariableName(), freeRtosCMakeVar);
     QCOMPARE(freeRtos->settingsKey(), expectedSettingsKey);
-    QCOMPARE(freeRtos->path().cleanPath().toString(), freeRtosPath);
-    QCOMPARE(freeRtos->detectionPaths().first().cleanPath().toString(), freeRtosDetectionPath);
+    QCOMPARE(freeRtos->path().cleanPath().toUrlishString(), freeRtosPath);
+    QCOMPARE(freeRtos->detectionPaths().first().cleanPath().toUrlishString(), freeRtosDetectionPath);
     QVERIFY(freeRtos->path().toUserOutput().startsWith(boardSdkDir.cleanPath().toUserOutput()));
 }
 
@@ -354,14 +354,14 @@ void verifyPackage(const McuPackagePtr &package,
                    const QStringList &versions)
 {
     QVERIFY(package);
-    QCOMPARE(package->defaultPath().toString(), defaultPath);
-    QCOMPARE(package->path().toString(), path);
+    QCOMPARE(package->defaultPath().toUrlishString(), defaultPath);
+    QCOMPARE(package->path().toUrlishString(), path);
     QCOMPARE(package->cmakeVariableName(), cmakeVar);
     QCOMPARE(package->environmentVariableName(), envVar);
     QCOMPARE(package->label(), label);
     if (!detectionPath.isEmpty()) {
         QVERIFY(!package->detectionPaths().empty());
-        QCOMPARE(package->detectionPaths().first().toString(), detectionPath);
+        QCOMPARE(package->detectionPaths().first().toUrlishString(), detectionPath);
     }
     QCOMPARE(package->settingsKey(), setting);
     QCOMPARE(package->versions(), versions);
@@ -500,7 +500,7 @@ void McuSupportTest::init()
 {
     McuSdkRepository::globalMacros()
         ->insert("MCU_TESTING_FOLDER",
-                 [dir = testing_output_dir.absoluteFilePath().toString()] { return dir; });
+                 [dir = testing_output_dir.absoluteFilePath().toUrlishString()] { return dir; });
     qDebug() << __func__;
 }
 
@@ -576,7 +576,7 @@ void McuSupportTest::test_parseToolchainFromJSON()
     QCOMPARE(toolchainFilePackage.label, QString{});
     QCOMPARE(toolchainFilePackage.envVar, QString{});
     QCOMPARE(toolchainFilePackage.cmakeVar, TOOLCHAIN_FILE_CMAKE_VARIABLE);
-    QCOMPARE(toolchainFilePackage.defaultPath.cleanPath().toString(), toolchainFileDefaultPath);
+    QCOMPARE(toolchainFilePackage.defaultPath.cleanPath().toUrlishString(), toolchainFileDefaultPath);
 }
 
 void McuSupportTest::test_legacy_createIarToolchain()
@@ -860,7 +860,7 @@ void McuSupportTest::test_useFallbackPathForToolchainWhenPathFromSettingsIsNotAv
 
     McuToolchainPackage *toolchain = targetFactory.createToolchain(toolchainDescription);
 
-    QCOMPARE(toolchain->path().toString(), fallbackDir);
+    QCOMPARE(toolchain->path().toUrlishString(), fallbackDir);
 }
 
 void McuSupportTest::test_usePathFromSettingsForToolchainPath()
@@ -884,7 +884,7 @@ void McuSupportTest::test_usePathFromSettingsForToolchainPath()
         .WillOnce(Return(FilePath{armGccDir})); // user scope settings
 
     McuToolchainPackage *toolchain = targetFactory.createToolchain(toolchainDescription);
-    QCOMPARE(toolchain->path().toString(), armGccDir);
+    QCOMPARE(toolchain->path().toUrlishString(), armGccDir);
 }
 
 void McuSupportTest::test_addNewKit()
@@ -944,7 +944,7 @@ void McuSupportTest::test_legacy_createUnsupportedToolchainFilePackage()
 
     auto unsupportedToolchainFile = legacyTargetFactory.getToolchainFile(qtForMcuSdkPath, iar);
     QVERIFY(unsupportedToolchainFile);
-    QCOMPARE(unsupportedToolchainFile->path().toString(), unsupportedToolchainFilePath);
+    QCOMPARE(unsupportedToolchainFile->path().toUrlishString(), unsupportedToolchainFilePath);
     QCOMPARE(unsupportedToolchainFile->cmakeVariableName(), TOOLCHAIN_FILE_CMAKE_VARIABLE);
 }
 
@@ -1189,8 +1189,8 @@ void McuSupportTest::test_legacy_createFreeRtosPackage()
     verifyFreeRtosPackage(freeRtos,
                           targetDescription.freeRTOS.envVar,
                           boardSdkDir,
-                          expectedPath.toString(),
-                          expectedDetectionPath.toString(),
+                          expectedPath.toUrlishString(),
+                          expectedDetectionPath.toUrlishString(),
                           expectedSettingsKey);
 }
 
@@ -1222,8 +1222,8 @@ void McuSupportTest::test_createFreeRtosPackage()
     verifyFreeRtosPackage(freeRtos,
                           targetDescription.freeRTOS.envVar,
                           boardSdkDir,
-                          expectedPath.toString(),
-                          expectedDetectionPath.toString(),
+                          expectedPath.toUrlishString(),
+                          expectedDetectionPath.toUrlishString(),
                           expectedSettingsKey);
 }
 
@@ -1267,7 +1267,7 @@ void McuSupportTest::test_legacy_createQtMCUsPackage()
     QCOMPARE(qtForMCUsSDK->detectionPaths(),
              {FilePath::fromUserInput(Legacy::Constants::QT_FOR_MCUS_SDK_PACKAGE_VALIDATION_PATH)
                   .withExecutableSuffix()});
-    QCOMPARE(qtForMCUsSDK->path().toString(), qtForMcuSdkPath);
+    QCOMPARE(qtForMCUsSDK->path().toUrlishString(), qtForMcuSdkPath);
 }
 
 void McuSupportTest::test_legacy_supportMultipleToolchainVersions()
@@ -1445,7 +1445,7 @@ void McuSupportTest::test_resolveEnvironmentVariablesInDefaultPath()
     });
 
     QVERIFY(qtForMCUPkg);
-    QCOMPARE(qtForMCUPkg->path().toString(), qtForMcuSdkPath);
+    QCOMPARE(qtForMCUPkg->path().toUrlishString(), qtForMcuSdkPath);
 
     auto toolchainFilePkg = findOrDefault(packages, [](const McuPackagePtr &pkg) {
         return (pkg->cmakeVariableName() == TOOLCHAIN_FILE_CMAKE_VARIABLE);
@@ -1454,9 +1454,9 @@ void McuSupportTest::test_resolveEnvironmentVariablesInDefaultPath()
     QVERIFY(toolchainFilePkg);
     QVERIFY(targets.size() == 1);
 
-    QCOMPARE(toolchainFilePkg->path().toString(), toolchainFilePath);
-    QVERIFY(toolchainFilePkg->path().toString().startsWith(qtForMcuSdkPath));
-    QCOMPARE(toolchainFilePkg->defaultPath().toString(), toolchainFileDefaultPath);
+    QCOMPARE(toolchainFilePkg->path().toUrlishString(), toolchainFilePath);
+    QVERIFY(toolchainFilePkg->path().toUrlishString().startsWith(qtForMcuSdkPath));
+    QCOMPARE(toolchainFilePkg->defaultPath().toUrlishString(), toolchainFileDefaultPath);
 
     Utils::Environment::modifySystemEnvironment(
         {{QUL_ENV_VAR, qtForMcuSdkPath, EnvironmentItem::Unset}});
@@ -1480,7 +1480,7 @@ void McuSupportTest::test_resolveCmakeVariablesInDefaultPath()
     });
 
     QVERIFY(qtForMCUPkg);
-    QCOMPARE(qtForMCUPkg->path().toString(), qtForMcuSdkPath);
+    QCOMPARE(qtForMCUPkg->path().toUrlishString(), qtForMcuSdkPath);
 
     auto toolchainFilePkg = findOrDefault(packages, [](const McuPackagePtr &pkg) {
         return (pkg->cmakeVariableName() == TOOLCHAIN_FILE_CMAKE_VARIABLE);
@@ -1489,9 +1489,9 @@ void McuSupportTest::test_resolveCmakeVariablesInDefaultPath()
     QVERIFY(toolchainFilePkg);
     QVERIFY(targets.size() == 1);
 
-    QCOMPARE(toolchainFilePkg->path().toString(), toolchainFilePath);
-    QVERIFY(toolchainFilePkg->path().toString().startsWith(qtForMcuSdkPath));
-    QCOMPARE(toolchainFilePkg->defaultPath().toString(), toolchainFileDefaultPath);
+    QCOMPARE(toolchainFilePkg->path().toUrlishString(), toolchainFilePath);
+    QVERIFY(toolchainFilePkg->path().toUrlishString().startsWith(qtForMcuSdkPath));
+    QCOMPARE(toolchainFilePkg->defaultPath().toUrlishString(), toolchainFileDefaultPath);
 }
 
 void McuSupportTest::test_legacy_createThirdPartyPackage_data()
@@ -1717,10 +1717,10 @@ void McuSupportTest::test_createJLink3rdPartyPackage()
 void McuSupportTest::test_differentValueForEachOperationSystem()
 {
     const auto packageDescription = parseDescriptionJson(armgcc_mimxrt1050_evk_freertos_json);
-    auto default_path_entry = packageDescription.platform.entries[0].defaultPath.toString();
+    auto default_path_entry = packageDescription.platform.entries[0].defaultPath.toUrlishString();
     QCOMPARE(packageDescription.platform.entries[0].detectionPaths.size(), 1);
     auto validation_path_entry
-        = packageDescription.platform.entries[0].detectionPaths.first().toString();
+        = packageDescription.platform.entries[0].detectionPaths.first().toUrlishString();
 
     //TODO: Revisit whether this test is required and not currently covered by the third party packages
     if (HostOsInfo::isWindowsHost()) {

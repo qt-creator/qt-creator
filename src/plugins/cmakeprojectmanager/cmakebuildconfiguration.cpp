@@ -31,21 +31,22 @@
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/environmentaspectwidget.h>
 #include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/kitaspect.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/namedwidget.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtbuildaspects.h>
@@ -96,7 +97,6 @@ const char CMAKE_BUILD_TYPE[] = "CMake.Build.Type";
 const char CLEAR_SYSTEM_ENVIRONMENT_KEY[] = "CMake.Configure.ClearSystemEnvironment";
 const char USER_ENVIRONMENT_CHANGES_KEY[] = "CMake.Configure.UserEnvironmentChanges";
 const char BASE_ENVIRONMENT_KEY[] = "CMake.Configure.BaseEnvironment";
-const char GENERATE_QMLLS_INI_SETTING[] = "J.QtQuick/QmlJSEditor.GenerateQmllsIniFiles";
 
 const char CMAKE_TOOLCHAIN_FILE[] = "CMAKE_TOOLCHAIN_FILE";
 const char CMAKE_C_FLAGS_INIT[] = "CMAKE_C_FLAGS_INIT";
@@ -109,13 +109,15 @@ const char VXWORKS_DEVICE_TYPE[] = "VxWorks.Device.Type";
 
 namespace Internal {
 
-class CMakeBuildSettingsWidget : public NamedWidget
+class CMakeBuildSettingsWidget : public QWidget
 {
 public:
     explicit CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc);
 
     void setError(const QString &message);
     void setWarning(const QString &message);
+
+    void updateInitialCMakeArguments();
 
 private:
     void updateButtonState();
@@ -135,7 +137,6 @@ private:
 
     void batchEditConfiguration();
     void reconfigureWithInitialParameters();
-    void updateInitialCMakeArguments();
     void kitCMakeConfiguration();
     void updateConfigureDetailsWidgetsSummary(
         const QStringList &configurationArguments = QStringList());
@@ -190,7 +191,6 @@ static CMakeConfigItem getPackageManagerAutoSetupParameter()
 }
 
 CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) :
-    NamedWidget(Tr::tr("CMake")),
     m_buildConfig(bc),
     m_configModel(new ConfigModel(this)),
     m_configFilterModel(new CategorySortFilterModel(this)),
@@ -226,6 +226,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_configurationStates = new QTabBar(this);
     m_configurationStates->addTab(Tr::tr("Initial Configuration"));
     m_configurationStates->addTab(Tr::tr("Current Configuration"));
+    setWheelScrollingWithoutFocusBlocked(m_configurationStates);
     connect(m_configurationStates, &QTabBar::currentChanged, this, [this](int index) {
         updateConfigurationStateIndex(index);
     });
@@ -609,7 +610,6 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
 void CMakeBuildSettingsWidget::reconfigureWithInitialParameters()
 {
     QMessageBox::StandardButton reply = CheckableMessageBox::question(
-        Core::ICore::dialogParent(),
         Tr::tr("Re-configure with Initial Parameters"),
         Tr::tr("Clear CMake configuration and configure with initial parameters?"),
         settings(m_buildConfig->project()).askBeforeReConfigureInitialParams.askAgainCheckableDecider(),
@@ -647,13 +647,29 @@ void CMakeBuildSettingsWidget::updatePackageManagerAutoSetup(CMakeConfig &initia
     }
 }
 
+static bool isGenerateQmllsSettingsEnabled()
+{
+    constexpr char settingsKey[] = "LanguageClient/typedClients";
+    constexpr char qmllsTypeId[] = "LanguageClient::QmllsClientSettingsID";
+    constexpr char typeIdKey[] = "typeId";
+    constexpr char generateQmllsIniFilesKey[] = "generateQmllsIniFiles";
+
+    const QtcSettings *settings = Core::ICore::settings();
+    for (const QVariant &client : settings->value(settingsKey).toList()) {
+        const Store map = storeFromVariant(client);
+        if (map.value(typeIdKey).toString() == qmllsTypeId)
+            return map[generateQmllsIniFilesKey].toBool();
+    }
+    QTC_ASSERT(false, return false);
+}
+
 void CMakeBuildSettingsWidget::updateInitialCMakeArguments()
 {
     CMakeConfig initialList = m_buildConfig->initialCMakeArguments.cmakeConfiguration();
 
     // set QT_QML_GENERATE_QMLLS_INI if it is enabled via the settings checkbox and if its not part
     // of the initial CMake arguments yet
-    if (Core::ICore::settings()->value(GENERATE_QMLLS_INI_SETTING).toBool()) {
+    if (isGenerateQmllsSettingsEnabled()) {
         if (std::none_of(
                 initialList.constBegin(), initialList.constEnd(), [](const CMakeConfigItem &item) {
                     return item.key == "QT_QML_GENERATE_QMLLS_INI";
@@ -1133,17 +1149,17 @@ bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
 
 static bool isWebAssembly(const Kit *k)
 {
-    return DeviceTypeKitAspect::deviceTypeId(k) == WebAssembly::Constants::WEBASSEMBLY_DEVICE_TYPE;
+    return RunDeviceTypeKitAspect::deviceTypeId(k) == WebAssembly::Constants::WEBASSEMBLY_DEVICE_TYPE;
 }
 
 static bool isVxWorks(const Kit *k)
 {
-    return DeviceTypeKitAspect::deviceTypeId(k) == VXWORKS_DEVICE_TYPE;
+    return RunDeviceTypeKitAspect::deviceTypeId(k) == VXWORKS_DEVICE_TYPE;
 }
 
 static bool isQnx(const Kit *k)
 {
-    return DeviceTypeKitAspect::deviceTypeId(k) == Qnx::Constants::QNX_QNX_OS_TYPE;
+    return RunDeviceTypeKitAspect::deviceTypeId(k) == Qnx::Constants::QNX_QNX_OS_TYPE;
 }
 
 static bool isWindowsARM64(const Kit *k)
@@ -1408,6 +1424,7 @@ static Utils::EnvironmentItems getEnvironmentItemsFromCMakeBuildPreset(
 CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
     : BuildConfiguration(target, id)
 {
+    setConfigWidgetDisplayName(Tr::tr("CMake"));
     m_buildSystem = new CMakeBuildSystem(this);
 
     buildDirectoryAspect()->setValueAcceptor(
@@ -1498,7 +1515,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         m_buildSystem->setIsMultiConfig(CMakeGeneratorKitAspect::isMultiConfigGenerator(k));
 
         // Android magic:
-        if (DeviceTypeKitAspect::deviceTypeId(k) == Android::Constants::ANDROID_DEVICE_TYPE) {
+        if (RunDeviceTypeKitAspect::deviceTypeId(k) == Android::Constants::ANDROID_DEVICE_TYPE) {
             auto addUniqueKeyToCmd = [&cmd] (const QString &prefix, const QString &value) -> bool {
                 const bool isUnique =
                     !Utils::contains(cmd.splitArguments(), [&prefix] (const QString &arg) {
@@ -1549,7 +1566,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             }
         }
 
-        const IDevice::ConstPtr device = DeviceKitAspect::device(k);
+        const IDevice::ConstPtr device = RunDeviceKitAspect::device(k);
         if (CMakeBuildConfiguration::isIos(k)) {
             if (qt && qt->qtVersion().majorVersion() >= 6) {
                 // TODO it would be better if we could set
@@ -1557,7 +1574,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                 // and build with "cmake --build . -- -arch <arch>" instead of setting the architecture
                 // and sysroot in the CMake configuration, but that currently doesn't work with Qt/CMake
                 // https://gitlab.kitware.com/cmake/cmake/-/issues/21276
-                const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+                const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(k);
                 const QString sysroot = deviceType == Ios::Constants::IOS_DEVICE_TYPE
                                             ? QLatin1String("iphoneos")
                                             : QLatin1String("iphonesimulator");
@@ -1592,7 +1609,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                 QLatin1String("-D") + CMAKE_CXX_FLAGS_INIT + ":STRING=%{" + QT_QML_DEBUG_FLAG + "}");
 
         // QT_QML_GENERATE_QMLLS_INI, if enabled via the settings checkbox:
-        if (Core::ICore::settings()->value(GENERATE_QMLLS_INI_SETTING).toBool()) {
+        if (isGenerateQmllsSettingsEnabled()) {
             cmd.addArg("-DQT_QML_GENERATE_QMLLS_INI:BOOL=ON");
         }
 
@@ -1640,7 +1657,7 @@ FilePath CMakeBuildConfiguration::shadowBuildDirectory(const FilePath &projectFi
 
 bool CMakeBuildConfiguration::isIos(const Kit *k)
 {
-    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+    const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(k);
     return deviceType == Ios::Constants::IOS_DEVICE_TYPE
            || deviceType == Ios::Constants::IOS_SIMULATOR_TYPE;
 }
@@ -1839,15 +1856,55 @@ QString CMakeBuildSystem::warning() const
     return m_warning;
 }
 
-NamedWidget *CMakeBuildConfiguration::createConfigWidget()
+QWidget *CMakeBuildConfiguration::createConfigWidget()
 {
-    return new CMakeBuildSettingsWidget(this);
+    m_configWidget = new CMakeBuildSettingsWidget(this);
+    return m_configWidget;
+}
+
+void CMakeBuildConfiguration::updateInitialCMakeArguments()
+{
+    Q_ASSERT(m_configWidget);
+    m_configWidget->updateInitialCMakeArguments();
+}
+
+QStringList CMakeBuildConfiguration::initialCMakeOptions() const
+{
+    return initialCMakeArguments.allValues();
+}
+
+void CMakeBuildConfiguration::setInitialArgs(const QStringList &args)
+{
+    setInitialCMakeArguments(args);
+}
+
+QStringList CMakeBuildConfiguration::initialArgs() const
+{
+    return initialCMakeOptions();
+}
+
+QStringList CMakeBuildConfiguration::additionalArgs() const
+{
+    return additionalCMakeArguments();
+}
+
+void CMakeBuildConfiguration::reconfigure()
+{
+    cmakeBuildSystem()->clearCMakeCache();
+    updateInitialCMakeArguments();
+    cmakeBuildSystem()->runCMake();
+}
+
+void CMakeBuildConfiguration::stopReconfigure()
+{
+     cmakeBuildSystem()->stopCMakeRun();
 }
 
 CMakeConfig CMakeBuildConfiguration::signingFlags() const
 {
     return {};
 }
+
 
 void CMakeBuildConfiguration::setInitialBuildAndCleanSteps(const Target *target)
 {
@@ -1919,7 +1976,7 @@ void CMakeBuildConfiguration::setBuildPresetToBuildSteps(const ProjectExplorer::
             getEnvironmentItemsFromCMakeBuildPreset(project, target->kit(), buildPresets[i].name));
 
         if (buildPresets[i].targets) {
-            QString targets = buildPresets[i].targets.value().join(" ");
+            QString targets = buildPresets[i].targets->join(" ");
 
             CMakePresets::Macros::expand(buildPresets[i],
                                          cbs->environment(),
@@ -1931,16 +1988,16 @@ void CMakeBuildConfiguration::setBuildPresetToBuildSteps(const ProjectExplorer::
 
         QStringList cmakeArguments;
         if (buildPresets[i].jobs)
-            cmakeArguments.append(QString("-j %1").arg(buildPresets[i].jobs.value()));
-        if (buildPresets[i].verbose && buildPresets[i].verbose.value())
+            cmakeArguments.append(QString("-j %1").arg(*buildPresets[i].jobs));
+        if (buildPresets[i].verbose && *buildPresets[i].verbose)
             cmakeArguments.append("--verbose");
-        if (buildPresets[i].cleanFirst && buildPresets[i].cleanFirst.value())
+        if (buildPresets[i].cleanFirst && *buildPresets[i].cleanFirst)
             cmakeArguments.append("--clean-first");
         if (!cmakeArguments.isEmpty())
             cbs->setCMakeArguments(cmakeArguments);
 
         if (buildPresets[i].nativeToolOptions) {
-            QString nativeToolOptions = buildPresets[i].nativeToolOptions.value().join(" ");
+            QString nativeToolOptions = buildPresets[i].nativeToolOptions->join(" ");
 
             CMakePresets::Macros::expand(buildPresets[i],
                                          cbs->environment(),
@@ -1951,7 +2008,7 @@ void CMakeBuildConfiguration::setBuildPresetToBuildSteps(const ProjectExplorer::
         }
 
         if (buildPresets[i].configuration)
-            cbs->setConfiguration(buildPresets[i].configuration.value());
+            cbs->setConfiguration(*buildPresets[i].configuration);
 
         // Leave only the first build step enabled
         if (i > 0)
@@ -2113,7 +2170,7 @@ void CMakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
 
     const CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
     // The hack further down is only relevant for desktop
-    if (tool && tool->cmakeExecutable().needsDevice())
+    if (tool && !tool->cmakeExecutable().isLocal())
         return;
 
     const FilePath ninja = settings(nullptr).ninjaPath();

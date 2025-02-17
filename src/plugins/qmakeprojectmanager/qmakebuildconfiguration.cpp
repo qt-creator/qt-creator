@@ -24,14 +24,16 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildpropertiessettings.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/makestep.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <qtsupport/qtbuildaspects.h>
 #include <qtsupport/qtkitaspect.h>
@@ -124,7 +126,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
 
         setBuildDirectory(directory);
 
-        if (DeviceTypeKitAspect::deviceTypeId(target->kit())
+        if (RunDeviceTypeKitAspect::deviceTypeId(target->kit())
                         == Android::Constants::ANDROID_DEVICE_TYPE) {
             buildSteps()->appendStep(Android::Constants::ANDROID_PACKAGE_INSTALL_STEP_ID);
             buildSteps()->appendStep(Android::Constants::ANDROID_BUILD_APK_ID);
@@ -415,6 +417,33 @@ bool QmakeBuildConfiguration::runQmakeSystemFunctions() const
     return settings().runSystemFunction();
 }
 
+void QmakeBuildConfiguration::setInitialArgs(const QStringList &args)
+{
+    if (BuildStepList *buildSteps = this->buildSteps()) {
+        if (auto qmakeStep = buildSteps->firstOfType<QmakeProjectManager::QMakeStep>())
+            qmakeStep->userArguments.setArguments(ProcessArgs::joinArgs(args));
+    }
+}
+
+QStringList QmakeBuildConfiguration::initialArgs() const
+{
+    if (BuildStepList *buildSteps = this->buildSteps()) {
+        if (auto qmakeStep = buildSteps->firstOfType<QmakeProjectManager::QMakeStep>()) {
+            QString arg = qmakeStep->userArguments.unexpandedArguments();
+            ProcessArgs::ConstArgIterator it{arg};
+            QStringList result;
+
+            while (it.next()) {
+                if (it.isSimple())
+                    result << it.value();
+            }
+
+            return result;
+        }
+    }
+    return {};
+}
+
 QStringList QmakeBuildConfiguration::configCommandLineArguments() const
 {
     QStringList result;
@@ -664,7 +693,7 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
         if (parsedSpec.isChildOf(sourceMkSpecPath))
             parsedSpec = parsedSpec.relativeChildPath(sourceMkSpecPath);
     }
-    return parsedSpec.toString();
+    return parsedSpec.toUrlishString();
 }
 
 /*!
@@ -720,9 +749,9 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
     if (version && version->isInQtSourceDirectory(projectPath)) {
         // assemble build directory
         QString projectDirectory = projectPath.toFileInfo().absolutePath();
-        QDir qtSourceDir = QDir(version->sourcePath().toString());
+        QDir qtSourceDir = QDir(version->sourcePath().toUrlishString());
         QString relativeProjectPath = qtSourceDir.relativeFilePath(projectDirectory);
-        QString qtBuildDir = version->prefix().toString();
+        QString qtBuildDir = version->prefix().toUrlishString();
         QString absoluteBuildPath = QDir::cleanPath(qtBuildDir + QLatin1Char('/') + relativeProjectPath);
 
         info.buildDirectory = FilePath::fromString(absoluteBuildPath);
@@ -798,7 +827,7 @@ QmakeBuildConfiguration::LastKitState::LastKitState() = default;
 
 QmakeBuildConfiguration::LastKitState::LastKitState(Kit *k)
     : m_qtVersion(QtKitAspect::qtVersionId(k)),
-      m_sysroot(SysRootKitAspect::sysRoot(k).toString()),
+      m_sysroot(SysRootKitAspect::sysRoot(k).toUrlishString()),
       m_mkspec(QmakeKitAspect::mkspec(k))
 {
     Toolchain *tc = ToolchainKitAspect::cxxToolchain(k);

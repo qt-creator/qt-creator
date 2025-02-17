@@ -62,6 +62,11 @@ class BeautifierPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
+        IOptionsPage::registerCategory(
+            Constants::OPTION_CATEGORY,
+            Tr::tr("Beautifier"),
+            ":/beautifier/images/settingscategory_beautifier.png");
+
         MenuBuilder(Constants::MENU_ID)
             .setTitle(Tr::tr("Bea&utifier"))
             .setOnAllDisabledBehavior(ActionContainer::Show)

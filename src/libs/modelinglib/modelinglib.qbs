@@ -3,7 +3,7 @@ import qbs 1.0
 QtcLibrary {
     name: "Modeling"
 
-    cpp.defines: base.concat("MODELING_LIBRARY")
+    Properties { cpp.defines: base.concat("MODELING_LIBRARY") }
     cpp.includePaths: base.concat([
         ".",
         "./qtserialization/inc",
@@ -15,7 +15,7 @@ QtcLibrary {
 
     Properties {
         condition: !Qt.svg.present
-        cpp.defines: base.concat("QT_NO_SVG")
+        cpp.defines: "QT_NO_SVG"
     }
 
     Group {

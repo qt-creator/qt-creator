@@ -1,14 +1,15 @@
 // Copyright (C) Filippo Cucchetto <filippocucchetto@gmail.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "nimproject.h"
 #include "nimrunconfiguration.h"
-#include "nimbuildconfiguration.h"
 
 #include "../nimconstants.h"
 #include "../nimtr.h"
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/target.h>
 
 #include <utils/qtcassert.h>
 

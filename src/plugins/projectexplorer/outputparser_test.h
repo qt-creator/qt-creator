@@ -29,11 +29,10 @@ public:
     ~OutputParserTester();
 
     // test functions:
-    void testParsing(const QString &lines, Channel inputChannel,
+    void testParsing(const QString &input, Channel inputChannel,
                      Tasks tasks,
-                     const QString &childStdOutLines,
-                     const QString &childStdErrLines,
-                     const QString &outputLines);
+                     const QStringList &childStdOutLines,
+                     const QStringList &childStdErrLines);
 
     void setDebugEnabled(bool);
 
@@ -45,10 +44,9 @@ private:
 
     bool m_debug = false;
 
-    QString m_receivedStdErrChildLine;
-    QString m_receivedStdOutChildLine;
+    QStringList m_receivedStdErrChildLines;
+    QStringList m_receivedStdOutChildLines;
     Tasks m_receivedTasks;
-    QString m_receivedOutput;
 
     friend class TestTerminator;
 };

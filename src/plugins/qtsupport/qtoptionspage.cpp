@@ -169,7 +169,7 @@ QVariant QtVersionItem::data(int column, int role) const
         if (role == KitAspect::IsNoneRole && column == 0)
             return true;
         if (role == Qt::DisplayRole && column == 0)
-            return Tr::tr("None");
+            return Tr::tr("None", "No Qt version");
         if (role == KitAspect::IdRole)
             return -1;
         return TreeItem::data(column, role);
@@ -437,9 +437,10 @@ QtSettingsPageWidget::QtSettingsPageWidget()
 
     m_documentationSetting->addItem(Tr::tr("Highest Version Only"),
                                         int(QtVersionManager::DocumentationSetting::HighestOnly));
-    m_documentationSetting->addItem(Tr::tr("All"), int(QtVersionManager::DocumentationSetting::All));
-    m_documentationSetting->addItem(Tr::tr("None"),
-                                        int(QtVersionManager::DocumentationSetting::None));
+    m_documentationSetting->addItem(
+        Tr::tr("All", "All documentation"), int(QtVersionManager::DocumentationSetting::All));
+    m_documentationSetting->addItem(
+        Tr::tr("None", "No documentation"), int(QtVersionManager::DocumentationSetting::None));
     const int selectedIndex = m_documentationSetting->findData(
         int(QtVersionManager::documentationSetting()));
     if (selectedIndex >= 0)
@@ -682,8 +683,7 @@ QtSettingsPageWidget::~QtSettingsPageWidget()
 void QtSettingsPageWidget::addQtDir()
 {
     FilePath qtVersion
-        = FileUtils::getOpenFilePath(this,
-                                     Tr::tr("Select a qmake Executable"),
+        = FileUtils::getOpenFilePath(Tr::tr("Select a qmake Executable"),
                                      {},
                                      BuildableHelperLibrary::filterForQmakeFileDialog(),
                                      nullptr,
@@ -754,8 +754,7 @@ void QtSettingsPageWidget::editPath()
 {
     QtVersion *current = currentVersion();
     FilePath qtVersion =
-            FileUtils::getOpenFilePath(this,
-                                       Tr::tr("Select a qmake Executable"),
+            FileUtils::getOpenFilePath(Tr::tr("Select a qmake Executable"),
                                        current->qmakeFilePath().absolutePath(),
                                        BuildableHelperLibrary::filterForQmakeFileDialog(),
                                        nullptr,
@@ -882,7 +881,7 @@ static QString qtVersionsFile(const QString &baseDir)
 
 static std::optional<FilePath> currentlyLinkedQtDir(bool *hasInstallSettings)
 {
-    const QString installSettingsFilePath = settingsFile(ICore::resourcePath().toString());
+    const QString installSettingsFilePath = settingsFile(ICore::resourcePath().toUrlishString());
     const bool installSettingsExist = QFileInfo::exists(installSettingsFilePath);
     if (hasInstallSettings)
         *hasInstallSettings = installSettingsExist;
@@ -899,8 +898,8 @@ static QString linkingPurposeText()
 {
     return Tr::tr(
         "Linking with a Qt installation automatically registers Qt versions and kits, and other "
-        "tools that were installed with that Qt installer, in this Qt Creator installation. Other "
-        "Qt Creator installations are not affected.");
+        "tools that were installed with that Qt installer, in this %1 installation. Other %1 "
+        "installations are not affected.").arg(QGuiApplication::applicationDisplayName());
 }
 
 static bool canLinkWithQt(QString *toolTip)
@@ -995,8 +994,8 @@ static std::optional<FilePath> settingsDirForQtDir(const FilePath &baseDirectory
         return qtDir / dir;
     });
     const FilePath validDir = Utils::findOrDefault(dirsToCheck, [baseDirectory](const FilePath &dir) {
-        return QFileInfo::exists(settingsFile(baseDirectory.resolvePath(dir).toString()))
-               || QFileInfo::exists(qtVersionsFile(baseDirectory.resolvePath(dir).toString()));
+        return QFileInfo::exists(settingsFile(baseDirectory.resolvePath(dir).toUrlishString()))
+               || QFileInfo::exists(qtVersionsFile(baseDirectory.resolvePath(dir).toUrlishString()));
     });
     if (!validDir.isEmpty())
         return validDir;
@@ -1077,7 +1076,7 @@ void QtSettingsPageWidget::linkWithQt()
     unlinkButton->setEnabled(currentLink.has_value());
     connect(unlinkButton, &QPushButton::clicked, &dialog, [&dialog, &askForRestart] {
         bool removeSettingsFile = false;
-        const QString filePath = settingsFile(ICore::resourcePath().toString());
+        const QString filePath = settingsFile(ICore::resourcePath().toUrlishString());
         {
             QSettings installSettings(filePath, QSettings::IniFormat);
             installSettings.remove(kInstallSettingsKey);
@@ -1098,7 +1097,7 @@ void QtSettingsPageWidget::linkWithQt()
         const std::optional<FilePath> settingsDir = settingsDirForQtDir(pathInput->baseDirectory(),
                                                                         pathInput->unexpandedFilePath());
         if (QTC_GUARD(settingsDir)) {
-            const QString settingsFilePath = settingsFile(ICore::resourcePath().toString());
+            const QString settingsFilePath = settingsFile(ICore::resourcePath().toUrlishString());
             QSettings settings(settingsFilePath, QSettings::IniFormat);
             settings.setValue(kInstallSettingsKey, settingsDir->toVariant());
             settings.sync();

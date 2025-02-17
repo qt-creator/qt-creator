@@ -132,7 +132,12 @@ void MesonOutputParser::readStdo(const QByteArray &data)
 
 void MesonOutputParser::setSourceDirectory(const Utils::FilePath &sourceDir)
 {
-    emit newSearchDirFound(sourceDir);
+    addSearchDir(sourceDir);
+}
+
+void MesonOutputParser::setBuildDirectory(const Utils::FilePath &buildDir)
+{
+    addSearchDir(buildDir);
 }
 
 } // namespace MesonProjectManager::Internal

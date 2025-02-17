@@ -20,6 +20,7 @@
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
+#include <utils/synchronizedvalue.h>
 
 #include <QReadLocker>
 
@@ -44,12 +45,10 @@ FilePath detectPython(const FilePath &documentPath)
     FilePaths dirs = Environment::systemEnvironment().path();
 
     if (project && project->mimeType() == Constants::C_PY_PROJECT_MIME_TYPE) {
-        if (const Target *target = project->activeTarget()) {
-            if (auto bc = qobject_cast<PythonBuildConfiguration *>(target->activeBuildConfiguration()))
-                return bc->python();
-            if (const std::optional<Interpreter> python = PythonKitAspect::python(target->kit()))
-                return python->command;
-        }
+        if (auto bc = qobject_cast<PythonBuildConfiguration *>(project->activeBuildConfiguration()))
+            return bc->python();
+        if (const std::optional<Interpreter> python = PythonKitAspect::python(project->activeKit()))
+            return python->command;
     }
 
     const FilePath userDefined = userDefinedPythonsForDocument().value(documentPath);
@@ -96,7 +95,7 @@ static QStringList replImportArgs(const FilePath &pythonFile, ReplType type)
     using MimeTypes = QList<MimeType>;
     const MimeTypes mimeTypes = pythonFile.isEmpty() || type == ReplType::Unmodified
                                     ? MimeTypes()
-                                    : mimeTypesForFileName(pythonFile.toString());
+                                    : mimeTypesForFileName(pythonFile.toUrlishString());
     const bool isPython = Utils::anyOf(mimeTypes, [](const MimeType &mt) {
         return mt.inherits(Constants::C_PY_MIMETYPE) || mt.inherits(Constants::C_PY3_MIMETYPE);
     });
@@ -192,31 +191,37 @@ bool isVenvPython(const FilePath &python)
     return python.parentDir().parentDir().pathAppended("pyvenv.cfg").exists();
 }
 
-static bool isUsableHelper(QHash<FilePath, bool> *cache, const QString &keyString,
-                           const QString &commandArg, const FilePath &python)
+static bool isUsableHelper(
+    SynchronizedValue<QHash<FilePath, bool>> *cache,
+    const QString &commandArg,
+    const FilePath &python)
 {
-    auto it = cache->find(python);
-    if (it == cache->end()) {
-        const Key key = keyFromString(keyString);
-        Process process;
-        process.setCommand({python, {"-m", commandArg, "-h"}});
-        process.runBlocking();
-        const bool usable = process.result() == ProcessResult::FinishedWithSuccess;
-        it = cache->insert(python, usable);
-    }
-    return *it;
+    std::optional<bool> result;
+    cache->read([&result, python](const QHash<FilePath, bool> &cache) {
+        if (auto it = cache.find(python); it != cache.end())
+            result = it.value();
+    });
+    if (result)
+        return *result;
+
+    Process process;
+    process.setCommand({python, {"-m", commandArg, "-h"}});
+    process.runBlocking();
+    const bool usable = process.result() == ProcessResult::FinishedWithSuccess;
+    cache->writeLocked()->insert(python, usable);
+    return usable;
 }
 
 bool venvIsUsable(const FilePath &python)
 {
-    static QHash<FilePath, bool> cache;
-    return isUsableHelper(&cache, "pyVenvIsUsable", "venv", python);
+    static SynchronizedValue<QHash<FilePath, bool>> cache;
+    return isUsableHelper(&cache, "venv", python);
 }
 
 bool pipIsUsable(const FilePath &python)
 {
-    static QHash<FilePath, bool> cache;
-    return isUsableHelper(&cache, "pyPipIsUsable", "pip", python);
+    static SynchronizedValue<QHash<FilePath, bool>> cache;
+    return isUsableHelper(&cache, "pip", python);
 }
 
 QString pythonVersion(const FilePath &python)

@@ -48,7 +48,7 @@ public:
 
 void ExtensionsModelPrivate::addUnlistedLocalPlugins()
 {
-    QStringList responseExtensions;
+    QSet<QString> responseExtensions;
     for (const QJsonValueConstRef &responseItem : qAsConst(responseItems))
         responseExtensions << responseItem.toObject().value("id").toString();
 
@@ -124,6 +124,8 @@ QVariant ExtensionsModelPrivate::dataFromRemotePlugin(const QJsonObject &json, i
         }
         break;
     }
+    case RoleVersion:
+        return metaData.value("Version");
     case RoleItemType:
         return ItemTypeExtension;
     case RoleDescriptionLong: {
@@ -246,7 +248,15 @@ static QString badgeText(const QModelIndex &index)
 {
     if (index.data(RoleDownloadUrl).isNull())
         return {};
-    return Tr::tr("New");
+
+    const PluginSpec *ps = pluginSpecForId(index.data(RoleId).toString());
+    if (!ps)
+        return Tr::tr("New");
+
+    const QVersionNumber remoteVersion = QVersionNumber::fromString(
+        index.data(RoleVersion).toString());
+    const QVersionNumber localVersion = QVersionNumber::fromString(ps->version());
+    return remoteVersion > localVersion ? Tr::tr("Updated") : QString();
 }
 
 ExtensionState extensionState(const QModelIndex &index)

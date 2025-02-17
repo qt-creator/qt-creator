@@ -8,7 +8,7 @@
     "trDisplayCategory": "Test Case",
     "icon": "../../autotest/autotest.png",
     "iconKind": "Themed",
-    "enabled": "%{JS: value('Plugins').indexOf('AutoTest') >= 0}",
+    "enabled": "%{JS: isPluginRunning('autotest')}",
 
     "options": [
         { "key": "TargetPath", "value": "%{Path}" },

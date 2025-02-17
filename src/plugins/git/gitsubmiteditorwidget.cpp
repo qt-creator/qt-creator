@@ -114,18 +114,24 @@ GitSubmitEditorWidget::GitSubmitEditorWidget() :
             this, &GitSubmitEditorWidget::authorInformationChanged);
     connect(m_gitSubmitPanel->showHeadLabel, &QLabel::linkActivated,
             this, [this] { emit showRequested("HEAD"); });
+    connect(m_gitSubmitPanel->branchLabel, &QLabel::linkActivated,
+            this, [this] { emit logRequested(m_range); });
 }
 
 void GitSubmitEditorWidget::setPanelInfo(const GitSubmitEditorPanelInfo &info)
 {
     m_gitSubmitPanel->repositoryLabel->setText(info.repository.toUserOutput());
+    QString label;
     if (info.branch.contains("(no branch)")) {
         const QString errorColor = Utils::creatorColor(Utils::Theme::TextColorError).name();
-        m_gitSubmitPanel->branchLabel->setText(QString::fromLatin1("<span style=\"color:%1\">%2</span>")
-                                                .arg(errorColor, Tr::tr("Detached HEAD")));
+        m_range = {"HEAD", "--not", "--remotes"};
+        label = QString("<a style=\"color: %1;\" href=\"branch\">%2</a>")
+                    .arg(errorColor, Tr::tr("Detached HEAD"));
     } else {
-        m_gitSubmitPanel->branchLabel->setText(info.branch);
+        m_range = {info.branch.split(' ').first()}; // split removes "[ahead 3]"
+        label = "<a href=\"branch\">" + info.branch + "</a> ";
     }
+    m_gitSubmitPanel->branchLabel->setText(label);
 }
 
 QString GitSubmitEditorWidget::amendHash() const

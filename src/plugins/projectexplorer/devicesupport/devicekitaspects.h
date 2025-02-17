@@ -13,7 +13,7 @@ namespace Utils { class FilePath; }
 namespace ProjectExplorer {
 class Kit;
 
-class PROJECTEXPLORER_EXPORT DeviceTypeKitAspect
+class PROJECTEXPLORER_EXPORT RunDeviceTypeKitAspect
 {
 public:
     static const Utils::Id id();
@@ -21,7 +21,7 @@ public:
     static void setDeviceTypeId(Kit *k, Utils::Id type);
 };
 
-class PROJECTEXPLORER_EXPORT DeviceKitAspect
+class PROJECTEXPLORER_EXPORT RunDeviceKitAspect
 {
 public:
     static Utils::Id id();
@@ -30,6 +30,14 @@ public:
     static void setDevice(Kit *k, IDeviceConstPtr dev);
     static void setDeviceId(Kit *k, Utils::Id dataId);
     static Utils::FilePath deviceFilePath(const Kit *k, const QString &pathOnDevice);
+};
+
+class PROJECTEXPLORER_EXPORT BuildDeviceTypeKitAspect
+{
+public:
+    static Utils::Id id();
+    static Utils::Id deviceTypeId(const Kit *k);
+    static void setDeviceTypeId(Kit *k, Utils::Id type);
 };
 
 class PROJECTEXPLORER_EXPORT BuildDeviceKitAspect

@@ -35,7 +35,7 @@
 
     \section1 Meson Build Steps
 
-    \QC builds Meson projects by running \c {ninja -v target}.
+    \QC builds Meson projects by running \c {meson compile --verbose target}.
 
     You can add arguments and targets for the build command in
     \uicontrol {Build Steps}.

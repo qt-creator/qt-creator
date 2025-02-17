@@ -22,7 +22,7 @@
     The final environment is specified separately for each kit. With
     project-specific environment settings you can change the environment for
     all kits that you use to build, deploy, and run the project simultaneously,
-    rather than having to change it separately for each kit.
+    rather than having to change it separately for each \l{Kits}{kit}.
 
     The changes are stored in the local project-specific \c{CMakeLists.txt.user}
     or \c{.pro.user} file, depending on the build system you use, such as CMake
@@ -43,9 +43,9 @@
 
     To change the system environment for a project from the one in which
     \QC is started, select \uicontrol Projects > \uicontrol {Project Settings}
-    > \uicontrol Environment.
+    > \uicontrol {Project Environment}.
 
-    \image qtcreator-projects-environment.webp {Environment tab in Project Settings}
+    \image qtcreator-projects-environment.webp {Project Environment view in Project Settings}
 
     You can edit existing environment variables or add, reset, unset, or
     temporarily disable variables.
@@ -125,7 +125,7 @@
     \title Edit environment settings
 
     You can change the environment variable values for build or run environments
-    either for a particular project or globally:
+    globally or for a particular project or kit:
 
     \list
         \li To change values globally, go to \preferences >
@@ -135,6 +135,10 @@
             \uicontrol {Add} in the \l {Change the environment for a project}
             {project}, \l {Specify the build environment}{build}, or
             \l {Specify the run environment}{run} environment settings.
+        \li To change values for a kit, go to \preferences >
+            \uicontrol Kits > \uicontrol Kits, and select
+            \uicontrol {Edit Build Environment} or
+            \uicontrol {Edit Run Environment} in \uicontrol {Environment}.
     \endlist
 
     \image qtcreator-edit-environment.webp {Edit Environment dialog}
@@ -168,5 +172,5 @@
     characters (##).
 
     \sa {Specify the environment for projects}, {Configure projects for building},
-    {Configure projects for running}, {Use Qt Creator variables}
+    {Configure projects for running}, {Use Qt Creator variables}, {Kits}
 */

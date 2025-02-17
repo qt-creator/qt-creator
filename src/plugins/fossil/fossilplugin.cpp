@@ -687,7 +687,7 @@ void FossilPluginPrivate::createRepository()
     // Prompt for a directory that is not under version control yet
     QWidget *mw = ICore::dialogParent();
     do {
-        directory = FileUtils::getExistingDirectory(nullptr, Tr::tr("Choose Checkout Directory"), directory);
+        directory = FileUtils::getExistingDirectory(Tr::tr("Choose Checkout Directory"), directory);
         if (directory.isEmpty())
             return;
         const IVersionControl *managingControl = VcsManager::findVersionControlForDirectory(directory);
@@ -744,7 +744,8 @@ bool FossilPluginPrivate::activateCommit()
         if (!branch.isEmpty()) {
             // @TODO: make enquote utility function
             QString enquotedBranch = branch;
-            if (branch.contains(QRegularExpression("\\s")))
+            static const QRegularExpression regexp("\\s");
+            if (branch.contains(regexp))
                 enquotedBranch = QString("\"") + branch + "\"";
             extraOptions << "--branch" << enquotedBranch;
         }
@@ -757,7 +758,7 @@ bool FossilPluginPrivate::activateCommit()
         // Whether local commit or not
         if (commitWidget->isPrivateOptionEnabled())
             extraOptions += "--private";
-        fossilClient().commit(m_submitRepository, files, editorDocument->filePath().toString(), extraOptions);
+        fossilClient().commit(m_submitRepository, files, editorDocument->filePath().toUrlishString(), extraOptions);
     }
     return true;
 }
@@ -799,7 +800,8 @@ bool FossilPluginPrivate::isVcsFileOrDirectory(const FilePath &filePath) const
 
 bool FossilPluginPrivate::managesDirectory(const FilePath &directory, FilePath *topLevel) const
 {
-    const FilePath topLevelFound = fossilClient().findTopLevelForFile(directory);
+    const FilePath topLevelFound
+        = VcsManager::findRepositoryForFiles(directory, {Constants::FOSSILREPO});
     if (topLevel)
         *topLevel = topLevelFound;
     return !topLevelFound.isEmpty();
@@ -907,7 +909,7 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sou
     const QString fossilFile = options.value("fossil-file");
     const FilePath fossilFilePath = FilePath::fromUserInput(QDir::fromNativeSeparators(fossilFile));
     const QString fossilFileNative = fossilFilePath.toUserOutput();
-    const QFileInfo cloneRepository(fossilFilePath.toString());
+    const QFileInfo cloneRepository(fossilFilePath.toUrlishString());
 
     // Check when requested to clone a local repository and clone-into repository file is the same
     // or not specified.

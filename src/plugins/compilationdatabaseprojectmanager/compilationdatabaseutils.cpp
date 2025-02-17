@@ -206,7 +206,8 @@ QStringList splitCommandLine(QString commandLine, QSet<QString> &flagsCache)
 
     // Remove escaped quotes.
     commandLine.replace("\\\"", "'");
-    for (const QString &part : commandLine.split(QRegularExpression("\""))) {
+    static const QRegularExpression splitRegexp("\"");
+    for (const QString &part : commandLine.split(splitRegexp)) {
         if (insideQuotes) {
             const QString quotedPart = "\"" + part + "\"";
             if (result.last().endsWith("=")) {
@@ -217,8 +218,8 @@ QStringList splitCommandLine(QString commandLine, QSet<QString> &flagsCache)
                 result.append(*flagIt);
             }
         } else { // If 's' is outside quotes ...
-            for (const QString &flag :
-                 part.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts)) {
+            static const QRegularExpression regexp("\\s+");
+            for (const QString &flag : part.split(regexp, Qt::SkipEmptyParts)) {
                 auto flagIt = flagsCache.insert(flag);
                 result.append(*flagIt);
             }

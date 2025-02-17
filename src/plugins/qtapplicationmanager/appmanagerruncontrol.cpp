@@ -20,15 +20,15 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/runcontrol.h>
+#include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-
-#include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
@@ -41,285 +41,198 @@ using namespace Utils;
 
 namespace AppManager::Internal {
 
-// AppManagerRunner
-
-class AppManagerRunner final : public SimpleTargetRunner
+static RunWorker *createInferiorRunner(RunControl *runControl, QmlDebugServicesPreset qmlServices)
 {
-public:
-    AppManagerRunner(RunControl *runControl)
-        : SimpleTargetRunner(runControl)
-    {
-        setId("ApplicationManagerPlugin.Run.TargetRunner");
-        connect(this, &RunWorker::stopped, this, [this, runControl] {
-            appendMessage(Tr::tr("%1 exited.").arg(runControl->runnable().command.toUserOutput()),
-                          OutputFormat::NormalMessageFormat);
-        });
+    auto worker = new ProcessRunner(runControl);
+    worker->setId(AppManager::Constants::DEBUG_LAUNCHER_ID);
 
-        setStartModifier([this, runControl] {
-            FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
-            QString appId = runControl->aspectData<AppManagerIdAspect>()->value;
-            QString instanceId = runControl->aspectData<AppManagerInstanceIdAspect>()->value;
-            QString documentUrl = runControl->aspectData<AppManagerDocumentUrlAspect>()->value;
-            bool restartIfRunning = runControl->aspectData<AppManagerRestartIfRunningAspect>()->value;
-            QStringList envVars;
-            if (auto envAspect = runControl->aspectData<EnvironmentAspect>())
-                envVars = envAspect->environment.toStringList();
-            envVars.replaceInStrings(" ", "\\ ");
+    worker->setStartModifier([worker, runControl, qmlServices] {
+        FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
+        QString appId = runControl->aspectData<AppManagerIdAspect>()->value;
+        QString instanceId = runControl->aspectData<AppManagerInstanceIdAspect>()->value;
+        QString documentUrl = runControl->aspectData<AppManagerDocumentUrlAspect>()->value;
+        bool restartIfRunning = runControl->aspectData<AppManagerRestartIfRunningAspect>()->value;
+        QStringList envVars;
+        if (auto envAspect = runControl->aspectData<EnvironmentAspect>())
+            envVars = envAspect->environment.toStringList();
+        envVars.replaceInStrings(" ", "\\ ");
 
-            // Always use the default environment to start the appman-controller in
-            // The env variables from the EnvironmentAspect are set through the controller
-            setEnvironment({});
-            // Prevent the write channel to be closed, otherwise the appman-controller will exit
-            setProcessMode(ProcessMode::Writer);
-            CommandLine cmd{controller};
-            if (!instanceId.isEmpty())
-                cmd.addArgs({"--instance-id", instanceId});
+        CommandLine cmd{controller};
+        if (!instanceId.isEmpty())
+            cmd.addArgs({"--instance-id", instanceId});
 
-            if (envVars.isEmpty())
-                cmd.addArgs({"start-application", "-eio"});
-            else
-                cmd.addArgs({"debug-application", "-eio"});
+        cmd.addArg("debug-application");
 
-            if (restartIfRunning)
-                cmd.addArg("--restart");
-            if (!envVars.isEmpty())
-                cmd.addArg(envVars.join(' '));
-            cmd.addArg(appId);
-            if (!documentUrl.isEmpty())
-                cmd.addArg(documentUrl);
-            setCommandLine(cmd);
-        });
-    }
-};
-
-
-// AppManInferiorRunner
-
-class AppManInferiorRunner : public SimpleTargetRunner
-{
-public:
-    AppManInferiorRunner(RunControl *runControl,
-                         bool usePerf, bool useGdbServer, bool useQmlServer,
-                         QmlDebug::QmlDebugServicesPreset qmlServices)
-        : SimpleTargetRunner(runControl),
-        m_qmlServices(qmlServices)
-    {
-        setId(AppManager::Constants::DEBUG_LAUNCHER_ID);
-        setEssential(true);
-
-        if (usePerf) {
-            suppressDefaultStdOutHandling();
-            runControl->setProperty("PerfProcess", QVariant::fromValue(process()));
-            runControl->requestPerfChannel();
+        if (runControl->usesDebugChannel() || runControl->usesQmlChannel()) {
+            QStringList debugArgs;
+            debugArgs.append(envVars.join(' '));
+            if (runControl->usesDebugChannel())
+                debugArgs.append(QString("gdbserver :%1").arg(runControl->debugChannel().port()));
+            if (runControl->usesQmlChannel()) {
+                const QString qmlArgs = qmlDebugCommandLineArguments(qmlServices,
+                    QString("port:%1").arg(runControl->qmlChannel().port()), true);
+                debugArgs.append(QString("%program% %1 %arguments%") .arg(qmlArgs));
+            }
+            cmd.addArg(debugArgs.join(' '));
+        }
+        if (runControl->usesPerfChannel()) {
+            const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
+            const QString recordArgs = perfArgs[PerfProfiler::Constants::PerfRecordArgsId].toString();
+            cmd.addArg(QString("perf record %1 -o - --").arg(recordArgs));
         }
 
-        if (useGdbServer)
-            runControl->requestDebugChannel();
+        cmd.addArg("-eio");
+        if (restartIfRunning)
+            cmd.addArg("--restart");
+        cmd.addArg(appId);
 
-        if (useQmlServer)
-            runControl->requestQmlChannel();
+        if (!documentUrl.isEmpty())
+            cmd.addArg(documentUrl);
 
-        setStartModifier([this, runControl] {
-            FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
-            QString appId = runControl->aspectData<AppManagerIdAspect>()->value;
-            QString instanceId = runControl->aspectData<AppManagerInstanceIdAspect>()->value;
-            QString documentUrl = runControl->aspectData<AppManagerDocumentUrlAspect>()->value;
-            bool restartIfRunning = runControl->aspectData<AppManagerRestartIfRunningAspect>()->value;
-            QStringList envVars;
-            if (auto envAspect = runControl->aspectData<EnvironmentAspect>())
-                envVars = envAspect->environment.toStringList();
-            envVars.replaceInStrings(" ", "\\ ");
+        // Always use the default environment to start the appman-controller in
+        // The env variables from the EnvironmentAspect are set through the controller
+        worker->setEnvironment({});
+        // Prevent the write channel to be closed, otherwise the appman-controller will exit
+        worker->setProcessMode(ProcessMode::Writer);
+        worker->setCommandLine(cmd);
 
-            CommandLine cmd{controller};
-            if (!instanceId.isEmpty())
-                cmd.addArgs({"--instance-id", instanceId});
-
-            cmd.addArg("debug-application");
-
-            if (usesDebugChannel() || usesQmlChannel()) {
-                QStringList debugArgs;
-                debugArgs.append(envVars.join(' '));
-                if (usesDebugChannel())
-                    debugArgs.append(QString("gdbserver :%1").arg(debugChannel().port()));
-                if (usesQmlChannel()) {
-                    const QString qmlArgs =
-                            qmlDebugCommandLineArguments(m_qmlServices,
-                                                         QString("port:%1").arg(qmlChannel().port()),
-                                                         true);
-                    debugArgs.append(QString("%program% %1 %arguments%") .arg(qmlArgs));
-                }
-                cmd.addArg(debugArgs.join(' '));
-            }
-            if (usesPerfChannel()) {
-                const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
-                const QString recordArgs = perfArgs[PerfProfiler::Constants::PerfRecordArgsId].toString();
-                cmd.addArg(QString("perf record %1 -o - --").arg(recordArgs));
-            }
-
-            cmd.addArg("-eio");
-            if (restartIfRunning)
-                cmd.addArg("--restart");
-            cmd.addArg(appId);
-
-            if (!documentUrl.isEmpty())
-                cmd.addArg(documentUrl);
-
-            // Always use the default environment to start the appman-controller in
-            // The env variables from the EnvironmentAspect are set through the controller
-            setEnvironment({});
-            // Prevent the write channel to be closed, otherwise the appman-controller will exit
-            setProcessMode(ProcessMode::Writer);
-            setCommandLine(cmd);
-
-            appendMessage(Tr::tr("Starting Application Manager debugging..."), NormalMessageFormat);
-            appendMessage(Tr::tr("Using: %1.").arg(cmd.toUserOutput()), NormalMessageFormat);
-        });
-    }
-
-private:
-    QmlDebug::QmlDebugServicesPreset m_qmlServices;
-};
-
+        worker->appendMessage(Tr::tr("Starting Application Manager debugging..."), NormalMessageFormat);
+        worker->appendMessage(Tr::tr("Using: %1.").arg(cmd.toUserOutput()), NormalMessageFormat);
+    });
+    return worker;
+}
 
 // AppManagerDebugSupport
 
 class AppManagerDebugSupport final : public Debugger::DebuggerRunTool
 {
-private:
-    FilePath m_symbolFile;
-    AppManInferiorRunner *m_debuggee = nullptr;
-
 public:
     AppManagerDebugSupport(RunControl *runControl)
         : DebuggerRunTool(runControl)
     {
         setId("ApplicationManagerPlugin.Debug.Support");
 
-        m_debuggee = new AppManInferiorRunner(runControl, false, isCppDebugging(), isQmlDebugging(),
-                                              QmlDebug::QmlDebuggerServices);
+        setupPortsGatherer();
 
-        addStartDependency(m_debuggee);
-        addStopDependency(m_debuggee);
+        auto debuggee = createInferiorRunner(runControl, QmlDebuggerServices);
 
-        Target *target = runControl->target();
-
-        const Internal::TargetInformation targetInformation(target);
-        if (!targetInformation.isValid())
-            return;
-
-        if (targetInformation.manifest.isQmlRuntime()) {
-            m_symbolFile = getToolFilePath(Constants::APPMAN_LAUNCHER_QML,
-                                           target->kit(),
-                                           DeviceKitAspect::device(target->kit()));
-        } else if (targetInformation.manifest.isNativeRuntime()) {
-            m_symbolFile = Utils::findOrDefault(target->buildSystem()->applicationTargets(), [&](const BuildTargetInfo &ti) {
-                               return ti.buildKey == targetInformation.manifest.code || ti.projectFilePath.toString() == targetInformation.manifest.code;
-                           }).targetFilePath;
-        } else {
-            reportFailure(Tr::tr("Cannot debug: Only QML and native applications are supported."));
-        }
+        addStartDependency(debuggee);
+        addStopDependency(debuggee);
+        debuggee->addStopDependency(this);
     }
 
 private:
     void start() override
     {
-        if (m_symbolFile.isEmpty()) {
+        Target *target = runControl()->target();
+
+        const Internal::TargetInformation targetInformation(target);
+        if (!targetInformation.isValid()) {
+            reportFailure(Tr::tr("Cannot debug: Invalid target information."));
+            return;
+        }
+
+        FilePath symbolFile;
+
+        if (targetInformation.manifest.isQmlRuntime()) {
+            symbolFile = getToolFilePath(Constants::APPMAN_LAUNCHER_QML,
+                                         target->kit(),
+                                         RunDeviceKitAspect::device(target->kit()));
+        } else if (targetInformation.manifest.isNativeRuntime()) {
+            symbolFile = Utils::findOrDefault(target->buildSystem()->applicationTargets(),
+               [&](const BuildTargetInfo &ti) {
+                   return ti.buildKey == targetInformation.manifest.code
+                       || ti.projectFilePath.toUrlishString() == targetInformation.manifest.code;
+               }).targetFilePath;
+        } else {
+            reportFailure(Tr::tr("Cannot debug: Only QML and native applications are supported."));
+        }
+        if (symbolFile.isEmpty()) {
             reportFailure(Tr::tr("Cannot debug: Local executable is not set."));
             return;
         }
 
-        setStartMode(Debugger::AttachToRemoteServer);
-        setCloseMode(Debugger::KillAndExitMonitorAtClose);
+        Debugger::DebuggerRunParameters &rp = runParameters();
+        rp.setStartMode(Debugger::AttachToRemoteServer);
+        rp.setCloseMode(Debugger::KillAndExitMonitorAtClose);
 
-        if (isQmlDebugging())
-            setQmlServer(qmlChannel());
+        if (rp.isQmlDebugging())
+            rp.setQmlServer(runControl()->qmlChannel());
 
-        if (isCppDebugging()) {
-            setUseExtendedRemote(false);
-            setUseContinueInsteadOfRun(true);
-            setContinueAfterAttach(true);
-            setRemoteChannel(debugChannel());
-            setSymbolFile(m_symbolFile);
+        if (rp.isCppDebugging()) {
+            rp.setUseExtendedRemote(false);
+            rp.setUseContinueInsteadOfRun(true);
+            rp.setContinueAfterAttach(true);
+            rp.setRemoteChannel(runControl()->debugChannel());
+            rp.setSymbolFile(symbolFile);
 
             QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(runControl()->kit());
             if (version) {
-                setSolibSearchPath(version->qtSoPaths());
-                addSearchDirectory(version->qmlPath());
+                rp.setSolibSearchPath(version->qtSoPaths());
+                rp.addSearchDirectory(version->qmlPath());
             }
 
-            auto sysroot = SysRootKitAspect().sysRoot(runControl()->kit());
+            const FilePath sysroot = SysRootKitAspect::sysRoot(runControl()->kit());
             if (sysroot.isEmpty())
-                setSysRoot("/");
+                rp.setSysRoot("/");
             else
-                setSysRoot(sysroot);
+                rp.setSysRoot(sysroot);
         }
 
         DebuggerRunTool::start();
     }
 };
 
-// AppManagerQmlToolingSupport
-
-class AppManagerQmlToolingSupport final : public RunWorker
-{
-public:
-    explicit AppManagerQmlToolingSupport(RunControl *runControl)
-        : RunWorker(runControl)
-    {
-        setId("AppManagerQmlToolingSupport");
-
-        QmlDebug::QmlDebugServicesPreset services = QmlDebug::servicesForRunMode(runControl->runMode());
-        m_runner = new AppManInferiorRunner(runControl, false, false, true, services);
-        addStartDependency(m_runner);
-        addStopDependency(m_runner);
-
-        m_worker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
-        m_worker->addStartDependency(this);
-        addStopDependency(m_worker);
-
-        // Make sure the QML Profiler is stopped before the appman-controller
-        m_runner->addStopDependency(m_worker);
-    }
-
-private:
-    void start() final
-    {
-        m_worker->recordData("QmlServerUrl", qmlChannel());
-        reportStarted();
-    }
-
-    AppManInferiorRunner *m_runner = nullptr;
-    RunWorker *m_worker = nullptr;
-};
-
-// AppManagerDevicePerfProfilerSupport
-
-class AppManagerPerfProfilerSupport final : public RunWorker
-{
-public:
-    explicit AppManagerPerfProfilerSupport(RunControl *runControl)
-        : RunWorker(runControl)
-    {
-        setId("AppManagerPerfProfilerSupport");
-
-        m_profilee = new AppManInferiorRunner(runControl, true, false, false,
-                                              QmlDebug::NoQmlDebugServices);
-        addStartDependency(m_profilee);
-        addStopDependency(m_profilee);
-    }
-
-private:
-    AppManInferiorRunner *m_profilee = nullptr;
-};
-
-// Factories
-
 class AppManagerRunWorkerFactory final : public RunWorkerFactory
 {
 public:
     AppManagerRunWorkerFactory()
     {
-        setProduct<AppManagerRunner>();
+        setProducer([](RunControl *runControl) {
+            auto worker = new ProcessRunner(runControl);
+            worker->setId("ApplicationManagerPlugin.Run.TargetRunner");
+            QObject::connect(worker, &RunWorker::stopped, worker, [worker, runControl] {
+                worker->appendMessage(
+                    Tr::tr("%1 exited.").arg(runControl->commandLine().toUserOutput()),
+                    OutputFormat::NormalMessageFormat);
+            });
+
+            worker->setStartModifier([worker, runControl] {
+                FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
+                QString appId = runControl->aspectData<AppManagerIdAspect>()->value;
+                QString instanceId = runControl->aspectData<AppManagerInstanceIdAspect>()->value;
+                QString documentUrl = runControl->aspectData<AppManagerDocumentUrlAspect>()->value;
+                bool restartIfRunning = runControl->aspectData<AppManagerRestartIfRunningAspect>()->value;
+                QStringList envVars;
+                if (auto envAspect = runControl->aspectData<EnvironmentAspect>())
+                    envVars = envAspect->environment.toStringList();
+                envVars.replaceInStrings(" ", "\\ ");
+
+                // Always use the default environment to start the appman-controller in
+                // The env variables from the EnvironmentAspect are set through the controller
+                worker->setEnvironment({});
+                // Prevent the write channel to be closed, otherwise the appman-controller will exit
+                worker->setProcessMode(ProcessMode::Writer);
+                CommandLine cmd{controller};
+                if (!instanceId.isEmpty())
+                    cmd.addArgs({"--instance-id", instanceId});
+
+                if (envVars.isEmpty())
+                    cmd.addArgs({"start-application", "-eio"});
+                else
+                    cmd.addArgs({"debug-application", "-eio"});
+
+                if (restartIfRunning)
+                    cmd.addArg("--restart");
+                if (!envVars.isEmpty())
+                    cmd.addArg(envVars.join(' '));
+                cmd.addArg(appId);
+                if (!documentUrl.isEmpty())
+                    cmd.addArg(documentUrl);
+                worker->setCommandLine(cmd);
+            });
+            return worker;
+        });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::RUNCONFIGURATION_ID);
         addSupportedRunConfig(Constants::RUNANDDEBUGCONFIGURATION_ID);
@@ -342,7 +255,16 @@ class AppManagerQmlToolingWorkerFactory final : public RunWorkerFactory
 public:
     AppManagerQmlToolingWorkerFactory()
     {
-        setProduct<AppManagerQmlToolingSupport>();
+        setProducer([](RunControl *runControl) {
+            runControl->requestQmlChannel();
+            auto worker = createInferiorRunner(runControl, servicesForRunMode(runControl->runMode()));
+
+            auto extraWorker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
+            extraWorker->addStartDependency(worker);
+            // Make sure the QML Profiler is stopped before the appman-controller
+            worker->addStopDependency(extraWorker);
+            return worker;
+        });
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
         addSupportedRunConfig(Constants::RUNANDDEBUGCONFIGURATION_ID);
@@ -354,7 +276,10 @@ class AppManagerPerfProfilerWorkerFactory final : public RunWorkerFactory
 public:
     AppManagerPerfProfilerWorkerFactory()
     {
-        setProduct<AppManagerPerfProfilerSupport>();
+        setProducer([](RunControl *runControl) {
+            runControl->requestPerfChannel();
+            return createInferiorRunner(runControl, NoQmlDebugServices);
+        });
         addSupportedRunMode("PerfRecorder");
         addSupportedRunConfig(Constants::RUNANDDEBUGCONFIGURATION_ID);
     }

@@ -39,7 +39,7 @@ static QString rectangleToString(const QRect &r)
 
 static QRect stringToRectangle(const QString &v)
 {
-    static QRegularExpression pattern("^(\\d+)x(\\d+)([-+]\\d+)([-+]\\d+)$");
+    static const QRegularExpression pattern("^(\\d+)x(\\d+)([-+]\\d+)([-+]\\d+)$");
     Q_ASSERT(pattern.isValid());
     const QRegularExpressionMatch match = pattern.match(v);
     return match.hasMatch() ?
@@ -330,11 +330,7 @@ FilePath PersistentSettingsReader::filePath()
     \sa Utils::PersistentSettingsReader
 */
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
 static QString xmlAttrFromKey(const QString &key) { return key; }
-#else
-static QString xmlAttrFromKey(const QString &key) { return key; }
-#endif
 
 static void writeVariantValue(QXmlStreamWriter &w, const QVariant &variant, const QString &key = {})
 {

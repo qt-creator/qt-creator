@@ -199,7 +199,7 @@ void BuiltinModelManagerSupport::checkUnused(const Utils::Link &link, SearchResu
                                              const Utils::LinkHandler &callback)
 {
     CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
-    QFile file(link.targetFilePath.toString());
+    QFile file(link.targetFilePath.toUrlishString());
     if (!file.open(QIODevice::ReadOnly))
         return callback(link);
     const QByteArray &contents = file.readAll();

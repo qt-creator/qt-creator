@@ -8,7 +8,6 @@ Project {
         "cplusplustools.qbs",
         "disclaim/disclaim.qbs",
         "process_stub/process_stub.qbs",
-        "processlauncher/processlauncher.qbs",
         "qmlpuppet/qmlpuppet.qbs",
         "qtcdebugger/qtcdebugger.qbs",
         "qtcreatorcrashhandler/qtcreatorcrashhandler.qbs",

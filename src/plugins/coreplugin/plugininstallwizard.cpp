@@ -48,9 +48,9 @@ struct Data
 {
     FilePath sourcePath;
     FilePath extractedPath;
-    bool installIntoApplication = false;
     std::unique_ptr<PluginSpec> pluginSpec = nullptr;
-    bool loadImmediately = false;
+    bool loadImmediately = true;
+    bool prepareForUpdate = false;
 };
 
 static bool hasLibSuffix(const FilePath &path)
@@ -100,7 +100,7 @@ public:
     bool isComplete() const final
     {
         const FilePath path = m_data->sourcePath;
-        if (!QFileInfo::exists(path.toString())) {
+        if (!QFileInfo::exists(path.toUrlishString())) {
             m_info->setText(Tr::tr("File does not exist."));
             return false;
         }
@@ -127,13 +127,20 @@ public:
 
 using CheckResult = expected_str<PluginSpec *>;
 
-static Result checkPlugin(PluginSpec *spec)
+static Result checkPlugin(PluginSpec *spec, bool update)
 {
-    if (Utils::anyOf(PluginManager::plugins(), [spec](PluginSpec *other) {
-            return other->id() == spec->id();
-        }))
+    const bool pluginAlreadyExists
+        = Utils::anyOf(PluginManager::plugins(), [spec](PluginSpec *other) {
+              return other->id() == spec->id();
+          });
+
+    if (!update && pluginAlreadyExists) {
         return Result::Error(
             Tr::tr("A plugin with ID \"%1\" is already installed.").arg(spec->id()));
+    } else if (update && !pluginAlreadyExists) {
+        return Result::Error(Tr::tr("No plugin with ID \"%1\" is installed.").arg(spec->id()));
+    }
+
     if (!spec->resolveDependencies(PluginManager::plugins())) {
         return Result::Error(
             Tr::tr("Plugin failed to resolve dependencies:") + " " + spec->errorString());
@@ -142,18 +149,18 @@ static Result checkPlugin(PluginSpec *spec)
 }
 
 static expected_str<std::unique_ptr<PluginSpec>> checkPlugin(
-    expected_str<std::unique_ptr<PluginSpec>> spec)
+    expected_str<std::unique_ptr<PluginSpec>> spec, bool update)
 {
     if (!spec)
         return spec;
-    const Result ok = checkPlugin(spec->get());
+    const Result ok = checkPlugin(spec->get(), update);
     if (ok)
         return spec;
     return Utils::make_unexpected(ok.error());
 }
 
 // Async. Result is set if any issue was found.
-void checkContents(QPromise<CheckResult> &promise, const FilePath &tempDir)
+void checkContents(QPromise<CheckResult> &promise, const FilePath &tempDir, bool update)
 {
     QList<PluginSpec *> plugins = pluginSpecsFromArchive(tempDir);
     if (plugins.isEmpty()) {
@@ -167,7 +174,7 @@ void checkContents(QPromise<CheckResult> &promise, const FilePath &tempDir)
     }
 
     PluginSpec *plugin = plugins.front();
-    const Result ok = checkPlugin(plugin);
+    const Result ok = checkPlugin(plugin, update);
     if (!ok) {
         promise.addResult(Utils::make_unexpected(ok.error()));
         delete plugin;
@@ -214,8 +221,8 @@ public:
         emit completeChanged();
         if (hasLibSuffix(m_data->sourcePath)) {
             m_cancelButton->setVisible(false);
-            expected_str<std::unique_ptr<PluginSpec>> spec = checkPlugin(
-                readCppPluginSpec(m_data->sourcePath));
+            expected_str<std::unique_ptr<PluginSpec>> spec
+                = checkPlugin(readCppPluginSpec(m_data->sourcePath), m_data->prepareForUpdate);
             if (!spec) {
                 m_label->setType(InfoLabel::Error);
                 m_label->setText(spec.error());
@@ -228,8 +235,18 @@ public:
             return;
         }
 
-        m_tempDir = std::make_unique<TemporaryDirectory>("plugininstall");
-        m_data->extractedPath = m_tempDir->path();
+        FilePath tmpDirBase;
+        if (m_data->prepareForUpdate)
+            tmpDirBase = appInfo().userResources / "install-prep-area";
+        else
+            tmpDirBase = TemporaryDirectory::masterDirectoryFilePath();
+
+        tmpDirBase.ensureWritableDir();
+
+        m_tempDir = std::make_unique<QTemporaryDir>((tmpDirBase / "plugininstall").path());
+        m_tempDir->setAutoRemove(false);
+
+        m_data->extractedPath = FilePath::fromString(m_tempDir->path());
         m_label->setText(Tr::tr("Checking archive..."));
         m_label->setType(InfoLabel::None);
 
@@ -244,7 +261,7 @@ public:
 
         const auto onUnarchiverSetup = [this, sourceAndCommand](Unarchiver &unarchiver) {
             unarchiver.setSourceAndCommand(*sourceAndCommand);
-            unarchiver.setDestDir(m_tempDir->path());
+            unarchiver.setDestDir(m_data->extractedPath);
             connect(&unarchiver, &Unarchiver::outputReceived, this, [this](const QString &output) {
                 m_output->append(output);
             });
@@ -255,10 +272,11 @@ public:
         };
 
         const auto onCheckerSetup = [this](Async<CheckResult> &async) {
-            if (!m_tempDir)
+            if (!m_data->extractedPath.exists())
                 return SetupResult::StopWithError;
 
-            async.setConcurrentCallData(checkContents, m_tempDir->path());
+            async.setConcurrentCallData(
+                checkContents, m_data->extractedPath, m_data->prepareForUpdate);
             return SetupResult::Continue;
         };
         const auto onCheckerDone = [this](const Async<CheckResult> &async) {
@@ -289,7 +307,10 @@ public:
     {
         // back button pressed
         m_taskTreeRunner.reset();
-        m_tempDir.reset();
+        if (m_tempDir) {
+            m_tempDir->remove();
+            m_tempDir.reset();
+        }
     }
 
     bool isComplete() const final { return m_isComplete; }
@@ -301,59 +322,13 @@ public:
         return WizardPage::nextId();
     }
 
-    std::unique_ptr<TemporaryDirectory> m_tempDir;
+    std::unique_ptr<QTemporaryDir> m_tempDir;
     TaskTreeRunner m_taskTreeRunner;
     InfoLabel *m_label = nullptr;
     QPushButton *m_cancelButton = nullptr;
     QTextEdit *m_output = nullptr;
     Data *m_data = nullptr;
     bool m_isComplete = false;
-};
-
-class InstallLocationPage : public WizardPage
-{
-public:
-    InstallLocationPage(Data *data, QWidget *parent)
-        : WizardPage(parent)
-        , m_data(data)
-    {
-        setTitle(Tr::tr("Install Location"));
-
-        auto label = new QLabel("<p>" + Tr::tr("Choose install location.") + "</p>");
-        label->setWordWrap(true);
-
-        auto localInstall = new QRadioButton(Tr::tr("User plugins"));
-        localInstall->setChecked(!m_data->installIntoApplication);
-        auto localLabel = new QLabel(Tr::tr("The plugin will be available to all compatible %1 "
-                                            "installations, but only for the current user.")
-                                         .arg(QGuiApplication::applicationDisplayName()));
-        localLabel->setWordWrap(true);
-        localLabel->setAttribute(Qt::WA_MacSmallSize, true);
-
-        auto appInstall = new QRadioButton(
-            Tr::tr("%1 installation").arg(QGuiApplication::applicationDisplayName()));
-        appInstall->setChecked(m_data->installIntoApplication);
-        auto appLabel = new QLabel(Tr::tr("The plugin will be available only to this %1 "
-                                          "installation, but for all users that can access it.")
-                                       .arg(QGuiApplication::applicationDisplayName()));
-        appLabel->setWordWrap(true);
-        appLabel->setAttribute(Qt::WA_MacSmallSize, true);
-
-        using namespace Layouting;
-        Column {
-            label, Space(10), localInstall, localLabel, Space(10), appInstall, appLabel,
-        }.attachTo(this);
-
-        auto group = new QButtonGroup(this);
-        group->addButton(localInstall);
-        group->addButton(appInstall);
-
-        connect(appInstall, &QRadioButton::toggled, this, [this](bool toggled) {
-            m_data->installIntoApplication = toggled;
-        });
-    }
-
-    Data *m_data = nullptr;
 };
 
 class SummaryPage : public WizardPage
@@ -372,6 +347,7 @@ public:
         m_summaryLabel->setOpenExternalLinks(true);
 
         m_loadImmediately = new QCheckBox(Tr::tr("Load plugin immediately"));
+        m_loadImmediately->setChecked(m_data->loadImmediately);
         connect(m_loadImmediately, &QCheckBox::toggled, this, [this](bool checked) {
             m_data->loadImmediately = checked;
         });
@@ -388,8 +364,7 @@ public:
     void initializePage() final
     {
         QTC_ASSERT(m_data && m_data->pluginSpec, return);
-        const FilePath installLocation = m_data->pluginSpec->installLocation(
-            !m_data->installIntoApplication);
+        const FilePath installLocation = m_data->pluginSpec->installLocation(true);
         installLocation.ensureWritableDir();
 
         m_summaryLabel->setText(
@@ -401,7 +376,8 @@ public:
                          .arg(installLocation.fileName())
                          .arg(installLocation.toUrl().toString(QUrl::FullyEncoded))));
 
-        m_loadImmediately->setVisible(m_data->pluginSpec && m_data->pluginSpec->isSoftLoadable());
+        m_loadImmediately->setVisible(
+            m_data->pluginSpec && m_data->pluginSpec->isSoftLoadable() && !m_data->prepareForUpdate);
     }
 
 private:
@@ -460,18 +436,16 @@ private:
     QTextEdit *m_terms = nullptr;
 };
 
-static std::function<void(FilePath)> postCopyOperation()
+static void postCopyOperation(FilePath filePath)
 {
-    return [](const FilePath &filePath) {
-        if (!HostOsInfo::isMacHost())
-            return;
-        // On macOS, downloaded files get a quarantine flag, remove it, otherwise it is a hassle
-        // to get it loaded as a plugin in Qt Creator.
-        Process xattr;
-        xattr.setCommand({"/usr/bin/xattr", {"-d", "com.apple.quarantine", filePath.absoluteFilePath().toString()}});
-        using namespace std::chrono_literals;
-        xattr.runBlocking(1s);
-    };
+    if (!HostOsInfo::isMacHost())
+        return;
+    // On macOS, downloaded files get a quarantine flag, remove it, otherwise it is a hassle
+    // to get it loaded as a plugin in Qt Creator.
+    Process xattr;
+    xattr.setCommand({"/usr/bin/xattr", {"-d", "com.apple.quarantine", filePath.absoluteFilePath().path()}});
+    using namespace std::chrono_literals;
+    xattr.runBlocking(1s);
 }
 
 static bool copyPluginFile(const FilePath &src, const FilePath &dest)
@@ -491,23 +465,35 @@ static bool copyPluginFile(const FilePath &src, const FilePath &dest)
             return false;
         destFile.removeFile();
     }
-    dest.parentDir().ensureWritableDir();
+    if (!destFile.parentDir().ensureWritableDir()) {
+        QMessageBox::warning(
+            ICore::dialogParent(),
+            Tr::tr("Failed to Write File"),
+            Tr::tr("Failed to create directory \"%1\".").arg(dest.toUserOutput()));
+        return false;
+    }
     if (!src.copyFile(destFile)) {
         QMessageBox::warning(ICore::dialogParent(),
                              Tr::tr("Failed to Write File"),
                              Tr::tr("Failed to write file \"%1\".").arg(destFile.toUserOutput()));
         return false;
     }
-    postCopyOperation()(destFile);
+    postCopyOperation(destFile);
     return true;
 }
 
-bool executePluginInstallWizard(const FilePath &archive)
+QString extensionId(PluginSpec *spec)
 {
-    Wizard wizard(ICore::dialogParent());
+    return spec->vendorId() + "." + spec->id();
+}
+
+InstallResult executePluginInstallWizard(const FilePath &archive, bool prepareForUpdate)
+{
+    Wizard wizard;
     wizard.setWindowTitle(Tr::tr("Install Plugin"));
 
     Data data;
+    data.prepareForUpdate = prepareForUpdate;
 
     if (archive.isEmpty()) {
         auto filePage = new SourcePage(&data, &wizard);
@@ -522,26 +508,58 @@ bool executePluginInstallWizard(const FilePath &archive)
     auto acceptTAndCPage = new AcceptTermsAndConditionsPage(&data, &wizard);
     wizard.addPage(acceptTAndCPage);
 
-    auto installLocationPage = new InstallLocationPage(&data, &wizard);
-    wizard.addPage(installLocationPage);
-
     auto summaryPage = new SummaryPage(&data, &wizard);
     wizard.addPage(summaryPage);
 
-    auto install = [&wizard, &data]() {
+    auto install = [&wizard, &data, prepareForUpdate]() {
         if (wizard.exec()) {
-            const FilePath installPath = data.pluginSpec->installLocation(
-                !data.installIntoApplication);
+            const FilePath installPath = data.pluginSpec->installLocation(true)
+                                         / extensionId(data.pluginSpec.get());
+
+            if (prepareForUpdate) {
+                const Result result = ExtensionSystem::PluginManager::removePluginOnRestart(
+                    data.pluginSpec->id());
+                if (!result) {
+                    qWarning() << "Failed to remove plugin" << data.pluginSpec->id() << ":"
+                               << result.error();
+                    return false;
+                }
+
+                if (hasLibSuffix(data.sourcePath)) {
+                    ExtensionSystem::PluginManager::installPluginOnRestart(
+                        data.pluginSpec->filePath(), installPath);
+                } else {
+                    ExtensionSystem::PluginManager::installPluginOnRestart(
+                        data.extractedPath, installPath);
+                }
+                return true;
+            }
+
             if (hasLibSuffix(data.sourcePath)) {
-                return copyPluginFile(data.sourcePath, installPath);
+                if (!copyPluginFile(data.sourcePath, installPath))
+                    return false;
+
+                auto specs = pluginSpecsFromArchive(installPath.resolvePath(
+                    data.pluginSpec->filePath().relativePathFrom(data.extractedPath)));
+
+                QTC_ASSERT(specs.size() == 1, return false);
+                data.pluginSpec.reset(specs.front());
+                return true;
             } else {
                 QString error;
-                FileUtils::CopyAskingForOverwrite copy(ICore::dialogParent(), postCopyOperation());
+                FileUtils::CopyAskingForOverwrite copy(&postCopyOperation);
                 if (!FileUtils::copyRecursively(data.extractedPath, installPath, &error, copy())) {
                     QMessageBox::warning(
                         ICore::dialogParent(), Tr::tr("Failed to Copy Plugin Files"), error);
                     return false;
                 }
+
+                auto specs = pluginSpecsFromArchive(installPath.resolvePath(
+                    data.pluginSpec->filePath().relativePathFrom(data.extractedPath)));
+
+                QTC_ASSERT(specs.size() == 1, return false);
+                data.pluginSpec.reset(specs.front());
+
                 return true;
             }
         }
@@ -549,19 +567,29 @@ bool executePluginInstallWizard(const FilePath &archive)
     };
 
     if (!install())
-        return false;
+        return InstallResult::Error;
 
     // install() would have failed if the user did not accept the terms and conditions
     // so we can safely set them as accepted here.
     PluginManager::instance()->setTermsAndConditionsAccepted(data.pluginSpec.get());
 
-    if (data.loadImmediately) {
-        auto spec = data.pluginSpec.release();
-        spec->setEnabledBySettings(true);
-        PluginManager::addPlugins({spec});
-        PluginManager::loadPluginsAtRuntime({spec});
+    if (prepareForUpdate)
+        return InstallResult::NeedsRestart;
+
+    auto spec = data.pluginSpec.release();
+    PluginManager::addPlugins({spec});
+
+    if (spec->isEffectivelySoftloadable()) {
+        spec->setEnabledBySettings(data.loadImmediately);
+        if (data.loadImmediately)
+            PluginManager::loadPluginsAtRuntime({spec});
+        return InstallResult::Success;
     }
-    return true;
+
+    if (spec->isEffectivelyEnabled())
+        return InstallResult::NeedsRestart;
+
+    return InstallResult::Success;
 }
 
 } // namespace Core

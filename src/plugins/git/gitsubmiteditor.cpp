@@ -83,6 +83,7 @@ GitSubmitEditor::GitSubmitEditor() :
 {
     connect(this, &VcsBaseSubmitEditor::diffSelectedRows, this, &GitSubmitEditor::slotDiffSelected);
     connect(submitEditorWidget(), &GitSubmitEditorWidget::showRequested, this, &GitSubmitEditor::showCommit);
+    connect(submitEditorWidget(), &GitSubmitEditorWidget::logRequested, this, &GitSubmitEditor::showLog);
     connect(versionControl(), &Core::IVersionControl::repositoryChanged,
             this, &GitSubmitEditor::forceUpdateFileModel);
     connect(&m_fetchWatcher, &QFutureWatcher<CommitDataFetchResult>::finished,
@@ -189,6 +190,12 @@ void GitSubmitEditor::showCommit(const QString &commit)
 {
     if (!m_workingDirectory.isEmpty())
         gitClient().show(m_workingDirectory, commit);
+}
+
+void GitSubmitEditor::showLog(const QStringList &range)
+{
+    if (!m_workingDirectory.isEmpty())
+        gitClient().log(m_workingDirectory, {}, false, range);
 }
 
 void GitSubmitEditor::updateFileModel()

@@ -68,8 +68,8 @@ QdsNewDialog::QdsNewDialog(QWidget *parent)
                                          new Internal::NewProjectDialogImageProvider());
     QmlDesigner::Theme::setupTheme(m_dialog->engine());
     qmlRegisterSingletonInstance<QdsNewDialog>("BackendApi", 1, 0, "BackendApi", this);
-    m_dialog->engine()->addImportPath(Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources/imports").toString());
-    m_dialog->engine()->addImportPath(Core::ICore::resourcePath("qmldesigner/newprojectdialog/imports").toString());
+    m_dialog->engine()->addImportPath(Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources/imports").toUrlishString());
+    m_dialog->engine()->addImportPath(Core::ICore::resourcePath("qmldesigner/newprojectdialog/imports").toUrlishString());
     m_dialog->setSource(QUrl::fromLocalFile(qmlPath()));
 
     m_dialog->setWindowModality(Qt::ApplicationModal);
@@ -230,7 +230,7 @@ void QdsNewDialog::onWizardCreated(QStandardItemModel *screenSizeModel, QStandar
         updateScreenSizes();
 
         setProjectName(m_qmlProjectName);
-        setProjectLocation(m_qmlProjectLocation.toString());
+        setProjectLocation(m_qmlProjectLocation.toUrlishString());
     }
 }
 
@@ -305,7 +305,7 @@ void QdsNewDialog::setWizardFactories(QList<Core::IWizardFactory *> factories_,
 {
     Utils::Id platform = Utils::Id::fromSetting("Desktop");
 
-    WizardFactories factories{factories_, m_dialog.get(), platform};
+    WizardFactories factories{factories_, platform};
 
     std::vector<UserPresetData> recents = m_recentsStore.fetchAll();
     std::vector<UserPresetData> userPresets =  m_userPresetsStore.fetchAll();
@@ -323,10 +323,10 @@ void QdsNewDialog::setWizardFactories(QList<Core::IWizardFactory *> factories_,
     const Core::IWizardFactory *first = factories.front();
     Utils::FilePath projectLocation = first->runPath(defaultLocation);
 
-    m_qmlProjectName = uniqueProjectName(projectLocation.toString());
+    m_qmlProjectName = uniqueProjectName(projectLocation.toUrlishString());
     emit projectNameChanged(); // So that QML knows to update the field
 
-    m_qmlProjectLocation = Utils::FilePath::fromString(QDir::toNativeSeparators(projectLocation.toString()));
+    m_qmlProjectLocation = Utils::FilePath::fromString(QDir::toNativeSeparators(projectLocation.toUrlishString()));
     emit projectLocationChanged(); // So that QML knows to update the field
 
     /* NOTE:
@@ -357,7 +357,7 @@ QString QdsNewDialog::recentsTabName() const
 
 QString QdsNewDialog::qmlPath() const
 {
-    return Core::ICore::resourcePath("qmldesigner/newprojectdialog/NewProjectDialog.qml").toString();
+    return Core::ICore::resourcePath("qmldesigner/newprojectdialog/NewProjectDialog.qml").toUrlishString();
 }
 
 void QdsNewDialog::showDialog()
@@ -413,11 +413,10 @@ void QdsNewDialog::reject()
 
 QString QdsNewDialog::chooseProjectLocation()
 {
-    Utils::FilePath newPath = Utils::FileUtils::getExistingDirectory(m_dialog.get(),
-                                                                     tr("Choose Directory"),
+    Utils::FilePath newPath = Utils::FileUtils::getExistingDirectory(tr("Choose Directory"),
                                                                      m_qmlProjectLocation);
 
-    return QDir::toNativeSeparators(newPath.toString());
+    return QDir::toNativeSeparators(newPath.toUrlishString());
 }
 
 void QdsNewDialog::setSelectedPreset(int selection)

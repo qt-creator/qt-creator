@@ -559,12 +559,12 @@ void TestRunner::debugTests()
         reportResult(ResultType::MessageWarn, details);
     }
     auto debugger = new Debugger::DebuggerRunTool(runControl);
-    debugger->setInferior(inferior);
-    debugger->setRunControlName(config->displayName());
+    debugger->runParameters().setInferior(inferior);
+    debugger->runParameters().setDisplayName(config->displayName());
 
     bool useOutputProcessor = true;
-    if (Target *targ = config->project()->activeTarget()) {
-        if (Debugger::DebuggerKitAspect::engineType(targ->kit()) == Debugger::CdbEngineType) {
+    if (Kit *kit = config->project()->activeKit()) {
+        if (Debugger::DebuggerKitAspect::engineType(kit) == Debugger::CdbEngineType) {
             reportResult(ResultType::MessageWarn,
                          Tr::tr("Unable to display test results when using CDB."));
             useOutputProcessor = false;
@@ -588,7 +588,7 @@ void TestRunner::debugTests()
                                  runControl, &RunControl::initiateStop);
 
     connect(runControl, &RunControl::stopped, this, &TestRunner::onFinished);
-    ProjectExplorerPlugin::startRunControl(runControl);
+    runControl->start();
     if (useOutputProcessor && testSettings().popupOnStart())
         popupResultsPane();
 }

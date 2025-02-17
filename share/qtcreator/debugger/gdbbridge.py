@@ -135,9 +135,12 @@ class PlainDumper():
         if isinstance(val, str):
             # encode and avoid extra quotes ('"') at beginning and end
             d.putValue(d.hexencode(val), 'utf8:1:0')
-        elif val is not None:  # Assuming LazyString
-            d.putCharArrayValue(val.address, val.length,
-                                val.type.target().sizeof)
+        # It might as well be just another gdb.Value, see
+        # https://sourceware.org/gdb/current/onlinedocs/gdb.html/Pretty-Printing-API.html#:~:text=Function%3A%20pretty_printer.to_string%20(self)
+        elif isinstance(val, gdb.Value):
+            d.putItem(d.fromNativeValue(val))
+        else:
+            return
 
         lister = getattr(printer, 'children', None)
         if lister is None:
@@ -318,7 +321,7 @@ class Dumper(DumperBase):
             target_typeid = self.from_native_type(nativeType.target().unqualified())
             typeid = self.create_reference_typeid(target_typeid)
 
-        elif code == gdb.TYPE_CODE_RVALUE_REF and hasattr(gdb, "TYPE_CODE_RVALUE_REF"):
+        elif hasattr(gdb, "TYPE_CODE_RVALUE_REF") and code == gdb.TYPE_CODE_RVALUE_REF:
             #self.warn('RVALUEREF')
             target_typeid = self.from_native_type(nativeType.target())
             typeid = self.create_rvalue_reference_typeid(target_typeid)
@@ -575,6 +578,17 @@ class Dumper(DumperBase):
             fields.append(val)
 
         return fields
+
+
+    def nativeStructAlignment(self, nativeType):
+        #DumperBase.warn("NATIVE ALIGN FOR %s" % nativeType.name)
+        def handleItem(nativeFieldType, align):
+            a = self.type_alignment(self.from_native_type(nativeFieldType))
+            return a if a > align else align
+        align = 1
+        for f in nativeType.fields():
+            align = handleItem(f.type, align)
+        return align
 
 
     def listLocals(self, partialVar):
@@ -1030,7 +1044,8 @@ class Dumper(DumperBase):
                 for printer in printers.subprinters:
                     self.importPlainDumper(printer)
             else:
-                self.warn('Loading a printer without the subprinters attribute not supported.')
+                self.warn("Failed to load printer '{}': loading printers without "
+                          "the subprinters attribute not supported.".format(printers.name))
 
     def importPlainDumpers(self):
         for obj in gdb.objfiles():
@@ -1180,6 +1195,8 @@ class Dumper(DumperBase):
         return self.qtNamespace() + 'Qt::' + enumValue
 
     def lookupNativeType(self, type_name):
+        typeobj = None
+
         if type_name == 'void':
             typeobj = gdb.lookup_type(type_name)
             self.typesToReport[type_name] = typeobj

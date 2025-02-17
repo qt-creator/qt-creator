@@ -8,7 +8,6 @@
 #include "optionsparser.h"
 #include "pluginmanager_p.h"
 #include "pluginspec.h"
-#include "shutdownguard.h"
 
 #include <nanotrace/nanotrace.h>
 
@@ -21,6 +20,8 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcsettings.h>
+#include <utils/shutdownguard.h>
+#include <utils/stringutils.h>
 #include <utils/threadutils.h>
 
 #include <QCoreApplication>
@@ -232,32 +233,21 @@ enum { debugLeaks = 0 };
 
 using namespace Utils;
 
+static void registerMimeFromPlugin(const ExtensionSystem::PluginSpec *plugin)
+{
+    const QJsonObject metaData = plugin->metaData();
+    const QJsonValue mimetypes = metaData.value("Mimetypes");
+    QString mimetypeString;
+    if (Utils::readMultiLineString(mimetypes, &mimetypeString))
+        Utils::addMimeTypes(plugin->id() + ".mimetypes", mimetypeString.trimmed().toUtf8());
+}
+
 namespace ExtensionSystem {
 
 using namespace Internal;
 
 static Internal::PluginManagerPrivate *d = nullptr;
 static PluginManager *m_instance = nullptr;
-static QObject *m_shutdownGuard = nullptr;
-
-/*!
-    Returns an object that can be used as the parent for objects that should be
-    destroyed just at the end of the applications lifetime.
-    The object is destroyed after all plugins' aboutToShutdown methods
-    have finished, just before the plugins are deleted.
-
-    Only use this from the application's main thread.
-
-    \sa ExtensionSystem::IPlugin::aboutToShutdown()
-*/
-QObject *shutdownGuard()
-{
-    if (!m_shutdownGuard) {
-        QTC_CHECK(Utils::isMainThread());
-        m_shutdownGuard = new QObject;
-    }
-    return m_shutdownGuard;
-}
 
 /*!
     Gets the unique plugin manager instance.
@@ -357,6 +347,27 @@ void PluginManager::addPlugins(const PluginSpecs &specs)
     d->addPlugins(specs);
 }
 
+void PluginManager::removePluginsAfterRestart()
+{
+    d->removePluginsAfterRestart();
+}
+
+void PluginManager::installPluginsAfterRestart()
+{
+    d->installPluginsAfterRestart();
+}
+
+Result PluginManager::removePluginOnRestart(const QString &id)
+{
+    return d->removePluginOnRestart(id);
+}
+
+void PluginManager::installPluginOnRestart(
+    const Utils::FilePath &source, const Utils::FilePath &destination)
+{
+    d->installPluginOnRestart(source, destination);
+}
+
 /*!
     Returns \c true if any plugin has errors even though it is enabled.
     Most useful to call after loadPlugins().
@@ -374,7 +385,7 @@ const QStringList PluginManager::allErrors()
     return Utils::transform<QStringList>(Utils::filtered(plugins(), [](const PluginSpec *spec) {
         return spec->hasError() && spec->isEffectivelyEnabled();
     }), [](const PluginSpec *spec) {
-        return spec->name().append(": ").append(spec->errorString());
+        return spec->id().append(": ").append(spec->errorString());
     });
 }
 
@@ -442,13 +453,13 @@ QString PluginManager::systemInformation()
     if (qtDiagProc.result() == ProcessResult::FinishedWithSuccess)
         result += qtDiagProc.allOutput() + "\n";
     result += "Plugin information:\n\n";
-    auto longestSpec = std::max_element(d->pluginSpecs.cbegin(), d->pluginSpecs.cend(),
-                                        [](const PluginSpec *left, const PluginSpec *right) {
-                                            return left->name().size() < right->name().size();
-                                        });
-    int size = (*longestSpec)->name().size();
+    PluginSpec * const longestSpec = Utils::maxElementOrDefault(
+        d->pluginSpecs, [](const PluginSpec *left, const PluginSpec *right) {
+            return left->id().size() < right->id().size();
+        });
+    int size = longestSpec->id().size();
     for (const PluginSpec *spec : plugins()) {
-        result += QLatin1String(spec->isEffectivelyEnabled() ? "+ " : "  ") + filled(spec->name(), size) +
+        result += QLatin1String(spec->isEffectivelyEnabled() ? "+ " : "  ") + filled(spec->id(), size) +
                   " " + spec->version() + "\n";
     }
     QString settingspath = QFileInfo(settings()->fileName()).path();
@@ -606,7 +617,7 @@ QString PluginManager::serializedArguments()
             if (!rc.isEmpty())
                 rc += separator;
             rc += QLatin1Char(':');
-            rc += ps->name();
+            rc += ps->id();
             rc += separator;
             rc +=  ps->arguments().join(separator);
         }
@@ -660,7 +671,7 @@ void PluginManager::remoteArguments(const QString &serializedArgument, QObject *
     const QStringList arguments = subList(serializedArguments, QLatin1String(argumentKeywordC));
     for (const PluginSpec *ps : plugins()) {
         if (ps->state() == PluginSpec::Running) {
-            const QStringList pluginOptions = subList(serializedArguments, QLatin1Char(':') + ps->name());
+            const QStringList pluginOptions = subList(serializedArguments, QLatin1Char(':') + ps->id());
             if (IPlugin *plugin = ps->plugin()) {
                 QObject *socketParent
                     = plugin->remoteCommand(pluginOptions, workingDirectory, arguments);
@@ -815,7 +826,7 @@ void PluginManager::formatPluginOptions(QTextStream &str, int optionIndentation,
 void PluginManager::formatPluginVersions(QTextStream &str)
 {
     for (PluginSpec *ps : std::as_const(d->pluginSpecs))
-        str << "  " << ps->name() << ' ' << ps->version() << ' ' << ps->description() <<  '\n';
+        str << "  " << ps->id() << ' ' << ps->version() << ' ' << ps->description() <<  '\n';
 }
 
 /*!
@@ -969,7 +980,7 @@ void PluginManagerPrivate::startDelayedInitialize()
         NANOTRACE_SCOPE("ExtensionSystem", "DelayedInitialize");
         while (!delayedInitializeQueue.empty()) {
             PluginSpec *spec = delayedInitializeQueue.front();
-            const std::string specName = spec->name().toStdString();
+            const std::string specName = spec->id().toStdString();
             delayedInitializeQueue.pop();
             NANOTRACE_SCOPE(specName, specName + "::delayedInitialized");
             profilingReport(">delayedInitialize", spec);
@@ -1082,8 +1093,7 @@ void PluginManagerPrivate::deleteAll()
         Utils::futureSynchronizer()->isCancelOnWait(),
         Utils::futureSynchronizer()->cancelAllFutures());
     Utils::futureSynchronizer()->waitForFinished(); // Synchronize all futures from all plugins
-    delete m_shutdownGuard;
-    m_shutdownGuard = nullptr;
+    triggerShutdownGuard();
     Utils::reverseForeach(loadQueue(), [this](PluginSpec *spec) {
         loadPlugin(spec, PluginSpec::Deleted);
     });
@@ -1421,6 +1431,11 @@ void PluginManagerPrivate::loadPlugins()
 
     Utils::setMimeStartupPhase(MimeStartupPhase::PluginsInitializing);
     {
+        NANOTRACE_SCOPE("ExtensionSystem", "RegisterMimeTypes");
+        for (PluginSpec *spec : queue)
+            registerMimeFromPlugin(spec);
+    }
+    {
         NANOTRACE_SCOPE("ExtensionSystem", "Initialize");
         for (PluginSpec *spec : queue)
             loadPlugin(spec, PluginSpec::Initialized);
@@ -1480,6 +1495,8 @@ void PluginManagerPrivate::loadPluginsAtRuntime(const QSet<PluginSpec *> &plugin
     std::queue<PluginSpec *> localDelayedInitializeQueue;
     for (PluginSpec *spec : queue)
         loadPlugin(spec, PluginSpec::Loaded);
+    for (PluginSpec *spec : queue)
+        registerMimeFromPlugin(spec);
     for (PluginSpec *spec : queue)
         loadPlugin(spec, PluginSpec::Initialized);
     Utils::reverseForeach(queue,
@@ -1693,6 +1710,69 @@ PluginSpec *PluginManager::specForPlugin(IPlugin *plugin)
     return findOrDefault(d->pluginSpecs, equal(&PluginSpec::plugin, plugin));
 }
 
+static QString pluginListString(const QSet<PluginSpec *> &plugins)
+{
+    QStringList names = Utils::transform<QList>(plugins, &PluginSpec::name);
+    names.sort();
+    return names.join(QLatin1Char('\n'));
+}
+
+/*!
+    Collects the dependencies of the \a plugins and asks the user if the
+    corresponding plugins should be enabled or disabled (dependening on
+    \a enable and using \a dialogParent as the parent for the dialog).
+
+    Returns a (possibly) empty set of additional plugins that should be enabled or disabled
+    respectively. Returns \c{std::nullopt} if the user canceled.
+ */
+std::optional<QSet<PluginSpec *>> PluginManager::askForEnablingPlugins(
+    QWidget *dialogParent, const QSet<PluginSpec *> &plugins, bool enable)
+{
+    QSet<PluginSpec *> additionalPlugins;
+    if (enable) {
+        for (PluginSpec *spec : plugins) {
+            for (PluginSpec *other : PluginManager::pluginsRequiredByPlugin(spec)) {
+                if (!other->isEnabledBySettings())
+                    additionalPlugins.insert(other);
+            }
+        }
+        additionalPlugins.subtract(plugins);
+        if (!additionalPlugins.isEmpty()) {
+            if (QMessageBox::question(
+                    dialogParent,
+                    Tr::tr("Enabling Plugins"),
+                    Tr::tr("Enabling\n%1\nwill also enable the following plugins:\n\n%2")
+                        .arg(pluginListString(plugins), pluginListString(additionalPlugins)),
+                    QMessageBox::Ok | QMessageBox::Cancel,
+                    QMessageBox::Ok)
+                != QMessageBox::Ok) {
+                return {};
+            }
+        }
+    } else {
+        for (PluginSpec *spec : plugins) {
+            for (PluginSpec *other : PluginManager::pluginsRequiringPlugin(spec)) {
+                if (other->isEnabledBySettings())
+                    additionalPlugins.insert(other);
+            }
+        }
+        additionalPlugins.subtract(plugins);
+        if (!additionalPlugins.isEmpty()) {
+            if (QMessageBox::question(
+                    dialogParent,
+                    Tr::tr("Disabling Plugins"),
+                    Tr::tr("Disabling\n%1\nwill also disable the following plugins:\n\n%2")
+                        .arg(pluginListString(plugins), pluginListString(additionalPlugins)),
+                    QMessageBox::Ok | QMessageBox::Cancel,
+                    QMessageBox::Ok)
+                != QMessageBox::Ok) {
+                return {};
+            }
+        }
+    }
+    return additionalPlugins;
+}
+
 bool PluginManagerPrivate::acceptTermsAndConditions(PluginSpec *spec)
 {
     if (pluginsWithAcceptedTermsAndConditions.contains(spec->id()))
@@ -1744,11 +1824,11 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
     if (enableCrashCheck && destState < PluginSpec::Stopped)
         lockFile.reset(new LockFile(this, spec));
 
-    const std::string specName = spec->name().toStdString();
+    const std::string specId = spec->id().toStdString();
 
     switch (destState) {
     case PluginSpec::Running: {
-        NANOTRACE_SCOPE(specName, specName + "::extensionsInitialized");
+        NANOTRACE_SCOPE(specId, specId + "::extensionsInitialized");
         profilingReport(">initializeExtensions", spec);
         spec->initializeExtensions();
         profilingReport("<initializeExtensions",
@@ -1782,14 +1862,14 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
     }
     switch (destState) {
     case PluginSpec::Loaded: {
-        NANOTRACE_SCOPE(specName, specName + "::load");
+        NANOTRACE_SCOPE(specId, specId + "::load");
         profilingReport(">loadLibrary", spec);
         spec->loadLibrary();
         profilingReport("<loadLibrary", spec, &spec->performanceData().load);
         break;
     }
     case PluginSpec::Initialized: {
-        NANOTRACE_SCOPE(specName, specName + "::initialize");
+        NANOTRACE_SCOPE(specId, specId + "::initialize");
         profilingReport(">initializePlugin", spec);
         spec->initializePlugin();
         profilingReport("<initializePlugin", spec, &spec->performanceData().initialize);
@@ -1865,8 +1945,133 @@ void PluginManagerPrivate::addPlugins(const PluginSpecs &specs)
     enableDependenciesIndirectly();
     checkForDuplicatePlugins();
     // ensure deterministic plugin load order by sorting
-    Utils::sort(pluginSpecs, &PluginSpec::name);
+    Utils::sort(pluginSpecs, &PluginSpec::id);
     emit q->pluginsChanged();
+}
+
+static const char PLUGINS_TO_INSTALL_KEY[] = "PluginsToInstall";
+static const char PLUGINS_TO_REMOVE_KEY[] = "PluginsToRemove";
+
+Result PluginManagerPrivate::removePluginOnRestart(const QString &pluginId)
+{
+    const PluginSpec *pluginSpec
+        = findOrDefault(pluginSpecs, Utils::equal(&PluginSpec::id, pluginId));
+
+    if (!pluginSpec)
+        return Result::Error(Tr::tr("Plugin not found."));
+
+    const expected_str<FilePaths> filePaths = pluginSpec->filesToUninstall();
+    if (!filePaths)
+        return Result::Error(filePaths.error());
+
+    const QVariantList list = Utils::transform(*filePaths, &FilePath::toVariant);
+
+    settings->setValue(PLUGINS_TO_REMOVE_KEY, settings->value(PLUGINS_TO_REMOVE_KEY).toList() + list);
+
+    settings->sync();
+    return Result::Ok;
+}
+
+static QList<QPair<FilePath, FilePath>> readPluginInstallList(QtcSettings *settings)
+{
+    int size = settings->beginReadArray(PLUGINS_TO_INSTALL_KEY);
+
+    QList<QPair<FilePath, FilePath>> installList;
+    for (int i = 0; i < size; ++i) {
+        settings->setArrayIndex(i);
+        installList.append(
+            {FilePath::fromVariant(settings->value("src")),
+             FilePath::fromVariant(settings->value("dest"))});
+    }
+    settings->endArray();
+    return installList;
+}
+
+void PluginManagerPrivate::installPluginOnRestart(
+    const Utils::FilePath &src, const Utils::FilePath &dest)
+{
+    const QList<QPair<FilePath, FilePath>> list = readPluginInstallList(settings)
+                                                  << qMakePair(src, dest);
+
+    settings->beginWriteArray(PLUGINS_TO_INSTALL_KEY);
+    for (int i = 0; i < list.size(); ++i) {
+        settings->setArrayIndex(i);
+        settings->setValue("src", list.at(i).first.toVariant());
+        settings->setValue("dest", list.at(i).second.toVariant());
+    }
+    settings->endArray();
+
+    settings->sync();
+}
+
+void PluginManagerPrivate::removePluginsAfterRestart()
+{
+    const FilePaths removeList
+        = Utils::transform(settings->value(PLUGINS_TO_REMOVE_KEY).toList(), &FilePath::fromVariant);
+
+    for (const FilePath &path : removeList) {
+        Result r = Result::Error(Tr::tr("It does not exist."));
+        if (path.isFile())
+            r = path.removeFile();
+        else if (path.isDir())
+            r = path.removeRecursively();
+
+        if (!r)
+            qCWarning(pluginLog()) << "Failed to remove" << path << ":" << r.error();
+    }
+
+    settings->remove(PLUGINS_TO_REMOVE_KEY);
+}
+
+void PluginManagerPrivate::installPluginsAfterRestart()
+{
+    QTC_CHECK(pluginSpecs.isEmpty());
+
+    QList<QPair<FilePath, FilePath>> installList = readPluginInstallList(settings);
+    const Utils::FilePaths pluginPaths = PluginManager::pluginPaths();
+
+    for (const auto &[src, dest] : installList) {
+        if (!src.exists()) {
+            qCWarning(pluginLog()) << "Cannot install source " << src << ", it does not exist";
+            continue;
+        }
+
+        if (dest.isDir()) {
+            if (auto result = dest.removeRecursively(); !result) {
+                qCWarning(pluginLog()) << "Failed to remove" << dest << ":" << result.error();
+                continue;
+            }
+        } else if (dest.isFile()) {
+            if (const Result result = dest.removeFile(); !result) {
+                qCWarning(pluginLog()) << "Failed to remove" << dest << ":" << result.error();
+                continue;
+            }
+        }
+
+        if (src.isFile()) {
+            if (!dest.createDir()) {
+                qCWarning(pluginLog()) << "Cannot install file" << src << "to" << dest
+                                       << "because the destination directory cannot be created";
+                continue;
+            }
+        }
+
+        Utils::Result result = src.isDir() ? src.copyRecursively(dest)
+                                           : src.copyFile(dest / src.fileName());
+
+        if (!result) {
+            qCWarning(pluginLog())
+                << "Failed to install" << src << "to" << dest << ":" << result.error();
+            continue;
+        }
+
+        result = src.isDir() ? src.removeRecursively() : src.removeFile();
+        if (!result)
+            qCWarning(pluginLog())
+                << "Failed to remove the source file in" << src << ":" << result.error();
+    }
+
+    settings->remove(PLUGINS_TO_INSTALL_KEY);
 }
 
 /*!
@@ -1894,6 +2099,13 @@ void PluginManagerPrivate::readPluginPaths()
         QTC_ASSERT_EXPECTED(spec, continue);
         newSpecs.append(spec->release());
     }
+
+    newSpecs = Utils::filtered(newSpecs, [this](PluginSpec *spec) {
+        return pluginById(spec->id()) == nullptr;
+    });
+
+    if (newSpecs.empty())
+        return;
 
     addPlugins(newSpecs);
 }
@@ -1968,14 +2180,14 @@ void PluginManagerPrivate::profilingReport(const char *what, const PluginSpec *s
         if (m_profilingVerbosity > 0) {
             qDebug("%-22s %-40s %8lldms (%8lldms)",
                    what,
-                   qPrintable(spec->name()),
+                   qPrintable(spec->id()),
                    absoluteElapsedMS,
                    elapsedMS);
         }
         if (target) {
             QString tc;
             *target = elapsedMS;
-            tc = spec->name() + '_';
+            tc = spec->id() + '_';
             tc += QString::fromUtf8(QByteArray(what + 1));
             Utils::Benchmarker::report("loadPlugins", tc, elapsedMS);
         }
@@ -1999,7 +2211,7 @@ QString PluginManagerPrivate::profilingSummary(qint64 *totalOut) const
             continue;
         const qint64 t = s->performanceData().total();
         summary += QString("%1 %2ms   ( %3% ) (%4)\n")
-                       .arg(s->name(), -34)
+                       .arg(s->id(), -34)
                        .arg(t, 8)
                        .arg(100.0 * t / total, 5, 'f', 2)
                        .arg(s->performanceData().summary());

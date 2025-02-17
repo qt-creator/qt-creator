@@ -155,7 +155,7 @@ ExportWidget::ExportWidget(QWidget *parent)
                                         [&lastFormat] (const Format &f) {
                                             return f.displayName == lastFormat();
                                         }).fileDialogFilter();
-        FilePath file = FileUtils::getSaveFilePath(nullptr, Tr::tr("Save As"), lastDir(),
+        FilePath file = FileUtils::getSaveFilePath(Tr::tr("Save As"), lastDir(),
                                                    fileDialogFilters(), &selectedFilter);
         if (!file.isEmpty()) {
             m_currentFormat = findOr(formats(), defaultFormat,
@@ -268,12 +268,12 @@ QStringList ExportWidget::ffmpegExportParameters() const
             "-v", "error",
             "-stats",
             "-stats_period", "0.25",
-            "-i", m_inputClipInfo.file.toString(),
+            "-i", m_inputClipInfo.file.toUrlishString(),
         }
         << "-filter_complex" << trimFilter + cropFilter + extraFilter << "-map" << "[out]"
         << m_currentFormat.encodingParameters
         << loop
-        << m_outputClipInfo.file.toString();
+        << m_outputClipInfo.file.toUrlishString();
 
     return args;
 }

@@ -1,5 +1,6 @@
 {
     "Id" : "cvs",
+    "DisplayName" : "CVS",
     "Name" : "CVS",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

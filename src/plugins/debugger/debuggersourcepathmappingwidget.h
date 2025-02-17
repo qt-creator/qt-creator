@@ -6,9 +6,10 @@
 #include <QMap>
 #include <QString>
 
+namespace Debugger { class DebuggerRunParameters; }
+
 namespace Debugger::Internal {
 
-class DebuggerRunParameters;
 using SourcePathMap = QMap<QString, QString>;
 
 /* Merge settings for an installed Qt (unless another setting

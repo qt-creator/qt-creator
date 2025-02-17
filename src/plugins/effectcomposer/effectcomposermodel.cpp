@@ -283,7 +283,7 @@ void EffectComposerModel::assignToSelected()
 QString EffectComposerModel::getUniqueEffectName() const
 {
     const QString effectsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
-    const QString path = !m_compositionPath.isEmpty() ? m_compositionPath.parentDir().pathAppended("%1.qep").toString()
+    const QString path = !m_compositionPath.isEmpty() ? m_compositionPath.parentDir().pathAppended("%1.qep").toUrlishString()
                                                       : effectsDir + '/' + "%1" + ".qep";
 
     return QmlDesigner::UniqueName::generate("Effect01", [&] (const QString &effectName) {
@@ -301,7 +301,7 @@ QString EffectComposerModel::getUniqueDisplayName(const QStringList reservedName
 bool EffectComposerModel::nameExists(const QString &name) const
 {
     const QString effectsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
-    const QString path = !m_compositionPath.isEmpty() ? m_compositionPath.parentDir().pathAppended("%1.qep").toString()
+    const QString path = !m_compositionPath.isEmpty() ? m_compositionPath.parentDir().pathAppended("%1.qep").toUrlishString()
                                                       : effectsDir + '/' + "%1" + ".qep";
 
     return QFile::exists(path.arg(name));
@@ -1233,7 +1233,7 @@ void EffectComposerModel::writeComposition(const QString &name)
     const QString effectsAssetsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
 
     const QString path = !m_compositionPath.isEmpty()
-                             ? m_compositionPath.parentDir().pathAppended(name + ".qep").toString()
+                             ? m_compositionPath.parentDir().pathAppended(name + ".qep").toUrlishString()
                              : effectsAssetsDir + '/' + name + ".qep";
 
     auto saveFile = QFile(path);
@@ -1487,7 +1487,7 @@ void EffectComposerModel::saveResources(const QString &name)
 
     // Get effects dir
     const Utils::FilePath effectsResDir = QmlDesigner::ModelNodeOperations::getEffectsImportDirectory();
-    const QString effectsResPath = effectsResDir.pathAppended(name).toString() + '/';
+    const QString effectsResPath = effectsResDir.pathAppended(name).toUrlishString() + '/';
     Utils::FilePath effectPath = Utils::FilePath::fromString(effectsResPath);
 
     // Create the qmldir for effects
@@ -1624,7 +1624,7 @@ void EffectComposerModel::saveResources(const QString &name)
 
         if (fileNameToUniformHash.contains(dests[i])) {
             Uniform *uniform = fileNameToUniformHash[dests[i]];
-            const QVariant newValue = target.toString();
+            const QVariant newValue = target.toUrlishString();
             uniform->setDefaultValue(newValue);
             uniform->setValue(newValue);
         }
@@ -2189,8 +2189,8 @@ void EffectComposerModel::bakeShaders()
     resetEffectError(ErrorQMLParsing);
     resetEffectError(ErrorPreprocessor);
 
-    const ProjectExplorer::Target *target = ProjectExplorer::ProjectTree::currentTarget();
-    if (!target) {
+    const ProjectExplorer::Kit *kit = ProjectExplorer::activeKitForCurrentProject();
+    if (!kit) {
         setEffectError(failMessage.arg("Target not found"));
         return;
     }
@@ -2212,7 +2212,7 @@ void EffectComposerModel::bakeShaders()
     QString fs = m_fragmentShader;
     writeToFile(fs.toUtf8(), m_fragmentSourceFilename, FileType::Text);
 
-    QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(target->kit());
+    QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(kit);
     if (!qtVer) {
         setEffectError(failMessage.arg("Qt version not found"));
         return;

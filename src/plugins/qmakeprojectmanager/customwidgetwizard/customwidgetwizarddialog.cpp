@@ -19,9 +19,8 @@ enum { IntroPageId = 0};
 
 CustomWidgetWizardDialog::CustomWidgetWizardDialog(const Core::BaseFileWizardFactory *factory,
                                                    const QString &templateName,
-                                                   const QIcon &icon, QWidget *parent,
-                                                   const Core::WizardDialogParameters &parameters) :
-    BaseQmakeProjectWizardDialog(factory, parent, parameters),
+                                                   const QIcon &icon, const Core::WizardDialogParameters &parameters) :
+    BaseQmakeProjectWizardDialog(factory, parameters),
     m_widgetsPage(new CustomWidgetWidgetsWizardPage),
     m_pluginPage(new CustomWidgetPluginWizardPage)
 {

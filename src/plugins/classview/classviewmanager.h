@@ -16,7 +16,7 @@ class Manager final : public QObject
 {
     Q_OBJECT
 public:
-    explicit Manager(QObject *parent);
+    Manager();
     ~Manager() final;
 
     static Manager *instance();
@@ -42,6 +42,6 @@ private:
     ManagerPrivate *d;
 };
 
-void setupClassViewManager(QObject *guard);
+void setupClassViewManager();
 
 } // ClassView::Internal

@@ -4,6 +4,7 @@
 #include "wizard.h"
 
 #include "algorithm.h"
+#include "guiutils.h"
 #include "hostosinfo.h"
 #include "icon.h"
 #include "qtcassert.h"
@@ -281,8 +282,8 @@ public:
     bool m_skipForSubproject = false;
 };
 
-Wizard::Wizard(QWidget *parent, Qt::WindowFlags flags) :
-    QWizard(parent, flags), d_ptr(new WizardPrivate)
+Wizard::Wizard(Qt::WindowFlags flags)
+    : QWizard(dialogParent(), flags), d_ptr(new WizardPrivate)
 {
     d_ptr->m_wizardProgress = new WizardProgress(this);
     connect(this, &QWizard::currentIdChanged, this, &Wizard::_q_currentPageChanged);

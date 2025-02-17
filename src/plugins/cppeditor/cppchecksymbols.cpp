@@ -24,12 +24,6 @@ namespace CppEditor {
 
 namespace {
 
-class FriendlyThread: public QThread
-{
-public:
-    using QThread::msleep;
-};
-
 class CollectSymbols: protected SymbolVisitor
 {
     Document::Ptr _doc;
@@ -179,6 +173,12 @@ protected:
     }
 
     bool visit(TypenameArgument *symbol) override
+    {
+        addType(symbol->name());
+        return true;
+    }
+
+    bool visit(TemplateTypeArgument *symbol) override
     {
         addType(symbol->name());
         return true;
@@ -1256,7 +1256,8 @@ bool CheckSymbols::maybeAddTypeOrStatic(const QList<LookupItem> &candidates, Nam
         if (c->isTypedef() || c->asNamespace() ||
                 c->isStatic() || //consider also static variable
                 c->asClass() || c->asEnum() || isTemplateClass(c) ||
-                c->asForwardClassDeclaration() || c->asTypenameArgument() || c->enclosingEnum()) {
+                c->asForwardClassDeclaration() || c->asTypenameArgument() ||
+                c->asTemplateTypeArgument() || c->enclosingEnum()) {
             int line, column;
             getTokenStartPosition(startToken, &line, &column);
             const unsigned length = tok.utf16chars();

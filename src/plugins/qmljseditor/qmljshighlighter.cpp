@@ -171,7 +171,6 @@ void QmlJSHighlighter::highlightBlock(const QString &text)
 
     setFormat(previousTokenEnd, text.length() - previousTokenEnd, formatForCategory(C_VISUAL_WHITESPACE));
 
-    setCurrentBlockState(m_scanner.state());
     onBlockEnd(m_scanner.state());
 }
 
@@ -262,29 +261,30 @@ int QmlJSHighlighter::onBlockStart()
 {
     m_currentBlockParentheses.clear();
     m_braceDepth = 0;
-    m_foldingIndent = 0;
     m_inMultilineComment = false;
     if (TextBlockUserData *userData = TextDocumentLayout::textUserData(currentBlock())) {
         userData->setFoldingIndent(0);
         userData->setFoldingStartIncluded(false);
         userData->setFoldingEndIncluded(false);
     }
+    if (TextBlockUserData *userData = TextDocumentLayout::textUserData(currentBlock().previous()))
+        m_braceDepth = userData->braceDepth();
+    m_foldingIndent = m_braceDepth;
 
     int state = 0;
     int previousState = previousBlockState();
     if (previousState != -1) {
-        state = previousState & 0xff;
-        m_braceDepth = (previousState >> 8);
+        state = previousState;
         m_inMultilineComment = ((state & Scanner::MultiLineMask) == Scanner::MultiLineComment);
     }
-    m_foldingIndent = m_braceDepth;
 
     return state;
 }
 
 void QmlJSHighlighter::onBlockEnd(int state)
 {
-    setCurrentBlockState((m_braceDepth << 8) | state);
+    setCurrentBlockState(state);
+    TextDocumentLayout::setBraceDepth(currentBlock(), m_braceDepth);
     TextDocumentLayout::setParentheses(currentBlock(), m_currentBlockParentheses);
     TextDocumentLayout::setFoldingIndent(currentBlock(), m_foldingIndent);
 }

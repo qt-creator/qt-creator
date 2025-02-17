@@ -5,6 +5,7 @@
 
 #include "buildconfiguration.h"
 #include "environmentaspectwidget.h"
+#include "environmentkitaspect.h"
 #include "kit.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
@@ -30,8 +31,11 @@ EnvironmentAspect::EnvironmentAspect(AspectContainer *container)
     setId("EnvironmentAspect");
     setConfigWidgetCreator([this] { return new EnvironmentAspectWidget(this); });
     addDataExtractor(this, &EnvironmentAspect::environment, &Data::environment);
-    if (qobject_cast<RunConfiguration *>(container)) {
-        addModifier([](Environment &env) { env.modify(projectExplorerSettings().appEnvChanges); });
+    if (const auto runConfig = qobject_cast<RunConfiguration *>(container)) {
+        addModifier([runConfig](Environment &env) {
+            env.modify(projectExplorerSettings().appEnvChanges);
+            env.modify(EnvironmentKitAspect::runEnvChanges(runConfig->kit()));
+        });
         connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
                 this, &EnvironmentAspect::environmentChanged);
     }

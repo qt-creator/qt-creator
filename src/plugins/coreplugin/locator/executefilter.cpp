@@ -123,17 +123,13 @@ void ExecuteFilter::done()
 void ExecuteFilter::readStdOutput()
 {
     QTC_ASSERT(m_process, return);
-    const QByteArray data = m_process->readAllRawStandardOutput();
-    MessageManager::writeSilently(
-        QTextCodec::codecForLocale()->toUnicode(data.constData(), data.size(), &m_stdoutState));
+    MessageManager::writeSilently(m_process->readAllStandardOutput());
 }
 
 void ExecuteFilter::readStdError()
 {
     QTC_ASSERT(m_process, return);
-    const QByteArray data = m_process->readAllRawStandardError();
-    MessageManager::writeSilently(
-        QTextCodec::codecForLocale()->toUnicode(data.constData(), data.size(), &m_stderrState));
+    MessageManager::writeSilently(m_process->readAllStandardError());
 }
 
 void ExecuteFilter::runHeadCommand()

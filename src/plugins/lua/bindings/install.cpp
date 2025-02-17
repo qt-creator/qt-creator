@@ -4,6 +4,8 @@
 #include "../luaengine.h"
 #include "../luatr.h"
 
+#include "utils.h"
+
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/taskprogress.h>
@@ -206,7 +208,10 @@ static Group installRecipe(
                 {
                     QTemporaryFile tempFile(QDir::tempPath() + "/XXXXXX" + ext);
                     tempFile.setAutoRemove(false);
-                    tempFile.open();
+                    if (!tempFile.open()) {
+                        emitResult(Tr::tr("Cannot open temporary file."));
+                        return SetupResult::StopWithError;
+                    }
                     (*storage).setFileName(tempFile.fileName());
                 }
 
@@ -255,7 +260,9 @@ void setupInstallModule()
     };
 
     registerProvider(
-        "Install", [state = State()](sol::state_view lua) mutable -> sol::object {
+        "Install",
+        [state = State(),
+         infoBarCleaner = InfoBarCleaner()](sol::state_view lua) mutable -> sol::object {
             sol::table async
                 = lua.script("return require('async')", "_install_async_").get<sol::table>();
             sol::function wrap = async["wrap"];
@@ -281,7 +288,7 @@ void setupInstallModule()
             };
 
             install["install_cb"] =
-                [pluginSpec, &state](
+                [pluginSpec, &state, &infoBarCleaner](
                     const QString &msg,
                     const sol::table &installOptions,
                     const sol::function &callback) {
@@ -353,6 +360,8 @@ void setupInstallModule()
                     const Id infoBarId = Id("Install")
                                              .withSuffix(pluginSpec->name)
                                              .withSuffix(QString::number(qHash(installOptionsList)));
+
+                    infoBarCleaner.infoBarEntryAdded(infoBarId);
 
                     InfoBarEntry entry(infoBarId, msg, InfoBarEntry::GlobalSuppression::Enabled);
 

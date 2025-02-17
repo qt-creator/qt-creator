@@ -150,6 +150,8 @@ static QByteArray typeId(CPlusPlus::Symbol *symbol)
         return QByteArray("a");
     } else if (symbol->asTypenameArgument()) {
         return QByteArray("ta");
+    } else if (symbol->asTemplateTypeArgument()) {
+        return QByteArray("tta");
     } else if (symbol->asBaseClass()) {
         return QByteArray("bc");
     } else if (symbol->asForwardClassDeclaration()) {

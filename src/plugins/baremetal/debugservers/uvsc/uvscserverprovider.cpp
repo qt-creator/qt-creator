@@ -64,12 +64,6 @@ UvscServerProvider::UvscServerProvider(const QString &id)
     setToolsetNumber(ArmAdsToolsetNumber);
 }
 
-UvscServerProvider::UvscServerProvider(const UvscServerProvider &other)
-    : IDebugServerProvider(other.id())
-{
-    setEngineType(UvscEngineType);
-}
-
 void UvscServerProvider::setToolsIniFile(const FilePath &toolsIniFile)
 {
     m_toolsIniFile = toolsIniFile;
@@ -168,7 +162,7 @@ QString UvscServerProvider::channelString() const
 bool UvscServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMessage) const
 {
     QTC_ASSERT(runTool, return false);
-    const FilePath bin = runTool->runControl()->runnable().command.executable();
+    const FilePath bin = runTool->runControl()->commandLine().executable();
     if (bin.isEmpty()) {
         errorMessage = Tr::tr("Cannot debug: Local executable is not set.");
         return false;
@@ -190,27 +184,26 @@ bool UvscServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMess
 
     ProcessRunData inferior;
     inferior.command.setExecutable(bin);
-    runTool->runParameters().peripheralDescriptionFile = peripheralDescriptionFile;
-    runTool->runParameters().uVisionProjectFilePath = projFilePath;
-    runTool->runParameters().uVisionOptionsFilePath = optFilePath;
-    runTool->runParameters().uVisionSimulator = isSimulator();
-    runTool->setInferior(inferior);
-    runTool->setSymbolFile(bin);
-    runTool->setStartMode(AttachToRemoteServer);
-    runTool->setRemoteChannel(channelString());
-    runTool->setUseContinueInsteadOfRun(true);
+    DebuggerRunParameters &rp = runTool->runParameters();
+    rp.setPeripheralDescriptionFile(peripheralDescriptionFile);
+    rp.setUVisionProjectFilePath(projFilePath);
+    rp.setUVisionOptionsFilePath(optFilePath);
+    rp.setUVisionSimulator(isSimulator());
+    rp.setInferior(inferior);
+    rp.setSymbolFile(bin);
+    rp.setStartMode(AttachToRemoteServer);
+    rp.setRemoteChannel(channelString());
+    rp.setUseContinueInsteadOfRun(true);
     return true;
 }
 
 ProjectExplorer::RunWorker *UvscServerProvider::targetRunner(RunControl *runControl) const
 {
-    // Get uVision executable path.
-    const ProcessRunData uv = DebuggerKitAspect::runnable(runControl->kit());
-    const CommandLine server{uv.command.executable(),
-                             {"-j0", QStringLiteral("-s%1").arg(m_channel.port())}};
-    ProcessRunData r;
-    r.command = server;
-    return new UvscServerProviderRunner(runControl, r);
+    auto worker = new ProcessRunner(runControl);
+    worker->setId("BareMetalUvscServer");
+    worker->setCommandLine({DebuggerKitAspect::runnable(runControl->kit()).command.executable(),
+                            {"-j0", QStringLiteral("-s%1").arg(m_channel.port())}});
+    return worker;
 }
 
 void UvscServerProvider::fromMap(const Store &data)
@@ -242,7 +235,7 @@ public:
     explicit HexValueValidator(QObject *parent = nullptr)
         : QRegularExpressionValidator(parent)
     {
-        const QRegularExpression re("^0x[0-9a-fA-F]{1,8}");
+        static const QRegularExpression re("^0x[0-9a-fA-F]{1,8}");
         setRegularExpression(re);
     }
 };
@@ -337,40 +330,6 @@ void UvscServerProviderConfigWidget::setFromProvider()
     m_toolsIniChooser->setFilePath(p->toolsIniFile());
     m_deviceSelector->setSelection(p->deviceSelection());
     m_driverSelector->setSelection(p->driverSelection());
-}
-
-// UvscServerProviderRunner
-
-UvscServerProviderRunner::UvscServerProviderRunner(ProjectExplorer::RunControl *runControl,
-                                                   const ProcessRunData &runnable)
-    : RunWorker(runControl)
-{
-    setId("BareMetalUvscServer");
-
-    m_process.setCommand(runnable.command);
-
-    connect(&m_process, &Process::started, this, [this] {
-        ProcessHandle pid(m_process.processId());
-        this->runControl()->setApplicationProcessHandle(pid);
-        reportStarted();
-    });
-    connect(&m_process, &Process::done, this, [this] {
-        appendMessage(m_process.exitMessage(), NormalMessageFormat);
-        reportStopped();
-    });
-}
-
-void UvscServerProviderRunner::start()
-{
-    const QString msg = Tr::tr("Starting %1...").arg(m_process.commandLine().displayName());
-    appendMessage(msg, NormalMessageFormat);
-
-    m_process.start();
-}
-
-void UvscServerProviderRunner::stop()
-{
-    m_process.terminate();
 }
 
 } // BareMetal::Internal

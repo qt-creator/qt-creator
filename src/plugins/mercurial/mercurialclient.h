@@ -20,14 +20,9 @@ class MercurialClient : public VcsBase::VcsBaseClient
 public:
     MercurialClient();
 
-    bool synchronousClone(const Utils::FilePath &workingDir,
-                          const QString &srcLocation,
-                          const QString &dstLocation,
-                          const QStringList &extraOptions = {}) override;
     bool synchronousPull(const Utils::FilePath &workingDir,
                          const QString &srcLocation,
                          const QStringList &extraOptions = {}) override;
-    bool manifestSync(const Utils::FilePath &repository, const QString &filename);
     QString branchQuerySync(const QString &repositoryRoot);
     QStringList parentRevisionsSync(const Utils::FilePath &workingDirectory,
                              const QString &file /* = QString() */,
@@ -52,7 +47,6 @@ public:
                    const QStringList &extraOptions = {}) override;
 
     bool isVcsDirectory(const Utils::FilePath &filePath) const;
-    Utils::FilePath findTopLevelForFile(const Utils::FilePath &file) const override;
 
     void view(const Utils::FilePath &source, const QString &id,
               const QStringList &extraOptions = QStringList()) override;

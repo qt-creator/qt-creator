@@ -31,12 +31,14 @@ class BuildConfiguration;
 class BuildInfo;
 class BuildSystem;
 class ContainerNode;
+class DeployConfiguration;
 class EditorConfiguration;
 class FolderNode;
 class Node;
 class ProjectImporter;
 class ProjectNode;
 class ProjectPrivate;
+class RunConfiguration;
 class Target;
 enum class SetActive : int;
 
@@ -93,6 +95,12 @@ public:
     Target *target(Kit *k) const;
     void setActiveTarget(Target *target, SetActive cascade);
 
+    Kit *activeKit() const;
+    RunConfiguration *activeRunConfiguration() const;
+    BuildConfiguration *activeBuildConfiguration() const;
+    DeployConfiguration *activeDeployConfiguration() const;
+    BuildSystem *activeBuildSystem() const;
+
     virtual Tasks projectIssues(const Kit *k) const;
 
     static bool copySteps(Target *sourceTarget, Target *newTarget);
@@ -128,7 +136,7 @@ public:
     Utils::EnvironmentItems additionalEnvironment() const;
 
     virtual bool needsConfiguration() const;
-    bool needsBuildConfigurations() const;
+    bool supportsBuilding() const;
     virtual void configureAsExampleProject(ProjectExplorer::Kit *kit);
 
     virtual ProjectImporter *projectImporter() const;
@@ -227,8 +235,7 @@ protected:
     void setProjectLanguages(Core::Context language);
     void setHasMakeInstallEquivalent(bool enabled);
 
-    void setNeedsBuildConfigurations(bool value);
-    void setNeedsDeployConfigurations(bool value);
+    void setSupportsBuilding(bool value);
 
     static ProjectExplorer::Task createProjectTask(ProjectExplorer::Task::TaskType type,
                                                    const QString &description);
@@ -236,9 +243,10 @@ protected:
     void setBuildSystemCreator() {
         setBuildSystemCreator([](Target *t) { return new BuildSystemImpl(t); });
     }
-    void setBuildSystemCreator(const std::function<BuildSystem *(Target *)> &creator);
 
 private:
+    void setBuildSystemCreator(const std::function<BuildSystem *(Target *)> &creator);
+
     void addTarget(std::unique_ptr<Target> &&target);
 
     void addProjectLanguage(Utils::Id id);

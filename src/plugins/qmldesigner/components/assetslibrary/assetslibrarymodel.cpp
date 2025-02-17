@@ -92,12 +92,12 @@ QList<QModelIndex> AssetsLibraryModel::parentIndices(const QModelIndex &index) c
 
 QString AssetsLibraryModel::currentProjectDirPath() const
 {
-    return DocumentManager::currentProjectDirPath().toString().append('/');
+    return DocumentManager::currentProjectDirPath().toUrlishString().append('/');
 }
 
 QString AssetsLibraryModel::contentDirPath() const
 {
-    return DocumentManager::currentResourcePath().toString().append('/');
+    return DocumentManager::currentResourcePath().toUrlishString().append('/');
 }
 
 bool AssetsLibraryModel::requestDeleteFiles(const QStringList &filePaths)

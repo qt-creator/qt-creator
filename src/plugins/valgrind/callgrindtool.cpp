@@ -32,7 +32,7 @@
 #include <cppeditor/cppeditorconstants.h>
 
 #include <debugger/debuggerconstants.h>
-#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/debuggermainwindow.h>
 #include <debugger/analyzer/analyzerutils.h>
 #include <debugger/analyzer/startremotedialog.h>
 
@@ -227,19 +227,16 @@ CallgrindTool::CallgrindTool(QObject *parent)
         "Callgrind tool to record function calls when a program runs.");
 
     if (!Utils::HostOsInfo::isWindowsHost()) {
-        auto action = new QAction(Tr::tr("Valgrind Function Profiler"), this);
-        action->setToolTip(toolTip);
-        menu->addAction(ActionManager::registerAction(action, CallgrindLocalActionId),
+        m_startAction->setText(Tr::tr("Valgrind Function Profiler"));
+        m_startAction->setParent(this);
+        m_startAction->setToolTip(toolTip);
+        menu->addAction(ActionManager::registerAction(m_startAction, CallgrindLocalActionId),
                         Debugger::Constants::G_ANALYZER_TOOLS);
-        QObject::connect(action, &QAction::triggered, this, [this, action] {
-            if (!Debugger::wantRunTool(OptimizedMode, action->text()))
+        QObject::connect(m_startAction, &QAction::triggered, this, [this] {
+            if (!Debugger::wantRunTool(OptimizedMode, m_startAction->text()))
                 return;
             m_perspective.select();
             ProjectExplorerPlugin::runStartupProject(CALLGRIND_RUN_MODE);
-        });
-        QObject::connect(m_startAction, &QAction::triggered, action, &QAction::triggered);
-        QObject::connect(m_startAction, &QAction::changed, action, [action, this] {
-            action->setEnabled(m_startAction->isEnabled());
         });
     }
 
@@ -248,7 +245,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
     menu->addAction(ActionManager::registerAction(action, CallgrindRemoteActionId),
                     Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
     QObject::connect(action, &QAction::triggered, this, [this, action] {
-        auto runConfig = ProjectManager::startupRunConfiguration();
+        auto runConfig = activeRunConfigForActiveProject();
         if (!runConfig) {
             showCannotStartDialog(action->text());
             return;
@@ -262,7 +259,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
         runControl->createMainWorker();
         runControl->setCommandLine(dlg.commandLine());
         runControl->setWorkingDirectory(dlg.workingDirectory());
-        ProjectExplorerPlugin::startRunControl(runControl);
+        runControl->start();
     });
 
     // If there is a CppEditor context menu add our own context menu actions.
@@ -622,7 +619,7 @@ void CallgrindTool::handleFilterProjectCosts()
     Project *pro = ProjectTree::currentProject();
 
     if (pro && m_filterProjectCosts->isChecked()) {
-        const QString projectDir = pro->projectDirectory().toString();
+        const QString projectDir = pro->projectDirectory().toUrlishString();
         m_proxyModel.setFilterBaseDir(projectDir);
     } else {
         m_proxyModel.setFilterBaseDir(QString());
@@ -711,19 +708,32 @@ void CallgrindTool::setupRunner(CallgrindToolRunner *toolRunner)
 
     connect(toolRunner, &CallgrindToolRunner::parserDataReady, this, &CallgrindTool::setParserData);
     connect(runControl, &RunControl::stopped, this, &CallgrindTool::engineFinished);
+    connect(runControl, &RunControl::aboutToStart, this, [this, toolRunner] {
+        toolRunner->setPaused(m_pauseAction->isChecked());
+        // we may want to toggle collect for one function only in this run
+        toolRunner->setToggleCollectFunction(m_toggleCollectFunction);
+        m_toggleCollectFunction.clear();
+
+        m_toolBusy = true;
+        updateRunActions();
+
+        // enable/disable actions
+        m_resetAction->setEnabled(true);
+        m_dumpAction->setEnabled(true);
+        m_loadExternalLogFile->setEnabled(false);
+        clearTextMarks();
+        doClear();
+        Debugger::showPermanentStatusMessage(Tr::tr("Starting Function Profiler..."));
+    });
+    connect(runControl, &RunControl::started, this, [] {
+        Debugger::showPermanentStatusMessage(Tr::tr("Function Profiler running..."));
+    });
 
     connect(this, &CallgrindTool::dumpRequested, toolRunner, &CallgrindToolRunner::dump);
     connect(this, &CallgrindTool::resetRequested, toolRunner, &CallgrindToolRunner::reset);
     connect(this, &CallgrindTool::pauseToggled, toolRunner, &CallgrindToolRunner::setPaused);
 
     connect(m_stopAction, &QAction::triggered, toolRunner, [runControl] { runControl->initiateStop(); });
-
-    // initialize run control
-    toolRunner->setPaused(m_pauseAction->isChecked());
-
-    // we may want to toggle collect for one function only in this run
-    toolRunner->setToggleCollectFunction(m_toggleCollectFunction);
-    m_toggleCollectFunction.clear();
 
     QTC_ASSERT(m_visualization, return);
 
@@ -733,16 +743,6 @@ void CallgrindTool::setupRunner(CallgrindToolRunner *toolRunner)
     m_visualization->setMinimumInclusiveCostRatio(settings.visualizationMinimumInclusiveCostRatio() / 100.0);
     m_proxyModel.setMinimumInclusiveCostRatio(settings.minimumInclusiveCostRatio() / 100.0);
     m_dataModel.setVerboseToolTipsEnabled(settings.enableEventToolTips());
-
-    m_toolBusy = true;
-    updateRunActions();
-
-    // enable/disable actions
-    m_resetAction->setEnabled(true);
-    m_dumpAction->setEnabled(true);
-    m_loadExternalLogFile->setEnabled(false);
-    clearTextMarks();
-    doClear();
 }
 
 void CallgrindTool::updateRunActions()
@@ -756,7 +756,7 @@ void CallgrindTool::updateRunActions()
         const auto canRun = ProjectExplorerPlugin::canRunStartupProject(CALLGRIND_RUN_MODE);
         m_startAction->setToolTip(canRun ? Tr::tr("Start a Valgrind Callgrind analysis.")
                                          : canRun.error());
-        m_startAction->setEnabled(bool(canRun));
+        m_startAction->setEnabled(canRun);
         m_stopAction->setEnabled(false);
     }
 }
@@ -829,7 +829,7 @@ void CallgrindTool::requestContextMenu(TextEditorWidget *widget, int line, QMenu
 
 void CallgrindTool::handleShowCostsOfFunction()
 {
-    CPlusPlus::Symbol *symbol = AnalyzerUtils::findSymbolUnderCursor();
+    CPlusPlus::Symbol *symbol = Debugger::findSymbolUnderCursor();
     if (!symbol)
         return;
 
@@ -853,14 +853,13 @@ void CallgrindTool::slotRequestDump()
 void CallgrindTool::loadExternalLogFile()
 {
     const FilePath filePath = FileUtils::getOpenFilePath(
-                nullptr,
                 Tr::tr("Open Callgrind Log File"),
                 {},
                 Tr::tr("Callgrind Output (callgrind.out*);;All Files (*)"));
     if (filePath.isEmpty())
         return;
 
-    QFile logFile(filePath.toString());
+    QFile logFile(filePath.toUrlishString());
     if (!logFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QString msg = Tr::tr("Callgrind: Failed to open file for reading: %1")
                 .arg(filePath.toUserOutput());

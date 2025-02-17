@@ -51,9 +51,9 @@ bool DeploymentData::operator==(const DeploymentData &other) const
 QString DeploymentData::addFilesFromDeploymentFile(const FilePath &deploymentFilePath,
                                                    const FilePath &sourceDir_)
 {
-    const QString sourceDir = sourceDir_.toString();
+    const QString sourceDir = sourceDir_.toUrlishString();
     const QString sourcePrefix = sourceDir.endsWith('/') ? sourceDir : sourceDir + '/';
-    QFile deploymentFile(deploymentFilePath.toString());
+    QFile deploymentFile(deploymentFilePath.toUrlishString());
     QTextStream deploymentStream;
     QString deploymentPrefix;
 

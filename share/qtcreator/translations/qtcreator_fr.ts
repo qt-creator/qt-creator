@@ -11238,8 +11238,8 @@ dans le navigateur système pour un téléchargement manuel.</translation>
         <translation>L&apos;outil git n&apos;est peut-être pas installé correctement sur votre système.</translation>
     </message>
     <message>
-        <source>(SDK Version: %1, NDK Version: %2)</source>
-        <translation>(Version du SDK&#xa0;: %1, version du NDK&#xa0;: %2)</translation>
+        <source>(SDK Version: %1)</source>
+        <translation>(Version du SDK&#xa0;: %1)</translation>
     </message>
     <message>
         <source>Unset Default</source>
@@ -20038,8 +20038,8 @@ provided they were unmodified before the refactoring.</source>
         <translation>Impossible de trouver l&apos;exécutable %1 dans %2</translation>
     </message>
     <message>
-        <source>The Qt logo, axivion stopping software erosion logo, Qt Group logo, as well as Qt®, Axivion®, avixion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® are registered trademarks of The Qt Company Ltd. or its subsidiaries.</source>
-        <translation>Le logo Qt, le logo axivion stopper stopping software erosion, le logo du groupe Qt, ainsi que Qt®, Axivion®, avixion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® sont des marques déposées de The&#xa0;Qt&#xa0;Company&#xa0;Ltd. ou de ses filiales.</translation>
+        <source>The Qt logo, axivion stopping software erosion logo, Qt Group logo, as well as Qt®, Axivion®, axivion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® are registered trademarks of The Qt Company Ltd. or its subsidiaries.</source>
+        <translation>Le logo Qt, le logo axivion stopper stopping software erosion, le logo du groupe Qt, ainsi que Qt®, Axivion®, axivion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® sont des marques déposées de The&#xa0;Qt&#xa0;Company&#xa0;Ltd. ou de ses filiales.</translation>
     </message>
     <message>
         <source>%1 is free software, and you are welcome to redistribute it under &lt;a href=&quot;%2&quot;&gt;certain conditions&lt;/a&gt;. For some components, different conditions might apply though.</source>
@@ -50241,8 +50241,8 @@ Le déploiement vers ce répertoire entrainera la suppression des fichiers déj�
         <translation>L’exécutable qmake %1 n’a pas pu être ajouté : %2</translation>
     </message>
     <message>
-        <source>Linking with a Qt installation automatically registers Qt versions and kits, and other tools that were installed with that Qt installer, in this Qt Creator installation. Other Qt Creator installations are not affected.</source>
-        <translation>L’établissement d’un lien avec une installation de Qt enregistre automatiquement les versions et les kits de Qt, ainsi que les autres outils qui ont été installés avec ce programme d’installation de Qt, dans cette installation de Qt Creator. Les autres installations de Qt Creator ne sont pas concernées.</translation>
+        <source>Linking with a Qt installation automatically registers Qt versions and kits, and other tools that were installed with that Qt installer, in this %1 installation. Other %1 installations are not affected.</source>
+        <translation>L’établissement d’un lien avec une installation de Qt enregistre automatiquement les versions et les kits de Qt, ainsi que les autres outils qui ont été installés avec ce programme d’installation de Qt, dans cette installation de %1. Les autres installations de %1 ne sont pas concernées.</translation>
     </message>
     <message>
         <source>%1&apos;s resource directory is not writable.</source>

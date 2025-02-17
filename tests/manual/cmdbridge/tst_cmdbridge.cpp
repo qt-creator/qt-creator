@@ -8,7 +8,7 @@
 
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
-#include <utils/launcherinterface.h>
+#include <utils/processreaper.h>
 #include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 
@@ -29,7 +29,7 @@ public:
     {
         // Note: Don't convert into Utils::Process. See more comments in this change in gerrit.
         QProcess p;
-        p.setProgram(cmdLine.executable().toString());
+        p.setProgram(cmdLine.executable().toUrlishString());
         p.setArguments(cmdLine.splitArguments());
         p.setProcessChannelMode(QProcess::SeparateChannels);
 
@@ -60,12 +60,9 @@ private slots:
     {
         TemporaryDirectory::setMasterTemporaryDirectory(
             QDir::tempPath() + "/" + Core::Constants::IDE_CASED_ID + "-XXXXXX");
-
-        libExecPath = qApp->applicationDirPath() + '/' + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH);
-        LauncherInterface::setPathToLauncher(libExecPath);
     }
 
-    void cleanupTestCase() { Singleton::deleteAll(); }
+    void cleanupTestCase() { ProcessReaper::deleteAll(); }
 
     void testDeviceEnvironment()
     {

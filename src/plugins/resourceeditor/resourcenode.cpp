@@ -131,11 +131,11 @@ static bool addFilesToResource(const FilePath &resourceFile,
     if (notAdded)
         notAdded->clear();
     for (const FilePath &path : filePaths) {
-        if (file.contains(index, path.toString())) {
+        if (file.contains(index, path.toUrlishString())) {
             if (notAdded)
                 *notAdded << path;
         } else {
-            file.addFile(index, path.toString());
+            file.addFile(index, path.toUrlishString());
         }
     }
 
@@ -521,7 +521,7 @@ bool ResourceFolderNode::canRenameFile(const FilePath &oldFilePath, const FilePa
     int index = (file.load() != IDocument::OpenResult::Success) ? -1 :file.indexOfPrefix(m_prefix, m_lang);
     if (index != -1) {
         for (int j = 0; j < file.fileCount(index); ++j) {
-            if (file.file(index, j) == oldFilePath.toString()) {
+            if (file.file(index, j) == oldFilePath.toUrlishString()) {
                 fileEntryExists = true;
                 break;
             }
@@ -544,8 +544,8 @@ bool ResourceFolderNode::renameFiles(const FilePairs &filesToRename, FilePaths *
     for (const auto &[oldFilePath, newFilePath] : filesToRename) {
         bool found = false;
         for (int j = 0; j < file.fileCount(index); ++j) {
-            if (file.file(index, j) == oldFilePath.toString()) {
-                file.replaceFile(index, j, newFilePath.toString());
+            if (file.file(index, j) == oldFilePath.toUrlishString()) {
+                file.replaceFile(index, j, newFilePath.toUrlishString());
                 found = true;
                 break;
             }

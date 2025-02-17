@@ -3,10 +3,10 @@
 
 #include "runconfigurationaspects.h"
 
+#include "devicesupport/devicekitaspects.h"
 #include "devicesupport/devicemanager.h"
 #include "devicesupport/idevice.h"
 #include "environmentaspect.h"
-#include "kitaspects.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
@@ -234,9 +234,9 @@ void WorkingDirectoryAspect::fromMap(const Store &map)
 void WorkingDirectoryAspect::toMap(Store &data) const
 {
     const QString wd = m_workingDirectory == m_defaultWorkingDirectory
-        ? QString() : m_workingDirectory.toString();
+        ? QString() : m_workingDirectory.toUrlishString();
     saveToMap(data, wd, QString(), settingsKey());
-    saveToMap(data, m_defaultWorkingDirectory.toString(), QString(), settingsKey() + ".default");
+    saveToMap(data, m_defaultWorkingDirectory.toUrlishString(), QString(), settingsKey() + ".default");
 }
 
 /*!
@@ -521,7 +521,7 @@ static IDevice::ConstPtr executionDevice(Target *target,
 {
     if (target) {
         if (selector == ExecutableAspect::RunDevice)
-            return DeviceKitAspect::device(target->kit());
+            return RunDeviceKitAspect::device(target->kit());
         if (selector == ExecutableAspect::BuildDevice)
             return BuildDeviceKitAspect::device(target->kit());
     }
@@ -815,7 +815,7 @@ Launcher::Launcher(const LauncherInfo &testLauncherInfo, const LauncherInfo &emu
     FilePath command1 = emulatorLauncherInfo.command;
     if (command1.isRelativePath())
         command1 = sourceDirectory.resolvePath(command1);
-    arguments.append(command1.toString());
+    arguments.append(command1.toUrlishString());
     arguments.append(emulatorLauncherInfo.arguments);
     displayName = QString("%1 + %2 (%3)").arg(launcherType2UiString(testLauncherInfo.type),
                                        launcherType2UiString(emulatorLauncherInfo.type),

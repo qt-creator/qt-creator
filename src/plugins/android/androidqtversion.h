@@ -4,7 +4,6 @@
 #pragma once
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtversionfactory.h>
 
 namespace Android::Internal {
 
@@ -26,7 +25,7 @@ public:
     QSet<Utils::Id> targetDeviceTypes() const override;
 
     QString description() const override;
-    const QStringList &androidAbis() const;
+    const QStringList androidAbis() const;
     int minimumNDK() const;
 
     static QString androidDeploymentSettingsFileName(const ProjectExplorer::Target *target);
@@ -36,7 +35,8 @@ public:
         int apiVersion = -1;
         QVersionNumber ndkVersion;
     };
-    static BuiltWith parseBuiltWith(const QByteArray &modulesCoreJsonData, bool *ok = nullptr);
+    static BuiltWith parseModulesCoreJson(const QByteArray &modulesCoreJsonData,
+                                          bool *ok = nullptr);
     BuiltWith builtWith(bool *ok = nullptr) const;
 
     bool isAndroidQtVersion() const override { return true; };

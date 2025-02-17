@@ -403,11 +403,11 @@ const GdbMi &GdbMi::operator[](const char *name) const
 
 qulonglong GdbMi::toAddress() const
 {
-    QString ba = m_data;
+    QStringView ba{m_data};
     if (ba.endsWith('L'))
         ba.chop(1);
     if (ba.startsWith('*') || ba.startsWith('@'))
-        ba = ba.mid(1);
+        ba = ba.sliced(1);
     return ba.toULongLong(nullptr, 0);
 }
 
@@ -483,7 +483,7 @@ void extractGdbVersion(const QString &msg,
       gdbMsgBegin = 0;
 
     for (int i = gdbMsgBegin, gdbMsgSize = msg.size(); i < gdbMsgSize; ++i) {
-        QChar c = msg.at(i);
+        const QChar c = msg.at(i);
         if (inClean && !cleaned.isEmpty() && c != dot && (c.isPunct() || c.isSpace()))
             inClean = false;
         if (ignoreParenthesisContent) {
@@ -528,9 +528,10 @@ void extractGdbVersion(const QString &msg,
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-static QString quoteUnprintableLatin1(const QString &ba)
+static QString quoteUnprintableLatin1(QStringView ba)
 {
     QString res;
+    res.reserve(ba.size());
     char buf[10];
     for (int i = 0, n = ba.size(); i != n; ++i) {
         const unsigned char c = ba.at(i).unicode();
@@ -601,7 +602,7 @@ static void getDateTime(qint64 msecs, int status, QDate *date, QTime *time, int 
     *time = ((status & NullTime) && tiVersion < 14) ? QTime() : QTime::fromMSecsSinceStartOfDay(ds);
 }
 
-QString decodeData(const QString &ba, const QString &encoding)
+QString decodeData(QStringView ba, const QString &encoding)
 {
     if (encoding.isEmpty())
         return quoteUnprintableLatin1(ba); // The common case.
@@ -702,7 +703,8 @@ QString decodeData(const QString &ba, const QString &encoding)
         }
         case DebuggerEncoding::IPv6AddressAndHexScopeId: { // 16 hex-encoded bytes, "%" and the string-encoded scope
             const int p = ba.indexOf('%');
-            QHostAddress ip6(p == -1 ? ba : ba.left(p));
+            const QStringView cleared{p == -1 ? ba : ba.left(p)};
+            QHostAddress ip6(cleared.toString());
             if (ip6.isNull())
                 break;
 
@@ -879,46 +881,46 @@ QString DebuggerCommand::argsToString() const
     return args.toString();
 }
 
-DebuggerEncoding::DebuggerEncoding(const QString &data)
+DebuggerEncoding::DebuggerEncoding(QStringView data)
 {
-    const QStringList l = data.split(':');
+    const auto l = data.split(':');
 
-    const QString &t = l.at(0);
-    if (t == "latin1") {
+    QStringView t = l.at(0);
+    if (t == u"latin1") {
         type = HexEncodedLatin1;
         size = 1;
         quotes = true;
-    } else if (t == "local8bit") {
+    } else if (t == u"local8bit") {
         type = HexEncodedLocal8Bit;
         size = 1;
         quotes = true;
-    } else if (t == "utf8") {
+    } else if (t == u"utf8") {
         type = HexEncodedUtf8;
         size = 1;
         quotes = true;
-    } else if (t == "utf16") {
+    } else if (t == u"utf16") {
         type = HexEncodedUtf16;
         size = 2;
         quotes = true;
-    } else if (t == "ucs4") {
+    } else if (t == u"ucs4") {
         type = HexEncodedUcs4;
         size = 4;
         quotes = true;
-    } else if (t == "int") {
+    } else if (t == u"int") {
         type = HexEncodedSignedInteger;
-    } else if (t == "uint") {
+    } else if (t == u"uint") {
         type = HexEncodedUnsignedInteger;
-    } else if (t == "float") {
+    } else if (t == u"float") {
         type = HexEncodedFloat;
-    } else if (t == "juliandate") {
+    } else if (t == u"juliandate") {
         type = JulianDate;
-    } else if (t == "juliandateandmillisecondssincemidnight") {
+    } else if (t == u"juliandateandmillisecondssincemidnight") {
         type = JulianDateAndMillisecondsSinceMidnight;
-    } else if (t == "millisecondssincemidnight") {
+    } else if (t == u"millisecondssincemidnight") {
         type = MillisecondsSinceMidnight;
-    } else if (t == "ipv6addressandhexscopeid") {
+    } else if (t == u"ipv6addressandhexscopeid") {
         type = IPv6AddressAndHexScopeId;
-    } else if (t == "datetimeinternal") {
+    } else if (t == u"datetimeinternal") {
         type = DateTimeInternal;
     } else if (!t.isEmpty()) {
         qDebug() << "CANNOT DECODE ENCODING" << data;

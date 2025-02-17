@@ -56,7 +56,7 @@ static QString propertyEditorResourcesPath()
     if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
+    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toUrlishString();
 }
 
 bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
@@ -724,7 +724,7 @@ QString ContentLibraryWidget::qmlSourcesPath()
     if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/contentLibraryQmlSource";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/contentLibraryQmlSource").toString();
+    return Core::ICore::resourcePath("qmldesigner/contentLibraryQmlSource").toUrlishString();
 }
 
 void ContentLibraryWidget::clearSearchFilter()

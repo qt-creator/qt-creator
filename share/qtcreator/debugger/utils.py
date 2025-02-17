@@ -15,8 +15,10 @@ class DebuggerStartMode():
         AttachCore,
         AttachToRemoteServer,
         AttachToRemoteProcess,
+        AttachToQmlServer,
         StartRemoteProcess,
-    ) = range(0, 9)
+        AttachToIosDevice
+    ) = range(0, 11)
 
 
 # Known special formats. Keep in sync with DisplayFormat in debuggerprotocol.h

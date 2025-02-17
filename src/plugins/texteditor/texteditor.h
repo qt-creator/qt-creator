@@ -319,8 +319,6 @@ public:
     void setLanguageSettingsId(Utils::Id settingsId);
     Utils::Id languageSettingsId() const;
 
-    void setCodeStyle(ICodeStylePreferences *settings);
-
     const DisplaySettings &displaySettings() const;
     const MarginSettings &marginSettings() const;
     const BehaviorSettings &behaviorSettings() const;
@@ -535,7 +533,7 @@ public:
     // Returns an object that blocks suggestions until it is destroyed.
     SuggestionBlocker blockSuggestions();
 
-    std::unique_ptr<EmbeddedWidgetInterface> insertWidget(QWidget *widget, int line);
+    std::unique_ptr<EmbeddedWidgetInterface> insertWidget(QWidget *widget, int pos);
 
     QList<QTextCursor> autoCompleteHighlightPositions() const;
 
@@ -556,6 +554,7 @@ signals:
     void requestRename(const QTextCursor &cursor);
     void requestCallHierarchy(const QTextCursor &cursor);
     void toolbarOutlineChanged(QWidget *newOutline);
+    void tabSettingsChanged();
 
     // used by the IEditor
     void saveCurrentStateForNavigationHistory();
@@ -688,7 +687,6 @@ signals:
 
 protected:
     virtual void slotCursorPositionChanged(); // Used in VcsBase
-    virtual void slotCodeStyleSettingsChanged(const QVariant &); // Used in CppEditor
 
 private:
     std::unique_ptr<Internal::TextEditorWidgetPrivate> d;

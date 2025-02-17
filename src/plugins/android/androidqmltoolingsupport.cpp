@@ -6,40 +6,25 @@
 #include "androidconstants.h"
 #include "androidrunner.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/qmldebugcommandlinearguments.h>
+
 using namespace ProjectExplorer;
 
 namespace Android::Internal {
-
-class AndroidQmlToolingSupport final : public RunWorker
-{
-public:
-    explicit AndroidQmlToolingSupport(RunControl *runControl) : RunWorker(runControl)
-    {
-        setId("AndroidQmlToolingSupport");
-
-        auto runner = new AndroidRunner(runControl);
-        addStartDependency(runner);
-
-        auto worker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
-        worker->addStartDependency(this);
-
-        connect(runner, &AndroidRunner::qmlServerReady, this, [this, worker](const QUrl &server) {
-            worker->recordData("QmlServerUrl", server);
-            reportStarted();
-        });
-    }
-
-private:
-    void start() override {}
-    void stop() override { reportStopped(); }
-};
 
 class AndroidQmlToolingSupportFactory final : public RunWorkerFactory
 {
 public:
     AndroidQmlToolingSupportFactory()
     {
-        setProduct<AndroidQmlToolingSupport>();
+        setProducer([](RunControl *runControl) {
+            auto worker = new AndroidRunner(runControl);
+
+            auto extraWorker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
+            extraWorker->addStartDependency(worker);
+            return worker;
+        });
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
     }

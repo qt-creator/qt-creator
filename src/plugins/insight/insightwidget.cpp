@@ -38,7 +38,7 @@ static QString propertyEditorResourcesPath()
     if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
+    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toUrlishString();
 }
 
 InsightWidget::InsightWidget(InsightView *insightView, InsightModel *insightModel)
@@ -78,7 +78,7 @@ QString InsightWidget::qmlSourcesPath()
     if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/insight";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/insight").toString();
+    return Core::ICore::resourcePath("qmldesigner/insight").toUrlishString();
 }
 
 void InsightWidget::showEvent(QShowEvent *event)

@@ -7,7 +7,7 @@
     "trDisplayName": "Qt Creator Script",
     "trDisplayCategory": "Lua",
     "iconText": "ts",
-    "enabled": "%{JS: value('Plugins').indexOf('Lua') >= 0}",
+    "enabled": "%{JS: isPluginRunning('lua')}",
     "options": [
         {
             "key": "DefaultSuffix",

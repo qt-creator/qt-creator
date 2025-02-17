@@ -1,5 +1,6 @@
 {
     "Id" : "qtsupport",
+    "DisplayName" : "Qt Support",
     "Name" : "QtSupport",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

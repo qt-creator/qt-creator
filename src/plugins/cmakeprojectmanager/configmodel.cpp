@@ -577,7 +577,7 @@ QVariant ConfigModelTreeItem::data(int column, int role) const
 
     const QString value = currentValue();
     const auto boolValue = CMakeConfigItem::toBool(value);
-    const bool isTrue = boolValue.has_value() && boolValue.value();
+    const bool isTrue = boolValue.has_value() && *boolValue;
 
     switch (role) {
     case Qt::CheckStateRole:

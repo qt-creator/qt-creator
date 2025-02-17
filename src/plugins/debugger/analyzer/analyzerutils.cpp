@@ -3,19 +3,22 @@
 
 #include "analyzerutils.h"
 
+#include <cplusplus/ExpressionUnderCursor.h>
+#include <cplusplus/TypeOfExpression.h>
+
 #include <cppeditor/cppmodelmanager.h>
+
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 
 #include <utils/qtcassert.h>
 
-#include <cplusplus/ExpressionUnderCursor.h>
-#include <cplusplus/TypeOfExpression.h>
-
 #include <QTextCursor>
 
 using namespace Core;
 using namespace ProjectExplorer;
+
+namespace Debugger {
 
 static void moveCursorToEndOfName(QTextCursor *tc)
 {
@@ -31,8 +34,9 @@ static void moveCursorToEndOfName(QTextCursor *tc)
 }
 
 // TODO: Can this be improved? This code is ripped from CppEditor, especially CppElementEvaluater
-// We cannot depend on this since CppEditor plugin code is internal and requires building the implementation files ourselves
-CPlusPlus::Symbol *AnalyzerUtils::findSymbolUnderCursor()
+// We cannot depend on this since CppEditor plugin code is internal
+// and requires building the implementation files ourselves
+CPlusPlus::Symbol *findSymbolUnderCursor()
 {
     TextEditor::TextEditorWidget *widget = TextEditor::TextEditorWidget::currentTextEditorWidget();
     if (!widget)
@@ -63,3 +67,5 @@ CPlusPlus::Symbol *AnalyzerUtils::findSymbolUnderCursor()
     const CPlusPlus::LookupItem &lookupItem = lookupItems.first(); // ### TODO: select best candidate.
     return lookupItem.declaration();
 }
+
+} // Debugger

@@ -317,7 +317,7 @@ void LspLogWidget::saveLog()
         stream << "\n\n";
     });
 
-    const FilePath filePath = FileUtils::getSaveFilePath(this, Tr::tr("Log File"));
+    const FilePath filePath = FileUtils::getSaveFilePath(Tr::tr("Log File"));
     if (filePath.isEmpty())
         return;
     FileSaver saver(filePath, QIODevice::Text);
@@ -489,8 +489,7 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
         for (Client *client : clients) {
             errMsg += sendMessage(
                 client,
-                Utils::globalMacroExpander()->expand(
-                    QString::fromUtf8(messageEditor->document()->contents())));
+                Utils::globalMacroExpander()->expand(messageEditor->textDocument()->plainText()));
         }
         errorLabel->setText(errMsg);
     };
@@ -498,7 +497,7 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
     // clang-format off
     using namespace Layouting;
     Column {
-        Row { Tr::tr("Language Server:"), m_clients, st, errorLabel, PushButton { text(Tr::tr("Send message")), onClicked(send, this) } },
+        Row { Tr::tr("Language Server:"), m_clients, st, errorLabel, PushButton { text(Tr::tr("Send message")), onClicked(this, send) } },
         messageEditor->editorWidget(),
         TabWidget {
             bindTo(&m_tabWidget),

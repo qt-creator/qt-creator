@@ -48,7 +48,7 @@ class CppEditorDocumentHandleImpl : public CppEditorDocumentHandle
 public:
     CppEditorDocumentHandleImpl(CppEditorDocument *cppEditorDocument)
         : m_cppEditorDocument(cppEditorDocument)
-        , m_registrationFilePath(cppEditorDocument->filePath().toString())
+        , m_registrationFilePath(cppEditorDocument->filePath().toUrlishString())
     {
         CppModelManager::registerCppEditorDocument(this);
     }
@@ -173,6 +173,12 @@ void CppEditorDocument::applyFontSettings()
         m_processor->semanticRehighlight();
 }
 
+void CppEditorDocument::slotCodeStyleSettingsChanged()
+{
+    QtStyleCodeFormatter formatter;
+    formatter.invalidateCache(document());
+}
+
 void CppEditorDocument::invalidateFormatterCache()
 {
     QtStyleCodeFormatter formatter;
@@ -212,7 +218,7 @@ void CppEditorDocument::reparseWithPreferredParseContext(const QString &parseCon
     setPreferredParseContext(parseContextId);
 
     // Remember the setting
-    const Key key = Constants::PREFERRED_PARSE_CONTEXT + keyFromString(filePath().toString());
+    const Key key = Constants::PREFERRED_PARSE_CONTEXT + keyFromString(filePath().toUrlishString());
     Core::SessionManager::setValue(key, parseContextId);
 
     // Reprocess
@@ -279,7 +285,7 @@ void CppEditorDocument::applyPreferredParseContextFromSettings()
     if (filePath().isEmpty())
         return;
 
-    const Key key = Constants::PREFERRED_PARSE_CONTEXT + keyFromString(filePath().toString());
+    const Key key = Constants::PREFERRED_PARSE_CONTEXT + keyFromString(filePath().toUrlishString());
     const QString parseContextId = Core::SessionManager::value(key).toString();
 
     setPreferredParseContext(parseContextId);
@@ -290,7 +296,7 @@ void CppEditorDocument::applyExtraPreprocessorDirectivesFromSettings()
     if (filePath().isEmpty())
         return;
 
-    const Key key = Constants::EXTRA_PREPROCESSOR_DIRECTIVES + keyFromString(filePath().toString());
+    const Key key = Constants::EXTRA_PREPROCESSOR_DIRECTIVES + keyFromString(filePath().toUrlishString());
     const QByteArray directives = Core::SessionManager::value(key).toString().toUtf8();
 
     setExtraPreprocessorDirectives(directives);

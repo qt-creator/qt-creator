@@ -10,7 +10,7 @@
 
 #include <utils/utilsicons.h>
 
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
@@ -38,7 +38,7 @@ static void handleAction(const SelectionContext &context)
                 const auto kit = startupTarget->kit();
                 if (kit
                     && (kit->supportedPlatforms().contains(Android::Constants::ANDROID_DEVICE_TYPE)
-                        || ProjectExplorer::DeviceTypeKitAspect::deviceTypeId(kit)
+                        || ProjectExplorer::RunDeviceTypeKitAspect::deviceTypeId(kit)
                                == Android::Constants::ANDROID_DEVICE_TYPE)) {
                     skipDeploy = true;
                     // In case of an android kit we don't want the live preview button to be toggled

@@ -126,10 +126,9 @@ void ProjectExplorerTest::testClangOutputParser_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
-    QTest::addColumn<QString>("childStdOutLines");
-    QTest::addColumn<QString>("childStdErrLines");
-    QTest::addColumn<Tasks >("tasks");
-    QTest::addColumn<QString>("outputLines");
+    QTest::addColumn<QStringList>("childStdOutLines");
+    QTest::addColumn<QStringList>("childStdErrLines");
+    QTest::addColumn<Tasks>("tasks");
 
     auto compileTask = [](Task::TaskType type,
                           const QString &description,
@@ -153,33 +152,29 @@ void ProjectExplorerTest::testClangOutputParser_data()
 
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
-            << QString::fromLatin1("Sometext\n") << QString()
-            << Tasks()
-            << QString();
+            << QStringList("Sometext") << QStringList()
+            << Tasks();
 
     QTest::newRow("pass-through stderr")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("Sometext\n")
-            << Tasks()
-            << QString();
+            << QStringList() << QStringList("Sometext")
+            << Tasks();
 
     QTest::newRow("clang++ warning")
             << QString::fromLatin1("clang++: warning: argument unused during compilation: '-mthreads'")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Warning,
-                               "argument unused during compilation: '-mthreads'"))
-            << QString();
+                               "argument unused during compilation: '-mthreads'"));
 
     QTest::newRow("clang++ error")
             << QString::fromLatin1("clang++: error: no input files [err_drv_no_input_files]")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Error,
-                               "no input files [err_drv_no_input_files]"))
-            << QString();
+                               "no input files [err_drv_no_input_files]"));
 
     QTest::newRow("complex warning")
             << QString::fromLatin1("In file included from ..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qnamespace.h:45:\n"
@@ -187,7 +182,7 @@ void ProjectExplorerTest::testClangOutputParser_data()
                                    "class Q_CORE_EXPORT QSysInfo {\n"
                                    "      ^")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << Tasks{compileTask(
                    Task::Warning,
                    "unknown attribute 'dllimport' ignored [-Wunknown-attributes]\n"
@@ -198,15 +193,14 @@ void ProjectExplorerTest::testClangOutputParser_data()
                    FilePath::fromUserInput("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h"),
                    1425, 0,
                    QVector<QTextLayout::FormatRange>()
-                       << formatRange(61, 278))}
-            << QString();
+                       << formatRange(61, 278))};
 
         QTest::newRow("note")
                 << QString::fromLatin1("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h:1289:27: note: instantiated from:\n"
                                        "#    define Q_CORE_EXPORT Q_DECL_IMPORT\n"
                                        "                          ^")
                 << OutputParserTester::STDERR
-                << QString() << QString()
+                << QStringList() << QStringList()
                 << (Tasks()
                     << compileTask(Task::Unknown,
                                    "instantiated from:\n"
@@ -216,15 +210,14 @@ void ProjectExplorerTest::testClangOutputParser_data()
                                    FilePath::fromUserInput("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h"),
                                    1289, 27,
                                    QVector<QTextLayout::FormatRange>()
-                                       << formatRange(19, 167)))
-                << QString();
+                                       << formatRange(19, 167)));
 
         QTest::newRow("fatal error")
                 << QString::fromLatin1("/usr/include/c++/4.6/utility:68:10: fatal error: 'bits/c++config.h' file not found\n"
                                        "#include <bits/c++config.h>\n"
                                        "         ^")
                 << OutputParserTester::STDERR
-                << QString() << QString()
+                << QStringList() << QStringList()
                 << (Tasks()
                     << compileTask(Task::Error,
                                    "'bits/c++config.h' file not found\n"
@@ -236,15 +229,14 @@ void ProjectExplorerTest::testClangOutputParser_data()
                                    QVector<QTextLayout::FormatRange>()
                                        << formatRange(34, 0)
                                        << formatRange(34, 28, "olpfile:///usr/include/c++/4.6/utility::68::10")
-                                       << formatRange(62, 93)))
-                << QString();
+                                       << formatRange(62, 93)));
 
         QTest::newRow("line confusion")
                 << QString::fromLatin1("/home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp:567:51: warning: ?: has lower precedence than +; + will be evaluated first [-Wparentheses]\n"
                                        "            int x = option->rect.x() + horizontal ? 2 : 6;\n"
                                        "                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^")
                 << OutputParserTester::STDERR
-                << QString() << QString()
+                << QStringList() << QStringList()
                 << (Tasks()
                     << compileTask(Task::Warning,
                                    "?: has lower precedence than +; + will be evaluated first [-Wparentheses]\n"
@@ -256,21 +248,19 @@ void ProjectExplorerTest::testClangOutputParser_data()
                                    QVector<QTextLayout::FormatRange>()
                                        << formatRange(74, 0)
                                        << formatRange(74, 64, "olpfile:///home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp::567::51")
-                                       << formatRange(138, 202)))
-                << QString();
+                                       << formatRange(138, 202)));
 
         QTest::newRow("code sign error")
                 << QString::fromLatin1("Check dependencies\n"
                                        "Code Sign error: No matching provisioning profiles found: No provisioning profiles with a valid signing identity (i.e. certificate and private key pair) were found.\n"
                                        "CodeSign error: code signing is required for product type 'Application' in SDK 'iOS 7.0'")
                 << OutputParserTester::STDERR
-                << QString() << QString::fromLatin1("Check dependencies\n")
+                << QStringList() << QStringList("Check dependencies")
                 << (Tasks()
                     << CompileTask(Task::Error,
                                    "No matching provisioning profiles found: No provisioning profiles with a valid signing identity (i.e. certificate and private key pair) were found.")
                     << CompileTask(Task::Error,
-                                   "code signing is required for product type 'Application' in SDK 'iOS 7.0'"))
-                << QString();
+                                   "code signing is required for product type 'Application' in SDK 'iOS 7.0'"));
 }
 
 void ProjectExplorerTest::testClangOutputParser()
@@ -280,13 +270,10 @@ void ProjectExplorerTest::testClangOutputParser()
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
     QFETCH(Tasks, tasks);
-    QFETCH(QString, childStdOutLines);
-    QFETCH(QString, childStdErrLines);
-    QFETCH(QString, outputLines);
+    QFETCH(QStringList, childStdOutLines);
+    QFETCH(QStringList, childStdErrLines);
 
-    testbench.testParsing(input, inputChannel,
-                          tasks, childStdOutLines, childStdErrLines,
-                          outputLines);
+    testbench.testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines);
 }
 
 } // ProjectExplorer::Internal

@@ -323,7 +323,7 @@ void ModelIndexer::scanProject(Project *project)
     if (modelMimeType.isValid()) {
         for (const FilePath &file : files) {
             if (modelMimeType.suffixes().contains(file.completeSuffix())) {
-                QueuedFile queuedFile(file.toString(), project, file.lastModified());
+                QueuedFile queuedFile(file.toUrlishString(), project, file.lastModified());
                 filesQueue.append(queuedFile);
                 filesSet.insert(queuedFile);
             }
@@ -391,7 +391,7 @@ QString ModelIndexer::findFirstModel(FolderNode *folderNode, const MimeType &mim
         return suffixes.contains(fn->filePath().completeSuffix());
     });
     if (foundFileNode)
-         return foundFileNode->filePath().toString();
+         return foundFileNode->filePath().toUrlishString();
 
     QString modelFileName;
     folderNode->findChildFolderNode([&](FolderNode *fn) {
@@ -406,7 +406,7 @@ void ModelIndexer::forgetProject(Project *project)
     const FilePaths files = project->files(Project::SourceFiles);
 
     for (const FilePath &file : files) {
-        const QString fileString = file.toString();
+        const QString fileString = file.toUrlishString();
         // remove file from queue
         QueuedFile queuedFile(fileString, project);
         if (d->queuedFilesSet.remove(queuedFile)) {

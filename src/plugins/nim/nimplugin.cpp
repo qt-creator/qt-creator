@@ -4,12 +4,10 @@
 #include "nimconstants.h"
 #include "nimtr.h"
 #include "editor/nimeditorfactory.h"
-#include "project/nimblebuildconfiguration.h"
 #include "project/nimblebuildstep.h"
 #include "project/nimbleproject.h"
 #include "project/nimblerunconfiguration.h"
 #include "project/nimbletaskstep.h"
-#include "project/nimbuildconfiguration.h"
 #include "project/nimcompilerbuildstep.h"
 #include "project/nimcompilercleanstep.h"
 #include "project/nimoutputtaskparser.h"
@@ -44,16 +42,14 @@ class NimPluginPrivate
 {
 public:
     NimEditorFactory editorFactory;
-    NimBuildConfigurationFactory buildConfigFactory;
-    NimbleBuildConfigurationFactory nimbleBuildConfigFactory;
     NimRunConfigurationFactory nimRunConfigFactory;
     NimbleRunConfigurationFactory nimbleRunConfigFactory;
     NimbleTestConfigurationFactory nimbleTestConfigFactory;
-    SimpleTargetRunnerFactory nimRunWorkerFactory{{nimRunConfigFactory.runConfigurationId()}};
-    SimpleTargetRunnerFactory nimbleRunWorkerFactory{{nimbleRunConfigFactory.runConfigurationId()}};
+    ProcessRunnerFactory nimRunWorkerFactory{{nimRunConfigFactory.runConfigurationId()}};
+    ProcessRunnerFactory nimbleRunWorkerFactory{{nimbleRunConfigFactory.runConfigurationId()}};
     SimpleDebugRunnerFactory nimDebugWorkerFactory{{nimRunConfigFactory.runConfigurationId()}};
     SimpleDebugRunnerFactory nimbleDebugWorkerFactory{{nimbleRunConfigFactory.runConfigurationId()}};
-    SimpleTargetRunnerFactory nimbleTestWorkerFactory{{nimbleTestConfigFactory.runConfigurationId()}};
+    ProcessRunnerFactory nimbleTestWorkerFactory{{nimbleTestConfigFactory.runConfigurationId()}};
     NimbleBuildStepFactory nimbleBuildStepFactory;
     NimbleTaskStepFactory nimbleTaskStepFactory;
     NimCompilerBuildStepFactory buildStepFactory;
@@ -76,6 +72,17 @@ class NimPlugin final : public ExtensionSystem::IPlugin
     void initialize() final
     {
         d = new NimPluginPrivate;
+
+        Core::IOptionsPage::registerCategory(
+            Constants::C_NIMTOOLSSETTINGSPAGE_CATEGORY,
+            Tr::tr("Nim"),
+            ":/nim/images/settingscategory_nim.png");
+
+        // ???
+        Core::IOptionsPage::registerCategory(
+            Constants::C_NIMCODESTYLESETTINGSPAGE_CATEGORY,
+            Tr::tr("Nim"),
+            ":/nim/images/settingscategory_nim.png");
 
         setupNimProject();
         setupNimbleProject();

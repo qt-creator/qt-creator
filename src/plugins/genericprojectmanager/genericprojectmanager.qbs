@@ -21,8 +21,6 @@ QtcPlugin {
     ]
 
     files: [
-        "genericbuildconfiguration.cpp",
-        "genericbuildconfiguration.h",
         "genericmakestep.cpp",
         "genericmakestep.h",
         "genericproject.cpp",

@@ -1094,7 +1094,7 @@ LocatorFilterEntries LocatorFileCachePrivate::generate(const QFuture<void> &futu
     // If search string contains spaces, treat them as wildcard '*' and search in full path
     const QString wildcardInput = QDir::fromNativeSeparators(input).replace(' ', '*');
     const Link inputLink = Link::fromString(wildcardInput, true);
-    const QString newInput = inputLink.targetFilePath.toString();
+    const QString newInput = inputLink.targetFilePath.toUrlishString();
     const QRegularExpression regExp = ILocatorFilter::createRegExp(newInput);
     if (!regExp.isValid())
         return {}; // Don't clear the cache - still remember the cache for the last valid input.
@@ -1313,7 +1313,7 @@ FilePaths LocatorFileCache::processFilePaths(const QFuture<void> &future,
         if (future.isCanceled())
             return {};
 
-        const QString matchText = hasPathSeparator ? path.toString() : path.fileName();
+        const QString matchText = hasPathSeparator ? path.toUrlishString() : path.fileName();
         const QRegularExpressionMatch match = regExp.match(matchText);
 
         if (match.hasMatch()) {

@@ -85,8 +85,6 @@ public:
         setId(Constants::OPTION_GENERAL_ID);
         setDisplayName(Tr::tr("General"));
         setCategory(Constants::OPTION_CATEGORY);
-        setDisplayCategory(Tr::tr("Beautifier"));
-        setCategoryIconPath(":/beautifier/images/settingscategory_beautifier.png");
         setSettingsProvider([] { return &generalSettings(); });
     }
 };

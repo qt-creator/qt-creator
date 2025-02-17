@@ -235,11 +235,11 @@ bool NickNameDialog::populateModelFromMailCapFile(const FilePath &fileName,
     if (fileName.isEmpty())
         return true;
     FileReader reader;
-    if (!reader.fetch(fileName, QIODevice::Text, errorMessage))
+    if (!reader.fetch(fileName, errorMessage))
          return false;
     // Split into lines and read
     NickNameEntry entry;
-    const QStringList lines = QString::fromUtf8(reader.data()).trimmed().split(QLatin1Char('\n'));
+    const QStringList lines = QString::fromUtf8(reader.text()).trimmed().split(QLatin1Char('\n'));
     const int count = lines.size();
     for (int i = 0; i < count; i++) {
         if (entry.parse(lines.at(i))) {

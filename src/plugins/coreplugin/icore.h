@@ -6,6 +6,7 @@
 #include "core_global.h"
 #include "icontext.h"
 
+#include <extensionsystem/pluginspec.h>
 #include <utils/appmainwindow.h>
 #include <utils/filepath.h>
 #include <utils/qtcsettings.h>
@@ -115,6 +116,8 @@ public:
     static void addPreCloseListener(const std::function<bool()> &listener);
 
     static void restart();
+
+    static bool enablePlugins(const QSet<ExtensionSystem::PluginSpec *> &plugins);
 
     enum SaveSettingsReason {
         SettingsDialogDone,

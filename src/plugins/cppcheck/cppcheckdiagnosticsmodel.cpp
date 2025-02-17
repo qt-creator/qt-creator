@@ -106,7 +106,7 @@ void DiagnosticsModel::add(const Diagnostic &diagnostic)
     if (m_diagnostics.size() == 1)
         emit hasDataChanged(true);
 
-    const QString filePath = diagnostic.fileName.toString();
+    const QString filePath = diagnostic.fileName.toUrlishString();
     FilePathItem *&filePathItem = m_filePathToItem[filePath];
     if (!filePathItem) {
         filePathItem = new FilePathItem(filePath);

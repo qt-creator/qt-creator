@@ -1,22 +1,23 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "androidconstants.h"
-#include "androidmanager.h"
 #include "androidpackageinstallationstep.h"
+
+#include "androidconstants.h"
 #include "androidtr.h"
+#include "androidutils.h"
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/gnumakeparser.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
@@ -91,7 +92,7 @@ bool AndroidPackageInstallationStep::init()
 
     processParameters()->setCommandLine(cmd);
     // This is useful when running an example target from a Qt module project.
-    processParameters()->setWorkingDirectory(AndroidManager::buildDirectory(target()));
+    processParameters()->setWorkingDirectory(Internal::buildDirectory(target()));
 
     m_androidDirsToClean.clear();
     // don't remove gradle's cache, it takes ages to rebuild it.
@@ -103,7 +104,7 @@ bool AndroidPackageInstallationStep::init()
 
 QString AndroidPackageInstallationStep::nativeAndroidBuildPath() const
 {
-    QString buildPath = AndroidManager::androidBuildDirectory(target()).toFSPathString();
+    QString buildPath = androidBuildDirectory(target()).toFSPathString();
     if (HostOsInfo::isWindowsHost())
         if (buildEnvironment().searchInPath("sh.exe").isEmpty())
             buildPath = QDir::toNativeSeparators(buildPath);
@@ -124,7 +125,7 @@ Tasking::GroupItem AndroidPackageInstallationStep::runRecipe()
     using namespace Tasking;
 
     const auto onSetup = [this] {
-        if (AndroidManager::skipInstallationAndPackageSteps(target())) {
+        if (skipInstallationAndPackageSteps(target())) {
             reportWarningOrError(Tr::tr("Product type is not an application, not running the "
                                         "Make install step."), Task::Warning);
             return SetupResult::StopWithSuccess;
@@ -134,11 +135,12 @@ Tasking::GroupItem AndroidPackageInstallationStep::runRecipe()
             const FilePath androidDir = FilePath::fromString(dir);
             if (!dir.isEmpty() && androidDir.exists()) {
                 emit addOutput(Tr::tr("Removing directory %1").arg(dir), OutputFormat::NormalMessage);
-                QString error;
-                if (!androidDir.removeRecursively(&error)) {
-                    reportWarningOrError(Tr::tr("Failed to clean \"%1\" from the previous build, "
-                                         "with error:\n%2").arg(androidDir.toUserOutput()).arg(error),
-                                         Task::TaskType::Error);
+                const Result result = androidDir.removeRecursively();
+                if (!result) {
+                    reportWarningOrError(
+                        Tr::tr("Failed to clean \"%1\" from the previous build, "
+                               "with error:\n%2").arg(androidDir.toUserOutput(), result.error()),
+                        Task::TaskType::Error);
                     return SetupResult::StopWithError;
                 }
             }

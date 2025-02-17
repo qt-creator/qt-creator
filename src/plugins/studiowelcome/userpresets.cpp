@@ -48,7 +48,7 @@ void FileStoreIo::write(const QByteArray &data)
 
 QString FileStoreIo::fullFilePath(const QString &fileName) const
 {
-    return Core::ICore::userResourcePath(fileName).toString();
+    return Core::ICore::userResourcePath(fileName).toUrlishString();
 }
 
 UserPresetsStore::UserPresetsStore(const QString &fileName, StorePolicy policy)

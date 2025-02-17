@@ -173,7 +173,7 @@ void PrintTo(const Utils::PathString &text, ::std::ostream *os)
 
 std::ostream &operator<<(std::ostream &out, const FilePath &filePath)
 {
-    return out << filePath.toString();
+    return out << filePath.toUrlishString();
 }
 
 } // namespace Utils

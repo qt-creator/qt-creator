@@ -1019,10 +1019,10 @@ QByteArray SplitterOrView::saveState() const
             stream << QByteArray("empty");
         } else {
             if (e == EditorManager::currentEditor()) {
-                stream << QByteArray("currenteditor") << e->document()->filePath().toString()
+                stream << QByteArray("currenteditor") << e->document()->filePath().toUrlishString()
                        << e->document()->id().toString() << e->saveState();
             } else {
-                stream << QByteArray("editor") << e->document()->filePath().toString()
+                stream << QByteArray("editor") << e->document()->filePath().toUrlishString()
                        << e->document()->id().toString() << e->saveState();
             }
 

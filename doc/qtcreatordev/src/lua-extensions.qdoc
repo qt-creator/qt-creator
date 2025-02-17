@@ -25,18 +25,19 @@
     \code
         --- MyExtension.lua
         return {
+            Id = "myextension",
             Name = "MyExtension",
             Version = "1.0.0",
             CompatVersion = "1.0.0",
             Vendor = "My Company",
+            VendorId = "mycompany",
             Category = "Tests",
             Description = "Describe what your extension does in a sentence.",
             LongDescription = [[
-                Tell users more about your extension.
+                Tell users more about your extension. This text is rendered as Markdown.
             ]],
             Dependencies = {
-                { Name = "Core", Version = "13.0.82", Required = true },
-                { Name = "Lua",  Version = "13.0.82", Required = true }
+                { Name = "Lua",  Version = "15.0.0", Required = true }
             },
             setup = function() print("Hello from Lua!") end,
             printToOutputPane = true,
@@ -125,7 +126,7 @@
         void initialize() final {
             // The registered function will be called when the Lua module 'MyCppExtension' is required.
             // The returned table will be returned from the require call in Lua.
-            ::Lua::LuaEngine::registerProvider("MyCppExtension", [](sol::state_view lua) -> sol::object {
+            ::Lua::registerProvider("MyCppExtension", [](sol::state_view lua) -> sol::object {
                 sol::table result = lua.create_table();
                 result["myFunction"] = [](int a, int b) { return a + b; };
                 return result;
@@ -139,7 +140,7 @@
     \code
     local MyCppExtension = require 'MyCppExtension'
     --- MyCppExtension is now a table with a single field 'myFunction', as it is returned from the
-    --- C++ function registered via 'LuaEngine::registerProvider(...)'.
+    --- C++ function registered via 'Lua::registerProvider(...)'.
     print(MyCppExtension.myFunction(1, 2))
     \endcode
 
@@ -271,5 +272,3 @@
 
     \quotefile ../../../src/plugins/lua/meta/utils.lua
 */
-
-

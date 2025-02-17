@@ -7,11 +7,12 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <qtsupport/baseqtversion.h>
@@ -265,8 +266,8 @@ Toolchains KitDetectorPrivate::autoDetectToolchains()
             toolchain->setDetectionSource(m_sharedId);
         }
         ToolchainManager::registerToolchains(newToolchains);
-        const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
-            newToolchains, ToolchainBundle::HandleMissing::CreateAndRegister);
+        ToolchainBundle::collectBundles(newToolchains,
+                                        ToolchainBundle::HandleMissing::CreateAndRegister);
         alreadyKnown.append(newToolchains);
         allNewToolchains.append(newToolchains);
     }
@@ -352,8 +353,8 @@ void KitDetectorPrivate::autoDetect()
         if (cmakeId.isValid())
             k->setValue(CMakeProjectManager::Constants::TOOL_ID, cmakeId.toSetting());
 
-        DeviceTypeKitAspect::setDeviceTypeId(k, m_device->type());
-        DeviceKitAspect::setDevice(k, m_device);
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, m_device->type());
+        RunDeviceKitAspect::setDevice(k, m_device);
         BuildDeviceKitAspect::setDevice(k, m_device);
 
         const Toolchains toolchainCandidates = ToolchainManager::toolchains(
@@ -387,8 +388,8 @@ void KitDetectorPrivate::autoDetect()
 
         k->setSticky(ToolchainKitAspect::id(), true);
         k->setSticky(QtSupport::QtKitAspect::id(), true);
-        k->setSticky(DeviceKitAspect::id(), true);
-        k->setSticky(DeviceTypeKitAspect::id(), true);
+        k->setSticky(RunDeviceKitAspect::id(), true);
+        k->setSticky(RunDeviceTypeKitAspect::id(), true);
         k->setSticky(BuildDeviceKitAspect::id(), true);
     };
 

@@ -62,7 +62,6 @@ public:
     void setCompletionSource(QmllsStatus::Source newSource);
 public slots:
     void setSourcesWithCapabilities(const LanguageServerProtocol::ServerCapabilities &);
-    void settingsChanged();
 
 public:
     QmlJSEditorDocument *q = nullptr;

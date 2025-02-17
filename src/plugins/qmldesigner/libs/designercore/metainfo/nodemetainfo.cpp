@@ -1215,7 +1215,7 @@ QString NodeMetaInfoPrivate::componentFileName() const
             int line;
             int column;
             if (astObjectValue->getSourceLocation(&fileName, &line, &column))
-                return fileName.toString();
+                return fileName.toUrlishString();
         }
     }
     return QString();

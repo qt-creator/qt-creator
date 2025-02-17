@@ -12,7 +12,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -211,7 +211,7 @@ QWidget *IosDsymBuildStep::createConfigWidget()
     auto commandLabel = new QLabel(Tr::tr("Command:"), widget);
 
     auto commandLineEdit = new QLineEdit(widget);
-    commandLineEdit->setText(command().toString());
+    commandLineEdit->setText(command().toUrlishString());
 
     auto argumentsTextEdit = new QPlainTextEdit(widget);
     argumentsTextEdit->setPlainText(Utils::ProcessArgs::joinArgs(arguments()));
@@ -256,7 +256,7 @@ QWidget *IosDsymBuildStep::createConfigWidget()
             [this, commandLineEdit, resetDefaultsButton, argumentsTextEdit, updateDetails] {
         setCommand(defaultCommand());
         setArguments(defaultArguments());
-        commandLineEdit->setText(command().toString());
+        commandLineEdit->setText(command().toUrlishString());
         argumentsTextEdit->setPlainText(Utils::ProcessArgs::joinArgs(arguments()));
         resetDefaultsButton->setEnabled(!isDefault());
         updateDetails();

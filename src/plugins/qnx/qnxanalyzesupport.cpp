@@ -7,49 +7,40 @@
 #include "qnxtr.h"
 #include "slog2inforunner.h"
 
-#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
-
-#include <utils/qtcprocess.h>
-
-#include <qmldebug/qmldebugcommandlinearguments.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/qmldebugcommandlinearguments.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Qnx::Internal {
 
-class QnxQmlProfilerSupport final : public SimpleTargetRunner
-{
-public:
-    explicit QnxQmlProfilerSupport(RunControl *runControl)
-        : SimpleTargetRunner(runControl)
-    {
-        setId("QnxQmlProfilerSupport");
-        appendMessage(Tr::tr("Preparing remote side..."), LogMessageFormat);
-
-        runControl->requestQmlChannel();
-
-        auto slog2InfoRunner = new Slog2InfoRunner(runControl);
-        addStartDependency(slog2InfoRunner);
-
-        auto profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
-        profiler->addStartDependency(this);
-        addStopDependency(profiler);
-
-        setStartModifier([this] {
-            CommandLine cmd = commandLine();
-            cmd.addArg(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, qmlChannel()));
-            setCommandLine(cmd);
-        });
-    }
-};
-
 class QnxQmlProfilerWorkerFactory final : public RunWorkerFactory
 {
 public:
     QnxQmlProfilerWorkerFactory()
     {
-        setProduct<QnxQmlProfilerSupport>();
+        setProducer([](RunControl *runControl) {
+            auto worker = new ProcessRunner(runControl);
+            worker->setId("QnxQmlProfilerSupport");
+            worker->appendMessage(Tr::tr("Preparing remote side..."), LogMessageFormat);
+
+            runControl->requestQmlChannel();
+
+            auto slog2InfoRunner = new Slog2InfoRunner(runControl);
+            worker->addStartDependency(slog2InfoRunner);
+
+            auto profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
+            profiler->addStartDependency(worker);
+            worker->addStopDependency(profiler);
+
+            worker->setStartModifier([worker, runControl] {
+                CommandLine cmd = worker->commandLine();
+                cmd.addArg(qmlDebugTcpArguments(QmlProfilerServices, runControl->qmlChannel()));
+                worker->setCommandLine(cmd);
+            });
+            return worker;
+        });
         // FIXME: Shouldn't this use the run mode id somehow?
         addSupportedRunConfig(Constants::QNX_RUNCONFIG_ID);
     }

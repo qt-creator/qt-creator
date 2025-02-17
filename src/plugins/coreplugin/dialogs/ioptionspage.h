@@ -48,6 +48,8 @@ public:
     explicit IOptionsPage(bool registerGlobally = true);
     virtual ~IOptionsPage();
 
+    static void registerCategory(
+        Utils::Id id, const QString &displayName, const Utils::FilePath &iconPath);
     static const QList<IOptionsPage *> allOptionsPages();
 
     Utils::Id id() const;
@@ -55,6 +57,7 @@ public:
     Utils::Id category() const;
     QString displayCategory() const;
     Utils::FilePath categoryIconPath() const;
+    std::optional<Utils::AspectContainer *> aspects() const;
 
     using WidgetCreator = std::function<QWidget *()>;
     void setWidgetCreator(const WidgetCreator &widgetCreator);
@@ -72,8 +75,6 @@ protected:
     void setId(Utils::Id id);
     void setDisplayName(const QString &displayName);
     void setCategory(Utils::Id category);
-    void setDisplayCategory(const QString &displayCategory);
-    void setCategoryIconPath(const Utils::FilePath &categoryIconPath);
     void setSettingsProvider(const std::function<Utils::AspectContainer *()> &provider);
 
 private:

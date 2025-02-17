@@ -384,7 +384,7 @@ static QString selectedText(QWidget *widget, bool useAll)
         }
     }, model, QModelIndex());
 
-    return str;
+    return str.trimmed();
 }
 
 // Write stack frames as task file for displaying it in the build issues pane.
@@ -464,11 +464,8 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
 
         addAction(this, menu, Tr::tr("Open Disassembler at Address..."), true,
                   [this, address] {
-                        AddressDialog dialog;
-                        if (address)
-                            dialog.setAddress(address);
-                        if (dialog.exec() == QDialog::Accepted)
-                            m_engine->openDisassemblerView(Location(dialog.address()));
+                        if (std::optional<quint64> result = runAddressDialog(address))
+                            m_engine->openDisassemblerView(Location(*result));
                    });
 
         addAction(this, menu, Tr::tr("Disassemble Function..."), true,

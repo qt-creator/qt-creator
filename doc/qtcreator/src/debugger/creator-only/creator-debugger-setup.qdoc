@@ -65,7 +65,7 @@
     \section1 GDB Versions
 
     Use GDB 7.5, or later, with the Python scripting extension and Python version
-    3.5, or later.
+    3.7, or later.
 
     For remote debugging using GDB and GDB server, the minimum supported version
     of GDB server on the target \l{glossary-device}{device} is 7.0.

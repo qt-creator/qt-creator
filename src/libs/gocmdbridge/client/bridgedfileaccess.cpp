@@ -107,7 +107,7 @@ Result FileAccess::deployAndInit(const FilePath &libExecPath, const FilePath &re
 
     qCDebug(faLog) << deco() << "Using cmdbridge at:" << *cmdBridgePath;
 
-    if (remoteRootPath.needsDevice()) {
+    if (!remoteRootPath.isLocal()) {
         const auto cmdBridgeFileData = cmdBridgePath->fileContents();
 
         if (!cmdBridgeFileData) {
@@ -669,7 +669,7 @@ void FileAccess::iterateDirectory(const FilePath &filePath,
     }
     processResults();
 
-    qCDebug(faLog) << "Iterated directory" << filePath.toString() << "in" << t.elapsed() << "ms";
+    qCDebug(faLog) << "Iterated directory" << filePath.toUrlishString() << "in" << t.elapsed() << "ms";
 }
 
 } // namespace CmdBridge

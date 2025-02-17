@@ -6,13 +6,12 @@
 #include "appoutputpane.h"
 #include "buildconfiguration.h"
 #include "customparser.h"
+#include "devicesupport/devicekitaspects.h"
 #include "devicesupport/devicemanager.h"
-#include "devicesupport/deviceusedportsgatherer.h"
 #include "devicesupport/idevice.h"
 #include "devicesupport/idevicefactory.h"
 #include "devicesupport/sshparameters.h"
 #include "devicesupport/sshsettings.h"
-#include "kitaspects.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
@@ -43,7 +42,6 @@
 
 #include <QLoggingCategory>
 #include <QPushButton>
-#include <QTextCodec>
 #include <QTimer>
 
 #if defined (WITH_JOURNALD)
@@ -234,10 +232,6 @@ public:
     QList<RunWorker *> startDependencies;
     QList<RunWorker *> stopDependencies;
     QString id;
-
-    Store data;
-    bool supportsReRunning = true;
-    bool essential = false;
 };
 
 enum class RunControlState
@@ -353,20 +347,18 @@ public:
     void showError(const QString &msg);
 
     static bool isAllowedTransition(RunControlState from, RunControlState to);
-    bool supportsReRunning() const;
     bool isUsingTaskTree() const { return bool(m_runRecipe); }
     void startTaskTree();
     void checkAutoDeleteAndEmitStopped();
 
-    void enablePortsGatherer();
-    QUrl getNextChannel();
+    bool isPortsGatherer() const
+    { return useDebugChannel || useQmlChannel || usePerfChannel || useWorkerChannel; }
+    QUrl getNextChannel(PortList *portList, const QList<Port> &usedPorts);
 
     RunControl *q;
     Id runMode;
     TaskTreeRunner m_taskTreeRunner;
-
-    std::unique_ptr<DeviceUsedPortsGatherer> portsGatherer;
-    PortList portList;
+    TaskTreeRunner m_portsGathererRunner;
 };
 
 } // Internal
@@ -382,6 +374,11 @@ void RunControl::copyDataFromRunControl(RunControl *runControl)
 {
     QTC_ASSERT(runControl, return);
     d->copyData(runControl->d.get());
+}
+
+void RunControl::start()
+{
+    ProjectExplorerPlugin::startRunControl(this);
 }
 
 void RunControl::resetDataForAttachToCore()
@@ -435,9 +432,9 @@ void RunControl::setKit(Kit *kit)
 
     if (!d->runnable.command.isEmpty()) {
         setDevice(DeviceManager::deviceForPath(d->runnable.command.executable()));
-        QTC_ASSERT(device(), setDevice(DeviceKitAspect::device(kit))); // FIXME: QTCREATORBUG-31259
+        QTC_ASSERT(device(), setDevice(RunDeviceKitAspect::device(kit)));
     } else {
-        setDevice(DeviceKitAspect::device(kit));
+        setDevice(RunDeviceKitAspect::device(kit));
     }
 }
 
@@ -486,22 +483,20 @@ void RunControl::setRunRecipe(const Group &group)
 
 void RunControl::initiateStart()
 {
-    if (d->isUsingTaskTree()) {
+    emit aboutToStart();
+    if (d->isUsingTaskTree())
         d->startTaskTree();
-    } else {
-        emit aboutToStart();
+    else
         d->initiateStart();
-    }
 }
 
 void RunControl::initiateReStart()
 {
-    if (d->isUsingTaskTree()) {
+    emit aboutToStart();
+    if (d->isUsingTaskTree())
         d->startTaskTree();
-    } else {
-        emit aboutToStart();
+    else
         d->initiateReStart();
-    }
 }
 
 void RunControl::initiateStop()
@@ -526,7 +521,7 @@ void RunControl::forceStop()
 
 RunWorker *RunControl::createWorker(Id runMode)
 {
-    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(d->kit);
+    const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(d->kit);
     for (RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
         if (factory->canCreate(runMode, deviceType, d->runConfigId.toString()))
             return factory->create(this);
@@ -539,7 +534,7 @@ bool RunControl::createMainWorker()
     const QList<RunWorkerFactory *> candidates
         = filtered(g_runWorkerFactories, [this](RunWorkerFactory *factory) {
               return factory->canCreate(d->runMode,
-                                        DeviceTypeKitAspect::deviceTypeId(d->kit),
+                                        RunDeviceTypeKitAspect::deviceTypeId(d->kit),
                                         d->runConfigId.toString());
           });
 
@@ -594,73 +589,61 @@ void RunControlPrivate::initiateReStart()
 
 void RunControlPrivate::startPortsGathererIfNeededAndContinueStart()
 {
-    if (!portsGatherer) {
+    if (!isPortsGatherer()) {
         continueStart();
         return;
     }
 
-    connect(portsGatherer.get(), &DeviceUsedPortsGatherer::done, this, [this](bool success) {
-        if (success) {
-            portList = device->freePorts();
-            q->appendMessage(Tr::tr("Found %n free ports.", nullptr, portList.count()) + '\n',
-                             NormalMessageFormat);
-            if (useDebugChannel)
-                debugChannel = getNextChannel();
-            if (useQmlChannel)
-                qmlChannel = getNextChannel();
-            if (usePerfChannel)
-                perfChannel = getNextChannel();
-            if (useWorkerChannel)
-                workerChannel = getNextChannel();
+    QTC_ASSERT(device, continueStart(); return);
 
-            continueStart();
-        } else {
-            onWorkerFailed(nullptr, portsGatherer->errorString());
+    const Storage<PortsOutputData> portsStorage;
+
+    const auto onDone = [this, portsStorage] {
+        const auto ports = *portsStorage;
+        if (!ports) {
+            onWorkerFailed(nullptr, ports.error());
+            return;
         }
-    });
+        PortList portList = device->freePorts();
+        const QList<Port> usedPorts = *ports;
+        q->appendMessage(Tr::tr("Found %n free ports.", nullptr, portList.count()) + '\n',
+                         NormalMessageFormat);
+        if (useDebugChannel)
+            debugChannel = getNextChannel(&portList, usedPorts);
+        if (useQmlChannel)
+            qmlChannel = getNextChannel(&portList, usedPorts);
+        if (usePerfChannel)
+            perfChannel = getNextChannel(&portList, usedPorts);
+        if (useWorkerChannel)
+            workerChannel = getNextChannel(&portList, usedPorts);
+
+        continueStart();
+    };
+
+    const Group recipe {
+        portsStorage,
+        device->portsGatheringRecipe(portsStorage),
+        onGroupDone(onDone)
+    };
 
     q->appendMessage(Tr::tr("Checking available ports...") + '\n', NormalMessageFormat);
-    portsGatherer->setDevice(device);
-    portsGatherer->start();
+    m_portsGathererRunner.start(recipe);
 }
 
-void RunControl::enablePortsGatherer()
+QUrl RunControlPrivate::getNextChannel(PortList *portList, const QList<Port> &usedPorts)
 {
-    d->enablePortsGatherer();
-}
-
-void RunControlPrivate::enablePortsGatherer()
-{
-    if (!portsGatherer)
-        portsGatherer = std::make_unique<DeviceUsedPortsGatherer>();
-}
-
-QUrl RunControlPrivate::getNextChannel()
-{
-    QTC_ASSERT(portsGatherer, return {});
     QUrl result;
     result.setScheme(urlTcpScheme());
     if (q->device()->extraData(Constants::SSH_FORWARD_DEBUGSERVER_PORT).toBool())
         result.setHost("localhost");
     else
         result.setHost(q->device()->toolControlChannel(IDevice::ControlChannelHint()).host());
-    result.setPort(portList.getNextFreePort(portsGatherer->usedPorts()).number());
-    return result;
-}
-
-QUrl RunControl::findEndPoint()
-{
-    QTC_ASSERT(d->portsGatherer, return {});
-    QUrl result;
-    result.setScheme(urlTcpScheme());
-    result.setHost(device()->sshParameters().host());
-    result.setPort(d->portList.getNextFreePort(d->portsGatherer->usedPorts()).number());
+    result.setPort(portList->getNextFreePort(usedPorts).number());
     return result;
 }
 
 void RunControl::requestDebugChannel()
 {
-    d->enablePortsGatherer();
     d->useDebugChannel = true;
 }
 
@@ -676,7 +659,6 @@ QUrl RunControl::debugChannel() const
 
 void RunControl::requestQmlChannel()
 {
-    d->enablePortsGatherer();
     d->useQmlChannel = true;
 }
 
@@ -697,7 +679,6 @@ void RunControl::setQmlChannel(const QUrl &channel)
 
 void RunControl::requestPerfChannel()
 {
-    d->enablePortsGatherer();
     d->usePerfChannel = true;
 }
 
@@ -713,13 +694,17 @@ QUrl RunControl::perfChannel() const
 
 void RunControl::requestWorkerChannel()
 {
-    d->enablePortsGatherer();
     d->useWorkerChannel = true;
 }
 
 QUrl RunControl::workerChannel() const
 {
     return d->workerChannel;
+}
+
+void RunControl::showOutputPane()
+{
+    appOutputPane().showOutputPaneForRunControl(this);
 }
 
 void RunControlPrivate::continueStart()
@@ -937,10 +922,6 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
 
     if (state == RunControlState::Stopping) {
         continueStopOrFinish();
-        return;
-    } else if (worker->isEssential()) {
-        debugMessage(workerId + " is essential. Stopping all others.");
-        initiateStop();
         return;
     }
 
@@ -1222,24 +1203,7 @@ void RunControl::setSupportsReRunning(bool reRunningSupported)
 
 bool RunControl::supportsReRunning() const
 {
-    if (d->isUsingTaskTree())
-        return d->m_supportsReRunning;
-    return d->supportsReRunning();
-}
-
-bool RunControlPrivate::supportsReRunning() const
-{
-    for (RunWorker *worker : m_workers) {
-        if (!worker) {
-            debugMessage("Found unknown deleted worker when checking for re-run support");
-            return false;
-        }
-        if (!worker->d->supportsReRunning)
-            return false;
-        if (worker->d->state != RunWorkerState::Done)
-            return false;
-    }
-    return true;
+    return d->m_supportsReRunning;
 }
 
 void RunControlPrivate::startTaskTree()
@@ -1305,8 +1269,7 @@ bool RunControl::showPromptToStopDialog(const QString &title,
     if (prompt)
         decider = CheckableDecider(prompt);
 
-    auto selected = CheckableMessageBox::question(Core::ICore::dialogParent(),
-                                                  title,
+    auto selected = CheckableMessageBox::question(title,
                                                   text,
                                                   decider,
                                                   QMessageBox::Yes | QMessageBox::Cancel,
@@ -1378,15 +1341,15 @@ void RunControlPrivate::debugMessage(const QString &msg) const
 }
 
 
-// SimpleTargetRunnerPrivate
+// ProcessRunnerPrivate
 
 namespace Internal {
 
-class SimpleTargetRunnerPrivate : public QObject
+class ProcessRunnerPrivate : public QObject
 {
 public:
-    explicit SimpleTargetRunnerPrivate(SimpleTargetRunner *parent);
-    ~SimpleTargetRunnerPrivate() override;
+    explicit ProcessRunnerPrivate(ProcessRunner *parent);
+    ~ProcessRunnerPrivate() override;
 
     void start();
     void stop();
@@ -1403,16 +1366,12 @@ public:
     qint64 privateApplicationPID() const;
     bool isRunning() const;
 
-    SimpleTargetRunner *q = nullptr;
+    ProcessRunner *q = nullptr;
 
     bool m_runAsRoot = false;
 
     Process m_process;
     QTimer m_waitForDoneTimer;
-
-    QTextCodec *m_outputCodec = nullptr;
-    QTextCodec::ConverterState m_outputCodecState;
-    QTextCodec::ConverterState m_errorCodecState;
 
     State m_state = Inactive;
     bool m_stopRequested = false;
@@ -1420,7 +1379,6 @@ public:
     Utils::CommandLine m_command;
     Utils::FilePath m_workingDirectory;
     Utils::Environment m_environment;
-    QVariantHash m_extraData;
 
     ProcessResultData m_resultData;
 
@@ -1442,16 +1400,16 @@ static QProcess::ProcessChannelMode defaultProcessChannelMode()
             ? QProcess::MergedChannels : QProcess::SeparateChannels;
 }
 
-SimpleTargetRunnerPrivate::SimpleTargetRunnerPrivate(SimpleTargetRunner *parent)
+ProcessRunnerPrivate::ProcessRunnerPrivate(ProcessRunner *parent)
     : q(parent)
 {
     m_process.setProcessChannelMode(defaultProcessChannelMode());
-    connect(&m_process, &Process::started, this, &SimpleTargetRunnerPrivate::forwardStarted);
-    connect(&m_process, &Process::done, this, &SimpleTargetRunnerPrivate::handleDone);
+    connect(&m_process, &Process::started, this, &ProcessRunnerPrivate::forwardStarted);
+    connect(&m_process, &Process::done, this, &ProcessRunnerPrivate::handleDone);
     connect(&m_process, &Process::readyReadStandardError,
-                this, &SimpleTargetRunnerPrivate::handleStandardError);
+                this, &ProcessRunnerPrivate::handleStandardError);
     connect(&m_process, &Process::readyReadStandardOutput,
-                this, &SimpleTargetRunnerPrivate::handleStandardOutput);
+                this, &ProcessRunnerPrivate::handleStandardOutput);
     connect(&m_process, &Process::requestingStop, this, [this] {
         q->appendMessage(Tr::tr("Requesting process to stop ...."), NormalMessageFormat);
     });
@@ -1462,7 +1420,7 @@ SimpleTargetRunnerPrivate::SimpleTargetRunnerPrivate(SimpleTargetRunner *parent)
     m_waitForDoneTimer.setSingleShot(true);
     connect(&m_waitForDoneTimer, &QTimer::timeout, this, [this] {
         q->appendMessage(Tr::tr("Process unexpectedly did not finish."), ErrorMessageFormat);
-        if (m_command.executable().needsDevice())
+        if (!m_command.executable().isLocal())
             q->appendMessage(Tr::tr("Connectivity lost?"), ErrorMessageFormat);
         m_process.close();
         forwardDone();
@@ -1488,13 +1446,13 @@ SimpleTargetRunnerPrivate::SimpleTargetRunnerPrivate(SimpleTargetRunner *parent)
     }
 }
 
-SimpleTargetRunnerPrivate::~SimpleTargetRunnerPrivate()
+ProcessRunnerPrivate::~ProcessRunnerPrivate()
 {
     if (m_state == Run)
         forwardDone();
 }
 
-void SimpleTargetRunnerPrivate::stop()
+void ProcessRunnerPrivate::stop()
 {
     if (m_stopRequested || m_state != Run)
         return;
@@ -1506,12 +1464,12 @@ void SimpleTargetRunnerPrivate::stop()
     m_process.stop();
 }
 
-bool SimpleTargetRunnerPrivate::isRunning() const
+bool ProcessRunnerPrivate::isRunning() const
 {
     return m_process.state() != QProcess::NotRunning;
 }
 
-qint64 SimpleTargetRunnerPrivate::privateApplicationPID() const
+qint64 ProcessRunnerPrivate::privateApplicationPID() const
 {
     if (!isRunning())
         return 0;
@@ -1519,47 +1477,37 @@ qint64 SimpleTargetRunnerPrivate::privateApplicationPID() const
     return m_process.processId();
 }
 
-void SimpleTargetRunnerPrivate::handleDone()
+void ProcessRunnerPrivate::handleDone()
 {
     m_resultData = m_process.resultData();
-    QTC_ASSERT(m_state == Run, forwardDone(); return);
-
+    QTC_CHECK(m_state == Run);
     forwardDone();
 }
 
-void SimpleTargetRunnerPrivate::handleStandardOutput()
+void ProcessRunnerPrivate::handleStandardOutput()
 {
     if (m_suppressDefaultStdOutHandling)
-        return;
-
-    const QByteArray data = m_process.readAllRawStandardOutput();
-    const QString msg = m_outputCodec->toUnicode(
-                data.constData(), data.length(), &m_outputCodecState);
-    q->appendMessage(msg, StdOutFormat, false);
+        emit q->stdOutData(m_process.readAllRawStandardOutput());
+    else
+        q->appendMessage(m_process.readAllStandardOutput(), StdOutFormat, false);
 }
 
-void SimpleTargetRunnerPrivate::handleStandardError()
+void ProcessRunnerPrivate::handleStandardError()
 {
-    if (m_suppressDefaultStdOutHandling)
-        return;
-
-    const QByteArray data = m_process.readAllRawStandardError();
-    const QString msg = m_outputCodec->toUnicode(
-                data.constData(), data.length(), &m_errorCodecState);
+    const QString msg = m_process.readAllStandardError();
     q->appendMessage(msg, StdErrFormat, false);
 }
 
-void SimpleTargetRunnerPrivate::start()
+void ProcessRunnerPrivate::start()
 {
-    const bool isLocal = !m_command.executable().needsDevice();
-
     CommandLine cmdLine = m_command;
     Environment env = m_environment;
 
     m_resultData = {};
     QTC_ASSERT(m_state == Inactive, return);
 
-    if (isLocal) {
+    if (m_command.executable().isLocal()) {
+        // Running locally.
         if (m_runAsRoot)
             RunControl::provideAskPassEntry(env);
 
@@ -1585,11 +1533,14 @@ void SimpleTargetRunnerPrivate::start()
 
     m_stopRequested = false;
 
-    QVariantHash extraData = m_extraData;
+    QVariantHash extraData = q->runControl()->extraData();
     if (q->runControl() && q->runControl()->target()
         && q->runControl()->target()->activeRunConfiguration()) {
-        extraData[TERMINAL_SHELL_NAME]
-            = q->runControl()->target()->activeRunConfiguration()->displayName();
+        QString shellName = q->runControl()->target()->activeRunConfiguration()->displayName();
+        if (BuildConfiguration *buildConfig = q->runControl()->target()->activeBuildConfiguration())
+            shellName += " - " + buildConfig->displayName();
+
+        extraData[TERMINAL_SHELL_NAME] = shellName;
     } else {
         extraData[TERMINAL_SHELL_NAME] = m_command.executable().fileName();
     }
@@ -1600,21 +1551,14 @@ void SimpleTargetRunnerPrivate::start()
 
     m_state = Run;
     m_process.setWorkingDirectory(m_workingDirectory);
-
-    if (isLocal)
-        m_outputCodec = QTextCodec::codecForLocale();
-    else
-        m_outputCodec = QTextCodec::codecForName("utf8");
-
     m_process.setForceDefaultErrorModeOnWindows(true);
     m_process.start();
 }
 
-
 /*!
-    \class ProjectExplorer::SimpleTargetRunner
+    \class ProjectExplorer::ProcessRunner
 
-    \brief The SimpleTargetRunner class is the application launcher of the
+    \brief The ProcessRunner class is the application launcher of the
     ProjectExplorer plugin.
 
     Encapsulates processes running in a console or as GUI processes,
@@ -1622,16 +1566,15 @@ void SimpleTargetRunnerPrivate::start()
 
     \sa Utils::Process
 */
-
-SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
-    : RunWorker(runControl), d(new Internal::SimpleTargetRunnerPrivate(this))
+ProcessRunner::ProcessRunner(RunControl *runControl)
+    : RunWorker(runControl), d(new Internal::ProcessRunnerPrivate(this))
 {
-    setId("SimpleTargetRunner");
+    setId("ProcessRunner");
 }
 
-SimpleTargetRunner::~SimpleTargetRunner() = default;
+ProcessRunner::~ProcessRunner() = default;
 
-void SimpleTargetRunnerPrivate::forwardDone()
+void ProcessRunnerPrivate::forwardDone()
 {
     if (m_stopReported)
         return;
@@ -1652,9 +1595,9 @@ void SimpleTargetRunnerPrivate::forwardDone()
     q->reportStopped();
 }
 
-void SimpleTargetRunnerPrivate::forwardStarted()
+void ProcessRunnerPrivate::forwardStarted()
 {
-    const bool isDesktop = !m_command.executable().needsDevice();
+    const bool isDesktop = m_command.executable().isLocal();
     if (isDesktop) {
         // Console processes only know their pid after being started
         ProcessHandle pid{privateApplicationPID()};
@@ -1665,12 +1608,11 @@ void SimpleTargetRunnerPrivate::forwardStarted()
     q->reportStarted();
 }
 
-void SimpleTargetRunner::start()
+void ProcessRunner::start()
 {
     d->m_command = runControl()->commandLine();
     d->m_workingDirectory = runControl()->workingDirectory();
     d->m_environment = runControl()->environment();
-    d->m_extraData = runControl()->extraData();
 
     if (d->m_startModifier)
         d->m_startModifier();
@@ -1695,15 +1637,14 @@ void SimpleTargetRunner::start()
     appendMessage(msg, NormalMessageFormat);
     if (runControl()->isPrintEnvironmentEnabled()) {
         appendMessage(Tr::tr("Environment:"), NormalMessageFormat);
-        runControl()->runnable().environment
-            .forEachEntry([this](const QString &key, const QString &value, bool enabled) {
-                if (enabled)
-                    appendMessage(key + '=' + value, StdOutFormat);
-            });
+        d->m_environment.forEachEntry([this](const QString &key, const QString &value, bool enabled) {
+            if (enabled)
+                appendMessage(key + '=' + value, StdOutFormat);
+        });
         appendMessage({}, StdOutFormat);
     }
 
-    const bool isDesktop = !d->m_command.executable().needsDevice();
+    const bool isDesktop = d->m_command.executable().isLocal();
     if (isDesktop && d->m_command.isEmpty()) {
         reportFailure(Tr::tr("No executable specified."));
         return;
@@ -1711,64 +1652,45 @@ void SimpleTargetRunner::start()
     d->start();
 }
 
-void SimpleTargetRunner::stop()
+void ProcessRunner::stop()
 {
     d->m_stopForced = true;
     d->stop();
 }
 
-void SimpleTargetRunner::setStartModifier(const std::function<void ()> &startModifier)
+void ProcessRunner::setStartModifier(const std::function<void ()> &startModifier)
 {
     d->m_startModifier = startModifier;
 }
 
-CommandLine SimpleTargetRunner::commandLine() const
+CommandLine ProcessRunner::commandLine() const
 {
     return d->m_command;
 }
 
-void SimpleTargetRunner::setCommandLine(const Utils::CommandLine &commandLine)
+void ProcessRunner::setCommandLine(const Utils::CommandLine &commandLine)
 {
     d->m_command = commandLine;
 }
 
-void SimpleTargetRunner::setEnvironment(const Environment &environment)
+void ProcessRunner::setEnvironment(const Environment &environment)
 {
     d->m_environment = environment;
 }
 
-void SimpleTargetRunner::setWorkingDirectory(const FilePath &workingDirectory)
+void ProcessRunner::setWorkingDirectory(const FilePath &workingDirectory)
 {
     d->m_workingDirectory = workingDirectory;
 }
 
-void SimpleTargetRunner::setProcessMode(Utils::ProcessMode processMode)
+void ProcessRunner::setProcessMode(Utils::ProcessMode processMode)
 {
     d->m_process.setProcessMode(processMode);
 }
 
-Process *SimpleTargetRunner::process() const
-{
-    return &d->m_process;
-}
-
-void SimpleTargetRunner::suppressDefaultStdOutHandling()
+void ProcessRunner::suppressDefaultStdOutHandling()
 {
     d->m_suppressDefaultStdOutHandling = true;
-}
-
-void SimpleTargetRunner::forceRunOnHost()
-{
-    const FilePath executable = d->m_command.executable();
-    if (executable.needsDevice()) {
-        QTC_CHECK(false);
-        d->m_command.setExecutable(FilePath::fromString(executable.path()));
-    }
-}
-
-void SimpleTargetRunner::addExtraData(const QString &key, const QVariant &value)
-{
-    d->m_extraData[key] = value;
 }
 
 // RunWorkerPrivate
@@ -1942,11 +1864,6 @@ void RunWorker::appendMessage(const QString &msg, OutputFormat format, bool appe
     d->runControl->postMessage(msg, format, appendNewLine);
 }
 
-IDevice::ConstPtr RunWorker::device() const
-{
-    return d->runControl->device();
-}
-
 void RunWorker::addStartDependency(RunWorker *dependency)
 {
     d->startDependencies.append(dependency);
@@ -1965,21 +1882,6 @@ RunControl *RunWorker::runControl() const
 void RunWorker::setId(const QString &id)
 {
     d->id = id;
-}
-
-void RunWorker::recordData(const Key &channel, const QVariant &data)
-{
-    d->data[channel] = data;
-}
-
-QVariant RunWorker::recordedData(const Key &channel) const
-{
-    return d->data[channel];
-}
-
-void RunWorker::setSupportsReRunning(bool reRunningSupported)
-{
-    d->supportsReRunning = reRunningSupported;
 }
 
 QString RunWorker::userMessageForProcessError(QProcess::ProcessError error, const FilePath &program)
@@ -2015,46 +1917,6 @@ QString RunWorker::userMessageForProcessError(QProcess::ProcessError error, cons
     return msg;
 }
 
-bool RunWorker::isEssential() const
-{
-    return d->essential;
-}
-
-void RunWorker::setEssential(bool essential)
-{
-    d->essential = essential;
-}
-
-QUrl RunWorker::debugChannel() const
-{
-    return d->runControl->debugChannel();
-}
-
-bool RunWorker::usesDebugChannel() const
-{
-    return d->runControl->usesDebugChannel();
-}
-
-QUrl RunWorker::qmlChannel() const
-{
-    return d->runControl->qmlChannel();
-}
-
-bool RunWorker::usesQmlChannel() const
-{
-    return d->runControl->usesQmlChannel();
-}
-
-QUrl RunWorker::perfChannel() const
-{
-    return d->runControl->perfChannel();
-}
-
-bool RunWorker::usesPerfChannel() const
-{
-    return d->runControl->usesPerfChannel();
-}
-
 void RunWorker::start()
 {
     reportStarted();
@@ -2084,11 +1946,11 @@ void addOutputParserFactory(const std::function<Utils::OutputLineParser *(Target
     g_outputParserFactories.append(factory);
 }
 
-// SimpleTargetRunnerFactory
+// ProcessRunnerFactory
 
-SimpleTargetRunnerFactory::SimpleTargetRunnerFactory(const QList<Id> &runConfigs)
+ProcessRunnerFactory::ProcessRunnerFactory(const QList<Id> &runConfigs)
 {
-    setProduct<SimpleTargetRunner>();
+    setProduct<ProcessRunner>();
     addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     setSupportedRunConfigs(runConfigs);
 }

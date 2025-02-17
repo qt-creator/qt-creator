@@ -1,5 +1,6 @@
 {
     "Id" : "git",
+    "DisplayName" : "Git",
     "Name" : "Git",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
@@ -28,6 +29,10 @@
             "Parameter" : "git commit hash",
             "Description" : "Show given commit hash"
         }
+    ],
+    "VcsDetectionFiles" : [
+        ".git",
+        ".git/config"
     ],
     ${IDE_PLUGIN_DEPENDENCIES},
 

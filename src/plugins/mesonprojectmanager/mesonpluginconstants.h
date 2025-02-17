@@ -62,8 +62,6 @@ const char clean[] = "clean";
 const char install[] = "install";
 const char tests[] = "test";
 const char benchmark[] = "benchmark";
-const char clang_format[] = "clang-format";
-const char scan_build[] = "scan-build";
 } // namespace Targets
 const char MESON_BUILD_CONFIG_ID[] = "MesonProjectManager.BuildConfiguration";
 

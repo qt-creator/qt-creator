@@ -42,7 +42,8 @@ end
 
 return {
     Id = "tellajoke",
-    Name = "Tell A Joke",
+    DisplayName = "Tell a Joke",
+    Name = "TellAJoke",
     Version = "1.0.0",
     CompatVersion = "1.0.0",
     VendorId = "theqtcompany",

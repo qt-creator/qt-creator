@@ -22,10 +22,12 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
@@ -53,6 +55,9 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
+        IOptionsPage::registerCategory(
+            Constants::Settings::CATEGORY, Tr::tr("CMake"), Constants::Icons::SETTINGS_CATEGORY);
+
         setupCMakeToolManager(this);
 
         setupCMakeSettingsPage();
@@ -94,7 +99,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
             .addToContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT,
                             ProjectExplorer::Constants::G_PROJECT_BUILD)
             .addOnTriggered(this, [] {
-                if (auto bs = qobject_cast<CMakeBuildSystem *>(ProjectTree::currentBuildSystem())) {
+                if (auto bs = qobject_cast<CMakeBuildSystem *>(activeBuildSystemForCurrentProject())) {
                     auto targetNode = dynamic_cast<const CMakeTargetNode *>(ProjectTree::currentNode());
                     bs->buildCMakeTarget(targetNode ? targetNode->displayName() : QString());
                 }
@@ -107,7 +112,9 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
     void extensionsInitialized() final
     {
         // Delay the restoration to allow the devices to load first.
-        QTimer::singleShot(0, this, [] { CMakeToolManager::restoreCMakeTools(); });
+        connect(DeviceManager::instance(), &DeviceManager::devicesLoaded, this, [] {
+            CMakeToolManager::restoreCMakeTools();
+        });
 
         setupOnlineHelpManager();
     }

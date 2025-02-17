@@ -77,7 +77,7 @@ QByteArray QmlDesignerBasePlugin::experimentalFeaturesSettingsKey()
     return QByteArray(experimentalFeatures) + version.toLatin1();
 }
 
-void QmlDesignerBasePlugin::enbableLiteMode()
+void QmlDesignerBasePlugin::enableLiteMode()
 {
     global->m_enableLiteMode = true;
 }
@@ -90,7 +90,7 @@ bool QmlDesignerBasePlugin::isLiteModeEnabled()
 bool QmlDesignerBasePlugin::initialize(const QStringList &arguments, QString *)
 {
     if (arguments.contains("-qml-lite-designer"))
-        enbableLiteMode();
+        enableLiteMode();
 
     WindowManager::registerDeclarativeType();
     StudioQuickUtils::registerDeclarativeType();

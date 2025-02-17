@@ -4,6 +4,7 @@
 #include "coreplugin.h"
 #include "coreplugintr.h"
 #include "designmode.h"
+#include "dialogs/ioptionspage.h"
 #include "editmode.h"
 #include "foldernavigationwidget.h"
 #include "icore.h"
@@ -13,6 +14,7 @@
 #include "modemanager.h"
 #include "session.h"
 #include "settingsdatabase.h"
+#include "systemsettings.h"
 #include "themechooser.h"
 #include "vcsmanager.h"
 
@@ -30,6 +32,7 @@
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/commandline.h>
+#include <utils/environment.h>
 #include <utils/infobar.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
@@ -67,11 +70,13 @@ using namespace Utils;
 static CorePlugin *m_instance = nullptr;
 
 const char kWarnCrashReportingSetting[] = "WarnCrashReporting";
-const char kEnvironmentChanges[] = "Core/EnvironmentChanges";
 
 CorePlugin::CorePlugin()
-    : m_startupSystemEnvironment(Environment::systemEnvironment())
 {
+    // Trigger creation as early as possible before anyone else could
+    // mess with the systemEnvironment before it is "backed up".
+    (void) systemSettings();
+
     qRegisterMetaType<Id>();
     qRegisterMetaType<Utils::Text::Position>();
     qRegisterMetaType<Utils::CommandLine>();
@@ -82,10 +87,6 @@ CorePlugin::CorePlugin()
     qRegisterMetaType<Utils::KeyList>();
     qRegisterMetaType<Utils::OldStore>();
     m_instance = this;
-
-    const EnvironmentItems changes = EnvironmentItem::fromStringList(
-        ICore::settings()->value(kEnvironmentChanges).toStringList());
-    setEnvironmentChanges(changes);
 }
 
 CorePlugin::~CorePlugin()
@@ -132,15 +133,6 @@ CoreArguments parseArguments(const QStringList &arguments)
         }
     }
     return args;
-}
-
-void CorePlugin::loadMimeFromPlugin(const ExtensionSystem::PluginSpec *plugin)
-{
-    const QJsonObject metaData = plugin->metaData();
-    const QJsonValue mimetypes = metaData.value("Mimetypes");
-    QString mimetypeString;
-    if (Utils::readMultiLineString(mimetypes, &mimetypeString))
-        Utils::addMimeTypes(plugin->name() + ".mimetypes", mimetypeString.trimmed().toUtf8());
 }
 
 static void initProxyAuthDialog()
@@ -218,14 +210,42 @@ static void initTAndCAcceptDialog()
         });
 }
 
+static void addToPathChooserContextMenu(PathChooser *pathChooser, QMenu *menu)
+{
+    QList<QAction *> actions = menu->actions();
+    QAction *firstAction = actions.isEmpty() ? nullptr : actions.first();
+
+    if (pathChooser->filePath().exists()) {
+        auto showInGraphicalShell = new QAction(FileUtils::msgGraphicalShellAction(), menu);
+        QObject::connect(showInGraphicalShell, &QAction::triggered, pathChooser, [pathChooser] {
+            Core::FileUtils::showInGraphicalShell(pathChooser->filePath());
+        });
+        menu->insertAction(firstAction, showInGraphicalShell);
+
+        auto showInTerminal = new QAction(FileUtils::msgTerminalHereAction(), menu);
+        QObject::connect(showInTerminal, &QAction::triggered, pathChooser, [pathChooser] {
+            if (pathChooser->openTerminalHandler())
+                pathChooser->openTerminalHandler()();
+            else
+                FileUtils::openTerminal(pathChooser->filePath(), {});
+        });
+        menu->insertAction(firstAction, showInTerminal);
+
+    } else {
+        auto mkPathAct = new QAction(Tr::tr("Create Folder"), menu);
+        QObject::connect(mkPathAct, &QAction::triggered, pathChooser, [pathChooser] {
+            QDir().mkpath(pathChooser->filePath().toUrlishString());
+            pathChooser->triggerChanged();
+        });
+        menu->insertAction(firstAction, mkPathAct);
+    }
+
+    if (firstAction)
+        menu->insertSeparator(firstAction);
+}
+
 bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    // register all mime types from all plugins
-    for (ExtensionSystem::PluginSpec *plugin : ExtensionSystem::PluginManager::plugins()) {
-        if (!plugin->isEffectivelyEnabled())
-            continue;
-        loadMimeFromPlugin(plugin);
-    }
     initTAndCAcceptDialog();
     initProxyAuthDialog();
 
@@ -251,7 +271,15 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_editMode = new EditMode;
     ModeManager::activateMode(m_editMode->id());
     m_folderNavigationWidgetFactory = new FolderNavigationWidgetFactory;
-    m_sessionManager.reset(new SessionManager);
+
+    IOptionsPage::registerCategory(
+        Constants::SETTINGS_CATEGORY_CORE,
+        Tr::tr("Environment"),
+        ":/core/images/settingscategory_core.png");
+
+    // Shared by Help and ScreenRecorder
+    IOptionsPage::registerCategory(
+        Constants::HELP_CATEGORY, Tr::tr("Help"), ":/core/images/settingscategory_help.png");
 
     IWizardFactory::initialize();
 
@@ -277,9 +305,9 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                [] { return QLocale::system()
                                         .toString(QTime::currentTime(), QLocale::ShortFormat); });
     expander->registerVariable("Config:DefaultProjectDirectory", Tr::tr("The configured default directory for projects."),
-                               [] { return DocumentManager::projectsDirectory().toString(); });
+                               [] { return DocumentManager::projectsDirectory().toUrlishString(); });
     expander->registerVariable("Config:LastFileDialogDirectory", Tr::tr("The directory last visited in a file dialog."),
-                               [] { return DocumentManager::fileDialogLastVisitedDirectory().toString(); });
+                               [] { return DocumentManager::fileDialogLastVisitedDirectory().toUrlishString(); });
     expander->registerVariable("HostOs:isWindows",
                                Tr::tr("Is %1 running on Windows?")
                                    .arg(QGuiApplication::applicationDisplayName()),
@@ -312,11 +340,11 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     expander->registerVariable("IDE:ResourcePath",
                                Tr::tr("The directory where %1 finds its pre-installed resources.")
                                    .arg(QGuiApplication::applicationDisplayName()),
-                               [] { return ICore::resourcePath().toString(); });
+                               [] { return ICore::resourcePath().toUrlishString(); });
     expander->registerVariable("IDE:UserResourcePath",
                                Tr::tr("The directory where %1 puts custom user data.")
                                    .arg(QGuiApplication::applicationDisplayName()),
-                               [] { return ICore::userResourcePath().toString(); });
+                               [] { return ICore::userResourcePath().toUrlishString(); });
     expander->registerPrefix("CurrentDate:", Tr::tr("The current date (QDate formatstring)."),
                              [](const QString &fmt) { return QDate::currentDate().toString(fmt); });
     expander->registerPrefix("CurrentTime:", Tr::tr("The current time (QTime formatstring)."),
@@ -329,7 +357,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
                              Tr::tr("Convert string to pure ASCII."),
                              [expander](const QString &s) { return asciify(expander->expand(s)); });
 
-    Utils::PathChooser::setAboutToShowContextMenuHandler(&CorePlugin::addToPathChooserContextMenu);
+    Utils::PathChooser::setAboutToShowContextMenuHandler(&addToPathChooserContextMenu);
 
 #ifdef ENABLE_CRASHPAD
     connect(ICore::instance(), &ICore::coreOpened, this, &CorePlugin::warnAboutCrashReporing,
@@ -426,62 +454,9 @@ QObject *CorePlugin::remoteCommand(const QStringList & /* options */,
     return res;
 }
 
-EnvironmentItems CorePlugin::environmentChanges()
-{
-    return m_instance->m_environmentChanges;
-}
-
-void CorePlugin::setEnvironmentChanges(const EnvironmentItems &changes)
-{
-    if (m_instance->m_environmentChanges == changes)
-        return;
-    m_instance->m_environmentChanges = changes;
-    Environment systemEnv = m_instance->m_startupSystemEnvironment;
-    systemEnv.modify(changes);
-    Environment::setSystemEnvironment(systemEnv);
-    ICore::settings()->setValueWithDefault(kEnvironmentChanges,
-                                           EnvironmentItem::toStringList(changes));
-    if (ICore::instance())
-        emit ICore::instance()->systemEnvironmentChanged();
-}
-
 void CorePlugin::fileOpenRequest(const QString &f)
 {
     remoteCommand(QStringList(), QString(), QStringList(f));
-}
-
-void CorePlugin::addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QMenu *menu)
-{
-    QList<QAction*> actions = menu->actions();
-    QAction *firstAction = actions.isEmpty() ? nullptr : actions.first();
-
-    if (pathChooser->filePath().exists()) {
-        auto showInGraphicalShell = new QAction(FileUtils::msgGraphicalShellAction(), menu);
-        connect(showInGraphicalShell, &QAction::triggered, pathChooser, [pathChooser] {
-            Core::FileUtils::showInGraphicalShell(pathChooser, pathChooser->filePath());
-        });
-        menu->insertAction(firstAction, showInGraphicalShell);
-
-        auto showInTerminal = new QAction(FileUtils::msgTerminalHereAction(), menu);
-        connect(showInTerminal, &QAction::triggered, pathChooser, [pathChooser] {
-            if (pathChooser->openTerminalHandler())
-                pathChooser->openTerminalHandler()();
-            else
-                FileUtils::openTerminal(pathChooser->filePath(), {});
-        });
-        menu->insertAction(firstAction, showInTerminal);
-
-    } else {
-        auto *mkPathAct = new QAction(Tr::tr("Create Folder"), menu);
-        connect(mkPathAct, &QAction::triggered, pathChooser, [pathChooser] {
-            QDir().mkpath(pathChooser->filePath().toString());
-            pathChooser->triggerChanged();
-        });
-        menu->insertAction(firstAction, mkPathAct);
-    }
-
-    if (firstAction)
-        menu->insertSeparator(firstAction);
 }
 
 void CorePlugin::checkSettings()

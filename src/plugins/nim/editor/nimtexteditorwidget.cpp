@@ -48,7 +48,7 @@ void NimTextEditorWidget::findLinkAt(const QTextCursor &c, const Utils::LinkHand
     int line = 0, column = 0;
     Utils::Text::convertPosition(document(), c.position(), &line, &column);
 
-    std::shared_ptr<NimSuggestClientRequest> request = suggest->def(path.toString(),
+    std::shared_ptr<NimSuggestClientRequest> request = suggest->def(path.toUrlishString(),
                                                                              line,
                                                                              column,
                                                                              dirtyFile->fileName());

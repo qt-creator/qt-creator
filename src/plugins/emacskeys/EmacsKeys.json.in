@@ -1,5 +1,6 @@
 {
     "Id" : "emacskeys",
+    "DisplayName" : "Emacs Keys",
     "Name" : "EmacsKeys",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

@@ -559,9 +559,17 @@ public:
         while (!baseClassQueue.isEmpty()) {
             ClassOrNamespace *clazz = baseClassQueue.dequeue();
             visitedBaseClasses.insert(clazz);
-            const QList<ClassOrNamespace *> bases = clazz->usings();
-            for (const ClassOrNamespace *baseClass : bases) {
+            QList<ClassOrNamespace *> bases = clazz->usings();
+            while (!bases.isEmpty()) {
+                const ClassOrNamespace *baseClass = bases.takeFirst();
                 const QList<Symbol *> symbols = baseClass->symbols();
+
+                // See QTCREATORBUG-32162.
+                if (symbols.isEmpty() && baseClass->usings().size() == 1) {
+                    bases.prepend(baseClass->usings().first());
+                    continue;
+                }
+
                 for (Symbol *symbol : symbols) {
                     Class *base = symbol->asClass();
                     if (base
@@ -1852,6 +1860,21 @@ void InsertVirtualMethodsTest::test_data()
         "};\n\n"
         "struct Derived2 : Derived1\n"
         "};\n");
+
+    QTest::newRow("base class via using")
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << false << true
+        << _(R"cpp(
+                  namespace A { struct Base { virtual void foo() = 0; }; } // namespace A
+                  using A::Base;
+                  struct @Derived : Base {};)cpp")
+        << _(R"cpp(
+                  namespace A { struct Base { virtual void foo() = 0; }; } // namespace A
+                  using A::Base;
+                  struct @Derived : Base {
+                      // Base interface
+                  public:
+                      void foo() override;
+                  };)cpp");
 }
 
 void InsertVirtualMethodsTest::test()

@@ -25,20 +25,14 @@
 #include "javaeditor.h"
 #include "javalanguageserver.h"
 
-#ifdef HAVE_QBS
-#  include "androidqbspropertyprovider.h"
-#endif
-
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/iplugin.h>
 
-#include <languageclient/languageclientsettings.h>
-
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -90,7 +84,7 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
         setupAndroidQtVersion();
         setupAndroidToolchain();
 
-        setupAndroidDeviceManager(this);
+        setupAndroidDeviceManager();
 
         setupAndroidSettingsPage();
 
@@ -111,10 +105,7 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
         connect(KitManager::instance(), &KitManager::kitsLoaded, this, &AndroidPlugin::kitsRestored,
                 Qt::SingleShotConnection);
 
-        LanguageClient::LanguageClientSettings::registerClientType(
-            {Android::Constants::JLS_SETTINGS_ID,
-             Tr::tr("Java Language Server"),
-             [] { return new JLSSettings; }});
+        setupJavaLanguageServer();
 
 #ifdef WITH_TESTS
         addTestCreator(createAndroidSdkManagerTest);

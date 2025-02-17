@@ -16,14 +16,13 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
 
-#include <extensionsystem/shutdownguard.h>
-
 #include <texteditor/textdocument.h>
 
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/shutdownguard.h>
 
 #include <QDebug>
 #include <QStringList>
@@ -64,7 +63,7 @@ VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseSettings *baseSettings)
 
 FilePath VcsBaseClientImpl::vcsBinary(const Utils::FilePath &forDirectory) const
 {
-    if (forDirectory.needsDevice())
+    if (!forDirectory.isLocal())
         return {};
 
     return m_baseSettings->binaryPath();
@@ -213,7 +212,7 @@ VcsCommand *VcsBaseClientImpl::createVcsCommand(const FilePath &defaultWorkingDi
                                                 const Environment &environment)
 {
     auto command = new VcsCommand(defaultWorkingDir, environment);
-    command->setParent(ExtensionSystem::shutdownGuard());
+    command->setParent(Utils::shutdownGuard());
     return command;
 }
 
@@ -272,20 +271,6 @@ bool VcsBaseClient::synchronousCreateRepository(const FilePath &workingDirectory
     resetCachedVcsInfo(workingDirectory);
 
     return true;
-}
-
-bool VcsBaseClient::synchronousClone(const FilePath &workingDir,
-                                     const QString &srcLocation,
-                                     const QString &dstLocation,
-                                     const QStringList &extraOptions)
-{
-    QStringList args;
-    args << vcsCommandString(CloneCommand)
-         << extraOptions << srcLocation << dstLocation;
-
-    const CommandResult result = vcsSynchronousExec(workingDir, args);
-    resetCachedVcsInfo(workingDir);
-    return result.result() == ProcessResult::FinishedWithSuccess;
 }
 
 bool VcsBaseClient::synchronousAdd(const FilePath &workingDir,
@@ -350,7 +335,7 @@ void VcsBaseClient::annotate(const Utils::FilePath &workingDir, const QString &f
     QStringList args;
     args << vcsCmdString << revisionSpec(revision) << extraOptions << file;
     const Id kind = vcsEditorKind(AnnotateCommand);
-    const QString id = VcsBaseEditor::getSource(workingDir, QStringList(file)).toString();
+    const QString id = VcsBaseEditor::getSource(workingDir, QStringList(file)).toUrlishString();
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const FilePath source = VcsBaseEditor::getSource(workingDir, file);
 
@@ -453,7 +438,7 @@ void VcsBaseClient::revertFile(const FilePath &workingDir,
     args << revisionSpec(revision) << extraOptions << file;
     // Indicate repository change or file list
     VcsCommand *cmd = createCommand(workingDir);
-    const QStringList files = QStringList(workingDir.pathAppended(file).toString());
+    const QStringList files = QStringList(workingDir.pathAppended(file).toUrlishString());
     connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
             emit changed(files);
@@ -469,7 +454,7 @@ void VcsBaseClient::revertAll(const FilePath &workingDir,
     args << revisionSpec(revision) << extraOptions;
     // Indicate repository change or file list
     VcsCommand *cmd = createCommand(workingDir);
-    const QStringList files = QStringList(workingDir.toString());
+    const QStringList files = QStringList(workingDir.toUrlishString());
     connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
             emit changed(files);
@@ -562,7 +547,7 @@ void VcsBaseClient::update(const FilePath &repositoryRoot, const QString &revisi
     VcsCommand *cmd = createCommand(repositoryRoot);
     connect(cmd, &VcsCommand::done, this, [this, repositoryRoot, cmd] {
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
-            emit changed(repositoryRoot.toString());
+            emit changed(repositoryRoot.toUrlishString());
     });
     enqueueJob(cmd, args, repositoryRoot);
 }

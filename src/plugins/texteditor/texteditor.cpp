@@ -72,12 +72,14 @@
 #include <utils/uncommentselection.h>
 
 #include <QAbstractTextDocumentLayout>
+#include <QActionGroup>
 #include <QApplication>
 #include <QClipboard>
-#include <QCoreApplication>
 #include <QComboBox>
+#include <QCoreApplication>
 #include <QDebug>
 #include <QDesktopServices>
+#include <QDrag>
 #include <QFutureWatcher>
 #include <QGridLayout>
 #include <QKeyEvent>
@@ -91,7 +93,6 @@
 #include <QPrintDialog>
 #include <QPrinter>
 #include <QPropertyAnimation>
-#include <QDrag>
 #include <QRegularExpression>
 #include <QScopeGuard>
 #include <QScreen>
@@ -267,6 +268,114 @@ QSize LineColumnButton::sizeHint() const
 }
 
 namespace Internal {
+
+class TabSettingsButton : public QToolButton
+{
+public:
+    TabSettingsButton(TextEditorWidget *parent)
+        : QToolButton(parent)
+    {
+        connect(this, &QToolButton::clicked, this, &TabSettingsButton::showMenu);
+    }
+
+    void setDocument(TextDocument *doc)
+    {
+        if (m_doc)
+            disconnect(m_doc, &TextDocument::tabSettingsChanged, this, &TabSettingsButton::update);
+        m_doc = doc;
+        if (QTC_GUARD(m_doc)) {
+            connect(m_doc, &TextDocument::tabSettingsChanged, this, &TabSettingsButton::update);
+            update();
+        }
+    }
+
+private:
+    void update()
+    {
+        QTC_ASSERT(m_doc, return);
+        const TabSettings ts = m_doc->tabSettings();
+        QString policy;
+        switch (ts.m_tabPolicy) {
+        case TabSettings::SpacesOnlyTabPolicy:
+            policy = Tr::tr("Spaces");
+            break;
+        case TabSettings::TabsOnlyTabPolicy:
+            policy = Tr::tr("Tabs");
+            break;
+        }
+        setText(QString("%1: %2").arg(policy).arg(ts.m_indentSize));
+    }
+
+    void showMenu()
+    {
+        QTC_ASSERT(m_doc, return);
+        auto menu = new QMenu(this);
+        menu->addAction(ActionManager::command(Constants::AUTO_INDENT_SELECTION)->action());
+        menu->setAttribute(Qt::WA_DeleteOnClose);
+        if (auto indenter = m_doc->indenter(); indenter && indenter->respectsTabSettings()) {
+            auto documentSettings = menu->addMenu(Tr::tr("Document Settings"));
+
+            auto modifyTabSettings =
+                [this](std::function<void(TabSettings & tabSettings)> modifier) {
+                    return [this, modifier]() {
+                        auto ts = m_doc->tabSettings();
+                        ts.m_autoDetect = false;
+                        modifier(ts);
+                        m_doc->setTabSettings(ts);
+                    };
+                };
+            documentSettings->addAction(
+                Tr::tr("Auto detect"),
+                modifyTabSettings([doc = m_doc->document()](TabSettings &tabSettings) {
+                    tabSettings.m_autoDetect = true;
+                }));
+            auto tabSettings = documentSettings->addMenu(Tr::tr("Tab Settings"));
+            tabSettings->addAction(Tr::tr("Spaces"), modifyTabSettings([](TabSettings &tabSettings) {
+                                       tabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
+                                   }));
+            tabSettings->addAction(Tr::tr("Tabs"), modifyTabSettings([](TabSettings &tabSettings) {
+                                       tabSettings.m_tabPolicy = TabSettings::TabsOnlyTabPolicy;
+                                   }));
+            auto indentSize = documentSettings->addMenu(Tr::tr("Indent Size"));
+            auto indentSizeGroup = new QActionGroup(indentSize);
+            indentSizeGroup->setExclusive(true);
+            for (int i = 1; i <= 8; ++i) {
+                auto action = indentSizeGroup->addAction(QString::number(i));
+                action->setCheckable(true);
+                action->setChecked(i == m_doc->tabSettings().m_indentSize);
+                connect(action, &QAction::triggered, modifyTabSettings([i](TabSettings &tabSettings) {
+                            tabSettings.m_indentSize = i;
+                        }));
+            }
+            indentSize->addActions(indentSizeGroup->actions());
+            auto tabSize = documentSettings->addMenu(Tr::tr("Tab Size"));
+            auto tabSizeGroup = new QActionGroup(tabSize);
+            tabSizeGroup->setExclusive(true);
+            for (int i = 1; i <= 8; ++i) {
+                auto action = tabSizeGroup->addAction(QString::number(i));
+                action->setCheckable(true);
+                action->setChecked(i == m_doc->tabSettings().m_tabSize);
+                connect(action, &QAction::triggered, modifyTabSettings([i](TabSettings &tabSettings) {
+                            tabSettings.m_tabSize = i;
+                        }));
+                }
+                tabSize->addActions(tabSizeGroup->actions());
+        }
+
+        Id globalSettingsCategory;
+        if (auto codeStyle = m_doc->codeStyle())
+            globalSettingsCategory = codeStyle->globalSettingsCategory();
+        if (!globalSettingsCategory.isValid())
+            globalSettingsCategory = Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS;
+        menu->addAction(Tr::tr("Global Settings..."), [globalSettingsCategory] {
+            Core::ICore::showOptionsDialog(globalSettingsCategory);
+        });
+
+        menu->popup(QCursor::pos());
+    }
+
+    TextDocument *m_doc = nullptr;
+};
 
 class TextEditorAnimator : public QObject
 {
@@ -745,6 +854,7 @@ public:
     void _q_animateUpdate(const QTextCursor &cursor, QPointF lastPos, QRectF rect);
     void updateCodeFoldingVisible();
     void updateFileLineEndingVisible();
+    void updateTabSettingsButtonVisible();
 
     void reconfigure();
     void updateSyntaxInfoBar(const HighlighterHelper::Definitions &definitions, const QString &fileName);
@@ -757,7 +867,7 @@ public:
     void openTypeUnderCursor(bool openInNextSplit);
     qreal charWidth() const;
 
-    std::unique_ptr<EmbeddedWidgetInterface> insertWidget(QWidget *widget, int line);
+    std::unique_ptr<EmbeddedWidgetInterface> insertWidget(QWidget *widget, int pos);
     void forceUpdateScrollbarSize();
 
     // actions
@@ -776,6 +886,7 @@ public:
     QAction *m_stretchAction = nullptr;
     QAction *m_toolbarOutlineAction = nullptr;
     LineColumnButton *m_cursorPositionButton = nullptr;
+    TabSettingsButton *m_tabSettingsButton = nullptr;
     QToolButton *m_fileEncodingButton = nullptr;
     QAction *m_fileEncodingLabelAction = nullptr;
     BaseTextFind *m_find = nullptr;
@@ -798,7 +909,6 @@ public:
     QWidget *m_extraArea = nullptr;
 
     Id m_tabSettingsId;
-    ICodeStylePreferences *m_codeStylePreferences = nullptr;
     DisplaySettings m_displaySettings;
     bool m_annotationsrRight = true;
     MarginSettings m_marginSettings;
@@ -1117,6 +1227,11 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_cursorPositionButton->setContentsMargins(spacing, 0, spacing, 0);
     m_toolBarWidget->layout()->addWidget(m_cursorPositionButton);
 
+    m_tabSettingsButton = new TabSettingsButton(q);
+    m_tabSettingsButton->setContentsMargins(spacing, 0, spacing, 0);
+    m_toolBarWidget->layout()->addWidget(m_tabSettingsButton);
+    updateTabSettingsButtonVisible();
+
     m_fileLineEnding = new QToolButton(q);
     m_fileLineEnding->setContentsMargins(spacing, 0, spacing, 0);
     m_fileLineEndingAction = m_toolBar->addWidget(m_fileLineEnding);
@@ -1178,7 +1293,8 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
             q, &TextEditorWidget::selectEncoding);
 
     connect(m_fileLineEnding, &QToolButton::clicked, ActionManager::instance(), [this] {
-        QMenu *menu = new QMenu;
+        QMenu *menu = new QMenu(q);
+        menu->setAttribute(Qt::WA_DeleteOnClose);
         menu->addAction(Tr::tr("Unix Line Endings (LF)"),
                         [this] { q->selectLineEnding(TextFileFormat::LFLineTerminator); });
         menu->addAction(Tr::tr("Windows Line Endings (CRLF)"),
@@ -1369,6 +1485,7 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
 
     m_document = doc;
     q->QPlainTextEdit::setDocument(doc->document());
+    m_tabSettingsButton->setDocument(q->textDocument());
     previousDocument.clear();
     q->setCursorWidth(2); // Applies to the document layout
 
@@ -1489,7 +1606,7 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
     q->setDisplaySettings(TextEditorSettings::displaySettings());
     q->setCompletionSettings(TextEditorSettings::completionSettings());
     q->setExtraEncodingSettings(globalExtraEncodingSettings());
-    q->setCodeStyle(TextEditorSettings::codeStyle(m_tabSettingsId));
+    q->textDocument()->setCodeStyle(TextEditorSettings::codeStyle(m_tabSettingsId));
 
     m_blockCount = doc->document()->blockCount();
 
@@ -1886,7 +2003,7 @@ void TextEditorWidgetPrivate::clearCurrentSuggestion()
 void TextEditorWidget::selectEncoding()
 {
     TextDocument *doc = d->m_document.data();
-    const CodecSelectorResult result = Core::askForCodec(Core::ICore::dialogParent(), doc);
+    const CodecSelectorResult result = Core::askForCodec(doc);
     switch (result.action) {
     case Core::CodecSelectorResult::Reload: {
         if (Result res = doc->reload(result.codec); !res) {
@@ -2465,7 +2582,8 @@ void TextEditorWidget::joinLines()
             QString cutLine = c.selectedText();
 
             // Collapse leading whitespaces to one or insert whitespace
-            cutLine.replace(QRegularExpression(QLatin1String("^\\s*")), QLatin1String(" "));
+            static const QRegularExpression regexp("^\\s*");
+            cutLine.replace(regexp, QLatin1String(" "));
             c.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
             c.removeSelectedText();
 
@@ -3056,7 +3174,6 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Backspace:
         if (ro) break;
         if ((e->modifiers() & (Qt::ControlModifier
-                               | Qt::ShiftModifier
                                | Qt::AltModifier
                                | Qt::MetaModifier)) == Qt::NoModifier) {
             e->accept();
@@ -3225,13 +3342,13 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         if (!autoText.isEmpty())
             cursor.setPosition(autoText.length() == 1 ? cursor.position() : cursor.anchor());
 
+        if (doEditBlock)
+            cursor.endEditBlock();
+
         setTextCursor(cursor);
 
-        if (doEditBlock) {
-            cursor.endEditBlock();
-            if (cursorWithinSnippet)
-                d->m_snippetOverlay->updateEquivalentSelections(textCursor());
-        }
+        if (doEditBlock && cursorWithinSnippet)
+            d->m_snippetOverlay->updateEquivalentSelections(textCursor());
     }
 
     if (!ro && e->key() == Qt::Key_Delete && d->m_parenthesesMatchingEnabled)
@@ -3535,6 +3652,7 @@ bool TextEditorWidget::event(QEvent *e)
     }
     case QEvent::ReadOnlyChange:
         d->updateFileLineEndingVisible();
+        d->updateTabSettingsButtonVisible();
         if (isReadOnly())
             setTextInteractionFlags(textInteractionFlags() | Qt::TextSelectableByKeyboard);
         d->updateActions();
@@ -3795,6 +3913,11 @@ void TextEditorWidgetPrivate::updateFileLineEndingVisible()
     m_fileLineEndingAction->setVisible(m_displaySettings.m_displayFileLineEnding && !q->isReadOnly());
 }
 
+void TextEditorWidgetPrivate::updateTabSettingsButtonVisible()
+{
+    m_tabSettingsButton->setVisible(m_displaySettings.m_displayTabSettings && !q->isReadOnly());
+}
+
 void TextEditorWidgetPrivate::reconfigure()
 {
     m_document->setMimeType(
@@ -3863,10 +3986,8 @@ void TextEditorWidgetPrivate::configureGenericHighlighter(
         q->setCodeFoldingSupported(false);
     }
 
-    const QString definitionFilesPath
-        = TextEditorSettings::highlighterSettings().definitionFilesPath().toString();
-    m_document->resetSyntaxHighlighter([definitionFilesPath, definition] {
-        auto highlighter = new Highlighter(definitionFilesPath);
+    m_document->resetSyntaxHighlighter([definition] {
+        auto highlighter = new Highlighter;
         highlighter->setDefinition(definition);
         return highlighter;
     });
@@ -4004,7 +4125,7 @@ void TextEditorWidgetPrivate::forceUpdateScrollbarSize()
 }
 
 std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
-    QWidget *widget, int line)
+    QWidget *widget, int pos)
 {
     QPointer<CarrierWidget> carrier = new CarrierWidget(q, widget);
     std::unique_ptr<EmbeddedWidgetInterface> result(new EmbeddedWidgetInterface());
@@ -4024,12 +4145,14 @@ std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
 
     std::shared_ptr<State> pState = std::make_shared<State>();
     pState->cursor = QTextCursor(q->document());
-    pState->cursor.setPosition(line);
+    pState->cursor.setPosition(pos);
     pState->cursor.movePosition(QTextCursor::StartOfBlock);
 
     auto position = [this, pState, carrier] {
         QTextBlock block = pState->cursor.block();
         QTC_ASSERT(block.isValid(), return);
+        auto documentLayout = qobject_cast<TextDocumentLayout *>(q->document()->documentLayout());
+        QTC_ASSERT(documentLayout, return);
 
         TextBlockUserData *userData = TextDocumentLayout::userData(block);
         if (block != pState->block) {
@@ -4043,17 +4166,9 @@ std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
             pState->height = 0;
         }
 
-        QRectF r = cursorBlockRect(m_document->document(), block, block.position());
-
-        int y = 0;
-        for (const auto &wdgt : userData->embeddedWidgets()) {
-            if (wdgt == carrier)
-                break;
-            y += wdgt->height();
-        }
-
-        QPoint pos = r.topLeft().toPoint()
-                     + QPoint(0, TextEditorSettings::fontSettings().lineSpacing() + y);
+        const QPoint pos
+            = q->blockBoundingGeometry(block).translated(q->contentOffset()).topLeft().toPoint()
+              + QPoint(0, documentLayout->embeddedWidgetOffset(block, carrier));
 
         int h = carrier->embedHeight();
         if (h == pState->height && pos == carrier->pos())
@@ -4064,7 +4179,7 @@ std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
 
         pState->height = h;
 
-        qobject_cast<TextDocumentLayout *>(q->document()->documentLayout())->scheduleUpdate();
+        documentLayout->scheduleUpdate();
     };
 
     position();
@@ -5002,7 +5117,7 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
         if (!m_find->inScope(start, end))
             continue;
 
-        // check if the result is inside the visibale area for long blocks
+        // check if the result is inside the visible area for long blocks
         const QTextLine &startLine = block.layout()->lineForTextPosition(idx);
         const QTextLine &endLine = block.layout()->lineForTextPosition(idx + l);
 
@@ -7067,9 +7182,23 @@ void TextEditorWidget::mousePressEvent(QMouseEvent *e)
         const QTextCursor &cursor = cursorForPosition(e->pos());
         if (e->modifiers() & Qt::AltModifier && !(e->modifiers() & Qt::ControlModifier)) {
             if (e->modifiers() & Qt::ShiftModifier) {
-                QTextCursor c = multiCursor.mainCursor();
-                c.setPosition(cursor.position(), QTextCursor::KeepAnchor);
-                multiCursor.replaceMainCursor(c);
+                const QTextCursor anchor = multiCursor.takeMainCursor();
+
+                const TabSettings tabSettings = d->m_document->tabSettings();
+                int eventColumn
+                    = tabSettings.columnAt(cursor.block().text(), cursor.positionInBlock());
+                if (cursor.positionInBlock() == cursor.block().length() - 1) {
+                    eventColumn += int(
+                        (e->pos().x() - cursorRect(cursor).center().x()) / d->charWidth());
+                }
+
+                const int anchorColumn
+                    = tabSettings.columnAt(anchor.block().text(), anchor.positionInBlock());
+                const TextEditorWidgetPrivate::BlockSelection blockSelection
+                    = {cursor.blockNumber(), eventColumn, anchor.blockNumber(), anchorColumn};
+
+                multiCursor.addCursors(d->generateCursorsForBlockSelection(blockSelection));
+                setMultiTextCursor(multiCursor);
             } else {
                 multiCursor.addCursor(cursor);
             }
@@ -7296,9 +7425,9 @@ TextEditorWidget::SuggestionBlocker TextEditorWidget::blockSuggestions()
     return d->m_suggestionBlocker;
 }
 
-std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidget::insertWidget(QWidget *widget, int line)
+std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidget::insertWidget(QWidget *widget, int pos)
 {
-    return d->insertWidget(widget, line);
+    return d->insertWidget(widget, pos);
 }
 
 QList<QTextCursor> TextEditorWidget::autoCompleteHighlightPositions() const
@@ -7621,41 +7750,13 @@ void TextEditorWidgetPrivate::toggleBlockVisible(const QTextBlock &block)
 void TextEditorWidget::setLanguageSettingsId(Id settingsId)
 {
     d->m_tabSettingsId = settingsId;
-    setCodeStyle(TextEditorSettings::codeStyle(settingsId));
+    if (auto doc = textDocument())
+        doc->setCodeStyle(TextEditorSettings::codeStyle(settingsId));
 }
 
 Id TextEditorWidget::languageSettingsId() const
 {
     return d->m_tabSettingsId;
-}
-
-void TextEditorWidget::setCodeStyle(ICodeStylePreferences *preferences)
-{
-    TextDocument *document = d->m_document.data();
-    // Not fully initialized yet... wait for TextEditorWidgetPrivate::setupDocumentSignals
-    if (!document)
-        return;
-    document->indenter()->setCodeStylePreferences(preferences);
-    if (d->m_codeStylePreferences) {
-        disconnect(d->m_codeStylePreferences, &ICodeStylePreferences::currentTabSettingsChanged,
-                   document, &TextDocument::setTabSettings);
-        disconnect(d->m_codeStylePreferences, &ICodeStylePreferences::currentValueChanged,
-                   this, &TextEditorWidget::slotCodeStyleSettingsChanged);
-    }
-    d->m_codeStylePreferences = preferences;
-    if (d->m_codeStylePreferences) {
-        connect(d->m_codeStylePreferences, &ICodeStylePreferences::currentTabSettingsChanged,
-                document, &TextDocument::setTabSettings);
-        connect(d->m_codeStylePreferences, &ICodeStylePreferences::currentValueChanged,
-                this, &TextEditorWidget::slotCodeStyleSettingsChanged);
-        document->setTabSettings(d->m_codeStylePreferences->currentTabSettings());
-        slotCodeStyleSettingsChanged(d->m_codeStylePreferences->currentValue());
-    }
-}
-
-void TextEditorWidget::slotCodeStyleSettingsChanged(const QVariant &)
-{
-
 }
 
 const DisplaySettings &TextEditorWidget::displaySettings() const
@@ -7906,7 +8007,7 @@ bool TextEditorWidget::openLink(const Utils::Link &link, bool inNextSplit)
     } s;
 #endif
 
-    QString url = link.targetFilePath.toString();
+    QString url = link.targetFilePath.toUrlishString();
     if (url.startsWith(u"https://") || url.startsWith(u"http://")) {
         QDesktopServices::openUrl(url);
         return true;
@@ -8860,7 +8961,7 @@ void TextEditorWidget::autoIndent()
 void TextEditorWidget::rewrapParagraph()
 {
     const int paragraphWidth = marginSettings().m_marginColumn;
-    const QRegularExpression anyLettersOrNumbers("\\w");
+    static const QRegularExpression anyLettersOrNumbers("\\w");
     const TabSettings ts = d->m_document->tabSettings();
 
     QTextCursor cursor = textCursor();
@@ -8913,7 +9014,7 @@ void TextEditorWidget::rewrapParagraph()
     }
 
     // Find end of paragraph.
-    const QRegularExpression immovableDoxygenCommand(doxygenPrefix + "[@\\\\][a-zA-Z]{2,}");
+    static const QRegularExpression immovableDoxygenCommand(doxygenPrefix + "[@\\\\][a-zA-Z]{2,}");
     QTC_CHECK(immovableDoxygenCommand.isValid());
     while (cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor)) {
         QString text = cursor.block().text();
@@ -8929,7 +9030,7 @@ void TextEditorWidget::rewrapParagraph()
     QString spacing;
 
     if (commonPrefix.isEmpty()) {
-        spacing = ts.indentationString(0, indentLevel, 0, textCursor().block());
+        spacing = ts.indentationString(0, indentLevel, 0);
     } else {
         spacing = commonPrefix;
         indentLevel = ts.columnCountForText(spacing);
@@ -9121,6 +9222,7 @@ void TextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 
     d->updateCodeFoldingVisible();
     d->updateFileLineEndingVisible();
+    d->updateTabSettingsButtonVisible();
     d->updateHighlights();
     d->setupScrollBar();
     d->updateCursorSelections();
@@ -10094,6 +10196,7 @@ void TextEditorWidgetPrivate::applyTabSettings()
 {
     updateTabStops();
     m_autoCompleter->setTabSettings(m_document->tabSettings());
+    emit q->tabSettingsChanged();
 }
 
 int TextEditorWidget::columnCount() const

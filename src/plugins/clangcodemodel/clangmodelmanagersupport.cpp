@@ -139,11 +139,9 @@ static const QList<Project *> projectsForClient(const Client *client)
 static bool fileIsProjectBuildArtifact(const Client *client, const FilePath &filePath)
 {
     for (const Project * const p : projectsForClient(client)) {
-        if (const auto t = p->activeTarget()) {
-            if (const auto bc = t->activeBuildConfiguration()) {
-                if (filePath.isChildOf(bc->buildDirectory()))
-                    return true;
-            }
+        if (const auto bc = p->activeBuildConfiguration()) {
+            if (filePath.isChildOf(bc->buildDirectory()))
+                return true;
         }
     }
     return false;
@@ -210,8 +208,7 @@ static void updateParserConfig(ClangdClient *client)
 static bool projectIsParsing(const ClangdClient *client)
 {
     for (const Project * const p : projectsForClient(client)) {
-        const BuildSystem * const bs = p && p->activeTarget()
-                ? p->activeTarget()->buildSystem() : nullptr;
+        const BuildSystem * const bs = activeBuildSystem(p);
         if (bs && (bs->isParsing() || bs->isWaitingForParse()))
             return true;
     }
@@ -475,11 +472,9 @@ static FilePath getJsonDbDir(Project *project)
 {
     if (!project)
         return ClangdSettings::instance().sessionIndexPath(*globalMacroExpander());
-    if (const Target *const target = project->activeTarget()) {
-        if (const BuildConfiguration *const bc = target->activeBuildConfiguration()) {
-            return ClangdSettings(ClangdProjectSettings(project).settings())
-                .projectIndexPath(*bc->macroExpander());
-        }
+    if (const BuildConfiguration *const bc = project->activeBuildConfiguration()) {
+        return ClangdSettings(ClangdProjectSettings(project).settings())
+            .projectIndexPath(*bc->macroExpander());
     }
     return {};
 }

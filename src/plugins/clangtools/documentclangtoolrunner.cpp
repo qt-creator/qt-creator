@@ -148,10 +148,8 @@ static FileInfo getFileInfo(const FilePath &file, Project *project)
 static Environment projectBuildEnvironment(Project *project)
 {
     Environment env;
-    if (Target *target = project->activeTarget()) {
-        if (BuildConfiguration *buildConfig = target->activeBuildConfiguration())
-            env = buildConfig->environment();
-    }
+    if (BuildConfiguration *buildConfig = project->activeBuildConfiguration())
+        env = buildConfig->environment();
     if (!env.hasChanges())
         env = Environment::systemEnvironment();
     return env;
@@ -159,18 +157,6 @@ static Environment projectBuildEnvironment(Project *project)
 
 void DocumentClangToolRunner::run()
 {
-    for (const ClangToolType type : {ClangToolType::Tidy, ClangToolType::Clazy}) {
-        ClangToolsCompilationDb &db = ClangToolsCompilationDb::getDb(type);
-        db.disconnect(this);
-        if (db.generateIfNecessary()) {
-            connect(&db, &ClangToolsCompilationDb::generated, this, [this](bool success) {
-                if (success)
-                    run();
-            }, Qt::SingleShotConnection);
-            return;
-        }
-    }
-
     if (m_projectSettingsUpdate)
         disconnect(m_projectSettingsUpdate);
     m_taskTreeRunner.reset();
@@ -185,7 +171,7 @@ void DocumentClangToolRunner::run()
     }
     const FilePath filePath = m_document->filePath();
     Project *project = findProject(filePath);
-    if (!project)
+    if (!project || !project->activeBuildConfiguration())
         return;
 
     m_fileInfo = getFileInfo(filePath, project);
@@ -203,11 +189,25 @@ void DocumentClangToolRunner::run()
     if (!runSettings.analyzeOpenFiles())
         return;
 
+    for (const ClangToolType type : {ClangToolType::Tidy, ClangToolType::Clazy}) {
+        ClangToolsCompilationDb &db
+            = ClangToolsCompilationDb::getDb(type, project->activeBuildConfiguration());
+        db.disconnect(this);
+        if (db.generateIfNecessary()) {
+            connect(&db, &ClangToolsCompilationDb::generated, this, [this](bool success) {
+                if (success)
+                    run();
+            }, Qt::SingleShotConnection);
+            return;
+        }
+    }
+
     vfso().update();
     const ClangDiagnosticConfig config = diagnosticConfig(runSettings.diagnosticConfigId());
     const Environment env = projectBuildEnvironment(project);
     GroupItems tasks;
-    const auto addClangTool = [this, &runSettings, &config, &env, &tasks](ClangToolType tool) {
+    const auto addClangTool = [this, bc = project->activeBuildConfiguration(), &runSettings,
+                               &config, &env, &tasks](ClangToolType tool) {
         if (!toolEnabled(tool, config, runSettings))
             return;
         if (!config.isEnabled(tool) && !runSettings.hasConfigFileForSourceFile(m_fileInfo.file))
@@ -233,8 +233,9 @@ void DocumentClangToolRunner::run()
             return !m_document->isModified() || isVFSOverlaySupported(executable);
         };
         const auto outputHandler = [this](const AnalyzeOutputData &output) { onDone(output); };
+        ClangToolsCompilationDb &db = ClangToolsCompilationDb::getDb(tool, bc);
         tasks.append(Group{finishAllAndSuccess,
-                           clangToolTask(tool, units, input, setupHandler, outputHandler)});
+                           clangToolTask(units, input, setupHandler, outputHandler, db.parentDir())});
     };
     addClangTool(ClangToolType::Tidy);
     addClangTool(ClangToolType::Clazy);

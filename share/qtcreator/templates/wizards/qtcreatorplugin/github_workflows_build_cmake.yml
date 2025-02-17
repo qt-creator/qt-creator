@@ -6,7 +6,6 @@ env:
   PLUGIN_NAME: %{PluginName}
   QT_VERSION: %{JS: Util.qtVersion()}
   QT_CREATOR_VERSION: %{JS: Util.qtCreatorVersion()}
-  QT_CREATOR_VERSION_INTERNAL: %{JS: Util.qtCreatorIdeVersion()}
   MACOS_DEPLOYMENT_TARGET: "11.0"
   CMAKE_VERSION: "3.29.6"
   NINJA_VERSION: "1.12.1"
@@ -28,10 +27,23 @@ jobs:
             environment_script: "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
           }
         - {
+            name: "Windows Latest MSVC Arm64", artifact: "Windows-arm64",
+            os: windows-latest,
+            platform: windows_arm64,
+            cc: "cl", cxx: "cl",
+            environment_script: "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Auxiliary/Build/vcvarsamd64_arm64.bat",
+          }
+        - {
             name: "Ubuntu Latest GCC", artifact: "Linux-x64",
             os: ubuntu-latest,
             platform: linux_x64,
             cc: "gcc", cxx: "g++"
+          }
+        - {
+            name: "Ubuntu Latest GCC Arm64", artifact: "Linux-arm64",
+            os: ubuntu-latest,
+            platform: linux_arm64,
+            cc: "aarch64-linux-gnu-gcc", cxx: "aarch64-linux-gnu-g++"
           }
         - {
             name: "macOS Latest Clang", artifact: "macOS-universal",
@@ -42,10 +54,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-
     - name: Checkout submodules
       id: git
       shell: cmake -P {0}
@@ -65,12 +73,34 @@ jobs:
     - name: Install system libs
       shell: cmake -P {0}
       run: |
-        if ("${{ runner.os }}" STREQUAL "Linux")
+        if ("${{ matrix.config.platform }}" STREQUAL "linux_x64")
           execute_process(
-            COMMAND sudo apt update
+            COMMAND sudo apt-get update
           )
           execute_process(
-            COMMAND sudo apt install libgl1-mesa-dev
+            COMMAND sudo apt-get install -y libgl1-mesa-dev
+            RESULT_VARIABLE result
+          )
+          if (NOT result EQUAL 0)
+            message(FATAL_ERROR "Failed to install dependencies")
+          endif()
+        elseif ("${{ matrix.config.platform }}" STREQUAL "linux_arm64")
+          execute_process(COMMAND sudo dpkg --add-architecture arm64)
+
+          # TODO: Check to see if the azure.ubuntu added arm64 support
+          execute_process(COMMAND sudo apt-get install -y bash curl apt-transport-https ca-certificates)
+          execute_process(COMMAND sudo curl https://raw.githubusercontent.com/vegardit/fast-apt-mirror.sh/v1/fast-apt-mirror.sh -o /usr/local/bin/fast-apt-mirror.sh)
+          execute_process(COMMAND sudo chmod 755 /usr/local/bin/fast-apt-mirror.sh)
+
+          #execute_process(COMMAND sudo /usr/local/bin/fast-apt-mirror.sh set https://mirrors.ocf.berkeley.edu/ubuntu-ports/)
+          execute_process(COMMAND sudo /usr/local/bin/fast-apt-mirror.sh set https://mirror.kumi.systems/ubuntu-ports/)
+
+          execute_process(
+            COMMAND sudo apt-get update
+          )
+          execute_process(
+            COMMAND
+              sudo apt-get install -y crossbuild-essential-arm64 libgl1-mesa-dev:arm64
             RESULT_VARIABLE result
           )
           if (NOT result EQUAL 0)
@@ -84,83 +114,103 @@ jobs:
       run: |
         set(qt_version "$ENV{QT_VERSION}")
 
-        string(REPLACE "." "" qt_version_dotless "${qt_version}")
-        if ("${{ runner.os }}" STREQUAL "Windows")
-          set(url_os "windows_x86")
-          set(compiler_id "win64_msvc2022_64")
-        elseif ("${{ runner.os }}" STREQUAL "Linux")
-          set(url_os "linux_x64")
-          set(compiler_id "linux_gcc_64")
-        elseif ("${{ runner.os }}" STREQUAL "macOS")
-          set(url_os "mac_x64")
-          set(compiler_id "clang_64")
-        endif()
-
-        set(qt_base_url "https://download.qt.io/online/qtsdkrepository/${url_os}/desktop/qt6_${qt_version_dotless}/qt6_${qt_version_dotless}")
-        file(DOWNLOAD "${qt_base_url}/Updates.xml" ./Updates.xml SHOW_PROGRESS)
-
-        file(READ ./Updates.xml updates_xml)
-        # get the package sections, only for given compiler, without the "debug info" ones
-        string(REGEX REPLACE "<PackageUpdate>" ";<PackageUpdate>" sections "${updates_xml}")
-        list(FILTER sections EXCLUDE REGEX "<Name>.*debug.*</Name>")
-        list(FILTER sections INCLUDE REGEX "<Name>.*${compiler_id}.*</Name>")
-
-        # Save the path for other steps
-        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/qt/" qt_dir)
-        file(APPEND "$ENV{GITHUB_OUTPUT}" "qt_dir=${qt_dir}")
-
-        function(get_sub_url outvar module)
-          set(filtered ${sections})
-          list(FILTER filtered INCLUDE REGEX "<DownloadableArchives>.*${module}.*</DownloadableArchives>")
-          list(LENGTH filtered count)
-          if (count LESS 1)
-            set(${outvar} "<notfound>" PARENT_SCOPE)
-            return()
+        function(download_qt platform export_qt_dir)
+          string(REPLACE "." "" qt_version_dotless "${qt_version}")
+          if (platform STREQUAL "windows_x64")
+            set(url_os "windows_x86")
+            set(compiler_id "win64_msvc2022_64")
+          elseif (platform STREQUAL "windows_arm64")
+            set(url_os "windows_x86")
+            set(compiler_id "win64_msvc2022_arm64_cross_compiled")
+          elseif (platform STREQUAL "linux_x64")
+            set(url_os "linux_x64")
+            set(compiler_id "linux_gcc_64")
+          elseif (platform STREQUAL "linux_arm64")
+            set(url_os "linux_arm64")
+            set(compiler_id "linux_gcc_arm64")
+          elseif (platform STREQUAL "mac_x64")
+            set(url_os "mac_x64")
+            set(compiler_id "clang_64")
           endif()
-          list(GET filtered 0 section)
-          string(REGEX MATCH "<Name>(.*)</Name>" match "${section}")
-          set(name ${CMAKE_MATCH_1})
-          string(REGEX MATCH "<Version>(.*)</Version>" match "${section}")
-          set(version ${CMAKE_MATCH_1})
-          string(REGEX MATCH "<DownloadableArchives>.*(${module}[^,]+).*</DownloadableArchives>" match "${section}")
-          set(archive ${CMAKE_MATCH_1})
-          set(${outvar} "${name}/${version}${archive}" PARENT_SCOPE)
+
+          set(qt_base_url "https://download.qt.io/online/qtsdkrepository/${url_os}/desktop/qt6_${qt_version_dotless}/qt6_${qt_version_dotless}")
+          file(DOWNLOAD "${qt_base_url}/Updates.xml" ./Updates.xml SHOW_PROGRESS)
+
+          file(READ ./Updates.xml updates_xml)
+          # get the package sections, only for given compiler, without the "debug info" ones
+          string(REGEX REPLACE "<PackageUpdate>" ";<PackageUpdate>" sections "${updates_xml}")
+          list(FILTER sections EXCLUDE REGEX "<Name>.*debug.*</Name>")
+          list(FILTER sections INCLUDE REGEX "<Name>.*${compiler_id}.*</Name>")
+
+          # Save the path for other steps
+          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/qt/${platform}" qt_dir)
+          if (export_qt_dir)
+            file(APPEND "$ENV{GITHUB_OUTPUT}" "qt_dir=${qt_dir}")
+          endif()
+
+          function(get_sub_url outvar module)
+            set(filtered ${sections})
+            list(FILTER filtered INCLUDE REGEX "<DownloadableArchives>.*${module}.*</DownloadableArchives>")
+            list(LENGTH filtered count)
+            if (count LESS 1)
+              set(${outvar} "<notfound>" PARENT_SCOPE)
+              return()
+            endif()
+            list(GET filtered 0 section)
+            string(REGEX MATCH "<Name>(.*)</Name>" match "${section}")
+            set(name ${CMAKE_MATCH_1})
+            string(REGEX MATCH "<Version>(.*)</Version>" match "${section}")
+            set(version ${CMAKE_MATCH_1})
+            string(REGEX MATCH "<DownloadableArchives>.*(${module}[^,]+).*</DownloadableArchives>" match "${section}")
+            set(archive ${CMAKE_MATCH_1})
+            set(${outvar} "${name}/${version}${archive}" PARENT_SCOPE)
+          endfunction()
+
+          message("Downloading Qt to ${qt_dir}")
+          function(downloadAndExtract module subdir)
+            file(MAKE_DIRECTORY "${qt_dir}/${subdir}")
+            set(archive "${module}.7z")
+            get_sub_url(sub_url ${module})
+            set(url "${qt_base_url}/${sub_url}")
+            message("Downloading ${module} from ${url}")
+            message("... extracting to ${qt_dir}/${subdir}")
+            file(DOWNLOAD "${url}" "$ENV{GITHUB_WORKSPACE}/${archive}" SHOW_PROGRESS)
+            execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "$ENV{GITHUB_WORKSPACE}/${archive}" WORKING_DIRECTORY "${qt_dir}/${subdir}")
+          endfunction()
+
+          foreach(package qtbase qtdeclarative qt5compat qtshadertools)
+            downloadAndExtract(${package} "")
+          endforeach()
+
+          # uic depends on libicu*.so
+          if ("${{ runner.os }}" STREQUAL "Linux")
+            downloadAndExtract("icu" "lib")
+          endif()
+
+          execute_process(COMMAND ${qt_dir}/bin/qmake -query)
         endfunction()
 
-        message("Downloading Qt to ${qt_dir}")
-        function(downloadAndExtract module subdir)
-          file(MAKE_DIRECTORY "${qt_dir}/${subdir}")
-          set(archive "${module}.7z")
-          get_sub_url(sub_url ${module})
-          set(url "${qt_base_url}/${sub_url}")
-          message("Downloading ${module} from ${url}")
-          message("... extracting to ${qt_dir}/${subdir}")
-          file(DOWNLOAD "${url}" "$ENV{GITHUB_WORKSPACE}/${archive}" SHOW_PROGRESS)
-          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "$ENV{GITHUB_WORKSPACE}/${archive}" WORKING_DIRECTORY "${qt_dir}/${subdir}")
-        endfunction()
-
-        foreach(package qtbase qtdeclarative qt5compat qtshadertools)
-          downloadAndExtract(${package} "")
-        endforeach()
-
-        # uic depends on libicu*.so
-        if ("${{ runner.os }}" STREQUAL "Linux")
-          downloadAndExtract("icu" "lib")
+        if ("${{ matrix.config.platform }}" STREQUAL "windows_x64")
+          download_qt(windows_x64 TRUE)
+        elseif ("${{ matrix.config.platform }}" STREQUAL "windows_arm64")
+          download_qt(windows_x64 FALSE)
+          download_qt(windows_arm64 TRUE)
+        elseif ("${{ matrix.config.platform }}" STREQUAL "linux_x64")
+          download_qt(linux_x64 TRUE)
+        elseif ("${{ matrix.config.platform }}" STREQUAL "linux_arm64")
+          download_qt(linux_x64 FALSE)
+          download_qt(linux_arm64 TRUE)
+        elseif ("${{ runner.os }}" STREQUAL "macOS")
+          download_qt(mac_x64 TRUE)
         endif()
 
-        execute_process(COMMAND ${qt_dir}/bin/qmake -query)
     - name: Download Qt Creator
-      uses: qt-creator/install-dev-package@v1.6
+      id: qt_creator
+      uses: qt-creator/install-dev-package@v2.0
       with:
         version: ${{ env.QT_CREATOR_VERSION }}
         unzip-to: 'qtcreator'
-
-    - name: Extract Qt Creator
-      id: qt_creator
-      shell: cmake -P {0}
-      run: |
-        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/qtcreator" qtc_dir)
-        file(APPEND "$ENV{GITHUB_OUTPUT}" "qtc_dir=${qtc_dir}")
+        platform: ${{ matrix.config.platform }}
 
     - name: Build
       shell: cmake -P {0}
@@ -189,22 +239,31 @@ jobs:
 
         set(build_plugin_py "scripts/build_plugin.py")
         foreach(dir "share/qtcreator/scripts" "Qt Creator.app/Contents/Resources/scripts" "Contents/Resources/scripts")
-          if(EXISTS "${{ steps.qt_creator.outputs.qtc_dir }}/${dir}/build_plugin.py")
+          if(EXISTS "${{ steps.qt_creator.outputs.path }}/${dir}/build_plugin.py")
             set(build_plugin_py "${dir}/build_plugin.py")
             break()
           endif()
         endforeach()
 
+        if ("${{ matrix.config.platform }}" STREQUAL "windows_arm64")
+          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/qt/windows_x64" qt_host_dir)
+          set(additional_config "--add-config=-DQT_HOST_PATH=${qt_host_dir}")
+        elseif ("${{ matrix.config.platform }}" STREQUAL "linux_arm64")
+          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/qt/linux_x64" qt_host_dir)
+          set(additional_config "--add-config=-DQT_HOST_PATH=${qt_host_dir}")
+        endif()
+
         execute_process(
           COMMAND python
             -u
-            "${{ steps.qt_creator.outputs.qtc_dir }}/${build_plugin_py}"
+            "${{ steps.qt_creator.outputs.path }}/${build_plugin_py}"
             --name "$ENV{PLUGIN_NAME}-$ENV{QT_CREATOR_VERSION}-${{ matrix.config.artifact }}"
             --src .
             --build build
             --qt-path "${{ steps.qt.outputs.qt_dir }}"
-            --qtc-path "${{ steps.qt_creator.outputs.qtc_dir }}"
+            --qtc-path "${{ steps.qt_creator.outputs.path }}"
             --output-path "$ENV{GITHUB_WORKSPACE}"
+            ${additional_config}
           RESULT_VARIABLE result
         )
         if (NOT result EQUAL 0)
@@ -222,59 +281,17 @@ jobs:
 
     # The json is the same for all platforms, but we need to save one
     - name: Upload plugin json
-      if: matrix.config.os == 'ubuntu-latest'
+      if: matrix.config.platform == 'linux_x64'
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.PLUGIN_NAME }}-origin-json
+        name: ${{ env.PLUGIN_NAME }}.json
         path: ./build/build/${{ env.PLUGIN_NAME }}.json
 
-  update_json:
-    if: contains(github.ref, 'tags/v')
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-
-    - name: Download the JSON file
-      uses: actions/download-artifact@v4
-      with:
-        name: ${{ env.PLUGIN_NAME }}-origin-json
-        path: ./${{ env.PLUGIN_NAME }}-origin
-
-    - name: Store Release upload_url
-      run: |
-        RELEASE_HTML_URL=$(echo "${{github.event.repository.html_url}}/releases/download/v${{ needs.build.outputs.tag }}")
-        echo "RELEASE_HTML_URL=${RELEASE_HTML_URL}" >> $GITHUB_ENV
-
-    - name: Run the Node.js script to update JSON
-      env:
-        QT_TOKEN: ${{ secrets.TOKEN }}
-        API_URL: ${{ secrets.API_URL }}
-      run: |
-        node .github/scripts/registerPlugin.js \
-        ${{ env.RELEASE_HTML_URL }} ${{ env.PLUGIN_NAME }} \
-        ${{ env.QT_CREATOR_VERSION }} ${{ env.QT_CREATOR_VERSION_INTERNAL }} \
-        ${{ env.QT_TOKEN }} ${{ env.API_URL }}
-
-    - name: Delete previous json artifacts
-      uses: geekyeggo/delete-artifact@v5
-      with:
-        name: ${{ env.PLUGIN_NAME }}*-json
-
-    - name: Upload the modified JSON file as an artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: plugin-json
-        path: .github/scripts/${{ env.PLUGIN_NAME }}.json
 
   release:
     if: contains(github.ref, 'tags/v')
     runs-on: ubuntu-latest
-    needs: [build, update_json]
+    needs: [build]
 
     steps:
     - name: Download artifacts
@@ -294,6 +311,26 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: v${{ needs.build.outputs.tag }}
-        files: release/*
+        files: |
+          release/${{ env.PLUGIN_NAME}}-${{ env.QT_CREATOR_VERSION }}-Linux-arm64.7z
+          release/${{ env.PLUGIN_NAME}}-${{ env.QT_CREATOR_VERSION }}-Linux-x64.7z
+          release/${{ env.PLUGIN_NAME}}-${{ env.QT_CREATOR_VERSION }}-macOS-universal.7z
+          release/${{ env.PLUGIN_NAME}}-${{ env.QT_CREATOR_VERSION }}-Windows-arm64.7z
+          release/${{ env.PLUGIN_NAME}}-${{ env.QT_CREATOR_VERSION }}-Windows-x64.7z
         draft: false
         prerelease: false
+
+    - name: Release on Extension Store
+      continue-on-error: true
+      uses: qt-creator/deploy-qtc-plugin@v0.3
+      with:
+        api: ${{ secrets.EXTENSION_STORE_API_URL }}
+        token: ${{ secrets.EXTENSION_STORE_API_TOKEN }}
+        publish: true
+        spec: release/${{ env.PLUGIN_NAME }}.json
+        download-url-linux-arm64: ${{ fromJSON(steps.create_release.outputs.assets)[0].browser_download_url }}
+        download-url-linux-x64: ${{ fromJSON(steps.create_release.outputs.assets)[1].browser_download_url }}
+        download-url-macos-arm64: ${{ fromJSON(steps.create_release.outputs.assets)[2].browser_download_url }}
+        download-url-macos-x64: ${{ fromJSON(steps.create_release.outputs.assets)[2].browser_download_url }}
+        download-url-win-arm64: ${{ fromJSON(steps.create_release.outputs.assets)[3].browser_download_url }}
+        download-url-win-x64: ${{ fromJSON(steps.create_release.outputs.assets)[4].browser_download_url }}

@@ -97,7 +97,7 @@ void setupMesonRunConfiguration()
 void setupMesonRunAndDebugWorkers()
 {
     using namespace Debugger;
-    static SimpleTargetRunnerFactory theMesonRunWorkerFactory({Constants::MESON_RUNCONFIG_ID});
+    static ProcessRunnerFactory theMesonRunWorkerFactory({Constants::MESON_RUNCONFIG_ID});
     static SimpleDebugRunnerFactory theMesonDebugRunWorkerFactory({Constants::MESON_RUNCONFIG_ID});
 }
 

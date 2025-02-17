@@ -4,6 +4,7 @@
 #pragma once
 
 #include "../cpptoolstestcase.h"
+#include "../cppcodestylesettings.h"
 #include "cppquickfix.h"
 #include "cppquickfixsettings.h"
 
@@ -18,7 +19,6 @@
 namespace TextEditor { class QuickFixOperation; }
 
 namespace CppEditor {
-class CppCodeStylePreferences;
 
 namespace Internal {
 namespace Tests {

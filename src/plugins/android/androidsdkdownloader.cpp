@@ -117,27 +117,21 @@ GroupItem downloadSdkRecipe()
     const auto onQuerySetup = [storage](NetworkQuery &query) {
         query.setRequest(QNetworkRequest(AndroidConfig::sdkToolsUrl()));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
-        NetworkQuery *queryPtr = &query;
         QProgressDialog *progressDialog = storage->progressDialog.get();
-        QObject::connect(queryPtr, &NetworkQuery::started, progressDialog, [queryPtr, progressDialog] {
-            QNetworkReply *reply = queryPtr->reply();
-            if (!reply)
-                return;
-            QObject::connect(reply, &QNetworkReply::downloadProgress,
-                             progressDialog, [progressDialog](qint64 received, qint64 max) {
-                progressDialog->setRange(0, max);
-                progressDialog->setValue(received);
-            });
-#if QT_CONFIG(ssl)
-            QObject::connect(reply, &QNetworkReply::sslErrors,
-                    reply, [reply](const QList<QSslError> &sslErrors) {
-                for (const QSslError &error : sslErrors)
-                    qCDebug(sdkDownloaderLog, "SSL error: %s\n", qPrintable(error.errorString()));
-                logError(Tr::tr("Encountered SSL errors, download is aborted."));
-                reply->abort();
-            });
-#endif
+        QObject::connect(&query, &NetworkQuery::downloadProgress,
+                         progressDialog, [progressDialog](qint64 received, qint64 max) {
+            progressDialog->setRange(0, max);
+            progressDialog->setValue(received);
         });
+#if QT_CONFIG(ssl)
+        QObject::connect(&query, &NetworkQuery::sslErrors,
+                         &query, [queryPtr = &query](const QList<QSslError> &sslErrors) {
+            for (const QSslError &error : sslErrors)
+                qCDebug(sdkDownloaderLog, "SSL error: %s\n", qPrintable(error.errorString()));
+            logError(Tr::tr("Encountered SSL errors, download is aborted."));
+            queryPtr->reply()->abort();
+        });
+#endif
     };
     const auto onQueryDone = [storage](const NetworkQuery &query, DoneWith result) {
         if (result == DoneWith::Cancel)

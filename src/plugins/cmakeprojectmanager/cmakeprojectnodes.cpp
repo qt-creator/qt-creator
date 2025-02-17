@@ -280,10 +280,8 @@ std::optional<FilePath> CMakeTargetNode::visibleAfterAddFileAction() const
 
 void CMakeTargetNode::build()
 {
-    Project *p = getProject();
-    Target *t = p ? p->activeTarget() : nullptr;
-    if (t)
-        static_cast<CMakeBuildSystem *>(t->buildSystem())->buildCMakeTarget(displayName());
+    if (BuildSystem * const bs = activeBuildSystem(getProject()))
+        static_cast<CMakeBuildSystem *>(bs)->buildCMakeTarget(displayName());
 }
 
 void CMakeTargetNode::setTargetInformation(const QList<FilePath> &artifacts, const QString &type)

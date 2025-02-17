@@ -3,7 +3,6 @@
 
 #include "indentingtexteditormodifier.h"
 
-#include <qmljstools/qmljscodestylepreferences.h>
 #include <qmljstools/qmljsindenter.h>
 #include <qmljstools/qmljstoolssettings.h>
 

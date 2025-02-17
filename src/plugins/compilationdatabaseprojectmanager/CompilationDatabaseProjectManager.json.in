@@ -1,5 +1,6 @@
 {
     "Id" : "compilationdatabaseprojectmanager",
+    "DisplayName" : "Compilation Databases",
     "Name" : "CompilationDatabaseProjectManager",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
@@ -24,7 +25,7 @@
             "- A compilation database"
     ],
     "Url" : "https://www.qt.io",
-    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-clang-codemodel.html",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-to-use-compilation-databases.html",
     ${IDE_PLUGIN_DEPENDENCIES},
     "Mimetypes" : [
         "<?xml version='1.0'?>",

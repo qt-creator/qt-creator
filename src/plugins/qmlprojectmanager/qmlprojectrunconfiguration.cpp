@@ -15,9 +15,9 @@
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -156,7 +156,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
         return env;
     };
 
-    const Id deviceTypeId = DeviceTypeKitAspect::deviceTypeId(target->kit());
+    const Id deviceTypeId = RunDeviceTypeKitAspect::deviceTypeId(target->kit());
     if (deviceTypeId == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         environment.addPreferredBaseEnvironment(Tr::tr("System Environment"), [envModifier] {
             return envModifier(Environment::systemEnvironment());
@@ -183,7 +183,7 @@ QString QmlProjectRunConfiguration::disabledReason(Utils::Id runMode) const
         return Tr::tr("No script file to execute.");
 
     const FilePath viewer = qmlRuntimeFilePath();
-    if (DeviceTypeKitAspect::deviceTypeId(kit())
+    if (RunDeviceTypeKitAspect::deviceTypeId(kit())
             == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
             && !viewer.exists()) {
         return Tr::tr("No QML utility found.");
@@ -204,7 +204,7 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
 
     // We might not have a full Qt version for building, but the device
     // might know what is good for running.
-    IDevice::ConstPtr dev = DeviceKitAspect::device(kit);
+    IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit);
     if (dev) {
         const FilePath qmlRuntime = dev->qmlRunCommand();
         if (!qmlRuntime.isEmpty())
@@ -278,7 +278,7 @@ void QmlProjectRunConfiguration::setupQtVersionAspect()
                 const QList<Kit *> kits = Utils::filtered(KitManager::kits(), [&](const Kit *k) {
                     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
                     return (version && version->qtVersion().majorVersion() == preferedQtVersion)
-                           && DeviceTypeKitAspect::deviceTypeId(k)
+                           && RunDeviceTypeKitAspect::deviceTypeId(k)
                                   == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
                 });
 

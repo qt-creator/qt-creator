@@ -39,7 +39,7 @@ static QString propertyEditorResourcesPath()
     if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
+    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toUrlishString();
 }
 
 DesignSystemWidget::DesignSystemWidget(DesignSystemView *view, DesignSystemInterface *interface)
@@ -77,7 +77,7 @@ QString DesignSystemWidget::qmlSourcesPath()
     if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/designsystem";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/designsystem").toString();
+    return Core::ICore::resourcePath("qmldesigner/designsystem").toUrlishString();
 }
 
 void DesignSystemWidget::showEvent(QShowEvent *event)

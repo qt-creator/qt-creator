@@ -583,12 +583,12 @@ bool Trie::isEmpty() const
     return trie.isNull(); // assuming to never generate an empty non null trie
 }
 
-bool Trie::operator==(const Trie &o)
+bool Trie::operator==(const Trie &o) const
 {
     return TrieNode::isSame(trie,o.trie);
 }
 
-bool Trie::operator!=(const Trie &o)
+bool Trie::operator!=(const Trie &o) const
 {
     return !TrieNode::isSame(trie,o.trie);
 }

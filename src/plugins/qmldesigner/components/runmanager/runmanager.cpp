@@ -467,7 +467,6 @@ void AndroidTarget::run() const
 
     Utils::CheckableDecider decider(Utils::Key("WarnAboutQtUIViewerStyleIncompatiblity"));
     Utils::CheckableMessageBox::information(
-        Core::ICore::dialogParent(),
         Tr::tr("Style Incompatibility"),
         Tr::tr("Qt UI Viewer only supports the default Android style (Material). "
                "Different styles may not be displayed correctly."),

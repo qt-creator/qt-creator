@@ -2165,7 +2165,7 @@ void ClangdTestExternalChanges::test()
     // Break a header file that is used, but not open in Creator.
     // Neither we nor the server should notice, and no diagnostics should be shown for the
     // source file that includes the now-broken header.
-    QFile header(project()->projectDirectory().toString() + "/mainwindow.h");
+    QFile header(project()->projectDirectory().toUrlishString() + "/mainwindow.h");
     QVERIFY(header.open(QIODevice::WriteOnly));
     header.write("blubb");
     header.close();
@@ -2184,7 +2184,7 @@ void ClangdTestExternalChanges::test()
     // verify that we get a new client and diagnostics in the current editor.
     TextDocument * const docToChange = document("mainwindow.cpp");
     docToChange->setSilentReload();
-    QFile otherSource(filePath("mainwindow.cpp").toString());
+    QFile otherSource(filePath("mainwindow.cpp").toUrlishString());
     QVERIFY(otherSource.open(QIODevice::WriteOnly));
     otherSource.write("blubb");
     otherSource.close();

@@ -7,6 +7,8 @@
 
 #include <QObject>
 
+namespace ProjectExplorer { class BuildConfiguration; }
+
 namespace ClangTools::Internal {
 class ClangToolsCompilationDb : public QObject
 {
@@ -17,13 +19,15 @@ public:
     bool generateIfNecessary();
     Utils::FilePath parentDir() const;
 
-    static ClangToolsCompilationDb &getDb(CppEditor::ClangToolType toolType);
+    static ClangToolsCompilationDb &getDb(
+        CppEditor::ClangToolType toolType, ProjectExplorer::BuildConfiguration *bc);
 
 signals:
     void generated(bool success);
 
 private:
-    explicit ClangToolsCompilationDb(CppEditor::ClangToolType toolType);
+    explicit ClangToolsCompilationDb(
+        CppEditor::ClangToolType toolType, ProjectExplorer::BuildConfiguration *bc);
     void invalidate();
 
     class Private;

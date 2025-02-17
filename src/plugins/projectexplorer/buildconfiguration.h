@@ -21,8 +21,8 @@ class BuildInfo;
 class BuildSystem;
 class BuildStepList;
 class Kit;
-class NamedWidget;
 class Node;
+class Project;
 class RunConfiguration;
 class Target;
 
@@ -43,8 +43,11 @@ public:
 
     virtual BuildSystem *buildSystem() const;
 
-    virtual NamedWidget *createConfigWidget();
-    virtual QList<NamedWidget *> createSubConfigWidgets();
+    virtual QWidget *createConfigWidget();
+
+    using WidgetAdder = std::function<void(QWidget *, const QString &)>;
+    void addConfigWidgets(const WidgetAdder &adder);
+    virtual void addSubConfigWidgets(const WidgetAdder &adder);
 
     // Maybe the BuildConfiguration is not the best place for the environment
     Utils::Environment baseEnvironment() const;
@@ -107,11 +110,17 @@ public:
     void setConfigWidgetHasFrame(bool configWidgetHasFrame);
     void setBuildDirectorySettingsKey(const Utils::Key &key);
 
-    void addConfigWidgets(const std::function<void (NamedWidget *)> &adder);
-
     void doInitialize(const BuildInfo &info);
 
     bool createBuildDirectory();
+
+    // For tools that need to manipulate the main build command's argument list
+    virtual void setInitialArgs(const QStringList &);
+    virtual QStringList initialArgs() const;
+    virtual QStringList additionalArgs() const;
+
+    virtual void reconfigure() {}
+    virtual void stopReconfigure() {}
 
 signals:
     void environmentChanged();
@@ -190,5 +199,9 @@ private:
     IssueReporter m_issueReporter;
     BuildGenerator m_buildGenerator;
 };
+
+PROJECTEXPLORER_EXPORT BuildConfiguration *activeBuildConfig(const Project *project);
+PROJECTEXPLORER_EXPORT BuildConfiguration *activeBuildConfigForActiveProject();
+PROJECTEXPLORER_EXPORT BuildConfiguration *activeBuildConfigForCurrentProject();
 
 } // namespace ProjectExplorer

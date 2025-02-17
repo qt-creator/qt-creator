@@ -147,6 +147,7 @@ protected:
     bool visit(Declaration *symbol) override;
     bool visit(Argument *symbol) override;
     bool visit(TypenameArgument *symbol) override;
+    bool visit(TemplateTypeArgument *symbol) override;
     bool visit(BaseClass *symbol) override;
     bool visit(Enum *symbol) override;
     bool visit(Function *symbol) override;

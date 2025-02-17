@@ -1,5 +1,6 @@
 {
     "Id" : "qmlprofiler",
+    "DisplayName" : "QML Profiler",
     "Name" : "QmlProfiler",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

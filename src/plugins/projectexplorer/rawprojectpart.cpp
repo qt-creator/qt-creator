@@ -6,9 +6,11 @@
 #include "abi.h"
 #include "buildconfiguration.h"
 #include "buildsystem.h"
-#include "kitaspects.h"
+#include "devicesupport/devicekitaspects.h"
 #include "project.h"
 #include "target.h"
+#include "sysrootkitaspect.h"
+#include "toolchainkitaspect.h"
 
 #include <ios/iosconstants.h>
 
@@ -199,8 +201,8 @@ ProjectUpdateInfo::ProjectUpdateInfo(Project *project,
     if (project) {
         projectName = project->displayName();
         projectFilePath = project->projectFilePath();
-        if (project->activeTarget() && project->activeTarget()->activeBuildConfiguration())
-            buildRoot = project->activeTarget()->activeBuildConfiguration()->buildDirectory();
+        if (project->activeBuildConfiguration())
+            buildRoot = project->activeBuildConfiguration()->buildDirectory();
     }
 }
 
@@ -208,7 +210,7 @@ ProjectUpdateInfo::ProjectUpdateInfo(Project *project,
 void addTargetFlagForIos(QStringList &cFlags, QStringList &cxxFlags, const BuildSystem *bs,
                          const std::function<QString ()> &getDeploymentTarget)
 {
-    const Utils::Id deviceType = DeviceTypeKitAspect::deviceTypeId(bs->target()->kit());
+    const Utils::Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(bs->target()->kit());
     if (deviceType != Ios::Constants::IOS_DEVICE_TYPE
             && deviceType != Ios::Constants::IOS_SIMULATOR_TYPE) {
         return;

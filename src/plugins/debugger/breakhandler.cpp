@@ -120,7 +120,14 @@ public:
     void clicked() final
     {
         QTC_ASSERT(m_bp, return);
-        m_bp->deleteGlobalOrThisBreakpoint();
+
+        if (m_bp->isEnabled()) {
+            m_bp->deleteGlobalOrThisBreakpoint();
+            return;
+        }
+
+        if (const GlobalBreakpoint gbp = m_bp->globalBreakpoint())
+            gbp->setEnabled(true);
     }
 
 public:
@@ -183,7 +190,10 @@ public:
     void clicked() final
     {
         QTC_ASSERT(m_gbp, return);
-        m_gbp->removeBreakpointFromModel();
+        if (!m_gbp->isEnabled())
+            m_gbp->setEnabled(true);
+        else
+            m_gbp->removeBreakpointFromModel();
     }
 
 public:
@@ -1891,7 +1901,7 @@ FilePath BreakpointItem::markerFileName() const
     if (origFileName.endsWith(m_parameters.fileName.fileName()))
         return origFileName;
 
-    return m_parameters.fileName.toString().size() > origFileName.toString().size()
+    return m_parameters.fileName.toFSPathString().size() > origFileName.toFSPathString().size()
                ? m_parameters.fileName
                : origFileName;
 }
@@ -2197,9 +2207,7 @@ QVariant GlobalBreakpointItem::data(int column, int role) const
         case BreakpointNumberColumn:
             if (role == Qt::DisplayRole) {
                 if (auto engine = usingEngine())
-                    return engine->runParameters().displayName;
-
-
+                    return engine->runParameters().displayName();
                 return QString("-");
             }
             if (role == Qt::DecorationRole)
@@ -2786,8 +2794,7 @@ void BreakpointManager::gotoLocation(const GlobalBreakpoint &gbp) const
 void BreakpointManager::executeDeleteAllBreakpointsDialog()
 {
     QMessageBox::StandardButton pressed
-        = CheckableMessageBox::question(ICore::dialogParent(),
-                                        Tr::tr("Remove All Breakpoints"),
+        = CheckableMessageBox::question(Tr::tr("Remove All Breakpoints"),
                                         Tr::tr("Are you sure you want to remove all breakpoints "
                                                "from all files in the current session?"),
                                         Key("RemoveAllBreakpoints"));

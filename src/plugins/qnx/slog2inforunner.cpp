@@ -35,33 +35,28 @@ void Slog2InfoRunner::start()
     QTC_CHECK(!m_taskTreeRunner.isRunning());
 
     const auto onTestSetup = [this](Process &process) {
-        process.setCommand(CommandLine{device()->filePath("slog2info")});
+        process.setCommand(CommandLine{runControl()->device()->filePath("slog2info")});
     };
-    const auto onTestDone = [this](DoneWith result) {
-        if (result == DoneWith::Success) {
-            m_found = true;
-            return;
-        }
+    const auto onTestDone = [this] {
         appendMessage(Tr::tr("Warning: \"slog2info\" is not found on the device, "
                              "debug output not available."), ErrorMessageFormat);
     };
 
     const auto onLaunchTimeSetup = [this](Process &process) {
-        process.setCommand({device()->filePath("date"), "+\"%d %H:%M:%S\"", CommandLine::Raw});
+        process.setCommand({runControl()->device()->filePath("date"), "+\"%d %H:%M:%S\"", CommandLine::Raw});
     };
     const auto onLaunchTimeDone = [this](const Process &process) {
         QTC_CHECK(!m_applicationId.isEmpty());
-        QTC_CHECK(m_found);
         m_launchDateTime = QDateTime::fromString(process.cleanedStdOut().trimmed(), "dd HH:mm:ss");
     };
 
     const auto onLogSetup = [this](Process &process) {
-        process.setCommand({device()->filePath("slog2info"), {"-w"}});
-        connect(&process, &Process::readyReadStandardOutput, this, [&] {
-            processLogInput(QString::fromLatin1(process.readAllRawStandardOutput()));
+        process.setCommand({runControl()->device()->filePath("slog2info"), {"-w"}});
+        connect(&process, &Process::readyReadStandardOutput, this, [this, processPtr = &process] {
+            processLogInput(QString::fromLatin1(processPtr->readAllRawStandardOutput()));
         });
-        connect(&process, &Process::readyReadStandardError, this, [&] {
-            appendMessage(QString::fromLatin1(process.readAllRawStandardError()), StdErrFormat);
+        connect(&process, &Process::readyReadStandardError, this, [this, processPtr = &process] {
+            appendMessage(QString::fromLatin1(processPtr->readAllRawStandardError()), StdErrFormat);
         });
     };
     const auto onLogError = [this](const Process &process) {
@@ -70,7 +65,7 @@ void Slog2InfoRunner::start()
     };
 
     const Group root {
-        ProcessTask(onTestSetup, onTestDone),
+        ProcessTask(onTestSetup, onTestDone, CallDoneIf::Error),
         ProcessTask(onLaunchTimeSetup, onLaunchTimeDone, CallDoneIf::Success),
         ProcessTask(onLogSetup, onLogError, CallDoneIf::Error)
     };
@@ -84,11 +79,6 @@ void Slog2InfoRunner::stop()
     m_taskTreeRunner.reset();
     processRemainingLogData();
     reportStopped();
-}
-
-bool Slog2InfoRunner::commandFound() const
-{
-    return m_found;
 }
 
 void Slog2InfoRunner::processRemainingLogData()
@@ -116,8 +106,8 @@ void Slog2InfoRunner::processLogLine(const QString &line)
     // The "\\s+(\\b.*)?$" represents a space followed by a message. We are unable to determinate
     // how many spaces represent separators and how many are a part of the messages, so resulting
     // messages has all whitespaces at the beginning of the message trimmed.
-    static QRegularExpression regexp(QLatin1String(
-        "^[a-zA-Z]+\\s+([0-9]+ [0-9]+:[0-9]+:[0-9]+.[0-9]+)\\s+(\\S+)(\\s+(\\S+))?\\s+([0-9]+)\\s+(.*)?$"));
+    static const QRegularExpression regexp(
+        "^[a-zA-Z]+\\s+([0-9]+ [0-9]+:[0-9]+:[0-9]+.[0-9]+)\\s+(\\S+)(\\s+(\\S+))?\\s+([0-9]+)\\s+(.*)?$");
 
     const QRegularExpressionMatch match = regexp.match(line);
     if (!match.hasMatch())

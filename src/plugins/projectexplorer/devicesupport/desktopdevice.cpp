@@ -103,14 +103,9 @@ QUrl DesktopDevice::toolControlChannel(const ControlChannelHint &) const
     return url;
 }
 
-bool DesktopDevice::usableAsBuildDevice() const
-{
-    return true;
-}
-
 bool DesktopDevice::handlesFile(const FilePath &filePath) const
 {
-    return !filePath.needsDevice();
+    return filePath.isLocal();
 }
 
 FilePath DesktopDevice::filePath(const QString &pathOnDevice) const
@@ -125,6 +120,7 @@ expected_str<Environment> DesktopDevice::systemEnvironmentWithError() const
 
 FilePath DesktopDevice::rootPath() const
 {
+    // FIXME: This is ugly as  .filePath(xxx) and .rootPath().withNewPath(xxx) diverge here.
     if (id() == DESKTOP_DEVICE_ID)
         return HostOsInfo::root();
     return IDevice::rootPath();

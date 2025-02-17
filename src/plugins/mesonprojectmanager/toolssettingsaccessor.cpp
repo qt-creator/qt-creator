@@ -70,7 +70,10 @@ void ToolsSettingsAccessor::loadMesonTools()
     for (auto toolIndex = 0; toolIndex < entry_count; toolIndex++) {
         Key name = entryName(toolIndex);
         Store store = storeFromVariant(data[name]);
-        result.emplace_back(new ToolWrapper(store));
+        // Users will have Ninja tool saved from previous versions of Qt Creator
+        // so we need to keep filtering them out for some time.
+        if (store[Constants::ToolsSettings::TOOL_TYPE_KEY].toString() == Constants::ToolsSettings::TOOL_TYPE_MESON)
+            result.emplace_back(new MesonToolWrapper(store));
     }
 
     MesonTools::setTools(std::move(result));

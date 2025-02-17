@@ -552,7 +552,7 @@ void FontSettingsPageWidget::copyColorScheme(const QString &name)
 
         ColorScheme scheme = m_value.colorScheme();
         scheme.setDisplayName(name);
-        if (scheme.save(filePath, Core::ICore::dialogParent()))
+        if (scheme.save(filePath))
             m_value.setColorSchemeFileName(filePath);
 
         refreshColorSchemeList();
@@ -601,8 +601,7 @@ void FontSettingsPageWidget::deleteColorScheme()
 void FontSettingsPageWidget::importScheme()
 {
     const FilePath importedFile
-        = Utils::FileUtils::getOpenFilePath(this,
-                                            Tr::tr("Import Color Scheme"),
+        = Utils::FileUtils::getOpenFilePath(Tr::tr("Import Color Scheme"),
                                             {},
                                             Tr::tr("Color scheme (*.xml);;All files (*)"));
 
@@ -629,7 +628,7 @@ void FontSettingsPageWidget::importScheme()
                 ColorScheme scheme;
                 if (scheme.load(importedFile)) {
                     scheme.setDisplayName(name);
-                    scheme.save(saveFileName, Core::ICore::dialogParent());
+                    scheme.save(saveFileName);
                     m_value.loadColorScheme(saveFileName, m_descriptions);
                 } else {
                     qWarning() << "Failed to import color scheme:" << importedFile;
@@ -650,13 +649,12 @@ void FontSettingsPageWidget::exportScheme()
     const ColorSchemeEntry &entry = m_schemeListModel.colorSchemeAt(index);
 
     const FilePath filePath
-        = Utils::FileUtils::getSaveFilePath(this,
-                                            Tr::tr("Export Color Scheme"),
+        = Utils::FileUtils::getSaveFilePath(Tr::tr("Export Color Scheme"),
                                             entry.filePath,
                                             Tr::tr("Color scheme (*.xml);;All files (*)"));
 
     if (!filePath.isEmpty())
-        m_value.colorScheme().save(filePath, Core::ICore::dialogParent());
+        m_value.colorScheme().save(filePath);
 }
 
 void FontSettingsPageWidget::maybeSaveColorScheme()
@@ -680,7 +678,7 @@ void FontSettingsPageWidget::maybeSaveColorScheme()
 
     if (messageBox.exec() == QMessageBox::Save) {
         const ColorScheme &scheme = m_schemeEdit->colorScheme();
-        scheme.save(m_value.colorSchemeFileName(), Core::ICore::dialogParent());
+        scheme.save(m_value.colorSchemeFileName());
     }
 }
 
@@ -726,7 +724,7 @@ void FontSettingsPageWidget::apply()
         // Update the scheme and save it under the name it already has
         m_value.setColorScheme(m_schemeEdit->colorScheme());
         const ColorScheme &scheme = m_value.colorScheme();
-        scheme.save(m_value.colorSchemeFileName(), Core::ICore::dialogParent());
+        scheme.save(m_value.colorSchemeFileName());
     }
 
     bool ok;
@@ -775,8 +773,6 @@ FontSettingsPage::FontSettingsPage(FontSettings *fontSettings, const FormatDescr
     setId(Constants::TEXT_EDITOR_FONT_SETTINGS);
     setDisplayName(Tr::tr("Font && Colors"));
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("Text Editor"));
-    setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
     setWidgetCreator([this, fontSettings, fd] { return new FontSettingsPageWidget(this, fd, fontSettings); });
 }
 

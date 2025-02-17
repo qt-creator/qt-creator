@@ -11605,8 +11605,8 @@ in the system&apos;s browser for manual download.</source>
         <translation>エミュレータのコマンドライン起動オプション(&lt;a href=&quot;%1&quot;&gt;Help Web Page&lt;/a&gt;):</translation>
     </message>
     <message>
-        <source>(SDK Version: %1, NDK Version: %2)</source>
-        <translation>(SDK バージョン: %1, NDK バージョン: %2)</translation>
+        <source>(SDK Version: %1)</source>
+        <translation>(SDK バージョン: %1)</translation>
     </message>
     <message>
         <source>The selected path already has a valid SDK Tools package.</source>

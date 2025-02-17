@@ -35,7 +35,7 @@ void AbstractEditorSupport::updateDocument()
 void AbstractEditorSupport::notifyAboutUpdatedContents() const
 {
     CppModelManager::emitAbstractEditorSupportContentsUpdated(
-                filePath().toString(), sourceFilePath().toString(), contents());
+                filePath().toUrlishString(), sourceFilePath().toUrlishString(), contents());
 }
 
 QString AbstractEditorSupport::licenseTemplate(ProjectExplorer::Project *project,

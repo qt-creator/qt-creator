@@ -22,9 +22,7 @@ list(APPEND DEFAULT_DEFINES
   QT_CREATOR
   QT_NO_JAVA_STYLE_ITERATORS
   QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII QT_NO_FOREACH
-  QT_DISABLE_DEPRECATED_BEFORE=0x050900
   QT_DISABLE_DEPRECATED_UP_TO=0x050900
-  QT_WARN_DEPRECATED_BEFORE=0x060400
   QT_WARN_DEPRECATED_UP_TO=0x060400
   QT_USE_QSTRINGBUILDER
 )
@@ -78,6 +76,10 @@ elseif(WIN32)
   set(_IDE_HEADER_INSTALL_PATH "include/qtcreator")
   set(_IDE_CMAKE_INSTALL_PATH "lib/cmake")
 else ()
+  # Small hack to silence a warning in the stable branch - but it means the value is incorrect
+  if (NOT CMAKE_LIBRARY_ARCHITECTURE)
+    set(CMAKE_INSTALL_LIBDIR "lib")
+  endif()
   include(GNUInstallDirs)
   set(_IDE_APP_PATH "${CMAKE_INSTALL_BINDIR}")
   set(_IDE_APP_TARGET "${IDE_ID}")
@@ -195,7 +197,7 @@ endfunction()
 
 function(qtc_add_link_flags_no_undefined target)
   # needs CheckLinkerFlags
-  if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.18 AND NOT MSVC)
+  if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.18 AND NOT MSVC AND NOT APPLE)
     set(no_undefined_flag "-Wl,--no-undefined")
     check_linker_flag(CXX ${no_undefined_flag} QTC_LINKER_SUPPORTS_NO_UNDEFINED)
     if (NOT QTC_LINKER_SUPPORTS_NO_UNDEFINED)

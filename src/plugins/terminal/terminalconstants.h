@@ -18,5 +18,7 @@ constexpr char MOVECURSORWORDRIGHT[] = "Terminal.MoveCursorWordRight";
 constexpr char CLEAR_TERMINAL[] = "Terminal.ClearTerminal";
 constexpr char TOGGLE_KEYBOARD_LOCK[] = "Terminal.ToggleKeyboardLock";
 constexpr char SELECTALL[] = "Terminal.SelectAll";
+constexpr char DELETE_WORD_LEFT[] = "Terminal.DeleteWordLeft";
+constexpr char DELETE_LINE_LEFT[] = "Terminal.DeleteLineLeft";
 
 } // namespace Terminal::Constants

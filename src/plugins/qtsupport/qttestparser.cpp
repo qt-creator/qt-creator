@@ -105,11 +105,11 @@ void QtTestParserTest::testQtTestOutputParser()
 #endif
             "XPASS: irrelevant\n"
             "PASS   : MyTest::anotherTest()";
-    const QString expectedChildOutput =
-            "random output\n"
-            "PASS   : MyTest::someTest()\n"
-            "XPASS: irrelevant\n"
-            "PASS   : MyTest::anotherTest()\n";
+    const QStringList expectedChildOutput{
+            "random output",
+            "PASS   : MyTest::someTest()",
+            "XPASS: irrelevant",
+            "PASS   : MyTest::anotherTest()\n"};
     const FilePath theFile = FilePath::fromString(HostOsInfo::isWindowsHost()
         ? QString("C:/dev/tests/tst_mytest.cpp") : QString("/home/me/tests/tst_mytest.cpp"));
     const Tasks expectedTasks{
@@ -121,7 +121,7 @@ void QtTestParserTest::testQtTestOutputParser()
                           "   Expected (true)           : 1",
              theFile, 220, Constants::TASK_CATEGORY_AUTOTEST)};
     testbench.testParsing(input, OutputParserTester::STDOUT, expectedTasks, expectedChildOutput,
-                          QString(), QString());
+                          QStringList());
 }
 
 QObject *createQtTestParserTest()

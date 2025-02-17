@@ -6,6 +6,7 @@
 #include "luatr.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/ioutputpane.h>
@@ -164,7 +165,7 @@ public:
         m_readCallback = {};
 
         QFile f(":/lua/scripts/ilua.lua");
-        f.open(QIODevice::ReadOnly);
+        QTC_CHECK(f.open(QIODevice::ReadOnly));
         const auto ilua = QString::fromUtf8(f.readAll());
         m_luaState = runScript(ilua, "ilua.lua", [this](sol::state &lua) {
             lua["print"] = [this](sol::variadic_args va) {
@@ -290,6 +291,9 @@ public:
 
     void initialize() final
     {
+        IOptionsPage::registerCategory(
+            "ZY.Lua", Tr::tr("Lua"), ":/lua/images/settingscategory_lua.png");
+
         setupLuaEngine(this);
 
         registerProvider("async", ":/lua/scripts/async.lua");
@@ -317,7 +321,17 @@ public:
 
         setupLuaExpander(globalMacroExpander());
 
-        pluginSpecsFromArchiveFactories().push_back([](const FilePath &path) {
+        pluginSpecsFromArchiveFactories().push_back([](const FilePath &path) -> QList<PluginSpec *> {
+            if (path.isFile()) {
+                if (path.suffix() == "lua") {
+                    Utils::expected_str<PluginSpec *> spec = loadPlugin(path);
+                    QTC_CHECK_EXPECTED(spec);
+                    if (spec)
+                        return {*spec};
+                }
+                return {};
+            }
+
             QList<PluginSpec *> plugins;
             auto dirs = path.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
             for (const auto &dir : dirs) {
@@ -402,9 +416,25 @@ public:
             FilePaths folders = path.dirEntries(FileFilter({}, QDir::Dirs | QDir::NoDotAndDotDot));
 
             for (const FilePath &folder : folders) {
-                const FilePath script = folder / (folder.baseName() + ".lua");
-                if (!script.exists())
+                FilePath script = folder / (folder.baseName() + ".lua");
+                if (!script.exists()) {
+                    FilePaths contents = folder.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+                    if (contents.empty())
+                        continue;
+
+                    for (const FilePath &subfolder : contents) {
+                        script = subfolder / (subfolder.baseName() + ".lua");
+                        if (!script.exists()) {
+                            script.clear();
+                            continue;
+                        }
+                        break;
+                    }
+                }
+
+                if (script.isEmpty()) {
                     continue;
+                }
 
                 const expected_str<LuaPluginSpec *> result = loadPlugin(script);
 

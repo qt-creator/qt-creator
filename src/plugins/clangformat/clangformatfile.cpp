@@ -4,7 +4,6 @@
 #include "clangformatfile.h"
 #include "clangformatutils.h"
 
-#include <cppeditor/cppcodestylepreferences.h>
 #include <cppeditor/cppcodestylesettings.h>
 
 #include <projectexplorer/project.h>

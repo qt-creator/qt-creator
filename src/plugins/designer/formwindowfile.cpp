@@ -12,14 +12,12 @@
 
 #include <QApplication>
 #include <QBuffer>
+#include <QDebug>
 #include <QDesignerFormWindowInterface>
 #include <QDesignerFormWindowManagerInterface>
 #include <QDesignerFormEditorInterface>
 #include <QTextDocument>
 #include <QUndoStack>
-#include <QFileInfo>
-#include <QDebug>
-#include <QTextCodec>
 
 using namespace Utils;
 
@@ -33,7 +31,7 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
     setParent(parent);
     setId(Utils::Id(Designer::Constants::K_DESIGNER_XML_EDITOR_ID));
     // Designer needs UTF-8 regardless of settings.
-    setCodec(QTextCodec::codecForName("UTF-8"));
+    setCodec("UTF-8");
     connect(m_formWindow->core()->formWindowManager(), &QDesignerFormWindowManagerInterface::formWindowRemoved,
             this, &FormWindowFile::slotFormWindowRemoved);
     connect(m_formWindow->commandHistory(), &QUndoStack::indexChanged,
@@ -67,7 +65,7 @@ Core::IDocument::OpenResult FormWindowFile::open(QString *errorString,
     if (readResult != Utils::TextFileFormat::ReadSuccess)
         return OpenResult::ReadError;
 
-    form->setFileName(filePath.absoluteFilePath().toString());
+    form->setFileName(filePath.absoluteFilePath().toUrlishString());
     const QByteArray contentsBA = contents.toUtf8();
     QBuffer str;
     str.setData(contentsBA);
@@ -93,7 +91,7 @@ Result FormWindowFile::saveImpl(const FilePath &filePath, bool autoSave)
 
     const QString oldFormName = m_formWindow->fileName();
     if (!autoSave)
-        m_formWindow->setFileName(filePath.toString());
+        m_formWindow->setFileName(filePath.toUrlishString());
     QString errorString;
     const bool writeOK = writeFile(filePath, &errorString);
     m_shouldAutoSave = false;
@@ -153,7 +151,7 @@ bool FormWindowFile::setContents(const QByteArray &contents)
 
 void FormWindowFile::setFilePath(const FilePath &newName)
 {
-    m_formWindow->setFileName(newName.toString());
+    m_formWindow->setFileName(newName.toUrlishString());
     IDocument::setFilePath(newName);
 }
 
@@ -224,9 +222,9 @@ QString FormWindowFile::fallbackSaveAsFileName() const
     return m_suggestedName;
 }
 
-bool FormWindowFile::supportsCodec(const QTextCodec *codec) const
+bool FormWindowFile::supportsCodec(const QByteArray &codec) const
 {
-    return codec == QTextCodec::codecForName("UTF-8");
+    return TextEditor::TextDocument::isUtf8Codec(codec);
 }
 
 bool FormWindowFile::writeFile(const Utils::FilePath &filePath, QString *errorString) const

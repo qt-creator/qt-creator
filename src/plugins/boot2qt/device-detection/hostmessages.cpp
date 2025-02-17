@@ -5,6 +5,8 @@
 
 #include <utils/qtcassert.h>
 
+const int qdbHostMessageVersion = 1;
+
 const QString responseField = "response";
 const QString requestField = "request";
 const QString versionField = "_version";
@@ -14,39 +16,7 @@ void setVersionField(QJsonObject &obj)
     obj[versionField] = qdbHostMessageVersion;
 }
 
-bool checkHostMessageVersion(const QJsonObject &obj)
-{
-    return obj[versionField].toInt() == qdbHostMessageVersion;
-}
-
-QByteArray createRequest(const RequestType &type)
-{
-    QJsonObject obj;
-    setVersionField(obj);
-    obj[requestField] = requestTypeString(type);
-    return QJsonDocument{obj}.toJson(QJsonDocument::Compact).append('\n');
-}
-
-RequestType requestType(const QJsonObject &obj)
-{
-    const auto fieldValue = obj[requestField];
-    if (fieldValue == requestTypeString(RequestType::Devices))
-        return RequestType::Devices;
-    if (fieldValue == requestTypeString(RequestType::WatchDevices))
-        return RequestType::WatchDevices;
-    if (fieldValue == requestTypeString(RequestType::StopServer))
-        return RequestType::StopServer;
-    if (fieldValue == requestTypeString(RequestType::Messages))
-        return RequestType::Messages;
-    if (fieldValue == requestTypeString(RequestType::WatchMessages))
-        return RequestType::WatchMessages;
-    if (fieldValue == requestTypeString(RequestType::MessagesAndClear))
-        return RequestType::MessagesAndClear;
-
-    return RequestType::Unknown;
-}
-
-QString requestTypeString(const RequestType &type)
+static QString requestTypeString(const RequestType &type)
 {
     switch (type) {
     case RequestType::Devices:
@@ -64,15 +34,15 @@ QString requestTypeString(const RequestType &type)
     case RequestType::Unknown:
         break;
     }
-    QTC_ASSERT(false, return QString());
+    QTC_ASSERT(false, return {});
 }
 
-QJsonObject initializeResponse(const ResponseType &type)
+QByteArray createRequest(const RequestType &type)
 {
     QJsonObject obj;
     setVersionField(obj);
-    obj[responseField] = responseTypeString(type);
-    return obj;
+    obj[requestField] = requestTypeString(type);
+    return QJsonDocument{obj}.toJson(QJsonDocument::Compact).append('\n');
 }
 
 ResponseType responseType(const QJsonObject &obj)
@@ -117,9 +87,4 @@ QString responseTypeString(const ResponseType &type)
         break;
     }
     QTC_ASSERT(false, return QString());
-}
-
-QByteArray serialiseResponse(const QJsonObject &obj)
-{
-    return QJsonDocument{obj}.toJson(QJsonDocument::Compact).append('\n');
 }

@@ -7,66 +7,16 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/runconfigurationaspects.h>
 
 #include <debugger/debuggerruncontrol.h>
-
-#include <qmldebug/qmldebugcommandlinearguments.h>
 
 using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace RemoteLinux::Internal {
-
-class RemoteLinuxDebugWorker final : public DebuggerRunTool
-{
-public:
-    explicit RemoteLinuxDebugWorker(RunControl *runControl)
-        : DebuggerRunTool(runControl, DoNotAllowTerminal)
-    {
-        setId("RemoteLinuxDebugWorker");
-
-        setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
-        addQmlServerInferiorCommandLineArgumentIfNeeded();
-        setUseDebugServer({}, true, true);
-
-        setStartMode(AttachToRemoteServer);
-        setCloseMode(KillAndExitMonitorAtClose);
-        setUseExtendedRemote(true);
-
-        if (runControl->device()->osType() == Utils::OsTypeMac)
-            setLldbPlatform("remote-macosx");
-        else
-            setLldbPlatform("remote-linux");
-    }
-};
-
-class RemoteLinuxQmlToolingSupport final : public SimpleTargetRunner
-{
-public:
-    explicit RemoteLinuxQmlToolingSupport(RunControl *runControl)
-        : SimpleTargetRunner(runControl)
-    {
-        setId("RemoteLinuxQmlToolingSupport");
-
-        runControl->requestQmlChannel();
-
-        auto runworker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
-        runworker->addStartDependency(this);
-        addStopDependency(runworker);
-
-        setStartModifier([this, runControl] {
-            QmlDebug::QmlDebugServicesPreset services = QmlDebug::servicesForRunMode(runControl->runMode());
-
-            CommandLine cmd = commandLine();
-            cmd.addArg(QmlDebug::qmlDebugTcpArguments(services, qmlChannel()));
-            setCommandLine(cmd);
-        });
-    }
-};
-
-// Factories
 
 static const QList<Id> supportedRunConfigs()
 {
@@ -82,7 +32,7 @@ class RemoteLinuxRunWorkerFactory final : public RunWorkerFactory
 public:
     RemoteLinuxRunWorkerFactory()
     {
-        setProduct<SimpleTargetRunner>();
+        setProduct<ProcessRunner>();
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedDeviceType(Constants::GenericLinuxOsType);
         setSupportedRunConfigs(supportedRunConfigs());
@@ -94,7 +44,26 @@ class RemoteLinuxDebugWorkerFactory final : public ProjectExplorer::RunWorkerFac
 public:
     RemoteLinuxDebugWorkerFactory()
     {
-        setProduct<RemoteLinuxDebugWorker>();
+        setProducer([](RunControl *rc) {
+            rc->requestDebugChannel();
+
+            auto debugger = new DebuggerRunTool(rc);
+            DebuggerRunParameters &rp = debugger->runParameters();
+            debugger->setId("RemoteLinuxDebugWorker");
+            debugger->setupPortsGatherer();
+            rp.setUseTerminal(false);
+            rp.setAddQmlServerInferiorCmdArgIfNeeded(true);
+
+            rp.setStartMode(AttachToRemoteServer);
+            rp.setCloseMode(KillAndExitMonitorAtClose);
+            rp.setUseExtendedRemote(true);
+
+            if (rc->device()->osType() == Utils::OsTypeMac)
+                rp.setLldbPlatform("remote-macosx");
+            else
+                rp.setLldbPlatform("remote-linux");
+            return debugger;
+        });
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         addSupportedDeviceType(Constants::GenericLinuxOsType);
         setSupportedRunConfigs(supportedRunConfigs());
@@ -106,7 +75,25 @@ class RemoteLinuxQmlToolingWorkerFactory final : public ProjectExplorer::RunWork
 public:
     RemoteLinuxQmlToolingWorkerFactory()
     {
-        setProduct<RemoteLinuxQmlToolingSupport>();
+        setProducer([](RunControl *runControl) {
+            runControl->requestQmlChannel();
+
+            auto worker = new ProcessRunner(runControl);
+            worker->setId("RemoteLinuxQmlToolingSupport");
+
+            auto runworker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
+            runworker->addStartDependency(worker);
+            worker->addStopDependency(runworker);
+
+            worker->setStartModifier([worker, runControl] {
+                QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
+
+                CommandLine cmd = worker->commandLine();
+                cmd.addArg(qmlDebugTcpArguments(services, runControl->qmlChannel()));
+                worker->setCommandLine(cmd);
+            });
+            return worker;
+        });
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
         addSupportedDeviceType(Constants::GenericLinuxOsType);

@@ -12,7 +12,7 @@
 
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
@@ -87,7 +87,7 @@ private:
             const FilePath targetDir = targetDirectory().isEmpty() ?
                                            FilePath::fromString(targetDirectory.defaultValue()) :
                                            targetDirectory();
-            const FilePath target = DeviceKitAspect::device(kit())->filePath(targetDir.path())
+            const FilePath target = RunDeviceKitAspect::device(kit())->filePath(targetDir.path())
                                         .pathAppended(source.fileName());
             streamer.setSource(source);
             streamer.setDestination(target);

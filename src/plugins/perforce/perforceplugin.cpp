@@ -255,7 +255,6 @@ public:
                                         const QByteArray &stdInput,
                                         QTextCodec *outputCodec) const;
 
-    QString clientFilePath(const QString &serverFilePath);
     void annotate(const FilePath &workingDir, const QString &fileName,
                   const QString &changeList = QString(), int lineNumber = -1);
     void filelog(const FilePath &workingDir, const QString &fileName = QString(),
@@ -575,7 +574,7 @@ void PerforcePluginPrivate::revertCurrentFile()
     PerforceResponse result2 = runP4Cmd(state.currentFileTopLevel(), args,
                                         CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
     if (!result2.error)
-        emit filesChanged(QStringList(state.currentFile().toString()));
+        emit filesChanged(QStringList(state.currentFile().toUrlishString()));
 }
 
 void PerforcePluginPrivate::diffCurrentFile()
@@ -716,7 +715,7 @@ void PerforcePluginPrivate::startSubmitProject()
         cleanCommitMessageFile();
         return;
     }
-    m_commitMessageFileName = saver.filePath().toString();
+    m_commitMessageFileName = saver.filePath().toUrlishString();
 
     args.clear();
     args << QLatin1String("files");
@@ -731,7 +730,8 @@ void PerforcePluginPrivate::startSubmitProject()
     const QStringList filesLines = filesResult.stdOut.split(QLatin1Char('\n'));
     QStringList depotFileNames;
     for (const QString &line : filesLines) {
-        depotFileNames.append(line.left(line.lastIndexOf(QRegularExpression("#[0-9]+\\s-\\s"))));
+        static const QRegularExpression regexp("#[0-9]+\\s-\\s");
+        depotFileNames.append(line.left(line.lastIndexOf(regexp)));
     }
     if (depotFileNames.isEmpty()) {
         VcsOutputWindow::appendWarning(Tr::tr("Project has no files"));
@@ -785,7 +785,7 @@ void PerforcePluginPrivate::annotateCurrentFile()
 
 void PerforcePluginPrivate::annotateFile()
 {
-    const FilePath filePath = FileUtils::getOpenFilePath(nullptr, Tr::tr("p4 annotate"));
+    const FilePath filePath = FileUtils::getOpenFilePath(Tr::tr("p4 annotate"));
     if (!filePath.isEmpty())
         annotate(filePath.parentDir(), filePath.fileName());
 }
@@ -827,7 +827,7 @@ void PerforcePluginPrivate::filelogCurrentFile()
 
 void PerforcePluginPrivate::filelogFile()
 {
-    const FilePath file = FileUtils::getOpenFilePath(nullptr, Tr::tr("p4 filelog"));
+    const FilePath file = FileUtils::getOpenFilePath(Tr::tr("p4 filelog"));
     if (!file.isEmpty())
         filelog(file.parentDir(), file.fileName());
 }
@@ -956,7 +956,7 @@ bool PerforcePluginPrivate::managesDirectoryFstat(const FilePath &directory)
     bool managed = false;
     do {
         // Quick check: Must be at or below top level and not "../../other_path"
-        const QString relativeDirArgs = settings().relativeToTopLevelArguments(directory.toString());
+        const QString relativeDirArgs = settings().relativeToTopLevelArguments(directory.toUrlishString());
         if (!relativeDirArgs.isEmpty() && relativeDirArgs.startsWith(QLatin1String(".."))) {
             if (!settings().defaultEnv())
                 break;
@@ -1212,11 +1212,11 @@ PerforceResponse PerforcePluginPrivate::runP4Cmd(const FilePath &workingDir,
         VcsOutputWindow::appendError(Tr::tr("Perforce is not correctly configured."));
         return {};
     }
-    QStringList actualArgs = settings().commonP4Arguments(workingDir.toString());
+    QStringList actualArgs = settings().commonP4Arguments(workingDir.toUrlishString());
     QString errorMessage;
     std::shared_ptr<TempFileSaver> tempFile = createTemporaryArgumentFile(extraArgs, &errorMessage);
     if (tempFile)
-        actualArgs << QLatin1String("-x") << tempFile->filePath().toString();
+        actualArgs << QLatin1String("-x") << tempFile->filePath().toUrlishString();
     else if (!errorMessage.isEmpty())
         return {};
 
@@ -1415,7 +1415,7 @@ bool PerforcePluginPrivate::activateCommit()
 
     // Pipe file into p4 submit -i
     FileReader reader;
-    if (!reader.fetch(Utils::FilePath::fromString(m_commitMessageFileName), QIODevice::Text)) {
+    if (!reader.fetch(Utils::FilePath::fromString(m_commitMessageFileName))) {
         VcsOutputWindow::appendError(reader.errorString());
         return false;
     }
@@ -1424,7 +1424,7 @@ bool PerforcePluginPrivate::activateCommit()
     submitArgs << QLatin1String("submit") << QLatin1String("-i");
     const PerforceResponse submitResponse = runP4Cmd(settings().topLevelSymLinkTarget(), submitArgs,
                                                      LongTimeOut|RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow|ShowBusyCursor,
-                                                     {}, reader.data());
+                                                     {}, reader.text());
     if (submitResponse.error)
         return false;
 
@@ -1434,22 +1434,6 @@ bool PerforcePluginPrivate::activateCommit()
 
     cleanCommitMessageFile();
     return true;
-}
-
-QString PerforcePluginPrivate::clientFilePath(const QString &serverFilePath)
-{
-    QTC_ASSERT(settings().isValid(), return QString());
-
-    QStringList args;
-    args << QLatin1String("fstat") << serverFilePath;
-    const PerforceResponse response = runP4Cmd(settings().topLevelSymLinkTarget(), args,
-                                               ShowBusyCursor|RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow);
-    if (response.error)
-        return {};
-
-    const QRegularExpression r("\\.\\.\\.\\sclientFile\\s(.+?)\n");
-    const QRegularExpressionMatch match = r.match(response.stdOut);
-    return match.hasMatch() ? match.captured(1).trimmed() : QString();
 }
 
 QString PerforcePluginPrivate::pendingChangesData()
@@ -1462,7 +1446,7 @@ QString PerforcePluginPrivate::pendingChangesData()
     if (userResponse.error)
         return {};
 
-    const QRegularExpression r("User\\sname:\\s(\\S+?)\\s*?\n");
+    static const QRegularExpression r("User\\sname:\\s(\\S+?)\\s*?\n");
     QTC_ASSERT(r.isValid(), return QString());
     const QRegularExpressionMatch match = r.match(userResponse.stdOut);
     const QString user = match.hasMatch() ? match.captured(1).trimmed() : QString();
@@ -1516,7 +1500,7 @@ void PerforcePluginPrivate::setTopLevel(const FilePath &topLevel)
     if (settings().topLevel() == topLevel)
         return;
 
-    settings().setTopLevel(topLevel.toString());
+    settings().setTopLevel(topLevel.toUrlishString());
 
     const QString msg = Tr::tr("Perforce repository: %1").arg(topLevel.toUserOutput());
     VcsOutputWindow::appendSilently(msg);

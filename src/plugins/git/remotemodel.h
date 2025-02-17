@@ -42,7 +42,6 @@ public:
     int remoteCount() const;
 
     Utils::FilePath workingDirectory() const;
-    int findRemoteByName(const QString &name) const;
 
 signals:
     void refreshed();

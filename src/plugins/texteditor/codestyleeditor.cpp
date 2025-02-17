@@ -86,7 +86,7 @@ CodeStyleEditor::CodeStyleEditor(ICodeStylePreferencesFactory *factory,
         indenter->setFileName(fileName);
         m_preview->textDocument()->setIndenter(indenter);
     } else {
-        m_preview->setCodeStyle(codeStyle);
+        m_preview->textDocument()->setCodeStyle(codeStyle);
     }
 
     updatePreview();

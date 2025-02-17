@@ -314,8 +314,8 @@ static void updateCMakeConfigurationWithLocalData(CMakeConfig &cmakeCache,
         return var == "CMAKE_PREFIX_PATH" || var == "CMAKE_MODULE_PATH";
     };
 
-    const FilePath projectDir = ProjectTree::currentBuildSystem()
-                                    ? ProjectTree::currentBuildSystem()->projectDirectory()
+    const FilePath projectDir = activeBuildSystemForCurrentProject()
+                                    ? activeBuildSystemForCurrentProject()->projectDirectory()
                                     : currentDir;
     auto updateDirVariables = [currentDir, projectDir, cmakeCache](QByteArray &value) {
         value.replace("${CMAKE_CURRENT_SOURCE_DIR}", currentDir.path().toUtf8());
@@ -457,7 +457,7 @@ PerformInputDataPtr CMakeFileCompletionAssist::generatePerformInputData() const
             data->keywords = tool->keywords();
     }
 
-    if (auto bs = qobject_cast<CMakeBuildSystem *>(ProjectTree::currentBuildSystem())) {
+    if (auto bs = qobject_cast<CMakeBuildSystem *>(activeBuildSystemForCurrentProject())) {
         for (const auto &target : std::as_const(bs->buildTargets()))
             if (target.targetType != TargetType::UtilityType)
                 data->buildTargets << target.title;

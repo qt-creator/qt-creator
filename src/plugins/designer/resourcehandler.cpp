@@ -84,7 +84,7 @@ void ResourceHandler::updateResourcesHelper(bool updateProjectResources)
         // Find the (sub-)project the file belongs to. We don't want to find resources
         // from other parts of the project tree, e.g. via a qmake subdirs project.
         Node * const fileNode = project->rootProjectNode()->findNode([&fileName](const Node *n) {
-            return n->filePath().toString() == fileName;
+            return n->filePath().toUrlishString() == fileName;
         });
         ProjectNode *projectNodeForUiFile = nullptr;
         if (fileNode) {
@@ -111,10 +111,10 @@ void ResourceHandler::updateResourcesHelper(bool updateProjectResources)
         QStringList projectQrcFiles;
         project->rootProjectNode()->forEachNode([&](FileNode *node) {
             if (node->fileType() == FileType::Resource && useQrcFile(node))
-                projectQrcFiles.append(node->filePath().toString());
+                projectQrcFiles.append(node->filePath().toUrlishString());
         }, [&](FolderNode *node) {
             if (dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(node) && useQrcFile(node))
-                projectQrcFiles.append(node->filePath().toString());
+                projectQrcFiles.append(node->filePath().toUrlishString());
         });
         // Check if the user has chosen to update the lacking resource inside designer
         if (dirty && updateProjectResources) {

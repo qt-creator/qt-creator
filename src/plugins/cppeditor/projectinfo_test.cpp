@@ -115,7 +115,7 @@ void ProjectPartChooserTest::testChooseManuallySet()
     rpp2.setProjectFileLocation("someId");
     ProjectPart::ConstPtr p2 = ProjectPart::create({}, rpp2);
     ProjectPartChooserTestHelper t;
-    t.preferredProjectPartId = p2->projectFile.toString();
+    t.preferredProjectPartId = p2->projectFile.toUrlishString();
     t.projectPartsForFile += {p1, p2};
 
     QCOMPARE(t.choose().projectPart, p2);
@@ -128,7 +128,7 @@ void ProjectPartChooserTest::testIndicateManuallySet()
     rpp2.setProjectFileLocation("someId");
     ProjectPart::ConstPtr p2 = ProjectPart::create({}, rpp2);
     ProjectPartChooserTestHelper t;
-    t.preferredProjectPartId = p2->projectFile.toString();
+    t.preferredProjectPartId = p2->projectFile.toUrlishString();
     t.projectPartsForFile += {p1, p2};
 
     QVERIFY(t.choose().hints & ProjectPartInfo::IsPreferredMatch);
@@ -141,7 +141,7 @@ void ProjectPartChooserTest::testIndicateManuallySetForFallbackToProjectPartFrom
     rpp2.setProjectFileLocation("someId");
     ProjectPart::ConstPtr p2 = ProjectPart::create({}, rpp2);
     ProjectPartChooserTestHelper t;
-    t.preferredProjectPartId = p2->projectFile.toString();
+    t.preferredProjectPartId = p2->projectFile.toUrlishString();
     t.projectPartsFromDependenciesForFile += {p1, p2};
 
     QVERIFY(t.choose().hints & ProjectPartInfo::IsPreferredMatch);

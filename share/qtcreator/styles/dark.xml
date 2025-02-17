@@ -70,4 +70,6 @@
   <style name="LogCommitHash" foreground="#ff0000"/>
   <style name="LogCommitSubject" foreground="#d6cf9a"/>
   <style name="LogDecoration" foreground="#ff00ff"/>
+  <style name="Info" underlineColor="#b6aef1" underlineStyle="DashUnderline"/>
+  <style name="InfoContext" underlineColor="#b6aef1" underlineStyle="DotLine"/>
 </style-scheme>

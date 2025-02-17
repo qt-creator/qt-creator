@@ -121,6 +121,8 @@ public:
     bool isLocationMarker() const;
     void setIsLocationMarker(bool newIsLocationMarker);
 
+    Qt::TextFormat annotationTextFormat() const;
+    void setAnnotationTextFormat(Qt::TextFormat newTextFormat);
 
 protected:
     void setSettingsPage(Utils::Id settingsPage);
@@ -140,6 +142,7 @@ private:
     std::optional<Utils::Theme::Color> m_color;
     bool m_visible = false;
     TextMarkCategory m_category;
+    Qt::TextFormat m_annotationTextFormat = Qt::AutoText;
     QString m_lineAnnotation;
     mutable QStaticText m_staticAnnotationText;
     QString m_toolTip;

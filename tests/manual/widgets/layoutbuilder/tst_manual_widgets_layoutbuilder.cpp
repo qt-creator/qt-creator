@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     auto lineEdit = new QLineEdit("0");
 
     auto minusClick = [lineEdit] {
-        lineEdit->setText(QString::number(lineEdit->text().toInt() + 1));
+        lineEdit->setText(QString::number(lineEdit->text().toInt() - 1));
     };
 
     auto plusClick = [lineEdit] {
@@ -24,9 +24,9 @@ int main(int argc, char *argv[])
     };
 
     Row {
-        PushButton { text("-"), onClicked(minusClick, qApp) },
+        PushButton { text("-"), onClicked(qApp, minusClick) },
         lineEdit,
-        PushButton { text("+"), onClicked(plusClick, qApp) },
+        PushButton { text("+"), onClicked(qApp, plusClick) },
         Group {
             title("Splitter in Group"),
             Column {

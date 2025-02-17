@@ -38,7 +38,7 @@ void SquishXmlOutputHandler::mergeResultFiles(const Utils::FilePaths &reportFile
                                               const QString &suiteName,
                                               QString *error)
 {
-    QFile resultsXML(resultsDirectory.pathAppended("results.xml").toString());
+    QFile resultsXML(resultsDirectory.pathAppended("results.xml").toUrlishString());
     if (resultsXML.exists()) {
         if (error)
             *error = Tr::tr("Could not merge results into single results.xml.\n"
@@ -61,7 +61,7 @@ void SquishXmlOutputHandler::mergeResultFiles(const Utils::FilePaths &reportFile
     bool isFirstTest = true;
     QString lastEpilogTime;
     for (const Utils::FilePath &caseResult : reportFiles) {
-        QFile currentResultsFile(caseResult.toString());
+        QFile currentResultsFile(caseResult.toUrlishString());
         if (!currentResultsFile.exists())
             continue;
         if (!currentResultsFile.open(QFile::ReadOnly))

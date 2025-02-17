@@ -386,7 +386,7 @@ QString TextureEditorView::textureEditorResourcesPath()
     if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/textureEditorQmlSource";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/textureEditorQmlSource").toString();
+    return Core::ICore::resourcePath("qmldesigner/textureEditorQmlSource").toUrlishString();
 }
 
 void TextureEditorView::applyTextureToSelectedModel(const ModelNode &texture)

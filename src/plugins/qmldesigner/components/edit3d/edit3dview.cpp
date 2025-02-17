@@ -275,7 +275,7 @@ void Edit3DView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
 
-    QString currProjectPath = QmlDesigner::DocumentManager::currentProjectDirPath().toString();
+    QString currProjectPath = QmlDesigner::DocumentManager::currentProjectDirPath().toUrlishString();
     if (m_currProjectPath != currProjectPath) {
         // Opening a new project -> reset camera speeds
         m_currProjectPath = currProjectPath;

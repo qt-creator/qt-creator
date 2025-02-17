@@ -181,9 +181,7 @@ public:
     {
         setId(Constants::Settings::GENERAL_ID);
         setDisplayName(::CMakeProjectManager::Tr::tr("General"));
-        setDisplayCategory("CMake");
         setCategory(Constants::Settings::CATEGORY);
-        setCategoryIconPath(Constants::Icons::SETTINGS_CATEGORY);
         setSettingsProvider([] { return &settings(nullptr); });
     }
 };

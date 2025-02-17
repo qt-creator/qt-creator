@@ -133,6 +133,8 @@ private slots:
 
 void tst_Tasking::validConstructs()
 {
+    const DoneResult result = DoneResult::Success;
+
     const Group task {
         parallel,
         TestTask([](TaskObject &) {}, [](const TaskObject &, DoneWith) {}),
@@ -146,6 +148,8 @@ void tst_Tasking::validConstructs()
         TestTask({}, [](DoneWith) {}),
         TestTask({}, [] {}),
         TestTask({}, {}),
+        TestTask({}, DoneResult::Error),
+        TestTask({}, result),
         TestTask({})
     };
 
@@ -3007,6 +3011,25 @@ void tst_Tasking::testTree_data()
         };
         QTest::newRow("ProgressWithNestedGroupSetupFalse")
             << TestData{storage, root, {}, 1, DoneWith::Success, 0};
+    }
+
+    {
+        class CustomTaskAdapter : public TaskAdapter<bool> // bool is dummy
+        {
+        private:
+            void start() final { emit done(DoneResult::Error); }
+        };
+
+        using CustomTask = CustomTask<CustomTaskAdapter>;
+
+        // Check if progress is updated correctly on error when the 1st task finishes synchonously.
+        const Group root {
+            storage,
+            CustomTask(),
+            createSuccessTask(1)
+        };
+        QTest::newRow("ProgressOnSynchronousError")
+            << TestData{storage, root, {}, 2, DoneWith::Error, 0};
     }
 
     {

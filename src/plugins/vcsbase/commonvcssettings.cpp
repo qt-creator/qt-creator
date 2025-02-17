@@ -101,7 +101,7 @@ CommonVcsSettings::CommonVcsSettings()
                     text(Tr::tr("Reset VCS Cache")),
                     Layouting::toolTip(Tr::tr("Reset information about which "
                                               "version control system handles which directory.")),
-                    onClicked(&VcsManager::clearVersionControlCache, this)
+                    onClicked(this, &VcsManager::clearVersionControlCache)
                 }
             }
         };
@@ -129,9 +129,6 @@ public:
         setId(Constants::VCS_COMMON_SETTINGS_ID);
         setDisplayName(Tr::tr("General"));
         setCategory(Constants::VCS_SETTINGS_CATEGORY);
-        // The following act as blueprint for other pages in the same category:
-        setDisplayCategory(Tr::tr("Version Control"));
-        setCategoryIconPath(":/vcsbase/images/settingscategory_vcs.png");
         setSettingsProvider([] { return &commonSettings(); });
     }
 };

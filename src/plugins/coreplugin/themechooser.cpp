@@ -13,8 +13,6 @@
 
 #include <QAbstractListModel>
 #include <QComboBox>
-#include <QCoreApplication>
-#include <QDebug>
 #include <QDir>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -23,16 +21,14 @@
 
 using namespace Utils;
 
-static const char themeNameKey[] = "ThemeName";
+namespace Core::Internal {
 
-namespace Core {
-namespace Internal {
+const char themeNameKey[] = "ThemeName";
 
 ThemeEntry::ThemeEntry(Id id, const QString &filePath)
     : m_id(id)
     , m_filePath(filePath)
-{
-}
+{}
 
 Id ThemeEntry::id() const
 {
@@ -54,20 +50,17 @@ QString ThemeEntry::filePath() const
     return m_filePath;
 }
 
-class ThemeListModel : public QAbstractListModel
+class ThemeListModel final : public QAbstractListModel
 {
 public:
-    ThemeListModel(QObject *parent = nullptr):
-        QAbstractListModel(parent)
-    {
-    }
+    ThemeListModel() = default;
 
-    int rowCount(const QModelIndex &parent) const override
+    int rowCount(const QModelIndex &parent) const final
     {
         return parent.isValid() ? 0 : m_themes.size();
     }
 
-    QVariant data(const QModelIndex &index, int role) const override
+    QVariant data(const QModelIndex &index, int role) const final
     {
         if (role == Qt::DisplayRole)
             return m_themes.at(index.row()).displayName();
@@ -97,48 +90,32 @@ private:
     QList<ThemeEntry> m_themes;
 };
 
-
 class ThemeChooserPrivate
 {
 public:
-    ThemeChooserPrivate(QWidget *widget);
-    ~ThemeChooserPrivate();
-
-public:
-    ThemeListModel *m_themeListModel;
+    ThemeListModel m_themeListModel;
     QComboBox *m_themeComboBox;
 };
 
-ThemeChooserPrivate::ThemeChooserPrivate(QWidget *widget)
-    : m_themeListModel(new ThemeListModel)
-    , m_themeComboBox(new QComboBox)
+ThemeChooser::ThemeChooser()
+   : d(new ThemeChooserPrivate)
 {
-    auto layout = new QHBoxLayout(widget);
-    layout->addWidget(m_themeComboBox);
-    auto overriddenLabel = new QLabel;
-    overriddenLabel->setText(Tr::tr("Current theme: %1").arg(creatorTheme()->displayName()));
-    layout->addWidget(overriddenLabel);
-    layout->setContentsMargins(0, 0, 0, 0);
-    auto horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    layout->addSpacerItem(horizontalSpacer);
-    m_themeComboBox->setModel(m_themeListModel);
+    d->m_themeComboBox = new QComboBox;
+
     const QList<ThemeEntry> themes = ThemeEntry::availableThemes();
-    const Id themeSetting = ThemeEntry::themeSetting();
-    const int selected = Utils::indexOf(themes, Utils::equal(&ThemeEntry::id, themeSetting));
-    m_themeListModel->setThemes(themes);
+    d->m_themeListModel.setThemes(themes);
+
+    d->m_themeComboBox->setModel(&d->m_themeListModel);
+    const int selected =
+            Utils::indexOf(themes, Utils::equal(&ThemeEntry::id, ThemeEntry::themeSetting()));
     if (selected >= 0)
-        m_themeComboBox->setCurrentIndex(selected);
-}
+        d->m_themeComboBox->setCurrentIndex(selected);
 
-ThemeChooserPrivate::~ThemeChooserPrivate()
-{
-    delete m_themeListModel;
-}
-
-ThemeChooser::ThemeChooser(QWidget *parent) :
-    QWidget(parent)
-{
-    d = new ThemeChooserPrivate(this);
+    auto layout = new QHBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(d->m_themeComboBox);
+    layout->addWidget(new QLabel(Tr::tr("Current theme: %1").arg(creatorTheme()->displayName())));
+    layout->addSpacerItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
 }
 
 ThemeChooser::~ThemeChooser()
@@ -148,8 +125,14 @@ ThemeChooser::~ThemeChooser()
 
 static QString defaultThemeId()
 {
-    return Theme::systemUsesDarkMode() ? QString(Constants::DEFAULT_DARK_THEME)
-                                       : QString(Constants::DEFAULT_THEME);
+    switch (Theme::systemColorScheme()) {
+    case Qt::ColorScheme::Light:
+        return QString("flat");
+    case Qt::ColorScheme::Dark:
+        return QString("flat-dark");
+    default:
+        return QString("flat");
+    }
 }
 
 void ThemeChooser::apply()
@@ -157,7 +140,7 @@ void ThemeChooser::apply()
     const int index = d->m_themeComboBox->currentIndex();
     if (index == -1)
         return;
-    const QString themeId = d->m_themeListModel->themeAt(index).id().toString();
+    const QString themeId = d->m_themeListModel.themeAt(index).id().toString();
     QtcSettings *settings = ICore::settings();
     const QString currentThemeId = ThemeEntry::themeSetting().toString();
     if (currentThemeId != themeId) {
@@ -188,7 +171,7 @@ QList<ThemeEntry> ThemeEntry::availableThemes()
 
     static const FilePath installThemeDir = ICore::resourcePath("themes");
     static const FilePath userThemeDir = ICore::userResourcePath("themes");
-    addThemesFromPath(installThemeDir.toString(), &themes);
+    addThemesFromPath(installThemeDir.toUrlishString(), &themes);
     if (themes.isEmpty())
         qWarning() << "Warning: No themes found in installation: "
                    << installThemeDir.toUserOutput();
@@ -199,7 +182,7 @@ QList<ThemeEntry> ThemeEntry::availableThemes()
         ThemeEntry defaultEntry = themes.takeAt(defaultIndex);
         themes.prepend(defaultEntry);
     }
-    addThemesFromPath(userThemeDir.toString(), &themes);
+    addThemesFromPath(userThemeDir.toUrlishString(), &themes);
     return themes;
 }
 
@@ -230,5 +213,4 @@ Theme *ThemeEntry::createTheme(Id id)
     return theme;
 }
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

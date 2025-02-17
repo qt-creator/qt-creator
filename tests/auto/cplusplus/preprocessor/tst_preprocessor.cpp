@@ -164,7 +164,7 @@ public:
     {
         Q_UNUSED(initialIncludes)
 #if 1
-        m_recordedIncludes.append(Include(includedFileName.toString(), mode, line));
+        m_recordedIncludes.append(Include(includedFileName.toUrlishString(), mode, line));
         Q_UNUSED(m_env)
         Q_UNUSED(m_includeDepth)
 #else

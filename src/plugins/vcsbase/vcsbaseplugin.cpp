@@ -38,7 +38,6 @@ using namespace ProjectExplorer;
 
 namespace {
 static Q_LOGGING_CATEGORY(baseLog, "qtc.vcs.base", QtWarningMsg)
-static Q_LOGGING_CATEGORY(findRepoLog, "qtc.vcs.find-repo", QtWarningMsg)
 static Q_LOGGING_CATEGORY(stateLog, "qtc.vcs.state", QtWarningMsg)
 }
 
@@ -386,7 +385,7 @@ QString VcsBasePluginState::relativeCurrentFile() const
 
 QString VcsBasePluginState::currentPatchFile() const
 {
-    return data->m_state.currentPatchFile.toString();
+    return data->m_state.currentPatchFile.toUrlishString();
 }
 
 QString VcsBasePluginState::currentPatchFileDisplayName() const
@@ -412,7 +411,7 @@ FilePath VcsBasePluginState::currentProjectTopLevel() const
 QString VcsBasePluginState::relativeCurrentProject() const
 {
     QTC_ASSERT(hasProject(), return QString());
-    return data->m_state.currentProjectPath.relativeChildPath(data->m_state.currentProjectTopLevel).toString();
+    return data->m_state.currentProjectPath.relativeChildPath(data->m_state.currentProjectTopLevel).toUrlishString();
 }
 
 bool VcsBasePluginState::hasTopLevel() const
@@ -659,7 +658,7 @@ void VersionControlBase::createRepository()
     // Prompt for a directory that is not under version control yet
     QWidget *mw = ICore::dialogParent();
     do {
-        directory = FileUtils::getExistingDirectory(nullptr, Tr::tr("Choose Repository Directory"), directory);
+        directory = FileUtils::getExistingDirectory(Tr::tr("Choose Repository Directory"), directory);
         if (directory.isEmpty())
             return;
         const IVersionControl *managingControl = VcsManager::findVersionControlForDirectory(directory);
@@ -706,37 +705,6 @@ bool VersionControlBase::raiseSubmitEditor() const
 
 void VersionControlBase::discardCommit()
 {
-}
-
-// Find top level for version controls like git/Mercurial that have
-// a directory at the top of the repository.
-// Note that checking for the existence of files is preferred over directories
-// since checking for directories can cause them to be created when
-// AutoFS is used (due its automatically creating mountpoints when querying
-// a directory). In addition, bail out when reaching the home directory
-// of the user or root (generally avoid '/', where mountpoints are created).
-FilePath findRepositoryForFile(const FilePath &fileOrDir, const QString &checkFile)
-{
-    const FilePath dirS = fileOrDir.isDir() ? fileOrDir : fileOrDir.parentDir();
-    qCDebug(findRepoLog) << ">" << dirS << checkFile;
-    QTC_ASSERT(!dirS.isEmpty() && !checkFile.isEmpty(), return {});
-
-    const QString root = QDir::rootPath();
-    const QString home = QDir::homePath();
-
-    QDir directory(dirS.toString());
-    do {
-        const QString absDirPath = directory.absolutePath();
-        if (absDirPath == root || absDirPath == home)
-            break;
-
-        if (QFileInfo(directory, checkFile).isFile()) {
-            qCDebug(findRepoLog) << "<" << absDirPath;
-            return FilePath::fromString(absDirPath);
-        }
-    } while (!directory.isRoot() && directory.cdUp());
-    qCDebug(findRepoLog) << "< bailing out at" << directory.absolutePath();
-    return {};
 }
 
 static const char SOURCE_PROPERTY[] = "qtcreator_source";

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <projectexplorer/devicesupport/idevicefwd.h>
+#include <projectexplorer/task.h>
 #include <utils/filepath.h>
 
 #include <QHash>
@@ -45,6 +47,7 @@ public:
 
     QString toString() const;
     bool hasError() const { return !items.isEmpty(); }
+    void generateTasks(ProjectExplorer::Task::TaskType type) const;
 
     QList<ErrorInfoItem> items;
 };
@@ -93,13 +96,14 @@ public:
     const Utils::FilePath filePath;
     const int line;
 };
-Location locationFromObject(const QJsonObject &o); // Project, Product or Group
+// Project, Product or Group
+Location locationFromObject(const QJsonObject &o, const Utils::FilePath &projectDir);
 
 class QbsSession : public QObject
 {
     Q_OBJECT
 public:
-    explicit QbsSession(QbsBuildSystem *buildSystem);
+    explicit QbsSession(QbsBuildSystem *buildSystem, const ProjectExplorer::IDeviceConstPtr &device);
     ~QbsSession() override;
 
     enum class State { Initializing, Active, Inactive };

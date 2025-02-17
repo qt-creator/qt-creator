@@ -15,7 +15,6 @@
 #include "qmakestep.h"
 #include "wizards/subdirsprojectwizard.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -348,7 +347,7 @@ void QmakeProjectManagerPluginPrivate::addLibraryImpl(const FilePath &filePath, 
     if (filePath.isEmpty())
         return;
 
-    Internal::AddLibraryWizard wizard(filePath, Core::ICore::dialogParent());
+    Internal::AddLibraryWizard wizard(filePath);
     if (wizard.exec() != QDialog::Accepted)
         return;
 
@@ -388,10 +387,10 @@ void QmakeProjectManagerPluginPrivate::runQMakeImpl(Project *p, Node *node)
     auto *qmakeProject = qobject_cast<QmakeProject *>(p);
     QTC_ASSERT(qmakeProject, return);
 
-    if (!qmakeProject->activeTarget() || !qmakeProject->activeTarget()->activeBuildConfiguration())
+    if (!qmakeProject->activeBuildConfiguration())
         return;
 
-    auto *bc = static_cast<QmakeBuildConfiguration *>(qmakeProject->activeTarget()->activeBuildConfiguration());
+    auto *bc = static_cast<QmakeBuildConfiguration *>(qmakeProject->activeBuildConfiguration());
     QMakeStep *qs = bc->qmakeStep();
     if (!qs)
         return;
@@ -418,15 +417,10 @@ void QmakeProjectManagerPluginPrivate::buildFile()
     FileNode *node  = n ? n->asFileNode() : nullptr;
     if (!node)
         return;
-    Project *project = ProjectManager::projectForFile(file);
-    if (!project)
-        return;
-    Target *target = project->activeTarget();
-    if (!target)
-        return;
-
-    if (auto bs = qobject_cast<QmakeBuildSystem *>(target->buildSystem()))
+    if (auto bs = qobject_cast<QmakeBuildSystem *>(
+            activeBuildSystem(ProjectManager::projectForFile(file)))) {
         bs->buildHelper(QmakeBuildSystem::BUILD, true, buildableFileProFile(node), node);
+    }
 }
 
 void QmakeProjectManagerPluginPrivate::handleSubDirContextMenu(QmakeBuildSystem::Action action, bool isFileBuild)
@@ -438,7 +432,7 @@ void QmakeProjectManagerPluginPrivate::handleSubDirContextMenu(QmakeBuildSystem:
     bool buildFilePossible = subProjectNode && fileNode && fileNode->fileType() == FileType::Source;
     FileNode *buildableFileNode = buildFilePossible ? fileNode : nullptr;
 
-    if (auto bs = qobject_cast<QmakeBuildSystem *>(ProjectTree::currentBuildSystem()))
+    if (auto bs = qobject_cast<QmakeBuildSystem *>(activeBuildSystemForCurrentProject()))
         bs->buildHelper(action, isFileBuild, subProjectNode, buildableFileNode);
 }
 
@@ -473,10 +467,7 @@ void QmakeProjectManagerPluginPrivate::updateRunQMakeAction()
         enable = false;
     auto pro = qobject_cast<QmakeProject *>(m_previousStartupProject);
     m_runQMakeAction->setVisible(pro);
-    if (!pro
-            || !pro->rootProjectNode()
-            || !pro->activeTarget()
-            || !pro->activeTarget()->activeBuildConfiguration())
+    if (!pro || !pro->rootProjectNode() || !pro->activeBuildConfiguration())
         enable = false;
 
     m_runQMakeAction->setEnabled(enable);
@@ -516,8 +507,8 @@ void QmakeProjectManagerPluginPrivate::updateContextActions(Node *node)
     m_buildSubProjectAction->setParameter(subProjectName);
     m_buildSubProjectContextMenu->setParameter(proFileNode ? proFileNode->displayName() : QString());
 
-    auto buildConfiguration = (qmakeProject && qmakeProject->activeTarget()) ?
-                static_cast<QmakeBuildConfiguration *>(qmakeProject->activeTarget()->activeBuildConfiguration()) : nullptr;
+    auto buildConfiguration = static_cast<QmakeBuildConfiguration *>(
+        activeBuildConfig(qmakeProject));
     bool isProjectNode = qmakeProject && proFileNode && buildConfiguration;
     bool isBuilding = BuildManager::isBuilding(project);
     bool enabled = subProjectActionsVisible && !isBuilding;

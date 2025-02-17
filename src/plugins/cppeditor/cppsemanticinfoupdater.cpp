@@ -83,7 +83,7 @@ static std::optional<SemanticInfo> canReuseSemanticInfo(
             && currentSemanticInfo.revision == source.revision
             && currentSemanticInfo.doc
             && currentSemanticInfo.doc->translationUnit()->ast()
-            && currentSemanticInfo.doc->filePath().toString() == source.fileName
+            && currentSemanticInfo.doc->filePath().toUrlishString() == source.fileName
             && !currentSemanticInfo.snapshot.isEmpty()
             && currentSemanticInfo.snapshot == source.snapshot) {
         SemanticInfo newSemanticInfo;

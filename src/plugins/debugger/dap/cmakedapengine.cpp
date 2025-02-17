@@ -114,7 +114,7 @@ void CMakeDapEngine::setupEngine()
     QTC_ASSERT(state() == EngineSetupRequested, qCDebug(logCategory()) << state());
 
     qCDebug(logCategory()) << "build system name"
-                           << ProjectExplorer::ProjectTree::currentBuildSystem()->name();
+                           << ProjectExplorer::activeBuildSystemForCurrentProject()->name();
 
     IDataProvider *dataProvider;
     if (TemporaryDirectory::masterDirectoryFilePath().osType() == Utils::OsType::OsTypeWindows) {
@@ -127,12 +127,12 @@ void CMakeDapEngine::setupEngine()
     m_dapClient = new CMakeDapClient(dataProvider, this);
     connectDataGeneratorSignals();
 
-    connect(ProjectExplorer::ProjectTree::currentBuildSystem(),
+    connect(ProjectExplorer::activeBuildSystemForCurrentProject(),
             &ProjectExplorer::BuildSystem::debuggingStarted,
             this,
             [this] { m_dapClient->dataProvider()->start(); });
 
-    ProjectExplorer::ProjectTree::currentBuildSystem()->requestDebugging();
+    ProjectExplorer::activeBuildSystemForCurrentProject()->requestDebugging();
 
     QTimer::singleShot(5000, this, [this] {
         if (!m_dapClient->dataProvider()->isRunning()) {

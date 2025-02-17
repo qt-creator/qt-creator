@@ -97,7 +97,6 @@ class SplashScreenWidget : public QWidget
     };
 
 public:
-    explicit SplashScreenWidget(QWidget *parent) : QWidget(parent) {}
     SplashScreenWidget(QWidget *parent,
                        const QSize &size,
                        const QSize &screenSize,
@@ -254,7 +253,7 @@ void SplashScreenWidget::setImageFromPath(const FilePath &imagePath, bool resize
 
 void SplashScreenWidget::selectImage()
 {
-    const FilePath file = FileUtils::getOpenFilePath(this, m_imageSelectionText,
+    const FilePath file = FileUtils::getOpenFilePath(m_imageSelectionText,
                                                      FileUtils::homePath(),
                                                      QStringLiteral("%1 (*.png *.jpg *.jpeg)")
                                                      .arg(Tr::tr("Images")));
@@ -589,7 +588,7 @@ SplashScreenContainerWidget::SplashScreenContainerWidget(
         }
     });
     connect(m_masterImage, &QToolButton::clicked, this, [this] {
-        const FilePath file = FileUtils::getOpenFilePath(this, Tr::tr("Select master image"),
+        const FilePath file = FileUtils::getOpenFilePath(Tr::tr("Select master image"),
                                                          FileUtils::homePath(), fileDialogImageFiles);
         if (!file.isEmpty()) {
             for (auto &&imageWidget : m_imageWidgets)
@@ -599,7 +598,7 @@ SplashScreenContainerWidget::SplashScreenContainerWidget(
         }
     });
     connect(m_portraitMasterImage, &QToolButton::clicked, this, [this] {
-        const FilePath file = FileUtils::getOpenFilePath(this, Tr::tr("Select portrait master image"),
+        const FilePath file = FileUtils::getOpenFilePath(Tr::tr("Select portrait master image"),
                                                          FileUtils::homePath(), fileDialogImageFiles);
         if (!file.isEmpty()) {
             for (auto &&imageWidget : m_portraitImageWidgets)
@@ -609,7 +608,7 @@ SplashScreenContainerWidget::SplashScreenContainerWidget(
         }
     });
     connect(m_landscapeMasterImage, &QToolButton::clicked, this, [this] {
-        const FilePath file = FileUtils::getOpenFilePath(this, Tr::tr("Select landscape master image"),
+        const FilePath file = FileUtils::getOpenFilePath(Tr::tr("Select landscape master image"),
                                                          FileUtils::homePath(), fileDialogImageFiles);
         if (!file.isEmpty()) {
             for (auto &&imageWidget : m_landscapeImageWidgets)

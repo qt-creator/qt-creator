@@ -4,10 +4,10 @@
 #include "devicecheckbuildstep.h"
 
 #include "../buildstep.h"
-#include "../kitaspects.h"
 #include "../projectexplorerconstants.h"
 #include "../projectexplorertr.h"
 
+#include "devicekitaspects.h"
 #include "devicemanager.h"
 #include "idevicefactory.h"
 
@@ -28,11 +28,11 @@ public:
 
     bool init() final
     {
-        IDevice::ConstPtr device = DeviceKitAspect::device(kit());
+        IDevice::ConstPtr device = RunDeviceKitAspect::device(kit());
         if (device)
             return true;
 
-        Utils::Id deviceTypeId = DeviceTypeKitAspect::deviceTypeId(kit());
+        Utils::Id deviceTypeId = RunDeviceTypeKitAspect::deviceTypeId(kit());
         IDeviceFactory *factory = IDeviceFactory::find(deviceTypeId);
         if (!factory || !factory->canCreate()) {
             emit addOutput(Tr::tr("No device configured."), OutputFormat::ErrorMessage);
@@ -56,7 +56,7 @@ public:
 
         DeviceManager *dm = DeviceManager::instance();
         dm->addDevice(newDevice);
-        DeviceKitAspect::setDevice(kit(), newDevice);
+        RunDeviceKitAspect::setDevice(kit(), newDevice);
         return true;
     }
 

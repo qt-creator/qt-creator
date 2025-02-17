@@ -152,12 +152,12 @@ Import3dDialog::Import3dDialog(
             importPaths = model->importPaths();
     }
 
-    QString targetDir = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString();
+    QString targetDir = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toUrlishString();
     if (targetDir.isEmpty())
         targetDir = defaulTargetDirectory;
 
     m_quick3DImportPath = QmlDesignerPlugin::instance()->documentManager()
-                              .generatedComponentUtils().import3dBasePath().toString();
+                              .generatedComponentUtils().import3dBasePath().toUrlishString();
 
     if (!m_quick3DFiles.isEmpty()) {
         QVector<QJsonObject> groups;
@@ -342,7 +342,7 @@ void Import3dDialog::updateImport(AbstractView *view,
                                     = ProjectExplorer::ProjectManager::projectForFile(
                                         Utils::FilePath::fromString(compFileName));
                             if (currentProject)
-                                initialPath = currentProject->projectDirectory().toString();
+                                initialPath = currentProject->projectDirectory().toUrlishString();
                             else
                                 initialPath = compFileInfo.absolutePath();
                             QStringList selectedFiles = QFileDialog::getOpenFileNames(

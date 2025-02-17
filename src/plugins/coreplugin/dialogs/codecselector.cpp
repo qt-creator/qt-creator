@@ -4,6 +4,7 @@
 #include "codecselector.h"
 
 #include "../coreplugintr.h"
+#include "../icore.h"
 #include "../textdocument.h"
 
 #include <utils/algorithm.h>
@@ -16,6 +17,7 @@
 #include <QLabel>
 #include <QListWidget>
 #include <QPushButton>
+#include <QTextCodec>
 #include <QScrollBar>
 #include <QVBoxLayout>
 
@@ -25,10 +27,9 @@ namespace Internal {
 class CodecSelector : public QDialog
 {
 public:
-    CodecSelector(QWidget *parent, Core::BaseTextDocument *doc);
-    ~CodecSelector() override;
+    explicit CodecSelector(BaseTextDocument *doc);
 
-    QTextCodec *selectedCodec() const;
+    QByteArray selectedCodec() const;
 
 private:
     void updateButtons();
@@ -55,8 +56,8 @@ public:
     }
 };
 
-CodecSelector::CodecSelector(QWidget *parent, Core::BaseTextDocument *doc)
-    : QDialog(parent)
+CodecSelector::CodecSelector(BaseTextDocument *doc)
+    : QDialog(ICore::dialogParent())
 {
     m_hasDecodingError = doc->hasDecodingError();
     m_isModified = doc->isModified();
@@ -91,7 +92,7 @@ CodecSelector::CodecSelector(QWidget *parent, Core::BaseTextDocument *doc)
     int currentIndex = -1;
     for (const int mib : std::as_const(sortedMibs)) {
         QTextCodec *c = QTextCodec::codecForMib(mib);
-        if (!doc->supportsCodec(c))
+        if (!doc->supportsCodec(c ? c->name() : QByteArray()))
             continue;
         if (!buf.isEmpty()) {
 
@@ -133,8 +134,6 @@ CodecSelector::CodecSelector(QWidget *parent, Core::BaseTextDocument *doc)
     updateButtons();
 }
 
-CodecSelector::~CodecSelector() = default;
-
 void CodecSelector::updateButtons()
 {
     bool hasCodec = (selectedCodec() != nullptr);
@@ -142,17 +141,17 @@ void CodecSelector::updateButtons()
     m_saveButton->setEnabled(!m_hasDecodingError && hasCodec);
 }
 
-QTextCodec *CodecSelector::selectedCodec() const
+QByteArray CodecSelector::selectedCodec() const
 {
     if (QListWidgetItem *item = m_listWidget->currentItem()) {
         if (!item->isSelected())
-            return nullptr;
+            return {};
         QString codecName = item->text();
         if (codecName.contains(QLatin1String(" / ")))
             codecName = codecName.left(codecName.indexOf(QLatin1String(" / ")));
-        return QTextCodec::codecForName(codecName.toLatin1());
+        return codecName.toLatin1();
     }
-    return nullptr;
+    return {};
 }
 
 void CodecSelector::buttonClicked(QAbstractButton *button)
@@ -167,9 +166,9 @@ void CodecSelector::buttonClicked(QAbstractButton *button)
 
 } // namespace Internal
 
-CodecSelectorResult askForCodec(QWidget *parent, BaseTextDocument *doc)
+CodecSelectorResult askForCodec(BaseTextDocument *doc)
 {
-    Internal::CodecSelector dialog(parent, doc);
+    Internal::CodecSelector dialog(doc);
     const CodecSelectorResult::Action result = CodecSelectorResult::Action(dialog.exec());
     return {result, dialog.selectedCodec()};
 }

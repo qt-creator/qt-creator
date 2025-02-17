@@ -21,7 +21,7 @@ public:
     AndroidDevice();
 
     static IDevice::Ptr create();
-    static AndroidDeviceInfo androidDeviceInfoFromIDevice(const IDevice *dev);
+    static AndroidDeviceInfo androidDeviceInfoFromDevice(const IDevice::ConstPtr &dev);
 
     static Utils::Id idFromDeviceInfo(const AndroidDeviceInfo &info);
     static Utils::Id idFromAvdInfo(const CreateAvdInfo &info);
@@ -58,7 +58,8 @@ private:
     ProjectExplorer::IDeviceWidget *createWidget() override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
-    ProjectExplorer::PortsGatheringMethod portsGatheringMethod() const override;
+    Tasking::ExecutableItem portsGatheringRecipe(
+        const Tasking::Storage<Utils::PortsOutputData> &output) const override;
 
     QSettings *avdSettings() const;
     void initAvdSettings();
@@ -73,6 +74,6 @@ Tasking::Group createAvdRecipe(const Tasking::Storage<std::optional<QString>> &e
                                const CreateAvdInfo &info, bool force);
 
 void setupAndroidDevice();
-void setupAndroidDeviceManager(QObject *guard);
+void setupAndroidDeviceManager();
 
 } // Android::Internal

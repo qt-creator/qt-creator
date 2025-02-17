@@ -211,6 +211,7 @@ bool Toolchain::canShareBundle(const Toolchain &other) const
 {
     QTC_ASSERT(typeId() == other.typeId(), return false);
     QTC_ASSERT(language() != other.language(), return false);
+    QTC_ASSERT(factory(), return false);
 
     if (int(factory()->supportedLanguages().size()) == 1)
         return false;
@@ -711,7 +712,7 @@ Toolchain *ToolchainFactory::restore(const Store &data)
     QTC_ASSERT(tc, return nullptr);
 
     tc->fromMap(data);
-    if (!tc->hasError())
+    if (!tc->hasError() && QTC_GUARD(tc->typeId() == supportedToolchainType()))
         return tc;
 
     delete tc;
@@ -921,6 +922,7 @@ ToolchainBundle::ToolchainBundle(const Toolchains &toolchains, HandleMissing han
 {
     // Check pre-conditions.
     QTC_ASSERT(!m_toolchains.isEmpty(), return);
+    QTC_ASSERT(factory(), return);
     QTC_ASSERT(m_toolchains.size() <= factory()->supportedLanguages().size(), return);
     for (const Toolchain * const tc : toolchains) {
         QTC_ASSERT(factory()->supportedLanguages().contains(tc->language()), return);
@@ -936,8 +938,9 @@ ToolchainBundle::ToolchainBundle(const Toolchains &toolchains, HandleMissing han
     // Check post-conditions.
     QTC_ASSERT(m_toolchains.size() == m_toolchains.first()->factory()->supportedLanguages().size(),
                return);
-    for (auto i = toolchains.size(); i < m_toolchains.size(); ++i)
+    for (auto i = toolchains.size(); i < m_toolchains.size(); ++i) {
         QTC_ASSERT(m_toolchains.at(i)->typeId() == m_toolchains.first()->typeId(), return);
+    }
 
     Utils::sort(m_toolchains, [](const Toolchain *tc1, const Toolchain *tc2) {
         return tc1 != tc2 && tc1->language() == Constants::C_LANGUAGE_ID;

@@ -195,7 +195,7 @@ void DapEngine::handleDapInitialize()
 {
     QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
 
-    m_dapClient->sendLaunch(runParameters().inferior.command);
+    m_dapClient->sendLaunch(runParameters().inferior().command);
 
     qCDebug(logCategory()) << "handleDapLaunch";
 }
@@ -699,7 +699,7 @@ void DapEngine::handleResponse(DapResponseType type, const QJsonObject &response
             AsynchronousMessageBox::critical(
                 Tr::tr("Failed to Start Application"),
                 Tr::tr("\"%1\" could not be started. Error message: %2")
-                    .arg(runParameters().inferior.command.toUserOutput())
+                    .arg(runParameters().inferior().command.toUserOutput())
                     .arg(response.value("message").toString()));
         }
         break;
@@ -814,7 +814,7 @@ void DapEngine::handleBreakpointResponse(const QJsonObject &response)
     const Breakpoints bps = breakHandler()->breakpoints();
     for (const Breakpoint &bp : bps) {
         BreakpointParameters parameters = bp->requestedParameters();
-        QString mapKey = parameters.fileName.toString() + ":"
+        QString mapKey = parameters.fileName.toUrlishString() + ":"
                          + QString::number(parameters.textPosition.line);
         if (map.find(mapKey) != map.end()) {
             if (bp->state() == BreakpointRemoveProceeding) {
@@ -854,14 +854,14 @@ void DapEngine::handleBreakpointResponse(const QJsonObject &response)
             if (!bp->isEnabled())
                 continue;
 
-            QString path = bp->requestedParameters().fileName.toString();
+            QString path = bp->requestedParameters().fileName.toUrlishString();
             int line = bp->requestedParameters().textPosition.line;
 
             QJsonObject jsonBreakpoint;
             QString key;
             for (auto it = map.cbegin(); it != map.cend(); ++it) {
                 const QJsonObject breakpoint = *it;
-                if (path == bp->requestedParameters().fileName.toString()
+                if (path == bp->requestedParameters().fileName.toUrlishString()
                     && abs(breakpoint.value("line").toInt() - line)
                            < abs(jsonBreakpoint.value("line").toInt() - line)) {
                     jsonBreakpoint = breakpoint;

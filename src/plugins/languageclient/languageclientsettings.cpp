@@ -53,6 +53,7 @@
 #include <QStringListModel>
 #include <QToolButton>
 #include <QTreeView>
+#include <QTreeWidget>
 
 constexpr char typeIdKey[] = "typeId";
 constexpr char nameKey[] = "name";
@@ -345,8 +346,6 @@ LanguageClientSettingsPage::LanguageClientSettingsPage()
     setId(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
     setDisplayName(Tr::tr("General"));
     setCategory(Constants::LANGUAGECLIENT_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr(Constants::LANGUAGECLIENT_SETTINGS_TR));
-    setCategoryIconPath(":/languageclient/images/settingscategory_languageclient.png");
     setWidgetCreator([this] { return new LanguageClientSettingsPageWidget(m_model, m_changedSettings); });
     QObject::connect(&m_model, &LanguageClientSettingsModel::dataChanged, [this](const QModelIndex &index) {
         if (BaseSettings *setting = m_model.settingForIndex(index))
@@ -589,19 +588,40 @@ bool BaseSettings::isValid() const
     return !m_name.isEmpty();
 }
 
+bool BaseSettings::isValidOnProject(ProjectExplorer::Project *) const
+{
+    return isValid();
+}
+
 Client *BaseSettings::createClient() const
 {
     return createClient(static_cast<ProjectExplorer::Project *>(nullptr));
 }
 
+
+bool BaseSettings::isEnabledOnProject(ProjectExplorer::Project *project) const
+{
+    if (project) {
+        LanguageClient::ProjectSettings settings(project);
+        if (settings.enabledSettings().contains(m_id))
+            return true;
+        if (settings.disabledSettings().contains(m_id))
+            return false;
+    }
+    return m_enabled;
+}
+
 Client *BaseSettings::createClient(ProjectExplorer::Project *project) const
 {
-    if (!isValid() || !m_enabled)
+    if (!isValidOnProject(project) || !isEnabledOnProject(project))
         return nullptr;
     BaseClientInterface *interface = createInterface(project);
     QTC_ASSERT(interface, return nullptr);
     auto *client = createClient(interface);
-    client->setName(Utils::globalMacroExpander()->expand(m_name));
+
+    if (client->name().isEmpty())
+        client->setName(Utils::globalMacroExpander()->expand(m_name));
+
     client->setSupportedLanguage(m_languageFilter);
     client->setInitializationOptions(initializationOptions());
     client->setActivateDocumentAutomatically(true);
@@ -615,9 +635,8 @@ Client *BaseSettings::createClient(BaseClientInterface *interface) const
     return new Client(interface);
 }
 
-Store BaseSettings::toMap() const
+void BaseSettings::toMap(Store &map) const
 {
-    Store map;
     map.insert(typeIdKey, m_settingsTypeId.toSetting());
     map.insert(nameKey, m_name);
     map.insert(idKey, m_id);
@@ -627,7 +646,6 @@ Store BaseSettings::toMap() const
     map.insert(filePatternKey, m_languageFilter.filePattern);
     map.insert(initializationOptionsKey, m_initializationOptions);
     map.insert(configurationKey, m_configuration);
-    return map;
 }
 
 void BaseSettings::fromMap(const Store &map)
@@ -732,7 +750,9 @@ void LanguageClientSettings::toSettings(QtcSettings *settings,
     settings->beginGroup(settingsGroupKey);
     auto transform = [](const QList<BaseSettings *> &settings) {
         return Utils::transform(settings, [](const BaseSettings *setting) {
-            return variantFromStore(setting->toMap());
+            Store store;
+            setting->toMap(store);
+            return variantFromStore(store);
         });
     };
     auto isStdioSetting = Utils::equal(&BaseSettings::m_settingsTypeId,
@@ -800,12 +820,11 @@ bool StdIOSettings::isValid() const
     return BaseSettings::isValid() && !m_executable.isEmpty();
 }
 
-Store StdIOSettings::toMap() const
+void StdIOSettings::toMap(Store &map) const
 {
-    Store map = BaseSettings::toMap();
+    BaseSettings::toMap(map);
     map.insert(executableKey, m_executable.toSettings());
     map.insert(argumentsKey, m_arguments);
-    return map;
 }
 
 void StdIOSettings::fromMap(const Store &map)
@@ -1102,7 +1121,7 @@ bool LanguageFilter::isSupported(const Utils::FilePath &filePath, const QString 
                                   options);
     });
     return Utils::anyOf(regexps, [filePath](const QRegularExpression &reg){
-        return reg.match(filePath.toString()).hasMatch()
+        return reg.match(filePath.toUrlishString()).hasMatch()
                 || reg.match(filePath.fileName()).hasMatch();
     });
 }
@@ -1171,11 +1190,16 @@ TextEditor::BaseTextEditor *createJsonEditor(QObject *parent)
 }
 
 constexpr const char projectSettingsId[] = "LanguageClient.ProjectSettings";
+constexpr const char enabledSettingsId[] = "LanguageClient.EnabledSettings";
+constexpr const char disabledSettingsId[] = "LanguageClient.DisabledSettings";
 
 ProjectSettings::ProjectSettings(ProjectExplorer::Project *project)
     : m_project(project)
 {
+    QTC_ASSERT(project, return);
     m_json = m_project->namedSettings(projectSettingsId).toByteArray();
+    m_enabledSettings = m_project->namedSettings(enabledSettingsId).toStringList();
+    m_disabledSettings = m_project->namedSettings(disabledSettingsId).toStringList();
 }
 
 QJsonValue ProjectSettings::workspaceConfiguration() const
@@ -1195,12 +1219,60 @@ QByteArray ProjectSettings::json() const
 
 void ProjectSettings::setJson(const QByteArray &json)
 {
+    QTC_ASSERT(m_project, return);
     const QJsonValue oldConfig = workspaceConfiguration();
     m_json = json;
     m_project->setNamedSettings(projectSettingsId, m_json);
     const QJsonValue newConfig = workspaceConfiguration();
     if (oldConfig != newConfig)
         LanguageClientManager::updateWorkspaceConfiguration(m_project, newConfig);
+}
+
+void ProjectSettings::enableSetting(const QString &id)
+{
+    QTC_ASSERT(m_project, return);
+    if (m_disabledSettings.removeAll(id) > 0)
+        m_project->setNamedSettings(disabledSettingsId, m_disabledSettings);
+    if (m_enabledSettings.contains(id))
+        return;
+    m_enabledSettings << id;
+    m_project->setNamedSettings(enabledSettingsId, m_enabledSettings);
+    LanguageClientManager::applySettings(id);
+}
+
+void ProjectSettings::disableSetting(const QString &id)
+{
+    QTC_ASSERT(m_project, return);
+    if (m_enabledSettings.removeAll(id) > 0)
+        m_project->setNamedSettings(enabledSettingsId, m_enabledSettings);
+    if (m_disabledSettings.contains(id))
+        return;
+    m_disabledSettings << id;
+    m_project->setNamedSettings(disabledSettingsId, m_disabledSettings);
+    LanguageClientManager::applySettings(id);
+}
+
+void ProjectSettings::clearOverride(const QString &id)
+{
+    QTC_ASSERT(m_project, return);
+    const bool changedEnabled = m_enabledSettings.removeAll(id) > 0;
+    if (changedEnabled)
+        m_project->setNamedSettings(enabledSettingsId, m_enabledSettings);
+    const bool changedDisabled = m_disabledSettings.removeAll(id) > 0;
+    if (changedDisabled)
+        m_project->setNamedSettings(disabledSettingsId, m_disabledSettings);
+    if (changedEnabled || changedDisabled)
+        LanguageClientManager::applySettings(id);
+}
+
+QStringList ProjectSettings::enabledSettings()
+{
+    return m_enabledSettings;
+}
+
+QStringList ProjectSettings::disabledSettings()
+{
+    return m_disabledSettings;
 }
 
 class LanguageClientProjectSettingsWidget : public ProjectSettingsWidget
@@ -1216,8 +1288,47 @@ public:
         TextEditor::BaseTextEditor *editor = createJsonEditor(this);
         editor->document()->setContents(m_settings.json());
 
-        auto layout = new QVBoxLayout;
-        setLayout(layout);
+        auto layout = new QVBoxLayout(this);
+        layout->setContentsMargins(0, 0, 0, 0);
+
+        QFormLayout *settingsLayout = nullptr;
+        for (auto settings : LanguageClientSettings::pageSettings()) {
+
+            if (settings->m_startBehavior != BaseSettings::RequiresProject)
+                continue;
+            if (!settingsLayout) {
+                auto group = new QGroupBox(Tr::tr("Project Specific Language Servers"));
+                settingsLayout = new QFormLayout;
+                settingsLayout->setFormAlignment(Qt::AlignLeft);
+                settingsLayout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
+                group->setLayout(settingsLayout);
+                layout->addWidget(group);
+            }
+            QComboBox *comboBox = new QComboBox;
+            comboBox->addItem(Tr::tr("Use Global Settings"));
+            comboBox->addItem(Tr::tr("Enabled"));
+            comboBox->addItem(Tr::tr("Disabled"));
+            if (m_settings.enabledSettings().contains(settings->m_id))
+                comboBox->setCurrentIndex(1);
+            else if (m_settings.disabledSettings().contains(settings->m_id))
+                comboBox->setCurrentIndex(2);
+            else
+                comboBox->setCurrentIndex(0);
+            connect(
+                comboBox,
+                &QComboBox::currentIndexChanged,
+                this,
+                [id = settings->m_id, this](int index) {
+                    if (index == 0)
+                        m_settings.clearOverride(id);
+                    else if (index == 1)
+                        m_settings.enableSetting(id);
+                    else if (index == 2)
+                        m_settings.disableSetting(id);
+                });
+            settingsLayout->addRow(settings->m_name, comboBox);
+        }
+
         auto group = new QGroupBox(Tr::tr("Workspace Configuration"));
         group->setLayout(new QVBoxLayout);
         group->layout()->addWidget(new QLabel(Tr::tr(
@@ -1241,6 +1352,7 @@ public:
     {
         setPriority(35);
         setDisplayName(Tr::tr("Language Server"));
+        setId(Constants::LANGUAGECLIENT_SETTINGS_PANEL);
         setCreateWidgetFunction([](Project *project) {
             return new LanguageClientProjectSettingsWidget(project);
         });

@@ -13,6 +13,7 @@ add_qtc_plugin(QtSupport
     gettingstartedwelcomepage.cpp gettingstartedwelcomepage.h
     profilereader.cpp profilereader.h
     qscxmlcgenerator.cpp qscxmlcgenerator.h
+    qtabiextractor.cpp qtabiextractor.h
     qtbuildaspects.cpp qtbuildaspects.h
     qtconfigwidget.cpp qtconfigwidget.h
     qtcppkitinfo.cpp qtcppkitinfo.h

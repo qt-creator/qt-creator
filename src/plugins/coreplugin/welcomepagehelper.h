@@ -67,6 +67,7 @@ CORE_EXPORT void drawCardBackground(QPainter *painter, const QRectF &rect,
                                     const QBrush &fill, const QPen &pen = QPen(Qt::NoPen),
                                     qreal rounding = defaultCardBackgroundRounding);
 CORE_EXPORT QWidget *createRule(Qt::Orientation orientation, QWidget *parent = nullptr);
+CORE_EXPORT void applyTf(QLabel *label, const TextFormat &tf, bool singleLine = true);
 
 } // namespace WelcomePageHelpers
 
@@ -74,10 +75,12 @@ class CORE_EXPORT Button : public QAbstractButton
 {
 public:
     enum Role {
-        MediumPrimary,
-        MediumSecondary,
+        LargePrimary,
+        LargeSecondary,
+        LargeTertiary,
         SmallPrimary,
         SmallSecondary,
+        SmallTertiary,
         SmallList,
         SmallLink,
         Tag,
@@ -95,7 +98,7 @@ protected:
 private:
     void updateMargins();
 
-    const Role m_role = MediumPrimary;
+    const Role m_role = LargePrimary;
     QPixmap m_pixmap;
 };
 

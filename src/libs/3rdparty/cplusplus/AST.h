@@ -646,8 +646,7 @@ protected:
 class CPLUSPLUS_EXPORT TypeConstraintAST: public AST
 {
 public:
-    NestedNameSpecifierListAST *nestedName = nullptr;
-    NameAST *conceptName = nullptr;
+    QualifiedNameAST *conceptName = nullptr;
     int lessToken = 0;
     ExpressionListAST *templateArgs = nullptr;
     int greaterToken = 0;
@@ -1720,6 +1719,11 @@ class CPLUSPLUS_EXPORT RangeBasedForStatementAST : public StatementAST
 public:
     int for_token = 0;
     int lparen_token = 0;
+
+    // init-statement (C++20)
+    DeclarationAST *initDecl = nullptr;
+    StatementAST *initStmt = nullptr;
+
     // declaration
     SpecifierListAST *type_specifier_list = nullptr;
     DeclaratorAST *declarator = nullptr;
@@ -3008,7 +3012,7 @@ public:
     ExpressionAST *type_id = nullptr;
 
 public:
-    TypenameArgument *symbol = nullptr;
+    TemplateTypeArgument *symbol = nullptr;
 
 public:
     TemplateTypeParameterAST *asTemplateTypeParameter() override { return this; }

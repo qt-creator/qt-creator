@@ -92,7 +92,7 @@ void PluginDumper::onLoadBuiltinTypes(const QmlJS::ModelManagerInterface::Projec
     }
 
     runQmlDump(info, QStringList(QLatin1String("--builtins")), info.qtQmlPath);
-    m_qtToInfo.insert(info.qtQmlPath.toString(), info);
+    m_qtToInfo.insert(info.qtQmlPath.toUrlishString(), info);
 }
 
 void PluginDumper::onLoadPluginTypes(const Utils::FilePath &libraryPath,
@@ -332,7 +332,7 @@ QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(c
 
         for (const FilePath &p: paths) {
             Utils::FileReader reader;
-            if (!reader.fetch(p, QFile::Text)) {
+            if (!reader.fetch(p)) {
                 result.errors += reader.errorString();
                 continue;
             }
@@ -341,8 +341,8 @@ QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(c
             CppQmlTypesLoader::BuiltinObjects objs;
             QList<ModuleApiInfo> apis;
             QStringList deps;
-            CppQmlTypesLoader::parseQmlTypeDescriptions(reader.data(), &objs, &apis, &deps,
-                                                        &error, &warning, p.toString());
+            CppQmlTypesLoader::parseQmlTypeDescriptions(reader.text(), &objs, &apis, &deps,
+                                                        &error, &warning, p.toUrlishString());
             if (!error.isEmpty()) {
                 result.errors += Tr::tr("Failed to parse \"%1\".\nError: %2").arg(p.toUserOutput(), error);
             } else {
@@ -376,7 +376,7 @@ Utils::FilePath PluginDumper::buildQmltypesPath(const QString &name) const
     QString qualifiedName;
     QString version;
 
-    QRegularExpression import("^(?<name>[\\w|\\.]+)\\s+(?<major>\\d+)\\.(?<minor>\\d+)$");
+    static const QRegularExpression import("^(?<name>[\\w|\\.]+)\\s+(?<major>\\d+)\\.(?<minor>\\d+)$");
     QRegularExpressionMatch m = import.match(name);
     if (m.hasMatch()) {
         qualifiedName = m.captured("name");
@@ -419,7 +419,7 @@ QFuture<PluginDumper::DependencyInfo> PluginDumper::loadDependencies(const FileP
     FilePaths dependenciesPaths;
     FilePath path;
     for (const FilePath &name : dependencies) {
-        path = buildQmltypesPath(name.toString());
+        path = buildQmltypesPath(name.toUrlishString());
         if (!path.isEmpty())
             dependenciesPaths << path;
         visited->insert(name);
@@ -557,7 +557,7 @@ void PluginDumper::prepareLibraryInfo(LibraryInfo &libInfo,
     if (!warnings.isEmpty())
         printParseWarnings(libraryPath, warnings.join(QLatin1String("\n")));
 
-    applyQt515MissingImportWorkaround(libraryPath.toString(), libInfo);
+    applyQt515MissingImportWorkaround(libraryPath.toUrlishString(), libInfo);
 
     libInfo.updateFingerprint();
 }
@@ -662,7 +662,7 @@ void PluginDumper::dump(const Plugin &plugin)
     args << plugin.importUri;
     args << plugin.importVersion;
     args << (plugin.importPath.isEmpty() ? Utils::FilePath::fromString(".") : plugin.importPath)
-                .toString();
+                .toUrlishString();
     runQmlDump(info, args, plugin.qmldirPath);
 }
 

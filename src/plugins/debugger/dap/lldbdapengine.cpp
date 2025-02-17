@@ -61,9 +61,9 @@ public:
     void start() override
     {
         m_proc.setProcessMode(ProcessMode::Writer);
-        if (m_runParameters.debugger.workingDirectory.isDir())
-            m_proc.setWorkingDirectory(m_runParameters.debugger.workingDirectory);
-        m_proc.setEnvironment(m_runParameters.debugger.environment);
+        if (m_runParameters.debugger().workingDirectory.isDir())
+            m_proc.setWorkingDirectory(m_runParameters.debugger().workingDirectory);
+        m_proc.setEnvironment(m_runParameters.debugger().environment);
         m_proc.setCommand(m_cmd);
         m_proc.start();
     }
@@ -131,7 +131,7 @@ QJsonArray LldbDapEngine::sourceMap() const
 QJsonArray LldbDapEngine::preRunCommands() const
 {
     const QStringList lines = settings().gdbStartupCommands().split('\n')
-                              + runParameters().additionalStartupCommands.split('\n');
+                              + runParameters().additionalStartupCommands().split('\n');
     QJsonArray result;
     for (const QString &line : lines) {
         const QString trimmed = line.trimmed();
@@ -151,14 +151,14 @@ void LldbDapEngine::handleDapInitialize()
     const QJsonArray map = sourceMap();
     const QJsonArray commands = preRunCommands();
 
-    if (!isLocalAttachEngine()) {
-        const QJsonArray env = QJsonArray::fromStringList(rp.inferior.environment.toStringList());
-        const QJsonArray args = QJsonArray::fromStringList(rp.inferior.command.splitArguments());
+    if (!runParameters().isLocalAttachEngine()) {
+        const QJsonArray env = QJsonArray::fromStringList(rp.inferior().environment.toStringList());
+        const QJsonArray args = QJsonArray::fromStringList(rp.inferior().command.splitArguments());
 
         QJsonObject launchJson{
             {"noDebug", false},
-            {"program", rp.inferior.command.executable().path()},
-            {"cwd", rp.inferior.workingDirectory.path()},
+            {"program", rp.inferior().command.executable().path()},
+            {"cwd", rp.inferior().workingDirectory.path()},
             {"env", env},
             {"__restart", ""},
         };
@@ -178,8 +178,8 @@ void LldbDapEngine::handleDapInitialize()
     QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
 
     QJsonObject attachJson{
-        {"program", rp.inferior.command.executable().path()},
-        {"pid", QString::number(rp.attachPID.pid())},
+        {"program", rp.inferior().command.executable().path()},
+        {"pid", QString::number(rp.attachPid().pid())},
         {"__restart", ""},
     };
     if (!map.isEmpty())
@@ -192,14 +192,9 @@ void LldbDapEngine::handleDapInitialize()
     qCDebug(logCategory()) << "handleDapAttach";
 }
 
-bool LldbDapEngine::isLocalAttachEngine() const
-{
-    return runParameters().startMode == AttachToLocalProcess;
-}
-
 void LldbDapEngine::handleDapConfigurationDone()
 {
-    if (!isLocalAttachEngine()) {
+    if (!runParameters().isLocalAttachEngine()) {
         DapEngine::handleDapConfigurationDone();
         return;
     }
@@ -212,7 +207,7 @@ void LldbDapEngine::setupEngine()
     QTC_ASSERT(state() == EngineSetupRequested, qCDebug(logCategory()) << state());
 
     const DebuggerRunParameters &rp = runParameters();
-    CommandLine cmd{rp.debugger.command.executable()};
+    CommandLine cmd{rp.debugger().command.executable()};
 
     IDataProvider *dataProvider =  new ProcessDataProvider(rp, cmd, this);
     m_dapClient = new LldbDapClient(dataProvider, this);

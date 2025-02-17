@@ -4,9 +4,9 @@
 #include "qmllsclient.h"
 
 #include "qmljseditorconstants.h"
-#include "qmljseditortr.h"
-#include "qmljseditorsettings.h"
+#include "qmljseditordocument.h"
 #include "qmljsquickfix.h"
+#include "qmllsclientsettings.h"
 
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
@@ -43,38 +43,6 @@ static QHash<FilePath, QmllsClient *> &qmllsClients()
     return clients;
 }
 
-QmllsClient *QmllsClient::clientForQmlls(const FilePath &qmlls)
-{
-    QTC_ASSERT(!qmlls.isEmpty(), return nullptr);
-    if (auto client = qmllsClients()[qmlls]) {
-        switch (client->state()) {
-        case Client::State::Uninitialized:
-        case Client::State::InitializeRequested:
-        case Client::State::Initialized:
-            return client;
-        case Client::State::FailedToInitialize:
-        case Client::State::ShutdownRequested:
-        case Client::State::Shutdown:
-        case Client::State::Error:
-            qCDebug(qmllsLog) << "client was stopping or failed, restarting";
-            break;
-        }
-    }
-    auto interface = new StdIOClientInterface;
-    interface->setCommandLine(CommandLine(qmlls));
-    auto client = new QmllsClient(interface);
-    client->setName(Tr::tr("Qmlls (%1)").arg(qmlls.toUserOutput()));
-    client->setActivateDocumentAutomatically(true);
-    LanguageFilter filter;
-    using namespace Utils::Constants;
-    filter.mimeTypes = {QML_MIMETYPE, QMLUI_MIMETYPE, QBS_MIMETYPE, QMLPROJECT_MIMETYPE,
-                        QMLTYPES_MIMETYPE, JS_MIMETYPE, JSON_MIMETYPE};
-    client->setSupportedLanguage(filter);
-    client->start();
-    qmllsClients()[qmlls] = client;
-    return client;
-}
-
 QMap<QString, int> QmllsClient::semanticTokenTypesMap()
 {
     QMap<QString, int> result;
@@ -91,7 +59,7 @@ QMap<QString, int> QmllsClient::semanticTokenTypesMap()
 void QmllsClient::updateQmllsSemanticHighlightingCapability()
 {
     const QString methodName = QStringLiteral("textDocument/semanticTokens");
-    if (!QmlJSEditor::Internal::settings().enableQmllsSemanticHighlighting()) {
+    if (!qmllsSettings()->m_useQmllsSemanticHighlighting) {
         LanguageServerProtocol::Unregistration unregister;
         unregister.setMethod(methodName);
         unregister.setId({});
@@ -147,6 +115,22 @@ public:
     }
 };
 
+void QmllsClient::activateDocument(TextEditor::TextDocument *document)
+{
+    Client::activateDocument(document);
+
+    if (auto qmljseditor = qobject_cast<QmlJSEditorDocument *>(document))
+        qmljseditor->setSourcesWithCapabilities(capabilities());
+}
+
+void QmllsClient::deactivateDocument(TextEditor::TextDocument *document)
+{
+    Client::deactivateDocument(document);
+
+    if (auto qmljseditor = qobject_cast<QmlJSEditorDocument *>(document))
+        qmljseditor->setSourcesWithCapabilities(LanguageServerProtocol::ServerCapabilities{});
+}
+
 QmllsClient::QmllsClient(StdIOClientInterface *interface)
     : Client(interface)
 {
@@ -157,10 +141,6 @@ QmllsClient::QmllsClient(StdIOClientInterface *interface)
         &ProjectExplorer::BuildManager::buildQueueFinished,
         this,
         [this]() { LanguageClientManager::restartClient(this); });
-    QJsonObject initializationOptions {
-        {"qtCreatorHighlighting", true}
-    };
-    setInitializationOptions(initializationOptions);
     semanticTokenSupport()->setTokenTypesMap(QmllsClient::semanticTokenTypesMap());
     semanticTokenSupport()->setTextStyleForTokenType(
         [](int tokenType) -> std::optional<TextEditor::TextStyle> {
@@ -230,6 +210,16 @@ void QmllsClient::startImpl()
 {
     updateQmllsSemanticHighlightingCapability();
     Client::startImpl();
+}
+
+bool QmllsClient::supportsDocumentSymbols(const TextEditor::TextDocument *doc) const {
+    if (!doc)
+        return false;
+
+    // disable document symbols (outline feature) when the experimental checkbox is not set
+    if (qmllsSettings()->useQmllsWithBuiltinCodemodelOnProject(doc->filePath()))
+        return false;
+    return Client::supportsDocumentSymbols(doc);
 }
 
 } // namespace QmlJSEditor

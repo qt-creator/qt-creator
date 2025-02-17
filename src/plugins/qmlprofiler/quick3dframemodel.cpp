@@ -443,7 +443,7 @@ QList<int> Quick3DFrameModel::frameIndices(const QString &view3DFilter) const
 {
     QList<int> ret;
     int key = -1;
-    if (view3DFilter != Tr::tr("All")) {
+    if (view3DFilter != Tr::tr("All", "All frames")) {
         for (int v3d : m_frameTimes.keys()) {
             if (m_modelManager->eventType(m_eventData[v3d]).data() == view3DFilter) {
                 key = v3d;
@@ -472,7 +472,7 @@ QStringList Quick3DFrameModel::frameNames(const QString &view3D) const
 
 void Quick3DFrameModel::setFilterFrame(const QString &frame)
 {
-    if (frame == Tr::tr("None")) {
+    if (frame == Tr::tr("None", "Compare Frame: None")) {
         m_filterFrame = -1;
     } else {
         QString title = Tr::tr("Frame");
@@ -484,7 +484,7 @@ void Quick3DFrameModel::setFilterFrame(const QString &frame)
 void Quick3DFrameModel::setFilterView3D(const QString &view3D)
 {
     int key = -1;
-    if (view3D != Tr::tr("All")) {
+    if (view3D != Tr::tr("All", "All View3D frames")) {
         for (int v3d : m_frameTimes.keys()) {
             if (m_modelManager->eventType(m_eventData[v3d]).data() == view3D) {
                 key = v3d;

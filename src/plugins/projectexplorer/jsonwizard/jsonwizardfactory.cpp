@@ -28,7 +28,6 @@
 
 #include <QDebug>
 #include <QDir>
-#include <QJSEngine>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -223,7 +222,7 @@ QVariantMap JsonWizardFactory::loadDefaultValues(const QString &fileName)
         if (path.isEmpty())
             continue;
 
-        FilePath dir = FilePath::fromString(path.toString());
+        FilePath dir = FilePath::fromString(path.toUrlishString());
         if (!dir.exists()) {
             if (verbose())
                 verboseLog.append(
@@ -241,12 +240,12 @@ QVariantMap JsonWizardFactory::loadDefaultValues(const QString &fileName)
             if (verbose())
                 verboseLog.append(
                     Tr::tr("Checking \"%1\" for %2.")
-                        .arg(QDir::toNativeSeparators(current.absolutePath().toString()))
+                        .arg(QDir::toNativeSeparators(current.absolutePath().toUrlishString()))
                         .arg(fileName)
                     + "\n");
             if (current.pathAppended(fileName).exists()) {
-                QFile configFile(current.pathAppended(fileName).toString());
-                configFile.open(QIODevice::ReadOnly);
+                QFile configFile(current.pathAppended(fileName).toUrlishString());
+                QTC_CHECK(configFile.open(QIODevice::ReadOnly));
                 QJsonParseError error;
                 const QByteArray fileData = configFile.readAll();
                 const QJsonDocument json = QJsonDocument::fromJson(fileData, &error);
@@ -601,9 +600,8 @@ FilePaths &JsonWizardFactory::searchPaths()
                 const auto values = plugin->metaData().value("JsonWizardPaths").toArray();
                 for (const QJsonValue &v : values) {
                     const auto path = FilePath::fromString(v.toString());
-                    if (!path.isEmpty() && !path.needsDevice()) {
+                    if (!path.isEmpty() && path.isLocal())
                         m_searchPaths << base.resolvePath(path);
-                    }
                 }
             }
         }
@@ -655,11 +653,10 @@ static QString qmlProjectName(const FilePath &folder)
     return {};
 }
 
-Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, QWidget *parent,
-                                         Id platform,
+Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, Id platform,
                                          const QVariantMap &variables, bool showWizard)
 {
-    auto wizard = new JsonWizard(parent);
+    auto wizard = new JsonWizard;
     wizard->setWindowIcon(icon());
     wizard->setWindowTitle(displayName());
 
@@ -679,7 +676,7 @@ Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, QWidget *parent,
     for (auto i = variables.constBegin(); i != variables.constEnd(); ++i)
         wizard->setValue(i.key(), i.value());
 
-    wizard->setValue(QStringLiteral("InitialPath"), path.toString());
+    wizard->setValue(QStringLiteral("InitialPath"), path.toUrlishString());
     wizard->setValue(QStringLiteral("QmlProjectName"), qmlProjectName(path));
     wizard->setValue(QStringLiteral("Platform"), platform.toString());
 
@@ -740,7 +737,7 @@ Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, QWidget *parent,
                                                                  return f->canCreate(data.typeId);
                                                             });
         QTC_ASSERT(factory, continue);
-        JsonWizardGenerator *gen = factory->create(data.typeId, data.data, path.toString(), platform, variables);
+        JsonWizardGenerator *gen = factory->create(data.typeId, data.data, path.toUrlishString(), platform, variables);
         QTC_ASSERT(gen, continue);
 
         wizard->addGenerator(gen);
@@ -809,9 +806,9 @@ bool JsonWizardFactory::isAvailable(Id platformId) const
                                                                          availableFeatures(
                                                                              platformId),
                                                                          pluginFeatures()));
-    jsExpander.engine().evaluate("var value = Wizard.value");
-    jsExpander.engine().evaluate("var isPluginRunning = Wizard.isPluginRunning");
-    jsExpander.engine().evaluate("var isAnyPluginRunning = Wizard.isAnyPluginRunning");
+    jsExpander.evaluate("var value = Wizard.value");
+    jsExpander.evaluate("var isPluginRunning = Wizard.isPluginRunning");
+    jsExpander.evaluate("var isAnyPluginRunning = Wizard.isAnyPluginRunning");
 
     jsExpander.registerForExpander(e);
     return JsonWizard::boolFromVariant(m_enabledExpression, &expander);
@@ -876,7 +873,7 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &base
             .compare("Themed", Qt::CaseInsensitive) == 0;
     setIcon(iconIsThemed ? themedIcon(iconPath)
                          : strVal.isEmpty() ? QIcon()
-                                            : QIcon(iconPath.toString()),
+                                            : QIcon(iconPath.toUrlishString()),
             iconText);
 
     const QString fontIconName = data.value(QLatin1String(FONT_ICON_NAME_KEY)).toString();
@@ -889,12 +886,12 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &base
             *errorMessage = Tr::tr("Image file \"%1\" not found.").arg(imagePath.toUserOutput());
             return false;
         }
-        setDescriptionImage(imagePath.toString());
+        setDescriptionImage(imagePath.toUrlishString());
     }
 
     const FilePath detailsPage = baseDir.resolvePath(QString("detailsPage.qml"));
     if (detailsPage.exists())
-        setDetailsPageQmlPath(detailsPage.toString());
+        setDetailsPageQmlPath(detailsPage.toUrlishString());
 
     setRequiredFeatures(Id::fromStringList(data.value(QLatin1String(REQUIRED_FEATURES_KEY)).toStringList()));
     m_preferredFeatures = Id::fromStringList(data.value(QLatin1String(SUGGESTED_FEATURES_KEY)).toStringList());

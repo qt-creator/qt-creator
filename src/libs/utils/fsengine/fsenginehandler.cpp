@@ -67,7 +67,6 @@ public:
     QDateTime fileTime(FileTime time) const final;
     void setFileName(const QString &file) final;
     int handle() const final;
-    bool cloneTo(QAbstractFileEngine *target) final;
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     IteratorUniquePtr beginEntryList(
@@ -213,7 +212,10 @@ bool FSEngineImpl::isSequential() const
 
 bool FSEngineImpl::remove()
 {
-    return m_filePath.removeRecursively();
+    Result result = m_filePath.removeRecursively();
+    if (!result)
+        setError(QFile::RemoveError, result.error());
+    return result;
 }
 
 bool FSEngineImpl::copy(const QString &newName)
@@ -374,11 +376,6 @@ void FSEngineImpl::setFileName(const QString &file)
 int FSEngineImpl::handle() const
 {
     return 0;
-}
-
-bool FSEngineImpl::cloneTo(QAbstractFileEngine *target)
-{
-    return QAbstractFileEngine::cloneTo(target);
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
@@ -552,7 +549,7 @@ FSEngineHandler::create(const QString &fileName) const
     if (fixedFileName.startsWith(rootPath)) {
         const QStringList deviceSchemes = FSEngine::registeredDeviceSchemes();
         for (const QString &scheme : deviceSchemes) {
-            if (fixedFileName == rootFilePath.pathAppended(scheme).toString()) {
+            if (fixedFileName == rootFilePath.pathAppended(scheme).toUrlishString()) {
                 const FilePaths filteredRoots = Utils::filtered(FSEngine::registeredDeviceRoots(),
                                                                 [scheme](const FilePath &root) {
                                                                     return root.scheme() == scheme;
@@ -569,7 +566,7 @@ FSEngineHandler::create(const QString &fileName) const
 
         FilePath fixedPath = FilePath::fromString(fixedFileName);
 
-        if (fixedPath.needsDevice()) {
+        if (!fixedPath.isLocal()) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
             return std::make_unique<FSEngineImpl>(removeDoubleSlash(fileName));
 #else

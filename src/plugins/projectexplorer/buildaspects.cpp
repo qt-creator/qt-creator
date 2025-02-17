@@ -5,8 +5,8 @@
 
 #include "buildconfiguration.h"
 #include "buildpropertiessettings.h"
+#include "devicesupport/devicekitaspects.h"
 #include "devicesupport/idevice.h"
-#include "kitaspects.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
@@ -159,11 +159,11 @@ void BuildDirectoryAspect::addToLayoutImpl(Layouting::Layout &parent)
 
 FilePath BuildDirectoryAspect::fixupDir(const FilePath &dir)
 {
-    if (dir.needsDevice())
+    if (!dir.isLocal())
         return dir;
     if (HostOsInfo::isWindowsHost() && !dir.startsWithDriveLetter())
         return {};
-    const QString dirString = dir.toString().toLower();
+    const QString dirString = dir.toUrlishString().toLower();
     const QStringList drives = Utils::transform(QDir::drives(), [](const QFileInfo &fi) {
         return fi.absoluteFilePath().toLower().chopped(1);
     });

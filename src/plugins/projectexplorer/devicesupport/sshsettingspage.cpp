@@ -57,8 +57,6 @@ SshSettingsPage::SshSettingsPage()
     setId(Constants::SSH_SETTINGS_PAGE_ID);
     setDisplayName(Tr::tr("SSH"));
     setCategory(Constants::DEVICE_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("SSH"));
-    setCategoryIconPath(":/projectexplorer/images/settingscategory_devices.png");
     setWidgetCreator([] { return new SshSettingsWidget; });
 }
 

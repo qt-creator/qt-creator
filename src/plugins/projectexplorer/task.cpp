@@ -125,6 +125,11 @@ QIcon Task::icon() const
     return m_icon;
 }
 
+void Task::setIcon(const QIcon &icon)
+{
+    m_icon = icon;
+}
+
 QString Task::formattedDescription(DescriptionTags tags, const QString &extraHeading) const
 {
     if (isNull())
@@ -156,6 +161,16 @@ QString Task::formattedDescription(DescriptionTags tags, const QString &extraHea
     return QString::fromUtf8("<html><body>%1<code style=\"white-space:pre;font-family:%2\">"
                              "%3</code></body></html>")
         .arg(htmlExtraHeading, TextEditor::FontSettings::defaultFixedFontFamily(), text);
+}
+
+void Task::addLinkDetail(const QString &link)
+{
+    details.append(link);
+    QTextCharFormat format;
+    format.setAnchor(true);
+    format.setAnchorHref(link);
+    const int offset = summary.length() + 1;
+    formats << QTextLayout::FormatRange{offset, int(link.length()), format};
 }
 
 //

@@ -3,15 +3,18 @@
 
 #include "kit.h"
 
+#include "devicesupport/devicekitaspects.h"
 #include "devicesupport/idevice.h"
 #include "devicesupport/idevicefactory.h"
 #include "kitaspect.h"
-#include "kitaspects.h"
 #include "kitmanager.h"
 #include "ioutputparser.h"
 #include "osparser.h"
+#include "project.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
+#include "projecttree.h"
 
 #include <utils/algorithm.h>
 #include <utils/displayname.h>
@@ -142,7 +145,7 @@ Kit::Kit(const Store &data)
 
     d->m_unexpandedDisplayName.fromMap(data, DISPLAYNAME_KEY);
     d->m_fileSystemFriendlyName = data.value(FILESYSTEMFRIENDLYNAME_KEY).toString();
-    d->m_iconPath = FilePath::fromString(data.value(ICON_KEY, d->m_iconPath.toString()).toString());
+    d->m_iconPath = FilePath::fromString(data.value(ICON_KEY, d->m_iconPath.toUrlishString()).toString());
     d->m_deviceTypeForIcon = Id::fromSetting(data.value(DEVICE_TYPE_FOR_ICON_KEY));
     if (const auto it = data.constFind(RELEVANT_ASPECTS_KEY); it != data.constEnd())
         d->m_relevantAspects = transform<QSet<Id>>(it.value().toList(), &Id::fromSetting);
@@ -370,12 +373,12 @@ QIcon Kit::icon() const
         return d->m_cachedIcon;
 
     if (!d->m_deviceTypeForIcon.isValid() && !d->m_iconPath.isEmpty() && d->m_iconPath.exists()) {
-        d->m_cachedIcon = QIcon(d->m_iconPath.toString());
+        d->m_cachedIcon = QIcon(d->m_iconPath.toUrlishString());
         return d->m_cachedIcon;
     }
 
     const Utils::Id deviceType = d->m_deviceTypeForIcon.isValid()
-            ? d->m_deviceTypeForIcon : DeviceTypeKitAspect::deviceTypeId(this);
+            ? d->m_deviceTypeForIcon : RunDeviceTypeKitAspect::deviceTypeId(this);
     const QIcon deviceTypeIcon = iconForDeviceType(deviceType);
     if (!deviceTypeIcon.isNull()) {
         d->m_cachedIcon = deviceTypeIcon;
@@ -509,7 +512,7 @@ Store Kit::toMap() const
         data.insert(FILESYSTEMFRIENDLYNAME_KEY, d->m_fileSystemFriendlyName);
     data.insert(AUTODETECTIONSOURCE_KEY, d->m_autoDetectionSource);
     data.insert(SDK_PROVIDED_KEY, d->m_sdkProvided);
-    data.insert(ICON_KEY, d->m_iconPath.toString());
+    data.insert(ICON_KEY, d->m_iconPath.toUrlishString());
     data.insert(DEVICE_TYPE_FOR_ICON_KEY, d->m_deviceTypeForIcon.toSetting());
 
     QStringList mutableInfo;
@@ -563,7 +566,7 @@ Environment Kit::buildEnvironment() const
 
 Environment Kit::runEnvironment() const
 {
-    IDevice::ConstPtr device = DeviceKitAspect::device(this);
+    IDevice::ConstPtr device = RunDeviceKitAspect::device(this);
     Environment env = device ? device->systemEnvironment() : Environment::systemEnvironment();
     addToRunEnvironment(env);
     return env;
@@ -678,8 +681,8 @@ void Kit::setMutable(Id id, bool b)
 
 bool Kit::isMutable(Id id) const
 {
-    if (id == DeviceKitAspect::id())
-        return DeviceTypeKitAspect::deviceTypeId(this) != Constants::DESKTOP_DEVICE_TYPE;
+    if (id == RunDeviceKitAspect::id())
+        return RunDeviceTypeKitAspect::deviceTypeId(this) != Constants::DESKTOP_DEVICE_TYPE;
     return d->m_mutable.contains(id);
 }
 
@@ -777,6 +780,21 @@ static Id replacementKey() { return "IsReplacementKit"; }
 bool Kit::isReplacementKit() const
 {
     return value(replacementKey()).toBool();
+}
+
+Kit *activeKit(const Project *project)
+{
+    return project ? project->activeKit() : nullptr;
+}
+
+Kit *activeKitForActiveProject()
+{
+    return activeKit(ProjectManager::startupProject());
+}
+
+Kit *activeKitForCurrentProject()
+{
+    return activeKit(ProjectTree::currentProject());
 }
 
 } // namespace ProjectExplorer

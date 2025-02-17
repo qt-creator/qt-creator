@@ -15,6 +15,8 @@
 
 #include <texteditor/texteditor.h>
 
+#include <utils/shutdownguard.h>
+
 #include <QThread>
 #include <QTimer>
 
@@ -137,9 +139,8 @@ ParserTreeItem::ConstPtr ManagerPrivate::findItemByRoot(const QStandardItem *ite
 
 ///////////////////////////////// Manager //////////////////////////////////
 
-Manager::Manager(QObject *parent)
-    : QObject(parent),
-    d(new ManagerPrivate())
+Manager::Manager()
+    : d(new ManagerPrivate())
 {
     d->m_parser = new Parser();
     d->m_parser->moveToThread(&d->m_parserThread);
@@ -403,9 +404,9 @@ void Manager::setFlatMode(bool flat)
     }, Qt::QueuedConnection);
 }
 
-void setupClassViewManager(QObject *guard)
+void setupClassViewManager()
 {
-    (void) new Manager(guard);
+    static GuardedObject<Manager> theClassViewManager;
 }
 
 } // ClassView::Internal

@@ -87,6 +87,198 @@ static inline QString fixNestedTemplates(QString s)
     return s;
 }
 
+static void simplifyAllocator(
+    const QString &allocatorTemplateHead,
+    const QString &containerTypePrefix,
+    const bool isLibCpp,
+    QString &type)
+{
+    const int allocatorTemplateHeadLength = allocatorTemplateHead.length();
+    int start = type.indexOf(allocatorTemplateHead);
+    if (start != -1) {
+        // search for matching '>'
+        int pos;
+        int level = 0;
+        for (pos = start + allocatorTemplateHeadLength - 1; pos < type.size(); ++pos) {
+            int c = type.at(pos).unicode();
+            if (c == '<') {
+                ++level;
+            } else if (c == '>') {
+                --level;
+                if (level == 0)
+                    break;
+            }
+        }
+        const QString alloc = fixNestedTemplates(type.mid(start, pos + 1 - start).trimmed());
+        const QString inner = fixNestedTemplates(
+            alloc.mid(allocatorTemplateHeadLength, alloc.size() - allocatorTemplateHeadLength - 1)
+                .trimmed());
+
+        const QString allocEsc = QRegularExpression::escape(alloc);
+        const QString innerEsc = QRegularExpression::escape(inner);
+        if (inner == "char") { // std::string
+            simplifyStdString("char", "string", &type);
+        } else if (inner == "wchar_t") { // std::wstring
+            simplifyStdString("wchar_t", "wstring", &type);
+        } else if (inner == "unsigned short") { // std::wstring/MSVC
+            simplifyStdString("unsigned short", "wstring", &type);
+        }
+        // std::vector, std::deque, std::list
+        QRegularExpression re1(QString::fromLatin1("(vector|(forward_)?list|deque)<%1, ?%2\\s*>")
+                                   .arg(innerEsc, allocEsc));
+        QTC_ASSERT(re1.isValid(), return);
+        QRegularExpressionMatch match = re1.match(type);
+        if (match.hasMatch())
+            type.replace(
+                match.captured(),
+                QString::fromLatin1("%1%2<%3>").arg(containerTypePrefix, match.captured(1), inner));
+
+        // std::stack
+        QRegularExpression stackRE(
+            QString::fromLatin1("stack<%1, ?std::deque<%2> >").arg(innerEsc, innerEsc));
+        QTC_ASSERT(stackRE.isValid(), return);
+        match = stackRE.match(type);
+        if (match.hasMatch())
+            type.replace(
+                match.captured(),
+                QString::fromLatin1("%1stack<%2>").arg(containerTypePrefix, inner));
+
+        // std::hash<char>
+        QRegularExpression hashCharRE(
+            QString::fromLatin1("hash<char, std::char_traits<char>, ?%1\\s*?>").arg(allocEsc));
+        QTC_ASSERT(hashCharRE.isValid(), return);
+        match = hashCharRE.match(type);
+        if (match.hasMatch())
+            type.replace(match.captured(), QString::fromLatin1("hash<char>"));
+
+        // std::set
+        QRegularExpression setRE(QString::fromLatin1("(multi)?set<%1, ?std::less<%2>, ?%3\\s*?>")
+                                     .arg(innerEsc, innerEsc, allocEsc));
+        QTC_ASSERT(setRE.isValid(), return);
+        match = setRE.match(type);
+        if (match.hasMatch())
+            type.replace(
+                match.captured(),
+                QString::fromLatin1("%1%2set<%3>")
+                    .arg(containerTypePrefix, match.captured(1), inner));
+
+        // std::unordered_set
+        QRegularExpression unorderedSetRE(
+            QString::fromLatin1(
+                "unordered_(multi)?set<%1, ?std::hash<%2>, ?std::equal_to<%3>, ?%4\\s*?>")
+                .arg(innerEsc, innerEsc, innerEsc, allocEsc));
+        QTC_ASSERT(unorderedSetRE.isValid(), return);
+        match = unorderedSetRE.match(type);
+        if (match.hasMatch())
+            type.replace(
+                match.captured(),
+                QString::fromLatin1("%1unordered_%2set<%3>")
+                    .arg(containerTypePrefix, match.captured(1), inner));
+
+        // boost::unordered_set
+        QRegularExpression boostUnorderedSetRE(
+            QString::fromLatin1("unordered_set<%1, ?boost::hash<%2>, ?std::equal_to<%3>, ?%4\\s*?>")
+                .arg(innerEsc, innerEsc, innerEsc, allocEsc));
+        QTC_ASSERT(boostUnorderedSetRE.isValid(), return);
+        match = boostUnorderedSetRE.match(type);
+        if (match.hasMatch())
+            type.replace(match.captured(), QString::fromLatin1("unordered_set<%1>").arg(inner));
+
+        // std::map
+        if (inner.startsWith("std::pair<")) {
+            // search for outermost ',', split key and value
+            int pos;
+            int level = 0;
+            for (pos = 10; pos < inner.size(); ++pos) {
+                int c = inner.at(pos).unicode();
+                if (c == '<')
+                    ++level;
+                else if (c == '>')
+                    --level;
+                else if (c == ',' && level == 0)
+                    break;
+            }
+            const QString key = chopConst(inner.mid(10, pos - 10));
+            const QString keyEsc = QRegularExpression::escape(key);
+            // Get value: MSVC: 'pair<a const ,b>', gcc: 'pair<const a, b>'
+            if (inner.at(++pos) == ' ')
+                pos++;
+            const QString value = inner.mid(pos, inner.size() - pos - 1).trimmed();
+            const QString valueEsc = QRegularExpression::escape(value);
+            QRegularExpression mapRE1(
+                QString::fromLatin1("(multi)?map<%1, ?%2, ?std::less<%3 ?>, ?%4\\s*?>")
+                    .arg(keyEsc, valueEsc, keyEsc, allocEsc));
+            QTC_ASSERT(mapRE1.isValid(), return);
+            match = mapRE1.match(type);
+            if (match.hasMatch()) {
+                type.replace(
+                    match.captured(),
+                    QString::fromLatin1("%1%2map<%3, %4>")
+                        .arg(containerTypePrefix, match.captured(1), key, value));
+            } else {
+                QRegularExpression mapRE2(
+                    QString::fromLatin1(
+                        "(multi)?map<const %1, ?%2, ?std::less<const %3>, ?%4\\s*?>")
+                        .arg(keyEsc, valueEsc, keyEsc, allocEsc));
+                match = mapRE2.match(type);
+                if (match.hasMatch())
+                    type.replace(
+                        match.captured(),
+                        QString::fromLatin1("%1%2map<const %3, %4>")
+                            .arg(containerTypePrefix, match.captured(1), key, value));
+            }
+        }
+
+        // std::unordered_map
+        if (inner.startsWith("std::pair<")) {
+            // search for outermost ',', split key and value
+            int pos;
+            int level = 0;
+            for (pos = 10; pos < inner.size(); ++pos) {
+                int c = inner.at(pos).unicode();
+                if (c == '<')
+                    ++level;
+                else if (c == '>')
+                    --level;
+                else if (c == ',' && level == 0)
+                    break;
+            }
+            const QString key = chopConst(inner.mid(10, pos - 10));
+            const QString keyEsc = QRegularExpression::escape(key);
+            // Get value: MSVC: 'pair<a const ,b>', gcc: 'pair<const a, b>'
+            if (inner.at(++pos) == ' ')
+                pos++;
+            const QString value = inner.mid(pos, inner.size() - pos - 1).trimmed();
+            const QString valueEsc = QRegularExpression::escape(value);
+            QRegularExpression mapRE1(
+                QString::fromLatin1("unordered_(multi)?map<%1, ?%2, ?std::hash<%3 ?>, "
+                                    "?std::equal_to<%4 ?>, ?%5\\s*?>")
+                    .arg(keyEsc, valueEsc, keyEsc, keyEsc, allocEsc));
+            QTC_ASSERT(mapRE1.isValid(), return);
+            match = mapRE1.match(type);
+            if (match.hasMatch())
+                type.replace(
+                    match.captured(),
+                    QString::fromLatin1("%1unordered_%2map<%3, %4>")
+                        .arg(containerTypePrefix, match.captured(1), key, value));
+
+            if (isLibCpp) {
+                QRegularExpression mapRE2(
+                    QString::fromLatin1("unordered_(multi)?map<std::string, ?%1, "
+                                        "?std::hash<char>, ?std::equal_to<std::string>, ?%2\\s*?>")
+                        .arg(valueEsc, allocEsc));
+                QTC_ASSERT(mapRE2.isValid(), return);
+                match = mapRE2.match(type);
+                if (match.hasMatch())
+                    type.replace(
+                        match.captured(),
+                        QString::fromLatin1("%1unordered_%2map<std::string, %3>")
+                            .arg(containerTypePrefix, match.captured(1), value));
+            }
+        }
+    }
+}
+
 QString simplifyType(const QString &typeIn)
 {
     QString type = typeIn;
@@ -102,7 +294,7 @@ QString simplifyType(const QString &typeIn)
     type.replace("std::__cxx11::", "std::");
     type.replace("std::__1::", "std::");
     type.replace("std::__debug::", "std::");
-    QRegularExpression simpleStringRE("std::basic_string<char> ?");
+    static const QRegularExpression simpleStringRE("std::basic_string<char> ?");
     type.replace(simpleStringRE, "std::string");
 
     // Normalize space + ptr.
@@ -124,7 +316,7 @@ QString simplifyType(const QString &typeIn)
             type = type.mid(16, type.size() - 31);
 
         // std::ifstream
-        QRegularExpression ifstreamRE("std::basic_ifstream<char,\\s*?std::char_traits<char>\\s*?>");
+        static const QRegularExpression ifstreamRE("std::basic_ifstream<char,\\s*?std::char_traits<char>\\s*?>");
         QTC_ASSERT(ifstreamRE.isValid(), return typeIn);
         const QRegularExpressionMatch match = ifstreamRE.match(type);
         if (match.hasMatch())
@@ -133,160 +325,17 @@ QString simplifyType(const QString &typeIn)
 
         // std::__1::hash_node<int, void *>::value_type -> int
         if (isLibCpp) {
-            QRegularExpression hashNodeRE("std::__hash_node<([^<>]*),\\s*void\\s*@>::value_type");
+            static const QRegularExpression hashNodeRE("std::__hash_node<([^<>]*),\\s*void\\s*@>::value_type");
             QTC_ASSERT(hashNodeRE.isValid(), return typeIn);
             const QRegularExpressionMatch match = hashNodeRE.match(type);
             if (match.hasMatch())
                 type.replace(match.captured(), match.captured(1));
         }
 
-        // Anything with a std::allocator
-        int start = type.indexOf("std::allocator<");
-        if (start != -1) {
-            // search for matching '>'
-            int pos;
-            int level = 0;
-            for (pos = start + 12; pos < type.size(); ++pos) {
-                int c = type.at(pos).unicode();
-                if (c == '<') {
-                    ++level;
-                } else if (c == '>') {
-                    --level;
-                    if (level == 0)
-                        break;
-                }
-            }
-            const QString alloc = fixNestedTemplates(type.mid(start, pos + 1 - start).trimmed());
-            const QString inner = fixNestedTemplates(alloc.mid(15, alloc.size() - 16).trimmed());
-
-            const QString allocEsc = QRegularExpression::escape(alloc);
-            const QString innerEsc = QRegularExpression::escape(inner);
-            if (inner == "char") { // std::string
-                simplifyStdString("char", "string", &type);
-            } else if (inner == "wchar_t") { // std::wstring
-                simplifyStdString("wchar_t", "wstring", &type);
-            } else if (inner == "unsigned short") { // std::wstring/MSVC
-                simplifyStdString("unsigned short", "wstring", &type);
-            }
-            // std::vector, std::deque, std::list
-            QRegularExpression re1(QString::fromLatin1("(vector|list|deque)<%1, ?%2\\s*>").arg(innerEsc, allocEsc));
-            QTC_ASSERT(re1.isValid(), return typeIn);
-            QRegularExpressionMatch match = re1.match(type);
-            if (match.hasMatch())
-                type.replace(match.captured(), QString::fromLatin1("%1<%2>").arg(match.captured(1), inner));
-
-            // std::stack
-            QRegularExpression stackRE(QString::fromLatin1("stack<%1, ?std::deque<%2> >").arg(innerEsc, innerEsc));
-            QTC_ASSERT(stackRE.isValid(), return typeIn);
-            match = stackRE.match(type);
-            if (match.hasMatch())
-                type.replace(match.captured(), QString::fromLatin1("stack<%1>").arg(inner));
-
-            // std::hash<char>
-            QRegularExpression hashCharRE(QString::fromLatin1("hash<char, std::char_traits<char>, ?%1\\s*?>").arg(allocEsc));
-            QTC_ASSERT(hashCharRE.isValid(), return typeIn);
-            match = hashCharRE.match(type);
-            if (match.hasMatch())
-                type.replace(match.captured(), QString::fromLatin1("hash<char>"));
-
-            // std::set
-            QRegularExpression setRE(QString::fromLatin1("set<%1, ?std::less<%2>, ?%3\\s*?>").arg(innerEsc, innerEsc, allocEsc));
-            QTC_ASSERT(setRE.isValid(), return typeIn);
-            match = setRE.match(type);
-            if (match.hasMatch())
-                type.replace(match.captured(), QString::fromLatin1("set<%1>").arg(inner));
-
-            // std::unordered_set
-            QRegularExpression unorderedSetRE(QString::fromLatin1("unordered_(multi)?set<%1, ?std::hash<%2>, ?std::equal_to<%3>, ?%4\\s*?>")
-                .arg(innerEsc, innerEsc, innerEsc, allocEsc));
-            QTC_ASSERT(unorderedSetRE.isValid(), return typeIn);
-            match = unorderedSetRE.match(type);
-            if (match.hasMatch())
-                type.replace(match.captured(), QString::fromLatin1("unordered_%1set<%2>").arg(match.captured(1), inner));
-
-            // boost::unordered_set
-            QRegularExpression boostUnorderedSetRE(QString::fromLatin1("unordered_set<%1, ?boost::hash<%2>, ?std::equal_to<%3>, ?%4\\s*?>")
-                    .arg(innerEsc, innerEsc, innerEsc, allocEsc));
-            QTC_ASSERT(boostUnorderedSetRE.isValid(), return typeIn);
-            match = boostUnorderedSetRE.match(type);
-            if (match.hasMatch())
-                type.replace(match.captured(), QString::fromLatin1("unordered_set<%1>").arg(inner));
-
-            // std::map
-            if (inner.startsWith("std::pair<")) {
-                // search for outermost ',', split key and value
-                int pos;
-                int level = 0;
-                for (pos = 10; pos < inner.size(); ++pos) {
-                    int c = inner.at(pos).unicode();
-                    if (c == '<')
-                        ++level;
-                    else if (c == '>')
-                        --level;
-                    else if (c == ',' && level == 0)
-                        break;
-                }
-                const QString key = chopConst(inner.mid(10, pos - 10));
-                const QString keyEsc = QRegularExpression::escape(key);
-                // Get value: MSVC: 'pair<a const ,b>', gcc: 'pair<const a, b>'
-                if (inner.at(++pos) == ' ')
-                    pos++;
-                const QString value = inner.mid(pos, inner.size() - pos - 1).trimmed();
-                const QString valueEsc = QRegularExpression::escape(value);
-                QRegularExpression mapRE1(QString::fromLatin1("map<%1, ?%2, ?std::less<%3 ?>, ?%4\\s*?>")
-                                          .arg(keyEsc, valueEsc, keyEsc, allocEsc));
-                QTC_ASSERT(mapRE1.isValid(), return typeIn);
-                match = mapRE1.match(type);
-                if (match.hasMatch()) {
-                    type.replace(match.captured(), QString::fromLatin1("map<%1, %2>").arg(key, value));
-                } else {
-                    QRegularExpression mapRE2(QString::fromLatin1("map<const %1, ?%2, ?std::less<const %3>, ?%4\\s*?>")
-                                              .arg(keyEsc, valueEsc, keyEsc, allocEsc));
-                    match = mapRE2.match(type);
-                    if (match.hasMatch())
-                        type.replace(match.captured(), QString::fromLatin1("map<const %1, %2>").arg(key, value));
-                }
-            }
-
-            // std::unordered_map
-            if (inner.startsWith("std::pair<")) {
-                // search for outermost ',', split key and value
-                int pos;
-                int level = 0;
-                for (pos = 10; pos < inner.size(); ++pos) {
-                    int c = inner.at(pos).unicode();
-                    if (c == '<')
-                        ++level;
-                    else if (c == '>')
-                        --level;
-                    else if (c == ',' && level == 0)
-                        break;
-                }
-                const QString key = chopConst(inner.mid(10, pos - 10));
-                const QString keyEsc = QRegularExpression::escape(key);
-                // Get value: MSVC: 'pair<a const ,b>', gcc: 'pair<const a, b>'
-                if (inner.at(++pos) == ' ')
-                    pos++;
-                const QString value = inner.mid(pos, inner.size() - pos - 1).trimmed();
-                const QString valueEsc = QRegularExpression::escape(value);
-                QRegularExpression mapRE1(QString::fromLatin1("unordered_(multi)?map<%1, ?%2, ?std::hash<%3 ?>, ?std::equal_to<%4 ?>, ?%5\\s*?>")
-                               .arg(keyEsc, valueEsc, keyEsc, keyEsc, allocEsc));
-                QTC_ASSERT(mapRE1.isValid(), return typeIn);
-                match = mapRE1.match(type);
-                if (match.hasMatch())
-                    type.replace(match.captured(), QString::fromLatin1("unordered_%1map<%2, %3>").arg(match.captured(1), key, value));
-
-                if (isLibCpp) {
-                    QRegularExpression mapRE2(QString::fromLatin1("unordered_map<std::string, ?%1, "
-                                                                  "?std::hash<char>, ?std::equal_to<std::string>, ?%2\\s*?>")
-                                              .arg(valueEsc, allocEsc));
-                    QTC_ASSERT(mapRE2.isValid(), return typeIn);
-                    match = mapRE2.match(type);
-                    if (match.hasMatch())
-                        type.replace(match.captured(), QString::fromLatin1("unordered_map<std::string, %2>").arg(value));
-                }
-            }
-        } // with std::allocator
+        // Fix e.g. `std::vector<T, std::allocator<T>> -> std::vector<T>`
+        simplifyAllocator("std::allocator<", "", isLibCpp, type);
+        // Fix e.g. `std::vector<T, std::pmr::polynorphic_allocator<T>> -> std::pmr::vector<T>`
+        simplifyAllocator("std::pmr::polymorphic_allocator<", "pmr::", isLibCpp, type);
     }
     type.replace('@', " *");
     type.replace(" >", ">");

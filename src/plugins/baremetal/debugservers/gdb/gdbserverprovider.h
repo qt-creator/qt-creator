@@ -47,7 +47,6 @@ public:
 
 protected:
     explicit GdbServerProvider(const QString &id);
-    explicit GdbServerProvider(const GdbServerProvider &other);
 
     void setStartupMode(StartupMode);
     void setPeripheralDescriptionFile(const Utils::FilePath &file);

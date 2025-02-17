@@ -1,5 +1,6 @@
 {
     "Id" : "terminal",
+    "DisplayName" : "Terminal",
     "Name" : "Terminal",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

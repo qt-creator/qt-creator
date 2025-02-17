@@ -14,6 +14,7 @@
 #include "squishwizardpages.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -39,6 +40,11 @@ class SquishPlugin final : public ExtensionSystem::IPlugin
 private:
     void initialize() final
     {
+        IOptionsPage::registerCategory(
+            Constants::SQUISH_SETTINGS_CATEGORY,
+            Tr::tr("Squish"),
+            ":/squish/images/settingscategory_squish.png");
+
         setupObjectsMapEditor();
 
         setupSquishOutputPane(this);

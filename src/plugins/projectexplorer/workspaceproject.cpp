@@ -437,7 +437,7 @@ class WorkspaceProjectRunWorkerFactory : public RunWorkerFactory
 public:
     WorkspaceProjectRunWorkerFactory()
     {
-        setProduct<SimpleTargetRunner>();
+        setProduct<ProcessRunner>();
         addSupportedRunMode(Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(WORKSPACE_PROJECT_RUNCONFIG_ID);
     }
@@ -722,10 +722,8 @@ void setupWorkspaceProject(QObject *guard)
             QTC_ASSERT(node, return);
             const auto project = qobject_cast<WorkspaceProject *>(node->getProject());
             QTC_ASSERT(project, return);
-            if (auto target = project->activeTarget()) {
-                if (auto buildSystem = dynamic_cast<WorkspaceBuildSystem *>(target->buildSystem()))
-                    buildSystem->reparse(true);
-            }
+            if (auto buildSystem = dynamic_cast<WorkspaceBuildSystem *>(project->activeBuildSystem()))
+                buildSystem->reparse(true);
         });
 
     QObject::connect(
@@ -739,12 +737,8 @@ void setupWorkspaceProject(QObject *guard)
             if (visible) {
                 excludeAction->setEnabled(node->isEnabled());
                 bool enableRescan = false;
-                if (Project *project = node->getProject()) {
-                    if (Target *target = project->activeTarget()) {
-                        if (BuildSystem *buildSystem = target->buildSystem())
-                            enableRescan = !buildSystem->isParsing();
-                    }
-                }
+                if (BuildSystem *buildSystem = activeBuildSystem(node->getProject()))
+                    enableRescan = !buildSystem->isParsing();
                 rescanAction->setEnabled(enableRescan);
             }
         });

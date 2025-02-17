@@ -1,22 +1,23 @@
 // Copyright (C) 2018 BogDan Vatra <bog_dan_ro@yahoo.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "androidrunnerworker.h"
+
 #include "androidconfigurations.h"
 #include "androidconstants.h"
-#include "androidmanager.h"
-#include "androidrunnerworker.h"
 #include "androidtr.h"
+#include "androidutils.h"
 
+#include <debugger/debuggeritem.h>
 #include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
-
-#include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
@@ -41,6 +42,7 @@ static Q_LOGGING_CATEGORY(androidRunWorkerLog, "qtc.android.run.androidrunnerwor
 static const int GdbTempFileMaxCounter = 20;
 }
 
+using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Tasking;
 using namespace Utils;
@@ -98,11 +100,15 @@ static QString lldbServerArch2(const QString &androidAbi)
 static FilePath debugServer(bool useLldb, const Target *target)
 {
     QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
-    QString preferredAbi = AndroidManager::apkDevicePreferredAbi(target);
+    QString preferredAbi = apkDevicePreferredAbi(target);
 
     if (useLldb) {
         // Search suitable lldb-server binary.
-        const FilePath prebuilt = AndroidConfig::ndkLocation(qtVersion) / "toolchains/llvm/prebuilt";
+        const DebuggerItem *debugger = DebuggerKitAspect::debugger(target->kit());
+        if (!debugger || debugger->command().isEmpty())
+            return {};
+        // .../ndk/<ndk-version>/toolchains/llvm/prebuilt/<host-arch>/bin/lldb
+        const FilePath prebuilt = debugger->command().parentDir().parentDir();
         const QString abiNeedle = lldbServerArch2(preferredAbi);
 
         // The new, built-in LLDB.
@@ -135,16 +141,19 @@ class RunnerStorage
 {
 public:
     bool isPreNougat() const { return m_glue->apiLevel() > 0 && m_glue->apiLevel() <= 23; }
-    Utils::CommandLine adbCommand(std::initializer_list<Utils::CommandLine::ArgRef> args) const
+
+    CommandLine adbCommand(std::initializer_list<CommandLine::ArgRef> args) const
     {
         CommandLine cmd{AndroidConfig::adbToolPath(), args};
-        cmd.prependArgs(AndroidDeviceInfo::adbSelector(m_glue->deviceSerialNumber()));
+        cmd.prependArgs(adbSelector(m_glue->deviceSerialNumber()));
         return cmd;
     }
+
     QStringList userArgs() const
     {
         return m_processUser > 0 ? QStringList{"--user", QString::number(m_processUser)} : QStringList{};
     }
+
     QStringList packageArgs() const
     {
         // run-as <package-name> pwd fails on API 22 so route the pwd through shell.
@@ -157,12 +166,12 @@ public:
     QString m_intentName;
     QStringList m_beforeStartAdbCommands;
     QStringList m_afterFinishAdbCommands;
-    QStringList m_amStartExtraArgs;
+    QString m_amStartExtraArgs;
     qint64 m_processPID = -1;
     qint64 m_processUser = -1;
     bool m_useCppDebugger = false;
     bool m_useLldb = false;
-    QmlDebug::QmlDebugServicesPreset m_qmlDebugServices;
+    QmlDebugServicesPreset m_qmlDebugServices;
     QUrl m_qmlServer;
     QString m_extraAppParams;
     Utils::Environment m_extraEnvVars;
@@ -180,15 +189,15 @@ static void setupStorage(RunnerStorage *storage, RunnerInterface *glue)
     const bool debuggingMode = runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE;
     storage->m_useCppDebugger = debuggingMode && aspect->useCppDebugger;
     if (debuggingMode && aspect->useQmlDebugger)
-        storage->m_qmlDebugServices = QmlDebug::QmlDebuggerServices;
+        storage->m_qmlDebugServices = QmlDebuggerServices;
     else if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
-        storage->m_qmlDebugServices = QmlDebug::QmlProfilerServices;
+        storage->m_qmlDebugServices = QmlProfilerServices;
     else if (runMode == ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE)
-        storage->m_qmlDebugServices = QmlDebug::QmlPreviewServices;
+        storage->m_qmlDebugServices = QmlPreviewServices;
     else
-        storage->m_qmlDebugServices = QmlDebug::NoQmlDebugServices;
+        storage->m_qmlDebugServices = NoQmlDebugServices;
 
-    if (storage->m_qmlDebugServices != QmlDebug::NoQmlDebugServices) {
+    if (storage->m_qmlDebugServices != NoQmlDebugServices) {
         qCDebug(androidRunWorkerLog) << "QML debugging enabled";
         QTcpServer server;
         const bool isListening = server.listen(QHostAddress::LocalHost);
@@ -201,8 +210,8 @@ static void setupStorage(RunnerStorage *storage, RunnerInterface *glue)
     }
 
     auto target = glue->runControl()->target();
-    storage->m_packageName = AndroidManager::packageName(target);
-    storage->m_intentName = storage->m_packageName + '/' + AndroidManager::activityName(target);
+    storage->m_packageName = packageName(target);
+    storage->m_intentName = storage->m_packageName + '/' + activityName(target);
     qCDebug(androidRunWorkerLog) << "Intent name:" << storage->m_intentName
                                  << "Package name:" << storage->m_packageName;
     qCDebug(androidRunWorkerLog) << "Device API:" << glue->apiLevel();
@@ -217,8 +226,7 @@ static void setupStorage(RunnerStorage *storage, RunnerInterface *glue)
     if (const Store sd = glue->runControl()->settingsData(Constants::ANDROID_AM_START_ARGS);
         !sd.isEmpty()) {
         QTC_CHECK(sd.first().typeId() == QMetaType::QString);
-        const QString startArgs = sd.first().toString();
-        storage->m_amStartExtraArgs = ProcessArgs::splitArgs(startArgs, OsTypeOtherUnix);
+        storage->m_amStartExtraArgs = sd.first().toString();
     }
 
     if (const Store sd = glue->runControl()->settingsData(Constants::ANDROID_PRESTARTSHELLCMDLIST);
@@ -301,7 +309,7 @@ static ExecutableItem removeForwardPortRecipe(RunnerStorage *storage, const QStr
         process.setCommand(storage->adbCommand({"forward", "--remove", port}));
     };
     const auto onForwardRemoveDone = [storage](const Process &process) {
-        storage->m_glue->addStdErr(process.cleanedStdErr().trimmed());
+        emit storage->m_glue->stdErr(process.cleanedStdErr().trimmed());
         return true;
     };
 
@@ -313,7 +321,7 @@ static ExecutableItem removeForwardPortRecipe(RunnerStorage *storage, const QStr
             storage->m_afterFinishAdbCommands.push_back("forward --remove " + port);
         } else {
             //: %1 = QML/JDB/C++
-            storage->m_glue->setFinished(Tr::tr("Failed to forward %1 debugging ports.").arg(portType));
+            emit storage->m_glue->finished(Tr::tr("Failed to forward %1 debugging ports.").arg(portType));
         }
     };
 
@@ -449,18 +457,18 @@ static ExecutableItem logcatRecipe(const Storage<RunnerStorage> &storage)
                     const QString cleanPidMatch = pidMatch.mid(1, pidMatch.size() - 2).trimmed();
                     const QString output = QString(line).remove(pidMatch);
                     if (isFatal) {
-                        storagePtr->m_glue->addStdErr(output);
+                        emit storagePtr->m_glue->stdErr(output);
                     } else if (cleanPidMatch == pidString) {
                         if (onlyError || errorMsgTypes.contains(msgType))
-                            storagePtr->m_glue->addStdErr(output);
+                            emit storagePtr->m_glue->stdErr(output);
                         else
-                            storagePtr->m_glue->addStdOut(output);
+                            emit storagePtr->m_glue->stdOut(output);
                     }
                 } else {
                     if (onlyError || errorMsgTypes.contains(msgType))
-                        storagePtr->m_glue->addStdErr(line);
+                        emit storagePtr->m_glue->stdErr(line);
                     else
-                        storagePtr->m_glue->addStdOut(line);
+                        emit storagePtr->m_glue->stdOut(line);
                 }
             }
         };
@@ -489,15 +497,15 @@ static ExecutableItem logcatRecipe(const Storage<RunnerStorage> &storage)
 
 static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
 {
-    const Storage<QStringList> argsStorage;
+    const Storage<CommandLine> cmdStorage;
     const LoopUntil iterator([storage](int iteration) {
         return iteration < storage->m_beforeStartAdbCommands.size();
     });
 
-    const auto onArgsSetup = [storage, argsStorage] {
-        *argsStorage = {"shell", "am", "start", "-n", storage->m_intentName};
+    const auto onArgsSetup = [storage, cmdStorage] {
+        *cmdStorage = storage->adbCommand({"shell", "am", "start", "-n", storage->m_intentName});
         if (storage->m_useCppDebugger)
-            *argsStorage << "-D";
+            *cmdStorage << "-D";
     };
 
     const auto onPreCommandSetup = [storage, iterator](Process &process) {
@@ -505,56 +513,52 @@ static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
             {storage->m_beforeStartAdbCommands.at(iterator.iteration()).split(' ', Qt::SkipEmptyParts)}));
     };
     const auto onPreCommandDone = [storage](const Process &process) {
-        storage->m_glue->addStdErr(process.cleanedStdErr().trimmed());
+        emit storage->m_glue->stdErr(process.cleanedStdErr().trimmed());
     };
 
     const auto isQmlDebug = [storage] {
-        return storage->m_qmlDebugServices != QmlDebug::NoQmlDebugServices;
+        return storage->m_qmlDebugServices != NoQmlDebugServices;
     };
     const auto onTaskTreeSetup = [storage](TaskTree &taskTree) {
         const QString port = "tcp:" + QString::number(storage->m_qmlServer.port());
         taskTree.setRecipe({removeForwardPortRecipe(storage.activeStorage(), port, port, "QML")});
     };
-    const auto onQmlDebugSync = [storage, argsStorage] {
+    const auto onQmlDebugSync = [storage, cmdStorage] {
         const QString qmljsdebugger = QString("port:%1,block,services:%2")
-            .arg(storage->m_qmlServer.port()).arg(QmlDebug::qmlDebugServices(storage->m_qmlDebugServices));
+            .arg(storage->m_qmlServer.port()).arg(qmlDebugServices(storage->m_qmlDebugServices));
 
         if (storage->m_useAppParamsForQmlDebugger) {
             if (!storage->m_extraAppParams.isEmpty())
                 storage->m_extraAppParams.prepend(' ');
             storage->m_extraAppParams.prepend("-qmljsdebugger=" + qmljsdebugger);
         } else {
-            *argsStorage << "-e" << "qml_debug" << "true"
+            *cmdStorage << "-e" << "qml_debug" << "true"
                          << "-e" << "qmljsdebugger" << qmljsdebugger;
         }
     };
 
-    const auto onActivitySetup = [storage, argsStorage](Process &process) {
-        QStringList args = *argsStorage;
-        args << storage->m_amStartExtraArgs;
+    const auto onActivitySetup = [storage, cmdStorage](Process &process) {
+        cmdStorage->addArgs(storage->m_amStartExtraArgs, CommandLine::Raw);
 
         if (!storage->m_extraAppParams.isEmpty()) {
-            const QStringList appArgs =
-                ProcessArgs::splitArgs(storage->m_extraAppParams, Utils::OsType::OsTypeLinux);
+            const QByteArray appArgs = storage->m_extraAppParams.toUtf8();
             qCDebug(androidRunWorkerLog).noquote() << "Using application arguments: " << appArgs;
-            args << "-e" << "extraappparams"
-                 << QString::fromLatin1(appArgs.join(' ').toUtf8().toBase64());
+            *cmdStorage << "-e" << "extraappparams" << QString::fromLatin1(appArgs.toBase64());
         }
 
         if (storage->m_extraEnvVars.hasChanges()) {
-            args << "-e" << "extraenvvars"
-                 << QString::fromLatin1(storage->m_extraEnvVars.toStringList().join('\t')
-                                            .toUtf8().toBase64());
+            const QByteArray extraEnv = storage->m_extraEnvVars.toStringList().join('\t').toUtf8();
+            *cmdStorage << "-e" << "extraenvvars" <<  QString::fromLatin1(extraEnv.toBase64());
         }
-        process.setCommand(storage->adbCommand({args}));
+        process.setCommand(*cmdStorage);
     };
     const auto onActivityDone = [storage](const Process &process) {
-        storage->m_glue->setFinished(
+        emit storage->m_glue->finished(
             Tr::tr("Activity Manager error: %1").arg(process.cleanedStdErr().trimmed()));
     };
 
     return Group {
-        argsStorage,
+        cmdStorage,
         onGroupSetup(onArgsSetup),
         For (iterator) >> Do {
             ProcessTask(onPreCommandSetup, onPreCommandDone, CallDoneIf::Error)
@@ -585,7 +589,7 @@ static ExecutableItem postDoneRecipe(const Storage<RunnerStorage> &storage)
         const QString message = storage->m_glue->wasCancelled()
                                     ? Tr::tr("Android target \"%1\" terminated.").arg(package)
                                     : Tr::tr("Android target \"%1\" died.").arg(package);
-        storage->m_glue->setFinished(message);
+        emit storage->m_glue->finished(message);
     };
 
     return Group {
@@ -651,7 +655,7 @@ static ExecutableItem uploadDebugServerRecipe(const Storage<RunnerStorage> &stor
 
     const auto onDebugSetupFinished = [storage] {
         storage->m_glue->runControl()->setQmlChannel(storage->m_qmlServer);
-        storage->m_glue->setStarted(s_localDebugServerPort, storage->m_processPID);
+        emit storage->m_glue->started(s_localDebugServerPort, storage->m_processPID);
     };
 
     return Group {
@@ -693,7 +697,7 @@ static ExecutableItem startNativeDebuggingRecipe(const Storage<RunnerStorage> &s
         if (result == DoneWith::Success)
             *packageDirStorage = process.stdOut();
         else
-            storage->m_glue->setFinished(Tr::tr("Failed to find application directory."));
+            emit storage->m_glue->finished(Tr::tr("Failed to find application directory."));
     };
 
     // Add executable flag to package dir. Gdb can't connect to running server on device on
@@ -707,7 +711,7 @@ static ExecutableItem startNativeDebuggingRecipe(const Storage<RunnerStorage> &s
         QString msg = Tr::tr("Cannot find C++ debug server in NDK installation.");
         if (storage->m_useLldb)
             msg += "\n" + Tr::tr("The lldb-server binary has not been found.");
-        storage->m_glue->setFinished(msg);
+        emit storage->m_glue->finished(msg);
         return false;
     };
 
@@ -726,7 +730,7 @@ static ExecutableItem startNativeDebuggingRecipe(const Storage<RunnerStorage> &s
             setDebugServer(debugServerFileName)
         } >> Else {
             Sync([storage] {
-                storage->m_glue->setFinished(Tr::tr("Cannot copy C++ debug server."));
+                emit storage->m_glue->finished(Tr::tr("Cannot copy C++ debug server."));
                 return false;
             })
         };
@@ -833,7 +837,7 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
                 qCDebug(androidRunWorkerLog) << "Process ID changed to:" << storage->m_processPID;
                 if (!storage->m_useCppDebugger) {
                     storage->m_glue->runControl()->setQmlChannel(storage->m_qmlServer);
-                    storage->m_glue->setStarted(s_localDebugServerPort, storage->m_processPID);
+                    emit storage->m_glue->started(s_localDebugServerPort, storage->m_processPID);
                 }
                 return DoneResult::Success;
             }
@@ -842,13 +846,27 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
     };
 
     const auto onArtSetup = [storage](Process &process) {
-        process.setCommand(storage->adbCommand({"shell", "pm", "art", "clear-app-profiles",
-                                                storage->m_packageName}));
+        process.setCommand(storage->adbCommand(
+            {"shell", "pm", "art", "clear-app-profiles", storage->m_packageName}));
+    };
+    const auto onArtDone = [storage](const Process &process) {
+        if (process.result() == ProcessResult::FinishedWithSuccess)
+            emit storage->m_glue->stdOut(Tr::tr("Art: Cleared App Profiles."));
+        else
+            emit storage->m_glue->stdOut(Tr::tr("Art: Clearing App Profiles failed."));
+        return DoneResult::Success;
     };
 
     const auto onCompileSetup = [storage](Process &process) {
-        process.setCommand(storage->adbCommand({"shell", "pm", "compile", "-m", "verify", "-f",
-                                                storage->m_packageName}));
+        process.setCommand(storage->adbCommand(
+            {"shell", "pm", "compile", "-m", "verify", "-f", storage->m_packageName}));
+    };
+    const auto onCompileDone = [storage](const Process &process) {
+        if (process.result() == ProcessResult::FinishedWithSuccess)
+            emit storage->m_glue->stdOut(Tr::tr("Art: Compiled App Profiles."));
+        else
+            emit storage->m_glue->stdOut(Tr::tr("Art: Compiling App Profiles failed."));
+        return DoneResult::Success;
     };
 
     const auto onIsAliveSetup = [storage](Process &process) {
@@ -856,33 +874,29 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
         process.setCommand(storage->adbCommand({"shell", pidPollingScript.arg(storage->m_processPID)}));
     };
 
+    // clang-format off
     return Group {
         Forever {
             stopOnSuccess,
             ProcessTask(onPidSetup, onPidDone, CallDoneIf::Success),
-            TimeoutTask([](std::chrono::milliseconds &timeout) { timeout = 200ms; },
-                        DoneResult::Error)
+            timeoutTask(200ms)
         }.withTimeout(45s),
         ProcessTask(onUserSetup, onUserDone, CallDoneIf::Success),
-        ProcessTask(onArtSetup, DoneResult::Success),
-        ProcessTask(onCompileSetup, DoneResult::Success),
+        ProcessTask(onArtSetup, onArtDone),
+        ProcessTask(onCompileSetup, onCompileDone),
         Group {
             parallel,
             startNativeDebuggingRecipe(storage),
             ProcessTask(onIsAliveSetup)
         }
     };
+    // clang-format on
 }
 
 void RunnerInterface::cancel()
 {
     m_wasCancelled = true;
     emit canceled();
-}
-
-void RunnerInterface::setStarted(const Port &debugServerPort, qint64 pid)
-{
-    emit started(debugServerPort, pid);
 }
 
 ExecutableItem runnerRecipe(const Storage<RunnerInterface> &glueStorage)

@@ -16,8 +16,7 @@ public:
     CustomWidgetWizard();
 
 protected:
-    Core::BaseFileWizard *create(QWidget *parent,
-                                 const Core::WizardDialogParameters &parameters) const override;
+    Core::BaseFileWizard *create(const Core::WizardDialogParameters &parameters) const override;
 
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const override;
 };

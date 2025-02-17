@@ -558,7 +558,8 @@ static QString quoteArgWin(const QString &arg)
         // Quotes are escaped and their preceding backslashes are doubled.
         // It's impossible to escape anything inside a quoted string on cmd
         // level, so the outer quoting must be "suspended".
-        ret.replace(QRegularExpression(QLatin1String("(\\\\*)\"")), QLatin1String("\"\\1\\1\\^\"\""));
+        static const QRegularExpression regexp("(\\\\*)\"");
+        ret.replace(regexp, QLatin1String("\"\\1\\1\\^\"\""));
         // The argument must not end with a \ since this would be interpreted
         // as escaping the quote -- rather put the \ behind the quote: e.g.
         // rather use "foo"\ than "foo\"
@@ -579,7 +580,7 @@ ProcessArgs ProcessArgs::prepareArgs(const QString &args, SplitError *err, OsTyp
     QString wdcopy;
     QString *wd = nullptr;
     if (pwd) {
-        wdcopy = pwd->toString();
+        wdcopy = pwd->toUrlishString();
         wd = &wdcopy;
     }
     ProcessArgs res;
@@ -656,7 +657,7 @@ bool ProcessArgs::prepareCommand(const CommandLine &cmdLine, QString *outCmd, Pr
     ProcessArgs::SplitError err;
     *outArgs = ProcessArgs::prepareArgs(arguments, &err, executable.osType(), env, pwd);
     if (err == ProcessArgs::SplitOk) {
-        *outCmd = executable.toString();
+        *outCmd = executable.toUrlishString();
     } else {
         if (executable.osType() == OsTypeWindows) {
             *outCmd = qtcEnvironmentVariable("COMSPEC");
@@ -666,7 +667,7 @@ bool ProcessArgs::prepareCommand(const CommandLine &cmdLine, QString *outCmd, Pr
             if (err != ProcessArgs::FoundMeta)
                 return false;
             *outCmd = qtcEnvironmentVariable("SHELL", "/bin/sh");
-            *outArgs = ProcessArgs::createUnixArgs({"-c", quoteArg(executable.toString()) + ' ' + arguments});
+            *outArgs = ProcessArgs::createUnixArgs({"-c", quoteArg(executable.toUrlishString()) + ' ' + arguments});
         }
     }
     return true;
@@ -961,7 +962,8 @@ bool ProcessArgs::expandMacros(QString *cmd, const FindMacro &findMacro, OsType 
                 // Our expansion rules trigger in any context
                 if (state.dquote) {
                     // We are within a double-quoted string. Escape relevant meta characters.
-                    rsts.replace(QRegularExpression(QLatin1String("([$`\"\\\\])")), QLatin1String("\\\\1"));
+                    static const QRegularExpression regexp("([$`\"\\\\])");
+                    rsts.replace(regexp, QLatin1String("\\\\1"));
                 } else if (state.current == MxSingleQuote) {
                     // We are within a single-quoted string. "Suspend" single-quoting and put a
                     // single escaped quote for each single quote inside the string.
@@ -1609,6 +1611,17 @@ QString CommandLine::displayName() const
 QStringList CommandLine::splitArguments() const
 {
     return ProcessArgs::splitArgs(m_arguments, m_executable.osType());
+}
+
+CommandLine CommandLine::toLocal() const
+{
+    if (m_executable.isLocal())
+        return *this;
+
+    QTC_CHECK(false); // TODO: Does it make sense?
+    CommandLine cmd = *this;
+    cmd.setExecutable(FilePath::fromString(m_executable.path()));
+    return cmd;
 }
 
 QTCREATOR_UTILS_EXPORT bool operator==(const CommandLine &first, const CommandLine &second)

@@ -188,19 +188,6 @@ unsigned FossilClient::makeVersionNumber(int major, int minor, int patch)
            (QString().setNum(patch).toUInt(0,16));
 }
 
-static inline QString versionPart(unsigned part)
-{
-    return QString::number(part & 0xff, 16);
-}
-
-QString FossilClient::makeVersionString(unsigned version)
-{
-    return QString::fromLatin1("%1.%2.%3")
-                    .arg(versionPart(version >> 16))
-                    .arg(versionPart(version >> 8))
-                    .arg(versionPart(version));
-}
-
 FossilSettings &FossilClient::settings() const
 {
     return Internal::settings();
@@ -227,7 +214,7 @@ unsigned int FossilClient::synchronousBinaryVersion() const
 
     // fossil version:
     // "This is fossil version 1.27 [ccdefa355b] 2013-09-30 11:47:18 UTC"
-    QRegularExpression versionPattern("(\\d+)\\.(\\d+)");
+    static const QRegularExpression versionPattern("(\\d+)\\.(\\d+)");
     QTC_ASSERT(versionPattern.isValid(), return 0);
     QRegularExpressionMatch versionMatch = versionPattern.match(output);
     QTC_ASSERT(versionMatch.hasMatch(), return 0);
@@ -317,8 +304,8 @@ QStringList FossilClient::parseRevisionCommentLine(const QString &commentLine)
 {
     // "comment:      This is a (test) commit message (user: the.name)"
 
-    const QRegularExpression commentRx("^comment:\\s+(.*)\\s\\(user:\\s(.*)\\)$",
-                                       QRegularExpression::CaseInsensitiveOption);
+    static const QRegularExpression commentRx("^comment:\\s+(.*)\\s\\(user:\\s(.*)\\)$",
+                                              QRegularExpression::CaseInsensitiveOption);
     QTC_ASSERT(commentRx.isValid(), return {});
 
     const QRegularExpressionMatch match = commentRx.match(commentLine);
@@ -354,7 +341,7 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const FilePath &workingDirec
     QString commentMsg;
     QString committer;
 
-    const QRegularExpression idRx("([0-9a-f]{5,40})");
+    static const QRegularExpression idRx("([0-9a-f]{5,40})");
     QTC_ASSERT(idRx.isValid(), return {});
 
     const QString hashToken =
@@ -586,7 +573,7 @@ bool FossilClient::synchronousCreateRepository(const FilePath &workingDirectory,
     // @TODO: what about --template options?
 
     const FilePath fullRepoName = FilePath::fromStringWithExtension(repoName, Constants::FOSSIL_FILE_SUFFIX);
-    const FilePath repoFilePath = repoPath.pathAppended(fullRepoName.toString());
+    const FilePath repoFilePath = repoPath.pathAppended(fullRepoName.toUrlishString());
     QStringList args(vcsCommandString(CreateRepositoryCommand));
     if (!adminUser.isEmpty())
         args << "--admin-user" << adminUser;
@@ -737,11 +724,6 @@ bool FossilClient::isVcsFileOrDirectory(const FilePath &filePath) const
            && filePath.isFile();
 }
 
-FilePath FossilClient::findTopLevelForFile(const FilePath &file) const
-{
-    return findRepositoryForFile(file, Constants::FOSSILREPO);
-}
-
 bool FossilClient::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
     const CommandResult result = vcsSynchronousExec(workingDirectory, {"finfo", fileName});
@@ -772,16 +754,6 @@ unsigned int FossilClient::binaryVersion() const
     }
 
     return cachedBinaryVersion;
-}
-
-QString FossilClient::binaryVersionString() const
-{
-    const unsigned int version = binaryVersion();
-
-    // Fossil itself does not report patch version, only maj.min
-    // Here we include the patch part for general convention consistency
-
-    return makeVersionString(version);
 }
 
 FossilClient::SupportedFeatures FossilClient::supportedFeatures() const
@@ -994,7 +966,7 @@ void FossilClient::revertFile(const FilePath &workingDir,
 
     // Indicate file list
     VcsCommand *cmd = createCommand(workingDir);
-    const QStringList files = {workingDir.toString() + "/" + file};
+    const QStringList files = {workingDir.toUrlishString() + "/" + file};
     connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
             emit changed(files);
@@ -1018,7 +990,7 @@ void FossilClient::revertAll(const FilePath &workingDir, const QString &revision
 
     // Indicate repository change
     VcsCommand *cmd = createCommand(workingDir);
-    const QStringList files = QStringList(workingDir.toString());
+    const QStringList files = QStringList(workingDir.toUrlishString());
     connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
             emit changed(files);

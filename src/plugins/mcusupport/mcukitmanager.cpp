@@ -23,10 +23,13 @@
 #include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggerkitaspect.h>
 
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/sysrootkitaspect.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -125,7 +128,7 @@ public:
             k->setDeviceTypeForIcon(DEVICE_TYPE);
         k->setValue(QtSupport::Constants::FLAGS_SUPPLIES_QTQUICK_IMPORT_PATH, true);
         // FIXME: This is treated as a pathlist in CMakeBuildSystem::updateQmlJSCodeModel
-        k->setValue(QtSupport::Constants::KIT_QML_IMPORT_PATH, (sdkPath / "include/qul").toString());
+        k->setValue(QtSupport::Constants::KIT_QML_IMPORT_PATH, (sdkPath / "include/qul").toUrlishString());
         k->setValue(QtSupport::Constants::KIT_HAS_MERGED_HEADER_PATHS_WITH_QML_IMPORT_PATHS, true);
         QSet<Id> irrelevant = {
             SysRootKitAspect::id(),
@@ -175,7 +178,7 @@ public:
         if (mcuTarget->toolChainPackage()->isDesktopToolchain())
             return;
 
-        DeviceTypeKitAspect::setDeviceTypeId(k, Constants::DEVICE_TYPE);
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::DEVICE_TYPE);
     }
 
     static void setKitDependencies(Kit *k,
@@ -244,7 +247,7 @@ public:
         if (McuSupportOptions::kitsNeedQtVersion())
             changes.append({QLatin1String("LD_LIBRARY_PATH"), "%{Qt:QT_INSTALL_LIBS}"});
 
-        EnvironmentKitAspect::setEnvironmentChanges(k, changes);
+        EnvironmentKitAspect::setBuildEnvChanges(k, changes);
     }
 
     static void setKitCMakeOptions(Kit *k,
@@ -275,9 +278,9 @@ public:
                 if (!cxxToolchain->compilerCommand().isEmpty()
                     && !cToolchain->compilerCommand().isEmpty()) {
                     configMap.insert("CMAKE_CXX_COMPILER",
-                                     cxxToolchain->compilerCommand().toString().toLatin1());
+                                     cxxToolchain->compilerCommand().toUrlishString().toLatin1());
                     configMap.insert("CMAKE_C_COMPILER",
-                                     cToolchain->compilerCommand().toString().toLatin1());
+                                     cToolchain->compilerCommand().toUrlishString().toLatin1());
                 }
             } else {
                 printMessage(Tr::tr("Warning for target %1: invalid toolchain path (%2). "
@@ -297,7 +300,7 @@ public:
             const FilePath cMakeToolchainFile = mcuTarget->toolChainFilePackage()->path();
 
             configMap.insert(Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
-                             cMakeToolchainFile.toString().toUtf8());
+                             cMakeToolchainFile.toUrlishString().toUtf8());
             if (!cMakeToolchainFile.exists()) {
                 printMessage(
                     Tr::tr("Warning for target %1: missing CMake toolchain file expected at %2.")
@@ -309,7 +312,7 @@ public:
 
         const FilePath generatorsPath = qtForMCUsSdkPackage->path().pathAppended(
             "/lib/cmake/Qul/QulGenerators.cmake");
-        configMap.insert("QUL_GENERATORS", generatorsPath.toString().toUtf8());
+        configMap.insert("QUL_GENERATORS", generatorsPath.toUrlishString().toUtf8());
         if (!generatorsPath.exists()) {
             printMessage(Tr::tr("Warning for target %1: missing QulGenerators expected at %2.")
                              .arg(generateKitNameFromTarget(mcuTarget),
@@ -554,7 +557,7 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
                 case McuAbstractPackage::Status::InvalidPath: {
                     const QString message
                         = Tr::tr("Path %1 does not exist. Add the path in Edit > Preferences > "
-                                 "Devices > MCU.")
+                                 "SDKs > MCU.")
                               .arg(qtForMCUsPackage->path().toUserOutput());
                     autoGenerationMessages.push_back({qtForMCUsPackage->label(), "", message});
                     printMessage(message, true);
@@ -562,7 +565,7 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
                 }
                 case McuAbstractPackage::Status::EmptyPath: {
                     const QString message
-                        = Tr::tr("Missing %1. Add the path in Edit > Preferences > Devices > MCU.")
+                        = Tr::tr("Missing %1. Add the path in Edit > Preferences > SDKs > MCU.")
                               .arg(qtForMCUsPackage->detectionPathsToString());
                     autoGenerationMessages.push_back({qtForMCUsPackage->label(), "", message});
                     printMessage(message, true);

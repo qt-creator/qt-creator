@@ -103,7 +103,7 @@ void SelectableFilesFromDirModel::buildTree(const Utils::FilePath &baseDir, Tree
     if (symlinkDepth == 0)
         return;
 
-    const QFileInfoList fileInfoList = QDir(baseDir.toString()).entryInfoList(QDir::Files |
+    const QFileInfoList fileInfoList = QDir(baseDir.toUrlishString()).entryInfoList(QDir::Files |
                                                                               QDir::Dirs |
                                                                               QDir::NoDotAndDotDot);
     bool allChecked = true;

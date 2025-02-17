@@ -18,10 +18,10 @@ QtcPlugin {
         "QbsProjectManager",
     ]
 
-    cpp.defines: base
+    Properties { cpp.defines: base }
     Properties {
         condition: qbs.toolchain.contains("msvc")
-        cpp.defines: base.concat("_SCL_SECURE_NO_WARNINGS")
+        cpp.defines: "_SCL_SECURE_NO_WARNINGS"
     }
 
     files: [
@@ -67,8 +67,6 @@ QtcPlugin {
         "cppcodemodelinspectordumper.h",
         "cppcodemodelsettings.cpp",
         "cppcodemodelsettings.h",
-        "cppcodestylepreferences.cpp",
-        "cppcodestylepreferences.h",
         "cppcodestylepreferencesfactory.cpp",
         "cppcodestylepreferencesfactory.h",
         "cppcodestylesettings.cpp",

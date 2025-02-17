@@ -14,7 +14,7 @@ add_qtc_plugin(ProjectExplorer
     buildaspects.cpp buildaspects.h
     buildpropertiessettings.cpp buildpropertiessettings.h
     buildconfiguration.cpp buildconfiguration.h
-    buildinfo.cpp buildinfo.h
+    buildinfo.h
     buildmanager.cpp buildmanager.h
     buildsettingspropertiespage.cpp buildsettingspropertiespage.h
     buildstep.cpp buildstep.h
@@ -58,7 +58,6 @@ add_qtc_plugin(ProjectExplorer
     devicesupport/deviceprocessesdialog.cpp devicesupport/deviceprocessesdialog.h
     devicesupport/devicesettingspage.cpp devicesupport/devicesettingspage.h
     devicesupport/devicetestdialog.cpp devicesupport/devicetestdialog.h
-    devicesupport/deviceusedportsgatherer.cpp devicesupport/deviceusedportsgatherer.h
     devicesupport/filetransfer.cpp devicesupport/filetransfer.h
     devicesupport/filetransferinterface.h
     devicesupport/idevice.cpp devicesupport/idevice.h
@@ -73,6 +72,7 @@ add_qtc_plugin(ProjectExplorer
     editorsettingspropertiespage.cpp editorsettingspropertiespage.h
     environmentaspect.cpp environmentaspect.h
     environmentaspectwidget.cpp environmentaspectwidget.h
+    environmentkitaspect.cpp environmentkitaspect.h
     environmentwidget.cpp environmentwidget.h
     expanddata.cpp expanddata.h
     extraabi.cpp extraabi.h
@@ -104,7 +104,6 @@ add_qtc_plugin(ProjectExplorer
     jsonwizard/jsonwizardscannergenerator.cpp jsonwizard/jsonwizardscannergenerator.h
     kit.cpp kit.h
     kitaspect.cpp kitaspect.h
-    kitaspects.cpp kitaspects.h
     kitchooser.cpp kitchooser.h
     kitfeatureprovider.h
     kitmanager.cpp kitmanager.h
@@ -117,7 +116,6 @@ add_qtc_plugin(ProjectExplorer
     miniprojecttargetselector.cpp miniprojecttargetselector.h
     msvcparser.cpp msvcparser.h
     msvctoolchain.cpp msvctoolchain.h
-    namedwidget.cpp namedwidget.h
     osparser.cpp osparser.h
     panelswidget.cpp panelswidget.h
     parseissuesdialog.cpp parseissuesdialog.h
@@ -150,6 +148,7 @@ add_qtc_plugin(ProjectExplorer
     projectwelcomepage.cpp projectwelcomepage.h
     projectwindow.cpp projectwindow.h
     projectwizardpage.cpp projectwizardpage.h
+    qmldebugcommandlinearguments.cpp qmldebugcommandlinearguments.h
     rawprojectpart.cpp rawprojectpart.h
     removetaskhandler.cpp removetaskhandler.h
     runconfiguration.cpp runconfiguration.h
@@ -161,6 +160,7 @@ add_qtc_plugin(ProjectExplorer
     showineditortaskhandler.cpp showineditortaskhandler.h
     showoutputtaskhandler.cpp showoutputtaskhandler.h
     simpleprojectwizard.cpp simpleprojectwizard.h
+    sysrootkitaspect.cpp sysrootkitaspect.h
     target.cpp target.h
     targetsettingspanel.cpp targetsettingspanel.h
     targetsetuppage.cpp targetsetuppage.h
@@ -182,6 +182,7 @@ add_qtc_plugin(ProjectExplorer
     vcsannotatetaskhandler.cpp vcsannotatetaskhandler.h
     waitforstopdialog.cpp waitforstopdialog.h
     windebuginterface.cpp windebuginterface.h
+    windowsappsdksettings.cpp windowsappsdksettings.h
     workspaceproject.h workspaceproject.cpp
     xcodebuildparser.cpp xcodebuildparser.h
 )

@@ -1,5 +1,6 @@
 {
     "Id" : "serialterminal",
+    "DisplayName" : "Serial Terminal",
     "Name" : "SerialTerminal",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

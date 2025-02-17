@@ -434,22 +434,22 @@ int TextDocumentLayout::braceDepthDelta(const QTextBlock &block)
 
 int TextDocumentLayout::braceDepth(const QTextBlock &block)
 {
-    int state = block.userState();
-    if (state == -1)
-        return 0;
-    return (state >> 8) & 0xff;
+    if (TextBlockUserData *userData = textUserData(block))
+        return userData->braceDepth();
+    return 0;
 }
 
-void TextDocumentLayout::setBraceDepth(QTextBlock &block, int depth)
+void TextDocumentLayout::setBraceDepth(const QTextBlock &block, int depth)
 {
-    int state = block.userState();
-    if (state == -1)
-        state = 0;
-    state = state & 0xff;
-    block.setUserState((depth << 8) | state);
+    if (depth == 0) {
+        if (TextBlockUserData *userData = textUserData(block))
+            userData->setBraceDepth(depth);
+    } else {
+        userData(block)->setBraceDepth(depth);
+    }
 }
 
-void TextDocumentLayout::changeBraceDepth(QTextBlock &block, int delta)
+void TextDocumentLayout::changeBraceDepth(const QTextBlock &block, int delta)
 {
     if (delta)
         setBraceDepth(block, braceDepth(block) + delta);
@@ -736,6 +736,19 @@ void TextDocumentLayout::requestUpdateNow()
 {
     m_updateScheduled = false;
     requestUpdate();
+}
+
+int TextDocumentLayout::embeddedWidgetOffset(const QTextBlock &block, QWidget *widget)
+{
+    if (auto userData = textUserData(block)) {
+        int offset = QPlainTextDocumentLayout::blockBoundingRect(block).height();
+        for (auto embeddedWidget : userData->embeddedWidgets()) {
+            if (embeddedWidget == widget)
+                return offset;
+            offset += embeddedWidget->height();
+        }
+    }
+    return -1;
 }
 
 void TextDocumentLayout::resetReloadMarks()

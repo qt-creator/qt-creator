@@ -9,7 +9,6 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -80,7 +79,7 @@ static CommandLine emrunCommand(const Target *target,
         args.append(port);
         args.append("--no_emrun_detect");
         args.append("--serve_after_close");
-        args.append(html.toString());
+        args.append(html.toUrlishString());
 
         return CommandLine(pythonInterpreter(env), args);
     }
@@ -199,26 +198,6 @@ private:
     StringAspect effectiveEmrunCall{this};
 };
 
-class EmrunRunWorker : public SimpleTargetRunner
-{
-public:
-    EmrunRunWorker(RunControl *runControl)
-        : SimpleTargetRunner(runControl)
-    {
-        runControl->requestWorkerChannel();
-
-        setStartModifier([this, runControl] {
-            const QString browserId =
-                    runControl->aspectData<WebBrowserSelectionAspect>()->currentBrowser;
-            setCommandLine(emrunCommand(runControl->target(),
-                                        runControl->buildKey(),
-                                        browserId,
-                                        QString::number(runControl->workerChannel().port())));
-            setEnvironment(runControl->buildEnvironment());
-        });
-    }
-};
-
 // Factories
 
 class EmrunRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
@@ -236,7 +215,20 @@ class EmrunRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 public:
     EmrunRunWorkerFactory()
     {
-        setProduct<EmrunRunWorker>();
+        setProducer([](RunControl *runControl) {
+            auto worker = new ProcessRunner(runControl);
+            runControl->requestWorkerChannel();
+
+            worker->setStartModifier([worker, runControl] {
+                const QString browserId =
+                    runControl->aspectData<WebBrowserSelectionAspect>()->currentBrowser;
+                worker->setCommandLine(emrunCommand(runControl->target(), runControl->buildKey(),
+                    browserId, QString::number(runControl->workerChannel().port())));
+                worker->setEnvironment(runControl->buildEnvironment());
+            });
+
+            return worker;
+        });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN);
     }

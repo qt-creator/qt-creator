@@ -320,7 +320,7 @@ void McuSupportOptionsWidget::apply()
 
     QMessageBox warningPopup(QMessageBox::Icon::Warning,
                              Tr::tr("Warning"),
-                             Tr::tr("Cannot apply changes in Devices > MCU."),
+                             Tr::tr("Cannot apply changes in SDKs > MCU."),
                              QMessageBox::Ok,
                              this);
 
@@ -371,7 +371,7 @@ McuSupportOptionsPage::McuSupportOptionsPage(McuSupportOptions &options,
 {
     setId(Utils::Id(Constants::SETTINGS_ID));
     setDisplayName(Tr::tr("MCU"));
-    setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
+    setCategory(ProjectExplorer::Constants::SDK_SETTINGS_CATEGORY);
     setWidgetCreator([&options, &settingsHandler] {
         return new McuSupportOptionsWidget(options, settingsHandler);
     });

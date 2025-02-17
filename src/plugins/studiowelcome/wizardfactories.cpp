@@ -17,10 +17,8 @@ using namespace StudioWelcome;
 WizardFactories::GetIconUnicodeFunc WizardFactories::m_getIconUnicode = &QmlDesigner::Theme::getIconUnicode;
 
 WizardFactories::WizardFactories(const QList<Core::IWizardFactory *> &factories,
-                                 QWidget *wizardParent,
                                  const Utils::Id &platform)
-    : m_wizardParent{wizardParent}
-    , m_platform{platform}
+    : m_platform{platform}
 {
     m_factories = Utils::filtered(Utils::transform(factories, [](Core::IWizardFactory *f) {
         return qobject_cast<JsonWizardFactory *>(f);
@@ -56,8 +54,7 @@ void WizardFactories::filter()
     m_factories = acceptedFactories;
 }
 
-std::shared_ptr<PresetItem> WizardFactories::makePresetItem(JsonWizardFactory *f, QWidget *parent,
-                                             const Utils::Id &platform)
+std::shared_ptr<PresetItem> WizardFactories::makePresetItem(JsonWizardFactory *f, const Utils::Id &platform)
 {
     using namespace std::placeholders;
 
@@ -77,7 +74,7 @@ std::shared_ptr<PresetItem> WizardFactories::makePresetItem(JsonWizardFactory *f
     result->qmlPath = f->detailsPageQmlPath();
     result->fontIconCode = m_getIconUnicode(f->fontIconName());
     result->create
-        = std::bind(&JsonWizardFactory::runWizard, f, _1, parent, platform, QVariantMap(), false);
+        = std::bind(&JsonWizardFactory::runWizard, f, _1, platform, QVariantMap(), false);
 
     return result;
 }
@@ -93,11 +90,11 @@ std::map<QString, WizardCategory> WizardFactories::makePresetItemsGroupedByCateg
                 /*.name =*/ f->displayCategory(),
                 /*.items = */
                 {
-                    makePresetItem(f, m_wizardParent, m_platform),
+                    makePresetItem(f, m_platform),
                 },
             };
         } else {
-            auto presetItem = makePresetItem(f, m_wizardParent, m_platform);
+            auto presetItem = makePresetItem(f, m_platform);
             categories[f->category()].items.push_back(presetItem);
         }
     }

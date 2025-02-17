@@ -464,9 +464,9 @@ bool FontSettings::loadColorScheme(const Utils::FilePath &filePath,
     return loaded;
 }
 
-bool FontSettings::saveColorScheme(const Utils::FilePath &fileName)
+bool FontSettings::saveColorScheme(const FilePath &fileName)
 {
-    const bool saved = m_scheme.save(fileName, Core::ICore::dialogParent());
+    const bool saved = m_scheme.save(fileName);
     if (saved)
         m_schemeFileName = fileName;
     return saved;

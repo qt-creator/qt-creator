@@ -60,8 +60,6 @@ public:
         setId(Constants::OPTIONS_GENERAL);
         setDisplayName(Tr::tr("General"));
         setCategory("J.Z.Haskell");
-        setDisplayCategory(Tr::tr("Haskell"));
-        setCategoryIconPath(":/haskell/images/settingscategory_haskell.png");
         setSettingsProvider([] { return &settings(); });
     }
 };

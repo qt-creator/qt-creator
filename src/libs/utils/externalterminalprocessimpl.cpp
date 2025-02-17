@@ -107,7 +107,7 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
              {ExternalTerminalProcessImpl::openTerminalScriptAttached(), TerminalAppScriptDetached}},
         };
 
-        if (terminalMap.contains(terminal.command.toString())) {
+        if (terminalMap.contains(terminal.command.toUrlishString())) {
             const QString env
                 = Utils::transform(setupData.m_environment.toStringList(), [](const QString &env) {
                       return CommandLine{"export", {env}}.toUserOutput();
@@ -139,8 +139,8 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
                                 | QFile::WriteGroup | QFile::WriteOther);
 
             const QString script = (detached
-                                        ? terminalMap.value(terminal.command.toString()).detached
-                                        : terminalMap.value(terminal.command.toString()).attached)
+                                        ? terminalMap.value(terminal.command.toUrlishString()).detached
+                                        : terminalMap.value(terminal.command.toUrlishString()).attached)
                                        .arg(shFile.fileName());
 
             process->setCommand({"osascript", {"-"}});
@@ -184,7 +184,10 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
         CommandLine cmdLine{terminal.command};
         if (!extraArgsFromOptions.isEmpty())
             cmdLine.addArgs(extraArgsFromOptions, CommandLine::Raw);
-        cmdLine.addCommandLineAsArgs(setupData.m_commandLine, CommandLine::Raw);
+        if (terminal.needsQuotes)
+            cmdLine.addCommandLineAsSingleArg(setupData.m_commandLine);
+        else
+            cmdLine.addCommandLineAsArgs(setupData.m_commandLine, CommandLine::Raw);
         process->setCommand(cmdLine);
     }
     process->setEnvironment(

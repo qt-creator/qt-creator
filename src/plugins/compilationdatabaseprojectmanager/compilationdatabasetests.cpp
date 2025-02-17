@@ -9,7 +9,7 @@
 #include <cppeditor/cpptoolstestcase.h>
 #include <cppeditor/projectinfo.h>
 
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>

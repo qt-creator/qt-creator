@@ -64,7 +64,16 @@ public:
 
     LineTerminationMode lineTerminationMode = NativeLineTerminator;
     bool hasUtf8Bom = false;
-    const QTextCodec *codec = nullptr;
+
+    QByteArray codecName() const;
+    void setCodecName(const QByteArray &codec);
+
+    // FIXME: Avoid.
+    const QTextCodec *codec() const;
+    void setCodec(const QTextCodec *codec);
+
+private:
+    const QTextCodec *m_codec = nullptr;
 };
 
 } // namespace Utils

@@ -5,6 +5,7 @@
 
 #include "texteditor_global.h"
 
+#include <utils/id.h>
 #include <utils/store.h>
 
 #include <QObject>
@@ -75,6 +76,9 @@ public:
     virtual Utils::Store toMap() const;
     virtual void fromMap(const Utils::Store &map);
 
+    Utils::Id globalSettingsCategory();
+    void setGlobalSettingsCategory(const Utils::Id &id);
+
 signals:
     void tabSettingsChanged(const TextEditor::TabSettings &settings);
     void currentTabSettingsChanged(const TextEditor::TabSettings &settings);
@@ -93,5 +97,77 @@ private:
     Internal::ICodeStylePreferencesPrivate *d;
 };
 
+template <typename T>
+class TypedCodeStylePreferences : public ICodeStylePreferences
+{
+public:
+    TypedCodeStylePreferences(QObject *parent = nullptr)
+        : ICodeStylePreferences(parent)
+    {
+        setSettingsSuffix("CodeStyleSettings");
+        setGlobalSettingsCategory(T::settingsId());
+    }
+
+    QVariant value() const final
+    {
+        QVariant v;
+        v.setValue(codeStyleSettings());
+        return v;
+    }
+    void setValue(const QVariant &data) final
+    {
+        if (!data.canConvert<T>())
+            return;
+
+        setCodeStyleSettings(data.value<T>());
+    }
+
+    T codeStyleSettings() const { return m_data; }
+
+    // Tracks parent hierarchy until currentParentSettings is null. TODO: return optional?
+    T currentCodeStyleSettings() const
+    {
+        QVariant v = currentValue();
+        if (!v.canConvert<T>()) {
+            // warning
+            return {};
+        }
+        return v.value<T>();
+    }
+
+    Utils::Store toMap() const override
+    {
+        Utils::Store map = ICodeStylePreferences::toMap();
+        if (!currentDelegate()) {
+            const Utils::Store dataMap = m_data.toMap();
+            for (auto it = dataMap.begin(), end = dataMap.end(); it != end; ++it)
+                map.insert(it.key(), it.value());
+        }
+        return map;
+    }
+    void fromMap(const Utils::Store &map) override
+    {
+        ICodeStylePreferences::fromMap(map);
+        if (!currentDelegate())
+            m_data.fromMap(map);
+    }
+
+    void setCodeStyleSettings(const T &data)
+    {
+        if (m_data == data)
+            return;
+
+        m_data = data;
+
+        QVariant v;
+        v.setValue(data);
+        emit valueChanged(v);
+        if (!currentDelegate())
+            emit currentValueChanged(v);
+    }
+
+private:
+    T m_data;
+};
 
 } // namespace TextEditor

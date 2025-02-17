@@ -198,7 +198,7 @@ CopilotSettings::CopilotSettings()
             textInteractionFlags(
                 Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard | Qt::TextSelectableByMouse),
             openExternalLinks(true),
-            onLinkHovered([](const QString &link) { QToolTip::showText(QCursor::pos(), link); }, this),
+            onLinkHovered(this, [](const QString &link) { QToolTip::showText(QCursor::pos(), link); }),
             text(Tr::tr(
                 "The Copilot plugin requires node.js and the Copilot neovim plugin. "
                 "If you install the neovim plugin as described in %1, "
@@ -286,8 +286,6 @@ public:
         setId(Constants::COPILOT_GENERAL_OPTIONS_ID);
         setDisplayName("Copilot");
         setCategory(Constants::COPILOT_GENERAL_OPTIONS_CATEGORY);
-        setDisplayCategory(Constants::COPILOT_GENERAL_OPTIONS_DISPLAY_CATEGORY);
-        setCategoryIconPath(":/copilot/images/settingscategory_copilot.png");
         setSettingsProvider([] { return &settings(); });
     }
 };

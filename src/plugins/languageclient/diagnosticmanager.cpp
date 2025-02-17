@@ -39,13 +39,19 @@ public:
     {
         setLineAnnotation(diag.message());
         setToolTip(diag.message());
-        const bool isError
-            = diag.severity().value_or(DiagnosticSeverity::Hint) == DiagnosticSeverity::Error;
-        setColor(isError ? Theme::CodeModel_Error_TextMarkColor
-                         : Theme::CodeModel_Warning_TextMarkColor);
-
-        setIcon(isError ? Icons::CODEMODEL_ERROR.icon()
-                        : Icons::CODEMODEL_WARNING.icon());
+        switch (diag.severity().value_or(DiagnosticSeverity::Hint)) {
+        case DiagnosticSeverity::Error:
+            setColor(Theme::CodeModel_Error_TextMarkColor);
+            setIcon(Icons::CODEMODEL_ERROR.icon());
+            break;
+        case DiagnosticSeverity::Warning:
+            setColor(Theme::CodeModel_Warning_TextMarkColor);
+            setIcon(Icons::CODEMODEL_WARNING.icon());
+            break;
+        default:
+            setColor(Theme::CodeModel_Info_TextMarkColor);
+            break;
+        }
     }
 };
 
@@ -224,13 +230,19 @@ std::optional<Task> DiagnosticManager::createTask(
         }
     }
 
-    return Task(taskType,
-                taskText(diagnostic),
-                doc->filePath(),
-                diagnostic.range().start().line() + 1,
-                d->m_taskCategory,
-                icon,
-                Task::NoOptions);
+    Task task(
+        taskType,
+        taskText(diagnostic),
+        doc->filePath(),
+        diagnostic.range().start().line() + 1,
+        d->m_taskCategory,
+        icon,
+        Task::NoOptions);
+
+    if (const std::optional<CodeDescription> codeDescription = diagnostic.codeDescription())
+        task.addLinkDetail(codeDescription->href());
+
+    return task;
 }
 
 QString DiagnosticManager::taskText(const LanguageServerProtocol::Diagnostic &diagnostic) const
@@ -251,16 +263,25 @@ void DiagnosticManager::setForceCreateTasks(bool forceCreateTasks)
 QTextEdit::ExtraSelection DiagnosticManager::createDiagnosticSelection(
     const LanguageServerProtocol::Diagnostic &diagnostic, QTextDocument *textDocument) const
 {
+    const DiagnosticSeverity severity = diagnostic.severity().value_or(DiagnosticSeverity::Warning);
+    TextStyle style;
+    if (severity == DiagnosticSeverity::Error)
+        style = C_ERROR;
+    else if (severity == DiagnosticSeverity::Warning)
+        style = C_WARNING;
+    else if (severity == DiagnosticSeverity::Information)
+        style = C_INFO;
+    else
+        return {};
+
     QTextCursor cursor(textDocument);
     cursor.setPosition(diagnostic.range().start().toPositionInDocument(textDocument));
     cursor.setPosition(diagnostic.range().end().toPositionInDocument(textDocument),
                        QTextCursor::KeepAnchor);
 
-    const FontSettings &fontSettings = TextEditorSettings::fontSettings();
-    const DiagnosticSeverity severity = diagnostic.severity().value_or(DiagnosticSeverity::Warning);
-    const TextStyle style = severity == DiagnosticSeverity::Error ? C_ERROR : C_WARNING;
+    const QTextCharFormat format = TextEditorSettings::fontSettings().toTextCharFormat(style);
 
-    return QTextEdit::ExtraSelection{cursor, fontSettings.toTextCharFormat(style)};
+    return QTextEdit::ExtraSelection{cursor, format};
 }
 
 void DiagnosticManager::setExtraSelectionsId(const Utils::Id &extraSelectionsId)

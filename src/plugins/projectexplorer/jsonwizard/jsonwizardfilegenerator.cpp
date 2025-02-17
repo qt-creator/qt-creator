@@ -118,11 +118,8 @@ Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
     MacroExpander *expander, QString *errorMessage)
 {
     // Read contents of source file
-    const QFile::OpenMode openMode = file.isBinary.toBool() ?
-        QIODevice::ReadOnly : (QIODevice::ReadOnly|QIODevice::Text);
-
     FileReader reader;
-    if (!reader.fetch(file.source, openMode, errorMessage))
+    if (!reader.fetch(file.source, errorMessage))
         return Core::GeneratedFile();
 
     // Generate file information:
@@ -155,7 +152,7 @@ Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
                 return expander->resolveMacro(n, ret);
             });
 
-            gf.setContents(TemplateEngine::processText(&nested, QString::fromUtf8(reader.data()),
+            gf.setContents(TemplateEngine::processText(&nested, QString::fromUtf8(reader.text()),
                                                               errorMessage));
             if (!errorMessage->isEmpty()) {
                 *errorMessage = Tr::tr("When processing \"%1\":<br>%2")

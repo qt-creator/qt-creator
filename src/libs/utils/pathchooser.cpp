@@ -233,7 +233,7 @@ FilePath PathChooserPrivate::expandedPath(const FilePath &input) const
             // as 'cD:\\dev\\build-project' is considered is handled as being relative
             // input = "cD:\\dev\build-project"; // prepended 'c' to change the device letter
             // m_baseDirectory = "D:\\dev\\project"
-            if (!fp.needsDevice() && HostOsInfo::isWindowsHost() && fp.toString().count(':') > 1)
+            if (fp.isLocal() && HostOsInfo::isWindowsHost() && fp.toUrlishString().count(':') > 1)
                 return path;
             return fp;
         }
@@ -334,9 +334,9 @@ FilePath PathChooser::baseDirectory() const
 
 void PathChooser::setEnvironment(const Environment &env)
 {
-    QString oldExpand = filePath().toString();
+    QString oldExpand = filePath().toUrlishString();
     d->m_environment = env;
-    if (filePath().toString() != oldExpand) {
+    if (filePath().toUrlishString() != oldExpand) {
         triggerChanged();
         emit rawPathChanged();
     }
@@ -401,15 +401,14 @@ void PathChooser::slotBrowse(bool remote)
             predefined.clear();
     }
 
-    remote = remote || filePath().needsDevice();
+    remote = remote || !filePath().isLocal();
 
     // Prompt for a file/dir
     FilePath newPath;
     switch (d->m_acceptingKind) {
     case PathChooser::Directory:
     case PathChooser::ExistingDirectory:
-        newPath = FileUtils::getExistingDirectory(this,
-                                                  makeDialogTitle(Tr::tr("Choose Directory")),
+        newPath = FileUtils::getExistingDirectory(makeDialogTitle(Tr::tr("Choose Directory")),
                                                   predefined,
                                                   {},
                                                   d->m_allowPathFromDevice,
@@ -417,8 +416,7 @@ void PathChooser::slotBrowse(bool remote)
         break;
     case PathChooser::ExistingCommand:
     case PathChooser::Command:
-        newPath = FileUtils::getOpenFilePath(this,
-                                             makeDialogTitle(Tr::tr("Choose Executable")),
+        newPath = FileUtils::getOpenFilePath(makeDialogTitle(Tr::tr("Choose Executable")),
                                              predefined,
                                              d->m_dialogFilter,
                                              nullptr,
@@ -428,8 +426,7 @@ void PathChooser::slotBrowse(bool remote)
         newPath = appBundleExpandedPath(newPath);
         break;
     case PathChooser::File: // fall through
-        newPath = FileUtils::getOpenFilePath(this,
-                                             makeDialogTitle(Tr::tr("Choose File")),
+        newPath = FileUtils::getOpenFilePath(makeDialogTitle(Tr::tr("Choose File")),
                                              predefined,
                                              d->m_dialogFilter,
                                              nullptr,
@@ -439,8 +436,7 @@ void PathChooser::slotBrowse(bool remote)
         newPath = appBundleExpandedPath(newPath);
         break;
     case PathChooser::SaveFile:
-        newPath = FileUtils::getSaveFilePath(this,
-                                             makeDialogTitle(Tr::tr("Choose File")),
+        newPath = FileUtils::getSaveFilePath(makeDialogTitle(Tr::tr("Choose File")),
                                              predefined,
                                              d->m_dialogFilter,
                                              nullptr,
@@ -448,8 +444,7 @@ void PathChooser::slotBrowse(bool remote)
                                              remote);
         break;
     case PathChooser::Any: {
-        newPath = FileUtils::getOpenFilePath(this,
-                                             makeDialogTitle(Tr::tr("Choose File")),
+        newPath = FileUtils::getOpenFilePath(makeDialogTitle(Tr::tr("Choose File")),
                                              predefined,
                                              d->m_dialogFilter,
                                              nullptr,

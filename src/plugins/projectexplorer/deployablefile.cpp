@@ -23,7 +23,7 @@ QString DeployableFile::remoteFilePath() const
 
 bool DeployableFile::isValid() const
 {
-    return !m_localFilePath.toString().isEmpty() && !m_remoteDir.isEmpty();
+    return !m_localFilePath.toUrlishString().isEmpty() && !m_remoteDir.isEmpty();
 }
 
 bool DeployableFile::isExecutable() const
@@ -33,7 +33,7 @@ bool DeployableFile::isExecutable() const
 
 size_t qHash(const DeployableFile &d)
 {
-    return qHash(qMakePair(d.localFilePath().toString(), d.remoteDirectory()));
+    return qHash(qMakePair(d.localFilePath().toUrlishString(), d.remoteDirectory()));
 }
 
 } // namespace ProjectExplorer

@@ -62,6 +62,8 @@
                         \generatelist creator-how-to-qnx
                     \li Remote Linux
                         \generatelist creator-how-to-remote-linux
+                    \li SDKs
+                        \generatelist creator-how-to-sdks
                     \li WebAssembly
                         \generatelist creator-how-to-webassembly
                     \li VxWorks

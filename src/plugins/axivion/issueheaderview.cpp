@@ -5,6 +5,7 @@
 
 #include "axiviontr.h"
 
+#include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
@@ -40,19 +41,14 @@ static QString infoText()
                   "!\"\" matches issues having any non-empty value in this column");
 }
 
-static void fixGlobalPosOnScreen(QPoint *globalPos, const QSize &size)
+static QPoint globalPosOnScreen(const QPoint &orig, const QSize &size)
 {
-    QScreen *qscreen = QGuiApplication::screenAt(*globalPos);
+    QScreen *qscreen = QGuiApplication::screenAt(orig);
     if (!qscreen)
         qscreen = QGuiApplication::primaryScreen();
     const QRect screen = qscreen->availableGeometry();
 
-    if (globalPos->x() + size.width() > screen.width())
-        globalPos->setX(screen.width() - size.width());
-    if (globalPos->y() + size.height() > screen.height())
-        globalPos->setY(screen.height() - size.height());
-    if (globalPos->y() < 0)
-        globalPos->setY(0);
+    return QPoint(std::max(screen.x(), orig.x() - size.width()), orig.y() - size.height());
 }
 
 class FilterPopupWidget : public QFrame
@@ -211,6 +207,51 @@ const QMap<QString, QString> IssueHeaderView::currentFilterMapping() const
     return filter;
 }
 
+void IssueHeaderView::updateExistingColumnInfos(
+        const std::map<QString, QString> &filters,
+        const std::optional<std::vector<Dto::SortInfoDto>> &sorters)
+{
+    // update filters..
+    for (int i = 0, end = m_columnInfoList.size(); i < end; ++i) {
+        ColumnInfo &info = m_columnInfoList[i];
+        const auto filterItem = filters.find(info.key);
+        if (filterItem == filters.end())
+            info.filter.reset();
+        else
+            info.filter.emplace(filterItem->second);
+
+        if (sorters) { // ..and sorters if needed
+            bool found = false;
+            for (const Dto::SortInfoDto &dto : *sorters) {
+                if (dto.key != info.key)
+                    continue;
+                info.sortOrder = dto.getDirectionEnum() == Dto::SortDirection::asc
+                        ? Qt::AscendingOrder : Qt::DescendingOrder;
+                found = true;
+            }
+            if (!found)
+                info.sortOrder.reset();
+        } else { // or clear them
+            info.sortOrder.reset();
+        }
+    }
+
+    // update sort order
+    m_currentSortIndexes.clear();
+    if (sorters) {
+        for (const Dto::SortInfoDto &dto : *sorters) {
+            int index = Utils::indexOf(m_columnInfoList, [key = dto.key](const ColumnInfo &ci) {
+                return ci.key == key;
+            });
+            if (index == -1) // legit
+                continue;
+            m_currentSortIndexes << index;
+        }
+    }
+    // inform UI
+    emit filterChanged();
+}
+
 void IssueHeaderView::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
@@ -280,9 +321,8 @@ void IssueHeaderView::mouseReleaseEvent(QMouseEvent *event)
                 popup->setOnApply(onApply);
                 const int right = sectionViewportPosition(logical) + sectionSize(logical);
                 const QSize size = popup->sizeHint();
-                QPoint globalPos = mapToGlobal(QPoint{std::max(0, x() + right - size.width()),
-                                                      this->y() - size.height()});
-                fixGlobalPosOnScreen(&globalPos, size);
+                const QPoint globalPos
+                        = globalPosOnScreen(mapToGlobal(QPoint{x() + right, this->y()}), size);
                 popup->move(globalPos);
                 popup->show();
             }

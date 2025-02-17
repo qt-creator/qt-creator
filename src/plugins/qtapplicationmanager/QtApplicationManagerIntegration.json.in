@@ -1,5 +1,6 @@
 {
     "Id" : "qtapplicationmanagerintegration",
+    "DisplayName" : "Qt Application Manager",
     "Name" : "QtApplicationManagerIntegration",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

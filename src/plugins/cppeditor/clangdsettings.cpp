@@ -467,7 +467,7 @@ Store ClangdSettings::Data::toMap() const
     map.insert(useClangdKey(), useClangd);
 
     map.insert(clangdPathKey(),
-               executableFilePath != fallbackClangdFilePath() ? executableFilePath.toString()
+               executableFilePath != fallbackClangdFilePath() ? executableFilePath.toUrlishString()
                                                               : QString());
 
     map.insert(clangdIndexingKey(), indexingPriority != IndexingPriority::Off);

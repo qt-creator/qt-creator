@@ -69,7 +69,8 @@ QString HtmlDocExtractor::getFunctionDescription(const QString &html,
             startMark.append(QLatin1String("[overload1]"));
         } else {
             QString complement = mark.right(mark.length() - parenthesis);
-            complement.remove(QRegularExpression("[\\(\\), ]"));
+            static const QRegularExpression regex("[\\(\\), ]");
+            complement.remove(regex);
             startMark.append(complement);
         }
     }
@@ -247,32 +248,38 @@ void HtmlDocExtractor::processOutput(QString *html) const
 
 void HtmlDocExtractor::stripAllHtml(QString *html)
 {
-    html->remove(QRegularExpression("<.*?>"));
+    static const QRegularExpression regexp("<.*?>");
+    html->remove(regexp);
 }
 
 void HtmlDocExtractor::stripHeadings(QString *html)
 {
-    html->remove(QRegularExpression("<h\\d{1}.*?>|</h\\d{1}>"));
+    static const QRegularExpression regexp("<h\\d{1}.*?>|</h\\d{1}>");
+    html->remove(regexp);
 }
 
 void HtmlDocExtractor::stripLinks(QString *html)
 {
-    html->remove(QRegularExpression("<a\\s.*?>|</a>"));
+    static const QRegularExpression regexp("<a\\s.*?>|</a>");
+    html->remove(regexp);
 }
 
 void HtmlDocExtractor::stripHorizontalLines(QString *html)
 {
-    html->remove(QRegularExpression("<hr\\s+/>"));
+    static const QRegularExpression regexp("<hr\\s+/>");
+    html->remove(regexp);
 }
 
 void HtmlDocExtractor::stripDivs(QString *html)
 {
-    html->remove(QRegularExpression("<div\\s.*?>|</div>|<div\\s.*?/\\s*>"));
+    static const QRegularExpression regexp("<div\\s.*?>|</div>|<div\\s.*?/\\s*>");
+    html->remove(regexp);
 }
 
 void HtmlDocExtractor::stripTagsStyles(QString *html)
 {
-    html->replace(QRegularExpression("<(.*?\\s+)class=\".*?\">"), "<\\1>");
+    static const QRegularExpression regexp("<(.*?\\s+)class=\".*?\">");
+    html->replace(regexp, "<\\1>");
 }
 
 void HtmlDocExtractor::stripTeletypes(QString *html)
@@ -283,7 +290,8 @@ void HtmlDocExtractor::stripTeletypes(QString *html)
 
 void HtmlDocExtractor::stripImagens(QString *html)
 {
-    html->remove(QRegularExpression("<img.*?>"));
+    static const QRegularExpression regexp("<img.*?>");
+    html->remove(regexp);
 }
 
 void HtmlDocExtractor::stripBold(QString *html)
@@ -299,33 +307,44 @@ void HtmlDocExtractor::stripEmptyParagraphs(QString *html)
 
 void HtmlDocExtractor::replaceNonStyledHeadingsForBold(QString *html)
 {
-    const QRegularExpression hStart("<h\\d{1}>");
-    const QRegularExpression hEnd("</h\\d{1}>");
+    static const QRegularExpression hStart("<h\\d{1}>");
+    static const QRegularExpression hEnd("</h\\d{1}>");
     html->replace(hStart, QLatin1String("<p><b>"));
     html->replace(hEnd, QLatin1String("</b></p>"));
 }
 
 void HtmlDocExtractor::replaceTablesForSimpleLines(QString *html)
 {
-    html->replace(QRegularExpression("(?:<p>)?<table.*?>"), QLatin1String("<p>"));
-    html->replace(QLatin1String("</table>"), QLatin1String("</p>"));
-    html->remove(QRegularExpression("<thead.*?>"));
+    static const QRegularExpression regexp01("(?:<p>)?<table.*?>");
+    html->replace(regexp01, QLatin1String("<p>"));
+    static const QRegularExpression regexp02("</table>");
+    html->replace(regexp02, QLatin1String("</p>"));
+    static const QRegularExpression regexp03("<thead.*?>");
+    html->remove(regexp03);
     html->remove(QLatin1String("</thead>"));
-    html->remove(QRegularExpression("<tfoot.*?>"));
+    static const QRegularExpression regexp04("<tfoot.*?>");
+    html->remove(regexp04);
     html->remove(QLatin1String("</tfoot>"));
-    html->remove(QRegularExpression("<tr.*?><th.*?>.*?</th></tr>"));
+    static const QRegularExpression regexp05("<tr.*?><th.*?>.*?</th></tr>");
+    html->remove(regexp05);
     html->replace(QLatin1String("</td><td"), QLatin1String("</td>&nbsp;<td"));
-    html->remove(QRegularExpression("<td.*?><p>"));
-    html->remove(QRegularExpression("<td.*?>"));
-    html->remove(QRegularExpression("(?:</p>)?</td>"));
-    html->replace(QRegularExpression("<tr.*?>"), QLatin1String("&nbsp;&nbsp;&nbsp;&nbsp;"));
+    static const QRegularExpression regexp06("<td.*?><p>");
+    html->remove(regexp06);
+    static const QRegularExpression regexp07("<td.*?>");
+    html->remove(regexp07);
+    static const QRegularExpression regexp08("(?:</p>)?</td>");
+    html->remove(regexp08);
+    static const QRegularExpression regexp09("<tr.*?>");
+    html->replace(regexp09, QLatin1String("&nbsp;&nbsp;&nbsp;&nbsp;"));
     html->replace(QLatin1String("</tr>"), QLatin1String("<br />"));
 }
 
 void HtmlDocExtractor::replaceListsForSimpleLines(QString *html)
 {
-    html->remove(QRegularExpression("<(?:ul|ol).*?>"));
-    html->remove(QRegularExpression("</(?:ul|ol)>"));
+    static const QRegularExpression listStart("<(?:ul|ol).*?>");
+    html->remove(listStart);
+    static const QRegularExpression listEnd("</(?:ul|ol)>");
+    html->remove(listEnd);
     html->replace(QLatin1String("<li>"), QLatin1String("&nbsp;&nbsp;&nbsp;&nbsp;"));
     html->replace(QLatin1String("</li>"), QLatin1String("<br />"));
 }

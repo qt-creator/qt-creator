@@ -17,13 +17,12 @@
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/headerpath.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/namedwidget.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projectupdater.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <texteditor/textdocument.h>
@@ -95,7 +94,7 @@ static QString compilerPath(QString pathFlag)
         wchar_t *buffer = new wchar_t[pathLength];
         GetLongPathNameW(reinterpret_cast<LPCWSTR>(pathFlag.utf16()), buffer, pathLength);
         pathFlag = QString::fromUtf16(
-            reinterpret_cast<ushort *>(buffer), static_cast<int>(pathLength - 1));
+            reinterpret_cast<char16_t *>(buffer), static_cast<int>(pathLength - 1));
         delete[] buffer;
     }
 #endif

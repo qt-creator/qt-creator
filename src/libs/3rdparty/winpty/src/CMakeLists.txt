@@ -92,6 +92,12 @@ add_qtc_executable(winpty-agent
     ${shared_sources}
 )
 
+extend_qtc_executable(winpty-agent
+  CONDITION MSVC
+  PUBLIC_COMPILE_OPTIONS
+    /EHsc
+)
+
 #
 # libwinpty
 #
@@ -107,10 +113,11 @@ add_qtc_library(winpty STATIC
     ${shared_sources}
 )
 
-if(MSVC)
-  target_compile_options(winpty PUBLIC /EHsc)
-  target_compile_options(winpty-agent PUBLIC /EHsc)
-endif()
+extend_qtc_library(winpty
+  CONDITION MSVC
+  PUBLIC_COMPILE_OPTIONS
+    /EHsc
+)
 
 target_include_directories(winpty
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)

@@ -33,36 +33,10 @@ const char initCommandsKeyC[] = "InitCommands";
 const char resetCommandsKeyC[] = "ResetCommands";
 const char useExtendedRemoteKeyC[] = "UseExtendedRemote";
 
-class GdbServerProviderRunner final : public SimpleTargetRunner
-{
-public:
-    GdbServerProviderRunner(RunControl *runControl, const CommandLine &commandLine)
-        : SimpleTargetRunner(runControl)
-    {
-        setId("BareMetalGdbServer");
-        // Baremetal's GDB servers are launched on the host, not on the target.
-        setStartModifier([this, commandLine] {
-            setCommandLine(commandLine);
-            forceRunOnHost();
-        });
-    }
-};
-
 // GdbServerProvider
 
 GdbServerProvider::GdbServerProvider(const QString &id)
     : IDebugServerProvider(id)
-{
-    setEngineType(Debugger::GdbEngineType);
-}
-
-GdbServerProvider::GdbServerProvider(const GdbServerProvider &other)
-    : IDebugServerProvider(other.id())
-    , m_startupMode(other.m_startupMode)
-    , m_peripheralDescriptionFile(other.m_peripheralDescriptionFile)
-    , m_initCommands(other.m_initCommands)
-    , m_resetCommands(other.m_resetCommands)
-    , m_useExtendedRemote(other.useExtendedRemote())
 {
     setEngineType(Debugger::GdbEngineType);
 }
@@ -153,8 +127,8 @@ bool GdbServerProvider::isValid() const
 bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMessage) const
 {
     QTC_ASSERT(runTool, return false);
-    const ProcessRunData runnable = runTool->runControl()->runnable();
-    const FilePath bin = FilePath::fromString(runnable.command.executable().path());
+    const CommandLine cmd = runTool->runControl()->commandLine();
+    const FilePath bin = FilePath::fromString(cmd.executable().path());
     if (bin.isEmpty()) {
         errorMessage = Tr::tr("Cannot debug: Local executable is not set.");
         return false;
@@ -167,16 +141,17 @@ bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMessa
 
     ProcessRunData inferior;
     inferior.command.setExecutable(bin);
-    inferior.command.setArguments(runnable.command.arguments());
-    runTool->setInferior(inferior);
-    runTool->setSymbolFile(bin);
-    runTool->setStartMode(AttachToRemoteServer);
-    runTool->setCommandsAfterConnect(initCommands()); // .. and here?
-    runTool->setCommandsForReset(resetCommands());
-    runTool->setRemoteChannel(channelString());
-    runTool->setUseContinueInsteadOfRun(true);
-    runTool->setUseExtendedRemote(useExtendedRemote());
-    runTool->runParameters().peripheralDescriptionFile = m_peripheralDescriptionFile;
+    inferior.command.setArguments(cmd.arguments());
+    DebuggerRunParameters &rp = runTool->runParameters();
+    rp.setInferior(inferior);
+    rp.setSymbolFile(bin);
+    rp.setStartMode(AttachToRemoteServer);
+    rp.setCommandsAfterConnect(initCommands()); // .. and here?
+    rp.setCommandsForReset(resetCommands());
+    rp.setRemoteChannel(channelString());
+    rp.setUseContinueInsteadOfRun(true);
+    rp.setUseExtendedRemote(useExtendedRemote());
+    rp.setPeripheralDescriptionFile(m_peripheralDescriptionFile);
     return true;
 }
 
@@ -187,7 +162,13 @@ RunWorker *GdbServerProvider::targetRunner(RunControl *runControl) const
 
     // Command arguments are in host OS style as the bare metal's GDB servers are launched
     // on the host, not on that target.
-    return new GdbServerProviderRunner(runControl, command());
+    auto worker = new ProcessRunner(runControl);
+    worker->setId("BareMetalGdbServer");
+    // Baremetal's GDB servers are launched on the host, not on the target.
+    worker->setStartModifier([worker, cmd = command()] {
+        worker->setCommandLine(cmd.toLocal());
+    });
+    return worker;
 }
 
 void GdbServerProvider::fromMap(const Store &data)

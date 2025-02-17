@@ -7,13 +7,9 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/id.h>
-
-#include <QPair>
-
-#include <optional>
+#include <utils/result.h>
 
 QT_BEGIN_NAMESPACE
 class QPoint;
@@ -121,7 +117,6 @@ public:
     static const QList<CustomParserSettings> customParsers();
 
     static void startRunControl(RunControl *runControl);
-    static void showOutputPaneForRunControl(RunControl *runControl);
 
     static Utils::FilePairs renameFiles(
         const QList<std::pair<Node *, Utils::FilePath>> &nodesAndNewFilePaths);
@@ -138,7 +133,7 @@ public:
     static void renameFilesForSymbol(const QString &oldSymbolName, const QString &newSymbolName,
                                      const Utils::FilePaths &files, bool preferLowerCaseFileNames);
 
-    static Utils::expected_str<void> canRunStartupProject(Utils::Id runMode);
+    static Utils::Result canRunStartupProject(Utils::Id runMode);
     static void runProject(Project *pro, Utils::Id, const bool forceSkipDeploy = false);
     static void runStartupProject(Utils::Id runMode, bool forceSkipDeploy = false);
     static void runRunConfiguration(RunConfiguration *rc, Utils::Id runMode,

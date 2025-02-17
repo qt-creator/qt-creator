@@ -15,7 +15,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/taskprogress.h>
 
-#include <debugger/analyzer/analyzerconstants.h>
+#include <debugger/debuggerconstants.h>
 
 #include <utils/async.h>
 #include <utils/stylehelper.h>
@@ -163,11 +163,6 @@ void CtfVisualizerTool::toggleThreadRestriction(QAction *action)
 Timeline::TimelineModelAggregator *CtfVisualizerTool::modelAggregator() const
 {
     return m_modelAggregator.get();
-}
-
-CtfTraceManager *CtfVisualizerTool::traceManager() const
-{
-    return m_traceManager.get();
 }
 
 Timeline::TimelineZoomControl *CtfVisualizerTool::zoomControl() const

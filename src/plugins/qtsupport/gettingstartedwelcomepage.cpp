@@ -24,6 +24,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/shutdownguard.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/winutils.h>
@@ -356,8 +357,8 @@ QWidget *ExamplesWelcomePage::createWidget() const
 
 void setupGettingStartedWelcomePage()
 {
-    static ExamplesWelcomePage examplesPage{true};
-    static ExamplesWelcomePage tutorialPage{false};
+    static GuardedObject<ExamplesWelcomePage> examplesPage{true};
+    static GuardedObject<ExamplesWelcomePage> tutorialPage{false};
 }
 
 } // QtSupport::Internal

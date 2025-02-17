@@ -5,7 +5,7 @@ body {
     text-align: left;
     margin-left: 5px;
     margin-right: 5px;
-    background-color: #2E2F30;
+    background-color: #262626;
     color: #d0d0d0
 }
 
@@ -60,7 +60,7 @@ links
 */
 
 a:link {
-    color: #9a9ef9;
+    color: #1ec974;
     text-decoration: none;
     text-align: left;
 }
@@ -71,18 +71,18 @@ a.qa-mark:target:before {
 }
 
 a:hover {
-    color: #9a9ef9;
+    color: #1ec974;
     text-decoration:underline;
     text-align: left;
 }
 
 a:visited {
-    color: #9a9ef9;
+    color: #1ec974;
     text-align: left;
 }
 
 a:visited:hover {
-    color: #9a9ef9;
+    color: #1ec974;
     text-align: left;
 }
 
@@ -123,11 +123,11 @@ NOTE styles
 }
 
 .admonition.note, .admonition.important {
-    background: #353637 3px 6px no-repeat url(../images/ico_note.png);
+    background: #353637 3px 6px no-repeat;
 }
 
 .admonition.warning {
-    background: #353637 3px 6px no-repeat url(../images/ico_note_attention.png);
+    background: #353637 3px 6px no-repeat;
 }
 /*
 -------------------------------
@@ -312,7 +312,7 @@ headers
         position: absolute;
         right: 0;
         top: 0;
-        background-color: #2E2F30;
+        background-color: #262626;
         border-bottom: 1px #404142 solid;
         font-weight: bold;
         margin-left: 0px;
@@ -396,9 +396,9 @@ table styles
 .table img {
     border: none;
     margin-left: 0px;
-    -moz-box-shadow: 0px 0px 0px #2E2F30;
-    -webkit-box-shadow: 0px 0px 0px #2E2F30;
-    box-shadow: 0px 0px 0px #2E2F30;
+    -moz-box-shadow: 0px 0px 0px #262626;
+    -webkit-box-shadow: 0px 0px 0px #262626;
+    box-shadow: 0px 0px 0px #262626;
 }
 
 /* table with border alternative colors*/
@@ -417,7 +417,7 @@ table, pre, .LegaleseLeft {
 }
 
  table tr.even {
-     background-color: #2E2F30;
+     background-color: #262626;
      color: #a4a6a8;
  }
 
@@ -433,7 +433,7 @@ table, pre, .LegaleseLeft {
  table thead {
      text-align: left;
      padding-left: 20px;
-     background-color: #2E2F30;
+     background-color: #262626;
      border-left: none;
      border-right: none;
  }
@@ -468,18 +468,18 @@ table, pre, .LegaleseLeft {
 
 .borderless {
     border-radius: 0px 0px 0px 0px;
-    background-color: #2E2F30;
-    border: 1px solid #2E2F30;
+    background-color: #262626;
+    border: 1px solid #262626;
 }
 
 .borderless tr {
-     background-color: #2E2F30;
+     background-color: #262626;
      color: #d0d0d0;
  }
 
 .borderless td {
      border: none;
-     border-bottom: #2E2F30 dotted 1px;
+     border-bottom: #262626 dotted 1px;
  }
 
 /*

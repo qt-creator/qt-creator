@@ -28,7 +28,7 @@ struct TerminalSurfacePrivate
     TerminalSurfacePrivate(TerminalSurface *surface, const QSize &initialGridSize)
         : m_vterm(vterm_new(initialGridSize.height(), initialGridSize.width()), vterm_free)
         , m_vtermScreen(vterm_obtain_screen(m_vterm.get()))
-        , m_scrollback(std::make_unique<Scrollback>(5000))
+        , m_scrollback(std::make_unique<Scrollback>(100'000'000))
         , q(surface)
     {}
 

@@ -8,7 +8,7 @@
     "trDisplayCategory": "GLSL",
     "iconText": "fsh",
     "platformIndependent": true,
-    "enabled": "%{JS: value('Plugins').indexOf('GLSLEditor') >= 0}",
+    "enabled": "%{JS: isPluginRunning('glsleditor')}",
 
     "options": { "key": "DefaultSuffix", "value": "%{JS: Util.preferredSuffix('text/x-glsl-es-frag')}" },
 

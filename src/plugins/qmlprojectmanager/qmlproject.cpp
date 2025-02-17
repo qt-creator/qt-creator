@@ -10,8 +10,8 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
@@ -50,7 +50,7 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID));
     setDisplayName(fileName.completeBaseName());
 
-    setNeedsBuildConfigurations(false);
+    setSupportsBuilding(false);
     setBuildSystemCreator<QmlBuildSystem>();
 
     if (Core::ICore::isQtDesignStudio()) {
@@ -61,7 +61,7 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     }
 
     if (fileName.endsWith(Constants::fakeProjectName)) {
-        auto uiFile = fileName.toString();
+        auto uiFile = fileName.toUrlishString();
         uiFile.remove(Constants::fakeProjectName);
         auto parentDir = Utils::FilePath::fromString(uiFile).parentDir();
 
@@ -76,11 +76,11 @@ void QmlProject::parsingFinished(const Target *target, bool success)
     // trigger only once
     disconnect(this, &QmlProject::anyParsingFinished, this, &QmlProject::parsingFinished);
 
-    if (!target || !success || !activeTarget())
+    if (!target || !success || !activeBuildSystem())
         return;
 
     const auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
-        activeTarget()->buildSystem());
+        activeBuildSystem());
     if (!qmlBuildSystem)
         return;
 
@@ -108,7 +108,7 @@ Project::RestoreResult QmlProject::fromMap(const Store &map, QString *errorMessa
     // find a kit that matches prerequisites (prefer default one)
     const QList<Kit *> kits = Utils::filtered(KitManager::kits(), [this](const Kit *k) {
         return !containsType(projectIssues(k), Task::TaskType::Error)
-               && DeviceTypeKitAspect::deviceTypeId(k)
+               && RunDeviceTypeKitAspect::deviceTypeId(k)
                       == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
     });
 
@@ -184,7 +184,7 @@ Tasks QmlProject::projectIssues(const Kit *k) const
     if (!version)
         result.append(createProjectTask(Task::TaskType::Warning, Tr::tr("No Qt version set in kit.")));
 
-    IDevice::ConstPtr dev = DeviceKitAspect::device(k);
+    IDevice::ConstPtr dev = RunDeviceKitAspect::device(k);
     if (!dev)
         result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Kit has no device.")));
 
@@ -248,14 +248,8 @@ bool QmlProject::allowOnlySingleProject()
 
 bool QmlProject::isMCUs()
 {
-    if (!ProjectExplorer::ProjectManager::startupTarget())
-        return false;
-
     const QmlProjectManager::QmlBuildSystem *buildSystem
-        = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
-            ProjectExplorer::ProjectManager::startupTarget()->buildSystem());
-    QTC_ASSERT(buildSystem, return false);
-
+        = qobject_cast<QmlProjectManager::QmlBuildSystem *>(activeBuildSystemForActiveProject());
     return buildSystem && buildSystem->qtForMCUs();
 }
 

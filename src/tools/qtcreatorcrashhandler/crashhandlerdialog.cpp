@@ -222,8 +222,7 @@ bool CrashHandlerDialog::runDebuggerWhileBacktraceNotFinished()
         "</body></html>");
 
     const QMessageBox::StandardButton button
-        = Utils::CheckableMessageBox::question(this,
-                                               title,
+        = Utils::CheckableMessageBox::question(title,
                                                message,
                                                Utils::Key(SettingsKeySkipWarningAbortingBacktrace),
                                                QMessageBox::Yes | QMessageBox::No,

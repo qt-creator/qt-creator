@@ -51,7 +51,7 @@ public:
     ~TextDocument() override;
 
     static QMap<Utils::FilePath, QString> openedTextDocumentContents();
-    static QMap<Utils::FilePath, QTextCodec *> openedTextDocumentEncodings();
+    static QMap<Utils::FilePath, QByteArray> openedTextDocumentEncodings();
     static TextDocument *currentTextDocument();
     static TextDocument *textDocumentForFilePath(const Utils::FilePath &filePath);
     static QString convertToPlainText(const QString &rawText);
@@ -127,7 +127,7 @@ public:
     void resetSyntaxHighlighter(const SyntaxHighLighterCreator &creator);
     SyntaxHighlighter *syntaxHighlighter() const;
 
-    Utils::Result reload(QTextCodec *codec);
+    Utils::Result reload(const QByteArray &codec);
     void cleanWhitespace(const QTextCursor &cursor);
 
     virtual void triggerPendingUpdates();
@@ -139,6 +139,8 @@ public:
     void setQuickFixAssistProvider(IAssistProvider *provider) const;
     virtual IAssistProvider *quickFixAssistProvider() const;
 
+    void setCodeStyle(ICodeStylePreferences *preferences);
+    ICodeStylePreferences *codeStyle() const;
     void setTabSettings(const TextEditor::TabSettings &tabSettings);
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
 
@@ -163,6 +165,7 @@ signals:
 protected:
     virtual void applyFontSettings();
     Utils::Result saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
+    virtual void slotCodeStyleSettingsChanged(); // Used in CppEditorDocumet
 
 private:
     OpenResult openImpl(QString *errorString,

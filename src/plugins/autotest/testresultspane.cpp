@@ -128,7 +128,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     m_textOutput->setReadOnly(true);
     m_outputWidget->addWidget(m_textOutput);
 
-    setupFilterUi("AutoTest.TextOutput.Filter");
+    setupFilterUi("AutoTest.TextOutput.Filter", "Autotest::Internal::TestResultsPane");
     setupContext("AutoTest.TextOutput", m_textOutput);
     setFilteringEnabled(false);
     setZoomButtonsEnabled(false);
@@ -656,7 +656,7 @@ void TestResultsPane::onCopyWholeTriggered()
 
 void TestResultsPane::onSaveWholeTriggered()
 {
-    const FilePath filePath = FileUtils::getSaveFilePath(nullptr, Tr::tr("Save Output To"));
+    const FilePath filePath = FileUtils::getSaveFilePath(Tr::tr("Save Output To"));
     if (filePath.isEmpty())
         return;
 

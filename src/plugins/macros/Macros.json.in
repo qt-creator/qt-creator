@@ -1,5 +1,6 @@
 {
     "Id" : "macros",
+    "DisplayName" : "Macros",
     "Name" : "Macros",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

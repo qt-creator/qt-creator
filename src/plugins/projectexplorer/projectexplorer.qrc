@@ -88,5 +88,7 @@
         <file>testdata/multi-target-project/multi-target-project-shared.h</file>
         <file>testdata/multi-target-project/multi-target-project.pro</file>
         <file>testdata/multi-target-project/multi-target-project.qbs</file>
+        <file>images/sdk.png</file>
+        <file>images/sdk@2x.png</file>
     </qresource>
 </RCC>

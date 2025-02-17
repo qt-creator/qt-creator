@@ -90,9 +90,6 @@ add_qtc_library(Utils
     infolabel.cpp infolabel.h
     itemviews.cpp itemviews.h
     jsontreeitem.cpp jsontreeitem.h
-    launcherinterface.cpp launcherinterface.h
-    launcherpackets.cpp launcherpackets.h
-    launchersocket.cpp launchersocket.h
     layoutbuilder.cpp layoutbuilder.h
     link.cpp link.h
     listmodel.h
@@ -153,7 +150,7 @@ add_qtc_library(Utils
     set_algorithm.h
     settingsaccessor.cpp settingsaccessor.h
     settingsselector.cpp settingsselector.h
-    singleton.cpp singleton.h
+    shutdownguard.cpp shutdownguard.h
     sizedarray.h
     smallstring.h
     smallstringfwd.h
@@ -174,6 +171,7 @@ add_qtc_library(Utils
     styleanimator.cpp styleanimator.h
     styledbar.cpp styledbar.h
     stylehelper.cpp stylehelper.h
+    summarywidget.cpp summarywidget.h
     synchronizedvalue.h
     templateengine.cpp templateengine.h
     temporarydirectory.cpp temporarydirectory.h
@@ -209,6 +207,7 @@ add_qtc_library(Utils
     winutils.cpp winutils.h
     wizard.cpp wizard.h
     wizardpage.cpp wizardpage.h
+    movie.cpp movie.h
 )
 
 extend_qtc_library(Utils

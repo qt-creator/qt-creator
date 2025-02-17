@@ -106,8 +106,8 @@ TestSettings::TestSettings()
     runAfterBuild.setSettingsKey("RunAfterBuild");
     runAfterBuild.setDisplayStyle(Utils::SelectionAspect::DisplayStyle::ComboBox);
     runAfterBuild.setToolTip(Tr::tr("Runs chosen tests automatically if a build succeeded."));
-    runAfterBuild.addOption(Tr::tr("None"));
-    runAfterBuild.addOption(Tr::tr("All"));
+    runAfterBuild.addOption(Tr::tr("No Tests"));
+    runAfterBuild.addOption(Tr::tr("All", "Run tests after build"));
     runAfterBuild.addOption(Tr::tr("Selected"));
 
     fromSettings();

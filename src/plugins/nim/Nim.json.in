@@ -1,5 +1,6 @@
 {
     "Id" : "nim",
+    "DisplayName" : "Nim",
     "Name" : "Nim",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

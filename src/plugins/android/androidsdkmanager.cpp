@@ -538,6 +538,8 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
 
     if (AndroidConfig::sdkToolsVersion().isNull()) {
         // Configuration has invalid sdk path or corrupt installation.
+        qDeleteAll(m_allPackages);
+        m_allPackages.clear();
         emit m_sdkManager.packagesReloaded();
         return;
     }
@@ -628,6 +630,12 @@ void AndroidSdkManager::runUpdate()
 {
     const Storage<DialogStorage> dialogStorage;
     m_d->runDialogRecipe(dialogStorage, licensesRecipe(dialogStorage), updateRecipe(dialogStorage));
+}
+
+AndroidSdkManager &sdkManager()
+{
+    static AndroidSdkManager theAndroidSdkManager;
+    return theAndroidSdkManager;
 }
 
 } // namespace Android::Internal

@@ -4,13 +4,13 @@
 #pragma once
 
 #include "core_global.h"
-#include "icontext.h"
 
 #include <utils/fancylineedit.h>
 #include <utils/id.h>
 
 namespace Core {
-class IContext;
+
+class Context;
 class OutputWindow;
 
 class CORE_EXPORT IOutputPane : public QObject
@@ -78,7 +78,7 @@ protected:
     void setDisplayName(const QString &name);
     void setPriorityInStatusBar(int priority);
 
-    void setupFilterUi(const Utils::Key &historyKey);
+    void setupFilterUi(const Utils::Key &historyKey, const QString &actionSuffix);
     QString filterText() const;
     bool filterUsesRegexp() const { return m_filterRegexp; }
     bool filterIsInverted() const { return m_invertFilter; }
@@ -106,6 +106,7 @@ private:
     Utils::Id m_id;
     QString m_displayName;
     int m_priority = -1;
+    QString m_filterActionSuffix;
     QToolButton *m_zoomInButton;
     QToolButton *m_zoomOutButton;
     QAction *m_filterActionRegexp = nullptr;

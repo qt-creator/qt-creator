@@ -116,7 +116,8 @@ static Target extract_target(const QJsonValue &target)
         targetObj["filename"].toVariant().toStringList(),
         targetObj["extra_files"].toVariant().toStringList(),
         targetObj["subproject"].toString(),
-        extract_sources(targetObj["target_sources"].toArray())
+        extract_sources(targetObj["target_sources"].toArray()),
+        targetObj["build_by_default"].toBool()
     };
 }
 

@@ -7,16 +7,13 @@
 #include "task.h"
 
 #include <utils/aspects.h>
-#include <utils/guard.h>
 
 #include <QPair>
-#include <QPushButton>
 #include <QSet>
 
 #include <functional>
 
 QT_BEGIN_NAMESPACE
-class QAbstractItemModel;
 class QAction;
 class QComboBox;
 QT_END_NAMESPACE
@@ -76,6 +73,8 @@ public:
     virtual QSet<Utils::Id> supportedPlatforms(const Kit *k) const;
     virtual QSet<Utils::Id> availableFeatures(const Kit *k) const;
 
+    QList<Utils::Id> embeddableAspects() const { return m_embeddableAspects; }
+
     virtual void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const;
 
     virtual void onKitsLoaded() {}
@@ -92,12 +91,14 @@ protected:
     void setDescription(const QString &desc) { m_description = desc; }
     void makeEssential() { m_essential = true; }
     void setPriority(int priority) { m_priority = priority; }
+    void setEmbeddableAspects(const QList<Utils::Id> &aspects) { m_embeddableAspects = aspects; }
     void notifyAboutUpdate(Kit *k);
 
 private:
     QString m_displayName;
     QString m_description;
     Utils::Id m_id;
+    QList<Utils::Id> m_embeddableAspects;
     int m_priority = 0; // The higher the closer to the top.
     bool m_essential = false;
 };
@@ -107,7 +108,7 @@ class PROJECTEXPLORER_EXPORT KitAspect : public Utils::BaseAspect
     Q_OBJECT
 
 public:
-    enum ItemRole { IdRole = Qt::UserRole + 100, IsNoneRole, QualityRole };
+    enum ItemRole { IdRole = Qt::UserRole + 100, IsNoneRole, TypeRole, QualityRole };
 
     KitAspect(Kit *kit, const KitAspectFactory *factory);
     ~KitAspect();
@@ -117,18 +118,29 @@ public:
     void addToLayoutImpl(Layouting::Layout &layout) override;
     static QString msgManage();
 
-    Kit *kit() const { return m_kit; }
-    const KitAspectFactory *factory() const { return m_factory; }
-    QAction *mutableAction() const { return m_mutableAction; }
+    Kit *kit() const;
+    const KitAspectFactory *factory() const;
+    QAction *mutableAction() const;
     void addMutableAction(QWidget *child);
-    void setManagingPage(Utils::Id pageId) { m_managingPageId = pageId; }
+    void setManagingPage(Utils::Id pageId);
+
+    void setAspectsToEmbed(const QList<KitAspect *> &aspects);
+    QList<KitAspect *> aspectsToEmbed() const;
 
     void makeStickySubWidgetsReadOnly();
 
+    // For layouting purposes only.
+    QList<QComboBox *> comboBoxes() const;
+
+    virtual void addToInnerLayout(Layouting::Layout &layout);
+
 protected:
     virtual void makeReadOnly();
-    virtual void addToInnerLayout(Layouting::Layout &parentItem);
     virtual Utils::Id settingsPageItemToPreselect() const { return {}; }
+
+    void addLabelToLayout(Layouting::Layout &layout);
+    void addListAspectsToLayout(Layouting::Layout &layout);
+    void addManageButtonToLayout(Layouting::Layout &layout);
 
     // Convenience for aspects that provide a list model from which one value can be chosen.
     // It will be exposed via a QComboBox.
@@ -155,17 +167,11 @@ protected:
         Setter setter;
         ResetModel resetModel;
     };
-    void setListAspectSpec(ListAspectSpec &&listAspectSpec);
+    void addListAspectSpec(const ListAspectSpec &listAspectSpec);
 
 private:
-    Kit *m_kit;
-    const KitAspectFactory *m_factory;
-    QAction *m_mutableAction = nullptr;
-    Utils::Id m_managingPageId;
-    QPushButton *m_manageButton = nullptr;
-    QComboBox *m_comboBox = nullptr;
-    std::optional<ListAspectSpec> m_listAspectSpec;
-    Utils::Guard m_ignoreChanges;
+    class Private;
+    Private * const d;
 };
 
 } // namespace ProjectExplorer

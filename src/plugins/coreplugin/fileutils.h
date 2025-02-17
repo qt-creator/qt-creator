@@ -7,41 +7,31 @@
 
 #include <utils/filepath.h>
 
-QT_BEGIN_NAMESPACE
-class QWidget;
-QT_END_NAMESPACE
-
 namespace Utils { class Environment; }
 
 namespace Core {
 
 enum class HandleIncludeGuards { No, Yes };
 
-struct CORE_EXPORT FileUtils
-{
-    // Helpers for common directory browser options.
-    static void showInGraphicalShell(QWidget *parent, const Utils::FilePath &path);
-    static void showInFileSystemView(const Utils::FilePath &path);
-    static void openTerminal(const Utils::FilePath &path, const Utils::Environment &env);
-    static QString msgFindInDirectory();
-    static QString msgFileSystemAction();
-    // Platform-dependent action descriptions
-    static QString msgGraphicalShellAction();
-    static QString msgTerminalHereAction();
-    static QString msgTerminalWithAction();
-    // File operations aware of version control and file system case-insensitiveness
-    static void removeFiles(const Utils::FilePaths &filePaths, bool deleteFromFS);
-    static bool renameFile(const Utils::FilePath &from, const Utils::FilePath &to,
-                           HandleIncludeGuards handleGuards = HandleIncludeGuards::No);
+namespace FileUtils {
 
-    static void updateHeaderFileGuardIfApplicable(const Utils::FilePath &oldFilePath,
-                                                  const Utils::FilePath &newFilePath,
-                                                  HandleIncludeGuards handleGuards);
+// Helpers for common directory browser options.
+CORE_EXPORT void showInGraphicalShell(const Utils::FilePath &path);
+CORE_EXPORT void showInFileSystemView(const Utils::FilePath &path);
+CORE_EXPORT void openTerminal(const Utils::FilePath &path, const Utils::Environment &env);
+CORE_EXPORT QString msgFindInDirectory();
+CORE_EXPORT QString msgFileSystemAction();
+// Platform-dependent action descriptions
+CORE_EXPORT QString msgGraphicalShellAction();
+CORE_EXPORT QString msgTerminalHereAction();
+CORE_EXPORT QString msgTerminalWithAction();
+// File operations aware of version control and file system case-insensitiveness
+CORE_EXPORT void removeFiles(const Utils::FilePaths &filePaths, bool deleteFromFS);
+CORE_EXPORT bool renameFile(const Utils::FilePath &from, const Utils::FilePath &to,
+                            HandleIncludeGuards handleGuards = HandleIncludeGuards::No);
 
-private:
-    // This method is used to refactor the include guards in the renamed headers
-    static bool updateHeaderFileGuardAfterRename(const QString &headerPath,
-                                                 const QString &oldHeaderBaseName);
-};
-
+CORE_EXPORT void updateHeaderFileGuardIfApplicable(const Utils::FilePath &oldFilePath,
+                                                   const Utils::FilePath &newFilePath,
+                                                   HandleIncludeGuards handleGuards);
+} // namespace FileUtils
 } // namespace Core

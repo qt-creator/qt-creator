@@ -161,8 +161,8 @@ std::optional<QString> DSStore::save(bool mcuCompatible)
 
 std::optional<QString> DSStore::save(const Utils::FilePath &moduleDirPath, bool mcuCompatible)
 {
-    if (!QDir().mkpath(moduleDirPath.absoluteFilePath().toString()))
-        return tr("Can not create design system module directory %1.").arg(moduleDirPath.toString());
+    if (!QDir().mkpath(moduleDirPath.absoluteFilePath().toUrlishString()))
+        return tr("Can not create design system module directory %1.").arg(moduleDirPath.toUrlishString());
 
     // dump collections
     QStringList singletons;
@@ -290,8 +290,9 @@ std::optional<QString> DSStore::loadCollection(const QString &typeName,
                                                const Utils::FilePath &qmlFilePath)
 {
     Utils::FileReader reader;
-    if (!reader.fetch(qmlFilePath, QFile::Text))
-        return reader.errorString();
+    QString errorString;
+    if (!reader.fetch(qmlFilePath, &errorString))
+        return errorString;
 
 #ifdef QDS_USE_PROJECTSTORAGE
     auto model = QmlDesigner::Model::create(m_projectStorageDependencies,

@@ -167,8 +167,7 @@ BuildStepsWidgetData::~BuildStepsWidgetData()
 }
 
 BuildStepListWidget::BuildStepListWidget(BuildStepList *bsl)
-    //: %1 is the name returned by BuildStepList::displayName
-    : NamedWidget(Tr::tr("%1 Steps").arg(bsl->displayName())), m_buildStepList(bsl)
+    : m_buildStepList(bsl)
 {
     setupUi();
 

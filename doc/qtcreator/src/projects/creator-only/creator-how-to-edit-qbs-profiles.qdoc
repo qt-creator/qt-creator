@@ -23,8 +23,8 @@
 
     \list 1
         \li In \preferences > \uicontrol Kits, select
-            the kit, and then select \uicontrol Change next to the
-            \uicontrol {Additional Qbs Profile Settings} field to open the
+            the kit, and then select \uicontrol Change next to
+            \uicontrol {Qbs profile additions} to open the
             \uicontrol {Custom Properties} dialog.
             \image qtcreator-qbs-profile-settings.png "Custom Properties dialog"
         \li Double-click an empty cell in the \uicontrol Key column to specify

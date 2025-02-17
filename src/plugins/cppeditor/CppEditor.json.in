@@ -1,5 +1,6 @@
 {
     "Id" : "cppeditor",
+    "DisplayName" : "C++ Editor",
     "Name" : "CppEditor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

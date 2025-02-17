@@ -1,5 +1,6 @@
 {
     "Id" : "languageclient",
+    "DisplayName" : "Language Client",
     "Name" : "LanguageClient",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

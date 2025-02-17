@@ -101,7 +101,7 @@ public:
         d->m_behaviorWidget->setAssignedStorageSettings(globalStorageSettings());
         d->m_behaviorWidget->setAssignedBehaviorSettings(globalBehaviorSettings());
         d->m_behaviorWidget->setAssignedExtraEncodingSettings(globalExtraEncodingSettings());
-        d->m_behaviorWidget->setAssignedCodec(Core::EditorManager::defaultTextCodec());
+        d->m_behaviorWidget->setAssignedCodec(Core::EditorManager::defaultTextCodecName());
         d->m_behaviorWidget->setAssignedLineEnding(Core::EditorManager::defaultLineEnding());
     }
 
@@ -118,8 +118,6 @@ BehaviorSettingsPage::BehaviorSettingsPage()
     setDisplayName(Tr::tr("Behavior"));
 
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("Text Editor"));
-    setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
     setWidgetCreator([this] { return new BehaviorSettingsWidgetImpl(d); });
 }
 

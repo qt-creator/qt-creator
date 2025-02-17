@@ -35,14 +35,12 @@ public:
     bool canCreateProcessModel() const override { return true; }
     bool hasDeviceTester() const override { return false; }
     ProjectExplorer::DeviceTester *createDeviceTester() override;
-    bool usableAsBuildDevice() const override;
 
     Utils::FilePath rootPath() const override;
-    Utils::FilePath filePath(const QString &pathOnDevice) const override;
 
     bool canMount(const Utils::FilePath &filePath) const override
     {
-        return !filePath.needsDevice() || filePath.isSameDevice(rootPath());
+        return filePath.isLocal() || filePath.isSameDevice(rootPath());
     }
 
     bool handlesFile(const Utils::FilePath &filePath) const override;

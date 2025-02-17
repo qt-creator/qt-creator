@@ -55,6 +55,8 @@ public:
     void setOverriddenPreferences(TextEditor::ICodeStylePreferences *preferences) final;
     void setOverriddenStyle(const clang::format::FormatStyle &style);
 
+    bool respectsTabSettings() const override;
+
 protected:
     virtual bool formatCodeInsteadOfIndent() const { return false; }
     virtual bool formatWhileTyping() const { return false; }

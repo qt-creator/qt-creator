@@ -10,6 +10,8 @@
 #include <languageclient/client.h>
 #include <languageclient/languageclientinterface.h>
 
+#include "qmllsclientsettings.h"
+
 namespace QmlJSEditor {
 
 class QMLJSEDITOR_EXPORT QmllsClient : public LanguageClient::Client
@@ -54,8 +56,12 @@ public:
     ~QmllsClient();
 
     void startImpl() override;
-    static QmllsClient *clientForQmlls(const Utils::FilePath &qmlls);
     void updateQmllsSemanticHighlightingCapability();
+
+    void activateDocument(TextEditor::TextDocument *document) override;
+    void deactivateDocument(TextEditor::TextDocument *document) override;
+
+    bool supportsDocumentSymbols(const TextEditor::TextDocument *doc) const override;
 private:
     static QMap<QString, int> semanticTokenTypesMap();
 };

@@ -101,7 +101,8 @@ CMakeWriter::Version CMakeWriter::versionFromIgnoreFile(const Utils::FilePath &p
 QString CMakeWriter::readTemplate(const QString &templatePath)
 {
     QFile templatefile(templatePath);
-    templatefile.open(QIODevice::ReadOnly | QIODevice::Text);
+    if (!templatefile.open(QIODevice::ReadOnly | QIODevice::Text))
+        return {};
     QTextStream stream(&templatefile);
     QString content = stream.readAll();
     templatefile.close();
@@ -110,7 +111,7 @@ QString CMakeWriter::readTemplate(const QString &templatePath)
 
 void CMakeWriter::writeFile(const Utils::FilePath &path, const QString &content)
 {
-    QFile fileHandle(path.toString());
+    QFile fileHandle(path.toUrlishString());
     if (fileHandle.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QString cpy = content;
         cpy.replace("\t", "    ");
@@ -230,8 +231,8 @@ QString CMakeWriter::makeFindPackageBlock(const NodePtr &node, const QmlBuildSys
 
 QString CMakeWriter::makeRelative(const NodePtr &node, const Utils::FilePath &path) const
 {
-    const QString dir = node->dir.toString();
-    return "\"" + Utils::FilePath::calcRelativePath(path.toString(), dir) + "\"";
+    const QString dir = node->dir.toUrlishString();
+    return "\"" + Utils::FilePath::calcRelativePath(path.toUrlishString(), dir) + "\"";
 }
 
 QString CMakeWriter::makeQmlFilesBlock(const NodePtr &node) const
@@ -395,7 +396,7 @@ bool CMakeWriter::hasMesh(const NodePtr &node) const
 
 bool CMakeWriter::hasQuick3dImport(const Utils::FilePath &filePath) const
 {
-    QFile f(filePath.toString());
+    QFile f(filePath.toUrlishString());
     if (!f.open(QIODevice::ReadOnly))
         return false;
 

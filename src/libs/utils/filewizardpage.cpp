@@ -105,7 +105,7 @@ void FileWizardPage::setFilePath(const FilePath &filePath)
 
 QString FileWizardPage::path() const
 {
-    return d->m_pathChooser->filePath().toString();
+    return d->m_pathChooser->filePath().toUrlishString();
 }
 
 void FileWizardPage::setPath(const QString &path)

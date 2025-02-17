@@ -82,7 +82,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
 
     updateFontSettings();
     updateZoomEnabled();
-    setupFilterUi("CompileOutputPane.Filter");
+    setupFilterUi("CompileOutputPane.Filter", "ProjectExplorer::Internal::CompileOutputPane");
     setFilteringEnabled(true);
 
     connect(this, &IOutputPane::zoomInRequested, m_outputWindow, &Core::OutputWindow::zoomIn);

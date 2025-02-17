@@ -5,20 +5,22 @@
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androiddevice.h"
-#include "androidmanager.h"
 #include "androidqtversion.h"
+#include "androidsdkmanager.h"
 #include "androidtoolchain.h"
 #include "androidtr.h"
+#include "androidutils.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <debugger/debuggeritemmanager.h>
@@ -52,7 +54,6 @@
 #include <QSysInfo>
 
 #include <functional>
-#include <memory>
 
 #ifdef WITH_TESTS
 #   include <QTest>
@@ -100,8 +101,7 @@ std::optional<FilePath> tryGetFirstDirectory(const FilePath &path, const QString
 }
 }
 
-namespace Android {
-using namespace Internal;
+namespace Android::Internal {
 
 #ifdef Q_OS_WIN32
 #define ANDROID_BAT_SUFFIX ".bat"
@@ -179,7 +179,7 @@ static QString getDeviceProperty(const QString &device, const QString &property)
     // workaround for '????????????' serial numbers
     Process adbProc;
     adbProc.setCommand({AndroidConfig::adbToolPath(),
-                        {AndroidDeviceInfo::adbSelector(device), "shell", "getprop", property}});
+                        {adbSelector(device), "shell", "getprop", property}});
     adbProc.runBlocking();
     if (adbProc.result() == ProcessResult::FinishedWithSuccess)
         return adbProc.allOutput();
@@ -739,7 +739,7 @@ QStringList getAbis(const QString &device)
     // First try via ro.product.cpu.abilist
     Process adbProc;
     adbProc.setCommand({adbTool,
-        {AndroidDeviceInfo::adbSelector(device), "shell", "getprop", "ro.product.cpu.abilist"}});
+                        {adbSelector(device), "shell", "getprop", "ro.product.cpu.abilist"}});
     adbProc.runBlocking();
     if (adbProc.result() != ProcessResult::FinishedWithSuccess)
         return result;
@@ -753,7 +753,7 @@ QStringList getAbis(const QString &device)
 
     // Fall back to ro.product.cpu.abi, ro.product.cpu.abi2 ...
     for (int i = 1; i < 6; ++i) {
-        CommandLine cmd{adbTool, {AndroidDeviceInfo::adbSelector(device), "shell", "getprop"}};
+        CommandLine cmd{adbTool, {adbSelector(device), "shell", "getprop"}};
         if (i == 1)
             cmd.addArg("ro.product.cpu.abi");
         else
@@ -792,13 +792,13 @@ bool isValidNdk(const QString &ndkLocation)
 
 QString bestNdkPlatformMatch(int target, const QtVersion *qtVersion)
 {
-    target = std::max(AndroidManager::defaultMinimumSDK(qtVersion), target);
+    target = std::max(defaultMinimumSDK(qtVersion), target);
     const QList<int> platforms = availableNdkPlatforms(qtVersion);
     for (const int apiLevel : platforms) {
         if (apiLevel <= target)
             return QString::fromLatin1("android-%1").arg(apiLevel);
     }
-    return QString("android-%1").arg(AndroidManager::defaultMinimumSDK(qtVersion));
+    return QString("android-%1").arg(defaultMinimumSDK(qtVersion));
 }
 
 FilePath sdkLocation()
@@ -923,8 +923,7 @@ static QString essentialBuiltWithBuildToolsPackage(int builtWithApiVersion)
     // invalidated whenever a new minor version is released, check if any version with major
     // version matching builtWith apiVersion and use it as essential, otherwise use the any
     // other one that has an minimum major version of builtWith apiVersion.
-    const BuildToolsList buildTools =
-        AndroidConfigurations::sdkManager()->filteredBuildTools(builtWithApiVersion);
+    const BuildToolsList buildTools = sdkManager().filteredBuildTools(builtWithApiVersion);
     const BuildToolsList apiBuildTools
         = Utils::filtered(buildTools, [builtWithApiVersion] (const BuildTools *pkg) {
               return pkg->revision().majorVersion() == builtWithApiVersion; });
@@ -985,7 +984,7 @@ QStringList allEssentials()
     return allPackages;
 }
 
-QString optionalSystemImagePackage(AndroidSdkManager *sdkManager)
+QString optionalSystemImagePackage()
 {
     const QStringList essentialPkgs(allEssentials());
     QStringList platforms = Utils::filtered(essentialPkgs, [](const QString &item) {
@@ -1014,7 +1013,7 @@ QString optionalSystemImagePackage(AndroidSdkManager *sdkManager)
     const auto imageName = QLatin1String("%1;android-%2;google_apis_playstore;%3")
                                .arg(Constants::systemImagesPackageName).arg(apiLevel).arg(hostArch);
 
-    const SdkPlatformList sdkPlatforms = sdkManager->filteredSdkPlatforms(
+    const SdkPlatformList sdkPlatforms = sdkManager().filteredSdkPlatforms(
         apiLevel, AndroidSdkPackage::AnyValidState);
 
     if (sdkPlatforms.isEmpty())
@@ -1036,10 +1035,10 @@ static QStringList packagesWithoutNdks(const QStringList &packages)
     });
 }
 
-bool allEssentialsInstalled(AndroidSdkManager *sdkManager)
+bool allEssentialsInstalled()
 {
     QStringList essentialPkgs(allEssentials());
-    const auto installedPkgs = sdkManager->installedSdkPackages();
+    const auto installedPkgs = sdkManager().installedSdkPackages();
     for (const AndroidSdkPackage *pkg : installedPkgs) {
         if (essentialPkgs.contains(pkg->sdkStylePath()))
             essentialPkgs.removeOne(pkg->sdkStylePath());
@@ -1227,7 +1226,6 @@ FilePath getJdkPath()
 AndroidConfigurations *m_instance = nullptr;
 
 AndroidConfigurations::AndroidConfigurations()
-    : m_sdkManager(new AndroidSdkManager)
 {
     load();
     connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
@@ -1244,7 +1242,6 @@ void AndroidConfigurations::applyConfig()
     registerNewToolchains();
     updateAutomaticKitList();
     removeOldToolchains();
-    emit m_instance->updated();
 }
 
 static bool matchKit(const ToolchainBundle &bundle, const Kit &kit)
@@ -1432,7 +1429,7 @@ void AndroidConfigurations::registerCustomToolchainsAndDebuggers()
 void AndroidConfigurations::updateAutomaticKitList()
 {
     for (Kit *k : KitManager::kits()) {
-        if (DeviceTypeKitAspect::deviceTypeId(k) == Constants::ANDROID_DEVICE_TYPE) {
+        if (RunDeviceTypeKitAspect::deviceTypeId(k) == Constants::ANDROID_DEVICE_TYPE) {
             if (k->value(Constants::ANDROID_KIT_NDK).isNull() || k->value(Constants::ANDROID_KIT_SDK).isNull()) {
                 if (QtVersion *qt = QtKitAspect::qtVersion(k)) {
                     k->setValueSilently(
@@ -1444,7 +1441,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     }
 
     const QList<Kit *> existingKits = Utils::filtered(KitManager::kits(), [](Kit *k) {
-        Id deviceTypeId = DeviceTypeKitAspect::deviceTypeId(k);
+        Id deviceTypeId = RunDeviceTypeKitAspect::deviceTypeId(k);
         if (k->isAutoDetected() && !k->isSdkProvided()
                 && deviceTypeId == Constants::ANDROID_DEVICE_TYPE) {
             return true;
@@ -1491,7 +1488,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             const auto initializeKit = [&bundle, qt](Kit *k) {
                 k->setAutoDetected(true);
                 k->setAutoDetectionSource("AndroidConfiguration");
-                DeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
+                RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
                 ToolchainKitAspect::setBundle(k, bundle);
                 QtKitAspect::setQtVersion(k, qt);
                 QStringList abis = static_cast<const AndroidQtVersion *>(qt)->androidAbis();
@@ -1500,14 +1497,13 @@ void AndroidConfigurations::updateAutomaticKitList()
 
                 BuildDeviceKitAspect::setDeviceId(k, DeviceManager::defaultDesktopDevice()->id());
                 k->setSticky(QtKitAspect::id(), true);
-                k->setSticky(DeviceTypeKitAspect::id(), true);
+                k->setSticky(RunDeviceTypeKitAspect::id(), true);
 
                 QString versionStr = QLatin1String("Qt %{Qt:Version}");
                 if (!qt->isAutodetected())
                     versionStr = QString("%1").arg(qt->displayName());
                 k->setUnexpandedDisplayName(Tr::tr("Android %1 Clang %2")
-                                                .arg(versionStr)
-                                                .arg(getMultiOrSingleAbiString(abis)));
+                                                .arg(versionStr, getMultiOrSingleAbiString(abis)));
                 k->setValueSilently(
                     Constants::ANDROID_KIT_NDK, AndroidConfig::ndkLocation(qt).toSettings());
                 k->setValueSilently(
@@ -1525,11 +1521,6 @@ void AndroidConfigurations::updateAutomaticKitList()
     // cleanup any mess that might have existed before, by removing all Android kits that
     // existed before, but weren't re-used
     KitManager::deregisterKits(unhandledKits);
-}
-
-AndroidSdkManager *AndroidConfigurations::sdkManager()
-{
-    return m_instance->m_sdkManager.get();
 }
 
 AndroidConfigurations *AndroidConfigurations::instance()
@@ -1592,29 +1583,25 @@ void AndroidConfigurationsTest::testAndroidConfigAvailableNdkPlatforms_data()
     const QList<int> abis64Bit = {31, 30, 29, 28, 27, 26, 24, 23, 22, 21};
     QTest::newRow("ndkV21Plus armeabi-v7a OsTypeWindows")
                 << ndkV21Plus
-                << Abis{AndroidManager::androidAbi2Abi(
-                       ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A)}
+                << Abis{androidAbi2Abi(ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A)}
                 << OsTypeWindows
                 << abis32Bit;
 
     QTest::newRow("ndkV21Plus arm64-v8a OsTypeLinux")
                 << ndkV21Plus
-                << Abis{AndroidManager::androidAbi2Abi(
-                       ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A)}
+                << Abis{androidAbi2Abi(ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A)}
                 << OsTypeLinux
                 << abis64Bit;
 
     QTest::newRow("ndkV21Plus x86 OsTypeMac")
                 << ndkV21Plus
-                << Abis{AndroidManager::androidAbi2Abi(
-                       ProjectExplorer::Constants::ANDROID_ABI_X86)}
+                << Abis{androidAbi2Abi(ProjectExplorer::Constants::ANDROID_ABI_X86)}
                 << OsTypeMac
                 << abis32Bit;
 
     QTest::newRow("ndkV21Plus x86_64 OsTypeWindows")
                 << ndkV21Plus
-                << Abis{AndroidManager::androidAbi2Abi(
-                       ProjectExplorer::Constants::ANDROID_ABI_X86_64)}
+                << Abis{androidAbi2Abi(ProjectExplorer::Constants::ANDROID_ABI_X86_64)}
                 << OsTypeWindows
                 << abis64Bit;
 }
@@ -1642,6 +1629,6 @@ void setupAndroidConfigurations()
     static AndroidConfigurations theAndroidConfigurations;
 }
 
-} // namespace Android
+} // namespace Android::Internal
 
 #include "androidconfigurations.moc"

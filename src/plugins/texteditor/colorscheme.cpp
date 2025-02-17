@@ -6,6 +6,8 @@
 #include "texteditorconstants.h"
 #include "texteditortr.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/fileutils.h>
 
 #include <QFile>
@@ -216,7 +218,7 @@ void ColorScheme::clear()
     m_formats.clear();
 }
 
-bool ColorScheme::save(const FilePath &filePath, QWidget *parent) const
+bool ColorScheme::save(const FilePath &filePath) const
 {
     FileSaver saver(filePath);
     if (!saver.hasError()) {
@@ -262,7 +264,7 @@ bool ColorScheme::save(const FilePath &filePath, QWidget *parent) const
 
         saver.setResult(&w);
     }
-    return saver.finalize(parent);
+    return saver.finalize(Core::ICore::dialogParent());
 }
 
 namespace {
@@ -290,7 +292,7 @@ bool ColorSchemeReader::read(const FilePath &filePath, ColorScheme *scheme)
     if (m_scheme)
         m_scheme->clear();
 
-    QFile file(filePath.toString());
+    QFile file(filePath.toUrlishString());
     if (!file.open(QFile::ReadOnly | QFile::Text))
         return false;
 

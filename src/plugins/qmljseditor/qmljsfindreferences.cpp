@@ -986,7 +986,7 @@ void FindReferences::displayResults(int first, int last)
     // the first usage is always a dummy to indicate we now start searching
     if (first == 0) {
         Usage dummy = m_watcher.future().resultAt(0);
-        const QString replacement = dummy.path.toString();
+        const QString replacement = dummy.path.toUrlishString();
         const QString symbolName = dummy.lineText;
         const QString label = Tr::tr("QML/JS Usages:");
 

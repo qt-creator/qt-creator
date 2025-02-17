@@ -1,5 +1,6 @@
 {
     "Id" : "clearcase",
+    "DisplayName" : "ClearCase",
     "Name" : "ClearCase",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

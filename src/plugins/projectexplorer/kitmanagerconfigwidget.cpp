@@ -3,10 +3,10 @@
 
 #include "kitmanagerconfigwidget.h"
 
+#include "devicesupport/devicekitaspects.h"
 #include "devicesupport/idevicefactory.h"
 #include "kit.h"
 #include "kitaspect.h"
-#include "kitaspects.h"
 #include "kitmanager.h"
 #include "projectexplorertr.h"
 #include "task.h"
@@ -22,6 +22,7 @@
 #include <utils/variablechooser.h>
 
 #include <QAction>
+#include <QHash>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 #include <QFileDialog>
@@ -29,6 +30,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
+#include <QSet>
 #include <QToolButton>
 #include <QSizePolicy>
 
@@ -58,7 +60,7 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k, bool &isDefaultKit, bool 
            "which for example determines the name of the shadow build directory."
            "</p></body></html>").arg(QLatin1String("Kit:FileSystemName"));
     m_fileSystemFriendlyNameLineEdit->setToolTip(toolTip);
-    QRegularExpression fileSystemFriendlyNameRegexp(QLatin1String("^[A-Za-z0-9_-]*$"));
+    static const QRegularExpression fileSystemFriendlyNameRegexp(QLatin1String("^[A-Za-z0-9_-]*$"));
     Q_ASSERT(fileSystemFriendlyNameRegexp.isValid());
     m_fileSystemFriendlyNameLineEdit->setValidator(new QRegularExpressionValidator(fileSystemFriendlyNameRegexp, m_fileSystemFriendlyNameLineEdit));
 
@@ -103,8 +105,7 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k, bool &isDefaultKit, bool 
     chooser->addSupportedWidget(m_nameEdit);
     chooser->addMacroExpanderProvider([this] { return m_modifiedKit->macroExpander(); });
 
-    for (KitAspectFactory *factory : KitManager::kitAspectFactories())
-        addAspectToWorkingCopy(page, factory);
+    addAspectsToWorkingCopy(page);
 
     page.attachTo(this);
 
@@ -207,18 +208,40 @@ QString KitManagerConfigWidget::validityMessage() const
     return m_modifiedKit->toHtml(tmp);
 }
 
-void KitManagerConfigWidget::addAspectToWorkingCopy(Layouting::Layout &parent, KitAspectFactory *factory)
+void KitManagerConfigWidget::addAspectsToWorkingCopy(Layouting::Layout &parent)
 {
-    QTC_ASSERT(factory, return);
-    KitAspect *aspect = factory->createKitAspect(workingCopy());
-    QTC_ASSERT(aspect, return);
-    QTC_ASSERT(!m_kitAspects.contains(aspect), return);
+    QHash<Id, KitAspect *> aspectsById;
+    for (KitAspectFactory *factory : KitManager::kitAspectFactories()) {
+        QTC_ASSERT(factory, continue);
 
-    aspect->addToLayout(parent);
-    m_kitAspects.append(aspect);
+        KitAspect *aspect = factory->createKitAspect(workingCopy());
+        QTC_ASSERT(aspect, continue);
+        QTC_ASSERT(!m_kitAspects.contains(aspect), continue);
 
-    connect(aspect->mutableAction(), &QAction::toggled,
+        m_kitAspects.append(aspect);
+        aspectsById.insert(factory->id(), aspect);
+
+        connect(aspect->mutableAction(), &QAction::toggled,
             this, &KitManagerConfigWidget::dirty);
+    }
+
+    QSet<KitAspect *> embedded;
+    for (KitAspect * const aspect : std::as_const(m_kitAspects)) {
+        QList<KitAspect *> embeddables;
+        for (const QList<Id> embeddableIds = aspect->factory()->embeddableAspects();
+             const Id &embeddableId : embeddableIds) {
+            if (KitAspect * const embeddable = aspectsById.value(embeddableId)) {
+                embeddables << embeddable;
+                embedded << embeddable;
+            }
+        }
+        aspect->setAspectsToEmbed(embeddables);
+    }
+
+    for (KitAspect * const aspect : std::as_const(m_kitAspects)) {
+        if (!embedded.contains(aspect))
+            aspect->addToLayout(parent);
+    }
 }
 
 void KitManagerConfigWidget::updateVisibility()
@@ -245,7 +268,7 @@ bool KitManagerConfigWidget::isDefaultKit() const
 
 void KitManagerConfigWidget::setIcon()
 {
-    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(m_modifiedKit.get());
+    const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(m_modifiedKit.get());
     QList<IDeviceFactory *> allDeviceFactories = IDeviceFactory::allDeviceFactories();
     if (deviceType.isValid()) {
         const auto less = [deviceType](const IDeviceFactory *f1, const IDeviceFactory *f2) {
@@ -273,12 +296,12 @@ void KitManagerConfigWidget::setIcon()
     }
     iconMenu.addSeparator();
     iconMenu.addAction(PathChooser::browseButtonLabel(), [this] {
-        const FilePath path = FileUtils::getOpenFilePath(this, Tr::tr("Select Icon"),
+        const FilePath path = FileUtils::getOpenFilePath(Tr::tr("Select Icon"),
                                                          m_modifiedKit->iconPath(),
                                                          Tr::tr("Images (*.png *.xpm *.jpg)"));
         if (path.isEmpty())
             return;
-        const QIcon icon(path.toString());
+        const QIcon icon(path.toUrlishString());
         if (icon.isNull())
             return;
         m_iconButton->setIcon(icon);

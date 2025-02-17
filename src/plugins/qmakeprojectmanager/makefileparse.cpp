@@ -22,7 +22,7 @@ namespace QmakeProjectManager::Internal {
 
 static QString findQMakeLine(const FilePath &makefile, const QString &key)
 {
-    QFile fi(makefile.toString());
+    QFile fi(makefile.toUrlishString());
     if (fi.exists() && fi.open(QFile::ReadOnly)) {
         static const QString cmakeLine("# CMAKE generated file: DO NOT EDIT!");
         QTextStream ts(&fi);
@@ -217,7 +217,7 @@ QList<QMakeAssignment> MakeFileParse::parseAssignments(const QList<QMakeAssignme
 
 static FilePath findQMakeBinaryFromMakefile(const FilePath &makefile)
 {
-    QFile fi(makefile.toString());
+    QFile fi(makefile.toUrlishString());
     if (fi.exists() && fi.open(QFile::ReadOnly)) {
         QTextStream ts(&fi);
         static const QRegularExpression r1(QLatin1String("^QMAKE\\s*=(.*)$"));

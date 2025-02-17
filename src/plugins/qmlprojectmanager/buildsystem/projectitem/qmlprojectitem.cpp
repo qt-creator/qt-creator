@@ -35,7 +35,7 @@ QmlProjectItem::QmlProjectItem(const Utils::FilePath &filePath, const bool skipR
 bool QmlProjectItem::initProjectObject()
 {
     if (m_projectFile.endsWith(Constants::fakeProjectName)) {
-        auto uiFile = m_projectFile.toString();
+        auto uiFile = m_projectFile.toUrlishString();
         uiFile.remove(Constants::fakeProjectName);
 
         auto parentDir = Utils::FilePath::fromString(uiFile).parentDir();
@@ -118,14 +118,14 @@ void QmlProjectItem::setupFileFilters()
                        [](const QJsonValue &value) { return value.toString(); });
 
         const QString directory = fileGroup["directory"].toString() == ""
-                                      ? m_projectFile.parentDir().toString()
+                                      ? m_projectFile.parentDir().toUrlishString()
                                       : fileGroup["directory"].toString();
         Utils::FilePath groupDir = Utils::FilePath::fromString(directory);
         std::unique_ptr<FileFilterItem> fileFilterItem{new FileFilterItem};
         fileFilterItem->setRecursive(false);
         fileFilterItem->setPathsProperty(filesArr);
-        fileFilterItem->setDefaultDirectory(m_projectFile.parentDir().toString());
-        fileFilterItem->setDirectory(groupDir.toString());
+        fileFilterItem->setDefaultDirectory(m_projectFile.parentDir().toUrlishString());
+        fileFilterItem->setDirectory(groupDir.toUrlishString());
 #ifndef TESTS_ENABLED_QMLPROJECTITEM
         connect(fileFilterItem.get(), &FileFilterItem::filesChanged, this, &QmlProjectItem::filesChanged);
         connect(fileFilterItem.get(), &FileFilterItem::fileModified, this, &QmlProjectItem::fileModified);

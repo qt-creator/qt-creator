@@ -54,6 +54,7 @@ public:
         R32CArchitecture,
         CR16Architecture,
         RiscVArchitecture,
+        LoongArchArchitecture,
         UnknownArchitecture
     };
 
@@ -142,6 +143,8 @@ public:
 
     QString toString() const;
     QString param() const;
+
+    QString toAndroidAbi() const;
 
     static QString toString(const Architecture &a);
     static QString toString(const OS &o);

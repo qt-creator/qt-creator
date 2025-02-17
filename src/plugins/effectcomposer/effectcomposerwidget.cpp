@@ -53,7 +53,7 @@ static QString propertyEditorResourcesPath()
     if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
+    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toUrlishString();
 }
 
 static QList<QmlDesigner::ModelNode> modelNodesFromMimeData(const QByteArray &mimeData,
@@ -214,7 +214,7 @@ QString EffectComposerWidget::uniformDefaultImage(const QString &nodeName, const
 
 QString EffectComposerWidget::imagesPath() const
 {
-    return Core::ICore::resourcePath("qmldesigner/effectComposerNodes/images").toString();
+    return Core::ICore::resourcePath("qmldesigner/effectComposerNodes/images").toUrlishString();
 }
 
 bool EffectComposerWidget::isEffectAsset(const QUrl &url) const
@@ -267,7 +267,7 @@ QString EffectComposerWidget::qmlSourcesPath()
     if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/effectComposerQmlSources";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/effectComposerQmlSources").toString();
+    return Core::ICore::resourcePath("qmldesigner/effectComposerQmlSources").toUrlishString();
 }
 
 void EffectComposerWidget::initView()

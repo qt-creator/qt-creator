@@ -324,7 +324,7 @@ private:
                     int lineIndentColumn = sts.indentationColumn(text) + columnOffset;
                     text.replace(0,
                                  TabSettings::firstNonSpace(text),
-                                 tts.indentationString(0, lineIndentColumn, 0, insertionBlock));
+                                 tts.indentationString(0, lineIndentColumn, 0));
                 }
                 functionDoc += text;
             }

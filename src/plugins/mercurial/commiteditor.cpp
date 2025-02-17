@@ -33,7 +33,7 @@ void CommitEditor::setFields(const FilePath &repositoryRoot, const QString &bran
     if (!mercurialWidget)
         return;
 
-    mercurialWidget->setFields(repositoryRoot.absoluteFilePath().toString(), branch, userName, email);
+    mercurialWidget->setFields(repositoryRoot.absoluteFilePath().toUrlishString(), branch, userName, email);
 
     fileModel = new SubmitFileModel(this);
     fileModel->setRepositoryRoot(repositoryRoot.absoluteFilePath());
@@ -62,11 +62,6 @@ void CommitEditor::setFields(const FilePath &repositoryRoot, const QString &bran
 QString CommitEditor::committerInfo() const
 {
     return commitWidget()->committer();
-}
-
-QString CommitEditor::repoRoot() const
-{
-    return commitWidget()->repoRoot();
 }
 
 } // Mercurial::Internal

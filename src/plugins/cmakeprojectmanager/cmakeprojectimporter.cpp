@@ -17,11 +17,12 @@
 #include <debugger/debuggerkitaspect.h>
 
 #include <projectexplorer/buildinfo.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
+#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <qtsupport/qtkitaspect.h>
@@ -216,7 +217,7 @@ FilePaths CMakeProjectImporter::presetCandidates()
             Environment env = projectDirectory().deviceEnvironment();
             CMakePresets::Macros::expand(configPreset, env, projectDirectory());
 
-            QString binaryDir = configPreset.binaryDir.value();
+            QString binaryDir = *configPreset.binaryDir;
             CMakePresets::Macros::expand(configPreset, env, projectDirectory(), binaryDir);
 
             const FilePath binaryFilePath = FilePath::fromString(binaryDir);
@@ -263,10 +264,10 @@ static QVariant findOrRegisterDebugger(
     Environment &env, const PresetsDetails::ConfigurePreset &preset, const DebuggerCMakeExpander& expander)
 {
     const QString debuggerKey("debugger");
-    if (!preset.vendor || !preset.vendor.value().contains(debuggerKey))
+    if (!preset.vendor || !preset.vendor->contains(debuggerKey))
         return {};
 
-    const QVariant debuggerVariant = preset.vendor.value().value(debuggerKey);
+    const QVariant debuggerVariant = preset.vendor->value(debuggerKey);
     FilePath debuggerPath = FilePath::fromUserInput(expander.expand(debuggerVariant.toString()));
     if (!debuggerPath.isEmpty()) {
         if (debuggerPath.isRelativePath())
@@ -373,7 +374,7 @@ static CMakeConfig configurationFromPresetProbe(
     Process cmake;
     cmake.setDisableUnixTerminal();
 
-    const FilePath cmakeExecutable = configurePreset.cmakeExecutable.value();
+    const FilePath cmakeExecutable = configurePreset.cmakeExecutable.value_or(FilePath());
 
     Environment env = cmakeExecutable.deviceEnvironment();
     CMakePresets::Macros::expand(configurePreset, env, sourceDirectory);
@@ -389,29 +390,28 @@ static CMakeConfig configurationFromPresetProbe(
 
     if (configurePreset.generator) {
         args.emplace_back("-G");
-        args.emplace_back(configurePreset.generator.value());
+        args.emplace_back(*configurePreset.generator);
     }
-    if (configurePreset.architecture && configurePreset.architecture.value().value) {
+    if (configurePreset.architecture && configurePreset.architecture->value) {
         if (!configurePreset.architecture->strategy
             || configurePreset.architecture->strategy
                    != PresetsDetails::ValueStrategyPair::Strategy::external) {
             args.emplace_back("-A");
-            args.emplace_back(configurePreset.architecture.value().value.value());
+            args.emplace_back(*configurePreset.architecture->value);
         }
     }
-    if (configurePreset.toolset && configurePreset.toolset.value().value) {
+    if (configurePreset.toolset && configurePreset.toolset->value) {
         if (!configurePreset.toolset->strategy
             || configurePreset.toolset->strategy
                    != PresetsDetails::ValueStrategyPair::Strategy::external) {
             args.emplace_back("-T");
-            args.emplace_back(configurePreset.toolset.value().value.value());
+            args.emplace_back(*configurePreset.toolset->value);
         }
     }
 
     if (configurePreset.cacheVariables) {
-        const CMakeConfig cache = configurePreset.cacheVariables
-                                      ? configurePreset.cacheVariables.value()
-                                      : CMakeConfig();
+        const CMakeConfig cache = configurePreset.cacheVariables ? *configurePreset.cacheVariables
+                                                                 : CMakeConfig();
 
         const QString cmakeMakeProgram = cache.stringValueOf("CMAKE_MAKE_PROGRAM");
         const QString toolchainFile = cache.stringValueOf("CMAKE_TOOLCHAIN_FILE");
@@ -863,7 +863,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                 TaskHub::requestPopup();
             }
         } else {
-            QString cmakeExecutable = configurePreset.cmakeExecutable.value().toString();
+            QString cmakeExecutable = configurePreset.cmakeExecutable.value().toUrlishString();
             CMakePresets::Macros::expand(configurePreset, env, projectDirectory(), cmakeExecutable);
 
             configurePreset.cmakeExecutable = FilePath::fromUserInput(cmakeExecutable);
@@ -937,7 +937,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
             updateCompilerPaths(config, env);
             config << CMakeConfigItem("CMAKE_COMMAND",
                                       CMakeConfigItem::PATH,
-                                      configurePreset.cmakeExecutable.value().toString().toUtf8());
+                                      configurePreset.cmakeExecutable.value().toUrlishString().toUtf8());
             if (configurePreset.generator)
                 config << CMakeConfigItem("CMAKE_GENERATOR",
                                           CMakeConfigItem::STRING,
@@ -1227,6 +1227,9 @@ const QList<BuildInfo> CMakeProjectImporter::buildInfoList(void *directoryData) 
     config.insert(Constants::QML_DEBUG_SETTING,
                   data->hasQmlDebugging ? TriState::Enabled.toVariant()
                                         : TriState::Default.toVariant());
+    if (!data->cmakePreset.isEmpty())
+        config["hideImportedSuffix"] = true;
+
     info.extraInfo = config;
 
     qCDebug(cmInputLog) << "BuildInfo configured.";
@@ -1396,7 +1399,7 @@ void CMakeProjectImporterTest::testCMakeProjectImporterToolchain()
     QCOMPARE(tcs.count(), expectedLanguages.count());
     for (int i = 0; i < tcs.count(); ++i) {
         QCOMPARE(tcs.at(i).language, expectedLanguages.at(i));
-        QCOMPARE(tcs.at(i).compilerPath.toString(), expectedToolchains.at(i));
+        QCOMPARE(tcs.at(i).compilerPath.toUrlishString(), expectedToolchains.at(i));
     }
 }
 

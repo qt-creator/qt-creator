@@ -186,11 +186,11 @@ QString ErrorWidget::modifyExportedValue(const QString &val)
 
 void ErrorWidget::exportWarnings()
 {
-    FilePath fileName = FileUtils::getSaveFilePath(this, Tr::tr("Export to File"), {}, Tr::tr("CSV files (*.csv)"));
+    FilePath fileName = FileUtils::getSaveFilePath(Tr::tr("Export to File"), {}, Tr::tr("CSV files (*.csv)"));
     if (fileName.isEmpty())
         return;
 
-    QFile file(fileName.toString());
+    QFile file(fileName.toUrlishString());
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QMessageBox::warning(this, Tr::tr("Export Failed"), Tr::tr("Cannot open file %1.").arg(fileName.toUserOutput()));
         file.close();
