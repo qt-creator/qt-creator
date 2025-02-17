@@ -8,7 +8,7 @@
 #include "callgrind/callgrindparsedata.h"
 #include "callgrind/callgrindparser.h"
 
-#include <utils/qtcprocess.h>
+#include <solutions/tasking/tasktreerunner.h>
 
 namespace Valgrind::Internal {
 
@@ -22,24 +22,16 @@ public:
 
     void start() override;
 
-    /// controller actions
-    void dump() { run(Dump); }
-    void reset() { run(ResetEventCounters); }
-    void pause() { run(Pause); }
-    void unpause() { run(UnPause); }
+    void dump();
+    void reset();
+    void pause();
+    void unpause();
 
     /// marks the callgrind process as paused
     /// calls pause() and unpause() if there's an active run
     void setPaused(bool paused);
 
     void setToggleCollectFunction(const QString &toggleCollectFunction);
-
-    enum Option {
-        Dump,
-        ResetEventCounters,
-        Pause,
-        UnPause
-    };
 
 protected:
     void addToolArguments(Utils::CommandLine &cmd) const override;
@@ -48,33 +40,13 @@ signals:
     void parserDataReady(const Callgrind::ParseDataPtr &data);
 
 private:
-    void showStatusMessage(const QString &message);
+    Tasking::ExecutableItem parseRecipe();
+    void executeController(const Tasking::Group &recipe);
 
-    /**
-     * Make data file available locally, triggers @c localParseDataAvailable.
-     *
-     * If the valgrind process was run remotely, this transparently
-     * downloads the data file first and returns a local path.
-     */
-    void triggerParse();
-    void controllerFinished(Option option);
-
-    void run(Option option);
-
-    void cleanupTempFile();
-    void controllerProcessDone();
-
-    bool m_markAsPaused = false;
-
-    std::unique_ptr<Utils::Process> m_controllerProcess;
+    Tasking::TaskTreeRunner m_controllerRunner;
     qint64 m_pid = 0;
-
-    std::optional<Option> m_lastOption;
-
-    // remote callgrind support
-    Utils::FilePath m_valgrindOutputFile; // On the device that runs valgrind
-    Utils::FilePath m_hostOutputFile; // On the device that runs creator
-
+    bool m_markAsPaused = false;
+    Utils::FilePath m_remoteOutputFile; // On the device that runs valgrind
     QString m_argumentForToggleCollect;
 };
 
