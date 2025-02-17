@@ -12151,7 +12151,7 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     <message>
         <source>None</source>
         <comment>No skin</comment>
-        <translation type="unfinished"></translation>
+        <translation>Kein</translation>
     </message>
     <message>
         <source>An error occurred while removing the Android AVD &quot;%1&quot; using avdmanager tool.</source>
@@ -12694,19 +12694,19 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
     <message>
         <source>Art: Cleared App Profiles.</source>
-        <translation type="unfinished"></translation>
+        <translation>Art: App Profiles gelöscht.</translation>
     </message>
     <message>
         <source>Art: Clearing App Profiles failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Art: Löschen der App Profiles fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Art: Compiled App Profiles.</source>
-        <translation type="unfinished"></translation>
+        <translation>Art: App Profiles kompiliert.</translation>
     </message>
     <message>
         <source>Art: Compiling App Profiles failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Art: Kompilierung der App Profiles fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Android SDK Manager</source>
@@ -12723,7 +12723,7 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     <message>
         <source>All</source>
         <comment>Show all packages</comment>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Show Packages</source>
@@ -13386,7 +13386,7 @@ und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlaube
     </message>
     <message>
         <source>Cannot debug: Invalid target information.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann nicht debuggen: Ungültige Zielinformation.</translation>
     </message>
     <message>
         <source>Cannot debug: Only QML and native applications are supported.</source>
@@ -13599,12 +13599,12 @@ Warnung: Dies ist eine experimentelle Funktion und könnte dazu führen, dass di
     </message>
     <message>
         <source>No Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Tests</translation>
     </message>
     <message>
         <source>All</source>
         <comment>Run tests after build</comment>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Selected</source>
@@ -14818,7 +14818,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Named filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Benannte Filter</translation>
     </message>
     <message>
         <source>Total rows:</source>
@@ -14858,19 +14858,19 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Show All</source>
-        <translation type="unfinished">Alle anzeigen</translation>
+        <translation>Alle anzeigen</translation>
     </message>
     <message>
         <source>Configure dashboards in Preferences &gt; Analyzer &gt; Axivion.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurieren Sie Dashboards in Einstellungen &gt; Analyzer &gt; Axivion.</translation>
     </message>
     <message>
         <source>No Dashboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Dashboard</translation>
     </message>
     <message>
         <source>Show Issues in Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme im Editor anzeigen</translation>
     </message>
     <message>
         <source>Open Issue in Dashboard</source>
@@ -14984,7 +14984,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Project name must be non-empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektname darf nicht leer sein.</translation>
     </message>
     <message>
         <source>Add...</source>
@@ -15000,7 +15000,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Dashboard Servers</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard-Server</translation>
     </message>
     <message>
         <source>Default dashboard server:</source>
@@ -15008,7 +15008,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Misc Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Weitere Einstellungen</translation>
     </message>
     <message>
         <source>unset</source>
@@ -15036,11 +15036,11 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Path must be relative.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad muss relativ sein.</translation>
     </message>
     <message>
         <source>Invalid path elements (. or ..).</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige Pfadelemente (. oder ..).</translation>
     </message>
     <message>
         <source>Analysis path:</source>
@@ -15321,7 +15321,7 @@ a entspricht Problemen, deren Wert den Buchstaben &apos;a&apos; enthält
     <message>
         <source>None</source>
         <comment>No debug server provider</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keiner</translation>
     </message>
     <message>
         <source>Not recognized</source>
@@ -16946,7 +16946,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     <message>
         <source>None</source>
         <comment>No CMake tool</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keins</translation>
     </message>
     <message>
         <source> (Default)</source>
@@ -17663,7 +17663,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Failed to copy &quot;%1&quot; to &quot;%2&quot;: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopieren von &quot;%1&quot; nach &quot;%2&quot; ist fehlgeschlagen: %3</translation>
     </message>
     <message>
         <source>Failed to read file &quot;%1&quot;.</source>
@@ -21361,15 +21361,15 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>A directory under version control was detected that is supported by the %1 plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde ein Verzeichnis unter Versionskontrolle erkannt, das vom Plugin &quot;%1&quot; unterstützt wird.</translation>
     </message>
     <message>
         <source>Enable %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 aktivieren</translation>
     </message>
     <message>
         <source>The directory &quot;%1&quot; seems to be under version control that can be handled by the disabled %2 plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Verzeichnis &quot;%1&quot; scheint unter einer Versionskontrolle zu stehen, die vom deaktivierten Plugin &quot;%2&quot; unterstützt wird.</translation>
     </message>
     <message>
         <source>%1 repository was detected but %1 is not configured.</source>
@@ -22215,7 +22215,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeiche
     <message>
         <source>None</source>
         <comment>No find flags</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>, </source>
@@ -22509,7 +22509,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>Help</source>
-        <translation type="unfinished">Hilfe</translation>
+        <translation>Hilfe</translation>
     </message>
     <message>
         <source>The current date (ISO).</source>
@@ -23483,15 +23483,15 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Plugin is already installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Plugin ist bereits installiert.</translation>
     </message>
     <message>
         <source>A plugin with ID &quot;%1&quot; is already installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Plugin mit der ID &quot;%1&quot; ist bereits installiert.</translation>
     </message>
     <message>
         <source>No plugin with ID &quot;%1&quot; is installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Plugin mit der ID &quot;%1&quot; ist installiert.</translation>
     </message>
     <message>
         <source>Check Archive</source>
@@ -23547,7 +23547,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Failed to create directory &quot;%1&quot;.</source>
-        <translation type="unfinished">Das Verzeichnis &quot;%1&quot; konnte nicht erstellt werden.</translation>
+        <translation>Das Verzeichnis &quot;%1&quot; konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <source>Failed to write file &quot;%1&quot;.</source>
