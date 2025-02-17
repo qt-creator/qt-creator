@@ -7,7 +7,7 @@
 
 #include <QRegularExpression>
 
-namespace ProjectExplorer {
+namespace ProjectExplorer::Internal {
 
 class LdParser : public ProjectExplorer::OutputTaskParser
 {
@@ -24,4 +24,8 @@ private:
     QRegularExpression m_regExpGccNames;
 };
 
-} // namespace ProjectExplorer
+#ifdef WITH_TESTS
+QObject *createLdOutputParserTest();
+#endif
+
+} // namespace ProjectExplorer::Internal

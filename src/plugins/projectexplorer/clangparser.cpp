@@ -36,7 +36,7 @@ ClangParser::ClangParser() :
 
 QList<OutputLineParser *> ClangParser::clangParserSuite()
 {
-    return {new ClangParser, new Internal::LldParser, new LdParser};
+    return {new ClangParser, new Internal::LldParser, new Internal::LdParser};
 }
 
 OutputLineParser::Result ClangParser::handleLine(const QString &line, OutputFormat type)

@@ -89,7 +89,7 @@ Utils::Id LinuxIccParser::id()
 
 QList<OutputLineParser *> LinuxIccParser::iccParserSuite()
 {
-    return {new LinuxIccParser, new Internal::LldParser, new LdParser};
+    return {new LinuxIccParser, new Internal::LldParser, new Internal::LdParser};
 }
 
 } // ProjectExplorer

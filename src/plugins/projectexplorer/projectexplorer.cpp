@@ -51,6 +51,7 @@
 #include "jsonwizard/jsonwizardpagefactory_p.h"
 #include "kitfeatureprovider.h"
 #include "kitmanager.h"
+#include "ldparser.h"
 #include "miniprojecttargetselector.h"
 #include "outputparser_test.h"
 #include "parseissuesdialog.h"
@@ -808,6 +809,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 #ifdef WITH_TESTS
     addTest<ProjectExplorerTest>();
     addTestCreator(createOutputParserTest);
+    addTestCreator(createLdOutputParserTest);
 #endif
 
     setupGccToolchains();
