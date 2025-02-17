@@ -101,7 +101,7 @@ private:
 
         Utils::FileReader reader;
         // Do not use FileReader::text as we have to deal with byte offsets.
-        if (reader.fetch(Utils::FilePath::fromString(filePath)))
+        if (reader.fetch(Utils::FilePath::fromUserInput(filePath)))
             return reader.data();
 
         return {};
