@@ -204,14 +204,12 @@ void CallgrindToolRunner::controllerProcessDone()
             run(Dump);
             return;
         case Pause:
-            m_paused = true;
             break;
         case Dump:
             showStatusMessage(Tr::tr("Callgrind dumped profiling info"));
             triggerParse();
             break;
         case UnPause:
-            m_paused = false;
             showStatusMessage(Tr::tr("Callgrind unpaused."));
             break;
         default:

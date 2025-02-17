@@ -75,8 +75,6 @@ private:
     Utils::FilePath m_valgrindOutputFile; // On the device that runs valgrind
     Utils::FilePath m_hostOutputFile; // On the device that runs creator
 
-    bool m_paused = false;
-
     QString m_argumentForToggleCollect;
 };
 
