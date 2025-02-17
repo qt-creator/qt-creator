@@ -905,8 +905,9 @@ void MaterialEditorView::requestPreviewRender()
         static int requestId = 0;
         m_previewRequestId = QByteArray(MATERIAL_EDITOR_IMAGE_REQUEST_ID)
                              + QByteArray::number(++requestId);
-        static_cast<const NodeInstanceView *>(model()->nodeInstanceView())
-            ->previewImageDataForGenericNode(m_selectedMaterial, {}, m_previewSize, m_previewRequestId);
+
+        model()->sendCustomNotificationToNodeInstanceView(
+            NodePreviewImage{m_selectedMaterial, {}, m_previewSize, m_previewRequestId});
     }
 }
 

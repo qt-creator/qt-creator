@@ -73,6 +73,10 @@ public:
                         const NodeAbstractProperty &oldPropertyParent,
                         AbstractView::PropertyChangeFlags propertyChange) override;
 
+    void modelNodePreviewPixmapChanged(const ModelNode &node,
+                                       const QPixmap &pixmap,
+                                       const QByteArray &requestId) override;
+
     void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
 
     void dragStarted(QMimeData *mimeData) override;

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "modelnode.h"
+
 #include <QEvent>
 #include <QSize>
 
@@ -18,6 +20,14 @@ struct Resize3DCanvas
     QSize size;
 };
 
-using CustomNotificationPackage = std::variant<InputEvent, Resize3DCanvas>;
+struct NodePreviewImage
+{
+    ModelNode modelNode;
+    ModelNode renderNode;
+    QSize size;
+    QByteArray requestId;
+};
+
+using CustomNotificationPackage = std::variant<InputEvent, Resize3DCanvas, NodePreviewImage>;
 
 } // namespace QmlDesigner

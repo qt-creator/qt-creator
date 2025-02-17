@@ -18,6 +18,8 @@
 
 #include <memory>
 
+QT_FORWARD_DECLARE_CLASS(QQuickImageProvider)
+
 class PropertyEditorValue;
 
 namespace QmlDesigner {
@@ -37,7 +39,6 @@ public:
     ~PropertyEditorQmlBackend();
 
     void setup(const QmlObjectNode &fxObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile, PropertyEditorView *propertyEditor);
-    void initialSetup(const TypeName &typeName, const QUrl &qmlSpecificsFile, PropertyEditorView *propertyEditor);
     void setValue(const QmlObjectNode &fxObjectNode, PropertyNameView name, const QVariant &value);
     void setExpression(PropertyNameView propName, const QString &exp);
 
@@ -86,10 +87,14 @@ public:
     void handleVariantPropertyChangedInModelNodeProxy(const VariantProperty &property);
     void handleBindingPropertyChangedInModelNodeProxy(const BindingProperty &property);
     void handlePropertiesRemovedInModelNodeProxy(const AbstractProperty &property);
+    void handleModelNodePreviewPixmapChanged(const ModelNode &node,
+                                             const QPixmap &pixmap,
+                                             const QByteArray &requestId);
 
     static NodeMetaInfo findCommonAncestor(const ModelNode &node);
 
     void refreshBackendModel();
+    void refreshPreview();
 
     void setupContextProperties();
 

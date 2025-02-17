@@ -16,6 +16,7 @@
 #include "gradientmodel.h"
 #include "gradientpresetcustomlistmodel.h"
 #include "gradientpresetdefaultlistmodel.h"
+#include "instanceimageprovider.h"
 #include "itemfiltermodel.h"
 #include "listvalidator.h"
 #include "propertychangesmodel.h"
@@ -40,6 +41,14 @@ Quick2PropertyEditorView::Quick2PropertyEditorView(AsynchronousImageCache &image
     Theme::setupTheme(engine());
     engine()->addImageProvider("qmldesigner_thumbnails",
                                new AssetImageProvider(imageCache));
+
+    m_instanceImageProvider = new InstanceImageProvider();
+    engine()->addImageProvider("nodeInstance", m_instanceImageProvider);
+}
+
+InstanceImageProvider *Quick2PropertyEditorView::instanceImageProvider() const
+{
+    return m_instanceImageProvider;
 }
 
 void Quick2PropertyEditorView::registerQmlTypes()

@@ -67,8 +67,7 @@ PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,
     , m_timerId(0)
     , m_stackedWidget(new PropertyEditorWidget())
     , m_qmlBackEndForCurrentType(nullptr)
-    , m_propertyComponentGenerator{QmlDesigner::PropertyEditorQmlBackend::propertyEditorResourcesPath(),
-                                   model()}
+    , m_propertyComponentGenerator{PropertyEditorQmlBackend::propertyEditorResourcesPath(), model()}
     , m_locked(false)
 
 {
@@ -602,6 +601,7 @@ void PropertyEditorView::setupQmlBackend()
 #else
     const NodeMetaInfo commonAncestor = PropertyEditorQmlBackend::findCommonAncestor(m_selectedNode);
 
+    // qmlFileUrl is panel url. and specifics is its metainfo
     const auto [qmlFileUrl, specificsClassMetaInfo] = PropertyEditorQmlBackend::getQmlUrlForMetaInfo(
         commonAncestor);
 
@@ -1043,6 +1043,17 @@ void PropertyEditorView::importsChanged(const Imports &addedImports, const Impor
         m_qmlBackEndForCurrentType->contextObject()->setHasQuick3DImport(false);
     else if (Utils::contains(addedImports, quick3dImport, &Import::url))
         m_qmlBackEndForCurrentType->contextObject()->setHasQuick3DImport(true);
+}
+
+void PropertyEditorView::modelNodePreviewPixmapChanged(const ModelNode &node,
+                                                       const QPixmap &pixmap,
+                                                       const QByteArray &requestId)
+{
+    if (node != m_selectedNode)
+        return;
+
+    if (m_qmlBackEndForCurrentType)
+        m_qmlBackEndForCurrentType->handleModelNodePreviewPixmapChanged(node, pixmap, requestId);
 }
 
 void PropertyEditorView::highlightTextureProperties(bool highlight)

@@ -712,10 +712,16 @@ void NodeInstanceView::customNotification(const AbstractView *view,
 
 void NodeInstanceView::customNotification(const CustomNotificationPackage &package)
 {
-    if (auto inputEvent = std::get_if<InputEvent>(&package))
+    if (auto inputEvent = std::get_if<InputEvent>(&package)) {
         sendInputEvent(inputEvent->event);
-    else if (auto resize3DCanvas = std::get_if<Resize3DCanvas>(&package))
+    } else if (auto resize3DCanvas = std::get_if<Resize3DCanvas>(&package)) {
         edit3DViewResized(resize3DCanvas->size);
+    } else if (auto preview = std::get_if<NodePreviewImage>(&package)) {
+        previewImageDataForGenericNode(preview->modelNode,
+                                       preview->renderNode,
+                                       preview->size,
+                                       preview->requestId);
+    }
 }
 
 void NodeInstanceView::nodeSourceChanged(const ModelNode &node, const QString & newNodeSource)
