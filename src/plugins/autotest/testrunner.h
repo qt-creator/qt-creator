@@ -82,9 +82,12 @@ private:
     ProjectExplorer::RunControl *runControlFor(ITestConfiguration *itc);
 
     void runTestsHelper();
+
     void runTestsHelperViaRunControl();
     void runNextViaRunControl();
-    void debugTests();
+    void debugTests(bool followUp);
+    void onDebugSingleFinished();
+
     void runOrDebugTests();
     void reportResult(ResultType type, const QString &description);
     bool postponeTestRunWithEmptyExecutable(ProjectExplorer::Project *project);
@@ -99,6 +102,7 @@ private:
     QMetaObject::Connection m_buildConnect;
     // temporarily used when debugging
     QMetaObject::Connection m_stopDebugConnect;
+    QMetaObject::Connection m_debugRunControlConnect;
     // temporarily used for handling of switching the current target
     QMetaObject::Connection m_targetConnect;
     QTimer m_cancelTimer;
@@ -106,6 +110,7 @@ private:
 
     int m_runControlIndex = 0;
     QPointer<ProjectExplorer::RunControl> m_currentRunControl;
+    bool m_debugTestRunCanceled = false;
 };
 
 } // namespace Internal

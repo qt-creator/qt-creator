@@ -4,7 +4,7 @@
 #pragma once
 
 #include "autotest_global.h"
-
+#include "autotestconstants.h"
 #include "itemdatacache.h"
 #include "testtreeitem.h"
 
@@ -42,8 +42,8 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     Internal::TestCodeParser *parser() const { return m_parser; }
-    bool hasTests() const;
-    QList<ITestConfiguration *> getAllTestCases() const;
+    bool hasTests(bool excludeTestTools) const;
+    QList<ITestConfiguration *> getAllTestCases(TestRunMode mode) const;
     QList<ITestConfiguration *> getSelectedTests() const;
     QList<ITestConfiguration *> getFailedTests() const;
     QList<ITestConfiguration *> getTestsForFile(const Utils::FilePath &fileName) const;

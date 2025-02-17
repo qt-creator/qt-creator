@@ -163,19 +163,26 @@ Qt::ItemFlags TestTreeModel::flags(const QModelIndex &index) const
     return item->flags(index.column());
 }
 
-bool TestTreeModel::hasTests() const
+bool TestTreeModel::hasTests(bool excludeTestTools) const
 {
     for (TreeItem *frameworkRoot : *rootItem()) {
+        if (excludeTestTools &&
+                static_cast<ITestTreeItem *>(frameworkRoot)->testBase()->asTestTool()) {
+            continue;
+        }
         if (frameworkRoot->hasChildren())
             return true;
     }
     return false;
 }
 
-QList<ITestConfiguration *> TestTreeModel::getAllTestCases() const
+QList<ITestConfiguration *> TestTreeModel::getAllTestCases(TestRunMode mode) const
 {
     QList<ITestConfiguration *> result;
-    forItemsAtLevel<1>([&result](ITestTreeItem *testRoot) {
+    const bool isDebug = (mode == TestRunMode::Debug || mode == TestRunMode::DebugWithoutDeploy);
+    forItemsAtLevel<1>([&result, isDebug](ITestTreeItem *testRoot) {
+        if (isDebug && testRoot->testBase()->asTestTool())
+            return;
         result.append(testRoot->getAllTestConfigurations());
     });
     return result;

@@ -73,7 +73,7 @@ static Utils::Result<ResolvedTestRun> resolveTestRun(
     } else if (s == QLatin1String("failed")) {
         configs = model->getFailedTests();
     } else if (s == QLatin1String("all")) {
-        configs = model->getAllTestCases();
+        configs = model->getAllTestCases(runMode);
     } else if (s == QLatin1String("named")) {
         if (names.isEmpty())
             return ResultError("scope=named requires a non-empty names array");

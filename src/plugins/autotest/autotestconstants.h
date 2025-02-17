@@ -14,6 +14,7 @@ inline constexpr char ACTION_RUN_ALL_ID[]               = "AutoTest.RunAll";
 inline constexpr char ACTION_RUN_ALL_NODEPLOY_ID[]      = "AutoTest.RunAllNoDeploy";
 inline constexpr char ACTION_RUN_SELECTED_ID[]          = "AutoTest.RunSelected";
 inline constexpr char ACTION_RUN_SELECTED_NODEPLOY_ID[] = "AutoTest.RunSelectedNoDeploy";
+inline constexpr char ACTION_RUN_ALL_DBG_ID[]           = "AutoTest.RunAllDebug";
 inline constexpr char ACTION_RUN_FAILED_ID[]            = "AutoTest.RunFailed";
 inline constexpr char ACTION_RUN_FILE_ID[]              = "AutoTest.RunFile";
 inline constexpr char ACTION_RUN_UCURSOR[]              = "AutoTest.RunUnderCursor";

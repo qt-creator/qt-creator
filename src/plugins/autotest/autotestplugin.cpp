@@ -185,6 +185,14 @@ void AutotestPluginPrivate::initializeMenuEntries()
         .setEnabled(false)
         .addOnTriggered(this, [this] { onRunSelectedTriggered(TestRunMode::RunWithoutDeploy); });
 
+    ActionBuilder(this, Constants::ACTION_RUN_ALL_DBG_ID)
+        .setText(Tr::tr("&Debug All Tests"))
+        .setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon())
+        .setToolTip(Tr::tr("Run all tests in debug mode"))
+        .addToContainer(menuId)
+        .setEnabled(false)
+        .addOnTriggered(this, [this] { onRunAllTriggered(TestRunMode::Debug); });
+
     ActionBuilder(this, Constants::ACTION_RUN_FAILED_ID)
         .setText(Tr::tr("Run &Failed Tests"))
         .setIcon(Icons::RUN_FAILED.icon())
@@ -234,7 +242,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
 
 void AutotestPluginPrivate::onRunAllTriggered(TestRunMode mode)
 {
-    m_testRunner.runTests(mode, m_testTreeModel.getAllTestCases());
+    m_testRunner.runTests(mode, m_testTreeModel.getAllTestCases(mode));
 }
 
 void AutotestPluginPrivate::onRunSelectedTriggered(TestRunMode mode)
@@ -420,16 +428,18 @@ void updateMenuItemsEnabledState()
     const bool disabled = dd->m_testCodeParser.state() == TestCodeParser::DisabledTemporarily;
     const bool canScan = disabled || (!dd->m_testRunner.isTestRunning()
                                       && dd->m_testCodeParser.state() == TestCodeParser::Idle);
-    const bool hasTests = dd->m_testTreeModel.hasTests();
+    const bool hasTests = dd->m_testTreeModel.hasTests(false);
     // avoid expensive call to PE::canRunStartupProject() - limit to minimum necessary checks
     const bool canRun = !disabled && hasTests && canScan
             && project && !project->needsConfiguration() && project->activeRunConfiguration()
             && !BuildManager::isBuilding();
     const bool canRunFailed = canRun && dd->m_testTreeModel.hasFailedTests();
+    const bool canDbg = canRun && dd->m_testTreeModel.hasTests(true);
 
     ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action()->setEnabled(canRun);
     ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action()->setEnabled(canRun);
     ActionManager::command(Constants::ACTION_RUN_ALL_NODEPLOY_ID)->action()->setEnabled(canRun);
+    ActionManager::command(Constants::ACTION_RUN_ALL_DBG_ID)->action()->setEnabled(canDbg);
     ActionManager::command(Constants::ACTION_RUN_SELECTED_NODEPLOY_ID)->action()->setEnabled(canRun);
     ActionManager::command(Constants::ACTION_RUN_FAILED_ID)->action()->setEnabled(canRunFailed);
     ActionManager::command(Constants::ACTION_RUN_FILE_ID)->action()->setEnabled(canRun);
