@@ -176,7 +176,7 @@ void ChangeSelectionDialog::setDetails()
     QPalette palette;
     if (m_process->result() == ProcessResult::FinishedWithSuccess) {
         const QString text = m_process->cleanedStdOut();
-        AnsiEscapeCodeHandler::setTextInEditor(m_detailsText, text);
+        AnsiEscapeCodeHandler::setTextInDocument(m_detailsText->document(), text);
         palette.setColor(QPalette::Text, creatorColor(Theme::TextColorNormal));
         m_changeNumberEdit->setPalette(palette);
     } else if (m_process->result() == ProcessResult::StartFailed) {

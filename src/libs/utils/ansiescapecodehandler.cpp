@@ -271,18 +271,17 @@ void AnsiEscapeCodeHandler::endFormatScope()
     m_previousFormatClosed = true;
 }
 
-void AnsiEscapeCodeHandler::setTextInEditor(QPlainTextEdit *editor, const QString &text)
+void AnsiEscapeCodeHandler::setTextInDocument(QTextDocument *doc, const QString &text)
 {
     AnsiEscapeCodeHandler handler;
     const QList<FormattedText> formattedTextList = handler.parseText(FormattedText(text));
-    editor->clear();
-    QTextCursor cursor = editor->textCursor();
+    doc->clear();
+    QTextCursor cursor(doc);
     cursor.beginEditBlock();
     for (const auto &formattedChunk : formattedTextList)
         cursor.insertText(formattedChunk.text, formattedChunk.format);
     cursor.endEditBlock();
-    editor->moveCursor(QTextCursor::Start);
-    editor->document()->setModified(false);
+    doc->setModified(false);
 }
 
 QString AnsiEscapeCodeHandler::ansiFromColor(const QColor &color)
