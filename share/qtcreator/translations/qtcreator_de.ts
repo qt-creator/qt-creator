@@ -33834,7 +33834,7 @@ Möchten Sie den Branch &quot;%1&quot; im entfernten Repository erzeugen und ihn
     </message>
     <message>
         <source>Create &amp;Branch from %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Branch von %1 erstellen...</translation>
     </message>
     <message>
         <source>&amp;Reset to Change %1</source>
@@ -33995,7 +33995,7 @@ Jetzt Commit ausführen?</translation>
     <message>
         <source>All</source>
         <comment>All branches</comment>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Show Date</source>
@@ -35248,12 +35248,12 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Diff Current File</source>
         <extracomment>Avoid translating &quot;Diff&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Diff für aktuelle Datei</translation>
     </message>
     <message>
         <source>Diff of &quot;%1&quot;</source>
         <extracomment>Avoid translating &quot;Diff&quot;</extracomment>
-        <translation type="unfinished">Diff für &quot;%1&quot;</translation>
+        <translation>Diff für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Meta+G,Meta+D</source>
@@ -35266,12 +35266,12 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Log Current File</source>
         <extracomment>Avoid translating &quot;Log&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Log für aktuelle Datei</translation>
     </message>
     <message>
         <source>Log of &quot;%1&quot;</source>
         <extracomment>Avoid translating &quot;Log&quot;</extracomment>
-        <translation type="unfinished">Log für &quot;%1&quot;</translation>
+        <translation>Log für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Meta+G,Meta+L</source>
@@ -35292,12 +35292,12 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Blame Current File</source>
         <extracomment>Avoid translating &quot;Blame&quot;</extracomment>
-        <translation type="unfinished">Blame für aktuelle Datei</translation>
+        <translation>Blame für aktuelle Datei</translation>
     </message>
     <message>
         <source>Blame for &quot;%1&quot;</source>
         <extracomment>Avoid translating &quot;Blame&quot;</extracomment>
-        <translation type="unfinished">Blame für &quot;%1&quot;</translation>
+        <translation>Blame für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Meta+G,Meta+B</source>
@@ -35310,12 +35310,12 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Instant Blame Current Line</source>
         <extracomment>Avoid translating &quot;Blame&quot;</extracomment>
-        <translation type="unfinished">Instant Blame für aktuelle Zeile</translation>
+        <translation>Instant Blame für aktuelle Zeile</translation>
     </message>
     <message>
         <source>Instant Blame for &quot;%1&quot;</source>
         <extracomment>Avoid translating &quot;Blame&quot;</extracomment>
-        <translation type="unfinished">Instant Blame für &quot;%1&quot;</translation>
+        <translation>Instant Blame für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Stage File for Commit</source>
@@ -35368,32 +35368,32 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Diff Project Directory</source>
         <extracomment>Avoid translating &quot;Diff&quot;</extracomment>
-        <translation type="unfinished">Diff des Projektverzeichnisses</translation>
+        <translation>Diff des Projektverzeichnisses</translation>
     </message>
     <message>
         <source>Diff Directory of Project &quot;%1&quot;</source>
         <extracomment>Avoid translating &quot;Diff&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Diff des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Log Project Directory</source>
         <extracomment>Avoid translating &quot;Log&quot;</extracomment>
-        <translation type="unfinished">Log des Projektverzeichnisses</translation>
+        <translation>Log des Projektverzeichnisses</translation>
     </message>
     <message>
         <source>Log Directory of Project &quot;%1&quot;</source>
         <extracomment>Avoid translating &quot;Log&quot;</extracomment>
-        <translation type="unfinished">Log des Projektverzeichnisses von &quot;%1&quot;</translation>
+        <translation>Log des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Clean Project  Directory...</source>
         <extracomment>Avoid translating &quot;Clean&quot;</extracomment>
-        <translation type="unfinished">Clean des Projektverzeichnisses...</translation>
+        <translation>Clean des Projektverzeichnisses...</translation>
     </message>
     <message>
         <source>Clean Directory of Project &quot;%1&quot;...</source>
         <extracomment>Avoid translating &quot;Clean&quot;</extracomment>
-        <translation type="unfinished">Clean des Projektverzeichnisses von &quot;%1&quot;...</translation>
+        <translation>Clean des Projektverzeichnisses von &quot;%1&quot;...</translation>
     </message>
     <message>
         <source>Meta+G,Meta+Shift+D</source>
@@ -35414,7 +35414,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Status (Include All Untracked)</source>
         <extracomment>Avoid translating &quot;Status&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Status (unversionierte Dateien anzeigen)</translation>
     </message>
     <message>
         <source>&amp;Local Repository</source>
@@ -35423,12 +35423,12 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Log Current Selection</source>
         <extracomment>Avoid translating &quot;Log&quot;</extracomment>
-        <translation type="unfinished">Log der aktuellen Auswahl</translation>
+        <translation>Log der aktuellen Auswahl</translation>
     </message>
     <message>
         <source>Log of &quot;%1&quot; Selection</source>
         <extracomment>Avoid translating &quot;Log&quot;</extracomment>
-        <translation type="unfinished">Log der Auswahl in &quot;%1</translation>
+        <translation>Log der Auswahl in &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Current &amp;Project Directory</source>
@@ -35445,12 +35445,12 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Amend Last Commit...</source>
         <extracomment>Avoid translating &quot;Commit&quot;</extracomment>
-        <translation type="unfinished">Letzten Commit ändern (Amend)...</translation>
+        <translation>Letzten Commit ändern (Amend)...</translation>
     </message>
     <message>
         <source>Fixup Previous Commit...</source>
         <extracomment>Avoid translating &quot;Commit&quot;</extracomment>
-        <translation type="unfinished">Vorangehenden Commit verbessern (Fixup)...</translation>
+        <translation>Vorangehenden Commit verbessern (Fixup)...</translation>
     </message>
     <message>
         <source>Recover Deleted Files</source>
@@ -35459,7 +35459,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Interactive Rebase...</source>
         <extracomment>Avoid translating &quot;Rebase&quot;</extracomment>
-        <translation type="unfinished">Interaktives Rebase...</translation>
+        <translation>Interaktives Rebase...</translation>
     </message>
     <message>
         <source>Update Submodules</source>
@@ -35468,12 +35468,12 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Abort Merge</source>
         <extracomment>Avoid translating &quot;Merge&quot;</extracomment>
-        <translation type="unfinished">Merge abbrechen</translation>
+        <translation>Merge abbrechen</translation>
     </message>
     <message>
         <source>Abort Rebase</source>
         <extracomment>Avoid translating &quot;Rebase&quot;</extracomment>
-        <translation type="unfinished">Rebase abbrechen</translation>
+        <translation>Rebase abbrechen</translation>
     </message>
     <message>
         <source>Skip Rebase</source>
@@ -35483,7 +35483,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Abort Cherry Pick</source>
         <extracomment>Avoid translating &quot;Cherry Pick&quot;</extracomment>
-        <translation type="unfinished">Cherry-Pick abbrechen</translation>
+        <translation>Cherry-Pick abbrechen</translation>
     </message>
     <message>
         <source>Continue Cherry Pick</source>
@@ -35493,7 +35493,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Abort Revert</source>
         <extracomment>Avoid translating &quot;Revert&quot;</extracomment>
-        <translation type="unfinished">Revert abbrechen</translation>
+        <translation>Revert abbrechen</translation>
     </message>
     <message>
         <source>Branches...</source>
@@ -35526,7 +35526,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Stash Unstaged Files</source>
         <extracomment>Avoid translating &quot;Stash&quot;</extracomment>
-        <translation type="unfinished">Stash nicht bereitgestellter Dateien (unstaged)</translation>
+        <translation>Stash nicht vorgemerkter Dateien (unstaged)</translation>
     </message>
     <message>
         <source>Saves the current state of your unstaged files and resets the repository to its staged state.</source>
@@ -35543,7 +35543,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Stash Pop</source>
         <extracomment>Avoid translating &quot;Stash&quot;</extracomment>
-        <translation type="unfinished">Stash Pop</translation>
+        <translation>Stash Pop</translation>
     </message>
     <message>
         <source>Restores changes saved to the stash list using &quot;Stash&quot;.</source>
@@ -37723,19 +37723,19 @@ Beispiel: *.cpp%1*.h</translation>
     </message>
     <message>
         <source>Project Specific Language Servers</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektabhängige Language Server</translation>
     </message>
     <message>
         <source>Use Global Settings</source>
-        <translation type="unfinished">Globale Einstellungen verwenden</translation>
+        <translation>Globale Einstellungen verwenden</translation>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished">Aktiviert</translation>
+        <translation>Aktiviert</translation>
     </message>
     <message>
         <source>Disabled</source>
-        <translation type="unfinished">Deaktiviert</translation>
+        <translation>Deaktiviert</translation>
     </message>
     <message>
         <source>Workspace Configuration</source>
@@ -37805,7 +37805,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     <message>
         <source>failed to shutdown</source>
         <extracomment>language client state</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Beenden fehlgeschlagen</translation>
     </message>
     <message>
         <source>Language Server &quot;%1&quot; Initialization Error</source>
@@ -37925,7 +37925,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>&lt;Select Symbol&gt;</source>
-        <translation type="unfinished">&lt;Symbol auswählen&gt;</translation>
+        <translation>&lt;Symbol auswählen&gt;</translation>
     </message>
     <message>
         <source>Client Message</source>
@@ -38170,7 +38170,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Non-string key encountered in Lua table at path &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>In der Lua-Tabelle im Pfad &quot;%1&quot; wurde ein Key gefunden, der keine Zeichenkette ist.</translation>
     </message>
     <message>
         <source>No hook with the name &quot;%1&quot; found.</source>
@@ -38178,7 +38178,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Unsupported value type &quot;%1&quot; at path &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht unterstützter Wertetyp &quot;%1&quot; im Pfad &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Script did not return a table.</source>
@@ -39226,31 +39226,31 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Source Files</source>
-        <translation type="unfinished">Quelldateien</translation>
+        <translation>Quelldateien</translation>
     </message>
     <message>
         <source>Header Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Header-Dateien</translation>
     </message>
     <message>
         <source>Python Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Python-Dateien</translation>
     </message>
     <message>
         <source>Qt Designer Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Designer-Dateien</translation>
     </message>
     <message>
         <source>Qt Resource Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Ressourcen-Dateien</translation>
     </message>
     <message>
         <source>QML Files</source>
-        <translation type="unfinished"></translation>
+        <translation>QML-Dateien</translation>
     </message>
     <message>
         <source>Other Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Andere Dateien</translation>
     </message>
     <message>
         <source>Executable does not exist: %1</source>
@@ -39278,11 +39278,11 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Meson verbose mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführlicher Meson-Modus</translation>
     </message>
     <message>
         <source>Enables verbose mode by default when invoking Meson.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviert standardmäßig den ausführlichen Modus beim Ausführen von Meson.</translation>
     </message>
     <message>
         <source>General</source>
@@ -39342,7 +39342,7 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>New Meson</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Meson-Werkzeug</translation>
     </message>
     <message>
         <source>Meson build: Parsing failed</source>
@@ -39658,7 +39658,7 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     <message>
         <source>None</source>
         <comment>No default arguments</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>Target:</source>
@@ -39947,7 +39947,7 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Error: No device available for active kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler: Für das aktive Kit ist kein Gerät verfügbar.</translation>
     </message>
     <message>
         <source>Error: Failed to load trace point script %1: %2.</source>
@@ -62220,7 +62220,7 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>File Error</source>
-        <translation type="unfinished">Dateifehler</translation>
+        <translation>Dateifehler</translation>
     </message>
     <message>
         <source>&amp;Close</source>
@@ -62767,11 +62767,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Show VCS file status</source>
-        <translation type="unfinished"></translation>
+        <translation>VCS-Status der Dateien anzeigen</translation>
     </message>
     <message>
         <source>Request file status updates from files and reflect them on the project tree.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fragt den Status von Dateien ab und zeigt diesen im Projektbaum.</translation>
     </message>
     <message>
         <source>Reset VCS Cache</source>
