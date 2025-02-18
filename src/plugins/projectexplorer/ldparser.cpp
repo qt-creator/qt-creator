@@ -108,14 +108,15 @@ bool LdParser::isContinuation(const QString &line) const
 std::optional<OutputLineParser::Result> LdParser::checkMainRegex(
     const QString &trimmedLine, const QString &originalLine)
 {
-    static const auto makePattern = []() -> QString {
-        // opt. drive letter + filename: (2 brackets)
-        const char * const FILE_PATTERN = "(([A-Za-z]:)?[^:]+\\.[^:]+):";
-        // line no. or elf segment + offset (1 bracket)
-        const char * const POSITION_PATTERN = "(\\S+|\\(\\..+?[+-]0x[a-fA-F0-9]+\\)):";
-        return QLatin1Char('^') + QString::fromLatin1(FILE_PATTERN) + QLatin1Char('(')
-               + QString::fromLatin1(FILE_PATTERN) + QLatin1String(")?(")
-               + QLatin1String(POSITION_PATTERN) + QLatin1String(")?\\s(.+)$");
+    static const auto makePattern = [] {
+        const QString driveSpec = "([A-Za-z]:)?";
+
+        const QString filePattern = QString(R"re((%1[^:]+\.[^:]+):)re").arg(driveSpec);
+        const QString lineNumber = R"re(\S+)re";
+        const QString elfSegmentAndOffset = R"re(\(\..+?[+-]0x[a-fA-F0-9]+\))re";
+        const QString positionPattern = QString("(%1|%2):").arg(lineNumber, elfSegmentAndOffset);
+
+        return QString(R"re(^%1(%1)?(%2)?\s(.+)$)re").arg(filePattern, positionPattern);
     };
     static const QRegularExpression regex(makePattern());
 
