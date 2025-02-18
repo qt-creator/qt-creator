@@ -24,8 +24,7 @@ private:
     PlainTextEditModifier &operator=(const PlainTextEditModifier &);
 
 public:
-    PlainTextEditModifier(QPlainTextEdit *textEdit);
-    PlainTextEditModifier(QTextDocument *document, const QTextCursor &textCursor);
+    PlainTextEditModifier(QTextDocument *document);
     ~PlainTextEditModifier() override;
 
     QTextDocument *textDocument() const override;
@@ -69,15 +68,8 @@ private:
 class QMLDESIGNERCORE_EXPORT NotIndentingTextEditModifier: public PlainTextEditModifier
 {
 public:
-    NotIndentingTextEditModifier(QPlainTextEdit *textEdit)
-        : PlainTextEditModifier(textEdit)
-    {
-        m_tabSettings.m_tabSize = 0;
-        m_tabSettings.m_indentSize = 0;
-    }
-
-    NotIndentingTextEditModifier(QTextDocument *document, const QTextCursor &textCursor)
-        : PlainTextEditModifier{document, textCursor}
+    NotIndentingTextEditModifier(QTextDocument *document)
+        : PlainTextEditModifier{document}
     {
         m_tabSettings.m_tabSize = 0;
         m_tabSettings.m_indentSize = 0;

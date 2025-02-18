@@ -8,9 +8,8 @@
 
 namespace QmlDesigner {
 
-IndentingTextEditModifier::IndentingTextEditModifier(QTextDocument *document,
-                                                     const QTextCursor &textCursor)
-    : NotIndentingTextEditModifier{document, textCursor}
+IndentingTextEditModifier::IndentingTextEditModifier(QTextDocument *document)
+    : NotIndentingTextEditModifier{document}
 {
     m_tabSettings = QmlJSTools::QmlJSToolsSettings::globalCodeStyle()->tabSettings();
 }

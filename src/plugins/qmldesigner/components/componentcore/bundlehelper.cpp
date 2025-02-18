@@ -681,7 +681,7 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(QString::fromUtf8(reader.data()));
-    NotIndentingTextEditModifier modifier(&textEdit);
+    NotIndentingTextEditModifier modifier(textEdit.document());
     modifier.setParent(model.get());
     RewriterView rewriterView(m_view->externalDependencies(), RewriterView::Validate);
     rewriterView.setCheckSemanticErrors(false);

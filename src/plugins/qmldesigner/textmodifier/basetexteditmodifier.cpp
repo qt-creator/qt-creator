@@ -17,7 +17,7 @@
 using namespace QmlDesigner;
 
 BaseTextEditModifier::BaseTextEditModifier(TextEditor::TextEditorWidget *textEdit)
-    : PlainTextEditModifier(textEdit)
+    : PlainTextEditModifier(textEdit->document())
     , m_textEdit{textEdit}
 {
 }

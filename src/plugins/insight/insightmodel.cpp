@@ -204,8 +204,7 @@ struct ModelBuilder
         }
 
         document = std::make_unique<QTextDocument>(fileContent);
-        modifier = std::make_unique<NotIndentingTextEditModifier>(document.get(),
-                                                                  QTextCursor{document.get()});
+        modifier = std::make_unique<NotIndentingTextEditModifier>(document.get());
 
         rewriter = std::make_unique<RewriterView>(externalDependencies, RewriterView::Amend);
         rewriter->setCheckSemanticErrors(false);

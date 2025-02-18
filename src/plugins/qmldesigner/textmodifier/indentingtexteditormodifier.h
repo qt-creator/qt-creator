@@ -10,7 +10,7 @@ namespace QmlDesigner {
 class QMLDESIGNER_EXPORT IndentingTextEditModifier : public NotIndentingTextEditModifier
 {
 public:
-    IndentingTextEditModifier(QTextDocument *document, const QTextCursor &textCursor);
+    IndentingTextEditModifier(QTextDocument *document);
 
     void indent(int offset, int length) override;
     void indentLines(int startLine, int endLine) override;

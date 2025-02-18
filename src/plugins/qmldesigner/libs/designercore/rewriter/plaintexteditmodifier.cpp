@@ -13,16 +13,12 @@
 using namespace Utils;
 using namespace QmlDesigner;
 
-PlainTextEditModifier::PlainTextEditModifier(QPlainTextEdit *textEdit)
-    : PlainTextEditModifier(textEdit->document(), textEdit->textCursor())
-{
-    connect(textEdit, &QPlainTextEdit::textChanged, this, &PlainTextEditModifier::textEditChanged);
-}
-
-PlainTextEditModifier::PlainTextEditModifier(QTextDocument *document, const QTextCursor &textCursor)
+PlainTextEditModifier::PlainTextEditModifier(QTextDocument *document)
     : m_textDocument{document}
-    , m_textCursor{textCursor}
-{}
+    , m_textCursor{document}
+{
+    connect(document, &QTextDocument::contentsChanged, this, &PlainTextEditModifier::textEditChanged);
+}
 
 PlainTextEditModifier::~PlainTextEditModifier() = default;
 

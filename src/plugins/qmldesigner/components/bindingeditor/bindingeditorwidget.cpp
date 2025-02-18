@@ -107,8 +107,7 @@ void BindingEditorWidget::setEditorTextWithIndentation(const QString &text)
     if (text.isEmpty())
         return;
 
-    auto modifier = std::make_unique<IndentingTextEditModifier>(
-        doc, QTextCursor{doc});
+    auto modifier = std::make_unique<IndentingTextEditModifier>(doc);
     modifier->indent(0, text.length()-1);
 }
 
