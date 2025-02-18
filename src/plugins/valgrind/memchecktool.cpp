@@ -31,8 +31,6 @@
 #include <debugger/analyzer/analyzerutils.h>
 #include <debugger/analyzer/startremotedialog.h>
 
-#include <docker/dockerconstants.h>
-
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
@@ -342,7 +340,7 @@ public:
 
         addSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
         addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-        addSupportedDeviceType(Docker::Constants::DOCKER_DEVICE_TYPE);
+        addSupportedDeviceType(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE);
         // FIXME: https://github.com/nihui/valgrind-android suggests this could work for android
     }
 };

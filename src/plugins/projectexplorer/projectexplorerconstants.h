@@ -153,7 +153,6 @@ const char QTC_DEFAULT_BUILD_DIRECTORY_TEMPLATE[] = "QTC_DEFAULT_BUILD_DIRECTORY
 
 // Desktop Device related ids:
 const char DESKTOP_DEVICE_ID[] = "Desktop Device";
-const char DESKTOP_DEVICE_TYPE[] = "Desktop";
 const int DESKTOP_PORT_START = 30000;
 const int DESKTOP_PORT_END = 31000;
 
@@ -167,6 +166,10 @@ const char ANDROID_ABI_X86_64[] = "x86_64";
 // JsonWizard:
 const char PAGE_ID_PREFIX[] = "PE.Wizard.Page.";
 const char GENERATOR_ID_PREFIX[] = "PE.Wizard.Generator.";
+
+// Device types
+const char DESKTOP_DEVICE_TYPE[] = "Desktop";
+const char DOCKER_DEVICE_TYPE[] = "DockerDeviceType";
 
 // RunMode
 const char NO_RUN_MODE[]="RunConfiguration.NoRunMode";

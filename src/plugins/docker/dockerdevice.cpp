@@ -22,6 +22,7 @@
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
@@ -662,7 +663,7 @@ DockerDevice::DockerDevice()
     setDisplayType(Tr::tr("Docker"));
     setOsType(OsTypeLinux);
     setupId(IDevice::ManuallyAdded);
-    setType(Constants::DOCKER_DEVICE_TYPE);
+    setType(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE);
     setMachineType(IDevice::Hardware);
 
     setFileAccessFactory([this] { return d->createFileAccess(); });
@@ -1373,7 +1374,7 @@ public:
 // Factory
 
 DockerDeviceFactory::DockerDeviceFactory()
-    : IDeviceFactory(Constants::DOCKER_DEVICE_TYPE)
+    : IDeviceFactory(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE)
 {
     setDisplayName(Tr::tr("Docker Device"));
     setIcon(QIcon());

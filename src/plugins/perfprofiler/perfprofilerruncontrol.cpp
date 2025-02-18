@@ -115,7 +115,7 @@ public:
         addSupportForLocalRunConfigs();
         addSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
         addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-        addSupportedDeviceType("DockerDeviceType");
+        addSupportedDeviceType(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE);
     }
 };
 

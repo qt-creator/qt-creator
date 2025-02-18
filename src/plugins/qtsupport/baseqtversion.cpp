@@ -26,7 +26,7 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
@@ -429,7 +429,7 @@ Tasks QtVersion::validateKit(const Kit *k)
         return result;
 
     const Id dt = RunDeviceTypeKitAspect::deviceTypeId(k);
-    if (dt != "DockerDeviceType") {
+    if (dt != ProjectExplorer::Constants::DOCKER_DEVICE_TYPE) {
         const QSet<Id> tdt = targetDeviceTypes();
         if (!tdt.isEmpty() && !tdt.contains(dt))
             result << BuildSystemTask(Task::Warning, Tr::tr("Device type is not supported by Qt version."));
