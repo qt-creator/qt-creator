@@ -12461,7 +12461,7 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>No valid deployment device is set.</source>
-        <translation>Es ist kein gültiges Gerät für das Deployment gesetzt.</translation>
+        <translation>Es ist kein gültiges Gerät (Deployment) gesetzt.</translation>
     </message>
     <message>
         <source>The deployment device &quot;%1&quot; is invalid.</source>
@@ -42048,7 +42048,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>SDKs</source>
-        <translation type="unfinished"></translation>
+        <translation>SDKs</translation>
     </message>
     <message>
         <source>Close All Files in Project &quot;%1&quot;</source>
@@ -42684,7 +42684,7 @@ The name of the build configuration created by default for a generic project.</e
     <message>
         <source>None</source>
         <comment>Toolchain bundle display name</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keiner</translation>
     </message>
     <message>
         <source>Not all compilers are set up correctly.</source>
@@ -43117,15 +43117,15 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
     <message>
         <source>Global</source>
-        <translation type="unfinished">Global</translation>
+        <translation>Global</translation>
     </message>
     <message>
         <source>Use Customized Settings</source>
-        <translation type="unfinished">Benutzerdefinierte Einstellungen verwenden</translation>
+        <translation>Benutzerdefinierte Einstellungen verwenden</translation>
     </message>
     <message>
         <source>Use Global Settings</source>
-        <translation type="unfinished">Globale Einstellungen verwenden</translation>
+        <translation>Globale Einstellungen verwenden</translation>
     </message>
     <message>
         <source>Variables in the run environment.</source>
@@ -43437,7 +43437,7 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     </message>
     <message>
         <source>%1 (imported)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (importiert)</translation>
     </message>
     <message>
         <source>%1 - temporary</source>
@@ -43465,7 +43465,7 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     </message>
     <message>
         <source>Hide unsuitable kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungeeignete Kits verbergen</translation>
     </message>
     <message>
         <source>Select Kits for Your Project</source>
@@ -44808,7 +44808,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>Qt 6.8</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt 6.8</translation>
     </message>
     <message>
         <source>Repository URL is not valid</source>
@@ -46190,7 +46190,7 @@ Was soll %1 tun?</translation>
     <message>
         <source>None</source>
         <comment>No compiler</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keiner</translation>
     </message>
     <message>
         <source>Path to the compiler executable</source>
@@ -46222,7 +46222,7 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Device:</source>
-        <translation type="unfinished">Geräte:</translation>
+        <translation>Gerät:</translation>
     </message>
     <message>
         <source>Unknown device type</source>
@@ -46230,39 +46230,39 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>No run device set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Gerät (Ausführung) gesetzt.</translation>
     </message>
     <message>
         <source>Build device is incompatible with this kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät (Erstellung) ist mit diesem Kit inkompatibel.</translation>
     </message>
     <message>
         <source>Run device is incompatible with this kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät (Ausführung) ist mit diesem Kit inkompatibel.</translation>
     </message>
     <message>
         <source>Host address (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hostadresse (%1)</translation>
     </message>
     <message>
         <source>SSH port (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>SSH-Port (%1)</translation>
     </message>
     <message>
         <source>User name (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzername (%1)</translation>
     </message>
     <message>
         <source>Private key file (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Private Schlüsseldatei (%1)</translation>
     </message>
     <message>
         <source>Device name (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerätename (%1)</translation>
     </message>
     <message>
         <source>Device root directory (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Wurzelverzeichnis des Geräts (%1)</translation>
     </message>
     <message>
         <source>Run device</source>
@@ -46274,11 +46274,11 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Build device type</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerätetyp (Erstellung)</translation>
     </message>
     <message>
         <source>The type of device to build on.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Typ des Geräts für die Erstellung.</translation>
     </message>
     <message>
         <source>Change...</source>
@@ -46290,23 +46290,23 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Edit Build Environment...</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Umgebung bearbeiten...</translation>
     </message>
     <message>
         <source>Edit Run Environment...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungsumgebung bearbeiten...</translation>
     </message>
     <message>
         <source>Edit Build Environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Umgebung bearbeiten</translation>
     </message>
     <message>
         <source>Edit Run Environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungsumgebung bearbeiten</translation>
     </message>
     <message>
         <source>Force UTF-8 MSVC output</source>
-        <translation type="unfinished"></translation>
+        <translation>UTF-8 für MSVC-Ausgaben erzwingen</translation>
     </message>
     <message>
         <source>Either switches MSVC to English or keeps the language and just forces UTF-8 output (may vary depending on the used MSVC compiler).</source>
@@ -46477,12 +46477,12 @@ Was soll %1 tun?</translation>
     <message>
         <source>None</source>
         <comment>Stop applications before building: None</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>All</source>
         <comment>Stop all projects</comment>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Same Project</source>
@@ -46759,7 +46759,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>No build device set.</source>
-        <translation>Kein Gerät für die Erstellung gesetzt.</translation>
+        <translation>Kein Gerät (Erstellung) gesetzt.</translation>
     </message>
     <message>
         <source>Run as root user</source>
@@ -46897,183 +46897,188 @@ fails because Clang does not understand the target architecture.</source>
     <message>
         <source>None</source>
         <comment>Add to project: None</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keins</translation>
     </message>
     <message>
         <source>None</source>
         <comment>No compiler language</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>None</source>
         <comment>No compiler category</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>Could not open &quot;%1&quot; for writing: %2.</source>
-        <translation type="unfinished">Die Datei &quot;%1&quot; konnte nicht zum Schreiben geöffnet werden: %2.</translation>
+        <translation>&quot;%1&quot; konnte nicht zum Schreiben geöffnet werden: %2.</translation>
     </message>
     <message>
         <source>Windows Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows-Konfiguration</translation>
     </message>
     <message>
         <source>Select the download path of NuGet and Windows App SDK.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie den Downloadpfad von NuGet und des Windows App SDK aus.</translation>
     </message>
     <message>
         <source>Select Download Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Downloadpfad auswählen</translation>
     </message>
     <message>
         <source>Select the path of NuGet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad von NuGet auswählen.</translation>
     </message>
     <message>
         <source>Select nuget.exe File</source>
-        <translation type="unfinished"></translation>
+        <translation>nuget.exe-Datei auswählen</translation>
     </message>
     <message>
         <source>Download NuGet</source>
-        <translation type="unfinished"></translation>
+        <translation>NuGet herunterladen</translation>
     </message>
     <message>
         <source>Automatically download NuGet.
 
 NuGet is needed for downloading Windows App SDK.</source>
-        <translation type="unfinished"></translation>
+        <translation>NuGet automatisch herunterladen.
+
+NuGet wird für das Herunterladen des Windows App SDK benötigt.</translation>
     </message>
     <message>
         <source>Select the path of the Windows App SDK.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad des Windows App SDK auswählen.</translation>
     </message>
     <message>
         <source>Download Windows App SDK</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows App SDK herunterladen</translation>
     </message>
     <message>
         <source>Automatically download Windows App SDK with NuGet.
 
 If the automatic download fails, Qt Creator proposes to open the download URL
 in the system browser for manual download.</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows App SDK automatisch mit NuGet herunterladen.
+
+Wenn das Herunterladen fehlschlägt, bietet Qt Creator an, die URL für das manuelle Herunterladen im Systembrowser zu öffnen.</translation>
     </message>
     <message>
         <source>Download path exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Downloadpfad existiert.</translation>
     </message>
     <message>
         <source>NuGet path exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>NuGet-Pfad existiert.</translation>
     </message>
     <message>
         <source>Windows App SDK path exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows App SDK-Pfad existiert.</translation>
     </message>
     <message>
         <source>Windows App SDK settings are OK.</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows App SDK-Einstellungen sind korrekt.</translation>
     </message>
     <message>
         <source>Windows App SDK settings have errors.</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows App SDK-Einstellungen sind fehlerhaft.</translation>
     </message>
     <message>
         <source>Select Windows App SDK Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad des Windows App SDK auswählen</translation>
     </message>
     <message>
         <source>Download Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Downloadpfad</translation>
     </message>
     <message>
         <source>Download location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Herunterladen nach:</translation>
     </message>
     <message>
         <source>NuGet</source>
-        <translation type="unfinished"></translation>
+        <translation>NuGet</translation>
     </message>
     <message>
         <source>NuGet location:</source>
-        <translation type="unfinished"></translation>
+        <translation>NuGet:</translation>
     </message>
     <message>
         <source>Windows App SDK Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows App SDK-Einstellungen</translation>
     </message>
     <message>
         <source>Windows App SDK location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows App SDK:</translation>
     </message>
     <message>
         <source>NuGet download failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Herunterladen von NuGet ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Open NuGet URL for manual download?</source>
-        <translation type="unfinished"></translation>
+        <translation>Soll die URL zum manuellen Herunterladen von NuGet geöffnet werden?</translation>
     </message>
     <message>
         <source>Open Download URL</source>
-        <translation type="unfinished">URL zum Herunterladen öffnen</translation>
+        <translation>URL zum Herunterladen öffnen</translation>
     </message>
     <message>
         <source>Downloading NuGet...</source>
-        <translation type="unfinished"></translation>
+        <translation>Lade NuGet herunter...</translation>
     </message>
     <message>
         <source>Downloading</source>
-        <translation type="unfinished"></translation>
+        <translation>Lade herunter</translation>
     </message>
     <message>
         <source>The SDK Tools download URL is empty.</source>
-        <translation type="unfinished">Die URL zum Herunterladen der SDK-Werkzeuge ist nicht gesetzt.</translation>
+        <translation>Die URL zum Herunterladen der SDK-Werkzeuge ist nicht gesetzt.</translation>
     </message>
     <message>
         <source>Encountered SSL errors, download is aborted.</source>
-        <translation type="unfinished">Es sind SSL-Fehler aufgetreten, das Herunterladen wurde abgebrochen.</translation>
+        <translation>Es sind SSL-Fehler aufgetreten, das Herunterladen wurde abgebrochen.</translation>
     </message>
     <message>
         <source>Downloading NuGet from URL %1 has failed: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Herunterladen von NuGet von der URL %1 ist fehlgeschlagen: %2.</translation>
     </message>
     <message>
         <source>Download from %1 was redirected.</source>
-        <translation type="unfinished">Das Herunterladen von %1 wurde umgeleitet.</translation>
+        <translation>Das Herunterladen von %1 wurde umgeleitet.</translation>
     </message>
     <message>
         <source>The selected download path (%1) for NuGet already exists.
 Select a different path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der gewählte Pfad (%1) für das Herunterladen von NuGet existiert bereits.
+Wählen Sie einen anderen Pfad.</translation>
     </message>
     <message>
         <source>Download path is not configured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad für das Herunterladen ist nicht konfiguriert.</translation>
     </message>
     <message>
         <source>Downloading Windows App SDK</source>
-        <translation type="unfinished"></translation>
+        <translation>Lade Windows App SDK herunter</translation>
     </message>
     <message>
         <source>Windows App SDK is already configured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows App SDK ist bereits konfiguriert.</translation>
     </message>
     <message>
         <source>Downloading Windows App SDK...</source>
-        <translation type="unfinished"></translation>
+        <translation>Lade Windows App SDK herunter...</translation>
     </message>
     <message>
         <source>Windows App SDK download failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Herunterladen des Windows App SDK ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Open Windows App SDK URL for manual download?</source>
-        <translation type="unfinished"></translation>
+        <translation>Soll die URL zum manuellen Herunterladen des Windows App SDK geöffnet werden?</translation>
     </message>
     <message>
         <source>Windows App SDK</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows App SDK</translation>
     </message>
 </context>
 <context>
@@ -47113,7 +47118,7 @@ Select a different path.</source>
     <message>
         <source>None</source>
         <comment>No Python interpreter</comment>
-        <translation type="unfinished"></translation>
+        <translation>Kein</translation>
     </message>
     <message>
         <source>Executable is empty.</source>
@@ -47546,7 +47551,7 @@ Select a different path.</source>
     </message>
     <message>
         <source>&lt;No build device&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Kein Gerät (Erstellung)&gt;</translation>
     </message>
     <message>
         <source>Qbs Build</source>
@@ -47765,7 +47770,7 @@ Dies ist selten nötig.</translation>
     </message>
     <message>
         <source>The qbs executable was not found at the specified path, or it is not executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ausführbare qbs-Datei wurde am angegebenen Pfad nicht gefunden oder ist nicht ausführbar.</translation>
     </message>
     <message>
         <source>The qbs process quit unexpectedly.</source>
@@ -50806,7 +50811,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Current kit does not have a valid Qt version, disabling QML Language Server.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das aktuelle Kit hat keine gültige Qt-Version, deaktiviere den QML Language Server.</translation>
     </message>
     <message>
         <source>Use from latest Qt version</source>
@@ -50858,7 +50863,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Open Language Server preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen des Language Servers öffnen...</translation>
     </message>
     <message>
         <source>Static Analyzer</source>
@@ -51879,17 +51884,17 @@ Speichern fehlgeschlagen.</translation>
     <message>
         <source>All</source>
         <comment>All frames</comment>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>None</source>
         <comment>Compare Frame: None</comment>
-        <translation type="unfinished"></translation>
+        <translation>Kein</translation>
     </message>
     <message>
         <source>All</source>
         <comment>All View3D frames</comment>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Quick3D Frame</source>
@@ -51906,7 +51911,7 @@ Speichern fehlgeschlagen.</translation>
     <message>
         <source>All</source>
         <comment>Compare Frame: All</comment>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
 </context>
 <context>
@@ -52160,7 +52165,7 @@ Sind Sie sicher?</translation>
     </message>
     <message>
         <source>The project was created with a Qt Design Studio version earlier than Qt Design Studio 4.5. Due to limitations of the project structure in earlier Qt Design Studio versions, the resulting application might not display all the assets. Referring to assets between different QML modules does not work in the compiled application.&lt;br&gt;&lt;a href=&quot;https://doc.qt.io/qtdesignstudio/studio-designer-developer-workflow.html&quot;&gt;See the documentation for details.&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Projekt wurde mit einer früheren Version von Qt Design Studio als Qt Design Studio 4.5 erstellt. Wegen der Einschränkungen der Projektstruktur in früheren Versionen von Qt Design Studio könnte die resultierende Anwendung nicht alle Assets anzeigen. Verweise auf Assets zwischen verschiedenen QML-Modulen funktionieren in der erstellten Anwendung nicht.&lt;br&gt;&lt;a href=&quot;https://doc.qt.io/qtdesignstudio/studio-designer-developer-workflow.html&quot;&gt;Details finden Sie in der Dokumentation.&lt;/a&gt;</translation>
     </message>
 </context>
 <context>
