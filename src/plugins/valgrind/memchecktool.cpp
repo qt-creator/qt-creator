@@ -99,8 +99,6 @@ public:
     void start() final;
     void stop() final;
 
-    const Utils::FilePaths suppressionFiles() const;
-
 signals:
     void internalParserError(const QString &errorString);
     void parserError(const Valgrind::XmlProtocol::Error &error);
@@ -172,11 +170,6 @@ void MemcheckToolRunner::addToolArguments(CommandLine &cmd) const
         cmd << "--vgdb=yes" << "--vgdb-error=0";
 
     cmd.addArgs(m_settings.memcheckArguments(), CommandLine::Raw);
-}
-
-const FilePaths MemcheckToolRunner::suppressionFiles() const
-{
-    return m_settings.suppressions();
 }
 
 void MemcheckToolRunner::startDebugger(qint64 valgrindPid)
@@ -351,7 +344,7 @@ public:
     explicit MemcheckTool(QObject *parent);
     ~MemcheckTool() final;
 
-    void setupRunner(MemcheckToolRunner *runTool);
+    void setupRunner(MemcheckToolRunner *runTool, const FilePaths &suppressionFiles);
     void loadShowXmlLogFile(const QString &filePath, const QString &exitMsg);
 
 private:
@@ -923,7 +916,7 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     updateFromSettings();
 }
 
-void MemcheckTool::setupRunner(MemcheckToolRunner *runTool)
+void MemcheckTool::setupRunner(MemcheckToolRunner *runTool, const FilePaths &suppressionFiles)
 {
     RunControl *runControl = runTool->runControl();
     m_errorModel.setRelevantFrameFinder(makeFrameFinder(transform(runControl->project()->files(Project::AllFiles),
@@ -955,7 +948,6 @@ void MemcheckTool::setupRunner(MemcheckToolRunner *runTool)
 
     m_errorView->setDefaultSuppressionFile(dir.pathAppended(name + ".supp"));
 
-    const FilePaths suppressionFiles = runTool->suppressionFiles();
     for (const FilePath &file : suppressionFiles) {
         QAction *action = m_filterMenu->addAction(file.fileName());
         action->setToolTip(file.toUserOutput());
@@ -1128,7 +1120,7 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
                 this, &MemcheckToolRunner::internalParserError);
     }
 
-    dd->setupRunner(this);
+    dd->setupRunner(this, m_settings.suppressions());
 }
 
 const char heobProfileC[] = "Heob/Profile";
