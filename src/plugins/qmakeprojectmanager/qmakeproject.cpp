@@ -751,7 +751,9 @@ void QmakeBuildSystem::buildFinished(bool success)
 
 Tasks QmakeProject::projectIssues(const Kit *k) const
 {
-    Tasks result = Project::projectIssues(k);
+    if (const Tasks result = Project::projectIssues(k); !result.isEmpty())
+        return result;
+
     const QtSupport::QtVersion * const qtFromKit = QtSupport::QtKitAspect::qtVersion(k);
     QTC_ASSERT(qtFromKit, return {}); // Checked by "static" issues generator in base class.
 
@@ -765,12 +767,12 @@ Tasks QmakeProject::projectIssues(const Kit *k) const
     });
     if (!qtsContainingThisProject.isEmpty()
             && !qtsContainingThisProject.contains(const_cast<QtVersion *>(qtFromKit))) {
-        result.append(CompileTask(Task::Warning,
-                                  Tr::tr("Project is part of Qt sources that do not match "
-                                         "the Qt defined in the kit.")));
+        return {CompileTask(
+            Task::Warning,
+            Tr::tr("Project is part of Qt sources that do not match the Qt defined in the kit."))};
     }
 
-    return result;
+    return {};
 }
 
 // Find the folder that contains a file with a certain name (recurse down)
