@@ -9,7 +9,6 @@
 
 #include <QHash>
 #include <QPointer>
-#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QShortcut;
@@ -119,7 +118,6 @@ private:
 
     AsynchronousImageCache &m_imageCache;
     ModelNode m_selectedTexture;
-    QTimer m_ensureMatLibTimer;
     QShortcut *m_updateShortcut = nullptr;
     int m_timerId = 0;
     QStackedWidget *m_stackedWidget = nullptr;

@@ -67,30 +67,6 @@ TextureEditorView::TextureEditorView(AsynchronousImageCache &imageCache,
     m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F12), m_stackedWidget);
     connect(m_updateShortcut, &QShortcut::activated, this, &TextureEditorView::reloadQml);
 
-    m_ensureMatLibTimer.callOnTimeout([this] {
-        if (model() && model()->rewriterView() && !model()->rewriterView()->hasIncompleteTypeInformation()
-            && model()->rewriterView()->errors().isEmpty()) {
-            DesignDocument *doc = QmlDesignerPlugin::instance()->currentDesignDocument();
-            if (doc && !doc->inFileComponentModelActive())
-                Utils3D::ensureMaterialLibraryNode(this);
-            ModelNode matLib = Utils3D::materialLibraryNode(this);
-            if (m_qmlBackEnd && m_qmlBackEnd->contextObject())
-                m_qmlBackEnd->contextObject()->setHasMaterialLibrary(matLib.isValid());
-            m_ensureMatLibTimer.stop();
-
-            ModelNode tex = Utils3D::selectedTexture(this);
-            if (!tex.isValid()) {
-                const QList <ModelNode> matLibNodes = matLib.directSubModelNodes();
-                for (const ModelNode &node : matLibNodes) {
-                    if (node.metaInfo().isQtQuick3DTexture()) {
-                        Utils3D::selectTexture(node);
-                        break;
-                    }
-                }
-            }
-        }
-    });
-
     m_stackedWidget->setStyleSheet(Theme::replaceCssColors(
         QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
     m_stackedWidget->setMinimumWidth(250);
@@ -619,7 +595,6 @@ void TextureEditorView::modelAttached(Model *model)
     } else if (m_hasQuick3DImport) {
         // Creating the material library node on model attach causes errors as long as the type
         // information is not complete yet, so we keep checking until type info is complete.
-        m_ensureMatLibTimer.start(500);
         m_selectedTexture = Utils3D::selectedTexture(this);
     }
 
@@ -895,9 +870,6 @@ void TextureEditorView::importsChanged([[maybe_unused]] const Imports &addedImpo
 {
     m_hasQuick3DImport = model()->hasImport("QtQuick3D");
     m_qmlBackEnd->contextObject()->setHasQuick3DImport(m_hasQuick3DImport);
-
-    if (m_hasQuick3DImport)
-        m_ensureMatLibTimer.start(500);
 
     resetView();
 }

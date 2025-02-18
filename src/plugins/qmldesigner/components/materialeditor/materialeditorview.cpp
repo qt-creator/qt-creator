@@ -86,30 +86,6 @@ MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDe
     m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F7), m_stackedWidget);
     connect(m_updateShortcut, &QShortcut::activated, this, &MaterialEditorView::reloadQml);
 
-    m_ensureMatLibTimer.callOnTimeout([this] {
-        if (model() && model()->rewriterView() && !model()->rewriterView()->hasIncompleteTypeInformation()
-            && model()->rewriterView()->errors().isEmpty()) {
-            DesignDocument *doc = QmlDesignerPlugin::instance()->currentDesignDocument();
-            if (doc && !doc->inFileComponentModelActive())
-                Utils3D::ensureMaterialLibraryNode(this);
-            ModelNode matLib = Utils3D::materialLibraryNode(this);
-            if (m_qmlBackEnd && m_qmlBackEnd->contextObject())
-                m_qmlBackEnd->contextObject()->setHasMaterialLibrary(matLib.isValid());
-            m_ensureMatLibTimer.stop();
-
-            ModelNode mat = Utils3D::selectedMaterial(this);
-            if (!mat.isValid()) {
-                const QList <ModelNode> matLibNodes = matLib.directSubModelNodes();
-                for (const ModelNode &node : matLibNodes) {
-                    if (node.metaInfo().isQtQuick3DMaterial()) {
-                        Utils3D::selectMaterial(node);
-                        break;
-                    }
-                }
-            }
-        }
-    });
-
     QmlDesignerPlugin::trackWidgetFocusTime(m_stackedWidget, Constants::EVENT_MATERIALEDITOR_TIME);
 
     MaterialEditorDynamicPropertiesProxyModel::registerDeclarativeType();
@@ -769,14 +745,10 @@ void MaterialEditorView::modelAttached(Model *model)
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
     m_hasMaterialRoot = rootModelNode().metaInfo().isQtQuick3DMaterial();
 
-    if (m_hasMaterialRoot) {
+    if (m_hasMaterialRoot)
         m_selectedMaterial = rootModelNode();
-    } else if (m_hasQuick3DImport) {
-        // Creating the material library node on model attach causes errors as long as the type
-        // information is not complete yet, so we keep checking until type info is complete.
-        m_ensureMatLibTimer.start(500);
+    else if (m_hasQuick3DImport)
         m_selectedMaterial = Utils3D::selectedMaterial(this);
-    }
 
     if (!m_setupCompleted) {
         reloadQml();
@@ -1027,9 +999,6 @@ void MaterialEditorView::importsChanged([[maybe_unused]] const Imports &addedImp
     m_hasQuick3DImport = model()->hasImport("QtQuick3D");
     if (m_qmlBackEnd)
         m_qmlBackEnd->contextObject()->setHasQuick3DImport(m_hasQuick3DImport);
-
-    if (m_hasQuick3DImport)
-        m_ensureMatLibTimer.start(500);
 
     resetView();
 }
