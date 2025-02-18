@@ -28,6 +28,8 @@ public:
 
     static SessionManager *instance();
 
+    static bool loadsSessionOrFileAtStartup();
+
     // higher level session management
     static QString activeSession();
     static QString lastSession();
