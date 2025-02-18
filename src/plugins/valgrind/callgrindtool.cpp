@@ -48,6 +48,7 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 
+#include <utils/async.h>
 #include <utils/filestreamer.h>
 #include <utils/fileutils.h>
 #include <utils/processinterface.h>
@@ -911,7 +912,7 @@ ExecutableItem CallgrindTool::parseRecipe()
 {
     const Storage<FilePath> storage; // host output path
 
-    const auto onSetup = [this, storage](FileStreamer &streamer) {
+    const auto onTransferSetup = [this, storage](FileStreamer &streamer) {
         TemporaryFile dataFile("callgrind.out");
         if (!dataFile.open()) {
             Debugger::showPermanentStatusMessage(Tr::tr("Failed opening temp file..."));
@@ -922,19 +923,26 @@ ExecutableItem CallgrindTool::parseRecipe()
         streamer.setSource(m_remoteOutputFile);
         streamer.setDestination(hostOutputFile);
     };
-    const auto onDone = [this, storage](DoneWith result) {
+
+    const auto onParserSetup = [storage](Async<ParseDataPtr> &async) {
+        async.setConcurrentCallData(parseDataFile, *storage);
+        Debugger::showPermanentStatusMessage(Tr::tr("Parsing Profile Data..."));
+    };
+    const auto onParserDone = [this](const Async<ParseDataPtr> &async) {
+        setParserData(async.result());
+    };
+
+    const auto onDone = [storage] {
         const FilePath hostOutputFile = *storage;
-        if (result == DoneWith::Success) {
-            Debugger::showPermanentStatusMessage(Tr::tr("Parsing Profile Data..."));
-            setParserData(parseDataFile(hostOutputFile));
-        }
         if (!hostOutputFile.isEmpty() && hostOutputFile.exists())
             hostOutputFile.removeFile();
     };
 
     return Group {
         storage,
-        FileStreamerTask(onSetup, onDone)
+        FileStreamerTask(onTransferSetup),
+        AsyncTask<ParseDataPtr>(onParserSetup, onParserDone, CallDoneIf::Success),
+        onGroupDone(onDone)
     };
 }
 
