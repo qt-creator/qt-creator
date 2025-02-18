@@ -602,7 +602,6 @@ DockerDevice::DockerDevice()
         auto future = DockerApi::instance()->networks();
 
         auto watcher = new QFutureWatcher<expected_str<QList<Network>>>(this);
-        watcher->setFuture(future);
         QObject::connect(watcher,
                          &QFutureWatcher<expected_str<QList<Network>>>::finished,
                          this,
@@ -622,6 +621,7 @@ DockerDevice::DockerDevice()
                                  cb({errorItem});
                              }
                          });
+        watcher->setFuture(future);
     });
 
     connect(DockerApi::instance(),
