@@ -161,6 +161,14 @@ public:
     }
 };
 
+enum class Option
+{
+    Dump,
+    ResetEventCounters,
+    Pause,
+    UnPause
+};
+
 class CallgrindTool final : public QObject
 {
 public:
@@ -182,7 +190,8 @@ public:
 
     void setPaused(bool paused);
 
-    Tasking::ExecutableItem parseRecipe();
+    ExecutableItem optionRecipe(Option option) const;
+    ExecutableItem parseRecipe();
     void executeController(const Group &recipe);
 
     void slotRequestDump();
@@ -826,14 +835,6 @@ void CallgrindTool::setupRunControl(RunControl *runControl)
     m_dataModel.setVerboseToolTipsEnabled(settings.enableEventToolTips());
 }
 
-enum class Option
-{
-    Dump,
-    ResetEventCounters,
-    Pause,
-    UnPause
-};
-
 static QString statusMessage(Option option)
 {
     switch (option) {
@@ -879,13 +880,13 @@ static QString toOptionString(Option option)
     }
 }
 
-static ExecutableItem recipeForOption(Option option, RunControl *runControl, qint64 pid)
+ExecutableItem CallgrindTool::optionRecipe(Option option) const
 {
-    const auto onSetup = [option, runControl, pid](Process &process) {
+    const auto onSetup = [this, option](Process &process) {
         Debugger::showPermanentStatusMessage(statusMessage(option));
-        const ProcessRunData runnable = runControl->runnable();
+        const ProcessRunData runnable = m_runControl->runnable();
         const FilePath control = runnable.command.executable().withNewPath(CALLGRIND_CONTROL_BINARY);
-        process.setCommand({control, {toOptionString(option), QString::number(pid)}});
+        process.setCommand({control, {toOptionString(option), QString::number(m_pid)}});
         process.setWorkingDirectory(runnable.workingDirectory);
         process.setEnvironment(runnable.environment);
 #if CALLGRIND_CONTROL_DEBUG
@@ -957,7 +958,7 @@ ExecutableItem CallgrindTool::parseRecipe()
 void CallgrindTool::dump()
 {
     executeController({
-        recipeForOption(Option::Dump, m_runControl, m_pid),
+        optionRecipe(Option::Dump),
         parseRecipe()
     });
 }
@@ -965,19 +966,19 @@ void CallgrindTool::dump()
 void CallgrindTool::reset()
 {
     executeController({
-        recipeForOption(Option::ResetEventCounters, m_runControl, m_pid),
-        recipeForOption(Option::Dump, m_runControl, m_pid)
+        optionRecipe(Option::ResetEventCounters),
+        optionRecipe(Option::Dump)
     });
 }
 
 void CallgrindTool::pause()
 {
-    executeController({ recipeForOption(Option::Pause, m_runControl, m_pid) });
+    executeController({ optionRecipe(Option::Pause) });
 }
 
 void CallgrindTool::unpause()
 {
-    executeController({ recipeForOption(Option::UnPause, m_runControl, m_pid) });
+    executeController({ optionRecipe(Option::UnPause) });
 }
 
 void CallgrindTool::executeController(const Tasking::Group &recipe)
