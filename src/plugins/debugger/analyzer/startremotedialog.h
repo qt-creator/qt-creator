@@ -5,31 +5,10 @@
 
 #include <debugger/debugger_global.h>
 
-#include <QDialog>
-
-namespace Utils {
-class CommandLine;
-class FilePath;
-} // Utils
+#include <utils/processinterface.h>
 
 namespace Debugger {
 
-namespace Internal { class StartRemoteDialogPrivate; }
-
-class DEBUGGER_EXPORT StartRemoteDialog : public QDialog
-{
-public:
-    explicit StartRemoteDialog(QWidget *parent = nullptr);
-    ~StartRemoteDialog() override;
-
-    Utils::CommandLine commandLine() const;
-    Utils::FilePath workingDirectory() const;
-
-private:
-    void validate();
-    void accept() override;
-
-    Internal::StartRemoteDialogPrivate *d;
-};
+DEBUGGER_EXPORT std::optional<Utils::ProcessRunData> runStartRemoteDialog();
 
 } // Debugger

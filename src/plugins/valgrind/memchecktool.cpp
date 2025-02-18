@@ -639,16 +639,16 @@ MemcheckTool::MemcheckTool(QObject *parent)
             showCannotStartDialog(action->text());
             return;
         }
-        StartRemoteDialog dlg;
-        if (dlg.exec() != QDialog::Accepted)
+        const std::optional<ProcessRunData> params = runStartRemoteDialog();
+        if (!params)
             return;
         TaskHub::clearTasks(Debugger::Constants::ANALYZERTASK_ID);
         m_perspective.select();
         RunControl *rc = new RunControl(MEMCHECK_RUN_MODE);
         rc->copyDataFromRunConfiguration(runConfig);
         rc->createMainWorker();
-        rc->setCommandLine(dlg.commandLine());
-        rc->setWorkingDirectory(dlg.workingDirectory());
+        rc->setCommandLine(params->command);
+        rc->setWorkingDirectory(params->workingDirectory);
         rc->start();
     });
 

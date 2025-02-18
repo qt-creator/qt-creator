@@ -334,15 +334,15 @@ CallgrindTool::CallgrindTool(QObject *parent)
             showCannotStartDialog(action->text());
             return;
         }
-        StartRemoteDialog dlg;
-        if (dlg.exec() != QDialog::Accepted)
+        const std::optional<ProcessRunData> params = runStartRemoteDialog();
+        if (!params)
             return;
         m_perspective.select();
         auto runControl = new RunControl(CALLGRIND_RUN_MODE);
         runControl->copyDataFromRunConfiguration(runConfig);
         runControl->createMainWorker();
-        runControl->setCommandLine(dlg.commandLine());
-        runControl->setWorkingDirectory(dlg.workingDirectory());
+        runControl->setCommandLine(params->command);
+        runControl->setWorkingDirectory(params->workingDirectory);
         runControl->start();
     });
 
