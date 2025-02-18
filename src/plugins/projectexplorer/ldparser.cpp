@@ -121,7 +121,7 @@ std::optional<OutputLineParser::Result> LdParser::checkMainRegex(
     static const QRegularExpression regex(makePattern());
 
     const QRegularExpressionMatch match = regex.match(trimmedLine);
-    if (!match.hasMatch() || trimmedLine.count(':') < 2)
+    if (!match.hasMatch())
         return {};
 
     bool ok;
