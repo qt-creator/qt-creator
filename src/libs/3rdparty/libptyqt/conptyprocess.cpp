@@ -582,7 +582,6 @@ void _ClosePseudoConsoleMembers(_In_ PseudoConsole* pPty)
         //      has yet to send before we hard kill it.
         if (_HandleIsValid(pPty->hConPtyProcess))
         {
-            TerminateProcess(pPty->hConPtyProcess, 0);
             CloseHandle(pPty->hConPtyProcess);
             pPty->hConPtyProcess = nullptr;
         }
