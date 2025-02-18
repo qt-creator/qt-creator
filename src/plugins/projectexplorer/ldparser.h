@@ -7,6 +7,8 @@
 
 #include <QRegularExpression>
 
+#include <optional>
+
 namespace ProjectExplorer::Internal {
 
 class LdParser : public ProjectExplorer::OutputTaskParser
@@ -19,8 +21,10 @@ private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;
     bool isContinuation(const QString &line) const override;
 
+    std::optional<Result> checkMainRegex(const QString &trimmedLine, const QString &originalLine);
+    Status getStatus(const QString &line);
+
     QRegularExpression m_ranlib;
-    QRegularExpression m_regExpLinker;
     QRegularExpression m_regExpGccNames;
 };
 

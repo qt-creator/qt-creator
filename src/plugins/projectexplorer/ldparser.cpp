@@ -17,10 +17,6 @@ using namespace Utils;
 namespace ProjectExplorer::Internal {
 
 namespace {
-    // opt. drive letter + filename: (2 brackets)
-    const char * const FILE_PATTERN = "(([A-Za-z]:)?[^:]+\\.[^:]+):";
-    // line no. or elf segment + offset (1 bracket)
-    const char * const POSITION_PATTERN = "(\\S+|\\(\\..+?[+-]0x[a-fA-F0-9]+\\)):";
     const char * const COMMAND_PATTERN = "^(.*[\\\\/])?([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(ld|gold)(-[0-9\\.]+)?(\\.exe)?: ";
     const char *const RANLIB_PATTERN = "ranlib(.exe)?: (file: (.*) has no symbols)$";
 }
@@ -30,12 +26,6 @@ LdParser::LdParser()
     setObjectName(QLatin1String("LdParser"));
     m_ranlib.setPattern(QLatin1String(RANLIB_PATTERN));
     QTC_CHECK(m_ranlib.isValid());
-    m_regExpLinker.setPattern(QLatin1Char('^') +
-                              QString::fromLatin1(FILE_PATTERN) + QLatin1Char('(') +
-                              QString::fromLatin1(FILE_PATTERN) + QLatin1String(")?(") +
-                              QLatin1String(POSITION_PATTERN) + QLatin1String(")?\\s(.+)$"));
-    QTC_CHECK(m_regExpLinker.isValid());
-
     m_regExpGccNames.setPattern(QLatin1String(COMMAND_PATTERN));
     QTC_CHECK(m_regExpGccNames.isValid());
 }
@@ -52,10 +42,9 @@ OutputLineParser::Result LdParser::handleLine(const QString &line, OutputFormat 
         return Status::NotHandled;
     }
 
-    const auto getStatus = [&lne] { return lne.endsWith(':') ? Status::InProgress : Status::Done; };
-
     // ld on macOS
-    if (lne.startsWith("Undefined symbols for architecture") && getStatus() == Status::InProgress) {
+    if (lne.startsWith("Undefined symbols for architecture")
+        && getStatus(lne) == Status::InProgress) {
         createOrAmendTask(Task::Error, lne, line);
         return Status::InProgress;
     }
@@ -82,13 +71,13 @@ OutputLineParser::Result LdParser::handleLine(const QString &line, OutputFormat 
 
     if (lne.startsWith("collect2:") || lne.startsWith("collect2.exe:")) {
         createOrAmendTask(Task::Error, lne, line);
-        return getStatus();
+        return getStatus(lne);
     }
 
     QRegularExpressionMatch match = m_ranlib.match(lne);
     if (match.hasMatch()) {
         createOrAmendTask(Task::Warning, match.captured(2), line);
-        return getStatus();
+        return getStatus(lne);
     }
 
     match = m_regExpGccNames.match(lne);
@@ -102,50 +91,11 @@ OutputLineParser::Result LdParser::handleLine(const QString &line, OutputFormat 
             description = description.mid(7);
         }
         createOrAmendTask(type, description, line);
-        return getStatus();
+        return getStatus(lne);
     }
 
-    match = m_regExpLinker.match(lne);
-    if (match.hasMatch() && lne.count(':') >= 2) {
-        bool ok;
-        int lineno = match.captured(7).toInt(&ok);
-        if (!ok)
-            lineno = -1;
-        FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
-        int capIndex = 1;
-        const QString sourceFileName = match.captured(4);
-        if (!sourceFileName.isEmpty()
-            && !sourceFileName.startsWith(QLatin1String("(.text"))
-            && !sourceFileName.startsWith(QLatin1String("(.data"))) {
-            filePath = absoluteFilePath(FilePath::fromUserInput(sourceFileName));
-            capIndex = 4;
-        }
-        QString description = match.captured(8).trimmed();
-        static const QStringList keywords{
-            "File format not recognized",
-            "undefined reference",
-            "multiple definition",
-            "first defined here",
-            "feupdateenv is not implemented and will always fail", // yes, this is quite special ...
-        };
-        const auto descriptionContainsKeyword = [&description](const QString &keyword) {
-            return description.contains(keyword);
-        };
-        Task::TaskType type = Task::Unknown;
-        const bool hasKeyword = anyOf(keywords, descriptionContainsKeyword);
-        if (description.startsWith(QLatin1String("warning: "), Qt::CaseInsensitive)) {
-            type = Task::Warning;
-            description = description.mid(9);
-        } else if (hasKeyword) {
-            type = Task::Error;
-        }
-        if (hasKeyword || filePath.fileName().endsWith(".o")) {
-            LinkSpecs linkSpecs;
-            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineno, -1, match, capIndex);
-            createOrAmendTask(type, description, line, false, filePath, lineno, 0, linkSpecs);
-            return {getStatus(), linkSpecs};
-        }
-    }
+    if (const auto result = checkMainRegex(lne, line))
+        return *result;
 
     return Status::NotHandled;
 }
@@ -154,6 +104,70 @@ bool LdParser::isContinuation(const QString &line) const
 {
     return currentTask().details.last().endsWith(':') || (!line.isEmpty() && line.at(0).isSpace());
 }
+
+std::optional<OutputLineParser::Result> LdParser::checkMainRegex(
+    const QString &trimmedLine, const QString &originalLine)
+{
+    static const auto makePattern = []() -> QString {
+        // opt. drive letter + filename: (2 brackets)
+        const char * const FILE_PATTERN = "(([A-Za-z]:)?[^:]+\\.[^:]+):";
+        // line no. or elf segment + offset (1 bracket)
+        const char * const POSITION_PATTERN = "(\\S+|\\(\\..+?[+-]0x[a-fA-F0-9]+\\)):";
+        return QLatin1Char('^') + QString::fromLatin1(FILE_PATTERN) + QLatin1Char('(')
+               + QString::fromLatin1(FILE_PATTERN) + QLatin1String(")?(")
+               + QLatin1String(POSITION_PATTERN) + QLatin1String(")?\\s(.+)$");
+    };
+    static const QRegularExpression regex(makePattern());
+
+    const QRegularExpressionMatch match = regex.match(trimmedLine);
+    if (!match.hasMatch() || trimmedLine.count(':') < 2)
+        return {};
+
+    bool ok;
+    int lineno = match.captured(7).toInt(&ok);
+    if (!ok)
+        lineno = -1;
+    FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
+    int capIndex = 1;
+    const QString sourceFileName = match.captured(4);
+    if (!sourceFileName.isEmpty() && !sourceFileName.startsWith(QLatin1String("(.text"))
+        && !sourceFileName.startsWith(QLatin1String("(.data"))) {
+        filePath = absoluteFilePath(FilePath::fromUserInput(sourceFileName));
+        capIndex = 4;
+    }
+    QString description = match.captured(8).trimmed();
+    static const QStringList keywords{
+        "File format not recognized",
+        "undefined reference",
+        "multiple definition",
+        "first defined here",
+        "feupdateenv is not implemented and will always fail", // yes, this is quite special ...
+    };
+    const auto descriptionContainsKeyword = [&description](const QString &keyword) {
+        return description.contains(keyword);
+    };
+    Task::TaskType type = Task::Unknown;
+    const bool hasKeyword = anyOf(keywords, descriptionContainsKeyword);
+    if (description.startsWith(QLatin1String("warning: "), Qt::CaseInsensitive)) {
+        type = Task::Warning;
+        description = description.mid(9);
+    } else if (hasKeyword) {
+        type = Task::Error;
+    }
+    if (hasKeyword || filePath.fileName().endsWith(".o")) {
+        LinkSpecs linkSpecs;
+        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineno, -1, match, capIndex);
+        createOrAmendTask(type, description, originalLine, false, filePath, lineno, 0, linkSpecs);
+        return Result(getStatus(trimmedLine), linkSpecs);
+    }
+
+    return {};
+}
+
+OutputLineParser::Status LdParser::getStatus(const QString &line)
+{
+    return line.endsWith(':') ? Status::InProgress : Status::Done;
+};
 
 #ifdef WITH_TESTS
 class LdOutputParserTest : public QObject
