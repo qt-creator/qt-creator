@@ -787,7 +787,7 @@ bool SessionManager::saveSession()
     if (!d->m_writer || d->m_writer->fileName() != filePath)
         d->m_writer.reset(new PersistentSettingsWriter(filePath, "QtCreatorSession"));
 
-    const bool result = d->m_writer->save(data);
+    const Result result = d->m_writer->save(data);
     if (result) {
         if (!SessionManager::isDefaultVirgin())
             d->m_sessionDateTimes.insert(SessionManager::activeSession(),

@@ -10,6 +10,8 @@
 
 namespace Utils {
 
+class Result;
+
 class QTCREATOR_UTILS_EXPORT PersistentSettingsReader
 {
 public:
@@ -29,17 +31,14 @@ class QTCREATOR_UTILS_EXPORT PersistentSettingsWriter
 public:
     PersistentSettingsWriter(const FilePath &fileName, const QString &docType);
 
-    bool save(const Store &data, QString *errorString) const;
-#ifdef QT_GUI_LIB
-    bool save(const Store &data) const;
-#endif
+    Result save(const Store &data, bool showError = true) const;
 
     FilePath fileName() const;
 
     void setContents(const Store &data);
 
 private:
-    bool write(const Store &data, QString *errorString) const;
+    Result write(const Store &data) const;
 
     const FilePath m_fileName;
     const QString m_docType;
