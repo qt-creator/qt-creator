@@ -280,7 +280,7 @@ public:
             runControl->requestPerfChannel();
             return createInferiorRunner(runControl, NoQmlDebugServices);
         });
-        addSupportedRunMode("PerfRecorder");
+        addSupportedRunMode(PerfProfiler::Constants::PERF_PROFILER_RUN_MODE);
         addSupportedRunConfig(Constants::RUNANDDEBUGCONFIGURATION_ID);
     }
 };

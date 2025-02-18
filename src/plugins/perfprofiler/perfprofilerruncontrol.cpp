@@ -111,7 +111,7 @@ public:
             return runner;
         });
 
-        addSupportedRunMode("PerfRecorder");
+        addSupportedRunMode(PerfProfiler::Constants::PERF_PROFILER_RUN_MODE);
         addSupportForLocalRunConfigs();
         addSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
         addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
@@ -130,8 +130,8 @@ public:
             // There are currently two RunWorkerFactories reacting to that:
             // PerfRecordRunnerFactory above for the generic case and
             // QdbPerfProfilerWorkerFactory in boot2qt.
-            ProcessRunner *perfRecordWorker
-                = qobject_cast<ProcessRunner *>(runControl->createWorker("PerfRecorder"));
+            ProcessRunner *perfRecordWorker = qobject_cast<ProcessRunner *>(
+                runControl->createWorker(PerfProfiler::Constants::PERF_PROFILER_RUN_MODE));
 
             QTC_ASSERT(perfRecordWorker, return nullptr);
 

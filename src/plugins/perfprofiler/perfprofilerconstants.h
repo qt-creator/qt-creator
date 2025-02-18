@@ -34,5 +34,7 @@ const char PerfRecordArgsId[]           = "PerfRecordArgsId";
 const char PerfStreamMagic[] = "QPERFSTREAM";
 const char PerfZqfileMagic[] = "PTQFILE4.10";
 
+const char PERF_PROFILER_RUN_MODE[] = "RunConfiguration.PerfProfilerRunMode";
+
 } // namespace Constants
 } // namespace PerfProfiler
