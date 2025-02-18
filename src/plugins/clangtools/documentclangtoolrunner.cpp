@@ -246,9 +246,9 @@ void DocumentClangToolRunner::run()
     m_taskTreeRunner.start({parallel, tasks});
 }
 
-static void updateLocation(Debugger::DiagnosticLocation &location)
+static void updateLocation(Link &location)
 {
-    location.filePath = vfso().originalFilePath(location.filePath);
+    location.targetFilePath = vfso().originalFilePath(location.targetFilePath);
 }
 
 void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
@@ -264,7 +264,7 @@ void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
         updateLocation(diag.location);
         for (ExplainingStep &explainingStep : diag.explainingSteps) {
             updateLocation(explainingStep.location);
-            for (Debugger::DiagnosticLocation &rangeLocation : explainingStep.ranges)
+            for (Link &rangeLocation : explainingStep.ranges)
                 updateLocation(rangeLocation);
         }
     }
@@ -293,8 +293,8 @@ void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
             marker.tooltip = diagnostic.description;
             QTextCursor cursor(doc->document());
             cursor.setPosition(Text::positionInText(doc->document(),
-                                                    diagnostic.location.line,
-                                                    diagnostic.location.column));
+                                                    diagnostic.location.targetLine,
+                                                    diagnostic.location.targetColumn));
             cursor.movePosition(QTextCursor::EndOfLine);
             marker.cursor = cursor;
             marker.type = Constants::CLANG_TOOL_FIXIT_AVAILABLE_MARKER_ID;
@@ -333,7 +333,7 @@ bool DocumentClangToolRunner::isSuppressed(const Diagnostic &diagnostic) const
         FilePath filePath = suppressed.filePath;
         if (filePath.toFileInfo().isRelative())
             filePath = m_lastProjectDirectory.resolvePath(filePath);
-        return filePath == diagnostic.location.filePath;
+        return filePath == diagnostic.location.targetFilePath;
     };
     return Utils::anyOf(m_suppressed, equalsSuppressed);
 }

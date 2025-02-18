@@ -6,6 +6,7 @@
 #include "clangtoolslogfilereader.h"
 
 #include <cppeditor/cpptoolstestcase.h>
+
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -13,7 +14,6 @@
 #include <QtTest>
 
 using namespace CppEditor::Tests;
-using namespace Debugger;
 using namespace Utils;
 
 namespace ClangTools::Internal {

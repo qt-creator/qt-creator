@@ -7,6 +7,7 @@
 
 #include "filepath.h"
 
+#include <QDebug>
 #include <QMetaType>
 #include <QString>
 
@@ -43,6 +44,9 @@ public:
                && linkTextEnd == other.linkTextEnd;
     }
     bool operator!=(const Link &other) const { return !(*this == other); }
+
+    QTCREATOR_UTILS_EXPORT friend bool operator<(const Link &first, const Link &second);
+    QTCREATOR_UTILS_EXPORT friend QDebug operator<<(QDebug dbg, const Link &link);
 
     bool hasSameLocation(const Link &other) const
     {

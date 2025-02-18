@@ -228,7 +228,7 @@ public:
     ApplyFixIts(const QVector<DiagnosticItem *> &diagnosticItems)
     {
         for (DiagnosticItem *diagnosticItem : diagnosticItems) {
-            const FilePath &filePath = diagnosticItem->diagnostic().location.filePath;
+            const FilePath &filePath = diagnosticItem->diagnostic().location.targetFilePath;
             QTC_ASSERT(!filePath.isEmpty(), continue);
 
             // Get or create refactoring file
@@ -262,16 +262,20 @@ public:
             if (!step.isFixIt)
                 continue;
 
-            const DiagnosticLocation start = step.ranges.first();
-            const DiagnosticLocation end = step.ranges.last();
-            const int startPos = file.position(start.filePath, start.line, start.column);
-            const int endPos = file.position(start.filePath, end.line, end.column);
+            const Link start = step.ranges.first();
+            const Link end = step.ranges.last();
+            const int startPos = file.position(start.targetFilePath,
+                                               start.targetLine,
+                                               start.targetColumn);
+            const int endPos = file.position(start.targetFilePath,
+                                             end.targetLine,
+                                             end.targetColumn);
 
             auto op = new ReplacementOperation;
             op->pos = startPos;
             op->length = endPos - startPos;
             op->text = step.message;
-            op->filePath = start.filePath;
+            op->filePath = start.targetFilePath;
             op->apply = apply;
 
             replacements += op;
@@ -1244,7 +1248,7 @@ void ClangTool::setState(State state)
 QSet<Diagnostic> ClangTool::diagnostics() const
 {
     return Utils::filtered(m_diagnosticModel->diagnostics(), [](const Diagnostic &diagnostic) {
-        return ProjectFile::isSource(ProjectFile::classify(diagnostic.location.filePath));
+        return ProjectFile::isSource(ProjectFile::classify(diagnostic.location.targetFilePath));
     });
 }
 

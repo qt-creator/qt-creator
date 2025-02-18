@@ -7,12 +7,13 @@
 #include "stack.h"
 #include "../valgrindtr.h"
 
-#include <debugger/analyzer/diagnosticlocation.h>
-
+#include <utils/link.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
 #include <QList>
+
+using namespace Utils;
 
 namespace Valgrind::XmlProtocol {
 
@@ -150,9 +151,7 @@ ErrorItem::ErrorItem(const ErrorListModel *model, const Error &error)
 
 static QVariant locationData(int role, const Frame &frame)
 {
-    const Debugger::DiagnosticLocation location(Utils::FilePath::fromString(frame.filePath()),
-                                                frame.line(),
-                                                0);
+    const Link location(FilePath::fromString(frame.filePath()), frame.line(), 0);
     return Debugger::DetailedErrorView::locationData(role, location);
 }
 

@@ -1282,7 +1282,7 @@ void disableChecks(const QList<Diagnostic> &diagnostics)
     ClangToolsProjectSettings::ClangToolsProjectSettingsPtr projectSettings;
 
     if (ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(
-            diagnostics.first().location.filePath)) {
+            diagnostics.first().location.targetFilePath)) {
         projectSettings = ClangToolsProjectSettings::getSettings(project);
         if (!projectSettings->useGlobalSettings())
             activeConfigId = projectSettings->runSettings().diagnosticConfigId();

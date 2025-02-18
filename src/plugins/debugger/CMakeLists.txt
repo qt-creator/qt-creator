@@ -10,7 +10,6 @@ add_qtc_plugin(Debugger
     analyzer/analyzericons.h
     analyzer/analyzerutils.cpp analyzer/analyzerutils.h
     analyzer/detailederrorview.cpp analyzer/detailederrorview.h
-    analyzer/diagnosticlocation.cpp analyzer/diagnosticlocation.h
     breakhandler.cpp breakhandler.h
     breakpoint.cpp breakpoint.h
     cdb/cdbengine.cpp cdb/cdbengine.h

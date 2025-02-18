@@ -32,4 +32,18 @@ Link Link::fromString(const QString &filePathWithNumbers, bool canContainLineNum
     return link;
 }
 
+bool operator<(const Link &first, const Link &second)
+{
+    return std::tie(first.targetFilePath, first.targetLine, first.targetColumn)
+         < std::tie(second.targetFilePath, second.targetLine, second.targetColumn);
+}
+
+QDebug operator<<(QDebug dbg, const Link &link)
+{
+    dbg.nospace() << "Link(" << link.targetFilePath << ", "
+                  << link.targetLine << ", "
+                  << link.targetColumn << ')';
+    return dbg.space();
+}
+
 } // namespace Utils

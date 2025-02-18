@@ -210,7 +210,7 @@ ClangToolsProjectSettings::ClangToolsProjectSettingsPtr
 }
 
 SuppressedDiagnostic::SuppressedDiagnostic(const Diagnostic &diag)
-    : filePath(diag.location.filePath)
+    : filePath(diag.location.targetFilePath)
     , description(diag.description)
     , uniquifier(diag.explainingSteps.count())
 {

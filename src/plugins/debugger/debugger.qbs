@@ -235,8 +235,6 @@ QtcPlugin {
             "analyzerutils.h",
             "detailederrorview.cpp",
             "detailederrorview.h",
-            "diagnosticlocation.cpp",
-            "diagnosticlocation.h",
         ]
     }
 

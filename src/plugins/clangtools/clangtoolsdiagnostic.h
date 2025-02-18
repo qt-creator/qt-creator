@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <debugger/analyzer/diagnosticlocation.h>
+#include <utils/link.h>
 
 #include <QMetaType>
 #include <QString>
@@ -22,8 +22,8 @@ public:
     }
 
     QString message;
-    Debugger::DiagnosticLocation location;
-    QVector<Debugger::DiagnosticLocation> ranges;
+    Utils::Link location;
+    Utils::Links ranges;
     bool isFixIt = false;
 };
 
@@ -40,7 +40,7 @@ public:
     QString description;
     QString category;
     QString type;
-    Debugger::DiagnosticLocation location;
+    Utils::Link location;
     QVector<ExplainingStep> explainingSteps;
     bool hasFixits = false;
 };

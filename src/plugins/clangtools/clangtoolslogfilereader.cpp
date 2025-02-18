@@ -15,6 +15,8 @@
 
 #include <yaml-cpp/yaml.h>
 
+using namespace Utils;
+
 namespace ClangTools {
 namespace Internal {
 
@@ -127,7 +129,7 @@ public:
 
     Utils::FilePath filePath() const { return m_filePath; }
 
-    Debugger::DiagnosticLocation toDiagnosticLocation() const
+    Link toLink() const
     {
         FileCache::Item &cacheItem = m_fileCache.item(m_filePath.toUserOutput());
         const QByteArray fileContents = cacheItem.fileContents();
@@ -155,16 +157,15 @@ public:
         if (data != fileContents.data())
             lineStartOffset += cachedLineInfo.lineStartOffset;
         cachedLineInfo = FileCache::LineInfo{info->line, lineStartOffset};
-        return Debugger::DiagnosticLocation{m_filePath, info->line, info->column};
+        return Link{m_filePath, info->line, info->column};
     }
 
-    static QVector<Debugger::DiagnosticLocation> toRange(const YAML::Node &node,
-                                                         FileCache &fileCache)
+    static Links toRange(const YAML::Node &node, FileCache &fileCache)
     {
         // The Replacements nodes use "Offset" instead of "FileOffset" as the key name.
         auto startLoc = Location(node, fileCache, "Offset");
         auto endLoc = Location(node, fileCache, "Offset", node["Length"].as<int>());
-        return {startLoc.toDiagnosticLocation(), endLoc.toDiagnosticLocation()};
+        return {startLoc.toLink(), endLoc.toLink()};
     }
 
 private:
@@ -207,7 +208,7 @@ void parseDiagnostics(QPromise<Utils::expected_str<Diagnostics>> &promise,
                 continue;
 
             Diagnostic diag;
-            diag.location = loc.toDiagnosticLocation();
+            diag.location = loc.toLink();
             diag.type = "warning";
             diag.name = asString(diagNode["DiagnosticName"]);
             diag.description = asString(node["Message"]) + " [" + diag.name + "]";
@@ -221,7 +222,7 @@ void parseDiagnostics(QPromise<Utils::expected_str<Diagnostics>> &promise,
                 step.ranges = Location::toRange(replacementNode, fileCache);
                 step.location = step.ranges[0];
 
-                if (step.location.isValid())
+                if (step.location.hasValidTarget())
                     diag.explainingSteps.append(step);
             }
             diag.hasFixits = !diag.explainingSteps.isEmpty();
@@ -239,7 +240,7 @@ void parseDiagnostics(QPromise<Utils::expected_str<Diagnostics>> &promise,
 
                 ExplainingStep step;
                 step.message = asString(noteNode["Message"]);
-                step.location = loc.toDiagnosticLocation();
+                step.location = loc.toLink();
                 diag.explainingSteps.append(step);
             }
 

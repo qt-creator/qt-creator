@@ -26,14 +26,16 @@ static TextMarkCategory clangToolsCategory()
 }
 
 DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic, TextDocument *document)
-    : TextMark(document, diagnostic.location.line, clangToolsCategory())
+    : TextMark(document, diagnostic.location.targetLine, clangToolsCategory())
     , m_diagnostic(diagnostic)
 {
     initialize();
 }
 
 DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic)
-    : TextMark(diagnostic.location.filePath, diagnostic.location.line, clangToolsCategory())
+    : TextMark(diagnostic.location.targetFilePath,
+               diagnostic.location.targetLine,
+               clangToolsCategory())
     , m_diagnostic(diagnostic)
 {
     initialize();
