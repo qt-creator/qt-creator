@@ -109,14 +109,14 @@ std::optional<OutputLineParser::Result> LdParser::checkMainRegex(
     const QString &trimmedLine, const QString &originalLine)
 {
     static const auto makePattern = [] {
-        const QString driveSpec = "([A-Za-z]:)?";
+        const QString driveSpec = "(?:[A-Za-z]:)?";
 
         const QString filePattern = QString(R"re((%1[^:]+\.[^:]+):)re").arg(driveSpec);
-        const QString lineNumber = R"re(\S+)re";
+        const QString lineNumber = R"re((\S+))re";
         const QString elfSegmentAndOffset = R"re(\(\..+?[+-]0x[a-fA-F0-9]+\))re";
-        const QString positionPattern = QString("(%1|%2):").arg(lineNumber, elfSegmentAndOffset);
+        const QString positionPattern = QString("(?:%1|%2):").arg(lineNumber, elfSegmentAndOffset);
 
-        return QString(R"re(^%1(%1)?(%2)?\s(.+)$)re").arg(filePattern, positionPattern);
+        return QString(R"re(^%1(?:%1)?(?:%2)?\s(.+)$)re").arg(filePattern, positionPattern);
     };
     static const QRegularExpression regex(makePattern());
 
@@ -125,18 +125,18 @@ std::optional<OutputLineParser::Result> LdParser::checkMainRegex(
         return {};
 
     bool ok;
-    int lineno = match.captured(7).toInt(&ok);
+    int lineno = match.captured(3).toInt(&ok);
     if (!ok)
         lineno = -1;
     FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
     int capIndex = 1;
-    const QString sourceFileName = match.captured(4);
+    const QString sourceFileName = match.captured(2);
     if (!sourceFileName.isEmpty() && !sourceFileName.startsWith(QLatin1String("(.text"))
         && !sourceFileName.startsWith(QLatin1String("(.data"))) {
         filePath = absoluteFilePath(FilePath::fromUserInput(sourceFileName));
-        capIndex = 4;
+        capIndex = 2;
     }
-    QString description = match.captured(8).trimmed();
+    QString description = match.captured(4).trimmed();
     static const QStringList keywords{
         "File format not recognized",
         "undefined reference",
