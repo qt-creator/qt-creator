@@ -1,7 +1,7 @@
 add_qtc_library(Utils
   DEPENDS Tasking Qt::Qml Qt::Xml Spinner QtCLibArchive
   PUBLIC_DEPENDS
-    Qt::Concurrent Qt::Core Qt::Network Qt::Gui Qt::Widgets
+    Qt::Concurrent Qt::Core Qt::Network Qt::Gui Qt::Widgets Qt::PrintSupport
     Qt::Core5Compat
     $<$<BOOL:${QTC_STATIC_BUILD}>:Tasking>
     $<$<BOOL:${QTC_STATIC_BUILD}>:Spinner>
@@ -231,6 +231,18 @@ extend_qtc_library(Utils
     mimetypeparser.cpp
     mimetypeparser_p.h
     mimeutils.cpp
+)
+
+extend_qtc_library(Utils
+  SOURCES_PREFIX plaintextedit
+  PUBLIC_INCLUDES plaintextedit
+  SOURCES
+    inputcontrol.cpp
+    inputcontrol.h
+    plaintextedit.cpp
+    plaintextedit.h
+    widgettextcontrol.cpp
+    widgettextcontrol.h
 )
 
 if (MSVC)

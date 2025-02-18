@@ -145,13 +145,13 @@ Project {
             "texteditorsettings.cpp",
             "texteditorsettings.h",
             "texteditortr.h",
-            "textsuggestion.cpp",
-            "textsuggestion.h",
             "textindenter.cpp",
             "textindenter.h",
             "textmark.cpp",
             "textmark.h",
             "textstyles.h",
+            "textsuggestion.cpp",
+            "textsuggestion.h",
             "typehierarchy.cpp",
             "typehierarchy.h",
             "typingsettings.cpp",
@@ -224,6 +224,19 @@ Project {
                 "snippetscollection.h",
                 "snippetssettingspage.cpp",
                 "snippetssettingspage.h",
+            ]
+        }
+
+        Group {
+            name: "PlainTextEdit"
+            prefix: "plaintextedit/"
+            files: [
+                "inputcontrol.h",
+                "inputhandler.cpp",
+                "plaintextedit.cpp",
+                "plaintextedit.h",
+                "widgettextcontrol.cpp",
+                "widgettextcontrol.h",
             ]
         }
 
