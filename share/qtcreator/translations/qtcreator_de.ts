@@ -23982,7 +23982,8 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     <message>
         <source>None</source>
         <comment>No default implementation location</comment>
-        <translation type="unfinished"></translation>
+        <translatorcomment>(kein Ort)</translatorcomment>
+        <translation>Keiner</translation>
     </message>
     <message>
         <source>Add %1 Declaration</source>
@@ -24939,11 +24940,11 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
     </message>
     <message>
         <source>A JavaScript expression acting as the return value of a function with two parameters &lt;b&gt;name&lt;/b&gt; and &lt;b&gt;memberName&lt;/b&gt;, where&lt;ul&gt;&lt;li&gt;&lt;b&gt;name&lt;/b&gt; is the &quot;semantic name&quot; as it would be used for a Qt property&lt;/li&gt;&lt;li&gt;&lt;b&gt;memberName&lt;/b&gt; is the name of the member variable.&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein JavaScript-Ausdruck, der als Rückgabewert einer Funktion mit zwei Parametern &lt;b&gt;name&lt;/b&gt; und &lt;b&gt;memberName&lt;/b&gt; benutzt wird. Dabei ist &lt;ul&gt;&lt;li&gt;&lt;b&gt;name&lt;/b&gt; der &quot;semantische Name&quot;, wie er für eine Qt-Property benutzt würde&lt;/li&gt;&lt;li&gt;&lt;b&gt;memberName&lt;/b&gt; der Name der Membervariable.&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <source>A JavaScript expression acting as the return value of a function with a parameter &lt;b&gt;name&lt;/b&gt;, which is the &quot;semantic name&quot; as it would be used for a Qt property.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein JavaScript-Ausdruck, der als Rückgabewert einer Funktion mit einem Parameter &lt;b&gt;name&lt;/b&gt; benutzt wird. Dabei ist &lt;b&gt;name&lt;/b&gt; der &quot;semantische Name&quot;, wie er für eine Qt-Property benutzt würde.</translation>
     </message>
     <message>
         <source>Generate signals with the new value as parameter</source>
@@ -24953,19 +24954,21 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
         <source>How to get from the member variable to the semantic name.
 This is the reverse of the operation above.
 Leave empty to apply heuristics.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wie der semantische Name aus der Membervariable konstruiert wird.
+Dies ist die Umkehrung der vorhergehenden Operation.
+Lassen Sie dies leer, um Heuristiken anwenden zu lassen.</translation>
     </message>
     <message>
         <source>Test</source>
-        <translation type="unfinished">Test</translation>
+        <translation>Test</translation>
     </message>
     <message>
         <source>Hide Test Results</source>
-        <translation type="unfinished"></translation>
+        <translation>Testergebnisse verbergen</translation>
     </message>
     <message>
         <source>The content of the &quot;name&quot; variable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Inhalt der Variable &quot;name&quot;.</translation>
     </message>
     <message>
         <source>Getter attributes:</source>
@@ -25017,11 +25020,11 @@ Leave empty to apply heuristics.</source>
     </message>
     <message>
         <source>Name from member variable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Name aus der Membervariable:</translation>
     </message>
     <message>
         <source>Test input:</source>
-        <translation type="unfinished"></translation>
+        <translation>Testeingabe:</translation>
     </message>
     <message>
         <source>Custom Getter Setter Templates</source>
@@ -25785,7 +25788,7 @@ Flags: %3</translation>
     <message>
         <source>All</source>
         <comment>Symbol search scope</comment>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Projects</source>
@@ -26741,11 +26744,11 @@ Möchten Sie die Daten trotzdem anzeigen?</translation>
     </message>
     <message>
         <source>Enable heap debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Heap-Debugging aktivieren</translation>
     </message>
     <message>
         <source>Allocate memory using the debug heap rather than the normal heap. The debug heap enables additional checks to help diagnose heap related bugs. However it comes at a performance cost when allocating memory in the debugged process.</source>
-        <translation type="unfinished"></translation>
+        <translation>Allokiert Speicher auf dem Debug-Heap statt auf dem normalen Heap. Der Debug-Heap aktiviert zusätzliche Überprüfungen, die dabei helfen sollen, mit dem Heap zusammenhängende Fehler festzustellen. Das wirkt sich allerdings nachteilig auf die Geschwindigkeit aus, wenn Speicher im zu debuggenden Prozess allokiert wird.</translation>
     </message>
     <message>
         <source>Show &quot;std::&quot; Namespace in Types</source>
@@ -26995,7 +26998,7 @@ Sie haben die Wahl zu warten oder das Debuggen abzubrechen.</numerusform>
     </message>
     <message>
         <source>The selected build of GDB supports Python scripting, but the used version %1.%2 is not sufficient for %3. Python %4 or later is required.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser GDB versteht zwar Python-Skripte, aber die genutzte Version %1.%2 ist für %3 ungeeignet. Python %4 oder neuer ist erforderlich.</translation>
     </message>
     <message>
         <source>Retrieving data for stack view thread %1...</source>
@@ -28281,7 +28284,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Attaching to %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Anhängen an %1...</translation>
     </message>
     <message>
         <source>Internal error: The extension %1 cannot be found.
@@ -28978,7 +28981,7 @@ Soll es erneut versucht werden?</translation>
     <message>
         <source>None</source>
         <comment>Symbols Type (No debug information found)</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>Plain</source>
@@ -29219,11 +29222,11 @@ Einzelschritte in das Modul und das Setzen von Haltepunkten nach Datei und Zeile
     </message>
     <message>
         <source>Cannot Debug</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann nicht debuggen</translation>
     </message>
     <message>
         <source>Cannot debug application: Kit has no device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann die Anwendung nicht debuggen: Das Kit hat kein Gerät.</translation>
     </message>
     <message>
         <source>Attach to %1</source>
@@ -29231,7 +29234,7 @@ Einzelschritte in das Modul und das Setzen von Haltepunkten nach Datei und Zeile
     </message>
     <message>
         <source>Attach to QML Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu QML-Port verbinden</translation>
     </message>
     <message>
         <source>Normally, the running server is identified by the IP of the device in the kit and the server port selected above.
@@ -30052,11 +30055,11 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Added a surrogate GDB DAP item for existing entry &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein GDB DAP-Eintrag wurde für den existierenden Eintrag &quot;%1&quot; hinzugefügt.</translation>
     </message>
     <message>
         <source>Added a surrogate GDB DAP item for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein GDB DAP-Eintrag wurde für &quot;%1&quot; hinzugefügt.</translation>
     </message>
     <message>
         <source>Add</source>
@@ -30474,7 +30477,7 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     <message>
         <source>None</source>
         <comment>No debugger</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keiner</translation>
     </message>
     <message>
         <source>Debugger &quot;%1&quot; not found.</source>
@@ -31436,7 +31439,7 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
     <message>
         <source>Failed to start container &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Container &quot;%1&quot; konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Device is shut down</source>
@@ -31886,11 +31889,11 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
     <message>
         <source>Remove...</source>
-        <translation type="unfinished">Entfernen...</translation>
+        <translation>Entfernen...</translation>
     </message>
     <message>
         <source>Update...</source>
-        <translation type="unfinished">Aktualisieren...</translation>
+        <translation>Aktualisieren...</translation>
     </message>
     <message>
         <source>Error</source>
@@ -31971,7 +31974,7 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>All</source>
         <comment>Extensions filter</comment>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Extension packs</source>
@@ -32051,7 +32054,7 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
     <message>
         <source>Updated</source>
-        <translation type="unfinished">Aktualisiert</translation>
+        <translation>Aktualisiert</translation>
     </message>
 </context>
 <context>
@@ -32103,12 +32106,12 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>None</source>
         <comment>No category</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>All</source>
         <comment>Platforms: All</comment>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Plugin Details of %1</source>
@@ -32264,11 +32267,11 @@ Grund: %3</translation>
     </message>
     <message>
         <source>Plugin not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugin wurde nicht gefunden.</translation>
     </message>
     <message>
         <source>It does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es existiert nicht.</translation>
     </message>
     <message>
         <source>The plugin &quot;%1&quot; is specified twice for testing.</source>
@@ -32380,11 +32383,11 @@ Grund: %3</translation>
     </message>
     <message>
         <source>Cannot remove system plugins.</source>
-        <translation type="unfinished"></translation>
+        <translation>System-Plugins können nicht entfernt werden.</translation>
     </message>
     <message>
         <source>Could not determine root folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wurzelverzeichnis konnte nicht bestimmt werden.</translation>
     </message>
     <message>
         <source>%1 (current: &quot;%2&quot;)</source>
@@ -37064,11 +37067,11 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Internal error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Fehler.</translation>
     </message>
     <message>
         <source>Only C++ debugging is supported for devices with iOS 17 and later.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für Geräte mit iOS 17 und neuer wird nur C++-Debugging unterstützt.</translation>
     </message>
     <message>
         <source>The dSYM %1 seems to be outdated, it might confuse the debugger.</source>
@@ -37234,7 +37237,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Debugging on devices with iOS 17 and later requires Xcode 16 or later.</source>
-        <translation type="unfinished"></translation>
+        <translation>Debuggen auf Geräten mit iOS 17 und neuer erfordert Xcode 16 oder neuer.</translation>
     </message>
     <message>
         <source>Device type:</source>
@@ -37306,11 +37309,11 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Running failed. Failed to create the temporary output file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Ausführen ist fehlgeschlagen. Das Erstellen der temporären Ausgabedatei ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Failed to retrieve process ID.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Prozess-ID konnte nicht ermittelt werden.</translation>
     </message>
     <message>
         <source>Could not find %1.</source>
@@ -37318,15 +37321,15 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Failed to get a local debugger port.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es konnte kein lokaler Debugger-Port erhalten werden.</translation>
     </message>
     <message>
         <source>Listening for debugger on local port %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Warte auf dem lokalen Port %1 auf den Debugger.</translation>
     </message>
     <message>
         <source>Listening for QML debugger on local port %1 (port %2 on the device).</source>
-        <translation type="unfinished"></translation>
+        <translation>Warte auf dem lokalen Port %1 (Port %2 auf dem Gerät) auf den QML-Debugger.</translation>
     </message>
     <message>
         <source>Could not get necessary ports for the debugger connection.</source>
@@ -37431,7 +37434,7 @@ Ablaufdatum: %3</translation>
     <message>
         <source>None</source>
         <comment>No signing identity</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>Development team is not selected.</source>
