@@ -57,7 +57,7 @@ public:
     void mergeCursors();
 
     /// applies the move key event \param e to all cursors in this multi cursor
-    bool handleMoveKeyEvent(QKeyEvent *e, QPlainTextEdit *edit, bool camelCaseNavigationEnabled);
+    bool handleMoveKeyEvent(QKeyEvent *e, bool camelCaseNavigationEnabled);
     /// applies the move \param operation to all cursors in this multi cursor \param n times
     /// with the move \param mode
     void movePosition(QTextCursor::MoveOperation operation, QTextCursor::MoveMode mode, int n = 1);

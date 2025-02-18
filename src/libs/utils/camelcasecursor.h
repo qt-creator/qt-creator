@@ -20,11 +20,11 @@ class MultiTextCursor;
 class QTCREATOR_UTILS_EXPORT CamelCaseCursor
 {
 public:
-    static bool left(QTextCursor *cursor, QPlainTextEdit *edit, QTextCursor::MoveMode mode);
-    static bool left(MultiTextCursor *cursor, QPlainTextEdit *edit, QTextCursor::MoveMode mode);
+    static bool left(QTextCursor *cursor, QTextCursor::MoveMode mode);
+    static bool left(MultiTextCursor *cursor, QTextCursor::MoveMode mode);
     static bool left(QLineEdit *edit, QTextCursor::MoveMode mode);
-    static bool right(QTextCursor *cursor, QPlainTextEdit *edit, QTextCursor::MoveMode mode);
-    static bool right(MultiTextCursor *cursor, QPlainTextEdit *edit, QTextCursor::MoveMode mode);
+    static bool right(QTextCursor *cursor, QTextCursor::MoveMode mode);
+    static bool right(MultiTextCursor *cursor, QTextCursor::MoveMode mode);
     static bool right(QLineEdit *edit, QTextCursor::MoveMode mode);
 };
 

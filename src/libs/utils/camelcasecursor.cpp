@@ -12,10 +12,10 @@
 namespace Utils {
 
 template<typename C, typename E>
-bool moveCursor(C *cursor, E *edit, QTextCursor::MoveOperation direction, QTextCursor::MoveMode mode);
+bool moveCursor(C *cursor, E edit, QTextCursor::MoveOperation direction, QTextCursor::MoveMode mode);
 
 template<>
-bool moveCursor(QTextCursor *cursor, QPlainTextEdit *, QTextCursor::MoveOperation direction,
+bool moveCursor(QTextCursor *cursor, std::nullptr_t, QTextCursor::MoveOperation direction,
                 QTextCursor::MoveMode mode)
 {
     return cursor->movePosition(direction, mode);
@@ -45,12 +45,12 @@ bool moveCursor(C *, QLineEdit *edit, QTextCursor::MoveOperation direction, QTex
 }
 
 template<typename C, typename E>
-QChar charUnderCursor(C *cursor, E *edit);
+QChar charUnderCursor(C *cursor, E edit);
 
 template<>
-QChar charUnderCursor(QTextCursor *cursor, QPlainTextEdit *edit)
+QChar charUnderCursor(QTextCursor *cursor, std::nullptr_t)
 {
-    return edit->document()->characterAt(cursor->position());
+    return cursor->document()->characterAt(cursor->position());
 }
 
 template<typename C>
@@ -64,10 +64,10 @@ QChar charUnderCursor(C *, QLineEdit *edit)
 };
 
 template<typename C, typename E>
-int position(C *cursor, E *edit);
+int position(C *cursor, E edit);
 
 template<>
-int position(QTextCursor *cursor, QPlainTextEdit *)
+int position(QTextCursor *cursor, std::nullptr_t)
 {
     return cursor->position();
 }
@@ -87,7 +87,7 @@ enum class Input {
 };
 
 template<typename C, typename E>
-bool camelCaseLeft(C *cursor, E *edit, QTextCursor::MoveMode mode)
+bool camelCaseLeft(C *cursor, E edit, QTextCursor::MoveMode mode)
 {
     int state = 0;
 
@@ -190,7 +190,7 @@ bool camelCaseLeft(C *cursor, E *edit, QTextCursor::MoveMode mode)
 }
 
 template<typename C, typename E>
-bool camelCaseRight(C *cursor, E *edit, QTextCursor::MoveMode mark)
+bool camelCaseRight(C *cursor, E edit, QTextCursor::MoveMode mark)
 {
     int state = 0;
 
@@ -300,16 +300,16 @@ bool camelCaseRight(C *cursor, E *edit, QTextCursor::MoveMode mark)
     }
 }
 
-bool CamelCaseCursor::left(QTextCursor *cursor, QPlainTextEdit *edit, QTextCursor::MoveMode mode)
+bool CamelCaseCursor::left(QTextCursor *cursor, QTextCursor::MoveMode mode)
 {
-    return camelCaseLeft(cursor, edit, mode);
+    return camelCaseLeft(cursor, nullptr, mode);
 }
 
-bool CamelCaseCursor::left(MultiTextCursor *cursor, QPlainTextEdit *edit, QTextCursor::MoveMode mode)
+bool CamelCaseCursor::left(MultiTextCursor *cursor, QTextCursor::MoveMode mode)
 {
     bool result = false;
     for (QTextCursor &c : *cursor)
-        result |= CamelCaseCursor::left(&c, edit, mode);
+        result |= CamelCaseCursor::left(&c, mode);
     cursor->mergeCursors();
     return result;
 }
@@ -320,16 +320,16 @@ bool CamelCaseCursor::left(QLineEdit *edit, QTextCursor::MoveMode mode)
     return camelCaseLeft(&temp, edit, mode);
 }
 
-bool CamelCaseCursor::right(QTextCursor *cursor, QPlainTextEdit *edit, QTextCursor::MoveMode mode)
+bool CamelCaseCursor::right(QTextCursor *cursor, QTextCursor::MoveMode mode)
 {
-    return camelCaseRight(cursor, edit, mode);
+    return camelCaseRight(cursor, nullptr, mode);
 }
 
-bool CamelCaseCursor::right(MultiTextCursor *cursor, QPlainTextEdit *edit, QTextCursor::MoveMode mode)
+bool CamelCaseCursor::right(MultiTextCursor *cursor, QTextCursor::MoveMode mode)
 {
     bool result = false;
     for (QTextCursor &c : *cursor)
-        result |= CamelCaseCursor::right(&c, edit, mode);
+        result |= CamelCaseCursor::right(&c, mode);
     cursor->mergeCursors();
     return result;
 }
