@@ -13,9 +13,9 @@
 #include "callgrind/callgrindstackbrowser.h"
 #include "callgrindcostdelegate.h"
 #include "callgrindcostview.h"
-#include "callgrindengine.h"
 #include "callgrindtextmark.h"
 #include "callgrindvisualisation.h"
+#include "valgrindengine.h"
 #include "valgrindsettings.h"
 #include "valgrindtr.h"
 
@@ -81,6 +81,66 @@ const char CallgrindLocalActionId[]       = "Callgrind.Local.Action";
 const char CallgrindRemoteActionId[]      = "Callgrind.Remote.Action";
 const char CALLGRIND_RUN_MODE[]           = "CallgrindTool.CallgrindRunMode";
 const char CALLGRIND_CONTROL_BINARY[]     = "callgrind_control";
+
+static bool isPaused();
+static QString fetchAndResetToggleCollectFunction();
+static Utils::FilePath remoteOutputFile();
+static void setupPid(qint64 pid);
+static void setupRunControl(ProjectExplorer::RunControl *runControl);
+static void startParser();
+
+class CallgrindToolRunner : public ValgrindToolRunner
+{
+public:
+    explicit CallgrindToolRunner(ProjectExplorer::RunControl *runControl)
+        : ValgrindToolRunner(runControl)
+    {
+        setId("CallgrindToolRunner");
+        setProgressTitle(Tr::tr("Profiling"));
+
+        connect(&m_runner, &ValgrindProcess::valgrindStarted, this, [](qint64 pid) { setupPid(pid); });
+        connect(&m_runner, &ValgrindProcess::done, this, [] { startParser(); });
+
+        setupRunControl(runControl);
+    }
+
+    void start() override
+    {
+        const FilePath executable = runControl()->commandLine().executable();
+        appendMessage(Tr::tr("Profiling %1").arg(executable.toUserOutput()), NormalMessageFormat);
+        return ValgrindToolRunner::start();
+    }
+
+
+protected:
+    void addToolArguments(Utils::CommandLine &cmd) const override
+    {
+        cmd << "--tool=callgrind";
+
+        if (m_settings.enableCacheSim())
+            cmd << "--cache-sim=yes";
+
+        if (m_settings.enableBranchSim())
+            cmd << "--branch-sim=yes";
+
+        if (m_settings.collectBusEvents())
+            cmd << "--collect-bus=yes";
+
+        if (m_settings.collectSystime())
+            cmd << "--collect-systime=yes";
+
+        if (isPaused())
+            cmd << "--instr-atstart=no";
+
+        const QString toggleCollectFunction = fetchAndResetToggleCollectFunction();
+        if (!toggleCollectFunction.isEmpty())
+            cmd << "--toggle-collect=" + toggleCollectFunction;
+
+        cmd << "--callgrind-out-file=" + remoteOutputFile().path();
+
+        cmd.addArgs(m_settings.callgrindArguments(), CommandLine::Raw);
+    }
+};
 
 class CallgrindToolRunnerFactory final : public RunWorkerFactory
 {
@@ -1114,33 +1174,33 @@ void CallgrindTool::createTextMarks()
 
 static CallgrindTool *dd = nullptr;
 
-bool isPaused()
+static bool isPaused()
 {
     return dd->m_markAsPaused;
 }
 
 // we may want to toggle collect for one function only in this run
-QString fetchAndResetToggleCollectFunction()
+static QString fetchAndResetToggleCollectFunction()
 {
     return std::exchange(dd->m_toggleCollectFunction, {});
 }
 
-FilePath remoteOutputFile()
+static FilePath remoteOutputFile()
 {
     return dd->m_remoteOutputFile;
 }
 
-void setupPid(qint64 pid)
+static void setupPid(qint64 pid)
 {
     dd->setupPid(pid);
 }
 
-void setupRunControl(RunControl *runControl)
+static void setupRunControl(RunControl *runControl)
 {
     dd->setupRunControl(runControl);
 }
 
-void startParser()
+static void startParser()
 {
     dd->m_controllerRunner.cancel();
     dd->executeController({ dd->parseRecipe() });

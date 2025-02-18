@@ -16,7 +16,6 @@ add_qtc_plugin(Valgrind
     callgrind/callgrindstackbrowser.cpp callgrind/callgrindstackbrowser.h
     callgrindcostdelegate.cpp callgrindcostdelegate.h
     callgrindcostview.cpp callgrindcostview.h
-    callgrindengine.cpp callgrindengine.h
     callgrindhelper.cpp callgrindhelper.h
     callgrindnamedelegate.cpp callgrindnamedelegate.h
     callgrindtextmark.cpp callgrindtextmark.h

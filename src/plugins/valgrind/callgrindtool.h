@@ -5,17 +5,7 @@
 
 #include <QObject>
 
-namespace ProjectExplorer { class RunControl; }
-namespace Utils { class FilePath; }
-
 namespace Valgrind::Internal {
-
-bool isPaused();
-QString fetchAndResetToggleCollectFunction();
-Utils::FilePath remoteOutputFile();
-void setupPid(qint64 pid);
-void setupRunControl(ProjectExplorer::RunControl *runControl);
-void startParser();
 
 void setupCallgrindTool(QObject *guard);
 
