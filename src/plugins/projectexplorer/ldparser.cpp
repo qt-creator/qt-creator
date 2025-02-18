@@ -111,12 +111,17 @@ std::optional<OutputLineParser::Result> LdParser::checkMainRegex(
     static const auto makePattern = [] {
         const QString driveSpec = "(?:[A-Za-z]:)?";
 
-        const QString filePattern = QString(R"re((%1[^:]+\.[^:]+):)re").arg(driveSpec);
-        const QString lineNumber = R"re((?<line>\S+))re";
+        const QString file = QString(R"re(%1[^:]+\.[^:]+)re").arg(driveSpec);
+        const QString objFile = QString("(?:(?<obj>%1):)").arg(file);
+        const QString lineNumber = R"re((?<line>[0-9]+))re";
         const QString elfSegmentAndOffset = R"re(\(\..+?[+-]0x[a-fA-F0-9]+\))re";
-        const QString positionPattern = QString("(?:%1|%2):").arg(lineNumber, elfSegmentAndOffset);
+        const QString identifier = "(?:[A-Za-z_][A-Za-z_0-9]*)";
+        const QString scopedIdentifier = QString("(?:%1(?:::%1)*)").arg(identifier);
+        const QString position
+            = QString("(?:%1|%2|%3)").arg(lineNumber, elfSegmentAndOffset, scopedIdentifier);
+        const QString srcFile = QString("(?:(?<src>%1):%2?:)").arg(file, position);
 
-        return QString(R"re(^%1(?:%1)?(?:%2)?\s(?<desc>.+)$)re").arg(filePattern, positionPattern);
+        return QString(R"re(^%1?%2?\s(?<desc>.+)$)re").arg(objFile, srcFile);
     };
     static const QRegularExpression regex(makePattern());
 
@@ -124,18 +129,6 @@ std::optional<OutputLineParser::Result> LdParser::checkMainRegex(
     if (!match.hasMatch())
         return {};
 
-    bool ok;
-    int lineno = match.captured("line").toInt(&ok);
-    if (!ok)
-        lineno = -1;
-    FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
-    int capIndex = 1;
-    const QString sourceFileName = match.captured(2);
-    if (!sourceFileName.isEmpty() && !sourceFileName.startsWith(QLatin1String("(.text"))
-        && !sourceFileName.startsWith(QLatin1String("(.data"))) {
-        filePath = absoluteFilePath(FilePath::fromUserInput(sourceFileName));
-        capIndex = 2;
-    }
     QString description = match.captured("desc").trimmed();
     static const QStringList keywords{
         "File format not recognized",
@@ -147,22 +140,40 @@ std::optional<OutputLineParser::Result> LdParser::checkMainRegex(
     const auto descriptionContainsKeyword = [&description](const QString &keyword) {
         return description.contains(keyword);
     };
+    const bool hasKeyword = Utils::anyOf(keywords, descriptionContainsKeyword);
+
+    // Note that a source file with no position information will be detected as an object file
+    // if no object file also occurs on the same line. This is harmless.
+    LinkSpecs linkSpecs;
+    FilePath objFilePath;
+    if (const QString objFile = match.captured("obj"); !objFile.isEmpty()) {
+        objFilePath = absoluteFilePath(FilePath::fromUserInput(objFile));
+        addLinkSpecForAbsoluteFilePath(linkSpecs, objFilePath, -1, -1, match, "obj");
+    }
+
+    if (!hasKeyword && !objFilePath.fileName().endsWith(".o"))
+        return {};
+
+    int lineno = -1;
+    if (const QString lineStr = match.captured("line"); !lineStr.isEmpty())
+        lineno = lineStr.toInt();
+    FilePath srcFilePath;
+    if (const QString srcFile = match.captured("src"); !srcFile.isEmpty()) {
+        srcFilePath = absoluteFilePath(FilePath::fromUserInput(srcFile));
+        addLinkSpecForAbsoluteFilePath(linkSpecs, srcFilePath, lineno, -1, match, "src");
+    }
+
     Task::TaskType type = Task::Unknown;
-    const bool hasKeyword = anyOf(keywords, descriptionContainsKeyword);
     if (description.startsWith(QLatin1String("warning: "), Qt::CaseInsensitive)) {
         type = Task::Warning;
         description = description.mid(9);
     } else if (hasKeyword) {
         type = Task::Error;
     }
-    if (hasKeyword || filePath.fileName().endsWith(".o")) {
-        LinkSpecs linkSpecs;
-        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineno, -1, match, capIndex);
-        createOrAmendTask(type, description, originalLine, false, filePath, lineno, 0, linkSpecs);
-        return Result(getStatus(trimmedLine), linkSpecs);
-    }
 
-    return {};
+    const FilePath filePath = !srcFilePath.isEmpty() ? srcFilePath : objFilePath;
+    createOrAmendTask(type, description, originalLine, false, filePath, lineno, 0, linkSpecs);
+    return Result(getStatus(trimmedLine), linkSpecs);
 }
 
 OutputLineParser::Status LdParser::getStatus(const QString &line)
