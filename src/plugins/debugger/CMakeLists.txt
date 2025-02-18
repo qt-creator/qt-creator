@@ -11,7 +11,6 @@ add_qtc_plugin(Debugger
     analyzer/analyzerutils.cpp analyzer/analyzerutils.h
     analyzer/detailederrorview.cpp analyzer/detailederrorview.h
     analyzer/diagnosticlocation.cpp analyzer/diagnosticlocation.h
-    analyzer/startremotedialog.cpp analyzer/startremotedialog.h
     breakhandler.cpp breakhandler.h
     breakpoint.cpp breakpoint.h
     cdb/cdbengine.cpp cdb/cdbengine.h

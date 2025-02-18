@@ -237,8 +237,6 @@ QtcPlugin {
             "detailederrorview.h",
             "diagnosticlocation.cpp",
             "diagnosticlocation.h",
-            "startremotedialog.cpp",
-            "startremotedialog.h",
         ]
     }
 

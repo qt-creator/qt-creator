@@ -15,6 +15,7 @@
 #include "callgrindcostview.h"
 #include "callgrindtextmark.h"
 #include "callgrindvisualisation.h"
+#include "startremotedialog.h"
 #include "valgrindengine.h"
 #include "valgrindsettings.h"
 #include "valgrindtr.h"
@@ -34,7 +35,6 @@
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggermainwindow.h>
 #include <debugger/analyzer/analyzerutils.h>
-#include <debugger/analyzer/startremotedialog.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>

@@ -3,7 +3,7 @@
 
 #include "startremotedialog.h"
 
-#include "../debuggertr.h"
+#include "valgrindtr.h"
 
 #include <coreplugin/icore.h>
 
@@ -21,7 +21,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Debugger {
+namespace Valgrind::Internal {
 
 class StartRemoteDialog : public QDialog
 {
@@ -130,4 +130,4 @@ std::optional<ProcessRunData> runStartRemoteDialog()
     return ProcessRunData{dlg.commandLine(), dlg.workingDirectory()};
 }
 
-} // Debugger
+} // Valgrind::Internal

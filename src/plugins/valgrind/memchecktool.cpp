@@ -4,6 +4,7 @@
 #include "memchecktool.h"
 
 #include "memcheckerrorview.h"
+#include "startremotedialog.h"
 #include "valgrindengine.h"
 #include "valgrindprocess.h"
 #include "valgrindsettings.h"
@@ -29,7 +30,6 @@
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/analyzer/analyzerutils.h>
-#include <debugger/analyzer/startremotedialog.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/deploymentdata.h>

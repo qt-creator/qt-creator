@@ -3,12 +3,10 @@
 
 #pragma once
 
-#include <debugger/debugger_global.h>
-
 #include <utils/processinterface.h>
 
-namespace Debugger {
+namespace Valgrind::Internal {
 
-DEBUGGER_EXPORT std::optional<Utils::ProcessRunData> runStartRemoteDialog();
+std::optional<Utils::ProcessRunData> runStartRemoteDialog();
 
-} // Debugger
+} // Valgrind::Internal
