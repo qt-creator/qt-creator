@@ -103,7 +103,6 @@ private:
     void addToolArguments(CommandLine &cmd) const final;
 
     void startDebugger(qint64 valgrindPid);
-    void appendLog(const QByteArray &data);
 
     const bool m_withGdb;
     std::unique_ptr<Process> m_process;
@@ -180,12 +179,6 @@ void MemcheckToolRunner::startDebugger(qint64 valgrindPid)
 
     debugger->initiateStart();
 }
-
-void MemcheckToolRunner::appendLog(const QByteArray &data)
-{
-    appendMessage(QString::fromUtf8(data), Utils::StdOutFormat);
-}
-
 
 static ErrorListModel::RelevantFrameFinder makeFrameFinder(const QStringList &projectFiles)
 {
@@ -1106,7 +1099,9 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
         connect(&m_runner, &ValgrindProcess::valgrindStarted,
                 this, &MemcheckToolRunner::startDebugger);
         connect(&m_runner, &ValgrindProcess::logMessageReceived,
-                this, &MemcheckToolRunner::appendLog);
+                this, [this](const QByteArray &data) {
+            appendMessage(QString::fromUtf8(data), Utils::StdOutFormat);
+        });
     } else {
         connect(&m_runner, &ValgrindProcess::internalError, dd, &MemcheckTool::internalParserError);
     }
