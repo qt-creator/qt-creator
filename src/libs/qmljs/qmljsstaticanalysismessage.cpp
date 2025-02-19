@@ -212,7 +212,8 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(
         ErrFunctionsNotSupportedInQmlUi,
         Error,
-        Tr::tr("Arbitrary functions and function calls outside of a Connections object are not supported in a UI file (.ui.qml)."));
+        Tr::tr("Arbitrary functions and function calls outside of a Connections or ScriptAction "
+               "objects are not supported in a UI file (.ui.qml)."));
     newMsg(ErrBlocksNotSupportedInQmlUi, Error,
            Tr::tr("JavaScript blocks are not supported in a UI file (.ui.qml)."));
     newMsg(ErrBehavioursNotSupportedInQmlUi, Error,
