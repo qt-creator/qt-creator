@@ -64,6 +64,17 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl, const QString &pr
     });
 }
 
+static QString selfModifyingCodeDetectionToString(int detection)
+{
+    switch (detection) {
+    case ValgrindSettings::DetectSmcNo:                return "none";
+    case ValgrindSettings::DetectSmcEverywhere:        return "all";
+    case ValgrindSettings::DetectSmcEverywhereButFile: return "all-non-file";
+    case ValgrindSettings::DetectSmcStackOnly:         return "stack";
+    }
+    return {};
+}
+
 void ValgrindToolRunner::start()
 {
     FilePath valgrindExecutable = m_settings.valgrindExecutable();
@@ -93,7 +104,7 @@ void ValgrindToolRunner::start()
 
     CommandLine valgrind{valgrindExecutable};
     valgrind.addArgs(m_settings.valgrindArguments(), CommandLine::Raw);
-    valgrind.addArgs(genericToolArguments());
+    valgrind.addArg("--smc-check=" + selfModifyingCodeDetectionToString(m_settings.selfModifyingCodeDetection()));
     addToolArguments(valgrind);
 
     m_runner.setValgrindCommand(valgrind);
@@ -115,28 +126,6 @@ void ValgrindToolRunner::stop()
 {
     m_runner.stop();
     appendMessage(Tr::tr("Terminating process..."), ErrorMessageFormat);
-}
-
-QStringList ValgrindToolRunner::genericToolArguments() const
-{
-    QString smcCheckValue;
-
-    switch (m_settings.selfModifyingCodeDetection()) {
-    case ValgrindSettings::DetectSmcNo:
-        smcCheckValue = "none";
-        break;
-    case ValgrindSettings::DetectSmcEverywhere:
-        smcCheckValue = "all";
-        break;
-    case ValgrindSettings::DetectSmcEverywhereButFile:
-        smcCheckValue = "all-non-file";
-        break;
-    case ValgrindSettings::DetectSmcStackOnly:
-    default:
-        smcCheckValue = "stack";
-        break;
-    }
-    return {"--smc-check=" + smcCheckValue};
 }
 
 } // Valgrid::Internal

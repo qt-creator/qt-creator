@@ -28,9 +28,6 @@ protected:
     ValgrindProcess m_runner;
 
 private:
-    QStringList genericToolArguments() const;
-
-private:
     QString m_progressTitle;
     QFutureInterface<void> m_progress;
 };
