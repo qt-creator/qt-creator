@@ -16,6 +16,7 @@
 #include <coreplugin/imode.h>
 #include <coreplugin/iwelcomepage.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/session.h>
 #include <coreplugin/welcomepagehelper.h>
 
 #include <utils/algorithm.h>
@@ -360,7 +361,8 @@ public:
     void extensionsInitialized()
     {
         m_modeWidget->initPlugins();
-        ModeManager::activateMode(id());
+        if (!SessionManager::loadsSessionOrFileAtStartup())
+            ModeManager::activateMode(id());
     }
 
 private:

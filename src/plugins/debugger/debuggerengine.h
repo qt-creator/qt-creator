@@ -268,6 +268,9 @@ public:
     void setServerEssential(bool on) { m_serverEssential = on; }
     bool serverEssential() const { return m_serverEssential; }
 
+    void setSkipDebugServer(bool on) { m_skipDebugServer = on; }
+    bool skipDebugServer() const { return m_skipDebugServer; }
+
     void setAddQmlServerInferiorCmdArgIfNeeded(bool on) { m_addQmlServerInferiorCmdArgIfNeeded = on; }
     bool isAddQmlServerInferiorCmdArgIfNeeded() const { return m_addQmlServerInferiorCmdArgIfNeeded; }
 
@@ -367,6 +370,7 @@ private:
     Utils::ProcessHandle m_serverAttachPid;
     bool m_serverUseMulti = true;
     bool m_serverEssential = true;
+    bool m_skipDebugServer = false;
     bool m_addQmlServerInferiorCmdArgIfNeeded = false;
 };
 

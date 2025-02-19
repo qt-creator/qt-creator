@@ -1511,7 +1511,9 @@ void GdbEngine::handlePythonSetup(const DebuggerResponse &response)
         GdbMi data = response.data;
         watchHandler()->addDumpers(data["dumpers"]);
         m_pythonVersion = data["python"].toInt();
-        if (m_pythonVersion < 30700) {
+        // Python 3.5.x: Released 2016-06-27, supported until 2018-12-24, security until 2021-12-23,
+        // used in Ubuntu 16.04 and Qt 5.15.10 Boot2Qt BSPs.
+        if (m_pythonVersion < 30502) {
             int pythonMajor = m_pythonVersion / 10000;
             int pythonMinor = (m_pythonVersion / 100) % 100;
             QString out = "<p>"

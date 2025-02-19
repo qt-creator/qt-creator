@@ -91,10 +91,13 @@ TabSettings TabSettings::autoDetect(const QTextDocument *document) const
         };
 
     const int blockCount = document->blockCount();
+    bool useDefault = true;
     if (blockCount < 200) {
         // check the indentation of all blocks if the document is shorter than 200 lines
         for (QTextBlock block = document->firstBlock(); block.isValid(); block = block.next())
             checkText(block);
+        // We checked all, so if we find any indented line, it makes sense to use it:
+        useDefault = totalIndentations == 0;
     } else {
         // scanning the first and last 25 lines specifically since those most probably contain
         // different indentations
@@ -115,9 +118,12 @@ TabSettings TabSettings::autoDetect(const QTextDocument *document) const
             const int blockNummer = gen.bounded(startEndDelta + 1, blockCount - startEndDelta - 2);
             checkText(document->findBlockByNumber(blockNummer));
         }
+        // Don't determine indentation for the whole file from few actually indented lines that we
+        // managed to find:
+        useDefault = totalIndentations < 3;
     }
 
-    if (indentCount.size() < 3)
+    if (useDefault)
         return *this;
 
     // find the most common indent

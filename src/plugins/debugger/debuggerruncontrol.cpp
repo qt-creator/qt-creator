@@ -562,7 +562,7 @@ void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
 
 void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
 {
-    if (!runControl()->usesDebugChannel()) {
+    if (!runControl()->usesDebugChannel() || m_runParameters.skipDebugServer()) {
         continueAfterDebugServerStart();
         return;
     }

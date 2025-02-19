@@ -78,10 +78,11 @@ private:
     void startCMakeState(const QStringList &configurationArguments);
     void cmakeFinishedState(int exitCode);
 
-    void handleReplyDirectoryChange(const QString &directory);
+    void handleReplyIndexFileChange(const QString &indexFile);
     void makeBackupConfiguration(bool store);
 
     void writeConfigurationIntoBuildDirectory(const QStringList &configuration);
+    void setupCMakeFileApi();
 
     std::unique_ptr<CMakeProcess> m_cmakeProcess;
 

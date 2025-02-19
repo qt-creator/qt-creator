@@ -163,6 +163,10 @@ public:
             return perfParserWorker;
         });
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
+        addSupportForLocalRunConfigs();
+        addSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+        addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+        addSupportedDeviceType("DockerDeviceType");
     }
 };
 
