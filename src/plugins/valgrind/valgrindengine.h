@@ -28,12 +28,10 @@ protected:
     ValgrindProcess m_runner;
 
 private:
-    void receiveProcessError(const QString &message, QProcess::ProcessError error);
-
+    void receiveProcessError(const QString &errorString, Utils::ProcessResult result);
     QStringList genericToolArguments() const;
 
 private:
-    bool m_isStopping = false;
     QString m_progressTitle;
     QFutureInterface<void> m_progress;
 };

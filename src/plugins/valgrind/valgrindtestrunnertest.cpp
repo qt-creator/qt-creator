@@ -106,12 +106,12 @@ void ValgrindTestRunnerTest::logMessageReceived(const QByteArray &message)
     m_logMessages << message;
 }
 
-void ValgrindTestRunnerTest::internalError(const QString &error)
+void ValgrindTestRunnerTest::internalError(const QString &errorString)
 {
     if (!m_expectCrash)
-        QFAIL(qPrintable(error));
+        QFAIL(qPrintable(errorString));
     else
-        qDebug() << "expected crash:" << error;
+        qDebug() << "expected crash:" << errorString;
 }
 
 void ValgrindTestRunnerTest::error(const Error &error)

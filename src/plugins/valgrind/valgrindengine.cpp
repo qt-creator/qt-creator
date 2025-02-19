@@ -92,7 +92,6 @@ void ValgrindToolRunner::start()
 
 void ValgrindToolRunner::stop()
 {
-    m_isStopping = true;
     m_runner.stop();
     appendMessage(Tr::tr("Terminating process..."), ErrorMessageFormat);
 }
@@ -119,24 +118,28 @@ QStringList ValgrindToolRunner::genericToolArguments() const
     return {"--smc-check=" + smcCheckValue};
 }
 
-void ValgrindToolRunner::receiveProcessError(const QString &message, QProcess::ProcessError error)
+void ValgrindToolRunner::receiveProcessError(const QString &errorString, ProcessResult result)
 {
-    if (error == QProcess::FailedToStart) {
+    switch (result) {
+    case ProcessResult::StartFailed: {
         const FilePath valgrind = m_settings.valgrindExecutable();
         if (!valgrind.isEmpty()) {
             appendMessage(Tr::tr("Error: \"%1\" could not be started: %2")
-                .arg(valgrind.toUserOutput(), message), ErrorMessageFormat);
+                              .arg(valgrind.toUserOutput(), errorString), ErrorMessageFormat);
         } else {
             appendMessage(Tr::tr("Error: no Valgrind executable set."), ErrorMessageFormat);
         }
-    } else if (m_isStopping && error == QProcess::Crashed) { // process gets killed on stop
-        appendMessage(Tr::tr("Process terminated."), ErrorMessageFormat);
-    } else {
-        appendMessage(Tr::tr("Process exited with return value %1\n").arg(message), NormalMessageFormat);
+        break;
     }
-
-    if (m_isStopping)
-        return;
+    case ProcessResult::Canceled:
+        appendMessage(Tr::tr("Process terminated."), ErrorMessageFormat);
+        return; // Intentional.
+    case ProcessResult::FinishedWithError:
+        appendMessage(Tr::tr("Process exited with return value %1\n").arg(errorString), NormalMessageFormat);
+        break;
+    default:
+        break;
+    }
 
     QObject *obj = ExtensionSystem::PluginManager::getObjectByName("AppOutputPane");
     if (auto pane = qobject_cast<IOutputPane *>(obj))

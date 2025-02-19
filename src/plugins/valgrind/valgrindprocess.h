@@ -6,6 +6,7 @@
 #include <solutions/tasking/tasktree.h>
 
 #include <utils/outputformat.h>
+#include <utils/processenums.h>
 
 #include <QProcess>
 
@@ -48,7 +49,7 @@ public:
 signals:
     void appendMessage(const QString &, Utils::OutputFormat);
     void logMessageReceived(const QByteArray &);
-    void processErrorReceived(const QString &, QProcess::ProcessError);
+    void processErrorReceived(const QString &errorString, Utils::ProcessResult result);
     void valgrindStarted(qint64 pid);
     void done(Tasking::DoneResult result);
 
