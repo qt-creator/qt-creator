@@ -71,6 +71,12 @@ DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, I
     cmd.setValue(rootPath.pathAppended("/bin/qmlprojectexporter"));
 
     const Id toolChainConstant = Internal::Constants::KIT_MCUTARGET_TOOLCHAIN_KEY;
+    arguments
+        = {ProcessArgs::quoteArg(buildSystem()->projectFilePath().path()),
+           "--platform",
+           findKitInformation(kit, "QUL_PLATFORM"),
+           "--toolchain",
+           kit->value(toolChainConstant).toString()};
 
     args.setSettingsKey("QmlProject.Mcu.ProcessStep.Arguments");
     args.setDisplayStyle(StringAspect::LineEditDisplay);
