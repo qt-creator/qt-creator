@@ -7,11 +7,8 @@
 #include "valgrindtr.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/ioutputpane.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-
-#include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -140,10 +137,7 @@ void ValgrindToolRunner::receiveProcessError(const QString &errorString, Process
     default:
         break;
     }
-
-    QObject *obj = ExtensionSystem::PluginManager::getObjectByName("AppOutputPane");
-    if (auto pane = qobject_cast<IOutputPane *>(obj))
-        pane->popup(IOutputPane::NoModeSwitch);
+    runControl()->showOutputPane();
 }
 
 } // Valgrid::Internal
