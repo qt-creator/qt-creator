@@ -5,8 +5,6 @@
 
 #include "ioutputparser.h"
 
-#include <QRegularExpression>
-
 #include <optional>
 
 namespace ProjectExplorer::Internal {
@@ -22,9 +20,8 @@ private:
     bool isContinuation(const QString &line) const override;
 
     std::optional<Result> checkMainRegex(const QString &trimmedLine, const QString &originalLine);
+    std::optional<Result> checkRanlib(const QString &trimmedLine, const QString &originalLine);
     Status getStatus(const QString &line);
-
-    QRegularExpression m_ranlib;
 };
 
 #ifdef WITH_TESTS

@@ -5,7 +5,8 @@
 #include "lldparser.h"
 
 #include <utils/algorithm.h>
-#include <utils/qtcassert.h>
+
+#include <QRegularExpression>
 
 #ifdef WITH_TESTS
 #include "outputparser_test.h"
@@ -16,15 +17,9 @@ using namespace Utils;
 
 namespace ProjectExplorer::Internal {
 
-namespace {
-    const char *const RANLIB_PATTERN = "ranlib(.exe)?: (file: (.*) has no symbols)$";
-}
-
 LdParser::LdParser()
 {
     setObjectName(QLatin1String("LdParser"));
-    m_ranlib.setPattern(QLatin1String(RANLIB_PATTERN));
-    QTC_CHECK(m_ranlib.isValid());
 }
 
 OutputLineParser::Result LdParser::handleLine(const QString &line, OutputFormat type)
@@ -73,12 +68,8 @@ OutputLineParser::Result LdParser::handleLine(const QString &line, OutputFormat 
         return getStatus(lne);
     }
 
-    QRegularExpressionMatch match = m_ranlib.match(lne);
-    if (match.hasMatch()) {
-        createOrAmendTask(Task::Warning, match.captured(2), line);
-        return getStatus(lne);
-    }
-
+    if (const auto result = checkRanlib(lne, line))
+        return *result;
     if (const auto result = checkMainRegex(lne, line))
         return *result;
 
@@ -88,6 +79,18 @@ OutputLineParser::Result LdParser::handleLine(const QString &line, OutputFormat 
 bool LdParser::isContinuation(const QString &line) const
 {
     return currentTask().details.last().endsWith(':') || (!line.isEmpty() && line.at(0).isSpace());
+}
+
+std::optional<OutputLineParser::Result> LdParser::checkRanlib(
+    const QString &trimmedLine, const QString &originalLine)
+{
+    static const QRegularExpression regex("ranlib(.exe)?: (file: (.*) has no symbols)$");
+    const QRegularExpressionMatch match = regex.match(trimmedLine);
+    if (match.hasMatch()) {
+        createOrAmendTask(Task::Warning, match.captured(2), originalLine);
+        return getStatus(trimmedLine);
+    }
+    return {};
 }
 
 std::optional<OutputLineParser::Result> LdParser::checkMainRegex(
