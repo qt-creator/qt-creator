@@ -17,7 +17,6 @@ using namespace Utils;
 namespace ProjectExplorer::Internal {
 
 namespace {
-    const char * const COMMAND_PATTERN = "^(.*[\\\\/])?([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(ld|gold)(-[0-9\\.]+)?(\\.exe)?: ";
     const char *const RANLIB_PATTERN = "ranlib(.exe)?: (file: (.*) has no symbols)$";
 }
 
@@ -26,8 +25,6 @@ LdParser::LdParser()
     setObjectName(QLatin1String("LdParser"));
     m_ranlib.setPattern(QLatin1String(RANLIB_PATTERN));
     QTC_CHECK(m_ranlib.isValid());
-    m_regExpGccNames.setPattern(QLatin1String(COMMAND_PATTERN));
-    QTC_CHECK(m_regExpGccNames.isValid());
 }
 
 OutputLineParser::Result LdParser::handleLine(const QString &line, OutputFormat type)
@@ -38,7 +35,9 @@ OutputLineParser::Result LdParser::handleLine(const QString &line, OutputFormat 
     QString lne = rightTrimmed(line);
     if (lne.startsWith(QLatin1String("TeamBuilder "))
             || lne.startsWith(QLatin1String("distcc["))
-            || lne.contains(QLatin1String("ar: creating "))) {
+            || lne.contains(QLatin1String("ar: creating "))
+            || lne.contains("lld:")
+            || lne.contains(">>>")) {
         return Status::NotHandled;
     }
 
@@ -80,20 +79,6 @@ OutputLineParser::Result LdParser::handleLine(const QString &line, OutputFormat 
         return getStatus(lne);
     }
 
-    match = m_regExpGccNames.match(lne);
-    if (match.hasMatch()) {
-        QString description = lne.mid(match.capturedLength());
-        Task::TaskType type = Task::Error;
-        if (description.startsWith(QLatin1String("warning: "))) {
-            type = Task::Warning;
-            description = description.mid(9);
-        } else if (description.startsWith(QLatin1String("fatal: ")))  {
-            description = description.mid(7);
-        }
-        createOrAmendTask(type, description, line);
-        return getStatus(lne);
-    }
-
     if (const auto result = checkMainRegex(lne, line))
         return *result;
 
@@ -109,19 +94,22 @@ std::optional<OutputLineParser::Result> LdParser::checkMainRegex(
     const QString &trimmedLine, const QString &originalLine)
 {
     static const auto makePattern = [] {
+        const QString command
+            = R"re((?<cmd>(?:.*[\\\/])?(?:[a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(?:ld|gold)(?:-[0-9\.]+)?(?:\.exe)?: ))re";
         const QString driveSpec = "(?:[A-Za-z]:)?";
-
         const QString file = QString(R"re(%1[^:]+\.[^:]+)re").arg(driveSpec);
-        const QString objFile = QString("(?:(?<obj>%1):)").arg(file);
+        const QString elfSegmentAndOffset = R"re((?:\(\..*[+-]0x[a-fA-F0-9]+\)))re";
+        const QString objFile = QString(R"re((?:(?<obj>%1[^:]+\.(?:o|a|dll|dylib|so))(?::%2)?:))re")
+                                    .arg(driveSpec, elfSegmentAndOffset);
         const QString lineNumber = R"re((?<line>[0-9]+))re";
-        const QString elfSegmentAndOffset = R"re(\(\..+?[+-]0x[a-fA-F0-9]+\))re";
         const QString identifier = "(?:[A-Za-z_][A-Za-z_0-9]*)";
         const QString scopedIdentifier = QString("(?:%1(?:::%1)*)").arg(identifier);
         const QString position
             = QString("(?:%1|%2|%3)").arg(lineNumber, elfSegmentAndOffset, scopedIdentifier);
-        const QString srcFile = QString("(?:(?<src>%1):%2?:)").arg(file, position);
+        const QString srcFile = QString("(?:(?<src>%1)(?::%2)?: )").arg(file, position);
+        const QString description = "(?<desc>.+)";
 
-        return QString(R"re(^%1?%2?\s(?<desc>.+)$)re").arg(objFile, srcFile);
+        return QString(R"re(^%1?%2?%3? ?%4$)re").arg(command, objFile, srcFile, description);
     };
     static const QRegularExpression regex(makePattern());
 
@@ -135,6 +123,7 @@ std::optional<OutputLineParser::Result> LdParser::checkMainRegex(
         "undefined reference",
         "multiple definition",
         "first defined here",
+        "cannot find -l",
         "feupdateenv is not implemented and will always fail", // yes, this is quite special ...
     };
     const auto descriptionContainsKeyword = [&description](const QString &keyword) {
@@ -151,7 +140,7 @@ std::optional<OutputLineParser::Result> LdParser::checkMainRegex(
         addLinkSpecForAbsoluteFilePath(linkSpecs, objFilePath, -1, -1, match, "obj");
     }
 
-    if (!hasKeyword && !objFilePath.fileName().endsWith(".o"))
+    if (!hasKeyword && !match.hasCaptured("cmd") && objFilePath.isEmpty())
         return {};
 
     int lineno = -1;
@@ -163,14 +152,15 @@ std::optional<OutputLineParser::Result> LdParser::checkMainRegex(
         addLinkSpecForAbsoluteFilePath(linkSpecs, srcFilePath, lineno, -1, match, "src");
     }
 
-    Task::TaskType type = Task::Unknown;
-    if (description.startsWith(QLatin1String("warning: "), Qt::CaseInsensitive)) {
-        type = Task::Warning;
-        description = description.mid(9);
-    } else if (hasKeyword) {
-        type = Task::Error;
+    Task::TaskType type = hasKeyword ? Task::Error : Task::Unknown;
+    const QString warningPrefix = "warning: ";
+    for (const QString &prefix : QStringList{warningPrefix, "error: ", "fatal: "}) {
+        if (description.startsWith(prefix)) {
+            description = description.mid(prefix.size());
+            type = prefix == warningPrefix ? Task::Warning : Task::Error;
+            break;
+        }
     }
-
     const FilePath filePath = !srcFilePath.isEmpty() ? srcFilePath : objFilePath;
     createOrAmendTask(type, description, originalLine, false, filePath, lineno, 0, linkSpecs);
     return Result(getStatus(trimmedLine), linkSpecs);
@@ -403,7 +393,7 @@ private slots:
             << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Error,
-                               "error: undefined reference to 'llvm::DisableABIBreakingChecks'",
+                               "undefined reference to 'llvm::DisableABIBreakingChecks'",
                                "gtest-clang-printing.cpp"));
 
         QTest::newRow("Mac: ranlib warning")
@@ -429,6 +419,40 @@ private slots:
             << (Tasks()
                 << CompileTask(Task::Error,
                                "cannot find -ldoesnotexist"));
+
+        QTest::newRow("QTCREATORBUG-32502")
+            << QString::fromLatin1(
+                   R"(gcc -c -pipe -fPIC -g -Wall -Wextra -DQT_QML_DEBUG -I../../../ExternC -I. -I/opt/Qt/6.7.3/gcc_64/mkspecs/linux-g++ -o main.o ../../main.c
+g++  -o ExternC  main.o
+/usr/bin/ld: main.o: in function `main':
+/home/andre/tmp/ExternC/build/Desktop_Qt_6_7_3-Debug/../../main.c:7: undefined reference to `foo'
+/usr/bin/ld: /home/andre/tmp/ExternC/build/Desktop_Qt_6_7_3-Debug/../../main.c:9: undefined reference to `bar'
+collect2: error: ld returned 1 exit status
+make: *** [Makefile:245: ExternC] Error 1
+17:48:20: The process "/usr/bin/make" exited with code 2.
+17:48:20: Error while building/deploying project ExternC (kit: Desktop Qt 6.7.3)
+17:48:20: When executing step "Make")")
+            << OutputParserTester::STDERR << QStringList()
+            << QStringList{
+                "gcc -c -pipe -fPIC -g -Wall -Wextra -DQT_QML_DEBUG -I../../../ExternC -I. -I/opt/Qt/6.7.3/gcc_64/mkspecs/linux-g++ -o main.o ../../main.c",
+                "g++  -o ExternC  main.o", "make: *** [Makefile:245: ExternC] Error 1",
+                R"(17:48:20: The process "/usr/bin/make" exited with code 2.)",
+                "17:48:20: Error while building/deploying project ExternC (kit: Desktop Qt 6.7.3)",
+                R"(17:48:20: When executing step "Make")"}
+            << Tasks{
+                   CompileTask(
+                       Task::Error,
+                       "undefined reference to `foo'\n"
+                       "/usr/bin/ld: main.o: in function `main':\n"
+                       "/home/andre/tmp/ExternC/build/Desktop_Qt_6_7_3-Debug/../../main.c:7: undefined reference to `foo'",
+                       "/home/andre/tmp/ExternC/main.c",
+                       7),
+                   CompileTask(
+                       Task::Error,
+                       "undefined reference to `bar'",
+                       "/home/andre/tmp/ExternC/main.c",
+                       9),
+                   CompileTask(Task::Error, "collect2: error: ld returned 1 exit status")};
 
         const auto task = [](Task::TaskType type, const QString &msg,
                              const QString &file = {}, int line = -1) {

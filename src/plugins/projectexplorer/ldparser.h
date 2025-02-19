@@ -25,7 +25,6 @@ private:
     Status getStatus(const QString &line);
 
     QRegularExpression m_ranlib;
-    QRegularExpression m_regExpGccNames;
 };
 
 #ifdef WITH_TESTS
