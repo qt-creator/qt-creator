@@ -1087,11 +1087,10 @@ void MemcheckTool::setBusyCursor(bool busy)
 }
 
 MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
-    : ValgrindToolRunner(runControl)
+    : ValgrindToolRunner(runControl, Tr::tr("Analyzing Memory"))
     , m_withGdb(runControl->runMode() == MEMCHECK_WITH_GDB_RUN_MODE)
 {
     setId("MemcheckToolRunner");
-    setProgressTitle(Tr::tr("Analyzing Memory"));
 
     connect(&m_runner, &ValgrindProcess::error, dd, &MemcheckTool::parserError);
 

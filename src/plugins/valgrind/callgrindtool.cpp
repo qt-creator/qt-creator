@@ -97,10 +97,9 @@ class CallgrindToolRunner : public ValgrindToolRunner
 {
 public:
     explicit CallgrindToolRunner(ProjectExplorer::RunControl *runControl)
-        : ValgrindToolRunner(runControl)
+        : ValgrindToolRunner(runControl, Tr::tr("Profiling"))
     {
         setId("CallgrindToolRunner");
-        setProgressTitle(Tr::tr("Profiling"));
 
         connect(&m_runner, &ValgrindProcess::valgrindStarted, this, [](qint64 pid) { setupPid(pid); });
         connect(&m_runner, &ValgrindProcess::done, this, [] { startParser(); });

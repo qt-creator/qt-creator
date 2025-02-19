@@ -15,13 +15,13 @@ namespace Valgrind::Internal {
 class ValgrindToolRunner : public ProjectExplorer::RunWorker
 {
 public:
-    explicit ValgrindToolRunner(ProjectExplorer::RunControl *runControl);
+    explicit ValgrindToolRunner(ProjectExplorer::RunControl *runControl,
+                                const QString &progressTitle);
 
     void start() override;
     void stop() override;
 
 protected:
-    void setProgressTitle(const QString &title) { m_progressTitle = title; }
     virtual void addToolArguments(Utils::CommandLine &cmd) const = 0;
 
     ValgrindSettings m_settings{false};

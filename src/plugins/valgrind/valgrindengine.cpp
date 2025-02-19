@@ -22,8 +22,9 @@ using namespace ProjectExplorer;
 
 namespace Valgrind::Internal {
 
-ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
+ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl, const QString &progressTitle)
     : RunWorker(runControl)
+    , m_progressTitle(progressTitle)
 {
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
 
