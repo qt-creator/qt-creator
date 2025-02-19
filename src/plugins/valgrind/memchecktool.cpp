@@ -93,17 +93,11 @@ const char MEMCHECK_WITH_GDB_RUN_MODE[] = "MemcheckTool.MemcheckWithGdbRunMode";
 
 class MemcheckToolRunner final : public ValgrindToolRunner
 {
-    Q_OBJECT
-
 public:
     explicit MemcheckToolRunner(ProjectExplorer::RunControl *runControl);
 
     void start() final;
     void stop() final;
-
-signals:
-    void internalParserError(const QString &errorString);
-    void parserError(const Valgrind::XmlProtocol::Error &error);
 
 private:
     void addToolArguments(CommandLine &cmd) const final;
@@ -146,8 +140,6 @@ void MemcheckToolRunner::start()
 void MemcheckToolRunner::stop()
 {
     m_process.reset();
-    disconnect(&m_runner, &ValgrindProcess::internalError,
-               this, &MemcheckToolRunner::internalParserError);
     ValgrindToolRunner::stop();
 }
 
@@ -351,10 +343,9 @@ public:
     explicit MemcheckTool(QObject *parent);
     ~MemcheckTool() final;
 
-    void setupRunner(MemcheckToolRunner *runTool, const FilePaths &suppressionFiles);
+    void setupRunControl(RunControl *runControl, const FilePaths &suppressionFiles);
     void loadShowXmlLogFile(const QString &filePath, const QString &exitMsg);
 
-private:
     void updateRunActions();
     void settingsDestroyed(QObject *settings);
     void maybeActiveRunConfigurationChanged();
@@ -923,16 +914,10 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     updateFromSettings();
 }
 
-void MemcheckTool::setupRunner(MemcheckToolRunner *runTool, const FilePaths &suppressionFiles)
+void MemcheckTool::setupRunControl(RunControl *runControl, const FilePaths &suppressionFiles)
 {
-    RunControl *runControl = runTool->runControl();
     m_errorModel.setRelevantFrameFinder(makeFrameFinder(transform(runControl->project()->files(Project::AllFiles),
                                                                   &FilePath::toUrlishString)));
-
-    connect(runTool, &MemcheckToolRunner::parserError,
-            this, &MemcheckTool::parserError);
-    connect(runTool, &MemcheckToolRunner::internalParserError,
-            this, &MemcheckTool::internalParserError);
     connect(runControl, &RunControl::stopped,
             this, &MemcheckTool::engineFinished);
     connect(runControl, &RunControl::aboutToStart, this, [this] {
@@ -1115,7 +1100,7 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
     setId("MemcheckToolRunner");
     setProgressTitle(Tr::tr("Analyzing Memory"));
 
-    connect(&m_runner, &ValgrindProcess::error, this, &MemcheckToolRunner::parserError);
+    connect(&m_runner, &ValgrindProcess::error, dd, &MemcheckTool::parserError);
 
     if (m_withGdb) {
         connect(&m_runner, &ValgrindProcess::valgrindStarted,
@@ -1123,11 +1108,10 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
         connect(&m_runner, &ValgrindProcess::logMessageReceived,
                 this, &MemcheckToolRunner::appendLog);
     } else {
-        connect(&m_runner, &ValgrindProcess::internalError,
-                this, &MemcheckToolRunner::internalParserError);
+        connect(&m_runner, &ValgrindProcess::internalError, dd, &MemcheckTool::internalParserError);
     }
 
-    dd->setupRunner(this, m_settings.suppressions());
+    dd->setupRunControl(runControl, m_settings.suppressions());
 }
 
 const char heobProfileC[] = "Heob/Profile";
@@ -1728,5 +1712,3 @@ void setupMemcheckTool(QObject *guard)
 }
 
 } // Valgrind::Internal
-
-#include "memchecktool.moc"
