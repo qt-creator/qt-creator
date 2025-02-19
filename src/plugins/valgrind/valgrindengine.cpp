@@ -36,8 +36,11 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
             [this](const QString &msg, Utils::OutputFormat format) { appendMessage(msg, format); });
     connect(&m_runner, &ValgrindProcess::processErrorReceived,
             this, &ValgrindToolRunner::receiveProcessError);
-    connect(&m_runner, &ValgrindProcess::done,
-            this, &ValgrindToolRunner::runnerFinished);
+    connect(&m_runner, &ValgrindProcess::done, this, [this] {
+        appendMessage(Tr::tr("Analyzing finished."), NormalMessageFormat);
+        m_progress.reportFinished();
+        reportStopped();
+    });
 }
 
 void ValgrindToolRunner::start()
@@ -58,10 +61,13 @@ void ValgrindToolRunner::start()
     using namespace std::chrono_literals;
     FutureProgress *fp
         = ProgressManager::addTimedTask(m_progress, m_progressTitle, "valgrind", 100s);
-    connect(fp, &FutureProgress::canceled,
-            this, &ValgrindToolRunner::handleProgressCanceled);
-    connect(fp, &FutureProgress::finished,
-            this, &ValgrindToolRunner::handleProgressFinished);
+    connect(fp, &FutureProgress::canceled, this, [this] {
+        m_progress.reportCanceled();
+        m_progress.reportFinished();
+    });
+    connect(fp, &FutureProgress::finished, this, [] {
+        QApplication::alert(ICore::dialogParent(), 3000);
+    });
     m_progress.reportStarted();
 
     CommandLine valgrind{valgrindExecutable};
@@ -111,26 +117,6 @@ QStringList ValgrindToolRunner::genericToolArguments() const
         break;
     }
     return {"--smc-check=" + smcCheckValue};
-}
-
-void ValgrindToolRunner::handleProgressCanceled()
-{
-    m_progress.reportCanceled();
-    m_progress.reportFinished();
-}
-
-void ValgrindToolRunner::handleProgressFinished()
-{
-    QApplication::alert(ICore::dialogParent(), 3000);
-}
-
-void ValgrindToolRunner::runnerFinished()
-{
-    appendMessage(Tr::tr("Analyzing finished."), NormalMessageFormat);
-
-    m_progress.reportFinished();
-
-    reportStopped();
 }
 
 void ValgrindToolRunner::receiveProcessError(const QString &message, QProcess::ProcessError error)

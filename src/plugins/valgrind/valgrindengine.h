@@ -25,14 +25,9 @@ protected:
     virtual void addToolArguments(Utils::CommandLine &cmd) const = 0;
 
     ValgrindSettings m_settings{false};
-    QFutureInterface<void> m_progress;
     ValgrindProcess m_runner;
 
 private:
-    void handleProgressCanceled();
-    void handleProgressFinished();
-    void runnerFinished();
-
     void receiveProcessError(const QString &message, QProcess::ProcessError error);
 
     QStringList genericToolArguments() const;
@@ -40,6 +35,7 @@ private:
 private:
     bool m_isStopping = false;
     QString m_progressTitle;
+    QFutureInterface<void> m_progress;
 };
 
 } // Valgrind::Internal
