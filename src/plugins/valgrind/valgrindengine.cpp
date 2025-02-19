@@ -94,7 +94,7 @@ void ValgrindToolRunner::stop()
 {
     m_isStopping = true;
     m_runner.stop();
-    appendMessage(Tr::tr("Process terminated."), ErrorMessageFormat);
+    appendMessage(Tr::tr("Terminating process..."), ErrorMessageFormat);
 }
 
 QStringList ValgrindToolRunner::genericToolArguments() const
