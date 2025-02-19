@@ -52613,12 +52613,12 @@ wirklich entfernen?</translation>
     <message>
         <source>All</source>
         <comment>All documentation</comment>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>None</source>
         <comment>No documentation</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>Not all possible target environments can be supported due to missing compilers.</source>
@@ -52812,7 +52812,7 @@ wirklich entfernen?</translation>
     </message>
     <message>
         <source>Qt version is not properly installed</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Qt-Version ist nicht korrekt installiert</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -52848,7 +52848,7 @@ wirklich entfernen?</translation>
     </message>
     <message>
         <source>Cannot update Qt version information from %1: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann die Qt-Versionsinformation von %1 nicht aktualisieren: %2.</translation>
     </message>
     <message>
         <source>Qt version</source>
@@ -52972,12 +52972,12 @@ wirklich entfernen?</translation>
     </message>
     <message>
         <source>Mkspec:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mkspec:</translation>
     </message>
     <message>
         <source>None</source>
         <comment>No Qt version</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>Name of Qt Version</source>
@@ -53085,23 +53085,23 @@ wirklich entfernen?</translation>
     </message>
     <message>
         <source>Could not determine target OS</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Zielbetriebssystem konnte nicht bestimmt werden</translation>
     </message>
     <message>
         <source>Could not determine target architecture</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Zielarchitektur konnte nicht bestimmt werden</translation>
     </message>
     <message>
         <source>Could not determine OS sub-type</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Betriebssystemuntertyp konnte nicht bestimmt werden</translation>
     </message>
     <message>
         <source>Error reading &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Lesen von &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Core.json not found for Qt at &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Core.json wurde für Qt in &quot;%1&quot; nicht gefunden</translation>
     </message>
 </context>
 <context>
@@ -53920,7 +53920,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannter Fehler</translation>
     </message>
     <message>
         <source>The ssh-keygen tool at &quot;%1&quot; failed: %2</source>
@@ -56394,11 +56394,11 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Delete Word Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Wort links löschen</translation>
     </message>
     <message>
         <source>Delete Line Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeile links löschen</translation>
     </message>
     <message>
         <source>Clear Terminal</source>
@@ -57239,7 +57239,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     <message>
         <source>None</source>
         <comment>Backspace indentation: None</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>Enable scroll &amp;wheel zooming</source>
@@ -57443,7 +57443,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Display tab settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabulatoreinstellungen anzeigen</translation>
     </message>
     <message>
         <source>&amp;Highlight selection</source>
@@ -57631,11 +57631,11 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Auto detect</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisch bestimmen</translation>
     </message>
     <message>
         <source>%1 tries to detect the indentation settings based on the file contents. It will fallback to the settings below if the detection fails.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 versucht, die Einstellungen für die Einrückung aufgrund des Dateiinhalts zu bestimmen. Wenn die Bestimmung fehlschlägt, werden die unten angegebenen Einstellungen benutzt.</translation>
     </message>
     <message>
         <source>Not At All</source>
@@ -57651,11 +57651,11 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Default tab policy:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe-Tabulatorverhalten:</translation>
     </message>
     <message>
         <source>Default &amp;indent size:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe-Einrückungst&amp;iefe:</translation>
     </message>
     <message>
         <source>The text editor indentation setting is used for non-code files only. See the C++ and Qt Quick coding style settings to configure indentation for code files.</source>
@@ -57733,31 +57733,31 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Spaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Leerzeichen</translation>
     </message>
     <message>
         <source>Tabs</source>
-        <translation type="unfinished">Tabulatoren</translation>
+        <translation>Tabulatoren</translation>
     </message>
     <message>
         <source>Document Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Dokumenteinstellungen</translation>
     </message>
     <message>
         <source>Tab Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabulatoreinstellungen</translation>
     </message>
     <message>
         <source>Indent Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Einrückungstiefe</translation>
     </message>
     <message>
         <source>Tab Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabulatorweite</translation>
     </message>
     <message>
         <source>Global Settings...</source>
-        <translation type="unfinished"></translation>
+        <translation>Globale Einstellungen...</translation>
     </message>
     <message>
         <source>Unix Line Endings (LF)</source>
@@ -58410,7 +58410,8 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     <message>
         <source>None</source>
         <comment>Case-sensitivity: None</comment>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Groß-/Kleinschreibung:</translatorcomment>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>First Letter</source>
@@ -59168,19 +59169,19 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Info</source>
-        <translation type="unfinished">Info</translation>
+        <translation>Info</translation>
     </message>
     <message>
         <source>Underline color of info diagnostics.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unterstreichung von Informationen.</translation>
     </message>
     <message>
         <source>Info Context</source>
-        <translation type="unfinished"></translation>
+        <translation>Informationskontext</translation>
     </message>
     <message>
         <source>Underline color of the contexts of info diagnostics.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unterstreichung der Kontexte von Informationen.</translation>
     </message>
     <message>
         <source>Static Member</source>
@@ -59465,19 +59466,19 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Blame %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Blame von %1</translation>
     </message>
     <message>
         <source>Blame Parent</source>
-        <translation type="unfinished"></translation>
+        <translation>Blame des Eltern-Commits</translation>
     </message>
     <message>
         <source>File at %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei bei %1</translation>
     </message>
     <message>
         <source>Log for line %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Log für Zeile %1</translation>
     </message>
     <message>
         <source>&lt;b&gt;Note:&lt;/b&gt; &quot;%1&quot; or &quot;%2&quot; is enabled in the instant blame settings.</source>
@@ -59486,11 +59487,11 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Not Committed Yet</source>
-        <translation type="unfinished"></translation>
+        <translation>Noch nicht in Commit</translation>
     </message>
     <message>
         <source>Modified line in %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Geänderte Zeile in %1</translation>
     </message>
     <message>
         <source>You</source>
@@ -60324,7 +60325,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Device is unavailable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät ist nicht verfügbar.</translation>
     </message>
     <message>
         <source>Failed to watch &quot;%1&quot;.</source>
@@ -60467,7 +60468,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>File %1 does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei %1 existiert nicht.</translation>
     </message>
     <message>
         <source>Failed to set up scratch buffer in &quot;%1&quot;.</source>
@@ -61036,7 +61037,7 @@ Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.</trans
     </message>
     <message>
         <source>Remote error output was: %1</source>
-        <translation type="unfinished">Fehlerausgabe: %1</translation>
+        <translation>Fehlerausgabe des Geräts: %1</translation>
     </message>
 </context>
 <context>
@@ -61594,11 +61595,11 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
     <message>
         <source>Starting Memory Analyzer...</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte Speicheranalyse...</translation>
     </message>
     <message>
         <source>Memory Analyzer running...</source>
-        <translation type="unfinished"></translation>
+        <translation>Speicheranalyse läuft...</translation>
     </message>
     <message>
         <source>Open Memcheck XML Log File</source>
@@ -61792,11 +61793,11 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
     <message>
         <source>Starting Function Profiler...</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte Funktionsprofiler...</translation>
     </message>
     <message>
         <source>Function Profiler running...</source>
-        <translation type="unfinished"></translation>
+        <translation>Funktionsprofiler läuft...</translation>
     </message>
     <message>
         <source>Remove template parameter lists when displaying function names.</source>
@@ -61981,7 +61982,7 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     <message>
         <source>None</source>
         <comment>Leak details: None</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>Simple</source>
