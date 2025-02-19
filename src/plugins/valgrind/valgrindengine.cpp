@@ -31,8 +31,31 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
 
     connect(&m_runner, &ValgrindProcess::appendMessage, this,
             [this](const QString &msg, Utils::OutputFormat format) { appendMessage(msg, format); });
-    connect(&m_runner, &ValgrindProcess::processErrorReceived,
-            this, &ValgrindToolRunner::receiveProcessError);
+    connect(&m_runner, &ValgrindProcess::processErrorReceived, this,
+            [this, runControl](const QString &errorString, Utils::ProcessResult result) {
+        switch (result) {
+        case ProcessResult::StartFailed: {
+            const FilePath valgrind = m_settings.valgrindExecutable();
+            if (!valgrind.isEmpty()) {
+                appendMessage(Tr::tr("Error: \"%1\" could not be started: %2")
+                                  .arg(valgrind.toUserOutput(), errorString), ErrorMessageFormat);
+            } else {
+                appendMessage(Tr::tr("Error: no Valgrind executable set."), ErrorMessageFormat);
+            }
+            break;
+        }
+        case ProcessResult::Canceled:
+            appendMessage(Tr::tr("Process terminated."), ErrorMessageFormat);
+            return; // Intentional.
+        case ProcessResult::FinishedWithError:
+            appendMessage(Tr::tr("Process exited with return value %1\n").arg(errorString), NormalMessageFormat);
+            break;
+        default:
+            break;
+        }
+        runControl->showOutputPane();
+
+    });
     connect(&m_runner, &ValgrindProcess::done, this, [this] {
         appendMessage(Tr::tr("Analyzing finished."), NormalMessageFormat);
         m_progress.reportFinished();
@@ -113,31 +136,6 @@ QStringList ValgrindToolRunner::genericToolArguments() const
         break;
     }
     return {"--smc-check=" + smcCheckValue};
-}
-
-void ValgrindToolRunner::receiveProcessError(const QString &errorString, ProcessResult result)
-{
-    switch (result) {
-    case ProcessResult::StartFailed: {
-        const FilePath valgrind = m_settings.valgrindExecutable();
-        if (!valgrind.isEmpty()) {
-            appendMessage(Tr::tr("Error: \"%1\" could not be started: %2")
-                              .arg(valgrind.toUserOutput(), errorString), ErrorMessageFormat);
-        } else {
-            appendMessage(Tr::tr("Error: no Valgrind executable set."), ErrorMessageFormat);
-        }
-        break;
-    }
-    case ProcessResult::Canceled:
-        appendMessage(Tr::tr("Process terminated."), ErrorMessageFormat);
-        return; // Intentional.
-    case ProcessResult::FinishedWithError:
-        appendMessage(Tr::tr("Process exited with return value %1\n").arg(errorString), NormalMessageFormat);
-        break;
-    default:
-        break;
-    }
-    runControl()->showOutputPane();
 }
 
 } // Valgrid::Internal

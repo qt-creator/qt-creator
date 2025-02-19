@@ -28,7 +28,6 @@ protected:
     ValgrindProcess m_runner;
 
 private:
-    void receiveProcessError(const QString &errorString, Utils::ProcessResult result);
     QStringList genericToolArguments() const;
 
 private:
