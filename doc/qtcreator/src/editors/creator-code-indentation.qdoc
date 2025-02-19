@@ -20,6 +20,10 @@
 
     \section1 Don't detect indentation settings
 
+    When you open a document, the editor tries to automatically detect if it uses tabs or
+    spaces for indentation and the indentation width, by inspecting its contents.
+    If the automatic detection fails, the default setting is used.
+
     To turn off the automatic detection of indentation settings, go to
     \preferences > \uicontrol {Text Editor} > \uicontrol Behavior
     and clear \uicontrol {Auto detect}.
@@ -28,10 +32,14 @@
 
     \section1 Fix indentation in an open file
 
+    To fix the indentation settings for the file currently open in the editor, select a
+    different setting with \uicontrol {Spaces} > \uicontrol {Document Settings} or
+    \uicontrol {Tabs} > \uicontrol {Document Settings} on the editor toolbar.
+
     To fix the indentation in the file currently open in the editor:
 
     \list
-        \li On the editor toolbar, select \uicontrol {Spaces}, and then select
+        \li On the editor toolbar, select \uicontrol {Spaces} or \uicontrol {Tabs}, and then select
             \uicontrol {Auto-indent Selection} to automatically indent the
             selected text using the current settings.
         \li Go to \uicontrol Edit > \uicontrol Advanced, and select an
