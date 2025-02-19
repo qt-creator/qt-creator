@@ -106,15 +106,12 @@ public:
         connect(&m_runner, &ValgrindProcess::done, this, [] { startParser(); });
 
         setupRunControl(runControl);
-    }
 
-    void start() override
-    {
-        const FilePath executable = runControl()->commandLine().executable();
-        appendMessage(Tr::tr("Profiling %1").arg(executable.toUserOutput()), NormalMessageFormat);
-        return ValgrindToolRunner::start();
+        connect(runControl, &RunControl::aboutToStart, this, [this, runControl] {
+            const FilePath executable = runControl->commandLine().executable();
+            appendMessage(Tr::tr("Profiling %1").arg(executable.toUserOutput()), NormalMessageFormat);
+        });
     }
-
 
 protected:
     void addToolArguments(Utils::CommandLine &cmd) const override
