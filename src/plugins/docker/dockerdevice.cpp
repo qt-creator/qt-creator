@@ -299,9 +299,7 @@ private:
 
 private:
     DockerDevicePrivate *m_devicePrivate = nullptr;
-    // Store the IDevice::ConstPtr in order to extend the lifetime of device for as long
-    // as this object is alive.
-    IDevice::ConstPtr m_device;
+    std::weak_ptr<const IDevice> m_device;
 
     Process m_process;
     qint64 m_remotePID = 0;
@@ -312,7 +310,7 @@ private:
 
 DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePrivate *devicePrivate)
     : m_devicePrivate(devicePrivate)
-    , m_device(std::move(device))
+    , m_device(device)
     , m_process(this)
 {
     connect(&m_process, &Process::started, this, [this] {
@@ -412,6 +410,15 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
 
         emit done(resultData);
     });
+
+    connect(device.get(), &QObject::destroyed, this, [this] {
+        emit done(ProcessResultData{
+            -1,
+            QProcess::ExitStatus::CrashExit,
+            QProcess::ProcessError::UnknownError,
+            Tr::tr("Device is shut down"),
+        });
+    });
 }
 
 DockerProcessImpl::~DockerProcessImpl()
@@ -482,15 +489,19 @@ void DockerProcessImpl::sendControlSignal(ControlSignal controlSignal)
             m_process.closeWriteChannel();
             return;
         }
-        auto dfa = dynamic_cast<DockerDeviceFileAccess *>(m_device->fileAccess());
+        auto device = m_device.lock();
+        if (!device)
+            return;
+
+        auto dfa = dynamic_cast<DockerDeviceFileAccess *>(device->fileAccess());
         if (dfa) {
-            static_cast<DockerDeviceFileAccess *>(m_device->fileAccess())
+            static_cast<DockerDeviceFileAccess *>(device->fileAccess())
                 ->signalProcess(m_remotePID, controlSignal);
         } else {
             const int signal = controlSignalToInt(controlSignal);
             Process p;
             p.setCommand(
-                {m_device->rootPath().withNewPath("kill"),
+                {device->rootPath().withNewPath("kill"),
                  {QString("-%1").arg(signal), QString("%2").arg(m_remotePID)}});
             p.runBlocking();
         }
