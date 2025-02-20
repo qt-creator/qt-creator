@@ -55,36 +55,11 @@ template <class Result>
 class Invoker : public InvokerBase
 {
 public:
-    Invoker(QObject *target, const char *slot)
-    {
-        InvokerBase::invoke(target, slot);
-    }
-
-    template <class T0>
-    Invoker(QObject *target, const char *slot, const T0 &t0)
+    template <typename ...Args>
+    Invoker(QObject *target, const char *slot, const Args &...args)
     {
         setReturnValue(result);
-        addArgument(t0);
-        InvokerBase::invoke(target, slot);
-    }
-
-    template <class T0, class T1>
-    Invoker(QObject *target, const char *slot, const T0 &t0, const T1 &t1)
-    {
-        setReturnValue(result);
-        addArgument(t0);
-        addArgument(t1);
-        InvokerBase::invoke(target, slot);
-    }
-
-    template <class T0, class T1, class T2>
-    Invoker(QObject *target, const char *slot, const T0 &t0,
-        const T1 &t1, const T2 &t2)
-    {
-        setReturnValue(result);
-        addArgument(t0);
-        addArgument(t1);
-        addArgument(t2);
+        (addArgument(args), ...);
         InvokerBase::invoke(target, slot);
     }
 
@@ -97,33 +72,10 @@ private:
 template<> class Invoker<void> : public InvokerBase
 {
 public:
-    Invoker(QObject *target, const char *slot)
+    template <typename ...Args>
+    Invoker(QObject *target, const char *slot, const Args &...args)
     {
-        InvokerBase::invoke(target, slot);
-    }
-
-    template <class T0>
-    Invoker(QObject *target, const char *slot, const T0 &t0)
-    {
-        addArgument(t0);
-        InvokerBase::invoke(target, slot);
-    }
-
-    template <class T0, class T1>
-    Invoker(QObject *target, const char *slot, const T0 &t0, const T1 &t1)
-    {
-        addArgument(t0);
-        addArgument(t1);
-        InvokerBase::invoke(target, slot);
-    }
-
-    template <class T0, class T1, class T2>
-    Invoker(QObject *target, const char *slot, const T0 &t0,
-        const T1 &t1, const T2 &t2)
-    {
-        addArgument(t0);
-        addArgument(t1);
-        addArgument(t2);
+        (addArgument(args), ...);
         InvokerBase::invoke(target, slot);
     }
 };
@@ -145,38 +97,11 @@ inline void invokeHelper<void>(InvokerBase &in, QObject *target, const char *slo
 }
 #endif
 
-template<class Result>
-Result invoke(QObject *target, const char *slot)
+template<class Result, typename ...Args>
+Result invoke(QObject *target, const char *slot, const Args &...args)
 {
     InvokerBase in;
-    return invokeHelper<Result>(in, target, slot);
-}
-
-template<class Result, class T0>
-Result invoke(QObject *target, const char *slot, const T0 &t0)
-{
-    InvokerBase in;
-    in.addArgument(t0);
-    return invokeHelper<Result>(in, target, slot);
-}
-
-template<class Result, class T0, class T1>
-Result invoke(QObject *target, const char *slot, const T0 &t0, const T1 &t1)
-{
-    InvokerBase in;
-    in.addArgument(t0);
-    in.addArgument(t1);
-    return invokeHelper<Result>(in, target, slot);
-}
-
-template<class Result, class T0, class T1, class T2>
-Result invoke(QObject *target, const char *slot,
-    const T0 &t0, const T1 &t1, const T2 &t2)
-{
-    InvokerBase in;
-    in.addArgument(t0);
-    in.addArgument(t1);
-    in.addArgument(t2);
+    (in.addArgument(args), ...);
     return invokeHelper<Result>(in, target, slot);
 }
 
