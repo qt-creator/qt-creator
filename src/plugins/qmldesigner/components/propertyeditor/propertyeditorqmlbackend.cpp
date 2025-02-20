@@ -30,6 +30,7 @@
 #include <coreplugin/messagebox.h>
 #include <qmljs/qmljssimplereader.h>
 #include <utils/algorithm.h>
+#include <utils/array.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/smallstring.h>
@@ -89,6 +90,19 @@ static QObject *variantToQObject(const QVariant &value)
 namespace QmlDesigner {
 
 using namespace Qt::StringLiterals;
+
+static bool isMaterialAuxiliaryKey(AuxiliaryDataKeyView key)
+{
+    static constexpr auto previewKeys = Utils::to_array<AuxiliaryDataKeyView>(
+        materialPreviewEnvDocProperty,
+        materialPreviewEnvValueDocProperty,
+        materialPreviewModelDocProperty,
+        materialPreviewEnvProperty,
+        materialPreviewEnvValueProperty,
+        materialPreviewModelProperty);
+
+    return std::ranges::find(previewKeys, key) != std::ranges::end(previewKeys);
+}
 
 PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyEditor,
                                                    AsynchronousImageCache &imageCache)
@@ -307,19 +321,41 @@ void PropertyEditorQmlBackend::handleInstancePropertyChangedInModelNodeProxy(
     m_backendModelNode.handleInstancePropertyChanged(modelNode, propertyName);
 }
 
+void PropertyEditorQmlBackend::handleAuxiliaryDataChanges(const QmlObjectNode &qmlObjectNode,
+                                                          AuxiliaryDataKeyView key)
+{
+    if (qmlObjectNode.isRootModelNode() && isMaterialAuxiliaryKey(key)) {
+        m_backendMaterialNode.handleAuxiliaryPropertyChanges();
+        m_view->instanceImageProvider()->invalidate();
+    }
+}
+
 void PropertyEditorQmlBackend::handleVariantPropertyChangedInModelNodeProxy(const VariantProperty &property)
 {
     m_backendModelNode.handleVariantPropertyChanged(property);
+    updateInstanceImage();
 }
 
 void PropertyEditorQmlBackend::handleBindingPropertyChangedInModelNodeProxy(const BindingProperty &property)
 {
     m_backendModelNode.handleBindingPropertyChanged(property);
+    updateInstanceImage();
+}
+
+void PropertyEditorQmlBackend::handleBindingPropertyInModelNodeProxyAboutToChange(
+    const BindingProperty &property)
+{
+    if (m_backendMaterialNode.materialNode()) {
+        ModelNode expressionNode = property.resolveToModelNode();
+        if (expressionNode.metaInfo().isQtQuick3DTexture())
+            updateInstanceImage();
+    }
 }
 
 void PropertyEditorQmlBackend::handlePropertiesRemovedInModelNodeProxy(const AbstractProperty &property)
 {
     m_backendModelNode.handlePropertiesRemoved(property);
+    updateInstanceImage();
 }
 
 void PropertyEditorQmlBackend::handleModelNodePreviewPixmapChanged(const ModelNode &node,
@@ -496,10 +532,15 @@ void QmlDesigner::PropertyEditorQmlBackend::createPropertyEditorValues(const Qml
 #endif
 }
 
+void PropertyEditorQmlBackend::updateInstanceImage()
+{
+    m_view->instanceImageProvider()->invalidate();
+    refreshPreview();
+}
+
 void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile, PropertyEditorView *propertyEditor)
 {
     if (qmlObjectNode.isValid()) {
-
         m_contextObject->setModel(propertyEditor->model());
 
         qCInfo(propertyEditorBenchmark) << Q_FUNC_INFO;
@@ -516,6 +557,8 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         // model node
         m_backendModelNode.setup(qmlObjectNode.modelNode());
         context()->setContextProperty("modelNodeBackend", &m_backendModelNode);
+
+        m_backendMaterialNode.setup(qmlObjectNode);
 
         // className
         auto valueObject = qobject_cast<PropertyEditorValue *>(variantToQObject(
@@ -607,6 +650,7 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         contextObject()->setHasQuick3DImport(propertyEditor->model()->hasImport("QtQuick3D"));
 
         m_view->instanceImageProvider()->setModelNode(propertyEditor->firstSelectedModelNode());
+        updateInstanceImage();
 
         qCInfo(propertyEditorBenchmark) << "final:" << time.elapsed();
     } else {
@@ -950,6 +994,7 @@ void PropertyEditorQmlBackend::setupContextProperties()
 {
     context()->setContextProperties({
         {"modelNodeBackend", QVariant::fromValue(&m_backendModelNode)},
+        {"materialNodeBackend", QVariant::fromValue(&m_backendMaterialNode)},
         {"anchorBackend", QVariant::fromValue(&m_backendAnchorBinding)},
         {"transaction", QVariant::fromValue(m_propertyEditorTransaction.get())},
         {"dummyBackendValue", QVariant::fromValue(m_dummyPropertyEditorValue.get())},

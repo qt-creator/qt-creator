@@ -26,6 +26,7 @@
 #include "propertymodel.h"
 #include "propertynamevalidator.h"
 #include "qmlanchorbindingproxy.h"
+#include "qmlmaterialnodeproxy.h"
 #include "richtexteditor/richtexteditorproxy.h"
 #include "selectiondynamicpropertiesproxymodel.h"
 #include "theme.h"
@@ -65,6 +66,7 @@ void Quick2PropertyEditorView::registerQmlTypes()
         ListValidator::registerDeclarativeType();
         ColorPaletteBackend::registerDeclarativeType();
         QmlAnchorBindingProxy::registerDeclarativeType();
+        QmlMaterialNodeProxy::registerDeclarativeType();
         BindingEditor::registerDeclarativeType();
         ActionEditor::registerDeclarativeType();
         AnnotationEditor::registerDeclarativeType();

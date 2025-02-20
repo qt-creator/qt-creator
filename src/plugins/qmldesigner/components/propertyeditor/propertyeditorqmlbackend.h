@@ -7,6 +7,7 @@
 #include "propertyeditorcontextobject.h"
 #include "propertyeditorvalue.h"
 #include "qmlanchorbindingproxy.h"
+#include "qmlmaterialnodeproxy.h"
 #include "qmlmodelnodeproxy.h"
 #include "quick2propertyeditorview.h"
 
@@ -84,8 +85,10 @@ public:
     void handleInstancePropertyChangedInModelNodeProxy(const ModelNode &modelNode,
                                                        PropertyNameView propertyName);
 
+    void handleAuxiliaryDataChanges(const QmlObjectNode &qmlObjectNode, AuxiliaryDataKeyView key);
     void handleVariantPropertyChangedInModelNodeProxy(const VariantProperty &property);
     void handleBindingPropertyChangedInModelNodeProxy(const BindingProperty &property);
+    void handleBindingPropertyInModelNodeProxyAboutToChange(const BindingProperty &property);
     void handlePropertiesRemovedInModelNodeProxy(const AbstractProperty &property);
     void handleModelNodePreviewPixmapChanged(const ModelNode &node,
                                              const QPixmap &pixmap,
@@ -95,6 +98,7 @@ public:
 
     void refreshBackendModel();
     void refreshPreview();
+    void updateInstanceImage();
 
     void setupContextProperties();
 
@@ -124,6 +128,7 @@ private:
 
     Utils::UniqueObjectPtr<Quick2PropertyEditorView> m_view = nullptr;
     QmlAnchorBindingProxy m_backendAnchorBinding;
+    QmlMaterialNodeProxy m_backendMaterialNode;
     QmlModelNodeProxy m_backendModelNode;
     std::unique_ptr<PropertyEditorTransaction> m_propertyEditorTransaction;
     std::unique_ptr<PropertyEditorValue> m_dummyPropertyEditorValue;
