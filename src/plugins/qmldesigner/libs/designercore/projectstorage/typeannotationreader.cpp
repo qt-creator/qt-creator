@@ -179,6 +179,7 @@ TypeAnnotationReader::ParserSate TypeAnnotationReader::readMetaInfoRootElement(c
 {
     if (name == typeElementName) {
         auto &annotation = m_typeAnnotations.emplace_back(m_sourceId, m_directorySourceId);
+        annotation.traits.canBeContainer = FlagIs::True;
         annotation.traits.canBeDroppedInFormEditor = FlagIs::True;
         annotation.traits.canBeDroppedInNavigator = FlagIs::True;
         annotation.traits.isMovable = FlagIs::True;

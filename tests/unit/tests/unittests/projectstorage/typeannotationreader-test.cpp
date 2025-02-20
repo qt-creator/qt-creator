@@ -20,6 +20,7 @@ class TypeAnnotationReader : public testing::Test
 protected:
     TypeAnnotationReader()
     {
+        traits.canBeContainer = FlagIs::True;
         traits.canBeDroppedInFormEditor = FlagIs::True;
         traits.canBeDroppedInNavigator = FlagIs::True;
         traits.isMovable = FlagIs::True;
