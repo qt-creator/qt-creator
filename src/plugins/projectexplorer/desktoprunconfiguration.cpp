@@ -145,7 +145,8 @@ void DesktopRunConfiguration::updateTargetInformation()
 
         const QStringList argumentsList = bti.additionalData.toMap()["arguments"].toStringList();
         if (!argumentsList.isEmpty())
-            aspect<ArgumentsAspect>()->setArguments(CommandLine{"", argumentsList}.arguments());
+            aspect<ArgumentsAspect>()->setArguments(
+                ProcessArgs::joinArgs(argumentsList, bti.targetFilePath.osType()));
 
         emit aspect<EnvironmentAspect>()->environmentChanged();
     }
