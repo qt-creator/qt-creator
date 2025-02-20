@@ -62,7 +62,7 @@ public:
     // Generic valgrind settings
     Utils::FilePathAspect valgrindExecutable{this};
     Utils::StringAspect valgrindArguments{this};
-    Utils::SelectionAspect selfModifyingCodeDetection{this};
+    Utils::TypedSelectionAspect<ValgrindSettings::SelfModifyingCodeDetection> selfModifyingCodeDetection{this};
 
     SuppressionAspect suppressions;
 

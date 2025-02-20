@@ -64,7 +64,7 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl, const QString &pr
     });
 }
 
-static QString selfModifyingCodeDetectionToString(int detection)
+static QString selfModifyingCodeDetectionToString(ValgrindSettings::SelfModifyingCodeDetection detection)
 {
     switch (detection) {
     case ValgrindSettings::DetectSmcNo:                return "none";
