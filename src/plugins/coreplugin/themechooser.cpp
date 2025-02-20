@@ -127,11 +127,11 @@ static QString defaultThemeId()
 {
     switch (Theme::systemColorScheme()) {
     case Qt::ColorScheme::Light:
-        return QString("flat");
+        return "light-2024";
     case Qt::ColorScheme::Dark:
-        return QString("flat-dark");
+        return "dark-2024";
     default:
-        return QString("flat");
+        return "flat";
     }
 }
 
