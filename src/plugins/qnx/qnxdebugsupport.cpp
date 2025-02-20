@@ -196,7 +196,8 @@ public:
             });
 
 
-            auto slog2InfoRunner = new Slog2InfoRunner(runControl);
+            auto slog2InfoRunner = new RecipeRunner(runControl);
+            slog2InfoRunner->setRecipe(slog2InfoRecipe(slog2InfoRunner));
             debuggeeRunner->addStartDependency(slog2InfoRunner);
 
             debugger->addStartDependency(debuggeeRunner);

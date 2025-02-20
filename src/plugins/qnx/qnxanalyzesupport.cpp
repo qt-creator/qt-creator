@@ -8,6 +8,7 @@
 #include "slog2inforunner.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
 
 using namespace ProjectExplorer;
@@ -27,7 +28,8 @@ public:
 
             runControl->requestQmlChannel();
 
-            auto slog2InfoRunner = new Slog2InfoRunner(runControl);
+            auto slog2InfoRunner = new RecipeRunner(runControl);
+            slog2InfoRunner->setRecipe(slog2InfoRecipe(slog2InfoRunner));
             worker->addStartDependency(slog2InfoRunner);
 
             auto profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);

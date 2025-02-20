@@ -3,23 +3,11 @@
 
 #pragma once
 
-#include <projectexplorer/runcontrol.h>
-
-#include <solutions/tasking/tasktreerunner.h>
+namespace ProjectExplorer { class RunWorker; }
+namespace Tasking { class Group; }
 
 namespace Qnx::Internal {
 
-class Slog2InfoRunner : public ProjectExplorer::RunWorker
-{
-public:
-    explicit Slog2InfoRunner(ProjectExplorer::RunControl *runControl);
-
-    void start() override;
-    void stop() override;
-
-private:
-    Tasking::TaskTreeRunner m_taskTreeRunner;
-    Tasking::Group m_recipe;
-};
+Tasking::Group slog2InfoRecipe(ProjectExplorer::RunWorker *worker);
 
 } // Qnx::Internal

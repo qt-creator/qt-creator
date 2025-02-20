@@ -7,6 +7,9 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/runcontrol.h>
+
+#include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
@@ -33,7 +36,7 @@ struct SlogData
     void processLogInput(const QString &input);
 };
 
-static Group recipe(RunWorker *worker)
+Group slog2InfoRecipe(RunWorker *worker)
 {
     RunControl *runControl = worker->runControl();
     QString applicationId = runControl->aspectData<ExecutableAspect>()->executable.fileName();
@@ -88,13 +91,6 @@ static Group recipe(RunWorker *worker)
         ProcessTask(onLogSetup, onLogError, CallDoneIf::Error),
         onGroupDone(onCanceled, CallDoneIf::Error)
     };
-}
-
-Slog2InfoRunner::Slog2InfoRunner(RunControl *runControl)
-    : RunWorker(runControl)
-    , m_recipe(recipe(this))
-{
-    setId("Slog2InfoRunner");
 }
 
 void SlogData::processRemainingLogData()
@@ -152,25 +148,6 @@ void SlogData::processLogLine(const QString &line)
         return;
 
     m_worker->appendMessage(match.captured(6).trimmed() + '\n', StdOutFormat);
-}
-
-void Slog2InfoRunner::start()
-{
-    QTC_CHECK(!m_taskTreeRunner.isRunning());
-
-    m_taskTreeRunner.start(m_recipe, {}, [this](DoneWith result) {
-        if (result == DoneWith::Success)
-            reportStopped();
-        else
-            reportFailure();
-    });
-    reportStarted();
-}
-
-void Slog2InfoRunner::stop()
-{
-    m_taskTreeRunner.cancel();
-    reportStopped();
 }
 
 } // Qnx::Internal
