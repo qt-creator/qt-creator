@@ -458,6 +458,7 @@ public:
             using pointer = ResultType *;
             using reference = ResultType &;
 
+            SqliteResultIteratator() = default;
             SqliteResultIteratator(StatementImplementation &statement,
                                    const source_location &sourceLocation)
                 : m_statement{&statement}
@@ -510,8 +511,8 @@ public:
             value_type operator*() const { return m_statement->createValue<ResultType>(); }
 
         public:
-            StatementImplementation *m_statement;
-            const source_location *m_sourceLocation;
+            StatementImplementation *m_statement = nullptr;
+            const source_location *m_sourceLocation = nullptr;
             bool m_hasNext = false;
         };
 
