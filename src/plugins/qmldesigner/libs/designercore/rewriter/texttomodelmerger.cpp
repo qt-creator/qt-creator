@@ -70,51 +70,84 @@ bool isSupportedAttachedProperties(const QString &propertyName)
 
 bool isGlobalQtEnums(QStringView value)
 {
-    static constexpr auto list = Utils::to_array<std::u16string_view>(
-        {u"AlignBaseline",   u"AlignBottom",    u"AlignHCenter",       u"AlignLeft",
-         u"AlignRight",      u"AlignTop",       u"AlignVCenter",       u"AllButtons",
-         u"ArrowCursor",     u"BackButton",     u"BlankCursor",        u"BottomEdge",
-         u"BottomLeft",      u"BusyCursor",     u"ClickFocus",         u"ClosedHandCursor",
-         u"CrossCursor",     u"DragCopyCursor", u"DragLinkCursor",     u"DragMoveCursor",
-         u"ForbiddenCursor", u"ForwardButton",  u"Horizontal",         u"IBeamCursor",
-         u"LeftButton",      u"LeftEdge",       u"LeftToRight",        u"MiddleButton",
-         u"NoFocus",         u"OpenHandCursor", u"PointingHandCursor", u"RightButton",
-         u"RightEdge",       u"RightToLeft",    u"SizeAllCursor",      u"SizeBDiagCursor",
-         u"SizeFDiagCursor", u"SizeHorCursor",  u"SizeVerCursor",      u"SplitHCursor",
-         u"SplitVCursor",    u"StrongFocus",    u"TabFocus",           u"TopEdge",
-         u"TopToBottom",     u"UpArrowCursor",  u"Vertical",           u"WaitCursor",
-         u"WhatsThisCursor", u"WheelFocus"});
+    static constexpr auto list = Utils::to_array<std::u16string_view>(u"AlignBaseline",
+                                                                      u"AlignBottom",
+                                                                      u"AlignHCenter",
+                                                                      u"AlignLeft",
+                                                                      u"AlignRight",
+                                                                      u"AlignTop",
+                                                                      u"AlignVCenter",
+                                                                      u"AllButtons",
+                                                                      u"ArrowCursor",
+                                                                      u"BackButton",
+                                                                      u"BlankCursor",
+                                                                      u"BottomEdge",
+                                                                      u"BottomLeft",
+                                                                      u"BusyCursor",
+                                                                      u"ClickFocus",
+                                                                      u"ClosedHandCursor",
+                                                                      u"CrossCursor",
+                                                                      u"DragCopyCursor",
+                                                                      u"DragLinkCursor",
+                                                                      u"DragMoveCursor",
+                                                                      u"ForbiddenCursor",
+                                                                      u"ForwardButton",
+                                                                      u"Horizontal",
+                                                                      u"IBeamCursor",
+                                                                      u"LeftButton",
+                                                                      u"LeftEdge",
+                                                                      u"LeftToRight",
+                                                                      u"MiddleButton",
+                                                                      u"NoFocus",
+                                                                      u"OpenHandCursor",
+                                                                      u"PointingHandCursor",
+                                                                      u"RightButton",
+                                                                      u"RightEdge",
+                                                                      u"RightToLeft",
+                                                                      u"SizeAllCursor",
+                                                                      u"SizeBDiagCursor",
+                                                                      u"SizeFDiagCursor",
+                                                                      u"SizeHorCursor",
+                                                                      u"SizeVerCursor",
+                                                                      u"SplitHCursor",
+                                                                      u"SplitVCursor",
+                                                                      u"StrongFocus",
+                                                                      u"TabFocus",
+                                                                      u"TopEdge",
+                                                                      u"TopToBottom",
+                                                                      u"UpArrowCursor",
+                                                                      u"Vertical",
+                                                                      u"WaitCursor",
+                                                                      u"WhatsThisCursor",
+                                                                      u"WheelFocus");
 
     if (value.startsWith(u"Key_"))
         return true;
 
-    return std::binary_search(std::begin(list),
-                              std::end(list),
-                              QmlDesigner::ModelUtils::toStdStringView(value));
+    return std::ranges::binary_search(list, QmlDesigner::ModelUtils::toStdStringView(value));
 }
 
 bool isKnownEnumScopes(QStringView value)
 {
     static constexpr auto list = Utils::to_array<std::u16string_view>(
-        {u"TextInput",
-         u"TextEdit",
-         u"Material",
-         u"Universal",
-         u"Font",
-         u"Shape",
-         u"ShapePath",
-         u"AbstractButton",
-         u"Text",
-         u"ShaderEffectSource",
-         u"Grid",
-         u"ItemLayer",
-         u"ImageLayer",
-         u"SpriteLayer",
-         u"Light",
-         u"ExtendedSceneEnvironment.GlowBlendMode"});
+        u"TextInput",
+        u"TextEdit",
+        u"Material",
+        u"Universal",
+        u"Font",
+        u"Shape",
+        u"ShapePath",
+        u"AbstractButton",
+        u"Text",
+        u"ShaderEffectSource",
+        u"Grid",
+        u"ItemLayer",
+        u"ImageLayer",
+        u"SpriteLayer",
+        u"Light",
+        u"ExtendedSceneEnvironment.GlowBlendMode");
 
-    return std::find(std::begin(list), std::end(list), QmlDesigner::ModelUtils::toStdStringView(value))
-           != std::end(list);
+    return std::ranges::find(list, QmlDesigner::ModelUtils::toStdStringView(value)) != std::end(list);
 }
 
 QString stripQuotes(const QString &str)
