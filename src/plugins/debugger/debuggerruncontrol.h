@@ -14,14 +14,14 @@ namespace Debugger {
 
 namespace Internal { class DebuggerRunToolPrivate; }
 
-class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::RunWorker
+class DEBUGGER_EXPORT DebuggerRunTool final : public ProjectExplorer::RunWorker
 {
 public:
     explicit DebuggerRunTool(ProjectExplorer::RunControl *runControl);
     ~DebuggerRunTool() override;
 
-    void start() override;
-    void stop() override;
+    void start() final;
+    void stop() final;
 
     void setupPortsGatherer();
 
