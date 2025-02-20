@@ -15,6 +15,7 @@
 
 #include <QFileInfo>
 #include <QQmlComponent>
+#include <QQuickItem>
 
 constexpr int DEFAULT_RENDER_DIM = 300;
 constexpr int DEFAULT_MAX_DIM = 1024;
