@@ -170,7 +170,7 @@ void ComponentNameDialog::setProperties(const QStringList &properties)
         if (isCheckedByDefault(item->text()))
 #else
         const QString text = item->text();
-        const QStringView view = item->text();
+        const QStringView view = text;
 
         if (isCheckedByDefault(
                 std::u16string_view{view.utf16(), static_cast<std::size_t>(view.size())}))
