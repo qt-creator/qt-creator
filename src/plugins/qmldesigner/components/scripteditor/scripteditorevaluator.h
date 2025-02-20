@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "connectioneditorstatements.h"
+#include "scripteditorstatements.h"
 
 #include "qmldesigner_global.h"
 
@@ -11,21 +11,21 @@
 
 namespace QmlDesigner {
 
-class ConnectionEditorEvaluatorPrivate;
+class ScriptEditorEvaluatorPrivate;
 
-class QMLDESIGNER_EXPORT ConnectionEditorEvaluator : public QmlJS::AST::Visitor
+class QMLDESIGNER_EXPORT ScriptEditorEvaluator : public QmlJS::AST::Visitor
 {
 public:
     enum Status { UnStarted, UnFinished, Succeeded, Failed };
 
-    ConnectionEditorEvaluator();
-    virtual ~ConnectionEditorEvaluator();
+    ScriptEditorEvaluator();
+    virtual ~ScriptEditorEvaluator();
 
     Status status() const;
-    ConnectionEditorStatements::Handler resultNode() const;
+    ScriptEditorStatements::Handler resultNode() const;
 
     static QString getDisplayStringForType(const QString &statement);
-    static ConnectionEditorStatements::Handler parseStatement(const QString &statement);
+    static ScriptEditorStatements::Handler parseStatement(const QString &statement);
 
 protected:
     bool preVisit(QmlJS::AST::Node *node) override;
@@ -49,7 +49,7 @@ protected:
     void throwRecursionDepthError() override;
 
 private:
-    std::unique_ptr<ConnectionEditorEvaluatorPrivate> d;
+    std::unique_ptr<ScriptEditorEvaluatorPrivate> d;
 };
 
 } // namespace QmlDesigner

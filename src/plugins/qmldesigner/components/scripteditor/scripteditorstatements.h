@@ -7,22 +7,22 @@
 #include <qmljs/parser/qmljsast_p.h>
 
 namespace QmlDesigner {
-namespace ConnectionEditorStatements {
+namespace ScriptEditorStatements {
 
 inline constexpr char FUNCTION_DISPLAY_NAME[] = QT_TRANSLATE_NOOP(
-    "QmlDesigner::ConnectionEditorStatements", "Function");
+    "QmlDesigner::ScriptEditorStatements", "Function");
 inline constexpr char ASSIGNMENT_DISPLAY_NAME[] = QT_TRANSLATE_NOOP(
-    "QmlDesigner::ConnectionEditorStatements", "Assignment");
+    "QmlDesigner::ScriptEditorStatements", "Assignment");
 inline constexpr char SETPROPERTY_DISPLAY_NAME[] = QT_TRANSLATE_NOOP(
-    "QmlDesigner::ConnectionEditorStatements", "Set Property");
+    "QmlDesigner::ScriptEditorStatements", "Set Property");
 inline constexpr char SETSTATE_DISPLAY_NAME[] = QT_TRANSLATE_NOOP(
-    "QmlDesigner::ConnectionEditorStatements", "Set State");
-inline constexpr char LOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP(
-    "QmlDesigner::ConnectionEditorStatements", "Print");
+    "QmlDesigner::ScriptEditorStatements", "Set State");
+inline constexpr char LOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QmlDesigner::ScriptEditorStatements",
+                                                             "Print");
 inline constexpr char EMPTY_DISPLAY_NAME[] = QT_TRANSLATE_NOOP(
-    "QmlDesigner::ConnectionEditorStatements", "Empty");
+    "QmlDesigner::ScriptEditorStatements", "Empty");
 inline constexpr char CUSTOM_DISPLAY_NAME[] = QT_TRANSLATE_NOOP(
-    "QmlDesigner::ConnectionEditorStatements", "Custom");
+    "QmlDesigner::ScriptEditorStatements", "Custom");
 
 struct Variable;
 struct MatchedFunction;
@@ -122,13 +122,12 @@ QMLDESIGNER_EXPORT QString toDisplayName(const MatchedStatement &statement);
 QMLDESIGNER_EXPORT QString toDisplayName(const Handler &handler);
 QMLDESIGNER_EXPORT QString toJavascript(const ConditionToken &token);
 
-QMLDESIGNER_EXPORT MatchedStatement &okStatement(ConnectionEditorStatements::Handler &handler);
-QMLDESIGNER_EXPORT MatchedStatement &koStatement(ConnectionEditorStatements::Handler &handler);
+QMLDESIGNER_EXPORT MatchedStatement &okStatement(ScriptEditorStatements::Handler &handler);
+QMLDESIGNER_EXPORT MatchedStatement &koStatement(ScriptEditorStatements::Handler &handler);
 
-QMLDESIGNER_EXPORT MatchedCondition &matchedCondition(ConnectionEditorStatements::Handler &handler);
-QMLDESIGNER_EXPORT ConditionalStatement &conditionalStatement(
-    ConnectionEditorStatements::Handler &handler);
+QMLDESIGNER_EXPORT MatchedCondition &matchedCondition(ScriptEditorStatements::Handler &handler);
+QMLDESIGNER_EXPORT ConditionalStatement &conditionalStatement(ScriptEditorStatements::Handler &handler);
 
-} // namespace ConnectionEditorStatements
+} // namespace ScriptEditorStatements
 
 } // namespace QmlDesigner

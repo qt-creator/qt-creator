@@ -6,6 +6,7 @@ import QtQuick.Controls
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import ScriptEditorBackend
 
 Column {
     id: root
@@ -71,32 +72,32 @@ Column {
 
             model: ListModel {
                 ListElement {
-                    value: ConnectionModelStatementDelegate.CallFunction
+                    value: StatementDelegate.CallFunction
                     text: qsTr("Call Function")
                     enabled: true
                 }
                 ListElement {
-                    value: ConnectionModelStatementDelegate.Assign
+                    value: StatementDelegate.Assign
                     text: qsTr("Assign")
                     enabled: true
                 }
                 ListElement {
-                    value: ConnectionModelStatementDelegate.ChangeState
+                    value: StatementDelegate.ChangeState
                     text: qsTr("Change State")
                     enabled: true
                 }
                 ListElement {
-                    value: ConnectionModelStatementDelegate.SetProperty
+                    value: StatementDelegate.SetProperty
                     text: qsTr("Set Property")
                     enabled: true
                 }
                 ListElement {
-                    value: ConnectionModelStatementDelegate.PrintMessage
+                    value: StatementDelegate.PrintMessage
                     text: qsTr("Print Message")
                     enabled: true
                 }
                 ListElement {
-                    value: ConnectionModelStatementDelegate.Custom
+                    value: StatementDelegate.Custom
                     text: qsTr("Custom")
                     enabled: false
                 }
@@ -106,7 +107,7 @@ Column {
 
     StatementEditor {
         width: root.width
-        actionType: action.currentValue ?? ConnectionModelStatementDelegate.Custom
+        actionType: action.currentValue ?? StatementDelegate.Custom
         horizontalSpacing: root.horizontalSpacing
         columnWidth: root.columnWidth
         statement: backend.okStatement
@@ -122,7 +123,7 @@ Column {
         iconSize: StudioTheme.Values.baseFontSize
         iconFontFamily: StudioTheme.Constants.font.family
         anchors.horizontalCenter: parent.horizontalCenter
-        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom && !backend.hasCondition
+        visible: action.currentValue !== StatementDelegate.Custom && !backend.hasCondition
 
         onClicked: backend.addCondition()
     }
@@ -135,7 +136,7 @@ Column {
         iconSize: StudioTheme.Values.baseFontSize
         iconFontFamily: StudioTheme.Constants.font.family
         anchors.horizontalCenter: parent.horizontalCenter
-        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom && backend.hasCondition
+        visible: action.currentValue !== StatementDelegate.Custom && backend.hasCondition
 
         onClicked: backend.removeCondition()
     }
@@ -186,7 +187,7 @@ Column {
         iconSize: StudioTheme.Values.baseFontSize
         iconFontFamily: StudioTheme.Constants.font.family
         anchors.horizontalCenter: parent.horizontalCenter
-        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom
+        visible: action.currentValue !== StatementDelegate.Custom
                  && backend.hasCondition && !backend.hasElse
 
         onClicked: backend.addElse()
@@ -200,7 +201,7 @@ Column {
         iconSize: StudioTheme.Values.baseFontSize
         iconFontFamily: StudioTheme.Constants.font.family
         anchors.horizontalCenter: parent.horizontalCenter
-        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom
+        visible: action.currentValue !== StatementDelegate.Custom
                  && backend.hasCondition && backend.hasElse
 
         onClicked: backend.removeElse()
@@ -209,13 +210,13 @@ Column {
     //Else Statement
     StatementEditor {
         width: root.width
-        actionType: action.currentValue ?? ConnectionModelStatementDelegate.Custom
+        actionType: action.currentValue ?? StatementDelegate.Custom
         horizontalSpacing: root.horizontalSpacing
         columnWidth: root.columnWidth
         statement: backend.koStatement
         backend: root.backend
         spacing: root.verticalSpacing
-        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom
+        visible: action.currentValue !== StatementDelegate.Custom
                  && backend.hasCondition && backend.hasElse
     }
 

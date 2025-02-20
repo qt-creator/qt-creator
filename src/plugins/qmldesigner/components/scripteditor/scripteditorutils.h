@@ -13,7 +13,7 @@
 
 namespace QmlDesigner {
 
-Q_DECLARE_LOGGING_CATEGORY(ConnectionEditorLog)
+Q_DECLARE_LOGGING_CATEGORY(ScriptEditorLog)
 
 class AbstractView;
 class AbstractProperty;
@@ -26,6 +26,8 @@ void showErrorMessage(const QString &text);
 
 QString idOrTypeName(const ModelNode &modelNode);
 PropertyName uniquePropertyName(const PropertyName &suggestion, const ModelNode &modelNode);
+QString addOnToSignalName(const QString &signal);
+QString removeOnFromSignalName(const QString &signal);
 
 NodeMetaInfo dynamicTypeMetaInfo(const AbstractProperty &property);
 NodeMetaInfo dynamicTypeNameToNodeMetaInfo(const TypeName &typeName, Model *model);

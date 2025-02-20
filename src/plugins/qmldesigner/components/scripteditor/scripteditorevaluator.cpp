@@ -1,10 +1,10 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "connectioneditorevaluator.h"
-#include "connectioneditorutils.h"
+#include "scripteditorevaluator.h"
 #include "qmljs/parser/qmljsast_p.h"
 #include "qmljs/qmljsdocument.h"
+#include "scripteditorutils.h"
 
 #include <utils/ranges.h>
 
@@ -14,10 +14,10 @@ using namespace QmlDesigner;
 
 using QmlJS::AST::Node;
 using Kind = Node::Kind;
-using ConnectionEditorStatements::ConditionalStatement;
-using ConnectionEditorStatements::ConditionToken;
-using ConnectionEditorStatements::MatchedCondition;
-using ConnectionEditorStatements::MatchedStatement;
+using ScriptEditorStatements::ConditionalStatement;
+using ScriptEditorStatements::ConditionToken;
+using ScriptEditorStatements::MatchedCondition;
+using ScriptEditorStatements::MatchedStatement;
 
 namespace {
 enum class TrackingArea { No, Condition, Ok, Ko };
@@ -255,14 +255,14 @@ protected:
     void throwRecursionDepthError() override
     {
         checkValidityAndReturn(false, "Recursion depth problem");
-        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "Recursion depth error";
+        qCWarning(ScriptEditorLog) << __FUNCTION__ << "Recursion depth error";
     }
 
     void checkAndResetVariable()
     {
         if (--m_depth == 0) {
             m_condition.statements.push_back(
-                ConnectionEditorStatements::Variable{m_identifier, m_fields.join(".")});
+                ScriptEditorStatements::Variable{m_identifier, m_fields.join(".")});
             m_identifier.clear();
             m_fields.clear();
         }
@@ -300,7 +300,7 @@ private:
 class RightHandVisitor : public QmlJS::AST::Visitor
 {
 public:
-    ConnectionEditorStatements::RightHandSide rhs() const { return m_rhs; }
+    ScriptEditorStatements::RightHandSide rhs() const { return m_rhs; }
 
     void reset()
     {
@@ -318,48 +318,48 @@ public:
         if (!isValid())
             return false;
 
-        return ConnectionEditorStatements::isLiteralType(rhs());
+        return ScriptEditorStatements::isLiteralType(rhs());
     }
 
     bool couldBeLHS() const
     {
         if (!isValid())
             return false;
-        return std::holds_alternative<ConnectionEditorStatements::Variable>(m_rhs);
+        return std::holds_alternative<ScriptEditorStatements::Variable>(m_rhs);
     }
 
     inline bool couldBeVariable() const { return couldBeLHS(); }
 
-    ConnectionEditorStatements::Literal literal() const
+    ScriptEditorStatements::Literal literal() const
     {
         if (!isLiteralType())
             return {};
 
         return std::visit(
-            Overload{[](const bool &var) -> ConnectionEditorStatements::Literal { return var; },
-                     [](const double &var) -> ConnectionEditorStatements::Literal { return var; },
-                     [](const QString &var) -> ConnectionEditorStatements::Literal { return var; },
-                     [](const auto &) -> ConnectionEditorStatements::Literal { return false; }},
+            Overload{[](const bool &var) -> ScriptEditorStatements::Literal { return var; },
+                     [](const double &var) -> ScriptEditorStatements::Literal { return var; },
+                     [](const QString &var) -> ScriptEditorStatements::Literal { return var; },
+                     [](const auto &) -> ScriptEditorStatements::Literal { return false; }},
             m_rhs);
     }
 
-    ConnectionEditorStatements::Variable lhs() const
+    ScriptEditorStatements::Variable lhs() const
     {
         if (!isValid())
             return {};
 
-        if (auto rhs = std::get_if<ConnectionEditorStatements::Variable>(&m_rhs))
+        if (auto rhs = std::get_if<ScriptEditorStatements::Variable>(&m_rhs))
             return *rhs;
 
         return {};
     }
 
-    ConnectionEditorStatements::Variable variable() const
+    ScriptEditorStatements::Variable variable() const
     {
         if (!isValid())
             return {};
 
-        if (auto rhs = std::get_if<ConnectionEditorStatements::Variable>(&m_rhs))
+        if (auto rhs = std::get_if<ScriptEditorStatements::Variable>(&m_rhs))
             return *rhs;
 
         return {};
@@ -478,13 +478,13 @@ protected:
     void throwRecursionDepthError() override
     {
         setFailed();
-        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "Recursion depth error";
+        qCWarning(ScriptEditorLog) << __FUNCTION__ << "Recursion depth error";
     }
 
     void checkAndResetCal()
     {
         if (--m_depth == 0) {
-            m_rhs = ConnectionEditorStatements::MatchedFunction{m_identifier, m_fields.join(".")};
+            m_rhs = ScriptEditorStatements::MatchedFunction{m_identifier, m_fields.join(".")};
             m_specified = true;
 
             m_identifier.clear();
@@ -495,7 +495,7 @@ protected:
     void checkAndResetNonCal()
     {
         if (--m_depth == 0) {
-            m_rhs = ConnectionEditorStatements::Variable{m_identifier, m_fields.join(".")};
+            m_rhs = ScriptEditorStatements::Variable{m_identifier, m_fields.join(".")};
             m_specified = true;
 
             m_identifier.clear();
@@ -513,22 +513,23 @@ private:
     int m_depth = 0;
     QString m_identifier;
     QStringList m_fields;
-    ConnectionEditorStatements::RightHandSide m_rhs;
+    ScriptEditorStatements::RightHandSide m_rhs;
 };
 
 MatchedStatement checkForStateSet(const MatchedStatement &currentState)
 {
-    using namespace ConnectionEditorStatements;
-    return std::visit(
-        Overload{[](const PropertySet &propertySet) -> MatchedStatement {
-                     if (propertySet.lhs.nodeId.size() && propertySet.lhs.propertyName == u"state"
-                         && std::holds_alternative<QString>(propertySet.rhs))
-                         return StateSet{propertySet.lhs.nodeId,
-                                         ConnectionEditorStatements::toString(propertySet.rhs)};
-                     return propertySet;
-                 },
-                 [](const auto &pSet) -> MatchedStatement { return pSet; }},
-        currentState);
+    using namespace ScriptEditorStatements;
+    return std::visit(Overload{[](const PropertySet &propertySet) -> MatchedStatement {
+                                   if (propertySet.lhs.nodeId.size()
+                                       && propertySet.lhs.propertyName == u"state"
+                                       && std::holds_alternative<QString>(propertySet.rhs))
+                                       return StateSet{propertySet.lhs.nodeId,
+                                                       ScriptEditorStatements::toString(
+                                                           propertySet.rhs)};
+                                   return propertySet;
+                               },
+                               [](const auto &pSet) -> MatchedStatement { return pSet; }},
+                      currentState);
 }
 
 class ConsoleLogEvaluator : public QmlJS::AST::Visitor
@@ -536,9 +537,9 @@ class ConsoleLogEvaluator : public QmlJS::AST::Visitor
 public:
     bool isValid() { return m_completed; }
 
-    ConnectionEditorStatements::ConsoleLog expression()
+    ScriptEditorStatements::ConsoleLog expression()
     {
-        return ConnectionEditorStatements::ConsoleLog{m_arg};
+        return ScriptEditorStatements::ConsoleLog{m_arg};
     }
 
 protected:
@@ -618,14 +619,14 @@ protected:
     void throwRecursionDepthError() override
     {
         m_failed = true;
-        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "Recursion depth error";
+        qCWarning(ScriptEditorLog) << __FUNCTION__ << "Recursion depth error";
     }
 
 private:
     bool m_failed = false;
     bool m_completed = false;
     int m_stepId = 0;
-    ConnectionEditorStatements::RightHandSide m_arg;
+    ScriptEditorStatements::RightHandSide m_arg;
 };
 
 struct StatementReply
@@ -650,10 +651,10 @@ struct StatementReply
 
 } // namespace
 
-class QmlDesigner::ConnectionEditorEvaluatorPrivate
+class QmlDesigner::ScriptEditorEvaluatorPrivate
 {
-    friend class ConnectionEditorEvaluator;
-    using Status = ConnectionEditorEvaluator::Status;
+    friend class ScriptEditorEvaluator;
+    using Status = ScriptEditorEvaluator::Status;
 
 public:
     bool checkValidityAndReturn(bool valid, const QString &parseError = {});
@@ -731,28 +732,28 @@ private:
     QString m_errorString;
     Status m_checkStatus = Status::UnStarted;
     QList<NodeStatus> m_nodeHierarchy;
-    ConnectionEditorStatements::Handler m_handler;
+    ScriptEditorStatements::Handler m_handler;
 };
 
-ConnectionEditorEvaluator::ConnectionEditorEvaluator()
-    : d(std::make_unique<ConnectionEditorEvaluatorPrivate>())
+ScriptEditorEvaluator::ScriptEditorEvaluator()
+    : d(std::make_unique<ScriptEditorEvaluatorPrivate>())
 {}
 
-ConnectionEditorEvaluator::~ConnectionEditorEvaluator() {}
+ScriptEditorEvaluator::~ScriptEditorEvaluator() {}
 
-ConnectionEditorEvaluator::Status ConnectionEditorEvaluator::status() const
+ScriptEditorEvaluator::Status ScriptEditorEvaluator::status() const
 {
     return d->m_checkStatus;
 }
 
-ConnectionEditorStatements::Handler ConnectionEditorEvaluator::resultNode() const
+ScriptEditorStatements::Handler ScriptEditorEvaluator::resultNode() const
 {
-    return (d->m_checkStatus == Succeeded) ? d->m_handler : ConnectionEditorStatements::EmptyBlock{};
+    return (d->m_checkStatus == Succeeded) ? d->m_handler : ScriptEditorStatements::EmptyBlock{};
 }
 
-QString ConnectionEditorEvaluator::getDisplayStringForType(const QString &statement)
+QString ScriptEditorEvaluator::getDisplayStringForType(const QString &statement)
 {
-    ConnectionEditorEvaluator evaluator;
+    ScriptEditorEvaluator evaluator;
     QmlJS::Document::MutablePtr newDoc = QmlJS::Document::create(Utils::FilePath::fromString(
                                                                      "<expression>"),
                                                                  QmlJS::Dialect::JavaScript);
@@ -761,23 +762,23 @@ QString ConnectionEditorEvaluator::getDisplayStringForType(const QString &statem
     newDoc->parseJavaScript();
 
     if (!newDoc->isParsedCorrectly())
-        return ConnectionEditorStatements::CUSTOM_DISPLAY_NAME;
+        return ScriptEditorStatements::CUSTOM_DISPLAY_NAME;
 
     newDoc->ast()->accept(&evaluator);
 
-    const bool valid = evaluator.status() == ConnectionEditorEvaluator::Succeeded;
+    const bool valid = evaluator.status() == ScriptEditorEvaluator::Succeeded;
 
     if (!valid)
-        return ConnectionEditorStatements::CUSTOM_DISPLAY_NAME;
+        return ScriptEditorStatements::CUSTOM_DISPLAY_NAME;
 
     auto result = evaluator.resultNode();
 
-    return QmlDesigner::ConnectionEditorStatements::toDisplayName(result);
+    return QmlDesigner::ScriptEditorStatements::toDisplayName(result);
 }
 
-ConnectionEditorStatements::Handler ConnectionEditorEvaluator::parseStatement(const QString &statement)
+ScriptEditorStatements::Handler ScriptEditorEvaluator::parseStatement(const QString &statement)
 {
-    ConnectionEditorEvaluator evaluator;
+    ScriptEditorEvaluator evaluator;
     QmlJS::Document::MutablePtr newDoc = QmlJS::Document::create(Utils::FilePath::fromString(
                                                                      "<expression>"),
                                                                  QmlJS::Dialect::JavaScript);
@@ -786,19 +787,19 @@ ConnectionEditorStatements::Handler ConnectionEditorEvaluator::parseStatement(co
     newDoc->parseJavaScript();
 
     if (!newDoc->isParsedCorrectly())
-        return ConnectionEditorStatements::EmptyBlock{};
+        return ScriptEditorStatements::EmptyBlock{};
 
     newDoc->ast()->accept(&evaluator);
 
-    const bool valid = evaluator.status() == ConnectionEditorEvaluator::Succeeded;
+    const bool valid = evaluator.status() == ScriptEditorEvaluator::Succeeded;
 
     if (!valid)
-        return ConnectionEditorStatements::EmptyBlock{};
+        return ScriptEditorStatements::EmptyBlock{};
 
     return evaluator.resultNode();
 }
 
-bool ConnectionEditorEvaluator::preVisit(Node *node)
+bool ScriptEditorEvaluator::preVisit(Node *node)
 {
     if (d->m_nodeHierarchy.size()) {
         NodeStatus &parentNode = d->m_nodeHierarchy.last();
@@ -832,7 +833,7 @@ bool ConnectionEditorEvaluator::preVisit(Node *node)
     }
 }
 
-void ConnectionEditorEvaluator::postVisit(QmlJS::AST::Node *node)
+void ScriptEditorEvaluator::postVisit(QmlJS::AST::Node *node)
 {
     if (d->m_nodeHierarchy.isEmpty()) {
         d->checkValidityAndReturn(false, "Unexpected post visiting");
@@ -859,18 +860,18 @@ void ConnectionEditorEvaluator::postVisit(QmlJS::AST::Node *node)
     }
 }
 
-bool ConnectionEditorEvaluator::visit([[maybe_unused]] QmlJS::AST::Program *program)
+bool ScriptEditorEvaluator::visit([[maybe_unused]] QmlJS::AST::Program *program)
 {
     d->setStatus(UnFinished);
     d->setTrackingArea(false, 0);
     d->m_ifStatement = 0;
     d->m_consoleLogCount = 0;
     d->m_consoleIdentifierCount = 0;
-    d->m_handler = ConnectionEditorStatements::EmptyBlock{};
+    d->m_handler = ScriptEditorStatements::EmptyBlock{};
     return true;
 }
 
-bool ConnectionEditorEvaluator::visit([[maybe_unused]] QmlJS::AST::IfStatement *ifStatement)
+bool ScriptEditorEvaluator::visit([[maybe_unused]] QmlJS::AST::IfStatement *ifStatement)
 {
     if (d->m_ifStatement++)
         return d->checkValidityAndReturn(false, "Nested if conditions are not supported");
@@ -885,7 +886,7 @@ bool ConnectionEditorEvaluator::visit([[maybe_unused]] QmlJS::AST::IfStatement *
     return d->checkValidityAndReturn(true);
 }
 
-bool ConnectionEditorEvaluator::visit(QmlJS::AST::IdentifierExpression *identifier)
+bool ScriptEditorEvaluator::visit(QmlJS::AST::IdentifierExpression *identifier)
 {
     if (d->parentNodeStatus() == Kind::Kind_FieldMemberExpression)
         if (d->m_consoleLogCount)
@@ -896,7 +897,7 @@ bool ConnectionEditorEvaluator::visit(QmlJS::AST::IdentifierExpression *identifi
     return d->checkValidityAndReturn(true);
 }
 
-bool ConnectionEditorEvaluator::visit(QmlJS::AST::BinaryExpression *binaryExpression)
+bool ScriptEditorEvaluator::visit(QmlJS::AST::BinaryExpression *binaryExpression)
 {
     if (d->isInIfCondition()) {
         if (binaryExpression->op == QSOperator::Assign)
@@ -923,7 +924,7 @@ bool ConnectionEditorEvaluator::visit(QmlJS::AST::BinaryExpression *binaryExpres
         return false;
     } else {
         MatchedStatement *currentStatement = d->currentStatement();
-        if (currentStatement && ConnectionEditorStatements::isEmptyStatement(*currentStatement)
+        if (currentStatement && ScriptEditorStatements::isEmptyStatement(*currentStatement)
             && d->parentNodeStatus().childId() == 0) {
             if (binaryExpression->op == QSOperator::Assign) {
                 RightHandVisitor variableVisitor;
@@ -932,16 +933,16 @@ bool ConnectionEditorEvaluator::visit(QmlJS::AST::BinaryExpression *binaryExpres
                 if (!variableVisitor.couldBeLHS())
                     return d->checkValidityAndReturn(false, "Invalid left hand.");
 
-                ConnectionEditorStatements::Variable lhs = variableVisitor.lhs();
+                ScriptEditorStatements::Variable lhs = variableVisitor.lhs();
 
                 variableVisitor.reset();
                 binaryExpression->right->accept(&variableVisitor);
 
                 if (variableVisitor.couldBeLHS()) {
-                    ConnectionEditorStatements::Assignment assignment{lhs, variableVisitor.variable()};
+                    ScriptEditorStatements::Assignment assignment{lhs, variableVisitor.variable()};
                     *currentStatement = assignment;
                 } else if (variableVisitor.isLiteralType()) {
-                    ConnectionEditorStatements::PropertySet propSet{lhs, variableVisitor.literal()};
+                    ScriptEditorStatements::PropertySet propSet{lhs, variableVisitor.literal()};
                     *currentStatement = propSet;
                 } else {
                     return d->checkValidityAndReturn(false, "Invalid RHS");
@@ -955,7 +956,7 @@ bool ConnectionEditorEvaluator::visit(QmlJS::AST::BinaryExpression *binaryExpres
     return d->checkValidityAndReturn(true);
 }
 
-bool ConnectionEditorEvaluator::visit(QmlJS::AST::FieldMemberExpression *fieldExpression)
+bool ScriptEditorEvaluator::visit(QmlJS::AST::FieldMemberExpression *fieldExpression)
 {
     if (d->parentNodeStatus() == Kind::Kind_CallExpression && fieldExpression->name == u"log")
         d->m_consoleLogCount++;
@@ -965,7 +966,7 @@ bool ConnectionEditorEvaluator::visit(QmlJS::AST::FieldMemberExpression *fieldEx
     return d->checkValidityAndReturn(true);
 }
 
-bool ConnectionEditorEvaluator::visit(QmlJS::AST::CallExpression *callExpression)
+bool ScriptEditorEvaluator::visit(QmlJS::AST::CallExpression *callExpression)
 {
     if (d->isInIfCondition())
         return d->checkValidityAndReturn(false, "Functions are not allowd in the expressions");
@@ -974,7 +975,7 @@ bool ConnectionEditorEvaluator::visit(QmlJS::AST::CallExpression *callExpression
     if (!currentStatement)
         return d->checkValidityAndReturn(false, "Invalid place to call an expression");
 
-    if (ConnectionEditorStatements::isEmptyStatement(*currentStatement)) {
+    if (ScriptEditorStatements::isEmptyStatement(*currentStatement)) {
         if (d->parentNodeStatus().childId() == 0) {
             ConsoleLogEvaluator logEvaluator;
             callExpression->accept(&logEvaluator);
@@ -985,8 +986,8 @@ bool ConnectionEditorEvaluator::visit(QmlJS::AST::CallExpression *callExpression
 
                 callExpression->accept(&callVisitor);
                 if (callVisitor.isValid()) {
-                    ConnectionEditorStatements::RightHandSide rhs = callVisitor.rhs();
-                    if (auto rhs_ = std::get_if<ConnectionEditorStatements::MatchedFunction>(&rhs))
+                    ScriptEditorStatements::RightHandSide rhs = callVisitor.rhs();
+                    if (auto rhs_ = std::get_if<ScriptEditorStatements::MatchedFunction>(&rhs))
                         *currentStatement = *rhs_;
                     else
                         return d->checkValidityAndReturn(false, "Invalid Matched Function type.");
@@ -999,7 +1000,7 @@ bool ConnectionEditorEvaluator::visit(QmlJS::AST::CallExpression *callExpression
     return d->checkValidityAndReturn(true);
 }
 
-bool ConnectionEditorEvaluator::visit([[maybe_unused]] QmlJS::AST::Block *block)
+bool ScriptEditorEvaluator::visit([[maybe_unused]] QmlJS::AST::Block *block)
 {
     Kind parentKind = d->parentNodeStatus();
 
@@ -1013,7 +1014,7 @@ bool ConnectionEditorEvaluator::visit([[maybe_unused]] QmlJS::AST::Block *block)
     return d->checkValidityAndReturn(false, "Block count ptoblem");
 }
 
-bool ConnectionEditorEvaluator::visit(QmlJS::AST::ArgumentList *arguments)
+bool ScriptEditorEvaluator::visit(QmlJS::AST::ArgumentList *arguments)
 {
     if (d->trackingArea() == TrackingArea::Condition)
         return d->checkValidityAndReturn(false, "Arguments are not supported in if condition");
@@ -1022,7 +1023,7 @@ bool ConnectionEditorEvaluator::visit(QmlJS::AST::ArgumentList *arguments)
     if (!currentStatement)
         return d->checkValidityAndReturn(false, "No statement found for argument");
 
-    if (!ConnectionEditorStatements::isConsoleLog(*currentStatement))
+    if (!ScriptEditorStatements::isConsoleLog(*currentStatement))
         return d->checkValidityAndReturn(false, "Arguments are only supported for console.log");
 
     if (d->m_acceptLogArgument && !arguments->next)
@@ -1031,13 +1032,13 @@ bool ConnectionEditorEvaluator::visit(QmlJS::AST::ArgumentList *arguments)
     return d->checkValidityAndReturn(false, "The only supported argument is in console.log");
 }
 
-void ConnectionEditorEvaluator::endVisit([[maybe_unused]] QmlJS::AST::Program *program)
+void ScriptEditorEvaluator::endVisit([[maybe_unused]] QmlJS::AST::Program *program)
 {
     if (status() == UnFinished)
         d->setStatus(Succeeded);
 }
 
-void ConnectionEditorEvaluator::endVisit(QmlJS::AST::FieldMemberExpression *fieldExpression)
+void ScriptEditorEvaluator::endVisit(QmlJS::AST::FieldMemberExpression *fieldExpression)
 {
     if (status() != UnFinished)
         return;
@@ -1053,12 +1054,12 @@ void ConnectionEditorEvaluator::endVisit(QmlJS::AST::FieldMemberExpression *fiel
     }
 }
 
-void ConnectionEditorEvaluator::endVisit([[maybe_unused]] QmlJS::AST::CallExpression *callExpression)
+void ScriptEditorEvaluator::endVisit([[maybe_unused]] QmlJS::AST::CallExpression *callExpression)
 {
     d->m_acceptLogArgument = false;
 }
 
-void ConnectionEditorEvaluator::endVisit(QmlJS::AST::IfStatement * /*ifStatement*/)
+void ScriptEditorEvaluator::endVisit(QmlJS::AST::IfStatement * /*ifStatement*/)
 {
     if (status() != UnFinished)
         return;
@@ -1071,7 +1072,7 @@ void ConnectionEditorEvaluator::endVisit(QmlJS::AST::IfStatement * /*ifStatement
     }
 }
 
-void ConnectionEditorEvaluator::endVisit(QmlJS::AST::StatementList * /*statementList*/)
+void ScriptEditorEvaluator::endVisit(QmlJS::AST::StatementList * /*statementList*/)
 {
     if (status() != UnFinished)
         return;
@@ -1080,26 +1081,26 @@ void ConnectionEditorEvaluator::endVisit(QmlJS::AST::StatementList * /*statement
         d->checkValidityAndReturn(false, "More than one statements are available.");
 }
 
-void ConnectionEditorEvaluator::throwRecursionDepthError()
+void ScriptEditorEvaluator::throwRecursionDepthError()
 {
     d->checkValidityAndReturn(false, "Recursion depth problem");
-    qCWarning(ConnectionEditorLog) << __FUNCTION__ << "Recursion depth error";
+    qCWarning(ScriptEditorLog) << __FUNCTION__ << "Recursion depth error";
 }
 
-bool ConnectionEditorEvaluatorPrivate::checkValidityAndReturn(bool valid, const QString &parseError)
+bool ScriptEditorEvaluatorPrivate::checkValidityAndReturn(bool valid, const QString &parseError)
 {
     if (!valid) {
         if (m_checkStatus != Status::Failed) {
             setStatus(Status::Failed);
             m_errorString = parseError;
-            qCWarning(ConnectionEditorLog) << __FUNCTION__ << "Parse error" << parseError;
+            qCWarning(ScriptEditorLog) << __FUNCTION__ << "Parse error" << parseError;
         }
     }
 
     return m_checkStatus;
 }
 
-NodeStatus ConnectionEditorEvaluatorPrivate::nodeStatus(int reverseLevel) const
+NodeStatus ScriptEditorEvaluatorPrivate::nodeStatus(int reverseLevel) const
 {
     if (m_nodeHierarchy.size() > reverseLevel)
         return m_nodeHierarchy.at(m_nodeHierarchy.size() - reverseLevel - 1);

@@ -1,6 +1,6 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
-#include "connectioneditorutils.h"
+#include "scripteditorutils.h"
 
 #include <abstractproperty.h>
 #include <abstractview.h>
@@ -8,11 +8,11 @@
 #include <modelnode.h>
 #include <nodeabstractproperty.h>
 #include <nodemetainfo.h>
+#include <qmldesignertr.h>
 #include <rewriterview.h>
 #include <rewritingexception.h>
 #include <type_traits>
 #include <variantproperty.h>
-#include <qmldesignertr.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -24,7 +24,7 @@
 
 namespace QmlDesigner {
 
-Q_LOGGING_CATEGORY(ConnectionEditorLog, "qtc.qtquickdesigner.connectioneditor", QtWarningMsg)
+Q_LOGGING_CATEGORY(ScriptEditorLog, "qtc.qtquickdesigner.scripteditor", QtWarningMsg)
 
 void callLater(const std::function<void()> &fun)
 {
@@ -62,7 +62,7 @@ PropertyName uniquePropertyName(const PropertyName &suggestion, const ModelNode 
 NodeMetaInfo dynamicTypeNameToNodeMetaInfo(const TypeName &typeName, Model *model)
 {
     // Note: Uses old mechanism to create the NodeMetaInfo and supports
-    // only types we care about in the connection editor.
+    // only types we care about in the script editor.
     // TODO: Support all possible AbstractProperty types and move to the
     // AbstractProperty class.
     if (typeName == "bool")
@@ -80,7 +80,7 @@ NodeMetaInfo dynamicTypeNameToNodeMetaInfo(const TypeName &typeName, Model *mode
     else if (typeName == "var" || typeName == "variant")
         return model->metaInfo("QML.variant");
     else
-        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "type" << typeName << "not found";
+        qCWarning(ScriptEditorLog) << __FUNCTION__ << "type" << typeName << "not found";
     return {};
 }
 
@@ -355,7 +355,7 @@ QStringList availableTargetProperties(const BindingProperty &bindingProperty)
 {
     const ModelNode modelNode = bindingProperty.parentModelNode();
     if (!modelNode.isValid()) {
-        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "invalid model node";
+        qCWarning(ScriptEditorLog) << __FUNCTION__ << "invalid model node";
         return {};
     }
 
@@ -428,7 +428,7 @@ QStringList availableSourceProperties(const QString &id,
     } else if (auto metaInfo = targetProperty.parentModelNode().metaInfo(); metaInfo.isValid()) {
         targetType = metaInfo.property(targetProperty.name()).propertyType();
     } else
-        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "no meta info for target node";
+        qCWarning(ScriptEditorLog) << __FUNCTION__ << "no meta info for target node";
 
     QStringList possibleProperties;
     if (!modelNode.isValid()) {
@@ -450,7 +450,7 @@ QStringList availableSourceProperties(const QString &id,
             return possibleProperties;
         }
 #endif
-        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "invalid model node:" << id;
+        qCWarning(ScriptEditorLog) << __FUNCTION__ << "invalid model node:" << id;
         return {};
     }
 
@@ -476,10 +476,40 @@ QStringList availableSourceProperties(const QString &id,
                 possibleProperties.push_back(QString::fromUtf8(property.name()));
         }
     } else {
-        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "no meta info for source node";
+        qCWarning(ScriptEditorLog) << __FUNCTION__ << "no meta info for source node";
     }
 
     return possibleProperties;
+}
+
+QString addOnToSignalName(const QString &signal)
+{
+    if (signal.isEmpty())
+        return {};
+
+    static const QRegularExpression rx("^on[A-Z]");
+    if (rx.match(signal).hasMatch())
+        return signal;
+
+    QString ret = signal;
+    ret[0] = ret.at(0).toUpper();
+    ret.prepend("on");
+    return ret;
+}
+
+QString removeOnFromSignalName(const QString &signal)
+{
+    if (signal.isEmpty())
+        return {};
+
+    static const QRegularExpression rx("^on[A-Z]");
+    if (!rx.match(signal).hasMatch())
+        return signal;
+
+    QString ret = signal;
+    ret.remove(0, 2);
+    ret[0] = ret.at(0).toLower();
+    return ret;
 }
 
 } // namespace QmlDesigner

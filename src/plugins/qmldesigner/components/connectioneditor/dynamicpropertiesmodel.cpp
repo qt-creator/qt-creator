@@ -2,22 +2,23 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "dynamicpropertiesmodel.h"
+#include "connectioneditorlogging.h"
 #include "dynamicpropertiesitem.h"
-#include "connectioneditorutils.h"
 
 #include <abstractproperty.h>
 #include <bindingproperty.h>
 #include <modelfwd.h>
-#include <rewritertransaction.h>
-#include <rewritingexception.h>
-#include <utils/algorithm.h>
-#include <utils/qtcassert.h>
-#include <variantproperty.h>
 #include <qmlchangeset.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmlobjectnode.h>
 #include <qmltimeline.h>
+#include <rewritertransaction.h>
+#include <rewritingexception.h>
+#include <scripteditorutils.h>
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
+#include <variantproperty.h>
 
 #include <optional>
 

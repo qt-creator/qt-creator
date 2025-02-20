@@ -7,6 +7,7 @@ import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 import ConnectionsEditorEditorBackend
+import ScriptEditorBackend
 
 Column {
     id: root
@@ -22,7 +23,7 @@ Column {
 
     // Call Function
     Row {
-        visible: root.actionType === ConnectionModelStatementDelegate.CallFunction
+        visible: root.actionType === StatementDelegate.CallFunction
         spacing: root.horizontalSpacing
 
         PopupLabel {
@@ -39,7 +40,7 @@ Column {
     }
 
     Row {
-        visible: root.actionType === ConnectionModelStatementDelegate.CallFunction
+        visible: root.actionType === StatementDelegate.CallFunction
         spacing: root.horizontalSpacing
 
         StudioControls.TopLevelComboBox {
@@ -68,7 +69,7 @@ Column {
 
     // Assign
     Row {
-        visible: root.actionType === ConnectionModelStatementDelegate.Assign
+        visible: root.actionType === StatementDelegate.Assign
         spacing: root.horizontalSpacing
 
         PopupLabel {
@@ -84,7 +85,7 @@ Column {
     }
 
     Row {
-        visible: root.actionType === ConnectionModelStatementDelegate.Assign
+        visible: root.actionType === StatementDelegate.Assign
         spacing: root.horizontalSpacing
 
         StudioControls.TopLevelComboBox {
@@ -114,7 +115,7 @@ Column {
     }
 
     Row {
-        visible: root.actionType === ConnectionModelStatementDelegate.Assign
+        visible: root.actionType === StatementDelegate.Assign
         spacing: root.horizontalSpacing
 
         StudioControls.TopLevelComboBox {
@@ -145,7 +146,7 @@ Column {
 
     // Change State
     Row {
-        visible: root.actionType === ConnectionModelStatementDelegate.ChangeState
+        visible: root.actionType === StatementDelegate.ChangeState
         spacing: root.horizontalSpacing
 
         PopupLabel {
@@ -162,7 +163,7 @@ Column {
     }
 
     Row {
-        visible: root.actionType === ConnectionModelStatementDelegate.ChangeState
+        visible: root.actionType === StatementDelegate.ChangeState
         spacing: root.horizontalSpacing
 
         StudioControls.TopLevelComboBox {
@@ -191,7 +192,7 @@ Column {
 
     // Set Property
     Row {
-        visible: root.actionType === ConnectionModelStatementDelegate.SetProperty
+        visible: root.actionType === StatementDelegate.SetProperty
         spacing: root.horizontalSpacing
 
         PopupLabel {
@@ -208,7 +209,7 @@ Column {
     }
 
     Row {
-        visible: root.actionType === ConnectionModelStatementDelegate.SetProperty
+        visible: root.actionType === StatementDelegate.SetProperty
         spacing: root.horizontalSpacing
 
         StudioControls.TopLevelComboBox {
@@ -238,14 +239,14 @@ Column {
 
     PopupLabel {
         width: root.columnWidth
-        visible: root.actionType === ConnectionModelStatementDelegate.SetProperty
+        visible: root.actionType === StatementDelegate.SetProperty
         text: qsTr("Value")
         tooltip: qsTr("Sets the value of the property of the component that is affected by the action of the <b>Target</b> component's <b>Signal</b>.")
     }
 
     StudioControls.TextField {
         id: setPropertyArgument
-        visible: root.actionType === ConnectionModelStatementDelegate.SetProperty
+        visible: root.actionType === StatementDelegate.SetProperty
         width: root.width
         actionIndicatorVisible: false
         translationIndicatorVisible: false
@@ -259,14 +260,14 @@ Column {
     // Print Message
     PopupLabel {
         width: root.columnWidth
-        visible: root.actionType === ConnectionModelStatementDelegate.PrintMessage
+        visible: root.actionType === StatementDelegate.PrintMessage
         text: qsTr("Message")
         tooltip: qsTr("Sets a text that is printed when the <b>Signal</b> of the <b>Target</b> component initiates.")
     }
 
     StudioControls.TextField {
         id: messageString
-        visible: root.actionType === ConnectionModelStatementDelegate.PrintMessage
+        visible: root.actionType === StatementDelegate.PrintMessage
         width: root.width
         actionIndicatorVisible: false
         translationIndicatorVisible: false
@@ -278,7 +279,7 @@ Column {
 
     // Custom
     PopupLabel {
-        visible: root.actionType === ConnectionModelStatementDelegate.Custom
+        visible: root.actionType === StatementDelegate.Custom
         text: qsTr("Custom Connections can only be edited with the binding editor")
         width: root.width
         horizontalAlignment: Text.AlignHCenter

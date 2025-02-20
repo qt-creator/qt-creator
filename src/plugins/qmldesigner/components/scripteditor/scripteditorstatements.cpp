@@ -1,11 +1,11 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
-#include "connectioneditorstatements.h"
+#include "scripteditorstatements.h"
 
 #include <QHash>
 
 using namespace QmlDesigner;
-using namespace ConnectionEditorStatements;
+using namespace ScriptEditorStatements;
 
 namespace {
 template<typename... Ts>
@@ -39,31 +39,31 @@ struct StringVisitor
         return "Variable{" + var.nodeId + propertyName + "}";
     }
 
-    QString operator()(const ConnectionEditorStatements::MatchedFunction &func)
+    QString operator()(const ScriptEditorStatements::MatchedFunction &func)
     {
         return "MatchedFunction{" + func.nodeId + "." + func.functionName + "}";
     }
 
-    QString operator()(const ConnectionEditorStatements::Assignment &assignment)
+    QString operator()(const ScriptEditorStatements::Assignment &assignment)
     {
         return "Assignment{" + assignment.lhs.expression() + " = " + StringVisitor()(assignment.rhs)
                + "}";
     }
 
-    QString operator()(const ConnectionEditorStatements::PropertySet &propertySet)
+    QString operator()(const ScriptEditorStatements::PropertySet &propertySet)
     {
         return "PropertySet{" + propertySet.lhs.expression() + " = "
                + std::visit(StringVisitor{}, propertySet.rhs) + "}";
     }
 
-    QString operator()(const ConnectionEditorStatements::StateSet &stateSet)
+    QString operator()(const ScriptEditorStatements::StateSet &stateSet)
     {
         return "StateSet{" + stateSet.nodeId + ".state = " + stateSet.stateName + "}";
     }
 
-    QString operator()(const ConnectionEditorStatements::EmptyBlock &) { return "EmptyBlock{}"; }
+    QString operator()(const ScriptEditorStatements::EmptyBlock &) { return "EmptyBlock{}"; }
 
-    QString operator()(const ConnectionEditorStatements::ConsoleLog &consoleLog)
+    QString operator()(const ScriptEditorStatements::ConsoleLog &consoleLog)
     {
         return "ConsoleLog{" + std::visit(StringVisitor{}, consoleLog.argument) + "}";
     }
@@ -92,7 +92,7 @@ struct StringVisitor
         }
     }
 
-    QString operator()(const ConnectionEditorStatements::MatchedCondition &matched)
+    QString operator()(const ScriptEditorStatements::MatchedCondition &matched)
     {
         if (!matched.statements.size() && !matched.tokens.size())
             return "MatchedCondition{}";
@@ -113,7 +113,7 @@ struct StringVisitor
         return value;
     }
 
-    QString operator()(const ConnectionEditorStatements::ConditionalStatement &conditional)
+    QString operator()(const ScriptEditorStatements::ConditionalStatement &conditional)
     {
         QString value;
         value.reserve(200);
@@ -130,7 +130,7 @@ struct StringVisitor
         return value;
     }
 
-    QString operator()(const ConnectionEditorStatements::MatchedStatement &conditional)
+    QString operator()(const ScriptEditorStatements::MatchedStatement &conditional)
     {
         return std::visit(StringVisitor{}, conditional);
     }
@@ -156,7 +156,7 @@ struct JSOverload
         return var.nodeId + propertyName;
     }
 
-    QString operator()(const ConnectionEditorStatements::MatchedFunction &func)
+    QString operator()(const ScriptEditorStatements::MatchedFunction &func)
     {
         QString funcName;
         if (func.functionName.size())
@@ -165,31 +165,31 @@ struct JSOverload
         return func.nodeId + funcName + "()";
     }
 
-    QString operator()(const ConnectionEditorStatements::Assignment &assignment)
+    QString operator()(const ScriptEditorStatements::Assignment &assignment)
     {
         return JSOverload()(assignment.lhs) + " = " + JSOverload()(assignment.rhs);
     }
 
-    QString operator()(const ConnectionEditorStatements::PropertySet &propertySet)
+    QString operator()(const ScriptEditorStatements::PropertySet &propertySet)
     {
         return JSOverload()(propertySet.lhs) + " = " + std::visit(JSOverload{}, propertySet.rhs);
     }
 
-    QString operator()(const ConnectionEditorStatements::StateSet &stateSet)
+    QString operator()(const ScriptEditorStatements::StateSet &stateSet)
     {
         return stateSet.nodeId + ".state = " + stateSet.stateName;
     }
 
-    QString operator()(const ConnectionEditorStatements::EmptyBlock &) { return "{}"; }
+    QString operator()(const ScriptEditorStatements::EmptyBlock &) { return "{}"; }
 
-    QString operator()(const ConnectionEditorStatements::ConsoleLog &consoleLog)
+    QString operator()(const ScriptEditorStatements::ConsoleLog &consoleLog)
     {
         return "console.log(" + std::visit(JSOverload{}, consoleLog.argument) + ")";
     }
 
     QString operator()(const ConditionToken &token) { return toJavascript(token); }
 
-    QString operator()(const ConnectionEditorStatements::MatchedCondition &matched)
+    QString operator()(const ScriptEditorStatements::MatchedCondition &matched)
     {
         if (!matched.statements.size() && !matched.tokens.size())
             return {};
@@ -209,7 +209,7 @@ struct JSOverload
         return value;
     }
 
-    QString operator()(const ConnectionEditorStatements::MatchedStatement &statement)
+    QString operator()(const ScriptEditorStatements::MatchedStatement &statement)
     {
         if (isEmptyStatement(statement))
             return {};
@@ -217,7 +217,7 @@ struct JSOverload
         return std::visit(JSOverload{}, statement);
     }
 
-    QString operator()(const ConnectionEditorStatements::ConditionalStatement &conditional)
+    QString operator()(const ScriptEditorStatements::ConditionalStatement &conditional)
     {
         QString value;
         value.reserve(200);
@@ -240,47 +240,47 @@ struct JSOverload
 
 } // namespace
 
-bool ConnectionEditorStatements::isEmptyStatement(const MatchedStatement &stat)
+bool ScriptEditorStatements::isEmptyStatement(const MatchedStatement &stat)
 {
     return std::holds_alternative<EmptyBlock>(stat);
 }
 
-QString ConnectionEditorStatements::toString(const ComparativeStatement &stat)
+QString ScriptEditorStatements::toString(const ComparativeStatement &stat)
 {
     return std::visit(StringVisitor{}, stat);
 }
 
-QString ConnectionEditorStatements::toString(const RightHandSide &rhs)
+QString ScriptEditorStatements::toString(const RightHandSide &rhs)
 {
     return std::visit(StringVisitor{}, rhs);
 }
 
-QString ConnectionEditorStatements::toString(const Literal &literal)
+QString ScriptEditorStatements::toString(const Literal &literal)
 {
     return std::visit(StringVisitor{}, literal);
 }
 
-QString ConnectionEditorStatements::toString(const MatchedStatement &statement)
+QString ScriptEditorStatements::toString(const MatchedStatement &statement)
 {
     return std::visit(StringVisitor{}, statement);
 }
 
-QString ConnectionEditorStatements::toString(const Handler &handler)
+QString ScriptEditorStatements::toString(const Handler &handler)
 {
     return std::visit(StringVisitor{}, handler);
 }
 
-QString ConnectionEditorStatements::toJavascript(const Handler &handler)
+QString ScriptEditorStatements::toJavascript(const Handler &handler)
 {
     return std::visit(JSOverload{}, handler);
 }
 
-bool ConnectionEditorStatements::isConsoleLog(const MatchedStatement &curState)
+bool ScriptEditorStatements::isConsoleLog(const MatchedStatement &curState)
 {
     return std::holds_alternative<ConsoleLog>(curState);
 }
 
-bool ConnectionEditorStatements::isLiteralType(const RightHandSide &var)
+bool ScriptEditorStatements::isLiteralType(const RightHandSide &var)
 {
     return std::visit(Overload{[](const double &) { return true; },
                                [](const bool &) { return true; },
@@ -289,7 +289,7 @@ bool ConnectionEditorStatements::isLiteralType(const RightHandSide &var)
                       var);
 }
 
-QString ConnectionEditorStatements::toDisplayName(const MatchedStatement &statement)
+QString ScriptEditorStatements::toDisplayName(const MatchedStatement &statement)
 {
     const char *displayName = std::visit(
         Overload{[](const MatchedFunction &) { return FUNCTION_DISPLAY_NAME; },
@@ -303,7 +303,7 @@ QString ConnectionEditorStatements::toDisplayName(const MatchedStatement &statem
     return QString::fromLatin1(displayName);
 }
 
-QString ConnectionEditorStatements::toDisplayName(const Handler &handler)
+QString ScriptEditorStatements::toDisplayName(const Handler &handler)
 {
     const MatchedStatement &statement = std::visit(
         Overload{[](const MatchedStatement &statement) { return statement; },
@@ -312,51 +312,49 @@ QString ConnectionEditorStatements::toDisplayName(const Handler &handler)
     return toDisplayName(statement);
 }
 
-MatchedStatement &ConnectionEditorStatements::okStatement(
-    ConnectionEditorStatements::Handler &handler)
+MatchedStatement &ScriptEditorStatements::okStatement(ScriptEditorStatements::Handler &handler)
 {
     MatchedStatement statement;
 
-    return std::visit(Overload{[](ConnectionEditorStatements::MatchedStatement &var)
-                                   -> MatchedStatement & { return var; },
-                               [](ConnectionEditorStatements::ConditionalStatement &statement)
+    return std::visit(Overload{[](ScriptEditorStatements::MatchedStatement &var) -> MatchedStatement & {
+                                   return var;
+                               },
+                               [](ScriptEditorStatements::ConditionalStatement &statement)
                                    -> MatchedStatement & { return statement.ok; }},
                       handler);
 }
 
-MatchedStatement &ConnectionEditorStatements::koStatement(
-    ConnectionEditorStatements::Handler &handler)
+MatchedStatement &ScriptEditorStatements::koStatement(ScriptEditorStatements::Handler &handler)
 {
     static MatchedStatement block;
 
-    if (auto *statement = std::get_if<ConnectionEditorStatements::ConditionalStatement>(&handler))
+    if (auto *statement = std::get_if<ScriptEditorStatements::ConditionalStatement>(&handler))
         return statement->ko;
 
     return block;
 }
 
-MatchedCondition &ConnectionEditorStatements::matchedCondition(Handler &handler)
+MatchedCondition &ScriptEditorStatements::matchedCondition(Handler &handler)
 {
     static MatchedCondition block;
 
-    if (auto *statement = std::get_if<ConnectionEditorStatements::ConditionalStatement>(&handler))
+    if (auto *statement = std::get_if<ScriptEditorStatements::ConditionalStatement>(&handler))
         return statement->condition;
 
     return block;
 }
 
-ConditionalStatement &ConnectionEditorStatements::conditionalStatement(
-    ConnectionEditorStatements::Handler &handler)
+ConditionalStatement &ScriptEditorStatements::conditionalStatement(ScriptEditorStatements::Handler &handler)
 {
     static ConditionalStatement block;
 
-    if (auto *statement = std::get_if<ConnectionEditorStatements::ConditionalStatement>(&handler))
+    if (auto *statement = std::get_if<ScriptEditorStatements::ConditionalStatement>(&handler))
         return *statement;
 
     return block;
 }
 
-QString ConnectionEditorStatements::toJavascript(const ConditionToken &token)
+QString ScriptEditorStatements::toJavascript(const ConditionToken &token)
 {
     switch (token) {
     case ConditionToken::Not:

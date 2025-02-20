@@ -3,10 +3,11 @@
 
 #include "bindingmodel.h"
 #include "bindingmodelitem.h"
-#include "connectioneditorutils.h"
+#include "connectioneditorlogging.h"
 #include "connectionview.h"
 #include "modelfwd.h"
 
+#include <scripteditorutils.h>
 #include <bindingproperty.h>
 #include <nodemetainfo.h>
 #include <nodeproperty.h>

@@ -83,10 +83,8 @@ public:
                                                         0,
                                                         "DynamicPropertiesModelBackendDelegate");
 
-        qmlRegisterType<ConnectionModelStatementDelegate>("ConnectionsEditorEditorBackend",
-                                                          1,
-                                                          0,
-                                                          "ConnectionModelStatementDelegate");
+        // TODO: register in the property editor along with the ScriptEditorBackend
+        qmlRegisterType<StatementDelegate>("ScriptEditorBackend", 1, 0, "StatementDelegate");
 
         qmlRegisterType<ConditionListModel>("ConnectionsEditorEditorBackend", 1, 0, "ConditionListModel");
 

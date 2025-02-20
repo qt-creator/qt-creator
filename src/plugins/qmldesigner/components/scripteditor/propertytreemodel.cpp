@@ -163,8 +163,8 @@ std::vector<PropertyName> properityLists()
     return result;
 }
 
-PropertyTreeModel::PropertyTreeModel(ConnectionView *view)
-    : m_connectionView(view)
+PropertyTreeModel::PropertyTreeModel(AbstractView *view)
+    : m_view(view)
 {}
 
 void PropertyTreeModel::resetModel()
@@ -257,7 +257,7 @@ Qt::ItemFlags PropertyTreeModel::flags(const QModelIndex &) const
 QModelIndex PropertyTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
     auto internalId = parent.internalId();
-    if (!m_connectionView->isAttached())
+    if (!m_view->isAttached())
         return {};
 
     if (!parent.isValid())
@@ -337,7 +337,7 @@ QPersistentModelIndex PropertyTreeModel::indexForInternalIdAndRow(quintptr inter
 
 int PropertyTreeModel::rowCount(const QModelIndex &parent) const
 {
-    if (!m_connectionView->isAttached() || parent.column() > 0)
+    if (!m_view->isAttached() || parent.column() > 0)
         return 0;
 
     if (!parent.isValid())
@@ -404,10 +404,10 @@ const std::vector<PropertyName> PropertyTreeModel::getProperties(const ModelNode
 
 ModelNode PropertyTreeModel::getModelNodeForId(const QString &id) const
 {
-    if (!m_connectionView->isAttached())
+    if (!m_view->isAttached())
         return {};
 
-    return m_connectionView->modelNodeForId(id);
+    return m_view->modelNodeForId(id);
 }
 
 QModelIndex PropertyTreeModel::ensureModelIndex(const ModelNode &node, int row) const
@@ -473,10 +473,10 @@ void PropertyTreeModel::testModel()
 
 const QList<ModelNode> PropertyTreeModel::allModelNodesWithIdsSortedByDisplayName() const
 {
-    if (!m_connectionView->isAttached())
+    if (!m_view->isAttached())
         return {};
 
-    return Utils::sorted(ModelUtils::allModelNodesWithId(m_connectionView),
+    return Utils::sorted(ModelUtils::allModelNodesWithId(m_view),
                          [](const ModelNode &lhs, const ModelNode &rhs) {
                              return lhs.displayName() < rhs.displayName();
                          });
@@ -882,7 +882,7 @@ QString PropertyListProxyModel::parentName() const
     return m_treeModel->data(m_parentIndex, PropertyTreeModel::UserRoles::PropertyNameRole).toString();
 }
 
-PropertyTreeModelDelegate::PropertyTreeModelDelegate(ConnectionView *view)
+PropertyTreeModelDelegate::PropertyTreeModelDelegate(AbstractView *view)
     : m_model(view)
 {
     connect(&m_nameCombboBox, &StudioQmlComboBoxBackend::activated, this, [this] {

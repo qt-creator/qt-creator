@@ -49,7 +49,8 @@ public:
         BoolType
     };
 
-    PropertyTreeModel(ConnectionView *view);
+    // PropertyTreeModel(ConnectionView *view);
+    PropertyTreeModel(AbstractView *view);
 
     void resetModel();
 
@@ -120,7 +121,7 @@ private:
                         const PropertyMetaInfo &metaInfo,
                         bool recursive) const;
 
-    ConnectionView *m_connectionView;
+    AbstractView *m_view;
 
     mutable std::set<DataCacheItem> m_indexCache;
     mutable std::vector<DataCacheItem> m_indexHash;
@@ -187,7 +188,7 @@ class PropertyTreeModelDelegate : public QObject
     Q_PROPERTY(StudioQmlComboBoxBackend *id READ idCombboBox CONSTANT)
 
 public:
-    explicit PropertyTreeModelDelegate(ConnectionView *view);
+    explicit PropertyTreeModelDelegate(AbstractView *view);
     void setPropertyType(PropertyTreeModel::PropertyTypes type);
     void setup(const QString &id, const QString &name, bool *nameExists = nullptr);
     void setupNameComboBox(const QString &id, const QString &name, bool *nameExists);

@@ -572,21 +572,28 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/scripteditor
+  SOURCES
+    scripteditorstatements.cpp scripteditorstatements.h
+    scripteditorevaluator.cpp scripteditorevaluator.h
+    scripteditorutils.cpp scripteditorutils.h
+    propertytreemodel.cpp propertytreemodel.h
+    scripteditorbackend.cpp scripteditorbackend.h
+)
+
+extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/connectioneditor
   SOURCES
     addnewbackenddialog.cpp addnewbackenddialog.h addnewbackenddialog.ui
     bindingmodel.cpp bindingmodel.h
     bindingmodelitem.cpp bindingmodelitem.h
     connectioneditor.qrc
-    connectioneditorevaluator.cpp connectioneditorevaluator.h
-    connectioneditorstatements.cpp connectioneditorstatements.h
     connectionmodel.cpp connectionmodel.h
     connectionview.cpp connectionview.h
     dynamicpropertiesmodel.cpp dynamicpropertiesmodel.h
     dynamicpropertiesitem.cpp dynamicpropertiesitem.h
-    connectioneditorutils.cpp connectioneditorutils.h
     selectiondynamicpropertiesproxymodel.cpp selectiondynamicpropertiesproxymodel.h
-    propertytreemodel.cpp propertytreemodel.h
+    connectioneditorlogging.cpp connectioneditorlogging.h
 )
 
 extend_qtc_plugin(QmlDesigner

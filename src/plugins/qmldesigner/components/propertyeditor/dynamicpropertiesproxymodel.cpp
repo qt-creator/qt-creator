@@ -27,7 +27,7 @@
 
 #include "bindingproperty.h"
 #include "propertyeditorvalue.h"
-#include "connectioneditorutils.h"
+#include <scripteditorutils.h>
 
 #include <dynamicpropertiesmodel.h>
 
