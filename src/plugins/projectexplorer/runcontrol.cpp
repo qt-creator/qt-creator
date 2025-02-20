@@ -1955,6 +1955,24 @@ ProcessRunnerFactory::ProcessRunnerFactory(const QList<Id> &runConfigs)
     setSupportedRunConfigs(runConfigs);
 }
 
+void RecipeRunner::start()
+{
+    QTC_CHECK(!m_taskTreeRunner.isRunning());
+    m_taskTreeRunner.start(m_recipe, {}, [this](DoneWith result) {
+        if (result == DoneWith::Success)
+            reportStopped();
+        else
+            reportFailure();
+    });
+    reportStarted();
+}
+
+void RecipeRunner::stop()
+{
+    m_taskTreeRunner.cancel();
+    reportStopped();
+}
+
 } // namespace ProjectExplorer
 
 #include "runcontrol.moc"

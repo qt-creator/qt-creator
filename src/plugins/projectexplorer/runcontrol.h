@@ -6,6 +6,8 @@
 #include "devicesupport/idevicefwd.h"
 #include "runconfiguration.h"
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/outputformatter.h>
@@ -19,8 +21,6 @@
 
 #include <functional>
 #include <memory>
-
-namespace Tasking { class Group; }
 
 namespace Utils {
 class Icon;
@@ -303,5 +303,21 @@ PROJECTEXPLORER_EXPORT
 void addOutputParserFactory(const std::function<Utils::OutputLineParser *(Target *)> &);
 
 PROJECTEXPLORER_EXPORT QList<Utils::OutputLineParser *> createOutputParsers(Target *target);
+
+class PROJECTEXPLORER_EXPORT RecipeRunner final : public RunWorker
+{
+public:
+    explicit RecipeRunner(RunControl *runControl)
+        : RunWorker(runControl) {}
+
+    void setRecipe(const Tasking::Group &recipe) { m_recipe = recipe; }
+
+private:
+    void start() final;
+    void stop() final;
+
+    Tasking::TaskTreeRunner m_taskTreeRunner;
+    Tasking::Group m_recipe = {};
+};
 
 } // namespace ProjectExplorer
