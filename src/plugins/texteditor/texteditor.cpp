@@ -146,6 +146,8 @@ using namespace Internal;
 
 namespace Internal {
 
+class TextEditorWidgetFind;
+
 enum { NExtraSelectionKinds = 12 };
 
 using TransformationMethod = QString(const QString &);
@@ -887,7 +889,7 @@ public:
     TabSettingsButton *m_tabSettingsButton = nullptr;
     QToolButton *m_fileEncodingButton = nullptr;
     QAction *m_fileEncodingLabelAction = nullptr;
-    BaseTextFind *m_find = nullptr;
+    TextEditorWidgetFind *m_find = nullptr;
 
     QToolButton *m_fileLineEnding = nullptr;
     QAction *m_fileLineEndingAction = nullptr;
@@ -1091,7 +1093,7 @@ public:
     QList<QAction *> m_modifyingActions;
 };
 
-class TextEditorWidgetFind : public BaseTextFind
+class TextEditorWidgetFind : public BaseTextFind<TextEditorWidget>
 {
 public:
     TextEditorWidgetFind(TextEditorWidget *editor)
@@ -1199,10 +1201,12 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
 {
     m_selectionHighlightOverlay->show();
     m_find = new TextEditorWidgetFind(q);
-    connect(m_find, &BaseTextFind::highlightAllRequested,
-            this, &TextEditorWidgetPrivate::highlightSearchResultsSlot);
-    connect(m_find, &BaseTextFind::findScopeChanged,
-            this, &TextEditorWidgetPrivate::setFindScope);
+    connect(
+        m_find,
+        &BaseTextFindBase::highlightAllRequested,
+        this,
+        &TextEditorWidgetPrivate::highlightSearchResultsSlot);
+    connect(m_find, &BaseTextFindBase::findScopeChanged, this, &TextEditorWidgetPrivate::setFindScope);
     Aggregation::aggregate({q, m_find});
 
     m_extraArea = new TextEditExtraArea(q);

@@ -18,14 +18,13 @@ QT_END_NAMESPACE
 namespace Core {
 struct BaseTextFindPrivate;
 
-class CORE_EXPORT BaseTextFind : public IFindSupport
+class CORE_EXPORT BaseTextFindBase : public IFindSupport
 {
     Q_OBJECT
 
 public:
-    explicit BaseTextFind(QPlainTextEdit *editor);
-    explicit BaseTextFind(QTextEdit *editor);
-    ~BaseTextFind() override;
+    BaseTextFindBase();
+    ~BaseTextFindBase() override;
 
     bool supportsReplace() const override;
     Utils::FindFlags supportedFindFlags() const override;
@@ -58,20 +57,42 @@ signals:
     void highlightAllRequested(const QString &txt, Utils::FindFlags findFlags);
     void findScopeChanged(const Utils::MultiTextCursor &cursor);
 
+protected:
+    virtual QTextCursor textCursor() const = 0;
+    virtual void setTextCursor(const QTextCursor &) = 0;
+    virtual QTextDocument *document() const = 0;
+    virtual bool isReadOnly() const = 0;
+    virtual QWidget *widget() const = 0;
+
 private:
     bool find(const QString &txt, Utils::FindFlags findFlags, QTextCursor start, bool *wrapped);
     QTextCursor replaceInternal(const QString &before, const QString &after,
                                 Utils::FindFlags findFlags);
 
     Utils::MultiTextCursor multiTextCursor() const;
-    QTextCursor textCursor() const;
-    void setTextCursor(const QTextCursor&);
-    QTextDocument *document() const;
-    bool isReadOnly() const;
     QTextCursor findOne(const QRegularExpression &expr, QTextCursor from,
                         QTextDocument::FindFlags options) const;
 
     BaseTextFindPrivate *d;
+};
+
+template<class T>
+class BaseTextFind : public BaseTextFindBase
+{
+public:
+    explicit BaseTextFind(T *editor)
+        : m_editor(editor)
+    {}
+
+protected:
+    QTextCursor textCursor() const override { return m_editor->textCursor(); }
+    void setTextCursor(const QTextCursor &cursor) override { m_editor->setTextCursor(cursor); }
+    QTextDocument *document() const override { return m_editor->document(); }
+    bool isReadOnly() const override { return m_editor->isReadOnly(); }
+    QWidget *widget() const override { return m_editor; }
+
+private:
+    QPointer<T> m_editor;
 };
 
 } // namespace Core
