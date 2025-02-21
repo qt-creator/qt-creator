@@ -95,6 +95,8 @@ class DebuggerRunToolPrivate
 public:
     DebuggerRunTool *q = nullptr;
 
+    void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);
+
     ExecutableItem coreFileRecipe();
     ExecutableItem terminalRecipe(const SingleBarrier &barrier);
     ExecutableItem fixupParamsRecipe();
@@ -612,7 +614,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
                                            "and the Run settings.");
             }
 
-            showMessage(warningMessage, LogWarning);
+            d->showMessage(warningMessage, LogWarning);
 
             if (settings().showUnsupportedBreakpointWarning()) {
                 bool doNotAskAgain = false;
@@ -638,8 +640,8 @@ void DebuggerRunTool::continueAfterDebugServerStart()
             .arg(debuggerName).arg(m_runParameters.toolChainAbi().toString());
     DebuggerMainWindow::showStatusMessage(message, 10000);
 
-    showMessage(m_engines.first()->formatStartParameters(), LogDebug);
-    showMessage(DebuggerSettings::dump(), LogDebug);
+    d->showMessage(m_engines.first()->formatStartParameters(), LogDebug);
+    d->showMessage(DebuggerSettings::dump(), LogDebug);
 
     Utils::reverseForeach(m_engines, [](DebuggerEngine *engine) { engine->start(); });
 }
@@ -702,24 +704,24 @@ DebuggerRunTool::~DebuggerRunTool()
     delete d;
 }
 
-void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
+void DebuggerRunToolPrivate::showMessage(const QString &msg, int channel, int timeout)
 {
     if (channel == ConsoleOutput)
         debuggerConsole()->printItem(ConsoleItem::DefaultType, msg);
 
-    QTC_ASSERT(!m_engines.isEmpty(), qDebug() << msg; return);
+    QTC_ASSERT(!q->m_engines.isEmpty(), qDebug() << msg; return);
 
-    for (auto engine : m_engines)
+    for (auto engine : q->m_engines)
         engine->showMessage(msg, channel, timeout);
     switch (channel) {
     case AppOutput:
-        appendMessage(msg, StdOutFormat);
+        q->appendMessage(msg, StdOutFormat);
         break;
     case AppError:
-        appendMessage(msg, StdErrFormat);
+        q->appendMessage(msg, StdErrFormat);
         break;
     case AppStuff:
-        appendMessage(msg, DebugFormat);
+        q->appendMessage(msg, DebugFormat);
         break;
     default:
         break;

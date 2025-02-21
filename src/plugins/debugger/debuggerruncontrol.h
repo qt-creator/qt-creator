@@ -28,8 +28,6 @@ public:
     DebuggerRunParameters &runParameters() { return m_runParameters; }
 
 private:
-    void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);
-
     void continueAfterDebugServerStart();
 
     friend class Internal::DebuggerRunToolPrivate;
