@@ -8,9 +8,6 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <debugger/analyzer/analyzericons.h>
-#include <debugger/debuggertr.h>
-
 #include <utils/layoutbuilder.h>
 
 using namespace Utils;

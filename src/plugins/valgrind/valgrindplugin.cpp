@@ -9,8 +9,6 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
-#include <debugger/analyzer/analyzericons.h>
-
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/projectexplorer.h>

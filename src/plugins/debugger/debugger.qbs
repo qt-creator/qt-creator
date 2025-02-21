@@ -192,12 +192,6 @@ QtcPlugin {
     }
 
     Group {
-        name: "Images/analyzer"
-        prefix: "analyzer/images/"
-        files: ["*.png"]
-    }
-
-    Group {
         name: "RegistryAccess"
         condition: qbs.targetOS.contains("windows")
         prefix: project.sharedSourcesDir + "/registryaccess/"
@@ -229,8 +223,6 @@ QtcPlugin {
         name: "Analyzer"
         prefix: "analyzer/"
         files: [
-            "analyzerbase.qrc",
-            "analyzericons.h",
             "analyzerutils.cpp",
             "analyzerutils.h",
             "detailederrorview.cpp",

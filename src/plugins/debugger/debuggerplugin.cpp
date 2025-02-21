@@ -1,7 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "analyzer/analyzericons.h"
 #include "debuggeractions.h"
 #include "debuggerinternalconstants.h"
 #include "debuggercore.h"
@@ -2254,8 +2253,11 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
         DEBUGGER_SETTINGS_CATEGORY,
         Tr::tr("Debugger"),
         ":/debugger/images/settingscategory_debugger.png");
+
     IOptionsPage::registerCategory(
-        "T.Analyzer", Tr::tr("Analyzer"), Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
+        "T.Analyzer",
+        Tr::tr("Analyzer"),
+        ":/debugger/images/settingscategory_analyzer.png");
 
     // Needed for call from AppOutputPane::attachToRunControl() and GammarayIntegration.
     ExtensionSystem::PluginManager::addObject(this);
