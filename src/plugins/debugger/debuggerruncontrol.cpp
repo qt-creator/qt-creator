@@ -95,9 +95,9 @@ class DebuggerRunToolPrivate
 public:
     DebuggerRunTool *q = nullptr;
 
-    GroupItem coreFileRecipe();
-    GroupItem terminalRecipe(const SingleBarrier &barrier);
-    GroupItem fixupParamsRecipe();
+    ExecutableItem coreFileRecipe();
+    ExecutableItem terminalRecipe(const SingleBarrier &barrier);
+    ExecutableItem fixupParamsRecipe();
 
     int snapshotCounter = 0;
     int engineStartsNeeded = 0;
@@ -139,11 +139,11 @@ void DebuggerRunTool::start()
     d->m_taskTreeRunner.start(recipe);
 }
 
-GroupItem DebuggerRunToolPrivate::coreFileRecipe()
+ExecutableItem DebuggerRunToolPrivate::coreFileRecipe()
 {
     const FilePath coreFile = q->m_runParameters.coreFile();
     if (!coreFile.endsWith(".gz") && !coreFile.endsWith(".lzo"))
-        return nullItem;
+        return Group {};
 
     const Storage<QFile> storage; // tempCoreFile
 
@@ -186,7 +186,7 @@ GroupItem DebuggerRunToolPrivate::coreFileRecipe()
     };
 }
 
-GroupItem DebuggerRunToolPrivate::terminalRecipe(const SingleBarrier &barrier)
+ExecutableItem DebuggerRunToolPrivate::terminalRecipe(const SingleBarrier &barrier)
 {
     const auto useTerminal = [this] {
         const bool useCdbConsole = q->m_runParameters.cppEngineType() == CdbEngineType
@@ -235,7 +235,7 @@ GroupItem DebuggerRunToolPrivate::terminalRecipe(const SingleBarrier &barrier)
     };
 }
 
-GroupItem DebuggerRunToolPrivate::fixupParamsRecipe()
+ExecutableItem DebuggerRunToolPrivate::fixupParamsRecipe()
 {
     return Sync([this] {
         TaskHub::clearTasks(Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
