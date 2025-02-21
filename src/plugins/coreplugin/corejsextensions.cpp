@@ -97,7 +97,7 @@ QString UtilsJsExtension::relativeFilePath(const QString &path, const QString &b
 {
     const FilePath basePath = FilePath::fromString(base).cleanPath();
     const FilePath filePath = FilePath::fromString(path).cleanPath();
-    return filePath.relativePathFrom(basePath).toFSPathString();
+    return FilePath::calcRelativePath(filePath.toFSPathString(), basePath.toFSPathString());
 }
 
 bool UtilsJsExtension::exists(const QString &in) const
