@@ -43,6 +43,11 @@
         "    </magic>",
         "    <glob pattern='*.ts'/>",
         "  </mime-type>",
+        "  <mime-type type='text/vnd.qt.remoteobjects'>",
+        "    <comment>Qt Remote Objects file</comment>",
+        "    <sub-class-of type='text/plain'/>",
+        "    <glob pattern='*.rep' weight='80'/>",
+        "  </mime-type>",
         "</mime-info>"
     ]
 }

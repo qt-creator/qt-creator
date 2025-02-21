@@ -38,8 +38,9 @@ def openExample(examplesLineEdit, input, exampleRegex, exampleName, waitForChild
         mouseClick(waitForObjectItem(listView, str(example.text)))
         handlePackagingMessageBoxes()
         helpWidget = waitForObject(":Help Widget_Help::Internal::HelpWidget")
-        test.verify(waitFor('exampleName in str(helpWidget.windowTitle)', 5000),
-                    "Verifying: The example application is opened inside Help.")
+        if not test.verify(waitFor('exampleName in str(helpWidget.windowTitle)', 5000),
+                           "Verifying: The example application is opened inside Help."):
+            test.log("%s vs %s" % (str(helpWidget.windowTitle), exampleName))
         sendEvent("QCloseEvent", helpWidget)
         # assume the correct kit is selected, hit Configure Project
         clickButton(waitForObject(":Qt Creator.Configure Project_QPushButton"))
@@ -80,8 +81,10 @@ def main():
     example = findExampleOrTutorial(listView, ".*", True)
     test.verify(example is None, "Verifying: No example is shown.")
 
-    proFiles = [os.path.join(p, "opengl", "2dpainting", "2dpainting.pro")
-                for p in QtPath.getPaths(QtPath.EXAMPLES)]
+    proFiles = []
+    for p in QtPath.getPaths(QtPath.EXAMPLES):
+        proFiles.append(os.path.join(p, "opengl", "2dpainting", "2dpainting.pro"))
+        proFiles.append(os.path.join(p, "opengl", "2dpainting", "CMakeLists.txt"))
     cleanUpUserFiles(proFiles)
 
     example = openExample(examplesLineEdit, "2d painting", "2D Painting.*", "2D Painting Example")
@@ -97,12 +100,16 @@ def main():
 
     # go to "Welcome" page and choose another example
     switchViewTo(ViewConstants.WELCOME)
-    proFiles = [os.path.join(p, "widgets", "itemviews", "addressbook", "addressbook.pro")
-                for p in QtPath.getPaths(QtPath.EXAMPLES)]
+
+    proFiles = []
+    for p in QtPath.getPaths(QtPath.EXAMPLES):
+        proFiles.append(os.path.join(p, "widgets", "itemviews", "addressbook", "addressbook.pro"))
+        proFiles.append(os.path.join(p, "widgets", "itemviews", "addressbook", "CMakeLists.txt"))
+
     cleanUpUserFiles(proFiles)
     examplesLineEdit = waitForObject(search %(expect[1][0], expect[1][1]))
     example = openExample(examplesLineEdit, "address book", "(0000 )?Address Book.*",
-                          "Address Book Example", 3)
+                          "Address Book ", 3)
     if example is not None:
         # close second example application
         test.verify(checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"

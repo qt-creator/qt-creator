@@ -16,6 +16,8 @@
 #include <QMenu>
 #include <QMessageBox>
 
+using namespace Core;
+
 namespace %{PluginName}::Internal {
 
 class %{CN} final : public ExtensionSystem::IPlugin
@@ -46,16 +48,15 @@ public:
         //    bool IPlugin::initialize(const QStringList &arguments, QString *errorString)
         // overload.
 
-        auto action = new QAction(Tr::tr("%{PluginName} Action"), this);
-        Core::Command *cmd = Core::ActionManager::registerAction(
-            action, Constants::ACTION_ID, Core::Context(Core::Constants::C_GLOBAL));
-        cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Alt+Meta+A")));
-        connect(action, &QAction::triggered, this, &%{CN}::triggerAction);
-
-        Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::MENU_ID);
+        ActionContainer *menu = ActionManager::createMenu(Constants::MENU_ID);
         menu->menu()->setTitle(Tr::tr("%{PluginName}"));
-        menu->addAction(cmd);
-        Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
+        ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
+
+        ActionBuilder(this, Constants::ACTION_ID)
+            .addToContainer(Constants::MENU_ID)
+            .setText(Tr::tr("%{PluginName} Action"))
+            .setDefaultKeySequence(Tr::tr("Ctrl+Alt+Meta+A"))
+            .addOnTriggered(this, &%{CN}::triggerAction);
     }
 
     void extensionsInitialized() final
@@ -77,7 +78,7 @@ public:
 private:
     void triggerAction()
     {
-        QMessageBox::information(Core::ICore::mainWindow(),
+        QMessageBox::information(ICore::dialogParent(),
                                  Tr::tr("Action Triggered"),
                                  Tr::tr("This is an action from %{PluginName}."));
     }

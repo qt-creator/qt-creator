@@ -8,7 +8,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
-#include <QMutex>
+#include <utils/synchronizedvalue.h>
 
 namespace Docker::Internal {
 
@@ -92,8 +92,7 @@ public:
     void shutdownExistingDevices();
 
 private:
-    QMutex m_deviceListMutex;
-    std::vector<std::weak_ptr<DockerDevice>> m_existingDevices;
+    Utils::SynchronizedValue<std::vector<std::weak_ptr<DockerDevice>>> m_existingDevices;
 };
 
 } // namespace Docker::Internal

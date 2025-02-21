@@ -25,12 +25,12 @@ Primitive-Neon-100=FFDBFDEC
 Primitive-Neon-200=FFB9F9D9
 Primitive-Neon-300=FF83F2BA
 Primitive-Neon-400=FF2CDE85
-Primitive-Neon-500=FF1EC974
-Primitive-Neon-600=FF12A75D
+Primitive-Neon-500=FF27BF73
+Primitive-Neon-600=FF1F9B5D
 Primitive-Neon-700=FF12834B
 Primitive-Neon-800=FF14673E
-Primitive-Neon-900=FF0D4328
-Primitive-Neon-1000=FF092C1B
+Primitive-Neon-900=FF13432B
+Primitive-Neon-1000=FF133122
 
 Primitive-Red-100=FFFACED9
 Primitive-Red-200=FFF0A4B7

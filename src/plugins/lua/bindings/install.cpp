@@ -29,6 +29,7 @@
 using namespace Core;
 using namespace Tasking;
 using namespace Utils;
+using namespace std::string_view_literals;
 
 namespace Lua::Internal {
 
@@ -268,7 +269,7 @@ void setupInstallModule()
             sol::function wrap = async["wrap"];
 
             sol::table install = lua.create_table();
-            const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
+            const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec"sv);
 
             install["packageInfo"] =
                 [pluginSpec](const QString &name, sol::this_state l) -> sol::optional<sol::table> {

@@ -1386,19 +1386,19 @@ DockerDeviceFactory::DockerDeviceFactory()
     });
     setConstructionFunction([this] {
         auto device = DockerDevice::create();
-        QMutexLocker lk(&m_deviceListMutex);
-        m_existingDevices.push_back(device);
+        m_existingDevices.writeLocked()->push_back(device);
         return device;
     });
 }
 
 void DockerDeviceFactory::shutdownExistingDevices()
 {
-    QMutexLocker lk(&m_deviceListMutex);
-    for (const auto &weakDevice : m_existingDevices) {
-        if (std::shared_ptr<DockerDevice> device = weakDevice.lock())
-            device->shutdown();
-    }
+    m_existingDevices.read([](const std::vector<std::weak_ptr<DockerDevice>> &devices) {
+        for (const std::weak_ptr<DockerDevice> &weakDevice : devices) {
+            if (std::shared_ptr<DockerDevice> device = weakDevice.lock())
+                device->shutdown();
+        }
+    });
 }
 
 expected_str<QPair<Utils::OsType, Utils::OsArch>> DockerDevicePrivate::osTypeAndArch() const

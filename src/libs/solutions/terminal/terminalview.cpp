@@ -1015,8 +1015,10 @@ void TerminalView::applySizeChange()
 void TerminalView::updateScrollBars()
 {
     int scrollSize = d->m_surface->fullSize().height() - d->m_surface->liveSize().height();
+    const bool shouldScroll = verticalScrollBar()->value() == verticalScrollBar()->maximum();
     verticalScrollBar()->setRange(0, scrollSize);
-    verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+    if (shouldScroll)
+        verticalScrollBar()->setValue(verticalScrollBar()->maximum());
     updateViewport();
 }
 

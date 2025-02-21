@@ -38,22 +38,19 @@ bool DockerApi::canConnect()
 {
     Process process;
     FilePath dockerExe = dockerClient();
-    if (dockerExe.isEmpty() || !dockerExe.isExecutableFile())
+    if (dockerExe.isEmpty())
         return false;
 
-    bool result = false;
-
     process.setCommand({dockerExe, {"info"}});
-    connect(&process, &Process::done, [&process, &result] {
+    process.runBlocking();
+
+    const bool success = process.result() == ProcessResult::FinishedWithSuccess;
+    if (!success)
+        qCWarning(dockerApiLog) << "Failed to connect to docker daemon:" << process.allOutput();
+    else
         qCInfo(dockerApiLog) << "'docker info' result:\n" << qPrintable(process.allOutput());
-        if (process.result() == ProcessResult::FinishedWithSuccess)
-            result = true;
-    });
 
-    process.start();
-    process.waitForFinished();
-
-    return result;
+    return process.result() == ProcessResult::FinishedWithSuccess;
 }
 
 bool DockerApi::isContainerRunning(const QString &containerId)
