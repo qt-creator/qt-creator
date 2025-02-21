@@ -98,6 +98,7 @@ public:
     ExecutableItem coreFileRecipe();
     ExecutableItem terminalRecipe(const SingleBarrier &barrier);
     ExecutableItem fixupParamsRecipe();
+    ExecutableItem debugServerRecipe();
 
     int snapshotCounter = 0;
     int engineStartsNeeded = 0;
@@ -106,9 +107,6 @@ public:
 
     // Core unpacker
     FilePath m_tempCoreFilePath; // TODO: Enclose in the recipe storage when all tasks are there.
-
-    // DebugServer
-    Process debuggerServerProc;
 
     // TaskTree
     std::unique_ptr<GlueInterface> m_glue; // Enclose in the recipe storage when all tasks are there.
@@ -132,7 +130,7 @@ void DebuggerRunTool::start()
             Group {
                 waitForBarrierTask(terminalBarrier),
                 d->fixupParamsRecipe(),
-                Sync([this] { startDebugServerIfNeededAndContinueStartup(); })
+                d->debugServerRecipe()
             }
         }
     };
@@ -302,6 +300,142 @@ ExecutableItem DebuggerRunToolPrivate::fixupParamsRecipe()
 
         return true;
     });
+}
+
+ExecutableItem DebuggerRunToolPrivate::debugServerRecipe()
+{
+    const auto useDebugServer = [this] {
+        return q->runControl()->usesDebugChannel() && !q->m_runParameters.skipDebugServer();
+    };
+
+    const auto onSetup = [this](Process &process) {
+        process.setUtf8Codec();
+        CommandLine commandLine = q->m_runParameters.inferior().command;
+        CommandLine cmd;
+
+        if (q->runControl()->usesQmlChannel() && !q->runControl()->usesDebugChannel()) {
+            // FIXME: Case should not happen?
+            cmd.setExecutable(commandLine.executable());
+            cmd.addArg(qmlDebugTcpArguments(QmlDebuggerServices, q->runControl()->qmlChannel()));
+            cmd.addArgs(commandLine.arguments(), CommandLine::Raw);
+        } else {
+            cmd.setExecutable(q->runControl()->device()->debugServerPath());
+
+            if (cmd.isEmpty()) {
+                if (q->runControl()->device()->osType() == Utils::OsTypeMac) {
+                    const FilePath debugServerLocation = q->runControl()->device()->filePath(
+                        "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/"
+                        "Resources/debugserver");
+
+                    if (debugServerLocation.isExecutableFile()) {
+                        cmd.setExecutable(debugServerLocation);
+                    } else {
+                        // TODO: In the future it is expected that the debugserver will be
+                        // replaced by lldb-server. Remove the check for debug server at that point.
+                        const FilePath lldbserver
+                            = q->runControl()->device()->filePath("lldb-server").searchInPath();
+                        if (lldbserver.isExecutableFile())
+                            cmd.setExecutable(lldbserver);
+                    }
+                } else {
+                    const FilePath gdbServerPath
+                        = q->runControl()->device()->filePath("gdbserver").searchInPath();
+                    FilePath lldbServerPath
+                        = q->runControl()->device()->filePath("lldb-server").searchInPath();
+
+                    // TODO: Which one should we prefer?
+                    if (gdbServerPath.isExecutableFile())
+                        cmd.setExecutable(gdbServerPath);
+                    else if (lldbServerPath.isExecutableFile()) {
+                        // lldb-server will fail if we start it through a link.
+                        // see: https://github.com/llvm/llvm-project/issues/61955
+                        //
+                        // So we first search for the real executable.
+
+                        // This is safe because we already checked that the file is executable.
+                        while (lldbServerPath.isSymLink())
+                            lldbServerPath = lldbServerPath.symLinkTarget();
+
+                        cmd.setExecutable(lldbServerPath);
+                    }
+                }
+            }
+            QTC_ASSERT(q->runControl()->usesDebugChannel(),
+                       q->reportFailure({}); return SetupResult::StopWithError);
+            if (cmd.executable().baseName().contains("lldb-server")) {
+                cmd.addArg("platform");
+                cmd.addArg("--listen");
+                cmd.addArg(QString("*:%1").arg(q->runControl()->debugChannel().port()));
+                cmd.addArg("--server");
+            } else if (cmd.executable().baseName() == "debugserver") {
+                const QString ipAndPort("`echo $SSH_CLIENT | cut -d ' ' -f 1`:%1");
+                cmd.addArgs(ipAndPort.arg(q->runControl()->debugChannel().port()), CommandLine::Raw);
+
+                if (q->m_runParameters.serverAttachPid().isValid())
+                    cmd.addArgs({"--attach", QString::number(q->m_runParameters.serverAttachPid().pid())});
+                else
+                    cmd.addCommandLineAsArgs(q->runControl()->commandLine());
+            } else {
+                // Something resembling gdbserver
+                if (q->m_runParameters.serverUseMulti())
+                    cmd.addArg("--multi");
+                if (q->m_runParameters.serverAttachPid().isValid())
+                    cmd.addArg("--attach");
+
+                const auto port = q->runControl()->debugChannel().port();
+                cmd.addArg(QString(":%1").arg(port));
+
+                if (q->runControl()->device()->extraData(ProjectExplorer::Constants::SSH_FORWARD_DEBUGSERVER_PORT).toBool()) {
+                    QVariantHash extraData;
+                    extraData[RemoteLinux::Constants::SshForwardPort] = port;
+                    extraData[RemoteLinux::Constants::DisableSharing] = true;
+                    process.setExtraData(extraData);
+                }
+
+                if (q->m_runParameters.serverAttachPid().isValid())
+                    cmd.addArg(QString::number(q->m_runParameters.serverAttachPid().pid()));
+            }
+        }
+
+        if (auto terminalAspect = q->runControl()->aspectData<TerminalAspect>()) {
+            const bool useTerminal = terminalAspect->useTerminal;
+            process.setTerminalMode(useTerminal ? TerminalMode::Run : TerminalMode::Off);
+        }
+
+        process.setCommand(cmd);
+        process.setWorkingDirectory(q->m_runParameters.inferior().workingDirectory);
+
+        QObject::connect(&process, &Process::readyReadStandardOutput, q, [this, process = &process] {
+            const QString msg = process->readAllStandardOutput();
+            q->runControl()->postMessage(msg, StdOutFormat, false);
+        });
+
+        QObject::connect(&process, &Process::readyReadStandardError, q, [this, process = &process] {
+            const QString msg = process->readAllStandardError();
+            q->runControl()->postMessage(msg, StdErrFormat, false);
+        });
+
+        QObject::connect(&process, &Process::started, q, [this] {
+            q->continueAfterDebugServerStart();
+        });
+
+        return SetupResult::Continue;
+    };
+
+    const auto onDone = [this](const Process &process, DoneWith result) {
+        if (result != DoneWith::Success)
+            q->reportFailure(process.errorString());
+        else
+            q->reportDone();
+    };
+
+    return Group {
+        If (useDebugServer) >> Then {
+            ProcessTask(onSetup, onDone)
+        } >> Else {
+            Sync([this] { q->continueAfterDebugServerStart(); })
+        }
+    };
 }
 
 void DebuggerRunTool::continueAfterDebugServerStart()
@@ -540,8 +674,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
     if (EngineManager::engines().isEmpty())
         toolRunCount = 0;
 
-    d->debuggerServerProc.setUtf8Codec();
-
     d->runId = QString::number(++toolRunCount);
 
     runControl->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
@@ -592,135 +724,6 @@ void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
     default:
         break;
     }
-}
-
-void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
-{
-    if (!runControl()->usesDebugChannel() || m_runParameters.skipDebugServer()) {
-        continueAfterDebugServerStart();
-        return;
-    }
-
-    // FIXME: Indentation intentionally wrong to keep diff in gerrit small. Will fix later.
-
-        CommandLine commandLine = m_runParameters.inferior().command;
-        CommandLine cmd;
-
-        if (runControl()->usesQmlChannel() && !runControl()->usesDebugChannel()) {
-            // FIXME: Case should not happen?
-            cmd.setExecutable(commandLine.executable());
-            cmd.addArg(qmlDebugTcpArguments(QmlDebuggerServices, runControl()->qmlChannel()));
-            cmd.addArgs(commandLine.arguments(), CommandLine::Raw);
-        } else {
-            cmd.setExecutable(runControl()->device()->debugServerPath());
-
-            if (cmd.isEmpty()) {
-                if (runControl()->device()->osType() == Utils::OsTypeMac) {
-                    const FilePath debugServerLocation = runControl()->device()->filePath(
-                        "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/"
-                        "Resources/debugserver");
-
-                    if (debugServerLocation.isExecutableFile()) {
-                        cmd.setExecutable(debugServerLocation);
-                    } else {
-                        // TODO: In the future it is expected that the debugserver will be
-                        // replaced by lldb-server. Remove the check for debug server at that point.
-                        const FilePath lldbserver
-                                = runControl()->device()->filePath("lldb-server").searchInPath();
-                        if (lldbserver.isExecutableFile())
-                            cmd.setExecutable(lldbserver);
-                    }
-                } else {
-                    const FilePath gdbServerPath
-                            = runControl()->device()->filePath("gdbserver").searchInPath();
-                    FilePath lldbServerPath
-                            = runControl()->device()->filePath("lldb-server").searchInPath();
-
-                    // TODO: Which one should we prefer?
-                    if (gdbServerPath.isExecutableFile())
-                        cmd.setExecutable(gdbServerPath);
-                    else if (lldbServerPath.isExecutableFile()) {
-                        // lldb-server will fail if we start it through a link.
-                        // see: https://github.com/llvm/llvm-project/issues/61955
-                        //
-                        // So we first search for the real executable.
-
-                        // This is safe because we already checked that the file is executable.
-                        while (lldbServerPath.isSymLink())
-                            lldbServerPath = lldbServerPath.symLinkTarget();
-
-                        cmd.setExecutable(lldbServerPath);
-                    }
-                }
-            }
-            QTC_ASSERT(runControl()->usesDebugChannel(), reportFailure({}));
-            if (cmd.executable().baseName().contains("lldb-server")) {
-                cmd.addArg("platform");
-                cmd.addArg("--listen");
-                cmd.addArg(QString("*:%1").arg(runControl()->debugChannel().port()));
-                cmd.addArg("--server");
-            } else if (cmd.executable().baseName() == "debugserver") {
-                const QString ipAndPort("`echo $SSH_CLIENT | cut -d ' ' -f 1`:%1");
-                cmd.addArgs(ipAndPort.arg(runControl()->debugChannel().port()), CommandLine::Raw);
-
-                if (m_runParameters.serverAttachPid().isValid())
-                    cmd.addArgs({"--attach", QString::number(m_runParameters.serverAttachPid().pid())});
-                else
-                    cmd.addCommandLineAsArgs(runControl()->commandLine());
-            } else {
-                // Something resembling gdbserver
-                if (m_runParameters.serverUseMulti())
-                    cmd.addArg("--multi");
-                if (m_runParameters.serverAttachPid().isValid())
-                    cmd.addArg("--attach");
-
-                const auto port = runControl()->debugChannel().port();
-                cmd.addArg(QString(":%1").arg(port));
-
-                if (runControl()->device()->extraData(ProjectExplorer::Constants::SSH_FORWARD_DEBUGSERVER_PORT).toBool()) {
-                    QVariantHash extraData;
-                    extraData[RemoteLinux::Constants::SshForwardPort] = port;
-                    extraData[RemoteLinux::Constants::DisableSharing] = true;
-                    d->debuggerServerProc.setExtraData(extraData);
-                }
-
-                if (m_runParameters.serverAttachPid().isValid())
-                    cmd.addArg(QString::number(m_runParameters.serverAttachPid().pid()));
-            }
-        }
-
-    if (auto terminalAspect = runControl()->aspectData<TerminalAspect>()) {
-        const bool useTerminal = terminalAspect->useTerminal;
-        d->debuggerServerProc.setTerminalMode(useTerminal ? TerminalMode::Run : TerminalMode::Off);
-    }
-
-    d->debuggerServerProc.setCommand(cmd);
-    d->debuggerServerProc.setWorkingDirectory(m_runParameters.inferior().workingDirectory);
-
-    connect(&d->debuggerServerProc, &Process::readyReadStandardOutput,
-                this, [this] {
-        const QString msg = d->debuggerServerProc.readAllStandardOutput();
-        runControl()->postMessage(msg, StdOutFormat, false);
-    });
-
-    connect(&d->debuggerServerProc, &Process::readyReadStandardError,
-                this, [this] {
-        const QString msg = d->debuggerServerProc.readAllStandardError();
-        runControl()->postMessage(msg, StdErrFormat, false);
-    });
-
-    connect(&d->debuggerServerProc, &Process::started, this, [this] {
-        continueAfterDebugServerStart();
-    });
-
-    connect(&d->debuggerServerProc, &Process::done, this, [this] {
-        if (d->debuggerServerProc.error() != QProcess::UnknownError)
-            reportFailure(d->debuggerServerProc.errorString());
-        if (d->debuggerServerProc.error() != QProcess::FailedToStart && m_runParameters.serverEssential())
-            reportDone();
-    });
-
-    d->debuggerServerProc.start();
 }
 
 class DebuggerRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
