@@ -223,7 +223,7 @@ void GitLabCloneDialog::cloneFinished(bool success)
             accept();
         } else {
             const QStringList pFiles = Utils::transform(filesWeMayOpen, [base](const FilePath &f) {
-                return f.relativePathFrom(base).toUserOutput();
+                return f.relativePathFromDir(base).toUserOutput();
             });
             bool ok = false;
             const QString fileToOpen

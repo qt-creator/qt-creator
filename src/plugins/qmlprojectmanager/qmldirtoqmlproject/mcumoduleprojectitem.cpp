@@ -164,7 +164,7 @@ std::optional<McuModuleProjectItem> McuModuleProjectItem::fromQmldirModule(const
         return {};
     }
     auto qmlFiles = Utils::transform<QStringList>(qmlDirEntries, [qmldirParent](const Utils::FilePath &path) {
-        return path.relativePathFrom(qmldirParent).toFSPathString();
+        return path.relativePathFromDir(qmldirParent).toFSPathString();
     });
 
     // build mcu module project

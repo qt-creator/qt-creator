@@ -540,7 +540,7 @@ InstallResult executePluginInstallWizard(const FilePath &archive, bool prepareFo
                     return false;
 
                 auto specs = pluginSpecsFromArchive(installPath.resolvePath(
-                    data.pluginSpec->filePath().relativePathFrom(data.extractedPath)));
+                    data.pluginSpec->filePath().relativePathFromDir(data.extractedPath)));
 
                 QTC_ASSERT(specs.size() == 1, return false);
                 data.pluginSpec.reset(specs.front());
@@ -555,7 +555,7 @@ InstallResult executePluginInstallWizard(const FilePath &archive, bool prepareFo
                 }
 
                 auto specs = pluginSpecsFromArchive(installPath.resolvePath(
-                    data.pluginSpec->filePath().relativePathFrom(data.extractedPath)));
+                    data.pluginSpec->filePath().relativePathFromDir(data.extractedPath)));
 
                 QTC_ASSERT(specs.size() == 1, return false);
                 data.pluginSpec.reset(specs.front());

@@ -249,7 +249,7 @@ static QString relativeFilePaths(const FilePaths &filePaths, const FilePath &pro
     return Utils::transform(
                filePaths,
                [projectDir](const FilePath &path) {
-                   return path.canonicalPath().relativePathFrom(projectDir).cleanPath().path();
+                   return path.canonicalPath().relativePathFromDir(projectDir).cleanPath().path();
                })
         .join(' ');
 };
@@ -872,9 +872,9 @@ RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
         const QString targetName = n->buildKey();
 
         bool haveGlobbing = false;
-        for (const auto &file : filePaths) {
+        for (const FilePath &file : filePaths) {
             const QString fileName
-                = file.canonicalPath().relativePathFrom(projDir).cleanPath().path();
+                = file.canonicalPath().relativePathFromDir(projDir).cleanPath().path();
 
             auto filePos = projectFileArgumentPosition(targetName, fileName);
             if (filePos) {
@@ -955,7 +955,7 @@ bool CMakeBuildSystem::canRenameFile(Node *context,
     if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
         const FilePath projDir = n->filePath().canonicalPath();
         const QString oldRelPathName
-            = oldFilePath.canonicalPath().relativePathFrom(projDir).cleanPath().path();
+            = oldFilePath.canonicalPath().relativePathFromDir(projDir).cleanPath().path();
 
         const QString targetName = n->buildKey();
 
@@ -1005,7 +1005,7 @@ bool CMakeBuildSystem::renameFile(
         bool &shouldRunCMake)
 {
     const FilePath projDir = context->filePath().canonicalPath();
-    const FilePath newRelPath = newFilePath.canonicalPath().relativePathFrom(projDir).cleanPath();
+    const FilePath newRelPath = newFilePath.canonicalPath().relativePathFromDir(projDir).cleanPath();
     const QString newRelPathName = newRelPath.toUrlishString();
 
     const QString targetName = context->buildKey();
@@ -1081,7 +1081,7 @@ FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
         baseDirectory = baseDirectory.parentDir();
     }
 
-    const FilePath relativePath = baseDirectory.relativePathFrom(project);
+    const FilePath relativePath = baseDirectory.relativePathFromDir(project);
     FilePath generatedFilePath = buildConfiguration()->buildDirectory().resolvePath(relativePath);
 
     if (sourceFile.suffix() == "ui") {

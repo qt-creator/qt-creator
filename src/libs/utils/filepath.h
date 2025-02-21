@@ -213,7 +213,7 @@ public:
     [[nodiscard]] FilePath withExecutableSuffix() const;
     [[nodiscard]] FilePath withSuffix(const QString &suffix) const;
     [[nodiscard]] FilePath relativeChildPath(const FilePath &parent) const;
-    [[nodiscard]] FilePath relativePathFrom(const FilePath &anchor) const;
+    [[nodiscard]] FilePath relativePathFromDir(const FilePath &anchorDir) const;
     [[nodiscard]] Environment deviceEnvironment() const;
     [[nodiscard]] expected_str<Environment> deviceEnvironmentWithError() const;
     [[nodiscard]] FilePaths devicePathEnvironmentVariable() const;

@@ -527,9 +527,9 @@ Utils::FilePath QmlBuildSystem::targetDirectory() const
 
 Utils::FilePath QmlBuildSystem::targetFile(const Utils::FilePath &sourceFile) const
 {
-    const Utils::FilePath sourceDir = m_projectItem ? m_projectItem->sourceDirectory()
+    const FilePath sourceDir = m_projectItem ? m_projectItem->sourceDirectory()
                                              : canonicalProjectDir();
-    const Utils::FilePath relative = sourceFile.relativePathFrom(sourceDir);
+    const FilePath relative = sourceFile.relativePathFromDir(sourceDir);
     return targetDirectory().resolvePath(relative);
 }
 

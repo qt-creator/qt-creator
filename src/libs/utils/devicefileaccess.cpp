@@ -184,7 +184,7 @@ static Result copyRecursively_fallback(const FilePath &src, const FilePath &targ
     Result result = Result::Ok;
     src.iterateDirectory(
         [&target, &src, &result](const FilePath &path) {
-            const FilePath relative = path.relativePathFrom(src);
+            const FilePath relative = path.relativePathFromDir(src);
             const FilePath targetPath = target.pathAppended(relative.path());
             result = targetPath.parentDir().ensureWritableDir();
             if (!result)

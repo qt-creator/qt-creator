@@ -68,7 +68,7 @@ public:
         if (m_defpos == DefPosImplementationFile) {
             const FilePath declFile = decl->filePath();
             const FilePath targetFile =  m_loc.isValid() ? m_loc.filePath() : m_targetFilePath;
-            const FilePath resolved = targetFile.relativePathFrom(declFile.parentDir());
+            const FilePath resolved = targetFile.relativePathFromDir(declFile.parentDir());
             setPriority(2);
             setDescription(Tr::tr("Add Definition in %1").arg(resolved.displayName()));
         } else if (freeFunction) {

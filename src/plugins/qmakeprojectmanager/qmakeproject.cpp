@@ -825,7 +825,7 @@ FilePath QmakeBuildSystem::buildDir(const FilePath &proFilePath) const
         return oldResult;
     }
 
-    const FilePath relativeDir = proFilePath.parentDir().relativePathFrom(projectDirectory());
+    const FilePath relativeDir = proFilePath.parentDir().relativePathFromDir(projectDirectory());
     return buildDir.resolvePath(relativeDir).canonicalPath();
 }
 

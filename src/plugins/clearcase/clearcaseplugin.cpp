@@ -1591,7 +1591,7 @@ void ClearCasePluginPrivate::vcsDescribe(const FilePath &source, const QString &
     if (Constants::debug)
         qDebug() << Q_FUNC_INFO << source << topLevel << changeNr;
     QString description;
-    const FilePath relPath = source.relativePathFrom(topLevel);
+    const FilePath relPath = source.relativePathFromDir(topLevel);
     const QString id = QString::fromLatin1("%1@@%2").arg(relPath.toUserOutput(), changeNr);
 
     QTextCodec *codec = VcsBaseEditor::getCodec(source);
@@ -1706,7 +1706,7 @@ bool ClearCasePluginPrivate::vcsOpen(const FilePath &workingDir, const QString &
         return true;
     }
 
-    const FilePath relFile = absPath.relativePathFrom(topLevel);
+    const FilePath relFile = absPath.relativePathFromDir(topLevel);
     const QString file = relFile.nativePath();
     const QString title = QString::fromLatin1("Checkout %1").arg(file);
     CheckOutDialog coDialog(title, m_viewData.isUcm, !m_settings.noComment);

@@ -52,7 +52,7 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
             isRelative = true;
             directoryWithoutPrefix = directory.relativeChildPath(path);
         } else {
-            const FilePath relativePath = directory.relativePathFrom(path);
+            const FilePath relativePath = directory.relativePathFromDir(path);
             if (relativePath.path().count("../") < 5) {
                 isRelative = true;
                 directoryWithoutPrefix = relativePath;

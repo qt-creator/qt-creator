@@ -1019,7 +1019,7 @@ static QString trimmedFileName(const FilePath &fullPath)
     const Project *project = ProjectTree::currentProject();
     const FilePath projectDirectory = project ? project->projectDirectory() : FilePath();
     if (projectDirectory.exists())
-        return fullPath.relativePathFrom(projectDirectory).toUserOutput();
+        return fullPath.relativePathFromDir(projectDirectory).toUserOutput();
 
     return fullPath.toUserOutput();
 }

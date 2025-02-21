@@ -22,9 +22,6 @@
 #include <QTemporaryFile>
 #include <QUrl>
 
-#include <QtConcurrent>
-#include <QtGlobal>
-
 #ifdef Q_OS_WIN
 #ifdef QTCREATOR_PCH_H
 #define CALLBACK WINAPI
@@ -1642,42 +1639,16 @@ FilePath FilePath::relativeChildPath(const FilePath &parent) const
 
     The debug output will be "../b/ar/file.txt".
 */
-FilePath FilePath::relativePathFrom(const FilePath &anchor) const
+
+FilePath FilePath::relativePathFromDir(const FilePath &anchor) const
 {
     QTC_ASSERT(isSameDevice(anchor), return *this);
 
-    FilePath absPath;
-    QString filename;
-
-    const QList<FilePathInfo> infos
-        = QtConcurrent::blockingMapped(QList<FilePath>{*this, anchor}, [](const FilePath &path) {
-              return path.filePathInfo();
-          });
-
-    if (infos.first().fileFlags.testFlag(FilePathInfo::FileFlag::FileType)) {
-        absPath = absolutePath();
-        filename = fileName();
-    } else if (infos.first().fileFlags.testFlag(FilePathInfo::FileFlag::DirectoryType)) {
-        absPath = absoluteFilePath();
-    } else {
-        return {};
-    }
-    FilePath absoluteAnchorPath;
-    if (infos.last().fileFlags.testFlag(FilePathInfo::FileFlag::FileType))
-        absoluteAnchorPath = anchor.absolutePath();
-    else if (infos.last().fileFlags.testFlag(FilePathInfo::FileFlag::DirectoryType))
-        absoluteAnchorPath = anchor.absoluteFilePath();
-    else
-        return {};
+    FilePath absPath = absoluteFilePath();
+    const FilePath absoluteAnchorPath = anchor.absoluteFilePath();
 
     QString relativeFilePath = calcRelativePath(absPath.pathView(), absoluteAnchorPath.pathView());
-    if (!filename.isEmpty()) {
-        if (relativeFilePath == ".")
-            relativeFilePath.clear();
-        if (!relativeFilePath.isEmpty())
-            relativeFilePath += '/';
-        relativeFilePath += filename;
-    }
+
     return FilePath::fromString(relativeFilePath);
 }
 

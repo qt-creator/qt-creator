@@ -94,7 +94,7 @@ void QmlMainFileAspect::updateFileComboBox()
     const FilePath projectDir = m_target->project()->projectDirectory();
 
     if (mainScriptSource() == FileInProjectFile) {
-        const FilePath mainScriptInFilePath = mainScript().relativePathFrom(projectDir);
+        const FilePath mainScriptInFilePath = mainScript().relativePathFromDir(projectDir);
         m_fileListModel.clear();
         m_fileListModel.appendRow(new QStandardItem(mainScriptInFilePath.toUrlishString()));
         if (m_fileListCombo)

@@ -347,7 +347,7 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
         item->setVariety(action->stereotype);
         item->setVarietyEditable(false);
         FilePath filePath = FilePath::fromString(action->filePath);
-        item->setLinkedFileName(filePath.relativePathFrom(FilePath::fromString(d->anchorFolder)));
+        item->setLinkedFileName(filePath.relativePathFromDir(FilePath::fromString(d->anchorFolder)));
         newObject = item;
         dropInCurrentDiagram = true;
         break;

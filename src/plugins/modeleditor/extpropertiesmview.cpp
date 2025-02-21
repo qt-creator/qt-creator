@@ -189,7 +189,7 @@ void ExtPropertiesMView::onConfigPathChanged(const QString &path)
         // make path relative to current project's directory
         Utils::FilePath absConfigPath = Utils::FilePath::fromString(path).absoluteFilePath();
         Utils::FilePath projectDir = project->fileName().absolutePath();
-        Utils::FilePath configPath = absConfigPath.relativePathFrom(projectDir);
+        Utils::FilePath configPath = absConfigPath.relativePathFromDir(projectDir);
         if (configPath != project->configPath()) {
             project->setConfigPath(configPath);
             m_projectController->setModified();
@@ -214,7 +214,7 @@ void ExtPropertiesMView::onFileLinkPathChanged(const QString &path)
         // make path relative to current project's directory
         Utils::FilePath filePath = Utils::FilePath::fromString(path);
         Utils::FilePath projectPath = project->fileName().absolutePath();
-        Utils::FilePath relativeFilePath = filePath.relativePathFrom(projectPath);
+        Utils::FilePath relativeFilePath = filePath.relativePathFromDir(projectPath);
         if (!relativeFilePath.isEmpty()) {
             assignModelElement<qmt::MObject, Utils::FilePath>(
                 m_modelElements,
@@ -242,7 +242,7 @@ void ExtPropertiesMView::onImagePathChanged(const QString &path)
         // make path relative to current project's directory
         Utils::FilePath filePath = Utils::FilePath::fromString(path);
         Utils::FilePath projectPath = project->fileName().absolutePath();
-        Utils::FilePath relativeFilePath = filePath.relativePathFrom(projectPath);
+        Utils::FilePath relativeFilePath = filePath.relativePathFromDir(projectPath);
         if (!relativeFilePath.isEmpty()
             && isValueChanged<qmt::DObject, Utils::FilePath>(
                 m_diagramElements, SelectionSingle, relativeFilePath, &qmt::DObject::imagePath)) {

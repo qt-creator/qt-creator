@@ -135,7 +135,7 @@ void TestConfiguration::completeTestInformation(RunConfiguration *rc,
         const FilePath projBase = startupProject->projectDirectory();
         if (m_projectFile.isChildOf(projBase)) {
             m_buildDir
-                = (buildBase.resolvePath(m_projectFile.relativePathFrom(projBase))).absolutePath();
+                = (buildBase.resolvePath(m_projectFile.relativePathFromDir(projBase))).absolutePath();
         }
     }
     if (runMode == TestRunMode::Debug || runMode == TestRunMode::DebugWithoutDeploy)
@@ -212,7 +212,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
         const FilePath projBase = startupProject->projectDirectory();
         if (m_projectFile.isChildOf(projBase)) {
             m_buildDir
-                = (buildBase.resolvePath(m_projectFile.relativePathFrom(projBase))).absolutePath();
+                = (buildBase.resolvePath(m_projectFile.relativePathFromDir(projBase))).absolutePath();
         }
     }
 
