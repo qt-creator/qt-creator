@@ -84,6 +84,7 @@ public:
                                       const QString &targetDirPath = {});
     Q_INVOKABLE QSet<QString> supportedAssetSuffixes(bool complex);
     Q_INVOKABLE void openEffectComposer(const QString &filePath);
+    Q_INVOKABLE void editAssetComponent(const QString &filePath);
     Q_INVOKABLE int qtVersion() const;
     Q_INVOKABLE void invalidateThumbnail(const QString &id);
     Q_INVOKABLE QSize imageSize(const QString &id);

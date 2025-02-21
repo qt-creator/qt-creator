@@ -609,6 +609,14 @@ void AssetsLibraryWidget::openEffectComposer(const QString &filePath)
     ModelNodeOperations::openEffectComposer(filePath);
 }
 
+void AssetsLibraryWidget::editAssetComponent(const QString &filePath)
+{
+    Utils::FilePath fullPath = QmlDesignerPlugin::instance()->documentManager()
+                                   .generatedComponentUtils().getImported3dQml(filePath);
+    if (fullPath.exists())
+        DocumentManager::goIntoComponent(fullPath.toFSPathString());
+}
+
 QString AssetsLibraryWidget::qmlSourcesPath()
 {
 #ifdef SHARE_QML_PATH
