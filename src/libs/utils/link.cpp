@@ -7,6 +7,12 @@
 
 namespace Utils {
 
+Link::Link(const FilePath &filePath, int line, int column)
+    : targetFilePath(filePath)
+    , targetLine(line)
+    , targetColumn(column)
+{}
+
 /*!
     Returns the Link to \a filePath.
     If \a canContainLineNumber is true the line number, and column number components
@@ -30,6 +36,27 @@ Link Link::fromString(const QString &filePathWithNumbers, bool canContainLineNum
         link.targetColumn = pos.column;
     }
     return link;
+}
+
+bool Link::hasValidTarget() const
+{
+    if (!targetFilePath.isEmpty())
+        return true;
+    return !targetFilePath.scheme().isEmpty() || !targetFilePath.host().isEmpty();
+}
+
+bool Link::hasSameLocation(const Link &other) const
+{
+    return targetFilePath == other.targetFilePath
+        && targetLine == other.targetLine
+        && targetColumn == other.targetColumn;
+}
+
+bool operator==(const Link &lhs, const Link &rhs)
+{
+    return lhs.hasSameLocation(rhs)
+        && lhs.linkTextStart == rhs.linkTextStart
+        && lhs.linkTextEnd == rhs.linkTextEnd;
 }
 
 bool operator<(const Link &first, const Link &second)
