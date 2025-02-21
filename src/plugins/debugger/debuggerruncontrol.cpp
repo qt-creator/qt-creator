@@ -259,11 +259,15 @@ void DebuggerRunTool::continueAfterTerminalStart()
     runControl()->setSupportsReRunning(false); // FIXME: Broken in general.
 
     // FIXME: Disabled due to Android. Make Android device report available ports instead.
-//    int portsUsed = portsUsedByDebugger();
-//    if (portsUsed > device()->freePorts().count()) {
-//        reportFailure(Tr::tr("Cannot debug: Not enough free ports available."));
-//        return;
-//    }
+    // int neededPorts = 0;
+    // if (useQmlDebugger())
+    //     ++neededPorts;
+    // if (useCppDebugger())
+    //     ++neededPorts;
+    // if (neededPorts > device()->freePorts().count()) {
+    //    reportFailure(Tr::tr("Cannot debug: Not enough free ports available."));
+    //    return;
+    // }
 
     if (Result res = m_runParameters.fixupParameters(runControl()); !res) {
         reportFailure(res.error());

@@ -28,8 +28,6 @@ public:
     void setUseMultiProcess(bool on);
     QString overrideStartup() const;
 
-    int portsUsedByDebugger() const;
-
     struct Data : BaseAspect::Data
     {
         bool useCppDebugger;

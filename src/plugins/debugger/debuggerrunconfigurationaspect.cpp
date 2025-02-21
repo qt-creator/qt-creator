@@ -221,16 +221,6 @@ QString DebuggerRunConfigurationAspect::overrideStartup() const
     return m_overrideStartupAspect();
 }
 
-int DebuggerRunConfigurationAspect::portsUsedByDebugger() const
-{
-    int ports = 0;
-    if (useQmlDebugger())
-        ++ports;
-    if (useCppDebugger())
-        ++ports;
-    return ports;
-}
-
 void DebuggerRunConfigurationAspect::toMap(Store &map) const
 {
     m_cppAspect.toMap(map);
