@@ -31,6 +31,7 @@
 
 #include <remotelinux/remotelinux_constants.h>
 
+#include <solutions/tasking/conditional.h>
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/algorithm.h>
@@ -94,6 +95,7 @@ public:
     DebuggerRunTool *q = nullptr;
 
     GroupItem coreFileRecipe();
+    GroupItem terminalRecipe();
 
     int snapshotCounter = 0;
     int engineStartsNeeded = 0;
@@ -102,9 +104,6 @@ public:
 
     // Core unpacker
     FilePath m_tempCoreFilePath; // TODO: Enclose in the recipe storage when all tasks are there.
-
-    // Terminal
-    Process terminalProc;
 
     // DebugServer
     Process debuggerServerProc;
@@ -120,12 +119,10 @@ void DebuggerRunTool::start()
 {
     d->m_glue.reset(new GlueInterface);
     const Group recipe {
-        d->coreFileRecipe()
+        d->coreFileRecipe(),
+        d->terminalRecipe()
     };
-    d->m_taskTreeRunner.start(recipe, {}, [this](DoneWith result) {
-        if (result == DoneWith::Success)
-            startTerminalIfNeededAndContinueStartup();
-    });
+    d->m_taskTreeRunner.start(recipe);
 }
 
 GroupItem DebuggerRunToolPrivate::coreFileRecipe()
@@ -175,51 +172,52 @@ GroupItem DebuggerRunToolPrivate::coreFileRecipe()
     };
 }
 
-void DebuggerRunTool::startTerminalIfNeededAndContinueStartup()
+GroupItem DebuggerRunToolPrivate::terminalRecipe()
 {
-    // CDB has a built-in console that might be preferred by some.
-    const bool useCdbConsole = m_runParameters.cppEngineType() == CdbEngineType
-            && (m_runParameters.startMode() == StartInternal
-                || m_runParameters.startMode() == StartExternal)
-            && settings().useCdbConsole();
-    if (useCdbConsole)
-        m_runParameters.setUseTerminal(false);
+    const auto useTerminal = [this] {
+        const bool useCdbConsole = q->m_runParameters.cppEngineType() == CdbEngineType
+                                   && (q->m_runParameters.startMode() == StartInternal
+                                       || q->m_runParameters.startMode() == StartExternal)
+                                   && settings().useCdbConsole();
+        if (useCdbConsole)
+            q->m_runParameters.setUseTerminal(false);
+        return q->m_runParameters.useTerminal();
+    };
 
-    if (!m_runParameters.useTerminal()) {
-        continueAfterTerminalStart();
-        return;
-    }
+    const auto onSetup = [this](Process &process) {
+        ProcessRunData stub = q->m_runParameters.inferior();
+        if (q->m_runParameters.runAsRoot()) {
+            process.setRunAsRoot(true);
+            RunControl::provideAskPassEntry(stub.environment);
+        }
+        process.setTerminalMode(TerminalMode::Debug);
+        process.setRunData(stub);
 
-    // Actually start the terminal.
-    ProcessRunData stub = m_runParameters.inferior();
+        QObject::connect(&process, &Process::started, &process, [this, processPtr = &process] {
+            q->m_runParameters.setApplicationPid(processPtr->processId());
+            q->m_runParameters.setApplicationMainThreadId(processPtr->applicationMainThreadId());
+            q->continueAfterTerminalStart();
+        });
 
-    if (m_runParameters.runAsRoot()) {
-        d->terminalProc.setRunAsRoot(true);
-        RunControl::provideAskPassEntry(stub.environment);
-    }
+        QObject::connect(m_glue.get(), &GlueInterface::interruptTerminalRequested,
+                         &process, &Process::interrupt);
+        QObject::connect(m_glue.get(), &GlueInterface::kickoffTerminalProcessRequested,
+                         &process, &Process::kickoffProcess);
+    };
+    const auto onDone = [this](const Process &process, DoneWith result) {
+        if (result != DoneWith::Success)
+            q->reportFailure(process.errorString());
+        else
+            q->reportDone();
+    };
 
-    d->terminalProc.setTerminalMode(TerminalMode::Debug);
-    d->terminalProc.setRunData(stub);
-
-    connect(&d->terminalProc, &Process::started, this, [this] {
-        m_runParameters.setApplicationPid(d->terminalProc.processId());
-        m_runParameters.setApplicationMainThreadId(d->terminalProc.applicationMainThreadId());
-        continueAfterTerminalStart();
-    });
-
-    connect(&d->terminalProc, &Process::done, this, [this] {
-        if (d->terminalProc.error() != QProcess::UnknownError)
-            reportFailure(d->terminalProc.errorString());
-        if (d->terminalProc.error() != QProcess::FailedToStart)
-            reportDone();
-    });
-
-    connect(d->m_glue.get(), &GlueInterface::interruptTerminalRequested,
-            &d->terminalProc, &Process::interrupt);
-    connect(d->m_glue.get(), &GlueInterface::kickoffTerminalProcessRequested,
-            &d->terminalProc, &Process::kickoffProcess);
-
-    d->terminalProc.start();
+    return Group {
+        If (useTerminal) >> Then {
+            ProcessTask(onSetup, onDone)
+        } >> Else {
+            Sync([this] { q->continueAfterTerminalStart(); })
+        }
+    };
 }
 
 void DebuggerRunTool::continueAfterTerminalStart()
