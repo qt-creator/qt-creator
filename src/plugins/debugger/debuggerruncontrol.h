@@ -36,15 +36,13 @@ public:
 private:
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);
 
-    void startCoreFileSetupIfNeededAndContinueStartup();
-    void continueAfterCoreFileSetup();
-
     void startTerminalIfNeededAndContinueStartup();
     void continueAfterTerminalStart();
 
     void startDebugServerIfNeededAndContinueStartup();
     void continueAfterDebugServerStart();
 
+    friend class Internal::DebuggerRunToolPrivate;
     Internal::DebuggerRunToolPrivate *d;
     QList<QPointer<Internal::DebuggerEngine>> m_engines;
     DebuggerRunParameters m_runParameters;

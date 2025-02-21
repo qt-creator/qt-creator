@@ -31,6 +31,8 @@
 
 #include <remotelinux/remotelinux_constants.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/environment.h>
@@ -51,6 +53,7 @@
 using namespace Core;
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 enum { debug = 0 };
@@ -79,85 +82,85 @@ static QString noDebuggerInKitMessage()
 class DebuggerRunToolPrivate
 {
 public:
+    DebuggerRunTool *q = nullptr;
+
+    GroupItem coreFileRecipe();
+
     int snapshotCounter = 0;
     int engineStartsNeeded = 0;
     int engineStopsNeeded = 0;
     QString runId;
 
     // Core unpacker
-    QFile m_tempCoreFile;
-    FilePath m_tempCoreFilePath;
-    Process m_coreUnpackProcess;
+    FilePath m_tempCoreFilePath; // TODO: Enclose in the recipe storage when all tasks are there.
 
     // Terminal
     Process terminalProc;
 
     // DebugServer
     Process debuggerServerProc;
+
+    Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace Internal
 
 void DebuggerRunTool::start()
 {
-    startCoreFileSetupIfNeededAndContinueStartup();
-}
-
-void DebuggerRunTool::startCoreFileSetupIfNeededAndContinueStartup()
-{
-    const FilePath coreFile = m_runParameters.coreFile();
-    if (!coreFile.endsWith(".gz") && !coreFile.endsWith(".lzo")) {
-        continueAfterCoreFileSetup();
-        return;
-    }
-
-    {
-        TemporaryFile tmp("tmpcore-XXXXXX");
-        QTC_CHECK(tmp.open());
-        d->m_tempCoreFilePath = FilePath::fromString(tmp.fileName());
-    }
-
-    d->m_coreUnpackProcess.setWorkingDirectory(TemporaryDirectory::masterDirectoryFilePath());
-    connect(&d->m_coreUnpackProcess, &Process::done, this, [this] {
-        if (d->m_coreUnpackProcess.error() == QProcess::UnknownError) {
-            m_runParameters.setCoreFilePath(d->m_tempCoreFilePath);
-            continueAfterCoreFileSetup();
-            return;
-        }
-        reportFailure("Error unpacking " + m_runParameters.coreFile().toUserOutput());
+    const Group recipe {
+        d->coreFileRecipe()
+    };
+    d->m_taskTreeRunner.start(recipe, {}, [this](DoneWith result) {
+        if (result == DoneWith::Success)
+            startTerminalIfNeededAndContinueStartup();
     });
-
-    const QString msg = Tr::tr("Unpacking core file to %1");
-    appendMessage(msg.arg(d->m_tempCoreFilePath.toUserOutput()), LogMessageFormat);
-
-    if (coreFile.endsWith(".lzo")) {
-        d->m_coreUnpackProcess.setCommand({"lzop", {"-o", d->m_tempCoreFilePath.path(),
-                                                 "-x", coreFile.path()}});
-        d->m_coreUnpackProcess.start();
-        return;
-    }
-
-    if (coreFile.endsWith(".gz")) {
-        d->m_tempCoreFile.setFileName(d->m_tempCoreFilePath.path());
-        QTC_CHECK(d->m_tempCoreFile.open(QFile::WriteOnly));
-        connect(&d->m_coreUnpackProcess, &Process::readyReadStandardOutput, this, [this] {
-            d->m_tempCoreFile.write(d->m_coreUnpackProcess.readAllRawStandardOutput());
-        });
-        d->m_coreUnpackProcess.setCommand({"gzip", {"-c", "-d", coreFile.path()}});
-        d->m_coreUnpackProcess.start();
-        return;
-    }
-
-    QTC_CHECK(false);
-    reportFailure("Unknown file extension in " + coreFile.toUserOutput());
 }
 
-void DebuggerRunTool::continueAfterCoreFileSetup()
+GroupItem DebuggerRunToolPrivate::coreFileRecipe()
 {
-    if (d->m_tempCoreFile.isOpen())
-        d->m_tempCoreFile.close();
+    const FilePath coreFile = q->m_runParameters.coreFile();
+    if (!coreFile.endsWith(".gz") && !coreFile.endsWith(".lzo"))
+        return nullItem;
 
-    startTerminalIfNeededAndContinueStartup();
+    const Storage<QFile> storage; // tempCoreFile
+
+    const auto onSetup = [this, storage, coreFile](Process &process) {
+        {
+            TemporaryFile tmp("tmpcore-XXXXXX");
+            QTC_CHECK(tmp.open());
+            m_tempCoreFilePath = FilePath::fromString(tmp.fileName());
+        }
+        QFile *tempCoreFile = storage.activeStorage();
+        process.setWorkingDirectory(TemporaryDirectory::masterDirectoryFilePath());
+        const QString msg = Tr::tr("Unpacking core file to %1");
+        q->appendMessage(msg.arg(m_tempCoreFilePath.toUserOutput()), LogMessageFormat);
+
+        if (coreFile.endsWith(".lzo")) {
+            process.setCommand({"lzop", {"-o", m_tempCoreFilePath.path(), "-x", coreFile.path()}});
+        } else { // ".gz"
+            tempCoreFile->setFileName(m_tempCoreFilePath.path());
+            QTC_CHECK(tempCoreFile->open(QFile::WriteOnly));
+            QObject::connect(&process, &Process::readyReadStandardOutput, &process,
+                             [tempCoreFile, processPtr = &process] {
+                tempCoreFile->write(processPtr->readAllRawStandardOutput());
+            });
+            process.setCommand({"gzip", {"-c", "-d", coreFile.path()}});
+        }
+    };
+
+    const auto onDone = [this, storage](DoneWith result) {
+        if (result == DoneWith::Success)
+            q->m_runParameters.setCoreFilePath(m_tempCoreFilePath);
+        else
+            q->reportFailure("Error unpacking " + q->m_runParameters.coreFile().toUserOutput());
+        if (storage->isOpen())
+            storage->close();
+    };
+
+    return Group {
+        storage,
+        ProcessTask(onSetup, onDone, CallDoneIf::Success)
+    };
 }
 
 void DebuggerRunTool::startTerminalIfNeededAndContinueStartup()
@@ -498,6 +501,8 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
     , d(new DebuggerRunToolPrivate)
     , m_runParameters(DebuggerRunParameters::fromRunControl(runControl))
 {
+    d->q = this;
+
     setId("DebuggerRunTool");
 
     static int toolRunCount = 0;
