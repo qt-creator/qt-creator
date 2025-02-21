@@ -4743,8 +4743,7 @@ void GdbEngine::interruptInferior2()
         interruptLocalInferior(inferiorPid());
 
     } else if (isTermEngine()) {
-
-        interruptTerminal();
+        emit interruptTerminalRequested();
     }
 }
 
@@ -5027,7 +5026,7 @@ void GdbEngine::handleStubAttached(const DebuggerResponse &response, qint64 main
         } else {
             showMessage("INFERIOR ATTACHED");
             QTC_ASSERT(usesTerminal(), return);
-            kickoffTerminalProcess();
+            emit kickoffTerminalProcessRequested();
             //notifyEngineRunAndInferiorRunOk();
             // Wait for the upcoming *stopped and handle it there.
         }

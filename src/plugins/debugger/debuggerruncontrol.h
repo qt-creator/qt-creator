@@ -23,9 +23,6 @@ public:
     void start() override;
     void stop() override;
 
-    void kickoffTerminalProcess();
-    void interruptTerminal();
-
     void setupPortsGatherer();
 
     DebuggerRunParameters &runParameters() { return m_runParameters; }

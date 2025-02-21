@@ -10,7 +10,6 @@
 #include "debuggericons.h"
 #include "debuggerkitaspect.h"
 #include "debuggerrunconfigurationaspect.h"
-#include "debuggerruncontrol.h"
 #include "debuggertooltipmanager.h"
 #include "debuggertr.h"
 
@@ -44,11 +43,13 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/toolchainkitaspect.h>
 
@@ -790,7 +791,6 @@ public:
     OptionalAction m_operateInReverseDirectionAction{Tr::tr("Reverse Direction")};
     OptionalAction m_snapshotAction{Tr::tr("Take Snapshot of Process State")};
 
-    QPointer<DebuggerRunTool> m_runTool;
     DebuggerToolTipManager m_toolTipManager;
     Context m_context;
 };
@@ -1319,13 +1319,10 @@ void DebuggerEngine::setRunId(const QString &id)
     d->m_runId = id;
 }
 
-void DebuggerEngine::setRunTool(DebuggerRunTool *runTool)
+void DebuggerEngine::setDevice(const IDeviceConstPtr &device)
 {
-    d->m_runTool = runTool;
-    d->m_device = runTool->runControl()->device();
-
+    d->m_device = device;
     validateRunParameters(d->m_runParameters);
-
     d->setupViews();
 }
 
@@ -2347,18 +2344,6 @@ qint64 DebuggerEngine::applicationMainThreadId() const
 {
     QTC_CHECK(usesTerminal());
     return d->m_runParameters.applicationMainThreadId();
-}
-
-void DebuggerEngine::interruptTerminal() const
-{
-    QTC_ASSERT(usesTerminal(), return);
-    d->m_runTool->interruptTerminal();
-}
-
-void DebuggerEngine::kickoffTerminalProcess() const
-{
-    QTC_ASSERT(usesTerminal(), return);
-    d->m_runTool->kickoffTerminalProcess();
 }
 
 void DebuggerEngine::selectWatchData(const QString &)

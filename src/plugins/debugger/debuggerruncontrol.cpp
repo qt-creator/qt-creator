@@ -79,6 +79,15 @@ static QString noDebuggerInKitMessage()
    return Tr::tr("The kit does not have a debugger set.");
 }
 
+class GlueInterface : public QObject
+{
+    Q_OBJECT
+
+signals:
+    void interruptTerminalRequested();
+    void kickoffTerminalProcessRequested();
+};
+
 class DebuggerRunToolPrivate
 {
 public:
@@ -100,6 +109,8 @@ public:
     // DebugServer
     Process debuggerServerProc;
 
+    // TaskTree
+    std::unique_ptr<GlueInterface> m_glue; // Enclose in the recipe storage when all tasks are there.
     Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 
@@ -107,6 +118,7 @@ public:
 
 void DebuggerRunTool::start()
 {
+    d->m_glue.reset(new GlueInterface);
     const Group recipe {
         d->coreFileRecipe()
     };
@@ -159,7 +171,7 @@ GroupItem DebuggerRunToolPrivate::coreFileRecipe()
 
     return Group {
         storage,
-        ProcessTask(onSetup, onDone, CallDoneIf::Success)
+        ProcessTask(onSetup, onDone)
     };
 }
 
@@ -201,6 +213,11 @@ void DebuggerRunTool::startTerminalIfNeededAndContinueStartup()
         if (d->terminalProc.error() != QProcess::FailedToStart)
             reportDone();
     });
+
+    connect(d->m_glue.get(), &GlueInterface::interruptTerminalRequested,
+            &d->terminalProc, &Process::interrupt);
+    connect(d->m_glue.get(), &GlueInterface::kickoffTerminalProcessRequested,
+            &d->terminalProc, &Process::kickoffProcess);
 
     d->terminalProc.start();
 }
@@ -351,7 +368,11 @@ void DebuggerRunTool::continueAfterDebugServerStart()
             if (companion != engine)
                 engine->addCompanionEngine(companion);
         }
-        engine->setRunTool(this);
+        connect(engine, &DebuggerEngine::interruptTerminalRequested,
+                d->m_glue.get(), &GlueInterface::interruptTerminalRequested);
+        connect(engine, &DebuggerEngine::kickoffTerminalProcessRequested,
+                d->m_glue.get(), &GlueInterface::kickoffTerminalProcessRequested);
+        engine->setDevice(runControl()->device());
         if (!first)
             engine->setSecondaryEngine();
         auto rc = runControl();
@@ -469,16 +490,6 @@ void DebuggerRunTool::continueAfterDebugServerStart()
     showMessage(DebuggerSettings::dump(), LogDebug);
 
     Utils::reverseForeach(m_engines, [](DebuggerEngine *engine) { engine->start(); });
-}
-
-void DebuggerRunTool::kickoffTerminalProcess()
-{
-    d->terminalProc.kickoffProcess();
-}
-
-void DebuggerRunTool::interruptTerminal()
-{
-    d->terminalProc.interrupt();
 }
 
 void DebuggerRunTool::stop()
@@ -720,3 +731,5 @@ void setupDebuggerRunWorker()
 }
 
 } // Debugger
+
+#include "debuggerruncontrol.moc"

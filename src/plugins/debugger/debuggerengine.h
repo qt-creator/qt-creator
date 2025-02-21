@@ -462,7 +462,7 @@ public:
     DebuggerEngine();
     ~DebuggerEngine() override;
 
-    void setRunTool(DebuggerRunTool *runTool);
+    void setDevice(const ProjectExplorer::IDeviceConstPtr &device);
     void setRunParameters(const DebuggerRunParameters &runParameters);
 
     void setRunId(const QString &id);
@@ -624,6 +624,8 @@ signals:
     void appendMessageRequested(const QString &msg,
                                 Utils::OutputFormat format,
                                 bool appendNewLine) const;
+    void interruptTerminalRequested();
+    void kickoffTerminalProcessRequested();
 
 protected:
     void notifyEngineSetupOk();
@@ -738,8 +740,6 @@ protected:
     bool usesTerminal() const;
     qint64 applicationPid() const;
     qint64 applicationMainThreadId() const;
-    void interruptTerminal() const;
-    void kickoffTerminalProcess() const;
 
     static QString msgStopped(const QString &reason = QString());
     static QString msgStoppedBySignal(const QString &meaning, const QString &name);
