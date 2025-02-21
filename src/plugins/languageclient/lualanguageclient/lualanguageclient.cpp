@@ -29,6 +29,7 @@ using namespace Utils;
 using namespace Core;
 using namespace TextEditor;
 using namespace ProjectExplorer;
+using namespace std::string_view_literals;
 
 namespace {
 
@@ -264,21 +265,22 @@ public:
                 return make_unexpected(QString("init callback did not return a table or string"));
             });
 
-        if (auto initOptionsTable = options.get<sol::optional<sol::table>>("initializationOptions"))
+        if (auto initOptionsTable = options.get<sol::optional<sol::table>>(
+                "initializationOptions"sv))
             m_initializationOptions = ::Lua::toJsonString(*initOptionsTable);
-        else if (auto initOptionsString = options.get<sol::optional<QString>>("initializationOptions"))
+        else if (auto initOptionsString = options.get<sol::optional<QString>>("initializationOptions"sv))
             m_initializationOptions = *initOptionsString;
 
-        m_name = options.get<QString>("name");
+        m_name = options.get<QString>("name"sv);
         m_settingsTypeId = Utils::Id::fromString(QString("Lua_%1").arg(m_name));
-        m_serverName = options.get_or<QString>("serverName", "");
+        m_serverName = options.get_or<QString>("serverName"sv, "");
 
         m_startBehavior = startBehaviorFromString(
-            options.get_or<QString>("startBehavior", "AlwaysOn"));
+            options.get_or<QString>("startBehavior"sv, "AlwaysOn"));
 
-        m_startFailedCallback = options.get<sol::protected_function>("onStartFailed");
+        m_startFailedCallback = options.get<sol::protected_function>("onStartFailed"sv);
 
-        QString transportType = options.get_or<QString>("transport", "stdio");
+        QString transportType = options.get_or<QString>("transport"sv, "stdio");
         if (transportType == "stdio")
             m_transportType = TransportType::StdIO;
         else if (transportType == "localsocket")
@@ -286,7 +288,7 @@ public:
         else
             qWarning() << "Unknown transport type:" << transportType;
 
-        auto languageFilter = options.get<std::optional<sol::table>>("languageFilter");
+        auto languageFilter = options.get<std::optional<sol::table>>("languageFilter"sv);
         if (languageFilter) {
             auto patterns = languageFilter->get<std::optional<sol::table>>("patterns");
             auto mimeTypes = languageFilter->get<std::optional<sol::table>>("mimeTypes");
@@ -300,10 +302,10 @@ public:
                     m_languageFilter.mimeTypes.push_back(v.as<QString>());
         }
 
-        m_showInSettings = options.get<std::optional<bool>>("showInSettings").value_or(true);
+        m_showInSettings = options.get<std::optional<bool>>("showInSettings"sv).value_or(true);
 
         // get<sol::optional<>> because on MSVC, get_or(..., nullptr) fails to compile
-        m_aspects = options.get<sol::optional<AspectContainer *>>("settings").value_or(nullptr);
+        m_aspects = options.get<sol::optional<AspectContainer *>>("settings"sv).value_or(nullptr);
 
         if (m_aspects) {
             connect(m_aspects, &AspectContainer::applied, this, [this] {

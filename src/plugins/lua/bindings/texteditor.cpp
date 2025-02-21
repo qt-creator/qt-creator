@@ -23,6 +23,7 @@
 using namespace Utils;
 using namespace Text;
 using namespace TextEditor;
+using namespace std::string_view_literals;
 
 namespace {
 
@@ -204,7 +205,7 @@ void setupTextEditorModule()
     TextEditorRegistry::instance();
 
     registerProvider("TextEditor", [](sol::state_view lua) -> sol::object {
-        const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
+        const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec"sv);
         QObject *guard = pluginSpec->connectionGuard.get();
 
         sol::table result = lua.create_table();

@@ -16,13 +16,15 @@
 #include <QFontMetrics>
 #include <QStandardPaths>
 
+using namespace std::string_view_literals;
+
 namespace Lua::Internal {
 
 void setupQtModule()
 {
     registerProvider("Qt", [](sol::state_view lua) {
         sol::table qt(lua, sol::create);
-        const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
+        const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec"sv);
 
         qt.new_usertype<QCompleter>(
             "QCompleter",

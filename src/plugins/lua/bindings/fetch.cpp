@@ -26,6 +26,7 @@
 
 using namespace Utils;
 using namespace Core;
+using namespace std::string_view_literals;
 
 namespace Lua::Internal {
 
@@ -139,7 +140,7 @@ void setupFetchModule()
         "Fetch",
         [mod = std::move(module),
          infoBarCleaner = InfoBarCleaner()](sol::state_view lua) mutable -> sol::object {
-            const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
+            const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec"sv);
 
             sol::table async = lua.script("return require('async')", "_fetch_").get<sol::table>();
             sol::function wrap = async["wrap"];
@@ -257,13 +258,13 @@ void setupFetchModule()
                                     const sol::main_table &options,
                                     const sol::main_function &callback,
                                     const sol::this_state &thisState) {
-                auto url = options.get<QString>("url");
+                auto url = options.get<QString>("url"sv);
                 auto actualFetch = [guard, url, options, callback, thisState]() {
-                    auto method = (options.get_or<QString>("method", "GET")).toLower();
-                    auto headers = options.get_or<sol::table>("headers", {});
-                    auto data = options.get_or<QString>("body", {});
+                    auto method = (options.get_or<QString>("method"sv, "GET")).toLower();
+                    auto headers = options.get_or<sol::table>("headers"sv, {});
+                    auto data = options.get_or<QString>("body"sv, {});
                     bool convertToTable
-                        = options.get<std::optional<bool>>("convertToTable").value_or(false);
+                        = options.get<std::optional<bool>>("convertToTable"sv).value_or(false);
 
                     QNetworkRequest request((QUrl(url)));
                     if (headers && !headers.empty()) {

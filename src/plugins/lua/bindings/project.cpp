@@ -17,13 +17,14 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace std::string_view_literals;
 
 namespace Lua::Internal {
 
 void setupProjectModule()
 {
     registerProvider("Project", [](sol::state_view lua) -> sol::object {
-        const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
+        const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec"sv);
         QObject *guard = pluginSpec->connectionGuard.get();
 
         sol::table result = lua.create_table();

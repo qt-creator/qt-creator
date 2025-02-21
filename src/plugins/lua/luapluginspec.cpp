@@ -22,6 +22,7 @@ Q_LOGGING_CATEGORY(luaPluginSpecLog, "qtc.lua.pluginspec", QtWarningMsg)
 
 using namespace ExtensionSystem;
 using namespace Utils;
+using namespace std::string_view_literals;
 
 namespace Lua {
 
@@ -51,7 +52,7 @@ expected_str<LuaPluginSpec *> LuaPluginSpec::create(const FilePath &filePath, so
     const FilePath directory = filePath.parentDir();
     std::unique_ptr<LuaPluginSpec> pluginSpec(new LuaPluginSpec());
 
-    if (!pluginTable.get_or<sol::function>("setup", {}))
+    if (!pluginTable.get_or<sol::function>("setup"sv, {}))
         return make_unexpected(QString("Plugin info table did not contain a setup function"));
 
     QJsonValue v = toJson(pluginTable);
