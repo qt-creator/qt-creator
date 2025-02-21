@@ -1083,6 +1083,10 @@ void GccToolchain::fromMap(const Store &data)
     m_platformCodeGenFlags = data.value(compilerPlatformCodeGenFlagsKeyC).toStringList();
     m_platformLinkerFlags = data.value(compilerPlatformLinkerFlagsKeyC).toStringList();
     m_originalTargetTriple = data.value(originalTargetTripleKeyC).toString();
+    // clang 19 is not accepting "--target=unknown-qnx-gnu" anymore
+    //   error: unknown target triple 'unknown-qnx-unknown-gnu'
+    if (m_originalTargetTriple == "unknown-qnx-gnu")
+        m_originalTargetTriple.clear();
     const QStringList abiList = data.value(supportedAbisKeyC).toStringList();
     m_supportedAbis.clear();
     for (const QString &a : abiList)
