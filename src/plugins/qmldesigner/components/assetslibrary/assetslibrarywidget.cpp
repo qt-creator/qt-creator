@@ -617,6 +617,14 @@ void AssetsLibraryWidget::editAssetComponent(const QString &filePath)
         DocumentManager::goIntoComponent(fullPath.toFSPathString());
 }
 
+void AssetsLibraryWidget::updateAssetComponent(const QString &filePath)
+{
+    Utils::FilePath qml = QmlDesignerPlugin::instance()->documentManager()
+                              .generatedComponentUtils().getImported3dQml(filePath);
+    if (qml.exists())
+        m_assetsView->emitCustomNotification("UpdateImported3DAsset", {}, {qml.toFSPathString()});
+}
+
 QString AssetsLibraryWidget::qmlSourcesPath()
 {
 #ifdef SHARE_QML_PATH

@@ -92,7 +92,7 @@ constexpr QStringView expandValuesKey{u"expandValueComponents"};
 } // namespace
 
 Import3dDialog::Import3dDialog(
-        const QStringList &importFiles, const QString &defaulTargetDirectory,
+        const QStringList &importFiles,
         const QVariantMap &supportedExts, const QVariantMap &supportedOpts,
         const QJsonObject &defaultOpts, const QSet<QString> &preselectedFilesForOverwrite,
         AbstractView *view, QWidget *parent)
@@ -151,10 +151,6 @@ Import3dDialog::Import3dDialog(
         if (model)
             importPaths = model->importPaths();
     }
-
-    QString targetDir = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toUrlishString();
-    if (targetDir.isEmpty())
-        targetDir = defaulTargetDirectory;
 
     m_quick3DImportPath = QmlDesignerPlugin::instance()->documentManager()
                               .generatedComponentUtils().import3dBasePath().toUrlishString();
@@ -282,111 +278,114 @@ Import3dDialog::~Import3dDialog()
 }
 
 void Import3dDialog::updateImport(AbstractView *view,
+                                  const Utils::FilePath &import3dQml,
                                   const ModelNode &updateNode,
                                   const QVariantMap &supportedExts,
                                   const QVariantMap &supportedOpts)
 {
     QString errorMsg;
-    const ModelNode &node = updateNode;
-    if (node.hasMetaInfo()) {
-        QString compFileName = ModelUtils::componentFilePath(node); // absolute path
-        bool preselectNodeSource = false;
+    QString compFileName; // absolute path to imported 3D qml
+    bool preselectNodeSource = false;
+    if (import3dQml.exists()) {
+        compFileName = import3dQml.toFSPathString();
+    } else if (updateNode.isValid()) {
+        compFileName = ModelUtils::componentFilePath(updateNode);
         if (compFileName.isEmpty()) {
             // Node is not a file component, so we have to check if the current doc itself is
-            compFileName = node.model()->fileUrl().toLocalFile();
+            compFileName = updateNode.model()->fileUrl().toLocalFile();
             preselectNodeSource = true;
         }
-        QFileInfo compFileInfo{compFileName};
+    }
 
-        // Find to top asset folder
-        const QString oldAssetFolder = Constants::oldQuick3dAssetsFolder;
-        QString assetFolder = Constants::quick3DComponentsFolder;
-        const QStringList parts = compFileName.split('/');
-        int i = parts.size() - 1;
-        int previousSize = 0;
-        for (; i >= 0; --i) {
-            if (parts[i] == oldAssetFolder)
-                assetFolder = oldAssetFolder;
-            if (parts[i] == assetFolder)
-                break;
-            previousSize = parts[i].size();
-        }
-        if (i >= 0) {
-            const QString assetPath = compFileName.left(compFileName.lastIndexOf(assetFolder)
-                                                        + assetFolder.size() + previousSize + 1);
-            const QDir assetDir(assetPath);
+    QFileInfo compFileInfo{compFileName};
 
-            // Find import options and the original source scene
-            const QString jsonFileName = assetDir.absoluteFilePath(
-                        Constants::QUICK_3D_ASSET_IMPORT_DATA_NAME);
-            QFile jsonFile{jsonFileName};
-            if (jsonFile.open(QIODevice::ReadOnly)) {
-                QJsonParseError jsonError;
-                const QByteArray fileData = jsonFile.readAll();
-                auto jsonDocument = QJsonDocument::fromJson(fileData, &jsonError);
-                jsonFile.close();
-                if (jsonError.error == QJsonParseError::NoError) {
-                    QJsonObject jsonObj = jsonDocument.object();
-                    const QJsonObject options = jsonObj.value(
-                                Constants::QUICK_3D_ASSET_IMPORT_DATA_OPTIONS_KEY).toObject();
-                    QString sourcePath = jsonObj.value(
-                                Constants::QUICK_3D_ASSET_IMPORT_DATA_SOURCE_KEY).toString();
-                    if (options.isEmpty() || sourcePath.isEmpty()) {
-                        errorMsg = Tr::tr("Asset import data file \"%1\" is invalid.").arg(jsonFileName);
-                    } else {
-                        QFileInfo sourceInfo{sourcePath};
-                        if (!sourceInfo.exists()) {
-                            // Unable to find original scene source, launch file dialog to locate it
-                            QString initialPath;
-                            ProjectExplorer::Project *currentProject
-                                    = ProjectExplorer::ProjectManager::projectForFile(
-                                        Utils::FilePath::fromString(compFileName));
-                            if (currentProject)
-                                initialPath = currentProject->projectDirectory().toUrlishString();
-                            else
-                                initialPath = compFileInfo.absolutePath();
-                            QStringList selectedFiles = QFileDialog::getOpenFileNames(
-                                        Core::ICore::dialogParent(),
-                                        tr("Locate 3D Asset \"%1\"").arg(sourceInfo.fileName()),
-                                        initialPath, sourceInfo.fileName());
-                            if (!selectedFiles.isEmpty()
-                                    && QFileInfo{selectedFiles[0]}.fileName() == sourceInfo.fileName()) {
-                                sourcePath = selectedFiles[0];
-                                sourceInfo.setFile(sourcePath);
-                            }
-                        }
-                        if (sourceInfo.exists()) {
-                            // In case of a selected node inside an imported component, preselect
-                            // any file pointed to by a "source" property of the node.
-                            QSet<QString> preselectedFiles;
-                            if (preselectNodeSource && updateNode.hasProperty("source")) {
-                                QString source = updateNode.variantProperty("source").value().toString();
-                                if (QFileInfo{source}.isRelative())
-                                    source = QDir{compFileInfo.absolutePath()}.absoluteFilePath(source);
-                                preselectedFiles.insert(source);
-                            }
-                            auto importDlg = new Import3dDialog(
-                                        {sourceInfo.absoluteFilePath()},
-                                        node.model()->fileUrl().toLocalFile(),
-                                        supportedExts, supportedOpts, options,
-                                        preselectedFiles, view,
-                                        Core::ICore::dialogParent());
-                            importDlg->show();
+    // Find to top asset folder
+    const QString oldAssetFolder = Constants::oldQuick3dAssetsFolder;
+    QString assetFolder = Constants::quick3DComponentsFolder;
+    const QStringList parts = compFileName.split('/');
+    int i = parts.size() - 1;
+    int previousSize = 0;
+    for (; i >= 0; --i) {
+        if (parts[i] == oldAssetFolder)
+            assetFolder = oldAssetFolder;
+        if (parts[i] == assetFolder)
+            break;
+        previousSize = parts[i].size();
+    }
+    if (i >= 0) {
+        const QString assetPath = compFileName.left(compFileName.lastIndexOf(assetFolder)
+                                                    + assetFolder.size() + previousSize + 1);
+        const QDir assetDir(assetPath);
 
-                        } else {
-                            errorMsg = Tr::tr("Unable to locate source scene \"%1\".")
-                                           .arg(sourceInfo.fileName());
+        // Find import options and the original source scene
+        const QString jsonFileName = assetDir.absoluteFilePath(
+                    Constants::QUICK_3D_ASSET_IMPORT_DATA_NAME);
+        QFile jsonFile{jsonFileName};
+        if (jsonFile.open(QIODevice::ReadOnly)) {
+            QJsonParseError jsonError;
+            const QByteArray fileData = jsonFile.readAll();
+            auto jsonDocument = QJsonDocument::fromJson(fileData, &jsonError);
+            jsonFile.close();
+            if (jsonError.error == QJsonParseError::NoError) {
+                QJsonObject jsonObj = jsonDocument.object();
+                const QJsonObject options = jsonObj.value(
+                            Constants::QUICK_3D_ASSET_IMPORT_DATA_OPTIONS_KEY).toObject();
+                QString sourcePath = jsonObj.value(
+                            Constants::QUICK_3D_ASSET_IMPORT_DATA_SOURCE_KEY).toString();
+                if (options.isEmpty() || sourcePath.isEmpty()) {
+                    errorMsg = Tr::tr("Asset import data file \"%1\" is invalid.").arg(jsonFileName);
+                } else {
+                    QFileInfo sourceInfo{sourcePath};
+                    if (!sourceInfo.exists()) {
+                        // Unable to find original scene source, launch file dialog to locate it
+                        QString initialPath;
+                        ProjectExplorer::Project *currentProject
+                                = ProjectExplorer::ProjectManager::projectForFile(
+                                    Utils::FilePath::fromString(compFileName));
+                        if (currentProject)
+                            initialPath = currentProject->projectDirectory().toUrlishString();
+                        else
+                            initialPath = compFileInfo.absolutePath();
+                        QStringList selectedFiles = QFileDialog::getOpenFileNames(
+                                    Core::ICore::dialogParent(),
+                                    tr("Locate 3D Asset \"%1\"").arg(sourceInfo.fileName()),
+                                    initialPath, sourceInfo.fileName());
+                        if (!selectedFiles.isEmpty()
+                                && QFileInfo{selectedFiles[0]}.fileName() == sourceInfo.fileName()) {
+                            sourcePath = selectedFiles[0];
+                            sourceInfo.setFile(sourcePath);
                         }
                     }
-                } else {
-                    errorMsg = jsonError.errorString();
+                    if (sourceInfo.exists()) {
+                        // In case of a selected node inside an imported component, preselect
+                        // any file pointed to by a "source" property of the node.
+                        QSet<QString> preselectedFiles;
+                        if (preselectNodeSource && updateNode.hasProperty("source")) {
+                            QString source = updateNode.variantProperty("source").value().toString();
+                            if (QFileInfo{source}.isRelative())
+                                source = QDir{compFileInfo.absolutePath()}.absoluteFilePath(source);
+                            preselectedFiles.insert(source);
+                        }
+                        auto importDlg = new Import3dDialog(
+                                    {sourceInfo.absoluteFilePath()},
+                                    supportedExts, supportedOpts, options,
+                                    preselectedFiles, view,
+                                    Core::ICore::dialogParent());
+                        importDlg->show();
+
+                    } else {
+                        errorMsg = Tr::tr("Unable to locate source scene \"%1\".")
+                                       .arg(sourceInfo.fileName());
+                    }
                 }
             } else {
-                errorMsg = Tr::tr("Opening asset import data file \"%1\" failed.").arg(jsonFileName);
+                errorMsg = jsonError.errorString();
             }
         } else {
-            errorMsg = Tr::tr("Unable to resolve asset import path.");
+            errorMsg = Tr::tr("Opening asset import data file \"%1\" failed.").arg(jsonFileName);
         }
+    } else {
+        errorMsg = Tr::tr("Unable to resolve asset import path.");
     }
 
     if (!errorMsg.isEmpty()) {

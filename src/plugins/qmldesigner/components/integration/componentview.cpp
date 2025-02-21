@@ -316,10 +316,18 @@ void ComponentView::nodeSourceChanged(const ModelNode &node, const QString &/*ne
 void ComponentView::customNotification(const AbstractView *,
                                        const QString &identifier,
                                        const QList<ModelNode> &nodeList,
-                                       const QList<QVariant> &)
+                                       const QList<QVariant> &data)
 {
-    if (identifier == "UpdateImported3DAsset" && nodeList.size() > 0) {
-        Import3dDialog::updateImport(this, nodeList[0],
+    if (identifier == "UpdateImported3DAsset") {
+        Utils::FilePath import3dQml;
+        if (!data.isEmpty())
+            import3dQml = Utils::FilePath::fromString(data[0].toString());
+
+        ModelNode node;
+        if (!nodeList.isEmpty())
+            node = nodeList[0];
+
+        Import3dDialog::updateImport(this, import3dQml, node,
                                      m_importableExtensions3DMap,
                                      m_importOptions3DMap);
     }
@@ -338,11 +346,11 @@ void ComponentView::updateImport3DSupport(const QVariantMap &supportMap)
         m_importableExtensions3DMap = extMap;
 
         AddResourceOperation import3DModelOperation = [this](const QStringList &fileNames,
-                                                             const QString &defaultDir,
+                                                             const QString &,
                                                              bool showDialog) -> AddFilesResult {
             Q_UNUSED(showDialog)
 
-            auto importDlg = new Import3dDialog(fileNames, defaultDir,
+            auto importDlg = new Import3dDialog(fileNames,
                                                 m_importableExtensions3DMap,
                                                 m_importOptions3DMap, {}, {},
                                                 this, Core::ICore::dialogParent());

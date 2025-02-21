@@ -182,7 +182,7 @@ inline constexpr char editInEffectComposerDisplayName[] = QT_TRANSLATE_NOOP("Qml
 inline constexpr char openSignalDialogDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                         "Open Signal Dialog");
 inline constexpr char update3DAssetDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                     "Update 3D Asset");
+                                                                     "Reimport 3D Asset");
 
 inline constexpr char setIdDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Set Id");
 
