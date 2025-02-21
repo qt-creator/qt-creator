@@ -128,6 +128,12 @@ extend_qtc_executable(qmlpuppet
 )
 
 extend_qtc_executable(qmlpuppet
+  SOURCES_PREFIX qmlpuppet/renderer
+  SOURCES
+    qmlrenderer.cpp qmlrenderer.h
+)
+
+extend_qtc_executable(qmlpuppet
   SOURCES_PREFIX qmlpuppet/instances
   SOURCES
     anchorchangesnodeinstance.cpp anchorchangesnodeinstance.h
@@ -162,7 +168,6 @@ extend_qtc_executable(qmlpuppet
     qt5capturepreviewnodeinstanceserver.cpp qt5capturepreviewnodeinstanceserver.h
     nodeinstanceserverdispatcher.cpp nodeinstanceserverdispatcher.h
     capturenodeinstanceserverdispatcher.cpp capturenodeinstanceserverdispatcher.h
-    qt5captureimagenodeinstanceserver.cpp qt5captureimagenodeinstanceserver.h
     viewconfig.cpp viewconfig.h
     animationdriver.cpp animationdriver.h
 )

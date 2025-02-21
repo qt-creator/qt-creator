@@ -35,8 +35,9 @@ void ExceptionWithMessage::printWarning() const
     qWarning() << what() << m_sqliteErrorMessage;
 }
 
-StatementIsBusy::StatementIsBusy(Utils::SmallString &&sqliteErrorMessage)
-    : ExceptionWithMessage{std::move(sqliteErrorMessage)}
+StatementIsBusy::StatementIsBusy(Utils::SmallString &&sqliteErrorMessage,
+                                 const source_location &location)
+    : ExceptionWithMessage{std::move(sqliteErrorMessage), location}
 {
     sqliteHighLevelCategory().threadEvent("StatementIsBusy",
                                           keyValue("error message", std::string_view{what()}));
@@ -52,8 +53,9 @@ const char *DatabaseIsBusy::what() const noexcept
     return "Sqlite::DatabaseIsBusy";
 }
 
-StatementHasError::StatementHasError(Utils::SmallString &&sqliteErrorMessage)
-    : ExceptionWithMessage{std::move(sqliteErrorMessage)}
+StatementHasError::StatementHasError(Utils::SmallString &&sqliteErrorMessage,
+                                     const source_location &location)
+    : ExceptionWithMessage{std::move(sqliteErrorMessage), location}
 {
     sqliteHighLevelCategory().threadEvent("StatementHasError",
                                           keyValue("error message", std::string_view{what()}));
@@ -682,185 +684,185 @@ const char *CannotOpenSynbolicLink::what() const noexcept
     return "Sqlite::CannotOpenSynbolicLink";
 }
 
-void throwError(int resultCode, sqlite3 *sqliteHandle)
+void throwError(int resultCode, sqlite3 *sqliteHandle, const source_location &sourceLocation)
 {
     switch (resultCode) {
     case SQLITE_BUSY_RECOVERY:
-        throw StatementIsBusyRecovering(sqlite3_errmsg(sqliteHandle));
+        throw StatementIsBusyRecovering(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_BUSY_SNAPSHOT:
-        throw StatementIsBusySnapshot(sqlite3_errmsg(sqliteHandle));
+        throw StatementIsBusySnapshot(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_BUSY_TIMEOUT:
-        throw StatementIsBusyTimeout(sqlite3_errmsg(sqliteHandle));
+        throw StatementIsBusyTimeout(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_BUSY:
-        throw StatementIsBusy(sqlite3_errmsg(sqliteHandle));
+        throw StatementIsBusy(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_ERROR_MISSING_COLLSEQ:
-        throw StatementHasErrorMissingCollatingSequence(sqlite3_errmsg(sqliteHandle));
+        throw StatementHasErrorMissingCollatingSequence(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_ERROR_RETRY:
-        throw StatementHasErrorRetry(sqlite3_errmsg(sqliteHandle));
+        throw StatementHasErrorRetry(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_ERROR_SNAPSHOT:
-        throw StatementHasErrorSnapshot(sqlite3_errmsg(sqliteHandle));
+        throw StatementHasErrorSnapshot(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_ERROR:
-        throw StatementHasError(sqlite3_errmsg(sqliteHandle));
+        throw StatementHasError(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_MISUSE:
-        throw StatementIsMisused(sqlite3_errmsg(sqliteHandle));
+        throw StatementIsMisused(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_CONSTRAINT_CHECK:
-        throw CheckConstraintPreventsModification(sqlite3_errmsg(sqliteHandle));
+        throw CheckConstraintPreventsModification(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_CONSTRAINT_COMMITHOOK:
-        throw CommitHookConstraintPreventsModification(sqlite3_errmsg(sqliteHandle));
+        throw CommitHookConstraintPreventsModification(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_CONSTRAINT_DATATYPE:
-        throw DataTypeConstraintPreventsModification(sqlite3_errmsg(sqliteHandle));
+        throw DataTypeConstraintPreventsModification(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_CONSTRAINT_FOREIGNKEY:
-        throw ForeignKeyConstraintPreventsModification(sqlite3_errmsg(sqliteHandle));
+        throw ForeignKeyConstraintPreventsModification(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_CONSTRAINT_FUNCTION:
-        throw FunctionConstraintPreventsModification(sqlite3_errmsg(sqliteHandle));
+        throw FunctionConstraintPreventsModification(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_CONSTRAINT_NOTNULL:
-        throw NotNullConstraintPreventsModification(sqlite3_errmsg(sqliteHandle));
+        throw NotNullConstraintPreventsModification(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_CONSTRAINT_PINNED:
-        throw PinnedConstraintPreventsModification(sqlite3_errmsg(sqliteHandle));
+        throw PinnedConstraintPreventsModification(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_CONSTRAINT_PRIMARYKEY:
-        throw PrimaryKeyConstraintPreventsModification(sqlite3_errmsg(sqliteHandle));
+        throw PrimaryKeyConstraintPreventsModification(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_CONSTRAINT_ROWID:
-        throw RowIdConstraintPreventsModification(sqlite3_errmsg(sqliteHandle));
+        throw RowIdConstraintPreventsModification(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_CONSTRAINT_TRIGGER:
-        throw TriggerConstraintPreventsModification(sqlite3_errmsg(sqliteHandle));
+        throw TriggerConstraintPreventsModification(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_CONSTRAINT_UNIQUE:
-        throw UniqueConstraintPreventsModification(sqlite3_errmsg(sqliteHandle));
+        throw UniqueConstraintPreventsModification(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_CONSTRAINT_VTAB:
-        throw VirtualTableConstraintPreventsModification(sqlite3_errmsg(sqliteHandle));
+        throw VirtualTableConstraintPreventsModification(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_CONSTRAINT:
-        throw ConstraintPreventsModification(sqlite3_errmsg(sqliteHandle));
+        throw ConstraintPreventsModification(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_TOOBIG:
-        throw TooBig(sqlite3_errmsg(sqliteHandle));
+        throw TooBig(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_SCHEMA:
-        throw SchemeChangeError(sqlite3_errmsg(sqliteHandle));
+        throw SchemeChangeError(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_READONLY_CANTINIT:
-        throw CannotInitializeReadOnlyConnection(sqlite3_errmsg(sqliteHandle));
+        throw CannotInitializeReadOnlyConnection(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_READONLY_CANTLOCK:
-        throw CannotLockReadOnlyConnection(sqlite3_errmsg(sqliteHandle));
+        throw CannotLockReadOnlyConnection(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_READONLY_DBMOVED:
-        throw CannotWriteToMovedDatabase(sqlite3_errmsg(sqliteHandle));
+        throw CannotWriteToMovedDatabase(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_READONLY_DIRECTORY:
-        throw CannotCreateLogInReadonlyDirectory(sqlite3_errmsg(sqliteHandle));
+        throw CannotCreateLogInReadonlyDirectory(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_READONLY_RECOVERY:
-        throw DatabaseNeedsToBeRecovered(sqlite3_errmsg(sqliteHandle));
+        throw DatabaseNeedsToBeRecovered(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_READONLY_ROLLBACK:
-        throw CannotRollbackToReadOnlyConnection(sqlite3_errmsg(sqliteHandle));
+        throw CannotRollbackToReadOnlyConnection(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_READONLY:
-        throw CannotWriteToReadOnlyConnection(sqlite3_errmsg(sqliteHandle));
+        throw CannotWriteToReadOnlyConnection(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_PROTOCOL:
-        throw ProtocolError(sqlite3_errmsg(sqliteHandle));
+        throw ProtocolError(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_NOMEM:
         throw std::bad_alloc();
     case SQLITE_NOLFS:
-        throw DatabaseExceedsMaximumFileSize(sqlite3_errmsg(sqliteHandle));
+        throw DatabaseExceedsMaximumFileSize(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_MISMATCH:
-        throw DataTypeMismatch(sqlite3_errmsg(sqliteHandle));
+        throw DataTypeMismatch(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_LOCKED_SHAREDCACHE:
-        throw ConnectionsSharedCacheIsLocked(sqlite3_errmsg(sqliteHandle));
+        throw ConnectionsSharedCacheIsLocked(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_LOCKED_VTAB:
-        throw ConnectionsVirtualTableIsLocked(sqlite3_errmsg(sqliteHandle));
+        throw ConnectionsVirtualTableIsLocked(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_LOCKED:
-        throw ConnectionIsLocked(sqlite3_errmsg(sqliteHandle));
+        throw ConnectionIsLocked(sqlite3_errmsg(sqliteHandle), sourceLocation);
     case SQLITE_IOERR_READ:
-        throw InputOutputCannotRead();
+        throw InputOutputCannotRead(sourceLocation);
     case SQLITE_IOERR_SHORT_READ:
-        throw InputOutputCannotShortRead();
+        throw InputOutputCannotShortRead(sourceLocation);
     case SQLITE_IOERR_WRITE:
-        throw InputOutputCannotWrite();
+        throw InputOutputCannotWrite(sourceLocation);
     case SQLITE_IOERR_FSYNC:
-        throw InputOutputCannotSynchronizeFile();
+        throw InputOutputCannotSynchronizeFile(sourceLocation);
     case SQLITE_IOERR_DIR_FSYNC:
-        throw InputOutputCannotSynchronizeDirectory();
+        throw InputOutputCannotSynchronizeDirectory(sourceLocation);
     case SQLITE_IOERR_TRUNCATE:
-        throw InputOutputCannotTruncate();
+        throw InputOutputCannotTruncate(sourceLocation);
     case SQLITE_IOERR_FSTAT:
-        throw InputOutputCannotFsStat();
+        throw InputOutputCannotFsStat(sourceLocation);
     case SQLITE_IOERR_UNLOCK:
-        throw InputOutputCannotUnlock();
+        throw InputOutputCannotUnlock(sourceLocation);
     case SQLITE_IOERR_RDLOCK:
-        throw InputOutputCannotReadLock();
+        throw InputOutputCannotReadLock(sourceLocation);
     case SQLITE_IOERR_DELETE:
-        throw InputOutputCannotDelete();
+        throw InputOutputCannotDelete(sourceLocation);
     case SQLITE_IOERR_BLOCKED:
-        throw InputOutputBlocked();
+        throw InputOutputBlocked(sourceLocation);
     case SQLITE_IOERR_NOMEM:
-        throw InputOutputNoMemory();
+        throw InputOutputNoMemory(sourceLocation);
     case SQLITE_IOERR_ACCESS:
-        throw InputOutputCannotAccess();
+        throw InputOutputCannotAccess(sourceLocation);
     case SQLITE_IOERR_CHECKRESERVEDLOCK:
-        throw InputOutputCannotCheckReservedLock();
+        throw InputOutputCannotCheckReservedLock(sourceLocation);
     case SQLITE_IOERR_LOCK:
-        throw InputOutputCannotLock();
+        throw InputOutputCannotLock(sourceLocation);
     case SQLITE_IOERR_CLOSE:
-        throw InputOutputCannotClose();
+        throw InputOutputCannotClose(sourceLocation);
     case SQLITE_IOERR_DIR_CLOSE:
-        throw InputOutputCannotCloseDirectory();
+        throw InputOutputCannotCloseDirectory(sourceLocation);
     case SQLITE_IOERR_SHMOPEN:
-        throw InputOutputCannotOpenSharedMemory();
+        throw InputOutputCannotOpenSharedMemory(sourceLocation);
     case SQLITE_IOERR_SHMSIZE:
-        throw InputOutputCannotEnlargeSharedMemory();
+        throw InputOutputCannotEnlargeSharedMemory(sourceLocation);
     case SQLITE_IOERR_SHMLOCK:
-        throw InputOutputCannotLockSharedMemory();
+        throw InputOutputCannotLockSharedMemory(sourceLocation);
     case SQLITE_IOERR_SHMMAP:
-        throw InputOutputCannotMapSharedMemory();
+        throw InputOutputCannotMapSharedMemory(sourceLocation);
     case SQLITE_IOERR_SEEK:
-        throw InputOutputCannotSeek();
+        throw InputOutputCannotSeek(sourceLocation);
     case SQLITE_IOERR_DELETE_NOENT:
-        throw InputOutputCannotDeleteNonExistingFile();
+        throw InputOutputCannotDeleteNonExistingFile(sourceLocation);
     case SQLITE_IOERR_MMAP:
-        throw InputOutputCannotMemoryMap();
+        throw InputOutputCannotMemoryMap(sourceLocation);
     case SQLITE_IOERR_GETTEMPPATH:
-        throw InputOutputCannotGetTemporaryPath();
+        throw InputOutputCannotGetTemporaryPath(sourceLocation);
     case SQLITE_IOERR_CONVPATH:
-        throw InputOutputConvPathFailed();
+        throw InputOutputConvPathFailed(sourceLocation);
     case SQLITE_IOERR_VNODE:
-        throw InputOutputVNodeError();
+        throw InputOutputVNodeError(sourceLocation);
     case SQLITE_IOERR_AUTH:
-        throw InputOutputCannotAuthenticate();
+        throw InputOutputCannotAuthenticate(sourceLocation);
     case SQLITE_IOERR_BEGIN_ATOMIC:
-        throw InputOutputCannotBeginAtomic();
+        throw InputOutputCannotBeginAtomic(sourceLocation);
     case SQLITE_IOERR_COMMIT_ATOMIC:
-        throw InputOutputCannotCommitAtomic();
+        throw InputOutputCannotCommitAtomic(sourceLocation);
     case SQLITE_IOERR_ROLLBACK_ATOMIC:
-        throw InputOutputCannotRollbackAtomic();
+        throw InputOutputCannotRollbackAtomic(sourceLocation);
     case SQLITE_IOERR_DATA:
-        throw InputOutputDataError();
+        throw InputOutputDataError(sourceLocation);
     case SQLITE_IOERR_CORRUPTFS:
-        throw InputOutputFileSystemIsCorrupt();
+        throw InputOutputFileSystemIsCorrupt(sourceLocation);
     case SQLITE_IOERR:
-        throw InputOutputError();
+        throw InputOutputError(sourceLocation);
     case SQLITE_INTERRUPT:
-        throw ExecutionInterrupted();
+        throw ExecutionInterrupted(sourceLocation);
     case SQLITE_CORRUPT_INDEX:
-        throw DatabaseHasCorruptIndex();
+        throw DatabaseHasCorruptIndex(sourceLocation);
     case SQLITE_CORRUPT_SEQUENCE:
-        throw DatabaseHasCorruptSequence();
+        throw DatabaseHasCorruptSequence(sourceLocation);
     case SQLITE_CORRUPT_VTAB:
-        throw DatabaseHasCorruptVirtualTable();
+        throw DatabaseHasCorruptVirtualTable(sourceLocation);
     case SQLITE_CORRUPT:
-        throw DatabaseIsCorrupt();
+        throw DatabaseIsCorrupt(sourceLocation);
     case SQLITE_CANTOPEN_CONVPATH:
-        throw CannotOpenConvPath();
+        throw CannotOpenConvPath(sourceLocation);
     case SQLITE_CANTOPEN_DIRTYWAL:
-        throw CannotOpenDirtyWal();
+        throw CannotOpenDirtyWal(sourceLocation);
     case SQLITE_CANTOPEN_FULLPATH:
-        throw CannotCovertToFullPath();
+        throw CannotCovertToFullPath(sourceLocation);
     case SQLITE_CANTOPEN_ISDIR:
-        throw CannotOpenDirectoryPath();
+        throw CannotOpenDirectoryPath(sourceLocation);
     case SQLITE_CANTOPEN_NOTEMPDIR:
-        throw CannotOpenNoTempDir();
+        throw CannotOpenNoTempDir(sourceLocation);
     case SQLITE_CANTOPEN_SYMLINK:
-        throw CannotOpenSynbolicLink();
+        throw CannotOpenSynbolicLink(sourceLocation);
     case SQLITE_CANTOPEN:
-        throw CannotOpen();
+        throw CannotOpen(sourceLocation);
     case SQLITE_RANGE:
-        throw BindingIndexIsOutOfRange(sqlite3_errmsg(sqliteHandle));
+        throw BindingIndexIsOutOfRange(sqlite3_errmsg(sqliteHandle), sourceLocation);
     }
 
     if (sqliteHandle)
-        throw UnknowError(sqlite3_errmsg(sqliteHandle));
+        throw UnknowError(sqlite3_errmsg(sqliteHandle), sourceLocation);
     else
-        throw UnknowError();
+        throw UnknowError({}, sourceLocation);
 }
 
 } // namespace Sqlite

@@ -12,7 +12,6 @@
 #include "contentlibrarytexturesmodel.h"
 #include "contentlibraryusermodel.h"
 
-#include <coreplugin/icore.h>
 #include <bundleimporter.h>
 #include <coreplugin/icore.h>
 #include <designerpaths.h>
@@ -23,9 +22,7 @@
 #include <theme.h>
 
 #include <qmldesignerbase/settings/designersettings.h>
-
-#include <coreplugin/icore.h>
-
+#include <qmldesignerutils/asset.h>
 #include <qmldesignerutils/filedownloader.h>
 #include <qmldesignerutils/fileextractor.h>
 #include <qmldesignerutils/multifiledownloader.h>
@@ -656,6 +653,51 @@ void ContentLibraryWidget::markTextureUpdated(const QString &textureKey)
         m_texturesModel->markTextureHasNoUpdates(subcategory, textureKey);
     else if (category == "Environments")
         m_environmentsModel->markTextureHasNoUpdates(subcategory, textureKey);
+}
+
+bool ContentLibraryWidget::has3DNode(const QByteArray &data) const
+{
+    QByteArray encodedData = data;
+    QDataStream stream(&encodedData, QIODevice::ReadOnly);
+
+    int internalId = 0;
+    while (!stream.atEnd()) {
+        stream >> internalId;
+
+        if (internalId == 0)
+            continue;
+
+        ModelNode modelNode = QmlDesignerPlugin::instance()->viewManager()
+                                  .view()->modelNodeForInternalId(internalId);
+
+        if (modelNode.metaInfo().isQtQuick3DNode())
+            return true;
+    }
+
+    return false;
+}
+
+bool ContentLibraryWidget::hasTexture(const QString &format, const QVariant &data) const
+{
+    if (format == Constants::MIME_TYPE_TEXTURE) { // from material browser
+        return true;
+    } else if (format == Constants::MIME_TYPE_ASSETS) {
+        const QList<QVariant> urlList = data.toList();
+
+        for (const QVariant &url : urlList) {
+            QString str = url.toUrl().toLocalFile();
+
+            if (Asset(str).isValidTextureSource())
+                return true;
+        }
+    }
+
+    return false;
+}
+
+void ContentLibraryWidget::addQtQuick3D()
+{
+    emit importQtQuick3D();
 }
 
 QSize ContentLibraryWidget::sizeHint() const

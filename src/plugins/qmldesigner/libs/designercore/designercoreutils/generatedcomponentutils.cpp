@@ -337,4 +337,61 @@ QString GeneratedComponentUtils::user3DBundleType() const
     return componentBundlesTypePrefix() + '.' + user3DBundleId();
 }
 
+QList<Utils::FilePath> GeneratedComponentUtils::imported3dComponents() const
+{
+    auto import3dPath = Utils::FilePath::fromString(import3dTypePath());
+    auto projPath = Utils::FilePath::fromString(m_externalDependencies.currentProjectDirPath());
+    auto fullPath = projPath.resolvePath(import3dPath);
+
+    if (fullPath.isEmpty())
+        return {};
+
+    return collectFiles(fullPath, "qml");
+}
+
+QString GeneratedComponentUtils::getImported3dImportName(const Utils::FilePath &qmlFile) const
+{
+    const QStringList sl = qmlFile.toFSPathString().split('/');
+    int i = sl.size() - 4;
+    if (i >= 0)
+        return QStringView(u"%1.%2.%3").arg(sl[i], sl[i + 1], sl[i + 2]);
+    return {};
+}
+
+Utils::FilePath GeneratedComponentUtils::getImported3dQml(const QString &assetPath) const
+{
+    Utils::FilePath assetFilePath = Utils::FilePath::fromString(assetPath);
+    const Utils::expected_str<QByteArray> data = assetFilePath.fileContents();
+
+    if (!data)
+        return {};
+
+    Utils::FilePath assetQmlFilePath = Utils::FilePath::fromUtf8(data.value());
+    Utils::FilePath projectPath = Utils::FilePath::fromString(m_externalDependencies.currentProjectDirPath());
+
+    assetQmlFilePath = projectPath.resolvePath(assetQmlFilePath);
+
+    return assetQmlFilePath;
+}
+
+// Recursively find files of certain suffix in a dir
+QList<Utils::FilePath> GeneratedComponentUtils::collectFiles(const Utils::FilePath &dirPath,
+                                                             const QString &suffix) const
+{
+    if (dirPath.isEmpty())
+        return {};
+
+    QList<Utils::FilePath> files;
+
+    const Utils::FilePaths entryList = dirPath.dirEntries(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+    for (const Utils::FilePath &entry : entryList) {
+        if (entry.isDir())
+            files.append(collectFiles(entry.absoluteFilePath(), suffix));
+        else if (entry.suffix() == suffix)
+            files.append(entry);
+    }
+
+    return files;
+}
+
 } // namespace QmlDesigner

@@ -1,5 +1,5 @@
 [General]
-Includes=light.figmatokens
+Includes=ds-light.figmatokens, ds.tokenmapping
 ThemeName=Design Light
 PreferredStyles=
 

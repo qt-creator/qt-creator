@@ -47,7 +47,7 @@ ListModelEditorDialog::ListModelEditorDialog(QWidget *parent)
     mainLayout->addWidget(m_tableView);
 
     m_addRowAction = toolBar->addAction(getIcon(Theme::Icon::addRowAfter), tr("Add Row"));
-    m_removeRowsAction = toolBar->addAction(getIcon(Theme::Icon::deleteRow), tr("Remove Columns"));
+    m_removeRowsAction = toolBar->addAction(getIcon(Theme::Icon::deleteRow), tr("Remove Rows"));
     m_addColumnAction = toolBar->addAction(getIcon(Theme::Icon::addColumnAfter), tr("Add Column"));
     m_removeColumnsAction = toolBar->addAction(getIcon(Theme::Icon::deleteColumn),
                                                tr("Remove Columns"));

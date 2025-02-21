@@ -20,6 +20,7 @@ struct Thumbnail
 
 class AssetsLibraryIconProvider : public QQuickImageProvider
 {
+    Q_OBJECT
 public:
     AssetsLibraryIconProvider(SynchronousImageCache &fontImageCache);
 
@@ -28,10 +29,14 @@ public:
     void invalidateThumbnail(const QString &id);
     QSize imageSize(const QString &id);
     qint64 fileSize(const QString &id);
+    QString setPixmap(const QString &id, const QPixmap &pixmap, const QString &suffix);
+
+signals:
+    void asyncAssetPreviewRequested(const QString &assetId, const QString &assetFile);
 
 private:
     QPixmap generateFontIcons(const QString &filePath, const QSize &requestedSize) const;
-    QPair<QPixmap, qint64> fetchPixmap(const QString &id, const QSize &requestedSize) const;
+    QPair<QPixmap, qint64> fetchPixmap(const QString &id, const QSize &requestedSize);
     Thumbnail createThumbnail(const QString &id, const QSize &requestedSize);
 
     SynchronousImageCache &m_fontImageCache;
@@ -42,6 +47,7 @@ private:
                                     {96, 96},   // list @2x
                                     {48, 48}};  // list
     QHash<QString, Thumbnail> m_thumbnails;
+    QHash<QString, QPixmap> m_pixmaps;
 };
 
 } // namespace QmlDesigner

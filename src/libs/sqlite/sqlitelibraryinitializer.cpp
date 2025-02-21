@@ -14,12 +14,12 @@ void LibraryInitializer::initialize()
 
 LibraryInitializer::LibraryInitializer()
 {
-    DatabaseBackend::initializeSqliteLibrary();
+    DatabaseBackend::initializeSqliteLibrary(source_location::current());
 }
 
 LibraryInitializer::~LibraryInitializer() noexcept(false)
 {
-    DatabaseBackend::shutdownSqliteLibrary();
+    DatabaseBackend::shutdownSqliteLibrary(source_location::current());
 }
 
 } // namespace Sqlite

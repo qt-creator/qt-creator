@@ -581,7 +581,7 @@ Item {
                     width: root.menuWidth - 2 * window.padding
                     height: root.style.controlSize.height
 
-                    myText: qsTr("Manage run targets")
+                    myText: qsTr("Device Manager")
                     myIcon: StudioTheme.Constants.settings_medium
 
                     onClicked: {

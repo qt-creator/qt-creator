@@ -333,33 +333,22 @@ Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceCon
 
     using Option = QmlDom::DomEnvironment::Option;
 
-    QmlDom::DomItem environment = QmlDom::DomEnvironment::create({},
-                                                                 Option::SingleThreaded
-                                                                     | Option::NoDependencies
-                                                                     | Option::WeakLoad);
+    auto environment = QmlDom::DomEnvironment::create({},
+                                                      Option::SingleThreaded | Option::NoDependencies
+                                                          | Option::WeakLoad);
 
     QmlDom::DomItem items;
 
     QString filePath{m_pathCache.sourcePath(sourceId)};
 
-    environment.loadFile(
-#if QT_VERSION < QT_VERSION_CHECK(6, 6, 0)
-        filePath,
-        filePath,
-        sourceContent,
-        QDateTime{},
-#else
-        QQmlJS::Dom::FileToLoad::fromMemory(environment.ownerAs<QQmlJS::Dom::DomEnvironment>(),
-                                            filePath,
-                                            sourceContent),
-#endif
+    environment->loadFile(
+        QQmlJS::Dom::FileToLoad::fromMemory(environment, filePath, sourceContent),
         [&](QmlDom::Path, const QmlDom::DomItem &, const QmlDom::DomItem &newItems) {
             items = newItems;
         },
-        QmlDom::LoadOption::DefaultLoad,
         QmlDom::DomType::QmlFile);
 
-    environment.loadPendingDependencies();
+    environment->loadPendingDependencies();
 
     QmlDom::DomItem file = items.field(QmlDom::Fields::currentItem);
     const QmlDom::QmlFile *qmlFile = file.as<QmlDom::QmlFile>();

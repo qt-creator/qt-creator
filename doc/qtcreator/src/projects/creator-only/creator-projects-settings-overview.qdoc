@@ -118,7 +118,7 @@
 
     The \uicontrol {Build & Run} section of the \uicontrol Projects mode sidebar
     lists the kits that are compatible with your project. To activate one or more
-    kits, click them.
+    kits, select them.
 
     \image qtcreator-projects-kits.webp {List of kits in Projects mode sidebar}
 

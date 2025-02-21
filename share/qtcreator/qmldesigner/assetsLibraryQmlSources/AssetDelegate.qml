@@ -24,6 +24,7 @@ T.TreeViewDelegate {
     readonly property string suffix: model.fileName.substr(-4)
     readonly property bool isFont: root.suffix === ".ttf" || root.suffix === ".otf"
     readonly property bool isEffect: root.suffix === ".qep"
+    readonly property bool isImported3d: root.suffix === ".q3d"
     property bool currFileSelected: false
     property int initialDepth: -1
     property bool __isDirectory: assetsModel.isDirectory(model.filePath)
@@ -213,8 +214,12 @@ T.TreeViewDelegate {
             mouseArea.forceActiveFocus()
             mouseArea.allowTooltip = false
             AssetsLibraryBackend.tooltipBackend.hideTooltip()
-            if (mouse.button === Qt.LeftButton && root.isEffect)
-                AssetsLibraryBackend.rootView.openEffectComposer(filePath)
+            if (mouse.button === Qt.LeftButton) {
+                if (root.isEffect)
+                    AssetsLibraryBackend.rootView.openEffectComposer(filePath)
+                else if (root.isImported3d)
+                    AssetsLibraryBackend.rootView.editAssetComponent(filePath)
+            }
         }
 
         StudioControls.ToolTip {
@@ -239,6 +244,9 @@ T.TreeViewDelegate {
                             + size.width + " x " + size.height
                             + "\n" + fileSize
                             + " " + fileExt
+                } else if (rootView.assetIsImported3d(model.filePath)) {
+                    return filePath + "\n"
+                            + fileExt
                 } else {
                     return filePath + "\n"
                             + fileSize

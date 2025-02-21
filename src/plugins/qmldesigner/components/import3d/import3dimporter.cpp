@@ -398,9 +398,6 @@ void Import3dImporter::postParseQuick3DAsset(ParseData &pd)
                 qmlInfo.append(".");
                 qmlInfo.append(pd.assetName);
                 qmlInfo.append('\n');
-                const QString reqImp = generateRequiredImportForAsset(pd.assetName);
-                if (!m_requiredImports.contains(reqImp))
-                    m_requiredImports.append(reqImp);
                 while (qmlIt.hasNext()) {
                     qmlIt.next();
                     QFileInfo fi = QFileInfo(qmlIt.filePath());
@@ -454,8 +451,10 @@ void Import3dImporter::postParseQuick3DAsset(ParseData &pd)
                                 }
 
                                 // Add quick3D import unless it is already added
-                                if (impVersionMajor > 0 && m_requiredImports.first() != "QtQuick3D")
+                                if (impVersionMajor > 0 && (m_requiredImports.isEmpty()
+                                                            || m_requiredImports.first() != "QtQuick3D")) {
                                     m_requiredImports.prepend("QtQuick3D");
+                                }
                             }
                         }
                     }
@@ -575,13 +574,6 @@ QString Import3dImporter::generateAssetFolderName(const QString &assetName) cons
 {
     static int counter = 0;
     return assetName + "_QDS_" + QString::number(counter++);
-}
-
-QString Import3dImporter::generateRequiredImportForAsset(const QString &assetName) const
-{
-    return QStringLiteral("%1.%2").arg(
-        QmlDesignerPlugin::instance()->documentManager()
-            .generatedComponentUtils().import3dTypePrefix(), assetName);
 }
 
 Import3dImporter::OverwriteResult Import3dImporter::confirmAssetOverwrite(const QString &assetName)
@@ -744,9 +736,6 @@ void Import3dImporter::finalizeQuick3DImport()
                                 addError(tr("Failed to insert import statement into qml document."));
                             transaction.commit();
 #else
-                        // TODO: ModelUtils::addImportsWithCheck requires Model::possibleImports()
-                        //       to return correct list instead of empty list, so until that is
-                        //       fixed we need to just trust the missing modules are available
                         const Imports &imports = model->imports();
                         Imports importsToAdd;
                         for (const QString &importName : std::as_const(m_requiredImports)) {
@@ -775,6 +764,7 @@ void Import3dImporter::finalizeQuick3DImport()
                         }
                         timer->stop();
                         notifyFinished();
+                        model->rewriterView()->emitCustomNotification("asset_import_finished");
                     }
                 } else {
                     timer->stop();
@@ -791,7 +781,6 @@ void Import3dImporter::removeAssetFromImport(const QString &assetName)
 {
     m_parseData.remove(assetName);
     m_importFiles.remove(assetName);
-    m_requiredImports.removeOne(generateRequiredImportForAsset(assetName));
 }
 
 QString Import3dImporter::sourceSceneTargetFilePath(const ParseData &pd)

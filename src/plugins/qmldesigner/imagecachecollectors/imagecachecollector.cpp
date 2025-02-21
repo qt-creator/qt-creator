@@ -2,50 +2,31 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "imagecachecollector.h"
-#include "imagecacheconnectionmanager.h"
 
-#include <model.h>
-#include <nodeinstanceview.h>
-#include <nodemetainfo.h>
-#include <plaintexteditmodifier.h>
-#include <rewriterview.h>
+#include <externaldependenciesinterface.h>
+#include <qmlpuppetpaths.h>
+#include <qprocessuniqueptr.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <utils/fileutils.h>
 
+#include <QDir>
 #include <QGuiApplication>
-#include <QPlainTextEdit>
+#include <QProcess>
+#include <QTemporaryDir>
 
 namespace QmlDesigner {
 
 namespace {
 
-QByteArray fileToByteArray(const QString &filename)
-{
-    QFile file(filename);
-    QFileInfo fleInfo(file);
-
-    if (fleInfo.exists() && file.open(QFile::ReadOnly))
-        return file.readAll();
-
-    return {};
-}
-
-QString fileToString(const QString &filename)
-{
-    return QString::fromUtf8(fileToByteArray(filename));
-}
-
 } // namespace
 
-ImageCacheCollector::ImageCacheCollector(ImageCacheConnectionManager &connectionManager,
-                                         QSize captureImageMinimumSize,
+ImageCacheCollector::ImageCacheCollector(QSize captureImageMinimumSize,
                                          QSize captureImageMaximumSize,
                                          ExternalDependenciesInterface &externalDependencies,
                                          ImageCacheCollectorNullImageHandling nullImageHandling)
-    : m_connectionManager{connectionManager}
-    , captureImageMinimumSize{captureImageMinimumSize}
+    : captureImageMinimumSize{captureImageMinimumSize}
     , captureImageMaximumSize{captureImageMaximumSize}
     , m_externalDependencies{externalDependencies}
     , nullImageHandling{nullImageHandling}
@@ -65,107 +46,41 @@ QImage scaleImage(const QImage &image, QSize targetSize)
     QSize scaledImageSize = image.size().scaled(targetSize.boundedTo(image.size()),
                                                 Qt::KeepAspectRatio);
     return image.scaled(scaledImageSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-
 }
 } // namespace
 
 void ImageCacheCollector::start(Utils::SmallStringView name,
-                                Utils::SmallStringView state,
+                                Utils::SmallStringView,
                                 const ImageCache::AuxiliaryData &auxiliaryData,
                                 CaptureCallback captureCallback,
                                 AbortCallback abortCallback,
                                 ImageCache::TraceToken traceToken)
 {
-#ifdef QDS_USE_PROJECTSTORAGE
-    if (!m_projectStorage || !m_pathCache)
-        return;
-#endif
-
     using namespace NanotraceHR::Literals;
     auto [collectorTraceToken, flowtoken] = traceToken.beginDurationWithFlow(
         "generate image in standard collector");
 
-    RewriterView rewriterView{m_externalDependencies, RewriterView::Amend};
-    NodeInstanceView nodeInstanceView{m_connectionManager, m_externalDependencies};
-    nodeInstanceView.setCaptureImageMinimumAndMaximumSize(captureImageMinimumSize,
-                                                          captureImageMaximumSize);
+    QTemporaryDir outDir(QDir::tempPath() + "/qds_imagecache_XXXXXX");
+    QString outFile = outDir.filePath("capture.png");
 
-    const QString filePath{name};
-#ifdef QDS_USE_PROJECTSTORAGE
-    auto model = QmlDesigner::Model::create({*m_projectStorage, *m_pathCache},
-                                            "Item",
-                                            {},
-                                            QUrl::fromLocalFile(filePath));
-#else
-    auto model = QmlDesigner::Model::create("QtQuick/Item", 2, 1);
-    model->setFileUrl(QUrl::fromLocalFile(filePath));
-#endif
-
-    auto textDocument = std::make_unique<QTextDocument>(fileToString(filePath));
-
-    auto modifier = std::make_unique<NotIndentingTextEditModifier>(textDocument.get(),
-                                                                   QTextCursor{textDocument.get()});
-
-    rewriterView.setTextModifier(modifier.get());
-
-    model->setRewriterView(&rewriterView);
-
-    auto rootModelNodeMetaInfo = rewriterView.rootModelNode().metaInfo();
-    bool is3DRoot = rewriterView.errors().isEmpty()
-                    && (rootModelNodeMetaInfo.isQtQuick3DNode()
-                        || rootModelNodeMetaInfo.isQtQuick3DMaterial());
-
-    if (!rewriterView.errors().isEmpty() || (!rewriterView.rootModelNode().metaInfo().isGraphicalItem()
-                                        && !is3DRoot)) {
+    QImage captureImage;
+    if (runProcess(createArguments(name, outFile, auxiliaryData))) {
+        captureImage.load(outFile);
+    } else {
         if (abortCallback)
             abortCallback(ImageCache::AbortReason::Failed, std::move(flowtoken));
         return;
     }
-
-    if (is3DRoot) {
-        if (auto libIcon = std::get_if<ImageCache::LibraryIconAuxiliaryData>(&auxiliaryData))
-            rewriterView.rootModelNode().setAuxiliaryData(AuxiliaryDataType::NodeInstancePropertyOverwrite,
-                                                          "isLibraryIcon",
-                                                          libIcon->enable);
-    }
-
-    ModelNode stateNode = rewriterView.modelNodeForId(QString{state});
-
-    if (stateNode.isValid())
-        rewriterView.setCurrentStateNode(stateNode);
-
-    QImage captureImage;
-
-    auto callback = [&](const QImage &image) { captureImage = image; };
-
-    if (!m_target)
-        return;
-
-    nodeInstanceView.setTarget(m_target.data());
-    m_connectionManager.setCallback(std::move(callback));
-    bool isCrashed = false;
-    nodeInstanceView.setCrashCallback([&] { isCrashed = true; });
-    model->setNodeInstanceView(&nodeInstanceView);
-
-    bool capturedDataArrived = m_connectionManager.waitForCapturedData();
-
-    m_connectionManager.setCallback({});
-    m_connectionManager.setCrashCallback({});
-
-    model->setNodeInstanceView({});
-    model->setRewriterView({});
-
-    if (isCrashed)
-        abortCallback(ImageCache::AbortReason::Failed, std::move(flowtoken));
-
-    if (!capturedDataArrived && abortCallback)
-        abortCallback(ImageCache::AbortReason::Failed, std::move(flowtoken));
 
     if (nullImageHandling == ImageCacheCollectorNullImageHandling::CaptureNullImage
         || !captureImage.isNull()) {
         QImage midSizeImage = scaleImage(captureImage, QSize{300, 300});
         QImage smallImage = scaleImage(midSizeImage, QSize{96, 96});
         captureCallback(captureImage, midSizeImage, smallImage, std::move(flowtoken));
+    } else {
+        if (abortCallback)
+            abortCallback(ImageCache::AbortReason::Failed, std::move(flowtoken));
+        return;
     }
 }
 
@@ -190,6 +105,74 @@ void ImageCacheCollector::setTarget(ProjectExplorer::Target *target)
 ProjectExplorer::Target *ImageCacheCollector::target() const
 {
     return m_target;
+}
+
+QStringList ImageCacheCollector::createArguments(Utils::SmallStringView name,
+                                                 const QString &outFile,
+                                                 const ImageCache::AuxiliaryData &auxiliaryData) const
+{
+    QStringList arguments;
+    const QString filePath{name};
+
+    arguments.append("--qml-renderer");
+    arguments.append(filePath);
+
+    if (m_target && m_target->project()) {
+        arguments.append("-i");
+        arguments.append(m_target->project()->projectDirectory().toFSPathString());
+    }
+
+    arguments.append("-o");
+    arguments.append(outFile);
+
+    if (std::holds_alternative<ImageCache::LibraryIconAuxiliaryData>(auxiliaryData))
+        arguments.append("--libIcon");
+
+    if (captureImageMinimumSize.isValid()) {
+        arguments.append("--minW");
+        arguments.append(QString::number(captureImageMinimumSize.width()));
+        arguments.append("--minH");
+        arguments.append(QString::number(captureImageMinimumSize.height()));
+    }
+
+    if (captureImageMaximumSize.isValid()) {
+        arguments.append("--maxW");
+        arguments.append(QString::number(captureImageMaximumSize.width()));
+        arguments.append("--maxH");
+        arguments.append(QString::number(captureImageMaximumSize.height()));
+    }
+
+    return arguments;
+}
+
+bool ImageCacheCollector::runProcess(const QStringList &arguments) const
+{
+    if (!m_target)
+        return false;
+
+    auto [workingDirectoryPath, puppetPath] = QmlDesigner::QmlPuppetPaths::qmlPuppetPaths(
+        target(), m_externalDependencies.designerSettings());
+    if (puppetPath.isEmpty())
+        return false;
+
+    QProcessUniquePointer puppetProcess{new QProcess};
+
+    QObject::connect(QCoreApplication::instance(),
+                     &QCoreApplication::aboutToQuit,
+                     puppetProcess.get(),
+                     &QProcess::kill);
+
+    puppetProcess->setWorkingDirectory(workingDirectoryPath.toFSPathString());
+    puppetProcess->setProcessChannelMode(QProcess::ForwardedChannels);
+
+    puppetProcess->start(puppetPath.toFSPathString(), arguments);
+
+    if (puppetProcess->waitForFinished(30000)) {
+        return puppetProcess->exitStatus() == QProcess::ExitStatus::NormalExit
+               && puppetProcess->exitCode() == 0;
+    }
+
+    return false;
 }
 
 } // namespace QmlDesigner

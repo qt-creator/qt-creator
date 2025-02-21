@@ -10,6 +10,7 @@ Project {
         "expander/expander.qbs",
         "expected/expected.qbs",
         "filepath/filepath.qbs",
+        "fileinprojectfinder/fileinprojectfinder.qbs",
         "fileutils/fileutils.qbs",
         "fsengine/fsengine.qbs",
         "fuzzymatcher/fuzzymatcher.qbs",

@@ -165,8 +165,8 @@
 
     \image qtquick-designer-color-picker.png "Color Picker view"
 
-    To select a new color, click the color of your choice in the color selector
-    (1), or click the \uicontrol {Eye Dropper} icon (2) to be able to select any
+    To choose a new color, select the color of your choice in the color selector
+    (1), or select the \uicontrol {Eye Dropper} icon (2) and then select any
     color visible in your screen to use further in your project.
 
     The \uicontrol Original field displays the original color of the component,
@@ -175,7 +175,7 @@
     Make the color fully transparent by clicking the \uicontrol Transparent icon
     (3).
 
-    To use preset \l {Selecting Web Gradients}{web gradients}, click the
+    To use preset \l {Selecting Web Gradients}{web gradients}, select the
     \uicontrol {Gradient Picker} icon (4).
 
     Use the dropdown menu (5) to determine the color fill type you wish to use.
@@ -189,7 +189,7 @@
     Use the hue slider (7) or the alpha slider (8) to further define a new
     color.
 
-    Click the \uicontrol X icon to close the color picker.
+    Select the \uicontrol X icon to close the color picker.
 
     \section2 Picking gradients
 
@@ -313,7 +313,7 @@
     for \uicontrol Original, \uicontrol New, or in \uicontrol Palette >
     \uicontrol Recent colors and selecting \uicontrol {Add to Favorites}.
 
-    Click one of the \uicontrol Palette color thumbnails to select it as
+    Select one of the \uicontrol Palette color thumbnails to choose it as
     the new color.
 
     \section1 Specifying developer properties

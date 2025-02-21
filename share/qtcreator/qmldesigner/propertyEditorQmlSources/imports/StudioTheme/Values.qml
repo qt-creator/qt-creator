@@ -485,6 +485,56 @@ QtObject {
 
     property color themeTableCellCurrent: Theme.color(Theme.DStableCellCurrent)
 
+    // Design System Semantics
+
+    // base
+
+    property color base_black: Theme.color(Theme.DS_base_black)
+    property color base_white: Theme.color(Theme.DS_base_white)
+
+    // primary / accent
+    property color accent_default: Theme.color(Theme.DS_accent_default)
+    property color accent_muted: Theme.color(Theme.DS_accent_muted)
+    property color accent_subtle: Theme.color(Theme.DS_accent_subtle)
+
+    // background
+    property color background_default: Theme.color(Theme.DS_background_default)
+    property color background_muted: Theme.color(Theme.DS_background_muted)
+    property color background_subtle: Theme.color(Theme.DS_background_subtle)
+
+    // foreground
+    property color foreground_default: Theme.color(Theme.DS_forground_default)
+    property color foreground_muted: Theme.color(Theme.DS_foreground_muted)
+    property color foreground_subtle: Theme.color(Theme.DS_foreground_subtle)
+
+    //text / icon
+    property color text_default: Theme.color(Theme.DS_text_default)
+    property color text_muted: Theme.color(Theme.DS_text_muted)
+    property color text_subtle: Theme.color(Theme.DS_text_subtle)
+    property color text_accent: Theme.color(Theme.DS_text_accent)
+
+    //stroke
+    property color stroke_strong: Theme.color(Theme.DS_stroke_strong)
+    property color stroke_muted: Theme.color(Theme.DS_stroke_muted)
+    property color stroke_subtle: Theme.color(Theme.DS_stroke_subtle)
+
+    //notification
+    property color notification_alertDefault: Theme.color(Theme.DS_notification_alert_default)
+    property color notification_alertMuted: Theme.color(Theme.DS_notification_alert_muted)
+    property color notification_alertSubtle: Theme.color(Theme.DS_notification_alert_subtle)
+
+    property color notification_neutralDefault: Theme.color(Theme.DS_notification_neutral_default)
+    property color notification_neutralMuted: Theme.color(Theme.DS_notification_neutral_muted)
+    property color notification_neutralSubtle: Theme.color(Theme.DS_notification_neutral_subtle)
+
+    property color notification_dangerDefault: Theme.color(Theme.DS_notification_danger_default)
+    property color notification_dangerMuted: Theme.color(Theme.DS_notification_danger_muted)
+    property color notification_dangerSubtle: Theme.color(Theme.DS_notification_danger_subtle)
+
+    property color notification_successDefault: Theme.color(Theme.DS_notification_success_default)
+    property color notification_successMuted: Theme.color(Theme.DS_notification_success_muted)
+    property color notification_successSubtle: Theme.color(Theme.DS_notification_success_subtle)
+
     // Control Style Mapping
     property ControlStyle controlStyle: DefaultStyle {}
     property ControlStyle connectionPopupControlStyle: ConnectionPopupControlStyle {}

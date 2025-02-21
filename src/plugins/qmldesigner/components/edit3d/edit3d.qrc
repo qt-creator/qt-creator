@@ -46,5 +46,7 @@
         <file>images/align_view_on@2x.png</file>
         <file>images/color_palette.png</file>
         <file>images/color_palette@2x.png</file>
+        <file>images/item-3D_model-icon.png</file>
+        <file>images/item-3D_model-icon@2x.png</file>
     </qresource>
 </RCC>

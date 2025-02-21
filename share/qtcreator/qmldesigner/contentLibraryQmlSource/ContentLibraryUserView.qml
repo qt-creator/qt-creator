@@ -116,8 +116,15 @@ Item {
                     onCountChanged: root.assignMaxCount()
 
                     onDropEnter: (drag) => {
-                        drag.accepted = (categoryTitle === "Textures" && drag.formats[0] === "application/vnd.qtdesignstudio.assets")
+                        let has3DNode = ContentLibraryBackend.rootView
+                                     .has3DNode(drag.getDataAsArrayBuffer(drag.formats[0]))
+
+                        let hasTexture = ContentLibraryBackend.rootView
+                                     .hasTexture(drag.formats[0], drag.urls)
+
+                        drag.accepted = (categoryTitle === "Textures" && hasTexture)
                                      || (categoryTitle === "Materials" && drag.formats[0] === "application/vnd.qtdesignstudio.material")
+                                     || (categoryTitle === "3D" && has3DNode)
 
                         section.highlight = drag.accepted
                     }
@@ -131,10 +138,16 @@ Item {
                         drag.accept()
                         section.expandSection()
 
-                        if (categoryTitle === "Textures")
-                            ContentLibraryBackend.rootView.acceptTexturesDrop(drag.urls)
-                        else if (categoryTitle === "Materials")
+                        if (categoryTitle === "Textures") {
+                            if (drag.formats[0] === "application/vnd.qtdesignstudio.assets")
+                                ContentLibraryBackend.rootView.acceptTexturesDrop(drag.urls)
+                            else if (drag.formats[0] === "application/vnd.qtdesignstudio.texture")
+                                ContentLibraryBackend.rootView.acceptTextureDrop(drag.getDataAsString(drag.formats[0]))
+                        } else if (categoryTitle === "Materials") {
                             ContentLibraryBackend.rootView.acceptMaterialDrop(drag.getDataAsString(drag.formats[0]))
+                        } else if (categoryTitle === "3D") {
+                            ContentLibraryBackend.rootView.accept3DDrop(drag.getDataAsArrayBuffer(drag.formats[0]))
+                        }
                     }
 
                     Grid {
@@ -154,7 +167,7 @@ Item {
                                     ContentLibraryItem {
                                         width: root.cellWidth
                                         height: root.cellHeight
-                                        visible: !infoText.visible
+                                        visible: modelData.bundleItemVisible && !infoText.visible
 
                                         onShowContextMenu: ctxMenuItem.popupMenu(modelData)
                                         onAddToProject: ContentLibraryBackend.userModel.addToProject(modelData)
@@ -174,7 +187,7 @@ Item {
                                     delegate: ContentLibraryItem {
                                         width: root.cellWidth
                                         height: root.cellHeight
-                                        visible: !infoText.visible
+                                        visible: modelData.bundleItemVisible && !infoText.visible
 
                                         onShowContextMenu: ctxMenuItem.popupMenu(modelData)
                                         onAddToProject: ContentLibraryBackend.userModel.addToProject(modelData)
@@ -200,11 +213,13 @@ Item {
                         text: {
                             let categoryName = (categoryTitle === "3D") ? categoryTitle + " assets"
                                                                         : categoryTitle.toLowerCase()
-
                             if (!ContentLibraryBackend.rootView.isQt6Project)
                                 qsTr("<b>Content Library</b> is not supported in Qt5 projects.")
                             else if (!ContentLibraryBackend.rootView.hasQuick3DImport && categoryTitle !== "Textures")
-                                qsTr("To use " +  categoryName + ", first add the QtQuick3D module in the <b>Components</b> view.")
+                                qsTr(`To use %1, first <a href="#add_import" style="text-decoration:none;color:%2">
+                                     add the <b>QtQuick3D</b> module</a> in the <b>Components</b> view.`)
+                                        .arg(categoryName)
+                                        .arg(StudioTheme.Values.themeInteraction)
                             else if (!ContentLibraryBackend.rootView.hasMaterialLibrary && categoryTitle !== "Textures")
                                 qsTr("<b>Content Library</b> is disabled inside a non-visual component.")
                             else if (categoryEmpty)
@@ -212,11 +227,14 @@ Item {
                             else
                                 ""
                         }
+                        textFormat: Text.RichText
                         color: StudioTheme.Values.themeTextColor
                         font.pixelSize: StudioTheme.Values.baseFontSize
                         topPadding: 10
                         leftPadding: 10
                         visible: infoText.text !== ""
+
+                        onLinkActivated: ContentLibraryBackend.rootView.addQtQuick3D()
                     }
                 }
             }

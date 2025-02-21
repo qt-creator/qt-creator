@@ -1,0 +1,306 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page effect-composer-thebookofshaders.html
+    \ingroup gstutorials
+
+    \sa {Effect Composer}, {Effect Composer example}, {Working with shader code in Effect Composer}
+
+    \title Using a shader from The Book of Shaders in Effect Composer
+
+    \brief This tutorial describes how to copy the \e {2D Noise} example effect from
+    \e {The Book of Shaders} and use it in an effect composition.
+
+    This tutorial describes how you can use a shader from
+    \l{https://thebookofshaders.com}{The Book of Shaders} to create a custom effect to use in the
+    \QDS \uicontrol {Effect Composer}, and how you can adjust the code to create new features.
+
+    To create the custom effect, you will use the the shader code from
+    \l{https://thebookofshaders.com/11/}{the 2D Noise example}:
+
+    \code
+        #ifdef GL_ES
+        precision mediump float;
+        #endif
+
+        uniform vec2 u_resolution;
+        uniform vec2 u_mouse;
+        uniform float u_time;
+
+        // 2D Random
+        float random (in vec2 st) {
+            return fract(sin(dot(st.xy,
+                                vec2(12.9898,78.233)))
+                        * 43758.5453123);
+        }
+
+        // 2D Noise based on Morgan McGuire @morgan3d
+        // https://www.shadertoy.com/view/4dS3Wd
+        float noise (in vec2 st) {
+            vec2 i = floor(st);
+            vec2 f = fract(st);
+
+            // Four corners in 2D of a tile
+            float a = random(i);
+            float b = random(i + vec2(1.0, 0.0));
+            float c = random(i + vec2(0.0, 1.0));
+            float d = random(i + vec2(1.0, 1.0));
+
+            // Smooth Interpolation
+
+            // Cubic Hermine Curve.  Same as SmoothStep()
+            vec2 u = f * f * (3.0 - 2.0 * f);
+            // u = smoothstep(0.,1.,f);
+
+            // Mix 4 corners percentages
+            return mix(a, b, u.x) +
+                    (c - a) * u.y * (1.0 - u.x) +
+                    (d - b) * u.x * u.y;
+        }
+
+        void main() {
+            vec2 st = gl_FragCoord.xy/u_resolution.xy;
+
+            // Scale the coordinate system to see
+            // some noise in action
+            vec2 pos = vec2(st * 5.0);
+
+            // Use the noise function
+            float n = noise(pos);
+
+            gl_FragColor = vec4(vec3(n), 1.0);
+        }
+    \endcode
+
+    \section1 Adding a new custom effect for the shader
+
+    First, you need to add a new custom effect to your composition in
+    \uicontrol {Effect Composer}. Later, you will copy the shader code to this
+    custom effect.
+
+    To add a custom effect to your composition:
+    \list 1
+        \li In \QDS, open the \uicontrol {Effect Composer} view.
+        \li From the \uicontrol {Add Effect} dropdown menu (1), select
+            \uicontrol {Custom} (2). The custom effect node is an empty effect node.
+    \endlist
+    \image add-custom-effect-node.webp Adding a custom effect to an effect composition.
+
+    \section1 Copying the shader code to Shaders Code Editor
+
+    Next, you will copy the shader code and paste it to the
+    \uicontrol {Fragment Shader} tab of \uicontrol {Shaders Code Editor}
+    with some adjustments:
+    \list 1
+        \li Copy the functions of the shader and paste them above the \c {@main} tag:
+            \code
+                // 2D Random
+                float random (in vec2 st) {
+                    return fract(sin(dot(st.xy,
+                                        vec2(12.9898,78.233)))
+                                * 43758.5453123);
+                }
+
+                // 2D Noise based on Morgan McGuire @morgan3d
+                // https://www.shadertoy.com/view/4dS3Wd
+                float noise (in vec2 st) {
+                    vec2 i = floor(st);
+                    vec2 f = fract(st);
+
+                    // Four corners in 2D of a tile
+                    float a = random(i);
+                    float b = random(i + vec2(1.0, 0.0));
+                    float c = random(i + vec2(0.0, 1.0));
+                    float d = random(i + vec2(1.0, 1.0));
+
+                    // Smooth Interpolation
+
+                    // Cubic Hermine Curve.  Same as SmoothStep()
+                    vec2 u = f * f *(3.0 - 2.0 * f);
+                    // u = smoothstep(0.,1.,f);
+
+                    // Mix 4 corners percentages
+                    return mix(a, b, u.x) +
+                            (c - a) * u.y * (1.0 - u.x) +
+                            (d - b) * u.x * u.y;
+                }
+            \endcode
+
+        \li Copy the code inside \c {void main} and paste it below the \c {@main} tag, inside {}.
+        \li Edit the uniforms of the original shader code in \uicontrol {Shaders Code Editor} as follows:
+            \list
+                \li \c {uniform vec2 u_resolution} to \c iResolution
+                \li \c gl_FragCoord to \c fragCoord
+                \li \c gl_FragColor to \c fragColor
+            \endlist
+    \endlist
+    The code in \uicontrol{Shaders Code Editor} should now look like this:
+            \code
+                // 2D Random
+                float random (in vec2 st) {
+                    return fract(sin(dot(st.xy,
+                                        vec2(12.9898,78.233)))
+                                * 43758.5453123);
+                }
+
+                // 2D Noise based on Morgan McGuire @morgan3d
+                // https://www.shadertoy.com/view/4dS3Wd
+                float noise (in vec2 st) {
+                    vec2 i = floor(st);
+                    vec2 f = fract(st);
+
+                    // Four corners in 2D of a tile
+                    float a = random(i);
+                    float b = random(i + vec2(1.0, 0.0));
+                    float c = random(i + vec2(0.0, 1.0));
+                    float d = random(i + vec2(1.0, 1.0));
+
+                    // Smooth Interpolation
+
+                    // Cubic Hermine Curve.  Same as SmoothStep()
+                    vec2 u = f * f * (3.0 - 2.0 * f);
+                    // u = smoothstep(0.,1.,f);
+
+                    // Mix 4 corners percentages
+                    return mix(a, b, u.x) +
+                            (c - a) * u.y * (1.0 - u.x) +
+                            (d - b) * u.x * u.y;
+                }
+
+                @main
+                {
+                    vec2 st = fragCoord.xy/iResolution.xy;
+
+                    // Scale the coordinate system to see
+                    // some noise in action
+                    vec2 pos = vec2(st * 5.0);
+
+                    // Use the noise function
+                    float n = noise(pos);
+
+                    fragColor = vec4(vec3(n), 1.0);
+                }
+            \endcode
+
+    You should now see the effect in the preview window of the \uicontrol {Effect Composer} view:
+
+    \image 2D-noise-shaders-code-editor.webp The 2D Noise shader in Effect Composer
+
+    If you don't see the effect, ensure that \uicontrol {Live Update} is selected. To update the preview
+    window manually, select \uicontrol Apply.
+
+    Select \imagerunproject to run the animation in the preview window.
+
+    \section1 Adjusting the shader code
+
+    Next, you will make some adjustments to the code in \uicontrol {Shaders Code Editor} to fine-tune
+    the shader.
+
+    \section2 Controlling the opacity
+
+    To control the opacity, you will replace the number in the fragColor with a uniform,
+    create a float property, and assign that to replace the number.
+
+    First, create a new float property for the custom effect:
+        \list 1
+            \li Select \uicontrol {Add Property}.
+            \li For \uicontrol {Display Name}, enter \e Tweak.
+            \li For \uicontrol Uniform, enter \e customTweak (if this hasn't been
+                done automatically).
+            \li Select the dropdown menu for \uicontrol Type, and then select \uicontrol Float.
+            \li For \uicontrol {Max value}, enter 1.
+            \li Select \uicontrol Apply.
+        \endlist
+
+    Next, to assign the \e customTweak property to replace the number defining opacity,
+    edit \c {fragColor = vec4(vec3(n), 1.0);} to \c {fragColor = vec4(vec3(n), customTweak);}.
+
+    The code below the \c @main tag in \uicontrol {Shaders Code Editor} should now look like this:
+    \code
+    @main
+    {
+        vec2 st = fragCoord.xy/iResolution.xy;
+
+        // Scale the coordinate system to see
+        // some noise in action
+        vec2 pos = vec2(st * 5.0);
+
+        // Use the noise function
+        float n = noise(pos);
+
+        fragColor = vec4(vec3(n), customTweak);
+    }
+    \endcode
+
+    You can now adjust the effect transparency with a slider:
+    \image opacity-slider-shaders-code-editor.webp Slider for controlling the opacity of the shader
+
+    \section2 Controlling the noise granularity
+
+    To change the noise granularity, you will add a property to control the value.
+
+    First, create a new float property for the custom effect:
+        \list 1
+            \li Select \uicontrol {Add Property}.
+            \li For \uicontrol {Display Name}, enter \e NoiseGrain.
+            \li For \uicontrol Uniform, enter \e customNoiseGrain (if this hasn't been
+                done automatically).
+            \li Select the dropdown menu for \uicontrol Type, and then select \uicontrol Float.
+            \li For \uicontrol {Max. value}, enter 20.
+            \li Select \uicontrol Apply.
+        \endlist
+
+    Next, to assign the \e customNoiseGrain property to replace the number defining granularity,
+    go to \uicontrol{Shaders Code Editor}, and edit \c {vec2 pos = vec2(st * 5.0);} to
+    \c {vec2 pos = vec2(st * customNoiseGrain);}.
+
+    After this change, the code after the \c @main tag in \uicontrol {Shaders Code Editor} should
+    look like this:
+
+    \code
+    @main
+    {
+        vec2 st = fragCoord.xy/iResolution.xy;
+
+        // Scale the coordinate system to see
+        // some noise in action
+        vec2 pos = vec2(st * customNoiseGrain);
+
+        // Use the noise function
+        float n = noise(pos);
+
+        fragColor = vec4(vec3(n), customTweak);
+    }
+    \endcode
+
+    You can now adjust the noise granularity with a slider:
+    \image granularity-slider-custom-effect.webp Slider for controlling the granularity of the shader
+
+    \section2 Using the effect to mask an object
+
+    To use the effect to mask the component it is assigned to, edit \c {fragColor = vec4(vec3(n), customTweak);} to
+    \c {fragColor = vec4(vec3(n), customTweak * fragColor.a);}.
+
+    The code after the \c @main tag in \uicontrol {Shaders Code Editor} should now look like this:
+
+    \code
+    @main
+    {
+        vec2 st = fragCoord.xy/iResolution.xy;
+
+        // Scale the coordinate system to see
+        // some noise in action
+        vec2 pos = vec2(st * customNoiseGrain);
+
+        // Use the noise function
+        float n = noise(pos);
+
+       fragColor = vec4(vec3(n), customTweak * fragColor.a);
+    }
+    \endcode
+
+    After this final change, the preview window should look similar to this:
+    \image mask-shaders-code-editor.webp Using masking in a custom effect
+
+*/

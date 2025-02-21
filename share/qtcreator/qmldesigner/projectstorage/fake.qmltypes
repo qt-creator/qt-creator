@@ -56,10 +56,6 @@ Component {
 }
 
 Component {
-  name: "QLocale"
-}
-
-Component {
   name: "QPen"
 }
 
@@ -285,10 +281,6 @@ Component {
 
 Component {
   name: "QOpcUaLocalizedText"
-}
-
-Component {
-  name: "Qt::InputMethodHints"
 }
 
 Component {

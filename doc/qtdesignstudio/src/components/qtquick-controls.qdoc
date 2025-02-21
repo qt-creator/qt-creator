@@ -304,9 +304,9 @@
     To make the button checked, select the \uicontrol Checked check box.
 
     Buttons that belong to the same parent component can be mutually exclusive.
-    Users can click a button to check it, and the previous selection is
+    Users can select a button to check it, and the previous selection is
     cleared. Users cannot uncheck the currently checked button by clicking
-    it. Instead, they must click another button in the group to set the new
+    it. Instead, they must select another button in the group to set the new
     checked button for that group.
 
     Radio buttons and tab buttons are mutually exclusive by default. To make

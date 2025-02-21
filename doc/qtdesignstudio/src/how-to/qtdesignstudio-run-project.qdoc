@@ -1,0 +1,25 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page studio-run-project.html
+    \previouspage studio-live-preview.html
+    \nextpage studio-live-preview-desktop.html
+
+    \title Running a \QDS project
+
+    To run a project created with \QDS:
+
+    \list 1
+        \li Open the project with \QDS.
+        \li Select \uicontrol Run dropdown from the top toolbar and select
+          \uicontrol {Run App}.
+        \li Select \imagerunproject.
+            \image studio-run-project.webp {Run a \QDS project}
+
+        \note Alternatively, select \key {Ctrl+R}.
+    \endlist
+
+
+
+*/

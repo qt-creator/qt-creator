@@ -31,7 +31,7 @@
     frames have corresponding source locations. Stack frames without
     corresponding source locations are grayed out.
 
-    If you click a frame with a known source location, the text editor jumps to
+    If you select a frame with a known source location, the text editor jumps to
     the corresponding location and updates the
     \l {Local variables and function parameters}{Locals} and
     \l {Evaluating expressions}{Expressions} views, making it seem like the
@@ -43,7 +43,7 @@
     select \uicontrol {Load QML Stack} in the context menu in the
     \uicontrol Stack view. The debugger tries to retrieve the JavaScript stack
     from the stopped executable and prepends the frames to the C++ frames,
-    should it find any. You can click a frame in the QML stack to open the QML
+    should it find any. You can select a frame in the QML stack to open the QML
     file in the editor.
 
     \if defined(qtcreator)
@@ -286,7 +286,7 @@
 
     \list
 
-        \li Click the breakpoint marker in the text editor.
+        \li Select the breakpoint marker in the text editor.
 
         \li In the \uicontrol {Breakpoint Preset} view or the
             \uicontrol Breakpoints view:

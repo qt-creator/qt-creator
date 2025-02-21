@@ -87,6 +87,7 @@ inline constexpr char MIME_TYPE_ASSET_TEXTURE3D[]
     = "application/vnd.qtdesignstudio.asset.texture3d";
 inline constexpr char MIME_TYPE_MODELNODE_LIST[] = "application/vnd.qtdesignstudio.modelnode.list";
 inline constexpr char MIME_TYPE_ASSET_EFFECT[] = "application/vnd.qtdesignstudio.asset.effect";
+inline constexpr char MIME_TYPE_ASSET_IMPORTED3D[] = "application/vnd.qtdesignstudio.asset.imported3d";
 
 // Menus
 inline constexpr char M_VIEW_WORKSPACES[] = "QmlDesigner.Menu.View.Workspaces";
@@ -123,7 +124,6 @@ inline constexpr char EVENT_EFFECTCOMPOSER_TIME[] = "effectComposerTime";
 inline constexpr char EVENT_ITEMLIBRARY_TIME[] = "itemLibrary";
 inline constexpr char EVENT_TRANSLATIONVIEW_TIME[] = "translationView";
 inline constexpr char EVENT_NAVIGATORVIEW_TIME[] = "navigatorView";
-inline constexpr char EVENT_DESIGNMODE_TIME[] = "designMode";
 inline constexpr char EVENT_MATERIALEDITOR_TIME[] = "materialEditor";
 inline constexpr char EVENT_MATERIALBROWSER_TIME[] = "materialBrowser";
 inline constexpr char EVENT_CONTENTLIBRARY_TIME[] = "contentLibrary";

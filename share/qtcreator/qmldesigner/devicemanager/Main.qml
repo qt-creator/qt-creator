@@ -136,7 +136,7 @@ Rectangle {
         }
 
         DelegateChoice {
-            column: DeviceManagerModel.Active
+            column: DeviceManagerModel.Enabled
 
             Cell {
                 id: activeDelegate
@@ -172,7 +172,7 @@ Rectangle {
                 }
 
                 TableView.editDelegate: T.TextField {
-                    id: textField
+                    id: aliasTextField
 
                     property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
@@ -182,11 +182,11 @@ Rectangle {
                     verticalAlignment: TextInput.AlignVCenter
                     padding: 8
 
-                    font.pixelSize: textField.style.baseFontSize
-                    color: textField.style.text.idle
-                    selectionColor: textField.style.text.selection
-                    selectedTextColor: textField.style.text.selectedText
-                    placeholderTextColor: textField.style.text.placeholder
+                    font.pixelSize: aliasTextField.style.baseFontSize
+                    color: aliasTextField.style.text.idle
+                    selectionColor: aliasTextField.style.text.selection
+                    selectedTextColor: aliasTextField.style.text.selectedText
+                    placeholderTextColor: aliasTextField.style.text.placeholder
 
                     Component.onCompleted: selectAll()
 
@@ -198,6 +198,66 @@ Rectangle {
                     background: Rectangle {
                         color: StudioTheme.Values.themePanelBackground
                         border.color: StudioTheme.Values.themeInteraction
+                        border.width: StudioTheme.Values.border
+                    }
+                }
+            }
+        }
+
+        DelegateChoice {
+            column: DeviceManagerModel.IPv4Addr
+
+            Cell {
+                id: ipDelegate
+
+                Text {
+                    text: ipDelegate.display
+                    visible: !ipDelegate.editing
+                    color: StudioTheme.Values.themeTextColor
+                    anchors.fill: parent
+                    anchors.margins: 8
+                    elide: Text.ElideMiddle
+
+                    horizontalAlignment: Qt.AlignLeft
+                    verticalAlignment: Qt.AlignVCenter
+                }
+
+                TableView.editDelegate: T.TextField {
+                    id: ipTextField
+
+                    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
+
+                    anchors.fill: parent
+                    text: ipDelegate.display
+                    horizontalAlignment: TextInput.AlignLeft
+                    verticalAlignment: TextInput.AlignVCenter
+                    padding: 8
+
+                    font.pixelSize: ipTextField.style.baseFontSize
+                    color: ipTextField.style.text.idle
+                    selectionColor: ipTextField.style.text.selection
+                    selectedTextColor: ipTextField.style.text.selectedText
+                    placeholderTextColor: ipTextField.style.text.placeholder
+
+                    validator: RegularExpressionValidator {
+                        regularExpression: /^(\d{1,3}\.){3}\d{1,3}$/
+                    }
+
+                    Component.onCompleted: selectAll()
+
+                    TableView.onCommit: {
+                        if (ipTextField.acceptableInput) {
+                            let index = ipDelegate.TableView.view.index(ipDelegate.row, ipDelegate.column)
+                            ipDelegate.TableView.view.model.setData(index, text, Qt.EditRole)
+                        } else {
+                            ipTextField.undo()
+                        }
+                    }
+
+                    background: Rectangle {
+                        color: StudioTheme.Values.themePanelBackground
+                        border.color: ipTextField.acceptableInput ? StudioTheme.Values.themeInteraction
+                                                                  : StudioTheme.Values.themeError
                         border.width: StudioTheme.Values.border
                     }
                 }
@@ -224,7 +284,7 @@ Rectangle {
         id: questionPopup
 
         contentItem: Item {
-            implicitWidth: 400
+            implicitWidth: 520
             implicitHeight: questionColumnLayout.height
 
             ColumnLayout {
@@ -234,7 +294,7 @@ Rectangle {
 
                 Text {
                     Layout.fillWidth: true
-                    text: qsTr("How to see a preview on Android device")
+                    text: qsTr("To preview your application on an Android device:")
                     color: StudioTheme.Values.themeTextColor
                     wrapMode: Text.WordWrap
                     font.bold: true
@@ -265,11 +325,12 @@ Rectangle {
 
                 CollationItem {
                     number: 1
-                    text: qsTr("Scan the QR code below or click on the link to go to the Google Play store with your device and seek for Qt Viewer application.")
+                    text: qsTr("Select the “GET IT ON Google Play” link or scan the QR code below with your Android device.")
                 }
 
                 RowLayout {
                     Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignHCenter
 
                     Image {
                         Layout.maximumWidth: 200
@@ -301,12 +362,37 @@ Rectangle {
 
                 CollationItem {
                     number: 2
-                    text: qsTr("Install the Qt Viewer application on your phone.")
+                    text: qsTr("Install Qt UI Viewer on your Android device.")
                 }
 
                 CollationItem {
                     number: 3
-                    text: qsTr("Open up this window again, if you already closed it, and click on \"Add Run Target\" button in this window.")
+                    text: qsTr("Connect your Android device to the same network as your Qt Design Studio. For secured office networks contact the network admin to identify the correct network.")
+                }
+
+                CollationItem {
+                    number: 4
+                    text: qsTr("Open Qt UI Viewer and find the IP address of the device.")
+                }
+
+                CollationItem {
+                    number: 5
+                    text: qsTr("Open the application you want to preview in Qt Design Studio.")
+                }
+
+                CollationItem {
+                    number: 6
+                    text: qsTr("Go to Run dropdown in the top toolbar and select Device Manager.")
+                }
+
+                CollationItem {
+                    number: 7
+                    text: qsTr("Add your Qt UI Viewer IP address in the Device Manager.")
+                }
+
+                CollationItem {
+                    number: 8
+                    text: qsTr("Select your Android device from the Run dropdown from the Qt Design Studio top toolbar and select Run.")
                 }
             }
         }
@@ -343,7 +429,7 @@ Rectangle {
 
                     width: 200
                     buttonIcon: StudioTheme.Constants.add_medium
-                    placeholderText: qsTr("Run target IP")
+                    placeholderText: qsTr("Set target device IP")
                     validator: RegularExpressionValidator {
                         regularExpression: /^(\d{1,3}\.){3}\d{1,3}$/
                     }
@@ -377,15 +463,13 @@ Rectangle {
                     text: qsTr("Columns")
                     model: ListModel {
                         id: columnModel
-                        onDataChanged: {
-                            tableView.forceLayout()
-                        }
+                        onDataChanged: tableView.forceLayout()
                     }
                     style: StudioTheme.Values.viewBarControlStyle
 
                     Component.onCompleted: {
                         tableView.setColumnWidth(DeviceManagerModel.Status, 80)
-                        tableView.setColumnWidth(DeviceManagerModel.Active, 70)
+                        tableView.setColumnWidth(DeviceManagerModel.Enabled, 70)
                         tableView.setColumnWidth(DeviceManagerModel.Alias, 200)
                         tableView.setColumnWidth(DeviceManagerModel.IPv4Addr, 110)
                         tableView.setColumnWidth(DeviceManagerModel.OS, 100)
@@ -455,6 +539,11 @@ Rectangle {
                         border {
                             width: StudioTheme.Values.border
                             color: StudioTheme.Values.themeStateSeparator
+                        }
+
+                        StudioControls.ToolTipArea {
+                            anchors.fill: parent
+                            text: toolTip
                         }
 
                         Text {

@@ -26,6 +26,8 @@ ComponentView::ComponentView(ExternalDependenciesInterface &externalDependencies
     , m_standardItemModel(new QStandardItemModel(this))
     , m_componentAction(new ComponentAction(this))
 {
+    connect(&m_ensureMatLibTimer, &QTimer::timeout, this, &ComponentView::ensureMatLibTriggered);
+    m_ensureMatLibTimer.setInterval(500);
 }
 
 void ComponentView::nodeAboutToBeRemoved(const ModelNode &removedNode)
@@ -161,6 +163,48 @@ bool ComponentView::isSubComponentNode(const ModelNode &node) const
                 && node.metaInfo().isGraphicalItem());
 }
 
+void ComponentView::ensureMatLibTriggered()
+{
+    if (!model() || !model()->rewriterView()
+        || model()->rewriterView()->hasIncompleteTypeInformation()
+        || !model()->rewriterView()->errors().isEmpty()) {
+        return;
+    }
+
+    m_ensureMatLibTimer.stop();
+    ModelNode matLib = Utils3D::materialLibraryNode(this);
+    if (matLib.isValid())
+        return;
+
+    DesignDocument *doc = QmlDesignerPlugin::instance()->currentDesignDocument();
+    if (doc && !doc->inFileComponentModelActive())
+        Utils3D::ensureMaterialLibraryNode(this);
+
+    matLib = Utils3D::materialLibraryNode(this);
+    if (!matLib.isValid())
+        return;
+
+    bool texSelected = Utils3D::selectedTexture(this).isValid();
+    bool matSelected = Utils3D::selectedMaterial(this).isValid();
+    if (!texSelected || !matSelected) {
+        const QList<ModelNode> matLibNodes = matLib.directSubModelNodes();
+        for (const ModelNode &node : matLibNodes) {
+            if (!texSelected && node.metaInfo().isQtQuick3DTexture()) {
+                Utils3D::selectTexture(node);
+                if (matSelected)
+                    break;
+                texSelected = true;
+            }
+            if (!matSelected && node.metaInfo().isQtQuick3DMaterial()) {
+                Utils3D::selectMaterial(node);
+                if (texSelected)
+                    break;
+                matSelected = true;
+            }
+        }
+    }
+}
+
 void ComponentView::modelAttached(Model *model)
 {
     if (AbstractView::model() == model)
@@ -172,12 +216,19 @@ void ComponentView::modelAttached(Model *model)
     AbstractView::modelAttached(model);
 
     searchForComponentAndAddToList(rootModelNode());
+
+    if (model->hasImport("QtQuick3D")) {
+        // Creating the material library node on model attach causes errors as long as the type
+        // information is not complete yet, so we keep checking until type info is complete.
+        m_ensureMatLibTimer.start();
+    }
 }
 
 void ComponentView::modelAboutToBeDetached(Model *model)
 {
     QSignalBlocker blocker(m_componentAction);
     m_standardItemModel->clear();
+    m_ensureMatLibTimer.stop();
     AbstractView::modelAboutToBeDetached(model);
 }
 
@@ -359,6 +410,9 @@ void ComponentView::importsChanged(const Imports &addedImports, const Imports &r
             resetPuppet();
         }
     }
+
+    if (model()->hasImport("QtQuick3D"))
+        m_ensureMatLibTimer.start();
 }
 
 void ComponentView::possibleImportsChanged([[maybe_unused]] const Imports &possibleImports)

@@ -41,33 +41,34 @@ void NodeInstanceSignalSpy::registerObject(QObject *spiedObject)
          index++) {
         QMetaProperty metaProperty = spiedObject->metaObject()->property(index);
 
-        registerProperty(metaProperty, spiedObject);
-        registerChildObject(metaProperty, spiedObject);
+        if (QmlPrivateGate::isPropertyQObject(metaProperty)) {
+            registerChildObject(metaProperty, spiedObject);
+        } else {
+            registerProperty(metaProperty, spiedObject);
+        }
     }
 }
 
 void NodeInstanceSignalSpy::registerProperty(const QMetaProperty &metaProperty, QObject *spiedObject, const PropertyName &propertyPrefix)
 {
-    if (metaProperty.isReadable()
-            && metaProperty.isWritable()
-            && !QmlPrivateGate::isPropertyQObject(metaProperty)
-            && metaProperty.hasNotifySignal()) {
+    if (metaProperty.isReadable() && metaProperty.isWritable() && metaProperty.hasNotifySignal()) {
         QMetaMethod metaMethod = metaProperty.notifySignal();
         QMetaObject::connect(spiedObject, metaMethod.methodIndex(), this, methodeOffset, Qt::DirectConnection);
 
         m_indexPropertyHash.insert(methodeOffset, propertyPrefix + PropertyName(metaProperty.name()));
 
-
         methodeOffset++;
     }
 }
 
-void NodeInstanceSignalSpy::registerChildObject(const QMetaProperty &metaProperty, QObject *spiedObject)
+void NodeInstanceSignalSpy::registerChildObject(
+    const QMetaProperty &metaProperty, QObject *spiedObject)
 {
-    if (metaProperty.isReadable()
-            && !metaProperty.isWritable()
-            && QmlPrivateGate::isPropertyQObject(metaProperty)
-            && QLatin1String(metaProperty.name()) != QLatin1String("parent")) {
+    if (!QmlPrivateGate::isPropertyQObject(metaProperty)) {
+        return;
+    }
+
+    if (metaProperty.isReadable() && QLatin1String(metaProperty.name()) != QLatin1String("parent")) {
         QObject *childObject = QmlPrivateGate::readQObjectProperty(metaProperty, spiedObject);
 
         if (childObject) {
@@ -75,7 +76,9 @@ void NodeInstanceSignalSpy::registerChildObject(const QMetaProperty &metaPropert
                  index < childObject->metaObject()->propertyCount();
                  index++) {
                 QMetaProperty childMetaProperty = childObject->metaObject()->property(index);
-                registerProperty(childMetaProperty, childObject, PropertyName(metaProperty.name()) + '.');
+
+                registerProperty(
+                    childMetaProperty, childObject, PropertyName(metaProperty.name()) + '.');
             }
         }
     }

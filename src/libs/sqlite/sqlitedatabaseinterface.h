@@ -5,14 +5,17 @@
 
 #include <utils/smallstringvector.h>
 
+#include "sourcelocation.h"
 #include "sqliteglobal.h"
 
 namespace Sqlite {
 class DatabaseInterface
 {
 public:
-    virtual void walCheckpointFull() = 0;
-    virtual void execute(Utils::SmallStringView sqlStatement) = 0;
+    virtual void walCheckpointFull(const source_location &sourceLocation = source_location::current()) = 0;
+    virtual void execute(Utils::SmallStringView sqlStatement,
+                         const source_location &sourceLocation = source_location::current())
+        = 0;
     virtual void setUpdateHook(
         void *object,
         void (*)(void *object, int, char const *database, char const *, long long rowId))

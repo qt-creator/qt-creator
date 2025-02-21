@@ -1,5 +1,5 @@
 [General]
-Includes=light.figmatokens, 2024.tokenmapping
+Includes=light.figmatokens, 2024.tokenmapping, ds.tokenmapping
 ThemeName=Light (2024)
 PreferredStyles=
 DefaultTextEditorColorScheme=light-2024.xml

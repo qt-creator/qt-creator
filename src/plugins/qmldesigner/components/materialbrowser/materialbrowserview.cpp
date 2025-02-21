@@ -497,8 +497,7 @@ void QmlDesigner::MaterialBrowserView::loadPropertyGroups()
         return;
 
 #ifdef QDS_USE_PROJECTSTORAGE
-    // TODO
-    QString matPropsPath;
+    QString matPropsPath = propertyEditorResourcesPath().append("/QtQuick3D/propertyGroups.json");
 #else
     QString matPropsPath = model()->metaInfo("QtQuick3D.Material").importDirectoryPath()
                                + "/designer/propertyGroups.json";

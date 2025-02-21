@@ -26,6 +26,8 @@ using Sqlite::JournalMode;
 using Sqlite::OpenMode;
 using Sqlite::Table;
 
+constexpr auto sourceLocation = Sqlite::source_location::current();
+
 class SqliteDatabase : public ::testing::Test
 {
 protected:
@@ -199,37 +201,37 @@ TEST_F(SqliteDatabase, last_row_id)
 
 TEST_F(SqliteDatabase, deferred_begin)
 {
-    ASSERT_NO_THROW(transactionInterface.deferredBegin());
+    ASSERT_NO_THROW(transactionInterface.deferredBegin(sourceLocation));
 
-    transactionInterface.commit();
+    transactionInterface.commit(sourceLocation);
 }
 
 TEST_F(SqliteDatabase, immediate_begin)
 {
-    ASSERT_NO_THROW(transactionInterface.immediateBegin());
+    ASSERT_NO_THROW(transactionInterface.immediateBegin(sourceLocation));
 
-    transactionInterface.commit();
+    transactionInterface.commit(sourceLocation);
 }
 
 TEST_F(SqliteDatabase, exclusive_begin)
 {
-    ASSERT_NO_THROW(transactionInterface.exclusiveBegin());
+    ASSERT_NO_THROW(transactionInterface.exclusiveBegin(sourceLocation));
 
-    transactionInterface.commit();
+    transactionInterface.commit(sourceLocation);
 }
 
 TEST_F(SqliteDatabase, commit)
 {
-    transactionInterface.deferredBegin();
+    transactionInterface.deferredBegin(sourceLocation);
 
-    ASSERT_NO_THROW(transactionInterface.commit());
+    ASSERT_NO_THROW(transactionInterface.commit(sourceLocation));
 }
 
 TEST_F(SqliteDatabase, rollback)
 {
-    transactionInterface.deferredBegin();
+    transactionInterface.deferredBegin(sourceLocation);
 
-    ASSERT_NO_THROW(transactionInterface.rollback());
+    ASSERT_NO_THROW(transactionInterface.rollback(sourceLocation));
 }
 
 TEST_F(SqliteDatabase, set_update_hook_set)

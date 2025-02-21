@@ -431,6 +431,14 @@ EnumerationTypes addEnumerationTypes(Storage::Synchronization::Types &types,
     return enumerationTypes;
 }
 
+TypeNameString extensionTypeName(const auto &component)
+{
+    if (component.extensionIsJavaScript())
+        return {};
+
+    return component.extensionTypeName();
+}
+
 void addType(Storage::Synchronization::Types &types,
              SourceId sourceId,
              ModuleId cppModuleId,
@@ -455,7 +463,7 @@ void addType(Storage::Synchronization::Types &types,
     const auto &type = types.emplace_back(
         Utils::SmallStringView{typeName},
         Storage::Synchronization::ImportedType{TypeNameString{component.baseTypeName()}},
-        Storage::Synchronization::ImportedType{TypeNameString{component.extensionTypeName()}},
+        Storage::Synchronization::ImportedType{extensionTypeName(component)},
         createTypeTraits(component.accessSemantics(),
                          component.hasCustomParser(),
                          component.isSingleton()),

@@ -314,6 +314,8 @@ function(add_qtc_library name)
     qtc_enable_sanitize("${name}" ${SANITIZE_FLAGS})
   endif()
 
+  qtc_deeper_concept_diagnostic_depth("${name}")
+
   if (NAMELINK_OPTION AND NOT QTC_STATIC_BUILD)
     install(TARGETS ${name}
       LIBRARY
@@ -533,6 +535,8 @@ function(add_qtc_plugin target_name)
   if (WITH_SANITIZE)
     qtc_enable_sanitize("${name}" ${SANITIZE_FLAGS})
   endif()
+
+  qtc_deeper_concept_diagnostic_depth("${name}")
 
   extend_qtc_target(${target_name}
     INCLUDES ${_arg_INCLUDES}
@@ -761,6 +765,8 @@ function(add_qtc_executable name)
   if (WITH_SANITIZE)
     qtc_enable_sanitize("${name}" ${SANITIZE_FLAGS})
   endif()
+
+  qtc_deeper_concept_diagnostic_depth("${name}")
 
   extend_qtc_target("${name}"
     INCLUDES "${CMAKE_BINARY_DIR}/src" ${_arg_INCLUDES}

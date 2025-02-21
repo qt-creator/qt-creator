@@ -11,14 +11,14 @@
 class SqliteTransactionBackendMock : public Sqlite::TransactionInterface
 {
 public:
-    MOCK_METHOD(void, deferredBegin, (), (override));
-    MOCK_METHOD(void, immediateBegin, (), (override));
-    MOCK_METHOD(void, exclusiveBegin, (), (override));
-    MOCK_METHOD(void, commit, (), (override));
-    MOCK_METHOD(void, rollback, (), (override));
+    MOCK_METHOD(void, deferredBegin, (const Sqlite::source_location &sourceLocation), (override));
+    MOCK_METHOD(void, immediateBegin, (const Sqlite::source_location &sourceLocation), (override));
+    MOCK_METHOD(void, exclusiveBegin, (const Sqlite::source_location &sourceLocation), (override));
+    MOCK_METHOD(void, commit, (const Sqlite::source_location &sourceLocation), (override));
+    MOCK_METHOD(void, rollback, (const Sqlite::source_location &sourceLocation), (override));
     MOCK_METHOD(void, lock, (), (override));
     MOCK_METHOD(void, unlock, (), (override));
-    MOCK_METHOD(void, immediateSessionBegin, (), (override));
-    MOCK_METHOD(void, sessionCommit, (), (override));
-    MOCK_METHOD(void, sessionRollback, (), (override));
+    MOCK_METHOD(void, immediateSessionBegin, (const Sqlite::source_location &sourceLocation), (override));
+    MOCK_METHOD(void, sessionCommit, (const Sqlite::source_location &sourceLocation), (override));
+    MOCK_METHOD(void, sessionRollback, (const Sqlite::source_location &sourceLocation), (override));
 };

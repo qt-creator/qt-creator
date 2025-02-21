@@ -26,6 +26,7 @@ public:
     {
         m_argParser.setApplicationDescription("QML Runtime Provider for QDS");
         m_argParser.addOption({"qml-puppet", "Run QML Puppet (default)"});
+        m_argParser.addOption({"qml-renderer", "Run QML Renderer"});
 #ifdef ENABLE_INTERNAL_QML_RUNTIME
         m_argParser.addOption({"qml-runtime", "Run QML Runtime"});
 #endif

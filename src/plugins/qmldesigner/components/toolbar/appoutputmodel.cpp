@@ -100,25 +100,9 @@ QColor AppOutputParentModel::historyColor() const
     return m_historyColor;
 }
 
-void AppOutputParentModel::setHistoryColor(const QColor &color)
-{
-    if (m_historyColor != color) {
-        m_historyColor = color;
-        emit colorChanged();
-    }
-}
-
 QColor AppOutputParentModel::messageColor() const
 {
     return m_messageColor;
-}
-
-void AppOutputParentModel::setMessageColor(const QColor &color)
-{
-    if (m_messageColor != color) {
-        m_messageColor = color;
-        emit colorChanged();
-    }
 }
 
 QColor AppOutputParentModel::errorColor() const
@@ -126,25 +110,14 @@ QColor AppOutputParentModel::errorColor() const
     return m_errorColor;
 }
 
-void AppOutputParentModel::setErrorColor(const QColor &color)
-{
-    if (m_errorColor != color) {
-        m_errorColor = color;
-        emit colorChanged();
-    }
-}
-
 QColor AppOutputParentModel::debugColor() const
 {
     return m_debugColor;
 }
 
-void AppOutputParentModel::setDebugColor(const QColor &color)
+QColor AppOutputParentModel::warningColor() const
 {
-    if (m_debugColor != color) {
-        m_debugColor = color;
-        emit colorChanged();
-    }
+    return m_warningColor;
 }
 
 void AppOutputParentModel::resetModel()
@@ -232,9 +205,10 @@ void AppOutputParentModel::setupRunControls()
     auto &deviceManager = QmlDesigner::QmlDesignerPlugin::instance()->deviceManager();
 
     connect(&deviceManager,
-            &QmlDesigner::DeviceShare::DeviceManager::projectStarted,
-            [this](const QString &deviceId) {
-                initializeRuns("Project started on device " + deviceId);
+            &QmlDesigner::DeviceShare::DeviceManager::projectStarting,
+            [this, &deviceManager](const QString &deviceId) {
+                const QString alias = deviceManager.deviceSettings(deviceId)->alias();
+                initializeRuns("Project starting on device " + alias);
             });
 
     connect(&deviceManager,
@@ -244,7 +218,14 @@ void AppOutputParentModel::setupRunControls()
                     initializeRuns();
 
                 int row = static_cast<int>(m_runs.size()) - 1;
-                emit messageAdded(row, logs.trimmed(), m_messageColor);
+                if (logs.startsWith("Debug:"))
+                    emit messageAdded(row, logs.trimmed(), m_messageColor);
+                else if (logs.startsWith("Error:"))
+                    emit messageAdded(row, logs.trimmed(), m_errorColor);
+                else if (logs.startsWith("Warning:"))
+                    emit messageAdded(row, logs.trimmed(), m_warningColor);
+                else if (logs.startsWith("Critical:"))
+                    emit messageAdded(row, logs.trimmed(), m_errorColor);
             });
 }
 

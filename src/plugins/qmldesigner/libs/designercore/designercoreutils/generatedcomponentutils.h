@@ -50,8 +50,14 @@ public:
     QString userEffectsBundleType() const;
     QString user3DBundleType() const;
 
+    QList<Utils::FilePath> imported3dComponents() const;
+    QString getImported3dImportName(const Utils::FilePath &qmlFile) const;
+    Utils::FilePath getImported3dQml(const QString &assetPath) const;
+
 private:
     ExternalDependenciesInterface &m_externalDependencies;
+
+    QList<Utils::FilePath> collectFiles(const Utils::FilePath &dirPath, const QString &suffix) const;
 };
 
 } // namespace QmlDesigner

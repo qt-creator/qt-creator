@@ -195,6 +195,12 @@ function(qtc_enable_sanitize _target _sanitize_flags)
   endif()
 endfunction()
 
+function(qtc_deeper_concept_diagnostic_depth _target)
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options("${_target}" PUBLIC -fconcepts-diagnostics-depth=8)
+  endif()
+endfunction()
+
 function(qtc_add_link_flags_no_undefined target)
   # needs CheckLinkerFlags
   if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.18 AND NOT MSVC AND NOT APPLE)

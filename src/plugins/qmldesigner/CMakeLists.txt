@@ -5,7 +5,6 @@ if (APPLE)
   set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/QmlDesigner")
 endif()
 
-set(BUILD_NOT_DESIGNSTUDIO NOT ${BUILD_NOT_DESIGNSTUDIO})
 option(QTC_USE_QML_DESIGNER_LITE "Use Qml Designer Lite" ${BUILD_NOT_DESIGNSTUDIO})
 add_feature_info("Qml Designer Lite" ${QTC_USE_QML_DESIGNER_LITE} "")
 
@@ -223,7 +222,6 @@ extend_qtc_plugin(QmlDesigner
     qmldesignercomponents_global.h
     qmldesignericonprovider.cpp qmldesignericonprovider.h
     qmleditormenu.cpp qmleditormenu.h
-    resourcegenerator.cpp resourcegenerator.h
     selectioncontext.cpp selectioncontext.h
     theme.cpp theme.h
     zoomaction.cpp zoomaction.h
@@ -232,6 +230,7 @@ extend_qtc_plugin(QmlDesigner
     viewmanager.cpp viewmanager.h
     utils3d.cpp utils3d.h
     dialogutils.cpp dialogutils.h
+    modelnodeutils.cpp modelnodeutils.h
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -518,8 +517,6 @@ extend_qtc_plugin(QmlDesigner
   SOURCES
     imagecachecollector.cpp
     imagecachecollector.h
-    imagecacheconnectionmanager.cpp
-    imagecacheconnectionmanager.h
     imagecachefontcollector.cpp
     imagecachefontcollector.h
     meshimagecachecollector.cpp

@@ -5,8 +5,6 @@
 
 #include <designersettings.h>
 #include <externaldependenciesinterface.h>
-#include <invalididexception.h>
-#include <invalidmodelnodeexception.h>
 #include <model.h>
 #include <modelmerger.h>
 #include <modelnode.h>

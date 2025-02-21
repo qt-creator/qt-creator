@@ -11,6 +11,9 @@
 namespace QmlDesigner {
 
 namespace {
+
+constexpr auto sourceLocation = Sqlite::source_location::current();
+
 struct Initializer
 {
     Initializer(Sqlite::Database &database, bool isInitialized)
@@ -34,7 +37,7 @@ struct Initializer
 
         table.addPrimaryKeyContraint({filePathColumn, idColumn, keyColumn});
 
-        table.initialize(database);
+        table.initialize(database, sourceLocation);
     }
 };
 

@@ -19,6 +19,7 @@ Rectangle {
     height: button.height
     color: StudioTheme.Values.themeToolbarBackground
     radius: StudioTheme.Values.smallRadius
+    objectName: name // for Squish identification
 
     state: "default"
 

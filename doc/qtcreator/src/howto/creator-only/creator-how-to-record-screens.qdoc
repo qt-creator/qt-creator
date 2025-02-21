@@ -73,12 +73,12 @@
     To trim a recording:
 
     \list 1
-        \li Click the slider to show a handle and drag it to the frame where
+        \li Select the slider to show a handle and drag it to the frame where
             you want the recording to start.
-        \li Click \uicontrol Start to set the first frame.
-        \li Click the slider again and drag the handle to the frame where you
+        \li Select \uicontrol Start to set the first frame.
+        \li Select the slider again and drag the handle to the frame where you
             want the recording to end.
-        \li Click \uicontrol End to set the last frame.
+        \li Select \uicontrol End to set the last frame.
     \endlist
 
     Select \inlineimage icons/reset.png

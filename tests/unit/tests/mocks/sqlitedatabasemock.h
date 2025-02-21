@@ -28,7 +28,15 @@ public:
 
     MOCK_METHOD(void, prepare, (Utils::SmallStringView sqlStatement), ());
 
-    MOCK_METHOD(void, execute, (Utils::SmallStringView sqlStatement), (override));
+    MOCK_METHOD(void,
+                execute,
+                (Utils::SmallStringView sqlStatement, const Sqlite::source_location &sourceLocation),
+                (override));
+
+    void execute(Utils::SmallStringView sqlStatement)
+    {
+        execute(sqlStatement, Sqlite::source_location::current());
+    }
 
     MOCK_METHOD(int64_t, lastInsertedRowId, (), (const));
 
@@ -41,7 +49,9 @@ public:
 
     MOCK_METHOD(void, setIsInitialized, (bool), ());
 
-    MOCK_METHOD(void, walCheckpointFull, (), (override));
+    MOCK_METHOD(void, walCheckpointFull, (const Sqlite::source_location &sourceLocation), (override));
+
+    void walCheckpointFull() { walCheckpointFull(Sqlite::source_location::current()); }
 
     MOCK_METHOD(void,
                 setUpdateHook,

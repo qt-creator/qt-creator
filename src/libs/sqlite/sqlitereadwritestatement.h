@@ -15,11 +15,13 @@ class ReadWriteStatement final
     using Base = StatementImplementation<BaseStatement, ResultCount, BindParameterCount>;
 
 public:
-    ReadWriteStatement(Utils::SmallStringView sqlStatement, Database &database)
-        : Base{sqlStatement, database}
+    ReadWriteStatement(Utils::SmallStringView sqlStatement,
+                       Database &database,
+                       const source_location &sourceLocation = source_location::current())
+        : Base{sqlStatement, database, sourceLocation}
     {
-        Base::checkBindingParameterCount(BindParameterCount);
-        Base::checkColumnCount(ResultCount);
+        Base::checkBindingParameterCount(BindParameterCount, sourceLocation);
+        Base::checkColumnCount(ResultCount, sourceLocation);
     }
 
     using Base::execute;
@@ -32,52 +34,97 @@ public:
     using Base::write;
 
     template<typename ResultType, typename... QueryTypes>
+    auto valueWithTransaction(const source_location &sourceLocation, const QueryTypes &...queryValues)
+    {
+        return withImmediateTransaction(
+            Base::database(),
+            [&] { return Base::template value<ResultType>(sourceLocation, queryValues...); },
+            sourceLocation);
+    }
+
+    template<typename ResultType, typename... QueryTypes>
     auto valueWithTransaction(const QueryTypes &...queryValues)
     {
-        return withImmediateTransaction(Base::database(), [&] {
-            return Base::template value<ResultType>(queryValues...);
-        });
+        static constexpr auto sourceLocation = source_location::current();
+        return valueWithTransaction<ResultType>(sourceLocation, queryValues...);
+    }
+
+    template<typename ResultType, typename... QueryTypes>
+    auto optionalValueWithTransaction(const source_location &sourceLocation,
+                                      const QueryTypes &...queryValues)
+    {
+        return withImmediateTransaction(
+            Base::database(),
+            [&] { return Base::template optionalValue<ResultType>(sourceLocation, queryValues...); },
+            sourceLocation);
     }
 
     template<typename ResultType, typename... QueryTypes>
     auto optionalValueWithTransaction(const QueryTypes &...queryValues)
     {
-        return withImmediateTransaction(Base::database(), [&] {
-            return Base::template optionalValue<ResultType>(queryValues...);
-        });
+        static constexpr auto sourceLocation = source_location::current();
+        return optionalValueWithTransaction<ResultType>(sourceLocation, queryValues...);
     }
 
-    template<typename ResultType,
-             std::size_t capacity = 32,
-             typename... QueryTypes>
+    template<typename ResultType, std::size_t capacity = 32, typename... QueryTypes>
+    auto valuesWithTransaction(const source_location &sourceLocation, const QueryTypes &...queryValues)
+    {
+        return withImmediateTransaction(
+            Base::database(),
+            [&] {
+                return Base::template values<ResultType, capacity>(sourceLocation, queryValues...);
+            },
+            sourceLocation);
+    }
+
+    template<typename ResultType, std::size_t capacity = 32, typename... QueryTypes>
     auto valuesWithTransaction(const QueryTypes &...queryValues)
     {
-        return withImmediateTransaction(Base::database(), [&] {
-            return Base::template values<ResultType, capacity>(queryValues...);
-        });
+        static constexpr auto sourceLocation = source_location::current();
+        return valuesWithTransaction<ResultType, capacity>(sourceLocation, queryValues...);
+    }
+
+    template<typename Callable, typename... QueryTypes>
+    void readCallbackWithTransaction(Callable &&callable,
+                                     const source_location &sourceLocation,
+                                     const QueryTypes &...queryValues)
+    {
+        withImmediateTransaction(
+            Base::database(),
+            [&] {
+                Base::readCallback(std::forward<Callable>(callable), sourceLocation, queryValues...);
+            },
+            sourceLocation);
     }
 
     template<typename Callable, typename... QueryTypes>
     void readCallbackWithTransaction(Callable &&callable, const QueryTypes &...queryValues)
     {
-        withImmediateTransaction(Base::database(), [&] {
-            Base::readCallback(std::forward<Callable>(callable), queryValues...);
-        });
+        static constexpr auto sourceLocation = source_location::current();
+        readCallbackWithTransaction(callable, sourceLocation, queryValues...);
+    }
+
+    template<typename Container, typename... QueryTypes>
+    void readToWithTransaction(Container &container,
+                               const source_location &sourceLocation,
+                               const QueryTypes &...queryValues)
+    {
+        withImmediateTransaction(
+            Base::database(),
+            [&] { Base::readTo(container, sourceLocation, queryValues...); },
+            sourceLocation);
     }
 
     template<typename Container, typename... QueryTypes>
     void readToWithTransaction(Container &container, const QueryTypes &...queryValues)
     {
-        withImmediateTransaction(Base::database(), [&] {
-            Base::readTo(container, queryValues...);
-        });
+        static constexpr auto sourceLocation = source_location::current();
+        readToWithTransaction(container, sourceLocation, queryValues...);
     }
 
-    void executeWithTransaction()
+    void executeWithTransaction(const source_location &sourceLocation = source_location::current())
     {
-        withImmediateTransaction(Base::database(), [&] {
-            Base::execute();
-        });
+        withImmediateTransaction(Base::database(), [&] { Base::execute(sourceLocation); }, sourceLocation);
     }
 };
 

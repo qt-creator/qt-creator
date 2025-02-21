@@ -266,7 +266,7 @@
      \uicontrol {View Event Information on Mouseover} (4).
 
     The outline (9) summarizes the period for which data was collected. Drag
-    the zoom range (7) or click the outline to move on the outline. You can
+    the zoom range (7) or select the outline to move on the outline. You can
     also move between events by selecting \uicontrol {Jump to Previous Event}
     and \uicontrol {Jump to Next Event} (1).
 
@@ -303,7 +303,7 @@
     encountered in at least once.
 
     For functions with debug information available, the details include the
-    location in source code and the name of the function. You can click on such
+    location in source code and the name of the function. You can select such
     events to move the cursor in the code editor to the part of the code the
     event is associated with.
 
@@ -357,7 +357,7 @@
     to optimize. A high number of occurrences might indicate that a function is
     triggered unnecessarily or takes very long to execute.
 
-    Click on a row to move to the respective function in the source code in the
+    Select a row to move to the respective function in the source code in the
     code editor.
 
     The \uicontrol Callers and \uicontrol Callees panes show dependencies
@@ -367,7 +367,7 @@
     summarizes the functions called from the function selected in the main
     view.
 
-    Click on a row to move to the respective function in the source code in the
+    Select a row to move to the respective function in the source code in the
     code editor and select it in the main view.
 
     To copy the contents of one view or row to the clipboard, select

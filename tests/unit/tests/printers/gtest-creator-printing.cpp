@@ -853,11 +853,11 @@ std::ostream &operator<<(std::ostream &out, const SynchronizationPackage &packag
                << ", updatedSourceIds: " << package.updatedSourceIds
                << ", fileStatuses: " << package.fileStatuses
                << ", updatedFileStatusSourceIds: " << package.updatedFileStatusSourceIds
-               << ", updatedDirectoryInfoSourceIds: " << package.updatedDirectoryInfoSourceIds
+               << ", updatedDirectoryInfoDirectoryIds: " << package.updatedDirectoryInfoDirectoryIds
                << ", directoryInfos: " << package.directoryInfos
                << ", propertyEditorQmlPaths: " << package.propertyEditorQmlPaths
                << ", updatedPropertyEditorQmlPathSourceIds: "
-               << package.updatedPropertyEditorQmlPathSourceIds
+               << package.updatedPropertyEditorQmlPathSourceContextIds
                << ", typeAnnotations: " << package.typeAnnotations
                << ", updatedTypeAnnotationSourceIds: " << package.updatedTypeAnnotationSourceIds
                << ")";
@@ -865,8 +865,8 @@ std::ostream &operator<<(std::ostream &out, const SynchronizationPackage &packag
 
 std::ostream &operator<<(std::ostream &out, const DirectoryInfo &data)
 {
-    return out << "(" << data.directorySourceId << ", " << data.sourceId << ", " << data.moduleId
-               << ", " << data.fileType << ")";
+    return out << "(" << data.directoryId << ", " << data.sourceId << ", " << data.moduleId << ", "
+               << data.fileType << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, IsQualified isQualified)

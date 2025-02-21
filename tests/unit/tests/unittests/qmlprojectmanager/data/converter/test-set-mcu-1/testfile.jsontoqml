@@ -35,6 +35,11 @@ Project {
     }
 
     MCU.Config {
+        ResourceStorageSections: {
+            majorVersion: 1
+            minorVersion: 1
+            name: "QulResources"
+        }
         defaultFontFamily: "Roboto"
         fontEngine: "Spark"
         maxResourceCacheSize: [[128,128],[16384,1]]

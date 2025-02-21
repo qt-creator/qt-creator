@@ -5,6 +5,7 @@
 
 #include <QDir>
 #include <QJsonDocument>
+#include <QLoggingCategory>
 
 #include "converters.h"
 
@@ -20,6 +21,8 @@
 namespace QmlProjectManager {
 
 //#define REWRITE_PROJECT_FILE_IN_JSON_FORMAT
+
+Q_LOGGING_CATEGORY(log, "QmlProjectManager.QmlProjectItem", QtCriticalMsg)
 
 QmlProjectItem::QmlProjectItem(const Utils::FilePath &filePath, const bool skipRewrite)
     : m_projectFile(filePath)
@@ -44,7 +47,7 @@ bool QmlProjectItem::initProjectObject()
 
     auto contents = m_projectFile.fileContents();
     if (!contents) {
-        qWarning() << "Cannot open project file. Path:" << m_projectFile.fileName();
+        qCWarning(log) << "Cannot open project file. Path:" << m_projectFile.fileName();
         return false;
     }
 
@@ -64,10 +67,10 @@ bool QmlProjectItem::initProjectObject()
 
     if (rootObj.isEmpty()) {
         if (parseError.error != QJsonParseError::NoError) {
-            qWarning() << "Cannot parse the json formatted project file. Error:"
-                       << parseError.errorString();
+            qCWarning(log) << "Cannot parse the json formatted project file. Error:"
+                           << parseError.errorString();
         } else {
-            qWarning() << "Cannot convert QmlProject to Json.";
+            qCWarning(log) << "Cannot convert QmlProject to Json.";
         }
         return false;
     }
@@ -486,7 +489,7 @@ void QmlProjectItem::updateFileGroup(const QString &groupType,
         return elem["type"].toString() == groupType;
     });
     if (found == arr.end()) {
-        qWarning() << "fileGroups - unable to find group:" << groupType;
+        qCWarning(log) << "fileGroups - unable to find group:" << groupType;
         return;
     }
 

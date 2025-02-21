@@ -27,7 +27,7 @@
 
         \li Go to \uicontrol Edit, and then select \uicontrol {Go to Line}.
 
-        \li Click the line and column indicator on the
+        \li Select the line and column indicator on the
             \l{Edit Mode}{editor toolbar}.
 
     \endlist
@@ -194,7 +194,7 @@
         \li Double-click the new entry to specify a URL and a search command.
             For example, \c {http://www.google.com/search?q=%1}.
 
-        \li Click \uicontrol OK.
+        \li Select \uicontrol OK.
 
     \endlist
 

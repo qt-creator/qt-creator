@@ -5,11 +5,13 @@
 
 #include <abstractview.h>
 #include <exception.h>
+#include <modelnodeoperations.h>
+#include <modelnodeutils.h>
 #include <nodeabstractproperty.h>
+#include <qmlanchors.h>
 #include <utils/qtcassert.h>
 #include <utils/smallstring.h>
 #include <variantproperty.h>
-#include <qmlanchors.h>
 
 #include <QDebug>
 #include <QtQml>
@@ -28,28 +30,14 @@ Utils::SmallString auxPropertyString(Utils::SmallStringView name)
 }
 } // namespace
 
-static inline void backupPropertyAndRemove(const ModelNode &node, const PropertyName &propertyName)
+inline static void backupPropertyAndRemove(const ModelNode &node, const PropertyName &propertyName)
 {
-    if (node.hasVariantProperty(propertyName)) {
-        node.setAuxiliaryData(AuxiliaryDataType::Document,
-                              auxPropertyString(propertyName),
-                              node.variantProperty(propertyName).value());
-        node.removeProperty(propertyName);
-
-    }
-    if (node.hasBindingProperty(propertyName)) {
-        node.setAuxiliaryData(AuxiliaryDataType::Document,
-                              auxPropertyString(propertyName),
-                              QmlItemNode(node).instanceValue(propertyName));
-        node.removeProperty(propertyName);
-    }
+    ModelNodeUtils::backupPropertyAndRemove(node, propertyName, auxPropertyString(propertyName));
 }
 
-
-static inline void restoreProperty(const ModelNode &node, const PropertyName &propertyName)
+inline static void restoreProperty(const ModelNode &node, const PropertyName &propertyName)
 {
-    if (auto value = node.auxiliaryData(AuxiliaryDataType::Document, auxPropertyString(propertyName)))
-        node.variantProperty(propertyName).setValue(*value);
+    ModelNodeUtils::restoreProperty(node, propertyName, auxPropertyString(propertyName));
 }
 
 QmlAnchorBindingProxy::QmlAnchorBindingProxy(QObject *parent) :
@@ -640,6 +628,7 @@ void QmlAnchorBindingProxy::setBottomAnchor(bool anchor)
         } else {
             setDefaultRelativeBottomTarget();
             anchorBottom();
+            backupPropertyAndRemove(modelNode(), "y");
             if (topAnchored())
                 backupPropertyAndRemove(modelNode(), "height");
         }
@@ -697,6 +686,7 @@ void QmlAnchorBindingProxy::setRightAnchor(bool anchor)
             setDefaultRelativeRightTarget();
 
             anchorRight();
+            backupPropertyAndRemove(modelNode(), "x");
             if (leftAnchored())
                 backupPropertyAndRemove(modelNode(), "width");
         }
@@ -932,8 +922,9 @@ void QmlAnchorBindingProxy::removeTopAnchor() {
         m_qmlItemNode.anchors().removeAnchor(AnchorLineTop);
         m_qmlItemNode.anchors().removeMargin(AnchorLineTop);
 
-        restoreProperty(modelNode(), "y");
         restoreProperty(modelNode(), "height");
+        if (!(bottomAnchored() || verticalCentered()))
+            restoreProperty(modelNode(), "y");
     });
 }
 
@@ -944,6 +935,8 @@ void QmlAnchorBindingProxy::removeBottomAnchor()
         m_qmlItemNode.anchors().removeMargin(AnchorLineBottom);
 
         restoreProperty(modelNode(), "height");
+        if (!(topAnchored() || verticalCentered()))
+            restoreProperty(modelNode(), "y");
     });
 }
 
@@ -953,8 +946,9 @@ void QmlAnchorBindingProxy::removeLeftAnchor()
         m_qmlItemNode.anchors().removeAnchor(AnchorLineLeft);
         m_qmlItemNode.anchors().removeMargin(AnchorLineLeft);
 
-        restoreProperty(modelNode(), "x");
         restoreProperty(modelNode(), "width");
+        if (!(rightAnchored() || horizontalCentered()))
+            restoreProperty(modelNode(), "x");
     });
 }
 
@@ -965,6 +959,8 @@ void QmlAnchorBindingProxy::removeRightAnchor()
         m_qmlItemNode.anchors().removeMargin(AnchorLineRight);
 
         restoreProperty(modelNode(), "width");
+        if (!(leftAnchored() || horizontalCentered()))
+            restoreProperty(modelNode(), "x");
     });
 }
 
@@ -976,13 +972,19 @@ void QmlAnchorBindingProxy::setVerticalCentered(bool centered)
     if (verticalCentered() == centered)
         return;
 
+    if (centered && horizontalCentered()) {
+        centerIn();
+        return;
+    }
+
     m_locked = true;
 
     executeInTransaction("QmlAnchorBindingProxy::setVerticalCentered", [this, centered](){
         if (!centered) {
             m_qmlItemNode.anchors().removeAnchor(AnchorLineVerticalCenter);
             m_qmlItemNode.anchors().removeMargin(AnchorLineVerticalCenter);
-           restoreProperty(m_qmlItemNode, "y");
+            if (!(topAnchored() || bottomAnchored()))
+                restoreProperty(m_qmlItemNode, "y");
         } else {
             m_relativeVerticalTarget = Center;
 
@@ -1004,13 +1006,19 @@ void QmlAnchorBindingProxy::setHorizontalCentered(bool centered)
     if (horizontalCentered() == centered)
         return;
 
+    if (centered && verticalCentered()) {
+        centerIn();
+        return;
+    }
+
     m_locked = true;
 
     executeInTransaction("QmlAnchorBindingProxy::setHorizontalCentered", [this, centered](){
         if (!centered) {
             m_qmlItemNode.anchors().removeAnchor(AnchorLineHorizontalCenter);
             m_qmlItemNode.anchors().removeMargin(AnchorLineHorizontalCenter);
-           restoreProperty(m_qmlItemNode, "x");
+            if (!(leftAnchored() || rightAnchored()))
+                restoreProperty(m_qmlItemNode, "x");
         } else {
             m_relativeHorizontalTarget = Center;
 
@@ -1103,9 +1111,6 @@ void QmlAnchorBindingProxy::fill()
 
         m_qmlItemNode.anchors().fill();
 
-        setHorizontalCentered(false);
-        setVerticalCentered(false);
-
         m_qmlItemNode.anchors().removeMargin(AnchorLineRight);
         m_qmlItemNode.anchors().removeMargin(AnchorLineLeft);
         m_qmlItemNode.anchors().removeMargin(AnchorLineTop);
@@ -1118,6 +1123,23 @@ void QmlAnchorBindingProxy::fill()
     emit leftAnchorChanged();
     emit rightAnchorChanged();
     emit anchorsChanged();
+}
+
+void QmlAnchorBindingProxy::centerIn()
+{
+    executeInTransaction("QmlAnchorBindingProxy::centerIn", [this]() {
+        backupPropertyAndRemove(modelNode(), "x");
+        backupPropertyAndRemove(modelNode(), "y");
+
+        m_qmlItemNode.anchors().centerIn();
+
+        m_qmlItemNode.anchors().removeMargin(AnchorLineRight);
+        m_qmlItemNode.anchors().removeMargin(AnchorLineLeft);
+        m_qmlItemNode.anchors().removeMargin(AnchorLineTop);
+        m_qmlItemNode.anchors().removeMargin(AnchorLineBottom);
+    });
+
+    emitAnchorSignals();
 }
 
 void QmlAnchorBindingProxy::setDefaultAnchorTarget(const ModelNode &modelNode)

@@ -361,7 +361,7 @@ void EffectShadersCodeEditor::writeLiveUpdateSettings()
 
 void EffectShadersCodeEditor::readAndApplyLiveUpdateSettings()
 {
-    bool liveUpdateStatus = m_settings->value(EFFECTCOMPOSER_LIVE_UPDATE_KEY, false).toBool();
+    bool liveUpdateStatus = m_settings->value(EFFECTCOMPOSER_LIVE_UPDATE_KEY, true).toBool();
 
     setLiveUpdate(liveUpdateStatus);
 }

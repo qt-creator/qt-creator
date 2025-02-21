@@ -72,6 +72,7 @@
                         \li \l{Introduction to animation techniques}{Animation techniques}
                         \li \l{Asset creation with other tools}{Creating assets with other tools}
                         \li \l{Creating UI logic}
+                        \li \l{Effects and shaders in \QDS}{Effects and shaders}
                         \li \l{Using components}{Components}
                         \li \l{Designer-developer workflow}
                         \li \l{Qt Design Studio on MCUs}

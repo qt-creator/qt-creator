@@ -99,7 +99,7 @@
     If you are using \macos on an ARM processor (Apple silicon), \QBPS may not be listed
     in Adobe Photoshop under \uicontrol Window > \uicontrol {Extensions (Legacy)}.
     Run the Adobe Photoshop app in the Rosetta emulation mode.
-    Right click the Adobe Photoshop.app and select \uicontrol{Get info} >
+    Right-click the Adobe Photoshop.app and select \uicontrol{Get info} >
     \uicontrol {Open using Rosetta}.
     Once the app is running in the Rosetta emulation mode, make sure
     \uicontrol Preferences > \uicontrol Plug-ins > \uicontrol {Legacy Extensions} is selected.

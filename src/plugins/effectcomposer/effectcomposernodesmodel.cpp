@@ -4,6 +4,7 @@
 #include "effectcomposernodesmodel.h"
 #include "effectutils.h"
 
+#include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 
@@ -75,6 +76,8 @@ void EffectComposerNodesModel::loadModel()
         }
 
         catName[0] = catName[0].toUpper(); // capitalize first letter
+        Utils::sort(effects, &EffectNode::name);
+
         EffectNodesCategory *category = new EffectNodesCategory(catName, effects);
         m_categories.push_back(category);
     }

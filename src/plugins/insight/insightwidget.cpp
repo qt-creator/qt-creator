@@ -10,8 +10,6 @@
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 
-#include <invalidqmlsourceexception.h>
-
 #include <coreplugin/messagebox.h>
 #include <coreplugin/icore.h>
 

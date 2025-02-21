@@ -40,8 +40,6 @@ static inline bool itemsHaveSameParent(const QList<ModelNode> &siblingList)
         QmlItemNode currentParent = currentItem.instanceParent().toQmlItemNode();
         if (!currentParent.isValid())
             return false;
-        if (currentItem.instanceIsInLayoutable())
-            return false;
         if (currentParent != parent)
             return false;
     }
@@ -66,6 +64,16 @@ bool singleSelectionItemIsNotAnchored(const SelectionContext &selectionState)
     if (selectionState.isInBaseState() && itemNode.isValid()) {
         bool anchored = itemNode.instanceHasAnchors();
         return !anchored;
+    }
+    return false;
+}
+
+bool singleSelectionItemHasAnchor(const SelectionContext &selectionState, AnchorLineType anchor)
+{
+    QmlItemNode itemNode(selectionState.currentSingleSelectedNode());
+    if (selectionState.isInBaseState() && itemNode.isValid()) {
+        bool hasAnchor = itemNode.instanceHasAnchor(anchor);
+        return hasAnchor;
     }
     return false;
 }

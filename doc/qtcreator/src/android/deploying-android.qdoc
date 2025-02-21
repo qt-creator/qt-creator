@@ -496,7 +496,7 @@
     \c {android.permission.WRITE_EXTERNAL_STORAGE} for \l{Qt Core} or
     \c {android.permission.ACCESS_BACKGROUND_LOCATION} for \l{Qt Positioning}.
 
-    To add a permission, select it from the list, and then click \uicontrol Add.
+    To add a permission, select it from the list, and then select \uicontrol Add.
 
     \sa {Build and Run}{How To: Build and Run},
     {Android}{How To: Develop for Android}, {Android Run Settings}, {Kits}

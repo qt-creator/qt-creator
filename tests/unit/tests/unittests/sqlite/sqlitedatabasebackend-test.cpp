@@ -24,6 +24,8 @@ using Sqlite::OpenMode;
 using Sqlite::Exception;
 using Sqlite::WriteStatement;
 
+constexpr auto sourceLocation = Sqlite::source_location::current();
+
 class SqliteDatabaseBackend : public ::testing::Test
 {
 protected:
@@ -31,7 +33,10 @@ protected:
     {
         database.lock();
         QDir::temp().remove(QStringLiteral("SqliteDatabaseBackendTest.db"));
-        databaseBackend.open(databaseFilePath, OpenMode::ReadWrite, Sqlite::JournalMode::Wal);
+        databaseBackend.open(databaseFilePath,
+                             OpenMode::ReadWrite,
+                             Sqlite::JournalMode::Wal,
+                             sourceLocation);
     }
 
     ~SqliteDatabaseBackend() noexcept(true)
@@ -49,56 +54,60 @@ using SqliteDatabaseBackendSlowTest = SqliteDatabaseBackend;
 
 TEST_F(SqliteDatabaseBackend, open_already_open_database)
 {
-    ASSERT_THROW(databaseBackend.open(databaseFilePath, OpenMode::ReadWrite, Sqlite::JournalMode::Wal),
+    ASSERT_THROW(databaseBackend.open(databaseFilePath,
+                                      OpenMode::ReadWrite,
+                                      Sqlite::JournalMode::Wal,
+                                      sourceLocation),
                  Sqlite::DatabaseIsAlreadyOpen);
 }
 
 TEST_F(SqliteDatabaseBackend, close_already_closed_database)
 {
-    databaseBackend.close();
+    databaseBackend.close(sourceLocation);
 
-    ASSERT_THROW(databaseBackend.close(), Sqlite::DatabaseIsAlreadyClosed);
+    ASSERT_THROW(databaseBackend.close(sourceLocation), Sqlite::DatabaseIsAlreadyClosed);
 }
 
 TEST_F(SqliteDatabaseBackend, open_with_wrong_path)
 {
     ASSERT_THROW(databaseBackend.open("/xxx/SqliteDatabaseBackendTest.db",
                                       OpenMode::ReadWrite,
-                                      Sqlite::JournalMode::Wal),
+                                      Sqlite::JournalMode::Wal,
+                                      sourceLocation),
                  Sqlite::WrongFilePath);
 }
 
 TEST_F(SqliteDatabaseBackend, default_journal_mode)
 {
-    ASSERT_THAT(databaseBackend.journalMode(), JournalMode::Delete);
+    ASSERT_THAT(databaseBackend.journalMode(sourceLocation), JournalMode::Delete);
 }
 
 TEST_F(SqliteDatabaseBackendSlowTest, wal_journal_mode)
 {
-    databaseBackend.setJournalMode(JournalMode::Wal);
+    databaseBackend.setJournalMode(JournalMode::Wal, sourceLocation);
 
-    ASSERT_THAT(databaseBackend.journalMode(), JournalMode::Wal);
+    ASSERT_THAT(databaseBackend.journalMode(sourceLocation), JournalMode::Wal);
 }
 
 TEST_F(SqliteDatabaseBackend, truncate_journal_mode)
 {
-    databaseBackend.setJournalMode(JournalMode::Truncate);
+    databaseBackend.setJournalMode(JournalMode::Truncate, sourceLocation);
 
-    ASSERT_THAT(databaseBackend.journalMode(), JournalMode::Truncate);
+    ASSERT_THAT(databaseBackend.journalMode(sourceLocation), JournalMode::Truncate);
 }
 
 TEST_F(SqliteDatabaseBackend, memory_journal_mode)
 {
-    databaseBackend.setJournalMode(JournalMode::Memory);
+    databaseBackend.setJournalMode(JournalMode::Memory, sourceLocation);
 
-    ASSERT_THAT(databaseBackend.journalMode(), JournalMode::Memory);
+    ASSERT_THAT(databaseBackend.journalMode(sourceLocation), JournalMode::Memory);
 }
 
 TEST_F(SqliteDatabaseBackend, persist_journal_mode)
 {
-    databaseBackend.setJournalMode(JournalMode::Persist);
+    databaseBackend.setJournalMode(JournalMode::Persist, sourceLocation);
 
-    ASSERT_THAT(databaseBackend.journalMode(), JournalMode::Persist);
+    ASSERT_THAT(databaseBackend.journalMode(sourceLocation), JournalMode::Persist);
 }
 
 TEST_F(SqliteDatabaseBackend, open_mode_read_only)

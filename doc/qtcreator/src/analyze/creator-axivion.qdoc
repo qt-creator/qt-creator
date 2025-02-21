@@ -123,9 +123,9 @@
     issues in the editor:
 
     \list
-        \li Click in a location column (that shows a file or line) to open the
+        \li Select a location column (that shows a file or line) to open the
             respective location (if it can be found).
-        \li Click in other columns to open the first link in the issue details.
+        \li Select other columns to open the first link in the issue details.
             Usually, it leads to the \uicontrol {Left location} or
             \uicontrol {Source location}.
     \endlist

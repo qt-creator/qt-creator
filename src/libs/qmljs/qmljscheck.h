@@ -109,6 +109,12 @@ private:
     bool isCaseOrDefault(AST::Node *n);
     bool hasVarStatement(AST::Block *b) const;
 
+    template<typename... Args>
+    bool isDirectInTypeScope(Args... args)
+    {
+        return !m_typeStack.isEmpty() && ((m_typeStack.last() == args) || ...);
+    }
+
     AST::Node *parent(int distance = 0);
 
     Document::Ptr _doc;

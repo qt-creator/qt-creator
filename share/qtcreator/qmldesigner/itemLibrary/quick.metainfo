@@ -203,7 +203,7 @@ MetaInfo {
             libraryIcon: "images/gridview-icon.png"
             version: "2.0"
 
-            QmlSource { source: "source/gridviewv2.qml" }
+            QmlSource { source: "source/gridview.qml" }
             toolTip: qsTr("Organizes dynamic data sets in a grid.")
         }
     }
@@ -218,7 +218,7 @@ MetaInfo {
             libraryIcon: "images/listview-icon.png"
             version: "2.0"
 
-            QmlSource { source: "source/listviewv2.qml" }
+            QmlSource { source: "source/listview.qml" }
             toolTip: qsTr("Organizes dynamic data sets in a list.")
         }
     }
@@ -233,7 +233,7 @@ MetaInfo {
             libraryIcon: "images/pathview-icon.png"
             version: "2.0"
 
-            QmlSource { source: "source/pathviewv2.qml" }
+            QmlSource { source: "source/pathview.qml" }
             toolTip: qsTr("Organizes dynamic data sets along a path.")
         }
     }

@@ -1953,11 +1953,7 @@ QString FilePath::formatFilePaths(const FilePaths &files, const QString &separat
 
 void FilePath::removeDuplicates(FilePaths &files)
 {
-    // FIXME: Improve.
-    // FIXME: This drops the osType information, which is not correct.
-    QStringList list = transform<QStringList>(files, &FilePath::toUrlishString);
-    list.removeDuplicates();
-    files = FileUtils::toFilePathList(list);
+    files = Utils::filteredUnique(files);
 }
 
 void FilePath::sort(FilePaths &files)

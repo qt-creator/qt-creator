@@ -5,6 +5,11 @@
     \page effect-composer-example.html
     \ingroup studioexamples
 
+    \sa {Effect Composer}, {Using a shader from Shadertoy in Effect Composer},
+    {Using a shader from The Book of Shaders in Effect Composer},
+    {Using AI-generated shader code in Effect Composer},
+    {Working with shader code in Effect Composer}
+
     \title Effect Composer example
     \brief Illustrates how to work with the Effect Composer effects.
 

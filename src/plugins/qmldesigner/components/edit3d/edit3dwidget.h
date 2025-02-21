@@ -3,6 +3,7 @@
 #pragma once
 
 #include <bundlehelper.h>
+#include <import.h>
 #include <itemlibraryentry.h>
 #include <modelnode.h>
 
@@ -111,6 +112,7 @@ private:
     QPointer<QMenu> m_createSubMenu;
     ModelNode m_contextMenuTarget;
     QVector3D m_contextMenuPos3d;
+    QHash<QString, Import> m_nameToImport;
     QHash<QString, ItemLibraryEntry> m_nameToEntry;
     ItemLibraryEntry m_draggedEntry;
     QHash<QAction *, Core::Command *> m_actionToCommandHash;

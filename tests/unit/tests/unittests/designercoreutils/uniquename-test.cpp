@@ -61,14 +61,25 @@ TEST(UniqueName, generateId_properly_handles_dot_separated_words)
     ASSERT_THAT(uniqueId, "fooBarFoo");
 }
 
-TEST(UniqueName, generateId_prefixes_with_underscore_if_id_is_a_reserved_word)
+TEST(UniqueName, generateId_appends_digit_if_id_is_a_reserved_word)
 {
     auto pred = [&](const QString &) -> bool { return false; };
     QString id = "for";
 
     QString uniqueId = UniqueName::generateId(id, pred);
 
-    ASSERT_THAT(uniqueId, "_for");
+    ASSERT_THAT(uniqueId, "for1");
+}
+
+TEST(UniqueName, generateId_generates_unique_id_if_id_is_a_reserved_word)
+{
+    QStringList reservedIds{"for1", "for2"};
+    auto pred = [&](const QString &newId) -> bool { return reservedIds.contains(newId); };
+    QString id = "for";
+
+    QString uniqueId = UniqueName::generateId(id, pred);
+
+    ASSERT_THAT(uniqueId, "for3");
 }
 
 TEST(UniqueName, generateId_prefixes_with_underscore_if_id_is_a_number)

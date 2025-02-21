@@ -129,7 +129,16 @@ StudioControls.Menu {
                  && root.assetsModel.allFilePathsAreComposedEffects(root.__selectedAssetPathsList)
                  && root.rootView.canCreateEffects
         height: editInEffectComposerItem.visible ? editInEffectComposerItem.implicitHeight : 0
-        onTriggered: AssetsLibraryBackend.rootView.openEffectComposer(root.__selectedAssetPathsList[0])
+        onTriggered: root.rootView.openEffectComposer(root.__selectedAssetPathsList[0])
+    }
+
+    StudioControls.MenuItem {
+        id: editComponent
+        text: qsTr("Edit Component")
+        visible: root.__fileIndex && root.__selectedAssetPathsList.length === 1
+                 && root.rootView.assetIsImported3d(root.__selectedAssetPathsList[0])
+        height: editComponent.visible ? editComponent.implicitHeight : 0
+        onTriggered: root.rootView.editAssetComponent(root.__selectedAssetPathsList[0])
     }
 
     StudioControls.MenuItem {

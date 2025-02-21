@@ -182,14 +182,17 @@ public:
     NodeMetaInfo qtQuick3DSpotLightMetaInfo() const;
     NodeMetaInfo qtQuick3DTextureMetaInfo() const;
     NodeMetaInfo qtQuick3DTextureInputMetaInfo() const;
+    NodeMetaInfo qtQuick3DView3DMetaInfo() const;
     NodeMetaInfo qtQuickBorderImageMetaInfo() const;
     NodeMetaInfo qtQuickControlsLabelMetaInfo() const;
     NodeMetaInfo qtQuickControlsTextAreaMetaInfo() const;
+    NodeMetaInfo qtQuickGradientMetaInfo() const;
     NodeMetaInfo qtQuickImageMetaInfo() const;
     NodeMetaInfo qtQuickItemMetaInfo() const;
     NodeMetaInfo qtQuickPropertyAnimationMetaInfo() const;
     NodeMetaInfo qtQuickPropertyChangesMetaInfo() const;
     NodeMetaInfo qtQuickRectangleMetaInfo() const;
+    NodeMetaInfo qtQuickShapesShapeMetaInfo() const;
     NodeMetaInfo qtQuickStateGroupMetaInfo() const;
     NodeMetaInfo qtQuickTextEditMetaInfo() const;
     NodeMetaInfo qtQuickTextMetaInfo() const;

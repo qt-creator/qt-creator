@@ -239,8 +239,8 @@ void QmlBuildSystem::initMcuProjectItems()
 
     const QStringList mcuProjectFiles = m_projectItem->qmlProjectModules();
     for (const QString &mcuProjectFile : mcuProjectFiles) {
-        auto qmlProjectItem = QSharedPointer<QmlProjectItem>(
-            new QmlProjectItem{Utils::FilePath::fromString(mcuProjectFile)});
+        Utils::FilePath mcuProjectFilePath = projectFilePath().parentDir().resolvePath(mcuProjectFile);
+        auto qmlProjectItem = QSharedPointer<QmlProjectItem>(new QmlProjectItem{mcuProjectFilePath});
 
         m_mcuProjectItems.append(qmlProjectItem);
         connect(qmlProjectItem.data(), &QmlProjectItem::filesChanged, this, &QmlBuildSystem::refreshFiles);

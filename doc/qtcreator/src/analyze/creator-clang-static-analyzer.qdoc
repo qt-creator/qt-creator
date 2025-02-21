@@ -182,7 +182,7 @@
             set the paths to the executables to use.
 
         \li The \uicontrol {Diagnostic configuration} field shows the
-            checks to perform. Click the value of the field to open the
+            checks to perform. Select the value of the field to open the
             \uicontrol {Diagnostic Configurations} dialog, where you can
             select and edit the checks to perform.
 
@@ -229,7 +229,7 @@
             \image qtcreator-preferences-analyzer-clang-tools.webp {Clang Tools preferences}
 
         \li The \uicontrol {Diagnostic configuration} field shows the
-            checks to perform. Click the value of the field to open the
+            checks to perform. Select the value of the field to open the
             \uicontrol {Diagnostic Configurations} dialog, where you can
             select and edit the checks to perform.
 

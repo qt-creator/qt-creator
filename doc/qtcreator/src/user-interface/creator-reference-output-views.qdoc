@@ -44,7 +44,7 @@
     To view detailed information about the selected line (where available), press
     \key Space.
 
-    To navigate to the corresponding source code, click an issue or
+    To navigate to the corresponding source code, select an issue or
     select \uicontrol {Show in Editor} in the context menu. The entry must contain the
     name of the file where the issue was found.
 

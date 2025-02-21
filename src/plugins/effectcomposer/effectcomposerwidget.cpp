@@ -19,6 +19,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <qmldesigner/components/componentcore/theme.h>
+#include <qmldesigner/components/propertyeditor/assetimageprovider.h>
+#include <qmldesigner/designermcumanager.h>
 #include <qmldesigner/documentmanager.h>
 #include <qmldesigner/qmldesignerconstants.h>
 #include <qmldesigner/qmldesignerplugin.h>
@@ -249,6 +251,11 @@ void EffectComposerWidget::updateCanBeAdded()
                                                  m_effectComposerModel->nodeNames());
 }
 
+bool EffectComposerWidget::isMCUProject() const
+{
+    return QmlDesigner::DesignerMcuManager::instance().isMCUProject();
+}
+
 QSize EffectComposerWidget::sizeHint() const
 {
     return {420, 420};
@@ -273,10 +280,9 @@ void EffectComposerWidget::initView()
     m_quickWidget->rootContext()->setContextProperty("modelNodeBackend", &m_backendModelNode);
     m_quickWidget->rootContext()->setContextProperty("activeDragSuffix", "");
 
-    //TODO: Fix crash on macos
-//    m_quickWidget->engine()->addImageProvider("qmldesigner_thumbnails",
-//                                              new QmlDesigner::AssetImageProvider(
-//                                                  QmlDesigner::QmlDesignerPlugin::imageCache()));
+   m_quickWidget->engine()->addImageProvider("qmldesigner_thumbnails",
+                                             new QmlDesigner::AssetImageProvider(
+                                                 QmlDesigner::QmlDesignerPlugin::imageCache()));
 
     // init the first load of the QML UI elements
     reloadQmlSource();

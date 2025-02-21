@@ -4,15 +4,18 @@
 #pragma once
 
 #include <sqlitebasestatement.h>
+
 template<int ResultCount, int BindParameterCount = 0>
 class SqliteTestStatement
     : public Sqlite::StatementImplementation<Sqlite::BaseStatement, ResultCount, BindParameterCount>
 {
     using Base = Sqlite::StatementImplementation<Sqlite::BaseStatement, ResultCount, BindParameterCount>;
 
+    static constexpr auto sourceLocation = Sqlite::source_location::current();
+
 public:
     explicit SqliteTestStatement(Utils::SmallStringView sqlStatement, Sqlite::Database &database)
-        : Base(sqlStatement, database)
+        : Base(sqlStatement, database, sourceLocation)
     {}
 };
 

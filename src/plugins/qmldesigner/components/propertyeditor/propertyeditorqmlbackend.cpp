@@ -85,6 +85,8 @@ static QObject *variantToQObject(const QVariant &value)
 
 namespace QmlDesigner {
 
+using namespace Qt::StringLiterals;
+
 PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyEditor,
                                                    AsynchronousImageCache &imageCache)
     : m_view(Utils::makeUniqueObjectPtr<Quick2PropertyEditorView>(imageCache))
@@ -975,6 +977,11 @@ QUrl PropertyEditorQmlBackend::fileToUrl(const QString &filePath)  {
     return fileUrl;
 }
 
+QUrl PropertyEditorQmlBackend::emptyPaneUrl()
+{
+    return fileToUrl(QDir(propertyEditorResourcesPath()).filePath("QtQuick/emptyPane.qml"_L1));
+}
+
 QString PropertyEditorQmlBackend::fileFromUrl(const QUrl &url)
 {
     if (url.scheme() == QStringLiteral("qrc")) {
@@ -1046,9 +1053,7 @@ std::tuple<QUrl, NodeMetaInfo> PropertyEditorQmlBackend::getQmlUrlForMetaInfo(co
         }
     }
 
-    return {fileToUrl(
-                QDir(propertyEditorResourcesPath()).filePath(QLatin1String("QtQuick/emptyPane.qml"))),
-            {}};
+    return {emptyPaneUrl(), {}};
 }
 
 QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const QString &relativePath)

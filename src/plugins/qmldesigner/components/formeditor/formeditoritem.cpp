@@ -80,23 +80,25 @@ FormEditorItem::FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* 
 void FormEditorItem::setup()
 {
     setAcceptedMouseButtons(Qt::NoButton);
-    if (qmlItemNode().hasInstanceParent()) {
-        setParentItem(scene()->itemForQmlItemNode(qmlItemNode().instanceParent().toQmlItemNode()));
-        setOpacity(qmlItemNode().instanceValue("opacity").toDouble());
+    const auto &itemNode = qmlItemNode();
+
+    if (itemNode.hasInstanceParent()) {
+        setParentItem(scene()->itemForQmlItemNode(itemNode.instanceParent().toQmlItemNode()));
+        setOpacity(itemNode.instanceValue("opacity").toDouble());
     }
 
-    setFlag(QGraphicsItem::ItemClipsToShape, qmlItemNode().instanceValue("clip").toBool());
-    setFlag(QGraphicsItem::ItemClipsChildrenToShape, qmlItemNode().instanceValue("clip").toBool());
+    setFlag(QGraphicsItem::ItemClipsToShape, itemNode.instanceValue("clip").toBool());
+    setFlag(QGraphicsItem::ItemClipsChildrenToShape, itemNode.instanceValue("clip").toBool());
 
-    if (NodeHints::fromModelNode(qmlItemNode()).forceClip())
+    if (NodeHints::fromModelNode(itemNode).forceClip())
         setFlag(QGraphicsItem::ItemClipsChildrenToShape, true);
 
     if (QGraphicsItem::parentItem() == scene()->formLayerItem())
         m_borderWidth = 0.0;
 
-    setContentVisible(qmlItemNode().instanceValue("visible").toBool());
+    setContentVisible(itemNode.instanceValue("visible").toBool());
 
-    if (qmlItemNode().modelNode().auxiliaryDataWithDefault(invisibleProperty).toBool())
+    if (itemNode.modelNode().auxiliaryDataWithDefault(invisibleProperty).toBool())
         setVisible(false);
 
     setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -128,13 +130,15 @@ bool FormEditorItem::contains(const QPointF &point) const
 void FormEditorItem::updateGeometry()
 {
     prepareGeometryChange();
-    m_selectionBoundingRect = qmlItemNode().instanceBoundingRect().adjusted(0, 0, 1., 1.);
-    m_paintedBoundingRect = qmlItemNode().instancePaintedBoundingRect();
-    m_boundingRect = qmlItemNode().instanceBoundingRect();
-    setTransform(qmlItemNode().instanceTransformWithContentTransform());
+    const auto &itemNode = qmlItemNode();
+
+    m_selectionBoundingRect = itemNode.instanceBoundingRect().adjusted(0, 0, 1., 1.);
+    m_paintedBoundingRect = itemNode.instancePaintedBoundingRect();
+    m_boundingRect = itemNode.instanceBoundingRect();
+    setTransform(itemNode.instanceTransformWithContentTransform());
     // the property for zValue is called z in QGraphicsObject
-    if (qmlItemNode().instanceValue("z").isValid() && !qmlItemNode().isRootModelNode())
-        setZValue(qmlItemNode().instanceValue("z").toDouble());
+    if (itemNode.instanceValue("z").isValid() && !itemNode.isRootModelNode())
+        setZValue(itemNode.instanceValue("z").toDouble());
 }
 
 void FormEditorItem::updateVisibilty()
@@ -189,10 +193,12 @@ QPointF FormEditorItem::center() const
 
 qreal FormEditorItem::selectionWeigth(const QPointF &point, int iteration)
 {
-    if (!qmlItemNode().isValid())
+    const auto &itemNode = qmlItemNode();
+
+    if (!itemNode.isValid())
         return 100000;
 
-    QRectF boundingRect = mapRectToScene(qmlItemNode().instanceBoundingRect());
+    QRectF boundingRect = mapRectToScene(itemNode.instanceBoundingRect());
 
     float weight = point.x()- boundingRect.left()
             + point.y() - boundingRect.top()
@@ -206,21 +212,23 @@ qreal FormEditorItem::selectionWeigth(const QPointF &point, int iteration)
 
 void FormEditorItem::synchronizeOtherProperty(PropertyNameView propertyName)
 {
+    const auto &itemNode = qmlItemNode();
+
     if (propertyName == "opacity")
-        setOpacity(qmlItemNode().instanceValue("opacity").toDouble());
+        setOpacity(itemNode.instanceValue("opacity").toDouble());
 
     if (propertyName == "clip") {
-        setFlag(QGraphicsItem::ItemClipsToShape, qmlItemNode().instanceValue("clip").toBool());
-        setFlag(QGraphicsItem::ItemClipsChildrenToShape, qmlItemNode().instanceValue("clip").toBool());
+        setFlag(QGraphicsItem::ItemClipsToShape, itemNode.instanceValue("clip").toBool());
+        setFlag(QGraphicsItem::ItemClipsChildrenToShape, itemNode.instanceValue("clip").toBool());
     }
-    if (NodeHints::fromModelNode(qmlItemNode()).forceClip())
+    if (NodeHints::fromModelNode(itemNode).forceClip())
         setFlag(QGraphicsItem::ItemClipsChildrenToShape, true);
 
     if (propertyName == "z")
-        setZValue(qmlItemNode().instanceValue("z").toDouble());
+        setZValue(itemNode.instanceValue("z").toDouble());
 
     if (propertyName == "visible")
-        setContentVisible(qmlItemNode().instanceValue("visible").toBool());
+        setContentVisible(itemNode.instanceValue("visible").toBool());
 }
 
 void FormEditorItem::setDataModelPosition(const QPointF &position)
@@ -389,7 +397,11 @@ void FormEditorItem::paintPlaceHolderForInvisbleItem(QPainter *painter) const
 {
     painter->save();
     paintDecorationInPlaceHolderForInvisbleItem(painter, m_boundingRect);
-    paintTextInPlaceHolderForInvisbleItem(painter, qmlItemNode().id(), qmlItemNode().simplifiedTypeName(), m_boundingRect);
+    const auto &itemNode = qmlItemNode();
+    paintTextInPlaceHolderForInvisbleItem(painter,
+                                          itemNode.id(),
+                                          itemNode.simplifiedTypeName(),
+                                          m_boundingRect);
     painter->restore();
 }
 
@@ -418,20 +430,21 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
     if (!painter->isActive())
         return;
 
+    const auto &itemNode = qmlItemNode();
     if (!qmlItemNode().isValid())
         return;
 
     painter->save();
 
-    bool showPlaceHolder = qmlItemNode().instanceIsRenderPixmapNull() || !isContentVisible();
+    bool showPlaceHolder = itemNode.instanceIsRenderPixmapNull() || !isContentVisible();
 
-    const bool isInStackedContainer = qmlItemNode().isInStackedContainer();
+    const bool isInStackedContainer = itemNode.isInStackedContainer();
 
     /* If already the parent is invisible then show nothing */
     const bool hideCompletely = !isContentVisible() && (parentItem() && !parentItem()->isContentVisible());
 
     if (isInStackedContainer)
-        showPlaceHolder = qmlItemNode().instanceIsRenderPixmapNull() && isContentVisible();
+        showPlaceHolder = itemNode.instanceIsRenderPixmapNull() && isContentVisible();
 
     if (!hideCompletely && !parentHasEffect()) {
         if (showPlaceHolder) {
@@ -446,15 +459,16 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
                 painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
 
             if (m_blurContent)
-                painter->drawPixmap(m_paintedBoundingRect.topLeft(), qmlItemNode().instanceBlurredRenderPixmap());
+                painter->drawPixmap(m_paintedBoundingRect.topLeft(),
+                                    itemNode.instanceBlurredRenderPixmap());
             else
-                painter->drawPixmap(m_paintedBoundingRect.topLeft(), qmlItemNode().instanceRenderPixmap());
+                painter->drawPixmap(m_paintedBoundingRect.topLeft(), itemNode.instanceRenderPixmap());
 
             painter->restore();
         }
     }
 
-    if (!qmlItemNode().isRootModelNode())
+    if (!itemNode.isRootModelNode())
         paintBoundingRect(painter);
 
     painter->restore();
@@ -550,11 +564,6 @@ bool FormEditorItem::isContainer() const
     return true;
 }
 
-QmlItemNode FormEditorItem::qmlItemNode() const
-{
-    return m_qmlItemNode;
-}
-
 void FormEditorFlowItem::synchronizeOtherProperty(PropertyNameView)
 {
     setContentVisible(true);
@@ -585,7 +594,10 @@ void FormEditorFlowItem::setDataModelPositionInBaseState(const QPointF &position
 void FormEditorFlowItem::updateGeometry()
 {
     FormEditorItem::updateGeometry();
-    const QPointF pos = qmlItemNode().flowPosition();
+
+    const auto &itemNode = qmlItemNode();
+
+    const QPointF pos = itemNode.flowPosition();
 
     setTransform(QTransform::fromTranslate(pos.x(), pos.y()));
 
@@ -595,7 +607,7 @@ void FormEditorFlowItem::updateGeometry()
     m_oldPos = pos;
 
     // Call updateGeometry() on all related transitions
-    QmlFlowTargetNode flowItem(qmlItemNode());
+    QmlFlowTargetNode flowItem(itemNode);
     if (flowItem.isValid() && flowItem.flowView().isValid()) {
         const auto nodes = flowItem.flowView().transitions();
         for (const ModelNode &node : nodes) {
@@ -612,7 +624,9 @@ void FormEditorFlowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
     if (!painter->isActive())
         return;
 
-    if (!qmlItemNode().isValid())
+    const auto &itemNode = qmlItemNode();
+
+    if (!itemNode.isValid())
         return;
 
     painter->save();
@@ -623,10 +637,13 @@ void FormEditorFlowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
     QColor flowColor(0xe71919);
 
-    if (auto data = qmlItemNode().rootModelNode().auxiliaryData(areaColorProperty); data)
+    const auto &modelNode = itemNode.modelNode();
+    const auto &rootModelNode = itemNode.rootModelNode();
+
+    if (auto data = rootModelNode.auxiliaryData(areaColorProperty); data)
         flowColor = data->value<QColor>();
 
-    if (auto data = qmlItemNode().modelNode().auxiliaryData(colorProperty))
+    if (auto data = modelNode.auxiliaryData(colorProperty))
         flowColor = data->value<QColor>();
 
     pen.setColor(flowColor);
@@ -642,7 +659,7 @@ void FormEditorFlowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
     bool dash = false;
 
-    if (auto data = qmlItemNode().modelNode().auxiliaryData(dashProperty); data)
+    if (auto data = modelNode.auxiliaryData(dashProperty); data)
         dash = data->toBool();
 
     if (dash)
@@ -693,7 +710,9 @@ void FormEditorFlowActionItem::updateGeometry()
 {
     FormEditorItem::updateGeometry();
 
-    const QPointF pos = qmlItemNode().instancePosition();
+    const auto &itemNode = qmlItemNode();
+
+    const QPointF pos = itemNode.instancePosition();
 
     if (pos == m_oldPos)
         return;
@@ -701,7 +720,7 @@ void FormEditorFlowActionItem::updateGeometry()
     m_oldPos = pos;
 
     // Call updateGeometry() on all related transitions
-    QmlFlowItemNode flowItem = QmlFlowActionAreaNode(qmlItemNode()).flowItemParent();
+    QmlFlowItemNode flowItem = QmlFlowActionAreaNode(itemNode).flowItemParent();
     if (flowItem.isValid() && flowItem.flowView().isValid()) {
         const auto nodes = flowItem.flowView().transitions();
         for (const ModelNode &node : nodes) {
@@ -727,22 +746,25 @@ void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     QColor flowColor(0xe71919);
 
-    if (auto data = qmlItemNode().rootModelNode().auxiliaryData(areaColorProperty))
+    const auto &modelNode = qmlItemNode().modelNode();
+    const auto &rootModelNode = qmlItemNode().rootModelNode();
+
+    if (auto data = rootModelNode.auxiliaryData(areaColorProperty))
         flowColor = data->value<QColor>();
 
-    if (auto data = qmlItemNode().modelNode().auxiliaryData(colorProperty))
+    if (auto data = modelNode.auxiliaryData(colorProperty))
         flowColor = data->value<QColor>();
 
     qreal width = 2;
 
-    if (auto data = qmlItemNode().modelNode().auxiliaryData(widthProperty))
+    if (auto data = modelNode.auxiliaryData(widthProperty))
         width = data->toInt();
 
     width *= getLineScaleFactor();
 
     bool dash = false;
 
-    if (auto data = qmlItemNode().modelNode().auxiliaryData(dashProperty))
+    if (auto data = modelNode.auxiliaryData(dashProperty))
         dash = data->toBool();
 
     pen.setColor(flowColor);
@@ -757,10 +779,10 @@ void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     QColor fillColor = QColor(Qt::transparent);
 
-    if (auto data = qmlItemNode().rootModelNode().auxiliaryData(areaFillColorProperty))
+    if (auto data = rootModelNode.auxiliaryData(areaFillColorProperty))
         fillColor = data->value<QColor>();
 
-    if (auto data = qmlItemNode().modelNode().auxiliaryData(fillColorProperty))
+    if (auto data = modelNode.auxiliaryData(fillColorProperty))
         fillColor = data->value<QColor>();
 
     if (fillColor.alpha() > 0)
@@ -1845,18 +1867,20 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
     if (!painter->isActive())
         return;
 
-    if (!qmlItemNode().modelNode().hasBindingProperty("to"))
+    const auto &itemNode = qmlItemNode();
+
+    if (!itemNode.modelNode().hasBindingProperty("to"))
         return;
 
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing);
 
-    ResolveConnection resolved(qmlItemNode());
+    ResolveConnection resolved(itemNode);
 
     if (!isModelNodeValid(resolved.from))
         return;
 
-    ConnectionConfiguration config(qmlItemNode(), resolved, m_hitTest);
+    ConnectionConfiguration config(itemNode, resolved, m_hitTest);
 
     QFont font = painter->font();
     font.setPixelSize(config.fontSize * getTextScaleFactor());
@@ -1987,14 +2011,17 @@ void FormEditorFlowDecisionItem::updateGeometry()
 {
     prepareGeometryChange();
 
+    const auto &itemNode = qmlItemNode();
+    const auto &modelNode = itemNode.modelNode();
+
     int size = flowBlockSize;
-    if (auto data = qmlItemNode().modelNode().auxiliaryData(blockSizeProperty))
+    if (auto data = modelNode.auxiliaryData(blockSizeProperty))
         size = data->toInt();
 
     QRectF boundingRect(0, 0, size, size);
     QRectF selectionRect = boundingRect;
     QTransform transform;
-    if (qmlItemNode().isFlowDecision()) {
+    if (itemNode.isFlowDecision()) {
         transform.translate(boundingRect.center().x(), boundingRect.center().y());
         transform.rotate(45);
         transform.translate(-boundingRect.center().x(), -boundingRect.center().y());
@@ -2002,14 +2029,12 @@ void FormEditorFlowDecisionItem::updateGeometry()
         // If drawing the dialog title is requested we need to add it to the bounding rect.
         QRectF labelBoundingRect;
         bool showDialogLabel = false;
-        if (auto data = qmlItemNode().modelNode().auxiliaryData(showDialogLabelProperty)) {
+        if (auto data = modelNode.auxiliaryData(showDialogLabelProperty)) {
             showDialogLabel = data->toBool();
         }
 
         if (showDialogLabel) {
-            QString dialogTitle;
-            if (qmlItemNode().modelNode().hasVariantProperty("dialogTitle"))
-                dialogTitle = qmlItemNode().modelNode().variantProperty("dialogTitle").value().toString();
+            QString dialogTitle = modelNode.variantProperty("dialogTitle").value().toString();
 
             if (!dialogTitle.isEmpty()) {
                 // Local painter is used to get the labels bounding rect by using drawText()
@@ -2025,7 +2050,7 @@ void FormEditorFlowDecisionItem::updateGeometry()
                 QRectF textRect(0, 0, 100, 20);
 
                 Qt::Corner corner = Qt::TopRightCorner;
-                if (auto data = qmlItemNode().modelNode().auxiliaryData(showDialogLabelProperty))
+                if (auto data = modelNode.auxiliaryData(showDialogLabelProperty))
                     corner = data->value<Qt::Corner>();
 
                 int flag = 0;
@@ -2061,8 +2086,8 @@ void FormEditorFlowDecisionItem::updateGeometry()
     m_selectionBoundingRect = selectionRect;
     m_boundingRect = boundingRect;
     m_paintedBoundingRect = boundingRect;
-    setTransform(qmlItemNode().instanceTransformWithContentTransform());
-    const QPointF pos = qmlItemNode().flowPosition();
+    setTransform(itemNode.instanceTransformWithContentTransform());
+    const QPointF pos = itemNode.flowPosition();
     setTransform(QTransform::fromTranslate(pos.x(), pos.y()));
 }
 
@@ -2084,18 +2109,22 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter,
 
     QColor flowColor(0xe71919);
 
-    if (auto data = qmlItemNode().rootModelNode().auxiliaryData(blockColorProperty)) {
+    const auto &itemNode = qmlItemNode();
+    const auto &rootModelNode = itemNode.rootModelNode();
+    const auto &modelNode = itemNode.modelNode();
+
+    if (auto data = rootModelNode.auxiliaryData(blockColorProperty)) {
         flowColor = data->value<QColor>();
     }
 
-    if (auto data = qmlItemNode().modelNode().auxiliaryData(colorProperty))
+    if (auto data = modelNode.auxiliaryData(colorProperty))
         flowColor = data->value<QColor>();
 
     pen.setColor(flowColor);
 
     qreal width = 2;
 
-    if (auto data = qmlItemNode().modelNode().auxiliaryData(widthProperty))
+    if (auto data = modelNode.auxiliaryData(widthProperty))
         width = data->toInt();
 
     width *= getLineScaleFactor();
@@ -2103,7 +2132,7 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter,
 
     bool dash = false;
 
-    if (auto data = qmlItemNode().modelNode().auxiliaryData(dashProperty))
+    if (auto data = modelNode.auxiliaryData(dashProperty))
         dash = data->toBool();
 
     if (dash)
@@ -2115,7 +2144,7 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter,
 
     QColor fillColor = QColor(Qt::transparent);
 
-    if (auto data = qmlItemNode().modelNode().auxiliaryData(fillColorProperty))
+    if (auto data = modelNode.auxiliaryData(fillColorProperty))
         fillColor = data->value<QColor>();
 
     painter->save();
@@ -2124,12 +2153,12 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter,
         painter->setBrush(fillColor);
 
     int radius = blockRadius;
-    if (auto data = qmlItemNode().modelNode().auxiliaryData(blockRadiusProperty)) {
+    if (auto data = modelNode.auxiliaryData(blockRadiusProperty)) {
         radius = data->toInt();
     }
 
     int size = flowBlockSize;
-    if (auto data = qmlItemNode().modelNode().auxiliaryData(blockSizeProperty))
+    if (auto data = modelNode.auxiliaryData(blockSizeProperty))
         size = data->toInt();
 
     QRectF boundingRect(0, 0, size, size);
@@ -2155,14 +2184,12 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter,
 
     // Draw the dialog title inside the form view if requested. Decision item only.
     bool showDialogLabel = false;
-    if (auto data = qmlItemNode().modelNode().auxiliaryData(showDialogLabelProperty)) {
+    if (auto data = modelNode.auxiliaryData(showDialogLabelProperty)) {
         showDialogLabel = data->toBool();
     }
 
     if (showDialogLabel && viewportTransform().m11() >= labelShowThreshold) {
-        QString dialogTitle;
-        if (qmlItemNode().modelNode().hasVariantProperty("dialogTitle"))
-            dialogTitle = qmlItemNode().modelNode().variantProperty("dialogTitle").value().toString();
+        QString dialogTitle = modelNode.variantProperty("dialogTitle").value().toString();
 
         if (!dialogTitle.isEmpty()) {
 
@@ -2173,7 +2200,7 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter,
             QRectF textRect(0, 0, 100, 20);
 
             Qt::Corner corner = Qt::TopRightCorner;
-            if (auto data = qmlItemNode().modelNode().auxiliaryData(dialogLabelPositionProperty))
+            if (auto data = modelNode.auxiliaryData(dialogLabelPositionProperty))
                 corner = data->value<Qt::Corner>();
 
             int flag = 0;
@@ -2245,12 +2272,14 @@ void FormEditor3dPreview::paint(QPainter *painter,
 
     painter->save();
 
-    bool showPlaceHolder = qmlItemNode().instanceIsRenderPixmapNull();
+    const auto &itemNode = qmlItemNode();
+
+    bool showPlaceHolder = itemNode.instanceIsRenderPixmapNull();
 
     if (showPlaceHolder)
         paintPlaceHolderForInvisbleItem(painter);
     else
-        painter->drawPixmap(m_boundingRect.topLeft(), qmlItemNode().instanceRenderPixmap());
+        painter->drawPixmap(m_boundingRect.topLeft(), itemNode.instanceRenderPixmap());
 
     painter->restore();
 }

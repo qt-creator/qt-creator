@@ -16,7 +16,7 @@
     Lists the BUG, FIXME, NOTE, TODO, and WARNING keywords from the
     current file, from all project files, or from a subproject.
 
-    Click the icons on the toolbar to show only the selected
+    Select the icons on the toolbar to show only the selected
     keywords.
 
     \image qtcreator-to-do-entries.webp {To-Do Entries}

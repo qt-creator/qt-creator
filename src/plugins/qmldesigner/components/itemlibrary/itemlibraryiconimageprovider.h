@@ -12,7 +12,6 @@
 #include <imagecache/imagecachestorage.h>
 #include <imagecache/timestampprovider.h>
 #include <imagecachecollectors/imagecachecollector.h>
-#include <imagecachecollectors/imagecacheconnectionmanager.h>
 
 #include <sqlitedatabase.h>
 

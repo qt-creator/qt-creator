@@ -105,9 +105,9 @@ public:
 
     Storage::Info::TypeHints typeHints(TypeId typeId) const override;
 
-    SmallSourceIds<4> typeAnnotationSourceIds(SourceId directoryId) const override;
+    SmallSourceIds<4> typeAnnotationSourceIds(SourceContextId directoryId) const override;
 
-    SmallSourceIds<64> typeAnnotationDirectorySourceIds() const override;
+    SmallSourceContextIds<64> typeAnnotationDirectoryIds() const override;
 
     Storage::Info::ItemLibraryEntries itemLibraryEntries(TypeId typeId) const override;
 
@@ -222,11 +222,11 @@ public:
 
     std::optional<Storage::Synchronization::DirectoryInfo> fetchDirectoryInfo(SourceId sourceId) const override;
 
-    Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(SourceId directorySourceId) const override;
+    Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(SourceContextId directoryId) const override;
     Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(
-        SourceId directorySourceId, Storage::Synchronization::FileType fileType) const override;
-    Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(const SourceIds &directorySourceIds) const;
-    SmallSourceIds<32> fetchSubdirectorySourceIds(SourceId directorySourceId) const override;
+        SourceContextId directoryId, Storage::Synchronization::FileType fileType) const override;
+    Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(const SourceContextIds &directoryIds) const;
+    SmallSourceContextIds<32> fetchSubdirectoryIds(SourceContextId directoryId) const override;
 
     void setPropertyEditorPathId(TypeId typeId, SourceId pathId);
 
@@ -568,7 +568,7 @@ private:
                           const SourceIds &updatedSourceIds);
 
     void synchronizeDirectoryInfos(Storage::Synchronization::DirectoryInfos &directoryInfos,
-                                 const SourceIds &updatedDirectoryInfoSourceIds);
+                                   const SourceContextIds &updatedDirectoryInfoDirectoryIds);
 
     void synchronizeFileStatuses(FileStatuses &fileStatuses, const SourceIds &updatedSourceIds);
 
@@ -781,7 +781,7 @@ private:
     class PropertyEditorQmlPathView
     {
     public:
-        PropertyEditorQmlPathView(TypeId typeId, SourceId pathId, SourceId directoryId)
+        PropertyEditorQmlPathView(TypeId typeId, SourceId pathId, SourceContextId directoryId)
             : typeId{typeId}
             , pathId{pathId}
             , directoryId{directoryId}
@@ -803,14 +803,14 @@ private:
     public:
         TypeId typeId;
         SourceId pathId;
-        SourceId directoryId;
+        SourceContextId directoryId;
     };
 
     void synchronizePropertyEditorPaths(Storage::Synchronization::PropertyEditorQmlPaths &paths,
-                                        SourceIds updatedPropertyEditorQmlPathsSourceIds);
+                                        SourceContextIds updatedPropertyEditorQmlPathsSourceContextIds);
 
     void synchronizePropertyEditorQmlPaths(Storage::Synchronization::PropertyEditorQmlPaths &paths,
-                                           SourceIds updatedPropertyEditorQmlPathsSourceIds);
+                                           SourceContextIds updatedPropertyEditorQmlPathsSourceIds);
 
     void synchronizeFunctionDeclarations(
         TypeId typeId, Storage::Synchronization::FunctionDeclarations &functionsDeclarations);

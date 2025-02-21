@@ -37,8 +37,10 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     bool isContainer() const;
-    QmlItemNode qmlItemNode() const;
 
+    const QmlItemNode &qmlItemNode() const { return m_qmlItemNode; }
+
+    QmlItemNode &qmlItemNode() { return m_qmlItemNode; }
 
     enum { Type = UserType + 0xfffa };
 

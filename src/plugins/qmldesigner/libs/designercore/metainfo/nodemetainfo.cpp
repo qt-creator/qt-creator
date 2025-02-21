@@ -34,23 +34,6 @@ QT_WARNING_DISABLE_MSVC(4996)
 
 namespace QmlDesigner {
 
-/*!
-\class QmlDesigner::NodeMetaInfo
-\ingroup CoreModel
-\brief The NodeMetaInfo class provides meta information about a qml type.
-
-A NodeMetaInfo object can be created via ModelNode::metaInfo, or MetaInfo::nodeMetaInfo.
-
-The object can be invalid - you can check this by calling isValid().
-The object is invalid if you ask for meta information for
-an non-existing qml property. Also the node meta info can become invalid
-if the enclosing type is deregistered from the meta type system (e.g.
-a sub component qml file is deleted). Trying to call any accessor functions on an invalid
-NodeMetaInfo object will result in an InvalidMetaInfoException being thrown.
-
-\see QmlDesigner::MetaInfo, QmlDesigner::PropertyMetaInfo, QmlDesigner::EnumeratorMetaInfo
-*/
-
 namespace {
 
 using Storage::ModuleKind;
@@ -2676,7 +2659,7 @@ bool NodeMetaInfo::isQtQmlConnections() const
     NanotraceHR::Tracer tracer{"is Qt Qml connections", category(), keyValue("type id", m_typeId)};
 
     using namespace Storage::Info;
-    return isBasedOnCommonType<QtQml_Base, Connections>(m_projectStorage, m_typeId);
+    return isBasedOnCommonType<QtQml, Connections>(m_projectStorage, m_typeId);
 #else
     return isValid() && simplifiedTypeName() == "Connections";
 #endif
@@ -3028,6 +3011,23 @@ bool NodeMetaInfo::isQtQuickExtrasPicture() const
     }
 }
 
+bool NodeMetaInfo::isQtQuickGradient() const
+{
+#ifdef QDS_USE_PROJECTSTORAGE
+
+    if (!isValid())
+        return false;
+
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is QtQuick.Gradient", category(), keyValue("type id", m_typeId)};
+
+    using namespace Storage::Info;
+    return isBasedOnCommonType<QtQuick, Gradient>(m_projectStorage, m_typeId);
+#else
+    return isValid() && (isSubclassOf("QtQuick.Gradient"));
+#endif
+}
+
 bool NodeMetaInfo::isQtQuickImage() const
 {
     if constexpr (useProjectStorage()) {
@@ -3146,6 +3146,24 @@ bool NodeMetaInfo::isQtQuickRepeater() const
         return isBasedOnCommonType<QtQuick, Repeater>(m_projectStorage, m_typeId);
     } else {
         return isValid() && isSubclassOf("QtQuick.Repeater");
+    }
+}
+
+bool NodeMetaInfo::isQtQuickShapesShape() const
+{
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Shapes.Shape",
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick_Shapes, Shape>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && isSubclassOf("QtQuick.Shapes.Shape");
     }
 }
 
@@ -3599,6 +3617,24 @@ bool NodeMetaInfo::isQtQuickStateOperation() const
     }
 }
 
+bool NodeMetaInfo::isQtQuickStudioComponentsArcItem() const
+{
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Studio.Components.ArcItem",
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick_Studio_Components, ArcItem>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && isSubclassOf("QtQuick.Studio.Components.ArcItem");
+    }
+}
+
 bool NodeMetaInfo::isQtQuickText() const
 {
     if constexpr (useProjectStorage()) {
@@ -3765,6 +3801,24 @@ bool NodeMetaInfo::isQtQuickStudioComponentsGroupItem() const
         return isBasedOnCommonType<QtQuick_Studio_Components, GroupItem>(m_projectStorage, m_typeId);
     } else {
         return isValid() && isSubclassOf("QtQuick.Studio.Components.GroupItem");
+    }
+}
+
+bool NodeMetaInfo::isQtQuickStudioComponentsSvgPathItem() const
+{
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Studio.Components.SvgPathItem",
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick_Studio_Components, SvgPathItem>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && isSubclassOf("QtQuick.Studio.Components.SvgPathItem");
     }
 }
 
@@ -4546,6 +4600,8 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
         } else if (typeId == m_projectStorage->builtinTypeId<QUrl>()) {
             if (isType(value.metaType(), qUrlType))
                 return value;
+            else if (isType(value.metaType(), qStringType))
+                return value.toUrl();
             else
                 return QUrl{};
         } else if (typeId == m_projectStorage->builtinTypeId<QColor>()) {

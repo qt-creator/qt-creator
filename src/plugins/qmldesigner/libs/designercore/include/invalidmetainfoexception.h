@@ -10,10 +10,10 @@ namespace QmlDesigner {
 class QMLDESIGNERCORE_EXPORT InvalidMetaInfoException : public Exception
 {
 public:
-    InvalidMetaInfoException(int line,
-                             const QByteArray &function,
-                             const QByteArray &file);
+    InvalidMetaInfoException(
+        const Sqlite::source_location &location = Sqlite::source_location::current());
 
+    QString description() const override;
     QString type() const override;
 
 };

@@ -70,7 +70,7 @@
     more components than you wanted to.
 
     To lock components that you are not currently editing and their children,
-    click \imagelockon
+    select \imagelockon
     in \uicontrol Navigator. Locked components cannot be handled in any \QDS
     views. You can unlock the components when you want to edit them again.
 
@@ -183,7 +183,7 @@
     \endlist
 
     The component hierarchy is displayed as a bread crumb path, where you can
-    click the component names to open the respective files. This enables you
+    select the component names to open the respective files. This enables you
     to easily navigate back to the top level when you are done editing the
     component.
 

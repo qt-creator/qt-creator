@@ -22,16 +22,19 @@ Rectangle {
 
         spacing: StudioTheme.Values.controlGap
 
-        StudioControls.CheckBox {
+        StudioControls.Switch {
             id: liveUpdateButton
 
             objectName: "BtnLiveUpdate"
 
             text: qsTr("Live Update")
             actionIndicatorVisible: false
-            style: StudioTheme.Values.viewBarControlStyle
+            style: StudioTheme.ControlStyle {
+                squareControlSize: Qt.size(20, 20)
+                switchPadding: 2
+            }
             checked: root.rootEditor ? root.rootEditor.liveUpdate : false
-            onToggled: root.rootEditor.liveUpdate = checked
+            onToggled: root.rootEditor.liveUpdate = liveUpdateButton.checked
             Layout.alignment: Qt.AlignVCenter
             Layout.leftMargin: StudioTheme.Values.toolbarHorizontalMargin
         }

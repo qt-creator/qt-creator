@@ -3,25 +3,38 @@
 
 #include "rewritingexception.h"
 
-using namespace QmlDesigner;
+namespace QmlDesigner {
 
-RewritingException::RewritingException(int line,
-                                       const QByteArray &function,
-                                       const QByteArray &file,
-                                       const QByteArray &description,
-                                       const QString &documentTextContent)
-    : Exception(line, function, file, QString::fromUtf8(description))
+using namespace Qt::StringLiterals;
+
+RewritingException::RewritingException(const QString &description,
+                                       const QString &documentTextContent,
+                                       const Sqlite::source_location &location)
+    : Exception(location)
+    , m_description{description}
     , m_documentTextContent(documentTextContent)
 {
     createWarning();
 }
 
+const char *RewritingException::what() const noexcept
+{
+    return "RewritingException";
+}
+
+QString RewritingException::description() const
+{
+    return defaultDescription(location()) + ": " + m_description;
+}
+
 QString RewritingException::type() const
 {
-    return QLatin1String("RewritingException");
+    return "RewritingException"_L1;
 }
 
 QString RewritingException::documentTextContent() const
 {
     return m_documentTextContent;
 }
+
+} // namespace QmlDesigner

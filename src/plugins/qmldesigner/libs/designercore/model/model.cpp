@@ -915,11 +915,7 @@ void ModelPrivate::resetModelByRewriter(const QString &description)
     if (m_rewriterView) {
         m_rewriterView->resetToLastCorrectQml();
 
-        throw RewritingException(__LINE__,
-                                 __FUNCTION__,
-                                 __FILE__,
-                                 description.toUtf8(),
-                                 rewriterView()->textModifierContent());
+        throw RewritingException(description, rewriterView()->textModifierContent());
     }
 }
 
@@ -2398,6 +2394,26 @@ NodeMetaInfo Model::qtQuickRectangleMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::qtQuickShapesShapeMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick_Shapes, Shape>();
+    } else {
+        return metaInfo("QtQuick.Shapes.Shape");
+    }
+}
+
+NodeMetaInfo Model::qtQuickGradientMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick, Gradient>();
+    } else {
+        return metaInfo("QtQuick.Gradient");
+    }
+}
+
 NodeMetaInfo Model::qtQuickImageMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
@@ -2597,6 +2613,16 @@ NodeMetaInfo Model::qtQuick3DTextureInputMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::qtQuick3DView3DMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, View3D>();
+    } else {
+        return metaInfo("QtQuick3D.View3D");
+    }
+}
+
 NodeMetaInfo Model::qtQuickBorderImageMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
@@ -2691,7 +2717,7 @@ NodeMetaInfo Model::qtQmlConnectionsMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
         using namespace Storage::Info;
-        return createNodeMetaInfo<QtQml_Base, Connections>();
+        return createNodeMetaInfo<QtQml, Connections>();
     } else {
         return metaInfo("QtQml.Connections");
     }

@@ -57,6 +57,9 @@ public:
     enum TargetState { Packing, Sending, Starting, Running, NotRunning };
     Q_ENUM(TargetState)
 
+    enum TargetType { Normal, LivePreview, Android };
+    Q_ENUM(TargetType)
+
     void udpateTargets();
 
     const QList<Target> targets() const;
@@ -65,6 +68,7 @@ public:
     void cancelCurrentTarget();
 
     int currentTargetIndex() const;
+    TargetType currentTargetType() const;
 
     bool selectRunTarget(Utils::Id id);
     bool selectRunTarget(const QString &targetName);
@@ -88,6 +92,7 @@ private:
 
     QList<Target> m_targets;
     Utils::Id m_currentTargetId;
+    TargetType m_currentTargetType = TargetType::Normal;
 
     QList<RunningTarget> m_runningTargets;
 
@@ -97,6 +102,7 @@ private:
 
 signals:
     void runTargetChanged();
+    void runTargetTypeChanged();
     void stateChanged();
     void targetsChanged();
     void progressChanged();

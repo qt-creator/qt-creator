@@ -19,7 +19,7 @@ public:
 
     enum DeviceColumns {
         Status,
-        Active,
+        Enabled,
         Alias,
         IPv4Addr,
         OS,

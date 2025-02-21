@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "sourcelocation.h"
 #include "sqliteglobal.h"
 
 #include <utils/smallstringview.h>
@@ -22,16 +23,16 @@ public:
     TransactionInterface(const TransactionInterface &) = delete;
     TransactionInterface &operator=(const TransactionInterface &) = delete;
 
-    virtual void deferredBegin() = 0;
-    virtual void immediateBegin() = 0;
-    virtual void exclusiveBegin() = 0;
-    virtual void commit() = 0;
-    virtual void rollback() = 0;
+    virtual void deferredBegin(const source_location &sourceLocation) = 0;
+    virtual void immediateBegin(const source_location &sourceLocation) = 0;
+    virtual void exclusiveBegin(const source_location &sourceLocation) = 0;
+    virtual void commit(const source_location &sourceLocation) = 0;
+    virtual void rollback(const source_location &sourceLocation) = 0;
     virtual void lock() = 0;
     virtual void unlock() = 0;
-    virtual void immediateSessionBegin() = 0;
-    virtual void sessionCommit() = 0;
-    virtual void sessionRollback() = 0;
+    virtual void immediateSessionBegin(const source_location &sourceLocation) = 0;
+    virtual void sessionCommit(const source_location &sourceLocation) = 0;
+    virtual void sessionRollback(const source_location &sourceLocation) = 0;
 
 protected:
     ~TransactionInterface() = default;
@@ -46,15 +47,16 @@ public:
     AbstractTransaction(const AbstractTransaction &) = delete;
     AbstractTransaction &operator=(const AbstractTransaction &) = delete;
 
-    void commit()
+    void commit(const source_location &sourceLocation = source_location::current())
     {
-        m_interface.commit();
+        m_interface.commit(sourceLocation);
         m_isAlreadyCommited = true;
         m_locker.unlock();
     }
 
 protected:
     ~AbstractTransaction() = default;
+
     AbstractTransaction(TransactionInterface &transactionInterface)
         : m_interface(transactionInterface)
     {
@@ -94,9 +96,9 @@ public:
     AbstractThrowingSessionTransaction(const AbstractThrowingSessionTransaction &) = delete;
     AbstractThrowingSessionTransaction &operator=(const AbstractThrowingSessionTransaction &) = delete;
 
-    void commit()
+    void commit(const source_location &sourceLocation = source_location::current())
     {
-        m_interface.sessionCommit();
+        m_interface.sessionCommit(sourceLocation);
         m_isAlreadyCommited = true;
         m_locker.unlock();
     }
@@ -105,7 +107,7 @@ public:
     {
         try {
             if (m_rollback)
-                m_interface.sessionRollback();
+                m_interface.sessionRollback(m_sourceLocation);
         } catch (...) {
             if (!std::uncaught_exceptions())
                 throw;
@@ -113,11 +115,14 @@ public:
     }
 
 protected:
-    AbstractThrowingSessionTransaction(TransactionInterface &transactionInterface)
-        : m_interface(transactionInterface)
+    AbstractThrowingSessionTransaction(TransactionInterface &transactionInterface,
+                                       const source_location &sourceLocation)
+        : m_sourceLocation(sourceLocation)
+        , m_interface(transactionInterface)
     {}
 
 protected:
+    source_location m_sourceLocation;
     TransactionInterface &m_interface;
     std::unique_lock<TransactionInterface> m_locker{m_interface};
     bool m_isAlreadyCommited = false;
@@ -136,7 +141,7 @@ public:
     {
         try {
             if (Base::m_rollback)
-                Base::m_interface.rollback();
+                Base::m_interface.rollback(m_sourceLocation);
         } catch (...) {
             if (!std::uncaught_exceptions())
                 throw;
@@ -144,10 +149,15 @@ public:
     }
 
 protected:
-    AbstractThrowingTransaction(TransactionInterface &transactionInterface)
+    AbstractThrowingTransaction(TransactionInterface &transactionInterface,
+                                const source_location &sourceLocation)
         : AbstractTransaction<TransactionInterface>(transactionInterface)
+        , m_sourceLocation(sourceLocation)
     {
     }
+
+private:
+    source_location m_sourceLocation;
 };
 
 template<typename TransactionInterface>
@@ -162,26 +172,33 @@ public:
     {
         try {
             if (Base::m_rollback)
-                Base::m_interface.rollback();
+                Base::m_interface.rollback(m_sourceLocation);
         } catch (...) {
         }
     }
 
 protected:
-    AbstractNonThrowingDestructorTransaction(TransactionInterface &transactionInterface)
+    AbstractNonThrowingDestructorTransaction(TransactionInterface &transactionInterface,
+                                             const source_location &sourceLocation)
         : AbstractTransaction<TransactionInterface>(transactionInterface)
+        , m_sourceLocation(sourceLocation)
+
     {
     }
+
+private:
+    source_location m_sourceLocation;
 };
 
 template<typename BaseTransaction>
 class BasicDeferredTransaction : public BaseTransaction
 {
 public:
-    BasicDeferredTransaction(typename BaseTransaction::Transaction &transactionInterface)
-        : BaseTransaction(transactionInterface)
+    BasicDeferredTransaction(typename BaseTransaction::Transaction &transactionInterface,
+                             const source_location &sourceLocation = source_location::current())
+        : BaseTransaction(transactionInterface, sourceLocation)
     {
-        transactionInterface.deferredBegin();
+        transactionInterface.deferredBegin(sourceLocation);
     }
 
     ~BasicDeferredTransaction()
@@ -201,19 +218,20 @@ public:
 };
 
 template<typename Transaction, typename TransactionInterface, typename Callable>
-auto withTransaction(TransactionInterface &transactionInterface, Callable &&callable)
-    -> std::invoke_result_t<Callable>
+auto withTransaction(TransactionInterface &transactionInterface,
+                     Callable &&callable,
+                     const source_location &sourceLocation) -> std::invoke_result_t<Callable>
 {
-    Transaction transaction{transactionInterface};
+    Transaction transaction{transactionInterface, sourceLocation};
 
     if constexpr (std::is_void_v<std::invoke_result_t<Callable>>) {
         callable();
 
-        transaction.commit();
+        transaction.commit(sourceLocation);
     } else {
         auto results = callable();
 
-        transaction.commit();
+        transaction.commit(sourceLocation);
 
         return results;
     }
@@ -232,18 +250,25 @@ auto withImplicitTransaction(TransactionInterface &transactionInterface, Callabl
 }
 
 template<typename TransactionInterface, typename Callable>
-auto withDeferredTransaction(TransactionInterface &transactionInterface, Callable &&callable)
+auto withDeferredTransaction(TransactionInterface &transactionInterface,
+                             Callable &&callable,
+                             const source_location &sourceLocation = source_location::current())
 {
     if constexpr (std::is_void_v<std::invoke_result_t<Callable>>) {
         withTransaction<DeferredTransaction<TransactionInterface>>(transactionInterface,
-                                                                   std::forward<Callable>(callable));
+                                                                   std::forward<Callable>(callable),
+                                                                   sourceLocation);
     } else {
         return withTransaction<DeferredTransaction<TransactionInterface>>(transactionInterface,
                                                                           std::forward<Callable>(
-                                                                              callable));
+                                                                              callable),
+                                                                          sourceLocation);
     }
 }
 
+template<typename TransactionInterface>
+DeferredTransaction(TransactionInterface &, const source_location &)
+    -> DeferredTransaction<TransactionInterface>;
 template<typename TransactionInterface>
 DeferredTransaction(TransactionInterface &) -> DeferredTransaction<TransactionInterface>;
 
@@ -258,6 +283,9 @@ public:
 };
 
 template<typename TransactionInterface>
+DeferredNonThrowingDestructorTransaction(TransactionInterface &, const source_location &)
+    -> DeferredNonThrowingDestructorTransaction<TransactionInterface>;
+template<typename TransactionInterface>
 DeferredNonThrowingDestructorTransaction(TransactionInterface &)
     -> DeferredNonThrowingDestructorTransaction<TransactionInterface>;
 
@@ -265,10 +293,11 @@ template<typename BaseTransaction>
 class BasicImmediateTransaction : public BaseTransaction
 {
 public:
-    BasicImmediateTransaction(typename BaseTransaction::Transaction &transactionInterface)
-        : BaseTransaction(transactionInterface)
+    BasicImmediateTransaction(typename BaseTransaction::Transaction &transactionInterface,
+                              const source_location &sourceLocation = source_location::current())
+        : BaseTransaction(transactionInterface, sourceLocation)
     {
-        transactionInterface.immediateBegin();
+        transactionInterface.immediateBegin(sourceLocation);
     }
 
     ~BasicImmediateTransaction()
@@ -288,19 +317,25 @@ public:
 };
 
 template<typename TransactionInterface, typename Callable>
-auto withImmediateTransaction(TransactionInterface &transactionInterface, Callable &&callable)
+auto withImmediateTransaction(TransactionInterface &transactionInterface,
+                              Callable &&callable,
+                              const source_location &sourceLocation = source_location::current())
 {
     if constexpr (std::is_void_v<std::invoke_result_t<Callable>>) {
         withTransaction<ImmediateTransaction<TransactionInterface>>(transactionInterface,
-                                                                    std::forward<Callable>(
-                                                                        callable));
+                                                                    std::forward<Callable>(callable),
+                                                                    sourceLocation);
     } else {
         return withTransaction<ImmediateTransaction<TransactionInterface>>(transactionInterface,
                                                                            std::forward<Callable>(
-                                                                               callable));
+                                                                               callable),
+                                                                           sourceLocation);
     }
 }
 
+template<typename TransactionInterface>
+ImmediateTransaction(TransactionInterface &, const source_location &)
+    -> ImmediateTransaction<TransactionInterface>;
 template<typename TransactionInterface>
 ImmediateTransaction(TransactionInterface &) -> ImmediateTransaction<TransactionInterface>;
 
@@ -315,6 +350,9 @@ public:
 };
 
 template<typename TransactionInterface>
+ImmediateNonThrowingDestructorTransaction(TransactionInterface &, const source_location &)
+    -> ImmediateNonThrowingDestructorTransaction<TransactionInterface>;
+template<typename TransactionInterface>
 ImmediateNonThrowingDestructorTransaction(TransactionInterface &)
     -> ImmediateNonThrowingDestructorTransaction<TransactionInterface>;
 
@@ -322,10 +360,11 @@ template<typename BaseTransaction>
 class BasicExclusiveTransaction : public BaseTransaction
 {
 public:
-    BasicExclusiveTransaction(typename BaseTransaction::Transaction &transactionInterface)
-        : BaseTransaction(transactionInterface)
+    BasicExclusiveTransaction(typename BaseTransaction::Transaction &transactionInterface,
+                              const source_location &sourceLocation = source_location::current())
+        : BaseTransaction(transactionInterface, sourceLocation)
     {
-        transactionInterface.exclusiveBegin();
+        transactionInterface.exclusiveBegin(sourceLocation);
     }
 
     ~BasicExclusiveTransaction()
@@ -345,6 +384,9 @@ public:
 };
 
 template<typename TransactionInterface>
+ExclusiveTransaction(TransactionInterface &, const source_location &)
+    -> ExclusiveTransaction<TransactionInterface>;
+template<typename TransactionInterface>
 ExclusiveTransaction(TransactionInterface &) -> ExclusiveTransaction<TransactionInterface>;
 
 template<typename TransactionInterface>
@@ -358,6 +400,9 @@ public:
 };
 
 template<typename TransactionInterface>
+ExclusiveNonThrowingDestructorTransaction(TransactionInterface &, const source_location &)
+    -> ExclusiveNonThrowingDestructorTransaction<TransactionInterface>;
+template<typename TransactionInterface>
 ExclusiveNonThrowingDestructorTransaction(TransactionInterface &)
     -> ExclusiveNonThrowingDestructorTransaction<TransactionInterface>;
 
@@ -368,17 +413,20 @@ class ImmediateSessionTransaction final
     using Base = AbstractThrowingSessionTransaction<TransactionInterface>;
 
 public:
-    ImmediateSessionTransaction(typename Base::Transaction &transactionInterface)
-        : AbstractThrowingSessionTransaction<TransactionInterface>(transactionInterface)
+    ImmediateSessionTransaction(typename Base::Transaction &transactionInterface,
+                                const source_location &sourceLocation = source_location::current())
+        : AbstractThrowingSessionTransaction<TransactionInterface>(transactionInterface, sourceLocation)
     {
-        transactionInterface.immediateSessionBegin();
+        transactionInterface.immediateSessionBegin(sourceLocation);
     }
 
     ~ImmediateSessionTransaction() { Base::m_rollback = !Base::m_isAlreadyCommited; }
 };
 
 template<typename TransactionInterface>
+ImmediateSessionTransaction(TransactionInterface &, const source_location &)
+    -> ImmediateSessionTransaction<TransactionInterface>;
+template<typename TransactionInterface>
 ImmediateSessionTransaction(TransactionInterface &)
     -> ImmediateSessionTransaction<TransactionInterface>;
-
 } // namespace Sqlite

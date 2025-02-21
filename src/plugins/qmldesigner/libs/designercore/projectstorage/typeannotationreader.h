@@ -50,7 +50,7 @@ public:
     Synchronization::TypeAnnotations parseTypeAnnotation(const QString &content,
                                                          const QString &directoryPath,
                                                          SourceId sourceId,
-                                                         SourceId directorySourceId);
+                                                         SourceContextId directoryId);
 
     QStringList errors();
 
@@ -125,7 +125,7 @@ private:
     json m_itemLibraryEntries;
     Property m_currentProperty;
     SourceId m_sourceId;
-    SourceId m_directorySourceId;
+    SourceContextId m_directoryId;
 };
 
 } // namespace QmlDesigner::Storage

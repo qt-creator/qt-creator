@@ -5,14 +5,12 @@
 #include "nodemetainfo.h"
 #include "qregularexpression.h"
 
-#include <invalidmetainfoexception.h>
 #include <propertycontainer.h>
 #include <sourcepathcache.h>
 
 #include <QSharedData>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 
 #include <functional>
 
@@ -32,8 +30,7 @@ public:
     QString libraryEntryIconPath;
     QIcon typeIcon = QIcon(":/ItemLibrary/images/item-default-icon.png");
     QList<PropertyContainer> properties;
-    QString qml;
-    QString qmlSource;
+    QString templatePath;
     QString requiredImport;
     QHash<QString, QString> hints;
     QString customComponentSource;
@@ -83,7 +80,7 @@ ItemLibraryEntry ItemLibraryEntry::create(const PathCacheType &pathCache,
     if (entry.moduleKind == Storage::ModuleKind::QmlLibrary)
         m_data->requiredImport = entry.import.toQString();
     m_data->toolTip = entry.toolTip.toQString();
-    m_data->qmlSource = entry.templatePath.toQString();
+    m_data->templatePath = entry.templatePath.toQString();
     m_data->properties.reserve(Utils::ssize(entry.properties));
     for (const auto &property : entry.properties) {
         m_data->properties.emplace_back(property.name.toQByteArray(),
@@ -114,9 +111,9 @@ TypeId ItemLibraryEntry::typeId() const
     return m_data->typeId;
 }
 
-QString ItemLibraryEntry::qmlSource() const
+QString ItemLibraryEntry::templatePath() const
 {
-    return m_data->qmlSource;
+    return m_data->templatePath;
 }
 
 QString ItemLibraryEntry::requiredImport() const
@@ -186,21 +183,9 @@ void ItemLibraryEntry::setLibraryEntryIconPath(const QString &iconPath)
     m_data->libraryEntryIconPath = iconPath;
 }
 
-static QByteArray getSourceForUrl(const QString &fileURl)
+void ItemLibraryEntry::setTemplatePath(const QString &qml)
 {
-    Utils::FileReader fileReader;
-
-    if (fileReader.fetch(Utils::FilePath::fromString(fileURl)))
-        return fileReader.data();
-    else
-        return Utils::FileReader::fetchQrc(fileURl);
-}
-
-void ItemLibraryEntry::setQmlPath(const QString &qml)
-{
-    m_data->qml = qml;
-
-    m_data->qmlSource = QString::fromUtf8(getSourceForUrl(qml));
+    m_data->templatePath = qml;
 }
 
 void ItemLibraryEntry::setRequiredImport(const QString &requiredImport)
@@ -253,8 +238,7 @@ QDataStream &operator<<(QDataStream &stream, const ItemLibraryEntry &itemLibrary
     stream << itemLibraryEntry.hints();
 
     stream << itemLibraryEntry.m_data->properties;
-    stream << itemLibraryEntry.m_data->qml;
-    stream << itemLibraryEntry.m_data->qmlSource;
+    stream << itemLibraryEntry.m_data->templatePath;
     stream << itemLibraryEntry.m_data->customComponentSource;
     stream << itemLibraryEntry.m_data->extraFilePaths;
     stream << itemLibraryEntry.m_data->typeId.internalId();
@@ -279,8 +263,7 @@ QDataStream &operator>>(QDataStream &stream, ItemLibraryEntry &itemLibraryEntry)
     stream >> itemLibraryEntry.m_data->hints;
 
     stream >> itemLibraryEntry.m_data->properties;
-    stream >> itemLibraryEntry.m_data->qml;
-    stream >> itemLibraryEntry.m_data->qmlSource;
+    stream >> itemLibraryEntry.m_data->templatePath;
     stream >> itemLibraryEntry.m_data->customComponentSource;
     stream >> itemLibraryEntry.m_data->extraFilePaths;
     TypeId::DatabaseType internalTypeId;
@@ -303,8 +286,7 @@ QDebug operator<<(QDebug debug, const ItemLibraryEntry &itemLibraryEntry)
     debug << itemLibraryEntry.m_data->hints;
 
     debug << itemLibraryEntry.m_data->properties;
-    debug << itemLibraryEntry.m_data->qml;
-    debug << itemLibraryEntry.m_data->qmlSource;
+    debug << itemLibraryEntry.m_data->templatePath;
     debug << itemLibraryEntry.m_data->customComponentSource;
     debug << itemLibraryEntry.m_data->extraFilePaths;
 
