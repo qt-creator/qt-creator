@@ -43,10 +43,10 @@
             as a part of your effect composition. The added effects appear in the effect stack
             (3). You cannot add the same pre-made effect twice to the composition. You can,
             however, add more than one custom effect to the same composition.
-        \li Adjust the effect parameters to modify your effect composition. View the preview panel
-            (4) to see how the composition affects a component before assigning it to one. Use the
-            preview panel toolbar to select the preview image and the preview panel background
-            color.
+        \li Adjust the effect parameters to modify your effect composition. View the preview
+            window (4) to see how the composition affects a component before assigning it to
+            one. Use the preview window toolbar to select the preview image and the preview
+            window background color.
         \li Finally, select \imagesaveeffectcomposer to save your
             effect composition. If the composition is still \e Untitled, name it, and then select
             \uicontrol Save. Select \imagesaveaseffectcomposer to save the
@@ -54,7 +54,7 @@
             composition.
     \endlist
 
-    \image studio-effect-composer-assets.webp Effect Composer and the Assets view
+    \image studio-effect-composer-assets.webp Effect Composer and the Assets view.
 
     The saved effect compositions appear in the \uicontrol {Assets} > \uicontrol Effects.
     To delete an effect composition, right-click it in the \uicontrol {Assets} view, and
@@ -100,7 +100,7 @@
     You can modify the shader code of an effect in your effect composition using
     \uicontrol {Shaders Code Editor}.
 
-    \image shaders-code-editor.webp Shaders Code Editor
+    \image shaders-code-editor.webp Shaders Code Editor.
 
     To open \uicontrol {Shaders Code Editor}:
 
@@ -252,7 +252,7 @@
     \section1 Using animated effects
 
     Some of the effects in \uicontrol {Effect Composer} are animated. Preview the
-    animation in the preview panel using the play, pause, and restart animation
+    animation in the preview window using the play, pause, and restart animation
     buttons.
 
     When a composition including an animated effect has been applied to a component,

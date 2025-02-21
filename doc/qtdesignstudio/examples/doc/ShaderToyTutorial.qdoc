@@ -196,7 +196,7 @@
             \endcode
         \endlist
 
-    You should now see the effect in the preview window in the \uicontrol {Effect Composer} view:
+    You should now see the effect in the preview window of the \uicontrol {Effect Composer} view:
 
     \image moving-bars-shaders-code-editor.webp The Moving bars shader in Effect Composer
 
