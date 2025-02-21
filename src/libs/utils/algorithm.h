@@ -472,6 +472,21 @@ bool contains(const C &container, R S::*member)
     return anyOf(container, std::mem_fn(member));
 }
 
+template<std::indirectly_readable Iterator, std::indirectly_regular_unary_invocable<Iterator> Projection>
+using projected_value_t = std::remove_cvref_t<
+    std::invoke_result_t<Projection &, std::iter_value_t<Iterator> &>>;
+
+template<std::ranges::input_range Range,
+         typename Projection = std::identity,
+         class Value = projected_value_t<std::ranges::iterator_t<Range>, Projection>>
+    requires std::indirect_binary_predicate<std::ranges::equal_to,
+                                            std::projected<std::ranges::iterator_t<Range>, Projection>,
+                                            const Value *>
+bool contains(Range &&range, const Value &value, Projection projection = {})
+{
+    return std::ranges::find(std::forward<Range>(range), value, projection) != std::ranges::end(range);
+}
+
 template<typename T, std::size_t Size, typename V>
 [[nodiscard]] bool contains(const T (&array)[Size], const V &value)
 {

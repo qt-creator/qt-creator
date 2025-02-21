@@ -59,13 +59,6 @@ static bool propertyIsAttachedInsightProperty(PropertyNameView propertyName)
     return propertyName.contains("InsightCategory.");
 }
 
-template<typename Range, typename Value, typename Projection = std::identity>
-bool anyOf(Range &&range, Value &&value, Projection projection = {})
-{
-    return std::ranges::find(std::forward<Range>(range), std::forward<Value>(value), projection)
-           != std::ranges::end(range);
-}
-
 PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,
                                        ExternalDependenciesInterface &externalDependencies)
     : AbstractView(externalDependencies)
@@ -717,11 +710,11 @@ void PropertyEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 
     const ModelNodes &allRemovedNodes = removedNode.allSubModelNodesAndThisNode();
 
-    if (anyOf(allRemovedNodes, model()->qtQuick3DTextureMetaInfo(), &ModelNode::metaInfo))
+    if (Utils::contains(allRemovedNodes, model()->qtQuick3DTextureMetaInfo(), &ModelNode::metaInfo))
         m_textureAboutToBeRemoved = true;
 
     if (m_qmlBackEndForCurrentType) {
-        if (anyOf(allRemovedNodes, QLatin1String{Constants::MATERIAL_LIB_ID}, &ModelNode::id))
+        if (Utils::contains(allRemovedNodes, QLatin1String{Constants::MATERIAL_LIB_ID}, &ModelNode::id))
             m_qmlBackEndForCurrentType->contextObject()->setHasMaterialLibrary(false);
     }
 }
@@ -1032,11 +1025,11 @@ void PropertyEditorView::nodeReparented(const ModelNode &node,
         m_qmlBackEndForCurrentType->backendAnchorBinding().setup(QmlItemNode(m_selectedNode));
 
     const ModelNodes &allNodes = node.allSubModelNodesAndThisNode();
-    if (anyOf(allNodes, model()->qtQuick3DTextureMetaInfo(), &ModelNode::metaInfo))
+    if (Utils::contains(allNodes, model()->qtQuick3DTextureMetaInfo(), &ModelNode::metaInfo))
         m_qmlBackEndForCurrentType->refreshBackendModel();
 
     if (m_qmlBackEndForCurrentType) {
-        if (anyOf(allNodes, QLatin1String{Constants::MATERIAL_LIB_ID}, &ModelNode::id))
+        if (Utils::contains(allNodes, QLatin1String{Constants::MATERIAL_LIB_ID}, &ModelNode::id))
             m_qmlBackEndForCurrentType->contextObject()->setHasMaterialLibrary(true);
     }
 }
@@ -1046,9 +1039,9 @@ void PropertyEditorView::importsChanged(const Imports &addedImports, const Impor
     if (!m_qmlBackEndForCurrentType)
         return;
 
-    if (anyOf(removedImports, quick3dImport, &Import::url))
+    if (Utils::contains(removedImports, quick3dImport, &Import::url))
         m_qmlBackEndForCurrentType->contextObject()->setHasQuick3DImport(false);
-    else if (anyOf(addedImports, quick3dImport, &Import::url))
+    else if (Utils::contains(addedImports, quick3dImport, &Import::url))
         m_qmlBackEndForCurrentType->contextObject()->setHasQuick3DImport(true);
 }
 
