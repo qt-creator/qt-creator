@@ -498,10 +498,10 @@ QmlVisualNode QmlVisualNode::createQml3DNode(AbstractView *view,
     QmlVisualNode newQmlObjectNode;
 
     auto createNodeFunc = [&]() {
-        if (!importName.isEmpty()) {
-            Import import = Import::createLibraryImport(importName);
-            view->model()->changeImports({import}, {});
-        }
+        Imports imports = {Import::createLibraryImport("QtQuick3D")};
+        if (!importName.isEmpty())
+            imports.append(Import::createLibraryImport(importName));
+        view->model()->changeImports(imports, {});
 
         QList<QPair<PropertyName, QVariant> > propertyPairList;
         propertyPairList.append(Position(position).propertyPairList());
