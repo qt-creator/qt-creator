@@ -32,7 +32,10 @@ class Targets:
 
     @staticmethod
     def isOnlineInstaller(target):
-        return target == Targets.DESKTOP_6_2_4
+        onlineInstallerTargets = [Targets.DESKTOP_6_2_4]
+        if os.getenv("SYSTEST_NEW_SETTINGS") == "1":
+            onlineInstallerTargets.append(Targets.DESKTOP_6_7_3_GCC)
+        return target in onlineInstallerTargets
 
     @staticmethod
     def availableTargetClasses(ignoreValidity=False):

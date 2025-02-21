@@ -22,6 +22,7 @@
 #include <QTemporaryDir>
 
 using namespace Utils;
+using namespace std::string_view_literals;
 
 namespace Lua {
 
@@ -381,7 +382,7 @@ expected_str<sol::protected_function> prepareSetup(
             return make_unexpected(connectResult.error());
     }
 
-    auto setupFunction = pluginTable->get_or<sol::function>("setup", {});
+    auto setupFunction = pluginTable->get_or<sol::function>("setup"sv, {});
 
     if (!setupFunction)
         return make_unexpected(Tr::tr("Extension info table did not contain a setup function."));

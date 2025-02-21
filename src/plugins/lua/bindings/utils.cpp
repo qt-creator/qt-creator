@@ -22,6 +22,7 @@
 #include <QUuid>
 
 using namespace Utils;
+using namespace std::string_view_literals;
 
 namespace Lua::Internal {
 
@@ -29,7 +30,8 @@ void setupUtilsModule()
 {
     registerProvider(
         "Utils", [futureSync = FutureSynchronizer()](sol::state_view lua) mutable -> sol::object {
-            const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
+
+            const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec"sv);
 
             auto async = lua.script("return require('async')", "_utils_").get<sol::table>();
 
@@ -45,12 +47,12 @@ void setupUtilsModule()
                                      const FilePath &p,
                                      const sol::table &options,
                                      const sol::function &cb) {
-                const QStringList nameFilters = options.get_or<QStringList>("nameFilters", {});
+                const QStringList nameFilters = options.get_or<QStringList>("nameFilters"sv, {});
                 QDir::Filters fileFilters
-                    = (QDir::Filters) options.get_or<int>("fileFilters", QDir::NoFilter);
+                    = (QDir::Filters) options.get_or<int>("fileFilters"sv, QDir::NoFilter);
                 QDirIterator::IteratorFlags flags
                     = (QDirIterator::IteratorFlags)
-                          options.get_or<int>("flags", QDirIterator::NoIteratorFlags);
+                          options.get_or<int>("flags"sv, QDirIterator::NoIteratorFlags);
 
                 FileFilter filter(nameFilters, fileFilters, flags);
 

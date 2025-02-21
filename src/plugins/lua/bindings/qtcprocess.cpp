@@ -9,13 +9,14 @@
 #include <utils/qtcprocess.h>
 
 using namespace Utils;
+using namespace std::string_view_literals;
 
 namespace Lua::Internal {
 
 void setupProcessModule()
 {
     registerProvider("Process", [](sol::state_view lua) -> sol::object {
-        const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
+        const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec"sv);
         QObject *guard = pluginSpec->connectionGuard.get();
 
         sol::table async = lua.script("return require('async')", "_process_").get<sol::table>();
@@ -50,17 +51,17 @@ void setupProcessModule()
         process["commandOutput"] = wrap(process["commandOutput_cb"]);
 
         process["create"] = [](const sol::table &parameter) {
-            const auto cmd = toFilePath(parameter.get<std::variant<FilePath, QString>>("command"));
+            const auto cmd = toFilePath(parameter.get<std::variant<FilePath, QString>>("command"sv));
 
             const QStringList arguments
                 = parameter.get_or<QStringList, const char *, QStringList>("arguments", {});
             const std::optional<FilePath> workingDirectory = parameter.get<std::optional<FilePath>>(
                 "workingDirectory");
 
-            const auto stdOut = parameter.get<std::optional<sol::function>>("stdout");
-            const auto stdErr = parameter.get<std::optional<sol::function>>("stderr");
-            const auto stdIn = parameter.get<sol::optional<QString>>("stdin");
-            const auto onFinished = parameter.get<std::optional<sol::function>>("onFinished");
+            const auto stdOut = parameter.get<std::optional<sol::function>>("stdout"sv);
+            const auto stdErr = parameter.get<std::optional<sol::function>>("stderr"sv);
+            const auto stdIn = parameter.get<sol::optional<QString>>("stdin"sv);
+            const auto onFinished = parameter.get<std::optional<sol::function>>("onFinished"sv);
 
             auto p = std::make_unique<Process>();
 
