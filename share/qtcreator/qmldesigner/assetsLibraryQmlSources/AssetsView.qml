@@ -136,8 +136,7 @@ TreeView {
             // view: make sure we will do an "expand all" (otherwise, the whole tree might
             // be collapsed, and with our visible root not being the actual root of the tree,
             // the entire tree would be invisible)
-            root.lastRowCount = -1
-            root.requestedExpandAll = true
+            root.reset()
         }
 
         function onFileChanged(filePath)
@@ -153,6 +152,17 @@ TreeView {
         }
 
     } // Connections
+
+    // Resets everything to its default state before reusing the widget
+    function reset()
+    {
+        root.lastRowCount = -1
+        root.rootPathDepth = 0
+        root.rootPathRow = 0
+        root.requestedExpandAll = true
+        // Attempt to force reload
+        updateRowsTimer.restart()
+    }
 
     function addCreatedFolder(path)
     {
