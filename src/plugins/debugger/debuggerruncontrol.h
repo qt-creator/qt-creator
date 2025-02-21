@@ -30,8 +30,6 @@ public:
 private:
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);
 
-    void continueAfterTerminalStart();
-
     void startDebugServerIfNeededAndContinueStartup();
     void continueAfterDebugServerStart();
 

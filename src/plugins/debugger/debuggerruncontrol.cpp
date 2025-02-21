@@ -31,6 +31,7 @@
 
 #include <remotelinux/remotelinux_constants.h>
 
+#include <solutions/tasking/barrier.h>
 #include <solutions/tasking/conditional.h>
 #include <solutions/tasking/tasktreerunner.h>
 
@@ -95,7 +96,8 @@ public:
     DebuggerRunTool *q = nullptr;
 
     GroupItem coreFileRecipe();
-    GroupItem terminalRecipe();
+    GroupItem terminalRecipe(const SingleBarrier &barrier);
+    GroupItem fixupParamsRecipe();
 
     int snapshotCounter = 0;
     int engineStartsNeeded = 0;
@@ -118,9 +120,21 @@ public:
 void DebuggerRunTool::start()
 {
     d->m_glue.reset(new GlueInterface);
+
+    const SingleBarrier terminalBarrier;
+
     const Group recipe {
         d->coreFileRecipe(),
-        d->terminalRecipe()
+        Group {
+            terminalBarrier,
+            parallel,
+            d->terminalRecipe(terminalBarrier),
+            Group {
+                waitForBarrierTask(terminalBarrier),
+                d->fixupParamsRecipe(),
+                Sync([this] { startDebugServerIfNeededAndContinueStartup(); })
+            }
+        }
     };
     d->m_taskTreeRunner.start(recipe);
 }
@@ -172,7 +186,7 @@ GroupItem DebuggerRunToolPrivate::coreFileRecipe()
     };
 }
 
-GroupItem DebuggerRunToolPrivate::terminalRecipe()
+GroupItem DebuggerRunToolPrivate::terminalRecipe(const SingleBarrier &barrier)
 {
     const auto useTerminal = [this] {
         const bool useCdbConsole = q->m_runParameters.cppEngineType() == CdbEngineType
@@ -184,7 +198,7 @@ GroupItem DebuggerRunToolPrivate::terminalRecipe()
         return q->m_runParameters.useTerminal();
     };
 
-    const auto onSetup = [this](Process &process) {
+    const auto onSetup = [this, barrier](Process &process) {
         ProcessRunData stub = q->m_runParameters.inferior();
         if (q->m_runParameters.runAsRoot()) {
             process.setRunAsRoot(true);
@@ -193,10 +207,11 @@ GroupItem DebuggerRunToolPrivate::terminalRecipe()
         process.setTerminalMode(TerminalMode::Debug);
         process.setRunData(stub);
 
-        QObject::connect(&process, &Process::started, &process, [this, processPtr = &process] {
+        QObject::connect(&process, &Process::started, &process,
+                         [this, processPtr = &process, barrier = barrier->barrier()] {
             q->m_runParameters.setApplicationPid(processPtr->processId());
             q->m_runParameters.setApplicationMainThreadId(processPtr->applicationMainThreadId());
-            q->continueAfterTerminalStart();
+            barrier->advance();
         });
 
         QObject::connect(m_glue.get(), &GlueInterface::interruptTerminalRequested,
@@ -215,77 +230,78 @@ GroupItem DebuggerRunToolPrivate::terminalRecipe()
         If (useTerminal) >> Then {
             ProcessTask(onSetup, onDone)
         } >> Else {
-            Sync([this] { q->continueAfterTerminalStart(); })
+            Sync([barrier] { barrier->barrier()->advance(); })
         }
     };
 }
 
-void DebuggerRunTool::continueAfterTerminalStart()
+GroupItem DebuggerRunToolPrivate::fixupParamsRecipe()
 {
-    TaskHub::clearTasks(Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
+    return Sync([this] {
+        TaskHub::clearTasks(Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
-    if (runControl()->usesDebugChannel())
-        m_runParameters.setRemoteChannel(runControl()->debugChannel());
+        if (q->runControl()->usesDebugChannel())
+            q->m_runParameters.setRemoteChannel(q->runControl()->debugChannel());
 
-    if (runControl()->usesQmlChannel()) {
-        m_runParameters.setQmlServer(runControl()->qmlChannel());
-        if (m_runParameters.isAddQmlServerInferiorCmdArgIfNeeded()
-                && m_runParameters.isQmlDebugging()
-                && m_runParameters.isCppDebugging()) {
+        if (q->runControl()->usesQmlChannel()) {
+            q->m_runParameters.setQmlServer(q->runControl()->qmlChannel());
+            if (q->m_runParameters.isAddQmlServerInferiorCmdArgIfNeeded()
+                && q->m_runParameters.isQmlDebugging()
+                && q->m_runParameters.isCppDebugging()) {
 
-            const int qmlServerPort = m_runParameters.qmlServer().port();
-            QTC_ASSERT(qmlServerPort > 0, reportFailure(); return);
-            const QString mode = QString("port:%1").arg(qmlServerPort);
+                const int qmlServerPort = q->m_runParameters.qmlServer().port();
+                QTC_ASSERT(qmlServerPort > 0, q->reportFailure(); return false);
+                const QString mode = QString("port:%1").arg(qmlServerPort);
 
-            auto inferior = m_runParameters.inferior();
-            CommandLine cmd{inferior.command.executable()};
-            cmd.addArg(qmlDebugCommandLineArguments(QmlDebuggerServices, mode, true));
-            cmd.addArgs(m_runParameters.inferior().command.arguments(), CommandLine::Raw);
-            inferior.command = cmd;
-            m_runParameters.setInferior(inferior);
+                auto inferior = q->m_runParameters.inferior();
+                CommandLine cmd{inferior.command.executable()};
+                cmd.addArg(qmlDebugCommandLineArguments(QmlDebuggerServices, mode, true));
+                cmd.addArgs(q->m_runParameters.inferior().command.arguments(), CommandLine::Raw);
+                inferior.command = cmd;
+                q->m_runParameters.setInferior(inferior);
+            }
         }
-    }
 
-    // User canceled input dialog asking for executable when working on library project.
-    if (m_runParameters.startMode() == StartInternal
-            && m_runParameters.inferior().command.isEmpty()
-            && m_runParameters.interpreter().isEmpty()) {
-        reportFailure(Tr::tr("No executable specified."));
-        return;
-    }
+        // User canceled input dialog asking for executable when working on library project.
+        if (q->m_runParameters.startMode() == StartInternal
+            && q->m_runParameters.inferior().command.isEmpty()
+            && q->m_runParameters.interpreter().isEmpty()) {
+            q->reportFailure(Tr::tr("No executable specified."));
+            return false;
+        }
 
-    // QML and/or mixed are not prepared for it.
-//    setSupportsReRunning(!m_runParameters.isQmlDebugging);
-    runControl()->setSupportsReRunning(false); // FIXME: Broken in general.
+        // QML and/or mixed are not prepared for it.
+        // q->runControl()->setSupportsReRunning(!q->m_runParameters.isQmlDebugging);
+        q->runControl()->setSupportsReRunning(false); // FIXME: Broken in general.
 
-    // FIXME: Disabled due to Android. Make Android device report available ports instead.
-    // int neededPorts = 0;
-    // if (useQmlDebugger())
-    //     ++neededPorts;
-    // if (useCppDebugger())
-    //     ++neededPorts;
-    // if (neededPorts > device()->freePorts().count()) {
-    //    reportFailure(Tr::tr("Cannot debug: Not enough free ports available."));
-    //    return;
-    // }
+        // FIXME: Disabled due to Android. Make Android device report available ports instead.
+        // int neededPorts = 0;
+        // if (useQmlDebugger())
+        //     ++neededPorts;
+        // if (useCppDebugger())
+        //     ++neededPorts;
+        // if (neededPorts > device()->freePorts().count()) {
+        //    reportFailure(Tr::tr("Cannot debug: Not enough free ports available."));
+        //    return;
+        // }
 
-    if (Result res = m_runParameters.fixupParameters(runControl()); !res) {
-        reportFailure(res.error());
-        return;
-    }
+        if (Result res = q->m_runParameters.fixupParameters(q->runControl()); !res) {
+            q->reportFailure(res.error());
+            return false;
+        }
 
-    if (m_runParameters.cppEngineType() == CdbEngineType
-        && Utils::is64BitWindowsBinary(m_runParameters.inferior().command.executable())
-            && !Utils::is64BitWindowsBinary(m_runParameters.debugger().command.executable())) {
-        reportFailure(
-            Tr::tr(
-                "%1 is a 64 bit executable which can not be debugged by a 32 bit Debugger.\n"
-                "Please select a 64 bit Debugger in the kit settings for this kit.")
-                .arg(m_runParameters.inferior().command.executable().toUserOutput()));
-        return;
-    }
+        if (q->m_runParameters.cppEngineType() == CdbEngineType
+            && Utils::is64BitWindowsBinary(q->m_runParameters.inferior().command.executable())
+            && !Utils::is64BitWindowsBinary(q->m_runParameters.debugger().command.executable())) {
+            q->reportFailure(Tr::tr(
+                    "%1 is a 64 bit executable which can not be debugged by a 32 bit Debugger.\n"
+                    "Please select a 64 bit Debugger in the kit settings for this kit.")
+                    .arg(q->m_runParameters.inferior().command.executable().toUserOutput()));
+            return false;
+        }
 
-    startDebugServerIfNeededAndContinueStartup();
+        return true;
+    });
 }
 
 void DebuggerRunTool::continueAfterDebugServerStart()
