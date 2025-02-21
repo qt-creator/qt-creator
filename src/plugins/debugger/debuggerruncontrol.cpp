@@ -121,16 +121,15 @@ void DebuggerRunTool::start()
 {
     d->m_glue.reset(new GlueInterface);
 
-    const SingleBarrier terminalBarrier;
+    const auto barrierKicker = [this](const SingleBarrier &barrier) {
+        return d->terminalRecipe(barrier);
+    };
 
     const Group recipe {
         d->coreFileRecipe(),
-        Group {
-            terminalBarrier,
-            parallel,
-            d->terminalRecipe(terminalBarrier),
+        BarrierItem {
+            barrierKicker,
             Group {
-                waitForBarrierTask(terminalBarrier),
                 d->fixupParamsRecipe(),
                 d->debugServerRecipe()
             }
