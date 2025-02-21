@@ -102,6 +102,14 @@ ExecutableItem signalAwaiter(const typename QtPrivate::FunctionPointer<Signal>::
     });
 }
 
+class TASKING_EXPORT BarrierItem : public ExecutableItem
+{
+public:
+    using BarrierKickerGetter = std::function<ExecutableItem(const SingleBarrier &)>;
+
+    BarrierItem(const BarrierKickerGetter &kicker, const ExecutableItem &continuation);
+};
+
 } // namespace Tasking
 
 QT_END_NAMESPACE

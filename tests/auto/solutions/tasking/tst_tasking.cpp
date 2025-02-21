@@ -385,8 +385,8 @@ public:
 using TickAndDoneTask = CustomTask<TickAndDoneTaskAdapter>;
 
 template <typename SharedBarrierType>
-GroupItem createBarrierAdvance(const Storage<CustomStorage> &storage,
-                               const SharedBarrierType &barrier, int taskId)
+ExecutableItem createBarrierAdvance(const Storage<CustomStorage> &storage,
+                                    const SharedBarrierType &barrier, int taskId)
 {
     return TickAndDoneTask([storage, barrier, taskId](TickAndDone &tickAndDone) {
         tickAndDone.setInterval(1ms);
@@ -2283,7 +2283,7 @@ void tst_Tasking::testTree_data()
         SingleBarrier barrier;
 
         // Test that barrier advance, triggered from inside the task described by
-        // setupBarrierAdvance, placed BEFORE the group containing the waitFor() element
+        // createBarrierAdvance, placed BEFORE the group containing the waitFor() element
         // in the tree order, works OK in SEQUENTIAL mode.
         const Group root1 {
             storage,
@@ -2308,7 +2308,7 @@ void tst_Tasking::testTree_data()
         };
 
         // Test that barrier advance, triggered from inside the task described by
-        // setupTaskWithCondition, placed BEFORE the group containing the waitFor() element
+        // createBarrierAdvance, placed BEFORE the group containing the waitFor() element
         // in the tree order, works OK in PARALLEL mode.
         const Group root2 {
             storage,
@@ -2316,16 +2316,18 @@ void tst_Tasking::testTree_data()
             parallel,
             createBarrierAdvance(storage, barrier, 1),
             Group {
-                groupSetup(2),
                 waitForBarrierTask(barrier),
-                createSuccessTask(2),
-                createSuccessTask(3)
+                Group {
+                    groupSetup(2),
+                    createSuccessTask(2),
+                    createSuccessTask(3)
+                }
             }
         };
         const Log log2 {
             {1, Handler::Setup},
-            {2, Handler::GroupSetup},
             {1, Handler::BarrierAdvance},
+            {2, Handler::GroupSetup},
             {2, Handler::Setup},
             {2, Handler::Success},
             {3, Handler::Setup},
@@ -2333,7 +2335,7 @@ void tst_Tasking::testTree_data()
         };
 
         // Test that barrier advance, triggered from inside the task described by
-        // setupTaskWithCondition, placed AFTER the group containing the waitFor() element
+        // createBarrierAdvance, placed AFTER the group containing the waitFor() element
         // in the tree order, works OK in PARALLEL mode.
         //
         // Notice: This won't work in SEQUENTIAL mode, since the advancing barrier, placed after the
@@ -2365,7 +2367,7 @@ void tst_Tasking::testTree_data()
         };
 
         // Test that barrier advance, triggered from inside the task described by
-        // setupBarrierAdvance, placed BEFORE the groups containing the waitFor() element
+        // createBarrierAdvance, placed BEFORE the groups containing the waitFor() element
         // in the tree order, wakes both waitFor tasks.
         const Group root4 {
             storage,
@@ -2436,13 +2438,35 @@ void tst_Tasking::testTree_data()
             << TestData{storage, root4, log4, 5, DoneWith::Success, 5};
         QTest::newRow("BarrierParallelTwoSingleBarriers")
             << TestData{storage, root5, log5, 5, DoneWith::Success, 5};
+
+        const auto barrierKicker = [storage](int taskId) {
+            return [storage, taskId](const SingleBarrier &barrier) {
+                return createBarrierAdvance(storage, barrier, taskId);
+            };
+        };
+
+        // The same as BarrierParallelAdvanceFirst, but in terms of BarrierItem.
+        const Group rootBarrierItem2 {
+            storage,
+            BarrierItem {
+                barrierKicker(1),
+                Group {
+                    groupSetup(2),
+                    createSuccessTask(2),
+                    createSuccessTask(3)
+                }
+            }
+        };
+
+        QTest::newRow("BarrierItemParallelAdvanceFirst")
+            << TestData{storage, rootBarrierItem2, log2, 4, DoneWith::Success, 4};
     }
 
     {
         MultiBarrier<2> barrier;
 
         // Test that multi barrier advance, triggered from inside the tasks described by
-        // setupBarrierAdvance, placed BEFORE the group containing the waitFor() element
+        // createBarrierAdvance, placed BEFORE the group containing the waitFor() element
         // in the tree order, works OK in SEQUENTIAL mode.
         const Group root1 {
             storage,
@@ -2470,7 +2494,7 @@ void tst_Tasking::testTree_data()
         };
 
         // Test that multi barrier advance, triggered from inside the tasks described by
-        // setupBarrierAdvance, placed BEFORE the group containing the waitFor() element
+        // createBarrierAdvance, placed BEFORE the group containing the waitFor() element
         // in the tree order, works OK in PARALLEL mode.
         const Group root2 {
             storage,
@@ -2498,7 +2522,7 @@ void tst_Tasking::testTree_data()
         };
 
         // Test that multi barrier advance, triggered from inside the tasks described by
-        // setupBarrierAdvance, placed AFTER the group containing the waitFor() element
+        // createBarrierAdvance, placed AFTER the group containing the waitFor() element
         // in the tree order, works OK in PARALLEL mode.
         //
         // Notice: This won't work in SEQUENTIAL mode, since the advancing barriers, placed after
@@ -2533,7 +2557,7 @@ void tst_Tasking::testTree_data()
         };
 
         // Test that multi barrier advance, triggered from inside the task described by
-        // setupBarrierAdvance, placed BEFORE the groups containing the waitFor() element
+        // createBarrierAdvance, placed BEFORE the groups containing the waitFor() element
         // in the tree order, wakes both waitFor tasks.
         const Group root4 {
             storage,
