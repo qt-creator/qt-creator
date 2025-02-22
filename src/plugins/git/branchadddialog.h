@@ -43,6 +43,8 @@ public:
     void setBranchName(const QString &);
     QString branchName() const;
 
+    QString annotation() const;
+
     void setTrackedBranchName(const QString &name, bool remote);
 
     bool track() const;
@@ -56,6 +58,7 @@ private:
     QLineEdit *m_branchNameEdit = nullptr;
     QCheckBox *m_checkoutCheckBox = nullptr;
     QCheckBox *m_trackingCheckBox = nullptr;
+    QLineEdit *m_annotateEdit = nullptr;
     QDialogButtonBox *m_buttonBox = nullptr;
 };
 

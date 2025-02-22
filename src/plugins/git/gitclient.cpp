@@ -3760,8 +3760,14 @@ void GitClient::addChangeActions(QMenu *menu, const FilePath &source, const QStr
             if (dialog.exec() == QDialog::Rejected)
                 return;
 
-            gitClient().synchronousTagCmd(workingDir, {dialog.branchName(), change},
-                                          &output, &errorMessage);
+            const QString tag = dialog.branchName();
+            const QString annotation = dialog.annotation();
+            const auto args = [annotation, tag, change] {
+                if (annotation.isEmpty())
+                    return QStringList{tag, change};
+                return QStringList{"-a", "-m", annotation, tag, change};
+            };
+            gitClient().synchronousTagCmd(workingDir, args(), &output, &errorMessage);
             VcsOutputWindow::append(output);
             if (!errorMessage.isEmpty())
                 VcsOutputWindow::append(errorMessage, VcsOutputWindow::MessageStyle::Error);
