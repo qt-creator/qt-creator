@@ -24,7 +24,7 @@ public:
                           const QModelIndex &index) const override;
 
 private:
-    BranchModel *m_model;
+    BranchModel *m_model = nullptr;
 };
 
 class BranchAddDialog : public QDialog
@@ -53,10 +53,10 @@ public:
 private:
     void updateButtonStatus();
 
-    QLineEdit *m_branchNameEdit;
-    QCheckBox *m_checkoutCheckBox;
-    QCheckBox *m_trackingCheckBox;
-    QDialogButtonBox *m_buttonBox;
+    QLineEdit *m_branchNameEdit = nullptr;
+    QCheckBox *m_checkoutCheckBox = nullptr;
+    QCheckBox *m_trackingCheckBox = nullptr;
+    QDialogButtonBox *m_buttonBox = nullptr;
 };
 
 } // Git::Internal
