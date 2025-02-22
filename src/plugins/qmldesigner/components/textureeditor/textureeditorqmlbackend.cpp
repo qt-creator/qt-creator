@@ -284,4 +284,9 @@ void TextureEditorQmlBackend::setValueforAuxiliaryProperties(const QmlObjectNode
     setValue(qmlObjectNode, propertyName, qmlObjectNode.modelNode().auxiliaryDataWithDefault(key));
 }
 
+void TextureEditorQmlBackend::refreshBackendModel()
+{
+    m_backendModelNode.refresh();
+}
+
 } // namespace QmlDesigner

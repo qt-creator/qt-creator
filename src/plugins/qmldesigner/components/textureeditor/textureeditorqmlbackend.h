@@ -56,6 +56,7 @@ public:
     void emitSelectionChanged();
 
     void setValueforAuxiliaryProperties(const QmlObjectNode &qmlObjectNode, AuxiliaryDataKeyView key);
+    void refreshBackendModel();
 
 private:
     void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,

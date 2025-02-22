@@ -805,6 +805,15 @@ void TextureEditorView::nodeRemoved([[maybe_unused]] const ModelNode &removedNod
 {
     if (m_selectedTextureChanged)
         asyncResetView();
+
+    m_qmlBackEnd->refreshBackendModel();
+}
+
+void TextureEditorView::nodeIdChanged([[maybe_unused]] const ModelNode &node,
+                                      [[maybe_unused]] const QString &newId,
+                                      [[maybe_unused]] const QString &oldId)
+{
+    m_qmlBackEnd->refreshBackendModel();
 }
 
 bool TextureEditorView::hasWidget() const
