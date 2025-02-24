@@ -103,7 +103,7 @@ public:
     ExecutableItem debugServerRecipe();
 
     int snapshotCounter = 0;
-    int engineStartsNeeded = 0;
+    // int engineStartsNeeded = 0;
     int engineStopsNeeded = 0;
     QString runId;
 
@@ -564,7 +564,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
         });
         connect(engine, &DebuggerEngine::appendMessageRequested,
                 this, &DebuggerRunTool::appendMessage);
-        ++d->engineStartsNeeded;
+        // ++d->engineStartsNeeded;
         ++d->engineStopsNeeded;
 
         if (first) {
