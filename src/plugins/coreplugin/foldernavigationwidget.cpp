@@ -14,7 +14,9 @@
 #include "icontext.h"
 #include "icore.h"
 #include "idocument.h"
+#include "iversioncontrol.h"
 #include "iwizardfactory.h"
+#include "vcsmanager.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -688,6 +690,19 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     EditorManager::addNativeDirAndOpenWithActions(&menu, &fakeEntry);
 
     if (hasCurrentItem) {
+        if (isDir) {
+            FilePath topLevel;
+            if (IVersionControl *vc = VcsManager::findVersionControlForDirectory(filePath, &topLevel)) {
+                const QString text = Tr::tr("%1 Log Directory").arg(vc->displayName());
+                QAction *vcsLogDirectory = new QAction(text, this);
+                menu.addAction(vcsLogDirectory);
+                const FilePath relativeDirectory = filePath.relativeChildPath(topLevel);
+                connect(vcsLogDirectory, &QAction::triggered, this, [vc, topLevel, relativeDirectory] {
+                    vc->vcsLog(topLevel, relativeDirectory);
+                });
+            }
+        }
+
         menu.addAction(ActionManager::command(ADDNEWFILE)->action());
         if (!isDir)
             menu.addAction(ActionManager::command(REMOVEFILE)->action());
