@@ -514,7 +514,7 @@ Target *Project::createKitAndTargetFromStore(const Utils::Store &store)
     if (!t->fromMap(store))
         return nullptr;
 
-    if (t->runConfigurations().isEmpty() && t->buildConfigurations().isEmpty())
+    if (t->buildConfigurations().isEmpty())
         return nullptr;
 
     auto pointer = t.get();
@@ -540,7 +540,6 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
     QStringList runconfigurationError;
 
     const Project * const project = newTarget->project();
-    int dcCount = 0;
     for (BuildConfiguration *sourceBc : sourceTarget->buildConfigurations()) {
         BuildConfiguration *newBc = sourceBc->clone(newTarget);
         if (!newBc) {
@@ -556,55 +555,15 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
         newTarget->addBuildConfiguration(newBc);
         if (sourceTarget->activeBuildConfiguration() == sourceBc)
             newTarget->setActiveBuildConfiguration(newBc, SetActive::NoCascade);
-
-        for (DeployConfiguration *sourceDc : sourceBc->deployConfigurations()) {
-            ++dcCount;
-            DeployConfiguration *newDc = DeployConfigurationFactory::clone(newBc, sourceDc);
-            if (!newDc) {
-                deployconfigurationError << sourceDc->displayName();
-                continue;
-            }
-            newDc->setDisplayName(sourceDc->displayName());
-            newBc->addDeployConfiguration(newDc);
-            if (sourceBc->activeDeployConfiguration() == sourceDc)
-                newBc->setActiveDeployConfiguration(newDc, SetActive::NoCascade);
-        }
-        if (!newTarget->activeDeployConfiguration()) {
-            QList<DeployConfiguration *> dcs = newBc->deployConfigurations();
-            if (!dcs.isEmpty())
-                newBc->setActiveDeployConfiguration(dcs.first(), SetActive::NoCascade);
-        }
     }
+
     if (!newTarget->activeBuildConfiguration()) {
         QList<BuildConfiguration *> bcs = newTarget->buildConfigurations();
         if (!bcs.isEmpty())
             newTarget->setActiveBuildConfiguration(bcs.first(), SetActive::NoCascade);
     }
 
-    for (RunConfiguration *sourceRc : sourceTarget->runConfigurations()) {
-        RunConfiguration *newRc = sourceRc->clone(newTarget);
-        if (!newRc) {
-            runconfigurationError << sourceRc->displayName();
-            continue;
-        }
-        newRc->setDisplayName(sourceRc->displayName());
-        newTarget->addRunConfiguration(newRc);
-        if (sourceTarget->activeRunConfiguration() == sourceRc)
-            newTarget->setActiveRunConfiguration(newRc);
-    }
-    if (!newTarget->activeRunConfiguration()) {
-        QList<RunConfiguration *> rcs = newTarget->runConfigurations();
-        if (!rcs.isEmpty())
-            newTarget->setActiveRunConfiguration(rcs.first());
-    }
-
     if (buildconfigurationError.count() == sourceTarget->buildConfigurations().count())
-        fatalError = true;
-
-    if (deployconfigurationError.count() == dcCount)
-        fatalError = true;
-
-    if (runconfigurationError.count() == sourceTarget->runConfigurations().count())
         fatalError = true;
 
     if (fatalError) {
@@ -657,7 +616,7 @@ bool Project::copySteps(const Utils::Store &store, Kit *targetKit)
         if (!t->fromMap(store))
             return false;
 
-        if (t->runConfigurations().isEmpty() && t->buildConfigurations().isEmpty())
+        if (t->buildConfigurations().isEmpty())
             return false;
 
         addTarget(std::move(t));
@@ -926,7 +885,7 @@ void Project::createTargetFromMap(const Store &map, int index)
     if (!t->fromMap(targetMap))
         return;
 
-    if (t->runConfigurations().isEmpty() && t->buildConfigurations().isEmpty())
+    if (t->buildConfigurations().isEmpty())
         return;
 
     addTarget(std::move(t));

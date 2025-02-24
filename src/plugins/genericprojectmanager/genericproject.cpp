@@ -692,8 +692,10 @@ Project::RestoreResult GenericProject::fromMap(const Store &map, QString *errorM
             removeTarget(t);
             continue;
         }
-        if (!t->activeRunConfiguration())
-            t->addRunConfiguration(new CustomExecutableRunConfiguration(t));
+        for (BuildConfiguration * const bc : t->buildConfigurations()) {
+            if (!bc->activeRunConfiguration())
+                bc->addRunConfiguration(new CustomExecutableRunConfiguration(bc));
+        }
     }
 
     if (auto bs = activeBuildSystem())

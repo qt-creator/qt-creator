@@ -96,14 +96,14 @@ struct FileToPull
     FilePath to;
 };
 
-static QList<FileToPull> filesToPull(Target *target)
+static QList<FileToPull> filesToPull(BuildConfiguration *bc)
 {
     QList<FileToPull> fileList;
-    const FilePath appProcessDir = androidAppProcessDir(target);
+    const FilePath appProcessDir = androidAppProcessDir(bc);
 
     QString linkerName("linker");
     QString libDirName("lib");
-    const QString preferredAbi = apkDevicePreferredAbi(target);
+    const QString preferredAbi = apkDevicePreferredAbi(bc);
     if (preferredAbi == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A
         || preferredAbi == ProjectExplorer::Constants::ANDROID_ABI_X86_64) {
         fileList.append({"/system/bin/app_process64", appProcessDir / "app_process"});
@@ -194,14 +194,14 @@ bool AndroidDeployQtStep::init()
                                         Task::Error);
             return false);
 
-    const int minTargetApi = minimumSDK(target());
+    const int minTargetApi = minimumSDK(buildConfiguration());
     qCDebug(deployStepLog) << "Target architecture:" << androidABIs
                            << "Min target API" << minTargetApi;
 
     const BuildSystem *bs = buildSystem();
     QStringList selectedAbis = bs->property(Constants::AndroidAbis).toStringList();
 
-    const QString buildKey = target()->activeBuildKey();
+    const QString buildKey = buildConfiguration()->activeBuildKey();
     if (selectedAbis.isEmpty())
         selectedAbis = bs->extraData(buildKey, Constants::AndroidAbis).toStringList();
 
@@ -270,7 +270,7 @@ bool AndroidDeployQtStep::init()
         Internal::setManifestPath(target(),
             FilePath::fromString(node->data(Constants::AndroidManifest).toString()));
     } else {
-        FilePath jsonFile = AndroidQtVersion::androidDeploymentSettings(target());
+        FilePath jsonFile = AndroidQtVersion::androidDeploymentSettings(buildConfiguration());
         if (jsonFile.isEmpty()) {
             reportWarningOrError(Tr::tr("Cannot find the androiddeployqt input JSON file."),
                                  Task::Error);
@@ -283,7 +283,7 @@ bool AndroidDeployQtStep::init()
         }
         m_command = m_command.pathAppended("androiddeployqt").withExecutableSuffix();
 
-        m_workingDirectory = androidBuildDirectory(target());
+        m_workingDirectory = androidBuildDirectory(buildConfiguration());
 
         // clang-format off
         m_androiddeployqtArgs.addArgs({"--verbose",
@@ -333,7 +333,7 @@ GroupItem AndroidDeployQtStep::runRecipe()
         return true;
     };
 
-    const LoopList iterator(filesToPull(target()));
+    const LoopList iterator(filesToPull(buildConfiguration()));
     const auto onRemoveFileSetup = [iterator](Async<void> &async) {
         async.setConcurrentCallData(removeFile, iterator->to);
     };
@@ -394,12 +394,12 @@ Group AndroidDeployQtStep::deployRecipe()
 
         QTC_ASSERT(target()->activeRunConfiguration(), return SetupResult::StopWithError);
 
-        const QString packageName = Internal::packageName(target());
+        const QString packageName = Internal::packageName(buildConfiguration());
         if (packageName.isEmpty()) {
             reportWarningOrError(
                 Tr::tr("Cannot find the package name from AndroidManifest.xml nor "
                        "build.gradle files at \"%1\".")
-                    .arg(androidBuildDirectory(target()).toUserOutput()),
+                    .arg(androidBuildDirectory(buildConfiguration()).toUserOutput()),
                 Task::Error);
             return SetupResult::StopWithError;
         }

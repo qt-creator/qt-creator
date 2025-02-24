@@ -3,6 +3,7 @@
 
 #include "desktoprunconfiguration.h"
 
+#include "buildsystem.h"
 #include "deploymentdata.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
@@ -24,12 +25,12 @@ class DesktopRunConfiguration : public RunConfiguration
 protected:
     enum Kind { Qmake, Qbs, CMake }; // FIXME: Remove
 
-    DesktopRunConfiguration(Target *target, Id id, Kind kind)
-        : RunConfiguration(target, id), m_kind(kind)
+    DesktopRunConfiguration(BuildConfiguration *bc, Id id, Kind kind)
+        : RunConfiguration(bc, id), m_kind(kind)
     {
-        environment.setSupportForBuildEnvironment(target);
+        environment.setSupportForBuildEnvironment(bc);
 
-        executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
+        executable.setDeviceSelector(target(), ExecutableAspect::RunDevice);
 
         workingDir.setEnvironment(&environment);
 
@@ -70,8 +71,6 @@ protected:
         });
 
         setUpdater([this] { updateTargetInformation(); });
-
-        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
     }
 
 private:
@@ -93,8 +92,7 @@ private:
 
 void DesktopRunConfiguration::updateTargetInformation()
 {
-    if (!activeBuildSystem())
-        return;
+    QTC_ASSERT(buildSystem(), return);
 
     BuildTargetInfo bti = buildTargetInfo();
 
@@ -155,7 +153,7 @@ void DesktopRunConfiguration::updateTargetInformation()
 FilePath DesktopRunConfiguration::executableToRun(const BuildTargetInfo &targetInfo) const
 {
     const FilePath appInBuildDir = targetInfo.targetFilePath;
-    const DeploymentData deploymentData = target()->deploymentData();
+    const DeploymentData deploymentData = buildSystem()->deploymentData();
     if (deploymentData.localInstallRoot().isEmpty())
         return appInBuildDir;
 
@@ -175,24 +173,24 @@ FilePath DesktopRunConfiguration::executableToRun(const BuildTargetInfo &targetI
 class DesktopQmakeRunConfiguration final : public DesktopRunConfiguration
 {
 public:
-    DesktopQmakeRunConfiguration(Target *target, Id id)
-        : DesktopRunConfiguration(target, id, Qmake)
+    DesktopQmakeRunConfiguration(BuildConfiguration *bc, Id id)
+        : DesktopRunConfiguration(bc, id, Qmake)
     {}
 };
 
 class QbsRunConfiguration final : public DesktopRunConfiguration
 {
 public:
-    QbsRunConfiguration(Target *target, Id id)
-        : DesktopRunConfiguration(target, id, Qbs)
+    QbsRunConfiguration(BuildConfiguration *bc, Id id)
+        : DesktopRunConfiguration(bc, id, Qbs)
     {}
 };
 
 class CMakeRunConfiguration final : public DesktopRunConfiguration
 {
 public:
-    CMakeRunConfiguration(Target *target, Id id)
-        : DesktopRunConfiguration(target, id, CMake)
+    CMakeRunConfiguration(BuildConfiguration *bc, Id id)
+        : DesktopRunConfiguration(bc, id, CMake)
     {}
 };
 

@@ -2290,7 +2290,7 @@ void DebuggerPlugin::attachExternalApplication(RunControl *rc)
     ProcessHandle pid = rc->applicationProcessHandle();
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    runControl->setTarget(rc->target());
+    runControl->setBuildConfiguration(rc->buildConfiguration());
     runControl->setDisplayName(Tr::tr("Process %1").arg(pid.pid()));
 
     auto debugger = new DebuggerRunTool(runControl);

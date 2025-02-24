@@ -3,8 +3,12 @@
 
 #include "buildsystem.h"
 
+#include "buildaspects.h"
 #include "buildconfiguration.h"
+#include "buildsteplist.h"
+#include "deployconfiguration.h"
 #include "extracompiler.h"
+#include "makestep.h"
 #include "projectexplorer.h"
 #include "projectexplorertr.h"
 #include "projectmanager.h"
@@ -14,10 +18,6 @@
 
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/outputwindow.h>
-
-#include <projectexplorer/buildaspects.h>
-#include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/makestep.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -294,12 +294,17 @@ void BuildSystem::setDeploymentData(const DeploymentData &deploymentData)
 {
     if (d->m_deploymentData != deploymentData) {
         d->m_deploymentData = deploymentData;
-        emit target()->deploymentDataChanged();
+        emit deploymentDataChanged();
+        if (buildConfiguration() == target()->activeBuildConfiguration())
+            emit target()->deploymentDataChanged();
     }
 }
 
 DeploymentData BuildSystem::deploymentData() const
 {
+    const DeployConfiguration * const dc = buildConfiguration()->activeDeployConfiguration();
+    if (dc && dc->usesCustomDeploymentData())
+        return dc->customDeploymentData();
     return d->m_deploymentData;
 }
 
@@ -327,6 +332,7 @@ void BuildSystem::setRootProjectNode(std::unique_ptr<ProjectNode> &&root)
 
 void BuildSystem::emitBuildSystemUpdated()
 {
+    emit updated();
     emit target()->buildSystemUpdated(this);
 }
 

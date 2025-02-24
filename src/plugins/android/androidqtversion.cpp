@@ -124,25 +124,25 @@ int AndroidQtVersion::minimumNDK() const
     return m_minNdk;
 }
 
-QString AndroidQtVersion::androidDeploymentSettingsFileName(const Target *target)
+QString AndroidQtVersion::androidDeploymentSettingsFileName(const BuildConfiguration *bc)
 {
-    const BuildSystem *bs = target->buildSystem();
+    const BuildSystem *bs = bc->buildSystem();
     if (!bs)
         return {};
-    const QString buildKey = target->activeBuildKey();
+    const QString buildKey = bc->activeBuildKey();
     const QString displayName = bs->buildTarget(buildKey).displayName;
-    const QString fileName = isQt5CmakeProject(target)
+    const QString fileName = isQt5CmakeProject(bc->target())
                                  ? QLatin1String("android_deployment_settings.json")
                                  : QString::fromLatin1("android-%1-deployment-settings.json")
                                        .arg(displayName);
     return fileName;
 }
 
-Utils::FilePath AndroidQtVersion::androidDeploymentSettings(const Target *target)
+Utils::FilePath AndroidQtVersion::androidDeploymentSettings(const BuildConfiguration *bc)
 {
     // Try to fetch the file name from node data as provided by qmake and Qbs
-    QString buildKey = target->activeBuildKey();
-    const ProjectNode *node = target->project()->findNodeForBuildKey(buildKey);
+    QString buildKey = bc->activeBuildKey();
+    const ProjectNode *node = bc->project()->findNodeForBuildKey(buildKey);
     if (node) {
         const QString nameFromData = node->data(Constants::AndroidDeploySettingsFile).toString();
         if (!nameFromData.isEmpty())
@@ -150,8 +150,8 @@ Utils::FilePath AndroidQtVersion::androidDeploymentSettings(const Target *target
     }
 
     // If unavailable, construct the name by ourselves (CMake)
-    const QString fileName = androidDeploymentSettingsFileName(target);
-    return buildDirectory(target) / fileName;
+    const QString fileName = androidDeploymentSettingsFileName(bc);
+    return buildDirectory(bc) / fileName;
 }
 
 AndroidQtVersion::BuiltWith AndroidQtVersion::builtWith(bool *ok) const

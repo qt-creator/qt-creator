@@ -245,16 +245,13 @@ static QString firstNonEmptyTestCaseTarget(const TestConfiguration *config)
 
 static RunConfiguration *getRunConfiguration(const QString &buildTargetKey)
 {
-    const Project *project = ProjectManager::startupProject();
-    if (!project)
-        return nullptr;
-    const Target *target = project->activeTarget();
-    if (!target)
+    const BuildConfiguration * const buildConfig = activeBuildConfigForActiveProject();
+    if (!buildConfig)
         return nullptr;
 
     RunConfiguration *runConfig = nullptr;
     const QList<RunConfiguration *> runConfigurations
-            = Utils::filtered(target->runConfigurations(), [](const RunConfiguration *rc) {
+            = Utils::filtered(buildConfig->runConfigurations(), [](const RunConfiguration *rc) {
         return !rc->runnable().command.isEmpty();
     });
 
@@ -614,8 +611,9 @@ void TestRunner::debugTests()
 
 static bool executablesEmpty()
 {
-    Target *target = ProjectManager::startupTarget();
-    const QList<RunConfiguration *> configs = target->runConfigurations();
+    const BuildConfiguration * const buildConfig = activeBuildConfigForActiveProject();
+    QTC_ASSERT(buildConfig, return false);
+    const QList<RunConfiguration *> configs = buildConfig->runConfigurations();
     QTC_ASSERT(!configs.isEmpty(), return false);
     if (auto execAspect = configs.first()->aspect<ExecutableAspect>())
         return execAspect->executable().isEmpty();
@@ -801,16 +799,14 @@ void RunConfigurationSelectionDialog::populate()
 {
     m_rcCombo->addItem({}, QStringList{{}, {}, {}}); // empty default
 
-    if (auto project = ProjectManager::startupProject()) {
-        if (auto target = project->activeTarget()) {
-            for (RunConfiguration *rc : target->runConfigurations()) {
-                auto runnable = rc->runnable();
-                const QStringList rcDetails
-                    = {runnable.command.executable().toUserOutput(),
-                       runnable.command.arguments(),
-                       runnable.workingDirectory.toUserOutput()};
-                m_rcCombo->addItem(rc->displayName(), rcDetails);
-            }
+    if (auto buildConfig = activeBuildConfigForActiveProject()) {
+        for (RunConfiguration *rc : buildConfig->runConfigurations()) {
+            auto runnable = rc->runnable();
+            const QStringList rcDetails
+                = {runnable.command.executable().toUserOutput(),
+                   runnable.command.arguments(),
+                   runnable.workingDirectory.toUserOutput()};
+            m_rcCombo->addItem(rc->displayName(), rcDetails);
         }
     }
 }

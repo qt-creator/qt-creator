@@ -13,6 +13,7 @@
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <debugger/debuggerruncontrol.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
@@ -51,7 +52,7 @@ static FilePaths getSoLibSearchPath(const ProjectNode *node)
     });
 
     const FilePath jsonFile = AndroidQtVersion::androidDeploymentSettings(
-                node->getProject()->activeTarget());
+                node->getProject()->activeBuildConfiguration());
     FileReader reader;
     if (reader.fetch(jsonFile)) {
         QJsonParseError error;
@@ -98,10 +99,10 @@ public:
             auto runner = new AndroidRunner(runControl);
             debugger->addStartDependency(runner);
 
-            Target *target = runControl->target();
+            BuildConfiguration *bc = runControl->buildConfiguration();
             Kit *kit = runControl->kit();
             rp.setStartMode(AttachToRemoteServer);
-            const QString packageName = Internal::packageName(target);
+            const QString packageName = Internal::packageName(bc);
             rp.setDisplayName(packageName);
             rp.setUseContinueInsteadOfRun(true);
 
@@ -121,21 +122,21 @@ public:
                 const FilePaths extraLibs = getExtraLibs(node);
                 solibSearchPath.append(extraLibs);
 
-                FilePath buildDir = Internal::buildDirectory(target);
-                const RunConfiguration *activeRunConfig = target->activeRunConfiguration();
+                FilePath buildDir = Internal::buildDirectory(bc);
+                const RunConfiguration *activeRunConfig = bc->activeRunConfiguration();
                 if (activeRunConfig)
                     solibSearchPath.append(activeRunConfig->buildTargetInfo().workingDirectory);
                 solibSearchPath.append(buildDir);
-                const FilePath androidLibsPath = androidBuildDirectory(target)
+                const FilePath androidLibsPath = androidBuildDirectory(bc)
                                                      .pathAppended("libs")
-                                                     .pathAppended(apkDevicePreferredAbi(target));
+                                                     .pathAppended(apkDevicePreferredAbi(bc));
                 solibSearchPath.append(androidLibsPath);
                 FilePath::removeDuplicates(solibSearchPath);
                 rp.setSolibSearchPath(solibSearchPath);
                 qCDebug(androidDebugSupportLog).noquote() << "SoLibSearchPath: " << solibSearchPath;
-                rp.setSymbolFile(androidAppProcessDir(target).pathAppended("app_process"));
+                rp.setSymbolFile(androidAppProcessDir(bc).pathAppended("app_process"));
                 rp.setUseExtendedRemote(true);
-                const QString devicePreferredAbi = apkDevicePreferredAbi(target);
+                const QString devicePreferredAbi = apkDevicePreferredAbi(bc);
                 rp.setToolChainAbi(androidAbi2Abi(devicePreferredAbi));
 
                 auto qt = static_cast<AndroidQtVersion *>(qtVersion);
@@ -171,7 +172,7 @@ public:
                 rp.setAttachPid(runner->pid());
                 if (rp.isCppDebugging()) {
                     if (rp.cppEngineType() == LldbEngineType) {
-                        QString deviceSerialNumber = Internal::deviceSerialNumber(runControl->target());
+                        QString deviceSerialNumber = Internal::deviceSerialNumber(runControl->buildConfiguration()->target());
                         const int colonPos = deviceSerialNumber.indexOf(QLatin1Char(':'));
                         if (colonPos > 0) {
                             // When wireless debugging is used then the device serial number will include a port number

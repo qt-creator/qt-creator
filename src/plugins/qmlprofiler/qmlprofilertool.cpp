@@ -33,6 +33,7 @@
 #include <debugger/debuggericons.h>
 #include <debugger/debuggermainwindow.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/environmentaspect.h>
@@ -365,7 +366,7 @@ void QmlProfilerTool::finalizeRunControl(RunControl *runControl)
 
     updateRunActions();
 
-    d->m_profilerModelManager->populateFileFinder(runControl->target());
+    d->m_profilerModelManager->populateFileFinder(runControl->buildConfiguration()->target());
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
 }
 

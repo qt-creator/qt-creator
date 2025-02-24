@@ -20,7 +20,7 @@ namespace RemoteLinux::Internal {
 class RemoteLinuxCustomRunConfiguration : public RunConfiguration
 {
 public:
-    RemoteLinuxCustomRunConfiguration(Target *target, Id id);
+    RemoteLinuxCustomRunConfiguration(BuildConfiguration *bc, Id id);
 
     QString runConfigDefaultDisplayName();
 
@@ -36,12 +36,12 @@ private:
     X11ForwardingAspect x11Forwarding{this};
 };
 
-RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *target, Id id)
-    : RunConfiguration(target, id)
+RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(BuildConfiguration *bc, Id id)
+    : RunConfiguration(bc, id)
 {
-    environment.setDeviceSelector(target, EnvironmentAspect::RunDevice);
+    environment.setDeviceSelector(target(), EnvironmentAspect::RunDevice);
 
-    executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
+    executable.setDeviceSelector(target(), ExecutableAspect::RunDevice);
     executable.setSettingsKey("RemoteLinux.CustomRunConfig.RemoteExecutable");
     executable.setLabelText(Tr::tr("Remote executable:"));
     executable.setReadOnly(false);

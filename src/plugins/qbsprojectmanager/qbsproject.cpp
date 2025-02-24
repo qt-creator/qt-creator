@@ -537,7 +537,7 @@ FilePath QbsBuildSystem::groupFilePath(const QJsonObject &group) const
 
 FilePath QbsBuildSystem::installRoot()
 {
-    const auto dc = target()->activeDeployConfiguration();
+    const auto dc = buildConfiguration()->activeDeployConfiguration();
     if (dc) {
         const QList<BuildStep *> steps = dc->stepList()->steps();
         for (const BuildStep * const step : steps) {

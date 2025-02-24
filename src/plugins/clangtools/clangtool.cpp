@@ -83,9 +83,9 @@ public:
         });
         RunControl *runControl = *task();
         QTC_ASSERT(runControl, emit done(DoneResult::Error); return);
-        Target *target = runControl->target();
-        QTC_ASSERT(target, emit done(DoneResult::Error); return);
-        if (!BuildManager::isBuilding(target)) {
+        BuildConfiguration *bc = runControl->buildConfiguration();
+        QTC_ASSERT(bc, emit done(DoneResult::Error); return);
+        if (!BuildManager::isBuilding(bc->target())) {
             BuildManager::buildProjectWithDependencies(runControl->project(), ConfigSelection::Active,
                                                        runControl);
         }
@@ -669,8 +669,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
     std::shared_ptr<TemporaryDirectory> tempDir(new TemporaryDirectory("clangtools-XXXXXX"));
     tempDir->setAutoRemove(qtcEnvironmentVariable("QTC_CLANG_DONT_DELETE_OUTPUT_FILES") != "1");
 
-    Target *target = m_runControl->target();
-    BuildConfiguration *buildConfiguration = target->activeBuildConfiguration();
+    BuildConfiguration *buildConfiguration = m_runControl->buildConfiguration();
     QTC_ASSERT(buildConfiguration, return {});
     const Environment environment = buildConfiguration->environment();
 
@@ -811,12 +810,12 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
         return SetupResult::Continue;
     };
 
-    const auto onTreeDone = [this, target, runSettings] {
+    const auto onTreeDone = [this, buildConfiguration, runSettings] {
         if (m_filesFailed != 0) {
             m_runControl->postMessage(Tr::tr("Error: Failed to analyze %n files.", nullptr,
                                              m_filesFailed), ErrorMessageFormat);
-            if (target && target->activeBuildConfiguration()
-                && !target->activeBuildConfiguration()->buildDirectory().exists()
+            if (buildConfiguration
+                && !buildConfiguration->buildDirectory().exists()
                 && !runSettings.buildBeforeAnalysis()) {
                 m_runControl->postMessage(
                     Tr::tr("Note: You might need to build the project to generate or update "
@@ -873,7 +872,7 @@ void ClangTool::startTool(FileSelection fileSelection, const RunSettings &runSet
     m_runControl = new RunControl(Constants::CLANGTIDYCLAZY_RUN_MODE);
     m_runControl->setDisplayName(m_name);
     m_runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
-    m_runControl->setTarget(project->activeTarget());
+    m_runControl->setBuildConfiguration(project->activeBuildConfiguration());
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, m_runControl, [this] {
         m_runControl->postMessage(Tr::tr("%1 tool stopped by user.").arg(m_name),

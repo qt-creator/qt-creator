@@ -5,6 +5,7 @@
 
 #include "qmlpreviewconnectionmanager.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/target.h>
@@ -107,7 +108,7 @@ void QmlPreviewRunner::start()
 {
     if (m_translationUpdater)
         m_translationUpdater->start();
-    m_connectionManager.setTarget(runControl()->target());
+    m_connectionManager.setTarget(runControl()->buildConfiguration()->target());
     m_connectionManager.connectToServer(runControl()->qmlChannel());
     reportStarted();
 }
@@ -168,7 +169,7 @@ LocalQmlPreviewSupportFactory::LocalQmlPreviewSupportFactory()
 
             if (const auto aspect = runControl->aspectData<QmlProjectManager::QmlMainFileAspect>()) {
                 const auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
-                    runControl->target()->buildSystem());
+                    runControl->buildConfiguration()->buildSystem());
                 QTC_ASSERT(qmlBuildSystem, return);
 
                 const FilePath mainScript = aspect->mainScript;

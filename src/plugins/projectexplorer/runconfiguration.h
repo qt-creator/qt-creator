@@ -8,11 +8,9 @@
 #include "task.h"
 
 #include <utils/aspects.h>
-#include <utils/environment.h>
 #include <utils/macroexpander.h>
 
 #include <functional>
-#include <memory>
 
 namespace Utils {
 class OutputFormatter;
@@ -174,13 +172,14 @@ public:
 
     void update();
 
-    virtual RunConfiguration *clone(Target *parent);
+    virtual RunConfiguration *clone(BuildConfiguration *bc);
+
+    BuildConfiguration *buildConfiguration() const { return m_buildConfiguration; }
 
 protected:
-    RunConfiguration(Target *target, Utils::Id id);
+    RunConfiguration(BuildConfiguration *bc, Utils::Id id);
 
-    /// convenience function to get current build system. Try to avoid.
-    BuildSystem *activeBuildSystem() const;
+    BuildSystem *buildSystem() const;
 
     using Updater = std::function<void()>;
     void setUpdater(const Updater &updater);
@@ -197,10 +196,12 @@ private:
 
     static void addAspectFactory(const AspectFactory &aspectFactory);
 
+    friend class BuildConfiguration;
     friend class RunConfigurationCreationInfo;
     friend class RunConfigurationFactory;
     friend class Target;
 
+    BuildConfiguration * const m_buildConfiguration;
     QString m_buildKey;
     CommandLineGetter m_commandLineGetter;
     RunnableModifier m_runnableModifier;
@@ -214,7 +215,7 @@ class RunConfigurationCreationInfo
 {
 public:
     enum CreationMode {AlwaysCreate, ManualCreationOnly};
-    RunConfiguration *create(Target *target) const;
+    RunConfiguration *create(BuildConfiguration *bc) const;
 
     const RunConfigurationFactory *factory = nullptr;
     QString buildKey;
@@ -233,7 +234,7 @@ public:
     RunConfigurationFactory operator=(const RunConfigurationFactory &) = delete;
     virtual ~RunConfigurationFactory();
 
-    static RunConfiguration *restore(Target *parent, const Utils::Store &map);
+    static RunConfiguration *restore(BuildConfiguration *bc, const Utils::Store &map);
     static const QList<RunConfigurationCreationInfo> creatorsForTarget(Target *parent);
 
     Utils::Id runConfigurationId() const { return m_runConfigurationId; }
@@ -244,13 +245,13 @@ protected:
     virtual QList<RunConfigurationCreationInfo> availableCreators(Target *target) const;
     virtual bool supportsBuildKey(Target *target, const QString &key) const;
 
-    using RunConfigurationCreator = std::function<RunConfiguration *(Target *)>;
+    using RunConfigurationCreator = std::function<RunConfiguration *(BuildConfiguration *)>;
 
     template <class RunConfig>
     void registerRunConfiguration(Utils::Id runConfigurationId)
     {
-        m_creator = [runConfigurationId](Target *t) -> RunConfiguration * {
-            return new RunConfig(t, runConfigurationId);
+        m_creator = [runConfigurationId](BuildConfiguration *bc) -> RunConfiguration * {
+            return new RunConfig(bc, runConfigurationId);
         };
         m_runConfigurationId = runConfigurationId;
     }
@@ -261,7 +262,7 @@ protected:
 
 private:
     bool canHandle(Target *target) const;
-    RunConfiguration *create(Target *target) const;
+    RunConfiguration *create(BuildConfiguration *bc) const;
 
     friend class RunConfigurationCreationInfo;
     friend class RunConfiguration;

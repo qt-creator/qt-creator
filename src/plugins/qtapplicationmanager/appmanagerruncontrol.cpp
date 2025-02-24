@@ -173,9 +173,9 @@ public:
             debuggee->addStopDependency(debugger);
 
             QObject::connect(debuggee, &RunWorker::started, debugger, [debugger, runControl] {
-                Target *target = runControl->target();
+                BuildConfiguration *bc = runControl->buildConfiguration();
 
-                const Internal::TargetInformation targetInformation(target->activeBuildConfiguration());
+                const Internal::TargetInformation targetInformation(bc);
                 if (!targetInformation.isValid()) {
                     debugger->reportFailure(Tr::tr("Cannot debug: Invalid target information."));
                     return;
@@ -188,7 +188,7 @@ public:
                                                  runControl->kit(),
                                                  RunDeviceKitAspect::device(runControl->kit()));
                 } else if (targetInformation.manifest.isNativeRuntime()) {
-                    symbolFile = Utils::findOrDefault(target->buildSystem()->applicationTargets(),
+                    symbolFile = Utils::findOrDefault(bc->buildSystem()->applicationTargets(),
                                                       [&](const BuildTargetInfo &ti) {
                                                           return ti.buildKey == targetInformation.manifest.code
                                                                  || ti.projectFilePath.toUrlishString() == targetInformation.manifest.code;

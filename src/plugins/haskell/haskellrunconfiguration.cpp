@@ -29,10 +29,10 @@ namespace Haskell::Internal {
 class HaskellRunConfiguration final : public RunConfiguration
 {
 public:
-    HaskellRunConfiguration(Target *target, Id id)
-        : RunConfiguration(target, id)
+    HaskellRunConfiguration(BuildConfiguration *bc, Id id)
+        : RunConfiguration(bc, id)
     {
-        environment.setSupportForBuildEnvironment(target);
+        environment.setSupportForBuildEnvironment(bc);
 
         executable.setSettingsKey("Haskell.Executable");
         executable.setLabelText(Tr::tr("Executable"));
@@ -42,8 +42,6 @@ public:
         workingDir.setVisible(false);
 
         setUpdater([this] { executable.setValue(buildTargetInfo().buildKey); });
-
-        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
         update();
     }
 

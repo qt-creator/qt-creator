@@ -6,6 +6,7 @@
 #include <QStringList>
 
 namespace ProjectExplorer {
+class BuildConfiguration;
 class Abi;
 class Kit;
 class Target;
@@ -30,13 +31,13 @@ QT_END_NAMESPACE
 
 namespace Android::Internal {
 
-QString packageName(const ProjectExplorer::Target *target);
-QString activityName(const ProjectExplorer::Target *target);
+QString packageName(const ProjectExplorer::BuildConfiguration *bc);
+QString activityName(const ProjectExplorer::BuildConfiguration *bc);
 
 QString deviceSerialNumber(const ProjectExplorer::Target *target);
 void setDeviceSerialNumber(ProjectExplorer::Target *target, const QString &deviceSerialNumber);
 
-QString apkDevicePreferredAbi(const ProjectExplorer::Target *target);
+QString apkDevicePreferredAbi(const ProjectExplorer::BuildConfiguration *bc);
 void setDeviceAbis(ProjectExplorer::Target *target, const QStringList &deviceAbis);
 
 int deviceApiLevel(const ProjectExplorer::Target *target);
@@ -44,7 +45,7 @@ void setDeviceApiLevel(ProjectExplorer::Target *target, int level);
 
 QString buildTargetSDK(const ProjectExplorer::Target *target);
 
-int minimumSDK(const ProjectExplorer::Target *target);
+int minimumSDK(const ProjectExplorer::BuildConfiguration *bc);
 int minimumSDK(const ProjectExplorer::Kit *kit);
 int defaultMinimumSDK(const QtSupport::QtVersion *qtVersion);
 
@@ -53,13 +54,13 @@ QString archTriplet(const QString &abi);
 
 bool isQt5CmakeProject(const ProjectExplorer::Target *target);
 
-Utils::FilePath androidBuildDirectory(const ProjectExplorer::Target *target);
-Utils::FilePath androidAppProcessDir(const ProjectExplorer::Target *target);
-Utils::FilePath buildDirectory(const ProjectExplorer::Target *target);
-Utils::FilePath manifestPath(const ProjectExplorer::Target *target);
+Utils::FilePath androidBuildDirectory(const ProjectExplorer::BuildConfiguration *bc);
+Utils::FilePath androidAppProcessDir(const ProjectExplorer::BuildConfiguration *bc);
+Utils::FilePath buildDirectory(const ProjectExplorer::BuildConfiguration *bc);
+Utils::FilePath manifestPath(const ProjectExplorer::BuildConfiguration *bc);
 void setManifestPath(ProjectExplorer::Target *target, const Utils::FilePath &path);
 ProjectExplorer::Abi androidAbi2Abi(const QString &androidAbi);
-bool skipInstallationAndPackageSteps(const ProjectExplorer::Target *target);
+bool skipInstallationAndPackageSteps(const ProjectExplorer::BuildConfiguration *bc);
 
 QString androidNameForApiLevel(int x);
 

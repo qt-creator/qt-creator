@@ -355,8 +355,8 @@ bool WorkspaceBuildSystem::isFiltered(const FilePath &path, QList<IVersionContro
 class WorkspaceRunConfiguration : public RunConfiguration
 {
 public:
-    WorkspaceRunConfiguration(Target *target, Id id)
-        : RunConfiguration(target, id)
+    WorkspaceRunConfiguration(BuildConfiguration *bc, Id id)
+        : RunConfiguration(bc, id)
     {
         hint.setText(Tr::tr("Clone the configuration to change it. Or, make the changes in "
                             "the .qtcreator/project.json file."));
@@ -398,14 +398,13 @@ public:
         auto enabledUpdater = [this] { setEnabled(enabled.value()); };
         connect(&enabled, &BaseAspect::changed, this, enabledUpdater);
         connect(this, &AspectContainer::fromMapFinished, this, enabledUpdater);
-        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
         enabledUpdater();
         enabled.setSettingsKey("Workspace.RunConfiguration.Enabled");
     }
 
-    RunConfiguration *clone(Target *parent) override
+    RunConfiguration *clone(BuildConfiguration *bc) override
     {
-        RunConfiguration *result = RunConfiguration::clone(parent);
+        RunConfiguration *result = RunConfiguration::clone(bc);
         dynamic_cast<WorkspaceRunConfiguration *>(result)->enabled.setValue(true);
         return result;
     }

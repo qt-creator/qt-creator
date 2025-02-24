@@ -9,6 +9,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
@@ -105,7 +106,7 @@ ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard)
     fl->addRow(label);
 
     BuildSystem *buildSystem = wizard->buildSystem();
-    QString currentBuildKey = buildSystem->target()->activeBuildKey();
+    QString currentBuildKey = buildSystem->buildConfiguration()->activeBuildKey();
 
     m_comboBox = new QComboBox(this);
     for (const BuildTargetInfo &bti : buildSystem->applicationTargets()) {

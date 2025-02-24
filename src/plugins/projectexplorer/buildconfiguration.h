@@ -82,6 +82,15 @@ public:
     void updateDefaultDeployConfigurations();
     ProjectConfigurationModel *deployConfigurationModel() const;
 
+    void updateDefaultRunConfigurations();
+    const QList<RunConfiguration *> runConfigurations() const;
+    void addRunConfiguration(RunConfiguration *rc);
+    void removeRunConfiguration(RunConfiguration *rc);
+    void removeAllRunConfigurations();
+    RunConfiguration *activeRunConfiguration() const;
+    void setActiveRunConfiguration(RunConfiguration *rc);
+    ProjectConfigurationModel *runConfigurationModel() const;
+
     virtual BuildConfiguration *clone(Target *target) const;
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
@@ -112,6 +121,7 @@ public:
                                                       const QString &buildSystem);
 
     bool isActive() const;
+    QString activeBuildKey() const; // Build key of active run configuration
 
     void updateCacheAndEmitEnvironmentChanged();
 

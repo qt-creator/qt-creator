@@ -108,7 +108,7 @@ TargetInformation::TargetInformation(const BuildConfiguration *bc)
     if (!project)
         return;
 
-    const RunConfiguration *rc = bc->target()->activeRunConfiguration();
+    const RunConfiguration *rc = bc->activeRunConfiguration();
     if (!rc)
         return;
     if (rc->id() != Constants::RUNCONFIGURATION_ID &&

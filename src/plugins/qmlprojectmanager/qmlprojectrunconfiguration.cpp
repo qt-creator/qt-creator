@@ -8,10 +8,7 @@
 #include "qmlprojectmanagertr.h"
 #include "qmlprojectrunconfiguration.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployconfiguration.h>
@@ -30,17 +27,13 @@
 #include <qmldesignerbase/utils/qmlpuppetpaths.h>
 
 #include <qtsupport/qtkitaspect.h>
-#include <qtsupport/qtsupportconstants.h>
 
 #include <utils/algorithm.h>
 #include <utils/aspects.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 #include <utils/winutils.h>
-
-#include <qmljstools/qmljstoolsconstants.h>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -54,7 +47,7 @@ namespace QmlProjectManager::Internal {
 class QmlProjectRunConfiguration final : public RunConfiguration
 {
 public:
-    QmlProjectRunConfiguration(Target *target, Id id);
+    QmlProjectRunConfiguration(BuildConfiguration *bc, Id id);
 
 private:
     QString disabledReason(Utils::Id runMode) const final;
@@ -75,8 +68,8 @@ private:
     mutable bool usePuppetAsQmlRuntime = false;
 };
 
-QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
-    : RunConfiguration(target, id)
+QmlProjectRunConfiguration::QmlProjectRunConfiguration(BuildConfiguration *bc, Id id)
+    : RunConfiguration(bc, id)
 {
     qmlViewer.setSettingsKey(Constants::QML_VIEWER_KEY);
     qmlViewer.setLabelText(Tr::tr("Override device QML viewer:"));
@@ -85,7 +78,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
 
     arguments.setSettingsKey(Constants::QML_VIEWER_ARGUMENTS_KEY);
 
-    setCommandLineGetter([this, target] {
+    setCommandLineGetter([this] {
         const FilePath qmlRuntime = qmlRuntimeFilePath();
         CommandLine cmd(qmlRuntime);
         if (usePuppetAsQmlRuntime)
@@ -95,7 +88,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
         cmd.addArgs(arguments(), CommandLine::Raw);
 
         // arguments from .qmlproject file
-        const QmlBuildSystem *bs = qobject_cast<QmlBuildSystem *>(target->buildSystem());
+        const QmlBuildSystem *bs = qobject_cast<QmlBuildSystem *>(buildSystem());
         for (const QString &importPath : bs->targetImportPaths()) {
             cmd.addArg("-I");
             cmd.addArg(importPath);
@@ -124,7 +117,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
         return cmd;
     });
 
-    qmlMainFile.setTarget(target);
+    qmlMainFile.setTarget(target());
     connect(&qmlMainFile, &BaseAspect::changed, this, &RunConfiguration::update);
 
     if (Core::ICore::isQtDesignStudio())
@@ -132,18 +125,15 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     else
         qtversion.setVisible(false);
 
-    connect(target, &Target::kitChanged, this, &RunConfiguration::update);
-
-    multiLanguage.setTarget(target);
-    auto buildSystem = qobject_cast<const QmlBuildSystem *>(activeBuildSystem());
-    if (buildSystem)
-        multiLanguage.setValue(buildSystem->multilanguageSupport());
+    multiLanguage.setTarget(target());
+    if (auto bs = qobject_cast<const QmlBuildSystem *>(buildSystem()))
+        multiLanguage.setValue(bs->multilanguageSupport());
 
     connect(&multiLanguage, &BaseAspect::changed,
             &environment, &EnvironmentAspect::environmentChanged);
 
     auto envModifier = [this](Environment env) {
-        if (auto bs = qobject_cast<const QmlBuildSystem *>(activeBuildSystem()))
+        if (auto bs = qobject_cast<const QmlBuildSystem *>(buildSystem()))
             env.modify(bs->environment());
 
         if (multiLanguage() && !multiLanguage.databaseFilePath().isEmpty()) {
@@ -169,7 +159,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     });
 
     setRunnableModifier([this](ProcessRunData &r) {
-        const QmlBuildSystem *bs = static_cast<QmlBuildSystem *>(activeBuildSystem());
+        const QmlBuildSystem *bs = static_cast<QmlBuildSystem *>(buildSystem());
         r.workingDirectory = bs->targetDirectory();
     });
 
@@ -304,7 +294,7 @@ bool QmlProjectRunConfiguration::isEnabled(Id) const
 {
     return const_cast<QmlProjectRunConfiguration *>(this)->qmlMainFile.isQmlFilePresent()
            && !qmlRuntimeFilePath().isEmpty()
-           && activeBuildSystem()->hasParsingData();
+           && buildSystem()->hasParsingData();
 }
 
 FilePath QmlProjectRunConfiguration::mainScript() const

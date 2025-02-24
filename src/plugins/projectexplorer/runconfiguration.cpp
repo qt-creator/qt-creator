@@ -17,7 +17,6 @@
 #include "runconfigurationaspects.h"
 #include "target.h"
 
-#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
@@ -27,10 +26,8 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/detailswidget.h>
 #include <utils/layoutbuilder.h>
-#include <utils/outputformatter.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
-#include <utils/utilsicons.h>
 #include <utils/variablechooser.h>
 
 #include <QComboBox>
@@ -200,19 +197,16 @@ static std::vector<RunConfiguration::AspectFactory> theAspectFactories;
 
 static QList<RunConfigurationFactory *> g_runConfigurationFactories;
 
-RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
-    : ProjectConfiguration(target, id)
+RunConfiguration::RunConfiguration(BuildConfiguration *bc, Utils::Id id)
+    : ProjectConfiguration(bc->target(), id), m_buildConfiguration(bc)
 {
     forceDisplayNameSerialization();
-    connect(target, &Target::parsingFinished, this, &RunConfiguration::update);
+    connect(bc->buildSystem(), &BuildSystem::parsingFinished, this, &RunConfiguration::update);
 
     MacroExpander &expander = *macroExpander();
     expander.setDisplayName(Tr::tr("Run Settings"));
     expander.setAccumulating(true);
-    expander.registerSubProvider([target] {
-        BuildConfiguration *bc = target->activeBuildConfiguration();
-        return bc ? bc->macroExpander() : target->macroExpander();
-    });
+    expander.registerSubProvider([bc] { return bc->macroExpander(); });
     expander.registerPrefix("RunConfig:Env", Tr::tr("Variables in the run environment."),
                              [this](const QString &var) {
         const auto envAspect = aspect<EnvironmentAspect>();
@@ -251,20 +245,23 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
 
         return launcherCommand;
     };
+
+    connect(bc->buildSystem(), &BuildSystem::updated, this, &RunConfiguration::update);
+    connect(bc->buildSystem(), &BuildSystem::deploymentDataChanged,
+            this, &RunConfiguration::update);
+    connect(target(), &Target::kitChanged, this, &RunConfiguration::update);
 }
 
 RunConfiguration::~RunConfiguration() = default;
 
 QString RunConfiguration::disabledReason(Utils::Id) const
 {
-    BuildSystem *bs = activeBuildSystem();
-    return bs ? bs->disabledReason(m_buildKey) : Tr::tr("No build system active");
+    return buildSystem()->disabledReason(m_buildKey);
 }
 
 bool RunConfiguration::isEnabled(Utils::Id) const
 {
-    BuildSystem *bs = activeBuildSystem();
-    return bs && bs->hasParsingData();
+    return buildSystem()->hasParsingData();
 }
 
 QWidget *RunConfiguration::createConfigurationWidget()
@@ -346,9 +343,9 @@ AspectContainerData RunConfiguration::aspectData() const
     return data;
 }
 
-BuildSystem *RunConfiguration::activeBuildSystem() const
+BuildSystem *RunConfiguration::buildSystem() const
 {
-    return target()->buildSystem();
+    return m_buildConfiguration->buildSystem();
 }
 
 void RunConfiguration::setUpdater(const Updater &updater)
@@ -413,16 +410,16 @@ void RunConfiguration::update()
         ProjectExplorerPlugin::updateRunActions();
 }
 
-RunConfiguration *RunConfiguration::clone(Target *parent)
+RunConfiguration *RunConfiguration::clone(BuildConfiguration *bc)
 {
     Store map;
     toMap(map);
-    return RunConfigurationFactory::restore(parent, map);
+    return RunConfigurationFactory::restore(bc, map);
 }
 
 BuildTargetInfo RunConfiguration::buildTargetInfo() const
 {
-    BuildSystem *bs = target()->buildSystem();
+    BuildSystem *bs = buildSystem();
     QTC_ASSERT(bs, return {});
     return bs->buildTarget(m_buildKey);
 }
@@ -670,24 +667,24 @@ bool RunConfigurationFactory::canHandle(Target *target) const
     return true;
 }
 
-RunConfiguration *RunConfigurationFactory::create(Target *target) const
+RunConfiguration *RunConfigurationFactory::create(BuildConfiguration *bc) const
 {
     QTC_ASSERT(m_creator, return nullptr);
-    RunConfiguration *rc = m_creator(target);
+    RunConfiguration *rc = m_creator(bc);
     QTC_ASSERT(rc, return nullptr);
 
     // Add the universal aspects.
     for (const RunConfiguration::AspectFactory &factory : theAspectFactories)
-        rc->registerAspect(factory(target), true);
+        rc->registerAspect(factory(bc->target()), true);
 
     return rc;
 }
 
-RunConfiguration *RunConfigurationCreationInfo::create(Target *target) const
+RunConfiguration *RunConfigurationCreationInfo::create(BuildConfiguration *bc) const
 {
-    QTC_ASSERT(factory->canHandle(target), return nullptr);
+    QTC_ASSERT(factory->canHandle(bc->target()), return nullptr);
 
-    RunConfiguration *rc = factory->create(target);
+    RunConfiguration *rc = factory->create(bc);
     if (!rc)
         return nullptr;
 
@@ -699,13 +696,13 @@ RunConfiguration *RunConfigurationCreationInfo::create(Target *target) const
     return rc;
 }
 
-RunConfiguration *RunConfigurationFactory::restore(Target *parent, const Store &map)
+RunConfiguration *RunConfigurationFactory::restore(BuildConfiguration *bc, const Store &map)
 {
     for (RunConfigurationFactory *factory : std::as_const(g_runConfigurationFactories)) {
-        if (factory->canHandle(parent)) {
+        if (factory->canHandle(bc->target())) {
             const Utils::Id id = idFromMap(map);
             if (id.name().startsWith(factory->m_runConfigurationId.name())) {
-                RunConfiguration *rc = factory->create(parent);
+                RunConfiguration *rc = factory->create(bc);
                 rc->fromMap(map);
                 if (!rc->hasError()) {
                     rc->update();

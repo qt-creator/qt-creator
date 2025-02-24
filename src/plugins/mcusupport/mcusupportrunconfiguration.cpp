@@ -43,8 +43,8 @@ static QStringList flashAndRunArgs(const RunConfiguration *rc)
 class FlashAndRunConfiguration final : public RunConfiguration
 {
 public:
-    FlashAndRunConfiguration(Target *target, Id id)
-        : RunConfiguration(target, id)
+    FlashAndRunConfiguration(BuildConfiguration *bc, Id id)
+        : RunConfiguration(bc, id)
     {
         flashAndRunParameters.setLabelText(Tr::tr("Flash and run CMake parameters:"));
         flashAndRunParameters.setDisplayStyle(StringAspect::TextEditDisplay);
@@ -82,11 +82,11 @@ FlashRunWorkerFactory::FlashRunWorkerFactory()
     setProducer([](RunControl *runControl) {
         auto worker = new ProcessRunner(runControl);
         worker->setStartModifier([worker, runControl] {
-            const Target *target = runControl->target();
-            worker->setCommandLine({cmakeFilePath(target),
+            const BuildConfiguration *bc = runControl->buildConfiguration();
+            worker->setCommandLine({cmakeFilePath(bc->target()),
                                     runControl->aspectData<StringAspect>()->value, CommandLine::Raw});
-            worker->setWorkingDirectory(target->activeBuildConfiguration()->buildDirectory());
-            worker->setEnvironment(target->activeBuildConfiguration()->environment());
+            worker->setWorkingDirectory(bc->buildDirectory());
+            worker->setEnvironment(bc->environment());
         });
 
         QObject::connect(runControl, &RunControl::started, runControl, [] {

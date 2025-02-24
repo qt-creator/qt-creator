@@ -19,6 +19,7 @@
 #include "projectconfigurationmodel.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorer.h"
+#include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 #include "project.h"
 #include "projectmanager.h"
@@ -27,7 +28,6 @@
 
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
 
@@ -56,6 +56,10 @@ const char PARSE_STD_OUT_KEY[] = "ProjectExplorer.BuildConfiguration.ParseStanda
 const char ACTIVE_DC_KEY[] = "ProjectExplorer.Target.ActiveDeployConfiguration";
 const char DC_KEY_PREFIX[] = "ProjectExplorer.Target.DeployConfiguration.";
 const char DC_COUNT_KEY[] = "ProjectExplorer.Target.DeployConfigurationCount";
+
+const char ACTIVE_RC_KEY[] = "ProjectExplorer.Target.ActiveRunConfiguration";
+const char RC_KEY_PREFIX[] = "ProjectExplorer.Target.RunConfiguration.";
+const char RC_COUNT_KEY[] = "ProjectExplorer.Target.RunConfigurationCount";
 
 Q_LOGGING_CATEGORY(bcLog, "qtc.buildconfig", QtWarningMsg)
 
@@ -146,6 +150,7 @@ public:
         , m_tooltipAspect(bc)
         , m_buildSystem(bc->project()->createBuildSystem(bc))
         , m_deployConfigurationModel(bc->target())
+        , m_runConfigurationModel(bc->target())
     {}
 
     ~BuildConfigurationPrivate() { delete m_buildSystem; }
@@ -167,8 +172,11 @@ public:
     BuildSystem * const m_buildSystem;
     QList<DeployConfiguration *> m_deployConfigurations;
     DeployConfiguration *m_activeDeployConfiguration = nullptr;
+    QList<RunConfiguration *> m_runConfigurations;
+    RunConfiguration* m_activeRunConfiguration = nullptr;
 
     ProjectConfigurationModel m_deployConfigurationModel;
+    ProjectConfigurationModel m_runConfigurationModel;
 
     // FIXME: Remove.
     BuildConfiguration::BuildType m_initialBuildType = BuildConfiguration::Unknown;
@@ -242,6 +250,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
 BuildConfiguration::~BuildConfiguration()
 {
     qDeleteAll(d->m_deployConfigurations);
+    qDeleteAll(d->m_runConfigurations);
     delete d;
 }
 
@@ -366,6 +375,32 @@ bool BuildConfiguration::addConfigurationsFromMap(
         if (i == activeDc)
             setActiveDeployConfiguration(dc);
     }
+
+
+    int rcCount = map.value(RC_COUNT_KEY, 0).toInt(&ok);
+    if (!ok || rcCount < 0)
+        rcCount = 0;
+    int activeRc = map.value(ACTIVE_RC_KEY, 0).toInt(&ok);
+    if (!ok || 0 > activeRc || rcCount < activeRc)
+        activeRc = 0;
+    if (!setActiveConfigurations)
+        activeRc = -1;
+
+    for (int i = 0; i < rcCount; ++i) {
+        const Key key = numberedKey(RC_KEY_PREFIX, i);
+        if (!map.contains(key))
+            return false;
+
+        // Ignore missing RCs: We will just populate them using the default ones.
+        Store valueMap = storeFromVariant(map.value(key));
+        RunConfiguration *rc = RunConfigurationFactory::restore(this, valueMap);
+        if (!rc)
+            continue;
+        addRunConfiguration(rc);
+        if (i == activeRc)
+            setActiveRunConfiguration(rc);
+    }
+
     return true;
 }
 
@@ -378,6 +413,15 @@ void BuildConfiguration::storeConfigurationsToMap(Utils::Store &map) const
         Store data;
         dcs.at(i)->toMap(data);
         map.insert(numberedKey(DC_KEY_PREFIX, i), variantFromStore(data));
+    }
+
+    const QList<RunConfiguration *> rcs = runConfigurations();
+    map.insert(ACTIVE_RC_KEY, rcs.indexOf(d->m_activeRunConfiguration));
+    map.insert(RC_COUNT_KEY, rcs.size());
+    for (int i = 0; i < rcs.size(); ++i) {
+        Store data;
+        rcs.at(i)->toMap(data);
+        map.insert(numberedKey(RC_KEY_PREFIX, i), variantFromStore(data));
     }
 }
 
@@ -585,6 +629,228 @@ void BuildConfiguration::updateDefaultDeployConfigurations()
             }
         }
     }
+}
+
+void BuildConfiguration::updateDefaultRunConfigurations()
+{
+    // Manual and Auto
+    const QList<RunConfigurationCreationInfo> creators
+        = RunConfigurationFactory::creatorsForTarget(target());
+
+    if (creators.isEmpty()) {
+        qWarning("No run configuration factory found for target id '%s'.", qPrintable(id().toString()));
+        return;
+    }
+
+    QList<RunConfiguration *> existingConfigured; // Existing configured RCs
+    QList<RunConfiguration *> existingUnconfigured; // Existing unconfigured RCs
+    QList<RunConfiguration *> newConfigured; // NEW configured Rcs
+    QList<RunConfiguration *> newUnconfigured; // NEW unconfigured RCs
+
+    // sort existing RCs into configured/unconfigured.
+    std::tie(existingConfigured, existingUnconfigured)
+        = Utils::partition(runConfigurations(),
+                           [](const RunConfiguration *rc) { return rc->isConfigured(); });
+    int configuredCount = existingConfigured.count();
+
+    // Put outdated RCs into toRemove, do not bother with factories
+    // that produce already existing RCs
+    QList<RunConfiguration *> toRemove;
+    QList<RunConfigurationCreationInfo> existing;
+    for (RunConfiguration *rc : std::as_const(existingConfigured)) {
+        bool present = false;
+        for (const RunConfigurationCreationInfo &item : creators) {
+            QString buildKey = rc->buildKey();
+            if (item.factory->runConfigurationId() == rc->id() && item.buildKey == buildKey) {
+                existing.append(item);
+                present = true;
+            }
+        }
+        if (!present &&
+            projectExplorerSettings().automaticallyCreateRunConfigurations &&
+            !rc->isCustomized()) {
+            toRemove.append(rc);
+        }
+    }
+    configuredCount -= toRemove.count();
+
+    bool removeExistingUnconfigured = false;
+    if (projectExplorerSettings().automaticallyCreateRunConfigurations) {
+        // Create new "automatic" RCs and put them into newConfigured/newUnconfigured
+        for (const RunConfigurationCreationInfo &item : creators) {
+            if (item.creationMode == RunConfigurationCreationInfo::ManualCreationOnly)
+                continue;
+            bool exists = false;
+            for (const RunConfigurationCreationInfo &ex : existing) {
+                if (ex.factory == item.factory && ex.buildKey == item.buildKey)
+                    exists = true;
+            }
+            if (exists)
+                continue;
+
+            RunConfiguration *rc = item.create(this);
+            if (!rc)
+                continue;
+            QTC_CHECK(rc->id() == item.factory->runConfigurationId());
+            if (!rc->isConfigured())
+                newUnconfigured << rc;
+            else
+                newConfigured << rc;
+        }
+        configuredCount += newConfigured.count();
+
+        // Decide what to do with the different categories:
+        if (configuredCount > 0) {
+            // new non-Custom Executable RCs were added
+            removeExistingUnconfigured = true;
+            qDeleteAll(newUnconfigured);
+            newUnconfigured.clear();
+        } else {
+            // no new RCs, use old or new CERCs?
+            if (!existingUnconfigured.isEmpty()) {
+                qDeleteAll(newUnconfigured);
+                newUnconfigured.clear();
+            }
+        }
+    }
+
+    // Do actual changes:
+    for (RunConfiguration *rc : std::as_const(newConfigured))
+        addRunConfiguration(rc);
+    for (RunConfiguration *rc : std::as_const(newUnconfigured))
+        addRunConfiguration(rc);
+
+    // Generate complete list of RCs to remove later:
+    QList<RunConfiguration *> removalList;
+    for (RunConfiguration *rc : std::as_const(toRemove)) {
+        removalList << rc;
+        existingConfigured.removeOne(rc); // make sure to also remove them from existingConfigured!
+    }
+
+    if (removeExistingUnconfigured) {
+        removalList.append(existingUnconfigured);
+        existingUnconfigured.clear();
+    }
+
+    // Make sure a configured RC will be active after we delete the RCs:
+    RunConfiguration *active = activeRunConfiguration();
+    if (active && (removalList.contains(active) || !active->isEnabled(Constants::NORMAL_RUN_MODE))) {
+        RunConfiguration *newConfiguredDefault = newConfigured.isEmpty() ? nullptr : newConfigured.at(0);
+
+        RunConfiguration *rc = Utils::findOrDefault(existingConfigured, [](RunConfiguration *rc) {
+            return rc->isEnabled(Constants::NORMAL_RUN_MODE);
+        });
+        if (!rc) {
+            rc = Utils::findOr(newConfigured, newConfiguredDefault,
+                               Utils::equal(&RunConfiguration::displayName, project()->displayName()));
+        }
+        if (!rc)
+            rc = newUnconfigured.isEmpty() ? nullptr : newUnconfigured.at(0);
+        if (!rc) {
+            // No RCs will be deleted, so use the one that will emit the minimum number of signals.
+            // One signal will be emitted from the next setActiveRunConfiguration, another one
+            // when the RC gets removed (and the activeRunConfiguration turns into a nullptr).
+            rc = removalList.isEmpty() ? nullptr : removalList.last();
+        }
+
+        if (rc)
+            setActiveRunConfiguration(rc);
+    }
+
+    // Remove the RCs that are no longer needed:
+    for (RunConfiguration *rc : std::as_const(removalList))
+        removeRunConfiguration(rc);
+
+    if (this == target()->activeBuildConfiguration())
+        emit target()->runConfigurationsUpdated();
+}
+
+const QList<RunConfiguration *> BuildConfiguration::runConfigurations() const
+{
+    return d->m_runConfigurations;
+}
+
+void BuildConfiguration::addRunConfiguration(RunConfiguration *rc)
+{
+    QTC_ASSERT(rc && !d->m_runConfigurations.contains(rc), return);
+    Q_ASSERT(rc->target() == target());
+
+    // Check that we don't have a configuration with the same displayName
+    QString configurationDisplayName = rc->displayName();
+    if (!configurationDisplayName.isEmpty()) {
+        QStringList displayNames = Utils::transform(d->m_runConfigurations,
+                                                    &RunConfiguration::displayName);
+        configurationDisplayName = Utils::makeUniquelyNumbered(configurationDisplayName,
+                                                               displayNames);
+        rc->setDisplayName(configurationDisplayName);
+    }
+
+    d->m_runConfigurations.push_back(rc);
+
+    ProjectExplorerPlugin::targetSelector()->addedRunConfiguration(rc);
+    d->m_runConfigurationModel.addProjectConfiguration(rc);
+    emit target()->addedRunConfiguration(rc);
+
+    if (!activeRunConfiguration())
+        setActiveRunConfiguration(rc);
+}
+
+void BuildConfiguration::removeRunConfiguration(RunConfiguration *rc)
+{
+    QTC_ASSERT(rc && d->m_runConfigurations.contains(rc), return);
+
+    d->m_runConfigurations.removeOne(rc);
+
+    if (activeRunConfiguration() == rc) {
+        if (d->m_runConfigurations.isEmpty())
+            setActiveRunConfiguration(nullptr);
+        else
+            setActiveRunConfiguration(d->m_runConfigurations.at(0));
+    }
+
+    emit target()->removedRunConfiguration(rc);
+    ProjectExplorerPlugin::targetSelector()->removedRunConfiguration(rc);
+    d->m_runConfigurationModel.removeProjectConfiguration(rc);
+
+    delete rc;
+}
+
+void BuildConfiguration::removeAllRunConfigurations()
+{
+    QList<RunConfiguration *> runConfigs = d->m_runConfigurations;
+    d->m_runConfigurations.clear();
+    setActiveRunConfiguration(nullptr);
+    while (!runConfigs.isEmpty()) {
+        RunConfiguration * const rc = runConfigs.takeFirst();
+        emit target()->removedRunConfiguration(rc);
+        ProjectExplorerPlugin::targetSelector()->removedRunConfiguration(rc);
+        d->m_runConfigurationModel.removeProjectConfiguration(rc);
+        delete rc;
+    }
+}
+
+RunConfiguration *BuildConfiguration::activeRunConfiguration() const
+{
+    return d->m_activeRunConfiguration;
+}
+
+void BuildConfiguration::setActiveRunConfiguration(RunConfiguration *rc)
+{
+    if (target()->isShuttingDown())
+        return;
+
+    if ((!rc && d->m_runConfigurations.isEmpty()) ||
+        (rc && d->m_runConfigurations.contains(rc) &&
+         rc != d->m_activeRunConfiguration)) {
+        d->m_activeRunConfiguration = rc;
+        emit target()->activeRunConfigurationChanged(d->m_activeRunConfiguration);
+        ProjectExplorerPlugin::updateActions();
+    }
+}
+
+ProjectConfigurationModel *BuildConfiguration::runConfigurationModel() const
+{
+    return &d->m_runConfigurationModel;
 }
 
 ProjectConfigurationModel *BuildConfiguration::deployConfigurationModel() const
@@ -813,6 +1079,15 @@ QString BuildConfiguration::buildTypeName(BuildConfiguration::BuildType type)
 bool BuildConfiguration::isActive() const
 {
     return project()->activeBuildConfiguration() == this;
+}
+
+QString BuildConfiguration::activeBuildKey() const
+{
+    // Should not happen. If it does, return a buildKey that wont be found in
+    // the project tree, so that the project()->findNodeForBuildKey(buildKey)
+    // returns null.
+    QTC_ASSERT(d->m_activeRunConfiguration, return QString(QChar(0)));
+    return d->m_activeRunConfiguration->buildKey();
 }
 
 FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectDir,

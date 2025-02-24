@@ -9,6 +9,7 @@
 #include "androidrunnerworker.h"
 #include "androidutils.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorersettings.h>
@@ -47,8 +48,8 @@ AndroidRunner::AndroidRunner(RunControl *runControl)
 
 void AndroidRunner::start()
 {
-    auto target = runControl()->target();
-    QTC_ASSERT(target, return);
+    BuildConfiguration *bc = runControl()->buildConfiguration();
+    QTC_ASSERT(bc, return);
     QString deviceSerialNumber;
     int apiLevel = -1;
 
@@ -61,7 +62,7 @@ void AndroidRunner::start()
 
         const IDevice::ConstPtr device = RunDeviceKitAspect::device(runControl()->kit());
         AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromDevice(device);
-        setDeviceSerialNumber(target, info.serialNumber);
+        setDeviceSerialNumber(bc->target(), info.serialNumber);
         deviceSerialNumber = info.serialNumber;
         apiLevel = info.sdk;
         qCDebug(androidRunnerLog) << "Android Device Info changed" << deviceSerialNumber
@@ -78,8 +79,8 @@ void AndroidRunner::start()
             });
         }
     } else {
-        deviceSerialNumber = Internal::deviceSerialNumber(target);
-        apiLevel = Internal::deviceApiLevel(target);
+        deviceSerialNumber = Internal::deviceSerialNumber(bc->target());
+        apiLevel = Internal::deviceApiLevel(bc->target());
     }
 
     const auto onSetup = [this, glueStorage, deviceSerialNumber, apiLevel] {

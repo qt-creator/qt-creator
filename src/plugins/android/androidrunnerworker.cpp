@@ -96,14 +96,14 @@ static QString lldbServerArch2(const QString &androidAbi)
     return androidAbi; // x86_64
 }
 
-static FilePath debugServer(bool useLldb, const Target *target)
+static FilePath debugServer(bool useLldb, const BuildConfiguration *bc)
 {
-    QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
-    QString preferredAbi = apkDevicePreferredAbi(target);
+    QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(bc->kit());
+    QString preferredAbi = apkDevicePreferredAbi(bc);
 
     if (useLldb) {
         // Search suitable lldb-server binary.
-        const DebuggerItem *debugger = DebuggerKitAspect::debugger(target->kit());
+        const DebuggerItem *debugger = DebuggerKitAspect::debugger(bc->kit());
         if (!debugger || debugger->command().isEmpty())
             return {};
         // .../ndk/<ndk-version>/toolchains/llvm/prebuilt/<host-arch>/bin/lldb
@@ -223,9 +223,9 @@ static void setupStorage(RunnerStorage *storage, RunnerInterface *glue)
         qCDebug(androidRunWorkerLog) << "QML server:" << storage->m_qmlServer.toDisplayString();
     }
 
-    auto target = glue->runControl()->target();
-    storage->m_packageName = packageName(target);
-    storage->m_intentName = storage->m_packageName + '/' + activityName(target);
+    BuildConfiguration *bc = glue->runControl()->buildConfiguration();
+    storage->m_packageName = packageName(bc);
+    storage->m_intentName = storage->m_packageName + '/' + activityName(bc);
     qCDebug(androidRunWorkerLog) << "Intent name:" << storage->m_intentName
                                  << "Package name:" << storage->m_packageName;
     qCDebug(androidRunWorkerLog) << "Device API:" << glue->apiLevel();
@@ -234,7 +234,7 @@ static void setupStorage(RunnerStorage *storage, RunnerInterface *glue)
     qCDebug(androidRunWorkerLog).noquote() << "Environment variables for the app"
                                            << storage->m_extraEnvVars.toStringList();
 
-    if (target->buildConfigurations().first()->buildType() != BuildConfiguration::BuildType::Release)
+    if (bc->buildType() != BuildConfiguration::BuildType::Release)
         storage->m_extraAppParams = glue->runControl()->commandLine().arguments();
 
     if (const Store sd = glue->runControl()->settingsData(Constants::ANDROID_AM_START_ARGS);
@@ -261,7 +261,7 @@ static void setupStorage(RunnerStorage *storage, RunnerInterface *glue)
             storage->m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
 
-    storage->m_debugServerPath = debugServer(storage->m_useLldb, target);
+    storage->m_debugServerPath = debugServer(storage->m_useLldb, bc);
     qCDebug(androidRunWorkerLog).noquote() << "Device Serial:" << glue->deviceSerialNumber()
                                            << ", API level:" << glue->apiLevel()
                                            << ", Extra Start Args:" << storage->m_amStartExtraArgs
@@ -269,7 +269,7 @@ static void setupStorage(RunnerStorage *storage, RunnerInterface *glue)
                                            << ", After finish ADB cmds:" << storage->m_afterFinishAdbCommands
                                            << ", Debug server path:" << storage->m_debugServerPath;
 
-    QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
+    QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(bc->kit());
     storage->m_useAppParamsForQmlDebugger = version->qtVersion() >= QVersionNumber(5, 12);
 }
 
@@ -919,7 +919,7 @@ ExecutableItem runnerRecipe(const Storage<RunnerInterface> &glueStorage)
     const Storage<RunnerStorage> storage;
 
     const auto onSetup = [glueStorage, storage] {
-        if (glueStorage->runControl()->target() == nullptr)
+        if (glueStorage->runControl()->buildConfiguration() == nullptr)
             return SetupResult::StopWithError;
         setupStorage(storage.activeStorage(), glueStorage.activeStorage());
         return SetupResult::Continue;

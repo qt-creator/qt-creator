@@ -11,6 +11,7 @@
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
@@ -115,11 +116,8 @@ void TestConfiguration::completeTestInformation(RunConfiguration *rc,
     if (!startupProject || startupProject != project())
         return;
 
-    Target *target = startupProject->activeTarget();
-    if (!target)
-        return;
-
-    if (!target->runConfigurations().contains(rc))
+    BuildConfiguration * const buildConfig = startupProject->activeBuildConfiguration();
+    if (!buildConfig || buildConfig != rc->buildConfiguration())
         return;
 
     m_runnable = rc->runnable();
@@ -129,17 +127,14 @@ void TestConfiguration::completeTestInformation(RunConfiguration *rc,
     if (!targetInfo.targetFilePath.isEmpty())
         m_runnable.command.setExecutable(ensureExeEnding(targetInfo.targetFilePath));
 
-    FilePath buildBase;
-    if (auto buildConfig = startupProject->activeBuildConfiguration()) {
-        buildBase = buildConfig->buildDirectory();
-        const FilePath projBase = startupProject->projectDirectory();
-        if (m_projectFile.isChildOf(projBase)) {
-            m_buildDir
-                = (buildBase.resolvePath(m_projectFile.relativePathFromDir(projBase))).absolutePath();
-        }
+    const FilePath buildBase = buildConfig->buildDirectory();
+    const FilePath projBase = startupProject->projectDirectory();
+    if (m_projectFile.isChildOf(projBase)) {
+        m_buildDir
+            = (buildBase.resolvePath(m_projectFile.relativePathFromDir(projBase))).absolutePath();
     }
     if (runMode == TestRunMode::Debug || runMode == TestRunMode::DebugWithoutDeploy)
-        m_runConfig = new Internal::TestRunConfiguration(rc->target(), this);
+        m_runConfig = new Internal::TestRunConfiguration(rc->buildConfiguration(), this);
 }
 
 void TestConfiguration::completeTestInformation(TestRunMode runMode)
@@ -164,8 +159,8 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
         return;
     }
 
-    Target *target = startupProject->activeTarget();
-    if (!target)
+    BuildConfiguration * const buildConfig = startupProject->activeBuildConfiguration();
+    if (!buildConfig)
         return;
     if (const auto kit = startupProject->activeKit()) {
         qCDebug(LOG) << "ActiveTargetName\n    " << kit->displayName();
@@ -218,7 +213,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
 
     // deployment information should get taken into account, but it pretty much seems as if
     // each build system uses it differently
-    const DeploymentData &deployData = target->deploymentData();
+    const DeploymentData &deployData = buildConfig->buildSystem()->deploymentData();
     const DeployableFile deploy = deployData.deployableForLocalFile(localExecutable);
     // we might have a deployable executable
     const FilePath deployedExecutable = ensureExeEnding((deploy.isValid() && deploy.isExecutable())
@@ -227,12 +222,12 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     qCDebug(LOG) << " LocalExecutable" << localExecutable;
     qCDebug(LOG) << " DeployedExecutable" << deployedExecutable;
     qCDebug(LOG) << "Iterating run configurations - prefer active over others";
-    QList<RunConfiguration *> runConfigurations = target->runConfigurations();
-    runConfigurations.removeOne(target->activeRunConfiguration());
-    runConfigurations.prepend(target->activeRunConfiguration());
+    QList<RunConfiguration *> runConfigurations = buildConfig->runConfigurations();
+    runConfigurations.removeOne(buildConfig->activeRunConfiguration());
+    runConfigurations.prepend(buildConfig->activeRunConfiguration());
     for (RunConfiguration *runConfig : std::as_const(runConfigurations)) {
         qCDebug(LOG) << "RunConfiguration" << runConfig->id();
-        if (!isLocal(target)) { // TODO add device support
+        if (!isLocal(buildConfig->target())) { // TODO add device support
             qCDebug(LOG) << " Skipped as not being local";
             continue;
         }
@@ -253,7 +248,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
             m_runnable.command.setExecutable(currentExecutable);
             setDisplayName(runConfig->displayName());
             if (runMode == TestRunMode::Debug || runMode == TestRunMode::DebugWithoutDeploy)
-                m_runConfig = new Internal::TestRunConfiguration(target, this);
+                m_runConfig = new Internal::TestRunConfiguration(runConfig->buildConfiguration(), this);
             break;
         }
     }
@@ -267,14 +262,14 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     if (displayName().isEmpty() && hasExecutable()) {
         qCDebug(LOG) << "   Fallback";
         // we failed to find a valid runconfiguration - but we've got the executable already
-        if (auto rc = target->activeRunConfiguration()) {
-            if (isLocal(target)) { // FIXME for now only Desktop support
+        if (auto rc = buildConfig->activeRunConfiguration()) {
+            if (isLocal(buildConfig->target())) { // FIXME for now only Desktop support
                 const ProcessRunData runnable = rc->runnable();
                 m_runnable.environment = runnable.environment;
                 m_deducedConfiguration = true;
                 m_deducedFrom = rc->displayName();
                 if (runMode == TestRunMode::Debug)
-                    m_runConfig = new Internal::TestRunConfiguration(rc->target(), this);
+                    m_runConfig = new Internal::TestRunConfiguration(rc->buildConfiguration(), this);
             } else {
                 qCDebug(LOG) << "not using the fallback as the current active run configuration "
                                 "appears to be non-Desktop";

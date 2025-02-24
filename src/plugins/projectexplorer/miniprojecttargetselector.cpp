@@ -742,7 +742,7 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
             });
     connect(m_listWidgets[RUN], &GenericListWidget::changeActiveProjectConfiguration,
             this, [this](QObject *pc) {
-                 m_project->activeTarget()->setActiveRunConfiguration(static_cast<RunConfiguration *>(pc));
+                 m_project->activeBuildConfiguration()->setActiveRunConfiguration(static_cast<RunConfiguration *>(pc));
             });
 }
 
@@ -1027,8 +1027,6 @@ void MiniProjectTargetSelector::addedTarget(Target *target)
 
     for (BuildConfiguration *bc : target->buildConfigurations())
         addedBuildConfiguration(bc, false);
-    for (RunConfiguration *rc : target->runConfigurations())
-        addedRunConfiguration(rc, false);
 }
 
 void MiniProjectTargetSelector::removedTarget(Target *target)
@@ -1040,8 +1038,6 @@ void MiniProjectTargetSelector::removedTarget(Target *target)
 
     for (BuildConfiguration *bc : target->buildConfigurations())
         removedBuildConfiguration(bc, false);
-    for (RunConfiguration *rc : target->runConfigurations())
-        removedRunConfiguration(rc, false);
 }
 
 void MiniProjectTargetSelector::addedBuildConfiguration(BuildConfiguration *bc, bool update)
@@ -1051,6 +1047,8 @@ void MiniProjectTargetSelector::addedBuildConfiguration(BuildConfiguration *bc, 
 
     for (DeployConfiguration *dc : bc->deployConfigurations())
         addedDeployConfiguration(dc, false);
+    for (RunConfiguration *rc : bc->runConfigurations())
+        addedRunConfiguration(rc, false);
 
     m_listWidgets[BUILD]->addProjectConfiguration(bc);
     if (update)
@@ -1064,6 +1062,8 @@ void MiniProjectTargetSelector::removedBuildConfiguration(BuildConfiguration *bc
 
     for (DeployConfiguration *dc : bc->deployConfigurations())
         removedDeployConfiguration(dc, false);
+    for (RunConfiguration *rc : bc->runConfigurations())
+        removedRunConfiguration(rc, false);
 
     m_listWidgets[BUILD]->removeProjectConfiguration(bc);
     if (update)
@@ -1174,8 +1174,10 @@ void MiniProjectTargetSelector::updateRunListVisible()
     int maxCount = 0;
     for (Project *p : ProjectManager::projects()) {
         const QList<Target *> targets = p->targets();
-        for (Target *t : targets)
-            maxCount = qMax(t->runConfigurations().size(), maxCount);
+        for (Target *t : targets) {
+            for (const BuildConfiguration * const bc : t->buildConfigurations())
+                maxCount = qMax(bc->runConfigurations().size(), maxCount);
+        }
     }
 
     bool visible = maxCount > 1;
@@ -1252,16 +1254,6 @@ void MiniProjectTargetSelector::activeTargetChanged(Target *target)
         m_listWidgets[BUILD]->setProjectConfigurations(bl, target->activeBuildConfiguration());
         activeBuildConfigurationChanged(target->activeBuildConfiguration());
 
-        QObjectList rl;
-        for (RunConfiguration *rc : target->runConfigurations())
-            rl.append(rc);
-        m_listWidgets[RUN]->setProjectConfigurations(rl, target->activeRunConfiguration());
-
-        m_runConfiguration = m_target->activeRunConfiguration();
-        if (m_runConfiguration)
-            connect(m_runConfiguration, &ProjectConfiguration::displayNameChanged,
-                    this, &MiniProjectTargetSelector::updateActionAndSummary);
-
         connect(m_target, &Target::kitChanged,
                 this, &MiniProjectTargetSelector::updateActionAndSummary);
         connect(m_target, &Target::iconChanged,
@@ -1306,6 +1298,11 @@ void MiniProjectTargetSelector::activeBuildConfigurationChanged(BuildConfigurati
             dl.append(dc);
         m_listWidgets[DEPLOY]->setProjectConfigurations(dl, bc->activeDeployConfiguration());
         activeDeployConfigurationChanged(m_buildConfiguration->activeDeployConfiguration());
+        QObjectList rl;
+        for (RunConfiguration *rc : bc->runConfigurations())
+            rl.append(rc);
+        m_listWidgets[RUN]->setProjectConfigurations(rl, bc->activeRunConfiguration());
+        activeRunConfigurationChanged(m_buildConfiguration->activeRunConfiguration());
     } else {
         m_listWidgets[DEPLOY]->setProjectConfigurations({}, nullptr);
         activeDeployConfigurationChanged(nullptr);

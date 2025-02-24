@@ -14,8 +14,8 @@ class PROJECTEXPLORER_EXPORT CustomExecutableRunConfiguration : public RunConfig
     Q_OBJECT
 
 public:
-    CustomExecutableRunConfiguration(Target *target, Utils::Id id);
-    explicit CustomExecutableRunConfiguration(Target *target);
+    CustomExecutableRunConfiguration(BuildConfiguration *bc, Utils::Id id);
+    explicit CustomExecutableRunConfiguration(BuildConfiguration *bc);
 
     QString defaultDisplayName() const;
 

@@ -148,10 +148,12 @@ public:
 signals:
     void parsingStarted();
     void parsingFinished(bool success);
+    void updated(); // FIXME: Redundant with parsingFinished()?
     void testInformationUpdated();
     void debuggingStarted();
     void errorOccurred(const QString &message);
     void warningOccurred(const QString &message);
+    void deploymentDataChanged();
 
 protected:
     // Helper methods to manage parsing state and signalling

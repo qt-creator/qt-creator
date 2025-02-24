@@ -140,7 +140,7 @@ public:
 
     void start();
 
-    void setTarget(Target *target);
+    void setBuildConfiguration(BuildConfiguration *bc);
     void setKit(Kit *kit);
 
     void copyDataFromRunConfiguration(RunConfiguration *runConfig);
@@ -178,7 +178,7 @@ public:
     IDeviceConstPtr device() const;
 
     // FIXME: Try to cut down to amount of functions.
-    Target *target() const;
+    BuildConfiguration *buildConfiguration() const;
     Project *project() const;
     Kit *kit() const;
     const Utils::MacroExpander *macroExpander() const;

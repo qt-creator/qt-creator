@@ -107,7 +107,16 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     m_addDeployMenu = new QMenu(m_addDeployToolButton);
     m_addDeployToolButton->setMenu(m_addDeployMenu);
 
+    // run part
+    runWidget->setContentsMargins(0, 10, 0, 0);
+    m_runLayout = new QVBoxLayout(runWidget);
+    m_runLayout->setContentsMargins(0, 0, 0, 0);
+    m_runLayout->setSpacing(5);
+    m_disabledText = new Utils::InfoLabel({}, Utils::InfoLabel::Warning);
+    m_runLayout->addWidget(m_disabledText);
+
     initForActiveBuildConfig();
+
     connect(m_addDeployMenu, &QMenu::aboutToShow,
             this, &RunSettingsWidget::aboutToShowDeployMenu);
     connect(m_removeDeployToolButton, &QAbstractButton::clicked,
@@ -121,30 +130,8 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     connect(m_target, &Target::activeBuildConfigurationChanged,
             this, &RunSettingsWidget::initForActiveBuildConfig);
 
-    // run part
-    runWidget->setContentsMargins(0, 10, 0, 0);
-    m_runLayout = new QVBoxLayout(runWidget);
-    m_runLayout->setContentsMargins(0, 0, 0, 0);
-    m_runLayout->setSpacing(5);
-
-    m_disabledText = new Utils::InfoLabel({}, Utils::InfoLabel::Warning);
-    m_runLayout->addWidget(m_disabledText);
-
-    ProjectConfigurationModel *model = m_target->runConfigurationModel();
-    RunConfiguration *rc = m_target->activeRunConfiguration();
-    m_runConfigurationCombo->setModel(model);
-    m_runConfigurationCombo->setCurrentIndex(model->indexFor(rc));
-
-    updateRemoveToolButtons();
-    m_renameRunButton->setEnabled(rc);
-    m_cloneRunButton->setEnabled(rc);
-
-    setConfigurationWidget(rc);
-
     connect(m_addRunToolButton, &QAbstractButton::clicked,
             this, &RunSettingsWidget::showAddRunConfigDialog);
-    connect(m_runConfigurationCombo, &QComboBox::currentIndexChanged,
-            this, &RunSettingsWidget::currentRunConfigurationChanged);
     connect(m_removeRunToolButton, &QAbstractButton::clicked,
             this, &RunSettingsWidget::removeRunConfiguration);
     connect(m_removeAllRunConfigsButton, &QAbstractButton::clicked,
@@ -175,12 +162,12 @@ void RunSettingsWidget::showAddRunConfigDialog()
         return;
     RunConfigurationCreationInfo rci = dlg.creationInfo();
     QTC_ASSERT(rci.factory, return);
-    RunConfiguration *newRC = rci.create(m_target);
+    RunConfiguration *newRC = rci.create(m_target->activeBuildConfiguration());
     if (!newRC)
         return;
     QTC_CHECK(newRC->id() == rci.factory->runConfigurationId());
-    m_target->addRunConfiguration(newRC);
-    m_target->setActiveRunConfiguration(newRC);
+    m_target->activeBuildConfiguration()->addRunConfiguration(newRC);
+    m_target->activeBuildConfiguration()->setActiveRunConfiguration(newRC);
     updateRemoveToolButtons();
 }
 
@@ -198,13 +185,13 @@ void RunSettingsWidget::cloneRunConfiguration()
     if (name.isEmpty())
         return;
 
-    RunConfiguration *newRc = activeRunConfiguration->clone(m_target);
+    RunConfiguration *newRc = activeRunConfiguration->clone(m_target->activeBuildConfiguration());
     if (!newRc)
         return;
 
     newRc->setDisplayName(name);
-    m_target->addRunConfiguration(newRc);
-    m_target->setActiveRunConfiguration(newRc);
+    m_target->activeBuildConfiguration()->addRunConfiguration(newRc);
+    m_target->activeBuildConfiguration()->setActiveRunConfiguration(newRc);
 }
 
 void RunSettingsWidget::removeRunConfiguration()
@@ -218,7 +205,7 @@ void RunSettingsWidget::removeRunConfiguration()
     if (msgBox.exec() == QMessageBox::No)
         return;
 
-    m_target->removeRunConfiguration(rc);
+    m_target->activeBuildConfiguration()->removeRunConfiguration(rc);
     updateRemoveToolButtons();
     m_renameRunButton->setEnabled(m_target->activeRunConfiguration());
     m_cloneRunButton->setEnabled(m_target->activeRunConfiguration());
@@ -237,7 +224,7 @@ void RunSettingsWidget::removeAllRunConfigurations()
     if (msgBox.exec() == QMessageBox::Cancel)
         return;
 
-    m_target->removeAllRunConfigurations();
+    m_target->activeBuildConfiguration()->removeAllRunConfigurations();
     updateRemoveToolButtons();
     m_renameRunButton->setEnabled(false);
     m_cloneRunButton->setEnabled(false);
@@ -248,7 +235,7 @@ void RunSettingsWidget::activeRunConfigurationChanged()
     if (m_ignoreChanges.isLocked())
         return;
 
-    ProjectConfigurationModel *model = m_target->runConfigurationModel();
+    ProjectConfigurationModel *model = m_target->activeBuildConfiguration()->runConfigurationModel();
     int index = model->indexFor(m_target->activeRunConfiguration());
     {
         const Utils::GuardLocker locker(m_ignoreChanges);
@@ -285,14 +272,14 @@ void RunSettingsWidget::currentRunConfigurationChanged(int index)
     RunConfiguration *selectedRunConfiguration = nullptr;
     if (index >= 0)
         selectedRunConfiguration = qobject_cast<RunConfiguration *>
-                (m_target->runConfigurationModel()->projectConfigurationAt(index));
+                (m_target->activeBuildConfiguration()->runConfigurationModel()->projectConfigurationAt(index));
 
     if (selectedRunConfiguration == m_runConfiguration)
         return;
 
     {
         const Utils::GuardLocker locker(m_ignoreChanges);
-        m_target->setActiveRunConfiguration(selectedRunConfiguration);
+        m_target->activeBuildConfiguration()->setActiveRunConfiguration(selectedRunConfiguration);
     }
 
     // Update the run configuration configuration widget
@@ -402,6 +389,20 @@ void RunSettingsWidget::initForActiveBuildConfig()
     m_removeDeployToolButton->setEnabled(
         m_target->activeBuildConfiguration()->deployConfigurations().count() > 1);
     updateDeployConfiguration(m_target->activeDeployConfiguration());
+
+    disconnect(m_runConfigurationCombo, &QComboBox::currentIndexChanged,
+            this, &RunSettingsWidget::currentRunConfigurationChanged);
+    RunConfiguration *rc = m_target->activeRunConfiguration();
+    ProjectConfigurationModel *model = m_target->activeBuildConfiguration()->runConfigurationModel();
+    m_runConfigurationCombo->setModel(model);
+    m_runConfigurationCombo->setCurrentIndex(model->indexFor(rc));
+    connect(m_runConfigurationCombo, &QComboBox::currentIndexChanged,
+            this, &RunSettingsWidget::currentRunConfigurationChanged);
+    updateRemoveToolButtons();
+    m_renameRunButton->setEnabled(rc);
+    m_cloneRunButton->setEnabled(rc);
+
+    setConfigurationWidget(rc);
 }
 
 void RunSettingsWidget::updateRemoveToolButtons()
@@ -409,7 +410,7 @@ void RunSettingsWidget::updateRemoveToolButtons()
     const BuildConfiguration * const bc = m_target->activeBuildConfiguration();
     QTC_ASSERT(bc, return);
     m_removeDeployToolButton->setEnabled(bc->deployConfigurations().count() > 1);
-    const bool hasRunConfigs = !m_target->runConfigurations().isEmpty();
+    const bool hasRunConfigs = !bc->runConfigurations().isEmpty();
     m_removeRunToolButton->setEnabled(hasRunConfigs);
     m_removeAllRunConfigsButton->setEnabled(hasRunConfigs);
 }
@@ -492,7 +493,8 @@ QString RunSettingsWidget::uniqueRCName(const QString &name)
     QString result = name.trimmed();
     if (!result.isEmpty()) {
         QStringList rcNames;
-        const QList<RunConfiguration *> configurations = m_target->runConfigurations();
+        const QList<RunConfiguration *> configurations
+            = m_target->activeBuildConfiguration()->runConfigurations();
         for (RunConfiguration *rc : configurations) {
             if (rc == m_target->activeRunConfiguration())
                 continue;

@@ -12,6 +12,7 @@
 #include "appmanagerutilities.h"
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -30,14 +31,13 @@ namespace AppManager::Internal {
 class AppManagerRunConfiguration : public RunConfiguration
 {
 public:
-    AppManagerRunConfiguration(Target *target, Id id)
-        : RunConfiguration(target, id)
+    AppManagerRunConfiguration(BuildConfiguration *bc, Id id)
+        : RunConfiguration(bc, id)
     {
         setDefaultDisplayName(Tr::tr("Run an Application Manager Package"));
 
-        setUpdater([this, target] {
-            QList<TargetInformation> tis
-                = TargetInformation::readFromProject(target->activeBuildConfiguration(), buildKey());
+        setUpdater([this, bc] {
+            QList<TargetInformation> tis = TargetInformation::readFromProject(bc, buildKey());
             if (tis.isEmpty())
                 return;
             const TargetInformation targetInformation = tis.at(0);
@@ -49,10 +49,7 @@ public:
             appId.setReadOnly(true);
         });
 
-        connect(target, &Target::parsingFinished, this, &RunConfiguration::update);
-        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
-        connect(target, &Target::deploymentDataChanged, this, &RunConfiguration::update);
-        connect(target, &Target::kitChanged, this, &RunConfiguration::update);
+        connect(buildSystem(), &BuildSystem::parsingFinished, this, &RunConfiguration::update);
     }
 
     AppManagerControllerAspect controller{this};
@@ -65,8 +62,8 @@ public:
 class AppManagerRunAndDebugConfiguration final : public AppManagerRunConfiguration
 {
 public:
-    AppManagerRunAndDebugConfiguration(Target *target, Id id)
-        : AppManagerRunConfiguration(target, id)
+    AppManagerRunAndDebugConfiguration(BuildConfiguration *bc, Id id)
+        : AppManagerRunConfiguration(bc, id)
     {
         setDefaultDisplayName(Tr::tr("Run and Debug an Application Manager Package"));
         environment.addPreferredBaseEnvironment(Tr::tr("Clean Environment"), {});

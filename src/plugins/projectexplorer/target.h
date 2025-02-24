@@ -65,15 +65,7 @@ public:
     const QList<BuildConfiguration *> buildConfigurations() const;
     BuildConfiguration *activeBuildConfiguration() const;
     DeployConfiguration *activeDeployConfiguration() const;
-
-    // Running
-    const QList<RunConfiguration *> runConfigurations() const;
-    void addRunConfiguration(RunConfiguration *rc);
-    void removeRunConfiguration(RunConfiguration *rc);
-    void removeAllRunConfigurations();
-
     RunConfiguration *activeRunConfiguration() const;
-    void setActiveRunConfiguration(RunConfiguration *rc);
 
     QIcon icon() const;
     QIcon overlayIcon() const;
@@ -94,10 +86,8 @@ public:
     Utils::MacroExpander *macroExpander() const;
 
     ProjectConfigurationModel *buildConfigurationModel() const;
-    ProjectConfigurationModel *runConfigurationModel() const;
 
     DeploymentData deploymentData() const;
-    DeploymentData buildSystemDeploymentData() const;
     BuildTargetInfo buildTarget(const QString &buildKey) const;
 
     QString activeBuildKey() const; // Build key of active run configuaration
@@ -115,12 +105,12 @@ signals:
 
     void kitChanged();
 
+    // FIXME: Check all uses of all the following signals, plus the associated getters.
+    // Likely most of them should refer to the BC counterpart instead (which might not currently exist).
     void parsingStarted();
     void parsingFinished(bool);
     void buildSystemUpdated(ProjectExplorer::BuildSystem *bs);
 
-    // TODO clean up signal names
-    // might be better to also have aboutToRemove signals
     void removedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
     void addedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
     void activeRunConfigurationChanged(ProjectExplorer::RunConfiguration *rc);

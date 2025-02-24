@@ -9,7 +9,6 @@
 #include "simulatorcontrol.h"
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
@@ -25,7 +24,6 @@
 #include <utils/async.h>
 #include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
-#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QAction>
@@ -59,10 +57,10 @@ static IosDeviceType toIosDeviceType(const SimulatorInfo &device)
     return iosDeviceType;
 }
 
-IosRunConfiguration::IosRunConfiguration(Target *target, Id id)
-    : RunConfiguration(target, id), iosDeviceType(this, this)
+IosRunConfiguration::IosRunConfiguration(BuildConfiguration *bc, Id id)
+    : RunConfiguration(bc, id), iosDeviceType(this, this)
 {
-    executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
+    executable.setDeviceSelector(bc->target(), ExecutableAspect::RunDevice);
 
     setUpdater([this] {
         IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit());

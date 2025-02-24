@@ -274,7 +274,7 @@ public:
     FilePath buildDirectory;
     Environment buildEnvironment;
     Kit *kit = nullptr; // Not owned.
-    QPointer<Target> target; // Not owned.
+    QPointer<BuildConfiguration> buildConfiguration; // Not owned.
     QPointer<Project> project; // Not owned.
     std::function<bool(bool*)> promptToStop;
     std::vector<RunWorkerFactory> m_factories;
@@ -399,28 +399,26 @@ void RunControl::copyDataFromRunConfiguration(RunConfiguration *runConfig)
     d->aspectData = runConfig->aspectData();
     d->printEnvironment = runConfig->isPrintEnvironmentEnabled();
 
-    setTarget(runConfig->target());
+    setBuildConfiguration(runConfig->buildConfiguration());
 
     d->macroExpander = runConfig->macroExpander();
 }
 
-void RunControl::setTarget(Target *target)
+void RunControl::setBuildConfiguration(BuildConfiguration *bc)
 {
-    QTC_ASSERT(target, return);
-    QTC_CHECK(!d->target);
-    d->target = target;
+    QTC_ASSERT(bc, return);
+    QTC_CHECK(!d->buildConfiguration);
+    d->buildConfiguration = bc;
 
-    if (!d->buildKey.isEmpty() && target->buildSystem())
-        d->buildTargetInfo = target->buildTarget(d->buildKey);
+    if (!d->buildKey.isEmpty())
+        d->buildTargetInfo = bc->target()->buildTarget(d->buildKey);
 
-    if (auto bc = target->activeBuildConfiguration()) {
-        d->buildDirectory = bc->buildDirectory();
-        d->buildEnvironment = bc->environment();
-    }
+    d->buildDirectory = bc->buildDirectory();
+    d->buildEnvironment = bc->environment();
 
-    setKit(target->kit());
-    d->macroExpander = target->macroExpander();
-    d->project = target->project();
+    setKit(bc->kit());
+    d->macroExpander = bc->macroExpander();
+    d->project = bc->project();
 }
 
 void RunControl::setKit(Kit *kit)
@@ -987,7 +985,7 @@ void RunControlPrivate::showError(const QString &msg)
 
 void RunControl::setupFormatter(OutputFormatter *formatter) const
 {
-    QList<Utils::OutputLineParser *> parsers = createOutputParsers(target());
+    QList<Utils::OutputLineParser *> parsers = createOutputParsers(buildConfiguration()->target());
     if (const auto customParsersAspect = aspectData<CustomParsersAspect>()) {
         for (const Id id : std::as_const(customParsersAspect->parsers)) {
             if (auto parser = createCustomParserFromId(id))
@@ -1085,9 +1083,9 @@ IDevice::ConstPtr RunControl::device() const
    return d->device;
 }
 
-Target *RunControl::target() const
+BuildConfiguration *RunControl::buildConfiguration() const
 {
-    return d->target;
+    return d->buildConfiguration;
 }
 
 Project *RunControl::project() const
@@ -1535,8 +1533,8 @@ void ProcessRunnerPrivate::start()
     if (const auto rc = q->runControl()) {
         QString shellName = rc->displayName();
 
-        if (rc->target()) {
-            if (BuildConfiguration *buildConfig = rc->target()->activeBuildConfiguration())
+        if (rc->buildConfiguration()) {
+            if (BuildConfiguration *buildConfig = rc->buildConfiguration())
                 shellName += " - " + buildConfig->displayName();
         }
 

@@ -47,15 +47,15 @@ public:
 class AndroidRunConfiguration : public RunConfiguration
 {
 public:
-    AndroidRunConfiguration(Target *target, Id id)
-        : RunConfiguration(target, id)
+    AndroidRunConfiguration(BuildConfiguration *bc, Id id)
+        : RunConfiguration(bc, id)
     {
         environment.addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});
 
-        extraAppArgs.addOnChanged(this, [this, target] {
-            if (target->buildConfigurations().first()->buildType() == BuildConfiguration::BuildType::Release) {
-                const QString buildKey = target->activeBuildKey();
-                target->buildSystem()->setExtraData(buildKey,
+        extraAppArgs.addOnChanged(this, [this, bc] {
+            if (bc->target()->buildConfigurations().first()->buildType() == BuildConfiguration::BuildType::Release) {
+                const QString buildKey = bc->activeBuildKey();
+                bc->buildSystem()->setExtraData(buildKey,
                                                     Android::Constants::AndroidApplicationArgs,
                                                     extraAppArgs());
             }
@@ -82,8 +82,6 @@ public:
             setDisplayName(bti.displayName);
             setDefaultDisplayName(bti.displayName);
         });
-
-        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
     }
 
     EnvironmentAspect environment{this};
