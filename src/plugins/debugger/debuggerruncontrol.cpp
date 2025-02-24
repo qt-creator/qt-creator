@@ -105,7 +105,6 @@ public:
     int snapshotCounter = 0;
     // int engineStartsNeeded = 0;
     int engineStopsNeeded = 0;
-    QString runId;
 
     DebuggerRunParameters m_runParameters;
 
@@ -441,6 +440,14 @@ ExecutableItem DebuggerRunToolPrivate::debugServerRecipe()
     };
 }
 
+static int newRunId()
+{
+    static int toolRunCount = 0;
+    if (EngineManager::engines().isEmpty())
+        toolRunCount = 0;
+    return ++toolRunCount;
+}
+
 void DebuggerRunTool::continueAfterDebugServerStart()
 {
     Utils::globalMacroExpander()->registerFileVariables(
@@ -449,6 +456,8 @@ void DebuggerRunTool::continueAfterDebugServerStart()
     );
 
     runControl()->setDisplayName(d->m_runParameters.displayName());
+
+    const QString runId = QString::number(newRunId());
 
     if (auto dapEngine = createDapEngine(runControl()->runMode()))
         m_engines << dapEngine;
@@ -519,7 +528,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
         if (engine != m_engines.first())
             engine->setSecondaryEngine();
         engine->setRunParameters(d->m_runParameters);
-        engine->setRunId(d->runId);
+        engine->setRunId(runId);
         for (auto companion : m_engines) {
             if (companion != engine)
                 engine->addCompanionEngine(companion);
@@ -672,15 +681,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
     d->m_runParameters = DebuggerRunParameters::fromRunControl(runControl);
 
     setId("DebuggerRunTool");
-
-    static int toolRunCount = 0;
-
-    // Reset once all are gone.
-    if (EngineManager::engines().isEmpty())
-        toolRunCount = 0;
-
-    d->runId = QString::number(++toolRunCount);
-
     runControl->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
     runControl->setPromptToStop([](bool *optionalPrompt) {
         return RunControl::showPromptToStopDialog(
