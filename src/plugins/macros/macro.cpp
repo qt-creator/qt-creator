@@ -75,19 +75,13 @@ Macro& Macro::operator=(const Macro &other)
     return *this;
 }
 
-bool Macro::load(QString fileName)
+bool Macro::load()
 {
     if (!d->events.isEmpty())
         return true; // the macro is not empty
 
-    // Take the current filename if the parameter is null
-    if (fileName.isNull())
-        fileName = d->fileName;
-    else
-        d->fileName = fileName;
-
     // Load all the macroevents
-    QFile file(fileName);
+    QFile file(d->fileName);
     if (file.open(QFile::ReadOnly)) {
         QDataStream stream(&file);
         stream >> d->version;

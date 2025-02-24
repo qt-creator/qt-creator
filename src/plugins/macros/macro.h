@@ -18,7 +18,7 @@ public:
     ~Macro();
     Macro& operator=(const Macro& other);
 
-    bool load(QString fileName = QString());
+    bool load();
     bool loadHeader(const QString &fileName);
     bool save(const QString &fileName);
 
