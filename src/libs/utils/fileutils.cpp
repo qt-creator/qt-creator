@@ -85,7 +85,9 @@ bool FileReader::fetch(const FilePath &filePath, QString *errorString)
 
 // FileSaver
 
-FileSaverBase::FileSaverBase() = default;
+FileSaverBase::FileSaverBase()
+    : m_result(Result::Ok)
+{}
 
 FileSaverBase::~FileSaverBase() = default;
 
@@ -94,7 +96,7 @@ bool FileSaverBase::finalize()
     m_file->close();
     setResult(m_file->error() == QFile::NoError);
     m_file.reset();
-    return !m_hasError;
+    return m_result;
 }
 
 bool FileSaverBase::finalize(QString *errStr)
@@ -118,29 +120,28 @@ bool FileSaverBase::finalize(QWidget *parent)
 
 bool FileSaverBase::write(const char *data, int len)
 {
-    if (m_hasError)
+    if (!m_result)
         return false;
     return setResult(m_file->write(data, len) == len);
 }
 
 bool FileSaverBase::write(const QByteArray &bytes)
 {
-    if (m_hasError)
+    if (!m_result)
         return false;
     return setResult(m_file->write(bytes) == bytes.size());
 }
 
 bool FileSaverBase::setResult(bool ok)
 {
-    if (!ok && !m_hasError) {
+    if (!ok && m_result) {
         if (!m_file->errorString().isEmpty()) {
-            m_errorString = Tr::tr("Cannot write file %1: %2")
-                                .arg(m_filePath.toUserOutput(), m_file->errorString());
+            m_result = Result::Error(Tr::tr("Cannot write file %1: %2")
+                                     .arg(m_filePath.toUserOutput(), m_file->errorString()));
         } else {
-            m_errorString = Tr::tr("Cannot write file %1. Disk full?")
-                                .arg(m_filePath.toUserOutput());
+            m_result = Result::Error(Tr::tr("Cannot write file %1. Disk full?")
+                                     .arg(m_filePath.toUserOutput()));
         }
-        m_hasError = true;
     }
     return ok;
 }
@@ -209,9 +210,8 @@ FileSaver::FileSaver(const FilePath &filePath, QIODevice::OpenMode mode)
                    "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"};
         const QString fn = filePath.baseName().toUpper();
         if (reservedNames.contains(fn)) {
-            m_errorString = Tr::tr("%1: Is a reserved filename on Windows. Cannot save.")
-                                .arg(filePath.toUserOutput());
-            m_hasError = true;
+            m_result = Result::Error(Tr::tr("%1: Is a reserved filename on Windows. Cannot save.")
+                                     .arg(filePath.toUserOutput()));
             return;
         }
     }
@@ -228,8 +228,7 @@ FileSaver::FileSaver(const FilePath &filePath, QIODevice::OpenMode mode)
     if (!m_file->open(QIODevice::WriteOnly | mode)) {
         QString err = filePath.exists() ?
                 Tr::tr("Cannot overwrite file %1: %2") : Tr::tr("Cannot create file %1: %2");
-        m_errorString = err.arg(filePath.toUserOutput(), m_file->errorString());
-        m_hasError = true;
+        m_result = Result::Error(err.arg(filePath.toUserOutput(), m_file->errorString()));
     }
 }
 
@@ -239,14 +238,14 @@ bool FileSaver::finalize()
         return FileSaverBase::finalize();
 
     auto sf = static_cast<SaveFile *>(m_file.get());
-    if (m_hasError) {
+    if (!m_result) {
         if (sf->isOpen())
             sf->rollback();
     } else {
         setResult(sf->commit());
     }
     m_file.reset();
-    return !m_hasError;
+    return m_result;
 }
 
 TempFileSaver::TempFileSaver(const QString &templ)
@@ -262,10 +261,9 @@ void TempFileSaver::initFromString(const QString &templ)
         tempFile->setFileTemplate(templ);
     tempFile->setAutoRemove(false);
     if (!tempFile->open()) {
-        m_errorString = Tr::tr("Cannot create temporary file in %1: %2").arg(
+        m_result = Result::Error(Tr::tr("Cannot create temporary file in %1: %2").arg(
                 QDir::toNativeSeparators(QFileInfo(tempFile->fileTemplate()).absolutePath()),
-                tempFile->errorString());
-        m_hasError = true;
+                tempFile->errorString()));
     }
     m_filePath = FilePath::fromString(tempFile->fileName());
 }
@@ -277,17 +275,15 @@ TempFileSaver::TempFileSaver(const FilePath &templ)
     } else {
         expected_str<FilePath> result = templ.createTempFile();
         if (!result) {
-            m_errorString = Tr::tr("Cannot create temporary file %1: %2")
-                                .arg(templ.toUserOutput(), result.error());
-            m_hasError = true;
+            m_result = Result::Error(Tr::tr("Cannot create temporary file %1: %2")
+                                .arg(templ.toUserOutput(), result.error()));
             return;
         }
 
         m_file.reset(new QFile(result->toFSPathString()));
         if (!m_file->open(QIODevice::WriteOnly)) {
-            m_errorString = Tr::tr("Cannot create temporary file %1: %2")
-                                .arg(result->toUserOutput(), m_file->errorString());
-            m_hasError = true;
+            m_result = Result::Error(Tr::tr("Cannot create temporary file %1: %2")
+                                .arg(result->toUserOutput(), m_file->errorString()));
         }
         m_filePath = *result;
     }

@@ -160,8 +160,8 @@ public:
     virtual ~FileSaverBase();
 
     FilePath filePath() const { return m_filePath; }
-    bool hasError() const { return m_hasError; }
-    QString errorString() const { return m_errorString; }
+    bool hasError() const { return !m_result; }
+    QString errorString() const { return m_result.error(); }
     virtual bool finalize();
     bool finalize(QString *errStr);
 #ifdef QT_GUI_LIB
@@ -180,8 +180,7 @@ public:
 protected:
     std::unique_ptr<QFile> m_file;
     FilePath m_filePath;
-    QString m_errorString;
-    bool m_hasError = false;
+    Result m_result;
 
 private:
     Q_DISABLE_COPY(FileSaverBase)
