@@ -127,7 +127,8 @@ public:
     virtual void finalizeInitialization() {}
 
     static BaseTextEditor *currentTextEditor();
-    static QVector<BaseTextEditor *> textEditorsForDocument(TextDocument *textDocument);
+    static QList<BaseTextEditor *> textEditorsForDocument(TextDocument *textDocument);
+    static QList<BaseTextEditor *> textEditorsForFilePath(const Utils::FilePath &path);
 
     TextEditorWidget *editorWidget() const;
     TextDocument *textDocument() const;
