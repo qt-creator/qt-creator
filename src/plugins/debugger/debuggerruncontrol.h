@@ -25,7 +25,7 @@ public:
 
     void setupPortsGatherer();
 
-    DebuggerRunParameters &runParameters() { return m_runParameters; }
+    DebuggerRunParameters &runParameters();
 
 private:
     void continueAfterDebugServerStart();
@@ -33,7 +33,6 @@ private:
     friend class Internal::DebuggerRunToolPrivate;
     Internal::DebuggerRunToolPrivate *d;
     QList<QPointer<Internal::DebuggerEngine>> m_engines;
-    DebuggerRunParameters m_runParameters;
 };
 
 void setupDebuggerRunWorker();

@@ -107,6 +107,8 @@ public:
     int engineStopsNeeded = 0;
     QString runId;
 
+    DebuggerRunParameters m_runParameters;
+
     // Core unpacker
     FilePath m_tempCoreFilePath; // TODO: Enclose in the recipe storage when all tasks are there.
 
@@ -140,7 +142,7 @@ void DebuggerRunTool::start()
 
 ExecutableItem DebuggerRunToolPrivate::coreFileRecipe()
 {
-    const FilePath coreFile = q->m_runParameters.coreFile();
+    const FilePath coreFile = m_runParameters.coreFile();
     if (!coreFile.endsWith(".gz") && !coreFile.endsWith(".lzo"))
         return Group {};
 
@@ -172,9 +174,9 @@ ExecutableItem DebuggerRunToolPrivate::coreFileRecipe()
 
     const auto onDone = [this, storage](DoneWith result) {
         if (result == DoneWith::Success)
-            q->m_runParameters.setCoreFilePath(m_tempCoreFilePath);
+            m_runParameters.setCoreFilePath(m_tempCoreFilePath);
         else
-            q->reportFailure("Error unpacking " + q->m_runParameters.coreFile().toUserOutput());
+            q->reportFailure("Error unpacking " + m_runParameters.coreFile().toUserOutput());
         if (storage->isOpen())
             storage->close();
     };
@@ -188,18 +190,18 @@ ExecutableItem DebuggerRunToolPrivate::coreFileRecipe()
 ExecutableItem DebuggerRunToolPrivate::terminalRecipe(const SingleBarrier &barrier)
 {
     const auto useTerminal = [this] {
-        const bool useCdbConsole = q->m_runParameters.cppEngineType() == CdbEngineType
-                                   && (q->m_runParameters.startMode() == StartInternal
-                                       || q->m_runParameters.startMode() == StartExternal)
+        const bool useCdbConsole = m_runParameters.cppEngineType() == CdbEngineType
+                                   && (m_runParameters.startMode() == StartInternal
+                                       || m_runParameters.startMode() == StartExternal)
                                    && settings().useCdbConsole();
         if (useCdbConsole)
-            q->m_runParameters.setUseTerminal(false);
-        return q->m_runParameters.useTerminal();
+            m_runParameters.setUseTerminal(false);
+        return m_runParameters.useTerminal();
     };
 
     const auto onSetup = [this, barrier](Process &process) {
-        ProcessRunData stub = q->m_runParameters.inferior();
-        if (q->m_runParameters.runAsRoot()) {
+        ProcessRunData stub = m_runParameters.inferior();
+        if (m_runParameters.runAsRoot()) {
             process.setRunAsRoot(true);
             RunControl::provideAskPassEntry(stub.environment);
         }
@@ -208,8 +210,8 @@ ExecutableItem DebuggerRunToolPrivate::terminalRecipe(const SingleBarrier &barri
 
         QObject::connect(&process, &Process::started, &process,
                          [this, processPtr = &process, barrier = barrier->barrier()] {
-            q->m_runParameters.setApplicationPid(processPtr->processId());
-            q->m_runParameters.setApplicationMainThreadId(processPtr->applicationMainThreadId());
+            m_runParameters.setApplicationPid(processPtr->processId());
+            m_runParameters.setApplicationMainThreadId(processPtr->applicationMainThreadId());
             barrier->advance();
         });
 
@@ -240,31 +242,31 @@ ExecutableItem DebuggerRunToolPrivate::fixupParamsRecipe()
         TaskHub::clearTasks(Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
         if (q->runControl()->usesDebugChannel())
-            q->m_runParameters.setRemoteChannel(q->runControl()->debugChannel());
+            m_runParameters.setRemoteChannel(q->runControl()->debugChannel());
 
         if (q->runControl()->usesQmlChannel()) {
-            q->m_runParameters.setQmlServer(q->runControl()->qmlChannel());
-            if (q->m_runParameters.isAddQmlServerInferiorCmdArgIfNeeded()
-                && q->m_runParameters.isQmlDebugging()
-                && q->m_runParameters.isCppDebugging()) {
+            m_runParameters.setQmlServer(q->runControl()->qmlChannel());
+            if (m_runParameters.isAddQmlServerInferiorCmdArgIfNeeded()
+                && m_runParameters.isQmlDebugging()
+                && m_runParameters.isCppDebugging()) {
 
-                const int qmlServerPort = q->m_runParameters.qmlServer().port();
+                const int qmlServerPort = m_runParameters.qmlServer().port();
                 QTC_ASSERT(qmlServerPort > 0, q->reportFailure(); return false);
                 const QString mode = QString("port:%1").arg(qmlServerPort);
 
-                auto inferior = q->m_runParameters.inferior();
+                auto inferior = m_runParameters.inferior();
                 CommandLine cmd{inferior.command.executable()};
                 cmd.addArg(qmlDebugCommandLineArguments(QmlDebuggerServices, mode, true));
-                cmd.addArgs(q->m_runParameters.inferior().command.arguments(), CommandLine::Raw);
+                cmd.addArgs(m_runParameters.inferior().command.arguments(), CommandLine::Raw);
                 inferior.command = cmd;
-                q->m_runParameters.setInferior(inferior);
+                m_runParameters.setInferior(inferior);
             }
         }
 
         // User canceled input dialog asking for executable when working on library project.
-        if (q->m_runParameters.startMode() == StartInternal
-            && q->m_runParameters.inferior().command.isEmpty()
-            && q->m_runParameters.interpreter().isEmpty()) {
+        if (m_runParameters.startMode() == StartInternal
+            && m_runParameters.inferior().command.isEmpty()
+            && m_runParameters.interpreter().isEmpty()) {
             q->reportFailure(Tr::tr("No executable specified."));
             return false;
         }
@@ -284,18 +286,18 @@ ExecutableItem DebuggerRunToolPrivate::fixupParamsRecipe()
         //    return;
         // }
 
-        if (Result res = q->m_runParameters.fixupParameters(q->runControl()); !res) {
+        if (Result res = m_runParameters.fixupParameters(q->runControl()); !res) {
             q->reportFailure(res.error());
             return false;
         }
 
-        if (q->m_runParameters.cppEngineType() == CdbEngineType
-            && Utils::is64BitWindowsBinary(q->m_runParameters.inferior().command.executable())
-            && !Utils::is64BitWindowsBinary(q->m_runParameters.debugger().command.executable())) {
+        if (m_runParameters.cppEngineType() == CdbEngineType
+            && Utils::is64BitWindowsBinary(m_runParameters.inferior().command.executable())
+            && !Utils::is64BitWindowsBinary(m_runParameters.debugger().command.executable())) {
             q->reportFailure(Tr::tr(
                     "%1 is a 64 bit executable which can not be debugged by a 32 bit Debugger.\n"
                     "Please select a 64 bit Debugger in the kit settings for this kit.")
-                    .arg(q->m_runParameters.inferior().command.executable().toUserOutput()));
+                    .arg(m_runParameters.inferior().command.executable().toUserOutput()));
             return false;
         }
 
@@ -306,12 +308,12 @@ ExecutableItem DebuggerRunToolPrivate::fixupParamsRecipe()
 ExecutableItem DebuggerRunToolPrivate::debugServerRecipe()
 {
     const auto useDebugServer = [this] {
-        return q->runControl()->usesDebugChannel() && !q->m_runParameters.skipDebugServer();
+        return q->runControl()->usesDebugChannel() && !m_runParameters.skipDebugServer();
     };
 
     const auto onSetup = [this](Process &process) {
         process.setUtf8Codec();
-        CommandLine commandLine = q->m_runParameters.inferior().command;
+        CommandLine commandLine = m_runParameters.inferior().command;
         CommandLine cmd;
 
         if (q->runControl()->usesQmlChannel() && !q->runControl()->usesDebugChannel()) {
@@ -372,15 +374,15 @@ ExecutableItem DebuggerRunToolPrivate::debugServerRecipe()
                 const QString ipAndPort("`echo $SSH_CLIENT | cut -d ' ' -f 1`:%1");
                 cmd.addArgs(ipAndPort.arg(q->runControl()->debugChannel().port()), CommandLine::Raw);
 
-                if (q->m_runParameters.serverAttachPid().isValid())
-                    cmd.addArgs({"--attach", QString::number(q->m_runParameters.serverAttachPid().pid())});
+                if (m_runParameters.serverAttachPid().isValid())
+                    cmd.addArgs({"--attach", QString::number(m_runParameters.serverAttachPid().pid())});
                 else
                     cmd.addCommandLineAsArgs(q->runControl()->commandLine());
             } else {
                 // Something resembling gdbserver
-                if (q->m_runParameters.serverUseMulti())
+                if (m_runParameters.serverUseMulti())
                     cmd.addArg("--multi");
-                if (q->m_runParameters.serverAttachPid().isValid())
+                if (m_runParameters.serverAttachPid().isValid())
                     cmd.addArg("--attach");
 
                 const auto port = q->runControl()->debugChannel().port();
@@ -393,8 +395,8 @@ ExecutableItem DebuggerRunToolPrivate::debugServerRecipe()
                     process.setExtraData(extraData);
                 }
 
-                if (q->m_runParameters.serverAttachPid().isValid())
-                    cmd.addArg(QString::number(q->m_runParameters.serverAttachPid().pid()));
+                if (m_runParameters.serverAttachPid().isValid())
+                    cmd.addArg(QString::number(m_runParameters.serverAttachPid().pid()));
             }
         }
 
@@ -404,7 +406,7 @@ ExecutableItem DebuggerRunToolPrivate::debugServerRecipe()
         }
 
         process.setCommand(cmd);
-        process.setWorkingDirectory(q->m_runParameters.inferior().workingDirectory);
+        process.setWorkingDirectory(m_runParameters.inferior().workingDirectory);
 
         QObject::connect(&process, &Process::readyReadStandardOutput, q, [this, process = &process] {
             const QString msg = process->readAllStandardOutput();
@@ -443,17 +445,17 @@ void DebuggerRunTool::continueAfterDebugServerStart()
 {
     Utils::globalMacroExpander()->registerFileVariables(
                 "DebuggedExecutable", Tr::tr("Debugged executable"),
-                [this] { return m_runParameters.inferior().command.executable(); }
+                [this] { return d->m_runParameters.inferior().command.executable(); }
     );
 
-    runControl()->setDisplayName(m_runParameters.displayName());
+    runControl()->setDisplayName(d->m_runParameters.displayName());
 
     if (auto dapEngine = createDapEngine(runControl()->runMode()))
         m_engines << dapEngine;
 
     if (m_engines.isEmpty()) {
-        if (m_runParameters.isCppDebugging()) {
-            switch (m_runParameters.cppEngineType()) {
+        if (d->m_runParameters.isCppDebugging()) {
+            switch (d->m_runParameters.cppEngineType()) {
             case GdbEngineType:
                 m_engines << createGdbEngine();
                 break;
@@ -477,7 +479,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
                 m_engines << createUvscEngine();
                 break;
             default:
-                if (!m_runParameters.isQmlDebugging()) {
+                if (!d->m_runParameters.isQmlDebugging()) {
                     reportFailure(noEngineMessage() + '\n' +
                         Tr::tr("Specify Debugger settings in Projects > Run."));
                     return;
@@ -487,10 +489,10 @@ void DebuggerRunTool::continueAfterDebugServerStart()
             }
         }
 
-        if (m_runParameters.isPythonDebugging())
+        if (d->m_runParameters.isPythonDebugging())
             m_engines << createPdbEngine();
 
-        if (m_runParameters.isQmlDebugging())
+        if (d->m_runParameters.isQmlDebugging())
             m_engines << createQmlEngine();
     }
 
@@ -507,8 +509,8 @@ void DebuggerRunTool::continueAfterDebugServerStart()
             const FilePath mainScript = mainScriptAspect->filePath;
             const FilePath interpreter = interpreterAspect->filePath;
             if (!interpreter.isEmpty() && mainScript.endsWith(".py")) {
-                m_runParameters.setMainScript(mainScript);
-                m_runParameters.setInterpreter(interpreter);
+                d->m_runParameters.setMainScript(mainScript);
+                d->m_runParameters.setInterpreter(interpreter);
             }
         }
     }
@@ -516,7 +518,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
     for (auto engine : m_engines) {
         if (engine != m_engines.first())
             engine->setSecondaryEngine();
-        engine->setRunParameters(m_runParameters);
+        engine->setRunParameters(d->m_runParameters);
         engine->setRunId(d->runId);
         for (auto companion : m_engines) {
             if (companion != engine)
@@ -551,7 +553,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
         connect(engine, &DebuggerEngine::engineFinished, this, [this, engine] {
             engine->prepareForRestart();
             if (--d->engineStopsNeeded == 0) {
-                const QString cmd = m_runParameters.inferior().command.toUserOutput();
+                const QString cmd = d->m_runParameters.inferior().command.toUserOutput();
                 const QString msg = engine->runParameters().exitCode() // Main engine.
                                         ? Tr::tr("Debugging of %1 has finished with exit code %2.")
                                               .arg(cmd)
@@ -584,7 +586,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
         }
     }
 
-    if (m_runParameters.startMode() != AttachToCore) {
+    if (d->m_runParameters.startMode() != AttachToCore) {
         QStringList unhandledIds;
         bool hasQmlBreakpoints = false;
         for (const GlobalBreakpoint &gbp : BreakpointManager::globalBreakpoints()) {
@@ -628,12 +630,12 @@ void DebuggerRunTool::continueAfterDebugServerStart()
         }
     }
 
-    appendMessage(Tr::tr("Debugging %1 ...").arg(m_runParameters.inferior().command.toUserOutput()),
+    appendMessage(Tr::tr("Debugging %1 ...").arg(d->m_runParameters.inferior().command.toUserOutput()),
                   NormalMessageFormat);
     const QString debuggerName = Utils::transform<QStringList>(m_engines, &DebuggerEngine::objectName).join(" ");
 
     const QString message = Tr::tr("Starting debugger \"%1\" for ABI \"%2\"...")
-            .arg(debuggerName).arg(m_runParameters.toolChainAbi().toString());
+            .arg(debuggerName).arg(d->m_runParameters.toolChainAbi().toString());
     DebuggerMainWindow::showStatusMessage(message, 10000);
 
     d->showMessage(m_engines.first()->formatStartParameters(), LogDebug);
@@ -650,19 +652,24 @@ void DebuggerRunTool::stop()
 
 void DebuggerRunTool::setupPortsGatherer()
 {
-    if (m_runParameters.isCppDebugging())
+    if (d->m_runParameters.isCppDebugging())
         runControl()->requestDebugChannel();
 
-    if (m_runParameters.isQmlDebugging())
+    if (d->m_runParameters.isQmlDebugging())
         runControl()->requestQmlChannel();
+}
+
+DebuggerRunParameters &DebuggerRunTool::runParameters()
+{
+    return d->m_runParameters;
 }
 
 DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
     : RunWorker(runControl)
     , d(new DebuggerRunToolPrivate)
-    , m_runParameters(DebuggerRunParameters::fromRunControl(runControl))
 {
     d->q = this;
+    d->m_runParameters = DebuggerRunParameters::fromRunControl(runControl);
 
     setId("DebuggerRunTool");
 
@@ -691,8 +698,8 @@ DebuggerRunTool::~DebuggerRunTool()
     if (d->m_tempCoreFilePath.exists())
         d->m_tempCoreFilePath.removeFile();
 
-    if (m_runParameters.isSnapshot() && !m_runParameters.coreFile().isEmpty())
-        m_runParameters.coreFile().removeFile();
+    if (d->m_runParameters.isSnapshot() && !d->m_runParameters.coreFile().isEmpty())
+        d->m_runParameters.coreFile().removeFile();
 
     qDeleteAll(m_engines);
     m_engines.clear();
