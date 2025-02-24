@@ -736,7 +736,7 @@
          class="cls-1"
          x="0"
          y="0"
-         style="fill:#ffffff" />
+         style="fill:none" />
       <g
          id="g11668"
          transform="translate(17,-13)">
@@ -775,7 +775,8 @@
            id="Rectangle"
            d="m -7.0710678,-175.43154 v -11.34132 c 0,-2.29705 -1.8489181,-4.14597 -4.1459662,-4.14597 h -1.607563 c -2.297048,0 -4.145966,1.84892 -4.145966,4.14597 v 11.34132 c 3.181981,-0.9916 7.7781748,-0.63805 9.8994952,0 z"
            transform="rotate(135)"
-           sodipodi:nodetypes="csssscc" />
+           sodipodi:nodetypes="csssscc"
+           style="fill:#00414a" />
         <circle
            style="opacity:1;fill:none;stroke:#2cde85;stroke-width:10;stroke-opacity:0.9"
            id="path27226"
