@@ -127,7 +127,6 @@ QtcPlugin {
             "navigationwidget.h",
             "opendocumentstreeview.cpp",
             "opendocumentstreeview.h",
-            "outputpane.cpp",
             "outputpane.h",
             "outputpanemanager.cpp",
             "outputpanemanager.h",
