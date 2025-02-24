@@ -71,6 +71,8 @@ private:
     void saveSettings();
     void loadSettings();
 
+    void goToNextOrPrev(int offset);
+
     void triggerDefaultHandler(const QModelIndex &index);
     void setShowWarnings(bool);
     void updateCategoriesMenu();

@@ -535,38 +535,27 @@ bool TaskWindow::canPrevious() const
 
 void TaskWindow::goToNext()
 {
-    if (!canNext())
-        return;
-    QModelIndex startIndex = d->m_treeView.currentIndex();
-    QModelIndex currentIndex = startIndex;
-
-    if (startIndex.isValid()) {
-        do {
-            int row = currentIndex.row() + 1;
-            if (row == d->m_filter->rowCount())
-                row = 0;
-            currentIndex = d->m_filter->index(row, 0);
-            if (d->m_filter->hasFile(currentIndex))
-                break;
-        } while (startIndex != currentIndex);
-    } else {
-        currentIndex = d->m_filter->index(0, 0);
-    }
-    d->m_treeView.setCurrentIndex(currentIndex);
-    triggerDefaultHandler(currentIndex);
+    if (canNext())
+        goToNextOrPrev(1);
 }
 
 void TaskWindow::goToPrev()
 {
-    if (!canPrevious())
-        return;
+    if (canPrevious())
+        goToNextOrPrev(-1);
+}
+
+void TaskWindow::goToNextOrPrev(int offset)
+{
     QModelIndex startIndex = d->m_treeView.currentIndex();
     QModelIndex currentIndex = startIndex;
 
     if (startIndex.isValid()) {
         do {
-            int row = currentIndex.row() - 1;
-            if (row < 0)
+            int row = currentIndex.row() + offset;
+            if (row == d->m_filter->rowCount())
+                row = 0;
+            else if (row < 0)
                 row = d->m_filter->rowCount() - 1;
             currentIndex = d->m_filter->index(row, 0);
             if (d->m_filter->hasFile(currentIndex))
