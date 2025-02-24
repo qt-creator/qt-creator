@@ -664,7 +664,7 @@ static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
                     (*alwaysSave) = dia.alwaysSaveChecked();
                 if (failedToSave)
                     (*failedToSave) = modifiedDocuments;
-                const QStringList filesToDiff = dia.filesToDiff();
+                const FilePaths filesToDiff = dia.filesToDiff();
                 if (!filesToDiff.isEmpty()) {
                     if (auto diffService = DiffService::instance())
                         diffService->diffModifiedFiles(filesToDiff);
@@ -1133,7 +1133,7 @@ void DocumentManager::checkForReload()
 
     // handle the IDocuments
     QStringList errorStrings;
-    QStringList filesToDiff;
+    FilePaths filesToDiff;
     for (IDocument *document : std::as_const(changedIDocuments)) {
         IDocument::ChangeTrigger trigger = IDocument::TriggerInternal;
         std::optional<IDocument::ChangeType> type;
@@ -1250,7 +1250,7 @@ void DocumentManager::checkForReload()
                     }
                 }
                 if (previousReloadAnswer == ReloadNoneAndDiff)
-                    filesToDiff.append(document->filePath().toUrlishString());
+                    filesToDiff.append(document->filePath());
 
             // IDocument wants us to ask, and it's the TypeRemoved case
             } else {

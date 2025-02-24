@@ -2585,14 +2585,14 @@ void EditorManagerPrivate::revertToSaved(IDocument *document)
 {
     if (!document)
         return;
-    const QString fileName =  document->filePath().toUrlishString();
-    if (fileName.isEmpty())
+    const FilePath filePath =  document->filePath();
+    if (filePath.isEmpty())
         return;
     if (document->isModified()) {
         QMessageBox msgBox(QMessageBox::Question,
                            ::Core::Tr::tr("Revert to Saved"),
                            ::Core::Tr::tr("You will lose your current changes if you proceed reverting %1.")
-                               .arg(QDir::toNativeSeparators(fileName)),
+                               .arg(filePath.toUserOutput()),
                            QMessageBox::Yes | QMessageBox::No,
                            ICore::dialogParent());
         msgBox.button(QMessageBox::Yes)->setText(::Core::Tr::tr("Proceed"));
@@ -2609,7 +2609,7 @@ void EditorManagerPrivate::revertToSaved(IDocument *document)
             return;
 
         if (diffService && msgBox.clickedButton() == diffButton) {
-            diffService->diffModifiedFiles(QStringList(fileName));
+            diffService->diffModifiedFiles({filePath});
             return;
         }
     }
