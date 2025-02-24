@@ -4,12 +4,14 @@
 #include "macro.h"
 #include "macroevent.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/fileutils.h>
 
 #include <QFileInfo>
 #include <QDataStream>
 
-using namespace Macros::Internal;
+namespace Macros::Internal {
 
 /*!
     \class Macros::Macro
@@ -113,7 +115,7 @@ bool Macro::loadHeader(const QString &fileName)
     return false;
 }
 
-bool Macro::save(const QString &fileName, QWidget *parent)
+bool Macro::save(const QString &fileName)
 {
     Utils::FileSaver saver(Utils::FilePath::fromString(fileName));
     if (!saver.hasError()) {
@@ -125,7 +127,7 @@ bool Macro::save(const QString &fileName, QWidget *parent)
         }
         saver.setResult(&stream);
     }
-    if (!saver.finalize(parent))
+    if (!saver.finalize(Core::ICore::dialogParent()))
         return false;
     d->fileName = fileName;
     return true;
@@ -172,3 +174,5 @@ bool Macro::isWritable() const
     QFileInfo fileInfo(d->fileName);
     return fileInfo.exists() && fileInfo.isWritable();
 }
+
+} // namespace Macros::Internal

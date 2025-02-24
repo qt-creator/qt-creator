@@ -6,12 +6,7 @@
 #include <QList>
 #include <QString>
 
-QT_BEGIN_NAMESPACE
-class QWidget;
-QT_END_NAMESPACE
-
-namespace Macros {
-namespace Internal {
+namespace Macros::Internal {
 
 class MacroEvent;
 
@@ -25,7 +20,7 @@ public:
 
     bool load(QString fileName = QString());
     bool loadHeader(const QString &fileName);
-    bool save(const QString &fileName, QWidget *parent);
+    bool save(const QString &fileName);
 
     const QString &description() const;
     void setDescription(const QString &text);
@@ -44,5 +39,4 @@ private:
     MacroPrivate* d;
 };
 
-} // namespace Internal
-} // namespace Macros
+} // namespace Macros::Internal
