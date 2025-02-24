@@ -513,8 +513,9 @@ void DebuggerRunTool::continueAfterDebugServerStart()
         }
     }
 
-    bool first = true;
     for (auto engine : m_engines) {
+        if (engine != m_engines.first())
+            engine->setSecondaryEngine();
         engine->setRunParameters(m_runParameters);
         engine->setRunId(d->runId);
         for (auto companion : m_engines) {
@@ -526,8 +527,6 @@ void DebuggerRunTool::continueAfterDebugServerStart()
         connect(engine, &DebuggerEngine::kickoffTerminalProcessRequested,
                 d->m_glue.get(), &GlueInterface::kickoffTerminalProcessRequested);
         engine->setDevice(runControl()->device());
-        if (!first)
-            engine->setSecondaryEngine();
         auto rc = runControl();
         connect(engine, &DebuggerEngine::requestRunControlFinish, rc, [rc] {
                 rc->setAutoDeleteOnStop(true);
@@ -543,7 +542,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
             // }
 
             // Feels better, as the QML Engine might attach late or not at all.
-            if (engine == m_engines.first()) {
+            if (engine->isPrimaryEngine()) {
                 EngineManager::activateDebugMode();
                 reportStarted();
             }
@@ -567,7 +566,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
         // ++d->engineStartsNeeded;
         ++d->engineStopsNeeded;
 
-        if (first) {
+        if (engine->isPrimaryEngine()) {
             connect(engine, &DebuggerEngine::attachToCoreRequested, this, [this](const QString &coreFile) {
                 auto rc = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
                 rc->copyDataFromRunControl(runControl());
@@ -582,8 +581,6 @@ void DebuggerRunTool::continueAfterDebugServerStart()
                 rp.setSnapshot(true);
                 rc->start();
             });
-
-            first = false;
         }
     }
 
