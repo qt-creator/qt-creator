@@ -9,8 +9,6 @@ QT_BEGIN_NAMESPACE
 class QAction;
 QT_END_NAMESPACE
 
-namespace CPlusPlus { class Symbol; }
-
 namespace Debugger {
 
 /**
@@ -40,8 +38,5 @@ DEBUGGER_EXPORT void showPermanentStatusMessage(const QString &message);
 
 DEBUGGER_EXPORT QAction *createStartAction();
 DEBUGGER_EXPORT QAction *createStopAction();
-
-
-DEBUGGER_EXPORT CPlusPlus::Symbol *findSymbolUnderCursor();
 
 } // Debugger

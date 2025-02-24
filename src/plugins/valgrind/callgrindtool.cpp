@@ -26,11 +26,14 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
+#include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/Symbols.h>
+#include <cplusplus/TypeOfExpression.h>
 
 #include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppmodelmanager.h>
 
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggermainwindow.h>
@@ -1083,9 +1086,57 @@ void CallgrindTool::requestContextMenu(TextEditorWidget *widget, int line, QMenu
     }
 }
 
+static void moveCursorToEndOfName(QTextCursor *tc)
+{
+    QTextDocument *doc = tc->document();
+    if (!doc)
+        return;
+
+    QChar ch = doc->characterAt(tc->position());
+    while (ch.isLetterOrNumber() || ch == '_') {
+        tc->movePosition(QTextCursor::NextCharacter);
+        ch = doc->characterAt(tc->position());
+    }
+}
+
+// TODO: Can this be improved? This code is ripped from CppEditor, especially CppElementEvaluater
+// We cannot depend on this since CppEditor plugin code is internal
+// and requires building the implementation files ourselves
+static CPlusPlus::Symbol *findSymbolUnderCursor()
+{
+    TextEditor::TextEditorWidget *widget = TextEditor::TextEditorWidget::currentTextEditorWidget();
+    if (!widget)
+        return nullptr;
+
+    QTextCursor tc = widget->textCursor();
+    int line = 0;
+    int column = 0;
+    const int pos = tc.position();
+    widget->convertPosition(pos, &line, &column);
+
+    const CPlusPlus::Snapshot &snapshot = CppEditor::CppModelManager::snapshot();
+    CPlusPlus::Document::Ptr doc = snapshot.document(widget->textDocument()->filePath());
+    QTC_ASSERT(doc, return nullptr);
+
+    // fetch the expression's code
+    CPlusPlus::ExpressionUnderCursor expressionUnderCursor(doc->languageFeatures());
+    moveCursorToEndOfName(&tc);
+    const QString &expression = expressionUnderCursor(tc);
+    CPlusPlus::Scope *scope = doc->scopeAt(line, column);
+
+    CPlusPlus::TypeOfExpression typeOfExpression;
+    typeOfExpression.init(doc, snapshot);
+    const QList<CPlusPlus::LookupItem> &lookupItems = typeOfExpression(expression.toUtf8(), scope);
+    if (lookupItems.isEmpty())
+        return nullptr;
+
+    const CPlusPlus::LookupItem &lookupItem = lookupItems.first(); // ### TODO: select best candidate.
+    return lookupItem.declaration();
+}
+
 void CallgrindTool::handleShowCostsOfFunction()
 {
-    CPlusPlus::Symbol *symbol = Debugger::findSymbolUnderCursor();
+    CPlusPlus::Symbol *symbol = findSymbolUnderCursor();
     if (!symbol)
         return;
 
