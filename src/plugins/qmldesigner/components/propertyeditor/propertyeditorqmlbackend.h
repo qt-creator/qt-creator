@@ -52,6 +52,7 @@ public:
     PropertyEditorValue *propertyValueForName(const QString &propertyName);
 
     static QString propertyEditorResourcesPath();
+    static QUrl emptyPaneUrl();
 #ifndef QDS_USE_PROJECTSTORAGE
     static QString templateGeneration(const NodeMetaInfo &type,
                                       const NodeMetaInfo &superType,

@@ -5,6 +5,7 @@
 
 #include "effectcomposertr.h"
 #include "effectsautocomplete.h"
+#include "syntaxhighlighter.h"
 
 #include <qmldesigner/textmodifier/indentingtexteditormodifier.h>
 
@@ -162,6 +163,7 @@ EffectCodeEditorFactory::EffectCodeEditorFactory()
     setCommentDefinition(Utils::CommentDefinition::CppStyle);
     setParenthesesMatchingEnabled(true);
     setCodeFoldingSupported(true);
+    setSyntaxHighlighterCreator([] { return new SyntaxHighlighter; });
 
     addHoverHandler(new QmlJSEditor::QmlJSHoverHandler);
     setCompletionAssistProvider(new EffectsCompeletionAssistProvider);
@@ -169,8 +171,6 @@ EffectCodeEditorFactory::EffectCodeEditorFactory()
 
 void EffectCodeEditorFactory::decorateEditor(TextEditor::TextEditorWidget *editor)
 {
-    editor->textDocument()->resetSyntaxHighlighter(
-        [] { return new QmlJSEditor::QmlJSHighlighter(); });
     editor->textDocument()->setIndenter(QmlJSEditor::createQmlJsIndenter(
                                             editor->textDocument()->document()));
 

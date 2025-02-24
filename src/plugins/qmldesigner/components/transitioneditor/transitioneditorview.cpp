@@ -330,8 +330,9 @@ void TransitionEditorView::resetTransitionToStateGroup(const ModelNode &transiti
 
                 transition.variantProperty("from").setValue("*");
                 transition.variantProperty("to").setValue("*");
-                if (!stateGroup.isRootNode())
-                    transition.bindingProperty("stateGroup").setDynamicTypeNameAndExpression("StateGroup", stateGroup.id());
+
+                stateGroup.nodeListProperty("transitions").reparentHere(transition);
+
                 addAnimationsToTransition(transition, idPropertyList);
             });
     } else {

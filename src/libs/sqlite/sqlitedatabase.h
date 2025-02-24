@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "sourcelocation.h"
 #include "sqlitedatabasebackend.h"
 #include "sqlitedatabaseinterface.h"
 #include "sqliteglobal.h"
@@ -46,24 +47,29 @@ public:
     using ReadWriteStatement = Sqlite::ReadWriteStatement<ResultCount, BindParameterCount>;
     using BusyHandler = DatabaseBackend::BusyHandler;
 
-    Database();
+    Database(const source_location &sourceLocation = source_location::current());
     Database(Utils::PathString databaseFilePath,
              JournalMode journalMode = JournalMode::Wal,
-             LockingMode lockingMode = LockingMode::Default);
+             LockingMode lockingMode = LockingMode::Default,
+             const source_location &sourceLocation = source_location::current());
     Database(Utils::PathString databaseFilePath,
              std::chrono::milliseconds busyTimeout,
              JournalMode journalMode = JournalMode::Wal,
-             LockingMode lockingMode = LockingMode::Default);
+             LockingMode lockingMode = LockingMode::Default,
+             const source_location &sourceLocation = source_location::current());
     ~Database();
 
     Database(const Database &) = delete;
     Database &operator=(const Database &) = delete;
 
-    static void activateLogging();
+    static void activateLogging(const source_location &sourceLocation = source_location::current());
 
-    void open(LockingMode lockingMode = LockingMode::Default);
-    void open(Utils::PathString &&databaseFilePath, LockingMode lockingMode = LockingMode::Default);
-    void close();
+    void open(LockingMode lockingMode = LockingMode::Default,
+              const source_location &sourceLocation = source_location::current());
+    void open(Utils::PathString &&databaseFilePath,
+              LockingMode lockingMode = LockingMode::Default,
+              const source_location &sourceLocation = source_location::current());
+    void close(const source_location &sourceLocation = source_location::current());
 
     bool isInitialized() const;
     void setIsInitialized(bool isInitialized);
@@ -76,34 +82,52 @@ public:
     void setJournalMode(JournalMode journalMode);
     JournalMode journalMode() const;
 
-    LockingMode lockingMode() const;
+    LockingMode lockingMode(const source_location &sourceLocation = source_location::current()) const;
 
     void setOpenMode(OpenMode openMode);
     OpenMode openMode() const;
 
-    void execute(Utils::SmallStringView sqlStatement) override;
+    void execute(Utils::SmallStringView sqlStatement,
+                 const source_location &sourceLocation = source_location::current()) override;
 
     DatabaseBackend &backend();
 
-    int64_t lastInsertedRowId() const
+    int64_t lastInsertedRowId(const source_location &sourceLocation = source_location::current()) const
     {
-        return m_databaseBackend.lastInsertedRowId();
+        return m_databaseBackend.lastInsertedRowId(sourceLocation);
     }
 
-    void setLastInsertedRowId(int64_t rowId) { m_databaseBackend.setLastInsertedRowId(rowId); }
+    void setLastInsertedRowId(int64_t rowId,
+                              const source_location &sourceLocation = source_location::current())
+    {
+        m_databaseBackend.setLastInsertedRowId(rowId, sourceLocation);
+    }
 
-    int version() const { return m_databaseBackend.version(); }
-    void setVersion(int version) { m_databaseBackend.setVersion(version); }
+    int version(const source_location &sourceLocation = source_location::current()) const
+    {
+        return m_databaseBackend.version(sourceLocation);
+    }
 
-    int changesCount() { return m_databaseBackend.changesCount(); }
+    void setVersion(int version, const source_location &sourceLocation = source_location::current())
+    {
+        m_databaseBackend.setVersion(version, sourceLocation);
+    }
 
-    int totalChangesCount() { return m_databaseBackend.totalChangesCount(); }
+    int changesCount(const source_location &sourceLocation = source_location::current())
+    {
+        return m_databaseBackend.changesCount(sourceLocation);
+    }
 
-    void walCheckpointFull() override
+    int totalChangesCount(const source_location &sourceLocation = source_location::current())
+    {
+        return m_databaseBackend.totalChangesCount(sourceLocation);
+    }
+
+    void walCheckpointFull(const source_location &sourceLocation = source_location::current()) override
     {
         std::lock_guard<std::mutex> lock{m_databaseMutex};
         try {
-            m_databaseBackend.walCheckpointFull();
+            m_databaseBackend.walCheckpointFull(sourceLocation);
         } catch (const StatementIsBusy &) {
         }
     }
@@ -123,12 +147,13 @@ public:
     void setAttachedTables(const Utils::SmallStringVector &tables) override;
     void applyAndUpdateSessions() override;
 
-    void setBusyHandler(BusyHandler busyHandler)
+    void setBusyHandler(BusyHandler busyHandler,
+                        const source_location &sourceLocation = source_location::current())
     {
-        m_databaseBackend.setBusyHandler(std::move(busyHandler));
+        m_databaseBackend.setBusyHandler(std::move(busyHandler), sourceLocation);
     }
 
-    SessionChangeSets changeSets() const;
+    SessionChangeSets changeSets(const source_location &sourceLocation = source_location::current()) const;
 
     bool isLocked() const
     {
@@ -155,21 +180,21 @@ public:
         m_databaseMutex.unlock();
     }
 
-    void deferredBegin() override;
-    void immediateBegin() override;
-    void exclusiveBegin() override;
-    void commit() override;
-    void rollback() override;
-    void immediateSessionBegin() override;
-    void sessionCommit() override;
-    void sessionRollback() override;
+    void deferredBegin(const source_location &sourceLocation) override;
+    void immediateBegin(const source_location &sourceLocation) override;
+    void exclusiveBegin(const source_location &sourceLocation) override;
+    void commit(const source_location &sourceLocation) override;
+    void rollback(const source_location &sourceLocation) override;
+    void immediateSessionBegin(const source_location &sourceLocation) override;
+    void sessionCommit(const source_location &sourceLocation) override;
+    void sessionRollback(const source_location &sourceLocation) override;
 
-    void resetDatabaseForTestsOnly();
-    void clearAllTablesForTestsOnly();
+    void resetDatabaseForTestsOnly(const source_location &sourceLocation = source_location::current());
+    void clearAllTablesForTestsOnly(const source_location &sourceLocation = source_location::current());
 
 private:
     void initializeTables();
-    void registerTransactionStatements();
+    void registerTransactionStatements(const source_location &sourceLocation);
     void deleteTransactionStatements();
     std::mutex &databaseMutex() { return m_databaseMutex; }
 

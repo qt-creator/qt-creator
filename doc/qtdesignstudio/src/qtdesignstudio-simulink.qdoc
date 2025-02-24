@@ -112,7 +112,7 @@
     Double-click the \uicontrol {Qt/SML Send} or \uicontrol {Qt/QML Receive}
     block in Simulink to specify a property name. A pop-up for \uicontrol
     {Block Parameters} appears. Enter the name of the property in the \uicontrol
-    {Qt Signal/Property Name} field and click \uicontrol OK. The name, for
+    {Qt Signal/Property Name} field and select \uicontrol OK. The name, for
     example speedProp, needs to match a \uicontrol signal or a \uicontrol
     property in \QDS.
 

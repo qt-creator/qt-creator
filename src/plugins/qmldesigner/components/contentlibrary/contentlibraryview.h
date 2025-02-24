@@ -68,6 +68,7 @@ private:
     void addLibItem(const ModelNode &node, const QPixmap &iconPixmap = {});
     void importBundleToContentLib();
     void saveIconToBundle(const auto &image);
+    void decodeAndAddToContentLib(const QByteArray &encodedInternalIds);
 
 #ifdef QDS_USE_PROJECTSTORAGE
     void applyBundleMaterialToDropTarget(const ModelNode &bundleMat, const TypeName &typeName = {});

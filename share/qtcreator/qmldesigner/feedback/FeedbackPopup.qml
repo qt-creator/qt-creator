@@ -21,7 +21,7 @@ Rectangle {
         id: h1
         objectName: "title"
         color: "#333333"
-        text: "Enjoying Qt Design Studio?"
+        text: qsTr("Enjoying Qt Design Studio?")
         font { family: "Titillium"; pixelSize: 21 }
         anchors { horizontalCenter: parent.horizontalCenter; top: parent.top; topMargin: 50 }
     }
@@ -29,7 +29,7 @@ Rectangle {
     Text {
         id: h2
         color: "#333333"
-        text: "Select the level of your satisfaction."
+        text: qsTr("Select your satisfaction level.")
         font { family: "Titillium"; pixelSize: 21 }
         anchors { horizontalCenter: parent.horizontalCenter; top: h1.bottom; topMargin: 12 }
     }
@@ -73,13 +73,15 @@ Rectangle {
             color: "#333333";
             font { pixelSize: 14; family: "Titillium" }
             wrapMode: Text.Wrap
-            property string placeholderText: "We highly appreciate additional feedback.\nBouquets, brickbats, or suggestions, all feedback is welcome!"
+            padding: 10
+            property string placeholderText: qsTr("We highly appreciate additional feedback.\nBouquets, brickbats, or suggestions, all feedback is welcome!")
 
             Text {
                 text: textarea.placeholderText
                 color: "gray"
                 visible: !textarea.text
                 font: parent.font
+                padding: 10
             }
         }
 
@@ -99,7 +101,7 @@ Rectangle {
             height: 28
 
             contentItem: Text {
-                text: "Skip"
+                text: qsTr("Skip")
                 color: parent.hovered ? Qt.darker("#999999", 1.9) : Qt.darker("#999999", 1.2)
                 font { family: "Titillium"; pixelSize: 14 }
                 horizontalAlignment: Text.AlignHCenter
@@ -122,7 +124,7 @@ Rectangle {
             enabled: rating > 0
 
             contentItem: Text {
-                text: "Submit";
+                text: qsTr("Submit")
                 color: enabled ? "white" : Qt.lighter("#999999", 1.3)
                 font { family: "Titillium"; pixelSize: 14 }
                 horizontalAlignment: Text.AlignHCenter

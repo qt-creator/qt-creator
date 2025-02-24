@@ -25,6 +25,8 @@ enum AnchorLineType {
     AnchorLineVerticalCenter = 0x20,
     AnchorLineBaseline = 0x40,
 
+    AnchorLineLeftRight = AnchorLineLeft | AnchorLineRight,
+    AnchorLineTopBottom = AnchorLineTop | AnchorLineBottom,
     AnchorLineFill = AnchorLineLeft | AnchorLineRight | AnchorLineTop | AnchorLineBottom,
     AnchorLineCenter = AnchorLineVerticalCenter | AnchorLineHorizontalCenter,
     AnchorLineHorizontalMask = AnchorLineLeft | AnchorLineRight | AnchorLineHorizontalCenter,

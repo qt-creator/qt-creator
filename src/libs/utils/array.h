@@ -7,19 +7,18 @@
 
 namespace Utils {
 
-namespace Internal {
-template<typename Type, std::size_t size, std::size_t... index>
-constexpr std::array<std::remove_cv_t<Type>, size> to_array_implementation(
-    Type (&&array)[size], std::index_sequence<index...>)
+template<typename Type, typename... Arguments>
+constexpr auto to_array(Arguments &&...arguments)
 {
-    return {{std::move(array[index])...}};
+    return std::array<Type, sizeof...(Arguments)>{std::forward<Arguments>(arguments)...};
 }
-} // namespace Internal
 
-template<typename Type, std::size_t size>
-constexpr std::array<std::remove_cv_t<Type>, size> to_array(Type (&&array)[size])
+template<typename Type, typename... Arguments>
+constexpr auto to_sorted_array(Arguments &&...arguments)
 {
-    return Internal::to_array_implementation(std::move(array), std::make_index_sequence<size>{});
+    auto array = to_array<Type>(std::forward<Arguments>(arguments)...);
+    std::ranges::sort(array);
+    return array;
 }
 
 } // namespace Utils

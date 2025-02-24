@@ -33,7 +33,6 @@
 #include <imagecache/imagecachestorage.h>
 #include <imagecache/timestampprovider.h>
 #include <imagecachecollectors/imagecachecollector.h>
-#include <imagecachecollectors/imagecacheconnectionmanager.h>
 #include <imagecachecollectors/meshimagecachecollector.h>
 #include <imagecachecollectors/textureimagecachecollector.h>
 
@@ -46,6 +45,8 @@
 #include <QLibraryInfo>
 #include <QQmlEngine>
 #include <QStandardPaths>
+
+#include <sourcelocation.h>
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
@@ -122,8 +123,8 @@ class QmlDesignerProjectManager::ImageCacheData
 {
 public:
     ImageCacheData(ExternalDependenciesInterface &externalDependencies)
-        : meshImageCollector{connectionManager, QSize{300, 300}, QSize{600, 600}, externalDependencies}
-        , nodeInstanceCollector{connectionManager, QSize{300, 300}, QSize{600, 600}, externalDependencies}
+        : meshImageCollector{QSize{300, 300}, QSize{600, 600}, externalDependencies}
+        , nodeInstanceCollector{QSize{300, 300}, QSize{600, 600}, externalDependencies}
     {}
 
 public:
@@ -132,7 +133,6 @@ public:
                               Sqlite::JournalMode::Wal,
                               Sqlite::LockingMode::Normal};
     ImageCacheStorage<Sqlite::Database> storage{database};
-    ImageCacheConnectionManager connectionManager;
     MeshImageCacheCollector meshImageCollector;
     TextureImageCacheCollector textureImageCollector;
     ImageCacheCollector nodeInstanceCollector;
@@ -151,8 +151,7 @@ class QmlDesignerProjectManager::PreviewImageCacheData
 {
 public:
     PreviewImageCacheData(ExternalDependenciesInterface &externalDependencies)
-        : collector{connectionManager,
-                    QSize{300, 300},
+        : collector{QSize{300, 300},
                     QSize{1000, 1000},
                     externalDependencies,
                     ImageCacheCollectorNullImageHandling::CaptureNullImage}
@@ -166,7 +165,6 @@ public:
                               Sqlite::JournalMode::Wal,
                               Sqlite::LockingMode::Normal};
     ImageCacheStorage<Sqlite::Database> storage{database};
-    ImageCacheConnectionManager connectionManager;
     ImageCacheCollector collector;
     PreviewTimeStampProvider timeStampProvider;
     AsynchronousExplicitImageCache cache{storage};
@@ -175,11 +173,23 @@ public:
 };
 
 namespace {
+
+Sqlite::JournalMode projectStorageJournalMode()
+{
+#ifdef QT_NO_DEBUG
+    if (qEnvironmentVariableIsEmpty("QDS_STORE_PROJECTSTORAGE_IN_PROJECT"))
+        return Sqlite::JournalMode::Memory;
+#endif
+
+    return Sqlite::JournalMode::Wal;
+}
+
 class ProjectStorageData
 {
 public:
     ProjectStorageData(::ProjectExplorer::Project *project, PathCacheType &pathCache)
-        : database{project->projectDirectory().pathAppended("projectstorage.db").toUrlishString()}
+        : database{project->projectDirectory().pathAppended("projectstorage.db").toUrlishString(),
+                   projectStorageJournalMode()}
         , errorNotifier{pathCache}
         , fileSystem{pathCache}
         , qmlDocumentParser{storage, pathCache}
@@ -241,8 +251,7 @@ public:
                                          ::ProjectExplorer::Project *project,
                                          PathCacheType &pathCache,
                                          ExternalDependenciesInterface &externalDependencies)
-        : collector{connectionManager,
-                    QSize{300, 300},
+        : collector{QSize{300, 300},
                     QSize{1000, 1000},
                     externalDependencies,
                     ImageCacheCollectorNullImageHandling::CaptureNullImage}
@@ -250,7 +259,6 @@ public:
         , projectStorageData{createProjectStorageData(project, pathCache)}
     {}
 
-    ImageCacheConnectionManager connectionManager;
     ImageCacheCollector collector;
     PreviewTimeStampProvider timeStampProvider;
     AsynchronousImageFactory factory;
@@ -355,7 +363,7 @@ void QmlDesignerProjectManager::editorsClosed(const QList<::Core::IEditor *> &) 
 
 namespace {
 
-QString qmlPath(::ProjectExplorer::Target *target)
+[[maybe_unused]] QString qmlPath(::ProjectExplorer::Target *target)
 {
     auto qt = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (qt)
@@ -377,6 +385,7 @@ QString qmlPath(::ProjectExplorer::Target *target)
 {
     if constexpr (useProjectStorage()) {
         auto qmlRootPath = qmlPath(target);
+        qmldirPaths.push_back(qmlRootPath + "/QML");
         qmldirPaths.push_back(qmlRootPath + "/QtQml");
         qmldirPaths.push_back(qmlRootPath + "/QtQuick");
         qmldirPaths.push_back(qmlRootPath + "/QtQuick3D");
@@ -388,6 +397,7 @@ QString qmlPath(::ProjectExplorer::Target *target)
 {
     if constexpr (useProjectStorage()) {
         auto qmlRootPath = QLibraryInfo::path(QLibraryInfo::QmlImportsPath);
+        qmldirPaths.push_back(qmlRootPath + "/QML");
         qmldirPaths.push_back(qmlRootPath + "/QtQml");
         qmldirPaths.push_back(qmlRootPath + "/QtQuick");
     }
@@ -419,41 +429,6 @@ QString qmlPath(::ProjectExplorer::Target *target)
 
     std::sort(qmldirPaths.begin(), qmldirPaths.end());
     qmldirPaths.erase(std::unique(qmldirPaths.begin(), qmldirPaths.end()), qmldirPaths.end());
-
-    return qmldirPaths;
-}
-
-[[maybe_unused]] QStringList qmlTypes(::ProjectExplorer::Target *target)
-{
-    if (!target)
-        return {};
-
-    QStringList qmldirPaths;
-    qmldirPaths.reserve(2);
-
-    const QString qmlRootPath = qmlPath(target);
-
-    qmldirPaths.append(qmlRootPath + "/builtins.qmltypes");
-    qmldirPaths.append(qmlRootPath + "/jsroot.qmltypes");
-
-    qmldirPaths.append(
-        Core::ICore::resourcePath("qmldesigner/projectstorage/fake.qmltypes").toUrlishString());
-
-    return qmldirPaths;
-}
-
-[[maybe_unused]] QStringList qmlTypesForLiteDesigner()
-{
-    QStringList qmldirPaths;
-    qmldirPaths.reserve(2);
-
-    const auto qmlRootPath = QLibraryInfo::path(QLibraryInfo::QmlImportsPath);
-
-    qmldirPaths.append(qmlRootPath + "/builtins.qmltypes");
-    qmldirPaths.append(qmlRootPath + "/jsroot.qmltypes");
-
-    qmldirPaths.append(
-        Core::ICore::resourcePath("qmldesigner/projectstorage/fake.qmltypes").toUrlishString());
 
     return qmldirPaths;
 }
@@ -608,16 +583,21 @@ void QmlDesignerProjectManager::update()
     try {
         if constexpr (isUsingQmlDesignerLite()) {
             m_projectData->projectStorageData->updater.update({directoriesForLiteDesigner(),
-                                                               qmlTypesForLiteDesigner(),
                                                                propertyEditorResourcesPath(),
                                                                {qtCreatorItemLibraryPath()}});
         } else {
             m_projectData->projectStorageData->updater.update({directories(m_projectData->activeTarget),
-                                                               qmlTypes(m_projectData->activeTarget),
                                                                propertyEditorResourcesPath(),
                                                                {qtCreatorItemLibraryPath()}});
         }
-    } catch (const std::exception &) {
+    } catch (const Sqlite::Exception &exception) {
+        const auto &location = exception.location();
+        std::cout << location.file_name() << ":" << location.function_name() << ":"
+                  << location.line() << ": " << exception.what() << "\n";
+    } catch (const std::exception &exception) {
+        auto location = Sqlite::source_location::current();
+        std::cout << location.file_name() << ":" << location.function_name() << ":"
+                  << location.line() << ": " << exception.what() << "\n";
     }
 }
 

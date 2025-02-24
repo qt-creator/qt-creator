@@ -29,9 +29,9 @@ TEST(ImageCacheStorageUpdateTest, add_column_mid_size_if_version_is_zero)
 {
     NiceMock<SqliteDatabaseMock> databaseMock;
     ON_CALL(databaseMock, isInitialized()).WillByDefault(Return(true));
-    EXPECT_CALL(databaseMock, execute(_)).Times(AnyNumber());
+    EXPECT_CALL(databaseMock, execute(_, _)).Times(AnyNumber());
 
-    EXPECT_CALL(databaseMock, execute(Eq("ALTER TABLE images ADD COLUMN midSizeImage")));
+    EXPECT_CALL(databaseMock, execute(Eq("ALTER TABLE images ADD COLUMN midSizeImage"), _));
 
     QmlDesigner::ImageCacheStorage<SqliteDatabaseMock> storage{databaseMock};
 }
@@ -42,8 +42,8 @@ TEST(ImageCacheStorageUpdateTest, delete_all_rows_before_adding_mid_size_column)
     ON_CALL(databaseMock, isInitialized()).WillByDefault(Return(true));
     InSequence s;
 
-    EXPECT_CALL(databaseMock, execute(Eq("DELETE FROM images")));
-    EXPECT_CALL(databaseMock, execute(Eq("ALTER TABLE images ADD COLUMN midSizeImage")));
+    EXPECT_CALL(databaseMock, execute(Eq("DELETE FROM images"), _));
+    EXPECT_CALL(databaseMock, execute(Eq("ALTER TABLE images ADD COLUMN midSizeImage"), _));
 
     QmlDesigner::ImageCacheStorage<SqliteDatabaseMock> storage{databaseMock};
 }
@@ -52,9 +52,9 @@ TEST(ImageCacheStorageUpdateTest, dont_call_add_column_mid_size_if_database_was_
 {
     NiceMock<SqliteDatabaseMock> databaseMock;
     ON_CALL(databaseMock, isInitialized()).WillByDefault(Return(false));
-    EXPECT_CALL(databaseMock, execute(_)).Times(2);
+    EXPECT_CALL(databaseMock, execute(_, _)).Times(2);
 
-    EXPECT_CALL(databaseMock, execute(Eq("ALTER TABLE images ADD COLUMN midSizeImage"))).Times(0);
+    EXPECT_CALL(databaseMock, execute(Eq("ALTER TABLE images ADD COLUMN midSizeImage"), _)).Times(0);
 
     QmlDesigner::ImageCacheStorage<SqliteDatabaseMock> storage{databaseMock};
 }
@@ -118,11 +118,11 @@ TEST_F(ImageCacheStorageTest, fetch_image_calls)
 {
     InSequence s;
 
-    EXPECT_CALL(databaseMock, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin(_));
     EXPECT_CALL(selectImageStatement,
                 valueReturnBlob(TypedEq<Utils::SmallStringView>("/path/to/component"),
                                 TypedEq<long long>(123)));
-    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, commit(_));
 
     storage.fetchImage("/path/to/component", {123});
 }
@@ -131,17 +131,17 @@ TEST_F(ImageCacheStorageTest, fetch_image_calls_is_busy)
 {
     InSequence s;
 
-    EXPECT_CALL(databaseMock, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin(_));
     EXPECT_CALL(selectImageStatement,
                 valueReturnBlob(TypedEq<Utils::SmallStringView>("/path/to/component"),
                                 TypedEq<long long>(123)))
         .WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
-    EXPECT_CALL(databaseMock, rollback());
-    EXPECT_CALL(databaseMock, deferredBegin());
+    EXPECT_CALL(databaseMock, rollback(_));
+    EXPECT_CALL(databaseMock, deferredBegin(_));
     EXPECT_CALL(selectImageStatement,
                 valueReturnBlob(TypedEq<Utils::SmallStringView>("/path/to/component"),
                                 TypedEq<long long>(123)));
-    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, commit(_));
 
     storage.fetchImage("/path/to/component", {123});
 }
@@ -150,11 +150,11 @@ TEST_F(ImageCacheStorageTest, fetch_mid_size_image_calls)
 {
     InSequence s;
 
-    EXPECT_CALL(databaseMock, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin(_));
     EXPECT_CALL(selectMidSizeImageStatement,
                 valueReturnBlob(TypedEq<Utils::SmallStringView>("/path/to/component"),
                                 TypedEq<long long>(123)));
-    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, commit(_));
 
     storage.fetchMidSizeImage("/path/to/component", {123});
 }
@@ -163,17 +163,17 @@ TEST_F(ImageCacheStorageTest, fetch_mid_size_image_calls_is_busy)
 {
     InSequence s;
 
-    EXPECT_CALL(databaseMock, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin(_));
     EXPECT_CALL(selectMidSizeImageStatement,
                 valueReturnBlob(TypedEq<Utils::SmallStringView>("/path/to/component"),
                                 TypedEq<long long>(123)))
         .WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
-    EXPECT_CALL(databaseMock, rollback());
-    EXPECT_CALL(databaseMock, deferredBegin());
+    EXPECT_CALL(databaseMock, rollback(_));
+    EXPECT_CALL(databaseMock, deferredBegin(_));
     EXPECT_CALL(selectMidSizeImageStatement,
                 valueReturnBlob(TypedEq<Utils::SmallStringView>("/path/to/component"),
                                 TypedEq<long long>(123)));
-    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, commit(_));
 
     storage.fetchMidSizeImage("/path/to/component", {123});
 }
@@ -182,11 +182,11 @@ TEST_F(ImageCacheStorageTest, fetch_small_image_calls)
 {
     InSequence s;
 
-    EXPECT_CALL(databaseMock, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin(_));
     EXPECT_CALL(selectSmallImageStatement,
                 valueReturnBlob(TypedEq<Utils::SmallStringView>("/path/to/component"),
                                 TypedEq<long long>(123)));
-    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, commit(_));
 
     storage.fetchSmallImage("/path/to/component", {123});
 }
@@ -195,17 +195,17 @@ TEST_F(ImageCacheStorageTest, fetch_small_image_calls_is_busy)
 {
     InSequence s;
 
-    EXPECT_CALL(databaseMock, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin(_));
     EXPECT_CALL(selectSmallImageStatement,
                 valueReturnBlob(TypedEq<Utils::SmallStringView>("/path/to/component"),
                                 TypedEq<long long>(123)))
         .WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
-    EXPECT_CALL(databaseMock, rollback());
-    EXPECT_CALL(databaseMock, deferredBegin());
+    EXPECT_CALL(databaseMock, rollback(_));
+    EXPECT_CALL(databaseMock, deferredBegin(_));
     EXPECT_CALL(selectSmallImageStatement,
                 valueReturnBlob(TypedEq<Utils::SmallStringView>("/path/to/component"),
                                 TypedEq<long long>(123)));
-    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, commit(_));
 
     storage.fetchSmallImage("/path/to/component", {123});
 }
@@ -214,11 +214,11 @@ TEST_F(ImageCacheStorageTest, fetch_icon_calls)
 {
     InSequence s;
 
-    EXPECT_CALL(databaseMock, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin(_));
     EXPECT_CALL(selectIconStatement,
                 valueReturnBlob(TypedEq<Utils::SmallStringView>("/path/to/component"),
                                 TypedEq<long long>(123)));
-    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, commit(_));
 
     storage.fetchIcon("/path/to/component", {123});
 }
@@ -227,17 +227,17 @@ TEST_F(ImageCacheStorageTest, fetch_icon_calls_is_busy)
 {
     InSequence s;
 
-    EXPECT_CALL(databaseMock, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin(_));
     EXPECT_CALL(selectIconStatement,
                 valueReturnBlob(TypedEq<Utils::SmallStringView>("/path/to/component"),
                                 TypedEq<long long>(123)))
         .WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
-    EXPECT_CALL(databaseMock, rollback());
-    EXPECT_CALL(databaseMock, deferredBegin());
+    EXPECT_CALL(databaseMock, rollback(_));
+    EXPECT_CALL(databaseMock, deferredBegin(_));
     EXPECT_CALL(selectIconStatement,
                 valueReturnBlob(TypedEq<Utils::SmallStringView>("/path/to/component"),
                                 TypedEq<long long>(123)));
-    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, commit(_));
 
     storage.fetchIcon("/path/to/component", {123});
 }
@@ -246,14 +246,14 @@ TEST_F(ImageCacheStorageTest, store_image_calls)
 {
     InSequence s;
 
-    EXPECT_CALL(databaseMock, immediateBegin());
+    EXPECT_CALL(databaseMock, immediateBegin(_));
     EXPECT_CALL(upsertImageStatement,
                 write(TypedEq<Utils::SmallStringView>("/path/to/component"),
                       TypedEq<long long>(123),
                       Not(IsEmpty()),
                       Not(IsEmpty()),
                       Not(IsEmpty())));
-    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, commit(_));
 
     storage.storeImage("/path/to/component", {123}, image1, midSizeImage1, smallImage1);
 }
@@ -262,14 +262,14 @@ TEST_F(ImageCacheStorageTest, store_empty_image_calls)
 {
     InSequence s;
 
-    EXPECT_CALL(databaseMock, immediateBegin());
+    EXPECT_CALL(databaseMock, immediateBegin(_));
     EXPECT_CALL(upsertImageStatement,
                 write(TypedEq<Utils::SmallStringView>("/path/to/component"),
                       TypedEq<long long>(123),
                       IsEmpty(),
                       IsEmpty(),
                       IsEmpty()));
-    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, commit(_));
 
     storage.storeImage("/path/to/component", {123}, QImage{}, QImage{}, QImage{});
 }
@@ -278,15 +278,15 @@ TEST_F(ImageCacheStorageTest, store_image_calls_is_busy)
 {
     InSequence s;
 
-    EXPECT_CALL(databaseMock, immediateBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
-    EXPECT_CALL(databaseMock, immediateBegin());
+    EXPECT_CALL(databaseMock, immediateBegin(_)).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
+    EXPECT_CALL(databaseMock, immediateBegin(_));
     EXPECT_CALL(upsertImageStatement,
                 write(TypedEq<Utils::SmallStringView>("/path/to/component"),
                       TypedEq<long long>(123),
                       IsEmpty(),
                       IsEmpty(),
                       IsEmpty()));
-    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, commit(_));
 
     storage.storeImage("/path/to/component", {123}, QImage{}, QImage{}, QImage{});
 }
@@ -295,12 +295,12 @@ TEST_F(ImageCacheStorageTest, store_icon_calls)
 {
     InSequence s;
 
-    EXPECT_CALL(databaseMock, immediateBegin());
+    EXPECT_CALL(databaseMock, immediateBegin(_));
     EXPECT_CALL(upsertIconStatement,
                 write(TypedEq<Utils::SmallStringView>("/path/to/component"),
                       TypedEq<long long>(123),
                       A<Sqlite::BlobView>()));
-    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, commit(_));
 
     storage.storeIcon("/path/to/component", {123}, icon1);
 }
@@ -309,12 +309,12 @@ TEST_F(ImageCacheStorageTest, store_empty_icon_calls)
 {
     InSequence s;
 
-    EXPECT_CALL(databaseMock, immediateBegin());
+    EXPECT_CALL(databaseMock, immediateBegin(_));
     EXPECT_CALL(upsertIconStatement,
                 write(TypedEq<Utils::SmallStringView>("/path/to/component"),
                       TypedEq<long long>(123),
                       IsEmpty()));
-    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, commit(_));
 
     storage.storeIcon("/path/to/component", {123}, QIcon{});
 }
@@ -323,20 +323,20 @@ TEST_F(ImageCacheStorageTest, store_icon_calls_is_busy)
 {
     InSequence s;
 
-    EXPECT_CALL(databaseMock, immediateBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
-    EXPECT_CALL(databaseMock, immediateBegin());
+    EXPECT_CALL(databaseMock, immediateBegin(_)).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
+    EXPECT_CALL(databaseMock, immediateBegin(_));
     EXPECT_CALL(upsertIconStatement,
                 write(TypedEq<Utils::SmallStringView>("/path/to/component"),
                       TypedEq<long long>(123),
                       IsEmpty()));
-    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, commit(_));
 
     storage.storeIcon("/path/to/component", {123}, QIcon{});
 }
 
 TEST_F(ImageCacheStorageTest, call_wal_checkoint_full)
 {
-    EXPECT_CALL(databaseMock, walCheckpointFull());
+    EXPECT_CALL(databaseMock, walCheckpointFull(_));
 
     storage.walCheckpointFull();
 }
@@ -345,8 +345,8 @@ TEST_F(ImageCacheStorageTest, call_wal_checkoint_full_is_busy)
 {
     InSequence s;
 
-    EXPECT_CALL(databaseMock, walCheckpointFull()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
-    EXPECT_CALL(databaseMock, walCheckpointFull());
+    EXPECT_CALL(databaseMock, walCheckpointFull(_)).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
+    EXPECT_CALL(databaseMock, walCheckpointFull(_));
 
     storage.walCheckpointFull();
 }

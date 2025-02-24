@@ -10,7 +10,6 @@
 #include <QHash>
 #include <QPointer>
 #include <QSize>
-#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QShortcut;
@@ -132,7 +131,6 @@ private:
     void asyncResetView();
 
     ModelNode m_selectedMaterial;
-    QTimer m_ensureMatLibTimer;
     QShortcut *m_updateShortcut = nullptr;
     int m_timerId = 0;
     QStackedWidget *m_stackedWidget = nullptr;

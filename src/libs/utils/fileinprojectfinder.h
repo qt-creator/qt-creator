@@ -62,13 +62,30 @@ private:
         mutable QHash<FilePath, std::shared_ptr<QrcParser>> m_parserCache;
     };
 
-    CacheEntry findInSearchPaths(const FilePath &filePath, FileHandler fileHandler,
-                                 DirectoryHandler directoryHandler) const;
     static CacheEntry findInSearchPath(const FilePath &searchPath, const FilePath &filePath,
                                        FileHandler fileHandler, DirectoryHandler directoryHandler);
     QStringList filesWithSameFileName(const QString &fileName) const;
     QStringList pathSegmentsWithSameName(const QString &path) const;
 
+    bool checkRootDirectory(const FilePath &originalPath, DirectoryHandler directoryHandler) const;
+    bool checkMappedPath(const FilePath &originalPath,
+                         FileHandler fileHandler,
+                         DirectoryHandler directoryHandler) const;
+    bool checkCache(const FilePath &originalPath,
+                    FileHandler fileHandler,
+                    DirectoryHandler directoryHandler) const;
+    bool checkProjectDirectory(const FilePath &originalPath,
+                               FileHandler fileHandler,
+                               DirectoryHandler directoryHandler) const;
+    bool checkProjectFiles(const FilePath &originalPath,
+                           FileHandler fileHandler,
+                           DirectoryHandler directoryHandler) const;
+    bool checkSearchPaths(const FilePath &originalPath,
+                          FileHandler fileHandler,
+                          DirectoryHandler directoryHandler) const;
+    bool checkSysroot(const FilePath &originalPath,
+                      FileHandler fileHandler,
+                      DirectoryHandler directoryHandler) const;
     bool handleSuccess(const FilePath &originalPath, const FilePaths &found, int confidence,
                        const char *where) const;
 

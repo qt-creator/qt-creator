@@ -26,13 +26,14 @@ namespace Sqlite {
 
 using namespace std::literals;
 
-DatabaseBackend::DatabaseBackend(Database &database)
+DatabaseBackend::DatabaseBackend(Database &database, const source_location &sourceLocation)
     : m_database(database)
     , m_databaseHandle(nullptr)
     , m_busyHandler([](int) {
         std::this_thread::sleep_for(10ms);
         return true;
     })
+    , m_sourceLocation{sourceLocation}
 {
 }
 
@@ -41,16 +42,18 @@ DatabaseBackend::~DatabaseBackend()
     closeWithoutException();
 }
 
-void DatabaseBackend::setRanslatorentriesapSize(qint64 defaultSize, qint64 maximumSize)
+void DatabaseBackend::setRanslatorentriesapSize(qint64 defaultSize,
+                                                qint64 maximumSize,
+                                                const source_location &sourceLocation)
 {
     int resultCode = sqlite3_config(SQLITE_CONFIG_MMAP_SIZE, defaultSize, maximumSize);
-    checkMmapSizeIsSet(resultCode);
+    checkMmapSizeIsSet(resultCode, sourceLocation);
 }
 
-void DatabaseBackend::activateMultiThreading()
+void DatabaseBackend::activateMultiThreading(const source_location &sourceLocation)
 {
     int resultCode = sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
-    checkIfMultithreadingIsActivated(resultCode);
+    checkIfMultithreadingIsActivated(resultCode, sourceLocation);
 }
 
 static void sqliteLog(void*,int errorCode,const char *errorMessage)
@@ -58,37 +61,42 @@ static void sqliteLog(void*,int errorCode,const char *errorMessage)
     std::cout << "Sqlite " << sqlite3_errstr(errorCode) << ": " << errorMessage << std::endl;
 }
 
-void DatabaseBackend::activateLogging()
+void DatabaseBackend::activateLogging(const source_location &sourceLocation)
 {
     if (qEnvironmentVariableIsSet("QTC_SQLITE_LOGGING")) {
         int resultCode = sqlite3_config(SQLITE_CONFIG_LOG, sqliteLog, nullptr);
-        checkIfLoogingIsActivated(resultCode);
+        checkIfLoogingIsActivated(resultCode, sourceLocation);
     }
 }
 
-void DatabaseBackend::initializeSqliteLibrary()
+void DatabaseBackend::initializeSqliteLibrary(const source_location &sourceLocation)
 {
     int resultCode = sqlite3_initialize();
-    checkInitializeSqliteLibraryWasSuccesful(resultCode);
+    checkInitializeSqliteLibraryWasSuccesful(resultCode, sourceLocation);
 }
 
-void DatabaseBackend::shutdownSqliteLibrary()
+void DatabaseBackend::shutdownSqliteLibrary(const source_location &sourceLocation)
 {
     int resultCode = sqlite3_shutdown();
-    checkShutdownSqliteLibraryWasSuccesful(resultCode);
+    checkShutdownSqliteLibraryWasSuccesful(resultCode, sourceLocation);
 }
 
-void DatabaseBackend::checkpointFullWalLog()
+void DatabaseBackend::checkpointFullWalLog(const source_location &sourceLocation)
 {
-    int resultCode = sqlite3_wal_checkpoint_v2(sqliteDatabaseHandle(), nullptr, SQLITE_CHECKPOINT_FULL, nullptr, nullptr);
-    checkIfLogCouldBeCheckpointed(resultCode);
+    int resultCode = sqlite3_wal_checkpoint_v2(sqliteDatabaseHandle(sourceLocation),
+                                               nullptr,
+                                               SQLITE_CHECKPOINT_FULL,
+                                               nullptr,
+                                               nullptr);
+    checkIfLogCouldBeCheckpointed(resultCode, sourceLocation);
 }
 
 void DatabaseBackend::open(Utils::SmallStringView databaseFilePath,
                            OpenMode openMode,
-                           JournalMode journalMode)
+                           JournalMode journalMode,
+                           const source_location &sourceLocation)
 {
-    checkCanOpenDatabase(databaseFilePath);
+    checkCanOpenDatabase(databaseFilePath, sourceLocation);
 
     sqlite3 *handle = m_databaseHandle.get();
     int resultCode = sqlite3_open_v2(std::string(databaseFilePath).c_str(),
@@ -97,42 +105,46 @@ void DatabaseBackend::open(Utils::SmallStringView databaseFilePath,
                                      nullptr);
     m_databaseHandle.reset(handle);
 
-    checkDatabaseCouldBeOpened(resultCode);
+    checkDatabaseCouldBeOpened(resultCode, sourceLocation);
 
     resultCode = sqlite3_carray_init(m_databaseHandle.get(), nullptr, nullptr);
 
-    checkCarrayCannotBeIntialized(resultCode);
+    checkCarrayCannotBeIntialized(resultCode, sourceLocation);
 }
 
-sqlite3 *DatabaseBackend::sqliteDatabaseHandle() const
+sqlite3 *DatabaseBackend::sqliteDatabaseHandle(const source_location &sourceLocation) const
 {
-    checkDatabaseHandleIsNotNull();
+    checkDatabaseHandleIsNotNull(sourceLocation);
     return m_databaseHandle.get();
 }
 
-void DatabaseBackend::setPragmaValue(Utils::SmallStringView pragmaKey, Utils::SmallStringView newPragmaValue)
+void DatabaseBackend::setPragmaValue(Utils::SmallStringView pragmaKey,
+                                     Utils::SmallStringView newPragmaValue,
+                                     const source_location &sourceLocation)
 {
     ReadWriteStatement<1>{Utils::SmallString::join({"PRAGMA ", pragmaKey, "='", newPragmaValue, "'"}),
                           m_database}
         .execute();
-    Utils::SmallString pragmeValueInDatabase = toValue<Utils::SmallString>("PRAGMA " + pragmaKey);
+    Utils::SmallString pragmeValueInDatabase = toValue<Utils::SmallString>("PRAGMA " + pragmaKey,
+                                                                           sourceLocation);
 
-    checkPragmaValue(pragmeValueInDatabase, newPragmaValue);
+    checkPragmaValue(pragmeValueInDatabase, newPragmaValue, sourceLocation);
 }
 
-Utils::SmallString DatabaseBackend::pragmaValue(Utils::SmallStringView pragma) const
+Utils::SmallString DatabaseBackend::pragmaValue(Utils::SmallStringView pragma,
+                                                const source_location &sourceLocation) const
 {
-    return toValue<Utils::SmallString>("PRAGMA " + pragma);
+    return toValue<Utils::SmallString>("PRAGMA " + pragma, sourceLocation);
 }
 
-void DatabaseBackend::setJournalMode(JournalMode journalMode)
+void DatabaseBackend::setJournalMode(JournalMode journalMode, const source_location &sourceLocation)
 {
-    setPragmaValue("journal_mode", journalModeToPragma(journalMode));
+    setPragmaValue("journal_mode", journalModeToPragma(journalMode), sourceLocation);
 }
 
-JournalMode DatabaseBackend::journalMode()
+JournalMode DatabaseBackend::journalMode(const source_location &sourceLocation)
 {
-    return pragmaToJournalMode(pragmaValue("journal_mode"));
+    return pragmaToJournalMode(pragmaValue("journal_mode", sourceLocation), sourceLocation);
 }
 
 namespace {
@@ -160,67 +172,69 @@ LockingMode pragmaToLockingMode(Utils::SmallStringView pragma)
 }
 } // namespace
 
-void DatabaseBackend::setLockingMode(LockingMode lockingMode)
+void DatabaseBackend::setLockingMode(LockingMode lockingMode, const source_location &sourceLocation)
 {
     if (lockingMode != LockingMode::Default)
-        setPragmaValue("main.locking_mode", lockingModeToPragma(lockingMode));
+        setPragmaValue("main.locking_mode", lockingModeToPragma(lockingMode), sourceLocation);
 }
 
-LockingMode DatabaseBackend::lockingMode() const
+LockingMode DatabaseBackend::lockingMode(const source_location &sourceLocation) const
 {
-    return pragmaToLockingMode(pragmaValue("main.locking_mode"));
+    return pragmaToLockingMode(pragmaValue("main.locking_mode", sourceLocation));
 }
 
-int DatabaseBackend::version() const
+int DatabaseBackend::version(const source_location &sourceLocation) const
 {
-    return toValue<int>("PRAGMA main.user_version");
+    return toValue<int>("PRAGMA main.user_version", sourceLocation);
 }
 
-void DatabaseBackend::setVersion(int version)
+void DatabaseBackend::setVersion(int version, const source_location &sourceLocation)
 {
     ReadWriteStatement<>{Utils::SmallString{"PRAGMA main.user_version = "}
                              + Utils::SmallString::number(version),
-                         m_database}
-        .execute();
+                         m_database,
+                         sourceLocation}
+        .execute(sourceLocation);
 }
 
-int DatabaseBackend::changesCount() const
+int DatabaseBackend::changesCount(const source_location &sourceLocation) const
 {
-    return sqlite3_changes(sqliteDatabaseHandle());
+    return sqlite3_changes(sqliteDatabaseHandle(sourceLocation));
 }
 
-int DatabaseBackend::totalChangesCount() const
+int DatabaseBackend::totalChangesCount(const source_location &sourceLocation) const
 {
-    return sqlite3_total_changes(sqliteDatabaseHandle());
+    return sqlite3_total_changes(sqliteDatabaseHandle(sourceLocation));
 }
 
-int64_t DatabaseBackend::lastInsertedRowId() const
+int64_t DatabaseBackend::lastInsertedRowId(const source_location &sourceLocation) const
 {
-    return sqlite3_last_insert_rowid(sqliteDatabaseHandle());
+    return sqlite3_last_insert_rowid(sqliteDatabaseHandle(sourceLocation));
 }
 
-void DatabaseBackend::setLastInsertedRowId(int64_t rowId)
+void DatabaseBackend::setLastInsertedRowId(int64_t rowId, const source_location &sourceLocation)
 {
-    sqlite3_set_last_insert_rowid(sqliteDatabaseHandle(), rowId);
+    sqlite3_set_last_insert_rowid(sqliteDatabaseHandle(sourceLocation), rowId);
 }
 
-void DatabaseBackend::execute(Utils::SmallStringView sqlStatement)
+void DatabaseBackend::execute(Utils::SmallStringView sqlStatement,
+                              const source_location &sourceLocation)
 {
     try {
-        ReadWriteStatement<0> statement(sqlStatement, m_database);
-        statement.execute();
+        ReadWriteStatement<0> statement(sqlStatement, m_database, sourceLocation);
+        statement.execute(sourceLocation);
     } catch (StatementIsBusy &) {
-        execute(sqlStatement);
+        execute(sqlStatement, sourceLocation);
     }
 }
 
-void DatabaseBackend::close()
+void DatabaseBackend::close(const source_location &sourceLocation)
 {
-    checkForOpenDatabaseWhichCanBeClosed();
+    checkForOpenDatabaseWhichCanBeClosed(sourceLocation);
 
     int resultCode = sqlite3_close(m_databaseHandle.get());
 
-    checkDatabaseClosing(resultCode);
+    checkDatabaseClosing(resultCode, sourceLocation);
 
     m_databaseHandle.release();
 }
@@ -246,66 +260,72 @@ int busyHandlerCallback(void *userData, int counter)
 
 } // namespace
 
-void DatabaseBackend::registerBusyHandler()
+void DatabaseBackend::registerBusyHandler(const source_location &sourceLocation)
 {
-    int resultCode = sqlite3_busy_handler(sqliteDatabaseHandle(),
+    int resultCode = sqlite3_busy_handler(sqliteDatabaseHandle(sourceLocation),
                                           &busyHandlerCallback,
                                           &m_busyHandler);
 
-    checkIfBusyTimeoutWasSet(resultCode);
+    checkIfBusyTimeoutWasSet(resultCode, sourceLocation);
 }
 
-void DatabaseBackend::resetDatabaseForTestsOnly()
+void DatabaseBackend::resetDatabaseForTestsOnly(const source_location &sourceLocation)
 {
-    sqlite3_db_config(sqliteDatabaseHandle(), SQLITE_DBCONFIG_RESET_DATABASE, 1, 0);
-    sqlite3_exec(sqliteDatabaseHandle(), "VACUUM", nullptr, nullptr, nullptr);
-    sqlite3_db_config(sqliteDatabaseHandle(), SQLITE_DBCONFIG_RESET_DATABASE, 0, 0);
+    sqlite3_db_config(sqliteDatabaseHandle(sourceLocation), SQLITE_DBCONFIG_RESET_DATABASE, 1, 0);
+    sqlite3_exec(sqliteDatabaseHandle(sourceLocation), "VACUUM", nullptr, nullptr, nullptr);
+    sqlite3_db_config(sqliteDatabaseHandle(sourceLocation), SQLITE_DBCONFIG_RESET_DATABASE, 0, 0);
 }
 
-void DatabaseBackend::enableForeignKeys()
+void DatabaseBackend::enableForeignKeys(const source_location &sourceLocation)
 {
-    sqlite3_exec(sqliteDatabaseHandle(), "PRAGMA foreign_keys=ON", nullptr, nullptr, nullptr);
+    sqlite3_exec(sqliteDatabaseHandle(sourceLocation), "PRAGMA foreign_keys=ON", nullptr, nullptr, nullptr);
 }
 
-void DatabaseBackend::disableForeignKeys()
+void DatabaseBackend::disableForeignKeys(const source_location &sourceLocation)
 {
-    sqlite3_exec(sqliteDatabaseHandle(), "PRAGMA foreign_keys=OFF", nullptr, nullptr, nullptr);
+    sqlite3_exec(sqliteDatabaseHandle(sourceLocation), "PRAGMA foreign_keys=OFF", nullptr, nullptr, nullptr);
 }
 
-void DatabaseBackend::checkForOpenDatabaseWhichCanBeClosed()
+void DatabaseBackend::checkForOpenDatabaseWhichCanBeClosed(const source_location &sourceLocation)
 {
     if (m_databaseHandle == nullptr)
-        throw DatabaseIsAlreadyClosed();
+        throw DatabaseIsAlreadyClosed(sourceLocation);
 }
 
-void DatabaseBackend::checkDatabaseClosing(int resultCode)
+void DatabaseBackend::checkDatabaseClosing(int resultCode, const source_location &sourceLocation)
 {
     switch (resultCode) {
         case SQLITE_OK: return;
         case SQLITE_BUSY:
-        throw DatabaseIsBusy();
+            throw DatabaseIsBusy(sourceLocation);
         default:
-        throw UnknowError("SqliteDatabaseBackend::close: unknown error happens at closing!");
+            throw UnknowError("SqliteDatabaseBackend::close: unknown error happens at closing!",
+                              sourceLocation);
     }
 }
 
-void DatabaseBackend::checkCanOpenDatabase(Utils::SmallStringView databaseFilePath)
+void DatabaseBackend::checkCanOpenDatabase(Utils::SmallStringView databaseFilePath,
+                                           const source_location &sourceLocation)
 {
     if (databaseFilePath.isEmpty())
-        throw DatabaseFilePathIsEmpty("SqliteDatabaseBackend::SqliteDatabaseBackend: database cannot be opened because the file path is empty!");
+        throw DatabaseFilePathIsEmpty("SqliteDatabaseBackend::SqliteDatabaseBackend: database "
+                                      "cannot be opened because the file path is empty!",
+                                      sourceLocation);
 
     if (!QFileInfo::exists(QFileInfo(QString{databaseFilePath}).path()))
-        throw WrongFilePath(Utils::SmallString(databaseFilePath));
+        throw WrongFilePath(Utils::SmallString(databaseFilePath), sourceLocation);
 
     if (databaseIsOpen())
-        throw DatabaseIsAlreadyOpen("SqliteDatabaseBackend::SqliteDatabaseBackend: database cannot be opened because it is already open!");
+        throw DatabaseIsAlreadyOpen("SqliteDatabaseBackend::SqliteDatabaseBackend: database cannot "
+                                    "be opened because it is already open!",
+                                    sourceLocation);
 }
 
-void DatabaseBackend::checkDatabaseCouldBeOpened(int resultCode)
+void DatabaseBackend::checkDatabaseCouldBeOpened(int resultCode, const source_location &sourceLocation)
 {
     if (resultCode != SQLITE_OK) {
         try {
-            Sqlite::throwError(resultCode, sqliteDatabaseHandle());
+            Sqlite::throwError(resultCode, sqliteDatabaseHandle(sourceLocation), sourceLocation);
         } catch (...) {
             closeWithoutException();
             throw;
@@ -313,65 +333,71 @@ void DatabaseBackend::checkDatabaseCouldBeOpened(int resultCode)
     }
 }
 
-void DatabaseBackend::checkCarrayCannotBeIntialized(int resultCode)
+void DatabaseBackend::checkCarrayCannotBeIntialized(int resultCode,
+                                                    const source_location &sourceLocation)
 {
     if (resultCode != SQLITE_OK)
-        throw DatabaseIsNotOpen();
+        throw DatabaseIsNotOpen(sourceLocation);
 }
 
 void DatabaseBackend::checkPragmaValue(Utils::SmallStringView databaseValue,
-                                       Utils::SmallStringView expectedValue)
+                                       Utils::SmallStringView expectedValue,
+                                       const source_location &sourceLocation)
 {
     if (databaseValue != expectedValue)
-        throw PragmaValueNotSet();
+        throw PragmaValueNotSet(sourceLocation);
 }
 
-void DatabaseBackend::checkDatabaseHandleIsNotNull() const
+void DatabaseBackend::checkDatabaseHandleIsNotNull(const source_location &sourceLocation) const
 {
     if (m_databaseHandle == nullptr)
-        throw DatabaseIsNotOpen();
+        throw DatabaseIsNotOpen(sourceLocation);
 }
 
-void DatabaseBackend::checkIfMultithreadingIsActivated(int resultCode)
+void DatabaseBackend::checkIfMultithreadingIsActivated(int resultCode,
+                                                       const source_location &sourceLocation)
 {
     if (resultCode != SQLITE_OK)
-        throw MultiTheadingCannotBeActivated{};
+        throw MultiTheadingCannotBeActivated{sourceLocation};
 }
 
-void DatabaseBackend::checkIfLoogingIsActivated(int resultCode)
+void DatabaseBackend::checkIfLoogingIsActivated(int resultCode, const source_location &sourceLocation)
 {
     if (resultCode != SQLITE_OK)
-        throw LoggingCannotBeActivated{};
+        throw LoggingCannotBeActivated{sourceLocation};
 }
 
-void DatabaseBackend::checkMmapSizeIsSet(int resultCode)
+void DatabaseBackend::checkMmapSizeIsSet(int resultCode, const source_location &sourceLocation)
 {
     if (resultCode != SQLITE_OK)
-        throw MemoryMappingCannotBeChanged{};
+        throw MemoryMappingCannotBeChanged{sourceLocation};
 }
 
-void DatabaseBackend::checkInitializeSqliteLibraryWasSuccesful(int resultCode)
+void DatabaseBackend::checkInitializeSqliteLibraryWasSuccesful(int resultCode,
+                                                               const source_location &sourceLocation)
 {
     if (resultCode != SQLITE_OK)
-        throw LibraryCannotBeInitialized{};
+        throw LibraryCannotBeInitialized{sourceLocation};
 }
 
-void DatabaseBackend::checkShutdownSqliteLibraryWasSuccesful(int resultCode)
+void DatabaseBackend::checkShutdownSqliteLibraryWasSuccesful(int resultCode,
+                                                             const source_location &sourceLocation)
 {
     if (resultCode != SQLITE_OK)
-        throw LibraryCannotBeShutdown{};
+        throw LibraryCannotBeShutdown{sourceLocation};
 }
 
-void DatabaseBackend::checkIfLogCouldBeCheckpointed(int resultCode)
+void DatabaseBackend::checkIfLogCouldBeCheckpointed(int resultCode,
+                                                    const source_location &sourceLocation)
 {
     if (resultCode != SQLITE_OK)
-        throw LogCannotBeCheckpointed{};
+        throw LogCannotBeCheckpointed{sourceLocation};
 }
 
-void DatabaseBackend::checkIfBusyTimeoutWasSet(int resultCode)
+void DatabaseBackend::checkIfBusyTimeoutWasSet(int resultCode, const source_location &sourceLocation)
 {
     if (resultCode != SQLITE_OK)
-        throw BusyTimerCannotBeSet{};
+        throw BusyTimerCannotBeSet{sourceLocation};
 }
 
 namespace {
@@ -398,12 +424,13 @@ Utils::SmallStringView DatabaseBackend::journalModeToPragma(JournalMode journalM
     return journalModeStrings[int(journalMode)];
 }
 
-JournalMode DatabaseBackend::pragmaToJournalMode(Utils::SmallStringView pragma)
+JournalMode DatabaseBackend::pragmaToJournalMode(Utils::SmallStringView pragma,
+                                                 const source_location &sourceLocation)
 {
     int index = indexOfPragma(pragma, journalModeStrings);
 
     if (index < 0)
-        throw PragmaValueCannotBeTransformed{};
+        throw PragmaValueCannotBeTransformed{sourceLocation};
 
     return static_cast<JournalMode>(index);
 }
@@ -432,7 +459,7 @@ void DatabaseBackend::setBusyTimeout(std::chrono::milliseconds timeout)
     sqlite3_busy_timeout(m_databaseHandle.get(), int(timeout.count()));
 }
 
-void DatabaseBackend::walCheckpointFull()
+void DatabaseBackend::walCheckpointFull(const source_location &sourceLocation)
 {
     int resultCode = sqlite3_wal_checkpoint_v2(m_databaseHandle.get(),
                                                nullptr,
@@ -441,7 +468,7 @@ void DatabaseBackend::walCheckpointFull()
                                                nullptr);
 
     if (resultCode != SQLITE_OK)
-        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle(sourceLocation), sourceLocation);
 }
 
 void DatabaseBackend::setUpdateHook(
@@ -456,10 +483,11 @@ void DatabaseBackend::resetUpdateHook()
     sqlite3_update_hook(m_databaseHandle.get(), nullptr, nullptr);
 }
 
-void DatabaseBackend::setBusyHandler(DatabaseBackend::BusyHandler &&busyHandler)
+void DatabaseBackend::setBusyHandler(DatabaseBackend::BusyHandler &&busyHandler,
+                                     const source_location &sourceLocation)
 {
     m_busyHandler = std::move(busyHandler);
-    registerBusyHandler();
+    registerBusyHandler(sourceLocation);
 }
 
 namespace {
@@ -473,36 +501,39 @@ int progressHandlerCallback(void *userData)
 
 } // namespace
 
-void DatabaseBackend::setProgressHandler(int operationCount, ProgressHandler &&progressHandler)
+void DatabaseBackend::setProgressHandler(int operationCount,
+                                         ProgressHandler &&progressHandler,
+                                         const source_location &sourceLocation)
 {
     m_progressHandler = std::move(progressHandler);
 
     if (m_progressHandler)
-        sqlite3_progress_handler(sqliteDatabaseHandle(),
+        sqlite3_progress_handler(sqliteDatabaseHandle(sourceLocation),
                                  operationCount,
                                  &progressHandlerCallback,
                                  &m_progressHandler);
     else {
-        sqlite3_progress_handler(sqliteDatabaseHandle(), 0, nullptr, nullptr);
+        sqlite3_progress_handler(sqliteDatabaseHandle(sourceLocation), 0, nullptr, nullptr);
     }
 }
 
-void DatabaseBackend::resetProgressHandler()
+void DatabaseBackend::resetProgressHandler(const source_location &sourceLocation)
 {
-    sqlite3_progress_handler(sqliteDatabaseHandle(), 0, nullptr, nullptr);
+    sqlite3_progress_handler(sqliteDatabaseHandle(sourceLocation), 0, nullptr, nullptr);
 }
 
 template<typename Type>
-Type DatabaseBackend::toValue(Utils::SmallStringView sqlStatement) const
+Type DatabaseBackend::toValue(Utils::SmallStringView sqlStatement,
+                              const source_location &sourceLocation) const
 {
     try {
-        ReadWriteStatement<1> statement(sqlStatement, m_database);
+        ReadWriteStatement<1> statement(sqlStatement, m_database, sourceLocation);
 
-        statement.next();
+        statement.next(sourceLocation);
 
         return statement.fetchValue<Type>(0);
     } catch (StatementIsBusy &) {
-        return toValue<Type>(sqlStatement);
+        return toValue<Type>(sqlStatement, sourceLocation);
     }
 }
 

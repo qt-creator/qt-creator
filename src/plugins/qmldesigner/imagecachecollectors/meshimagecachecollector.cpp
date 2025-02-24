@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "meshimagecachecollector.h"
-#include "imagecacheconnectionmanager.h"
 
 #include <projectexplorer/target.h>
 #include <utils/smallstring.h>
@@ -12,13 +11,11 @@
 
 namespace QmlDesigner {
 
-MeshImageCacheCollector::MeshImageCacheCollector(ImageCacheConnectionManager &connectionManager,
-                                                 QSize captureImageMinimumSize,
+MeshImageCacheCollector::MeshImageCacheCollector(QSize captureImageMinimumSize,
                                                  QSize captureImageMaximumSize,
                                                  ExternalDependenciesInterface &externalDependencies,
                                                  ImageCacheCollectorNullImageHandling nullImageHandling)
-    : m_imageCacheCollector(connectionManager,
-                            captureImageMinimumSize,
+    : m_imageCacheCollector(captureImageMinimumSize,
                             captureImageMaximumSize,
                             externalDependencies,
                             nullImageHandling)

@@ -32,7 +32,7 @@
     You can specify additional CMake options, such as \c {--find-debug},
     \c {--trace-expand}, or \c {--warn-uninitialized}, in
     \uicontrol {Additional CMake options}. For more information about
-    the options, click the link in the field name or see \l{CMake: cmake(1)}.
+    the options, select the link in the field name or see \l{CMake: cmake(1)}.
 
     Select \uicontrol {Kit Configuration} to edit the CMake settings for the
     build and run kit selected for the project.

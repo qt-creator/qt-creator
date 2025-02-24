@@ -1,34 +1,33 @@
-// Copyright (C) 2024 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page studio-live-preview-desktop.html
-    \previouspage studio-live-preview.html
+    \previouspage studio-run-project.html
     \nextpage creator-live-preview-devices.html
 
     \title Previewing on desktop
 
     To preview the currently active QML file on the desktop:
 
-    \list
-        \li Select the \uicontrol {Live Preview} button on the top toolbar.
-        \li Select \key {Alt+P}.
-            \image studio-live-preview.webp
+    \list 1
+        \li Select \uicontrol Run dropdown from the top toolbar and select
+          \uicontrol {Live Preview}.
+        \li Select \imagerunproject.
+            \image studio-live-preview.webp Live preview a \QDS project on the desktop
+
+        \note Alternatively, select \key {Alt+P}.
     \endlist
 
     To preview any QML file in the project:
 
-    \list
-        \li Select the \uicontrol {Live Preview} button on the top toolbar.
+    \list 1
+        \li Select \uicontrol Run dropdown from the top toolbar and select
+          \uicontrol {Live Preview}.
+        \li Select \imagerunproject.
         \li Right-click the filename in the \l Projects view, and select
             \uicontrol {Preview File}.
     \endlist
-
-    To preview the whole application, select \uicontrol {Live Preview}
-    when viewing the main QML file of the project.
-
-    To preview the application in a different zoom level, right-click the \uicontrol {Live Preview}
-    button and select the zoom level.
 
     \section1 Overriding the preview tool
 
@@ -39,7 +38,7 @@
     \list 1
         \li Select \imagesettings to go to
             \uicontrol {Run Settings}.
-            \image studio-run-settings.webp {Run Settings}
+            \image studio-run-settings.webp Run Settings
         \li In \uicontrol {Override device QML viewer}, select the folder where
             the preview tool executable is located.
     \endlist

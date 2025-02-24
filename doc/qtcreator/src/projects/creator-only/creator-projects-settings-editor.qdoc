@@ -34,7 +34,7 @@
 
     \image qtcreator-editor-settings.webp {Editor settings for a project}
 
-    Click \uicontrol {Restore Global} to revert to the global settings.
+    Select \uicontrol {Restore Global} to revert to the global settings.
 
     \sa {Configuring Fonts}, {Change text encoding}, {Indent text or code},
     {View function tooltips}, {Text Editor}

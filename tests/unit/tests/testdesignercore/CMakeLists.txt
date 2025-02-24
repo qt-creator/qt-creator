@@ -69,16 +69,7 @@ extend_qtc_library(TestDesignerCore
   SOURCES
     exception.cpp
     invalidargumentexception.cpp
-    invalididexception.cpp
     invalidmetainfoexception.cpp
-    invalidmodelnodeexception.cpp
-    invalidmodelstateexception.cpp
-    invalidpropertyexception.cpp
-    invalidqmlsourceexception.cpp
-    invalidreparentingexception.cpp
-    invalidslideindexexception.cpp
-    notimplementedexception.cpp
-    removebasestateexception.cpp
     rewritingexception.cpp
 )
 
@@ -192,14 +183,7 @@ extend_qtc_library(TestDesignerCore
     imagecacheauxiliarydata.h
     import.h
     invalidargumentexception.h
-    invalididexception.h
     invalidmetainfoexception.h
-    invalidmodelnodeexception.h
-    invalidmodelstateexception.h
-    invalidpropertyexception.h
-    invalidqmlsourceexception.h
-    invalidreparentingexception.h
-    invalidslideindexexception.h
     iwidgetplugin.h
     mathutils.h
     modelfwd.h
@@ -211,7 +195,6 @@ extend_qtc_library(TestDesignerCore
     nodelistproperty.h
     nodemetainfo.h
     nodeproperty.h
-    notimplementedexception.h
     objectpropertybinding.h
     projectstorageids.h
     propertybinding.h
@@ -222,7 +205,6 @@ extend_qtc_library(TestDesignerCore
     qmldesignercorelib_exports.h
     qmldesignercorelib_global.h
     qmldesignercoreconstants.h
-    removebasestateexception.h
     rewritertransaction.h
     rewritingexception.h
     signalhandlerproperty.h

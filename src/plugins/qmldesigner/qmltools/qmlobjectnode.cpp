@@ -19,7 +19,6 @@
 
 #include <auxiliarydataproperties.h>
 #include <designersettings.h>
-#include <invalidmodelnodeexception.h>
 
 #include <qmltimeline.h>
 

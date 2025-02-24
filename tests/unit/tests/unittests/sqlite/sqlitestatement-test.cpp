@@ -56,6 +56,8 @@ bool compareValue(SqliteTestStatement<2, 1> &statement, Type value, int column)
     return false;
 }
 
+constexpr auto sourceLocation = Sqlite::source_location::current();
+
 MATCHER_P3(HasValues,
            value1,
            value2,
@@ -66,9 +68,9 @@ MATCHER_P3(HasValues,
     Database &database = arg.database();
 
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE rowid=?", database);
-    statement.bind(1, rowid);
+    statement.bind(1, rowid, sourceLocation);
 
-    statement.next();
+    statement.next(sourceLocation);
 
     return compareValue(statement, value1, 0) && compareValue(statement, value2, 1);
 }
@@ -78,9 +80,9 @@ MATCHER_P(HasNullValues, rowid, std::string(negation ? "isn't null" : "is null")
     Database &database = arg.database();
 
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE rowid=?", database);
-    statement.bind(1, rowid);
+    statement.bind(1, rowid, sourceLocation);
 
-    statement.next();
+    statement.next(sourceLocation);
 
     return statement.fetchValueView(0).isNull() && statement.fetchValueView(1).isNull();
 }
@@ -111,7 +113,10 @@ protected:
     template<typename Range>
     static auto toValues(Range &&range)
     {
-        return std::vector<typename Range::value_type>{range.begin(), range.end()};
+        std::vector<typename Range::value_type> values;
+        for (auto &&elem : range)
+            values.push_back(std::move(elem));
+        return values;
     }
 
 protected:
@@ -163,7 +168,7 @@ TEST_F(SqliteStatement, count_rows)
 {
     SqliteTestStatement<3> statement("SELECT * FROM test", database);
     int nextCount = 0;
-    while (statement.next())
+    while (statement.next(sourceLocation))
         ++nextCount;
 
     int sqlCount = ReadStatement<1>::toValue<int>("SELECT count(*) FROM test", database);
@@ -174,9 +179,9 @@ TEST_F(SqliteStatement, count_rows)
 TEST_F(SqliteStatement, value)
 {
     SqliteTestStatement<3> statement("SELECT name, number, value FROM test ORDER BY name", database);
-    statement.next();
+    statement.next(sourceLocation);
 
-    statement.next();
+    statement.next(sourceLocation);
 
     ASSERT_THAT(statement.fetchValue<int>(0), 0);
     ASSERT_THAT(statement.fetchValue<int64_t>(0), 0);
@@ -226,8 +231,8 @@ TEST_F(SqliteStatement, bind_null)
     database.execute("INSERT INTO  test VALUES (NULL, 323, 344)");
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE name IS ?", database);
 
-    statement.bindNull(1);
-    statement.next();
+    statement.bindNull(1, sourceLocation);
+    statement.next(sourceLocation);
 
     ASSERT_TRUE(statement.fetchValueView(0).isNull());
     ASSERT_THAT(statement.fetchValue<int>(1), 323);
@@ -238,8 +243,8 @@ TEST_F(SqliteStatement, bind_null_value)
     database.execute("INSERT INTO  test VALUES (NULL, 323, 344)");
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE name IS ?", database);
 
-    statement.bind(1, Sqlite::NullValue{});
-    statement.next();
+    statement.bind(1, Sqlite::NullValue{}, sourceLocation);
+    statement.next(sourceLocation);
 
     ASSERT_TRUE(statement.fetchValueView(0).isNull());
     ASSERT_THAT(statement.fetchValue<int>(1), 323);
@@ -250,11 +255,11 @@ TEST_F(SqliteStatement, bind_invalid_int_id_to_null)
     TestIntId id;
     SqliteTestStatement<0, 1> statement("INSERT INTO  test VALUES ('id', 323, ?)", database);
 
-    statement.bind(1, id);
-    statement.next();
+    statement.bind(1, id, sourceLocation);
+    statement.next(sourceLocation);
 
     SqliteTestStatement<1, 1> readStatement("SELECT value FROM test WHERE name='id'", database);
-    readStatement.next();
+    readStatement.next(sourceLocation);
     ASSERT_THAT(readStatement.fetchType(0), Sqlite::Type::Null);
 }
 
@@ -263,11 +268,11 @@ TEST_F(SqliteStatement, bind_invalid_compound_id_to_null)
     CompoundId id;
     SqliteTestStatement<0, 1> statement("INSERT INTO  test VALUES ('id', 323, ?)", database);
 
-    statement.bind(1, id);
-    statement.next();
+    statement.bind(1, id, sourceLocation);
+    statement.next(sourceLocation);
 
     SqliteTestStatement<1, 1> readStatement("SELECT value FROM test WHERE name='id'", database);
-    readStatement.next();
+    readStatement.next(sourceLocation);
     ASSERT_THAT(readStatement.fetchType(0), Sqlite::Type::Null);
 }
 
@@ -276,11 +281,11 @@ TEST_F(SqliteStatement, bind_int_id)
     TestIntId id{TestIntId::create(42)};
     SqliteTestStatement<0, 1> statement("INSERT INTO test VALUES ('id', 323, ?)", database);
 
-    statement.bind(1, id);
-    statement.next();
+    statement.bind(1, id, sourceLocation);
+    statement.next(sourceLocation);
 
     SqliteTestStatement<1, 1> readStatement("SELECT value FROM test WHERE name='id'", database);
-    readStatement.next();
+    readStatement.next(sourceLocation);
     ASSERT_THAT(readStatement.fetchType(0), Sqlite::Type::Integer);
     ASSERT_THAT(readStatement.fetchIntValue(0), 42);
 }
@@ -290,11 +295,11 @@ TEST_F(SqliteStatement, bind_compound_id)
     CompoundId id = CompoundId::create(42);
     SqliteTestStatement<0, 1> statement("INSERT INTO test VALUES ('id', 323, ?)", database);
 
-    statement.bind(1, id);
-    statement.next();
+    statement.bind(1, id, sourceLocation);
+    statement.next(sourceLocation);
 
     SqliteTestStatement<1, 1> readStatement("SELECT value FROM test WHERE name='id'", database);
-    readStatement.next();
+    readStatement.next(sourceLocation);
     ASSERT_THAT(readStatement.fetchType(0), Sqlite::Type::Integer);
     ASSERT_THAT(readStatement.fetchIntValue(0), 42);
 }
@@ -305,11 +310,11 @@ TEST_F(SqliteStatement, bind_special_state_id)
     constexpr TestIntId unresolvedTypeId = TestIntId::createSpecialState(SpecialIdState::Unresolved);
     SqliteTestStatement<0, 1> statement("INSERT INTO test VALUES ('id', 323, ?)", database);
 
-    statement.bind(1, unresolvedTypeId);
-    statement.next();
+    statement.bind(1, unresolvedTypeId, sourceLocation);
+    statement.next(sourceLocation);
 
     SqliteTestStatement<1, 1> readStatement("SELECT value FROM test WHERE name='id'", database);
-    readStatement.next();
+    readStatement.next(sourceLocation);
     ASSERT_THAT(readStatement.fetchType(0), Sqlite::Type::Integer);
     ASSERT_THAT(readStatement.fetchIntValue(0), -1);
 }
@@ -319,11 +324,11 @@ TEST_F(SqliteStatement, bind_invalid_long_long_id_to_null)
     TestLongLongId id;
     SqliteTestStatement<0, 1> statement("INSERT INTO  test VALUES ('id', 323, ?)", database);
 
-    statement.bind(1, id);
-    statement.next();
+    statement.bind(1, id, sourceLocation);
+    statement.next(sourceLocation);
 
     SqliteTestStatement<1, 1> readStatement("SELECT value FROM test WHERE name='id'", database);
-    readStatement.next();
+    readStatement.next(sourceLocation);
     ASSERT_THAT(readStatement.fetchType(0), Sqlite::Type::Null);
 }
 
@@ -332,11 +337,11 @@ TEST_F(SqliteStatement, bind_long_long_id)
     TestLongLongId id{TestLongLongId::create(42)};
     SqliteTestStatement<0, 1> statement("INSERT INTO test VALUES ('id', 323, ?)", database);
 
-    statement.bind(1, id);
-    statement.next();
+    statement.bind(1, id, sourceLocation);
+    statement.next(sourceLocation);
 
     SqliteTestStatement<1, 1> readStatement("SELECT value FROM test WHERE name='id'", database);
-    readStatement.next();
+    readStatement.next(sourceLocation);
     ASSERT_THAT(readStatement.fetchType(0), Sqlite::Type::Integer);
     ASSERT_THAT(readStatement.fetchIntValue(0), 42);
 }
@@ -345,8 +350,8 @@ TEST_F(SqliteStatement, bind_string)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE name=?", database);
 
-    statement.bind(1, Utils::SmallStringView("foo"));
-    statement.next();
+    statement.bind(1, Utils::SmallStringView("foo"), sourceLocation);
+    statement.next(sourceLocation);
 
     ASSERT_THAT(statement.fetchSmallStringViewValue(0), "foo");
     ASSERT_THAT(statement.fetchValue<double>(1), 23.3);
@@ -356,8 +361,8 @@ TEST_F(SqliteStatement, bind_integer)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=?", database);
 
-    statement.bind(1, 40);
-    statement.next();
+    statement.bind(1, 40, sourceLocation);
+    statement.next(sourceLocation);
 
     ASSERT_THAT(statement.fetchSmallStringViewValue(0), "poo");
 }
@@ -366,8 +371,8 @@ TEST_F(SqliteStatement, bind_long_integer)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=?", database);
 
-    statement.bind(1, int64_t(40));
-    statement.next();
+    statement.bind(1, int64_t(40), sourceLocation);
+    statement.next(sourceLocation);
 
     ASSERT_THAT(statement.fetchSmallStringViewValue(0), "poo");
 }
@@ -376,8 +381,8 @@ TEST_F(SqliteStatement, bind_double)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=?", database);
 
-    statement.bind(1, 23.3);
-    statement.next();
+    statement.bind(1, 23.3, sourceLocation);
+    statement.next(sourceLocation);
 
     ASSERT_THAT(statement.fetchSmallStringViewValue(0), "foo");
 }
@@ -387,8 +392,8 @@ TEST_F(SqliteStatement, bind_pointer)
     SqliteTestStatement<1, 1> statement("SELECT value FROM carray(?, 5, 'int64')", database);
     std::vector<long long> values{1, 1, 2, 3, 5};
 
-    statement.bind(1, values.data());
-    statement.next();
+    statement.bind(1, values.data(), sourceLocation);
+    statement.next(sourceLocation);
 
     ASSERT_THAT(statement.fetchIntValue(0), 1);
 }
@@ -398,11 +403,11 @@ TEST_F(SqliteStatement, bind_int_carray)
     SqliteTestStatement<1, 1> statement("SELECT value FROM carray(?)", database);
     std::vector<int> values{3, 10, 20, 33, 55};
 
-    statement.bind(1, values);
-    statement.next();
-    statement.next();
-    statement.next();
-    statement.next();
+    statement.bind(1, values, sourceLocation);
+    statement.next(sourceLocation);
+    statement.next(sourceLocation);
+    statement.next(sourceLocation);
+    statement.next(sourceLocation);
 
     ASSERT_THAT(statement.fetchIntValue(0), 33);
 }
@@ -412,11 +417,11 @@ TEST_F(SqliteStatement, bind_long_long_carray)
     SqliteTestStatement<1, 1> statement("SELECT value FROM carray(?)", database);
     std::vector<long long> values{3, 10, 20, 33, 55};
 
-    statement.bind(1, values);
-    statement.next();
-    statement.next();
-    statement.next();
-    statement.next();
+    statement.bind(1, values, sourceLocation);
+    statement.next(sourceLocation);
+    statement.next(sourceLocation);
+    statement.next(sourceLocation);
+    statement.next(sourceLocation);
 
     ASSERT_THAT(statement.fetchLongLongValue(0), 33);
 }
@@ -426,11 +431,11 @@ TEST_F(SqliteStatement, bind_double_carray)
     SqliteTestStatement<1, 1> statement("SELECT value FROM carray(?)", database);
     std::vector<double> values{3.3, 10.2, 20.54, 33.21, 55};
 
-    statement.bind(1, values);
-    statement.next();
-    statement.next();
-    statement.next();
-    statement.next();
+    statement.bind(1, values, sourceLocation);
+    statement.next(sourceLocation);
+    statement.next(sourceLocation);
+    statement.next(sourceLocation);
+    statement.next(sourceLocation);
 
     ASSERT_THAT(statement.fetchDoubleValue(0), 33.21);
 }
@@ -440,11 +445,11 @@ TEST_F(SqliteStatement, bind_text_carray)
     SqliteTestStatement<1, 1> statement("SELECT value FROM carray(?)", database);
     std::vector<const char *> values{"yi", "er", "san", "se", "wu"};
 
-    statement.bind(1, values);
-    statement.next();
-    statement.next();
-    statement.next();
-    statement.next();
+    statement.bind(1, values, sourceLocation);
+    statement.next(sourceLocation);
+    statement.next(sourceLocation);
+    statement.next(sourceLocation);
+    statement.next(sourceLocation);
 
     ASSERT_THAT(statement.fetchSmallStringViewValue(0), Eq("se"));
 }
@@ -456,8 +461,8 @@ TEST_F(SqliteStatement, bind_blob)
     auto bytePointer = reinterpret_cast<const std::byte *>(chars);
     Sqlite::BlobView bytes{bytePointer, sizeof(chars) - 1};
 
-    statement.bind(1, bytes);
-    statement.next();
+    statement.bind(1, bytes, sourceLocation);
+    statement.next(sourceLocation);
 
     ASSERT_THAT(statement.fetchBlobValue(0), Eq(bytes));
 }
@@ -467,8 +472,8 @@ TEST_F(SqliteStatement, bind_empty_blob)
     SqliteTestStatement<1, 1> statement("WITH T(blob) AS (VALUES (?)) SELECT blob FROM T", database);
     Sqlite::BlobView bytes;
 
-    statement.bind(1, bytes);
-    statement.next();
+    statement.bind(1, bytes, sourceLocation);
+    statement.next(sourceLocation);
 
     ASSERT_THAT(statement.fetchBlobValue(0), IsEmpty());
 }
@@ -477,49 +482,51 @@ TEST_F(SqliteStatement, bind_index_is_zero_is_throwing_binding_index_is_out_of_b
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=$1", database);
 
-    ASSERT_THROW(statement.bind(0, 40), Sqlite::BindingIndexIsOutOfRange);
+    ASSERT_THROW(statement.bind(0, 40, sourceLocation), Sqlite::BindingIndexIsOutOfRange);
 }
 
 TEST_F(SqliteStatement, bind_index_is_zero_is_throwing_binding_index_is_out_of_bound_null)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=$1", database);
 
-    ASSERT_THROW(statement.bind(0, Sqlite::NullValue{}), Sqlite::BindingIndexIsOutOfRange);
+    ASSERT_THROW(statement.bind(0, Sqlite::NullValue{}, sourceLocation),
+                 Sqlite::BindingIndexIsOutOfRange);
 }
 
 TEST_F(SqliteStatement, bind_index_is_to_large_is_throwing_binding_index_is_out_of_bound_long_long)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=$1", database);
 
-    ASSERT_THROW(statement.bind(2, 40LL), Sqlite::BindingIndexIsOutOfRange);
+    ASSERT_THROW(statement.bind(2, 40LL, sourceLocation), Sqlite::BindingIndexIsOutOfRange);
 }
 
 TEST_F(SqliteStatement, bind_index_is_to_large_is_throwing_binding_index_is_out_of_bound_string_view)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=$1", database);
 
-    ASSERT_THROW(statement.bind(2, "foo"), Sqlite::BindingIndexIsOutOfRange);
+    ASSERT_THROW(statement.bind(2, "foo", sourceLocation), Sqlite::BindingIndexIsOutOfRange);
 }
 
 TEST_F(SqliteStatement, bind_index_is_to_large_is_throwing_binding_index_is_out_of_bound_string_float)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=$1", database);
 
-    ASSERT_THROW(statement.bind(2, 2.), Sqlite::BindingIndexIsOutOfRange);
+    ASSERT_THROW(statement.bind(2, 2., sourceLocation), Sqlite::BindingIndexIsOutOfRange);
 }
 
 TEST_F(SqliteStatement, bind_index_is_to_large_is_throwing_binding_index_is_out_of_bound_pointer)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=$1", database);
 
-    ASSERT_THROW(statement.bind(2, nullptr), Sqlite::BindingIndexIsOutOfRange);
+    ASSERT_THROW(statement.bind(2, nullptr, sourceLocation), Sqlite::BindingIndexIsOutOfRange);
 }
 
 TEST_F(SqliteStatement, bind_index_is_to_large_is_throwing_binding_index_is_out_of_bound_value)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=$1", database);
 
-    ASSERT_THROW(statement.bind(2, Sqlite::Value{1}), Sqlite::BindingIndexIsOutOfRange);
+    ASSERT_THROW(statement.bind(2, Sqlite::Value{1}, sourceLocation),
+                 Sqlite::BindingIndexIsOutOfRange);
 }
 
 TEST_F(SqliteStatement, bind_index_is_to_large_is_throwing_binding_index_is_out_of_bound_blob)
@@ -527,14 +534,14 @@ TEST_F(SqliteStatement, bind_index_is_to_large_is_throwing_binding_index_is_out_
     SqliteTestStatement<1, 1> statement("WITH T(blob) AS (VALUES (?)) SELECT blob FROM T", database);
     Sqlite::BlobView bytes{QByteArray{"XXX"}};
 
-    ASSERT_THROW(statement.bind(2, bytes), Sqlite::BindingIndexIsOutOfRange);
+    ASSERT_THROW(statement.bind(2, bytes, sourceLocation), Sqlite::BindingIndexIsOutOfRange);
 }
 
 TEST_F(SqliteStatement, bind_values)
 {
     SqliteTestStatement<0, 3> statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
 
-    statement.bindValues("see", 7.23, 1);
+    statement.bindValues(sourceLocation, "see", 7.23, 1);
     statement.execute();
 
     ASSERT_THAT(statement, HasValues("see", "7.23", 1));
@@ -544,7 +551,7 @@ TEST_F(SqliteStatement, bind_null_values)
 {
     SqliteTestStatement<0, 3> statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
 
-    statement.bindValues(Sqlite::NullValue{}, Sqlite::Value{}, 1);
+    statement.bindValues(sourceLocation, Sqlite::NullValue{}, Sqlite::Value{}, 1);
     statement.execute();
 
     ASSERT_THAT(statement, HasNullValues(1));
@@ -905,8 +912,7 @@ TEST_F(SqliteStatement, get_single_range_without_arguments)
 {
     ReadStatement<1> statement("SELECT name FROM test", database);
 
-    auto range = statement.range<Utils::SmallStringView>();
-    std::vector<Utils::SmallString> values{range.begin(), range.end()};
+    auto values = toValues(statement.range<Utils::SmallString>());
 
     ASSERT_THAT(values, UnorderedElementsAre("bar", "foo", "poo"));
 }
@@ -956,8 +962,7 @@ TEST_F(SqliteStatement, get_single_sqlite_range_without_arguments)
     ReadStatement<1> statement("SELECT number FROM test", database);
     database.execute("INSERT INTO  test VALUES (NULL, NULL, NULL)");
 
-    auto range = statement.range<FooValue>();
-    std::vector<FooValue> values{range.begin(), range.end()};
+    auto values = toValues(statement.range<FooValue>());
 
     ASSERT_THAT(values, UnorderedElementsAre(Eq("blah"), Eq(23.3), Eq(40), IsNull()));
 }
@@ -990,8 +995,7 @@ TEST_F(SqliteStatement, get_struct_range_without_arguments)
 {
     ReadStatement<3> statement("SELECT name, number, value FROM test", database);
 
-    auto range = statement.range<Output>();
-    std::vector<Output> values{range.begin(), range.end()};
+    auto values = toValues(statement.range<Output>());
 
     ASSERT_THAT(values,
                 UnorderedElementsAre(Output{"bar", "blah", 1},
@@ -1028,8 +1032,7 @@ TEST_F(SqliteStatement, get_range_for_single_output_with_binding_multiple_times)
     ReadStatement<1, 1> statement("SELECT name FROM test WHERE number=?", database);
     statement.values<Utils::SmallString, 3>(40);
 
-    auto range = statement.range<Utils::SmallStringView>(40);
-    std::vector<Utils::SmallString> values{range.begin(), range.end()};
+    auto values = toValues(statement.range<Utils::SmallString>(40));
 
     ASSERT_THAT(values, ElementsAre("poo"));
 }
@@ -1040,8 +1043,7 @@ TEST_F(SqliteStatement, get_range_with_transaction_for_single_output_with_bindin
     statement.values<Utils::SmallString, 3>(40);
     database.unlock();
 
-    std::vector<Utils::SmallString> values = toValues(
-        statement.rangeWithTransaction<Utils::SmallString>(40));
+    auto values = toValues(statement.rangeWithTransaction<Utils::SmallString>(40));
 
     ASSERT_THAT(values, ElementsAre("poo"));
     database.lock();
@@ -1064,8 +1066,7 @@ TEST_F(SqliteStatement, get_range_for_multiple_output_values_and_multiple_query_
     ReadStatement<3, 3> statement(
         "SELECT name, number, value FROM test WHERE name=? AND number=? AND value=?", database);
 
-    auto range = statement.range<Tuple>("bar", "blah", 1);
-    std::vector<Tuple> values{range.begin(), range.end()};
+    auto values = toValues(statement.range<Tuple>("bar", "blah", 1));
 
     ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
 }
@@ -1101,12 +1102,10 @@ TEST_F(SqliteStatement, call_get_range_for_multiple_output_values_and_multiple_q
     ReadStatement<3, 2> statement("SELECT name, number, value FROM test WHERE name=? AND number=?",
                                   database);
     {
-        auto range = statement.range<Tuple>("bar", "blah");
-        std::vector<Tuple> values1{range.begin(), range.end()};
+        auto values1 = toValues(statement.range<Tuple>("bar", "blah"));
     }
 
-    auto range2 = statement.range<Tuple>("bar", "blah");
-    std::vector<Tuple> values{range2.begin(), range2.end()};
+    auto values = toValues(statement.range<Tuple>("bar", "blah"));
 
     ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
 }
@@ -1219,7 +1218,7 @@ TEST_F(SqliteStatement, get_optional_value_calls_reset)
 TEST_F(SqliteStatement, get_optional_value_calls_reset_if_exception_is_thrown)
 {
     MockSqliteStatement<1, 1> mockStatement{databaseMock};
-    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+    ON_CALL(mockStatement, next(_)).WillByDefault(Throw(Sqlite::StatementHasError("")));
 
     EXPECT_CALL(mockStatement, reset());
 
@@ -1355,7 +1354,7 @@ TEST_F(SqliteStatement, get_value_calls_reset_if_exception_is_thrown)
         int x = 0;
     };
     MockSqliteStatement<1, 1> mockStatement{databaseMock};
-    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+    ON_CALL(mockStatement, next(_)).WillByDefault(Throw(Sqlite::StatementHasError("")));
 
     EXPECT_CALL(mockStatement, reset());
 
@@ -1386,9 +1385,9 @@ TEST_F(SqliteStatement, get_range_with_transaction_without_arguments_calls)
     MockSqliteStatement<1, 0> mockStatement{databaseMock};
 
     EXPECT_CALL(databaseMock, lock());
-    EXPECT_CALL(databaseMock, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin(_));
     EXPECT_CALL(mockStatement, reset());
-    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, commit(_));
     EXPECT_CALL(databaseMock, unlock());
 
     mockStatement.rangeWithTransaction<int>();
@@ -1397,7 +1396,7 @@ TEST_F(SqliteStatement, get_range_with_transaction_without_arguments_calls)
 TEST_F(SqliteStatement, get_values_without_arguments_calls_reset_if_exception_is_thrown)
 {
     MockSqliteStatement<1, 0> mockStatement{databaseMock};
-    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+    ON_CALL(mockStatement, next(_)).WillByDefault(Throw(Sqlite::StatementHasError("")));
 
     EXPECT_CALL(mockStatement, reset());
 
@@ -1407,7 +1406,7 @@ TEST_F(SqliteStatement, get_values_without_arguments_calls_reset_if_exception_is
 TEST_F(SqliteStatement, get_range_without_arguments_calls_reset_if_exception_is_thrown)
 {
     MockSqliteStatement<1, 0> mockStatement{databaseMock};
-    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+    ON_CALL(mockStatement, next(_)).WillByDefault(Throw(Sqlite::StatementHasError("")));
     auto range = mockStatement.range<int>();
 
     EXPECT_CALL(mockStatement, reset());
@@ -1419,12 +1418,12 @@ TEST_F(SqliteStatement, get_range_with_transaction_without_arguments_calls_reset
 {
     InSequence s;
     MockSqliteStatement<1, 0> mockStatement{databaseMock};
-    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+    ON_CALL(mockStatement, next(_)).WillByDefault(Throw(Sqlite::StatementHasError("")));
 
     EXPECT_CALL(databaseMock, lock());
-    EXPECT_CALL(databaseMock, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin(_));
     EXPECT_CALL(mockStatement, reset());
-    EXPECT_CALL(databaseMock, rollback());
+    EXPECT_CALL(databaseMock, rollback(_));
     EXPECT_CALL(databaseMock, unlock());
 
     EXPECT_THROW(
@@ -1447,7 +1446,7 @@ TEST_F(SqliteStatement, get_values_with_simple_arguments_calls_reset)
 TEST_F(SqliteStatement, get_values_with_simple_arguments_calls_reset_if_exception_is_thrown)
 {
     MockSqliteStatement<1, 2> mockStatement{databaseMock};
-    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+    ON_CALL(mockStatement, next(_)).WillByDefault(Throw(Sqlite::StatementHasError("")));
 
     EXPECT_CALL(mockStatement, reset());
 
@@ -1458,7 +1457,7 @@ TEST_F(SqliteStatement, reset_if_write_is_throwing_exception)
 {
     MockSqliteStatement<1, 1> mockStatement{databaseMock};
 
-    EXPECT_CALL(mockStatement, bind(1, TypedEq<Utils::SmallStringView>("bar")))
+    EXPECT_CALL(mockStatement, bind(1, TypedEq<Utils::SmallStringView>("bar"), _))
         .WillOnce(Throw(Sqlite::StatementIsBusy("")));
     EXPECT_CALL(mockStatement, reset());
 
@@ -1469,7 +1468,7 @@ TEST_F(SqliteStatement, reset_if_execute_throws_exception)
 {
     MockSqliteStatement<1, 0> mockStatement{databaseMock};
 
-    EXPECT_CALL(mockStatement, next()).WillOnce(Throw(Sqlite::StatementIsBusy("")));
+    EXPECT_CALL(mockStatement, next(_)).WillOnce(Throw(Sqlite::StatementIsBusy("")));
     EXPECT_CALL(mockStatement, reset());
 
     ASSERT_ANY_THROW(mockStatement.execute());
@@ -1576,7 +1575,7 @@ TEST_F(SqliteStatement, read_callback_throws_for_error)
 {
     MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
     MockSqliteStatement<2> mockStatement{databaseMock};
-    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+    ON_CALL(mockStatement, next(_)).WillByDefault(Throw(Sqlite::StatementHasError("")));
 
     ASSERT_THROW(mockStatement.readCallback(callbackMock.AsStdFunction()), Sqlite::StatementHasError);
 }
@@ -1585,7 +1584,7 @@ TEST_F(SqliteStatement, read_callback_calls_reset_if_exception_is_thrown)
 {
     MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
     MockSqliteStatement<2> mockStatement{databaseMock};
-    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+    ON_CALL(mockStatement, next(_)).WillByDefault(Throw(Sqlite::StatementHasError("")));
 
     EXPECT_CALL(mockStatement, reset());
 
@@ -1626,7 +1625,7 @@ TEST_F(SqliteStatement, read_to_throws_for_error)
 {
     std::deque<FooValue> values;
     MockSqliteStatement mockStatement{databaseMock};
-    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+    ON_CALL(mockStatement, next(_)).WillByDefault(Throw(Sqlite::StatementHasError("")));
 
     ASSERT_THROW(mockStatement.readTo(values), Sqlite::StatementHasError);
 }
@@ -1635,7 +1634,7 @@ TEST_F(SqliteStatement, read_to_calls_reset_if_exception_is_thrown)
 {
     std::deque<FooValue> values;
     MockSqliteStatement mockStatement{databaseMock};
-    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+    ON_CALL(mockStatement, next(_)).WillByDefault(Throw(Sqlite::StatementHasError("")));
 
     EXPECT_CALL(mockStatement, reset());
 

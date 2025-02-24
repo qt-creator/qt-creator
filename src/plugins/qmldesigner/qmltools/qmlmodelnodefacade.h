@@ -17,7 +17,11 @@ class QMLDESIGNER_EXPORT QmlModelNodeFacade
 {
 public:
     operator ModelNode() const { return m_modelNode; }
-    ModelNode modelNode() const { return m_modelNode; }
+
+    const ModelNode &modelNode() const { return m_modelNode; }
+
+    ModelNode &modelNode() { return m_modelNode; }
+
     bool hasModelNode() const;
     static bool isValidQmlModelNodeFacade(const ModelNode &modelNode);
     bool isValid() const;

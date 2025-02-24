@@ -205,9 +205,12 @@ public:
                 (const, override));
     MOCK_METHOD(QmlDesigner::SmallSourceIds<4>,
                 typeAnnotationSourceIds,
-                (QmlDesigner::SourceId directoryId),
+                (QmlDesigner::SourceContextId directoryId),
                 (const, override));
-    MOCK_METHOD(QmlDesigner::SmallSourceIds<64>, typeAnnotationDirectorySourceIds, (), (const, override));
+    MOCK_METHOD(QmlDesigner::SmallSourceContextIds<64>,
+                typeAnnotationDirectoryIds,
+                (),
+                (const, override));
     MOCK_METHOD(Utils::PathString, typeIconPath, (QmlDesigner::TypeId typeId), (const, override));
     MOCK_METHOD(QmlDesigner::Storage::Info::TypeHints,
                 typeHints,
@@ -306,17 +309,18 @@ public:
 
     MOCK_METHOD(QmlDesigner::Storage::Synchronization::DirectoryInfos,
                 fetchDirectoryInfos,
-                (QmlDesigner::SourceId sourceId),
+                (QmlDesigner::SourceContextId directoryId),
                 (const, override));
 
     MOCK_METHOD(QmlDesigner::Storage::Synchronization::DirectoryInfos,
                 fetchDirectoryInfos,
-                (QmlDesigner::SourceId sourceId, QmlDesigner::Storage::Synchronization::FileType),
+                (QmlDesigner::SourceContextId directoryId,
+                 QmlDesigner::Storage::Synchronization::FileType),
                 (const, override));
 
-    MOCK_METHOD(QmlDesigner::SmallSourceIds<32>,
-                fetchSubdirectorySourceIds,
-                (QmlDesigner::SourceId sourceId),
+    MOCK_METHOD(QmlDesigner::SmallSourceContextIds<32>,
+                fetchSubdirectoryIds,
+                (QmlDesigner::SourceContextId directoryId),
                 (const, override));
 
     MOCK_METHOD(std::optional<QmlDesigner::Storage::Synchronization::DirectoryInfo>,

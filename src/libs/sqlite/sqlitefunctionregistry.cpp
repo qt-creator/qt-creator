@@ -35,9 +35,9 @@ void pathExists(sqlite3_context *context, int, sqlite3_value **arguments)
 
 namespace Sqlite::FunctionRegistry {
 
-void registerPathExists(Sqlite::Database &database)
+void registerPathExists(Sqlite::Database &database, const source_location &sourceLocation)
 {
-    sqlite3_create_function(database.backend().sqliteDatabaseHandle(),
+    sqlite3_create_function(database.backend().sqliteDatabaseHandle(sourceLocation),
                             "pathExists",
                             1,
                             SQLITE_UTF8 | SQLITE_INNOCUOUS,

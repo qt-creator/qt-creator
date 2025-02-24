@@ -35,6 +35,8 @@
 
 #include <utils/algorithm.h>
 
+#include <coreplugin/messagebox.h>
+
 #ifndef QMLDESIGNER_TEST
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectmanager.h>
@@ -74,6 +76,25 @@ WidgetInfo ContentLibraryView::widgetInfo()
 
         m_bundleHelper = std::make_unique<BundleHelper>(this, m_widget);
 
+        connect(m_widget, &ContentLibraryWidget::importQtQuick3D, this, [&] {
+            DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
+            if (document && !document->inFileComponentModelActive() && model()) {
+#ifdef QDS_USE_PROJECTSTORAGE
+                Import import = Import::createLibraryImport("QtQuick3D");
+                model()->changeImports({import}, {});
+                return;
+#else
+                if (ModelUtils::addImportWithCheck(
+                    "QtQuick3D",
+                    [](const Import &import) { return !import.hasVersion() || import.majorVersion() >= 6; },
+                        model())) {
+                    return;
+                }
+#endif
+            }
+            Core::AsynchronousMessageBox::warning(tr("Failed to Add Import"),
+                                                  tr("Could not add QtQuick3D import to project."));
+        });
         connect(m_widget, &ContentLibraryWidget::bundleMaterialDragStarted, this,
                 [&] (QmlDesigner::ContentLibraryMaterial *mat) {
             m_draggedBundleMaterial = mat;
@@ -87,6 +108,23 @@ WidgetInfo ContentLibraryView::widgetInfo()
             m_draggedBundleItem = item;
         });
 
+        connect(m_widget, &ContentLibraryWidget::acceptTextureDrop, this,
+                [this](const QString &internalId) {
+            ModelNode texNode = QmlDesignerPlugin::instance()->viewManager()
+                                     .view()->modelNodeForInternalId(internalId.toInt());
+            auto [qmlString, depAssets] = m_bundleHelper->modelNodeToQmlString(texNode);
+            QStringList paths;
+
+            for (const AssetPath &depAsset : std::as_const(depAssets)) {
+                QString path = depAsset.absFilPath().toUrlishString();
+
+                if (Asset(path).isValidTextureSource())
+                    paths.append(path);
+            }
+
+            addLibAssets(paths);
+        });
+
         connect(m_widget, &ContentLibraryWidget::acceptTexturesDrop, this,
                 [this](const QList<QUrl> &urls) {
             QStringList paths;
@@ -94,7 +132,7 @@ WidgetInfo ContentLibraryView::widgetInfo()
             for (const QUrl &url : urls) {
                 QString path = url.toLocalFile();
 
-                if (Asset(path).isImage())
+                if (Asset(path).isValidTextureSource())
                     paths.append(path);
             }
             addLibAssets(paths);
@@ -106,6 +144,9 @@ WidgetInfo ContentLibraryView::widgetInfo()
                                 .view()->modelNodeForInternalId(internalId.toInt());
             addLibItem(matNode);
         });
+
+        connect(m_widget, &ContentLibraryWidget::accept3DDrop, this,
+                &ContentLibraryView::decodeAndAddToContentLib);
 
         connect(m_widget,
                 &ContentLibraryWidget::addTextureRequested,
@@ -788,6 +829,32 @@ void ContentLibraryView::saveIconToBundle(const auto &image) { // auto: QImage o
         qWarning() << __FUNCTION__ << ": icon save failed";
 
     m_iconSavePath.clear();
+}
+
+void ContentLibraryView::decodeAndAddToContentLib(const QByteArray &data)
+{
+    QByteArray encodedData = data;
+    QDataStream stream(&encodedData, QIODevice::ReadOnly);
+
+    QList<int> internalIds;
+
+    while (!stream.atEnd()) {
+        int internalId;
+        stream >> internalId;
+        internalIds.append(internalId);
+    }
+
+    for (int internalId : std::as_const(internalIds)) {
+        ModelNode node3D = QmlDesignerPlugin::instance()->viewManager()
+                               .view()->modelNodeForInternalId(internalId);
+        if (!node3D.metaInfo().isQtQuick3DNode())
+            continue;
+
+        if (node3D.isComponent())
+            addLib3DComponent(node3D);
+        else
+            addLibItem(node3D);
+    }
 };
 
 void ContentLibraryView::importBundleToContentLib()

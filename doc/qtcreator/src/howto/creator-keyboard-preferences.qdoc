@@ -122,7 +122,7 @@
         \li Select \preferences > \uicontrol Environment > \uicontrol Keyboard.
             \image qtcreator-keyboard-shortcuts.png {Keyboard preferences}
 
-        \li To import a keyboard shortcut mapping scheme, click \uicontrol Import
+        \li To import a keyboard shortcut mapping scheme, select \uicontrol Import
             and select the .kms file that has the keyboard shortcut mapping scheme
             you want to import.
 

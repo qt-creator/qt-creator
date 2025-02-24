@@ -44,7 +44,7 @@
     in morphing, the mesh must contain those target attributes and the
     \uicontrol {Morph Target} must have the attributes enabled.
 
-    Click the dropdown menu to select one of the following attributes:
+    Select the dropdown menu to choose one of the following attributes:
         \list
             \li \uicontrol Position animates the vertex positions.
             \li \uicontrol Normal animates the normal vectors.

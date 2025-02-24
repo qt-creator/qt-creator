@@ -63,8 +63,15 @@ QmlDesigner::WidgetInfo EffectComposerView::widgetInfo()
             if (!document)
                 return;
 
+#ifdef QDS_USE_PROJECTSTORAGE
+            auto module = model()->module(QString("%1.%2").arg(m_componentUtils.composedEffectsTypePrefix(),
+                                                               typeName).toUtf8(),
+                                          QmlDesigner::Storage::ModuleKind::QmlLibrary);
+            auto effectMetaInfo = model()->metaInfo(module, typeName.toUtf8());
+#else
             const QByteArray fullType = QString("%1.%2.%2").arg(m_componentUtils.composedEffectsTypePrefix(),
                                                              typeName).toUtf8();
+#endif
             const QList<QmlDesigner::ModelNode> allNodes = allModelNodes();
             QList<QmlDesigner::ModelNode> typeNodes;
             QList<QmlDesigner::ModelNode> propertyChangeNodes;
@@ -72,11 +79,11 @@ QmlDesigner::WidgetInfo EffectComposerView::widgetInfo()
                 if (QmlDesigner::QmlPropertyChanges::isValidQmlPropertyChanges(node))
                     propertyChangeNodes.append(node);
 #ifdef QDS_USE_PROJECTSTORAGE
-// TODO: typeName() shouldn't be used with projectstorage. Needs alternative solution (using modules?)
+                else if (node.metaInfo() == effectMetaInfo)
 #else
                 else if (node.metaInfo().typeName() == fullType)
-                    typeNodes.append(node);
 #endif
+                    typeNodes.append(node);
             }
             if (!typeNodes.isEmpty()) {
                 bool clearStacks = false;
@@ -114,11 +121,10 @@ QmlDesigner::WidgetInfo EffectComposerView::widgetInfo()
         });
     }
 
-    return createWidgetInfo(
-        m_widget.data(),
-        "EffectComposer",
-        QmlDesigner::WidgetInfo::LeftPane,
-        Tr::tr("Effect Composer [beta]"));
+    return createWidgetInfo(m_widget.data(),
+                            "EffectComposer",
+                            QmlDesigner::WidgetInfo::LeftPane,
+                            tr("Effect Composer"));
 }
 
 void EffectComposerView::customNotification([[maybe_unused]] const AbstractView *view,
@@ -178,50 +184,6 @@ void EffectComposerView::selectedNodesChanged(const QList<QmlDesigner::ModelNode
     }
 
     m_widget->effectComposerModel()->setHasValidTarget(hasValidTarget);
-}
-
-void EffectComposerView::nodeAboutToBeRemoved(const QmlDesigner::ModelNode &removedNode)
-{
-    QList<QmlDesigner::ModelNode> nodes = removedNode.allSubModelNodesAndThisNode();
-    bool effectRemoved = false;
-    for (const QmlDesigner::ModelNode &node : nodes) {
-        QmlDesigner::QmlItemNode qmlNode(node);
-        if (qmlNode.isEffectItem()) {
-            effectRemoved = true;
-            break;
-        }
-    }
-    if (effectRemoved)
-        QTimer::singleShot(0, this, &EffectComposerView::removeUnusedEffectImports);
-}
-
-void EffectComposerView::removeUnusedEffectImports()
-{
-    QTC_ASSERT(model(), return);
-
-    const QString effectPrefix = m_componentUtils.composedEffectsTypePrefix();
-
-    const QmlDesigner::Imports &imports = model()->imports();
-    QHash<QString, QmlDesigner::Import> effectImports;
-    for (const QmlDesigner::Import &import : imports) {
-        if (import.url().startsWith(effectPrefix)) {
-            QString type = import.url().split('.').last();
-            effectImports.insert(type, import);
-        }
-    }
-
-    const QList<QmlDesigner::ModelNode> allNodes = allModelNodes();
-    for (const QmlDesigner::ModelNode &node : allNodes) {
-        if (QmlDesigner::QmlItemNode(node).isEffectItem())
-            effectImports.remove(node.simplifiedTypeName());
-    }
-
-    if (!effectImports.isEmpty()) {
-        QmlDesigner::Imports removeImports;
-        for (const QmlDesigner::Import &import : effectImports)
-            removeImports.append(import);
-        model()->changeImports({}, removeImports);
-    }
 }
 
 void EffectComposerView::highlightSupportedProperties(bool highlight, const QString &suffix)

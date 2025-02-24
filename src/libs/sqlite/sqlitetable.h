@@ -136,8 +136,9 @@ public:
         return m_isReady;
     }
 
-    template <typename Database>
-    void initialize(Database &database)
+    template<typename Database>
+    void initialize(Database &database,
+                    const source_location &sourceLocation = source_location::current())
     {
         CreateTableSqlStatementBuilder<ColumnType> builder;
 
@@ -148,17 +149,18 @@ public:
         builder.setColumns(m_sqliteColumns);
         builder.setConstraints(m_tableConstraints);
 
-        database.execute(builder.sqlStatement());
+        database.execute(builder.sqlStatement(), sourceLocation);
 
-        initializeIndices(database);
+        initializeIndices(database, sourceLocation);
 
         m_isReady = true;
     }
-    template <typename Database>
-    void initializeIndices(Database &database)
+
+    template<typename Database>
+    void initializeIndices(Database &database, const source_location &sourceLocation)
     {
         for (const Index &index : m_sqliteIndices)
-            database.execute(index.sqlStatement());
+            database.execute(index.sqlStatement(), sourceLocation);
     }
 
     friend bool operator==(const BasicTable &first, const BasicTable &second)

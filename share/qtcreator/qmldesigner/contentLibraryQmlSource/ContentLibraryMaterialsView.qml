@@ -112,11 +112,14 @@ HelperWidgets.ScrollView {
 
         Text {
             id: infoText
+
             text: {
                 if (!ContentLibraryBackend.rootView.isQt6Project)
                     qsTr("<b>Content Library</b> materials are not supported in Qt5 projects.")
                 else if (!ContentLibraryBackend.rootView.hasQuick3DImport)
-                    qsTr("To use <b>Content Library</b>, first add the QtQuick3D module in the <b>Components</b> view.")
+                    qsTr('To use <b>Content Library</b>, first <a href="#add_import" style="text-decoration:none;color:%1">
+                         add the QtQuick3D module</a> in the <b>Components</b> view.')
+                                .arg(StudioTheme.Values.themeInteraction)
                 else if (!root.materialsModel.hasRequiredQuick3DImport)
                     qsTr("To use <b>Content Library</b>, version 6.3 or later of the QtQuick3D module is required.")
                 else if (!ContentLibraryBackend.rootView.hasMaterialLibrary)
@@ -128,13 +131,15 @@ HelperWidgets.ScrollView {
                 else
                     ""
             }
+            textFormat: Text.RichText
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.baseFontSize
             topPadding: 10
             leftPadding: 10
-            visible: root.materialsModel.isEmpty
             wrapMode: Text.WordWrap
             width: root.width - x
+
+            onLinkActivated: ContentLibraryBackend.rootView.addQtQuick3D()
         }
     }
 }

@@ -70,51 +70,84 @@ bool isSupportedAttachedProperties(const QString &propertyName)
 
 bool isGlobalQtEnums(QStringView value)
 {
-    static constexpr auto list = Utils::to_array<std::u16string_view>(
-        {u"AlignBaseline",   u"AlignBottom",    u"AlignHCenter",       u"AlignLeft",
-         u"AlignRight",      u"AlignTop",       u"AlignVCenter",       u"AllButtons",
-         u"ArrowCursor",     u"BackButton",     u"BlankCursor",        u"BottomEdge",
-         u"BottomLeft",      u"BusyCursor",     u"ClickFocus",         u"ClosedHandCursor",
-         u"CrossCursor",     u"DragCopyCursor", u"DragLinkCursor",     u"DragMoveCursor",
-         u"ForbiddenCursor", u"ForwardButton",  u"Horizontal",         u"IBeamCursor",
-         u"LeftButton",      u"LeftEdge",       u"LeftToRight",        u"MiddleButton",
-         u"NoFocus",         u"OpenHandCursor", u"PointingHandCursor", u"RightButton",
-         u"RightEdge",       u"RightToLeft",    u"SizeAllCursor",      u"SizeBDiagCursor",
-         u"SizeFDiagCursor", u"SizeHorCursor",  u"SizeVerCursor",      u"SplitHCursor",
-         u"SplitVCursor",    u"StrongFocus",    u"TabFocus",           u"TopEdge",
-         u"TopToBottom",     u"UpArrowCursor",  u"Vertical",           u"WaitCursor",
-         u"WhatsThisCursor", u"WheelFocus"});
+    static constexpr auto list = Utils::to_array<std::u16string_view>(u"AlignBaseline",
+                                                                      u"AlignBottom",
+                                                                      u"AlignHCenter",
+                                                                      u"AlignLeft",
+                                                                      u"AlignRight",
+                                                                      u"AlignTop",
+                                                                      u"AlignVCenter",
+                                                                      u"AllButtons",
+                                                                      u"ArrowCursor",
+                                                                      u"BackButton",
+                                                                      u"BlankCursor",
+                                                                      u"BottomEdge",
+                                                                      u"BottomLeft",
+                                                                      u"BusyCursor",
+                                                                      u"ClickFocus",
+                                                                      u"ClosedHandCursor",
+                                                                      u"CrossCursor",
+                                                                      u"DragCopyCursor",
+                                                                      u"DragLinkCursor",
+                                                                      u"DragMoveCursor",
+                                                                      u"ForbiddenCursor",
+                                                                      u"ForwardButton",
+                                                                      u"Horizontal",
+                                                                      u"IBeamCursor",
+                                                                      u"LeftButton",
+                                                                      u"LeftEdge",
+                                                                      u"LeftToRight",
+                                                                      u"MiddleButton",
+                                                                      u"NoFocus",
+                                                                      u"OpenHandCursor",
+                                                                      u"PointingHandCursor",
+                                                                      u"RightButton",
+                                                                      u"RightEdge",
+                                                                      u"RightToLeft",
+                                                                      u"SizeAllCursor",
+                                                                      u"SizeBDiagCursor",
+                                                                      u"SizeFDiagCursor",
+                                                                      u"SizeHorCursor",
+                                                                      u"SizeVerCursor",
+                                                                      u"SplitHCursor",
+                                                                      u"SplitVCursor",
+                                                                      u"StrongFocus",
+                                                                      u"TabFocus",
+                                                                      u"TopEdge",
+                                                                      u"TopToBottom",
+                                                                      u"UpArrowCursor",
+                                                                      u"Vertical",
+                                                                      u"WaitCursor",
+                                                                      u"WhatsThisCursor",
+                                                                      u"WheelFocus");
 
     if (value.startsWith(u"Key_"))
         return true;
 
-    return std::binary_search(std::begin(list),
-                              std::end(list),
-                              QmlDesigner::ModelUtils::toStdStringView(value));
+    return std::ranges::binary_search(list, QmlDesigner::ModelUtils::toStdStringView(value));
 }
 
 bool isKnownEnumScopes(QStringView value)
 {
     static constexpr auto list = Utils::to_array<std::u16string_view>(
-        {u"TextInput",
-         u"TextEdit",
-         u"Material",
-         u"Universal",
-         u"Font",
-         u"Shape",
-         u"ShapePath",
-         u"AbstractButton",
-         u"Text",
-         u"ShaderEffectSource",
-         u"Grid",
-         u"ItemLayer",
-         u"ImageLayer",
-         u"SpriteLayer",
-         u"Light",
-         u"ExtendedSceneEnvironment.GlowBlendMode"});
+        u"TextInput",
+        u"TextEdit",
+        u"Material",
+        u"Universal",
+        u"Font",
+        u"Shape",
+        u"ShapePath",
+        u"AbstractButton",
+        u"Text",
+        u"ShaderEffectSource",
+        u"Grid",
+        u"ItemLayer",
+        u"ImageLayer",
+        u"SpriteLayer",
+        u"Light",
+        u"ExtendedSceneEnvironment.GlowBlendMode");
 
-    return std::find(std::begin(list), std::end(list), QmlDesigner::ModelUtils::toStdStringView(value))
-           != std::end(list);
+    return std::ranges::find(list, QmlDesigner::ModelUtils::toStdStringView(value)) != std::end(list);
 }
 
 QString stripQuotes(const QString &str)
@@ -764,8 +797,9 @@ bool skipModule(QStringView moduleName)
         StartsWith(u"QtQuick.Studio.EventSimulator"),
         StartsWith(u"QtQuick.Studio.EventSystem"),
         StartsWith(u"QtQuick.Templates"),
-        StartsWith(u"QtQuick.VirtualKeyboard"),
         StartsWith(u"QtQuick.tooling"),
+        StartsWith(u"QtQuick.VirtualKeyboard.Plugins"),
+        StartsWith(u"QtQuick.VirtualKeyboard.Styles.Builtin"),
         StartsWith(u"QtQuick3D MateriablacklistImportslEditor"),
         StartsWith(u"QtQuick3D.ParticleEffects"),
         StartsWith(u"QtRemoteObjects"),
@@ -826,7 +860,7 @@ QmlDesigner::Imports createQt5Modules()
             QmlDesigner::Import::createLibraryImport("QtQuick.Layouts", "2.15"),
             QmlDesigner::Import::createLibraryImport("QtQuick.Timeline", "1.0"),
             QmlDesigner::Import::createLibraryImport("QtCharts", "2.15"),
-            QmlDesigner::Import::createLibraryImport("QtDataVisulaization", "2.15"),
+            QmlDesigner::Import::createLibraryImport("QtDataVisualization", "2.15"),
             QmlDesigner::Import::createLibraryImport("QtQuick.Studio.Components", "1.0"),
             QmlDesigner::Import::createLibraryImport("QtQuick.Studio.Effects", "1.0"),
             QmlDesigner::Import::createLibraryImport("FlowView", "1.0"),
@@ -974,7 +1008,6 @@ Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url, co
     return doc;
 }
 
-
 bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceHandler)
 {
     QmlJS::ScopeChain::setSkipmakeComponentChain(true);
@@ -989,7 +1022,13 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         time.start();
 
 #ifndef QDS_USE_PROJECTSTORAGE
-    ModelManagerInterface::instance()->waitForFinished();
+    if (m_rewriterView->isDocumentRewriterView() && Utils::HostOsInfo::isWindowsHost()) {
+        ModelManagerInterface::instance()->waitForFinished();
+        static bool firstTimeLoad = true;
+        if (firstTimeLoad)
+            QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        firstTimeLoad = false;
+    }
 #endif
 
     const QUrl url = m_rewriterView->model()->fileUrl();
@@ -1190,16 +1229,18 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         if (auto source = AST::cast<AST::UiSourceElement *>(member)) {
             auto function = AST::cast<AST::FunctionDeclaration *>(source->sourceElement);
 
-            AbstractProperty modelProperty = modelNode.property(function->name.toUtf8());
+            if (function) {
+                AbstractProperty modelProperty = modelNode.property(function->name.toUtf8());
 
-            QString astValue;
-            if (function->body) {
-                astValue = textAt(context->doc(), function->lbraceToken, function->rbraceToken);
-                astValue = astValue.trimmed();
+                QString astValue;
+                if (function->body) {
+                    astValue = textAt(context->doc(), function->lbraceToken, function->rbraceToken);
+                    astValue = astValue.trimmed();
+                }
+
+                syncSignalHandler(modelProperty, astValue, differenceHandler);
+                modelPropertyNames.remove(function->name.toUtf8());
             }
-
-            syncSignalHandler(modelProperty, astValue, differenceHandler);
-            modelPropertyNames.remove(function->name.toUtf8());
         } else if (auto array = AST::cast<AST::UiArrayBinding *>(member)) {
             const QString astPropertyName = toString(array->qualifiedId);
             if (isPropertyChangesType(typeName) || isConnectionsType(typeName)

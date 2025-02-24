@@ -247,7 +247,7 @@
                     "type": "ComboBox",
                     "data":
                     {
-                        "index": 2,
+                        "index": 3,
                         "items":
                             [
                             {
@@ -316,6 +316,10 @@
                 {
                     "source": "../common/fonts.txt",
                     "target": "%{ProjectDirectory}/%{ContentDir}/fonts/fonts.txt"
+                },
+                {
+                    "source": "../common/images.txt",
+                    "target": "%{ProjectDirectory}/%{ContentDir}/images/images.txt"
                 },
                 {
                     "source": "../common/asset_imports.txt",

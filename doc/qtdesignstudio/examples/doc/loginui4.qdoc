@@ -130,7 +130,7 @@
         \li In the \uicontrol {Animation ID} field, enter
             \e toCreateAccountState.
         \li Clear the \uicontrol {Running in base state} checkbox because
-            you want the animation to run only after the user clicks the
+            you want the animation to run only after the user selects the
             \e {Create Account} button. Use the default settings
             for the other fields.
         \li Select \uicontrol Close in the \uicontrol {Timeline Settings} view
@@ -220,7 +220,7 @@
     margin animation that will make the transition seem smoother:
 
     \list 1
-        \li Click the keyframe marker \imagekeyframelinearactive
+        \li Select the keyframe marker \imagekeyframelinearactive
             for the \e anchors.topMargin property at frame \e 1000 on the
             timeline to select it.
             \image loginui4-easing-curve-top-anchor-margin.webp "Top anchor margin keyframe marker"
@@ -268,12 +268,12 @@
         \li Double-click the cell in the \uicontrol Animation column on the
             \e createAccount row, and select \e toCreateAccountState.
             \image loginui4-timeline-settings-states.png
-        \li Click \uicontrol Close to save the timeline settings.
+        \li Select \uicontrol Close to save the timeline settings.
         \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
     \endlist
 
-    In the live preview, you can now click the \e {Create Account}
+    In the live preview, you can now select the \e {Create Account}
     button to go to the account creation page.
 
     \image loginui4.gif "Moving between login page and account creation page"

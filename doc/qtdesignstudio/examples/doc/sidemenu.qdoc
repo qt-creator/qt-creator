@@ -12,7 +12,7 @@
     \image sidemenu.png "Side menu example application"
 
     \e {Side Menu} displays a menu bar and a side menu that slides open when
-    users click the menu icon. The appearance of the menu bar buttons changes
+    users select the menu icon. The appearance of the menu bar buttons changes
     when users hover over them or select them.
 
     Each button opens an image file. The side menu can be used to apply
@@ -104,7 +104,7 @@
     \section1 Creating a side menu
 
     We can now continue to create a side menu that slides open when users
-    click the burger menu. We drag a \l Text component from
+    select the burger menu. We drag a \l Text component from
     \uicontrol Components > \uicontrol {Default Components}
     > \uicontrol Basic and a \l {slider-control}{Slider} component from
     \uicontrol {Qt Quick Controls} to \uicontrol Navigator to create separate
@@ -116,13 +116,13 @@
 
     We add states to the \e {SideMenu.qml} file in the \uicontrol States view.
     When the application starts, the side menu is in the \e closed state, which
-    means that it is hidden. When users click the burger menu, the \c onClicked
+    means that it is hidden. When users select the burger menu, the \c onClicked
     \l{glossary-signal}{signal handler} triggers the \l{glossary-transition}
     {transition} to the \e opening state and runs an animation. When the
     animation finishes, the side menu state changes to \e open and the side
     menu is fully visible.
 
-    When users click the burger menu again, the state changes to \e closing and
+    When users select the burger menu again, the state changes to \e closing and
     another animation is run that closes the side menu. When the animation
     finishes, the side menu returns to the \e closed state.
 

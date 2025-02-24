@@ -9,8 +9,6 @@
 #include <qrcodegen/src/qrcodeimageprovider.h>
 #include <theme.h>
 
-#include <invalidqmlsourceexception.h>
-
 #include <coreplugin/messagebox.h>
 #include <coreplugin/icore.h>
 
@@ -63,7 +61,7 @@ DeviceManagerWidget::DeviceManagerWidget(DeviceManager &deviceManager, QWidget *
     setWindowFlags(Qt::Dialog);
     setWindowTitle(tr("Device Manager", "Title of device manager widget"));
     setMinimumSize(QSize(195, 195));
-    resize(1000, 600);
+    resize(1020, 720);
 
     // init the first load of the QML UI elements
     reloadQmlSource();

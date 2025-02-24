@@ -32,7 +32,7 @@
         \li Double-click the cell on the same row in the \uicontrol Value column
             to specify a value as a JSON literal.
         \li Select \uicontrol Add to add the key-value pair.
-        \li Click \uicontrol OK.
+        \li Select \uicontrol OK.
     \endlist
 
     To modify an existing value, double-click it in the \uicontrol Value field.

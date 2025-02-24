@@ -59,7 +59,7 @@ public:
     int majorVersion() const;
     int minorVersion() const;
     QString category() const;
-    QString qmlSource() const;
+    QString templatePath() const;
     QString requiredImport() const;
     QString customComponentSource() const;
     QStringList extraFilePaths() const;
@@ -77,7 +77,7 @@ public:
     void addProperty(PropertyName &name, QString &type, QVariant &value);
     void setTypeIcon(const QIcon &typeIcon);
     void setCategory(const QString &category);
-    void setQmlPath(const QString &qml);
+    void setTemplatePath(const QString &path);
     void setRequiredImport(const QString &requiredImport);
     void setToolTip(const QString &tooltip);
     void addHints(const QHash<QString, QString> &hints);

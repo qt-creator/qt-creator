@@ -17,10 +17,8 @@
 #include <designmodewidget.h>
 #include <externaldependenciesinterface.h>
 #include <generatedcomponentutils.h>
-#include <import.h>
 #include <materialutils.h>
 #include <metainfo.h>
-#include <modelnodeoperations.h>
 #include <nodeabstractproperty.h>
 #include <nodehints.h>
 #include <nodeinstanceview.h>
@@ -455,6 +453,7 @@ void Edit3DWidget::updateCreateSubMenu(const QList<ItemLibraryDetails> &entriesL
         m_createSubMenu->deleteLater();
     }
 
+    m_nameToImport.clear();
     m_nameToEntry.clear();
 
     m_createSubMenu = new QmlEditorMenu(tr("Create"), m_contextMenu);
@@ -493,7 +492,41 @@ void Edit3DWidget::updateCreateSubMenu(const QList<ItemLibraryDetails> &entriesL
             QAction *action = catMenu->addAction(getEntryIcon(entry), entry.name());
             connect(action, &QAction::triggered, this, [this, action] { onCreateAction(action); });
             action->setData(entry.name());
+            Import import = Import::createLibraryImport(entry.requiredImport(),
+                                                 QString::number(entry.majorVersion())
+                                                     + QLatin1Char('.')
+                                                     + QString::number(entry.minorVersion()));
+            m_nameToImport.insert(entry.name(), import);
             m_nameToEntry.insert(entry.name(), entry);
+        }
+    }
+
+    // Create menu for imported 3d models, which don't have ItemLibraryEntries
+    const GeneratedComponentUtils &compUtils
+        = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+    QList<Utils::FilePath> qmlFiles = compUtils.imported3dComponents();
+    QMenu *catMenu = nullptr;
+
+    if (!qmlFiles.isEmpty()) {
+        catMenu = new QmlEditorMenu(tr("Imported Models"), m_createSubMenu);
+        catMenu->setIcon(contextIcon(DesignerIcons::ImportedModelsIcon));
+        m_createSubMenu->addMenu(catMenu);
+
+        std::ranges::sort(qmlFiles, {}, &Utils::FilePath::baseName);
+
+        const QIcon icon = QIcon(":/edit3d/images/item-3D_model-icon.png");
+
+        for (const Utils::FilePath &qmlFile : std::as_const(qmlFiles)) {
+            QString qmlName = qmlFile.baseName();
+            QAction *action = catMenu->addAction(icon, qmlName);
+            connect(action, &QAction::triggered, this, [this, action] { onCreateAction(action); });
+            action->setData(qmlName);
+
+            QString importName = compUtils.getImported3dImportName(qmlFile);
+            if (!importName.isEmpty()) {
+                Import import = Import::createLibraryImport(importName);
+                m_nameToImport.insert(qmlName, import);
+            }
         }
     }
 }
@@ -505,17 +538,29 @@ void Edit3DWidget::onCreateAction(QAction *action)
         return;
 
     m_view->executeInTransaction(__FUNCTION__, [&] {
-        ItemLibraryEntry entry = m_nameToEntry.value(action->data().toString());
-        Import import = Import::createLibraryImport(entry.requiredImport(),
-                                                    QString::number(entry.majorVersion())
-                                                    + QLatin1Char('.')
-                                                    + QString::number(entry.minorVersion()));
+        const QString actionName = action->data().toString();
+        Import import = m_nameToImport.value(actionName);
+
         if (!m_view->model()->hasImport(import, true, true))
             m_view->model()->changeImports({import}, {});
 
-        int activeScene = Utils3D::active3DSceneId(m_view->model());
-        auto modelNode = QmlVisualNode::createQml3DNode(m_view, entry,
-                                                        activeScene, m_contextMenuPos3d).modelNode();
+        ModelNode modelNode;
+        if (m_nameToEntry.contains(actionName)) {
+            int activeScene = Utils3D::active3DSceneId(m_view->model());
+            ItemLibraryEntry entry = m_nameToEntry.value(actionName);
+
+            modelNode = QmlVisualNode::createQml3DNode(m_view, entry, activeScene,
+                                                       m_contextMenuPos3d).modelNode();
+        } else {
+            ModelNode sceneNode = Utils3D::active3DSceneNode(m_view);
+            if (!sceneNode.isValid())
+                sceneNode = m_view->rootModelNode();
+
+            modelNode = QmlVisualNode::QmlVisualNode::createQml3DNode(
+                            m_view, actionName.toUtf8(), sceneNode, import.url(),
+                            m_contextMenuPos3d).modelNode();
+        }
+
         QTC_ASSERT(modelNode.isValid(), return);
         m_view->setSelectedModelNode(modelNode);
 
@@ -717,9 +762,12 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
     if (dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_ASSETS)
         || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_TEXTURE)) {
         const auto urls = dragEnterEvent->mimeData()->urls();
-        if (!urls.isEmpty()) {
-            if (Asset(urls.first().toLocalFile()).isValidTextureSource())
+        for (const QUrl &url : urls) {
+            Asset asset(url.toLocalFile());
+            if (asset.isImported3D() || asset.isTexture3D()) {
                 dragEnterEvent->acceptProposedAction();
+                break;
+            }
         }
     } else if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData())
                || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL)
@@ -787,7 +835,7 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
     // handle dropping image assets
     if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_ASSETS)
         || dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_TEXTURE)) {
-        m_view->dropAsset(dropEvent->mimeData()->urls().first().toLocalFile(), pos);
+        m_view->dropAssets(dropEvent->mimeData()->urls(), pos);
         m_view->model()->endDrag();
         return;
     }

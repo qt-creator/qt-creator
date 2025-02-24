@@ -82,8 +82,8 @@ Qt::ItemFlags ConnectionModel::flags(const QModelIndex &modelIndex) const
 
 void ConnectionModel::resetModel()
 {
-    beginResetModel();
     clear();
+    beginResetModel();
     setHorizontalHeaderLabels(QStringList({ tr("Target"), tr("Signal Handler"), tr("Action") }));
 
     if (connectionView()->isAttached()) {

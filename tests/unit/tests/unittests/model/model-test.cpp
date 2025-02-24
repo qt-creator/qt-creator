@@ -59,7 +59,7 @@ auto IsItemLibraryEntry(QmlDesigner::TypeId typeId,
                  Property("category", &ItemLibraryEntry::category, category),
                  Property("requiredImport", &ItemLibraryEntry::requiredImport, import),
                  Property("toolTip", &ItemLibraryEntry::toolTip, toolTip),
-                 Property("qmlSource", &ItemLibraryEntry::qmlSource, templatePath),
+                 Property("templatePath", &ItemLibraryEntry::templatePath, templatePath),
                  Property("properties", &ItemLibraryEntry::properties, propertiesMatcher),
                  Property("extraFilePath", &ItemLibraryEntry::extraFilePaths, extraFilePathsMatcher));
 }

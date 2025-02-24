@@ -11,13 +11,10 @@ class Target;
 
 namespace QmlDesigner {
 
-class ImageCacheConnectionManager;
-
 class MeshImageCacheCollector final : public ImageCacheCollectorInterface
 {
 public:
-    MeshImageCacheCollector(ImageCacheConnectionManager &connectionManager,
-                            QSize captureImageMinimumSize,
+    MeshImageCacheCollector(QSize captureImageMinimumSize,
                             QSize captureImageMaximumSize,
                             ExternalDependenciesInterface &externalDependencies,
                             ImageCacheCollectorNullImageHandling nullImageHandling = {});

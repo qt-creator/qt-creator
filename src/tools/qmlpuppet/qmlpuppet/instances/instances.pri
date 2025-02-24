@@ -22,7 +22,6 @@ versionAtLeast(QT_VERSION, 5.15.0) {
 HEADERS += $$PWD/qt5nodeinstanceserver.h \
     $$PWD/capturenodeinstanceserverdispatcher.h \
     $$PWD/nodeinstanceserverdispatcher.h \
-    $$PWD/qt5captureimagenodeinstanceserver.h \
     $$PWD/qt5capturepreviewnodeinstanceserver.h \
     $$PWD/qt5testnodeinstanceserver.h \
     $$PWD/qt5bakelightsnodeinstanceserver.h \
@@ -58,7 +57,6 @@ HEADERS += $$PWD/qt5nodeinstanceserver.h \
 SOURCES += $$PWD/qt5nodeinstanceserver.cpp \
     $$PWD/capturenodeinstanceserverdispatcher.cpp \
     $$PWD/nodeinstanceserverdispatcher.cpp \
-    $$PWD/qt5captureimagenodeinstanceserver.cpp \
     $$PWD/qt5capturepreviewnodeinstanceserver.cpp \
     $$PWD/qt5testnodeinstanceserver.cpp \
     $$PWD/qt5bakelightsnodeinstanceserver.cpp \

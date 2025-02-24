@@ -72,6 +72,8 @@ QtObject {
     property real scrollBarActivePadding: Values.scrollBarActivePadding
     property real scrollBarInactivePadding: Values.scrollBarInactivePadding
 
+    property real switchPadding: Values.controlGap
+
     property real dialogScreenMargin: Values.dialogScreenMargin
 
     // Special colors

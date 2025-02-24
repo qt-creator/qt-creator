@@ -116,12 +116,12 @@ T jsonSafeValue(const QJsonObject &jsonObject, const QString &symbolName,
                        std::function<bool (const T&)> validityCheck = [](const T&) -> bool {return true;})
 {
     if (!jsonObject.contains(symbolName))
-        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, symbolName.toLatin1());
+        throw InvalidArgumentException(symbolName);
 
     QVariant symbolVar = jsonObject.value(symbolName);
     T extractedVal = symbolVar.value<T>();
     if (!validityCheck(extractedVal))
-        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, symbolName.toLatin1());
+        throw InvalidArgumentException(symbolName);
 
     return extractedVal;
 }
@@ -138,7 +138,7 @@ QSize jsonSafeSize(const QJsonObject &jsonObject, const QString &symbolName)
         if (wOk && hOk)
             return {cWidth, cHeight};
     }
-    throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, symbolName.toLatin1());
+    throw InvalidArgumentException(symbolName);
     return {};
 }
 
@@ -151,7 +151,7 @@ T jsonSafeMetaEnum(const QJsonObject &jsonObject, const QString &symbolName = De
     if (ok)
         return enumIndex;
 
-    throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, symbolName.toLatin1());
+    throw InvalidArgumentException(symbolName);
     return {};
 }
 

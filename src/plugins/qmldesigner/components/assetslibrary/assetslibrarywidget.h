@@ -51,7 +51,8 @@ class AssetsLibraryWidget : public QFrame
     Q_PROPERTY(bool isDragging MEMBER m_isDragging NOTIFY isDraggingChanged)
 
 public:
-    AssetsLibraryWidget(AsynchronousImageCache &asynchronousFontImageCache,
+    AssetsLibraryWidget(AsynchronousImageCache &mainImageCache,
+                        AsynchronousImageCache &asynchronousFontImageCache,
                         SynchronousImageCache &synchronousFontImageCache, AssetsLibraryView *view);
     ~AssetsLibraryWidget();
 
@@ -83,11 +84,13 @@ public:
                                       const QString &targetDirPath = {});
     Q_INVOKABLE QSet<QString> supportedAssetSuffixes(bool complex);
     Q_INVOKABLE void openEffectComposer(const QString &filePath);
+    Q_INVOKABLE void editAssetComponent(const QString &filePath);
     Q_INVOKABLE int qtVersion() const;
     Q_INVOKABLE void invalidateThumbnail(const QString &id);
     Q_INVOKABLE QSize imageSize(const QString &id);
     Q_INVOKABLE QString assetFileSize(const QString &id);
     Q_INVOKABLE bool assetIsImageOrTexture(const QString &id);
+    Q_INVOKABLE bool assetIsImported3d(const QString &id);
     Q_INVOKABLE void addTextures(const QStringList &filePaths);
     Q_INVOKABLE void addLightProbe(const QString &filePaths);
     Q_INVOKABLE void updateContextMenuActionsEnableState();
@@ -130,10 +133,12 @@ private:
     void setHasSceneEnv(bool b);
     void setCanCreateEffects(bool newVal);
 
-    void handleDeleteEffects(const QStringList &effectNames);
+    void handleDeletedGeneratedAssets(const QHash<QString, Utils::FilePath> &assetData);
+    void updateAssetPreview(const QString &id, const QPixmap &pixmap, const QString &suffix);
 
     QSize m_itemIconSize;
 
+    AsynchronousImageCache &m_mainImageCache;
     SynchronousImageCache &m_fontImageCache;
 
     AssetsLibraryIconProvider *m_assetsIconProvider = nullptr;

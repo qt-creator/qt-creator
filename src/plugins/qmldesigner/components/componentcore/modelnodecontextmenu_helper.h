@@ -178,6 +178,7 @@ bool selectionIsEditableComponent(const SelectionContext &selectionState);
 bool singleSelectionItemIsAnchored(const SelectionContext &selectionState);
 bool singleSelectionItemIsNotAnchored(const SelectionContext &selectionState);
 bool selectionIsImported3DAsset(const SelectionContext &selectionState);
+bool singleSelectionItemHasAnchor(const SelectionContext &selectionState, AnchorLineType anchor);
 
 } // namespace SelectionStateFunctors
 

@@ -118,19 +118,33 @@ void AssetsLibraryModel::deleteFiles(const QStringList &filePaths, bool dontAskA
     if (dontAskAgain)
         QmlDesignerPlugin::settings().insert(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET, false);
 
-    QStringList deletedEffects;
+    QHash<QString, Utils::FilePath> deletedAssets;
+    const GeneratedComponentUtils &compUtils = QmlDesignerPlugin::instance()->documentManager()
+                                             .generatedComponentUtils();
+    const QString effectTypePrefix = compUtils.composedEffectsTypePrefix();
+    const Utils::FilePath effectBasePath = compUtils.composedEffectsBasePath();
 
     for (const QString &filePath : filePaths) {
-        QFileInfo fi(filePath);
-        if (fi.exists()) {
-            if (QFile::remove(filePath)) {
-                if (Asset(filePath).isEffect()) {
-                    // If an effect composer effect was removed, also remove effect module from project
-                    QString effectName = fi.baseName();
-                    if (!effectName.isEmpty())
-                        deletedEffects.append(effectName);
+        Utils::FilePath fp = Utils::FilePath::fromString(filePath);
+        if (fp.exists()) {
+            // If a generated asset was removed, also remove its module from project
+            Asset asset(filePath);
+            QString fullType;
+            if (asset.isEffect()) {
+                QString effectName = fp.baseName();
+                fullType = QString("%1.%2.%2").arg(effectTypePrefix, effectName, effectName);
+                deletedAssets.insert(fullType, effectBasePath.resolvePath(effectName));
+            } else if (asset.isImported3D()) {
+                Utils::FilePath qmlFile = compUtils.getImported3dQml(filePath);
+                if (qmlFile.exists()) {
+                    QString importName = compUtils.getImported3dImportName(qmlFile);
+                    fullType = QString("%1.%2").arg(importName, qmlFile.baseName());
+                    deletedAssets.insert(fullType, qmlFile.absolutePath());
                 }
-            } else {
+            }
+
+            if (!fp.removeFile()) {
+                deletedAssets.remove(fullType);
                 QMessageBox::warning(Core::ICore::dialogParent(),
                                      Tr::tr("Failed to Delete File"),
                                      Tr::tr("Could not delete \"%1\".").arg(filePath));
@@ -138,8 +152,8 @@ void AssetsLibraryModel::deleteFiles(const QStringList &filePaths, bool dontAskA
         }
     }
 
-    if (!deletedEffects.isEmpty())
-        emit effectsDeleted(deletedEffects);
+    if (!deletedAssets.isEmpty())
+        emit generatedAssetsDeleted(deletedAssets);
 }
 
 bool AssetsLibraryModel::renameFolder(const QString &folderPath, const QString &newName)

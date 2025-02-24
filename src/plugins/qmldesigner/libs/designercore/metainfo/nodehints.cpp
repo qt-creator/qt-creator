@@ -71,10 +71,9 @@ static QVariant evaluateExpression(const QString &expression, const ModelNode &m
 QmlDesigner::NodeHints::NodeHints(const ModelNode &node)
 #ifdef QDS_USE_PROJECTSTORAGE
     : NodeHints{node.metaInfo()}
-#else
-    : m_modelNode(node)
 #endif
 {
+    m_modelNode = node;
 #ifndef QDS_USE_PROJECTSTORAGE
 
     if (!isValid())
@@ -108,8 +107,6 @@ QmlDesigner::NodeHints::NodeHints(const ModelNode &node)
 NodeHints::NodeHints(const NodeMetaInfo &metaInfo)
     : m_metaInfo{metaInfo}
 {
-    for (const auto &[name, expression] : metaInfo.typeHints())
-        m_hints.insert(name.toQString(), expression.toQString());
 }
 
 NodeHints::NodeHints(const ItemLibraryEntry &entry, [[maybe_unused]] Model *model)
@@ -124,7 +121,7 @@ NodeHints::NodeHints(const ItemLibraryEntry &entry, [[maybe_unused]] Model *mode
 namespace {
 bool convert(FlagIs flagIs)
 {
-    return flagIs == FlagIs::True ? true : false;
+    return flagIs == FlagIs::True;
 }
 } // namespace
 
@@ -274,7 +271,7 @@ QString NodeHints::indexPropertyForStackedContainer() const
     if (!isValid())
         return QString();
 
-    const QString expression = m_hints.value("indexPropertyForStackedContainer");
+    const QString expression = hints().value("indexPropertyForStackedContainer");
 
     if (expression.isEmpty())
         return QString();
@@ -287,7 +284,7 @@ QStringList NodeHints::visibleNonDefaultProperties() const
     if (!isValid())
         return {};
 
-    const QString expression = m_hints.value("visibleNonDefaultProperties");
+    const QString expression = hints().value("visibleNonDefaultProperties");
 
     if (expression.isEmpty())
         return {};
@@ -326,7 +323,7 @@ bool NodeHints::hideInNavigator() const
     if (!isValid())
         return false;
 
-    auto flagIs = m_modelNode.metaInfo().hideInNavigator();
+    auto flagIs = m_metaInfo.hideInNavigator();
 
     if (flagIs != FlagIs::Set)
         return convert(flagIs);
@@ -346,7 +343,7 @@ bool NodeHints::visibleInLibrary() const
 
 QString NodeHints::forceNonDefaultProperty() const
 {
-    const QString expression = m_hints.value("forceNonDefaultProperty");
+    const QString expression = hints().value("forceNonDefaultProperty");
 
     if (expression.isEmpty())
         return {};
@@ -370,7 +367,7 @@ QVariant parseValue(const QString &string)
 
 QPair<QString, QVariant> NodeHints::setParentProperty() const
 {
-    const QString expression = m_hints.value("setParentProperty");
+    const QString expression = hints().value("setParentProperty");
 
     if (expression.isEmpty())
         return {};
@@ -387,7 +384,7 @@ QPair<QString, QVariant> NodeHints::setParentProperty() const
 
 QString NodeHints::bindParentToProperty() const
 {
-    const QString expression = m_hints.value("bindParentToProperty");
+    const QString expression = hints().value("bindParentToProperty");
 
     if (expression.isEmpty())
         return {};
@@ -397,6 +394,13 @@ QString NodeHints::bindParentToProperty() const
 
 QHash<QString, QString> NodeHints::hints() const
 {
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (m_hints.empty()) {
+        for (const auto &[name, expression] : m_metaInfo.typeHints())
+            m_hints.insert(name.toQString(), expression.toQString());
+    }
+#endif
+
     return m_hints;
 }
 
@@ -427,7 +431,7 @@ Model *NodeHints::model() const
 
 bool NodeHints::evaluateBooleanExpression(const QString &hintName, bool defaultValue, const ModelNode otherNode) const
 {
-    const QString expression = m_hints.value(hintName);
+    const QString expression = hints().value(hintName);
 
     if (expression.isEmpty())
         return defaultValue;

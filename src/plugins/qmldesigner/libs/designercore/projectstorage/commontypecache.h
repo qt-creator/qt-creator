@@ -25,6 +25,7 @@ QT_END_NAMESPACE
 namespace QmlDesigner::Storage::Info {
 
 inline constexpr char Affector3D[] = "Affector3D";
+inline constexpr char ArcItem[] = "ArcItem";
 inline constexpr char Attractor3D[] = "Attractor3D";
 inline constexpr char BakedLightmap[] = "BakedLightmap";
 inline constexpr char BoolType[] = "bool";
@@ -48,6 +49,7 @@ inline constexpr char FlowItem[] = "FlowItem";
 inline constexpr char FlowTransition[] = "FlowTransition";
 inline constexpr char FlowView[] = "FlowView";
 inline constexpr char FlowWildcard[] = "FlowWildcard";
+inline constexpr char Gradient[] = "Gradient";
 inline constexpr char GridView[] = "GridView";
 inline constexpr char GroupItem[] = "GroupItem";
 inline constexpr char Image[] = "Image";
@@ -90,7 +92,6 @@ inline constexpr char QQuickStateOperation[] = "QQuickStateOperation";
 inline constexpr char QtMultimedia[] = "QtMultimedia";
 inline constexpr char QtObject[] = "QtObject";
 inline constexpr char QtQml[] = "QtQml";
-inline constexpr char QtQml_Base[] = "QtQml.Base";
 inline constexpr char QtQml_Models[] = "QtQml.Models";
 inline constexpr char QtQml_XmlListModel[] = "QtQml.XmlListModel";
 inline constexpr char QtQuick3D[] = "QtQuick3D";
@@ -100,6 +101,7 @@ inline constexpr char QtQuick_Controls[] = "QtQuick.Controls";
 inline constexpr char QtQuick_Dialogs[] = "QtQuick.Dialogs";
 inline constexpr char QtQuick_Extras[] = "QtQuick.Extras";
 inline constexpr char QtQuick_Layouts[] = "QtQuick.Layouts";
+inline constexpr char QtQuick_Shapes[] = "QtQuick.Shapes";
 inline constexpr char QtQuick_Studio_Components[] = "QtQuick.Studio.Components";
 inline constexpr char QtQuick_Templates[] = "QtQuick.Templates";
 inline constexpr char QtQuick_Timeline[] = "QtQuick.Timeline";
@@ -111,6 +113,7 @@ inline constexpr char SafePicture[] = "SafePicture";
 inline constexpr char SafeRendererPicture[] = "SafeRendererPicture";
 inline constexpr char SceneEnvironment[] = "SceneEnvironment";
 inline constexpr char Shader[] = "Shader";
+inline constexpr char Shape[] = "Shape";
 inline constexpr char SoundEffect[] = "SoundEffect";
 inline constexpr char SpecularGlossyMaterial[] = "SpecularGlossyMaterial";
 inline constexpr char SplitView[] = "SplitView";
@@ -118,6 +121,7 @@ inline constexpr char SpotLight[] = "SpotLight";
 inline constexpr char SpriteParticle3D[] = "SpriteParticle3D";
 inline constexpr char StateGroup[] = "StateGroup";
 inline constexpr char State[] = "State";
+inline constexpr char SvgPathItem[] = "SvgPathItem";
 inline constexpr char SwipeView[] = "SwipeView";
 inline constexpr char TabBar[] = "TabBar";
 inline constexpr char TextArea[] = "TextArea";
@@ -163,6 +167,8 @@ class CommonTypeCache
         CacheType<FlowView, ModuleKind::QmlLibrary, FlowTransition>,
         CacheType<FlowView, ModuleKind::QmlLibrary, FlowView>,
         CacheType<FlowView, ModuleKind::QmlLibrary, FlowWildcard>,
+        CacheType<QML, ModuleKind::CppLibrary, FloatType>,
+        CacheType<QML, ModuleKind::CppLibrary, UIntType>,
         CacheType<QML, ModuleKind::QmlLibrary, BoolType>,
         CacheType<QML, ModuleKind::QmlLibrary, Component>,
         CacheType<QML, ModuleKind::QmlLibrary, DoubleType>,
@@ -172,14 +178,13 @@ class CommonTypeCache
         CacheType<QML, ModuleKind::QmlLibrary, string>,
         CacheType<QML, ModuleKind::QmlLibrary, url>,
         CacheType<QML, ModuleKind::QmlLibrary, var>,
-        CacheType<QML, ModuleKind::CppLibrary, FloatType>,
-        CacheType<QML, ModuleKind::CppLibrary, UIntType>,
         CacheType<QtMultimedia, ModuleKind::QmlLibrary, SoundEffect>,
+        CacheType<QtQml, ModuleKind::QmlLibrary, Connections>,
         CacheType<QtQml_Models, ModuleKind::QmlLibrary, ListElement>,
         CacheType<QtQml_Models, ModuleKind::QmlLibrary, ListModel>,
         CacheType<QtQml_XmlListModel, ModuleKind::QmlLibrary, XmlListModelRole>,
-        CacheType<QtQml_Base, ModuleKind::QmlLibrary, Connections>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, BorderImage>,
+        CacheType<QtQuick, ModuleKind::QmlLibrary, Gradient>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, GridView>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, Image>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, Item>,
@@ -247,8 +252,11 @@ class CommonTypeCache
         CacheType<QtQuick_Dialogs, ModuleKind::QmlLibrary, Dialog>,
         CacheType<QtQuick_Extras, ModuleKind::QmlLibrary, Picture>,
         CacheType<QtQuick_Layouts, ModuleKind::QmlLibrary, Layout>,
+        CacheType<QtQuick_Shapes, ModuleKind::QmlLibrary, Shape>,
+        CacheType<QtQuick_Studio_Components, ModuleKind::QmlLibrary, ArcItem>,
         CacheType<QtQuick_Studio_Components, ModuleKind::QmlLibrary, GroupItem>,
         CacheType<QtQuick_Studio_Components, ModuleKind::QmlLibrary, JsonListModel>,
+        CacheType<QtQuick_Studio_Components, ModuleKind::QmlLibrary, SvgPathItem>,
         CacheType<QtQuick_Templates, ModuleKind::QmlLibrary, Control>,
         CacheType<QtQuick_Timeline, ModuleKind::QmlLibrary, Keyframe>,
         CacheType<QtQuick_Timeline, ModuleKind::QmlLibrary, KeyframeGroup>,

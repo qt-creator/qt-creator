@@ -1,10 +1,15 @@
-// Copyright (C) 2024 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page qtquick-effect-composer-view.html
     \previouspage studio-qt-insight.html
     \nextpage studio-model-editor.html
+
+    \sa {Effect Composer example}, {Using a shader from Shadertoy in Effect Composer},
+    {Using a shader from The Book of Shaders in Effect Composer},
+    {Using AI-generated shader code in Effect Composer},
+    {Working with shader code in Effect Composer}
 
     \ingroup studio-views
 
@@ -28,13 +33,16 @@
                 \li Right-click anywhere in the \uicontrol Assets view (1) and select
                     \uicontrol {New Effect}. Name your effect composition and select
                     \uicontrol Create.
-                \li Open the \uicontrol {Effect Composer} view (2), select \uicontrol {Add Effect},
-                    and then select the effects you wish to use from the dropdown menu. You can
-                    also add a \l {Using a custom effect in an effect composition}{Custom} effect
-                    as a part of your effect composition. The added effects appear in the effect stack
-                    (3). You cannot add the same pre-made effect twice to the composition. You can,
-                    however, add more than one custom effect to the same composition.
+                \li Open the \uicontrol {Effect Composer} view (2). If
+                    \uicontrol {Effect Composer} shows a previous effect composition,
+                    select \imageplus to create a new one.
             \endlist
+        \li To add effects to your composition, select \uicontrol {Add Effect}, and
+            then select the effects you wish to use from the dropdown menu. You can
+            also add a \l {Using a custom effect in an effect composition}{Custom} effect
+            as a part of your effect composition. The added effects appear in the effect stack
+            (3). You cannot add the same pre-made effect twice to the composition. You can,
+            however, add more than one custom effect to the same composition.
         \li Adjust the effect parameters to modify your effect composition. View the preview panel
             (4) to see how the composition affects a component before assigning it to one. Use the
             preview panel toolbar to select the preview image and the preview panel background
@@ -65,6 +73,137 @@
         custom effect.
     \endlist
 
+    \section1 Adding custom properties to an effect
+
+    You can use custom properties in your effect composition, for example, to modify pre-made
+    effects or to create completely unique effects. You can set the name, description, type, and
+    default value for your custom property.
+
+    To add a custom property to any effect in your effect composition:
+
+    \list 1
+        \li Select \imageadvancedCodeView to enable the advanced mode.
+        \li Select \uicontrol {Add Property}.
+        \li Edit the property and select \uicontrol Apply.
+    \endlist
+
+    To make properties effective, use them in the shader code. For more information, see
+    \l {Modifying the shader code of an effect}.
+
+    You can edit the custom properties you create and also customize the properties of pre-made
+    effects. To edit a property, select \imagemorebutton > \uicontrol Edit.
+
+    To remove a property from your effect composition, select \imagemorebutton > \uicontrol Remove.
+
+    \section1 Modifying the shader code of an effect
+
+    You can modify the shader code of an effect in your effect composition using
+    \uicontrol {Shaders Code Editor}.
+
+    \image shaders-code-editor.webp Shaders Code Editor
+
+    To open \uicontrol {Shaders Code Editor}:
+
+    \list 1
+        \li Select \imageadvancedCodeView to enable advanced mode.
+        \li Select \uicontrol {Show Code}.
+    \endlist
+
+    In the code section (1), you can switch between editing the Fragment shader and Vertex shader.
+
+    To switch between the effect nodes in your effect composition, select the effect node from the
+    dropdown menu (2). To edit the main effect shader, select \uicontrol Main.
+
+    The properties in the effect node are visible in the property table (3). To change the visible
+    columns in the property table, select columns from the dropdown menu (4).
+
+    To automatically update the effect as you edit it, select \uicontrol {Live Update} (5). If
+    \uicontrol {Live Update} is not selected, select \uicontrol Apply (6) to update the effect
+    composition with the latest changes.
+
+    If there are issues or errors in the code, they are visible in the
+    \uicontrol {Effect Composer} view.
+
+    To close \uicontrol {Shaders Code Editor}, select \uicontrol {Close} (7).
+
+    \section2 Using tags in shader code
+
+    The following table describes @-tags in shader code.
+
+    \table
+    \header
+        \li Tag
+        \li Description
+    \row
+        \li @main
+        \li Indicates that code before this tag is inserted before the main function in the
+            shader code. Code after this tag is inserted inside the main function at the position
+            of the @nodes tag.
+    \row
+        \li @nodes
+        \li Specifies the location of node specific shader code inside the main function.
+    \row
+        \li @mesh
+        \li Specifies the size of the mesh in effects that modify vertices, such as the Swirl
+            effect.
+    \row
+        \li @requires
+        \li Indicates that the effect depends on another node, typically used to include a helper
+            node, such as BlurHelper or NoiseHelper.
+    \endtable
+
+    \section1 Using shaders from external sources
+
+    You can use shader code from external sources, such as \l{https://www.shadertoy.com/}{Shadertoy}
+    and l{https://thebookofshaders.com}{The Book of Shaders} to create custom effects that you
+    can use as a part of your effect composition. For some sources, such as
+    \e {The Book of Shaders}, you may have to re-name the uniforms to use them in the \QDS
+    \uicontrol {Effect Composer}. For more information, see
+    \l {Working with shader code in Effect Composer}.
+
+    \section2 Using shaders from Shadertoy
+
+    First, add a \l{Using a custom effect in an effect composition}{custom effect} to your effect
+    composition. Then, copy the shader code and paste it to the \uicontrol {Fragment Shader}
+    tab of \uicontrol {Shaders Code Editor} with some adjustments:
+        \list 1
+            \li Copy the functions of the shader and paste them above the \c {@main} tag.
+            \li Copy the code inside \c {mainImage} and paste it below the \c {@main} tag, inside {}.
+        \endlist
+
+    \uicontrol {Effect Composer} doesn't support all the features of Shadertoy:
+        \list
+            \li Effects with multipass (buffer tabs) can't be created.
+            \li Audio, cubemaps and 3D textures are not supported.
+            \li Currently iMouse has not been implemented
+        \endlist
+
+    For more information, see \l {Using a shader from Shadertoy in Effect Composer}.
+
+    \note Shadertoy only supports fragment shaders and built-in textures. You may achieve
+    better performance by moving some of the calculations to a vertex shader.
+
+    \note The origin (0,0) of the Qt coordinate system is in top-left corner, while it is in
+    the bottom-left corner in the Shadertoy and OpenGL coordinate systems. If this is important
+    for the effect, consider flipping the y-coordinate of the shader in a suitable way. For
+    example, to flip fragCoord in Main node, switch to
+    \c {fragCoord = vec2(qt_Vertex.x, iResolution.y - qt_Vertex.y)}. You may need to adjust
+    \c texCoord in a similar manner.
+
+    \section2 Using shaders from The Book of Shaders
+
+    First, add a \l{Using a custom effect in an effect composition}{custom effect} to your effect
+    composition. Then, copy the shader code and paste it to the \uicontrol {Fragment Shader}
+    tab of \uicontrol {Shaders Code Editor} with some adjustments:
+    \list 1
+        \li Copy the functions of the shader and paste them above the \c {@main} tag.
+        \li Copy the code inside \c {void main} and paste it below the \c {@main} tag, inside {}.
+        \li Edit the uniforms of the original shader code in \uicontrol {Shaders Code Editor} as
+        described in \l {External resources}{Working with Shadercode in Effect Composer}.
+    \endlist
+
+    For more information, see \l{Using a shader from The Book of Shaders in Effect Composer}.
+
     \section1 Assigning an effect composition to a component
 
     To assign your newly created effect composition to a component, do one of the following:
@@ -81,7 +220,7 @@
 
     \section1 Editing effect compositions
 
-    To edit an effect composition in the \uicontrol {Effect Composer}, do one
+    To edit an effect composition in \uicontrol {Effect Composer}, do one
     of the following:
 
     \list
@@ -170,5 +309,4 @@
             in the first step as \uicontrol {Source Item}.
     \endlist
 
-    \sa {Effect Composer example}
 */

@@ -77,7 +77,7 @@ QPixmap AssetsLibraryIconProvider::generateFontIcons(const QString &filePath, co
                                                        "Abc"}).pixmap(reqSize);
 }
 
-QPair<QPixmap, qint64> AssetsLibraryIconProvider::fetchPixmap(const QString &id, const QSize &requestedSize) const
+QPair<QPixmap, qint64> AssetsLibraryIconProvider::fetchPixmap(const QString &id, const QSize &requestedSize)
 {
     Asset asset(id);
 
@@ -100,6 +100,18 @@ QPair<QPixmap, qint64> AssetsLibraryIconProvider::fetchPixmap(const QString &id,
         qint64 size = QFileInfo(id).size();
         QString filePath = Utils::StyleHelper::dpiSpecificImageFile(":/AssetsLibrary/images/asset_ktx.png");
         return {QPixmap{filePath}, size};
+    } else if (asset.isImported3D()) {
+        static QPixmap defaultPreview = QPixmap::fromImage(QImage(":/AssetsLibrary/images/asset_imported3d.png"));
+        QPixmap pixmap{requestedSize};
+        QString assetId = id.mid(id.lastIndexOf('/') + 1);
+        assetId.chop(asset.suffix().size() - 1); // Remove suffix
+        if (m_pixmaps.contains(assetId)) {
+            pixmap = m_pixmaps.value(assetId);
+        } else {
+            pixmap = defaultPreview;
+            emit asyncAssetPreviewRequested(assetId, id);
+        }
+        return {pixmap, 0};
     } else {
         QString type;
         if (asset.isShader())
@@ -143,6 +155,19 @@ QSize AssetsLibraryIconProvider::imageSize(const QString &id)
 qint64 AssetsLibraryIconProvider::fileSize(const QString &id)
 {
     return m_thumbnails.contains(id) ? m_thumbnails[id].fileSize : 0;
+}
+
+QString AssetsLibraryIconProvider::setPixmap(const QString &id, const QPixmap &pixmap,
+                                             const QString &suffix)
+{
+    m_pixmaps.insert(id, pixmap);
+    const QStringList thumbs = m_thumbnails.keys();
+    const QString checkName = id + "." + suffix;
+    for (const auto &thumb : thumbs) {
+        if (thumb.endsWith(checkName))
+            return thumb;
+    }
+    return {};
 }
 
 } // namespace QmlDesigner

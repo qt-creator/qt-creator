@@ -59,6 +59,7 @@ public:
     Q_INVOKABLE bool isEffectNode(const QByteArray &mimeData) const;
     Q_INVOKABLE void dropNode(const QByteArray &mimeData);
     Q_INVOKABLE void updateCanBeAdded();
+    Q_INVOKABLE bool isMCUProject() const;
 
     QSize sizeHint() const override;
 

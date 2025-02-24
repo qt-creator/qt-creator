@@ -72,7 +72,7 @@ signals:
     void rootPathChanged();
     void isEmptyChanged();
     void fileChanged(const QString &path);
-    void effectsDeleted(const QStringList &effectNames);
+    void generatedAssetsDeleted(const QHash<QString, Utils::FilePath> &assetData);
 
 private:
     void setIsEmpty(bool value);

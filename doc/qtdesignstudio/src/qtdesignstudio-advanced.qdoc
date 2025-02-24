@@ -11,13 +11,11 @@
     \table
         \row
             \li \image qds-front-advanced.png
-            \li Learn more about the UI files (.ui.qml), collecting data about
-                using \QDS, and about packaging applications for delivering
-                them to users or uploading them to app stores.
+            \li Learn more about the UI files (.ui.qml) and collecting data about
+                \QDS usage.
     \endtable
 
     \list
-
         \li \l{UI files}
 
             Some of the wizard templates create projects that contain UI files.
@@ -30,12 +28,5 @@
             statistics collection and determine what type of data is collected
             and transmitted to the backend storage. You can also modify
             settings for collecting user feedback.
-
-        \li \l{Packaging applications}
-
-            When you are ready to deliver your application to users or upload
-            it to app stores, you can use \QDS to create suitable packages that
-            contain all the necessary files, such as fonts, images, components,
-            and modules.
     \endlist
 */

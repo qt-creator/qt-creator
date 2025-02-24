@@ -11,24 +11,20 @@ namespace QmlDesigner {
 class QMLDESIGNERCORE_EXPORT InvalidArgumentException : public Exception
 {
 public:
-    InvalidArgumentException(int line,
-                             const QByteArray &function,
-                             const QByteArray &file,
-                             const QByteArray &argument);
+    InvalidArgumentException(
+        const QString &argument,
+        const Sqlite::source_location &location = Sqlite::source_location::current());
 
+    const char *what() const noexcept override;
+
+    QString description() const override;
     QString type() const override;
     QString argument() const;
 
 protected:
-    InvalidArgumentException(int line,
-                             const QByteArray &function,
-                             const QByteArray &file,
-                             const QByteArray &argument,
-                             const QString &description);
-    static QString invalidArgumentDescription(int line,
-                                              const QByteArray &function,
-                                              const QByteArray &file,
-                                              const QByteArray &argument);
+    static QString invalidArgumentDescription(const Sqlite::source_location &location,
+                                              const QString &argument);
+
 private:
     const QString m_argument;
 };

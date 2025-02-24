@@ -40,7 +40,7 @@ DeviceManager::DeviceManager(QObject *parent)
     initUdpDiscovery();
 
     connect(&m_resourceGenerator,
-            &QmlDesigner::ResourceGenerator::errorOccurred,
+            &QmlProjectManager::QmlProjectExporter::ResourceGenerator::errorOccurred,
             this,
             [this](const QString &error) {
                 qCDebug(deviceSharePluginLog) << "ResourceGenerator error:" << error;
@@ -48,7 +48,7 @@ DeviceManager::DeviceManager(QObject *parent)
             });
 
     connect(&m_resourceGenerator,
-            &QmlDesigner::ResourceGenerator::qmlrcCreated,
+            &QmlProjectManager::QmlProjectExporter::ResourceGenerator::qmlrcCreated,
             this,
             &DeviceManager::projectPacked);
 }
@@ -94,7 +94,9 @@ void DeviceManager::incomingDatagram()
             if (device->deviceInfo().selfId() == id) {
                 found = true;
                 if (device->deviceSettings().ipAddress() != ip) {
-                    qCDebug(deviceSharePluginLog) << "Updating IP address for device" << id;
+                    qCDebug(deviceSharePluginLog)
+                        << "Updating IP address for device" << id << "from"
+                        << device->deviceSettings().ipAddress() << "to" << ip;
                     setDeviceIP(device->deviceSettings().deviceId(), ip);
                 }
             }
@@ -425,7 +427,7 @@ void DeviceManager::runProject(const QString &deviceId)
 
     m_currentState = OpTypes::Packing;
     m_currentDeviceId = deviceId;
-    m_resourceGenerator.createQmlrcAsyncWithName();
+    m_resourceGenerator.createQmlrcAsync(ProjectExplorer::ProjectManager::startupProject());
     emit projectPacking(deviceId);
     qCDebug(deviceSharePluginLog) << "Packing project for device" << deviceId;
 }
@@ -433,9 +435,13 @@ void DeviceManager::runProject(const QString &deviceId)
 void DeviceManager::projectPacked(const Utils::FilePath &filePath)
 {
     qCDebug(deviceSharePluginLog) << "Project packed" << filePath.toUserOutput();
-    emit projectSendingProgress(m_currentDeviceId, 0);
 
-    m_currentState = OpTypes::Sending;
+    // it is possible that the device was disconnected while the project was being packed
+    if (m_currentDeviceId.isEmpty()) {
+        qCDebug(deviceSharePluginLog) << "Device disconnected while project was being packed";
+        return;
+    }
+
     qCDebug(deviceSharePluginLog) << "Sending project file to device" << m_currentDeviceId;
     QFile file(filePath.toFSPathString());
 
@@ -450,10 +456,19 @@ void DeviceManager::projectPacked(const Utils::FilePath &filePath)
             m_currentQtKitVersion = qtVer->qtVersion().toString();
     }
 
-    if (!findDevice(m_currentDeviceId)->sendProjectData(file.readAll(), m_currentQtKitVersion)) {
+    auto device = findDevice(m_currentDeviceId);
+    if (!device) {
+        handleError(ErrTypes::InternalError, m_currentDeviceId, "Device not found");
+        return;
+    }
+
+    if (!device->sendProjectData(file.readAll(), m_currentQtKitVersion)) {
         handleError(ErrTypes::ProjectSendingError, m_currentDeviceId, "Failed to send project file");
         return;
     }
+
+    m_currentState = OpTypes::Sending;
+    emit projectSendingProgress(m_currentDeviceId, 0);
 }
 
 void DeviceManager::stopProject()

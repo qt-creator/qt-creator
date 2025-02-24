@@ -7,51 +7,39 @@
 
 #include <QString>
 #include <QCoreApplication>
-/*!
-\class QmlDesigner::InvalidArgumentException
-\ingroup CoreExceptions
-\brief The InvalidArgumentException class provides an exception for an invalid
-argument.
 
-*/
 namespace QmlDesigner {
 
-QString InvalidArgumentException::invalidArgumentDescription(int line,
-                                                             const QByteArray &function,
-                                                             const QByteArray &file,
-                                                             const QByteArray &argument)
-{
-    if (QString::fromUtf8(function) == QLatin1String("createNode")) {
-        return DesignerCore::Tr::tr("Failed to create item of type %1.").arg(QString::fromUtf8(argument));
-    }
+using namespace Qt::StringLiterals;
 
-    return Exception::defaultDescription(line, function, file);
+QString InvalidArgumentException::invalidArgumentDescription(const Sqlite::source_location &location,
+                                                             const QString &argument)
+{
+    if (QLatin1StringView{location.file_name()} == "createNode"_L1)
+        return DesignerCore::Tr::tr("Failed to create item of type %1.").arg(argument);
+
+    return Exception::defaultDescription(location);
 }
 
-/*!
-    Constructs the exception for \a argument. \a line uses the __LINE__ macro,
-    \a function uses the __FUNCTION__ or the Q_FUNC_INFO macro, and \a file uses
-    the __FILE__ macro.
-*/
-InvalidArgumentException::InvalidArgumentException(int line,
-                                                   const QByteArray &function,
-                                                   const QByteArray &file,
-                                                   const QByteArray &argument)
-    : InvalidArgumentException(line, function, file, argument,
-                               invalidArgumentDescription(line, function, file, argument))
+InvalidArgumentException::InvalidArgumentException(const QString &argument,
+                                                   const Sqlite::source_location &location)
+    : Exception(location)
+    , m_argument{argument}
 {
     createWarning();
 }
 
-InvalidArgumentException::InvalidArgumentException(int line,
-                                                   const QByteArray &function,
-                                                   const QByteArray &file,
-                                                   const QByteArray &argument,
-                                                   const QString &description)
-    : Exception(line, function, file, description)
-    , m_argument(QString::fromUtf8(argument))
+const char *InvalidArgumentException::what() const noexcept
 {
-    createWarning();
+    return "InvalidArgumentException";
+}
+
+QString InvalidArgumentException::description() const
+{
+    if (QLatin1StringView{location().file_name()} == "createNode"_L1)
+        return DesignerCore::Tr::tr("Failed to create item of type %1.").arg(m_argument);
+
+    return Exception::defaultDescription(location());
 }
 
 /*!
@@ -59,7 +47,7 @@ InvalidArgumentException::InvalidArgumentException(int line,
 */
 QString InvalidArgumentException::type() const
 {
-    return QLatin1String("InvalidArgumentException");
+    return "InvalidArgumentException"_L1;
 }
 
 /*!

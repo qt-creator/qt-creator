@@ -1,6 +1,6 @@
 import QmlProject 1.3
 
-// This file works with Qt for MCUs 2.6, with the testfile of set-set-mcu-2 used as the module.
+// This file works with Qt for MCUs 2.10, with the testfile of set-set-mcu-2 used as the module.
 // Do not make any changes to this or the expected output before communicating with the MCU team
 
 // The set of properties may not be exhaustive and may not match every supported Qt for MCUs version
@@ -120,6 +120,12 @@ Project {
             [128, 128],
             [16384, 1]
         ]
+
+        ResourceStorageSections {
+            name: "QulResources"
+            majorVersion: 1
+            minorVersion: 1
+        }
 
     }
 //END MCU-prefixed node

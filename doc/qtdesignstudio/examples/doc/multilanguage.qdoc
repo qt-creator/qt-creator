@@ -111,10 +111,11 @@
     \list 1
       \li In \uicontrol{Projects}, double-click \e{Screen01.ui.qml} to open it.
       \li All text strings that you want to translate need to be of \c
-      qsTrId type. In this project the text strings are of \c qsTr type so you
-      need to change them. Open the \uicontrol{Code} view, find all five
-      occurrences of \c qsTr and replace them with \c{qsTrId}. For example,
-      replace:
+      qsTrId type. In this project the text strings are of \c qsTr type, so you
+      need to change their type. Go to \uicontrol View > \uicontrol Views and select
+      \uicontrol Code to open the Code view. In the \uicontrol Code view, find
+      all five occurrences of \c qsTr, and replace them with \c{qsTrId}. For
+      example, replace:
       \code
         text: qsTr("Qt Account")
       \endcode
@@ -141,18 +142,16 @@
     \list 1
       \li Go to \uicontrol View > \uicontrol Views and select \uicontrol
       Translations to open the \uicontrol Translations view. You can
-      drag it to a workspace to dock it.
-      \li In \uicontrol Translations, select
-      \imageselectlanguages
-      .
-      \li Select the languages that you want to support in your project,
-      in this case \uicontrol{English - American English} and
+      drag it to a \l {Managing workspaces}{workspace} to dock it.
+      \li In \uicontrol Translations, select \imageselectlanguages.
+      \li Select the languages that you want to support in your project.
+      For this tutorial, select \uicontrol{English - American English} and
       \uicontrol{Swedish - Svenska}.
-      \li Set \uicontrol{English - American English} as primary language and
-      select \uicontrol{Ok}.
-      \li Select \imageimportjsontranslations
-      and open the \e ml_translations.json file. Now you can see all your
-      imported translations in the \uicontrol Translations view.
+      \li Set \uicontrol{English - American English} as
+      \uicontrol {Primary language} and select \uicontrol {Ok}.
+      \li Select \imageimportjsontranslations and open the \e ml_translations.json
+      file. Now you can see all your imported translations in the
+      \uicontrol Translations view.
       \image imported-translations.png
     \endlist
 
@@ -165,9 +164,11 @@
     in \l{Translations}.
 
     Finally, before you can see your translations in the application or in
-    \uicontrol{Live Preview}, you must generate Qt translation source files.
-    To do this, select
-    \imagegeneratetranslationfiles
-    in the \uicontrol Translations view.
+    \uicontrol{Live Preview}, you must generate the Qt translation source files.
+    To do this, select \imagegeneratetranslationfiles in the
+    \uicontrol Translations view.
 
+    \note \QDS generates the Qt translation source files in
+    \e{<project-folder>/i18n}. To make translations visible in the application,
+    move or copy the i18n directory to \e{<project-folder>/Content}.
 */

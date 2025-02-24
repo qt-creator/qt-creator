@@ -117,10 +117,6 @@ GeneralSettingsWidget::GeneralSettingsWidget()
     m_languageBox->setObjectName("languageBox");
     m_languageBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     m_languageBox->setMinimumContentsLength(20);
-    if (Core::ICore::isQtDesignStudio()) {
-        m_languageBox->setDisabled(true);
-        m_languageBox->setToolTip("Qt Design Studio is currently available in English only.");
-    }
 
     m_codecBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     m_codecBox->setMinimumContentsLength(20);

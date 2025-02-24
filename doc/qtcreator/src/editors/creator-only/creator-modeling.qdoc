@@ -347,7 +347,7 @@
             to draw the line to the next sampling point either vertically or
             horizontally.
 
-        \li To remove a sampling point, select \key Ctrl and click the sampling
+        \li To remove a sampling point, select \key Ctrl and select the sampling
             point.
 
         \li To group elements, drag a \uicontrol Boundary element to
@@ -500,9 +500,9 @@
 
     \section2 Add and delete points
 
-    To add more points, select \key Shift and click a relation.
+    To add more points, select \key Shift and select a relation.
 
-    To delete a point, select \key Ctrl and click a point.
+    To delete a point, select \key Ctrl and select a point.
 
     \section2 Specify members
 

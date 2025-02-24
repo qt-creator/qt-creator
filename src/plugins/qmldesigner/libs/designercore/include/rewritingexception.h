@@ -10,17 +10,19 @@ namespace QmlDesigner {
 class QMLDESIGNERCORE_EXPORT RewritingException: public Exception
 {
 public:
-    RewritingException(int line,
-                       const QByteArray &function,
-                       const QByteArray &file,
-                       const QByteArray &description,
-                       const QString &documentTextContent);
+    RewritingException(const QString &description,
+                       const QString &documentTextContent,
+                       const Sqlite::source_location &location = Sqlite::source_location::current());
 
+    const char *what() const noexcept override;
+
+    QString description() const override;
     QString type() const override;
     QString documentTextContent() const;
 
 private:
-    const QString m_documentTextContent;
+    QString m_description;
+    QString m_documentTextContent;
 };
 
 } // namespace QmlDesigner

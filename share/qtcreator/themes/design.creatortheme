@@ -1,5 +1,5 @@
 [General]
-Includes=dark.figmatokens
+Includes=ds-dark.figmatokens, ds.tokenmapping
 ThemeName=Design Dark
 PreferredStyles=
 DefaultTextEditorColorScheme=creator-dark.xml
@@ -26,6 +26,7 @@ textColorLinkVisited=ffa57aff
 backgroundColorDisabled=ff444444
 
 ;DS Theme Palette START
+;legacy primitives
 ;greyscale
 fullWhite=ffffffff
 lightWhite=ffdfdfdf

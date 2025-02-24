@@ -35,7 +35,7 @@ ContentLibraryTexture::ContentLibraryTexture(QObject *parent, const QFileInfo &i
 
 bool ContentLibraryTexture::filter(const QString &searchText)
 {
-    if (m_visible != m_iconPath.contains(searchText, Qt::CaseInsensitive)) {
+    if (m_visible != m_baseName.contains(searchText, Qt::CaseInsensitive)) {
         m_visible = !m_visible;
         emit textureVisibleChanged();
     }

@@ -488,7 +488,7 @@
     \uicontrol General > \uicontrol {Use \QC for post-mortem debugging}.
 
     You can launch the debugger in the post-mortem mode if an application
-    crashes on Windows. Click the \uicontrol {Debug in \QC} button in the error
+    crashes on Windows. Select the \uicontrol {Debug in \QC} button in the error
     message from the Windows operating system.
 
     \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
@@ -689,7 +689,7 @@
             ssl:proto=Protocol,{certuser=Cert|machuser=Cert},clicon=Server,port=Socket[,password=Password]
             \endcode
 
-            \li  Click \uicontrol OK to start debugging.
+            \li  Select \uicontrol OK to start debugging.
 
     \endlist
 
@@ -869,7 +869,7 @@
 
     \image qtcreator-debugger-value-tooltips.webp {Value tooltip in code editor}
 
-    To keep the tooltip visible, click the pin button.
+    To keep the tooltip visible, select the pin button.
     You can expand pinned tooltips to view their full content.
 
     Pinned tooltips are stored in the session. To close all pinned tooltips,
@@ -1082,7 +1082,7 @@
     You can use the \uicontrol {Locals} and \uicontrol {Expressions} view to change
     the contents of variables of simple data types, for example, \c int, \c float,
     \c QString and \c std::string when the application is interrupted. To do so,
-    click the \uicontrol Value column, modify the value with the inplace editor,
+    select the \uicontrol Value column, modify the value with the inplace editor,
     and select \key Enter.
 
     To change the complete contents of QVector or \c std::vector values, type

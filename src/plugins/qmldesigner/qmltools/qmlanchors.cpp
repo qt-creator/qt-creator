@@ -329,14 +329,16 @@ void QmlAnchors::removeAnchor(AnchorLineType sourceAnchorLine)
     qmlItemNode().view()->executeInTransaction("QmlAnchors::removeAnchor", [this, sourceAnchorLine](){
         if (qmlItemNode().isInBaseState()) {
             const PropertyNameView propertyName = anchorPropertyName(sourceAnchorLine);
-            if (qmlItemNode().nodeInstance().hasAnchor("anchors.fill") && (sourceAnchorLine & AnchorLineFill)) {
+            if (qmlItemNode().modelNode().hasProperty("anchors.fill")
+                && (sourceAnchorLine & AnchorLineFill)) {
                 qmlItemNode().modelNode().removeProperty("anchors.fill");
                 qmlItemNode().modelNode().bindingProperty("anchors.top").setExpression(QLatin1String("parent.top"));
                 qmlItemNode().modelNode().bindingProperty("anchors.left").setExpression(QLatin1String("parent.left"));
                 qmlItemNode().modelNode().bindingProperty("anchors.bottom").setExpression(QLatin1String("parent.bottom"));
                 qmlItemNode().modelNode().bindingProperty("anchors.right").setExpression(QLatin1String("parent.right"));
 
-            } else if (qmlItemNode().nodeInstance().hasAnchor("anchors.centerIn") && (sourceAnchorLine & AnchorLineCenter)) {
+            } else if (qmlItemNode().modelNode().hasProperty("anchors.centerIn")
+                       && (sourceAnchorLine & AnchorLineCenter)) {
                 qmlItemNode().modelNode().removeProperty("anchors.centerIn");
                 qmlItemNode().modelNode().bindingProperty("anchors.horizontalCenter").setExpression(QLatin1String("parent.horizontalCenter"));
                 qmlItemNode().modelNode().bindingProperty("anchors.verticalCenter").setExpression(QLatin1String("parent.verticalCenter"));

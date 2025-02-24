@@ -5,6 +5,7 @@ add_qtc_plugin(EffectComposer
   DEPENDS
     Qt::Core Qt::CorePrivate Qt::Widgets Qt::Qml Qt::QmlPrivate Qt::Quick
     QtCreator::Utils
+    GLSL
   SOURCES
     effectcomposereditablenodesmodel.cpp effectcomposereditablenodesmodel.h
     effectcodeeditorwidget.cpp effectcodeeditorwidget.h
@@ -21,6 +22,7 @@ add_qtc_plugin(EffectComposer
     effectnode.cpp effectnode.h
     effectnodescategory.cpp effectnodescategory.h
     compositionnode.cpp compositionnode.h
+    syntaxhighlighter.h syntaxhighlighter.cpp
     tableheaderlengthmodel.cpp tableheaderlengthmodel.h
     uniform.cpp uniform.h
     effectutils.cpp effectutils.h

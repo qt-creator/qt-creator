@@ -19,8 +19,8 @@ public:
         : m_databaseMock{&databaseMock}
     {}
 
-    MOCK_METHOD0(next, bool());
-    MOCK_METHOD0(step, void ());
+    MOCK_METHOD(bool, next, (const Sqlite::source_location &sourceLocation));
+    MOCK_METHOD(void, step, (const Sqlite::source_location &sourceLocation));
     MOCK_METHOD0(reset, void ());
 
     MOCK_CONST_METHOD1(fetchIntValue, int (int));
@@ -35,16 +35,20 @@ public:
     template<typename Type>
     Type fetchValue(int column) const;
 
-    MOCK_METHOD2(bind, void (int, int));
-    MOCK_METHOD2(bind, void (int, long long));
-    MOCK_METHOD2(bind, void (int, double));
-    MOCK_METHOD2(bind, void (int, Utils::SmallStringView));
-    MOCK_METHOD2(bind, void (int, long));
+    MOCK_METHOD(void, bind, (int, int, const Sqlite::source_location &sourceLocation));
+    MOCK_METHOD(void, bind, (int, long long, const Sqlite::source_location &sourceLocation));
+    MOCK_METHOD(void, bind, (int, double, const Sqlite::source_location &sourceLocation));
+    MOCK_METHOD(void,
+                bind,
+                (int, Utils::SmallStringView, const Sqlite::source_location &sourceLocation));
+    MOCK_METHOD(void, bind, (int, long, const Sqlite::source_location &sourceLocation));
 
-    MOCK_METHOD1(prepare, void(Utils::SmallStringView sqlStatement));
+    MOCK_METHOD(void,
+                prepare,
+                (Utils::SmallStringView sqlStatement, const Sqlite::source_location &sourceLocation));
 
-    MOCK_METHOD1(checkColumnCount, void(int));
-    MOCK_METHOD1(checkBindingParameterCount, void(int));
+    MOCK_METHOD(void, checkColumnCount, (int, const Sqlite::source_location &sourceLocation));
+    MOCK_METHOD(void, checkBindingParameterCount, (int, const Sqlite::source_location &sourceLocation));
 
     MOCK_CONST_METHOD0(isReadOnlyStatement, bool());
 

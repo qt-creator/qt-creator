@@ -176,6 +176,7 @@ void LayoutInGridLayout::doIt()
                 layoutNode = m_selectionContext.view()->createModelNode(layoutType, metaInfo.majorVersion(), metaInfo.minorVersion());
 #endif
                 reparentTo(layoutNode, m_parentNode);
+                layoutNode.ensureIdExists();
             });
 
             m_selectionContext.view()->executeInTransaction("LayoutInGridLayout2", [this, layoutNode](){

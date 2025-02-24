@@ -19,9 +19,6 @@ QString ItemLibraryImport::importName() const
     if (m_sectionType == SectionType::User)
         return userComponentsTitle();
 
-    if (m_sectionType == SectionType::Quick3DAssets)
-        return quick3DAssetsTitle();
-
     if (m_sectionType == SectionType::Unimported)
         return unimportedComponentsTitle();
 
@@ -38,9 +35,6 @@ QString ItemLibraryImport::importUrl() const
 {
     if (m_sectionType == SectionType::User)
         return userComponentsTitle();
-
-    if (m_sectionType == SectionType::Quick3DAssets)
-        return quick3DAssetsTitle();
 
     if (m_sectionType == SectionType::Unimported)
         return unimportedComponentsTitle();
@@ -60,9 +54,6 @@ QString ItemLibraryImport::sortingName() const
 {
     if (m_sectionType == SectionType::User)
         return "_"; // user components always come first
-
-    if (m_sectionType == SectionType::Quick3DAssets)
-        return "__";  // Quick3DAssets come second
 
     if (m_sectionType == SectionType::Unimported)
         return "zzzzzz"; // Unimported components come last
@@ -233,12 +224,6 @@ ItemLibraryCategory *ItemLibraryImport::getCategoryAt(int categoryIndex) const
 QString ItemLibraryImport::userComponentsTitle()
 {
     return tr("My Components");
-}
-
-// static
-QString ItemLibraryImport::quick3DAssetsTitle()
-{
-    return tr("My 3D Components");
 }
 
 // static

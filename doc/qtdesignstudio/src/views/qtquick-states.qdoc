@@ -14,7 +14,7 @@
 
     \image qmldesigner-transitions.png "States view"
 
-    Click the new state to switch to it in the \l {2D} and \l{3D} views, and
+    Select the new state to switch to it in the \l {2D} and \l{3D} views, and
     then modify the values of the properties of components or component
     instances in \l Properties.
 
@@ -141,9 +141,9 @@
 
     \list 1
         \li In the base state, add all components you will need in the
-            application (1). While you work on one view, you can click the
+            application (1). While you work on one view, you can select
             \imageeyeopen
-            icon in \l Navigator to hide components on the canvas that are
+            in \l Navigator to hide components on the canvas that are
             not part of a view.
         \li In \uicontrol States, select the \uicontrol + symbol to create
             a new state and give it a name. For example, \c Normal.

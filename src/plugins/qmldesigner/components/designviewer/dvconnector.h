@@ -5,11 +5,12 @@
 
 #include <QNetworkCookieJar>
 #include <QNetworkReply>
+#include <QNetworkRequest>
 #include <QWebEnginePage>
 #include <QWebEngineProfile>
 #include <QWebEngineView>
 
-#include <qmldesigner/components/componentcore/resourcegenerator.h>
+#include <qmlprojectmanager/qmlprojectexporter/resourcegenerator.h>
 
 namespace QmlDesigner::DesignViewer {
 
@@ -89,9 +90,8 @@ private:
     QScopedPointer<CustomCookieJar> m_networkCookieJar;
 
     // login
-    QScopedPointer<QWebEngineProfile> m_webEngineProfile;
-    QScopedPointer<QWebEnginePage> m_webEnginePage;
-    QScopedPointer<QWebEngineView> m_webEngineView;
+    QWebEnginePage *m_webEnginePage;
+    QWebEngineView *m_webEngineView;
     bool m_isWebViewerVisible;
 
     // status
@@ -99,13 +99,14 @@ private:
     QByteArray m_userInfo;
 
     // other internals
-    ResourceGenerator m_resourceGenerator;
+    QmlProjectManager::QmlProjectExporter::ResourceGenerator m_resourceGenerator;
 
+    typedef QPair<QByteArray, QByteArray> RawHeaderPair;
     struct ReplyEvaluatorData
     {
         QNetworkReply *reply = nullptr;
         QString description;
-        std::function<void(const QByteArray &)> successCallback = nullptr;
+        std::function<void(const QByteArray &, const QList<RawHeaderPair> &)> successCallback = nullptr;
         std::function<void(const int, const QString &)> errorPreCallback = nullptr;
         std::function<void(const int, const QString &)> errorCodeUnauthorizedCallback = nullptr;
         std::function<void(const int, const QString &)> errorCodeOtherCallback = nullptr;
@@ -122,6 +123,9 @@ private:
 private:
     void evaluateReply(const ReplyEvaluatorData &evaluator);
     bool eventFilter(QObject *obj, QEvent *e) override;
+    void internalLogin();
+    void refreshToken();
+    void fetchUserInfoInternal();
 
 signals:
     // service integration - project related signals

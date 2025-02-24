@@ -1,0 +1,68 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page effects-concept.html
+    \previouspage
+    \nextpage
+
+    \sa {Effect Composer}, {Effect Composer example},
+    {Using a shader from Shadertoy in Effect Composer},
+    {Using a shader from The Book of Shaders in Effect Composer},
+    {Using AI-generated shader code in Effect Composer}
+
+    \title Effects and shaders in \QDS
+
+    \brief Effects in \QDS.
+
+\uicontrol {Effect Composer} is a tool for creating shaders for 2D objects and 3D scenes. It is
+designed for both experienced developers and beginners, simplifying the process of developing
+visual effects without requiring extensive knowledge of shader coding.
+
+\image northern-lights-effect.webp
+
+Key features of the \QDS Effect Composer:
+
+\list
+  \li Enhance projects with a variety of customizable predefined effects.
+  \li Write custom shader code to achieve tailored visual effects.
+  \li Copy and paste shader code from platforms such as
+  Shadertoy and The Book of Shaders into Effect Composer.
+  \li Copy AI-generated shader code into Effect Composer.
+\endlist
+
+With \uicontrol {Effect Composer}, you can create visual effects without needing to understand shader languages. The
+interface and tools are designed to facilitate the creation of precise and effective visual effects.
+
+\section1 Getting started
+
+To get started with Effect Composer, see the following documentation:
+
+\table
+  \header
+    \li Title
+    \li Description
+  \row
+    \li \l {Effect Composer}
+    \li Learn how to work with Effect Composer.
+  \row
+    \li \l {Effect Composer example}{Example: The Effect Composer Example}
+    \li Download and explore this example to learn how you can create, add and control effects.
+  \row
+    \li \l {Using a shader from Shadertoy in Effect Composer}{Tutorial: Using a shader from Shadertoy in Effect Composer}
+    \li A step-by-step guide describing how to copy a shader from ShaderToy and use it in \QDS.
+  \row
+    \li \l {Using a shader from The Book of Shaders in Effect Composer}{Tutorial: Use a shader from Book of Shaders}
+    \li A step-by-step guide describing how to copy a shader from Book of Shaders and use it in \QDS.
+  \row
+    \li \l {Using AI-generated shader code in Effect Composer}{Tutorial: Using AI-generated shader code in Effect Composer}
+    \li A step-by-step guide describing how to use chatGPT to create a shader and use it in \QDS.
+  \row
+    \li \l {Working with shader code in Effect Composer}{Best practices}
+    \li Tips, tricks, and best practices on how to work with shader code in \QDS.
+  \row
+    \li \l{https://wiki.qt.io/QtDesignStudio/EffectComposer}{Known issues}
+    \li Known issues and work arounds.
+\endtable
+
+*/

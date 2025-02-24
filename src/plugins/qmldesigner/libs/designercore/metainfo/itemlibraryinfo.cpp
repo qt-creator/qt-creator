@@ -46,7 +46,7 @@ void ItemLibraryInfo::addEntries(const QList<ItemLibraryEntry> &entries, bool ov
     for (const ItemLibraryEntry &entry : entries) {
         const QString key = keyForEntry(entry);
         if (!overwriteDuplicate && m_nameToEntryHash.contains(key))
-            throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+            throw InvalidMetaInfoException();
         m_nameToEntryHash.insert(key, entry);
     }
     emit entriesChanged();

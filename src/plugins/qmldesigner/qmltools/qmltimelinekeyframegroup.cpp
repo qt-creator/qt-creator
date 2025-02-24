@@ -7,7 +7,6 @@
 #include "qmlitemnode.h"
 
 #include <auxiliarydataproperties.h>
-#include <invalidmodelnodeexception.h>
 #include <nodelistproperty.h>
 #include <variantproperty.h>
 

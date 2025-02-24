@@ -69,7 +69,7 @@
     To learn more about the parts of the UI and the \uicontrol Welcome mode, take
     the \l{Qt Academy: Getting Started with \QC} course.
 
-    \section1 What's New?
+    \section1 What's new?
 
     For information about new features and bug fixes in each \QC release,
     select \uicontrol Help > \uicontrol {Change Log}.
@@ -78,14 +78,14 @@
 
     \else
 
-    When you start \QC, it opens to the \uicontrol Welcome mode, where you can:
+    When you start \QC, it opens to the \uicontrol Welcome mode, where you can, for example:
 
     \list
-        \li Open recent projects
         \li Create and open projects
         \li Open tutorials and example projects
         \li Read news from the online community and Qt blogs
         \li Create or manage a Qt Account
+        \li View the \QDS \uicontrol {UI Tour}
     \endlist
 
     \image studio-welcome-mode.webp {Welcome mode}
@@ -93,7 +93,7 @@
     \endif
 
     \if defined(qtdesignstudio)
-    \section1 Customizing the Menu Bar
+    \section1 Customizing the menu bar
 
     By default, top-level menu items \uicontrol Build, \uicontrol Debug, and
     \uicontrol Analyze are not visible. These menu items have options for
@@ -125,7 +125,7 @@
         \li \l {View output}
     \endlist
 
-    \section1 Viewing Images
+    \section1 Viewing images
 
     The following topics describe how to use the image viewer:
 

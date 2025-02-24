@@ -77,7 +77,7 @@ Utils::SmallStringView propertyName(const GeneratorProperty &property)
         property);
 }
 
-PropertyMetaInfos getUnmangedProperties(const NodeMetaInfos &prototypes)
+PropertyMetaInfos getUnmanagedProperties(const NodeMetaInfos &prototypes)
 {
     PropertyMetaInfos properties;
     properties.reserve(128);
@@ -116,14 +116,10 @@ GeneratorProperties createSortedGeneratorProperties(
     return generatorProperties;
 }
 
-QString createPropertySections(const PropertyComponentGeneratorType &propertyGenerator,
-                               const NodeMetaInfos &prototypeChain)
+QString createPropertySections(GeneratorProperties generatorProperties)
 {
     QString propertyComponents;
     propertyComponents.reserve(100000);
-
-    auto generatorProperties = createSortedGeneratorProperties(getUnmangedProperties(prototypeChain),
-                                                               propertyGenerator);
 
     const auto begin = generatorProperties.begin();
     const auto end = generatorProperties.end();
@@ -150,6 +146,12 @@ PropertyEditorComponentGenerator::PropertyEditorComponentGenerator(
 
 QString PropertyEditorComponentGenerator::create(const NodeMetaInfos &prototypeChain, bool isComponent)
 {
+    auto generatorProperties = createSortedGeneratorProperties(getUnmanagedProperties(prototypeChain),
+                                                               m_propertyGenerator);
+
+    if (generatorProperties.empty())
+        return {};
+
     return QString{R"xy(
       %1
       Column {
@@ -171,7 +173,7 @@ QString PropertyEditorComponentGenerator::create(const NodeMetaInfos &prototypeC
         .arg(createImports(m_propertyGenerator.imports()),
              componentButton(isComponent),
              Tr::tr("Exposed Custom Properties"),
-             createPropertySections(m_propertyGenerator, prototypeChain));
+             createPropertySections(std::move(generatorProperties)));
 }
 
 } // namespace QmlDesigner

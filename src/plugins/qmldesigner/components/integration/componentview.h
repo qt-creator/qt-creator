@@ -7,6 +7,7 @@
 #include <modelnode.h>
 
 #include <QStringList>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;
@@ -71,6 +72,7 @@ private: //functions
     QString descriptionForNode(const ModelNode &node) const;
     void updateDescription(const ModelNode &node);
     bool isSubComponentNode(const ModelNode &node) const;
+    void ensureMatLibTriggered();
 
 private:
     QStandardItemModel *m_standardItemModel;
@@ -78,6 +80,7 @@ private:
 
     QVariantMap m_importableExtensions3DMap;
     QVariantMap m_importOptions3DMap;
+    QTimer m_ensureMatLibTimer;
 };
 
 } // namespace QmlDesigner

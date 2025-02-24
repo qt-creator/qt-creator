@@ -221,8 +221,14 @@ private:
     QString getCustomShaderVaryings(bool outState);
     QString generateVertexShader(bool includeUniforms = true);
     QString generateFragmentShader(bool includeUniforms = true);
-    void handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader, bool preview,
-                              int bakeCounter);
+    void handleQsbProcessExit(
+        Utils::Process *qsbProcess,
+        const QString &shader,
+        bool preview,
+        int bakeCounter);
+
+    void copyProcessTargetToEffectDir(Utils::Process *qsbProcess);
+
     QString stripFileFromURL(const QString &urlString) const;
     QString getQmlEffectString();
 
@@ -231,6 +237,7 @@ private:
     void updateCustomUniforms();
     void initShaderDir();
     void bakeShaders();
+    void writeComposition(const QString &name);
     void saveResources(const QString &name);
     void openNearestAvailableCodeEditor(int idx);
 
@@ -302,6 +309,8 @@ private:
     QList<QUrl> m_customPreviewImages;
     int m_currentBakeCounter = 0;
     bool m_advancedMode = false;
+    bool m_qsbFirstProcessIsDone = false;
+    int m_pendingSaveBakeCounter = -1;
 
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };

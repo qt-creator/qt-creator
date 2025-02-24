@@ -48,6 +48,8 @@ inline constexpr char anchorParentTopCommandId[] = "AnchorParentTop";
 inline constexpr char anchorParentRightCommandId[] = "AnchorParentRight";
 inline constexpr char anchorParentBottomCommandId[] = "AnchorParentBottom";
 inline constexpr char anchorParentLeftCommandId[] = "AnchorParentLeft";
+inline constexpr char anchorParentVerticalCenterCommandId[] = "AnchorParentVerticalCenter";
+inline constexpr char anchorParentHorizontalCenterCommandId[] = "AnchorParentHorizontalCenter";
 
 inline constexpr char removePositionerCommandId[] = "RemovePositioner";
 inline constexpr char createFlowActionAreaCommandId[] = "CreateFlowActionArea";
@@ -206,6 +208,10 @@ inline constexpr char anchorParentBottomDisplayName[] = QT_TRANSLATE_NOOP("QmlDe
                                                                           "Bottom");
 inline constexpr char anchorParentLeftDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                         "Left");
+inline constexpr char anchorParentVerticalCenterDisplayName[] = QT_TRANSLATE_NOOP(
+    "QmlDesignerContextMenu", "Vertical Center");
+inline constexpr char anchorParentHorizontalCenterDisplayName[] = QT_TRANSLATE_NOOP(
+    "QmlDesignerContextMenu", "Horizontal Center");
 
 inline constexpr char layoutColumnPositionerDisplayName[] = QT_TRANSLATE_NOOP(
     "QmlDesignerContextMenu", "Column Positioner");

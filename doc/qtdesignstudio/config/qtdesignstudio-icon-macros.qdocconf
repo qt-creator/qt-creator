@@ -4,6 +4,7 @@ macro.imageactioniconbinding                                 = "\\inlineimage ic
 macro.imageaddfile16px                                       = "\\inlineimage icons/add-file-16px.png {the Add a file button}"
 macro.imageaddmaterial                                       = "\\inlineimage icons/add_material.png {the Add a material button}"
 macro.imageaddtexture                                        = "\\inlineimage icons/add_texture.png {the Add a texture button}"
+macro.imageadvancedCodeView                                  = "\\inlineimage icons/advancedCodeView.png {the Advanced code view button}"
 macro.imageailogo                                            = "\\inlineimage ai-logo.png {the Adobe Illustrator logo}"
 macro.imagealias                                             = "\\inlineimage icons/alias.png {the Alias button}"
 macro.imagealignbottom                                       = "\\inlineimage icons/align-bottom.png {the Align bottom edges button}"

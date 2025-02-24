@@ -14,7 +14,6 @@
 #include <qmldesignerconstants.h>
 #include <qmltimeline.h>
 
-#include <invalididexception.h>
 #include <rewritingexception.h>
 #include <variantproperty.h>
 
@@ -557,12 +556,14 @@ void setupWidget(PropertyEditorQmlBackend *currentQmlBackend,
         if (sourceId) {
             auto path = pathCache.sourcePath(sourceId);
             if (path.endsWith("Pane.qml")) {
-                panePath = path;
-                if (panePath.size() && specificsPath.size())
+                if (!panePath.size())
+                    panePath = path;
+                if (specificsPath.size())
                     return std::make_tuple(panePath, specificsPath);
             } else if (path.endsWith("Specifics.qml")) {
-                specificsPath = path;
-                if (panePath.size() && specificsPath.size())
+                if (!specificsPath.size())
+                    specificsPath = path;
+                if (panePath.size())
                     return std::make_tuple(panePath, specificsPath);
             }
         }
@@ -570,19 +571,30 @@ void setupWidget(PropertyEditorQmlBackend *currentQmlBackend,
 
     return std::make_tuple(panePath, specificsPath);
 }
+
+[[maybe_unused]] QUrl createPaneUrl(Utils::SmallStringView panePath)
+{
+    if (panePath.empty())
+        return PropertyEditorQmlBackend::emptyPaneUrl();
+
+    return QUrl::fromLocalFile(QString{panePath});
+}
+
 } // namespace
 
 void PropertyEditorView::setupQmlBackend()
 {
 #ifdef QDS_USE_PROJECTSTORAGE
-    auto selfAndPrototypes = m_selectedNode.metaInfo().selfAndPrototypes();
+    const NodeMetaInfo commonAncestor = PropertyEditorQmlBackend::findCommonAncestor(m_selectedNode);
+    auto selfAndPrototypes = commonAncestor.selfAndPrototypes();
     bool isEditableComponent = m_selectedNode.isComponent()
                                && !QmlItemNode(m_selectedNode).isEffectItem();
     auto specificQmlData = m_propertyEditorComponentGenerator.create(selfAndPrototypes,
                                                                      isEditableComponent);
     auto [panePath, specificsPath] = findPaneAndSpecificsPath(selfAndPrototypes, model()->pathCache());
+
     PropertyEditorQmlBackend *currentQmlBackend = getQmlBackend(m_qmlBackendHash,
-                                                                QUrl::fromLocalFile(QString{panePath}),
+                                                                createPaneUrl(panePath),
                                                                 m_imageCache,
                                                                 m_stackedWidget,
                                                                 this);

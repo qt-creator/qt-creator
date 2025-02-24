@@ -1830,6 +1830,24 @@ TEST_F(NodeMetaInfo, default_is_not_QtQuickExtras_Picture)
     ASSERT_THAT(isType, IsFalse());
 }
 
+TEST_F(NodeMetaInfo, is_QtQuick_Gradient)
+{
+    auto metaInfo = createDerivedDummyMetaInfo("QtQuick", ModuleKind::QmlLibrary, "Gradient");
+
+    bool isType = metaInfo.isQtQuickGradient();
+
+    ASSERT_THAT(isType, IsTrue());
+}
+
+TEST_F(NodeMetaInfo, default_is_not_QtQuick_Gradient)
+{
+    QmlDesigner::NodeMetaInfo metaInfo;
+
+    bool isType = metaInfo.isQtQuickGradient();
+
+    ASSERT_THAT(isType, IsFalse());
+}
+
 TEST_F(NodeMetaInfo, is_QtQuick_Image)
 {
     auto metaInfo = createDerivedDummyMetaInfo("QtQuick", ModuleKind::QmlLibrary, "Image");
@@ -2010,6 +2028,24 @@ TEST_F(NodeMetaInfo, default_is_not_QtQuick_Repeater)
     ASSERT_THAT(isType, IsFalse());
 }
 
+TEST_F(NodeMetaInfo, is_QtQuickShapes_Shape)
+{
+    auto metaInfo = createDerivedDummyMetaInfo("QtQuick.Shapes", ModuleKind::QmlLibrary, "Shape");
+
+    bool isType = metaInfo.isQtQuickShapesShape();
+
+    ASSERT_THAT(isType, IsTrue());
+}
+
+TEST_F(NodeMetaInfo, default_is_not_QtQuickShapes_Shape)
+{
+    QmlDesigner::NodeMetaInfo metaInfo;
+
+    bool isType = metaInfo.isQtQuickShapesShape();
+
+    ASSERT_THAT(isType, IsFalse());
+}
+
 TEST_F(NodeMetaInfo, is_QtQuick_State)
 {
     auto metaInfo = createDerivedDummyMetaInfo("QtQuick", ModuleKind::QmlLibrary, "State");
@@ -2048,6 +2084,26 @@ TEST_F(NodeMetaInfo, default_is_not_QtQuickNative_StateOperation)
     ASSERT_THAT(isType, IsFalse());
 }
 
+TEST_F(NodeMetaInfo, is_QtQuickStudioComponents_ArcItem)
+{
+    auto metaInfo = createDerivedDummyMetaInfo("QtQuick.Studio.Components",
+                                               ModuleKind::QmlLibrary,
+                                               "ArcItem");
+
+    bool isType = metaInfo.isQtQuickStudioComponentsArcItem();
+
+    ASSERT_THAT(isType, IsTrue());
+}
+
+TEST_F(NodeMetaInfo, default_is_not_QtQuickStudioComponents_ArcItem)
+{
+    QmlDesigner::NodeMetaInfo metaInfo;
+
+    bool isType = metaInfo.isQtQuickStudioComponentsArcItem();
+
+    ASSERT_THAT(isType, IsFalse());
+}
+
 TEST_F(NodeMetaInfo, is_QtQuickStudioComponents_GroupItem)
 {
     auto metaInfo = createDerivedDummyMetaInfo("QtQuick.Studio.Components",
@@ -2064,6 +2120,26 @@ TEST_F(NodeMetaInfo, default_is_not_QtQuickStudioComponents_GroupItem)
     QmlDesigner::NodeMetaInfo metaInfo;
 
     bool isType = metaInfo.isQtQuickStudioComponentsGroupItem();
+
+    ASSERT_THAT(isType, IsFalse());
+}
+
+TEST_F(NodeMetaInfo, is_QtQuickStudioComponents_SvgPathItem)
+{
+    auto metaInfo = createDerivedDummyMetaInfo("QtQuick.Studio.Components",
+                                               ModuleKind::QmlLibrary,
+                                               "SvgPathItem");
+
+    bool isType = metaInfo.isQtQuickStudioComponentsSvgPathItem();
+
+    ASSERT_THAT(isType, IsTrue());
+}
+
+TEST_F(NodeMetaInfo, default_is_not_QtQuickStudioComponents_SvgPathItem)
+{
+    QmlDesigner::NodeMetaInfo metaInfo;
+
+    bool isType = metaInfo.isQtQuickStudioComponentsSvgPathItem();
 
     ASSERT_THAT(isType, IsFalse());
 }

@@ -1082,10 +1082,7 @@ bool isNotInLayout(const SelectionContext &context)
 
 bool selectionCanBeLayouted(const SelectionContext &context)
 {
-    return  multiSelection(context)
-            && selectionHasSameParentAndInBaseState(context)
-            && inBaseState(context)
-            && isNotInLayout(context);
+    return multiSelection(context) && selectionHasSameParentAndInBaseState(context);
 }
 
 bool selectionCanBeLayoutedAndQtQuickLayoutPossible(const SelectionContext &context)
@@ -1113,6 +1110,12 @@ bool singleSelectionItemIsNotAnchoredAndSingleSelectionNotRoot(const SelectionCo
 {
     return singleSelectionItemIsNotAnchored(context)
             && singleSelectionNotRoot(context);
+}
+
+bool singleSelectionItemHasNoFillAnchorAndSingleSelectionNotRoot(const SelectionContext &context)
+{
+    return singleSelection(context) && !singleSelectionItemHasAnchor(context, AnchorLineFill)
+           && singleSelectionNotRoot(context);
 }
 
 bool selectionNotEmptyAndHasXorYProperty(const SelectionContext &context)
@@ -1531,15 +1534,15 @@ void DesignerActionManager::createDefaultDesignerActions()
                                       &anchorsMenuEnabled));
 
     addDesignerAction(new ModelNodeAction(
-                          anchorsFillCommandId,
-                          anchorsFillDisplayName,
-                          Utils::Icon({{":/qmldesigner/images/anchor_fill.png", Utils::Theme::IconsBaseColor}}).icon(),
-                          anchorsFillToolTip,
-                          anchorsCategory,
-                          QKeySequence(QKeySequence("shift+f")),
-                          2,
-                          &anchorsFill,
-                          &singleSelectionItemIsNotAnchoredAndSingleSelectionNotRoot));
+        anchorsFillCommandId,
+        anchorsFillDisplayName,
+        Utils::Icon({{":/qmldesigner/images/anchor_fill.png", Utils::Theme::IconsBaseColor}}).icon(),
+        anchorsFillToolTip,
+        anchorsCategory,
+        QKeySequence(QKeySequence("shift+f")),
+        2,
+        &anchorsFill,
+        &singleSelectionItemHasNoFillAnchorAndSingleSelectionNotRoot));
 
     addDesignerAction(new ModelNodeAction(
                           anchorsResetCommandId,
@@ -1618,6 +1621,28 @@ void DesignerActionManager::createDefaultDesignerActions()
                           QKeySequence(),
                           24,
                           AnchorLineRight));
+
+    addDesignerAction(new SeparatorDesignerAction(anchorsCategory, 30));
+
+    addDesignerAction(
+        new ParentAnchorAction(anchorParentVerticalCenterCommandId,
+                               anchorParentVerticalCenterDisplayName,
+                               createResetIcon({":/qmldesigner/images/anchor_vertical.png"}),
+                               {},
+                               anchorsCategory,
+                               QKeySequence(),
+                               31,
+                               AnchorLineVerticalCenter));
+
+    addDesignerAction(
+        new ParentAnchorAction(anchorParentHorizontalCenterCommandId,
+                               anchorParentHorizontalCenterDisplayName,
+                               createResetIcon({":/qmldesigner/images/anchor_horizontal.png"}),
+                               {},
+                               anchorsCategory,
+                               QKeySequence(),
+                               32,
+                               AnchorLineHorizontalCenter));
 
     addDesignerAction(new ActionGroup(
                           positionerCategoryDisplayName,

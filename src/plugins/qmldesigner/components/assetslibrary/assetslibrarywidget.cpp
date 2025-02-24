@@ -8,6 +8,7 @@
 #include "assetslibraryview.h"
 #include <qmldesignertr.h>
 
+#include <asynchronousimagecache.h>
 #include <createtexture.h>
 #include <designeractionmanager.h>
 #include <designermcumanager.h>
@@ -97,10 +98,12 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
-AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFontImageCache,
+AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &mainImageCache,
+                                         AsynchronousImageCache &asynchronousFontImageCache,
                                          SynchronousImageCache &synchronousFontImageCache,
                                          AssetsLibraryView *view)
     : m_itemIconSize{24, 24}
+    , m_mainImageCache{mainImageCache}
     , m_fontImageCache{synchronousFontImageCache}
     , m_assetsIconProvider{new AssetsLibraryIconProvider(synchronousFontImageCache)}
     , m_assetsModel{new AssetsLibraryModel(this)}
@@ -109,6 +112,44 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
 {
     setWindowTitle(Tr::tr("Assets Library", "Title of assets library widget"));
     setMinimumWidth(250);
+
+    connect(m_assetsIconProvider, &AssetsLibraryIconProvider::asyncAssetPreviewRequested,
+            this, [this](const QString &assetId, const QString &assetFile) {
+        Asset asset{assetFile};
+        if (!asset.isImported3D())
+            return;
+
+        Utils::FilePath fullPath = QmlDesignerPlugin::instance()->documentManager()
+                                       .generatedComponentUtils().getImported3dQml(assetFile);
+
+        if (!fullPath.exists())
+            return;
+
+        m_mainImageCache.requestImage(
+            Utils::PathString{fullPath.toFSPathString()},
+            [this, assetId](const QImage &image) {
+                QMetaObject::invokeMethod(this, [this, assetId, image] {
+                    updateAssetPreview(assetId, QPixmap::fromImage(image), "q3d");
+                }, Qt::QueuedConnection);
+            },
+            [assetFile](ImageCache::AbortReason abortReason) {
+                if (abortReason == ImageCache::AbortReason::Abort) {
+                    qWarning() << QLatin1String(
+                                      "AssetsLibraryIconProvider::asyncAssetPreviewRequested(): preview generation "
+                                      "failed for path %1, reason: Abort").arg(assetFile);
+                } else if (abortReason == ImageCache::AbortReason::Failed) {
+                    qWarning() << QLatin1String(
+                                      "AssetsLibraryIconProvider::asyncAssetPreviewRequested(): preview generation "
+                                      "failed for path %1, reason: Failed").arg(assetFile);
+                } else if (abortReason == ImageCache::AbortReason::NoEntry) {
+                    qWarning() << QLatin1String(
+                                      "AssetsLibraryIconProvider::asyncAssetPreviewRequested(): preview generation "
+                                      "failed for path %1, reason: NoEntry").arg(assetFile);
+                }
+            },
+            "libIcon",
+            ImageCache::LibraryIconAuxiliaryData{true});
+    });
 
     m_assetsWidget->quickWidget()->installEventFilter(this);
 
@@ -135,8 +176,8 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
     connect(m_assetsModel, &AssetsLibraryModel::fileChanged,
             QmlDesignerPlugin::instance(), &QmlDesignerPlugin::assetChanged);
 
-    connect(m_assetsModel, &AssetsLibraryModel::effectsDeleted,
-            this, &AssetsLibraryWidget::handleDeleteEffects);
+    connect(m_assetsModel, &AssetsLibraryModel::generatedAssetsDeleted,
+            this, &AssetsLibraryWidget::handleDeletedGeneratedAssets);
 
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins({});
@@ -292,43 +333,63 @@ void AssetsLibraryWidget::setHasSceneEnv(bool b)
     emit hasSceneEnvChanged();
 }
 
-void AssetsLibraryWidget::handleDeleteEffects([[maybe_unused]] const QStringList &effectNames)
+void AssetsLibraryWidget::handleDeletedGeneratedAssets(const QHash<QString, Utils::FilePath> &assetData)
 {
-#ifdef QDS_USE_PROJECTSTORAGE
-// That code has to rewritten with modules. Seem try to find all effects nodes.
-#else
+    // assetData key: full type name including import, value: import dir
+
+    // This method removes all nodes of the deleted type (assetData.keys())
+    // and removes the import statement for that type
+
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     if (!document)
         return;
 
     bool clearStacks = false;
 
-    // Remove usages of deleted effects from the current document
+    const Imports imports = m_assetsView->model()->imports();
+    const GeneratedComponentUtils &compUtils = QmlDesignerPlugin::instance()->documentManager()
+                                             .generatedComponentUtils();
+    QString effectPrefix = compUtils.composedEffectsTypePrefix();
+    QStringList effectNames;
+
+    // Remove usages of deleted assets from the current document
     m_assetsView->executeInTransaction(__FUNCTION__, [&]() {
         QList<ModelNode> allNodes = m_assetsView->allModelNodes();
-        const QString typeTemplate = "%1.%2.%2";
-        const QString importUrlTemplate = "%1.%2";
-        const Imports imports = m_assetsView->model()->imports();
-        Imports removedImports;
-        const QString typePrefix = QmlDesignerPlugin::instance()->documentManager()
-                                       .generatedComponentUtils().composedEffectsTypePrefix();
-        for (const QString &effectName : effectNames) {
-            if (effectName.isEmpty())
-                continue;
-            const TypeName type = typeTemplate.arg(typePrefix, effectName).toUtf8();
-            for (ModelNode &node : allNodes) {
-                if (node.metaInfo().typeName() == type) {
-                    clearStacks = true;
-                    node.destroy();
+
+        QList<Import> removedImports;
+
+        const QStringList assetTypes = assetData.keys();
+        for (const QString &assetType : assetTypes) {
+            QString removedImportUrl;
+            int idx = assetType.lastIndexOf('.');
+            if (idx >= 0) {
+                if (assetType.startsWith(effectPrefix))
+                    effectNames.append(assetType.sliced(idx + 1));
+                removedImportUrl = assetType.first(idx);
+#ifdef QDS_USE_PROJECTSTORAGE
+                auto module = m_assetsView->model()->module(removedImportUrl.toUtf8(),
+                                                            Storage::ModuleKind::QmlLibrary);
+                auto metaInfo = m_assetsView->model()->metaInfo(module, assetType.sliced(idx + 1).toUtf8());
+                for (ModelNode &node : allNodes) {
+                    if (node.metaInfo() == metaInfo) {
+#else
+                TypeName type = assetType.toUtf8();
+                for (ModelNode &node : allNodes) {
+                    if (node.metaInfo().typeName() == type) {
+#endif
+                        clearStacks = true;
+                        node.destroy();
+                    }
+                }
+                if (!removedImportUrl.isEmpty()) {
+                    Import removedImport = Utils::findOrDefault(imports,
+                                                                [&removedImportUrl](const Import &import) {
+                        return import.url() == removedImportUrl;
+                    });
+                    if (!removedImport.isEmpty())
+                        removedImports.append(removedImport);
                 }
             }
-
-            const QString importPath = importUrlTemplate.arg(typePrefix, effectName);
-            Import removedImport = Utils::findOrDefault(imports, [&importPath](const Import &import) {
-                return import.url() == importPath;
-            });
-            if (!removedImport.isEmpty())
-                removedImports.append(removedImport);
         }
 
         if (!removedImports.isEmpty()) {
@@ -338,20 +399,19 @@ void AssetsLibraryWidget::handleDeleteEffects([[maybe_unused]] const QStringList
     });
 
     // The size check here is to weed out cases where project path somehow resolves
-    // to just slash. Shortest legal currentProjectDirPath() would be "/a/".
-    if (m_assetsModel->currentProjectDirPath().size() < 3)
+    // to just slash or drive + slash. (Shortest legal currentProjectDirPath() would be "/a/")
+    if (m_assetsModel->currentProjectDirPath().size() < 4)
         return;
 
     Utils::FilePath effectsDir = ModelNodeOperations::getEffectsImportDirectory();
 
-    // Delete the effect modules
-    for (const QString &effectName : effectNames) {
-        Utils::FilePath eDir = effectsDir.pathAppended(effectName);
-        if (eDir.exists() && eDir.toUrlishString().startsWith(m_assetsModel->currentProjectDirPath())) {
-            if (!eDir.removeRecursively()) {
+    // Delete the asset modules
+    for (const Utils::FilePath &dir : assetData) {
+        if (dir.exists() && dir.toFSPathString().startsWith(m_assetsModel->currentProjectDirPath())) {
+            if (!dir.removeRecursively()) {
                 QMessageBox::warning(Core::ICore::dialogParent(),
                                      Tr::tr("Failed to Delete Effect Resources"),
-                                     Tr::tr("Could not delete \"%1\".").arg(eDir.toUserOutput()));
+                                     Tr::tr("Could not delete \"%1\".").arg(dir.toUserOutput()));
             }
         }
     }
@@ -362,7 +422,16 @@ void AssetsLibraryWidget::handleDeleteEffects([[maybe_unused]] const QStringList
         document->clearUndoRedoStacks();
 
     m_assetsView->emitCustomNotification("effectcomposer_effects_deleted", {}, {effectNames});
-#endif
+    m_assetsView->emitCustomNotification("assets_deleted");
+}
+
+void AssetsLibraryWidget::updateAssetPreview(const QString &id, const QPixmap &pixmap,
+                                             const QString &suffix)
+{
+    const QString thumb = m_assetsIconProvider->setPixmap(id, pixmap, suffix);
+
+    if (!thumb.isEmpty())
+        emit m_assetsModel->fileChanged(thumb);
 }
 
 void AssetsLibraryWidget::invalidateThumbnail(const QString &id)
@@ -384,6 +453,11 @@ QString AssetsLibraryWidget::assetFileSize(const QString &id)
 bool AssetsLibraryWidget::assetIsImageOrTexture(const QString &id)
 {
     return Asset(id).isValidTextureSource();
+}
+
+bool AssetsLibraryWidget::assetIsImported3d(const QString &id)
+{
+    return Asset(id).isImported3D();
 }
 
 // needed to deal with "Object 0xXXXX destroyed while one of its QML signal handlers is in progress..." error which would lead to a crash
@@ -535,6 +609,14 @@ void AssetsLibraryWidget::openEffectComposer(const QString &filePath)
     ModelNodeOperations::openEffectComposer(filePath);
 }
 
+void AssetsLibraryWidget::editAssetComponent(const QString &filePath)
+{
+    Utils::FilePath fullPath = QmlDesignerPlugin::instance()->documentManager()
+                                   .generatedComponentUtils().getImported3dQml(filePath);
+    if (fullPath.exists())
+        DocumentManager::goIntoComponent(fullPath.toFSPathString());
+}
+
 QString AssetsLibraryWidget::qmlSourcesPath()
 {
 #ifdef SHARE_QML_PATH
@@ -613,6 +695,9 @@ QPair<QString, QByteArray> AssetsLibraryWidget::getAssetTypeAndData(const QStrin
         } else if (asset.isEffect()) {
             // Data: Effect Composer format (suffix)
             return {Constants::MIME_TYPE_ASSET_EFFECT, asset.suffix().toUtf8()};
+        } else if (asset.isImported3D()) {
+            // Data: Imported 3D component (suffix)
+            return {Constants::MIME_TYPE_ASSET_IMPORTED3D, asset.suffix().toUtf8()};
         }
     }
     return {};

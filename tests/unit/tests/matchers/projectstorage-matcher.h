@@ -78,7 +78,7 @@ MATCHER_P3(IsItemLibraryProperty,
 
 template<typename IconPathMatcher, typename TypeTraitsMatcher, typename HintsJsonMatcher, typename ItemLibraryJsonMatcher>
 auto IsTypeAnnotation(QmlDesigner::SourceId sourceId,
-                      QmlDesigner::SourceId directorySourceId,
+                      QmlDesigner::SourceContextId directoryId,
                       Utils::SmallStringView typeName,
                       QmlDesigner::ModuleId moduleId,
                       IconPathMatcher iconPath,
@@ -88,7 +88,7 @@ auto IsTypeAnnotation(QmlDesigner::SourceId sourceId,
 {
     using QmlDesigner::Storage::Synchronization::TypeAnnotation;
     return AllOf(Field("sourceId", &TypeAnnotation::sourceId, sourceId),
-                 Field("directory sourceId", &TypeAnnotation::directorySourceId, directorySourceId),
+                 Field("directory sourceId", &TypeAnnotation::directoryId, directoryId),
                  Field("typeName", &TypeAnnotation::typeName, typeName),
                  Field("moduleId", &TypeAnnotation::moduleId, moduleId),
                  Field("iconPath", &TypeAnnotation::iconPath, iconPath),

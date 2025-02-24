@@ -61,7 +61,7 @@ T.Switch {
         Rectangle {
             id: switchIndicator
 
-            readonly property real gap: 5
+            readonly property real gap: control.style.switchPadding
             property real size: switchBackground.implicitHeight - switchIndicator.gap * 2
 
             x: control.checked ? parent.width - width - switchIndicator.gap
