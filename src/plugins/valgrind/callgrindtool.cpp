@@ -235,7 +235,7 @@ public:
     qint64 m_pid = 0;
     TaskTreeRunner m_controllerRunner;
     bool m_markAsPaused = false;
-    RunControl *m_runControl;
+    RunControl *m_runControl = nullptr;
     FilePath m_remoteOutputFile; // On the device that runs valgrind
 
     DataModel m_dataModel;
