@@ -174,7 +174,7 @@ public:
 
     SmallStringView toStringView() const noexcept { return SmallStringView(data(), size()); }
 
-    operator SmallStringView() const noexcept { return SmallStringView(data(), size()); }
+    constexpr operator SmallStringView() const noexcept { return SmallStringView(data(), size()); }
 
     explicit operator QLatin1StringView() const noexcept
     {

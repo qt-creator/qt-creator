@@ -34,28 +34,12 @@ public:
 
     operator BasicAuxiliaryDataKey<Utils::SmallStringView>() const { return {type, name}; }
 
+    constexpr auto operator<=>(const BasicAuxiliaryDataKey &) const = default;
+
 public:
     AuxiliaryDataType type = AuxiliaryDataType::None;
     NameType name;
 };
-
-template<typename First, typename Second>
-bool operator<(const BasicAuxiliaryDataKey<First> &first, const BasicAuxiliaryDataKey<Second> &second)
-{
-    return std::tie(first.type, first.name) < std::tie(second.type, second.name);
-}
-
-template<typename First, typename Second>
-bool operator==(const BasicAuxiliaryDataKey<First> &first, const BasicAuxiliaryDataKey<Second> &second)
-{
-    return first.type == second.type && first.name == second.name;
-}
-
-template<typename First, typename Second>
-bool operator!=(const BasicAuxiliaryDataKey<First> &first, const BasicAuxiliaryDataKey<Second> &second)
-{
-    return !(first == second);
-}
 
 using AuxiliaryDataKey = BasicAuxiliaryDataKey<Utils::SmallString>;
 using AuxiliaryDataKeyView = BasicAuxiliaryDataKey<Utils::SmallStringView>;
