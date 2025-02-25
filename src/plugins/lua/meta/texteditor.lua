@@ -123,25 +123,21 @@ function TextCursor:selectionRange() end
 ---@param text string The text to insert.
 function TextCursor:insertText(text) end
 
----Moves the cursor using a specified operation, and optionally a mode and/or repetition count.
----
----**Overload 1**: `cursor:movePosition(operation)`
----  - `operation`: A `TextCursor.MoveOperation`.
----  - Moves once, using the default mode `MoveAnchor`.
----
----**Overload 2**: `cursor:movePosition(operation, mode)`
----  - `operation`: A `TextCursor.MoveOperation`.
----  - `mode`: A `TextCursor.MoveMode` (e.g. `MoveAnchor` or `KeepAnchor`).
----
----**Overload 3**: `cursor:movePosition(operation, mode, n)`
----  - `operation`: A `TextCursor.MoveOperation`.
----  - `mode`: A `TextCursor.MoveMode`.
----  - `n`: Number of times to repeat the move.
----
----@overload fun(operation: TextCursor.MoveOperation)
----@overload fun(operation: TextCursor.MoveOperation, mode: TextCursor.MoveMode)
----@overload fun(operation: TextCursor.MoveOperation, mode: TextCursor.MoveMode, n: integer)
+
+---Moves the cursor using the specified operation `n` times. The move mode lets you specify whether the anchor is moved too.
+---@param operation TextCursor.MoveOperation The move operation.
+---@param mode TextCursor.MoveMode The move mode.
+---@param n integer The number of times to repeat the move.
 function TextCursor:movePosition(operation, mode, n) end
+
+---Move the cursor using the specified operation once. The move mode lets you specify whether the anchor is moved too.
+---@param operation TextCursor.MoveOperation The move operation.
+---@param mode TextCursor.MoveMode The move mode.
+function TextCursor:movePosition(operation, mode) end
+
+---Move the cursor using the specified operation once. The anchor will be moved too.
+---@param operation TextCursor.MoveOperation The move operation.
+function TextCursor:movePosition(operation) end
 
 
 ---Set the cursor to a specific position. (since 17.0.0)
