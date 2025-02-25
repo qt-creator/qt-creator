@@ -114,7 +114,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
         if (!idePackageManagerDir.isDir()) {
             BuildSystem::appendBuildSystemOutput(
                 Tr::tr("Qt Creator installation is missing the "
-                       "package-manager directory. It was expected here: %1")
+                       "package-manager directory. It was expected here: \"%1\".")
                     .arg(idePackageManagerDir.toUserOutput()));
         } else if (!localPackageManagerDir.exists()) {
             const auto result = idePackageManagerDir.copyRecursively(localPackageManagerDir);
