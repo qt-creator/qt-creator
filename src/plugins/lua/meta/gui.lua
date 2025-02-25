@@ -42,6 +42,7 @@ gui.baseWidgetOptions = {}
 ---@field contentMargins? integer[] Four integers represending left, top, right and bottom margins.
 ---@field cursor? CursorShape The cursor shape for the widget.
 ---@field minimumWidth? integer The minimum width in pixels.
+---@field minimumHeight? integer Minimum height of input
 gui.widgetOptions = {}
 
 ---@param options WidgetOptions
@@ -154,7 +155,6 @@ function gui.TextEdit(options) end
 ---@field rightSideIconPath? FilePath A path to icon
 ---@field placeHolderText? string A placeholder text for intput
 ---@field completer? QCompleter A QCompleter object.
----@field minimumHeight? int Minimum height of input
 ---@field onReturnPressed? function The function to be called when Enter is pressed
 ---@field onRightSideIconClicked? function The function to be called when right side icon is clicked
 ---@field text string Current text
@@ -225,6 +225,18 @@ function gui.TabWidget(options) end
 ---@param child WidgetOptions
 ---@return TabWidget
 function gui.TabWidget(name, child) end
+
+---@class MarkdownBrowser : Widget
+---@field markdown string The markdown content of the MarkdownBrowser. Can be set or retrieved.
+local markdownBrowser = {}
+
+---@class (exact) MarkdownBrowserOptions : WidgetOptions
+---@field enableCodeCopyButton? boolean Enable or disable the code copy button
+local markdownBrowserOptions = {}
+
+---@param options MarkdownBrowserOptions
+---@return MarkdownBrowser
+function gui.MarkdownBrowser(options) end
 
 ---@class Spinner : Widget
 ---@field running boolean Set spinner visible and display spinning animation

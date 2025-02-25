@@ -8,6 +8,7 @@
 #include "mimeutils.h"
 #include "movie.h"
 #include "networkaccessmanager.h"
+#include "stringutils.h"
 #include "stylehelper.h"
 #include "textutils.h"
 #include "theme/theme.h"
@@ -19,8 +20,10 @@
 
 #include <QBuffer>
 #include <QCache>
+#include <QClipboard>
 #include <QGuiApplication>
 #include <QPainter>
+#include <QScrollBar>
 #include <QTextBlock>
 #include <QTextBrowser>
 #include <QTextDocument>
@@ -81,9 +84,12 @@ static QStringList defaultCodeFontFamilies()
     return {"Menlo", "Source Code Pro", "Monospace", "Courier"};
 }
 
-static void highlightCodeBlock(QTextDocument *document, QTextBlock &block, const QString &language)
+static int registerSnippet(QTextDocument *document, const QString &code);
+
+static void highlightCodeBlock(
+    QTextDocument *document, QTextBlock &block, const QString &language, bool enableCopy)
 {
-    const int position = block.position();
+    const int startPos = block.position();
     // Find the end of the code block ...
     for (block = block.next(); block.isValid(); block = block.next()) {
         if (!block.blockFormat().hasProperty(QTextFormat::BlockCodeLanguage))
@@ -91,43 +97,81 @@ static void highlightCodeBlock(QTextDocument *document, QTextBlock &block, const
         if (language != block.blockFormat().stringProperty(QTextFormat::BlockCodeLanguage))
             break;
     }
-    const int end = (block.isValid() ? block.position() : document->characterCount()) - 1;
+    const int endPos = (block.isValid() ? block.position() : document->characterCount()) - 1;
+
     // Get the text of the code block and erase it
     QTextCursor eraseCursor(document);
-    eraseCursor.setPosition(position);
-    eraseCursor.setPosition(end, QTextCursor::KeepAnchor);
-
+    eraseCursor.setPosition(startPos);
+    eraseCursor.setPosition(endPos, QTextCursor::KeepAnchor);
     const QString code = eraseCursor.selectedText();
     eraseCursor.removeSelectedText();
 
-    // Create a new Frame and insert the highlighted code ...
-    block = document->findBlock(position);
-
+    // Reposition the main cursor to startPos, to insert new content
+    block = document->findBlock(startPos);
     QTextCursor cursor(block);
-    QTextFrameFormat format;
-    format.setBorderStyle(QTextFrameFormat::BorderStyle_Solid);
-    format.setBackground(creatorColor(Theme::Token_Background_Muted));
-    format.setPadding(SpacingTokens::ExPaddingGapM);
-    format.setLeftMargin(SpacingTokens::VGapM);
-    format.setRightMargin(SpacingTokens::VGapM);
 
-    QTextFrame *frame = cursor.insertFrame(format);
+    QTextFrameFormat frameFormat;
+    frameFormat.setBorderStyle(QTextFrameFormat::BorderStyle_Solid);
+    frameFormat.setBackground(creatorColor(Theme::Token_Background_Muted));
+    frameFormat.setPadding(SpacingTokens::ExPaddingGapM);
+    frameFormat.setLeftMargin(SpacingTokens::VGapM);
+    frameFormat.setRightMargin(SpacingTokens::VGapM);
+
+    QTextFrame *frame = cursor.insertFrame(frameFormat);
     QTextCursor frameCursor(frame);
 
-    std::unique_ptr<QTextDocument> codeDocument(highlightText(code, language));
-    bool first = true;
+    if (enableCopy) {
+        QTextBlockFormat linkBlockFmt;
+        linkBlockFmt.setAlignment(Qt::AlignRight);
+        frameCursor.insertBlock(linkBlockFmt);
 
-    for (auto block = codeDocument->begin(); block != codeDocument->end(); block = block.next()) {
-        if (!first)
-            frameCursor.insertBlock();
+        const int snippetId = registerSnippet(document, code);
+        const QString copy_id = QString("copy:%1").arg(snippetId);
 
-        QTextCharFormat charFormat = block.charFormat();
-        charFormat.setFontFamilies(defaultCodeFontFamilies());
-        frameCursor.setCharFormat(charFormat);
+        // Insert copy icon
+        QTextImageFormat imageFormat;
+        imageFormat.setName("qrc:/markdownbrowser/images/code_copy_square.png");
+        imageFormat.setAnchor(true);
+        imageFormat.setAnchorHref(copy_id);
+        imageFormat.setWidth(16);
+        imageFormat.setHeight(16);
+        frameCursor.insertImage(imageFormat);
 
-        first = false;
-        auto formats = block.layout()->formats();
-        frameCursor.insertText(block.text());
+        // Create a clickable anchor for the "Copy" text
+        QTextCharFormat anchorFormat;
+        anchorFormat.setAnchor(true);
+        anchorFormat.setAnchorHref(copy_id);
+        anchorFormat.setForeground(QColor("#888"));
+        anchorFormat.setFontPointSize(10);
+        frameCursor.setCharFormat(anchorFormat);
+        frameCursor.insertText(" Copy");
+
+        // Insert a new left-aligned block to start the first line of code
+        QTextBlockFormat codeBlockFmt;
+        codeBlockFmt.setAlignment(Qt::AlignLeft);
+        frameCursor.insertBlock(codeBlockFmt);
+    }
+
+    std::unique_ptr<QTextDocument> codeDoc(highlightText(code, language));
+
+    // Iterate each line in codeDoc and copy it out
+    bool firstLine = true;
+    for (auto tempBlock = codeDoc->begin(); tempBlock != codeDoc->end();
+         tempBlock = tempBlock.next()) {
+        // For each subsequent line, insert another block
+        if (!firstLine) {
+            QTextBlockFormat codeBlockFmt;
+            codeBlockFmt.setAlignment(Qt::AlignLeft);
+            frameCursor.insertBlock(codeBlockFmt);
+        }
+        firstLine = false;
+
+        QTextCharFormat lineFormat = tempBlock.charFormat();
+        lineFormat.setFontFamilies(defaultCodeFontFamilies());
+        frameCursor.setCharFormat(lineFormat);
+
+        auto formats = tempBlock.layout()->formats();
+        frameCursor.insertText(tempBlock.text());
         frameCursor.block().layout()->setFormats(formats);
     }
 
@@ -138,7 +182,6 @@ static void highlightCodeBlock(QTextDocument *document, QTextBlock &block, const
 
 class AnimatedImageHandler : public QObject, public QTextObjectInterface
 {
-    Q_OBJECT
     Q_INTERFACES(QTextObjectInterface)
 
 public:
@@ -315,11 +358,18 @@ public:
                        || (url.isRelative() && isBaseHttp);
             };
 
-            QSet<QUrl> remoteUrls = Utils::filtered(m_urlsToLoad, isRemoteUrl);
-            QSet<QUrl> localUrls = Utils::filtered(m_urlsToLoad, std::not_fn(isRemoteUrl));
+            const auto isLocalUrl = [this, isRemoteUrl](const QUrl &url) {
+                if (url.scheme() == "qrc")
+                    return true;
 
-            if (m_basePath.isEmpty())
-                localUrls.clear();
+                if (!m_basePath.isEmpty() && !isRemoteUrl(url))
+                    return true;
+
+                return false;
+            };
+
+            QSet<QUrl> remoteUrls = Utils::filtered(m_urlsToLoad, isRemoteUrl);
+            QSet<QUrl> localUrls = Utils::filtered(m_urlsToLoad, isLocalUrl);
 
             if (!m_loadRemoteImages)
                 remoteUrls.clear();
@@ -384,22 +434,36 @@ public:
                     }
                 };
 
-            auto onLocalSetup = [localIterator,
-                                 basePath = m_basePath,
-                                 maxSize = m_imageHandler.maximumCacheSize()](
-                                    Async<EntryPointer> &async) {
-                const FilePath path = basePath.resolvePath(localIterator->path());
-                async.setConcurrentCallData(
-                    [](QPromise<EntryPointer> &promise, const FilePath &path, qsizetype maxSize) {
-                        auto data = path.fileContents();
-                        if (!data || promise.isCanceled())
-                            return;
+            auto onLocalSetup =
+                [localIterator, basePath = m_basePath, maxSize = m_imageHandler.maximumCacheSize()](
+                    Async<EntryPointer> &async) {
+                    const QUrl url = *localIterator;
+                    async.setConcurrentCallData(
+                        [](QPromise<EntryPointer> &promise,
+                           const FilePath &basePath,
+                           const QUrl &url,
+                           qsizetype maxSize) {
+                            if (url.scheme() == "qrc") {
+                                QFile f(":" + url.path());
+                                if (!f.open(QIODevice::ReadOnly))
+                                    return;
 
-                        promise.addResult(AnimatedImageHandler::makeEntry(*data, maxSize));
-                    },
-                    path,
-                    maxSize);
-            };
+                                promise.addResult(
+                                    AnimatedImageHandler::makeEntry(f.readAll(), maxSize));
+                                return;
+                            }
+
+                            const FilePath path = basePath.resolvePath(url.path());
+                            auto data = path.fileContents();
+                            if (!data || promise.isCanceled())
+                                return;
+
+                            promise.addResult(AnimatedImageHandler::makeEntry(*data, maxSize));
+                        },
+                        basePath,
+                        url,
+                        maxSize);
+                };
 
             auto onLocalDone = [localIterator, this](const Async<EntryPointer> &async) {
                 EntryPointer result = async.result();
@@ -427,6 +491,21 @@ public:
         });
     }
 
+    int registerSnippet(const QString &code)
+    {
+        const int id = m_nextSnippetId++;
+        m_snippetMap.insert(id, code);
+        return id;
+    }
+
+    QString snippetById(int id) const { return m_snippetMap.value(id); }
+
+    void clearSnippets()
+    {
+        m_snippetMap.clear();
+        m_nextSnippetId = 0;
+    }
+
     void scheduleLoad(const QUrl &url)
     {
         m_urlsToLoad.insert(url);
@@ -449,11 +528,24 @@ private:
     FilePath m_basePath;
     std::function<void(QNetworkRequest *)> m_requestHook;
     QNetworkAccessManager *m_networkAccessManager = NetworkAccessManager::instance();
+    QMap<int, QString> m_snippetMap;
+    int m_nextSnippetId = 0;
 };
+
+static int registerSnippet(QTextDocument *document, const QString &code)
+{
+    auto *animDoc = static_cast<AnimatedDocument *>(document);
+    return animDoc->registerSnippet(code);
+}
 
 MarkdownBrowser::MarkdownBrowser(QWidget *parent)
     : QTextBrowser(parent)
+    , m_enableCodeCopyButton(false)
 {
+    setOpenLinks(false);
+
+    connect(this, &QTextBrowser::anchorClicked, this, &MarkdownBrowser::handleAnchorClicked);
+
     setDocument(new AnimatedDocument(this));
 }
 
@@ -480,6 +572,11 @@ void MarkdownBrowser::setMargins(const QMargins &margins)
     setViewportMargins(margins);
 }
 
+void MarkdownBrowser::setEnableCodeCopyButton(bool enable)
+{
+    m_enableCodeCopyButton = enable;
+}
+
 void MarkdownBrowser::setAllowRemoteImages(bool allow)
 {
     static_cast<AnimatedDocument *>(document())->setAllowRemoteImages(allow);
@@ -500,6 +597,24 @@ void MarkdownBrowser::setMaximumCacheSize(qsizetype maxSize)
     static_cast<AnimatedDocument *>(document())->setMaximumCacheSize(maxSize);
 }
 
+void MarkdownBrowser::handleAnchorClicked(const QUrl &link)
+{
+    if (link.scheme() != QLatin1String("copy"))
+        return;
+
+    bool ok = false;
+    const int snippetId = link.path().toInt(&ok);
+    if (!ok)
+        return;
+
+    auto *animDoc = static_cast<AnimatedDocument *>(document());
+    const QString snippet = animDoc->snippetById(snippetId);
+    if (snippet.isEmpty())
+        return;
+
+    Utils::setClipboardAndSelection(snippet);
+}
+
 void MarkdownBrowser::setBasePath(const FilePath &filePath)
 {
     static_cast<AnimatedDocument *>(document())->setBasePath(filePath);
@@ -507,11 +622,24 @@ void MarkdownBrowser::setBasePath(const FilePath &filePath)
 
 void MarkdownBrowser::setMarkdown(const QString &markdown)
 {
+    QScrollBar *sb = verticalScrollBar();
+    int oldValue = sb->value();
+
+    auto *animDoc = static_cast<AnimatedDocument *>(document());
+    animDoc->clearSnippets();
     document()->setMarkdown(markdown);
     postProcessDocument(true);
+
+    QTimer::singleShot(0, this, [sb, oldValue] { sb->setValue(oldValue); });
+
     // Reset cursor to start of the document, so that "show" does not
     // scroll to the end of the document.
     setTextCursor(QTextCursor(document()));
+}
+
+QString MarkdownBrowser::toMarkdown() const
+{
+    return document()->toMarkdown();
 }
 
 void MarkdownBrowser::postProcessDocument(bool firstTime) const
@@ -534,7 +662,7 @@ void MarkdownBrowser::postProcessDocument(bool firstTime) const
             // Convert code blocks to highlighted frames
             if (blockFormat.hasProperty(QTextFormat::BlockCodeLanguage)) {
                 const QString language = blockFormat.stringProperty(QTextFormat::BlockCodeLanguage);
-                highlightCodeBlock(document(), block, language);
+                highlightCodeBlock(document(), block, language, m_enableCodeCopyButton);
                 continue;
             }
 

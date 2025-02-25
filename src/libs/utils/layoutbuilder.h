@@ -266,6 +266,7 @@ public:
     void setContentsMargins(int left, int top, int right, int bottom);
     void setCursor(Qt::CursorShape shape);
     void setMinimumWidth(int);
+    void setMinimumHeight(int height);
 
     void activateWindow();
     void close();
@@ -357,7 +358,6 @@ public:
     void setRightSideIconPath(const Utils::FilePath &path);
     void setPlaceHolderText(const QString &text);
     void setCompleter(QCompleter *completer);
-    void setMinimumHeight(int height);
     void onReturnPressed(QObject *guard, const std::function<void()> &);
     void onRightSideIconClicked(QObject *guard, const std::function<void()> &);
 };
@@ -456,8 +456,10 @@ public:
 
     MarkdownBrowser(std::initializer_list<I> items);
 
+    QString toMarkdown() const;
     void setMarkdown(const QString &);
     void setBasePath(const Utils::FilePath &);
+    void setEnableCodeCopyButton(bool enable);
 };
 
 // Special
