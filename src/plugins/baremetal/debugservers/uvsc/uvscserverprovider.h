@@ -14,8 +14,7 @@
 
 namespace Utils { class PathChooser; }
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 namespace Uv {
 class DeviceSelection;
@@ -50,7 +49,7 @@ public:
 
     void toMap(Utils::Store &map) const override;
 
-    bool aboutToRun(Debugger::DebuggerRunTool *runTool, QString &errorMessage) const final;
+    Utils::Result aboutToRun(Debugger::DebuggerRunTool *runTool) const final;
     ProjectExplorer::RunWorker *targetRunner(ProjectExplorer::RunControl *runControl) const final;
 
     bool isValid() const override;
@@ -114,5 +113,4 @@ protected:
     Uv::DriverSelector *m_driverSelector = nullptr;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // namespace BareMetal::Internal

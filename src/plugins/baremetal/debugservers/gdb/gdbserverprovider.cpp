@@ -13,8 +13,9 @@
 #include <projectexplorer/runconfigurationaspects.h>
 
 #include <utils/environment.h>
-#include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
+#include <utils/result.h>
 
 #include <QComboBox>
 #include <QFormLayout>
@@ -124,19 +125,17 @@ bool GdbServerProvider::isValid() const
     return !channelString().isEmpty();
 }
 
-bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMessage) const
+Result GdbServerProvider::aboutToRun(Debugger::DebuggerRunTool *runTool) const
 {
-    QTC_ASSERT(runTool, return false);
+    QTC_ASSERT(runTool, return Result::Error("No run tool."));
     const CommandLine cmd = runTool->runControl()->commandLine();
     const FilePath bin = FilePath::fromString(cmd.executable().path());
     if (bin.isEmpty()) {
-        errorMessage = Tr::tr("Cannot debug: Local executable is not set.");
-        return false;
+        return Result::Error(Tr::tr("Cannot debug: Local executable is not set."));
     }
     if (!bin.exists()) {
-        errorMessage
-            = Tr::tr("Cannot debug: Could not find executable for \"%1\".").arg(bin.toUserOutput());
-        return false;
+        return Result::Error(Tr::tr("Cannot debug: Could not find executable for \"%1\".")
+                                 .arg(bin.toUserOutput()));
     }
 
     ProcessRunData inferior;
@@ -152,7 +151,7 @@ bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMessa
     rp.setUseContinueInsteadOfRun(true);
     rp.setUseExtendedRemote(useExtendedRemote());
     rp.setPeripheralDescriptionFile(m_peripheralDescriptionFile);
-    return true;
+    return Result::Ok;
 }
 
 RunWorker *GdbServerProvider::targetRunner(RunControl *runControl) const

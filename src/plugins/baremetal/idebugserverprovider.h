@@ -21,17 +21,16 @@ class QLineEdit;
 class QSpinBox;
 QT_END_NAMESPACE
 
-namespace Debugger {
-class DebuggerRunTool;
-}
+namespace Debugger { class DebuggerRunTool; }
 
 namespace ProjectExplorer {
 class RunControl;
 class RunWorker;
 }
 
-namespace BareMetal {
-namespace Internal {
+namespace Utils { class Result; }
+
+namespace BareMetal::Internal {
 
 class BareMetalDevice;
 class IDebugServerProviderConfigWidget;
@@ -70,8 +69,7 @@ public:
     virtual void toMap(Utils::Store &data) const;
     virtual void fromMap(const Utils::Store &data);
 
-    virtual bool aboutToRun(Debugger::DebuggerRunTool *runTool,
-                            QString &errorMessage) const = 0;
+    virtual Utils::Result aboutToRun(Debugger::DebuggerRunTool *runTool) const = 0;
     virtual ProjectExplorer::RunWorker *targetRunner(
             ProjectExplorer::RunControl *runControl) const = 0;
 
@@ -179,5 +177,4 @@ protected:
     QSpinBox *m_portSpinBox = nullptr;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // namespace BareMetal::Internal

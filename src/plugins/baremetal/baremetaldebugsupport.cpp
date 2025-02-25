@@ -58,9 +58,8 @@ public:
             if (RunWorker *runner = p->targetRunner(runControl))
                 debugger->addStartDependency(runner);
 
-            QString errorMessage;
-            if (!p->aboutToRun(debugger, errorMessage))
-                debugger->reportFailure(errorMessage); // TODO: reportFailure won't work from RunWorker's c'tor.
+            if (Result res = p->aboutToRun(debugger); !res)
+                debugger->reportFailure(res.error()); // TODO: reportFailure won't work from RunWorker's c'tor.
 
             return debugger;
         });

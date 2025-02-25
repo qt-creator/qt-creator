@@ -37,8 +37,7 @@ public:
 
     virtual Utils::CommandLine command() const;
 
-    bool aboutToRun(Debugger::DebuggerRunTool *runTool,
-                    QString &errorMessage) const final;
+    Utils::Result aboutToRun(Debugger::DebuggerRunTool *runTool) const final;
     ProjectExplorer::RunWorker *targetRunner(
             ProjectExplorer::RunControl *runControl) const override;
 

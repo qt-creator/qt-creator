@@ -21,6 +21,7 @@
 
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/result.h>
 
 #include <QComboBox>
 #include <QFormLayout>
@@ -159,26 +160,25 @@ QString UvscServerProvider::channelString() const
     return m_channel.toString();
 }
 
-bool UvscServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMessage) const
+Result UvscServerProvider::aboutToRun(DebuggerRunTool *runTool) const
 {
-    QTC_ASSERT(runTool, return false);
+    QTC_ASSERT(runTool, return Result::Error("No run tool."));
     const FilePath bin = runTool->runControl()->commandLine().executable();
     if (bin.isEmpty()) {
-        errorMessage = Tr::tr("Cannot debug: Local executable is not set.");
-        return false;
+        return Result::Error(Tr::tr("Cannot debug: Local executable is not set."));
     } else if (!bin.exists()) {
-        errorMessage
-            = Tr::tr("Cannot debug: Could not find executable for \"%1\".").arg(bin.toUserOutput());
-        return false;
+        return Result::Error(Tr::tr("Cannot debug: Could not find executable for \"%1\".")
+                                 .arg(bin.toUserOutput()));
     }
 
+    QString errorMessage;
     const FilePath projFilePath = projectFilePath(runTool, errorMessage);
     if (!projFilePath.exists())
-        return false;
+        return Result::Error(errorMessage);
 
     const FilePath optFilePath = optionsFilePath(runTool, errorMessage);
     if (!optFilePath.exists())
-        return false;
+        return Result::Error(errorMessage);
 
     const FilePath peripheralDescriptionFile = FilePath::fromString(m_deviceSelection.svd);
 
@@ -194,7 +194,7 @@ bool UvscServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMess
     rp.setStartMode(AttachToRemoteServer);
     rp.setRemoteChannel(channelString());
     rp.setUseContinueInsteadOfRun(true);
-    return true;
+    return Result::Ok;
 }
 
 ProjectExplorer::RunWorker *UvscServerProvider::targetRunner(RunControl *runControl) const
