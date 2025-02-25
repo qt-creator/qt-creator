@@ -64,13 +64,17 @@ TextCursor.MoveMode = {
 ---  No parameters. Creates a default-constructed cursor.
 ---
 ---**Overload 2**: `TextCursor.create(doc)`
----  - `doc`: A `QTextDocument*` (or usertype) from which to create the cursor.
+---  - `doc`: A `QTextDocument` (or usertype) from which to create the cursor. The position will be at the start of the document.
 ---
----**Overload 3**: `TextCursor.create(other)`
+---**Overload 3**: `TextCursor.create(doc)`
+---  - `doc`: A TextDocument for which to create the cursor. The position will be at the start of the document. (since 17.0.0)
+---
+---**Overload 4**: `TextCursor.create(other)`
 ---  - `other`: Another `TextCursor` to copy.
 ---
 ---@overload fun(): TextCursor
 ---@overload fun(doc: any): TextCursor
+---@overload fun(doc: TextDocument): TextCursor
 ---@overload fun(other: TextCursor): TextCursor
 ---@return TextCursor
 function TextCursor.create(...) end

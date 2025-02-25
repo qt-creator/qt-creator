@@ -246,16 +246,10 @@ void setupTextEditorModule()
             sol::no_constructor,
             "create",
             sol::overload(
-                []() {
-                    return QTextCursor();
-                },
-                [](QTextDocument *doc) {
-                    return QTextCursor(doc);
-                },
-                [](const QTextCursor &other) {
-                    return QTextCursor(other);
-                }
-            ),
+                []() { return QTextCursor(); },
+                [](QTextDocument *doc) { return QTextCursor(doc); },
+                [](const QTextCursor &other) { return QTextCursor(other); },
+                [](TextDocument *doc) { return QTextCursor(doc->document()); }),
             "position",
             &QTextCursor::position,
             "blockNumber",
