@@ -68,7 +68,7 @@ std::unique_ptr<EmbeddedWidgetInterface> addEmbeddedWidget(
     int pos = cursorPosition.index() == 0
                   ? std::get<int>(cursorPosition)
                   : std::get<Position>(cursorPosition)
-                        .positionInDocument(editor->textDocument()->document());
+                        .toPositionInDocument(editor->textDocument()->document());
 
     std::unique_ptr<EmbeddedWidgetInterface> embed = editorWidget->insertWidget(widget, pos);
     return embed;

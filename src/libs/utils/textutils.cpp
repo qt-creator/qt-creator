@@ -16,21 +16,10 @@ bool Position::operator==(const Position &other) const
     return line == other.line && column == other.column;
 }
 
-int Position::positionInDocument(QTextDocument *doc) const
-{
-    if (!isValid())
-        return -1;
-    QTC_ASSERT(doc, return -1);
-    QTextBlock block = doc->findBlockByNumber(line - 1);
-    if (!block.isValid())
-        return -1;
-    return block.position() + column;
-}
-
 QTextCursor Position::toTextCursor(QTextDocument *doc) const
 {
     QTextCursor result(doc);
-    result.setPosition(positionInDocument(doc));
+    result.setPosition(toPositionInDocument(doc));
     return result;
 }
 
@@ -85,6 +74,9 @@ Position Position::fromCursor(const QTextCursor &c)
 
 int Position::toPositionInDocument(const QTextDocument *document) const
 {
+    if (!isValid())
+        return -1;
+
     QTC_ASSERT(document, return -1);
     const QTextBlock block = document->findBlockByNumber(line - 1);
     if (block.isValid())
@@ -129,8 +121,8 @@ bool Range::operator==(const Range &other) const
 QTextCursor Range::toTextCursor(QTextDocument *doc) const
 {
     QTextCursor cursor(doc);
-    cursor.setPosition(begin.positionInDocument(doc));
-    cursor.setPosition(end.positionInDocument(doc), QTextCursor::KeepAnchor);
+    cursor.setPosition(begin.toPositionInDocument(doc));
+    cursor.setPosition(end.toPositionInDocument(doc), QTextCursor::KeepAnchor);
     return cursor;
 }
 

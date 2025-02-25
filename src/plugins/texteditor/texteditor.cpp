@@ -5251,9 +5251,9 @@ void TextEditorWidgetPrivate::updateCursorSelections()
                          [this](const SearchResultItems &resultList) {
                              QList<SearchResult> results;
                              for (const SearchResultItem &item : resultList) {
-                                 int start = item.mainRange().begin.positionInDocument(
+                                 int start = item.mainRange().begin.toPositionInDocument(
                                      m_document->document());
-                                 int end = item.mainRange().end.positionInDocument(
+                                 int end = item.mainRange().end.toPositionInDocument(
                                      m_document->document());
                                  results << SearchResult{start, end - start};
                              }
