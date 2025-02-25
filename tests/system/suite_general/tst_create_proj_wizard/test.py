@@ -72,12 +72,14 @@ def main():
                 handleBuildSystemVerifyKits(category, template, kits,
                                             displayedPlatforms, skipDetails)
             else:
+                if template == "XR Application":
+                    clickButton(waitForObject(":Next_QPushButton")) #  skip XR features
                 handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms)
 
     invokeMenuItem("File", "Exit")
 
 def verifyKitCheckboxes(kits, displayedPlatforms):
-    waitForObject("{type='QLabel' unnamed='1' visible='1' text='Kit Selection'}")
+    waitForObject("{type='QLabel' unnamed='1' visible='1' text?='Kit Selection*'}")
     availableCheckboxes = frozenset(filter(enabledCheckBoxExists, kits))
     # verification whether expected, found and configured match
 

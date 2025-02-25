@@ -41,7 +41,12 @@
     The hardware-specific requirements vary depending on the hardware platform you are developing for.
     For more information see:
     \list
-        \li \l{Getting Started on NXP}
+        \li Getting Started on NXP
+        \list
+            \li \l {Getting started on NXP (BareMetal and FreeRTOS)}
+            \li \l {Getting started on NXP (Linux)}
+            \li \l {Getting started on NXP (Zephyr)}
+        \endlist
         \li \l{Getting Started on STM}
         \li \l{Getting Started on Renesas}
         \li \l{Getting Started on Infineon}
@@ -57,8 +62,17 @@
         \li \QC version
         \li \QMCU SDK version
     \row
-        \li 12.0.2 or later
-        \li 2.7 or later
+        \li 16.0.0 or later
+        \li 2.10 or later
+    \row
+        \li 15.0.0
+        \li 2.9
+    \row
+        \li 13.0.2
+        \li 2.8
+    \row
+        \li 12.0.2
+        \li 2.7
     \row
         \li 11.0.3
         \li 2.6
@@ -91,17 +105,17 @@
         \li 1.0
     \endtable
 
-    \sa {Enable and disable plugins}, {MCUs}{How To: Develop for MCUs},
-    {Developing for MCUs}, {\QMCU}
+    \sa {Enable and disable plugins}, {MCUs}{How To: Develop for MCUs}, {\QMCU}
 */
 
 /*!
-    \page creator-how-to-create-mcu-kits.html
+    \page creator-how-to-add-mcu-kits.html
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-mcu
+    \ingroup creator-how-to-sdks
 
-    \title Connect MCU devices
+    \title Add MCU SDKs
 
     \note Enable the McuSupport plugin to develop for MCUs.
 
@@ -154,13 +168,25 @@
         \li Select \uicontrol Apply to save the preferences.
     \endlist
 
-    \section1 Add MCU devices
+    \sa {Enable and disable plugins}, {MCUs}{How To: Develop for MCUs},
+    {Developing for MCUs}
+*/
+
+/*!
+    \page creator-how-to-add-mcu-devices.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-mcu
+
+    \title Add MCU devices
+
+    \note Enable the McuSupport plugin to develop for MCUs.
 
     \QC automatically adds a default MCU device when you select
-    \uicontrol Apply in the \uicontrol MCU tab after configuring the
-    MCU toolchain.
+    \uicontrol Apply in \preferences > \uicontrol SDKs > \uicontrol MCU after
+    adding an SDK.
 
-    \image qtcreator-mcu-device.png {MCU devices}
+    \image qtcreator-mcu-device.webp {MCU devices}
 
     To add MCU devices, select \preferences > \uicontrol Devices > \uicontrol Add
     > \uicontrol {MCU Device} > \uicontrol {Start Wizard}:
@@ -175,7 +201,6 @@
     {Developing for MCUs}
 */
 
-
 /*!
     \page creator-how-to-manage-mcu-kits.html
     \previouspage creator-how-tos.html
@@ -189,9 +214,10 @@
 
     \QC automatically adds kits for all the available MCU targets if you select
     \uicontrol {Automatically create kits for all available targets on start}
-    in \preferences > \uicontrol SDKs > \uicontrol MCU.
+    in \preferences > \uicontrol SDKs > \uicontrol MCU. This setting is selected
+    by default.
 
-    \image qtcreator-preferences-kits-mcu.webp {MCU kit}
+    \image qtcreator-mcu-new-kit.webp {Automatically create MCU kits}
 
     \note When you update the \QMCU SDK, \QC asks you whether you want to replace
     the existing kits or create additional kits. To do this manually for each
@@ -205,6 +231,8 @@
     \section1 Change or remove MCU kits
 
     To change or remove individual kits, go to \preferences > \uicontrol Kits.
+
+    \image qtcreator-preferences-kits-mcu.webp {MCU kit}
 
     The \uicontrol {MCU dependencies} field displays paths to 3rd party
     software required for MCU development with the current kit.

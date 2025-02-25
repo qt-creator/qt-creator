@@ -137,13 +137,22 @@ QStringList QnxToolchain::suggestedMkspecList() const
 
 GccToolchain::DetectedAbisResult QnxToolchain::detectSupportedAbis() const
 {
-    // "unknown-qnx-gnu"is needed to get the "--target=xxx" parameter sent code model,
-    // which gets translated as "x86_64-qnx-gnu", which gets Clang to happily parse
-    // the QNX code.
-    //
-    // Without it on Windows Clang defaults to a MSVC mode, which breaks with
-    // the QNX code, which is mostly GNU based.
-    return GccToolchain::DetectedAbisResult{detectTargetAbis(sdpPath()), "unknown-qnx-gnu"};
+    static const QHash<QString, Abi> qnxTargets {
+        {"arm-qnx-gnu",
+         Abi(Abi::ArmArchitecture, Abi::QnxOS, Abi::GenericFlavor, Abi::ElfFormat, 32)},
+        {"i686-qnx-gnu",
+         Abi(Abi::X86Architecture, Abi::QnxOS, Abi::GenericFlavor, Abi::ElfFormat, 32)},
+        {"x86_64-qnx-gnu",
+         Abi(Abi::X86Architecture, Abi::QnxOS, Abi::GenericFlavor, Abi::ElfFormat, 64)},
+        {"aarch64-qnx-gnu",
+         Abi(Abi::ArmArchitecture, Abi::QnxOS, Abi::GenericFlavor, Abi::ElfFormat, 64)}
+    };
+
+    for (auto itr = qnxTargets.constBegin(); itr != qnxTargets.constEnd(); ++itr) {
+        if (itr.value() == targetAbi())
+            return GccToolchain::DetectedAbisResult({targetAbi()}, itr.key());
+    }
+    return GccToolchain::DetectedAbisResult({targetAbi()}, "");
 }
 
 bool QnxToolchain::operator ==(const Toolchain &other) const
