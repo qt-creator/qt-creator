@@ -124,7 +124,7 @@ func readPacket(decoder *cbor.Decoder) (*command, error) {
 
 func sendError(out chan<- []byte, cmd command, err error) {
 	errMsg := err.Error()
-	errType := reflect.TypeOf(err).Elem().Name()
+	errType := reflect.TypeOf(err).Name()
 	if e, ok := err.(*os.PathError); ok {
 		errMsg = e.Err.Error()
 		errType = reflect.TypeOf(e.Err).Name()
