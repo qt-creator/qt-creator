@@ -322,8 +322,18 @@ static Group sameRemoteDeviceTransferTask(const FilePath &source, const FilePath
 static Group interDeviceTransferTask(const FilePath &source, const FilePath &destination)
 {
     struct TransferStorage { QPointer<FileStreamWriter> writer; };
-    SingleBarrier writerReadyBarrier;
     Storage<TransferStorage> storage;
+
+    const auto barrierKicker = [storage, destination](const SingleBarrier &barrier) {
+        const auto onWriterSetup = [barrier, storage, destination](FileStreamWriter &writer) {
+            writer.setFilePath(destination);
+            QObject::connect(&writer, &FileStreamWriter::started,
+                             barrier->barrier(), &Barrier::advance);
+            QTC_CHECK(storage->writer == nullptr);
+            storage->writer = &writer;
+        };
+        return FileStreamWriterTask(onWriterSetup);
+    };
 
     const auto onReaderSetup = [storage, source](FileStreamReader &reader) {
         reader.setFilePath(source);
@@ -335,26 +345,13 @@ static Group interDeviceTransferTask(const FilePath &source, const FilePath &des
         if (storage->writer) // writer may be deleted before the reader on TaskTree::stop().
             storage->writer->closeWriteChannel();
     };
-    const auto onWriterSetup = [writerReadyBarrier, storage, destination](FileStreamWriter &writer) {
-        writer.setFilePath(destination);
-        QObject::connect(&writer, &FileStreamWriter::started,
-                         writerReadyBarrier->barrier(), &Barrier::advance);
-        QTC_CHECK(storage->writer == nullptr);
-        storage->writer = &writer;
-    };
 
-    const Group root {
-        writerReadyBarrier,
-        parallel,
+    return {
         storage,
-        FileStreamWriterTask(onWriterSetup),
-        Group {
-            waitForBarrierTask(writerReadyBarrier),
+        When (barrierKicker) >> Do {
             FileStreamReaderTask(onReaderSetup, onReaderDone)
         }
     };
-
-    return root;
 }
 
 static Group transferTask(const FilePath &source, const FilePath &destination)
