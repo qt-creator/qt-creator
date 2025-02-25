@@ -16,5 +16,4 @@ add_qtc_plugin(DiffEditor
     selectabletexteditorwidget.cpp selectabletexteditorwidget.h
     sidebysidediffeditorwidget.cpp sidebysidediffeditorwidget.h
     unifieddiffeditorwidget.cpp unifieddiffeditorwidget.h
-  EXPLICIT_MOC diffeditor.h
 )

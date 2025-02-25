@@ -445,8 +445,7 @@ static Utils::expected_str<QFuture<R>> createJob(
                     std::make_exception_ptr(std::system_error(ENOENT, std::generic_category())));
                 promise->finish();
             } else if (errType == "NormalExit") {
-                promise->setException(
-                    std::make_exception_ptr(std::runtime_error(err.toStdString())));
+                promise->setException(std::make_exception_ptr(std::runtime_error("NormalExit")));
                 promise->finish();
             } else {
                 qCWarning(clientLog) << "Error (" << errType << "):" << err;
@@ -859,8 +858,17 @@ bool Client::exit()
     try {
         createVoidJob(d.get(), QCborMap{{"Type", "exit"}}, "exitres")->waitForFinished();
         return true;
+    } catch (const std::runtime_error &e) {
+        if (e.what() == std::string("NormalExit"))
+            return true;
+
+        qCWarning(clientLog) << "Client::exit() caught exception:" << e.what();
+        return false;
+    } catch (const std::exception &e) {
+        qCWarning(clientLog) << "Client::exit() caught exception:" << e.what();
+        return false;
     } catch (...) {
-        qCWarning(clientLog) << "Client::exit() caught exception";
+        qCWarning(clientLog) << "Client::exit() caught unexpected exception";
         return false;
     }
 }
