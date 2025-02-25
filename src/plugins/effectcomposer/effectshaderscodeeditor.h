@@ -4,7 +4,6 @@
 #pragma once
 
 #include "effectcodeeditorwidget.h"
-#include "effectcomposertr.h"
 
 #include <texteditor/texteditor.h>
 
