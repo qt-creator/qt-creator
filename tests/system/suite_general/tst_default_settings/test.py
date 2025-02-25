@@ -39,7 +39,8 @@ def __checkKits__():
     expectedCompilers = __getExpectedCompilers__()
     llvmForBuild = os.getenv("SYSTEST_LLVM_FROM_BUILD", None)
     if llvmForBuild is not None:
-        internalClangExe = os.path.join(llvmForBuild, "bin", "clang")
+        llvmBuildBinFolder = os.path.join(llvmForBuild, "bin")
+        internalClangExe = os.path.join(llvmBuildBinFolder, "clang")
         if platform.system() in ("Microsoft", "Windows"):
             internalClangExe += ".exe"
         internalClangExe = os.path.realpath(internalClangExe) # clean symlinks
@@ -47,6 +48,11 @@ def __checkKits__():
             if platform.system() in ("Microsoft", "Windows"):
                 expectedCompilers.append({'^Default LLVM \d{2} bit based on MSVC\d{4}$' : ''})
             expectedCompilers.append(internalClangExe)
+        if platform.system() in ("Microsoft", "Windows"):
+            clangClExe = os.path.realpath(os.path.join(llvmBuildBinFolder, "clang-cl.exe"))
+            if os.path.exists(clangClExe):
+                expectedCompilers.append(clangClExe)
+
     foundCompilers = []
     foundCompilerNames = []
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Compilers")
@@ -412,7 +418,7 @@ def __checkCreatedSettings__(settingsFolder, qmakeFound):
     if qmakeFound:
         files[os.path.join(creatorFolder, "qtversion.xml")] = 0
     for f in folders:
-        test.verify(os.path.isdir(f),
+        test.verify(waitFor(lambda : os.path.isdir(f), 2500),
                     "Verifying whether folder '%s' has been created." % os.path.basename(f))
     for fName, fMinSize in files.items():
         text = "created non-empty"
