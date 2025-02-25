@@ -163,7 +163,8 @@ QString UvscServerProvider::channelString() const
 Result UvscServerProvider::aboutToRun(DebuggerRunTool *runTool) const
 {
     QTC_ASSERT(runTool, return Result::Error("No run tool."));
-    const FilePath bin = runTool->runControl()->commandLine().executable();
+    DebuggerRunParameters &rp = runTool->runParameters();
+    const FilePath bin = rp.inferior().command.executable();
     if (bin.isEmpty()) {
         return Result::Error(Tr::tr("Cannot debug: Local executable is not set."));
     } else if (!bin.exists()) {
@@ -184,7 +185,6 @@ Result UvscServerProvider::aboutToRun(DebuggerRunTool *runTool) const
 
     ProcessRunData inferior;
     inferior.command.setExecutable(bin);
-    DebuggerRunParameters &rp = runTool->runParameters();
     rp.setPeripheralDescriptionFile(peripheralDescriptionFile);
     rp.setUVisionProjectFilePath(projFilePath);
     rp.setUVisionOptionsFilePath(optFilePath);

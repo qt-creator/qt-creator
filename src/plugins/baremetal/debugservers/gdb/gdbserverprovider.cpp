@@ -128,7 +128,8 @@ bool GdbServerProvider::isValid() const
 Result GdbServerProvider::aboutToRun(Debugger::DebuggerRunTool *runTool) const
 {
     QTC_ASSERT(runTool, return Result::Error("No run tool."));
-    const CommandLine cmd = runTool->runControl()->commandLine();
+    DebuggerRunParameters &rp = runTool->runParameters();
+    const CommandLine cmd = rp.inferior().command;
     const FilePath bin = FilePath::fromString(cmd.executable().path());
     if (bin.isEmpty()) {
         return Result::Error(Tr::tr("Cannot debug: Local executable is not set."));
@@ -141,7 +142,6 @@ Result GdbServerProvider::aboutToRun(Debugger::DebuggerRunTool *runTool) const
     ProcessRunData inferior;
     inferior.command.setExecutable(bin);
     inferior.command.setArguments(cmd.arguments());
-    DebuggerRunParameters &rp = runTool->runParameters();
     rp.setInferior(inferior);
     rp.setSymbolFile(bin);
     rp.setStartMode(AttachToRemoteServer);
