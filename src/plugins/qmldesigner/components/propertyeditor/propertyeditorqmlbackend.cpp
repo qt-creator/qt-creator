@@ -100,6 +100,8 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
         ->settings().value(DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS).toBool());
 
     m_view->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
+    m_view->engine()->addImportPath(scriptsEditorResourcesPath() + "/imports");
+
     m_dummyPropertyEditorValue->setValue(QLatin1String("#000000"));
     context()->setContextProperty(QLatin1String("dummyBackendValue"),
                                   m_dummyPropertyEditorValue.get());
@@ -642,11 +644,12 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
 
 QString PropertyEditorQmlBackend::propertyEditorResourcesPath()
 {
-#ifdef SHARE_QML_PATH
-    if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
-        return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
-#endif
-    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toUrlishString();
+    return resourcesPath("propertyEditorQmlSources");
+}
+
+QString PropertyEditorQmlBackend::scriptsEditorResourcesPath()
+{
+    return resourcesPath("scriptseditor");
 }
 
 inline bool dotPropertyHeuristic(const QmlObjectNode &node,
@@ -918,6 +921,15 @@ TypeName PropertyEditorQmlBackend::fixTypeNameForPanes(const TypeName &typeName)
     TypeName fixedTypeName = typeName;
     fixedTypeName.replace('.', '/');
     return fixedTypeName;
+}
+
+QString PropertyEditorQmlBackend::resourcesPath(const QString &dir)
+{
+#ifdef SHARE_QML_PATH
+    if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+        return QLatin1String(SHARE_QML_PATH) + "/" + dir;
+#endif
+    return Core::ICore::resourcePath("qmldesigner/" + dir).toUrlishString();
 }
 
 static NodeMetaInfo findCommonSuperClass(const NodeMetaInfo &first, const NodeMetaInfo &second)

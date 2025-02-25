@@ -6,7 +6,6 @@
 #include "bindingmodel.h"
 #include "connectionmodel.h"
 #include "dynamicpropertiesmodel.h"
-#include "propertytreemodel.h"
 #include "theme.h"
 
 #include <bindingproperty.h>
@@ -32,13 +31,28 @@
 
 namespace QmlDesigner {
 
-static QString propertyEditorResourcesPath()
+static QString resourcesPath(const QString &dir)
 {
 #ifdef SHARE_QML_PATH
     if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
-        return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
+        return QLatin1String(SHARE_QML_PATH) + "/" + dir;
 #endif
-    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toUrlishString();
+    return Core::ICore::resourcePath("qmldesigner/" + dir).toUrlishString();
+}
+
+static QString propertyEditorResourcesPath()
+{
+    return resourcesPath("propertyEditorQmlSources");
+}
+
+static QString scriptsEditorResourcesPath()
+{
+    return resourcesPath("scriptseditor");
+}
+
+static QString connectionsEditorResourcesPath()
+{
+    return resourcesPath("connectionseditor");
 }
 
 class ConnectionViewQuickWidget : public StudioQuickWidget
@@ -53,9 +67,10 @@ public:
         : m_connectionEditorView(connectionEditorView)
 
     {
-        engine()->addImportPath(qmlSourcesPath());
+        engine()->addImportPath(connectionsEditorResourcesPath());
         engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
-        engine()->addImportPath(qmlSourcesPath() + "/imports");
+        engine()->addImportPath(scriptsEditorResourcesPath() + "/imports");
+        engine()->addImportPath(connectionsEditorResourcesPath() + "/imports");
 
         m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F12), this);
         connect(m_qmlSourceUpdateShortcut,
@@ -83,17 +98,6 @@ public:
                                                         0,
                                                         "DynamicPropertiesModelBackendDelegate");
 
-        // TODO: register in the property editor along with the ScriptEditorBackend
-        qmlRegisterType<StatementDelegate>("ScriptEditorBackend", 1, 0, "StatementDelegate");
-
-        qmlRegisterType<ConditionListModel>("ConnectionsEditorEditorBackend", 1, 0, "ConditionListModel");
-
-        qmlRegisterType<PropertyTreeModel>("ConnectionsEditorEditorBackend", 1, 0, "PropertyTreeModel");
-        qmlRegisterType<PropertyListProxyModel>("ConnectionsEditorEditorBackend",
-                                                1,
-                                                0,
-                                                "PropertyListProxyModel");
-
         Theme::setupTheme(engine());
 
         setMinimumSize(QSize(195, 195));
@@ -103,19 +107,11 @@ public:
     }
     ~ConnectionViewQuickWidget() = default;
 
-    static QString qmlSourcesPath()
-    {
-#ifdef SHARE_QML_PATH
-        if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
-            return QLatin1String(SHARE_QML_PATH) + "/connectionseditor";
-#endif
-        return Core::ICore::resourcePath("qmldesigner/connectionseditor").toUrlishString();
-    }
-
 private:
     void reloadQmlSource()
     {
-        QString connectionEditorQmlFilePath = qmlSourcesPath() + QStringLiteral("/Main.qml");
+        QString connectionEditorQmlFilePath = connectionsEditorResourcesPath()
+                                              + QStringLiteral("/Main.qml");
         QTC_ASSERT(QFileInfo::exists(connectionEditorQmlFilePath), return );
         setSource(QUrl::fromLocalFile(connectionEditorQmlFilePath));
 
@@ -127,7 +123,7 @@ private:
             Core::AsynchronousMessageBox::warning(
                 Tr::tr("Cannot Create QtQuick View"),
                 Tr::tr("ConnectionsEditorWidget: %1 cannot be created.%2")
-                    .arg(qmlSourcesPath(), errorString));
+                    .arg(connectionsEditorResourcesPath(), errorString));
             return;
         }
     }
@@ -143,7 +139,6 @@ struct ConnectionView::ConnectionViewData
         : connectionModel{view}
         , bindingModel{view}
         , dynamicPropertiesModel{false, view}
-        , propertyTreeModel{view}
         , connectionViewQuickWidget{Utils::makeUniqueObjectPtr<ConnectionViewQuickWidget>(
               view, &connectionModel, &bindingModel, &dynamicPropertiesModel)}
     {}
@@ -151,7 +146,6 @@ struct ConnectionView::ConnectionViewData
     ConnectionModel connectionModel;
     BindingModel bindingModel;
     DynamicPropertiesModel dynamicPropertiesModel;
-    PropertyTreeModel propertyTreeModel;
     int currentIndex = 0;
 
     // Ensure that QML is deleted first to avoid calling back to C++.

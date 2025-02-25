@@ -4,6 +4,7 @@
 #include "quick2propertyeditorview.h"
 
 #include <qmldesignerconstants.h>
+#include <scripteditorbackend.h>
 
 #include "aligndistribute.h"
 #include "annotationeditor/annotationeditor.h"
@@ -67,6 +68,7 @@ void Quick2PropertyEditorView::registerQmlTypes()
         PropertyChangesModel::registerDeclarativeType();
         PropertyModel::registerDeclarativeType();
         PropertyNameValidator::registerDeclarativeType();
+        ScriptEditorBackend::registerDeclarativeType();
 
         const QString resourcePath = PropertyEditorQmlBackend::propertyEditorResourcesPath();
 

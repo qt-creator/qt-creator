@@ -10,6 +10,7 @@
 #include <modelnodeoperations.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
+#include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
 #include <selectioncontext.h>
 
@@ -1137,6 +1138,25 @@ void ScriptEditorBackend::jumpToCode()
     auto sourceProperty = getSourceProperty();
 
     ModelNodeOperations::jumpToCode(sourceProperty.parentModelNode());
+}
+
+void ScriptEditorBackend::registerDeclarativeType()
+{
+    qmlRegisterType<StatementDelegate>("ScriptEditorBackend", 1, 0, "StatementDelegate");
+    qmlRegisterType<PropertyTreeModel>("ScriptEditorBackend", 1, 0, "PropertyTreeModel");
+    qmlRegisterType<ConditionListModel>("ScriptEditorBackend", 1, 0, "ConditionListModel");
+    qmlRegisterType<PropertyListProxyModel>("ScriptEditorBackend", 1, 0, "PropertyListProxyModel");
+
+    QTC_ASSERT(!QmlDesignerPlugin::viewManager().views().isEmpty(), return);
+    AbstractView *view = QmlDesignerPlugin::viewManager().views().first();
+
+    qmlRegisterSingletonType<ScriptEditorBackend>("ScriptEditorBackend",
+                                                  1,
+                                                  0,
+                                                  "ScriptEditorBackend",
+                                                  [view](QQmlEngine *, QJSEngine *) {
+                                                      return new ScriptEditorBackend(view);
+                                                  });
 }
 
 bool ScriptEditorBackend::blockReflection() const

@@ -6,15 +6,15 @@ import QtQuick.Controls as Controls
 import HelperWidgets as HelperWidgets
 import StudioTheme as StudioTheme
 import StudioControls as StudioControls
-import ConnectionsEditorEditorBackend
+import ScriptEditorBackend
 
 Controls.Popup {
     id: root
 
     property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
-    property var listModel: ConnectionsEditorEditorBackend.connectionModel.delegate.propertyListProxyModel
-    property var treeModel: ConnectionsEditorEditorBackend.connectionModel.delegate.propertyTreeModel
+    property var listModel: ScriptEditorBackend.propertyListProxyModel // connect a valid model here
+    property var treeModel: ScriptEditorBackend.propertyTreeModel // connect a valid model here
 
     signal select(var value)
     signal entered(var value)

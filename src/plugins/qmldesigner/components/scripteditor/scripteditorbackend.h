@@ -191,6 +191,8 @@ public:
 
     Q_INVOKABLE void jumpToCode();
 
+    static void registerDeclarativeType();
+
 signals:
     void actionTypeChanged();
     void hasConditionChanged();

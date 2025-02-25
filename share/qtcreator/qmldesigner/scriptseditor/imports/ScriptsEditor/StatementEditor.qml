@@ -6,7 +6,6 @@ import QtQuick.Controls
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
-import ConnectionsEditorEditorBackend
 import ScriptEditorBackend
 
 Column {
@@ -21,21 +20,32 @@ Column {
 
     property var backend
 
+    property string itemTooltip
+    property alias methodTooltip: methodPopupLabel.tooltip
+    property alias fromTooltip: fromPopupLabel.tooltip
+    property alias toTooltip: toPopupLabel.tooltip
+    property alias stateGroupTooltip: stateGroupPopupLabel.tooltip
+    property alias stateTooltip: statePopupLabel.tooltip
+    property alias propertyTooltip: propertyPopupLabel.tooltip
+    property alias valueTooltip: valuePopupLabel.tooltip
+    property alias messageTooltip: messagePopupLabel.tooltip
+
     // Call Function
     Row {
         visible: root.actionType === StatementDelegate.CallFunction
         spacing: root.horizontalSpacing
 
-        PopupLabel {
+        HelperWidgets.PopupLabel {
+            id: itemPopupLabel
             width: root.columnWidth
             text: qsTr("Item")
-            tooltip: qsTr("Sets the component that is affected by the action of the <b>Target</b> component's <b>Signal</b>.")
+            tooltip: root.itemTooltip
         }
 
-        PopupLabel {
+        HelperWidgets.PopupLabel {
+            id: methodPopupLabel
             width: root.columnWidth
             text: qsTr("Method")
-            tooltip: qsTr("Sets the item component's method that is affected by the <b>Target</b> component's <b>Signal</b>.")
         }
     }
 
@@ -72,15 +82,15 @@ Column {
         visible: root.actionType === StatementDelegate.Assign
         spacing: root.horizontalSpacing
 
-        PopupLabel {
+        HelperWidgets.PopupLabel {
+            id: fromPopupLabel
             width: root.columnWidth
             text: qsTr("From")
-            tooltip: qsTr("Sets the component and its property from which the value is copied when the <b>Target</b> component initiates the <b>Signal</b>.")
         }
-        PopupLabel {
+        HelperWidgets.PopupLabel {
+            id: toPopupLabel
             width: root.columnWidth
             text: qsTr("To")
-            tooltip: qsTr("Sets the component and its property to which the copied value is assigned when the <b>Target</b> component initiates the <b>Signal</b>.")
         }
     }
 
@@ -149,16 +159,16 @@ Column {
         visible: root.actionType === StatementDelegate.ChangeState
         spacing: root.horizontalSpacing
 
-        PopupLabel {
+        HelperWidgets.PopupLabel {
+            id: stateGroupPopupLabel
             width: root.columnWidth
             text: qsTr("State Group")
-            tooltip: qsTr("Sets a <b>State Group</b> that is accessed when the <b>Target</b> component initiates the <b>Signal</b>.")
         }
 
-        PopupLabel {
+        HelperWidgets.PopupLabel {
+            id: statePopupLabel
             width: root.columnWidth
             text: qsTr("State")
-            tooltip: qsTr("Sets a <b>State</b> within the assigned <b>State Group</b> that is accessed when the <b>Target</b> component initiates the <b>Signal</b>.")
         }
     }
 
@@ -195,16 +205,16 @@ Column {
         visible: root.actionType === StatementDelegate.SetProperty
         spacing: root.horizontalSpacing
 
-        PopupLabel {
+        HelperWidgets.PopupLabel {
             width: root.columnWidth
             text: qsTr("Item")
-            tooltip: qsTr("Sets the component that is affected by the action of the <b>Target</b> component's <b>Signal</b>.")
+            tooltip: root.itemTooltip
         }
 
-        PopupLabel {
+        HelperWidgets.PopupLabel {
+            id: propertyPopupLabel
             width: root.columnWidth
             text: qsTr("Property")
-            tooltip: qsTr("Sets the property of the component that is affected by the action of the <b>Target</b> component's <b>Signal</b>.")
         }
     }
 
@@ -237,11 +247,11 @@ Column {
         }
     }
 
-    PopupLabel {
+    HelperWidgets.PopupLabel {
+        id: valuePopupLabel
         width: root.columnWidth
         visible: root.actionType === StatementDelegate.SetProperty
         text: qsTr("Value")
-        tooltip: qsTr("Sets the value of the property of the component that is affected by the action of the <b>Target</b> component's <b>Signal</b>.")
     }
 
     StudioControls.TextField {
@@ -258,11 +268,11 @@ Column {
     }
 
     // Print Message
-    PopupLabel {
+    HelperWidgets.PopupLabel {
+        id: messagePopupLabel
         width: root.columnWidth
         visible: root.actionType === StatementDelegate.PrintMessage
         text: qsTr("Message")
-        tooltip: qsTr("Sets a text that is printed when the <b>Signal</b> of the <b>Target</b> component initiates.")
     }
 
     StudioControls.TextField {
@@ -278,7 +288,7 @@ Column {
     }
 
     // Custom
-    PopupLabel {
+    HelperWidgets.PopupLabel {
         visible: root.actionType === StatementDelegate.Custom
         text: qsTr("Custom Connections can only be edited with the binding editor")
         width: root.width

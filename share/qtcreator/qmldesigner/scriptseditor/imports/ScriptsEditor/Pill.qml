@@ -5,6 +5,7 @@ import QtQuick
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 import HelperWidgets as HelperWidgets
+import ScriptEditorBackend
 
 FocusScope {
     id: root

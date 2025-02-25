@@ -4,13 +4,16 @@
 import QtQuick
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import ScriptEditorBackend
 
 Rectangle {
     id: root
 
     property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
-    property var conditionListModel: ConnectionsEditorEditorBackend.connectionModel.delegate.conditionListModel
+    property var conditionListModel: ScriptEditorBackend.conditionListModel // connect a valid model here
+    property alias popupListModel: popup.listModel
+    property alias popupTreeModel: popup.treeModel
 
     property alias model: repeater.model
     property int shadowPillIndex: -1
