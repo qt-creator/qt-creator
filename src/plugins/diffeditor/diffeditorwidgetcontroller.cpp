@@ -209,7 +209,7 @@ void DiffEditorWidgetController::jumpToOriginalFile(const QString &fileName,
     if (filePath.exists() && !filePath.isDir())
         EditorManager::openEditorAt({filePath, lineNumber, columnNumber});
     else
-        Core::MessageManager::writeDisrupting(Tr::tr("File not found: %1").arg(fileName));
+        Core::MessageManager::writeDisrupting(Tr::tr("File not found: \"%1\".").arg(fileName));
 }
 
 void DiffEditorWidgetController::setFontSettings(const FontSettings &fontSettings)
