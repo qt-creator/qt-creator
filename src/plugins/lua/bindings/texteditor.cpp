@@ -303,16 +303,18 @@ void setupTextEditorModule()
             [](QTextCursor *textCursor, const QString &text) { textCursor->insertText(text); },
             "movePosition",
             sol::overload(
-                [](QTextCursor *cursor, QTextCursor::MoveOperation op) {
-                    cursor->movePosition(op);
-                },
+                [](QTextCursor *cursor, QTextCursor::MoveOperation op) { cursor->movePosition(op); },
                 [](QTextCursor *cursor, QTextCursor::MoveOperation op, QTextCursor::MoveMode mode) {
                     cursor->movePosition(op, mode);
                 },
-                [](QTextCursor *cursor, QTextCursor::MoveOperation op, QTextCursor::MoveMode mode, int n) {
-                    cursor->movePosition(op, mode, n);
-                }
-            ));
+                [](QTextCursor *cursor,
+                   QTextCursor::MoveOperation op,
+                   QTextCursor::MoveMode mode,
+                   int n) { cursor->movePosition(op, mode, n); }),
+            "setPosition",
+            sol::overload(&QTextCursor::setPosition, [](QTextCursor *cursor, int pos) {
+                cursor->setPosition(pos);
+            }));
 
         textCursorType["MoveMode"] = lua.create_table_with(
             "MoveAnchor", QTextCursor::MoveAnchor,

@@ -144,6 +144,15 @@ function TextCursor:insertText(text) end
 function TextCursor:movePosition(operation, mode, n) end
 
 
+---Set the cursor to a specific position. (since 17.0.0)
+---@param position integer The position to set the cursor to.
+---@param mode TextCursor.MoveMode The move mode.
+function TextCursor:setPosition(position, mode) end
+
+---Set the cursor (including the anchor) to a specific position. (since 17.0.0)
+---@param position integer The position to set the cursor to.
+function TextCursor:setPosition(position) end
+
 ---@class MultiTextCursor
 local MultiTextCursor = {}
 
