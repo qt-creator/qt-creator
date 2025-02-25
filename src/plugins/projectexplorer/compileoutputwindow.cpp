@@ -221,7 +221,8 @@ bool CompileOutputWindow::hasFilterContext() const
 void CompileOutputWindow::registerPositionOf(const Task &task, int linkedOutputLines, int skipLines,
                                              int offset)
 {
-    m_outputWindow->registerPositionOf(task.taskId, linkedOutputLines, skipLines, offset);
+    m_outputWindow->registerPositionOf(
+        task.taskId, linkedOutputLines, skipLines, offset, Core::OutputWindow::TaskSource::Direct);
 }
 
 void CompileOutputWindow::flush()

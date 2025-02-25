@@ -41,7 +41,9 @@ public:
 
     void appendMessage(const QString &out, Utils::OutputFormat format);
 
-    void registerPositionOf(unsigned taskId, int linkedOutputLines, int skipLines, int offset = 0);
+    enum class TaskSource { Direct, Parsed };
+    void registerPositionOf(
+        unsigned taskId, int linkedOutputLines, int skipLines, int offset, TaskSource taskSource);
     bool knowsPositionOf(unsigned taskId) const;
     void showPositionOf(unsigned taskId);
 
@@ -107,6 +109,7 @@ private:
     void discardPendingToolOutput();
     void updateAutoScroll();
     qsizetype totalQueuedSize() const;
+    qsizetype totalQueuedLines() const;
 
     using TextMatchingFunction = std::function<bool(const QString &text)>;
     TextMatchingFunction makeMatchingFunction() const;
