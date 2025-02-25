@@ -950,7 +950,7 @@ static void startDebugger(RunControl *runControl, DebuggerRunTool *debugger,
         QTC_ASSERT(isListening, return);
         qmlServer.setHost(server.serverAddress().toString());
         if (!cppDebug)
-            debugger->runParameters().setStartMode(AttachToRemoteServer);
+            rp.setStartMode(AttachToRemoteServer);
     }
 
     if (qmlServerPort.isValid())
