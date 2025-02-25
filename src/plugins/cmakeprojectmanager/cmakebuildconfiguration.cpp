@@ -2042,6 +2042,7 @@ CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory()
                 info.displayName.clear(); // ask for a name
                 info.buildDirectory.clear(); // This depends on the displayName
             }
+            info.enabledByDefault = type == BuildTypeDebug;
             result << info;
         }
         return result;

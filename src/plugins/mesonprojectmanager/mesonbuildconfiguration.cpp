@@ -361,6 +361,7 @@ public:
                                                                     k,
                                                                     bInfo.typeName,
                                                                     bInfo.buildType);
+                    bInfo.enabledByDefault = bType == MesonBuildType::debug;
                     result << bInfo;
                 }
                 return result;

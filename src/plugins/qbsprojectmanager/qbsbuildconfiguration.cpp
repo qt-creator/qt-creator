@@ -300,6 +300,7 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
                 info.displayName = name;
                 info.buildDirectory = defaultBuildDirectory(projectPath, k, name, type);
             }
+            info.enabledByDefault = type == BuildConfiguration::Debug;
             QVariantMap config;
             config.insert("configName", configName);
             info.extraInfo = config;

@@ -696,6 +696,7 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
     QmakeExtraBuildInfo extraInfo;
     BuildInfo info;
     QString suffix;
+    info.enabledByDefault = type == BuildConfiguration::Debug;
 
     if (type == BuildConfiguration::Release) {
         //: The name of the release build configuration created by default for a qmake project.

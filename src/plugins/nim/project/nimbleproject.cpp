@@ -324,6 +324,7 @@ public:
                     info.displayName = info.typeName;
                     info.buildDirectory = projectPath.parentDir();
                 }
+                info.enabledByDefault = buildType == BuildConfiguration::Debug;
                 return info;
             };
             return QList<BuildInfo>{
