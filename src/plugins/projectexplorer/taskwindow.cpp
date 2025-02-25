@@ -549,6 +549,7 @@ void TaskWindow::goToNextOrPrev(int offset)
 {
     QModelIndex startIndex = d->m_treeView.currentIndex();
     QModelIndex currentIndex = startIndex;
+    QModelIndex actualNeighbor;
 
     if (startIndex.isValid()) {
         do {
@@ -558,12 +559,22 @@ void TaskWindow::goToNextOrPrev(int offset)
             else if (row < 0)
                 row = d->m_filter->rowCount() - 1;
             currentIndex = d->m_filter->index(row, 0);
+            if (!actualNeighbor.isValid())
+                actualNeighbor = currentIndex;
             if (d->m_filter->hasFile(currentIndex))
                 break;
         } while (startIndex != currentIndex);
     } else {
         currentIndex = d->m_filter->index(0, 0);
     }
+
+    // We only consider elements with files, except if there are none at all, in which case
+    // we don't skip anything.
+    if (currentIndex == startIndex && actualNeighbor.isValid()
+        && !d->m_filter->hasFile(currentIndex)) {
+        currentIndex = actualNeighbor;
+    }
+
     d->m_treeView.setCurrentIndex(currentIndex);
     triggerDefaultHandler(currentIndex);
 }
