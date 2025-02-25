@@ -460,6 +460,8 @@ private:
     Loop m_loop;
 };
 
+class When;
+
 class TASKING_EXPORT Do final
 {
 public:
@@ -468,6 +470,7 @@ public:
 
 private:
     TASKING_EXPORT friend Group operator>>(const For &forItem, const Do &doItem);
+    TASKING_EXPORT friend Group operator>>(const When &whenItem, const Do &doItem);
 
     GroupItem m_children;
 };

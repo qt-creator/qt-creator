@@ -2316,18 +2316,16 @@ void tst_Tasking::testTree_data()
             parallel,
             createBarrierAdvance(storage, barrier, 1),
             Group {
+                groupSetup(2),
                 waitForBarrierTask(barrier),
-                Group {
-                    groupSetup(2),
-                    createSuccessTask(2),
-                    createSuccessTask(3)
-                }
+                createSuccessTask(2),
+                createSuccessTask(3)
             }
         };
         const Log log2 {
             {1, Handler::Setup},
-            {1, Handler::BarrierAdvance},
             {2, Handler::GroupSetup},
+            {1, Handler::BarrierAdvance},
             {2, Handler::Setup},
             {2, Handler::Success},
             {3, Handler::Setup},
@@ -2445,21 +2443,18 @@ void tst_Tasking::testTree_data()
             };
         };
 
-        // The same as BarrierParallelAdvanceFirst, but in terms of BarrierItem.
-        const Group rootBarrierItem2 {
+        // The same as BarrierParallelAdvanceFirst, but in terms of When () >> Do {...}.
+        const Group rootWhenDo {
             storage,
-            BarrierItem {
-                barrierKicker(1),
-                Group {
-                    groupSetup(2),
-                    createSuccessTask(2),
-                    createSuccessTask(3)
-                }
+            When (barrierKicker(1)) >> Do {
+                groupSetup(2),
+                createSuccessTask(2),
+                createSuccessTask(3)
             }
         };
 
-        QTest::newRow("BarrierItemParallelAdvanceFirst")
-            << TestData{storage, rootBarrierItem2, log2, 4, DoneWith::Success, 4};
+        QTest::newRow("BarrierWhenDo")
+            << TestData{storage, rootWhenDo, log2, 4, DoneWith::Success, 4};
     }
 
     {

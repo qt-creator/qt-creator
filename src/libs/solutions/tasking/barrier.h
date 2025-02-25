@@ -102,12 +102,17 @@ ExecutableItem signalAwaiter(const typename QtPrivate::FunctionPointer<Signal>::
     });
 }
 
-class TASKING_EXPORT BarrierItem : public ExecutableItem
+using BarrierKickerGetter = std::function<ExecutableItem(const SingleBarrier &)>;
+
+class TASKING_EXPORT When final
 {
 public:
-    using BarrierKickerGetter = std::function<ExecutableItem(const SingleBarrier &)>;
+    explicit When(const BarrierKickerGetter &kicker) : m_barrierKicker(kicker) {}
 
-    BarrierItem(const BarrierKickerGetter &kicker, const ExecutableItem &continuation);
+private:
+    TASKING_EXPORT friend Group operator>>(const When &whenItem, const Do &doItem);
+
+    BarrierKickerGetter m_barrierKicker;
 };
 
 } // namespace Tasking

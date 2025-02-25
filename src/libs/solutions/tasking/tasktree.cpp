@@ -1295,6 +1295,21 @@ Group operator>>(const For &forItem, const Do &doItem)
     return {forItem.m_loop, doItem.m_children};
 }
 
+Group operator>>(const When &whenItem, const Do &doItem)
+{
+    const SingleBarrier barrier;
+
+    return {
+        barrier,
+        parallel,
+        whenItem.m_barrierKicker(barrier),
+        Group {
+            waitForBarrierTask(barrier),
+            doItem.m_children
+        }
+    };
+}
+
 // Please note the thread_local keyword below guarantees a separate instance per thread.
 // The s_activeTaskTrees is currently used internally only and is not exposed in the public API.
 // It serves for withLog() implementation now. Add a note here when a new usage is introduced.

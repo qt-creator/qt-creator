@@ -49,20 +49,6 @@ void Barrier::stopWithResult(DoneResult result)
     emit done(result);
 }
 
-BarrierItem::BarrierItem(const BarrierKickerGetter &kicker, const ExecutableItem &continuation)
-{
-    const SingleBarrier barrier;
-    addChildren({
-        barrier,
-        parallel,
-        kicker(barrier),
-        Group {
-            waitForBarrierTask(barrier),
-            continuation
-        }
-    });
-}
-
 } // namespace Tasking
 
 QT_END_NAMESPACE

@@ -128,12 +128,9 @@ void DebuggerRunTool::start()
 
     const Group recipe {
         d->coreFileRecipe(),
-        BarrierItem {
-            barrierKicker,
-            Group {
-                d->fixupParamsRecipe(),
-                d->debugServerRecipe()
-            }
+        When (barrierKicker) >> Do {
+            d->fixupParamsRecipe(),
+            d->debugServerRecipe()
         }
     };
     d->m_taskTreeRunner.start(recipe);
