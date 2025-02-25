@@ -57,7 +57,7 @@ public:
     void nodeRemoved(const ModelNode &removedNode,
                      const NodeAbstractProperty &parentProperty,
                      PropertyChangeFlags propertyChange) override;
-
+    void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId) override;
     void resetView();
     void currentStateChanged(const ModelNode &node) override;
     void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;

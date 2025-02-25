@@ -223,7 +223,7 @@ void BundleHelper::exportComponent(const ModelNode &node)
 
     m_zipWriter = std::make_unique<ZipWriter>(exportPath);
 
-    Utils::FilePath compFilePath = Utils::FilePath::fromString(ModelUtils::componentFilePath(node));
+    Utils::FilePath compFilePath = componentPath(node);
     Utils::FilePath compDir = compFilePath.parentDir();
     QString compBaseName = compFilePath.completeBaseName();
     QString compFileName = compFilePath.fileName();
@@ -458,7 +458,7 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
 
         if (depth > 0) {
             // add component file to the dependency assets
-            Utils::FilePath compFilePath = componentPath(node.metaInfo());
+            Utils::FilePath compFilePath = componentPath(node);
             assets.insert({compFilePath.parentDir(), compFilePath.fileName()});
         }
 
@@ -474,7 +474,7 @@ QSet<AssetPath> BundleHelper::getBundleComponentDependencies(const ModelNode &no
 {
     const QString compFileName = node.simplifiedTypeName() + ".qml";
 
-    Utils::FilePath compPath = componentPath(node.metaInfo()).parentDir();
+    Utils::FilePath compPath = componentPath(node).parentDir();
 
     QTC_ASSERT(compPath.exists(), return {});
 
@@ -505,14 +505,9 @@ QSet<AssetPath> BundleHelper::getBundleComponentDependencies(const ModelNode &no
     return depList;
 }
 
-Utils::FilePath BundleHelper::componentPath([[maybe_unused]] const NodeMetaInfo &metaInfo) const
+Utils::FilePath BundleHelper::componentPath(const ModelNode &node) const
 {
-#ifdef QDS_USE_PROJECTSTORAGE
-    // TODO
-    return {};
-#else
-    return Utils::FilePath::fromString(metaInfo.componentFileName());
-#endif
+    return Utils::FilePath::fromString(ModelUtils::componentFilePath(node));
 }
 
 QString BundleHelper::nodeNameToComponentFileName(const QString &name) const
@@ -671,8 +666,7 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
     AssetPath compAssetPath = {mainCompDir, filePath.relativePathFrom(mainCompDir).toFSPathString()};
 
 #ifdef QDS_USE_PROJECTSTORAGE
-    // TODO add model with ProjectStorageDependencies
-    ModelPointer model;
+    ModelPointer model = m_view->model()->createModel("Item");
 #else
     ModelPointer model = Model::create("Item");
 #endif
@@ -681,7 +675,7 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(QString::fromUtf8(reader.data()));
-    NotIndentingTextEditModifier modifier(&textEdit);
+    NotIndentingTextEditModifier modifier(textEdit.document());
     modifier.setParent(model.get());
     RewriterView rewriterView(m_view->externalDependencies(), RewriterView::Validate);
     rewriterView.setCheckSemanticErrors(false);

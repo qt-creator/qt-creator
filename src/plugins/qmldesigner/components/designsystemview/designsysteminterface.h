@@ -42,7 +42,7 @@ private:
 
 private:
     class DSStore *m_store = nullptr;
-    std::map<QString, std::unique_ptr<CollectionModel>> m_models;
+    std::map<QString, CollectionModel> m_models;
 };
 
 } // namespace QmlDesigner

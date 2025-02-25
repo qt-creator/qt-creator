@@ -72,7 +72,7 @@ private:
     bool isMaterialBundle(const QString &bundleId) const;
     bool isItemBundle(const QString &bundleId) const;
     void addIconAndCloseZip(const auto &image);
-    Utils::FilePath componentPath(const NodeMetaInfo &metaInfo) const;
+    Utils::FilePath componentPath(const ModelNode &node) const;
     QSet<AssetPath> getBundleComponentDependencies(const ModelNode &node) const;
     void exportComponent(const ModelNode &node);
     void exportNode(const ModelNode &node, const QPixmap &iconPixmap = QPixmap());

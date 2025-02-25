@@ -41,13 +41,13 @@
     Qt applications. The Qt Insight Tracker library ensures compliance with GDPR regulations.
     Data is securely transmitted to a centralized backend.
 
-    \section1 Turning on Telemetry
+    \section1 Turning on telemetry
 
-    To determine what data is transmitted to the backend storage, go to
-    \preferences > \uicontrol Telemetry > \uicontrol {Usage Statistics},
-    and then select \uicontrol {Enable telemetry}.
+    To allow the transmission of data to the backend storage, go to \preferences >
+    \uicontrol Telemetry > \uicontrol {Usage Statistics}, and then select
+    \uicontrol {Enable telemetry}.
 
-    \image studio-preferences-telemetry-usage-statistics.webp {Usage Statistics}
+    \image studio-preferences-telemetry-usage-statistics.webp Telemetry setting in Usage Statistics.
 
     \sa {Managing data collection}
 */

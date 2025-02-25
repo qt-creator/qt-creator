@@ -1003,8 +1003,7 @@ Rectangle {
     m_model->setFileUrl(m_previewFile.toUrl());
 
     auto textDocument = std::make_unique<QTextDocument>(previewQml);
-    auto modifier = std::make_unique<NotIndentingTextEditModifier>(textDocument.get(),
-                                                                   QTextCursor{textDocument.get()});
+    auto modifier = std::make_unique<NotIndentingTextEditModifier>(textDocument.get());
     m_rewriterView->setTextModifier(modifier.get());
     m_model->setRewriterView(m_rewriterView);
 

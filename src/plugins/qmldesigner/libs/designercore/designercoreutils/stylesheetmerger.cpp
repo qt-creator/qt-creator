@@ -587,7 +587,7 @@ void StylesheetMerger::styleMerge(const QString &qmlTemplateString,
     }
 
     textEditTemplate.setPlainText(imports + qmlTemplateString);
-    NotIndentingTextEditModifier textModifierTemplate(&textEditTemplate);
+    NotIndentingTextEditModifier textModifierTemplate(textEditTemplate.document());
 
     std::unique_ptr<RewriterView> templateRewriterView = std::make_unique<RewriterView>(
         externalDependencies, RewriterView::Amend);
@@ -611,7 +611,7 @@ void StylesheetMerger::styleMerge(const QString &qmlTemplateString,
     RewriterView *parentRewriterView = parentModel->rewriterView();
     QTC_ASSERT(parentRewriterView, return );
     textEditStyle.setPlainText(parentRewriterView->textModifierContent());
-    NotIndentingTextEditModifier textModifierStyle(&textEditStyle);
+    NotIndentingTextEditModifier textModifierStyle(textEditStyle.document());
 
     std::unique_ptr<RewriterView> styleRewriterView = std::make_unique<RewriterView>(
         externalDependencies, RewriterView::Amend);

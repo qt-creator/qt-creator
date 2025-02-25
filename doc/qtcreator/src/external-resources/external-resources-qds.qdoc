@@ -58,6 +58,10 @@
     \title \QMCU Known Issues or Limitations
 */
 /*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-qtquick-controls-api-differences.html
+    \title Differences between \QUL Controls and Qt Quick Controls
+*/
+/*!
     \externalpage https://doc.qt.io/qt/qt-edu-for-designers.html
     \title Qt Edu for Designers
 */
@@ -132,6 +136,10 @@
 /*!
     \externalpage https://wiki.qt.io/QtDesignStudio/MCU_FAQ
     \title Qt Design Studio/MCU FAQ
+*/
+/*!
+    \externalpage https://doc.qt.io/qtdesignstudio/qtquick-positioning.html#using-layouts
+    \title Using layouts
 */
 /*!
     \externalpage https://www.qt.io/blog/qt-design-studio-4.6-released

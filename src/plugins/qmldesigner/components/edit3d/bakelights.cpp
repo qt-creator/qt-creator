@@ -122,8 +122,7 @@ void BakeLights::bakeLights()
     auto textDocument = std::make_unique<QTextDocument>(
                 m_view->model()->rewriterView()->textModifier()->textDocument()->toRawText());
 
-    auto modifier = std::make_unique<NotIndentingTextEditModifier>(textDocument.get(),
-                                                                   QTextCursor{textDocument.get()});
+    auto modifier = std::make_unique<NotIndentingTextEditModifier>(textDocument.get());
 
     m_rewriterView->setTextModifier(modifier.get());
     m_model->setRewriterView(m_rewriterView);
@@ -235,8 +234,7 @@ void BakeLights::exposeModelsAndLights(const QString &nodeId)
     compModel->setFileUrl(QUrl::fromLocalFile(componentFilePath));
 
     auto textDocument = std::make_unique<QTextDocument>(QString::fromUtf8(src));
-    auto modifier = std::make_unique<IndentingTextEditModifier>(
-        textDocument.get(), QTextCursor{textDocument.get()});
+    auto modifier = std::make_unique<IndentingTextEditModifier>(textDocument.get());
 
     rewriter.setTextModifier(modifier.get());
     compModel->setRewriterView(&rewriter);

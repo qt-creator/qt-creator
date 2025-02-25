@@ -26,6 +26,7 @@
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QQmlContext>
+#include <QQuickWidget>
 #include <QWindow>
 
 #include <coreplugin/icore.h>
@@ -75,8 +76,7 @@ namespace QmlDesigner {
 
 static Q_LOGGING_CATEGORY(urlSpecifics, "qtc.propertyeditor.specifics", QtWarningMsg)
 
-    PropertyEditorContextObject::PropertyEditorContextObject(Quick2PropertyEditorView *widget,
-                                                             QObject *parent)
+PropertyEditorContextObject::PropertyEditorContextObject(QQuickWidget *widget, QObject *parent)
     : QObject(parent)
     , m_isBaseState(false)
     , m_selectionChanged(false)
@@ -455,6 +455,67 @@ void PropertyEditorContextObject::setInsightCategories(const QStringList &catego
 {
     m_insightCategories = categories;
     emit insightCategoriesChanged();
+}
+
+bool PropertyEditorContextObject::hasQuick3DImport() const
+{
+    return m_hasQuick3DImport;
+}
+
+void PropertyEditorContextObject::setSelectedNode(const ModelNode &node)
+{
+    m_selectedNode = node;
+}
+
+void PropertyEditorContextObject::setHasQuick3DImport(bool value)
+{
+    if (value == m_hasQuick3DImport)
+        return;
+
+    m_hasQuick3DImport = value;
+    emit hasQuick3DImportChanged();
+}
+
+bool PropertyEditorContextObject::hasMaterialLibrary() const
+{
+    return m_hasMaterialLibrary;
+}
+
+void PropertyEditorContextObject::setHasMaterialLibrary(bool value)
+{
+    if (value == m_hasMaterialLibrary)
+        return;
+
+    m_hasMaterialLibrary = value;
+    emit hasMaterialLibraryChanged();
+}
+
+bool PropertyEditorContextObject::isQt6Project() const
+{
+    return m_isQt6Project;
+}
+
+void PropertyEditorContextObject::setIsQt6Project(bool value)
+{
+    if (m_isQt6Project == value)
+        return;
+
+    m_isQt6Project = value;
+    emit isQt6ProjectChanged();
+}
+
+bool PropertyEditorContextObject::has3DModelSelection() const
+{
+    return m_has3DModelSelection;
+}
+
+void PropertyEditorContextObject::set3DHasModelSelection(bool value)
+{
+    if (value == m_has3DModelSelection)
+        return;
+
+    m_has3DModelSelection = value;
+    emit has3DModelSelectionChanged();
 }
 
 void PropertyEditorContextObject::setSpecificsUrl(const QUrl &newSpecificsUrl)

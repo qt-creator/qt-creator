@@ -116,7 +116,7 @@ void DSThemeManager::forAllGroups(std::function<void(GroupType, DSThemeGroup *)>
         return;
 
     for (auto &[gt, themeGroup] : m_groups)
-        callback(gt, themeGroup.get());
+        callback(gt, &themeGroup);
 }
 
 size_t DSThemeManager::themeCount() const
@@ -126,9 +126,8 @@ size_t DSThemeManager::themeCount() const
 
 size_t DSThemeManager::propertyCount() const
 {
-    using groupPair = std::pair<const GroupType, std::shared_ptr<DSThemeGroup>>;
-    return std::accumulate(m_groups.cbegin(), m_groups.cend(), 0ull, [](size_t c, const groupPair &g) {
-        return c + g.second->count();
+    return std::accumulate(m_groups.cbegin(), m_groups.cend(), 0ull, [](size_t c, const auto &g) {
+        return c + g.second.count();
     });
 }
 
@@ -138,7 +137,7 @@ void DSThemeManager::removeTheme(ThemeId id)
         return;
 
     for (auto &[gt, group] : m_groups)
-        group->removeTheme(id);
+        group.removeTheme(id);
 
     if (m_themes.erase(id))
         reviewActiveTheme();
@@ -147,13 +146,13 @@ void DSThemeManager::removeTheme(ThemeId id)
 void DSThemeManager::duplicateTheme(ThemeId from, ThemeId to)
 {
     for (auto &[gt, group] : m_groups)
-        group->duplicateValues(from, to);
+        group.duplicateValues(from, to);
 }
 
 std::optional<GroupType> DSThemeManager::groupType(const PropertyName &name) const
 {
     for (const auto &[gt, group] : m_groups) {
-        if (group->hasProperty(name))
+        if (group.hasProperty(name))
             return gt;
     }
     return {};
@@ -166,7 +165,7 @@ std::optional<ThemeProperty> DSThemeManager::property(ThemeId themeId,
     if (m_themes.contains(themeId)) {
         auto groupItr = m_groups.find(gType);
         if (groupItr != m_groups.end())
-            return groupItr->second->propertyValue(themeId, name);
+            return groupItr->second.propertyValue(themeId, name);
     }
 
     qCDebug(dsLog) << "Error fetching property: {" << themeId << GroupId(gType) << name << "}";
@@ -248,7 +247,7 @@ void DSThemeManager::decorate(ModelNode rootNode, const QByteArray &nodeType, bo
 
         // Add property groups
         for (auto &[gt, group] : m_groups)
-            group->decorate(themeId, themeNode, !isMCU);
+            group.decorate(themeId, themeNode, !isMCU);
     }
 }
 
@@ -258,21 +257,21 @@ void DSThemeManager::decorateThemeInterface(ModelNode rootNode) const
         return;
 
     for (auto &[gt, group] : m_groups)
-        group->decorateComponent(rootNode);
+        group.decorateComponent(rootNode);
 }
 
 DSThemeGroup *DSThemeManager::propertyGroup(GroupType type)
 {
-    auto itr = m_groups.try_emplace(type, makeLazySharedPtr<DSThemeGroup>(type)).first;
+    auto itr = m_groups.try_emplace(type, type).first;
 
-    return itr->second.get();
+    return &itr->second;
 }
 
 void DSThemeManager::addGroupAliases(ModelNode rootNode) const
 {
     std::set<PropertyName> groupNames;
     for (auto &[groupType, group] : m_groups) {
-        if (group->count())
+        if (group.count())
             groupNames.emplace(GroupId(groupType));
     }
 
@@ -396,7 +395,7 @@ PropertyName DSThemeManager::uniquePropertyName(const PropertyName &hint) const
 {
     auto isPropertyNameUsed = [this](const PropertyName &name) -> bool {
         return std::any_of(m_groups.begin(), m_groups.end(), [&name](const auto &p) {
-            return p.second->hasProperty(name);
+            return p.second.hasProperty(name);
         });
     };
 

@@ -292,7 +292,7 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
     QPlainTextEdit textEdit;
 
     textEdit.setPlainText(source);
-    NotIndentingTextEditModifier modifier(&textEdit);
+    NotIndentingTextEditModifier modifier(textEdit.document());
 
     std::unique_ptr<RewriterView> rewriterView = std::make_unique<RewriterView>(
         view->externalDependencies(), RewriterView::Amend);

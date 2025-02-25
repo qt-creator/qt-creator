@@ -33,7 +33,7 @@ EventListDialog::EventListDialog(QWidget *parent)
     setModal(true);
     setWindowFlag(Qt::Tool, true);
 
-    m_modifier = new NotIndentingTextEditModifier(m_textEdit);
+    m_modifier = new NotIndentingTextEditModifier(m_textEdit->document());
     m_textEdit->hide();
 
     m_table->installEventFilter(new TabWalker(this));

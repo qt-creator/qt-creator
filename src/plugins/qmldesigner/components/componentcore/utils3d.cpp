@@ -301,7 +301,7 @@ ModelNode createMaterial(AbstractView *view, const TypeName &typeName)
     matLib.defaultNodeListProperty().reparentHere(newMatNode);
 
     static QRegularExpression rgx("([A-Z])([a-z]*)");
-    QString newName = QString::fromUtf8(typeName).replace(rgx, " \\1\\2").trimmed();
+    QString newName = QString::fromUtf8(typeName.split('.').last()).replace(rgx, " \\1\\2").trimmed();
     if (newName.endsWith(" Material"))
         newName.chop(9); // remove trailing " Material"
     QString newId = view->model()->generateNewId(newName, "material");

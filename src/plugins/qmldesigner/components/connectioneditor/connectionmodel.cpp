@@ -1075,8 +1075,7 @@ QString ConnectionModelBackendDelegate::indentedSource() const
         return {};
 
     QTextDocument doc(m_source);
-    QTextCursor cursor(&doc);
-    IndentingTextEditModifier mod(&doc, cursor);
+    IndentingTextEditModifier mod(&doc);
 
     mod.indent(0, m_source.length() - 1);
     return mod.text();
