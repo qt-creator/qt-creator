@@ -10,10 +10,26 @@ local Utils
 ---@field column integer The column number.
 local Position = {}
 
+---Returns the position in the document as an integer. (since 17.0.0)
+---@param document TextDocument The document to get the position in.
+---@return integer position The position in the document.
+function Position:toPositionInDocument(document) end
+
+---Returns a new TextCursor at the position. (since 17.0.0)
+---@param document TextDocument The document to create the cursor for.
+---@return TextCursor cursor The created cursor.
+function Position:toTextCursor(document) end
+
+
 ---@class Range
 ---@field from Position The beginning position of the range.
 ---@field to Position The end position of the range.
 local Range = {}
+
+---Returns the range in the document as a TextCursor. (since 17.0.0)
+---@param document TextDocument The document to get the range in.
+---@return TextCursor cursor The created cursor.
+function Range:toTextCursor(document) end
 
 ---@class TextCursor
 local TextCursor = {}

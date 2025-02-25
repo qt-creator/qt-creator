@@ -230,7 +230,17 @@ void setupTextEditorModule()
             "line",
             sol::property(&Position::line, &Position::line),
             "column",
-            sol::property(&Position::column, &Position::column));
+            sol::property(&Position::column, &Position::column),
+            "toPositionInDocument",
+            sol::overload(
+                &Position::toPositionInDocument,
+                [](const Position &pos, TextDocument *doc) {
+                    return pos.toPositionInDocument(doc->document());
+                }),
+            "toTextCursor",
+            sol::overload(&Position::toTextCursor, [](const Position &pos, TextDocument *doc) {
+                return pos.toTextCursor(doc->document());
+            }));
 
         // In range can't use begin/end as "end" is a reserved word for LUA scripts
         result.new_usertype<Range>(
@@ -239,7 +249,11 @@ void setupTextEditorModule()
             "from",
             sol::property(&Range::begin, &Range::begin),
             "to",
-            sol::property(&Range::end, &Range::end));
+            sol::property(&Range::end, &Range::end),
+            "toTextCursor",
+            sol::overload(&Range::toTextCursor, [](const Range &range, TextDocument *doc) {
+                return range.toTextCursor(doc->document());
+            }));
 
         auto textCursorType = result.new_usertype<QTextCursor>(
             "TextCursor",
