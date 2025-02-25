@@ -219,7 +219,7 @@ FilePath UvscServerProvider::projectFilePath(DebuggerRunTool *runTool, QString &
     const FilePath projectPath = buildProjectFilePath(runTool);
     std::ofstream ofs(projectPath.path().toStdString(), std::ofstream::out);
     Uv::ProjectWriter writer(&ofs);
-    const Uv::Project project(this, runTool);
+    const Uv::Project project(this, runTool->runControl()->project());
     if (!writer.write(&project)) {
         errorMessage = Tr::tr("Unable to create a uVision project template.");
         return {};

@@ -70,8 +70,7 @@ protected:
     void fromMap(const Utils::Store &data) override;
 
     // uVision specific stuff.
-    virtual Utils::FilePath projectFilePath(Debugger::DebuggerRunTool *runTool,
-                                            QString &errorMessage) const;
+    Utils::FilePath projectFilePath(Debugger::DebuggerRunTool *runTool, QString &errorMessage) const;
     virtual Utils::FilePath optionsFilePath(Debugger::DebuggerRunTool *runTool,
                                             QString &errorMessage) const = 0;
 

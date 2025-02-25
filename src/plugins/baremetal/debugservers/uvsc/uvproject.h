@@ -8,7 +8,7 @@
 
 #include <utils/filepath.h>
 
-namespace Debugger { class DebuggerRunTool; }
+namespace ProjectExplorer { class Project; }
 
 namespace BareMetal::Internal {
 
@@ -26,7 +26,7 @@ QString buildPackageId(const DeviceSelection &selection);
 class Project final : public Gen::Xml::Project
 {
 public:
-    explicit Project(const UvscServerProvider *provider, Debugger::DebuggerRunTool *runTool);
+    explicit Project(const UvscServerProvider *provider, ProjectExplorer::Project *project);
 
 protected:
     Gen::Xml::PropertyGroup *m_target = nullptr;
