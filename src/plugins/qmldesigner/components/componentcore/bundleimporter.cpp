@@ -124,6 +124,9 @@ QString BundleImporter::importComponent(const QString &bundleDir,
         data.fullReset = doReset;
 
     Import import = Import::createLibraryImport(module, "1.0");
+#ifdef QDS_USE_PROJECTSTORAGE
+    model->changeImports({import}, {});
+#else
     if (!model->hasImport(import)) {
         if (model->possibleImports().contains(import)) {
             try {
@@ -138,6 +141,7 @@ QString BundleImporter::importComponent(const QString &bundleDir,
             data.importToAdd = module;
         }
     }
+#endif
     m_pendingImports.insert(type, data);
     m_importTimerCount = 0;
     m_importTimer.start(normalImportDelay);
