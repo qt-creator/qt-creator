@@ -83,10 +83,10 @@ bool SimulatorUvscServerProvider::operator==(const IDebugServerProvider &other) 
     return m_limitSpeed == p->m_limitSpeed;
 }
 
-FilePath SimulatorUvscServerProvider::optionsFilePath(DebuggerRunTool *runTool,
+FilePath SimulatorUvscServerProvider::optionsFilePath(RunControl *runControl,
                                                       QString &errorMessage) const
 {
-    const FilePath optionsPath = buildOptionsFilePath(runTool);
+    const FilePath optionsPath = buildOptionsFilePath(runControl);
     std::ofstream ofs(optionsPath.path().toStdString(), std::ofstream::out);
     Uv::ProjectOptionsWriter writer(&ofs);
     const SimulatorUvProjectOptions projectOptions(this);

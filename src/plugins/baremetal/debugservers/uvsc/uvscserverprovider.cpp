@@ -133,11 +133,10 @@ FilePath UvscServerProvider::buildProjectFilePath(RunControl *runControl) const
     return path;
 }
 
-FilePath UvscServerProvider::buildOptionsFilePath(DebuggerRunTool *runTool) const
+FilePath UvscServerProvider::buildOptionsFilePath(RunControl *runControl) const
 {
-    const RunControl *control = runTool->runControl();
-    const QString projectName = control->project()->displayName() + ".uvoptx";
-    const FilePath path = control->buildDirectory().pathAppended(projectName);
+    const QString projectName = runControl->project()->displayName() + ".uvoptx";
+    const FilePath path = runControl->buildDirectory().pathAppended(projectName);
     return path;
 }
 
@@ -176,7 +175,7 @@ Result UvscServerProvider::aboutToRun(DebuggerRunTool *runTool) const
     if (!projFilePath.exists())
         return Result::Error(errorMessage);
 
-    const FilePath optFilePath = optionsFilePath(runTool, errorMessage);
+    const FilePath optFilePath = optionsFilePath(runTool->runControl(), errorMessage);
     if (!optFilePath.exists())
         return Result::Error(errorMessage);
 

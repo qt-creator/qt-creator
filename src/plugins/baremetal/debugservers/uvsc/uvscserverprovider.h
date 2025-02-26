@@ -65,13 +65,13 @@ protected:
     void setSupportedDrivers(const QStringList &supportedDrivers);
 
     Utils::FilePath buildProjectFilePath(ProjectExplorer::RunControl *runControl) const;
-    Utils::FilePath buildOptionsFilePath(Debugger::DebuggerRunTool *runTool) const;
+    Utils::FilePath buildOptionsFilePath(ProjectExplorer::RunControl *runControl) const;
 
     void fromMap(const Utils::Store &data) override;
 
     // uVision specific stuff.
     Utils::FilePath projectFilePath(ProjectExplorer::RunControl *runControl, QString &errorMessage) const;
-    virtual Utils::FilePath optionsFilePath(Debugger::DebuggerRunTool *runTool,
+    virtual Utils::FilePath optionsFilePath(ProjectExplorer::RunControl *runControl,
                                             QString &errorMessage) const = 0;
 
     Utils::FilePath m_toolsIniFile;
