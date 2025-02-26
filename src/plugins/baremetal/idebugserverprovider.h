@@ -21,7 +21,7 @@ class QLineEdit;
 class QSpinBox;
 QT_END_NAMESPACE
 
-namespace Debugger { class DebuggerRunTool; }
+namespace Debugger { class DebuggerRunParameters; }
 
 namespace ProjectExplorer {
 class RunControl;
@@ -69,7 +69,8 @@ public:
     virtual void toMap(Utils::Store &data) const;
     virtual void fromMap(const Utils::Store &data);
 
-    virtual Utils::Result aboutToRun(Debugger::DebuggerRunTool *runTool) const = 0;
+    virtual Utils::Result setupDebuggerRunParameters(Debugger::DebuggerRunParameters &rp,
+                                                     ProjectExplorer::RunControl *runControl) const = 0;
     virtual ProjectExplorer::RunWorker *targetRunner(
             ProjectExplorer::RunControl *runControl) const = 0;
 

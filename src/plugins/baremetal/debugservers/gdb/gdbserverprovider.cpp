@@ -8,9 +8,10 @@
 #include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
 
-#include <debugger/debuggerruncontrol.h>
+#include <debugger/debuggerengine.h>
 
 #include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
@@ -125,10 +126,10 @@ bool GdbServerProvider::isValid() const
     return !channelString().isEmpty();
 }
 
-Result GdbServerProvider::aboutToRun(Debugger::DebuggerRunTool *runTool) const
+Result GdbServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &rp,
+                                                     RunControl *runControl) const
 {
-    QTC_ASSERT(runTool, return Result::Error("No run tool."));
-    DebuggerRunParameters &rp = runTool->runParameters();
+    Q_UNUSED(runControl)
     const CommandLine cmd = rp.inferior().command;
     const FilePath bin = FilePath::fromString(cmd.executable().path());
     if (bin.isEmpty()) {

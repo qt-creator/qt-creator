@@ -13,17 +13,17 @@
 #include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
 
+#include <debugger/debuggerengine.h>
 #include <debugger/debuggerkitaspect.h>
-#include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/result.h>
 
-#include <QComboBox>
 #include <QFormLayout>
 #include <QRegularExpressionValidator>
 
@@ -158,10 +158,9 @@ QString UvscServerProvider::channelString() const
     return m_channel.toString();
 }
 
-Result UvscServerProvider::aboutToRun(DebuggerRunTool *runTool) const
+Result UvscServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &rp,
+                                                      RunControl *runControl) const
 {
-    QTC_ASSERT(runTool, return Result::Error("No run tool."));
-    DebuggerRunParameters &rp = runTool->runParameters();
     const FilePath bin = rp.inferior().command.executable();
     if (bin.isEmpty()) {
         return Result::Error(Tr::tr("Cannot debug: Local executable is not set."));
@@ -171,11 +170,11 @@ Result UvscServerProvider::aboutToRun(DebuggerRunTool *runTool) const
     }
 
     QString errorMessage;
-    const FilePath projFilePath = projectFilePath(runTool->runControl(), errorMessage);
+    const FilePath projFilePath = projectFilePath(runControl, errorMessage);
     if (!projFilePath.exists())
         return Result::Error(errorMessage);
 
-    const FilePath optFilePath = optionsFilePath(runTool->runControl(), errorMessage);
+    const FilePath optFilePath = optionsFilePath(runControl, errorMessage);
     if (!optFilePath.exists())
         return Result::Error(errorMessage);
 

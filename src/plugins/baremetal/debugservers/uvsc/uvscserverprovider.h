@@ -8,8 +8,6 @@
 
 #include <baremetal/idebugserverprovider.h>
 
-#include <projectexplorer/runcontrol.h> // for RunWorker
-
 #include <utils/qtcprocess.h>
 
 namespace Utils { class PathChooser; }
@@ -49,7 +47,8 @@ public:
 
     void toMap(Utils::Store &map) const override;
 
-    Utils::Result aboutToRun(Debugger::DebuggerRunTool *runTool) const final;
+    Utils::Result setupDebuggerRunParameters(Debugger::DebuggerRunParameters &rp,
+                                             ProjectExplorer::RunControl *runControl) const final;
     ProjectExplorer::RunWorker *targetRunner(ProjectExplorer::RunControl *runControl) const final;
 
     bool isValid() const override;
