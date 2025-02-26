@@ -710,7 +710,7 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
         connect(m_editor[side]->horizontalScrollBar(), &QAbstractSlider::actionTriggered,
                 this, std::bind(&SideBySideDiffEditorWidget::horizontalSliderChanged, this, side));
 
-        connect(m_editor[side], &QPlainTextEdit::cursorPositionChanged,
+        connect(m_editor[side], &PlainTextEdit::cursorPositionChanged,
                 this, std::bind(&SideBySideDiffEditorWidget::cursorPositionChanged, this, side));
 
         connect(m_editor[side]->horizontalScrollBar(), &QAbstractSlider::rangeChanged,

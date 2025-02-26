@@ -226,7 +226,7 @@ public:
                 this, &RelativeNumbersColumn::followEditorLayout);
 
         auto start = QOverload<>::of(&QTimer::start);
-        connect(m_editor, &QPlainTextEdit::cursorPositionChanged,
+        connect(m_editor, &PlainTextEdit::cursorPositionChanged,
                 &m_timerUpdate, start);
         connect(m_editor->verticalScrollBar(), &QAbstractSlider::valueChanged,
                 &m_timerUpdate, start);

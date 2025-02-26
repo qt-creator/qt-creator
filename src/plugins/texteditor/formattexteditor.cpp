@@ -136,7 +136,7 @@ static FormatOutput format(const FormatInput &input)
  * actually changed parts are updated while preserving the cursor position, the folded
  * blocks, and the scroll bar position.
  */
-void updateEditorText(QPlainTextEdit *editor, const QString &text)
+void updateEditorText(PlainTextEdit *editor, const QString &text)
 {
     const QString editorText = editor->toPlainText();
     if (editorText == text)
@@ -260,7 +260,7 @@ static void showError(const QString &error)
  * Checks the state of @a task and if the formatting was successful calls updateEditorText() with
  * the respective members of @a task.
  */
-static void checkAndApplyTask(const QPointer<QPlainTextEdit> &textEditor, const FormatInput &input,
+static void checkAndApplyTask(const QPointer<PlainTextEdit> &textEditor, const FormatInput &input,
                               const FormatOutput &output)
 {
     if (!output.has_value()) {
@@ -318,7 +318,7 @@ void formatEditorAsync(TextEditorWidget *editor, const Command &command, int sta
     QObject::connect(doc, &TextDocument::contentsChanged, watcher,
                      &QFutureWatcher<FormatOutput>::cancel);
     QObject::connect(watcher, &QFutureWatcherBase::finished, watcher,
-                     [watcher, editor = QPointer<QPlainTextEdit>(editor), input] {
+                     [watcher, editor = QPointer<PlainTextEdit>(editor), input] {
         if (watcher->isCanceled())
             showError(Tr::tr("File was modified."));
         else

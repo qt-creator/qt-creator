@@ -10,6 +10,7 @@
 #include "textsuggestion.h"
 
 #include <utils/id.h>
+#include <utils/plaintextedit/plaintextedit.h>
 
 #include <KSyntaxHighlighting/State>
 
@@ -158,7 +159,7 @@ private:
     quint8 m_attrState = 0;
 };
 
-class TEXTEDITOR_EXPORT TextDocumentLayout : public QPlainTextDocumentLayout
+class TEXTEDITOR_EXPORT TextDocumentLayout : public Utils::PlainTextDocumentLayout
 {
     Q_OBJECT
 

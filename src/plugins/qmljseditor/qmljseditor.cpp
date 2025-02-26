@@ -133,7 +133,7 @@ void QmlJSEditorWidget::finalizeInitialization()
     m_updateUsesTimer.setInterval(UPDATE_USES_DEFAULT_INTERVAL);
     m_updateUsesTimer.setSingleShot(true);
     connect(&m_updateUsesTimer, &QTimer::timeout, this, &QmlJSEditorWidget::updateUses);
-    connect(this, &QPlainTextEdit::cursorPositionChanged,
+    connect(this, &PlainTextEdit::cursorPositionChanged,
             &m_updateUsesTimer, QOverload<>::of(&QTimer::start));
 
     m_updateOutlineIndexTimer.setInterval(UPDATE_OUTLINE_INTERVAL);

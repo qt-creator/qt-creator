@@ -1080,7 +1080,7 @@ void TextDocument::removeMarkFromMarksCache(TextMark *mark)
     auto scheduleLayoutUpdate = [documentLayout](){
         // make sure all destructors that may directly or indirectly call this function are
         // completed before updating.
-        QMetaObject::invokeMethod(documentLayout, &QPlainTextDocumentLayout::requestUpdate,
+        QMetaObject::invokeMethod(documentLayout, &PlainTextDocumentLayout::requestUpdate,
                                   Qt::QueuedConnection);
     };
 

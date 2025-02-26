@@ -252,7 +252,7 @@ void InstantBlame::setup()
         }
 
         qCInfo(log) << "Adding blame cursor connection";
-        m_blameCursorPosConn = connect(widget, &QPlainTextEdit::cursorPositionChanged, this,
+        m_blameCursorPosConn = connect(widget, &PlainTextEdit::cursorPositionChanged, this,
                                        [this] {
                                            if (!settings().instantBlame()) {
                                                disconnect(m_blameCursorPosConn);
@@ -354,7 +354,7 @@ void InstantBlame::once()
         connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, [this] { m_blameMark.reset(); }, Qt::SingleShotConnection);
 
-        connect(widget, &QPlainTextEdit::cursorPositionChanged,
+        connect(widget, &PlainTextEdit::cursorPositionChanged,
             this, [this] { m_blameMark.reset(); }, Qt::SingleShotConnection);
 
         const FilePath workingDirectory = currentState().topLevel();

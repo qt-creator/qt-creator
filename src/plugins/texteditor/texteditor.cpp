@@ -126,7 +126,7 @@
 
 /*!
     \class TextEditor::BaseTextEditor
-    \brief The BaseTextEditor class is base implementation for QPlainTextEdit-based
+    \brief The BaseTextEditor class is base implementation for PlainTextEdit-based
     text editors. It can use the Kate text highlighting definitions, and some basic
     auto indentation.
 
@@ -169,7 +169,7 @@ LineColumnButton::LineColumnButton(TextEditorWidget *parent)
     , m_d(new LineColumnButtonPrivate)
 {
     m_d->m_editor = parent;
-    connect(m_d->m_editor, &QPlainTextEdit::cursorPositionChanged, this, &LineColumnButton::update);
+    connect(m_d->m_editor, &PlainTextEdit::cursorPositionChanged, this, &LineColumnButton::update);
     connect(this, &QToolButton::clicked, ActionManager::instance(), [this] {
         m_d->m_editor->setFocus();
         QMetaObject::invokeMethod(
@@ -1253,30 +1253,30 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     connect(&m_codeAssistant, &CodeAssistant::finished,
             q, &TextEditorWidget::assistFinished);
 
-    connect(q, &QPlainTextEdit::blockCountChanged, this, [this] { slotUpdateExtraAreaWidth(); });
+    connect(q, &PlainTextEdit::blockCountChanged, this, [this] { slotUpdateExtraAreaWidth(); });
 
-    connect(q, &QPlainTextEdit::modificationChanged,
+    connect(q, &PlainTextEdit::modificationChanged,
             m_extraArea, QOverload<>::of(&QWidget::update));
 
-    connect(q, &QPlainTextEdit::cursorPositionChanged,
+    connect(q, &PlainTextEdit::cursorPositionChanged,
             q, &TextEditorWidget::slotCursorPositionChanged);
 
-    connect(q, &QPlainTextEdit::cursorPositionChanged,
+    connect(q, &PlainTextEdit::cursorPositionChanged,
             this, &TextEditorWidgetPrivate::updateCursorPosition);
 
-    connect(q, &QPlainTextEdit::updateRequest,
+    connect(q, &PlainTextEdit::updateRequest,
             this, &TextEditorWidgetPrivate::slotUpdateRequest);
 
-    connect(q, &QPlainTextEdit::selectionChanged,
+    connect(q, &PlainTextEdit::selectionChanged,
             this, &TextEditorWidgetPrivate::slotSelectionChanged);
 
-    connect(q, &QPlainTextEdit::undoAvailable,
+    connect(q, &PlainTextEdit::undoAvailable,
             this, &TextEditorWidgetPrivate::updateUndoAction);
 
-    connect(q, &QPlainTextEdit::redoAvailable,
+    connect(q, &PlainTextEdit::redoAvailable,
             this, &TextEditorWidgetPrivate::updateRedoAction);
 
-    connect(q, &QPlainTextEdit::copyAvailable,
+    connect(q, &PlainTextEdit::copyAvailable,
             this, &TextEditorWidgetPrivate::updateCopyAction);
 
     m_parenthesesMatchingTimer.setSingleShot(true);
@@ -1450,7 +1450,7 @@ Id TextEditorWidget::DebuggerExceptionSelection("TextEdit.DebuggerExceptionSelec
 Id TextEditorWidget::FakeVimSelection("TextEdit.FakeVimSelection");
 
 TextEditorWidget::TextEditorWidget(QWidget *parent)
-    : QPlainTextEdit(parent)
+    : PlainTextEdit(parent)
 {
     // "Needed", as the creation below triggers ChildEvents that are
     // passed to this object's event() which uses 'd'.
@@ -1491,7 +1491,7 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
     m_documentConnections.clear();
 
     m_document = doc;
-    q->QPlainTextEdit::setDocument(doc->document());
+    q->PlainTextEdit::setDocument(doc->document());
     m_tabSettingsButton->setDocument(q->textDocument());
     previousDocument.clear();
     q->setCursorWidth(2); // Applies to the document layout
@@ -1501,7 +1501,7 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
     QTC_CHECK(documentLayout);
 
     m_documentConnections << connect(documentLayout,
-                                     &QPlainTextDocumentLayout::updateBlock,
+                                     &TextDocumentLayout::updateBlock,
                                      this,
                                      &TextEditorWidgetPrivate::slotUpdateBlockNotify);
 
@@ -1513,7 +1513,7 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
     m_documentConnections << connect(q,
                                      &TextEditorWidget::requestBlockUpdate,
                                      documentLayout,
-                                     &QPlainTextDocumentLayout::updateBlock);
+                                     &TextDocumentLayout::updateBlock);
 
     m_documentConnections << connect(documentLayout,
                                      &TextDocumentLayout::updateExtraArea,
@@ -2734,13 +2734,13 @@ void TextEditorWidget::unindent()
 void TextEditorWidget::undo()
 {
     doSetTextCursor(multiTextCursor().mainCursor());
-    QPlainTextEdit::undo();
+    PlainTextEdit::undo();
 }
 
 void TextEditorWidget::redo()
 {
     doSetTextCursor(multiTextCursor().mainCursor());
-    QPlainTextEdit::redo();
+    PlainTextEdit::redo();
 }
 
 bool TextEditorWidget::isUndoAvailable() const
@@ -3271,7 +3271,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
             if (cursorWithinSnippet)
                 cursor.beginEditBlock();
 
-            QPlainTextEdit::keyPressEvent(e);
+            PlainTextEdit::keyPressEvent(e);
 
             if (cursorWithinSnippet) {
                 cursor.endEditBlock();
@@ -3473,7 +3473,7 @@ void TextEditorWidget::doSetTextCursor(const QTextCursor &cursor, bool keepMulti
         const_cast<MultiTextCursor &>(d->m_cursors).replaceMainCursor(c);
     d->updateCursorSelections();
     d->resetCursorFlashTimer();
-    QPlainTextEdit::doSetTextCursor(c);
+    PlainTextEdit::doSetTextCursor(c);
     if (oldCursor != d->m_cursors) {
         QRect updateRect = d->cursorUpdateRect(oldCursor);
         if (d->m_highlightCurrentLine)
@@ -3624,7 +3624,7 @@ void TextEditorWidget::convertPosition(int pos, int *line, int *column) const
 bool TextEditorWidget::event(QEvent *e)
 {
     if (!d)
-        return QPlainTextEdit::event(e);
+        return PlainTextEdit::event(e);
 
     // FIXME: That's far too heavy, and triggers e.g for ChildEvent
     if (e->type() != QEvent::InputMethodQuery)
@@ -3668,7 +3668,7 @@ bool TextEditorWidget::event(QEvent *e)
         break;
     }
 
-    return QPlainTextEdit::event(e);
+    return PlainTextEdit::event(e);
 }
 
 void TextEditorWidget::contextMenuEvent(QContextMenuEvent *e)
@@ -3685,7 +3685,7 @@ void TextEditorWidgetPrivate::documentAboutToBeReloaded()
 
     m_extraSelections.clear();
     m_extraSelections.reserve(NExtraSelectionKinds);
-    q->QPlainTextEdit::setExtraSelections(QList<QTextEdit::ExtraSelection>());
+    q->PlainTextEdit::setExtraSelections(QList<QTextEdit::ExtraSelection>());
 
     // clear all overlays
     m_overlay->clear();
@@ -4125,7 +4125,7 @@ void EmbeddedWidgetInterface::close()
 void TextEditorWidgetPrivate::forceUpdateScrollbarSize()
 {
     // We use resizeEvent here as a workaround as we can't get access to the
-    // scrollarea which is a private part of the QPlainTextEdit.
+    // scrollarea which is a private part of the PlainTextEdit.
     // During the resizeEvent the plain text edit will resize its scrollbars.
     // The TextEditorWidget will also update its scrollbar overlays.
     QResizeEvent event(q->size(), q->size());
@@ -4985,13 +4985,13 @@ bool TextEditorWidget::viewportEvent(QEvent *event)
             ToolTip::hide();
         }
     }
-    return QPlainTextEdit::viewportEvent(event);
+    return PlainTextEdit::viewportEvent(event);
 }
 
 
 void TextEditorWidget::resizeEvent(QResizeEvent *e)
 {
-    QPlainTextEdit::resizeEvent(e);
+    PlainTextEdit::resizeEvent(e);
     QRect cr = rect();
     d->m_extraArea->setGeometry(
         QStyle::visualRect(layoutDirection(), cr,
@@ -5952,7 +5952,7 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
     while (paintColumn < depth) {
         if (x >= 0) {
             int paintPosition = data.tabSettings.positionAtColumn(text, paintColumn);
-            if (q->lineWrapMode() == QPlainTextEdit::WidgetWidth
+            if (q->lineWrapMode() == PlainTextEdit::WidgetWidth
                 && blockData.layout->lineForTextPosition(paintPosition).lineNumber() != 0) {
                 break;
             }
@@ -7060,7 +7060,7 @@ void TextEditorWidget::timerEvent(QTimerEvent *e)
         d->m_cursorVisible = !d->m_cursorVisible;
         viewport()->update(d->cursorUpdateRect(d->m_cursors));
     }
-    QPlainTextEdit::timerEvent(e);
+    PlainTextEdit::timerEvent(e);
 }
 
 
@@ -7152,7 +7152,7 @@ void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
             }
         } else if (!onLink || e->buttons() != Qt::LeftButton
                    || e->modifiers() != Qt::ControlModifier) {
-            QPlainTextEdit::mouseMoveEvent(e);
+            PlainTextEdit::mouseMoveEvent(e);
         }
     }
 
@@ -7236,7 +7236,7 @@ void TextEditorWidget::mousePressEvent(QMouseEvent *e)
     if (HostOsInfo::isLinuxHost() && handleForwardBackwardMouseButtons(e))
         return;
 
-    QPlainTextEdit::mousePressEvent(e);
+    PlainTextEdit::mousePressEvent(e);
 }
 
 void TextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
@@ -7273,7 +7273,7 @@ void TextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
         }
     }
 
-    QPlainTextEdit::mouseReleaseEvent(e);
+    PlainTextEdit::mouseReleaseEvent(e);
 
     d->setClipboardSelection();
     const QTextCursor plainTextEditCursor = textCursor();
@@ -7298,9 +7298,9 @@ void TextEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
     QTextCursor eventCursor = cursorForPosition(QPoint(e->pos().x(), e->pos().y()));
     const int eventDocumentPosition = eventCursor.position();
 
-    QPlainTextEdit::mouseDoubleClickEvent(e);
+    PlainTextEdit::mouseDoubleClickEvent(e);
 
-    // QPlainTextEdit::mouseDoubleClickEvent just selects the word under the text cursor. If the
+    // PlainTextEdit::mouseDoubleClickEvent just selects the word under the text cursor. If the
     // event is triggered on a position that is inbetween two whitespaces this event selects the
     // previous word or nothing if the whitespaces are at the block start. Replace this behavior
     // with selecting the whitespaces starting from the previous word end to the next word.
@@ -7332,7 +7332,7 @@ void TextEditorWidget::leaveEvent(QEvent *e)
 {
     // Clear link emulation when the mouse leaves the editor
     d->clearLink();
-    QPlainTextEdit::leaveEvent(e);
+    PlainTextEdit::leaveEvent(e);
 }
 
 void TextEditorWidget::keyReleaseEvent(QKeyEvent *e)
@@ -7347,7 +7347,7 @@ void TextEditorWidget::keyReleaseEvent(QKeyEvent *e)
         d->processTooltipRequest(textCursor());
     }
 
-    QPlainTextEdit::keyReleaseEvent(e);
+    PlainTextEdit::keyReleaseEvent(e);
 }
 
 void TextEditorWidget::dragEnterEvent(QDragEnterEvent *e)
@@ -7358,7 +7358,7 @@ void TextEditorWidget::dragEnterEvent(QDragEnterEvent *e)
         return;
     }
 
-    QPlainTextEdit::dragEnterEvent(e);
+    PlainTextEdit::dragEnterEvent(e);
 }
 
 static void appendMenuActionsFromContext(QMenu *menu, Id menuContextId)
@@ -7704,7 +7704,7 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
 void TextEditorWidget::ensureCursorVisible()
 {
     ensureBlockIsUnfolded(textCursor().block());
-    QPlainTextEdit::ensureCursorVisible();
+    PlainTextEdit::ensureCursorVisible();
 }
 
 void TextEditorWidget::ensureBlockIsUnfolded(QTextBlock block)
@@ -7932,7 +7932,7 @@ void TextEditorWidget::wheelEvent(QWheelEvent *e)
     if (e->modifiers() & Qt::ControlModifier) {
         if (!scrollWheelZoomingEnabled()) {
             // When the setting is disabled globally,
-            // we have to skip calling QPlainTextEdit::wheelEvent()
+            // we have to skip calling PlainTextEdit::wheelEvent()
             // that changes zoom in it.
             return;
         }
@@ -7942,7 +7942,7 @@ void TextEditorWidget::wheelEvent(QWheelEvent *e)
             zoomF(deltaY / 120.f);
         return;
     }
-    QPlainTextEdit::wheelEvent(e);
+    PlainTextEdit::wheelEvent(e);
 }
 
 static void showZoomIndicator(QWidget *editor, const int newZoom)
@@ -8221,7 +8221,7 @@ void TextEditorWidgetPrivate::addSearchResultsToScrollBar(
     for (const SearchResult &result : results) {
         const QTextBlock &block = q->document()->findBlock(result.start);
         if (block.isValid() && block.isVisible()) {
-            if (q->lineWrapMode() == QPlainTextEdit::WidgetWidth) {
+            if (q->lineWrapMode() == PlainTextEdit::WidgetWidth) {
                 const int firstLine = block.layout()->lineForTextPosition(result.start - block.position()).lineNumber();
                 const int lastLine = block.layout()->lineForTextPosition(result.start - block.position() + result.length).lineNumber();
                 for (int line = firstLine; line <= lastLine; ++line) {
@@ -8245,8 +8245,7 @@ void TextEditorWidgetPrivate::addSearchResultsToScrollBar(const QList<SearchResu
         Highlight::HighPriority);
 }
 
-void TextEditorWidgetPrivate::addSelectionHighlightToScrollBar(
-    const QList<SearchResult> &selections)
+void TextEditorWidgetPrivate::addSelectionHighlightToScrollBar(const QList<SearchResult> &selections)
 {
     addSearchResultsToScrollBar(
         Constants::SCROLL_BAR_SELECTION,
@@ -8616,7 +8615,7 @@ void TextEditorWidgetPrivate::cancelCurrentAnimations()
 
 void TextEditorWidget::changeEvent(QEvent *e)
 {
-    QPlainTextEdit::changeEvent(e);
+    PlainTextEdit::changeEvent(e);
     if (e->type() == QEvent::ApplicationFontChange
         || e->type() == QEvent::FontChange) {
         if (d->m_extraArea) {
@@ -8633,14 +8632,14 @@ void TextEditorWidget::changeEvent(QEvent *e)
 
 void TextEditorWidget::focusInEvent(QFocusEvent *e)
 {
-    QPlainTextEdit::focusInEvent(e);
+    PlainTextEdit::focusInEvent(e);
     d->startCursorFlashTimer();
     d->updateHighlights();
 }
 
 void TextEditorWidget::focusOutEvent(QFocusEvent *e)
 {
-    QPlainTextEdit::focusOutEvent(e);
+    PlainTextEdit::focusOutEvent(e);
     d->m_hoverHandlerRunner.abortHandlers();
     if (viewport()->cursor().shape() == Qt::BlankCursor)
         viewport()->setCursor(Qt::IBeamCursor);
@@ -8908,7 +8907,7 @@ void TextEditorWidgetPrivate::setExtraSelections(Id kind, const QList<QTextEdit:
                 continue;
             all += i.value();
         }
-        q->QPlainTextEdit::setExtraSelections(all);
+        q->PlainTextEdit::setExtraSelections(all);
     }
 }
 
@@ -9099,14 +9098,14 @@ void TextEditorWidget::encourageApply()
 void TextEditorWidget::showEvent(QShowEvent* e)
 {
     triggerPendingUpdates();
-    // QPlainTextEdit::showEvent scrolls to make the cursor visible on first show
+    // PlainTextEdit::showEvent scrolls to make the cursor visible on first show
     // which we don't want, since we restore previous states when
     // opening editors, and when splitting/duplicating.
     // So restore the previous state after that.
     QByteArray state;
     if (d->m_wasNotYetShown)
         state = saveState();
-    QPlainTextEdit::showEvent(e);
+    PlainTextEdit::showEvent(e);
     if (d->m_wasNotYetShown) {
         restoreState(state);
         d->m_wasNotYetShown = false;
@@ -9181,12 +9180,12 @@ void TextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 {
     const TextEditor::FontSettings &fs = TextEditorSettings::fontSettings();
     if (fs.relativeLineSpacing() == 100)
-        setLineWrapMode(ds.m_textWrapping ? QPlainTextEdit::WidgetWidth : QPlainTextEdit::NoWrap);
+        setLineWrapMode(ds.m_textWrapping ? PlainTextEdit::WidgetWidth : PlainTextEdit::NoWrap);
     else
-        setLineWrapMode(QPlainTextEdit::NoWrap);
+        setLineWrapMode(PlainTextEdit::NoWrap);
 
     QTC_ASSERT((fs.relativeLineSpacing() == 100) || (fs.relativeLineSpacing() != 100
-        && lineWrapMode() == QPlainTextEdit::NoWrap), setLineWrapMode(QPlainTextEdit::NoWrap));
+        && lineWrapMode() == PlainTextEdit::NoWrap), setLineWrapMode(PlainTextEdit::NoWrap));
 
     setLineNumbersVisible(ds.m_displayLineNumbers);
     setHighlightCurrentLine(ds.m_highlightCurrentLine);
@@ -9372,21 +9371,21 @@ void TextEditorWidget::selectAll()
 {
     // Directly update the internal multi text cursor here to prevent calling setTextCursor.
     // This would indirectly make sure the cursor is visible which is not desired for select all.
-    QTextCursor c = QPlainTextEdit::textCursor();
+    QTextCursor c = PlainTextEdit::textCursor();
     c.select(QTextCursor::Document);
     const_cast<MultiTextCursor &>(d->m_cursors).setCursors({c});
-    QPlainTextEdit::selectAll();
+    PlainTextEdit::selectAll();
 }
 
 void TextEditorWidget::copy()
 {
-    QPlainTextEdit::copy();
+    PlainTextEdit::copy();
     d->collectToCircularClipboard();
 }
 
 void TextEditorWidget::paste()
 {
-    QPlainTextEdit::paste();
+    PlainTextEdit::paste();
     encourageApply();
 }
 
@@ -9539,7 +9538,7 @@ QMimeData *TextEditorWidget::createMimeDataFromSelection(bool withHtml) const
 
 bool TextEditorWidget::canInsertFromMimeData(const QMimeData *source) const
 {
-    return QPlainTextEdit::canInsertFromMimeData(source);
+    return PlainTextEdit::canInsertFromMimeData(source);
 }
 
 struct MappedText
@@ -10190,7 +10189,7 @@ void TextEditorWidget::updateVisualWrapColumn()
 
 void TextEditorWidgetPrivate::updateTabStops()
 {
-    // Although the tab stop is stored as qreal the API from QPlainTextEdit only allows it
+    // Although the tab stop is stored as qreal the API from PlainTextEdit only allows it
     // to be set as an int. A work around is to access directly the QTextOption.
     QTextOption option = q->document()->defaultTextOption();
     option.setTabStopDistance(charWidth() * m_document->tabSettings().m_tabSize);

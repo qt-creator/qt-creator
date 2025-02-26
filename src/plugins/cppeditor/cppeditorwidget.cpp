@@ -474,7 +474,7 @@ void CppEditorWidget::finalizeInitialization()
     });
     connect(&d->m_localRenaming, &CppLocalRenaming::processKeyPressNormally,
             this, &CppEditorWidget::processKeyNormally);
-    connect(this, &QPlainTextEdit::cursorPositionChanged, this, [this] {
+    connect(this, &PlainTextEdit::cursorPositionChanged, this, [this] {
         if (d->m_cppEditorOutline)
             d->m_cppEditorOutline->updateIndex();
     });
@@ -489,8 +489,8 @@ void CppEditorWidget::finalizeInitialization()
     d->m_updateFunctionDeclDefLinkTimer.setInterval(UPDATE_FUNCTION_DECL_DEF_LINK_INTERVAL);
     connect(&d->m_updateFunctionDeclDefLinkTimer, &QTimer::timeout,
             this, &CppEditorWidget::updateFunctionDeclDefLinkNow);
-    connect(this, &QPlainTextEdit::cursorPositionChanged, this, &CppEditorWidget::updateFunctionDeclDefLink);
-    connect(this, &QPlainTextEdit::textChanged, this, &CppEditorWidget::updateFunctionDeclDefLink);
+    connect(this, &PlainTextEdit::cursorPositionChanged, this, &CppEditorWidget::updateFunctionDeclDefLink);
+    connect(this, &PlainTextEdit::textChanged, this, &CppEditorWidget::updateFunctionDeclDefLink);
 
     // set up the use highlighitng
     connect(this, &CppEditorWidget::cursorPositionChanged, this, [this] {

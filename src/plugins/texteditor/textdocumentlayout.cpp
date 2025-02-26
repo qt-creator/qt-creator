@@ -348,7 +348,7 @@ void TextBlockUserData::addMark(TextMark *mark)
 }
 
 TextDocumentLayout::TextDocumentLayout(QTextDocument *doc)
-    : QPlainTextDocumentLayout(doc)
+    : PlainTextDocumentLayout(doc)
 {}
 
 TextDocumentLayout::~TextDocumentLayout()
@@ -721,7 +721,7 @@ void TextDocumentLayout::setRequiredWidth(int width)
 {
     int oldw = m_requiredWidth;
     m_requiredWidth = width;
-    int dw = int(QPlainTextDocumentLayout::documentSize().width());
+    int dw = int(PlainTextDocumentLayout::documentSize().width());
     if (oldw > dw || width > dw)
         emitDocumentSizeChanged();
 }
@@ -729,7 +729,7 @@ void TextDocumentLayout::setRequiredWidth(int width)
 
 QSizeF TextDocumentLayout::documentSize() const
 {
-    QSizeF size = QPlainTextDocumentLayout::documentSize();
+    QSizeF size = PlainTextDocumentLayout::documentSize();
     size.setWidth(qMax(qreal(m_requiredWidth), size.width()));
     return size;
 }
@@ -818,7 +818,7 @@ void TextDocumentLayout::requestUpdateNow()
 int TextDocumentLayout::embeddedWidgetOffset(const QTextBlock &block, QWidget *widget)
 {
     if (auto userData = TextBlockUserData::textUserData(block)) {
-        int offset = QPlainTextDocumentLayout::blockBoundingRect(block).height();
+        int offset = PlainTextDocumentLayout::blockBoundingRect(block).height();
         for (auto embeddedWidget : userData->embeddedWidgets(block)) {
             if (embeddedWidget == widget)
                 return offset;
@@ -838,7 +838,7 @@ void TextDocumentLayout::resetReloadMarks()
 static QRectF replacementBoundingRect(const QTextDocument *replacement)
 {
     QTC_ASSERT(replacement, return {});
-    auto *layout = static_cast<QPlainTextDocumentLayout *>(replacement->documentLayout());
+    auto *layout = static_cast<Utils::PlainTextDocumentLayout *>(replacement->documentLayout());
     QRectF boundingRect;
     QTextBlock block = replacement->firstBlock();
     while (block.isValid()) {
@@ -859,7 +859,7 @@ QRectF TextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
         return replacementBoundingRect(suggestion->replacementDocument());
     }
 
-    QRectF boundingRect = QPlainTextDocumentLayout::blockBoundingRect(block);
+    QRectF boundingRect = PlainTextDocumentLayout::blockBoundingRect(block);
 
     if (TextEditorSettings::fontSettings().relativeLineSpacing() != 100) {
         if (boundingRect.isNull())

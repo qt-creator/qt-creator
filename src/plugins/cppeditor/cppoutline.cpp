@@ -147,7 +147,7 @@ CppOutlineWidget::CppOutlineWidget(CppEditorWidget *editor) :
 
     connect(m_treeView, &QAbstractItemView::activated,
             this, &CppOutlineWidget::onItemActivated);
-    connect(editor, &QPlainTextEdit::cursorPositionChanged, this, [this] {
+    connect(editor, &Utils::PlainTextEdit::cursorPositionChanged, this, [this] {
         if (m_model->rootItem()->hasChildren())
             updateIndex();
     });

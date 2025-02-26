@@ -69,7 +69,7 @@ void TextEditorWidget::setTextEditor(
 
         setFocusProxy(m_textEditor->editorWidget());
 
-        connect(m_textEditor->editorWidget(), &QPlainTextEdit::cursorPositionChanged, this, [this] {
+        connect(m_textEditor->editorWidget(), &Utils::PlainTextEdit::cursorPositionChanged, this, [this] {
             // Cursor position is changed by rewriter
             if (!m_blockCursorSelectionSynchronisation)
                 m_updateSelectionTimer.start();

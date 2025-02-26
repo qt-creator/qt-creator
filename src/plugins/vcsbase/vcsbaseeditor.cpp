@@ -736,22 +736,22 @@ void VcsBaseEditorWidget::init()
     case LogOutput:
         connect(d->entriesComboBox(), &QComboBox::activated,
                 this, &VcsBaseEditorWidget::slotJumpToEntry);
-        connect(this, &QPlainTextEdit::textChanged,
+        connect(this, &PlainTextEdit::textChanged,
                 this, &VcsBaseEditorWidget::slotPopulateLogBrowser);
-        connect(this, &QPlainTextEdit::cursorPositionChanged,
+        connect(this, &PlainTextEdit::cursorPositionChanged,
                 this, &VcsBaseEditorWidget::slotCursorPositionChanged);
         break;
     case AnnotateOutput:
         // Annotation highlighting depends on contents, which is set later on
-        connect(this, &QPlainTextEdit::textChanged, this, &VcsBaseEditorWidget::slotActivateAnnotation);
+        connect(this, &PlainTextEdit::textChanged, this, &VcsBaseEditorWidget::slotActivateAnnotation);
         break;
     case DiffOutput:
         // Diff: set up diff file browsing
         connect(d->entriesComboBox(), &QComboBox::activated,
                 this, &VcsBaseEditorWidget::slotJumpToEntry);
-        connect(this, &QPlainTextEdit::textChanged,
+        connect(this, &PlainTextEdit::textChanged,
                 this, &VcsBaseEditorWidget::slotPopulateDiffBrowser);
-        connect(this, &QPlainTextEdit::cursorPositionChanged,
+        connect(this, &PlainTextEdit::cursorPositionChanged,
                 this, &VcsBaseEditorWidget::slotCursorPositionChanged);
         break;
     }
@@ -1094,7 +1094,7 @@ void VcsBaseEditorWidget::slotActivateAnnotation()
     if (changes.isEmpty())
         return;
 
-    disconnect(this, &QPlainTextEdit::textChanged, this, &VcsBaseEditorWidget::slotActivateAnnotation);
+    disconnect(this, &PlainTextEdit::textChanged, this, &VcsBaseEditorWidget::slotActivateAnnotation);
 
     if (SyntaxHighlighter *ah = textDocument()->syntaxHighlighter()) {
         ah->rehighlight();
