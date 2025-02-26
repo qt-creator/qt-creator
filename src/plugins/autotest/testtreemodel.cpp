@@ -188,10 +188,13 @@ QList<ITestConfiguration *> TestTreeModel::getAllTestCases(TestRunMode mode) con
     return result;
 }
 
-QList<ITestConfiguration *> TestTreeModel::getSelectedTests() const
+QList<ITestConfiguration *> TestTreeModel::getSelectedTests(TestRunMode mode) const
 {
     QList<ITestConfiguration *> result;
-    forItemsAtLevel<1>([&result](ITestTreeItem *testRoot) {
+    const bool isDebug = (mode == TestRunMode::Debug || mode == TestRunMode::DebugWithoutDeploy);
+    forItemsAtLevel<1>([&result, isDebug](ITestTreeItem *testRoot) {
+        if (isDebug && testRoot->testBase()->asTestTool())
+            return;
         result.append(testRoot->getSelectedTestConfigurations());
     });
     return result;

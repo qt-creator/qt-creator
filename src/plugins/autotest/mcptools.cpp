@@ -69,7 +69,7 @@ static Utils::Result<ResolvedTestRun> resolveTestRun(
     QList<ITestConfiguration *> configs;
     const QString s = scope.isEmpty() ? QStringLiteral("all") : scope;
     if (s == QLatin1String("selected")) {
-        configs = model->getSelectedTests();
+        configs = model->getSelectedTests(runMode);
     } else if (s == QLatin1String("failed")) {
         configs = model->getFailedTests();
     } else if (s == QLatin1String("all")) {

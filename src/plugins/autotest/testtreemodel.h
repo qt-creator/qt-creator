@@ -44,7 +44,7 @@ public:
     Internal::TestCodeParser *parser() const { return m_parser; }
     bool hasTests(bool excludeTestTools) const;
     QList<ITestConfiguration *> getAllTestCases(TestRunMode mode) const;
-    QList<ITestConfiguration *> getSelectedTests() const;
+    QList<ITestConfiguration *> getSelectedTests(TestRunMode mode) const;
     QList<ITestConfiguration *> getFailedTests() const;
     QList<ITestConfiguration *> getTestsForFile(const Utils::FilePath &fileName) const;
     QList<ITestTreeItem *> testItemsByName(const QString &testName);

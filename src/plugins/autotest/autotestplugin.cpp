@@ -193,6 +193,33 @@ void AutotestPluginPrivate::initializeMenuEntries()
         .setEnabled(false)
         .addOnTriggered(this, [this] { onRunAllTriggered(TestRunMode::Debug); });
 
+    ActionBuilder(this, Constants::ACTION_RUN_ALL_DBG_NDEP_ID)
+        .setText(Tr::tr("De&bug All Tests Without Deployment"))
+        .setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon())
+        .setToolTip(Tr::tr("Run all tests in debug mode without deployment"))
+        // .setDefaultKeySequence(Tr::tr(""), Tr::tr(""))
+        .addToContainer(menuId)
+        .setEnabled(false)
+        .addOnTriggered(this, [this] { onRunAllTriggered(TestRunMode::DebugWithoutDeploy); });
+
+    ActionBuilder(this, Constants::ACTION_RUN_SELECTED_DBG_ID)
+        .setText(Tr::tr("De&bug Selected Tests"))
+        .setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon())
+        .setToolTip(Tr::tr("Run selected tests in debug mode"))
+        // .setDefaultKeySequence(Tr::tr(""), Tr::tr(""))
+        .addToContainer(menuId)
+        .setEnabled(false)
+        .addOnTriggered(this, [this] { onRunSelectedTriggered(TestRunMode::Debug); });
+
+    ActionBuilder(this, Constants::ACTION_RUN_SELECTED_DBG_NDEP_ID)
+        .setText(Tr::tr("De&bug Selected Tests Without Deployment"))
+        .setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon())
+        .setToolTip(Tr::tr("Run selected tests in debug mode without deployment"))
+        // .setDefaultKeySequence(Tr::tr(""), Tr::tr(""))
+        .addToContainer(menuId)
+        .setEnabled(false)
+        .addOnTriggered(this, [this] { onRunSelectedTriggered(TestRunMode::DebugWithoutDeploy); });
+
     ActionBuilder(this, Constants::ACTION_RUN_FAILED_ID)
         .setText(Tr::tr("Run &Failed Tests"))
         .setIcon(Icons::RUN_FAILED.icon())
@@ -247,7 +274,7 @@ void AutotestPluginPrivate::onRunAllTriggered(TestRunMode mode)
 
 void AutotestPluginPrivate::onRunSelectedTriggered(TestRunMode mode)
 {
-    m_testRunner.runTests(mode, m_testTreeModel.getSelectedTests());
+    m_testRunner.runTests(mode, m_testTreeModel.getSelectedTests(mode));
 }
 
 void AutotestPluginPrivate::onRunFailedTriggered()
@@ -440,6 +467,9 @@ void updateMenuItemsEnabledState()
     ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action()->setEnabled(canRun);
     ActionManager::command(Constants::ACTION_RUN_ALL_NODEPLOY_ID)->action()->setEnabled(canRun);
     ActionManager::command(Constants::ACTION_RUN_ALL_DBG_ID)->action()->setEnabled(canDbg);
+    ActionManager::command(Constants::ACTION_RUN_SELECTED_DBG_ID)->action()->setEnabled(canDbg);
+    ActionManager::command(Constants::ACTION_RUN_ALL_DBG_NDEP_ID)->action()->setEnabled(canDbg);
+    ActionManager::command(Constants::ACTION_RUN_SELECTED_DBG_NDEP_ID)->action()->setEnabled(canDbg);
     ActionManager::command(Constants::ACTION_RUN_SELECTED_NODEPLOY_ID)->action()->setEnabled(canRun);
     ActionManager::command(Constants::ACTION_RUN_FAILED_ID)->action()->setEnabled(canRunFailed);
     ActionManager::command(Constants::ACTION_RUN_FILE_ID)->action()->setEnabled(canRun);

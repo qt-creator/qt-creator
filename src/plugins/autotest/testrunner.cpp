@@ -959,7 +959,7 @@ void TestRunner::onBuildQueueFinished(bool success)
         return;
 
     const QList<ITestConfiguration *> tests = mode == RunAfterBuildMode::All
-            ? testTreeModel->getAllTestCases(m_runMode) : testTreeModel->getSelectedTests();
+            ? testTreeModel->getAllTestCases(m_runMode) : testTreeModel->getSelectedTests(m_runMode);
     runTests(TestRunMode::RunAfterBuild, tests);
 }
 
