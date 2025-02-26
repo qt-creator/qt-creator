@@ -126,11 +126,10 @@ bool UvscServerProvider::operator==(const IDebugServerProvider &other) const
             && m_toolsetNumber == p->m_toolsetNumber;
 }
 
-FilePath UvscServerProvider::buildProjectFilePath(DebuggerRunTool *runTool) const
+FilePath UvscServerProvider::buildProjectFilePath(RunControl *runControl) const
 {
-    const RunControl *control = runTool->runControl();
-    const QString projectName = control->project()->displayName() + ".uvprojx";
-    const FilePath path = control->buildDirectory().pathAppended(projectName);
+    const QString projectName = runControl->project()->displayName() + ".uvprojx";
+    const FilePath path = runControl->buildDirectory().pathAppended(projectName);
     return path;
 }
 
@@ -173,7 +172,7 @@ Result UvscServerProvider::aboutToRun(DebuggerRunTool *runTool) const
     }
 
     QString errorMessage;
-    const FilePath projFilePath = projectFilePath(runTool, errorMessage);
+    const FilePath projFilePath = projectFilePath(runTool->runControl(), errorMessage);
     if (!projFilePath.exists())
         return Result::Error(errorMessage);
 
@@ -214,12 +213,12 @@ void UvscServerProvider::fromMap(const Store &data)
     m_driverSelection.fromMap(storeFromVariant(data.value(driverSelectionKeyC)));
 }
 
-FilePath UvscServerProvider::projectFilePath(DebuggerRunTool *runTool, QString &errorMessage) const
+FilePath UvscServerProvider::projectFilePath(RunControl *runControl, QString &errorMessage) const
 {
-    const FilePath projectPath = buildProjectFilePath(runTool);
+    const FilePath projectPath = buildProjectFilePath(runControl);
     std::ofstream ofs(projectPath.path().toStdString(), std::ofstream::out);
     Uv::ProjectWriter writer(&ofs);
-    const Uv::Project project(this, runTool->runControl()->project());
+    const Uv::Project project(this, runControl->project());
     if (!writer.write(&project)) {
         errorMessage = Tr::tr("Unable to create a uVision project template.");
         return {};

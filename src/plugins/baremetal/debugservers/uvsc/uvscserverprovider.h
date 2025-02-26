@@ -64,13 +64,13 @@ protected:
     void setToolsetNumber(ToolsetNumber toolsetNumber);
     void setSupportedDrivers(const QStringList &supportedDrivers);
 
-    Utils::FilePath buildProjectFilePath(Debugger::DebuggerRunTool *runTool) const;
+    Utils::FilePath buildProjectFilePath(ProjectExplorer::RunControl *runControl) const;
     Utils::FilePath buildOptionsFilePath(Debugger::DebuggerRunTool *runTool) const;
 
     void fromMap(const Utils::Store &data) override;
 
     // uVision specific stuff.
-    Utils::FilePath projectFilePath(Debugger::DebuggerRunTool *runTool, QString &errorMessage) const;
+    Utils::FilePath projectFilePath(ProjectExplorer::RunControl *runControl, QString &errorMessage) const;
     virtual Utils::FilePath optionsFilePath(Debugger::DebuggerRunTool *runTool,
                                             QString &errorMessage) const = 0;
 
