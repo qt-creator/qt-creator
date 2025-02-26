@@ -3,11 +3,11 @@
 
 #pragma once
 
-namespace ProjectExplorer { class RunWorker; }
+namespace ProjectExplorer { class RunControl; }
 namespace Tasking { class Group; }
 
 namespace Qnx::Internal {
 
-Tasking::Group slog2InfoRecipe(ProjectExplorer::RunWorker *worker);
+Tasking::Group slog2InfoRecipe(ProjectExplorer::RunControl *runControl);
 
 } // Qnx::Internal

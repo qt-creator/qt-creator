@@ -25,7 +25,7 @@ namespace Qnx::Internal {
 
 struct SlogData
 {
-    RunWorker *m_worker = nullptr;
+    RunControl *m_runControl = nullptr;
     QString m_applicationId;
     QDateTime m_launchDateTime = {};
     bool m_currentLogs = false;
@@ -36,22 +36,21 @@ struct SlogData
     void processLogInput(const QString &input);
 };
 
-Group slog2InfoRecipe(RunWorker *worker)
+Group slog2InfoRecipe(RunControl *runControl)
 {
-    RunControl *runControl = worker->runControl();
     QString applicationId = runControl->aspectData<ExecutableAspect>()->executable.fileName();
     // See QTCREATORBUG-10712 for details.
     // We need to limit length of ApplicationId to 63 otherwise it would not match one in slog2info.
     applicationId.truncate(63);
 
-    const Storage<SlogData> storage({worker, applicationId});
+    const Storage<SlogData> storage({runControl, applicationId});
 
     const auto onTestSetup = [runControl](Process &process) {
         process.setCommand(CommandLine{runControl->device()->filePath("slog2info")});
     };
-    const auto onTestDone = [storage] {
-        storage->m_worker->appendMessage(Tr::tr("Warning: \"slog2info\" is not found on the device, "
-                                                "debug output not available."), ErrorMessageFormat);
+    const auto onTestDone = [runControl] {
+        runControl->postMessage(Tr::tr("Warning: \"slog2info\" is not found on the device, "
+                                       "debug output not available."), ErrorMessageFormat);
     };
 
     const auto onLaunchTimeSetup = [runControl](Process &process) {
@@ -63,20 +62,21 @@ Group slog2InfoRecipe(RunWorker *worker)
                                                           "dd HH:mm:ss");
     };
 
-    const auto onLogSetup = [storage, worker, runControl](Process &process) {
+    const auto onLogSetup = [storage, runControl](Process &process) {
         process.setCommand({runControl->device()->filePath("slog2info"), {"-w"}});
         SlogData *slogData = storage.activeStorage();
-        QObject::connect(&process, &Process::readyReadStandardOutput, worker,
+        QObject::connect(&process, &Process::readyReadStandardOutput, &process,
                          [slogData, processPtr = &process] {
-                             slogData->processLogInput(QString::fromLatin1(processPtr->readAllRawStandardOutput()));
-                         });
-        QObject::connect(&process, &Process::readyReadStandardError, worker, [worker, processPtr = &process] {
-            worker->appendMessage(QString::fromLatin1(processPtr->readAllRawStandardError()), StdErrFormat);
+            slogData->processLogInput(QString::fromLatin1(processPtr->readAllRawStandardOutput()));
+        });
+        QObject::connect(&process, &Process::readyReadStandardError, &process,
+                         [runControl, processPtr = &process] {
+            runControl->postMessage(QString::fromLatin1(processPtr->readAllRawStandardError()), StdErrFormat);
         });
     };
-    const auto onLogError = [worker](const Process &process) {
-        worker->appendMessage(Tr::tr("Cannot show slog2info output. Error: %1")
-                                  .arg(process.errorString()), StdErrFormat);
+    const auto onLogError = [runControl](const Process &process) {
+        runControl->postMessage(Tr::tr("Cannot show slog2info output. Error: %1")
+                                    .arg(process.errorString()), StdErrFormat);
     };
 
     const auto onCanceled = [storage](DoneWith result) {
@@ -147,7 +147,7 @@ void SlogData::processLogLine(const QString &line)
     if (bufferName == QLatin1String("default") && bufferId == 8900)
         return;
 
-    m_worker->appendMessage(match.captured(6).trimmed() + '\n', StdOutFormat);
+    m_runControl->postMessage(match.captured(6).trimmed() + '\n', StdOutFormat);
 }
 
 } // Qnx::Internal

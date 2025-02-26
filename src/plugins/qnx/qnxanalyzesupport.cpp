@@ -29,7 +29,7 @@ public:
             runControl->requestQmlChannel();
 
             auto slog2InfoRunner = new RecipeRunner(runControl);
-            slog2InfoRunner->setRecipe(slog2InfoRecipe(slog2InfoRunner));
+            slog2InfoRunner->setRecipe(slog2InfoRecipe(runControl));
             worker->addStartDependency(slog2InfoRunner);
 
             auto profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
