@@ -1800,6 +1800,7 @@ void RunWorker::reportStarted()
 void RunWorker::initiateStop()
 {
     d->runControl->d->debugMessage("Initiate stop for " + d->id);
+    emit stopping();
     stop();
 }
 

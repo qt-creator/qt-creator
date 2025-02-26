@@ -75,6 +75,7 @@ public:
 
 signals:
     void started();
+    void stopping();
     void stopped();
 
 protected:
