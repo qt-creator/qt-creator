@@ -5,6 +5,7 @@
 
 #include "perfloaddialog.h"
 #include "perfprofilertr.h"
+#include "perfprofilertracemanager.h"
 #include "perfsettings.h"
 #include "perftracepointdialog.h"
 
