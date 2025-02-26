@@ -160,6 +160,7 @@ void PropertyEditorValue::setExpressionWithEmit(const QString &expression)
         emit expressionChanged(nameAsQString());
         emit expressionChangedQml();// Note that we set the name in this case
     }
+    emit isBoundChanged();
 }
 
 void PropertyEditorValue::setExpression(const QString &expression)
