@@ -521,16 +521,17 @@ int clangdIndexingTimeout()
 SourceFilesRefreshGuard::SourceFilesRefreshGuard()
 {
     connect(CppModelManager::instance(), &CppModelManager::sourceFilesRefreshed, this, [this] {
-        m_refreshed = true;
+        --m_missing;
     });
 }
 
 bool SourceFilesRefreshGuard::wait()
 {
-    for (int i = 0; i < 10 && !m_refreshed; ++i) {
+    for (int i = 0; i < 10 && m_missing > 0; ++i) {
         CppEditor::Tests::waitForSignalOrTimeout(
             CppModelManager::instance(), &CppModelManager::sourceFilesRefreshed, 1000);
     }
-    return m_refreshed;
+    QTC_ASSERT(m_missing >= 0, return true);
+    return m_missing == 0;
 }
 } // namespace CppEditor::Tests

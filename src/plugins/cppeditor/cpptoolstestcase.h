@@ -210,11 +210,11 @@ class SourceFilesRefreshGuard : public QObject
 public:
     SourceFilesRefreshGuard();
 
-    void reset() { m_refreshed = false; }
+    void expect(int refreshCount) { m_missing = refreshCount; }
     bool wait();
 
 private:
-    bool m_refreshed = false;
+    int m_missing = 1;
 };
 
 } // namespace Tests

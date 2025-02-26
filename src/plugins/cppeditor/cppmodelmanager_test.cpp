@@ -1033,7 +1033,7 @@ void ModelManagerTest::testRenameIncludes()
     QFETCH(bool, successExpected);
     const FilePath oldHeader = projectDir.pathAppended(oldRelPath);
     const FilePath newHeader = projectDir.pathAppended(newRelPath);
-    refreshGuard.reset();
+    refreshGuard.expect(3);
     QVERIFY(ProjectExplorerPlugin::renameFile(oldHeader, newHeader));
 
     // Verify new code model state.
@@ -1100,7 +1100,7 @@ void ModelManagerTest::testMoveIncludingSources()
     QCOMPARE(CppModelManager::snapshot().allIncludesForDocument(oldSource), includedHeaders);
 
     // Rename the source file.
-    refreshGuard.reset();
+    refreshGuard.expect(1);
     const FilePath newSource = projectDir.pathAppended(newRelPath);
     QVERIFY(ProjectExplorerPlugin::renameFile(oldSource, newSource, projectMgr.projects().first()));
 
@@ -1471,18 +1471,18 @@ void ModelManagerTest::testOptionalIndexing()
     SourceFilesRefreshGuard refreshGuard;
     QVERIFY(projectMgr->open(p1ProjectFile, true, kit));
     QVERIFY(refreshGuard.wait());
-    refreshGuard.reset();
+    refreshGuard.expect(1);
     Project *p1 = projectMgr->projects().first();
     const FilePath p2ProjectFile = projectDir.pathAppended("lib2.pro");
     QVERIFY(projectMgr->open(p2ProjectFile, true, kit));
     QVERIFY(refreshGuard.wait());
-    refreshGuard.reset();
+    refreshGuard.expect(1);
     Project *p2 = projectMgr->projects().last();
 
     const auto applyProjectSpecificSettings = [&](Project *p, bool *enable) {
         if (!enable)
             return;
-        refreshGuard.reset();
+        refreshGuard.expect(1);
         CppCodeModelSettings settings = CppCodeModelSettings::settingsForProject(p);
         settings.enableIndexing = *enable;
         CppCodeModelSettings::setSettingsForProject(p, settings);
@@ -1507,14 +1507,14 @@ void ModelManagerTest::testOptionalIndexing()
     // and are taking effect.
     projectMgr.reset(nullptr);
     projectMgr.reset(new ProjectOpenerAndCloser);
-    refreshGuard.reset();
+    refreshGuard.expect(1);
     QVERIFY(projectMgr->open(p1ProjectFile, true, kit));
     p1 = projectMgr->projects().first();
     QCOMPARE(
         CppCodeModelSettings::settingsForProject(p1).enableIndexing,
         enableForP1 ? *enableForP1 : enableGlobally);
     QVERIFY(refreshGuard.wait());
-    refreshGuard.reset();
+    refreshGuard.expect(1);
     QVERIFY(projectMgr->open(p2ProjectFile, true, kit));
     p2 = projectMgr->projects().last();
     QCOMPARE(
