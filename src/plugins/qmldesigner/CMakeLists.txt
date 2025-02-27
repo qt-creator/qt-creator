@@ -424,6 +424,7 @@ extend_qtc_plugin(QmlDesigner
     qmlanchorbindingproxy.cpp qmlanchorbindingproxy.h
     qmlmaterialnodeproxy.cpp qmlmaterialnodeproxy.h
     qmlmodelnodeproxy.cpp qmlmodelnodeproxy.h
+    qmltexturenodeproxy.cpp qmltexturenodeproxy.h
     quick2propertyeditorview.cpp quick2propertyeditorview.h
     propertyeditorutils.cpp propertyeditorutils.h
 )

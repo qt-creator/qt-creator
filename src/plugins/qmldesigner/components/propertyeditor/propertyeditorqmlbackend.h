@@ -9,6 +9,7 @@
 #include "qmlanchorbindingproxy.h"
 #include "qmlmaterialnodeproxy.h"
 #include "qmlmodelnodeproxy.h"
+#include "qmltexturenodeproxy.h"
 #include "quick2propertyeditorview.h"
 
 #include <utils/uniqueobjectptr.h>
@@ -129,6 +130,7 @@ private:
     Utils::UniqueObjectPtr<Quick2PropertyEditorView> m_view = nullptr;
     QmlAnchorBindingProxy m_backendAnchorBinding;
     QmlMaterialNodeProxy m_backendMaterialNode;
+    QmlTextureNodeProxy m_backendTextureNode;
     QmlModelNodeProxy m_backendModelNode;
     std::unique_ptr<PropertyEditorTransaction> m_propertyEditorTransaction;
     std::unique_ptr<PropertyEditorValue> m_dummyPropertyEditorValue;

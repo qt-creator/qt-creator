@@ -339,6 +339,7 @@ void PropertyEditorQmlBackend::handleVariantPropertyChangedInModelNodeProxy(cons
 void PropertyEditorQmlBackend::handleBindingPropertyChangedInModelNodeProxy(const BindingProperty &property)
 {
     m_backendModelNode.handleBindingPropertyChanged(property);
+    m_backendTextureNode.handleBindingPropertyChanged(property);
     updateInstanceImage();
 }
 
@@ -350,11 +351,13 @@ void PropertyEditorQmlBackend::handleBindingPropertyInModelNodeProxyAboutToChang
         if (expressionNode.metaInfo().isQtQuick3DTexture())
             updateInstanceImage();
     }
+    m_backendTextureNode.handleBindingPropertyChanged(property);
 }
 
 void PropertyEditorQmlBackend::handlePropertiesRemovedInModelNodeProxy(const AbstractProperty &property)
 {
     m_backendModelNode.handlePropertiesRemoved(property);
+    m_backendTextureNode.handlePropertiesRemoved(property);
     updateInstanceImage();
 }
 
@@ -559,6 +562,7 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         context()->setContextProperty("modelNodeBackend", &m_backendModelNode);
 
         m_backendMaterialNode.setup(qmlObjectNode);
+        m_backendTextureNode.setup(qmlObjectNode);
 
         // className
         auto valueObject = qobject_cast<PropertyEditorValue *>(variantToQObject(
@@ -995,6 +999,7 @@ void PropertyEditorQmlBackend::setupContextProperties()
     context()->setContextProperties({
         {"modelNodeBackend", QVariant::fromValue(&m_backendModelNode)},
         {"materialNodeBackend", QVariant::fromValue(&m_backendMaterialNode)},
+        {"textureNodeBackend", QVariant::fromValue(&m_backendTextureNode)},
         {"anchorBackend", QVariant::fromValue(&m_backendAnchorBinding)},
         {"transaction", QVariant::fromValue(m_propertyEditorTransaction.get())},
         {"dummyBackendValue", QVariant::fromValue(m_dummyPropertyEditorValue.get())},
@@ -1051,6 +1056,7 @@ bool PropertyEditorQmlBackend::checkIfUrlExists(const QUrl &url)
 void PropertyEditorQmlBackend::emitSelectionToBeChanged()
 {
     m_backendModelNode.emitSelectionToBeChanged();
+    m_backendTextureNode.updateSelectionDetails();
 }
 
 void PropertyEditorQmlBackend::emitSelectionChanged()
