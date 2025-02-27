@@ -74,34 +74,30 @@ static QtVersion *qtVersionFromProject(const Project *project)
 
 static std::pair<FilePath, QVersionNumber> evaluateLatestQmlls()
 {
-    // find latest qmlls, i.e. vals
     if (!QtVersionManager::isLoaded())
         return {};
+
     const QtVersions versions = QtVersionManager::versions();
     FilePath latestQmlls;
     QVersionNumber latestVersion;
-    FilePath latestQmakeFilePath;
     int latestUniqueId = std::numeric_limits<int>::min();
-    for (QtVersion *v : versions) {
-        // check if we find qmlls
-        QVersionNumber vNow = v->qtVersion();
-        FilePath qmllsNow = QmlJS::ModelManagerInterface::qmllsForBinPath(v->hostBinPath(), vNow);
-        if (!qmllsNow.isExecutableFile())
+
+    for (QtVersion *qtVersion : versions) {
+        const QVersionNumber version = qtVersion->qtVersion();
+        const int uniqueId = qtVersion->uniqueId();
+
+        // note: break ties between qt kits of same versions by selecting the qt kit with the highest id
+        if (std::tie(version, uniqueId) < std::tie(latestVersion, latestUniqueId))
             continue;
-        if (latestVersion > vNow)
+
+        const FilePath qmlls
+            = QmlJS::ModelManagerInterface::qmllsForBinPath(qtVersion->hostBinPath(), version);
+        if (!qmlls.isExecutableFile())
             continue;
-        FilePath qmakeNow = v->qmakeFilePath();
-        int uniqueIdNow = v->uniqueId();
-        if (latestVersion == vNow) {
-            if (latestQmakeFilePath > qmakeNow)
-                continue;
-            if (latestQmakeFilePath == qmakeNow && latestUniqueId >= v->uniqueId())
-                continue;
-        }
-        latestVersion = vNow;
-        latestQmlls = qmllsNow;
-        latestQmakeFilePath = qmakeNow;
-        latestUniqueId = uniqueIdNow;
+
+        latestVersion = version;
+        latestQmlls = qmlls;
+        latestUniqueId = uniqueId;
     }
     return std::make_pair(latestQmlls, latestVersion);
 }
