@@ -135,6 +135,24 @@ QVariant ExtensionsModelPrivate::dataFromRemotePlugin(const QJsonObject &json, i
 
         return dependencies;
     }
+    case RolePlatforms: {
+        QSet<QString> platforms;
+        const QJsonArray sources = json.value("sources").toArray();
+        for (const QJsonValue &source : sources) {
+            // {"name": "Windows", "architecture": "x86" }
+            const QJsonObject platform = source.toObject().value("platform").toObject();
+            if (!platform.isEmpty()) {
+                const QString name = customOsTypeToString(
+                    osTypeFromString(platform.value("name").toString()).value_or(OsTypeOther));
+                const QString architecture = platform.value("architecture").toString();
+                platforms.insert(name + " " + architecture);
+            } else {
+                platforms.insert(Tr::tr("Platform agnostic"));
+            }
+        }
+
+        return platforms.values();
+    }
     case RoleVersion:
         return metaData.value("Version");
     case RoleItemType:
