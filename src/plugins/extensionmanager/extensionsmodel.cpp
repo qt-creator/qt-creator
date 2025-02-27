@@ -124,6 +124,17 @@ QVariant ExtensionsModelPrivate::dataFromRemotePlugin(const QJsonObject &json, i
         }
         break;
     }
+    case RoleDependencies: {
+        QStringList dependencies;
+
+        const QJsonArray dependenciesArray = metaData.value("Dependencies").toArray();
+        for (const auto &dependency : dependenciesArray) {
+            const QJsonObject dependencyObject = dependency.toObject();
+            dependencies.append(dependencyObject.value("Id").toString());
+        }
+
+        return dependencies;
+    }
     case RoleVersion:
         return metaData.value("Version");
     case RoleItemType:
