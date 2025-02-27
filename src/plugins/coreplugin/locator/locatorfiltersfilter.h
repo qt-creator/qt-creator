@@ -11,7 +11,7 @@ namespace Core::Internal {
   This filter provides the user with the list of available Locator filters.
   The list is only shown when nothing has been typed yet.
  */
-class LocatorFiltersFilter : public ILocatorFilter
+class LocatorFiltersFilter final : public ILocatorFilter
 {
 public:
     LocatorFiltersFilter();

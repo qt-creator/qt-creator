@@ -23,7 +23,7 @@ Core::LocatorFilterEntries LANGUAGECLIENT_EXPORT currentDocumentSymbols(const QS
 Core::LocatorMatcherTasks LANGUAGECLIENT_EXPORT languageClientMatchers(
     Core::MatcherType type, const QList<Client *> &clients = {}, int maxResultCount = 0);
 
-class LanguageAllSymbolsFilter : public Core::ILocatorFilter
+class LanguageAllSymbolsFilter final : public Core::ILocatorFilter
 {
 public:
     LanguageAllSymbolsFilter();
@@ -32,7 +32,7 @@ private:
     Core::LocatorMatcherTasks matchers() final;
 };
 
-class LanguageClassesFilter : public Core::ILocatorFilter
+class LanguageClassesFilter final : public Core::ILocatorFilter
 {
 public:
     LanguageClassesFilter();
@@ -41,7 +41,7 @@ private:
     Core::LocatorMatcherTasks matchers() final;
 };
 
-class LanguageFunctionsFilter : public Core::ILocatorFilter
+class LanguageFunctionsFilter final : public Core::ILocatorFilter
 {
 public:
     LanguageFunctionsFilter();
@@ -50,7 +50,7 @@ private:
     Core::LocatorMatcherTasks matchers() final;
 };
 
-class LanguageCurrentDocumentFilter : public Core::ILocatorFilter
+class LanguageCurrentDocumentFilter final : public Core::ILocatorFilter
 {
 public:
     LanguageCurrentDocumentFilter();

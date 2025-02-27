@@ -30,7 +30,7 @@ public:
 
 class ActionEntryCache;
 
-class ActionsFilter : public ILocatorFilter
+class ActionsFilter final : public ILocatorFilter
 {
 public:
     ActionsFilter();

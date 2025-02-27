@@ -7,7 +7,7 @@
 
 namespace Core::Internal {
 
-class FileSystemFilter : public ILocatorFilter
+class FileSystemFilter final : public ILocatorFilter
 {
 public:
     FileSystemFilter();

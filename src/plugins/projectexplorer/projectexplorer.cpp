@@ -387,7 +387,7 @@ static void setupProjectEnvironmentPanel()
     static ProjectEnvironmentPanelFactory theProjectEnvironmentPanelFactory;
 }
 
-class AllProjectFilesFilter : public DirectoryFilter
+class AllProjectFilesFilter final : public DirectoryFilter
 {
 public:
     AllProjectFilesFilter();

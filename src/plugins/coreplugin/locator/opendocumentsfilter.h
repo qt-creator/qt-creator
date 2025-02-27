@@ -7,7 +7,7 @@
 
 namespace Core::Internal {
 
-class OpenDocumentsFilter : public ILocatorFilter
+class OpenDocumentsFilter final : public ILocatorFilter
 {
 public:
     OpenDocumentsFilter();

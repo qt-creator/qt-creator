@@ -11,7 +11,7 @@ namespace CppEditor {
 
 Core::LocatorMatcherTasks CPPEDITOR_EXPORT cppMatchers(Core::MatcherType type);
 
-class CppAllSymbolsFilter : public Core::ILocatorFilter
+class CppAllSymbolsFilter final : public Core::ILocatorFilter
 {
 public:
     CppAllSymbolsFilter();
@@ -20,7 +20,7 @@ private:
     Core::LocatorMatcherTasks matchers() final;
 };
 
-class CppClassesFilter : public Core::ILocatorFilter
+class CppClassesFilter final : public Core::ILocatorFilter
 {
 public:
     CppClassesFilter();
@@ -29,7 +29,7 @@ private:
     Core::LocatorMatcherTasks matchers() final;
 };
 
-class CppFunctionsFilter : public Core::ILocatorFilter
+class CppFunctionsFilter final : public Core::ILocatorFilter
 {
 public:
     CppFunctionsFilter();
@@ -38,7 +38,7 @@ private:
     Core::LocatorMatcherTasks matchers() final;
 };
 
-class CppCurrentDocumentFilter : public  Core::ILocatorFilter
+class CppCurrentDocumentFilter final : public  Core::ILocatorFilter
 {
 public:
     CppCurrentDocumentFilter();

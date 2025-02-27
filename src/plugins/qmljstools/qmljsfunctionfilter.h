@@ -9,7 +9,7 @@ namespace QmlJSTools::Internal {
 
 class LocatorData;
 
-class QmlJSFunctionsFilter : public Core::ILocatorFilter
+class QmlJSFunctionsFilter final : public Core::ILocatorFilter
 {
 public:
     QmlJSFunctionsFilter(LocatorData *data);

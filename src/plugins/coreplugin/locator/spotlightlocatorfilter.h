@@ -7,7 +7,7 @@
 
 namespace Core::Internal {
 
-class SpotlightLocatorFilter : public ILocatorFilter
+class SpotlightLocatorFilter final : public ILocatorFilter
 {
 public:
     SpotlightLocatorFilter();
