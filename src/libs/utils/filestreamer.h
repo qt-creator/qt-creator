@@ -42,7 +42,7 @@ public:
     void stop();
 
 signals:
-    void done();
+    void done(Tasking::DoneResult result);
 
 private:
     class FileStreamerPrivate *d = nullptr;
@@ -51,9 +51,7 @@ private:
 class FileStreamerTaskAdapter final : public Tasking::TaskAdapter<FileStreamer>
 {
 public:
-    FileStreamerTaskAdapter() {
-        connect(task(), &FileStreamer::done, this, [this] { emit done(task()->result()); });
-    }
+    FileStreamerTaskAdapter() { connect(task(), &FileStreamer::done, this, &TaskInterface::done); }
     void start() override { task()->start(); }
 };
 

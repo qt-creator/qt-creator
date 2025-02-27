@@ -415,7 +415,7 @@ FileStreamer::FileStreamer(QObject *parent)
 {
     connect(&d->m_taskTreeRunner, &TaskTreeRunner::done, this, [this](DoneWith result) {
         d->m_streamResult = toDoneResult(result == DoneWith::Success);
-        emit done();
+        emit done(d->m_streamResult);
     });
 }
 
