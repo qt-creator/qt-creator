@@ -304,6 +304,18 @@ void addOutputParserFactory(const std::function<Utils::OutputLineParser *(Target
 
 PROJECTEXPLORER_EXPORT QList<Utils::OutputLineParser *> createOutputParsers(Target *target);
 
+class PROJECTEXPLORER_EXPORT RunInterface : public QObject
+{
+    Q_OBJECT
+
+signals:
+    void canceled();
+};
+
+PROJECTEXPLORER_EXPORT Tasking::Storage<RunInterface> runStorage();
+using Canceler = std::function<std::pair<RunInterface *, void (RunInterface::*)()>()>;
+PROJECTEXPLORER_EXPORT Canceler canceler();
+
 class PROJECTEXPLORER_EXPORT RecipeRunner final : public RunWorker
 {
 public:

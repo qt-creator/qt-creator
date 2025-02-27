@@ -1950,6 +1950,17 @@ ProcessRunnerFactory::ProcessRunnerFactory(const QList<Id> &runConfigs)
     setSupportedRunConfigs(runConfigs);
 }
 
+Storage<RunInterface> runStorage()
+{
+    static Storage<RunInterface> theRunStorage;
+    return theRunStorage;
+}
+
+Canceler canceler()
+{
+    return [] { return std::make_pair(runStorage().activeStorage(), &RunInterface::canceled); };
+}
+
 void RecipeRunner::start()
 {
     QTC_CHECK(!m_taskTreeRunner.isRunning());
