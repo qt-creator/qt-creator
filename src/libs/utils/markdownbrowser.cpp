@@ -110,8 +110,8 @@ public:
     }
     static QIcon icon(bool isCopied)
     {
-        static QIcon clickedIcon(":/markdownbrowser/images/checkmark.png");
-        static QIcon unclickedIcon(":/markdownbrowser/images/code_copy_square.png");
+        static QIcon clickedIcon = Utils::Icons::OK.icon();
+        static QIcon unclickedIcon = Utils::Icons::COPY.icon();
         if (isCopied)
             return clickedIcon;
         return unclickedIcon;
