@@ -92,7 +92,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
     appendInitialBuildStep(Constants::MAKESTEP_BS_ID);
     appendInitialCleanStep(Constants::MAKESTEP_BS_ID);
 
-    setInitializer([this, target](const BuildInfo &info) {
+    setInitializer([this](const BuildInfo &info) {
         QMakeStep *qmakeStep = buildSteps()->firstOfType<QMakeStep>();
         QTC_ASSERT(qmakeStep, return);
 
