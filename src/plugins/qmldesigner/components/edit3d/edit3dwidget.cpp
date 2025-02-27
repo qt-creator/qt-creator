@@ -378,13 +378,13 @@ void Edit3DWidget::createContextMenu()
 
     m_importBundleAction = m_contextMenu->addAction(
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
-        tr("Import Component"), [&] {
+        tr("Import Bundle"), [&] {
             m_bundleHelper->importBundleToProject();
         });
 
     m_exportBundleAction = m_contextMenu->addAction(
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
-        tr("Export Component"), [&] {
+        tr("Export Bundle"), [&] {
             m_bundleHelper->exportBundle(m_view->selectedModelNodes());
         });
 

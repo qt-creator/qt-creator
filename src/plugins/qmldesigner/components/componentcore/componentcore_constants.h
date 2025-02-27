@@ -167,9 +167,9 @@ inline constexpr char editMaterialDisplayName[] = QT_TRANSLATE_NOOP("QmlDesigner
 inline constexpr char addToContentLibraryDisplayName[] = QT_TRANSLATE_NOOP(
     "QmlDesignerContextMenu", "Add to Content Library");
 inline constexpr char importComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                        "Import Component");
+                                                                        "Import Bundle");
 inline constexpr char exportComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                        "Export Component");
+                                                                        "Export Bundle");
 inline constexpr char editAnnotationsDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                        "Edit Annotations");
 inline constexpr char addMouseAreaFillDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
