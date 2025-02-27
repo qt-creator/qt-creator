@@ -1,3 +1,4 @@
+module StudioTheme
 singleton Values 1.0 Values.qml
 singleton Constants 1.0 Constants.qml
 ControlStyle 1.0 ControlStyle.qml
