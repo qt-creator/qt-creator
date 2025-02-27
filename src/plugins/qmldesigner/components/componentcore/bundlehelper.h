@@ -57,7 +57,7 @@ public:
     ~BundleHelper();
 
     void importBundleToProject();
-    void exportBundle(const ModelNode &node, const QPixmap &iconPixmap = QPixmap());
+    void exportBundle(const QList<ModelNode> &nodes, const QPixmap &iconPixmap = QPixmap());
     void getImageFromCache(const QString &qmlPath,
                            std::function<void(const QImage &image)> successCallback);
     QString nodeNameToComponentFileName(const QString &name) const;
@@ -71,18 +71,18 @@ private:
     QString getExportPath(const ModelNode &node) const;
     bool isMaterialBundle(const QString &bundleId) const;
     bool isItemBundle(const QString &bundleId) const;
-    void addIconAndCloseZip(const auto &image);
+    void addIconAndCloseZip(const QString &iconPath, const auto &image);
     Utils::FilePath componentPath(const ModelNode &node) const;
     QSet<AssetPath> getBundleComponentDependencies(const ModelNode &node) const;
-    void exportComponent(const ModelNode &node);
-    void exportNode(const ModelNode &node, const QPixmap &iconPixmap = QPixmap());
+    QJsonObject exportComponent(const ModelNode &node);
+    QJsonObject exportNode(const ModelNode &node, const QPixmap &iconPixmap = QPixmap());
 
     QPointer<AbstractView> m_view;
     QPointer<QWidget> m_widget;
     Utils::UniqueObjectPtr<BundleImporter> m_importer;
     std::unique_ptr<ZipWriter> m_zipWriter;
     std::unique_ptr<QTemporaryDir> m_tempDir;
-    QString m_iconPath;
+    int m_remainingIcons = 0;
 
     static constexpr char BUNDLE_VERSION[] = "1.0";
 };

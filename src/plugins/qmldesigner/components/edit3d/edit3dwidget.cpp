@@ -385,7 +385,7 @@ void Edit3DWidget::createContextMenu()
     m_exportBundleAction = m_contextMenu->addAction(
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
         tr("Export Component"), [&] {
-            m_bundleHelper->exportBundle(m_contextMenuTarget);
+            m_bundleHelper->exportBundle(m_view->selectedModelNodes());
         });
 
     m_contextMenu->addSeparator();

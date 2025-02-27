@@ -382,10 +382,11 @@ void MaterialBrowserWidget::importMaterial()
 {
     m_bundleHelper->importBundleToProject();
 }
+
 void MaterialBrowserWidget::exportMaterial()
 {
     ModelNode mat = m_materialBrowserModel->selectedMaterial();
-    m_bundleHelper->exportBundle(mat, m_previewImageProvider->getPixmap(mat));
+    m_bundleHelper->exportBundle({mat}, m_previewImageProvider->getPixmap(mat));
 }
 
 QString MaterialBrowserWidget::qmlSourcesPath()
