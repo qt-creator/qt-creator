@@ -20,6 +20,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QFileInfo>
 #include <QIODevice>
 #include <QLoggingCategory>
 #include <QMetaProperty>
@@ -362,6 +363,9 @@ void ItemLibraryModel::update(Model *model)
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     const bool blockNewImports = document->inFileComponentModelActive();
 #endif
+
+    TypeName currentFileType = QFileInfo(model->fileUrl().toLocalFile()).baseName().toUtf8();
+
     const QList<ItemLibraryEntry> itemLibEntries = model->itemLibraryEntries();
     for (const ItemLibraryEntry &entry : itemLibEntries) {
         NodeMetaInfo metaInfo;
@@ -421,6 +425,8 @@ void ItemLibraryModel::update(Model *model)
             if (isUsable) {
                 if (catName == ItemLibraryImport::userComponentsTitle()) {
                     if (entry.requiredImport().isEmpty()) { // user components
+                        if (currentFileType == entry.typeName())
+                            continue;
                         importSection = importHash[ItemLibraryImport::userComponentsTitle()];
                         if (!importSection) {
                             importSection = new ItemLibraryImport(
