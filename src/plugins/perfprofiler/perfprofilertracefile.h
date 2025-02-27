@@ -11,8 +11,7 @@
 #include <QObject>
 #include <QPointer>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 class PerfProfilerTraceFile : public Timeline::TimelineTraceFile
 {
@@ -28,7 +27,6 @@ signals:
     void blockAvailable(const QByteArray &buffer);
 
 protected:
-
     void clear();
     void setDevice(QIODevice *device) { m_device = device; }
     void readFromDevice();
@@ -51,5 +49,4 @@ protected:
     bool m_compressed;
 };
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

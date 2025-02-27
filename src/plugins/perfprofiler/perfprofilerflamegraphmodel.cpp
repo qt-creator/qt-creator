@@ -3,6 +3,7 @@
 
 #include "perfprofilerflamegraphmodel.h"
 #include "perfprofilertr.h"
+#include "perfresourcecounter.h"
 
 #include <QFileInfo>
 #include <QQueue>
@@ -10,8 +11,7 @@
 
 #include <unordered_map>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 class Payload
 {
@@ -399,5 +399,4 @@ void Payload::countLostRequest()
         allocator->lostResourceRequests += m_numSamples;
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

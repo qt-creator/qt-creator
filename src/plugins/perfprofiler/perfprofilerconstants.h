@@ -3,8 +3,7 @@
 
 #pragma once
 
-namespace PerfProfiler {
-namespace Constants {
+namespace PerfProfiler::Constants {
 
 const char PerfProfilerTaskLoadPerf[]   =
         "Analyzer.Menu.StartAnalyzer.PerfProfilerOptions.LoadPerf";
@@ -36,5 +35,4 @@ const char PerfZqfileMagic[] = "PTQFILE4.10";
 
 const char PERF_PROFILER_RUN_MODE[] = "RunConfiguration.PerfProfilerRunMode";
 
-} // namespace Constants
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Constants

@@ -10,8 +10,7 @@
 
 using namespace Utils;
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 PerfConfigEventsModel::PerfConfigEventsModel(PerfSettings *settings, QObject *parent) :
     QAbstractTableModel(parent), m_settings(settings)
@@ -404,5 +403,4 @@ PerfConfigEventsModel::EventDescription PerfConfigEventsModel::parseEvent(
 
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

@@ -34,8 +34,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 static const qint64 million = static_cast<qint64>(1000000);
 
@@ -398,5 +397,4 @@ FilePath findPerfParser()
     return filePath;
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

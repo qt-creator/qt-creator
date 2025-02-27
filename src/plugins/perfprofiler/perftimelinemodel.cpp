@@ -1,8 +1,8 @@
 // Copyright (C) 2018 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "perfdatareader.h"
 #include "perfprofilertr.h"
+#include "perfprofilertracemanager.h"
 #include "perftimelinemodel.h"
 #include "perftimelinemodelmanager.h"
 #include "perftimelineresourcesrenderpass.h"
@@ -13,8 +13,7 @@
 #include <QCoreApplication>
 #include <QFileInfo>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 PerfTimelineModel::PerfTimelineModel(quint32 pid, quint32 tid, qint64 startTime, qint64 endTime,
                                      PerfTimelineModelManager *parent) :
@@ -627,5 +626,4 @@ QList<const Timeline::TimelineRenderPass *> PerfTimelineModel::supportedRenderPa
     return passes;
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

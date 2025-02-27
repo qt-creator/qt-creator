@@ -3,18 +3,17 @@
 
 #pragma once
 
-#include "perfprofiler_global.h"
 #include "perfeventtype.h"
 
 #include <tracing/traceevent.h>
+
 #include <utils/qtcassert.h>
 
+#include <QDataStream>
 #include <QVariant>
 #include <QVector>
-#include <QDataStream>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 class PerfEvent : public Timeline::TraceEvent
 {
@@ -182,5 +181,4 @@ inline QDataStream &operator<<(QDataStream &stream, const PerfEvent &event)
     return stream;
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

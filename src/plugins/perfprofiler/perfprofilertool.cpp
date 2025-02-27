@@ -31,6 +31,8 @@
 
 #include <qtsupport/qtkitaspect.h>
 
+#include <tracing/timelinezoomcontrol.h>
+
 #include <utils/algorithm.h>
 #include <utils/fancymainwindow.h>
 #include <utils/fileutils.h>

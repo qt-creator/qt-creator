@@ -7,4 +7,4 @@ namespace PerfProfiler::Internal {
 
 void setupPerfProfilerRunWorker();
 
-} // PerfProfiler::Internal
+} // namespace PerfProfiler::Internal

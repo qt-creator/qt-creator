@@ -41,6 +41,6 @@ class PerfProfilerPlugin final : public ExtensionSystem::IPlugin
     }
 };
 
-} // PerfProfiler::Internal
+} // namespace PerfProfiler::Internal
 
 #include "perfprofilerplugin.moc"

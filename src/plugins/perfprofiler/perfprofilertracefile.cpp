@@ -9,8 +9,7 @@
 #include <QGuiApplication>
 #include <QtEndian>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 Q_STATIC_ASSERT(sizeof(Constants::PerfStreamMagic) == sizeof(Constants::PerfZqfileMagic));
 
@@ -516,5 +515,4 @@ void PerfProfilerTraceFile::clear()
     m_compressed = false;
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

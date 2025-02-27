@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "perfevent.h"
 #include "perfresourcecounter.h"
 
 #include <tracing/timelinemodelaggregator.h>
@@ -14,12 +13,12 @@
 
 namespace PerfProfiler::Internal {
 
+class PerfEvent;
+class PerfEventType;
 class PerfTimelineModel;
 
 class PerfTimelineModelManager : public Timeline::TimelineModelAggregator
 {
-    Q_OBJECT
-
 public:
     PerfTimelineModelManager();
     ~PerfTimelineModelManager();

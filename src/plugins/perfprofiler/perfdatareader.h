@@ -4,7 +4,6 @@
 #pragma once
 
 #include "perfprofilertracefile.h"
-#include "perftimelinemodelmanager.h"
 
 #include <utils/temporaryfile.h>
 
@@ -18,8 +17,7 @@ class Kit;
 class RunControl;
 } // ProjectExplorer
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 Utils::FilePath findPerfParser();
 
@@ -85,5 +83,4 @@ private:
     qint64 delay(qint64 currentTime);
 };
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

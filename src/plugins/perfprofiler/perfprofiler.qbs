@@ -51,7 +51,6 @@ QtcPlugin {
         "perfprofilertracefile.h",
         "perfprofilertraceview.cpp",
         "perfprofilertraceview.h",
-        "perfresourcecounter.cpp",
         "perfresourcecounter.h",
         "perfrunconfigurationaspect.cpp",
         "perfrunconfigurationaspect.h",

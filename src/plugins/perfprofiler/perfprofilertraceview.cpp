@@ -4,6 +4,7 @@
 #include "perfprofilertool.h"
 #include "perfprofilertraceview.h"
 #include "perftimelinemodel.h"
+#include "perftimelinemodelmanager.h"
 
 #include <tracing/timelineformattime.h>
 #include <tracing/timelineoverviewrenderer.h>
@@ -13,8 +14,7 @@
 #include <QQmlContext>
 #include <QQmlEngine>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 PerfProfilerTraceView::PerfProfilerTraceView(QWidget *parent, PerfProfilerTool *tool)
     : QQuickWidget(parent)
@@ -82,6 +82,5 @@ void PerfProfilerTraceView::updateCursorPosition()
     emit typeSelected(model->typeId(root->property("selectedItem").toInt()));
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal
 

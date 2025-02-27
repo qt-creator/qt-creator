@@ -6,15 +6,16 @@
 #include "perfevent.h"
 #include "perfeventtype.h"
 
-#include <projectexplorer/kit.h>
-
 #include <tracing/timelinetracemanager.h>
 #include <tracing/tracestashfile.h>
 
+#include <utils/filepath.h>
+
 #include <QTimer>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace ProjectExplorer { class Kit; }
+
+namespace PerfProfiler::Internal {
 
 class PerfProfilerEventStorage : public Timeline::TraceEventStorage
 {
@@ -230,5 +231,4 @@ inline QDataStream &operator<<(QDataStream &stream, const PerfProfilerTraceManag
 
 PerfProfilerTraceManager &traceManager();
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

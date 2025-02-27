@@ -3,14 +3,12 @@
 
 #pragma once
 
-#include "perfprofiler_global.h"
 #include <utils/qtcassert.h>
 
 #include <vector>
 #include <map>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 struct NoPayload
 {
@@ -446,5 +444,4 @@ private:
     qint64 m_maxTotal = 0;
 };
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

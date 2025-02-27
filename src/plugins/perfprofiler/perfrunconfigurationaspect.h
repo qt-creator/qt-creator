@@ -13,4 +13,4 @@ public:
     explicit PerfRunConfigurationAspect(ProjectExplorer::Target *target);
 };
 
-} // PerfProfiler::Internal
+} // namespace PerfProfiler::Internal

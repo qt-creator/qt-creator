@@ -3,6 +3,7 @@
 
 #include "perfprofilerstatisticsmodel.h"
 #include "perfprofilerstatisticsview.h"
+#include "perfprofilertracemanager.h"
 
 #include <coreplugin/minisplitter.h>
 
@@ -13,12 +14,10 @@
 #include <QStyledItemDelegate>
 #include <QVBoxLayout>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 class StatisticsView : public Utils::BaseTreeView
 {
-    Q_OBJECT
 public:
     StatisticsView(QWidget *parent);
     void clear();
@@ -30,7 +29,6 @@ public:
 
 class HexNumberDelegate : public QStyledItemDelegate
 {
-    Q_OBJECT
 public:
     HexNumberDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) {}
 
@@ -213,7 +211,4 @@ void StatisticsView::copySelectionToClipboard() const
         sendToClipboard(rowToString(currentIndex().row()));
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
-
-#include "perfprofilerstatisticsview.moc"
+} // namespace PerfProfiler::Internal

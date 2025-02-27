@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "perfprofilerstatisticsmodel.h"
+#include "perfprofilertracemanager.h"
 #include "perfprofilertr.h"
 
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 static const char *headerLabels[] = {
     QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Address"),
@@ -507,5 +507,4 @@ const PerfProfilerStatisticsMainModel *PerfProfilerStatisticsRelativesModel::mai
     return static_cast<const PerfProfilerStatisticsMainModel *>(parent());
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

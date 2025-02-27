@@ -3,20 +3,19 @@
 
 #pragma once
 
-#include "perfprofilertracemanager.h"
-#include "perftimelinemodelmanager.h"
-#include "perfresourcecounter.h"
-
 #include <tracing/timelinemodel.h>
 
-#include <QStack>
+#include "perfevent.h"
+#include "perfresourcecounter.h"
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
+
+class PerfTimelineModelManager;
 
 class PerfTimelineModel : public Timeline::TimelineModel
 {
     Q_OBJECT
+
 public:
 
     struct LocationStats {
@@ -142,5 +141,4 @@ private:
                    int guesses);
 };
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

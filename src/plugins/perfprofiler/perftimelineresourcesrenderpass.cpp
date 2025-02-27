@@ -11,8 +11,7 @@
 
 #include <QSGFlatColorMaterial>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 class ResourcesRenderPassState final : public Timeline::TimelineRenderPass::State
 {
@@ -236,5 +235,4 @@ void ResourcesRenderPassState::addGeometry(QSGGeometry *geometry)
     m_geometries.append(geometry);
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

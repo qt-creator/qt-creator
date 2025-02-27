@@ -3,15 +3,13 @@
 
 #pragma once
 
-#include "perfprofilertracemanager.h"
-
 #include <QAbstractItemModel>
 #include <QFont>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 struct PerfProfilerStatisticsData;
+
 class PerfProfilerStatisticsModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -105,8 +103,8 @@ private:
     std::unique_ptr<PerfProfilerStatisticsData> m_offlineData;
 };
 
-class PerfProfilerStatisticsRelativesModel : public PerfProfilerStatisticsModel {
-    Q_OBJECT
+class PerfProfilerStatisticsRelativesModel : public PerfProfilerStatisticsModel
+{
 public:
     struct Data {
         uint totalOccurrences;
@@ -140,5 +138,4 @@ private:
     int m_currentRelative;
 };
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal
