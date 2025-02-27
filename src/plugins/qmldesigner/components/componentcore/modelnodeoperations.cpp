@@ -14,12 +14,15 @@
 
 #include <bindingproperty.h>
 #include <choosefrompropertylistdialog.h>
+#include <designdocumentview.h>
 #include <designermcumanager.h>
 #include <designmodewidget.h>
 #include <documentmanager.h>
 #include <itemlibraryentry.h>
+#include <modelmerger.h>
 #include <modelnode.h>
 #include <modelnodeutils.h>
+#include <modelutils.h>
 #include <nodehints.h>
 #include <nodeinstanceview.h>
 #include <nodelistproperty.h>
@@ -59,6 +62,7 @@
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/smallstring.h>
@@ -863,6 +867,90 @@ void moveToComponent(const SelectionContext &selectionContext)
 
     if (modelNode.isValid())
         selectionContext.view()->model()->rewriterView()->moveToComponent(modelNode);
+}
+
+void extractComponent(const SelectionContext &selectionContext)
+{
+    ModelNode selectedNode = selectionContext.currentSingleSelectedNode();
+    AbstractView *contextView = selectionContext.view();
+
+    // Get the path of the qml component
+    QString filePath = ModelUtils::componentFilePath(selectedNode);
+    if (filePath.isEmpty()) {
+        qWarning() << "Qml file for component " << selectedNode.displayName() << "not found!";
+        return;
+    }
+
+    // Read the content of the qml component
+    QString componentText;
+    Utils::FilePath path = Utils::FilePath::fromString(filePath);
+    Utils::FileReader reader;
+    if (!reader.fetch(path)) {
+        qWarning() << "Cannot open component file " << filePath;
+        return;
+    }
+    componentText = QString::fromUtf8(reader.data());
+
+#ifdef QDS_USE_PROJECTSTORAGE
+    ModelPointer inputModel = contextView->model()->createModel("Rectangle");
+#else
+    ModelPointer inputModel = Model::create("QtQuick.Rectangle", 1, 0, contextView->model());
+    inputModel->setFileUrl(contextView->model()->fileUrl());
+#endif
+
+    // Create ModelNodes from qml string
+    // This is not including the root node by default
+    QPlainTextEdit textEdit;
+    QString imports;
+    const QList<Import> modelImports = contextView->model()->imports();
+    for (const Import &import : modelImports)
+        imports += "import " + import.toString(true) + QLatin1Char('\n');
+
+    textEdit.setPlainText(imports + componentText);
+    NotIndentingTextEditModifier modifier(textEdit.document());
+
+    RewriterView rewriterView{contextView->externalDependencies()};
+    rewriterView.setCheckSemanticErrors(false);
+    rewriterView.setPossibleImportsEnabled(false);
+    rewriterView.setTextModifier(&modifier);
+    inputModel->setRewriterView(&rewriterView);
+    rewriterView.restoreAuxiliaryData();
+
+    if (rewriterView.errors().isEmpty() && rewriterView.rootModelNode().isValid()) {
+        try {
+            ModelMerger merger(contextView);
+            merger.insertModel(rewriterView.rootModelNode());
+        } catch(Exception &/*e*/) {
+            qWarning() << "Cannot add model " << rewriterView.rootModelNode().displayName();
+            return;
+        }
+    }
+
+    // Merge the nodes in to the current document model
+    ModelPointer pasteModel = DesignDocumentView::pasteToModel(contextView->externalDependencies());
+    QTC_ASSERT(pasteModel, return);
+
+    DesignDocumentView view{contextView->externalDependencies()};
+    pasteModel->attachView(&view);
+    QTC_ASSERT(view.rootModelNode().isValid(), return);
+
+    pasteModel->detachView(&view);
+    contextView->model()->attachView(&view);
+    ModelNode originalNode = rewriterView.rootModelNode();
+    view.executeInTransaction("DesignerActionManager::extractComponent", [=, &view]() {
+        // Acquire the root of selected node
+        const ModelNode rootOfSelection = selectedNode.parentProperty().parentModelNode();
+        QTC_ASSERT(rootOfSelection.isValid(), return);
+
+        ModelNode newNode = view.insertModel(originalNode);
+        rootOfSelection.defaultNodeListProperty().reparentHere(newNode);
+
+        // Delete current selected node
+        QmlDesignerPlugin::instance()->currentDesignDocument()->deleteSelected();
+
+        // Set selection to inserted nodes
+        contextView->setSelectedModelNode(newNode);
+    });
 }
 
 void add3DAssetToContentLibrary(const SelectionContext &selectionContext)

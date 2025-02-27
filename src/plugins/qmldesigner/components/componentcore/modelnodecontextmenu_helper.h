@@ -48,6 +48,20 @@ inline bool inBaseState(const SelectionContext &selectionState)
     return selectionState.isInBaseState();
 }
 
+inline bool isFileComponent(const SelectionContext &selectionContext)
+{
+    //TODO: FLAG to hide/show the action until it's completed
+    bool shouldShowAction = false;
+    if (shouldShowAction && selectionContext.isValid() && selectionContext.singleNodeIsSelected()) {
+        ModelNode node = selectionContext.currentSingleSelectedNode();
+        if (node.hasMetaInfo()) {
+            NodeMetaInfo nodeInfo = node.metaInfo();
+            return nodeInfo.isFileComponent();
+        }
+    }
+    return false;
+}
+
 inline bool singleSelection(const SelectionContext &selectionState)
 {
     return selectionState.singleNodeIsSelected();

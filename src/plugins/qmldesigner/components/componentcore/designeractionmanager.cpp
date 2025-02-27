@@ -1958,7 +1958,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                                                      contextIcon(DesignerIcons::EnterComponentIcon),
                                                      rootCategory,
                                                      QKeySequence(Qt::Key_F2),
-                                                     Priorities::ComponentActions + 4,
+                                                     Priorities::ComponentActions + 5,
                                                      &goIntoComponentOperation,
                                                      &selectionIsEditableComponent));
 
@@ -2028,12 +2028,23 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &singleSelection));
 
     addDesignerAction(new ModelNodeContextMenuAction(
+        extractComponentCommandId,
+        extractComponentDisplayName,
+        contextIcon(DesignerIcons::MakeComponentIcon),
+        rootCategory,
+        QKeySequence(),
+        Priorities::ComponentActions + 3,
+        &extractComponent,
+        &singleSelection,
+        &isFileComponent));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
         editInEffectComposerCommandId,
         editInEffectComposerDisplayName,
         contextIcon(DesignerIcons::EditIcon),
         rootCategory,
         QKeySequence(),
-        Priorities::ComponentActions + 3,
+        Priorities::ComponentActions + 4,
         &editInEffectComposer,
         &SelectionContextFunctors::always, // If action is visible, it is usable
         &singleSelectionEffectComposer));

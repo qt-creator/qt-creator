@@ -72,6 +72,7 @@ inline constexpr char jumpToCodeCommandId[] = "JumpToCode";
 inline constexpr char mergeTemplateCommandId[] = "MergeTemplate";
 inline constexpr char goToImplementationCommandId[] = "GoToImplementation";
 inline constexpr char makeComponentCommandId[] = "MakeComponent";
+inline constexpr char extractComponentCommandId[] = "ExtractComponent";
 inline constexpr char importComponentCommandId[] = "ImportComponent";
 inline constexpr char exportComponentCommandId[] = "ExportComponent";
 inline constexpr char editMaterialCommandId[] = "EditMaterial";
@@ -167,6 +168,8 @@ inline constexpr char goToImplementationDisplayName[] = QT_TRANSLATE_NOOP("QmlDe
                                                                           "Go to Implementation");
 inline constexpr char makeComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                      "Create Component");
+inline constexpr char extractComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
+                                                                        "Extract Component");
 inline constexpr char editMaterialDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                     "Edit Material");
 inline constexpr char addToContentLibraryDisplayName[] = QT_TRANSLATE_NOOP(
