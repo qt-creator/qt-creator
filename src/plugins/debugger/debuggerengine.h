@@ -39,8 +39,6 @@ class Result;
 
 namespace Debugger {
 
-class DebuggerRunTool;
-
 enum DebuggerState
 {
     DebuggerNotReady,          // Debugger not started

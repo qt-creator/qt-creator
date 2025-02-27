@@ -14,7 +14,6 @@
 #include "project/nimproject.h"
 #include "project/nimrunconfiguration.h"
 #include "project/nimtoolchain.h"
-#include "settings/nimcodestylepreferencesfactory.h"
 #include "settings/nimcodestylesettingspage.h"
 
 #include <extensionsystem/iplugin.h>

@@ -13,8 +13,6 @@
 #include "pythontr.h"
 #include "pythonwizardpage.h"
 
-#include <debugger/debuggerruncontrol.h>
-
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/buildtargetinfo.h>
@@ -29,7 +27,6 @@
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/theme/theme.h>
 
-using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
