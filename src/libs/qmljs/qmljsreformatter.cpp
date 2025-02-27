@@ -526,6 +526,10 @@ protected:
     {
         out("pragma ", ast->pragmaToken);
         out(ast->name.toString());
+        if (!ast->value.isEmpty()) {
+            out(": ");
+            out(ast->value.toString());
+        }
         newLine();
         return false;
     }
