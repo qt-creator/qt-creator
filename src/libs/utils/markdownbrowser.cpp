@@ -332,12 +332,39 @@ public:
         Q_UNUSED(document);
         Q_UNUSED(posInDocument);
 
-        Entry::Pointer *entryPtr = m_entries.object(format.toImageFormat().name());
+        const QString name = format.toImageFormat().name();
+        Entry::Pointer *entryPtr = m_entries.object(name);
 
-        if (!entryPtr)
+        if (!entryPtr) {
+            constexpr QStringView themeScheme(u"theme://");
+            constexpr QStringView iconScheme(u"icon://");
+
+            QVariant resource = document->resource(QTextDocument::ImageResource, name);
+            if (resource.isValid()) {
+                const QImage img = qvariant_cast<QImage>(resource);
+                if (!img.isNull()) {
+                    painter->drawImage(rect, img);
+                    return;
+                }
+            } else if (name.startsWith(themeScheme)) {
+                const QIcon icon = QIcon::fromTheme(name.mid(themeScheme.length()));
+                if (!icon.isNull()) {
+                    painter->drawPixmap(
+                        rect.toRect(),
+                        icon.pixmap(rect.size().toSize(), painter->device()->devicePixelRatioF()));
+                    return;
+                }
+            } else if (name.startsWith(iconScheme)) {
+                std::optional<Icon> icon = Icons::fromString(name.mid(iconScheme.length()));
+                if (icon) {
+                    painter->drawPixmap(rect.toRect(), icon->pixmap());
+                    return;
+                }
+            }
+
             painter->drawPixmap(
                 rect.toRect(), Utils::Icons::UNKNOWN_FILE.icon().pixmap(rect.size().toSize()));
-        else if (!(*entryPtr)->movie.isValid())
+        } else if (!(*entryPtr)->movie.isValid())
             painter->drawPixmap(rect.toRect(), m_brokenImage.pixmap(rect.size().toSize()));
         else
             painter->drawImage(rect, (*entryPtr)->movie.currentImage());
@@ -418,8 +445,15 @@ public:
             };
 
             const auto isLocalUrl = [this, isRemoteUrl](const QUrl &url) {
+                QVariant res = this->resource(QTextDocument::ImageResource, url);
+                if (res.isValid())
+                    return false;
+
                 if (url.scheme() == "qrc")
                     return true;
+
+                if (!url.scheme().isEmpty())
+                    return false;
 
                 if (!m_basePath.isEmpty() && !isRemoteUrl(url))
                     return true;
