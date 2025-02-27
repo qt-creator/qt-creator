@@ -183,11 +183,11 @@ void NavigatorView::clearExplorerWarnings()
     QList<ModelNode> allNodes;
     allNodes.append(rootModelNode());
     allNodes.append(rootModelNode().allSubModelNodes());
-    for (ModelNode node : allNodes) {
+    for (const ModelNode &node : std::as_const(allNodes)) {
         if (node.metaInfo().isFileComponent()) {
-            const ProjectExplorer::FileNode *fnode = fileNodeForModelNode(node);
-            if (fnode)
-                fnode->setHasError(false);
+            const ProjectExplorer::FileNode *fNode = fileNodeForModelNode(node);
+            if (fNode)
+                fNode->setHasError(false);
         }
     }
 }
