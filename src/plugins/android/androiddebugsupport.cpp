@@ -90,7 +90,9 @@ public:
         setProducer([](RunControl *runControl) {
             DebuggerRunTool *debugger = new DebuggerRunTool(runControl);
             debugger->setId("AndroidDebugger");
+            debugger->setupPortsGatherer();
             DebuggerRunParameters &rp = debugger->runParameters();
+            rp.setSkipDebugServer(true);
             rp.setLldbPlatform("remote-android");
 
             auto runner = new AndroidRunner(runControl);
@@ -176,10 +178,10 @@ public:
                             // The port number must be removed to form a valid hostname
                             deviceSerialNumber.truncate(colonPos);
                         }
-                        rp.setRemoteChannel("adb://" + deviceSerialNumber, runner->debugServerPort().number());
+                        rp.setRemoteChannel("adb://" + deviceSerialNumber, runControl->debugChannel().port());
                     } else {
                         QUrl debugServer;
-                        debugServer.setPort(runner->debugServerPort().number());
+                        debugServer.setPort(runControl->debugChannel().port());
                         debugServer.setHost(QHostAddress(QHostAddress::LocalHost).toString());
                         rp.setRemoteChannel(debugServer);
                     }

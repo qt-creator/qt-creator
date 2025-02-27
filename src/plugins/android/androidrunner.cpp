@@ -113,10 +113,9 @@ void AndroidRunner::stop()
     emit canceled();
 }
 
-void AndroidRunner::remoteStarted(const Port &debugServerPort, qint64 pid)
+void AndroidRunner::remoteStarted(qint64 pid)
 {
     m_pid = ProcessHandle(pid);
-    m_debugServerPort = debugServerPort;
     reportStarted();
 }
 

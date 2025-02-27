@@ -18,7 +18,6 @@ class AndroidRunner : public ProjectExplorer::RunWorker
 public:
     explicit AndroidRunner(ProjectExplorer::RunControl *runControl);
 
-    Utils::Port debugServerPort() const { return m_debugServerPort; } // GDB or LLDB
     Utils::ProcessHandle pid() const { return m_pid; }
 
     void start() override;
@@ -28,12 +27,11 @@ signals:
     void canceled();
 
 private:
-    void remoteStarted(const Utils::Port &debugServerPort, qint64 pid);
+    void remoteStarted(qint64 pid);
     void remoteFinished(const QString &errString);
     void remoteStdOut(const QString &output);
     void remoteStdErr(const QString &output);
 
-    Utils::Port m_debugServerPort;
     Utils::ProcessHandle m_pid;
     QmlDebug::QmlOutputParser m_outputParser;
     Tasking::TaskTreeRunner m_taskTreeRunner;

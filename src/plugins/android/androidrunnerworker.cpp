@@ -59,7 +59,6 @@ static const QRegularExpression userIdPattern("u(\\d+)_a");
 static const std::chrono::milliseconds s_jdbTimeout = 60s;
 
 static const Port s_localJdbServerPort(5038);
-static const Port s_localDebugServerPort(5039); // Local end of forwarded debug socket.
 
 static qint64 extractPID(const QString &output, const QString &packageName)
 {
@@ -158,6 +157,11 @@ public:
     {
         // run-as <package-name> pwd fails on API 22 so route the pwd through shell.
         return QStringList{"shell", "run-as", m_packageName} + userArgs();
+    }
+
+    QString debugPortString() const
+    {
+        return QString::number(m_glue->runControl()->debugChannel().port());
     }
 
     RunnerInterface *m_glue = nullptr;
@@ -655,7 +659,7 @@ static ExecutableItem uploadDebugServerRecipe(const Storage<RunnerStorage> &stor
 
     const auto onDebugSetupFinished = [storage] {
         storage->m_glue->runControl()->setQmlChannel(storage->m_qmlServer);
-        emit storage->m_glue->started(s_localDebugServerPort, storage->m_processPID);
+        emit storage->m_glue->started(storage->m_processPID);
     };
 
     return Group {
@@ -753,8 +757,9 @@ static ExecutableItem startNativeDebuggingRecipe(const Storage<RunnerStorage> &s
 
     const auto onDebugServerSetup = [storage, packageDirStorage, debugServerFileStorage](Process &process) {
         if (storage->m_useLldb) {
-            process.setCommand(storage->adbCommand({storage->packageArgs(), *debugServerFileStorage, "platform",
-                                                    "--listen", QString("*:%1").arg(s_localDebugServerPort.toString())}));
+            process.setCommand(storage->adbCommand(
+                {storage->packageArgs(), *debugServerFileStorage, "platform",
+                 "--listen", QString("*:%1").arg(storage->debugPortString())}));
         } else {
             const QString gdbServerSocket = *packageDirStorage + "/debug-socket";
             process.setCommand(storage->adbCommand({storage->packageArgs(), *debugServerFileStorage, "--multi",
@@ -765,7 +770,7 @@ static ExecutableItem startNativeDebuggingRecipe(const Storage<RunnerStorage> &s
     const auto onTaskTreeSetup = [storage, packageDirStorage](TaskTree &taskTree) {
         const QString gdbServerSocket = *packageDirStorage + "/debug-socket";
         taskTree.setRecipe({removeForwardPortRecipe(storage.activeStorage(),
-                                                    "tcp:" + s_localDebugServerPort.toString(),
+                                                    "tcp:" + storage->debugPortString(),
                                                     "localfilesystem:" + gdbServerSocket, "C++")});
     };
 
@@ -837,7 +842,7 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
                 qCDebug(androidRunWorkerLog) << "Process ID changed to:" << storage->m_processPID;
                 if (!storage->m_useCppDebugger) {
                     storage->m_glue->runControl()->setQmlChannel(storage->m_qmlServer);
-                    emit storage->m_glue->started(s_localDebugServerPort, storage->m_processPID);
+                    emit storage->m_glue->started(storage->m_processPID);
                 }
                 return DoneResult::Success;
             }
