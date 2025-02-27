@@ -288,22 +288,16 @@ private:
     WriteBuffer *m_writeBuffer = nullptr;
 };
 
-class FileStreamReaderAdapter : public TaskAdapter<FileStreamReader>
+template <typename Worker>
+class Adapter : public TaskAdapter<Worker>
 {
 public:
-    FileStreamReaderAdapter() { connect(task(), &FileStreamBase::done, this, &TaskInterface::done); }
-    void start() override { task()->start(); }
+    Adapter() { this->connect(this->task(), &Worker::done, this, &TaskInterface::done); }
+    void start() final { this->task()->start(); }
 };
 
-class FileStreamWriterAdapter : public TaskAdapter<FileStreamWriter>
-{
-public:
-    FileStreamWriterAdapter() { connect(task(), &FileStreamBase::done, this, &TaskInterface::done); }
-    void start() override { task()->start(); }
-};
-
-using FileStreamReaderTask = CustomTask<FileStreamReaderAdapter>;
-using FileStreamWriterTask = CustomTask<FileStreamWriterAdapter>;
+using FileStreamReaderTask = CustomTask<Adapter<FileStreamReader>>;
+using FileStreamWriterTask = CustomTask<Adapter<FileStreamWriter>>;
 
 static Group sameRemoteDeviceTransferTask(const FilePath &source, const FilePath &destination)
 {
