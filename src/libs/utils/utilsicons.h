@@ -10,6 +10,8 @@
 namespace Utils {
 namespace Icons {
 
+QTCREATOR_UTILS_EXPORT std::optional<Icon> fromString(const QString &name);
+
 QTCREATOR_UTILS_EXPORT extern const Icon HOME;
 QTCREATOR_UTILS_EXPORT extern const Icon HOME_TOOLBAR;
 QTCREATOR_UTILS_EXPORT extern const Icon EDIT_CLEAR;
@@ -187,5 +189,5 @@ enum Type {
 
 QTCREATOR_UTILS_EXPORT QIcon iconForType(Type type);
 
-} // namespace CodeModel
+} // namespace CodeModelIcon
 } // namespace Utils
