@@ -517,6 +517,11 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     m_dependenciesTitle = sectionTitle(h6TF, Tr::tr("Dependencies"));
     m_dependencies = new QLabel;
     applyTf(m_dependencies, contentTF, false);
+    m_dependencies->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
+    connect(m_dependencies, &QLabel::linkActivated, this, [this](const QString &link) {
+        m_extensionBrowser->selectIndex(m_extensionModel->indexOfId(link));
+    });
+
     m_packExtensionsTitle = sectionTitle(h6TF, Tr::tr("Extensions in pack"));
     m_packExtensions = new QLabel;
     applyTf(m_packExtensions, contentTF, false);
@@ -635,7 +640,8 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
     {
         auto idToDisplayName = [this](const QString &id) {
             const QModelIndex dependencyIndex = m_extensionModel->indexOfId(id);
-            return dependencyIndex.data(RoleName).toString();
+            const QString displayName = dependencyIndex.data(RoleName).toString();
+            return QString("<a href=\"%1\">%2</a>").arg(id).arg(displayName);
         };
 
         auto toContentParagraph = [](const QStringList &text) {

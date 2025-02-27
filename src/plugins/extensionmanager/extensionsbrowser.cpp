@@ -722,6 +722,11 @@ QModelIndex ExtensionsBrowser::currentIndex() const
     return d->selectionModel->currentIndex();
 }
 
+void ExtensionsBrowser::selectIndex(const QModelIndex &index)
+{
+    d->selectionModel->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
+}
+
 void ExtensionsBrowser::fetchExtensions()
 {
 #ifdef WITH_TESTS
