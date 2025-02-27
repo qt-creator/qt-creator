@@ -100,13 +100,13 @@ auto makeCollectorDispatcherChain(ImageCacheCollector &nodeInstanceCollector,
         std::make_pair([](Utils::SmallStringView filePath,
                           [[maybe_unused]] Utils::SmallStringView state,
                           [[maybe_unused]] const QmlDesigner::ImageCache::AuxiliaryData
-                              &auxiliaryData) { return filePath.endsWith(".qml"); },
+                              &auxiliaryData) { return filePath.ends_with(".qml"); },
                        &nodeInstanceCollector),
         std::make_pair(
             [](Utils::SmallStringView filePath,
                [[maybe_unused]] Utils::SmallStringView state,
                [[maybe_unused]] const QmlDesigner::ImageCache::AuxiliaryData &auxiliaryData) {
-                return filePath.endsWith(".mesh") || filePath.startsWith("#");
+                return filePath.ends_with(".mesh") || filePath.starts_with("#");
             },
             &meshImageCollector),
         std::make_pair(
