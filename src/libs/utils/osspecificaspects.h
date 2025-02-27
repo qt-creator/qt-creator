@@ -43,7 +43,8 @@ inline Utils::expected_str<OsType> osTypeFromString(const QString &string)
     if (string.compare("linux", Qt::CaseInsensitive) == 0)
         return OsTypeLinux;
     if (string.compare("mac", Qt::CaseInsensitive) == 0
-        || string.compare("darwin", Qt::CaseInsensitive) == 0)
+        || string.compare("darwin", Qt::CaseInsensitive) == 0
+        || string.compare("macos", Qt::CaseInsensitive) == 0)
         return OsTypeMac;
     if (string.compare("other unix", Qt::CaseInsensitive) == 0)
         return OsTypeOtherUnix;
