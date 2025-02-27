@@ -1106,6 +1106,11 @@ void TerminalView::focusOutEvent(QFocusEvent *)
 
 void TerminalView::inputMethodEvent(QInputMethodEvent *event)
 {
+    // Gnome sends empty events when switching virtual desktops, so ignore those.
+    if (event->commitString().isEmpty() && event->preeditString().isEmpty()
+        && event->attributes().empty() && d->m_preEditString.isEmpty())
+        return;
+
     verticalScrollBar()->setValue(verticalScrollBar()->maximum());
 
     d->m_preEditString = event->preeditString();
