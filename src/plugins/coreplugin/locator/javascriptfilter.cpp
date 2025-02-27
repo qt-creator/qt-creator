@@ -342,15 +342,7 @@ private:
     JavaScriptOutput m_output;
 };
 
-class JavaScriptRequestAdapter : public TaskAdapter<JavaScriptRequest>
-{
-public:
-    JavaScriptRequestAdapter() { connect(task(), &JavaScriptRequest::done,
-                                         this, &TaskInterface::done); }
-    void start() final { task()->start(); }
-};
-
-using JavaScriptRequestTask = CustomTask<JavaScriptRequestAdapter>;
+using JavaScriptRequestTask = SimpleCustomTask<JavaScriptRequest>;
 
 namespace Core::Internal {
 

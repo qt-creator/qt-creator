@@ -362,27 +362,19 @@ public:
     void start() {
         QTimer::singleShot(0, this, [this] {
             emit tick();
-            QTimer::singleShot(m_interval, this, &TickAndDone::done);
+            QTimer::singleShot(m_interval, this, [this] { emit done(DoneResult::Success); });
         });
     }
 
 signals:
     void tick();
-    void done();
+    void done(DoneResult result);
 
 private:
     milliseconds m_interval;
 };
 
-class TickAndDoneTaskAdapter : public TaskAdapter<TickAndDone>
-{
-public:
-    TickAndDoneTaskAdapter() { connect(task(), &TickAndDone::done, this,
-                                       [this] { emit done(DoneResult::Success); }); }
-    void start() final { task()->start(); }
-};
-
-using TickAndDoneTask = CustomTask<TickAndDoneTaskAdapter>;
+using TickAndDoneTask = SimpleCustomTask<TickAndDone>;
 
 template <typename SharedBarrierType>
 ExecutableItem createBarrierAdvance(const Storage<CustomStorage> &storage,

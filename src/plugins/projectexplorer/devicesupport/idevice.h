@@ -319,14 +319,6 @@ private:
     Utils::Result m_result = Utils::Result::Ok;
 };
 
-class PROJECTEXPLORER_EXPORT DeviceProcessKillerTaskAdapter final
-    : public Tasking::TaskAdapter<DeviceProcessKiller>
-{
-public:
-    DeviceProcessKillerTaskAdapter();
-    void start() final;
-};
-
-using DeviceProcessKillerTask = Tasking::CustomTask<DeviceProcessKillerTaskAdapter>;
+using DeviceProcessKillerTask = Tasking::SimpleCustomTask<DeviceProcessKiller>;
 
 } // namespace ProjectExplorer

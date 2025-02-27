@@ -621,6 +621,21 @@ private:
     }
 };
 
+template <typename Task>
+class SimpleTaskAdapter final : public TaskAdapter<Task>
+{
+public:
+    SimpleTaskAdapter() { this->connect(this->task(), &Task::done, this, &TaskInterface::done); }
+    void start() final { this->task()->start(); }
+};
+
+// A convenient helper, when:
+// 1. Task is derived from QObject.
+// 2. Task::start() method starts the task.
+// 3. Task::done(DoneResult) signal is emitted when the task is finished.
+template <typename Task>
+using SimpleCustomTask = CustomTask<SimpleTaskAdapter<Task>>;
+
 class TASKING_EXPORT TaskTree final : public QObject
 {
     Q_OBJECT

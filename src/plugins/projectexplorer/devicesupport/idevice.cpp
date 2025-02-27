@@ -775,16 +775,6 @@ void DeviceProcessKiller::start()
     m_signalOperation->killProcess(m_processPath.path());
 }
 
-DeviceProcessKillerTaskAdapter::DeviceProcessKillerTaskAdapter()
-{
-    connect(task(), &DeviceProcessKiller::done, this, &TaskInterface::done);
-}
-
-void DeviceProcessKillerTaskAdapter::start()
-{
-    task()->start();
-}
-
 // DeviceConstRef
 
 DeviceConstRef::DeviceConstRef(const IDevice::ConstPtr &device)

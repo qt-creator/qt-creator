@@ -52,16 +52,6 @@ TcpSocket::~TcpSocket()
     }
 }
 
-TcpSocketTaskAdapter::TcpSocketTaskAdapter()
-{
-    connect(task(), &TcpSocket::done, this, &TaskInterface::done);
-}
-
-void TcpSocketTaskAdapter::start()
-{
-    task()->start();
-}
-
 } // namespace Tasking
 
 QT_END_NAMESPACE

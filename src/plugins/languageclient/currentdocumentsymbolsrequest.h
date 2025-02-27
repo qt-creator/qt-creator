@@ -39,15 +39,6 @@ private:
     QList<QMetaObject::Connection> m_connections;
 };
 
-class LANGUAGECLIENT_EXPORT CurrentDocumentSymbolsRequestTaskAdapter final
-    : public Tasking::TaskAdapter<CurrentDocumentSymbolsRequest>
-{
-public:
-    CurrentDocumentSymbolsRequestTaskAdapter();
-    void start() final;
-};
-
-using CurrentDocumentSymbolsRequestTask
-    = Tasking::CustomTask<CurrentDocumentSymbolsRequestTaskAdapter>;
+using CurrentDocumentSymbolsRequestTask = Tasking::SimpleCustomTask<CurrentDocumentSymbolsRequest>;
 
 } // namespace LanguageClient

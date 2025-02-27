@@ -215,14 +215,4 @@ void Unarchiver::start()
     m_process->start();
 }
 
-UnarchiverTaskAdapter::UnarchiverTaskAdapter()
-{
-    connect(task(), &Unarchiver::done, this, &TaskInterface::done);
-}
-
-void UnarchiverTaskAdapter::start()
-{
-    task()->start();
-}
-
 } // namespace Utils

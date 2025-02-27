@@ -48,13 +48,6 @@ private:
     class FileStreamerPrivate *d = nullptr;
 };
 
-class FileStreamerTaskAdapter final : public Tasking::TaskAdapter<FileStreamer>
-{
-public:
-    FileStreamerTaskAdapter() { connect(task(), &FileStreamer::done, this, &TaskInterface::done); }
-    void start() override { task()->start(); }
-};
-
-using FileStreamerTask = Tasking::CustomTask<FileStreamerTaskAdapter>;
+using FileStreamerTask = Tasking::SimpleCustomTask<FileStreamer>;
 
 } // namespace Utils

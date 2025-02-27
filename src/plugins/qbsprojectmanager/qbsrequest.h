@@ -44,15 +44,6 @@ private:
     QbsRequestObject *m_requestObject = nullptr;
 };
 
-class QbsRequestTaskAdapter final : public Tasking::TaskAdapter<QbsRequest>
-{
-public:
-    QbsRequestTaskAdapter() { connect(task(), &QbsRequest::done, this, &TaskInterface::done); }
-
-private:
-    void start() final { task()->start(); }
-};
-
-using QbsRequestTask = Tasking::CustomTask<QbsRequestTaskAdapter>;
+using QbsRequestTask = Tasking::SimpleCustomTask<QbsRequest>;
 
 } // namespace QbsProjectManager::Internal

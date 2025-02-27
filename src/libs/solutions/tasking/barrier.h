@@ -38,14 +38,7 @@ private:
     int m_current = -1;
 };
 
-class TASKING_EXPORT BarrierTaskAdapter : public TaskAdapter<Barrier>
-{
-public:
-    BarrierTaskAdapter() { connect(task(), &Barrier::done, this, &TaskInterface::done); }
-    void start() final { task()->start(); }
-};
-
-using BarrierTask = CustomTask<BarrierTaskAdapter>;
+using BarrierTask = SimpleCustomTask<Barrier>;
 
 template <int Limit = 1>
 class SharedBarrier

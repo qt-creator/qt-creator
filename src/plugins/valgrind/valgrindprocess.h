@@ -62,15 +62,6 @@ private:
     std::unique_ptr<ValgrindProcessPrivate> d;
 };
 
-class ValgrindProcessTaskAdapter final : public Tasking::TaskAdapter<ValgrindProcess>
-{
-public:
-    ValgrindProcessTaskAdapter() {
-        connect(task(), &ValgrindProcess::done, this, &Tasking::TaskInterface::done);
-    }
-    void start() final { task()->start(); }
-};
-
-using ValgrindProcessTask = Tasking::CustomTask<ValgrindProcessTaskAdapter>;
+using ValgrindProcessTask = Tasking::SimpleCustomTask<ValgrindProcess>;
 
 } // namespace Valgrind

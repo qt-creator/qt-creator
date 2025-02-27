@@ -96,16 +96,7 @@ private:
     std::unique_ptr<IosToolHandler> m_toolHandler;
 };
 
-class IosTransferTaskAdapter : public TaskAdapter<IosTransfer>
-{
-public:
-    IosTransferTaskAdapter() { connect(task(), &IosTransfer::done, this, &TaskInterface::done); }
-
-private:
-    void start() final { task()->start(); }
-};
-
-using IosTransferTask = CustomTask<IosTransferTaskAdapter>;
+using IosTransferTask = SimpleCustomTask<IosTransfer>;
 
 GroupItem createDeviceCtlDeployTask(
     const IosDevice::ConstPtr &device,
