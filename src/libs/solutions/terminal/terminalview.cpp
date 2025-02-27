@@ -966,12 +966,6 @@ void TerminalView::keyPressEvent(QKeyEvent *event)
                 verticalScrollBar()->value() - d->m_surface->liveSize().height(),
                 verticalScrollBar()->maximum()));
             break;
-        case Qt::Key_End:
-            verticalScrollBar()->setValue(verticalScrollBar()->maximum());
-            break;
-        case Qt::Key_Home:
-            verticalScrollBar()->setValue(0);
-            break;
         default:
             if (event->key() < Qt::Key_Shift || event->key() > Qt::Key_ScrollLock)
                 verticalScrollBar()->setValue(verticalScrollBar()->maximum());
