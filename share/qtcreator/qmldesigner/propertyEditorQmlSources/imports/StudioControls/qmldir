@@ -1,3 +1,4 @@
+module StudioControls
 AbstractButton 1.0 AbstractButton.qml
 ActionIndicator 1.0 ActionIndicator.qml
 Button 1.0 Button.qml
