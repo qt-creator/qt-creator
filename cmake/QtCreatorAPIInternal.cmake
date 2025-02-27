@@ -455,12 +455,33 @@ function(condition_info varName condition)
 endfunction()
 
 function(extend_qtc_target target_name)
-  cmake_parse_arguments(_arg
-    ""
-    "SOURCES_PREFIX;SOURCES_PREFIX_FROM_TARGET;FEATURE_INFO"
-    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;SYSTEM_INCLUDES;PUBLIC_INCLUDES;PUBLIC_SYSTEM_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES;SOURCES_PROPERTIES;PRIVATE_COMPILE_OPTIONS;PUBLIC_COMPILE_OPTIONS"
-    ${ARGN}
+  set(opt_args "")
+  set(single_args
+    SOURCES_PREFIX
+    SOURCES_PREFIX_FROM_TARGET
+    FEATURE_INFO
   )
+  set(multi_args
+    CONDITION
+    DEPENDS
+    PUBLIC_DEPENDS
+    DEFINES
+    PUBLIC_DEFINES
+    INCLUDES
+    SYSTEM_INCLUDES
+    PUBLIC_INCLUDES
+    PUBLIC_SYSTEM_INCLUDES
+    SOURCES
+    EXPLICIT_MOC
+    SKIP_AUTOMOC
+    EXTRA_TRANSLATIONS
+    PROPERTIES
+    SOURCES_PROPERTIES
+    PRIVATE_COMPILE_OPTIONS
+    PUBLIC_COMPILE_OPTIONS
+  )
+
+  cmake_parse_arguments(_arg "${opt_args}" "${single_args}" "${multi_args}" ${ARGN})
 
   if (${_arg_UNPARSED_ARGUMENTS})
     message(FATAL_ERROR "extend_qtc_target had unparsed arguments")
