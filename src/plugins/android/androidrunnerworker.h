@@ -40,8 +40,6 @@ signals:
     // business logic -> GUI
     void started(qint64 pid);
     void finished(const QString &errorMessage);
-    void stdOut(const QString &data);
-    void stdErr(const QString &data);
 
 private:
     ProjectExplorer::RunControl *m_runControl = nullptr;

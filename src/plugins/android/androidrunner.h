@@ -5,8 +5,6 @@
 
 #include <projectexplorer/runcontrol.h>
 
-#include <qmldebug/qmloutputparser.h>
-
 #include <solutions/tasking/tasktreerunner.h>
 
 namespace Android::Internal {
@@ -29,11 +27,8 @@ signals:
 private:
     void remoteStarted(qint64 pid);
     void remoteFinished(const QString &errString);
-    void remoteStdOut(const QString &output);
-    void remoteStdErr(const QString &output);
 
     Utils::ProcessHandle m_pid;
-    QmlDebug::QmlOutputParser m_outputParser;
     Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 

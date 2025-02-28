@@ -92,8 +92,6 @@ void AndroidRunner::start()
 
         connect(glue, &RunnerInterface::started, this, &AndroidRunner::remoteStarted);
         connect(glue, &RunnerInterface::finished, this, &AndroidRunner::remoteFinished);
-        connect(glue, &RunnerInterface::stdOut, this, &AndroidRunner::remoteStdOut);
-        connect(glue, &RunnerInterface::stdErr, this, &AndroidRunner::remoteStdErr);
     };
 
     const Group recipe {
@@ -125,18 +123,6 @@ void AndroidRunner::remoteFinished(const QString &errString)
     if (runControl()->isRunning())
         runControl()->initiateStop();
     reportStopped();
-}
-
-void AndroidRunner::remoteStdOut(const QString &output)
-{
-    appendMessage(output, Utils::StdOutFormat);
-    m_outputParser.processOutput(output);
-}
-
-void AndroidRunner::remoteStdErr(const QString &output)
-{
-    appendMessage(output, Utils::StdErrFormat);
-    m_outputParser.processOutput(output);
 }
 
 class AndroidRunWorkerFactory final : public RunWorkerFactory

@@ -19,6 +19,8 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
+#include <qmldebug/qmloutputparser.h>
+
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
@@ -164,6 +166,18 @@ public:
         return QString::number(m_glue->runControl()->debugChannel().port());
     }
 
+    void appendStdOut(const QString &data)
+    {
+        m_glue->runControl()->postMessage(data, StdOutFormat);
+        m_outputParser.processOutput(data);
+    }
+
+    void appendStdErr(const QString &data)
+    {
+        m_glue->runControl()->postMessage(data, StdErrFormat);
+        m_outputParser.processOutput(data);
+    }
+
     RunnerInterface *m_glue = nullptr;
 
     QString m_packageName;
@@ -177,6 +191,7 @@ public:
     bool m_useLldb = false;
     QmlDebugServicesPreset m_qmlDebugServices;
     QUrl m_qmlServer;
+    QmlDebug::QmlOutputParser m_outputParser;
     QString m_extraAppParams;
     Utils::Environment m_extraEnvVars;
     Utils::FilePath m_debugServerPath; // On build device, typically as part of ndk
@@ -313,7 +328,7 @@ static ExecutableItem removeForwardPortRecipe(RunnerStorage *storage, const QStr
         process.setCommand(storage->adbCommand({"forward", "--remove", port}));
     };
     const auto onForwardRemoveDone = [storage](const Process &process) {
-        emit storage->m_glue->stdErr(process.cleanedStdErr().trimmed());
+        emit storage->appendStdErr(process.cleanedStdErr().trimmed());
         return true;
     };
 
@@ -461,18 +476,18 @@ static ExecutableItem logcatRecipe(const Storage<RunnerStorage> &storage)
                     const QString cleanPidMatch = pidMatch.mid(1, pidMatch.size() - 2).trimmed();
                     const QString output = QString(line).remove(pidMatch);
                     if (isFatal) {
-                        emit storagePtr->m_glue->stdErr(output);
+                        emit storagePtr->appendStdErr(output);
                     } else if (cleanPidMatch == pidString) {
                         if (onlyError || errorMsgTypes.contains(msgType))
-                            emit storagePtr->m_glue->stdErr(output);
+                            emit storagePtr->appendStdErr(output);
                         else
-                            emit storagePtr->m_glue->stdOut(output);
+                            emit storagePtr->appendStdOut(output);
                     }
                 } else {
                     if (onlyError || errorMsgTypes.contains(msgType))
-                        emit storagePtr->m_glue->stdErr(line);
+                        emit storagePtr->appendStdErr(line);
                     else
-                        emit storagePtr->m_glue->stdOut(line);
+                        emit storagePtr->appendStdOut(line);
                 }
             }
         };
@@ -517,7 +532,7 @@ static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
             {storage->m_beforeStartAdbCommands.at(iterator.iteration()).split(' ', Qt::SkipEmptyParts)}));
     };
     const auto onPreCommandDone = [storage](const Process &process) {
-        emit storage->m_glue->stdErr(process.cleanedStdErr().trimmed());
+        emit storage->appendStdErr(process.cleanedStdErr().trimmed());
     };
 
     const auto isQmlDebug = [storage] {
@@ -856,9 +871,9 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
     };
     const auto onArtDone = [storage](const Process &process) {
         if (process.result() == ProcessResult::FinishedWithSuccess)
-            emit storage->m_glue->stdOut(Tr::tr("Art: Cleared App Profiles."));
+            emit storage->appendStdOut(Tr::tr("Art: Cleared App Profiles."));
         else
-            emit storage->m_glue->stdOut(Tr::tr("Art: Clearing App Profiles failed."));
+            emit storage->appendStdOut(Tr::tr("Art: Clearing App Profiles failed."));
         return DoneResult::Success;
     };
 
@@ -868,9 +883,9 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
     };
     const auto onCompileDone = [storage](const Process &process) {
         if (process.result() == ProcessResult::FinishedWithSuccess)
-            emit storage->m_glue->stdOut(Tr::tr("Art: Compiled App Profiles."));
+            emit storage->appendStdOut(Tr::tr("Art: Compiled App Profiles."));
         else
-            emit storage->m_glue->stdOut(Tr::tr("Art: Compiling App Profiles failed."));
+            emit storage->appendStdOut(Tr::tr("Art: Compiling App Profiles failed."));
         return DoneResult::Success;
     };
 
