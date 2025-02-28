@@ -338,7 +338,8 @@ expected_str<QFuture<Environment>> Client::start()
                                 return;
                             }
                             // Broken package, search for next magic marker
-                            qCWarning(clientLog) << "Magic marker was not found";
+                            qCWarning(clientLog)
+                                << "Magic marker was not found, buffer content:" << buffer;
                             // If we don't find a magic marker, the rest of the buffer is trash.
                             buffer.clear();
                         } else {

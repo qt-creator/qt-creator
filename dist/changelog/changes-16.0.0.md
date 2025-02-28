@@ -36,6 +36,8 @@ Editing
   ([QTCREATORBUG-32193](https://bugreports.qt.io/browse/QTCREATORBUG-32193))
 * Fixed a formatting issue when applying method signature changes
   ([QTCREATORBUG-31931](https://bugreports.qt.io/browse/QTCREATORBUG-31931))
+* Fixed the generation of getters for local enum types
+  ([QTCREATORBUG-32473](https://bugreports.qt.io/browse/QTCREATORBUG-32473))
 * Built-in
     * Added support for init-statements in range-based `for` loops
       ([QTCREATORBUG-31961](https://bugreports.qt.io/browse/QTCREATORBUG-31961))
@@ -67,6 +69,16 @@ Editing
   the editor
   ([QTCREATORBUG-31878](https://bugreports.qt.io/browse/QTCREATORBUG-31878),
    [QTCREATORBUG-32163](https://bugreports.qt.io/browse/QTCREATORBUG-32163))
+
+### Copilot
+
+* Fixed issues with newer versions of the language server
+  ([QTCREATORBUG-32536](https://bugreports.qt.io/browse/QTCREATORBUG-32536))
+
+### SCXML
+
+* Fixed the colors of items
+  ([QTCREATORBUG-32477](https://bugreports.qt.io/browse/QTCREATORBUG-32477))
 
 Projects
 --------
@@ -101,6 +113,11 @@ Projects
   ([QTCREATORBUG-32350](https://bugreports.qt.io/browse/QTCREATORBUG-32350))
 * Fixed a crash when an application outputs lots of lines
   ([QTCREATORBUG-32371](https://bugreports.qt.io/browse/QTCREATORBUG-32371))
+* Environment Editor
+    * Fixed the `Disable` button for the first item
+      ([QTCREATORBUG-32495](https://bugreports.qt.io/browse/QTCREATORBUG-32495))
+    * Fixed the `Edit` button for disabled items
+      ([QTCREATORBUG-32495](https://bugreports.qt.io/browse/QTCREATORBUG-32495))
 * Qt
     * Improved performance of Qt ABI detection when module `.json` files are
       available
@@ -121,6 +138,7 @@ Projects
 * Added support for creating run configurations for custom CMake targets
   with the `qtc_runnable` `FOLDER` property
   ([QTCREATORBUG-32324](https://bugreports.qt.io/browse/QTCREATORBUG-32324))
+* Improved the performance when CMake reply files change on disk
 * Fixed that manually created run configurations could be removed if
   `Create suitable run configurations automatically` was turned off
   ([QTCREATORBUG-32289](https://bugreports.qt.io/browse/QTCREATORBUG-32289))
@@ -130,6 +148,8 @@ Projects
 * Fixed that Ninja was not detected even when `CMAKE_MAKE_PROGRAM` was set
   to the `ninja` executable
   ([QTCREATORBUG-32436](https://bugreports.qt.io/browse/QTCREATORBUG-32436))
+* Fixed the import of multi-config CMake presets
+  ([QTCREATORBUG-31554](https://bugreports.qt.io/browse/QTCREATORBUG-31554))
 * Package Manager Auto Setup
     * Changed the default installation directory to `/tmp` to ensure that the
       directory is writable
@@ -160,7 +180,9 @@ Debugging
 
 * Pretty printers
     * Added `QMultiHash`
-    ([QTCREATORBUG-32313](https://bugreports.qt.io/browse/QTCREATORBUG-32313))
+      ([QTCREATORBUG-32313](https://bugreports.qt.io/browse/QTCREATORBUG-32313))
+    * Fixed issues with debuggers that use an older Python version
+      ([QTCREATORBUG-32475](https://bugreports.qt.io/browse/QTCREATORBUG-32475))
 * CDB
     * Disabled heap debugging by default and added the option
       `Enable heap debugging`
@@ -180,17 +202,37 @@ Analyzer
   ([QTCREATORBUG-31372](https://bugreports.qt.io/browse/QTCREATORBUG-31372))
 * Fixed that profiling could fail to start
   ([QTCREATORBUG-32062](https://bugreports.qt.io/browse/QTCREATORBUG-32062))
+* Fixed the sorting of statistics
+  ([QTCREATORBUG-32398](https://bugreports.qt.io/browse/QTCREATORBUG-32398))
 
 ### Axivion
 
 * Added support for images in the issue details
 * Moved Axivion preferences to `Preferences > Analyzer > Axivion`
+* Fixed that the display of data in the issues table did not adapt to the
+  column's data type
+  ([QTCREATORBUG-32023](https://bugreports.qt.io/browse/QTCREATORBUG-32023))
+* Fixed that filters were shown even for issue types that do not suppor them
+* Fixed that the Filter menus opened at the wrong position
+  ([QTCREATORBUG-32506](https://bugreports.qt.io/browse/QTCREATORBUG-32506))
 
 ### Coco
 
 * Added support for configuring CMake and qmake projects for code coverage
   in `Projects > Project Settings > Coco Code Coverage`
   ([Documentation]https://doc-snapshots.qt.io/qtcreator-16.0/creator-coco.html)
+
+Terminal
+--------
+
+* Fixed that the view didn't jump to the end on input
+  ([QTCREATORBUG-32407](https://bugreports.qt.io/browse/QTCREATORBUG-32407))
+* Fixed the title of tabs
+  ([QTCREATORBUG-32197](https://bugreports.qt.io/browse/QTCREATORBUG-32197))
+* Fixed killing the shell process
+  ([QTCREATORBUG-32509](https://bugreports.qt.io/browse/QTCREATORBUG-32509))
+* Fixed auto-scrolling
+  ([QTCREATORBUG-32167](https://bugreports.qt.io/browse/QTCREATORBUG-32167))
 
 Version Control Systems
 -----------------------
@@ -227,10 +269,17 @@ Platforms
 * Added support for the `terminator` terminal emulator
   ([QTCREATORBUG-32111](https://bugreports.qt.io/browse/QTCREATORBUG-32111))
 
+### macOS
+
+* Fixed a crash when MinGW toolchains are detected on macOS hosts
+  ([QTCREATORBUG-32127](https://bugreports.qt.io/browse/QTCREATORBUG-32127))
+
 ### Android
 
 * Fixed a performance problem when detecting the Android ABI
   ([QTCREATORBUG-31068](https://bugreports.qt.io/browse/QTCREATORBUG-31068))
+* Fixed that the wrong `lldb-server` could be used
+  ([QTCREATORBUG-32494](https://bugreports.qt.io/browse/QTCREATORBUG-32494))
 
 ### iOS
 
@@ -251,6 +300,13 @@ Platforms
 
 * Fixed an issue with running `pkg-config` in the container
   ([QTCREATORBUG-32325](https://bugreports.qt.io/browse/QTCREATORBUG-32325))
+* Fixed an issue with shutting down the device access
+* Fixed soft asserts during container setup
+
+### QNX
+
+* Fixed issues with Clangd 19
+  ([QTCREATORBUG-32529](https://bugreports.qt.io/browse/QTCREATORBUG-32529))
 
 Credits for these changes go to:
 --------------------------------

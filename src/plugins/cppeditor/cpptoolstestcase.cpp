@@ -25,9 +25,12 @@
 
 #include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/codeassist/iassistproposalmodel.h>
+#include <texteditor/icodestylepreferences.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/syntaxhighlighter.h>
+#include <texteditor/tabsettings.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <utils/environment.h>
 #include <utils/fileutils.h>
@@ -232,6 +235,9 @@ bool TestCase::openCppEditor(const FilePath &filePath, TextEditor::BaseTextEdito
             TextEditor::StorageSettings s = e->textDocument()->storageSettings();
             s.m_addFinalNewLine = false;
             e->textDocument()->setStorageSettings(s);
+            TextEditor::TabSettings ts = TextEditor::TextEditorSettings::codeStyle()->tabSettings();
+            ts.m_autoDetect = false;
+            e->textDocument()->setTabSettings(ts);
         }
 
         if (!QTest::qWaitFor(

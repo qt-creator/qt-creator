@@ -9,12 +9,13 @@
 
     \title Android Deploy Configuration
 
-    \brief Create Application Packages (APK) or Android App Bundles (AAB) to
-    install and run on devices or to upload to the Google Play store.
+    \brief Create packages to deploy to devices or to submit to the Google Play
+    store, or create libraries for Android app modules.
 
     Android applications are packaged as ZIP files called Application Packages
-    (APK) or Android App Bundles (AAB). You can install and run APK files on a
-    device. You can upload AAB files to the Google Play store.
+    (APK), Android App Bundles (AAB), or Android Archives (AAR). You can
+    install and run APK files on a device. You can upload AAB files to the
+    Google Play store.
 
     \l{Qt for Android} has binaries for armv7a, arm64-v8a, x86, and x86-64.
     To support several different ABIs in your application, build an AAB that
@@ -27,10 +28,14 @@
     \list
         \li As a stand-alone, distributable application package (APK).
         \li As an app bundle (AAB) for distribution in the Google Play store.
+        \li As an AAR, which fundamentally differs from the APK and AAB formats
+            in that it is an Android library. You can use it as a dependency for
+            an Android app module, but you cannot run it alone.
 
             All Qt versions do not support AABs. Qt 6.3.0 and later support
-            multi-abi builds for applications that you build with CMake. For
-            more information, see \l{Deploying an Application on Android}.
+            multi-abi builds for applications when you build with CMake. AARs
+            are supported from Qt 6.8.0 onwards. For more information, see
+            \l{Deploying an Application on Android}.
     \endlist
 
     \note Since \QC 4.12, Ministro is not supported.
@@ -122,6 +127,12 @@
     \uicontrol ABIs field in the \uicontrol {Build Steps}:
 
     \image qtcreator-android-build-steps.png {qmake settings for building AABs}
+
+    \section3 Building AARs
+
+    Select the AAR target in the \uicontrol {Build Steps} section.
+
+    \image qt-creator-android-build-aar.webp {Selecting the AAR target}
 
     \section3 Signing Android Packages
 
