@@ -6862,9 +6862,10 @@ void TextEditorWidgetPrivate::drawFoldingMarker(QPainter *painter, const QPalett
 
 void TextEditorWidgetPrivate::slotUpdateRequest(const QRect &r, int dy)
 {
-    if (dy) {
+    if (dy)
         m_extraArea->scroll(0, dy);
-    } else if (r.width() > 4) { // wider than cursor width, not just cursor blinking
+
+    if (r.width() > 4) { // wider than cursor width, not just cursor blinking
         m_extraArea->update(0, r.y(), m_extraArea->width(), r.height());
         if (!m_searchExpr.pattern().isEmpty()) {
             const int m = m_searchResultOverlay->dropShadowWidth();

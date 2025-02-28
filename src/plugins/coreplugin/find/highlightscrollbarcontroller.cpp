@@ -119,12 +119,10 @@ void HighlightScrollBarOverlay::paintEvent(QPaintEvent *paintEvent)
 
     const int aboveValue = scrollBar()->value();
     const int belowValue = scrollBar()->maximum() - scrollBar()->value();
-    const int sizeDocAbove = int(aboveValue * m_highlightController->lineHeight());
-    const int sizeDocBelow = int(belowValue * m_highlightController->lineHeight());
     const int sizeDocVisible = int(m_highlightController->visibleRange());
 
     const int scrollBarBackgroundHeight = aboveHandleRect.height() + belowHandleRect.height();
-    const int sizeDocInvisible = sizeDocAbove + sizeDocBelow;
+    const int sizeDocInvisible = aboveValue + belowValue;
     const double backgroundRatio = sizeDocInvisible
             ? ((double)scrollBarBackgroundHeight / sizeDocInvisible) : 0;
 
@@ -132,7 +130,7 @@ void HighlightScrollBarOverlay::paintEvent(QPaintEvent *paintEvent)
     if (aboveValue) {
         drawHighlights(&painter,
                        0,
-                       sizeDocAbove,
+                       aboveValue,
                        backgroundRatio,
                        0,
                        aboveHandleRect);
@@ -146,8 +144,8 @@ void HighlightScrollBarOverlay::paintEvent(QPaintEvent *paintEvent)
         const int offset = qRound(aboveHandleRect.height() + handleVirtualHeight);
 
         drawHighlights(&painter,
-                       sizeDocAbove + sizeDocVisible,
-                       sizeDocBelow,
+                       aboveValue + sizeDocVisible,
+                       belowValue,
                        backgroundRatio,
                        offset,
                        belowHandleRect);
@@ -158,17 +156,17 @@ void HighlightScrollBarOverlay::paintEvent(QPaintEvent *paintEvent)
 
     // This is the hypothetical handle position if the background would
     // be stretched using the handle ratio.
-    const double aboveVirtualHeight = sizeDocAbove * handleRatio;
+    const double aboveVirtualHeight = aboveValue * handleRatio;
 
     // This is the accurate handle position (double)
-    const double accurateHandlePos = sizeDocAbove * backgroundRatio;
+    const double accurateHandlePos = aboveValue * backgroundRatio;
     // The correction between handle position (int) and accurate position (double)
     const double correction = aboveHandleRect.height() - accurateHandlePos;
     // Skip the doc above and apply correction
     const int offset = qRound(aboveVirtualHeight + correction);
 
     drawHighlights(&painter,
-                   sizeDocAbove,
+                   aboveValue,
                    sizeDocVisible,
                    handleRatio,
                    offset,
