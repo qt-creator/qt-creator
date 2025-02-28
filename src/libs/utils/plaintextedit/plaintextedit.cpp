@@ -337,7 +337,17 @@ void PlainTextDocumentLayout::requestUpdate()
 void PlainTextDocumentLayout::setTextWidth(qreal newWidth)
 {
     d->width = d->maximumWidth = newWidth;
-    d->relayout();
+    bool layoutChanged = false;
+    for (QTextBlock block = document()->firstBlock(); block.isValid(); block = block.next()) {
+        QTextLayout *tl = block.layout();
+        if (tl->lineCount() == 0 || (tl->lineCount() == 1 && tl->lineAt(0).naturalTextWidth() < newWidth))
+            continue;
+        layoutChanged = true;
+        tl->clearLayout();
+        block.setLineCount(block.isVisible() ? 1 : 0);
+    }
+    if (layoutChanged)
+        emit update();
 }
 
 qreal PlainTextDocumentLayout::textWidth() const
