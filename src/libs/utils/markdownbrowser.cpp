@@ -740,5 +740,3 @@ void MarkdownBrowser::changeEvent(QEvent *event)
 }
 
 } // namespace Utils
-
-#include "markdownbrowser.moc"
