@@ -10,7 +10,6 @@
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;
-class QPlainTextEdit;
 QT_END_NAMESPACE
 
 namespace Utils {
