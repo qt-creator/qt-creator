@@ -6,7 +6,13 @@
 #include "designsystemwidget.h"
 #include "dsstore.h"
 
+#include <qmldesignertr.h>
+
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/editormanager.h>
+
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <QPushButton>
 #include <QQuickWidget>
@@ -21,7 +27,21 @@ DesignSystemView::DesignSystemView(ExternalDependenciesInterface &externalDepend
     , m_externalDependencies(externalDependencies)
     , m_dsStore(std::make_unique<DSStore>(m_externalDependencies, projectStorageDependencies))
     , m_dsInterface(m_dsStore.get())
-{}
+{
+    connect(ProjectExplorer::ProjectManager::instance(),
+            &ProjectExplorer::ProjectManager::startupProjectChanged,
+            this,
+            [this](ProjectExplorer::Project *) { loadDesignSystem(); });
+
+    connect(Core::EditorManager::instance(),
+            &Core::EditorManager::saved,
+            this,
+            [this](Core::IDocument *document) {
+                if (document->filePath().contains("Generated/DesignSystem")) {
+                    loadDesignSystem();
+                }
+            });
+}
 
 DesignSystemView::~DesignSystemView() {}
 
@@ -33,7 +53,9 @@ WidgetInfo DesignSystemView::widgetInfo()
     return createWidgetInfo(m_designSystemWidget,
                             "DesignSystemView",
                             WidgetInfo::RightPane,
-                            tr("Design System"));
+                            Tr::tr("Design System"),
+                            Tr::tr("Design System view"),
+                            DesignerWidgetFlags::IgnoreErrors);
 }
 
 bool DesignSystemView::hasWidget() const
@@ -43,8 +65,10 @@ bool DesignSystemView::hasWidget() const
 
 void DesignSystemView::loadDesignSystem()
 {
-    if (auto err = m_dsStore->load())
-        qDebug() << *err;
+    /*This is only used to load internally - when saving we have to take care of reflection.
+     * Saving should not trigger a load again.
+    */
+    m_dsInterface.loadDesignSystem();
 }
 
 } // namespace QmlDesigner

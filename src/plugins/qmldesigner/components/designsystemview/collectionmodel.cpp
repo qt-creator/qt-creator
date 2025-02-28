@@ -10,10 +10,14 @@
 
 namespace QmlDesigner {
 
-CollectionModel::CollectionModel(DSThemeManager *collection, const DSStore *store)
+CollectionModel::CollectionModel(DSThemeManager *collection, DSStore *store)
     : m_collection(collection)
     , m_store(store)
 {
+    m_saveCompressionTimer.setSingleShot(true);
+    m_saveCompressionTimer.setInterval(200);
+    connect(&m_saveCompressionTimer, &QTimer::timeout, this, &CollectionModel::save);
+
     updateCache();
 }
 
@@ -28,8 +32,10 @@ QStringList CollectionModel::themeNameList() const
 
 void CollectionModel::setActiveTheme(const QString &themeName)
 {
-    if (const auto themeId = m_collection->themeId(themeName.toLatin1()))
+    if (const auto themeId = m_collection->themeId(themeName.toLatin1())) {
         m_collection->setActiveTheme(*themeId);
+        aboutToSave();
+    }
 }
 
 int CollectionModel::columnCount(const QModelIndex &parent) const
@@ -149,6 +155,7 @@ bool CollectionModel::insertColumns([[maybe_unused]] int column, int count, cons
         beginResetModel();
         updateCache();
         endResetModel();
+        aboutToSave();
         emit themeNameChanged();
     }
     return true;
@@ -166,6 +173,7 @@ bool CollectionModel::removeColumns(int column, int count, const QModelIndex &pa
 
     updateCache();
     endResetModel();
+    aboutToSave();
     emit themeNameChanged();
     return true;
 }
@@ -183,6 +191,7 @@ bool CollectionModel::removeRows(int row, int count, const QModelIndex &parent)
     }
     updateCache();
     endResetModel();
+    aboutToSave();
     return true;
 }
 
@@ -207,6 +216,8 @@ void CollectionModel::addProperty(GroupType group, const QString &name, const QV
         beginResetModel();
         updateCache();
         endResetModel();
+
+        aboutToSave();
     }
 }
 
@@ -227,6 +238,9 @@ bool CollectionModel::setData(const QModelIndex &index, const QVariant &value, i
     default:
         break;
     }
+
+    aboutToSave();
+
     return false;
 }
 
@@ -261,6 +275,8 @@ bool CollectionModel::setHeaderData(int section,
         beginResetModel();
         updateCache();
         endResetModel();
+
+        aboutToSave();
     }
 
     return success;
@@ -277,4 +293,16 @@ std::optional<PropInfo> CollectionModel::findPropertyName(int row) const
     QTC_ASSERT(row > -1 && row < static_cast<int>(m_propertyInfoList.size()), return {});
     return m_propertyInfoList[row];
 }
+
+void CollectionModel::save()
+{
+    QTC_ASSERT(m_store, return);
+    m_store->save();
+}
+
+void CollectionModel::aboutToSave()
+{
+    m_saveCompressionTimer.start();
+}
+
 } // namespace QmlDesigner
