@@ -593,10 +593,10 @@ bool Document::isParsed() const
 
 bool Document::parse(ParseMode mode)
 {
-    TranslationUnit::ParseMode m = TranslationUnit::ParseTranlationUnit;
+    TranslationUnit::ParseMode m = TranslationUnit::ParseTranslationUnit;
     switch (mode) {
-    case ParseTranlationUnit:
-        m = TranslationUnit::ParseTranlationUnit;
+    case ParseTranslationUnit:
+        m = TranslationUnit::ParseTranslationUnit;
         break;
 
     case ParseDeclaration:

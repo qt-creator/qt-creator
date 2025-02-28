@@ -366,8 +366,8 @@ static QString example()
 static QString parseModeToString(Document::ParseMode parseMode)
 {
     switch (parseMode) {
-    case Document::ParseTranlationUnit:
-        return QLatin1String("TranlationUnit");
+    case Document::ParseTranslationUnit:
+        return QLatin1String("TranslationUnit");
     case Document::ParseDeclaration:
         return QLatin1String("Declaration");
     case Document::ParseExpression:
@@ -538,7 +538,7 @@ int main(int argc, char *argv[])
         } else if (parseAs == QLatin1String("statement") || parseAs == QLatin1String("st")) {
             optionParseMode = Document::ParseStatement;
         } else if (parseAs == QLatin1String("translationunit") || parseAs == QLatin1String("tr")) {
-            optionParseMode = Document::ParseTranlationUnit;
+            optionParseMode = Document::ParseTranslationUnit;
         } else {
             std::cerr << "Error: Invalid ast for option \"-p\"." << std::endl;
             printUsage();
@@ -587,7 +587,7 @@ int main(int argc, char *argv[])
                 << Document::ParseExpression
                 << Document::ParseDeclaration
                 << Document::ParseStatement
-                << Document::ParseTranlationUnit;
+                << Document::ParseTranslationUnit;
             doc = parse(fileName, source, parseModes, &errors, optionVerbose);
         } else {
             doc = parse(fileName, source, static_cast<Document::ParseMode>(optionParseMode),

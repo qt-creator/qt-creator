@@ -38,7 +38,7 @@ void tst_Misc::diagnosticClient_error()
     Document::Ptr doc = Document::create("diagnosticClient_error");
     QVERIFY(!doc.isNull());
     doc->setUtf8Source(src);
-    bool success = doc->parse(Document::ParseTranlationUnit);
+    bool success = doc->parse(Document::ParseTranslationUnit);
     QVERIFY(success);
 
     QList<Document::DiagnosticMessage> diagnostics = doc->diagnosticMessages();
@@ -58,7 +58,7 @@ void tst_Misc::diagnosticClient_warning()
     Document::Ptr doc = Document::create("diagnosticClient_warning");
     QVERIFY(!doc.isNull());
     doc->setUtf8Source(src);
-    bool success = doc->parse(Document::ParseTranlationUnit);
+    bool success = doc->parse(Document::ParseTranslationUnit);
     QVERIFY(success);
 
     QList<Document::DiagnosticMessage> diagnostics = doc->diagnosticMessages();

@@ -476,7 +476,7 @@ void PointerDeclarationFormatterTest::testMultipleMatches()
 
     PointerDeclarationFormatterTestCase(source.toUtf8(),
                                         reformattedSource,
-                                        Document::ParseTranlationUnit,
+                                        Document::ParseTranslationUnit,
                                         PointerDeclarationFormatter::IgnoreCursor);
 }
 
@@ -559,7 +559,7 @@ void PointerDeclarationFormatterTest::testMacros()
 
     PointerDeclarationFormatterTestCase(source.toUtf8(),
                                         reformattedSource,
-                                        Document::ParseTranlationUnit,
+                                        Document::ParseTranslationUnit,
                                         PointerDeclarationFormatter::RespectCursor);
 }
 

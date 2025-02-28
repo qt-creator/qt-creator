@@ -122,7 +122,7 @@ public:
         features.cxx11Enabled = enableCxx11;
         features.cxxEnabled = true;
         diag.errorCount = 0; // reset the error count.
-        TranslationUnit *unit = parse(source, TranslationUnit::ParseTranlationUnit, features);
+        TranslationUnit *unit = parse(source, TranslationUnit::ParseTranslationUnit, features);
         QSharedPointer<Document> doc(new Document(unit));
         doc->check();
         doc->errorCount = diag.errorCount;

@@ -56,7 +56,7 @@ static void applyRefactorings(QTextDocument *textDocument, TextEditorWidget *edi
 
     Document::Ptr cppDocument = Document::create(noFileFile);
     cppDocument->setUtf8Source(preprocessedSource);
-    cppDocument->parse(Document::ParseTranlationUnit);
+    cppDocument->parse(Document::ParseTranslationUnit);
     cppDocument->check();
 
     CppRefactoringFilePtr cppRefactoringFile = CppRefactoringChanges::file(editor, cppDocument);

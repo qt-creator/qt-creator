@@ -90,7 +90,7 @@ public:
     void stopSkippingBlocks(int utf16charsOffset);
 
     enum ParseMode { // ### keep in sync with CPlusPlus::TranslationUnit
-        ParseTranlationUnit,
+        ParseTranslationUnit,
         ParseDeclaration,
         ParseExpression,
         ParseDeclarator,
@@ -101,7 +101,7 @@ public:
     void tokenize();
 
     bool isParsed() const;
-    bool parse(ParseMode mode = ParseTranlationUnit);
+    bool parse(ParseMode mode = ParseTranslationUnit);
 
     enum CheckMode {
         Unchecked,
