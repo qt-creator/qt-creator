@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='utf-8'?>
+<node title="Docs">
+    <node toc="qtcreator" childrenonly="true">
+    </node>
+    <node title="All topics" href="qtcreator-toc.html">
+    </node>
+</node>
+<!--
+
+The configuration file structure:
+
+```
+<?xml version='1.0' encoding='utf-8'?>
+<node title="Docs">
+    <node toc="tocname" childrenonly="true|false" parent_url="index.html"/>
+    <node toc="tocname" childrenonly="true|false" parent_url="index.html">
+        <node toc="tocname" childrenonly="true|false" parent_url="index.html"/>
+    </node>
+    <node title="Add-ons" href="addons.html">
+        <node toc="tocname"/>
+        <node toc="tocname"/>
+        <node toc="tocname"/>
+    </node>
+</node>
+```
+
+A <node> entry can have the following attributes:
+
+- To add a folder node, specify these properties:
+
+    - `title`
+
+        Specifies a name for a virtual folder. Can be used without any topic
+        for this tree node. If only title is specified, you have just a collapsible node
+        that stores other nodes.
+    - `href`
+
+        Specifies a topic assigned to a virtual folder (see `title`). When specified,
+        you get a virtual node with a page that opens on opening the node. Note
+        that the specified topic must already be in the tree, that means that
+        the module, that contains this topic, must be included in the configuration tree
+        before the current node.
+
+- To attach a module, specify these properties:
+
+    - 'toc' (required)
+
+        Specifies a name of module (like a folder name, e.g., qtdoc, qtquick, etc),
+        whose TOC is inserted here. The module's TOC is defined in the project's
+        projectname-toc.qdoc file.
+    - 'childrenonly' (optional)
+
+        Specifies whether the whole module toc is included (that is the module's
+        root topic and its children, default), or only the module's child nodes are
+        included.
+        If false (default), the whole TOC is inserted. If 'true', only the children
+        of the TOC are inserted, without a root node.
+    - 'parent_url' (optional)
+
+        If specified, the TOC is appended as a child to a node with the specified topic.
+
+The topmost root node is a folder that is not displayed anywhere. Don't change it.
+
+-->
