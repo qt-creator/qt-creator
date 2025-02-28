@@ -25,12 +25,13 @@ public:
 
 private:
     void limitTextOutput(QString &output) const;
-    void recalculateTextLayout(const QModelIndex &index, const QString &output,
-                               const QFont &font, int width) const;
+    void recalculateTextLayouts(const QModelIndex &index, ResultType type,
+                                const QString &output, const QFont &font, int width) const;
 
     mutable QModelIndex m_lastProcessedIndex;
     mutable QFont m_lastProcessedFont;
-    mutable QTextLayout m_lastCalculatedLayout;
+    mutable QTextLayout m_lastCalculatedLayout;   // first line(s)
+    mutable QTextLayout m_lastCalculatedMSLayout; // secondary lines (mono spaced)
     mutable int m_lastCalculatedHeight = 0;
     mutable int m_lastWidth = -1;
     bool m_showDuration = true;

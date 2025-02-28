@@ -80,9 +80,11 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     if (selected) {
         limitTextOutput(output);
         output.replace('\n', QChar::LineSeparator);
-        recalculateTextLayout(index, output, painter->font(), positions.textAreaWidth());
+        recalculateTextLayouts(index, item->testResult().result(),
+                               output, painter->font(), positions.textAreaWidth());
 
         m_lastCalculatedLayout.draw(painter, QPoint(positions.textAreaLeft(), positions.top()));
+        m_lastCalculatedMSLayout.draw(painter, QPoint(positions.textAreaLeft(), positions.top()));
     } else {
         painter->setClipRect(positions.textArea());
         // cut output before generating elided text as this takes quite long for exhaustive output
@@ -142,7 +144,8 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
         QString output = testResult.outputString(selected);
         limitTextOutput(output);
         output.replace('\n', QChar::LineSeparator);
-        recalculateTextLayout(index, output, opt.font, positions.textAreaWidth() - indentation);
+        recalculateTextLayouts(index, testResult.result(),
+                               output, opt.font, positions.textAreaWidth() - indentation);
 
         s.setHeight(m_lastCalculatedHeight + 3);
     } else {
@@ -200,8 +203,9 @@ void TestResultDelegate::limitTextOutput(QString &output) const
         output.append("...");
 }
 
-void TestResultDelegate::recalculateTextLayout(const QModelIndex &index, const QString &output,
-                                               const QFont &font, int width) const
+void TestResultDelegate::recalculateTextLayouts(const QModelIndex &index, ResultType type,
+                                                const QString &output,
+                                                const QFont &font, int width) const
 {
     if (m_lastWidth == width && m_lastProcessedIndex == index && m_lastProcessedFont == font)
         return;
@@ -215,22 +219,48 @@ void TestResultDelegate::recalculateTextLayout(const QModelIndex &index, const Q
     m_lastProcessedFont = font;
     m_lastCalculatedHeight = 0;
     m_lastCalculatedLayout.clearLayout();
-    m_lastCalculatedLayout.setText(output);
+
+    const int firstNL = type == ResultType::MessageInternal ? -1
+                                                            : output.indexOf(QChar::LineSeparator);
+    m_lastCalculatedLayout.setText(output.left(firstNL));
+
     m_lastCalculatedLayout.setFont(font);
     QTextOption txtOption;
     txtOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
     m_lastCalculatedLayout.setTextOption(txtOption);
+
+    auto doLayout = [this](QTextLayout *layout, int width, int leading, int height) {
+        while (true) {
+            QTextLine line = layout->createLine();
+            if (!line.isValid())
+                break;
+            line.setLineWidth(width);
+            m_lastCalculatedHeight += leading;
+            line.setPosition(QPoint(0, m_lastCalculatedHeight));
+            m_lastCalculatedHeight += height;
+        }
+    };
+
     m_lastCalculatedLayout.beginLayout();
-    while (true) {
-        QTextLine line = m_lastCalculatedLayout.createLine();
-        if (!line.isValid())
-            break;
-        line.setLineWidth(width);
-        m_lastCalculatedHeight += leading;
-        line.setPosition(QPoint(0, m_lastCalculatedHeight));
-        m_lastCalculatedHeight += fontHeight;
-    }
+    doLayout(&m_lastCalculatedLayout, width, leading, fontHeight);
     m_lastCalculatedLayout.endLayout();
+
+    m_lastCalculatedMSLayout.clearLayout();
+    if (firstNL == -1)
+        return;
+
+    QFont monospaced(font);
+    monospaced.setFamily("Source Code Pro");
+    if (int pointSize = font.pointSize(); pointSize > 1)
+        monospaced.setPointSize(pointSize - 1);
+    const QFontMetrics monoFm(monospaced);
+    const int monoLeading = monoFm.leading();
+    const int monoFontHeight = monoFm.height();
+    m_lastCalculatedMSLayout.setText(output.mid(firstNL + 1));
+    m_lastCalculatedMSLayout.setFont(monospaced);
+    m_lastCalculatedMSLayout.beginLayout();
+    doLayout(&m_lastCalculatedMSLayout, width, monoLeading, monoFontHeight);
+    m_lastCalculatedMSLayout.endLayout();
 }
 
 } // namespace Internal
