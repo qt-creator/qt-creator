@@ -52,5 +52,6 @@ private:
     ExternalDependenciesInterface &m_ed;
     ProjectStorageDependencies m_projectStorageDependencies;
     DSCollections m_collections;
+    bool m_blockLoading = false;
 };
 } // namespace QmlDesigner

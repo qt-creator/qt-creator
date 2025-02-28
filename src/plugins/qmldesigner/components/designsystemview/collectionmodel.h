@@ -5,6 +5,7 @@
 
 #include <designsystem/dsconstants.h>
 #include <QAbstractItemModel>
+#include <QTimer>
 
 #include <optional>
 
@@ -29,7 +30,7 @@ public:
 
     Q_PROPERTY(QStringList themeNames READ themeNameList NOTIFY themeNameChanged FINAL)
 
-    CollectionModel(DSThemeManager *collection, const DSStore *store);
+    CollectionModel(DSThemeManager *collection, DSStore *store);
 
     QStringList themeNameList() const;
     Q_INVOKABLE void setActiveTheme(const QString &themeName);
@@ -72,12 +73,17 @@ private:
     ThemeId findThemeId(int column) const;
     std::optional<PropInfo> findPropertyName(int row) const;
 
+    void save();
+    void aboutToSave();
+
 private:
     DSThemeManager *m_collection = nullptr;
-    const DSStore *m_store;
+    DSStore *m_store;
 
     // cache
     std::vector<ThemeId> m_themeIdList;
     std::vector<PropInfo> m_propertyInfoList;
+
+    QTimer m_saveCompressionTimer;
 };
 } // namespace QmlDesigner

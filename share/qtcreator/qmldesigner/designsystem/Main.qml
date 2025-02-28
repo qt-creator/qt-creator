@@ -44,7 +44,21 @@ Rectangle {
     height: 400
     color: StudioTheme.Values.themePanelBackground
 
+    function clearModel() {
+        root.currentCollectionName = ""
+        tableView.model = null
+
+        topLeftCell.visible = false
+        createModeButton.enabled = false
+        modelConnections.target = null
+    }
+
     function loadModel(name) {
+        if (name === undefined) {
+            clearModel()
+            return
+        }
+
         root.currentCollectionName = name
         tableView.model = DesignSystemBackend.dsInterface.model(name)
 
@@ -256,6 +270,7 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
                 actionIndicatorVisible: false
                 model: DesignSystemBackend.dsInterface.collections
+                enabled: collectionsComboBox.count
                 onActivated: root.loadModel(collectionsComboBox.currentText)
             }
 
@@ -264,7 +279,8 @@ Rectangle {
                 style: StudioTheme.Values.viewBarControlStyle
                 anchors.verticalCenter: parent.verticalCenter
                 actionIndicatorVisible: false
-                model: tableView.model.themeNames
+                model: tableView.model?.themeNames ?? null
+                enabled: tableView.model
                 onActivated: tableView.model.setActiveTheme(themesComboBox.currentText)
             }
 
@@ -274,6 +290,7 @@ Rectangle {
                 buttonIcon: StudioTheme.Constants.more_medium
                 checkable: true
                 checked: moreMenu.visible
+                tooltip: qsTr("More options")
 
                 onToggled: {
                     if (moreMenu.visible)
@@ -307,12 +324,21 @@ Rectangle {
             }
 
             // TODO this is only for debugging purposes
-            Button {
+            Connections {
+                target: DesignSystemBackend.dsInterface
+                function onCollectionsChanged() {
+                    root.loadModel(DesignSystemBackend.dsInterface.collections[0])
+                }
+            }
+
+            StudioControls.IconTextButton {
+                id: refreshButton
                 anchors.verticalCenter: parent.verticalCenter
-                text: qsTr("load")
+                buttonIcon: StudioTheme.Constants.updateContent_medium
+                tooltip: qsTr("Refresh")
                 onClicked: {
                     DesignSystemBackend.dsInterface.loadDesignSystem()
-                    root.loadModel(DesignSystemBackend.dsInterface.collections[0])
+                    //root.loadModel(DesignSystemBackend.dsInterface.collections[0])
                 }
             }
         }

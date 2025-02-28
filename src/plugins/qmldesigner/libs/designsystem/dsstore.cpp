@@ -16,6 +16,7 @@
 
 #include <QLoggingCategory>
 #include <QPlainTextEdit>
+#include <QScopeGuard>
 
 namespace {
 
@@ -113,13 +114,16 @@ std::optional<QString> DSStore::load()
 
 std::optional<QString> DSStore::load(const Utils::FilePath &dsModuleDirPath)
 {
+    if (m_blockLoading)
+        return {};
+
+    m_collections.clear();
+
     // read qmldir
     const auto qmldirFile = dsModuleDirPath / "qmldir";
     const Utils::expected_str<QByteArray> contents = qmldirFile.fileContents();
     if (!contents)
         return tr("Can not read Design System qmldir");
-
-    m_collections.clear();
 
     // Parse qmldir
     QString qmldirData = QString::fromUtf8(*contents);
@@ -159,6 +163,9 @@ std::optional<QString> DSStore::save(const Utils::FilePath &moduleDirPath, bool 
 {
     if (!QDir().mkpath(moduleDirPath.absoluteFilePath().toString()))
         return tr("Can not create design system module directory %1.").arg(moduleDirPath.toString());
+
+    const QScopeGuard cleanup([&] { m_blockLoading = false; });
+    m_blockLoading = true;
 
     // dump collections
     QStringList singletons;
