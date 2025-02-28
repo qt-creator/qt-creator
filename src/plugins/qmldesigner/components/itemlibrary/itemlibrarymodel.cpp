@@ -326,11 +326,10 @@ void ItemLibraryModel::update(Model *model)
     // create import sections
     const Imports usedImports = model->usedImports();
     QHash<QString, ItemLibraryImport *> importHash;
+    const QString generatedPrefix = compUtils.generatedComponentTypePrefix();
     for (const Import &import : model->imports()) {
-        if (excludedImports.contains(import.url())
-            || import.url().startsWith(compUtils.generatedComponentTypePrefix())) {
+        if (excludedImports.contains(import.url()) || import.url().startsWith(generatedPrefix))
             continue;
-        }
 
         bool addNew = true;
         QString importUrl = import.url();
@@ -450,6 +449,8 @@ void ItemLibraryModel::update(Model *model)
                                                                                 : entry.requiredImport()];
                 }
             } else {
+                if (entry.requiredImport().startsWith(generatedPrefix))
+                    continue;
                 catName = ItemLibraryImport::unimportedComponentsTitle();
                 importSection = importHash[catName];
                 if (!importSection) {
