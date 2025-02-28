@@ -7,13 +7,13 @@
 #include "assetslibrarywidget.h"
 #include "formeditorscene.h"
 #include "formeditorview.h"
-#include "materialutils.h"
 #include "qmldesignerconstants.h"
 #include <designeractionmanager.h>
 #include <itemlibraryentry.h>
 #include <modelnodeoperations.h>
 #include <nodehints.h>
 #include <rewritingexception.h>
+#include <utils3d.h>
 
 #include <utils/qtcassert.h>
 
@@ -455,7 +455,7 @@ void DragTool::handleView3dDrop()
             const QList<ModelNode> models = dragNode.modelNode().subModelNodesOfType(
                 model->qtQuick3DModelMetaInfo());
             QTC_ASSERT(models.size() == 1, return);
-            MaterialUtils::assignMaterialTo3dModel(view(), models.at(0));
+            Utils3D::assignMaterialTo3dModel(view(), models.at(0));
         }
     }
 }

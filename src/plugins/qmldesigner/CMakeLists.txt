@@ -477,7 +477,6 @@ extend_qtc_plugin(QmlDesigner
     materialbrowserwidget.cpp materialbrowserwidget.h
     materialbrowsermodel.cpp materialbrowsermodel.h
     materialbrowsertexturesmodel.cpp materialbrowsertexturesmodel.h
-    materialutils.cpp materialutils.h
 )
 
 extend_qtc_plugin(QmlDesigner

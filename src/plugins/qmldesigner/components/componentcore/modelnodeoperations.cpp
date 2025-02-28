@@ -18,7 +18,6 @@
 #include <designmodewidget.h>
 #include <documentmanager.h>
 #include <itemlibraryentry.h>
-#include <materialutils.h>
 #include <modelnode.h>
 #include <modelnodeutils.h>
 #include <nodehints.h>
@@ -2093,7 +2092,7 @@ void handleMaterialDrop(const QMimeData *mimeData, const ModelNode &targetNode)
     ModelNode matNode = view->modelNodeForInternalId(internalId);
 
     view->executeInTransaction(__FUNCTION__, [&] {
-        MaterialUtils::assignMaterialTo3dModel(view, targetNode, matNode);
+        Utils3D::assignMaterialTo3dModel(view, targetNode, matNode);
     });
 }
 

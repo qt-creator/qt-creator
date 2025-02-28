@@ -93,7 +93,6 @@ public:
     Edit3DAction *edit3DAction(View3DActionType type) const;
     Edit3DBakeLightsAction *bakeLightsAction() const;
 
-    void addQuick3DImport();
     void startContextMenu(const QPoint &pos);
     void showContextMenu();
     void dropMaterial(const ModelNode &matNode, const QPointF &pos);

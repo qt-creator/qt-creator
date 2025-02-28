@@ -17,7 +17,6 @@
 #include <designmodewidget.h>
 #include <externaldependenciesinterface.h>
 #include <generatedcomponentutils.h>
-#include <materialutils.h>
 #include <metainfo.h>
 #include <nodeabstractproperty.h>
 #include <nodehints.h>
@@ -566,7 +565,7 @@ void Edit3DWidget::onCreateAction(QAction *action)
 
         // if added node is a Model, assign it a material
         if (modelNode.metaInfo().isQtQuick3DModel())
-            MaterialUtils::assignMaterialTo3dModel(m_view, modelNode);
+            Utils3D::assignMaterialTo3dModel(m_view, modelNode);
     });
 }
 
@@ -732,8 +731,7 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
 
 void Edit3DWidget::linkActivated([[maybe_unused]] const QString &link)
 {
-    if (m_view)
-        m_view->addQuick3DImport();
+    Utils3D::addQuick3DImportAndView3D(m_view);
 }
 
 Edit3DCanvas *Edit3DWidget::canvas() const
