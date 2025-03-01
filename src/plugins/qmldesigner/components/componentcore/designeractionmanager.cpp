@@ -1515,6 +1515,28 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &resetSize,
                           &selectionNotEmptyAndHasWidthOrHeightProperty));
 
+    addDesignerAction(new ModelNodeAction(
+                          isolateSelectionCommandId,
+                          isolateSelectionDisplayName,
+                          contextIcon(DesignerIcons::VisibilityIcon), // TODO: placeholder icon
+                          isolateNodesToolTip,
+                          rootCategory,
+                          QKeySequence("shift+h"),
+                          Priorities::IsolateSelection,
+                          &isolateSelectedNodes,
+                          &selectionNot2D3DMix));
+
+    addDesignerAction(new ModelNodeAction(
+                          showAllCommandId,
+                          showAllDisplayName,
+                          contextIcon(DesignerIcons::VisibilityIcon), // TODO: placeholder icon
+                          showAllToolTip,
+                          rootCategory,
+                          QKeySequence("alt+h"),
+                          Priorities::ShowAllNodes,
+                          &showAllNodes,
+                          &always));
+
     addDesignerAction(new SeparatorDesignerAction(editCategory, 40));
 
     addDesignerAction(new VisiblityModelNodeAction(

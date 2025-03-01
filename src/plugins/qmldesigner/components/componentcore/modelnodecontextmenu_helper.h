@@ -4,14 +4,15 @@
 #pragma once
 
 #include "abstractaction.h"
-#include "bindingproperty.h"
 #include "abstractactiongroup.h"
-#include "qmlitemnode.h"
-#include <qmldesignerplugin.h>
-#include <nodemetainfo.h>
+#include "utils3d.h"
 
+#include <bindingproperty.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
+#include <nodemetainfo.h>
+#include <qmldesignerplugin.h>
+#include <qmlitemnode.h>
 
 #include <utils/proxyaction.h>
 
@@ -111,6 +112,23 @@ inline bool selectionEnabled(const SelectionContext &selectionState)
 inline bool selectionNotEmpty(const SelectionContext &selectionState)
 {
     return !selectionState.selectedModelNodes().isEmpty();
+}
+
+inline bool selectionNot2D3DMix(const SelectionContext &selectionState)
+{
+    const QList<ModelNode> selectedNodes = selectionState.view()->selectedModelNodes();
+    if (selectedNodes.size() <= 1)
+        return true;
+
+    ModelNode active3DScene = Utils3D::active3DSceneNode(selectionState.view());
+    bool isFirstNode3D = active3DScene.isAncestorOf(selectedNodes.first());
+
+    for (const ModelNode &node : selectedNodes) {
+        if (active3DScene.isAncestorOf(node) != isFirstNode3D)
+            return false;
+    }
+
+    return true;
 }
 
 inline bool singleSelectionNotRoot(const SelectionContext &selectionState)

@@ -279,6 +279,82 @@ void setVisible(const SelectionContext &selectionState)
     }
 }
 
+static QSet<ModelNode> collectAncestorsAndDescendants(AbstractView *view, const ModelNode &node)
+{
+    QSet<ModelNode> keepVisible;
+
+    ModelNode ancestor = node.parentProperty().parentModelNode();
+    while (ancestor && ancestor != view->rootModelNode()) {
+        keepVisible.insert(ancestor);
+        if (!ancestor.hasParentProperty())
+            break;
+        ancestor = ancestor.parentProperty().parentModelNode();
+    }
+
+    const QList<ModelNode> descendants = node.allSubModelNodes();
+    for (const ModelNode &subNode : descendants)
+        keepVisible.insert(subNode);
+
+    return keepVisible;
+}
+
+void isolateSelectedNodes(const SelectionContext &selectionState)
+{
+    AbstractView *view = selectionState.view();
+    const QList<ModelNode> selectedNodes = view->selectedModelNodes();
+
+    if (selectedNodes.isEmpty() || view->rootModelNode().isSelected())
+        return;
+
+    const QList<ModelNode> allModelNodes = view->allModelNodes();
+    ModelNode active3DScene = Utils3D::active3DSceneNode(view);
+    QSet<ModelNode> nodesToKeepVisible({view->rootModelNode()});
+
+    for (const ModelNode &node : selectedNodes) {
+        nodesToKeepVisible.insert(node);
+        nodesToKeepVisible.unite(collectAncestorsAndDescendants(view, node));
+    }
+
+    auto hideNode = [](const ModelNode &node) {
+        QmlVisualNode(node).setVisibilityOverride(true);
+    };
+
+    auto doNotHideSubNodes = [&nodesToKeepVisible](const ModelNode &node) {
+        if (node.hasAnySubModelNodes()) {
+            const QList<ModelNode> allSubModelNodes = node.allSubModelNodes();
+            for (const ModelNode &subNode : allSubModelNodes)
+                nodesToKeepVisible.insert(subNode);
+        }
+    };
+
+    const bool is3DSelection = active3DScene.isAncestorOf(selectedNodes.first());
+    const QList<ModelNode> nodesToProcess = is3DSelection ? active3DScene.allSubModelNodes()
+                                                          : allModelNodes;
+
+    for (const ModelNode &node : nodesToProcess) {
+        if (nodesToKeepVisible.contains(node))
+            continue;
+
+        if (!is3DSelection) {
+            NodeHints hint = NodeHints::fromModelNode(node);
+            if (!((node && !hint.hideInNavigator()) || hint.visibleInNavigator())
+                || node.id() == Constants::MATERIAL_LIB_ID) {
+                continue;
+            }
+        }
+
+        doNotHideSubNodes(node); // makes sure only the top-most node in the hierarchy is hidden
+        hideNode(node);
+    }
+}
+
+void showAllNodes(const SelectionContext &selectionState)
+{
+    const QList<ModelNode> allModelNodes = selectionState.view()->allModelNodes();
+    for (const ModelNode &node : allModelNodes)
+        QmlVisualNode(node).setVisibilityOverride(false);
+}
+
 void setFillWidth(const SelectionContext &selectionState)
 {
     if (!selectionState.view()

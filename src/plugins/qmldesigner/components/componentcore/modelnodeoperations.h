@@ -73,6 +73,8 @@ void paste(const SelectionContext &selectionState);
 void undo(const SelectionContext &selectionState);
 void redo(const SelectionContext &selectionState);
 void setVisible(const SelectionContext &selectionState);
+void isolateSelectedNodes(const SelectionContext &selectionState);
+void showAllNodes(const SelectionContext &selectionState);
 void setFillWidth(const SelectionContext &selectionState);
 void setFillHeight(const SelectionContext &selectionState);
 void resetSize(const SelectionContext &selectionState);

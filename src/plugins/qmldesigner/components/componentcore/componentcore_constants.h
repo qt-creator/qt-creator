@@ -39,6 +39,8 @@ inline constexpr char resetPositionCommandId[] = "ResetPosition";
 inline constexpr char copyFormatCommandId[] = "CopyFormat";
 inline constexpr char applyFormatCommandId[] = "ApplyFormat";
 inline constexpr char visiblityCommandId[] = "ToggleVisiblity";
+inline constexpr char isolateSelectionCommandId[] = "IsolateSelection";
+inline constexpr char showAllCommandId[] = "ShowAll";
 inline constexpr char anchorsFillCommandId[] = "AnchorsFill";
 inline constexpr char anchorsResetCommandId[] = "AnchorsReset";
 
@@ -142,7 +144,10 @@ inline constexpr char redoDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextM
 
 inline constexpr char visibilityDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                   "Visibility");
-
+inline constexpr char isolateSelectionDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
+                                                                  "Isolate Selection");
+inline constexpr char showAllDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
+                                                               "Show All Nodes");
 inline constexpr char resetSizeDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                  "Reset Size");
 inline constexpr char resetPositionDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
@@ -266,6 +271,10 @@ inline constexpr char lowerToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu
 
 inline constexpr char resetSizeToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                              "Reset size and use implicit size.");
+inline constexpr char isolateNodesToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
+                                                             "Show selected nodes only.");
+inline constexpr char showAllToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
+                                                                "Show all nodes.");
 inline constexpr char resetPositionTooltip[] = QT_TRANSLATE_NOOP(
     "QmlDesignerContextMenu", "Reset position and use implicit position.");
 inline constexpr char copyFormatTooltip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
@@ -330,6 +339,8 @@ enum PrioritiesEnum : int {
     ResetView,
     Group,
     Visibility,
+    IsolateSelection,
+    ShowAllNodes,
     ShowBoundingRect,
     /******** Section *****************************/
     CustomActionsSection = 6000,
