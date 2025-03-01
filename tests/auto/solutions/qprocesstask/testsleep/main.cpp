@@ -5,7 +5,7 @@
 #include <thread>
 
 using namespace std;
-using namespace std::chrono_literals;
+using namespace std::literals::chrono_literals;
 
 int main()
 {
