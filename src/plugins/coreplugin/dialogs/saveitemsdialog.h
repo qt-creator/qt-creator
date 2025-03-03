@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QList>
 #include <QDialog>
 
@@ -13,7 +15,6 @@ class QCheckBox;
 class QDialogButtonBox;
 QT_END_NAMESPACE
 
-namespace Utils { class FilePath; }
 namespace Core {
 
 class IDocument;

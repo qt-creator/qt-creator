@@ -7,7 +7,6 @@
 #include "../diffservice.h"
 #include "../idocument.h"
 
-#include <utils/filepath.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
