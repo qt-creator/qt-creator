@@ -80,6 +80,17 @@ find_package(Qt6
 find_package(Qt6 OPTIONAL_COMPONENTS Quick QuickWidgets Designer DesignerComponentsPrivate
                                      Help SerialPort Svg Tools LinguistTools QUIET)
 
+if (QT_VERSION VERSION_GREATER_EQUAL 6.9.0)
+  find_package(Qt6 OPTIONAL_COMPONENTS
+    CorePrivate
+    Core5CompatPrivate
+    GuiPrivate
+    DesignerComponentsPrivate
+    QmlPrivate
+    QuickPrivate
+  )
+endif()
+
 # depending on Qt version and compiler version enable or disable Qml Designer
 # can be overwritten by variable WITH_QMLDESIGNER / QTC_WITH_QMLDESIGNER (env)
 configure_qml_designer(${Qt6_VERSION})
