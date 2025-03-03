@@ -469,7 +469,7 @@ class QTCREATOR_UTILS_EXPORT If
 public:
     If(bool condition,
        const std::initializer_list<Layout::I> ifcase,
-       const std::initializer_list<Layout::I> thencase = {});
+       const std::initializer_list<Layout::I> elsecase = {});
 
     const std::initializer_list<Layout::I> used;
 };

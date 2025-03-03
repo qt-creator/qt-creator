@@ -1139,8 +1139,8 @@ void MarkdownBrowser::setEnableCodeCopyButton(bool enable)
 If::If(
     bool condition,
     const std::initializer_list<Layout::I> ifcase,
-    const std::initializer_list<Layout::I> thencase)
-    : used(condition ? ifcase : thencase)
+    const std::initializer_list<Layout::I> elsecase)
+    : used(condition ? ifcase : elsecase)
 {}
 
 void addToLayout(Layout *layout, const If &inner)
