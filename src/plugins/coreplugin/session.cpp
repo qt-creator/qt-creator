@@ -683,21 +683,20 @@ bool SessionManager::loadSession(const QString &session, bool initial)
         return true;
     }
 
-    d->m_loadingSession = true;
+    struct SessionLoadingUpdater {
+        SessionLoadingUpdater() { d->m_loadingSession = true; }
+        ~SessionLoadingUpdater() { d->m_loadingSession = false; }
+    } sessionLoadingUpdater;
 
     // Allow everyone to set something in the session and before saving
     emit SessionManager::instance()->aboutToUnloadSession(d->m_sessionName);
 
-    if (!saveSession()) {
-        d->m_loadingSession = false;
+    if (!saveSession())
         return false;
-    }
 
     // Clean up
-    if (!EditorManager::closeAllEditors()) {
-        d->m_loadingSession = false;
+    if (!EditorManager::closeAllEditors())
         return false;
-    }
 
     if (!switchFromImplicitToExplicitDefault)
         d->m_values.clear();
@@ -740,7 +739,6 @@ bool SessionManager::loadSession(const QString &session, bool initial)
 
     emit SessionManager::instance()->sessionLoaded(session);
 
-    d->m_loadingSession = false;
     return true;
 }
 
