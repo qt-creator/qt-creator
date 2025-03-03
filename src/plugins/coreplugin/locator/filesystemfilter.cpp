@@ -191,6 +191,7 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
                           + dir.absoluteFilePath().cleanPath().pathAppended("/").toUserOutput();
                     return AcceptResult{value, int(value.length())};
                 };
+                filterEntry.completer = filterEntry.acceptor;
                 filterEntry.filePath = dir;
                 filterEntry.highlightInfo = ILocatorFilter::highlightInfo(match);
 
@@ -217,6 +218,11 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
                 filterEntry.linkForEditor = Link(filterEntry.filePath,
                                                  link.targetLine,
                                                  link.targetColumn);
+                filterEntry.completer = [shortcutString, file] {
+                    const QString value = shortcutString + ' '
+                                          + file.absoluteFilePath().cleanPath().toUserOutput();
+                    return AcceptResult{value, int(value.length())};
+                };
                 entries[int(level)].append(filterEntry);
             }
         }
@@ -241,6 +247,7 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
                           + root.absoluteFilePath().cleanPath().pathAppended("/").toUserOutput();
                     return AcceptResult{value, int(value.length())};
                 };
+                filterEntry.completer = filterEntry.acceptor;
                 filterEntry.filePath = root;
                 filterEntry.displayIcon = *sDeviceRootIcon;
                 filterEntry.highlightInfo = ILocatorFilter::highlightInfo(match);
@@ -266,6 +273,7 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
                     Qt::QueuedConnection);
                 return AcceptResult();
             };
+            filterEntry.completer = [] { return AcceptResult(); };
             filterEntry.filePath = fullFilePath;
             filterEntry.extraInfo = directory.absoluteFilePath().shortNativePath();
             entries[int(ILocatorFilter::MatchLevel::Normal)].append(filterEntry);
@@ -292,14 +300,15 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
                     Qt::QueuedConnection);
                 return AcceptResult();
             };
+            filterEntry.completer = [] { return AcceptResult(); };
             filterEntry.filePath = fullFilePath;
             filterEntry.extraInfo = directory.absoluteFilePath().shortNativePath();
             entries[int(ILocatorFilter::MatchLevel::Normal)].append(filterEntry);
         }
     }
 
-    storage.reportOutput(std::accumulate(std::begin(entries), std::end(entries),
-                                         LocatorFilterEntries()));
+    storage.reportOutput(
+        std::accumulate(std::begin(entries), std::end(entries), LocatorFilterEntries()));
 }
 
 LocatorMatcherTasks FileSystemFilter::matchers()
