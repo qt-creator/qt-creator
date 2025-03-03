@@ -1363,6 +1363,36 @@ TEST_F(Model_TypeAnnotation, directory_imports_item_library_entries)
                                        ElementsAre(IsItemLibraryProperty("x", "double"_L1, QVariant{1})),
                                        ElementsAre(u"/extra/file/path"))));
 }
+TEST_F(Model_TypeAnnotation, all_item_library_entries)
+{
+    using namespace Qt::StringLiterals;
+    QmlDesigner::Storage::Info::ItemLibraryEntries storageEntries{{itemTypeId,
+                                                                   "Item",
+                                                                   "Item",
+                                                                   "/path/to/icon",
+                                                                   "basic category",
+                                                                   "QtQuick",
+                                                                   "It's a item",
+                                                                   "/path/to/template"}};
+    storageEntries.front().properties.emplace_back("x", "double", Sqlite::ValueView::create(1));
+    storageEntries.front().extraFilePaths.emplace_back("/extra/file/path");
+    ON_CALL(projectStorageMock, allItemLibraryEntries()).WillByDefault(Return(storageEntries));
+
+    auto entries = model.allItemLibraryEntries();
+
+    ASSERT_THAT(entries,
+                ElementsAre(
+                    IsItemLibraryEntry(itemTypeId,
+                                       "Item",
+                                       u"Item",
+                                       u"/path/to/icon",
+                                       u"basic category",
+                                       u"QtQuick",
+                                       u"It's a item",
+                                       u"/path/to/template",
+                                       ElementsAre(IsItemLibraryProperty("x", "double"_L1, QVariant{1})),
+                                       ElementsAre(u"/extra/file/path"))));
+}
 
 class Model_ViewManagement : public Model
 {
