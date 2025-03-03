@@ -357,6 +357,8 @@ void GdbEngine::handleResponse(const QString &buff)
             } else if (m_detectTargetIncompat && data.contains(notCompatibleMessage)) {
                 m_detectTargetIncompat = false;
                 m_ignoreNextTrap = true;
+            } else if (data.contains("no attribute 'lru_cache'")) {
+                setProperty("lru_fail", true);
             }
 
             m_pendingLogStreamOutput += data;
@@ -1500,6 +1502,20 @@ void GdbEngine::handleShowVersion(const DebuggerResponse &response)
             } else if (useDebugInfoD == TriState::Disabled) {
                 runCommand({"set debuginfod enabled off"});
             }
+        }
+    }
+}
+
+void GdbEngine::handleDumperSetup(const DebuggerResponse &response)
+{
+    CHECK_STATE(EngineSetupRequested);
+    if (response.resultClass == ResultError) {
+        const QString msg = response.data["msg"].data();
+        if (property("lru_fail").toBool() && msg.contains("Error while executing Python code.")) {
+            AsynchronousMessageBox::critical(
+                        Tr::tr("Cannot Execute Python Code"),
+                        Tr::tr("Python 3.2 or later is required, so update GDB to a "
+                               "version that uses it."));
         }
     }
 }
@@ -4041,7 +4057,7 @@ void GdbEngine::handleGdbStarted()
                 moduleList.append('"' + module + '"');
         }
 
-        runCommand({"python from gdbbridge import *"});
+        runCommand({"python from gdbbridge import *", CB(handleDumperSetup)});
         runCommand(QString("python theDumper.dumpermodules = [%1]").arg(moduleList.join(',')));
 
     } else {
@@ -4053,7 +4069,7 @@ void GdbEngine::handleGdbStarted()
             runCommand({"python sys.path.append('" + uninstalledData.path() + "')"});
 
         runCommand({"python sys.path.insert(1, '" + dumperPath.path() + "')"});
-        runCommand({"python from gdbbridge import *"});
+        runCommand({"python from gdbbridge import *", CB(handleDumperSetup)});
     }
 
     const FilePath path = settings().extraDumperFile();
