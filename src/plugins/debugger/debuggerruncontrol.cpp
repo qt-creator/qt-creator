@@ -437,6 +437,59 @@ ExecutableItem DebuggerRunToolPrivate::debugServerRecipe()
     };
 }
 
+static expected_str<QList<QPointer<Internal::DebuggerEngine>>> createEngines(
+    RunControl *runControl, const DebuggerRunParameters &rp)
+{
+    if (auto dapEngine = createDapEngine(runControl->runMode()))
+        return QList<QPointer<Internal::DebuggerEngine>>{dapEngine};
+
+    QList<QPointer<Internal::DebuggerEngine>> engines;
+    if (rp.isCppDebugging()) {
+        switch (rp.cppEngineType()) {
+        case GdbEngineType:
+            engines << createGdbEngine();
+            break;
+        case CdbEngineType:
+            if (!HostOsInfo::isWindowsHost())
+                return make_unexpected(Tr::tr("Unsupported CDB host system."));
+            engines << createCdbEngine();
+            break;
+        case LldbEngineType:
+            engines << createLldbEngine();
+            break;
+        case GdbDapEngineType:
+            engines << createDapEngine(ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE);
+            break;
+        case LldbDapEngineType:
+            engines << createDapEngine(ProjectExplorer::Constants::DAP_LLDB_DEBUG_RUN_MODE);
+            break;
+        case UvscEngineType:
+            engines << createUvscEngine();
+            break;
+        default:
+            if (!rp.isQmlDebugging()) {
+                return make_unexpected(noEngineMessage() + '\n' +
+                                       Tr::tr("Specify Debugger settings in Projects > Run."));
+            }
+            break; // Can happen for pure Qml.
+        }
+    }
+
+    if (rp.isPythonDebugging())
+        engines << createPdbEngine();
+
+    if (rp.isQmlDebugging())
+        engines << createQmlEngine();
+
+    if (engines.isEmpty()) {
+        QString msg = noEngineMessage();
+        if (!DebuggerKitAspect::debugger(runControl->kit()))
+            msg += '\n' + noDebuggerInKitMessage();
+        return make_unexpected(msg);
+    }
+    return engines;
+}
+
 static int newRunId()
 {
     static int toolRunCount = 0;
@@ -454,62 +507,6 @@ void DebuggerRunTool::continueAfterDebugServerStart()
 
     runControl()->setDisplayName(d->m_runParameters.displayName());
 
-    const QString runId = QString::number(newRunId());
-
-    if (auto dapEngine = createDapEngine(runControl()->runMode()))
-        m_engines << dapEngine;
-
-    if (m_engines.isEmpty()) {
-        if (d->m_runParameters.isCppDebugging()) {
-            switch (d->m_runParameters.cppEngineType()) {
-            case GdbEngineType:
-                m_engines << createGdbEngine();
-                break;
-            case CdbEngineType:
-                if (!HostOsInfo::isWindowsHost()) {
-                    reportFailure(Tr::tr("Unsupported CDB host system."));
-                    return;
-                }
-                m_engines << createCdbEngine();
-                break;
-            case LldbEngineType:
-                m_engines << createLldbEngine();
-                break;
-            case GdbDapEngineType:
-                m_engines << createDapEngine(ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE);
-                break;
-            case LldbDapEngineType:
-                m_engines << createDapEngine(ProjectExplorer::Constants::DAP_LLDB_DEBUG_RUN_MODE);
-                break;
-            case UvscEngineType:
-                m_engines << createUvscEngine();
-                break;
-            default:
-                if (!d->m_runParameters.isQmlDebugging()) {
-                    reportFailure(noEngineMessage() + '\n' +
-                        Tr::tr("Specify Debugger settings in Projects > Run."));
-                    return;
-                }
-                // Can happen for pure Qml.
-                break;
-            }
-        }
-
-        if (d->m_runParameters.isPythonDebugging())
-            m_engines << createPdbEngine();
-
-        if (d->m_runParameters.isQmlDebugging())
-            m_engines << createQmlEngine();
-    }
-
-    if (m_engines.isEmpty()) {
-        QString msg = noEngineMessage();
-        if (!DebuggerKitAspect::debugger(runControl()->kit()))
-            msg += '\n' + noDebuggerInKitMessage();
-        reportFailure(msg);
-        return;
-    }
-
     if (auto interpreterAspect = runControl()->aspectData<FilePathAspect>()) {
         if (auto mainScriptAspect = runControl()->aspectData<MainScriptAspect>()) {
             const FilePath mainScript = mainScriptAspect->filePath;
@@ -521,6 +518,14 @@ void DebuggerRunTool::continueAfterDebugServerStart()
         }
     }
 
+    const auto engines = createEngines(runControl(), runParameters());
+    if (!engines) {
+        reportFailure(engines.error());
+        return;
+    }
+    m_engines = *engines;
+
+    const QString runId = QString::number(newRunId());
     for (auto engine : m_engines) {
         if (engine != m_engines.first())
             engine->setSecondaryEngine();
