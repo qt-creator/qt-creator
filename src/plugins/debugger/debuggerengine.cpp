@@ -820,7 +820,7 @@ void DebuggerEnginePrivate::setupViews()
     connect(fp, &FutureProgress::canceled, m_engine, &DebuggerEngine::quitDebugger);
     m_progress.reportStarted();
 
-    m_inferiorPid = rp.attachPid().isValid() ? rp.attachPid() : ProcessHandle();
+    m_inferiorPid = rp.attachPid();
 //    if (m_inferiorPid.isValid())
 //        m_runControl->setApplicationProcessHandle(m_inferiorPid);
 
