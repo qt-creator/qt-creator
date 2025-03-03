@@ -410,6 +410,7 @@ void ItemLibraryModel::update(Model *model)
 
             // we need to exclude all items from unsupported imports but only if they are not user-defined modules
             if (!(entry.category() == ItemLibraryImport::userComponentsTitle())
+                && !entry.requiredImport().isEmpty()
                 && !mcuManager.allowedImports().contains(entry.requiredImport())) {
                 blocked = true;
             }
