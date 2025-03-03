@@ -1207,7 +1207,9 @@ static QStringList matchingTestFunctions(const QStringList &testFunctions,
 static QObject *objectWithClassName(const QObjectList &objects, const QString &className)
 {
     return Utils::findOr(objects, nullptr, [className] (QObject *object) -> bool {
-        QString candidate = QString::fromUtf8(object->metaObject()->className());
+        QString candidate = object->objectName();
+        if (candidate.isEmpty())
+            candidate = QString::fromUtf8(object->metaObject()->className());
         const int colonIndex = candidate.lastIndexOf(QLatin1Char(':'));
         if (colonIndex != -1 && colonIndex < candidate.size() - 1)
             candidate = candidate.mid(colonIndex + 1);

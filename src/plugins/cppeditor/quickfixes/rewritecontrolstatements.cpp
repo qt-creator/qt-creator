@@ -405,12 +405,6 @@ private:
 */
 class MoveDeclarationOutOfIf: public CppQuickFixFactory
 {
-#ifdef WITH_TESTS
-public:
-    static QObject *createTest();
-#endif
-
-private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
         const QList<AST *> &path = interface.path();
@@ -451,12 +445,6 @@ private:
 */
 class MoveDeclarationOutOfWhile: public CppQuickFixFactory
 {
-#ifdef WITH_TESTS
-public:
-    static QObject *createTest();
-#endif
-
-private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
         const QList<AST *> &path = interface.path();
@@ -583,12 +571,6 @@ private:
 */
 class AddBracesToControlStatement : public CppQuickFixFactory
 {
-#ifdef WITH_TESTS
-public:
-    static QObject *createTest();
-#endif
-
-private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
         if (interface.path().isEmpty())
@@ -607,12 +589,6 @@ private:
  */
 class OptimizeForLoop : public CppQuickFixFactory
 {
-#ifdef WITH_TESTS
-public:
-    static QObject *createTest();
-#endif
-
-private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
         const QList<AST *> path = interface.path();
@@ -694,62 +670,18 @@ private:
     }
 };
 
-#ifdef WITH_TESTS
-using namespace Tests;
-
-class MoveDeclarationOutOfIfTest : public CppQuickFixTestObject
-{
-    Q_OBJECT
-public:
-    MoveDeclarationOutOfIfTest()
-        : CppQuickFixTestObject(std::make_unique<MoveDeclarationOutOfIf>())
-    {}
-};
-
-class MoveDeclarationOutOfWhileTest : public CppQuickFixTestObject
-{
-    Q_OBJECT
-public:
-    MoveDeclarationOutOfWhileTest()
-        : CppQuickFixTestObject(std::make_unique<MoveDeclarationOutOfWhile>())
-    {}
-};
-
-class OptimizeForLoopTest : public CppQuickFixTestObject
-{
-    Q_OBJECT
-public:
-    OptimizeForLoopTest() : CppQuickFixTestObject(std::make_unique<OptimizeForLoop>()) {}
-};
-
-class AddBracesToControlStatementTest : public CppQuickFixTestObject
-{
-    Q_OBJECT
-public:
-    AddBracesToControlStatementTest()
-        : CppQuickFixTestObject(std::make_unique<AddBracesToControlStatement>())
-    {}
-};
-
-QObject *MoveDeclarationOutOfIf::createTest() { return new MoveDeclarationOutOfIfTest; }
-QObject *MoveDeclarationOutOfWhile::createTest() { return new MoveDeclarationOutOfWhileTest; }
-QObject *OptimizeForLoop::createTest() { return new OptimizeForLoopTest; }
-QObject *AddBracesToControlStatement::createTest() { return new AddBracesToControlStatementTest; }
-
-#endif // WITH_TESTS
 } // namespace
 
 void registerRewriteControlStatementQuickfixes()
 {
-    CppQuickFixFactory::registerFactory<AddBracesToControlStatement>();
-    CppQuickFixFactory::registerFactory<MoveDeclarationOutOfIf>();
-    CppQuickFixFactory::registerFactory<MoveDeclarationOutOfWhile>();
-    CppQuickFixFactory::registerFactory<OptimizeForLoop>();
+    CppQuickFixFactory::registerFactoryWithStandardTest<AddBracesToControlStatement>(
+        "AddBracesToControlStatementTest");
+    CppQuickFixFactory::registerFactoryWithStandardTest<MoveDeclarationOutOfIf>(
+        "MoveDeclarationOutOfIfTest");
+    CppQuickFixFactory::registerFactoryWithStandardTest<MoveDeclarationOutOfWhile>(
+        "MoveDeclarationOutOfWhileTest");
+    CppQuickFixFactory::registerFactoryWithStandardTest<OptimizeForLoop>("OptimizeForLoopTest");
     CppQuickFixFactory::registerFactory<SplitIfStatement>();
 }
 
 } // namespace CppEditor::Internal
-
-#ifdef WITH_TESTS
-#include <rewritecontrolstatements.moc>
-#endif

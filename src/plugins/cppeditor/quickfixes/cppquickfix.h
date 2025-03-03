@@ -13,6 +13,10 @@
 
 #include <optional>
 
+#ifdef WITH_TESTS
+#include "cppquickfix_test.h"
+#endif
+
 namespace CppEditor {
 namespace Internal {
 class CppQuickFixInterface;
@@ -67,6 +71,18 @@ public:
         new Factory;
 #ifdef WITH_TESTS
         cppEditor()->addTestCreator(Factory::createTest);
+#endif
+    }
+
+    template<class Factory> static void registerFactoryWithStandardTest(const QString &testName)
+    {
+        new Factory;
+#ifdef WITH_TESTS
+        cppEditor()->addTestCreator([testName] {
+            const auto obj = new Internal::Tests::CppQuickFixTestObject(std::make_unique<Factory>());
+            obj->setObjectName(testName);
+            return obj;
+        });
 #endif
     }
 

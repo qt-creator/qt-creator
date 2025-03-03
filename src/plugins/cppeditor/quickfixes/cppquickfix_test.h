@@ -5,7 +5,6 @@
 
 #include "../cpptoolstestcase.h"
 #include "../cppcodestylesettings.h"
-#include "cppquickfix.h"
 #include "cppquickfixsettings.h"
 
 #include <projectexplorer/headerpath.h>
@@ -22,6 +21,7 @@
 namespace TextEditor { class QuickFixOperation; }
 
 namespace CppEditor {
+class CppQuickFixFactory;
 
 namespace Internal {
 namespace Tests {
@@ -92,9 +92,9 @@ public:
 class CppQuickFixTestObject : public QObject
 {
     Q_OBJECT
-protected:
-    CppQuickFixTestObject(std::unique_ptr<CppQuickFixFactory> &&factory)
-        : m_factory(std::move(factory)) {}
+public:
+    CppQuickFixTestObject(std::unique_ptr<CppQuickFixFactory> &&factory);
+    ~CppQuickFixTestObject();
 
 private slots:
     void initTestCase();

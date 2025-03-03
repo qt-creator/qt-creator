@@ -8,6 +8,7 @@
 #include "../cppmodelmanager.h"
 #include "../cppsourceprocessertesthelper.h"
 #include "../cpptoolssettings.h"
+#include "cppquickfix.h"
 #include "cppquickfixassistant.h"
 
 #include <projectexplorer/kitmanager.h>
@@ -245,13 +246,21 @@ void QuickFixOperationTest::run(const QList<TestDocumentPtr> &testDocuments,
     QuickFixOperationTest(testDocuments, factory, headerPaths, operationIndex);
 }
 
+CppQuickFixTestObject::~CppQuickFixTestObject() = default;
+
+CppQuickFixTestObject::CppQuickFixTestObject(std::unique_ptr<CppQuickFixFactory> &&factory)
+    : m_factory(std::move(factory)) {}
+
 void CppQuickFixTestObject::initTestCase()
 {
-    const QStringList classNameComponents
-        = QString::fromLatin1(metaObject()->className()).split("::", Qt::SkipEmptyParts);
-    QVERIFY(!classNameComponents.isEmpty());
-
-    const QDir testDir(QLatin1String(":/cppeditor/testcases/") + classNameComponents.last());
+    QString testName = objectName();
+    if (testName.isEmpty()) {
+        const QStringList classNameComponents
+            = QString::fromLatin1(metaObject()->className()).split("::", Qt::SkipEmptyParts);
+        QVERIFY(!classNameComponents.isEmpty());
+        testName = classNameComponents.last();
+    }
+    const QDir testDir(QLatin1String(":/cppeditor/testcases/") + testName);
     QVERIFY2(testDir.exists(), qPrintable(testDir.absolutePath()));
     const QStringList subDirs = testDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
     for (const QString &subDir : subDirs) {
