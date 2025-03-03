@@ -57,5 +57,57 @@
         <file>testcases/reorder-member-impls/templates/header.h</file>
         <file>testcases/reorder-member-impls/templates/header.h_expected</file>
         <file>testcases/reorder-member-impls/templates/templates.pro</file>
+        <file>testcases/AddBracesToControlStatementTest/do/expected_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/do/original_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/do-with-braces/description.txt</file>
+        <file>testcases/AddBracesToControlStatementTest/do-with-braces/original_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/for/expected_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/for/original_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if/expected_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if/original_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-both-braced/description.txt</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-both-braced/original_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-both-braced2/description.txt</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-both-braced2/original_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-else-braced/description.txt</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-else-braced/expected_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-else-braced/original_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-fully-braced/description.txt</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-fully-braced/original_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-if-braced/description.txt</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-if-braced/expected_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-if-braced/original_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-partially-braced/description.txt</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-partially-braced/expected_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-partially-braced/original_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-partially-braced2/description.txt</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-partially-braced2/expected_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-partially-braced2/original_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-partially-braced3/description.txt</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-partially-braced3/expected_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-partially-braced3/original_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-partially-braced4/description.txt</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-partially-braced4/expected_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-partially-braced4/original_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-partially-braced5/description.txt</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-partially-braced5/expected_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-partially-braced5/original_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-partially-braced6/description.txt</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-partially-braced6/expected_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-partially-braced6/original_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-unbraced/description.txt</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-unbraced/expected_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-unbraced/original_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-unbraced2/description.txt</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-unbraced2/expected_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-unbraced2/original_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-unbraced3/description.txt</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-unbraced3/expected_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/if-else-unbraced3/original_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/range-for/description.txt</file>
+        <file>testcases/AddBracesToControlStatementTest/range-for/expected_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/range-for/original_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/while/expected_file.cpp</file>
+        <file>testcases/AddBracesToControlStatementTest/while/original_file.cpp</file>
     </qresource>
 </RCC>

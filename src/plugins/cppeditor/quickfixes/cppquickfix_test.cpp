@@ -3,6 +3,7 @@
 
 #include "cppquickfix_test.h"
 
+#include "../cppeditortr.h"
 #include "../cppeditorwidget.h"
 #include "../cppmodelmanager.h"
 #include "../cppsourceprocessertesthelper.h"
@@ -10,12 +11,12 @@
 #include "cppquickfixassistant.h"
 
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/projectexplorer.h>
 #include <texteditor/textdocument.h>
-#include <utils/fileutils.h>
 
+#include <QByteArrayList>
 #include <QDebug>
 #include <QDir>
+#include <QDirIterator>
 #include <QtTest>
 
 /*!
@@ -242,6 +243,95 @@ void QuickFixOperationTest::run(const QList<TestDocumentPtr> &testDocuments,
     ProjectExplorer::HeaderPaths headerPaths;
     headerPaths.push_back(ProjectExplorer::HeaderPath::makeUser(headerPath));
     QuickFixOperationTest(testDocuments, factory, headerPaths, operationIndex);
+}
+
+void CppQuickFixTestObject::initTestCase()
+{
+    const QStringList classNameComponents
+        = QString::fromLatin1(metaObject()->className()).split("::", Qt::SkipEmptyParts);
+    QVERIFY(!classNameComponents.isEmpty());
+
+    const QDir testDir(QLatin1String(":/cppeditor/testcases/") + classNameComponents.last());
+    QVERIFY2(testDir.exists(), qPrintable(testDir.absolutePath()));
+    const QStringList subDirs = testDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
+    for (const QString &subDir : subDirs) {
+        TestData testData;
+        QDirIterator dit(testDir.absoluteFilePath(subDir));
+        while (dit.hasNext()) {
+            const QFileInfo fi = dit.nextFileInfo();
+            const auto readFile = [&]() -> Utils::expected<QByteArray, QString> {
+                QFile f(fi.absoluteFilePath());
+                if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+                    return Utils::make_unexpected(
+                        Tr::tr("Cannot open \"%1\"").arg(f.fileName()));
+                return f.readAll();
+            };
+            if (fi.fileName() == "description.txt") {
+                const auto t = readFile();
+                if (!t)
+                    QVERIFY2(false, qPrintable(t.error()));
+                testData.tag = t->trimmed();
+                continue;
+            }
+            if (fi.fileName().startsWith("original_")) {
+                const auto o = readFile();
+                if (!o)
+                    QVERIFY2(false, qPrintable(o.error()));
+                QVERIFY2(!o->isEmpty(), qPrintable(fi.absoluteFilePath()));
+                testData.files[fi.fileName().mid(9)].first = *o;
+                continue;
+            }
+            if (fi.fileName().startsWith("expected_")) {
+                const auto e = readFile();
+                if (!e)
+                    QVERIFY2(false, qPrintable(e.error()));
+                testData.files[fi.fileName().mid(9)].second = *e;
+                continue;
+            }
+            QVERIFY2(false, qPrintable(fi.absoluteFilePath()));
+        }
+        if (testData.tag.isEmpty())
+            testData.tag = subDir.toUtf8();
+        QVERIFY(!testData.files.isEmpty());
+        m_testData.push_back(std::move(testData));
+    }
+    QVERIFY(!m_testData.isEmpty());
+}
+
+void CppQuickFixTestObject::cleanupTestCase()
+{
+    m_testData.clear();
+}
+
+void CppQuickFixTestObject::test_data()
+{
+    QTest::addColumn<QByteArrayList>("fileNames");
+    QTest::addColumn<QByteArrayList>("original");
+    QTest::addColumn<QByteArrayList>("expected");
+
+    for (const TestData &testData : std::as_const(m_testData)) {
+        QByteArrayList fileNames;
+        QByteArrayList original;
+        QByteArrayList expected;
+        for (auto it = testData.files.begin(); it != testData.files.end(); ++it) {
+            fileNames << it.key().toUtf8();
+            original << it.value().first;
+            expected << it.value().second;
+        }
+        QTest::newRow(testData.tag.constData()) << fileNames << original << expected;
+    }
+}
+
+void CppQuickFixTestObject::test()
+{
+    QFETCH(QByteArrayList, fileNames);
+    QFETCH(QByteArrayList, original);
+    QFETCH(QByteArrayList, expected);
+
+    QList<TestDocumentPtr> testDocuments;
+    for (qsizetype i = 0; i < fileNames.size(); ++i)
+        testDocuments << CppTestDocument::create(fileNames.at(i), original.at(i), expected.at(i));
+    QuickFixOperationTest(testDocuments, m_factory.get());
 }
 
 } // namespace Tests

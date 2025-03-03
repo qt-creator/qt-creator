@@ -11,10 +11,13 @@
 #include <projectexplorer/headerpath.h>
 
 #include <QByteArray>
+#include <QHash>
 #include <QList>
 #include <QObject>
 #include <QSharedPointer>
 #include <QStringList>
+
+#include <memory>
 
 namespace TextEditor { class QuickFixOperation; }
 
@@ -84,6 +87,31 @@ public:
                     CppQuickFixFactory *factory,
                     const QString &headerPath,
                     int operationIndex = 0);
+};
+
+class CppQuickFixTestObject : public QObject
+{
+    Q_OBJECT
+protected:
+    CppQuickFixTestObject(std::unique_ptr<CppQuickFixFactory> &&factory)
+        : m_factory(std::move(factory)) {}
+
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+    void test_data();
+    void test();
+
+private:
+    const std::unique_ptr<CppQuickFixFactory> m_factory;
+
+    class TestData
+    {
+    public:
+        QByteArray tag;
+        QHash<QString, std::pair<QByteArray, QByteArray>> files;
+    };
+    QList<TestData> m_testData;
 };
 
 QList<TestDocumentPtr> singleDocument(

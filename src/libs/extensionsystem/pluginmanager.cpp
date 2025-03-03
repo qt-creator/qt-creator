@@ -1161,9 +1161,10 @@ static bool isTestFunction(const QMetaMethod &metaMethod)
 
 static QStringList testFunctions(const QMetaObject *metaObject)
 {
+    if (!metaObject)
+        return {};
 
     QStringList functions;
-
     for (int i = metaObject->methodOffset(); i < metaObject->methodCount(); ++i) {
         const QMetaMethod metaMethod = metaObject->method(i);
         if (isTestFunction(metaMethod)) {
@@ -1174,7 +1175,7 @@ static QStringList testFunctions(const QMetaObject *metaObject)
         }
     }
 
-    return functions;
+    return testFunctions(metaObject->superClass()) + functions;
 }
 
 static QStringList matchingTestFunctions(const QStringList &testFunctions,
