@@ -231,6 +231,7 @@ const char windowGeometryKey[] = "WindowGeometry";
 const char windowStateKey[] = "WindowState";
 const char modeSelectorLayoutKey[] = "ModeSelectorLayout";
 const char menubarVisibleKey[] = "MenubarVisible";
+const char colorDialogKey[] = "QColorDialog/CustomColor/";
 
 namespace Internal {
 
@@ -1192,17 +1193,24 @@ void ICore::saveSettings(SaveSettingsReason reason)
     emit m_core->saveSettingsRequested(reason);
 
     QtcSettings *settings = PluginManager::settings();
-    settings->beginGroup(settingsGroup);
+    settings->withGroup(settingsGroup, [](QtcSettings *settings) {
+        if (!(s_overrideColor.isValid() && StyleHelper::baseColor() == s_overrideColor))
+            settings->setValueWithDefault(
+                colorKey,
+                StyleHelper::requestedBaseColor(),
+                QColor(StyleHelper::DEFAULT_BASE_COLOR));
 
-    if (!(s_overrideColor.isValid() && StyleHelper::baseColor() == s_overrideColor))
-        settings->setValueWithDefault(colorKey,
-                                      StyleHelper::requestedBaseColor(),
-                                      QColor(StyleHelper::DEFAULT_BASE_COLOR));
+        if (Internal::globalMenuBar() && !Internal::globalMenuBar()->isNativeMenuBar())
+            settings->setValue(menubarVisibleKey, Internal::globalMenuBar()->isVisible());
 
-    if (Internal::globalMenuBar() && !Internal::globalMenuBar()->isNativeMenuBar())
-        settings->setValue(menubarVisibleKey, Internal::globalMenuBar()->isVisible());
-
-    settings->endGroup();
+        for (int i = 0; i < QColorDialog::customCount(); ++i) {
+            const auto key = Key(colorDialogKey + QByteArray::number(i));
+            const QColor color = QColorDialog::customColor(i);
+            const QString name = color.name(QColor::HexArgb);
+            // #ff000000 is default and also the name for invalid colors
+            settings->setValueWithDefault(key, name, QString("#ff000000"));
+        }
+    });
 
     DocumentManager::saveSettings();
     ActionManager::saveSettings();
@@ -2352,40 +2360,47 @@ void ICorePrivate::updateContextObject(const QList<IContext *> &context)
 void ICorePrivate::readSettings()
 {
     QtcSettings *settings = PluginManager::settings();
-    settings->beginGroup(settingsGroup);
-
-    if (s_overrideColor.isValid()) {
-        StyleHelper::setBaseColor(s_overrideColor);
-        // Get adapted base color.
-        s_overrideColor = StyleHelper::baseColor();
-    } else {
-        StyleHelper::setBaseColor(settings->value(colorKey,
-                                  QColor(StyleHelper::DEFAULT_BASE_COLOR)).value<QColor>());
-    }
-
-    {
-        ModeManager::Style modeStyle =
-                ModeManager::Style(settings->value(modeSelectorLayoutKey, int(ModeManager::Style::IconsAndText)).toInt());
-
-        // Migrate legacy setting from Qt Creator 4.6 and earlier
-        static const char modeSelectorVisibleKey[] = "ModeSelectorVisible";
-        if (!settings->contains(modeSelectorLayoutKey) && settings->contains(modeSelectorVisibleKey)) {
-            bool visible = settings->value(modeSelectorVisibleKey, true).toBool();
-            modeStyle = visible ? ModeManager::Style::IconsAndText : ModeManager::Style::Hidden;
+    settings->withGroup(settingsGroup, [this](QtcSettings *settings) {
+        if (s_overrideColor.isValid()) {
+            StyleHelper::setBaseColor(s_overrideColor);
+            // Get adapted base color.
+            s_overrideColor = StyleHelper::baseColor();
+        } else {
+            StyleHelper::setBaseColor(
+                settings->value(colorKey, QColor(StyleHelper::DEFAULT_BASE_COLOR)).value<QColor>());
         }
 
-        ModeManager::setModeStyle(modeStyle);
-    }
+        {
+            ModeManager::Style modeStyle = ModeManager::Style(
+                settings->value(modeSelectorLayoutKey, int(ModeManager::Style::IconsAndText))
+                    .toInt());
 
-    if (globalMenuBar() && !globalMenuBar()->isNativeMenuBar()) {
-        const bool isVisible = settings->value(menubarVisibleKey, true).toBool();
+            // Migrate legacy setting from Qt Creator 4.6 and earlier
+            static const char modeSelectorVisibleKey[] = "ModeSelectorVisible";
+            if (!settings->contains(modeSelectorLayoutKey)
+                && settings->contains(modeSelectorVisibleKey)) {
+                bool visible = settings->value(modeSelectorVisibleKey, true).toBool();
+                modeStyle = visible ? ModeManager::Style::IconsAndText : ModeManager::Style::Hidden;
+            }
 
-        globalMenuBar()->setVisible(isVisible);
-        if (m_toggleMenubarAction)
-            m_toggleMenubarAction->setChecked(isVisible);
-    }
+            ModeManager::setModeStyle(modeStyle);
+        }
 
-    settings->endGroup();
+        if (globalMenuBar() && !globalMenuBar()->isNativeMenuBar()) {
+            const bool isVisible = settings->value(menubarVisibleKey, true).toBool();
+
+            globalMenuBar()->setVisible(isVisible);
+            if (m_toggleMenubarAction)
+                m_toggleMenubarAction->setChecked(isVisible);
+        }
+
+        for (int i = 0; i < QColorDialog::customCount(); ++i) {
+            QColorDialog::setCustomColor(
+                i,
+                QColor::fromString(
+                    settings->value(Key(colorDialogKey + QByteArray::number(i))).toString()));
+        }
+    });
 
     EditorManagerPrivate::readSettings();
     m_leftNavigationWidget->restoreSettings(settings);
