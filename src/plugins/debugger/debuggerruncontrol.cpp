@@ -543,6 +543,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
         connect(engine, &DebuggerEngine::requestRunControlStop, rc, &RunControl::initiateStop);
 
         connect(engine, &DebuggerEngine::engineStarted, this, [this, engine] {
+            ++d->engineStopsNeeded;
             // Correct:
             // if (--d->engineStartsNeeded == 0) {
             //     EngineManager::activateDebugMode();
@@ -572,7 +573,6 @@ void DebuggerRunTool::continueAfterDebugServerStart()
         connect(engine, &DebuggerEngine::appendMessageRequested,
                 this, &DebuggerRunTool::appendMessage);
         // ++d->engineStartsNeeded;
-        ++d->engineStopsNeeded;
 
         if (engine->isPrimaryEngine()) {
             connect(engine, &DebuggerEngine::attachToCoreRequested, this, [this](const QString &coreFile) {
