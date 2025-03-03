@@ -94,7 +94,6 @@ private:
 
 class DiffFilesController : public DiffEditorController
 {
-    Q_OBJECT
 public:
     DiffFilesController(IDocument *document);
 
@@ -157,7 +156,6 @@ DiffFilesController::DiffFilesController(IDocument *document)
 
 class DiffCurrentFileController : public DiffFilesController
 {
-    Q_OBJECT
 public:
     DiffCurrentFileController(IDocument *document, const QString &fileName)
         : DiffFilesController(document)
@@ -207,7 +205,6 @@ QList<ReloadInput> DiffCurrentFileController::reloadInputList() const
 
 class DiffOpenFilesController : public DiffFilesController
 {
-    Q_OBJECT
 public:
     DiffOpenFilesController(IDocument *document) : DiffFilesController(document) {}
 
@@ -257,7 +254,6 @@ QList<ReloadInput> DiffOpenFilesController::reloadInputList() const
 
 class DiffModifiedFilesController : public DiffFilesController
 {
-    Q_OBJECT
 public:
     DiffModifiedFilesController(IDocument *document, const FilePaths &fileNames)
         : DiffFilesController(document)
@@ -310,7 +306,6 @@ QList<ReloadInput> DiffModifiedFilesController::reloadInputList() const
 
 class DiffExternalFilesController : public DiffFilesController
 {
-    Q_OBJECT
 public:
     DiffExternalFilesController(
         IDocument *document, const FilePath &leftFilePath, const FilePath &rightFilePath)

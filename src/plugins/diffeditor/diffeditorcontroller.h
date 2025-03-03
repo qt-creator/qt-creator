@@ -29,7 +29,6 @@ class ChunkSelection;
 
 class DIFFEDITOR_EXPORT DiffEditorController : public QObject
 {
-    Q_OBJECT
 public:
     explicit DiffEditorController(Core::IDocument *document);
 
