@@ -4,7 +4,6 @@
 #pragma once
 
 #include <qmldebug/qdebugmessageclient.h>
-#include <qmldebug/qmloutputparser.h>
 
 namespace Utils { class FilePath; }
 

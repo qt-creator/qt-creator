@@ -19,8 +19,6 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
-#include <qmldebug/qmloutputparser.h>
-
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
@@ -169,13 +167,11 @@ public:
     void appendStdOut(const QString &data)
     {
         m_glue->runControl()->postMessage(data, StdOutFormat);
-        m_outputParser.processOutput(data);
     }
 
     void appendStdErr(const QString &data)
     {
         m_glue->runControl()->postMessage(data, StdErrFormat);
-        m_outputParser.processOutput(data);
     }
 
     RunnerInterface *m_glue = nullptr;
@@ -191,7 +187,6 @@ public:
     bool m_useLldb = false;
     QmlDebugServicesPreset m_qmlDebugServices;
     QUrl m_qmlServer;
-    QmlDebug::QmlOutputParser m_outputParser;
     QString m_extraAppParams;
     Utils::Environment m_extraEnvVars;
     Utils::FilePath m_debugServerPath; // On build device, typically as part of ndk

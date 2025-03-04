@@ -24,8 +24,6 @@
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 
-#include <qmldebug/qmloutputparser.h>
-
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>

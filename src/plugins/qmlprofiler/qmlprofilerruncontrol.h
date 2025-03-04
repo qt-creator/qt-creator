@@ -9,8 +9,6 @@
 #include <utils/outputformat.h>
 #include <utils/port.h>
 
-#include <qmldebug/qmloutputparser.h>
-
 namespace QmlProfiler {
 namespace Internal {
 
