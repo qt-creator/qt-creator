@@ -164,5 +164,49 @@
         <file>testcases/AssignToLocalVariableTest/templates/expected_file.h</file>
         <file>testcases/AssignToLocalVariableTest/templates/original_file.cpp</file>
         <file>testcases/AssignToLocalVariableTest/templates/original_file.h</file>
+        <file>testcases/CompleteSwitchStatementTest/anonymous-enum/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/anonymous-enum/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/basic/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/basic/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/class-scope/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/class-scope/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class-class-scope/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class-class-scope/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class-cursor-in-body/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class-cursor-in-body/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class-incomplete/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class-joint-decl/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class-joint-decl/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class-name-confusion/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class-name-confusion/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class-name-confusion2/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class-name-confusion2/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class-namespace-scope/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class-namespace-scope/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class-one-value-missing/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class-one-value-missing/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class-template/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class-template/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class-with-default/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/enum-class-with-default/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/incomplete/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/joint-decl/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/joint-decl/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/name-confusion/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/name-confusion/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/name-confusion2/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/name-confusion2/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/namespace-scope/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/namespace-scope/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/one-value-missing/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/one-value-missing/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/template/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/template/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/with-default/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/with-default/original_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/QTCREATORBUG-25998/expected_file.cpp</file>
+        <file>testcases/CompleteSwitchStatementTest/QTCREATORBUG-25998/original_file.cpp</file>
     </qresource>
 </RCC>
