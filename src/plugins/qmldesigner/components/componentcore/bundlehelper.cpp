@@ -221,7 +221,6 @@ void BundleHelper::exportBundle(const QList<ModelNode> &nodes, const QPixmap &ic
 
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
     QJsonObject jsonObj;
-    jsonObj["id"] = compUtils.user3DBundleId();
     jsonObj["version"] = BUNDLE_VERSION;
     QJsonArray itemsArr;
 
@@ -235,6 +234,9 @@ void BundleHelper::exportBundle(const QList<ModelNode> &nodes, const QPixmap &ic
         if (!isChild)
             nodesToExport.append(node);
     }
+    jsonObj["id"] = !nodesToExport.isEmpty() && nodesToExport[0].metaInfo().isQtQuick3DMaterial()
+                        ? compUtils.userMaterialsBundleId()
+                        : compUtils.user3DBundleId();
 
     m_remainingFiles = nodesToExport.size() + 1;
 
