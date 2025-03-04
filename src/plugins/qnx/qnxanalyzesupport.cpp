@@ -24,7 +24,7 @@ public:
         setProducer([](RunControl *runControl) {
             auto worker = new ProcessRunner(runControl);
             worker->setId("QnxQmlProfilerSupport");
-            worker->appendMessage(Tr::tr("Preparing remote side..."), LogMessageFormat);
+            runControl->postMessage(Tr::tr("Preparing remote side..."), LogMessageFormat);
 
             runControl->requestQmlChannel();
 

@@ -31,25 +31,28 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl, const QString &pr
     m_settings.fromMap(runControl->settingsData(ANALYZER_VALGRIND_SETTINGS));
 
     connect(&m_runner, &ValgrindProcess::appendMessage, this,
-            [this](const QString &msg, Utils::OutputFormat format) { appendMessage(msg, format); });
+            [runControl](const QString &msg, OutputFormat format) {
+        runControl->postMessage(msg, format);
+    });
     connect(&m_runner, &ValgrindProcess::processErrorReceived, this,
             [this, runControl](const QString &errorString, Utils::ProcessResult result) {
         switch (result) {
         case ProcessResult::StartFailed: {
             const FilePath valgrind = m_settings.valgrindExecutable();
             if (!valgrind.isEmpty()) {
-                appendMessage(Tr::tr("Error: \"%1\" could not be started: %2")
+                runControl->postMessage(Tr::tr("Error: \"%1\" could not be started: %2")
                                   .arg(valgrind.toUserOutput(), errorString), ErrorMessageFormat);
             } else {
-                appendMessage(Tr::tr("Error: no Valgrind executable set."), ErrorMessageFormat);
+                runControl->postMessage(Tr::tr("Error: no Valgrind executable set."),
+                                        ErrorMessageFormat);
             }
             break;
         }
         case ProcessResult::Canceled:
-            appendMessage(Tr::tr("Process terminated."), ErrorMessageFormat);
+            runControl->postMessage(Tr::tr("Process terminated."), ErrorMessageFormat);
             return; // Intentional.
         case ProcessResult::FinishedWithError:
-            appendMessage(Tr::tr("Process exited with return value %1\n").arg(errorString), NormalMessageFormat);
+            runControl->postMessage(Tr::tr("Process exited with return value %1\n").arg(errorString), NormalMessageFormat);
             break;
         default:
             break;
@@ -57,8 +60,8 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl, const QString &pr
         runControl->showOutputPane();
 
     });
-    connect(&m_runner, &ValgrindProcess::done, this, [this] {
-        appendMessage(Tr::tr("Analyzing finished."), NormalMessageFormat);
+    connect(&m_runner, &ValgrindProcess::done, this, [this, runControl] {
+        runControl->postMessage(Tr::tr("Analyzing finished."), NormalMessageFormat);
         m_progress.reportFinished();
         reportStopped();
     });
@@ -125,7 +128,7 @@ void ValgrindToolRunner::start()
 void ValgrindToolRunner::stop()
 {
     m_runner.stop();
-    appendMessage(Tr::tr("Terminating process..."), ErrorMessageFormat);
+    runControl()->postMessage(Tr::tr("Terminating process..."), ErrorMessageFormat);
 }
 
 } // Valgrid::Internal

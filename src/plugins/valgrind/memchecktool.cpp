@@ -1098,8 +1098,8 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
         connect(&m_runner, &ValgrindProcess::valgrindStarted,
                 this, &MemcheckToolRunner::startDebugger);
         connect(&m_runner, &ValgrindProcess::logMessageReceived,
-                this, [this](const QByteArray &data) {
-            appendMessage(QString::fromUtf8(data), Utils::StdOutFormat);
+                this, [this, runControl](const QByteArray &data) {
+            runControl->postMessage(QString::fromUtf8(data), Utils::StdOutFormat);
         });
     } else {
         connect(&m_runner, &ValgrindProcess::internalError, dd, &MemcheckTool::internalParserError);

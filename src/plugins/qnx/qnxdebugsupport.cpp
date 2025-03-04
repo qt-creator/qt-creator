@@ -173,7 +173,7 @@ public:
             auto debugger = new DebuggerRunTool(runControl);
 
             debugger->setId("QnxDebugSupport");
-            debugger->appendMessage(Tr::tr("Preparing remote side..."), LogMessageFormat);
+            runControl->postMessage(Tr::tr("Preparing remote side..."), LogMessageFormat);
 
             debugger->setupPortsGatherer();
 

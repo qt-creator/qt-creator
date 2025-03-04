@@ -69,7 +69,7 @@ public:
             QTC_CHECK(url.isValid());
             cmd.addArgs({"--host", url.host(), "--port", QString::number(url.port())});
         }
-        appendMessage("PerfParser args: " + cmd.arguments(), NormalMessageFormat);
+        runControl()->postMessage("PerfParser args: " + cmd.arguments(), NormalMessageFormat);
         m_reader.createParser(cmd);
         m_reader.startParser();
     }
@@ -151,13 +151,13 @@ public:
                              &PerfProfilerTool::onRunControlFinished);
 
             PerfDataReader *reader = perfParserWorker->reader();
-            QObject::connect(perfRecordWorker, &ProcessRunner::stdOutData,
-                             perfParserWorker, [perfParserWorker, reader](const QByteArray &data) {
+            QObject::connect(perfRecordWorker, &ProcessRunner::stdOutData, perfParserWorker,
+                             [perfParserWorker, reader, runControl](const QByteArray &data) {
                 if (reader->feedParser(data))
                     return;
 
-                perfParserWorker->appendMessage(Tr::tr("Failed to transfer Perf data to perfparser."),
-                                                ErrorMessageFormat);
+                runControl->postMessage(Tr::tr("Failed to transfer Perf data to perfparser."),
+                                        ErrorMessageFormat);
                 perfParserWorker->initiateStop();
             });
             return perfParserWorker;

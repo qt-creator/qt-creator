@@ -95,8 +95,8 @@ static RunWorker *createInferiorRunner(RunControl *runControl, QmlDebugServicesP
         worker->setProcessMode(ProcessMode::Writer);
         worker->setCommandLine(cmd);
 
-        worker->appendMessage(Tr::tr("Starting Application Manager debugging..."), NormalMessageFormat);
-        worker->appendMessage(Tr::tr("Using: %1.").arg(cmd.toUserOutput()), NormalMessageFormat);
+        runControl->postMessage(Tr::tr("Starting Application Manager debugging..."), NormalMessageFormat);
+        runControl->postMessage(Tr::tr("Using: %1.").arg(cmd.toUserOutput()), NormalMessageFormat);
     });
     return worker;
 }
@@ -109,8 +109,8 @@ public:
         setProducer([](RunControl *runControl) {
             auto worker = new ProcessRunner(runControl);
             worker->setId("ApplicationManagerPlugin.Run.TargetRunner");
-            QObject::connect(worker, &RunWorker::stopped, worker, [worker, runControl] {
-                worker->appendMessage(
+            QObject::connect(worker, &RunWorker::stopped, worker, [runControl] {
+                runControl->postMessage(
                     Tr::tr("%1 exited.").arg(runControl->commandLine().toUserOutput()),
                     OutputFormat::NormalMessageFormat);
             });

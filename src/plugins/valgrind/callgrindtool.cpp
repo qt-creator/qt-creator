@@ -109,9 +109,11 @@ public:
 
         setupRunControl(runControl);
 
-        connect(runControl, &RunControl::aboutToStart, this, [this, runControl] {
+        connect(runControl, &RunControl::aboutToStart, this, [runControl] {
             const FilePath executable = runControl->commandLine().executable();
-            appendMessage(Tr::tr("Profiling %1").arg(executable.toUserOutput()), NormalMessageFormat);
+            runControl->postMessage(
+                Tr::tr("Profiling %1").arg(runControl->commandLine().executable().toUserOutput()),
+                NormalMessageFormat);
         });
     }
 
