@@ -38360,483 +38360,488 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>MCU Dependencies</source>
-        <translation type="unfinished"></translation>
+        <translation>MCU-Abhängigkeiten</translation>
     </message>
     <message>
         <source>Paths to 3rd party dependencies</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfade zu Abhängigkeiten von Drittanbietern</translation>
     </message>
     <message>
         <source>The MCU dependencies setting value is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Einstellungen für MCU-Abhängigkeiten sind ungültig.</translation>
     </message>
     <message>
         <source>CMake variable %1 not defined.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Variable %1 ist nicht definiert.</translation>
     </message>
     <message>
         <source>CMake variable %1: path %2 does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Variable %1: Der Pfad %2 existiert nicht.</translation>
     </message>
     <message>
         <source>Warning for target %1: invalid toolchain path (%2). Update the toolchain in Edit &gt; Preferences &gt; Kits.</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnung für Ziel %1: Der Pfad der Toolchain ist ungültig (%2). Aktualisieren Sie die Toolchain in Bearbeiten &gt; Einstellungen &gt; Kits.</translation>
     </message>
     <message>
         <source>Kit for %1 created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kit für %1 wurde erstellt.</translation>
     </message>
     <message>
         <source>Error registering Kit for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Registrieren des Kits für %1.</translation>
     </message>
     <message>
         <source>Path %1 does not exist. Add the path in Edit &gt; Preferences &gt; SDKs &gt; MCU.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad %1 existiert nicht. Fügen Sie den Pfad in Bearbeiten &gt; Einstellungen &gt; SDKs &gt; MCU hinzu.</translation>
     </message>
     <message>
         <source>Missing %1. Add the path in Edit &gt; Preferences &gt; SDKs &gt; MCU.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 fehlt. Fügen Sie den Pfad in Bearbeiten &gt; Einstellungen &gt; SDKs &gt; MCU hinzu.</translation>
     </message>
     <message>
         <source>Qt for MCUs Kit Creation</source>
-        <translation type="unfinished"></translation>
+        <translation>Kit-Erstellung für Qt for MCUs</translation>
     </message>
     <message>
         <source>Fix</source>
-        <translation type="unfinished"></translation>
+        <translation>Korrigieren</translation>
     </message>
     <message>
         <source>Help</source>
-        <translation type="unfinished">Hilfe</translation>
+        <translation>Hilfe</translation>
     </message>
     <message>
         <source>Qt for MCUs path %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zu Qt for MCUs %1</translation>
     </message>
     <message>
         <source>Target</source>
-        <translation type="unfinished">Ziel</translation>
+        <translation>Ziel</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">Warnung</translation>
+        <translation>Warnung</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>Package</source>
-        <translation type="unfinished">Paket</translation>
+        <translation>Paket</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished">Status</translation>
+        <translation>Status</translation>
     </message>
     <message>
         <source>No target selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Ziel ausgewählt.</translation>
     </message>
     <message>
         <source>Invalid paths present for target
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Für das Ziel
+%1
+sind ungültige Pfade vorhanden.</translation>
     </message>
     <message>
         <source>Warning for target %1: missing CMake toolchain file expected at %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnung für das Ziel %1: Die in %2 erwartete CMake-Toolchain-Datei fehlt.</translation>
     </message>
     <message>
         <source>Warning for target %1: missing QulGenerators expected at %2.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Seems to be a QulGenerators.cmake file that is not found</translatorcomment>
+        <translation>Warnung für das Ziel %1: Die in %2 erwartete QulGenerators-Datei fehlt.</translation>
     </message>
     <message>
         <source>Qt for MCUs SDK version %1 detected, only supported by Qt Creator version %2. This version of Qt Creator requires Qt for MCUs %3 or greater.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für Qt for MCUs wurde die SDK-Version %1 erkannt, die nur von Qt Creator-Version %2 unterstützt wird. Diese Version von Qt Creator erfordert Qt for MCUs %3 oder höher.</translation>
     </message>
     <message>
         <source>Skipped %1. Unsupported version &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Überspringe %1. Nicht unterstützte Version &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Detected version &quot;%1&quot;, only supported by Qt Creator %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die erkannte Version &quot;%1&quot; wird nur von Qt Creator %2 unterstützt.</translation>
     </message>
     <message>
         <source>Unsupported version &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht unterstützte Version &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Skipped %1. %2 Qt for MCUs version &gt;= %3 required.</source>
-        <translation type="unfinished"></translation>
+        <translation>Überspringe %1. %2 Qt for MCUs-Version &gt;= %3 wird benötigt.</translation>
     </message>
     <message>
         <source>No valid kit descriptions found at %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>In %1 wurde keine gültige Beschreibung für ein Kit gefunden.</translation>
     </message>
     <message>
         <source>Error creating kit for target %1, package %2: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Erstellen des Kits für das Ziel %1, Paket %2: %3</translation>
     </message>
     <message>
         <source>Warning creating kit for target %1, package %2: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnung beim Erstellen des Kits für das Ziel %1, Paket %2: %3</translation>
     </message>
     <message>
         <source>Path %1 exists, but does not contain %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad %1 existiert, enthält aber %2 nicht.</translation>
     </message>
     <message>
         <source>No CMake tool was detected. Add a CMake tool in Edit &gt; Preferences &gt; Kits &gt; CMake.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde kein CMake-Werkzeug erkannt. Fügen Sie in Bearbeiten &gt; Einstellungen &gt; Kits &gt; CMake ein CMake-Werkzeug hinzu.</translation>
     </message>
     <message>
         <source> or </source>
-        <translation type="unfinished"></translation>
+        <translation> oder </translation>
     </message>
     <message>
         <source>Path %1 exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad %1 existiert.</translation>
     </message>
     <message>
         <source>Path %1 exists. Version %2 was found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad %1 existiert. Version %2 wurde gefunden.</translation>
     </message>
     <message>
         <source>Path %1 is valid, %2 was found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad %1 ist gültig, %2 wurde gefunden.</translation>
     </message>
     <message>
         <source>but only version %1 is supported</source>
-        <translation type="unfinished"></translation>
+        <translation>aber nur Version %1 wird unterstützt</translation>
     </message>
     <message>
         <source>but only versions %1 are supported</source>
-        <translation type="unfinished"></translation>
+        <translation>aber nur die Versionen %1 werden unterstützt</translation>
     </message>
     <message>
         <source>Path %1 is valid, %2 was found, %3.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad %1 ist gültig, %2 wurde gefunden, %3.</translation>
     </message>
     <message>
         <source>Path %1 does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad %1 existiert nicht.</translation>
     </message>
     <message>
         <source>Path is empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad ist leer.</translation>
     </message>
     <message>
         <source>Path is empty, %1 not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad ist leer, %1 wurde nicht gefunden.</translation>
     </message>
     <message>
         <source>Path %1 exists, but version %2 could not be detected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad %1 existiert, aber Version %2 konnte nicht erkannt werden.</translation>
     </message>
     <message>
         <source>Download from &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Von &quot;%1&quot; herunterladen.</translation>
     </message>
     <message>
         <source>Board SDK for MIMXRT1050-EVK</source>
-        <translation type="unfinished"></translation>
+        <translation>Board SDK für MIMXRT1050-EVK</translation>
     </message>
     <message>
         <source>Board SDK MIMXRT1060-EVK</source>
-        <translation type="unfinished"></translation>
+        <translation>Board SDK MIMXRT1060-EVK</translation>
     </message>
     <message>
         <source>Board SDK for MIMXRT1060-EVK</source>
-        <translation type="unfinished"></translation>
+        <translation>Board SDK für MIMXRT1060-EVK</translation>
     </message>
     <message>
         <source>Board SDK for MIMXRT1064-EVK</source>
-        <translation type="unfinished"></translation>
+        <translation>Board SDK für MIMXRT1064-EVK</translation>
     </message>
     <message>
         <source>Board SDK for MIMXRT1170-EVK</source>
-        <translation type="unfinished"></translation>
+        <translation>Board SDK für MIMXRT1170-EVK</translation>
     </message>
     <message>
         <source>Board SDK for STM32F469I-Discovery</source>
-        <translation type="unfinished"></translation>
+        <translation>Board SDK für STM32F469I-Discovery</translation>
     </message>
     <message>
         <source>Board SDK for STM32F769I-Discovery</source>
-        <translation type="unfinished"></translation>
+        <translation>Board SDK für STM32F769I-Discovery</translation>
     </message>
     <message>
         <source>Board SDK for STM32H750B-Discovery</source>
-        <translation type="unfinished"></translation>
+        <translation>Board SDK für STM32H750B-Discovery</translation>
     </message>
     <message>
         <source>Board SDK</source>
-        <translation type="unfinished"></translation>
+        <translation>Board SDK</translation>
     </message>
     <message>
         <source>Flexible Software Package for Renesas RA MCU Family</source>
-        <translation type="unfinished"></translation>
+        <translation>Flexibles Softwarepaket für die Renesas RA MCU-Familie</translation>
     </message>
     <message>
         <source>Graphics Driver for Traveo II Cluster Series</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafiktreiber für die Traveo II Cluster-Serie</translation>
     </message>
     <message>
         <source>Renesas Graphics Library</source>
-        <translation type="unfinished"></translation>
+        <translation>Renesas Grafikbibliothek</translation>
     </message>
     <message>
         <source>Cypress Auto Flash Utility</source>
-        <translation type="unfinished"></translation>
+        <translation>Cypress Auto Flash-Werkzeug</translation>
     </message>
     <message>
         <source>MCUXpresso IDE</source>
-        <translation type="unfinished"></translation>
+        <translation>MCUXpresso IDE</translation>
     </message>
     <message>
         <source>Path to SEGGER J-Link</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zu SEGGER J-Link</translation>
     </message>
     <message>
         <source>Path to Renesas Flash Programmer</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zu Renesas Flash Programmer</translation>
     </message>
     <message>
         <source>Green Hills Compiler for ARM</source>
-        <translation type="unfinished"></translation>
+        <translation>Green Hills Compiler für ARM</translation>
     </message>
     <message>
         <source>IAR ARM Compiler</source>
-        <translation type="unfinished"></translation>
+        <translation>IAR ARM Compiler</translation>
     </message>
     <message>
         <source>Green Hills Compiler</source>
-        <translation type="unfinished"></translation>
+        <translation>Green Hills Compiler</translation>
     </message>
     <message>
         <source>GNU Toolchain</source>
-        <translation type="unfinished"></translation>
+        <translation>GNU Toolchain</translation>
     </message>
     <message>
         <source>MSVC Toolchain</source>
-        <translation type="unfinished"></translation>
+        <translation>MSVC Toolchain</translation>
     </message>
     <message>
         <source>FreeRTOS SDK for MIMXRT1050-EVK</source>
-        <translation type="unfinished"></translation>
+        <translation>FreeRTOS SDK für MIMXRT1050-EVK</translation>
     </message>
     <message>
         <source>FreeRTOS SDK for MIMXRT1064-EVK</source>
-        <translation type="unfinished"></translation>
+        <translation>FreeRTOS SDK für MIMXRT1064-EVK</translation>
     </message>
     <message>
         <source>FreeRTOS SDK for MIMXRT1170-EVK</source>
-        <translation type="unfinished"></translation>
+        <translation>FreeRTOS SDK für MIMXRT1170-EVK</translation>
     </message>
     <message>
         <source>FreeRTOS SDK for EK-RA6M3G</source>
-        <translation type="unfinished"></translation>
+        <translation>FreeRTOS SDK für EK-RA6M3G</translation>
     </message>
     <message>
         <source>FreeRTOS SDK for STM32F769I-Discovery</source>
-        <translation type="unfinished"></translation>
+        <translation>FreeRTOS SDK für STM32F769I-Discovery</translation>
     </message>
     <message>
         <source>Path to project for Renesas e2 Studio</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zum Projekt für Renesas e2 Studio</translation>
     </message>
     <message>
         <source>Arm GDB at %1</source>
-        <translation type="unfinished"></translation>
+        <translation>ARM GDB in %1</translation>
     </message>
     <message>
         <source>MSVC Binary directory</source>
-        <translation type="unfinished"></translation>
+        <translation>MSVC Binary-Verzeichnis</translation>
     </message>
     <message>
         <source>GCC Toolchain</source>
-        <translation type="unfinished"></translation>
+        <translation>GCC Toolchain</translation>
     </message>
     <message>
         <source>GNU Arm Embedded Toolchain</source>
-        <translation type="unfinished"></translation>
+        <translation>GNU Arm Embedded Toolchain</translation>
     </message>
     <message>
         <source>STM32CubeProgrammer</source>
-        <translation type="unfinished"></translation>
+        <translation>STM32CubeProgrammer</translation>
     </message>
     <message>
         <source>the toolchain.id JSON entry is empty</source>
-        <translation type="unfinished"></translation>
+        <translation>der JSON-Eintrag toolchain.id ist leer</translation>
     </message>
     <message>
         <source>the given toolchain &quot;%1&quot; is not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>die angegebene Toolchain &quot;%1&quot; wird nicht unterstützt</translation>
     </message>
     <message>
         <source>the toolchain.compiler.cmakeVar JSON entry is empty</source>
-        <translation type="unfinished"></translation>
+        <translation>der JSON-Eintrag toolchain.compiler.cmakeVar ist leer</translation>
     </message>
     <message>
         <source>the toolchain.file.cmakeVar JSON entry is empty</source>
-        <translation type="unfinished"></translation>
+        <translation>der JSON-Eintrag toolchain.file.cmakeVar ist leer</translation>
     </message>
     <message>
         <source>Toolchain is invalid because %2 in file &quot;%3&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>The source is broken because of too much language arithmetics.</translatorcomment>
+        <translation>Die Toolchain in Datei &quot;%3&quot; ist ungültig: %2.</translation>
     </message>
     <message>
         <source>Toolchain description for &quot;%1&quot; is invalid because %2 in file &quot;%3&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>The source is broken because of too much language arithmetics.</translatorcomment>
+        <translation>Die Toolchain-Beschreibung für &quot;%1&quot; in Datei &quot;%3&quot; ist ungültig: %2.</translation>
     </message>
     <message>
         <source>Qt for MCUs Demos</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt for MCUs Demos</translation>
     </message>
     <message>
         <source>Qt for MCUs Examples</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt for MCUs Beispiele</translation>
     </message>
     <message>
         <source>Replace Existing Kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Existierende Kits ersetzen</translation>
     </message>
     <message>
         <source>Create New Kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue Kits erstellen</translation>
     </message>
     <message>
         <source>Qt for MCUs</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt for MCUs</translation>
     </message>
     <message>
         <source>New version of Qt for MCUs detected. Upgrade existing kits?</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue Version von Qt for MCUs wurde erkannt. Existierende Kits aktualisieren?</translation>
     </message>
     <message>
         <source>Errors while creating Qt for MCUs kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Erstellen von Kits für Qt for MCUs</translation>
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished">Details</translation>
+        <translation>Details</translation>
     </message>
     <message>
         <source>Qt for MCUs SDK</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt for MCUs SDK</translation>
     </message>
     <message>
         <source>Targets supported by the %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Von %1 unterstützte Ziele</translation>
     </message>
     <message>
         <source>Requirements</source>
-        <translation type="unfinished"></translation>
+        <translation>Anforderungen</translation>
     </message>
     <message>
         <source>Automatically create kits for all available targets on start</source>
-        <translation type="unfinished"></translation>
+        <translation>Beim Start automatisch Kits für alle verfügbaren Ziele erstellen</translation>
     </message>
     <message>
         <source>Create a Kit</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Kit erstellen</translation>
     </message>
     <message>
         <source>Create Kit</source>
-        <translation type="unfinished"></translation>
+        <translation>Kit erstellen</translation>
     </message>
     <message>
         <source>Update Kit</source>
-        <translation type="unfinished"></translation>
+        <translation>Kit aktualisieren</translation>
     </message>
     <message>
         <source>A kit for the selected target and SDK version already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Kit für das ausgewählte Ziel und die SDK-Version existiert bereits.</translation>
     </message>
     <message>
         <source>Kits for a different SDK version exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kits für eine andere SDK-Version existieren.</translation>
     </message>
     <message>
         <source>A kit for the selected target can be created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Kit kann für das ausgewählte Ziel erstellt werden.</translation>
     </message>
     <message>
         <source>Provide the package paths to create a kit for your target.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie die Paketpfade zum Erstellen eines Kits für Ihr Ziel an.</translation>
     </message>
     <message>
         <source>No CMake tool was detected. Add a CMake tool in the &lt;a href=&quot;cmake&quot;&gt;CMake options&lt;/a&gt; and select Apply.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde kein CMake-Werkzeug erkannt. Fügen Sie in den &lt;a href=&quot;cmake&quot;&gt;CMake-Einstellungen&lt;/a&gt; ein CMake-Werkzeug hinzu und wählen Sie &quot;Anwenden&quot;.</translation>
     </message>
     <message>
         <source>Cannot apply changes in SDKs &gt; MCU.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Änderungen in SDKs &gt; MCU können nicht angewendet werden.</translation>
     </message>
     <message>
         <source>MCU</source>
-        <translation type="unfinished"></translation>
+        <translation>MCU</translation>
     </message>
     <message>
         <source>Qt for MCUs: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt for MCUs: %1</translation>
     </message>
     <message>
         <source>Create Kits for Qt for MCUs? To do it later, select Edit &gt; Preferences &gt; SDKs &gt; MCU.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kits für Qt for MCUs erstellen? Um dies später zu tun, wählen Sie Bearbeiten &gt; Einstellungen &gt; SDKs &gt; MCU.</translation>
     </message>
     <message>
         <source>Create Kits for Qt for MCUs</source>
-        <translation type="unfinished"></translation>
+        <translation>Kits für Qt for MCUs erstellen</translation>
     </message>
     <message numerus="yes">
         <source>Detected %n uninstalled MCU target(s). Remove corresponding kits?</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Ein nicht installiertes MCU-Ziel wurde erkannt. Sollen die entsprechenden Kits entfernt werden?</numerusform>
+            <numerusform>%n nicht installierte MCU-Ziele wurden erkannt. Sollen die entsprechenden Kits entfernt werden?</numerusform>
         </translation>
     </message>
     <message>
         <source>Keep</source>
-        <translation type="unfinished"></translation>
+        <translation>Behalten</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished">Entfernen</translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Read about Using QtMCUs in the Qt Design Studio</source>
-        <translation type="unfinished"></translation>
+        <translation>Über die Benutzung von QtMCUs in Qt Design Studio informieren</translation>
     </message>
     <message>
         <source>Go to the Documentation</source>
-        <translation type="unfinished"></translation>
+        <translation>Dokumentation öffnen</translation>
     </message>
     <message>
         <source>Create new kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue Kits erstellen</translation>
     </message>
     <message>
         <source>Replace existing kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Existierende Kits ersetzen</translation>
     </message>
     <message>
         <source>Proceed</source>
-        <translation type="unfinished">Weiter</translation>
+        <translation>Weiter</translation>
     </message>
     <message>
         <source>Flash and run CMake parameters:</source>
-        <translation type="unfinished"></translation>
+        <translation>Parameter für das Flashen und das Ausführen von CMake:</translation>
     </message>
     <message>
         <source>Parsing error: the type entry in JSON kit files must be a string, defaulting to &quot;path&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Auswerten: Der &quot;type&quot;-Eintrag in den JSON-Dateien für das Kit muss eine Zeichenkette sein, standardmäßig &quot;path&quot;</translation>
     </message>
     <message>
         <source>Parsing error: the type entry &quot;%2&quot; in JSON kit files is not supported, defaulting to &quot;path&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Auswerten: Der &quot;type&quot;-Eintrag &quot;%2&quot; in den JSON-Dateien für das Kit wird nicht unterstützt, standardmäßig &quot;path&quot;</translation>
     </message>
 </context>
 <context>
