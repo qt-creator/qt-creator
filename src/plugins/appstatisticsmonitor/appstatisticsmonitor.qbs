@@ -7,6 +7,8 @@ QtcPlugin {
 
     condition: Qt.charts.present
 
+    pluginjson.replacements: ({APPSTATISTICSMONITOR_DISABLEDBYDEFAULT: "true"})
+
     files: [
         "appstatisticsmonitorplugin.cpp",
         "appstatisticsmonitortr.h",
