@@ -90,8 +90,16 @@ void AndroidRunner::start()
 
         connect(this, &AndroidRunner::canceled, glue, &RunnerInterface::cancel);
 
-        connect(glue, &RunnerInterface::started, this, &AndroidRunner::remoteStarted);
-        connect(glue, &RunnerInterface::finished, this, &AndroidRunner::remoteFinished);
+        connect(glue, &RunnerInterface::started, this, [this](qint64 pid) {
+            m_pid = ProcessHandle(pid);
+            reportStarted();
+        });
+        connect(glue, &RunnerInterface::finished, this, [this](const QString &errorString) {
+            runControl()->postMessage(errorString, Utils::NormalMessageFormat);
+            if (runControl()->isRunning())
+                runControl()->initiateStop();
+            reportStopped();
+        });
     };
 
     const Group recipe {
@@ -109,20 +117,6 @@ void AndroidRunner::stop()
         return;
 
     emit canceled();
-}
-
-void AndroidRunner::remoteStarted(qint64 pid)
-{
-    m_pid = ProcessHandle(pid);
-    reportStarted();
-}
-
-void AndroidRunner::remoteFinished(const QString &errString)
-{
-    appendMessage(errString, Utils::NormalMessageFormat);
-    if (runControl()->isRunning())
-        runControl()->initiateStop();
-    reportStopped();
 }
 
 class AndroidRunWorkerFactory final : public RunWorkerFactory

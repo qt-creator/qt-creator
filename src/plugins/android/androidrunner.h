@@ -25,9 +25,6 @@ signals:
     void canceled();
 
 private:
-    void remoteStarted(qint64 pid);
-    void remoteFinished(const QString &errString);
-
     Utils::ProcessHandle m_pid;
     Tasking::TaskTreeRunner m_taskTreeRunner;
 };
