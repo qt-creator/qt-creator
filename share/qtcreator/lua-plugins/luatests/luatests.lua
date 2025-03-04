@@ -20,4 +20,14 @@ return {
     },
     setup = function() require 'tests'.setup() end,
     printToOutputPane = true,
+    hooks = {
+        taskHub = {
+            categoryAdded = function(category)
+                require 'taskhubhooks'.categoryAdded(category)
+            end,
+            taskAdded = function(task)
+                require 'taskhubhooks'.taskAdded(task)
+            end
+        }
+    }
 } --[[@as QtcPlugin]]

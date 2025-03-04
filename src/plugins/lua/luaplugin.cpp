@@ -62,6 +62,7 @@ void setupProcessModule();
 void setupProjectModule();
 void setupQtModule();
 void setupSettingsModule();
+void setupTaskHubModule();
 void setupTextEditorModule();
 void setupTranslateModule();
 void setupUtilsModule();
@@ -313,6 +314,7 @@ public:
         setupProjectModule();
         setupQtModule();
         setupSettingsModule();
+        setupTaskHubModule();
         setupTextEditorModule();
         setupTranslateModule();
         setupUtilsModule();
