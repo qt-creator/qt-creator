@@ -662,7 +662,7 @@ bool ProcessArgs::prepareCommand(const CommandLine &cmdLine, QString *outCmd, Pr
         if (executable.osType() == OsTypeWindows) {
             *outCmd = qtcEnvironmentVariable("COMSPEC");
             *outArgs = ProcessArgs::createWindowsArgs(QLatin1String("/v:off /s /c \"")
-                    + quoteArg(executable.toUserOutput()) + ' ' + arguments + '"');
+                    + quoteArgWin(executable.nativePath()) + ' ' + arguments + '"');
         } else {
             if (err != ProcessArgs::FoundMeta)
                 return false;
