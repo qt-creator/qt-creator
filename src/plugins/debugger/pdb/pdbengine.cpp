@@ -30,8 +30,6 @@
 
 #include <QDateTime>
 #include <QDebug>
-#include <QDir>
-#include <QFileInfo>
 #include <QTimer>
 #include <QVariant>
 #include <QJsonArray>

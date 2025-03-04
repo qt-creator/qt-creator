@@ -14,7 +14,6 @@
 #include <projectexplorer/projectnodes.h>
 #include <utils/qtcassert.h>
 
-#include <QFileInfo>
 #include <QList>
 #include <QPair>
 

@@ -44,8 +44,6 @@
 #include <QAction>
 #include <QApplication>
 #include <QCompleter>
-#include <QDir>
-#include <QFileInfo>
 #include <QMessageBox>
 #include <QPointer>
 #include <QProcess>

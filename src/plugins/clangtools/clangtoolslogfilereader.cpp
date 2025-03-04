@@ -6,7 +6,6 @@
 #include <cppeditor/cppprojectfile.h>
 
 #include <QDir>
-#include <QFileInfo>
 
 #include <utils/fileutils.h>
 #include <utils/textutils.h>

@@ -48,8 +48,6 @@
 
 #include <QDateTime>
 #include <QDebug>
-#include <QDir>
-#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QLocalSocket>

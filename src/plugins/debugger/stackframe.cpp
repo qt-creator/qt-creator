@@ -10,7 +10,6 @@
 
 #include <QDebug>
 #include <QDir>
-#include <QFileInfo>
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>

@@ -36,7 +36,6 @@
 #include <QDir>
 #include <QFile>
 #include <QFileDialog>
-#include <QFileInfo>
 #include <QFileSystemWatcher>
 #include <QLoggingCategory>
 #include <QMainWindow>

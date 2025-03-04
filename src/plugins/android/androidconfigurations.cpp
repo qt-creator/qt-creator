@@ -43,7 +43,6 @@
 
 #include <QApplication>
 #include <QDirIterator>
-#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>

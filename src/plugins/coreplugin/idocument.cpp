@@ -11,7 +11,6 @@
 #include <utils/qtcassert.h>
 
 #include <QFile>
-#include <QFileInfo>
 
 #include <memory>
 #include <optional>

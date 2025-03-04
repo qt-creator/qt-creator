@@ -16,7 +16,6 @@
 #include <QAbstractTextDocumentLayout>
 #include <QAction>
 #include <QContextMenuEvent>
-#include <QFileInfo>
 #include <QHeaderView>
 #include <QMenu>
 #include <QPainter>

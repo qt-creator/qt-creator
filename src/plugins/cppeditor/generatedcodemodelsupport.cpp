@@ -19,8 +19,6 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QFile>
-#include <QFileInfo>
 #include <QLoggingCategory>
 
 using namespace ProjectExplorer;

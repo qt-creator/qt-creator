@@ -20,22 +20,20 @@
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
+#include <QApplication>
 #include <QCompleter>
 #include <QDesktopServices>
-#include <QFileInfo>
-#include <QPushButton>
-#include <QSortFilterProxyModel>
-#include <QStringListModel>
-#include <QUrl>
-
-#include <QApplication>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QGroupBox>
 #include <QHeaderView>
 #include <QLabel>
+#include <QPushButton>
+#include <QSortFilterProxyModel>
 #include <QSplitter>
+#include <QStringListModel>
 #include <QTextBrowser>
+#include <QUrl>
 
 using namespace Utils;
 

@@ -43,9 +43,7 @@
 #include <utils/treemodel.h>
 
 #include <QDebug>
-#include <QDir>
 #include <QDockWidget>
-#include <QFileInfo>
 #include <QGuiApplication>
 #include <QHostAddress>
 #include <QJsonArray>

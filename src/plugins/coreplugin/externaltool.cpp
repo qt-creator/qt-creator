@@ -19,7 +19,6 @@
 
 #include <QCoreApplication>
 #include <QDateTime>
-#include <QFileInfo>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 

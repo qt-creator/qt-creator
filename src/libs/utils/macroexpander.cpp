@@ -6,12 +6,10 @@
 #include "algorithm.h"
 #include "commandline.h"
 #include "environment.h"
-#include "qtcassert.h"
 #include "stringutils.h"
 #include "utilstr.h"
 
 #include <QDir>
-#include <QFileInfo>
 #include <QLoggingCategory>
 #include <QMap>
 #include <QRegularExpression>

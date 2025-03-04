@@ -36,7 +36,6 @@
 #include <QAction>
 #include <QCoreApplication>
 #include <QDebug>
-#include <QFileInfo>
 #include <QLibraryInfo>
 #include <QMenu>
 #include <QTranslator>

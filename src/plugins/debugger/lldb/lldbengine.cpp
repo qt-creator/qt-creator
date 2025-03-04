@@ -39,7 +39,6 @@
 #include <QApplication>
 #include <QDateTime>
 #include <QDebug>
-#include <QFileInfo>
 #include <QTimer>
 #include <QToolTip>
 #include <QVariant>

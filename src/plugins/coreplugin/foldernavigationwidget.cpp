@@ -40,7 +40,6 @@
 #include <QComboBox>
 #include <QContextMenuEvent>
 #include <QDir>
-#include <QFileInfo>
 #include <QFileSystemModel>
 #include <QHeaderView>
 #include <QMenu>

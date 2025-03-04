@@ -11,9 +11,6 @@
 #include <utils/fileutils.h>
 #include <utils/stringutils.h>
 
-#include <QFileInfo>
-#include <QDir>
-
 using namespace Utils;
 using namespace Core::Internal;
 

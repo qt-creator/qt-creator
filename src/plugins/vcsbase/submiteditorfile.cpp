@@ -7,13 +7,10 @@
 
 #include <utils/fileutils.h>
 
-#include <QFileInfo>
-
 using namespace Core;
-using namespace VcsBase;
-using namespace VcsBase::Internal;
 using namespace Utils;
 
+namespace VcsBase::Internal {
 /*!
     \class VcsBase::Internal::SubmitEditorFile
 
@@ -90,3 +87,5 @@ IDocument::ReloadBehavior SubmitEditorFile::reloadBehavior(ChangeTrigger state, 
     Q_UNUSED(type)
     return BehaviorSilent;
 }
+
+} // VcsBase::Internal

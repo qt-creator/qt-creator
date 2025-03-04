@@ -10,7 +10,6 @@
 #include <utils/basetreeview.h>
 
 #include <QDebug>
-#include <QFileInfo>
 #include <QMenu>
 #include <QSortFilterProxyModel>
 

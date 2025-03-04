@@ -23,7 +23,6 @@
 
 #include <QDebug>
 #include <QDir>
-#include <QFileInfo>
 #include <QLoggingCategory>
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runner", QtWarningMsg)

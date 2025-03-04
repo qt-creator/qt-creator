@@ -10,7 +10,6 @@
 
 #include <QCursor>
 #include <QDir>
-#include <QFileInfo>
 #include <QLoggingCategory>
 #include <QMenu>
 #include <QUrl>
