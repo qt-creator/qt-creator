@@ -135,5 +135,34 @@
         <file>testcases/MoveDeclarationOutOfIfTest/if-else/original_file.cpp</file>
         <file>testcases/MoveDeclarationOutOfIfTest/if-else-if/expected_file.cpp</file>
         <file>testcases/MoveDeclarationOutOfIfTest/if-else-if/original_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/free-function/expected_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/free-function/original_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/member-function/expected_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/member-function/original_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/new-expression/expected_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/new-expression/original_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/no-function-in-expression/original_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/no-function-in-function/original_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/no-initialization-list/original_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/no-return1/original_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/no-return2/original_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/no-return3/original_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/no-return4/original_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/no-return5/original_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/no-void-function/original_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/no-void-member-function/original_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/no-void-static-member-function/original_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/QTCREATORBUG-10355/description.txt</file>
+        <file>testcases/AssignToLocalVariableTest/QTCREATORBUG-10355/expected_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/QTCREATORBUG-10355/original_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/QTCREATORBUG-10355-2/description.txt</file>
+        <file>testcases/AssignToLocalVariableTest/QTCREATORBUG-10355-2/expected_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/QTCREATORBUG-10355-2/original_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/static-member-function/expected_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/static-member-function/original_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/templates/expected_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/templates/expected_file.h</file>
+        <file>testcases/AssignToLocalVariableTest/templates/original_file.cpp</file>
+        <file>testcases/AssignToLocalVariableTest/templates/original_file.h</file>
     </qresource>
 </RCC>
