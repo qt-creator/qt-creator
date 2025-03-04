@@ -25,8 +25,6 @@ QtcLibrary {
         "qmlenginecontrolclient.cpp",
         "qmlenginecontrolclient.h",
         "qmlenginedebugclient.h",
-        "qmloutputparser.cpp",
-        "qmloutputparser.h",
         "qmltoolsclient.cpp",
         "qmltoolsclient.h",
         "qpacketprotocol.cpp",
