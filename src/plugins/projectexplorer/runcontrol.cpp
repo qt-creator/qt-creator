@@ -1354,6 +1354,10 @@ public:
     void start();
     void stop();
 
+    void postMessage(const QString &msg, OutputFormat format, bool appendNewLine = true)
+    {
+        q->runControl()->postMessage(msg, format, appendNewLine);
+    }
     Utils::ProcessHandle applicationPID() const;
 
     enum State { Inactive, Run };
@@ -1411,17 +1415,17 @@ ProcessRunnerPrivate::ProcessRunnerPrivate(ProcessRunner *parent)
     connect(&m_process, &Process::readyReadStandardOutput,
                 this, &ProcessRunnerPrivate::handleStandardOutput);
     connect(&m_process, &Process::requestingStop, this, [this] {
-        q->appendMessage(Tr::tr("Requesting process to stop ...."), NormalMessageFormat);
+        postMessage(Tr::tr("Requesting process to stop ...."), NormalMessageFormat);
     });
     connect(&m_process, &Process::stoppingForcefully, this, [this] {
-        q->appendMessage(Tr::tr("Stopping process forcefully ...."), NormalMessageFormat);
+        postMessage(Tr::tr("Stopping process forcefully ...."), NormalMessageFormat);
     });
 
     m_waitForDoneTimer.setSingleShot(true);
     connect(&m_waitForDoneTimer, &QTimer::timeout, this, [this] {
-        q->appendMessage(Tr::tr("Process unexpectedly did not finish."), ErrorMessageFormat);
+        postMessage(Tr::tr("Process unexpectedly did not finish."), ErrorMessageFormat);
         if (!m_command.executable().isLocal())
-            q->appendMessage(Tr::tr("Connectivity lost?"), ErrorMessageFormat);
+            postMessage(Tr::tr("Connectivity lost?"), ErrorMessageFormat);
         m_process.close();
         forwardDone();
     });
@@ -1430,19 +1434,17 @@ ProcessRunnerPrivate::ProcessRunnerPrivate(ProcessRunner *parent)
         connect(WinDebugInterface::instance(), &WinDebugInterface::cannotRetrieveDebugOutput,
             this, [this] {
                 disconnect(WinDebugInterface::instance(), nullptr, this, nullptr);
-                q->appendMessage(Tr::tr("Cannot retrieve debugging output.")
+                postMessage(Tr::tr("Cannot retrieve debugging output.")
                           + QLatin1Char('\n'), ErrorMessageFormat);
         });
 
-        connect(WinDebugInterface::instance(),
-                &WinDebugInterface::debugOutput,
-                this,
-                [this](qint64 pid, const QList<QString> &messages) {
-                    if (privateApplicationPID() != pid)
-                        return;
-                    for (const QString &message : messages)
-                        q->appendMessage(message, DebugFormat);
-                });
+        connect(WinDebugInterface::instance(), &WinDebugInterface::debugOutput,
+                this, [this](qint64 pid, const QList<QString> &messages) {
+            if (privateApplicationPID() != pid)
+                return;
+            for (const QString &message : messages)
+                postMessage(message, DebugFormat);
+        });
     }
 }
 
@@ -1489,13 +1491,13 @@ void ProcessRunnerPrivate::handleStandardOutput()
     if (m_suppressDefaultStdOutHandling)
         emit q->stdOutData(m_process.readAllRawStandardOutput());
     else
-        q->appendMessage(m_process.readAllStandardOutput(), StdOutFormat, false);
+        postMessage(m_process.readAllStandardOutput(), StdOutFormat, false);
 }
 
 void ProcessRunnerPrivate::handleStandardError()
 {
     const QString msg = m_process.readAllStandardError();
-    q->appendMessage(msg, StdErrFormat, false);
+    postMessage(msg, StdErrFormat, false);
 }
 
 void ProcessRunnerPrivate::start()
@@ -1592,7 +1594,7 @@ void ProcessRunnerPrivate::forwardDone()
     } else if (m_resultData.m_error != QProcess::UnknownError) {
         msg = RunWorker::userMessageForProcessError(m_resultData.m_error, m_command.executable());
     }
-    q->appendMessage(msg, NormalMessageFormat);
+    postMessage(msg, NormalMessageFormat);
     m_stopReported = true;
     q->reportStopped();
 }
@@ -1636,14 +1638,14 @@ void ProcessRunner::start()
     d->m_runAsRoot = runAsRoot;
 
     const QString msg = Tr::tr("Starting %1...").arg(d->m_command.displayName());
-    appendMessage(msg, NormalMessageFormat);
+    d->postMessage(msg, NormalMessageFormat);
     if (runControl()->isPrintEnvironmentEnabled()) {
-        appendMessage(Tr::tr("Environment:"), NormalMessageFormat);
+        d->postMessage(Tr::tr("Environment:"), NormalMessageFormat);
         d->m_environment.forEachEntry([this](const QString &key, const QString &value, bool enabled) {
             if (enabled)
-                appendMessage(key + '=' + value, StdOutFormat);
+                d->postMessage(key + '=' + value, StdOutFormat);
         });
-        appendMessage({}, StdOutFormat);
+        d->postMessage({}, StdOutFormat);
     }
 
     const bool isDesktop = d->m_command.executable().isLocal();
