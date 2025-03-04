@@ -55003,87 +55003,88 @@ Zeile: %4, Spalte: %5
     <name>QtC::SerialTerminal</name>
     <message>
         <source>Unable to open port %1: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Port %1 konnte nicht geöffnet werden: %2.</translation>
     </message>
     <message>
         <source>Session resumed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sitzung fortgesetzt.</translation>
     </message>
     <message>
         <source>Starting new session on %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte eine neue Sitzung auf %1...</translation>
     </message>
     <message>
         <source>Session finished on %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sitzung auf %1 wurde beendet.</translation>
     </message>
     <message>
         <source>Session paused...</source>
-        <translation type="unfinished"></translation>
+        <translation>Sitzung wird pausiert...</translation>
     </message>
     <message>
         <source>No Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Port</translation>
     </message>
     <message>
         <source>Serial port error: %1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler am seriellen Port: %1 (%2)</translation>
     </message>
     <message>
         <source>Close Tab</source>
-        <translation type="unfinished">Reiter schließen</translation>
+        <translation>Reiter schließen</translation>
     </message>
     <message>
         <source>Close All Tabs</source>
-        <translation type="unfinished">Alle schließen</translation>
+        <translation>Alle schließen</translation>
     </message>
     <message>
         <source>Close Other Tabs</source>
-        <translation type="unfinished">Andere Reiter schließen</translation>
+        <translation>Andere Reiter schließen</translation>
     </message>
     <message>
         <source>Type text and hit Enter to send.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie Text ein und drücken Sie die Eingabetaste, um ihn abzuschicken.</translation>
     </message>
     <message>
         <source>Serial Terminal Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Serielles Terminalfenster</translation>
     </message>
     <message>
         <source>Connect</source>
-        <translation type="unfinished">Verbinden</translation>
+        <translation>Verbinden</translation>
     </message>
     <message>
         <source>Disconnect</source>
-        <translation type="unfinished"></translation>
+        <translation>Trennen</translation>
     </message>
     <message>
         <source>Reset Board</source>
-        <translation type="unfinished"></translation>
+        <translation>Board zurücksetzen</translation>
     </message>
     <message>
         <source>Add New Terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Terminal hinzufügen</translation>
     </message>
     <message>
         <source>Serial Terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>Serielles Terminal</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Kein Zeilenende</translatorcomment>
+        <translation>Keins</translation>
     </message>
     <message>
         <source>LF</source>
-        <translation type="unfinished">LF</translation>
+        <translation>LF</translation>
     </message>
     <message>
         <source>CR</source>
-        <translation type="unfinished"></translation>
+        <translation>CR</translation>
     </message>
     <message>
         <source>CRLF</source>
-        <translation type="unfinished">CRLF</translation>
+        <translation>CRLF</translation>
     </message>
 </context>
 <context>
