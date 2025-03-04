@@ -212,17 +212,6 @@
        y2="599" />
     <clipPath
        clipPathUnits="userSpaceOnUse"
-       id="clipPath4556">
-      <rect
-         id="rect4558"
-         width="16"
-         height="16"
-         x="281"
-         y="584"
-         style="fill:none" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
        id="clipPath6003">
       <rect
          style="display:inline;fill:#ffffff;fill-opacity:1"
@@ -706,174 +695,251 @@
     </g>
     <g
        id="src/libs/utils/images/progressindicator_small"
-       clip-path="url(#clipPath4556)"
-       transform="matrix(-1,0,0,1,578,0)">
+       style="display:inline"
+       transform="matrix(-1,0,0,1,667,-178)">
       <use
          x="0"
          y="0"
          xlink:href="#backgroundRect"
-         id="use44"
+         id="use295"
          transform="matrix(-1,0,0,1,281,148)" />
-      <circle
-         style="display:inline;fill:#000000;fill-opacity:1"
-         id="path10-9"
-         cx="289"
-         cy="586"
-         r="2" />
-      <circle
-         style="display:inline;fill:#000000;fill-opacity:0.85"
-         id="path11-4"
-         cx="293.2363"
-         cy="587.76373"
-         r="1.75" />
-      <circle
-         style="display:inline;fill:#000000;fill-opacity:0.7"
-         id="path12-7"
-         cx="295"
-         cy="592"
-         r="1.5" />
-      <circle
-         style="display:inline;fill:#000000;fill-opacity:0.55"
-         id="path13-8"
-         cx="293.24414"
-         cy="596.24414"
-         r="1.25" />
-      <circle
-         style="display:inline;fill:#000000;fill-opacity:0.4"
-         id="path14-4"
-         cx="289"
-         cy="598"
-         r="1" />
-      <circle
-         style="display:inline;fill:#000000;fill-opacity:0.25"
-         id="path15-5"
-         cx="284.75772"
-         cy="596.24225"
-         r="1" />
-      <circle
-         style="display:inline;fill:#000000;fill-opacity:0.2"
-         id="path16-0"
-         cx="283"
-         cy="592"
-         r="0.75" />
-      <circle
-         style="display:inline;fill:#000000;fill-opacity:0.2"
-         id="path17-3"
-         cx="284.75653"
-         cy="587.75653"
-         r="0.5" />
-    </g>
-    <use
-       x="0"
-       y="0"
-       xlink:href="#src/libs/utils/images/progressindicator_big"
-       id="src/libs/utils/images/progressindicator_medium"
-       style="display:inline"
-       transform="matrix(0.5,0,0,0.5,164.5,186)" />
-    <g
-       id="src/libs/utils/images/progressindicator_big"
-       transform="matrix(2,0,0,2,-331,-494)">
+      <g
+         id="g4504">
+        <rect
+           id="rect3693"
+           width="2"
+           height="16"
+           x="288"
+           y="584"
+           style="fill:none" />
+        <rect
+           style="fill:#303030"
+           id="rect3698"
+           width="2"
+           height="5"
+           x="288"
+           y="584" />
+      </g>
       <use
-         x="0"
-         y="0"
-         xlink:href="#backgroundRect_32"
-         id="use78"
-         transform="translate(362,85)"
-         style="display:inline" />
-      <circle
-         style="fill:#000000;fill-opacity:1"
-         id="circle80"
-         cx="346"
-         cy="468"
-         r="3" />
-      <circle
-         style="fill:#000000;fill-opacity:0.9"
-         id="circle113"
-         cx="339.5"
-         cy="469.75"
-         r="2.8" />
-      <circle
-         style="fill:#000000;fill-opacity:0.8"
-         id="circle82"
-         cx="334.75"
-         cy="474.5"
-         r="2.6" />
-      <circle
-         style="fill:#000000;fill-opacity:0.7"
-         id="circle83"
-         cx="333"
-         cy="481"
-         r="2.4" />
-      <circle
-         style="fill:#000000;fill-opacity:0.6"
-         id="circle84"
-         cx="334.75"
-         cy="487.5"
-         r="2.2" />
-      <circle
-         style="fill:#000000;fill-opacity:0.5"
-         id="circle85"
-         cx="339.5"
-         cy="492.25"
-         r="2" />
-      <circle
-         style="fill:#000000;fill-opacity:0.4"
-         id="circle86"
-         cx="346"
-         cy="494"
-         r="1.8" />
-      <circle
-         style="fill:#000000;fill-opacity:0.3"
-         id="circle87"
-         cx="352.5"
-         cy="492.25"
-         r="1.6" />
-      <circle
-         style="fill:#000000;fill-opacity:0.2"
-         id="circle88"
-         cx="357.25"
-         cy="487.5"
-         r="1.4" />
-      <circle
-         style="fill:#000000;fill-opacity:0.2"
-         id="circle89"
-         cx="359"
-         cy="481"
-         r="1.2" />
-      <circle
-         style="fill:#000000;fill-opacity:0.2"
-         id="circle111"
-         cx="357.25"
-         cy="474.5"
-         r="1" />
-      <circle
-         style="fill:#000000;fill-opacity:0.2"
-         id="circle112"
-         cx="352.5"
-         cy="469.75"
-         r="0.8" />
+         style="opacity:0.83"
+         transform="rotate(45,289,592)"
+         id="use4511"
+         xlink:href="#g4504" />
+      <use
+         style="opacity:0.66"
+         transform="rotate(90,289,592)"
+         id="use4525"
+         xlink:href="#g4504" />
+      <use
+         style="opacity:0.49"
+         transform="rotate(135,289,592)"
+         id="use4528"
+         xlink:href="#g4504" />
+      <use
+         style="opacity:0.32"
+         transform="rotate(180,289,592)"
+         id="use4530"
+         xlink:href="#g4504" />
+      <use
+         style="opacity:0.32"
+         transform="rotate(-135,289,592)"
+         id="use4532"
+         xlink:href="#g4504" />
+      <use
+         style="opacity:0.32"
+         transform="rotate(-90,289,592)"
+         id="use4534"
+         xlink:href="#g4504" />
+      <use
+         style="opacity:0.32"
+         transform="rotate(-45,289,592)"
+         id="use4536"
+         xlink:href="#g4504" />
     </g>
     <use
        x="0"
        y="0"
        xlink:href="#src/libs/utils/images/progressindicator_small"
        id="src/libs/solutions/spinner/icons/spinner_small"
-       transform="translate(32,-164)"
-       style="display:inline" />
+       transform="translate(0,17)" />
+    <g
+       transform="matrix(-0.5,0,0,0.5,558.5,172)"
+       id="src/libs/utils/images/progressindicator_medium">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32"
+         id="use296"
+         transform="matrix(-2,0,0,2,329,-224)" />
+      <g
+         id="g3383">
+        <rect
+           style="fill:none"
+           id="rect3385"
+           width="4"
+           height="64"
+           x="359"
+           y="536" />
+        <rect
+           y="536"
+           x="359"
+           height="18"
+           width="4"
+           id="rect3387"
+           style="fill:#303030" />
+      </g>
+      <use
+         xlink:href="#g3383"
+         id="use3389"
+         transform="rotate(30,361,568)"
+         style="opacity:0.887" />
+      <use
+         xlink:href="#g3383"
+         id="use3391"
+         transform="rotate(60,361,568)"
+         style="opacity:0.773" />
+      <use
+         xlink:href="#g3383"
+         id="use3393"
+         transform="rotate(90,361,568)"
+         style="opacity:0.66" />
+      <use
+         xlink:href="#g3383"
+         id="use3395"
+         transform="rotate(120,361,568)"
+         style="opacity:0.547" />
+      <use
+         xlink:href="#g3383"
+         id="use3397"
+         transform="rotate(150,361,568)"
+         style="opacity:0.433" />
+      <use
+         xlink:href="#g3383"
+         id="use3399"
+         transform="rotate(180,361,568)"
+         style="opacity:0.32" />
+      <use
+         xlink:href="#g3383"
+         id="use3401"
+         transform="rotate(-150,361,568)"
+         style="opacity:0.32" />
+      <use
+         xlink:href="#g3383"
+         id="use3403"
+         transform="rotate(-120,361,568)"
+         style="opacity:0.32" />
+      <use
+         xlink:href="#g3383"
+         id="use3405"
+         transform="rotate(-90,361,568)"
+         style="opacity:0.32" />
+      <use
+         xlink:href="#g3383"
+         id="use3407"
+         transform="rotate(-60,361,568)"
+         style="opacity:0.32" />
+      <use
+         xlink:href="#g3383"
+         id="use3409"
+         transform="rotate(-30,361,568)"
+         style="opacity:0.32" />
+    </g>
     <use
        x="0"
        y="0"
        xlink:href="#src/libs/utils/images/progressindicator_medium"
        id="src/libs/solutions/spinner/icons/spinner_medium"
-       style="display:inline"
-       transform="translate(32)" />
+       transform="translate(0,33)" />
+    <g
+       id="src/libs/utils/images/progressindicator_big"
+       transform="matrix(-1,0,0,1,788,-130)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32"
+         id="use296-7"
+         transform="matrix(-2,0,0,2,329,-224)" />
+      <g
+         id="g3369">
+        <rect
+           y="536"
+           x="359"
+           height="64"
+           width="4"
+           id="rect3365"
+           style="fill:none" />
+        <rect
+           rx="2"
+           style="fill:#303030"
+           id="rect3367"
+           width="4"
+           height="17"
+           x="359"
+           y="536"
+           ry="2" />
+      </g>
+      <use
+         style="opacity:0.887"
+         transform="rotate(30,361,568)"
+         id="use3463"
+         xlink:href="#g3369" />
+      <use
+         style="opacity:0.773"
+         transform="rotate(60,361,568)"
+         id="use3467"
+         xlink:href="#g3369" />
+      <use
+         style="opacity:0.66"
+         transform="rotate(90,361,568)"
+         id="use3469"
+         xlink:href="#g3369" />
+      <use
+         style="opacity:0.547"
+         transform="rotate(120,361,568)"
+         id="use3471"
+         xlink:href="#g3369" />
+      <use
+         style="opacity:0.433"
+         transform="rotate(150,361,568)"
+         id="use3473"
+         xlink:href="#g3369" />
+      <use
+         style="opacity:0.32"
+         transform="rotate(180,361,568)"
+         id="use3475"
+         xlink:href="#g3369" />
+      <use
+         style="opacity:0.32"
+         transform="rotate(-150,361,568)"
+         id="use3477"
+         xlink:href="#g3369" />
+      <use
+         style="opacity:0.32"
+         transform="rotate(-120,361,568)"
+         id="use3479"
+         xlink:href="#g3369" />
+      <use
+         style="opacity:0.32"
+         transform="rotate(-90,361,568)"
+         id="use3481"
+         xlink:href="#g3369" />
+      <use
+         style="opacity:0.32"
+         transform="rotate(-60,361,568)"
+         id="use3483"
+         xlink:href="#g3369" />
+      <use
+         style="opacity:0.32"
+         transform="rotate(-30,361,568)"
+         id="use3485"
+         xlink:href="#g3369" />
+    </g>
     <use
        x="0"
        y="0"
        xlink:href="#src/libs/utils/images/progressindicator_big"
        id="src/libs/solutions/spinner/icons/spinner_large"
-       style="display:inline"
-       transform="translate(64)" />
+       transform="translate(0,65)" />
     <g
        id="src/plugins/coreplugin/find/images/wrapindicator">
       <rect
