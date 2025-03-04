@@ -4,6 +4,7 @@
 #include "qtbuildaspects.h"
 
 #include "baseqtversion.h"
+#include "qtkitaspect.h"
 #include "qtsupporttr.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -95,8 +96,12 @@ void QtQuickCompilerAspect::addToLayoutImpl(Layouting::Layout &parent)
             setValue(TriState::Default);
         if (value() == TriState::Enabled) {
             if (auto qmlDebuggingAspect = m_buildConfig->aspect<QmlDebuggingAspect>()) {
-                if (qmlDebuggingAspect->value() == TriState::Enabled)
-                    warningText = Tr::tr("Disables QML debugging. QML profiling will still work.");
+                if (qmlDebuggingAspect->value() == TriState::Enabled) {
+                    if (QtVersion *qtVersion = QtKitAspect::qtVersion(m_buildConfig->kit())) {
+                        if (qtVersion->qtVersion() < QVersionNumber(6, 0, 0))
+                            warningText = Tr::tr("Disables QML debugging. QML profiling will still work.");
+                    }
+                }
             }
         }
         warningLabel->setText(warningText);
