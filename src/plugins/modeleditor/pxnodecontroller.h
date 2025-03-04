@@ -6,6 +6,7 @@
 #include <QObject>
 
 namespace ProjectExplorer { class Node; }
+namespace Utils { class FilePath; }
 
 namespace qmt {
 class MClass;
@@ -33,15 +34,20 @@ public:
     ComponentViewController *componentViewController() const;
 
     void setDiagramSceneController(qmt::DiagramSceneController *diagramSceneController);
-    void setAnchorFolder(const QString &anchorFolder);
+    void setAnchorFolder(const Utils::FilePath &anchorFolder);
 
-    void addFileSystemEntry(const QString &filePath, int line, int column, qmt::DElement *topMostElementAtPos,
-                            const QPointF &pos, qmt::MDiagram *diagram);
+    void addFileSystemEntry(
+        const Utils::FilePath &filePath,
+        int line,
+        int column,
+        qmt::DElement *topMostElementAtPos,
+        const QPointF &pos,
+        qmt::MDiagram *diagram);
     bool hasDiagramForExplorerNode(const ProjectExplorer::Node *node);
     qmt::MDiagram *findDiagramForExplorerNode(const ProjectExplorer::Node *node);
 
 private:
-    void onMenuActionTriggered(MenuAction *action, const QString &filePath,
+    void onMenuActionTriggered(MenuAction *action, const Utils::FilePath &filePath,
                                qmt::DElement *topMostElementAtPos, const QPointF &pos,
                                qmt::MDiagram *diagram);
 

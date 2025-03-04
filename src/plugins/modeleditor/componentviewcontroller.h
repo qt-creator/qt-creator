@@ -6,6 +6,7 @@
 #include <QObject>
 
 namespace ProjectExplorer { class FolderNode; }
+namespace Utils { class FilePath; }
 
 namespace qmt {
 class MPackage;
@@ -35,13 +36,13 @@ public:
     void setPxNodeUtilties(PxNodeUtilities *pxnodeUtilities);
     void setDiagramSceneController(qmt::DiagramSceneController *diagramSceneController);
 
-    void createComponentModel(const QString &filePath,
-                              qmt::MDiagram *diagram, const QString &anchorFolder);
+    void createComponentModel(const Utils::FilePath &filePath,
+                              qmt::MDiagram *diagram, const Utils::FilePath &anchorFolder);
     void updateIncludeDependencies(qmt::MPackage *rootPackage);
 
 private:
-    void doCreateComponentModel(const QString &filePath, qmt::MDiagram *diagram,
-                                const QString &anchorFolder, bool scanHeaders);
+    void doCreateComponentModel(const Utils::FilePath &filePath, qmt::MDiagram *diagram,
+                                const Utils::FilePath &anchorFolder, bool scanHeaders);
 
     ComponentViewControllerPrivate *d;
 };

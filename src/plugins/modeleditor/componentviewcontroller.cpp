@@ -283,9 +283,9 @@ void ComponentViewController::setDiagramSceneController(qmt::DiagramSceneControl
     d->diagramSceneController = diagramSceneController;
 }
 
-void ComponentViewController::createComponentModel(const QString &filePath,
+void ComponentViewController::createComponentModel(const FilePath &filePath,
                                                    qmt::MDiagram *diagram,
-                                                   const QString &anchorFolder)
+                                                   const FilePath &anchorFolder)
 {
     d->diagramSceneController->modelController()->startResetModel();
     doCreateComponentModel(filePath, diagram, anchorFolder, false);
@@ -305,12 +305,11 @@ void ComponentViewController::updateIncludeDependencies(qmt::MPackage *rootPacka
     d->diagramSceneController->modelController()->finishResetModel(true);
 }
 
-void ComponentViewController::doCreateComponentModel(const QString &filePath, qmt::MDiagram *diagram,
-                                                     const QString &anchorFolder, bool scanHeaders)
+void ComponentViewController::doCreateComponentModel(
+    const FilePath &filePath, qmt::MDiagram *diagram, const FilePath &anchorFolder, bool scanHeaders)
 {
-    for (const QString &fileName : QDir(filePath).entryList(QDir::Files)) {
-        QString file = filePath + "/" + fileName;
-        QString componentName = qmt::NameController::convertFileNameToElementName(FilePath::fromString(file));
+    for (const FilePath &file : filePath.dirEntries(QDir::Files)) {
+        QString componentName = qmt::NameController::convertFileNameToElementName(file);
         qmt::MComponent *component = nullptr;
         bool isSource = false;
         CppEditor::ProjectFile::Kind kind = CppEditor::ProjectFile::classify(file);
@@ -342,7 +341,7 @@ void ComponentViewController::doCreateComponentModel(const QString &filePath, qm
         }
         if (component) {
             QStringList relativeElements = qmt::NameController::buildElementsPath(
-                FilePath::fromString(d->pxnodeUtilities->calcRelativePath(file, anchorFolder)), false);
+                d->pxnodeUtilities->calcRelativePath(file, anchorFolder), false);
             if (d->pxnodeUtilities->findSameObject(relativeElements, component)) {
                 delete component;
             } else {
@@ -352,10 +351,8 @@ void ComponentViewController::doCreateComponentModel(const QString &filePath, qm
             }
         }
     }
-    for (const QString &fileName : QDir(filePath).entryList(QDir::Dirs|QDir::NoDotAndDotDot)) {
-        QString file = filePath + "/" + fileName;
-        doCreateComponentModel(file, diagram, anchorFolder, scanHeaders);
-    }
+    for (const FilePath &subdir : filePath.dirEntries(QDir::Dirs|QDir::NoDotAndDotDot))
+        doCreateComponentModel(subdir, diagram, anchorFolder, scanHeaders);
 }
 
 } // namespace Internal
