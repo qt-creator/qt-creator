@@ -71,18 +71,19 @@ private:
     QString getExportPath(const ModelNode &node) const;
     bool isMaterialBundle(const QString &bundleId) const;
     bool isItemBundle(const QString &bundleId) const;
-    void addIconAndCloseZip(const QString &iconPath, const auto &image);
+    void addIconToZip(const QString &iconPath, const auto &image);
     Utils::FilePath componentPath(const ModelNode &node) const;
     QSet<AssetPath> getBundleComponentDependencies(const ModelNode &node) const;
     QJsonObject exportComponent(const ModelNode &node);
     QJsonObject exportNode(const ModelNode &node, const QPixmap &iconPixmap = QPixmap());
+    void maybeCloseZip();
 
     QPointer<AbstractView> m_view;
     QPointer<QWidget> m_widget;
     Utils::UniqueObjectPtr<BundleImporter> m_importer;
     std::unique_ptr<ZipWriter> m_zipWriter;
     std::unique_ptr<QTemporaryDir> m_tempDir;
-    int m_remainingIcons = 0;
+    int m_remainingFiles = 0;
 
     static constexpr char BUNDLE_VERSION[] = "1.0";
 };

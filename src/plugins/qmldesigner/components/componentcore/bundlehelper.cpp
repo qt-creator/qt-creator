@@ -236,7 +236,7 @@ void BundleHelper::exportBundle(const QList<ModelNode> &nodes, const QPixmap &ic
             nodesToExport.append(node);
     }
 
-    m_remainingIcons = nodesToExport.size();
+    m_remainingFiles = nodesToExport.size() + 1;
 
     for (const ModelNode &node : std::as_const(nodesToExport)) {
         if (node.isComponent())
@@ -247,6 +247,7 @@ void BundleHelper::exportBundle(const QList<ModelNode> &nodes, const QPixmap &ic
 
     jsonObj["items"] = itemsArr;
     m_zipWriter->addFile(Constants::BUNDLE_JSON_FILENAME, QJsonDocument(jsonObj).toJson());
+    maybeCloseZip();
 }
 
 QJsonObject BundleHelper::exportComponent(const ModelNode &node)
@@ -281,7 +282,7 @@ QJsonObject BundleHelper::exportComponent(const ModelNode &node)
     // add icon
     QString filePath = compFilePath.path();
     getImageFromCache(filePath, [this, iconPath](const QImage &image) {
-        addIconAndCloseZip(iconPath, image);
+        addIconToZip(iconPath, image);
     });
 
     return {
@@ -344,10 +345,10 @@ QJsonObject BundleHelper::exportNode(const ModelNode &node, const QPixmap &iconP
 
     if (iconPixmapToSave.isNull()) {
         getImageFromCache(qmlFilePath.toFSPathString(), [this, iconPath](const QImage &image) {
-            addIconAndCloseZip(iconPath, image);
+            addIconToZip(iconPath, image);
         });
     } else {
-        addIconAndCloseZip(iconPath, iconPixmapToSave);
+        addIconToZip(iconPath, iconPixmapToSave);
     }
 
     return {
@@ -356,6 +357,12 @@ QJsonObject BundleHelper::exportNode(const ModelNode &node, const QPixmap &iconP
         {"icon", iconPath},
         {"files", QJsonArray::fromStringList(depAssetsRelativePaths)}
     };
+}
+
+void BundleHelper::maybeCloseZip()
+{
+    if (--m_remainingFiles <= 0)
+        m_zipWriter->close();
 }
 
 QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNode &node, int depth)
@@ -541,16 +548,14 @@ void BundleHelper::getImageFromCache(const QString &qmlPath,
         });
 }
 
-void BundleHelper::addIconAndCloseZip(const QString &iconPath, const auto &image) { // auto: QImage or QPixmap
+void BundleHelper::addIconToZip(const QString &iconPath, const auto &image) { // auto: QImage or QPixmap
     QByteArray iconByteArray;
     QBuffer buffer(&iconByteArray);
     buffer.open(QIODevice::WriteOnly);
     image.save(&buffer, "PNG");
 
     m_zipWriter->addFile(iconPath, iconByteArray);
-
-    if (--m_remainingIcons <= 0)
-        m_zipWriter->close();
+    maybeCloseZip();
 };
 
 QString BundleHelper::getImportPath() const
