@@ -619,9 +619,7 @@ signals:
     void requestRunControlFinish();
     void requestRunControlStop();
     void attachToCoreRequested(const QString &coreFile);
-    void appendMessageRequested(const QString &msg,
-                                Utils::OutputFormat format,
-                                bool appendNewLine) const;
+    void postMessageRequested(const QString &msg, Utils::OutputFormat format, bool appendNewLine) const;
     void interruptTerminalRequested();
     void kickoffTerminalProcessRequested();
 

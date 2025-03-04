@@ -575,8 +575,7 @@ void DebuggerRunTool::continueAfterDebugServerStart()
                 reportStopped();
             }
         });
-        connect(engine, &DebuggerEngine::appendMessageRequested,
-                this, &DebuggerRunTool::appendMessage);
+        connect(engine, &DebuggerEngine::postMessageRequested, rc, &RunControl::postMessage);
         // ++d->engineStartsNeeded;
 
         if (engine->isPrimaryEngine()) {

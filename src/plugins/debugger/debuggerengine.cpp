@@ -2043,11 +2043,11 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
         case AppOutput:
         case AppStuff:
             d->m_logWindow->showOutput(channel, msg);
-            emit appendMessageRequested(msg, StdOutFormat, false);
+            emit postMessageRequested(msg, StdOutFormat, false);
             break;
         case AppError:
             d->m_logWindow->showOutput(channel, msg);
-            emit appendMessageRequested(msg, StdErrFormat, false);
+            emit postMessageRequested(msg, StdErrFormat, false);
             break;
         default:
             d->m_logWindow->showOutput(channel, QString("[%1] %2").arg(debuggerName(), msg));

@@ -2463,7 +2463,7 @@ void GdbEngine::handleTracepointHit(const GdbMi &data)
     const GdbMi &warnings = data["warnings"];
     if (warnings.childCount() > 0) {
         for (const GdbMi &warning: warnings) {
-            emit appendMessageRequested(warning.toString(), ErrorMessageFormat, true);
+            emit postMessageRequested(warning.toString(), ErrorMessageFormat, true);
         }
     }
     QString message = bp->message();
@@ -2507,7 +2507,7 @@ void GdbEngine::handleTracepointHit(const GdbMi &data)
         }
     }
     showMessage(message);
-    emit appendMessageRequested(message, NormalMessageFormat, true);
+    emit postMessageRequested(message, NormalMessageFormat, true);
 }
 
 void GdbEngine::handleTracepointModified(const GdbMi &data)
