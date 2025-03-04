@@ -323,6 +323,7 @@ void AbstractSettings::save()
         if (!filePath.parentDir().ensureWritableDir()) {
             BeautifierTool::showError(Tr::tr("Cannot save styles. %1 does not exist.")
                                           .arg(filePath.toUserOutput()));
+            ++iStyles;
             continue;
         }
 
