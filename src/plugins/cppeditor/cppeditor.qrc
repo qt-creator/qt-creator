@@ -330,5 +330,13 @@
         <file>testcases/ExtractFunctionTest/member-function/original_file.h</file>
         <file>testcases/ExtractFunctionTest/if-block/expected_file.h</file>
         <file>testcases/ExtractFunctionTest/if-block/original_file.h</file>
+        <file>testcases/FlipLogicalOperandsTest/macro-as-left-expr/expected_file.cpp</file>
+        <file>testcases/FlipLogicalOperandsTest/macro-as-left-expr/original_file.cpp</file>
+        <file>testcases/FlipLogicalOperandsTest/macro-as-right-expr/expected_file.cpp</file>
+        <file>testcases/FlipLogicalOperandsTest/macro-as-right-expr/original_file.cpp</file>
+        <file>testcases/FlipLogicalOperandsTest/macro-in-left-expr/expected_file.cpp</file>
+        <file>testcases/FlipLogicalOperandsTest/macro-in-left-expr/original_file.cpp</file>
+        <file>testcases/FlipLogicalOperandsTest/macro-in-right-expr/expected_file.cpp</file>
+        <file>testcases/FlipLogicalOperandsTest/macro-in-right-expr/original_file.cpp</file>
     </qresource>
 </RCC>

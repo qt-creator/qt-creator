@@ -152,12 +152,6 @@ public:
 */
 class FlipLogicalOperands : public CppQuickFixFactory
 {
-#ifdef WITH_TESTS
-public:
-    static QObject *createTest();
-#endif
-
-private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
         const QList<AST *> &path = interface.path();
@@ -316,66 +310,14 @@ private:
     }
 };
 
-#ifdef WITH_TESTS
-using namespace Tests;
-class FlipLogicalOperandsTest : public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void test_data()
-    {
-        QTest::addColumn<QByteArray>("original");
-        QTest::addColumn<QByteArray>("expected");
-
-        const auto makeDoc = [](const QString &expr) {
-            const QString pattern = "#define VALUE 7\n"
-                                    "int main() {\n"
-                                    "    if (%1)\n"
-                                    "        return 1;\n"
-                                    "}\n";
-            return pattern.arg(expr).toUtf8();
-        };
-
-        QTest::newRow("macro as left expr")
-            << makeDoc("VALUE @&& true")
-            << makeDoc("true && VALUE");
-        QTest::newRow("macro in left expr")
-            << makeDoc("(VALUE + 1) @&& true")
-            << makeDoc("true && (VALUE + 1)");
-        QTest::newRow("macro as right expr")
-            << makeDoc("false @|| VALUE")
-            << makeDoc("VALUE || false");
-        QTest::newRow("macro in right expr")
-            << makeDoc("false @|| (VALUE + 1)")
-            << makeDoc("(VALUE + 1) || false");
-    }
-
-    void test()
-    {
-        QFETCH(QByteArray, original);
-        QFETCH(QByteArray, expected);
-
-        FlipLogicalOperands factory;
-        QuickFixOperationTest(singleDocument(original, expected), &factory);
-    }
-};
-
-QObject *FlipLogicalOperands::createTest() { return new FlipLogicalOperandsTest; }
-
-#endif // WITH_TESTS
-
 } // namespace
 
 void registerLogicalOperationQuickfixes()
 {
-    CppQuickFixFactory::registerFactory<FlipLogicalOperands>();
+    CppQuickFixFactory::registerFactoryWithStandardTest<FlipLogicalOperands>(
+        "FlipLogicalOperandsTest");
     CppQuickFixFactory::registerFactory<InverseLogicalComparison>();
     CppQuickFixFactory::registerFactory<RewriteLogicalAnd>();
 }
 
 } // namespace CppEditor::Internal
-
-#ifdef WITH_TESTS
-#include <logicaloperationquickfixes.moc>
-#endif
