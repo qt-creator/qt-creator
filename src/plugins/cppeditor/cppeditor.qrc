@@ -302,5 +302,24 @@
         <file>testcases/ConvertToCamelCaseTest/upper-case/original_file.cpp</file>
         <file>testcases/ConvertToCamelCaseTest/wild-mix/expected_file.cpp</file>
         <file>testcases/ConvertToCamelCaseTest/wild-mix/original_file.cpp</file>
+        <file>testcases/ConvertToMetaMethodCallTest/emit/expected_file.cpp</file>
+        <file>testcases/ConvertToMetaMethodCallTest/emit/original_file.cpp</file>
+        <file>testcases/ConvertToMetaMethodCallTest/expression/expected_file.cpp</file>
+        <file>testcases/ConvertToMetaMethodCallTest/expression/original_file.cpp</file>
+        <file>testcases/ConvertToMetaMethodCallTest/not-invokable/original_file.cpp</file>
+        <file>testcases/ConvertToMetaMethodCallTest/object-value/expected_file.cpp</file>
+        <file>testcases/ConvertToMetaMethodCallTest/object-value/original_file.cpp</file>
+        <file>testcases/ConvertToMetaMethodCallTest/pointer-to-object/expected_file.cpp</file>
+        <file>testcases/ConvertToMetaMethodCallTest/pointer-to-object/original_file.cpp</file>
+        <file>testcases/ConvertToMetaMethodCallTest/Q_EMIT/expected_file.cpp</file>
+        <file>testcases/ConvertToMetaMethodCallTest/Q_EMIT/original_file.cpp</file>
+        <file>testcases/ConvertToMetaMethodCallTest/Q_INVOKABLE/expected_file.cpp</file>
+        <file>testcases/ConvertToMetaMethodCallTest/Q_INVOKABLE/original_file.cpp</file>
+        <file>testcases/ConvertToMetaMethodCallTest/Q_SIGNAL/expected_file.cpp</file>
+        <file>testcases/ConvertToMetaMethodCallTest/Q_SIGNAL/original_file.cpp</file>
+        <file>testcases/ConvertToMetaMethodCallTest/Q_SLOT/expected_file.cpp</file>
+        <file>testcases/ConvertToMetaMethodCallTest/Q_SLOT/original_file.cpp</file>
+        <file>testcases/ConvertToMetaMethodCallTest/slot/expected_file.cpp</file>
+        <file>testcases/ConvertToMetaMethodCallTest/slot/original_file.cpp</file>
     </qresource>
 </RCC>
