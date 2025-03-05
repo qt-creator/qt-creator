@@ -120,15 +120,12 @@ QString QMakeStep::allArguments(const QtVersion *v, ArgumentFlags flags) const
 
     if (v->qtVersion() < QVersionNumber(5, 0, 0))
         arguments << "-r";
-    bool userProvidedMkspec = false;
-    for (ProcessArgs::ConstArgIterator ait(userArguments()); ait.next(); ) {
-        if (ait.value() == "-spec") {
-            if (ait.next()) {
-                userProvidedMkspec = true;
-                break;
-            }
-        }
-    }
+
+    const QStringList userArgs = ProcessArgs::splitArgs(userArguments(),
+                                                        project()->projectFilePath().osType());
+    const int mkspecIndex = userArgs.indexOf("-spec");
+    const bool userProvidedMkspec = mkspecIndex >= 0 && mkspecIndex + 1 < userArgs.size();
+
     const FilePath specArg = FilePath::fromString(mkspec());
     QTC_CHECK(specArg.isSameDevice(v->qmakeFilePath()));
     if (!userProvidedMkspec && !specArg.isEmpty())
