@@ -1,5 +1,8 @@
 if (IS_SUPPORTED_PROJECTSTORAGE_QT)
-  find_package(Qt6 COMPONENTS QmlDomPrivate QmlCompiler QmlCompilerPrivate REQUIRED)
+  find_package(Qt6 COMPONENTS QmlDomPrivate QmlCompiler REQUIRED)
+  if (QT_VERSION VERSION_GREATER_EQUAL 6.9.0)
+    find_package(Qt6 COMPONENTS QmlCompilerPrivate REQUIRED)
+  endif()
 endif()
 
 add_qtc_library(QmlDesignerCore

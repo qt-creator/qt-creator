@@ -88,6 +88,7 @@ if (QT_VERSION VERSION_GREATER_EQUAL 6.9.0)
     DesignerComponentsPrivate
     QmlPrivate
     QuickPrivate
+    QUIET
   )
 endif()
 
