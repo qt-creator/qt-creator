@@ -16,7 +16,7 @@ const Icon BREAKPOINT_PENDING({
         {":/debugger/images/breakpoint_pending_overlay.png", Theme::PanelTextColorDark}}, Icon::IconStyleOptions(Icon::Tint | Icon::PunchEdges));
 const Icon BREAKPOINT_WITH_LOCATION({
         {":/utils/images/filledcircle.png", Theme::IconsErrorColor},
-        {":/debugger/images/location.png", Theme::IconsWarningToolBarColor}}, Icon::Tint);
+        {":/debugger/images/location.png", Theme::IconsWarningColor}}, Icon::Tint);
 const Icon BREAKPOINTS(
         ":/debugger/images/debugger_breakpoints.png");
 const Icon WATCHPOINT({
@@ -65,10 +65,10 @@ const Icon DEBUG_EXIT_SMALL_TOOLBAR({
         {":/utils/images/debugger_overlay_small.png", Theme::IconsDebugColor}});
 const Icon LOCATION({
         {":/debugger/images/location_background.png", Theme::IconsCodeModelOverlayForegroundColor},
-        {":/debugger/images/location.png", Theme::IconsWarningToolBarColor}}, Icon::Tint);
+        {":/debugger/images/location.png", Theme::IconsWarningColor}}, Icon::Tint);
 const Icon REVERSE_LOCATION({
         {":/debugger/images/debugger_reversemode_background.png", Theme::IconsCodeModelOverlayForegroundColor},
-        {":/debugger/images/debugger_reversemode.png", Theme::IconsWarningToolBarColor}}, Icon::Tint);
+        {":/debugger/images/debugger_reversemode.png", Theme::IconsWarningColor}}, Icon::Tint);
 const Icon REVERSE_MODE({
         {":/debugger/images/debugger_reversemode_background.png", Theme::IconsCodeModelOverlayForegroundColor},
         {":/debugger/images/debugger_reversemode.png", Theme::IconsInfoColor}}, Icon::Tint);
