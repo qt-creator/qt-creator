@@ -21,6 +21,7 @@
 #include <QBuffer>
 #include <QCache>
 #include <QClipboard>
+#include <QDesktopServices>
 #include <QGuiApplication>
 #include <QPainter>
 #include <QScrollBar>
@@ -600,8 +601,17 @@ void MarkdownBrowser::setMaximumCacheSize(qsizetype maxSize)
 
 void MarkdownBrowser::handleAnchorClicked(const QUrl &link)
 {
-    if (link.scheme() != QLatin1String("copy"))
+    if (link.scheme() != QLatin1String("copy")) {
+        if (link.scheme() == "http" || link.scheme() == "https")
+            QDesktopServices::openUrl(link);
+
+        if (link.hasFragment() && link.path().isEmpty() && link.scheme().isEmpty()) {
+            // local anchor
+            scrollToAnchor(link.fragment(QUrl::FullyEncoded));
+        }
+
         return;
+    }
 
     bool ok = false;
     const int snippetId = link.path().toInt(&ok);
@@ -609,7 +619,7 @@ void MarkdownBrowser::handleAnchorClicked(const QUrl &link)
         return;
 
     auto *animDoc = static_cast<AnimatedDocument *>(document());
-    const QString snippet = animDoc->snippetById(snippetId);
+    const QString snippet = animDoc->snippetById(snippetId).replace(QChar::ParagraphSeparator, '\n');
     if (snippet.isEmpty())
         return;
 
