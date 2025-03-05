@@ -30,7 +30,7 @@
         \row
             \li \l{Setting anchors and margins}
             \li To set the rules for attaching the component to other components. You can define
-                the distance between the components and put margins on the components.
+                the distance between the components and add margins on the components.
         \row
             \li \l{Aligning and distributing components}
             \li To align the unanchored components left, right, vertical, horizontal, top, and
@@ -85,7 +85,11 @@
     In an \l{Important Concepts In Qt Quick - Positioning#anchors}
     {anchor-based} layout, each component has a set of
     invisible \e anchor lines: top, bottom, left, right, fill, horizontal
-    center, vertical center, and baseline.
+    center, vertical center, and baseline. Use anchors to place a component either
+    adjacent to or inside of another component by attaching one or more of the
+    component's anchor lines to the anchor lines of the other component. If a
+    component changes, the components that are anchored to it will adjust
+    automatically to maintain the anchoring.
 
     To set anchors and margins for components:
 
