@@ -321,5 +321,14 @@
         <file>testcases/ConvertToMetaMethodCallTest/Q_SLOT/original_file.cpp</file>
         <file>testcases/ConvertToMetaMethodCallTest/slot/expected_file.cpp</file>
         <file>testcases/ConvertToMetaMethodCallTest/slot/original_file.cpp</file>
+        <file>testcases/ExtractFunctionTest/basic/expected_file.h</file>
+        <file>testcases/ExtractFunctionTest/basic/original_file.h</file>
+        <file>testcases/ExtractFunctionTest/class-in-namespace/description.txt</file>
+        <file>testcases/ExtractFunctionTest/class-in-namespace/expected_file.h</file>
+        <file>testcases/ExtractFunctionTest/class-in-namespace/original_file.h</file>
+        <file>testcases/ExtractFunctionTest/member-function/expected_file.h</file>
+        <file>testcases/ExtractFunctionTest/member-function/original_file.h</file>
+        <file>testcases/ExtractFunctionTest/if-block/expected_file.h</file>
+        <file>testcases/ExtractFunctionTest/if-block/original_file.h</file>
     </qresource>
 </RCC>
