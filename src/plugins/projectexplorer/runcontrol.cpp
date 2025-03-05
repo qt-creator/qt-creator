@@ -805,13 +805,9 @@ void RunControlPrivate::continueStopOrFinish()
         }
     }
 
-    RunControlState targetState;
-    if (state == RunControlState::Stopping)
-        targetState = RunControlState::Stopped;
-
     if (allDone) {
         debugMessage("All Stopped");
-        setState(targetState);
+        setState(RunControlState::Stopped);
     } else {
         debugMessage("Not all workers Stopped. Waiting...");
     }
