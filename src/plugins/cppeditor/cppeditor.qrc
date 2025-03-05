@@ -254,5 +254,19 @@
         <file>testcases/ConvertFromAndToPointerTest/stack-to-pointer-with-macro/original_file.cpp</file>
         <file>testcases/ConvertFromAndToPointerTest/struct-pointer-to-stack/expected_file.cpp</file>
         <file>testcases/ConvertFromAndToPointerTest/struct-pointer-to-stack/original_file.cpp</file>
+        <file>testcases/ConvertQt4ConnectTest/different-namespace/expected_file.cpp</file>
+        <file>testcases/ConvertQt4ConnectTest/different-namespace/original_file.cpp</file>
+        <file>testcases/ConvertQt4ConnectTest/out-of-class/expected_file.cpp</file>
+        <file>testcases/ConvertQt4ConnectTest/out-of-class/original_file.cpp</file>
+        <file>testcases/ConvertQt4ConnectTest/within-class-four-args-connect/expected_file.cpp</file>
+        <file>testcases/ConvertQt4ConnectTest/within-class-four-args-connect/original_file.cpp</file>
+        <file>testcases/ConvertQt4ConnectTest/within-class-four-args-disconnect/expected_file.cpp</file>
+        <file>testcases/ConvertQt4ConnectTest/within-class-implicit-pointer/expected_file.cpp</file>
+        <file>testcases/ConvertQt4ConnectTest/within-class-implicit-pointer/original_file.cpp</file>
+        <file>testcases/ConvertQt4ConnectTest/within-class-template-value/expected_file.cpp</file>
+        <file>testcases/ConvertQt4ConnectTest/within-class-template-value/original_file.cpp</file>
+        <file>testcases/ConvertQt4ConnectTest/within-class-three-args-connect/expected_file.cpp</file>
+        <file>testcases/ConvertQt4ConnectTest/within-class-three-args-connect/original_file.cpp</file>
+        <file>testcases/ConvertQt4ConnectTest/within-class-four-args-disconnect/original_file.cpp</file>
     </qresource>
 </RCC>
