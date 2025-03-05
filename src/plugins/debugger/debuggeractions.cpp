@@ -4,7 +4,6 @@
 #include "debuggeractions.h"
 
 #include "commonoptionspage.h"
-#include "debuggericons.h"
 #include "debuggerinternalconstants.h"
 #include "debuggertr.h"
 #include "gdb/gdbsettings.h"
