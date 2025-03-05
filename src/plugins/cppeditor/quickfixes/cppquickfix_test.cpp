@@ -218,8 +218,8 @@ QuickFixOperationTest::QuickFixOperationTest(const QList<TestDocumentPtr> &testD
         // Check
         QString result = testDocument->m_editorWidget->document()->toPlainText();
         removeTrailingWhitespace(result);
-        QEXPECT_FAIL("escape string literal: raw string literal", "FIXME", Continue);
-        QEXPECT_FAIL("escape string literal: unescape adjacent literals", "FIXME", Continue);
+        QEXPECT_FAIL("escape-raw-string", "FIXME", Continue);
+        QEXPECT_FAIL("unescape-adjacent-literals", "FIXME", Continue);
         if (!expectedFailMessage.isEmpty())
             QEXPECT_FAIL("", expectedFailMessage.data(), Continue);
         else if (result != testDocument->m_expectedSource) {

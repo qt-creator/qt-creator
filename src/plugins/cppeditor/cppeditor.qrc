@@ -268,5 +268,26 @@
         <file>testcases/ConvertQt4ConnectTest/within-class-three-args-connect/expected_file.cpp</file>
         <file>testcases/ConvertQt4ConnectTest/within-class-three-args-connect/original_file.cpp</file>
         <file>testcases/ConvertQt4ConnectTest/within-class-four-args-disconnect/original_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/escape-as-utf8/expected_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/escape-as-utf8/original_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/escape-raw-string/expected_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/escape-raw-string/original_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/escape-simple/expected_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/escape-simple/original_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/escape-with-splitting/expected_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/escape-with-splitting/original_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/no-trigger/original_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/unescape-adjacent-literals/expected_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/unescape-adjacent-literals/original_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/unescape-simple/expected_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/unescape-simple/original_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/unescape-utf8/expected_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/unescape-utf8/original_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/unescape-utf8-2/expected_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/unescape-utf8-2/original_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/unescape-utf8-invalid/expected_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/unescape-utf8-invalid/original_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/unescape-utf8-no-change/expected_file.cpp</file>
+        <file>testcases/EscapeStringLiteralTest/unescape-utf8-no-change/original_file.cpp</file>
     </qresource>
 </RCC>

@@ -407,7 +407,7 @@ class ConvertCStringToNSString: public CppQuickFixFactory
 {
 #ifdef WITH_TESTS
 public:
-    static QObject *createTest();
+    static QObject *createTest() { return new QObject; }
 #endif
 
 private:
@@ -451,7 +451,7 @@ class TranslateStringLiteral: public CppQuickFixFactory
 {
 #ifdef WITH_TESTS
 public:
-    static QObject *createTest();
+    static QObject *createTest() { return new QObject; }
 #endif
 
 private:
@@ -538,7 +538,7 @@ class WrapStringLiteral: public CppQuickFixFactory
 {
 #ifdef WITH_TESTS
 public:
-    static QObject *createTest();
+    static QObject *createTest() { return new QObject; }
 #endif
 
 private:
@@ -611,12 +611,6 @@ private:
  */
 class EscapeStringLiteral : public CppQuickFixFactory
 {
-#ifdef WITH_TESTS
-public:
-    static QObject *createTest();
-#endif
-
-private:
     void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override
     {
         const QList<AST *> &path = interface.path();
@@ -653,94 +647,15 @@ private:
     }
 };
 
-#ifdef WITH_TESTS
-using namespace Tests;
-
-class EscapeStringLiteralTest : public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void test_data()
-    {
-        QTest::addColumn<QByteArray>("original");
-        QTest::addColumn<QByteArray>("expected");
-
-        // Escape String Literal as UTF-8 (no-trigger)
-        QTest::newRow("EscapeStringLiteral_notrigger")
-            << QByteArray("const char *notrigger = \"@abcdef \\a\\n\\\\\";\n")
-            << QByteArray();
-
-        // Escape String Literal as UTF-8
-        QTest::newRow("EscapeStringLiteral")
-            << QByteArray("const char *utf8 = \"@\xe3\x81\x82\xe3\x81\x84\";\n")
-            << QByteArray("const char *utf8 = \"\\xe3\\x81\\x82\\xe3\\x81\\x84\";\n");
-
-        // Unescape String Literal as UTF-8 (from hexdecimal escape sequences)
-        QTest::newRow("UnescapeStringLiteral_hex")
-            << QByteArray("const char *hex_escaped = \"@\\xe3\\x81\\x82\\xe3\\x81\\x84\";\n")
-            << QByteArray("const char *hex_escaped = \"\xe3\x81\x82\xe3\x81\x84\";\n");
-
-        // Unescape String Literal as UTF-8 (from octal escape sequences)
-        QTest::newRow("UnescapeStringLiteral_oct")
-            << QByteArray("const char *oct_escaped = \"@\\343\\201\\202\\343\\201\\204\";\n")
-            << QByteArray("const char *oct_escaped = \"\xe3\x81\x82\xe3\x81\x84\";\n");
-
-        // Unescape String Literal as UTF-8 (triggered but no change)
-        QTest::newRow("UnescapeStringLiteral_noconv")
-            << QByteArray("const char *escaped_ascii = \"@\\x1b\";\n")
-            << QByteArray("const char *escaped_ascii = \"\\x1b\";\n");
-
-        // Unescape String Literal as UTF-8 (no conversion because of invalid utf-8)
-        QTest::newRow("UnescapeStringLiteral_invalid")
-            << QByteArray("const char *escaped = \"@\\xe3\\x81\";\n")
-            << QByteArray("const char *escaped = \"\\xe3\\x81\";\n");
-
-        QTest::newRow("escape string literal: simple case")
-            << QByteArray(R"(const char *str = @"àxyz";)")
-            << QByteArray(R"(const char *str = "\xc3\xa0xyz";)");
-        QTest::newRow("escape string literal: simple case reverse")
-            << QByteArray(R"(const char *str = @"\xc3\xa0xyz";)")
-            << QByteArray(R"(const char *str = "àxyz";)");
-        QTest::newRow("escape string literal: raw string literal")
-            << QByteArray(R"x(const char *str = @R"(àxyz)";)x")
-            << QByteArray(R"x(const char *str = R"(\xc3\xa0xyz)";)x");
-        QTest::newRow("escape string literal: splitting required")
-            << QByteArray(R"(const char *str = @"àf23бgб1";)")
-            << QByteArray(R"(const char *str = "\xc3\xa0""f23\xd0\xb1g\xd0\xb1""1";)");
-        QTest::newRow("escape string literal: unescape adjacent literals")
-            << QByteArray(R"(const char *str = @"\xc3\xa0""f23\xd0\xb1g\xd0\xb1""1";)")
-            << QByteArray(R"(const char *str = "àf23бgб1";)");
-    }
-
-    void test()
-    {
-        QFETCH(QByteArray, original);
-        QFETCH(QByteArray, expected);
-
-        EscapeStringLiteral factory;
-        QuickFixOperationTest(singleDocument(original, expected), &factory);
-    }
-};
-
-QObject *EscapeStringLiteral::createTest() { return new EscapeStringLiteralTest; }
-QObject *ConvertCStringToNSString::createTest() { return new QObject; }
-QObject *WrapStringLiteral::createTest() { return new QObject; }
-QObject *TranslateStringLiteral::createTest() { return new QObject; }
-
-#endif // WITH_TESTS
 } // namespace
 
 void registerConvertStringLiteralQuickfixes()
 {
     CppQuickFixFactory::registerFactory<ConvertCStringToNSString>();
-    CppQuickFixFactory::registerFactory<EscapeStringLiteral>();
+    CppQuickFixFactory::registerFactoryWithStandardTest<EscapeStringLiteral>(
+        "EscapeStringLiteralTest");
     CppQuickFixFactory::registerFactory<TranslateStringLiteral>();
     CppQuickFixFactory::registerFactory<WrapStringLiteral>();
 }
 
 } // namespace CppEditor::Internal
-
-#ifdef WITH_TESTS
-#include <convertstringliteral.moc>
-#endif
