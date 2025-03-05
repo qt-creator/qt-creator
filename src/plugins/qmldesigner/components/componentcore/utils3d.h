@@ -43,6 +43,8 @@ ModelNode selectedTexture(AbstractView *view);
 ModelNode resolveSceneEnv(AbstractView *view, int sceneId);
 
 QList<ModelNode> getSelectedModels(AbstractView *view);
+QList<ModelNode> getSelectedTextures(AbstractView *view);
+QList<ModelNode> getSelectedMaterials(AbstractView *view);
 void applyMaterialToModels(AbstractView *view, const ModelNode &material,
                            const QList<ModelNode> &models, bool add = false);
 

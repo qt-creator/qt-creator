@@ -237,12 +237,12 @@ void MaterialBrowserWidget::updateMaterialPreview(const ModelNode &node, const Q
         QMetaObject::invokeMethod(m_quickWidget->rootObject(), "refreshPreview", Q_ARG(QVariant, idx));
 }
 
-void MaterialBrowserWidget::deleteSelectedItem()
+void MaterialBrowserWidget::deleteSelectedItems()
 {
-    if (m_materialSectionFocused)
-        m_materialBrowserModel->deleteSelectedMaterial();
-    else
-        m_materialBrowserTexturesModel->deleteSelectedTexture();
+    m_materialBrowserView->executeInTransaction(__FUNCTION__, [this] {
+        m_materialBrowserModel->deleteSelectedMaterials();
+        m_materialBrowserTexturesModel->deleteSelectedTextures();
+    });
 }
 
 QList<QToolButton *> MaterialBrowserWidget::createToolBarWidgets()
@@ -312,7 +312,7 @@ void MaterialBrowserWidget::acceptBundleTextureDropOnMaterial(int matIndex, cons
         ModelNode tex = CreateTexture(m_materialBrowserView).execute(bundleTexPath.toLocalFile());
         QTC_ASSERT(tex.isValid(), return);
 
-        m_materialBrowserModel->selectMaterial(matIndex);
+        mat.model()->setSelectedModelNodes({mat});
         m_materialBrowserView->applyTextureToMaterial({mat}, tex);
     });
 
@@ -341,7 +341,7 @@ void MaterialBrowserWidget::acceptAssetsDropOnMaterial(int matIndex, const QList
         ModelNode tex = CreateTexture(m_materialBrowserView).execute(imageSrc);
         QTC_ASSERT(tex.isValid(), return);
 
-        m_materialBrowserModel->selectMaterial(matIndex);
+        mat.model()->setSelectedModelNodes({mat});
         m_materialBrowserView->applyTextureToMaterial({mat}, tex);
     });
 
@@ -355,7 +355,7 @@ void MaterialBrowserWidget::acceptTextureDropOnMaterial(int matIndex, const QStr
     ModelNode tex = m_materialBrowserView->modelNodeForInternalId(texId.toInt());
 
     if (mat.isValid() && tex.isValid()) {
-        m_materialBrowserModel->selectMaterial(matIndex);
+        mat.model()->setSelectedModelNodes({mat});
         m_materialBrowserView->applyTextureToMaterial({mat}, tex);
     }
 
@@ -371,10 +371,10 @@ void MaterialBrowserWidget::focusMaterialSection(bool focusMatSec)
     }
 }
 
-void MaterialBrowserWidget::addMaterialToContentLibrary()
+void MaterialBrowserWidget::addMaterialToContentLibrary(const QVariant &material)
 {
     QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
-    ModelNode mat = m_materialBrowserModel->selectedMaterial();
+    ModelNode mat = material.value<ModelNode>();
     m_materialBrowserView->emitCustomNotification("add_material_to_content_lib", {mat},
                                                   {m_previewImageProvider->getPixmap(mat)}); // to ContentLibrary
 }
@@ -384,10 +384,13 @@ void MaterialBrowserWidget::importMaterial()
     m_bundleHelper->importBundleToProject();
 }
 
-void MaterialBrowserWidget::exportMaterial()
+void MaterialBrowserWidget::exportMaterial(int idx)
 {
-    ModelNode mat = m_materialBrowserModel->selectedMaterial();
+    ModelNode mat = m_materialBrowserModel->materialAt(idx);
+    QTC_ASSERT(mat, return);
+
     m_bundleHelper->exportBundle({mat}, m_previewImageProvider->getPixmap(mat));
+    m_materialBrowserModel->updateMaterialComponent(idx);
 }
 
 void MaterialBrowserWidget::addQtQuick3D()

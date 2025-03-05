@@ -50,7 +50,7 @@ public:
     QPointer<MaterialBrowserModel> materialBrowserModel() const;
     QPointer<MaterialBrowserTexturesModel> materialBrowserTexturesModel() const;
     void updateMaterialPreview(const ModelNode &node, const QPixmap &pixmap);
-    void deleteSelectedItem();
+    void deleteSelectedItems();
 
     Q_INVOKABLE void handleSearchFilterChanged(const QString &filterText);
     Q_INVOKABLE void startDragMaterial(int index, const QPointF &mousePos);
@@ -63,9 +63,9 @@ public:
     Q_INVOKABLE void acceptAssetsDropOnMaterial(int matIndex, const QList<QUrl> &urls);
     Q_INVOKABLE void acceptTextureDropOnMaterial(int matIndex, const QString &texId);
     Q_INVOKABLE void focusMaterialSection(bool focusMatSec);
-    Q_INVOKABLE void addMaterialToContentLibrary();
+    Q_INVOKABLE void addMaterialToContentLibrary(const QVariant &material);
     Q_INVOKABLE void importMaterial();
-    Q_INVOKABLE void exportMaterial();
+    Q_INVOKABLE void exportMaterial(int idx);
     Q_INVOKABLE void addQtQuick3D();
 
     StudioQuickWidget *quickWidget() const;

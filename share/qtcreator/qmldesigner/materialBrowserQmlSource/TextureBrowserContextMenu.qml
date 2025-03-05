@@ -11,20 +11,27 @@ StudioControls.Menu {
     id: root
 
     property int textureInternalId: -1
+    property int textureIndex: -1
 
     property var materialBrowserTexturesModel: MaterialBrowserBackend.materialBrowserTexturesModel
 
     function popupMenu(targetTexture = null)
     {
         root.textureInternalId = targetTexture ? targetTexture.textureInternalId : -1
+        root.textureIndex = targetTexture ? targetTexture.index : -1
 
         materialBrowserTexturesModel.updateSceneEnvState()
-        materialBrowserTexturesModel.updateModelSelectionState()
+        materialBrowserTexturesModel.updateSelectionState()
 
         popup()
     }
 
     closePolicy: StudioControls.Menu.CloseOnEscape | StudioControls.Menu.CloseOnPressOutside
+
+    onClosed: {
+        root.textureIndex = -1
+        root.textureInternalId = -1
+    }
 
     StudioControls.MenuItem {
         text: qsTr("Apply to selected model")
@@ -33,8 +40,8 @@ StudioControls.Menu {
     }
 
     StudioControls.MenuItem {
-        text: qsTr("Apply to selected material")
-        enabled: root.textureInternalId >= 0 && MaterialBrowserBackend.materialBrowserModel.selectedIndex >= 0
+        text: qsTr("Apply to selected material(s)")
+        enabled: root.textureInternalId >= 0 && materialBrowserTexturesModel.onlyMaterialsSelected
         onTriggered: materialBrowserTexturesModel.applyToSelectedMaterial(root.textureInternalId)
     }
 
@@ -49,13 +56,13 @@ StudioControls.Menu {
     StudioControls.MenuItem {
         text: qsTr("Duplicate")
         enabled: root.textureInternalId >= 0
-        onTriggered: materialBrowserTexturesModel.duplicateTexture(materialBrowserTexturesModel.selectedIndex)
+        onTriggered: materialBrowserTexturesModel.duplicateTexture(root.textureIndex)
     }
 
     StudioControls.MenuItem {
         text: qsTr("Delete")
         enabled: root.textureInternalId >= 0
-        onTriggered: materialBrowserTexturesModel.deleteTexture(materialBrowserTexturesModel.selectedIndex)
+        onTriggered: materialBrowserTexturesModel.deleteTexture(root.textureIndex)
     }
 
     StudioControls.MenuSeparator {}

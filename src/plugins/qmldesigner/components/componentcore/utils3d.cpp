@@ -234,6 +234,26 @@ QList<ModelNode> getSelectedModels(AbstractView *view)
     });
 }
 
+QList<ModelNode> getSelectedTextures(AbstractView *view)
+{
+    if (!view || !view->model())
+        return {};
+
+    return Utils::filtered(view->selectedModelNodes(), [](const ModelNode &node) {
+        return node.metaInfo().isQtQuick3DTexture();
+    });
+}
+
+QList<ModelNode> getSelectedMaterials(AbstractView *view)
+{
+    if (!view || !view->model())
+        return {};
+
+    return Utils::filtered(view->selectedModelNodes(), [](const ModelNode &node) {
+        return node.metaInfo().isQtQuick3DMaterial();
+    });
+}
+
 void applyMaterialToModels(AbstractView *view, const ModelNode &material,
                            const QList<ModelNode> &models, bool add)
 {

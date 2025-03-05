@@ -16,7 +16,9 @@ Item {
     readonly property bool enableUiElements: materialBrowserModel.hasMaterialLibrary
                                              && materialBrowserModel.hasQuick3DImport
 
-    property var currMaterialItem: null
+    property MaterialItem currMaterialItem: null
+    property TextureItem currTextureItem: null
+
     property var rootView: MaterialBrowserBackend.rootView
     property var materialBrowserModel: MaterialBrowserBackend.materialBrowserModel
     property var materialBrowserTexturesModel: MaterialBrowserBackend.materialBrowserTexturesModel
@@ -64,7 +66,7 @@ Item {
 
     // Called from C++ to refresh a preview material after it changes
     function refreshPreview(idx) {
-        var item = materialRepeater.itemAt(idx);
+        var item = materialRepeater.itemAt(idx)
         if (item)
             item.refreshPreview()
     }
@@ -135,15 +137,18 @@ Item {
         let rowIdx = -1
         let matSecFocused = rootView.materialSectionFocused && materialsSection.expanded
         let texSecFocused = !rootView.materialSectionFocused && texturesSection.expanded
+        let selectedMaterialIndex = root.currMaterialItem ? root.currMaterialItem.itemIndex : -1
+        let selectedTextureIndex = root.currTextureItem ? root.currTextureItem.itemIndex : -1
 
         if (delta < 0) {
             if (matSecFocused) {
-                targetIdx = root.nextVisibleItem(materialBrowserModel.selectedIndex,
+                targetIdx = root.nextVisibleItem(selectedMaterialIndex,
                                                  delta, materialBrowserModel)
+
                 if (targetIdx >= 0)
                     materialBrowserModel.selectMaterial(targetIdx)
             } else if (texSecFocused) {
-                targetIdx = root.nextVisibleItem(materialBrowserTexturesModel.selectedIndex,
+                targetIdx = root.nextVisibleItem(selectedTextureIndex,
                                                  delta, materialBrowserTexturesModel)
                 if (targetIdx >= 0) {
                     materialBrowserTexturesModel.selectTexture(targetIdx)
@@ -152,7 +157,7 @@ Item {
                     if (targetIdx >= 0) {
                         if (delta !== -1) {
                             // Try to match column when switching between materials/textures
-                            origRowIdx = root.rowIndexOfItem(materialBrowserTexturesModel.selectedIndex,
+                            origRowIdx = root.rowIndexOfItem(selectedTextureIndex,
                                                              -delta, materialBrowserTexturesModel)
                             if (root.visibleItemCount(materialBrowserModel) > origRowIdx) {
                                 rowIdx = root.rowIndexOfItem(targetIdx, -delta, materialBrowserModel)
@@ -179,7 +184,7 @@ Item {
             }
         } else if (delta > 0) {
             if (matSecFocused) {
-                targetIdx = root.nextVisibleItem(materialBrowserModel.selectedIndex,
+                targetIdx = root.nextVisibleItem(selectedMaterialIndex,
                                                  delta, materialBrowserModel)
                 if (targetIdx >= 0) {
                     materialBrowserModel.selectMaterial(targetIdx)
@@ -188,7 +193,7 @@ Item {
                     if (targetIdx >= 0) {
                         if (delta !== 1) {
                             // Try to match column when switching between materials/textures
-                            origRowIdx = root.rowIndexOfItem(materialBrowserModel.selectedIndex,
+                            origRowIdx = root.rowIndexOfItem(selectedMaterialIndex,
                                                              delta, materialBrowserModel)
                             if (root.visibleItemCount(materialBrowserTexturesModel) > origRowIdx) {
                                 if (origRowIdx > 0) {
@@ -207,7 +212,7 @@ Item {
                     }
                 }
             } else if (texSecFocused) {
-                targetIdx = root.nextVisibleItem(materialBrowserTexturesModel.selectedIndex,
+                targetIdx = root.nextVisibleItem(selectedTextureIndex,
                                                  delta, materialBrowserTexturesModel)
                 if (targetIdx >= 0)
                     materialBrowserTexturesModel.selectTexture(targetIdx)
@@ -300,14 +305,13 @@ Item {
 
     function ensureSelectedVisible() {
         if (rootView.materialSectionFocused && materialsSection.expanded && root.currMaterialItem
-                && materialBrowserModel.isVisible(materialBrowserModel.selectedIndex)) {
+                && root.currMaterialItem.matchedSearch) {
             return root.ensureVisible(root.currMaterialItem.mapToItem(scrollView.contentItem, 0, 0).y,
                                       root.currMaterialItem.height)
-        } else if (!rootView.materialSectionFocused && texturesSection.expanded) {
-            let currItem = texturesRepeater.itemAt(materialBrowserTexturesModel.selectedIndex)
-            if (currItem && materialBrowserTexturesModel.isVisible(materialBrowserTexturesModel.selectedIndex))
-                return root.ensureVisible(currItem.mapToItem(scrollView.contentItem, 0, 0).y,
-                                          currItem.height)
+        } else if (!rootView.materialSectionFocused && texturesSection.expanded && root.currTextureItem
+                   && root.currTextureItem.matchedSearch) {
+            return root.ensureVisible(root.currTextureItem.mapToItem(scrollView.contentItem, 0, 0).y,
+                                      root.currTextureItem.height)
         } else {
             return root.ensureVisible(0, 90)
         }
@@ -341,16 +345,6 @@ Item {
     Connections {
         target: materialBrowserModel
 
-        function onSelectedIndexChanged() {
-            // commit rename upon changing selection
-            if (root.currMaterialItem)
-                root.currMaterialItem.forceFinishEditing();
-
-            root.currMaterialItem = materialRepeater.itemAt(materialBrowserModel.selectedIndex);
-
-            ensureTimer.start()
-        }
-
         function onIsEmptyChanged() {
             ensureTimer.start()
         }
@@ -358,10 +352,6 @@ Item {
 
     Connections {
         target: materialBrowserTexturesModel
-
-        function onSelectedIndexChanged() {
-            ensureTimer.start()
-        }
 
         function onIsEmptyChanged() {
             ensureTimer.start()
@@ -706,10 +696,24 @@ Item {
                                 }
 
                                 delegate: MaterialItem {
+                                    id: matItem
+
                                     width: root.cellWidth
                                     height: root.cellHeight
+                                    rightClicked: ctxMenu.targetItem === this
 
                                     onShowContextMenu: ctxMenu.popupMenu(this, model)
+
+                                    onSelectedChanged: {
+                                        matItem.forceFinishEditing()
+
+                                        if (matItem.selected) {
+                                            root.currMaterialItem = this
+                                            ensureTimer.start()
+                                        } else if (root.currMaterialItem === this) {
+                                            root.currMaterialItem = null
+                                        }
+                                    }
                                 }
 
                                 onCountChanged: root.responsiveResize(root.width, root.height)
@@ -717,7 +721,7 @@ Item {
                         }
 
                         Text {
-                            text: qsTr("No match found.");
+                            text: qsTr("No match found.")
                             color: StudioTheme.Values.themeTextColor
                             font.pixelSize: StudioTheme.Values.baseFontSize
                             leftPadding: 10
@@ -801,10 +805,24 @@ Item {
 
                                 model: materialBrowserTexturesModel
                                 delegate: TextureItem {
+                                    id: texItem
+
                                     width: root.cellWidth
                                     height: root.cellHeight
+                                    rightClicked: ctxMenuTextures.textureIndex === index
 
                                     onShowContextMenu: ctxMenuTextures.popupMenu(model)
+
+                                    onSelectedChanged: {
+                                        texItem.forceFinishEditing()
+
+                                        if (texItem.selected) {
+                                            root.currTextureItem = this
+                                            ensureTimer.start()
+                                        } else if (root.currTextureItem === this) {
+                                            root.currTextureItem = null
+                                        }
+                                    }
                                 }
 
                                 onCountChanged: root.responsiveResize(root.width, root.height)
@@ -812,7 +830,7 @@ Item {
                         }
 
                         Text {
-                            text: qsTr("No match found.");
+                            text: qsTr("No match found.")
                             color: StudioTheme.Values.themeTextColor
                             font.pixelSize: StudioTheme.Values.baseFontSize
                             leftPadding: 10
