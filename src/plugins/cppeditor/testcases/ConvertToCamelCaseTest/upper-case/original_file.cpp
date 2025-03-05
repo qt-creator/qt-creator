@@ -1,0 +1,1 @@
+void @UPPER_CASE_FUNCTION();

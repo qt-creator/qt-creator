@@ -79,12 +79,19 @@ public:
         new Factory;
 #ifdef WITH_TESTS
         cppEditor()->addTestCreator([testName] {
-            const auto obj = new Internal::Tests::CppQuickFixTestObject(std::make_unique<Factory>());
+            auto factory = std::make_unique<Factory>();
+            factory->enableTestMode();
+            const auto obj = new Internal::Tests::CppQuickFixTestObject(std::move(factory));
             obj->setObjectName(testName);
             return obj;
         });
 #endif
     }
+
+    void enableTestMode() { m_testMode = true; }
+
+protected:
+    bool testMode() const { return m_testMode; }
 
 private:
     /*!
@@ -100,6 +107,7 @@ private:
     static ExtensionSystem::IPlugin *cppEditor();
 
     std::optional<QVersionNumber> m_clangdReplacement;
+    bool m_testMode = false;
 };
 
 } // namespace CppEditor

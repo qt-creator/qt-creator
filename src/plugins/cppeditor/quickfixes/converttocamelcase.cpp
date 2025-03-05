@@ -72,14 +72,6 @@ private:
 */
 class ConvertToCamelCase : public CppQuickFixFactory
 {
-public:
-    ConvertToCamelCase(bool test = false) : m_test(test) {}
-
-#ifdef WITH_TESTS
-    static QObject *createTest();
-#endif
-
-private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
         const QList<AST *> &path = interface.path();
@@ -108,77 +100,19 @@ private:
             return;
         for (int i = 1; i < nameString.length() - 1; ++i) {
             if (ConvertToCamelCaseOp::isConvertibleUnderscore(nameString, i)) {
-                result << new ConvertToCamelCaseOp(interface, nameString, astForName, m_test);
+                result << new ConvertToCamelCaseOp(interface, nameString, astForName, testMode());
                 return;
             }
         }
     }
-
-    const bool m_test;
 };
 
-#ifdef WITH_TESTS
-using namespace Tests;
-
-class ConvertToCamelCaseTest : public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void test_data()
-    {
-        QTest::addColumn<QByteArray>("original");
-        QTest::addColumn<QByteArray>("expected");
-
-        using QByteArray = QByteArray;
-
-        QTest::newRow("convert to camel case: normal")
-            << QByteArray("void @lower_case_function();\n")
-            << QByteArray("void lowerCaseFunction();\n");
-        QTest::newRow("convert to camel case: already camel case")
-            << QByteArray("void @camelCaseFunction();\n")
-            << QByteArray();
-        QTest::newRow("convert to camel case: no underscores (lower case)")
-            << QByteArray("void @lowercasefunction();\n")
-            << QByteArray();
-        QTest::newRow("convert to camel case: no underscores (upper case)")
-            << QByteArray("void @UPPERCASEFUNCTION();\n")
-            << QByteArray();
-        QTest::newRow("convert to camel case: non-applicable underscore")
-            << QByteArray("void @m_a_member;\n")
-            << QByteArray("void m_aMember;\n");
-        QTest::newRow("convert to camel case: upper case")
-            << QByteArray("void @UPPER_CASE_FUNCTION();\n")
-            << QByteArray("void upperCaseFunction();\n");
-        QTest::newRow("convert to camel case: partially camel case already")
-            << QByteArray("void mixed@_andCamelCase();\n")
-            << QByteArray("void mixedAndCamelCase();\n");
-        QTest::newRow("convert to camel case: wild mix")
-            << QByteArray("void @WhAt_TODO_hErE();\n")
-            << QByteArray("void WhAtTODOHErE();\n");
-    }
-
-    void test()
-    {
-        QFETCH(QByteArray, original);
-        QFETCH(QByteArray, expected);
-        ConvertToCamelCase factory(true);
-        QuickFixOperationTest(singleDocument(original, expected), &factory);
-    }
-};
-
-QObject *ConvertToCamelCase::createTest() { return new ConvertToCamelCaseTest; }
-
-#endif // WITH_TESTS
 } // namespace
 
 void registerConvertToCamelCaseQuickfix()
 {
-    CppQuickFixFactory::registerFactory<ConvertToCamelCase>();
+    CppQuickFixFactory::registerFactoryWithStandardTest<ConvertToCamelCase>(
+        "ConvertToCamelCaseTest");
 }
 
 } // namespace CppEditor::Internal
-
-#ifdef WITH_TESTS
-#include <converttocamelcase.moc>
-#endif

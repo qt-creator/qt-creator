@@ -289,5 +289,18 @@
         <file>testcases/EscapeStringLiteralTest/unescape-utf8-invalid/original_file.cpp</file>
         <file>testcases/EscapeStringLiteralTest/unescape-utf8-no-change/expected_file.cpp</file>
         <file>testcases/EscapeStringLiteralTest/unescape-utf8-no-change/original_file.cpp</file>
+        <file>testcases/ConvertToCamelCaseTest/already-camel-case/original_file.cpp</file>
+        <file>testcases/ConvertToCamelCaseTest/no-underscores/original_file.cpp</file>
+        <file>testcases/ConvertToCamelCaseTest/no-underscores2/original_file.cpp</file>
+        <file>testcases/ConvertToCamelCaseTest/non-applicable-underscore/expected_file.cpp</file>
+        <file>testcases/ConvertToCamelCaseTest/non-applicable-underscore/original_file.cpp</file>
+        <file>testcases/ConvertToCamelCaseTest/normal/expected_file.cpp</file>
+        <file>testcases/ConvertToCamelCaseTest/normal/original_file.cpp</file>
+        <file>testcases/ConvertToCamelCaseTest/partially-camel-case/expected_file.cpp</file>
+        <file>testcases/ConvertToCamelCaseTest/partially-camel-case/original_file.cpp</file>
+        <file>testcases/ConvertToCamelCaseTest/upper-case/expected_file.cpp</file>
+        <file>testcases/ConvertToCamelCaseTest/upper-case/original_file.cpp</file>
+        <file>testcases/ConvertToCamelCaseTest/wild-mix/expected_file.cpp</file>
+        <file>testcases/ConvertToCamelCaseTest/wild-mix/original_file.cpp</file>
     </qresource>
 </RCC>
