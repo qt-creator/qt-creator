@@ -182,6 +182,7 @@ static void highlightCodeBlock(
 
 class AnimatedImageHandler : public QObject, public QTextObjectInterface
 {
+    Q_OBJECT
     Q_INTERFACES(QTextObjectInterface)
 
 public:
@@ -740,3 +741,5 @@ void MarkdownBrowser::changeEvent(QEvent *event)
 }
 
 } // namespace Utils
+
+#include "markdownbrowser.moc"

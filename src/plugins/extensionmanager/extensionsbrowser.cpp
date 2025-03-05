@@ -549,7 +549,11 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     applyTf(titleLabel, titleTF);
 
     auto externalRepoSwitch = new Switch("Use external repository");
-    externalRepoSwitch->setToolTip("<html>" + externalRepoWarningNote());
+    externalRepoSwitch->setEnabled(settings().useExternalRepo.isEnabled());
+    if (settings().useExternalRepo.isEnabled())
+        externalRepoSwitch->setToolTip("<html>" + externalRepoWarningNote());
+    else
+        externalRepoSwitch->setToolTip(settings().useExternalRepo.toolTip());
 
     d->searchBox = new SearchBox;
     d->searchBox->setPlaceholderText(Tr::tr("Search"));

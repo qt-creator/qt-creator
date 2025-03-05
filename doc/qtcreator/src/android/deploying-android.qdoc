@@ -503,8 +503,7 @@
 
     Select the \uicontrol {Include default permissions for Qt modules} and
     \uicontrol {Include default features for Qt modules} check boxes to add the
-    permissions needed by Qt libraries. This can be
-    \c {android.permission.WRITE_EXTERNAL_STORAGE} for \l{Qt Core} or
+    permissions needed by Qt libraries, such as
     \c {android.permission.ACCESS_BACKGROUND_LOCATION} for \l{Qt Positioning}.
 
     To add a permission, select it from the list, and then select \uicontrol Add.

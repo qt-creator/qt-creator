@@ -26,7 +26,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
 
-#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/treemodel.h>
@@ -38,6 +37,7 @@
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
+#include <QMetaObject>
 #include <QPainter>
 #include <QPushButton>
 #include <QTimer>
@@ -180,15 +180,16 @@ public:
         return projectExplorerSettings().showAllKits;
     }
 
-    TargetGroupItem *q;
+    TargetGroupItem * const q;
+    Project * const m_project;
     QString m_displayName;
-    Project *m_project;
     bool m_rebuildScheduled = false;
 
     QPointer<QWidget> m_noKitLabel;
     QPointer<QWidget> m_configurePage;
     QPointer<QWidget> m_configuredPage;
     TargetSetupPageWrapper *m_targetSetupPageWrapper = nullptr;
+    QList<QMetaObject::Connection> m_connections;
 };
 
 class ITargetItem : public TypedTreeItem<TreeItem, TargetGroupItem>
@@ -672,12 +673,6 @@ TargetGroupItem::TargetGroupItem(const QString &displayName, Project *project)
     : d(std::make_unique<TargetGroupItemPrivate>(this, project))
 {
     d->m_displayName = displayName;
-    QObject::connect(project, &Project::addedTarget,
-            d.get(), &TargetGroupItemPrivate::handleTargetAdded);
-    QObject::connect(project, &Project::removedTarget,
-            d.get(), &TargetGroupItemPrivate::handleTargetRemoved);
-    QObject::connect(project, &Project::activeTargetChanged,
-            d.get(), &TargetGroupItemPrivate::handleTargetChanged);
 }
 
 TargetGroupItem::~TargetGroupItem() = default;
@@ -685,17 +680,27 @@ TargetGroupItem::~TargetGroupItem() = default;
 TargetGroupItemPrivate::TargetGroupItemPrivate(TargetGroupItem *q, Project *project)
     : q(q), m_project(project)
 {
+    m_connections << QObject::connect(project, &Project::addedTarget,
+                                      this, &TargetGroupItemPrivate::handleTargetAdded);
+    m_connections << QObject::connect(project, &Project::removedTarget,
+                                      this, &TargetGroupItemPrivate::handleTargetRemoved);
+    m_connections << QObject::connect(project, &Project::activeTargetChanged,
+                                      this, &TargetGroupItemPrivate::handleTargetChanged);
+
     // force a signal since the index has changed
-    connect(KitManager::instance(), &KitManager::kitAdded,
-            this, &TargetGroupItemPrivate::handleAddedKit);
-    connect(KitManager::instance(), &KitManager::kitRemoved,
-            this, &TargetGroupItemPrivate::scheduleRebuildContents);
-    connect(KitManager::instance(), &KitManager::kitUpdated,
-            this, &TargetGroupItemPrivate::scheduleRebuildContents);
-    connect(KitManager::instance(), &KitManager::kitsLoaded,
-            this, &TargetGroupItemPrivate::scheduleRebuildContents);
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-            this, &TargetGroupItemPrivate::scheduleRebuildContents);
+    m_connections << connect(KitManager::instance(), &KitManager::kitAdded,
+                             this, &TargetGroupItemPrivate::handleAddedKit);
+    m_connections << connect(KitManager::instance(), &KitManager::kitRemoved,
+                             this, &TargetGroupItemPrivate::scheduleRebuildContents);
+    m_connections << connect(KitManager::instance(), &KitManager::kitUpdated,
+                             this, &TargetGroupItemPrivate::scheduleRebuildContents);
+    m_connections << connect(KitManager::instance(), &KitManager::kitsLoaded,
+                             this, &TargetGroupItemPrivate::scheduleRebuildContents);
+    m_connections << connect(
+        ProjectExplorerPlugin::instance(),
+        &ProjectExplorerPlugin::settingsChanged,
+        this,
+        &TargetGroupItemPrivate::scheduleRebuildContents);
 
     rebuildContents();
 }
@@ -703,6 +708,8 @@ TargetGroupItemPrivate::TargetGroupItemPrivate(TargetGroupItem *q, Project *proj
 TargetGroupItemPrivate::~TargetGroupItemPrivate()
 {
     disconnect();
+    for (const QMetaObject::Connection & c : std::as_const(m_connections))
+        disconnect(c);
 
     delete m_noKitLabel;
     delete m_configurePage;
@@ -834,6 +841,7 @@ void TargetGroupItemPrivate::handleTargetRemoved(Target *target)
     if (ITargetItem *item = q->targetItem(target))
         item->updateSubItems();
     ensureShowMoreItem();
+    QTC_ASSERT(q->parent(), qDebug() << m_displayName; return);
     q->parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(q)),
                          ItemDeactivatedFromBelowRole);
 }

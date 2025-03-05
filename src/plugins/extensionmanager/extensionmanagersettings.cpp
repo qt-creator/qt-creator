@@ -15,6 +15,7 @@
 #include <utils/stylehelper.h>
 
 #include <QGuiApplication>
+#include <QSslSocket>
 
 namespace ExtensionManager::Internal {
 
@@ -32,6 +33,13 @@ ExtensionManagerSettings::ExtensionManagerSettings()
     useExternalRepo.setSettingsKey("UseExternalRepo");
     useExternalRepo.setDefaultValue(false);
     useExternalRepo.setLabelText(Tr::tr("Use external repository"));
+
+    const bool sslSupported = QSslSocket::supportsSsl();
+
+    useExternalRepo.setEnabled(sslSupported);
+    if (!sslSupported) {
+        useExternalRepo.setToolTip(Tr::tr("SSL support is not available."));
+    }
 
     externalRepoUrl.setSettingsKey("ExternalRepoUrl");
     externalRepoUrl.setDefaultValue("https://qc-extensions.qt.io");

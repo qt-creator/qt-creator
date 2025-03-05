@@ -64,6 +64,7 @@ public:
     QTextCharFormat whitespaceFormat;
     QString mimeType;
     bool syntaxInfoUpToDate = false;
+    bool continueRehighlightScheduled = false;
     int highlightStartBlock = 0;
     int highlightEndBlock = 0;
     QSet<int> forceRehighlightBlocks;
@@ -211,7 +212,9 @@ void SyntaxHighlighterPrivate::reformatBlocks(int from, int charsRemoved, int ch
         highlightEndBlock = block.blockNumber();
 
     qCDebug(Log) << "reformat blocks from:" << from << "to:" << from + charsAdded - charsRemoved;
-    reformatBlocks();
+
+    if (!continueRehighlightScheduled)
+        reformatBlocks();
 }
 
 void SyntaxHighlighterPrivate::reformatBlocks()
@@ -219,6 +222,7 @@ void SyntaxHighlighterPrivate::reformatBlocks()
     QElapsedTimer et;
     et.start();
 
+    continueRehighlightScheduled = false;
     syntaxInfoUpToDate = false;
     rehighlightPending = false;
 
@@ -258,6 +262,7 @@ void SyntaxHighlighterPrivate::reformatBlocks()
     foldValidator.finalize();
 
     if (endBlock.isValid() && block.isValid() && block.blockNumber() < endBlock.blockNumber()) {
+        continueRehighlightScheduled = true;
         QMetaObject::invokeMethod(q, &SyntaxHighlighter::continueRehighlight, Qt::QueuedConnection);
         if (forceHighlightOfNextBlock)
             forceRehighlightBlocks << block.blockNumber();

@@ -78,7 +78,7 @@ def prepareFileExternal(fileName, content):
 
     for currentLine in lines:
         if not emptyLine:
-            if len(currentLine) == 1:  # just the line break
+            if currentLine in ('\n', '\r\n'):  # just the line break
                 currentLine = TripleTab + '\n'
                 emptyLine = True
                 test.log("Replaced empty line by 3 tabs.")

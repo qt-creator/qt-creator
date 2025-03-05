@@ -12151,7 +12151,7 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     <message>
         <source>None</source>
         <comment>No skin</comment>
-        <translation type="unfinished"></translation>
+        <translation>Kein</translation>
     </message>
     <message>
         <source>An error occurred while removing the Android AVD &quot;%1&quot; using avdmanager tool.</source>
@@ -12694,19 +12694,19 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
     <message>
         <source>Art: Cleared App Profiles.</source>
-        <translation type="unfinished"></translation>
+        <translation>Art: App Profiles gelöscht.</translation>
     </message>
     <message>
         <source>Art: Clearing App Profiles failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Art: Löschen der App Profiles fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Art: Compiled App Profiles.</source>
-        <translation type="unfinished"></translation>
+        <translation>Art: App Profiles kompiliert.</translation>
     </message>
     <message>
         <source>Art: Compiling App Profiles failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Art: Kompilierung der App Profiles fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Android SDK Manager</source>
@@ -12723,7 +12723,7 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     <message>
         <source>All</source>
         <comment>Show all packages</comment>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Show Packages</source>
@@ -13386,7 +13386,7 @@ und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlaube
     </message>
     <message>
         <source>Cannot debug: Invalid target information.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann nicht debuggen: Ungültige Zielinformation.</translation>
     </message>
     <message>
         <source>Cannot debug: Only QML and native applications are supported.</source>
@@ -13599,12 +13599,12 @@ Warnung: Dies ist eine experimentelle Funktion und könnte dazu führen, dass di
     </message>
     <message>
         <source>No Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Tests</translation>
     </message>
     <message>
         <source>All</source>
         <comment>Run tests after build</comment>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Selected</source>
@@ -14818,7 +14818,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Named filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Benannte Filter</translation>
     </message>
     <message>
         <source>Total rows:</source>
@@ -14858,19 +14858,19 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Show All</source>
-        <translation type="unfinished">Alle anzeigen</translation>
+        <translation>Alle anzeigen</translation>
     </message>
     <message>
         <source>Configure dashboards in Preferences &gt; Analyzer &gt; Axivion.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurieren Sie Dashboards in Einstellungen &gt; Analyzer &gt; Axivion.</translation>
     </message>
     <message>
         <source>No Dashboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Dashboard</translation>
     </message>
     <message>
         <source>Show Issues in Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme im Editor anzeigen</translation>
     </message>
     <message>
         <source>Open Issue in Dashboard</source>
@@ -14984,7 +14984,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Project name must be non-empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektname darf nicht leer sein.</translation>
     </message>
     <message>
         <source>Add...</source>
@@ -15000,7 +15000,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Dashboard Servers</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard-Server</translation>
     </message>
     <message>
         <source>Default dashboard server:</source>
@@ -15008,7 +15008,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Misc Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Weitere Einstellungen</translation>
     </message>
     <message>
         <source>unset</source>
@@ -15036,11 +15036,11 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Path must be relative.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad muss relativ sein.</translation>
     </message>
     <message>
         <source>Invalid path elements (. or ..).</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige Pfadelemente (. oder ..).</translation>
     </message>
     <message>
         <source>Analysis path:</source>
@@ -15321,7 +15321,7 @@ a entspricht Problemen, deren Wert den Buchstaben &apos;a&apos; enthält
     <message>
         <source>None</source>
         <comment>No debug server provider</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keiner</translation>
     </message>
     <message>
         <source>Not recognized</source>
@@ -16946,7 +16946,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     <message>
         <source>None</source>
         <comment>No CMake tool</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keins</translation>
     </message>
     <message>
         <source> (Default)</source>
@@ -17663,7 +17663,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Failed to copy &quot;%1&quot; to &quot;%2&quot;: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopieren von &quot;%1&quot; nach &quot;%2&quot; ist fehlgeschlagen: %3</translation>
     </message>
     <message>
         <source>Failed to read file &quot;%1&quot;.</source>
@@ -19509,215 +19509,215 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>CSMes file:</source>
-        <translation type="unfinished"></translation>
+        <translation>CSMes-Datei:</translation>
     </message>
     <message>
         <source>No valid CoverageScanner found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein gültiger CoverageScanner gefunden.</translation>
     </message>
     <message>
         <source>Configure</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurieren</translation>
     </message>
     <message>
         <source>Coco Code Coverage: Reconfiguring...</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco Code Coverage: Konfiguriere neu...</translation>
     </message>
     <message>
         <source>Coco Code Coverage: No working Coco installation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco Code Coverage: Keine funktionierende Coco-Installation.</translation>
     </message>
     <message>
         <source>Coco Code Coverage: Enabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco Code Coverage: Aktiviert.</translation>
     </message>
     <message>
         <source>Disable Coverage</source>
-        <translation type="unfinished"></translation>
+        <translation>Coverage deaktivieren</translation>
     </message>
     <message>
         <source>Coco Code Coverage: Disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco Code Coverage: Deaktiviert.</translation>
     </message>
     <message>
         <source>Enable Coverage</source>
-        <translation type="unfinished"></translation>
+        <translation>Coverage aktivieren</translation>
     </message>
     <message>
         <source>Save &amp;&amp; Re-configure</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichern &amp;&amp; neu konfigurieren</translation>
     </message>
     <message>
         <source>Additional CMake options: </source>
-        <translation type="unfinished"></translation>
+        <translation>Zusätzliche CMake-Optionen: </translation>
     </message>
     <message>
         <source>Initial cache script: </source>
-        <translation type="unfinished"></translation>
+        <translation>Skript für initialen Cache: </translation>
     </message>
     <message>
         <source>Overwrite file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei &quot;%1&quot; überschreiben.</translation>
     </message>
     <message>
         <source>Write file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei &quot;%1&quot; schreiben.</translation>
     </message>
     <message>
         <source>Coco Code Coverage</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco Code Coverage</translation>
     </message>
     <message>
         <source>Documentation</source>
-        <translation type="unfinished">Dokumentation</translation>
+        <translation>Dokumentation</translation>
     </message>
     <message>
         <source>Revert</source>
-        <translation type="unfinished">Rückgängig machen</translation>
+        <translation>Rückgängig machen</translation>
     </message>
     <message>
         <source>CoverageScanner options:</source>
-        <translation type="unfinished"></translation>
+        <translation>CoverageScanner-Optionen:</translation>
     </message>
     <message>
         <source>Exclude File...</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei ausschließen...</translation>
     </message>
     <message>
         <source>Exclude Directory...</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis ausschließen...</translation>
     </message>
     <message>
         <source>These settings are stored in</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Einstellungen werden gespeichert in</translation>
     </message>
     <message>
         <source>Changed Build Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Geänderte Build-Einstellungen</translation>
     </message>
     <message>
         <source>Code for the end of the file &quot;%1&quot; to override the built-in declarations. Only needed in special cases.</source>
-        <translation type="unfinished"></translation>
+        <translation>Code für das Ende der Datei &quot;%1&quot;, um die integrierten Deklarationen zu überschreiben. Wird nur in Ausnahmefällen benötigt.</translation>
     </message>
     <message>
         <source>Enable code coverage for build configuration &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Code Coverage für Build-Konfiguration &quot;%1&quot; aktivieren</translation>
     </message>
     <message>
         <source>Coco is not installed correctly: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco ist nicht korrekt installiert: %1</translation>
     </message>
     <message>
         <source>Build Configuration changed to &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Konfiguration wurde zu &quot;%1&quot; geändert.</translation>
     </message>
     <message>
         <source>Re-configuring stopped by user.</source>
-        <translation type="unfinished"></translation>
+        <translation>Neukonfiguration wurde durch den Benutzer gestoppt.</translation>
     </message>
     <message>
         <source>Error when configuring with &quot;%1&quot;. Check General Messages for more information.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Konfigurieren mit &quot;%1&quot;. Prüfen Sie die Allgemeinen Ausgaben für weitere Informationen.</translation>
     </message>
     <message>
         <source>Stop Re-configuring</source>
-        <translation type="unfinished"></translation>
+        <translation>Neukonfiguration stoppen</translation>
     </message>
     <message>
         <source>Re-configure</source>
-        <translation type="unfinished"></translation>
+        <translation>Neu konfigurieren</translation>
     </message>
     <message>
         <source>Override &lt;&lt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;&lt; Überschreiben</translation>
     </message>
     <message>
         <source>Override &gt;&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&gt;&gt; Überschreiben</translation>
     </message>
     <message>
         <source>The Coco installation path is not set correctly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Installationspfad von Coco ist nicht korrekt gesetzt.</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Bearbeiten</translation>
     </message>
     <message>
         <source>Stop re-configuring.</source>
-        <translation type="unfinished"></translation>
+        <translation>Neukonfiguration stoppen.</translation>
     </message>
     <message>
         <source>Re-configure.</source>
-        <translation type="unfinished"></translation>
+        <translation>Neu konfigurieren.</translation>
     </message>
     <message>
         <source>Reload file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei &quot;%1&quot; neu laden.</translation>
     </message>
     <message>
         <source>File to Exclude from Instrumentation</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei, die von der Instrumentierung ausgeschlossen werden soll</translation>
     </message>
     <message>
         <source>Directory to Exclude from Instrumentation</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis, das von der Instrumentierung ausgeschlossen werden soll</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Speichern</translation>
+        <translation>Speichern</translation>
     </message>
     <message>
         <source>Additional qmake arguments: </source>
-        <translation type="unfinished"></translation>
+        <translation>Zusätzliche qmake-Argumente: </translation>
     </message>
     <message>
         <source>Build environment: </source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Umgebung: </translation>
     </message>
     <message>
         <source>Feature file: </source>
-        <translation type="unfinished"></translation>
+        <translation>Feature-Datei: </translation>
     </message>
     <message>
         <source>Error: Coco installation directory not set. (This can&apos;t happen.)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler: Das Installationsverzeichnis von Coco ist nicht gesetzt. (Dies kann nicht passieren.)</translation>
     </message>
     <message>
         <source>Coco Installation Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Installationsverzeichnis von Coco</translation>
     </message>
     <message>
         <source>Error: Coco installation directory not found at &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler: Installationsverzeichnis von Coco wurde nicht in &quot;%1&quot; gefunden.</translation>
     </message>
     <message>
         <source>Error: CoverageScanner at &quot;%1&quot; did not start.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler: Der CoverageScanner in &quot;%1&quot; ist nicht gestartet.</translation>
     </message>
     <message>
         <source>Error: CoverageScanner at &quot;%1&quot; did not finish.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler: Der CoverageScanner in &quot;%1&quot; wurde nicht beendet.</translation>
     </message>
     <message>
         <source>Valid CoverageScanner found at &quot;%1&quot;:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein gültiger CoverageScanner wurde in &quot;%1&quot; gefunden:</translation>
     </message>
     <message>
         <source>Error: CoverageScanner at &quot;%1&quot; did not run correctly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler: Der CoverageScanner in &quot;%1&quot; wurde nicht korrekt ausgeführt.</translation>
     </message>
     <message>
         <source>Found Coco directory &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco-Verzeichnis &quot;%1&quot; gefunden.</translation>
     </message>
     <message>
         <source>Checked Coco directory &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco-Verzeichnis &quot;%1&quot; wurde überprüft.</translation>
     </message>
     <message>
         <source>Coco Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco-Verzeichnis</translation>
     </message>
 </context>
 <context>
@@ -21361,15 +21361,15 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>A directory under version control was detected that is supported by the %1 plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde ein Verzeichnis unter Versionskontrolle erkannt, das vom Plugin &quot;%1&quot; unterstützt wird.</translation>
     </message>
     <message>
         <source>Enable %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 aktivieren</translation>
     </message>
     <message>
         <source>The directory &quot;%1&quot; seems to be under version control that can be handled by the disabled %2 plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Verzeichnis &quot;%1&quot; scheint unter einer Versionskontrolle zu stehen, die vom deaktivierten Plugin &quot;%2&quot; unterstützt wird.</translation>
     </message>
     <message>
         <source>%1 repository was detected but %1 is not configured.</source>
@@ -22215,7 +22215,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeiche
     <message>
         <source>None</source>
         <comment>No find flags</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>, </source>
@@ -22509,7 +22509,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>Help</source>
-        <translation type="unfinished">Hilfe</translation>
+        <translation>Hilfe</translation>
     </message>
     <message>
         <source>The current date (ISO).</source>
@@ -23483,15 +23483,15 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Plugin is already installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Plugin ist bereits installiert.</translation>
     </message>
     <message>
         <source>A plugin with ID &quot;%1&quot; is already installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Plugin mit der ID &quot;%1&quot; ist bereits installiert.</translation>
     </message>
     <message>
         <source>No plugin with ID &quot;%1&quot; is installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Plugin mit der ID &quot;%1&quot; ist installiert.</translation>
     </message>
     <message>
         <source>Check Archive</source>
@@ -23547,7 +23547,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Failed to create directory &quot;%1&quot;.</source>
-        <translation type="unfinished">Das Verzeichnis &quot;%1&quot; konnte nicht erstellt werden.</translation>
+        <translation>Das Verzeichnis &quot;%1&quot; konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <source>Failed to write file &quot;%1&quot;.</source>
@@ -23982,7 +23982,8 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     <message>
         <source>None</source>
         <comment>No default implementation location</comment>
-        <translation type="unfinished"></translation>
+        <translatorcomment>(kein Ort)</translatorcomment>
+        <translation>Keiner</translation>
     </message>
     <message>
         <source>Add %1 Declaration</source>
@@ -24939,11 +24940,11 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
     </message>
     <message>
         <source>A JavaScript expression acting as the return value of a function with two parameters &lt;b&gt;name&lt;/b&gt; and &lt;b&gt;memberName&lt;/b&gt;, where&lt;ul&gt;&lt;li&gt;&lt;b&gt;name&lt;/b&gt; is the &quot;semantic name&quot; as it would be used for a Qt property&lt;/li&gt;&lt;li&gt;&lt;b&gt;memberName&lt;/b&gt; is the name of the member variable.&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein JavaScript-Ausdruck, der als Rückgabewert einer Funktion mit zwei Parametern &lt;b&gt;name&lt;/b&gt; und &lt;b&gt;memberName&lt;/b&gt; benutzt wird. Dabei ist &lt;ul&gt;&lt;li&gt;&lt;b&gt;name&lt;/b&gt; der &quot;semantische Name&quot;, wie er für eine Qt-Property benutzt würde&lt;/li&gt;&lt;li&gt;&lt;b&gt;memberName&lt;/b&gt; der Name der Membervariable.&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <source>A JavaScript expression acting as the return value of a function with a parameter &lt;b&gt;name&lt;/b&gt;, which is the &quot;semantic name&quot; as it would be used for a Qt property.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein JavaScript-Ausdruck, der als Rückgabewert einer Funktion mit einem Parameter &lt;b&gt;name&lt;/b&gt; benutzt wird. Dabei ist &lt;b&gt;name&lt;/b&gt; der &quot;semantische Name&quot;, wie er für eine Qt-Property benutzt würde.</translation>
     </message>
     <message>
         <source>Generate signals with the new value as parameter</source>
@@ -24953,19 +24954,21 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
         <source>How to get from the member variable to the semantic name.
 This is the reverse of the operation above.
 Leave empty to apply heuristics.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wie der semantische Name aus der Membervariable konstruiert wird.
+Dies ist die Umkehrung der vorhergehenden Operation.
+Lassen Sie dies leer, um Heuristiken anwenden zu lassen.</translation>
     </message>
     <message>
         <source>Test</source>
-        <translation type="unfinished">Test</translation>
+        <translation>Test</translation>
     </message>
     <message>
         <source>Hide Test Results</source>
-        <translation type="unfinished"></translation>
+        <translation>Testergebnisse verbergen</translation>
     </message>
     <message>
         <source>The content of the &quot;name&quot; variable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Inhalt der Variable &quot;name&quot;.</translation>
     </message>
     <message>
         <source>Getter attributes:</source>
@@ -25017,11 +25020,11 @@ Leave empty to apply heuristics.</source>
     </message>
     <message>
         <source>Name from member variable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Name aus der Membervariable:</translation>
     </message>
     <message>
         <source>Test input:</source>
-        <translation type="unfinished"></translation>
+        <translation>Testeingabe:</translation>
     </message>
     <message>
         <source>Custom Getter Setter Templates</source>
@@ -25785,7 +25788,7 @@ Flags: %3</translation>
     <message>
         <source>All</source>
         <comment>Symbol search scope</comment>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Projects</source>
@@ -26741,11 +26744,11 @@ Möchten Sie die Daten trotzdem anzeigen?</translation>
     </message>
     <message>
         <source>Enable heap debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Heap-Debugging aktivieren</translation>
     </message>
     <message>
         <source>Allocate memory using the debug heap rather than the normal heap. The debug heap enables additional checks to help diagnose heap related bugs. However it comes at a performance cost when allocating memory in the debugged process.</source>
-        <translation type="unfinished"></translation>
+        <translation>Allokiert Speicher auf dem Debug-Heap statt auf dem normalen Heap. Der Debug-Heap aktiviert zusätzliche Überprüfungen, die dabei helfen sollen, mit dem Heap zusammenhängende Fehler festzustellen. Das wirkt sich allerdings nachteilig auf die Geschwindigkeit aus, wenn Speicher im zu debuggenden Prozess allokiert wird.</translation>
     </message>
     <message>
         <source>Show &quot;std::&quot; Namespace in Types</source>
@@ -26995,7 +26998,7 @@ Sie haben die Wahl zu warten oder das Debuggen abzubrechen.</numerusform>
     </message>
     <message>
         <source>The selected build of GDB supports Python scripting, but the used version %1.%2 is not sufficient for %3. Python %4 or later is required.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser GDB versteht zwar Python-Skripte, aber die genutzte Version %1.%2 ist für %3 ungeeignet. Python %4 oder neuer ist erforderlich.</translation>
     </message>
     <message>
         <source>Retrieving data for stack view thread %1...</source>
@@ -28281,7 +28284,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Attaching to %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Anhängen an %1...</translation>
     </message>
     <message>
         <source>Internal error: The extension %1 cannot be found.
@@ -28978,7 +28981,7 @@ Soll es erneut versucht werden?</translation>
     <message>
         <source>None</source>
         <comment>Symbols Type (No debug information found)</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>Plain</source>
@@ -29219,11 +29222,11 @@ Einzelschritte in das Modul und das Setzen von Haltepunkten nach Datei und Zeile
     </message>
     <message>
         <source>Cannot Debug</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann nicht debuggen</translation>
     </message>
     <message>
         <source>Cannot debug application: Kit has no device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann die Anwendung nicht debuggen: Das Kit hat kein Gerät.</translation>
     </message>
     <message>
         <source>Attach to %1</source>
@@ -29231,7 +29234,7 @@ Einzelschritte in das Modul und das Setzen von Haltepunkten nach Datei und Zeile
     </message>
     <message>
         <source>Attach to QML Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu QML-Port verbinden</translation>
     </message>
     <message>
         <source>Normally, the running server is identified by the IP of the device in the kit and the server port selected above.
@@ -30052,11 +30055,11 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Added a surrogate GDB DAP item for existing entry &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein GDB DAP-Eintrag wurde für den existierenden Eintrag &quot;%1&quot; hinzugefügt.</translation>
     </message>
     <message>
         <source>Added a surrogate GDB DAP item for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein GDB DAP-Eintrag wurde für &quot;%1&quot; hinzugefügt.</translation>
     </message>
     <message>
         <source>Add</source>
@@ -30474,7 +30477,7 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     <message>
         <source>None</source>
         <comment>No debugger</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keiner</translation>
     </message>
     <message>
         <source>Debugger &quot;%1&quot; not found.</source>
@@ -31436,7 +31439,7 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
     <message>
         <source>Failed to start container &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Container &quot;%1&quot; konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Device is shut down</source>
@@ -31886,11 +31889,11 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
     <message>
         <source>Remove...</source>
-        <translation type="unfinished">Entfernen...</translation>
+        <translation>Entfernen...</translation>
     </message>
     <message>
         <source>Update...</source>
-        <translation type="unfinished">Aktualisieren...</translation>
+        <translation>Aktualisieren...</translation>
     </message>
     <message>
         <source>Error</source>
@@ -31971,7 +31974,7 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>All</source>
         <comment>Extensions filter</comment>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Extension packs</source>
@@ -32051,7 +32054,7 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
     <message>
         <source>Updated</source>
-        <translation type="unfinished">Aktualisiert</translation>
+        <translation>Aktualisiert</translation>
     </message>
 </context>
 <context>
@@ -32103,12 +32106,12 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>None</source>
         <comment>No category</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>All</source>
         <comment>Platforms: All</comment>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Plugin Details of %1</source>
@@ -32264,11 +32267,11 @@ Grund: %3</translation>
     </message>
     <message>
         <source>Plugin not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugin wurde nicht gefunden.</translation>
     </message>
     <message>
         <source>It does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es existiert nicht.</translation>
     </message>
     <message>
         <source>The plugin &quot;%1&quot; is specified twice for testing.</source>
@@ -32380,11 +32383,11 @@ Grund: %3</translation>
     </message>
     <message>
         <source>Cannot remove system plugins.</source>
-        <translation type="unfinished"></translation>
+        <translation>System-Plugins können nicht entfernt werden.</translation>
     </message>
     <message>
         <source>Could not determine root folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wurzelverzeichnis konnte nicht bestimmt werden.</translation>
     </message>
     <message>
         <source>%1 (current: &quot;%2&quot;)</source>
@@ -33831,7 +33834,7 @@ Möchten Sie den Branch &quot;%1&quot; im entfernten Repository erzeugen und ihn
     </message>
     <message>
         <source>Create &amp;Branch from %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Branch von %1 erstellen...</translation>
     </message>
     <message>
         <source>&amp;Reset to Change %1</source>
@@ -33992,7 +33995,7 @@ Jetzt Commit ausführen?</translation>
     <message>
         <source>All</source>
         <comment>All branches</comment>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Show Date</source>
@@ -35245,12 +35248,12 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Diff Current File</source>
         <extracomment>Avoid translating &quot;Diff&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Diff für aktuelle Datei</translation>
     </message>
     <message>
         <source>Diff of &quot;%1&quot;</source>
         <extracomment>Avoid translating &quot;Diff&quot;</extracomment>
-        <translation type="unfinished">Diff für &quot;%1&quot;</translation>
+        <translation>Diff für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Meta+G,Meta+D</source>
@@ -35263,12 +35266,12 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Log Current File</source>
         <extracomment>Avoid translating &quot;Log&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Log für aktuelle Datei</translation>
     </message>
     <message>
         <source>Log of &quot;%1&quot;</source>
         <extracomment>Avoid translating &quot;Log&quot;</extracomment>
-        <translation type="unfinished">Log für &quot;%1&quot;</translation>
+        <translation>Log für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Meta+G,Meta+L</source>
@@ -35289,12 +35292,12 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Blame Current File</source>
         <extracomment>Avoid translating &quot;Blame&quot;</extracomment>
-        <translation type="unfinished">Blame für aktuelle Datei</translation>
+        <translation>Blame für aktuelle Datei</translation>
     </message>
     <message>
         <source>Blame for &quot;%1&quot;</source>
         <extracomment>Avoid translating &quot;Blame&quot;</extracomment>
-        <translation type="unfinished">Blame für &quot;%1&quot;</translation>
+        <translation>Blame für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Meta+G,Meta+B</source>
@@ -35307,12 +35310,12 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Instant Blame Current Line</source>
         <extracomment>Avoid translating &quot;Blame&quot;</extracomment>
-        <translation type="unfinished">Instant Blame für aktuelle Zeile</translation>
+        <translation>Instant Blame für aktuelle Zeile</translation>
     </message>
     <message>
         <source>Instant Blame for &quot;%1&quot;</source>
         <extracomment>Avoid translating &quot;Blame&quot;</extracomment>
-        <translation type="unfinished">Instant Blame für &quot;%1&quot;</translation>
+        <translation>Instant Blame für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Stage File for Commit</source>
@@ -35365,32 +35368,32 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Diff Project Directory</source>
         <extracomment>Avoid translating &quot;Diff&quot;</extracomment>
-        <translation type="unfinished">Diff des Projektverzeichnisses</translation>
+        <translation>Diff des Projektverzeichnisses</translation>
     </message>
     <message>
         <source>Diff Directory of Project &quot;%1&quot;</source>
         <extracomment>Avoid translating &quot;Diff&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Diff des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Log Project Directory</source>
         <extracomment>Avoid translating &quot;Log&quot;</extracomment>
-        <translation type="unfinished">Log des Projektverzeichnisses</translation>
+        <translation>Log des Projektverzeichnisses</translation>
     </message>
     <message>
         <source>Log Directory of Project &quot;%1&quot;</source>
         <extracomment>Avoid translating &quot;Log&quot;</extracomment>
-        <translation type="unfinished">Log des Projektverzeichnisses von &quot;%1&quot;</translation>
+        <translation>Log des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Clean Project  Directory...</source>
         <extracomment>Avoid translating &quot;Clean&quot;</extracomment>
-        <translation type="unfinished">Clean des Projektverzeichnisses...</translation>
+        <translation>Clean des Projektverzeichnisses...</translation>
     </message>
     <message>
         <source>Clean Directory of Project &quot;%1&quot;...</source>
         <extracomment>Avoid translating &quot;Clean&quot;</extracomment>
-        <translation type="unfinished">Clean des Projektverzeichnisses von &quot;%1&quot;...</translation>
+        <translation>Clean des Projektverzeichnisses von &quot;%1&quot;...</translation>
     </message>
     <message>
         <source>Meta+G,Meta+Shift+D</source>
@@ -35411,7 +35414,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Status (Include All Untracked)</source>
         <extracomment>Avoid translating &quot;Status&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Status (unversionierte Dateien anzeigen)</translation>
     </message>
     <message>
         <source>&amp;Local Repository</source>
@@ -35420,12 +35423,12 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Log Current Selection</source>
         <extracomment>Avoid translating &quot;Log&quot;</extracomment>
-        <translation type="unfinished">Log der aktuellen Auswahl</translation>
+        <translation>Log der aktuellen Auswahl</translation>
     </message>
     <message>
         <source>Log of &quot;%1&quot; Selection</source>
         <extracomment>Avoid translating &quot;Log&quot;</extracomment>
-        <translation type="unfinished">Log der Auswahl in &quot;%1</translation>
+        <translation>Log der Auswahl in &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Current &amp;Project Directory</source>
@@ -35442,12 +35445,12 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Amend Last Commit...</source>
         <extracomment>Avoid translating &quot;Commit&quot;</extracomment>
-        <translation type="unfinished">Letzten Commit ändern (Amend)...</translation>
+        <translation>Letzten Commit ändern (Amend)...</translation>
     </message>
     <message>
         <source>Fixup Previous Commit...</source>
         <extracomment>Avoid translating &quot;Commit&quot;</extracomment>
-        <translation type="unfinished">Vorangehenden Commit verbessern (Fixup)...</translation>
+        <translation>Vorangehenden Commit verbessern (Fixup)...</translation>
     </message>
     <message>
         <source>Recover Deleted Files</source>
@@ -35456,7 +35459,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Interactive Rebase...</source>
         <extracomment>Avoid translating &quot;Rebase&quot;</extracomment>
-        <translation type="unfinished">Interaktives Rebase...</translation>
+        <translation>Interaktives Rebase...</translation>
     </message>
     <message>
         <source>Update Submodules</source>
@@ -35465,12 +35468,12 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Abort Merge</source>
         <extracomment>Avoid translating &quot;Merge&quot;</extracomment>
-        <translation type="unfinished">Merge abbrechen</translation>
+        <translation>Merge abbrechen</translation>
     </message>
     <message>
         <source>Abort Rebase</source>
         <extracomment>Avoid translating &quot;Rebase&quot;</extracomment>
-        <translation type="unfinished">Rebase abbrechen</translation>
+        <translation>Rebase abbrechen</translation>
     </message>
     <message>
         <source>Skip Rebase</source>
@@ -35480,7 +35483,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Abort Cherry Pick</source>
         <extracomment>Avoid translating &quot;Cherry Pick&quot;</extracomment>
-        <translation type="unfinished">Cherry-Pick abbrechen</translation>
+        <translation>Cherry-Pick abbrechen</translation>
     </message>
     <message>
         <source>Continue Cherry Pick</source>
@@ -35490,7 +35493,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Abort Revert</source>
         <extracomment>Avoid translating &quot;Revert&quot;</extracomment>
-        <translation type="unfinished">Revert abbrechen</translation>
+        <translation>Revert abbrechen</translation>
     </message>
     <message>
         <source>Branches...</source>
@@ -35523,7 +35526,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Stash Unstaged Files</source>
         <extracomment>Avoid translating &quot;Stash&quot;</extracomment>
-        <translation type="unfinished">Stash nicht bereitgestellter Dateien (unstaged)</translation>
+        <translation>Stash nicht vorgemerkter Dateien (unstaged)</translation>
     </message>
     <message>
         <source>Saves the current state of your unstaged files and resets the repository to its staged state.</source>
@@ -35540,7 +35543,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Stash Pop</source>
         <extracomment>Avoid translating &quot;Stash&quot;</extracomment>
-        <translation type="unfinished">Stash Pop</translation>
+        <translation>Stash Pop</translation>
     </message>
     <message>
         <source>Restores changes saved to the stash list using &quot;Stash&quot;.</source>
@@ -37064,11 +37067,11 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Internal error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Fehler.</translation>
     </message>
     <message>
         <source>Only C++ debugging is supported for devices with iOS 17 and later.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für Geräte mit iOS 17 und neuer wird nur C++-Debugging unterstützt.</translation>
     </message>
     <message>
         <source>The dSYM %1 seems to be outdated, it might confuse the debugger.</source>
@@ -37234,7 +37237,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Debugging on devices with iOS 17 and later requires Xcode 16 or later.</source>
-        <translation type="unfinished"></translation>
+        <translation>Debuggen auf Geräten mit iOS 17 und neuer erfordert Xcode 16 oder neuer.</translation>
     </message>
     <message>
         <source>Device type:</source>
@@ -37306,11 +37309,11 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Running failed. Failed to create the temporary output file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Ausführen ist fehlgeschlagen. Das Erstellen der temporären Ausgabedatei ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Failed to retrieve process ID.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Prozess-ID konnte nicht ermittelt werden.</translation>
     </message>
     <message>
         <source>Could not find %1.</source>
@@ -37318,15 +37321,15 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Failed to get a local debugger port.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es konnte kein lokaler Debugger-Port erhalten werden.</translation>
     </message>
     <message>
         <source>Listening for debugger on local port %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Warte auf dem lokalen Port %1 auf den Debugger.</translation>
     </message>
     <message>
         <source>Listening for QML debugger on local port %1 (port %2 on the device).</source>
-        <translation type="unfinished"></translation>
+        <translation>Warte auf dem lokalen Port %1 (Port %2 auf dem Gerät) auf den QML-Debugger.</translation>
     </message>
     <message>
         <source>Could not get necessary ports for the debugger connection.</source>
@@ -37431,7 +37434,7 @@ Ablaufdatum: %3</translation>
     <message>
         <source>None</source>
         <comment>No signing identity</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>Development team is not selected.</source>
@@ -37720,19 +37723,19 @@ Beispiel: *.cpp%1*.h</translation>
     </message>
     <message>
         <source>Project Specific Language Servers</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektabhängige Language Server</translation>
     </message>
     <message>
         <source>Use Global Settings</source>
-        <translation type="unfinished">Globale Einstellungen verwenden</translation>
+        <translation>Globale Einstellungen verwenden</translation>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished">Aktiviert</translation>
+        <translation>Aktiviert</translation>
     </message>
     <message>
         <source>Disabled</source>
-        <translation type="unfinished">Deaktiviert</translation>
+        <translation>Deaktiviert</translation>
     </message>
     <message>
         <source>Workspace Configuration</source>
@@ -37802,7 +37805,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     <message>
         <source>failed to shutdown</source>
         <extracomment>language client state</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Beenden fehlgeschlagen</translation>
     </message>
     <message>
         <source>Language Server &quot;%1&quot; Initialization Error</source>
@@ -37922,7 +37925,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>&lt;Select Symbol&gt;</source>
-        <translation type="unfinished">&lt;Symbol auswählen&gt;</translation>
+        <translation>&lt;Symbol auswählen&gt;</translation>
     </message>
     <message>
         <source>Client Message</source>
@@ -38167,7 +38170,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Non-string key encountered in Lua table at path &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>In der Lua-Tabelle im Pfad &quot;%1&quot; wurde ein Key gefunden, der keine Zeichenkette ist.</translation>
     </message>
     <message>
         <source>No hook with the name &quot;%1&quot; found.</source>
@@ -38175,7 +38178,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Unsupported value type &quot;%1&quot; at path &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht unterstützter Wertetyp &quot;%1&quot; im Pfad &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Script did not return a table.</source>
@@ -39223,31 +39226,31 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Source Files</source>
-        <translation type="unfinished">Quelldateien</translation>
+        <translation>Quelldateien</translation>
     </message>
     <message>
         <source>Header Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Header-Dateien</translation>
     </message>
     <message>
         <source>Python Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Python-Dateien</translation>
     </message>
     <message>
         <source>Qt Designer Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Designer-Dateien</translation>
     </message>
     <message>
         <source>Qt Resource Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Ressourcen-Dateien</translation>
     </message>
     <message>
         <source>QML Files</source>
-        <translation type="unfinished"></translation>
+        <translation>QML-Dateien</translation>
     </message>
     <message>
         <source>Other Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Andere Dateien</translation>
     </message>
     <message>
         <source>Executable does not exist: %1</source>
@@ -39275,11 +39278,11 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Meson verbose mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführlicher Meson-Modus</translation>
     </message>
     <message>
         <source>Enables verbose mode by default when invoking Meson.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviert standardmäßig den ausführlichen Modus beim Ausführen von Meson.</translation>
     </message>
     <message>
         <source>General</source>
@@ -39339,7 +39342,7 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>New Meson</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Meson-Werkzeug</translation>
     </message>
     <message>
         <source>Meson build: Parsing failed</source>
@@ -39655,7 +39658,7 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     <message>
         <source>None</source>
         <comment>No default arguments</comment>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>Target:</source>
@@ -39944,7 +39947,7 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Error: No device available for active kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler: Für das aktive Kit ist kein Gerät verfügbar.</translation>
     </message>
     <message>
         <source>Error: Failed to load trace point script %1: %2.</source>
@@ -62217,7 +62220,7 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>File Error</source>
-        <translation type="unfinished">Dateifehler</translation>
+        <translation>Dateifehler</translation>
     </message>
     <message>
         <source>&amp;Close</source>
@@ -62764,11 +62767,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Show VCS file status</source>
-        <translation type="unfinished"></translation>
+        <translation>VCS-Status der Dateien anzeigen</translation>
     </message>
     <message>
         <source>Request file status updates from files and reflect them on the project tree.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fragt den Status von Dateien ab und zeigt diesen im Projektbaum.</translation>
     </message>
     <message>
         <source>Reset VCS Cache</source>
