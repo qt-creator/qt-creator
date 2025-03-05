@@ -130,7 +130,7 @@ class Dumper(DumperBase):
         val.typeid = self.from_native_type(nativeValue.type())
         val.nativeValue = nativeValue
         val.laddress = nativeValue.address()
-        val.lbitsize = nativeValue.bitsize()
+        val.size = nativeValue.bitsize()
         return val
 
     def nativeTypeId(self, nativeType: cdbext.Type) -> str:
