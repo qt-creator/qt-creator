@@ -248,7 +248,7 @@ bool DefaultImpl::dissolveCommand(QString *program, QStringList *arguments)
     ProcessArgs processArgs;
     const bool success = ProcessArgs::prepareCommand(commandLine, &commandString, &processArgs,
                                                      &m_setup.m_environment,
-                                                     &m_setup.m_workingDirectory);
+                                                     m_setup.m_workingDirectory);
 
     if (commandLine.executable().osType() == OsTypeWindows) {
         QString args;

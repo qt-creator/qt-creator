@@ -46,11 +46,11 @@ public:
     static QString joinArgs(const QStringList &args, OsType osType = HostOsInfo::hostOs());
     //! Prepare argument of a shell command for feeding into QProcess
     static ProcessArgs prepareArgs(const QString &args, SplitError *err, OsType osType,
-                                   const Environment *env = nullptr, const FilePath *pwd = nullptr,
+                                   const Environment *env = nullptr, const FilePath &pwd = {},
                                    bool abortOnMeta = true);
     //! Prepare a shell command for feeding into QProcess
     static bool prepareCommand(const CommandLine &cmdLine, QString *outCmd, ProcessArgs *outArgs,
-                               const Environment *env = nullptr, const FilePath *pwd = nullptr);
+                               const Environment *env = nullptr, const FilePath &pwd = {});
     //! Quote and append each argument to a shell command
     static void addArgs(QString *args, const QStringList &inArgs);
     //! Quote and append each argument to a shell command
@@ -60,7 +60,7 @@ public:
     //! Split a shell command into separate arguments.
     static QStringList splitArgs(const QString &cmd, OsType osType,
                                  bool abortOnMeta = false, SplitError *err = nullptr,
-                                 const Environment *env = nullptr, const QString *pwd = nullptr);
+                                 const Environment *env = nullptr, const QString &pwd = {});
 
     using FindMacro = std::function<int(const QString &str, int *pos, QString *ret)>;
 

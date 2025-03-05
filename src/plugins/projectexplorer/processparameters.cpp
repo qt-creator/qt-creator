@@ -147,7 +147,7 @@ QString ProcessParameters::prettyArguments() const
     const FilePath workDir = effectiveWorkingDirectory();
     ProcessArgs::SplitError err;
     const ProcessArgs args = ProcessArgs::prepareArgs(margs, &err, HostOsInfo::hostOs(),
-                                                      &m_runData.environment, &workDir);
+                                                      &m_runData.environment, workDir);
     if (err != ProcessArgs::SplitOk)
         return margs; // Sorry, too complex - just fall back.
     return args.toString();

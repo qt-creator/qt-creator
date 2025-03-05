@@ -287,7 +287,7 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
         ProcessArgs::SplitError perr;
         ProcessArgs::prepareArgs(m_inferior.command.arguments(), &perr,
                                  HostOsInfo::hostOs(), nullptr,
-                                 &m_inferior.workingDirectory).toWindowsArgs();
+                                 m_inferior.workingDirectory).toWindowsArgs();
         if (perr != ProcessArgs::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809

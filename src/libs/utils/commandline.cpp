@@ -56,7 +56,7 @@ inline static bool isMetaCharWin(ushort c)
     return (c < sizeof(iqm) * 8) && (iqm[c / 8] & (1 << (c & 7)));
 }
 
-static void envExpandWin(QString &args, const Environment *env, const QString *pwd)
+static void envExpandWin(QString &args, const Environment *env, const QString &pwd)
 {
     static const QString cdName = QLatin1String("CD");
     int off = 0;
@@ -66,8 +66,8 @@ static void envExpandWin(QString &args, const Environment *env, const QString *p
          prev = that, off = that + 1) {
         if (prev >= 0) {
             const QString var = args.mid(prev + 1, that - prev - 1).toUpper();
-            const QString val = (var == cdName && pwd && !pwd->isEmpty())
-                                    ? QDir::toNativeSeparators(*pwd) : env->expandedValueForKey(var);
+            const QString val = (var == cdName && !pwd.isEmpty())
+                                    ? QDir::toNativeSeparators(pwd) : env->expandedValueForKey(var);
             if (!val.isEmpty()) { // Empty values are impossible, so this is an existence check
                 args.replace(prev, that - prev + 1, val);
                 off = prev + val.length();
@@ -78,7 +78,7 @@ static void envExpandWin(QString &args, const Environment *env, const QString *p
 }
 
 static ProcessArgs prepareArgsWin(const QString &_args, ProcessArgs::SplitError *err,
-                                  const Environment *env, const QString *pwd)
+                                  const Environment *env, const QString &pwd)
 {
     QString args(_args);
 
@@ -256,7 +256,7 @@ static QStringList doSplitArgsWin(const QString &args, ProcessArgs::SplitError *
 
 static QStringList splitArgsWin(const QString &_args, bool abortOnMeta,
                                 ProcessArgs::SplitError *err,
-                                const Environment *env, const QString *pwd)
+                                const Environment *env, const QString &pwd)
 {
     if (abortOnMeta) {
         ProcessArgs::SplitError perr;
@@ -289,7 +289,7 @@ static bool isMetaUnix(QChar cUnicode)
 
 static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                                  ProcessArgs::SplitError *err,
-                                 const Environment *env, const QString *pwd)
+                                 const Environment *env, const QString &pwd)
 {
     static const QString pwdName = QLatin1String("PWD");
     QStringList ret;
@@ -359,8 +359,8 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                                 goto quoteerr;
                             c = args.unicode()[pos++];
                         }
-                        if (var == pwdName && pwd && !pwd->isEmpty()) {
-                            cret += *pwd;
+                        if (var == pwdName && !pwd.isEmpty()) {
+                            cret += pwd;
                         } else {
                             const Environment::FindResult res = env->find(var);
                             if (!res) {
@@ -409,8 +409,8 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                     c = args.unicode()[pos++];
                 }
                 QString val;
-                if (var == pwdName && pwd && !pwd->isEmpty()) {
-                    val = *pwd;
+                if (var == pwdName && !pwd.isEmpty()) {
+                    val = pwd;
                 } else {
                     const Environment::FindResult res = env->find(var);
                     if (!res) {
@@ -498,7 +498,7 @@ inline static bool hasSpecialCharsUnix(const QString &arg)
 
 QStringList ProcessArgs::splitArgs(const QString &args, OsType osType,
                                    bool abortOnMeta, ProcessArgs::SplitError *err,
-                                   const Environment *env, const QString *pwd)
+                                   const Environment *env, const QString &pwd)
 {
     if (osType == OsTypeWindows)
         return splitArgsWin(args, abortOnMeta, err, env, pwd);
@@ -575,14 +575,9 @@ static QString quoteArgWin(const QString &arg)
 }
 
 ProcessArgs ProcessArgs::prepareArgs(const QString &args, SplitError *err, OsType osType,
-                                     const Environment *env, const FilePath *pwd, bool abortOnMeta)
+                                     const Environment *env, const FilePath &pwd, bool abortOnMeta)
 {
-    QString wdcopy;
-    QString *wd = nullptr;
-    if (pwd) {
-        wdcopy = pwd->path();
-        wd = &wdcopy;
-    }
+    const QString wd = pwd.path();
     ProcessArgs res;
     if (osType == OsTypeWindows)
         res = prepareArgsWin(args, err, env, wd);
@@ -648,7 +643,7 @@ CommandLine &CommandLine::operator<<(const QStringList &args)
 }
 
 bool ProcessArgs::prepareCommand(const CommandLine &cmdLine, QString *outCmd, ProcessArgs *outArgs,
-                                 const Environment *env, const FilePath *pwd)
+                                 const Environment *env, const FilePath &pwd)
 {
     const FilePath executable = cmdLine.executable();
     if (executable.isEmpty())
