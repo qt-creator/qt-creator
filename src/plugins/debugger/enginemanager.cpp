@@ -263,7 +263,6 @@ public:
     QPointer<ModelChooser> m_engineDAPChooser;
 
     QList<PerspectiveItem> m_perspectives;
-    bool m_shuttingDown = false;
 
     // This contains the contexts that need to be removed when switching
     // away from the current engine item. Since the plugin itself adds
@@ -629,7 +628,6 @@ QPointer<DebuggerEngine> EngineManager::currentEngine()
 
 bool EngineManager::shutDown()
 {
-    d->m_shuttingDown = true;
     bool anyEngineAborting = false;
     for (DebuggerEngine *engine : EngineManager::engines()) {
         if (engine && engine->state() != Debugger::DebuggerNotReady) {
