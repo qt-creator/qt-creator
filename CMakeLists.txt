@@ -136,6 +136,32 @@ if(CRASHPAD_BACKEND_URL AND (WIN32 OR APPLE)) # Linux is not supported for now
 endif()
 add_feature_info("Build with Crashpad" ${BUILD_WITH_CRASHPAD} "")
 
+set(SENTRY_DSN "$ENV{QTC_SENTRY_DSN}" CACHE STRING "Data Source Name to use for sending Sentry events.")
+set(SENTRY_PROJECT "" CACHE STRING "Project ID to use for sending Sentry events.")
+set(BUILD_WITH_SENTRY OFF)
+if(SENTRY_DSN AND SENTRY_PROJECT)
+  find_package(sentry QUIET)
+  if(TARGET sentry::sentry)
+    set(BUILD_WITH_SENTRY ON)
+    get_target_property(__sentry_configs sentry::sentry IMPORTED_CONFIGURATIONS)
+    get_target_property(__sentry_lib sentry::sentry IMPORTED_LOCATION_${__sentry_configs})
+    install(FILES ${__sentry_lib}
+      DESTINATION "${IDE_LIBRARY_ARCHIVE_PATH}"
+      COMPONENT Dependencies
+      EXCLUDE_FROM_ALL
+    )
+    if (TARGET sentry_crashpad::crashpad_handler)
+      get_target_property(SENTRY_CRASHPAD_PATH sentry_crashpad::crashpad_handler IMPORTED_LOCATION_${__sentry_configs})
+      install(PROGRAMS ${SENTRY_CRASHPAD_PATH}
+        DESTINATION "${IDE_LIBEXEC_PATH}"
+        COMPONENT Dependencies
+        EXCLUDE_FROM_ALL
+      )
+    endif()
+  endif()
+endif()
+add_feature_info("Build with Sentry" ${BUILD_WITH_SENTRY} "")
+
 function (set_if_target var target)
    if (TARGET "${target}")
      set(_result ON)

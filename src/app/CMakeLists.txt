@@ -157,6 +157,20 @@ if(BUILD_WITH_CRASHPAD)
   )
 endif()
 
+extend_qtc_executable(qtcreator
+  CONDITION BUILD_WITH_SENTRY
+  DEFINES
+    SENTRY_DSN="${SENTRY_DSN}"
+    SENTRY_PROJECT="${SENTRY_PROJECT}"
+    ENABLE_SENTRY
+  DEPENDS sentry::sentry
+)
+extend_qtc_executable(qtcreator
+  CONDITION DEFINED SENTRY_CRASHPAD_PATH
+  DEFINES
+    SENTRY_CRASHPAD_PATH="${SENTRY_CRASHPAD_PATH}"
+)
+
 if ((NOT WIN32) AND (NOT APPLE))
   # install logo
   foreach(size 16 24 32 48 64 128 256 512)

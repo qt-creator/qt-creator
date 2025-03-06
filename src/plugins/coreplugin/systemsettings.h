@@ -34,7 +34,7 @@ public:
 
     Utils::SelectionAspect reloadSetting{this};
 
-#ifdef ENABLE_CRASHPAD
+#ifdef ENABLE_CRASHREPORTING
     Utils::BoolAspect enableCrashReporting{this};
 #endif
 
