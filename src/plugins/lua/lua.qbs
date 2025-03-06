@@ -53,6 +53,7 @@ QtcPlugin {
             "qt.cpp",
             "qtcprocess.cpp",
             "settings.cpp",
+            "taskhub.cpp",
             "texteditor.cpp",
             "translate.cpp",
             "utils.cpp",
