@@ -231,8 +231,7 @@ QString CMakeWriter::makeFindPackageBlock(const NodePtr &node, const QmlBuildSys
 
 QString CMakeWriter::makeRelative(const NodePtr &node, const Utils::FilePath &path) const
 {
-    const QString dir = node->dir.toUrlishString();
-    return "\"" + Utils::FilePath::calcRelativePath(path.toUrlishString(), dir) + "\"";
+    return "\"" + path.relativePathFromDir(node->dir).path() + "\"";
 }
 
 QString CMakeWriter::makeQmlFilesBlock(const NodePtr &node) const
