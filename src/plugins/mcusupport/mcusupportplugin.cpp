@@ -248,9 +248,10 @@ void McuSupportPlugin::initialize()
                 [&](ProjectExplorer::Project *p) {
                     if (!isQtMCUsProject(p) || !ICore::infoBar()->canInfoBeAdded(qdsMcuDocInfoEntry))
                         return;
-                    Utils::InfoBarEntry docInfo(qdsMcuDocInfoEntry,
-                                                Tr::tr("Read about Using QtMCUs in the Qt Design Studio"),
-                                                Utils::InfoBarEntry::GlobalSuppression::Enabled);
+                    Utils::InfoBarEntry docInfo(
+                        qdsMcuDocInfoEntry,
+                        Tr::tr("Read about using Qt Design Studio for Qt for MCUs."),
+                        Utils::InfoBarEntry::GlobalSuppression::Enabled);
                     docInfo.addCustomButton(Tr::tr("Go to the Documentation"), [] {
                         ICore::infoBar()->suppressInfo(qdsMcuDocInfoEntry);
                         QDesktopServices::openUrl(
