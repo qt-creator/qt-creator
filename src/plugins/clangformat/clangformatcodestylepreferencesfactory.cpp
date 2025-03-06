@@ -257,33 +257,24 @@ void ClangFormatCodeStyleEditor::init(
     const ClangFormatSettings::Mode currentMode = m_globalSettings->mode();
 
     auto selector = static_cast<ClangFormatSelectorWidget *>(m_selector);
-    connect(
-        m_globalSettings,
-        &ClangFormatGlobalConfigWidget::modeChanged,
-        selector,
-        &ClangFormatSelectorWidget::onModeChanged);
-    selector->onModeChanged(currentMode);
+    if (selector) {
+        connect(m_globalSettings, &ClangFormatGlobalConfigWidget::modeChanged,
+                selector, &ClangFormatSelectorWidget::onModeChanged);
+        selector->onModeChanged(currentMode);
+        connect(m_globalSettings, &ClangFormatGlobalConfigWidget::useCustomSettingsChanged,
+            selector, &ClangFormatSelectorWidget::onUseCustomSettingsChanged);
+        selector->onUseCustomSettingsChanged(m_globalSettings->useCustomSettings());
+    }
 
     auto editorWidget = static_cast<ClangFormatCodeStyleEditorWidget *>(m_editor);
-    connect(
-        m_globalSettings,
-        &ClangFormatGlobalConfigWidget::modeChanged,
-        editorWidget,
-        &ClangFormatCodeStyleEditorWidget::onModeChanged);
-    editorWidget->onModeChanged(currentMode);
-
-    connect(
-        m_globalSettings,
-        &ClangFormatGlobalConfigWidget::useCustomSettingsChanged,
-        editorWidget,
-        &ClangFormatCodeStyleEditorWidget::onUseCustomSettingsChanged);
-    editorWidget->onUseCustomSettingsChanged(m_globalSettings->useCustomSettings());
-    connect(
-        m_globalSettings,
-        &ClangFormatGlobalConfigWidget::useCustomSettingsChanged,
-        selector,
-        &ClangFormatSelectorWidget::onUseCustomSettingsChanged);
-    selector->onUseCustomSettingsChanged(m_globalSettings->useCustomSettings());
+    if (editorWidget) {
+        connect(m_globalSettings, &ClangFormatGlobalConfigWidget::modeChanged,
+                editorWidget, &ClangFormatCodeStyleEditorWidget::onModeChanged);
+        editorWidget->onModeChanged(currentMode);
+        connect(m_globalSettings, &ClangFormatGlobalConfigWidget::useCustomSettingsChanged,
+                editorWidget, &ClangFormatCodeStyleEditorWidget::onUseCustomSettingsChanged);
+        editorWidget->onUseCustomSettingsChanged(m_globalSettings->useCustomSettings());
+    }
 }
 
 void ClangFormatCodeStyleEditor::apply()
