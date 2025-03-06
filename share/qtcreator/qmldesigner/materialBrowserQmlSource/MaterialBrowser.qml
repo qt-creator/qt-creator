@@ -596,14 +596,18 @@ Item {
                 anchors.centerIn: parent
 
                 text: {
-                    if (!materialBrowserModel.isQt6Project)
+                    if (!materialBrowserModel.isQt6Project) {
                         qsTr("<b>Material Browser</b> is not supported in Qt5 projects.")
-                    else if (!materialBrowserModel.hasQuick3DImport)
-                        qsTr("To use <b>Material Browser</b>, first add the QtQuick3D module in the <b>Components</b> view.")
-                    else if (!materialBrowserModel.hasMaterialLibrary)
+                    } else if (!materialBrowserModel.hasQuick3DImport) {
+                        qsTr('To use the <b>Material Browser</b>, add the <b>QtQuick3D</b> module and the <b>View3D</b>
+                             component in the <b>Components</b> view, or click
+                             <a href=\"#add_import\"><span style=\"text-decoration:none;color:%1\">
+                             here</span></a>.').arg(StudioTheme.Values.themeInteraction)
+                    } else if (!materialBrowserModel.hasMaterialLibrary) {
                         qsTr("<b>Material Browser</b> is disabled inside a non-visual component.")
-                    else
+                    } else {
                         ""
+                    }
                 }
 
                 textFormat: Text.RichText
@@ -611,6 +615,8 @@ Item {
                 font.pixelSize: StudioTheme.Values.mediumFontSize
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WordWrap
+
+                onLinkActivated: rootView.addQtQuick3D()
             }
         }
 

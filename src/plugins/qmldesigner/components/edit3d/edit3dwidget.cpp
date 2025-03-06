@@ -184,6 +184,7 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
     // Onboarding label contains instructions for new users how to get 3D content into the project
     m_onboardingLabel = new QLabel(this);
     m_onboardingLabel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    m_onboardingLabel->setWordWrap(true);
     connect(m_onboardingLabel, &QLabel::linkActivated, this, &Edit3DWidget::linkActivated);
     fillLayout->addWidget(m_onboardingLabel.data());
 
@@ -418,19 +419,11 @@ void Edit3DWidget::showOnboardingLabel()
     if (text.isEmpty()) {
         if (m_view->externalDependencies().isQt6Project()) {
             QString labelText =
-                tr("Your file does not import Qt Quick 3D.<br><br>"
-                   "To create a 3D view, add the"
-                   " <b>QtQuick3D</b>"
-                   " module in the"
-                   " <b>Components</b>"
-                   " view or click"
+                tr("To use the <b>3D</b> view, add the <b>QtQuick3D</b> module and the <b>View3D</b>"
+                   " component in the <b>Components</b> view or click"
                    " <a href=\"#add_import\"><span style=\"text-decoration:none;color:%1\">here</span></a>"
                    ".<br><br>"
-                   "To import 3D assets, select"
-                   " <b>+</b>"
-                   " in the"
-                   " <b>Assets</b>"
-                   " view.");
+                   "To import 3D assets, select <b>+</b> in the <b>Assets</b> view.");
             text = labelText.arg(Utils::creatorColor(Utils::Theme::TextColorLink).name());
         } else {
             text = tr("3D view is not supported in Qt5 projects.");

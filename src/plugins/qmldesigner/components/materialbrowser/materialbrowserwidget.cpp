@@ -18,6 +18,7 @@
 #include <qmldesignerplugin.h>
 #include <studioquickwidget.h>
 #include <theme.h>
+#include <utils3d.h>
 #include <variantproperty.h>
 
 #include <coreplugin/icore.h>
@@ -387,6 +388,11 @@ void MaterialBrowserWidget::exportMaterial()
 {
     ModelNode mat = m_materialBrowserModel->selectedMaterial();
     m_bundleHelper->exportBundle({mat}, m_previewImageProvider->getPixmap(mat));
+}
+
+void MaterialBrowserWidget::addQtQuick3D()
+{
+    Utils3D::addQuick3DImportAndView3D(m_materialBrowserView.data());
 }
 
 QString MaterialBrowserWidget::qmlSourcesPath()
