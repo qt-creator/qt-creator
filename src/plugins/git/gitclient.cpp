@@ -2565,19 +2565,28 @@ void GitClient::handleGitKFailedToStart(const Environment &env,
     tryLaunchingGitK(env, workingDirectory, fileName, nextTrial);
 }
 
-bool GitClient::launchGitGui(const FilePath &workingDirectory) {
-    bool success = true;
+bool GitClient::launchGitGui(const FilePath &workingDirectory)
+{
+    const QString cannotLaunchGitGui = msgCannotLaunch("git gui");
     FilePath gitBinary = vcsBinary(workingDirectory);
     if (gitBinary.isEmpty()) {
-        success = false;
-    } else {
-        success = Process::startDetached({gitBinary, {"gui"}}, workingDirectory);
+        VcsOutputWindow::appendError(cannotLaunchGitGui);
+        return false;
     }
 
-    if (!success)
-        VcsOutputWindow::appendError(msgCannotLaunch("git gui"));
-
-    return success;
+    auto process = new Process(const_cast<GitClient *>(this));
+    process->setWorkingDirectory(workingDirectory);
+    process->setCommand({gitBinary, {"gui"}});
+    connect(process, &Process::done, this, [process, cannotLaunchGitGui] {
+        if (process->result() != ProcessResult::FinishedWithSuccess) {
+            const QString errorMessage = process->readAllStandardError();
+            VcsOutputWindow::appendError(cannotLaunchGitGui);
+            VcsOutputWindow::appendError(errorMessage);
+            process->deleteLater();
+        }
+    });
+    process->start();
+    return true;
 }
 
 FilePath GitClient::gitBinDirectory() const
