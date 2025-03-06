@@ -3,15 +3,15 @@
 
 #pragma once
 
-#include "projectstorageerrornotifierinterface.h"
+#include <qmldesigner_global.h>
+
+#include <projectstorage/projectstorageerrornotifierinterface.h>
 
 #include <modelfwd.h>
-#include <qmldesignercorelib_exports.h>
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT ProjectStorageErrorNotifier final
-    : public ProjectStorageErrorNotifierInterface
+class QMLDESIGNER_EXPORT ProjectStorageErrorNotifier final : public ProjectStorageErrorNotifierInterface
 {
 public:
     ProjectStorageErrorNotifier(PathCacheType &pathCache)

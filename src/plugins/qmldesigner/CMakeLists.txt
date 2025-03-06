@@ -104,7 +104,6 @@ add_qtc_plugin(QmlDesigner
     qmldesignericons.h
     qmldesignerplugin.cpp qmldesignerplugin.h
     qmldesignerexternaldependencies.cpp qmldesignerexternaldependencies.h
-    qmldesignerprojectmanager.cpp qmldesignerprojectmanager.h
     settingspage.cpp settingspage.h
     shortcutmanager.cpp shortcutmanager.h
     designermcumanager.cpp designermcumanager.h
@@ -132,6 +131,16 @@ if (QTC_STATIC_BUILD AND TARGET QmlDesigner)
   endif()
   extend_qtc_target(QmlDesigner PUBLIC_DEPENDS TextEditor)
 endif()
+
+extend_qtc_plugin(QmlDesigner
+  PUBLIC_INCLUDES project
+  SOURCES_PREFIX project
+  SOURCES
+   qmldesignerprojectmanager.cpp
+   qmldesignerprojectmanager.h
+   projectstorageerrornotifier.cpp
+   projectstorageerrornotifier.h
+)
 
 extend_qtc_plugin(QmlDesigner
   PUBLIC_INCLUDES instances

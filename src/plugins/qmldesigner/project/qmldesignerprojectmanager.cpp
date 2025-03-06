@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmldesignerprojectmanager.h"
+#include "projectstorageerrornotifier.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -12,7 +13,6 @@
 #include <projectstorage/filestatuscache.h>
 #include <projectstorage/filesystem.h>
 #include <projectstorage/projectstorage.h>
-#include <projectstorage/projectstorageerrornotifier.h>
 #include <projectstorage/projectstoragepathwatcher.h>
 #include <projectstorage/projectstorageupdater.h>
 #include <projectstorage/qmldocumentparser.h>
