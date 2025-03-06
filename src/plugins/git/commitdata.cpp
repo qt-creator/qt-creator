@@ -27,16 +27,10 @@ void GitSubmitEditorPanelData::clear()
 
 QString GitSubmitEditorPanelData::authorString() const
 {
-    QString rc;
-    rc += author;
-
     if (email.isEmpty())
-        return rc;
+        return author;
 
-    rc += " <";
-    rc += email;
-    rc += '>';
-    return rc;
+    return author + " <" + email + ">";
 }
 
 CommitData::CommitData(CommitType type)
