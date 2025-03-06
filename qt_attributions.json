@@ -674,5 +674,19 @@
         "License": "MIT License",
         "LicenseFile": "src/libs/3rdparty/toml11/LICENSE",
         "Copyright": "Copyright (c) 2017-2024 Toru Niina."
+    },
+    {
+        "Id": "ui_watchdog",
+        "Name": "UI Watchdog",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used for watching the UI thread of Qt Creator.",
+        "Path": "src/libs/3rdparty/ui_watchdog",
+        "Description": "Header-only TOML config file parser and serializer for C++.",
+        "Homepage": "https://github.com/KDABLabs/KDToolBox/tree/master/qt/ui_watchdog",
+        "Version": "master",
+        "License": "MIT License",
+        "LicenseFile": "src/libs/3rdparty/ui_watchdog/LICENSE.txt",
+        "Copyright": "2018 Klarälvdalens Datakonsult AB, a KDAB Group company"
     }
 ]
