@@ -18,6 +18,7 @@ return {
     Dependencies = {
         { Id = "lua", Version = "15.0.0" }
     },
+    Type = "Script",
     setup = function() require 'tests'.setup() end,
     printToOutputPane = true,
     hooks = {

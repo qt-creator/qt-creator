@@ -634,6 +634,36 @@ bool PluginSpec::provides(PluginSpec *spec, const PluginDependency &dependency) 
     if (QString::compare(dependency.id, spec->id(), Qt::CaseInsensitive) != 0)
         return false;
 
+    if (metaData().value("Type").toString().toLower() == "script") {
+        QString scriptCompatibleVersion
+            = spec->metaData().value("ScriptCompatibleVersion").toString();
+        if (scriptCompatibleVersion.isEmpty())
+            scriptCompatibleVersion = spec->metaData().value("LuaCompatibleVersion").toString();
+
+        if (scriptCompatibleVersion.isEmpty()) {
+            qCWarning(pluginLog)
+                << "The plugin" << spec->id()
+                << "does not specify a \"ScriptCompatibleVersion\", but the script plugin" << name()
+                << "requires it.";
+            return false;
+        }
+
+        // If ScriptCompatibleVersion is greater than the dependency version, we cannot provide it.
+        if (versionCompare(scriptCompatibleVersion, dependency.version) > 0)
+            return false;
+
+        // If the ScriptCompatibleVersion is greater than the spec version, we can provide it.
+        // Normally, a plugin that has a higher compatibility version than version is in an invalid state.
+        // This check is used when raising the compatibility version of the Lua plugin during development,
+        // where temporarily Lua's version is `(X-1).0.8y`, and the compatibility version has already
+        // been raised to the final release `X.0.0`.
+        if (versionCompare(scriptCompatibleVersion, spec->version()) > 0)
+            return true;
+
+        // If the spec version is greater than the dependency version, we can provide it.
+        return (versionCompare(spec->version(), dependency.version) >= 0);
+    }
+
     return (versionCompare(spec->version(), dependency.version) >= 0)
            && (versionCompare(spec->compatVersion(), dependency.version) <= 0);
 }

@@ -20,6 +20,7 @@ It will try to install it if it is not found.
         { Id = "lua",               Version = "15.0.0" },
         { Id = "lualanguageclient", Version = "15.0.0" }
     },
+    Type = "Script",
     setup = function()
         require 'init'.setup()
     end,

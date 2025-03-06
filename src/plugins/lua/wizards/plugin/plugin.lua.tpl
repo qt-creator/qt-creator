@@ -20,6 +20,7 @@ You can describe it more here.
     Dependencies = {
         { Id = "lua",  Version = "%{JS: Util.qtCreatorIdeVersion()}" },
     },
+    Type = "Script",
     setup = function()
         require 'init'.setup()
     end
