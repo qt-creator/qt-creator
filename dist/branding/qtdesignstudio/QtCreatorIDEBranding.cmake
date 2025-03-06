@@ -55,7 +55,6 @@ set(DESIGNSTUDIO_PLUGINS
     Texteditor
     UpdateInfo
     VcsBase
-    assetexporterplugin
     componentsplugin
     qmlpreviewplugin
     qtquickplugin)

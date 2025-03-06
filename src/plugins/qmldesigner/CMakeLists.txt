@@ -798,39 +798,6 @@ extend_qtc_plugin(QmlDesigner
     dvconnector.cpp dvconnector.h
 )
 
-add_qtc_plugin(assetexporterplugin
-  PLUGIN_CLASS AssetExporterPlugin
-  CONDITION TARGET QmlDesigner
-  PLUGIN_DEPENDS
-    Core ProjectExplorer QmlDesigner
-  DEPENDS Utils Qt::Qml Qt::QuickPrivate
-  PUBLIC_INCLUDES assetexporterplugin
-  PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
-)
-
-extend_qtc_plugin(assetexporterplugin
-    CONDITION ENABLE_COMPILE_WARNING_AS_ERROR
-    PROPERTIES COMPILE_WARNING_AS_ERROR ON
-)
-
-extend_qtc_plugin(assetexporterplugin
-  SOURCES_PREFIX assetexporterplugin
-  SOURCES
-    assetexportdialog.h assetexportdialog.cpp
-    assetexporter.h assetexporter.cpp
-    assetexporterplugin.h assetexporterplugin.cpp
-    assetexporterview.h assetexporterview.cpp
-    assetexportpluginconstants.h
-    componentexporter.h componentexporter.cpp
-    exportnotification.h exportnotification.cpp
-    filepathmodel.h filepathmodel.cpp
-    dumpers/assetnodedumper.h dumpers/assetnodedumper.cpp
-    dumpers/itemnodedumper.h dumpers/itemnodedumper.cpp
-    dumpers/nodedumper.h dumpers/nodedumper.cpp
-    dumpers/textnodedumper.h dumpers/textnodedumper.cpp
-    assetexporterplugin.qrc
-)
-
 add_qtc_plugin(componentsplugin
   PLUGIN_CLASS ComponentsPlugin
   CONDITION TARGET QmlDesigner
