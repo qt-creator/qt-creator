@@ -88,13 +88,10 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
     QTC_CHECK(d->m_kit);
     connect(DeviceManager::instance(), &DeviceManager::updated, this, &Target::updateDeviceState);
     connect(this, &Target::parsingStarted, this, [project] { emit project->anyParsingStarted(); });
-    connect(this, &Target::parsingFinished, this, [this, project](bool success) {
-        if (success && this == ProjectManager::startupTarget())
-            updateDefaultRunConfigurations();
-        // For testing.
-        emit ProjectManager::instance()->projectFinishedParsing(project);
+    connect(this, &Target::parsingFinished, this, [project](bool success) {
+        emit ProjectManager::instance()->projectFinishedParsing(project); // // For testing.
         emit project->anyParsingFinished(success);
-    }, Qt::QueuedConnection); // Must wait for run configs to change their enabled state.
+    });
 
     KitManager *km = KitManager::instance();
     connect(km, &KitManager::kitUpdated, this, &Target::handleKitUpdates);

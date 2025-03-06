@@ -238,7 +238,12 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     });
 
     connect(buildSystem(), &BuildSystem::parsingStarted, this, &BuildConfiguration::enabledChanged);
-    connect(buildSystem(), &BuildSystem::parsingFinished, this, &BuildConfiguration::enabledChanged);
+    connect(buildSystem(), &BuildSystem::parsingFinished, this, [this](bool success) {
+        if (success)
+            updateDefaultRunConfigurations();
+        emit enabledChanged();
+    }, Qt::QueuedConnection); // Must wait for run configs to change their enabled state.
+
     connect(this, &BuildConfiguration::enabledChanged, this, [this] {
         if (isActive() && project() == ProjectManager::startupProject()) {
             ProjectExplorerPlugin::updateActions();
