@@ -66,6 +66,7 @@ private:
 };
 
 QString customOsTypeToString(Utils::OsType osType);
+QString customOsArchToString(Utils::OsArch osArch);
 ExtensionSystem::PluginSpec *pluginSpecForId(const QString &pluginId);
 QString statusDisplayString(const QModelIndex &index);
 

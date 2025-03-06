@@ -13,6 +13,8 @@ add_qtc_plugin(ExtensionManager
     extensionsbrowser.h
     extensionsmodel.cpp
     extensionsmodel.h
+    remotespec.cpp
+    remotespec.h
 )
 
 extend_qtc_plugin(ExtensionManager

@@ -4,6 +4,7 @@
 #include "extensionsmodel.h"
 
 #include "extensionmanagertr.h"
+#include "remotespec.h"
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -28,8 +29,6 @@ using namespace Utils;
 
 namespace ExtensionManager::Internal {
 
-const char EXTENSION_KEY_ID[] = "id";
-
 Q_LOGGING_CATEGORY(modelLog, "qtc.extensionmanager.model", QtWarningMsg)
 
 class ExtensionsModelPrivate
@@ -37,27 +36,24 @@ class ExtensionsModelPrivate
 public:
     void addUnlistedLocalPlugins();
 
-    static QVariant dataFromRemotePack(const QJsonObject &json, int role);
-    static QVariant dataFromRemotePlugin(const QJsonObject &json, int role);
+    static QVariant dataFromRemotePack(const RemoteSpec *spec, int role);
+    static QVariant dataFromRemotePlugin(const RemoteSpec *spec, int role);
     QVariant dataFromRemoteExtension(int index, int role) const;
     QVariant dataFromLocalPlugin(int index, int role) const;
 
-    QJsonArray responseItems;
+    //QJsonArray responseItems;
     PluginSpecs localPlugins;
+    std::vector<std::unique_ptr<RemoteSpec>> remotePlugins;
 };
 
 void ExtensionsModelPrivate::addUnlistedLocalPlugins()
 {
-    QSet<QString> responseExtensions;
-    for (const QJsonValueConstRef &responseItem : qAsConst(responseItems))
-        responseExtensions << responseItem.toObject().value("id").toString();
+    QSet<QString> remoteIds = Utils::transform<QSet>(remotePlugins, &RemoteSpec::id);
+    localPlugins = Utils::filtered(PluginManager::plugins(), [&remoteIds](const PluginSpec *plugin) {
+        return !remoteIds.contains(plugin->id());
+    });
 
-    localPlugins.clear();
-    for (PluginSpec *plugin : PluginManager::plugins())
-        if (!responseExtensions.contains(plugin->id()))
-            localPlugins.append(plugin);
-
-    qCDebug(modelLog) << "Number of extensions from JSON:" << responseExtensions.count();
+    qCDebug(modelLog) << "Number of extensions from JSON:" << remotePlugins.size();
     qCDebug(modelLog) << "Number of added local plugins:" << localPlugins.count();
 }
 
@@ -85,127 +81,78 @@ QString descriptionWithLinks(const QString &description, const QString &url,
     return fragments.join("\n\n");
 }
 
-QVariant ExtensionsModelPrivate::dataFromRemotePack(const QJsonObject &json, int role)
-{
-    switch (role) {
-    case RoleDescriptionLong:
-        return joinedStringList(json.value("long_description"));
-    case RoleDescriptionShort:
-        return joinedStringList(json.value("description"));
-    case RoleItemType:
-        return ItemTypePack;
-    case RolePlugins:
-        return json.value("plugins").toVariant().toStringList();
-    default:
-        break;
-    }
-
-    return {};
-}
-
-QVariant ExtensionsModelPrivate::dataFromRemotePlugin(const QJsonObject &json, int role)
-{
-    const QJsonObject metaData = json.value("metadata").toObject();
-
-    switch (role) {
-    case RoleCopyright:
-        return metaData.value("Copyright");
-    case RoleDownloadUrl: {
-        const QJsonArray sources = json.value("sources").toArray();
-        const QString thisPlatform = customOsTypeToString(HostOsInfo::hostOs());
-        const QString thisArch = QSysInfo::currentCpuArchitecture();
-        for (const QJsonValue &source : sources) {
-            const QJsonObject sourceObject = source.toObject();
-            const QJsonObject platform = sourceObject.value("platform").toObject();
-            if (platform.isEmpty() // Might be a Lua plugin
-                    || (platform.value("name").toString() == thisPlatform
-                        && platform.value("architecture") == thisArch))
-                return sourceObject.value("url").toString();
-        }
-        break;
-    }
-    case RoleDependencies: {
-        QStringList dependencies;
-
-        const QJsonArray dependenciesArray = metaData.value("Dependencies").toArray();
-        for (const auto &dependency : dependenciesArray) {
-            const QJsonObject dependencyObject = dependency.toObject();
-            dependencies.append(dependencyObject.value("Id").toString());
-        }
-
-        return dependencies;
-    }
-    case RolePlatforms: {
-        QSet<QString> platforms;
-        const QJsonArray sources = json.value("sources").toArray();
-        for (const QJsonValue &source : sources) {
-            // {"name": "Windows", "architecture": "x86" }
-            const QJsonObject platform = source.toObject().value("platform").toObject();
-            if (!platform.isEmpty()) {
-                const QString name = customOsTypeToString(
-                    osTypeFromString(platform.value("name").toString()).value_or(OsTypeOther));
-                const QString architecture = platform.value("architecture").toString();
-                platforms.insert(name + " " + architecture);
-            } else {
-                platforms.insert(Tr::tr("Platform agnostic"));
-            }
-        }
-
-        return platforms.values();
-    }
-    case RoleVersion:
-        return metaData.value("Version");
-    case RoleItemType:
-        return ItemTypeExtension;
-    case RoleDescriptionLong: {
-        const QString description = joinedStringList(metaData.value("LongDescription"));
-        const QString url = metaData.value("Url").toString();
-        const QString documentationUrl = metaData.value("DocumentationUrl").toString();
-        return descriptionWithLinks(description, url, documentationUrl);
-    }
-    case RoleDescriptionShort:
-        return joinedStringList(metaData.value("Description"));
-    default:
-        break;
-    }
-
-    return {};
-}
-
 QVariant ExtensionsModelPrivate::dataFromRemoteExtension(int index, int role) const
 {
-    const QJsonObject json = responseItems.at(index).toObject();
+    QTC_ASSERT(index >= 0 && size_t(index) < remotePlugins.size(), return {});
+    RemoteSpec *remoteSpec = remotePlugins.at(index).get();
 
     switch (role) {
     case Qt::DisplayRole:
     case RoleName:
-        return json.value("display_name");
+        return remoteSpec->displayName();
     case RoleDownloadCount:
-        break; // TODO: Reinstate download numbers when they have more substance
-        // return json.value("downloads");
+        return remoteSpec->downloads();
     case RoleId:
-        return json.value(EXTENSION_KEY_ID);
+        return remoteSpec->id();
     case RoleDateUpdated:
-        return QDate::fromString(json.value("updated_at").toString(), Qt::ISODate);
+        return remoteSpec->updatedAt();
     case RoleStatus:
-        return json.value("status");
+        return remoteSpec->statusString();
     case RoleTags:
-        return json.value("tags").toVariant().toStringList();
+        return remoteSpec->tags();
     case RoleVendor:
-        return json.value("display_vendor");
+        return remoteSpec->vendor();
     case RoleVendorId:
-        return json.value("vendor_id");
-    default:
-        break;
+        return remoteSpec->vendorId();
+    case RoleCopyright:
+        return remoteSpec->copyright();
+    case RoleDownloadUrl: {
+        for (const auto &source : remoteSpec->sources()) {
+            if (!source.platform)
+                return source.url;
+
+            if (source.platform->os == HostOsInfo::hostOs()
+                && source.platform->architecture == HostOsInfo::hostArchitecture())
+                return source.url;
+        }
+        return {};
     }
+    case RoleDependencies: {
+        QStringList dependencies
+            = Utils::transform(remoteSpec->dependencies(), &PluginDependency::id);
+        return dependencies;
+    }
+    case RolePlatforms: {
+        QStringList platforms
+            = Utils::transform<QStringList>(remoteSpec->sources(), [](const Source &s) -> QString {
+                  if (!s.platform)
+                      return Tr::tr("Platform agnostic");
 
-    const QJsonObject pluginObject = json.value("plugin").toObject();
-    if (!pluginObject.isEmpty())
-        return dataFromRemotePlugin(pluginObject, role);
+                  const QString name = customOsTypeToString(s.platform->os);
+                  const QString architecture = customOsArchToString(s.platform->architecture);
+                  return name + " " + architecture;
+              });
+        platforms.sort(Qt::CaseInsensitive);
+        return Utils::filteredUnique(platforms);
+    }
+    case RoleVersion:
+        return remoteSpec->version();
+    case RoleItemType:
+        if (remoteSpec->isPack())
+            return ItemTypePack;
 
-    const QJsonObject packObject = json.value("pack").toObject();
-    if (!packObject.isEmpty())
-        return dataFromRemotePack(packObject, role);
+        return ItemTypeExtension;
+    case RoleDescriptionLong: {
+        const QString description = remoteSpec->longDescription();
+        const QString url = remoteSpec->url();
+        const QString documentationUrl = remoteSpec->documentationUrl();
+        return descriptionWithLinks(description, url, documentationUrl);
+    }
+    case RoleDescriptionShort:
+        return remoteSpec->description();
+    case RolePlugins:
+        return remoteSpec->packPluginIds();
+    }
 
     return {};
 }
@@ -270,7 +217,7 @@ ExtensionsModel::~ExtensionsModel()
 
 int ExtensionsModel::rowCount([[maybe_unused]] const QModelIndex &parent) const
 {
-    return d->responseItems.count() + d->localPlugins.count();
+    return d->remotePlugins.size() + d->localPlugins.count();
 }
 
 static QString badgeText(const QModelIndex &index)
@@ -324,8 +271,8 @@ QVariant ExtensionsModel::data(const QModelIndex &index, int role) const
         break;
     }
 
-    const bool isRemoteExtension = index.row() < d->responseItems.count();
-    const int itemIndex = index.row() - (isRemoteExtension ? 0 : d->responseItems.count());
+    const bool isRemoteExtension = size_t(index.row()) < d->remotePlugins.size();
+    const int itemIndex = index.row() - (isRemoteExtension ? 0 : d->remotePlugins.size());
 
     return isRemoteExtension ? d->dataFromRemoteExtension(itemIndex, role)
                              : d->dataFromLocalPlugin(itemIndex, role);
@@ -335,10 +282,11 @@ QModelIndex ExtensionsModel::indexOfId(const QString &extensionId) const
 {
     const int localIndex = indexOf(d->localPlugins, equal(&PluginSpec::id, extensionId));
     if (localIndex >= 0)
-        return index(d->responseItems.count() + localIndex);
+        return index(d->remotePlugins.size() + localIndex);
 
-    for (int remoteIndex = 0; const QJsonValueConstRef &value : std::as_const(d->responseItems)) {
-        if (value.toObject().value(EXTENSION_KEY_ID) == extensionId)
+    for (int remoteIndex = 0;
+         const std::unique_ptr<RemoteSpec> &spec : std::as_const(d->remotePlugins)) {
+        if (spec->id() == extensionId)
             return index(remoteIndex);
         ++remoteIndex;
     }
@@ -351,8 +299,22 @@ void ExtensionsModel::setExtensionsJson(const QByteArray &json)
     beginResetModel();
     QJsonParseError error;
     const QJsonObject jsonObj = QJsonDocument::fromJson(json, &error).object();
+    d->remotePlugins.clear();
+
     qCDebug(modelLog) << "QJsonParseError:" << error.errorString();
-    d->responseItems = jsonObj.value("items").toArray();
+    QJsonArray responseItems = jsonObj.value("items").toArray();
+
+    for (const QJsonValue &item : responseItems) {
+        const QJsonObject itemObject = item.toObject();
+        std::unique_ptr<RemoteSpec> remoteSpec(new RemoteSpec());
+        auto result = remoteSpec->fromJson(itemObject);
+        if (!result) {
+            qCWarning(modelLog) << "Failed to read remote extension:" << result.error();
+            continue;
+        }
+        d->remotePlugins.push_back(std::move(remoteSpec));
+    }
+
     d->addUnlistedLocalPlugins();
     endResetModel();
 }
@@ -374,9 +336,32 @@ QString customOsTypeToString(OsType osType)
     }
 }
 
+QString customOsArchToString(OsArch osArch)
+{
+    switch (osArch) {
+    case OsArchX86:
+        return "x86";
+    case OsArchAMD64:
+        return "x86_64";
+    case OsArchItanium:
+        return "ia64";
+    case OsArchArm:
+        return "arm";
+    case OsArchArm64:
+        return "arm64";
+    case OsArchUnknown:
+        break;
+    }
+
+    return "Unknown";
+}
+
 PluginSpec *pluginSpecForId(const QString &pluginId)
 {
-    return findOrDefault(PluginManager::plugins(), equal(&PluginSpec::id, pluginId));
+    PluginSpec *spec = findOrDefault(PluginManager::plugins(), equal(&PluginSpec::id, pluginId));
+    if (spec)
+        return spec;
+    return nullptr;
 }
 
 QString statusDisplayString(const QModelIndex &index)

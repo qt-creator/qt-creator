@@ -7,6 +7,7 @@
 #include "extensionmanagertr.h"
 #include "extensionsbrowser.h"
 #include "extensionsmodel.h"
+#include "remotespec.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreplugintr.h>
@@ -452,6 +453,8 @@ private:
     QString m_currentDownloadUrl;
     QString m_currentId;
     Tasking::TaskTreeRunner m_dlTaskTreeRunner;
+
+    std::unique_ptr<RemoteSpec> m_remoteSpec;
 };
 
 static QWidget *descriptionPlaceHolder()
@@ -525,6 +528,12 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     m_packExtensionsTitle = sectionTitle(h6TF, Tr::tr("Extensions in pack"));
     m_packExtensions = new QLabel;
     applyTf(m_packExtensions, contentTF, false);
+
+    m_packExtensions->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
+    connect(m_packExtensions, &QLabel::linkActivated, this, [this](const QString &link) {
+        m_extensionBrowser->selectIndex(m_extensionModel->indexOfId(link));
+    });
+
     m_pluginStatus = new PluginStatusWidget;
 
     auto secondary = new QWidget;
@@ -637,7 +646,9 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
 
     auto idToDisplayName = [this](const QString &id) {
         const QModelIndex dependencyIndex = m_extensionModel->indexOfId(id);
-        const QString displayName = dependencyIndex.data(RoleName).toString();
+        QString displayName = dependencyIndex.data(RoleName).toString();
+        if (displayName.isEmpty())
+            displayName = id;
         return QString("<a href=\"%1\">%2</a>").arg(id).arg(displayName);
     };
 
