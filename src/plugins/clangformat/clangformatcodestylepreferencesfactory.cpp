@@ -198,16 +198,17 @@ ClangFormatCodeStyleEditorWidget::ClangFormatCodeStyleEditorWidget(
         m_legacyIndenterSettings = new CppEditor::CppCodeStylePreferencesWidget{this};
         m_legacyIndenterSettings->layout()->setContentsMargins(0, 0, 0, 0);
         m_legacyIndenterSettings->setCodeStyle(cppPreferences);
+        layout->addWidget(m_legacyIndenterSettings);
     }
 
-    layout->addWidget(m_legacyIndenterSettings);
     layout->addWidget(m_clangFormatSettings);
 }
 
 void ClangFormatCodeStyleEditorWidget::onModeChanged(ClangFormatSettings::Mode newMode)
 {
     const bool isLegacyIndenterMode = newMode == ClangFormatSettings::Mode::Disable;
-    m_legacyIndenterSettings->setVisible(isLegacyIndenterMode);
+    if (m_legacyIndenterSettings)
+        m_legacyIndenterSettings->setVisible(isLegacyIndenterMode);
     m_clangFormatSettings->setVisible(!isLegacyIndenterMode);
 }
 
@@ -218,13 +219,15 @@ void ClangFormatCodeStyleEditorWidget::onUseCustomSettingsChanged(bool doUse)
 
 void ClangFormatCodeStyleEditorWidget::apply()
 {
-    m_legacyIndenterSettings->apply();
+    if (m_legacyIndenterSettings)
+        m_legacyIndenterSettings->apply();
     m_clangFormatSettings->apply();
 }
 
 void ClangFormatCodeStyleEditorWidget::finish()
 {
-    m_legacyIndenterSettings->apply();
+    if (m_legacyIndenterSettings)
+        m_legacyIndenterSettings->apply();
     m_clangFormatSettings->apply();
 }
 
