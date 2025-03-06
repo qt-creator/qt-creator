@@ -92,6 +92,8 @@ QVariant ExtensionsModelPrivate::dataFromRemoteExtension(int index, int role) co
         return remoteSpec->displayName();
     case RoleDownloadCount:
         return remoteSpec->downloads();
+    case RoleFullId:
+        return QString("%1.%2").arg(remoteSpec->vendorId()).arg(remoteSpec->id());
     case RoleId:
         return remoteSpec->id();
     case RoleDateUpdated:
@@ -177,6 +179,8 @@ QVariant ExtensionsModelPrivate::dataFromLocalPlugin(int index, int role) const
                                     pluginSpec->documentationUrl());
     case RoleDescriptionShort:
         return pluginSpec->description();
+    case RoleFullId:
+        return QString("%1.%2").arg(pluginSpec->vendorId()).arg(pluginSpec->id());
     case RoleId:
         return pluginSpec->id();
     case RoleItemType:

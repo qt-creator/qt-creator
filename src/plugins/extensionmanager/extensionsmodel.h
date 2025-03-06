@@ -47,6 +47,7 @@ enum Role {
     RoleVendor,
     RoleVendorId,
     RoleVersion,
+    RoleFullId,
 };
 
 class ExtensionsModel : public QAbstractListModel

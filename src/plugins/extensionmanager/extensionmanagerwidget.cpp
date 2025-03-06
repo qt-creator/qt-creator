@@ -47,6 +47,8 @@
 #include <QApplication>
 #include <QCheckBox>
 #include <QHBoxLayout>
+#include <QJsonArray>
+#include <QJsonDocument>
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QScrollArea>
@@ -130,6 +132,129 @@ private:
     int m_width = 100;
 };
 
+class VersionSelector final : public QWidget
+{
+    Q_OBJECT
+public:
+    VersionSelector(QWidget *parent = nullptr)
+        : QWidget(parent)
+    {
+        m_versionSelector = new QComboBox;
+        m_versionSelector->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+
+        connect(m_versionSelector, &QComboBox::currentIndexChanged, this, [this](int index) {
+            if (index < 0 || size_t(index) >= m_versions.size())
+                return;
+
+            const auto &remoteSpec = m_versions.at(index);
+            if (remoteSpec->hasError()) {
+                m_versionSelector->setToolTip(remoteSpec->errorString());
+                return;
+            }
+        });
+
+        using namespace Layouting;
+        // clang-format off
+        Row {
+            m_versionSelector,
+        }.attachTo(this);
+        // clang-format on
+    }
+
+    void updateEntries()
+    {
+        m_versionSelector->clear();
+        m_versionSelector->setEnabled(m_versions.size() > 0);
+        // Add to version selector
+        int initialIndex = -1;
+
+        for (int i = 0; const auto &remoteSpec : m_versions) {
+            const bool isCompatible = remoteSpec->resolveDependencies(
+                ExtensionSystem::PluginManager::plugins());
+
+            QString versionStr = remoteSpec->version();
+            if (!isCompatible)
+                versionStr += Tr::tr(" (Incompatible)");
+            else if (initialIndex == -1)
+                initialIndex = i;
+
+            m_versionSelector->addItem(versionStr);
+            i++;
+        }
+        if (initialIndex != -1)
+            m_versionSelector->setCurrentIndex(initialIndex);
+    }
+
+    void setExtensionId(const QString &extensionId)
+    {
+        m_versions.clear();
+        m_versionSelector->clear();
+        if (extensionId.isEmpty())
+            return;
+
+        m_versionSelector->addItem(Tr::tr("Loading..."));
+        m_versionSelector->setEnabled(false);
+
+        using namespace Tasking;
+        const auto onQuerySetup = [extensionId](NetworkQuery &query) {
+            const QString url = "%1/api/v1/plugins/%2/versions";
+            const QString request = url.arg(settings().externalRepoUrl()).arg(extensionId);
+            query.setRequest(QNetworkRequest(QUrl::fromUserInput(request)));
+            query.setNetworkAccessManager(NetworkAccessManager::instance());
+        };
+
+        const auto onQueryDone = [this](const NetworkQuery &query, DoneWith result) {
+            const QByteArray response = query.reply()->readAll();
+            qCDebug(widgetLog).noquote() << "Got versions reply:" << query.reply()->error();
+            if (result == DoneWith::Success) {
+                qCDebug(widgetLog).noquote()
+                    << "JSON response size:"
+                    << QLocale::system().formattedDataSize(response.size());
+
+                QJsonParseError error;
+                QJsonDocument doc = QJsonDocument::fromJson(response, &error);
+                if (error.error != QJsonParseError::NoError) {
+                    qCWarning(widgetLog).noquote()
+                        << "Failed to parse version JSON:" << error.errorString();
+                    return;
+                }
+
+                const QJsonArray versions = doc.array();
+                qCDebug(widgetLog).noquote() << "Got" << versions.size() << "versions";
+                for (const QJsonValue &version : versions) {
+                    std::unique_ptr<RemoteSpec> remoteSpec(new RemoteSpec);
+                    if (const auto result = remoteSpec->fromJson(version.toObject()); !result) {
+                        qCWarning(widgetLog).noquote()
+                            << "Failed to parse version:" << result.error();
+                        continue;
+                    }
+                    m_versions.push_back(std::move(remoteSpec));
+                    Utils::sort(m_versions, [](const auto &a, const auto &b) {
+                        return RemoteSpec::versionCompare(a->version(), b->version()) > 0;
+                    });
+                }
+
+                updateEntries();
+            } else {
+                qCWarning(widgetLog).noquote() << response;
+                m_versionSelector->clear();
+                m_versionSelector->addItem(Tr::tr("Failed to load versions"));
+            }
+        };
+
+        Group receipe{
+            NetworkQueryTask{onQuerySetup, onQueryDone},
+        };
+
+        m_fetchVersionsRunner.start(receipe);
+    }
+
+private:
+    std::vector<std::unique_ptr<RemoteSpec>> m_versions;
+    QComboBox *m_versionSelector;
+    Tasking::TaskTreeRunner m_fetchVersionsRunner;
+};
+
 class HeadingWidget : public QWidget
 {
     static constexpr int dividerH = 16;
@@ -190,7 +315,10 @@ public:
         updateButton->hide();
         connect(updateButton, &QAbstractButton::pressed, this, &HeadingWidget::pluginUpdateRequested);
 
+        m_versionSelector = new VersionSelector();
+
         using namespace Layouting;
+        // clang-format off
         Row {
             m_icon,
             Column {
@@ -219,10 +347,12 @@ public:
                 installButton,
                 updateButton,
                 removeButton,
+                m_versionSelector,
                 st,
             },
             noMargin, spacing(SpacingTokens::ExPaddingGapL),
         }.attachTo(this);
+        // clang-format on
 
         setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
         m_dlCountItems->setVisible(false);
@@ -274,6 +404,9 @@ public:
             && ExtensionSystem::PluginSpec::versionCompare(
                    pluginSpec->version(), current.data(RoleVersion).toString())
                    < 0);
+
+        m_versionSelector->setVisible(isRemotePlugin);
+        m_versionSelector->setExtensionId(current.data(RoleFullId).toString());
     }
 
 signals:
@@ -293,6 +426,7 @@ private:
     QAbstractButton *installButton;
     QAbstractButton *removeButton;
     QAbstractButton *updateButton;
+    VersionSelector *m_versionSelector;
     QString m_currentVendor;
     QString m_currentPluginId;
 };
@@ -454,8 +588,6 @@ private:
     QString m_currentDownloadUrl;
     QString m_currentId;
     Tasking::TaskTreeRunner m_dlTaskTreeRunner;
-
-    std::unique_ptr<RemoteSpec> m_remoteSpec;
 };
 
 static QWidget *descriptionPlaceHolder()
@@ -660,7 +792,7 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
     m_pluginStatus->setPluginId(isPack ? QString() : current.data(RoleId).toString());
     m_currentDownloadUrl = current.data(RoleDownloadUrl).toString();
 
-    m_currentId = current.data(RoleVendorId).toString() + "." + current.data(RoleId).toString();
+    m_currentId = current.data(RoleFullId).toString();
 
     const QString description = current.data(RoleDescriptionLong).toString();
     m_description->setMarkdown(description);
