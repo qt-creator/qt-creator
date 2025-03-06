@@ -94,6 +94,10 @@ void BuildSystem::emitParsingStarted()
     d->m_isParsing = true;
     emit parsingStarted();
     emit target()->parsingStarted();
+    if (this == activeBuildSystemForActiveProject())
+        emit ProjectManager::instance()->parsingStartedActive(this);
+    if (this == activeBuildSystemForCurrentProject())
+        emit ProjectManager::instance()->parsingStartedCurrent(this);
 }
 
 void BuildSystem::emitParsingFinished(bool success)
@@ -106,6 +110,10 @@ void BuildSystem::emitParsingFinished(bool success)
     d->m_hasParsingData = success;
     emit parsingFinished(success);
     emit target()->parsingFinished(success);
+    if (this == activeBuildSystemForActiveProject())
+        emit ProjectManager::instance()->parsingFinishedActive(success, this);
+    if (this == activeBuildSystemForCurrentProject())
+        emit ProjectManager::instance()->parsingFinishedCurrent(success, this);
 }
 
 FilePath BuildSystem::projectFilePath() const

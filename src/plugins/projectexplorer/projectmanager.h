@@ -21,6 +21,7 @@ class MimeType;
 
 namespace ProjectExplorer {
 
+class BuildConfiguration;
 class BuildSystem;
 class Kit;
 class Project;
@@ -105,9 +106,24 @@ signals:
 
     void startupProjectChanged(ProjectExplorer::Project *project);
 
+    // bc == activeBuildConfigForActiveProject()
+    void activeBuildConfigurationChanged(BuildConfiguration *bc);
+
+    // bc == activeBuildConfigForCurrentProject()
+    void currentBuildConfigurationChanged(BuildConfiguration *bc);
+
+    // bs = activeBuildSystemForActiveProject()
+    void parsingStartedActive(BuildSystem *bs);
+    void parsingFinishedActive(bool success, BuildSystem *bs);
+
+    // bs = activeBuildSystemForCurrentProject()
+    void parsingStartedCurrent(BuildSystem *bs);
+    void parsingFinishedCurrent(bool success, BuildSystem *bs);
+
     void dependencyChanged(ProjectExplorer::Project *a, ProjectExplorer::Project *b);
 
     // for tests only
+    // FIXME: Redundant with parsingFinishedActive()?
     void projectFinishedParsing(ProjectExplorer::Project *project);
 
 private:

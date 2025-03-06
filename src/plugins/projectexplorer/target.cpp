@@ -312,6 +312,10 @@ void Target::setActiveBuildConfiguration(BuildConfiguration *bc)
          bc != d->m_activeBuildConfiguration)) {
         d->m_activeBuildConfiguration = bc;
         emit activeBuildConfigurationChanged(d->m_activeBuildConfiguration);
+        if (bc == activeBuildConfigForActiveProject())
+            emit ProjectManager::instance()->activeBuildConfigurationChanged(bc);
+        if (bc == activeBuildConfigForCurrentProject())
+            emit ProjectManager::instance()->currentBuildConfigurationChanged(bc);
         ProjectExplorerPlugin::updateActions();
     }
 }

@@ -105,6 +105,9 @@ ProjectManager::ProjectManager()
             EditorManager::instance(), &EditorManager::updateWindowTitles);
     connect(this, &ProjectManager::projectDisplayNameChanged,
             EditorManager::instance(), &EditorManager::updateWindowTitles);
+    connect(this, &ProjectManager::startupProjectChanged, this, [this] {
+        emit activeBuildConfigurationChanged(activeBuildConfigForActiveProject());
+    });
 
     EditorManager::setWindowTitleAdditionHandler(&ProjectManagerPrivate::windowTitleAddition);
     EditorManager::setSessionTitleHandler(&ProjectManagerPrivate::sessionTitle);
