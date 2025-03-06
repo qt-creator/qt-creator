@@ -40,7 +40,7 @@ private:
     {
         const auto onSetup = [this](Process &process) {
             QString remoteExe;
-            if (RunConfiguration *rc = target()->activeRunConfiguration()) {
+            if (RunConfiguration *rc = buildConfiguration()->activeRunConfiguration()) {
                 if (auto exeAspect = rc->aspect<ExecutableAspect>())
                     remoteExe = exeAspect->executable().nativePath();
             }

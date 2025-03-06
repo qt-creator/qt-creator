@@ -13,6 +13,7 @@ namespace ProjectExplorer {
 
 class BuildConfiguration;
 class BuildStepList;
+class BuildSystem;
 class Target;
 class DeployConfigurationFactory;
 
@@ -44,6 +45,7 @@ public:
     void setCustomDeploymentData(const DeploymentData &data) { m_customDeploymentData = data; }
 
     BuildConfiguration *buildConfiguration() const { return m_buildConfiguration; }
+    BuildSystem *buildSystem() const;
 
 private:
     BuildConfiguration * const m_buildConfiguration;

@@ -10,6 +10,7 @@
 #include "appmanagertr.h"
 
 #include <projectexplorer/buildstep.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -35,10 +36,22 @@ public:
                 step->setBuildTargets({targetInformation.cmakeBuildTarget});
                 step->setStepEnabled(!targetInformation.isBuiltin);
             };
-            QObject::connect(step->target(), &Target::activeRunConfigurationChanged, step, updaterSlot);
-            QObject::connect(step->target(), &Target::activeDeployConfigurationChanged, step, updaterSlot);
-            QObject::connect(step->target(), &Target::parsingFinished, step, updaterSlot);
-            QObject::connect(step->target(), &Target::runConfigurationsUpdated, step, updaterSlot);
+            QObject::connect(
+                step->buildConfiguration(),
+                &BuildConfiguration::activeRunConfigurationChanged,
+                step,
+                updaterSlot);
+            QObject::connect(
+                step->buildConfiguration(),
+                &BuildConfiguration::activeDeployConfigurationChanged,
+                step,
+                updaterSlot);
+            QObject::connect(step->buildSystem(), &BuildSystem::parsingFinished, step, updaterSlot);
+            QObject::connect(
+                step->buildConfiguration(),
+                &BuildConfiguration::runConfigurationsUpdated,
+                step,
+                updaterSlot);
             QObject::connect(step->project(), &Project::displayNameChanged, step, updaterSlot);
         });
 

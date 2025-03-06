@@ -29,9 +29,9 @@ public:
         setWidgetExpandedByDefault(false);
 
         setInternalInitializer([this]() -> expected_str<void> {
-            Target * const theTarget = target();
-            QTC_ASSERT(theTarget, return make_unexpected(QString()));
-            RunConfiguration * const rc = theTarget->activeRunConfiguration();
+            BuildConfiguration * const bc = buildConfiguration();
+            QTC_ASSERT(bc, return make_unexpected(QString()));
+            RunConfiguration * const rc = bc->activeRunConfiguration();
             m_remoteExecutable =  rc ? rc->runnable().command.executable() : FilePath();
             return {};
         });

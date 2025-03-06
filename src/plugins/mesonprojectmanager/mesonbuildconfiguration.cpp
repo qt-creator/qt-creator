@@ -220,7 +220,7 @@ public:
         optionsTreeView->setItemDelegate(new BuildOptionDelegate{optionsTreeView});
 
         MesonBuildSystem *bs = static_cast<MesonBuildSystem *>(buildCfg->buildSystem());
-        connect(buildCfg->target(), &ProjectExplorer::Target::parsingFinished,
+        connect(bs, &BuildSystem::parsingFinished,
                 this, [this, bs, optionsTreeView](bool success) {
             if (success) {
                 m_optionsModel.setConfiguration(bs->buildOptions());

@@ -131,7 +131,7 @@ QWidget *QbsInstallStep::createConfigWidget()
         commandLineTextEdit->setPlainText(buildConfig()->equivalentCommandLine(data));
     };
 
-    connect(target(), &Target::parsingFinished, this, updateState);
+    connect(buildSystem(), &BuildSystem::parsingFinished, this, updateState);
     connect(buildConfig(), &QbsBuildConfiguration::qbsConfigurationChanged, this, updateState);
     connect(this, &ProjectConfiguration::displayNameChanged, this, updateState);
 

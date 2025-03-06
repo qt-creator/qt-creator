@@ -144,7 +144,7 @@ LibraryListModel::LibraryListModel(BuildSystem *buildSystem, QObject *parent)
     connect(buildSystem, &BuildSystem::parsingFinished, this, &LibraryListModel::updateModel);
     // Causes target()->activeBuildKey() result and consequently the node data
     // extracted below to change.
-    connect(buildSystem->target(), &Target::activeRunConfigurationChanged,
+    connect(buildSystem->buildConfiguration(), &BuildConfiguration::activeRunConfigurationChanged,
             this, &LibraryListModel::updateModel);
 }
 

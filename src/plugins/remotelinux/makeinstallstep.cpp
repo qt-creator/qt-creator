@@ -121,7 +121,7 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent
     connect(&m_customCommand, &StringAspect::changed,
             this, &MakeInstallStep::updateFromCustomCommandLineAspect);
 
-    connect(target(), &Target::buildSystemUpdated, this, updateCommand);
+    connect(buildSystem(), &BuildSystem::updated, this, updateCommand);
 
     const MakeInstallCommand cmd = buildSystem()->makeInstallCommand(rootPath);
     QTC_ASSERT(!cmd.command.isEmpty(), return);

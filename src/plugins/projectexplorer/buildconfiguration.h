@@ -77,6 +77,7 @@ public:
     void addDeployConfiguration(DeployConfiguration *dc);
     bool removeDeployConfiguration(DeployConfiguration *dc);
     const QList<DeployConfiguration *> deployConfigurations() const;
+    void setActiveDeployConfiguration(DeployConfiguration *dc);
     DeployConfiguration *activeDeployConfiguration() const;
     void setActiveDeployConfiguration(DeployConfiguration *dc, SetActive cascade);
     void updateDefaultDeployConfigurations();
@@ -149,13 +150,21 @@ signals:
     void buildDirectoryChanged();
     void buildTypeChanged();
 
+    void removedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+    void addedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+    void activeRunConfigurationChanged(ProjectExplorer::RunConfiguration *rc);
+    void runConfigurationsUpdated();
+
+    void removedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);
+    void addedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);
+    void activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration *dc);
+
 protected:
     void setInitializer(const std::function<void(const BuildInfo &info)> &initializer);
 
 private:
     bool addConfigurationsFromMap(const Utils::Store &map, bool setActiveConfigurations);
     void storeConfigurationsToMap(Utils::Store &map) const;
-    void setActiveDeployConfiguration(DeployConfiguration *dc);
 
     void emitBuildDirectoryChanged();
     Internal::BuildConfigurationPrivate *d = nullptr;

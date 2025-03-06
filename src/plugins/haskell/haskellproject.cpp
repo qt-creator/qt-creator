@@ -112,7 +112,7 @@ void HaskellBuildSystem::updateApplicationTargets()
               return bti;
           });
     setApplicationTargets(appTargets);
-    target()->updateDefaultRunConfigurations();
+    buildConfiguration()->updateDefaultRunConfigurations();
 }
 
 class HaskellProject final : public Project

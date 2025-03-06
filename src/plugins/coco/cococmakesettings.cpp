@@ -53,13 +53,13 @@ private:
 void CocoCMakeSettings::connectToProject(CocoProjectWidget *parent) const
 {
     connect(
-        buildConfig()->target(),
-        &Target::buildSystemUpdated,
+        buildConfig()->buildSystem(),
+        &BuildSystem::updated,
         parent,
-        &CocoProjectWidget::buildSystemUpdated);
+        [parent, bs = buildConfig()->buildSystem()] { parent->buildSystemUpdated(bs); });
     connect(
         buildConfig()->buildSystem(),
-        &ProjectExplorer::BuildSystem::errorOccurred,
+        &BuildSystem::errorOccurred,
         parent,
         &CocoProjectWidget::configurationErrorOccurred);
 }

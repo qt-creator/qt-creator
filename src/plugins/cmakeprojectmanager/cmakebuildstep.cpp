@@ -274,12 +274,12 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
             env.set("DESTDIR", stagingDir().path());
     });
 
-    connect(target(), &Target::parsingFinished, this, [this](bool success) {
+    connect(buildSystem(), &BuildSystem::parsingFinished, this, [this](bool success) {
         if (success) // Do not change when parsing failed.
             recreateBuildTargetsModel();
     });
 
-    connect(target(), &Target::activeRunConfigurationChanged,
+    connect(buildConfiguration(), &BuildConfiguration::activeRunConfigurationChanged,
             this, &CMakeBuildStep::updateBuildTargetsModel);
 }
 
@@ -313,7 +313,7 @@ bool CMakeBuildStep::init()
         return false;
 
     if (m_buildTargets.contains(QString())) {
-        RunConfiguration *rc = target()->activeRunConfiguration();
+        RunConfiguration *rc = buildConfiguration()->activeRunConfiguration();
         if (!rc || rc->buildKey().isEmpty()) {
             emit addTask(BuildSystemTask(Task::Error,
                                          ::ProjectExplorer::Tr::tr(
@@ -480,7 +480,7 @@ CommandLine CMakeBuildStep::cmakeCommand() const
         cmd.addArg("--target");
         cmd.addArgs(Utils::transform(m_buildTargets, [this](const QString &s) {
             if (s.isEmpty()) {
-                if (RunConfiguration *rc = target()->activeRunConfiguration())
+                if (RunConfiguration *rc = buildConfiguration()->activeRunConfiguration())
                     return rc->buildKey();
             }
             return s;
@@ -547,7 +547,7 @@ QStringList CMakeBuildStep::specialTargets(bool allCapsTargets)
 
 QString CMakeBuildStep::activeRunConfigTarget() const
 {
-    RunConfiguration *rc = target()->activeRunConfiguration();
+    RunConfiguration *rc = buildConfiguration()->activeRunConfiguration();
     return rc ? rc->buildKey() : QString();
 }
 

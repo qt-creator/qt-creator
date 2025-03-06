@@ -68,7 +68,7 @@ PySideBuildStep::PySideBuildStep(BuildStepList *bsl, Id id)
         env.prependOrSetPath(m_pysideProject().parentDir());
     });
 
-    connect(target(), &Target::buildSystemUpdated, this, &PySideBuildStep::updateExtraCompilers);
+    connect(buildSystem(), &BuildSystem::updated, this, &PySideBuildStep::updateExtraCompilers);
     connect(&m_pysideUic, &BaseAspect::changed, this, &PySideBuildStep::updateExtraCompilers);
 }
 

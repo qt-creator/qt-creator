@@ -186,7 +186,7 @@ bool AndroidDeployQtStep::init()
     emit addOutput(Tr::tr("Initializing deployment to Android device/simulator"),
                    OutputFormat::NormalMessage);
 
-    RunConfiguration *rc = target()->activeRunConfiguration();
+    RunConfiguration *rc = buildConfiguration()->activeRunConfiguration();
     QTC_ASSERT(rc, reportWarningOrError(Tr::tr("The kit's run configuration is invalid."), Task::Error);
             return false);
     BuildConfiguration *bc = target()->activeBuildConfiguration();
@@ -392,7 +392,7 @@ Group AndroidDeployQtStep::deployRecipe()
         if (!m_uninstallPreviousPackageRun)
             return SetupResult::StopWithSuccess;
 
-        QTC_ASSERT(target()->activeRunConfiguration(), return SetupResult::StopWithError);
+        QTC_ASSERT(buildConfiguration()->activeRunConfiguration(), return SetupResult::StopWithError);
 
         const QString packageName = Internal::packageName(buildConfiguration());
         if (packageName.isEmpty()) {
@@ -428,7 +428,7 @@ Group AndroidDeployQtStep::deployRecipe()
             if (!m_serialNumber.isEmpty() && !m_serialNumber.startsWith("????"))
                 cmd.addArgs({"--device", m_serialNumber});
         } else {
-            QTC_ASSERT(target()->activeRunConfiguration(), return SetupResult::StopWithError);
+            QTC_ASSERT(buildConfiguration()->activeRunConfiguration(), return SetupResult::StopWithError);
             cmd.addArgs(adbSelector(m_serialNumber));
             cmd.addArgs({"install", "-r", m_apkPath.nativePath()});
         }

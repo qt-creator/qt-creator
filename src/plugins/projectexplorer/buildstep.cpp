@@ -153,11 +153,8 @@ BuildConfiguration *BuildStep::buildConfiguration() const
 DeployConfiguration *BuildStep::deployConfiguration() const
 {
     auto config = qobject_cast<DeployConfiguration *>(projectConfiguration());
-    if (config)
-        return config;
-    QTC_CHECK(false);
-    // step is not part of a deploy configuration, use active deploy configuration of step's target
-    return target()->activeDeployConfiguration();
+    QTC_ASSERT(config, return target()->activeDeployConfiguration());
+    return config;
 }
 
 ProjectConfiguration *BuildStep::projectConfiguration() const

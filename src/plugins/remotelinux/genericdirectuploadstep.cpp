@@ -8,6 +8,7 @@
 #include "remotelinuxtr.h"
 
 #include <projectexplorer/buildstep.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/filetransfer.h>
@@ -210,7 +211,7 @@ GroupItem GenericDirectUploadStep::deployRecipe()
     const Storage<UploadStorage> storage;
 
     const auto setupHandler = [this, storage] {
-        const QList<DeployableFile> deployableFiles = target()->deploymentData().allFiles();
+        const QList<DeployableFile> deployableFiles = buildSystem()->deploymentData().allFiles();
         QList<DeployableFile> collected;
         for (const DeployableFile &file : deployableFiles)
             collected.append(collectFilesToUpload(file));

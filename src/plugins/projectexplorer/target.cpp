@@ -168,12 +168,6 @@ BuildSystem *Target::buildSystem() const
     return d->m_activeBuildConfiguration->buildSystem();
 }
 
-BuildTargetInfo Target::buildTarget(const QString &buildKey) const
-{
-    QTC_ASSERT(buildSystem(), return {});
-    return buildSystem()->buildTarget(buildKey);
-}
-
 QString Target::activeBuildKey() const
 {
     QTC_ASSERT(activeBuildConfiguration(), return {});
@@ -210,26 +204,6 @@ void Target::setActiveBuildConfiguration(BuildConfiguration *bc, SetActive casca
             }
         }
     }
-}
-
-void Target::setActiveDeployConfiguration(DeployConfiguration *dc)
-{
-    for (BuildConfiguration * const bc : std::as_const(d->m_buildConfigurations)) {
-        if (bc->deployConfigurations().contains(dc)) {
-            bc->setActiveDeployConfiguration(dc);
-            if (bc != d->m_activeBuildConfiguration)
-                setActiveBuildConfiguration(bc, SetActive::NoCascade);
-            return;
-        }
-    }
-}
-
-QList<DeployConfiguration *> Target::deployConfigurations() const
-{
-    QList<DeployConfiguration *> dcs;
-    for (BuildConfiguration * const bc : std::as_const(d->m_buildConfigurations))
-        dcs << bc->deployConfigurations();
-    return dcs;
 }
 
 Utils::Id Target::id() const

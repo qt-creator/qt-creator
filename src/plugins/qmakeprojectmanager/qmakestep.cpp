@@ -454,7 +454,7 @@ QWidget *QMakeStep::createConfigWidget()
 
     connect(project(), &Project::projectLanguagesUpdated,
             widget, [this] { linkQmlDebuggingLibraryChanged(); });
-    connect(target(), &Target::parsingFinished,
+    connect(buildSystem(), &BuildSystem::parsingFinished,
             widget, [this] { updateEffectiveQMakeCall(); });
     connect(qmakeBuildConfiguration(), &QmakeBuildConfiguration::useQtQuickCompilerChanged,
             widget, [this] { useQtQuickCompilerChanged(); });

@@ -113,6 +113,11 @@ bool DeployConfiguration::isActive() const
     return project()->activeDeployConfiguration() == this;
 }
 
+BuildSystem *DeployConfiguration::buildSystem() const
+{
+    return buildConfiguration()->buildSystem();
+}
+
 
 ///
 // DeployConfigurationFactory

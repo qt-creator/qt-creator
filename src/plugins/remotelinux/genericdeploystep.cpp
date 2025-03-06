@@ -191,7 +191,7 @@ GroupItem GenericDeployStep::deployRecipe()
     const Storage<FilesToTransfer> storage;
 
     const auto onSetup = [this, storage] {
-        const QList<DeployableFile> deployableFiles = target()->deploymentData().allFiles();
+        const QList<DeployableFile> deployableFiles = buildSystem()->deploymentData().allFiles();
         FilesToTransfer &files = *storage;
         for (const DeployableFile &file : deployableFiles) {
             if (!ignoreMissingFiles() || file.localFilePath().exists()) {

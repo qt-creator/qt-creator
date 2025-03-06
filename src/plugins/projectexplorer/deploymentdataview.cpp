@@ -98,7 +98,7 @@ DeploymentDataView::DeploymentDataView(DeployConfiguration *dc)
 
     const auto updateModel = [dc, model, view] {
         model->clear();
-        for (const DeployableFile &file : dc->target()->deploymentData().allFiles()) {
+        for (const DeployableFile &file : dc->buildSystem()->deploymentData().allFiles()) {
             model->rootItem()->appendChild(
                         new DeploymentDataItem(file, dc->usesCustomDeploymentData()));
         }
@@ -129,7 +129,7 @@ DeploymentDataView::DeploymentDataView(DeployConfiguration *dc)
                                  && view->selectionModel()->hasSelection());
     };
 
-    connect(dc->target(), &Target::deploymentDataChanged, this, [dc, updateModel] {
+    connect(dc->buildSystem(), &BuildSystem::deploymentDataChanged, this, [dc, updateModel] {
         if (!dc->usesCustomDeploymentData())
             updateModel();
     });

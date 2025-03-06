@@ -152,7 +152,8 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
             this, &QmakeBuildConfiguration::updateProblemLabel);
     connect(&settings(), &AspectContainer::changed,
             this, &QmakeBuildConfiguration::updateProblemLabel);
-    connect(target, &Target::parsingFinished, this, &QmakeBuildConfiguration::updateProblemLabel);
+    connect(buildSystem(), &BuildSystem::parsingFinished,
+            this, &QmakeBuildConfiguration::updateProblemLabel);
     connect(target, &Target::kitChanged, this, &QmakeBuildConfiguration::updateProblemLabel);
 
     connect(&separateDebugInfo, &BaseAspect::changed, this, [this] {

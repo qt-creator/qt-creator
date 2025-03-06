@@ -237,8 +237,8 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
         setToolTip(d->m_tooltipAspect());
     });
 
-    connect(target, &Target::parsingStarted, this, &BuildConfiguration::enabledChanged);
-    connect(target, &Target::parsingFinished, this, &BuildConfiguration::enabledChanged);
+    connect(buildSystem(), &BuildSystem::parsingStarted, this, &BuildConfiguration::enabledChanged);
+    connect(buildSystem(), &BuildSystem::parsingFinished, this, &BuildConfiguration::enabledChanged);
     connect(this, &BuildConfiguration::enabledChanged, this, [this] {
         if (isActive() && project() == ProjectManager::startupProject()) {
             ProjectExplorerPlugin::updateActions();
@@ -436,6 +436,7 @@ void BuildConfiguration::setActiveDeployConfiguration(DeployConfiguration *dc)
         return;
 
     d->m_activeDeployConfiguration = dc;
+    emit activeDeployConfigurationChanged(d->m_activeDeployConfiguration);
     if (this == target()->activeBuildConfiguration())
         emit target()->activeDeployConfigurationChanged(d->m_activeDeployConfiguration);
 }
@@ -519,6 +520,7 @@ void BuildConfiguration::addDeployConfiguration(DeployConfiguration *dc)
 
     ProjectExplorerPlugin::targetSelector()->addedDeployConfiguration(dc); // TODO: Use signal instead?
     d->m_deployConfigurationModel.addProjectConfiguration(dc);
+    emit addedDeployConfiguration(dc);
     if (this == target()->activeBuildConfiguration())
         emit target()->addedDeployConfiguration(dc);
 
@@ -547,7 +549,9 @@ bool BuildConfiguration::removeDeployConfiguration(DeployConfiguration *dc)
 
     ProjectExplorerPlugin::targetSelector()->removedDeployConfiguration(dc);
     d->m_deployConfigurationModel.removeProjectConfiguration(dc);
-    emit target()->removedDeployConfiguration(dc); // TODO: Own signal?
+    emit removedDeployConfiguration(dc);
+    if (this == target()->activeBuildConfiguration())
+        emit target()->removedDeployConfiguration(dc);
 
     delete dc;
     return true;
@@ -761,6 +765,7 @@ void BuildConfiguration::updateDefaultRunConfigurations()
     for (RunConfiguration *rc : std::as_const(removalList))
         removeRunConfiguration(rc);
 
+    emit runConfigurationsUpdated();
     if (this == target()->activeBuildConfiguration())
         emit target()->runConfigurationsUpdated();
 }
@@ -789,7 +794,9 @@ void BuildConfiguration::addRunConfiguration(RunConfiguration *rc)
 
     ProjectExplorerPlugin::targetSelector()->addedRunConfiguration(rc);
     d->m_runConfigurationModel.addProjectConfiguration(rc);
-    emit target()->addedRunConfiguration(rc);
+    emit addedRunConfiguration(rc);
+    if (this == target()->activeBuildConfiguration())
+        emit target()->addedRunConfiguration(rc);
 
     if (!activeRunConfiguration())
         setActiveRunConfiguration(rc);
@@ -808,7 +815,9 @@ void BuildConfiguration::removeRunConfiguration(RunConfiguration *rc)
             setActiveRunConfiguration(d->m_runConfigurations.at(0));
     }
 
-    emit target()->removedRunConfiguration(rc);
+    emit removedRunConfiguration(rc);
+    if (this == target()->activeBuildConfiguration())
+        emit target()->removedRunConfiguration(rc);
     ProjectExplorerPlugin::targetSelector()->removedRunConfiguration(rc);
     d->m_runConfigurationModel.removeProjectConfiguration(rc);
 
@@ -822,7 +831,9 @@ void BuildConfiguration::removeAllRunConfigurations()
     setActiveRunConfiguration(nullptr);
     while (!runConfigs.isEmpty()) {
         RunConfiguration * const rc = runConfigs.takeFirst();
-        emit target()->removedRunConfiguration(rc);
+        emit removedRunConfiguration(rc);
+        if (this == target()->activeBuildConfiguration())
+            emit target()->removedRunConfiguration(rc);
         ProjectExplorerPlugin::targetSelector()->removedRunConfiguration(rc);
         d->m_runConfigurationModel.removeProjectConfiguration(rc);
         delete rc;
@@ -843,7 +854,9 @@ void BuildConfiguration::setActiveRunConfiguration(RunConfiguration *rc)
         (rc && d->m_runConfigurations.contains(rc) &&
          rc != d->m_activeRunConfiguration)) {
         d->m_activeRunConfiguration = rc;
-        emit target()->activeRunConfigurationChanged(d->m_activeRunConfiguration);
+        emit activeRunConfigurationChanged(d->m_activeRunConfiguration);
+        if (this == target()->activeBuildConfiguration())
+            emit target()->activeRunConfigurationChanged(d->m_activeRunConfiguration);
         ProjectExplorerPlugin::updateActions();
     }
 }

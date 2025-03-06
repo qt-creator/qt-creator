@@ -5,6 +5,7 @@
 
 #include "appoutputpane.h"
 #include "buildconfiguration.h"
+#include "buildsystem.h"
 #include "customparser.h"
 #include "devicesupport/devicekitaspects.h"
 #include "devicesupport/devicemanager.h"
@@ -411,7 +412,7 @@ void RunControl::setBuildConfiguration(BuildConfiguration *bc)
     d->buildConfiguration = bc;
 
     if (!d->buildKey.isEmpty())
-        d->buildTargetInfo = bc->target()->buildTarget(d->buildKey);
+        d->buildTargetInfo = bc->buildSystem()->buildTarget(d->buildKey);
 
     d->buildDirectory = bc->buildDirectory();
     d->buildEnvironment = bc->environment();

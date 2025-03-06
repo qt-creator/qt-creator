@@ -7,6 +7,7 @@
 
 #include "appmanagerconstants.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
@@ -52,7 +53,7 @@ void AppManagerDeployConfigurationAutoSwitcher::onActiveDeployConfigurationChang
     if (m_deployConfiguration != deployConfiguration) {
         m_deployConfiguration = deployConfiguration;
         if (deployConfiguration && deployConfiguration->target()) {
-            if (auto runConfiguration = deployConfiguration->target()->activeRunConfiguration()) {
+            if (auto runConfiguration = deployConfiguration->buildConfiguration()->activeRunConfiguration()) {
                 m_deployConfigurationsUsageHistory.insert(runConfiguration, deployConfiguration);
             }
         }
@@ -75,23 +76,23 @@ void AppManagerDeployConfigurationAutoSwitcher::onActiveRunConfigurationChanged(
     if (m_runConfiguration != runConfiguration) {
         m_runConfiguration = runConfiguration;
         if (runConfiguration) {
-            if (auto target = runConfiguration->target()) {
+            if (BuildConfiguration * const bc = runConfiguration->buildConfiguration()) {
                 const auto stored = m_deployConfigurationsUsageHistory.contains(runConfiguration);
                 if (stored) {
                     // deploy selection stored -> restore
                     auto deployConfiguration = m_deployConfigurationsUsageHistory.value(runConfiguration, nullptr);
-                    target->setActiveDeployConfiguration(deployConfiguration);
-                } else if (auto activeDeployConfiguration = target->activeDeployConfiguration()) {
+                    bc->setActiveDeployConfiguration(deployConfiguration);
+                } else if (auto activeDeployConfiguration = bc->activeDeployConfiguration()) {
                     // active deploy configuration exists
                     if (isApplicationManagerRunConfiguration(runConfiguration)) {
                         // current run configuration is AM
                         if (!isApplicationManagerDeployConfiguration(activeDeployConfiguration)) {
                             // current deploy configuration is not AM
-                            for (auto deployConfiguration : target->deployConfigurations()) {
+                            for (auto deployConfiguration : bc->deployConfigurations()) {
                                 // find AM deploy configuration
                                 if (isApplicationManagerDeployConfiguration(deployConfiguration)) {
                                     // make it active
-                                    target->setActiveDeployConfiguration(deployConfiguration);
+                                    bc->setActiveDeployConfiguration(deployConfiguration);
                                     break;
                                 }
                             }
@@ -100,11 +101,11 @@ void AppManagerDeployConfigurationAutoSwitcher::onActiveRunConfigurationChanged(
                         // current run configuration is not AM
                         if (isApplicationManagerDeployConfiguration(activeDeployConfiguration)) {
                             // current deploy configuration is AM
-                            for (auto deployConfiguration : target->deployConfigurations()) {
+                            for (auto deployConfiguration : bc->deployConfigurations()) {
                                 // find not AM deploy configuration
                                 if (!isApplicationManagerDeployConfiguration(deployConfiguration)) {
                                     // make it active
-                                    target->setActiveDeployConfiguration(deployConfiguration);
+                                    bc->setActiveDeployConfiguration(deployConfiguration);
                                     break;
                                 }
                             }

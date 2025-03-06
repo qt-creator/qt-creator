@@ -41,7 +41,7 @@ MesonBuildStep::MesonBuildStep(BuildStepList *bsl, Id id)
     setCommandLineProvider([this] { return command(); });
     setUseEnglishOutput();
 
-    connect(target(), &ProjectExplorer::Target::parsingFinished, this, &MesonBuildStep::update);
+    connect(buildSystem(), &BuildSystem::parsingFinished, this, &MesonBuildStep::update);
     connect(&settings().verboseBuild, &BaseAspect::changed,
             this, &MesonBuildStep::commandChanged);
 }

@@ -647,7 +647,7 @@ void QmakeBuildSystem::decrementPendingEvaluateFutures()
             updateBuildSystemData();
             updateCodeModels();
             updateDocuments();
-            target()->updateDefaultDeployConfigurations();
+            buildConfiguration()->updateDefaultDeployConfigurations();
             m_guard.markAsSuccess(); // Qmake always returns (some) data, even when it failed:-)
             TRACE("success" << int(m_guard.isSuccess()));
             m_guard = {}; // This triggers emitParsingFinished by destroying the previous guard.

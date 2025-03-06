@@ -88,15 +88,10 @@ public:
     ProjectConfigurationModel *buildConfigurationModel() const;
 
     DeploymentData deploymentData() const;
-    BuildTargetInfo buildTarget(const QString &buildKey) const;
 
     QString activeBuildKey() const; // Build key of active run configuaration
 
     void setActiveBuildConfiguration(BuildConfiguration *bc, SetActive cascade);
-
-    // Do not use, only for QtAM.
-    void setActiveDeployConfiguration(DeployConfiguration *dc);
-    QList<DeployConfiguration *> deployConfigurations() const;
 
 signals:
     void targetEnabled(bool);
@@ -124,8 +119,6 @@ signals:
     void removedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);
     void addedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);
     void activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration *dc);
-
-    void deploymentDataChanged();
 
 private:
     bool fromMap(const Utils::Store &map);

@@ -10,6 +10,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
@@ -199,8 +200,8 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
             return qmlRuntime;
     }
     auto hasDeployStep = [this] {
-        return target()->activeDeployConfiguration() &&
-            !target()->activeDeployConfiguration()->stepList()->isEmpty();
+        return buildConfiguration()->activeDeployConfiguration() &&
+            !buildConfiguration()->activeDeployConfiguration()->stepList()->isEmpty();
     };
 
     // The Qt version might know, but we need to make sure

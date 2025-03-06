@@ -198,9 +198,8 @@ void ChooseDirectoryPage::checkPackageSourceDir()
 
 void ChooseDirectoryPage::initializePage()
 {
-    const Target *target = m_wizard->buildSystem()->target();
     const QString buildKey = m_wizard->buildKey();
-    const BuildTargetInfo bti = target->buildTarget(buildKey);
+    const BuildTargetInfo bti = m_wizard->buildSystem()->buildTarget(buildKey);
 
     FilePath androidPackageDir;
     if (const ProjectNode *node = m_wizard->buildSystem()->project()->findNodeForBuildKey(buildKey))
@@ -255,8 +254,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
         return;
 
     FileUtils::CopyAskingForOverwrite copy;
-    Target *target = m_buildSystem->target();
-    QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
+    QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(m_buildSystem->kit());
     if (!version)
         return;
     FileUtils::copyRecursively(version->prefix() / "src/android/templates",
@@ -278,7 +276,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
 
         if (androidPackageDir.isEmpty()) {
             // and now time for some magic
-            const BuildTargetInfo bti = target->buildTarget(m_buildKey);
+            const BuildTargetInfo bti = m_buildSystem->buildTarget(m_buildKey);
             const QString value
                 = "$$PWD/"
                   + bti.projectFilePath.absoluteFilePath().relativePathFromDir(m_directory).path();

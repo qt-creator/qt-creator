@@ -8,6 +8,7 @@
 #include "remotelinuxtr.h"
 
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
@@ -90,7 +91,7 @@ private:
 TarPackageCreationStep::TarPackageCreationStep(BuildStepList *bsl, Id id)
     : BuildStep(bsl, id)
 {
-    connect(target(), &Target::deploymentDataChanged, this, [this] {
+    connect(buildSystem(), &BuildSystem::deploymentDataChanged, this, [this] {
         m_deploymentDataModified = true;
     });
     m_deploymentDataModified = true;
@@ -132,7 +133,7 @@ Tasking::GroupItem TarPackageCreationStep::runRecipe()
 {
     using namespace Tasking;
     const auto onSetup = [this](Async<void> &async) {
-        const QList<DeployableFile> &files = target()->deploymentData().allFiles();
+        const QList<DeployableFile> &files = buildSystem()->deploymentData().allFiles();
         if (m_incrementalDeployment()) {
             m_files.clear();
             for (const DeployableFile &file : files)
@@ -206,7 +207,7 @@ bool TarPackageCreationStep::isPackagingNeeded() const
     if (!packagePath.exists() || m_deploymentDataModified)
         return true;
 
-    const DeploymentData &dd = target()->deploymentData();
+    const DeploymentData &dd = buildSystem()->deploymentData();
     for (int i = 0; i < dd.fileCount(); ++i) {
         if (dd.fileAt(i).localFilePath().isNewerThan(packagePath.lastModified()))
             return true;

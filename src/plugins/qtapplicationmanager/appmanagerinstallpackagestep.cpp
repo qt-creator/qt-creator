@@ -14,6 +14,7 @@
 #include <remotelinux/abstractremotelinuxdeploystep.h>
 
 #include <projectexplorer/buildstep.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -85,10 +86,13 @@ AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, I
         setStepEnabled(!targetInformation.isBuiltin);
     };
 
-    connect(target(), &Target::activeRunConfigurationChanged, this, updateAspects);
-    connect(target(), &Target::activeDeployConfigurationChanged, this, updateAspects);
-    connect(target(), &Target::parsingFinished, this, updateAspects);
-    connect(target(), &Target::runConfigurationsUpdated, this, updateAspects);
+    connect(buildConfiguration(), &BuildConfiguration::activeRunConfigurationChanged,
+            this, updateAspects);
+    connect(buildConfiguration(), &BuildConfiguration::activeDeployConfigurationChanged,
+            this, updateAspects);
+    connect(buildSystem(), &BuildSystem::parsingFinished, this, updateAspects);
+    connect(buildConfiguration(), &BuildConfiguration::runConfigurationsUpdated,
+            this, updateAspects);
     connect(project(), &Project::displayNameChanged, this, updateAspects);
     connect(&customizeStep, &BaseAspect::changed, this, updateAspects);
     updateAspects();
