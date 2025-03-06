@@ -631,20 +631,18 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
 
     m_currentId = current.data(RoleVendorId).toString() + "." + current.data(RoleId).toString();
 
-    {
-        const QString description = current.data(RoleDescriptionLong).toString();
-        m_description->setMarkdown(description);
-        m_description->document()->setDocumentMargin(SpacingTokens::VPaddingM);
-    }
+    const QString description = current.data(RoleDescriptionLong).toString();
+    m_description->setMarkdown(description);
+    m_description->document()->setDocumentMargin(SpacingTokens::VPaddingM);
 
-    {
-        auto idToDisplayName = [this](const QString &id) {
-            const QModelIndex dependencyIndex = m_extensionModel->indexOfId(id);
-            const QString displayName = dependencyIndex.data(RoleName).toString();
-            return QString("<a href=\"%1\">%2</a>").arg(id).arg(displayName);
-        };
+    auto idToDisplayName = [this](const QString &id) {
+        const QModelIndex dependencyIndex = m_extensionModel->indexOfId(id);
+        const QString displayName = dependencyIndex.data(RoleName).toString();
+        return QString("<a href=\"%1\">%2</a>").arg(id).arg(displayName);
+    };
 
-        auto toContentParagraph = [](const QStringList &text) {
+    auto toContentParagraph =
+        [](const QStringList &text) {
             const QString lines = text.join("<br/>");
             const QString pHtml = QString::fromLatin1("<p style=\"margin-top:0;margin-bottom:0;"
                                                       "line-height:%1px\">%2</p>")
@@ -652,44 +650,43 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
             return pHtml;
         };
 
-        const QDate dateUpdated = current.data(RoleDateUpdated).toDate();
-        const bool hasDateUpdated = dateUpdated.isValid();
-        if (hasDateUpdated)
-            m_dateUpdated->setText(dateUpdated.toString());
-        m_dateUpdatedTitle->setVisible(hasDateUpdated);
-        m_dateUpdated->setVisible(hasDateUpdated);
+    const QDate dateUpdated = current.data(RoleDateUpdated).toDate();
+    const bool hasDateUpdated = dateUpdated.isValid();
+    if (hasDateUpdated)
+        m_dateUpdated->setText(dateUpdated.toString());
+    m_dateUpdatedTitle->setVisible(hasDateUpdated);
+    m_dateUpdated->setVisible(hasDateUpdated);
 
-        const QStringList tags = current.data(RoleTags).toStringList();
-        m_tags->setTags(tags);
-        const bool hasTags = !tags.isEmpty();
-        m_tagsTitle->setVisible(hasTags);
-        m_tags->setVisible(hasTags);
+    const QStringList tags = current.data(RoleTags).toStringList();
+    m_tags->setTags(tags);
+    const bool hasTags = !tags.isEmpty();
+    m_tagsTitle->setVisible(hasTags);
+    m_tags->setVisible(hasTags);
 
-        const QStringList platforms = current.data(RolePlatforms).toStringList();
-        const bool hasPlatforms = !platforms.isEmpty();
-        if (hasPlatforms)
-            m_platforms->setText(toContentParagraph(platforms));
-        m_platformsTitle->setVisible(hasPlatforms);
-        m_platforms->setVisible(hasPlatforms);
+    const QStringList platforms = current.data(RolePlatforms).toStringList();
+    const bool hasPlatforms = !platforms.isEmpty();
+    if (hasPlatforms)
+        m_platforms->setText(toContentParagraph(platforms));
+    m_platformsTitle->setVisible(hasPlatforms);
+    m_platforms->setVisible(hasPlatforms);
 
-        const QStringList dependencies = current.data(RoleDependencies).toStringList();
-        const bool hasDependencies = !dependencies.isEmpty();
-        if (hasDependencies) {
-            const QStringList displayNames = transform(dependencies, idToDisplayName);
-            m_dependencies->setText(toContentParagraph(displayNames));
-        }
-        m_dependenciesTitle->setVisible(hasDependencies);
-        m_dependencies->setVisible(hasDependencies);
-
-        const QStringList plugins = current.data(RolePlugins).toStringList();
-        const bool hasExtensions = isPack && !plugins.isEmpty();
-        if (hasExtensions) {
-            const QStringList displayNames = transform(plugins, idToDisplayName);
-            m_packExtensions->setText(toContentParagraph(displayNames));
-        }
-        m_packExtensionsTitle->setVisible(hasExtensions);
-        m_packExtensions->setVisible(hasExtensions);
+    const QStringList dependencies = current.data(RoleDependencies).toStringList();
+    const bool hasDependencies = !dependencies.isEmpty();
+    if (hasDependencies) {
+        const QStringList displayNames = transform(dependencies, idToDisplayName);
+        m_dependencies->setText(toContentParagraph(displayNames));
     }
+    m_dependenciesTitle->setVisible(hasDependencies);
+    m_dependencies->setVisible(hasDependencies);
+
+    const QStringList plugins = current.data(RolePlugins).toStringList();
+    const bool hasExtensions = isPack && !plugins.isEmpty();
+    if (hasExtensions) {
+        const QStringList displayNames = transform(plugins, idToDisplayName);
+        m_packExtensions->setText(toContentParagraph(displayNames));
+    }
+    m_packExtensionsTitle->setVisible(hasExtensions);
+    m_packExtensions->setVisible(hasExtensions);
 }
 
 void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QString &id, bool update)
