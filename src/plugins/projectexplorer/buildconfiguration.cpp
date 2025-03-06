@@ -148,12 +148,9 @@ public:
         , m_cleanSteps(bc, Constants::BUILDSTEPS_CLEAN)
         , m_buildDirectoryAspect(bc, bc)
         , m_tooltipAspect(bc)
-        , m_buildSystem(bc->project()->createBuildSystem(bc))
         , m_deployConfigurationModel(bc->target())
         , m_runConfigurationModel(bc->target())
     {}
-
-    ~BuildConfigurationPrivate() { delete m_buildSystem; }
 
     bool m_clearSystemEnvironment = false;
     EnvironmentItems m_userEnvironmentChanges;
@@ -169,7 +166,7 @@ public:
     QList<Utils::Id> m_initialCleanSteps;
     bool m_parseStdOut = false;
     QList<Utils::Id> m_customParsers;
-    BuildSystem * const m_buildSystem;
+    BuildSystem *m_buildSystem = nullptr;
     QList<DeployConfiguration *> m_deployConfigurations;
     DeployConfiguration *m_activeDeployConfiguration = nullptr;
     QList<RunConfiguration *> m_runConfigurations;
@@ -189,6 +186,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     : ProjectConfiguration(target, id)
     , d(new Internal::BuildConfigurationPrivate(this))
 {
+    d->m_buildSystem = project()->createBuildSystem(this);
     MacroExpander *expander = macroExpander();
     expander->setDisplayName(Tr::tr("Build Settings"));
     expander->setAccumulating(true);
@@ -256,6 +254,7 @@ BuildConfiguration::~BuildConfiguration()
 {
     qDeleteAll(d->m_deployConfigurations);
     qDeleteAll(d->m_runConfigurations);
+    delete d->m_buildSystem;
     delete d;
 }
 
