@@ -1,0 +1,3 @@
+namespace MyNamespace {
+int number();
+}

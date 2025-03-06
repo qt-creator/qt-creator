@@ -282,6 +282,15 @@ void CppQuickFixTestObject::initTestCase()
                 testData.tag = t->trimmed();
                 continue;
             }
+            if (fi.fileName() == "opindex.txt") {
+                const auto t = readFile();
+                if (!t)
+                    QVERIFY2(false, qPrintable(t.error()));
+                bool ok;
+                testData.opIndex = t->trimmed().toInt(&ok);
+                QVERIFY2(ok && testData.opIndex >= 0, t->constData());
+                continue;
+            }
             if (fi.fileName().startsWith("original_")) {
                 const auto o = readFile();
                 if (!o)
@@ -317,6 +326,7 @@ void CppQuickFixTestObject::test_data()
     QTest::addColumn<QByteArrayList>("fileNames");
     QTest::addColumn<QByteArrayList>("original");
     QTest::addColumn<QByteArrayList>("expected");
+    QTest::addColumn<int>("opIndex");
 
     for (const TestData &testData : std::as_const(m_testData)) {
         QByteArrayList fileNames;
@@ -327,7 +337,8 @@ void CppQuickFixTestObject::test_data()
             original << it.value().first;
             expected << it.value().second;
         }
-        QTest::newRow(testData.tag.constData()) << fileNames << original << expected;
+        QTest::newRow(testData.tag.constData()) << fileNames << original << expected
+                                                << testData.opIndex;
     }
 }
 
@@ -336,11 +347,12 @@ void CppQuickFixTestObject::test()
     QFETCH(QByteArrayList, fileNames);
     QFETCH(QByteArrayList, original);
     QFETCH(QByteArrayList, expected);
+    QFETCH(int, opIndex);
 
     QList<TestDocumentPtr> testDocuments;
     for (qsizetype i = 0; i < fileNames.size(); ++i)
         testDocuments << CppTestDocument::create(fileNames.at(i), original.at(i), expected.at(i));
-    QuickFixOperationTest(testDocuments, m_factory.get());
+    QuickFixOperationTest(testDocuments, m_factory.get(), {}, opIndex);
 }
 
 } // namespace Tests

@@ -110,6 +110,7 @@ private:
     public:
         QByteArray tag;
         QHash<QString, std::pair<QByteArray, QByteArray>> files;
+        int opIndex = 0;
     };
     QList<TestData> m_testData;
 };
