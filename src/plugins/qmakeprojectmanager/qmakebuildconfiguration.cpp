@@ -418,16 +418,8 @@ QStringList QmakeBuildConfiguration::initialArgs() const
 {
     if (BuildStepList *buildSteps = this->buildSteps()) {
         if (auto qmakeStep = buildSteps->firstOfType<QmakeProjectManager::QMakeStep>()) {
-            QString arg = qmakeStep->userArguments.unexpandedArguments();
-            ProcessArgs::ConstArgIterator it{arg};
-            QStringList result;
-
-            while (it.next()) {
-                if (it.isSimple())
-                    result << it.value();
-            }
-
-            return result;
+            return ProcessArgs::splitArgs(qmakeStep->userArguments.arguments(),
+                                          project()->projectFilePath().osType());
         }
     }
     return {};
