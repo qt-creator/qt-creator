@@ -3603,6 +3603,9 @@ void GitClient::StashInfo::stashPrompt(const QString &command, const QString &st
     QPushButton *cancelButton = msgBox.addButton(QMessageBox::Cancel);
     cancelButton->setToolTip(Tr::tr("Cancel %1.").arg(command));
 
+    QPushButton *diffButton = msgBox.addButton(Tr::tr("Di&ff && Cancel"), QMessageBox::RejectRole);
+    diffButton->setToolTip(Tr::tr("Show a Diff of the local changes and cancel %1.").arg(command));
+
     msgBox.exec();
 
     if (msgBox.clickedButton() == discardButton) {
@@ -3612,6 +3615,9 @@ void GitClient::StashInfo::stashPrompt(const QString &command, const QString &st
         m_stashResult = NotStashed;
     } else if (msgBox.clickedButton() == cancelButton) {
         m_stashResult = StashCanceled;
+    } else if (msgBox.clickedButton() == diffButton) {
+        m_stashResult = StashCanceled;
+        gitClient().diffUnstagedRepository(m_workingDir);
     } else if (msgBox.clickedButton() == stashButton) {
         const bool result = gitClient().executeSynchronousStash(
                     m_workingDir, creatorStashMessage(command), false, errorMessage);
