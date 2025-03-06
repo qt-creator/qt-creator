@@ -179,6 +179,7 @@ public:
 
     // FIXME: Try to cut down to amount of functions.
     BuildConfiguration *buildConfiguration() const;
+    Target *target() const; // FIXME: Eliminate callers and remove again.
     Project *project() const;
     Kit *kit() const;
     const Utils::MacroExpander *macroExpander() const;

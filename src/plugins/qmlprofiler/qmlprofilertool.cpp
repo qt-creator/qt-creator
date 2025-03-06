@@ -366,7 +366,7 @@ void QmlProfilerTool::finalizeRunControl(RunControl *runControl)
 
     updateRunActions();
 
-    d->m_profilerModelManager->populateFileFinder(runControl->buildConfiguration()->target());
+    d->m_profilerModelManager->populateFileFinder(runControl->target());
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
 }
 

@@ -986,7 +986,7 @@ void RunControlPrivate::showError(const QString &msg)
 
 void RunControl::setupFormatter(OutputFormatter *formatter) const
 {
-    QList<Utils::OutputLineParser *> parsers = createOutputParsers(buildConfiguration()->target());
+    QList<Utils::OutputLineParser *> parsers = createOutputParsers(target());
     if (const auto customParsersAspect = aspectData<CustomParsersAspect>()) {
         for (const Id id : std::as_const(customParsersAspect->parsers)) {
             if (auto parser = createCustomParserFromId(id))
@@ -1087,6 +1087,11 @@ IDevice::ConstPtr RunControl::device() const
 BuildConfiguration *RunControl::buildConfiguration() const
 {
     return d->buildConfiguration;
+}
+
+Target *RunControl::target() const
+{
+    return buildConfiguration() ? buildConfiguration()->target() : nullptr;
 }
 
 Project *RunControl::project() const
