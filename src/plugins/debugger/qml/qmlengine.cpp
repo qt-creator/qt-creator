@@ -1228,6 +1228,7 @@ void QmlEnginePrivate::handleEvaluateExpression(const QVariantMap &response,
     QVariant bodyVal = response.value(BODY).toMap();
     QmlV8ObjectData body = extractData(bodyVal);
     WatchHandler *watchHandler = engine->watchHandler();
+    watchHandler->resetValueCache();
 
     auto item = new WatchItem;
     item->iname = iname;
