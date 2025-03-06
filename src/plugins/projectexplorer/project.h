@@ -219,8 +219,8 @@ signals:
 
     void projectLanguagesUpdated();
 
-    void anyParsingStarted(Target *target);
-    void anyParsingFinished(Target *target, bool success);
+    void anyParsingStarted();
+    void anyParsingFinished(bool success);
 
     void rootProjectDirectoryChanged();
 

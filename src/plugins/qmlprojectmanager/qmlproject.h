@@ -37,7 +37,7 @@ private:
     int preferedQtTarget(ProjectExplorer::Target *target);
 
 private slots:
-    void parsingFinished(const ProjectExplorer::Target *target, bool success);
+    void parsingFinished(bool success);
 };
 
 class FilesUpdateBlocker
