@@ -607,6 +607,10 @@ void PropertyEditorView::setupQmlBackend()
 
     auto [diffClassMetaInfo, qmlSpecificsFile] = diffType(commonAncestor, specificsClassMetaInfo);
 
+    // Hack to fix Textures in property views in case obsolete specifics are loaded from module
+    if (qmlFileUrl.toLocalFile().endsWith("TexturePane.qml"))
+        qmlSpecificsFile = QUrl{};
+
     QString specificQmlData = getSpecificQmlData(commonAncestor, m_selectedNode, diffClassMetaInfo);
 
     PropertyEditorQmlBackend *currentQmlBackend = getQmlBackend(m_qmlBackendHash,

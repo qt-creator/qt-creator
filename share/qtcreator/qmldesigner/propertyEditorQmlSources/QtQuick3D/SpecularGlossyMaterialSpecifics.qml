@@ -11,8 +11,4 @@ Column {
     SpecularGlossyMaterialSection {
         width: parent.width
     }
-
-    MaterialSection {
-        width: parent.width
-    }
 }

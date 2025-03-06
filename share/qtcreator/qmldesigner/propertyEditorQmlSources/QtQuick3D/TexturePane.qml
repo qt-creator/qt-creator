@@ -77,6 +77,10 @@ Rectangle {
                 anchors.right: parent.right
                 source: specificsUrl
             }
+
+            TextureSection {
+                width: itemPane.width
+            }
         }
     }
 }

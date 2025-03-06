@@ -112,6 +112,10 @@ Item {
                 width: itemPane.width
                 source: specificsUrl
             }
+
+            MaterialSection {
+                width: itemPane.width
+            }
         }
     }
 
