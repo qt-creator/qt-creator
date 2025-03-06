@@ -25595,7 +25595,7 @@ Dies ist normalerweise nicht empfehlenswert, da die Datei wahrscheinlich währen
     </message>
     <message>
         <source>Provide the type</source>
-        <translation>Typ bestimmen</translation>
+        <translation>Typ festlegen</translation>
     </message>
     <message>
         <source>Data type:</source>
@@ -46897,7 +46897,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Provide manually</source>
-        <translation>Manuell bestimmen</translation>
+        <translation>Manuell festlegen</translation>
     </message>
     <message>
         <source>None</source>
