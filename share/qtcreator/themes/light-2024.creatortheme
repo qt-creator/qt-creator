@@ -337,6 +337,11 @@ TerminalAnsi13=d22dde
 TerminalAnsi14=69e2e4
 TerminalAnsi15=e5e5e6
 
+;Hack for QTCREATORBUG-32572. Use these two colors from "flat/Hybrid (2016)" theme rather than
+;using color tokens. Revert when Red and Yellow tokens are available.
+IconsErrorColor=ffdf4f4f
+IconsWarningColor=ffecbc1c
+
 [Flags]
 ComboBoxDrawTextShadow=false
 DerivePaletteFromTheme=true

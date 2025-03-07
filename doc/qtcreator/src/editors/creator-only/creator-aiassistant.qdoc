@@ -42,6 +42,14 @@
             then select \uicontrol Install.
     \endlist
 
+    \section1 Enable code syntax highlighting in the inline chat window
+
+    To enable code syntax highlighting in the inline chat window, go to
+    \preferences > \uicontrol {Text Editor} > \uicontrol {Generic Highlighter},
+    and then select \uicontrol {Download Definitions}.
+    \image qtcreator-syntax-highlighter.png {Generic Highlighter preferences}
+    For more information, see \l{Download highlight definitions}.
+
     \section1 Connect to an LLM
 
     You can connect to the following LLMs:

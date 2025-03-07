@@ -858,8 +858,9 @@ QString PythonSettings::pylsConfiguration()
 
 static void cacheVenvAndPipUsability(const Interpreter &interpreter)
 {
-    Utils::asyncRun(&venvIsUsable, interpreter.command);
-    Utils::asyncRun(&pipIsUsable, interpreter.command);
+    static QPointer<QThreadPool> pool(new QThreadPool(PythonSettings::instance()));
+    Utils::asyncRun(pool.get(), &venvIsUsable, interpreter.command);
+    Utils::asyncRun(pool.get(), &pipIsUsable, interpreter.command);
 }
 
 void PythonSettings::addInterpreter(const Interpreter &interpreter, bool isDefault)
