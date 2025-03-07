@@ -431,5 +431,16 @@
         <file>testcases/WrapStringLiteralTest/latin1-char-literal-operator-with-conversion/opindex.txt</file>
         <file>testcases/WrapStringLiteralTest/latin1-string-literal-operator/opindex.txt</file>
         <file>testcases/WrapStringLiteralTest/string-literal-operator/opindex.txt</file>
+        <file>testcases/MoveAllFuncDefOutsideTest/base-class/expected_file.cpp</file>
+        <file>testcases/MoveAllFuncDefOutsideTest/base-class/original_file.cpp</file>
+        <file>testcases/MoveAllFuncDefOutsideTest/ignore-base-class/original_file.cpp</file>
+        <file>testcases/MoveAllFuncDefOutsideTest/member-funcs-to-cpp/expected_file.cpp</file>
+        <file>testcases/MoveAllFuncDefOutsideTest/member-funcs-to-cpp/expected_file.h</file>
+        <file>testcases/MoveAllFuncDefOutsideTest/member-funcs-to-cpp/original_file.cpp</file>
+        <file>testcases/MoveAllFuncDefOutsideTest/member-funcs-to-cpp/original_file.h</file>
+        <file>testcases/MoveAllFuncDefOutsideTest/member-funcs-to-outside/expected_file.cpp</file>
+        <file>testcases/MoveAllFuncDefOutsideTest/member-funcs-to-outside/original_file.cpp</file>
+        <file>testcases/MoveAllFuncDefOutsideTest/QTCREATORBUG-13900-no-macro-expansion/expected_file.cpp</file>
+        <file>testcases/MoveAllFuncDefOutsideTest/QTCREATORBUG-13900-no-macro-expansion/original_file.cpp</file>
     </qresource>
 </RCC>

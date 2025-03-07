@@ -392,11 +392,6 @@ public:
 class MoveAllFuncDefOutside : public CppQuickFixFactory
 {
 public:
-#ifdef WITH_TESTS
-    static QObject *createTest();
-#endif
-
-private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
         ClassSpecifierAST * const classAST = astForClassOperations(interface);
@@ -629,161 +624,6 @@ private:
 
 #ifdef WITH_TESTS
 using namespace Tests;
-
-class MoveAllFuncDefOutsideTest : public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void testMemberFuncToCpp()
-    {
-        QList<TestDocumentPtr> testDocuments;
-        QByteArray original;
-        QByteArray expected;
-
-        // Header File
-        original =
-            "class Foo {@\n"
-            "  int numberA() const\n"
-            "  {\n"
-            "    return 5;\n"
-            "  }\n"
-            "  int numberB() const\n"
-            "  {\n"
-            "    return 5;\n"
-            "  }\n"
-            "};\n";
-        expected =
-            "class Foo {\n"
-            "  int numberA() const;\n"
-            "  int numberB() const;\n"
-            "};\n";
-        testDocuments << CppTestDocument::create("file.h", original, expected);
-
-        // Source File
-        original =
-            "#include \"file.h\"\n";
-        expected =
-            "#include \"file.h\"\n"
-            "\n"
-            "int Foo::numberA() const\n"
-            "{\n"
-            "    return 5;\n"
-            "}\n"
-            "\n"
-            "int Foo::numberB() const\n"
-            "{\n"
-            "    return 5;\n"
-            "}\n"
-            ;
-        testDocuments << CppTestDocument::create("file.cpp", original, expected);
-
-        MoveAllFuncDefOutside factory;
-        QuickFixOperationTest(testDocuments, &factory);
-    }
-
-    void testMemberFuncOutside()
-    {
-        QByteArray original =
-            "class F@oo {\n"
-            "    int f1()\n"
-            "    {\n"
-            "        return 1;\n"
-            "    }\n"
-            "    int f2() const\n"
-            "    {\n"
-            "        return 2;\n"
-            "    }\n"
-            "};\n";
-        QByteArray expected =
-            "class Foo {\n"
-            "    int f1();\n"
-            "    int f2() const;\n"
-            "};\n"
-            "\n"
-            "int Foo::f1()\n"
-            "{\n"
-            "    return 1;\n"
-            "}\n"
-            "\n"
-            "int Foo::f2() const\n"
-            "{\n"
-            "    return 2;\n"
-            "}\n";
-
-        MoveAllFuncDefOutside factory;
-        QuickFixOperationTest(singleDocument(original, expected), &factory);
-    }
-
-    void testDoNotTriggerOnBaseClass()
-    {
-        QByteArray original =
-            "class Bar;\n"
-            "class Foo : public Ba@r {\n"
-            "    int f1()\n"
-            "    {\n"
-            "        return 1;\n"
-            "    }\n"
-            "};\n";
-
-        MoveAllFuncDefOutside factory;
-        QuickFixOperationTest(singleDocument(original, ""), &factory);
-    }
-
-    void testClassWithBaseClass()
-    {
-        QByteArray original =
-            "class Bar;\n"
-            "class Fo@o : public Bar {\n"
-            "    int f1()\n"
-            "    {\n"
-            "        return 1;\n"
-            "    }\n"
-            "};\n";
-        QByteArray expected =
-            "class Bar;\n"
-            "class Foo : public Bar {\n"
-            "    int f1();\n"
-            "};\n"
-            "\n"
-            "int Foo::f1()\n"
-            "{\n"
-            "    return 1;\n"
-            "}\n";
-
-        MoveAllFuncDefOutside factory;
-        QuickFixOperationTest(singleDocument(original, expected), &factory);
-    }
-
-    /// Check: Do not take macro expanded code into account (QTCREATORBUG-13900)
-    void testIgnoreMacroCode()
-    {
-        QByteArray original =
-            "#define FAKE_Q_OBJECT int bar() {return 5;}\n"
-            "class Fo@o {\n"
-            "    FAKE_Q_OBJECT\n"
-            "    int f1()\n"
-            "    {\n"
-            "        return 1;\n"
-            "    }\n"
-            "};\n";
-        QByteArray expected =
-            "#define FAKE_Q_OBJECT int bar() {return 5;}\n"
-            "class Foo {\n"
-            "    FAKE_Q_OBJECT\n"
-            "    int f1();\n"
-            "};\n"
-            "\n"
-            "int Foo::f1()\n"
-            "{\n"
-            "    return 1;\n"
-            "}\n";
-
-        MoveAllFuncDefOutside factory;
-        QuickFixOperationTest(singleDocument(original, expected), &factory);
-    }
-
-};
 
 class MoveFuncDefToDeclTest : public QObject
 {
@@ -1129,13 +969,6 @@ private slots:
     }
 };
 
-
-
-QObject *MoveAllFuncDefOutside::createTest()
-{
-    return new MoveAllFuncDefOutsideTest;
-}
-
 QObject *MoveFuncDefToDeclPush::createTest()
 {
     return new MoveFuncDefToDeclTest;
@@ -1154,7 +987,8 @@ void registerMoveFunctionDefinitionQuickfixes()
 {
     CppQuickFixFactory::registerFactoryWithStandardTest<MoveFuncDefOutside>(
         "MoveFuncDefOutsideTest");
-    CppQuickFixFactory::registerFactory<MoveAllFuncDefOutside>();
+    CppQuickFixFactory::registerFactoryWithStandardTest<MoveAllFuncDefOutside>(
+        "MoveAllFuncDefOutsideTest");
     CppQuickFixFactory::registerFactory<MoveFuncDefToDeclPush>();
     CppQuickFixFactory::registerFactory<MoveFuncDefToDeclPull>();
 }
