@@ -676,10 +676,8 @@ void AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
         return t.runControl == runControl; });
     if (runControl) {
         if (runControl->isRunning()) {
-            QMetaObject::invokeMethod(runControl, [runControl] {
-                runControl->setAutoDeleteOnStop(true);
-                runControl->initiateStop();
-            }, Qt::QueuedConnection);
+            connect(runControl, &RunControl::stopped, runControl, &QObject::deleteLater);
+            runControl->initiateStop();
         } else {
             delete runControl;
         }
