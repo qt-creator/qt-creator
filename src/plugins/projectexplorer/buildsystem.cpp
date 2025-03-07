@@ -94,6 +94,7 @@ void BuildSystem::emitParsingStarted()
     d->m_isParsing = true;
     emit parsingStarted();
     emit target()->parsingStarted();
+    emit project()->anyParsingStarted();
     if (this == activeBuildSystemForActiveProject())
         emit ProjectManager::instance()->parsingStartedActive(this);
     if (this == activeBuildSystemForCurrentProject())
@@ -110,6 +111,8 @@ void BuildSystem::emitParsingFinished(bool success)
     d->m_hasParsingData = success;
     emit parsingFinished(success);
     emit target()->parsingFinished(success);
+    emit project()->anyParsingFinished(success);
+    emit ProjectManager::instance()->projectFinishedParsing(project());
     if (this == activeBuildSystemForActiveProject())
         emit ProjectManager::instance()->parsingFinishedActive(success, this);
     if (this == activeBuildSystemForCurrentProject())

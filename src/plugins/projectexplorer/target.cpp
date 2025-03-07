@@ -87,12 +87,6 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
 {
     QTC_CHECK(d->m_kit);
     connect(DeviceManager::instance(), &DeviceManager::updated, this, &Target::updateDeviceState);
-    connect(this, &Target::parsingStarted, this, [project] { emit project->anyParsingStarted(); });
-    connect(this, &Target::parsingFinished, this, [project](bool success) {
-        emit ProjectManager::instance()->projectFinishedParsing(project); // // For testing.
-        emit project->anyParsingFinished(success);
-    });
-
     KitManager *km = KitManager::instance();
     connect(km, &KitManager::kitUpdated, this, &Target::handleKitUpdates);
     connect(km, &KitManager::kitRemoved, this, &Target::handleKitRemoval);
