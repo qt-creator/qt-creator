@@ -14,8 +14,6 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
-#include <utils/qtcassert.h>
-
 using namespace ProjectExplorer;
 
 namespace AppManager::Internal {
@@ -28,11 +26,9 @@ public:
 private:
     void onActiveDeployConfigurationChanged(DeployConfiguration *dc);
     void onActiveRunConfigurationChanged(RunConfiguration *rc);
-    void onActiveTargetChanged(Target *target);
-    void onStartupProjectChanged(Project *project);
+    void onActiveBuildConfigChanged(BuildConfiguration *bc);
 
-    Project *m_project = nullptr;
-    Target *m_target = nullptr;
+    BuildConfiguration *m_buildConfiguration = nullptr;
     RunConfiguration *m_runConfiguration = nullptr;
     DeployConfiguration *m_deployConfiguration = nullptr;
     QHash<RunConfiguration *, DeployConfiguration *> m_deployConfigurationsUsageHistory;
@@ -40,12 +36,10 @@ private:
 
 AppManagerDeployConfigurationAutoSwitcher::AppManagerDeployConfigurationAutoSwitcher()
 {
-    ProjectManager *projectManager = ProjectManager::instance();
-    QTC_ASSERT(projectManager, return);
-
-    connect(projectManager, &ProjectManager::startupProjectChanged,
-            this, &AppManagerDeployConfigurationAutoSwitcher::onStartupProjectChanged, Qt::UniqueConnection);
-    onStartupProjectChanged(projectManager->startupProject());
+    connect(ProjectManager::instance(), &ProjectManager::activeBuildConfigurationChanged,
+            this, &AppManagerDeployConfigurationAutoSwitcher::onActiveBuildConfigChanged,
+            Qt::UniqueConnection);
+    onActiveBuildConfigChanged(activeBuildConfigForActiveProject());
 }
 
 void AppManagerDeployConfigurationAutoSwitcher::onActiveDeployConfigurationChanged(DeployConfiguration *deployConfiguration)
@@ -117,36 +111,21 @@ void AppManagerDeployConfigurationAutoSwitcher::onActiveRunConfigurationChanged(
     }
 }
 
-void AppManagerDeployConfigurationAutoSwitcher::onActiveTargetChanged(Target *target)
+void AppManagerDeployConfigurationAutoSwitcher::onActiveBuildConfigChanged(BuildConfiguration *bc)
 {
-    if (m_target != target) {
-        if (m_target) {
-            disconnect(m_target, nullptr, this, nullptr);
+    if (m_buildConfiguration != bc) {
+        if (m_buildConfiguration) {
+            disconnect(m_buildConfiguration, nullptr, this, nullptr);
         }
-        m_target = target;
-        if (target) {
-            connect(target, &Target::activeRunConfigurationChanged,
+        m_buildConfiguration = bc;
+        if (bc) {
+            connect(bc, &BuildConfiguration::activeRunConfigurationChanged,
                     this, &AppManagerDeployConfigurationAutoSwitcher::onActiveRunConfigurationChanged);
-            connect(target, &Target::activeDeployConfigurationChanged,
+            connect(bc, &BuildConfiguration::activeDeployConfigurationChanged,
                     this, &AppManagerDeployConfigurationAutoSwitcher::onActiveDeployConfigurationChanged);
         }
-        onActiveRunConfigurationChanged(target ? target->activeRunConfiguration() : nullptr);
-        onActiveDeployConfigurationChanged(target ? target->activeDeployConfiguration() : nullptr);
-    }
-}
-
-void AppManagerDeployConfigurationAutoSwitcher::onStartupProjectChanged(Project *project)
-{
-    if (m_project != project) {
-        if (m_project) {
-            disconnect(m_project, nullptr, this, nullptr);
-        }
-        m_project = project;
-        if (project) {
-            connect(project, &Project::activeTargetChanged,
-                    this, &AppManagerDeployConfigurationAutoSwitcher::onActiveTargetChanged);
-        }
-        onActiveTargetChanged(project ? project->activeTarget() : nullptr);
+        onActiveRunConfigurationChanged(bc ? bc->activeRunConfiguration() : nullptr);
+        onActiveDeployConfigurationChanged(bc ? bc->activeDeployConfiguration() : nullptr);
     }
 }
 
