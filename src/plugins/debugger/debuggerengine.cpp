@@ -1422,7 +1422,7 @@ void DebuggerEngine::abortDebugger()
         // We already tried. Try harder.
         showMessage("ABORTING DEBUGGER. SECOND TIME.");
         abortDebuggerProcess();
-        emit requestRunControlFinish();
+        emit requestRunControlStop();
     }
 }
 

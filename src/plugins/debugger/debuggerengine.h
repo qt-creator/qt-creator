@@ -616,7 +616,6 @@ public:
 signals:
     void engineStarted();
     void engineFinished();
-    void requestRunControlFinish();
     void requestRunControlStop();
     void attachToCoreRequested(const QString &coreFile);
     void postMessageRequested(const QString &msg, Utils::OutputFormat format, bool appendNewLine) const;

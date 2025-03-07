@@ -541,7 +541,6 @@ void DebuggerRunTool::continueAfterDebugServerStart()
                 d->m_glue.get(), &GlueInterface::kickoffTerminalProcessRequested);
         engine->setDevice(runControl()->device());
         auto rc = runControl();
-        connect(engine, &DebuggerEngine::requestRunControlFinish, rc, &RunControl::initiateStop);
         connect(engine, &DebuggerEngine::requestRunControlStop, rc, &RunControl::initiateStop);
 
         connect(engine, &DebuggerEngine::engineStarted, this, [this, engine] {
