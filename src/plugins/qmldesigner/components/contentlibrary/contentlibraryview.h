@@ -67,7 +67,7 @@ private:
     void addLib3DComponent(const ModelNode &node);
     void addLibItem(const ModelNode &node, const QPixmap &iconPixmap = {});
     void importBundleToContentLib();
-    void saveIconToBundle(const auto &image);
+    void saveIconToBundle(const auto &image, const QString &iconPath);
     void decodeAndAddToContentLib(const QByteArray &encodedInternalIds);
 
 #ifdef QDS_USE_PROJECTSTORAGE
@@ -91,9 +91,10 @@ private:
     bool m_bundleMaterialAddToSelected = false;
     bool m_hasQuick3DImport = false;
     qint32 m_sceneId = -1;
-    Utils::FilePath m_iconSavePath;
     QString m_generatedFolderName;
     QString m_bundleId;
+    QHash<ModelNode, QString> m_nodeIconHash;
+    int m_remainingIconsToSave = 0;
 
     static constexpr char BUNDLE_VERSION[] = "1.0";
     static constexpr char ADD_ITEM_REQ_ID[] = "AddItemReqId";

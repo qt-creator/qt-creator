@@ -87,12 +87,17 @@ inline bool isModelOrMaterial(const SelectionContext &selectionState)
 
 inline bool enableAddToContentLib(const SelectionContext &selectionState)
 {
-    ModelNode modelNode = selectionState.currentSingleSelectedNode();
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-    bool isInBundle = modelNode.type().startsWith(compUtils.componentBundlesTypePrefix().toLatin1());
-    bool isNode3D = modelNode.metaInfo().isQtQuick3DNode();
+    const QList<ModelNode> nodes = selectionState.selectedModelNodes();
+    if (nodes.isEmpty())
+        return false;
 
-    return isNode3D && !isInBundle;
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+
+    return std::all_of(nodes.cbegin(), nodes.cend(), [&](const ModelNode &node) {
+        bool isInBundle = node.type().startsWith(compUtils.componentBundlesTypePrefix().toLatin1());
+        bool isNode3D = node.metaInfo().isQtQuick3DNode();
+        return isNode3D && !isInBundle;
+    });
 }
 
 inline bool are3DNodes(const SelectionContext &selectionState)
