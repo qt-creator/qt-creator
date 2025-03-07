@@ -285,9 +285,9 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
     if (HostOsInfo::isWindowsHost()) {
         // Otherwise command lines with '> tmp.log' hang.
         ProcessArgs::SplitError perr;
-        ProcessArgs::prepareArgs(m_inferior.command.arguments(), &perr,
+        ProcessArgs::prepareShellArgs(m_inferior.command.arguments(), &perr,
                                  HostOsInfo::hostOs(), nullptr,
-                                 m_inferior.workingDirectory).toWindowsArgs();
+                                 m_inferior.workingDirectory);
         if (perr != ProcessArgs::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809

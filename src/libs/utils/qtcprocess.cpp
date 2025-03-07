@@ -244,13 +244,15 @@ void DefaultImpl::start()
 bool DefaultImpl::dissolveCommand(QString *program, QStringList *arguments)
 {
     const CommandLine &commandLine = m_setup.m_commandLine;
+    const OsType osType = commandLine.executable().osType();
+
     QString commandString;
-    ProcessArgs processArgs;
+    QString processArgs;
     const bool success = ProcessArgs::prepareCommand(commandLine, &commandString, &processArgs,
                                                      &m_setup.m_environment,
                                                      m_setup.m_workingDirectory);
 
-    if (commandLine.executable().osType() == OsTypeWindows) {
+    if (osType == OsTypeWindows) {
         QString args;
         if (m_setup.m_useCtrlCStub) {
             if (m_setup.m_lowPriority)
@@ -261,7 +263,7 @@ bool DefaultImpl::dissolveCommand(QString *program, QStringList *arguments)
         } else if (m_setup.m_lowPriority) {
             m_setup.m_belowNormalPriority = true;
         }
-        ProcessArgs::addArgs(&args, processArgs.toWindowsArgs());
+        ProcessArgs::addArgs(&args, processArgs);
         m_setup.m_nativeArguments = args;
         // Note: Arguments set with setNativeArgs will be appended to the ones
         // passed with start() below.
@@ -275,7 +277,7 @@ bool DefaultImpl::dissolveCommand(QString *program, QStringList *arguments)
             emit done(result);
             return false;
         }
-        *arguments = processArgs.toUnixArgs();
+        *arguments = ProcessArgs::splitArgs(processArgs, osType);
     }
     *program = commandString;
     return true;

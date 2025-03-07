@@ -386,8 +386,7 @@ void tst_Process::prepareArgs()
     QFETCH(OsType, os);
 
     ProcessArgs::SplitError outerr;
-    ProcessArgs args = ProcessArgs::prepareArgs(in, &outerr, os);
-    QString outstr = args.toString();
+    QString outstr = ProcessArgs::prepareShellArgs(in, &outerr, os);
 
     QCOMPARE(outerr, err);
     if (err == ProcessArgs::SplitOk)
@@ -476,14 +475,12 @@ void tst_Process::prepareArgsEnv()
     QFETCH(OsType, os);
 
     ProcessArgs::SplitError outerr;
-    ProcessArgs args = ProcessArgs::prepareArgs(in, &outerr, os, os == OsTypeLinux ? &envLinux : &envWindows);
-    QString outstr = args.toString();
+    QString outstr = ProcessArgs::prepareShellArgs(in, &outerr, os, os == OsTypeLinux ? &envLinux : &envWindows);
 
     QCOMPARE(outerr, err);
     if (err == ProcessArgs::SplitOk)
         QCOMPARE(outstr, out);
 }
-
 
 
 void tst_Process::iterations_data()
