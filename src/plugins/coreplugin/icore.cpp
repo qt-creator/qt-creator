@@ -1128,6 +1128,11 @@ static void setRestart(bool restart)
     qApp->setProperty("restart", restart);
 }
 
+static bool isRestartRequested()
+{
+    return qApp->property("restart").toBool();
+}
+
 /*!
     Restarts \QC and restores the last session.
 */
@@ -1575,12 +1580,13 @@ void MainWindow::closeEvent(QCloseEvent *event)
         return;
     }
 
-    if (systemSettings().askBeforeExit()
-        && (QMessageBox::question(this,
-                                  Tr::tr("Exit %1?").arg(QGuiApplication::applicationDisplayName()),
-                                  Tr::tr("Exit %1?").arg(QGuiApplication::applicationDisplayName()),
-                                  QMessageBox::Yes | QMessageBox::No,
-                                  QMessageBox::No)
+    if (systemSettings().askBeforeExit() && !isRestartRequested()
+        && (QMessageBox::question(
+                this,
+                Tr::tr("Exit %1?").arg(QGuiApplication::applicationDisplayName()),
+                Tr::tr("Exit %1?").arg(QGuiApplication::applicationDisplayName()),
+                QMessageBox::Yes | QMessageBox::No,
+                QMessageBox::No)
             == QMessageBox::No)) {
         event->ignore();
         return;
