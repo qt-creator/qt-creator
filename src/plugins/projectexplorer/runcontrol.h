@@ -147,8 +147,6 @@ public:
     void copyDataFromRunControl(RunControl *runControl);
     void resetDataForAttachToCore();
 
-    void setAutoDeleteOnStop(bool autoDelete);
-
     void setRunRecipe(const Tasking::Group &group);
 
     void initiateStart();

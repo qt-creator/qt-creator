@@ -286,7 +286,6 @@ public:
     QList<QPointer<RunWorker>> m_workers;
     RunControlState state = RunControlState::Initialized;
     bool printEnvironment = false;
-    bool autoDelete = false;
     bool m_supportsReRunning = true;
     std::optional<Group> m_runRecipe;
 
@@ -310,8 +309,7 @@ public:
     {
         icon = Icons::RUN_SMALL_TOOLBAR;
         connect(&m_taskTreeRunner, &TaskTreeRunner::aboutToStart, q, &RunControl::started);
-        connect(&m_taskTreeRunner, &TaskTreeRunner::done,
-                this, &RunControlPrivate::checkAutoDeleteAndEmitStopped);
+        connect(&m_taskTreeRunner, &TaskTreeRunner::done, this, &RunControlPrivate::emitStopped);
     }
 
     ~RunControlPrivate() override
@@ -350,7 +348,7 @@ public:
     static bool isAllowedTransition(RunControlState from, RunControlState to);
     bool isUsingTaskTree() const { return bool(m_runRecipe); }
     void startTaskTree();
-    void checkAutoDeleteAndEmitStopped();
+    void emitStopped();
 
     bool isPortsGatherer() const
     { return useDebugChannel || useQmlChannel || usePerfChannel || useWorkerChannel; }
@@ -470,11 +468,6 @@ RunControl::~RunControl()
 #endif
 }
 
-void RunControl::setAutoDeleteOnStop(bool autoDelete)
-{
-    d->autoDelete = autoDelete;
-}
-
 void RunControl::setRunRecipe(const Group &group)
 {
     d->m_runRecipe = group;
@@ -502,7 +495,7 @@ void RunControl::initiateStop()
 {
     if (d->isUsingTaskTree()) {
         d->m_taskTreeRunner.reset();
-        d->checkAutoDeleteAndEmitStopped();
+        d->emitStopped();
     } else {
         d->initiateStop();
     }
@@ -512,7 +505,7 @@ void RunControl::forceStop()
 {
     if (d->isUsingTaskTree()) {
         d->m_taskTreeRunner.reset();
-        emit stopped();
+        d->emitStopped();
     } else {
         d->forceStop();
     }
@@ -1211,17 +1204,12 @@ void RunControlPrivate::startTaskTree()
     m_taskTreeRunner.start(*m_runRecipe);
 }
 
-void RunControlPrivate::checkAutoDeleteAndEmitStopped()
+void RunControlPrivate::emitStopped()
 {
     if (!q)
         return;
 
-    if (autoDelete) {
-        debugMessage("All finished. Deleting myself");
-        q->deleteLater();
-    } else {
-        q->setApplicationProcessHandle(Utils::ProcessHandle());
-    }
+    q->setApplicationProcessHandle(Utils::ProcessHandle());
     emit q->stopped();
 }
 
@@ -1328,7 +1316,7 @@ void RunControlPrivate::setState(RunControlState newState)
             emit q->started();
         break;
     case RunControlState::Stopped:
-        checkAutoDeleteAndEmitStopped();
+        emitStopped();
         break;
     default:
         break;
