@@ -102,7 +102,6 @@ signals:
 
     // FIXME: Check all uses of all the following signals, plus the associated getters.
     // Likely most of them should refer to the BC counterpart instead (which might not currently exist).
-    void parsingStarted();
     void parsingFinished(bool);
     void buildSystemUpdated(ProjectExplorer::BuildSystem *bs);
 
