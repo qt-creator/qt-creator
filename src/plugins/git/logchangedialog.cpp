@@ -104,6 +104,30 @@ int LogChangeWidget::commitIndex() const
     return -1;
 }
 
+/**
+ * Returns a commit range suitable for `git format-patch`.
+ *
+ * The format is {"-n", "hash"} or an empty string list if nothing was selected.
+ */
+QStringList LogChangeWidget::patchRange() const
+{
+    const QModelIndexList selected = selectionModel()->selectedRows();
+    if (selected.isEmpty())
+        return {};
+
+    const QString size = QString::number(selected.size());
+    const QStandardItem *highestItem = m_model->item(selected.first().row());
+    QTC_ASSERT(highestItem, return {});
+    const QString highestText = highestItem->text();
+    const QStringList result = {"-" + size, highestText};
+    return result;
+}
+
+bool LogChangeWidget::isRowSelected(int row) const
+{
+    return selectionModel()->isRowSelected(row);
+}
+
 QString LogChangeWidget::earliestCommit() const
 {
     int rows = m_model->rowCount();
@@ -241,6 +265,14 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
     resize(600, 400);
 }
 
+void LogChangeDialog::setContiguousSelectionEnabled(bool enabled)
+{
+    if (enabled)
+        m_widget->setSelectionMode(QAbstractItemView::ContiguousSelection);
+    else
+        m_widget->setSelectionMode(QAbstractItemView::SingleSelection);
+}
+
 bool LogChangeDialog::runDialog(const FilePath &repository,
                                 const QString &commit,
                                 LogChangeWidget::LogFlags flags)
@@ -266,6 +298,11 @@ int LogChangeDialog::commitIndex() const
     return m_widget->commitIndex();
 }
 
+QStringList LogChangeDialog::patchRange() const
+{
+    return m_widget->patchRange();
+}
+
 QString LogChangeDialog::resetFlag() const
 {
     if (!m_resetTypeComboBox)
@@ -286,6 +323,11 @@ LogItemDelegate::LogItemDelegate(LogChangeWidget *widget) : m_widget(widget)
 int LogItemDelegate::currentRow() const
 {
     return m_widget->commitIndex();
+}
+
+int LogItemDelegate::isRowSelected(int row) const
+{
+    return m_widget->isRowSelected(row);
 }
 
 IconItemDelegate::IconItemDelegate(LogChangeWidget *widget, const Utils::Icon &icon)

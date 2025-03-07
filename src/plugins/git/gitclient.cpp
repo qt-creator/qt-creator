@@ -2962,6 +2962,21 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
     return false;
 }
 
+/**
+ * Formats the patches given in \a patchRange as multiple singe file patches.
+ *
+ * The format for \a patchRange is {"-n", "hash"} where `n` specifies the
+ * number of commits before `hash`.
+ */
+void GitClient::formatPatch(const Utils::FilePath &workingDirectory, const QStringList &patchRange)
+{
+    if (patchRange.isEmpty())
+        return;
+
+    const QStringList args = {"format-patch"};
+    vcsExec(workingDirectory, args + patchRange, RunFlags::ShowSuccessMessage);
+}
+
 /* Revert: This function can be called with a file list (to revert single
  * files)  or a single directory (revert all). Qt Creator currently has only
  * 'revert single' in its VCS menus, but the code is prepared to deal with

@@ -312,6 +312,8 @@ public:
                       const Utils::FilePath &messageFile,
                       VcsBase::SubmitFileModel *model);
 
+    void formatPatch(const Utils::FilePath &workingDirectory, const QStringList &patchRange);
+
     enum StatusResult { StatusChanged, StatusUnchanged, StatusFailed };
     StatusResult gitStatus(const Utils::FilePath &workingDirectory, StatusMode mode,
                            QString *output = nullptr, QString *errorMessage = nullptr) const;

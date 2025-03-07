@@ -245,6 +245,7 @@ public:
     void cleanProjectDirectory();
     void cleanRepository();
     void updateSubmodules();
+    void createPatchesFromCommits();
     void applyCurrentFilePatch();
     void applyClipboardPatch();
     void promptApplyPatch();
@@ -837,6 +838,10 @@ GitPluginPrivate::GitPluginPrivate()
     patchMenu->menu()->setTitle(Tr::tr("&Patch"));
     localRepositoryMenu->addMenu(patchMenu);
 
+    createRepositoryAction(patchMenu, Tr::tr("Create from Commits..."),
+                           "Git.CreatePatch", context, true,
+                           std::bind(&GitPluginPrivate::createPatchesFromCommits, this));
+
     // Apply current file as patch is handled specially.
     m_applyCurrentFilePatchAction
             = createParameterAction(patchMenu,
@@ -1195,6 +1200,21 @@ protected:
     bool hasIcon(int row) const override
     {
         return row <= currentRow();
+    }
+};
+
+class PatchItemDelegate : public IconItemDelegate
+{
+public:
+    PatchItemDelegate(LogChangeWidget *widget)
+        : IconItemDelegate(widget, Icons::PLUS)
+    {
+    }
+
+protected:
+    bool hasIcon(int row) const override
+    {
+        return isRowSelected(row);
     }
 };
 
@@ -1576,6 +1596,21 @@ void GitPluginPrivate::updateSubmodules()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     gitClient().updateSubmodulesIfNeeded(state.topLevel(), false);
+}
+
+void GitPluginPrivate::createPatchesFromCommits()
+{
+    const VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return);
+
+    LogChangeDialog dialog(false, Core::ICore::dialogParent());
+    PatchItemDelegate delegate(dialog.widget());
+    dialog.setContiguousSelectionEnabled(true);
+    dialog.setWindowTitle(Tr::tr("Select commits for patch creation"));
+
+    const Utils::FilePath topLevel = state.topLevel();
+    if (dialog.runDialog(topLevel, {}, LogChangeWidget::None))
+        gitClient().formatPatch(topLevel, dialog.patchRange());
 }
 
 // If the file is modified in an editor, make sure it is saved.

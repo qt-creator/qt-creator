@@ -43,6 +43,8 @@ public:
     bool init(const Utils::FilePath &repository, const QString &commit = {}, LogFlags flags = None);
     QString commit() const;
     int commitIndex() const;
+    QStringList patchRange() const;
+    bool isRowSelected(int row) const;
     QString earliestCommit() const;
     void setItemDelegate(QAbstractItemDelegate *delegate);
     void setExcludedRemote(const QString &remote) { m_excludedRemote = remote; }
@@ -67,11 +69,14 @@ class LogChangeDialog : public QDialog
 public:
     LogChangeDialog(bool isReset, QWidget *parent);
 
+    void setContiguousSelectionEnabled(bool enabled);
+
     bool runDialog(const Utils::FilePath &repository, const QString &commit = QString(),
                    LogChangeWidget::LogFlags flags = LogChangeWidget::None);
 
     QString commit() const;
     int commitIndex() const;
+    QStringList patchRange() const;
     QString resetFlag() const;
     LogChangeWidget *widget() const;
 
@@ -87,6 +92,7 @@ protected:
     LogItemDelegate(LogChangeWidget *widget);
 
     int currentRow() const;
+    int isRowSelected(int row) const;
 
 private:
     LogChangeWidget *m_widget;
