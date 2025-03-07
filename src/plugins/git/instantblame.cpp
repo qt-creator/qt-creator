@@ -140,7 +140,7 @@ QString BlameMark::toolTipText(const CommitInfo &info) const
                          .arg(colors.hash, info.hash,
                               colors.author, info.author, info.authorMail,
                               colors.date, info.authorDate.toString("yyyy-MM-dd hh:mm:ss"),
-                              colors.subject, info.subject);
+                              colors.subject, info.subject.toHtmlEscaped());
 
     QString result = actions + header;
 
