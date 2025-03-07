@@ -416,12 +416,6 @@ class ConvertCommentStyle : public CppQuickFixFactory
 //! Moves function documentation between declaration and implementation.
 class MoveFunctionComments : public CppQuickFixFactory
 {
-#ifdef WITH_TESTS
-public:
-    static QObject* createTest();
-#endif
-
-private:
     void doMatch(const CppQuickFixInterface &interface,
                  TextEditor::QuickFixOperations &result) override
     {
@@ -465,189 +459,14 @@ private:
     }
 };
 
-#ifdef WITH_TESTS
-using namespace Tests;
-
-class MoveFunctionCommentsTest : public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void test_data()
-    {
-        QTest::addColumn<QByteArrayList>("headers");
-        QTest::addColumn<QByteArrayList>("sources");
-
-        const QByteArrayList headersFuncDecl2Def{R"(
-// Function comment
-void @aFunction();
-)", R"(
-void aFunction();
-)"};
-        const QByteArrayList sourcesFuncDecl2Def{R"(
-#include "file.h"
-
-void aFunction() {}
-)", R"(
-#include "file.h"
-
-// Function comment
-void aFunction() {}
-)"};
-        QTest::newRow("function: from decl to def") << headersFuncDecl2Def << sourcesFuncDecl2Def;
-
-        const QByteArrayList headersFuncDef2Decl{R"(
-void aFunction();
-)", R"(
-/* function */
-/* comment */
-void aFunction();
-)"};
-        const QByteArrayList sourcesFuncDef2Decl{R"(
-#include "file.h"
-
-/* function */
-/* comment */
-void a@Function() {}
-)", R"(
-#include "file.h"
-
-void aFunction() {}
-)"};
-        QTest::newRow("function: from def to decl") << headersFuncDef2Decl << sourcesFuncDef2Decl;
-
-        const QByteArrayList headersFuncNoDef{R"(
-// Function comment
-void @aFunction();
-)", R"(
-// Function comment
-void aFunction();
-)"};
-        QTest::newRow("function: no def") << headersFuncNoDef << QByteArrayList();
-
-        const QByteArrayList headersFuncNoDecl{R"(
-// Function comment
-inline void @aFunction() {}
-)", R"(
-// Function comment
-inline void aFunction() {}
-)"};
-        QTest::newRow("function: no decl") << headersFuncNoDecl << QByteArrayList();
-
-        const QByteArrayList headersFuncTemplateDecl2Def{R"(
-// Function comment
-template<typename T> T @aFunction();
-
-template<typename T> inline T aFunction() { return T(); }
-)", R"(
-template<typename T> T aFunction();
-
-// Function comment
-template<typename T> inline T aFunction() { return T(); }
-)"};
-        QTest::newRow("function template: from decl to def") << headersFuncTemplateDecl2Def
-                                                             << QByteArrayList();
-
-        const QByteArrayList headersFuncTemplateDef2Decl{R"(
-template<typename T> T aFunction();
-
-// Function comment
-template<typename T> inline T @aFunction() { return T(); }
-)", R"(
-// Function comment
-template<typename T> T aFunction();
-
-template<typename T> inline T aFunction() { return T(); }
-)"};
-        QTest::newRow("function template: from def to decl") << headersFuncTemplateDef2Decl
-                                                             << QByteArrayList();
-
-        const QByteArrayList headersMemberDecl2Def{R"(
-class C {
-    /**
-      * \brief Foo::aMember
-      */
-    void @aMember();
-)", R"(
-class C {
-    void aMember();
-)"};
-        const QByteArrayList sourcesMemberDecl2Def{R"(
-#include "file.h"
-
-void C::aMember() {}
-)", R"(
-#include "file.h"
-
-/**
-  * \brief Foo::aMember
-  */
-void C::aMember() {}
-)"};
-        QTest::newRow("member function: from decl to def") << headersMemberDecl2Def
-                                                           << sourcesMemberDecl2Def;
-
-        const QByteArrayList headersMemberDef2Decl{R"(
-class C {
-    void aMember();
-)", R"(
-class C {
-    /**
-      * \brief Foo::aMember
-      */
-    void aMember();
-)"};
-        const QByteArrayList sourcesMemberDef2Decl{R"(
-#include "file.h"
-
-/**
-  * \brief Foo::aMember
-  */
-void C::aMember() {@}
-)", R"(
-#include "file.h"
-
-void C::aMember() {}
-)"};
-        QTest::newRow("member function: from def to decl") << headersMemberDef2Decl
-                                                           << sourcesMemberDef2Decl;
-    }
-
-    void test()
-    {
-        QFETCH(QByteArrayList, headers);
-        QFETCH(QByteArrayList, sources);
-
-        QList<TestDocumentPtr> documents;
-        QCOMPARE(headers.size(), 2);
-        documents << CppTestDocument::create("file.h", headers.at(0), headers.at(1));
-        if (!sources.isEmpty()) {
-            QCOMPARE(sources.size(), 2);
-            documents << CppTestDocument::create("file.cpp", sources.at(0), sources.at(1));
-        }
-        MoveFunctionComments factory;
-        QByteArray failMessage;
-        if (QByteArray(QTest::currentDataTag()) == "function template: from def to decl")
-            failMessage = "decl/def switch doesn't work for templates";
-        QuickFixOperationTest(documents, &factory, {}, {}, failMessage);
-    }
-};
-
-
-QObject * MoveFunctionComments::createTest() { return new MoveFunctionCommentsTest; }
-
-#endif
 } // namespace
 
 void registerRewriteCommentQuickfixes()
 {
     CppQuickFixFactory::registerFactoryWithStandardTest<ConvertCommentStyle>(
         "ConvertCommentStyleTest");
-    CppQuickFixFactory::registerFactory<MoveFunctionComments>();
+    CppQuickFixFactory::registerFactoryWithStandardTest<MoveFunctionComments>(
+        "MoveFunctionCommentsTest");
 }
 
 } // namespace CppEditor::Internal
-
-#ifdef WITH_TESTS
-#include <rewritecomment.moc>
-#endif

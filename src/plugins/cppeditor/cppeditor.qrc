@@ -562,5 +562,30 @@
         <file>testcases/ConvertCommentStyleTest/to-c5/description.txt</file>
         <file>testcases/ConvertCommentStyleTest/to-c5/expected_file.h</file>
         <file>testcases/ConvertCommentStyleTest/to-c5/original_file.h</file>
+        <file>testcases/MoveFunctionCommentsTest/function-decl-to-def/expected_file.cpp</file>
+        <file>testcases/MoveFunctionCommentsTest/function-decl-to-def/expected_file.h</file>
+        <file>testcases/MoveFunctionCommentsTest/function-decl-to-def/original_file.cpp</file>
+        <file>testcases/MoveFunctionCommentsTest/function-decl-to-def/original_file.h</file>
+        <file>testcases/MoveFunctionCommentsTest/function-def-to-decl/expected_file.cpp</file>
+        <file>testcases/MoveFunctionCommentsTest/function-def-to-decl/expected_file.h</file>
+        <file>testcases/MoveFunctionCommentsTest/function-def-to-decl/original_file.cpp</file>
+        <file>testcases/MoveFunctionCommentsTest/function-def-to-decl/original_file.h</file>
+        <file>testcases/MoveFunctionCommentsTest/function-no-decl/expected_file.h</file>
+        <file>testcases/MoveFunctionCommentsTest/function-no-decl/original_file.h</file>
+        <file>testcases/MoveFunctionCommentsTest/function-no-def/expected_file.h</file>
+        <file>testcases/MoveFunctionCommentsTest/function-no-def/original_file.h</file>
+        <file>testcases/MoveFunctionCommentsTest/member-function-decl-to-def/expected_file.cpp</file>
+        <file>testcases/MoveFunctionCommentsTest/member-function-decl-to-def/expected_file.h</file>
+        <file>testcases/MoveFunctionCommentsTest/member-function-decl-to-def/original_file.cpp</file>
+        <file>testcases/MoveFunctionCommentsTest/member-function-decl-to-def/original_file.h</file>
+        <file>testcases/MoveFunctionCommentsTest/member-function-def-to-decl/expected_file.cpp</file>
+        <file>testcases/MoveFunctionCommentsTest/member-function-def-to-decl/expected_file.h</file>
+        <file>testcases/MoveFunctionCommentsTest/member-function-def-to-decl/original_file.cpp</file>
+        <file>testcases/MoveFunctionCommentsTest/member-function-def-to-decl/original_file.h</file>
+        <file>testcases/MoveFunctionCommentsTest/template-decl-to-def/expected_file.h</file>
+        <file>testcases/MoveFunctionCommentsTest/template-decl-to-def/original_file.h</file>
+        <file>testcases/MoveFunctionCommentsTest/template-def-to-decl/expected_file.h</file>
+        <file>testcases/MoveFunctionCommentsTest/template-def-to-decl/original_file.h</file>
+        <file>testcases/MoveFunctionCommentsTest/template-def-to-decl/fail.txt</file>
     </qresource>
 </RCC>

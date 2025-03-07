@@ -291,6 +291,13 @@ void CppQuickFixTestObject::initTestCase()
                 QVERIFY2(ok && testData.opIndex >= 0, t->constData());
                 continue;
             }
+            if (fi.fileName() == "fail.txt") {
+                const auto m = readFile();
+                if (!m)
+                    QVERIFY2(false, qPrintable(m.error()));
+                testData.failMessage = m->trimmed();
+                continue;
+            }
             if (fi.fileName().startsWith("original_")) {
                 const auto o = readFile();
                 if (!o)
@@ -327,6 +334,7 @@ void CppQuickFixTestObject::test_data()
     QTest::addColumn<QByteArrayList>("original");
     QTest::addColumn<QByteArrayList>("expected");
     QTest::addColumn<int>("opIndex");
+    QTest::addColumn<QByteArray>("failMessage");
 
     for (const TestData &testData : std::as_const(m_testData)) {
         QByteArrayList fileNames;
@@ -338,7 +346,7 @@ void CppQuickFixTestObject::test_data()
             expected << it.value().second;
         }
         QTest::newRow(testData.tag.constData()) << fileNames << original << expected
-                                                << testData.opIndex;
+                                                << testData.opIndex << testData.failMessage;
     }
 }
 
@@ -348,11 +356,12 @@ void CppQuickFixTestObject::test()
     QFETCH(QByteArrayList, original);
     QFETCH(QByteArrayList, expected);
     QFETCH(int, opIndex);
+    QFETCH(QByteArray, failMessage);
 
     QList<TestDocumentPtr> testDocuments;
     for (qsizetype i = 0; i < fileNames.size(); ++i)
         testDocuments << CppTestDocument::create(fileNames.at(i), original.at(i), expected.at(i));
-    QuickFixOperationTest(testDocuments, m_factory.get(), {}, opIndex);
+    QuickFixOperationTest(testDocuments, m_factory.get(), {}, opIndex, failMessage);
 }
 
 } // namespace Tests

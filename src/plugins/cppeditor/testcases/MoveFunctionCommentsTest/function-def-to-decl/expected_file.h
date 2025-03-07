@@ -1,0 +1,3 @@
+/* function */
+/* comment */
+void aFunction();
