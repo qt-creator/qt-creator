@@ -626,16 +626,22 @@ QPointer<DebuggerEngine> EngineManager::currentEngine()
     return d->m_currentItem ? d->m_currentItem->m_engine : nullptr;
 }
 
+static int s_runningEngineCount = 0;
+
 bool EngineManager::shutDown()
 {
-    bool anyEngineAborting = false;
     for (DebuggerEngine *engine : EngineManager::engines()) {
         if (engine && engine->state() != Debugger::DebuggerNotReady) {
+            ++s_runningEngineCount;
+            connect(engine, &DebuggerEngine::engineFinished, instance(), [] {
+                if (--s_runningEngineCount == 0) {
+                    emit instance()->shutDownCompleted();
+                }
+            });
             engine->abortDebugger();
-            anyEngineAborting = true;
         }
     }
-    return anyEngineAborting;
+    return s_runningEngineCount > 0;
 }
 
 } // Debugger::Internal

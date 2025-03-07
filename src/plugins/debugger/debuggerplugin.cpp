@@ -2081,19 +2081,24 @@ IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
     dd->m_shutdownTimer.setInterval(0);
     dd->m_shutdownTimer.setSingleShot(true);
 
-    connect(&dd->m_shutdownTimer, &QTimer::timeout, this, [this] {
+    const auto doShutdown = [this] {
         DebuggerMainWindow::doShutdown();
 
         dd->m_shutdownTimer.stop();
+        disconnect(EngineManager::instance(), &EngineManager::shutDownCompleted, this, nullptr);
 
         delete dd->m_mode;
         dd->m_mode = nullptr;
         emit asynchronousShutdownFinished();
-    });
+    };
+
+    connect(&dd->m_shutdownTimer, &QTimer::timeout, this, doShutdown);
 
     if (EngineManager::shutDown()) {
         // If any engine is aborting we give them extra three seconds.
         dd->m_shutdownTimer.setInterval(3000);
+        connect(EngineManager::instance(), &EngineManager::shutDownCompleted, this, doShutdown,
+                Qt::QueuedConnection);
     }
     dd->m_shutdownTimer.start();
 
