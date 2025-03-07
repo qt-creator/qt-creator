@@ -43,7 +43,7 @@ void setDeviceAbis(ProjectExplorer::Target *target, const QStringList &deviceAbi
 int deviceApiLevel(const ProjectExplorer::Target *target);
 void setDeviceApiLevel(ProjectExplorer::Target *target, int level);
 
-QString buildTargetSDK(const ProjectExplorer::Target *target);
+QString buildTargetSDK(const ProjectExplorer::BuildConfiguration *bc);
 
 int minimumSDK(const ProjectExplorer::BuildConfiguration *bc);
 int minimumSDK(const ProjectExplorer::Kit *kit);

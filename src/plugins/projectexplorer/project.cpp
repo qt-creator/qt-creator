@@ -345,6 +345,7 @@ void Project::setActiveTargetHelper(Target *target)
         (target && contains(d->m_targets, target))) {
         d->m_activeTarget = target;
         emit activeTargetChanged(d->m_activeTarget);
+        emit activeBuildConfigurationChanged(target ? target->activeBuildConfiguration() : nullptr);
         if (this == ProjectManager::startupProject()) {
             emit ProjectManager::instance()->activeBuildConfigurationChanged(
                 activeBuildConfiguration());

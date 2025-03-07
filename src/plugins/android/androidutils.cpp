@@ -212,9 +212,9 @@ int minimumSDK(const Kit *kit)
     return minSdkVersion;
 }
 
-QString buildTargetSDK(const Target *target)
+QString buildTargetSDK(const BuildConfiguration *bc)
 {
-    if (auto bc = target->activeBuildConfiguration()) {
+    if (bc) {
         if (auto androidBuildApkStep = bc->buildSteps()->firstOfType<AndroidBuildApkStep>())
             return androidBuildApkStep->buildTargetSdk();
     }

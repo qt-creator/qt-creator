@@ -13,9 +13,10 @@
 #include <languageclient/languageclientutils.h>
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitaspect.h>
 
@@ -201,10 +202,10 @@ public:
     void executeCommand(const LanguageServerProtocol::Command &command) override;
     void setCurrentProject(Project *project) override;
     void updateProjectFiles();
-    void updateTarget(Target *target);
+    void updateBuildConfiguration(BuildConfiguration *bc);
 
 private:
-    Target *m_currentTarget = nullptr;
+    BuildConfiguration *m_currentBuildConfiguration = nullptr;
 };
 
 void JLSClient::executeCommand(const LanguageServerProtocol::Command &command)
@@ -227,9 +228,10 @@ void JLSClient::setCurrentProject(Project *project)
 {
     Client::setCurrentProject(project);
     QTC_ASSERT(project, return);
-    updateTarget(project->activeTarget());
+    updateBuildConfiguration(project->activeBuildConfiguration());
     updateProjectFiles();
-    connect(project, &Project::activeTargetChanged, this, &JLSClient::updateTarget);
+    connect(project, &Project::activeBuildConfigurationChanged, this,
+            &JLSClient::updateBuildConfiguration);
 }
 
 static void generateProjectFile(const FilePath &projectDir,
@@ -294,14 +296,14 @@ static void generateClassPathFile(const FilePath &projectDir,
 
 void JLSClient::updateProjectFiles()
 {
-    if (!m_currentTarget)
+    if (!m_currentBuildConfiguration)
         return;
 
-    Kit *kit = m_currentTarget->kit();
+    Kit *kit = m_currentBuildConfiguration->kit();
     if (RunDeviceTypeKitAspect::deviceTypeId(kit) != Android::Constants::ANDROID_DEVICE_TYPE)
         return;
 
-    if (ProjectNode *node = project()->findNodeForBuildKey(m_currentTarget->activeBuildKey())) {
+    if (ProjectNode *node = project()->findNodeForBuildKey(m_currentBuildConfiguration->activeBuildKey())) {
         QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
         if (!version)
             return;
@@ -325,7 +327,7 @@ void JLSClient::updateProjectFiles()
         const QStringList classPaths = node->data(Constants::AndroidClassPaths).toStringList();
 
         const FilePath &sdkLocation = AndroidConfig::sdkLocation();
-        const QString &targetSDK = buildTargetSDK(m_currentTarget);
+        const QString &targetSDK = buildTargetSDK(m_currentBuildConfiguration);
         const FilePath androidJar = sdkLocation / QString("platforms/%2/android.jar")
                                        .arg(targetSDK);
         FilePaths libs = {androidJar};
@@ -339,15 +341,17 @@ void JLSClient::updateProjectFiles()
     }
 }
 
-void JLSClient::updateTarget(Target *target)
+void JLSClient::updateBuildConfiguration(BuildConfiguration *bc)
 {
-    if (m_currentTarget)
-        disconnect(m_currentTarget, &Target::parsingFinished, this, &JLSClient::updateProjectFiles);
+    if (m_currentBuildConfiguration)
+        disconnect(m_currentBuildConfiguration->buildSystem(), &BuildSystem::parsingFinished,
+                   this, &JLSClient::updateProjectFiles);
 
-    m_currentTarget = target;
+    m_currentBuildConfiguration = bc;
 
-    if (m_currentTarget)
-        connect(m_currentTarget, &Target::parsingFinished, this, &JLSClient::updateProjectFiles);
+    if (m_currentBuildConfiguration)
+        connect(m_currentBuildConfiguration->buildSystem(), &BuildSystem::parsingFinished,
+                this, &JLSClient::updateProjectFiles);
 
     updateProjectFiles();
 }

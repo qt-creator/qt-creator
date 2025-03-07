@@ -212,6 +212,8 @@ signals:
     void removedTarget(ProjectExplorer::Target *target);
     void addedTarget(ProjectExplorer::Target *target);
 
+    void activeBuildConfigurationChanged(BuildConfiguration *bc);
+
     void vanishedTargetsChanged();
 
     void settingsLoaded();

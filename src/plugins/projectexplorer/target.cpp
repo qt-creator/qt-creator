@@ -305,7 +305,9 @@ void Target::setActiveBuildConfiguration(BuildConfiguration *bc)
         (bc && d->m_buildConfigurations.contains(bc) &&
          bc != d->m_activeBuildConfiguration)) {
         d->m_activeBuildConfiguration = bc;
-        emit activeBuildConfigurationChanged(d->m_activeBuildConfiguration);
+        emit activeBuildConfigurationChanged(bc);
+        if (this == project()->activeTarget())
+            emit project()->activeBuildConfigurationChanged(bc);
         if (bc == activeBuildConfigForActiveProject())
             emit ProjectManager::instance()->activeBuildConfigurationChanged(bc);
         if (bc == activeBuildConfigForCurrentProject())
