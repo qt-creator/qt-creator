@@ -511,5 +511,56 @@
         <file>testcases/RemoveUsingNamespaceTest/two-files-one-using/original_header1.h</file>
         <file>testcases/RemoveUsingNamespaceTest/two-files-one-using/original_header2.h</file>
         <file>testcases/RemoveUsingNamespaceTest/two-files-one-using/original_header3.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c1/description.txt</file>
+        <file>testcases/ConvertCommentStyleTest/from-c1/expected_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c1/original_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c10/description.txt</file>
+        <file>testcases/ConvertCommentStyleTest/from-c10/expected_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c10/original_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c11/description.txt</file>
+        <file>testcases/ConvertCommentStyleTest/from-c11/expected_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c11/original_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c12/description.txt</file>
+        <file>testcases/ConvertCommentStyleTest/from-c12/expected_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c12/original_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c2/description.txt</file>
+        <file>testcases/ConvertCommentStyleTest/from-c2/expected_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c2/original_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c3/description.txt</file>
+        <file>testcases/ConvertCommentStyleTest/from-c3/expected_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c3/original_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c4/description.txt</file>
+        <file>testcases/ConvertCommentStyleTest/from-c4/expected_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c4/original_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c5/description.txt</file>
+        <file>testcases/ConvertCommentStyleTest/from-c5/expected_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c5/original_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c6/description.txt</file>
+        <file>testcases/ConvertCommentStyleTest/from-c6/expected_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c6/original_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c7/description.txt</file>
+        <file>testcases/ConvertCommentStyleTest/from-c7/expected_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c7/original_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c8/description.txt</file>
+        <file>testcases/ConvertCommentStyleTest/from-c8/expected_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c8/original_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c9/description.txt</file>
+        <file>testcases/ConvertCommentStyleTest/from-c9/expected_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/from-c9/original_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/to-c1/description.txt</file>
+        <file>testcases/ConvertCommentStyleTest/to-c1/expected_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/to-c1/original_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/to-c2/description.txt</file>
+        <file>testcases/ConvertCommentStyleTest/to-c2/expected_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/to-c2/original_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/to-c3/description.txt</file>
+        <file>testcases/ConvertCommentStyleTest/to-c3/expected_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/to-c3/original_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/to-c4/description.txt</file>
+        <file>testcases/ConvertCommentStyleTest/to-c4/expected_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/to-c4/original_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/to-c5/description.txt</file>
+        <file>testcases/ConvertCommentStyleTest/to-c5/expected_file.h</file>
+        <file>testcases/ConvertCommentStyleTest/to-c5/original_file.h</file>
     </qresource>
 </RCC>
