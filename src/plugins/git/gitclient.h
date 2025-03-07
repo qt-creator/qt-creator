@@ -195,6 +195,7 @@ public:
     bool synchronousApplyPatch(const Utils::FilePath &workingDirectory, const QString &file,
                                QString *errorMessage, const QStringList &extraArguments = {}) const;
     bool synchronousInit(const Utils::FilePath &workingDirectory);
+    bool synchronousAddGitignore(const Utils::FilePath &workingDirectory);
     bool synchronousCheckoutFiles(const Utils::FilePath &workingDirectory, QStringList files = {},
                                   QString revision = {}, QString *errorMessage = nullptr,
                                   bool revertStaging = true);

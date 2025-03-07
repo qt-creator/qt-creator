@@ -14,6 +14,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/generatedfile.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/iversioncontrol.h>
@@ -1571,6 +1572,34 @@ bool GitClient::synchronousInit(const FilePath &workingDirectory)
         return true;
     }
     return false;
+}
+
+bool GitClient::synchronousAddGitignore(const FilePath &workingDirectory)
+{
+    const FilePath gitIgnoreDestination = workingDirectory.pathAppended(".gitignore");
+
+    auto intentToAddGitignore = [this, workingDirectory, gitIgnoreDestination] {
+        return synchronousAdd(workingDirectory, {gitIgnoreDestination.fileName()}, {"--intent-to-add"});
+    };
+
+    if (gitIgnoreDestination.exists())
+        return intentToAddGitignore();
+
+    const FilePath gitIgnoreTemplate =
+        Core::ICore::resourcePath().pathAppended("templates/wizards/projects/git.ignore");
+
+    if (!QTC_GUARD(gitIgnoreTemplate.exists()))
+        return false;
+
+    Core::GeneratedFile gitIgnoreFile(gitIgnoreDestination);
+    gitIgnoreFile.setBinaryContents(gitIgnoreTemplate.fileContents().value());
+    QString errorMessage;
+    if (!gitIgnoreFile.write(&errorMessage)) {
+        VcsOutputWindow::appendError(errorMessage);
+        return false;
+    }
+
+    return intentToAddGitignore();
 }
 
 /* Checkout, supports:

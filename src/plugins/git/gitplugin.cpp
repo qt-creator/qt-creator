@@ -991,7 +991,7 @@ GitPluginPrivate::GitPluginPrivate()
     QAction *createRepositoryAction = new QAction(Tr::tr("Create Repository..."), this);
     Command *createRepositoryCommand = ActionManager::registerAction(
                 createRepositoryAction, "Git.CreateRepository");
-    connect(createRepositoryAction, &QAction::triggered, this, &GitPluginPrivate::createRepository);
+    connect(createRepositoryAction, &QAction::triggered, this, [this] { initRepository(); });
     gitContainer->addAction(createRepositoryCommand);
 
     connect(VcsManager::instance(), &VcsManager::repositoryChanged,
@@ -1692,7 +1692,9 @@ void GitPluginPrivate::manageRemotes()
 
 void GitPluginPrivate::initRepository()
 {
-    createRepository();
+    Utils::FilePath topLevel;
+    createRepository(&topLevel);
+    gitClient().synchronousAddGitignore(topLevel);
 }
 
 void GitPluginPrivate::stashList()
