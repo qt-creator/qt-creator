@@ -65,16 +65,16 @@ const char CLEAR_SYSTEM_ENVIRONMENT_KEY[] = "CMakeProjectManager.MakeStep.ClearS
 const char USER_ENVIRONMENT_CHANGES_KEY[] = "CMakeProjectManager.MakeStep.UserEnvironmentChanges";
 const char BUILD_PRESET_KEY[] = "CMakeProjectManager.MakeStep.BuildPreset";
 
-class ProjectParserTaskAdapter : public TaskAdapter<QPointer<Target>>
+class ProjectParserTaskAdapter : public TaskAdapter<QPointer<BuildSystem>>
 {
 public:
     void start() final {
-        Target *target = *task();
-        if (!target) {
+        BuildSystem *bs = *task();
+        if (!bs) {
             emit done(DoneResult::Error);
             return;
         }
-        connect(target, &Target::parsingFinished, this, [this](bool success) {
+        connect(bs, &BuildSystem::parsingFinished, this, [this](bool success) {
             emit done(toDoneResult(success));
         });
     }
@@ -357,9 +357,9 @@ void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
 
 GroupItem CMakeBuildStep::runRecipe()
 {
-    const auto onParserSetup = [this](QPointer<Target> &parseTarget) {
+    const auto onParserSetup = [this](QPointer<BuildSystem> &buildSystem) {
         // Make sure CMake state was written to disk before trying to build:
-        auto bs = qobject_cast<CMakeBuildSystem *>(buildSystem());
+        auto bs = qobject_cast<CMakeBuildSystem *>(this->buildSystem());
         QTC_ASSERT(bs, return SetupResult::StopWithError);
         QString message;
         if (bs->persistCMakeState())
@@ -369,7 +369,7 @@ GroupItem CMakeBuildStep::runRecipe()
         else
             return SetupResult::StopWithSuccess;
         emit addOutput(message, OutputFormat::NormalMessage);
-        parseTarget = target();
+        buildSystem = bs;
         return SetupResult::Continue;
     };
     const auto onParserError = [this] {
