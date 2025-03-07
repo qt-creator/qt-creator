@@ -122,8 +122,6 @@ signals:
 
     void dependencyChanged(ProjectExplorer::Project *a, ProjectExplorer::Project *b);
 
-    // for tests only
-    // FIXME: Redundant with parsingFinishedActive()?
     void projectFinishedParsing(ProjectExplorer::Project *project);
 
 private:
