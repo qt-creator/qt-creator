@@ -10,6 +10,10 @@
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
+
+using namespace ProjectExplorer;
 
 namespace Vcpkg::Internal {
 
@@ -30,7 +34,12 @@ public:
 
     void extensionsInitialized() final
     {
-        settings().setVcpkgRootEnvironmentVariable();
+        settings(nullptr).setVcpkgRootEnvironmentVariable();
+
+        connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
+                this, [this](Project *project) {
+                    settings(project).setVcpkgRootEnvironmentVariable();
+                });
     }
 };
 
