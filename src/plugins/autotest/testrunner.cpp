@@ -324,9 +324,9 @@ int TestRunner::precheckTestConfigurations()
 
 void TestRunner::onBuildSystemUpdated()
 {
-    Target *target = ProjectManager::startupTarget();
-    if (QTC_GUARD(target))
-        disconnect(target, &Target::buildSystemUpdated, this, &TestRunner::onBuildSystemUpdated);
+    BuildSystem *bs = activeBuildSystemForActiveProject();
+    if (QTC_GUARD(bs))
+        disconnect(bs, &BuildSystem::updated, this, &TestRunner::onBuildSystemUpdated);
     if (!m_skipTargetsCheck) {
         m_skipTargetsCheck = true;
         runOrDebugTests();
@@ -625,15 +625,15 @@ void TestRunner::runOrDebugTests()
     if (!m_skipTargetsCheck) {
         if (executablesEmpty()) {
             m_skipTargetsCheck = true;
-            Target *target = ProjectManager::startupTarget();
-            QTimer::singleShot(5000, this, [this, target = QPointer<Target>(target)] {
-                if (target) {
-                    disconnect(target, &Target::buildSystemUpdated,
+            BuildSystem *bs = activeBuildSystemForActiveProject();
+            QTimer::singleShot(5000, this, [this, bs = QPointer<BuildSystem>(bs)] {
+                if (bs) {
+                    disconnect(bs, &BuildSystem::updated,
                                this, &TestRunner::onBuildSystemUpdated);
                 }
                 runOrDebugTests();
             });
-            connect(target, &Target::buildSystemUpdated, this, &TestRunner::onBuildSystemUpdated);
+            connect(bs, &BuildSystem::updated, this, &TestRunner::onBuildSystemUpdated);
             return;
         }
     }
