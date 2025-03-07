@@ -18,7 +18,27 @@ endif()
 # Set a better default value for CMAKE_INSTALL_PREFIX
 #
 function(qtc_modify_default_install_prefix)
-  if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  # If at configure time the user didn't specify a CMAKE_INSTALL_PREFIX variable
+  # Modules/CMakeGenericSystem.cmake will set a default value
+  # to CMAKE_INSTALL_PREFIX and set CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT to ON
+
+  # In practice there are cases when CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT is
+  # set to ON and a custom CMAKE_INSTALL_PREFIX is set
+
+  # Do the original CMAKE_INSTALL_PREFIX detection
+  if(CMAKE_HOST_UNIX)
+    set(original_cmake_install_prefix "/usr/local")
+  else()
+    GetDefaultWindowsPrefixBase(CMAKE_GENERIC_PROGRAM_FILES)
+    set(original_cmake_install_prefix
+      "${CMAKE_GENERIC_PROGRAM_FILES}/${PROJECT_NAME}")
+    unset(CMAKE_GENERIC_PROGRAM_FILES)
+  endif()
+
+  # When the user code didn't modify the CMake set CMAKE_INSTALL_PREFIX
+  # then set the "/tmp" better value for CMAKE_INSTALL_PREFIX
+  if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND
+      CMAKE_INSTALL_PREFIX STREQUAL "${original_cmake_install_prefix}")
     set_property(CACHE CMAKE_INSTALL_PREFIX PROPERTY VALUE "/tmp")
   endif()
 endfunction()
