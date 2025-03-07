@@ -11,6 +11,7 @@
 #include "gittr.h"
 #include "gitutils.h"
 #include "mergetool.h"
+#include "temporarypatchfile.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -109,21 +110,15 @@ static QString branchesDisplay(const QString &prefix, QStringList *branches, boo
 
 static void stage(DiffEditorController *diffController, const QString &patch, bool revert)
 {
-    TemporaryFile patchFile("git-patchfile");
-    if (!patchFile.open())
+    if (patch.isEmpty())
         return;
-
+    TemporaryPatchFile patchFile(patch);
     const FilePath baseDir = diffController->workingDirectory();
-    QTextCodec *codec = EditorManager::defaultTextCodec();
-    const QByteArray patchData = codec ? codec->fromUnicode(patch) : patch.toLocal8Bit();
-    patchFile.write(patchData);
-    patchFile.close();
-
     QStringList args = {"--cached"};
     if (revert)
         args << "--reverse";
     QString errorMessage;
-    if (gitClient().synchronousApplyPatch(baseDir, patchFile.fileName(),
+    if (gitClient().synchronousApplyPatch(baseDir, patchFile.filePath().toUrlishString(),
                                                      &errorMessage, args)) {
         if (errorMessage.isEmpty()) {
             if (revert)

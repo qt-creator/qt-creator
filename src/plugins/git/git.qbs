@@ -61,6 +61,8 @@ QtcPlugin {
         "remotemodel.h",
         "stashdialog.cpp",
         "stashdialog.h",
+        "temporarypatchfile.cpp",
+        "temporarypatchfile.h",
     ]
 
     Group {

@@ -37,4 +37,5 @@ add_qtc_plugin(Git
     remotedialog.cpp remotedialog.h
     remotemodel.cpp remotemodel.h
     stashdialog.cpp stashdialog.h
+    temporarypatchfile.cpp temporarypatchfile.h
 )

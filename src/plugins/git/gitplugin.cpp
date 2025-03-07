@@ -18,6 +18,7 @@
 #include "logchangedialog.h"
 #include "remotedialog.h"
 #include "stashdialog.h"
+#include "temporarypatchfile.h"
 
 #include "gerrit/gerritplugin.h"
 
@@ -66,6 +67,7 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QClipboard>
 #include <QDebug>
 #include <QDir>
 #include <QFileDialog>
@@ -244,6 +246,7 @@ public:
     void cleanRepository();
     void updateSubmodules();
     void applyCurrentFilePatch();
+    void applyClipboardPatch();
     void promptApplyPatch();
 
     void stash(bool unstagedOnly = false);
@@ -840,6 +843,10 @@ GitPluginPrivate::GitPluginPrivate()
                                     Tr::tr("Apply from Editor"), Tr::tr("Apply \"%1\""),
                                     "Git.ApplyCurrentFilePatch",
                                     context, true, std::bind(&GitPluginPrivate::applyCurrentFilePatch, this));
+
+    createRepositoryAction(patchMenu, Tr::tr("Apply from Clipboard"), "Git.ApplyClipboardPatch",
+                           context, true, std::bind(&GitPluginPrivate::applyClipboardPatch, this));
+
     createRepositoryAction(patchMenu, Tr::tr("Apply from File..."), "Git.ApplyPatch",
                            context, true, std::bind(&GitPluginPrivate::promptApplyPatch, this));
 
@@ -1586,6 +1593,20 @@ void GitPluginPrivate::applyCurrentFilePatch()
     if (!ensureFileSaved(patchFile))
         return;
     applyPatch(state.topLevel(), patchFile);
+}
+
+void GitPluginPrivate::applyClipboardPatch()
+{
+    const VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return);
+
+    QClipboard *clipboard = QApplication::clipboard();
+    const QString patch = clipboard->text();
+    if (patch.isEmpty())
+        return;
+
+    const TemporaryPatchFile patchFile(patch);
+    applyPatch(state.topLevel(), patchFile.filePath().toUrlishString());
 }
 
 void GitPluginPrivate::promptApplyPatch()
