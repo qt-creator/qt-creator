@@ -262,12 +262,6 @@ private:
 //! Adds a declarations to a definition
 class InsertDeclFromDef: public CppQuickFixFactory
 {
-#ifdef WITH_TESTS
-public:
-    static QObject *createTest();
-#endif
-
-private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
         const QList<AST *> &path = interface.path();
@@ -1038,159 +1032,9 @@ private slots:
     }
 };
 
-class InsertDeclFromDefTest : public QObject
-{
-    Q_OBJECT
-
-private slots:
-    /// Check from source file: Insert in header file.
-    void test()
-    {
-        insertToSectionDeclFromDef("public", 0);
-        insertToSectionDeclFromDef("public slots", 1);
-        insertToSectionDeclFromDef("protected", 2);
-        insertToSectionDeclFromDef("protected slots", 3);
-        insertToSectionDeclFromDef("private", 4);
-        insertToSectionDeclFromDef("private slots", 5);
-    }
-
-    void testTemplateFuncTypename()
-    {
-        QByteArray original =
-            "class Foo\n"
-            "{\n"
-            "};\n"
-            "\n"
-            "template<class T>\n"
-            "void Foo::fu@nc() {}\n";
-
-        QByteArray expected =
-            "class Foo\n"
-            "{\n"
-            "public:\n"
-            "    template<class T>\n"
-            "    void func();\n"
-            "};\n"
-            "\n"
-            "template<class T>\n"
-            "void Foo::fu@nc() {}\n";
-
-        InsertDeclFromDef factory;
-        QuickFixOperationTest(singleDocument(original, expected), &factory, {}, 0);
-    }
-
-    void testTemplateFuncInt()
-    {
-        QByteArray original =
-            "class Foo\n"
-            "{\n"
-            "};\n"
-            "\n"
-            "template<int N>\n"
-            "void Foo::fu@nc() {}\n";
-
-        QByteArray expected =
-            "class Foo\n"
-            "{\n"
-            "public:\n"
-            "    template<int N>\n"
-            "    void func();\n"
-            "};\n"
-            "\n"
-            "template<int N>\n"
-            "void Foo::fu@nc() {}\n";
-
-        InsertDeclFromDef factory;
-        QuickFixOperationTest(singleDocument(original, expected), &factory, {}, 0);
-    }
-
-    void testTemplateReturnType()
-    {
-        QByteArray original =
-            "class Foo\n"
-            "{\n"
-            "};\n"
-            "\n"
-            "std::vector<int> Foo::fu@nc() const {}\n";
-
-        QByteArray expected =
-            "class Foo\n"
-            "{\n"
-            "public:\n"
-            "    std::vector<int> func() const;\n"
-            "};\n"
-            "\n"
-            "std::vector<int> Foo::func() const {}\n";
-
-        InsertDeclFromDef factory;
-        QuickFixOperationTest(singleDocument(original, expected), &factory, {}, 0);
-    }
-
-    void testNotTriggeredForTemplateFunc()
-    {
-        QByteArray contents =
-            "class Foo\n"
-            "{\n"
-            "    template<class T>\n"
-            "    void func();\n"
-            "};\n"
-            "\n"
-            "template<class T>\n"
-            "void Foo::fu@nc() {}\n";
-
-        InsertDeclFromDef factory;
-        QuickFixOperationTest(singleDocument(contents, ""), &factory);
-    }
-
-private:
-    // Function for one of InsertDeclDef section cases
-    void insertToSectionDeclFromDef(const QByteArray &section, int sectionIndex)
-    {
-        QList<TestDocumentPtr> testDocuments;
-
-        QByteArray original;
-        QByteArray expected;
-        QByteArray sectionString = section + ":\n";
-        if (sectionIndex == 4)
-            sectionString.clear();
-
-        // Header File
-        original =
-            "class Foo\n"
-            "{\n"
-            "};\n";
-        expected =
-            "class Foo\n"
-            "{\n"
-            + sectionString +
-            "    Foo();\n"
-            "@};\n";
-        testDocuments << CppTestDocument::create("file.h", original, expected);
-
-        // Source File
-        original =
-            "#include \"file.h\"\n"
-            "\n"
-            "Foo::Foo@()\n"
-            "{\n"
-            "}\n"
-            ;
-        expected = original;
-        testDocuments << CppTestDocument::create("file.cpp", original, expected);
-
-        InsertDeclFromDef factory;
-        QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), sectionIndex);
-    }
-};
-
 QObject *AddDeclarationForUndeclaredIdentifier::createTest()
 {
     return new AddDeclarationForUndeclaredIdentifierTest;
-}
-
-QObject *InsertDeclFromDef::createTest()
-{
-    return new InsertDeclFromDefTest;
 }
 
 #endif // WITH_TESTS
@@ -1198,7 +1042,7 @@ QObject *InsertDeclFromDef::createTest()
 
 void registerCreateDeclarationFromUseQuickfixes()
 {
-    CppQuickFixFactory::registerFactory<InsertDeclFromDef>();
+    CppQuickFixFactory::registerFactoryWithStandardTest<InsertDeclFromDef>("InsertDeclFromDefTest");
     CppQuickFixFactory::registerFactory<AddDeclarationForUndeclaredIdentifier>();
 }
 

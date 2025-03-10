@@ -591,5 +591,41 @@
         <file>testcases/bring-identifier-into-scope/add-qt-dependency/add-qt-dependency.pro_expected</file>
         <file>testcases/bring-identifier-into-scope/add-qt-dependency/main.cpp</file>
         <file>testcases/bring-identifier-into-scope/add-qt-dependency/main.cpp_expected</file>
+        <file>testcases/InsertDeclFromDefTest/private/expected_file.cpp</file>
+        <file>testcases/InsertDeclFromDefTest/private/expected_file.h</file>
+        <file>testcases/InsertDeclFromDefTest/private/opindex.txt</file>
+        <file>testcases/InsertDeclFromDefTest/private/original_file.cpp</file>
+        <file>testcases/InsertDeclFromDefTest/private/original_file.h</file>
+        <file>testcases/InsertDeclFromDefTest/private-slots/expected_file.cpp</file>
+        <file>testcases/InsertDeclFromDefTest/private-slots/expected_file.h</file>
+        <file>testcases/InsertDeclFromDefTest/private-slots/opindex.txt</file>
+        <file>testcases/InsertDeclFromDefTest/private-slots/original_file.cpp</file>
+        <file>testcases/InsertDeclFromDefTest/private-slots/original_file.h</file>
+        <file>testcases/InsertDeclFromDefTest/protected/expected_file.cpp</file>
+        <file>testcases/InsertDeclFromDefTest/protected/expected_file.h</file>
+        <file>testcases/InsertDeclFromDefTest/protected/opindex.txt</file>
+        <file>testcases/InsertDeclFromDefTest/protected/original_file.cpp</file>
+        <file>testcases/InsertDeclFromDefTest/protected/original_file.h</file>
+        <file>testcases/InsertDeclFromDefTest/protected-slots/expected_file.cpp</file>
+        <file>testcases/InsertDeclFromDefTest/protected-slots/expected_file.h</file>
+        <file>testcases/InsertDeclFromDefTest/protected-slots/opindex.txt</file>
+        <file>testcases/InsertDeclFromDefTest/protected-slots/original_file.cpp</file>
+        <file>testcases/InsertDeclFromDefTest/protected-slots/original_file.h</file>
+        <file>testcases/InsertDeclFromDefTest/public/expected_file.cpp</file>
+        <file>testcases/InsertDeclFromDefTest/public/expected_file.h</file>
+        <file>testcases/InsertDeclFromDefTest/public/original_file.cpp</file>
+        <file>testcases/InsertDeclFromDefTest/public/original_file.h</file>
+        <file>testcases/InsertDeclFromDefTest/public-slots/expected_file.cpp</file>
+        <file>testcases/InsertDeclFromDefTest/public-slots/expected_file.h</file>
+        <file>testcases/InsertDeclFromDefTest/public-slots/opindex.txt</file>
+        <file>testcases/InsertDeclFromDefTest/public-slots/original_file.cpp</file>
+        <file>testcases/InsertDeclFromDefTest/public-slots/original_file.h</file>
+        <file>testcases/InsertDeclFromDefTest/template-as-return-type/expected_file.cpp</file>
+        <file>testcases/InsertDeclFromDefTest/template-as-return-type/original_file.cpp</file>
+        <file>testcases/InsertDeclFromDefTest/template-decl-already-present/original_file.cpp</file>
+        <file>testcases/InsertDeclFromDefTest/template-type-param/expected_file.cpp</file>
+        <file>testcases/InsertDeclFromDefTest/template-type-param/original_file.cpp</file>
+        <file>testcases/InsertDeclFromDefTest/template-value-param/expected_file.cpp</file>
+        <file>testcases/InsertDeclFromDefTest/template-value-param/original_file.cpp</file>
     </qresource>
 </RCC>
