@@ -704,5 +704,58 @@
         <file>testcases/AddDeclarationForUndeclaredIdentifierTest/member-from-use17/properties.txt</file>
         <file>testcases/AddDeclarationForUndeclaredIdentifierTest/member-from-use18/properties.txt</file>
         <file>testcases/AddDeclarationForUndeclaredIdentifierTest/member-from-use19/properties.txt</file>
+        <file>testcases/ExtractLiteralAsParameterTest/free-function/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/free-function/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/free-function-separate-files/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/free-function-separate-files/expected_file.h</file>
+        <file>testcases/ExtractLiteralAsParameterTest/free-function-separate-files/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/free-function-separate-files/original_file.h</file>
+        <file>testcases/ExtractLiteralAsParameterTest/member-function/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/member-function/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/member-function-inline/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/member-function-inline/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/member-function-separate-files/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/member-function-separate-files/expected_file.h</file>
+        <file>testcases/ExtractLiteralAsParameterTest/member-function-separate-files/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/member-function-separate-files/original_file.h</file>
+        <file>testcases/ExtractLiteralAsParameterTest/no-trigger/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-bool1/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-bool1/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-bool2/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-bool2/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-char/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-char/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-char-ptr/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-char-ptr/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-char16/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-char16/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-char16-ptr/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-char16-ptr/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-char32/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-char32/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-char32-ptr/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-char32-ptr/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-double/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-double/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-float/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-float/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-int/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-int/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-long/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-long/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-long-double/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-long-double/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-long-long/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-long-long/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-unsigned-int/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-unsigned-int/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-unsigned-long/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-unsigned-long/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-unsigned-long-long/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-unsigned-long-long/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-wchar/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-wchar/original_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-wchar-ptr/expected_file.cpp</file>
+        <file>testcases/ExtractLiteralAsParameterTest/type-deduction-wchar-ptr/original_file.cpp</file>
     </qresource>
 </RCC>
