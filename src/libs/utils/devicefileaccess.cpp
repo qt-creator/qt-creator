@@ -1479,10 +1479,11 @@ expected_str<QByteArray> UnixDeviceFileAccess::fileContents(const FilePath &file
     }
 #ifndef UTILS_STATIC_LIBRARY
     const FilePath dd = filePath.withNewPath("dd");
+    using namespace std::literals::chrono_literals;
 
     Process p;
     p.setCommand({dd, args, OsType::OsTypeLinux});
-    p.runBlocking();
+    p.runBlocking(0s); // Run forever
     if (p.exitCode() != 0) {
         return make_unexpected(Tr::tr("Failed reading file \"%1\": %2")
                                    .arg(filePath.toUserOutput(), p.readAllStandardError()));
