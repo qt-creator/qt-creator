@@ -10,7 +10,6 @@
 #include "runconfiguration.h"
 #include "target.h"
 
-#include <utils/algorithm.h>
 #include <utils/stringutils.h>
 
 /*!
@@ -28,8 +27,7 @@ static bool isOrderedBefore(const ProjectConfiguration *a, const ProjectConfigur
     return Utils::caseFriendlyCompare(a->displayName(), b->displayName()) < 0;
 }
 
-ProjectConfigurationModel::ProjectConfigurationModel(Target *target) :
-    m_target(target)
+ProjectConfigurationModel::ProjectConfigurationModel(Target *target)
 {
     connect(target, &Target::runConfigurationsUpdated, this, [this] {
         emit dataChanged(index(0, 0), index(rowCount(), 0));
