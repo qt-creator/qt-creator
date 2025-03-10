@@ -423,6 +423,7 @@ extend_qtc_plugin(QmlDesigner
     gradientpresetlistmodel.cpp gradientpresetlistmodel.h
     instanceimageprovider.cpp instanceimageprovider.h
     propertyeditorcontextobject.cpp propertyeditorcontextobject.h
+    propertyeditordynamicpropertiesproxymodel.cpp propertyeditordynamicpropertiesproxymodel.h
     propertyeditorqmlbackend.cpp propertyeditorqmlbackend.h
     propertyeditortransaction.cpp propertyeditortransaction.h
     propertyeditorvalue.cpp propertyeditorvalue.h

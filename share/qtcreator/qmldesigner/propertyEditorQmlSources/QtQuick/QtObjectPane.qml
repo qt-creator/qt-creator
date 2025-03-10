@@ -12,7 +12,7 @@ PropertyEditorPane {
     ComponentSection {}
 
     DynamicPropertiesSection {
-        propertiesModel: SelectionDynamicPropertiesModel {}
+        propertiesModel: PropertyEditorDynamicPropertiesModel {}
         visible: !hasMultiSelection
     }
 

@@ -10,8 +10,10 @@
 
 #include <asset.h>
 #include <auxiliarydataproperties.h>
+#include <dynamicpropertiesmodel.h>
 #include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
+#include "qmldesignerplugin.h"
 #include <qmltimeline.h>
 
 #include <rewritingexception.h>
@@ -69,7 +71,7 @@ PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,
     , m_qmlBackEndForCurrentType(nullptr)
     , m_propertyComponentGenerator{PropertyEditorQmlBackend::propertyEditorResourcesPath(), model()}
     , m_locked(false)
-
+    , m_dynamicPropertiesModel(new DynamicPropertiesModel(true, this))
 {
     m_qmlDir = PropertyEditorQmlBackend::propertyEditorResourcesPath();
 
@@ -290,6 +292,11 @@ void PropertyEditorView::refreshMetaInfos(const TypeIds &deletedTypeIds)
     m_propertyComponentGenerator.refreshMetaInfos(deletedTypeIds);
 }
 
+DynamicPropertiesModel *PropertyEditorView::dynamicPropertiesModel() const
+{
+    return m_dynamicPropertiesModel;
+}
+
 void PropertyEditorView::setExpressionOnObjectNode(const QmlObjectNode &constObjectNode,
                                                    PropertyNameView name,
                                                    const QString &newExpression)
@@ -390,6 +397,24 @@ void PropertyEditorView::removeAliasForProperty(const ModelNode &modelNode, cons
             break;
         }
     }
+}
+
+PropertyEditorView *PropertyEditorView::instance()
+{
+    static PropertyEditorView *s_instance = nullptr;
+
+    if (s_instance)
+        return s_instance;
+
+    const QList<AbstractView *> views = QmlDesignerPlugin::instance()->viewManager().views();
+    for (AbstractView *view : views) {
+        PropertyEditorView *propView = qobject_cast<PropertyEditorView *>(view);
+        if (propView)
+            s_instance = propView;
+    }
+
+    QTC_ASSERT(s_instance, return nullptr);
+    return s_instance;
 }
 
 void PropertyEditorView::updateSize()
@@ -632,6 +657,8 @@ void PropertyEditorView::setupQmlBackend()
 
     setupInsight(rootModelNode(), currentQmlBackend);
 #endif // QDS_USE_PROJECTSTORAGE
+
+    m_dynamicPropertiesModel->setSelectedNode(m_selectedNode);
 }
 
 void PropertyEditorView::commitVariantValueToModel(PropertyNameView propertyName, const QVariant &value)
@@ -750,6 +777,7 @@ void PropertyEditorView::modelAboutToBeDetached(Model *model)
     m_qmlBackEndForCurrentType->propertyEditorTransaction()->end();
 
     resetView();
+    m_dynamicPropertiesModel->reset();
 }
 
 void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
@@ -818,10 +846,18 @@ void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty> &proper
 
             if (propertyName.contains("anchor"))
                 m_qmlBackEndForCurrentType->backendAnchorBinding().invalidate(m_selectedNode);
+
+            dynamicPropertiesModel()->dispatchPropertyChanges(property);
         }
     }
     if (changed)
         m_qmlBackEndForCurrentType->updateInstanceImage();
+}
+
+void PropertyEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList)
+{
+    for (const auto &property : propertyList)
+        m_dynamicPropertiesModel->removeItem(property);
 }
 
 void PropertyEditorView::variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags /*propertyChange*/)
@@ -850,6 +886,8 @@ void PropertyEditorView::variantPropertiesChanged(const QList<VariantProperty>& 
                                                                              property.name());
 
         if (node == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == node) {
+            if (property.isDynamic())
+                m_dynamicPropertiesModel->updateItem(property);
             if ( QmlObjectNode(m_selectedNode).modelNode().property(property.name()).isBindingProperty())
                 setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).instanceValue(property.name()));
             else
@@ -865,6 +903,7 @@ void PropertyEditorView::variantPropertiesChanged(const QList<VariantProperty>& 
                 changed = true;
             }
         }
+        m_dynamicPropertiesModel->dispatchPropertyChanges(property);
     }
 
     if (changed)
@@ -895,6 +934,8 @@ void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty> &
             m_qmlBackEndForCurrentType->contextObject()->setHasAliasExport(QmlObjectNode(m_selectedNode).isAliasExported());
 
         if (node == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == node) {
+            if (property.isDynamic())
+                m_dynamicPropertiesModel->updateItem(property);
             if (property.name().contains("anchor"))
                 m_qmlBackEndForCurrentType->backendAnchorBinding().invalidate(m_selectedNode);
 
@@ -904,6 +945,7 @@ void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty> &
             m_locked = false;
             changed = true;
         }
+        m_dynamicPropertiesModel->dispatchPropertyChanges(property);
     }
 
     if (changed)
@@ -960,6 +1002,8 @@ void PropertyEditorView::nodeIdChanged(const ModelNode &node, const QString &new
 
     if (!QmlObjectNode(m_selectedNode).isValid())
         return;
+
+    m_dynamicPropertiesModel->reset();
 
     if (m_qmlBackEndForCurrentType) {
         if (newId == Constants::MATERIAL_LIB_ID)

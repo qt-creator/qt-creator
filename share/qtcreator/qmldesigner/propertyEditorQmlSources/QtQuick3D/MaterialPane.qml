@@ -82,7 +82,7 @@ Item {
             }
 
             DynamicPropertiesSection {
-                propertiesModel: SelectionDynamicPropertiesModel {}
+                propertiesModel: PropertyEditorDynamicPropertiesModel {}
                 visible: !hasMultiSelection
             }
 

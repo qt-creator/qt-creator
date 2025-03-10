@@ -29,7 +29,7 @@
 #include "qmlmaterialnodeproxy.h"
 #include "qmltexturenodeproxy.h"
 #include "richtexteditor/richtexteditorproxy.h"
-#include "selectiondynamicpropertiesproxymodel.h"
+#include "propertyeditordynamicpropertiesproxymodel.h"
 #include "theme.h"
 #include "tooltip.h"
 
@@ -76,7 +76,7 @@ void Quick2PropertyEditorView::registerQmlTypes()
         Tooltip::registerDeclarativeType();
         EasingCurveEditor::registerDeclarativeType();
         RichTextEditorProxy::registerDeclarativeType();
-        SelectionDynamicPropertiesProxyModel::registerDeclarativeType();
+        PropertyEditorDynamicPropertiesProxyModel::registerDeclarativeType();
         DynamicPropertyRow::registerDeclarativeType();
         PropertyChangesModel::registerDeclarativeType();
         PropertyModel::registerDeclarativeType();

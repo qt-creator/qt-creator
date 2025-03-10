@@ -21,6 +21,7 @@ QT_END_NAMESPACE
 namespace QmlDesigner {
 
 class CollapseButton;
+class DynamicPropertiesModel;
 class ModelNode;
 class PropertyEditorQmlBackend;
 class PropertyEditorView;
@@ -46,6 +47,7 @@ public:
                      const NodeAbstractProperty &parentProperty,
                      PropertyChangeFlags propertyChange) override;
     void propertiesRemoved(const QList<AbstractProperty>& propertyList) override;
+    void propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList) override;
 
     void modelAttached(Model *model) override;
 
@@ -93,6 +95,8 @@ public:
 
     void refreshMetaInfos(const TypeIds &deletedTypeIds) override;
 
+    DynamicPropertiesModel *dynamicPropertiesModel() const;
+
     static void setExpressionOnObjectNode(const QmlObjectNode &objectNode,
                                           PropertyNameView name,
                                           const QString &expression);
@@ -124,6 +128,8 @@ private: //functions
     bool noValidSelection() const;
     void highlightTextureProperties(bool highlight = true);
 
+    static PropertyEditorView *instance();
+
 private: //variables
     AsynchronousImageCache &m_imageCache;
     ModelNode m_selectedNode;
@@ -137,6 +143,9 @@ private: //variables
     PropertyEditorComponentGenerator m_propertyEditorComponentGenerator{m_propertyComponentGenerator};
     bool m_locked;
     bool m_textureAboutToBeRemoved = false;
+    DynamicPropertiesModel *m_dynamicPropertiesModel = nullptr;
+
+    friend class PropertyEditorDynamicPropertiesProxyModel;
 };
 
 } //QmlDesigner

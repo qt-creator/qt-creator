@@ -45,7 +45,7 @@ Rectangle {
             Layout.fillHeight: true
 
             DynamicPropertiesSection {
-                propertiesModel: SelectionDynamicPropertiesModel {}
+                propertiesModel: PropertyEditorDynamicPropertiesModel {}
                 visible: !hasMultiSelection
             }
 
