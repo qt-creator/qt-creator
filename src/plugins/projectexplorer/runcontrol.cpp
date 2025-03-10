@@ -1964,7 +1964,15 @@ Canceler canceler()
 void RecipeRunner::start()
 {
     QTC_CHECK(!m_taskTreeRunner.isRunning());
-    m_taskTreeRunner.start(m_recipe, {}, [this](DoneWith result) {
+
+    const Group recipe {
+        runStorage(),
+        onGroupSetup([this] { connect(this, &RecipeRunner::canceled,
+                                      runStorage().activeStorage(), &RunInterface::canceled); }),
+        m_recipe
+    };
+
+    m_taskTreeRunner.start(recipe, {}, [this](DoneWith result) {
         if (result == DoneWith::Success)
             reportStopped();
         else
@@ -1975,8 +1983,7 @@ void RecipeRunner::start()
 
 void RecipeRunner::stop()
 {
-    m_taskTreeRunner.cancel();
-    reportStopped();
+    emit canceled();
 }
 
 } // namespace ProjectExplorer

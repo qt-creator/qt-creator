@@ -84,13 +84,13 @@ Group slog2InfoRecipe(RunControl *runControl)
             storage->processRemainingLogData();
     };
 
-    return {
+    return Group {
         storage,
         ProcessTask(onTestSetup, onTestDone, CallDoneIf::Error),
         ProcessTask(onLaunchTimeSetup, onLaunchTimeDone, CallDoneIf::Success),
         ProcessTask(onLogSetup, onLogError, CallDoneIf::Error),
         onGroupDone(onCanceled, CallDoneIf::Error)
-    };
+    }.withCancel(canceler());
 }
 
 void SlogData::processRemainingLogData()

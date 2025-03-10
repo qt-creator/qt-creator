@@ -298,7 +298,6 @@ public:
     explicit ProcessRunnerFactory(const QList<Utils::Id> &runConfig);
 };
 
-
 PROJECTEXPLORER_EXPORT
 void addOutputParserFactory(const std::function<Utils::OutputLineParser *(Target *)> &);
 
@@ -318,11 +317,16 @@ PROJECTEXPLORER_EXPORT Canceler canceler();
 
 class PROJECTEXPLORER_EXPORT RecipeRunner final : public RunWorker
 {
+    Q_OBJECT
+
 public:
     explicit RecipeRunner(RunControl *runControl)
         : RunWorker(runControl) {}
 
     void setRecipe(const Tasking::Group &recipe) { m_recipe = recipe; }
+
+signals:
+    void canceled();
 
 private:
     void start() final;
