@@ -11,6 +11,7 @@
 #include <utils/layoutbuilder.h>
 
 #include <QMetaEnum>
+#include <QCompleter>
 
 using namespace Layouting;
 using namespace Utils;
@@ -196,8 +197,10 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
 
     if constexpr (has_setCompleter<T>) {
         const auto completer = children.get<QCompleter *>("completer"sv);
-        if (completer)
+        if (completer) {
             item->setCompleter(completer);
+            completer->setParent(item->emerge());
+        }
     }
 
     if constexpr (has_setMinimumHeight<T>) {
