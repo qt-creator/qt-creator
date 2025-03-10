@@ -63,7 +63,7 @@ TransitionItem::TransitionItem(BaseItem *parent)
     m_highlightPen.setWidth(8);
     m_highlightPen.setJoinStyle(Qt::MiterJoin);
 
-    m_pen = QPen(Utils::creatorColor(Utils::Theme::TextColorDisabled));
+    m_pen = QPen(Utils::creatorColor(Utils::Theme::TextColorNormal));
     m_pen.setWidth(2);
 
     m_arrow << QPointF(0, 0)
@@ -993,13 +993,13 @@ void TransitionItem::updateEditorInfo(bool allChilds)
 {
     BaseItem::updateEditorInfo(allChilds);
 
-    const QColor textDisabled = Utils::creatorColor(Utils::Theme::TextColorDisabled);
+    const QColor textNormal = Utils::creatorColor(Utils::Theme::TextColorNormal);
     const QColor fontColor = editorInfo(Constants::C_SCXML_EDITORINFO_FONTCOLOR);
-    m_eventTagItem->setDefaultTextColor(fontColor.isValid() ? fontColor : textDisabled);
-    m_condTagItem->setDefaultTextColor(fontColor.isValid() ? fontColor : textDisabled);
+    m_eventTagItem->setDefaultTextColor(fontColor.isValid() ? fontColor : textNormal);
+    m_condTagItem->setDefaultTextColor(fontColor.isValid() ? fontColor : textNormal);
 
     const QColor stateColor = editorInfo(Constants::C_SCXML_EDITORINFO_STATECOLOR);
-    m_pen.setColor(stateColor.isValid() ? stateColor : textDisabled);
+    m_pen.setColor(stateColor.isValid() ? stateColor : textNormal);
 }
 
 void TransitionItem::updateTarget(bool fixValue)

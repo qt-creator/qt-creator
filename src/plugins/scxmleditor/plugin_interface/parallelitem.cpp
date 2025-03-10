@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "parallelitem.h"
-#include "scxmldocument.h"
-#include "scxmltagutils.h"
+
+#include <utils/icon.h>
+
 #include <QPainter>
 
 using namespace ScxmlEditor::PluginInterface;
@@ -11,7 +12,9 @@ using namespace ScxmlEditor::PluginInterface;
 ParallelItem::ParallelItem(const QPointF &pos, BaseItem *parent)
     : StateItem(pos, parent)
 {
-    m_pixmap = QPixmap(":/scxmleditor/images/parallel_icon.png");
+
+    m_pixmap = Utils::Icon({{":/scxmleditor/images/parallel_icon.png",
+                             Utils::Theme::TextColorNormal}}).pixmap();
     updatePolygon();
 }
 

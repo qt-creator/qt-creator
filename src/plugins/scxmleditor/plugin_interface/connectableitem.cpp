@@ -12,6 +12,8 @@
 #include "serializer.h"
 #include "stateitem.h"
 
+#include <utils/theme/theme.h>
+
 #include <QDebug>
 #include <QPainter>
 #include <QPainterPath>
@@ -30,8 +32,10 @@ ConnectableItem::ConnectableItem(const QPointF &p, BaseItem *parent)
     setFlag(QGraphicsItem::ItemSendsScenePositionChanges, true);
     setAcceptDrops(true);
 
+    const bool isDark = Utils::creatorTheme()->colorScheme() == Qt::ColorScheme::Dark;
+
     m_selectedPen.setStyle(Qt::DotLine);
-    m_selectedPen.setColor(QColor(0x44, 0x44, 0xed));
+    m_selectedPen.setColor(isDark ? QColor(0x74, 0x74, 0xed) : QColor(0x44, 0x44, 0xed));
     m_selectedPen.setCosmetic(true);
     m_releasedFromParentBrush = QBrush(QColor(0x98, 0x98, 0x98));
 
