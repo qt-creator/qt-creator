@@ -437,10 +437,14 @@ def __chooseTargets__(targets, availableTargets=None, additionalFunc=None):
                 checkedTargets.add(current)
 
                 # perform additional function on detailed kits view
-                if additionalFunc:
+                if additionalFunc and detailsButton.enabled:
                     ensureChecked(detailsButton)
                     additionalFunc()
-            ensureChecked(detailsButton, False)
+            if detailsButton.enabled:
+                ensureChecked(detailsButton, False)
+            else:
+                test.verify(not detailsButton.checked,
+                            'A disabled "Details" button should not be expanded.')
         except LookupError:
             if mustCheck:
                 test.fail("Failed to check target '%s'." % Targets.getStringForTarget(current))
