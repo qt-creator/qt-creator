@@ -7,6 +7,8 @@
 #include "scxmleditorconstants.h"
 #include "scxmluifactory.h"
 
+#include <utils/theme/theme.h>
+
 #include <QByteArray>
 #include <QDataStream>
 #include <QPainter>
@@ -20,7 +22,7 @@ InitialStateItem::InitialStateItem(const QPointF &pos, BaseItem *parent)
     setItemBoundingRect(QRectF(-20, -20, 40, 40));
     setMinimumHeight(40);
     setMinimumWidth(40);
-    m_pen.setColor(qRgb(0x12, 0x12, 0x12));
+    m_pen.setColor(Utils::creatorColor(Utils::Theme::TextColorNormal));
     m_pen.setWidth(2);
 
     checkWarningItems();
@@ -78,9 +80,10 @@ void InitialStateItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     painter->setRenderHint(QPainter::Antialiasing, true);
     painter->setOpacity(getOpacity());
 
-    m_pen.setColor(overlapping() ? qRgb(0xff, 0x00, 0x60) : qRgb(0x45, 0x45, 0x45));
+    static const QColor colorNormal = Utils::creatorColor(Utils::Theme::TextColorNormal);
+    m_pen.setColor(overlapping() ? qRgb(0xff, 0x00, 0x60) : colorNormal);
     painter->setPen(m_pen);
-    painter->setBrush(QColor(0x4d, 0x4d, 0x4d));
+    painter->setBrush(Utils::creatorColor(Utils::Theme::PaletteTextDisabled));
     painter->drawEllipse(boundingRect().center(), m_size, m_size);
 
     painter->restore();
