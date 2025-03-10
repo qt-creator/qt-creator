@@ -157,6 +157,10 @@ bool ImageCacheCollector::runProcess(const QStringList &arguments) const
 
     QProcessUniquePointer puppetProcess{new QProcess};
 
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.remove("QSG_RHI_BACKEND");
+    puppetProcess->setProcessEnvironment(env);
+
     QObject::connect(QCoreApplication::instance(),
                      &QCoreApplication::aboutToQuit,
                      puppetProcess.get(),
