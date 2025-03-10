@@ -1,0 +1,1 @@
+add static member to struct from outside use (implicit)

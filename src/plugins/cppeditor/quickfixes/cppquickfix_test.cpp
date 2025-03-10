@@ -298,6 +298,26 @@ void CppQuickFixTestObject::initTestCase()
                 testData.failMessage = m->trimmed();
                 continue;
             }
+            if (fi.fileName() == "properties.txt") {
+                const auto p = readFile();
+                if (!p)
+                    QVERIFY2(false, qPrintable(p.error()));
+                const QByteArrayList lines = p->trimmed().split('\n');
+                for (QByteArray line : lines) {
+                    line = line.trimmed();
+                    if (line.isEmpty())
+                        continue;
+                    const int colonOffset = line.indexOf(':');
+                    if (colonOffset == -1) {
+                        testData.properties.insert(QString::fromUtf8(line), true);
+                    } else {
+                        testData.properties.insert(
+                            QString::fromUtf8(line.left(colonOffset)),
+                            QString::fromUtf8(line.mid(colonOffset + 1)));
+                    }
+                }
+                continue;
+            }
             if (fi.fileName().startsWith("original_")) {
                 const auto o = readFile();
                 if (!o)
@@ -335,6 +355,7 @@ void CppQuickFixTestObject::test_data()
     QTest::addColumn<QByteArrayList>("expected");
     QTest::addColumn<int>("opIndex");
     QTest::addColumn<QByteArray>("failMessage");
+    QTest::addColumn<QVariantMap>("properties");
 
     for (const TestData &testData : std::as_const(m_testData)) {
         QByteArrayList fileNames;
@@ -346,7 +367,8 @@ void CppQuickFixTestObject::test_data()
             expected << it.value().second;
         }
         QTest::newRow(testData.tag.constData()) << fileNames << original << expected
-                                                << testData.opIndex << testData.failMessage;
+                                                << testData.opIndex << testData.failMessage
+                                                << testData.properties;
     }
 }
 
@@ -357,6 +379,27 @@ void CppQuickFixTestObject::test()
     QFETCH(QByteArrayList, expected);
     QFETCH(int, opIndex);
     QFETCH(QByteArray, failMessage);
+    QFETCH(QVariantMap, properties);
+
+    class PropertiesMgr
+    {
+    public:
+        PropertiesMgr(CppQuickFixFactory &factory, const QVariantMap &props)
+            : m_factory(factory), m_props(props)
+        {
+            for (auto it = props.begin(); it != props.end(); ++it)
+                m_factory.setProperty(it.key().toUtf8().constData(), it.value());
+        }
+        ~PropertiesMgr()
+        {
+            for (auto it = m_props.begin(); it != m_props.end(); ++it)
+                m_factory.setProperty(it.key().toUtf8().constData(), {});
+        }
+
+    private:
+        CppQuickFixFactory &m_factory;
+        const QVariantMap &m_props;
+    } propsMgr(*m_factory, properties);
 
     QList<TestDocumentPtr> testDocuments;
     for (qsizetype i = 0; i < fileNames.size(); ++i)

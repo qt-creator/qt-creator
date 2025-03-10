@@ -15,6 +15,7 @@
 #include <QObject>
 #include <QSharedPointer>
 #include <QStringList>
+#include <QVariantMap>
 
 #include <memory>
 
@@ -111,6 +112,7 @@ private:
         QByteArray tag;
         QHash<QString, std::pair<QByteArray, QByteArray>> files;
         QByteArray failMessage;
+        QVariantMap properties;
         int opIndex = 0;
     };
     QList<TestData> m_testData;

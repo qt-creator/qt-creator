@@ -1,0 +1,1 @@
+add static member function from outside use (implicit)

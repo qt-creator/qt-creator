@@ -1,0 +1,1 @@
+add member to struct from implicit inside use
