@@ -1270,9 +1270,12 @@ BuildConfigurationFactory *BuildConfigurationFactory::find(const Kit *k, const F
     QTC_ASSERT(k, return nullptr);
     const Utils::Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(k);
     for (BuildConfigurationFactory *factory : std::as_const(g_buildConfigurationFactories)) {
-        if (Utils::mimeTypeForFile(projectPath).matchesName(factory->m_supportedProjectMimeTypeName)
-            && factory->supportsTargetDeviceType(deviceType))
-            return factory;
+        if (!factory->supportsTargetDeviceType(deviceType))
+            continue;
+        for (const QString &mimeType : std::as_const(factory->m_supportedProjectMimeTypeNames)) {
+            if (Utils::mimeTypeForFile(projectPath).matchesName(mimeType))
+                return factory;
+        }
     }
     return nullptr;
 }
@@ -1294,7 +1297,12 @@ void BuildConfigurationFactory::setSupportedProjectType(Utils::Id id)
 
 void BuildConfigurationFactory::setSupportedProjectMimeTypeName(const QString &mimeTypeName)
 {
-    m_supportedProjectMimeTypeName = mimeTypeName;
+    setSupportedProjectMimeTypeNames({mimeTypeName});
+}
+
+void BuildConfigurationFactory::setSupportedProjectMimeTypeNames(const QStringList &mimeTypeNames)
+{
+    m_supportedProjectMimeTypeNames = mimeTypeNames;
 }
 
 void BuildConfigurationFactory::addSupportedTargetDeviceType(Utils::Id id)

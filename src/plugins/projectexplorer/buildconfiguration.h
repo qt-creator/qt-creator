@@ -210,6 +210,7 @@ protected:
     bool supportsTargetDeviceType(Utils::Id id) const;
     void setSupportedProjectType(Utils::Id id);
     void setSupportedProjectMimeTypeName(const QString &mimeTypeName);
+    void setSupportedProjectMimeTypeNames(const QStringList &mimeTypeNames);
     void addSupportedTargetDeviceType(Utils::Id id);
     void setDefaultDisplayName(const QString &defaultDisplayName);
 
@@ -229,7 +230,7 @@ private:
     Utils::Id m_buildConfigId;
     Utils::Id m_supportedProjectType;
     QList<Utils::Id> m_supportedTargetDeviceTypes;
-    QString m_supportedProjectMimeTypeName;
+    QStringList m_supportedProjectMimeTypeNames;
     IssueReporter m_issueReporter;
     BuildGenerator m_buildGenerator;
 };
