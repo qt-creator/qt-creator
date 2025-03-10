@@ -100,7 +100,7 @@ public:
     ExecutableItem coreFileRecipe();
     ExecutableItem terminalRecipe(const SingleBarrier &barrier);
     ExecutableItem fixupParamsRecipe();
-    ExecutableItem debugServerRecipe();
+    ExecutableItem debugServerRecipe(const SingleBarrier &barrier);
 
     int snapshotCounter = 0;
     // int engineStartsNeeded = 0;
@@ -122,15 +122,21 @@ void DebuggerRunTool::start()
 {
     d->m_glue.reset(new GlueInterface);
 
-    const auto barrierKicker = [this](const SingleBarrier &barrier) {
+    const auto terminalKicker = [this](const SingleBarrier &barrier) {
         return d->terminalRecipe(barrier);
+    };
+
+    const auto debugServerKicker = [this](const SingleBarrier &barrier) {
+        return d->debugServerRecipe(barrier);
     };
 
     const Group recipe {
         d->coreFileRecipe(),
-        When (barrierKicker) >> Do {
+        When (terminalKicker) >> Do {
             d->fixupParamsRecipe(),
-            d->debugServerRecipe()
+            When (debugServerKicker) >> Do {
+                Sync([this] { continueAfterDebugServerStart(); })
+            }
         }
     };
     d->m_taskTreeRunner.start(recipe);
@@ -301,13 +307,13 @@ ExecutableItem DebuggerRunToolPrivate::fixupParamsRecipe()
     });
 }
 
-ExecutableItem DebuggerRunToolPrivate::debugServerRecipe()
+ExecutableItem DebuggerRunToolPrivate::debugServerRecipe(const SingleBarrier &barrier)
 {
     const auto useDebugServer = [this] {
         return q->runControl()->usesDebugChannel() && !m_runParameters.skipDebugServer();
     };
 
-    const auto onSetup = [this](Process &process) {
+    const auto onSetup = [this, barrier](Process &process) {
         process.setUtf8Codec();
         CommandLine commandLine = m_runParameters.inferior().command;
         CommandLine cmd;
@@ -414,8 +420,8 @@ ExecutableItem DebuggerRunToolPrivate::debugServerRecipe()
             q->runControl()->postMessage(msg, StdErrFormat, false);
         });
 
-        QObject::connect(&process, &Process::started, q, [this] {
-            q->continueAfterDebugServerStart();
+        QObject::connect(&process, &Process::started, q, [barrier = barrier->barrier()] {
+            barrier->advance();
         });
 
         return SetupResult::Continue;
@@ -432,7 +438,7 @@ ExecutableItem DebuggerRunToolPrivate::debugServerRecipe()
         If (useDebugServer) >> Then {
             ProcessTask(onSetup, onDone)
         } >> Else {
-            Sync([this] { q->continueAfterDebugServerStart(); })
+            Sync([barrier] { barrier->barrier()->advance(); })
         }
     };
 }
