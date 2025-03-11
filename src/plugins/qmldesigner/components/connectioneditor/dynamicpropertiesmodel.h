@@ -57,6 +57,8 @@ public:
 
     void dispatchPropertyChanges(const AbstractProperty &abstractProperty);
 
+    void handleInstancePropertyChanged(const ModelNode &modelNode, PropertyNameView propertyName);
+
 protected:
     QHash<int, QByteArray> roleNames() const override;
 

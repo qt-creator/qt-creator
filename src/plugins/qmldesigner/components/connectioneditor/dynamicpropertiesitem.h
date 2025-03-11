@@ -18,7 +18,8 @@ public:
         TargetNameRole,
         PropertyNameRole,
         PropertyTypeRole,
-        PropertyValueRole
+        PropertyValueRole,
+        InstancePropertyValueRole
     };
 
     static QHash<int, QByteArray> roleNames();

@@ -355,6 +355,21 @@ void DynamicPropertiesModel::dispatchPropertyChanges(const AbstractProperty &abs
     }
 }
 
+void DynamicPropertiesModel::handleInstancePropertyChanged(const ModelNode &modelNode,
+                                                           PropertyNameView propertyName)
+{
+    if (modelNode != singleSelectedNode())
+        return;
+
+    QmlObjectNode qmlObjectNode(modelNode);
+    if (qmlObjectNode.isValid() && qmlObjectNode.currentState().isValid()) {
+        const AbstractProperty property = modelNode.property(propertyName);
+        if (property.isDynamic()) {
+            updateItem(property);
+        }
+    }
+}
+
 const QList<ModelNode> DynamicPropertiesModel::selectedNodes() const
 {
     if (m_explicitSelection)

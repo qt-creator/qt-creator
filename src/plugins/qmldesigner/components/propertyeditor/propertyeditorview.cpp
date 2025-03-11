@@ -1093,6 +1093,8 @@ void PropertyEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Pr
                 setValue(modelNode, property.name(), qmlObjectNode.modelValue(property.name()));
             changed = true;
         }
+
+        m_dynamicPropertiesModel->handleInstancePropertyChanged(modelNode, propertyName);
     }
 
     if (changed)
