@@ -50,7 +50,6 @@ public:
     MainScriptSource mainScriptSource() const;
     void setMainScript(int index);
 
-    void setTarget(ProjectExplorer::Target *target);
     void setScriptSource(MainScriptSource source, const QString &settingsPath = QString());
 
     Utils::FilePath mainScript() const;
@@ -60,7 +59,6 @@ public:
     QmlBuildSystem *qmlBuildSystem() const;
 
 public:
-    ProjectExplorer::Target *m_target = nullptr;
     QPointer<QComboBox> m_fileListCombo;
     QStandardItemModel m_fileListModel;
     QString m_scriptFile;

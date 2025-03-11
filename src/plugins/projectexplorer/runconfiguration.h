@@ -176,10 +176,10 @@ public:
 
     BuildConfiguration *buildConfiguration() const { return m_buildConfiguration; }
 
+    BuildSystem *buildSystem() const;
+
 protected:
     RunConfiguration(BuildConfiguration *bc, Utils::Id id);
-
-    BuildSystem *buildSystem() const;
 
     using Updater = std::function<void()>;
     void setUpdater(const Updater &updater);

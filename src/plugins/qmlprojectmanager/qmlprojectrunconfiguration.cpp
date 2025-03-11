@@ -118,7 +118,6 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(BuildConfiguration *bc, I
         return cmd;
     });
 
-    qmlMainFile.setTarget(target());
     connect(&qmlMainFile, &BaseAspect::changed, this, &RunConfiguration::update);
 
     if (Core::ICore::isQtDesignStudio())
