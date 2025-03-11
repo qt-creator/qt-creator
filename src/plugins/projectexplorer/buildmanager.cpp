@@ -569,8 +569,8 @@ BuildForRunConfigStatus BuildManager::potentiallyBuildForRunConfig(RunConfigurat
         if (!isBuilding()) {
             switch (projectExplorerSettings().buildBeforeDeploy) {
             case BuildBeforeRunMode::AppOnly:
-                if (rc->target()->activeBuildConfiguration())
-                    rc->target()->activeBuildConfiguration()->restrictNextBuild(rc);
+                if (rc->buildConfiguration())
+                    rc->buildConfiguration()->restrictNextBuild(rc);
                 Q_FALLTHROUGH();
             case BuildBeforeRunMode::WholeProject:
                 stepIds << Id(Constants::BUILDSTEPS_BUILD);
@@ -586,8 +586,8 @@ BuildForRunConfigStatus BuildManager::potentiallyBuildForRunConfig(RunConfigurat
     Project * const pro = rc->project();
     const int queueCount = queue(projectWithDependencies(pro, stepIds),
                                  ConfigSelection::Active, rc);
-    if (rc->target()->activeBuildConfiguration())
-        rc->target()->activeBuildConfiguration()->restrictNextBuild(nullptr);
+    if (rc->buildConfiguration())
+        rc->buildConfiguration()->restrictNextBuild(nullptr);
 
     if (queueCount < 0)
         return BuildForRunConfigStatus::BuildFailed;

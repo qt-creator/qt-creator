@@ -176,7 +176,7 @@ bool AndroidDeployQtStep::init()
 
     m_androiddeployqtArgs = {};
 
-    const QStringList androidABIs = applicationAbis(target());
+    const QStringList androidABIs = applicationAbis(kit());
     if (androidABIs.isEmpty()) {
         reportWarningOrError(Tr::tr("No Android architecture (ABI) is set by the project."),
                              Task::Error);
@@ -188,10 +188,6 @@ bool AndroidDeployQtStep::init()
 
     RunConfiguration *rc = buildConfiguration()->activeRunConfiguration();
     QTC_ASSERT(rc, reportWarningOrError(Tr::tr("The kit's run configuration is invalid."), Task::Error);
-            return false);
-    BuildConfiguration *bc = target()->activeBuildConfiguration();
-    QTC_ASSERT(bc, reportWarningOrError(Tr::tr("The kit's build configuration is invalid."),
-                                        Task::Error);
             return false);
 
     const int minTargetApi = minimumSDK(buildConfiguration());
@@ -297,7 +293,7 @@ bool AndroidDeployQtStep::init()
         if (buildType() == BuildConfiguration::Release)
             m_androiddeployqtArgs.addArgs({"--release"});
 
-        auto androidBuildApkStep = bc->buildSteps()->firstOfType<AndroidBuildApkStep>();
+        auto androidBuildApkStep = stepList()->firstOfType<AndroidBuildApkStep>();
         if (androidBuildApkStep && androidBuildApkStep->signPackage()) {
             // The androiddeployqt tool is not really written to do stand-alone installations.
             // This hack forces it to use the correct filename for the apk file when installing
@@ -307,7 +303,7 @@ bool AndroidDeployQtStep::init()
         }
     }
 
-    m_environment = bc->environment();
+    m_environment = buildConfiguration()->environment();
 
     m_adbPath = AndroidConfig::adbToolPath();
     return true;
@@ -537,11 +533,8 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
             return;
 
         // TODO: Write error messages on all the early returns below.
-        Target *currentTarget = target();
-        if (currentTarget == nullptr)
-            return;
 
-        const QStringList appAbis = applicationAbis(currentTarget);
+        const QStringList appAbis = applicationAbis(kit());
         if (appAbis.isEmpty())
             return;
 
@@ -595,7 +588,7 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
         };
 
         TaskTreeRunner *runner = new TaskTreeRunner;
-        runner->setParent(currentTarget);
+        runner->setParent(target());
         runner->start(recipe);
     });
 

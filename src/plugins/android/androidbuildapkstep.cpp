@@ -909,7 +909,7 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
             return false;
         }
 
-        const auto androidAbis = applicationAbis(target());
+        const auto androidAbis = applicationAbis(kit());
         const QString buildKey = buildConfiguration()->activeBuildKey();
         const FilePath buildDir = buildDirectory();
         const FilePath androidBuildDir = androidBuildDirectory(buildConfiguration());
@@ -956,7 +956,7 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
         if (targets.isEmpty())
             return inputExists; // qmake does this job for us
 
-        QJsonObject deploySettings = deploymentSettings(target());
+        QJsonObject deploySettings = deploymentSettings(kit());
         QString applicationBinary;
         if (!version->supportsMultipleQtAbis()) {
             QTC_ASSERT(androidAbis.size() == 1, return false);
@@ -1164,7 +1164,7 @@ QVariant AndroidBuildApkStep::data(Utils::Id id) const
         return QVariant::fromValue(AndroidConfig::sdkLocation());
 
     if (id == Constants::AndroidMkSpecAbis)
-        return applicationAbis(target());
+        return applicationAbis(kit());
 
     return AbstractProcessStep::data(id);
 }

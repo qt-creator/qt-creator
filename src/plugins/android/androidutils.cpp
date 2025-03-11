@@ -223,9 +223,9 @@ QString buildTargetSDK(const BuildConfiguration *bc)
     return fallback;
 }
 
-QStringList applicationAbis(const Target *target)
+QStringList applicationAbis(const Kit *k)
 {
-    auto qt = dynamic_cast<AndroidQtVersion *>(QtSupport::QtKitAspect::qtVersion(target->kit()));
+    auto qt = dynamic_cast<AndroidQtVersion *>(QtSupport::QtKitAspect::qtVersion(k));
     return qt ? qt->androidAbis() : QStringList();
 }
 
@@ -241,13 +241,13 @@ QString archTriplet(const QString &abi)
     return {"arm-linux-androideabi"};
 }
 
-QJsonObject deploymentSettings(const Target *target)
+QJsonObject deploymentSettings(const Kit *k)
 {
-    QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
+    QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
     if (!qt)
         return {};
 
-    auto tc = ToolchainKitAspect::cxxToolchain(target->kit());
+    auto tc = ToolchainKitAspect::cxxToolchain(k);
     if (!tc || tc->typeId() != Constants::ANDROID_TOOLCHAIN_TYPEID)
         return {};
     QJsonObject settings;
@@ -256,7 +256,7 @@ QJsonObject deploymentSettings(const Target *target)
     settings["ndk"] = AndroidConfig::ndkLocation(qt).toFSPathString();
     settings["sdk"] = AndroidConfig::sdkLocation().toFSPathString();
     if (!qt->supportsMultipleQtAbis()) {
-        const QStringList abis = applicationAbis(target);
+        const QStringList abis = applicationAbis(k);
         QTC_ASSERT(abis.size() == 1, return {});
         settings["stdcpp-path"] = (AndroidConfig::toolchainPath(qt) / "sysroot/usr/lib"
                                    / archTriplet(abis.first()) / "libc++_shared.so")

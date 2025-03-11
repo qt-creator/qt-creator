@@ -2139,7 +2139,7 @@ static BuildConfiguration::BuildType startupBuildType()
 {
     BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
     if (RunConfiguration *runConfig = activeRunConfigForActiveProject()) {
-        if (const BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration())
+        if (const BuildConfiguration *buildConfig = runConfig->buildConfiguration())
             buildType = buildConfig->buildType();
     }
     return buildType;

@@ -173,8 +173,9 @@ Environment BuildStep::buildEnvironment() const
 {
     if (const auto bc = qobject_cast<BuildConfiguration *>(projectConfiguration()))
         return bc->environment();
-    if (const auto bc = target()->activeBuildConfiguration())
-        return bc->environment();
+    if (const auto dc = qobject_cast<DeployConfiguration *>(projectConfiguration()))
+        return dc->buildConfiguration()->environment();
+    QTC_CHECK(false);
     return Environment::systemEnvironment();
 }
 

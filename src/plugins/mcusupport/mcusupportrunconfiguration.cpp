@@ -22,10 +22,9 @@ using namespace Utils;
 
 namespace McuSupport::Internal {
 
-static FilePath cmakeFilePath(const Target *target)
+static FilePath cmakeFilePath(const Kit *k)
 {
-    const CMakeProjectManager::CMakeTool *tool = CMakeProjectManager::CMakeKitAspect::cmakeTool(
-        target->kit());
+    const CMakeProjectManager::CMakeTool *tool = CMakeProjectManager::CMakeKitAspect::cmakeTool(k);
     return tool->filePath();
 }
 
@@ -83,7 +82,7 @@ FlashRunWorkerFactory::FlashRunWorkerFactory()
         auto worker = new ProcessRunner(runControl);
         worker->setStartModifier([worker, runControl] {
             const BuildConfiguration *bc = runControl->buildConfiguration();
-            worker->setCommandLine({cmakeFilePath(bc->target()),
+            worker->setCommandLine({cmakeFilePath(bc->kit()),
                                     runControl->aspectData<StringAspect>()->value, CommandLine::Raw});
             worker->setWorkingDirectory(bc->buildDirectory());
             worker->setEnvironment(bc->environment());

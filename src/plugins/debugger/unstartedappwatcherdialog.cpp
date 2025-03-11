@@ -39,8 +39,7 @@ namespace Debugger::Internal {
 
 static bool isLocal(RunConfiguration *runConfiguration)
 {
-    Target *target = runConfiguration ? runConfiguration->target() : nullptr;
-    Kit *kit = target ? target->kit() : nullptr;
+    Kit *kit = runConfiguration ? runConfiguration->kit() : nullptr;
     return RunDeviceTypeKitAspect::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 

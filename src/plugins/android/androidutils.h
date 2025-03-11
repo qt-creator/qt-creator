@@ -49,7 +49,7 @@ int minimumSDK(const ProjectExplorer::BuildConfiguration *bc);
 int minimumSDK(const ProjectExplorer::Kit *kit);
 int defaultMinimumSDK(const QtSupport::QtVersion *qtVersion);
 
-QStringList applicationAbis(const ProjectExplorer::Target *target);
+QStringList applicationAbis(const ProjectExplorer::Kit *k);
 QString archTriplet(const QString &abi);
 
 bool isQt5CmakeProject(const ProjectExplorer::Target *target);
@@ -64,7 +64,7 @@ bool skipInstallationAndPackageSteps(const ProjectExplorer::BuildConfiguration *
 
 QString androidNameForApiLevel(int x);
 
-QJsonObject deploymentSettings(const ProjectExplorer::Target *target);
+QJsonObject deploymentSettings(const ProjectExplorer::Kit *k);
 bool isQtCreatorGenerated(const Utils::FilePath &deploymentFile);
 
 QStringList adbSelector(const QString &serialNumber);

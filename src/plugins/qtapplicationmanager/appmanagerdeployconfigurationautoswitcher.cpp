@@ -46,7 +46,7 @@ void AppManagerDeployConfigurationAutoSwitcher::onActiveDeployConfigurationChang
 {
     if (m_deployConfiguration != deployConfiguration) {
         m_deployConfiguration = deployConfiguration;
-        if (deployConfiguration && deployConfiguration->target()) {
+        if (deployConfiguration) {
             if (auto runConfiguration = deployConfiguration->buildConfiguration()->activeRunConfiguration()) {
                 m_deployConfigurationsUsageHistory.insert(runConfiguration, deployConfiguration);
             }
