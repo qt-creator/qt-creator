@@ -41,8 +41,7 @@ private:
 class ConfigureEnvironmentAspect final: public ProjectExplorer::EnvironmentAspect
 {
 public:
-    ConfigureEnvironmentAspect(Utils::AspectContainer *container,
-                               ProjectExplorer::BuildConfiguration *buildConfig);
+    ConfigureEnvironmentAspect(ProjectExplorer::BuildConfiguration *buildConfig);
 
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
@@ -87,7 +86,7 @@ public:
     Utils::FilePathAspect sourceDirectory{this};
     Utils::StringAspect buildTypeAspect{this};
     QtSupport::QmlDebuggingAspect qmlDebugging{this};
-    Internal::ConfigureEnvironmentAspect configureEnv{this, this};
+    Internal::ConfigureEnvironmentAspect configureEnv{this};
 
     void updateInitialCMakeArguments();
     QStringList initialCMakeOptions() const;
