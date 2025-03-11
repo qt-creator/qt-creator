@@ -82,9 +82,8 @@ TestConfiguration::~TestConfiguration()
     m_testCases.clear();
 }
 
-static bool isLocal(Target *target)
+static bool isLocal(Kit *kit)
 {
-    Kit *kit = target ? target->kit() : nullptr;
     return RunDeviceTypeKitAspect::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 
@@ -227,7 +226,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     runConfigurations.prepend(buildConfig->activeRunConfiguration());
     for (RunConfiguration *runConfig : std::as_const(runConfigurations)) {
         qCDebug(LOG) << "RunConfiguration" << runConfig->id();
-        if (!isLocal(buildConfig->target())) { // TODO add device support
+        if (!isLocal(buildConfig->kit())) { // TODO add device support
             qCDebug(LOG) << " Skipped as not being local";
             continue;
         }
@@ -263,7 +262,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
         qCDebug(LOG) << "   Fallback";
         // we failed to find a valid runconfiguration - but we've got the executable already
         if (auto rc = buildConfig->activeRunConfiguration()) {
-            if (isLocal(buildConfig->target())) { // FIXME for now only Desktop support
+            if (isLocal(buildConfig->kit())) { // FIXME for now only Desktop support
                 const ProcessRunData runnable = rc->runnable();
                 m_runnable.environment = runnable.environment;
                 m_deducedConfiguration = true;
