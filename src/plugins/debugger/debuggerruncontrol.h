@@ -16,6 +16,8 @@ namespace Internal { class DebuggerRunToolPrivate; }
 
 class DEBUGGER_EXPORT DebuggerRunTool final : public ProjectExplorer::RunWorker
 {
+    Q_OBJECT
+
 public:
     explicit DebuggerRunTool(ProjectExplorer::RunControl *runControl);
     ~DebuggerRunTool() override;
@@ -27,12 +29,11 @@ public:
 
     DebuggerRunParameters &runParameters();
 
-private:
-    void continueAfterDebugServerStart();
+signals:
+    void canceled();
 
-    friend class Internal::DebuggerRunToolPrivate;
+private:
     Internal::DebuggerRunToolPrivate *d;
-    QList<QPointer<Internal::DebuggerEngine>> m_engines;
 };
 
 void setupDebuggerRunWorker();
