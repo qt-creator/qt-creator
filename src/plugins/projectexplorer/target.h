@@ -103,7 +103,6 @@ signals:
     // FIXME: Check all uses of all the following signals, plus the associated getters.
     // Likely most of them should refer to the BC counterpart instead (which might not currently exist).
     void parsingFinished(bool);
-    void buildSystemUpdated(ProjectExplorer::BuildSystem *bs);
 
     void removedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
     void addedRunConfiguration(ProjectExplorer::RunConfiguration *rc);

@@ -341,7 +341,6 @@ void BuildSystem::setRootProjectNode(std::unique_ptr<ProjectNode> &&root)
 void BuildSystem::emitBuildSystemUpdated()
 {
     emit updated();
-    emit target()->buildSystemUpdated(this);
 }
 
 void BuildSystem::setExtraData(const QString &buildKey, Utils::Id dataKey, const QVariant &data)
