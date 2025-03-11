@@ -40,16 +40,21 @@ void NodeInstanceSignalSpy::registerObject(QObject *spiedObject)
          index < spiedObject->metaObject()->propertyCount();
          index++) {
         QMetaProperty metaProperty = spiedObject->metaObject()->property(index);
-
-        if (QmlPrivateGate::isPropertyQObject(metaProperty)) {
-            registerChildObject(metaProperty, spiedObject);
-        } else {
-            registerProperty(metaProperty, spiedObject);
-        }
+        registerProperty(metaProperty, spiedObject);
     }
 }
 
-void NodeInstanceSignalSpy::registerProperty(const QMetaProperty &metaProperty, QObject *spiedObject, const PropertyName &propertyPrefix)
+void NodeInstanceSignalSpy::registerProperty(const QMetaProperty &metaProperty, QObject *spiedObject)
+{
+    if (QmlPrivateGate::isPropertyQObject(metaProperty)) {
+        registerChildObject(metaProperty, spiedObject);
+    } else {
+        registerSingleProperty(metaProperty, spiedObject);
+    }
+}
+
+void NodeInstanceSignalSpy::registerSingleProperty(
+    const QMetaProperty &metaProperty, QObject *spiedObject, const PropertyName &propertyPrefix)
 {
     if (metaProperty.isReadable() && metaProperty.isWritable() && metaProperty.hasNotifySignal()) {
         QMetaMethod metaMethod = metaProperty.notifySignal();
@@ -77,7 +82,7 @@ void NodeInstanceSignalSpy::registerChildObject(
                  index++) {
                 QMetaProperty childMetaProperty = childObject->metaObject()->property(index);
 
-                registerProperty(
+                registerSingleProperty(
                     childMetaProperty, childObject, PropertyName(metaProperty.name()) + '.');
             }
         }
@@ -98,6 +103,24 @@ int NodeInstanceSignalSpy::qt_metacall(QMetaObject::Call call, int methodId, voi
     }
 
     return QObject::qt_metacall(call, methodId, a);
+}
+
+void NodeInstanceSignalSpy::registerDynamicProperty(
+    const PropertyName &propertyName, QObject *spiedObject)
+{
+    if (!m_registeredObjectList.contains(spiedObject)) {
+        return;
+    }
+    if (m_indexPropertyHash.values().contains(propertyName)) {
+        return;
+    }
+    QQmlProperty qmlProperty(
+        spiedObject, QString::fromUtf8(propertyName), QQmlEngine::contextForObject(spiedObject));
+    if (!qmlProperty.isValid()) {
+        return;
+    }
+
+    registerProperty(qmlProperty.property(), spiedObject);
 }
 
 } // namespace Internal

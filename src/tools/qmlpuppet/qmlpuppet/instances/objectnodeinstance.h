@@ -189,6 +189,8 @@ public:
 
     void setModifiedFlag(bool b);
 
+    void handleNewDynamicProperty(const PropertyName &name);
+
 protected:
     explicit ObjectNodeInstance(QObject *object);
     void doResetProperty(const PropertyName &propertyName);
@@ -201,6 +203,7 @@ protected:
     static QVariant enumationValue(const Enumeration &enumeration);
 
     void initializePropertyWatcher(const ObjectNodeInstance::Pointer &objectNodeInstance);
+    void watchProperty(const PropertyName &name);
     void ensureVector3DDotProperties(PropertyNameList &list) const;
     void ensureValueTypeProperties(PropertyNameList &list) const;
 

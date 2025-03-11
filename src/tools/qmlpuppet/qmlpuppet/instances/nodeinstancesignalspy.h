@@ -27,9 +27,15 @@ public:
 
     int qt_metacall(QMetaObject::Call, int, void **) override;
 
+    void registerDynamicProperty(const PropertyName &propertyName, QObject *spiedObject);
+
 protected:
     void registerObject(QObject *spiedObject);
-    void registerProperty(const QMetaProperty &metaProperty, QObject *spiedObject, const PropertyName &propertyPrefix = PropertyName());
+    void registerProperty(const QMetaProperty &metaProperty, QObject *spiedObject);
+    void registerSingleProperty(
+        const QMetaProperty &metaProperty,
+        QObject *spiedObject,
+        const PropertyName &propertyPrefix = PropertyName());
     void registerChildObject(const QMetaProperty &metaProperty, QObject *spiedObject);
 
 private:
