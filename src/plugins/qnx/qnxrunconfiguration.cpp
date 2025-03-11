@@ -29,7 +29,7 @@ public:
     QnxRunConfiguration(BuildConfiguration *bc, Id id)
         : RunConfiguration(bc, id)
     {
-        executable.setDeviceSelector(target(), ExecutableAspect::RunDevice);
+        executable.setDeviceSelector(kit(), ExecutableAspect::RunDevice);
         executable.setLabelText(Tr::tr("Executable on device:"));
         executable.setPlaceHolderText(Tr::tr("Remote path not set"));
         executable.makeOverridable("RemoteLinux.RunConfig.AlternateRemoteExecutable",

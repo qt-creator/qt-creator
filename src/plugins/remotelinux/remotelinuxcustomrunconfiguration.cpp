@@ -41,7 +41,7 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(BuildConfig
 {
     environment.setDeviceSelector(target(), EnvironmentAspect::RunDevice);
 
-    executable.setDeviceSelector(target(), ExecutableAspect::RunDevice);
+    executable.setDeviceSelector(kit(), ExecutableAspect::RunDevice);
     executable.setSettingsKey("RemoteLinux.CustomRunConfig.RemoteExecutable");
     executable.setLabelText(Tr::tr("Remote executable:"));
     executable.setReadOnly(false);

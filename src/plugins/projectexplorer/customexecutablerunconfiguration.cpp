@@ -23,7 +23,7 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(BuildConfigur
 {
     environment.setSupportForBuildEnvironment(bc);
 
-    executable.setDeviceSelector(target(), ExecutableAspect::HostDevice);
+    executable.setDeviceSelector(kit(), ExecutableAspect::HostDevice);
     executable.setSettingsKey("ProjectExplorer.CustomExecutableRunConfiguration.Executable");
     executable.setReadOnly(false);
     executable.setHistoryCompleter("Qt.CustomExecutable.History");

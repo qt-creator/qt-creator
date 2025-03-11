@@ -35,7 +35,7 @@ public:
     {
         setDefaultDisplayName(Tr::tr("Run on Boot to Qt Device"));
 
-        executable.setDeviceSelector(target(), ExecutableAspect::RunDevice);
+        executable.setDeviceSelector(kit(), ExecutableAspect::RunDevice);
         executable.setSettingsKey("QdbRunConfig.RemoteExecutable");
         executable.setLabelText(Tr::tr("Executable on device:"));
         executable.setPlaceHolderText(Tr::tr("Remote path not set"));

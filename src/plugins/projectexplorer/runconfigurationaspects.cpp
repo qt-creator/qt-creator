@@ -516,14 +516,14 @@ ExecutableAspect::ExecutableAspect(AspectContainer *container)
     \internal
 */
 
-static IDevice::ConstPtr executionDevice(Target *target,
+static IDevice::ConstPtr executionDevice(const Kit *k,
                                          ExecutableAspect::ExecutionDeviceSelector selector)
 {
-    if (target) {
+    if (k) {
         if (selector == ExecutableAspect::RunDevice)
-            return RunDeviceKitAspect::device(target->kit());
+            return RunDeviceKitAspect::device(k);
         if (selector == ExecutableAspect::BuildDevice)
-            return BuildDeviceKitAspect::device(target->kit());
+            return BuildDeviceKitAspect::device(k);
     }
     return DeviceManager::defaultDesktopDevice();
 }
@@ -534,12 +534,12 @@ ExecutableAspect::~ExecutableAspect()
     m_alternativeExecutable = nullptr;
 }
 
-void ExecutableAspect::setDeviceSelector(Target *target, ExecutionDeviceSelector selector)
+void ExecutableAspect::setDeviceSelector(Kit *kit, ExecutionDeviceSelector selector)
 {
-    m_target = target;
+    m_kit = kit;
     m_selector = selector;
 
-    const IDevice::ConstPtr dev = executionDevice(m_target, m_selector);
+    const IDevice::ConstPtr dev = executionDevice(m_kit, m_selector);
     const OsType osType = dev ? dev->osType() : HostOsInfo::hostOs();
 
     m_executable.setDisplayFilter([osType](const QString &pathName) {
@@ -623,7 +623,7 @@ FilePath ExecutableAspect::executable() const
             ? (*m_alternativeExecutable)()
             : m_executable();
 
-    if (const IDevice::ConstPtr dev = executionDevice(m_target, m_selector))
+    if (const IDevice::ConstPtr dev = executionDevice(m_kit, m_selector))
         exe = dev->rootPath().withNewMappedPath(exe);
 
     return exe;

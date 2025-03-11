@@ -60,7 +60,7 @@ static IosDeviceType toIosDeviceType(const SimulatorInfo &device)
 IosRunConfiguration::IosRunConfiguration(BuildConfiguration *bc, Id id)
     : RunConfiguration(bc, id), iosDeviceType(this, this)
 {
-    executable.setDeviceSelector(bc->target(), ExecutableAspect::RunDevice);
+    executable.setDeviceSelector(kit(), ExecutableAspect::RunDevice);
 
     setUpdater([this] {
         IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit());

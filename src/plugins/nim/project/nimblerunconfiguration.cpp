@@ -27,7 +27,7 @@ public:
     {
         environment.setSupportForBuildEnvironment(bc);
 
-        executable.setDeviceSelector(target(), ExecutableAspect::RunDevice);
+        executable.setDeviceSelector(kit(), ExecutableAspect::RunDevice);
 
         setUpdater([this] {
             BuildTargetInfo bti = buildTargetInfo();
@@ -66,7 +66,7 @@ public:
         setDisplayName(Tr::tr("Nimble Test"));
         setDefaultDisplayName(Tr::tr("Nimble Test"));
 
-        executable.setDeviceSelector(target(), ExecutableAspect::BuildDevice);
+        executable.setDeviceSelector(kit(), ExecutableAspect::BuildDevice);
         executable.setExecutable(Nim::nimblePathFromKit(kit()));
 
         arguments.setArguments("test");

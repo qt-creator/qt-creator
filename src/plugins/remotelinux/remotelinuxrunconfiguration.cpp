@@ -43,7 +43,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(BuildConfiguration *bc,
 {
     environment.setDeviceSelector(target(), EnvironmentAspect::RunDevice);
 
-    executable.setDeviceSelector(target(), ExecutableAspect::RunDevice);
+    executable.setDeviceSelector(kit(), ExecutableAspect::RunDevice);
     executable.setLabelText(Tr::tr("Executable on device:"));
     executable.setPlaceHolderText(Tr::tr("Remote path not set"));
     executable.makeOverridable("RemoteLinux.RunConfig.AlternateRemoteExecutable",

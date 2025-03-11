@@ -83,7 +83,7 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent
         rootPath = FilePath::fromString(tmpDir.path());
     }
 
-    m_makeBinary.setDeviceSelector(parent->target(), ExecutableAspect::BuildDevice);
+    m_makeBinary.setDeviceSelector(kit(), ExecutableAspect::BuildDevice);
     m_makeBinary.setSettingsKey("RemoteLinux.MakeInstall.Make");
     m_makeBinary.setReadOnly(false);
     m_makeBinary.setLabelText(Tr::tr("Command:"));

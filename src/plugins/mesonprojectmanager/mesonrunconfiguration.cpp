@@ -29,7 +29,7 @@ public:
     {
         environment.setSupportForBuildEnvironment(bc);
 
-        executable.setDeviceSelector(target(), ExecutableAspect::RunDevice);
+        executable.setDeviceSelector(kit(), ExecutableAspect::RunDevice);
 
         workingDir.setEnvironment(&environment);
 

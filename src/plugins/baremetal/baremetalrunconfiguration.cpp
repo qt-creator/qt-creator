@@ -27,7 +27,7 @@ public:
     explicit BareMetalRunConfiguration(BuildConfiguration *bc, Id id)
         : RunConfiguration(bc, id)
     {
-        executable.setDeviceSelector(target(), ExecutableAspect::RunDevice);
+        executable.setDeviceSelector(kit(), ExecutableAspect::RunDevice);
         executable.setPlaceHolderText(Tr::tr("Unknown"));
 
         setUpdater([this] {
@@ -47,7 +47,7 @@ public:
     explicit BareMetalCustomRunConfiguration(BuildConfiguration *bc, Id id)
         : RunConfiguration(bc, id)
     {
-        executable.setDeviceSelector(target(), ExecutableAspect::RunDevice);
+        executable.setDeviceSelector(kit(), ExecutableAspect::RunDevice);
         executable.setSettingsKey("BareMetal.CustomRunConfig.Executable");
         executable.setPlaceHolderText(Tr::tr("Unknown"));
         executable.setReadOnly(false);

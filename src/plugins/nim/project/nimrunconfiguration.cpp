@@ -29,7 +29,7 @@ public:
     {
         environment.setSupportForBuildEnvironment(bc);
 
-        executable.setDeviceSelector(target(), ExecutableAspect::RunDevice);
+        executable.setDeviceSelector(kit(), ExecutableAspect::RunDevice);
 
         setDisplayName(Tr::tr("Current Build Target"));
         setDefaultDisplayName(Tr::tr("Current Build Target"));
