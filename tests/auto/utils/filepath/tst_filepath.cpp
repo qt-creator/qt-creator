@@ -40,12 +40,9 @@ private slots:
     void fileName_data();
     void fileName();
 
-    void calcRelativePath_data();
-    void calcRelativePath();
-
-    void relativePath_specials();
-    void relativePath_data();
-    void relativePath();
+    void relativePathFromDir_specials();
+    void relativePathFromDir_data();
+    void relativePathFromDir();
 
     void absolute_data();
     void absolute();
@@ -392,12 +389,59 @@ void tst_filepath::fileName()
     QCOMPARE(FilePath::fromString(path).fileNameWithPathComponents(components), result);
 }
 
-void tst_filepath::calcRelativePath_data()
+void tst_filepath::relativePathFromDir_specials()
 {
-    QTest::addColumn<QString>("absolutePath");
-    QTest::addColumn<QString>("anchorPath");
+    QString path = FilePath("").relativePathFromDir("").toUrlishString();
+    QCOMPARE(path, "");
+}
+
+void tst_filepath::relativePathFromDir_data()
+{
+    QTest::addColumn<QString>("current");
+    QTest::addColumn<QString>("anchor");
     QTest::addColumn<QString>("result");
 
+    QTest::newRow("samedir_but_file") << "a/b/c/d/file1.txt"
+                                      << "a/b/c/d"
+                                      << "file1.txt";
+    QTest::newRow("dir2dir_1") << "a/b/c/d"
+                               << "a/x/y/z"
+                               << "../../../b/c/d";
+    QTest::newRow("dir2dir_2") << "a/b"
+                               << "a/b/c"
+                               << "..";
+    QTest::newRow("file2dir_1") << "a/b/c/d/file1.txt"
+                                << "x/y"
+                                << "../../a/b/c/d/file1.txt";
+
+    QTest::newRow("abs_samedir_but_file") << "/a/b/c/d/file1.txt"
+                                          << "/a/b/c/d"
+                                          << "file1.txt";
+    QTest::newRow("abs_dir2dir_1") << "/a/b/c/d"
+                                   << "/a/x/y/z"
+                                   << "../../../b/c/d";
+    QTest::newRow("abs_dir2dir_2") << "/a/b"
+                                   << "/a/b/c"
+                                   << "..";
+    QTest::newRow("abs_file2dir_1") << "/a/b/c/d/file1.txt"
+                                    << "/x/y"
+                                    << "../../a/b/c/d/file1.txt";
+
+
+    QTest::newRow("remote_samedir_but_file") << "ssh://1.2.3.4/a/b/c/d/file1.txt"
+                                             << "ssh://1.2.3.4/a/b/c/d"
+                                             << "file1.txt";
+    QTest::newRow("remote_dir2dir_1") << "ssh://1.2.3.4/a/b/c/d"
+                                      << "ssh://1.2.3.4/a/x/y/z"
+                                      << "../../../b/c/d";
+    QTest::newRow("remote_dir2dir_2") << "ssh://1.2.3.4/a/b"
+                                      << "ssh://1.2.3.4/a/b/c"
+                                      << "..";
+    QTest::newRow("remote_file2dir_1") << "ssh://1.2.3.4/a/b/c/d/file1.txt"
+                                       << "ssh://1.2.3.4/x/y"
+                                       << "../../a/b/c/d/file1.txt";
+
+    ///
     QTest::newRow("empty") << ""
                            << ""
                            << "";
@@ -439,72 +483,7 @@ void tst_filepath::calcRelativePath_data()
                              << "../../a/b/c";
 }
 
-void tst_filepath::calcRelativePath()
-{
-    QFETCH(QString, absolutePath);
-    QFETCH(QString, anchorPath);
-    QFETCH(QString, result);
-    QString relativePath = Utils::FilePath::calcRelativePath(absolutePath, anchorPath);
-    QCOMPARE(relativePath, result);
-}
-
-void tst_filepath::relativePath_specials()
-{
-    QString path = FilePath("").relativePathFromDir("").toUrlishString();
-    QCOMPARE(path, "");
-}
-
-void tst_filepath::relativePath_data()
-{
-    QTest::addColumn<QString>("current");
-    QTest::addColumn<QString>("anchor");
-    QTest::addColumn<QString>("result");
-
-    QTest::newRow("samedir") << "/"
-                             << "/"
-                             << ".";
-    QTest::newRow("samedir_but_file") << "a/b/c/d/file1.txt"
-                                      << "a/b/c/d"
-                                      << "file1.txt";
-    QTest::newRow("dir2dir_1") << "a/b/c/d"
-                               << "a/x/y/z"
-                               << "../../../b/c/d";
-    QTest::newRow("dir2dir_2") << "a/b"
-                               << "a/b/c"
-                               << "..";
-    QTest::newRow("file2dir_1") << "a/b/c/d/file1.txt"
-                                << "x/y"
-                                << "../../a/b/c/d/file1.txt";
-
-    QTest::newRow("abs_samedir_but_file") << "/a/b/c/d/file1.txt"
-                                          << "/a/b/c/d"
-                                          << "file1.txt";
-    QTest::newRow("abs_dir2dir_1") << "/a/b/c/d"
-                                   << "/a/x/y/z"
-                                   << "../../../b/c/d";
-    QTest::newRow("abs_dir2dir_2") << "/a/b"
-                                   << "/a/b/c"
-                                   << "..";
-    QTest::newRow("abs_file2dir_1") << "/a/b/c/d/file1.txt"
-                                    << "/x/y"
-                                    << "../../a/b/c/d/file1.txt";
-
-
-    QTest::newRow("remote_samedir_but_file") << "ssh://1.2.3.4/a/b/c/d/file1.txt"
-                                             << "ssh://1.2.3.4/a/b/c/d"
-                                             << "file1.txt";
-    QTest::newRow("remote_dir2dir_1") << "ssh://1.2.3.4/a/b/c/d"
-                                      << "ssh://1.2.3.4/a/x/y/z"
-                                      << "../../../b/c/d";
-    QTest::newRow("remote_dir2dir_2") << "ssh://1.2.3.4/a/b"
-                                      << "ssh://1.2.3.4/a/b/c"
-                                      << "..";
-    QTest::newRow("remote_file2dir_1") << "ssh://1.2.3.4/a/b/c/d/file1.txt"
-                                       << "ssh://1.2.3.4/x/y"
-                                       << "../../a/b/c/d/file1.txt";
-}
-
-void tst_filepath::relativePath()
+void tst_filepath::relativePathFromDir()
 {
     QFETCH(QString, current);
     QFETCH(QString, anchor);

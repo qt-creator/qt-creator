@@ -311,7 +311,6 @@ public:
     [[nodiscard]] static int rootLength(const QStringView path); // Assumes no scheme and host
     [[nodiscard]] static int schemeAndHostLength(const QStringView path);
 
-    static QString calcRelativePath(QStringView absolutePath, QStringView absoluteAnchorPath);
     //! Returns a filepath the represents the same file on a local drive
     expected_str<FilePath> localSource() const;
 
