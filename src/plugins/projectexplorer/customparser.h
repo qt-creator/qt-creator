@@ -77,7 +77,7 @@ class PROJECTEXPLORER_EXPORT CustomParsersAspect : public Utils::BaseAspect
 {
     Q_OBJECT
 public:
-    CustomParsersAspect(Target *target);
+    CustomParsersAspect(BuildConfiguration *bc);
 
     void setParsers(const QList<Utils::Id> &parsers) { m_parsers = parsers; }
     QList<Utils::Id> parsers() const { return m_parsers; }

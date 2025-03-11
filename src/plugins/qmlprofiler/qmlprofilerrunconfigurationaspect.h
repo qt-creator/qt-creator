@@ -10,7 +10,7 @@ namespace QmlProfiler::Internal {
 class QmlProfilerRunConfigurationAspect : public ProjectExplorer::GlobalOrProjectAspect
 {
 public:
-    QmlProfilerRunConfigurationAspect(ProjectExplorer::Target *);
+    QmlProfilerRunConfigurationAspect(ProjectExplorer::BuildConfiguration *);
 };
 
 } // QmlProfiler::Internal

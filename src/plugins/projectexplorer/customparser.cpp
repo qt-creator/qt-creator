@@ -166,9 +166,9 @@ void CustomParserSettings::fromMap(const Store &map)
     runDefault = map.value(runDefaultKey).toBool();
 }
 
-CustomParsersAspect::CustomParsersAspect(Target *target)
+CustomParsersAspect::CustomParsersAspect(BuildConfiguration *bc)
 {
-    Q_UNUSED(target)
+    Q_UNUSED(bc)
     setId("CustomOutputParsers");
     setSettingsKey("CustomOutputParsers");
     setDisplayName(Tr::tr("Custom Output Parsers"));

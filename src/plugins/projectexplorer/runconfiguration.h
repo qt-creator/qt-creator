@@ -161,10 +161,10 @@ public:
     }
 
     using ProjectConfiguration::registerAspect;
-    using AspectFactory = std::function<Utils::BaseAspect *(Target *)>;
+    using AspectFactory = std::function<Utils::BaseAspect *(BuildConfiguration *)>;
     template <class T> static void registerAspect()
     {
-        addAspectFactory([](Target *target) { return new T(target); });
+        addAspectFactory([](BuildConfiguration *bc) { return new T(bc); });
     }
 
     QMap<Utils::Id, Utils::Store> settingsData() const; // FIXME: Merge into aspectData?

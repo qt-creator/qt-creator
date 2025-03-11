@@ -23,7 +23,7 @@ class TestRunConfiguration : public ProjectExplorer::RunConfiguration
 public:
     TestRunConfiguration(ProjectExplorer::BuildConfiguration *bc, TestConfiguration *config)
         : ProjectExplorer::RunConfiguration(bc, "AutoTest.TestRunConfig"),
-        debuggerAspect(target())
+        debuggerAspect(bc)
     {
         setDefaultDisplayName(QCoreApplication::translate("QtC::Autotest", "AutoTest Debug"));
 

@@ -27,7 +27,7 @@ namespace Valgrind::Internal {
 class ValgrindRunConfigurationAspect : public GlobalOrProjectAspect
 {
 public:
-    ValgrindRunConfigurationAspect(Target *)
+    ValgrindRunConfigurationAspect(BuildConfiguration *)
     {
         setProjectSettings(new ValgrindSettings(false));
         setGlobalSettings(&globalSettings());

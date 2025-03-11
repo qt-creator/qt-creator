@@ -13,7 +13,7 @@ using namespace ProjectExplorer;
 
 namespace QmlProfiler::Internal {
 
-QmlProfilerRunConfigurationAspect::QmlProfilerRunConfigurationAspect(Target *)
+QmlProfilerRunConfigurationAspect::QmlProfilerRunConfigurationAspect(BuildConfiguration *)
 {
     setProjectSettings(new QmlProfilerSettings);
     setGlobalSettings(&Internal::globalSettings());
