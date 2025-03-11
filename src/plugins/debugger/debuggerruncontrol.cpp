@@ -507,7 +507,8 @@ ExecutableItem DebuggerRunToolPrivate::startEnginesRecipe(const Storage<EnginesD
         driver->showMessage(DebuggerSettings::dump(), LogDebug);
 
         driver->start();
-        QObject::connect(driver, &EnginesDriver::started, q, &RunWorker::reportStarted);
+        QObject::connect(driver, &EnginesDriver::started,
+                         runStorage().activeStorage(), &RunInterface::started);
         return true;
     };
 
@@ -723,7 +724,9 @@ void DebuggerRunTool::start()
     const Storage<EnginesDriver> driverStorage;
 
     const auto onSetup = [this] {
-        connect(this, &DebuggerRunTool::canceled, runStorage().activeStorage(), &RunInterface::canceled);
+        RunInterface *iface = runStorage().activeStorage();
+        connect(this, &DebuggerRunTool::canceled, iface, &RunInterface::canceled);
+        connect(iface, &RunInterface::started, this, &RunWorker::reportStarted);
     };
 
     const auto terminalKicker = [this, driverStorage](const SingleBarrier &barrier) {

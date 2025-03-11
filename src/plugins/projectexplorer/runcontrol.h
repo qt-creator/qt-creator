@@ -308,7 +308,8 @@ class PROJECTEXPLORER_EXPORT RunInterface : public QObject
     Q_OBJECT
 
 signals:
-    void canceled();
+    void started();  // Recipe -> RunWorker
+    void canceled(); // RunWorker -> Recipe
 };
 
 PROJECTEXPLORER_EXPORT Tasking::Storage<RunInterface> runStorage();

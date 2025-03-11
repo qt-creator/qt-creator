@@ -1965,10 +1965,16 @@ void RecipeRunner::start()
 {
     QTC_CHECK(!m_taskTreeRunner.isRunning());
 
+    const auto onSetup = [this] {
+        connect(this, &RecipeRunner::canceled,
+                runStorage().activeStorage(), &RunInterface::canceled);
+        connect(runStorage().activeStorage(), &RunInterface::started,
+                this, &RecipeRunner::reportStarted);
+    };
+
     const Group recipe {
         runStorage(),
-        onGroupSetup([this] { connect(this, &RecipeRunner::canceled,
-                                      runStorage().activeStorage(), &RunInterface::canceled); }),
+        onGroupSetup(onSetup),
         m_recipe
     };
 
@@ -1978,7 +1984,6 @@ void RecipeRunner::start()
         else
             reportFailure();
     });
-    reportStarted();
 }
 
 void RecipeRunner::stop()
