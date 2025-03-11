@@ -303,6 +303,23 @@ ExecutableItem DebuggerRunToolPrivate::fixupParamsRecipe()
             return false;
         }
 
+        Utils::globalMacroExpander()->registerFileVariables(
+            "DebuggedExecutable", Tr::tr("Debugged executable"),
+            [this] { return m_runParameters.inferior().command.executable(); });
+
+        q->runControl()->setDisplayName(m_runParameters.displayName());
+
+        if (auto interpreterAspect = q->runControl()->aspectData<FilePathAspect>()) {
+            if (auto mainScriptAspect = q->runControl()->aspectData<MainScriptAspect>()) {
+                const FilePath mainScript = mainScriptAspect->filePath;
+                const FilePath interpreter = interpreterAspect->filePath;
+                if (!interpreter.isEmpty() && mainScript.endsWith(".py")) {
+                    m_runParameters.setMainScript(mainScript);
+                    m_runParameters.setInterpreter(interpreter);
+                }
+            }
+        }
+
         return true;
     });
 }
@@ -506,24 +523,6 @@ static int newRunId()
 
 void DebuggerRunTool::continueAfterDebugServerStart()
 {
-    Utils::globalMacroExpander()->registerFileVariables(
-                "DebuggedExecutable", Tr::tr("Debugged executable"),
-                [this] { return d->m_runParameters.inferior().command.executable(); }
-    );
-
-    runControl()->setDisplayName(d->m_runParameters.displayName());
-
-    if (auto interpreterAspect = runControl()->aspectData<FilePathAspect>()) {
-        if (auto mainScriptAspect = runControl()->aspectData<MainScriptAspect>()) {
-            const FilePath mainScript = mainScriptAspect->filePath;
-            const FilePath interpreter = interpreterAspect->filePath;
-            if (!interpreter.isEmpty() && mainScript.endsWith(".py")) {
-                d->m_runParameters.setMainScript(mainScript);
-                d->m_runParameters.setInterpreter(interpreter);
-            }
-        }
-    }
-
     const auto engines = createEngines(runControl(), runParameters());
     if (!engines) {
         reportFailure(engines.error());
