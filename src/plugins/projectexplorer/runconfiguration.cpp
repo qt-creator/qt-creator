@@ -554,12 +554,12 @@ RunConfigurationFactory::~RunConfigurationFactory()
     g_runConfigurationFactories.removeOne(this);
 }
 
-QString RunConfigurationFactory::decoratedTargetName(const QString &targetName, Target *target)
+QString RunConfigurationFactory::decoratedTargetName(const QString &targetName, Kit *kit)
 {
     QString displayName = targetName;
-    Utils::Id devType = RunDeviceTypeKitAspect::deviceTypeId(target->kit());
+    Utils::Id devType = RunDeviceTypeKitAspect::deviceTypeId(kit);
     if (devType != Constants::DESKTOP_DEVICE_TYPE) {
-        if (IDevice::ConstPtr dev = RunDeviceKitAspect::device(target->kit())) {
+        if (IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit)) {
             if (displayName.isEmpty()) {
                 //: Shown in Run configuration if no executable is given, %1 is device name
                 displayName = Tr::tr("Run on %{Device:Name}");
@@ -582,9 +582,9 @@ RunConfigurationFactory::availableCreators(Target *target) const
     return Utils::transform(buildTargets, [&](const BuildTargetInfo &ti) {
         QString displayName = ti.displayName;
         if (displayName.isEmpty())
-            displayName = decoratedTargetName(ti.buildKey, target);
+            displayName = decoratedTargetName(ti.buildKey, target->kit());
         else if (m_decorateDisplayNames)
-            displayName = decoratedTargetName(displayName, target);
+            displayName = decoratedTargetName(displayName, target->kit());
         RunConfigurationCreationInfo rci;
         rci.factory = this;
         rci.buildKey = ti.buildKey;
@@ -745,7 +745,7 @@ FixedRunConfigurationFactory::FixedRunConfigurationFactory(const QString &displa
 QList<RunConfigurationCreationInfo>
 FixedRunConfigurationFactory::availableCreators(Target *parent) const
 {
-    QString displayName = m_decorateTargetName ? decoratedTargetName(m_fixedBuildTarget, parent)
+    QString displayName = m_decorateTargetName ? decoratedTargetName(m_fixedBuildTarget, parent->kit())
                                                : m_fixedBuildTarget;
     RunConfigurationCreationInfo rci;
     rci.factory = this;

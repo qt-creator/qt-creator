@@ -238,8 +238,7 @@ public:
     static const QList<RunConfigurationCreationInfo> creatorsForTarget(Target *parent);
 
     Utils::Id runConfigurationId() const { return m_runConfigurationId; }
-
-    static QString decoratedTargetName(const QString &targetName, Target *kit);
+    static QString decoratedTargetName(const QString &targetName, Kit *kit);
 
 protected:
     virtual QList<RunConfigurationCreationInfo> availableCreators(Target *target) const;

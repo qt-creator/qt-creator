@@ -65,7 +65,7 @@ QString RemoteLinuxCustomRunConfiguration::runConfigDefaultDisplayName()
     QString display = remoteExecutable.isEmpty()
             ? Tr::tr("Custom Executable")
             : Tr::tr("Run \"%1\"").arg(remoteExecutable.toUserOutput());
-    return RunConfigurationFactory::decoratedTargetName(display, target());
+    return RunConfigurationFactory::decoratedTargetName(display, kit());
 }
 
 Tasks RemoteLinuxCustomRunConfiguration::checkForIssues() const

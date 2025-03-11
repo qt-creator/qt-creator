@@ -55,7 +55,7 @@ public:
         executable.setExpectedKind(PathChooser::Any);
 
         setDefaultDisplayName(RunConfigurationFactory::decoratedTargetName(
-            Tr::tr("Custom Executable"), target()));
+            Tr::tr("Custom Executable"), kit()));
         setUsesEmptyBuildKeys();
     }
 
