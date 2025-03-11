@@ -73,7 +73,11 @@ Item {
         }
 
         onPressed: (mouse) => handleClick(mouse)
-        onDoubleClicked: MaterialBrowserBackend.materialBrowserModel.openMaterialEditor()
+
+        onDoubleClicked: {
+            MaterialBrowserBackend.materialBrowserModel.selectMaterial(index, false)
+            MaterialBrowserBackend.rootView.openPropertyEditor()
+        }
     }
 
     Column {

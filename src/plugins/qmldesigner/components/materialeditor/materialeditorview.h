@@ -61,8 +61,6 @@ public:
                                        const QPixmap &pixmap,
                                        const QByteArray &requestId) override;
     void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
-    void customNotification(const AbstractView *view, const QString &identifier,
-                            const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
 
     void nodeReparented(const ModelNode &node,
                         const NodeAbstractProperty &newPropertyParent,

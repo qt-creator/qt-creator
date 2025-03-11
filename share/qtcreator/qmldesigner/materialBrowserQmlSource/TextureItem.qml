@@ -44,7 +44,11 @@ Item {
         }
 
         onPressed: (mouse) => handleClick(mouse)
-        onDoubleClicked: MaterialBrowserBackend.materialBrowserTexturesModel.openTextureEditor()
+
+        onDoubleClicked: {
+            MaterialBrowserBackend.materialBrowserTexturesModel.selectTexture(index, false)
+            MaterialBrowserBackend.rootView.openPropertyEditor()
+        }
     }
 
     ToolTip {

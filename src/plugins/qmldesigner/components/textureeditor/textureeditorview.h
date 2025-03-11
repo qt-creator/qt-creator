@@ -63,8 +63,6 @@ public:
     void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
 
     void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
-    void customNotification(const AbstractView *view, const QString &identifier,
-                            const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
 
     void dragStarted(QMimeData *mimeData) override;
     void dragEnded() override;

@@ -377,11 +377,6 @@ void MaterialBrowserTexturesModel::applyToSelectedModel(qint64 internalId)
     }
 }
 
-void MaterialBrowserTexturesModel::openTextureEditor()
-{
-    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("TextureEditor", true);
-}
-
 void MaterialBrowserTexturesModel::updateSceneEnvState()
 {
     emit updateSceneEnvStateRequested();

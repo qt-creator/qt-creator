@@ -63,7 +63,6 @@ public:
     Q_INVOKABLE void setTextureName(int idx, const QString &newName);
     Q_INVOKABLE void applyToSelectedMaterial(qint64 internalId);
     Q_INVOKABLE void applyToSelectedModel(qint64 internalId);
-    Q_INVOKABLE void openTextureEditor();
     Q_INVOKABLE void updateSceneEnvState();
     Q_INVOKABLE void updateSelectionState();
     Q_INVOKABLE void applyAsLightProbe(qint64 internalId);

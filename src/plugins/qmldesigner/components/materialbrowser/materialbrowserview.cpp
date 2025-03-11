@@ -55,6 +55,11 @@ static QString propertyEditorResourcesPath()
     return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toUrlishString();
 }
 
+static void openPropertyEditor()
+{
+    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Properties");
+}
+
 MaterialBrowserView::MaterialBrowserView(AsynchronousImageCache &imageCache,
                                          ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
@@ -85,22 +90,26 @@ WidgetInfo MaterialBrowserView::widgetInfo()
             Utils3D::applyMaterialToModels(this, material, Utils3D::getSelectedModels(this), add);
         });
 
-        connect(matBrowserModel, &MaterialBrowserModel::renameMaterialTriggered, this,
-                [&] (const ModelNode &material, const QString &newName) {
-            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor");
-            emitCustomNotification("rename_material", {material}, {newName});
-        });
+        connect(matBrowserModel,
+                &MaterialBrowserModel::renameMaterialTriggered,
+                this,
+                [&](const ModelNode &material, const QString &newName) {
+                    Utils3D::renameMaterial(material, newName);
+                    openPropertyEditor();
+                });
 
         connect(matBrowserModel, &MaterialBrowserModel::addNewMaterialTriggered, this, [&] {
-            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor");
-            emitCustomNotification("add_new_material");
+            Utils3D::createMaterial(this);
+            openPropertyEditor();
         });
 
-        connect(matBrowserModel, &MaterialBrowserModel::duplicateMaterialTriggered, this,
-                [&] (const ModelNode &material) {
-            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor");
-            emitCustomNotification("duplicate_material", {material});
-        });
+        connect(matBrowserModel,
+                &MaterialBrowserModel::duplicateMaterialTriggered,
+                this,
+                [&](const ModelNode &material) {
+                    Utils3D::duplicateMaterial(this, material);
+                    openPropertyEditor();
+                });
 
         connect(matBrowserModel, &MaterialBrowserModel::pasteMaterialPropertiesTriggered, this,
                 [&] (const ModelNode &material,
@@ -174,11 +183,14 @@ WidgetInfo MaterialBrowserView::widgetInfo()
 
         // custom notifications below are sent to the TextureEditor
         MaterialBrowserTexturesModel *texturesModel = m_widget->materialBrowserTexturesModel().data();
-        connect(texturesModel, &MaterialBrowserTexturesModel::duplicateTextureTriggered, this,
-                [&] (const ModelNode &texture) {
-            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("TextureEditor");
-            emitCustomNotification("duplicate_texture", {texture});
-        });
+        connect(texturesModel,
+                &MaterialBrowserTexturesModel::duplicateTextureTriggered,
+                this,
+                [&](const ModelNode &texture) {
+                    QTC_ASSERT(texture.isValid(), return);
+                    CreateTexture(this).execute(texture);
+                    openPropertyEditor();
+                });
 
         connect(texturesModel, &MaterialBrowserTexturesModel::applyToSelectedMaterialTriggered, this,
                 [&] (const ModelNode &texture) {
@@ -199,8 +211,8 @@ WidgetInfo MaterialBrowserView::widgetInfo()
         });
 
         connect(texturesModel, &MaterialBrowserTexturesModel::addNewTextureTriggered, this, [&] {
-            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("TextureEditor");
-            emitCustomNotification("add_new_texture");
+            ModelNode texture = CreateTexture(this).execute();
+            openPropertyEditor();
         });
 
         connect(texturesModel, &MaterialBrowserTexturesModel::updateSceneEnvStateRequested, this, [this] {

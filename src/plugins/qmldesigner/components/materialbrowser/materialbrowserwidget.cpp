@@ -398,6 +398,11 @@ void MaterialBrowserWidget::addQtQuick3D()
     Utils3D::addQuick3DImportAndView3D(m_materialBrowserView.data());
 }
 
+void MaterialBrowserWidget::openPropertyEditor()
+{
+    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Properties", true);
+}
+
 QString MaterialBrowserWidget::qmlSourcesPath()
 {
 #ifdef SHARE_QML_PATH

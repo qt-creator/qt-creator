@@ -512,11 +512,6 @@ void MaterialBrowserModel::applyToSelected(qint64 internalId, bool add)
     }
 }
 
-void MaterialBrowserModel::openMaterialEditor()
-{
-    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor", true);
-}
-
 // This is provided as invokable instead of property, as it is difficult to know when ModelNode
 // becomes invalid. Much simpler to evaluate this on demand.
 bool MaterialBrowserModel::isCopiedMaterialValid() const

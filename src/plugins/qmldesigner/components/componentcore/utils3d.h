@@ -56,6 +56,10 @@ ModelNode createMaterial(AbstractView *view, const TypeName &typeName);
 ModelNode createMaterial(AbstractView *view, const NodeMetaInfo &metaInfo);
 #endif
 
+ModelNode createMaterial(AbstractView *view);
+void renameMaterial(const ModelNode &material, const QString &newName);
+void duplicateMaterial(AbstractView *view, const ModelNode &material);
+
 void addQuick3DImportAndView3D(AbstractView *view);
 void assignMaterialTo3dModel(AbstractView *view, const ModelNode &modelNode,
                              const ModelNode &materialNode = {});

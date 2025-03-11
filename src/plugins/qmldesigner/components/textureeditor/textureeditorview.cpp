@@ -889,17 +889,6 @@ void TextureEditorView::duplicateTexture(const ModelNode &texture)
     CreateTexture(this).execute(texture);
 }
 
-void TextureEditorView::customNotification([[maybe_unused]] const AbstractView *view,
-                                           const QString &identifier,
-                                           const QList<ModelNode> &nodeList,
-                                           [[maybe_unused]] const QList<QVariant> &data)
-{
-    if (identifier == "add_new_texture")
-        handleToolBarAction(TextureEditorContextObject::AddNewTexture);
-    else if (identifier == "duplicate_texture")
-        duplicateTexture(nodeList.first());
-}
-
 void QmlDesigner::TextureEditorView::highlightSupportedProperties(bool highlight)
 {
     if (!m_selectedTexture.isValid())

@@ -80,7 +80,6 @@ public:
     Q_INVOKABLE void renameMaterial(int idx, const QString &newName);
     Q_INVOKABLE void addNewMaterial();
     Q_INVOKABLE void applyToSelected(qint64 internalId, bool add = false);
-    Q_INVOKABLE void openMaterialEditor();
     Q_INVOKABLE bool isCopiedMaterialValid() const;
     Q_INVOKABLE bool isVisible(int idx) const;
 

@@ -230,10 +230,11 @@ Item {
         if (searchBox.activeFocus)
             return
 
-        if (!materialBrowserModel.isEmpty && rootView.materialSectionFocused && materialsSection.expanded)
-            materialBrowserModel.openMaterialEditor()
-        else if (!materialBrowserTexturesModel.isEmpty && !rootView.materialSectionFocused && texturesSection.expanded)
-            materialBrowserTexturesModel.openTextureEditor()
+        let materialIsFocused = !materialBrowserModel.isEmpty && rootView.materialSectionFocused && materialsSection.expanded
+        let textureIsFocused = !materialBrowserTexturesModel.isEmpty && !rootView.materialSectionFocused && texturesSection.expanded
+
+        if (materialIsFocused || textureIsFocused)
+            rootView.openPropertyEditor()
     }
 
     Keys.onEnterPressed: root.handleEnterPress()

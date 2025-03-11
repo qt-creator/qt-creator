@@ -16,12 +16,6 @@ namespace QmlDesigner {
 
 using namespace Qt::StringLiterals;
 
-static void renameMaterial(ModelNode &material, const QString &newName)
-{
-    QTC_ASSERT(material.isValid(), return);
-    QmlObjectNode(material).setNameAndId(newName, "material");
-}
-
 QmlMaterialNodeProxy::QmlMaterialNodeProxy()
     : QObject()
     , m_previewUpdateTimer(this)
@@ -100,29 +94,7 @@ void QmlMaterialNodeProxy::toolBarAction(int action)
     }
 
     case ToolBarAction::AddNewMaterial: {
-        if (!materialNode())
-            break;
-
-        ModelNode newMatNode;
-        AbstractView *view = materialView();
-        view->executeInTransaction(__FUNCTION__, [&] {
-            ModelNode matLib = Utils3D::materialLibraryNode(view);
-            if (!matLib.isValid())
-                return;
-#ifdef QDS_USE_PROJECTSTORAGE
-            ModelNode newMatNode = view->createModelNode("PrincipledMaterial");
-#else
-            NodeMetaInfo metaInfo = materialView()->model()->qtQuick3DPrincipledMaterialMetaInfo();
-            newMatNode = materialView()->createModelNode("QtQuick3D.PrincipledMaterial",
-                                         metaInfo.majorVersion(),
-                                         metaInfo.minorVersion());
-#endif
-            renameMaterial(newMatNode, "New Material");
-            Utils3D::materialLibraryNode(view).defaultNodeListProperty().reparentHere(newMatNode);
-        });
-        QTimer::singleShot(0, this, [newMatNode]() {
-            newMatNode.model()->setSelectedModelNodes({newMatNode});
-        });
+        Utils3D::createMaterial(materialView());
         break;
     }
 

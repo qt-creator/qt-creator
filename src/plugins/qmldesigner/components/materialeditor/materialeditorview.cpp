@@ -461,27 +461,7 @@ void MaterialEditorView::handleToolBarAction(int action)
     }
 
     case MaterialEditorContextObject::AddNewMaterial: {
-        if (!model())
-            break;
-        ModelNode newMatNode;
-        executeInTransaction(__FUNCTION__, [&] {
-            ModelNode matLib = Utils3D::materialLibraryNode(this);
-            if (!matLib.isValid())
-                return;
-#ifdef QDS_USE_PROJECTSTORAGE
-            ModelNode newMatNode = createModelNode("PrincipledMaterial");
-#else
-            NodeMetaInfo metaInfo = model()->qtQuick3DPrincipledMaterialMetaInfo();
-            newMatNode = createModelNode("QtQuick3D.PrincipledMaterial",
-                                                   metaInfo.majorVersion(),
-                                                   metaInfo.minorVersion());
-#endif
-            renameMaterial(newMatNode, "New Material");
-            matLib.defaultNodeListProperty().reparentHere(newMatNode);
-        });
-        QTimer::singleShot(0, this, [newMatNode]() {
-            Utils3D::selectMaterial(newMatNode);
-        });
+        Utils3D::createMaterial(this);
         break;
     }
 
@@ -1096,19 +1076,6 @@ void MaterialEditorView::duplicateMaterial(const ModelNode &material)
             }
         });
     }
-}
-
-void MaterialEditorView::customNotification([[maybe_unused]] const AbstractView *view,
-                                            const QString &identifier,
-                                            const QList<ModelNode> &nodeList,
-                                            const QList<QVariant> &data)
-{
-    if (identifier == "rename_material")
-        renameMaterial(m_selectedMaterial, data.first().toString());
-    else if (identifier == "add_new_material")
-        handleToolBarAction(MaterialEditorContextObject::AddNewMaterial);
-    else if (identifier == "duplicate_material")
-        duplicateMaterial(nodeList.first());
 }
 
 void MaterialEditorView::nodeReparented(const ModelNode &node,
