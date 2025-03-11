@@ -78,6 +78,7 @@ private:
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
+    setUsesEmptyBuildKeys();
     qmlViewer.setSettingsKey(Constants::QML_VIEWER_KEY);
     qmlViewer.setLabelText(Tr::tr("Override device QML viewer:"));
     qmlViewer.setPlaceHolderText(qmlRuntimeFilePath().toUserOutput());
