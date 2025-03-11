@@ -487,6 +487,11 @@ TEST_F(NodeMetaInfo, inflate_value_and_readonly_properties)
                                                               PropertyDeclarationTraits::IsReadOnly,
                                                               inputDeviceId);
     auto seatNamePropertyId = projectStorageMock.propertyDeclarationId(inputDeviceId, "seatName");
+    auto listPropertyId = projectStorageMock.createProperty(metaInfo.id(),
+                                                            "transform",
+                                                            PropertyDeclarationTraits::IsList
+                                                                | PropertyDeclarationTraits::IsReadOnly,
+                                                            inputDeviceId);
 
     auto properties = QmlDesigner::MetaInfoUtils::inflateValueAndReadOnlyProperties(
         metaInfo.properties());
@@ -497,7 +502,8 @@ TEST_F(NodeMetaInfo, inflate_value_and_readonly_properties)
               Not(Contains(CompoundPropertyIds(fontPropertyId, IsFalse(), _))),
               Contains(CompoundPropertyIds(familyPropertyId, fontPropertyId, "font.family")),
               Contains(CompoundPropertyIds(pixelSizePropertyId, fontPropertyId, "font.pixelSize")),
-              Contains(CompoundPropertyIds(seatNamePropertyId, devicePropertyId, "device.seatName"))));
+              Contains(CompoundPropertyIds(seatNamePropertyId, devicePropertyId, "device.seatName")),
+              Not(Contains(CompoundPropertyIds(seatNamePropertyId, listPropertyId, _)))));
 }
 
 TEST_F(NodeMetaInfo, inflate_value_and_readonly_properties_handles_invalid)
@@ -525,6 +531,11 @@ TEST_F(NodeMetaInfo, add_inflated_value_and_readonly_properties)
                                                               PropertyDeclarationTraits::IsReadOnly,
                                                               inputDeviceId);
     auto seatNamePropertyId = projectStorageMock.propertyDeclarationId(inputDeviceId, "seatName");
+    auto listPropertyId = projectStorageMock.createProperty(metaInfo.id(),
+                                                            "transform",
+                                                            PropertyDeclarationTraits::IsList
+                                                                | PropertyDeclarationTraits::IsReadOnly,
+                                                            inputDeviceId);
 
     auto properties = QmlDesigner::MetaInfoUtils::addInflatedValueAndReadOnlyProperties(
         metaInfo.properties());
@@ -536,7 +547,8 @@ TEST_F(NodeMetaInfo, add_inflated_value_and_readonly_properties)
               Contains(CompoundPropertyIds(familyPropertyId, fontPropertyId, "font.family")),
               Contains(CompoundPropertyIds(pixelSizePropertyId, fontPropertyId, "font.pixelSize")),
               Not(Contains(CompoundPropertyIds(devicePropertyId, IsFalse(), _))),
-              Contains(CompoundPropertyIds(seatNamePropertyId, devicePropertyId, "device.seatName"))));
+              Contains(CompoundPropertyIds(seatNamePropertyId, devicePropertyId, "device.seatName")),
+              Not(Contains(CompoundPropertyIds(seatNamePropertyId, listPropertyId, _)))));
 }
 
 TEST_F(NodeMetaInfo, add_inflated_value_and_readonly_properties_handles_invalid)
