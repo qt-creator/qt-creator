@@ -107,7 +107,6 @@ signals:
     void removedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
     void addedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
     void activeRunConfigurationChanged(ProjectExplorer::RunConfiguration *rc);
-    void runConfigurationsUpdated();
 
     void removedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);

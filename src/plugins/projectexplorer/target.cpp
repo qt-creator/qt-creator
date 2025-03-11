@@ -61,9 +61,8 @@ static QString formatDeviceInfo(const ProjectExplorer::IDevice::DeviceInfo &inpu
 class TargetPrivate
 {
 public:
-    TargetPrivate(Target *t, Kit *k) :
-        m_kit(k),
-        m_buildConfigurationModel(t)
+    TargetPrivate(Kit *k)
+        : m_kit(k)
     { }
 
     QIcon m_overlayIcon;
@@ -83,7 +82,7 @@ public:
 
 Target::Target(Project *project, Kit *k, _constructor_tag) :
     QObject(project),
-    d(std::make_unique<TargetPrivate>(this, k))
+    d(std::make_unique<TargetPrivate>(k))
 {
     QTC_CHECK(d->m_kit);
     connect(DeviceManager::instance(), &DeviceManager::updated, this, &Target::updateDeviceState);

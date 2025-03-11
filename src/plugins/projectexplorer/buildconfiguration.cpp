@@ -148,8 +148,6 @@ public:
         , m_cleanSteps(bc, Constants::BUILDSTEPS_CLEAN)
         , m_buildDirectoryAspect(bc, bc)
         , m_tooltipAspect(bc)
-        , m_deployConfigurationModel(bc->target())
-        , m_runConfigurationModel(bc->target())
     {}
 
     bool m_clearSystemEnvironment = false;
@@ -770,8 +768,7 @@ void BuildConfiguration::updateDefaultRunConfigurations()
         removeRunConfiguration(rc);
 
     emit runConfigurationsUpdated();
-    if (this == target()->activeBuildConfiguration())
-        emit target()->runConfigurationsUpdated();
+    runConfigurationModel()->triggerUpdate();
 }
 
 const QList<RunConfiguration *> BuildConfiguration::runConfigurations() const
