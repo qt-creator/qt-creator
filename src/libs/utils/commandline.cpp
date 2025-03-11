@@ -1588,6 +1588,18 @@ CommandLine CommandLine::toLocal() const
     return cmd;
 }
 
+QStringList ProcessArgs::filterSimpleArgs(const QString &args, OsType osType)
+{
+    QStringList result;
+    QString args_ = args;
+    for (ArgIterator ait(&args_, osType); ait.next(); ) {
+        // This filters out items containing e.g. shell variables like '$FOO'
+        if (ait.isSimple())
+            result << ait.value();
+    }
+    return result;
+}
+
 QTCREATOR_UTILS_EXPORT bool operator==(const CommandLine &first, const CommandLine &second)
 {
     return first.m_executable == second.m_executable && first.m_arguments == second.m_arguments;

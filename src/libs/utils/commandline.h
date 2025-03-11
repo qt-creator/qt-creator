@@ -53,6 +53,9 @@ public:
     static QStringList splitArgs(const QString &cmd, OsType osType,
                                  bool abortOnMeta = false, SplitError *err = nullptr,
                                  const Environment *env = nullptr, const QString &pwd = {});
+    //! Split a shell command into separate arguments and drop complex ones
+    //! as input for the internal .pro parser.
+    static QStringList filterSimpleArgs(const QString &cmd, OsType osType);
 
     using FindMacro = std::function<int(const QString &str, int *pos, QString *ret)>;
 
@@ -89,20 +92,6 @@ public:
         OsType m_osType;
     };
 
-    class QTCREATOR_UTILS_EXPORT ConstArgIterator
-    {
-    public:
-        ConstArgIterator(const QString &str, OsType osType = HostOsInfo::hostOs())
-            : m_str(str), m_ait(&m_str, osType)
-        {}
-        bool next() { return m_ait.next(); }
-        bool isSimple() const { return m_ait.isSimple(); }
-        QString value() const { return m_ait.value(); }
-
-    private:
-        QString m_str;
-        ArgIterator m_ait;
-    };
 };
 
 class QTCREATOR_UTILS_EXPORT RunResult
