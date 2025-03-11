@@ -94,7 +94,6 @@ public:
     void setActiveBuildConfiguration(BuildConfiguration *bc, SetActive cascade);
 
 signals:
-    void targetEnabled(bool);
     void iconChanged();
     void overlayIconChanged();
 
@@ -111,7 +110,6 @@ signals:
     void removedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration *);
-    void buildEnvironmentChanged(ProjectExplorer::BuildConfiguration *bc);
 
     void removedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);
     void addedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);

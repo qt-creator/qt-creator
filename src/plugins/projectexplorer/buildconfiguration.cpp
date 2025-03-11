@@ -222,7 +222,6 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
             this, &BuildConfiguration::emitBuildDirectoryChanged);
     connect(this, &BuildConfiguration::environmentChanged, this, [this] {
         d->m_buildDirectoryAspect.setEnvironment(environment());
-        emit this->target()->buildEnvironmentChanged(this);
     });
 
     d->m_tooltipAspect.setLabelText(Tr::tr("Tooltip in target selector:"));
