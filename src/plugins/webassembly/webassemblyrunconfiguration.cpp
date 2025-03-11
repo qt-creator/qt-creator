@@ -85,22 +85,20 @@ static CommandLine emrunCommand(const BuildConfiguration *bc,
 
 static const char BROWSER_KEY[] = "WASM.WebBrowserSelectionAspect.Browser";
 
-static WebBrowserEntries emrunBrowsers(Target *target)
+static WebBrowserEntries emrunBrowsers(BuildConfiguration *bc)
 {
     WebBrowserEntries result;
     result.append(qMakePair(QString(), Tr::tr("Default Browser")));
-    if (auto bc = target->activeBuildConfiguration()) {
-        const Environment environment = bc->environment();
-        const FilePath emrunPath = environment.searchInPath("emrun");
+    const Environment environment = bc->environment();
+    const FilePath emrunPath = environment.searchInPath("emrun");
 
-        Process browserLister;
-        browserLister.setEnvironment(environment);
-        browserLister.setCommand({emrunPath, {"--list_browsers"}});
-        browserLister.start();
+    Process browserLister;
+    browserLister.setEnvironment(environment);
+    browserLister.setCommand({emrunPath, {"--list_browsers"}});
+    browserLister.start();
 
-        if (browserLister.waitForFinished())
-            result.append(parseEmrunOutput(browserLister.rawStdOut()));
-    }
+    if (browserLister.waitForFinished())
+        result.append(parseEmrunOutput(browserLister.rawStdOut()));
     return result;
 }
 
@@ -113,9 +111,9 @@ public:
         : BaseAspect(container)
     {}
 
-    void setTarget(Target *target)
+    void setBuildConfiguration(BuildConfiguration *bc)
     {
-        m_availableBrowsers = emrunBrowsers(target);
+        m_availableBrowsers = emrunBrowsers(bc);
         if (!m_availableBrowsers.isEmpty()) {
             const int defaultIndex = qBound(0, m_availableBrowsers.count() - 1, 1);
             m_currentBrowser = m_availableBrowsers.at(defaultIndex).first;
@@ -173,7 +171,7 @@ public:
     EmrunRunConfiguration(BuildConfiguration *bc, Id id)
         : RunConfiguration(bc, id)
     {
-        webBrowser.setTarget(target());
+        webBrowser.setBuildConfiguration(bc);
 
         effectiveEmrunCall.setLabelText(Tr::tr("Effective emrun call:"));
         effectiveEmrunCall.setDisplayStyle(StringAspect::TextEditDisplay);
