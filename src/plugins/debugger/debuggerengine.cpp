@@ -3130,7 +3130,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
             }
             if (globalRegExpSourceMap.isEmpty())
                 return;
-            if (std::shared_ptr<ElfMapper> mapper = reader.readSection(".debug_str")) {
+            if (std::unique_ptr<ElfMapper> mapper = reader.readSection(".debug_str")) {
                 const char *str = mapper->start;
                 const char *limit = str + mapper->fdlen;
                 bool found = false;

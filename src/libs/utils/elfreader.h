@@ -140,7 +140,7 @@ public:
     enum Result { Ok, NotElf, Corrupt };
 
     ElfData readHeaders();
-    std::shared_ptr<ElfMapper> readSection(const QByteArray &sectionName);
+    std::unique_ptr<ElfMapper> readSection(const QByteArray &sectionName);
     QString errorString() const { return m_errorString; }
     QByteArray readCoreName(bool *isCore);
 

@@ -283,9 +283,9 @@ ElfReader::Result ElfReader::readIt()
     return Ok;
 }
 
-std::shared_ptr<ElfMapper> ElfReader::readSection(const QByteArray &name)
+std::unique_ptr<ElfMapper> ElfReader::readSection(const QByteArray &name)
 {
-    std::shared_ptr<ElfMapper> mapper;
+    std::unique_ptr<ElfMapper> mapper;
     readIt();
     int i = m_elfData.indexOf(name);
     if (i == -1)
