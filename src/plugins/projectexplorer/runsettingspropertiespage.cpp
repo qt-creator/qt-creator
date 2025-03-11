@@ -157,7 +157,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
 
 void RunSettingsWidget::showAddRunConfigDialog()
 {
-    AddRunConfigDialog dlg(m_target, this);
+    AddRunConfigDialog dlg(m_target->activeBuildConfiguration(), this);
     if (dlg.exec() != QDialog::Accepted)
         return;
     RunConfigurationCreationInfo rci = dlg.creationInfo();

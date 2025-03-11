@@ -9,16 +9,13 @@
 
 namespace Utils { class TreeView; }
 
-namespace ProjectExplorer {
-class Target;
-
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class AddRunConfigDialog : public QDialog
 {
     Q_OBJECT
 public:
-    AddRunConfigDialog(Target *target, QWidget *parent);
+    AddRunConfigDialog(BuildConfiguration *bc, QWidget *parent);
 
     RunConfigurationCreationInfo creationInfo() const { return m_creationInfo; }
 
@@ -29,5 +26,4 @@ private:
     RunConfigurationCreationInfo m_creationInfo;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal
