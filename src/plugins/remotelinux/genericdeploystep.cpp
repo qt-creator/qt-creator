@@ -156,10 +156,7 @@ GroupItem GenericDeployStep::transferTask(const Storage<FilesToTransfer> &storag
                       .arg(FileTransfer::transferMethodName(preferredTransferMethod),
                            FileTransfer::transferMethodName(transferMethod),
                            deviceConfiguration()->displayName());
-            if (transferMethod == FileTransferMethod::GenericCopy)
-                addWarningMessage(message);
-            else
-                addProgressMessage(message);
+            addProgressMessage(message);
             m_emittedDowngradeWarning = true;
         }
         transfer.setTransferMethod(transferMethod);
