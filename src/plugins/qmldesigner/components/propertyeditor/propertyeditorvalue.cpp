@@ -222,9 +222,15 @@ void PropertyEditorValue::setIsValid(bool valid)
 bool PropertyEditorValue::isTranslated() const
 {
     if (modelNode().isValid()) {
-        if (auto metaInfo = modelNode().metaInfo();
-            metaInfo.isValid() && metaInfo.hasProperty(name())
-            && metaInfo.property(name()).propertyType().isString()) {
+        auto metaInfo = modelNode().metaInfo();
+        auto isString = metaInfo.isValid() && metaInfo.hasProperty(name())
+                        && metaInfo.property(name()).propertyType().isString();
+
+        auto property = modelNode().property(name());
+        auto isDynamicString = property.isValid() && property.isDynamic()
+                               && property.dynamicTypeName() == TypeNameView("string");
+
+        if (isString || isDynamicString) {
             const QmlObjectNode objectNode(modelNode());
             if (objectNode.hasBindingProperty(name())) {
                 const QRegularExpression rx(
