@@ -512,6 +512,11 @@ const AbstractView *ViewManager::view() const
     return &d->nodeInstanceView;
 }
 
+AbstractView *ViewManager::view()
+{
+    return &d->nodeInstanceView;
+}
+
 TextEditorView *ViewManager::textEditorView()
 {
     return &d->textEditorView;

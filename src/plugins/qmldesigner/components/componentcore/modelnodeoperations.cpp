@@ -1129,7 +1129,11 @@ static QString getAssetDefaultDirectory(const QString &assetDir, const QString &
 
 AddFilesResult addFontToProject(const QStringList &fileNames, const QString &defaultDir, bool showDialog)
 {
-    return addFilesToProject(fileNames, getAssetDefaultDirectory("fonts", defaultDir), showDialog);
+    const AddFilesResult result = addFilesToProject(fileNames,
+                                                    getAssetDefaultDirectory("fonts", defaultDir),
+                                                    showDialog);
+    QmlDesignerPlugin::viewManager().view()->resetPuppet();
+    return result;
 }
 
 AddFilesResult addSoundToProject(const QStringList &fileNames, const QString &defaultDir, bool showDialog)
