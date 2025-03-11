@@ -681,7 +681,10 @@ void OutputWindow::registerPositionOf(unsigned taskId, int linkedOutputLines, in
         return;
 
     const int blocknumber = document()->blockCount() - offset;
-    const int firstLine = blocknumber - linkedOutputLines - skipLines;
+
+    // -1 because OutputFormatter has already added the newline.
+    const int firstLine = blocknumber - linkedOutputLines - skipLines - 1;
+
     const int lastLine = firstLine + linkedOutputLines - 1;
 
     d->taskPositions.insert(taskId, {firstLine, lastLine});

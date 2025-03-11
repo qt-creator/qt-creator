@@ -570,29 +570,20 @@ void _ClosePseudoConsoleMembers(_In_ PseudoConsole* pPty)
 {
     if (pPty != nullptr)
     {
-        // See MSFT:19918626
-        // First break the signal pipe - this will trigger conhost to tear itself down
         if (_HandleIsValid(pPty->hSignal))
         {
             CloseHandle(pPty->hSignal);
             pPty->hSignal = nullptr;
         }
-        // Then, wait on the conhost process before killing it.
-        // We do this to make sure the conhost finishes flushing any output it
-        //      has yet to send before we hard kill it.
-        if (_HandleIsValid(pPty->hConPtyProcess))
-        {
-            TerminateProcess(pPty->hConPtyProcess, 0);
-            CloseHandle(pPty->hConPtyProcess);
-            pPty->hConPtyProcess = nullptr;
-        }
-        // Then take care of the reference handle.
-        // TODO GH#1810: Closing the reference handle late leaves conhost thinking
-        // that we have an outstanding connected client.
         if (_HandleIsValid(pPty->hPtyReference))
         {
             CloseHandle(pPty->hPtyReference);
             pPty->hPtyReference = nullptr;
+        }
+        if (_HandleIsValid(pPty->hConPtyProcess))
+        {
+            CloseHandle(pPty->hConPtyProcess);
+            pPty->hConPtyProcess = nullptr;
         }
     }
 }

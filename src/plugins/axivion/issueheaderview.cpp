@@ -48,7 +48,8 @@ static QPoint globalPosOnScreen(const QPoint &orig, const QSize &size)
         qscreen = QGuiApplication::primaryScreen();
     const QRect screen = qscreen->availableGeometry();
 
-    return QPoint(std::max(screen.x(), orig.x() - size.width()), orig.y() - size.height());
+    return QPoint(std::max(screen.x(), orig.x() - size.width()),
+                  std::max(screen.y(), orig.y() - size.height()));
 }
 
 class FilterPopupWidget : public QFrame

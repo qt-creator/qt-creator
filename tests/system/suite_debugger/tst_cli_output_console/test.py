@@ -58,7 +58,12 @@ def main():
             appOutput = str(waitForObject(":Qt Creator_Core::OutputWindow").plainText)
             verifyOutput(appOutput, outputStdOut, "std::cout", "Application Output")
             verifyOutput(appOutput, outputStdErr, "std::cerr", "Application Output")
-            verifyOutput(appOutput, outputQDebug, "qDebug()", "Application Output")
+            if (os.getenv('SYSTEST_NEW_SETTINGS') != '1' and kit == Targets.DESKTOP_5_4_1_GCC
+                and platform.system() in ('Windows', 'Microsoft')):
+                test.log("Skipping qDebug() from %s (unstable, QTCREATORBUG-15067)"
+                         % Targets.getStringForTarget(Targets.DESKTOP_5_4_1_GCC))
+            else:
+                verifyOutput(appOutput, outputQDebug, "qDebug()", "Application Output")
             clickButton(waitForObject(":Qt Creator_CloseButton"))
         except:
             test.fatal("Could not find Application Output Window",

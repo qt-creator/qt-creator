@@ -562,7 +562,7 @@ void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
 
 void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
 {
-    if (!runControl()->usesDebugChannel()) {
+    if (!runControl()->usesDebugChannel() || m_runParameters.skipDebugServer()) {
         continueAfterDebugServerStart();
         return;
     }
@@ -680,9 +680,9 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
     });
 
     connect(&d->debuggerServerProc, &Process::done, this, [this] {
-        if (d->terminalProc.error() != QProcess::UnknownError)
-            reportFailure(d->terminalProc.errorString());
-        if (d->terminalProc.error() != QProcess::FailedToStart && m_runParameters.serverEssential())
+        if (d->debuggerServerProc.error() != QProcess::UnknownError)
+            reportFailure(d->debuggerServerProc.errorString());
+        if (d->debuggerServerProc.error() != QProcess::FailedToStart && m_runParameters.serverEssential())
             reportDone();
     });
 

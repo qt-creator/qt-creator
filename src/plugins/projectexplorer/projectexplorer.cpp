@@ -2482,6 +2482,13 @@ FilePairs ProjectExplorerPlugin::renameFiles(
             = Utils::filtered(nodesAndNewFilePaths, [](const std::pair<Node *, FilePath> &elem) {
         return !elem.first->filePath().equalsCaseSensitive(elem.second);
     });
+
+    // The same as above, for use when the nodes might no longer exist.
+    const QList<std::pair<FilePath, FilePath>> oldAndNewFilePathsFiltered
+            = Utils::transform(nodesAndNewFilePathsFiltered, [](const std::pair<Node *, FilePath> &p) {
+        return std::make_pair(p.first->filePath(), p.second);
+    });
+
     FilePaths renamedOnly;
     FilePaths failedRenamings;
     const auto renameFile = [&failedRenamings](const Node *node, const FilePath &newFilePath) {
@@ -2547,9 +2554,9 @@ FilePairs ProjectExplorerPlugin::renameFiles(
     }
 
     FilePairs allRenamedFiles;
-    for (const std::pair<Node *, FilePath> &candidate : nodesAndNewFilePathsFiltered) {
-        if (!failedRenamings.contains(candidate.first->filePath()))
-            allRenamedFiles.emplaceBack(candidate.first->filePath(), candidate.second);
+    for (const std::pair<FilePath, FilePath> &candidate : oldAndNewFilePathsFiltered) {
+        if (!failedRenamings.contains(candidate.first))
+            allRenamedFiles.emplaceBack(candidate.first, candidate.second);
     }
     emit instance()->filesRenamed(allRenamedFiles);
     return allRenamedFiles;

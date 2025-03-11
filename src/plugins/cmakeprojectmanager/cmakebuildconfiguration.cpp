@@ -2007,12 +2007,14 @@ void CMakeBuildConfiguration::setBuildPresetToBuildSteps(const ProjectExplorer::
             cbs->setToolArguments(nativeToolOptions.split(" "));
         }
 
-        if (buildPresets[i].configuration)
+        if (buildPresets[i].configuration) {
             cbs->setConfiguration(*buildPresets[i].configuration);
-
-        // Leave only the first build step enabled
-        if (i > 0)
-            cbs->setStepEnabled(false);
+            cbs->setStepEnabled(buildTypeAspect() == buildPresets[i].configuration);
+        } else {
+            // Leave only the first build step enabled
+            if (i > 0)
+                cbs->setStepEnabled(false);
+        }
     }
 }
 

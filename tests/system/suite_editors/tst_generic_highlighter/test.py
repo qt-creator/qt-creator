@@ -46,8 +46,9 @@ def getOrModifyFilePatternsFor(mimeType, filter='', toBePresent=None):
         if result == ['']:
             test.warning("MIME type '%s' seems to have no file patterns." % mimeType)
         return result
-    waitFor('model.rowCount() == 1', 2000)
-    if model.rowCount() == 1:
+    waitFor('model.rowCount() == 2', 2000)
+    if model.rowCount() == 2:
+        test.log("Checking %s" % dumpItems(model)[0])
         patternsLineEd = clickTableGetPatternLineEdit(mimeTypeTable, dumpItems(model)[0])
         patterns = str(patternsLineEd.text)
         if toBePresent:
@@ -80,8 +81,8 @@ def getOrModifyFilePatternsFor(mimeType, filter='', toBePresent=None):
                 result = toSuffixArray(patterns)
         else:
             result = toSuffixArray(patterns)
-    elif model.rowCount() > 1:
-        test.warning("MIME type '%s' has ambiguous results." % mimeType)
+    elif model.rowCount() > 0:
+        test.warning("MIME type '%s' has unexpected results." % mimeType)
     else:
         test.log("MIME type '%s' seems to be unknown to the system." % mimeType)
     clickButton(":Options.Cancel_QPushButton")
@@ -121,11 +122,9 @@ def hasSuffix(fileName, suffixPatterns):
             return True
     return False
 
-def displayHintForHighlighterDefinition(fileName, patterns, lPatterns, added, addedLiterate):
+def displayHintForHighlighterDefinition(fileName, patterns, added):
     if hasSuffix(fileName, patterns):
         return not added
-    if hasSuffix(fileName, lPatterns):
-        return not addedLiterate
     test.warning("Got an unexpected suffix.", "Filename: %s, Patterns: %s"
                  % (fileName, str(patterns + lPatterns)))
     return False
@@ -138,7 +137,6 @@ def main():
         return
 
     patterns = getOrModifyFilePatternsFor("text/x-haskell", "x-haskell")
-    lPatterns = getOrModifyFilePatternsFor("text/x-literate-haskell", "literate-haskell")
 
     folder = tempDir()
     filesToTest = ["Main.lhs", "Main.hs"]
@@ -150,7 +148,7 @@ def main():
         if editor == None:
             earlyExit("Something's really wrong! (did the UI change?)")
             return
-        expectHint = hasSuffix(current, patterns) or hasSuffix(current, lPatterns)
+        expectHint = hasSuffix(current, patterns)
         mssg = "Verifying whether hint for missing highlight definition is present. (expected: %s)"
         try:
             waitForObject("{text='%s' type='QLabel' unnamed='1' visible='1' "
@@ -166,9 +164,8 @@ def main():
 
     invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Close All")
-    addedHaskell, addedLiterateHaskell = addHighlighterDefinition("haskell", "literate-haskell")
-    patterns = getOrModifyFilePatternsFor('text/x-haskell', 'x-haskell', ['.hs'])
-    lPatterns = getOrModifyFilePatternsFor('text/x-literate-haskell', 'literate-haskell', ['.lhs'])
+    addedHaskell = addHighlighterDefinition("haskell")
+    patterns = getOrModifyFilePatternsFor('text/x-haskell', 'x-haskell', ['.hs', '.lhs'])
 
     home = os.path.expanduser("~")
     for current in filesToTest:
@@ -177,8 +174,7 @@ def main():
             recentFile = recentFile.replace(home, "~", 1)
         invokeMenuItem("File", "Recent Files", "%d | " + recentFile)
         editor = getEditorForFileSuffix(current)
-        display = displayHintForHighlighterDefinition(current, patterns, lPatterns,
-                                                      addedHaskell, addedLiterateHaskell)
+        display = displayHintForHighlighterDefinition(current, patterns, addedHaskell)
         try:
             waitForObject("{text='%s' type='QLabel' unnamed='1' visible='1' "
                           "window=':Qt Creator_Core::Internal::MainWindow'}" % miss, 2000)

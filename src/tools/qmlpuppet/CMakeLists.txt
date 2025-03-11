@@ -97,16 +97,22 @@ extend_qtc_executable(qmlpuppet
 )
 
 find_package(Qt6 COMPONENTS Quick3DAssetImport QUIET)
+if (QT_VERSION VERSION_GREATER_EQUAL 6.9.0)
+  find_package(Qt6 COMPONENTS Quick3DAssetImportPrivate QUIET)
+endif()
 extend_qtc_executable(qmlpuppet
-  CONDITION TARGET Qt::Quick3DAssetImport
+  CONDITION TARGET Qt::Quick3DAssetImportPrivate
   FEATURE_INFO "Qt Quick 3D asset import"
   DEPENDS Qt::Quick3DAssetImportPrivate
   DEFINES IMPORT_QUICK3D_ASSETS
 )
 
 find_package(Qt6 COMPONENTS Quick3DParticles QUIET)
+if (QT_VERSION VERSION_GREATER_EQUAL 6.9.0)
+  find_package(Qt6 COMPONENTS Quick3DParticlesPrivate QUIET)
+endif()
 extend_qtc_executable(qmlpuppet
-  CONDITION TARGET Qt::Quick3DParticles
+  CONDITION TARGET Qt::Quick3DParticles AND TARGET Qt::Quick3DParticlesPrivate
   FEATURE_INFO "Qt Quick 3D particles"
   DEPENDS Qt::Quick3DParticles Qt::Quick3DParticlesPrivate
   DEFINES QUICK3D_PARTICLES_MODULE
@@ -114,8 +120,11 @@ extend_qtc_executable(qmlpuppet
 
 # Quick3DAssetUtils optionally depends on QuickTimeline, so find also it to make the CI build work
 find_package(Qt6 COMPONENTS Quick3DAssetUtils QuickTimeline QUIET)
+if (QT_VERSION VERSION_GREATER_EQUAL 6.9.0)
+  find_package(Qt6 COMPONENTS Quick3DAssetUtilsPrivate QUIET)
+endif()
 extend_qtc_executable(qmlpuppet
-  CONDITION TARGET Qt::Quick3DAssetUtils
+  CONDITION TARGET Qt::Quick3DAssetUtilsPrivate
   FEATURE_INFO "Qt Quick 3D asset utils"
   DEPENDS Qt::Quick3DAssetUtilsPrivate
   DEFINES QUICK3D_ASSET_UTILS_MODULE

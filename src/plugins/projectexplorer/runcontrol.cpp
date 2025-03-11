@@ -1534,11 +1534,13 @@ void ProcessRunnerPrivate::start()
     m_stopRequested = false;
 
     QVariantHash extraData = q->runControl()->extraData();
-    if (q->runControl() && q->runControl()->target()
-        && q->runControl()->target()->activeRunConfiguration()) {
-        QString shellName = q->runControl()->target()->activeRunConfiguration()->displayName();
-        if (BuildConfiguration *buildConfig = q->runControl()->target()->activeBuildConfiguration())
-            shellName += " - " + buildConfig->displayName();
+    if (const auto rc = q->runControl()) {
+        QString shellName = rc->displayName();
+
+        if (rc->target()) {
+            if (BuildConfiguration *buildConfig = rc->target()->activeBuildConfiguration())
+                shellName += " - " + buildConfig->displayName();
+        }
 
         extraData[TERMINAL_SHELL_NAME] = shellName;
     } else {
@@ -1814,7 +1816,8 @@ void RunWorker::initiateStop()
  */
 void RunWorker::reportStopped()
 {
-    d->runControl->d->onWorkerStopped(this);
+    if (QTC_GUARD(d && d->runControl && d->runControl->d))
+        d->runControl->d->onWorkerStopped(this);
     emit stopped();
 }
 

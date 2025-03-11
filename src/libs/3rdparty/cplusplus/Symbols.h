@@ -205,7 +205,7 @@ protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
 private:
     FullySpecifiedType _type;
-    const Name *_conceptName;
+    const Name *_conceptName = nullptr;
 };
 
 class CPLUSPLUS_EXPORT Block final : public Scope

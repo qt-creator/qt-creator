@@ -78,6 +78,7 @@ local function setup()
         end,
     })
     require 'tst_texteditor'.setup()
+    require 'tst_markdownbrowser'.setup()
 end
 
 return { setup = setup }

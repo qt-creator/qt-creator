@@ -29,7 +29,8 @@ public:
                                      QDir::toNativeSeparators("../Src"),
                                      ".."};
     Utils::FilePath licenseTemplatePath;
-    QString headerGuardTemplate = "%{JS: '%{Header:FileName}'.toUpperCase().replace(/[.]/g, '_')}";
+    QString headerGuardTemplate
+        = "%{JS: '%{Header:FileName}'.toUpperCase().replace(/^[1-9]/, '_').replace(/[^_a-zA-Z1-9]/g, '_')}";
     bool headerPragmaOnce = false;
     bool lowerCaseFiles = Constants::LOWERCASE_CPPFILES_DEFAULT;
 
