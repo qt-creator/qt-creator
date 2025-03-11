@@ -274,8 +274,8 @@ void AssetsLibraryModel::updateExpandPath(const Utils::FilePath &oldPath, const 
 
         // update subfolders expand states
         if (childPath.isChildOf(oldPath)) {
-            QString relativePath = Utils::FilePath::calcRelativePath(path, oldPath.toFSPathString());
-            Utils::FilePath newChildPath = newPath.pathAppended(relativePath);
+            Utils::FilePath relativePath = childPath.relativePathFromDir(oldPath);
+            Utils::FilePath newChildPath = newPath.resolvePath(relativePath);
 
             value = s_folderExpandStateHash.take(path);
             saveExpandState(newChildPath.toFSPathString(), value);
