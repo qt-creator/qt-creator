@@ -88,7 +88,7 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Id id)
     };
     setSummaryUpdater(updateSummary);
 
-    connect(target(), &Target::kitChanged, this, updateSummary);
+    connect(buildConfiguration(), &BuildConfiguration::kitChanged, this, updateSummary);
 }
 
 QmakeBuildConfiguration *QMakeStep::qmakeBuildConfiguration() const
@@ -458,7 +458,7 @@ QWidget *QMakeStep::createConfigWidget()
             widget, [this] { separateDebugInfoChanged(); });
     connect(qmakeBuildConfiguration(), &QmakeBuildConfiguration::qmakeBuildConfigurationChanged,
             widget, [this] { qmakeBuildConfigChanged(); });
-    connect(target(), &Target::kitChanged,
+    connect(buildConfiguration(), &BuildConfiguration::kitChanged,
             widget, [this] { qtVersionChanged(); });
 
     connect(abisListWidget, &QListWidget::itemChanged, this, [this] {

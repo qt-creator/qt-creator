@@ -97,7 +97,6 @@ void Target::handleKitUpdates(Kit *k)
     if (k != d->m_kit)
         return;
 
-    updateDefaultDeployConfigurations();
     updateDeviceState(); // in case the device changed...
 
     emit iconChanged();
@@ -359,12 +358,6 @@ void Target::updateDefaultBuildConfigurations()
         if (BuildConfiguration *bc = bcFactory->create(this, info))
             addBuildConfiguration(bc);
     }
-}
-
-void Target::updateDefaultDeployConfigurations()
-{
-    for (BuildConfiguration * const bc : std::as_const(d->m_buildConfigurations))
-        bc->updateDefaultDeployConfigurations();
 }
 
 void Target::updateDefaultRunConfigurations()

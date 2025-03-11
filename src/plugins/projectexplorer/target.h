@@ -75,7 +75,6 @@ public:
     Utils::Store toMap() const;
 
     void updateDefaultBuildConfigurations();
-    void updateDefaultDeployConfigurations();
     void updateDefaultRunConfigurations();
 
     QVariant namedSettings(const Utils::Key &name) const;

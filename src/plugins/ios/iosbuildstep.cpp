@@ -124,8 +124,7 @@ QWidget *IosBuildStep::createConfigWidget()
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
             this, updateDetails);
-    connect(target(), &Target::kitChanged,
-            this, updateDetails);
+    connect(buildConfiguration(), &BuildConfiguration::kitChanged, this, updateDetails);
     connect(buildConfiguration(), &BuildConfiguration::environmentChanged,
             this, updateDetails);
 

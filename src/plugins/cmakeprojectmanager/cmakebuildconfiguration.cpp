@@ -514,7 +514,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     });
 
     updateFromKit();
-    connect(m_buildConfig->target(), &Target::kitChanged,
+    connect(m_buildConfig, &BuildConfiguration::kitChanged,
             this, &CMakeBuildSettingsWidget::updateFromKit);
     connect(bc, &CMakeBuildConfiguration::enabledChanged, this, [this, bc] {
         if (bc->isEnabled())

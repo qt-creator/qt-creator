@@ -145,6 +145,8 @@ public:
     virtual void stopReconfigure() {}
 
 signals:
+    void kitChanged();
+
     void environmentChanged();
     void buildDirectoryInitialized();
     void buildDirectoryChanged();

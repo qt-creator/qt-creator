@@ -211,7 +211,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
 
     connect(Core::ICore::instance(), &Core::ICore::systemEnvironmentChanged,
             this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
-    connect(target, &Target::kitChanged,
+    connect(this, &BuildConfiguration::kitChanged,
             this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
     connect(this, &BuildConfiguration::environmentChanged,
             this, &BuildConfiguration::emitBuildDirectoryChanged);
@@ -249,6 +249,11 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
             ProjectExplorerPlugin::updateActions();
             ProjectExplorerPlugin::updateRunActions();
         }
+    });
+
+    connect(target, &Target::kitChanged, this, [this] {
+        updateDefaultDeployConfigurations();
+        emit kitChanged();
     });
 }
 

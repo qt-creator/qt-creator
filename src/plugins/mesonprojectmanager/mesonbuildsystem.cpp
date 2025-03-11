@@ -203,7 +203,7 @@ MesonBuildSystem::MesonBuildSystem(BuildConfiguration *bc)
     , m_cppCodeModelUpdater(ProjectUpdaterFactory::createCppProjectUpdater())
 {
     qCDebug(mesonBuildSystemLog) << "Init";
-    connect(bc->target(), &ProjectExplorer::Target::kitChanged, this, [this] {
+    connect(bc, &BuildConfiguration::kitChanged, this, [this] {
         updateKit(kit());
     });
     connect(bc, &MesonBuildConfiguration::buildDirectoryChanged, this, [this] {

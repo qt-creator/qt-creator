@@ -382,8 +382,7 @@ QWidget *MakeStep::createConfigWidget()
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
             widget, updateDetails);
 
-    connect(target(), &Target::kitChanged, widget, updateDetails);
-
+    connect(buildConfiguration(), &BuildConfiguration::kitChanged, widget, updateDetails);
     connect(buildConfiguration(), &BuildConfiguration::environmentChanged, widget, updateDetails);
     connect(buildConfiguration(), &BuildConfiguration::buildDirectoryChanged, widget, updateDetails);
     connect(buildSystem(), &BuildSystem::parsingFinished, widget, updateDetails);

@@ -133,8 +133,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
         updateCacheAndEmitEnvironmentChanged();
     });
 
-    connect(target, &Target::kitChanged,
-            this, &QmakeBuildConfiguration::kitChanged);
+    connect(this, &BuildConfiguration::kitChanged, this, &QmakeBuildConfiguration::kitChanged);
     MacroExpander *expander = macroExpander();
     expander->registerVariable("Qmake:Makefile", "Qmake makefile", [this]() -> QString {
         const FilePath file = makefile();
@@ -154,7 +153,8 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
             this, &QmakeBuildConfiguration::updateProblemLabel);
     connect(buildSystem(), &BuildSystem::parsingFinished,
             this, &QmakeBuildConfiguration::updateProblemLabel);
-    connect(target, &Target::kitChanged, this, &QmakeBuildConfiguration::updateProblemLabel);
+    connect(this, &BuildConfiguration::kitChanged,
+            this, &QmakeBuildConfiguration::updateProblemLabel);
 
     connect(&separateDebugInfo, &BaseAspect::changed, this, [this] {
         emit separateDebugInfoChanged();

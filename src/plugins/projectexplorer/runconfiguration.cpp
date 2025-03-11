@@ -249,7 +249,7 @@ RunConfiguration::RunConfiguration(BuildConfiguration *bc, Utils::Id id)
     connect(bc->buildSystem(), &BuildSystem::updated, this, &RunConfiguration::update);
     connect(bc->buildSystem(), &BuildSystem::deploymentDataChanged,
             this, &RunConfiguration::update);
-    connect(target(), &Target::kitChanged, this, &RunConfiguration::update);
+    connect(bc, &BuildConfiguration::kitChanged, this, &RunConfiguration::update);
 }
 
 RunConfiguration::~RunConfiguration() = default;

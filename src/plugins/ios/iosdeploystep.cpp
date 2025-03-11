@@ -190,7 +190,7 @@ IosDeployStep::IosDeployStep(BuildStepList *parent, Utils::Id id)
     updateDisplayNames();
     connect(DeviceManager::instance(), &DeviceManager::updated,
             this, &IosDeployStep::updateDisplayNames);
-    connect(target(), &Target::kitChanged,
+    connect(buildConfiguration(), &BuildConfiguration::kitChanged,
             this, &IosDeployStep::updateDisplayNames);
 }
 
