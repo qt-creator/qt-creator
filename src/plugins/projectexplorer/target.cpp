@@ -66,16 +66,11 @@ public:
     { }
 
     QIcon m_overlayIcon;
-
     QList<BuildConfiguration *> m_buildConfigurations;
     QPointer<BuildConfiguration> m_activeBuildConfiguration;
     Store m_pluginSettings;
-
     Kit *const m_kit;
-    MacroExpander m_macroExpander;
-
     ProjectConfigurationModel m_buildConfigurationModel;
-
     bool m_shuttingDown = false;
 };
 
@@ -90,22 +85,6 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
     connect(km, &KitManager::kitUpdated, this, &Target::handleKitUpdates);
     connect(km, &KitManager::kitRemoved, this, &Target::handleKitRemoval);
 
-    d->m_macroExpander.setDisplayName(Tr::tr("Target Settings"));
-    d->m_macroExpander.setAccumulating(true);
-
-    d->m_macroExpander.registerSubProvider([this] { return kit()->macroExpander(); });
-
-    d->m_macroExpander.registerVariable("sourceDir", Tr::tr("Source directory"),
-            [project] { return project->projectDirectory().toUserOutput(); });
-    d->m_macroExpander.registerVariable("BuildSystem:Name", Tr::tr("Build system"), [this] {
-        if (const BuildSystem * const bs = buildSystem())
-            return bs->name();
-        return QString();
-    });
-
-    d->m_macroExpander.registerVariable("Project:Name",
-            Tr::tr("Name of current project"),
-            [project] { return project->displayName(); });
 }
 
 Target::~Target()
@@ -413,11 +392,6 @@ QVariant Target::additionalData(Utils::Id id) const
         return bs->additionalData(id);
 
     return {};
-}
-
-MacroExpander *Target::macroExpander() const
-{
-    return &d->m_macroExpander;
 }
 
 ProjectConfigurationModel *Target::buildConfigurationModel() const

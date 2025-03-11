@@ -83,8 +83,6 @@ public:
 
     QVariant additionalData(Utils::Id id) const;
 
-    Utils::MacroExpander *macroExpander() const;
-
     ProjectConfigurationModel *buildConfigurationModel() const;
 
     DeploymentData deploymentData() const;

@@ -185,21 +185,26 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     , d(new Internal::BuildConfigurationPrivate(this))
 {
     d->m_buildSystem = project()->createBuildSystem(this);
+
     MacroExpander *expander = macroExpander();
     expander->setDisplayName(Tr::tr("Build Settings"));
     expander->setAccumulating(true);
-    expander->registerSubProvider([target] { return target->macroExpander(); });
-
+    expander->registerSubProvider([this] { return kit()->macroExpander(); });
+    expander->registerVariable("sourceDir", Tr::tr("Source directory"),
+                               [this] { return project()->projectDirectory().toUserOutput(); });
+    expander->registerVariable("BuildSystem:Name", Tr::tr("Build system"), [this] {
+        return buildSystem()->name();
+    });
+    expander->registerVariable("Project:Name", Tr::tr("Name of current project"), [this] {
+        return project()->displayName();
+    });
     expander->registerVariable("buildDir", Tr::tr("Build directory"),
             [this] { return buildDirectory().toUserOutput(); });
-
     expander->registerFileVariables("BuildConfig:BuildDirectory",
                                     Tr::tr("Build directory"),
                                     [this] { return buildDirectory(); });
-
     expander->registerVariable("BuildConfig:Name", Tr::tr("Name of the build configuration"),
             [this] { return displayName(); });
-
     expander->registerPrefix("BuildConfig:Env",
                              Tr::tr("Variables in the build configuration's environment"),
                              [this](const QString &var) { return environment().expandedValueForKey(var); });
