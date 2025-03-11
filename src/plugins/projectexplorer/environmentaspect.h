@@ -21,7 +21,7 @@ public:
     EnvironmentAspect(Utils::AspectContainer *container = nullptr);
 
     enum DeviceSelector { HostDevice, BuildDevice, RunDevice };
-    void setDeviceSelector(Target *target, DeviceSelector selector);
+    void setDeviceSelector(Kit *kit, DeviceSelector selector);
 
     // The environment including the user's modifications.
     Utils::Environment environment() const;
@@ -51,7 +51,7 @@ public:
 
     bool isLocal() const { return m_isLocal; }
 
-    Target *target() const { return m_target; }
+    Kit *kit() const { return m_kit; }
 
     bool isPrintOnRunAllowed() const { return m_allowPrintOnRun; }
     bool isPrintOnRunEnabled() const { return m_printOnRun; }
@@ -96,7 +96,7 @@ private:
     bool m_isLocal = false;
     bool m_allowPrintOnRun = true;
     bool m_printOnRun = false;
-    Target *m_target = nullptr;
+    Kit *m_kit = nullptr;
     DeviceSelector m_selector = RunDevice;
 };
 

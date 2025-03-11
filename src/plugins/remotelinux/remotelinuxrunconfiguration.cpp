@@ -41,7 +41,7 @@ public:
 RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(BuildConfiguration *bc, Id id)
     : RunConfiguration(bc, id)
 {
-    environment.setDeviceSelector(target(), EnvironmentAspect::RunDevice);
+    environment.setDeviceSelector(kit(), EnvironmentAspect::RunDevice);
 
     executable.setDeviceSelector(kit(), ExecutableAspect::RunDevice);
     executable.setLabelText(Tr::tr("Executable on device:"));

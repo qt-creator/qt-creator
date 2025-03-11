@@ -41,9 +41,9 @@ EnvironmentAspect::EnvironmentAspect(AspectContainer *container)
     }
 }
 
-void EnvironmentAspect::setDeviceSelector(Target *target, DeviceSelector selector)
+void EnvironmentAspect::setDeviceSelector(Kit *kit, DeviceSelector selector)
 {
-    m_target = target;
+    m_kit = kit;
     m_selector = selector;
 }
 

@@ -11,7 +11,7 @@
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/environmentaspectwidget.h>
 #include <projectexplorer/environmentwidget.h>
-#include <projectexplorer/target.h>
+#include <projectexplorer/kitmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/devicefileaccess.h>
@@ -38,12 +38,14 @@ public:
         auto fetchButton = new QPushButton(Tr::tr("Fetch Device Environment"));
         addWidget(fetchButton);
 
-        connect(aspect->target(), &Target::kitChanged, aspect, [aspect] {
-            aspect->setRemoteEnvironment({});
+        // FIXME: Belongs into the aspect itself?
+        connect(KitManager::instance(), &KitManager::kitUpdated, aspect, [aspect](Kit *k) {
+            if (k == aspect->kit())
+                aspect->setRemoteEnvironment({});
         });
 
         connect(fetchButton, &QPushButton::clicked, this, [aspect] {
-            if (IDevice::ConstPtr device = RunDeviceKitAspect::device(aspect->target()->kit())) {
+            if (IDevice::ConstPtr device = RunDeviceKitAspect::device(aspect->kit())) {
                 DeviceFileAccess *access = device->fileAccess();
                 QTC_ASSERT(access, return);
                 aspect->setRemoteEnvironment(access->deviceEnvironment());
@@ -51,7 +53,7 @@ public:
         });
 
         envWidget()->setOpenTerminalFunc([aspect](const Environment &env) {
-            IDevice::ConstPtr device = RunDeviceKitAspect::device(aspect->target()->kit());
+            IDevice::ConstPtr device = RunDeviceKitAspect::device(aspect->kit());
             if (!device) {
                 QMessageBox::critical(Core::ICore::dialogParent(),
                                       Tr::tr("Cannot Open Terminal"),

@@ -45,7 +45,7 @@ public:
         symbolFile.setSettingsKey("QdbRunConfig.LocalExecutable");
         symbolFile.setLabelText(Tr::tr("Executable on host:"));
 
-        environment.setDeviceSelector(target(), EnvironmentAspect::RunDevice);
+        environment.setDeviceSelector(kit(), EnvironmentAspect::RunDevice);
 
         workingDir.setEnvironment(&environment);
 

@@ -39,7 +39,7 @@ private:
 RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(BuildConfiguration *bc, Id id)
     : RunConfiguration(bc, id)
 {
-    environment.setDeviceSelector(target(), EnvironmentAspect::RunDevice);
+    environment.setDeviceSelector(kit(), EnvironmentAspect::RunDevice);
 
     executable.setDeviceSelector(kit(), ExecutableAspect::RunDevice);
     executable.setSettingsKey("RemoteLinux.CustomRunConfig.RemoteExecutable");
