@@ -519,9 +519,9 @@ TEST_F(AsynchronousImageCache, request_image_with_auxiliary_data_request_image_f
                               _,
                               _,
                               VariantWith<FontCollectorSizesAuxiliaryData>(
-                                  AllOf(Field(&FontCollectorSizesAuxiliaryData::sizes,
+                                  AllOf(Field("FontCollectorSizesAuxiliaryData::sizes", &FontCollectorSizesAuxiliaryData::sizes,
                                               ElementsAre(QSize{20, 11})),
-                                        Field(&FontCollectorSizesAuxiliaryData::colorName,
+                                        Field("FontCollectorSizesAuxiliaryData::colorName", &FontCollectorSizesAuxiliaryData::colorName,
                                               Eq(u"color")))),
                               _))
         .WillRepeatedly([&](auto, auto, auto, auto &&, auto, auto, auto) { notification.notify(); });
@@ -548,9 +548,9 @@ TEST_F(AsynchronousImageCache, request_mid_size_image_with_auxiliary_data_reques
                               _,
                               _,
                               VariantWith<FontCollectorSizesAuxiliaryData>(
-                                  AllOf(Field(&FontCollectorSizesAuxiliaryData::sizes,
+                                  AllOf(Field("FontCollectorSizesAuxiliaryData::sizes", &FontCollectorSizesAuxiliaryData::sizes,
                                               ElementsAre(QSize{20, 11})),
-                                        Field(&FontCollectorSizesAuxiliaryData::colorName,
+                                        Field("FontCollectorSizesAuxiliaryData::colorName", &FontCollectorSizesAuxiliaryData::colorName,
                                               Eq(u"color")))),
                               _))
         .WillRepeatedly([&](auto, auto, auto, auto &&, auto, auto, auto) { notification.notify(); });
@@ -577,9 +577,9 @@ TEST_F(AsynchronousImageCache, request_small_image_with_auxiliary_data_request_i
                               _,
                               _,
                               VariantWith<FontCollectorSizesAuxiliaryData>(
-                                  AllOf(Field(&FontCollectorSizesAuxiliaryData::sizes,
+                                  AllOf(Field("FontCollectorSizesAuxiliaryData::sizes", &FontCollectorSizesAuxiliaryData::sizes,
                                               ElementsAre(QSize{20, 11})),
-                                        Field(&FontCollectorSizesAuxiliaryData::colorName,
+                                        Field("FontCollectorSizesAuxiliaryData::colorName", &FontCollectorSizesAuxiliaryData::colorName,
                                               Eq(u"color")))),
                               _))
         .WillRepeatedly([&](auto, auto, auto, auto &&, auto, auto, auto) { notification.notify(); });

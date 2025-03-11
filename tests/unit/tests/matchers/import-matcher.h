@@ -16,9 +16,9 @@ auto IsImport(const ModuleIdMatcher &moduleIdMatcher,
               const MajorVersionMatcher &majorVersionMatcher,
               const MinorVersionMatcher &minorVersionMatcher)
 {
-    return AllOf(Field(&QmlDesigner::Storage::Import::moduleId, moduleIdMatcher),
-                 Field(&QmlDesigner::Storage::Import::sourceId, sourceIdMatcher),
-                 Field(&QmlDesigner::Storage::Import::version,
+    return AllOf(Field("QmlDesigner::Storage::Import::moduleId", &QmlDesigner::Storage::Import::moduleId, moduleIdMatcher),
+                 Field("QmlDesigner::Storage::Import::sourceId", &QmlDesigner::Storage::Import::sourceId, sourceIdMatcher),
+                 Field("QmlDesigner::Storage::Import::version", &QmlDesigner::Storage::Import::version,
                        IsVersion(majorVersionMatcher, minorVersionMatcher)));
 }
 
@@ -27,7 +27,7 @@ auto IsImport(const ModuleIdMatcher &moduleIdMatcher,
               const SourceIdMatcher &sourceIdMatcher,
               const VersionMatcher &versionMatcher)
 {
-    return AllOf(Field(&QmlDesigner::Storage::Import::moduleId, moduleIdMatcher),
-                 Field(&QmlDesigner::Storage::Import::sourceId, sourceIdMatcher),
-                 Field(&QmlDesigner::Storage::Import::version, versionMatcher));
+    return AllOf(Field("QmlDesigner::Storage::Import::moduleId", &QmlDesigner::Storage::Import::moduleId, moduleIdMatcher),
+                 Field("QmlDesigner::Storage::Import::sourceId", &QmlDesigner::Storage::Import::sourceId, sourceIdMatcher),
+                 Field("QmlDesigner::Storage::Import::version", &QmlDesigner::Storage::Import::version, versionMatcher));
 }

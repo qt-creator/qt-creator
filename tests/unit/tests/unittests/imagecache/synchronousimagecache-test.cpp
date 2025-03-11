@@ -240,9 +240,9 @@ TEST_F(SynchronousImageCache, icon_calls_collector_with_auxiliary_data)
                 createIcon(Eq("/path/to/Component.qml"),
                            Eq("extraId1"),
                            VariantWith<FontCollectorSizesAuxiliaryData>(
-                               AllOf(Field(&FontCollectorSizesAuxiliaryData::sizes,
+                               AllOf(Field("FontCollectorSizesAuxiliaryData::sizes", &FontCollectorSizesAuxiliaryData::sizes,
                                            ElementsAre(QSize{20, 11})),
-                                     Field(&FontCollectorSizesAuxiliaryData::colorName,
+                                     Field("FontCollectorSizesAuxiliaryData::colorName", &FontCollectorSizesAuxiliaryData::colorName,
                                            Eq(u"color"))))));
 
     auto icon = cache.icon("/path/to/Component.qml",
@@ -261,9 +261,9 @@ TEST_F(SynchronousImageCache, image_calls_collector_with_auxiliary_data)
                 createImage(Eq("/path/to/Component.qml"),
                             Eq("extraId1"),
                             VariantWith<FontCollectorSizesAuxiliaryData>(
-                                AllOf(Field(&FontCollectorSizesAuxiliaryData::sizes,
+                                AllOf(Field("FontCollectorSizesAuxiliaryData::sizes", &FontCollectorSizesAuxiliaryData::sizes,
                                             ElementsAre(QSize{20, 11})),
-                                      Field(&FontCollectorSizesAuxiliaryData::colorName,
+                                      Field("FontCollectorSizesAuxiliaryData::colorName", &FontCollectorSizesAuxiliaryData::colorName,
                                             Eq(u"color"))))));
 
     auto icon = cache.image("/path/to/Component.qml",
@@ -282,9 +282,9 @@ TEST_F(SynchronousImageCache, small_image_calls_collector_with_auxiliary_data)
                 createImage(Eq("/path/to/Component.qml"),
                             Eq("extraId1"),
                             VariantWith<FontCollectorSizesAuxiliaryData>(
-                                AllOf(Field(&FontCollectorSizesAuxiliaryData::sizes,
+                                AllOf(Field("FontCollectorSizesAuxiliaryData::sizes", &FontCollectorSizesAuxiliaryData::sizes,
                                             ElementsAre(QSize{20, 11})),
-                                      Field(&FontCollectorSizesAuxiliaryData::colorName,
+                                      Field("FontCollectorSizesAuxiliaryData::colorName", &FontCollectorSizesAuxiliaryData::colorName,
                                             Eq(u"color"))))));
 
     auto icon = cache.smallImage("/path/to/Component.qml",

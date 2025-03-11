@@ -24,7 +24,7 @@ using QmlDesigner::Storage::TypeTraitsKind;
 template<typename Matcher>
 auto PropertyId(const Matcher &matcher)
 {
-    return Property(&QmlDesigner::PropertyMetaInfo::id, matcher);
+    return Property("QmlDesigner::PropertyMetaInfo::id", &QmlDesigner::PropertyMetaInfo::id, matcher);
 }
 
 template<typename PropertyMatcher, typename ParentPropertyMatcher, typename NameMatcher>
@@ -32,9 +32,15 @@ auto CompoundProperty(const PropertyMatcher &propertyMatcher,
                       const ParentPropertyMatcher &parentPropertyMatcher,
                       const NameMatcher &nameMatcher)
 {
-    return AllOf(Field(&QmlDesigner::CompoundPropertyMetaInfo::property, propertyMatcher),
-                 Field(&QmlDesigner::CompoundPropertyMetaInfo::parent, parentPropertyMatcher),
-                 Property(&QmlDesigner::CompoundPropertyMetaInfo::name, nameMatcher));
+    return AllOf(Field("QmlDesigner::CompoundPropertyMetaInfo::property",
+                       &QmlDesigner::CompoundPropertyMetaInfo::property,
+                       propertyMatcher),
+                 Field("QmlDesigner::CompoundPropertyMetaInfo::parent",
+                       &QmlDesigner::CompoundPropertyMetaInfo::parent,
+                       parentPropertyMatcher),
+                 Property("QmlDesigner::CompoundPropertyMetaInfo::name",
+                          &QmlDesigner::CompoundPropertyMetaInfo::name,
+                          nameMatcher));
 }
 
 template<typename PropertyIdMatcher, typename ParentPropertyIdMatcher, typename NameMatcher>

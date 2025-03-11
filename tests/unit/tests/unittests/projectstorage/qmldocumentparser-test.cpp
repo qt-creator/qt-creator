@@ -313,9 +313,9 @@ TEST_F(QmlDocumentParser, functions)
     ASSERT_THAT(type.functionDeclarations,
                 UnorderedElementsAre(
                     AllOf(IsFunctionDeclaration("otherFunction", ""),
-                          Field(&Synchronization::FunctionDeclaration::parameters, IsEmpty())),
+                          Field("Synchronization::FunctionDeclaration::parameters", &Synchronization::FunctionDeclaration::parameters, IsEmpty())),
                     AllOf(IsFunctionDeclaration("someScript", ""),
-                          Field(&Synchronization::FunctionDeclaration::parameters,
+                          Field("Synchronization::FunctionDeclaration::parameters", &Synchronization::FunctionDeclaration::parameters,
                                 ElementsAre(IsParameter("x", ""), IsParameter("y", ""))))));
 }
 
@@ -331,10 +331,10 @@ TEST_F(QmlDocumentParser, signals)
     ASSERT_THAT(type.signalDeclarations,
                 UnorderedElementsAre(
                     AllOf(IsSignalDeclaration("someSignal"),
-                          Field(&Synchronization::SignalDeclaration::parameters,
+                          Field("Synchronization::SignalDeclaration::parameters", &Synchronization::SignalDeclaration::parameters,
                                 ElementsAre(IsParameter("x", "int"), IsParameter("y", "real")))),
                     AllOf(IsSignalDeclaration("signal2"),
-                          Field(&Synchronization::SignalDeclaration::parameters, IsEmpty()))));
+                          Field("Synchronization::SignalDeclaration::parameters", &Synchronization::SignalDeclaration::parameters, IsEmpty()))));
 }
 
 TEST_F(QmlDocumentParser, enumeration)
@@ -348,13 +348,13 @@ TEST_F(QmlDocumentParser, enumeration)
     ASSERT_THAT(type.enumerationDeclarations,
                 UnorderedElementsAre(
                     AllOf(IsEnumeration("Color"),
-                          Field(&Synchronization::EnumerationDeclaration::enumeratorDeclarations,
+                          Field("Synchronization::EnumerationDeclaration::enumeratorDeclarations", &Synchronization::EnumerationDeclaration::enumeratorDeclarations,
                                 ElementsAre(IsEnumerator("red", 0),
                                             IsEnumerator("green", 1),
                                             IsEnumerator("blue", 10),
                                             IsEnumerator("white", 11)))),
                     AllOf(IsEnumeration("State"),
-                          Field(&Synchronization::EnumerationDeclaration::enumeratorDeclarations,
+                          Field("Synchronization::EnumerationDeclaration::enumeratorDeclarations", &Synchronization::EnumerationDeclaration::enumeratorDeclarations,
                                 ElementsAre(IsEnumerator("On", 0), IsEnumerator("Off", 1))))));
 }
 

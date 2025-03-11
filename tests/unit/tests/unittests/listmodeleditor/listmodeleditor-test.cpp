@@ -303,10 +303,10 @@ TEST_F(ListModelEditor, add_row_creates_new_model_node_and_reparents)
 {
     model.setListModel(listModelNode);
 
-    EXPECT_CALL(mockView, nodeCreated(Property(&ModelNode::type, Eq("ListElement"))));
+    EXPECT_CALL(mockView, nodeCreated(Property("ModelNode::type", &ModelNode::type, Eq("ListElement"))));
     EXPECT_CALL(mockView,
-                nodeReparented(Property(&ModelNode::type, Eq("ListElement")),
-                               Property(&AbstractProperty::parentModelNode, Eq(listModelNode)),
+                nodeReparented(Property("ModelNode::type", &ModelNode::type, Eq("ListElement")),
+                               Property("AbstractProperty::parentModelNode", &AbstractProperty::parentModelNode, Eq(listModelNode)),
                                _,
                                _));
 

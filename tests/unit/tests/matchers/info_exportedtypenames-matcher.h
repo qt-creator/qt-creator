@@ -16,9 +16,9 @@ auto IsInfoExportTypeNames(const ModuleIdMatcher &moduleIdMatcher,
                            const MajorVersionMatcher &majorVersionMatcher,
                            const MinorVersionMatcher &minorVersionMatcher)
 {
-    return AllOf(Field(&QmlDesigner::Storage::Info::ExportedTypeName::moduleId, moduleIdMatcher),
-                 Field(&QmlDesigner::Storage::Info::ExportedTypeName::name, nameMatcher),
-                 Field(&QmlDesigner::Storage::Info::ExportedTypeName::version,
+    return AllOf(Field("QmlDesigner::Storage::Info::ExportedTypeName::moduleId", &QmlDesigner::Storage::Info::ExportedTypeName::moduleId, moduleIdMatcher),
+                 Field("QmlDesigner::Storage::Info::ExportedTypeName::name", &QmlDesigner::Storage::Info::ExportedTypeName::name, nameMatcher),
+                 Field("QmlDesigner::Storage::Info::ExportedTypeName::version", &QmlDesigner::Storage::Info::ExportedTypeName::version,
                        IsVersion(majorVersionMatcher, minorVersionMatcher)));
 }
 
@@ -27,7 +27,7 @@ auto IsInfoExportTypeNames(const ModuleIdMatcher &moduleIdMatcher,
                            const NameMatcher &nameMatcher,
                            const VersionMatcher &versionMatcher)
 {
-    return AllOf(Field(&QmlDesigner::Storage::Info::ExportedTypeName::moduleId, moduleIdMatcher),
-                 Field(&QmlDesigner::Storage::Info::ExportedTypeName::name, nameMatcher),
-                 Field(&QmlDesigner::Storage::Info::ExportedTypeName::version, versionMatcher));
+    return AllOf(Field("QmlDesigner::Storage::Info::ExportedTypeName::moduleId", &QmlDesigner::Storage::Info::ExportedTypeName::moduleId, moduleIdMatcher),
+                 Field("QmlDesigner::Storage::Info::ExportedTypeName::name", &QmlDesigner::Storage::Info::ExportedTypeName::name, nameMatcher),
+                 Field("QmlDesigner::Storage::Info::ExportedTypeName::version", &QmlDesigner::Storage::Info::ExportedTypeName::version, versionMatcher));
 }
