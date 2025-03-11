@@ -461,7 +461,7 @@
                 \inlineimage icons/refactormarker.png
         \row
             \li Convert Function Call to Qt Meta-Method Invocation
-            \li Converts an invokable function call into a meta method
+            \li Converts an invocable function call into a meta method
                 invocation. This applies to signals and slots in general,
                 as well as functions explicitly marked with \c Q_INVOKABLE.
                 For example, for the following class:
@@ -499,7 +499,7 @@
     }
     \endcode
 
-    The quick fix also works on invokable methods outside the class that are
+    The quick fix also works on invocable methods outside the class that are
     visible from the location where they are called from. For example, it
     rewrites
 
