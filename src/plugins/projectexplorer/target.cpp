@@ -158,12 +158,6 @@ BuildSystem *Target::buildSystem() const
     return d->m_activeBuildConfiguration->buildSystem();
 }
 
-QString Target::activeBuildKey() const
-{
-    QTC_ASSERT(activeBuildConfiguration(), return {});
-    return activeBuildConfiguration()->activeBuildKey();
-}
-
 void Target::setActiveBuildConfiguration(BuildConfiguration *bc, SetActive cascade)
 {
     QTC_ASSERT(project(), return);
@@ -328,7 +322,6 @@ QIcon Target::overlayIcon() const
 void Target::setOverlayIcon(const QIcon &icon)
 {
     d->m_overlayIcon = icon;
-    emit overlayIconChanged();
 }
 
 QString Target::overlayIconToolTip()

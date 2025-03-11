@@ -89,19 +89,11 @@ public:
 
     DeploymentData deploymentData() const;
 
-    QString activeBuildKey() const; // Build key of active run configuaration
-
     void setActiveBuildConfiguration(BuildConfiguration *bc, SetActive cascade);
 
 signals:
     void iconChanged();
-    void overlayIconChanged();
-
     void kitChanged();
-
-    // FIXME: Check all uses of all the following signals, plus the associated getters.
-    // Likely most of them should refer to the BC counterpart instead (which might not currently exist).
-    void parsingFinished(bool);
 
     void removedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
     void addedRunConfiguration(ProjectExplorer::RunConfiguration *rc);

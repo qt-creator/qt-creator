@@ -109,7 +109,6 @@ void BuildSystem::emitParsingFinished(bool success)
     d->m_isParsing = false;
     d->m_hasParsingData = success;
     emit parsingFinished(success);
-    emit target()->parsingFinished(success);
     emit project()->anyParsingFinished(success);
     emit ProjectManager::instance()->projectFinishedParsing(project());
     if (this == activeBuildSystemForActiveProject())
