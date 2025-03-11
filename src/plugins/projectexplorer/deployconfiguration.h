@@ -80,7 +80,8 @@ public:
     void setSupportedProjectType(Utils::Id id);
 
     // Step is only added if condition is not set, or returns true when called.
-    void addInitialStep(Utils::Id stepId, const std::function<bool(Target *)> &condition = {});
+    void addInitialStep(
+        Utils::Id stepId, const std::function<bool(BuildConfiguration *)> &condition = {});
 
     bool canHandle(ProjectExplorer::Target *target) const;
 

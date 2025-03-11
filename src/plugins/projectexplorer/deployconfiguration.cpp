@@ -196,7 +196,7 @@ DeployConfiguration *DeployConfigurationFactory::create(BuildConfiguration *bc)
     QTC_ASSERT(dc, return nullptr);
     BuildStepList *stepList = dc->stepList();
     for (const BuildStepList::StepCreationInfo &info : std::as_const(m_initialSteps)) {
-        if (!info.condition || info.condition(bc->target()))
+        if (!info.condition || info.condition(bc))
             stepList->appendStep(info.stepId);
     }
     return dc;
@@ -257,7 +257,8 @@ void DeployConfigurationFactory::setSupportedProjectType(Utils::Id id)
     m_supportedProjectType = id;
 }
 
-void DeployConfigurationFactory::addInitialStep(Utils::Id stepId, const std::function<bool (Target *)> &condition)
+void DeployConfigurationFactory::addInitialStep(
+    Utils::Id stepId, const std::function<bool(BuildConfiguration *)> &condition)
 {
     m_initialSteps.append({stepId, condition});
 }

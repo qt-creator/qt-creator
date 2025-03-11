@@ -12,6 +12,7 @@
 
 namespace ProjectExplorer {
 
+class BuildConfiguration;
 class BuildStep;
 class ProjectConfiguration;
 class Target;
@@ -50,7 +51,7 @@ public:
 
     struct StepCreationInfo {
         Utils::Id stepId;
-        std::function<bool(Target *)> condition; // unset counts as unrestricted
+        std::function<bool(BuildConfiguration *)> condition; // unset counts as unrestricted
     };
 
     bool removeStep(int position);
