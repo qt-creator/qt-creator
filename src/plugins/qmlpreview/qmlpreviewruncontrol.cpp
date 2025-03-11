@@ -108,7 +108,7 @@ void QmlPreviewRunner::start()
 {
     if (m_translationUpdater)
         m_translationUpdater->start();
-    m_connectionManager.setTarget(runControl()->target());
+    m_connectionManager.setBuildConfiguration(runControl()->buildConfiguration());
     m_connectionManager.connectToServer(runControl()->qmlChannel());
     reportStarted();
 }

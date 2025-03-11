@@ -5,10 +5,11 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+
+#include <projectexplorer/buildconfiguration.h>
+
 #include <qtsupport/baseqtversion.h>
 
-#include <QFileInfo>
-#include <QDir>
 #include <QMessageBox>
 
 namespace QmlPreview {
@@ -16,16 +17,16 @@ namespace QmlPreview {
 QmlPreviewConnectionManager::QmlPreviewConnectionManager(QObject *parent) :
     QmlDebug::QmlDebugConnectionManager(parent)
 {
-    setTarget(nullptr);
+    setBuildConfiguration(nullptr);
 }
 
 QmlPreviewConnectionManager::~QmlPreviewConnectionManager() = default;
 
-void QmlPreviewConnectionManager::setTarget(ProjectExplorer::Target *target)
+void QmlPreviewConnectionManager::setBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
 {
-    QtSupport::QtVersion::populateQmlFileFinder(&m_projectFileFinder, target);
+    QtSupport::QtVersion::populateQmlFileFinder(&m_projectFileFinder, bc->target());
     m_projectFileFinder.setAdditionalSearchDirectories(Utils::FilePaths());
-    m_targetFileFinder.setTarget(target);
+    m_targetFileFinder.setBuildConfiguration(bc);
 }
 
 void QmlPreviewConnectionManager::setFileLoader(QmlPreviewFileLoader fileLoader)

@@ -7,23 +7,20 @@
 #include <QString>
 #include <QPointer>
 
-namespace ProjectExplorer {
-class Target;
-}
+namespace ProjectExplorer { class BuildConfiguration; }
 
 namespace QmlPreview {
 
 class QmlPreviewFileOnTargetFinder
 {
 public:
-    void setTarget(ProjectExplorer::Target *target);
-    ProjectExplorer::Target *target() const;
+    void setBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
 
     QString findPath(const QString &filePath, bool *success = nullptr) const;
     QUrl findUrl(const QString &filePath, bool *success = nullptr) const;
 
 private:
-    QPointer<ProjectExplorer::Target> m_target;
+    QPointer<ProjectExplorer::BuildConfiguration> m_buildConfig;
 };
 
 } // namespace QmlPreview

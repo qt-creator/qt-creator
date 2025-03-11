@@ -12,9 +12,7 @@
 #include <utils/fileinprojectfinder.h>
 #include <utils/filesystemwatcher.h>
 
-namespace ProjectExplorer {
-class Target;
-}
+namespace ProjectExplorer { class BuildConfiguration; }
 
 namespace QmlPreview {
 
@@ -25,7 +23,7 @@ public:
     virtual ~QmlPreviewConnectionManager();
 
     explicit QmlPreviewConnectionManager(QObject *parent = nullptr);
-    void setTarget(ProjectExplorer::Target *target);
+    void setBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void setFileLoader(QmlPreviewFileLoader fileLoader);
     void setFileClassifier(QmlPreviewFileClassifier fileClassifier);
     void setFpsHandler(QmlPreviewFpsHandler fpsHandler);
