@@ -88,6 +88,7 @@ add_qtc_plugin(ScxmlEditor
     scxmleditorconstants.h
     scxmleditor.cpp scxmleditor.h
     scxmleditordocument.cpp scxmleditordocument.h
+    scxmleditoricons.h
     scxmleditorplugin.cpp
     scxmltexteditor.cpp scxmltexteditor.h
 )

@@ -13,8 +13,10 @@ ParallelItem::ParallelItem(const QPointF &pos, BaseItem *parent)
     : StateItem(pos, parent)
 {
 
-    m_pixmap = Utils::Icon({{":/scxmleditor/images/parallel_icon.png",
-                             Utils::Theme::TextColorNormal}}).pixmap();
+    const QPixmap pixmap = Utils::Icon({{":/scxmleditor/images/parallel_icon.png",
+                                         Utils::Theme::TextColorNormal}}).pixmap();
+    m_pixmap = pixmap.copy(QRect(pixmap.width() / 4, pixmap.height() / 4,
+                                 pixmap.width() / 2, pixmap.height() / 2));
     updatePolygon();
 }
 

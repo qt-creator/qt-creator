@@ -19,17 +19,23 @@
         <file>images/align_vertical.png</file>
         <file>images/align_vertical@2x.png</file>
         <file>images/colorthemes.png</file>
-        <file>images/final.png</file>
         <file>images/font_color.png</file>
         <file>images/history.png</file>
+        <file>images/history@2x.png</file>
         <file>images/icon-export-canvas.png</file>
         <file>images/icon-export-canvas@2x.png</file>
-        <file>images/initial.png</file>
+        <file>images/innerFill.png</file>
+        <file>images/innerFill@2x.png</file>
+        <file>images/midRing.png</file>
+        <file>images/midRing@2x.png</file>
         <file>images/more_colors.png</file>
         <file>images/navigator.png</file>
-        <file>images/parallel.png</file>
+        <file>images/outerRing.png</file>
+        <file>images/outerRing@2x.png</file>
         <file>images/parallel_icon.png</file>
+        <file>images/parallel_icon@2x.png</file>
         <file>images/state.png</file>
+        <file>images/state@2x.png</file>
         <file>images/state_color.png</file>
         <file>images/statistics.png</file>
     </qresource>

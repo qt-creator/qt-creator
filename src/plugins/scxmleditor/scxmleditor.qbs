@@ -19,12 +19,17 @@ QtcPlugin {
     ])
 
     files: [
-        "scxmleditor_global.h", "scxmleditortr.h",
+        "scxmleditor_global.h",
+        "scxmleditoricons.h",
+        "scxmleditortr.h",
         "scxmleditorconstants.h",
-        "scxmleditor.cpp", "scxmleditor.h",
-        "scxmleditordocument.cpp", "scxmleditordocument.h",
+        "scxmleditor.cpp",
+        "scxmleditor.h",
+        "scxmleditordocument.cpp",
+        "scxmleditordocument.h",
         "scxmleditorplugin.cpp",
-        "scxmltexteditor.cpp", "scxmltexteditor.h",
+        "scxmltexteditor.cpp",
+        "scxmltexteditor.h",
     ]
 
     Group {
