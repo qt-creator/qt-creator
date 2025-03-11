@@ -137,7 +137,8 @@
 
     Many of the error messages are similar to the ones in Douglas Crockford's
     \l{http://www.jslint.com}{JSLint} tool. For more information about JSLint
-    errors, see \l{http://linterrors.com/js}{JSLint Error Explanations}.
+    errors, see \l{https://github.com/jamesallardice/jslint-error-explanations}
+    {JSLint Error Explanations}.
 
     \table
     \header
@@ -204,33 +205,30 @@
         \li M10
         \li Error
         \li Duplicate property binding
-        \li See also: \l{http://linterrors.com/js/duplicate-key-a}
-            {Duplicate key '{a}'}.
+        \li For more information, see \e {Duplicate key '{a}'} in
+            \e {JSLint Error Explanations}.
 
     \row
         \li M11
         \li Error
         \li Id expected
-        \li See also:
-            \l{http://linterrors.com/js/expected-an-identifier-and-instead-saw-a-a-reserved-word}
-            {Expected an identifier and instead saw '{a}' (a reserved word)}.
+        \li For more information, see
+            \e {Expected an identifier and instead saw '{a}' (a reserved word)}
+            in \e {JSLint Error Explanations}.
 
     \row
         \li M14
         \li Error
         \li Invalid id
-        \li See also:
-            \l{http://linterrors.com/js/expected-an-identifier-and-instead-saw-a-a-reserved-word}
-            {Expected an identifier and instead saw '{a}' (a reserved word)}.
-
+        \li For more information, see
+            \e {Expected an identifier and instead saw '{a}' (a reserved word)}.
 
     \row
         \li M15
         \li Error
         \li Duplicate id
         \li Ids in a file must be unique.
-            See also: \l{http://linterrors.com/js/duplicate-key-a}
-            {Duplicate key '{a}'}.
+            For more information, see \e {Duplicate key '{a}'}.
 
     \row
         \li M16
@@ -270,7 +268,8 @@
         \li M23
         \li Warning
         \li Do not use \c eval
-        \li See also: \l{http://linterrors.com/js/eval-is-evil}{eval is evil}.
+        \li For more information, see \e {eval is evil} in
+            \e {JSLint Error Explanations}.
 
     \row
         \li M28
@@ -282,8 +281,8 @@
         \li M29
         \li Warning
         \li Do not use \c with
-        \li See also: \l{http://linterrors.com/js/unexpected-with}
-            {Unexpected 'with'}.
+        \li For more information, see \e {Unexpected 'with'} in
+            \e {JSLint Error Explanations}.
 
     \row
         \li M30
@@ -333,51 +332,48 @@
         \li M108
         \li Warning
         \li Function \c name is used before its declaration
-        \li See also: \l{http://linterrors.com/js/a-was-used-before-it-was-defined}
-            {{a} was used before it was defined}.
+        \li For more information, see \e {{a} was used before it was defined} in
+            \e {JSLint Error Explanations}.
 
     \row
         \li M109
         \li Warning
         \li Do not use \c Boolean as a constructor
-        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
-            {Do not use {a} as a constructor}.
+        \li For more information, see \e {Do not use {a} as a constructor} in
+            \e {JSLint Error Explanations}.
 
     \row
         \li M110
         \li Warning
         \li Do not use \c String as a constructor
-        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
-            {Do not use {a} as a constructor}.
+        \li For more information, see \e {Do not use {a} as a constructor}.
 
     \row
         \li M111
         \li Warning
         \li Do not use \c Object as a constructor
-        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
-            {Do not use {a} as a constructor}.
+        \li For more information, see \e {Do not use {a} as a constructor}.
 
     \row
         \li M112
         \li Warning
         \li Do not use \c Array as a constructor
-        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
-            {Do not use {a} as a constructor}.
+        \li For more information, see \e {Do not use {a} as a constructor}.
 
     \row
         \li M113
         \li Warning
         \li Do not use \c Function as a constructor
-        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
-            {Do not use {a} as a constructor}.
+        \li For more information, see \e {Do not use {a} as a constructor}.
 
     \row
         \li M114
         \li Hint
         \li The \c function keyword and the opening parenthesis should be
             separated by a single space
-        \li See also: \l{http://linterrors.com/js/expected-exactly-one-space-between-a-and-b}
-            {Expected exactly one space between {a} and {b}}.
+        \li For more information, see
+            \e {Expected exactly one space between {a} and {b}} in
+            \e {JSLint Error Explanations}.
 
     \row
         \li M115
@@ -397,15 +393,15 @@
         \li M117
         \li Warning
         \li Confusing pluses
-        \li See also: \l{http://linterrors.com/js/confusing-pluses}
-            {Confusing pluses}.
+        \li For more information, see \e {Confusing pluses} in
+            \e {JSLint Error Explanations}.
 
     \row
         \li M119
         \li Warning
         \li Confusing minuses
-        \li See also: \l{http://linterrors.com/js/confusing-minuses}
-            {Confusing minuses}.
+        \li For more information, see \e {Confusing minuses} in
+            \e {JSLint Error Explanations}.
 
     \row
         \li M121
@@ -453,9 +449,9 @@
         \li M201
         \li Hint
         \li Place var declarations at the start of a function
-        \li See also:
-            \l{http://linterrors.com/js/move-var-declarations-to-the-top-of-the-function}
-            {Move 'var' declarations to the top of the function}.
+        \li For more information, see
+            \e {Move 'var' declarations to the top of the function} in
+            \e {JSLint Error Explanations}.
 
     \row
         \li M202
@@ -609,15 +605,14 @@
         \li M307
         \li Warning
         \li Use \c new only with functions that start with an uppercase letter
-        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
-            {Do not use {a} as a constructor}.
+        \li For more information, see \e {Do not use {a} as a constructor} in
+            \e {JSLint Error Explanations}.
 
     \row
         \li M308
         \li Warning
         \li Do not use \c Number as a constructor
-        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
-            {Do not use {a} as a constructor}.
+        \li For more information, see \e {Do not use {a} as a constructor}.
 
     \row
         \li M309
@@ -707,9 +702,9 @@
         \li M323
         \li Error
         \li \c Number elements expected in array value
-        \li See also:
-            \l{http://linterrors.com/js/the-array-literal-notation-is-preferrable}
-            {The array literal notation [] is preferable}.
+        \li For more information, see
+            \e {The array literal notation [] is preferable} in
+            \e {JSLint Error Explanations}.
 
     \row
         \li M324
