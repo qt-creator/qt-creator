@@ -1,4 +1,4 @@
-// Copyright (C) 2024 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -11,17 +11,16 @@
     \brief Illustrates how to position UI components on pages using anchors and
     positioners.
 
-    \image loginui2.webp "Login UI"
+    \image loginui2.webp Login UI in Live Preview.
 
-    \e{Login UI: Positioning} is the second in a series of tutorials that build
-    on each other to illustrate how to use \QDS to create a simple UI with
-    some basic UI components, such as pages, buttons, and entry fields. The
-    second tutorial in the series describes how to position the UI components
-    on pages to create a scalable UI.
+    \e{Login UI: Positioning} is the second of the \QDS \e{Login UI} tutorials, which
+    build on each other to illustrate how to create a simple UI with some basic UI
+    components, such as pages, buttons, and entry fields.
 
-    To ensure that the layout is responsive and all the UI components stay in
-    their proper places when you resize the UI on the desktop or on devices
-    with different screen sizes, you will use anchors and positioners.
+    This tutorial describes how  to position the UI components on pages to create a scalable UI.
+    You will use anchors and positioners to ensure that the layout
+    is responsive and all the UI components stay in their proper places when you resize
+    the UI on the desktop or on devices with different screen sizes.
 
     The starting point for this tutorial is the completed
     \l{Login UI: Components} project. You can download the project
@@ -30,35 +29,40 @@
     Additionally, you can download the completed project of this tutorial
     \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/Loginui2}{here}.
 
-    The \e {Learn more} sections provide additional information about the
-    task at hand.
+    \section1 Changing the component hierarchy
+
+    You can only anchor components to their parent and sibling components. To make the entry
+    fields and the buttons sibling components to other page elements, drag them from
+    \e adventurePage to \e rectangle in the \l Navigator view (press and hold the \key Shift
+    or \key Ctrl key for \l {Multiselection}{multiple selection}).
+
+    \image loginui2-new-hierarchy.webp The Navigator view after moving the entry fields and the buttons.
 
     \section1 Anchoring UI components
 
-    First, you will \l {Setting anchors and margins}{anchor} the
-    static page elements, background image (\e adventurePage), logo
-    (\e qt_logo_green_128x128px), and tag line (\e tagLine), to the page.
+    You will now \l {Setting anchors and margins}{anchor} the
+    static page elements, the background image (\e adventurePage), the logo
+    (\e qt_logo_green_128x128px), and the tag line (\e tagLine), to the page.
 
-    To preview the changes that you make, select the \uicontrol {Live Preview} button
-    or select \key {Alt+P}.
+    To preview the changes that you make, select the run dropdown menu from the
+    top toolbar, and then select \uicontrol {Live Preview}, or select \key {Alt+P}.
 
-    To anchor component instances on a page:
+    To edit the main page, first select \e {Screen01.ui.qml} in the \l Projects view.
+
+    Then, to anchor the components in your UI:
 
     \list 1
-        \li Open \e {Screen01.ui.qml} for editing in the
-            \l {2D} view.
-        \li Select \e adventurePage in the \l Navigator view to display its
+        \li Select \e adventurePage in \uicontrol Navigator to display its
             properties in the \l Properties view.
         \li In \uicontrol Properties > \uicontrol Layout, select
-            the \imageanchorfill
-            anchor button to anchor \e adventurePage to its
+            the \imageanchorfill anchor button to anchor \e adventurePage to its
             parent in the \uicontrol Target field. This attaches the background
             image to the rectangle on all sides.
             \note Selecting the anchor button should automatically select the
             four buttons on the left side of it. If it doesn't, select
             \imagereset on the \uicontrol {2D} view toolbar to refresh the
             \uicontrol{2D} view.
-            \image loginui2-layout.png "Layout properties"
+            \image loginui2-layout.png Layout properties
         \li Select \e qt_logo_green_128x128px in \uicontrol Navigator.
         \li In \uicontrol Properties > \uicontrol Layout, set:
             \list
@@ -66,13 +70,12 @@
                     \imageanchorcenterhorizontal.
                 \li \uicontrol Target \imageanchortop to \e parent to anchor
                     the logo to its parent.
-                \li \uicontrol Margin \imageanchortop to \e 40 and
-                    select \imageanchortop to anchor the logo to the top of
-                    the target.
+                \li \uicontrol Margin \imageanchortop to \e 40, and select
+                    \imageanchortop to anchor the logo to the top of the target.
             \endlist
             This attaches the logo to the rectangle at the top while keeping its horizontal
             center aligned with that of the rectangle.
-            \image loginui2-logo-properties.webp "Logo Layout properties"
+            \image loginui2-logo-properties.webp Layout properties for the logo.
         \li Select \e tagLine in \uicontrol Navigator.
         \li In \uicontrol Properties > \uicontrol Layout, set:
             \list
@@ -80,19 +83,18 @@
                     \imageanchorcenterhorizontal.
                 \li \uicontrol Target \imageanchortop to
                     \e qt_logo_green_128x128px to anchor the tag line to the logo.
-                \li \uicontrol Margin \imageanchortop to \e 40 and
+                \li \uicontrol Margin \imageanchortop to \e 40, and
                     select \imageanchorbottom to anchor the tag line to the
                     bottom of the target.
             \endlist
                 This attaches the tag line to the bottom of the logo while keeping its horizontal
                 center aligned with that of the rectangle.
-            \image loginui2-layout-text.png "Text Layout properties"
+            \image loginui2-layout-text.png The Layout properties of the Text component.
             \note You can anchor component instances to their parent and sibling
-            components. If a component instance is not listed in the
-            \uicontrol Target field, check that the component instance is
-            located in the correct place in the component hierarchy in
-            \uicontrol Navigator. For more information,
-            see \l{Arranging components}.
+            components. If a component is not listed in the \uicontrol Target field dropdown
+            menu, check that the component is located in the correct place in the component
+            hierarchy in \uicontrol Navigator. For more information, see
+            \l{Arranging components}.
         \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
     \endlist
@@ -100,14 +102,14 @@
     Your page should now look something like this in the \uicontrol {2D} view
     and \uicontrol {Live Preview}:
 
-    \image loginui2-loginpage.webp "Login page in the 2D view and live preview"
+    \image loginui2-loginpage.webp The login page in the 2D view and Live Preview.
 
     \section1 Using column positioners
 
     You will now position the entry fields and buttons in columns
     to learn another method of \l{Using positioners}{positioning components}.
-    Then, you will anchor the columns to the page to enable their positions
-    to change when the screen size changes.
+    Then, you will anchor the columns to the page, so that their positions
+    adapt to any screen size changes.
 
     To position the fields and buttons as columns:
 
@@ -123,11 +125,11 @@
             to \e fields in \uicontrol Properties.
         \li In \uicontrol Column > \uicontrol Spacing, set the spacing between
             the fields to \e 20.
-            \image loginui2-column-properties.webp "Column properties"
+            \image loginui2-column-properties.webp Column properties.
         \li Select \e login and \e createAccount, and then select
             \uicontrol Positioner > \uicontrol {Column Positioner} to position
             them in a column.
-        \li Select the button column, change its ID to \e buttons, and
+        \li Select the new column, change its ID to \e buttons, and
             set the spacing between the buttons to \e 20, as above.
     \endlist
 
@@ -147,7 +149,7 @@
             \endlist
                 This attaches the entry fields to the bottom of the tag line while keeping its
                 horizontal center aligned with that of the rectangle.
-            \image loginui2-fields-properties.webp "Properties of fields"
+            \image loginui2-fields-properties.webp Properties of fields.
         \li Select \e buttons in \uicontrol Navigator.
         \li In \uicontrol Properties > \uicontrol Layout, set:
             \list
@@ -155,13 +157,13 @@
                     \imageanchorcenterhorizontal.
                 \li \uicontrol Target \imageanchorbottom to
                     \e parent to anchor the entry fields to the rectangle.
-                \li \uicontrol Margin \imageanchorbottom to \e 50 and
+                \li \uicontrol Margin \imageanchorbottom to \e 50, and
                     select \imageanchorbottom to anchor the entry fields to the
                     bottom of the target.
             \endlist
                 This attaches the buttons to the bottom of the rectangle while keeping its
                 horizontal center aligned with that of the rectangle.
-            \image loginui2-buttons-properties.webp "Properties of buttons"
+            \image loginui2-buttons-properties.webp Properties of buttons.
         \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
     \endlist
@@ -169,35 +171,13 @@
     The second iteration of your UI is now ready and should look something like
     this in the \uicontrol {2D} view and \uicontrol {Live Preview}:
 
-    \image loginui2-loginpage-ready.webp "Login page in the 2D view and live preview"
-
-    \section1 Learn more
-    \section2 Anchors
-    In an anchor-based layout, each component instance can be thought of as
-    having a set of invisible \e anchor lines: top, bottom, left, right, fill,
-    horizontal center, vertical center, and baseline.
-
-    Anchors enable placing a component instance either adjacent to or inside of
-    another component instance, by attaching one or more of the instance's
-    anchor lines to the anchor lines of the other component instance. If a
-    component instance changes, the instances that are anchored to it will
-    adjust automatically to maintain the anchoring.
-
-    For more information, see \l{Positioning with Anchors}{Positioning with anchors}.
-
-    \section2 Positioners
-
-    For many use cases, the best positioner to use is a simple grid, row, or
-    column, and \QDS provides components that will position children in these
-    formations in the most efficient manner possible. For more information
-    about using preset positioners, see \l {Using positioners}.
-
-    For more complicated UI designs, you can use components from the
-    \l {Using layouts}{Qt Quick Layouts module}.
+    \image loginui2-loginpage-ready.webp The login page in the 2D view and Live Preview.
 
     \section1 Next steps
 
     To learn how to add a second page and move to it from the main page, see
     the next tutorial in the series, \l {Login UI: States}.
+
+    \sa {Positioning with Anchors}{Positioning with anchors}, {Using positioners}, {Using layouts}
 */
 
