@@ -266,11 +266,7 @@ GenericBuildSystem::GenericBuildSystem(BuildConfiguration *bc)
 
     connect(&m_deployFileWatcher, &FileSystemWatcher::fileChanged,
             this, &GenericBuildSystem::updateDeploymentData);
-
-    connect(bc->target(), &Target::activeBuildConfigurationChanged, this, [this] {
-        refresh(Everything);
-    });
-    connect(project(), &Project::activeTargetChanged, this, [this] {
+    connect(project(), &Project::activeBuildConfigurationChanged, this, [this] {
         refresh(Everything);
     });
 }
@@ -564,13 +560,8 @@ void GenericBuildSystem::refresh(RefreshOptions options)
 GenericBuildSystem::SourceFiles GenericBuildSystem::processEntries(
         const QStringList &paths, QHash<QString, QString> *map) const
 {
-    const BuildConfiguration *const buildConfig = target()->activeBuildConfiguration();
-
-    const Environment buildEnv = buildConfig ? buildConfig->environment()
-                                             : Environment::systemEnvironment();
-
-    const MacroExpander *expander = buildConfig ? buildConfig->macroExpander()
-                                                : target()->macroExpander();
+    const Environment buildEnv = buildConfiguration()->environment();
+    const MacroExpander *expander = buildConfiguration()->macroExpander();
 
     const QDir projectDir(projectDirectory().toUrlishString());
 
@@ -613,8 +604,6 @@ void GenericBuildSystem::refreshCppCodeModel()
 {
     if (!m_cppCodeModelUpdater)
         return;
-    if (target() != project()->activeTarget())
-        return;
     QtSupport::CppKitInfo kitInfo(kit());
     QTC_ASSERT(kitInfo.isValid(), return);
 
@@ -643,9 +632,7 @@ void GenericBuildSystem::updateDeploymentData()
 {
     static const QString fileName("QtCreatorDeployment.txt");
     FilePath deploymentFilePath;
-    BuildConfiguration *bc = target()->activeBuildConfiguration();
-    if (bc)
-        deploymentFilePath = bc->buildDirectory().pathAppended(fileName);
+    deploymentFilePath = buildConfiguration()->buildDirectory().pathAppended(fileName);
 
     bool hasDeploymentData = deploymentFilePath.exists();
     if (!hasDeploymentData) {
