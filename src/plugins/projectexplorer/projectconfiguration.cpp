@@ -99,5 +99,5 @@ Id ProjectExplorer::idFromMap(const Store &map)
 
 QString ProjectConfiguration::expandedDisplayName() const
 {
-    return m_target->macroExpander()->expand(m_displayName.value());
+    return macroExpander()->expand(m_displayName.value());
 }
