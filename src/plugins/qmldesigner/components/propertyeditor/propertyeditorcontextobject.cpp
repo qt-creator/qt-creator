@@ -191,18 +191,15 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
 
     QTC_ASSERT(!rewriterView->selectedModelNodes().isEmpty(), return);
 
-    try {
-        auto transaction = RewriterTransaction(rewriterView, "PropertyEditorContextObject:changeTypeName");
-
-        ModelNode selectedNode = rewriterView->selectedModelNodes().constFirst();
-
+    auto changeNodeTypeName = [&](ModelNode &selectedNode) {
         // Check if the requested type is the same as already set
         if (selectedNode.simplifiedTypeName() == typeName)
             return;
 
         NodeMetaInfo metaInfo = m_model->metaInfo(typeName.toLatin1());
         if (!metaInfo.isValid()) {
-            Core::AsynchronousMessageBox::warning(tr("Invalid Type"), tr("%1 is an invalid type.").arg(typeName));
+            Core::AsynchronousMessageBox::warning(tr("Invalid Type"),
+                                                  tr("%1 is an invalid type.").arg(typeName));
             return;
         }
 
@@ -210,7 +207,9 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
         auto propertiesAndSignals = Utils::transform<PropertyNameList>(
             PropertyEditorUtils::filteredProperties(metaInfo), &PropertyMetaInfo::name);
         // Add signals to the list
-        for (const auto &signal : metaInfo.signalNames()) {
+
+        const PropertyNameList &signalNames = metaInfo.signalNames();
+        for (const PropertyName &signal : signalNames) {
             if (signal.isEmpty())
                 continue;
 
@@ -222,7 +221,8 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
         }
 
         // Add dynamic properties and respective change signals
-        for (const auto &property : selectedNode.properties()) {
+        const QList<AbstractProperty> &nodeProperties = selectedNode.properties();
+        for (const AbstractProperty &property : nodeProperties) {
             if (!property.isDynamic())
                 continue;
 
@@ -239,7 +239,7 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
 
         // Compare current properties and signals with the once available for change type
         QList<PropertyName> incompatibleProperties;
-        for (const auto &property : selectedNode.properties()) {
+        for (const AbstractProperty &property : nodeProperties) {
             if (!propertiesAndSignals.contains(property.name()))
                 incompatibleProperties.append(property.name().toByteArray());
         }
@@ -259,11 +259,11 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
             msgBox.setTextFormat(Qt::RichText);
             msgBox.setIcon(QMessageBox::Question);
             msgBox.setWindowTitle("Change Type");
-            msgBox.setText(QString("Changing the type from %1 to %2 can't be done without removing incompatible properties.<br><br>%3")
-                                   .arg(selectedNode.simplifiedTypeName())
-                                   .arg(typeName)
-                                   .arg(detailedText));
-            msgBox.setInformativeText("Do you want to continue by removing incompatible properties?");
+            msgBox.setText(QString("Changing the type from %1 to %2 can't be done without removing "
+                                   "incompatible properties.<br><br>%3")
+                               .arg(selectedNode.simplifiedTypeName(), typeName, detailedText));
+            msgBox.setInformativeText(
+                "Do you want to continue by removing incompatible properties?");
             msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
             msgBox.setDefaultButton(QMessageBox::Ok);
 
@@ -281,10 +281,23 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
             selectedNode.changeType(typeName.toUtf8(), -1, -1);
 #else
         if (selectedNode.isRootNode())
-            rewriterView->changeRootNodeType(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
+            rewriterView->changeRootNodeType(metaInfo.typeName(),
+                                             metaInfo.majorVersion(),
+                                             metaInfo.minorVersion());
         else
-            selectedNode.changeType(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
+            selectedNode.changeType(metaInfo.typeName(),
+                                    metaInfo.majorVersion(),
+                                    metaInfo.minorVersion());
 #endif
+    };
+
+    try {
+        auto transaction = RewriterTransaction(rewriterView, "PropertyEditorContextObject:changeTypeName");
+
+        ModelNodes selectedNodes = rewriterView->selectedModelNodes(); // TODO: replace it by PropertyEditorView::currentNodes()
+        for (ModelNode &selectedNode : selectedNodes)
+            changeNodeTypeName(selectedNode);
+
         transaction.commit();
     } catch (const Exception &e) {
         e.showException();

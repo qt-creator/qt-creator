@@ -44,7 +44,6 @@ Rectangle {
         image.source = "image://nodeInstance/preview"
     }
 
-
     Connections {
         target: root.backend
 

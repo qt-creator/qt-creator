@@ -135,6 +135,18 @@ void PropertyEditorView::changeValue(const QString &name)
         return;
     }
 
+    if (propertyName == "objectName" && currentNodes().size() == 1) {
+        if (activeNode().metaInfo().isQtQuick3DMaterial()
+            || activeNode().metaInfo().isQtQuick3DTexture()) {
+            PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(
+                "objectName");
+            const QString &newObjectName = value->value().toString();
+            QmlObjectNode objectNode(activeNode());
+            objectNode.setNameAndId(newObjectName, QString::fromLatin1(activeNode().type()));
+            return;
+        }
+    }
+
     PropertyName underscoreName(propertyName);
     underscoreName.replace('.', '_');
     PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(QString::fromLatin1(underscoreName));

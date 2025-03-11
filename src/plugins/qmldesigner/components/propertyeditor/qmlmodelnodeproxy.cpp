@@ -80,6 +80,17 @@ QString QmlModelNodeProxy::nodeId() const
     return m_qmlObjectNode.id();
 }
 
+QString QmlModelNodeProxy::nodeObjectName() const
+{
+    if (!m_qmlObjectNode.isValid())
+        return {};
+
+    if (multiSelection())
+        return tr("multiselection");
+
+    return m_qmlObjectNode.modelNode().variantProperty("objectName").value().toString();
+}
+
 QString QmlModelNodeProxy::simplifiedTypeName() const
 {
     if (!m_qmlObjectNode.isValid())

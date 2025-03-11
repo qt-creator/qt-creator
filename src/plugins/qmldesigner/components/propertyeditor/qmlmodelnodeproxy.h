@@ -38,6 +38,8 @@ public:
 
     QString nodeId() const;
 
+    QString nodeObjectName() const;
+
     QString simplifiedTypeName() const;
 
     Q_INVOKABLE QList<int> allChildren(int internalId = -1) const;

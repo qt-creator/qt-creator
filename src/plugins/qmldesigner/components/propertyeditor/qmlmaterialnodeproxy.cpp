@@ -16,6 +16,19 @@ namespace QmlDesigner {
 
 using namespace Qt::StringLiterals;
 
+static bool allMaterialTypesAre(const ModelNodes &materials, const QString &materialType)
+{
+    if (materials.isEmpty())
+        return false;
+
+    for (const ModelNode &material : materials) {
+        if (material.simplifiedTypeName() != materialType)
+            return false;
+    }
+
+    return true;
+}
+
 QmlMaterialNodeProxy::QmlMaterialNodeProxy()
     : QObject()
     , m_previewUpdateTimer(this)
@@ -62,9 +75,27 @@ void QmlMaterialNodeProxy::updatePossibleTypes()
         "SpecularGlossyMaterial",
     };
 
+    if (!materialNode()) {
+        setPossibleTypes({});
+        return;
+    }
+
     const QString &matType = materialNode().simplifiedTypeName();
-    setPossibleTypes(basicTypes.contains(matType) ? basicTypes : QStringList{matType});
-    setCurrentType(matType);
+    const ModelNodes selectedNodes = materialView()->selectedModelNodes(); // TODO: replace it by PropertyEditorView::currentNodes()
+    bool allAreBasic = Utils::allOf(selectedNodes, [&](const ModelNode &node) {
+        return basicTypes.contains(node.simplifiedTypeName());
+    });
+
+    if (allAreBasic) {
+        setPossibleTypes(basicTypes);
+        setCurrentType(matType);
+    } else if (allMaterialTypesAre(selectedNodes, matType)) {
+        setPossibleTypes(QStringList{matType});
+        setCurrentType(matType);
+    } else {
+        setPossibleTypes(QStringList{"multiselection"});
+        setCurrentType("multiselection");
+    }
 }
 
 void QmlMaterialNodeProxy::setCurrentType(const QString &type)

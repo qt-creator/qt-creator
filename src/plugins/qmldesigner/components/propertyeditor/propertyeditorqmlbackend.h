@@ -113,6 +113,10 @@ private:
                                   const NodeMetaInfo &type);
     void createPropertyEditorValues(const QmlObjectNode &qmlObjectNode, PropertyEditorView *propertyEditor);
 
+    PropertyEditorValue *insertValue(const QString &name,
+                                     const QVariant &value = {},
+                                     const ModelNode &modelNode = {});
+
     static QUrl fileToUrl(const QString &filePath);
     static QString fileFromUrl(const QUrl &url);
 #ifndef QDS_USE_PROJECTSTORAGE
