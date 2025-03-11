@@ -8,7 +8,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
-#include <QMutex>
+#include <utils/synchronizedvalue.h>
 
 namespace Docker::Internal {
 
@@ -49,7 +49,7 @@ public:
 
     Utils::expected_str<Utils::Environment> systemEnvironmentWithError() const override;
 
-    Utils::expected_str<void> updateContainerAccess() const;
+    Utils::Result updateContainerAccess() const;
     void setMounts(const QStringList &mounts) const;
 
     bool prepareForBuild(const ProjectExplorer::Target *target) override;
@@ -92,8 +92,7 @@ public:
     void shutdownExistingDevices();
 
 private:
-    QMutex m_deviceListMutex;
-    std::vector<std::weak_ptr<DockerDevice>> m_existingDevices;
+    Utils::SynchronizedValue<std::vector<std::weak_ptr<DockerDevice>>> m_existingDevices;
 };
 
 } // namespace Docker::Internal

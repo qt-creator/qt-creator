@@ -820,6 +820,11 @@ void Widget::setMinimumWidth(int minw)
     access(this)->setMinimumWidth(minw);
 }
 
+void Widget::setMinimumHeight(int height)
+{
+    access(this)->setMinimumHeight(height);
+}
+
 void Widget::setSizePolicy(const QSizePolicy &policy)
 {
     access(this)->setSizePolicy(policy);
@@ -1109,6 +1114,11 @@ MarkdownBrowser::MarkdownBrowser(std::initializer_list<I> ps)
     apply(this, ps);
 }
 
+QString MarkdownBrowser::toMarkdown() const
+{
+    return access(this)->toMarkdown();
+}
+
 void MarkdownBrowser::setMarkdown(const QString &markdown)
 {
     access(this)->setMarkdown(markdown);
@@ -1117,6 +1127,11 @@ void MarkdownBrowser::setMarkdown(const QString &markdown)
 void MarkdownBrowser::setBasePath(const Utils::FilePath &path)
 {
     access(this)->setBasePath(path);
+}
+
+void MarkdownBrowser::setEnableCodeCopyButton(bool enable)
+{
+    access(this)->setEnableCodeCopyButton(enable);
 }
 
 // Special If
@@ -1243,11 +1258,6 @@ void LineEdit::setPlaceHolderText(const QString &text)
 void LineEdit::setCompleter(QCompleter *completer)
 {
     access(this)->setSpecialCompleter(completer);
-}
-
-void LineEdit::setMinimumHeight(int height)
-{
-    access(this)->setMinimumHeight(height);
 }
 
 void LineEdit::onReturnPressed(QObject *guard, const std::function<void()> &func)

@@ -115,6 +115,10 @@ bool NameValueItemsWidget::editVariable(const QString &name, Selection selection
             }
         };
         skipWhiteSpace();
+        if (offset < line.length() && line.at(offset) == '#') {
+            ++offset;
+            skipWhiteSpace();
+        }
         if (line.mid(offset, name.size()) != name)
             continue;
         offset += name.size();

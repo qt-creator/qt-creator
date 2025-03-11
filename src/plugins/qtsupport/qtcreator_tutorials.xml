@@ -199,63 +199,63 @@
         <entry name="category">Learning - dig deeper</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtc.webp" difficulty="" projectPath="" name="Introduction to Qt Widgets: Part 5" docUrl="https://academy.qt.io/catalog/courses/4150028">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtwi5.webp" difficulty="" projectPath="" name="Introduction to Qt Widgets: Part 5" docUrl="https://academy.qt.io/catalog/courses/4150028">
       <description><![CDATA[Learn about Qt Widgets. This is the fifth part of the course.]]></description>
       <tags>qt,widgets,2025</tags>
       <meta>
         <entry name="category">Learning - dig deeper</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtc.webp" difficulty="" projectPath="" name="QML integration basics" docUrl="https://academy.qt.io/catalog/courses/3957517">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qmlib.webp" difficulty="" projectPath="" name="QML integration basics" docUrl="https://academy.qt.io/catalog/courses/3957517">
       <description><![CDATA[Learn about integrating C++ with QML to create Qt applications.]]></description>
       <tags>qt,c++,qml,2024</tags>
       <meta>
         <entry name="category">Learning - dig deeper</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtc.webp" difficulty="" projectPath="" name="QML integration intermediate" docUrl="https://academy.qt.io/catalog/courses/4052985">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qmlii.webp" difficulty="" projectPath="" name="QML integration intermediate" docUrl="https://academy.qt.io/catalog/courses/4052985">
       <description><![CDATA[Deepen your understanding of integrating C++ with QML.]]></description>
       <tags>qt,c++,qml,2024</tags>
       <meta>
         <entry name="category">Learning - dig deeper</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtc.webp" difficulty="" projectPath="" name="QML best practices" docUrl="https://academy.qt.io/catalog/courses/4192694">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qmlbp.webp" difficulty="" projectPath="" name="QML best practices" docUrl="https://academy.qt.io/catalog/courses/4192694">
       <description><![CDATA[Dive into the essential best practices for writing robust, maintainable, high-performance QML code.]]></description>
       <tags>qt,qml,2024</tags>
       <meta>
         <entry name="category">Learning - dig deeper</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtc.webp" difficulty="" projectPath="" name="Model View Delegate with QML" docUrl="https://academy.qt.io/catalog/courses/4121326">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-modvd.webp" difficulty="" projectPath="" name="Model View Delegate with QML" docUrl="https://academy.qt.io/catalog/courses/4121326">
       <description><![CDATA[Explore the Model View Delegate pattern within QML and the Qt framework.]]></description>
       <tags>qt,qml,model,2024</tags>
       <meta>
         <entry name="category">Learning - dig deeper</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtc.webp" difficulty="" projectPath="" name="Model and Views in Qt Quick" docUrl="https://academy.qt.io/catalog/courses/4209352">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-modvq.webp" difficulty="" projectPath="" name="Model and Views in Qt Quick" docUrl="https://academy.qt.io/catalog/courses/4209352">
       <description><![CDATA[Learn about the most used QML model types, views and how to interact with them.]]></description>
       <tags>qt,qml,model,view,2024</tags>
       <meta>
         <entry name="category">Learning - dig deeper</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtc.webp" difficulty="" projectPath="" name="Migrating to Qt Graphs" docUrl="https://academy.qt.io/catalog/courses/4192219">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-graph.webp" difficulty="" projectPath="" name="Migrating to Qt Graphs" docUrl="https://academy.qt.io/catalog/courses/4192219">
       <description><![CDATA[Learn how to migrate applications from the Qt DataVisualization Module to the Qt Graphs Module.]]></description>
       <tags>qt,data visualization,graphs,2024</tags>
       <meta>
         <entry name="category">Learning - dig deeper</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtc.webp" difficulty="" projectPath="" name="Responsive Layouts" docUrl="https://academy.qt.io/catalog/courses/4108253">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-resla.webp" difficulty="" projectPath="" name="Responsive Layouts" docUrl="https://academy.qt.io/catalog/courses/4108253">
       <description><![CDATA[Learn about implementing responsive layouts in QML using Proxy Layouts.]]></description>
       <tags>qt,qml,layouts,2024</tags>
       <meta>
         <entry name="category">Learning - dig deeper</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/learn-qtc.webp" difficulty="" projectPath="" name="Multithreading" docUrl="https://academy.qt.io/catalog/courses/4104439">
+    <tutorial imageUrl=":qtsupport/images/icons/learn-multh.webp" difficulty="" projectPath="" name="Multithreading" docUrl="https://academy.qt.io/catalog/courses/4104439">
       <description><![CDATA[Learn about multithreading concepts and basic concurrency within the context of building GUI applications with Qt.]]></description>
       <tags>qt,multithreading,2024</tags>
       <meta>

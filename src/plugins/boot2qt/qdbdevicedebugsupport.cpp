@@ -124,6 +124,7 @@ public:
             rp.setUseContinueInsteadOfRun(true);
             rp.setContinueAfterAttach(true);
             rp.addSolibSearchDir("%{sysroot}/system/lib");
+            rp.setSkipDebugServer(true);
 
             auto debuggee = createQdbDeviceInferiorWorker(runControl, QmlDebuggerServices);
             worker->addStartDependency(debuggee);

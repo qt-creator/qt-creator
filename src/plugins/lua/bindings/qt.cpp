@@ -16,19 +16,28 @@
 #include <QFontMetrics>
 #include <QStandardPaths>
 
+using namespace std::string_view_literals;
+
 namespace Lua::Internal {
 
 void setupQtModule()
 {
     registerProvider("Qt", [](sol::state_view lua) {
         sol::table qt(lua, sol::create);
-        const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
+        const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec"sv);
 
         qt.new_usertype<QCompleter>(
             "QCompleter",
             "create",
-            [](const QStringList &list) -> std::unique_ptr<QCompleter> {
-                return std::make_unique<QCompleter>(list);
+            [](const QStringList &list) -> QCompleter* {
+                return new QCompleter(list);
+            },
+            sol::meta_function::garbage_collect, [](QCompleter *self) {
+                // If the user never parented this QCompleter to any QObject,
+                // then we own it, so let's delete it to avoid a memory leak.
+                if (!self->parent()) {
+                    self->deleteLater();
+                }
             },
             "currentCompletion",
             &QCompleter::currentCompletion,

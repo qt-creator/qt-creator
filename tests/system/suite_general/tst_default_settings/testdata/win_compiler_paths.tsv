@@ -29,3 +29,6 @@
 "ProgramFiles(x86)"	"Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build"	"vcvarsall.bat"	"Microsoft Visual C\+\+ Compiler 15[.0-9]+"	"x86,amd64_x86,amd64,x86_amd64"	"x86,amd64_x86,amd64,x86_amd64"	"false"	""
 "ProgramFiles(x86)"	"Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build"	"vcvarsall.bat"	"Microsoft Visual C\+\+ Compiler 16[.0-9]+"	"x86,amd64_x86,amd64,x86_amd64"	"x86,amd64_x86,amd64,x86_amd64"	"false"	""
 "ProgramFiles"	"Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build"	"vcvarsall.bat"	"Microsoft Visual C\+\+ Compiler 17[.0-9]+"	"x86,amd64_x86,amd64,x86_amd64"	"x86,amd64_x86,amd64,x86_amd64"	"false"	""
+"ProgramFiles(x86)"	"Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build"	"vcvarsall.bat"	"Visual Studio Community 2017 15[.0-9]+"	"x86,amd64_x86,amd64,x86_amd64"	"x86,amd64_x86,amd64,x86_amd64"	"false"	""
+"ProgramFiles(x86)"	"Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build"	"vcvarsall.bat"	"Visual Studio Community 2019 16[.0-9]+"	"x86,amd64_x86,amd64,x86_amd64"	"x86,amd64_x86,amd64,x86_amd64"	"false"	""
+"ProgramFiles"	"Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build"	"vcvarsall.bat"	"Visual Studio Community 2022 17[.0-9]+"	"x86,amd64_x86,amd64,x86_amd64"	"x86,amd64_x86,amd64,x86_amd64"	"false"	""

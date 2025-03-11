@@ -413,6 +413,12 @@ static QString determineSessionToRestoreAtStartup()
     return {};
 }
 
+bool SessionManager::loadsSessionOrFileAtStartup()
+{
+    // "left-over arguments" usually mean a session or files
+    return !PluginManager::arguments().isEmpty() || !determineSessionToRestoreAtStartup().isEmpty();
+}
+
 void SessionManagerPrivate::restoreStartupSession()
 {
     NANOTRACE_SCOPE("Core", "SessionManagerPrivate::restoreStartupSession");

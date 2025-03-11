@@ -674,13 +674,7 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
 
 void LanguageClientManager::documentClosed(Core::IDocument *document)
 {
-    if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document)) {
-        openDocumentWithClient(textDocument, nullptr);
-        for (auto client : std::as_const(managerInstance->m_clients)) {
-            if (client->documentOpen(textDocument))
-                client->closeDocument(textDocument);
-        }
-    }
+    openDocumentWithClient(qobject_cast<TextEditor::TextDocument *>(document), nullptr);
 }
 
 void LanguageClientManager::updateProject(ProjectExplorer::Project *project)

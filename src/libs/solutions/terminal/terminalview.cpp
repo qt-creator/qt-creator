@@ -966,12 +966,6 @@ void TerminalView::keyPressEvent(QKeyEvent *event)
                 verticalScrollBar()->value() - d->m_surface->liveSize().height(),
                 verticalScrollBar()->maximum()));
             break;
-        case Qt::Key_End:
-            verticalScrollBar()->setValue(verticalScrollBar()->maximum());
-            break;
-        case Qt::Key_Home:
-            verticalScrollBar()->setValue(0);
-            break;
         default:
             if (event->key() < Qt::Key_Shift || event->key() > Qt::Key_ScrollLock)
                 verticalScrollBar()->setValue(verticalScrollBar()->maximum());
@@ -1015,8 +1009,10 @@ void TerminalView::applySizeChange()
 void TerminalView::updateScrollBars()
 {
     int scrollSize = d->m_surface->fullSize().height() - d->m_surface->liveSize().height();
+    const bool shouldScroll = verticalScrollBar()->value() == verticalScrollBar()->maximum();
     verticalScrollBar()->setRange(0, scrollSize);
-    verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+    if (shouldScroll)
+        verticalScrollBar()->setValue(verticalScrollBar()->maximum());
     updateViewport();
 }
 
@@ -1110,6 +1106,11 @@ void TerminalView::focusOutEvent(QFocusEvent *)
 
 void TerminalView::inputMethodEvent(QInputMethodEvent *event)
 {
+    // Gnome sends empty events when switching virtual desktops, so ignore those.
+    if (event->commitString().isEmpty() && event->preeditString().isEmpty()
+        && event->attributes().empty() && d->m_preEditString.isEmpty())
+        return;
+
     verticalScrollBar()->setValue(verticalScrollBar()->maximum());
 
     d->m_preEditString = event->preeditString();

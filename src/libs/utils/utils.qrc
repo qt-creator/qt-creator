@@ -295,4 +295,8 @@
         <file>images/classrelationbackground.png</file>
         <file>images/classrelationbackground@2x.png</file>
     </qresource>
+    <qresource prefix="/markdownbrowser">
+        <file>images/code_copy_square.png</file>
+        <file>images/code_copy_square@2x.png</file>
+    </qresource>
 </RCC>

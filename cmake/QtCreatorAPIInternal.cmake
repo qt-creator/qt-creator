@@ -77,7 +77,7 @@ elseif(WIN32)
   set(_IDE_CMAKE_INSTALL_PATH "lib/cmake")
 else ()
   # Small hack to silence a warning in the stable branch - but it means the value is incorrect
-  if (NOT CMAKE_LIBRARY_ARCHITECTURE)
+  if (NOT CMAKE_LIBRARY_ARCHITECTURE AND NOT CMAKE_INSTALL_LIBDIR)
     set(CMAKE_INSTALL_LIBDIR "lib")
   endif()
   include(GNUInstallDirs)

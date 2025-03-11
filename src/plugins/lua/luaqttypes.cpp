@@ -9,6 +9,8 @@
 #include <QSize>
 #include <QString>
 
+using namespace std::string_view_literals;
+
 // This defines the conversion from QString to lua_string and vice versa
 bool sol_lua_check(sol::types<QString>,
                    lua_State *L,
@@ -48,10 +50,10 @@ QRect sol_lua_get(sol::types<QRect>, lua_State *L, int index, sol::stack::record
     switch (table.size()) {
     case 0:
         return QRect(
-            table.get<int>("x"),
-            table.get<int>("y"),
-            table.get<int>("width"),
-            table.get<int>("height"));
+            table.get<int>("x"sv),
+            table.get<int>("y"sv),
+            table.get<int>("width"sv),
+            table.get<int>("height"sv));
     case 2:
         return QRect(table.get<QPoint>(1), table.get<QSize>(2));
     case 4:
@@ -87,10 +89,10 @@ QMargins sol_lua_get(sol::types<QMargins>, lua_State *L, int index, sol::stack::
     switch (table.size()) {
     case 0:
         return QMargins(
-            table.get<int>("left"),
-            table.get<int>("top"),
-            table.get<int>("right"),
-            table.get<int>("bottom"));
+            table.get<int>("left"sv),
+            table.get<int>("top"sv),
+            table.get<int>("right"sv),
+            table.get<int>("bottom"sv));
     case 4:
         return QMargins(table.get<int>(1), table.get<int>(2), table.get<int>(3), table.get<int>(4));
     default:
@@ -123,7 +125,7 @@ QSize sol_lua_get(sol::types<QSize>, lua_State *L, int index, sol::stack::record
     const sol::table table = sol::stack::get<sol::table>(L, index, tracking);
     switch (table.size()) {
     case 0:
-        return QSize(table.get<int>("width"), table.get<int>("height"));
+        return QSize(table.get<int>("width"), table.get<int>("height"sv));
     case 2:
         return QSize(table.get<int>(1), table.get<int>(2));
     default:
@@ -152,7 +154,7 @@ QPoint sol_lua_get(sol::types<QPoint>, lua_State *L, int index, sol::stack::reco
     const sol::table table = sol::stack::get<sol::table>(L, index, tracking);
     switch (table.size()) {
     case 0:
-        return QPoint(table.get<int>("x"), table.get<int>("y"));
+        return QPoint(table.get<int>("x"), table.get<int>("y"sv));
     case 2:
         return QPoint(table.get<int>(1), table.get<int>(2));
     default:
@@ -183,10 +185,10 @@ QRectF sol_lua_get(sol::types<QRectF>, lua_State *L, int index, sol::stack::reco
     switch (table.size()) {
     case 0:
         return QRectF(
-            table.get<qreal>("x"),
-            table.get<qreal>("y"),
-            table.get<qreal>("width"),
-            table.get<qreal>("height"));
+            table.get<qreal>("x"sv),
+            table.get<qreal>("y"sv),
+            table.get<qreal>("width"sv),
+            table.get<qreal>("height"sv));
     case 2:
         return QRectF(table.get<QPointF>(1), table.get<QSizeF>(2));
     case 4:
@@ -222,10 +224,10 @@ QMarginsF sol_lua_get(sol::types<QMarginsF>, lua_State *L, int index, sol::stack
     switch (table.size()) {
     case 0:
         return QMarginsF(
-            table.get<qreal>("left"),
-            table.get<qreal>("top"),
-            table.get<qreal>("right"),
-            table.get<qreal>("bottom"));
+            table.get<qreal>("left"sv),
+            table.get<qreal>("top"sv),
+            table.get<qreal>("right"sv),
+            table.get<qreal>("bottom"sv));
     case 4:
         return QMarginsF(
             table.get<qreal>(1), table.get<qreal>(2), table.get<qreal>(3), table.get<qreal>(4));
@@ -258,7 +260,7 @@ QSizeF sol_lua_get(sol::types<QSizeF>, lua_State *L, int index, sol::stack::reco
     const sol::table table = sol::stack::get<sol::table>(L, index, tracking);
     switch (table.size()) {
     case 0:
-        return QSizeF(table.get<qreal>("width"), table.get<qreal>("height"));
+        return QSizeF(table.get<qreal>("width"), table.get<qreal>("height"sv));
     case 2:
         return QSizeF(table.get<qreal>(1), table.get<qreal>(2));
     default:
@@ -287,7 +289,7 @@ QPointF sol_lua_get(sol::types<QPointF>, lua_State *L, int index, sol::stack::re
     const sol::table table = sol::stack::get<sol::table>(L, index, tracking);
     switch (table.size()) {
     case 0:
-        return QPointF(table.get<qreal>("x"), table.get<qreal>("y"));
+        return QPointF(table.get<qreal>("x"), table.get<qreal>("y"sv));
     case 2:
         return QPointF(table.get<qreal>(1), table.get<qreal>(2));
     default:
@@ -317,10 +319,10 @@ QColor sol_lua_get(sol::types<QColor>, lua_State *L, int index, sol::stack::reco
     switch (table.size()) {
     case 0:
         return QColor(
-            table.get<int>("red"),
-            table.get<int>("green"),
-            table.get<int>("blue"),
-            table.get<int>("alpha"));
+            table.get<int>("red"sv),
+            table.get<int>("green"sv),
+            table.get<int>("blue"sv),
+            table.get<int>("alpha"sv));
     case 4:
         return QColor(table.get<int>(1), table.get<int>(2), table.get<int>(3), table.get<int>(4));
     default:

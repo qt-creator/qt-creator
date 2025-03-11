@@ -25,6 +25,7 @@ public:
     MarkdownBrowser(QWidget *parent = nullptr);
 
     void setMarkdown(const QString &markdown);
+    QString toMarkdown() const;
     void setBasePath(const FilePath &filePath);
     void setAllowRemoteImages(bool allow);
     void setNetworkAccessManager(QNetworkAccessManager *nam);
@@ -35,12 +36,17 @@ public:
     QSize minimumSizeHint() const override;
 
     void setMargins(const QMargins &margins);
+    void setEnableCodeCopyButton(bool enable);
 
 protected:
     void changeEvent(QEvent *event) override;
 
 private:
+    void handleAnchorClicked(const QUrl &link);
     void postProcessDocument(bool firstTime) const;
+
+private:
+    bool m_enableCodeCopyButton;
 };
 
 } // namespace Utils

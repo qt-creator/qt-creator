@@ -136,7 +136,7 @@ NimbleBuildSystem::NimbleBuildSystem(BuildConfiguration *bc)
         // Workaround for nimble creating temporary files in project root directory
         // when querying the list of tasks.
         // See https://github.com/nim-lang/nimble/issues/720
-        if (directory != projectDirectory().toUrlishString())
+        if (FilePath::fromString(directory) != projectDirectory())
             requestDelayedParse();
     });
 

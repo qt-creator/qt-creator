@@ -11,9 +11,11 @@
 #include <utils/layoutbuilder.h>
 
 #include <QMetaEnum>
+#include <QCompleter>
 
 using namespace Layouting;
 using namespace Utils;
+using namespace std::string_view_literals;
 
 namespace Lua::Internal {
 
@@ -67,8 +69,8 @@ static std::unique_ptr<T> construct(const sol::table &children)
 template<class T>
 void constructWidget(std::unique_ptr<T> &widget, const sol::table &children)
 {
-    widget->setWindowTitle(children.get_or<QString>("windowTitle", ""));
-    widget->setToolTip(children.get_or<QString>("toolTip", ""));
+    widget->setWindowTitle(children.get_or<QString>("windowTitle"sv, ""));
+    widget->setToolTip(children.get_or<QString>("toolTip"sv, ""));
 
     for (size_t i = 1; i <= children.size(); ++i) {
         const auto &child = children[i];
@@ -115,91 +117,100 @@ CREATE_HAS_FUNC(setIcon, Utils::Icon());
 CREATE_HAS_FUNC(setContentsMargins, int(), int(), int(), int());
 CREATE_HAS_FUNC(setCursor, Qt::CursorShape())
 CREATE_HAS_FUNC(setMinimumWidth, int());
+CREATE_HAS_FUNC(setEnableCodeCopyButton, bool());
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
 {
     if constexpr (has_setContentsMargins<T>) {
-        sol::optional<QMargins> margins = children.get<sol::optional<QMargins>>("contentMargins");
+        sol::optional<QMargins> margins = children.get<sol::optional<QMargins>>("contentMargins"sv);
         if (margins)
             item->setContentsMargins(margins->left(), margins->top(), margins->right(), margins->bottom());
     }
 
     if constexpr (has_setCursor<T>) {
-        const auto cursor = children.get<sol::optional<Qt::CursorShape>>("cursor");
+        const auto cursor = children.get<sol::optional<Qt::CursorShape>>("cursor"sv);
         if (cursor)
             item->setCursor(*cursor);
     }
 
     if constexpr (has_setMinimumWidth<T>) {
-        const auto minw = children.get<sol::optional<int>>("minimumWidth");
+        const auto minw = children.get<sol::optional<int>>("minimumWidth"sv);
         if (minw)
             item->setMinimumWidth(*minw);
     }
 
+    if constexpr (has_setEnableCodeCopyButton<T>) {
+        const auto enableCodeCopyButton = children.get<sol::optional<bool>>("enableCodeCopyButton");
+        if (enableCodeCopyButton)
+            item->setEnableCodeCopyButton(*enableCodeCopyButton);
+    }
+
     if constexpr (has_setVisible<T>) {
-        const auto visible = children.get<sol::optional<bool>>("visible");
+        const auto visible = children.get<sol::optional<bool>>("visible"sv);
         if (visible)
             item->setVisible(*visible);
     }
 
     if constexpr (has_setIcon<T>) {
-        const auto icon = children.get<sol::optional<IconFilePathOrString>>("icon");
+        const auto icon = children.get<sol::optional<IconFilePathOrString>>("icon"sv);
         if (icon)
             item->setIcon(*toIcon(*icon));
     }
 
     if constexpr (has_setTextInteractionFlags<T>) {
-        const auto interactionFlags = children.get<sol::optional<sol::table>>("interactionFlags");
+        const auto interactionFlags = children.get<sol::optional<sol::table>>("interactionFlags"sv);
         if (interactionFlags) {
             item->setTextInteractionFlags(tableToFlags<Qt::TextInteractionFlag>(*interactionFlags));
         }
     }
 
     if constexpr (has_setFixedSize<T>) {
-        sol::optional<QSize> size = children.get<sol::optional<QSize>>("fixedSize");
+        sol::optional<QSize> size = children.get<sol::optional<QSize>>("fixedSize"sv);
         if (size)
             item->setFixedSize(*size);
     }
 
     if constexpr (has_setWordWrap<T>) {
-        const auto wrap = children.get<sol::optional<bool>>("wordWrap");
+        const auto wrap = children.get<sol::optional<bool>>("wordWrap"sv);
         if (wrap)
             item->setWordWrap(*wrap);
     }
 
     if constexpr (has_setTextFormat<T>) {
-        const auto format = children.get<sol::optional<Qt::TextFormat>>("textFormat");
+        const auto format = children.get<sol::optional<Qt::TextFormat>>("textFormat"sv);
         if (format)
             item->setTextFormat(*format);
     }
 
     if constexpr (has_setRightSideIconPath<T>) {
-        const auto path = children.get<sol::optional<Utils::FilePath>>("rightSideIconPath");
+        const auto path = children.get<sol::optional<Utils::FilePath>>("rightSideIconPath"sv);
         if (path)
             item->setRightSideIconPath(*path);
     }
 
     if constexpr (has_setPlaceHolderText<T>) {
-        const auto text = children.get<sol::optional<QString>>("placeHolderText");
+        const auto text = children.get<sol::optional<QString>>("placeHolderText"sv);
         if (text)
             item->setPlaceHolderText(*text);
     }
 
     if constexpr (has_setCompleter<T>) {
-        const auto completer = children.get<QCompleter *>("completer");
-        if (completer)
+        const auto completer = children.get<QCompleter *>("completer"sv);
+        if (completer) {
             item->setCompleter(completer);
+            completer->setParent(item->emerge());
+        }
     }
 
     if constexpr (has_setMinimumHeight<T>) {
-        const auto minHeight = children.get<sol::optional<int>>("minimumHeight");
+        const auto minHeight = children.get<sol::optional<int>>("minimumHeight"sv);
         if (minHeight)
             item->setMinimumHeight(*minHeight);
     }
 
     if constexpr (has_onReturnPressed<T>) {
-        const auto callback = children.get<sol::optional<sol::main_function>>("onReturnPressed");
+        const auto callback = children.get<sol::optional<sol::main_function>>("onReturnPressed"sv);
         if (callback) {
             item->onReturnPressed(guard, [func = *callback]() { void_safe_call(func); });
         }
@@ -213,19 +224,19 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
     }
 
     if constexpr (has_setFlat<T>) {
-        const auto flat = children.get<sol::optional<bool>>("flat");
+        const auto flat = children.get<sol::optional<bool>>("flat"sv);
         if (flat)
             item->setFlat(*flat);
     }
 
     if constexpr (has_setIconPath<T>) {
-        const auto iconPath = children.get<sol::optional<FilePath>>("iconPath");
+        const auto iconPath = children.get<sol::optional<FilePath>>("iconPath"sv);
         if (iconPath)
             item->setIconPath(*iconPath);
     }
 
     if constexpr (has_setIconSize<T>) {
-        const auto iconSize = children.get<sol::optional<QSize>>("iconSize");
+        const auto iconSize = children.get<sol::optional<QSize>>("iconSize"sv);
         if (iconSize)
             item->setIconSize(*iconSize);
     }
@@ -242,7 +253,7 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
     }
 
     if constexpr (has_setSize<T>) {
-        sol::optional<QSize> size = children.get<sol::optional<QSize>>("size");
+        sol::optional<QSize> size = children.get<sol::optional<QSize>>("size"sv);
         if (size)
             item->setSize(size->width(), size->height());
     }
@@ -266,7 +277,7 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
 
     if constexpr (has_onTextChanged<T>) {
         sol::optional<sol::main_function> onTextChanged
-            = children.get<sol::optional<sol::main_function>>("onTextChanged");
+            = children.get<sol::optional<sol::main_function>>("onTextChanged"sv);
         if (onTextChanged) {
             item->onTextChanged(
                 guard,
@@ -278,7 +289,7 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
     }
     if constexpr (has_onClicked<T>) {
         sol::optional<sol::main_function> onClicked
-            = children.get<sol::optional<sol::main_function>>("onClicked");
+            = children.get<sol::optional<sol::main_function>>("onClicked"sv);
         if (onClicked) {
             item->onClicked(
                 guard,
@@ -289,17 +300,17 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         }
     }
     if constexpr (has_setText<T>) {
-        auto text = children.get<sol::optional<QString>>("text");
+        auto text = children.get<sol::optional<QString>>("text"sv);
         if (text)
             item->setText(*text);
     }
     if constexpr (has_setMarkdown<T>) {
-        auto markdown = children.get<sol::optional<QString>>("markdown");
+        auto markdown = children.get<sol::optional<QString>>("markdown"sv);
         if (markdown)
             item->setMarkdown(*markdown);
     }
     if constexpr (has_setSizePolicy<T>) {
-        auto sizePolicy = children.get<sol::optional<sol::table>>("sizePolicy");
+        auto sizePolicy = children.get<sol::optional<sol::table>>("sizePolicy"sv);
         if (sizePolicy) {
             QTC_ASSERT(
                 sizePolicy->size() == 2,
@@ -312,21 +323,21 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         }
     }
     if constexpr (has_setTitle<T>) {
-        item->setTitle(children.get_or<QString>("title", ""));
+        item->setTitle(children.get_or<QString>("title"sv, ""));
     }
     if constexpr (has_setValue<T>) {
-        sol::optional<int> value = children.get<sol::optional<int>>("value");
+        sol::optional<int> value = children.get<sol::optional<int>>("value"sv);
         if (value)
             item->setValue(*value);
     }
     if constexpr (has_setReadOnly<T>) {
-        sol::optional<bool> readOnly = children.get<sol::optional<bool>>("readOnly");
+        sol::optional<bool> readOnly = children.get<sol::optional<bool>>("readOnly"sv);
         if (readOnly)
             item->setReadOnly(*readOnly);
     }
     if constexpr (has_setOpenExternalLinks<T>) {
         sol::optional<bool> openExternalLinks = children.get<sol::optional<bool>>(
-            "openExternalLinks");
+            "openExternalLinks"sv);
         if (openExternalLinks)
             item->setOpenExternalLinks(*openExternalLinks);
     }
@@ -420,7 +431,7 @@ std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
     std::unique_ptr<Splitter> item(new Splitter({}));
     constructWidget(item, children);
 
-    if (const auto &orientation = children.get<sol::optional<QString>>("orientation")) {
+    if (const auto &orientation = children.get<sol::optional<QString>>("orientation"sv)) {
         if (*orientation == "horizontal")
             item->setOrientation(Qt::Horizontal);
         else if (*orientation == "vertical")
@@ -429,7 +440,7 @@ std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
             throw sol::error(QString("Invalid orientation: %1").arg(*orientation).toStdString());
     }
 
-    if (const auto collapsible = children.get<sol::optional<bool>>("collapsible"))
+    if (const auto collapsible = children.get<sol::optional<bool>>("collapsible"sv))
         item->setChildrenCollapsible(*collapsible);
 
     for (size_t i = 1; i <= children.size(); ++i) {
@@ -444,7 +455,7 @@ std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
         }
     }
 
-    if (const auto &stretchFactors = children.get<sol::optional<sol::table>>("stretchFactors")) {
+    if (const auto &stretchFactors = children.get<sol::optional<sol::table>>("stretchFactors"sv)) {
         for (const auto &kv : *stretchFactors) {
             if (kv.second.get_type() != sol::type::number)
                 throw sol::error("Stretch factors must be numbers");
@@ -457,7 +468,7 @@ std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
 void setupGuiModule()
 {
     registerProvider("Gui", [](sol::state_view l) -> sol::object {
-        const ScriptPluginSpec *pluginSpec = l.get<ScriptPluginSpec *>("PluginSpec");
+        const ScriptPluginSpec *pluginSpec = l.get<ScriptPluginSpec *>("PluginSpec"sv);
         QObject *guard = pluginSpec->connectionGuard.get();
 
         sol::table gui = l.create_table();
@@ -545,6 +556,9 @@ void setupGuiModule()
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<Layouting::MarkdownBrowser>(children, guard);
             }),
+            "markdown",
+            sol::property(
+                &Layouting::MarkdownBrowser::toMarkdown, &Layouting::MarkdownBrowser::setMarkdown),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 

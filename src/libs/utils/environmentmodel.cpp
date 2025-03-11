@@ -356,7 +356,7 @@ void EnvironmentModel::toggleVariable(const QModelIndex &idx)
 {
     const QString name = indexToVariable(idx);
     const auto newIt = d->m_resultNameValueDictionary.find(name);
-    QTC_ASSERT(newIt != d->m_resultNameValueDictionary.begin(), return);
+    QTC_ASSERT(newIt != d->m_resultNameValueDictionary.end(), return);
     const auto op = newIt.enabled() ? EnvironmentItem::SetDisabled : EnvironmentItem::SetEnabled;
     const int changesPos = d->findInChanges(name);
     if (changesPos != -1) {

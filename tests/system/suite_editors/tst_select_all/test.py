@@ -18,7 +18,9 @@ def main():
         return
     for currentFile in files:
         test.log("Opening file %s" % currentFile)
-        size = len(stringify(readFile(currentFile)))
+        fileContent = stringify(readFile(currentFile))
+        fileContent = fileContent.replace('\r\n', '\n')
+        size = len(fileContent)
         invokeMenuItem("File", "Open File or Project...")
         selectFromFileDialog(currentFile, True)
         editor = getEditorForFileSuffix(currentFile)
@@ -29,6 +31,7 @@ def main():
         for key in ["<Up>", "<Down>", "<Left>", "<Right>"]:
             test.log("Selecting everything")
             type(editor, "<Home>")
+            mouseClick(editor)
             invokeMenuItem("Edit", "Select All")
             test.verify(waitFor("editor.textCursor().hasSelection()", 500),
                         "verify selecting")

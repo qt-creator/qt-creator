@@ -6,6 +6,8 @@ add_qtc_plugin(Docker
     dockertr.h
     dockerapi.cpp dockerapi.h
     dockerconstants.h
+    dockercontainerthread.cpp
+    dockercontainerthread.h
     dockerdevice.cpp dockerdevice.h
     dockerdevicewidget.cpp dockerdevicewidget.h
     dockerplugin.cpp

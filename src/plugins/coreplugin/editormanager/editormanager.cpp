@@ -1618,7 +1618,8 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
         emit m_instance->editorAboutToClose(editor);
         const DocumentModel::Entry *entry = DocumentModel::entryForDocument(editor->document());
         // If the file is pinned, closing it should remove the editor but keep it in Open Documents.
-        const bool removeSuspendedEntry = !entry->pinned && flag != CloseFlag::Suspend;
+        const bool isPinned = QTC_GUARD(entry) && entry->pinned;
+        const bool removeSuspendedEntry = !isPinned && flag != CloseFlag::Suspend;
         removeEditor(editor, removeSuspendedEntry);
         if (EditorView *view = viewForEditor(editor)) {
             editorsPerView.insert(view, editor);
