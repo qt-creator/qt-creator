@@ -172,58 +172,60 @@ public:
             debugger->addStopDependency(debuggee);
             debuggee->addStopDependency(debugger);
 
-            QObject::connect(debuggee, &RunWorker::started, debugger, [debugger, runControl] {
-                BuildConfiguration *bc = runControl->buildConfiguration();
+            BuildConfiguration *bc = runControl->buildConfiguration();
 
-                const Internal::TargetInformation targetInformation(bc);
-                if (!targetInformation.isValid()) {
-                    debugger->reportFailure(Tr::tr("Cannot debug: Invalid target information."));
-                    return;
+            const Internal::TargetInformation targetInformation(bc);
+            if (!targetInformation.isValid()) {
+                // TODO: reportFailure won't work from RunWorker's c'tor.
+                debugger->reportFailure(Tr::tr("Cannot debug: Invalid target information."));
+                return debugger;
+            }
+
+            FilePath symbolFile;
+
+            if (targetInformation.manifest.isQmlRuntime()) {
+                symbolFile = getToolFilePath(Constants::APPMAN_LAUNCHER_QML,
+                                             runControl->kit(),
+                                             RunDeviceKitAspect::device(runControl->kit()));
+            } else if (targetInformation.manifest.isNativeRuntime()) {
+                symbolFile = Utils::findOrDefault(bc->buildSystem()->applicationTargets(),
+                                                  [&](const BuildTargetInfo &ti) {
+                                                      return ti.buildKey == targetInformation.manifest.code
+                                                             || ti.projectFilePath.toUrlishString() == targetInformation.manifest.code;
+                                                  }).targetFilePath;
+            } else {
+                // TODO: reportFailure won't work from RunWorker's c'tor.
+                debugger->reportFailure(Tr::tr("Cannot debug: Only QML and native applications are supported."));
+                return debugger;
+            }
+            if (symbolFile.isEmpty()) {
+                // TODO: reportFailure won't work from RunWorker's c'tor.
+                debugger->reportFailure(Tr::tr("Cannot debug: Local executable is not set."));
+                return debugger;
+            }
+
+            Debugger::DebuggerRunParameters &rp = debugger->runParameters();
+            rp.setStartMode(Debugger::AttachToRemoteServer);
+            rp.setCloseMode(Debugger::KillAndExitMonitorAtClose);
+
+            if (rp.isCppDebugging()) {
+                rp.setUseExtendedRemote(false);
+                rp.setUseContinueInsteadOfRun(true);
+                rp.setContinueAfterAttach(true);
+                rp.setSymbolFile(symbolFile);
+
+                QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(runControl->kit());
+                if (version) {
+                    rp.setSolibSearchPath(version->qtSoPaths());
+                    rp.addSearchDirectory(version->qmlPath());
                 }
 
-                FilePath symbolFile;
-
-                if (targetInformation.manifest.isQmlRuntime()) {
-                    symbolFile = getToolFilePath(Constants::APPMAN_LAUNCHER_QML,
-                                                 runControl->kit(),
-                                                 RunDeviceKitAspect::device(runControl->kit()));
-                } else if (targetInformation.manifest.isNativeRuntime()) {
-                    symbolFile = Utils::findOrDefault(bc->buildSystem()->applicationTargets(),
-                                                      [&](const BuildTargetInfo &ti) {
-                                                          return ti.buildKey == targetInformation.manifest.code
-                                                                 || ti.projectFilePath.toUrlishString() == targetInformation.manifest.code;
-                                                      }).targetFilePath;
-                } else {
-                    debugger->reportFailure(Tr::tr("Cannot debug: Only QML and native applications are supported."));
-                }
-                if (symbolFile.isEmpty()) {
-                    debugger->reportFailure(Tr::tr("Cannot debug: Local executable is not set."));
-                    return;
-                }
-
-                Debugger::DebuggerRunParameters &rp = debugger->runParameters();
-                rp.setStartMode(Debugger::AttachToRemoteServer);
-                rp.setCloseMode(Debugger::KillAndExitMonitorAtClose);
-
-                if (rp.isCppDebugging()) {
-                    rp.setUseExtendedRemote(false);
-                    rp.setUseContinueInsteadOfRun(true);
-                    rp.setContinueAfterAttach(true);
-                    rp.setSymbolFile(symbolFile);
-
-                    QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(runControl->kit());
-                    if (version) {
-                        rp.setSolibSearchPath(version->qtSoPaths());
-                        rp.addSearchDirectory(version->qmlPath());
-                    }
-
-                    const FilePath sysroot = SysRootKitAspect::sysRoot(runControl->kit());
-                    if (sysroot.isEmpty())
-                        rp.setSysRoot("/");
-                    else
-                        rp.setSysRoot(sysroot);
-                }
-            });
+                const FilePath sysroot = SysRootKitAspect::sysRoot(runControl->kit());
+                if (sysroot.isEmpty())
+                    rp.setSysRoot("/");
+                else
+                    rp.setSysRoot(sysroot);
+            }
 
             return debugger;
         });
