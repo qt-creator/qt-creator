@@ -7,7 +7,6 @@
 #include "buildinfo.h"
 #include "buildmanager.h"
 #include "buildsystem.h"
-#include "buildtargetinfo.h"
 #include "deployconfiguration.h"
 #include "devicesupport/devicekitaspects.h"
 #include "devicesupport/devicemanager.h"
@@ -18,7 +17,6 @@
 #include "projectconfigurationmodel.h"
 #include "projectexplorer.h"
 #include "projectexplorericons.h"
-#include "projectexplorertr.h"
 #include "projectmanager.h"
 #include "runconfiguration.h"
 
@@ -28,9 +26,7 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
-#include <QDebug>
 #include <QIcon>
-#include <QPainter>
 
 using namespace Utils;
 
@@ -44,10 +40,10 @@ const char PLUGIN_SETTINGS_KEY[] = "ProjectExplorer.Target.PluginSettings";
 
 const char HAS_PER_BC_DCS[] = "HasPerBcDcs";
 
-static QString formatDeviceInfo(const ProjectExplorer::IDevice::DeviceInfo &input)
+static QString formatDeviceInfo(const IDevice::DeviceInfo &input)
 {
     const QStringList lines
-            = Utils::transform(input, [](const ProjectExplorer::IDevice::DeviceInfoItem &i) {
+            = Utils::transform(input, [](const IDevice::DeviceInfoItem &i) {
         return QString::fromLatin1("<b>%1:</b> %2").arg(i.key, i.value);
     });
     return lines.join(QLatin1String("<br>"));
