@@ -11,12 +11,9 @@
 #include "../projectnodes.h"
 #include "../projectmanager.h"
 #include "../projecttree.h"
-#include "../target.h"
 
 #include <coreplugin/documentmanager.h>
 
-#include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -151,14 +148,12 @@ void JsonProjectPage::initUiForSubProject()
         ProjectNode *rootNode = proj->rootProjectNode();
         if (!rootNode)
             continue;
-
-        const QList<Target *> targets = proj->targets();
-        const BuildSystem *bs = targets.isEmpty() ? nullptr : targets.first()->buildSystem();
+        const BuildSystem * const bs = proj->activeBuildSystem();
         if (!bs)
             continue;
         if (bs->isParsing()) {
-            connect(bs, &BuildSystem::parsingFinished, this, &JsonProjectPage::initUiForSubProject,
-                    Qt::UniqueConnection);
+            connect(bs, &BuildSystem::parsingFinished,
+                    this, &JsonProjectPage::initUiForSubProject, Qt::UniqueConnection);
         }
         if (!rootNode->supportsAction(AddSubProject, rootNode))
             continue;

@@ -11,7 +11,6 @@
 #include "../projectnodes.h"
 #include "../projectmanager.h"
 #include "../projecttree.h"
-#include "../target.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/iversioncontrol.h>
@@ -152,13 +151,9 @@ void JsonSummaryPage::initializePage()
 
     if (contextNode) {
         if (auto p = contextNode->getProject()) {
-            if (auto targets = p->targets(); !targets.isEmpty()) {
-                if (auto bs = targets.first()->buildSystem()) {
-                    if (bs->isParsing()) {
-                        connect(bs, &BuildSystem::parsingFinished, this, updateProjectTree,
-                                Qt::SingleShotConnection);
-                    }
-                }
+            if (BuildSystem * const bs = p->activeBuildSystem(); bs && bs->isParsing()) {
+                connect(bs, &BuildSystem::parsingFinished,
+                        this, updateProjectTree, Qt::SingleShotConnection);
             }
         }
     }
