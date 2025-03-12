@@ -110,8 +110,6 @@ private:
 
     void updateDeviceState();
 
-    void changeDeployConfigurationEnabled();
-    void changeRunConfigurationEnabled();
     void handleKitUpdates(ProjectExplorer::Kit *k);
     void handleKitRemoval(ProjectExplorer::Kit *k);
 
