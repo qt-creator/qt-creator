@@ -573,18 +573,17 @@ QString RunConfigurationFactory::decoratedTargetName(const QString &targetName, 
 }
 
 QList<RunConfigurationCreationInfo>
-RunConfigurationFactory::availableCreators(Target *target) const
+RunConfigurationFactory::availableCreators(BuildConfiguration *bc) const
 {
-    auto *bs = target->buildSystem();
-    const auto buildTargets = bs ? bs->applicationTargets() : QList<BuildTargetInfo>{};
+    const auto buildTargets = bc->buildSystem()->applicationTargets();
     const bool hasAnyQtcRunnable = Utils::anyOf(buildTargets,
                                             Utils::equal(&BuildTargetInfo::isQtcRunnable, true));
     return Utils::transform(buildTargets, [&](const BuildTargetInfo &ti) {
         QString displayName = ti.displayName;
         if (displayName.isEmpty())
-            displayName = decoratedTargetName(ti.buildKey, target->kit());
+            displayName = decoratedTargetName(ti.buildKey, bc->kit());
         else if (m_decorateDisplayNames)
-            displayName = decoratedTargetName(displayName, target->kit());
+            displayName = decoratedTargetName(displayName, bc->kit());
         RunConfigurationCreationInfo rci;
         rci.factory = this;
         rci.buildKey = ti.buildKey;
@@ -717,12 +716,13 @@ RunConfiguration *RunConfigurationFactory::restore(BuildConfiguration *bc, const
     return nullptr;
 }
 
-const QList<RunConfigurationCreationInfo> RunConfigurationFactory::creatorsForTarget(Target *parent)
+const QList<RunConfigurationCreationInfo> RunConfigurationFactory::creatorsForBuildConfig(
+    BuildConfiguration *bc)
 {
     QList<RunConfigurationCreationInfo> items;
     for (RunConfigurationFactory *factory : std::as_const(g_runConfigurationFactories)) {
-        if (factory->canHandle(parent))
-            items.append(factory->availableCreators(parent));
+        if (factory->canHandle(bc->target()))
+            items.append(factory->availableCreators(bc));
     }
     QHash<QString, QList<RunConfigurationCreationInfo *>> itemsPerDisplayName;
     for (RunConfigurationCreationInfo &item : items)
@@ -743,9 +743,9 @@ FixedRunConfigurationFactory::FixedRunConfigurationFactory(const QString &displa
 { }
 
 QList<RunConfigurationCreationInfo>
-FixedRunConfigurationFactory::availableCreators(Target *parent) const
+FixedRunConfigurationFactory::availableCreators(BuildConfiguration *bc) const
 {
-    QString displayName = m_decorateTargetName ? decoratedTargetName(m_fixedBuildTarget, parent->kit())
+    QString displayName = m_decorateTargetName ? decoratedTargetName(m_fixedBuildTarget, bc->kit())
                                                : m_fixedBuildTarget;
     RunConfigurationCreationInfo rci;
     rci.factory = this;

@@ -235,13 +235,13 @@ public:
     virtual ~RunConfigurationFactory();
 
     static RunConfiguration *restore(BuildConfiguration *bc, const Utils::Store &map);
-    static const QList<RunConfigurationCreationInfo> creatorsForTarget(Target *parent);
+    static const QList<RunConfigurationCreationInfo> creatorsForBuildConfig(BuildConfiguration *bc);
 
     Utils::Id runConfigurationId() const { return m_runConfigurationId; }
     static QString decoratedTargetName(const QString &targetName, Kit *kit);
 
 protected:
-    virtual QList<RunConfigurationCreationInfo> availableCreators(Target *target) const;
+    virtual QList<RunConfigurationCreationInfo> availableCreators(BuildConfiguration *bc) const;
     virtual bool supportsBuildKey(BuildConfiguration *bc, const QString &key) const;
 
     using RunConfigurationCreator = std::function<RunConfiguration *(BuildConfiguration *)>;
@@ -279,7 +279,7 @@ public:
                                           bool addDeviceName = false);
 
 private:
-    QList<RunConfigurationCreationInfo> availableCreators(Target *parent) const override;
+    QList<RunConfigurationCreationInfo> availableCreators(BuildConfiguration *bc) const override;
     bool supportsBuildKey(BuildConfiguration *bc, const QString &key) const override;
 
     const QString m_fixedBuildTarget;

@@ -68,7 +68,7 @@ public:
     {
         setHeader({Tr::tr("Name"), Tr::tr("Source")});
         for (const RunConfigurationCreationInfo &rci
-             : RunConfigurationFactory::creatorsForTarget(bc->target())) {
+             : RunConfigurationFactory::creatorsForBuildConfig(bc)) {
             rootItem()->appendChild(new CandidateTreeItem(rci, bc));
         }
     }

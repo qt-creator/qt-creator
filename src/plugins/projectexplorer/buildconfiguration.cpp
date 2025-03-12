@@ -650,7 +650,7 @@ void BuildConfiguration::updateDefaultRunConfigurations()
 {
     // Manual and Auto
     const QList<RunConfigurationCreationInfo> creators
-        = RunConfigurationFactory::creatorsForTarget(target());
+        = RunConfigurationFactory::creatorsForBuildConfig(this);
 
     if (creators.isEmpty()) {
         qWarning("No run configuration factory found for target id '%s'.", qPrintable(id().toString()));

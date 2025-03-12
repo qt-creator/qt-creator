@@ -12,6 +12,7 @@
 #include "appmanagerutilities.h"
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -88,33 +89,33 @@ public:
         return !TargetInformation::readFromProject(bc, key).isEmpty();
     }
 
-    virtual bool filterTarget(Target *target, const TargetInformation &ti) const
+    virtual bool filterTarget(Kit *kit, const TargetInformation &ti) const
     {
         return !ti.manifest.supportsDebugging() ||
-               RunDeviceKitAspect::device(target->kit())->osType() != OsType::OsTypeLinux;
+               RunDeviceKitAspect::device(kit)->osType() != OsType::OsTypeLinux;
     }
 
-    QList<RunConfigurationCreationInfo> availableCreators(Target *target) const
+    QList<RunConfigurationCreationInfo> availableCreators(BuildConfiguration *bc) const final
     {
         QObject::connect(&m_fileSystemWatcher, &FileSystemWatcher::fileChanged,
-                         target->project(), &Project::displayNameChanged,
+                         bc->project(), &Project::displayNameChanged,
                          Qt::UniqueConnection);
 
-        const auto buildTargets = TargetInformation::readFromProject(target->activeBuildConfiguration());
-        const auto filteredTargets = Utils::filtered(buildTargets, [this, target](const TargetInformation &ti) {
-            return filterTarget(target, ti);
+        const auto buildTargets = TargetInformation::readFromProject(bc);
+        const auto filteredTargets = Utils::filtered(buildTargets, [this, bc](const TargetInformation &ti) {
+            return filterTarget(bc->kit(), ti);
         });
-        auto result = Utils::transform(filteredTargets, [this, target](const TargetInformation &ti) {
+        auto result = Utils::transform(filteredTargets, [this, bc](const TargetInformation &ti) {
 
             QVariantMap settings;
             // ti.buildKey is currently our app id
             settings.insert("id", ti.buildKey);
-            target->setNamedSettings("runConfigurationSettings", settings);
+            bc->target()->setNamedSettings("runConfigurationSettings", settings);
 
             RunConfigurationCreationInfo rci;
             rci.factory = this;
             rci.buildKey = ti.buildKey;
-            rci.displayName = decoratedTargetName(ti.displayName, target->kit());
+            rci.displayName = decoratedTargetName(ti.displayName, bc->kit());
             rci.displayNameUniquifier = ti.displayNameUniquifier;
             rci.creationMode = RunConfigurationCreationInfo::AlwaysCreate;
             rci.projectFilePath = ti.manifest.filePath;
@@ -142,9 +143,9 @@ public:
         addSupportedTargetDeviceType(Qdb::Constants::QdbLinuxOsType);
     }
 
-    virtual bool filterTarget(Target *target, const TargetInformation &ti) const final
+    virtual bool filterTarget(Kit *kit, const TargetInformation &ti) const final
     {
-        return !AppManagerRunConfigurationFactory::filterTarget(target, ti);
+        return !AppManagerRunConfigurationFactory::filterTarget(kit, ti);
     }
 };
 
