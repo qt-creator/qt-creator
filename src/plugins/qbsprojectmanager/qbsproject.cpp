@@ -137,12 +137,8 @@ void QbsProject::configureAsExampleProject(Kit *kit)
         static_cast<QbsBuildSystem *>(activeBuildSystem())->prepareForParsing();
 }
 
-
-static bool supportsNodeAction(ProjectAction action, const Node *node)
+static bool supportsNodeAction(const QbsBuildSystem *bs, ProjectAction action, const Node *node)
 {
-    QbsBuildSystem *bs = static_cast<QbsBuildSystem *>(activeBuildSystem(node->getProject()));
-    if (!bs)
-        return false;
     if (!bs->isProjectEditable())
         return false;
     if (action == RemoveFile || action == Rename)
@@ -215,7 +211,7 @@ bool QbsBuildSystem::supportsAction(Node *context, ProjectAction action, const N
             return true;
     }
 
-    return supportsNodeAction(action, node);
+    return supportsNodeAction(this, action, node);
 }
 
 bool QbsBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
