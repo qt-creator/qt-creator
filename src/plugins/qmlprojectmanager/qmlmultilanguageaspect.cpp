@@ -3,6 +3,7 @@
 
 #include "qmlmultilanguageaspect.h"
 
+#include "qmlprojectconstants.h"
 #include "qmlprojectmanagertr.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -65,15 +66,6 @@ QmlMultiLanguageAspect::QmlMultiLanguageAspect(AspectContainer *container)
             }
         }
     });
-}
-
-QmlMultiLanguageAspect::~QmlMultiLanguageAspect()
-{
-}
-
-void QmlMultiLanguageAspect::setTarget(Target *target)
-{
-    m_target = target;
 }
 
 void QmlMultiLanguageAspect::setCurrentLocale(const QString &locale)

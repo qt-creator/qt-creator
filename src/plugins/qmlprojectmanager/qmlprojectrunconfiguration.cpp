@@ -125,7 +125,6 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(BuildConfiguration *bc, I
     else
         qtversion.setVisible(false);
 
-    multiLanguage.setTarget(target());
     if (auto bs = qobject_cast<const QmlBuildSystem *>(buildSystem()))
         multiLanguage.setValue(bs->multilanguageSupport());
 
