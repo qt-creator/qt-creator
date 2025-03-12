@@ -242,7 +242,7 @@ public:
 
 protected:
     virtual QList<RunConfigurationCreationInfo> availableCreators(Target *target) const;
-    virtual bool supportsBuildKey(Target *target, const QString &key) const;
+    virtual bool supportsBuildKey(BuildConfiguration *bc, const QString &key) const;
 
     using RunConfigurationCreator = std::function<RunConfiguration *(BuildConfiguration *)>;
 
@@ -280,7 +280,7 @@ public:
 
 private:
     QList<RunConfigurationCreationInfo> availableCreators(Target *parent) const override;
-    bool supportsBuildKey(Target *target, const QString &key) const override;
+    bool supportsBuildKey(BuildConfiguration *bc, const QString &key) const override;
 
     const QString m_fixedBuildTarget;
     const bool m_decorateTargetName;

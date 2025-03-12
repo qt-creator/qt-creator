@@ -306,7 +306,7 @@ bool RunConfiguration::hasCreator() const
 {
     for (RunConfigurationFactory *factory : std::as_const(g_runConfigurationFactories)) {
         if (factory->runConfigurationId() == id()) {
-            if (factory->supportsBuildKey(target(), buildKey()))
+            if (factory->supportsBuildKey(buildConfiguration(), buildKey()))
                 return true;
         }
     }
@@ -600,11 +600,11 @@ RunConfigurationFactory::availableCreators(Target *target) const
     });
 }
 
-bool RunConfigurationFactory::supportsBuildKey(Target *target, const QString &key) const
+bool RunConfigurationFactory::supportsBuildKey(BuildConfiguration *bc, const QString &key) const
 {
-    if (!canHandle(target))
+    if (!canHandle(bc->target()))
         return false;
-    const QList<BuildTargetInfo> buildTargets = target->buildSystem()->applicationTargets();
+    const QList<BuildTargetInfo> buildTargets = bc->buildSystem()->applicationTargets();
     return anyOf(buildTargets, [&key](const BuildTargetInfo &info) { return info.buildKey == key; });
 }
 
@@ -753,9 +753,9 @@ FixedRunConfigurationFactory::availableCreators(Target *parent) const
     return {rci};
 }
 
-bool FixedRunConfigurationFactory::supportsBuildKey(Target *target, const QString &key) const
+bool FixedRunConfigurationFactory::supportsBuildKey(BuildConfiguration *bc, const QString &key) const
 {
-    Q_UNUSED(target)
+    Q_UNUSED(bc)
     Q_UNUSED(key)
     return true;
 }
