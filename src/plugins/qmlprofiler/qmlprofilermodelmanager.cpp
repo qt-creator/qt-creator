@@ -256,9 +256,9 @@ void QmlProfilerModelManager::finalize()
     emit traceChanged();
 }
 
-void QmlProfilerModelManager::populateFileFinder(const ProjectExplorer::Target *target)
+void QmlProfilerModelManager::populateFileFinder(const ProjectExplorer::BuildConfiguration *bc)
 {
-    d->detailsRewriter->populateFileFinder(target);
+    d->detailsRewriter->populateFileFinder(bc);
 }
 
 Utils::FilePath QmlProfilerModelManager::findLocalFile(const QString &remoteFile)

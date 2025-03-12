@@ -24,7 +24,7 @@ public:
     void requestDetailsForLocation(int typeId, const QmlEventLocation &location);
     Utils::FilePath getLocalFile(const QString &remoteFile);
     void reloadDocuments();
-    void populateFileFinder(const ProjectExplorer::Target *target);
+    void populateFileFinder(const ProjectExplorer::BuildConfiguration *bc);
 
 signals:
     void rewriteDetailsString(int typeId, const QString &details);

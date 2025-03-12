@@ -198,7 +198,8 @@ void QmlProfilerDetailsRewriterTest::seedRewriter()
     DummyProject *project = new DummyProject(Utils::FilePath::fromString(filename));
     ProjectExplorer::ProjectManager::addProject(project);
 
-    m_rewriter.populateFileFinder(project->addTargetForKit(kit.get()));
+    project->addTargetForKit(kit.get());
+    m_rewriter.populateFileFinder(project->activeBuildConfiguration());
 
     ProjectExplorer::ProjectManager::removeProject(project);
 }

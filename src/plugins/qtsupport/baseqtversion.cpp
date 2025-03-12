@@ -20,6 +20,8 @@
 
 #include <proparser/qmakevfs.h>
 
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
@@ -1564,10 +1566,10 @@ QtVersion::createMacroExpander(const std::function<const QtVersion *()> &qtVersi
     return expander;
 }
 
-void QtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Target *target)
+void QtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const BuildConfiguration *bc)
 {
     // If target given, then use the project associated with that ...
-    const Project *startupProject = target ? target->project() : nullptr;
+    const Project *startupProject = bc ? bc->project() : nullptr;
 
     // ... else try the session manager's global startup project ...
     if (!startupProject)
@@ -1594,19 +1596,19 @@ void QtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Target 
 
     // If no target was given, but we've found a startupProject, then try to deduce a
     // target from that.
-    if (!target && startupProject)
-        target = startupProject->activeTarget();
+    if (!bc && startupProject)
+        bc = startupProject->activeBuildConfiguration();
 
     // ... and find the sysroot and qml directory if we have any target at all.
-    const Kit *kit = target ? target->kit() : nullptr;
+    const Kit *kit = bc ? bc->kit() : nullptr;
     const FilePath activeSysroot = SysRootKitAspect::sysRoot(kit);
     const QtVersion *qtVersion = QtVersionManager::isLoaded()
             ? QtKitAspect::qtVersion(kit) : nullptr;
     FilePaths additionalSearchDirectories = qtVersion
             ? FilePaths({qtVersion->qmlPath()}) : FilePaths();
 
-    if (target) {
-        for (const DeployableFile &file : target->deploymentData().allFiles())
+    if (bc) {
+        for (const DeployableFile &file : bc->buildSystem()->deploymentData().allFiles())
             finder->addMappedPath(file.localFilePath(), file.remoteFilePath());
     }
 

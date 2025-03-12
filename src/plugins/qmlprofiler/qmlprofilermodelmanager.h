@@ -16,7 +16,7 @@
 #include <QObject>
 #include <functional>
 
-namespace ProjectExplorer { class Target; }
+namespace ProjectExplorer { class BuildConfiguration; }
 
 namespace QmlProfiler {
 class QmlProfilerModelManager;
@@ -47,7 +47,7 @@ public:
     void initialize() override;
     void finalize() override;
 
-    void populateFileFinder(const ProjectExplorer::Target *target = nullptr);
+    void populateFileFinder(const ProjectExplorer::BuildConfiguration *bc = nullptr);
     Utils::FilePath findLocalFile(const QString &remoteFile);
 
     static const char *featureName(ProfileFeature feature);

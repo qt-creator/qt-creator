@@ -27,9 +27,9 @@ class FileInProjectFinder;
 } // Utils
 
 namespace ProjectExplorer {
+class BuildConfiguration;
 class Kit;
 class Toolchain;
-class Target;
 } // ProjectExplorer
 
 namespace QtSupport {
@@ -187,7 +187,7 @@ public:
     createMacroExpander(const std::function<const QtVersion *()> &qtVersion);
 
     static void populateQmlFileFinder(Utils::FileInProjectFinder *finder,
-                                      const ProjectExplorer::Target *target);
+                                      const ProjectExplorer::BuildConfiguration *bc);
 
     QSet<Utils::Id> features() const;
 

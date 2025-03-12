@@ -182,9 +182,9 @@ void QmlProfilerDetailsRewriter::documentReady(QmlJS::Document::Ptr doc)
     }
 }
 
-void QmlProfilerDetailsRewriter::populateFileFinder(const ProjectExplorer::Target *target)
+void QmlProfilerDetailsRewriter::populateFileFinder(const ProjectExplorer::BuildConfiguration *bc)
 {
-    QtSupport::QtVersion::populateQmlFileFinder(&m_projectFinder, target);
+    QtSupport::QtVersion::populateQmlFileFinder(&m_projectFinder, bc);
 }
 
 } // namespace Internal

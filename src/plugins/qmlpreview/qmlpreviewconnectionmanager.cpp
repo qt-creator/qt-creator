@@ -24,7 +24,7 @@ QmlPreviewConnectionManager::~QmlPreviewConnectionManager() = default;
 
 void QmlPreviewConnectionManager::setBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
 {
-    QtSupport::QtVersion::populateQmlFileFinder(&m_projectFileFinder, bc->target());
+    QtSupport::QtVersion::populateQmlFileFinder(&m_projectFileFinder, bc);
     m_projectFileFinder.setAdditionalSearchDirectories(Utils::FilePaths());
     m_targetFileFinder.setBuildConfiguration(bc);
 }
