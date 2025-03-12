@@ -79,8 +79,6 @@ public:
     QVariant namedSettings(const Utils::Key &name) const;
     void setNamedSettings(const Utils::Key &name, const QVariant &value);
 
-    QVariant additionalData(Utils::Id id) const;
-
     ProjectConfigurationModel *buildConfigurationModel() const;
 
     void setActiveBuildConfiguration(BuildConfiguration *bc, SetActive cascade);

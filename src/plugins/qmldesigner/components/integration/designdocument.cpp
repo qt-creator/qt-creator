@@ -21,6 +21,7 @@
 #include <qmldesignerplugin.h>
 #include <qmlobjectnode.h>
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
@@ -417,8 +418,8 @@ void DesignDocument::changeToDocumentModel()
 
 bool DesignDocument::isQtForMCUsProject() const
 {
-    if (m_currentTarget)
-        return m_currentTarget->additionalData("CustomQtForMCUs").toBool();
+    if (m_currentTarget && m_currentTarget->buildSystem())
+        return m_currentTarget->buildSystem()->additionalData("CustomQtForMCUs").toBool();
 
     return false;
 }

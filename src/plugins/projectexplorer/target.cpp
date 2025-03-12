@@ -374,14 +374,6 @@ void Target::setNamedSettings(const Key &name, const QVariant &value)
         d->m_pluginSettings.insert(name, value);
 }
 
-QVariant Target::additionalData(Utils::Id id) const
-{
-    if (const BuildSystem *bs = buildSystem())
-        return bs->additionalData(id);
-
-    return {};
-}
-
 ProjectConfigurationModel *Target::buildConfigurationModel() const
 {
     return &d->m_buildConfigurationModel;

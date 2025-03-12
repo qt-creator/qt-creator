@@ -127,10 +127,10 @@ bool ExternalDependencies::hasStartupTarget() const
 
 namespace {
 
-bool isForcingFreeType(ProjectExplorer::Target *target)
+bool isForcingFreeType(ProjectExplorer::BuildSystem *buildSystem)
 {
-    if (Utils::HostOsInfo::isWindowsHost() && target) {
-        const QVariant customData = target->additionalData("CustomForceFreeType");
+    if (Utils::HostOsInfo::isWindowsHost() && buildSystem) {
+        const QVariant customData = buildSystem->additionalData("CustomForceFreeType");
 
         if (customData.isValid())
             return customData.toBool();
@@ -139,9 +139,9 @@ bool isForcingFreeType(ProjectExplorer::Target *target)
     return false;
 }
 
-QString createFreeTypeOption(ProjectExplorer::Target *target)
+QString createFreeTypeOption(ProjectExplorer::BuildSystem *buildSystem)
 {
-    if (isForcingFreeType(target))
+    if (isForcingFreeType(buildSystem))
         return "-platform windows:fontengine=freetype";
 
     return {};
@@ -152,14 +152,16 @@ QString createFreeTypeOption(ProjectExplorer::Target *target)
 PuppetStartData ExternalDependencies::puppetStartData(const Model &model) const
 {
     PuppetStartData data;
-    auto target = ProjectExplorer::ProjectManager::startupTarget();
-    auto [workingDirectory, puppetPath] = QmlPuppetPaths::qmlPuppetPaths(target->kit(), m_designerSettings);
+    auto buildSystem = ProjectExplorer::activeBuildSystemForActiveProject();
+    if (!buildSystem)
+        return data;
+    auto [workingDirectory, puppetPath] = QmlPuppetPaths::qmlPuppetPaths(buildSystem->kit(), m_designerSettings);
 
     data.puppetPath = puppetPath.toUrlishString();
     data.workingDirectoryPath = workingDirectory.toUrlishString();
-    data.environment = PuppetEnvironmentBuilder::createEnvironment(target, m_designerSettings, model, qmlPuppetPath());
+    data.environment = PuppetEnvironmentBuilder::createEnvironment(buildSystem, m_designerSettings, model, qmlPuppetPath());
     data.debugPuppet = m_designerSettings.value(DesignerSettingsKey::DEBUG_PUPPET).toString();
-    data.freeTypeOption = createFreeTypeOption(target);
+    data.freeTypeOption = createFreeTypeOption(buildSystem);
     data.forwardOutput = m_designerSettings.value(DesignerSettingsKey::FORWARD_PUPPET_OUTPUT).toString();
 
     return data;

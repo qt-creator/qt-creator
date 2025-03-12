@@ -7,9 +7,7 @@
 
 #include <QProcessEnvironment>
 
-namespace ProjectExplorer {
-class Target;
-}
+namespace ProjectExplorer { class BuildSystem; }
 
 namespace QmlDesigner {
 
@@ -18,11 +16,11 @@ enum class PuppetType { Fallback, UserSpace, Kit };
 class PuppetEnvironmentBuilder
 {
 public:
-    PuppetEnvironmentBuilder(ProjectExplorer::Target *target,
+    PuppetEnvironmentBuilder(ProjectExplorer::BuildSystem *buildSystem,
                              const class DesignerSettings &designerSettings,
                              const class Model &model,
                              const Utils::FilePath &qmlPuppetPath)
-        : m_target(target)
+        : m_buildSystem(buildSystem)
         , m_designerSettings(designerSettings)
         , m_model(model)
         , m_qmlPuppetPath(qmlPuppetPath)
@@ -30,7 +28,7 @@ public:
 
     QProcessEnvironment processEnvironment() const;
 
-    static QProcessEnvironment createEnvironment(ProjectExplorer::Target *target,
+    static QProcessEnvironment createEnvironment(ProjectExplorer::BuildSystem *buildSystem,
                                                  const class DesignerSettings &designerSettings,
                                                  const class Model &model,
                                                  const Utils::FilePath &qmlPuppetPath);
@@ -53,7 +51,7 @@ private:
     void addResolveUrlsOnAssignment() const;
 
 private:
-    ProjectExplorer::Target *m_target = nullptr;
+    ProjectExplorer::BuildSystem *m_buildSystem = nullptr;
     const DesignerSettings &m_designerSettings;
     const Model &m_model;
     mutable PuppetType m_availablePuppetType = {};

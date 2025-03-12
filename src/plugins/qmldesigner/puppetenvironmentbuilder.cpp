@@ -7,8 +7,8 @@
 
 #include <model.h>
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/target.h>
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <qmlprojectmanager/qmlmultilanguageaspect.h>
@@ -58,19 +58,19 @@ QProcessEnvironment PuppetEnvironmentBuilder::processEnvironment() const
 }
 
 QProcessEnvironment PuppetEnvironmentBuilder::createEnvironment(
-    ProjectExplorer::Target *target,
+    ProjectExplorer::BuildSystem *buildSystem,
     const DesignerSettings &designerSettings,
     const Model &model,
     const Utils::FilePath &qmlPuppetPath)
 {
-    PuppetEnvironmentBuilder builder{target, designerSettings, model, qmlPuppetPath};
+    PuppetEnvironmentBuilder builder{buildSystem, designerSettings, model, qmlPuppetPath};
     return builder.processEnvironment();
 }
 
 bool PuppetEnvironmentBuilder::usesVirtualKeyboard() const
 {
-    if (m_target) {
-        auto *qmlbuild = qobject_cast<QmlProjectManager::QmlBuildSystem *>(m_target->buildSystem());
+    if (m_buildSystem) {
+        auto *qmlbuild = qobject_cast<QmlProjectManager::QmlBuildSystem *>(m_buildSystem);
 
         const Utils::EnvironmentItem virtualKeyboard("QT_IM_MODULE", "qtvirtualkeyboard");
         return qmlbuild && qmlbuild->environment().indexOf(virtualKeyboard);
@@ -81,9 +81,8 @@ bool PuppetEnvironmentBuilder::usesVirtualKeyboard() const
 
 QString PuppetEnvironmentBuilder::getStyleConfigFileName() const
 {
-    if (m_target) {
-        const auto *qmlBuild = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
-            m_target->buildSystem());
+    if (m_buildSystem) {
+        const auto *qmlBuild = qobject_cast<QmlProjectManager::QmlBuildSystem *>(m_buildSystem);
         if (qmlBuild) {
             const auto &environment = qmlBuild->environment();
             const auto &envVar = std::ranges::find_if(environment, [](const auto &envVar) {
@@ -91,7 +90,7 @@ QString PuppetEnvironmentBuilder::getStyleConfigFileName() const
                        && envVar.operation != Utils::EnvironmentItem::SetDisabled;
             });
             if (envVar != std::end(environment)) {
-                const auto &sourceFiles = m_target->project()->files(
+                const auto &sourceFiles = qmlBuild->project()->files(
                     ProjectExplorer::Project::SourceFiles);
                 const auto &foundFile = std::ranges::find(sourceFiles,
                                                           envVar->value,
@@ -107,10 +106,10 @@ QString PuppetEnvironmentBuilder::getStyleConfigFileName() const
 
 void PuppetEnvironmentBuilder::addKit() const
 {
-    if (m_target) {
+    if (m_buildSystem) {
         if (m_availablePuppetType == PuppetType::Kit) {
-            m_target->kit()->addToBuildEnvironment(m_environment);
-            const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_target->kit());
+            m_buildSystem->kit()->addToBuildEnvironment(m_environment);
+            const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_buildSystem->kit());
             if (qt) { // Kits without a Qt version should not have a puppet!
                 // Update PATH to include QT_HOST_BINS
                 m_environment.prependOrSetPath(qt->hostBinPath());
@@ -186,8 +185,8 @@ void PuppetEnvironmentBuilder::addForceQApplication() const
     auto import = QmlDesigner::Import::createLibraryImport("QtCharts", "2.0");
     if (m_model.hasImport(import, true, true)) {
         m_environment.set("QMLDESIGNER_FORCE_QAPPLICATION", "true");
-    } else if (m_target) {
-        auto bs = qobject_cast<QmlProjectManager::QmlBuildSystem *>(m_target->buildSystem());
+    } else if (m_buildSystem) {
+        auto bs = qobject_cast<QmlProjectManager::QmlBuildSystem *>(m_buildSystem);
         if (bs && bs->widgetApp())
             m_environment.set("QMLDESIGNER_FORCE_QAPPLICATION", "true");
     }
@@ -210,8 +209,8 @@ void PuppetEnvironmentBuilder::addImportPaths() const
     if (m_availablePuppetType == PuppetType::Fallback)
         filterOutQtBaseImportPath(&importPaths);
 
-    if (m_target) {
-        QStringList designerImports = m_target->additionalData("QmlDesignerImportPath").toStringList();
+    if (m_buildSystem) {
+        QStringList designerImports = m_buildSystem->additionalData("QmlDesignerImportPath").toStringList();
         importPaths.append(designerImports);
     }
 
@@ -228,8 +227,8 @@ void PuppetEnvironmentBuilder::addCustomFileSelectors() const
 {
     QStringList customFileSelectors;
 
-    if (m_target)
-        customFileSelectors = m_target->additionalData("CustomFileSelectorsData").toStringList();
+    if (m_buildSystem)
+        customFileSelectors = m_buildSystem->additionalData("CustomFileSelectorsData").toStringList();
 
     customFileSelectors.append("DesignMode");
 
@@ -251,7 +250,7 @@ void PuppetEnvironmentBuilder::addResolveUrlsOnAssignment() const
 
 PuppetType PuppetEnvironmentBuilder::determinePuppetType() const
 {
-    if (m_target && m_target->kit() && m_target->kit()->isValid()) {
+    if (m_buildSystem && m_buildSystem->kit() && m_buildSystem->kit()->isValid()) {
         if (m_qmlPuppetPath.isExecutableFile())
             return PuppetType::Kit;
     }

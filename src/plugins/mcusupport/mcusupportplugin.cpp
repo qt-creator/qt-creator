@@ -17,18 +17,15 @@
 #endif
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
 #include <extensionsystem/iplugin.h>
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
@@ -118,13 +115,10 @@ static bool isQtMCUsProject(ProjectExplorer::Project *p)
     if (!p || !p->rootProjectNode())
         return false;
 
-    ProjectExplorer::Target *target = p->activeTarget();
-    if (!target)
+    BuildSystem *bs = p->activeBuildSystem();
+    if (!bs)
         return false;
-
-    const bool isMcuProject = target->additionalData("CustomQtForMCUs").toBool();
-
-    return isMcuProject;
+    return bs->additionalData("CustomQtForMCUs").toBool();
 }
 
 static void askUserAboutMcuSupportKitsSetup()
