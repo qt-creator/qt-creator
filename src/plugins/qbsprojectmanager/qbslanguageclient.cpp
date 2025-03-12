@@ -75,8 +75,6 @@ bool QbsLanguageClient::isActive() const
         return false;
     if (!d->buildSystem->project()->activeBuildConfiguration())
         return false;
-    if (d->buildSystem->project()->activeBuildConfiguration()->buildSystem() != d->buildSystem)
-        return false;
     if (d->buildSystem->project()->activeBuildSystem() != d->buildSystem)
         return false;
     return true;

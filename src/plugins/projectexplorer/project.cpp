@@ -1449,8 +1449,8 @@ void ProjectExplorerTest::testProject_setup()
 
     QCOMPARE(project.id(), Id(TEST_PROJECT_ID));
 
-    QVERIFY(!project.target->buildSystem()->isParsing());
-    QVERIFY(!project.target->buildSystem()->hasParsingData());
+    QVERIFY(!project.activeBuildSystem()->isParsing());
+    QVERIFY(!project.activeBuildSystem()->hasParsingData());
 }
 
 void ProjectExplorerTest::testProject_changeDisplayName()
@@ -1473,16 +1473,16 @@ void ProjectExplorerTest::testProject_parsingSuccess()
 {
     TestProject project;
 
-    QSignalSpy startSpy(project.target->buildSystem(), &BuildSystem::parsingStarted);
-    QSignalSpy stopSpy(project.target->buildSystem(), &BuildSystem::parsingFinished);
+    QSignalSpy startSpy(project.activeBuildSystem(), &BuildSystem::parsingStarted);
+    QSignalSpy stopSpy(project.activeBuildSystem(), &BuildSystem::parsingFinished);
 
     {
-        BuildSystem::ParseGuard guard = project.target->buildSystem()->guardParsingRun();
+        BuildSystem::ParseGuard guard = project.activeBuildSystem()->guardParsingRun();
         QCOMPARE(startSpy.count(), 1);
         QCOMPARE(stopSpy.count(), 0);
 
-        QVERIFY(project.target->buildSystem()->isParsing());
-        QVERIFY(!project.target->buildSystem()->hasParsingData());
+        QVERIFY(project.activeBuildSystem()->isParsing());
+        QVERIFY(!project.activeBuildSystem()->hasParsingData());
 
         guard.markAsSuccess();
     }
@@ -1491,32 +1491,32 @@ void ProjectExplorerTest::testProject_parsingSuccess()
     QCOMPARE(stopSpy.count(), 1);
     QCOMPARE(stopSpy.at(0), {QVariant(true)});
 
-    QVERIFY(!project.target->buildSystem()->isParsing());
-    QVERIFY(project.target->buildSystem()->hasParsingData());
+    QVERIFY(!project.activeBuildSystem()->isParsing());
+    QVERIFY(project.activeBuildSystem()->hasParsingData());
 }
 
 void ProjectExplorerTest::testProject_parsingFail()
 {
     TestProject project;
 
-    QSignalSpy startSpy(project.target->buildSystem(), &BuildSystem::parsingStarted);
-    QSignalSpy stopSpy(project.target->buildSystem(), &BuildSystem::parsingFinished);
+    QSignalSpy startSpy(project.activeBuildSystem(), &BuildSystem::parsingStarted);
+    QSignalSpy stopSpy(project.activeBuildSystem(), &BuildSystem::parsingFinished);
 
     {
-        BuildSystem::ParseGuard guard = project.target->buildSystem()->guardParsingRun();
+        BuildSystem::ParseGuard guard = project.activeBuildSystem()->guardParsingRun();
         QCOMPARE(startSpy.count(), 1);
         QCOMPARE(stopSpy.count(), 0);
 
-        QVERIFY(project.target->buildSystem()->isParsing());
-        QVERIFY(!project.target->buildSystem()->hasParsingData());
+        QVERIFY(project.activeBuildSystem()->isParsing());
+        QVERIFY(!project.activeBuildSystem()->hasParsingData());
     }
 
     QCOMPARE(startSpy.count(), 1);
     QCOMPARE(stopSpy.count(), 1);
     QCOMPARE(stopSpy.at(0), {QVariant(false)});
 
-    QVERIFY(!project.target->buildSystem()->isParsing());
-    QVERIFY(!project.target->buildSystem()->hasParsingData());
+    QVERIFY(!project.activeBuildSystem()->isParsing());
+    QVERIFY(!project.activeBuildSystem()->hasParsingData());
 }
 
 std::unique_ptr<ProjectNode> createFileTree(Project *project)
@@ -1674,7 +1674,6 @@ void ProjectExplorerTest::testSourceToBinaryMapping()
     QCOMPARE(theProject.project()->targets().size(), 1);
     BuildSystem * const bs = theProject.project()->activeBuildSystem();
     QVERIFY(bs);
-    QCOMPARE(bs, theProject.project()->activeBuildConfiguration()->buildSystem());
     if (bs->isWaitingForParse() || bs->isParsing()) {
         QSignalSpy parsingFinishedSpy(bs, &BuildSystem::parsingFinished);
         QVERIFY(parsingFinishedSpy.wait(10000));
