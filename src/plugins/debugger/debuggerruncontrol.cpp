@@ -128,9 +128,7 @@ private:
 class DebuggerRunToolPrivate
 {
 public:
-    DebuggerRunTool *q = nullptr;
-
-    ExecutableItem coreFileRecipe();
+    ExecutableItem coreFileRecipe(const Storage<FilePath> &tempCoreFileStorage);
     ExecutableItem terminalRecipe(const SingleBarrier &barrier,
                                   const Storage<EnginesDriver> &driverStorage);
     ExecutableItem fixupParamsRecipe();
@@ -138,18 +136,16 @@ public:
     ExecutableItem startEnginesRecipe(const Storage<EnginesDriver> &driverStorage);
     ExecutableItem finishEnginesRecipe(const Storage<EnginesDriver> &driverStorage);
 
+    DebuggerRunTool *q = nullptr;
     DebuggerRunParameters m_runParameters;
 
-    // Core unpacker
-    FilePath m_tempCoreFilePath; // TODO: Enclose in the recipe storage when all tasks are there.
-
     // TaskTree
-    Tasking::TaskTreeRunner m_taskTreeRunner;
+    Tasking::TaskTreeRunner m_taskTreeRunner = {};
 };
 
 } // namespace Internal
 
-ExecutableItem DebuggerRunToolPrivate::coreFileRecipe()
+ExecutableItem DebuggerRunToolPrivate::coreFileRecipe(const Storage<FilePath> &tempCoreFileStorage)
 {
     const FilePath coreFile = m_runParameters.coreFile();
     if (!coreFile.endsWith(".gz") && !coreFile.endsWith(".lzo"))
@@ -157,21 +153,21 @@ ExecutableItem DebuggerRunToolPrivate::coreFileRecipe()
 
     const Storage<QFile> storage; // tempCoreFile
 
-    const auto onSetup = [this, storage, coreFile](Process &process) {
+    const auto onSetup = [this, storage, coreFile, tempCoreFileStorage](Process &process) {
         {
             TemporaryFile tmp("tmpcore-XXXXXX");
             QTC_CHECK(tmp.open());
-            m_tempCoreFilePath = FilePath::fromString(tmp.fileName());
+            *tempCoreFileStorage = FilePath::fromString(tmp.fileName());
         }
         QFile *tempCoreFile = storage.activeStorage();
         process.setWorkingDirectory(TemporaryDirectory::masterDirectoryFilePath());
         const QString msg = Tr::tr("Unpacking core file to %1");
-        q->appendMessage(msg.arg(m_tempCoreFilePath.toUserOutput()), LogMessageFormat);
+        q->appendMessage(msg.arg(tempCoreFileStorage->toUserOutput()), LogMessageFormat);
 
         if (coreFile.endsWith(".lzo")) {
-            process.setCommand({"lzop", {"-o", m_tempCoreFilePath.path(), "-x", coreFile.path()}});
+            process.setCommand({"lzop", {"-o", tempCoreFileStorage->path(), "-x", coreFile.path()}});
         } else { // ".gz"
-            tempCoreFile->setFileName(m_tempCoreFilePath.path());
+            tempCoreFile->setFileName(tempCoreFileStorage->path());
             QTC_CHECK(tempCoreFile->open(QFile::WriteOnly));
             QObject::connect(&process, &Process::readyReadStandardOutput, &process,
                              [tempCoreFile, processPtr = &process] {
@@ -181,9 +177,9 @@ ExecutableItem DebuggerRunToolPrivate::coreFileRecipe()
         }
     };
 
-    const auto onDone = [this, storage](DoneWith result) {
+    const auto onDone = [this, storage, tempCoreFileStorage](DoneWith result) {
         if (result == DoneWith::Success)
-            m_runParameters.setCoreFilePath(m_tempCoreFilePath);
+            m_runParameters.setCoreFilePath(*tempCoreFileStorage);
         else
             q->reportFailure("Error unpacking " + m_runParameters.coreFile().toUserOutput());
         if (storage->isOpen())
@@ -722,6 +718,7 @@ void EnginesDriver::showMessage(const QString &msg, int channel, int timeout)
 void DebuggerRunTool::start()
 {
     const Storage<EnginesDriver> driverStorage;
+    const Storage<FilePath> tempCoreFileStorage;
 
     const auto onSetup = [this] {
         RunInterface *iface = runStorage().activeStorage();
@@ -737,13 +734,21 @@ void DebuggerRunTool::start()
         return d->debugServerRecipe(barrier);
     };
 
+    const auto onDone = [this, tempCoreFileStorage] {
+        if (tempCoreFileStorage->exists())
+            tempCoreFileStorage->removeFile();
+        if (d->m_runParameters.isSnapshot() && !d->m_runParameters.coreFile().isEmpty())
+            d->m_runParameters.coreFile().removeFile();
+    };
+
     const Group recipe {
         runStorage(),
         driverStorage,
+        tempCoreFileStorage,
         continueOnError,
         onGroupSetup(onSetup),
         Group {
-            d->coreFileRecipe(),
+            d->coreFileRecipe(tempCoreFileStorage),
             When (terminalKicker) >> Do {
                 d->fixupParamsRecipe(),
                 When (debugServerKicker) >> Do {
@@ -751,7 +756,8 @@ void DebuggerRunTool::start()
                 }
             }
         }.withCancel(canceler()),
-        d->finishEnginesRecipe(driverStorage)
+        d->finishEnginesRecipe(driverStorage),
+        onGroupDone(onDone)
     };
     d->m_taskTreeRunner.start(recipe, {}, [this](DoneWith result) {
         if (result == DoneWith::Success)
@@ -785,11 +791,8 @@ DebuggerRunParameters &DebuggerRunTool::runParameters()
 
 DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
     : RunWorker(runControl)
-    , d(new DebuggerRunToolPrivate)
+    , d(new DebuggerRunToolPrivate{this, DebuggerRunParameters::fromRunControl(runControl)})
 {
-    d->q = this;
-    d->m_runParameters = DebuggerRunParameters::fromRunControl(runControl);
-
     setId("DebuggerRunTool");
     runControl->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
     runControl->setPromptToStop([](bool *optionalPrompt) {
@@ -805,12 +808,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
 
 DebuggerRunTool::~DebuggerRunTool()
 {
-    if (d->m_tempCoreFilePath.exists())
-        d->m_tempCoreFilePath.removeFile();
-
-    if (d->m_runParameters.isSnapshot() && !d->m_runParameters.coreFile().isEmpty())
-        d->m_runParameters.coreFile().removeFile();
-
     delete d;
 }
 
