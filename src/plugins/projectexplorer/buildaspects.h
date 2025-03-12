@@ -16,7 +16,7 @@ class PROJECTEXPLORER_EXPORT BuildDirectoryAspect : public Utils::FilePathAspect
     Q_OBJECT
 
 public:
-    explicit BuildDirectoryAspect(Utils::AspectContainer *container, const BuildConfiguration *bc);
+    explicit BuildDirectoryAspect(BuildConfiguration *bc);
     ~BuildDirectoryAspect() override;
 
     void allowInSourceBuilds(const Utils::FilePath &sourceDir);
@@ -33,6 +33,7 @@ private:
 
     void updateProblemLabels();
     QString updateProblemLabelsHelper(const QString &value);
+    BuildConfiguration *buildConfiguration() const;
 
     class Private;
     Private * const d;

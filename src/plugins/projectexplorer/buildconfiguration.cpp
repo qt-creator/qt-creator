@@ -146,7 +146,7 @@ public:
     BuildConfigurationPrivate(BuildConfiguration *bc)
         : m_buildSteps(bc, Constants::BUILDSTEPS_BUILD)
         , m_cleanSteps(bc, Constants::BUILDSTEPS_CLEAN)
-        , m_buildDirectoryAspect(bc, bc)
+        , m_buildDirectoryAspect(bc)
         , m_tooltipAspect(bc)
     {}
 
