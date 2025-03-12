@@ -97,6 +97,7 @@ public:
     Target *target(Utils::Id id) const;
     Target *target(Kit *k) const;
     void setActiveTarget(Target *target, SetActive cascade);
+    void setActiveBuildConfiguration(BuildConfiguration *bc, SetActive cascade);
 
     Kit *activeKit() const;
     RunConfiguration *activeRunConfiguration() const;

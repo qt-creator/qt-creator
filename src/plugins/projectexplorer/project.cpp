@@ -461,6 +461,15 @@ void Project::setActiveTarget(Target *target, SetActive cascade)
     }
 }
 
+void Project::setActiveBuildConfiguration(BuildConfiguration *bc, SetActive cascade)
+{
+    QTC_ASSERT(bc->project() == this, return);
+    if (bc != bc->target()->activeBuildConfiguration())
+        bc->target()->setActiveBuildConfiguration(bc, cascade);
+    if (bc->target() != activeTarget())
+        setActiveTarget(bc->target(), cascade);
+}
+
 Kit *Project::activeKit() const
 {
     return activeTarget() ? activeTarget()->kit() : nullptr;

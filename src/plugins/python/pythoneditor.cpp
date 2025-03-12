@@ -169,15 +169,10 @@ void PythonEditorWidget::updateInterpretersSelector()
                     if (auto pbc = qobject_cast<PythonBuildConfiguration *>(buildConfiguration))
                         m_interpreters->setToolTip(pbc->python().toUserOutput());
                 }
-                connect(action,
-                        &QAction::triggered,
-                        project,
-                        [project, target, buildConfiguration]() {
-                            target->setActiveBuildConfiguration(buildConfiguration,
-                                                                SetActive::NoCascade);
-                            if (target != project->activeTarget())
-                                project->setActiveTarget(target, SetActive::NoCascade);
-                        });
+                connect(action, &QAction::triggered, project, [buildConfiguration] {
+                    buildConfiguration->project()
+                        ->setActiveBuildConfiguration(buildConfiguration, SetActive::NoCascade);
+                });
             }
         }
 
@@ -198,10 +193,8 @@ void PythonEditorWidget::updateInterpretersSelector()
                         QAction *action = interpreterAddMenu->addAction(buildInfo.displayName);
                         connect(action, &QAction::triggered, project, [project, buildInfo]() {
                             if (BuildConfiguration *buildConfig = project->setup(buildInfo)) {
-                                buildConfig->target()
+                                buildConfig->project()
                                     ->setActiveBuildConfiguration(buildConfig, SetActive::NoCascade);
-                                project->setActiveTarget(buildConfig->target(),
-                                                         SetActive::NoCascade);
                             }
                         });
                     }
