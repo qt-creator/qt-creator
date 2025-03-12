@@ -191,7 +191,7 @@ public:
     void initialize() final;
     void extensionsInitialized() final;
 
-    Q_INVOKABLE static void updateDeployStep(ProjectExplorer::Target *target, bool enabled);
+    Q_INVOKABLE static void updateDeployStep(ProjectExplorer::BuildConfiguration *bc, bool enabled);
 };
 
 void McuSupportPlugin::initialize()
@@ -280,9 +280,9 @@ void McuSupportPlugin::extensionsInitialized()
     });
 }
 
-void McuSupportPlugin::updateDeployStep(ProjectExplorer::Target *target, bool enabled)
+void McuSupportPlugin::updateDeployStep(ProjectExplorer::BuildConfiguration *bc, bool enabled)
 {
-    MCUBuildStepFactory::updateDeployStep(target, enabled);
+    MCUBuildStepFactory::updateDeployStep(bc, enabled);
 }
 
 } // namespace McuSupport::Internal

@@ -67,14 +67,14 @@ ExtensionSystem::IPlugin *findMcuSupportPlugin()
     return nullptr;
 }
 
-void updateMcuBuildStep(Target *target, bool mcuEnabled)
+void updateMcuBuildStep(BuildConfiguration *bc, bool mcuEnabled)
 {
     if (auto plugin = findMcuSupportPlugin()) {
         QMetaObject::invokeMethod(
             plugin,
             "updateDeployStep",
             Qt::DirectConnection,
-            Q_ARG(ProjectExplorer::Target*, target),
+            Q_ARG(ProjectExplorer::BuildConfiguration *, bc),
             Q_ARG(bool, mcuEnabled));
     } else if (mcuEnabled) {
         qWarning() << "Failed to find McuSupport plugin but qtForMCUs is enabled in the project";
@@ -91,16 +91,16 @@ QmlBuildSystem::QmlBuildSystem(BuildConfiguration *bc)
     updateDeploymentData();
 //    registerMenuButtons(); //is wip
 
-    connect(project(), &Project::activeTargetChanged, this, [this](Target *target) {
+    connect(project(), &Project::activeBuildConfigurationChanged, this, [this](BuildConfiguration *bc) {
         refresh(RefreshOptions::NoFileRefresh);
         m_fileGen->updateProject(qmlProject());
-        updateMcuBuildStep(target, qtForMCUs());
+        updateMcuBuildStep(bc, qtForMCUs());
     });
     connect(project(), &Project::projectFileIsDirty, this, [this] {
         refresh(RefreshOptions::Project);
         m_fileGen->updateProject(qmlProject());
         m_fileGen->updateMenuAction();
-        updateMcuBuildStep(project()->activeTarget(), qtForMCUs());
+        updateMcuBuildStep(project()->activeBuildConfiguration(), qtForMCUs());
     });
 
     // FIXME: Check. Probably bogus after the BuildSystem move.

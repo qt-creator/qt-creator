@@ -39,7 +39,7 @@ public:
     MCUBuildStepFactory();
 
     static ProjectExplorer::Kit *findMostRecentQulKit();
-    static void updateDeployStep(ProjectExplorer::Target *target, bool enabled);
+    static void updateDeployStep(ProjectExplorer::BuildConfiguration *bc, bool enabled);
 };
 
 } // namespace McuSupport::Internal
