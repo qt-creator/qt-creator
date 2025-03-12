@@ -9,7 +9,6 @@
 #include "buildsystem.h"
 #include "buildtargetinfo.h"
 #include "deployconfiguration.h"
-#include "deploymentdata.h"
 #include "devicesupport/devicekitaspects.h"
 #include "devicesupport/devicemanager.h"
 #include "kit.h"
@@ -390,11 +389,6 @@ QVariant Target::additionalData(Utils::Id id) const
 ProjectConfigurationModel *Target::buildConfigurationModel() const
 {
     return &d->m_buildConfigurationModel;
-}
-
-DeploymentData Target::deploymentData() const
-{
-    return buildSystem()->deploymentData();
 }
 
 void Target::updateDeviceState()

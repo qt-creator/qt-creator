@@ -21,7 +21,6 @@ class BuildConfiguration;
 class BuildTargetInfo;
 class BuildSystem;
 class DeployConfiguration;
-class DeploymentData;
 class Kit;
 class Project;
 class ProjectConfigurationModel;
@@ -83,8 +82,6 @@ public:
     QVariant additionalData(Utils::Id id) const;
 
     ProjectConfigurationModel *buildConfigurationModel() const;
-
-    DeploymentData deploymentData() const;
 
     void setActiveBuildConfiguration(BuildConfiguration *bc, SetActive cascade);
 
