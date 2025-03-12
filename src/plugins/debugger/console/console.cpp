@@ -12,6 +12,7 @@
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
 
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -119,6 +120,7 @@ Console::Console()
     m_spacer->setMinimumWidth(30);
 
     m_statusLabel = new QLabel(m_consoleWidget);
+    StyleHelper::setPanelWidget(m_statusLabel);
 
     readSettings();
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
