@@ -83,11 +83,9 @@ public:
         addSupportedTargetDeviceType(Qdb::Constants::QdbLinuxOsType);
     }
 
-    virtual bool supportsBuildKey(Target *target, const QString &key) const final
+    bool supportsBuildKey(BuildConfiguration *bc, const QString &key) const final
     {
-        QList<TargetInformation> tis
-            = TargetInformation::readFromProject(target->activeBuildConfiguration(), key);
-        return !tis.isEmpty();
+        return !TargetInformation::readFromProject(bc, key).isEmpty();
     }
 
     virtual bool filterTarget(Target *target, const TargetInformation &ti) const
