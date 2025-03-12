@@ -151,8 +151,6 @@ QString ProcessParameters::prettyArguments() const
                                                        &m_runData.environment, workDir);
     if (err != ProcessArgs::SplitOk)
         return margs; // Sorry, too complex - just fall back.
-    if (osType == OsTypeWindows)
-        return args.front();
     return args;
 }
 
