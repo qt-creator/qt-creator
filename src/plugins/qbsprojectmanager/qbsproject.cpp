@@ -189,12 +189,8 @@ QbsBuildSystem::QbsBuildSystem(BuildConfiguration *bc)
 
     delayParsing();
 
-    connect(bc->project(), &Project::activeTargetChanged,
-            this, &QbsBuildSystem::changeActiveTarget);
-
-    connect(bc->target(), &Target::activeBuildConfigurationChanged,
+    connect(bc->project(), &Project::activeBuildConfigurationChanged,
             this, &QbsBuildSystem::delayParsing);
-
     connect(bc->project(), &Project::projectFileIsDirty, this, &QbsBuildSystem::delayParsing);
     updateProjectNodes({});
 }
@@ -596,12 +592,6 @@ void QbsBuildSystem::handleQbsParsingDone(bool success)
     // in case the "install" check box in the build step is unchecked and then build
     // is triggered (which is otherwise a no-op).
     emitBuildSystemUpdated();
-}
-
-void QbsBuildSystem::changeActiveTarget(Target *t)
-{
-    if (t)
-        delayParsing();
 }
 
 void QbsBuildSystem::triggerParsing()

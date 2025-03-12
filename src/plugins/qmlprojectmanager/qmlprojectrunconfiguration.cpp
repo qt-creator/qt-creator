@@ -239,7 +239,7 @@ void QmlProjectRunConfiguration::setupQtVersionAspect()
     QtVersion *version = QtKitAspect::qtVersion(kit());
 
     if (version) {
-        const QmlBuildSystem *buildSystem = qobject_cast<QmlBuildSystem *>(target()->buildSystem());
+        const QmlBuildSystem *buildSystem = qobject_cast<QmlBuildSystem *>(this->buildSystem());
         const bool isQt6Project = buildSystem && buildSystem->qt6Project();
 
         if (isQt6Project) {
@@ -254,7 +254,6 @@ void QmlProjectRunConfiguration::setupQtVersionAspect()
             qtversion.setValue(valueForVersion);
 
             connect(&qtversion, &BaseAspect::changed, this, [this] {
-                QTC_ASSERT(target(), return );
                 auto project = this->project();
                 QTC_ASSERT(project, return );
 

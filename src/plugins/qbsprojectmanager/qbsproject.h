@@ -117,7 +117,6 @@ private:
             const ExtraCompilerFilter &filter) const override;
 
     void handleQbsParsingDone(bool success);
-    void changeActiveTarget(ProjectExplorer::Target *t);
     void prepareForParsing();
     void updateDocuments();
     void updateCppCodeModel();

@@ -212,8 +212,8 @@ QmakeBuildSystem::QmakeBuildSystem(BuildConfiguration *bc)
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
             this, &QmakeBuildSystem::buildFinished);
 
-    connect(bc->target(),
-            &Target::activeBuildConfigurationChanged,
+    connect(bc->project(),
+            &Project::activeBuildConfigurationChanged,
             this,
             [this](BuildConfiguration *bc) {
                 if (bc == buildConfiguration())
