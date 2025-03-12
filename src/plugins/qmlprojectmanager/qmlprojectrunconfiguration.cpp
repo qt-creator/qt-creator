@@ -210,7 +210,7 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
             version->qtVersion().majorVersion() > 5 && !hasDeployStep()) {
 
             auto [workingDirectoryPath, puppetPath] = QmlDesigner::QmlPuppetPaths::qmlPuppetPaths(
-                        target(), QmlDesigner::QmlDesignerBasePlugin::settings());
+                        kit(), QmlDesigner::QmlDesignerBasePlugin::settings());
             if (!puppetPath.isEmpty()) {
                 usePuppetAsQmlRuntime = true;
                 return puppetPath;

@@ -153,7 +153,7 @@ PuppetStartData ExternalDependencies::puppetStartData(const Model &model) const
 {
     PuppetStartData data;
     auto target = ProjectExplorer::ProjectManager::startupTarget();
-    auto [workingDirectory, puppetPath] = QmlPuppetPaths::qmlPuppetPaths(target, m_designerSettings);
+    auto [workingDirectory, puppetPath] = QmlPuppetPaths::qmlPuppetPaths(target->kit(), m_designerSettings);
 
     data.puppetPath = puppetPath.toUrlishString();
     data.workingDirectoryPath = workingDirectory.toUrlishString();
@@ -173,7 +173,7 @@ bool ExternalDependencies::instantQmlTextUpdate() const
 Utils::FilePath ExternalDependencies::qmlPuppetPath() const
 {
     auto target = ProjectExplorer::ProjectManager::startupTarget();
-    auto [workingDirectory, puppetPath] = QmlPuppetPaths::qmlPuppetPaths(target, m_designerSettings);
+    auto [workingDirectory, puppetPath] = QmlPuppetPaths::qmlPuppetPaths(target->kit(), m_designerSettings);
     return puppetPath;
 }
 

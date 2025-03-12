@@ -8,13 +8,13 @@
 #include <utils/filepath.h>
 
 namespace ProjectExplorer {
-class Target;
+class Kit;
 }
 namespace QmlDesigner {
 class DesignerSettings;
 
 namespace QmlPuppetPaths {
 QMLDESIGNERBASE_EXPORT std::pair<Utils::FilePath, Utils::FilePath> qmlPuppetPaths(
-    ProjectExplorer::Target *target, const DesignerSettings &settings);
+    ProjectExplorer::Kit *kit, const DesignerSettings &settings);
 }
 } // namespace QmlDesigner
