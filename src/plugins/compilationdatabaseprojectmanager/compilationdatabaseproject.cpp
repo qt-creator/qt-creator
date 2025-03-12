@@ -311,7 +311,6 @@ public:
     ~CompilationDatabaseBuildSystem();
 
     void triggerParsing() final;
-    QString name() const final { return QLatin1String("compilationdb"); }
 
     void reparseProject();
     void updateDeploymentData();
@@ -419,7 +418,7 @@ CompilationDatabaseProject::CompilationDatabaseProject(const FilePath &projectFi
     setId(Constants::COMPILATIONDATABASEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
-    setBuildSystemCreator<CompilationDatabaseBuildSystem>();
+    setBuildSystemCreator<CompilationDatabaseBuildSystem>("compilationdb");
     setExtraProjectFiles(
         {projectFile.stringAppended(Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX)});
 }

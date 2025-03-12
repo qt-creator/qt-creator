@@ -46,7 +46,7 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
 
     setSupportsBuilding(false);
     setIsEditModePreferred(!Core::ICore::isQtDesignStudio());
-    setBuildSystemCreator<QmlBuildSystem>();
+    setBuildSystemCreator<QmlBuildSystem>("qml");
 
     if (Core::ICore::isQtDesignStudio()) {
         if (allowOnlySingleProject() && !fileName.endsWith(Constants::fakeProjectName)) {

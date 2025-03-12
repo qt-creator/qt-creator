@@ -168,7 +168,7 @@ void JsonProjectPage::initUiForSubProject()
         info.projectId = proj->id();
         info.projectDirectory = proj->rootProjectDirectory();
         info.display = rootNode->displayName() + " - " + proj->projectFilePath().toUserOutput();
-        info.buildSystem = (bs ? bs->name() : "");
+        info.buildSystem = proj->buildSystemName();
         if (contextNode && contextNode->getProject() == proj)
             index = counter;
         projectInfos.append(info);

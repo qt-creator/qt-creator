@@ -917,7 +917,6 @@ class TestBuildSystem : public BuildSystem
 public:
     using BuildSystem::BuildSystem;
 private:
-    QString name() const override { return "UserFileAccessorTest"; }
     void triggerParsing() override {}
 };
 
@@ -927,7 +926,7 @@ public:
     TestProject() : Project("x-test/testproject", "/test/project")
     {
         setDisplayName("Test Project");
-        setBuildSystemCreator<TestBuildSystem>();
+        setBuildSystemCreator<TestBuildSystem>("UserFileAccessorTest");
     }
 
     bool needsConfiguration() const final { return false; }

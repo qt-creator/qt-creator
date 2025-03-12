@@ -26,7 +26,6 @@ public:
         ProjectExplorer::Node *,
         const Utils::FilePairs &filesToRename,
         Utils::FilePaths *notRenamed) override;
-    QString name() const override { return QLatin1String("python"); }
 
     void parse();
     bool save();

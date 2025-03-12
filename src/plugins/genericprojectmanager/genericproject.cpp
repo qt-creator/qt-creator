@@ -91,7 +91,6 @@ public:
         const Utils::FilePairs &filesToRename,
         Utils::FilePaths *notRenamed) final;
     bool addFiles(Node *, const FilePaths &filePaths, FilePaths *) final;
-    QString name() const final { return QLatin1String("generic"); }
 
     FilePath filesFilePath() const { return ::FilePath::fromString(m_filesFileName); }
 
@@ -210,7 +209,7 @@ public:
         setId(Constants::GENERICPROJECT_ID);
         setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
         setDisplayName(filePath.completeBaseName());
-        setBuildSystemCreator<GenericBuildSystem>();
+        setBuildSystemCreator<GenericBuildSystem>("generic");
     }
 
     void editFilesTriggered();

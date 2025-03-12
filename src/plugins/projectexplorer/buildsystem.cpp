@@ -67,6 +67,11 @@ BuildSystem::~BuildSystem()
     delete d;
 }
 
+QString BuildSystem::name() const
+{
+    return project()->buildSystemName();
+}
+
 Project *BuildSystem::project() const
 {
     return d->m_buildConfiguration->project();

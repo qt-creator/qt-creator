@@ -23,7 +23,7 @@ PythonProject::PythonProject(const FilePath &fileName)
     setId(PythonProjectId);
     setProjectLanguages(Context(ProjectExplorer::Constants::PYTHON_LANGUAGE_ID));
     setDisplayName(fileName.completeBaseName());
-    setBuildSystemCreator<PythonBuildSystem>();
+    setBuildSystemCreator<PythonBuildSystem>("python");
 }
 
 PythonProjectNode::PythonProjectNode(const FilePath &path)

@@ -41,8 +41,6 @@ public:
 
     bool updateProjectFile();
 
-    QString name() const override { return QLatin1String("qml"); }
-
     QmlProject *qmlProject() const;
 
     QVariant additionalData(Utils::Id id) const override;

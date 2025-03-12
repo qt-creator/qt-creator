@@ -51,7 +51,7 @@ private:
         ProjectExplorer::Node *,
         const Utils::FilePairs &filesToRename,
         Utils::FilePaths *notRenamed) override;
-    QString name() const final { return QLatin1String("mimble"); }
+
     void triggerParsing() final;
 
     std::vector<NimbleTask> m_tasks;

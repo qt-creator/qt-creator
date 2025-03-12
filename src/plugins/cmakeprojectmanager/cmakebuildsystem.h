@@ -67,7 +67,6 @@ public:
     void buildNamedTarget(const QString &target) final;
 
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
-    QString name() const final { return QLatin1String("cmake"); }
 
     // Actions:
     void runCMake();

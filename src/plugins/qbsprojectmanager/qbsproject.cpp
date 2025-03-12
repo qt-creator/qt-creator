@@ -107,7 +107,7 @@ QbsProject::QbsProject(const FilePath &fileName)
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setCanBuildProducts();
     setDisplayName(fileName.completeBaseName());
-    setBuildSystemCreator<QbsBuildSystem>();
+    setBuildSystemCreator<QbsBuildSystem>("qbs");
 }
 
 QbsProject::~QbsProject()

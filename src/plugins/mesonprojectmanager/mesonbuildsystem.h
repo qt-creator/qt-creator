@@ -24,7 +24,6 @@ public:
     ~MesonBuildSystem() final;
 
     void triggerParsing() final;
-    QString name() const final { return QLatin1String("meson"); }
 
     inline const BuildOptionsList &buildOptions() const { return m_parser.buildOptions(); }
     inline const TargetsList &targets() const { return m_parser.targets(); }

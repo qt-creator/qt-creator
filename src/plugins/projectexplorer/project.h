@@ -61,6 +61,7 @@ public:
     Project(const QString &mimeType, const Utils::FilePath &fileName);
     ~Project() override;
 
+    QString buildSystemName() const;
     QString displayName() const;
     Utils::Id id() const;
 
@@ -244,11 +245,13 @@ protected:
     void setSupportsBuilding(bool value);
 
     template <typename BuildSystemImpl>
-    void setBuildSystemCreator() {
+    void setBuildSystemCreator(const QString &name) {
+        setBuildSystemName(name);
         setBuildSystemCreator([](BuildConfiguration *bc) { return new BuildSystemImpl(bc); });
     }
 
 private:
+    void setBuildSystemName(const QString &name);
     void setBuildSystemCreator(const std::function<BuildSystem *(BuildConfiguration *)> &creator);
 
     void addTarget(std::unique_ptr<Target> &&target);

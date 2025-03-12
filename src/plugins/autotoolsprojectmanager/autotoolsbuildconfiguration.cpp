@@ -41,7 +41,6 @@ public:
 
 private:
     void triggerParsing() final;
-    QString name() const final { return QLatin1String("autotools"); }
 
     /**
      * Is invoked when the makefile parsing by m_makefileParserThread has
@@ -262,7 +261,7 @@ public:
         setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
         setDisplayName(projectDirectory().fileName());
         setHasMakeInstallEquivalent(true);
-        setBuildSystemCreator<AutotoolsBuildSystem>();
+        setBuildSystemCreator<AutotoolsBuildSystem>("autotools");
     }
 };
 

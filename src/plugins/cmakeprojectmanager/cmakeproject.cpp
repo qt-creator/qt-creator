@@ -55,7 +55,7 @@ CMakeProject::CMakeProject(const FilePath &fileName)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
     setCanBuildProducts();
-    setBuildSystemCreator<CMakeBuildSystem>();
+    setBuildSystemCreator<CMakeBuildSystem>("cmake");
 
     // This only influences whether 'Install into temporary host directory'
     // will show up by default enabled in some remote deploy configurations.

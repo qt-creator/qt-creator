@@ -43,6 +43,7 @@ public:
     explicit BuildSystem(BuildConfiguration *bc);
     ~BuildSystem() override;
 
+    QString name() const;
     Project *project() const;
     Target *target() const;
     Kit *kit() const;
@@ -78,7 +79,6 @@ public:
     virtual bool addDependencies(Node *context, const QStringList &dependencies);
     virtual bool supportsAction(Node *context, ProjectAction action, const Node *node) const;
     virtual void buildNamedTarget(const QString &target) { Q_UNUSED(target) }
-    virtual QString name() const = 0;
 
     // Owned by the build system. Use only in main thread. Can go away at any time.
     ExtraCompiler *extraCompilerForSource(const Utils::FilePath &source) const;

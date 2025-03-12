@@ -342,7 +342,7 @@ NimbleProject::NimbleProject(const FilePath &fileName)
     setDisplayName(fileName.completeBaseName());
     // ensure debugging is enabled (Nim plugin translates nim code to C code)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
-    setBuildSystemCreator<NimbleBuildSystem>();
+    setBuildSystemCreator<NimbleBuildSystem>("nimble");
 }
 
 void NimbleProject::toMap(Store &map) const

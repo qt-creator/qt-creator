@@ -31,7 +31,7 @@ public:
         setDisplayName(projectDirectory().fileName());
         setCanBuildProducts();
         setHasMakeInstallEquivalent(true);
-        setBuildSystemCreator<MesonBuildSystem>();
+        setBuildSystemCreator<MesonBuildSystem>("meson");
     }
 
     ProjectImporter *projectImporter() const final

@@ -26,7 +26,6 @@ class TestBuildSystem : public BuildSystem
 public:
     using BuildSystem::BuildSystem;
 private:
-    QString name() const override { return "ProjectPartTest"; }
     void triggerParsing() override {}
 };
 class TestProject : public Project
@@ -34,7 +33,7 @@ class TestProject : public Project
 public:
     TestProject(const Utils::FilePath &projectFilePath) : Project({}, projectFilePath)
     {
-        setBuildSystemCreator<TestBuildSystem>();
+        setBuildSystemCreator<TestBuildSystem>("ProjectPartTest");
     }
 };
 

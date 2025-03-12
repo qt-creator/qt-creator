@@ -19,12 +19,6 @@ using namespace Utils;
 
 namespace CppEditor::Tests {
 
-class TestBuildSystem : public ProjectExplorer::BuildSystem
-{
-    QString name() const override { return "ModelManagerTest"; }
-    void triggerParsing() override {}
-};
-
 TestProject::TestProject(const QString &name, QObject *parent, const FilePath &filePath) :
     ProjectExplorer::Project("x-binary/foo", filePath),
     m_name(name)

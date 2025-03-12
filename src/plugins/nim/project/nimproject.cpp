@@ -159,8 +159,6 @@ public:
         Node *,
         const Utils::FilePairs &filesToRename,
         Utils::FilePaths *notRenamed) final;
-    QString name() const final { return QLatin1String("nim"); }
-
     void triggerParsing() final;
 
 protected:
@@ -354,7 +352,7 @@ NimProject::NimProject(const FilePath &filePath) : Project(Constants::C_NIM_MIME
     setDisplayName(filePath.completeBaseName());
     // ensure debugging is enabled (Nim plugin translates nim code to C code)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
-    setBuildSystemCreator<NimBuildSystem>();
+    setBuildSystemCreator<NimBuildSystem>("nim");
 }
 
 void NimProject::toMap(Store &map) const

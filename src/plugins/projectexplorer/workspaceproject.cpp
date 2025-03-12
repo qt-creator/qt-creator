@@ -78,8 +78,6 @@ public:
     void scan(const FilePath &path);
     void scanNext();
 
-    QString name() const final { return QLatin1String("Workspace"); }
-
 private:
     bool isFiltered(const FilePath &path, QList<IVersionControl *> versionControls) const;
 
@@ -601,7 +599,7 @@ public:
 
         setId(WORKSPACE_PROJECT_ID);
         setDisplayName(projectDirectory().fileName());
-        setBuildSystemCreator<WorkspaceBuildSystem>();
+        setBuildSystemCreator<WorkspaceBuildSystem>("Workspace");
 
         connect(this, &Project::projectFileIsDirty, this, &WorkspaceProject::updateBuildConfigurations);
     }

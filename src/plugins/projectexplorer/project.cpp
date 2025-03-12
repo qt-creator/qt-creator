@@ -188,6 +188,7 @@ public:
     QHash<Id, QPair<QString, std::function<void()>>> m_generators;
     std::function<Tasks(const Kit *)> m_issuesGenerator;
 
+    QString m_buildSystemName;
     QString m_displayName;
 
     MacroExpander m_macroExpander;
@@ -223,6 +224,11 @@ Project::Project(const QString &mimeType, const FilePath &fileName)
 Project::~Project()
 {
     delete d;
+}
+
+QString Project::buildSystemName() const
+{
+    return d->m_buildSystemName;
 }
 
 QString Project::displayName() const
@@ -1013,6 +1019,11 @@ void Project::setSupportsBuilding(bool value)
     d->m_supportsBuilding = value;
 }
 
+void Project::setBuildSystemName(const QString &name)
+{
+    d->m_buildSystemName = name;
+}
+
 Task Project::createTask(Task::TaskType type, const QString &description)
 {
     return Task(type, description, FilePath(), -1, Id());
@@ -1378,9 +1389,7 @@ class TestBuildSystem final : public BuildSystem
 {
 public:
     using BuildSystem::BuildSystem;
-
     void triggerParsing() final {}
-    QString name() const final { return QLatin1String("test"); }
 };
 
 class TestBuildConfigurationFactory : public BuildConfigurationFactory
@@ -1406,7 +1415,7 @@ public:
     {
         setId(TEST_PROJECT_ID);
         setDisplayName(TEST_PROJECT_DISPLAYNAME);
-        setBuildSystemCreator<TestBuildSystem>();
+        setBuildSystemCreator<TestBuildSystem>("test");
         target = addTargetForKit(&testKit);
     }
 
