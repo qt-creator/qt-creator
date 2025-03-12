@@ -32,6 +32,7 @@
 #include <debugger/analyzer/analyzerutils.h>
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
@@ -274,16 +275,16 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
         // assume this error was created by an external library
         QSet<QString> validFolders;
         for (Project *project : ProjectManager::projects()) {
-            validFolders << project->projectDirectory().toUrlishString();
-            const QList<Target *> targets = project->targets();
-            for (const Target *target : targets) {
-                const QList<DeployableFile> files = target->deploymentData().allFiles();
-                for (const DeployableFile &file : files) {
-                    if (file.isExecutable())
-                        validFolders << file.remoteDirectory();
+            validFolders << project->projectDirectory().path();
+            for (const Target *target : project->targets()) {
+                for (const BuildConfiguration *bc : target->buildConfigurations()) {
+                    const QList<DeployableFile> files = bc->buildSystem()->deploymentData().allFiles();
+                    for (const DeployableFile &file : files) {
+                        if (file.isExecutable())
+                            validFolders << file.remoteDirectory();
+                    }
+                    validFolders << bc->buildDirectory().path();
                 }
-                for (BuildConfiguration *config : target->buildConfigurations())
-                    validFolders << config->buildDirectory().toUrlishString();
             }
         }
 
