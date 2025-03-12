@@ -232,16 +232,19 @@ Item {
                         }
                         textFormat: Text.RichText
                         color: StudioTheme.Values.themeTextColor
-                        font.pixelSize: StudioTheme.Values.baseFontSize
-                        topPadding: 10
-                        leftPadding: 10
-                        rightPadding: 10
+                        font.pixelSize: StudioTheme.Values.mediumFontSize
+                        padding: 10
                         visible: infoText.text !== ""
                         horizontalAlignment: Text.AlignHCenter
                         wrapMode: Text.WordWrap
                         width: root.width
 
                         onLinkActivated: ContentLibraryBackend.rootView.addQtQuick3D()
+
+                        HoverHandler {
+                            enabled: infoText.hoveredLink
+                            cursorShape: Qt.PointingHandCursor
+                        }
                     }
                 }
             }

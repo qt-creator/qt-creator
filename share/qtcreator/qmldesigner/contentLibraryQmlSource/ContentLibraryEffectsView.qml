@@ -130,7 +130,7 @@ HelperWidgets.ScrollView {
             }
             textFormat: Text.RichText
             color: StudioTheme.Values.themeTextColor
-            font.pixelSize: StudioTheme.Values.baseFontSize
+            font.pixelSize: StudioTheme.Values.mediumFontSize
             topPadding: 10
             leftPadding: 10
             rightPadding: 10
@@ -140,6 +140,11 @@ HelperWidgets.ScrollView {
             width: root.width
 
             onLinkActivated: ContentLibraryBackend.rootView.addQtQuick3D()
+
+            HoverHandler {
+                enabled: infoText.hoveredLink
+                cursorShape: Qt.PointingHandCursor
+            }
         }
     }
 }

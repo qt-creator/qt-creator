@@ -245,6 +245,8 @@ Item {
             mouse.accepted = false
         }
         z: 1
+        cursorShape: hint.hoveredLink ? Qt.PointingHandCursor
+                                      : Qt.ArrowCursor
     }
 
     MouseArea {
