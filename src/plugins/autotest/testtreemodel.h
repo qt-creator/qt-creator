@@ -13,7 +13,7 @@
 
 #include <QSortFilterProxyModel>
 
-namespace ProjectExplorer { class Target; }
+namespace ProjectExplorer { class BuildConfiguration; }
 
 namespace Autotest {
 namespace Internal {
@@ -88,7 +88,7 @@ private:
     void revalidateCheckState(ITestTreeItem *item);
     void setupParsingConnections();
     void filterAndInsert(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled);
-    void onTargetChanged(ProjectExplorer::Target *target);
+    void onBuildConfigChanged(ProjectExplorer::BuildConfiguration *bc);
     void onBuildSystemTestsUpdated();
     const QList<TestTreeItem *> frameworkRootNodes() const;
     const QList<ITestTreeItem *> testToolRootNodes() const;

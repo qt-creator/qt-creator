@@ -11,17 +11,14 @@
 
 #include <cppeditor/cppmodelmanager.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/target.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
-#include <texteditor/texteditor.h>
-
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 using namespace Autotest::Internal;
@@ -88,8 +85,8 @@ void TestTreeModel::setupParsingConnections()
                 connect(activeBuildSystemForActiveProject(), &BuildSystem::testInformationUpdated,
                         this, &TestTreeModel::onBuildSystemTestsUpdated, Qt::UniqueConnection);
             } else {
-                connect(project, &Project::activeTargetChanged,
-                        this, &TestTreeModel::onTargetChanged);
+                connect(project, &Project::activeBuildConfigurationChanged,
+                        this, &TestTreeModel::onBuildConfigChanged);
             }
         }
     });
@@ -226,14 +223,13 @@ static QList<ITestTreeItem *> testItemsByName(TestTreeItem *root, const QString 
     return result;
 }
 
-void TestTreeModel::onTargetChanged(Target *target)
+void TestTreeModel::onBuildConfigChanged(BuildConfiguration *bc)
 {
-    if (target && target->buildSystem()) {
-        const Target *topLevelTarget = ProjectManager::startupProject()->targets().first();
-        connect(topLevelTarget->buildSystem(), &BuildSystem::testInformationUpdated,
+    if (bc) {
+        connect(bc->buildSystem(), &BuildSystem::testInformationUpdated,
                 this, &TestTreeModel::onBuildSystemTestsUpdated, Qt::UniqueConnection);
-        disconnect(target->project(), &Project::activeTargetChanged,
-                   this, &TestTreeModel::onTargetChanged);
+        disconnect(bc->project(), &Project::activeBuildConfigurationChanged,
+                   this, &TestTreeModel::onBuildConfigChanged);
     }
 }
 
@@ -372,10 +368,9 @@ void TestTreeModel::synchronizeTestTools()
     }
 
     if (project) {
-        const QList<Target *> &allTargets = project->targets();
-        auto target = allTargets.empty() ? nullptr : allTargets.first();
-        if (target) {
-            auto bs = target->buildSystem();
+        BuildConfiguration * const bc = project->activeBuildConfiguration();
+        if (bc) {
+            auto bs = bc->buildSystem();
             for (ITestTool *testTool : newlyAdded) {
                 ITestTreeItem *rootNode = testTool->rootNode();
                 QTC_ASSERT(rootNode, return);
