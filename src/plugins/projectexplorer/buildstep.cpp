@@ -164,9 +164,9 @@ ProjectConfiguration *BuildStep::projectConfiguration() const
 
 BuildSystem *BuildStep::buildSystem() const
 {
-    if (auto bc = buildConfiguration())
-        return bc->buildSystem();
-    return target()->buildSystem();
+    BuildConfiguration * const bc = buildConfiguration();
+    QTC_ASSERT(bc, return nullptr);
+    return bc->buildSystem();
 }
 
 Environment BuildStep::buildEnvironment() const
