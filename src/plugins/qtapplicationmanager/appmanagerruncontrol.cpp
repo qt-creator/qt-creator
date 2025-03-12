@@ -205,14 +205,10 @@ public:
                 rp.setStartMode(Debugger::AttachToRemoteServer);
                 rp.setCloseMode(Debugger::KillAndExitMonitorAtClose);
 
-                if (rp.isQmlDebugging())
-                    rp.setQmlServer(runControl->qmlChannel());
-
                 if (rp.isCppDebugging()) {
                     rp.setUseExtendedRemote(false);
                     rp.setUseContinueInsteadOfRun(true);
                     rp.setContinueAfterAttach(true);
-                    rp.setRemoteChannel(runControl->debugChannel());
                     rp.setSymbolFile(symbolFile);
 
                     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(runControl->kit());
