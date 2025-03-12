@@ -112,7 +112,7 @@ public:
 
     void setRemoteChannel(const QString &channel) { m_remoteChannel = channel; }
     void setRemoteChannel(const QUrl &url) {
-        m_remoteChannel = QString("%1:%2").arg(url.host()).arg(url.port());
+        m_remoteChannel = url.toString();
     }
     void setRemoteChannel(const QString &host, int port) {
         m_remoteChannel = QString("%1:%2").arg(host).arg(port);

@@ -167,28 +167,9 @@ public:
                                                 << ", PID: " << runner->pid().pid();
             });
 
-            QObject::connect(runner, &RunWorker::started, debugger, [runControl, debugger, runner] {
+            QObject::connect(runner, &RunWorker::started, debugger, [debugger, runner] {
                 DebuggerRunParameters &rp = debugger->runParameters();
                 rp.setAttachPid(runner->pid());
-                if (rp.isCppDebugging()) {
-                    if (rp.cppEngineType() == LldbEngineType) {
-                        QString deviceSerialNumber = Internal::deviceSerialNumber(runControl->buildConfiguration()->target());
-                        const int colonPos = deviceSerialNumber.indexOf(QLatin1Char(':'));
-                        if (colonPos > 0) {
-                            // When wireless debugging is used then the device serial number will include a port number
-                            // The port number must be removed to form a valid hostname
-                            deviceSerialNumber.truncate(colonPos);
-                        }
-                        rp.setRemoteChannel("adb://" + deviceSerialNumber, runControl->debugChannel().port());
-                    } else {
-                        QUrl debugServer;
-                        debugServer.setPort(runControl->debugChannel().port());
-                        debugServer.setHost(QHostAddress(QHostAddress::LocalHost).toString());
-                        rp.setRemoteChannel(debugServer);
-                    }
-                }
-                if (rp.isQmlDebugging())
-                    rp.setQmlServer(runControl->qmlChannel());
             });
 
             return debugger;
