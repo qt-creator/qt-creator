@@ -47,7 +47,6 @@ Project {
         "git/git.qbs",
         "gitlab/gitlab.qbs",
         "glsleditor/glsleditor.qbs",
-        "haskell/haskell.qbs",
         "helloworld/helloworld.qbs",
         "help/help.qbs",
         "imageviewer/imageviewer.qbs",
