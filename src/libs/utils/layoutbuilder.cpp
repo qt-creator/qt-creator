@@ -1134,6 +1134,11 @@ void MarkdownBrowser::setEnableCodeCopyButton(bool enable)
     access(this)->setEnableCodeCopyButton(enable);
 }
 
+void MarkdownBrowser::setViewportMargins(int left, int top, int right, int bottom)
+{
+    access(this)->setMargins(QMargins(left, top, right, bottom));
+}
+
 // Special If
 
 If::If(
