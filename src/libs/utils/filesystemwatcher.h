@@ -12,7 +12,7 @@
 namespace Utils {
 
 // Documentation inside.
-class QTCREATOR_UTILS_EXPORT FileSystemWatcher : public QObject
+class QTCREATOR_UTILS_EXPORT FileSystemWatcher final : public QObject
 {
     Q_OBJECT
 
@@ -54,8 +54,6 @@ signals:
 
 private:
     void init();
-    void slotFileChanged(const QString &path);
-    void slotDirectoryChanged(const QString &path);
 
     class FileSystemWatcherPrivate *d;
 };
