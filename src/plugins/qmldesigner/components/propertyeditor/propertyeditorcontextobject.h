@@ -49,6 +49,8 @@ class PropertyEditorContextObject : public QObject
     Q_PROPERTY(bool hasMultiSelection READ hasMultiSelection WRITE setHasMultiSelection NOTIFY
                    hasMultiSelectionChanged)
 
+    Q_PROPERTY(bool isSelectionLocked READ isSelectionLocked WRITE setIsSelectionLocked NOTIFY isSelectionLockedChanged)
+
     Q_PROPERTY(bool insightEnabled MEMBER m_insightEnabled NOTIFY insightEnabledChanged)
     Q_PROPERTY(QStringList insightCategories MEMBER m_insightCategories NOTIFY insightCategoriesChanged)
 
@@ -100,6 +102,11 @@ public:
     Q_INVOKABLE QRect screenRect() const;
     Q_INVOKABLE QPoint globalPos(const QPoint &point) const;
 
+    Q_INVOKABLE void handleToolBarAction(int action);
+
+    enum ToolBarAction { SelectionLock, SelectionUnlock };
+    Q_ENUM(ToolBarAction)
+
     QString activeDragSuffix() const;
     void setActiveDragSuffix(const QString &suffix);
 
@@ -140,6 +147,9 @@ public:
 
     void setSelectedNode(const ModelNode &node);
 
+    void setIsSelectionLocked(bool lock);
+    bool isSelectionLocked() const;
+
 signals:
     void specificsUrlChanged();
     void specificQmlDataChanged();
@@ -161,9 +171,11 @@ signals:
     void hasMaterialLibraryChanged();
     void has3DModelSelectionChanged();
     void isQt6ProjectChanged();
+    void isSelectionLockedChanged();
 
     void insightEnabledChanged();
     void insightCategoriesChanged();
+    void toolBarAction(int action);
 
 public slots:
 
@@ -223,6 +235,7 @@ private:
     QString m_activeDragSuffix;
 
     bool m_hasMultiSelection = false;
+    bool m_isSelectionLocked = false;
 
     bool m_insightEnabled = false;
     QStringList m_insightCategories;

@@ -443,6 +443,20 @@ void PropertyEditorContextObject::setHasMultiSelection(bool b)
     emit hasMultiSelectionChanged();
 }
 
+bool PropertyEditorContextObject::isSelectionLocked() const
+{
+    return m_isSelectionLocked;
+}
+
+void PropertyEditorContextObject::setIsSelectionLocked(bool lock)
+{
+    if (lock == m_isSelectionLocked)
+        return;
+
+    m_isSelectionLocked = lock;
+    emit isSelectionLockedChanged();
+}
+
 void PropertyEditorContextObject::setInsightEnabled(bool value)
 {
     if (value != m_insightEnabled) {
@@ -694,6 +708,11 @@ QPoint PropertyEditorContextObject::globalPos(const QPoint &point) const
     if (m_quickWidget)
         return m_quickWidget->mapToGlobal(point);
     return point;
+}
+
+void PropertyEditorContextObject::handleToolBarAction(int action)
+{
+    emit toolBarAction(action);
 }
 
 void EasingCurveEditor::registerDeclarativeType()

@@ -57,8 +57,17 @@ Rectangle {
         HeaderBackground{}
     }
 
+    PropertyEditorToolBar {
+        id: toolbar
+
+        anchors.top: dockedHeaderLoader.bottom
+        width: parent.width
+
+        onToolBarAction: action => handleToolBarAction(action)
+    }
+
     MouseArea {
-        anchors.fill: parent
+        anchors.fill: mainScrollView
         onClicked: itemPane.forceActiveFocus()
     }
 
@@ -111,7 +120,7 @@ Rectangle {
 
         clip: true
         anchors {
-            top: dockedHeaderLoader.bottom
+            top: toolbar.bottom
             bottom: itemPane.bottom
             left: itemPane.left
             right: itemPane.right

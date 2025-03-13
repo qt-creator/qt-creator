@@ -107,6 +107,9 @@ public:
     static void removeAliasForProperty(const ModelNode &modelNode,
                                          const QString &propertyName);
 
+public slots:
+    void handleToolBarAction(int action);
+
 protected:
     void setValue(const QmlObjectNode &fxObjectNode, PropertyNameView name, const QVariant &value);
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -116,7 +119,7 @@ private: //functions
     void updateSize();
 
     void select();
-    void setSelelectedModelNode();
+    void setActiveNodeToSelection();
 
     void delayedResetView();
     void setupQmlBackend();
@@ -128,13 +131,22 @@ private: //functions
     bool noValidSelection() const;
     void highlightTextureProperties(bool highlight = true);
 
+    ModelNode activeNode() const;
+    void setActiveNode(const ModelNode &node);
+    QList<ModelNode> currentNodes() const;
+
+    void resetSelectionLocked();
+    void setIsSelectionLocked(bool locked);
+
+    bool isNodeOrChildSelected(const ModelNode &node) const;
+    void resetIfNodeIsRemoved(const ModelNode &removedNode);
+
     static PropertyEditorView *instance();
 
 private: //variables
     AsynchronousImageCache &m_imageCache;
-    ModelNode m_selectedNode;
+    ModelNode m_activeNode;
     QShortcut *m_updateShortcut;
-    int m_timerId;
     PropertyEditorWidget* m_stackedWidget;
     QString m_qmlDir;
     QHash<QString, PropertyEditorQmlBackend *> m_qmlBackendHash;
@@ -143,6 +155,7 @@ private: //variables
     PropertyEditorComponentGenerator m_propertyEditorComponentGenerator{m_propertyComponentGenerator};
     bool m_locked;
     bool m_textureAboutToBeRemoved = false;
+    bool m_isSelectionLocked = false;
     DynamicPropertiesModel *m_dynamicPropertiesModel = nullptr;
 
     friend class PropertyEditorDynamicPropertiesProxyModel;
