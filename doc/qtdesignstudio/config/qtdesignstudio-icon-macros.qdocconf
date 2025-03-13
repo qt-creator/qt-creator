@@ -230,6 +230,7 @@ macro.imageselectgroup                                       = "\\inlineimage ic
 macro.imageselectitem                                        = "\\inlineimage icons/select_item.png {the Select Item button}"
 macro.imageselectlanguages                                   = "\\inlineimage icons/select-languages.png {the Select languages button}"
 macro.imagesettings                                          = "\\inlineimage icons/settings.png {the Settings button}"
+macro.imageshareproject                                      = "\\inlineimage icons/share-project.png {the Share Project button}"
 macro.imagesketchlogo                                        = "\\inlineimage sketch-logo.png {the Sketch logo}"
 macro.imageslidericon16                                      = "\\inlineimage icons/slider-icon16.png {the Slider component}"
 macro.imagesnapping                                          = "\\inlineimage icons/snapping.png {the Snapping button}"
