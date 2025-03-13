@@ -157,7 +157,6 @@ QString QuickTestParser::quickTestName(const CPlusPlus::Document::Ptr &doc) cons
 QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const FilePath &srcDir)
 {
     FilePaths dirs({srcDir});
-    QStringList dirsStr({srcDir.path()});
     ModelManagerInterface *qmlJsMM = QmlJSTools::Internal::ModelManager::instance();
     // make sure even files not listed in pro file are available inside the snapshot
     PathsAndLanguages paths;
@@ -166,17 +165,15 @@ QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const Fi
         false /*emitDocumentChanges*/, false /*onlyTheLib*/, true /*forceRescan*/ );
 
     srcDir.iterateDirectory(
-        [&dirs, &dirsStr](const FilePath &p) {
-            const FilePath &canonicalPath = p.canonicalPath();
-            dirs.append(canonicalPath);
-            dirsStr.append(canonicalPath.path());
+        [&dirs](const FilePath &p) {
+            dirs.append(p.canonicalPath());
             return IterationPolicy::Continue;
         },
         FileFilter{{}, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories});
 
     QMetaObject::invokeMethod(
         this,
-        [this, dirsStr] { QuickTestParser::doUpdateWatchPaths(dirsStr); },
+        [this, dirs] { QuickTestParser::doUpdateWatchPaths(dirs); },
         Qt::QueuedConnection);
 
     QList<Document::Ptr> foundDocs;
@@ -282,17 +279,16 @@ bool QuickTestParser::handleQtQuickTest(QPromise<TestParseResultPtr> &promise,
     return result;
 }
 
-static QMap<QString, QDateTime> qmlFilesWithMTime(const QString &directory)
+static QMap<QString, QDateTime> qmlFilesWithMTime(const FilePath &directory)
 {
-    const QFileInfoList &qmlFiles = QDir(directory).entryInfoList({ "*.qml" },
-                                                                  QDir::Files, QDir::Name);
+    const FilePaths qmlFiles = directory.dirEntries({{ "*.qml" }, QDir::Files}, QDir::Name);
     QMap<QString, QDateTime> filesAndDates;
-    for (const QFileInfo &info : qmlFiles)
+    for (const FilePath &info : qmlFiles)
         filesAndDates.insert(info.fileName(), info.lastModified());
     return filesAndDates;
 }
 
-void QuickTestParser::handleDirectoryChanged(const QString &directory)
+void QuickTestParser::handleDirectoryChanged(const FilePath &directory)
 {
     const QMap<QString, QDateTime> &filesAndDates = qmlFilesWithMTime(directory);
     const QMap<QString, QDateTime> &watched = m_watchedFiles.value(directory);
@@ -307,7 +303,7 @@ void QuickTestParser::handleDirectoryChanged(const QString &directory)
         if (timestampChanged) {
             m_watchedFiles[directory] = filesAndDates;
             PathsAndLanguages paths;
-            paths.maybeInsert(FilePath::fromString(directory), Dialect::Qml);
+            paths.maybeInsert(directory, Dialect::Qml);
             ModelManagerInterface *qmlJsMM = ModelManagerInterface::instance();
             ModelManagerInterface::importScan(ModelManagerInterface::workingCopy(), paths,
                                               qmlJsMM,
@@ -318,10 +314,10 @@ void QuickTestParser::handleDirectoryChanged(const QString &directory)
     }
 }
 
-void QuickTestParser::doUpdateWatchPaths(const QStringList &directories)
+void QuickTestParser::doUpdateWatchPaths(const FilePaths &directories)
 {
-    for (const QString &dir : directories) {
-        m_directoryWatcher.addPath(dir);
+    for (const FilePath &dir : directories) {
+        m_directoryWatcher.addDirectory(dir, FileSystemWatcher::WatchAllChanges);
         m_watchedFiles[dir] = qmlFilesWithMTime(dir);
     }
 }
@@ -331,12 +327,12 @@ QuickTestParser::QuickTestParser(ITestFramework *framework)
 {
     connect(ProjectExplorer::ProjectManager::instance(),
             &ProjectExplorer::ProjectManager::startupProjectChanged, this, [this] {
-        const QStringList &dirs = m_directoryWatcher.directories();
+        const FilePaths &dirs = m_directoryWatcher.directories();
         if (!dirs.isEmpty())
-            m_directoryWatcher.removePaths(dirs);
+            m_directoryWatcher.removeDirectories(dirs);
         m_watchedFiles.clear();
     });
-    connect(&m_directoryWatcher, &QFileSystemWatcher::directoryChanged,
+    connect(&m_directoryWatcher, &FileSystemWatcher::directoryChanged,
             this, &QuickTestParser::handleDirectoryChanged);
 }
 
