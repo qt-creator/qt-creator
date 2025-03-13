@@ -171,12 +171,7 @@ BuildSystem *BuildStep::buildSystem() const
 
 Environment BuildStep::buildEnvironment() const
 {
-    if (const auto bc = qobject_cast<BuildConfiguration *>(projectConfiguration()))
-        return bc->environment();
-    if (const auto dc = qobject_cast<DeployConfiguration *>(projectConfiguration()))
-        return dc->buildConfiguration()->environment();
-    QTC_CHECK(false);
-    return Environment::systemEnvironment();
+    return buildConfiguration()->environment();
 }
 
 FilePath BuildStep::buildDirectory() const
