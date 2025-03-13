@@ -63,9 +63,9 @@
 
 #include <cstdlib>
 
-using namespace Core;
-using namespace Core::Internal;
 using namespace Utils;
+
+namespace Core::Internal {
 
 static CorePlugin *m_instance = nullptr;
 
@@ -234,7 +234,7 @@ static void addToPathChooserContextMenu(PathChooser *pathChooser, QMenu *menu)
     } else {
         auto mkPathAct = new QAction(Tr::tr("Create Folder"), menu);
         QObject::connect(mkPathAct, &QAction::triggered, pathChooser, [pathChooser] {
-            QDir().mkpath(pathChooser->filePath().toUrlishString());
+            pathChooser->filePath().ensureWritableDir();
             pathChooser->triggerChanged();
         });
         menu->insertAction(firstAction, mkPathAct);
@@ -565,3 +565,5 @@ ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()
     ICore::aboutToShutdown();
     return SynchronousShutdown;
 }
+
+} // Core::Internal
