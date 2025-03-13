@@ -352,10 +352,10 @@ void InsightModel::setup()
     }
 
     m_fileSystemWatcher->addFiles(
-        {m_mainQmlInfo.absoluteFilePath(),
-         m_configInfo.absoluteFilePath(),
-         m_qtdsConfigInfo.absoluteFilePath()},
-        Utils::FileSystemWatcher::WatchModifiedDate);
+        {FilePath::fromString(m_mainQmlInfo.absoluteFilePath()),
+         FilePath::fromString(m_configInfo.absoluteFilePath()),
+         FilePath::fromString(m_qtdsConfigInfo.absoluteFilePath())},
+        FileSystemWatcher::WatchModifiedDate);
 
     m_initialized = true;
 }

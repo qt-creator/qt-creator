@@ -353,7 +353,7 @@ void FileApiReader::setupCMakeFileApi()
 
     const FilePath replyIndexfile = FileApiParser::scanForCMakeReplyFile(m_parameters.buildDirectory);
     if (!replyIndexfile.isEmpty() && !m_watcher.watchesFile(replyIndexfile))
-        m_watcher.addFile(replyIndexfile.path(), FileSystemWatcher::WatchAllChanges);
+        m_watcher.addFile(replyIndexfile, FileSystemWatcher::WatchAllChanges);
 }
 
 QString FileApiReader::cmakeGenerator() const

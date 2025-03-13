@@ -481,7 +481,7 @@ void CompilationDatabaseBuildSystem::updateDeploymentData()
     setDeploymentData(deploymentData);
     if (m_deployFileWatcher->files() != FilePaths{deploymentFilePath}) {
         m_deployFileWatcher->clear();
-        m_deployFileWatcher->addFile(deploymentFilePath.path(), FileSystemWatcher::WatchModifiedDate);
+        m_deployFileWatcher->addFile(deploymentFilePath, FileSystemWatcher::WatchModifiedDate);
     }
 
     emitBuildSystemUpdated();

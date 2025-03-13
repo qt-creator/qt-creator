@@ -246,7 +246,7 @@ void QmlBuildSystem::initMcuProjectItems()
         connect(qmlProjectItem.data(), &QmlProjectItem::filesChanged, this, &QmlBuildSystem::refreshFiles);
         m_fileGen->updateProjectItem(m_projectItem.data(), false);
 
-        m_mcuProjectFilesWatcher.addFile(mcuProjectFile, Utils::FileSystemWatcher::WatchModifiedDate);
+        m_mcuProjectFilesWatcher.addFile(mcuProjectFilePath, FileSystemWatcher::WatchModifiedDate);
 
         connect(&m_mcuProjectFilesWatcher,
                 &Utils::FileSystemWatcher::fileChanged,
