@@ -36,11 +36,6 @@ class PROJECTEXPLORER_EXPORT Target : public QObject
     Q_OBJECT
 
 public:
-    struct _constructor_tag
-    {
-        explicit _constructor_tag() = default;
-    };
-    Target(Project *parent, Kit *k, _constructor_tag);
     ~Target() override;
 
     void markAsShuttingDown();
@@ -100,6 +95,9 @@ signals:
     void activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration *dc);
 
 private:
+    static std::unique_ptr<Target> create(Project *parent, Kit *k);
+    Target(Project *parent, Kit *k);
+
     bool fromMap(const Utils::Store &map);
     bool addConfigurationsFromMap(const Utils::Store &map, bool setActiveConfigurations);
 

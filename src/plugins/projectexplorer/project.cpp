@@ -300,7 +300,7 @@ Target *Project::addTargetForKit(Kit *kit)
     if (!kit || target(kit))
         return nullptr;
 
-    auto t = std::make_unique<Target>(this, kit, Target::_constructor_tag{});
+    auto t = Target::create(this, kit);
     Target *pointer = t.get();
 
     t->updateDefaultBuildConfigurations();
@@ -534,7 +534,7 @@ Target *Project::createKitAndTargetFromStore(const Utils::Store &store)
             kit->setup();
         });
     QTC_ASSERT(k, return nullptr);
-    auto t = std::make_unique<Target>(this, k, Target::_constructor_tag{});
+    auto t = Target::create(this, k);
     if (!t->fromMap(store))
         return nullptr;
 
@@ -636,7 +636,7 @@ bool Project::copySteps(const Utils::Store &store, Kit *targetKit)
 {
     Target *t = target(targetKit->id());
     if (!t) {
-        auto t = std::make_unique<Target>(this, targetKit, Target::_constructor_tag{});
+        auto t = Target::create(this, targetKit);
         if (!t->fromMap(store))
             return false;
 
@@ -905,7 +905,7 @@ void Project::createTargetFromMap(const Store &map, int index)
         return;
     }
 
-    auto t = std::make_unique<Target>(this, k, Target::_constructor_tag{});
+    auto t = Target::create(this, k);
     if (!t->fromMap(targetMap))
         return;
 
@@ -1110,7 +1110,7 @@ BuildConfiguration *Project::setup(const BuildInfo &info)
     Target *t = target(k);
     std::unique_ptr<Target> newTarget;
     if (!t) {
-        newTarget = std::make_unique<Target>(this, k, Target::_constructor_tag{});
+        newTarget = Target::create(this, k);
         t = newTarget.get();
     }
 

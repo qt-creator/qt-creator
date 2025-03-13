@@ -70,7 +70,12 @@ public:
 };
 
 
-Target::Target(Project *project, Kit *k, _constructor_tag) :
+std::unique_ptr<Target> Target::create(Project *parent, Kit *k)
+{
+    return std::unique_ptr<Target>(new Target(parent, k));
+}
+
+Target::Target(Project *project, Kit *k) :
     QObject(project),
     d(std::make_unique<TargetPrivate>(k))
 {
