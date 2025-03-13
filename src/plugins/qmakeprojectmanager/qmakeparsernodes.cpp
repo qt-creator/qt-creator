@@ -1746,7 +1746,7 @@ void QmakeProFile::applyEvaluate(const QmakeEvalResultPtr &result)
         const QStringList directoriesToAdd = Utils::filtered<QStringList>(
             Utils::toList(result->directoriesWithWildcards),
             [this](const QString &path) {
-                return !m_wildcardWatcher->watchesDirectory(path);
+                return !m_wildcardWatcher->watchesDirectory(FilePath::fromString(path));
             });
         for (const QString &path : directoriesToAdd)
             m_wildcardDirectoryContents.insert(path, QDir(path).entryList());
@@ -1757,15 +1757,15 @@ void QmakeProFile::applyEvaluate(const QmakeEvalResultPtr &result)
             m_wildcardWatcher.reset();
             m_wildcardDirectoryContents.clear();
         } else {
-            const QStringList directoriesToRemove =
-                Utils::filtered<QStringList>(
+            const FilePaths directoriesToRemove =
+                Utils::filtered<FilePaths>(
                     m_wildcardWatcher->directories(),
-                    [&result](const QString &path) {
-                        return !result->directoriesWithWildcards.contains(path);
+                    [&result](const FilePath &path) {
+                        return !result->directoriesWithWildcards.contains(path.toFSPathString());
                     });
             m_wildcardWatcher->removeDirectories(directoriesToRemove);
-            for (const QString &path : directoriesToRemove)
-                m_wildcardDirectoryContents.remove(path);
+            for (const FilePath &path : directoriesToRemove)
+                m_wildcardDirectoryContents.remove(path.toFSPathString());
         }
     }
 

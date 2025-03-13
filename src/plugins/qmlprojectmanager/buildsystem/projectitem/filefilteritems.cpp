@@ -47,9 +47,9 @@ Utils::FileSystemWatcher *FileFilterItem::dirWatcher()
     return m_dirWatcher;
 }
 
-QStringList FileFilterItem::watchedDirectories() const
+FilePaths FileFilterItem::watchedDirectories() const
 {
-    return m_dirWatcher ? m_dirWatcher->directories() : QStringList();
+    return m_dirWatcher ? m_dirWatcher->directories() : FilePaths();
 }
 
 QString FileFilterItem::directory() const
@@ -172,8 +172,8 @@ bool FileFilterItem::matchesFile(const QString &filePath) const
         return false;
 
     const QDir fileDir = QFileInfo(filePath).absoluteDir();
-    for (const QString &watchedDirectory : watchedDirectories()) {
-        if (QDir(watchedDirectory) == fileDir)
+    for (const FilePath &watchedDirectory : watchedDirectories()) {
+        if (QDir(watchedDirectory.toFSPathString()) == fileDir)
             return true;
     }
 
@@ -240,7 +240,7 @@ void FileFilterItem::updateFileListNow()
     if (projectDir.isEmpty())
         return;
 
-    QSet<QString> dirsToBeWatched;
+    QSet<FilePath> dirsToBeWatched;
     QSet<QString> newFiles;
     for (const QString &explicitPath : std::as_const(m_explicitFiles))
         newFiles << absolutePath(explicitPath);
@@ -263,9 +263,9 @@ void FileFilterItem::updateFileListNow()
     }
 
     // update watched directories
-    const QSet<QString> oldDirs = Utils::toSet(watchedDirectories());
-    const QSet<QString> unwatchDirs = oldDirs - dirsToBeWatched;
-    const QSet<QString> watchDirs = dirsToBeWatched - oldDirs;
+    const QSet<FilePath> oldDirs = Utils::toSet(watchedDirectories());
+    const QSet<FilePath> unwatchDirs = oldDirs - dirsToBeWatched;
+    const QSet<FilePath> watchDirs = dirsToBeWatched - oldDirs;
 
     if (!unwatchDirs.isEmpty()) {
         QTC_ASSERT(m_dirWatcher, return);
@@ -298,7 +298,7 @@ bool FileFilterItem::ignoreDirectory(const QFileInfo &file) const
     return blackList.contains(file.fileName());
 }
 
-QSet<QString> FileFilterItem::filesInSubTree(const QDir &rootDir, const QDir &dir, QSet<QString> *parsedDirs)
+QSet<QString> FileFilterItem::filesInSubTree(const QDir &rootDir, const QDir &dir, QSet<FilePath> *parsedDirs)
 {
     QFileInfo dirInfo(dir.absolutePath());
     if (dirInfo.isHidden())
@@ -315,7 +315,7 @@ QSet<QString> FileFilterItem::filesInSubTree(const QDir &rootDir, const QDir &di
     }
 
     if (parsedDirs)
-        parsedDirs->insert(dir.absolutePath());
+        parsedDirs->insert(FilePath::fromString(dir.absolutePath()));
 
     if (recursive()) {
         for (const QFileInfo &subDir : dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {

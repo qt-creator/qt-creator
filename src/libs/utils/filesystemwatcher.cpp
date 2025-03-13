@@ -341,7 +341,7 @@ void FileSystemWatcher::clear()
     if (!d->m_files.isEmpty())
         removeFiles(filePaths());
     if (!d->m_directories.isEmpty())
-        removeDirectories(directoryPaths());
+        removeDirectories(directories());
 }
 
 QStringList FileSystemWatcher::files() const
@@ -393,16 +393,17 @@ void FileSystemWatcher::addDirectories(const QStringList &directories, WatchMode
 
 void FileSystemWatcher::removeDirectory(const FilePath &file)
 {
-    removeDirectories({file.toFSPathString()});
+    removeDirectories({file});
 }
 
-void FileSystemWatcher::removeDirectories(const QStringList &directories)
+void FileSystemWatcher::removeDirectories(const FilePaths &directories)
 {
     qCDebug(fileSystemWatcherLog)
         << this << d->m_id << "removeDirectories" << directories;
 
     QStringList toRemove;
-    for (const QString &directory : directories) {
+    for (const FilePath &dir : directories) {
+        const QString directory = dir.toFSPathString();
         const auto it = d->m_directories.constFind(directory);
         if (it == d->m_directories.constEnd()) {
             qWarning("FileSystemWatcher: Directory %s is not watched.", qPrintable(directory));
@@ -420,9 +421,9 @@ void FileSystemWatcher::removeDirectories(const QStringList &directories)
         d->m_staticData->m_watcher->removePaths(toRemove);
 }
 
-QStringList FileSystemWatcher::directories() const
+FilePaths FileSystemWatcher::directories() const
 {
-    return d->m_directories.keys();
+    return transform(d->m_directories.keys(), &FilePath::fromString);
 }
 
 void FileSystemWatcher::slotFileChanged(const QString &path)
@@ -524,19 +525,9 @@ void FileSystemWatcher::addDirectories(const FilePaths &files, WatchMode wm)
     addDirectories(transform(files, &FilePath::toFSPathString), wm);
 }
 
-void FileSystemWatcher::removeDirectories(const FilePaths &files)
-{
-    removeDirectories(transform(files, &FilePath::toFSPathString));
-}
-
 bool FileSystemWatcher::watchesDirectory(const FilePath &file) const
 {
     return watchesDirectory(file.toFSPathString());
-}
-
-FilePaths FileSystemWatcher::directoryPaths() const
-{
-    return transform(directories(), &FilePath::fromString);
 }
 
 } //Utils

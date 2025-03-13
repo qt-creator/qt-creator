@@ -48,7 +48,7 @@ public:
 
     bool watchesDirectory(const Utils::FilePath &file) const;
 
-    Utils::FilePaths directoryPaths() const;
+    Utils::FilePaths directories() const;
 
     // Phase out:
     void addFile(const QString &file, WatchMode wm);
@@ -63,10 +63,7 @@ public:
     void addDirectory(const QString &file, WatchMode wm);
     void addDirectories(const QStringList &files, WatchMode wm);
 
-    void removeDirectories(const QStringList &files);
-
     bool watchesDirectory(const QString &file) const;
-    QStringList directories() const;
 
 signals:
     void fileChanged(const Utils::FilePath &path);
