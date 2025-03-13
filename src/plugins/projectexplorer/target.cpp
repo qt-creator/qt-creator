@@ -459,6 +459,7 @@ bool Target::addConfigurationsFromMap(const Utils::Store &map, bool setActiveCon
         // Pre-17 backward compatibility: Give each build config the formerly target-global
         // configurations.
         if (!hasDeployConfigsPerBuildConfig) {
+            bc->setExtraDataFromMap(map);
             if (!bc->addConfigurationsFromMap(map, true))
                 return false;
         }

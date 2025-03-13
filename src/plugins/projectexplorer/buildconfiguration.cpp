@@ -52,6 +52,7 @@ const char BUILD_STEP_LIST_COUNT[] = "ProjectExplorer.BuildConfiguration.BuildSt
 const char BUILD_STEP_LIST_PREFIX[] = "ProjectExplorer.BuildConfiguration.BuildStepList.";
 const char CUSTOM_PARSERS_KEY[] = "ProjectExplorer.BuildConfiguration.CustomParsers";
 const char PARSE_STD_OUT_KEY[] = "ProjectExplorer.BuildConfiguration.ParseStandardOutput";
+const char EXTRA_DATA_KEY[] = "ProjectExplorer.Target.PluginSettings";
 
 const char ACTIVE_DC_KEY[] = "ProjectExplorer.Target.ActiveDeployConfiguration";
 const char DC_KEY_PREFIX[] = "ProjectExplorer.Target.DeployConfiguration.";
@@ -164,6 +165,7 @@ public:
     QList<Utils::Id> m_initialCleanSteps;
     bool m_parseStdOut = false;
     QList<Utils::Id> m_customParsers;
+    Store m_extraData;
     BuildSystem *m_buildSystem = nullptr;
     QList<DeployConfiguration *> m_deployConfigurations;
     DeployConfiguration *m_activeDeployConfiguration = nullptr;
@@ -413,6 +415,11 @@ bool BuildConfiguration::addConfigurationsFromMap(
     }
 
     return true;
+}
+
+void BuildConfiguration::setExtraDataFromMap(const Utils::Store &map)
+{
+    d->m_extraData = storeFromVariant(map.value(EXTRA_DATA_KEY));
 }
 
 void BuildConfiguration::storeConfigurationsToMap(Utils::Store &map) const
@@ -876,6 +883,19 @@ ProjectConfigurationModel *BuildConfiguration::runConfigurationModel() const
     return &d->m_runConfigurationModel;
 }
 
+QVariant BuildConfiguration::extraData(const Utils::Key &name) const
+{
+    return d->m_extraData.value(name);
+}
+
+void BuildConfiguration::setExtraData(const Utils::Key &name, const QVariant &value)
+{
+    if (value.isValid())
+        d->m_extraData.insert(name, value);
+    else
+        d->m_extraData.remove(name);
+}
+
 ProjectConfigurationModel *BuildConfiguration::deployConfigurationModel() const
 {
     return &d->m_deployConfigurationModel;
@@ -902,6 +922,9 @@ void BuildConfiguration::toMap(Store &map) const
 
     map.insert(PARSE_STD_OUT_KEY, d->m_parseStdOut);
     map.insert(CUSTOM_PARSERS_KEY, transform(d->m_customParsers, &Id::toSetting));
+
+    if (!d->m_extraData.isEmpty())
+        map.insert(EXTRA_DATA_KEY, variantFromStore(d->m_extraData));
 
     storeConfigurationsToMap(map);
 }
@@ -941,6 +964,7 @@ void BuildConfiguration::fromMap(const Store &map)
 
     ProjectConfiguration::fromMap(map);
     setToolTip(d->m_tooltipAspect());
+    setExtraDataFromMap(map);
     addConfigurationsFromMap(map, true);
 }
 

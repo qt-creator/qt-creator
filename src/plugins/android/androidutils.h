@@ -34,14 +34,15 @@ namespace Android::Internal {
 QString packageName(const ProjectExplorer::BuildConfiguration *bc);
 QString activityName(const ProjectExplorer::BuildConfiguration *bc);
 
-QString deviceSerialNumber(const ProjectExplorer::Target *target);
-void setDeviceSerialNumber(ProjectExplorer::Target *target, const QString &deviceSerialNumber);
+QString deviceSerialNumber(const ProjectExplorer::BuildConfiguration *bc);
+void setDeviceSerialNumber(ProjectExplorer::BuildConfiguration *bc,
+                           const QString &deviceSerialNumber);
 
 QString apkDevicePreferredAbi(const ProjectExplorer::BuildConfiguration *bc);
-void setDeviceAbis(ProjectExplorer::Target *target, const QStringList &deviceAbis);
+void setDeviceAbis(ProjectExplorer::BuildConfiguration *bc, const QStringList &deviceAbis);
 
-int deviceApiLevel(const ProjectExplorer::Target *target);
-void setDeviceApiLevel(ProjectExplorer::Target *target, int level);
+int deviceApiLevel(const ProjectExplorer::BuildConfiguration *bc);
+void setDeviceApiLevel(ProjectExplorer::BuildConfiguration *bc, int level);
 
 QString buildTargetSDK(const ProjectExplorer::BuildConfiguration *bc);
 
@@ -58,7 +59,7 @@ Utils::FilePath androidBuildDirectory(const ProjectExplorer::BuildConfiguration 
 Utils::FilePath androidAppProcessDir(const ProjectExplorer::BuildConfiguration *bc);
 Utils::FilePath buildDirectory(const ProjectExplorer::BuildConfiguration *bc);
 Utils::FilePath manifestPath(const ProjectExplorer::BuildConfiguration *bc);
-void setManifestPath(ProjectExplorer::Target *target, const Utils::FilePath &path);
+void setManifestPath(ProjectExplorer::BuildConfiguration *bc, const Utils::FilePath &path);
 ProjectExplorer::Abi androidAbi2Abi(const QString &androidAbi);
 bool skipInstallationAndPackageSteps(const ProjectExplorer::BuildConfiguration *bc);
 

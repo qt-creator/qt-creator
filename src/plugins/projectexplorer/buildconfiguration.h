@@ -92,6 +92,9 @@ public:
     void setActiveRunConfiguration(RunConfiguration *rc);
     ProjectConfigurationModel *runConfigurationModel() const;
 
+    QVariant extraData(const Utils::Key &name) const;
+    void setExtraData(const Utils::Key &name, const QVariant &value);
+
     virtual BuildConfiguration *clone(Target *target) const;
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
@@ -166,6 +169,7 @@ protected:
 
 private:
     bool addConfigurationsFromMap(const Utils::Store &map, bool setActiveConfigurations);
+    void setExtraDataFromMap(const Utils::Store &map);
     void storeConfigurationsToMap(Utils::Store &map) const;
 
     void emitBuildDirectoryChanged();

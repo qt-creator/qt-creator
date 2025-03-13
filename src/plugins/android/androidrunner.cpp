@@ -49,7 +49,7 @@ Group androidRecipe(RunControl *runControl)
 
         const IDevice::ConstPtr device = RunDeviceKitAspect::device(runControl->kit());
         AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromDevice(device);
-        setDeviceSerialNumber(bc->target(), info.serialNumber);
+        setDeviceSerialNumber(bc, info.serialNumber);
         deviceSerialNumber = info.serialNumber;
         apiLevel = info.sdk;
         qCDebug(androidRunnerLog) << "Android Device Info changed" << deviceSerialNumber
@@ -66,8 +66,8 @@ Group androidRecipe(RunControl *runControl)
             });
         }
     } else {
-        deviceSerialNumber = Internal::deviceSerialNumber(bc->target());
-        apiLevel = Internal::deviceApiLevel(bc->target());
+        deviceSerialNumber = Internal::deviceSerialNumber(bc);
+        apiLevel = Internal::deviceApiLevel(bc);
     }
 
     const auto onSetup = [runControl, glueStorage, deviceSerialNumber, apiLevel] {

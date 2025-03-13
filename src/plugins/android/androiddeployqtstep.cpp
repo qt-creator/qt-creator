@@ -247,9 +247,9 @@ bool AndroidDeployQtStep::init()
     m_serialNumber = info.serialNumber;
     qCDebug(deployStepLog) << "Selected device info:" << info;
 
-    Internal::setDeviceSerialNumber(target(), m_serialNumber);
-    Internal::setDeviceApiLevel(target(), info.sdk);
-    Internal::setDeviceAbis(target(), info.cpuAbi);
+    Internal::setDeviceSerialNumber(buildConfiguration(), m_serialNumber);
+    Internal::setDeviceApiLevel(buildConfiguration(), info.sdk);
+    Internal::setDeviceAbis(buildConfiguration(), info.cpuAbi);
 
     emit addOutput(Tr::tr("Deploying to %1").arg(m_serialNumber), OutputFormat::NormalMessage);
 
@@ -263,7 +263,7 @@ bool AndroidDeployQtStep::init()
     m_apkPath = FilePath::fromString(node->data(Constants::AndroidApk).toString());
     if (!m_apkPath.isEmpty()) {
         m_command = AndroidConfig::adbToolPath();
-        Internal::setManifestPath(target(),
+        Internal::setManifestPath(buildConfiguration(),
             FilePath::fromString(node->data(Constants::AndroidManifest).toString()));
     } else {
         FilePath jsonFile = AndroidQtVersion::androidDeploymentSettings(buildConfiguration());
@@ -325,7 +325,7 @@ GroupItem AndroidDeployQtStep::runRecipe()
         }
         m_serialNumber = serialNumber;
         qCDebug(deployStepLog) << "Deployment device serial number changed:" << serialNumber;
-        Internal::setDeviceSerialNumber(target(), serialNumber);
+        Internal::setDeviceSerialNumber(buildConfiguration(), serialNumber);
         return true;
     };
 

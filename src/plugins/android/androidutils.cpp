@@ -404,32 +404,32 @@ bool skipInstallationAndPackageSteps(const BuildConfiguration *bc)
 
 FilePath manifestPath(const BuildConfiguration *bc)
 {
-    QVariant manifest = bc->target()->namedSettings(AndroidManifestName);
+    QVariant manifest = bc->extraData(AndroidManifestName);
     if (manifest.isValid())
         return manifest.value<FilePath>();
     return androidBuildDirectory(bc).pathAppended(AndroidManifestName);
 }
 
-void setManifestPath(Target *target, const FilePath &path)
+void setManifestPath(BuildConfiguration *bc, const FilePath &path)
 {
-     target->setNamedSettings(AndroidManifestName, QVariant::fromValue(path));
+     bc->setExtraData(AndroidManifestName, QVariant::fromValue(path));
 }
 
-QString deviceSerialNumber(const Target *target)
+QString deviceSerialNumber(const BuildConfiguration *bc)
 {
-    return target->namedSettings(AndroidDeviceSn).toString();
+    return bc->extraData(AndroidDeviceSn).toString();
 }
 
-void setDeviceSerialNumber(Target *target, const QString &deviceSerialNumber)
+void setDeviceSerialNumber(BuildConfiguration *bc, const QString &deviceSerialNumber)
 {
     qCDebug(androidManagerLog) << "Target device serial changed:"
-                               << target->displayName() << deviceSerialNumber;
-    target->setNamedSettings(AndroidDeviceSn, deviceSerialNumber);
+                               << bc->target()->displayName() << deviceSerialNumber;
+    bc->setExtraData(AndroidDeviceSn, deviceSerialNumber);
 }
 
-static QString preferredAbi(const QStringList &appAbis, const Target *target)
+static QString preferredAbi(const QStringList &appAbis, const BuildConfiguration *bc)
 {
-    const auto deviceAbis = target->namedSettings(AndroidDeviceAbis).toStringList();
+    const auto deviceAbis = bc->extraData(AndroidDeviceAbis).toStringList();
     for (const auto &abi : deviceAbis) {
         if (appAbis.contains(abi))
             return abi;
@@ -443,7 +443,7 @@ QString apkDevicePreferredAbi(const BuildConfiguration *bc)
     if (!libsPath.exists()) {
         if (const ProjectNode *node = currentProjectNode(bc)) {
             const QString abi = preferredAbi(
-                node->data(Android::Constants::AndroidAbis).toStringList(), bc->target());
+                node->data(Android::Constants::AndroidAbis).toStringList(), bc);
             if (abi.isEmpty())
                 return node->data(Android::Constants::AndroidAbi).toString();
         }
@@ -454,24 +454,24 @@ QString apkDevicePreferredAbi(const BuildConfiguration *bc)
         if (!abiDir.dirEntries({{"*.so"}, QDir::Files | QDir::NoDotAndDotDot}).isEmpty())
             apkAbis << abiDir.fileName();
     }
-    return preferredAbi(apkAbis, bc->target());
+    return preferredAbi(apkAbis, bc);
 }
 
-void setDeviceAbis(Target *target, const QStringList &deviceAbis)
+void setDeviceAbis(BuildConfiguration *bc, const QStringList &deviceAbis)
 {
-    target->setNamedSettings(AndroidDeviceAbis, deviceAbis);
+    bc->setExtraData(AndroidDeviceAbis, deviceAbis);
 }
 
-int deviceApiLevel(const Target *target)
+int deviceApiLevel(const BuildConfiguration *bc)
 {
-    return target->namedSettings(ApiLevelKey).toInt();
+    return bc->extraData(ApiLevelKey).toInt();
 }
 
-void setDeviceApiLevel(Target *target, int level)
+void setDeviceApiLevel(BuildConfiguration *bc, int level)
 {
     qCDebug(androidManagerLog) << "Target device API level changed:"
-                               << target->displayName() << level;
-    target->setNamedSettings(ApiLevelKey, level);
+                               << bc->target()->displayName() << level;
+    bc->setExtraData(ApiLevelKey, level);
 }
 
 int defaultMinimumSDK(const QtSupport::QtVersion *qtVersion)
