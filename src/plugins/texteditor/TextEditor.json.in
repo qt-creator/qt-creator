@@ -52,9 +52,14 @@
         "      <glob pattern='*.markdown'/>",
         "    </mime-type>",
         "    <mime-type type='text/rust'>",
-        "      <comment>Rust souce file</comment>",
+        "      <comment>Rust source file</comment>",
         "      <sub-class-of type='text/plain'/>",
         "      <glob pattern='*.rs'/>",
+        "    </mime-type>",
+        "    <mime-type type='text/x-swift'>",
+        "      <comment>Swift source file</comment>",
+        "      <sub-class-of type='text/plain'/>",
+        "      <glob pattern='*.swift'/>",
         "    </mime-type>",
         "</mime-info>"
     ]

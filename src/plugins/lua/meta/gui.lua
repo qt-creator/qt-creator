@@ -232,6 +232,7 @@ local markdownBrowser = {}
 
 ---@class (exact) MarkdownBrowserOptions : WidgetOptions
 ---@field enableCodeCopyButton? boolean Enable or disable the code copy button
+---@field viewportMargins? integer[] Four integers representing left, top, right and bottom margins
 local markdownBrowserOptions = {}
 
 ---@param options MarkdownBrowserOptions

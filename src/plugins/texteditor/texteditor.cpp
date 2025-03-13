@@ -4128,7 +4128,8 @@ void TextEditorWidgetPrivate::forceUpdateScrollbarSize()
     // scrollarea which is a private part of the QPlainTextEdit.
     // During the resizeEvent the plain text edit will resize its scrollbars.
     // The TextEditorWidget will also update its scrollbar overlays.
-    q->resizeEvent(new QResizeEvent(q->size(), q->size()));
+    QResizeEvent event(q->size(), q->size());
+    q->resizeEvent(&event);
 }
 
 std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(

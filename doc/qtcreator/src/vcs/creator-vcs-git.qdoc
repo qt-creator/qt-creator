@@ -369,7 +369,7 @@
             \li \l {git branch}
         \row
             \li \uicontrol {Copy <hash>}
-            \li Copy the commit's <hash> to the clipboard.
+            \li Copy the commit <hash> to the clipboard.
             \li
         \row
             \li \uicontrol {Describe Change <hash>}
@@ -1005,7 +1005,7 @@
 
     In the \uicontrol {Git Branches} view, right-click a remote branch, and
     then select a merge option in the context menu. If the commit you are merging
-    can be reached by following the first commit's history, there is no divergent
+    can be reached by following the history of the first commit, there is no divergent
     work to merge together. To allow Git to move the branch pointer forward,
     select \uicontrol {Merge <remote branch> into <local branch> (Fast-Forward)}.
     If you do not want to fast-forward the branch, select

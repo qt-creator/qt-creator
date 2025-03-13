@@ -11,6 +11,7 @@
 #include <utils/layoutbuilder.h>
 
 #include <QMetaEnum>
+#include <QCompleter>
 
 using namespace Layouting;
 using namespace Utils;
@@ -114,6 +115,7 @@ CREATE_HAS_FUNC(setFixedSize, QSize())
 CREATE_HAS_FUNC(setVisible, bool())
 CREATE_HAS_FUNC(setIcon, Utils::Icon());
 CREATE_HAS_FUNC(setContentsMargins, int(), int(), int(), int());
+CREATE_HAS_FUNC(setViewportMargins, int(), int(), int(), int());
 CREATE_HAS_FUNC(setCursor, Qt::CursorShape())
 CREATE_HAS_FUNC(setMinimumWidth, int());
 CREATE_HAS_FUNC(setEnableCodeCopyButton, bool());
@@ -125,6 +127,12 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         sol::optional<QMargins> margins = children.get<sol::optional<QMargins>>("contentMargins"sv);
         if (margins)
             item->setContentsMargins(margins->left(), margins->top(), margins->right(), margins->bottom());
+    }
+
+    if constexpr (has_setViewportMargins<T>) {
+        sol::optional<QMargins> margins = children.get<sol::optional<QMargins>>("viewportMargins"sv);
+        if (margins)
+            item->setViewportMargins(margins->left(), margins->top(), margins->right(), margins->bottom());
     }
 
     if constexpr (has_setCursor<T>) {
@@ -196,8 +204,10 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
 
     if constexpr (has_setCompleter<T>) {
         const auto completer = children.get<QCompleter *>("completer"sv);
-        if (completer)
+        if (completer) {
             item->setCompleter(completer);
+            completer->setParent(item->emerge());
+        }
     }
 
     if constexpr (has_setMinimumHeight<T>) {

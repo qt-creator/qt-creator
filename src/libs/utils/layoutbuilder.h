@@ -460,6 +460,7 @@ public:
     void setMarkdown(const QString &);
     void setBasePath(const Utils::FilePath &);
     void setEnableCodeCopyButton(bool enable);
+    void setViewportMargins(int left, int top, int right, int bottom);
 };
 
 // Special
