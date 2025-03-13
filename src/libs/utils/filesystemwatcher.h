@@ -38,7 +38,7 @@ public:
     void removeFiles(const Utils::FilePaths &files);
 
     bool watchesFile(const Utils::FilePath &file) const;
-    Utils::FilePaths filePaths() const;
+    Utils::FilePaths files() const;
 
     void addDirectory(const Utils::FilePath &file, WatchMode wm);
     void addDirectories(const Utils::FilePaths &files, WatchMode wm);
@@ -56,8 +56,6 @@ public:
 
     void removeFile(const QString &file);
     void removeFiles(const QStringList &files);
-
-    QStringList files() const;
 
 signals:
     void fileChanged(const Utils::FilePath &path);

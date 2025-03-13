@@ -479,7 +479,7 @@ void CompilationDatabaseBuildSystem::updateDeploymentData()
     DeploymentData deploymentData;
     deploymentData.addFilesFromDeploymentFile(deploymentFilePath, projectDirectory());
     setDeploymentData(deploymentData);
-    if (m_deployFileWatcher->files() != QStringList(deploymentFilePath.path())) {
+    if (m_deployFileWatcher->files() != FilePaths{deploymentFilePath}) {
         m_deployFileWatcher->clear();
         m_deployFileWatcher->addFile(deploymentFilePath.path(), FileSystemWatcher::WatchModifiedDate);
     }

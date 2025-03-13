@@ -339,14 +339,14 @@ void FileSystemWatcher::removeFiles(const QStringList &files)
 void FileSystemWatcher::clear()
 {
     if (!d->m_files.isEmpty())
-        removeFiles(filePaths());
+        removeFiles(files());
     if (!d->m_directories.isEmpty())
         removeDirectories(directories());
 }
 
-QStringList FileSystemWatcher::files() const
+FilePaths FileSystemWatcher::files() const
 {
-    return d->m_files.keys();
+    return transform(d->m_files.keys(), &FilePath::fromString);
 }
 
 bool FileSystemWatcher::watchesDirectory(const FilePath &directory) const
@@ -505,11 +505,6 @@ void FileSystemWatcher::removeFile(const FilePath &file)
 void FileSystemWatcher::removeFiles(const FilePaths &files)
 {
     removeFiles(transform(files, &FilePath::toFSPathString));
-}
-
-FilePaths FileSystemWatcher::filePaths() const
-{
-    return transform(files(), &FilePath::fromString);
 }
 
 } //Utils

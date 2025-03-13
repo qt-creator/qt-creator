@@ -120,7 +120,7 @@ public:
             rci.creationMode = RunConfigurationCreationInfo::AlwaysCreate;
             rci.projectFilePath = ti.manifest.filePath;
             rci.useTerminal = false;
-            if (!m_fileSystemWatcher.files().contains(ti.manifest.filePath.toFSPathString())) {
+            if (!m_fileSystemWatcher.files().contains(ti.manifest.filePath)) {
                 m_fileSystemWatcher.addFile(ti.manifest.filePath, FileSystemWatcher::WatchAllChanges);
             }
             return rci;
