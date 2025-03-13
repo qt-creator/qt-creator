@@ -1743,13 +1743,16 @@ void QmakeProFile::applyEvaluate(const QmakeEvalResultPtr &result)
                     }
                 });
         }
-        const QStringList directoriesToAdd = Utils::filtered<QStringList>(
-            Utils::toList(result->directoriesWithWildcards),
-            [this](const QString &path) {
-                return !m_wildcardWatcher->watchesDirectory(FilePath::fromString(path));
-            });
-        for (const QString &path : directoriesToAdd)
+        FilePaths directoriesToAdd;
+        for (const QString &dir : result->directoriesWithWildcards) {
+            const FilePath directory = FilePath::fromString(dir);
+            if (!m_wildcardWatcher->watchesDirectory(directory))
+                directoriesToAdd.append(directory);
+        }
+        for (const FilePath &dir : directoriesToAdd) {
+            const QString path = dir.toFSPathString();
             m_wildcardDirectoryContents.insert(path, QDir(path).entryList());
+        }
         m_wildcardWatcher->addDirectories(directoriesToAdd, FileSystemWatcher::WatchModifiedDate);
     }
     if (m_wildcardWatcher) {

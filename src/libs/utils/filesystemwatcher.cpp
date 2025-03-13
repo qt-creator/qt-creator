@@ -354,19 +354,20 @@ bool FileSystemWatcher::watchesDirectory(const QString &directory) const
     return d->m_directories.contains(directory);
 }
 
-void FileSystemWatcher::addDirectory(const QString &directory, WatchMode wm)
+void FileSystemWatcher::addDirectory(const FilePath &directory, WatchMode wm)
 {
-    addDirectories(QStringList(directory), wm);
+    addDirectories({directory}, wm);
 }
 
-void FileSystemWatcher::addDirectories(const QStringList &directories, WatchMode wm)
+void FileSystemWatcher::addDirectories(const FilePaths &directories, WatchMode wm)
 {
     qCDebug(fileSystemWatcherLog)
         << this << d->m_id << "addDirectories mode" << wm << directories
         << "limit currently:" << (d->m_files.size() + d->m_directories.size())
         << "of" << d->m_staticData->maxFileOpen;
     QStringList toAdd;
-    for (const QString &directory : directories) {
+    for (const FilePath &dir : directories) {
+        const QString directory = dir.toFSPathString();
         if (watchesDirectory(directory)) {
             qWarning("FileSystemWatcher: Directory %s is already being watched.", qPrintable(directory));
             continue;
@@ -513,16 +514,6 @@ bool FileSystemWatcher::watchesFile(const FilePath &file) const
 FilePaths FileSystemWatcher::filePaths() const
 {
     return transform(files(), &FilePath::fromString);
-}
-
-void FileSystemWatcher::addDirectory(const FilePath &file, WatchMode wm)
-{
-    addDirectory(file.toFSPathString(), wm);
-}
-
-void FileSystemWatcher::addDirectories(const FilePaths &files, WatchMode wm)
-{
-    addDirectories(transform(files, &FilePath::toFSPathString), wm);
 }
 
 bool FileSystemWatcher::watchesDirectory(const FilePath &file) const

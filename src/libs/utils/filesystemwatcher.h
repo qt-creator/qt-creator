@@ -60,9 +60,6 @@ public:
     bool watchesFile(const QString &file) const;
     QStringList files() const;
 
-    void addDirectory(const QString &file, WatchMode wm);
-    void addDirectories(const QStringList &files, WatchMode wm);
-
     bool watchesDirectory(const QString &file) const;
 
 signals:
