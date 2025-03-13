@@ -325,6 +325,8 @@ public:
     Utils::expected_str<std::unique_ptr<FilePathWatcher>> watch() const;
     void openTerminal(const Environment &env) const;
 
+    FilePath intern() const;
+
 private:
     // These are needed.
     QTCREATOR_UTILS_EXPORT friend bool operator==(const FilePath &first, const FilePath &second);

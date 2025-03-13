@@ -10,6 +10,7 @@
 #include "fileutils.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
+#include "stringtable.h"
 #include "utilstr.h"
 
 #include <QByteArray>
@@ -354,6 +355,16 @@ Utils::expected_str<std::unique_ptr<FilePathWatcher>> FilePath::watch() const
 void FilePath::openTerminal(const Environment &env) const
 {
     deviceFileHooks().openTerminal(*this, env);
+}
+
+/*!
+    Returns a copy with interned data.
+*/
+FilePath FilePath::intern() const
+{
+    FilePath result = *this;
+    result.m_data = StringTable::insert(m_data);
+    return result;
 }
 
 /*!

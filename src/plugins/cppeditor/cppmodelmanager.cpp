@@ -1394,16 +1394,16 @@ ProjectInfo::ConstPtr CppModelManager::projectInfo(Project *project)
 void CppModelManager::removeProjectInfoFilesAndIncludesFromSnapshot(const ProjectInfo &projectInfo)
 {
     QMutexLocker snapshotLocker(&d->m_snapshotMutex);
-    QStringList removedFiles;
+    FilePaths removedFiles;
     for (const ProjectPart::ConstPtr &projectPart : projectInfo.projectParts()) {
         for (const ProjectFile &cxxFile : std::as_const(projectPart->files)) {
             const QSet<FilePath> filePaths = d->m_snapshot.allIncludesForDocument(cxxFile.path);
             for (const FilePath &filePath : filePaths) {
                 d->m_snapshot.remove(filePath);
-                removedFiles << filePath.toUrlishString();
+                removedFiles << filePath;
             }
             d->m_snapshot.remove(cxxFile.path);
-            removedFiles << cxxFile.path.toUrlishString();
+            removedFiles << cxxFile.path;
         }
     }
 
@@ -1618,7 +1618,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
                 const QSet<FilePath> removedFiles = comparer.removedFiles();
                 if (!removedFiles.isEmpty()) {
                     filesRemoved = true;
-                    emit m_instance->aboutToRemoveFiles(transform<QStringList>(removedFiles, &FilePath::toUrlishString));
+                    emit m_instance->aboutToRemoveFiles(toList(removedFiles));
                     removeFilesFromSnapshot(removedFiles);
                 }
             }
@@ -2166,15 +2166,15 @@ void CppModelManager::GC()
     }
 
     // Find out the files in the current snapshot that are not reachable from the project files
-    QStringList notReachableFiles;
+    FilePaths notReachableFiles;
     Snapshot newSnapshot;
     for (Snapshot::const_iterator it = currentSnapshot.begin(); it != currentSnapshot.end(); ++it) {
-        const FilePath &fileName = it.key();
+        const FilePath &filePath = it.key();
 
-        if (reachableFiles.contains(fileName))
+        if (reachableFiles.contains(filePath))
             newSnapshot.insert(it.value());
         else
-            notReachableFiles.append(fileName.toUrlishString());
+            notReachableFiles.append(filePath);
     }
 
     // Announce removing files and replace the snapshot

@@ -98,8 +98,8 @@ void TestTreeModel::setupParsingConnections()
     connect(cppMM, &CppEditor::CppModelManager::documentUpdated,
             m_parser, &TestCodeParser::onCppDocumentUpdated, Qt::QueuedConnection);
     connect(cppMM, &CppEditor::CppModelManager::aboutToRemoveFiles,
-            this, [this](const QStringList &files) {
-                markForRemoval(transform<QSet>(files, &FilePath::fromString));
+            this, [this](const FilePaths &filePaths) {
+                markForRemoval(Utils::toSet(filePaths));
                 sweep();
             }, Qt::QueuedConnection);
     connect(cppMM, &CppEditor::CppModelManager::projectPartsUpdated,
