@@ -668,7 +668,7 @@ void FileAccess::iterateDirectory(const FilePath &filePath,
     }
     processResults();
 
-    qCDebug(faLog) << "Iterated directory" << filePath.toUrlishString() << "in" << t.elapsed() << "ms";
+    qCDebug(faLog) << "Iterated directory" << filePath.toUserOutput() << "in" << t.elapsed() << "ms";
 }
 
 } // namespace CmdBridge
