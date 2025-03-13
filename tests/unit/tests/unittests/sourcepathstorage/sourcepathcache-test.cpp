@@ -372,4 +372,78 @@ TEST_F(SourcePathCache, get_file_path_after_populate_if_empty)
     ASSERT_THAT(path, Eq("/path/to/file.cpp"));
 }
 
+TEST_F(SourcePathCache, source_name_id_calls_fetch_source_name_id)
+{
+    EXPECT_CALL(storageMock, fetchSourceNameId(Eq("file.cpp")));
+
+    cache.sourceNameId(Utils::SmallString("file.cpp"));
+}
+
+TEST_F(SourcePathCache, second_source_name_id_calls_not_fetch_source_name_id)
+{
+    cache.sourceNameId(Utils::SmallString("file.cpp"));
+
+    EXPECT_CALL(storageMock, fetchSourceNameId(Eq("file.cpp"))).Times(0);
+
+    cache.sourceNameId(Utils::SmallString("file.cpp"));
+}
+
+TEST_F(SourcePathCache, source_name_id)
+{
+    auto id = cache.sourceNameId(Utils::SmallString("file.cpp"));
+
+    ASSERT_THAT(id, Eq(sourceNameId42));
+}
+
+TEST_F(SourcePathCache, source_name_id_is_already_in_cache)
+{
+    auto firstId = cache.sourceNameId(Utils::SmallString("file.cpp"));
+
+    auto secondId = cache.sourceNameId(Utils::SmallString("file.cpp"));
+
+    ASSERT_THAT(secondId, firstId);
+}
+
+TEST_F(SourcePathCache, throw_for_getting_source_name_with_an_invalid_id)
+{
+    SourceNameId sourceNameId;
+
+    ASSERT_THROW(cache.sourceName(sourceNameId), QmlDesigner::NoSourceNameForInvalidSourceNameId);
+}
+
+TEST_F(SourcePathCache, get_a_source_name)
+{
+    SourceNameId sourceNameId{sourceNameId42};
+
+    auto sourceName = cache.sourceName(sourceNameId);
+
+    ASSERT_THAT(sourceName, Eq(Utils::SmallStringView{"file.cpp"}));
+}
+
+TEST_F(SourcePathCache, get_a_source_name_with_cached_source_name_id)
+{
+    SourceNameId sourceNameId{sourceNameId42};
+    cache.sourceName(sourceNameId);
+
+    auto sourceName = cache.sourceName(sourceNameId);
+
+    ASSERT_THAT(sourceName, Eq(Utils::SmallStringView{"file.cpp"}));
+}
+
+TEST_F(SourcePathCache, source_name_calls_fetch_source_name)
+{
+    EXPECT_CALL(storageMock, fetchSourceName(Eq(sourceNameId42)));
+
+    cache.sourceName(sourceNameId42);
+}
+
+TEST_F(SourcePathCache, second_source_name_calls_not_fetch_source_name)
+{
+    cache.sourceName(sourceNameId42);
+
+    EXPECT_CALL(storageMock, fetchSourceName(_)).Times(0);
+
+    cache.sourceName(sourceNameId42);
+}
+
 } // namespace

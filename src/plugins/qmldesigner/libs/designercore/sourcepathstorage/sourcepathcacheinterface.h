@@ -28,11 +28,15 @@ public:
                               Utils::SmallStringView sourceName) const
         = 0;
 
+    virtual SourceNameId sourceNameId(Utils::SmallStringView sourceName) const = 0;
+
     virtual SourceContextId sourceContextId(Utils::SmallStringView sourceContextPath) const = 0;
 
     virtual SourcePath sourcePath(SourceId sourceId) const = 0;
 
     virtual Utils::PathString sourceContextPath(SourceContextId sourceContextId) const = 0;
+
+    virtual Utils::SmallString sourceName(SourceNameId sourceNameId) const = 0;
 
 protected:
     ~SourcePathCacheInterface() = default;
