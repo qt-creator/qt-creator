@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pythongenerator.h"
+
 #include "cmakewriter.h"
 #include "resourcegenerator.h"
+#include "../qmlproject.h"
 
-#include "projectexplorer/projectmanager.h"
-#include "qmlprojectmanager/qmlproject.h"
+#include <projectexplorer/projectmanager.h>
 
 #include <QMenu>
 

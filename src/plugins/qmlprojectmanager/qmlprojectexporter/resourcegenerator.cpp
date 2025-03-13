@@ -1,9 +1,12 @@
 // Copyright (C) 2019 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include <resourcegenerator.h>
+#include "resourcegenerator.h"
 
-#include <qmlprojectmanagertr.h>
+#include "../qmlprojectmanagertr.h"
+#include "../buildsystem/qmlbuildsystem.h"
+#include "../qmlprojectconstants.h"
+#include "../qmlprojectexporter/filetypes.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/documentmanager.h>
@@ -11,10 +14,6 @@
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/target.h>
-
-#include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
-#include <qmlprojectmanager/qmlprojectconstants.h>
-#include <qmlprojectmanager/qmlprojectexporter/filetypes.h>
 
 #include <qtsupport/qtkitaspect.h>
 

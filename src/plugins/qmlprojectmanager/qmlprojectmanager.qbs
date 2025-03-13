@@ -48,6 +48,7 @@ QtcPlugin {
         prefix: "qmlprojectexporter/"
         files: [
             "pythongenerator.cpp", "pythongenerator.h",
+            "resourcegenerator.cpp", "resourcegenerator.h",
             "cmakegenerator.cpp", "cmakegenerator.h",
             "cmakewriter.cpp", "cmakewriter.h",
             "cmakewriterv0.cpp", "cmakewriterv0.h",

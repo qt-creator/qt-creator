@@ -3,14 +3,13 @@
 
 #include "cmakegenerator.h"
 #include "filetypes.h"
+#include "../qmlproject.h"
+#include "../qmlprojectmanagertr.h"
 
-#include "qmlprojectmanager/qmlproject.h"
-#include "qmlprojectmanager/qmlprojectmanagertr.h"
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectnodes.h>
 
-#include "projectexplorer/projectmanager.h"
-#include "projectexplorer/projectnodes.h"
-
-#include "utils/filenamevalidatinglineedit.h"
+#include <utils/filenamevalidatinglineedit.h>
 
 #include <QDirIterator>
 #include <QFileInfo>
