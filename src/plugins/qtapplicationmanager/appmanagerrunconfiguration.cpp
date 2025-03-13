@@ -106,12 +106,6 @@ public:
             return filterTarget(bc->kit(), ti);
         });
         auto result = Utils::transform(filteredTargets, [this, bc](const TargetInformation &ti) {
-
-            QVariantMap settings;
-            // ti.buildKey is currently our app id
-            settings.insert("id", ti.buildKey);
-            bc->target()->setNamedSettings("runConfigurationSettings", settings);
-
             RunConfigurationCreationInfo rci;
             rci.factory = this;
             rci.buildKey = ti.buildKey;
