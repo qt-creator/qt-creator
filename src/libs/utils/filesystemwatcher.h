@@ -57,10 +57,7 @@ public:
     void removeFile(const QString &file);
     void removeFiles(const QStringList &files);
 
-    bool watchesFile(const QString &file) const;
     QStringList files() const;
-
-    bool watchesDirectory(const QString &file) const;
 
 signals:
     void fileChanged(const Utils::FilePath &path);

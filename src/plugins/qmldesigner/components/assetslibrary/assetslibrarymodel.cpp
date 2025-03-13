@@ -292,7 +292,7 @@ bool AssetsLibraryModel::filterAcceptsRow(int sourceRow, const QModelIndex &sour
     QModelIndex sourceIdx = m_sourceFsModel->index(sourceRow, 0, sourceParent);
     QString sourcePath = m_sourceFsModel->filePath(sourceIdx);
 
-    if (QFileInfo(sourcePath).isFile() && !m_fileWatcher->watchesFile(sourcePath))
+    if (QFileInfo(sourcePath).isFile() && !m_fileWatcher->watchesFile(FilePath::fromString(sourcePath)))
         m_fileWatcher->addFile(sourcePath, Utils::FileSystemWatcher::WatchModifiedDate);
 
     if (!m_searchText.isEmpty() && path.startsWith(m_rootPath) && QFileInfo{path}.isDir()) {

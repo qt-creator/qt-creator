@@ -221,7 +221,7 @@ void FileFilterItem::watchFiles(QSet<QString> filters, const QSet<QString> &add,
     for (const auto& fileString : add) {
         Utils::FilePath filePath = Utils::FilePath::fromString(fileString);
         bool hasName = filters.contains(filePath.fileName()) || filters.contains(filePath.suffix());
-        if (hasName && !dirWatcher()->watchesFile(fileString))
+        if (hasName && !dirWatcher()->watchesFile(filePath))
             dirWatcher()->addFile(fileString, Utils::FileSystemWatcher::WatchModifiedDate);
     }
     for (const auto& fileString : remove) {
