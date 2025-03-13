@@ -22,7 +22,9 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectmanager.h>
 
+#ifndef QDS_USE_PROJECTSTORAGE
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#endif
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -283,11 +285,12 @@ void BakeLights::exposeModelsAndLights(const QString &nodeId)
         }
     }
 
+#ifndef QDS_USE_PROJECTSTORAGE
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
     QmlJS::Document::Ptr doc = rewriter.document();
     modelManager->updateDocument(doc);
-
     m_view->model()->rewriterView()->forceAmend();
+#endif
 
     compModel->setRewriterView({});
 

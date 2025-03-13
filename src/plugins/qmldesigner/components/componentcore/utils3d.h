@@ -60,7 +60,7 @@ ModelNode createMaterial(AbstractView *view);
 void renameMaterial(const ModelNode &material, const QString &newName);
 void duplicateMaterial(AbstractView *view, const ModelNode &material);
 
-void addQuick3DImportAndView3D(AbstractView *view);
+bool addQuick3DImportAndView3D(AbstractView *view, bool suppressWarningDialog = false);
 void assignMaterialTo3dModel(AbstractView *view, const ModelNode &modelNode,
                              const ModelNode &materialNode = {});
 
