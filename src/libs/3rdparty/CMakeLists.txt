@@ -17,3 +17,8 @@ add_subdirectory(zlib)
 
 set(ENABLE_WERROR OFF)
 add_subdirectory(libarchive)
+
+IF (NOT MSVC)
+  # Disable warnings
+  target_compile_options(archive_static PRIVATE "-w")
+endif()

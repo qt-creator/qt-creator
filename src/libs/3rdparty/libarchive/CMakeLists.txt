@@ -112,6 +112,7 @@ else ()
   OPTION(ENABLE_WERROR "Treat warnings as errors - default is ON for Debug, OFF otherwise." OFF)
 endif ()
 
+if (FALSE) # Qt Creator: We don't want the warnings
 # Especially for early development, we want to be a little
 # aggressive about diagnosing build problems; this can get
 # relaxed somewhat in final shipping versions.
@@ -154,6 +155,8 @@ IF (CMAKE_C_COMPILER_ID MATCHES "^GNU$" OR
   ENDIF(NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
 ENDIF (CMAKE_C_COMPILER_ID MATCHES "^GNU$" OR
        CMAKE_C_COMPILER_ID MATCHES "^Clang$" AND NOT MSVC)
+endif() # Qt Creator
+
 IF (CMAKE_C_COMPILER_ID MATCHES "^XL$")
   SET(CMAKE_C_COMPILER "xlc_r")
   SET(CMAKE_REQUIRED_FLAGS "-qflag=e:e -qformat=sec")
