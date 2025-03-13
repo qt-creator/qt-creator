@@ -186,23 +186,16 @@ void FileSystemWatcherPrivate::autoReloadPostponed(bool postponed)
     Creates a file system watcher with the ID 0 and the owner \a parent.
 */
 
-FileSystemWatcher::FileSystemWatcher(QObject *parent) :
-    QObject(parent), d(new FileSystemWatcherPrivate(this, 0))
-{
-    init();
-}
+FileSystemWatcher::FileSystemWatcher(QObject *parent)
+    : FileSystemWatcher(0, parent)
+{}
 
 /*!
     Creates a file system watcher with the ID \a id and the owner \a parent.
 */
 
-FileSystemWatcher::FileSystemWatcher(int id, QObject *parent) :
-    QObject(parent), d(new FileSystemWatcherPrivate(this, id))
-{
-    init();
-}
-
-void FileSystemWatcher::init()
+FileSystemWatcher::FileSystemWatcher(int id, QObject *parent)
+    : QObject(parent), d(new FileSystemWatcherPrivate(this, id))
 {
     // Check for id in map/
     FileSystemWatcherStaticDataMap &map = *fileSystemWatcherStaticDataMap();

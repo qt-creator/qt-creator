@@ -53,8 +53,6 @@ signals:
     void directoryChanged(const Utils::FilePath &path);
 
 private:
-    void init();
-
     class FileSystemWatcherPrivate *d;
 };
 
