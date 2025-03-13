@@ -100,6 +100,11 @@ DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, I
         cmdLine.addArg(directory);
         return cmdLine;
     });
+
+    connect(this, &BuildStep::addOutput, this, [](const QString &str, OutputFormat fmt) {
+        if (fmt == OutputFormat::ErrorMessage)
+            showError(str);
+    });
 }
 
 // Workaround for QDS-13763, when UL-10456 is completed this can be removed with the next LTS

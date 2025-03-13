@@ -20,7 +20,6 @@
 #include <designmodewidget.h>
 #include <import.h>
 #include <itemlibraryentry.h>
-#include <materialutils.h>
 #include <modelutils.h>
 #include <nodeabstractproperty.h>
 #include <nodehints.h>
@@ -773,7 +772,7 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                         newQmlObjectNode.destroy();
                         return;
                     }
-                    MaterialUtils::assignMaterialTo3dModel(m_view, targetNode, newModelNode);
+                    Utils3D::assignMaterialTo3dModel(m_view, targetNode, newModelNode);
                 } else {
                     ChooseFromPropertyListDialog *dialog = ChooseFromPropertyListDialog::createIfNeeded(
                         targetNode, newModelNode, Core::ICore::dialogParent());
@@ -814,9 +813,9 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                         const QList<ModelNode> models = newModelNode.subModelNodesOfType(
                             m_view->model()->qtQuick3DModelMetaInfo());
                         QTC_ASSERT(models.size() == 1, return);
-                        MaterialUtils::assignMaterialTo3dModel(m_view, models.at(0));
+                        Utils3D::assignMaterialTo3dModel(m_view, models.at(0));
                     } else if (newModelNode.metaInfo().isQtQuick3DModel()) {
-                        MaterialUtils::assignMaterialTo3dModel(m_view, newModelNode);
+                        Utils3D::assignMaterialTo3dModel(m_view, newModelNode);
                     }
 
                     if (!validContainer) {

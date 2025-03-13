@@ -726,44 +726,6 @@ TYPED_TEST(SmallString, from_q_byte_array)
     ASSERT_THAT(text, SmallString("short string"));
 }
 
-TYPED_TEST(SmallString, mid_one_parameter)
-{
-    using SmallString = typename TestFixture::String;
-    SmallString text("some text");
-
-    auto midString = text.mid(5);
-
-    ASSERT_THAT(midString, Eq(SmallString("text")));
-}
-
-TYPED_TEST(SmallString, mid_two_parameter)
-{
-    using SmallString = typename TestFixture::String;
-    SmallString text("some text and more");
-
-    auto midString = text.mid(5, 4);
-
-    ASSERT_THAT(midString, Eq(SmallString("text")));
-}
-
-TYPED_TEST(SmallString, small_string_view_mid_one_parameter)
-{
-    SmallStringView text("some text");
-
-    auto midString = text.mid(5);
-
-    ASSERT_THAT(midString, Eq(SmallStringView("text")));
-}
-
-TYPED_TEST(SmallString, small_string_view_mid_two_parameter)
-{
-    SmallStringView text("some text and more");
-
-    auto midString = text.mid(5, 4);
-
-    ASSERT_THAT(midString, Eq(SmallStringView("text")));
-}
-
 TYPED_TEST(SmallString, size_of_empty_stringl)
 {
     using SmallString = typename TestFixture::String;
@@ -1440,79 +1402,6 @@ TYPED_TEST(SmallString, dont_reserve_if_nothing_is_replaced_for_shorter_replacem
     text.replace("foofoo", "bar");
 
     ASSERT_TRUE(text.isReadOnlyReference());
-}
-
-TYPED_TEST(SmallString, starts_with)
-{
-    using SmallString = typename TestFixture::String;
-
-    SmallString text("$column");
-
-    ASSERT_FALSE(text.startsWith("$columnxxx"));
-    ASSERT_TRUE(text.startsWith("$column"));
-    ASSERT_TRUE(text.startsWith("$col"));
-    ASSERT_FALSE(text.startsWith("col"));
-    ASSERT_TRUE(text.startsWith('$'));
-    ASSERT_FALSE(text.startsWith('@'));
-}
-
-TYPED_TEST(SmallString, starts_with_string_view)
-{
-    SmallStringView text("$column");
-
-    ASSERT_FALSE(text.startsWith("$columnxxx"));
-    ASSERT_TRUE(text.startsWith("$column"));
-    ASSERT_TRUE(text.startsWith("$col"));
-    ASSERT_FALSE(text.startsWith("col"));
-    ASSERT_TRUE(text.startsWith('$'));
-    ASSERT_FALSE(text.startsWith('@'));
-}
-
-TYPED_TEST(SmallString, starts_with_qstringview)
-{
-    using SmallString = typename TestFixture::String;
-    using namespace Qt::StringLiterals;
-
-    SmallString text("$column");
-
-    ASSERT_FALSE(text.startsWith(u"$columnxxx"_s));
-    ASSERT_TRUE(text.startsWith(u"$column"_s));
-    ASSERT_TRUE(text.startsWith(u"$col"_s));
-    ASSERT_FALSE(text.startsWith(u"col"_s));
-    ASSERT_TRUE(text.startsWith(u"$"_s));
-    ASSERT_FALSE(text.startsWith(u"@"_s));
-}
-
-TYPED_TEST(SmallString, ends_with)
-{
-    using SmallString = typename TestFixture::String;
-
-    SmallString text("/my/path");
-
-    ASSERT_TRUE(text.endsWith("/my/path"));
-    ASSERT_TRUE(text.endsWith("path"));
-    ASSERT_FALSE(text.endsWith("paths"));
-    ASSERT_TRUE(text.endsWith('h'));
-    ASSERT_FALSE(text.endsWith('x'));
-}
-
-TYPED_TEST(SmallString, ends_with_string_view)
-{
-    SmallStringView text("/my/path");
-
-    ASSERT_TRUE(text.endsWith("/my/path"));
-    ASSERT_TRUE(text.endsWith("path"));
-    ASSERT_FALSE(text.endsWith("paths"));
-}
-
-TYPED_TEST(SmallString, ends_with_small_string)
-{
-    using SmallString = typename TestFixture::String;
-
-    SmallString text("/my/path");
-
-    ASSERT_TRUE(text.endsWith(SmallString("path")));
-    ASSERT_TRUE(text.endsWith('h'));
 }
 
 TYPED_TEST(SmallString, reserve_smaller_than_short_string_capacity)

@@ -17,7 +17,6 @@
 #include <designericons.h>
 #include <designersettings.h>
 #include <designmodewidget.h>
-#include <materialutils.h>
 #include <metainfo.h>
 #include <modelutils.h>
 #include <nodeabstractproperty.h>
@@ -33,7 +32,6 @@
 #include <variantproperty.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/messagebox.h>
 
 #include <qmldesignerutils/asset.h>
 
@@ -481,7 +479,7 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
             createdNode = QmlVisualNode::createQml3DNode(
                 this, m_droppedEntry, edit3DWidget()->canvas()->activeScene(), pos3d).modelNode();
             if (createdNode.metaInfo().isQtQuick3DModel())
-                MaterialUtils::assignMaterialTo3dModel(this, createdNode);
+                Utils3D::assignMaterialTo3dModel(this, createdNode);
         });
         if (createdNode.isValid())
             setSelectedModelNode(createdNode);
@@ -489,7 +487,7 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
         bool isModel = modelNode.metaInfo().isQtQuick3DModel();
         if (m_droppedModelNode.isValid() && isModel) {
             executeInTransaction(__FUNCTION__, [&] {
-                MaterialUtils::assignMaterialTo3dModel(this, modelNode, m_droppedModelNode);
+                Utils3D::assignMaterialTo3dModel(this, modelNode, m_droppedModelNode);
             });
         }
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::BundleMaterialDrop) {
@@ -1398,27 +1396,6 @@ Edit3DAction *Edit3DView::edit3DAction(View3DActionType type) const
 Edit3DBakeLightsAction *Edit3DView::bakeLightsAction() const
 {
     return m_bakeLightsAction.get();
-}
-
-void Edit3DView::addQuick3DImport()
-{
-    DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
-    if (document && !document->inFileComponentModelActive() && model()) {
-#ifdef QDS_USE_PROJECTSTORAGE
-        Import import = Import::createLibraryImport("QtQuick3D");
-        model()->changeImports({import}, {});
-        return;
-#else
-        if (ModelUtils::addImportWithCheck(
-                "QtQuick3D",
-                [](const Import &import) { return !import.hasVersion() || import.majorVersion() >= 6; },
-                model())) {
-            return;
-        }
-#endif
-    }
-    Core::AsynchronousMessageBox::warning(tr("Failed to Add Import"),
-                                          tr("Could not add QtQuick3D import to project."));
 }
 
 // This method is called upon right-clicking the view to prepare for context-menu creation. The actual

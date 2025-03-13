@@ -85,7 +85,7 @@ public:
     QmlModelState savedState;
     Internal::DebugView debugView;
     Sqlite::Database auxiliaryDataDatabase{
-        Utils::PathString{Core::ICore::userResourcePath("auxiliary_data.db").toUrlishString()},
+        Utils::PathString{Core::ICore::userResourcePath("auxiliary_data.db").path()},
         Sqlite::JournalMode::Wal,
         Sqlite::LockingMode::Normal};
     AuxiliaryPropertyStorageView auxiliaryDataKeyView;
@@ -508,6 +508,11 @@ void ViewManager::nextFileIsCalledInternally()
 }
 
 const AbstractView *ViewManager::view() const
+{
+    return &d->nodeInstanceView;
+}
+
+AbstractView *ViewManager::view()
 {
     return &d->nodeInstanceView;
 }

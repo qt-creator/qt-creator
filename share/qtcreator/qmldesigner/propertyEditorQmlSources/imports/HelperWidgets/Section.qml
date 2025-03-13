@@ -10,6 +10,8 @@ import StudioTheme as StudioTheme
 Item {
     id: section
 
+    readonly property bool __isSection: true // used by property search logic
+
     property string caption: "Title"
     property color labelColor: StudioTheme.Values.themeTextColor
     property int labelCapitalization: Font.AllUppercase
@@ -58,6 +60,7 @@ Item {
     property bool dropEnabled: false
     property bool highlight: false
     property bool eyeEnabled: true // eye button enabled (on)
+    property bool searchHide: false
 
     property bool useDefaulContextMenu: true
 
@@ -343,6 +346,14 @@ Item {
     }
 
     states: [
+        State {
+            name: "Hide"
+            when: section.searchHide
+            PropertyChanges {
+                target: section
+                visible: false
+            }
+        },
         State {
             name: "Collapsed"
             when: !section.expanded

@@ -196,9 +196,7 @@ function(qtc_enable_sanitize _target _sanitize_flags)
 endfunction()
 
 function(qtc_deeper_concept_diagnostic_depth _target)
-  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options("${_target}" PUBLIC -fconcepts-diagnostics-depth=8)
-  endif()
+  target_compile_options("${_target}" PRIVATE $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-fconcepts-diagnostics-depth=8>)
 endfunction()
 
 function(qtc_add_link_flags_no_undefined target)

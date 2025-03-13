@@ -213,26 +213,33 @@ Item {
                         text: {
                             let categoryName = (categoryTitle === "3D") ? categoryTitle + " assets"
                                                                         : categoryTitle.toLowerCase()
-                            if (!ContentLibraryBackend.rootView.isQt6Project)
+                            if (!ContentLibraryBackend.rootView.isQt6Project) {
                                 qsTr("<b>Content Library</b> is not supported in Qt5 projects.")
-                            else if (!ContentLibraryBackend.rootView.hasQuick3DImport && categoryTitle !== "Textures")
-                                qsTr(`To use %1, first <a href="#add_import" style="text-decoration:none;color:%2">
-                                     add the <b>QtQuick3D</b> module</a> in the <b>Components</b> view.`)
-                                        .arg(categoryName)
-                                        .arg(StudioTheme.Values.themeInteraction)
-                            else if (!ContentLibraryBackend.rootView.hasMaterialLibrary && categoryTitle !== "Textures")
+                            } else if (!ContentLibraryBackend.rootView.hasQuick3DImport && categoryTitle !== "Textures") {
+                                qsTr('To use %1, add the <b>QtQuick3D</b> module and the <b>View3D</b>
+                                     component in the <b>Components</b> view, or click
+                                     <a href=\"#add_import\"><span style=\"text-decoration:none;color:%2\">
+                                     here</span></a>.')
+                                .arg(categoryName)
+                                .arg(StudioTheme.Values.themeInteraction)
+                            } else if (!ContentLibraryBackend.rootView.hasMaterialLibrary && categoryTitle !== "Textures") {
                                 qsTr("<b>Content Library</b> is disabled inside a non-visual component.")
-                            else if (categoryEmpty)
+                            } else if (categoryEmpty) {
                                 qsTr("There are no "+ categoryName + " in the <b>User Assets</b>.")
-                            else
+                            } else {
                                 ""
+                            }
                         }
                         textFormat: Text.RichText
                         color: StudioTheme.Values.themeTextColor
                         font.pixelSize: StudioTheme.Values.baseFontSize
                         topPadding: 10
                         leftPadding: 10
+                        rightPadding: 10
                         visible: infoText.text !== ""
+                        horizontalAlignment: Text.AlignHCenter
+                        wrapMode: Text.WordWrap
+                        width: root.width
 
                         onLinkActivated: ContentLibraryBackend.rootView.addQtQuick3D()
                     }

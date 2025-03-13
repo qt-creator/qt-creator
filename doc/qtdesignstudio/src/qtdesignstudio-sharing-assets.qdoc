@@ -16,7 +16,7 @@
 
     \list
       \li In the \uicontrol 3D or \uicontrol Navigator view, right-click a 3D component and select
-      \uicontrol {Export Component}.
+      \uicontrol {Export Bundle}.
       \li In the \uicontrol {Material Browser} view, right-click a material and select
       \uicontrol {Export Material}.
     \endlist
@@ -25,7 +25,7 @@
     To import a 3D component or material bundle, do one of the following:
     \list
       \li In the \uicontrol {3D}, \uicontrol {2D}, or \uicontrol {Navigator} view, right-click
-      and select \uicontrol {Import Component}. If you use this method to import a bundle of 3D
+      and select \uicontrol {Import Bundle}. If you use this method to import a bundle of 3D
       components, the 3D components are added to the 3D scene.
       \li In \uicontrol {Content Library} > \uicontrol {User Assets}, right-click and select
       \uicontrol {Import Bundle}. If you use this method to import a bundle of 3D

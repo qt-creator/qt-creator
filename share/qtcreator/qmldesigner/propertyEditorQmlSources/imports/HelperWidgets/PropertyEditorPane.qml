@@ -18,6 +18,7 @@ Rectangle {
 
     default property alias content: mainColumn.children
     property alias scrollView: mainScrollView
+    property alias searchBar: propertySearchBar
 
     property bool headerDocked: false
     readonly property Item headerItem: headerDocked ? dockedHeaderLoader.item : undockedHeaderLoader.item
@@ -29,10 +30,23 @@ Rectangle {
         Controller.closeContextMenu()
     }
 
+    // Called from C++ to clear the search when the selected node changes
+    function clearSearch() {
+        propertySearchBar.clear();
+    }
+
+    PropertySearchBar {
+        id: propertySearchBar
+
+        contentItem: mainColumn
+        width: parent.width
+        z: parent.z + 1
+    }
+
     Loader {
         id: dockedHeaderLoader
 
-        anchors.top: itemPane.top
+        anchors.top: propertySearchBar.bottom
         z: parent.z + 1
         height: item ? item.implicitHeight : 0
         width: parent.width
@@ -121,6 +135,16 @@ Rectangle {
 
                 visible: active
                 HeaderBackground{}
+            }
+
+            Label {
+                Layout.fillWidth: true
+                Layout.leftMargin: 10
+
+                visible: propertySearchBar.hasDoneSearch && !propertySearchBar.hasMatchSearch
+                text: qsTr("No match found.")
+                color: StudioTheme.Values.themeTextColor
+                font.pixelSize: StudioTheme.Values.baseFont
             }
 
             Column {

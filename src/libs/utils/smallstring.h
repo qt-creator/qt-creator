@@ -112,13 +112,13 @@ public:
 
     ~BasicSmallString() noexcept
     {
-        if (Q_UNLIKELY(hasAllocatedMemory()))
+        if (hasAllocatedMemory()) [[unlikely]]
             Memory::deallocate(m_data.data());
     }
 
     BasicSmallString(const BasicSmallString &other) noexcept
     {
-        if (Q_LIKELY(other.isShortString() || other.isReadOnlyReference()))
+        if (other.isShortString() || other.isReadOnlyReference()) [[likely]]
             m_data = other.m_data;
         else
             new (this) BasicSmallString{other.data(), other.size()};
@@ -126,10 +126,10 @@ public:
 
     BasicSmallString &operator=(const BasicSmallString &other) noexcept
     {
-        if (Q_LIKELY(this != &other)) {
+        if (this != &other) [[likely]] {
             this->~BasicSmallString();
 
-            if (Q_LIKELY(other.isShortString() || other.isReadOnlyReference()))
+            if (other.isShortString() || other.isReadOnlyReference()) [[likely]]
                 m_data = other.m_data;
             else
                 new (this) BasicSmallString{other.data(), other.size()};
@@ -146,7 +146,7 @@ public:
 
     BasicSmallString &operator=(BasicSmallString &&other) noexcept
     {
-        if (Q_LIKELY(this != &other)) {
+        if (this != &other) [[likely]] {
             this->~BasicSmallString();
 
             m_data = std::move(other.m_data);
@@ -174,7 +174,7 @@ public:
 
     SmallStringView toStringView() const noexcept { return SmallStringView(data(), size()); }
 
-    operator SmallStringView() const noexcept { return SmallStringView(data(), size()); }
+    constexpr operator SmallStringView() const noexcept { return SmallStringView(data(), size()); }
 
     explicit operator QLatin1StringView() const noexcept
     {
@@ -202,7 +202,7 @@ public:
     void reserve(size_type newCapacity) noexcept
     {
         if (fitsNotInCapacity(newCapacity)) {
-            if (Q_UNLIKELY(hasAllocatedMemory())) {
+            if (hasAllocatedMemory()) {
                 m_data.setPointer(Memory::reallocate(m_data.data(), newCapacity));
                 m_data.setAllocatedCapacity(newCapacity);
             } else {

@@ -11,8 +11,4 @@ Column {
     CustomMaterialSection {
         width: parent.width
     }
-
-    MaterialSection {
-        width: parent.width
-    }
 }

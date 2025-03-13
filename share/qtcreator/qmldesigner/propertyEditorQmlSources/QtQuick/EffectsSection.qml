@@ -186,6 +186,8 @@ Section {
         spacing: 1
 
         Section {
+            readonly property bool __isInEffectsSection: true // used by property search logic
+
             sectionHeight: 37
             anchors.left: parent.left
             anchors.right: parent.right
@@ -232,6 +234,8 @@ Section {
         }
 
         Section {
+            readonly property bool __isInEffectsSection: true // used by property search logic
+
             sectionHeight: 37
             anchors.left: parent.left
             anchors.right: parent.right
@@ -304,6 +308,8 @@ Section {
 
             Section {
                 id: delegate
+
+                readonly property bool __isInEffectsSection: true // used by property search logic
 
                 property QtObject wrapper: modelNodeBackend.registerSubSelectionWrapper(modelData)
                 property bool wasExpanded: false

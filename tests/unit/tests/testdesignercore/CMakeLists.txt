@@ -351,7 +351,6 @@ extend_qtc_library(TestDesignerCore
     projectstorageupdater.cpp projectstorageupdater.h
     projectstorage.cpp projectstorage.h
     projectstorageerrornotifierinterface.h
-    projectstorageerrornotifier.cpp projectstorageerrornotifier.h
     typeannotationreader.cpp typeannotationreader.h
     qmldocumentparserinterface.h
     qmltypesparserinterface.h

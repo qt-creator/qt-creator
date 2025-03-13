@@ -39,8 +39,10 @@ void WizardHandler::destroyWizard()
     emit deletingWizard();
 
     m_selectedPreset = -1;
-    m_wizard->deleteLater();
-    m_wizard = nullptr;
+    if (m_wizard) {
+        m_wizard->deleteLater();
+        m_wizard = nullptr;
+    }
     m_detailsPage = nullptr;
 }
 

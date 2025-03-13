@@ -66,6 +66,7 @@ public:
     Q_INVOKABLE void addMaterialToContentLibrary();
     Q_INVOKABLE void importMaterial();
     Q_INVOKABLE void exportMaterial();
+    Q_INVOKABLE void addQtQuick3D();
 
     StudioQuickWidget *quickWidget() const;
 

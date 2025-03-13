@@ -5,8 +5,9 @@
 
 #include <QQuickWidget>
 
-
 namespace QmlDesigner {
+
+class InstanceImageProvider;
 
 class Quick2PropertyEditorView : public QQuickWidget
 {
@@ -15,7 +16,12 @@ class Quick2PropertyEditorView : public QQuickWidget
 public:
     explicit Quick2PropertyEditorView(class AsynchronousImageCache &imageCache);
 
+    InstanceImageProvider *instanceImageProvider() const;
+
     static void registerQmlTypes();
+
+private:
+    InstanceImageProvider *m_instanceImageProvider = nullptr;
 };
 
 } //QmlDesigner

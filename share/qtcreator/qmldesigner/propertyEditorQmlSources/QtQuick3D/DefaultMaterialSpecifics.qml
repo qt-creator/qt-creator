@@ -11,8 +11,4 @@ Column {
     DefaultMaterialSection {
         width: parent.width
     }
-
-    MaterialSection {
-        width: parent.width
-    }
 }

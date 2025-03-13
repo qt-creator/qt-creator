@@ -49,8 +49,6 @@ StudioControls.PopupDialog {
     ConnectionsDialogForm {
         id: form
 
-        parentWindow: root.window
-
         Connections {
             target: root.backend
             function onPopupShouldClose() {

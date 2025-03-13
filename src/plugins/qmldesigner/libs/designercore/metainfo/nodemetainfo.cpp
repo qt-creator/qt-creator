@@ -4733,6 +4733,13 @@ void addSubProperties(CompoundPropertyMetaInfos &inflatedProperties,
     inflatedProperties.emplace_back(std::move(propertyMetaInfo));
 }
 
+bool isValueOrNonListReadOnlyReference(const NodeMetaInfo &propertyType,
+                                       const PropertyMetaInfo &property)
+{
+    return propertyType.type() == MetaInfoType::Value
+            || (property.isReadOnly() && !property.isListProperty());
+}
+
 } // namespace
 
 CompoundPropertyMetaInfos MetaInfoUtils::inflateValueProperties(PropertyMetaInfos properties)
@@ -4756,12 +4763,10 @@ CompoundPropertyMetaInfos MetaInfoUtils::inflateValueAndReadOnlyProperties(Prope
     inflatedProperties.reserve(properties.size() * 2);
 
     for (auto &property : properties) {
-        if (auto propertyType = property.propertyType();
-            propertyType.type() == MetaInfoType::Value || property.isReadOnly()) {
+        if (auto propertyType = property.propertyType(); isValueOrNonListReadOnlyReference(propertyType, property))
             addSubProperties(inflatedProperties, property, propertyType);
-        } else {
+        else
             inflatedProperties.emplace_back(std::move(property));
-        }
     }
 
     return inflatedProperties;
@@ -4773,8 +4778,7 @@ CompoundPropertyMetaInfos MetaInfoUtils::addInflatedValueAndReadOnlyProperties(P
     inflatedProperties.reserve(properties.size() * 2);
 
     for (auto &property : properties) {
-        if (auto propertyType = property.propertyType();
-            propertyType.type() == MetaInfoType::Value || property.isReadOnly()) {
+        if (auto propertyType = property.propertyType(); isValueOrNonListReadOnlyReference(propertyType, property)) {
             addSubProperties(inflatedProperties, property, propertyType);
             if (!property.isReadOnly())
                 inflatedProperties.emplace_back(std::move(property));

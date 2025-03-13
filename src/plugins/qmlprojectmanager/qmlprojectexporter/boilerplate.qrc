@@ -11,5 +11,8 @@
         <file alias="import_qml_components_h">templates/import_qml_components_h.tpl</file>
         <file alias="qtquickcontrols_conf">templates/qtquickcontrols2_conf.tpl</file>
         <file alias="cmake_shared">templates/cmakelists_txt_shared.tpl</file>
+        <file alias="python_generator_main">templates/python_generator_main.tpl</file>
+        <file alias="python_generator_settings">templates/python_generator_settings.tpl</file>
+        <file alias="python_pyproject_toml">templates/python_pyproject_toml.tpl</file>
     </qresource>
 </RCC>

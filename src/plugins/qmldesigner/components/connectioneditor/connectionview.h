@@ -22,7 +22,6 @@ class BindingModel;
 class ConnectionModel;
 class DynamicPropertiesModel;
 class ConnectionViewQuickWidget;
-class PropertyTreeModel;
 class PropertyListProxyModel;
 
 class ConnectionView : public AbstractView

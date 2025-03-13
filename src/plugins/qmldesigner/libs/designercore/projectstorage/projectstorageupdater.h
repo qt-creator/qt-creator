@@ -4,7 +4,7 @@
 #pragma once
 
 #include "filestatus.h"
-#include "projectstorageerrornotifier.h"
+#include "projectstorageerrornotifierinterface.h"
 #include "projectstorageids.h"
 #include "projectstoragepathwatchernotifierinterface.h"
 #include "projectstoragepathwatchertypes.h"

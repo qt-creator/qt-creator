@@ -18,7 +18,6 @@
 #include <designmodewidget.h>
 #include <documentmanager.h>
 #include <itemlibraryentry.h>
-#include <materialutils.h>
 #include <modelnode.h>
 #include <modelnodeutils.h>
 #include <nodehints.h>
@@ -1130,7 +1129,11 @@ static QString getAssetDefaultDirectory(const QString &assetDir, const QString &
 
 AddFilesResult addFontToProject(const QStringList &fileNames, const QString &defaultDir, bool showDialog)
 {
-    return addFilesToProject(fileNames, getAssetDefaultDirectory("fonts", defaultDir), showDialog);
+    const AddFilesResult result = addFilesToProject(fileNames,
+                                                    getAssetDefaultDirectory("fonts", defaultDir),
+                                                    showDialog);
+    QmlDesignerPlugin::viewManager().view()->resetPuppet();
+    return result;
 }
 
 AddFilesResult addSoundToProject(const QStringList &fileNames, const QString &defaultDir, bool showDialog)
@@ -2093,7 +2096,7 @@ void handleMaterialDrop(const QMimeData *mimeData, const ModelNode &targetNode)
     ModelNode matNode = view->modelNodeForInternalId(internalId);
 
     view->executeInTransaction(__FUNCTION__, [&] {
-        MaterialUtils::assignMaterialTo3dModel(view, targetNode, matNode);
+        Utils3D::assignMaterialTo3dModel(view, targetNode, matNode);
     });
 }
 

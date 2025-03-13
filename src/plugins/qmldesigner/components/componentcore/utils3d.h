@@ -54,5 +54,10 @@ ModelNode createMaterial(AbstractView *view, const TypeName &typeName);
 ModelNode createMaterial(AbstractView *view, const NodeMetaInfo &metaInfo);
 #endif
 
+void addQuick3DImportAndView3D(AbstractView *view);
+void assignMaterialTo3dModel(AbstractView *view, const ModelNode &modelNode,
+                             const ModelNode &materialNode = {});
+
+
 } // namespace Utils3D
 } // namespace QmlDesigner

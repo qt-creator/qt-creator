@@ -9,10 +9,13 @@ import StudioTheme 1.0 as StudioTheme
 T.Label {
     id: label
 
+    readonly property bool __isPropertyLabel: true // used by property search logic
+
     property alias tooltip: toolTipArea.tooltip
 
     property bool blockedByContext: false
     property bool blockedByTemplate: false // MCU
+    property bool searchNoMatch: false
 
     width: StudioTheme.Values.propertyLabelWidth
     color: StudioTheme.Values.themeTextColor
@@ -34,6 +37,14 @@ T.Label {
     }
 
     states: [
+        State {
+            name: "searchNoMatch"
+            when: searchNoMatch
+            PropertyChanges {
+                target: label
+                visible: false
+            }
+        },
         State {
             name: "disabled"
             when: !label.enabled && !(label.blockedByContext || label.blockedByTemplate)

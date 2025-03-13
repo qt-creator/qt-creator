@@ -79,7 +79,7 @@ public:
     SourceContextId sourceContextId(Utils::SmallStringView sourceContextPath) const override
     {
         Utils::SmallStringView path = sourceContextPath.back() == '/'
-                                          ? sourceContextPath.mid(0, sourceContextPath.size() - 1)
+                                          ? sourceContextPath.substr(0, sourceContextPath.size() - 1)
                                           : sourceContextPath;
 
         return m_sourceContextPathCache.id(path);

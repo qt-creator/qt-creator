@@ -80,11 +80,15 @@ inline bool enableAddToContentLib(const SelectionContext &selectionState)
     return isNode3D && !isInBundle;
 }
 
-inline bool is3DNode(const SelectionContext &selectionState)
+inline bool are3DNodes(const SelectionContext &selectionState)
 {
-    ModelNode modelNode = selectionState.currentSingleSelectedNode();
+    const QList<ModelNode> nodes = selectionState.selectedModelNodes();
+    if (nodes.isEmpty())
+        return false;
 
-    return modelNode.metaInfo().isQtQuick3DNode();
+    return std::all_of(nodes.cbegin(), nodes.cend(), [](const ModelNode &node) {
+        return node.metaInfo().isQtQuick3DNode();
+    });
 }
 
 inline bool hasEditableMaterial(const SelectionContext &selectionState)

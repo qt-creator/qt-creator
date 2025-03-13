@@ -7,7 +7,9 @@
 #include "propertyeditorcontextobject.h"
 #include "propertyeditorvalue.h"
 #include "qmlanchorbindingproxy.h"
+#include "qmlmaterialnodeproxy.h"
 #include "qmlmodelnodeproxy.h"
+#include "qmltexturenodeproxy.h"
 #include "quick2propertyeditorview.h"
 
 #include <utils/uniqueobjectptr.h>
@@ -17,6 +19,8 @@
 #include <QQmlPropertyMap>
 
 #include <memory>
+
+QT_FORWARD_DECLARE_CLASS(QQuickImageProvider)
 
 class PropertyEditorValue;
 
@@ -37,7 +41,6 @@ public:
     ~PropertyEditorQmlBackend();
 
     void setup(const QmlObjectNode &fxObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile, PropertyEditorView *propertyEditor);
-    void initialSetup(const TypeName &typeName, const QUrl &qmlSpecificsFile, PropertyEditorView *propertyEditor);
     void setValue(const QmlObjectNode &fxObjectNode, PropertyNameView name, const QVariant &value);
     void setExpression(PropertyNameView propName, const QString &exp);
 
@@ -52,6 +55,7 @@ public:
     PropertyEditorValue *propertyValueForName(const QString &propertyName);
 
     static QString propertyEditorResourcesPath();
+    static QString scriptsEditorResourcesPath();
     static QUrl emptyPaneUrl();
 #ifndef QDS_USE_PROJECTSTORAGE
     static QString templateGeneration(const NodeMetaInfo &type,
@@ -82,13 +86,20 @@ public:
     void handleInstancePropertyChangedInModelNodeProxy(const ModelNode &modelNode,
                                                        PropertyNameView propertyName);
 
+    void handleAuxiliaryDataChanges(const QmlObjectNode &qmlObjectNode, AuxiliaryDataKeyView key);
     void handleVariantPropertyChangedInModelNodeProxy(const VariantProperty &property);
     void handleBindingPropertyChangedInModelNodeProxy(const BindingProperty &property);
+    void handleBindingPropertyInModelNodeProxyAboutToChange(const BindingProperty &property);
     void handlePropertiesRemovedInModelNodeProxy(const AbstractProperty &property);
+    void handleModelNodePreviewPixmapChanged(const ModelNode &node,
+                                             const QPixmap &pixmap,
+                                             const QByteArray &requestId);
 
     static NodeMetaInfo findCommonAncestor(const ModelNode &node);
 
     void refreshBackendModel();
+    void refreshPreview();
+    void updateInstanceImage();
 
     void setupContextProperties();
 
@@ -109,6 +120,7 @@ private:
     static QString locateQmlFile(const NodeMetaInfo &info, const QString &relativePath);
 #endif
     static TypeName fixTypeNameForPanes(const TypeName &typeName);
+    static QString resourcesPath(const QString &dir);
 
 private:
     // to avoid a crash while destructing DesignerPropertyMap in the QQmlData
@@ -117,6 +129,8 @@ private:
 
     Utils::UniqueObjectPtr<Quick2PropertyEditorView> m_view = nullptr;
     QmlAnchorBindingProxy m_backendAnchorBinding;
+    QmlMaterialNodeProxy m_backendMaterialNode;
+    QmlTextureNodeProxy m_backendTextureNode;
     QmlModelNodeProxy m_backendModelNode;
     std::unique_ptr<PropertyEditorTransaction> m_propertyEditorTransaction;
     std::unique_ptr<PropertyEditorValue> m_dummyPropertyEditorValue;

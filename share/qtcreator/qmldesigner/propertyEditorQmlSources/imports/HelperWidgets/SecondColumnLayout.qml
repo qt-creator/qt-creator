@@ -5,6 +5,21 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 
 RowLayout {
+    id: root
+
+    property bool searchNoMatch: false
+
     Layout.fillWidth: true
     spacing: 0
+
+    states: [
+        State {
+            name: "searchNoMatch"
+            when: searchNoMatch
+            PropertyChanges {
+                target: root
+                visible: false
+            }
+        }
+    ]
 }

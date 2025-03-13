@@ -104,7 +104,6 @@ add_qtc_plugin(QmlDesigner
     qmldesignericons.h
     qmldesignerplugin.cpp qmldesignerplugin.h
     qmldesignerexternaldependencies.cpp qmldesignerexternaldependencies.h
-    qmldesignerprojectmanager.cpp qmldesignerprojectmanager.h
     settingspage.cpp settingspage.h
     shortcutmanager.cpp shortcutmanager.h
     designermcumanager.cpp designermcumanager.h
@@ -132,6 +131,16 @@ if (QTC_STATIC_BUILD AND TARGET QmlDesigner)
   endif()
   extend_qtc_target(QmlDesigner PUBLIC_DEPENDS TextEditor)
 endif()
+
+extend_qtc_plugin(QmlDesigner
+  PUBLIC_INCLUDES project
+  SOURCES_PREFIX project
+  SOURCES
+   qmldesignerprojectmanager.cpp
+   qmldesignerprojectmanager.h
+   projectstorageerrornotifier.cpp
+   projectstorageerrornotifier.h
+)
 
 extend_qtc_plugin(QmlDesigner
   PUBLIC_INCLUDES instances
@@ -412,7 +421,9 @@ extend_qtc_plugin(QmlDesigner
     gradientpresetdefaultlistmodel.cpp gradientpresetdefaultlistmodel.h
     gradientpresetitem.cpp gradientpresetitem.h
     gradientpresetlistmodel.cpp gradientpresetlistmodel.h
+    instanceimageprovider.cpp instanceimageprovider.h
     propertyeditorcontextobject.cpp propertyeditorcontextobject.h
+    propertyeditordynamicpropertiesproxymodel.cpp propertyeditordynamicpropertiesproxymodel.h
     propertyeditorqmlbackend.cpp propertyeditorqmlbackend.h
     propertyeditortransaction.cpp propertyeditortransaction.h
     propertyeditorvalue.cpp propertyeditorvalue.h
@@ -421,7 +432,9 @@ extend_qtc_plugin(QmlDesigner
     propertynamevalidator.cpp propertynamevalidator.h
     tooltip.cpp tooltip.h
     qmlanchorbindingproxy.cpp qmlanchorbindingproxy.h
+    qmlmaterialnodeproxy.cpp qmlmaterialnodeproxy.h
     qmlmodelnodeproxy.cpp qmlmodelnodeproxy.h
+    qmltexturenodeproxy.cpp qmltexturenodeproxy.h
     quick2propertyeditorview.cpp quick2propertyeditorview.h
     propertyeditorutils.cpp propertyeditorutils.h
 )
@@ -477,7 +490,6 @@ extend_qtc_plugin(QmlDesigner
     materialbrowserwidget.cpp materialbrowserwidget.h
     materialbrowsermodel.cpp materialbrowsermodel.h
     materialbrowsertexturesmodel.cpp materialbrowsertexturesmodel.h
-    materialutils.cpp materialutils.h
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -572,21 +584,28 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/scripteditor
+  SOURCES
+    scripteditorstatements.cpp scripteditorstatements.h
+    scripteditorevaluator.cpp scripteditorevaluator.h
+    scripteditorutils.cpp scripteditorutils.h
+    propertytreemodel.cpp propertytreemodel.h
+    scripteditorbackend.cpp scripteditorbackend.h
+)
+
+extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/connectioneditor
   SOURCES
     addnewbackenddialog.cpp addnewbackenddialog.h addnewbackenddialog.ui
     bindingmodel.cpp bindingmodel.h
     bindingmodelitem.cpp bindingmodelitem.h
     connectioneditor.qrc
-    connectioneditorevaluator.cpp connectioneditorevaluator.h
-    connectioneditorstatements.cpp connectioneditorstatements.h
     connectionmodel.cpp connectionmodel.h
     connectionview.cpp connectionview.h
     dynamicpropertiesmodel.cpp dynamicpropertiesmodel.h
     dynamicpropertiesitem.cpp dynamicpropertiesitem.h
-    connectioneditorutils.cpp connectioneditorutils.h
     selectiondynamicpropertiesproxymodel.cpp selectiondynamicpropertiesproxymodel.h
-    propertytreemodel.cpp propertytreemodel.h
+    connectioneditorlogging.cpp connectioneditorlogging.h
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -778,39 +797,6 @@ extend_qtc_plugin(QmlDesigner
   PUBLIC_DEFINES DVCONNECTOR_ENABLED
   SOURCES
     dvconnector.cpp dvconnector.h
-)
-
-add_qtc_plugin(assetexporterplugin
-  PLUGIN_CLASS AssetExporterPlugin
-  CONDITION TARGET QmlDesigner
-  PLUGIN_DEPENDS
-    Core ProjectExplorer QmlDesigner
-  DEPENDS Utils Qt::Qml Qt::QuickPrivate
-  PUBLIC_INCLUDES assetexporterplugin
-  PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
-)
-
-extend_qtc_plugin(assetexporterplugin
-    CONDITION ENABLE_COMPILE_WARNING_AS_ERROR
-    PROPERTIES COMPILE_WARNING_AS_ERROR ON
-)
-
-extend_qtc_plugin(assetexporterplugin
-  SOURCES_PREFIX assetexporterplugin
-  SOURCES
-    assetexportdialog.h assetexportdialog.cpp
-    assetexporter.h assetexporter.cpp
-    assetexporterplugin.h assetexporterplugin.cpp
-    assetexporterview.h assetexporterview.cpp
-    assetexportpluginconstants.h
-    componentexporter.h componentexporter.cpp
-    exportnotification.h exportnotification.cpp
-    filepathmodel.h filepathmodel.cpp
-    dumpers/assetnodedumper.h dumpers/assetnodedumper.cpp
-    dumpers/itemnodedumper.h dumpers/itemnodedumper.cpp
-    dumpers/nodedumper.h dumpers/nodedumper.cpp
-    dumpers/textnodedumper.h dumpers/textnodedumper.cpp
-    assetexporterplugin.qrc
 )
 
 add_qtc_plugin(componentsplugin

@@ -41,7 +41,6 @@ class Import3dDialog : public QDialog
 
 public:
     explicit Import3dDialog(const QStringList &importFiles,
-                            const QString &defaulTargetDirectory,
                             const QVariantMap &supportedExts,
                             const QVariantMap &supportedOpts,
                             const QJsonObject &defaultOpts,
@@ -51,6 +50,7 @@ public:
     ~Import3dDialog();
 
     static void updateImport(AbstractView *view,
+                             const Utils::FilePath &import3dQml,
                              const ModelNode &updateNode,
                              const QVariantMap &supportedExts,
                              const QVariantMap &supportedOpts);

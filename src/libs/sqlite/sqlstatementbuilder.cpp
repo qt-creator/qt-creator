@@ -191,7 +191,7 @@ void SqlStatementBuilder::clearSqlStatement()
 
 void SqlStatementBuilder::checkIfPlaceHolderExists(Utils::SmallStringView name) const
 {
-    if (name.size() < 2 || !name.startsWith('$') || !m_sqlTemplate.contains(name))
+    if (name.size() < 2 || !name.starts_with('$') || !m_sqlTemplate.contains(name))
         throwException("SqlStatementBuilder::bind: placeholder name does not exist!", name.data());
 }
 

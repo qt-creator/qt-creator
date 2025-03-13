@@ -4,7 +4,7 @@
 #pragma once
 
 #include "commontypecache.h"
-#include "projectstorageerrornotifier.h"
+#include "projectstorageerrornotifierinterface.h"
 #include "projectstorageexceptions.h"
 #include "projectstorageinterface.h"
 #include "projectstoragetypes.h"

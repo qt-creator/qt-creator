@@ -116,6 +116,11 @@ QVariant CollectionModel::headerData(int section, Qt::Orientation orientation, i
 
 Qt::ItemFlags CollectionModel::flags(const QModelIndex &index) const
 {
+    // If group type is FLAGS and not binding block editable
+    if (data(index, Roles::GroupRole).value<GroupType>() == GroupType::Flags
+        && !data(index, Roles::BindingRole).toBool())
+        return QAbstractItemModel::flags(index);
+
     return Qt::ItemIsEditable | QAbstractItemModel::flags(index);
 }
 
@@ -214,9 +219,9 @@ bool CollectionModel::setData(const QModelIndex &index, const QVariant &value, i
         p.name = propName;
         const ThemeId id = m_themeIdList[index.column()];
         if (m_collection->updateProperty(id, groupType, p)) {
-            beginResetModel();
             updateCache();
-            endResetModel();
+
+            emit dataChanged(index, index);
         }
     }
     default:
