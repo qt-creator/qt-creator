@@ -12,6 +12,8 @@
 
 #include <QMessageBox>
 
+using namespace Utils;
+
 namespace QmlPreview {
 
 QmlPreviewConnectionManager::QmlPreviewConnectionManager(QObject *parent) :
@@ -206,23 +208,23 @@ void QmlPreviewConnectionManager::createPreviewClient()
                              "QML Live Preview is not available for this version of Qt.");
     }, Qt::QueuedConnection); // Queue it, so that it interfere with the connection timer
 
-    connect(&m_fileSystemWatcher, &Utils::FileSystemWatcher::fileChanged,
-                     m_qmlPreviewClient.data(), [this](const QString &changedFile) {
+    connect(&m_fileSystemWatcher, &FileSystemWatcher::fileChanged,
+                     m_qmlPreviewClient.data(), [this](const FilePath &changedFile) {
         if (!m_fileLoader || !m_lastLoadedUrl.isValid())
             return;
 
         bool success = false;
 
-        const QByteArray contents = m_fileLoader(changedFile, &success);
+        const QByteArray contents = m_fileLoader(changedFile.toFSPathString(), &success);
         if (!success)
             return;
 
-        if (!m_fileClassifier(changedFile)) {
+        if (!m_fileClassifier(changedFile.toFSPathString())) {
             emit restart();
             return;
         }
 
-        const QString remoteChangedFile = m_targetFileFinder.findPath(changedFile, &success);
+        const QString remoteChangedFile = m_targetFileFinder.findPath(changedFile.toFSPathString(), &success);
         if (success)
             m_qmlPreviewClient->announceFile(remoteChangedFile, contents);
         else

@@ -136,8 +136,8 @@ WorkspaceBuildSystem::WorkspaceBuildSystem(BuildConfiguration *bc)
                 m_watcher.get(),
                 &FileSystemWatcher::directoryChanged,
                 this,
-                [this](const QString &path) {
-                    handleDirectoryChanged(FilePath::fromPathPart(path));
+                [this](const FilePath &path) {
+                    handleDirectoryChanged(path);
                 });
 
             addNodes(root.get());

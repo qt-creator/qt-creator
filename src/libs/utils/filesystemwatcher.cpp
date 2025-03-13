@@ -161,7 +161,7 @@ void FileSystemWatcherPrivate::fileChanged(const QString &path)
     if (m_postponed)
         m_postponedFiles.insert(path);
     else
-        emit q->fileChanged(path);
+        emit q->fileChanged(FilePath::fromString(path));
 }
 
 void FileSystemWatcherPrivate::directoryChanged(const QString &path)
@@ -169,7 +169,7 @@ void FileSystemWatcherPrivate::directoryChanged(const QString &path)
     if (m_postponed)
         m_postponedDirectories.insert(path);
     else
-        emit q->directoryChanged(path);
+        emit q->directoryChanged(FilePath::fromString(path));
 }
 
 void FileSystemWatcherPrivate::autoReloadPostponed(bool postponed)
@@ -179,10 +179,10 @@ void FileSystemWatcherPrivate::autoReloadPostponed(bool postponed)
     m_postponed = postponed;
     if (!postponed) {
         for (const QString &file : std::as_const(m_postponedFiles))
-            emit q->fileChanged(file);
+            emit q->fileChanged(FilePath::fromString(file));
         m_postponedFiles.clear();
         for (const QString &directory : std::as_const(m_postponedDirectories))
-            emit q->directoryChanged(directory);
+            emit q->directoryChanged(FilePath::fromString(directory));
         m_postponedDirectories.clear();
     }
 }

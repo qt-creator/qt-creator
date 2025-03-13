@@ -314,9 +314,9 @@ void PluginDumper::qmlPluginTypeDumpDone(Process *process)
     }
 }
 
-void PluginDumper::pluginChanged(const QString &pluginLibrary)
+void PluginDumper::pluginChanged(const FilePath &pluginLibrary)
 {
-    const int pluginIndex = m_libraryToPluginIndex.value(FilePath::fromString(pluginLibrary), -1);
+    const int pluginIndex = m_libraryToPluginIndex.value(pluginLibrary, -1);
     if (pluginIndex == -1)
         return;
 

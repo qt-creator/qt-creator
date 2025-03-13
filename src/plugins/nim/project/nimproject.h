@@ -47,8 +47,8 @@ public:
 signals:
     void finished();
     void requestReparse();
-    void directoryChanged(const QString &path);
-    void fileChanged(const QString &path);
+    void directoryChanged(const Utils::FilePath &path);
+    void fileChanged(const Utils::FilePath &path);
 
 private:
     void loadSettings();

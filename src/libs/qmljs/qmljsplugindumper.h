@@ -42,7 +42,7 @@ private:
                                        const QString &importVersion);
     Q_INVOKABLE void dumpAllPlugins();
     void qmlPluginTypeDumpDone(Utils::Process *process);
-    void pluginChanged(const QString &pluginLibrary);
+    void pluginChanged(const Utils::FilePath &pluginLibrary);
 
 private:
     class Plugin {

@@ -116,10 +116,9 @@ signals:
 private:
     void connectFileWatcher();
     void updateItems(const DiagnosticItem *changedItem);
-    void onFileChanged(const QString &path);
+    void onFileChanged(const Utils::FilePath &path);
     void clearAndSetupCache();
 
-private:
     QHash<Utils::FilePath, FilePathItem *> m_filePathToItem;
     QSet<Diagnostic> m_diagnostics;
     std::map<QVector<ExplainingStep>, QVector<DiagnosticItem *>> stepsToItemsCache;

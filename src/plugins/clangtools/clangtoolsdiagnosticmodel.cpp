@@ -165,10 +165,10 @@ void ClangToolsDiagnosticModel::clearAndSetupCache()
     stepsToItemsCache.clear();
 }
 
-void ClangToolsDiagnosticModel::onFileChanged(const QString &path)
+void ClangToolsDiagnosticModel::onFileChanged(const FilePath &path)
 {
     forItemsAtLevel<2>([&](DiagnosticItem *item){
-        if (item->diagnostic().location.targetFilePath == FilePath::fromString(path))
+        if (item->diagnostic().location.targetFilePath == path)
             item->setFixItStatus(FixitStatus::Invalidated);
     });
     m_filesWatcher->removeFile(path);

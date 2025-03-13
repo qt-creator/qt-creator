@@ -12,6 +12,8 @@
 #include <QImageReader>
 #include <QRegularExpression>
 
+using namespace Utils;
+
 namespace QmlProjectManager {
 
 FileFilterItem::FileFilterItem(){
@@ -40,7 +42,7 @@ Utils::FileSystemWatcher *FileFilterItem::dirWatcher()
         connect(m_dirWatcher, &Utils::FileSystemWatcher::directoryChanged,
                 this, &FileFilterItem::updateFileList);
         connect(m_dirWatcher, &Utils::FileSystemWatcher::fileChanged,
-                [this](const QString& path) { emit fileModified(path); });
+                [this](const FilePath &path) { emit fileModified(path.toFSPathString()); });
     }
     return m_dirWatcher;
 }

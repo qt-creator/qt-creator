@@ -1734,7 +1734,8 @@ void QmakeProFile::applyEvaluate(const QmakeEvalResultPtr &result)
             m_wildcardWatcher = std::make_unique<FileSystemWatcher>();
             QObject::connect(
                 m_wildcardWatcher.get(), &FileSystemWatcher::directoryChanged,
-                [this](QString path) {
+                [this](const FilePath &filePath) {
+                    const QString path = filePath.toFSPathString();
                     QStringList directoryContents = QDir(path).entryList();
                     if (m_wildcardDirectoryContents.value(path) != directoryContents) {
                         m_wildcardDirectoryContents.insert(path, directoryContents);

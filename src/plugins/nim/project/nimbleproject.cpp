@@ -115,8 +115,8 @@ NimbleBuildSystem::NimbleBuildSystem(BuildConfiguration *bc)
 {
     m_projectScanner.watchProjectFilePath();
 
-    connect(&m_projectScanner, &NimProjectScanner::fileChanged, this, [this](const QString &path) {
-        if (path == projectFilePath().toUrlishString())
+    connect(&m_projectScanner, &NimProjectScanner::fileChanged, this, [this](const FilePath &path) {
+        if (path == projectFilePath())
             requestDelayedParse();
     });
 
@@ -125,11 +125,11 @@ NimbleBuildSystem::NimbleBuildSystem(BuildConfiguration *bc)
 
     connect(&m_projectScanner, &NimProjectScanner::finished, this, &NimbleBuildSystem::updateProject);
 
-    connect(&m_projectScanner, &NimProjectScanner::directoryChanged, this, [this] (const QString &directory){
+    connect(&m_projectScanner, &NimProjectScanner::directoryChanged, this, [this] (const FilePath &directory) {
         // Workaround for nimble creating temporary files in project root directory
         // when querying the list of tasks.
         // See https://github.com/nim-lang/nimble/issues/720
-        if (FilePath::fromString(directory) != projectDirectory())
+        if (directory != projectDirectory())
             requestDelayedParse();
     });
 

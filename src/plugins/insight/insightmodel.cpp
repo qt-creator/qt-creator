@@ -28,6 +28,8 @@
 #include <QApplication>
 #include <QDebug>
 
+using namespace Utils;
+
 namespace QmlDesigner {
 
 namespace {
@@ -553,8 +555,9 @@ void InsightModel::selectAllCustom()
     selectAll(customCategories(), m_customCheckState);
 }
 
-void InsightModel::handleFileChange(const QString &path)
+void InsightModel::handleFileChange(const FilePath &filePath)
 {
+    const QString path = filePath.toFSPathString();
     if (m_mainQmlInfo.absoluteFilePath() == path)
         parseMainQml();
     else if (m_configInfo.absoluteFilePath() == path)

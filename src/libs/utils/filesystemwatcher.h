@@ -69,8 +69,8 @@ public:
     QStringList directories() const;
 
 signals:
-    void fileChanged(const QString &path);
-    void directoryChanged(const QString &path);
+    void fileChanged(const Utils::FilePath &path);
+    void directoryChanged(const Utils::FilePath &path);
 
 private:
     void init();

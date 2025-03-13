@@ -251,7 +251,7 @@ void QmlBuildSystem::initMcuProjectItems()
         connect(&m_mcuProjectFilesWatcher,
                 &Utils::FileSystemWatcher::fileChanged,
                 this,
-                [this](const QString &file) {
+                [this](const FilePath &file) {
                     Q_UNUSED(file)
                     initMcuProjectItems();
                     refresh(RefreshOptions::Files);

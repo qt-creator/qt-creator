@@ -78,7 +78,7 @@ private:
     void startCMakeState(const QStringList &configurationArguments);
     void cmakeFinishedState(int exitCode);
 
-    void handleReplyIndexFileChange(const QString &indexFile);
+    void handleReplyIndexFileChange(const Utils::FilePath &indexFile);
     void makeBackupConfiguration(bool store);
 
     void writeConfigurationIntoBuildDirectory(const QStringList &configuration);

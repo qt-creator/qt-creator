@@ -21,6 +21,8 @@
 #include <QFileSystemModel>
 #include <QMessageBox>
 
+using namespace Utils;
+
 namespace QmlDesigner {
 
 AssetsLibraryModel::AssetsLibraryModel(QObject *parent)
@@ -45,10 +47,10 @@ void AssetsLibraryModel::createBackendModel()
         syncIsEmpty();
     });
 
-    m_fileWatcher = new Utils::FileSystemWatcher(parent());
-    QObject::connect(m_fileWatcher, &Utils::FileSystemWatcher::fileChanged, this,
-                     [this] (const QString &path) {
-        emit fileChanged(path);
+    m_fileWatcher = new FileSystemWatcher(parent());
+    QObject::connect(m_fileWatcher, &FileSystemWatcher::fileChanged, this,
+                     [this] (const FilePath &path) {
+        emit fileChanged(path.toFSPathString());
     });
 }
 
