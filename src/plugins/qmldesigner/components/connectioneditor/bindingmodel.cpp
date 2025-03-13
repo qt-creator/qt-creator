@@ -3,10 +3,11 @@
 
 #include "bindingmodel.h"
 #include "bindingmodelitem.h"
-#include "connectioneditorutils.h"
+#include "connectioneditorlogging.h"
 #include "connectionview.h"
 #include "modelfwd.h"
 
+#include <scripteditorutils.h>
 #include <bindingproperty.h>
 #include <nodemetainfo.h>
 #include <nodeproperty.h>
@@ -64,12 +65,20 @@ BindingProperty BindingModel::propertyForRow(int row) const
     return {};
 }
 
+// TODO: add support for scripts in the binding editor (QDS-13510)
+static bool isSupportedProperty(const PropertyNameView &propertyName)
+{
+    return propertyName != QLatin1String("script");
+}
+
 static PropertyName unusedProperty(const ModelNode &modelNode)
 {
     if (modelNode.metaInfo().isValid()) {
         for (const auto &property : modelNode.metaInfo().properties()) {
-            if (property.isWritable() && !modelNode.hasProperty(property.name()))
+            if (property.isWritable() && !modelNode.hasProperty(property.name())
+                && isSupportedProperty(property.name())) {
                 return property.name();
+            }
         }
     }
     return "none";
@@ -147,7 +156,7 @@ void BindingModel::updateItem(const BindingProperty &property)
         item->updateProperty(property);
     } else {
         ModelNode node = property.parentModelNode();
-        if (connectionView()->isSelectedModelNode(node)) {
+        if (connectionView()->isSelectedModelNode(node) && isSupportedProperty(property.name())) {
             appendRow(new BindingModelItem(property));
             setCurrentProperty(property);
         }
@@ -243,8 +252,10 @@ void BindingModel::addModelNode(const ModelNode &node)
         return;
 
     const QList<BindingProperty> bindingProperties = node.bindingProperties();
-    for (const BindingProperty &property : bindingProperties)
-        appendRow(new BindingModelItem(property));
+    for (const BindingProperty &property : bindingProperties) {
+        if (isSupportedProperty(property.name()))
+            appendRow(new BindingModelItem(property));
+    }
 }
 
 BindingModelBackendDelegate::BindingModelBackendDelegate(BindingModel &model)

@@ -72,11 +72,7 @@ std::optional<QString> modelSerializeHelper(
     view.setTextModifier(&modifier);
     model->attachView(&view);
 
-    try {
-        callback(model.get());
-    } catch (const QmlDesigner::RewritingException &e) {
-        return e.description();
-    }
+    view.executeInTransaction("DSStore::modelSerializeHelper", [&] { callback(model.get()); });
 
     Utils::FileSaver saver(targetDir / (typeName + ".qml"), QIODevice::Text);
     saver.write(reformatQml(modifier.text()));

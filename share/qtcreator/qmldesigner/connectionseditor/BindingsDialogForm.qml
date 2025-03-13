@@ -5,6 +5,7 @@ import QtQuick
 import QtQuick.Controls
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import HelperWidgets as HelperWidgets
 
 Column {
     id: root
@@ -21,13 +22,13 @@ Column {
     Row {
         spacing: root.horizontalSpacing
 
-        PopupLabel {
+        HelperWidgets.PopupLabel {
             width: root.columnWidth
             text: qsTr("From")
             tooltip: qsTr("Sets the component and its property from which the value is copied.")
         }
 
-        PopupLabel {
+        HelperWidgets.PopupLabel {
             width: root.columnWidth
             text: qsTr("To")
             tooltip: qsTr("Sets the property of the selected component to which the copied value is assigned.")
@@ -49,7 +50,7 @@ Column {
             onCurrentTypeIndexChanged: sourceNode.currentIndex = sourceNode.currentTypeIndex
         }
 
-        PopupLabel {
+        HelperWidgets.PopupLabel {
              width: root.columnWidth
              text: backend.targetNode
              anchors.verticalCenter: parent.verticalCenter

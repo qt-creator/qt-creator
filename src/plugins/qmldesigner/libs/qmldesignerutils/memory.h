@@ -8,21 +8,20 @@
 
 namespace QmlDesigner {
 
-template<typename Pointer, typename... Arguments>
-class LazyPtr
+template<typename Type, typename ResultType, typename... Arguments>
+class LazySharedPtr
 {
-    using ResultType = Pointer::element_type;
 
 public:
-    LazyPtr(Arguments &&...arguments)
+    LazySharedPtr(Arguments &&...arguments)
         : m_arguments{std::forward_as_tuple(std::forward<Arguments>(arguments)...)}
     {}
 
-    operator Pointer() const
+    operator std::shared_ptr<ResultType>() const
     {
         return std::apply(
             [](auto &&...arguments) {
-                return Pointer(new ResultType(std::forward<decltype(arguments)>(arguments)...));
+                return std::make_shared<Type>(std::forward<decltype(arguments)>(arguments)...);
             },
             m_arguments);
     }
@@ -31,22 +30,10 @@ private:
     std::tuple<Arguments...> m_arguments;
 };
 
-template<typename ResultType, typename... Arguments>
-using LazyUniquePtr = LazyPtr<std::unique_ptr<ResultType>, Arguments...>;
-
-template<typename Result, typename... Arguments>
-LazyUniquePtr<Result, Arguments...> makeLazyUniquePtr(Arguments &&...arguments)
+template<typename Type, typename ResultType, typename... Arguments>
+LazySharedPtr<Type, ResultType, Arguments...> makeLazySharedPtr(Arguments &&...arguments)
 {
-    return LazyUniquePtr<Result, Arguments...>(std::forward<Arguments>(arguments)...);
-}
-
-template<typename ResultType, typename... Arguments>
-using LazySharedPtr = LazyPtr<std::shared_ptr<ResultType>, Arguments...>;
-
-template<typename ResultType, typename... Arguments>
-LazySharedPtr<ResultType, Arguments...> makeLazySharedPtr(Arguments &&...arguments)
-{
-    return LazySharedPtr<ResultType, Arguments...>(std::forward<Arguments>(arguments)...);
+    return LazySharedPtr<Type, ResultType, Arguments...>(std::forward<Arguments>(arguments)...);
 }
 
 } // namespace QmlDesigner

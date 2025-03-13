@@ -17,7 +17,6 @@
 #include <designmodewidget.h>
 #include <externaldependenciesinterface.h>
 #include <generatedcomponentutils.h>
-#include <materialutils.h>
 #include <metainfo.h>
 #include <nodeabstractproperty.h>
 #include <nodehints.h>
@@ -185,6 +184,7 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
     // Onboarding label contains instructions for new users how to get 3D content into the project
     m_onboardingLabel = new QLabel(this);
     m_onboardingLabel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    m_onboardingLabel->setWordWrap(true);
     connect(m_onboardingLabel, &QLabel::linkActivated, this, &Edit3DWidget::linkActivated);
     fillLayout->addWidget(m_onboardingLabel.data());
 
@@ -378,14 +378,14 @@ void Edit3DWidget::createContextMenu()
 
     m_importBundleAction = m_contextMenu->addAction(
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
-        tr("Import Component"), [&] {
+        tr("Import Bundle"), [&] {
             m_bundleHelper->importBundleToProject();
         });
 
     m_exportBundleAction = m_contextMenu->addAction(
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
-        tr("Export Component"), [&] {
-            m_bundleHelper->exportBundle(m_contextMenuTarget);
+        tr("Export Bundle"), [&] {
+            m_bundleHelper->exportBundle(m_view->selectedModelNodes());
         });
 
     m_contextMenu->addSeparator();
@@ -419,19 +419,11 @@ void Edit3DWidget::showOnboardingLabel()
     if (text.isEmpty()) {
         if (m_view->externalDependencies().isQt6Project()) {
             QString labelText =
-                tr("Your file does not import Qt Quick 3D.<br><br>"
-                   "To create a 3D view, add the"
-                   " <b>QtQuick3D</b>"
-                   " module in the"
-                   " <b>Components</b>"
-                   " view or click"
+                tr("To use the <b>3D</b> view, add the <b>QtQuick3D</b> module and the <b>View3D</b>"
+                   " component in the <b>Components</b> view or click"
                    " <a href=\"#add_import\"><span style=\"text-decoration:none;color:%1\">here</span></a>"
                    ".<br><br>"
-                   "To import 3D assets, select"
-                   " <b>+</b>"
-                   " in the"
-                   " <b>Assets</b>"
-                   " view.");
+                   "To import 3D assets, select <b>+</b> in the <b>Assets</b> view.");
             text = labelText.arg(Utils::creatorColor(Utils::Theme::TextColorLink).name());
         } else {
             text = tr("3D view is not supported in Qt5 projects.");
@@ -566,7 +558,7 @@ void Edit3DWidget::onCreateAction(QAction *action)
 
         // if added node is a Model, assign it a material
         if (modelNode.metaInfo().isQtQuick3DModel())
-            MaterialUtils::assignMaterialTo3dModel(m_view, modelNode);
+            Utils3D::assignMaterialTo3dModel(m_view, modelNode);
     });
 }
 
@@ -732,8 +724,7 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
 
 void Edit3DWidget::linkActivated([[maybe_unused]] const QString &link)
 {
-    if (m_view)
-        m_view->addQuick3DImport();
+    Utils3D::addQuick3DImportAndView3D(m_view);
 }
 
 Edit3DCanvas *Edit3DWidget::canvas() const

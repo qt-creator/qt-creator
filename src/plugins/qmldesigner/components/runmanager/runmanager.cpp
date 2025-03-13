@@ -175,6 +175,9 @@ RunManager::RunManager(DeviceShare::DeviceManager &deviceManager)
             [this](ProjectExplorer::RunControl *runControl) {
                 qCDebug(runManagerLog) << "Run Control started.";
 
+                if (m_currentTargetId != runControl->runMode())
+                    selectRunTarget(runControl->runMode());
+
                 m_runningTargets.append(QPointer(runControl));
 
                 setState(TargetState::Running);

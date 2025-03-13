@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/assetexporterplugin">
-        <file>assetexporterplugin.metainfo</file>
-    </qresource>
-</RCC>

@@ -72,6 +72,7 @@ public:
     void nextFileIsCalledInternally();
 
     const AbstractView *view() const;
+    AbstractView *view();
     TextEditorView *textEditorView();
 
     void emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList,

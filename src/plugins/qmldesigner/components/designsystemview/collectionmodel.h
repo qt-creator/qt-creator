@@ -25,6 +25,7 @@ public:
         ResolvedValueRole,
         PropertyValueRole
     };
+    Q_ENUM(Roles)
 
     Q_PROPERTY(QStringList themeNames READ themeNameList NOTIFY themeNameChanged FINAL)
 

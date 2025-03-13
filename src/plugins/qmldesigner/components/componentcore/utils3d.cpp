@@ -3,13 +3,19 @@
 
 #include "utils3d.h"
 
+#include <itemlibraryentry.h>
 #include <modelutils.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
+#include <qmldesignertr.h>
+#include <qmlitemnode.h>
 #include <qmlobjectnode.h>
 #include <variantproperty.h>
+
+#include <coreplugin/messagebox.h>
 
 #include <utils/qtcassert.h>
 
@@ -341,6 +347,112 @@ ModelNode createMaterial(AbstractView *view, const NodeMetaInfo &metaInfo)
     return newMatNode;
 }
 #endif
+
+void addQuick3DImportAndView3D(AbstractView *view)
+{
+    DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
+    if (!view || !view->model() || !document || document->inFileComponentModelActive()) {
+        Core::AsynchronousMessageBox::warning(Tr::tr("Failed to Add Import"),
+                                              Tr::tr("Could not add QtQuick3D import to the document."));
+        return;
+    }
+
+    QString importName{"QtQuick3D"};
+    if (view->model()->hasImport(importName))
+        return;
+
+    view->executeInTransaction(__FUNCTION__, [&] {
+        Import import = Import::createLibraryImport(importName);
+        view->model()->changeImports({import}, {});
+
+        if (!view->rootModelNode().metaInfo().isQtQuickItem())
+            return;
+
+        ensureMaterialLibraryNode(view);
+#ifndef QDS_USE_PROJECTSTORAGE
+    });
+    view->executeInTransaction(__FUNCTION__, [&] {
+#endif
+        NodeMetaInfo view3dInfo = view->model()->qtQuick3DView3DMetaInfo();
+        if (!view->allModelNodesOfType(view3dInfo).isEmpty())
+            return;
+
+        const QList<ItemLibraryEntry> entries = view->model()->itemLibraryEntries();
+        // Use template file to identify correct entry, as name could be localized in the future
+        const QString view3dSource{"extendedview3D_template.qml"};
+        auto templateMatch = [&view3dSource](const ItemLibraryEntry &entry) -> bool {
+            return entry.templatePath().endsWith(view3dSource);
+        };
+        auto iter = std::ranges::find_if(entries, templateMatch);
+        if (iter == entries.end())
+            return;
+
+        NodeAbstractProperty targetProp = view->rootModelNode().defaultNodeAbstractProperty();
+        QmlObjectNode newQmlObjectNode = QmlItemNode::createQmlObjectNode(
+            view, *iter, QPointF(), targetProp, false);
+
+        const QList<ModelNode> models = newQmlObjectNode.modelNode().subModelNodesOfType(
+            view->model()->qtQuick3DModelMetaInfo());
+        if (!models.isEmpty())
+            assignMaterialTo3dModel(view, models.at(0));
+    });
+}
+
+// Assigns given material to a 3D model.
+// The assigned material is also inserted into material library if not already there.
+// If given material is not valid, first existing material from material library is used,
+// or if material library is empty, a new material is created.
+// This function should be called only from inside a transaction, as it potentially does many
+// changes to model.
+void assignMaterialTo3dModel(AbstractView *view, const ModelNode &modelNode,
+                             const ModelNode &materialNode)
+{
+    QTC_ASSERT(modelNode.metaInfo().isQtQuick3DModel(), return);
+
+    ModelNode matLib = Utils3D::materialLibraryNode(view);
+
+    if (!matLib)
+        return;
+
+    ModelNode newMaterialNode;
+
+    if (materialNode.metaInfo().isQtQuick3DMaterial()) {
+        newMaterialNode = materialNode;
+    } else {
+        const QList<ModelNode> materials = matLib.directSubModelNodes();
+        auto isMaterial = [](const ModelNode &node) -> bool {
+            return node.metaInfo().isQtQuick3DMaterial();
+        };
+        if (auto iter = std::ranges::find_if(materials, isMaterial); iter != materials.end())
+            newMaterialNode = *iter;
+
+        // if no valid material, create a new default material
+        if (!newMaterialNode) {
+#ifdef QDS_USE_PROJECTSTORAGE
+            newMaterialNode = view->createModelNode("PrincipledMaterial");
+#else
+            NodeMetaInfo metaInfo = view->model()->qtQuick3DPrincipledMaterialMetaInfo();
+            newMaterialNode = view->createModelNode("QtQuick3D.PrincipledMaterial",
+                                                    metaInfo.majorVersion(),
+                                                    metaInfo.minorVersion());
+#endif
+            newMaterialNode.ensureIdExists();
+        }
+    }
+
+    QTC_ASSERT(newMaterialNode, return);
+
+    VariantProperty matNameProp = newMaterialNode.variantProperty("objectName");
+    if (matNameProp.value().isNull())
+        matNameProp.setValue("New Material");
+
+    if (!newMaterialNode.hasParentProperty()
+        || newMaterialNode.parentProperty() != matLib.defaultNodeListProperty()) {
+        matLib.defaultNodeListProperty().reparentHere(newMaterialNode);
+    }
+
+    QmlObjectNode(modelNode).setBindingProperty("materials", newMaterialNode.id());
+}
 
 } // namespace Utils3D
 } // namespace QmlDesigner

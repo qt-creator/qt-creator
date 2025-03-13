@@ -3,27 +3,29 @@
 
 import QtQuick
 import QtQuick.Templates as T
-import StudioTheme 1.0 as StudioTheme
+import StudioTheme as StudioTheme
 
 T.Button {
     id: control
 
     property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
-    implicitWidth: Math.max(buttonBackground ? buttonBackground.implicitWidth : 0,
-                            textItem.implicitWidth + leftPadding + rightPadding)
-    implicitHeight: Math.max(buttonBackground ? buttonBackground.implicitHeight : 0,
-                             textItem.implicitHeight + topPadding + bottomPadding)
+    implicitWidth: Math.max(control.style.squareControlSize.width,
+                            implicitBackgroundWidth + leftInset + rightInset,
+                            implicitContentWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(control.style.squareControlSize.height,
+                             implicitBackgroundHeight + topInset + bottomInset,
+                             implicitContentHeight + topPadding + bottomPadding)
+
     leftPadding: control.style.dialogPadding
     rightPadding: control.style.dialogPadding
 
     background: Rectangle {
-        id: buttonBackground
-        implicitWidth: 70
-        implicitHeight: 20
+        id: controlBackground
         color: control.style.background.idle
         border.color: control.style.border.idle
-        anchors.fill: parent
+        border.width: control.style.borderWidth
+        radius: control.style.radius
     }
 
     contentItem: Text {
@@ -41,7 +43,7 @@ T.Button {
             when: control.enabled && !control.down && !control.hovered && !control.checked
 
             PropertyChanges {
-                target: buttonBackground
+                target: controlBackground
                 color: control.highlighted ? control.style.interaction
                                            : control.style.background.idle
                 border.color: control.style.border.idle
@@ -56,7 +58,7 @@ T.Button {
             when: control.enabled && control.hovered && !control.checked && !control.down
 
             PropertyChanges {
-                target: buttonBackground
+                target: controlBackground
                 color: control.style.background.hover
                 border.color: control.style.border.hover
             }
@@ -70,9 +72,9 @@ T.Button {
             when: control.enabled && (control.checked || control.down)
 
             PropertyChanges {
-                target: buttonBackground
-                color: control.style.background.interaction
-                border.color: control.style.border.interaction
+                target: controlBackground
+                color: control.style.interaction
+                border.color: control.style.interaction
             }
             PropertyChanges {
                 target: textItem
@@ -83,7 +85,7 @@ T.Button {
             name: "disable"
             when: !control.enabled
             PropertyChanges {
-                target: buttonBackground
+                target: controlBackground
                 color: control.style.background.disabled
                 border.color: control.style.border.disabled
             }

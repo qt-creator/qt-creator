@@ -142,6 +142,15 @@ StudioControls.Menu {
     }
 
     StudioControls.MenuItem {
+        id: updateComponent
+        text: qsTr("Reimport 3D Asset")
+        visible: root.__fileIndex && root.__selectedAssetPathsList.length === 1
+                 && root.rootView.assetIsImported3d(root.__selectedAssetPathsList[0])
+        height: editComponent.visible ? editComponent.implicitHeight : 0
+        onTriggered: root.rootView.updateAssetComponent(root.__selectedAssetPathsList[0])
+    }
+
+    StudioControls.MenuItem {
         id: addTexturesItem
         text: qsTr("Add Texture")
         enabled: rootView.hasMaterialLibrary

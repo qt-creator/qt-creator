@@ -5,6 +5,7 @@ import QtQuick
 import QtQuick.Controls
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import HelperWidgets as HelperWidgets
 
 Column {
     id: root
@@ -18,7 +19,7 @@ Column {
     width: parent.width
     spacing: root.verticalSpacing
 
-    PopupLabel {
+    HelperWidgets.PopupLabel {
         text: qsTr("Type")
         tooltip: qsTr("Sets the category of the <b>Local Custom Property</b>.")
     }
@@ -37,13 +38,13 @@ Column {
     Row {
         spacing: root.horizontalSpacing
 
-        PopupLabel {
+        HelperWidgets.PopupLabel {
             width: root.columnWidth
             text: qsTr("Name")
             tooltip: qsTr("Sets a name for the <b>Local Custom Property</b>.")
         }
 
-        PopupLabel {
+        HelperWidgets.PopupLabel {
             width: root.columnWidth
             text: qsTr("Value")
             tooltip: qsTr("Sets a valid <b>Local Custom Property</b> value.")

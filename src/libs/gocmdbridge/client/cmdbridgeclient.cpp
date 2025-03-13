@@ -857,7 +857,10 @@ Utils::expected_str<QFuture<void>> Client::signalProcess(int pid, Utils::Control
 bool Client::exit()
 {
     try {
-        createVoidJob(d.get(), QCborMap{{"Type", "exit"}}, "exitres")->waitForFinished();
+        createVoidJob(d.get(), QCborMap{{"Type", "exit"}}, "exitres").and_then([](auto future) {
+            future.waitForFinished();
+            return expected_str<void>();
+        });
         return true;
     } catch (const std::runtime_error &e) {
         if (e.what() == std::string("NormalExit"))

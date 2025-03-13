@@ -23,7 +23,7 @@ static Q_LOGGING_CATEGORY(ceLog, "qtc.qmldesigner.connectioneditor", QtWarningMs
 namespace QmlDesigner {
 
 ActionEditorDialog::ActionEditorDialog(QWidget *parent)
-    : AbstractEditorDialog(parent, tr("Connection Editor"))
+    : AbstractEditorDialog(parent, tr("Action Editor"))
 {
     setupUIComponents();
 

@@ -4,6 +4,7 @@
 #include "quick2propertyeditorview.h"
 
 #include <qmldesignerconstants.h>
+#include <scripteditorbackend.h>
 
 #include "aligndistribute.h"
 #include "annotationeditor/annotationeditor.h"
@@ -15,6 +16,7 @@
 #include "gradientmodel.h"
 #include "gradientpresetcustomlistmodel.h"
 #include "gradientpresetdefaultlistmodel.h"
+#include "instanceimageprovider.h"
 #include "itemfiltermodel.h"
 #include "listvalidator.h"
 #include "propertychangesmodel.h"
@@ -24,8 +26,10 @@
 #include "propertymodel.h"
 #include "propertynamevalidator.h"
 #include "qmlanchorbindingproxy.h"
+#include "qmlmaterialnodeproxy.h"
+#include "qmltexturenodeproxy.h"
 #include "richtexteditor/richtexteditorproxy.h"
-#include "selectiondynamicpropertiesproxymodel.h"
+#include "propertyeditordynamicpropertiesproxymodel.h"
 #include "theme.h"
 #include "tooltip.h"
 
@@ -39,6 +43,14 @@ Quick2PropertyEditorView::Quick2PropertyEditorView(AsynchronousImageCache &image
     Theme::setupTheme(engine());
     engine()->addImageProvider("qmldesigner_thumbnails",
                                new AssetImageProvider(imageCache));
+
+    m_instanceImageProvider = new InstanceImageProvider();
+    engine()->addImageProvider("nodeInstance", m_instanceImageProvider);
+}
+
+InstanceImageProvider *Quick2PropertyEditorView::instanceImageProvider() const
+{
+    return m_instanceImageProvider;
 }
 
 void Quick2PropertyEditorView::registerQmlTypes()
@@ -55,6 +67,8 @@ void Quick2PropertyEditorView::registerQmlTypes()
         ListValidator::registerDeclarativeType();
         ColorPaletteBackend::registerDeclarativeType();
         QmlAnchorBindingProxy::registerDeclarativeType();
+        QmlMaterialNodeProxy::registerDeclarativeType();
+        QmlTextureNodeProxy::registerDeclarativeType();
         BindingEditor::registerDeclarativeType();
         ActionEditor::registerDeclarativeType();
         AnnotationEditor::registerDeclarativeType();
@@ -62,11 +76,12 @@ void Quick2PropertyEditorView::registerQmlTypes()
         Tooltip::registerDeclarativeType();
         EasingCurveEditor::registerDeclarativeType();
         RichTextEditorProxy::registerDeclarativeType();
-        SelectionDynamicPropertiesProxyModel::registerDeclarativeType();
+        PropertyEditorDynamicPropertiesProxyModel::registerDeclarativeType();
         DynamicPropertyRow::registerDeclarativeType();
         PropertyChangesModel::registerDeclarativeType();
         PropertyModel::registerDeclarativeType();
         PropertyNameValidator::registerDeclarativeType();
+        ScriptEditorBackend::registerDeclarativeType();
 
         const QString resourcePath = PropertyEditorQmlBackend::propertyEditorResourcesPath();
 

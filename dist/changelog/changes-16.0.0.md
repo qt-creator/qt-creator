@@ -38,6 +38,8 @@ Editing
   ([QTCREATORBUG-31931](https://bugreports.qt.io/browse/QTCREATORBUG-31931))
 * Fixed the generation of getters for local enum types
   ([QTCREATORBUG-32473](https://bugreports.qt.io/browse/QTCREATORBUG-32473))
+* Fixed the header guard creation for file names with special characters
+  ([QTCREATORBUG-32539](https://bugreports.qt.io/browse/QTCREATORBUG-32539))
 * Built-in
     * Added support for init-statements in range-based `for` loops
       ([QTCREATORBUG-31961](https://bugreports.qt.io/browse/QTCREATORBUG-31961))
@@ -231,8 +233,13 @@ Terminal
   ([QTCREATORBUG-32197](https://bugreports.qt.io/browse/QTCREATORBUG-32197))
 * Fixed killing the shell process
   ([QTCREATORBUG-32509](https://bugreports.qt.io/browse/QTCREATORBUG-32509))
-* Fixed auto-scrolling
-  ([QTCREATORBUG-32167](https://bugreports.qt.io/browse/QTCREATORBUG-32167))
+* Fixed the scrolling behavior
+  ([QTCREATORBUG-32167](https://bugreports.qt.io/browse/QTCREATORBUG-32167),
+   [QTCREATORBUG-32546](https://bugreports.qt.io/browse/QTCREATORBUG-32546))
+* Fixed the title of tabs
+  ([QTCREATORBUG-32197](https://bugreports.qt.io/browse/QTCREATORBUG-32197))
+* Fixed the handling of `Home` and `End` keys
+  ([QTCREATORBUG-32545](https://bugreports.qt.io/browse/QTCREATORBUG-32545))
 
 Version Control Systems
 -----------------------
@@ -313,6 +320,7 @@ Credits for these changes go to:
 Alessandro Portale  
 Alexander Drozdov  
 Alexander Pershin  
+Alexandre Laurent  
 Alexis Jeandet  
 Ali Kianian  
 Andre Hartmann  
@@ -348,6 +356,7 @@ Mats Honkamaa
 Miikka Heikkinen  
 Mitch Curtis  
 Morteza Jamshidi  
+Nicholas Bennett  
 Nikolaus Demmel  
 Olivier De Cannière  
 Orgad Shaneh  
@@ -367,4 +376,5 @@ Thiago Macieira
 Thomas Hartmann  
 Tim Jenßen  
 Vikas Pachdha  
+Ville Lavonius  
 Xu Jin  

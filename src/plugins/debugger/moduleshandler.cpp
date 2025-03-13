@@ -296,13 +296,18 @@ void ModulesHandler::updateModule(const Module &module)
         m_model->rootItem()->appendChild(item);
     }
 
-    try { // MinGW occasionallly throws std::bad_alloc.
-        ElfReader reader(path);
-        item->module.elfData = reader.readHeaders();
-        item->update();
-    } catch(...) {
-        qWarning("%s: An exception occurred while reading module '%s'",
-                 Q_FUNC_INFO, qPrintable(module.modulePath.toUserOutput()));
+    if (path.isLocal()) {
+        try { // MinGW occasionallly throws std::bad_alloc.
+            ElfReader reader(path);
+            item->module.elfData = reader.readHeaders();
+            item->update();
+        } catch(...) {
+            qWarning("%s: An exception occurred while reading module '%s'",
+                     Q_FUNC_INFO, qPrintable(module.modulePath.toUserOutput()));
+        }
+    } else {
+        m_model->engine->showMessage(
+                    QString("Skipping elf-reading of remote path %1").arg(path.toUserOutput()));
     }
     item->updated = true;
 }

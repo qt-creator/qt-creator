@@ -36,6 +36,36 @@ void insertUpdateDelete(SqliteRange &&sqliteRange,
     auto endValueIterator = values.end();
     auto lastValueIterator = endValueIterator;
 
+    auto doUpdate = [&](const auto &sqliteValue, const auto &value) {
+        UpdateChange updateChange = updateCallback(sqliteValue, value);
+        switch (updateChange) {
+        case UpdateChange::Update:
+            lastValueIterator = currentValueIterator;
+            break;
+        case UpdateChange::No:
+            lastValueIterator = endValueIterator;
+            break;
+        }
+        ++currentSqliteIterator;
+        ++currentValueIterator;
+    };
+
+    auto doInsert = [&](const auto &value) {
+        insertCallback(value);
+        ++currentValueIterator;
+    };
+
+    auto doDelete = [&](const auto &sqliteValue) {
+        if (lastValueIterator != endValueIterator) {
+            if (compareKey(sqliteValue, *lastValueIterator) != 0)
+                deleteCallback(sqliteValue);
+            lastValueIterator = endValueIterator;
+        } else {
+            deleteCallback(sqliteValue);
+        }
+        ++currentSqliteIterator;
+    };
+
     while (true) {
         bool hasMoreValues = currentValueIterator != endValueIterator;
         bool hasMoreSqliteValues = currentSqliteIterator != endSqliteIterator;
@@ -43,44 +73,16 @@ void insertUpdateDelete(SqliteRange &&sqliteRange,
             auto &&sqliteValue = *currentSqliteIterator;
             auto &&value = *currentValueIterator;
             auto compare = compareKey(sqliteValue, value);
-            if (compare == 0) {
-                UpdateChange updateChange = updateCallback(sqliteValue, value);
-                switch (updateChange) {
-                case UpdateChange::Update:
-                    lastValueIterator = currentValueIterator;
-                    break;
-                case UpdateChange::No:
-                    lastValueIterator = endValueIterator;
-                    break;
-                }
-                ++currentSqliteIterator;
-                ++currentValueIterator;
-            } else if (compare > 0) {
-                insertCallback(value);
-                ++currentValueIterator;
-            } else if (compare < 0) {
-                if (lastValueIterator != endValueIterator) {
-                    if (compareKey(sqliteValue, *lastValueIterator) != 0)
-                        deleteCallback(sqliteValue);
-                    lastValueIterator = endValueIterator;
-                } else {
-                    deleteCallback(sqliteValue);
-                }
-                ++currentSqliteIterator;
-            }
+            if (compare == 0)
+                doUpdate(sqliteValue, value);
+            else if (compare > 0)
+                doInsert(value);
+            else if (compare < 0)
+                doDelete(sqliteValue);
         } else if (hasMoreValues) {
-            insertCallback(*currentValueIterator);
-            ++currentValueIterator;
+            doInsert(*currentValueIterator);
         } else if (hasMoreSqliteValues) {
-            auto &&sqliteValue = *currentSqliteIterator;
-            if (lastValueIterator != endValueIterator) {
-                if (compareKey(sqliteValue, *lastValueIterator) != 0)
-                    deleteCallback(sqliteValue);
-                lastValueIterator = endValueIterator;
-            } else {
-                deleteCallback(sqliteValue);
-            }
-            ++currentSqliteIterator;
+            doDelete(*currentSqliteIterator);
         } else {
             break;
         }

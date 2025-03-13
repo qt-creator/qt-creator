@@ -2033,10 +2033,10 @@ void DesignerActionManager::createDefaultDesignerActions()
         QKeySequence(),
         Priorities::ExportComponent,
         [&](const SelectionContext &context) {
-            m_bundleHelper->exportBundle(context.currentSingleSelectedNode());
+            m_bundleHelper->exportBundle(context.selectedModelNodes());
         },
-        &is3DNode,
-        &is3DNode));
+        &are3DNodes,
+        &are3DNodes));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           editMaterialCommandId,

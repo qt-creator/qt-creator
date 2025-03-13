@@ -12,4 +12,9 @@ Column {
     AnimationSection {
         showDuration: false
     }
+
+    ScriptSection {
+        anchors.left: parent.left
+        anchors.right: parent.right
+    }
 }

@@ -51,13 +51,13 @@ public:
 
     Utils::SmallStringView directory() const noexcept
     {
-        return mid(0, std::size_t(std::max(std::ptrdiff_t(0), m_slashIndex)));
+        return substr(0, std::size_t(std::max(std::ptrdiff_t(0), m_slashIndex)));
     }
 
     Utils::SmallStringView name() const noexcept
     {
-        return mid(std::size_t(m_slashIndex + 1),
-                   std::size_t(std::ptrdiff_t(size()) - m_slashIndex - std::ptrdiff_t(1)));
+        return substr(std::size_t(m_slashIndex + 1),
+                      std::size_t(std::ptrdiff_t(size()) - m_slashIndex - std::ptrdiff_t(1)));
     }
 
     static

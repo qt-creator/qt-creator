@@ -936,8 +936,10 @@ CommandLine DockerDevicePrivate::createCommandLine()
 
 #ifdef Q_OS_UNIX
     // no getuid() and getgid() on Windows.
-    if (q->useLocalUidGid())
+    if (q->useLocalUidGid()) {
         dockerCreate.addArgs({"-u", QString("%1:%2").arg(getuid()).arg(getgid())});
+        dockerCreate.addArgs({"-e", QString("HOME=/tmp/qtc_home/%1").arg(getuid())});
+    }
 #endif
 
     if (!q->network().isEmpty()) {

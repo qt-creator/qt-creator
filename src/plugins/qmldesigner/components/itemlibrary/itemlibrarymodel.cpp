@@ -20,6 +20,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QFileInfo>
 #include <QIODevice>
 #include <QLoggingCategory>
 #include <QMetaProperty>
@@ -325,11 +326,10 @@ void ItemLibraryModel::update(Model *model)
     // create import sections
     const Imports usedImports = model->usedImports();
     QHash<QString, ItemLibraryImport *> importHash;
+    const QString generatedPrefix = compUtils.generatedComponentTypePrefix();
     for (const Import &import : model->imports()) {
-        if (excludedImports.contains(import.url())
-            || import.url().startsWith(compUtils.generatedComponentTypePrefix())) {
+        if (excludedImports.contains(import.url()) || import.url().startsWith(generatedPrefix))
             continue;
-        }
 
         bool addNew = true;
         QString importUrl = import.url();
@@ -362,6 +362,9 @@ void ItemLibraryModel::update(Model *model)
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     const bool blockNewImports = document->inFileComponentModelActive();
 #endif
+
+    TypeName currentFileType = QFileInfo(model->fileUrl().toLocalFile()).baseName().toUtf8();
+
     const QList<ItemLibraryEntry> itemLibEntries = model->itemLibraryEntries();
     for (const ItemLibraryEntry &entry : itemLibEntries) {
         NodeMetaInfo metaInfo;
@@ -398,6 +401,7 @@ void ItemLibraryModel::update(Model *model)
 
             // we need to exclude all items from unsupported imports but only if they are not user-defined modules
             if (!(entry.category() == ItemLibraryImport::userComponentsTitle())
+                && !entry.requiredImport().isEmpty()
                 && !mcuManager.allowedImports().contains(entry.requiredImport())) {
                 blocked = true;
             }
@@ -421,6 +425,8 @@ void ItemLibraryModel::update(Model *model)
             if (isUsable) {
                 if (catName == ItemLibraryImport::userComponentsTitle()) {
                     if (entry.requiredImport().isEmpty()) { // user components
+                        if (currentFileType == entry.typeName())
+                            continue;
                         importSection = importHash[ItemLibraryImport::userComponentsTitle()];
                         if (!importSection) {
                             importSection = new ItemLibraryImport(
@@ -444,6 +450,8 @@ void ItemLibraryModel::update(Model *model)
                                                                                 : entry.requiredImport()];
                 }
             } else {
+                if (entry.requiredImport().startsWith(generatedPrefix))
+                    continue;
                 catName = ItemLibraryImport::unimportedComponentsTitle();
                 importSection = importHash[catName];
                 if (!importSection) {

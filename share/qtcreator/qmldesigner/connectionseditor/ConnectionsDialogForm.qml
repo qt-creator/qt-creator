@@ -6,6 +6,8 @@ import QtQuick.Controls
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import ScriptsEditor as ScriptsEditor
+import ScriptEditorBackend
 
 Column {
     id: root
@@ -16,8 +18,7 @@ Column {
 
     property var backend
 
-    property bool keepOpen: expressionDialogLoader.visible
-    property Window parentWindow: null
+    property bool keepOpen: scriptEditor.keepOpen
 
     width: parent.width
     spacing: root.verticalSpacing
@@ -29,13 +30,13 @@ Column {
     Row {
         spacing: root.horizontalSpacing
 
-        PopupLabel {
+        HelperWidgets.PopupLabel {
             width: root.columnWidth
             text: qsTr("Signal")
             tooltip: qsTr("Sets an interaction method that connects to the <b>Target</b> component.")
         }
 
-        PopupLabel {
+        HelperWidgets.PopupLabel {
             width: root.columnWidth
             text: qsTr("Action")
             tooltip: qsTr("Sets an action that is associated with the selected <b>Target</b> component's <b>Signal</b>.")
@@ -58,259 +59,40 @@ Column {
             onCurrentTypeIndexChanged: signal.currentIndex = signal.currentTypeIndex
         }
 
-        StudioControls.TopLevelComboBox {
+        ScriptsEditor.ActionsComboBox {
             id: action
-            style: StudioTheme.Values.connectionPopupControlStyle
+
             width: root.columnWidth
-            textRole: "text"
-            valueRole: "value"
-            ///model.getData(currentIndex, "role")
-            property int indexFromBackend: indexOfValue(backend.actionType)
-            onIndexFromBackendChanged: action.currentIndex = action.indexFromBackend
-            onActivated: backend.changeActionType(action.currentValue)
-
-            model: ListModel {
-                ListElement {
-                    value: ConnectionModelStatementDelegate.CallFunction
-                    text: qsTr("Call Function")
-                    enabled: true
-                }
-                ListElement {
-                    value: ConnectionModelStatementDelegate.Assign
-                    text: qsTr("Assign")
-                    enabled: true
-                }
-                ListElement {
-                    value: ConnectionModelStatementDelegate.ChangeState
-                    text: qsTr("Change State")
-                    enabled: true
-                }
-                ListElement {
-                    value: ConnectionModelStatementDelegate.SetProperty
-                    text: qsTr("Set Property")
-                    enabled: true
-                }
-                ListElement {
-                    value: ConnectionModelStatementDelegate.PrintMessage
-                    text: qsTr("Print Message")
-                    enabled: true
-                }
-                ListElement {
-                    value: ConnectionModelStatementDelegate.Custom
-                    text: qsTr("Custom")
-                    enabled: false
-                }
-            }
+            backend: root.backend
         }
     }
 
-    StatementEditor {
-        width: root.width
-        actionType: action.currentValue ?? ConnectionModelStatementDelegate.Custom
+    ScriptsEditor.ScriptEditorForm {
+        id: scriptEditor
+
+        anchors.left: parent.left
+        anchors.right: parent.right
+
         horizontalSpacing: root.horizontalSpacing
+        verticalSpacing: root.verticalSpacing
         columnWidth: root.columnWidth
-        statement: backend.okStatement
+        spacing: root.spacing
+
         backend: root.backend
-        spacing: root.verticalSpacing
-    }
 
-    HelperWidgets.AbstractButton {
-        style: StudioTheme.Values.connectionPopupButtonStyle
-        width: 160
-        buttonIcon: qsTr("Add Condition")
-        tooltip: qsTr("Sets a logical condition for the selected <b>Signal</b>. It works with the properties of the <b>Target</b> component.")
-        iconSize: StudioTheme.Values.baseFontSize
-        iconFontFamily: StudioTheme.Constants.font.family
-        anchors.horizontalCenter: parent.horizontalCenter
-        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom && !backend.hasCondition
+        currentAction: action.currentValue ?? StatementDelegate.Custom
 
-        onClicked: backend.addCondition()
-    }
-
-    HelperWidgets.AbstractButton {
-        style: StudioTheme.Values.connectionPopupButtonStyle
-        width: 160
-        buttonIcon: qsTr("Remove Condition")
-        tooltip: qsTr("Removes the logical condition for the <b>Target</b> component.")
-        iconSize: StudioTheme.Values.baseFontSize
-        iconFontFamily: StudioTheme.Constants.font.family
-        anchors.horizontalCenter: parent.horizontalCenter
-        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom && backend.hasCondition
-
-        onClicked: backend.removeCondition()
-    }
-
-    ExpressionBuilder {
-        style: StudioTheme.Values.connectionPopupControlStyle
-        width: root.width
-
-        visible: backend.hasCondition
-        model: backend.conditionListModel
-
-        onRemove: function(index) {
-            //console.log("remove", index)
-            backend.conditionListModel.removeToken(index)
-        }
-
-        onUpdate: function(index, value) {
-            //console.log("update", index, value)
-            backend.conditionListModel.updateToken(index, value)
-        }
-
-        onAdd: function(value) {
-            //console.log("add", value)
-            backend.conditionListModel.appendToken(value)
-        }
-
-        onInsert: function(index, value, type) {
-            //console.log("insert", index, value, type)
-            if (type === ConditionListModel.Intermediate)
-                backend.conditionListModel.insertIntermediateToken(index, value)
-            else if (type === ConditionListModel.Shadow)
-                backend.conditionListModel.insertShadowToken(index, value)
-            else
-                backend.conditionListModel.insertToken(index, value)
-        }
-
-        onSetValue: function(index, value) {
-            //console.log("setValue", index, value)
-            backend.conditionListModel.setShadowToken(index, value)
-        }
-    }
-
-    HelperWidgets.AbstractButton {
-        style: StudioTheme.Values.connectionPopupButtonStyle
-        width: 160
-        buttonIcon: qsTr("Add Else Statement")
-        tooltip: qsTr("Sets an alternate condition for the previously defined logical condition.")
-        iconSize: StudioTheme.Values.baseFontSize
-        iconFontFamily: StudioTheme.Constants.font.family
-        anchors.horizontalCenter: parent.horizontalCenter
-        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom
-                 && backend.hasCondition && !backend.hasElse
-
-        onClicked: backend.addElse()
-    }
-
-    HelperWidgets.AbstractButton {
-        style: StudioTheme.Values.connectionPopupButtonStyle
-        width: 160
-        buttonIcon: qsTr("Remove Else Statement")
-        tooltip: qsTr("Removes the alternate logical condition for the previously defined logical condition.")
-        iconSize: StudioTheme.Values.baseFontSize
-        iconFontFamily: StudioTheme.Constants.font.family
-        anchors.horizontalCenter: parent.horizontalCenter
-        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom
-                 && backend.hasCondition && backend.hasElse
-
-        onClicked: backend.removeElse()
-    }
-
-    //Else Statement
-    StatementEditor {
-        width: root.width
-        actionType: action.currentValue ?? ConnectionModelStatementDelegate.Custom
-        horizontalSpacing: root.horizontalSpacing
-        columnWidth: root.columnWidth
-        statement: backend.koStatement
-        backend: root.backend
-        spacing: root.verticalSpacing
-        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom
-                 && backend.hasCondition && backend.hasElse
-    }
-
-    // code preview toolbar
-    Column {
-        id: miniToolbarEditor
-        width: parent.width
-        spacing: -2
-
-        Rectangle {
-            id: miniToolbar
-            width: parent.width
-            height: editorButton.height + 2
-            radius: 4
-            z: -1
-            color: StudioTheme.Values.themeConnectionEditorMicroToolbar
-
-            Row {
-                spacing: 2
-                HelperWidgets.AbstractButton {
-                    id: editorButton
-                    style: StudioTheme.Values.microToolbarButtonStyle
-                    buttonIcon: StudioTheme.Constants.codeEditor_medium
-                    tooltip: qsTr("Write the conditions for the components and the signals manually.")
-                    onClicked: expressionDialogLoader.show()
-                }
-                HelperWidgets.AbstractButton {
-                    id: jumpToCodeButton
-                    style: StudioTheme.Values.microToolbarButtonStyle
-                    buttonIcon: StudioTheme.Constants.jumpToCode_medium
-                    tooltip: qsTr("Jump to the code.")
-                    onClicked: backend.jumpToCode()
-                }
-            }
-        }
-
-        // Editor
-        Rectangle {
-            id: editor
-            width: parent.width
-            height: 150
-            color: StudioTheme.Values.themeConnectionCodeEditor
-
-            Text {
-                id: code
-                anchors.fill: parent
-                anchors.margins: 4
-                text: backend.indentedSource
-                color: StudioTheme.Values.themeTextColor
-                font.pixelSize: StudioTheme.Values.myFontSize
-                wrapMode: Text.Wrap
-                horizontalAlignment: code.lineCount === 1 ? Text.AlignHCenter : Text.AlignLeft
-                verticalAlignment: Text.AlignVCenter
-                elide: Text.ElideRight
-            }
-
-            Loader {
-                id: expressionDialogLoader
-                parent: editor
-                anchors.fill: parent
-                visible: false
-                active: visible
-
-                function show() {
-                    expressionDialogLoader.visible = true
-                }
-
-                sourceComponent: Item {
-                    id: bindingEditorParent
-
-                    Component.onCompleted: {
-                        bindingEditor.showWidget()
-                        bindingEditor.text = backend.source
-                        bindingEditor.showControls(false)
-                        bindingEditor.setMultilne(true)
-                        bindingEditor.updateWindowName()
-                    }
-
-                    ActionEditor {
-                        id: bindingEditor
-
-                        onRejected: {
-                            bindingEditor.hideWidget()
-                            expressionDialogLoader.visible = false
-                        }
-
-                        onAccepted: {
-                            backend.setNewSource(bindingEditor.text)
-                            bindingEditor.hideWidget()
-                            expressionDialogLoader.visible = false
-                        }
-                    }
-                }
-            }
-        }
+        itemTooltip: qsTr("Sets the component that is affected by the action of the <b>Target</b> component's <b>Signal</b>.")
+        methodTooltip: qsTr("Sets the item component's method that is affected by the <b>Target</b> component's <b>Signal</b>.")
+        fromTooltip: qsTr("Sets the component and its property from which the value is copied when the <b>Target</b> component initiates the <b>Signal</b>.")
+        toTooltip: qsTr("Sets the component and its property to which the copied value is assigned when the <b>Target</b> component initiates the <b>Signal</b>.")
+        addConditionTooltip: qsTr("Sets a logical condition for the selected <b>Signal</b>. It works with the properties of the <b>Target</b> component.")
+        removeConditionTooltip: qsTr("Removes the logical condition for the <b>Target</b> component.")
+        stateGroupTooltip: qsTr("Sets a <b>State Group</b> that is accessed when the <b>Target</b> component initiates the <b>Signal</b>.")
+        stateTooltip: qsTr("Sets a <b>State</b> within the assigned <b>State Group</b> that is accessed when the <b>Target</b> component initiates the <b>Signal</b>.")
+        propertyTooltip: qsTr("Sets the property of the component that is affected by the action of the <b>Target</b> component's <b>Signal</b>.")
+        valueTooltip: qsTr("Sets the value of the property of the component that is affected by the action of the <b>Target</b> component's <b>Signal</b>.")
+        messageTooltip: qsTr("Sets a text that is printed when the <b>Signal</b> of the <b>Target</b> component initiates.")
     }
 }
 

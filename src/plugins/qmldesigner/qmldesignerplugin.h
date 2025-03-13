@@ -135,7 +135,6 @@ private: // variables
     QElapsedTimer m_usageTimer;
     bool m_delayedInitialized = false;
     bool m_shutdownPending = false;
-    QString m_lastShutdownType;
 };
 
 } // namespace QmlDesigner
