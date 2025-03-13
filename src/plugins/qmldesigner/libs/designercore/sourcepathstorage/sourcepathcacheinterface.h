@@ -22,9 +22,6 @@ public:
 
     virtual void populateIfEmpty() = 0;
 
-    virtual std::pair<SourceContextId, SourceId>
-    sourceContextAndSourceId(SourcePathView sourcePath) const = 0;
-
     virtual SourceId sourceId(SourcePathView sourcePath) const = 0;
 
     virtual SourceId sourceId(SourceContextId sourceContextId,

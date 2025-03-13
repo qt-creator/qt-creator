@@ -32,11 +32,6 @@ public:
                 sourceContextId,
                 (Utils::SmallStringView directoryPath),
                 (const, override));
-    using SourceContextAndSourceId = std::pair<QmlDesigner::SourceContextId, QmlDesigner::SourceId>;
-    MOCK_METHOD(SourceContextAndSourceId,
-                sourceContextAndSourceId,
-                (QmlDesigner::SourcePathView sourcePath),
-                (const, override));
     MOCK_METHOD(Utils::PathString,
                 sourceContextPath,
                 (QmlDesigner::SourceContextId directoryPathId),

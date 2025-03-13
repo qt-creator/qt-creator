@@ -594,7 +594,8 @@ void ProjectStorageUpdater::updateDirectory(const Utils::PathString &directoryPa
     NanotraceHR::Tracer tracer{"update directory", category(), keyValue("directory", directoryPath)};
 
     SourcePath qmldirPath{directoryPath + "/qmldir"};
-    auto [directoryId, qmldirSourceId] = m_pathCache.sourceContextAndSourceId(qmldirPath);
+    SourceId qmldirSourceId = m_pathCache.sourceId(qmldirPath);
+    SourceContextId directoryId = qmldirSourceId.contextId();
 
     auto directoryState = fileState(directoryId, package, notUpdatedSourceIds);
     if (isExisting(directoryState))

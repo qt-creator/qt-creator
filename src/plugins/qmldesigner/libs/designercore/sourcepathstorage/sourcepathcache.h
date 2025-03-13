@@ -49,8 +49,7 @@ public:
         }
     }
 
-    std::pair<SourceContextId, SourceId> sourceContextAndSourceId(
-        SourcePathView sourcePath) const override
+    SourceId sourceId(SourcePathView sourcePath) const override
     {
         Utils::SmallStringView sourceContextPath = sourcePath.directory();
 
@@ -60,12 +59,7 @@ public:
 
         auto sourceId = m_sourcePathCache.id(sourceName);
 
-        return {sourceContextId, SourceId::create(sourceId, sourceContextId)};
-    }
-
-    SourceId sourceId(SourcePathView sourcePath) const override
-    {
-        return sourceContextAndSourceId(sourcePath).second;
+        return SourceId::create(sourceId, sourceContextId);
     }
 
     SourceId sourceId(SourceContextId sourceContextId,
