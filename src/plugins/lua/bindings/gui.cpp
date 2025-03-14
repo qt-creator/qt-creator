@@ -79,6 +79,24 @@ void constructWidget(std::unique_ptr<T> &widget, const sol::table &children)
     }
 }
 
+/*
+ CREATE_HAS_FUNC is a macro that creates a concept that checks if a function exists in a class.
+
+ The arguments must be instances of the type that the function expects.
+
+ If you have a function like this:
+    void foo(int, const QString &, QWidget*);
+
+ You can check for it with this macro:
+    CREATE_HAS_FUNC(foo, int(), QString(), nullptr)
+
+ You could also specify a value instead of calling the default constructor,
+ it would have the same effect but be more verbose:
+    CREATE_HAS_FUNC(foo, int(0), QString("hello"), nullptr)
+
+ Both ways will create a concept called has_foo<T> that checks if the function exists, and can
+ be called with the specified arguments.
+*/
 // clang-format off
 #define CREATE_HAS_FUNC(name, ...) \
     template<class T> concept has_##name = requires { \
