@@ -5,13 +5,16 @@
 
 #include <utils/smallstringview.h>
 
-#if !(defined(__cpp_lib_to_chars) && (__cpp_lib_to_chars >= 201611L))
-#  include <QLocale>
-#endif
-
 #include <array>
 #include <charconv>
 #include <limits>
+
+#if !defined(__cpp_lib_to_chars) || (__cpp_lib_to_chars < 201611L) || \
+    (defined(__GNUC__) && __GNUC__ < 11) || \
+    (defined(_MSC_VER) && _MSC_VER < 1930) || \
+    (defined(__clang_major__) && __clang_major__ < 14)
+#define NO_STD_FLOAT_TO_CHARS 1
+#endif
 
 namespace NanotraceHR {
 
@@ -58,10 +61,14 @@ public:
     template<typename Type, typename std::enable_if_t<std::is_arithmetic_v<Type>, bool> = true>
     void append(Type number)
     {
-#if !(defined(__cpp_lib_to_chars) && (__cpp_lib_to_chars >= 201611L))
+#if NO_STD_FLOAT_TO_CHARS
+        // Fallback using snprintf with sufficient precision.
         if constexpr (std::is_floating_point_v<Type>) {
-            QLocale locale{QLocale::Language::C};
-            append(locale.toString(number).toStdString());
+            char buffer[std::numeric_limits<Type>::max_digits10 + 2];
+            auto size = std::snprintf(buffer, sizeof(buffer), "%.9f", number);
+
+            if (size >= 0)
+                append({buffer, size});
             return;
         }
 #endif
