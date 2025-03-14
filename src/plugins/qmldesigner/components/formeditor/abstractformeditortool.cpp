@@ -40,6 +40,23 @@ FormEditorScene* AbstractFormEditorTool::scene() const
     return view()->scene();
 }
 
+bool AbstractFormEditorTool::hasDroppableAsset(const QMimeData *mimeData)
+{
+    if (mimeData->hasFormat(Constants::MIME_TYPE_ASSETS)) {
+        const QStringList assetPaths
+            = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS)).split(',');
+        for (const QString &assetPath : assetPaths) {
+            QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPath).first;
+            if (assetType == Constants::MIME_TYPE_ASSET_IMAGE
+                || assetType == Constants::MIME_TYPE_ASSET_FONT
+                || assetType == Constants::MIME_TYPE_ASSET_EFFECT) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 void AbstractFormEditorTool::setItems(const QList<FormEditorItem*> &itemList)
 {
     m_itemList = itemList;
@@ -215,22 +232,8 @@ void AbstractFormEditorTool::dropEvent(const QList<QGraphicsItem*> &/*itemList*/
 
 void AbstractFormEditorTool::dragEnterEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event)
 {
-    bool hasValidAssets = false;
-    if (event->mimeData()->hasFormat(Constants::MIME_TYPE_ASSETS)) {
-        const QStringList assetPaths = QString::fromUtf8(event->mimeData()
-                                ->data(Constants::MIME_TYPE_ASSETS)).split(',');
-        for (const QString &assetPath : assetPaths) {
-            QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPath).first;
-            if (assetType == Constants::MIME_TYPE_ASSET_IMAGE
-             || assetType == Constants::MIME_TYPE_ASSET_FONT
-             || assetType == Constants::MIME_TYPE_ASSET_EFFECT) {
-                hasValidAssets = true;
-                break;
-            }
-        }
-    }
-
-    if (event->mimeData()->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO) || hasValidAssets) {
+    if (event->mimeData()->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)
+        || hasDroppableAsset(event->mimeData())) {
         event->accept();
         view()->changeToDragTool();
         view()->currentTool()->dragEnterEvent(itemList, event);
