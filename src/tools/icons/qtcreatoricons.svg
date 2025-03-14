@@ -5109,20 +5109,54 @@
          style="display:inline"
          transform="translate(782,16.000001)" />
     </g>
-    <use
-       x="0"
-       y="0"
-       xlink:href="#src/libs/utils/images/arrowdown"
+    <g
        id="src/libs/utils/images/expand"
-       style="display:inline"
-       transform="translate(655)" />
-    <use
-       x="0"
-       y="0"
-       xlink:href="#src/libs/utils/images/arrowup"
+       transform="translate(655)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use44"
+         transform="translate(233,132)"
+         style="display:inline" />
+      <rect
+         style="display:inline;fill:none;stroke:#000000"
+         id="expand-rect"
+         width="8"
+         height="8"
+         x="220.5"
+         y="572.5"
+         rx="2" />
+      <path
+         id="path4817"
+         style="display:inline;fill:none;stroke:#000000"
+         d="m 224.5,574 v 5 m -2.5,-2.5 h 5" />
+    </g>
+    <g
        id="src/libs/utils/images/collapse"
-       style="display:inline"
-       transform="translate(655)" />
+       transform="matrix(1,0,0,-1,671,1152)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use78"
+         transform="translate(233,132)"
+         style="display:inline" />
+      <rect
+         style="display:inline;fill:none;stroke:#000000"
+         id="expand-rect-4"
+         width="8"
+         height="8"
+         x="220.5"
+         y="-579.5"
+         rx="2"
+         transform="scale(1,-1)" />
+      <path
+         id="path4817-8"
+         style="display:inline;fill:none;stroke:#000000"
+         d="m 222,575.5 h 5"
+         sodipodi:nodetypes="cc" />
+    </g>
     <g
        id="src/libs/utils/images/runselected_boxes"
        transform="translate(16)">
