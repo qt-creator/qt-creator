@@ -489,6 +489,26 @@ void QmlDesignerPlugin::setupDesigner()
     d->shortCutManager.updateUndoActions(currentDesignDocument());
 }
 
+static bool checkUiQMLNagScreen(const Utils::FilePath &fileName)
+{
+    const QStringList allUiQmlFiles = allUiQmlFilesforCurrentProject(fileName);
+    static bool doOnce = true;
+    if (doOnce && warningsForQmlFilesInsteadOfUiQmlEnabled() && !fileName.endsWith(".ui.qml")
+        && !allUiQmlFiles.isEmpty()) {
+        OpenUiQmlFileDialog dialog(Core::ICore::dialogParent());
+        dialog.setUiQmlFiles(projectPath(fileName), allUiQmlFiles);
+        dialog.exec();
+        if (dialog.uiFileOpened()) {
+            Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+            Core::EditorManager::openEditorAt({Utils::FilePath::fromString(dialog.uiQmlFile()), 0, 0});
+            return true;
+        }
+        doOnce = false;
+    }
+
+    return false;
+}
+
 void QmlDesignerPlugin::showDesigner()
 {
     QTC_ASSERT(!d->documentManager.hasCurrentDesignDocument(), return);
@@ -497,20 +517,8 @@ void QmlDesignerPlugin::showDesigner()
 
     d->mainWidget.initialize();
 
-    const Utils::FilePath fileName = Core::EditorManager::currentEditor()->document()->filePath();
-    const QStringList allUiQmlFiles = allUiQmlFilesforCurrentProject(fileName);
-    if (warningsForQmlFilesInsteadOfUiQmlEnabled() && !fileName.endsWith(".ui.qml")
-        && !allUiQmlFiles.isEmpty()) {
-        OpenUiQmlFileDialog dialog(&d->mainWidget);
-        dialog.setUiQmlFiles(projectPath(fileName), allUiQmlFiles);
-        dialog.exec();
-        if (dialog.uiFileOpened()) {
-            Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
-            Core::EditorManager::openEditorAt(
-                {Utils::FilePath::fromString(dialog.uiQmlFile()), 0, 0});
-            return;
-        }
-    }
+    if (checkUiQMLNagScreen(Core::EditorManager::currentEditor()->document()->filePath()))
+        return;
 
     setupDesigner();
 
