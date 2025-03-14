@@ -1547,6 +1547,26 @@ bool NodeMetaInfo::isSingleton() const
     }
 }
 
+bool NodeMetaInfo::isInsideProject() const
+{
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return {};
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is inside project", category(), keyValue("type id", m_typeId)};
+
+        auto isInsideProject = typeData().traits.isInsideProject;
+
+        tracer.end(keyValue("is inside project", isInsideProject));
+
+        return isInsideProject;
+
+    } else {
+        return false;
+    }
+}
+
 FlagIs NodeMetaInfo::canBeContainer() const
 {
     if constexpr (useProjectStorage()) {

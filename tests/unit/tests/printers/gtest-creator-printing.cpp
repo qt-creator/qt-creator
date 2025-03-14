@@ -709,6 +709,17 @@ std::ostream &operator<<(std::ostream &out, PropertyDeclarationTraits traits)
     return out << ")";
 }
 
+std::ostream &operator<<(std::ostream &out, IsInsideProject isInsideProject)
+{
+    switch (isInsideProject) {
+    case IsInsideProject::No:
+        return out << "IsInsideProject::No";
+    case IsInsideProject::Yes:
+        return out << "IsInsideProject::Yes";
+    }
+    return out;
+}
+
 std::ostream &operator<<(std::ostream &out, VersionNumber versionNumber)
 {
     return out << versionNumber.value;

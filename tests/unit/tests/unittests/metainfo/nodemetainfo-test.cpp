@@ -273,6 +273,43 @@ TEST_F(NodeMetaInfo, component_is_singleton)
     ASSERT_TRUE(isSingleton);
 }
 
+TEST_F(NodeMetaInfo, object_is_not_inside_project)
+{
+    bool isInsideProject = objectMetaInfo.isInsideProject();
+
+    ASSERT_FALSE(isInsideProject);
+}
+
+TEST_F(NodeMetaInfo, default_is_not_inside_project)
+{
+    bool isInsideProject = QmlDesigner::NodeMetaInfo{}.isInsideProject();
+
+    ASSERT_FALSE(isInsideProject);
+}
+
+TEST_F(NodeMetaInfo, invalid_is_not_inside_project)
+{
+    auto node = model.createModelNode("Foo");
+    auto metaInfo = node.metaInfo();
+
+    bool isInsideProject = metaInfo.isInsideProject();
+
+    ASSERT_FALSE(isInsideProject);
+}
+
+TEST_F(NodeMetaInfo, component_is_inside_project)
+{
+    auto moduleId = projectStorageMock.createModule("/path/to/project", ModuleKind::PathLibrary);
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.isInsideProject = true;
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", traits);
+    QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
+
+    bool isInsideProject = metaInfo.isInsideProject();
+
+    ASSERT_TRUE(isInsideProject);
+}
+
 TEST_F(NodeMetaInfo, has_property)
 {
     auto metaInfo = model.qtQuickItemMetaInfo();
@@ -3355,3 +3392,4 @@ TEST_F(NodeMetaInfo, no_item_library_entries_for_default)
 }
 
 } // namespace
+

@@ -125,6 +125,8 @@ void convertToString(String &string, const TypeTraitsKind &kind)
     }
 }
 
+enum class IsInsideProject : char { No, Yes };
+
 struct TypeTraits
 {
     constexpr TypeTraits()
@@ -133,6 +135,7 @@ struct TypeTraits
         , isFileComponent{false}
         , usesCustomParser{false}
         , isSingleton{false}
+        , isInsideProject{false}
         , dummy{0U}
         , canBeContainer{FlagIs::False}
         , forceClip{FlagIs::False}
@@ -208,7 +211,8 @@ struct TypeTraits
             unsigned int isFileComponent : 1;
             unsigned int usesCustomParser : 1;
             unsigned int isSingleton : 1;
-            unsigned int dummy : 24;
+            unsigned int isInsideProject : 1;
+            unsigned int dummy : 23;
         };
 
         unsigned int type;

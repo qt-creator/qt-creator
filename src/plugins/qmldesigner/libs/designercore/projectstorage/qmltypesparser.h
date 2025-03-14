@@ -33,7 +33,8 @@ public:
     void parse(const QString &sourceContent,
                Storage::Imports &imports,
                Storage::Synchronization::Types &types,
-               const Storage::Synchronization::DirectoryInfo &directoryInfo) override;
+               const Storage::Synchronization::DirectoryInfo &directoryInfo,
+               IsInsideProject isInsideProject) override;
 
 private:
 #ifdef QDS_BUILD_QMLPARSER

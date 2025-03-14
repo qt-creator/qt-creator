@@ -184,6 +184,24 @@ Sqlite::JournalMode projectStorageJournalMode()
     return Sqlite::JournalMode::Wal;
 }
 
+[[maybe_unused]] QString qmlPath(::ProjectExplorer::Target *target)
+{
+    auto qt = QtSupport::QtKitAspect::qtVersion(target->kit());
+    if (qt)
+        return qt->qmlPath().path();
+
+    return QLibraryInfo::path(QLibraryInfo::QmlImportsPath);
+}
+
+[[maybe_unused]] QString qmlPath(::ProjectExplorer::Project *project)
+{
+    auto qt = QtSupport::QtKitAspect::qtVersion(project->activeKit());
+    if (qt)
+        return qt->qmlPath().path();
+
+    return QLibraryInfo::path(QLibraryInfo::QmlImportsPath);
+}
+
 class ProjectStorageData
 {
 public:
@@ -195,7 +213,10 @@ public:
         , qmlDocumentParser{storage, pathCache}
         , pathWatcher{pathCache, fileSystem, &updater}
         , projectPartId{ProjectPartId::create(
-              pathCache.sourceId(SourcePath{project->projectDirectory().toUrlishString() + "/."}).internalId())}
+              pathCache.sourceContextId(Utils::PathString{project->projectDirectory().path()})
+                  .internalId())}
+        , qtPartId{ProjectPartId::create(
+              pathCache.sourceContextId(Utils::PathString{qmlPath(project)}).internalId())}
         , updater{fileSystem,
                   storage,
                   fileStatusCache,
@@ -204,7 +225,8 @@ public:
                   qmlTypesParser,
                   pathWatcher,
                   errorNotifier,
-                  projectPartId}
+                  projectPartId,
+                  qtPartId}
     {}
     Sqlite::Database database;
     ProjectStorageErrorNotifier errorNotifier;
@@ -215,6 +237,7 @@ public:
     QmlTypesParser qmlTypesParser{storage};
     ProjectStoragePathWatcher<QFileSystemWatcher, QTimer, PathCacheType> pathWatcher;
     ProjectPartId projectPartId;
+    ProjectPartId qtPartId;
     ProjectStorageUpdater updater;
 };
 
@@ -363,22 +386,11 @@ void QmlDesignerProjectManager::editorsClosed(const QList<::Core::IEditor *> &) 
 
 namespace {
 
-[[maybe_unused]] QString qmlPath(::ProjectExplorer::Target *target)
-{
-    auto qt = QtSupport::QtKitAspect::qtVersion(target->kit());
-    if (qt)
-        return qt->qmlPath().path();
-
-    return QLibraryInfo::path(QLibraryInfo::QmlImportsPath);
-}
-
-[[maybe_unused]] void projectQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
+[[maybe_unused]] QString projectDirectory(::ProjectExplorer::Target *target)
 {
     ::QmlProjectManager::QmlBuildSystem *buildSystem = getQmlBuildSystem(target);
 
-    const Utils::FilePath projectDirectoryPath = buildSystem->canonicalProjectDir();
-
-    qmldirPaths.push_back(projectDirectoryPath.path());
+    return buildSystem->canonicalProjectDir().path();
 }
 
 [[maybe_unused]] void qtQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
@@ -414,10 +426,6 @@ namespace {
     qmldirPaths.reserve(100);
 
     qtQmldirPaths(target, qmldirPaths);
-    projectQmldirPaths(target, qmldirPaths);
-
-    std::sort(qmldirPaths.begin(), qmldirPaths.end());
-    qmldirPaths.erase(std::unique(qmldirPaths.begin(), qmldirPaths.end()), qmldirPaths.end());
 
     return qmldirPaths;
 }
@@ -584,13 +592,17 @@ void QmlDesignerProjectManager::update()
 
     try {
         if constexpr (isUsingQmlDesignerLite()) {
-            m_projectData->projectStorageData->updater.update({directoriesForLiteDesigner(),
-                                                               propertyEditorResourcesPath(),
-                                                               {qtCreatorItemLibraryPath()}});
+            m_projectData->projectStorageData->updater.update(
+                {directoriesForLiteDesigner(),
+                 propertyEditorResourcesPath(),
+                 {qtCreatorItemLibraryPath()},
+                 projectDirectory(m_projectData->activeTarget)});
         } else {
-            m_projectData->projectStorageData->updater.update({directories(m_projectData->activeTarget),
-                                                               propertyEditorResourcesPath(),
-                                                               {qtCreatorItemLibraryPath()}});
+            m_projectData->projectStorageData->updater.update(
+                {directories(m_projectData->activeTarget),
+                 propertyEditorResourcesPath(),
+                 {qtCreatorItemLibraryPath()},
+                 projectDirectory(m_projectData->activeTarget)});
         }
     } catch (const Sqlite::Exception &exception) {
         const auto &location = exception.location();

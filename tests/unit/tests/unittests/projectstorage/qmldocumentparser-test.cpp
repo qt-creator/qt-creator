@@ -167,7 +167,11 @@ TEST_F(QmlDocumentParser, prototype)
 {
     QString component = "Example{}";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(type, HasPrototype(Synchronization::ImportedType("Example")));
 }
@@ -178,7 +182,11 @@ TEST_F(QmlDocumentParser, qualified_prototype)
     QString component = R"(import Example 2.1 as Example
                       Example.Item{})";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(type,
                 HasPrototype(Synchronization::QualifiedImportedType(
@@ -190,7 +198,11 @@ TEST_F(QmlDocumentParser, properties)
 {
     QString component = R"(Example{ property int foo })";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration("foo",
@@ -204,7 +216,11 @@ TEST_F(QmlDocumentParser, qualified_properties)
     QString component = R"(import Example 2.1 as Example
                        Item{ property Example.Foo foo})";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration(
@@ -221,7 +237,11 @@ TEST_F(QmlDocumentParser, enumeration_in_properties)
     QString component = R"(import Example 2.1 as Example
                            Item{ property Enumeration.Foo foo})";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(
@@ -236,7 +256,11 @@ TEST_F(QmlDocumentParser, qualified_enumeration_in_properties)
     QString component = R"(import Example 2.1 as Example
                            Item{ property Example.Enumeration.Foo foo})";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration(
@@ -257,7 +281,11 @@ TEST_F(QmlDocumentParser, imports)
                            import "../foo"
                            Example{})";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(imports,
                 UnorderedElementsAre(
@@ -276,7 +304,11 @@ TEST_F(QmlDocumentParser, imports_with_version)
                            import "../foo"
                            Example{})";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(imports,
                 UnorderedElementsAre(
@@ -295,7 +327,11 @@ TEST_F(QmlDocumentParser, imports_with_explict_directory)
                            import "."
                            Example{})";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(
         imports,
@@ -308,7 +344,11 @@ TEST_F(QmlDocumentParser, functions)
 {
     QString component = "Example{\n function someScript(x, y) {}\n function otherFunction() {}\n}";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(type.functionDeclarations,
                 UnorderedElementsAre(
@@ -326,7 +366,8 @@ TEST_F(QmlDocumentParser, signals)
     auto type = parser.parse("Example{\n signal someSignal(int x, real y)\n signal signal2()\n}",
                              imports,
                              qmlFileSourceId,
-                             directoryPath);
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(type.signalDeclarations,
                 UnorderedElementsAre(
@@ -343,7 +384,11 @@ TEST_F(QmlDocumentParser, enumeration)
                            enum Color{red, green, blue=10, white}
                            enum State{On,Off}})";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(type.enumerationDeclarations,
                 UnorderedElementsAre(
@@ -373,7 +418,11 @@ TEST_F(QmlDocumentParser, DISABLED_duplicate_imports_are_removed)
  
                            Example{})";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(imports,
                 UnorderedElementsAre(
@@ -393,7 +442,11 @@ TEST_F(QmlDocumentParser, alias_item_properties)
                                }
                            })";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration("delegate",
@@ -410,7 +463,11 @@ TEST_F(QmlDocumentParser, alias_properties)
                              }
                            })";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(
@@ -429,7 +486,11 @@ TEST_F(QmlDocumentParser, indirect_alias_properties)
                              }
                            })";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(
@@ -449,7 +510,11 @@ TEST_F(QmlDocumentParser, invalid_alias_properties_are_skipped)
                              }
                            })";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(type.propertyDeclarations, IsEmpty());
 }
@@ -460,7 +525,11 @@ TEST_F(QmlDocumentParser, list_property)
                              property list<Foo> foos
                            })";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(
@@ -480,7 +549,11 @@ TEST_F(QmlDocumentParser, alias_on_list_property)
                              }
                             })";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(
@@ -497,7 +570,11 @@ TEST_F(QmlDocumentParser, qualified_list_property)
                              property list<Example.Foo> foos
                            })";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration(
@@ -516,7 +593,11 @@ TEST_F(QmlDocumentParser, default_property)
                              default property list<Example.Foo> foos
                            })";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(type.defaultPropertyName, Eq("foos"));
 }
@@ -527,7 +608,11 @@ TEST_F(QmlDocumentParser, has_file_component_trait)
                            Item{
                            })";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_TRUE(type.traits.isFileComponent);
 }
@@ -538,7 +623,11 @@ TEST_F(QmlDocumentParser, has_is_reference_trait)
                            Item{
                            })";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_THAT(type.traits.kind, QmlDesigner::Storage::TypeTraitsKind::Reference);
 }
@@ -549,7 +638,11 @@ TEST_F(QmlDocumentParser, is_singleton)
                            Item{
                            })";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_TRUE(type.traits.isSingleton);
 }
@@ -559,9 +652,41 @@ TEST_F(QmlDocumentParser, is_not_singleton)
     QString component = R"(Item{
                            })";
 
-    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
 
     ASSERT_FALSE(type.traits.isSingleton);
+}
+
+TEST_F(QmlDocumentParser, is_inside_project)
+{
+    QString component = R"(Item{
+                           })";
+
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::Yes);
+
+    ASSERT_TRUE(type.traits.isInsideProject);
+}
+
+TEST_F(QmlDocumentParser, is_not_inside_project)
+{
+    QString component = R"(Item{
+                           })";
+
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
+
+    ASSERT_FALSE(type.traits.isInsideProject);
 }
 
 } // namespace
