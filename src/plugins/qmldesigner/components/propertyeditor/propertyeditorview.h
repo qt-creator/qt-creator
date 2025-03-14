@@ -59,6 +59,9 @@ public:
                               AuxiliaryDataKeyView key,
                               const QVariant &data) override;
 
+    void signalDeclarationPropertiesChanged(const QVector<SignalDeclarationProperty> &propertyList,
+                                            PropertyChangeFlags propertyChange) override;
+
     void instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangedHash) override;
 
     void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId) override;

@@ -148,7 +148,7 @@ void DynamicPropertiesModel::setCurrent(int internalId, PropertyNameView name)
 
 void DynamicPropertiesModel::updateItem(const AbstractProperty &property)
 {
-    if (!property.isDynamic())
+    if (!property.isDynamic() && !property.isSignalDeclarationProperty())
         return;
 
     if (auto *item = itemForProperty(property)) {

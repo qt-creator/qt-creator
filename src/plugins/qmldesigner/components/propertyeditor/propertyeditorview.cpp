@@ -1092,6 +1092,13 @@ void PropertyEditorView::auxiliaryDataChanged(const ModelNode &node,
         m_qmlBackEndForCurrentType->contextObject()->setInsightCategories(data.toStringList());
 }
 
+void PropertyEditorView::signalDeclarationPropertiesChanged(
+    const QVector<SignalDeclarationProperty> &propertyList, PropertyChangeFlags /* propertyChange */)
+{
+    for (const SignalDeclarationProperty &property : propertyList)
+        m_dynamicPropertiesModel->updateItem(property);
+}
+
 void PropertyEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangedHash)
 {
     if (noValidSelection())

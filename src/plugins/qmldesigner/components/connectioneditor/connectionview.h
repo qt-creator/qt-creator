@@ -50,6 +50,9 @@ public:
     void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) override;
     void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty>& propertyList, PropertyChangeFlags propertyChange) override;
 
+    void signalDeclarationPropertiesChanged(const QVector<SignalDeclarationProperty> &propertyList,
+                                            PropertyChangeFlags propertyChange) override;
+
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
 
