@@ -1961,18 +1961,16 @@ void PlainTextEdit::resizeEvent(QResizeEvent *e)
 
 void PlainTextEditPrivate::relayoutDocument()
 {
-    QTextDocument *doc = control->document();
-    PlainTextDocumentLayout *documentLayout = qobject_cast<PlainTextDocumentLayout*>(doc->documentLayout());
-    Q_ASSERT(documentLayout);
-    documentLayoutPtr = documentLayout;
+    if (!documentLayoutPtr)
+        return;
 
     int width = viewport()->width();
 
-    if (documentLayout->d->mainViewPrivate == nullptr
-        || documentLayout->d->mainViewPrivate == this
-        || width > documentLayout->textWidth()) {
-        documentLayout->d->mainViewPrivate = this;
-        documentLayout->setTextWidth(width);
+    if (documentLayoutPtr->d->mainViewPrivate == nullptr
+        || documentLayoutPtr->d->mainViewPrivate == this
+        || width > documentLayoutPtr->textWidth()) {
+        documentLayoutPtr->d->mainViewPrivate = this;
+        documentLayoutPtr->setTextWidth(width);
     }
 }
 
