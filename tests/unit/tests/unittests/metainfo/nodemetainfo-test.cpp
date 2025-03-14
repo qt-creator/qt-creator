@@ -236,6 +236,43 @@ TEST_F(NodeMetaInfo, component_is_file_component)
     ASSERT_TRUE(isFileComponent);
 }
 
+TEST_F(NodeMetaInfo, object_is_not_singleton)
+{
+    bool isSingleton = objectMetaInfo.isSingleton();
+
+    ASSERT_FALSE(isSingleton);
+}
+
+TEST_F(NodeMetaInfo, default_is_not_ingleton)
+{
+    bool isSingleton = QmlDesigner::NodeMetaInfo{}.isFileComponent();
+
+    ASSERT_FALSE(isSingleton);
+}
+
+TEST_F(NodeMetaInfo, invalid_is_not_singleton)
+{
+    auto node = model.createModelNode("Foo");
+    auto metaInfo = node.metaInfo();
+
+    bool isSingleton = metaInfo.isSingleton();
+
+    ASSERT_FALSE(isSingleton);
+}
+
+TEST_F(NodeMetaInfo, component_is_singleton)
+{
+    auto moduleId = projectStorageMock.createModule("/path/to/project", ModuleKind::PathLibrary);
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.isSingleton = true;
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", traits);
+    QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
+
+    bool isSingleton = metaInfo.isSingleton();
+
+    ASSERT_TRUE(isSingleton);
+}
+
 TEST_F(NodeMetaInfo, has_property)
 {
     auto metaInfo = model.qtQuickItemMetaInfo();

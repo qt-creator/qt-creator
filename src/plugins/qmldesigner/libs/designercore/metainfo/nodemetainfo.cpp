@@ -1527,6 +1527,26 @@ bool NodeMetaInfo::isFileComponent() const
     }
 }
 
+bool NodeMetaInfo::isSingleton() const
+{
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return {};
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is singleton", category(), keyValue("type id", m_typeId)};
+
+        auto isSingleton = typeData().traits.isSingleton;
+
+        tracer.end(keyValue("is singleton", isSingleton));
+
+        return isSingleton;
+
+    } else {
+        return false;
+    }
+}
+
 FlagIs NodeMetaInfo::canBeContainer() const
 {
     if constexpr (useProjectStorage()) {
