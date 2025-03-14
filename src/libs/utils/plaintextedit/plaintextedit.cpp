@@ -281,20 +281,16 @@ QRectF PlainTextDocumentLayout::frameBoundingRect(QTextFrame *) const
  */
 QRectF PlainTextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
 {
-    if (!block.isValid()) { return QRectF(); }
+    if (!block.isValid() || !block.isVisible()) { return QRectF(); }
+    ensureBlockLayout(block);
     QTextLayout *tl = block.layout();
-    if (!tl->lineCount())
-        const_cast<PlainTextDocumentLayout*>(this)->layoutBlock(block);
-    QRectF br;
-    if (block.isVisible()) {
-        br = QRectF(QPointF(0, 0), tl->boundingRect().bottomRight());
-        if (tl->lineCount() == 1)
-            br.setWidth(qMax(br.width(), tl->lineAt(0).naturalTextWidth()));
-        qreal margin = document()->documentMargin();
-        br.adjust(0, 0, margin, 0);
-        if (!block.next().isValid())
-            br.adjust(0, 0, 0, margin);
-    }
+    QRectF br = QRectF(QPointF(0, 0), tl->boundingRect().bottomRight());
+    if (tl->lineCount() == 1)
+        br.setWidth(qMax(br.width(), tl->lineAt(0).naturalTextWidth()));
+    qreal margin = document()->documentMargin();
+    br.adjust(0, 0, margin, 0);
+    if (!block.next().isValid())
+        br.adjust(0, 0, 0, margin);
     return br;
 
 }
