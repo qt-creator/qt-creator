@@ -13,11 +13,6 @@ Rectangle {
     height: 400
     color: StudioTheme.Values.themePanelBackground
 
-    // Called from C++ to clear the search when the selected node changes
-    function clearSearch() {
-        // The function is empty, because it is a placeholder to match other panes
-    }
-
     ColumnLayout {
         id: mainColumn
         anchors.fill: parent

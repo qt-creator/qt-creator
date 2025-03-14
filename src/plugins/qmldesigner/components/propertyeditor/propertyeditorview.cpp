@@ -453,7 +453,14 @@ void PropertyEditorView::resetView()
 
     if (m_qmlBackEndForCurrentType) {
         m_qmlBackEndForCurrentType->emitSelectionChanged();
-        QMetaObject::invokeMethod(m_qmlBackEndForCurrentType->widget()->rootObject(), "clearSearch");
+
+        const auto qmlBackEndObject = m_qmlBackEndForCurrentType->widget()->rootObject();
+        if (qmlBackEndObject) {
+            const auto metaObject = qmlBackEndObject->metaObject();
+            const int methodIndex = metaObject->indexOfMethod("clearSearch()");
+            if (methodIndex != -1)
+                metaObject->method(methodIndex).invoke(qmlBackEndObject);
+        }
     }
 
     m_locked = false;
