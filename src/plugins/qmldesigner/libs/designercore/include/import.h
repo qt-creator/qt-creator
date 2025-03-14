@@ -59,9 +59,9 @@ public:
                    || second.m_version.isEmpty());
     }
 
-    friend bool operator<(const Import &first, const Import &second)
+    friend auto operator<=>(const Import &first, const Import &second)
     {
-        return std::tie(first.m_url, first.m_type) < std::tie(second.m_url, second.m_type);
+        return std::tie(first.m_url, first.m_type) <=> std::tie(second.m_url, second.m_type);
     }
 
     friend QDebug operator<<(QDebug debug, const Import &import)
