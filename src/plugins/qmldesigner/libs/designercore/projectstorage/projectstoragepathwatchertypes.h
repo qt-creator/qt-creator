@@ -40,30 +40,7 @@ public:
     ProjectPartId id;
     SourceType sourceType;
 
-    friend bool operator==(ProjectChunkId first, ProjectChunkId second)
-    {
-        return first.id == second.id && first.sourceType == second.sourceType;
-    }
-
-    friend bool operator==(ProjectChunkId first, ProjectPartId second)
-    {
-        return first.id == second;
-    }
-
-    friend bool operator==(ProjectPartId first, ProjectChunkId second)
-    {
-        return first == second.id;
-    }
-
-    friend bool operator!=(ProjectChunkId first, ProjectChunkId second)
-    {
-        return !(first == second);
-    }
-
-    friend bool operator<(ProjectChunkId first, ProjectChunkId second)
-    {
-        return std::tie(first.id, first.sourceType) < std::tie(second.id, second.sourceType);
-    }
+    auto operator<=>(const ProjectChunkId &) const = default;
 
     friend bool operator<(ProjectChunkId first, ProjectPartId second) { return first.id < second; }
 
@@ -129,20 +106,20 @@ public:
                && first.sourceId == second.sourceId;
     }
 
-    friend bool operator<(WatcherEntry first, WatcherEntry second)
+    friend auto operator<=>(const WatcherEntry &first, const WatcherEntry &second)
     {
         return std::tie(first.sourceContextId, first.sourceId, first.id)
-               < std::tie(second.sourceContextId, second.sourceId, second.id);
+               <=> std::tie(second.sourceContextId, second.sourceId, second.id);
     }
 
-    friend bool operator<(SourceContextId sourceContextId, WatcherEntry entry)
+    friend auto operator<=>(SourceContextId sourceContextId, WatcherEntry entry)
     {
-        return sourceContextId < entry.sourceContextId;
+        return sourceContextId <=> entry.sourceContextId;
     }
 
-    friend bool operator<(WatcherEntry entry, SourceContextId sourceContextId)
+    friend auto operator<=>(WatcherEntry entry, SourceContextId sourceContextId)
     {
-        return entry.sourceContextId < sourceContextId;
+        return entry.sourceContextId <=> sourceContextId;
     }
 
     operator SourceId() const { return sourceId; }
