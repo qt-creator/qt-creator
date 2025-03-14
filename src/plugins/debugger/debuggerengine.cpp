@@ -128,6 +128,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
 
     DebuggerRunParameters params;
 
+    params.m_attachPid = runControl->attachPid();
     params.m_displayName = runControl->displayName();
 
     if (auto symbolsAspect = runControl->aspectData<SymbolFileAspect>())

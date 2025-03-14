@@ -97,7 +97,6 @@ public:
     QString displayName() const { return m_displayName; }
 
     void setAttachPid(Utils::ProcessHandle pid) { m_attachPid = pid; }
-    void setAttachPid(qint64 pid) { m_attachPid = Utils::ProcessHandle(pid); }
     Utils::ProcessHandle attachPid() const { return m_attachPid; }
 
     void setSolibSearchPath(const Utils::FilePaths &list) { m_solibSearchPath = list; }

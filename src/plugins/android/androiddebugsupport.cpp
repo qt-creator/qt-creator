@@ -162,14 +162,9 @@ public:
                 if (qtVersion)
                     rp.addSearchDirectory(qtVersion->qmlPath());
             }
-            QObject::connect(debugger, &RunWorker::started, runner, [runner, packageName] {
+            QObject::connect(debugger, &RunWorker::started, runner, [runControl, packageName] {
                 qCDebug(androidDebugSupportLog) << "Starting debugger - package name: " << packageName
-                                                << ", PID: " << runner->pid().pid();
-            });
-
-            QObject::connect(runner, &RunWorker::started, debugger, [debugger, runner] {
-                DebuggerRunParameters &rp = debugger->runParameters();
-                rp.setAttachPid(runner->pid());
+                                                << ", PID: " << runControl->attachPid().pid();
             });
 
             return debugger;

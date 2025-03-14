@@ -297,6 +297,7 @@ public:
     QUrl qmlChannel;
     QUrl perfChannel;
     QUrl workerChannel;
+    Utils::ProcessHandle m_attachPid;
 };
 
 class RunControlPrivate : public QObject, public RunControlPrivateData
@@ -693,6 +694,16 @@ void RunControl::requestWorkerChannel()
 QUrl RunControl::workerChannel() const
 {
     return d->workerChannel;
+}
+
+void RunControl::setAttachPid(ProcessHandle pid)
+{
+    d->m_attachPid = pid;
+}
+
+ProcessHandle RunControl::attachPid() const
+{
+    return d->m_attachPid;
 }
 
 void RunControl::showOutputPane()

@@ -909,7 +909,7 @@ static void startDebugger(RunControl *runControl, DebuggerRunTool *debugger,
             debugger->appendMessage(msgOnlyCppDebuggingSupported(),
                                     OutputFormat::LogMessageFormat, true);
         }
-        rp.setAttachPid(deviceCtlRunner->processIdentifier());
+        runControl->setAttachPid(ProcessHandle(deviceCtlRunner->processIdentifier()));
         rp.setInferiorExecutable(data->localExecutable);
         return;
     }
@@ -921,7 +921,7 @@ static void startDebugger(RunControl *runControl, DebuggerRunTool *debugger,
 
     const Port gdbServerPort = iosRunner->gdbServerPort();
     const Port qmlServerPort = iosRunner->qmlServerPort();
-    rp.setAttachPid(iosRunner->pid());
+    runControl->setAttachPid(ProcessHandle(iosRunner->pid()));
 
     const bool cppDebug = rp.isCppDebugging();
     const bool qmlDebug = rp.isQmlDebugging();

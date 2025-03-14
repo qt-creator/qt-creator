@@ -245,6 +245,9 @@ public:
     void requestWorkerChannel();
     QUrl workerChannel() const;
 
+    void setAttachPid(Utils::ProcessHandle pid);
+    Utils::ProcessHandle attachPid() const;
+
     void showOutputPane();
 
 signals:

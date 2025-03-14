@@ -91,8 +91,8 @@ void AndroidRunner::start()
 
         connect(this, &AndroidRunner::canceled, glue, &RunnerInterface::cancel);
 
-        connect(glue, &RunnerInterface::started, this, [this](qint64 pid) {
-            m_pid = ProcessHandle(pid);
+        connect(glue, &RunnerInterface::started, this, [this, glue](qint64 pid) {
+            glue->runControl()->setAttachPid(ProcessHandle(pid));
             reportStarted();
         });
         connect(glue, &RunnerInterface::finished, this, [this](const QString &errorString) {

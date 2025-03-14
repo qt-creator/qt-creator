@@ -724,6 +724,7 @@ void DebuggerRunTool::start()
         RunInterface *iface = runStorage().activeStorage();
         connect(this, &DebuggerRunTool::canceled, iface, &RunInterface::canceled);
         connect(iface, &RunInterface::started, this, &RunWorker::reportStarted);
+        d->m_runParameters.setAttachPid(runControl()->attachPid());
     };
 
     const auto terminalKicker = [this, driverStorage](const SingleBarrier &barrier) {

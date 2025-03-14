@@ -1399,7 +1399,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         if (pid) {
             rp.setStartMode(AttachToLocalProcess);
             rp.setCloseMode(DetachAtClose);
-            rp.setAttachPid(pid);
+            runControl->setAttachPid(ProcessHandle(pid));
             rp.setDisplayName(Tr::tr("Process %1").arg(pid));
             rp.setStartMessage(Tr::tr("Attaching to local process %1.").arg(pid));
         } else if (startMode == AttachToRemoteServer) {
@@ -1437,11 +1437,11 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         qint64 pid = it->section(':', 1, 1).toLongLong();
         auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         runControl->setKit(findUniversalCdbKit());
+        runControl->setAttachPid(ProcessHandle(pid));
         auto debugger = new DebuggerRunTool(runControl);
         DebuggerRunParameters &rp = debugger->runParameters();
         rp.setStartMode(AttachToCrashedProcess);
         rp.setCrashParameter(it->section(':', 0, 0));
-        rp.setAttachPid(pid);
         rp.setDisplayName(Tr::tr("Crashed process %1").arg(pid));
         rp.setStartMessage(Tr::tr("Attaching to crashed process %1").arg(pid));
         if (pid < 1) {
@@ -1735,10 +1735,10 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     runControl->setKit(kit);
     //: %1: PID
     runControl->setDisplayName(Tr::tr("Process %1").arg(processInfo.processId));
+    runControl->setAttachPid(ProcessHandle(processInfo.processId));
 
     auto debugger = new DebuggerRunTool(runControl);
     DebuggerRunParameters &rp = debugger->runParameters();
-    rp.setAttachPid(ProcessHandle(processInfo.processId));
     rp.setInferiorExecutable(device->filePath(processInfo.executable));
     rp.setStartMode(AttachToLocalProcess);
     rp.setCloseMode(DetachAtClose);
@@ -2292,16 +2292,16 @@ void DebuggerPlugin::attachToProcess(const qint64 processId, const Utils::FilePa
 
 void DebuggerPlugin::attachExternalApplication(RunControl *rc)
 {
-    ProcessHandle pid = rc->applicationProcessHandle();
+    const ProcessHandle pid = rc->applicationProcessHandle();
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->setBuildConfiguration(rc->buildConfiguration());
     runControl->setDisplayName(Tr::tr("Process %1").arg(pid.pid()));
+    runControl->setAttachPid(pid);
 
     auto debugger = new DebuggerRunTool(runControl);
     DebuggerRunParameters &rp = debugger->runParameters();
     rp.setInferiorExecutable(rc->targetFilePath());
-    rp.setAttachPid(pid);
     rp.setStartMode(AttachToLocalProcess);
     rp.setCloseMode(DetachAtClose);
 

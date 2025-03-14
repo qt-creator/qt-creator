@@ -283,7 +283,7 @@ void CdbEngine::setupEngine()
     if (usesTerminal()) {
         m_effectiveStartMode = AttachToLocalProcess;
         sp.setInferior({{}, sp.inferior().workingDirectory, sp.inferior().environment});
-        sp.setAttachPid(applicationPid());
+        sp.setAttachPid(ProcessHandle(applicationPid()));
         sp.setStartMode(AttachToLocalProcess);
         sp.setUseTerminal(false); // Force no terminal.
         showMessage(Tr::tr("Attaching to %1...").arg(sp.attachPid().pid()), LogMisc);
