@@ -41,8 +41,9 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
     QmlProfilerClientManager *clientManager = profilerTool.clientManager();
     clientManager->setRetryInterval(10);
     clientManager->setMaximumRetries(10);
-    connect(clientManager, &QmlProfilerClientManager::connectionFailed,
-            clientManager, &QmlProfilerClientManager::retryConnect);
+    connect(clientManager, &QmlProfilerClientManager::connectionFailed, [] {
+        QFAIL("Connection failed");
+    });
 
     QTcpServer server;
     QUrl serverUrl = Utils::urlFromLocalHostAndFreePort();

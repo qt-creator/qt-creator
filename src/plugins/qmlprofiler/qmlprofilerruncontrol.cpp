@@ -117,6 +117,7 @@ void QmlProfilerRunner::start()
 
 void QmlProfilerRunner::stop()
 {
+    QTC_ASSERT(QmlProfilerTool::instance(), return);
     QmlProfilerStateManager *stateManager = QmlProfilerTool::instance()->stateManager();
     if (!stateManager) {
         reportStopped();
