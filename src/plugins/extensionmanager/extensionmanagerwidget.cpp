@@ -27,6 +27,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/appinfo.h>
+#include <utils/dropsupport.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
@@ -618,6 +619,24 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     connect(m_tags, &TagList::tagSelected, m_extensionBrowser, &ExtensionsBrowser::setFilter);
     connect(m_headingWidget, &HeadingWidget::vendorClicked,
             m_extensionBrowser, &ExtensionsBrowser::setFilter);
+
+    auto dropSupport = new DropSupport(this, [](QDropEvent *event, DropSupport *) {
+        // only accept drops from the "outside" (e.g. file manager)
+        return event->source() == nullptr;
+    });
+    connect(
+        dropSupport,
+        &DropSupport::filesDropped,
+        this,
+        [](const QList<DropSupport::FileSpec> &files, const QPoint &) {
+            bool needsRestart = false;
+            for (const auto &file : files) {
+                if (executePluginInstallWizard(file.filePath) == InstallResult::NeedsRestart)
+                    needsRestart = true;
+            }
+            if (needsRestart)
+                ICore::askForRestart(Tr::tr("Plugin changes will take effect after restart."));
+        });
 
     updateView({});
 }
