@@ -74,14 +74,14 @@ public:
 
         addEntries(entires);
 
-        auto notContainsdId = [&, &ids = ids](WatcherEntry entry) {
+        auto notContainsId = [&, &ids = ids](WatcherEntry entry) {
             return !std::binary_search(ids.begin(), ids.end(), entry.id)
                    || !std::binary_search(sourceContextIds.begin(),
                                           sourceContextIds.end(),
                                           entry.sourceContextId);
         };
 
-        removeUnusedEntries(entires, notContainsdId);
+        removeUnusedEntries(entires, notContainsId);
     }
 
     void removeIds(const ProjectPartIds &ids) override
