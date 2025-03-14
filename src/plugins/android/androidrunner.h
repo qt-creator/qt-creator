@@ -9,23 +9,7 @@
 
 namespace Android::Internal {
 
-class AndroidRunner : public ProjectExplorer::RunWorker
-{
-    Q_OBJECT
-
-public:
-    explicit AndroidRunner(ProjectExplorer::RunControl *runControl);
-
-    void start() override;
-    void stop() override;
-
-signals:
-    void canceled();
-
-private:
-    Tasking::TaskTreeRunner m_taskTreeRunner;
-};
-
+Tasking::Group androidRecipe(ProjectExplorer::RunControl *runControl);
 void setupAndroidRunWorker();
 
 } // namespace Android::Internal

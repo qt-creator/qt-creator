@@ -33,23 +33,10 @@ using namespace Utils;
 
 namespace Android::Internal {
 
-AndroidRunner::AndroidRunner(RunControl *runControl)
-    : RunWorker(runControl)
+Group androidRecipe(RunControl *runControl)
 {
-    runControl->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
-    setId("AndroidRunner");
-    static const int metaTypes[] = {
-        qRegisterMetaType<QList<QStringList>>("QList<QStringList>"),
-        qRegisterMetaType<Utils::Port>("Utils::Port"),
-        qRegisterMetaType<AndroidDeviceInfo>("Android::AndroidDeviceInfo")
-    };
-    Q_UNUSED(metaTypes)
-}
-
-void AndroidRunner::start()
-{
-    BuildConfiguration *bc = runControl()->buildConfiguration();
-    QTC_ASSERT(bc, return);
+    BuildConfiguration *bc = runControl->buildConfiguration();
+    QTC_ASSERT(bc, return {});
     QString deviceSerialNumber;
     int apiLevel = -1;
 
@@ -57,10 +44,10 @@ void AndroidRunner::start()
 
     std::optional<ExecutableItem> avdRecipe;
 
-    if (!projectExplorerSettings().deployBeforeRun && runControl()->project()) {
+    if (!projectExplorerSettings().deployBeforeRun && runControl->project()) {
         qCDebug(androidRunnerLog) << "Run without deployment";
 
-        const IDevice::ConstPtr device = RunDeviceKitAspect::device(runControl()->kit());
+        const IDevice::ConstPtr device = RunDeviceKitAspect::device(runControl->kit());
         AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromDevice(device);
         setDeviceSerialNumber(bc->target(), info.serialNumber);
         deviceSerialNumber = info.serialNumber;
@@ -83,41 +70,32 @@ void AndroidRunner::start()
         apiLevel = Internal::deviceApiLevel(bc->target());
     }
 
-    const auto onSetup = [this, glueStorage, deviceSerialNumber, apiLevel] {
+    const auto onSetup = [runControl, glueStorage, deviceSerialNumber, apiLevel] {
         RunnerInterface *glue = glueStorage.activeStorage();
-        glue->setRunControl(runControl());
+        glue->setRunControl(runControl);
         glue->setDeviceSerialNumber(deviceSerialNumber);
         glue->setApiLevel(apiLevel);
 
-        connect(this, &AndroidRunner::canceled, glue, &RunnerInterface::cancel);
+        auto iface = runStorage().activeStorage();
+        QObject::connect(iface, &RunInterface::canceled, glue, &RunnerInterface::cancel);
 
-        connect(glue, &RunnerInterface::started, this, [this, glue](qint64 pid) {
-            glue->runControl()->setAttachPid(ProcessHandle(pid));
-            reportStarted();
+        QObject::connect(glue, &RunnerInterface::started, runControl, [runControl, iface](qint64 pid) {
+            runControl->setAttachPid(ProcessHandle(pid));
+            emit iface->started();
         });
-        connect(glue, &RunnerInterface::finished, this, [this](const QString &errorString) {
-            runControl()->postMessage(errorString, Utils::NormalMessageFormat);
-            if (runControl()->isRunning())
-                runControl()->initiateStop();
-            reportStopped();
+        QObject::connect(glue, &RunnerInterface::finished, runControl, [runControl](const QString &errorString) {
+            runControl->postMessage(errorString, Utils::NormalMessageFormat);
+            if (runControl->isRunning())
+                runControl->initiateStop();
         });
     };
 
-    const Group recipe {
+    return {
         glueStorage,
         onGroupSetup(onSetup),
         avdRecipe ? *avdRecipe : nullItem,
         runnerRecipe(glueStorage)
     };
-    m_taskTreeRunner.start(recipe);
-}
-
-void AndroidRunner::stop()
-{
-    if (!m_taskTreeRunner.isRunning())
-        return;
-
-    emit canceled();
 }
 
 class AndroidRunWorkerFactory final : public RunWorkerFactory
@@ -125,7 +103,11 @@ class AndroidRunWorkerFactory final : public RunWorkerFactory
 public:
     AndroidRunWorkerFactory()
     {
-        setProduct<AndroidRunner>();
+        setProducer([](RunControl *runControl) {
+            auto androidWorker = new RecipeRunner(runControl);
+            androidWorker->setRecipe(androidRecipe(runControl));
+            return androidWorker;
+        });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
     }

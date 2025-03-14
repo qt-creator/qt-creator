@@ -96,8 +96,9 @@ public:
             rp.setSkipDebugServer(true);
             rp.setLldbPlatform("remote-android");
 
-            auto runner = new AndroidRunner(runControl);
-            debugger->addStartDependency(runner);
+            auto androidRunner = new RecipeRunner(runControl);
+            androidRunner->setRecipe(androidRecipe(runControl));
+            debugger->addStartDependency(androidRunner);
 
             BuildConfiguration *bc = runControl->buildConfiguration();
             Kit *kit = runControl->kit();
@@ -162,7 +163,7 @@ public:
                 if (qtVersion)
                     rp.addSearchDirectory(qtVersion->qmlPath());
             }
-            QObject::connect(debugger, &RunWorker::started, runner, [runControl, packageName] {
+            QObject::connect(debugger, &RunWorker::started, debugger, [runControl, packageName] {
                 qCDebug(androidDebugSupportLog) << "Starting debugger - package name: " << packageName
                                                 << ", PID: " << runControl->attachPid().pid();
             });
