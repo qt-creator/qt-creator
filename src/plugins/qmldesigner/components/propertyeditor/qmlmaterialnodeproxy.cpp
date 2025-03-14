@@ -41,11 +41,13 @@ QmlMaterialNodeProxy::QmlMaterialNodeProxy()
 
 QmlMaterialNodeProxy::~QmlMaterialNodeProxy() = default;
 
-void QmlMaterialNodeProxy::setup(const QmlObjectNode &objectNode)
+void QmlMaterialNodeProxy::setup(const ModelNodes &editorNodes)
 {
+    QmlObjectNode objectNode = editorNodes.isEmpty() ? ModelNode{} : editorNodes.first();
     const QmlObjectNode material = objectNode.metaInfo().isQtQuick3DMaterial() ? objectNode
                                                                                : QmlObjectNode{};
     setMaterialNode(material);
+    setEditorNodes(editorNodes);
     updatePossibleTypes();
     updatePreviewModel();
 }
@@ -53,6 +55,11 @@ void QmlMaterialNodeProxy::setup(const QmlObjectNode &objectNode)
 ModelNode QmlMaterialNodeProxy::materialNode() const
 {
     return m_materialNode;
+}
+
+ModelNodes QmlMaterialNodeProxy::editorNodes() const
+{
+    return m_editorNodes;
 }
 
 void QmlMaterialNodeProxy::setPossibleTypes(const QStringList &types)
@@ -81,7 +88,7 @@ void QmlMaterialNodeProxy::updatePossibleTypes()
     }
 
     const QString &matType = materialNode().simplifiedTypeName();
-    const ModelNodes selectedNodes = materialView()->selectedModelNodes(); // TODO: replace it by PropertyEditorView::currentNodes()
+    const ModelNodes selectedNodes = editorNodes();
     bool allAreBasic = Utils::allOf(selectedNodes, [&](const ModelNode &node) {
         return basicTypes.contains(node.simplifiedTypeName());
     });
@@ -273,6 +280,11 @@ void QmlMaterialNodeProxy::setMaterialNode(const QmlObjectNode &material)
 
     m_materialNode = material;
     emit materialNodeChanged();
+}
+
+void QmlMaterialNodeProxy::setEditorNodes(const ModelNodes &editorNodes)
+{
+    m_editorNodes = editorNodes;
 }
 
 bool QmlMaterialNodeProxy::hasQuick3DImport() const

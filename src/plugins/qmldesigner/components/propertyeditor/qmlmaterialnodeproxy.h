@@ -35,11 +35,12 @@ public:
     explicit QmlMaterialNodeProxy();
     ~QmlMaterialNodeProxy() override;
 
-    void setup(const QmlObjectNode &objectNode);
+    void setup(const ModelNodes &editorNodes);
 
     QStringList possibleTypes() const { return m_possibleTypes; }
 
     ModelNode materialNode() const;
+    ModelNodes editorNodes() const;
 
     int possibleTypeIndex() const { return m_possibleTypeIndex; }
 
@@ -67,15 +68,15 @@ private: // Methods
     void updatePossibleTypeIndex();
     void updatePreviewModel();
     void setMaterialNode(const QmlObjectNode &material);
+    void setEditorNodes(const ModelNodes &editorNodes);
 
     bool hasQuick3DImport() const;
 
     AbstractView *materialView() const;
 
 private:
-    bool m_has3DModelSelection = false;
-
     QmlObjectNode m_materialNode;
+    ModelNodes m_editorNodes;
 
     QStringList m_possibleTypes;
     int m_possibleTypeIndex = -1;

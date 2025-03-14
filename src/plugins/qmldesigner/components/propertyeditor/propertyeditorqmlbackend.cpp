@@ -375,6 +375,12 @@ void PropertyEditorQmlBackend::handleModelNodePreviewPixmapChanged(const ModelNo
         refreshPreview();
 }
 
+void PropertyEditorQmlBackend::handleModelSelectedNodesChanged(PropertyEditorView *propertyEditor)
+{
+    contextObject()->setHas3DModelSelected(!Utils3D::getSelectedModels(propertyEditor).isEmpty());
+    m_backendTextureNode.updateSelectionDetails();
+}
+
 void PropertyEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
                                                          PropertyNameView name,
                                                          const QVariant &value,
@@ -566,108 +572,107 @@ void PropertyEditorQmlBackend::updateInstanceImage()
     refreshPreview();
 }
 
-void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile, PropertyEditorView *propertyEditor)
+void PropertyEditorQmlBackend::setup(const ModelNodes &editorNodes,
+                                     const QString &stateName,
+                                     const QUrl &qmlSpecificsFile,
+                                     PropertyEditorView *propertyEditor)
 {
-    if (qmlObjectNode.isValid()) {
-        m_contextObject->setModel(propertyEditor->model());
+    QmlObjectNode qmlObjectNode(editorNodes.isEmpty() ? ModelNode{} : editorNodes.first());
+    if (!qmlObjectNode.isValid()) {
+        qWarning() << "PropertyEditor: invalid node for setup";
+        return;
+    }
 
-        qCInfo(propertyEditorBenchmark) << Q_FUNC_INFO;
+    m_contextObject->setModel(propertyEditor->model());
 
-        QElapsedTimer time;
-        if (propertyEditorBenchmark().isInfoEnabled())
-            time.start();
+    qCInfo(propertyEditorBenchmark) << Q_FUNC_INFO;
 
-        createPropertyEditorValues(qmlObjectNode, propertyEditor);
-        setupLayoutAttachedProperties(qmlObjectNode, propertyEditor);
-        setupInsightAttachedProperties(qmlObjectNode, propertyEditor);
-        setupAuxiliaryProperties(qmlObjectNode, propertyEditor);
+    QElapsedTimer time;
+    if (propertyEditorBenchmark().isInfoEnabled())
+        time.start();
 
-        // model node
-        m_backendModelNode.setup(qmlObjectNode.modelNode());
-        context()->setContextProperty("modelNodeBackend", &m_backendModelNode);
+    createPropertyEditorValues(qmlObjectNode, propertyEditor);
+    setupLayoutAttachedProperties(qmlObjectNode, propertyEditor);
+    setupInsightAttachedProperties(qmlObjectNode, propertyEditor);
+    setupAuxiliaryProperties(qmlObjectNode, propertyEditor);
 
-        m_backendMaterialNode.setup(qmlObjectNode);
-        m_backendTextureNode.setup(qmlObjectNode);
+    // model node
+    m_backendModelNode.setup(editorNodes);
+    context()->setContextProperty("modelNodeBackend", &m_backendModelNode);
 
-        insertValue(Constants::PROPERTY_EDITOR_CLASSNAME_PROPERTY,
-                    m_backendModelNode.simplifiedTypeName(),
-                    qmlObjectNode.modelNode());
+    m_backendMaterialNode.setup(editorNodes);
+    m_backendTextureNode.setup(qmlObjectNode);
 
-        insertValue("id"_L1, m_backendModelNode.nodeId());
-        insertValue("objectName"_L1, m_backendModelNode.nodeObjectName());
+    insertValue(Constants::PROPERTY_EDITOR_CLASSNAME_PROPERTY,
+                m_backendModelNode.simplifiedTypeName(),
+                qmlObjectNode.modelNode());
 
-        QmlItemNode itemNode(qmlObjectNode.modelNode());
+    insertValue("id"_L1, m_backendModelNode.nodeId());
+    insertValue("objectName"_L1, m_backendModelNode.nodeObjectName());
 
-        // anchors
-        m_backendAnchorBinding.setup(qmlObjectNode.modelNode());
-        setupContextProperties();
+    QmlItemNode itemNode(qmlObjectNode.modelNode());
 
-        contextObject()->setHasMultiSelection(
-            !qmlObjectNode.view()->singleSelectedModelNode().isValid());
+    // anchors
+    m_backendAnchorBinding.setup(qmlObjectNode.modelNode());
+    setupContextProperties();
 
-        qCInfo(propertyEditorBenchmark) << "anchors:" << time.elapsed();
+    contextObject()->setHasMultiSelection(m_backendModelNode.multiSelection());
 
-        qCInfo(propertyEditorBenchmark) << "context:" << time.elapsed();
+    qCInfo(propertyEditorBenchmark) << "anchors:" << time.elapsed();
 
-        contextObject()->setSpecificsUrl(qmlSpecificsFile);
+    qCInfo(propertyEditorBenchmark) << "context:" << time.elapsed();
 
-        qCInfo(propertyEditorBenchmark) << "specifics:" << time.elapsed();
+    contextObject()->setSpecificsUrl(qmlSpecificsFile);
 
-        contextObject()->setStateName(stateName);
-        if (!qmlObjectNode.isValid())
-            return;
+    qCInfo(propertyEditorBenchmark) << "specifics:" << time.elapsed();
 
-        context()->setContextProperty(QLatin1String("propertyCount"),
-                                      QVariant(qmlObjectNode.modelNode().properties().size()));
+    contextObject()->setStateName(stateName);
 
-        QStringList stateNames = qmlObjectNode.allStateNames();
-        stateNames.prepend("base state");
-        contextObject()->setAllStateNames(stateNames);
+    context()->setContextProperty(QLatin1String("propertyCount"),
+                                  QVariant(qmlObjectNode.modelNode().properties().size()));
 
-        contextObject()->setIsBaseState(qmlObjectNode.isInBaseState());
+    QStringList stateNames = qmlObjectNode.allStateNames();
+    stateNames.prepend("base state");
+    contextObject()->setAllStateNames(stateNames);
 
-        contextObject()->setHasAliasExport(qmlObjectNode.isAliasExported());
+    contextObject()->setIsBaseState(qmlObjectNode.isInBaseState());
 
-        contextObject()->setHasActiveTimeline(QmlTimeline::hasActiveTimeline(qmlObjectNode.view()));
+    contextObject()->setHasAliasExport(qmlObjectNode.isAliasExported());
 
-        contextObject()->setSelectionChanged(false);
+    contextObject()->setHasActiveTimeline(QmlTimeline::hasActiveTimeline(qmlObjectNode.view()));
 
-        contextObject()->setSelectionChanged(false);
+    contextObject()->setSelectionChanged(false);
 
-        NodeMetaInfo metaInfo = qmlObjectNode.modelNode().metaInfo();
+    NodeMetaInfo metaInfo = qmlObjectNode.modelNode().metaInfo();
 
 #ifdef QDS_USE_PROJECTSTORAGE
+    contextObject()->setMajorVersion(-1);
+    contextObject()->setMinorVersion(-1);
+    contextObject()->setMajorQtQuickVersion(-1);
+    contextObject()->setMinorQtQuickVersion(-1);
+#else
+    if (metaInfo.isValid()) {
+        contextObject()->setMajorVersion(metaInfo.majorVersion());
+        contextObject()->setMinorVersion(metaInfo.minorVersion());
+    } else {
         contextObject()->setMajorVersion(-1);
         contextObject()->setMinorVersion(-1);
         contextObject()->setMajorQtQuickVersion(-1);
         contextObject()->setMinorQtQuickVersion(-1);
-#else
-        if (metaInfo.isValid()) {
-            contextObject()->setMajorVersion(metaInfo.majorVersion());
-            contextObject()->setMinorVersion(metaInfo.minorVersion());
-        } else {
-            contextObject()->setMajorVersion(-1);
-            contextObject()->setMinorVersion(-1);
-            contextObject()->setMajorQtQuickVersion(-1);
-            contextObject()->setMinorQtQuickVersion(-1);
-        }
-#endif
-        contextObject()->setMajorQtQuickVersion(qmlObjectNode.view()->majorQtQuickVersion());
-        contextObject()->setMinorQtQuickVersion(qmlObjectNode.view()->minorQtQuickVersion());
-
-        contextObject()->setHasMaterialLibrary(Utils3D::materialLibraryNode(propertyEditor).isValid());
-        contextObject()->setIsQt6Project(propertyEditor->externalDependencies().isQt6Project());
-        contextObject()->set3DHasModelSelection(!Utils3D::getSelectedModels(propertyEditor).isEmpty());
-        contextObject()->setSelectedNode(qmlObjectNode);
-        contextObject()->setHasQuick3DImport(propertyEditor->model()->hasImport("QtQuick3D"));
-
-        m_view->instanceImageProvider()->setModelNode(propertyEditor->firstSelectedModelNode());
-        updateInstanceImage();
-
-        qCInfo(propertyEditorBenchmark) << "final:" << time.elapsed();
-    } else {
-        qWarning() << "PropertyEditor: invalid node for setup";
     }
+#endif
+    contextObject()->setMajorQtQuickVersion(qmlObjectNode.view()->majorQtQuickVersion());
+    contextObject()->setMinorQtQuickVersion(qmlObjectNode.view()->minorQtQuickVersion());
+
+    contextObject()->setHasMaterialLibrary(Utils3D::materialLibraryNode(propertyEditor).isValid());
+    contextObject()->setIsQt6Project(propertyEditor->externalDependencies().isQt6Project());
+    contextObject()->setEditorNodes(editorNodes);
+    contextObject()->setHasQuick3DImport(propertyEditor->model()->hasImport("QtQuick3D"));
+
+    m_view->instanceImageProvider()->setModelNode(m_backendModelNode.singleSelectedNode());
+    updateInstanceImage();
+
+    qCInfo(propertyEditorBenchmark) << "final:" << time.elapsed();
 }
 
 QString PropertyEditorQmlBackend::propertyEditorResourcesPath()
@@ -960,35 +965,6 @@ QString PropertyEditorQmlBackend::resourcesPath(const QString &dir)
     return Core::ICore::resourcePath("qmldesigner/" + dir).toUrlishString();
 }
 
-static NodeMetaInfo findCommonSuperClass(const NodeMetaInfo &first, const NodeMetaInfo &second)
-{
-    auto commonBase = first.commonBase(second);
-
-    return commonBase.isValid() ? commonBase : first;
-}
-
-NodeMetaInfo PropertyEditorQmlBackend::findCommonAncestor(const ModelNode &node)
-{
-    if (!node.isValid())
-        return node.metaInfo();
-
-    AbstractView *view = node.view();
-
-    const QList<ModelNode> &selectedNodes = view->selectedModelNodes();
-    if (selectedNodes.size() > 1) {
-        NodeMetaInfo commonClass = node.metaInfo();
-
-        for (const ModelNode &selectedNode : selectedNodes) {
-            const NodeMetaInfo &nodeMetaInfo = selectedNode.metaInfo();
-            if (nodeMetaInfo.isValid() && !nodeMetaInfo.isBasedOn(commonClass))
-                commonClass = findCommonSuperClass(nodeMetaInfo, commonClass);
-        }
-        return commonClass;
-    }
-
-    return node.metaInfo();
-}
-
 void PropertyEditorQmlBackend::refreshBackendModel()
 {
     m_backendModelNode.refresh();
@@ -1064,7 +1040,6 @@ bool PropertyEditorQmlBackend::checkIfUrlExists(const QUrl &url)
 void PropertyEditorQmlBackend::emitSelectionToBeChanged()
 {
     m_backendModelNode.emitSelectionToBeChanged();
-    m_backendTextureNode.updateSelectionDetails();
 }
 
 void PropertyEditorQmlBackend::emitSelectionChanged()

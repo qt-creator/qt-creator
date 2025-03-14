@@ -211,7 +211,7 @@ void TextureEditorQmlBackend::setup(const QmlObjectNode &selectedTextureNode, co
         }
 
         // model node
-        m_backendModelNode.setup(selectedTextureNode.modelNode());
+        m_backendModelNode.setup(selectedTextureNode);
         context()->setContextProperty("modelNodeBackend", &m_backendModelNode);
         context()->setContextProperty("hasTexture", QVariant(true));
 

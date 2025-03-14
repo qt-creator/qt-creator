@@ -57,7 +57,7 @@ class PropertyEditorContextObject : public QObject
     Q_PROPERTY(bool hasQuick3DImport READ hasQuick3DImport NOTIFY hasQuick3DImportChanged)
     Q_PROPERTY(bool hasMaterialLibrary READ hasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
     Q_PROPERTY(bool isQt6Project READ isQt6Project NOTIFY isQt6ProjectChanged)
-    Q_PROPERTY(bool has3DModelSelection READ has3DModelSelection NOTIFY has3DModelSelectionChanged)
+    Q_PROPERTY(bool has3DModelSelected READ has3DModelSelected NOTIFY has3DModelSelectedChanged)
 
 public:
     PropertyEditorContextObject(QQuickWidget *widget, QObject *parent = nullptr);
@@ -78,7 +78,7 @@ public:
 
     Q_INVOKABLE QStringList autoComplete(const QString &text, int pos, bool explicitComplete, bool filter);
 
-    Q_INVOKABLE void toogleExportAlias();
+    Q_INVOKABLE void toggleExportAlias();
 
     Q_INVOKABLE void goIntoComponent();
 
@@ -142,10 +142,10 @@ public:
     bool isQt6Project() const;
     void setIsQt6Project(bool value);
 
-    bool has3DModelSelection() const;
-    void set3DHasModelSelection(bool value);
+    bool has3DModelSelected() const;
+    void setHas3DModelSelected(bool value);
 
-    void setSelectedNode(const ModelNode &node);
+    void setEditorNodes(const ModelNodes &nodes);
 
     void setIsSelectionLocked(bool lock);
     bool isSelectionLocked() const;
@@ -169,7 +169,7 @@ signals:
     void hasMultiSelectionChanged();
     void hasQuick3DImportChanged();
     void hasMaterialLibraryChanged();
-    void has3DModelSelectionChanged();
+    void has3DModelSelectedChanged();
     void isQt6ProjectChanged();
     void isSelectionLockedChanged();
 
@@ -217,7 +217,7 @@ private:
 
     bool m_hasQuick3DImport = false;
     bool m_hasMaterialLibrary = false;
-    bool m_has3DModelSelection = false;
+    bool m_has3DModelSelected = false;
     bool m_isQt6Project = false;
 
     QQmlComponent *m_qmlComponent;
@@ -240,7 +240,7 @@ private:
     bool m_insightEnabled = false;
     QStringList m_insightCategories;
 
-    ModelNode m_selectedNode;
+    ModelNodes m_editorNodes; // Nodes that are being edited by PropertyEditor
 };
 
 class EasingCurveEditor : public QObject

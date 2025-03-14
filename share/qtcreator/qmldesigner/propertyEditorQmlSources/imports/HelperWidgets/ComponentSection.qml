@@ -164,7 +164,7 @@ Section {
                     id: toolTipArea
                     enabled: !modelNodeBackend.multiSelection && anchorBackend.hasParent
                     anchors.fill: parent
-                    onClicked: toogleExportAlias()
+                    onClicked: toggleExportAlias()
                     tooltip: qsTr("Exports this component as an alias property of the root component.")
                 }
             }

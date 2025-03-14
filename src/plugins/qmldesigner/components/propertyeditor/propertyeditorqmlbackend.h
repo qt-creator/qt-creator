@@ -40,7 +40,10 @@ public:
                              class AsynchronousImageCache &imageCache);
     ~PropertyEditorQmlBackend();
 
-    void setup(const QmlObjectNode &fxObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile, PropertyEditorView *propertyEditor);
+    void setup(const ModelNodes &editorNodes,
+               const QString &stateName,
+               const QUrl &qmlSpecificsFile,
+               PropertyEditorView *propertyEditor);
     void setValue(const QmlObjectNode &fxObjectNode, PropertyNameView name, const QVariant &value);
     void setExpression(PropertyNameView propName, const QString &exp);
 
@@ -94,8 +97,7 @@ public:
     void handleModelNodePreviewPixmapChanged(const ModelNode &node,
                                              const QPixmap &pixmap,
                                              const QByteArray &requestId);
-
-    static NodeMetaInfo findCommonAncestor(const ModelNode &node);
+    void handleModelSelectedNodesChanged(PropertyEditorView *propertyEditor);
 
     void refreshBackendModel();
     void refreshPreview();

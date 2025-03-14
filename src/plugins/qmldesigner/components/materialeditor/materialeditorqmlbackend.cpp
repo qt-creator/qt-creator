@@ -222,7 +222,7 @@ void MaterialEditorQmlBackend::setup(const QmlObjectNode &selectedMaterialNode, 
         }
 
         // model node
-        m_backendModelNode.setup(selectedMaterialNode.modelNode());
+        m_backendModelNode.setup(selectedMaterialNode);
         context()->setContextProperty("modelNodeBackend", &m_backendModelNode);
         context()->setContextProperty("hasMaterial", QVariant(true));
 

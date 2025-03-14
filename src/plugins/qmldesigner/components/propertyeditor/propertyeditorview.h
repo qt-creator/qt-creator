@@ -143,6 +143,8 @@ private: //functions
 
     static PropertyEditorView *instance();
 
+    NodeMetaInfo findCommonAncestor(const ModelNode &node);
+
 private: //variables
     AsynchronousImageCache &m_imageCache;
     ModelNode m_activeNode;

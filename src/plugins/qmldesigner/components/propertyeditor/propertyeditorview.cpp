@@ -61,6 +61,13 @@ static bool propertyIsAttachedInsightProperty(PropertyNameView propertyName)
     return propertyName.contains("InsightCategory.");
 }
 
+static NodeMetaInfo findCommonSuperClass(const NodeMetaInfo &first, const NodeMetaInfo &second)
+{
+    auto commonBase = first.commonBase(second);
+
+    return commonBase.isValid() ? commonBase : first;
+}
+
 PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,
                                        ExternalDependenciesInterface &externalDependencies)
     : AbstractView(externalDependencies)
@@ -428,6 +435,26 @@ PropertyEditorView *PropertyEditorView::instance()
     return s_instance;
 }
 
+NodeMetaInfo PropertyEditorView::findCommonAncestor(const ModelNode &node)
+{
+    if (!node.isValid())
+        return node.metaInfo();
+
+    const QList<ModelNode> allNodes = currentNodes();
+    if (allNodes.size() > 1) {
+        NodeMetaInfo commonClass = node.metaInfo();
+
+        for (const ModelNode &selectedNode : allNodes) {
+            const NodeMetaInfo &nodeMetaInfo = selectedNode.metaInfo();
+            if (nodeMetaInfo.isValid() && !nodeMetaInfo.isBasedOn(commonClass))
+                commonClass = findCommonSuperClass(nodeMetaInfo, commonClass);
+        }
+        return commonClass;
+    }
+
+    return node.metaInfo();
+}
+
 void PropertyEditorView::updateSize()
 {
     if (!m_qmlBackEndForCurrentType)
@@ -542,7 +569,7 @@ PropertyEditorQmlBackend *getQmlBackend(QHash<QString, PropertyEditorQmlBackend 
 }
 
 void setupCurrentQmlBackend(PropertyEditorQmlBackend *currentQmlBackend,
-                            const ModelNode &selectedNode,
+                            const ModelNodes &editorNodes,
                             const QUrl &qmlSpecificsFile,
                             const QmlModelState &currentState,
                             PropertyEditorView *propertyEditorView,
@@ -551,10 +578,9 @@ void setupCurrentQmlBackend(PropertyEditorQmlBackend *currentQmlBackend,
     QString currentStateName = currentState.isBaseState() ? QStringLiteral("invalid state")
                                                           : currentState.name();
 
-    QmlObjectNode qmlObjectNode{selectedNode};
     if (specificQmlData.isEmpty())
         currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
-    currentQmlBackend->setup(qmlObjectNode, currentStateName, qmlSpecificsFile, propertyEditorView);
+    currentQmlBackend->setup(editorNodes, currentStateName, qmlSpecificsFile, propertyEditorView);
     currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
 }
 
@@ -634,7 +660,7 @@ void PropertyEditorView::handleToolBarAction(int action)
 void PropertyEditorView::setupQmlBackend()
 {
 #ifdef QDS_USE_PROJECTSTORAGE
-    const NodeMetaInfo commonAncestor = PropertyEditorQmlBackend::findCommonAncestor(activeNode());
+    const NodeMetaInfo commonAncestor = findCommonAncestor(activeNode());
     auto selfAndPrototypes = commonAncestor.selfAndPrototypes();
     bool isEditableComponent = activeNode().isComponent()
                                && !QmlItemNode(activeNode()).isEffectItem();
@@ -648,7 +674,7 @@ void PropertyEditorView::setupQmlBackend()
                                                                 m_stackedWidget,
                                                                 this);
     setupCurrentQmlBackend(currentQmlBackend,
-                           activeNode(),
+                           currentNodes(),
                            QUrl::fromLocalFile(QString{specificsPath}),
                            currentStateNode(),
                            this,
@@ -660,7 +686,7 @@ void PropertyEditorView::setupQmlBackend()
 
     setupInsight(rootModelNode(), currentQmlBackend);
 #else
-    const NodeMetaInfo commonAncestor = PropertyEditorQmlBackend::findCommonAncestor(activeNode());
+    const NodeMetaInfo commonAncestor = findCommonAncestor(activeNode());
 
     // qmlFileUrl is panel url. and specifics is its metainfo
     const auto [qmlFileUrl, specificsClassMetaInfo] = PropertyEditorQmlBackend::getQmlUrlForMetaInfo(
@@ -681,7 +707,7 @@ void PropertyEditorView::setupQmlBackend()
                                                                 this);
 
     setupCurrentQmlBackend(currentQmlBackend,
-                           activeNode(),
+                           currentNodes(),
                            qmlSpecificsFile,
                            currentStateNode(),
                            this,
@@ -788,10 +814,12 @@ QList<ModelNode> PropertyEditorView::currentNodes() const
 void PropertyEditorView::selectedNodesChanged(const QList<ModelNode> &,
                                           const QList<ModelNode> &)
 {
-    if (m_isSelectionLocked)
-        return;
+    if (!m_isSelectionLocked)
+        select();
 
-    select();
+    // Notify model selection changes to backend regardless of being locked
+    if (m_qmlBackEndForCurrentType)
+        m_qmlBackEndForCurrentType->handleModelSelectedNodesChanged(this);
 }
 
 bool PropertyEditorView::isNodeOrChildSelected(const ModelNode &node) const

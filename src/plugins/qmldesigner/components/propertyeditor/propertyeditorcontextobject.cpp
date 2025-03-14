@@ -138,7 +138,7 @@ QStringList PropertyEditorContextObject::autoComplete(const QString &text, int p
     return {};
 }
 
-void PropertyEditorContextObject::toogleExportAlias()
+void PropertyEditorContextObject::toggleExportAlias()
 {
     QTC_ASSERT(m_model && m_model->rewriterView(), return);
 
@@ -156,13 +156,13 @@ void PropertyEditorContextObject::toogleExportAlias()
         PropertyName modelNodeId = selectedNode.id().toUtf8();
         ModelNode rootModelNode = rewriterView->rootModelNode();
 
-        rewriterView->executeInTransaction("PropertyEditorContextObject:toogleExportAlias", [&objectNode, &rootModelNode, modelNodeId](){
-            if (!objectNode.isAliasExported())
-                objectNode.ensureAliasExport();
-            else
-                if (rootModelNode.hasProperty(modelNodeId))
-                    rootModelNode.removeProperty(modelNodeId);
-        });
+        rewriterView->executeInTransaction("PropertyEditorContextObject:toggleExportAlias",
+                                           [&objectNode, &rootModelNode, modelNodeId]() {
+                                               if (!objectNode.isAliasExported())
+                                                   objectNode.ensureAliasExport();
+                                               else if (rootModelNode.hasProperty(modelNodeId))
+                                                   rootModelNode.removeProperty(modelNodeId);
+                                           });
     }
 }
 
@@ -294,7 +294,7 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
     try {
         auto transaction = RewriterTransaction(rewriterView, "PropertyEditorContextObject:changeTypeName");
 
-        ModelNodes selectedNodes = rewriterView->selectedModelNodes(); // TODO: replace it by PropertyEditorView::currentNodes()
+        ModelNodes selectedNodes = m_editorNodes;
         for (ModelNode &selectedNode : selectedNodes)
             changeNodeTypeName(selectedNode);
 
@@ -489,9 +489,9 @@ bool PropertyEditorContextObject::hasQuick3DImport() const
     return m_hasQuick3DImport;
 }
 
-void PropertyEditorContextObject::setSelectedNode(const ModelNode &node)
+void PropertyEditorContextObject::setEditorNodes(const ModelNodes &nodes)
 {
-    m_selectedNode = node;
+    m_editorNodes = nodes;
 }
 
 void PropertyEditorContextObject::setHasQuick3DImport(bool value)
@@ -531,18 +531,18 @@ void PropertyEditorContextObject::setIsQt6Project(bool value)
     emit isQt6ProjectChanged();
 }
 
-bool PropertyEditorContextObject::has3DModelSelection() const
+bool PropertyEditorContextObject::has3DModelSelected() const
 {
-    return m_has3DModelSelection;
+    return m_has3DModelSelected;
 }
 
-void PropertyEditorContextObject::set3DHasModelSelection(bool value)
+void PropertyEditorContextObject::setHas3DModelSelected(bool value)
 {
-    if (value == m_has3DModelSelection)
+    if (value == m_has3DModelSelected)
         return;
 
-    m_has3DModelSelection = value;
-    emit has3DModelSelectionChanged();
+    m_has3DModelSelected = value;
+    emit has3DModelSelectedChanged();
 }
 
 void PropertyEditorContextObject::setSpecificsUrl(const QUrl &newSpecificsUrl)
