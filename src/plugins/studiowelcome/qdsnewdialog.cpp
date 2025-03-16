@@ -98,8 +98,11 @@ QdsNewDialog::QdsNewDialog(QWidget *parent)
 
 bool QdsNewDialog::eventFilter(QObject *obj, QEvent *event)
 {
-    if (obj == m_dialog.get() && event->type() == QEvent::KeyPress
-        && static_cast<QKeyEvent *>(event)->key() == Qt::Key_Escape) {
+    if (obj != m_dialog.get())
+        return false;
+
+    if (event->type() == QEvent::Close
+        || (event->type() == QEvent::KeyPress && static_cast<QKeyEvent *>(event)->key() == Qt::Key_Escape)) {
         reject();
         return true;
     }
