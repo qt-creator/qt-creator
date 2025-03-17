@@ -137,18 +137,6 @@ bool CropSizeWarningIcon::needsWarning() const
 
 namespace FFmpegUtils {
 
-static QVersionNumber parseVersionNumber(const QByteArray &toolOutput)
-{
-    QVersionNumber result;
-    const QJsonObject jsonObject = QJsonDocument::fromJson(toolOutput).object();
-    if (const QJsonObject program_version = jsonObject.value("program_version").toObject();
-        !program_version.isEmpty()) {
-        if (const QJsonValue version = program_version.value("version"); !version.isUndefined())
-            result = QVersionNumber::fromString(version.toString());
-    }
-    return result;
-}
-
 static ClipInfo parseClipInfo(const QByteArray &toolOutput)
 {
     ClipInfo result;
@@ -247,6 +235,18 @@ void logFfmpegCall(const CommandLine &cmdLn)
 using namespace ScreenRecorder::FFmpegUtils;
 
 namespace ScreenRecorder::Internal {
+
+static QVersionNumber parseVersionNumber(const QByteArray &toolOutput)
+{
+    QVersionNumber result;
+    const QJsonObject jsonObject = QJsonDocument::fromJson(toolOutput).object();
+    if (const QJsonObject program_version = jsonObject.value("program_version").toObject();
+        !program_version.isEmpty()) {
+        if (const QJsonValue version = program_version.value("version"); !version.isUndefined())
+            result = QVersionNumber::fromString(version.toString());
+    }
+    return result;
+}
 
 void FFmpegOutputParserTest::testVersionParser_data()
 {

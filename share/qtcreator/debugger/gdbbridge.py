@@ -276,6 +276,7 @@ class Dumper(DumperBase):
                 val.typeid = typeid
         #elif code == gdb.TYPE_CODE_ARRAY:
         #    val.type.ltarget = nativeValue[0].type.unqualified()
+        val.size = nativeType.sizeof * 8
         return val
 
     def nativeDataFromValueFallback(self, nativeValue, size):

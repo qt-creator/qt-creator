@@ -282,7 +282,7 @@
 
     If a console application does not start up properly in the configured
     console and the subsequent attach fails, you can diagnose the issue by
-    using CDB's native console. Go to \preferences >
+    using the native CDB console. Go to \preferences >
     \uicontrol Debugger > \uicontrol CDB > \uicontrol {Use CDB console} to
     override the console set in the Windows system environment variables.
     Note that the native console does not prompt on application exit.

@@ -240,7 +240,7 @@
         \li \uicontrol {Use CDB console}
         \li If a console application does not start up properly in the configured
             console and the subsequent attach fails, diagnose the issue by
-            using CDB's native console. Select this checkbox to override the
+            using the native CDB console. Select this checkbox to override the
             console set in the Windows system environment variables. Note that
             the native console does not prompt on application exit.
     \row

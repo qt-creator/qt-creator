@@ -594,7 +594,7 @@ void RunControlPrivate::startPortsGathererIfNeededAndContinueStart()
         return;
     }
 
-    QTC_ASSERT(device, continueStart(); return);
+    QTC_ASSERT(device, initiateStop(); return);
 
     const Storage<PortsOutputData> portsStorage;
 

@@ -3004,6 +3004,8 @@ typename))
             return
 
         self.putAddress(value.address())
+        if value.size is not None:
+            self.putField('size', value.size // 8)
 
         if typecode == TypeCode.Function:
             #self.warn('FUNCTION VALUE: %s' % value)
