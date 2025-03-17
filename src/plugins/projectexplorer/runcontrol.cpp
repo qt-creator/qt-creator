@@ -1819,8 +1819,8 @@ void RunWorker::initiateStop()
  */
 void RunWorker::reportStopped()
 {
-    if (QTC_GUARD(d && d->runControl && d->runControl->d))
-        d->runControl->d->onWorkerStopped(this);
+    QTC_ASSERT(d && d->runControl && d->runControl->d, return);
+    d->runControl->d->onWorkerStopped(this);
     emit stopped();
 }
 
