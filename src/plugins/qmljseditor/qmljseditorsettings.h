@@ -21,6 +21,7 @@ public:
     QmlJsEditingSettings();
 
     QString defaultFormatCommand() const;
+    Utils::FilePath defaultQdsCommand() const;
 
     Utils::BoolAspect enableContextPane{this};
     Utils::BoolAspect pinContextPane{this};
@@ -34,6 +35,7 @@ public:
     Utils::StringAspect formatCommandOptions{this};
     Utils::IntegersAspect disabledMessages{this};
     Utils::IntegersAspect disabledMessagesForNonQuickUi{this};
+    Utils::FilePathAspect qdsCommand{this};
 };
 
 QmlJsEditingSettings &settings();

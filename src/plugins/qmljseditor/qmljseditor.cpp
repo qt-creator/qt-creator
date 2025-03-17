@@ -1232,4 +1232,19 @@ void setupQmlJSEditor()
 
 } // namespace Internal
 
+void setQdsSettingVisible(bool visible)
+{
+    Internal::settings().qdsCommand.setVisible(visible);
+}
+
+FilePath qdsCommand()
+{
+    const FilePath command = Internal::settings().qdsCommand.effectiveBinary();
+    if (command.isEmpty())
+        return Internal::settings().defaultQdsCommand();
+    return command;
+}
+
+// namespace Internal
+
 } // namespace QmlJSEditor

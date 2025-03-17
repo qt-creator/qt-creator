@@ -58,6 +58,7 @@
 #include <QPointer>
 #include <QPushButton>
 #include <QTimer>
+#include <QToolBar>
 
 using namespace Core;
 using namespace Debugger;
@@ -94,7 +95,7 @@ enum class QdsMode { Lite, Full };
 
 static void openQds(const FilePath &fileName, QdsMode mode)
 {
-    const FilePath qdsPath = qdsInstallationEntry();
+    const FilePath qdsPath = QmlJSEditor::qdsCommand();
     bool qdsStarted = false;
     qputenv(Constants::enviromentLaunchedQDS, "true");
     const QStringList modeArgument = mode == QdsMode::Lite ? QStringList("-qml-lite-designer")
@@ -111,17 +112,9 @@ static void openQds(const FilePath &fileName, QdsMode mode)
     }
 }
 
-FilePath qdsInstallationEntry()
-{
-    QtcSettings *settings = ICore::settings();
-    const Key qdsInstallationEntry = "QML/Designer/DesignStudioInstallation"; //set in installer
-
-    return FilePath::fromUserInput(settings->value(qdsInstallationEntry).toString());
-}
-
 bool qdsInstallationExists()
 {
-    return qdsInstallationEntry().exists();
+    return QmlJSEditor::qdsCommand().exists();
 }
 
 bool checkIfEditorIsuiQml(IEditor *editor)
@@ -280,6 +273,7 @@ private:
     }
 
     void displayQmlLandingPage();
+    void setupEditorToolButton();
     void hideQmlLandingPage();
     void updateQmlLandingPageProjectInfo(const Utils::FilePath &projectFile);
 
@@ -288,12 +282,62 @@ private:
     QdsLandingPageWidget *m_landingPageWidget = nullptr;
 };
 
+void QmlProjectPlugin::setupEditorToolButton()
+{
+    Command *cmd;
+    ActionBuilder(this, "QmlProjectPlugin.OpenInQDS")
+        .bindCommand(&cmd)
+        .setText("Open in Qt Design Studio")
+        .addOnTriggered(EditorManager::instance(), [] {
+            IEditor *editor = EditorManager::currentEditor();
+            if (!editor)
+                return;
+            if (editor->document()->mimeType() != Utils::Constants::QMLUI_MIMETYPE)
+                return;
+            openInQds(editor->document()->filePath());
+        });
+    // extend tool bar for .ui.qml file text editor
+    connect(EditorManager::instance(), &EditorManager::editorOpened, this, [this, cmd](IEditor *editor) {
+        if (!editor)
+            return;
+        if (!editor->document())
+            return;
+        if (editor->document()->mimeType() != Utils::Constants::QMLUI_MIMETYPE)
+            return;
+        auto *textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
+        if (!textEditor)
+            return;
+        TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
+        if (!widget)
+            return;
+        QToolBar *toolBar = widget->toolBar();
+        if (!toolBar)
+            return;
+        auto action = new QAction(this);
+        action->setIconText("QDS");
+        if (!qdsInstallationExists()) {
+            action->setText(
+                Tr::tr("Open the document in Qt Design Studio.\n\nQt Design Studio is not "
+                       "configured. Configure it in Preferences > Qt Quick > QML/JS Editing."));
+            action->setEnabled(false);
+        } else {
+            action->setText(Tr::tr("Open the document in Qt Design Studio."));
+        }
+        cmd->augmentActionWithShortcutToolTip(action);
+        toolBar->addAction(action);
+        connect(action, &QAction::triggered, editor, [editor] {
+            openInQds(editor->document()->filePath());
+        });
+    });
+}
+
 void QmlProjectPlugin::initialize()
 {
     setupQmlProjectRunConfiguration();
     setupExternalDesignStudio();
 
     if (!qmlDesignerEnabled()) {
+        QmlJSEditor::setQdsSettingVisible(true);
         m_landingPage = new QdsLandingPage();
         qmlRegisterSingletonInstance<QdsLandingPage>("LandingPageApi",
                                                      1,
@@ -309,6 +353,8 @@ void QmlProjectPlugin::initialize()
 
         connect(ModeManager::instance(), &ModeManager::currentModeChanged,
                 this, &QmlProjectPlugin::editorModeChanged);
+
+        setupEditorToolButton();
     }
 
     const auto issuesGenerator = [](const Kit *k) {

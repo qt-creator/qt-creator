@@ -25,7 +25,7 @@
 
 #include <qmljstools/qmljstoolsconstants.h>
 
-#include <qtsupport/qtversionmanager.h>
+#include <qtsupport/qtsupportconstants.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -69,6 +69,7 @@ const char CUSTOM_COMMAND[] = "QmlJSEditor.useCustomFormatCommand";
 const char CUSTOM_ANALYZER[] = "QmlJSEditor.useCustomAnalyzer";
 const char DISABLED_MESSAGES[] = "QmlJSEditor.disabledMessages";
 const char DISABLED_MESSAGES_NONQUICKUI[] = "QmlJSEditor.disabledMessagesNonQuickUI";
+const char QDS_COMMAND[] = "QmlJSEditor.qdsCommand";
 const char DEFAULT_CUSTOM_FORMAT_COMMAND[]
     = "%{CurrentDocument:Project:QT_HOST_BINS}/qmlformat%{HostOs:ExecutableSuffix}";
 const char SETTINGS_PAGE[] = "C.QmlJsEditing";
@@ -167,6 +168,11 @@ QmlJsEditingSettings::QmlJsEditingSettings()
     disabledMessagesForNonQuickUi.setFromSettingsTransformation(&fromSettingsTransformation);
     disabledMessagesForNonQuickUi.setToSettingsTransformation(&toSettingsTransformation);
 
+    qdsCommand.setSettingsKey(group, QDS_COMMAND);
+    qdsCommand.setPlaceHolderText(defaultQdsCommand().toUserOutput());
+    qdsCommand.setLabelText(Tr::tr("Command:"));
+    qdsCommand.setVisible(false);
+
     readSettings();
 
     autoFormatOnlyCurrentProject.setEnabler(&autoFormatOnSave);
@@ -177,6 +183,13 @@ QmlJsEditingSettings::QmlJsEditingSettings()
 QString QmlJsEditingSettings::defaultFormatCommand() const
 {
     return DEFAULT_CUSTOM_FORMAT_COMMAND;
+}
+
+FilePath QmlJsEditingSettings::defaultQdsCommand() const
+{
+    QtcSettings *settings = Core::ICore::settings();
+    const Key qdsInstallationEntry = "QML/Designer/DesignStudioInstallation"; //set in installer
+    return FilePath::fromUserInput(settings->value(qdsInstallationEntry).toString());
 }
 
 class AnalyzerMessageItem final : public Utils::TreeItem
@@ -235,6 +248,11 @@ private:
     bool m_disabledInNonQuickUi = false;
 };
 
+static void openQtVersionsOptions()
+{
+    Core::ICore::showOptionsDialog(QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
+}
+
 class QmlJsEditingSettingsPageWidget final : public Core::IOptionsPageWidget
 {
 public:
@@ -263,6 +281,7 @@ public:
         using namespace Layouting;
         // clang-format off
         QWidget *formattingGroup = nullptr;
+        QWidget *qdsGroup = nullptr;
         Column {
             Group {
                 bindTo(&formattingGroup),
@@ -283,6 +302,25 @@ public:
                     s.pinContextPane,
                     s.enableContextPane
                 },
+            },
+            Group {
+                bindTo(&qdsGroup),
+                title(Tr::tr("Qt Design Studio")),
+                Column {
+                    Label {
+                        wordWrap(true),
+                        text(Tr::tr("Set the path to the Qt Design Studio application to enable "
+                                    "the \"Open in Qt Design Studio\" feature. If you have Qt "
+                                    "Design Studio installed alongside Qt Creator with the Qt "
+                                    "Online Installer, it is used as the default. Use "
+                                    "<a href=\"linwithqt\">\"Link with Qt\"</a> to link an "
+                                    "offline installation of Qt Creator to a Qt Online Installer.")),
+                        onLinkActivated(this, [](const QString &) { openQtVersionsOptions(); })
+                    },
+                    Form {
+                        s.qdsCommand
+                    }
+                }
             },
             Group {
                 title(Tr::tr("Features")),
@@ -311,6 +349,8 @@ public:
             st,
         }.attachTo(this);
         // clang-format on
+
+        qdsGroup->setVisible(s.qdsCommand.isVisible());
 
         Utils::VariableChooser::addSupportForChildWidgets(formattingGroup,
                                                           Utils::globalMacroExpander());
