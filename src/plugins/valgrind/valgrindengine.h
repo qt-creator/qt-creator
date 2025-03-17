@@ -33,6 +33,10 @@ private:
     QFutureInterface<void> m_progress;
 };
 
+Tasking::ExecutableItem initValgrindRecipe(const Tasking::Storage<ValgrindSettings> &storage,
+                                           ProjectExplorer::RunControl *runControl);
+void setupValgrindProcess(ValgrindProcess *process, ProjectExplorer::RunControl *runControl,
+                          const Utils::CommandLine &valgrindCommand);
 Utils::CommandLine defaultValgrindCommand(ProjectExplorer::RunControl *runControl,
                                           const ValgrindSettings &settings);
 

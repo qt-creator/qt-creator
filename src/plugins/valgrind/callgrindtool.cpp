@@ -96,61 +96,74 @@ static void setupPid(qint64 pid);
 static void setupRunControl(ProjectExplorer::RunControl *runControl);
 static void startParser();
 
-class CallgrindToolRunner : public ValgrindToolRunner
+static CommandLine callgrindCommand(RunControl *runControl, const ValgrindSettings &settings)
 {
-public:
-    explicit CallgrindToolRunner(ProjectExplorer::RunControl *runControl)
-        : ValgrindToolRunner(runControl, Tr::tr("Profiling"))
-    {
-        setId("CallgrindToolRunner");
+    CommandLine cmd = defaultValgrindCommand(runControl, settings);
+    cmd << "--tool=callgrind";
 
-        connect(&m_runner, &ValgrindProcess::valgrindStarted, this, [](qint64 pid) { setupPid(pid); });
-        connect(&m_runner, &ValgrindProcess::done, this, [] { startParser(); });
+    if (settings.enableCacheSim())
+        cmd << "--cache-sim=yes";
 
-        setupRunControl(runControl);
+    if (settings.enableBranchSim())
+        cmd << "--branch-sim=yes";
 
-        connect(runControl, &RunControl::aboutToStart, this, [runControl] {
+    if (settings.collectBusEvents())
+        cmd << "--collect-bus=yes";
+
+    if (settings.collectSystime())
+        cmd << "--collect-systime=yes";
+
+    if (isPaused())
+        cmd << "--instr-atstart=no";
+
+    const QString toggleCollectFunction = fetchAndResetToggleCollectFunction();
+    if (!toggleCollectFunction.isEmpty())
+        cmd << "--toggle-collect=" + toggleCollectFunction;
+
+    cmd << "--callgrind-out-file=" + remoteOutputFile().path();
+
+    cmd.addArgs(settings.callgrindArguments(), CommandLine::Raw);
+    return cmd;
+}
+
+static Group callgrindRecipe(RunControl *runControl)
+{
+    setupRunControl(runControl); // Intentionally here, to enable re-run.
+
+    const Storage<ValgrindSettings> storage(false);
+
+    const auto onValgrindSetup = [storage, runControl](ValgrindProcess &process) {
+        QObject::connect(&process, &ValgrindProcess::valgrindStarted,
+                         &process, [](qint64 pid) { setupPid(pid); });
+        QObject::connect(runControl, &RunControl::aboutToStart, runControl, [runControl] {
             const FilePath executable = runControl->commandLine().executable();
-            runControl->postMessage(
-                Tr::tr("Profiling %1").arg(runControl->commandLine().executable().toUserOutput()),
-                NormalMessageFormat);
+            runControl->postMessage(Tr::tr("Profiling %1").arg(executable.toUserOutput()),
+                                    NormalMessageFormat);
         });
+        setupValgrindProcess(&process, runControl, callgrindCommand(runControl, *storage));
+    };
 
-        CommandLine cmd = defaultValgrindCommand(runControl, m_settings);
-        cmd << "--tool=callgrind";
+    const auto onDone = [runControl] {
+        runControl->postMessage(Tr::tr("Analyzing finished."), NormalMessageFormat);
+        startParser();
+    };
 
-        if (m_settings.enableCacheSim())
-            cmd << "--cache-sim=yes";
-
-        if (m_settings.enableBranchSim())
-            cmd << "--branch-sim=yes";
-
-        if (m_settings.collectBusEvents())
-            cmd << "--collect-bus=yes";
-
-        if (m_settings.collectSystime())
-            cmd << "--collect-systime=yes";
-
-        if (isPaused())
-            cmd << "--instr-atstart=no";
-
-        const QString toggleCollectFunction = fetchAndResetToggleCollectFunction();
-        if (!toggleCollectFunction.isEmpty())
-            cmd << "--toggle-collect=" + toggleCollectFunction;
-
-        cmd << "--callgrind-out-file=" + remoteOutputFile().path();
-
-        cmd.addArgs(m_settings.callgrindArguments(), CommandLine::Raw);
-        setValgrindCommand(cmd);
-    }
-};
+    return Group {
+        storage,
+        initValgrindRecipe(storage, runControl),
+        ValgrindProcessTask(onValgrindSetup),
+        onGroupDone(onDone)
+    };
+}
 
 class CallgrindToolRunnerFactory final : public RunWorkerFactory
 {
 public:
     CallgrindToolRunnerFactory()
     {
-        setProduct<CallgrindToolRunner>();
+        setProducer([](RunControl *runControl) {
+            return new RecipeRunner(runControl, callgrindRecipe(runControl));
+        });
         addSupportedRunMode(CALLGRIND_RUN_MODE);
 
         addSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
