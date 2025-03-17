@@ -3,6 +3,7 @@
 
 #include "qmlprofilerclientmanager_test.h"
 #include "fakedebugserver.h"
+
 #include <utils/url.h>
 
 #include <QTcpServer>
@@ -14,10 +15,10 @@
 
 using namespace ProjectExplorer;
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
-struct MessageHandler {
+struct MessageHandler
+{
     MessageHandler(QtMessageHandler handler)
     {
         defaultHandler = qInstallMessageHandler(handler);
@@ -33,8 +34,7 @@ struct MessageHandler {
 
 QtMessageHandler MessageHandler::defaultHandler;
 
-QmlProfilerClientManagerTest::QmlProfilerClientManagerTest(QObject *parent) :
-    QObject(parent), modelManager(nullptr)
+QmlProfilerClientManagerTest::QmlProfilerClientManagerTest()
 {
     clientManager.setRetryInterval(10);
     clientManager.setMaximumRetries(10);
@@ -419,5 +419,4 @@ void QmlProfilerClientManagerTest::testConnectionDrop()
     QTRY_VERIFY(!stateManager.serverRecording());
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

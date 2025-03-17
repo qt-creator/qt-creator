@@ -10,14 +10,14 @@
 
 #include <QObject>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class FlameGraphModelTest : public QObject
 {
     Q_OBJECT
+
 public:
-    FlameGraphModelTest(QObject *parent = nullptr);
+    FlameGraphModelTest();
     static int generateData(QmlProfilerModelManager *manager,
                             Timeline::TimelineModelAggregator *aggregator);
 
@@ -37,5 +37,4 @@ private:
     int rangeModelId = -1;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

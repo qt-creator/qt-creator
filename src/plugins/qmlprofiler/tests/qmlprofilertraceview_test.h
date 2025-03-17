@@ -8,14 +8,14 @@
 
 #include <QObject>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerTraceViewTest : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit QmlProfilerTraceViewTest(QObject *parent = nullptr);
+    QmlProfilerTraceViewTest();
 
 private slots:
     void testStateChanges();
@@ -25,5 +25,4 @@ private:
     QmlProfilerTraceView traceView;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

@@ -1,18 +1,20 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 #pragma once
 
 #include <qmlprofiler/qmlevent.h>
+
 #include <QObject>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlEventTest : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit QmlEventTest(QObject *parent = nullptr);
+    QmlEventTest();
 
 private slots:
     void testCtors();
@@ -22,6 +24,5 @@ private slots:
 
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal
 

@@ -8,13 +8,11 @@
 
 #include <QtTest>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
-FlameGraphModelTest::FlameGraphModelTest(QObject *parent) :
-    QObject(parent), model(&manager)
-{
-}
+FlameGraphModelTest::FlameGraphModelTest()
+    : model(&manager)
+{}
 
 int FlameGraphModelTest::generateData(QmlProfilerModelManager *manager,
                                       Timeline::TimelineModelAggregator *aggregator)
@@ -216,5 +214,4 @@ void FlameGraphModelTest::cleanupTestCase()
     QCOMPARE(model.rowCount(), 0);
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

@@ -5,19 +5,18 @@
 
 #include <QObject>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlNoteTest : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit QmlNoteTest(QObject *parent = nullptr);
+    QmlNoteTest();
 
 private slots:
     void testAccessors();
     void testStreamOps();
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

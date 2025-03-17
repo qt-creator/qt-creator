@@ -5,16 +5,17 @@
 
 #include <qmlprofiler/inputeventsmodel.h>
 #include <qmlprofiler/qmlprofilermodelmanager.h>
+
 #include <QObject>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class InputEventsModelTest : public QObject
 {
     Q_OBJECT
+
 public:
-    InputEventsModelTest(QObject *parent = nullptr);
+    InputEventsModelTest();
 
 private slots:
     void initTestCase();
@@ -35,5 +36,4 @@ private:
     int keyTypeId = -1;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

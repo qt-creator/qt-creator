@@ -5,16 +5,17 @@
 
 #include <qmlprofiler/debugmessagesmodel.h>
 #include <qmlprofiler/qmlprofilermodelmanager.h>
+
 #include <QObject>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class DebugMessagesModelTest : public QObject
 {
     Q_OBJECT
+
 public:
-    DebugMessagesModelTest(QObject *parent = nullptr);
+    DebugMessagesModelTest();
 
 private slots:
     void initTestCase();
@@ -33,5 +34,4 @@ private:
     DebugMessagesModel model;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

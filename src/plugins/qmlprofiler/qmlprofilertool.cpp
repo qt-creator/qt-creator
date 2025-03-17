@@ -512,7 +512,7 @@ bool QmlProfilerTool::prepareTool()
     return true;
 }
 
-ProjectExplorer::RunControl *QmlProfilerTool::attachToWaitingApplication()
+RunControl *QmlProfilerTool::attachToWaitingApplication()
 {
     if (!prepareTool())
         return nullptr;

@@ -4,14 +4,12 @@
 #include "qmleventlocation_test.h"
 
 #include <qmlprofiler/qmleventlocation.h>
+
 #include <QtTest>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
-QmlEventLocationTest::QmlEventLocationTest(QObject *parent) : QObject(parent)
-{
-}
+QmlEventLocationTest::QmlEventLocationTest() = default;
 
 void QmlEventLocationTest::testCtor()
 {
@@ -46,5 +44,4 @@ void QmlEventLocationTest::testStreamOps()
     QCOMPARE(location2, location);
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

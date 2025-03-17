@@ -10,14 +10,14 @@
 
 #include <QObject>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class FlameGraphViewTest : public QObject
 {
     Q_OBJECT
+
 public:
-    FlameGraphViewTest(QObject *parent = nullptr);
+    FlameGraphViewTest();
 
 private slots:
     void initTestCase();
@@ -31,5 +31,4 @@ private:
     FlameGraphView view;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Interna;

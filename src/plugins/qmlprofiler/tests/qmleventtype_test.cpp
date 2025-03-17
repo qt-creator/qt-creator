@@ -5,12 +5,9 @@
 
 #include <QtTest>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
-QmlEventTypeTest::QmlEventTypeTest(QObject *parent) : QObject(parent)
-{
-}
+QmlEventTypeTest::QmlEventTypeTest() = default;
 
 void QmlEventTypeTest::testAccessors()
 {
@@ -124,5 +121,4 @@ void QmlEventTypeTest::testStreamOps()
     QCOMPARE(type.location(), type2.location());
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal
