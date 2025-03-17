@@ -25,30 +25,20 @@ namespace QmlPreview {
 
 class QmlPreviewRunner : public ProjectExplorer::RunWorker
 {
-    Q_OBJECT
-
 public:
-    QmlPreviewRunner(ProjectExplorer::RunControl *runControl,
+    QmlPreviewRunner(ProjectExplorer::RunControl *runControl, QmlPreviewPlugin *plugin,
                      const QmlPreviewRunnerSetting &settings);
-
-signals:
-    void loadFile(const QString &previewedFile, const QString &changedFile,
-                  const QByteArray &contents);
-    void language(const QString &locale);
-    void zoom(float zoomFactor);
-    void rerun();
-    void ready();
 
 private:
     void start() override;
     void stop() override;
-    QUrl serverUrl() const;
 
     QmlPreviewConnectionManager m_connectionManager;
     std::unique_ptr<Utils::Async<void>> m_translationUpdater;
 };
 
-QmlPreviewRunner::QmlPreviewRunner(RunControl *runControl, const QmlPreviewRunnerSetting &settings)
+QmlPreviewRunner::QmlPreviewRunner(RunControl *runControl, QmlPreviewPlugin *plugin,
+                                   const QmlPreviewRunnerSetting &settings)
     : RunWorker(runControl)
 {
     setId("QmlPreviewRunner");
@@ -58,25 +48,24 @@ QmlPreviewRunner::QmlPreviewRunner(RunControl *runControl, const QmlPreviewRunne
     m_connectionManager.setQmlDebugTranslationClientCreator(
         settings.createDebugTranslationClientMethod);
 
-    connect(this, &QmlPreviewRunner::loadFile,
+    connect(plugin, &QmlPreviewPlugin::updatePreviews,
             &m_connectionManager, &QmlPreviewConnectionManager::loadFile);
-    connect(this, &QmlPreviewRunner::rerun,
+    connect(plugin, &QmlPreviewPlugin::rerunPreviews,
             &m_connectionManager, &QmlPreviewConnectionManager::rerun);
-
-    connect(this, &QmlPreviewRunner::zoom,
+    connect(plugin, &QmlPreviewPlugin::zoomFactorChanged,
             &m_connectionManager, &QmlPreviewConnectionManager::zoom);
-    connect(this, &QmlPreviewRunner::language,
+    connect(plugin, &QmlPreviewPlugin::localeIsoCodeChanged,
             &m_connectionManager, &QmlPreviewConnectionManager::language);
 
     connect(&m_connectionManager, &QmlPreviewConnectionManager::connectionOpened,
-            this, [this, settings]() {
+            this, [this, plugin, settings] {
         if (settings.zoomFactor > 0)
-            emit zoom(settings.zoomFactor);
+            m_connectionManager.zoom(settings.zoomFactor);
         if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current()) {
             if (!multiLanguageAspect->currentLocale().isEmpty())
-                emit language(multiLanguageAspect->currentLocale());
+                m_connectionManager.language(multiLanguageAspect->currentLocale());
         }
-        emit ready();
+        plugin->previewCurrentFile();
     });
 
     connect(&m_connectionManager, &QmlPreviewConnectionManager::restart, runControl, [this, runControl] {
@@ -124,18 +113,7 @@ QmlPreviewRunWorkerFactory::QmlPreviewRunWorkerFactory(QmlPreviewPlugin *plugin,
                                                        const QmlPreviewRunnerSetting *runnerSettings)
 {
     setProducer([plugin, runnerSettings](RunControl *runControl) {
-        auto runner = new QmlPreviewRunner(runControl, *runnerSettings);
-        QObject::connect(plugin, &QmlPreviewPlugin::updatePreviews,
-                         runner, &QmlPreviewRunner::loadFile);
-        QObject::connect(plugin, &QmlPreviewPlugin::rerunPreviews,
-                         runner, &QmlPreviewRunner::rerun);
-        QObject::connect(runner, &QmlPreviewRunner::ready,
-                         plugin, &QmlPreviewPlugin::previewCurrentFile);
-        QObject::connect(plugin, &QmlPreviewPlugin::zoomFactorChanged,
-                         runner, &QmlPreviewRunner::zoom);
-        QObject::connect(plugin, &QmlPreviewPlugin::localeIsoCodeChanged,
-                         runner, &QmlPreviewRunner::language);
-
+        auto runner = new QmlPreviewRunner(runControl, plugin, *runnerSettings);
         QObject::connect(runner, &RunWorker::started, plugin, [plugin, runControl] {
             plugin->addPreview(runControl);
         });
@@ -198,5 +176,3 @@ LocalQmlPreviewSupportFactory::LocalQmlPreviewSupportFactory()
 }
 
 } // QmlPreview
-
-#include "qmlpreviewruncontrol.moc"
