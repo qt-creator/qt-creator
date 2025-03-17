@@ -80,16 +80,12 @@ static QString selfModifyingCodeDetectionToString(ValgrindSettings::SelfModifyin
 
 void ValgrindToolRunner::start()
 {
-    FilePath valgrindExecutable = m_settings.valgrindExecutable();
-    if (IDevice::ConstPtr dev = RunDeviceKitAspect::device(runControl()->kit()))
-        valgrindExecutable = dev->filePath(valgrindExecutable.path());
-
-    const FilePath found = valgrindExecutable.searchInPath();
+    const FilePath found = m_valgrindCommand.executable().searchInPath();
 
     if (!found.isExecutableFile()) {
         reportFailure(Tr::tr("Valgrind executable \"%1\" not found or not executable.\n"
                              "Check settings or ensure Valgrind is installed and available in PATH.")
-                      .arg(valgrindExecutable.toUserOutput()));
+                      .arg(m_valgrindCommand.executable().toUserOutput()));
         return;
     }
 
@@ -105,12 +101,7 @@ void ValgrindToolRunner::start()
     });
     m_progress.reportStarted();
 
-    CommandLine valgrind{valgrindExecutable};
-    valgrind.addArgs(m_settings.valgrindArguments(), CommandLine::Raw);
-    valgrind.addArg("--smc-check=" + selfModifyingCodeDetectionToString(m_settings.selfModifyingCodeDetection()));
-    addToolArguments(valgrind);
-
-    m_runner.setValgrindCommand(valgrind);
+    m_runner.setValgrindCommand(m_valgrindCommand);
     m_runner.setDebuggee(runControl()->runnable());
 
     if (auto aspect = runControl()->aspectData<TerminalAspect>())
@@ -121,7 +112,6 @@ void ValgrindToolRunner::start()
         reportFailure();
         return;
     }
-
     reportStarted();
 }
 
@@ -129,6 +119,19 @@ void ValgrindToolRunner::stop()
 {
     m_runner.stop();
     runControl()->postMessage(Tr::tr("Terminating process..."), ErrorMessageFormat);
+}
+
+CommandLine defaultValgrindCommand(RunControl *runControl, const ValgrindSettings &settings)
+{
+    FilePath valgrindExecutable = settings.valgrindExecutable();
+    if (IDevice::ConstPtr dev = RunDeviceKitAspect::device(runControl->kit()))
+        valgrindExecutable = dev->filePath(valgrindExecutable.path());
+
+    CommandLine valgrindCommand{valgrindExecutable};
+    valgrindCommand.addArgs(settings.valgrindArguments(), CommandLine::Raw);
+    valgrindCommand.addArg("--smc-check=" + selfModifyingCodeDetectionToString(
+                               settings.selfModifyingCodeDetection()));
+    return valgrindCommand;
 }
 
 } // Valgrid::Internal

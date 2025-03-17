@@ -115,11 +115,8 @@ public:
                 Tr::tr("Profiling %1").arg(runControl->commandLine().executable().toUserOutput()),
                 NormalMessageFormat);
         });
-    }
 
-protected:
-    void addToolArguments(Utils::CommandLine &cmd) const override
-    {
+        CommandLine cmd = defaultValgrindCommand(runControl, m_settings);
         cmd << "--tool=callgrind";
 
         if (m_settings.enableCacheSim())
@@ -144,6 +141,7 @@ protected:
         cmd << "--callgrind-out-file=" + remoteOutputFile().path();
 
         cmd.addArgs(m_settings.callgrindArguments(), CommandLine::Raw);
+        setValgrindCommand(cmd);
     }
 };
 

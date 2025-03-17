@@ -101,8 +101,6 @@ public:
     void stop() final;
 
 private:
-    void addToolArguments(CommandLine &cmd) const final;
-
     void startDebugger(qint64 valgrindPid);
 
     const bool m_withGdb;
@@ -141,29 +139,6 @@ void MemcheckToolRunner::stop()
 {
     m_process.reset();
     ValgrindToolRunner::stop();
-}
-
-void MemcheckToolRunner::addToolArguments(CommandLine &cmd) const
-{
-    cmd << "--tool=memcheck" << "--gen-suppressions=all";
-
-    if (m_settings.trackOrigins())
-        cmd << "--track-origins=yes";
-
-    if (m_settings.showReachable())
-        cmd << "--show-reachable=yes";
-
-    cmd << "--leak-check=" + m_settings.leakCheckOnFinishOptionString();
-
-    for (const FilePath &file : m_settings.suppressions())
-        cmd << QString("--suppressions=%1").arg(file.path());
-
-    cmd << QString("--num-callers=%1").arg(m_settings.numCallers());
-
-    if (m_withGdb)
-        cmd << "--vgdb=yes" << "--vgdb-error=0";
-
-    cmd.addArgs(m_settings.memcheckArguments(), CommandLine::Raw);
 }
 
 void MemcheckToolRunner::startDebugger(qint64 valgrindPid)
@@ -1107,6 +1082,28 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
     }
 
     dd->setupRunControl(runControl, m_settings.suppressions());
+
+    CommandLine cmd = defaultValgrindCommand(runControl, m_settings);
+    cmd << "--tool=memcheck" << "--gen-suppressions=all";
+
+    if (m_settings.trackOrigins())
+        cmd << "--track-origins=yes";
+
+    if (m_settings.showReachable())
+        cmd << "--show-reachable=yes";
+
+    cmd << "--leak-check=" + m_settings.leakCheckOnFinishOptionString();
+
+    for (const FilePath &file : m_settings.suppressions())
+        cmd << QString("--suppressions=%1").arg(file.path());
+
+    cmd << QString("--num-callers=%1").arg(m_settings.numCallers());
+
+    if (m_withGdb)
+        cmd << "--vgdb=yes" << "--vgdb-error=0";
+
+    cmd.addArgs(m_settings.memcheckArguments(), CommandLine::Raw);
+    setValgrindCommand(cmd);
 }
 
 const char heobProfileC[] = "Heob/Profile";
