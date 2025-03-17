@@ -292,7 +292,7 @@ void TextMark::addToToolTipLayout(QGridLayout *target) const
     target->addLayout(contentLayout, row, 1);
 
     // Right column: action icons/button
-    QList<QAction *> actions{m_actions.begin(), m_actions.end()};
+    QList<QAction *> actions;
     if (m_actionsProvider)
         actions = m_actionsProvider();
     if (m_category.id.isValid() && !m_lineAnnotation.isEmpty()) {
@@ -434,16 +434,6 @@ void TextMark::setToolTip(const QString &toolTip)
 {
     m_toolTip = toolTip;
     m_toolTipProvider = std::function<QString()>();
-}
-
-QVector<QAction *> TextMark::actions() const
-{
-    return m_actions;
-}
-
-void TextMark::setActions(const QVector<QAction *> &actions)
-{
-    m_actions = actions;
 }
 
 void TextMark::setActionsProvider(const std::function<QList<QAction *>()> &actionsProvider)
