@@ -414,5 +414,22 @@
         <file>testcases/MoveFuncDefOutsideTest/unnamed-template-param/original_file.cpp</file>
         <file>testcases/MoveFuncDefOutsideTest/member-func-to-outside2/opindex.txt</file>
         <file>testcases/MoveFuncDefOutsideTest/member-func-to-outside3/opindex.txt</file>
+        <file>testcases/WrapStringLiteralTest/byte-array-literal-operator/expected_file.cpp</file>
+        <file>testcases/WrapStringLiteralTest/byte-array-literal-operator/original_file.cpp</file>
+        <file>testcases/WrapStringLiteralTest/latin1-char-literal-operator/expected_file.cpp</file>
+        <file>testcases/WrapStringLiteralTest/latin1-char-literal-operator/original_file.cpp</file>
+        <file>testcases/WrapStringLiteralTest/latin1-char-literal-operator-with-conversion/expected_file.cpp</file>
+        <file>testcases/WrapStringLiteralTest/latin1-char-literal-operator-with-conversion/original_file.cpp</file>
+        <file>testcases/WrapStringLiteralTest/latin1-string-literal-operator/expected_file.cpp</file>
+        <file>testcases/WrapStringLiteralTest/latin1-string-literal-operator/original_file.cpp</file>
+        <file>testcases/WrapStringLiteralTest/string-literal-operator/expected_file.cpp</file>
+        <file>testcases/WrapStringLiteralTest/string-literal-operator/original_file.cpp</file>
+        <file>testcases/WrapStringLiteralTest/string-literal-operator-existing-prefix/expected_file.cpp</file>
+        <file>testcases/WrapStringLiteralTest/string-literal-operator-existing-prefix/original_file.cpp</file>
+        <file>testcases/WrapStringLiteralTest/byte-array-literal-operator/opindex.txt</file>
+        <file>testcases/WrapStringLiteralTest/latin1-char-literal-operator/opindex.txt</file>
+        <file>testcases/WrapStringLiteralTest/latin1-char-literal-operator-with-conversion/opindex.txt</file>
+        <file>testcases/WrapStringLiteralTest/latin1-string-literal-operator/opindex.txt</file>
+        <file>testcases/WrapStringLiteralTest/string-literal-operator/opindex.txt</file>
     </qresource>
 </RCC>
