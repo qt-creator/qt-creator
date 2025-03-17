@@ -418,13 +418,18 @@ static bool shouldOmitElement(const LookupItem &lookupItem, const Scope *scope)
             && lookupItem.type().match(scope->asFunction()->returnType());
 }
 
+struct SourceData
+{
+    Document::Ptr doc;
+    Scope *scope;
+    QString expression;
+};
+
 using namespace std::placeholders;
 using ExecFunction = std::function<QFuture<std::shared_ptr<CppElement>>
             (const CPlusPlus::Snapshot &, const CPlusPlus::LookupItem &,
              const CPlusPlus::LookupContext &)>;
-using SourceFunction = std::function<bool(const CPlusPlus::Snapshot &,
-                                          CPlusPlus::Document::Ptr &,
-                                          CPlusPlus::Scope **, QString &)>;
+using SourceFunction = std::function<std::optional<SourceData>(const CPlusPlus::Snapshot &)>;
 
 static QFuture<std::shared_ptr<CppElement>> createFinishedFuture()
 {
@@ -434,14 +439,15 @@ static QFuture<std::shared_ptr<CppElement>> createFinishedFuture()
     return futureInterface.future();
 }
 
-static LookupItem findLookupItem(const CPlusPlus::Snapshot &snapshot, CPlusPlus::Document::Ptr &doc,
-       Scope *scope, const QString &expression, LookupContext *lookupContext, bool followTypedef)
+static LookupItem findLookupItem(const CPlusPlus::Snapshot &snapshot, const SourceData &sourceData,
+                                 LookupContext *lookupContext, bool followTypedef)
 {
     TypeOfExpression typeOfExpression;
-    typeOfExpression.init(doc, snapshot);
+    typeOfExpression.init(sourceData.doc, snapshot);
     // make possible to instantiate templates
     typeOfExpression.setExpandTemplates(true);
-    const QList<LookupItem> &lookupItems = typeOfExpression(expression.toUtf8(), scope);
+    const QList<LookupItem> &lookupItems = typeOfExpression(sourceData.expression.toUtf8(),
+                                                            sourceData.scope);
     *lookupContext = typeOfExpression.context();
     if (lookupItems.isEmpty())
         return LookupItem();
@@ -452,7 +458,7 @@ static LookupItem findLookupItem(const CPlusPlus::Snapshot &snapshot, CPlusPlus:
     };
 
     for (const LookupItem &item : lookupItems) {
-        if (shouldOmitElement(item, scope))
+        if (shouldOmitElement(item, sourceData.scope))
             continue;
         Symbol *symbol = item.declaration();
         if (!isInteresting(symbol))
@@ -477,15 +483,12 @@ static QFuture<std::shared_ptr<CppElement>> exec(SourceFunction &&sourceFunction
 {
     const Snapshot &snapshot = CppModelManager::snapshot();
 
-    Document::Ptr doc;
-    QString expression;
-    Scope *scope = nullptr;
-    if (!std::invoke(std::forward<SourceFunction>(sourceFunction), snapshot, doc, &scope, expression))
+    const auto inputData = std::invoke(std::forward<SourceFunction>(sourceFunction), snapshot);
+    if (!inputData)
         return createFinishedFuture();
 
     LookupContext lookupContext;
-    const LookupItem &lookupItem = findLookupItem(snapshot, doc, scope, expression, &lookupContext,
-                                                  followTypedef);
+    const LookupItem &lookupItem = findLookupItem(snapshot, *inputData, &lookupContext, followTypedef);
     if (!lookupItem.declaration())
         return createFinishedFuture();
 
@@ -508,18 +511,13 @@ public:
         , m_filePath(filePath)
     {}
 
-    bool operator()(const CPlusPlus::Snapshot &snapshot, Document::Ptr &doc, Scope **scope,
-                    QString &expression)
+    std::optional<SourceData> operator()(const CPlusPlus::Snapshot &snapshot)
     {
-        doc = snapshot.document(m_filePath);
+        Document::Ptr doc = snapshot.document(m_filePath);
         if (doc.isNull())
-            return false;
+            return {};
 
-        expression = m_expression;
-
-        // Fetch the expression's code
-        *scope = doc->globalNamespace();
-        return true;
+        return SourceData{doc, doc->globalNamespace(), m_expression};
     }
 private:
     const QString m_expression;
@@ -540,12 +538,12 @@ public:
         , m_tc(editor->textCursor())
     {}
 
-    bool operator()(const CPlusPlus::Snapshot &snapshot, Document::Ptr &doc, Scope **scope,
-                    QString &expression)
+    std::optional<SourceData> operator()(const CPlusPlus::Snapshot &snapshot)
     {
+        Document::Ptr doc;
         doc = snapshot.document(m_editor->textDocument()->filePath());
         if (!doc)
-            return false;
+            return {};
 
         int line = 0;
         int column = 0;
@@ -555,15 +553,11 @@ public:
         checkDiagnosticMessage(pos);
 
         if (matchIncludeFile(doc, line) || matchMacroInUse(doc, pos))
-            return false;
+            return {};
 
         moveCursorToEndOfIdentifier(&m_tc);
         ExpressionUnderCursor expressionUnderCursor(doc->languageFeatures());
-        expression = expressionUnderCursor(m_tc);
-
-        // Fetch the expression's code
-        *scope = doc->scopeAt(line, column);
-        return true;
+        return SourceData{doc, doc->scopeAt(line, column), expressionUnderCursor(m_tc)};
     }
     QFuture<std::shared_ptr<CppElement>> syncExec(const CPlusPlus::Snapshot &,
                      const CPlusPlus::LookupItem &, const CPlusPlus::LookupContext &);
