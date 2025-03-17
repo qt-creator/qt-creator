@@ -2028,6 +2028,21 @@ PropertyNameList NodeMetaInfo::slotNames(SL sl) const
     }
 }
 
+namespace {
+template<Storage::Info::StaticString moduleName,
+         Storage::Info::StaticString typeName,
+         ModuleKind moduleKind = ModuleKind::QmlLibrary>
+bool isBasedOnCommonType(NotNullPointer<const ProjectStorageType> projectStorage, TypeId typeId)
+{
+    if (!typeId)
+        return false;
+
+    auto base = projectStorage->commonTypeId<moduleName, typeName, moduleKind>();
+
+    return bool(projectStorage->basedOn(typeId, base));
+}
+} // namespace
+
 PropertyName NodeMetaInfo::defaultPropertyName(SL sl) const
 {
     if (!isValid())
@@ -2038,11 +2053,18 @@ PropertyName NodeMetaInfo::defaultPropertyName(SL sl) const
                                    category(),
                                    keyValue("type id", m_typeId),
                                    keyValue("caller location", sl)};
+
+        using namespace Storage::Info;
+
         if (auto name = m_projectStorage->propertyName(defaultPropertyDeclarationId())) {
             tracer.end(keyValue("default property name", name));
             return name->toQByteArray();
         }
 
+        if (typeData().traits.usesCustomParser
+            || isBasedOnCommonType<QML, Component>(m_projectStorage, m_typeId)) {
+            return "data";
+        }
     } else {
         return m_privateData->defaultPropertyName();
     }
@@ -2149,21 +2171,6 @@ NodeMetaInfos NodeMetaInfo::prototypes([[maybe_unused]] SL sl) const
     return hierarchy;
 #endif
 }
-
-namespace {
-template<Storage::Info::StaticString moduleName,
-         Storage::Info::StaticString typeName,
-         ModuleKind moduleKind = ModuleKind::QmlLibrary>
-bool isBasedOnCommonType(NotNullPointer<const ProjectStorageType> projectStorage, TypeId typeId)
-{
-    if (!typeId)
-        return false;
-
-    auto base = projectStorage->commonTypeId<moduleName, typeName, moduleKind>();
-
-    return bool(projectStorage->basedOn(typeId, base));
-}
-} // namespace
 
 bool NodeMetaInfo::defaultPropertyIsComponent() const
 {
