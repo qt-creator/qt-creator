@@ -210,18 +210,13 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
         if (!qmlRuntime.isEmpty())
             return qmlRuntime;
     }
-    auto hasDeployStep = [this] {
-        return target()->activeDeployConfiguration() &&
-            !target()->activeDeployConfiguration()->stepList()->isEmpty();
-    };
 
     // The Qt version might know, but we need to make sure
     // that the device can reach it.
     if (QtVersion *version = QtKitAspect::qtVersion(kit)) {
         // look for QML Puppet as qmlruntime only in QtStudio Qt versions
-        if (version->features().contains("QtStudio") &&
-            version->qtVersion().majorVersion() > 5 && !hasDeployStep()) {
-
+        if (version->features().contains("QtStudio") && version->qtVersion().majorVersion() > 5
+            && dev->rootPath().isLocal()) {
             auto [workingDirectoryPath, puppetPath] = QmlDesigner::QmlPuppetPaths::qmlPuppetPaths(
                         target(), QmlDesigner::QmlDesignerBasePlugin::settings());
             if (!puppetPath.isEmpty()) {
