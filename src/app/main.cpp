@@ -66,6 +66,7 @@ const char fixedOptionsC[]
       "    -help                         Display this help\n"
       "    -version                      Display program version\n"
       "    -client                       Attempt to connect to already running first instance\n"
+      "    -clientid                     A postfix for the ID used by -client\n"
       "    -settingspath <path>          Override the default path where user settings are stored\n"
       "    -installsettingspath <path>   Override the default path from where user-independent "
       "settings are read\n"
@@ -82,6 +83,7 @@ const char HELP_OPTION4[] = "--help";
 const char VERSION_OPTION[] = "-version";
 const char VERSION_OPTION2[] = "--version";
 const char CLIENT_OPTION[] = "-client";
+const char CLIENTID_OPTION[] = "-clientid";
 const char SETTINGS_OPTION[] = "-settingspath";
 const char INSTALL_SETTINGS_OPTION[] = "-installsettingspath";
 const char TEST_OPTION[] = "-test";
@@ -370,6 +372,10 @@ Options parseCommandLine(int argc, char *argv[])
         } else if (arg == TEMPORARY_CLEAN_SETTINGS1 || arg == TEMPORARY_CLEAN_SETTINGS2) {
             options.wantsCleanSettings = true;
             options.preAppArguments << arg;
+        } else if (arg == CLIENTID_OPTION && hasNext) {
+            ++it;
+            options.singleAppIdPostfix = nextArg;
+            options.preAppArguments << arg << nextArg;
         } else { // arguments that are still passed on to the application
             if (arg == STYLE_OPTION)
                 options.hasStyleOption = true;
