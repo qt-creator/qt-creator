@@ -187,8 +187,17 @@ class Storage final : public StorageBase
 {
 public:
     Storage() : StorageBase(Storage::ctor(), Storage::dtor()) {}
-    Storage(const StorageStruct &data)
-        : StorageBase([data] { return new StorageStruct(data); }, Storage::dtor()) {}
+#ifdef __cpp_init_captures // C++20
+    template <typename ...Args>
+    Storage(const Args &...args)
+        : StorageBase([...args = args] { return new StorageStruct(args...); }, Storage::dtor()) {}
+#else // C++17
+    template <typename ...Args>
+    Storage(const Args &...args)
+        : StorageBase([args = std::tuple(args...)] {
+            return std::apply([](const Args &...args) { return new StorageStruct(args...); }, args);
+        }, Storage::dtor()) {}
+#endif
     StorageStruct &operator*() const noexcept { return *activeStorage(); }
     StorageStruct *operator->() const noexcept { return activeStorage(); }
     StorageStruct *activeStorage() const {
