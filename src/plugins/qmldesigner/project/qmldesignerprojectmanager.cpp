@@ -390,6 +390,7 @@ namespace {
         qmldirPaths.push_back(qmlRootPath + "/QtQuick");
         qmldirPaths.push_back(qmlRootPath + "/QtQuick3D");
         qmldirPaths.push_back(qmlRootPath + "/Qt5Compat");
+        qmldirPaths.push_back(qmlRootPath + "/QtMultimedia");
     }
 }
 
