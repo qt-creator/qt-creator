@@ -110,7 +110,8 @@ void QmlProfilerRunner::start()
 
         infoBox->show();
     }, Qt::QueuedConnection); // Queue any connection failures after reportStarted()
-    clientManager->connectToServer(runControl()->qmlChannel());
+    clientManager->setServer(runControl()->qmlChannel());
+    clientManager->connectToServer();
 
     reportStarted();
 }

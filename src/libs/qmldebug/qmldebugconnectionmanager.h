@@ -19,7 +19,9 @@ public:
     explicit QmlDebugConnectionManager(QObject *parent = nullptr);
     ~QmlDebugConnectionManager() override;
 
-    void connectToServer(const QUrl &server);
+    void setServer(const QUrl &server);
+
+    void connectToServer();
     void disconnectFromServer();
 
     bool isConnecting() const;

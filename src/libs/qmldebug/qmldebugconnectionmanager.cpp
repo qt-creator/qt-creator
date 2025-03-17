@@ -23,16 +23,18 @@ QmlDebugConnectionManager::~QmlDebugConnectionManager()
         disconnectConnectionSignals();
 }
 
-void QmlDebugConnectionManager::connectToServer(const QUrl &server)
+void QmlDebugConnectionManager::setServer(const QUrl &server)
 {
-    if (m_server != server) {
-        m_server = server;
-        destroyConnection();
-        stopConnectionTimer();
-    }
-    if (server.scheme() == Utils::urlTcpScheme())
+    m_server = server;
+}
+
+void QmlDebugConnectionManager::connectToServer()
+{
+    destroyConnection();
+    stopConnectionTimer();
+    if (m_server.scheme() == Utils::urlTcpScheme())
         connectToTcpServer();
-    else if (server.scheme() == Utils::urlSocketScheme())
+    else if (m_server.scheme() == Utils::urlSocketScheme())
         startLocalServer();
     else
         QTC_ASSERT(false, emit connectionFailed());
