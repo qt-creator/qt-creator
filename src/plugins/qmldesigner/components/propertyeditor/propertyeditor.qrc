@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/materialeditor">
+    <qresource prefix="/propertyeditor">
         <file>images/defaultmaterialpreview.png</file>
     </qresource>
 </RCC>

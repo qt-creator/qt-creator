@@ -42,7 +42,6 @@
       <splitter count="2" orientation="Vertical">
         <area current="Properties" tabs="4">
           <widget closed="false" name="Properties"/>
-          <widget closed="false" name="MaterialEditor"/>
           <widget closed="false" name="TextureEditor"/>
           <widget closed="true" name="ConnectionView"/>
         </area>

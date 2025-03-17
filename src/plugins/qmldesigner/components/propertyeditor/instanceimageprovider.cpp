@@ -32,7 +32,7 @@ QPixmap InstanceImageProvider::requestPixmap(const QString &id, QSize *size, con
 {
     using namespace Qt::StringLiterals;
     static const QPixmap defaultImage = QPixmap::fromImage(
-        QImage(":/materialeditor/images/defaultmaterialpreview.png"));
+        QImage(":/propertyeditor/images/defaultmaterialpreview.png"));
 
     if (id != "preview")
         return defaultImage;

@@ -82,7 +82,6 @@ WidgetInfo MaterialBrowserView::widgetInfo()
     if (m_widget.isNull()) {
         m_widget = new MaterialBrowserWidget(m_imageCache, this);
 
-        // custom notifications below are sent to the MaterialEditor
         MaterialBrowserModel *matBrowserModel = m_widget->materialBrowserModel().data();
 
         connect(matBrowserModel, &MaterialBrowserModel::applyToSelectedTriggered, this,

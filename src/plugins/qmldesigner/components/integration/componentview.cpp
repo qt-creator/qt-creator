@@ -185,21 +185,12 @@ void ComponentView::ensureMatLibTriggered()
         return;
 
     bool texSelected = Utils3D::selectedTexture(this).isValid();
-    bool matSelected = Utils3D::selectedMaterial(this).isValid();
-    if (!texSelected || !matSelected) {
+    if (!texSelected) {
         const QList<ModelNode> matLibNodes = matLib.directSubModelNodes();
         for (const ModelNode &node : matLibNodes) {
-            if (!texSelected && node.metaInfo().isQtQuick3DTexture()) {
+            if (node.metaInfo().isQtQuick3DTexture()) {
                 Utils3D::selectTexture(node);
-                if (matSelected)
-                    break;
-                texSelected = true;
-            }
-            if (!matSelected && node.metaInfo().isQtQuick3DMaterial()) {
-                Utils3D::selectMaterial(node);
-                if (texSelected)
-                    break;
-                matSelected = true;
+                break;
             }
         }
     }
@@ -294,9 +285,7 @@ void ComponentView::nodeIdChanged(const ModelNode& node, const QString& newId, c
     };
 
     auto metaInfo = node.metaInfo();
-    if (metaInfo.isQtQuick3DMaterial())
-        maybeSetAuxData(Utils3D::matLibSelectedMaterialProperty);
-    else if (metaInfo.isQtQuick3DTexture())
+    if (metaInfo.isQtQuick3DTexture())
         maybeSetAuxData(Utils3D::matLibSelectedTextureProperty);
 }
 

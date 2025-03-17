@@ -181,8 +181,7 @@ QAction *Edit3DMaterialsAction::createMaterialAction(const ModelNode &material,
 
     QAction *editMaterialAction = new QAction(tr("Edit"), menu);
     connect(editMaterialAction, &QAction::triggered, menu, [material] {
-        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor", true);
-        Utils3D::selectMaterial(material);
+        Utils3D::openNodeInPropertyEditor(material);
     });
 
     menu->addAction(editMaterialAction);

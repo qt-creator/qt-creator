@@ -1160,6 +1160,18 @@ void PropertyEditorView::setActiveNodeToSelection()
         setActiveNode(node);
 }
 
+void PropertyEditorView::forceSelection(const ModelNode &node)
+{
+    if (node == activeNode())
+        return;
+
+    if (m_isSelectionLocked)
+        setActiveNode(node);
+    ModelNode(node).selectNode();
+
+    resetView();
+}
+
 bool PropertyEditorView::hasWidget() const
 {
     return true;
@@ -1258,6 +1270,17 @@ void PropertyEditorView::importsChanged(const Imports &addedImports, const Impor
         m_qmlBackEndForCurrentType->contextObject()->setHasQuick3DImport(false);
     else if (Utils::contains(addedImports, quick3dImport, &Import::url))
         m_qmlBackEndForCurrentType->contextObject()->setHasQuick3DImport(true);
+}
+
+void PropertyEditorView::customNotification([[maybe_unused]] const AbstractView *view,
+                                            const QString &identifier,
+                                            const QList<ModelNode> &nodeList,
+                                            [[maybe_unused]] const QList<QVariant> &data)
+{
+    if (identifier == "force_editing_node") {
+        if (!nodeList.isEmpty())
+            forceSelection(nodeList.first());
+    }
 }
 
 void PropertyEditorView::modelNodePreviewPixmapChanged(const ModelNode &node,

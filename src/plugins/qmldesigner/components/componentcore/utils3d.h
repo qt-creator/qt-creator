@@ -15,8 +15,6 @@ namespace Utils3D {
 
 inline constexpr AuxiliaryDataKeyView active3dSceneProperty{AuxiliaryDataType::Temporary,
                                                             "active3dScene"};
-inline constexpr AuxiliaryDataKeyView matLibSelectedMaterialProperty{AuxiliaryDataType::Temporary,
-                                                                     "matLibSelMat"};
 inline constexpr AuxiliaryDataKeyView matLibSelectedTextureProperty{AuxiliaryDataType::Temporary,
                                                                     "matLibSelTex"};
 
@@ -35,9 +33,7 @@ ModelNode getMaterialOfModel(const ModelNode &model, int idx = 0);
 
 // These methods handle selection of material library items for various material library views.
 // This is separate selection from the normal selection handling.
-void selectMaterial(const ModelNode &material);
 void selectTexture(const ModelNode &texture);
-ModelNode selectedMaterial(AbstractView *view);
 ModelNode selectedTexture(AbstractView *view);
 
 ModelNode resolveSceneEnv(AbstractView *view, int sceneId);
@@ -49,6 +45,8 @@ void applyMaterialToModels(AbstractView *view, const ModelNode &material,
                            const QList<ModelNode> &models, bool add = false);
 
 void assignTextureAsLightProbe(AbstractView *view, const ModelNode &texture, int sceneId);
+
+void openNodeInPropertyEditor(const ModelNode &node);
 
 #ifdef QDS_USE_PROJECTSTORAGE
 ModelNode createMaterial(AbstractView *view, const TypeName &typeName);

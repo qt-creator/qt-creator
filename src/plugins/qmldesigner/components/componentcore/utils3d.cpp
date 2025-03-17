@@ -3,6 +3,7 @@
 
 #include "utils3d.h"
 
+#include <designmodewidget.h>
 #include <itemlibraryentry.h>
 #include <modelutils.h>
 #include <nodeabstractproperty.h>
@@ -186,32 +187,12 @@ ModelNode getMaterialOfModel(const ModelNode &model, int idx)
     return mat;
 }
 
-void selectMaterial(const ModelNode &material)
-{
-    if (material.metaInfo().isQtQuick3DMaterial()) {
-        material.model()->rootModelNode().setAuxiliaryData(Utils3D::matLibSelectedMaterialProperty,
-                                                           material.id());
-    }
-}
-
 void selectTexture(const ModelNode &texture)
 {
     if (texture.metaInfo().isQtQuick3DTexture()) {
         texture.model()->rootModelNode().setAuxiliaryData(Utils3D::matLibSelectedTextureProperty,
                                                           texture.id());
     }
-}
-
-ModelNode selectedMaterial(AbstractView *view)
-{
-    if (!view)
-        return {};
-
-    ModelNode root = view->rootModelNode();
-
-    if (auto selectedProperty = root.auxiliaryData(Utils3D::matLibSelectedMaterialProperty))
-        return view->modelNodeForId(selectedProperty->toString());
-    return {};
 }
 
 ModelNode selectedTexture(AbstractView *view)
@@ -595,6 +576,13 @@ void duplicateMaterial(AbstractView *view, const ModelNode &material)
             }
         });
     }
+}
+
+void openNodeInPropertyEditor(const ModelNode &node)
+{
+    QTC_ASSERT(node, return);
+    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("PropertyEditor", true);
+    node.view()->emitCustomNotification("force_editing_node", {node}); // To PropertyEditor
 }
 
 } // namespace Utils3D

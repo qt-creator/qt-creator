@@ -78,7 +78,8 @@ public:
                           QSize *size,
                           [[maybe_unused]] const QSize &requestedSize) override
     {
-        static QPixmap defaultPreview = QPixmap::fromImage(QImage(":/materialeditor/images/defaultmaterialpreview.png"));
+        static QPixmap defaultPreview = QPixmap::fromImage(
+            QImage(":/propertyeditor/images/defaultmaterialpreview.png"));
 
         QPixmap pixmap{150, 150};
 

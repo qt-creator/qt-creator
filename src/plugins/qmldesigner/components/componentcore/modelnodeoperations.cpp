@@ -1001,10 +1001,8 @@ void editMaterial(const SelectionContext &selectionContext)
         }
     }
 
-    if (material.isValid()) {
-        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor", true);
-        Utils3D::selectMaterial(material);
-    }
+    if (material.isValid())
+        Utils3D::openNodeInPropertyEditor(material);
 }
 
 void addItemToStackedContainer(const SelectionContext &selectionContext)

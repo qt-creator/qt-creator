@@ -559,9 +559,8 @@ void TextureEditorView::commitAuxValueToModel(PropertyNameView propertyName, con
 void TextureEditorView::removePropertyFromModel(PropertyNameView propertyName)
 {
     m_locked = true;
-    executeInTransaction("MaterialEditorView:removePropertyFromModel", [&] {
-        QmlObjectNode(m_selectedTexture).removeProperty(propertyName);
-    });
+    executeInTransaction(__FUNCTION__,
+                         [&] { QmlObjectNode(m_selectedTexture).removeProperty(propertyName); });
     m_locked = false;
 }
 

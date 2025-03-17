@@ -83,6 +83,10 @@ public:
                                        const QByteArray &requestId) override;
 
     void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
+    void customNotification(const AbstractView *view,
+                            const QString &identifier,
+                            const QList<ModelNode> &nodeList,
+                            const QList<QVariant> &data) override;
 
     void dragStarted(QMimeData *mimeData) override;
     void dragEnded() override;
@@ -123,6 +127,7 @@ private: //functions
 
     void select();
     void setActiveNodeToSelection();
+    void forceSelection(const ModelNode &node);
 
     void delayedResetView();
     void setupQmlBackend();

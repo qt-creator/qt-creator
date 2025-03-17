@@ -19,7 +19,8 @@ void TextureEditorTransaction::start()
         return;
     if (m_rewriterTransaction.isValid())
         m_rewriterTransaction.commit();
-    m_rewriterTransaction = m_textureEditor->beginRewriterTransaction(QByteArrayLiteral("MaterialEditorTransaction::start"));
+    m_rewriterTransaction = m_textureEditor->beginRewriterTransaction(
+        QByteArrayLiteral("TextureEditorTransaction::start"));
     m_timerId = startTimer(10000);
 }
 
