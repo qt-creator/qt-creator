@@ -9,6 +9,9 @@
 #include "qmlpreviewfileontargetfinder.h"
 
 #include <qmldebug/qmldebugconnectionmanager.h>
+
+#include <solutions/tasking/tasktree.h>
+
 #include <utils/fileinprojectfinder.h>
 #include <utils/filesystemwatcher.h>
 
@@ -57,5 +60,29 @@ private:
     QmlPreviewFpsHandler m_fpsHandler = nullptr;
     QmlDebugTranslationClientFactoryFunction m_createDebugTranslationClientMethod;
 };
+
+class QmlPreviewConnectionManagerTaskAdapter : public Tasking::TaskAdapter<QmlPreviewConnectionManager>
+{
+public:
+    QmlPreviewConnectionManagerTaskAdapter()
+    {
+        connect(task(), &QmlPreviewConnectionManager::connectionClosed, this, [this] {
+            emit done(Tasking::DoneResult::Success);
+        });
+        connect(task(), &QmlPreviewConnectionManager::connectionFailed, this, [this] {
+            emit done(Tasking::DoneResult::Error);
+        });
+    }
+
+    ~QmlPreviewConnectionManagerTaskAdapter()
+    {
+        task()->disconnectFromServer();
+    }
+
+private:
+    void start() final { task()->connectToServer(); }
+};
+
+using QmlPreviewConnectionManagerTask = Tasking::CustomTask<QmlPreviewConnectionManagerTaskAdapter>;
 
 } // namespace QmlPreview
