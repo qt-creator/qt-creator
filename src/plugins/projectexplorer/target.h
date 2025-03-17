@@ -71,9 +71,6 @@ public:
     void updateDefaultBuildConfigurations();
     void updateDefaultRunConfigurations();
 
-    QVariant namedSettings(const Utils::Key &name) const;
-    void setNamedSettings(const Utils::Key &name, const QVariant &value);
-
     ProjectConfigurationModel *buildConfigurationModel() const;
 
     void setActiveBuildConfiguration(BuildConfiguration *bc, SetActive cascade);

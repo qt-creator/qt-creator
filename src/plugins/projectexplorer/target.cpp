@@ -36,8 +36,6 @@ const char ACTIVE_BC_KEY[] = "ProjectExplorer.Target.ActiveBuildConfiguration";
 const char BC_KEY_PREFIX[] = "ProjectExplorer.Target.BuildConfiguration.";
 const char BC_COUNT_KEY[] = "ProjectExplorer.Target.BuildConfigurationCount";
 
-const char PLUGIN_SETTINGS_KEY[] = "ProjectExplorer.Target.PluginSettings";
-
 const char HAS_PER_BC_DCS[] = "HasPerBcDcs";
 
 static QString formatDeviceInfo(const IDevice::DeviceInfo &input)
@@ -63,7 +61,6 @@ public:
     QIcon m_overlayIcon;
     QList<BuildConfiguration *> m_buildConfigurations;
     QPointer<BuildConfiguration> m_activeBuildConfiguration;
-    Store m_pluginSettings;
     Kit *const m_kit;
     ProjectConfigurationModel m_buildConfigurationModel;
     bool m_shuttingDown = false;
@@ -341,9 +338,6 @@ Store Target::toMap() const
     d->m_activeBuildConfiguration->storeConfigurationsToMap(map);
     map.insert(HAS_PER_BC_DCS, true);
 
-    if (!d->m_pluginSettings.isEmpty())
-        map.insert(PLUGIN_SETTINGS_KEY, variantFromStore(d->m_pluginSettings));
-
     return map;
 }
 
@@ -364,19 +358,6 @@ void Target::updateDefaultRunConfigurations()
 {
     for (BuildConfiguration * const bc : std::as_const(d->m_buildConfigurations))
         bc->updateDefaultRunConfigurations();
-}
-
-QVariant Target::namedSettings(const Key &name) const
-{
-    return d->m_pluginSettings.value(name);
-}
-
-void Target::setNamedSettings(const Key &name, const QVariant &value)
-{
-    if (value.isNull())
-        d->m_pluginSettings.remove(name);
-    else
-        d->m_pluginSettings.insert(name, value);
 }
 
 ProjectConfigurationModel *Target::buildConfigurationModel() const
@@ -424,9 +405,6 @@ bool Target::fromMap(const Store &map)
 
     if (!addConfigurationsFromMap(map, /*setActiveConfigurations=*/true))
         return false;
-
-    if (map.contains(PLUGIN_SETTINGS_KEY))
-        d->m_pluginSettings = storeFromVariant(map.value(PLUGIN_SETTINGS_KEY));
 
     return true;
 }
