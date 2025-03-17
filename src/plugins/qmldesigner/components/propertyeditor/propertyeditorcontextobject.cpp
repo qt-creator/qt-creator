@@ -693,6 +693,16 @@ void PropertyEditorContextObject::handleToolBarAction(int action)
     emit toolBarAction(action);
 }
 
+void PropertyEditorContextObject::saveExpandedState(const QString &sectionName, bool expanded)
+{
+    s_expandedStateHash.insert(sectionName, expanded);
+}
+
+bool PropertyEditorContextObject::loadExpandedState(const QString &sectionName, bool defaultValue) const
+{
+    return s_expandedStateHash.value(sectionName, defaultValue);
+}
+
 void EasingCurveEditor::registerDeclarativeType()
 {
      qmlRegisterType<EasingCurveEditor>("HelperWidgets", 2, 0, "EasingCurveEditor");

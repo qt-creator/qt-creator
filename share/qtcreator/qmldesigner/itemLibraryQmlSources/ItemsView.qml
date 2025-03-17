@@ -247,7 +247,7 @@ Item {
                                                      : StudioTheme.Values.themeTextColor
                         leftPadding: 0
                         rightPadding: 0
-                        expanded: importExpanded
+                        defaultExpanded: importExpanded
                         expandOnClick: false
                         useDefaulContextMenu: false
                         category: "ItemsView"
@@ -278,7 +278,7 @@ Item {
                                     addBottomPadding: index !== categoryModel.rowCount() - 1
                                     caption: displayNMame + " (" + itemModel.rowCount() + ")"
                                     visible: categoryVisible
-                                    expanded: categoryExpanded
+                                    defaultExpanded: categoryExpanded
                                     expandOnClick: false
                                     onToggleExpand: categoryExpanded = !categoryExpanded
                                     useDefaulContextMenu: false
@@ -362,7 +362,7 @@ Item {
                                                          : StudioTheme.Values.themeTextColor
                             leftPadding: 0
                             rightPadding: 0
-                            expanded: importExpanded
+                            defaultExpanded: importExpanded
                             expandOnClick: false
                             useDefaulContextMenu: false
                             category: "ItemsView"

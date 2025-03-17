@@ -142,15 +142,15 @@ PropertyEditorPane {
             }
 
             EffectsSection {
-                expanded: false
+                defaultExpanded: false
             }
 
             AdvancedSection {
-                expanded: false
+                defaultExpanded: false
             }
 
             LayerSection {
-                expanded: false
+                defaultExpanded: false
             }
         }
 

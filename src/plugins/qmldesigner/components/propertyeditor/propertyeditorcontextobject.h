@@ -104,6 +104,9 @@ public:
 
     Q_INVOKABLE void handleToolBarAction(int action);
 
+    Q_INVOKABLE void saveExpandedState(const QString &sectionName, bool expanded);
+    Q_INVOKABLE bool loadExpandedState(const QString &sectionName, bool defaultValue) const;
+
     enum ToolBarAction { SelectionLock, SelectionUnlock };
     Q_ENUM(ToolBarAction)
 
@@ -241,6 +244,8 @@ private:
     QStringList m_insightCategories;
 
     ModelNodes m_editorNodes; // Nodes that are being edited by PropertyEditor
+
+    inline static QHash<QString, bool> s_expandedStateHash;
 };
 
 class EasingCurveEditor : public QObject
