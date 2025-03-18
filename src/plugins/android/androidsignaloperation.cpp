@@ -62,6 +62,7 @@ void AndroidSignalOperation::signalOperationViaADB(qint64 pid, int signal)
     const auto onDone = [this, storage] { emit finished(storage->result); };
 
     const Group recipe {
+        storage,
         ProcessTask(onCatSetup, onCatDone).withTimeout(5s),
         ProcessTask(onKillSetup, onKillDone).withTimeout(5s),
         onGroupDone(onDone)
