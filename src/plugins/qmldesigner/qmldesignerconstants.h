@@ -153,6 +153,16 @@ inline constexpr char EVENT_DESIGNVIEWER_PROJECT_THUMBNAIL_DELETED[]
     = "DesignViewerProjectThumbnailDeleted";
 inline constexpr char EVENT_DESIGNVIEWER_PROJECT_THUMBNAIL_DOWNLOADED[]
     = "DesignViewerProjectThumbnailDownloaded";
+inline constexpr char EVENT_DEVICE_MANAGER_ANDROID_SET_ALIAS[] = "DeviceManagerAndroidSetAlias";
+inline constexpr char EVENT_DEVICE_MANAGER_ANDROID_SET_ACTIVE[] = "DeviceManagerAndroidSetActive";
+inline constexpr char EVENT_DEVICE_MANAGER_ANDROID_SET_DEVICE_IP[]
+    = "DeviceManagerAndroidSetDeviceIP";
+inline constexpr char EVENT_DEVICE_MANAGER_ANDROID_ADD_DEVICE[] = "DeviceManagerAndroidAddDevice";
+inline constexpr char EVENT_DEVICE_MANAGER_ANDROID_REMOVE_DEVICE[]
+    = "DeviceManagerAndroidRemoveDevice";
+inline constexpr char EVENT_DEVICE_MANAGER_ANDROID_RUN_PROJECT[] = "DeviceManagerAndroidRunProject";
+inline constexpr char EVENT_DEVICE_MANAGER_ANDROID_STOP_PROJECT[]
+    = "DeviceManagerAndroidStopProject";
 
 inline constexpr char PROPERTY_EDITOR_CLASSNAME_PROPERTY[] = "__classNamePrivateInternal";
 
