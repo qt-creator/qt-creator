@@ -99,9 +99,7 @@ QmlPreviewRunWorkerFactory::QmlPreviewRunWorkerFactory(QmlPreviewPlugin *plugin,
                                                        const QmlPreviewRunnerSetting *runnerSettings)
 {
     setProducer([plugin, runnerSettings](RunControl *runControl) {
-        auto qmlPreviewRunner = new RecipeRunner(runControl);
-        qmlPreviewRunner->setRecipe(qmlPreviewRecipe(runControl, plugin, *runnerSettings));
-        return qmlPreviewRunner;
+        return new RecipeRunner(runControl, qmlPreviewRecipe(runControl, plugin, *runnerSettings));
     });
     addSupportedRunMode(Constants::QML_PREVIEW_RUNNER);
 }

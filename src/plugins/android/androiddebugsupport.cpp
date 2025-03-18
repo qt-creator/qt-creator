@@ -96,8 +96,7 @@ public:
             rp.setSkipDebugServer(true);
             rp.setLldbPlatform("remote-android");
 
-            auto androidRunner = new RecipeRunner(runControl);
-            androidRunner->setRecipe(androidRecipe(runControl));
+            auto androidRunner = new RecipeRunner(runControl, androidRecipe(runControl));
             debugger->addStartDependency(androidRunner);
 
             BuildConfiguration *bc = runControl->buildConfiguration();

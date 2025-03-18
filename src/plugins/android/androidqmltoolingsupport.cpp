@@ -19,8 +19,7 @@ public:
     AndroidQmlToolingSupportFactory()
     {
         setProducer([](RunControl *runControl) {
-            auto androidRunner = new RecipeRunner(runControl);
-            androidRunner->setRecipe(androidRecipe(runControl));
+            auto androidRunner = new RecipeRunner(runControl, androidRecipe(runControl));
 
             auto extraWorker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
             extraWorker->addStartDependency(androidRunner);

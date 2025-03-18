@@ -195,8 +195,7 @@ public:
                 debuggeeRunner->setCommandLine(cmd);
             });
 
-            auto slog2InfoRunner = new RecipeRunner(runControl);
-            slog2InfoRunner->setRecipe(slog2InfoRecipe(runControl));
+            auto slog2InfoRunner = new RecipeRunner(runControl, slog2InfoRecipe(runControl));
             debuggeeRunner->addStartDependency(slog2InfoRunner);
 
             debugger->addStartDependency(debuggeeRunner);

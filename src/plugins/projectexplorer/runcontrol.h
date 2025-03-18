@@ -324,10 +324,9 @@ class PROJECTEXPLORER_EXPORT RecipeRunner final : public RunWorker
     Q_OBJECT
 
 public:
-    explicit RecipeRunner(RunControl *runControl)
-        : RunWorker(runControl) {}
-
-    void setRecipe(const Tasking::Group &recipe) { m_recipe = recipe; }
+    RecipeRunner(RunControl *runControl, const Tasking::Group &recipe)
+        : RunWorker(runControl), m_recipe(recipe)
+    {}
 
 signals:
     void canceled();
@@ -337,7 +336,7 @@ private:
     void stop() final;
 
     Tasking::TaskTreeRunner m_taskTreeRunner;
-    Tasking::Group m_recipe = {};
+    const Tasking::Group m_recipe;
 };
 
 } // namespace ProjectExplorer
