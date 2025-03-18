@@ -290,6 +290,16 @@ You can also point Qt Creator to a separate installation of `perfparser` by
 setting the `PERFPROFILER_PARSER_FILEPATH` environment variable to the full
 path to the executable.
 
+### Partial building of executables and plugins
+
+Set the following CMake definitions in order to configure and build only
+parts of Qt Creator. Note that dependencies are not automatically handled.
+```
+-DBUILD_EXECUTABLES:STRING=QtCreator;ClangBackend;qtcreator_processlauncher
+```
+```
+-DBUILD_PLUGINS:STRING=Core;TextEditor;ProjectExplorer;CppTools;CppEditor;QmakeProjectManager;CMakeProjectManager;Debugger;ResourceEditor;QtSupport;LanguageClient
+```
 ## Getting LLVM/Clang for the Clang Code Model
 
 The Clang code model uses `Clangd` and the ClangFormat plugin depends on the
