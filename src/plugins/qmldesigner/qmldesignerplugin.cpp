@@ -260,6 +260,11 @@ QmlDesignerPlugin::~QmlDesignerPlugin()
 ////////////////////////////////////////////////////
 bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString * /*errorMessage*/)
 {
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto specialSnapshotName = QGuiApplication::applicationDisplayName() + "(PROJECTSTORAGE)";
+    QGuiApplication::setApplicationDisplayName(specialSnapshotName);
+#endif
+
     if constexpr (isUsingQmlDesignerLite()) {
         if (!QmlDesignerBasePlugin::isLiteModeEnabled()) {
             QMessageBox::warning(Core::ICore::dialogParent(),
@@ -641,6 +646,7 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
                          [postfix](const Utils::FilePath &p) {
                            return (p / postfix).toFSPathString();
                          });
+
 
 #ifndef QDS_USE_PROJECTSTORAGE
     MetaInfo::initializeGlobal(pluginPaths, d->externalDependencies);
