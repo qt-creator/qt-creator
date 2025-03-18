@@ -92,6 +92,7 @@
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
 #include <utils/statuslabel.h>
+#include <utils/stringutils.h>
 #include <utils/styledbar.h>
 #include <utils/temporarydirectory.h>
 #include <utils/utilsicons.h>
@@ -429,6 +430,27 @@ QAction *addCheckableAction(const QObject *parent, QMenu *menu, const QString &d
     act->setCheckable(true);
     act->setChecked(checked);
     return act;
+}
+
+void addStandardActions(QWidget *treeView, QMenu *menu)
+{
+    BaseTreeView *view = qobject_cast<BaseTreeView *>(treeView);
+    QTC_ASSERT(treeView, return);
+    QTC_ASSERT(menu, return);
+
+    menu->addSeparator();
+
+    addAction(view, menu, Tr::tr("Copy Selected Items to Clipboard"), true, [view] {
+        setClipboardAndSelection(view->selectionAsText());
+    });
+
+    addAction(view, menu, Tr::tr("Copy Selected Items to New Editor"), true, [view] {
+        openTextEditor("View", view->selectionAsText());
+    });
+
+    menu->addSeparator();
+
+    menu->addAction(settings().settingsDialog.action());
 }
 
 ///////////////////////////////////////////////////////////////////////

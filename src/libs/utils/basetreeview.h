@@ -60,6 +60,8 @@ public:
     // column is set.
     void refreshSpanColumn();
 
+    QString selectionAsText() const;
+
 signals:
     void aboutToShow();
 

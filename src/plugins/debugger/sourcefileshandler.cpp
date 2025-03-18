@@ -4,6 +4,7 @@
 #include "sourcefileshandler.h"
 
 #include "debuggeractions.h"
+#include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggertr.h"
 
@@ -113,7 +114,8 @@ bool SourceFilesHandler::setData(const QModelIndex &idx, const QVariant &data, i
                 addAction(Tr::tr("Open File \"%1\"").arg(name), true,
                           [this, name] { m_engine->gotoLocation(FilePath::fromString(name)); });
 
-            menu->addAction(settings().settingsDialog.action());
+            addStandardActions(ev.view(), menu);
+
             menu->popup(ev.globalPos());
             return true;
         }
