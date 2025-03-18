@@ -51,7 +51,4 @@ public:
     }
 };
 
-extern DEBUGGER_EXPORT const char DebugServerRunnerWorkerId[];
-extern DEBUGGER_EXPORT const char GdbServerPortGathererWorkerId[];
-
 } // Debugger
