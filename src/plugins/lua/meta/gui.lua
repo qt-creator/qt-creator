@@ -214,6 +214,13 @@ local toolBar = {}
 ---@return ToolBar
 function gui.ToolBar(options) end
 
+---@class ToolButton : Widget
+local toolButton = {}
+
+---@param options WidgetOptions
+---@return ToolButton
+function gui.ToolButton(options) end
+
 ---@class TabWidget : Widget
 local tabWidget = {}
 

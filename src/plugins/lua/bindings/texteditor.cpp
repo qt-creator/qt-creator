@@ -412,6 +412,13 @@ void setupTextEditorModule()
                 QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
                 return addEmbeddedWidget(textEditor, toWidget(widget), position);
             },
+            "insertExtraToolBarWidget",
+            [](const TextEditorPtr &textEditor,
+               TextEditorWidget::Side side,
+               LayoutOrWidget widget) {
+                QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
+                textEditor->editorWidget()->insertExtraToolBarWidget(side, toWidget(widget));
+            },
             "setRefactorMarker",
             [pluginSpec, activeMarkers](
                 const TextEditorPtr &textEditor,
@@ -460,6 +467,11 @@ void setupTextEditorModule()
                     throw sol::error("TextEditor is not valid"));
                 return textEditor->editorWidget()->hasFocus();
             });
+
+        result["Side"] = lua.create_table_with(
+                "Left", TextEditorWidget::Left,
+                "Right", TextEditorWidget::Right
+            );
 
         result.new_usertype<TextSuggestion::Data>(
             "Suggestion",

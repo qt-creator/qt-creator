@@ -119,6 +119,7 @@ CREATE_HAS_FUNC(setViewportMargins, int(), int(), int(), int());
 CREATE_HAS_FUNC(setCursor, Qt::CursorShape())
 CREATE_HAS_FUNC(setMinimumWidth, int());
 CREATE_HAS_FUNC(setEnableCodeCopyButton, bool());
+CREATE_HAS_FUNC(setDefaultAction, nullptr);
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
@@ -151,6 +152,12 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         const auto enableCodeCopyButton = children.get<sol::optional<bool>>("enableCodeCopyButton");
         if (enableCodeCopyButton)
             item->setEnableCodeCopyButton(*enableCodeCopyButton);
+    }
+
+    if constexpr (has_setDefaultAction<T>) {
+        const auto defaultAction = children.get<sol::optional<QAction *>>("defaultAction"sv);
+        if (defaultAction)
+            item->setDefaultAction(*defaultAction);
     }
 
     if constexpr (has_setVisible<T>) {
@@ -672,6 +679,14 @@ void setupGuiModule()
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<ToolBar>(children, guard);
+            }),
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+        gui.new_usertype<ToolButton>(
+            "ToolButton",
+            sol::call_constructor,
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<ToolButton>(children, guard);
             }),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
