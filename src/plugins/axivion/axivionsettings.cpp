@@ -614,9 +614,11 @@ void AxivionSettingsWidget::apply()
         servers.append(m_dashboardServers->itemData(i).value<AxivionServer>());
     const Id selected = servers.isEmpty() ? Id{}
                                           : servers.at(m_dashboardServers->currentIndex()).id;
-    if (settings().updateDashboardServers(servers, selected))
-        settings().toSettings();
+    const bool dirty = settings().isDirty();
+    const bool dashboardServersChanged = settings().updateDashboardServers(servers, selected);
     settings().apply();
+    if (dirty || dashboardServersChanged)
+        settings().toSettings();
 
     const QList<PathMapping> oldMappings = settings().validPathMappings();
     QList<PathMapping> newMappings;
