@@ -159,6 +159,13 @@ static Result unarchive(
     int fileNumber = 0;
     while (!promise.isCanceled()) {
         r = archive_read_next_header(a.get(), &entry);
+
+        const int format = archive_format(a.get());
+        const int filter = archive_filter_code(a.get(), 0);
+
+        if (format == ARCHIVE_FORMAT_RAW && filter == ARCHIVE_FILTER_NONE)
+            return Result::Error(Tr::tr("Not an archive"));
+
         if (r == ARCHIVE_EOF)
             break;
 
