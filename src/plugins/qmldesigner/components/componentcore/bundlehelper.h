@@ -12,8 +12,7 @@
 QT_FORWARD_DECLARE_CLASS(QString)
 QT_FORWARD_DECLARE_CLASS(QTemporaryDir)
 QT_FORWARD_DECLARE_CLASS(QWidget)
-
-class ZipWriter;
+QT_FORWARD_DECLARE_CLASS(QZipWriter)
 
 namespace QmlDesigner {
 
@@ -44,10 +43,7 @@ public:
     QStringList importsToRemove;
 
 private:
-    friend size_t qHash(const AssetPath &asset)
-    {
-        return ::qHash(asset.relativePath);
-    }
+    friend size_t qHash(const AssetPath &asset) { return ::qHash(asset.relativePath); }
 };
 
 class BundleHelper
@@ -81,7 +77,7 @@ private:
     QPointer<AbstractView> m_view;
     QPointer<QWidget> m_widget;
     Utils::UniqueObjectPtr<BundleImporter> m_importer;
-    std::unique_ptr<ZipWriter> m_zipWriter;
+    std::unique_ptr<QZipWriter> m_zipWriter;
     std::unique_ptr<QTemporaryDir> m_tempDir;
     int m_remainingFiles = 0;
 

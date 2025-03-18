@@ -19,9 +19,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <solutions/zip/zipreader.h>
-#include <solutions/zip/zipwriter.h>
-
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
 
@@ -33,6 +30,13 @@
 #include <QTemporaryDir>
 #include <QWidget>
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+#  include <QtCore/private/qzipreader_p.h>
+#  include <QtCore/private/qzipwriter_p.h>
+#else
+#  include <QtGui/private/qzipreader_p.h>
+#  include <QtGui/private/qzipwriter_p.h>
+#endif
 namespace QmlDesigner {
 
 Utils::FilePath AssetPath::absFilPath() const
@@ -126,7 +130,7 @@ void BundleHelper::importBundleToProject()
 
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
 
-    ZipReader zipReader(importPath);
+    QZipReader zipReader(importPath);
 
     QByteArray bundleJsonContent = zipReader.fileData(Constants::BUNDLE_JSON_FILENAME);
     QTC_ASSERT(!bundleJsonContent.isEmpty(), return);
@@ -214,7 +218,7 @@ void BundleHelper::exportBundle(const QList<ModelNode> &nodes, const QPixmap &ic
     if (exportPath.isEmpty())
         return;
 
-    m_zipWriter = std::make_unique<ZipWriter>(exportPath);
+    m_zipWriter = std::make_unique<QZipWriter>(exportPath);
 
     m_tempDir = std::make_unique<QTemporaryDir>();
     QTC_ASSERT(m_tempDir->isValid(), return);

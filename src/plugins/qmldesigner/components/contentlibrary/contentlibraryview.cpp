@@ -31,8 +31,6 @@
 #include <utils3d.h>
 #include <variantproperty.h>
 
-#include <solutions/zip/zipreader.h>
-
 #include <utils/algorithm.h>
 
 #ifndef QMLDESIGNER_TEST
@@ -50,6 +48,12 @@
 #include <QMessageBox>
 #include <QPixmap>
 #include <QVector3D>
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+#  include <QtCore/private/qzipreader_p.h>
+#else
+#  include <QtGui/private/qzipreader_p.h>
+#endif
 
 namespace QmlDesigner {
 
@@ -845,7 +849,7 @@ void ContentLibraryView::importBundleToContentLib()
     if (importPath.isEmpty())
         return;
 
-    ZipReader zipReader(importPath);
+    QZipReader zipReader(importPath);
 
     QByteArray bundleJsonContent = zipReader.fileData(Constants::BUNDLE_JSON_FILENAME);
     QTC_ASSERT(!bundleJsonContent.isEmpty(), return);
