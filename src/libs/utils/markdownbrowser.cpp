@@ -13,6 +13,7 @@
 #include "textutils.h"
 #include "theme/theme.h"
 #include "utilsicons.h"
+#include "utilstr.h"
 
 #include <solutions/tasking/networkquery.h>
 #include <solutions/tasking/tasktree.h>
@@ -85,100 +86,126 @@ static QStringList defaultCodeFontFamilies()
     return {"Menlo", "Source Code Pro", "Monospace", "Courier"};
 }
 
-static int registerSnippet(QTextDocument *document, const QString &code);
-
-static void highlightCodeBlock(
-    QTextDocument *document, QTextBlock &block, const QString &language, bool enableCopy)
+class CopyButtonHandler : public QObject, public QTextObjectInterface
 {
-    const int startPos = block.position();
-    // Find the end of the code block ...
-    for (block = block.next(); block.isValid(); block = block.next()) {
-        if (!block.blockFormat().hasProperty(QTextFormat::BlockCodeLanguage))
-            break;
-        if (language != block.blockFormat().stringProperty(QTextFormat::BlockCodeLanguage))
-            break;
+    Q_OBJECT
+    Q_INTERFACES(QTextObjectInterface)
+
+public:
+    explicit CopyButtonHandler(QObject *parent = nullptr)
+        : QObject(parent)
+    {}
+
+    static constexpr int objectId() { return QTextFormat::UserObject + 1; }
+    static constexpr int codePropertyId() { return QTextFormat::UserProperty + 1; }
+    static constexpr int isCopiedPropertyId() { return QTextFormat::UserProperty + 2; }
+
+    static QString text(bool isCopied)
+    {
+        return " " + (isCopied ? Tr::tr("Copied") : Tr::tr("Copy"));
     }
-    const int endPos = (block.isValid() ? block.position() : document->characterCount()) - 1;
-
-    // Get the text of the code block and erase it
-    QTextCursor eraseCursor(document);
-    eraseCursor.setPosition(startPos);
-    eraseCursor.setPosition(endPos, QTextCursor::KeepAnchor);
-    const QString code = eraseCursor.selectedText();
-    eraseCursor.removeSelectedText();
-
-    // Reposition the main cursor to startPos, to insert new content
-    block = document->findBlock(startPos);
-    QTextCursor cursor(block);
-
-    QTextFrameFormat frameFormat;
-    frameFormat.setBorderStyle(QTextFrameFormat::BorderStyle_Solid);
-    frameFormat.setBackground(creatorColor(Theme::Token_Background_Muted));
-    frameFormat.setPadding(SpacingTokens::ExPaddingGapM);
-    frameFormat.setLeftMargin(SpacingTokens::VGapM);
-    frameFormat.setRightMargin(SpacingTokens::VGapM);
-
-    QTextFrame *frame = cursor.insertFrame(frameFormat);
-    QTextCursor frameCursor(frame);
-
-    if (enableCopy) {
-        QTextBlockFormat linkBlockFmt;
-        linkBlockFmt.setAlignment(Qt::AlignRight);
-        frameCursor.insertBlock(linkBlockFmt);
-
-        const int snippetId = registerSnippet(document, code);
-        const QString copy_id = QString("copy:%1").arg(snippetId);
-
-        // Insert copy icon
-        QTextImageFormat imageFormat;
-        imageFormat.setName("qrc:/markdownbrowser/images/code_copy_square.png");
-        imageFormat.setAnchor(true);
-        imageFormat.setAnchorHref(copy_id);
-        imageFormat.setWidth(16);
-        imageFormat.setHeight(16);
-        frameCursor.insertImage(imageFormat);
-
-        // Create a clickable anchor for the "Copy" text
-        QTextCharFormat anchorFormat;
-        anchorFormat.setAnchor(true);
-        anchorFormat.setAnchorHref(copy_id);
-        anchorFormat.setForeground(QColor("#888"));
-        anchorFormat.setFontPointSize(10);
-        frameCursor.setCharFormat(anchorFormat);
-        frameCursor.insertText(" Copy");
-
-        // Insert a new left-aligned block to start the first line of code
-        QTextBlockFormat codeBlockFmt;
-        codeBlockFmt.setAlignment(Qt::AlignLeft);
-        frameCursor.insertBlock(codeBlockFmt);
+    static QIcon icon(bool isCopied)
+    {
+        static QIcon clickedIcon(":/markdownbrowser/images/checkmark.png");
+        static QIcon unclickedIcon(":/markdownbrowser/images/code_copy_square.png");
+        if (isCopied)
+            return clickedIcon;
+        return unclickedIcon;
     }
 
-    std::unique_ptr<QTextDocument> codeDoc(highlightText(code, language));
+    QSizeF intrinsicSize(QTextDocument *doc, int pos, const QTextFormat &format) override
+    {
+        Q_UNUSED(pos);
 
-    // Iterate each line in codeDoc and copy it out
-    bool firstLine = true;
-    for (auto tempBlock = codeDoc->begin(); tempBlock != codeDoc->end();
-         tempBlock = tempBlock.next()) {
-        // For each subsequent line, insert another block
-        if (!firstLine) {
-            QTextBlockFormat codeBlockFmt;
-            codeBlockFmt.setAlignment(Qt::AlignLeft);
-            frameCursor.insertBlock(codeBlockFmt);
-        }
-        firstLine = false;
+        if (!doc || !format.hasProperty(isCopiedPropertyId()))
+            return QSizeF(0, 0);
 
-        QTextCharFormat lineFormat = tempBlock.charFormat();
-        lineFormat.setFontFamilies(defaultCodeFontFamilies());
-        frameCursor.setCharFormat(lineFormat);
+        const QFontMetricsF metrics(getFont(doc));
+        const bool isCopied = format.property(isCopiedPropertyId()).value<bool>();
 
-        auto formats = tempBlock.layout()->formats();
-        frameCursor.insertText(tempBlock.text());
-        frameCursor.block().layout()->setFormats(formats);
+        return QSizeF(metrics.horizontalAdvance(text(isCopied)) + 30, metrics.height() + 10);
     }
 
-    // Leave the frame
-    QTextCursor next = frame->lastCursorPosition();
-    block = next.block();
+    void drawObject(
+        QPainter *painter,
+        const QRectF &rect,
+        QTextDocument *doc,
+        int pos,
+        const QTextFormat &format) override
+    {
+        Q_UNUSED(pos);
+
+        if (!doc || !format.hasProperty(isCopiedPropertyId()))
+            return;
+
+        painter->setPen(Qt::NoPen);
+        painter->setBrush(Qt::transparent);
+        painter->drawRect(rect);
+
+        const bool isCopied = format.property(isCopiedPropertyId()).value<bool>();
+
+        constexpr int iconSize = 16;
+        QRectF iconRect(rect.left(), rect.top() + (rect.height() - iconSize) / 2, iconSize, iconSize);
+        icon(isCopied).paint(painter, iconRect.toRect());
+
+        painter->setPen(QColor("#888"));
+        painter->setFont(getFont(doc));
+        painter
+            ->drawText(rect.adjusted(20, 0, -5, 0), Qt::AlignLeft | Qt::AlignVCenter, text(isCopied));
+    }
+
+private:
+    QFont getFont(QTextDocument *doc) const
+    {
+        QFont font = doc->defaultFont();
+        font.setPointSize(10);
+        return font;
+    }
+};
+
+static QTextFragment copyButtonFragment(const QTextBlock &block)
+{
+    for (auto it = block.begin(); !it.atEnd(); ++it) {
+        QTextFragment fragment = it.fragment();
+        if (fragment.charFormat().objectType() == CopyButtonHandler::objectId())
+            return fragment;
+    }
+    return QTextFragment();
+}
+
+static QPointF blockBBoxTopLeftPosition(const QTextBlock &block)
+{
+    const QAbstractTextDocumentLayout *docLayout = block.document()->documentLayout();
+    const QRectF blockRect = docLayout->blockBoundingRect(block);
+    return blockRect.topLeft();
+}
+
+static QRectF calculateFragmentBounds(
+    const QTextBlock &block, const QTextFragment &fragment, const QPointF &documentOffset)
+{
+    QRectF bounds(0, 0, 0, 0);
+
+    if (!block.isValid() || !fragment.isValid())
+        return bounds;
+
+    QTextLayout *layout = block.layout();
+    if (!layout)
+        return bounds;
+
+    int fragmentStart = fragment.position() - block.position();
+    QTextLine line = layout->lineForTextPosition(fragmentStart);
+    if (!line.isValid())
+        return bounds;
+
+    qreal x = line.cursorToX(fragmentStart);
+    qreal y = line.y();
+    qreal width = line.cursorToX(fragmentStart + fragment.length()) - x;
+    qreal height = line.height();
+
+    bounds = QRectF(x, y, width, height);
+    bounds.translate(documentOffset);
+
+    return bounds;
 }
 
 class AnimatedImageHandler : public QObject, public QTextObjectInterface
@@ -493,21 +520,6 @@ public:
         });
     }
 
-    int registerSnippet(const QString &code)
-    {
-        const int id = m_nextSnippetId++;
-        m_snippetMap.insert(id, code);
-        return id;
-    }
-
-    QString snippetById(int id) const { return m_snippetMap.value(id); }
-
-    void clearSnippets()
-    {
-        m_snippetMap.clear();
-        m_nextSnippetId = 0;
-    }
-
     void scheduleLoad(const QUrl &url)
     {
         m_urlsToLoad.insert(url);
@@ -530,25 +542,99 @@ private:
     FilePath m_basePath;
     std::function<void(QNetworkRequest *)> m_requestHook;
     QNetworkAccessManager *m_networkAccessManager = NetworkAccessManager::instance();
-    QMap<int, QString> m_snippetMap;
-    int m_nextSnippetId = 0;
 };
-
-static int registerSnippet(QTextDocument *document, const QString &code)
-{
-    auto *animDoc = static_cast<AnimatedDocument *>(document);
-    return animDoc->registerSnippet(code);
-}
 
 MarkdownBrowser::MarkdownBrowser(QWidget *parent)
     : QTextBrowser(parent)
     , m_enableCodeCopyButton(false)
 {
     setOpenLinks(false);
-
     connect(this, &QTextBrowser::anchorClicked, this, &MarkdownBrowser::handleAnchorClicked);
 
     setDocument(new AnimatedDocument(this));
+    document()
+        ->documentLayout()
+        ->registerHandler(CopyButtonHandler::objectId(), new CopyButtonHandler(document()));
+}
+
+void MarkdownBrowser::highlightCodeBlock(const QString &language, QTextBlock &block)
+{
+    const int startPos = block.position();
+    // Find the end of the code block ...
+    for (block = block.next(); block.isValid(); block = block.next()) {
+        if (!block.blockFormat().hasProperty(QTextFormat::BlockCodeLanguage))
+            break;
+        if (language != block.blockFormat().stringProperty(QTextFormat::BlockCodeLanguage))
+            break;
+    }
+    const int endPos = (block.isValid() ? block.position() : document()->characterCount()) - 1;
+
+    // Get the text of the code block and erase it
+    QTextCursor eraseCursor(document());
+    eraseCursor.setPosition(startPos);
+    eraseCursor.setPosition(endPos, QTextCursor::KeepAnchor);
+    const QString code = eraseCursor.selectedText();
+    eraseCursor.removeSelectedText();
+
+    // Reposition the main cursor to startPos, to insert new content
+    block = document()->findBlock(startPos);
+    QTextCursor cursor(block);
+
+    QTextFrameFormat frameFormat;
+    frameFormat.setBorderStyle(QTextFrameFormat::BorderStyle_Solid);
+    frameFormat.setBackground(creatorColor(Theme::Token_Background_Muted));
+    frameFormat.setPadding(SpacingTokens::ExPaddingGapM);
+    frameFormat.setLeftMargin(SpacingTokens::VGapM);
+    frameFormat.setRightMargin(SpacingTokens::VGapM);
+
+    QTextFrame *frame = cursor.insertFrame(frameFormat);
+    QTextCursor frameCursor(frame);
+
+    if (m_enableCodeCopyButton) {
+        QTextBlockFormat rightAlignedCopyButton;
+        rightAlignedCopyButton.setAlignment(Qt::AlignRight);
+        frameCursor.insertBlock(rightAlignedCopyButton);
+
+        QString copiableCode = code;
+        copiableCode.replace(QChar::ParagraphSeparator, '\n');
+
+        QTextCharFormat buttonFormat;
+        buttonFormat.setObjectType(CopyButtonHandler::objectId());
+        buttonFormat.setProperty(CopyButtonHandler::codePropertyId(), copiableCode);
+        buttonFormat.setProperty(CopyButtonHandler::isCopiedPropertyId(), false);
+        frameCursor.insertText(QString(QChar::ObjectReplacementCharacter), buttonFormat);
+
+        QTextBlockFormat leftAlignedCode;
+        leftAlignedCode.setAlignment(Qt::AlignLeft);
+        frameCursor.insertBlock(leftAlignedCode);
+    }
+
+    std::unique_ptr<QTextDocument> codeDoc(highlightText(code, language));
+
+    // Iterate each line in codeDoc and copy it out
+    bool firstLine = true;
+    for (auto tempBlock = codeDoc->begin(); tempBlock != codeDoc->end();
+         tempBlock = tempBlock.next()) {
+        // For each subsequent line, insert another block
+        if (!firstLine) {
+            QTextBlockFormat codeBlockFmt;
+            codeBlockFmt.setAlignment(Qt::AlignLeft);
+            frameCursor.insertBlock(codeBlockFmt);
+        }
+        firstLine = false;
+
+        QTextCharFormat lineFormat = tempBlock.charFormat();
+        lineFormat.setFontFamilies(defaultCodeFontFamilies());
+        frameCursor.setCharFormat(lineFormat);
+
+        auto formats = tempBlock.layout()->formats();
+        frameCursor.insertText(tempBlock.text());
+        frameCursor.block().layout()->setFormats(formats);
+    }
+
+    // Leave the frame
+    QTextCursor next = frame->lastCursorPosition();
+    block = next.block();
 }
 
 QSize MarkdownBrowser::sizeHint() const
@@ -601,29 +687,13 @@ void MarkdownBrowser::setMaximumCacheSize(qsizetype maxSize)
 
 void MarkdownBrowser::handleAnchorClicked(const QUrl &link)
 {
-    if (link.scheme() != QLatin1String("copy")) {
-        if (link.scheme() == "http" || link.scheme() == "https")
-            QDesktopServices::openUrl(link);
+    if (link.scheme() == "http" || link.scheme() == "https")
+        QDesktopServices::openUrl(link);
 
-        if (link.hasFragment() && link.path().isEmpty() && link.scheme().isEmpty()) {
-            // local anchor
-            scrollToAnchor(link.fragment(QUrl::FullyEncoded));
-        }
-
-        return;
+    if (link.hasFragment() && link.path().isEmpty() && link.scheme().isEmpty()) {
+        // local anchor
+        scrollToAnchor(link.fragment(QUrl::FullyEncoded));
     }
-
-    bool ok = false;
-    const int snippetId = link.path().toInt(&ok);
-    if (!ok)
-        return;
-
-    auto *animDoc = static_cast<AnimatedDocument *>(document());
-    const QString snippet = animDoc->snippetById(snippetId).replace(QChar::ParagraphSeparator, '\n');
-    if (snippet.isEmpty())
-        return;
-
-    Utils::setClipboardAndSelection(snippet);
 }
 
 void MarkdownBrowser::setBasePath(const FilePath &filePath)
@@ -634,14 +704,12 @@ void MarkdownBrowser::setBasePath(const FilePath &filePath)
 void MarkdownBrowser::setMarkdown(const QString &markdown)
 {
     QScrollBar *sb = verticalScrollBar();
-    int oldValue = sb->value();
+    const int scrollValue = sb->value();
 
-    auto *animDoc = static_cast<AnimatedDocument *>(document());
-    animDoc->clearSnippets();
     document()->setMarkdown(markdown);
     postProcessDocument(true);
 
-    QTimer::singleShot(0, this, [sb, oldValue] { sb->setValue(oldValue); });
+    QTimer::singleShot(0, this, [sb, scrollValue] { sb->setValue(scrollValue); });
 
     // Reset cursor to start of the document, so that "show" does not
     // scroll to the end of the document.
@@ -653,7 +721,7 @@ QString MarkdownBrowser::toMarkdown() const
     return document()->toMarkdown();
 }
 
-void MarkdownBrowser::postProcessDocument(bool firstTime) const
+void MarkdownBrowser::postProcessDocument(bool firstTime)
 {
     const QFont contentFont = Utils::font(contentTF);
     const float fontScale = font().pointSizeF() / qGuiApp->font().pointSizeF();
@@ -673,7 +741,7 @@ void MarkdownBrowser::postProcessDocument(bool firstTime) const
             // Convert code blocks to highlighted frames
             if (blockFormat.hasProperty(QTextFormat::BlockCodeLanguage)) {
                 const QString language = blockFormat.stringProperty(QTextFormat::BlockCodeLanguage);
-                highlightCodeBlock(document(), block, language, m_enableCodeCopyButton);
+                highlightCodeBlock(language, block);
                 continue;
             }
 
@@ -748,6 +816,50 @@ void MarkdownBrowser::changeEvent(QEvent *event)
     if (event->type() == QEvent::FontChange)
         postProcessDocument(false);
     QTextBrowser::changeEvent(event);
+}
+
+void MarkdownBrowser::mousePressEvent(QMouseEvent *event)
+{
+    QTextCursor cursor = cursorForPosition(event->pos());
+    if (!cursor.isNull()) {
+        QTextCharFormat format = cursor.charFormat();
+        if (format.objectType() == CopyButtonHandler::objectId()) {
+            QTextBlock block = cursor.block();
+            QTextFragment fragment = copyButtonFragment(block);
+            if (fragment.isValid()) {
+                QPointF blockPosition = blockBBoxTopLeftPosition(block);
+                QRectF fragmentRect = calculateFragmentBounds(block, fragment, blockPosition);
+
+                QPointF mousePos = event->pos();
+                QPointF viewportOffset(
+                    horizontalScrollBar()->value(), verticalScrollBar()->value());
+                mousePos += viewportOffset;
+
+                if (fragmentRect.isValid() && fragmentRect.contains(mousePos)) {
+                    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+                    // If the user clicks the text, the cursor will be positioned after the object,
+                    // so we have to move the cursor back to the object.
+                    if (cursor.selectedText() == QChar::ParagraphSeparator)
+                        cursor
+                            .movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor,
+                                          2);
+
+                    QString code
+                        = format.property(CopyButtonHandler::codePropertyId()).value<QString>();
+                    Utils::setClipboardAndSelection(code);
+
+                    QTextCharFormat newFormat = format;
+                    newFormat.setProperty(CopyButtonHandler::isCopiedPropertyId(), true);
+                    cursor.setCharFormat(newFormat);
+
+                    document()->documentLayout()->update();
+                    event->accept();
+                    return;
+                }
+            }
+        }
+    }
+    QTextBrowser::mousePressEvent(event);
 }
 
 } // namespace Utils
