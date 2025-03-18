@@ -411,6 +411,7 @@ extend_qtc_plugin(QmlDesigner
     aligndistribute.cpp aligndistribute.h
     assetimageprovider.cpp assetimageprovider.h
     colorpalettebackend.cpp colorpalettebackend.h
+    compatibleproperties.cpp compatibleproperties.h
     designerpropertymap.cpp designerpropertymap.h
     fileresourcesmodel.cpp fileresourcesmodel.h
     itemfiltermodel.cpp itemfiltermodel.h

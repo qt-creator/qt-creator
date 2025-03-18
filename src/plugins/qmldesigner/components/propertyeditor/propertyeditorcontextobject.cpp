@@ -4,6 +4,7 @@
 #include "propertyeditorcontextobject.h"
 
 #include "abstractview.h"
+#include "compatibleproperties.h"
 #include "easingcurvedialog.h"
 #include "nodemetainfo.h"
 #include "propertyeditorutils.h"
@@ -189,7 +190,7 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
      * If we add more code here we have to forward the property editor view */
     RewriterView *rewriterView = m_model->rewriterView();
 
-    QTC_ASSERT(!rewriterView->selectedModelNodes().isEmpty(), return);
+    QTC_ASSERT(!m_editorNodes.isEmpty(), return);
 
     auto changeNodeTypeName = [&](ModelNode &selectedNode) {
         // Check if the requested type is the same as already set
@@ -244,6 +245,9 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
                 incompatibleProperties.append(property.name().toByteArray());
         }
 
+        CompatibleProperties compatibleProps(selectedNode.metaInfo(), metaInfo);
+        compatibleProps.createCompatibilityMap(incompatibleProperties);
+
         Utils::sort(incompatibleProperties);
 
         // Create a dialog showing incompatible properties and signals
@@ -274,6 +278,7 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
                 selectedNode.removeProperty(p);
         }
 
+        compatibleProps.copyMappedProperties(selectedNode);
 #ifdef QDS_USE_PROJECTSTORAGE
         if (selectedNode.isRootNode())
             rewriterView->changeRootNodeType(typeName.toUtf8(), -1, -1);
@@ -289,6 +294,7 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
                                     metaInfo.majorVersion(),
                                     metaInfo.minorVersion());
 #endif
+        compatibleProps.applyCompatibleProperties(selectedNode);
     };
 
     try {
