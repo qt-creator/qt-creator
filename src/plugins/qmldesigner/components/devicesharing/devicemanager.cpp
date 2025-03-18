@@ -16,6 +16,7 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/target.h>
+#include <qmldesigner/qmldesignerconstants.h>
 #include <qmldesigner/qmldesignerplugin.h>
 #include <qtsupport/qtkitaspect.h>
 
@@ -198,6 +199,9 @@ std::optional<bool> DeviceManager::deviceIsConnected(const QString &deviceId) co
 
 void DeviceManager::setDeviceAlias(const QString &deviceId, const QString &alias)
 {
+    QmlDesigner::QmlDesignerPlugin::emitUsageStatistics(
+        QmlDesigner::Constants::EVENT_DEVICE_MANAGER_ANDROID_SET_ALIAS);
+
     auto device = findDevice(deviceId);
     if (!device)
         return;
@@ -216,6 +220,8 @@ void DeviceManager::setDeviceAlias(const QString &deviceId, const QString &alias
 
 void DeviceManager::setDeviceActive(const QString &deviceId, const bool active)
 {
+    QmlDesigner::QmlDesignerPlugin::emitUsageStatistics(
+        QmlDesigner::Constants::EVENT_DEVICE_MANAGER_ANDROID_SET_ACTIVE);
     auto device = findDevice(deviceId);
     if (!device)
         return;
@@ -233,6 +239,8 @@ void DeviceManager::setDeviceActive(const QString &deviceId, const bool active)
 
 void DeviceManager::setDeviceIP(const QString &deviceId, const QString &ip)
 {
+    QmlDesigner::QmlDesignerPlugin::emitUsageStatistics(
+        QmlDesigner::Constants::EVENT_DEVICE_MANAGER_ANDROID_SET_DEVICE_IP);
     auto device = findDevice(deviceId);
     if (!device)
         return;
@@ -259,6 +267,8 @@ QString DeviceManager::generateDeviceAlias() const
 
 bool DeviceManager::addDevice(const QString &ip)
 {
+    QmlDesigner::QmlDesignerPlugin::emitUsageStatistics(
+        QmlDesigner::Constants::EVENT_DEVICE_MANAGER_ANDROID_ADD_DEVICE);
     if (ip.isEmpty())
         return false;
 
@@ -354,6 +364,8 @@ void DeviceManager::deviceInfoReceived(const QString &deviceId)
 
 void DeviceManager::removeDevice(const QString &deviceId)
 {
+    QmlDesigner::QmlDesignerPlugin::emitUsageStatistics(
+        QmlDesigner::Constants::EVENT_DEVICE_MANAGER_ANDROID_REMOVE_DEVICE);
     auto device = findDevice(deviceId);
     if (!device)
         return;
@@ -407,6 +419,8 @@ void DeviceManager::handleError(const ErrTypes &errType, const QString &deviceId
 
 void DeviceManager::runProject(const QString &deviceId)
 {
+    QmlDesigner::QmlDesignerPlugin::emitUsageStatistics(
+        QmlDesigner::Constants::EVENT_DEVICE_MANAGER_ANDROID_RUN_PROJECT);
     auto device = findDevice(deviceId);
     if (!device) {
         handleError(ErrTypes::InternalError, deviceId, "Device not found");
@@ -473,6 +487,8 @@ void DeviceManager::projectPacked(const Utils::FilePath &filePath)
 
 void DeviceManager::stopProject()
 {
+    QmlDesigner::QmlDesignerPlugin::emitUsageStatistics(
+        QmlDesigner::Constants::EVENT_DEVICE_MANAGER_ANDROID_STOP_PROJECT);
     auto device = findDevice(m_currentDeviceId);
     if (!device) {
         handleError(ErrTypes::InternalError, m_currentDeviceId, "Device not found");
