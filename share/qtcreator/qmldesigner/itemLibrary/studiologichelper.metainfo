@@ -1,0 +1,156 @@
+MetaInfo {
+    Type {
+        name: "QtQuick.Studio.LogicHelper.BidirectionalBinding"
+        icon: "images/lc-bidirectional-binding-16px.png"
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeContainer: false
+            visibleInLibrary: true
+            visibleInNavigator: true
+        }
+
+        ItemLibraryEntry {
+            name: "Bi Direct. Binding"
+            category: "Studio Logic Helper"
+            libraryIcon: "images/lc-bidirectional-binding-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.LogicHelper"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.LogicHelper.MinMaxMapper"
+        icon: "images/lc-min-max-16px.png"
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeContainer: false
+            visibleInLibrary: true
+            visibleInNavigator: true
+        }
+
+        ItemLibraryEntry {
+            name: "Min Max Mapper"
+            category: "Studio Logic Helper"
+            libraryIcon: "images/lc-min-max-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.LogicHelper"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.LogicHelper.RangeMapper"
+        icon: "images/lc-range-mapper-16px.png"
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeContainer: false
+            visibleInLibrary: true
+            visibleInNavigator: true
+        }
+
+        ItemLibraryEntry {
+            name: "Range Mapper"
+            category: "Studio Logic Helper"
+            libraryIcon: "images/lc-range-mapper-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.LogicHelper"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.LogicHelper.StringMapper"
+        icon: "images/lc-string-mapper-16px.png"
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeContainer: false
+            visibleInLibrary: true
+            visibleInNavigator: true
+        }
+
+        ItemLibraryEntry {
+            name: "String Mapper"
+            category: "Studio Logic Helper"
+            libraryIcon: "images/lc-string-mapper-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.LogicHelper"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.LogicHelper.AndOperator"
+        icon: "images/lc-and-operator-16px.png"
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeContainer: false
+            visibleInLibrary: true
+            visibleInNavigator: true
+        }
+
+        ItemLibraryEntry {
+            name: "And Operator"
+            category: "Studio Logic Helper"
+            libraryIcon: "images/lc-and-operator-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.LogicHelper"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.LogicHelper.OrOperator"
+        icon: "images/lc-or-operator-16px.png"
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeContainer: false
+            visibleInLibrary: true
+            visibleInNavigator: true
+        }
+
+        ItemLibraryEntry {
+            name: "Or Operator"
+            category: "Studio Logic Helper"
+            libraryIcon: "images/lc-or-operator-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.LogicHelper"
+        }
+    }
+
+     Type {
+        name: "QtQuick.Studio.LogicHelper.NotOperator"
+        icon: "images/lc-not-operator-16px.png"
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeContainer: false
+            visibleInLibrary: true
+            visibleInNavigator: true
+        }
+
+        ItemLibraryEntry {
+            name: "Not Operator"
+            category: "Studio Logic Helper"
+            libraryIcon: "images/lc-not-operator-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.LogicHelper"
+        }
+    }
+
+}

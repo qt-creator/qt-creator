@@ -1,0 +1,18 @@
+MetaInfo {
+    Type {
+        name: "QtQuickUltralite.Studio.Components.ArcItem"
+        icon: "images/item-arc-16px.png"
+
+        ItemLibraryEntry {
+            name: "ArcItem"
+            category: "QtQuickUltralite - Components"
+            libraryIcon: "images/item-arc-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuickUltralite.Studio.Components"
+            Property { name: "width"; type: "int"; value: 100; }
+            Property { name: "height"; type: "int"; value: 100; }
+            Property { name: "fillColor"; type: "QColor"; value: "transparent"; }
+            toolTip: qsTr("An arc that begins and ends at given positions.")
+        }
+    }
+}
