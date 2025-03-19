@@ -37,8 +37,10 @@ void CollectionModel::setActiveTheme(const QString &themeName)
         aboutToSave();
 
         // Update the active status
-        if (rowCount() && columnCount())
+        if (rowCount() && columnCount()) {
             emit headerDataChanged(Qt::Horizontal, 0, columnCount() - 1);
+            updateBoundValues();
+        }
     }
 }
 
@@ -227,9 +229,16 @@ void CollectionModel::addProperty(GroupType group, const QString &name, const QV
 
 bool CollectionModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    bool result = false;
+
+    ThemeProperty p = value.value<ThemeProperty>();
     switch (role) {
     case Qt::EditRole: {
-        ThemeProperty p = value.value<ThemeProperty>();
+        if (p.isBinding) {
+            if (!m_store->resolvedDSBinding(p.value.toString()).isValid())
+                return false; // Invalid binding, it must resolved to a valid property.
+        }
+
         const auto [groupType, propName] = m_propertyInfoList[index.row()];
         p.name = propName;
         const ThemeId id = m_themeIdList[index.column()];
@@ -237,15 +246,20 @@ bool CollectionModel::setData(const QModelIndex &index, const QVariant &value, i
             updateCache();
 
             emit dataChanged(index, index);
+            result = true;
         }
     }
     default:
         break;
     }
 
-    aboutToSave();
+    if (result) {
+        aboutToSave();
+        if (p.isBinding)
+            updateBoundValues();
+    }
 
-    return false;
+    return result;
 }
 
 bool CollectionModel::setHeaderData(int section,
@@ -321,6 +335,26 @@ void CollectionModel::save()
 void CollectionModel::aboutToSave()
 {
     m_saveCompressionTimer.start();
+}
+
+void CollectionModel::updateBoundValues()
+{
+    // Re-evaluate the value of the all bound properties.
+    for (int themeIdCol = 0; themeIdCol < columnCount(); ++themeIdCol) {
+        const auto themeId = findThemeId(themeIdCol);
+        for (int propIndex = 0; propIndex < rowCount(); ++propIndex) {
+            const auto propInfo = findPropertyName(propIndex);
+            if (!propInfo)
+                continue;
+            const auto &[groupType, propName] = *propInfo;
+            if (auto property = m_collection->property(themeId, groupType, propName)) {
+                if (property->isValid() && property->isBinding) {
+                    auto modelIndex = index(propIndex, themeIdCol);
+                    emit dataChanged(modelIndex, modelIndex);
+                }
+            }
+        }
+    }
 }
 
 } // namespace QmlDesigner
