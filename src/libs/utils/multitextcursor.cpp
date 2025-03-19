@@ -6,6 +6,7 @@
 #include "algorithm.h"
 #include "camelcasecursor.h"
 #include "hostosinfo.h"
+#include "plaintextedit/plaintextedit.h"
 #include "qtcassert.h"
 
 #include <QKeyEvent>
@@ -211,10 +212,14 @@ int MultiTextCursor::cursorCount() const
 
 void MultiTextCursor::movePosition(QTextCursor::MoveOperation operation,
                                    QTextCursor::MoveMode mode,
-                                   int n)
+                                   int n, PlainTextDocumentLayout *layout)
 {
-    for (auto &cursor : m_cursorList)
-        cursor.movePosition(operation, mode, n);
+    for (auto &cursor : m_cursorList) {
+        if (layout)
+            layout->moveCursor(cursor, operation, mode, n);
+        else
+            cursor.movePosition(operation, mode, n);
+    }
 
     mergeCursors();
 }
@@ -359,7 +364,8 @@ bool MultiTextCursor::multiCursorEvent(
     return bindings.contains(QKeySequence(searchkey));
 }
 
-bool MultiTextCursor::handleMoveKeyEvent(QKeyEvent *e, bool camelCaseNavigationEnabled)
+bool MultiTextCursor::handleMoveKeyEvent(
+    QKeyEvent *e, bool camelCaseNavigationEnabled, PlainTextDocumentLayout *layout)
 {
     if (e->modifiers() & Qt::AltModifier && !Utils::HostOsInfo::isMacHost()) {
         QTextCursor::MoveOperation op = QTextCursor::NoMove;
@@ -490,12 +496,16 @@ bool MultiTextCursor::handleMoveKeyEvent(QKeyEvent *e, bool camelCaseNavigationE
         bool visualNavigation = cursor.visualNavigation();
         cursor.setVisualNavigation(true);
 
-        if (camelCaseNavigationEnabled && op == QTextCursor::WordRight)
+        if (camelCaseNavigationEnabled && op == QTextCursor::WordRight) {
             CamelCaseCursor::right(&cursor, mode);
-        else if (camelCaseNavigationEnabled && op == QTextCursor::WordLeft)
+        } else if (camelCaseNavigationEnabled && op == QTextCursor::WordLeft) {
             CamelCaseCursor::left(&cursor, mode);
-        else if (!cursor.movePosition(op, mode) && mode == QTextCursor::MoveAnchor)
+        } else if (layout) {
+            if (!layout->moveCursor(cursor, op, mode))
+                cursor.clearSelection();
+        } else if (!cursor.movePosition(op, mode) && mode == QTextCursor::MoveAnchor) {
             cursor.clearSelection();
+        }
         cursor.setVisualNavigation(visualNavigation);
     }
     mergeCursors();

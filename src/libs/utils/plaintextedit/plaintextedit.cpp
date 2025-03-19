@@ -4,7 +4,10 @@
 #include "plaintextedit.h"
 
 #include "inputcontrol.h"
+#include "texteditorlayout.h"
 #include "widgettextcontrol.h"
+
+#include "../qtcassert.h"
 
 #include <QAccessible>
 #include <QApplication>
@@ -41,6 +44,7 @@ public:
         textEdit->ensureCursorVisible();
         emit microFocusChanged();
     }
+    QAbstractTextDocumentLayout *layout() const override;
 
     PlainTextEdit *textEdit;
     int topBlock;
@@ -49,6 +53,8 @@ public:
     QVariant loadResource(int type, const QUrl &name) override {
         return textEdit->loadResource(type, name);
     }
+
+    void setEditorLayout(TextEditorLayout *editorLayout);
 };
 
 
@@ -122,7 +128,7 @@ public:
     void ensureCursorVisible(bool center = false);
     void updateViewport();
 
-    QPointer<PlainTextDocumentLayout> documentLayoutPtr;
+    TextEditorLayout *editorLayout = nullptr;
 
     void append(const QString &text, Qt::TextFormat format = Qt::AutoText);
 
@@ -194,7 +200,15 @@ public:
     void relayout();
 };
 
-
+void PlainTextEditControl::setEditorLayout(TextEditorLayout *editorLayout)
+{
+    QTC_ASSERT(editorLayout, return);
+    connect(
+        editorLayout,
+        &TextEditorLayout::documentSizeChanged,
+        this,
+        &PlainTextEditControl::documentSizeChanged);
+}
 
 /*! \class Utils::PlainTextDocumentLayout
     \inmodule QtCreator
@@ -263,7 +277,7 @@ int PlainTextDocumentLayout::pageCount() const
  */
 QSizeF PlainTextDocumentLayout::documentSize() const
 {
-    return QSizeF(d->maximumWidth, document()->lineCount());
+    return QSizeF(d->maximumWidth, lineCount());
 }
 
 QRectF PlainTextDocumentLayout::frameBoundingRect(QTextFrame *) const
@@ -275,7 +289,11 @@ QRectF PlainTextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
 {
     if (!block.isValid() || !block.isVisible()) { return QRectF(); }
     ensureBlockLayout(block);
-    QTextLayout *tl = block.layout();
+
+    if (const QRectF replacement = replacementBlockBoundingRect(block); !replacement.isEmpty())
+        return replacement;
+
+    QTextLayout *tl = blockLayout(block);
     QRectF br = QRectF(QPointF(0, 0), tl->boundingRect().bottomRight());
     if (tl->lineCount() == 1)
         br.setWidth(qMax(br.width(), tl->lineAt(0).naturalTextWidth()));
@@ -283,8 +301,39 @@ QRectF PlainTextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
     br.adjust(0, 0, margin, 0);
     if (!block.next().isValid())
         br.adjust(0, 0, 0, margin);
-    return br;
 
+    if (relativeLineSpacing() != 100) {
+        if (br.isNull())
+            return br;
+        br.setHeight(lineSpacing());
+    }
+
+    br.adjust(0, 0, 0, additionalBlockHeight(block));
+
+    return br;
+}
+
+int PlainTextDocumentLayout::additionalBlockHeight(const QTextBlock &) const
+{
+    return 0;
+}
+
+QRectF PlainTextDocumentLayout::replacementBlockBoundingRect(const QTextBlock &) const
+{
+    return {};
+}
+
+int PlainTextDocumentLayout::relativeLineSpacing() const
+{
+    return 100;
+}
+
+int PlainTextDocumentLayout::lineSpacing() const
+{
+    // QFontMetrics::lineSpacing() returns a rounded value for fonts with a franctional line spacing,
+    // but in the layout process the height is rounded up since eef8a57daf0bf6e6142470db1a08970d5020e07d
+    // in qtbase.
+    return qCeil(QFontMetricsF(document()->defaultFont()).lineSpacing());
 }
 
 /*!
@@ -296,7 +345,7 @@ void PlainTextDocumentLayout::ensureBlockLayout(const QTextBlock &block) const
 {
     if (!block.isValid())
         return;
-    QTextLayout *tl = block.layout();
+    QTextLayout *tl = blockLayout(block);
     if (!tl->lineCount())
         const_cast<PlainTextDocumentLayout*>(this)->layoutBlock(block);
 }
@@ -325,21 +374,98 @@ void PlainTextDocumentLayout::requestUpdate()
     emit update(QRectF(0., -document()->documentMargin(), 1000000000., 1000000000.));
 }
 
+QTextLayout *PlainTextDocumentLayout::blockLayout(const QTextBlock &block) const
+{
+    return block.layout();
+}
+
+void PlainTextDocumentLayout::clearBlockLayout(QTextBlock &block) const
+{
+    block.clearLayout();
+}
+
+void PlainTextDocumentLayout::clearBlockLayout(QTextBlock &start, QTextBlock &end, bool &blockVisibilityChanged) const
+{
+    QTextBlock block = start;
+    do {
+        clearBlockLayout(block);
+        if (block.isVisible()) {
+            if (blockLineCount(block) == 0) {
+                blockVisibilityChanged = true;
+                setBlockLineCount(block, 1);
+            }
+        } else if (blockLineCount(block) > 0) {
+            blockVisibilityChanged = true;
+            setBlockLineCount(block, 0);
+        }
+        if (block == end)
+            break;
+        block = block.next();
+    } while (block.isValid());
+}
+
+int PlainTextDocumentLayout::blockLineCount(const QTextBlock &block) const
+{
+    return block.lineCount();
+}
+
+void PlainTextDocumentLayout::setBlockLineCount(QTextBlock &block, int lineCount) const
+{
+    block.setLineCount(lineCount);
+}
+
+void PlainTextDocumentLayout::setBlockLayedOut(const QTextBlock &block) const
+{
+    Q_UNUSED(block);
+}
+
+int PlainTextDocumentLayout::lineCount() const
+{
+    return document()->lineCount();
+}
+
+int PlainTextDocumentLayout::firstLineNumberOf(const QTextBlock &block) const
+{
+    return block.firstLineNumber();
+}
+
+QTextBlock PlainTextDocumentLayout::findBlockByLineNumber(int lineNumber) const
+{
+    return document()->findBlockByLineNumber(lineNumber);
+}
+
+bool PlainTextDocumentLayout::moveCursor(
+    QTextCursor &cursor,
+    QTextCursor::MoveOperation operation,
+    QTextCursor::MoveMode mode,
+    int steps) const
+{
+    return cursor.movePosition(operation, mode, steps);
+}
 
 void PlainTextDocumentLayout::setTextWidth(qreal newWidth)
 {
     d->width = d->maximumWidth = newWidth;
     bool layoutChanged = false;
     for (QTextBlock block = document()->firstBlock(); block.isValid(); block = block.next()) {
-        QTextLayout *tl = block.layout();
+        QTextLayout *tl = blockLayout(block);
         if (tl->lineCount() == 0 || (tl->lineCount() == 1 && tl->lineAt(0).naturalTextWidth() < newWidth))
             continue;
         layoutChanged = true;
         tl->clearLayout();
-        block.setLineCount(block.isVisible() ? 1 : 0);
+        setBlockLineCount(block, block.isVisible() ? 1 : 0);
     }
     if (layoutChanged)
         emit update();
+}
+
+void PlainTextDocumentLayout::relayout()
+{
+    for (QTextBlock block = document()->firstBlock(); block.isValid(); block = block.next()) {
+        QTextLayout *tl = blockLayout(block);
+        tl->clearLayout();
+        setBlockLineCount(block, block.isVisible() ? 1 : 0);
+    }
 }
 
 qreal PlainTextDocumentLayout::textWidth() const
@@ -351,8 +477,8 @@ void PlainTextDocumentLayoutPrivate::relayout()
 {
     QTextBlock block = q->document()->firstBlock();
     while (block.isValid()) {
-        block.layout()->clearLayout();
-        block.setLineCount(block.isVisible() ? 1 : 0);
+        q->clearBlockLayout(block);
+        q->setBlockLineCount(block, block.isVisible() ? 1 : 0);
         block = block.next();
     }
     emit q->update();
@@ -364,6 +490,8 @@ void PlainTextDocumentLayoutPrivate::relayout()
  */
 void PlainTextDocumentLayout::documentChanged(int from, int charsRemoved, int charsAdded)
 {
+    emit documentContentsChanged(from, charsRemoved, charsAdded);
+
     QTextDocument *doc = document();
     int newBlockCount = doc->blockCount();
     int charsChanged = charsRemoved + charsAdded;
@@ -385,19 +513,7 @@ void PlainTextDocumentLayout::documentChanged(int from, int charsRemoved, int ch
             }
         }
     } else {
-        QTextBlock block = changeStartBlock;
-        do {
-            block.clearLayout();
-            if (block.isVisible()
-                    ? (block.lineCount() == 0)
-                    : (block.lineCount() > 0)) {
-                blockVisibilityChanged = true;
-                block.setLineCount(block.isVisible() ? 1 : 0);
-            }
-            if (block == changeEndBlock)
-                break;
-            block = block.next();
-        } while (block.isValid());
+        clearBlockLayout(changeStartBlock, changeEndBlock, blockVisibilityChanged);
     }
 
     if (newBlockCount != d->blockCount || blockVisibilityChanged) {
@@ -441,7 +557,7 @@ void PlainTextDocumentLayout::layoutBlock(const QTextBlock &block)
     qreal blockMaximumWidth = 0;
 
     qreal height = 0;
-    QTextLayout *tl = block.layout();
+    QTextLayout *tl = blockLayout(block);
     QTextOption option = doc->defaultTextOption();
     tl->setTextOption(option);
 
@@ -450,6 +566,7 @@ void PlainTextDocumentLayout::layoutBlock(const QTextBlock &block)
         QFontMetrics fm(block.charFormat().font());
         extraMargin += fm.horizontalAdvance(QChar(0x21B5));
     }
+    const int previousBlockLineCount = blockLineCount(block);
     tl->beginLayout();
     qreal availableWidth = d->width;
     if (availableWidth <= 0) {
@@ -470,11 +587,10 @@ void PlainTextDocumentLayout::layoutBlock(const QTextBlock &block)
     }
     tl->endLayout();
 
-    int previousLineCount = doc->lineCount();
-    const_cast<QTextBlock&>(block).setLineCount(block.isVisible() ? tl->lineCount() : 0);
-    int lineCount = doc->lineCount();
+    setBlockLineCount(const_cast<QTextBlock&>(block), block.isVisible() ? tl->lineCount() : 0);
+    setBlockLayedOut(block);
+    bool emitDocumentSizeChanged = previousBlockLineCount != blockLineCount(block);
 
-    bool emitDocumentSizeChanged = previousLineCount != lineCount;
     if (blockMaximumWidth > d->maximumWidth) {
         // new longest line
         d->maximumWidth = blockMaximumWidth;
@@ -504,7 +620,7 @@ void PlainTextDocumentLayout::layoutBlock(const QTextBlock &block)
 
 qreal PlainTextDocumentLayout::blockWidth(const QTextBlock &block)
 {
-    QTextLayout *layout = block.layout();
+    QTextLayout *layout = blockLayout(block);
     if (!layout->lineCount())
         return 0; // only for layouted blocks
     qreal blockWidth = 0;
@@ -572,14 +688,13 @@ qreal PlainTextEditPrivate::verticalOffset(int topBlock, int topLine) const
 {
     qreal offset = 0;
     QTextDocument *doc = control->document();
+    QTC_ASSERT(topLine >= 0, topLine = 0);
 
-    if (topLine) {
+    if (topLine != 0) {
         QTextBlock currentBlock = doc->findBlockByNumber(topBlock);
-        PlainTextDocumentLayout *documentLayout = qobject_cast<PlainTextDocumentLayout*>(doc->documentLayout());
-        Q_ASSERT(documentLayout);
-        QRectF r = documentLayout->blockBoundingRect(currentBlock);
+        QRectF r = editorLayout->blockBoundingRect(currentBlock);
         Q_UNUSED(r)
-        QTextLayout *layout = currentBlock.layout();
+        QTextLayout *layout = editorLayout->blockLayout(currentBlock);
         if (layout && topLine <= layout->lineCount()) {
             QTextLine line = layout->lineAt(topLine - 1);
             const QRectF lr = line.naturalTextRect();
@@ -602,36 +717,31 @@ QTextBlock PlainTextEditControl::firstVisibleBlock() const
     return document()->findBlockByNumber(topBlock);
 }
 
-
-
 int PlainTextEditControl::hitTest(const QPointF &point, Qt::HitTestAccuracy ) const {
     int currentBlockNumber = topBlock;
     QTextBlock currentBlock = document()->findBlockByNumber(currentBlockNumber);
     if (!currentBlock.isValid())
         return -1;
 
-    PlainTextDocumentLayout *documentLayout = qobject_cast<PlainTextDocumentLayout*>(document()->documentLayout());
-    Q_ASSERT(documentLayout);
-
     QPointF offset;
-    QRectF r = documentLayout->blockBoundingRect(currentBlock);
+    QRectF r = textEdit->editorLayout()->blockBoundingRect(currentBlock);
     while (currentBlock.next().isValid() && r.bottom() + offset.y() <= point.y()) {
         offset.ry() += r.height();
         currentBlock = currentBlock.next();
         ++currentBlockNumber;
-        r = documentLayout->blockBoundingRect(currentBlock);
+        r = textEdit->editorLayout()->blockBoundingRect(currentBlock);
     }
     while (currentBlock.previous().isValid() && r.top() + offset.y() > point.y()) {
         offset.ry() -= r.height();
         currentBlock = currentBlock.previous();
         --currentBlockNumber;
-        r = documentLayout->blockBoundingRect(currentBlock);
+        r = textEdit->editorLayout()->blockBoundingRect(currentBlock);
     }
 
 
     if (!currentBlock.isValid())
         return -1;
-    QTextLayout *layout = currentBlock.layout();
+    QTextLayout *layout = textEdit->editorLayout()->blockLayout(currentBlock);
     int off = 0;
     QPointF pos = point - offset;
     for (int i = 0; i < layout->lineCount(); ++i) {
@@ -658,24 +768,23 @@ QRectF PlainTextEditControl::blockBoundingRect(const QTextBlock &block) const {
     if (!currentBlock.isValid())
         return QRectF();
     Q_ASSERT(currentBlock.blockNumber() == currentBlockNumber);
-    QTextDocument *doc = document();
-    PlainTextDocumentLayout *documentLayout = qobject_cast<PlainTextDocumentLayout*>(doc->documentLayout());
-    Q_ASSERT(documentLayout);
+    PlainTextDocumentLayout *editorLayout = textEdit->editorLayout();
+    QTC_ASSERT(editorLayout, return QRectF());
 
     QPointF offset;
     if (!block.isValid())
         return QRectF();
-    QRectF r = documentLayout->blockBoundingRect(currentBlock);
+    QRectF r = editorLayout->blockBoundingRect(currentBlock);
     int maxVerticalOffset = r.height();
     while (currentBlockNumber < blockNumber && offset.y() - maxVerticalOffset <= 2* textEdit->viewport()->height()) {
         offset.ry() += r.height();
         currentBlock = currentBlock.next();
         ++currentBlockNumber;
-        if (!currentBlock.isVisible()) {
-            currentBlock = doc->findBlockByLineNumber(currentBlock.firstLineNumber());
-            currentBlockNumber = currentBlock.blockNumber();
+        while (!currentBlock.isVisible()) {
+            currentBlock = currentBlock.next();
+            ++currentBlockNumber;
         }
-        r = documentLayout->blockBoundingRect(currentBlock);
+        r = editorLayout->blockBoundingRect(currentBlock);
     }
     while (currentBlockNumber > blockNumber && offset.y() + maxVerticalOffset >= -textEdit->viewport()->height()) {
         currentBlock = currentBlock.previous();
@@ -687,14 +796,14 @@ QRectF PlainTextEditControl::blockBoundingRect(const QTextBlock &block) const {
         if (!currentBlock.isValid())
             break;
 
-        r = documentLayout->blockBoundingRect(currentBlock);
+        r = editorLayout->blockBoundingRect(currentBlock);
         offset.ry() -= r.height();
     }
 
     if (currentBlockNumber != blockNumber) {
         // fallback for blocks out of reach. Give it some geometry at
         // least, and ensure the layout is up to date.
-        r = documentLayout->blockBoundingRect(block);
+        r = editorLayout->blockBoundingRect(block);
         if (currentBlockNumber > blockNumber)
             offset.ry() -= r.height();
     }
@@ -702,12 +811,16 @@ QRectF PlainTextEditControl::blockBoundingRect(const QTextBlock &block) const {
     return r;
 }
 
+QAbstractTextDocumentLayout *PlainTextEditControl::layout() const
+{
+    return textEdit->editorLayout();
+}
+
 void PlainTextEditPrivate::setTopLine(int visualTopLine, int dx, int dy)
 {
-    QTextDocument *doc = control->document();
-    QTextBlock block = doc->findBlockByLineNumber(visualTopLine);
+    QTextBlock block = editorLayout->findBlockByLineNumber(visualTopLine);
     int blockNumber = block.blockNumber();
-    int lineNumber = visualTopLine - block.firstLineNumber();
+    int lineNumber = visualTopLine - editorLayout->firstLineNumberOf(block);
     setTopBlock(blockNumber, lineNumber, dx, dy);
 }
 
@@ -718,16 +831,16 @@ void PlainTextEditPrivate::setTopBlock(int blockNumber, int lineNumber, int dx, 
     QTextDocument *doc = control->document();
     QTextBlock block = doc->findBlockByNumber(blockNumber);
 
-    int newTopLine = block.firstLineNumber() + lineNumber;
-    int maxTopLine = vbar()->maximum(); // FIXME
+    int newTopLine = editorLayout->firstLineNumberOf(block) + lineNumber;
+    int maxTopLine = editorLayout->lineCount();
 
     if (newTopLine > maxTopLine) {
-        block = doc->findBlockByLineNumber(maxTopLine);
+        block = editorLayout->findBlockByLineNumber(maxTopLine);
         blockNumber = block.blockNumber();
-        lineNumber = maxTopLine - block.firstLineNumber();
+        lineNumber = maxTopLine - editorLayout->firstLineNumberOf(block);
     }
 
-    vbar()->setValue(vScrollbarValueForLine(block.firstLineNumber() + lineNumber) + dy);
+    vbar()->setValue(vScrollbarValueForLine(editorLayout->firstLineNumberOf(block) + lineNumber) + dy);
 
     if (!dx && dy == topLineOffset && blockNumber == control->topBlock && lineNumber == topLine)
         return;
@@ -765,7 +878,8 @@ void PlainTextEditPrivate::ensureVisible(int position, bool center, bool forceCe
     QRectF br = control->blockBoundingRect(block);
     if (!br.isValid())
         return;
-    QTextLine line = block.layout()->lineForTextPosition(position - block.position());
+    const QTextLine line = editorLayout->blockLayout(block)->lineForTextPosition(
+        position - block.position());
     Q_ASSERT(line.isValid());
     QRectF lr = line.naturalTextRect().translated(br.topLeft());
 
@@ -787,10 +901,10 @@ void PlainTextEditPrivate::ensureVisible(int position, bool center, bool forceCe
         }
 
         int l = 0;
-        int lineCount = block.layout()->lineCount();
+        int lineCount = editorLayout->blockLayout(block)->lineCount();
         qreal voffset = verticalOffset(block.blockNumber(), 0);
         while (l < lineCount) {
-            QRectF lineRect = block.layout()->lineAt(l).naturalTextRect();
+            QRectF lineRect = editorLayout->blockLayout(block)->lineAt(l).naturalTextRect();
             if (h - voffset - lineRect.top() <= height)
                 break;
             ++l;
@@ -832,9 +946,11 @@ void PlainTextEditPrivate::init(const QString &txt)
     control = new PlainTextEditControl(q);
 
     QTextDocument *doc = new QTextDocument(control);
-    QAbstractTextDocumentLayout *layout = new PlainTextDocumentLayout(doc);
+    auto *layout = new PlainTextDocumentLayout(doc);
     doc->setDocumentLayout(layout);
+    editorLayout = new TextEditorLayout(layout);
     control->setDocument(doc);
+    control->setEditorLayout(editorLayout);
 
     control->setPalette(q->palette());
 
@@ -865,7 +981,7 @@ void PlainTextEditPrivate::init(const QString &txt)
     // is shown. relayoutDocument() will take care of setting the page size to the
     // viewport dimensions later.
     doc->setTextWidth(-1);
-    doc->documentLayout()->setPaintDevice(viewport());
+    editorLayout->setPaintDevice(viewport());
     doc->setDefaultFont(q->font());
 
     if (!txt.isEmpty())
@@ -951,9 +1067,9 @@ void PlainTextEditPrivate::pageUpDown(QTextCursor::MoveOperation op, QTextCursor
         if (!atEnd) {
             int line = 0;
             qreal diff = visible.bottom() - h;
-            int lineCount = block.layout()->lineCount();
+            int lineCount = editorLayout->blockLayout(block)->lineCount();
             while (line < lineCount - 1) {
-                if (block.layout()->lineAt(line).naturalTextRect().bottom() > diff) {
+                if (editorLayout->blockLayout(block)->lineAt(line).naturalTextRect().bottom() > diff) {
                     // the first line that did not completely fit the screen
                     break;
                 }
@@ -992,9 +1108,9 @@ void PlainTextEditPrivate::pageUpDown(QTextCursor::MoveOperation op, QTextCursor
         int line = 0;
         if (block.isValid()) {
             qreal diff = visible.top() - h;
-            int lineCount = block.layout()->lineCount();
+            int lineCount = editorLayout->blockLayout(block)->lineCount();
             while (line < lineCount) {
-                if (block.layout()->lineAt(line).naturalTextRect().top() >= diff)
+                if (editorLayout->blockLayout(block)->lineAt(line).naturalTextRect().top() >= diff)
                     break;
                 ++line;
             }
@@ -1026,123 +1142,42 @@ void PlainTextEditPrivate::pageUpDown(QTextCursor::MoveOperation op, QTextCursor
     }
 }
 
-// QFontMetrics::lineSpacing() returns a rounded value for fonts with a franctional line spacing,
-// but in the layout process the height is rounded up since eef8a57daf0bf6e6142470db1a08970d5020e07d
-// in qtbase.
-static int expectedBlockBoundingRectHeight(const QFont &f)
-{
-    return qCeil(QFontMetricsF(f).lineSpacing());
-}
-
 #if QT_CONFIG(scrollbar)
 
 int PlainTextEditPrivate::vScrollbarValueForLine(int topLineNumber)
 {
-    int value = 0;
-    QTextDocument *doc = control->document();
-    const int lineSpacing = expectedBlockBoundingRectHeight(doc->defaultFont());
-    if (lineWrap == PlainTextEdit::NoWrap)
-        return lineSpacing * topLineNumber;
-    QTextBlock block = doc->firstBlock();
-    auto *documentLayout = qobject_cast<PlainTextDocumentLayout*>(doc->documentLayout());
-
-    int line = 0;
-
-    while (block.isValid()) {
-        if (!block.isVisible()) {
-            block = block.next();
-            continue;
-        }
-
-        if (line + block.lineCount() - 1 >= topLineNumber) {
-            int end = topLineNumber - line;
-            for (int lineNumber = 0; lineNumber < end; ++lineNumber)
-                value += block.layout()->lineAt(lineNumber).naturalTextRect().height();
-            return value;
-        }
-        line += block.lineCount();
-        if (!block.layout()->lineCount())
-            value += lineSpacing;
-        else
-            value += documentLayout->blockBoundingRect(block).height();
-        block = block.next();
-    }
-
-    return value;
+    return editorLayout->offsetForLine(topLineNumber);
 }
 
 int PlainTextEditPrivate::topLineForVScrollbarValue(int scrollbarValue)
 {
-    QTextDocument *doc = control->document();
-    const int lineSpacing = expectedBlockBoundingRectHeight(doc->defaultFont());
-    if (lineWrap == PlainTextEdit::NoWrap)
-        return scrollbarValue / lineSpacing;
-    QTextBlock block = doc->firstBlock();
-    auto *documentLayout = qobject_cast<PlainTextDocumentLayout*>(doc->documentLayout());
-
-    int value = 0;
-    while (block.isValid()) {
-        if (!block.isVisible()) {
-            block = block.next();
-            continue;
-        }
-
-        int blockLayoutValid = block.layout()->lineCount();
-        value += blockLayoutValid ? documentLayout->blockBoundingRect(block).height() : lineSpacing;
-        if (value > scrollbarValue) {
-            if (blockLayoutValid) {
-                for (int line = block.layout()->lineCount() - 1; line >= 0; --line) {
-                    value -= block.layout()->lineAt(line).naturalTextRect().height();
-                    if (value < scrollbarValue)
-                        return block.firstLineNumber() + line;
-                }
-            }
-            return block.firstLineNumber();
-        }
-        block = block.next();
-    }
-
-    return doc->lastBlock().firstLineNumber() + doc->lastBlock().lineCount() - 1;
+    return editorLayout->lineForOffset(scrollbarValue);
 }
 
 void PlainTextEditPrivate::adjustScrollbars()
 {
     QTextDocument *doc = control->document();
-    const int lineSpacing = expectedBlockBoundingRectHeight(doc->defaultFont());
-    PlainTextDocumentLayout *documentLayout = qobject_cast<PlainTextDocumentLayout*>(doc->documentLayout());
-    Q_ASSERT(documentLayout);
-    bool documentSizeChangedBlocked = documentLayout->d->blockDocumentSizeChanged;
-    documentLayout->d->blockDocumentSizeChanged = true;
+    bool documentSizeChangedBlocked = editorLayout->d->blockDocumentSizeChanged;
+    editorLayout->d->blockDocumentSizeChanged = true;
+    qreal margin = doc->documentMargin();
 
-    int vmax = 2 * doc->documentMargin();
-    QTextBlock block = doc->firstBlock();
-    while (block.isValid()) {
-        if (!block.isVisible()) {
-            block = block.next();
-            continue;
-        }
-        if (!block.layout()->lineCount())
-            vmax += lineSpacing;
-        else
-            vmax += documentLayout->blockBoundingRect(block).height();
-        block = block.next();
-    }
+    int vmax = 2 * margin + editorLayout->documentPixelHeight();
+
     if (!centerOnScroll)
         vmax -= qMax(0, viewport()->height());
-    QSizeF documentSize = documentLayout->documentSize();
+    QSizeF documentSize = editorLayout->documentSize();
     vbar()->setRange(0, qMax(0, vmax));
     vbar()->setPageStep(viewport()->height());
-    int visualTopLine = vmax;
+    int visualTopLine = 0;
     QTextBlock firstVisibleBlock = q->firstVisibleBlock();
     if (firstVisibleBlock.isValid())
-        visualTopLine = firstVisibleBlock.firstLineNumber() + topLine;
+        visualTopLine = editorLayout->firstLineNumberOf(firstVisibleBlock) + topLine;
 
-    vbar()->setValue(vScrollbarValueForLine(visualTopLine));
-    vbar()->setSingleStep(expectedBlockBoundingRectHeight(doc->defaultFont()));
+    vbar()->setSingleStep(editorLayout->lineSpacing());
 
     hbar()->setRange(0, (int)documentSize.width() - viewport()->width());
     hbar()->setPageStep(viewport()->width());
-    documentLayout->d->blockDocumentSizeChanged = documentSizeChangedBlocked;
+    editorLayout->d->blockDocumentSizeChanged = documentSizeChangedBlocked;
     setTopLine(visualTopLine);
 }
 
@@ -1387,10 +1422,6 @@ PlainTextEdit::PlainTextEdit(const QString &text, QWidget *parent)
 */
 PlainTextEdit::~PlainTextEdit()
 {
-    if (d->documentLayoutPtr) {
-        if (d->documentLayoutPtr->d->mainViewPrivate == d.get())
-            d->documentLayoutPtr->d->mainViewPrivate = nullptr;
-    }
 }
 
 /*!
@@ -1414,16 +1445,15 @@ void PlainTextEdit::setDocument(QTextDocument *document)
         documentLayout = new PlainTextDocumentLayout(document);
         document->setDocumentLayout(documentLayout);
     } else {
-        documentLayout = qobject_cast<PlainTextDocumentLayout*>(document->documentLayout());
-        if (Q_UNLIKELY(!documentLayout)) {
-            qWarning("PlainTextEdit::setDocument: Document set does not support PlainTextDocumentLayout");
+        documentLayout = qobject_cast<PlainTextDocumentLayout *>(document->documentLayout());
+        if (!documentLayout) {
+            qWarning("PlainTextEdit::setDocument: The document must have a PlainTextDocumentLayout");
             return;
         }
     }
+    d->editorLayout = new TextEditorLayout(documentLayout);
     d->control->setDocument(document);
-    if (!documentLayout->d->mainViewPrivate)
-        documentLayout->d->mainViewPrivate = d.get();
-    d->documentLayoutPtr = documentLayout;
+    d->control->setEditorLayout(d->editorLayout);
     d->updateDefaultTextOption();
     d->relayoutDocument();
     d->adjustScrollbars();
@@ -1947,23 +1977,13 @@ QVariant PlainTextEdit::loadResource(int type, const QUrl &name)
 void PlainTextEdit::resizeEvent(QResizeEvent *e)
 {
     if (e->oldSize().width() != e->size().width())
-        d->relayoutDocument();
+        d->editorLayout->setTextWidth(viewport()->width());
     d->adjustScrollbars();
 }
 
 void PlainTextEditPrivate::relayoutDocument()
 {
-    if (!documentLayoutPtr)
-        return;
-
-    int width = viewport()->width();
-
-    if (documentLayoutPtr->d->mainViewPrivate == nullptr
-        || documentLayoutPtr->d->mainViewPrivate == this
-        || width > documentLayoutPtr->textWidth()) {
-        documentLayoutPtr->d->mainViewPrivate = this;
-        documentLayoutPtr->setTextWidth(width);
-    }
+    editorLayout->relayout();
 }
 
 static void fillBackground(QPainter *p, const QRectF &rect, QBrush brush, const QRectF &gradientRect = QRectF())
@@ -1991,7 +2011,6 @@ static void fillBackground(QPainter *p, const QRectF &rect, QBrush brush, const 
 void PlainTextEdit::paintEvent(QPaintEvent *e)
 {
     QPainter painter(viewport());
-    Q_ASSERT(qobject_cast<PlainTextDocumentLayout*>(document()->documentLayout()));
 
     QPointF offset(contentOffset());
 
@@ -2001,7 +2020,7 @@ void PlainTextEdit::paintEvent(QPaintEvent *e)
     bool editable = !isReadOnly();
 
     QTextBlock block = firstVisibleBlock();
-    qreal maximumWidth = document()->documentLayout()->documentSize().width();
+    qreal maximumWidth = d->editorLayout->documentSize().width();
 
     // Set a brush origin so that the WaveUnderline knows where the wave started
     painter.setBrushOrigin(offset);
@@ -2027,7 +2046,7 @@ void PlainTextEdit::paintEvent(QPaintEvent *e)
     while (block.isValid()) {
 
         QRectF r = blockBoundingRect(block).translated(offset);
-        QTextLayout *layout = block.layout();
+        QTextLayout *layout = d->editorLayout->blockLayout(block);
 
         if (!block.isVisible()) {
             offset.ry() += r.height();
@@ -2346,6 +2365,11 @@ QVariant PlainTextEdit::inputMethodQuery(Qt::InputMethodQuery query, QVariant ar
         break;
     }
     return v;
+}
+
+PlainTextDocumentLayout *PlainTextEdit::editorLayout() const
+{
+    return d->editorLayout;
 }
 
 void PlainTextEdit::focusInEvent(QFocusEvent *e)
@@ -3034,8 +3058,6 @@ void PlainTextEditPrivate::append(const QString &text, Qt::TextFormat format)
 {
 
     QTextDocument *document = control->document();
-    PlainTextDocumentLayout *documentLayout = qobject_cast<PlainTextDocumentLayout*>(document->documentLayout());
-    Q_ASSERT(documentLayout);
 
     int maximumBlockCount = document->maximumBlockCount();
     if (maximumBlockCount)
@@ -3048,8 +3070,8 @@ void PlainTextEditPrivate::append(const QString &text, Qt::TextFormat format)
     if (!q->isVisible())
         showCursorOnInitialShow = true;
 
-    bool documentSizeChangedBlocked = documentLayout->d->blockDocumentSizeChanged;
-    documentLayout->d->blockDocumentSizeChanged = true;
+    bool documentSizeChangedBlocked = editorLayout->d->blockDocumentSizeChanged;
+    editorLayout->d->blockDocumentSizeChanged = true;
 
     switch (format) {
     case Qt::RichText:
@@ -3072,17 +3094,17 @@ void PlainTextEditPrivate::append(const QString &text, Qt::TextFormat format)
                 emit q->updateRequest(viewport()->rect(), 0);
             }
 
-            bool updatesBlocked = documentLayout->d->blockUpdate;
-            documentLayout->d->blockUpdate = blockUpdate;
+            bool updatesBlocked = editorLayout->d->blockUpdate;
+            editorLayout->d->blockUpdate = blockUpdate;
             QTextCursor cursor(document);
             cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
             cursor.removeSelectedText();
-            documentLayout->d->blockUpdate = updatesBlocked;
+            editorLayout->d->blockUpdate = updatesBlocked;
         }
         document->setMaximumBlockCount(maximumBlockCount);
     }
 
-    documentLayout->d->blockDocumentSizeChanged = documentSizeChangedBlocked;
+    editorLayout->d->blockDocumentSizeChanged = documentSizeChangedBlocked;
     adjustScrollbars();
 
 
@@ -3205,9 +3227,7 @@ QRectF PlainTextEdit::blockBoundingGeometry(const QTextBlock &block) const
  */
 QRectF PlainTextEdit::blockBoundingRect(const QTextBlock &block) const
 {
-    PlainTextDocumentLayout *documentLayout = qobject_cast<PlainTextDocumentLayout*>(document()->documentLayout());
-    Q_ASSERT(documentLayout);
-    return documentLayout->blockBoundingRect(block);
+    return d->editorLayout->blockBoundingRect(block);
 }
 
 /*!

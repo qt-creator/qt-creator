@@ -407,16 +407,6 @@ QAction *TextDocument::createDiffAgainstCurrentFileAction(
     return diffAction;
 }
 
-void TextDocument::insertSuggestion(std::unique_ptr<TextSuggestion> &&suggestion)
-{
-    QTextCursor cursor(&d->m_document);
-    cursor.setPosition(suggestion->currentPosition());
-    const QTextBlock block = cursor.block();
-    TextBlockUserData::insertSuggestion(block, std::move(suggestion));
-    TextBlockUserData::updateSuggestionFormats(block, fontSettings());
-    updateLayout();
-}
-
 #ifdef WITH_TESTS
 void TextDocument::setSilentReload()
 {

@@ -204,6 +204,8 @@ public:
     bool setFocusToNextOrPreviousAnchor(bool next);
     bool findNextPrevAnchor(const QTextCursor& from, bool next, QTextCursor& newAnchor);
 
+    virtual QAbstractTextDocumentLayout *layout() const;
+
 protected:
     virtual void timerEvent(QTimerEvent *e) override;
 

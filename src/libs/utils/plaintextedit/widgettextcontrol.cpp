@@ -4,6 +4,7 @@
 #include "widgettextcontrol.h"
 
 #include "../utilstr.h"
+#include "plaintextedit.h"
 
 #include <QAccessible>
 #include <QApplication>
@@ -29,20 +30,6 @@
 #include <QToolTip>
 
 namespace Utils {
-
-static QTextLine currentTextLine(const QTextCursor &cursor)
-{
-    const QTextBlock block = cursor.block();
-    if (!block.isValid())
-        return QTextLine();
-
-    const QTextLayout *layout = block.layout();
-    if (!layout)
-        return QTextLine();
-
-    const int relativePos = cursor.position() - block.position();
-    return layout->lineForTextPosition(relativePos);
-}
 
 class UnicodeControlCharacterMenu : public QMenu
 {
@@ -181,6 +168,9 @@ public:
 
     void insertParagraphSeparator();
     void append(const QString &text, Qt::TextFormat format = Qt::AutoText);
+
+    QTextLayout *blockLayout(const QTextBlock &block) const;
+    QTextLine currentTextLine(const QTextCursor &cursor) const;
 
     QTextDocument *doc;
     bool cursorOn;
@@ -358,7 +348,7 @@ bool WidgetTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
             QTextLine line = currentTextLine(cursor);
             if (!block.next().isValid()
                 && line.isValid()
-                && line.lineNumber() == block.layout()->lineCount() - 1)
+                && line.lineNumber() == blockLayout(block)->lineCount() - 1)
                 op = QTextCursor::End;
         }
     }
@@ -572,7 +562,7 @@ void WidgetTextControlPrivate::setContent(Qt::TextFormat format, const QString &
         _q_documentLayoutChanged();
         cursor = QTextCursor(doc);
 
-        // ####        doc->documentLayout()->setPaintDevice(viewport);
+        // ####        layout()->setPaintDevice(viewport);
 
         QObject::connect(doc, &QTextDocument::contentsChanged, this,
                          &WidgetTextControlPrivate::_q_updateCurrentCharFormatAndSelection);
@@ -820,7 +810,7 @@ void WidgetTextControlPrivate::_q_contentsChanged(int from, int charsRemoved, in
 
 void WidgetTextControlPrivate::_q_documentLayoutChanged()
 {
-    QAbstractTextDocumentLayout *layout = doc->documentLayout();
+    QAbstractTextDocumentLayout *layout = q->layout();
     QObject::connect(layout, &QAbstractTextDocumentLayout::update, q,
                      &WidgetTextControl::updateRequest);
     QObject::connect(layout, &QAbstractTextDocumentLayout::updateBlock, this,
@@ -1018,8 +1008,8 @@ void WidgetTextControl::setDocument(QTextDocument *document)
         return;
 
     d->doc->disconnect(this);
-    d->doc->documentLayout()->disconnect(this);
-    d->doc->documentLayout()->setPaintDevice(nullptr);
+    layout()->disconnect(this);
+    layout()->setPaintDevice(nullptr);
 
     if (d->doc->parent() == this)
         delete d->doc;
@@ -1296,6 +1286,11 @@ bool WidgetTextControl::event(QEvent *e)
     return QObject::event(e);
 }
 
+QAbstractTextDocumentLayout *WidgetTextControl::layout() const
+{
+    return d->doc->documentLayout();
+}
+
 void WidgetTextControl::timerEvent(QTimerEvent *e)
 {
     if (e->timerId() == d->cursorBlinkTimer.timerId()) {
@@ -1522,8 +1517,8 @@ QRectF WidgetTextControlPrivate::rectForPosition(int position) const
     const QTextBlock block = doc->findBlock(position);
     if (!block.isValid())
         return QRectF();
-    const QAbstractTextDocumentLayout *docLayout = doc->documentLayout();
-    const QTextLayout *layout = block.layout();
+    const QAbstractTextDocumentLayout *docLayout = q->layout();
+    const QTextLayout *layout = blockLayout(block);
     const QPointF layoutPos = q->blockBoundingRect(block).topLeft();
     int relativePos = position - block.position();
     if (preeditCursor != 0) {
@@ -1552,7 +1547,7 @@ QRectF WidgetTextControlPrivate::rectForPosition(int position) const
             if (relativePos < line.textLength() - line.textStart())
                 w = line.cursorToX(relativePos + 1) - x;
             else
-                w = QFontMetrics(block.layout()->font()).horizontalAdvance(u' '); // in sync with QTextLine::draw()
+                w = QFontMetrics(blockLayout(block)->font()).horizontalAdvance(u' '); // in sync with QTextLine::draw()
         }
         r = QRectF(layoutPos.x() + x, layoutPos.y() + line.y(),
                    cursorWidth + w, line.height());
@@ -1595,7 +1590,7 @@ QRectF WidgetTextControl::selectionRect(const QTextCursor &cursor) const
     if (cursor.hasComplexSelection() && cursor.currentTable()) {
         QTextTable *table = cursor.currentTable();
 
-        r = d->doc->documentLayout()->frameBoundingRect(table);
+        r = layout()->frameBoundingRect(table);
         /*
         int firstRow, numRows, firstColumn, numColumns;
         cursor.selectedTableCells(&firstRow, &numRows, &firstColumn, &numColumns);
@@ -1603,7 +1598,7 @@ QRectF WidgetTextControl::selectionRect(const QTextCursor &cursor) const
         const QTextTableCell firstCell = table->cellAt(firstRow, firstColumn);
         const QTextTableCell lastCell = table->cellAt(firstRow + numRows - 1, firstColumn + numColumns - 1);
 
-        const QAbstractTextDocumentLayout * const layout = doc->documentLayout();
+        const QAbstractTextDocumentLayout * const layout = layout();
 
         QRectF tableSelRect = layout->blockBoundingRect(firstCell.firstCursorPosition().block());
 
@@ -1642,13 +1637,13 @@ QRectF WidgetTextControl::selectionRect(const QTextCursor &cursor) const
         const int anchor = cursor.selectionEnd();
         const QTextBlock posBlock = d->doc->findBlock(position);
         const QTextBlock anchorBlock = d->doc->findBlock(anchor);
-        if (posBlock == anchorBlock && posBlock.isValid() && posBlock.layout()->lineCount()) {
-            const QTextLine posLine = posBlock.layout()->lineForTextPosition(position - posBlock.position());
-            const QTextLine anchorLine = anchorBlock.layout()->lineForTextPosition(anchor - anchorBlock.position());
+        if (posBlock == anchorBlock && posBlock.isValid() && d->blockLayout(posBlock)->lineCount()) {
+            const QTextLine posLine = d->blockLayout(posBlock)->lineForTextPosition(position - posBlock.position());
+            const QTextLine anchorLine = d->blockLayout(anchorBlock)->lineForTextPosition(anchor - anchorBlock.position());
 
             const int firstLine = qMin(posLine.lineNumber(), anchorLine.lineNumber());
             const int lastLine = qMax(posLine.lineNumber(), anchorLine.lineNumber());
-            const QTextLayout *layout = posBlock.layout();
+            const QTextLayout *layout = d->blockLayout(posBlock);
             r = QRectF();
             for (int i = firstLine; i <= lastLine; ++i) {
                 r |= layout->lineAt(i).rect();
@@ -1659,7 +1654,7 @@ QRectF WidgetTextControl::selectionRect(const QTextCursor &cursor) const
             QRectF anchorRect = d->rectForPosition(cursor.selectionEnd());
             r |= anchorRect;
             r |= boundingRectOfFloatsInSelection(cursor);
-            QRectF frameRect(d->doc->documentLayout()->frameBoundingRect(cursor.currentFrame()));
+            QRectF frameRect(layout()->frameBoundingRect(cursor.currentFrame()));
             r.setLeft(frameRect.left());
             r.setRight(frameRect.right());
         }
@@ -2029,7 +2024,7 @@ bool WidgetTextControlPrivate::sendMouseEventToInputContext(
 #if !defined(QT_NO_IM)
 
     if (isPreediting()) {
-        QTextLayout *layout = cursor.block().layout();
+        QTextLayout *layout = blockLayout(cursor.block());
         int cursorPos = q->hitTest(pos, Qt::FuzzyHit) - cursor.position();
 
         if (cursorPos < 0 || cursorPos > layout->preeditAreaText().size())
@@ -2060,14 +2055,6 @@ void WidgetTextControlPrivate::contextMenuEvent(const QPoint &screenPos, const Q
     if (!menu)
         return;
     menu->setAttribute(Qt::WA_DeleteOnClose);
-
-/*
-    if (auto *widget = qobject_cast<QWidget *>(parent())) {
-        if (auto *window = widget->window()->windowHandle())
-            ;// QMenuPrivate::get(menu)->topData()->initialScreen = window->screen();
-    }
- */
-
     menu->popup(screenPos);
 #endif
 }
@@ -2146,7 +2133,7 @@ void WidgetTextControlPrivate::inputMethodEvent(QInputMethodEvent *e)
         return;
     }
     bool isGettingInput = !e->commitString().isEmpty()
-                          || e->preeditString() != cursor.block().layout()->preeditAreaText()
+                          || e->preeditString() != blockLayout(cursor.block())->preeditAreaText()
                           || e->replacementLength() > 0;
 
     if (!isGettingInput && e->attributes().isEmpty()) {
@@ -2187,7 +2174,7 @@ void WidgetTextControlPrivate::inputMethodEvent(QInputMethodEvent *e)
 
     if (!block.isValid())
         block = cursor.block();
-    QTextLayout *layout = block.layout();
+    QTextLayout *layout = blockLayout(block);
     if (isGettingInput)
         layout->setPreeditArea(cursor.position() - block.position(), e->preeditString());
     QList<QTextLayout::FormatRange> overrides;
@@ -2546,7 +2533,7 @@ QRectF WidgetTextControlPrivate::cursorRectPlusUnicodeDirectionMarkers(const QTe
 
 QString WidgetTextControl::anchorAt(const QPointF &pos) const
 {
-    return d->doc->documentLayout()->anchorAt(pos);
+    return layout()->anchorAt(pos);
 }
 
 QString WidgetTextControl::anchorAtCursor() const
@@ -2557,7 +2544,7 @@ QString WidgetTextControl::anchorAtCursor() const
 
 QTextBlock WidgetTextControl::blockWithMarkerAt(const QPointF &pos) const
 {
-    return d->doc->documentLayout()->blockWithMarkerAt(pos);
+    return layout()->blockWithMarkerAt(pos);
 }
 
 bool WidgetTextControl::overwriteMode() const
@@ -2572,14 +2559,14 @@ void WidgetTextControl::setOverwriteMode(bool overwrite)
 
 int WidgetTextControl::cursorWidth() const
 {
-    return d->doc->documentLayout()->property("cursorWidth").toInt();
+    return layout()->property("cursorWidth").toInt();
 }
 
 void WidgetTextControl::setCursorWidth(int width)
 {
     if (width == -1)
         width = QApplication::style()->pixelMetric(QStyle::PM_TextCursorWidth, nullptr, qobject_cast<QWidget *>(parent()));
-    d->doc->documentLayout()->setProperty("cursorWidth", width);
+    layout()->setProperty("cursorWidth", width);
     d->repaintCursor();
 }
 
@@ -2769,9 +2756,6 @@ void WidgetTextControl::print(QPagedPaintDevice *printer) const
         tempDoc->setUseDesignMetrics(doc->useDesignMetrics());
         QTextCursor(tempDoc).insertFragment(d->cursor.selection());
         doc = tempDoc;
-
-        // copy the custom object handlers
-        // doc->documentLayout()->d_func()->handlers = d->doc->documentLayout()->d_func()->handlers;
     }
     doc->print(printer);
     delete tempDoc;
@@ -3057,7 +3041,7 @@ void WidgetTextControlPrivate::showToolTip(const QPoint &globalPos, const QPoint
 
 bool WidgetTextControlPrivate::isPreediting() const
 {
-    QTextLayout *layout = cursor.block().layout();
+    QTextLayout *layout = blockLayout(cursor.block());
     if (layout && !layout->preeditAreaText().isEmpty())
         return true;
 
@@ -3077,7 +3061,7 @@ void WidgetTextControlPrivate::commitPreedit()
     cursor.beginEditBlock();
     preeditCursor = 0;
     QTextBlock block = cursor.block();
-    QTextLayout *layout = block.layout();
+    QTextLayout *layout = blockLayout(block);
     layout->setPreeditArea(-1, QString());
     layout->clearFormats();
     cursor.endEditBlock();
@@ -3335,6 +3319,27 @@ void WidgetTextControlPrivate::append(const QString &text, Qt::TextFormat format
     tmp.endEditBlock();
 }
 
+QTextLayout *WidgetTextControlPrivate::blockLayout(const QTextBlock &block) const
+{
+    if (auto plainTextLayout = qobject_cast<PlainTextDocumentLayout *>(q->layout()))
+        return plainTextLayout->blockLayout(block);
+    return block.layout();
+}
+
+QTextLine WidgetTextControlPrivate::currentTextLine(const QTextCursor &cursor) const
+{
+    const QTextBlock block = cursor.block();
+    if (!block.isValid())
+        return QTextLine();
+
+    const QTextLayout *layout = blockLayout(block);
+    if (!layout)
+        return QTextLine();
+
+    const int relativePos = cursor.position() - block.position();
+    return layout->lineForTextPosition(relativePos);
+}
+
 void WidgetTextControl::append(const QString &text)
 {
     d->append(text, Qt::AutoText);
@@ -3437,7 +3442,7 @@ void WidgetTextControl::drawContents(QPainter *p, const QRectF &rect, QWidget *w
         p->setClipRect(rect, Qt::IntersectClip);
     ctx.clip = rect;
 
-    d->doc->documentLayout()->draw(p, ctx);
+    layout()->draw(p, ctx);
     p->restore();
 }
 
@@ -3452,12 +3457,12 @@ void WidgetTextControlPrivate::_q_copyLink()
 
 int WidgetTextControl::hitTest(const QPointF &point, Qt::HitTestAccuracy accuracy) const
 {
-    return d->doc->documentLayout()->hitTest(point, accuracy);
+    return layout()->hitTest(point, accuracy);
 }
 
 QRectF WidgetTextControl::blockBoundingRect(const QTextBlock &block) const
 {
-    return d->doc->documentLayout()->blockBoundingRect(block);
+    return layout()->blockBoundingRect(block);
 }
 
 #ifndef QT_NO_CONTEXTMENU

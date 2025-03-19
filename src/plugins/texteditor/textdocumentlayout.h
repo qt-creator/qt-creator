@@ -193,7 +193,10 @@ public:
     void setRequiredWidth(int width);
 
     QSizeF documentSize() const override;
-    QRectF blockBoundingRect(const QTextBlock &block) const override;
+    int additionalBlockHeight(const QTextBlock &block) const override;
+    QRectF replacementBlockBoundingRect(const QTextBlock &block) const override;
+    int lineSpacing() const override;
+    int relativeLineSpacing() const override;
 
     TextMarks documentClosing();
     void documentAboutToReload(TextDocument *baseTextDocument);

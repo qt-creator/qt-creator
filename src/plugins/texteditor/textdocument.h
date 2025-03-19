@@ -149,9 +149,6 @@ public:
     static QAction *createDiffAgainstCurrentFileAction(QObject *parent,
         const std::function<Utils::FilePath()> &filePath);
 
-    void insertSuggestion(const QString &text, const QTextCursor &cursor);
-    void insertSuggestion(std::unique_ptr<TextSuggestion> &&suggestion);
-
 #ifdef WITH_TESTS
     void setSilentReload();
 #endif

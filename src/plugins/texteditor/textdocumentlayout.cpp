@@ -697,8 +697,13 @@ void TextBlockUserData::doFoldOrUnfold(const QTextBlock &block, bool unfold, boo
     QTextBlock b = block.next();
 
     int indent = foldingIndent(block);
+    auto documentLayout = qobject_cast<TextDocumentLayout *>(b.document()->documentLayout());
     while (b.isValid() && foldingIndent(b) > indent && (unfold || b.next().isValid())) {
-        b.setVisible(unfold);
+        if (b.isVisible() != unfold) {
+            b.setVisible(unfold);
+            if (documentLayout)
+                documentLayout->blockVisibilityChanged(b);
+        }
         b.setLineCount(unfold? qMax(1, b.layout()->lineCount()) : 0);
         if (recursive) {
             if ((unfold && isFolded(b)) || (!unfold && canFold(b)))
@@ -850,32 +855,33 @@ static QRectF replacementBoundingRect(const QTextDocument *replacement)
     return boundingRect;
 }
 
-QRectF TextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
+int TextDocumentLayout::additionalBlockHeight(const QTextBlock &block) const
 {
-    if (TextSuggestion *suggestion = TextBlockUserData::suggestion(block)) {
-        // since multiple code paths expects that we have a valid block layout after requesting the
-        // block bounding rect explicitly create that layout here
-        ensureBlockLayout(block);
-        return replacementBoundingRect(suggestion->replacementDocument());
-    }
-
-    QRectF boundingRect = PlainTextDocumentLayout::blockBoundingRect(block);
-
-    if (TextEditorSettings::fontSettings().relativeLineSpacing() != 100) {
-        if (boundingRect.isNull())
-            return boundingRect;
-        boundingRect.setHeight(TextEditorSettings::fontSettings().lineSpacing());
-    }
-
-    int additionalHeight = 0;
+    int additionalHeight = TextBlockUserData::additionalAnnotationHeight(block);
     for (const QPointer<QWidget> &wdgt : TextBlockUserData::embeddedWidgets(block)) {
         if (wdgt && wdgt->isVisible())
             additionalHeight += wdgt->height();
     }
-    boundingRect
-        .adjust(0, 0, 0, TextBlockUserData::additionalAnnotationHeight(block) + additionalHeight);
+    return additionalHeight;
+}
 
-    return boundingRect;
+QRectF TextDocumentLayout::replacementBlockBoundingRect(const QTextBlock &block) const
+{
+    if (TextSuggestion *suggestion = TextBlockUserData::suggestion(block))
+        return replacementBoundingRect(suggestion->replacementDocument());
+    return {};
+}
+
+int TextDocumentLayout::lineSpacing() const
+{
+    if (TextEditorSettings::fontSettings().relativeLineSpacing() != 100)
+        return TextEditorSettings::fontSettings().lineSpacing();
+    return PlainTextDocumentLayout::lineSpacing();
+}
+
+int TextDocumentLayout::relativeLineSpacing() const
+{
+    return TextEditorSettings::fontSettings().relativeLineSpacing();
 }
 
 void TextDocumentLayout::FoldValidator::setup(TextDocumentLayout *layout)

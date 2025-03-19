@@ -7,6 +7,7 @@
 
 #include <QAbstractScrollArea>
 #include <QAbstractTextDocumentLayout>
+#include <QTextBlockUserData>
 #include <QTextCursor>
 #include <QTextDocument>
 #include <QTextEdit>
@@ -18,6 +19,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
+class PlainTextDocumentLayout;
 class PlainTextEditPrivate;
 
 class QTCREATOR_UTILS_EXPORT PlainTextEdit : public QAbstractScrollArea
@@ -148,6 +150,8 @@ public:
     QVariant inputMethodQuery(Qt::InputMethodQuery property) const override;
     Q_INVOKABLE QVariant inputMethodQuery(Qt::InputMethodQuery query, QVariant argument) const;
 
+    PlainTextDocumentLayout *editorLayout() const;
+
 public Q_SLOTS:
 
     void setPlainText(const QString &text);
@@ -269,12 +273,36 @@ public:
 
     void requestUpdate();
 
+    virtual QTextLayout *blockLayout(const QTextBlock &block) const;
+    virtual void clearBlockLayout(QTextBlock &block) const;
+    virtual int blockLineCount(const QTextBlock &block) const;
+    virtual void setBlockLineCount(QTextBlock &block, int lineCount) const;
+    virtual void setBlockLayedOut(const QTextBlock &block) const;
+    virtual int lineCount() const;
+    virtual int firstLineNumberOf(const QTextBlock &block) const;
+    virtual QTextBlock findBlockByLineNumber(int lineNumber) const;
+    virtual int additionalBlockHeight(const QTextBlock &block) const;
+    virtual QRectF replacementBlockBoundingRect(const QTextBlock &block) const;
+    virtual int relativeLineSpacing() const;
+    virtual int lineSpacing() const;
+    virtual bool moveCursor(
+        QTextCursor &cursor,
+        QTextCursor::MoveOperation operation,
+        QTextCursor::MoveMode mode = QTextCursor::MoveAnchor,
+        int steps = 1) const;
+
+signals:
+    void documentContentsChanged(int from, int charsRemoved, int charsAdded);
+    void blockVisibilityChanged(const QTextBlock &block);
+    void additionalBlockHeightChanged(const QTextBlock &block, int additionalHeight);
+
 protected:
-    void documentChanged(int from, int /*charsRemoved*/, int charsAdded) override;
+    void documentChanged(int from, int charsRemoved, int charsAdded) override;
+    virtual void clearBlockLayout(QTextBlock &start, QTextBlock &end, bool &blockVisibilityChanged) const;
 
-
-private:
+protected:
     void setTextWidth(qreal newWidth);
+    virtual void relayout();
     qreal textWidth() const;
     void layoutBlock(const QTextBlock &block);
     qreal blockWidth(const QTextBlock &block);
@@ -282,6 +310,7 @@ private:
     friend class PlainTextEdit;
     friend class PlainTextEditPrivate;
     friend class PlainTextDocumentLayoutPrivate;
+    friend class TextEditorLayout;
 
     std::unique_ptr<PlainTextDocumentLayoutPrivate> d;
 };

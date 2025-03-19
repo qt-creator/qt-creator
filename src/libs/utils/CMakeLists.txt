@@ -243,10 +243,12 @@ extend_qtc_library(Utils
     inputcontrol.h
     plaintextedit.cpp
     plaintextedit.h
-    widgettextcontrol.cpp
-    widgettextcontrol.h
     plaintexteditaccessibility.cpp
     plaintexteditaccessibility.h
+    texteditorlayout.cpp
+    texteditorlayout.h
+    widgettextcontrol.cpp
+    widgettextcontrol.h
 )
 
 if (MSVC)

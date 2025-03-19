@@ -497,10 +497,12 @@ QtcLibrary {
             "inputcontrol.h",
             "plaintextedit.cpp",
             "plaintextedit.h",
-            "widgettextcontrol.cpp",
-            "widgettextcontrol.h",
             "plaintexteditaccessibility.cpp",
             "plaintexteditaccessibility.h",
+            "texteditorlayout.cpp",
+            "texteditorlayout.h",
+            "widgettextcontrol.cpp",
+            "widgettextcontrol.h",
         ]
     }
 
