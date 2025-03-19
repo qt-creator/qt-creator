@@ -237,6 +237,14 @@ function TextEditor:insertText(text) end
 ---@return boolean hasFocus True if the editor widget has focus, false otherwise.
 function TextEditor:hasFocus() end
 
+---Returns the block number of the first visible line in the text editor.
+---@return integer blockNumber The block number of the first visible line.
+function TextEditor:firstVisibleBlockNumber() end
+
+---Returns the block number of the last visible line in the text editor.
+---@return integer blockNumber The block number of the last visible line.
+function TextEditor:lastVisibleBlockNumber() end
+
 ---Returns the current editor or nil.
 ---@return TextEditor|nil editor The currently active editor or nil if there is none.
 function textEditor.currentEditor() end

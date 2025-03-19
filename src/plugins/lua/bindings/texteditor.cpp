@@ -466,6 +466,20 @@ void setupTextEditorModule()
                     textEditor && textEditor->editorWidget(),
                     throw sol::error("TextEditor is not valid"));
                 return textEditor->editorWidget()->hasFocus();
+            },
+            "firstVisibleBlockNumber",
+            [](const TextEditorPtr &textEditor) -> int {
+                QTC_ASSERT(
+                    textEditor && textEditor->editorWidget(),
+                    throw sol::error("TextEditor is not valid"));
+                return textEditor->editorWidget()->firstVisibleBlockNumber();
+            },
+            "lastVisibleBlockNumber",
+            [](const TextEditorPtr &textEditor) -> int {
+                QTC_ASSERT(
+                    textEditor && textEditor->editorWidget(),
+                    throw sol::error("TextEditor is not valid"));
+                return textEditor->editorWidget()->lastVisibleBlockNumber();
             });
 
         result["Side"] = lua.create_table_with(
