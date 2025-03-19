@@ -115,6 +115,7 @@ public:
     static void writeWarning(const QString &msg);
     static WorkingCopy workingCopy();
     static Utils::FilePath qmllsForBinPath(const Utils::FilePath &binPath, const QVersionNumber &v);
+    static Utils::FilePath qmlformatForBinPath(const Utils::FilePath &binPath, const QVersionNumber &v);
 
     QmlJS::Snapshot snapshot() const;
     QmlJS::Snapshot newestSnapshot() const;

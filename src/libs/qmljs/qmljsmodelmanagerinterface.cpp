@@ -234,6 +234,13 @@ FilePath ModelManagerInterface::qmllsForBinPath(const Utils::FilePath &binPath, 
     return binPath.resolvePath(qmllsExe);
 }
 
+FilePath ModelManagerInterface::qmlformatForBinPath(const Utils::FilePath &binPath, const QVersionNumber &version)
+{
+    if (version < QVersionNumber(6,2,0))
+        return {};
+    return binPath.pathAppended("qmlformat").withExecutableSuffix();
+}
+
 void ModelManagerInterface::activateScan()
 {
     const bool shouldScan = m_syncedData.update<bool>([](SyncedData &sd) {
