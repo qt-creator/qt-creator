@@ -797,44 +797,6 @@ Port IosRunner::gdbServerPort() const
     return m_gdbServerPort;
 }
 
-//
-// IosQmlProfilerSupport
-//
-
-class IosQmlProfilerSupport : public RunWorker
-{
-
-public:
-    IosQmlProfilerSupport(RunControl *runControl);
-
-private:
-    void start() override;
-    IosRunner *m_runner = nullptr;
-    RunWorker *m_profiler = nullptr;
-};
-
-IosQmlProfilerSupport::IosQmlProfilerSupport(RunControl *runControl)
-    : RunWorker(runControl)
-{
-    setId("IosQmlProfilerSupport");
-
-    m_runner = new IosRunner(runControl);
-    m_runner->setQmlDebugging(QmlProfilerServices);
-    addStartDependency(m_runner);
-
-    m_profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
-    m_profiler->addStartDependency(this);
-}
-
-void IosQmlProfilerSupport::start()
-{
-    const Port qmlPort = Port(runControl()->qmlChannel().port());
-    if (qmlPort.isValid())
-        reportStarted();
-    else
-        reportFailure(Tr::tr("Could not get necessary ports for the profiler connection."));
-}
-
 static expected_str<FilePath> findDeviceSdk(IosDevice::ConstPtr dev)
 {
     const QString osVersion = dev->osVersion();
@@ -1023,7 +985,14 @@ IosDebugWorkerFactory::IosDebugWorkerFactory()
 
 IosQmlProfilerWorkerFactory::IosQmlProfilerWorkerFactory()
 {
-    setProduct<IosQmlProfilerSupport>();
+    setProducer([](RunControl *runControl) {
+        auto runner = new IosRunner(runControl);
+        runner->setQmlDebugging(QmlProfilerServices);
+
+        auto profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
+        profiler->addStartDependency(runner);
+        return profiler;
+    });
     addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
 }
