@@ -476,18 +476,6 @@ public:
     }
 
 protected:
-    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override
-    {
-        const SortOption &option = sortOptions().at(m_sortOptionIndex);
-        const ItemType leftType = left.data(RoleItemType).value<ItemType>();
-        const ItemType rightType = right.data(RoleItemType).value<ItemType>();
-        if (leftType != rightType)
-            return option.order == Qt::AscendingOrder ? leftType < rightType
-                                                      : leftType > rightType;
-
-        return QSortFilterProxyModel::lessThan(left, right);
-    }
-
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override
     {
         const QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
