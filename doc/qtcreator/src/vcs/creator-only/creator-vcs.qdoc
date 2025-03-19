@@ -30,7 +30,7 @@
             \li  Notes
         \row
             \li \l{Bazaar}
-            \li \l{http://bazaar.canonical.com/}
+            \li \l{https://github.com/breezy-team/breezy}
             \li Enable the plugin to use it.
         \row
             \li \l{ClearCase}
@@ -56,7 +56,7 @@
             \li Enable the plugin to use it.
         \row
             \li \l{Mercurial}
-            \li \l{http://mercurial.selenic.com/}
+            \li \l{https://www.mercurial-scm.org/}
             \li Enable the plugin to use it.
         \row
             \li \l{Perforce}
