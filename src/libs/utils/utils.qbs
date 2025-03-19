@@ -2,23 +2,31 @@ import qbs.FileInfo
 
 QtcLibrary {
     name: "Utils"
-    cpp.includePaths: base.concat("mimetypes2", ".")
+    Properties { cpp.includePaths: base.concat("mimetypes2", ".") }
     cpp.defines: base.concat(["UTILS_LIBRARY"])
-    cpp.dynamicLibraries: {
-        var libs = [];
-        if (qbs.targetOS.contains("windows")) {
-            libs.push("user32", "iphlpapi", "ws2_32", "shell32", "ole32");
+    Properties { cpp.dynamicLibraries: base }
+
+    Properties {
+        condition: qbs.targetOS.contains("windows")
+        cpp.dynamicLibraries: {
+            var winLibs = ["user32", "iphlpapi", "ws2_32", "shell32", "ole32"];
             if (qbs.toolchain.contains("mingw"))
-                libs.push("uuid");
-            else if (qbs.toolchain.contains("msvc"))
-                libs.push("dbghelp");
-        } else if (qbs.targetOS.contains("unix")) {
-            if (!qbs.targetOS.contains("macos"))
-                libs.push("X11");
-            if (!qbs.targetOS.contains("openbsd"))
-                libs.push("pthread");
+                winLibs.push("uuid");
+            if (qbs.toolchain.contains("msvc"))
+                winLibs.push("dbghelp");
+            return winLibs;
         }
-        return libs;
+    }
+    Properties {
+        condition: qbs.targetOS.contains("unix")
+        cpp.dynamicLibraries: {
+            var unixLibs = [];
+            if (!qbs.targetOS.contains("macos"))
+                unixLibs.push("X11");
+            if (!qbs.targetOS.contains("openbsd"))
+                unixLibs.push("pthread");
+            return unixLibs;
+        }
     }
 
     cpp.enableExceptions: true
@@ -33,6 +41,17 @@ QtcLibrary {
     Depends { name: "Spinner" }
     Depends { name: "Tasking" }
     Depends { name: "ptyqt" }
+    Depends { name: "libarchive_static"; required: false} // in fact it's a hard dependency
+
+    Properties {
+        condition: libarchive_static.present
+        cpp.includePaths: libarchive_static.libarchiveIncludeDir
+        cpp.libraryPaths: libarchive_static.libarchiveLibDir
+        cpp.staticLibraries: libarchive_static.libarchiveStatic
+                             ? libarchive_static.libarchiveNames : []
+        cpp.dynamicLibraries: !libarchive_static.libarchiveStatic
+                              ? libarchive_static.libarchiveNames : []
+    }
 
     files: [
         "action.cpp",
