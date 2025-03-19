@@ -82,6 +82,8 @@ private:
     void save();
     void aboutToSave();
 
+    void updateBoundValues();
+
 private:
     DSThemeManager *m_collection = nullptr;
     DSStore *m_store;
