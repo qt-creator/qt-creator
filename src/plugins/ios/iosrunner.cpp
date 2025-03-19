@@ -107,7 +107,6 @@ public:
     DeviceCtlRunnerBase(RunControl *runControl);
 
     void start();
-    qint64 processIdentifier() const { return m_processIdentifier; }
 
 protected:
     GroupItem findApp(const QString &bundleIdentifier, Storage<AppInfo> appInfo);
@@ -293,6 +292,7 @@ GroupItem DeviceCtlPollingRunner::launchTask(const QString &bundleIdentifier)
         const Utils::expected_str<qint64> pid = parseLaunchResult(process.rawStdOut());
         if (pid) {
             m_processIdentifier = *pid;
+            runControl()->setAttachPid(ProcessHandle(m_processIdentifier));
             m_pollTimer.start();
             reportStarted();
             return DoneResult::Success;
@@ -486,6 +486,7 @@ GroupItem DeviceCtlRunner::launchTask(const QString &bundleIdentifier)
                 onGroupDone([this, appInfo](DoneWith doneWith) {
                     if (doneWith == DoneWith::Success) {
                         m_processIdentifier = appInfo->processIdentifier;
+                        runControl()->setAttachPid(ProcessHandle(m_processIdentifier));
                         reportStarted();
                     } else {
                         reportFailure(Tr::tr("Failed to retrieve process ID."));
@@ -881,8 +882,7 @@ IosRunWorkerFactory::IosRunWorkerFactory()
     addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
 }
 
-static void startDebugger(RunControl *runControl, DebuggerRunTool *debugger,
-                          IosRunner *iosRunner, DeviceCtlRunner *deviceCtlRunner)
+static void startDebugger(RunControl *runControl, DebuggerRunTool *debugger, IosRunner *iosRunner)
 {
     DebuggerRunParameters &rp = debugger->runParameters();
     const IosDeviceTypeAspect::Data *data = runControl->aspectData<IosDeviceTypeAspect>();
@@ -909,7 +909,6 @@ static void startDebugger(RunControl *runControl, DebuggerRunTool *debugger,
             debugger->appendMessage(msgOnlyCppDebuggingSupported(),
                                     OutputFormat::LogMessageFormat, true);
         }
-        runControl->setAttachPid(ProcessHandle(deviceCtlRunner->processIdentifier()));
         rp.setInferiorExecutable(data->localExecutable);
         return;
     }
@@ -1009,11 +1008,9 @@ static RunWorker *createWorker(RunControl *runControl)
         rp.setLldbPlatform("ios-simulator");
     }
 
-    QObject::connect(runner, &RunWorker::started, debugger,
-                     [runControl, debugger, iosRunner, deviceCtlRunner] {
-                         startDebugger(runControl, debugger, iosRunner, deviceCtlRunner);
-                     });
-
+    QObject::connect(runner, &RunWorker::started, debugger, [runControl, debugger, iosRunner] {
+        startDebugger(runControl, debugger, iosRunner);
+    });
     return debugger;
 }
 
