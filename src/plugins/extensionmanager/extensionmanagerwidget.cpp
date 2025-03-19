@@ -631,11 +631,14 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         [](const QList<DropSupport::FileSpec> &files, const QPoint &) {
             bool needsRestart = false;
             for (const auto &file : files) {
-                if (executePluginInstallWizard(file.filePath) == InstallResult::NeedsRestart)
+                InstallResult result = executePluginInstallWizard(file.filePath);
+                if (result == InstallResult::NeedsRestart)
                     needsRestart = true;
+                if (result == InstallResult::Error)
+                    break;
             }
             if (needsRestart)
-                ICore::askForRestart(Tr::tr("Plugin changes will take effect after restart."));
+                requestRestart();
         });
 
     updateView({});
