@@ -29,7 +29,8 @@ MimeType mimeTypeForFile(const FilePath &filePath, MimeMatchMode mode)
 {
     MimeDatabase mdb;
     if (!filePath.isLocal() && mode != MimeMatchMode::MatchDefaultAndRemote)
-        return mdb.mimeTypeForUrl(filePath.toUrl());
+        return mdb.mimeTypeForFile(filePath.path(), MimeDatabase::MatchExtension);
+
     if (mode == MimeMatchMode::MatchDefaultAndRemote) {
         mode = MimeMatchMode::MatchDefault;
     }
