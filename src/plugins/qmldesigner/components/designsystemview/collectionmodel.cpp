@@ -35,6 +35,10 @@ void CollectionModel::setActiveTheme(const QString &themeName)
     if (const auto themeId = m_collection->themeId(themeName.toLatin1())) {
         m_collection->setActiveTheme(*themeId);
         aboutToSave();
+
+        // Update the active status
+        if (rowCount() && columnCount())
+            emit headerDataChanged(Qt::Horizontal, 0, columnCount() - 1);
     }
 }
 
