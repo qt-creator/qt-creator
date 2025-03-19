@@ -191,7 +191,7 @@ bool QmakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
         FilePath::removeDuplicates(alreadyPresentFiles);
 
         FilePaths actualFilePaths = filePaths;
-        for (const FilePath &e : alreadyPresentFiles)
+        for (const FilePath &e : std::as_const(alreadyPresentFiles))
             actualFilePaths.removeOne(e);
         if (notAdded)
             *notAdded = alreadyPresentFiles;

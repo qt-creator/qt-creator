@@ -1102,7 +1102,7 @@ void PluginManagerPrivate::deleteAll()
 void PluginManagerPrivate::checkForDuplicatePlugins()
 {
     QHash<QString, PluginSpec *> seen;
-    for (PluginSpec *spec : pluginSpecs) {
+    for (PluginSpec *spec : std::as_const(pluginSpecs)) {
         if (PluginSpec *other = seen.value(spec->id())) {
             // Plugin with same name already there. We do not know, which version is the right one,
             // keep it simple and fail both (if enabled).
@@ -2033,7 +2033,7 @@ void PluginManagerPrivate::installPluginsAfterRestart()
     QList<QPair<FilePath, FilePath>> installList = readPluginInstallList(settings);
     const Utils::FilePaths pluginPaths = PluginManager::pluginPaths();
 
-    for (const auto &[src, dest] : installList) {
+    for (const auto &[src, dest] : std::as_const(installList)) {
         if (!src.exists()) {
             qCWarning(pluginLog()) << "Cannot install source " << src << ", it does not exist";
             continue;

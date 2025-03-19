@@ -370,7 +370,7 @@ void PythonBuildSystem::parse()
         auto pyProjectTomlParseResult = parsePyProjectToml(filePath);
 
         TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
-        for (const PyProjectTomlError &error : pyProjectTomlParseResult.errors) {
+        for (const PyProjectTomlError &error : std::as_const(pyProjectTomlParseResult.errors)) {
             TaskHub::addTask(
                 BuildSystemTask(Task::TaskType::Error, error.description, filePath, error.line));
         }

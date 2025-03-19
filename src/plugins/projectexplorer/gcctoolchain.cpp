@@ -1668,7 +1668,7 @@ Toolchains GccToolchainFactory::autoDetectToolchains(const FilePaths &compilerPa
     Toolchains result;
     for (const FilePath &compilerPath : std::as_const(compilerPaths)) {
         bool alreadyExists = false;
-        for (Toolchain * const existingTc : existingCandidates) {
+        for (Toolchain * const existingTc : std::as_const(existingCandidates)) {
             // We have a match if the existing toolchain ultimately refers to the same file
             // as the candidate path, either directly or via a hard or soft link.
             // Exceptions:

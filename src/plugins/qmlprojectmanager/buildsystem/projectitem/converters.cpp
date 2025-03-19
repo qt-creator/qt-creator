@@ -128,7 +128,7 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
         } else if (nodeName.toLower() == "javascriptfiles") {
             filter = javaScriptFilesFilter;
         }
-        for (const QString &entry : filter) {
+        for (const QString &entry : std::as_const(filter)) {
             filters.removeOne(entry);
         }
         appendString("filter", filters.join(";"));

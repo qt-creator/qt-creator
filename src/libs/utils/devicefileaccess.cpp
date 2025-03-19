@@ -1741,7 +1741,7 @@ bool UnixDeviceFileAccess::iterateWithFind(const FilePath &filePath,
     if (entries.front() == filePath.path())
         entries.pop_front();
 
-    for (const QString &entry : entries) {
+    for (const QString &entry : std::as_const(entries)) {
         if (toFilePath(entry) == IterationPolicy::Stop)
             break;
     }

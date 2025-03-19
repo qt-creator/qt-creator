@@ -64,7 +64,7 @@ static const std::pair<Utils::FilePath, int> expandWildcards(
     std::pair<FilePath, int> retPair = {path, patternComponents.size()};
 
     sort(entries, [](const FilePath &a, const FilePath &b) { return a.fileName() < b.fileName(); });
-    for (const auto &entry : entries) {
+    for (const auto &entry : std::as_const(entries)) {
         auto [entry_path, remaining_components] = expandWildcards(entry,
                                                                   {patternComponents.constBegin()
                                                                        + 1,

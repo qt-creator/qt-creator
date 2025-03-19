@@ -206,7 +206,7 @@ void GitLabCloneDialog::cloneFinished(bool success)
 
         // limit the files to the most top-level item(s)
         int minimum = std::numeric_limits<int>::max();
-        for (const FilePath &f : filesWeMayOpen) {
+        for (const FilePath &f : std::as_const(filesWeMayOpen)) {
             int parentCount = f.toUrlishString().count('/');
             if (parentCount < minimum)
                 minimum = parentCount;

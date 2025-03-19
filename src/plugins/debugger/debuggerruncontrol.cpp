@@ -594,12 +594,12 @@ Result EnginesDriver::setupEngines(RunControl *runControl, const DebuggerRunPara
 
     m_engines = *engines;
     const QString runId = QString::number(newRunId());
-    for (auto engine : m_engines) {
+    for (auto engine : std::as_const(m_engines)) {
         if (engine != m_engines.first())
             engine->setSecondaryEngine();
         engine->setRunParameters(rp);
         engine->setRunId(runId);
-        for (auto companion : m_engines) {
+        for (auto companion : std::as_const(m_engines)) {
             if (companion != engine)
                 engine->addCompanionEngine(companion);
         }
@@ -641,7 +641,7 @@ Result EnginesDriver::checkBreakpoints() const
 void EnginesDriver::start()
 {
     const QString runId = QString::number(newRunId());
-    for (auto engine : m_engines) {
+    for (auto engine : std::as_const(m_engines)) {
         connect(engine, &DebuggerEngine::interruptTerminalRequested,
                 this, &EnginesDriver::interruptTerminalRequested);
         connect(engine, &DebuggerEngine::kickoffTerminalProcessRequested,
@@ -698,7 +698,7 @@ void EnginesDriver::showMessage(const QString &msg, int channel, int timeout)
 
     QTC_ASSERT(!m_engines.isEmpty(), qDebug() << msg; return);
 
-    for (auto engine : m_engines)
+    for (auto engine : std::as_const(m_engines))
         engine->showMessage(msg, channel, timeout);
     switch (channel) {
     case AppOutput:

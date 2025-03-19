@@ -451,7 +451,7 @@ QList<Client *> LanguageClientManager::clientsByName(const QString &name)
 void LanguageClientManager::updateWorkspaceConfiguration(const ProjectExplorer::Project *project,
                                                          const QJsonValue &json)
 {
-    for (Client *client : managerInstance->m_clients) {
+    for (Client *client : std::as_const(managerInstance->m_clients)) {
         ProjectExplorer::Project *clientProject = client->project();
         if (!clientProject || clientProject == project)
             client->updateConfiguration(json);

@@ -277,7 +277,7 @@ void PyLSClient::updateExtraCompilers(ProjectExplorer::Project *project,
             m_extraCompilers[project] << oldCompilers.takeAt(index);
         }
     }
-    for (ProjectExplorer::ExtraCompiler *compiler : oldCompilers)
+    for (ProjectExplorer::ExtraCompiler *compiler : std::as_const(oldCompilers))
         closeExtraCompiler(compiler, compiler->targets().first());
 }
 

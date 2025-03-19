@@ -304,7 +304,7 @@ void WorkspaceBuildSystem::handleDirectoryChanged(const FilePath &directory)
         };
         fn->forEachFileNode(filter);
         fn->forEachFolderNode(filter);
-        for (auto n : toRemove)
+        for (auto n : std::as_const(toRemove))
             fn->replaceSubtree(n, nullptr);
     } else {
         scan(directory);

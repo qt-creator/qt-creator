@@ -153,7 +153,7 @@ void prepareLuaState(
         };
     }
 
-    for (const auto &func : d->m_autoProviders)
+    for (const auto &func : std::as_const(d->m_autoProviders))
         func(lua);
 
     if (customizeState)
@@ -353,7 +353,7 @@ expected_str<sol::protected_function> prepareSetup(
         };
     }
 
-    for (const auto &func : d->m_autoProviders)
+    for (const auto &func : std::as_const(d->m_autoProviders))
         func(lua);
 
     sol::protected_function_result result = lua.safe_script(

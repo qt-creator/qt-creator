@@ -73,7 +73,7 @@ void insertSorted(QComboBox *comboBox, E last)
 
     Utils::sort(abis, &pairLessThan);
 
-    for (const auto &abiPair : abis)
+    for (const auto &abiPair : std::as_const(abis))
         comboBox->addItem(abiPair.first, abiPair.second);
 }
 
@@ -221,7 +221,7 @@ static void updateOsFlavorCombobox(QComboBox *combo, const Abi::OS os)
 
     Utils::sort(sortedFlavors, pairLessThan);
 
-    for (const auto &[str, idx] : sortedFlavors)
+    for (const auto &[str, idx] : std::as_const(sortedFlavors))
         combo->addItem(str, idx);
     combo->setCurrentIndex(0);
 }

@@ -1906,7 +1906,7 @@ void EditorManagerPrivate::addEditorArea(EditorArea *area)
             // In case the hidden editor area has the current view, look for a view
             // that is not hidden, iterating through the history of current views.
             // This could be the first==current view (which results in a no-op).
-            for (const QPointer<EditorView> &view : d->m_currentView) {
+            for (const QPointer<EditorView> &view : std::as_const(d->m_currentView)) {
                 if (isReallyVisibile(view)) {
                     setCurrentView(view);
                     return;

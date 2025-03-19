@@ -339,7 +339,7 @@ void LldbEngine::handleLldbStarted()
                 const QString trimmed = line.trimmed();
                 return !trimmed.isEmpty() && !trimmed.startsWith('#');
             });
-            for (const QString &cmd : commands) {
+            for (const QString &cmd : std::as_const(commands)) {
                 executeDebuggerCommand(cmd);
             }
         } else {

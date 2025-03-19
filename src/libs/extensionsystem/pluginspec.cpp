@@ -1204,7 +1204,7 @@ bool PluginSpec::resolveDependencies(const PluginSpecs &specs)
     }
 
     QHash<PluginDependency, PluginSpec *> resolvedDependencies;
-    for (const PluginDependency &dependency : d->dependencies) {
+    for (const PluginDependency &dependency : std::as_const(d->dependencies)) {
         PluginSpec *const found = findOrDefault(specs, [this, &dependency](PluginSpec *spec) {
             return provides(spec, dependency);
         });

@@ -325,7 +325,7 @@ void setupUtilsModule()
 
 InfoBarCleaner::~InfoBarCleaner()
 {
-    for (const auto &id : openInfoBars)
+    for (const auto &id : std::as_const(openInfoBars))
         Core::ICore::infoBar()->removeInfo(id);
 }
 

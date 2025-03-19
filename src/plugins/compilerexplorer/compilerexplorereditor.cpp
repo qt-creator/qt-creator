@@ -757,18 +757,18 @@ void CompilerWidget::doCompile()
             m_resultTerminal->restart();
             m_resultTerminal->writeToTerminal("\x1b[?25l", false);
 
-            for (const auto &err : r.stdErr)
+            for (const auto &err : std::as_const(r.stdErr))
                 m_resultTerminal->writeToTerminal((err.text + "\r\n").toUtf8(), false);
-            for (const auto &out : r.stdOut)
+            for (const auto &out : std::as_const(r.stdOut))
                 m_resultTerminal->writeToTerminal((out.text + "\r\n").toUtf8(), false);
 
             m_resultTerminal->writeToTerminal(
                 QString("ASM generation compiler returned: %1\r\n\r\n").arg(r.code).toUtf8(), true);
 
             if (r.execResult) {
-                for (const auto &err : r.execResult->buildResult.stdErr)
+                for (const auto &err : std::as_const(r.execResult->buildResult.stdErr))
                     m_resultTerminal->writeToTerminal((err.text + "\r\n").toUtf8(), false);
-                for (const auto &out : r.execResult->buildResult.stdOut)
+                for (const auto &out : std::as_const(r.execResult->buildResult.stdOut))
                     m_resultTerminal->writeToTerminal((out.text + "\r\n").toUtf8(), false);
 
                 m_resultTerminal
@@ -783,11 +783,11 @@ void CompilerWidget::doCompile()
                                                           .toUtf8(),
                                                       true);
 
-                    for (const auto &err : r.execResult->stdErrLines)
+                    for (const auto &err : std::as_const(r.execResult->stdErrLines))
                         m_resultTerminal
                             ->writeToTerminal(("  \033[0;31m" + err + "\033[0m\r\n\r\n").toUtf8(),
                                               false);
-                    for (const auto &out : r.execResult->stdOutLines)
+                    for (const auto &out : std::as_const(r.execResult->stdOutLines))
                         m_resultTerminal->writeToTerminal((out + "\r\n").toUtf8(), false);
                 }
             }
@@ -1183,7 +1183,7 @@ QList<QTextEdit::ExtraSelection> AsmDocument::setCompileResult(
         Utils::transform(m_assemblyLines, [](const auto &line) { return line.text; }).join('\n'));
 
     int currentLine = 0;
-    for (auto l : m_assemblyLines) {
+    for (auto l : std::as_const(m_assemblyLines)) {
         currentLine++;
 
         auto createLabelLink = [currentLine, &linkFormat, &cursor, labelRow](

@@ -260,7 +260,7 @@ void TodoOutputPane::createScopeButtons()
     m_spacer->setMinimumWidth(Constants::OUTPUT_TOOLBAR_SPACER_WIDTH);
 
     QString tooltip = Tr::tr("Show \"%1\" entries");
-    for (const Keyword &keyword: todoSettings().keywords) {
+    for (const Keyword &keyword: std::as_const(todoSettings().keywords)) {
         QToolButton *button = createCheckableToolButton(keyword.name, tooltip.arg(keyword.name), toolBarIcon(keyword.iconType));
         button->setProperty(Constants::FILTER_KEYWORD_NAME, keyword.name);
         button->setToolButtonStyle(Qt::ToolButtonIconOnly);

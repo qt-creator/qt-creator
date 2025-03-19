@@ -501,7 +501,7 @@ void ConfigModel::setMacroExpander(Utils::MacroExpander *newExpander)
 void ConfigModel::generateTree()
 {
     QHash<QString, InternalDataItem> initialHash;
-    for (const InternalDataItem &di : m_configuration)
+    for (const InternalDataItem &di : std::as_const(m_configuration))
         if (di.isInitial)
             initialHash.insert(di.key, di);
 

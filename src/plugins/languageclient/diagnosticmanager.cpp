@@ -143,7 +143,7 @@ void DiagnosticManager::disableDiagnostics(TextEditor::TextDocument *document)
     Marks &marks = d->m_marks[document->filePath()];
     if (!marks.enabled)
         return;
-    for (TextEditor::TextMark *mark : marks.marks)
+    for (TextEditor::TextMark *mark : std::as_const(marks.marks))
         mark->setColor(Utils::Theme::Color::IconsDisabledColor);
     marks.enabled = false;
 }

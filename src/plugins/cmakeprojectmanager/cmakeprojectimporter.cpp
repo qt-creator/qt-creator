@@ -982,7 +982,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                 }
             }
         }
-        for (const auto &buildType : buildConfigurationTypes) {
+        for (const auto &buildType : std::as_const(buildConfigurationTypes)) {
             DirectoryData *newData = new DirectoryData(*data);
             newData->cmakeBuildType = buildType;
 
@@ -1101,7 +1101,7 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
 
     const bool compilersMatch = [k, data] {
         const QList<Id> allLanguages = ToolchainManager::allLanguages();
-        for (const ToolchainDescriptionEx &tcd : data->toolchains) {
+        for (const ToolchainDescriptionEx &tcd : std::as_const(data->toolchains)) {
             if (!Utils::contains(allLanguages,
                                  [&tcd](const Id &language) { return language == tcd.language; }))
                 continue;
@@ -1114,7 +1114,7 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
     }();
     const bool noCompilers = [k, data] {
         const QList<Id> allLanguages = ToolchainManager::allLanguages();
-        for (const ToolchainDescriptionEx &tcd : data->toolchains) {
+        for (const ToolchainDescriptionEx &tcd : std::as_const(data->toolchains)) {
             if (!Utils::contains(allLanguages,
                                  [&tcd](const Id &language) { return language == tcd.language; }))
                 continue;
@@ -1166,7 +1166,7 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
 
         SysRootKitAspect::setSysRoot(k, data->sysroot);
 
-        for (const ToolchainDescriptionEx &cmtcd : data->toolchains) {
+        for (const ToolchainDescriptionEx &cmtcd : std::as_const(data->toolchains)) {
             const ToolchainData tcd = findOrCreateToolchains(cmtcd);
             QTC_ASSERT(!tcd.tcs.isEmpty(), continue);
 

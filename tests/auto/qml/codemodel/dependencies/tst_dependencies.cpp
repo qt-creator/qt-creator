@@ -127,7 +127,7 @@ void tst_Dependencies::test()
     PathsAndLanguages lPaths;
     QStringList paths(m_basePaths);
     paths << m_path;
-    for (auto p: paths)
+    for (auto p: std::as_const(paths))
         lPaths.maybeInsert(Utils::FilePath::fromString(p), Dialect::Qml);
     ModelManagerInterface::importScan(ModelManagerInterface::workingCopy(), lPaths,
                                       ModelManagerInterface::instance(), false);

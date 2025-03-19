@@ -414,7 +414,7 @@ LocatorFilterEntries ActionsFilter::collectEntriesForPreferences() const
                 entriesForPages.insert(page, {});
         }
     }
-    for (auto oldPage : oldPages)
+    for (auto oldPage : std::as_const(oldPages))
         entriesForPages.remove(oldPage);
     LocatorFilterEntries result;
     for (const LocatorFilterEntries &entries : std::as_const(entriesForPages))
@@ -425,7 +425,7 @@ LocatorFilterEntries ActionsFilter::collectEntriesForPreferences() const
 void ActionsFilter::saveState(QJsonObject &object) const
 {
     QJsonArray commands;
-    for (const ActionFilterEntryData &data : m_lastTriggered) {
+    for (const ActionFilterEntryData &data : std::as_const(m_lastTriggered)) {
         if (data.commandId.isValid())
             commands.append(data.commandId.toString());
     }

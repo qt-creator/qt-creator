@@ -2241,7 +2241,7 @@ bool WatchHandler::insertItem(WatchItem *item)
 void WatchModel::reexpandItems()
 {
     m_engine->reexpandItems(m_expandedINames);
-    for (const QString &iname: m_expandedINames) {
+    for (const QString &iname: std::as_const(m_expandedINames)) {
         if (WatchItem *item = findItem(iname)) {
             emit itemIsExpanded(indexForItem(item));
             emit inameIsExpanded(iname);

@@ -292,7 +292,7 @@ void QmlBuildSystem::generateProjectTree()
         newRoot->addNestedNode(std::make_unique<FileNode>(file, fileType));
     }
 
-    for (const auto &mcuProjectItem : m_mcuProjectItems) {
+    for (const auto &mcuProjectItem : std::as_const(m_mcuProjectItems)) {
         for (const auto &file : mcuProjectItem->files()) {
             // newRoot->addNestedNode(std::make_unique<FileNode>(file, FileType::Project));
             const FileType fileType = (file == projectFilePath())

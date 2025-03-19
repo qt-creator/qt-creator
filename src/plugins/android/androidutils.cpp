@@ -716,7 +716,7 @@ static ExecutableItem waitForAvdRecipe(const QString &avdName, const Storage<QSt
 
     const auto onIsConnectedDone = [stopStorage, outputStorage, serialNumberStorage] {
         const QString serialNumber = *serialNumberStorage;
-        for (const QString &line : *outputStorage) {
+        for (const QString &line : std::as_const(*outputStorage)) {
             // skip the daemon logs
             if (!line.startsWith("* daemon") && line.left(line.indexOf('\t')).trimmed() == serialNumber)
                 return DoneResult::Error;

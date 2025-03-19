@@ -448,7 +448,7 @@ const NameValueDictionary &Environment::resolved() const
         return m_dict;
 
     m_fullDict = false;
-    for (const Item &item : m_changeItems) {
+    for (const Item &item : std::as_const(m_changeItems)) {
         switch (item.index()) {
         case SetSystemEnvironment:
             m_dict = Environment::systemEnvironment().toDictionary();

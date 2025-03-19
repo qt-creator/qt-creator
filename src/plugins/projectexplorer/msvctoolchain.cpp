@@ -1588,7 +1588,7 @@ static const MsvcToolchain *selectMsvcToolChain(const QString &displayedVarsBat,
         flavors << Abi::WindowsMsvc2022Flavor << Abi::WindowsMsvc2019Flavor
                 << Abi::WindowsMsvc2017Flavor;
     flavors << Abi::WindowsMsvc2015Flavor << Abi::WindowsMsvc2013Flavor;
-    for (const Abi::OSFlavor flavor : flavors) {
+    for (const Abi::OSFlavor flavor : std::as_const(flavors)) {
         if (const auto tc = Utils::findOrDefault(g_availableMsvcToolchains,
                                                  [&clangClInfo, flavor](const MsvcToolchain *tc) {
                                                      const Abi abi = tc->targetAbi();

@@ -70,7 +70,7 @@ void PipInstallTask::run()
     if (!m_requirementsFile.isEmpty()) {
         arguments << "-r" << m_requirementsFile.toUrlishString();
     } else {
-        for (const PipPackage &package : m_packages) {
+        for (const PipPackage &package : std::as_const(m_packages)) {
             QString pipPackage = package.packageName;
             if (!package.version.isEmpty())
                 pipPackage += "==" + package.version;

@@ -486,9 +486,9 @@ void IssuesWidget::updateNamedFilters()
     const QIcon global = Utils::Icons::LOCKED.icon();
     const QIcon user = USER_ICON.icon();
     m_namedFilters->addItem(global, Tr::tr("Show All")); // no active named filter
-    for (const auto &it : userFilters)
+    for (const auto &it : std::as_const(userFilters))
         m_namedFilters->addItem(user, it.displayName, QVariant::fromValue(it));
-    for (const auto &it : globalFilters)
+    for (const auto &it : std::as_const(globalFilters))
         m_namedFilters->addItem(global, it.displayName, QVariant::fromValue(it));
 }
 

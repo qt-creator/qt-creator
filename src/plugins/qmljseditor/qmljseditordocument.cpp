@@ -600,7 +600,7 @@ static void cleanMarks(QVector<TextEditor::TextMark *> *marks, TextEditor::TextD
     // inconsistent state where marks are cleared but not removed from doc.
     if (!marks || !doc)
         return;
-    for (TextEditor::TextMark *mark : *marks) {
+    for (TextEditor::TextMark *mark : std::as_const(*marks)) {
         doc->removeMark(mark);
         delete mark;
     }

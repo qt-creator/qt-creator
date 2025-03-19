@@ -136,7 +136,7 @@ SearchResultItems parse(const QFuture<void> &future, const QString &input,
             item.setFilePath(*lastFilePath);
             item.setDisplayText(hitLine.toString());
             item.setUseTextEditorFont(true);
-            for (const QPair<int, int> &hit : hits) {
+            for (const QPair<int, int> &hit : std::as_const(hits)) {
                 item.setMainRange(lineNumber, hit.first, hit.second);
                 item.setUserData(
                     regExp ? regExp->match(hitLine.mid(hit.first, hit.second)).capturedTexts()

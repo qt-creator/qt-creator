@@ -330,7 +330,7 @@ void CMakeProject::readPresets()
     m_presetsData = combinePresets(cmakePresetsData, cmakeUserPresetsData);
     setupBuildPresets(m_presetsData);
 
-    for (const auto &configPreset : m_presetsData.configurePresets) {
+    for (const auto &configPreset : std::as_const(m_presetsData.configurePresets)) {
         if (configPreset.hidden)
             continue;
 

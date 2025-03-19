@@ -1830,7 +1830,7 @@ void FakeVimPlugin::documentRenamed(
 
 void FakeVimPlugin::renameFileNameInEditors(const FilePath &oldPath, const FilePath &newPath)
 {
-    for (const HandlerAndData &handlerAndData : m_editorToHandler) {
+    for (const HandlerAndData &handlerAndData : std::as_const(m_editorToHandler)) {
         if (handlerAndData.handler->currentFileName() == oldPath.toUrlishString())
             handlerAndData.handler->setCurrentFileName(newPath.toUrlishString());
     }
@@ -1851,7 +1851,7 @@ void FakeVimPlugin::setUseFakeVimInternal(bool on)
         //ICore *core = ICore::instance();
         //core->updateAdditionalContexts(Context(FAKEVIM_CONTEXT),
         // Context());
-        for (const HandlerAndData &handlerAndData : m_editorToHandler)
+        for (const HandlerAndData &handlerAndData : std::as_const(m_editorToHandler))
             handlerAndData.handler->setupWidget();
     } else {
         //ICore *core = ICore::instance();

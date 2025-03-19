@@ -401,7 +401,7 @@ void setupTextEditorModule()
         QObject::connect(guard, &QObject::destroyed, [activeMarkers] {
             for (const auto &[k, v] : activeMarkers->asKeyValueRange()) {
                 if (k) {
-                    for (const auto &id : v)
+                    for (const auto &id : std::as_const(v))
                         k->editorWidget()->clearRefactorMarkers(id);
                 }
             }

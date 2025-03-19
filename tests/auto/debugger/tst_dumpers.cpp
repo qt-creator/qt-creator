@@ -2063,7 +2063,7 @@ void tst_Dumpers::dumper()
             data.checks.removeAt(i);
     }
 
-    for (const CheckSet &checkset : data.checksets) {
+    for (const CheckSet &checkset : std::as_const(data.checksets)) {
         bool setok = false;
         bool removeItDummy = false;
         for (const Check &check : checkset.checks) {

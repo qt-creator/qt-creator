@@ -242,7 +242,7 @@ void setupInstallModule()
         State(const State &) {}
         ~State()
         {
-            for (auto tree : m_trees)
+            for (auto tree : std::as_const(m_trees))
                 delete tree;
         }
 

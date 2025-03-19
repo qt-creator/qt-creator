@@ -967,7 +967,7 @@ void BranchModel::Private::updateAllUpstreamStatus(BranchNode *node)
         q->updateUpstreamStatus(node);
         return;
     }
-    for (BranchNode *child : node->children)
+    for (BranchNode *child : std::as_const(node->children))
         updateAllUpstreamStatus(child);
 }
 

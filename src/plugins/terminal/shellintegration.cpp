@@ -180,7 +180,7 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
 
         cmd = {cmd.executable(), {"--init-file", tmpRc.nativePath()}};
     } else if (cmd.executable().baseName() == "zsh") {
-        for (const FileToCopy &file : filesToCopy.zsh.files) {
+        for (const FileToCopy &file : std::as_const(filesToCopy.zsh.files)) {
             const Result copyResult = file.source.copyFile(
                 FilePath::fromUserInput(m_tempDir.filePath(file.destName)));
             QTC_ASSERT_EXPECTED(copyResult, return);

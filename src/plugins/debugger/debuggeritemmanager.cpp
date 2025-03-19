@@ -587,7 +587,7 @@ void DebuggerItemModel::autoDetectCdbDebuggers()
         QStringList abis = {"x86", "x64"};
         if (HostOsInfo::hostArchitecture() == Utils::OsArchArm64)
             abis << "arm64";
-        for (const QString &abi: abis) {
+        for (const QString &abi: std::as_const(abis)) {
             const QFileInfo cdbBinary(path + "/Debuggers/" + abi + "/cdb.exe");
             if (cdbBinary.isExecutable())
                 cdbs.append(FilePath::fromString(cdbBinary.absoluteFilePath()));
@@ -700,7 +700,7 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPath
         suspects.append(entry);
         return IterationPolicy::Continue;
     };
-    for (const FilePath &path : paths)
+    for (const FilePath &path : std::as_const(paths))
         path.iterateDirectory(addSuspect, {filters, QDir::Files | QDir::Executable});
 
     QStringList logMessages{Tr::tr("Searching debuggers...")};

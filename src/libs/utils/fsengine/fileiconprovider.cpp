@@ -139,7 +139,7 @@ private:
 
     void ensureMimeOverlays() const
     {
-        for (const std::function<void()> &f : m_mimeUpdater)
+        for (const std::function<void()> &f : std::as_const(m_mimeUpdater))
             f();
         m_mimeUpdater.clear();
     }

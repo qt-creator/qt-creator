@@ -81,7 +81,7 @@ void ColorThemes::updateColorThemeMenu()
     keys.append(Constants::C_COLOR_SCHEME_SCXMLDOCUMENT);
     keys.append(Constants::C_COLOR_SCHEME_DEFAULT);
 
-    for (const QString &key: keys) {
+    for (const QString &key: std::as_const(keys)) {
         const QString actionText = key == Constants::C_COLOR_SCHEME_DEFAULT
                 ? Tr::tr("Factory Default") : key == Constants::C_COLOR_SCHEME_SCXMLDOCUMENT
                   ? Tr::tr("Colors from SCXML Document")

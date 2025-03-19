@@ -110,7 +110,7 @@ bool CyclicSuggestion::filterSuggestions(TextEditorWidget *widget)
     QList<Data> newSuggestions;
     int newIndex = -1;
     int currentIndex = 0;
-    for (auto suggestion : m_suggestions) {
+    for (auto suggestion : std::as_const(m_suggestions)) {
         QTextCursor c = suggestion.range.begin.toTextCursor(sourceDocument());
         c.setPosition(currentPosition(), QTextCursor::KeepAnchor);
         if (suggestion.text.startsWith(c.selectedText())) {

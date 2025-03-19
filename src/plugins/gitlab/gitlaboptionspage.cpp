@@ -179,7 +179,7 @@ GitLabOptionsWidget::GitLabOptionsWidget()
 
     m_curl.setValue(m_parameters->curl);
 
-    for (const auto &gitLabServer : m_parameters->gitLabServers) {
+    for (const auto &gitLabServer : std::as_const(m_parameters->gitLabServers)) {
         m_defaultGitLabServer->addItem(gitLabServer.displayString(),
                                        QVariant::fromValue(gitLabServer));
     }

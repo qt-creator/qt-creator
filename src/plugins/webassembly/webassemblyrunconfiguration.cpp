@@ -129,7 +129,7 @@ public:
     {
         QTC_CHECK(!m_webBrowserComboBox);
         m_webBrowserComboBox = new QComboBox;
-        for (const WebBrowserEntry &be : m_availableBrowsers)
+        for (const WebBrowserEntry &be : std::as_const(m_availableBrowsers))
             m_webBrowserComboBox->addItem(be.second, be.first);
         m_webBrowserComboBox->setCurrentIndex(m_webBrowserComboBox->findData(m_currentBrowser));
         connect(m_webBrowserComboBox, &QComboBox::currentIndexChanged, this, [this] {

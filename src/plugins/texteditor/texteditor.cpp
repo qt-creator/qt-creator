@@ -1486,7 +1486,7 @@ void TextEditorWidgetPrivate::setupScrollBar()
 void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &doc)
 {
     QSharedPointer<TextDocument> previousDocument = m_document;
-    for (const QMetaObject::Connection &connection : m_documentConnections)
+    for (const QMetaObject::Connection &connection : std::as_const(m_documentConnections))
         disconnect(connection);
     m_documentConnections.clear();
 
@@ -5744,7 +5744,7 @@ void TextEditorWidgetPrivate::paintCurrentLineHighlight(const PaintEventData &da
     QColor color = m_document->fontSettings().toTextCharFormat(C_CURRENT_LINE).background().color();
     color.setAlpha(128);
     QSet<int> seenLines;
-    for (const QTextCursor &cursor : cursorsForBlock) {
+    for (const QTextCursor &cursor : std::as_const(cursorsForBlock)) {
         QTextLine line = data.block.layout()->lineForTextPosition(cursor.positionInBlock());
         if (!Utils::insert(seenLines, line.lineNumber()))
             continue;

@@ -1557,7 +1557,7 @@ void ICore::aboutToShutdown()
 {
     disconnect(qApp, &QApplication::focusChanged, d, &ICorePrivate::updateFocusWidget);
     for (auto contextsPair : d->m_contextWidgets) {
-        for (auto context : contextsPair.second)
+        for (auto context : std::as_const(contextsPair.second))
             disconnect(context, &QObject::destroyed, d->m_mainwindow, nullptr);
     }
     d->m_activeContext.clear();
@@ -2543,7 +2543,7 @@ void ICorePrivate::changeLog()
 
     auto versionCombo = new QComboBox;
     versionCombo->setMinimumWidth(80);
-    for (const VersionFilePair &f : versionedFiles)
+    for (const VersionFilePair &f : std::as_const(versionedFiles))
         versionCombo->addItem(f.first.toString());
     dialog = new LogDialog(ICore::dialogParent());
     auto showInExplorer = new QPushButton(FileUtils::msgGraphicalShellAction());

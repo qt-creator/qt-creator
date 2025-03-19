@@ -868,7 +868,7 @@ void CMakeBuildSettingsWidget::updateFromKit()
 
     // First the key value parameters
     ConfigModel::KitConfiguration configHash;
-    for (const CMakeConfigItem &i : config)
+    for (const CMakeConfigItem &i : std::as_const(config))
         configHash.insert(QString::fromUtf8(i.key), i);
 
     m_configModel->setConfigurationFromKit(configHash);
@@ -1289,7 +1289,7 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
     if (configurePreset.cacheVariables)
         cache = configurePreset.cacheVariables.value();
 
-    for (const CMakeConfigItem &presetItemRaw : cache) {
+    for (const CMakeConfigItem &presetItemRaw : std::as_const(cache)) {
 
         // Expand the CMakePresets Macros
         CMakeConfigItem presetItem(presetItemRaw);
@@ -1341,7 +1341,7 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
                 });
 
                 // Add the presets values to the final argument
-                for (const QString &presetPath : presetValueList) {
+                for (const QString &presetPath : std::as_const(presetValueList)) {
                     argItem.value.append(";");
                     argItem.value.append(presetPath.toUtf8());
                 }

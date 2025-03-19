@@ -1744,7 +1744,7 @@ void QmakeProFile::applyEvaluate(const QmakeEvalResultPtr &result)
                 });
         }
         FilePaths directoriesToAdd;
-        for (const QString &dir : result->directoriesWithWildcards) {
+        for (const QString &dir : std::as_const(result->directoriesWithWildcards)) {
             const FilePath directory = FilePath::fromString(dir);
             if (!m_wildcardWatcher->watchesDirectory(directory))
                 directoriesToAdd.append(directory);

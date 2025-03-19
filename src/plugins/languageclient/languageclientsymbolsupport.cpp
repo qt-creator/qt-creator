@@ -726,7 +726,7 @@ void SymbolSupport::applyRename(const Utils::SearchResultItems &checkedItems,
             changes << deleteFile;
     }
 
-    for (const DocumentChange &change : changes)
+    for (const DocumentChange &change : std::as_const(changes))
         applyDocumentChange(m_client, change);
 
     for (auto it = editsForDocuments.begin(), end = editsForDocuments.end(); it != end; ++it)

@@ -167,7 +167,7 @@ bool SuppressionAspect::guiToBuffer()
 void SuppressionAspect::bufferToGui()
 {
     d->m_model.clear();
-    for (const FilePath &file : m_buffer)
+    for (const FilePath &file : std::as_const(m_buffer))
         d->m_model.appendRow(new QStandardItem(file.toUserOutput()));
 }
 

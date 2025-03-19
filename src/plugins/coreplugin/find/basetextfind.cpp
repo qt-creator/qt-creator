@@ -133,7 +133,7 @@ QString BaseTextFindBase::currentFindString() const
         cursor.movePosition(QTextCursor::StartOfWord);
         cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
         QString s = cursor.selectedText();
-        for (const QChar c : s) {
+        for (const QChar c : std::as_const(s)) {
             if (!c.isLetterOrNumber() && c != QLatin1Char('_')) {
                 s.clear();
                 break;

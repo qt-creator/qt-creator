@@ -2251,7 +2251,7 @@ void ClientPrivate::initializeCallback(const InitializeRequest::Response &initRe
     q->updateConfiguration(m_configuration);
 
     m_tokenSupport.clearTokens(); // clear cached tokens from a pre reset run
-    for (TextEditor::TextDocument *doc : m_postponedDocuments)
+    for (TextEditor::TextDocument *doc : std::as_const(m_postponedDocuments))
         q->openDocument(doc);
     m_postponedDocuments.clear();
 

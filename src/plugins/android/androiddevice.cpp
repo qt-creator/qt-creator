@@ -874,7 +874,7 @@ AndroidDeviceManagerInstance::AndroidDeviceManagerInstance()
 
         const auto parsedAvdList = parseAvdList(output);
         if (parsedAvdList.errorPaths.isEmpty()) {
-            for (const FilePath &avdPath : *storage)
+            for (const FilePath &avdPath : std::as_const(*storage))
                 modifyManufacturerTag(avdPath, Uncomment);
             storage->clear(); // Don't repeat anymore
             handleAvdListChange(parsedAvdList.avdList);

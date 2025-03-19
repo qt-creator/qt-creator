@@ -274,7 +274,7 @@ id: 3 or "desktop_large"
                 avdDeviceInfo << line;
             }
         }
-        for (const QString &type : m_deviceTypeToStringMap)
+        for (const QString &type : std::as_const(m_deviceTypeToStringMap))
             m_deviceDefinitionTypeComboBox->addItem(type);
 
         updateApiLevelComboBox();
