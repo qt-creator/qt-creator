@@ -187,7 +187,7 @@ class Storage final : public StorageBase
 {
 public:
     Storage() : StorageBase(Storage::ctor(), Storage::dtor()) {}
-#ifdef __cpp_init_captures // C++20
+#if __cplusplus >= 201803L // C++20: Allow pack expansion in lambda init-capture.
     template <typename ...Args>
     Storage(const Args &...args)
         : StorageBase([...args = args] { return new StorageStruct(args...); }, Storage::dtor()) {}
