@@ -5,12 +5,12 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for parsing output of Clazy and Clang Tidy.",
-        "Path": "src/libs/3rdparty/yaml-cpp",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/yaml-cpp",
         "Description": "yaml-cpp is a YAML parser and emitter in C++ matching the YAML 1.2 spec.",
         "Homepage": "https://github.com/jbeder/yaml-cpp",
         "Version": "0.8.0",
         "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/yaml-cpp/LICENSE",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/yaml-cpp/LICENSE",
         "Copyright": "Copyright (c) 2008-2015 Jesse Beder."
     },
     {
@@ -19,12 +19,12 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting",
         "Description": "Syntax highlighting engine for Kate syntax definitions",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting",
         "Version": "v5.103.0",
         "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/syntax-highlighting/COPYING",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/COPYING",
         "Copyright": "Copyright The KDE project contributors"
     },
     {
@@ -33,11 +33,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition alert.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/syntax-highlighting/COPYING",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/COPYING",
         "Copyright": "Author: Dominik Haumann (dhaumann@kde.org)."
     },
     {
@@ -46,11 +46,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition bash.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.1",
-        "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
+        "LicenseFile": "@SOURCE_DIR@/doc/qtcreator/src/overview/license-LGPLv2.1.txt",
         "Copyright": "Copyright (c) 2004 by Wilbert Berendsen (wilbert@kde.nl). Changes by: Matthew Woehlke (mw_triad@users.sourceforge.net), Sebastian Pipping (webmaster@hartwork.org), and Luiz Angelo Daros de Luca (luizluca@gmail.com)."
     },
     {
@@ -59,11 +59,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition cmake.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.1 or later",
-        "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
+        "LicenseFile": "@SOURCE_DIR@/doc/qtcreator/src/overview/license-LGPLv2.1.txt",
         "Copyright": "Copyright 2004 Alexander Neundorf (neundorf@kde.org). Copyright 2005 Dominik Haumann (dhdev@gmx.de). Copyright 2007,2008,2013,2014 Matthew Woehlke (mw_triad@users.sourceforge.net). Copyright 2013-2015,2017-2020 Alex Turbov (i.zaufi@gmail.com)."
     },
     {
@@ -72,11 +72,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition css.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.1",
-        "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
+        "LicenseFile": "@SOURCE_DIR@/doc/qtcreator/src/overview/license-LGPLv2.1.txt",
         "Copyright": "Author: Wilbert Berendsen (wilbert@kde.nl). Changes: Version 7 and 8 by Jonathan Poelen, Version 2.13 and 4 by Guo Yunhe (guoyunhebrave@gmail.com), Version 2.08 by Joseph Wenninger, Version 2.06 by Mte90, Version 2.03 by Milian Wolff."
     },
     {
@@ -85,11 +85,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition doxygen.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/syntax-highlighting/COPYING",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/COPYING",
         "Copyright": "Author: Dominik Haumann (dhaumann@kde.org)."
     },
     {
@@ -98,11 +98,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition dtd.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.1",
-        "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
+        "LicenseFile": "@SOURCE_DIR@/doc/qtcreator/src/overview/license-LGPLv2.1.txt",
         "Copyright": "Author: Andriy Lesyuk (s-andy@in.if.ua)."
     },
     {
@@ -111,11 +111,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition html.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.1",
-        "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
+        "LicenseFile": "@SOURCE_DIR@/doc/qtcreator/src/overview/license-LGPLv2.1.txt",
         "Copyright": "Author: Wilbert Berendsen (wilbert@kde.nl)."
     },
     {
@@ -124,11 +124,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition ini.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.1",
-        "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
+        "LicenseFile": "@SOURCE_DIR@/doc/qtcreator/src/overview/license-LGPLv2.1.txt",
         "Copyright": "Author: Jan Janssen (medhefgo@web.de)."
     },
     {
@@ -137,11 +137,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition java.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.1",
-        "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
+        "LicenseFile": "@SOURCE_DIR@/doc/qtcreator/src/overview/license-LGPLv2.1.txt",
         "Copyright": "Author: Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)."
     },
     {
@@ -150,11 +150,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition javadoc.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.1",
-        "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
+        "LicenseFile": "@SOURCE_DIR@/doc/qtcreator/src/overview/license-LGPLv2.1.txt",
         "Copyright": "Author: Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)."
     },
     {
@@ -163,11 +163,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition json.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.1",
-        "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
+        "LicenseFile": "@SOURCE_DIR@/doc/qtcreator/src/overview/license-LGPLv2.1.txt",
         "Copyright": "Author: Sebastian Pipping (sebastian@pipping.org)."
     },
     {
@@ -176,11 +176,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition markdown.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU General Public License v2.0 OR BSD 2-Clause \"Simplified\" License",
-        "LicenseFile": "doc/qtcreator/src/overview/license-BSD-2-clause.txt",
+        "LicenseFile": "@SOURCE_DIR@/doc/qtcreator/src/overview/license-BSD-2-clause.txt",
         "Copyright": "Copyright 2008 Darrin Yeager. http://www.dyeager.org/ Dual-Licensed under both GPL and BSD licenses. Extended 2009 Claes Holmerson. http://github.com/claes/kate-markdown/ Extended 2019 Nibaldo González S. <nibgonz@gmail.com> (changes under MIT license)."
     },
     {
@@ -189,11 +189,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition modelines.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/syntax-highlighting/COPYING",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/COPYING",
         "Copyright": "Author: Alex Turbov (i.zaufi@gmail.com)."
     },
     {
@@ -202,11 +202,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition perl.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.1",
-        "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
+        "LicenseFile": "@SOURCE_DIR@/doc/qtcreator/src/overview/license-LGPLv2.1.txt",
         "Copyright": "Copyright (C) 2001, 2002, 2003, 2004 Anders Lund (anders@alweb.dk)."
     },
     {
@@ -215,11 +215,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition modelines.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/syntax-highlighting/COPYING",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/COPYING",
         "Copyright": "Author: Jonathan Poelen (jonathan.poelen@gmail.com)."
     },
     {
@@ -228,11 +228,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition powershell.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/syntax-highlighting/COPYING",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/COPYING",
         "Copyright": "Authors: Motoki Kashihara (motoki8791@gmail.com), Michael Lombardi (Michael.T.Lombardi@outlook.com)."
     },
     {
@@ -241,11 +241,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition qdocconf.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/syntax-highlighting/COPYING",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/COPYING",
         "Copyright": "Author: Volker Krause (vkrause@kde.org)."
     },
     {
@@ -254,11 +254,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition ruby.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.0 or later",
-        "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.0.txt",
+        "LicenseFile": "@SOURCE_DIR@/doc/qtcreator/src/overview/license-LGPLv2.0.txt",
         "Copyright": "Copyright (C) 2004 by Sebastian Vuorinen (sebastian dot vuorinen at helsinki dot fi). Copyright (C) 2004 by Stefan Lang (langstefan@gmx.at). Copyright (C) 2008 by Robin Pedersen (robinpeder@gmail.com). Copyright (C) 2011 by Miquel Sabaté (mikisabate@gmail.com)."
     },
     {
@@ -267,11 +267,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition toml.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.0",
-        "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.0.txt",
+        "LicenseFile": "@SOURCE_DIR@/doc/qtcreator/src/overview/license-LGPLv2.0.txt",
         "Copyright": "Copyright (C) flying-sheep@web.de"
     },
     {
@@ -280,11 +280,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition valgrind-suppression.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.1",
-        "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
+        "LicenseFile": "@SOURCE_DIR@/doc/qtcreator/src/overview/license-LGPLv2.1.txt",
         "Copyright": "Author: Milian Wolff (mail@milianw.de)."
     },
     {
@@ -293,11 +293,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition xml.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.1",
-        "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
+        "LicenseFile": "@SOURCE_DIR@/doc/qtcreator/src/overview/license-LGPLv2.1.txt",
         "Copyright": "Author: Wilbert Berendsen (wilbert@kde.nl)."
     },
     {
@@ -306,11 +306,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition yacc.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.1",
-        "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
+        "LicenseFile": "@SOURCE_DIR@/doc/qtcreator/src/overview/license-LGPLv2.1.txt",
         "Copyright": "Copyright (C) 2004, Jan Villat <jan.villat@net2000.ch>. Changes by: 2018 Nibaldo González <nibgonz@gmail.com>, 2007 Sebastian Pipping <webmaster@hartwork.org>."
     },
     {
@@ -319,11 +319,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
         "Description": "Syntax highlighting definition yaml.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.1",
-        "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
+        "LicenseFile": "@SOURCE_DIR@/doc/qtcreator/src/overview/license-LGPLv2.1.txt",
         "Copyright": "Copyright (C) Dr Orlovsky MA (dr.orlovsky@gmail.com), Nibaldo González (nibgonz@gmail.com)"
     },
     {
@@ -332,12 +332,12 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used internally.",
-        "Path": "src/libs/3rdparty/span",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/span",
         "Description": "A single-header implementation of C++20's std::span, conforming to the C++20 committee draft.",
         "Homepage": "https://github.com/martinmoene/span-lite",
         "Version": "00afc28",
         "License": "Boost Software License 1.0",
-        "LicenseFile": "src/libs/3rdparty/span/LICENSE_1_0.txt",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/span/LICENSE_1_0.txt",
         "Copyright": "Copyright 2018-2021 Martin Moene"
     },
     {
@@ -346,10 +346,10 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used as a fallback C++ model if Clangd is not used.",
-        "Path": "src/libs/3rdparty/cplusplus",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/cplusplus",
         "Description": "Open Source front-end for C++, enhanced for use in Qt Creator",
         "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/cplusplus/LICENSE.txt",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/cplusplus/LICENSE.txt",
         "Copyright": "Copyright (c) 2005 Roberto Raggi"
     },
     {
@@ -358,10 +358,10 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for updating the fallback C++ code model.",
-        "Path": "src/tools/3rdparty/cplusplus-keywordgen",
+        "Path": "@SOURCE_DIR@/src/tools/3rdparty/cplusplus-keywordgen",
         "Description": "Open Source tool for generating C++ code that classifies keywords.",
         "License": "MIT License",
-        "LicenseFile": "src/tools/3rdparty/cplusplus-keywordgen/LICENSE.txt",
+        "LicenseFile": "@SOURCE_DIR@/src/tools/3rdparty/cplusplus-keywordgen/LICENSE.txt",
         "Copyright": "Copyright (c) 2007 Roberto Raggi"
     },
     {
@@ -370,7 +370,7 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used in Qt Quick Designer",
-        "Path": "src/libs/3rdparty/sqlite",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/sqlite",
         "Description": "SQLite is a C-language library that implements a small, fast, self-contained, high-reliability, full-featured, SQL database engine.",
         "Homepage": "https://www.sqlite.org",
         "License": "Public Domain",
@@ -382,10 +382,10 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used as the default code editor font.",
-        "Path": "src/share/3rdparty/fonts",
+        "Path": "@SOURCE_DIR@/src/share/3rdparty/fonts",
         "Homepage": "https://fonts.adobe.com/fonts/source-code-pro",
         "License": "SIL Open Font License 1.1 with Reserved Font Name",
-        "LicenseFile": "src/share/3rdparty/fonts/SourceCodePro.txt",
+        "LicenseFile": "@SOURCE_DIR@/src/share/3rdparty/fonts/SourceCodePro.txt",
         "Copyright": "Copyright 2010, 2012 Adobe Systems Incorporated"
     },
     {
@@ -394,12 +394,12 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for parsing Chrome Trace Format data in CtfVisualizer.",
-        "Path": "src/libs/3rdparty/json",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/json",
         "Description": "JSON for Modern C++.",
         "Homepage": "https://github.com/nlohmann/json",
         "Version": "3.11.2",
         "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/json/LICENSE.MIT",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/json/LICENSE.MIT",
         "Copyright": "Copyright 2013-2022 Niels Lohmann"
     },
     {
@@ -408,11 +408,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the auto setup of package manager dependencies.",
-        "Path": "src/share/3rdparty/package-manager",
+        "Path": "@SOURCE_DIR@/src/share/3rdparty/package-manager",
         "Description": "CMake wrapper for the Conan C and C++ package manager.",
         "Homepage": "https://github.com/conan-io/cmake-conan",
         "License": "MIT License",
-        "LicenseFile": "src/share/3rdparty/package-manager/LICENSE.conan",
+        "LicenseFile": "@SOURCE_DIR@/src/share/3rdparty/package-manager/LICENSE.conan",
         "Copyright": "Copyright (c) 2018 JFrog"
     },
     {
@@ -421,11 +421,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used internally.",
-        "Path": "src/libs/3rdparty/tl_expected",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/tl_expected",
         "Description": "Single header implementation of std::expected with functional-style extensions.",
         "Homepage": "https://github.com/TartanLlama/expected",
         "License": "Creative Commons Zero v1.0 Universal",
-        "LicenseFile": "src/libs/3rdparty/tl_expected/COPYING",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/tl_expected/COPYING",
         "Copyright": "To the extent possible under law, the author(s) have dedicated all copyright and related and neighboring rights to this software to the public domain worldwide."
     },
     {
@@ -434,12 +434,12 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the integrated terminal.",
-        "Path": "src/libs/3rdparty/winpty",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/winpty",
         "Description": "winpty is a Windows software package providing an interface similar to a Unix pty-master for communicating with Windows console programs.",
         "Homepage": "https://github.com/rprichard/winpty",
         "Version": "7e59fe2d09",
         "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/winpty/LICENSE",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/winpty/LICENSE",
         "Copyright": "Copyright (c) 2011-2016 Ryan Prichard"
     },
     {
@@ -448,12 +448,12 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the integrated terminal.",
-        "Path": "src/libs/3rdparty/libptyqt",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/libptyqt",
         "Description": "Pty-Qt is small library for access to console applications by pseudo-terminal interface on Mac, Linux and Windows.",
         "Homepage": "https://github.com/kafeg/ptyqt",
         "Version" : "045ca5f09f",
         "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/libptyqt/LICENSE",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/libptyqt/LICENSE",
         "Copyright": "Copyright (c) 2019 Vitaly Petrov"
     },
     {
@@ -462,12 +462,12 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the integrated terminal.",
-        "Path": "src/libs/3rdparty/libptyqt",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/libptyqt",
         "Description": "Major parts of src/winconpty/ have been ported from microsofts terminal source code and integrated into ptyqt's conptyprocess.cpp.",
         "Homepage": "https://github.com/microsoft/terminal",
         "Version" : "a38388615e",
         "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/libptyqt/LICENSE-CONPTY",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/libptyqt/LICENSE-CONPTY",
         "Copyright": "Copyright (c) Microsoft Corporation"
     },
     {
@@ -476,12 +476,12 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the integrated terminal.",
-        "Path": "src/libs/3rdparty/libvterm",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/libvterm",
         "Description": "An abstract C99 library which implements a VT220 or xterm-like terminal emulator.",
         "Homepage": "https://www.leonerd.org.uk/code/libvterm",
         "Version" : "0.3.3",
         "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/libvterm/LICENSE",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/libvterm/LICENSE",
         "Copyright": "Copyright (c) 2008 Paul Evans"
     },
     {
@@ -490,12 +490,12 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the integrated terminal.",
-        "Path": "src/plugins/terminal/shellintegrations",
+        "Path": "@SOURCE_DIR@/src/plugins/terminal/shellintegrations",
         "Description": "Scripts for integrating with various shells.",
         "Homepage": "https://github.com/microsoft/vscode/tree/main/src/vs/workbench/contrib/terminal/browser/media",
         "Version" : "463d9933a4",
         "License": "MIT License",
-        "LicenseFile": "src/plugins/terminal/shellintegrations/LICENSE.vscode",
+        "LicenseFile": "@SOURCE_DIR@/src/plugins/terminal/shellintegrations/LICENSE.vscode",
         "Copyright": "Copyright (c) 2015 - present Microsoft Corporation"
     },
     {
@@ -504,12 +504,12 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the integrated terminal.",
-        "Path": "src/plugins/terminal/shellintegrations",
+        "Path": "@SOURCE_DIR@/src/plugins/terminal/shellintegrations",
         "Description": "A library of Lua scripts for use with Clink.",
         "Homepage": "https://github.com/chrisant996/clink-gizmos",
         "Version" : "680716f3d9",
         "License": "MIT License",
-        "LicenseFile": "src/plugins/terminal/shellintegrations/LICENSE.clink",
+        "LicenseFile": "@SOURCE_DIR@/src/plugins/terminal/shellintegrations/LICENSE.clink",
         "Copyright": "Copyright (c) 2022 Chris Antos"
     },
     {
@@ -518,11 +518,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used by the CMake project manager for parsing CMake files.",
-        "Path": "src/plugins/cmakeprojectmanager/3rdparty/cmake",
+        "Path": "@SOURCE_DIR@/src/plugins/cmakeprojectmanager/3rdparty/cmake",
         "Description": "The lexer from CMake - Cross Platform Makefile Generator.",
         "Homepage": "https://gitlab.kitware.com/cmake/cmake.git",
         "License": "BSD 3-Clause \"New\" or \"Revised\" License",
-        "LicenseFile": "src/plugins/cmakeprojectmanager/3rdparty/cmake/Copyright.txt",
+        "LicenseFile": "@SOURCE_DIR@/src/plugins/cmakeprojectmanager/3rdparty/cmake/Copyright.txt",
         "Copyright": "Copyright 2000-2023 Kitware, Inc. and Contributors"
     },
     {
@@ -531,11 +531,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used by QmlDesigner to create a QR code for Design Viewer integration.",
-        "Path": "src/libs/3rdparty/qrcodegen",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/qrcodegen",
         "Description": "Qt QR Code Generator is a simple C++ class that uses the qrcodegen library to generate QR codes from QStrings in Qt applications.",
         "Homepage": "https://github.com/alex-spataru/Qt-QrCodeGenerator",
         "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/qrcodegen/LICENSE",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/qrcodegen/LICENSE",
         "Copyright": "Copyright (c) 2023 Alex Spataru"
     },
     {
@@ -544,11 +544,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used by CMake support for parsing hover and code completion help.",
-        "Path": "src/plugins/cmakeprojectmanager/3rdparty/rstparser",
+        "Path": "@SOURCE_DIR@/src/plugins/cmakeprojectmanager/3rdparty/rstparser",
         "Description": "RSTParser is an open-source C++ library for parsing reStructuredText.",
         "Homepage": "https://github.com/vitaut-archive/rstparser",
         "License": "BSD 2-Clause \"Simplified\" License",
-        "LicenseFile": "src/plugins/cmakeprojectmanager/3rdparty/rstparser/LICENSE.txt",
+        "LicenseFile": "@SOURCE_DIR@/src/plugins/cmakeprojectmanager/3rdparty/rstparser/LICENSE.txt",
         "Copyright": "Copyright (c) 2013, Victor Zverovich"
     },
     {
@@ -557,11 +557,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used by the Axivion support to securely store and retrieve credentials.",
-        "Path": "src/libs/3rdparty/qtkeychain",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/qtkeychain",
         "Description": "QtKeychain is a Qt API to store passwords and other secret data securely.",
         "Homepage": "https://github.com/frankosterfeld/qtkeychain",
         "License": "BSD 3-Clause \"New\" or \"Revised\" License",
-        "LicenseFile": "src/libs/3rdparty/qtkeychain/COPYING",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/qtkeychain/COPYING",
         "Copyright": "Copyright (C) 2011-2015 Frank Osterfeld, Copyright (C) 2016 Mathias Hasselmann"
     },
     {
@@ -570,12 +570,12 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for converting profile data of debugger dumper execution to kcachegrind-compatible input in visualize.py",
-        "Path": "share/qtcreator/debugger",
+        "Path": "@SOURCE_DIR@/share/qtcreator/debugger",
         "Description": "Creates python profiling output which is readable by kcachegrind",
         "Homepage": "https://github.com/pwaller/pyprof2calltree",
         "License": "MIT License",
         "LicenseId": "MIT",
-        "LicenseFile": "share/qtcreator/debugger/LICENSE.MIT",
+        "LicenseFile": "@SOURCE_DIR@/share/qtcreator/debugger/LICENSE.MIT",
         "Copyright": "Copyright(C) 2006-2008, David Allouche, Jp Calderone, Itamar Shtull-Trauring, Copyright(C) 2006-2017, Johan Dahlin, Copyright(C) 2008, Olivier Grisel <olivier.grisel@ensta.org>, Copyright(C) 2008, David Glick, Copyright(C) 2013, Steven Maude, Copyright(C) 2013-2018, Peter Waller <p@pwaller.net>, Copyright(C) 2013, Lukas Graf <lukas.graf@4teamwork.ch>, Copyright(C) 2013, Jamie Wong <http://jamie-wong.com>, Copyright(C) 2013, Yury V. Zaytsev <yury@shurup.com>, Copyright(C) 2014, Michael Droettboom <mdroe@stsci.edu>, Copyright(C) 2015, Zev Benjamin <zev@mit.edu>, Copyright(C) 2018, Jon Dufresne <jon.dufresne@gmail.com>"
     },
     {
@@ -584,11 +584,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for scripting plugins.",
-        "Path": "src/libs/3rdparty/lua",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/lua",
         "Description": "Lua is a powerful, efficient, lightweight, embeddable scripting language.",
         "Homepage": "https://www.lua.org/",
         "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/lua/LICENSE",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/lua/LICENSE",
         "Copyright": "Copyright © 1994-2023 Lua.org, PUC-Rio.",
         "Version": "5.4.6"
     },
@@ -598,11 +598,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for binding C++ and Lua.",
-        "Path": "src/libs/3rdparty/sol2",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/sol2",
         "Description": "sol2 is a C++ library binding to Lua.",
         "Homepage": "https://github.com/ThePhD/sol2",
         "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/sol2/LICENSE.txt",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/sol2/LICENSE.txt",
         "Copyright": "Copyright (c) 2008 Paul Evans",
         "Version": "3.3.1 (revision 9c882a28)"
     },
@@ -612,11 +612,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for async/await support in Lua modules.",
-        "Path": "src/plugins/lua/scripts",
+        "Path": "@SOURCE_DIR@/src/plugins/lua/scripts",
         "Description": "lua-async-await implements the async/await pattern in Lua.",
         "Homepage": "https://github.com/ms-jpq/lua-async-await",
         "License": "MIT License",
-        "LicenseFile": "src/plugins/lua/scripts/ASYNC-LICENSE.txt",
+        "LicenseFile": "@SOURCE_DIR@/src/plugins/lua/scripts/ASYNC-LICENSE.txt",
         "Copyright": "Copyright (c) 2008 Paul Evans"
     },
     {
@@ -625,11 +625,11 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for pretty printing from Lua scripts.",
-        "Path": "src/plugins/lua/scripts",
+        "Path": "@SOURCE_DIR@/src/plugins/lua/scripts",
         "Description": "inspect.lua is a library for pretty printing complex objects in Lua.",
         "Homepage": "https://github.com/kikito/inspect.lua",
         "License": "MIT License",
-        "LicenseFile": "src/plugins/lua/scripts/INSPECT-LICENSE.txt",
+        "LicenseFile": "@SOURCE_DIR@/src/plugins/lua/scripts/INSPECT-LICENSE.txt",
         "Copyright": "Copyright (c) 2022 Enrique García Cota"
     },
     {
@@ -638,12 +638,12 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used by libarchive to support compress and uncompress operations.",
-        "Path": "src/libs/3rdparty/zlib",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/zlib",
         "Description": "Zlib is a lossless data-compression library.",
         "Homepage": "https://www.zlib.net",
         "Version": "1.3.1",
         "License": "BSD 3-Clause \"New\" or \"Revised\" License",
-        "LicenseFile": "src/libs/3rdparty/zlib/LICENSE",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/zlib/LICENSE",
         "Copyright": "Copyright (C) 1995-2024 Jean-loup Gailly and Mark Adler"
     },
     {
@@ -652,12 +652,12 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used by libarchive to support compress and uncompress operations.",
-        "Path": "src/libs/3rdparty/bzip2",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/bzip2",
         "Description": "BZip2 is a lossless data-compression library.",
         "Homepage": "https://sourceware.org/bzip2/",
         "Version": "1.0.8",
         "License": "bzip2 and libbzip2 License v1.0.6",
-        "LicenseFile": "src/libs/3rdparty/bzip2/LICENSE",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/bzip2/LICENSE",
         "Copyright": "copyright (C) 1996-2019 Julian R Seward."
     },
     {
@@ -666,12 +666,12 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used by libarchive to support compress and uncompress operations.",
-        "Path": "src/libs/3rdparty/xz",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/xz",
         "Description": "XZ is a lossless data-compression library.",
         "Homepage": "https://tukaani.org/xz/",
         "Version": "5.6.3",
         "License": "BSD Zero Clause License (0BSD)",
-        "LicenseFile": "src/libs/3rdparty/xz/COPYING",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/xz/COPYING",
         "Copyright": "Copyright (C) The XZ Utils authors and contributors"
     },
     {
@@ -680,12 +680,12 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for reading and writing archives.",
-        "Path": "src/libs/3rdparty/libarchive",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/libarchive",
         "Description": "Libarchive is a programming library that can create and read several different streaming archive formats, including most popular tar variants, several cpio formats, and both BSD and GNU ar variants.",
         "Homepage": "https://www.libarchive.org",
         "Version": "3.7.8",
         "License": "BSD 2-Clause \"Simplified\" License",
-        "LicenseFile": "src/libs/3rdparty/libarchive/COPYING",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/libarchive/COPYING",
         "Copyright": "Copyright (c) 2003-2018 <author(s)>"
     },
     {
@@ -694,13 +694,13 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for resolving file types by MIME type information.",
-        "Path": "src/libs/3rdparty/tika",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/tika",
         "Description": "The Apache Tika MimeTypes list many known MIME types and how to match files (using globs and/or 'magic' rules for the file contents). See qtbase/src/corelib/mimetypes/3rdparty/ for more information, also on how to update the file.",
         "Homepage": "https://github.com/apache/tika/tree/main/tika-core/src/main/resources/org/apache/tika/mime",
         "Version": "019041117149667bc4d18fabf222a0670d407959",
         "DownloadLocation": "https://github.com/apache/tika/blob/019041117149667bc4d18fabf222a0670d407959/tika-core/src/main/resources/org/apache/tika/mime/tika-mimetypes.xml",
         "License": "Apache License 2.0",
-        "LicenseFile": "doc/qtcreator/src/overview/license-Apache-2.0.txt",
+        "LicenseFile": "@SOURCE_DIR@/doc/qtcreator/src/overview/license-Apache-2.0.txt",
         "Copyright": "Copyright 2011 The Apache Software Foundation"
     },
     {
@@ -709,12 +709,12 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for reading and writing pyproject.toml files.",
-        "Path": "src/libs/3rdparty/toml11",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/toml11",
         "Description": "Header-only TOML config file parser and serializer for C++.",
         "Homepage": "https://github.com/ToruNiina/toml11",
         "Version": "4.3.0",
         "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/toml11/LICENSE",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/toml11/LICENSE",
         "Copyright": "Copyright (c) 2017-2024 Toru Niina."
     },
     {
@@ -723,12 +723,12 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for watching the UI thread of Qt Creator.",
-        "Path": "src/libs/3rdparty/ui_watchdog",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/ui_watchdog",
         "Description": "Header-only TOML config file parser and serializer for C++.",
         "Homepage": "https://github.com/KDABLabs/KDToolBox/tree/master/qt/ui_watchdog",
         "Version": "master",
         "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/ui_watchdog/LICENSE.txt",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/ui_watchdog/LICENSE.txt",
         "Copyright": "2018 Klarälvdalens Datakonsult AB, a KDAB Group company"
     }
 ]
