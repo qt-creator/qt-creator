@@ -14,10 +14,12 @@ Item {
     property Node activeScene: null
     property int activeSplit: 0
     property var editViews: [null, null, null, null]
+    property var usePerspective: [true, false, false, false]
     property var overlayViews: [overlayView0, overlayView1, overlayView2, overlayView3]
     property var cameraControls: [cameraControl0, cameraControl1, cameraControl2, cameraControl3]
     property var viewRects: [viewRect0, viewRect1, viewRect2, viewRect3]
-    property var materialOverrides: [DebugSettings.None, DebugSettings.None, DebugSettings.None, DebugSettings.None]
+    property var materialOverrides:
+        [DebugSettings.None, DebugSettings.None, DebugSettings.None, DebugSettings.None]
     property var showWireframes: [false, false, false, false]
     property var activeEditView: editViews[activeSplit]
     property var activeOverlayView: overlayViews[activeSplit]
@@ -30,7 +32,6 @@ Item {
     property bool showIconGizmo: true
     property bool showCameraFrustum: false
     property bool showParticleEmitter: false
-    property bool usePerspective: true
     property bool globalOrientation: false
     property alias contentItem: contentItem
     property color backgroundGradientColorStart: "#222222"
@@ -103,7 +104,7 @@ Item {
         if (component.status === Component.Ready) {
             for (var i = 0; i < 4; ++i) {
                 editViews[i] = component.createObject(viewRects[i],
-                                                      {"usePerspective": usePerspective,
+                                                      {"usePerspective": usePerspective[i],
                                                        "showSceneLight": showEditLight,
                                                        "showGrid": showGrid,
                                                        "gridColor": gridColor,
@@ -113,7 +114,6 @@ Item {
                                                        "sceneEnv.debugSettings.materialOverride": materialOverrides[i],
                                                        "sceneEnv.debugSettings.wireframeEnabled": showWireframes[i],
                                                        "selectedNode": selectedNode});
-                editViews[i].usePerspective = Qt.binding(function() {return usePerspective;});
                 editViews[i].showSceneLight = Qt.binding(function() {return showEditLight;});
                 editViews[i].showGrid = Qt.binding(function() {return showGrid;});
                 editViews[i].gridColor = Qt.binding(function() {return gridColor;});
@@ -128,6 +128,11 @@ Item {
             editViews[1].sceneEnv.debugSettings.materialOverride = Qt.binding(function() {return materialOverrides[1];});
             editViews[2].sceneEnv.debugSettings.materialOverride = Qt.binding(function() {return materialOverrides[2];});
             editViews[3].sceneEnv.debugSettings.materialOverride = Qt.binding(function() {return materialOverrides[3];});
+
+            editViews[0].usePerspective = Qt.binding(function() {return usePerspective[0];});
+            editViews[1].usePerspective = Qt.binding(function() {return usePerspective[1];});
+            editViews[2].usePerspective = Qt.binding(function() {return usePerspective[2];});
+            editViews[3].usePerspective = Qt.binding(function() {return usePerspective[3];});
 
             editViews[0].sceneEnv.debugSettings.wireframeEnabled = Qt.binding(function() {return showWireframes[0];});
             editViews[1].sceneEnv.debugSettings.wireframeEnabled = Qt.binding(function() {return showWireframes[1];});
@@ -350,7 +355,7 @@ Item {
         if ("usePerspective" in toolStates)
             usePerspective = toolStates.usePerspective;
         else if (resetToDefault)
-            usePerspective = true;
+            usePerspective = [true, false, false, false];
 
         if ("globalOrientation" in toolStates)
             globalOrientation = toolStates.globalOrientation;
