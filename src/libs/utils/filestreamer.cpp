@@ -7,11 +7,14 @@
 #include "qtcprocess.h"
 
 #include <solutions/tasking/barrier.h>
+#include <solutions/tasking/networkquery.h>
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <QFile>
 #include <QMutex>
 #include <QMutexLocker>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include <QWaitCondition>
 
 namespace Utils {
@@ -82,7 +85,24 @@ signals:
     void readyRead(const QByteArray &newData);
 
 private:
-    GroupItem remoteTask() final {
+    GroupItem remoteTask() final
+    {
+        const QStringView scheme = m_filePath.scheme();
+        if (scheme == u"http" || scheme == u"https") {
+            const auto onQuerySetup = [this](NetworkQuery &query) {
+                const QUrl url = m_filePath.toUrl();
+                query.setRequest(QNetworkRequest(url));
+                query.setNetworkAccessManager(new QNetworkAccessManager(&query));
+                connect(&query, &NetworkQuery::started, this, [this, &query] {
+                    connect(query.reply(), &QNetworkReply::readyRead, this, [this, &query] {
+                        const QByteArray response = query.reply()->readAll();
+                        emit readyRead(response);
+                    });
+                });
+            };
+            return NetworkQueryTask{onQuerySetup};
+        }
+
         const auto setup = [this](Process &process) {
             const QStringList args = {"if=" + m_filePath.path()};
             const FilePath dd = m_filePath.withNewPath("dd");
@@ -94,7 +114,9 @@ private:
         };
         return ProcessTask(setup);
     }
-    GroupItem localTask() final {
+
+    GroupItem localTask() final
+    {
         const auto setup = [this](Async<QByteArray> &async) {
             async.setConcurrentCallData(localRead, m_filePath);
             Async<QByteArray> *asyncPtr = &async;
@@ -249,7 +271,8 @@ signals:
     void started();
 
 private:
-    GroupItem remoteTask() final {
+    GroupItem remoteTask() final
+    {
         const auto onSetup = [this](Process &process) {
             m_writeBuffer = new WriteBuffer(false, &process);
             connect(m_writeBuffer, &WriteBuffer::writeRequested, &process, &Process::writeRaw);
