@@ -133,11 +133,8 @@ static bool verifyDecodingError(const QString &text, const QTextCodec *codec,
 // Decode a potentially large file in chunks and append it to target
 // using the append function passed on (fits QStringList and QString).
 
-template <class Target>
-bool decodeTextFileContent(const QByteArray &dataBA,
-                           const TextFileFormat &format,
-                           Target *target,
-                           void (Target::*appendFunction)(const QString &))
+template<class Target>
+bool decodeTextFileContent(const QByteArray &dataBA, const TextFileFormat &format, Target *target)
 {
     const QTextCodec *codec = format.codec();
     QTC_ASSERT(codec, return false);
@@ -169,7 +166,7 @@ bool decodeTextFileContent(const QByteArray &dataBA,
                                     chunkStart == start);
         if (format.lineTerminationMode == TextFileFormat::CRLFLineTerminator)
             text.remove(QLatin1Char('\r'));
-        (target->*appendFunction)(text);
+        target->push_back(text);
     }
     return !hasDecodingError;
 }
@@ -181,7 +178,7 @@ bool decodeTextFileContent(const QByteArray &dataBA,
 bool TextFileFormat::decode(const QByteArray &data, QString *target) const
 {
     target->clear();
-    return decodeTextFileContent<QString>(data, *this, target, &QString::push_back);
+    return decodeTextFileContent(data, *this, target);
 }
 
 /*!
@@ -195,7 +192,7 @@ bool TextFileFormat::decode(const QByteArray &data, QStringList *target) const
     target->clear();
     if (data.size() > textChunkSize)
         target->reserve(5 + data.size() / textChunkSize);
-    return decodeTextFileContent<QStringList>(data, *this, target, &QStringList::append);
+    return decodeTextFileContent(data, *this, target);
 }
 
 // Read text file contents to string or stringlist.
