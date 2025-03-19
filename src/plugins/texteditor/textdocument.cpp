@@ -413,8 +413,8 @@ void TextDocument::insertSuggestion(std::unique_ptr<TextSuggestion> &&suggestion
     QTextCursor cursor(&d->m_document);
     cursor.setPosition(suggestion->currentPosition());
     const QTextBlock block = cursor.block();
-    TextDocumentLayout::userData(block)->insertSuggestion(std::move(suggestion));
-    TextDocumentLayout::updateSuggestionFormats(block, fontSettings());
+    TextBlockUserData::insertSuggestion(block, std::move(suggestion));
+    TextBlockUserData::updateSuggestionFormats(block, fontSettings());
     updateLayout();
 }
 
@@ -491,7 +491,7 @@ void TextDocument::applyFontSettings()
     d->m_fontSettingsNeedsApply = false;
     QTextBlock block = document()->firstBlock();
     while (block.isValid()) {
-        TextDocumentLayout::updateSuggestionFormats(block, fontSettings());
+        TextBlockUserData::updateSuggestionFormats(block, fontSettings());
         block = block.next();
     }
     updateLayout();
@@ -583,11 +583,8 @@ const ExtraEncodingSettings &TextDocument::extraEncodingSettings() const
 void TextDocument::setIndenter(Indenter *indenter)
 {
     // clear out existing code formatter data
-    for (QTextBlock it = document()->begin(); it.isValid(); it = it.next()) {
-        TextBlockUserData *userData = TextDocumentLayout::textUserData(it);
-        if (userData)
-            userData->setCodeFormatterData(nullptr);
-    }
+    for (QTextBlock it = document()->begin(); it.isValid(); it = it.next())
+        TextBlockUserData::setCodeFormatterData(it, nullptr);
     d->m_indenter.reset(indenter);
 }
 
@@ -1036,7 +1033,7 @@ bool TextDocument::addMark(TextMark *mark)
     QTextBlock block = d->m_document.findBlockByNumber(blockNumber);
 
     if (block.isValid()) {
-        TextBlockUserData *userData = TextDocumentLayout::userData(block);
+        TextBlockUserData *userData = TextBlockUserData::userData(block);
         userData->addMark(mark);
         d->m_marksCache.append(mark);
         mark->updateLineNumber(blockNumber + 1);
@@ -1068,7 +1065,7 @@ TextMarks TextDocument::marksAt(int line) const
     QTextBlock block = d->m_document.findBlockByNumber(blockNumber);
 
     if (block.isValid()) {
-        if (TextBlockUserData *userData = TextDocumentLayout::textUserData(block))
+        if (TextBlockUserData *userData = TextBlockUserData::textUserData(block))
             return userData->marks();
     }
     return TextMarks();
@@ -1163,7 +1160,7 @@ void TextDocument::updateMark(TextMark *mark)
 {
     QTextBlock block = d->m_document.findBlockByNumber(mark->lineNumber() - 1);
     if (block.isValid()) {
-        TextBlockUserData *userData = TextDocumentLayout::userData(block);
+        TextBlockUserData *userData = TextBlockUserData::userData(block);
         // re-evaluate priority
         userData->removeMark(mark);
         userData->addMark(mark);
@@ -1174,7 +1171,7 @@ void TextDocument::updateMark(TextMark *mark)
 void TextDocument::moveMark(TextMark *mark, int previousLine)
 {
     QTextBlock block = d->m_document.findBlockByNumber(previousLine - 1);
-    if (TextBlockUserData *data = TextDocumentLayout::textUserData(block)) {
+    if (TextBlockUserData *data = TextBlockUserData::textUserData(block)) {
         if (!data->removeMark(mark))
             qDebug() << "Could not find mark" << mark << "on line" << previousLine;
     }

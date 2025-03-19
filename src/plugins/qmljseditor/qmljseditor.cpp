@@ -251,10 +251,10 @@ void QmlJSEditorWidget::foldAuxiliaryData()
     QTextBlock block = doc->lastBlock();
 
     while (block.isValid() && block.isVisible()) {
-        if (TextDocumentLayout::canFold(block) && block.next().isVisible()) {
+        if (TextBlockUserData::canFold(block) && block.next().isVisible()) {
             const QString trimmedText = block.text().trimmed();
             if (trimmedText.startsWith("/*##^##")) {
-                TextDocumentLayout::doFoldOrUnfold(block, false);
+                TextBlockUserData::doFoldOrUnfold(block, false);
                 documentLayout->requestUpdate();
                 documentLayout->emitDocumentSizeChanged();
                 break;

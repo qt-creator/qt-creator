@@ -1151,7 +1151,7 @@ void VcsBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
     const QChar deletionIndicator = QLatin1Char('-');
     // find nearest change hunk
     QTextBlock block = cursor.block();
-    if (TextDocumentLayout::foldingIndent(block) <= 1) {
+    if (TextBlockUserData::foldingIndent(block) <= 1) {
         // We are in a diff header, do not jump anywhere.
         // DiffAndLogHighlighter sets the foldingIndent for us.
         return;
@@ -1192,7 +1192,7 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
     QTC_ASSERT(hasDiff(), return rc);
     // Search back for start of chunk.
     QTextBlock block = cursor.block();
-    if (block.isValid() && TextDocumentLayout::foldingIndent(block) <= 1) {
+    if (block.isValid() && TextBlockUserData::foldingIndent(block) <= 1) {
         // We are in a diff header, not in a chunk!
         // DiffAndLogHighlighter sets the foldingIndent for us.
         return rc;

@@ -517,8 +517,8 @@ static void foldOrUnfoldComments(bool unfold)
             continue;
         if (tokenEndPos < nextBlock.position())
             continue;
-        if (TextEditor::TextDocumentLayout::foldingIndent(tokenBlock)
-            >= TextEditor::TextDocumentLayout::foldingIndent(nextBlock)) {
+        if (TextEditor::TextBlockUserData::foldingIndent(tokenBlock)
+            >= TextEditor::TextBlockUserData::foldingIndent(nextBlock)) {
             continue;
         }
         if (unfold)

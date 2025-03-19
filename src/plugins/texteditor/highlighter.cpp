@@ -94,20 +94,14 @@ void Highlighter::highlightBlock(const QString &text)
     }
     QTextBlock block = currentBlock();
     const QTextBlock previousBlock = block.previous();
-    TextDocumentLayout::setBraceDepth(block, TextDocumentLayout::braceDepth(previousBlock));
-    KSyntaxHighlighting::State previousLineState;
-    if (TextBlockUserData *data = TextDocumentLayout::textUserData(previousBlock))
-        previousLineState = data->syntaxState();
-    KSyntaxHighlighting::State oldState;
-    if (TextBlockUserData *data = TextDocumentLayout::textUserData(block)) {
-        oldState = data->syntaxState();
-        data->setFoldingStartIncluded(false);
-        data->setFoldingEndIncluded(false);
-    }
+    TextBlockUserData::setBraceDepth(block, TextBlockUserData::braceDepth(previousBlock));
+    KSyntaxHighlighting::State previousLineState = TextBlockUserData::syntaxState(previousBlock);
+    KSyntaxHighlighting::State oldState = TextBlockUserData::syntaxState(block);
+    TextBlockUserData::setFoldingStartIncluded(block, false);
+    TextBlockUserData::setFoldingEndIncluded(block, false);
     KSyntaxHighlighting::State state = highlightLine(text, previousLineState);
     if (oldState != state) {
-        TextBlockUserData *data = TextDocumentLayout::userData(block);
-        data->setSyntaxState(state);
+        TextBlockUserData::setSyntaxState(block, state);
         // Toggles the LSB of current block's userState. It forces rehighlight of next block.
         setCurrentBlockState(currentBlockState() ^ 1);
     }
@@ -121,13 +115,11 @@ void Highlighter::highlightBlock(const QString &text)
             parentheses.push_back(Parenthesis(Parenthesis::Closed, c, pos));
         pos++;
     }
-    TextDocumentLayout::setParentheses(currentBlock(), parentheses);
+    TextBlockUserData::setParentheses(currentBlock(), parentheses);
 
     const QTextBlock nextBlock = block.next();
-    if (nextBlock.isValid()) {
-        TextBlockUserData *data = TextDocumentLayout::userData(nextBlock);
-        data->setFoldingIndent(TextDocumentLayout::braceDepth(block));
-    }
+    if (nextBlock.isValid())
+        TextBlockUserData::setFoldingIndent(nextBlock, TextBlockUserData::braceDepth(block));
 
     formatSpaces(text);
 }
@@ -178,31 +170,30 @@ void Highlighter::applyFolding(int offset,
         return;
     QTextBlock block = currentBlock();
     const QString &text = block.text();
-    TextBlockUserData *data = TextDocumentLayout::userData(currentBlock());
     const bool fromStart = TabSettings::firstNonSpace(text) == offset;
     const bool toEnd = (offset + length) == (text.length() - TabSettings::trailingWhitespaces(text));
     if (region.type() == KSyntaxHighlighting::FoldingRegion::Begin) {
-        const int newBraceDepth = TextDocumentLayout::braceDepth(block) + 1;
-        TextDocumentLayout::setBraceDepth(block, newBraceDepth);
+        const int newBraceDepth = TextBlockUserData::braceDepth(block) + 1;
+        TextBlockUserData::setBraceDepth(block, newBraceDepth);
         qCDebug(highlighterLog) << "Found folding start from '" << offset << "' to '" << length
                                 << "' resulting in the bracedepth '" << newBraceDepth << "' in :";
         qCDebug(highlighterLog) << text;
         // if there is only a folding begin marker in the line move the current block into the fold
         if (fromStart && toEnd && length <= 1) {
-            data->setFoldingIndent(TextDocumentLayout::braceDepth(block));
-            data->setFoldingStartIncluded(true);
+            TextBlockUserData::setFoldingIndent(block, TextBlockUserData::braceDepth(block));
+            TextBlockUserData::setFoldingStartIncluded(block, true);
         }
     } else if (region.type() == KSyntaxHighlighting::FoldingRegion::End) {
-        const int newBraceDepth = qMax(0, TextDocumentLayout::braceDepth(block) - 1);
+        const int newBraceDepth = qMax(0, TextBlockUserData::braceDepth(block) - 1);
         qCDebug(highlighterLog) << "Found folding end from '" << offset << "' to '" << length
                                 << "' resulting in the bracedepth '" << newBraceDepth << "' in :";
         qCDebug(highlighterLog) << text;
-        TextDocumentLayout::setBraceDepth(block, newBraceDepth);
+        TextBlockUserData::setBraceDepth(block, newBraceDepth);
         // if the folding end is at the end of the line move the current block into the fold
         if (toEnd)
-            data->setFoldingEndIncluded(true);
+            TextBlockUserData::setFoldingEndIncluded(block, true);
         else
-            data->setFoldingIndent(TextDocumentLayout::braceDepth(block));
+            TextBlockUserData::setFoldingIndent(block, TextBlockUserData::braceDepth(block));
     }
 }
 

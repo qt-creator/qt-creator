@@ -150,11 +150,9 @@ void updateEditorText(QPlainTextEdit *editor, const QString &text)
     QList<int> foldedBlocks;
     QTextBlock block = editor->document()->firstBlock();
     while (block.isValid()) {
-        if (const TextBlockUserData *userdata = static_cast<TextBlockUserData *>(block.userData())) {
-            if (userdata->folded()) {
-                foldedBlocks << block.blockNumber();
-                TextDocumentLayout::doFoldOrUnfold(block, true);
-            }
+        if (TextBlockUserData::isFolded(block)) {
+            foldedBlocks << block.blockNumber();
+            TextBlockUserData::doFoldOrUnfold(block, true);
         }
         block = block.next();
     }
@@ -246,7 +244,7 @@ void updateEditorText(QPlainTextEdit *editor, const QString &text)
     for (int blockId : std::as_const(foldedBlocks)) {
         const QTextBlock block = doc->findBlockByNumber(qMax(0, blockId));
         if (block.isValid())
-            TextDocumentLayout::doFoldOrUnfold(block, false);
+            TextBlockUserData::doFoldOrUnfold(block, false);
     }
 
     editor->document()->setModified(true);

@@ -1363,20 +1363,20 @@ void FakeVimPlugin::fold(FakeVimHandler *handler, int depth, bool fold)
     QTC_ASSERT(documentLayout, return);
 
     QTextBlock block = handler->textCursor().block();
-    int indent = TextDocumentLayout::foldingIndent(block);
+    int indent = TextBlockUserData::foldingIndent(block);
     if (fold) {
-        if (TextDocumentLayout::isFolded(block)) {
-            while (block.isValid() && (TextDocumentLayout::foldingIndent(block) >= indent
+        if (TextBlockUserData::isFolded(block)) {
+            while (block.isValid() && (TextBlockUserData::foldingIndent(block) >= indent
                 || !block.isVisible())) {
                 block = block.previous();
             }
         }
-        if (TextDocumentLayout::canFold(block))
+        if (TextBlockUserData::canFold(block))
             ++indent;
         while (depth != 0 && block.isValid()) {
-            const int indent2 = TextDocumentLayout::foldingIndent(block);
-            if (TextDocumentLayout::canFold(block) && indent2 < indent) {
-                TextDocumentLayout::doFoldOrUnfold(block, false);
+            const int indent2 = TextBlockUserData::foldingIndent(block);
+            if (TextBlockUserData::canFold(block) && indent2 < indent) {
+                TextBlockUserData::doFoldOrUnfold(block, false);
                 if (depth > 0)
                     --depth;
                 indent = indent2;
@@ -1384,18 +1384,18 @@ void FakeVimPlugin::fold(FakeVimHandler *handler, int depth, bool fold)
             block = block.previous();
         }
     } else {
-        if (TextDocumentLayout::isFolded(block)) {
+        if (TextBlockUserData::isFolded(block)) {
             if (depth < 0) {
                 // recursively open fold
                 while (block.isValid()
-                    && TextDocumentLayout::foldingIndent(block) >= indent) {
-                    if (TextDocumentLayout::canFold(block))
-                        TextDocumentLayout::doFoldOrUnfold(block, true);
+                    && TextBlockUserData::foldingIndent(block) >= indent) {
+                    if (TextBlockUserData::canFold(block))
+                        TextBlockUserData::doFoldOrUnfold(block, true);
                     block = block.next();
                 }
             } else {
-                if (TextDocumentLayout::canFold(block)) {
-                    TextDocumentLayout::doFoldOrUnfold(block, true);
+                if (TextBlockUserData::canFold(block)) {
+                    TextBlockUserData::doFoldOrUnfold(block, true);
                     if (depth > 0)
                         --depth;
                 }
@@ -1686,7 +1686,7 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
 
     handler->foldToggle.set([this, handler](int depth) {
         QTextBlock block = handler->textCursor().block();
-        fold(handler, depth, !TextDocumentLayout::isFolded(block));
+        fold(handler, depth, !TextBlockUserData::isFolded(block));
     });
 
     handler->foldAll.set([handler](bool fold) {
@@ -1696,7 +1696,7 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
 
         QTextBlock block = document->firstBlock();
         while (block.isValid()) {
-            TextDocumentLayout::doFoldOrUnfold(block, !fold);
+            TextBlockUserData::doFoldOrUnfold(block, !fold);
             block = block.next();
         }
 
@@ -1715,10 +1715,10 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
             int repeat = count;
             block = block.next();
             QTextBlock prevBlock = block;
-            int indent = TextDocumentLayout::foldingIndent(block);
+            int indent = TextBlockUserData::foldingIndent(block);
             block = block.next();
             while (block.isValid()) {
-                int newIndent = TextDocumentLayout::foldingIndent(block);
+                int newIndent = TextBlockUserData::foldingIndent(block);
                 if (current ? indent > newIndent : indent < newIndent) {
                     if (prevBlock.isVisible()) {
                         pos = prevBlock.position();
@@ -1735,10 +1735,10 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
             }
         } else if (count < 0) {
             int repeat = -count;
-            int indent = TextDocumentLayout::foldingIndent(block);
+            int indent = TextBlockUserData::foldingIndent(block);
             block = block.previous();
             while (block.isValid()) {
-                int newIndent = TextDocumentLayout::foldingIndent(block);
+                int newIndent = TextBlockUserData::foldingIndent(block);
                 if (current ? indent > newIndent : indent < newIndent) {
                     while (block.isValid() && !block.isVisible())
                         block = block.previous();

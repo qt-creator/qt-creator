@@ -253,7 +253,7 @@ void SuggestionHoverHandler::identifyMatch(
     QTextCursor cursor(editorWidget->document());
     cursor.setPosition(pos);
     m_block = cursor.block();
-    auto *suggestion = dynamic_cast<CyclicSuggestion *>(TextDocumentLayout::suggestion(m_block));
+    auto *suggestion = dynamic_cast<CyclicSuggestion *>(TextBlockUserData::suggestion(m_block));
 
     if (!suggestion)
         return;
@@ -269,7 +269,7 @@ void SuggestionHoverHandler::identifyMatch(
 void SuggestionHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoint &point)
 {
     Q_UNUSED(point)
-    auto *suggestion = dynamic_cast<CyclicSuggestion *>(TextDocumentLayout::suggestion(m_block));
+    auto *suggestion = dynamic_cast<CyclicSuggestion *>(TextBlockUserData::suggestion(m_block));
 
     if (!suggestion)
         return;

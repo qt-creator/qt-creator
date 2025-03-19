@@ -745,7 +745,7 @@ public:
                            bool expanded,
                            bool active,
                            bool hovered) const;
-    bool updateAnnotationBounds(TextBlockUserData *blockUserData, TextDocumentLayout *layout,
+    bool updateAnnotationBounds(const QTextBlock &block, TextDocumentLayout *layout,
                                 bool annotationsVisible);
     void updateLineAnnotation(const PaintEventData &data, const PaintEventBlockData &blockData,
                               QPainter &painter);
@@ -1982,13 +1982,13 @@ void TextEditorWidgetPrivate::updateSuggestion()
         return;
     const QTextCursor cursor = m_cursors.mainCursor();
     if (cursor.block() == m_suggestionBlock) {
-        TextSuggestion *suggestion = TextDocumentLayout::suggestion(m_suggestionBlock);
+        TextSuggestion *suggestion = TextBlockUserData::suggestion(m_suggestionBlock);
         if (QTC_GUARD(suggestion)) {
             const int pos = cursor.position();
             if (pos >= suggestion->currentPosition()) {
                 suggestion->setCurrentPosition(pos);
                 if (suggestion->filterSuggestions(q)) {
-                    TextDocumentLayout::updateSuggestionFormats(
+                    TextBlockUserData::updateSuggestionFormats(
                         m_suggestionBlock, m_document->fontSettings());
                     return;
                 }
@@ -2000,10 +2000,10 @@ void TextEditorWidgetPrivate::updateSuggestion()
 
 void TextEditorWidgetPrivate::clearCurrentSuggestion()
 {
-    if (TextBlockUserData *userData = TextDocumentLayout::textUserData(m_suggestionBlock)) {
-        userData->clearSuggestion();
-        m_document->updateLayout();
-    }
+    if (!m_suggestionBlock.isValid())
+        return;
+    TextBlockUserData::clearSuggestion(m_suggestionBlock);
+    m_document->updateLayout();
     m_suggestionBlock = QTextBlock();
 }
 
@@ -2130,7 +2130,7 @@ void TextEditorWidgetPrivate::foldLicenseHeader()
     QTextBlock block = skipShebang(doc->firstBlock());
     while (block.isValid() && block.isVisible()) {
         QString text = block.text();
-        if (TextDocumentLayout::canFold(block) && block.next().isVisible()) {
+        if (TextBlockUserData::canFold(block) && block.next().isVisible()) {
             const QString trimmedText = text.trimmed();
             QStringList commentMarker;
             QStringList docMarker;
@@ -2159,7 +2159,7 @@ void TextEditorWidgetPrivate::foldLicenseHeader()
                     })) {
                     break;
                 }
-                TextDocumentLayout::doFoldOrUnfold(block, false);
+                TextBlockUserData::doFoldOrUnfold(block, false);
                 moveCursorVisible();
                 documentLayout->requestUpdate();
                 documentLayout->emitDocumentSizeChanged();
@@ -3013,7 +3013,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
     const bool inOverwriteMode = overwriteMode();
     const bool hasMultipleCursors = cursor.hasMultipleCursors();
 
-    if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(d->m_suggestionBlock)) {
+    if (TextSuggestion *suggestion = TextBlockUserData::suggestion(d->m_suggestionBlock)) {
         if (e->matches(QKeySequence::MoveToNextWord)) {
             e->accept();
             if (suggestion->applyWord(this))
@@ -3184,8 +3184,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
                                | Qt::AltModifier
                                | Qt::MetaModifier)) == Qt::NoModifier) {
             e->accept();
-            if (d->m_suggestionBlock.isValid())
-                d->clearCurrentSuggestion();
+            d->clearCurrentSuggestion();
             if (cursor.hasSelection()) {
                 cursor.removeSelectedText();
                 setMultiTextCursor(cursor);
@@ -3725,7 +3724,7 @@ QByteArray TextEditorWidget::saveState() const
     QList<int> foldedBlocks;
     QTextBlock block = document()->firstBlock();
     while (block.isValid()) {
-        if (block.userData() && static_cast<TextBlockUserData*>(block.userData())->folded()) {
+        if (TextBlockUserData::isFolded(block)) {
             int number = block.blockNumber();
             foldedBlocks += number;
         }
@@ -3790,7 +3789,7 @@ void TextEditorWidget::restoreState(const QByteArray &state)
             for (const int blockNumber : std::as_const(collapsedBlocks)) {
                 QTextBlock block = doc->findBlockByNumber(qMax(0, blockNumber));
                 if (block.isValid()) {
-                    TextDocumentLayout::doFoldOrUnfold(block, false);
+                    TextBlockUserData::doFoldOrUnfold(block, false);
                     layoutChanged = true;
                 }
             }
@@ -4162,14 +4161,14 @@ std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
         auto documentLayout = qobject_cast<TextDocumentLayout *>(q->document()->documentLayout());
         QTC_ASSERT(documentLayout, return);
 
-        TextBlockUserData *userData = TextDocumentLayout::userData(block);
+        TextBlockUserData *userData = TextBlockUserData::userData(block);
         if (block != pState->block) {
-            TextBlockUserData *previousUserData = TextDocumentLayout::userData(pState->block);
+            TextBlockUserData *previousUserData = TextBlockUserData::userData(pState->block);
             if (previousUserData && userData != previousUserData) {
                 // We have swapped into a different block, remove it from the previous block
-                previousUserData->removeEmbeddedWidget(carrier);
+                TextBlockUserData::removeEmbeddedWidget(pState->block, carrier);
             }
-            userData->addEmbeddedWidget(carrier);
+            TextBlockUserData::addEmbeddedWidget(block, carrier);
             pState->block = block;
             pState->height = 0;
         }
@@ -4198,8 +4197,7 @@ std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
         if (!q->document())
             return;
         QTextBlock block = pState->cursor.block();
-        auto userData = TextDocumentLayout::userData(block);
-        userData->removeEmbeddedWidget(carrier);
+        TextBlockUserData::removeEmbeddedWidget(block, carrier);
         m_numEmbeddedWidgets--;
         forceUpdateScrollbarSize();
     });
@@ -4933,7 +4931,7 @@ void TextEditorWidgetPrivate::processTooltipRequest(const QTextCursor &c)
 bool TextEditorWidgetPrivate::processAnnotaionTooltipRequest(const QTextBlock &block,
                                                              const QPoint &pos) const
 {
-    TextBlockUserData *blockUserData = TextDocumentLayout::textUserData(block);
+    TextBlockUserData *blockUserData = TextBlockUserData::textUserData(block);
     if (!blockUserData)
         return false;
 
@@ -5376,7 +5374,7 @@ static TextMarks availableMarks(const TextMarks &marks,
 QRectF TextEditorWidgetPrivate::getLastLineLineRect(const QTextBlock &block)
 {
     QTextLayout *layout = nullptr;
-    if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(block))
+    if (TextSuggestion *suggestion = TextBlockUserData::suggestion(block))
         layout = suggestion->replacementDocument()->firstBlock().layout();
     else
         layout = block.layout();
@@ -5391,7 +5389,7 @@ QRectF TextEditorWidgetPrivate::getLastLineLineRect(const QTextBlock &block)
     return line.naturalTextRect().translated(contentOffset.x(), top).adjusted(0, 0, -1, -1);
 }
 
-bool TextEditorWidgetPrivate::updateAnnotationBounds(TextBlockUserData *blockUserData,
+bool TextEditorWidgetPrivate::updateAnnotationBounds(const QTextBlock &block,
                                                      TextDocumentLayout *layout,
                                                      bool annotationsVisible)
 {
@@ -5406,9 +5404,9 @@ bool TextEditorWidgetPrivate::updateAnnotationBounds(TextBlockUserData *blockUse
             TextEditorSettings::fontSettings().lineSpacing();
     }
 
-    if (blockUserData->additionalAnnotationHeight() == additionalHeight)
+    if (TextBlockUserData::additionalAnnotationHeight(block) == additionalHeight)
         return false;
-    blockUserData->setAdditionalAnnotationHeight(additionalHeight);
+    TextBlockUserData::setAdditionalAnnotationHeight(block, additionalHeight);
     q->viewport()->update();
     layout->emitDocumentSizeChanged();
     return true;
@@ -5423,7 +5421,7 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
     if (!m_displaySettings.m_displayAnnotations)
         return;
 
-    TextBlockUserData *blockUserData = TextDocumentLayout::textUserData(data.block);
+    TextBlockUserData *blockUserData = TextBlockUserData::textUserData(data.block);
     if (!blockUserData)
         return;
 
@@ -5434,7 +5432,7 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
 
     const bool annotationsVisible = !marks.isEmpty();
 
-    if (updateAnnotationBounds(blockUserData, data.documentLayout, annotationsVisible)
+    if (updateAnnotationBounds(data.block, data.documentLayout, annotationsVisible)
             || !annotationsVisible) {
         return;
     }
@@ -5692,7 +5690,7 @@ void TextEditorWidgetPrivate::paintIfDefedOutBlocks(const PaintEventData &data,
         QRectF r = q->blockBoundingRect(block).translated(offset);
 
         if (r.bottom() >= data.eventRect.top() && r.top() <= data.eventRect.bottom()) {
-            if (TextDocumentLayout::ifdefedOut(block)) {
+            if (TextBlockUserData::ifdefedOut(block)) {
                 QRectF rr = r;
                 rr.setRight(data.viewportRect.width() - offset.x());
                 if (data.rightMargin > 0)
@@ -5837,7 +5835,7 @@ void TextEditorWidgetPrivate::paintAdditionalVisualWhitespaces(PaintEventData &d
                              visualArrow);
         }
         if (!nextBlockIsValid) { // paint EOF symbol
-            if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(data.block)) {
+            if (TextSuggestion *suggestion = TextBlockUserData::suggestion(data.block)) {
                 const QTextBlock lastReplacementBlock
                     = suggestion->replacementDocument()->lastBlock();
                 for (QTextBlock block = suggestion->replacementDocument()->firstBlock();
@@ -6014,26 +6012,22 @@ void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &p
         painter.setRenderHint(QPainter::Antialiasing, false);
         painter.translate(-.5, -.5);
 
-        if (TextBlockUserData *nextBlockUserData = TextDocumentLayout::textUserData(nextBlock)) {
-            if (nextBlockUserData->foldingStartIncluded())
-                replacement.prepend(nextBlock.text().trimmed().at(0));
-        }
+        if (TextBlockUserData::foldingStartIncluded(nextBlock))
+            replacement.prepend(nextBlock.text().trimmed().at(0));
 
         QTextBlock lastInvisibleBlock = TextEditor::nextVisibleBlock(data.block, data.doc).previous();
         if (!lastInvisibleBlock.isValid())
             lastInvisibleBlock = data.doc->lastBlock();
 
-        if (TextBlockUserData *blockUserData = TextDocumentLayout::textUserData(lastInvisibleBlock)) {
-            if (blockUserData->foldingEndIncluded()) {
-                QString right = lastInvisibleBlock.text().trimmed();
-                if (right.endsWith(QLatin1Char(';'))) {
-                    right.chop(1);
-                    right = right.trimmed();
-                    replacement.append(right.right(right.endsWith('/') ? 2 : 1));
-                    replacement.append(QLatin1Char(';'));
-                } else {
-                    replacement.append(right.right(right.endsWith('/') ? 2 : 1));
-                }
+        if (TextBlockUserData::foldingEndIncluded(lastInvisibleBlock)) {
+            QString right = lastInvisibleBlock.text().trimmed();
+            if (right.endsWith(QLatin1Char(';'))) {
+                right.chop(1);
+                right = right.trimmed();
+                replacement.append(right.right(right.endsWith('/') ? 2 : 1));
+                replacement.append(QLatin1Char(';'));
+            } else {
+                replacement.append(right.right(right.endsWith('/') ? 2 : 1));
             }
         }
 
@@ -6087,7 +6081,7 @@ void TextEditorWidgetPrivate::setupBlockLayout(const PaintEventData &data,
 
     QTextOption option = blockData.layout->textOption();
     if (data.suppressSyntaxInIfdefedOutBlock
-            && TextDocumentLayout::ifdefedOut(data.block)) {
+            && TextBlockUserData::ifdefedOut(data.block)) {
         option.setFlags(option.flags() | QTextOption::SuppressColors);
         painter.setPen(data.ifdefedOutFormat.foreground().color());
     } else {
@@ -6106,7 +6100,7 @@ void TextEditorWidgetPrivate::setupSelections(const PaintEventData &data,
     int deltaPos = -1;
     int delta = 0;
 
-    if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(data.block)) {
+    if (TextSuggestion *suggestion = TextBlockUserData::suggestion(data.block)) {
         deltaPos = suggestion->currentPosition() - data.block.position();
         const QString trailingText = data.block.text().mid(deltaPos);
         if (!trailingText.isEmpty()) {
@@ -6371,7 +6365,7 @@ void TextEditorWidget::paintBlock(QPainter *painter,
                                   const QVector<QTextLayout::FormatRange> &selections,
                                   const QRect &clipRect) const
 {
-    if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(block)) {
+    if (TextSuggestion *suggestion = TextBlockUserData::suggestion(block)) {
         QTextBlock suggestionBlock = suggestion->replacementDocument()->firstBlock();
         QPointF suggestionOffset = offset;
         suggestionOffset.rx() += document()->documentMargin();
@@ -6705,17 +6699,15 @@ void TextEditorWidgetPrivate::paintCodeFolding(QPainter &painter,
     }
 
     const QTextBlock &nextBlock = data.block.next();
-    TextBlockUserData *nextBlockUserData = TextDocumentLayout::textUserData(nextBlock);
 
-    bool drawBox = nextBlockUserData
-            && TextDocumentLayout::foldingIndent(data.block)
-            < nextBlockUserData->foldingIndent();
+    bool drawBox = TextBlockUserData::foldingIndent(data.block)
+                   < TextBlockUserData::foldingIndent(nextBlock);
     if (drawBox) {
         qCDebug(foldingLog) << "need to paint folding marker";
         qCDebug(foldingLog) << "folding indent for line" << (data.block.blockNumber() + 1) << "is"
-                            << TextDocumentLayout::foldingIndent(data.block);
+                            << TextBlockUserData::foldingIndent(data.block);
         qCDebug(foldingLog) << "folding indent for line" << (nextBlock.blockNumber() + 1) << "is"
-                            << nextBlockUserData->foldingIndent();
+                            << TextBlockUserData::foldingIndent(nextBlock);
     }
 
     const int blockNumber = data.block.blockNumber();
@@ -7412,7 +7404,7 @@ void TextEditorWidget::clearSuggestion()
 TextSuggestion *TextEditorWidget::currentSuggestion() const
 {
     if (d->m_suggestionBlock.isValid())
-        return TextDocumentLayout::suggestion(d->m_suggestionBlock);
+        return TextBlockUserData::suggestion(d->m_suggestionBlock);
     return nullptr;
 }
 
@@ -7724,12 +7716,12 @@ void TextEditorWidget::ensureBlockIsUnfolded(QTextBlock block)
         QTC_ASSERT(documentLayout, return);
 
         // Open all parent folds of current line.
-        int indent = TextDocumentLayout::foldingIndent(block);
+        int indent = TextBlockUserData::foldingIndent(block);
         block = block.previous();
         while (block.isValid()) {
-            const int indent2 = TextDocumentLayout::foldingIndent(block);
-            if (TextDocumentLayout::canFold(block) && indent2 < indent) {
-                TextDocumentLayout::doFoldOrUnfold(block, /* unfold = */ true);
+            const int indent2 = TextBlockUserData::foldingIndent(block);
+            if (TextBlockUserData::canFold(block) && indent2 < indent) {
+                TextBlockUserData::doFoldOrUnfold(block, /* unfold = */ true);
                 if (block.isVisible())
                     break;
                 indent = indent2;
@@ -7750,7 +7742,7 @@ void TextEditorWidgetPrivate::toggleBlockVisible(const QTextBlock &block)
     auto documentLayout = qobject_cast<TextDocumentLayout*>(q->document()->documentLayout());
     QTC_ASSERT(documentLayout, return);
 
-    TextDocumentLayout::doFoldOrUnfold(block, TextDocumentLayout::isFolded(block));
+    TextBlockUserData::doFoldOrUnfold(block, TextBlockUserData::isFolded(block));
     documentLayout->requestUpdate();
     documentLayout->emitDocumentSizeChanged();
 }
@@ -8531,23 +8523,23 @@ void TextEditorWidgetPrivate::_q_highlightBlocks()
         block = q->document()->findBlockByNumber(extraAreaHighlightFoldedBlockNumber);
         if (block.isValid()
             && block.next().isValid()
-            && TextDocumentLayout::foldingIndent(block.next())
-            > TextDocumentLayout::foldingIndent(block))
+            && TextBlockUserData::foldingIndent(block.next())
+            > TextBlockUserData::foldingIndent(block))
             block = block.next();
     }
 
     QTextBlock closeBlock = block;
     while (block.isValid()) {
-        int foldingIndent = TextDocumentLayout::foldingIndent(block);
+        int foldingIndent = TextBlockUserData::foldingIndent(block);
 
-        while (block.previous().isValid() && TextDocumentLayout::foldingIndent(block) >= foldingIndent)
+        while (block.previous().isValid() && TextBlockUserData::foldingIndent(block) >= foldingIndent)
             block = block.previous();
-        int nextIndent = TextDocumentLayout::foldingIndent(block);
+        int nextIndent = TextBlockUserData::foldingIndent(block);
         if (nextIndent == foldingIndent)
             break;
         highlightBlocksInfo.open.prepend(block.blockNumber());
         while (closeBlock.next().isValid()
-            && TextDocumentLayout::foldingIndent(closeBlock.next()) >= foldingIndent )
+            && TextBlockUserData::foldingIndent(closeBlock.next()) >= foldingIndent )
             closeBlock = closeBlock.next();
         highlightBlocksInfo.close.append(closeBlock.blockNumber());
         int indent = qMin(visualIndent(block), visualIndent(closeBlock));
@@ -9287,14 +9279,14 @@ void TextEditorWidget::fold(const QTextBlock &block, bool recursive)
     auto documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
     QTextBlock b = block;
-    if (!(TextDocumentLayout::canFold(b) && b.next().isVisible())) {
+    if (!(TextBlockUserData::canFold(b) && b.next().isVisible())) {
         // find the closest previous block which can fold
-        int indent = TextDocumentLayout::foldingIndent(b);
-        while (b.isValid() && (TextDocumentLayout::foldingIndent(b) >= indent || !b.isVisible()))
+        int indent = TextBlockUserData::foldingIndent(b);
+        while (b.isValid() && (TextBlockUserData::foldingIndent(b) >= indent || !b.isVisible()))
             b = b.previous();
     }
     if (b.isValid()) {
-        TextDocumentLayout::doFoldOrUnfold(b, false, recursive);
+        TextBlockUserData::doFoldOrUnfold(b, false, recursive);
         d->moveCursorVisible();
         documentLayout->requestUpdate();
         documentLayout->emitDocumentSizeChanged();
@@ -9312,7 +9304,7 @@ void TextEditorWidget::unfold(const QTextBlock &block, bool recursive)
     QTextBlock b = block;
     while (b.isValid() && !b.isVisible())
         b = b.previous();
-    TextDocumentLayout::doFoldOrUnfold(b, true, recursive);
+    TextBlockUserData::doFoldOrUnfold(b, true, recursive);
     d->moveCursorVisible();
     documentLayout->requestUpdate();
     documentLayout->emitDocumentSizeChanged();
@@ -9333,7 +9325,7 @@ void TextEditorWidget::toggleFoldAll()
 
     bool makeVisible = true;
     while (block.isValid()) {
-        if (block.isVisible() && TextDocumentLayout::canFold(block) && block.next().isVisible()) {
+        if (block.isVisible() && TextBlockUserData::canFold(block) && block.next().isVisible()) {
             makeVisible = false;
             break;
         }
@@ -9355,8 +9347,8 @@ void TextEditorWidget::unfoldAll(bool unfold)
     QTextBlock block = doc->firstBlock();
 
     while (block.isValid()) {
-        if (TextDocumentLayout::canFold(block))
-            TextDocumentLayout::doFoldOrUnfold(block, unfold);
+        if (TextBlockUserData::canFold(block))
+            TextBlockUserData::doFoldOrUnfold(block, unfold);
         block = block.next();
     }
 
@@ -10185,7 +10177,7 @@ void TextEditorWidgetPrivate::updateTabStops()
     QTextOption option = q->document()->defaultTextOption();
     option.setTabStopDistance(charWidth() * m_document->tabSettings().m_tabSize);
     q->document()->setDefaultTextOption(option);
-    if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(m_suggestionBlock)) {
+    if (TextSuggestion *suggestion = TextBlockUserData::suggestion(m_suggestionBlock)) {
         QTextOption option = suggestion->replacementDocument()->defaultTextOption();
         option.setTabStopDistance(option.tabStopDistance());
         suggestion->replacementDocument()->setDefaultTextOption(option);

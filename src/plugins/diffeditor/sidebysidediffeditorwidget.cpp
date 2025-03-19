@@ -151,10 +151,10 @@ void SideDiffEditorWidget::setFolded(int blockNumber, bool folded)
     if (!block.isValid())
         return;
 
-    if (TextDocumentLayout::isFolded(block) == folded)
+    if (TextBlockUserData::isFolded(block) == folded)
         return;
 
-    TextDocumentLayout::doFoldOrUnfold(block, !folded);
+    TextBlockUserData::doFoldOrUnfold(block, !folded);
 
     auto documentLayout = qobject_cast<TextDocumentLayout*>(document()->documentLayout());
     documentLayout->requestUpdate();
@@ -198,7 +198,7 @@ bool SideDiffEditorWidget::selectionVisible(int blockNumber) const
 bool SideDiffEditorWidget::replacementVisible(int blockNumber) const
 {
     return m_data.isChunkLine(blockNumber) || (m_data.isFileLine(blockNumber)
-           && TextDocumentLayout::isFolded(document()->findBlockByNumber(blockNumber)));
+           && TextBlockUserData::isFolded(document()->findBlockByNumber(blockNumber)));
 }
 
 QColor SideDiffEditorWidget::replacementPenColor(int blockNumber) const
@@ -443,7 +443,7 @@ void SideDiffEditorWidget::paintSeparator(QPainter &painter,
     const int replacementTextWidth = fontMetrics().horizontalAdvance(replacementText) + 24;
     int x = replacementTextWidth + int(offset.x());
     if (x < document()->documentMargin()
-            || !TextDocumentLayout::isFolded(block)) {
+            || !TextBlockUserData::isFolded(block)) {
         x = int(document()->documentMargin());
     }
     const QString elidedText = fontMetrics().elidedText(text,

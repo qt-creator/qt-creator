@@ -1101,7 +1101,7 @@ int CodeFormatter::tokenizeBlock(const QTextBlock &block, bool *endedJoined)
     SimpleLexer tokenize;
     tokenize.setLanguageFeatures(features);
     tokenize.setExpectedRawStringSuffix(
-                TextDocumentLayout::expectedRawStringSuffix(block.previous()));
+                TextBlockUserData::expectedRawStringSuffix(block.previous()));
 
     m_currentLine = block.text();
     // to determine whether a line was joined, Tokenizer needs a
@@ -1113,8 +1113,8 @@ int CodeFormatter::tokenizeBlock(const QTextBlock &block, bool *endedJoined)
         *endedJoined = tokenize.endedJoined();
 
     const int lexerState = tokenize.state();
-    TextDocumentLayout::setLexerState(block, lexerState);
-    TextDocumentLayout::setExpectedRawStringSuffix(block, tokenize.expectedRawStringSuffix());
+    TextBlockUserData::setLexerState(block, lexerState);
+    TextBlockUserData::setExpectedRawStringSuffix(block, tokenize.expectedRawStringSuffix());
     return lexerState;
 }
 
@@ -1161,21 +1161,18 @@ void QtStyleCodeFormatter::setCodeStyleSettings(const CppCodeStyleSettings &sett
 
 void QtStyleCodeFormatter::saveBlockData(QTextBlock *block, const BlockData &data) const
 {
-    TextBlockUserData *userData = TextDocumentLayout::userData(*block);
-    auto cppData = static_cast<CppCodeFormatterData *>(userData->codeFormatterData());
+    auto cppData = static_cast<CppCodeFormatterData *>(TextBlockUserData::codeFormatterData(*block));
     if (!cppData) {
         cppData = new CppCodeFormatterData;
-        userData->setCodeFormatterData(cppData);
+        TextBlockUserData::setCodeFormatterData(*block, cppData);
     }
     cppData->m_data = data;
 }
 
 bool QtStyleCodeFormatter::loadBlockData(const QTextBlock &block, BlockData *data) const
 {
-    TextBlockUserData *userData = TextDocumentLayout::textUserData(block);
-    if (!userData)
-        return false;
-    auto cppData = static_cast<const CppCodeFormatterData *>(userData->codeFormatterData());
+    auto cppData = static_cast<const CppCodeFormatterData *>(
+        TextBlockUserData::codeFormatterData(block));
     if (!cppData)
         return false;
 
@@ -1185,12 +1182,12 @@ bool QtStyleCodeFormatter::loadBlockData(const QTextBlock &block, BlockData *dat
 
 void QtStyleCodeFormatter::saveLexerState(QTextBlock *block, int state) const
 {
-    TextDocumentLayout::setLexerState(*block, state);
+    TextBlockUserData::setLexerState(*block, state);
 }
 
 int QtStyleCodeFormatter::loadLexerState(const QTextBlock &block) const
 {
-    return TextDocumentLayout::lexerState(block);
+    return TextBlockUserData::lexerState(block);
 }
 
 void QtStyleCodeFormatter::addContinuationIndent(int *paddingDepth) const
