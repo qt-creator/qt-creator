@@ -207,6 +207,7 @@ class Dumper(DumperBase):
         val.summary = summary
         val.lIsInScope = nativeValue.IsInScope()
         val.name = nativeValue.GetName()
+        val.size = nativeType.GetByteSize() * 8
         return val
 
     def nativeListMembers(self, value, nativeType, include_base):

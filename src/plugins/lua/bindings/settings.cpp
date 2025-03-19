@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "../luaengine.h"
+#include "utils.h"
 
 #include <utils/aspects.h>
 #include <utils/environment.h>
@@ -479,11 +480,11 @@ void setupSettingsModule()
                     options,
                     [](ToggleAspect *aspect, const std::string &key, const sol::object &value) {
                         if (key == "offIcon")
-                            aspect->setOffIcon(QIcon(value.as<QString>()));
+                            aspect->setOffIcon(toIcon(value.as<IconFilePathOrString>())->icon());
                         else if (key == "offTooltip")
                             aspect->setOffTooltip(value.as<QString>());
                         else if (key == "onIcon")
-                            aspect->setOnIcon(QIcon(value.as<QString>()));
+                            aspect->setOnIcon(toIcon(value.as<IconFilePathOrString>())->icon());
                         else if (key == "onTooltip")
                             aspect->setOnTooltip(value.as<QString>());
                         else if (key == "onText")

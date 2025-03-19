@@ -66,6 +66,7 @@ const char fixedOptionsC[]
       "    -help                         Display this help\n"
       "    -version                      Display program version\n"
       "    -client                       Attempt to connect to already running first instance\n"
+      "    -clientid                     A postfix for the ID used by -client\n"
       "    -settingspath <path>          Override the default path where user settings are stored\n"
       "    -installsettingspath <path>   Override the default path from where user-independent "
       "settings are read\n"
@@ -82,10 +83,12 @@ const char HELP_OPTION4[] = "--help";
 const char VERSION_OPTION[] = "-version";
 const char VERSION_OPTION2[] = "--version";
 const char CLIENT_OPTION[] = "-client";
+const char CLIENTID_OPTION[] = "-clientid";
 const char SETTINGS_OPTION[] = "-settingspath";
 const char INSTALL_SETTINGS_OPTION[] = "-installsettingspath";
 const char TEST_OPTION[] = "-test";
 const char STYLE_OPTION[] = "-style";
+const char QML_LITE_DESIGNER_OPTION[] = "-qml-lite-designer";
 const char TEMPORARY_CLEAN_SETTINGS1[] = "-temporarycleansettings";
 const char TEMPORARY_CLEAN_SETTINGS2[] = "-tcs";
 const char PID_OPTION[] = "-pid";
@@ -325,6 +328,7 @@ struct Options
     QString installSettingsPath;
     QStringList customPluginPaths;
     QString uiLanguage;
+    QString singleAppIdPostfix;
     // list of arguments that were handled and not passed to the application or plugin manager
     QStringList preAppArguments;
     // list of arguments to be passed to the application or plugin manager
@@ -368,11 +372,17 @@ Options parseCommandLine(int argc, char *argv[])
         } else if (arg == TEMPORARY_CLEAN_SETTINGS1 || arg == TEMPORARY_CLEAN_SETTINGS2) {
             options.wantsCleanSettings = true;
             options.preAppArguments << arg;
+        } else if (arg == CLIENTID_OPTION && hasNext) {
+            ++it;
+            options.singleAppIdPostfix = nextArg;
+            options.preAppArguments << arg << nextArg;
         } else { // arguments that are still passed on to the application
             if (arg == STYLE_OPTION)
                 options.hasStyleOption = true;
             if (arg == TEST_OPTION)
                 options.hasTestOption = true;
+            if (arg == QML_LITE_DESIGNER_OPTION)
+                options.singleAppIdPostfix = QML_LITE_DESIGNER_OPTION;
             options.appArguments.push_back(*it);
         }
         ++it;
@@ -701,9 +711,10 @@ int main(int argc, char **argv)
     // create a custom Qt message handler that shows messages in a bare bones UI
     // if creation of the QGuiApplication fails.
     auto handler = std::make_unique<ShowInGuiHandler>();
-    std::unique_ptr<SharedTools::QtSingleApplication>
-        appPtr(SharedTools::createApplication(QLatin1String(Core::Constants::IDE_DISPLAY_NAME),
-                                              numberOfArguments, options.appArguments.data()));
+    const QString singleAppId = QString(Core::Constants::IDE_DISPLAY_NAME)
+                                + options.singleAppIdPostfix;
+    std::unique_ptr<SharedTools::QtSingleApplication> appPtr(
+        SharedTools::createApplication(singleAppId, numberOfArguments, options.appArguments.data()));
     handler.reset();
     SharedTools::QtSingleApplication &app = *appPtr;
     QCoreApplication::setApplicationName(Core::Constants::IDE_CASED_ID);

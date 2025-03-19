@@ -36,6 +36,11 @@ enum {
 };
 }
 
+static bool sorter(const TreeItem *a, const TreeItem *b)
+{
+    return a->data(0, Qt::DisplayRole).toString() < b->data(0, Qt::DisplayRole).toString();
+}
+
 template<class Item, class Params, class Request, class Result>
 class HierarchyItem : public TreeItem
 {
@@ -102,7 +107,7 @@ private:
                 if (result && !result->isNull()) {
                     for (const Result &item : result->toList()) {
                         if (item.isValid())
-                            appendChild(new HierarchyItem(getSourceItem(item), m_client));
+                            insertOrderedChild(new HierarchyItem(getSourceItem(item), m_client), sorter);
                     }
                 }
             });

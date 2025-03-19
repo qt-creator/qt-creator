@@ -158,6 +158,15 @@ public:
 
                 emit currentEditorChanged(m_currentTextEditor);
             });
+        connect(
+            Core::EditorManager::instance(),
+            &Core::EditorManager::editorCreated,
+            this,
+            [this](Core::IEditor *editor, const Utils::FilePath &filePath) {
+                auto textEditor = qobject_cast<BaseTextEditor *>(editor);
+                if (textEditor)
+                    emit editorCreated(textEditor);
+            });
     }
 
     bool connectTextEditor(BaseTextEditor *editor)
@@ -191,6 +200,7 @@ public:
 
 signals:
     void currentEditorChanged(BaseTextEditor *editor);
+    void editorCreated(BaseTextEditor *editor);
     void documentContentsChanged(
         TextDocument *document, int position, int charsRemoved, int charsAdded);
 
@@ -542,6 +552,17 @@ void setupTextEditorModule()
             &TextEditorRegistry::currentEditorChanged,
             guard,
             [func](BaseTextEditor *editor) {
+                expected_str<void> res = void_safe_call(func, editor);
+                QTC_CHECK_EXPECTED(res);
+            });
+    });
+
+    registerHook("editors.text.editorCreated", [](sol::main_function func, QObject *guard) {
+        QObject::connect(
+            TextEditorRegistry::instance(),
+            &TextEditorRegistry::editorCreated,
+            guard,
+            [func](TextEditorPtr editor) {
                 expected_str<void> res = void_safe_call(func, editor);
                 QTC_CHECK_EXPECTED(res);
             });

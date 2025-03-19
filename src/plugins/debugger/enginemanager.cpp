@@ -14,6 +14,7 @@
 #include <coreplugin/modemanager.h>
 
 #include <utils/basetreeview.h>
+#include <utils/stylehelper.h>
 #include <utils/treemodel.h>
 #include <utils/qtcassert.h>
 
@@ -138,6 +139,7 @@ public:
     {
         m_proxyModel->setSourceModel(sourceModel);
 
+        StyleHelper::setPanelWidget(m_engineChooser);
         m_engineChooser->setModel(m_proxyModel);
         m_engineChooser->setIconSize(QSize(0, 0));
         if (hideSwitcherUnlessNeeded)
