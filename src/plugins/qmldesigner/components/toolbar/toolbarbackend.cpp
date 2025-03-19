@@ -393,13 +393,16 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
             &ToolBarBackend::documentIndexChanged);
 
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged, this, [this] {
-        static QMetaObject::Connection lastConnection;
-        disconnect(lastConnection);
+        disconnect(m_documentConnection);
 
         if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(
                 Core::EditorManager::currentDocument())) {
-            lastConnection = connect(textDocument->document(), &QTextDocument::modificationChanged,
-                    this, &ToolBarBackend::isDocumentDirtyChanged);
+            m_documentConnection = connect(textDocument->document(),
+                                           &QTextDocument::modificationChanged,
+                                           this,
+
+                                           &ToolBarBackend::isDocumentDirtyChanged);
+
             emit isDocumentDirtyChanged();
         }
     });
