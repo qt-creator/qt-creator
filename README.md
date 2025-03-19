@@ -364,7 +364,7 @@ http://llvm.org/docs/GettingStarted.html#git-mirror:
 Qt Creator is available under commercial licenses from The Qt Company,
 and under the GNU General Public License version 3,
 annotated with The Qt Company GPL Exception 1.0.
-See [LICENSE.GPL3-EXCEPT](LICENSE.GPL3-EXCEPT) for the details.
+See [LICENSE.GPL3-EXCEPT](LICENSES/LICENSE.GPL3-EXCEPT) for the details.
 
 For more information about the third-party components that Qt Creator
 includes, see the

@@ -35,7 +35,7 @@ def main():
             app_path = [app for app in os.listdir(tempdir) if app.endswith('.app')][0]
             common.codesign(os.path.join(tempdir, app_path))
         os.symlink('/Applications', os.path.join(tempdir, 'Applications'))
-        license_file = os.path.join(arguments.source_directory, 'LICENSE.GPL3-EXCEPT')
+        license_file = os.path.join(arguments.source_directory, "LICENSES", 'LICENSE.GPL3-EXCEPT')
         if (arguments.license_replacement):
             license_file = arguments.license_replacement
         shutil.copy(license_file, tempdir)

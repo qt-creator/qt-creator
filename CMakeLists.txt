@@ -195,7 +195,7 @@ feature_summary(INCLUDE_QUIET_PACKAGES WHAT
 )
 
 if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR
-    AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.GPL3-EXCEPT")
+    AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSES/LICENSE.GPL3-EXCEPT")
   # Only for opensource, non-super-repo builds
   add_subdirectory(packaging)
 endif()
