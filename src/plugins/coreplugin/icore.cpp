@@ -1295,9 +1295,6 @@ QString ICore::aboutInformationCompact()
 */
 QString ICore::aboutInformationHtml()
 {
-    const QString buildCompatibilityString = Tr::tr("Based on Qt %1 (%2, %3)")
-                                                 .arg(QLatin1String(qVersion()), compilerString(),
-                                                      QSysInfo::buildCpuArchitecture());
     const AppInfo &appInfo = Utils::appInfo();
     QString ideRev;
     if (!appInfo.revision.isEmpty())
@@ -1306,10 +1303,21 @@ QString ICore::aboutInformationHtml()
                               ? appInfo.revision
                               : QString::fromLatin1("<a href=\"%1\">%2</a>")
                                     .arg(appInfo.revisionUrl, appInfo.revision));
-    QString buildDateInfo;
+    QString buildInfo;
 #ifdef QTC_SHOW_BUILD_DATE
-    buildDateInfo = Tr::tr("<br/>Built on %1 %2<br/>").arg(QLatin1String(__DATE__),
-                                                           QLatin1String(__TIME__));
+    //: Built on <date> <time> based on Qt <version> (<compiler>, <arch>)
+    buildInfo = Tr::tr("Built on %1 %2 based on Qt %3 (%4, %5)")
+                    .arg(
+                        QLatin1String(__DATE__),
+                        QLatin1String(__TIME__),
+                        QLatin1String(qVersion()),
+                        compilerString(),
+                        QSysInfo::buildCpuArchitecture());
+#else
+    buildInfo
+        //: Based on Qt <version> (<compiler>, <arch>)
+        = Tr::tr("Based on Qt %1 (%2, %3)")
+              .arg(QLatin1String(qVersion()), compilerString(), QSysInfo::buildCpuArchitecture());
 #endif
 
     static const QString br = QLatin1String("<br/>");
@@ -1321,12 +1329,10 @@ QString ICore::aboutInformationHtml()
                   "%2"
                   "%3"
                   "%4"
-                  "%5"
-                  "%6")
+                  "%5")
               .arg(
                   ICore::versionString(),
-                  buildCompatibilityString + br,
-                  buildDateInfo,
+                  wrapBr(buildInfo),
                   ideRev,
                   wrapBr(additionalInfo),
                   wrapBr(appInfo.copyright))
