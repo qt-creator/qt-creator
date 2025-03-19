@@ -13,3 +13,8 @@ add_qtc_library(qtcBZip2
   PUBLIC_INCLUDES
     .
 )
+
+IF (NOT MSVC)
+  # Disable warnings
+  target_compile_options(qtcBZip2 PRIVATE "-Wimplicit-fallthrough=0" "-Wno-unused-parameter")
+endif()
