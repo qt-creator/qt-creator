@@ -57,7 +57,7 @@ static Abis detectTargetAbis(const FilePath &sdpPath)
     if (qnxTarget.isEmpty())
         return result;
 
-    QList<QnxTarget> targets = QnxUtils::findTargets(qnxTarget);
+    const QList<QnxTarget> targets = QnxUtils::findTargets(qnxTarget);
     for (const auto &target : targets) {
         if (!result.contains(target.m_abi))
             result.append(target.m_abi);

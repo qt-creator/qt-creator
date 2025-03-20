@@ -34,7 +34,8 @@ QList<TargetInformation> TargetInformation::readFromProject(
     if (!bc->project()->rootProjectNode())
         return result;
 
-    QVariantList packageTargets = bc->project()->extraData(AppManager::Constants::APPMAN_PACKAGE_TARGETS).toList();
+    const QVariantList packageTargets
+        = bc->project()->extraData(AppManager::Constants::APPMAN_PACKAGE_TARGETS).toList();
 //        qDebug() << "APPMAN TARGETS" << packageTargets;
 
     for (const auto &packageTarget : packageTargets) {

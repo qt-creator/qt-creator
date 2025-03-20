@@ -159,7 +159,7 @@ void MesonBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
     m_ninjaParser = new NinjaParser;
     m_ninjaParser->setSourceDirectory(project()->projectDirectory());
     formatter->addLineParser(m_ninjaParser);
-    auto additionalParsers = kit()->createOutputParsers();
+    const QList<OutputLineParser *> additionalParsers = kit()->createOutputParsers();
     for (const auto parser : additionalParsers) {
         parser->setRedirectionDetector(m_ninjaParser);
     }

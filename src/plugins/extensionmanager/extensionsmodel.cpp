@@ -302,7 +302,7 @@ void ExtensionsModel::setExtensionsJson(const QByteArray &json)
     d->remotePlugins.clear();
 
     qCDebug(modelLog) << "QJsonParseError:" << error.errorString();
-    QJsonArray responseItems = jsonObj.value("items").toArray();
+    const QJsonArray responseItems = jsonObj.value("items").toArray();
 
     for (const QJsonValue &item : responseItems) {
         const QJsonObject itemObject = item.toObject();

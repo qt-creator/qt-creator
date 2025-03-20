@@ -129,7 +129,7 @@ bool ObjectsMapTreeItem::parseProperties(const QByteArray &properties)
     if (properties.isEmpty() || properties.at(0) != '{')
         return false;
 
-    QString p = QString::fromUtf8(properties);
+    const QString p = QString::fromUtf8(properties);
     ParseState state = None;
     QString name;
     QString value;

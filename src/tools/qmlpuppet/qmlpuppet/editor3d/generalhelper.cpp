@@ -624,7 +624,7 @@ QQuick3DPickResult GeneralHelper::pickViewAt(QQuick3DViewport *view, float posX,
     view->setGlobalPickingEnabled(true);
 
     // With Qt 6.2+, select first suitable result from all picked objects
-    auto pickResults = view->pickAll(posX, posY);
+    const QList<QQuick3DPickResult> pickResults = view->pickAll(posX, posY);
     for (auto pickResult : pickResults) {
         if (isPickable(pickResult.objectHit()))
             return pickResult;

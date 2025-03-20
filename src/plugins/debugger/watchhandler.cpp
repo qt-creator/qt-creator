@@ -1754,7 +1754,7 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
               [this] { grabWidget(); });
 
     menu->addSeparator();
-    QModelIndexList mil = ev.currentOrSelectedRows();
+    const QModelIndexList mil = ev.currentOrSelectedRows();
     if (mil.size() > 1) {
         WatchItemSet wis;
         for (const QModelIndex &i : mil)

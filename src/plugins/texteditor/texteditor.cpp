@@ -3420,7 +3420,7 @@ void TextEditorWidget::insertCodeSnippet(int basePosition,
         }
     }
 
-    QList<CursorPart> cursorParts = Utils::transform(positionedParts,
+    const QList<CursorPart> cursorParts = Utils::transform(positionedParts,
                                                      [doc = document()](const PositionedPart &part) {
                                                          return CursorPart(part, doc);
                                                      });

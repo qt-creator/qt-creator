@@ -461,7 +461,7 @@ QList<int> Quick3DFrameModel::frameIndices(const QString &view3DFilter) const
 
 QStringList Quick3DFrameModel::frameNames(const QString &view3D) const
 {
-    auto indices = frameIndices(view3D);
+    const QList<int> indices = frameIndices(view3D);
     QStringList ret;
     for (auto index : indices) {
         const Item &item = m_data[index];

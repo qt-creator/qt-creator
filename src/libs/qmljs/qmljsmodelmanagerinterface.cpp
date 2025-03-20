@@ -1813,7 +1813,7 @@ Utils::FilePath ModelManagerInterface::fileToSource(const Utils::FilePath &path)
     if (!path.scheme().isEmpty())
         return path;
 
-    QList<Utils::FilePath> applicationPaths = m_syncedData.readLocked()->m_applicationPaths;
+    const Utils::FilePaths applicationPaths = m_syncedData.readLocked()->m_applicationPaths;
 
     for (const Utils::FilePath &p : applicationPaths) {
         if (!p.isEmpty() && path.startsWith(p.path())) {

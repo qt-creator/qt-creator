@@ -3586,7 +3586,7 @@ void AspectList::fromMap(const Utils::Store &map)
 {
     QTC_ASSERT(!settingsKey().isEmpty(), return);
 
-    QVariantList list = map[settingsKey()].toList();
+    const QVariantList list = map[settingsKey()].toList();
     d->volatileItems.clear();
     for (const QVariant &entry : list) {
         auto item = d->createItem();

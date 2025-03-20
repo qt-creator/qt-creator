@@ -117,7 +117,7 @@ void SideBarWidget::setCurrentItem(const QString &id)
     m_currentItem->widget()->show();
 
     // Add buttons and remember their actions for later removal
-    QList<QToolButton *> buttons = m_currentItem->createToolBarWidgets();
+    const QList<QToolButton *> buttons = m_currentItem->createToolBarWidgets();
     for (QToolButton *b : buttons)
         m_addedToolBarActions.append(m_toolbar->insertWidget(m_splitAction, b));
 }

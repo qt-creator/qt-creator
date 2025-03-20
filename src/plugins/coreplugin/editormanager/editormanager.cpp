@@ -3603,7 +3603,7 @@ QByteArray EditorManager::saveState()
     stream << QByteArray("EditorManagerV5");
 
     // TODO: In case of split views it's not possible to restore these for all correctly with this
-    QList<IDocument *> documents = DocumentModel::openedDocuments();
+    const QList<IDocument *> documents = DocumentModel::openedDocuments();
     for (IDocument *document : documents) {
         if (!document->filePath().isEmpty() && !document->isTemporary()) {
             IEditor *editor = DocumentModel::editorsForDocument(document).constFirst();

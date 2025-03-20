@@ -130,7 +130,7 @@ bool CocoSettings::verifyCocoDirectory(const FilePath &cocoDir)
 
     QString result = QString::fromLatin1(proc.readAll());
     static const QRegularExpression linebreak("\n|\r\n|\r");
-    QStringList lines = result.split(linebreak, Qt::SkipEmptyParts);
+    const QStringList lines = result.split(linebreak, Qt::SkipEmptyParts);
 
     const qsizetype n = lines.size();
     if (n >= 2 && lines[n - 2].startsWith("Version:") && lines[n - 1].startsWith("Date:")) {

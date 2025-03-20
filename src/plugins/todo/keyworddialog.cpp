@@ -157,7 +157,7 @@ bool KeywordDialog::isKeywordNameCorrect()
 {
     // Make sure keyword is not empty and contains no spaces or colons
 
-    QString name = keywordName();
+    const QString name = keywordName();
 
     if (name.isEmpty())
         return false;

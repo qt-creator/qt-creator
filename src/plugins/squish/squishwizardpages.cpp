@@ -136,7 +136,7 @@ void SquishToolkitsPage::fetchServerSettings()
         QApplication::restoreOverrideCursor();
         // FIXME current impl limited to Desktop to avoid confusion and bugreports
         const QStringList ignored = { "Android", "iOS", "VNC", "XView" };
-        auto buttons = m_buttonGroup->buttons();
+        const QList<QAbstractButton*> buttons = m_buttonGroup->buttons();
         for (auto button : buttons) {
             const QString text = button->text();
             if (!ignored.contains(text) && s.licensedToolkits.contains(text)) {

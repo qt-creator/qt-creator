@@ -483,7 +483,7 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
             messageEditor->editorWidget()->setVisible(true);
             return;
         }
-        QList<Client *> clients = LanguageClientManager::instance()->clientsByName(
+        const QList<Client *> clients = LanguageClientManager::instance()->clientsByName(
             m_clients->currentText());
         QString errMsg;
         for (Client *client : clients) {

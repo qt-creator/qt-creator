@@ -1329,7 +1329,7 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
                 // Remove the expanded Qt path from the presets values
                 QString argItemExpandedValue = argItem.expandedValue(k);
                 presetValueList.removeIf([argItemExpandedValue](const QString &presetPath) {
-                    QStringList argItemPaths = argItemExpandedValue.split(";");
+                    const QStringList argItemPaths = argItemExpandedValue.split(";");
                     for (const QString &argPath : argItemPaths) {
                         const FilePath argFilePath = FilePath::fromString(argPath);
                         const FilePath presetFilePath = FilePath::fromUserInput(presetPath);

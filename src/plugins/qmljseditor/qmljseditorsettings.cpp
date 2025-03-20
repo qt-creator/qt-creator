@@ -341,7 +341,7 @@ private:
     void populateAnalyzerMessages(const QList<int> &disabled, const QList<int> &disabledForNonQuickUi)
     {
         using namespace QmlJS::StaticAnalysis;
-        auto knownMessages = Utils::sorted(Message::allMessageTypes());
+        const QList<Type> knownMessages = Utils::sorted(Message::allMessageTypes());
         auto root = analyzerMessageModel.rootItem();
         for (auto msgType : knownMessages) {
             const QString msg = Message::prototypeForMessageType(msgType).message;

@@ -203,7 +203,7 @@ const FilePath QmlProjectFileGenerator::findInDirTree(const FilePath &dir, const
     if (!files.isEmpty())
         return dir;
 
-    FilePaths subdirs = dir.dirEntries(DIRS_ONLY);
+    const FilePaths subdirs = dir.dirEntries(DIRS_ONLY);
     for (const FilePath &subdir : subdirs) {
         const FilePath result = findInDirTree(subdir, suffixes, currentSearchDepth);
         if (!result.isEmpty())

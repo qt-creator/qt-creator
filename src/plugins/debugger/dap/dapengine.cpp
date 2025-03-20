@@ -737,8 +737,8 @@ void DapEngine::handleScopesResponse(const QJsonObject &response)
     watchHandler()->resetValueCache();
     watchHandler()->notifyUpdateStarted();
 
-    QJsonArray scopes = response.value("body").toObject().value("scopes").toArray();
-    for (const QJsonValueRef &scope : scopes) {
+    const QJsonArray scopes = response.value("body").toObject().value("scopes").toArray();
+    for (const QJsonValueConstRef &scope : scopes) {
         const QString name = scope.toObject().value("name").toString();
         if (name == "Registers")
             continue;
@@ -752,13 +752,13 @@ void DapEngine::handleScopesResponse(const QJsonObject &response)
 
 void DapEngine::handleThreadsResponse(const QJsonObject &response)
 {
-    QJsonArray threads = response.value("body").toObject().value("threads").toArray();
+    const QJsonArray threads = response.value("body").toObject().value("threads").toArray();
 
     if (threads.isEmpty())
         return;
 
     ThreadsHandler *handler = threadsHandler();
-    for (const QJsonValueRef &thread : threads) {
+    for (const QJsonValueConstRef &thread : threads) {
         ThreadData threadData;
         threadData.id = QString::number(thread.toObject().value("id").toInt());
         threadData.name = thread.toObject().value("name").toString();
@@ -797,10 +797,10 @@ void DapEngine::handleEvaluateResponse(const QJsonObject &response)
 void DapEngine::handleBreakpointResponse(const QJsonObject &response)
 {
     const QJsonObject body = response.value("body").toObject();
-    QJsonArray breakpoints = body.value("breakpoints").toArray();
+    const QJsonArray breakpoints = body.value("breakpoints").toArray();
 
     QHash<QString, QJsonObject> map;
-    for (QJsonValueRef jsonbp : breakpoints) {
+    for (const QJsonValueConstRef &jsonbp : breakpoints) {
         QJsonObject breakpoint = jsonbp.toObject();
         QString fileName = breakpoint.value("source").toObject().value("path").toString();
         int line = breakpoint.value("line").toInt();

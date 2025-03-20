@@ -18,7 +18,7 @@ QFuture<Libraries> libraries(const Config &config, const QString &languageId)
     const QUrl url = config.url({"api/libraries", languageId});
 
     return jsonRequest<Libraries>(config.networkManager, url, [](const QJsonDocument &doc) {
-        QJsonArray libraries = doc.array();
+        const QJsonArray libraries = doc.array();
         Libraries result;
 
         for (const auto &library : libraries) {
@@ -28,7 +28,7 @@ QFuture<Libraries> libraries(const Config &config, const QString &languageId)
             l.name = obj["name"].toString();
             l.url = QUrl::fromUserInput(obj["url"].toString());
 
-            QJsonArray versions = obj["versions"].toArray();
+            const QJsonArray versions = obj["versions"].toArray();
             for (const auto &version : versions) {
                 l.versions.append({
                     version.toObject()["version"].toString(),

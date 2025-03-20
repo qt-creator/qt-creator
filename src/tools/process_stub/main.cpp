@@ -566,7 +566,7 @@ void killInferior()
 void onControlSocketReadyRead()
 {
     //k = kill, i = interrupt, c = continue, s = shutdown
-    QByteArray data = controlSocket.readAll();
+    const QByteArray data = controlSocket.readAll();
     for (auto ch : data) {
         qCDebug(log) << "Received:" << ch;
 

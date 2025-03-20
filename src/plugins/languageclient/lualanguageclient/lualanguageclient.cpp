@@ -469,7 +469,7 @@ public:
 
         const LanguageServerProtocol::JsonRpcMessage request(messageValue.toObject());
 
-        auto clients = clientsForDocument(document);
+        const QList<Client *> clients = clientsForDocument(document);
         QTC_CHECK(clients.size() == 1);
 
         for (Client *c : clients) {

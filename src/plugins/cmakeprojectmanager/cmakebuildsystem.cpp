@@ -1487,7 +1487,7 @@ void CMakeBuildSystem::updateProjectData()
             FilePath moduleMapFile = buildConfiguration()->buildDirectory()
                     .pathAppended("qml_module_mappings/" + rpp.buildSystemTarget);
             if (expected_str<QByteArray> content = moduleMapFile.fileContents()) {
-                auto lines = content->split('\n');
+                const QList<QByteArray> lines = content->split('\n');
                 for (const QByteArray &line : lines) {
                     if (!line.isEmpty())
                         moduleMappings.append(line.simplified());

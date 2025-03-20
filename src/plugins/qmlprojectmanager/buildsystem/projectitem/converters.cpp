@@ -29,7 +29,7 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
     QJsonObject versionConfig = rootObject["versions"].toObject();
     QJsonObject environmentConfig = rootObject["environment"].toObject();
     QJsonObject deploymentConfig = rootObject["deployment"].toObject();
-    QJsonArray filesConfig = rootObject["fileGroups"].toArray();
+    const QJsonArray filesConfig = rootObject["fileGroups"].toArray();
     QJsonObject otherProperties = rootObject["otherProperties"].toObject();
 
     QJsonObject mcuObject = rootObject["mcu"].toObject();

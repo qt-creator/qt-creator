@@ -46,14 +46,14 @@ IconsStorage::IconsStorage()
     if (debug)
         qCDebug(iconsLog) << "parsing" << iconsPath;
     QDir topDir(iconsPath);
-    QList<QFileInfo> dirs = topDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+    const QFileInfoList dirs = topDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
     for (const QFileInfo &subDirInfo : dirs) {
         if (debug)
             qCDebug(iconsLog) << "parsing" << subDirInfo.absoluteFilePath();
         const QString packageName = subDirInfo.fileName();
         m_packageNames.append(packageName);
         QDir subDir(subDirInfo.absoluteFilePath() + QLatin1String("/16x16"));
-        QList<QFileInfo> files = subDir.entryInfoList(QDir::Files);
+        const QFileInfoList files = subDir.entryInfoList(QDir::Files);
         for (const QFileInfo &iconFile : files) {
             QIcon icon(iconFile.absoluteFilePath());
             if (icon.isNull()) {

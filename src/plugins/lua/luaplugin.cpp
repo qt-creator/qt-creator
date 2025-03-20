@@ -335,7 +335,7 @@ public:
             }
 
             QList<PluginSpec *> plugins;
-            auto dirs = path.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+            const FilePaths dirs = path.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
             for (const auto &dir : dirs) {
                 const auto specFilePath = dir / (dir.fileName() + ".lua");
                 if (specFilePath.exists()) {
@@ -415,12 +415,14 @@ public:
     {
         QSet<PluginSpec *> plugins;
         for (const FilePath &path : pluginPaths) {
-            FilePaths folders = path.dirEntries(FileFilter({}, QDir::Dirs | QDir::NoDotAndDotDot));
+            const FilePaths folders =
+                path.dirEntries(FileFilter({}, QDir::Dirs | QDir::NoDotAndDotDot));
 
             for (const FilePath &folder : folders) {
                 FilePath script = folder / (folder.baseName() + ".lua");
                 if (!script.exists()) {
-                    FilePaths contents = folder.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+                    const FilePaths contents =
+                        folder.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
                     if (contents.empty())
                         continue;
 

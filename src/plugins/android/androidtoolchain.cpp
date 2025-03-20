@@ -145,7 +145,7 @@ static FilePath clangPlusPlusPath(const FilePath &clangPath)
 
 static FilePaths uniqueNdksForCurrentQtVersions()
 {
-    auto androidQtVersions = QtSupport::QtVersionManager::versions(
+    const QtSupport::QtVersions androidQtVersions = QtSupport::QtVersionManager::versions(
         &QtSupport::QtVersion::isAndroidQtVersion);
 
     FilePaths uniqueNdks;

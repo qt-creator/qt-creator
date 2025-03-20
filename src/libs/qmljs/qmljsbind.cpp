@@ -89,7 +89,7 @@ bool Bind::usesQmlPrototype(ObjectValue *prototype,
     if (componentName.isEmpty())
         return false;
 
-    QList<const ObjectValue *> values = _qmlObjectsByPrototypeName.values(componentName);
+    const QList<const ObjectValue *> values = _qmlObjectsByPrototypeName.values(componentName);
     for (const ObjectValue *object : values) {
         // resolve and check the prototype
         const ObjectValue *resolvedPrototype = object->prototype(context);
