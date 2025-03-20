@@ -43,8 +43,6 @@
 #include <qmljseditor/qmljseditor.h>
 #include <qmljseditor/qmljseditorconstants.h>
 
-#include <qmlprofiler/qmlprofilerruncontrol.h>
-
 #include <qmlpreview/qmlpreviewruncontrol.h>
 
 #include <qtsupport/qtkitaspect.h>
@@ -64,7 +62,6 @@
 
 using namespace Core;
 using namespace QmlPreview;
-using namespace QmlProfiler;
 using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -240,6 +237,19 @@ void setupExternalDesignStudio()
 {
     static ExternalDesignStudioFactory theExternalDesignStudioFactory;
 }
+
+class SimpleQmlProfilerRunnerFactory final : public RunWorkerFactory
+{
+public:
+    explicit SimpleQmlProfilerRunnerFactory(const QList<Id> &runConfigs, const QList<Id> &extraRunModes = {})
+    {
+        cloneProduct(ProjectExplorer::Constants::QML_PROFILER_RUN_FACTORY);
+        addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+        for (const Id &id : extraRunModes)
+            addSupportedRunMode(id);
+        setSupportedRunConfigs(runConfigs);
+    }
+};
 
 class QmlProjectPlugin final : public ExtensionSystem::IPlugin
 {
