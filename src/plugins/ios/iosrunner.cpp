@@ -841,32 +841,6 @@ static void startDebugger(RunControl *runControl, DebuggerRunTool *debugger, Ios
 {
     DebuggerRunParameters &rp = debugger->runParameters();
     const IosDeviceTypeAspect::Data *data = runControl->aspectData<IosDeviceTypeAspect>();
-    QTC_ASSERT(data, debugger->reportFailure("Broken IosDeviceTypeAspect setup."); return);
-    rp.setDisplayName(data->applicationName);
-    rp.setContinueAfterAttach(true);
-
-    IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(runControl->device());
-    const bool isIosDeviceType = runControl->device()->type() == Ios::Constants::IOS_DEVICE_TYPE;
-    const bool isIosDeviceInstance = bool(dev);
-    // type info and device class must match
-    QTC_ASSERT(isIosDeviceInstance == isIosDeviceType,
-               debugger->reportFailure(Tr::tr("Internal error.")); return);
-    if (isIosDeviceInstance && dev->handler() == IosDevice::Handler::DeviceCtl) {
-        const auto msgOnlyCppDebuggingSupported = [] {
-            return Tr::tr("Only C++ debugging is supported for devices with iOS 17 and later.");
-        };
-        if (!rp.isCppDebugging()) {
-            debugger->reportFailure(msgOnlyCppDebuggingSupported());
-            return;
-        }
-        if (rp.isQmlDebugging()) {
-            rp.setQmlDebugging(false);
-            debugger->appendMessage(msgOnlyCppDebuggingSupported(),
-                                    OutputFormat::LogMessageFormat, true);
-        }
-        rp.setInferiorExecutable(data->localExecutable);
-        return;
-    }
 
     if (!iosRunner->isAppRunning()) {
         debugger->reportFailure(Tr::tr("Application not running."));
@@ -919,7 +893,8 @@ static RunWorker *createWorker(RunControl *runControl)
     const bool isIosDeviceType = runControl->device()->type() == Ios::Constants::IOS_DEVICE_TYPE;
     const bool isIosDeviceInstance = bool(dev);
     // type info and device class must match
-    QTC_ASSERT(isIosDeviceInstance == isIosDeviceType, return debugger);
+    QTC_ASSERT(isIosDeviceInstance == isIosDeviceType,
+               runControl->postMessage(Tr::tr("Internal error."), ErrorMessageFormat); return nullptr);
     DebuggerRunParameters &rp = debugger->runParameters();
     // TODO cannot use setupPortsGatherer() from DebuggerRunTool, because that also requests
     // the "debugChannel", which then results in runControl trying to retrieve ports&URL for that
@@ -962,9 +937,32 @@ static RunWorker *createWorker(RunControl *runControl)
         rp.setLldbPlatform("ios-simulator");
     }
 
-    QObject::connect(runner, &RunWorker::started, debugger, [runControl, debugger, iosRunner] {
-        startDebugger(runControl, debugger, iosRunner);
-    });
+    const IosDeviceTypeAspect::Data *data = runControl->aspectData<IosDeviceTypeAspect>();
+    QTC_ASSERT(data, runControl->postMessage("Broken IosDeviceTypeAspect setup.", ErrorMessageFormat);
+               return nullptr);
+    rp.setDisplayName(data->applicationName);
+    rp.setContinueAfterAttach(true);
+
+    if (isIosDeviceInstance && dev->handler() == IosDevice::Handler::DeviceCtl) {
+        const auto msgOnlyCppDebuggingSupported = [] {
+            return Tr::tr("Only C++ debugging is supported for devices with iOS 17 and later.");
+        };
+        if (!rp.isCppDebugging()) {
+            // TODO: The message is not shown currently, fix me before 17.0.
+            runControl->postMessage(msgOnlyCppDebuggingSupported(), ErrorMessageFormat);
+            return nullptr;
+        }
+        if (rp.isQmlDebugging()) {
+            rp.setQmlDebugging(false);
+            // TODO: The message is not shown currently, fix me before 17.0.
+            runControl->postMessage(msgOnlyCppDebuggingSupported(), LogMessageFormat);
+        }
+        rp.setInferiorExecutable(data->localExecutable);
+    } else {
+        QObject::connect(runner, &RunWorker::started, debugger, [runControl, debugger, iosRunner] {
+            startDebugger(runControl, debugger, iosRunner);
+        });
+    }
     return debugger;
 }
 
