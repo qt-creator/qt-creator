@@ -127,7 +127,7 @@ HelperWidgets.ScrollView {
                     qsTr("<b>Content Library</b> is disabled inside a non-visual component.")
                 } else if (!root.materialsModel.bundleExists) {
                     qsTr("No materials available. Make sure you have an internet connection.")
-                } else if (!searchBox.isEmpty()) {
+                } else if (!searchBox.isEmpty() && root.materialsModel.isEmpty) {
                     qsTr("No match found.")
                 } else {
                     ""
