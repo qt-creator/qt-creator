@@ -238,12 +238,10 @@ void setupExternalDesignStudio()
 class SimpleQmlProfilerRunnerFactory final : public RunWorkerFactory
 {
 public:
-    explicit SimpleQmlProfilerRunnerFactory(const QList<Id> &runConfigs, const QList<Id> &extraRunModes = {})
+    explicit SimpleQmlProfilerRunnerFactory(const QList<Id> &runConfigs)
     {
         cloneProduct(ProjectExplorer::Constants::QML_PROFILER_RUN_FACTORY);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-        for (const Id &id : extraRunModes)
-            addSupportedRunMode(id);
         setSupportedRunConfigs(runConfigs);
     }
 };
@@ -251,12 +249,10 @@ public:
 class SimplePreviewRunnerFactory final : public RunWorkerFactory
 {
 public:
-    explicit SimplePreviewRunnerFactory(const QList<Id> &runConfigs, const QList<Id> &extraRunModes = {})
+    explicit SimplePreviewRunnerFactory(const QList<Id> &runConfigs)
     {
         cloneProduct(ProjectExplorer::Constants::QML_PREVIEW_RUN_FACTORY);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
-        for (const Id &id : extraRunModes)
-            addSupportedRunMode(id);
         setSupportedRunConfigs(runConfigs);
     }
 };
