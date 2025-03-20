@@ -528,7 +528,6 @@ public:
 
     Port gdbServerPort() const;
     Port qmlServerPort();
-    qint64 pid() const;
     bool isAppRunning() const;
 
 private:
@@ -557,7 +556,6 @@ private:
 
     bool m_cleanExit = false;
     Port m_gdbServerPort;
-    qint64 m_pid = 0;
 };
 
 IosRunner::IosRunner(RunControl *runControl)
@@ -728,7 +726,7 @@ void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const FilePath &bu
         reportFailure(Tr::tr("Could not get inferior PID."));
         return;
     }
-    m_pid = pid;
+    runControl()->setAttachPid(ProcessHandle(pid));
 
     if (qmlDebug() && !qmlServerPort().isValid())
         reportFailure(Tr::tr("Could not get necessary ports for the debugger connection."));
@@ -780,11 +778,6 @@ void IosRunner::handleFinished(IosToolHandler *handler)
     }
     handler->deleteLater();
     reportStopped();
-}
-
-qint64 IosRunner::pid() const
-{
-    return m_pid;
 }
 
 bool IosRunner::isAppRunning() const
@@ -882,7 +875,6 @@ static void startDebugger(RunControl *runControl, DebuggerRunTool *debugger, Ios
 
     const Port gdbServerPort = iosRunner->gdbServerPort();
     const Port qmlServerPort = iosRunner->qmlServerPort();
-    runControl->setAttachPid(ProcessHandle(iosRunner->pid()));
 
     const bool cppDebug = rp.isCppDebugging();
     const bool qmlDebug = rp.isQmlDebugging();
