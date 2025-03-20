@@ -720,7 +720,7 @@ void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPi
         bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d/");
         m_bundleId = compUtils.user3DBundleId();
     } else {
-        qWarning() << __FUNCTION__ << "Unsuppported node type";
+        qWarning() << __FUNCTION__ << "Unsupported node type";
         return;
     }
 

@@ -63,7 +63,7 @@ public:
     Q_INVOKABLE void acceptAssetsDropOnMaterial(int matIndex, const QList<QUrl> &urls);
     Q_INVOKABLE void acceptTextureDropOnMaterial(int matIndex, const QString &texId);
     Q_INVOKABLE void focusMaterialSection(bool focusMatSec);
-    Q_INVOKABLE void addMaterialToContentLibrary(const QVariant &material);
+    Q_INVOKABLE void addMaterialToContentLibrary(int idx);
     Q_INVOKABLE void importMaterial();
     Q_INVOKABLE void exportMaterial(int idx);
     Q_INVOKABLE void addQtQuick3D();

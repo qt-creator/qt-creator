@@ -371,10 +371,12 @@ void MaterialBrowserWidget::focusMaterialSection(bool focusMatSec)
     }
 }
 
-void MaterialBrowserWidget::addMaterialToContentLibrary(const QVariant &material)
+void MaterialBrowserWidget::addMaterialToContentLibrary(int idx)
 {
+    ModelNode mat = m_materialBrowserModel->materialAt(idx);
+    QTC_ASSERT(mat, return);
+
     QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
-    ModelNode mat = material.value<ModelNode>();
     m_materialBrowserView->emitCustomNotification("add_material_to_content_lib", {mat},
                                                   {m_previewImageProvider->getPixmap(mat)}); // to ContentLibrary
 }

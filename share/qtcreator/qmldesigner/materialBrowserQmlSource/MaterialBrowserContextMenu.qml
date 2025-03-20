@@ -138,8 +138,9 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("Add to Content Library")
+        enabled: root.targetMaterial
 
-        onTriggered: MaterialBrowserBackend.rootView.addMaterialToContentLibrary(root.targetMaterial)
+        onTriggered: MaterialBrowserBackend.rootView.addMaterialToContentLibrary(root.targetIndex)
     }
 
     StudioControls.MenuItem {
