@@ -162,7 +162,7 @@ public:
             Core::EditorManager::instance(),
             &Core::EditorManager::editorCreated,
             this,
-            [this](Core::IEditor *editor, const Utils::FilePath &filePath) {
+            [this](Core::IEditor *editor) {
                 auto textEditor = qobject_cast<BaseTextEditor *>(editor);
                 if (textEditor)
                     emit editorCreated(textEditor);
