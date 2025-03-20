@@ -3,30 +3,35 @@
 
 #pragma once
 
-#include "qmljstools_global.h"
-
 #include "qmljscodestylesettings.h"
+#include "qmljsformatterselectionwidget.h"
+
+#include <texteditor/tabsettingswidget.h>
+#include <utils/aspects.h>
 
 #include <QWidget>
 
+QT_BEGIN_NAMESPACE
+class QSpinBox;
+QT_END_NAMESPACE
 namespace QmlJSTools {
-class QmlJSCodeStyleSettingsWidget;
 
-class QMLJSTOOLS_EXPORT QmlJSCodeStylePreferencesWidget : public QWidget
+class BuiltinFormatterSettingsWidget : public QmlCodeStyleWidgetBase
 {
-    Q_OBJECT
-
 public:
-    explicit QmlJSCodeStylePreferencesWidget(QWidget *parent = nullptr);
-
-    void setPreferences(QmlJSCodeStylePreferences *tabPreferences);
+    explicit BuiltinFormatterSettingsWidget(QWidget *parent, FormatterSelectionWidget *selection);
+    void setCodeStyleSettings(const QmlJSCodeStyleSettings &settings) override;
+    void setPreferences(QmlJSCodeStylePreferences *tabPreferences) override;
+    void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences* preferences) override;
 
 private:
-    void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences* preferences);
-    void slotSettingsChanged(const QmlJSCodeStyleSettings &settings);
+    void slotSettingsChanged();
+    void slotTabSettingsChanged(const TextEditor::TabSettings &settings);
 
-    QmlJSCodeStyleSettingsWidget *m_codeStyleSettingsWidget;
+    Utils::IntegerAspect m_lineLength;
+    TextEditor::TabSettingsWidget *m_tabSettingsWidget;
     QmlJSCodeStylePreferences *m_preferences = nullptr;
+    FormatterSelectionWidget *m_formatterSelectionWidget;
 };
 
 } // namespace QmlJSTools

@@ -40,6 +40,8 @@ public:
 
     void setSourcesWithCapabilities(const LanguageServerProtocol::ServerCapabilities &cap);
 
+    virtual TextEditor::TabSettings tabSettings() const override;
+    void setTabSettings(const TextEditor::TabSettings &tabSettings);
 signals:
     void updateCodeWarnings(QmlJS::Document::Ptr doc);
     void semanticInfoUpdated(const QmlJSTools::SemanticInfo &semanticInfo);

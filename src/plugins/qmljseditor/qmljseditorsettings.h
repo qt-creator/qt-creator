@@ -20,7 +20,6 @@ class QmlJsEditingSettings final : public Utils::AspectContainer
 public:
     QmlJsEditingSettings();
 
-    QString defaultFormatCommand() const;
     Utils::FilePath defaultQdsCommand() const;
 
     Utils::BoolAspect enableContextPane{this};
@@ -28,11 +27,8 @@ public:
     Utils::BoolAspect autoFormatOnSave{this};
     Utils::BoolAspect autoFormatOnlyCurrentProject{this};
     Utils::BoolAspect foldAuxData{this};
-    Utils::BoolAspect useCustomFormatCommand{this};
     Utils::BoolAspect useCustomAnalyzer{this};
     Utils::SelectionAspect uiQmlOpenMode{this};
-    Utils::StringAspect formatCommand{this};
-    Utils::StringAspect formatCommandOptions{this};
     Utils::IntegersAspect disabledMessages{this};
     Utils::IntegersAspect disabledMessagesForNonQuickUi{this};
     Utils::FilePathAspect qdsCommand{this};

@@ -18,9 +18,12 @@
 #include <utils/qtcassert.h>
 
 static const char lineLengthKey[] = "LineLength";
+static const char qmlformatIniContentKey[] = "QmlFormatIniContent";
+static const char formatterKey[] = "Formatter";
+static const char customFormatterPathKey[] = "CustomFormatterPath";
+static const char customFormatterArgumentsKey[] = "CustomFormatterArguments";
 
 using namespace Utils;
-
 namespace QmlJSTools {
 
 // QmlJSCodeStyleSettings
@@ -30,18 +33,28 @@ QmlJSCodeStyleSettings::QmlJSCodeStyleSettings() = default;
 Store QmlJSCodeStyleSettings::toMap() const
 {
     return {
-        {lineLengthKey, lineLength}
+        {formatterKey, formatter},
+        {lineLengthKey, lineLength},
+        {qmlformatIniContentKey, qmlformatIniContent},
+        {customFormatterPathKey, customFormatterPath.toUrlishString()},
+        {customFormatterArgumentsKey, customFormatterArguments}
     };
 }
 
 void QmlJSCodeStyleSettings::fromMap(const Store &map)
 {
     lineLength = map.value(lineLengthKey, lineLength).toInt();
+    qmlformatIniContent = map.value(qmlformatIniContentKey, qmlformatIniContent).toString();
+    formatter = static_cast<Formatter>(map.value(formatterKey, formatter).toInt());
+    customFormatterPath = Utils::FilePath::fromString(map.value(customFormatterPathKey).toString());
+    customFormatterArguments = map.value(customFormatterArgumentsKey).toString();
 }
 
 bool QmlJSCodeStyleSettings::equals(const QmlJSCodeStyleSettings &rhs) const
 {
-    return lineLength == rhs.lineLength;
+    return lineLength == rhs.lineLength && qmlformatIniContent == rhs.qmlformatIniContent
+           && formatter == rhs.formatter && customFormatterPath == rhs.customFormatterPath
+           && customFormatterArguments == rhs.customFormatterArguments;
 }
 
 QmlJSCodeStyleSettings QmlJSCodeStyleSettings::currentGlobalCodeStyle()

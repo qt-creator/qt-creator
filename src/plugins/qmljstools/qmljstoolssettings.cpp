@@ -8,6 +8,7 @@
 #include "qmljsindenter.h"
 #include "qmljstoolsconstants.h"
 #include "qmljstoolssettings.h"
+#include "qmlformatsettings.h"
 #include "qmljstoolstr.h"
 
 #include <projectexplorer/project.h>
@@ -20,6 +21,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/id.h>
+#include <utils/filepath.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
@@ -166,9 +168,22 @@ QmlJSToolsSettings::QmlJSToolsSettings()
     qtTabSettings.m_indentSize = 4;
     qtTabSettings.m_continuationAlignBehavior = TabSettings::ContinuationAlignWithIndent;
     qtCodeStyle->setTabSettings(qtTabSettings);
-    QmlJSCodeStyleSettings qtQmlJSSetings;
-    qtQmlJSSetings.lineLength = 80;
-    qtCodeStyle->setCodeStyleSettings(qtQmlJSSetings);
+
+    connect(&QmlFormatSettings::instance(), &QmlFormatSettings::qmlformatIniCreated, [](Utils::FilePath qmlformatIniPath) {
+        QmlJSCodeStyleSettings s;
+        s.lineLength = 80;
+        Utils::expected_str<QByteArray> fileContents = qmlformatIniPath.fileContents();
+        if (fileContents)
+            s.qmlformatIniContent = QString::fromUtf8(*qmlformatIniPath.fileContents());
+        auto builtInCodeStyles = TextEditorSettings::codeStylePool(
+                                     QmlJSTools::Constants::QML_JS_SETTINGS_ID)
+                                     ->builtInCodeStyles();
+        for (auto codeStyle : builtInCodeStyles) {
+            if (auto qtCodeStyle = dynamic_cast<QmlJSCodeStylePreferences *>(codeStyle))
+                qtCodeStyle->setCodeStyleSettings(s);
+        }
+    });
+
     pool->addCodeStyle(qtCodeStyle);
 
     // default delegate for global preferences

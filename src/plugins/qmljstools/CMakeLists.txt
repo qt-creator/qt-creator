@@ -7,8 +7,10 @@ add_qtc_plugin(QmlJSTools
     qmljsbundleprovider.cpp qmljsbundleprovider.h
     qmljscodestylepreferenceswidget.cpp qmljscodestylepreferenceswidget.h
     qmljscodestylesettings.cpp qmljscodestylesettings.h
-    qmljscodestylesettingswidget.cpp qmljscodestylesettingswidget.h
     qmljscodestylesettingspage.cpp qmljscodestylesettingspage.h
+    qmljscustomformatterwidget.cpp qmljscustomformatterwidget.h
+    qmlformatsettingswidget.cpp qmlformatsettingswidget.h
+    qmljsformatterselectionwidget.cpp qmljsformatterselectionwidget.h
     qmljsfunctionfilter.cpp qmljsfunctionfilter.h
     qmljsindenter.cpp qmljsindenter.h
     qmljsmodelmanager.cpp qmljsmodelmanager.h

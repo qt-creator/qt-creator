@@ -6,6 +6,8 @@
 #include <languageserverprotocol/servercapabilities.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljstools/qmljssemanticinfo.h>
+#include <texteditor/tabsettings.h>
+#include <texteditor/textdocument.h>
 
 #include <QObject>
 #include <QTextLayout>
@@ -83,6 +85,7 @@ public:
                                  QmllsStatus::Source::EmbeddedCodeModel,
                                  QmllsStatus::Source::EmbeddedCodeModel,
                                  {}};
+    TextEditor::TabSettings m_tabSettings;
 };
 
 } // Internal

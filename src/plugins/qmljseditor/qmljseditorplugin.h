@@ -16,4 +16,9 @@ void setupQmlJSEditor();
 void inspectElement();
 void showContextPane();
 
+enum class FormatResult {
+    Success,
+    Failed
+};
+
 } // QmlJSEditor::Internal

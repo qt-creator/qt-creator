@@ -63,15 +63,10 @@ const char QML_CONTEXTPANE_KEY[] = "QmlJSEditor.ContextPaneEnabled";
 const char QML_CONTEXTPANEPIN_KEY[] = "QmlJSEditor.ContextPanePinned";
 const char FOLD_AUX_DATA[] = "QmlJSEditor.FoldAuxData";
 const char UIQML_OPEN_MODE[] = "QmlJSEditor.openUiQmlMode";
-const char FORMAT_COMMAND[] = "QmlJSEditor.formatCommand";
-const char FORMAT_COMMAND_OPTIONS[] = "QmlJSEditor.formatCommandOptions";
-const char CUSTOM_COMMAND[] = "QmlJSEditor.useCustomFormatCommand";
 const char CUSTOM_ANALYZER[] = "QmlJSEditor.useCustomAnalyzer";
 const char DISABLED_MESSAGES[] = "QmlJSEditor.disabledMessages";
 const char DISABLED_MESSAGES_NONQUICKUI[] = "QmlJSEditor.disabledMessagesNonQuickUI";
 const char QDS_COMMAND[] = "QmlJSEditor.qdsCommand";
-const char DEFAULT_CUSTOM_FORMAT_COMMAND[]
-    = "%{CurrentDocument:Project:QT_HOST_BINS}/qmlformat%{HostOs:ExecutableSuffix}";
 const char SETTINGS_PAGE[] = "C.QmlJsEditing";
 
 QmlJsEditingSettings &settings()
@@ -142,19 +137,6 @@ QmlJsEditingSettings::QmlJsEditingSettings()
     uiQmlOpenMode.addOption({Tr::tr("Qt Design Studio"), {}, Core::Constants::MODE_DESIGN});
     uiQmlOpenMode.addOption({Tr::tr("Qt Creator"), {}, Core::Constants::MODE_EDIT});
 
-    useCustomFormatCommand.setSettingsKey(group, CUSTOM_COMMAND);
-    useCustomFormatCommand.setLabelText(
-        Tr::tr("Use custom command instead of built-in formatter"));
-
-    formatCommand.setSettingsKey(group, FORMAT_COMMAND);
-    formatCommand.setDisplayStyle(StringAspect::LineEditDisplay);
-    formatCommand.setPlaceHolderText(defaultFormatCommand());
-    formatCommand.setLabelText(Tr::tr("Command:"));
-
-    formatCommandOptions.setSettingsKey(group, FORMAT_COMMAND_OPTIONS);
-    formatCommandOptions.setDisplayStyle(StringAspect::LineEditDisplay);
-    formatCommandOptions.setLabelText(Tr::tr("Arguments:"));
-
     useCustomAnalyzer.setSettingsKey(group, CUSTOM_ANALYZER);
     useCustomAnalyzer.setLabelText(Tr::tr("Use customized static analyzer"));
 
@@ -174,15 +156,6 @@ QmlJsEditingSettings::QmlJsEditingSettings()
     qdsCommand.setVisible(false);
 
     readSettings();
-
-    autoFormatOnlyCurrentProject.setEnabler(&autoFormatOnSave);
-    formatCommand.setEnabler(&useCustomFormatCommand);
-    formatCommandOptions.setEnabler(&useCustomFormatCommand);
-}
-
-QString QmlJsEditingSettings::defaultFormatCommand() const
-{
-    return DEFAULT_CUSTOM_FORMAT_COMMAND;
 }
 
 FilePath QmlJsEditingSettings::defaultQdsCommand() const
@@ -285,15 +258,10 @@ public:
         Column {
             Group {
                 bindTo(&formattingGroup),
-                title(Tr::tr("Automatic Formatting on File Save")),
+                title(Tr::tr("Formatting")),
                 Column {
                     s.autoFormatOnSave,
                     s.autoFormatOnlyCurrentProject,
-                    s.useCustomFormatCommand,
-                    Form {
-                        s.formatCommand, br,
-                        s.formatCommandOptions
-                    }
                 },
             },
             Group {
