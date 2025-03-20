@@ -10,15 +10,16 @@
     components.
     \previouspage {Login UI: States}
 
-    \image loginui4.gif "Login UI"
+    \image loginui4.gif Moving between the login page and the account creation page.
 
-    \e{Login UI: Timeline} is the fourth in a series of tutorials that build
-    on each other to illustrate how to use \QDS to create a simple UI with
-    some basic UI components, such as pages, buttons, and entry fields. The
-    fourth part of the tutorial describes how to use the timeline and states
-    to animate UI components. The result of this final tutorial is a UI similar
-    to the preceding animation, where you can navigate to the account creation
-    page by clicking the \e {Create Account} button.
+    \e{Login UI: Timeline} is the fourth of the \QDS \e{Login UI} tutorials, which
+    build on each other to illustrate how to create a simple UI with some basic UI
+    components, such as pages, buttons, and entry fields.
+
+    This tutorial describes how to use the timeline and states to animate UI
+    components. The result of this final tutorial is a UI similar to the preceding
+    animation, where you can navigate to the account creation page by selecting the
+    \e {Create Account} button.
 
     In \l {Login UI: States}, you learned how to use states to simulate page
     changes in a UI and connections to provide user interaction with it. In
@@ -71,7 +72,7 @@
                     \l{Arranging components}{component hierarchy}.
             \endlist
         \li Repeat the previous step for \e password and \e repeatPassword.
-        \li Select \e fields in \uicontrol Navigator and select \key Delete to
+        \li Select \e fields in \uicontrol Navigator, and then select \key Delete to
             delete it.
             \image loginui4-hierarchy.webp "The hierarchy of the components."
         \li Select \e username in \uicontrol Navigator.
@@ -104,7 +105,7 @@
             \endlist
             This attaches \e password to the bottom of \e username while keeping its
             horizontal center aligned with that of the rectangle.
-            \image loginui4-password-layout.webp "The layout of password entry field."
+            \image loginui4-password-layout.webp The layout properties of password entry field.
         \li Repeat the previous step to anchor the top of \e repeatPassword
             to the bottom of \e password with a margin of \e 20 and to
             anchor it horizontally to its parent.
@@ -114,7 +115,7 @@
 
     \e Screen01 should not display visible changes in the \uicontrol {2D} view:
 
-    \image loginui4-base-state.webp "UI with all the buttons and fields"
+    \image loginui4-base-state.webp Login UI with all the buttons and fields.
 
     \section2 Adding a timeline
 
@@ -151,7 +152,7 @@
             \imageactionicon
             > \uicontrol {Insert Keyframe} to insert a keyframe for the
             opacity property of the component.
-            \image loginui4-keyframe-opacity.png "Inserting keyframe for opacity property"
+            \image loginui4-keyframe-opacity.png Inserting a keyframe for the opacity property.
         \li In \uicontrol Timeline, check that the playhead is in
             frame \e 0, select the small arrow next to \e repeatPassword
             keyframe to expand it, and then select the \imagerecordfill
@@ -166,7 +167,7 @@
             Alternatively, you can fine-tune the value of a keyframe by right-clicking the
             keyframe marker \imagekeyframelinearactive
             , and selecting \uicontrol {Edit Keyframe}.
-            \image loginui4-timeline.webp "Recording the opacity property"
+            \image loginui4-timeline.webp Recording the opacity property.
         \li Select the record button again to stop recording property changes.
             If you forget this, all the following changes will be recorded, and
             the results will be unpredictable.
@@ -174,7 +175,7 @@
             the above steps to insert a keyframe for the \uicontrol Opacity
             property of the button and to record changes for it. However, this
             time the opacity value needs to be \e 1 in frame \e 0 and \e 0 in frame \e 1000.
-            \image loginui4-timeline-opacity.webp "Recorded timeline for the opacity properties"
+            \image loginui4-timeline-opacity.webp Recorded timeline for the opacity properties.
         \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
     \endlist
@@ -197,7 +198,7 @@
             ), select \imageactionicon
             > \uicontrol {Insert Keyframe} to insert a keyframe for the top
             anchor margin of \e repeatPassword.
-            \image loginui4-keyframe-top-anchor-margin.png "Inserting keyframe for top anchor margin"
+            \image loginui4-keyframe-top-anchor-margin.png Inserting keyframe for top anchor margin.
         \li In \uicontrol Timeline, check that the playhead is in
             frame \e 0, and select the record button for the \e anchors.topMargin
             property of \e repeatPassword.
@@ -209,7 +210,7 @@
             value, \e repeatPassword appears to slide down and settle below
             \e password.
         \li Select the record button again to stop recording property changes.
-        \image loginui4-timeline-all.webp "Recorded timeline for repeatPassword and createAccount."
+        \image loginui4-timeline-all.webp Recorded timeline for repeatPassword and createAccount.
         \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
     \endlist
@@ -223,12 +224,12 @@
         \li Select the keyframe marker \imagekeyframelinearactive
             for the \e anchors.topMargin property at frame \e 1000 on the
             timeline to select it.
-            \image loginui4-easing-curve-top-anchor-margin.webp "Top anchor margin keyframe marker"
+            \image loginui4-easing-curve-top-anchor-margin.webp Top anchor margin keyframe marker.
         \li Right-click the keyframe marker to open a context menu, and
             select \uicontrol {Edit Easing Curve} to add an easing curve
             to the animation.
         \li In \uicontrol {Easing Curve Editor}, select \e easeOutSine.
-            \image loginui4-easing-curve.png
+            \image loginui4-easing-curve.png Easing Curve Editor.
         \li Select \uicontrol OK to close the editor.
     \endlist
 
@@ -239,7 +240,7 @@
 
     Your timeline should now look something like this:
 
-    \image loginui4-timeline-final.webp "Timeline view with the recorded property changes"
+    \image loginui4-timeline-final.webp The Timeline view with the recorded property changes.
 
     Next, you will create states for the login and account creation pages and bind
     them to the animation settings.
@@ -257,7 +258,7 @@
             bind the states to property animations.
         \li In \uicontrol States, select \uicontrol Default for \e login to determine that
             the \e login state is applied when the application starts.
-            \image loginui4-states.webp "Created states in the States view."
+            \image loginui4-states.webp Created states in the States view.
         \li With the base state selected, select \uicontrol Timeline >
             \imagesettings (\uicontrol {Timeline Settings (S)}) on the toolbar
             (or select \key S) to open the \uicontrol {Timeline Settings} dialog.
@@ -269,14 +270,14 @@
             \e createAccount row, and select \e toCreateAccountState.
             \image loginui4-timeline-settings-states.png
         \li Select \uicontrol Close to save the timeline settings.
-        \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
+        \li Select \uicontrol File > \uicontrol Save or \key {Ctrl+S}
             to save your changes.
     \endlist
 
-    In the live preview, you can now select the \e {Create Account}
+    In \uicontrol {Live Preview}, you can now select the \e {Create Account}
     button to go to the account creation page.
 
-    \image loginui4.gif "Moving between login page and account creation page"
+    \image loginui4.gif Moving between the login page and the account creation page.
 
     \section1 Next steps
 

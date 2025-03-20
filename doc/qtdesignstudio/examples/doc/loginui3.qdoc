@@ -10,15 +10,15 @@
     \previouspage {Login UI: Positioning}
     \nextpage {Login UI: Timeline}
 
-    \image loginui3.gif "Login UI"
+    \image loginui3.gif Login UI in Qt Design Studio Live Preview.
 
-    \e{Login UI: States} is the third in a series of tutorials that build
-    on each other to illustrate how to use \QDS to create a simple UI with
-    some basic UI components, such as pages, buttons, and entry fields. The
-    third tutorial in the series describes how to use \e states to add a
-    second page to the UI. On the first page, users can enter a username
-    and password to log in. On the second page, they can register as users if they
-    do not already have an account.
+    \e{Login UI: States} is the third of the \QDS \e{Login UI} tutorials, which
+    build on each other to illustrate how to create a simple UI with some basic UI
+    components, such as pages, buttons, and entry fields.
+
+    This tutorial describes  how to use \e states to add a second page to the UI.
+    On the first page, users can enter a username and password to log in. On the
+    second page, they can register as users if they do not already have an account.
 
     Because the second page will contain most of the same UI components as the
     login page, you will use \e states to show and hide UI components as necessary
@@ -31,16 +31,14 @@
     Additionally, you can download the completed project of this tutorial
     \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/Loginui3}{here}.
 
-    For more information, see \l{Working with states} and \l{Signal and Handler Event System}.
-
     \section1 Adding UI components
 
     You will add another entry field for verifying the password that users
     enter to create an account. You are already familiar with the tasks in
     this section from the previous \e {Login UI} tutorials.
 
-    To preview the changes that you make, select the \uicontrol {Live Preview} button
-    or select \key {Alt+P}.
+    To preview the changes that you make, select the \uicontrol Run dropdown menu from the
+    top toolbar, and then select \uicontrol {Live Preview}, or select \key {Alt+P}.
 
     To add the entry field needed on the second page to the \e Screen01
     component:
@@ -48,17 +46,16 @@
     \list 1
         \li Double-click \e Screen01.ui.qml in \uicontrol Projects to open it
             in the \uicontrol {2D} view.
-        \li Drag an instance of the EntryField component from
-            \uicontrol Components > \uicontrol {My Components} to \e fields in
-            \l Navigator.
-        \li Select the EntryField instance in \uicontrol Navigator to modify
+        \li Drag an EntryField component from \uicontrol Components >
+            \uicontrol {My Components} to \e fields in \l Navigator.
+        \li Select the EntryField in \uicontrol Navigator to modify
             its ID and text in \uicontrol Properties.
         \li In \uicontrol Component > \uicontrol ID, enter
             \e repeatPassword.
         \li In \uicontrol {EntryField} > \uicontrol {Button Content} > \uicontrol Text,
             enter \e {Repeat Password} and select \uicontrol tr to mark the text
             translatable.
-            \image loginui3-new-entryfield-properties.webp "Entryfield properties"
+            \image loginui3-new-entryfield-properties.webp The Entryfield properties.
         \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
     \endlist
@@ -66,7 +63,7 @@
     \e Screen01 should now look something like this in the
     \uicontrol {2D} view:
 
-    \image loginui3-base-state.webp "Login page with a Repeat Password field"
+    \image loginui3-base-state.webp The login page with a Repeat Password field.
 
     Next, you will add states for the login page and the account creation page,
     where you use the visibility property to hide the \e {Repeat Password} field on
@@ -82,7 +79,7 @@
         \li In the \l States view, select \imageplus
         .
         \li Enter \e login as the state name.
-            \image loginui3-login-state.webp "States view"
+            \image loginui3-login-state.webp The States view.
         \li Select \e repeatPassword in \uicontrol Navigator to display its
             properties in \uicontrol Properties.
         \li In the \uicontrol Visibility section, clear the
@@ -104,11 +101,11 @@
 
     You can now see all the states in the \uicontrol States view:
 
-    \image loginui3-states.webp "All states in the States view"
+    \image loginui3-states.webp All states in the States view.
 
     The live preview displays the default state, \e login:
 
-    \image loginui3-login-state-preview.webp "Preview of the login state"
+    \image loginui3-login-state-preview.webp Preview of the login state.
 
     Next, you will create connections to specify that clicking the
     \e {Create Account} button on the login page triggers a
@@ -138,7 +135,7 @@
         \li Select the \imageclose
             button to close the connection setup options.
 
-        \image loginui3-connections.webp "Connections tab"
+        \image loginui3-connections.webp The Connections tab in the Connections view.
 
         \li Select \uicontrol File > \uicontrol Save or select \key {Ctrl+S}
             to save your changes.
@@ -149,7 +146,7 @@
             \uicontrol {Change State to createAccount}.
     \endlist
 
-    In the live preview, you can now select the \e {Create Account}
+    In \uicontrol {Live Preview}, you can now select the \e {Create Account}
     button to go to the account creation page.
 
     \image loginui3.gif "Moving between login page and account creation page"
@@ -159,4 +156,6 @@
     To learn how to use a timeline to animate the transition between the login
     and account creation pages, see the next tutorial in the series,
     \l {Login UI: Timeline}.
+
+    \sa  {Working with states}, {Signal and Handler Event System}
 */
