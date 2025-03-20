@@ -401,12 +401,12 @@ bool isNotExisting(ProjectStorageUpdater::FileState state)
     return !isExisting(state);
 }
 
-Utils::PathString directoryName(std::string_view directoryPath)
+std::string_view directoryName(std::string_view directoryPath)
 {
-    using namespace std::views;
-    auto isNotSlash = std::bind_front(std::ranges::not_equal_to{}, '/');
-    auto directoryName = directoryPath | reverse | take_while(isNotSlash) | reverse;
-    return {directoryName.begin(), directoryName.end()};
+    auto last = directoryPath.rfind('/');
+    if (last == std::string_view::npos)
+        return {""};
+    return directoryPath.substr(last + 1);
 }
 
 } // namespace
