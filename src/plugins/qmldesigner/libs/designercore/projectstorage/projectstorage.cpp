@@ -2433,7 +2433,7 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
 
     auto compareKey = [](auto &&first, auto &&second) { return first.typeId <=> second.typeId; };
 
-    std::ranges::sort(typeAnnotations, std::ranges::less{}, &TypeAnnotation::typeId);
+    std::ranges::sort(typeAnnotations, {}, &TypeAnnotation::typeId);
 
     auto range = s->selectTypeAnnotationsForSourceIdsStatement.range<TypeAnnotationView>(
         toIntegers(updatedTypeAnnotationSourceIds));
@@ -2549,7 +2549,7 @@ void ProjectStorage::synchronizeTypes(Storage::Synchronization::Types &types,
         }
     }
 
-    std::ranges::sort(types, std::ranges::less{}, &Type::typeId);
+    std::ranges::sort(types, {}, &Type::typeId);
 
     unique(exportedSourceIds);
 
@@ -2649,7 +2649,7 @@ void ProjectStorage::synchronizeFileStatuses(FileStatuses &fileStatuses,
 
     auto compareKey = [](auto &&first, auto &&second) { return first.sourceId <=> second.sourceId; };
 
-    std::ranges::sort(fileStatuses, std::ranges::less{}, &FileStatus::sourceId);
+    std::ranges::sort(fileStatuses, {}, &FileStatus::sourceId);
 
     auto range = s->selectFileStatusesForSourceIdsStatement.range<FileStatus>(
         toIntegers(updatedSourceIds));
@@ -4012,7 +4012,7 @@ void ProjectStorage::synchronizePropertyEditorPaths(
     SourceContextIds updatedPropertyEditorQmlPathsSourceContextIds)
 {
     using Storage::Synchronization::PropertyEditorQmlPath;
-    std::ranges::sort(paths, std::ranges::less{}, &PropertyEditorQmlPath::typeId);
+    std::ranges::sort(paths, {}, &PropertyEditorQmlPath::typeId);
 
     auto range = s->selectPropertyEditorPathsForForSourceIdsStatement.range<PropertyEditorQmlPathView>(
         toIntegers(updatedPropertyEditorQmlPathsSourceContextIds));

@@ -16,8 +16,6 @@
 
 #include <tracing/qmldesignertracing.h>
 
-#include <qmljs/parser/qmldirparser_p.h>
-
 #include <QStringList>
 
 #include <map>
@@ -211,8 +209,8 @@ private:
                                       SourceContextId directoryId,
                                       long long pathOffset);
     void parseTypeInfos(const QStringList &typeInfos,
-                        const QList<QmlDirParser::Import> &qmldirDependencies,
-                        const QList<QmlDirParser::Import> &qmldirImports,
+                        const std::vector<Utils::PathString> &qmldirDependencies,
+                        const std::vector<Utils::PathString> &qmldirImports,
                         SourceContextId directoryId,
                         const QString &directoryPath,
                         ModuleId moduleId,

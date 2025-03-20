@@ -22,6 +22,8 @@
 #include <QDirIterator>
 #include <QRegularExpression>
 
+#include <private/qqmldirparser_p.h>
+
 #include <algorithm>
 #include <functional>
 
@@ -65,35 +67,32 @@ QStringList filterMultipleEntries(QStringList qmlTypes)
     return qmlTypes;
 }
 
-QList<QmlDirParser::Import> filterMultipleEntries(QList<QmlDirParser::Import> imports)
+QList<QQmlDirParser::Import> filterMultipleEntries(QList<QQmlDirParser::Import> imports)
 {
-    std::stable_sort(imports.begin(), imports.end(), [](auto &&first, auto &&second) {
-        return first.module < second.module;
-    });
-    imports.erase(std::unique(imports.begin(),
-                              imports.end(),
-                              [](auto &&first, auto &&second) {
-                                  return first.module == second.module;
-                              }),
-                  imports.end());
+    std::ranges::stable_sort(imports, {}, &QQmlDirParser::Import::module);
+    auto removedRange = std::ranges::unique(imports, {}, &QQmlDirParser::Import::module);
+    imports.erase(removedRange.begin(), removedRange.end());
 
     return imports;
 }
 
-QList<QmlDirParser::Import> joinImports(const QList<QmlDirParser::Import> &firstImports,
-                                        const QList<QmlDirParser::Import> &secondImports)
+std::vector<Utils::PathString> toImportNames(const QList<QQmlDirParser::Import> &imports)
 {
-    QList<QmlDirParser::Import> imports;
+    return Utils::transform<std::vector<Utils::PathString>>(imports, &QQmlDirParser::Import::module);
+}
+
+std::vector<Utils::PathString> joinImports(const std::vector<Utils::PathString> &firstImports,
+                                           const std::vector<Utils::PathString> &secondImports)
+{
+    std::vector<Utils::PathString> imports;
     imports.reserve(firstImports.size() + secondImports.size());
-    imports.append(firstImports);
-    imports.append(secondImports);
-    imports = filterMultipleEntries(std::move(imports));
+    std::ranges::set_union(firstImports, secondImports, std::back_inserter(imports));
 
     return imports;
 }
 
 ProjectStorageUpdater::Components createComponents(
-    const QMultiHash<QString, QmlDirParser::Component> &qmlDirParserComponents,
+    const QMultiHash<QString, QQmlDirParser::Component> &qmlDirParserComponents,
     ModuleId moduleId,
     ModuleId pathModuleId,
     FileSystemInterface &fileSystem,
@@ -112,14 +111,14 @@ ProjectStorageUpdater::Components createComponents(
             ProjectStorageUpdater::Component{fileName, typeName, pathModuleId, -1, -1});
     }
 
-    for (const QmlDirParser::Component &qmlDirParserComponent : qmlDirParserComponents) {
+    for (const QQmlDirParser::Component &qmlDirParserComponent : qmlDirParserComponents) {
         if (qmlDirParserComponent.fileName.contains('/'))
             continue;
-        components.push_back(ProjectStorageUpdater::Component{qmlDirParserComponent.fileName,
-                                                              qmlDirParserComponent.typeName,
-                                                              moduleId,
-                                                              qmlDirParserComponent.majorVersion,
-                                                              qmlDirParserComponent.minorVersion});
+        components.emplace_back(qmlDirParserComponent.fileName,
+                                qmlDirParserComponent.typeName,
+                                moduleId,
+                                qmlDirParserComponent.version.majorVersion(),
+                                qmlDirParserComponent.version.minorVersion());
     }
 
     return components;
@@ -157,28 +156,33 @@ void addSourceIds(SourceIds &sourceIds,
     }
 }
 
-Storage::Version convertVersion(LanguageUtils::ComponentVersion version)
+Storage::Version convertVersion(QTypeRevision version)
 {
-    return Storage::Version{version.majorVersion(), version.minorVersion()};
+    return Storage::Version{version.hasMajorVersion() ? version.majorVersion() : -1,
+                            version.hasMinorVersion() ? version.minorVersion() : -1};
 }
 
-Storage::Synchronization::IsAutoVersion convertToIsAutoVersion(QmlDirParser::Import::Flags flags)
+Storage::Synchronization::IsAutoVersion convertToIsAutoVersion(QQmlDirParser::Import::Flags flags,
+                                                               QTypeRevision version)
 {
-    if (flags & QmlDirParser::Import::Flag::Auto)
+    if (flags & QQmlDirParser::Import::Flag::Auto)
         return Storage::Synchronization::IsAutoVersion::Yes;
+
+    if (!version.isValid())
+        return Storage::Synchronization::IsAutoVersion::Yes;
+
     return Storage::Synchronization::IsAutoVersion::No;
 }
 
 void addDependencies(Storage::Imports &dependencies,
                      SourceId sourceId,
-                     const QList<QmlDirParser::Import> &qmldirDependencies,
+                     const std::vector<Utils::PathString> &qmldirDependencies,
                      ProjectStorageInterface &projectStorage,
                      TracerLiteral message,
                      Tracer &tracer)
 {
-    for (const QmlDirParser::Import &qmldirDependency : qmldirDependencies) {
-        ModuleId moduleId = projectStorage.moduleId(Utils::PathString{qmldirDependency.module},
-                                                    Storage::ModuleKind::CppLibrary);
+    for (std::string_view qmldirDependency : qmldirDependencies) {
+        ModuleId moduleId = projectStorage.moduleId(qmldirDependency, Storage::ModuleKind::CppLibrary);
         auto &import = dependencies.emplace_back(moduleId, Storage::Version{}, sourceId);
         tracer.tick(message, keyValue("import", import));
     }
@@ -206,16 +210,17 @@ void addModuleExportedImport(Storage::Synchronization::ModuleExportedImports &im
     imports.emplace_back(moduleId, exportedModuleId, version, isAutoVersion);
 }
 
-bool isOptionalImport(QmlDirParser::Import::Flags flags)
+bool isOptionalImport(QQmlDirParser::Import::Flags flags)
 {
-    return flags & QmlDirParser::Import::Optional && !(flags & QmlDirParser::Import::OptionalDefault);
+    return flags & QQmlDirParser::Import::Optional
+           && !(flags & QQmlDirParser::Import::OptionalDefault);
 }
 
 void addModuleExportedImports(Storage::Synchronization::ModuleExportedImports &imports,
                               ModuleId moduleId,
                               ModuleId cppModuleId,
                               std::string_view moduleName,
-                              const QList<QmlDirParser::Import> &qmldirImports,
+                              const QList<QQmlDirParser::Import> &qmldirImports,
                               ProjectStorageInterface &projectStorage)
 {
     NanotraceHR::Tracer tracer{"add module exported imports",
@@ -223,7 +228,7 @@ void addModuleExportedImports(Storage::Synchronization::ModuleExportedImports &i
                                keyValue("cpp module id", cppModuleId),
                                keyValue("module id", moduleId)};
 
-    for (const QmlDirParser::Import &qmldirImport : qmldirImports) {
+    for (const QQmlDirParser::Import &qmldirImport : qmldirImports) {
         if (isOptionalImport(qmldirImport.flags))
             continue;
 
@@ -235,7 +240,7 @@ void addModuleExportedImports(Storage::Synchronization::ModuleExportedImports &i
                                 moduleId,
                                 exportedModuleId,
                                 convertVersion(qmldirImport.version),
-                                convertToIsAutoVersion(qmldirImport.flags),
+                                convertToIsAutoVersion(qmldirImport.flags, qmldirImport.version),
                                 moduleName,
                                 ModuleKind::QmlLibrary,
                                 exportedModuleName);
@@ -412,7 +417,7 @@ void ProjectStorageUpdater::updateDirectoryChanged(Utils::SmallStringView direct
                                                    IsInsideProject isInsideProject,
                                                    Tracer &tracer)
 {
-    QmlDirParser parser;
+    QQmlDirParser parser;
     if (isExisting(qmldirState))
         parser.parse(m_fileSystem.contentAsQString(QString{qmldirSourcePath}));
 
@@ -447,8 +452,8 @@ void ProjectStorageUpdater::updateDirectoryChanged(Utils::SmallStringView direct
 
     if (!qmlTypes.isEmpty()) {
         parseTypeInfos(qmlTypes,
-                       filterMultipleEntries(parser.dependencies()),
-                       imports,
+                       toImportNames(filterMultipleEntries(parser.dependencies())),
+                       toImportNames(imports),
                        directoryId,
                        directoryPathAsQString,
                        cppModuleId,
@@ -1118,8 +1123,8 @@ void ProjectStorageUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &chan
 void ProjectStorageUpdater::pathsChanged(const SourceIds &) {}
 
 void ProjectStorageUpdater::parseTypeInfos(const QStringList &typeInfos,
-                                           const QList<QmlDirParser::Import> &qmldirDependencies,
-                                           const QList<QmlDirParser::Import> &qmldirImports,
+                                           const std::vector<Utils::PathString> &qmldirDependencies,
+                                           const std::vector<Utils::PathString> &qmldirImports,
                                            SourceContextId directoryId,
                                            const QString &directoryPath,
                                            ModuleId moduleId,
@@ -1217,9 +1222,9 @@ auto ProjectStorageUpdater::parseTypeInfo(const Storage::Synchronization::Direct
         notUpdatedSourceIds.sourceIds.push_back(directoryInfo.sourceId);
         break;
     }
+    case FileState::Removed:
     case FileState::NotExists:
     case FileState::NotExistsUnchanged:
-    case FileState::Removed:
         throw CannotParseQmlTypesFile{};
     }
 
