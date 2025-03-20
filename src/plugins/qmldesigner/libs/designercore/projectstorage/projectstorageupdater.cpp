@@ -401,6 +401,14 @@ bool isNotExisting(ProjectStorageUpdater::FileState state)
     return !isExisting(state);
 }
 
+Utils::PathString directoryName(std::string_view directoryPath)
+{
+    using namespace std::views;
+    auto isNotSlash = std::bind_front(std::ranges::not_equal_to{}, '/');
+    auto directoryName = directoryPath | reverse | take_while(isNotSlash) | reverse;
+    return {directoryName.begin(), directoryName.end()};
+}
+
 } // namespace
 
 void ProjectStorageUpdater::updateDirectoryChanged(Utils::SmallStringView directoryPath,
@@ -428,6 +436,8 @@ void ProjectStorageUpdater::updateDirectoryChanged(Utils::SmallStringView direct
 
     using Storage::ModuleKind;
     Utils::PathString moduleName{parser.typeNamespace()};
+    if (moduleName.empty())
+        moduleName = directoryName(directoryPath);
     ModuleId moduleId = m_projectStorage.moduleId(moduleName, ModuleKind::QmlLibrary);
     ModuleId cppModuleId = m_projectStorage.moduleId(moduleName, ModuleKind::CppLibrary);
     ModuleId pathModuleId = m_projectStorage.moduleId(directoryPath, ModuleKind::PathLibrary);

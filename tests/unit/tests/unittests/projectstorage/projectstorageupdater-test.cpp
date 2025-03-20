@@ -1066,6 +1066,31 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents)
     updater.update({.qtDirectories = directories});
 }
 
+TEST_F(ProjectStorageUpdater, synchronize_qml_documents_with_missing_module_name)
+{
+    QString qmldir{R"(FirstType 1.0 First.qml
+                      FirstType 2.2 First2.qml
+                      SecondType 2.2 Second.qml)"};
+    setContent(u"/path/qmldir", qmldir);
+    ModuleId directoryNameModuleId{storage.moduleId("path", ModuleKind::QmlLibrary)};
+
+    EXPECT_CALL(projectStorageMock,
+                synchronize(AllOf(Field(
+                    &SynchronizationPackage::types,
+                    Contains(AllOf(IsStorageType("First.qml",
+                                                 ImportedType{"Object"},
+                                                 TypeTraitsKind::Reference,
+                                                 qmlDocumentSourceId1,
+                                                 ChangeLevel::Full),
+                                   Field("Type::exportedTypes",
+                                         &Type::exportedTypes,
+                                         UnorderedElementsAre(
+                                             IsExportedType(directoryNameModuleId, "FirstType", 1, 0),
+                                             IsExportedType(pathModuleId, "First", -1, -1)))))))));
+
+    updater.update({.qtDirectories = directories});
+}
+
 TEST_F(ProjectStorageUpdater, synchronize_qml_documents_in_project)
 {
     QString qmldir{R"(module Example
