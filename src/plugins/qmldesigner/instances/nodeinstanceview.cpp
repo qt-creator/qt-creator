@@ -680,19 +680,22 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
             PropertyValueContainer container{instance.instanceId(), key.name, value, TypeName(), key.type};
             m_nodeInstanceServer->changeAuxiliaryValues({{container}});
             const PropertyName name = key.name.toByteArray();
-            if (node.hasVariantProperty(name)) {
-                PropertyValueContainer container(instance.instanceId(),
-                                                 name,
-                                                 node.variantProperty(name).value(),
-                                                 TypeName());
-                ChangeValuesCommand changeValueCommand({container});
-                m_nodeInstanceServer->changePropertyValues(changeValueCommand);
-            } else if (node.hasBindingProperty(name)) {
-                PropertyBindingContainer container{instance.instanceId(),
-                                                   name,
-                                                   node.bindingProperty(name).expression(),
-                                                   TypeName()};
-                m_nodeInstanceServer->changePropertyBindings({{container}});
+
+            if (name != "currentFrame") {
+                if (node.hasVariantProperty(name)) {
+                    PropertyValueContainer container(instance.instanceId(),
+                                                     name,
+                                                     node.variantProperty(name).value(),
+                                                     TypeName());
+                    ChangeValuesCommand changeValueCommand({container});
+                    m_nodeInstanceServer->changePropertyValues(changeValueCommand);
+                } else if (node.hasBindingProperty(name)) {
+                    PropertyBindingContainer container{instance.instanceId(),
+                                                       name,
+                                                       node.bindingProperty(name).expression(),
+                                                       TypeName()};
+                    m_nodeInstanceServer->changePropertyBindings({{container}});
+                }
             }
         }
         break;
