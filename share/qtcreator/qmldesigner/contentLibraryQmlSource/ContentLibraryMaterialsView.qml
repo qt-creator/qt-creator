@@ -114,22 +114,23 @@ HelperWidgets.ScrollView {
             id: infoText
 
             text: {
-                if (!ContentLibraryBackend.rootView.isQt6Project)
+                if (!ContentLibraryBackend.rootView.isQt6Project) {
                     qsTr("<b>Content Library</b> materials are not supported in Qt5 projects.")
-                else if (!ContentLibraryBackend.rootView.hasQuick3DImport)
+                } else if (!ContentLibraryBackend.rootView.hasQuick3DImport) {
                     qsTr('To use <b>Content Library</b>, first <a href="#add_import" style="text-decoration:none;color:%1">
                          add the QtQuick3D module</a> in the <b>Components</b> view.')
                                 .arg(StudioTheme.Values.themeInteraction)
-                else if (!root.materialsModel.hasRequiredQuick3DImport)
+                } else if (!root.materialsModel.hasRequiredQuick3DImport) {
                     qsTr("To use <b>Content Library</b>, version 6.3 or later of the QtQuick3D module is required.")
-                else if (!ContentLibraryBackend.rootView.hasMaterialLibrary)
+                } else if (!ContentLibraryBackend.rootView.hasMaterialLibrary) {
                     qsTr("<b>Content Library</b> is disabled inside a non-visual component.")
-                else if (!root.materialsModel.bundleExists)
+                } else if (!root.materialsModel.bundleExists) {
                     qsTr("No materials available. Make sure you have an internet connection.")
-                else if (!searchBox.isEmpty())
+                } else if (!searchBox.isEmpty() && root.materialsModel.isEmpty) {
                     qsTr("No match found.")
-                else
+                } else {
                     ""
+                }
             }
             textFormat: Text.RichText
             color: StudioTheme.Values.themeTextColor
