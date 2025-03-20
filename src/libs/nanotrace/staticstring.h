@@ -9,13 +9,6 @@
 #include <charconv>
 #include <limits>
 
-#if !defined(__cpp_lib_to_chars) || (__cpp_lib_to_chars < 201611L) || \
-    (defined(__GNUC__) && __GNUC__ < 11) || \
-    (defined(_MSC_VER) && _MSC_VER < 1930) || \
-    (defined(__clang_major__) && __clang_major__ < 14)
-#define NO_STD_FLOAT_TO_CHARS 1
-#endif
-
 namespace NanotraceHR {
 
 template<std::size_t Capacity>
@@ -58,26 +51,34 @@ public:
         }
     }
 
+    static consteval bool hasNoFloatStdToChar()
+    {
+#if !defined(__cpp_lib_to_chars) || (__cpp_lib_to_chars < 201611L) || \
+        (defined(__GNUC__) && __GNUC__ < 11) || \
+            (defined(_MSC_VER) && _MSC_VER < 1930) || \
+            (defined(__clang_major__) && __clang_major__ < 14)
+            return true;
+#else
+        return false;
+#endif
+    }
+
     template<typename Type, typename std::enable_if_t<std::is_arithmetic_v<Type>, bool> = true>
     void append(Type number)
     {
-#if NO_STD_FLOAT_TO_CHARS
-        // Fallback using snprintf with sufficient precision.
-        if constexpr (std::is_floating_point_v<Type>) {
+        if constexpr (std::is_floating_point_v<Type> && hasNoFloatStdToChar()) {
+            // Fallback using snprintf for floating point numbers
             char buffer[std::numeric_limits<Type>::max_digits10 + 2];
             auto size = std::snprintf(buffer, sizeof(buffer), "%.9f", number);
-
             if (size >= 0)
-                append({buffer, size});
-            return;
+                append({buffer, static_cast<std::size_t>(size)});
+        } else {
+            // 2 bytes for the sign and because digits10 returns the floor
+            char buffer[std::numeric_limits<Type>::digits10 + 2];
+            auto result = std::to_chars(buffer, buffer + sizeof(buffer), number);
+            auto endOfConversionString = result.ptr;
+            append({buffer, endOfConversionString});
         }
-#endif
-        // 2 bytes for the sign and because digits10 returns the floor
-        char buffer[std::numeric_limits<Type>::digits10 + 2];
-        auto result = std::to_chars(buffer, buffer + sizeof(buffer), number);
-        auto endOfConversionString = result.ptr;
-
-        append({buffer, endOfConversionString});
     }
 
     void pop_back() { --m_size; }
