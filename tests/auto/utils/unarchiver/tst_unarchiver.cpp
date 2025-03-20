@@ -4,6 +4,8 @@
 #include <QRandomGenerator>
 #include <QtTest>
 
+#include <utils/fsengine/fsengine.h>
+#include <utils/hostosinfo.h>
 #include <utils/unarchiver.h>
 
 #include <archive.h>
@@ -47,9 +49,8 @@ class tst_unarchiver : public QObject
     Q_OBJECT
 
 public:
-    void writeAndReadArchive(archive *a)
+    ScopedFilePath writeArchive(archive *a)
     {
-        // Create test zip using libarchive
         ScopedFilePath zipFile
             = *FilePath::fromString(tempDir.path() + "/test-archive").createTempFile();
 
@@ -61,8 +62,11 @@ public:
 
         write_archive(a, zipFile, {testFile1, testFile2});
 
-        QVERIFY(zipFile.isFile() && zipFile.fileSize() > 0);
+        return zipFile;
+    }
 
+    void readArchive(const FilePath &zipFile)
+    {
         // Unarchive using Utils::Unarchiver
         Unarchiver unarchiver;
         unarchiver.setArchive(zipFile);
@@ -84,6 +88,15 @@ public:
             tempDir.path() + "/unarchived/test2.txt");
         QVERIFY(unarchivedFile2.isFile());
         QCOMPARE(unarchivedFile2.fileContents(), "Hello World again!");
+    }
+
+    void writeAndReadArchive(archive *a)
+    {
+        ScopedFilePath zipFile = writeArchive(a);
+        QVERIFY(!zipFile.isEmpty());
+        QVERIFY(zipFile.isFile());
+        QVERIFY(zipFile.fileSize() > 0);
+        readArchive(zipFile);
     }
 
 private slots:
@@ -119,6 +132,28 @@ private slots:
         archive_write_add_filter_none(a);
         archive_write_set_format_zip(a);
         writeAndReadArchive(a);
+    }
+
+    void tst_remote()
+    {
+        if (!FSEngine::isAvailable())
+            QSKIP("Utils was built without Filesystem Engine");
+
+        if (HostOsInfo::isWindowsHost())
+            QSKIP("The fsengine tests are not supported on Windows.");
+
+        FSEngine fileSystemEngine;
+        FSEngine::addDevice(FilePath::fromString("device://test"));
+
+        struct archive *a = archive_write_new();
+        archive_write_add_filter_none(a);
+        archive_write_set_format_zip(a);
+
+        ScopedFilePath zipFile = writeArchive(a);
+
+        FilePath p = FilePath::fromString("device://test/" + zipFile.path());
+
+        readArchive(p);
     }
 
 private:
