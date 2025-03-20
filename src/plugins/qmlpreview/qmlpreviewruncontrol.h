@@ -33,17 +33,4 @@ public:
     LocalQmlPreviewSupportFactory();
 };
 
-class SimplePreviewRunnerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    explicit SimplePreviewRunnerFactory(const QList<Utils::Id> &runConfigs, const QList<Utils::Id> &extraRunModes = {})
-    {
-        cloneProduct(ProjectExplorer::Constants::QML_PREVIEW_RUN_FACTORY);
-        addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
-        for (const Utils::Id &id : extraRunModes)
-            addSupportedRunMode(id);
-        setSupportedRunConfigs(runConfigs);
-    }
-};
-
 } // QmlPreview
