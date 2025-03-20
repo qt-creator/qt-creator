@@ -527,7 +527,6 @@ public:
     void stop() final;
 
     Port gdbServerPort() const;
-    Port qmlServerPort();
     bool isAppRunning() const;
 
 private:
@@ -615,11 +614,6 @@ bool IosRunner::qmlDebug() const
     return m_qmlDebugServices != NoQmlDebugServices;
 }
 
-Port IosRunner::qmlServerPort()
-{
-    return Port(runControl()->qmlChannel().port());
-}
-
 void IosRunner::start()
 {
     if (m_toolHandler && isAppRunning())
@@ -649,7 +643,7 @@ void IosRunner::start()
 
     const CommandLine command = runControl()->commandLine();
     QStringList args = ProcessArgs::splitArgs(command.arguments(), OsTypeMac);
-    const Port portOnDevice = qmlServerPort();
+    const Port portOnDevice = Port(runControl()->qmlChannel().port());
     if (portOnDevice.isValid()) {
         QUrl qmlServer;
         qmlServer.setPort(portOnDevice.number());
@@ -677,14 +671,13 @@ void IosRunner::handleGotServerPorts(IosToolHandler *handler, const FilePath &bu
     if (m_toolHandler != handler)
         return;
 
-    const Port portOnDevice = qmlServerPort();
-
     m_gdbServerPort = gdbPort;
     // The run control so far knows about the port on the device side,
     // but the QML Profiler has to actually connect to a corresponding
     // local port. That port is reported here, so we need to adapt the runControl's
     // "qmlChannel", so the QmlProfilerRunner uses the right port.
     QUrl qmlChannel = runControl()->qmlChannel();
+    const int qmlPortOnDevice = qmlChannel.port();
     qmlChannel.setPort(qmlPort.number());
     runControl()->setQmlChannel(qmlChannel);
 
@@ -704,8 +697,7 @@ void IosRunner::handleGotServerPorts(IosToolHandler *handler, const FilePath &bu
         }
         appendMessage(
             Tr::tr("Listening for QML debugger on local port %1 (port %2 on the device).")
-                .arg(qmlPort.number())
-                .arg(portOnDevice.number()),
+                .arg(qmlPort.number()).arg(qmlPortOnDevice),
             LogMessageFormat);
     }
 
@@ -728,7 +720,7 @@ void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const FilePath &bu
     }
     runControl()->setAttachPid(ProcessHandle(pid));
 
-    if (qmlDebug() && !qmlServerPort().isValid())
+    if (qmlDebug() && runControl()->qmlChannel().port() == -1)
         reportFailure(Tr::tr("Could not get necessary ports for the debugger connection."));
     else
         reportStarted();
@@ -876,7 +868,7 @@ static void startDebugger(RunControl *runControl, DebuggerRunTool *debugger, Ios
         qmlServer.setHost(server.serverAddress().toString());
         if (!cppDebug)
             rp.setStartMode(AttachToRemoteServer);
-        qmlServer.setPort(iosRunner->qmlServerPort().number());
+        qmlServer.setPort(runControl->qmlChannel().port());
         rp.setQmlServer(qmlServer);
     }
 }
