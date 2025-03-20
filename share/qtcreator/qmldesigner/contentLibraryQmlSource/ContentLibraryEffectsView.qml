@@ -130,12 +130,11 @@ HelperWidgets.ScrollView {
             }
             textFormat: Text.RichText
             color: StudioTheme.Values.themeTextColor
-            font.pixelSize: StudioTheme.Values.mediumFontSize
+            font.pixelSize: StudioTheme.Values.baseFontSize
             topPadding: 10
             leftPadding: 10
             rightPadding: 10
             visible: ContentLibraryBackend.effectsModel.isEmpty
-            horizontalAlignment: Text.AlignHCenter
             wrapMode: Text.WordWrap
             width: root.width
 
