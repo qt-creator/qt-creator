@@ -105,32 +105,32 @@ private slots:
     void tst_tar_gz()
     {
         struct archive *a = archive_write_new();
-        archive_write_add_filter_gzip(a);
-        archive_write_set_format_pax_restricted(a);
+        archive_write_add_filter(a, ARCHIVE_FILTER_GZIP);
+        archive_write_set_format(a, ARCHIVE_FORMAT_TAR);
         writeAndReadArchive(a);
     }
 
     void tst_tar_bz2()
     {
         struct archive *a = archive_write_new();
-        archive_write_add_filter_bzip2(a);
-        archive_write_set_format_pax_restricted(a);
+        archive_write_add_filter(a, ARCHIVE_FILTER_BZIP2);
+        archive_write_set_format(a, ARCHIVE_FORMAT_TAR);
         writeAndReadArchive(a);
     }
 
     void tst_7z()
     {
         struct archive *a = archive_write_new();
-        archive_write_add_filter_none(a);
-        archive_write_set_format_7zip(a);
+        archive_write_add_filter(a, ARCHIVE_FILTER_NONE);
+        archive_write_set_format(a, ARCHIVE_FORMAT_7ZIP);
         writeAndReadArchive(a);
     }
 
     void tst_zip()
     {
         struct archive *a = archive_write_new();
-        archive_write_add_filter_none(a);
-        archive_write_set_format_zip(a);
+        archive_write_add_filter(a, ARCHIVE_FILTER_NONE);
+        archive_write_set_format(a, ARCHIVE_FORMAT_ZIP);
         writeAndReadArchive(a);
     }
 
@@ -146,8 +146,8 @@ private slots:
         FSEngine::addDevice(FilePath::fromString("device://test"));
 
         struct archive *a = archive_write_new();
-        archive_write_add_filter_none(a);
-        archive_write_set_format_zip(a);
+        archive_write_add_filter(a, ARCHIVE_FILTER_NONE);
+        archive_write_set_format(a, ARCHIVE_FORMAT_ZIP);
 
         ScopedFilePath zipFile = writeArchive(a);
 
