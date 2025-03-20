@@ -26,6 +26,7 @@ Project {
         "templateengine/templateengine.qbs",
         "text/text.qbs",
         "treemodel/treemodel.qbs",
+        "unarchiver/unarchiver.qbs",
         "unixdevicefileaccess/unixdevicefileaccess.qbs",
     ]
 }
