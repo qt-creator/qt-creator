@@ -47,10 +47,11 @@
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeconstants.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QClipboard>
 #include <QGuiApplication>
@@ -58,6 +59,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLoggingCategory>
+#include <QPushButton>
 
 using namespace ProjectExplorer;
 using namespace TextEditor;
@@ -1191,15 +1193,40 @@ bool CMakeBuildSystem::mustApplyConfigurationChangesArguments(const BuildDirPara
     if (parameters.configurationChangesArguments.isEmpty())
         return false;
 
-    int answer = QMessageBox::question(Core::ICore::dialogParent(),
-                                       Tr::tr("Apply configuration changes?"),
-                                       "<p>" + Tr::tr("Run CMake with configuration changes?")
-                                       + "</p><pre>"
-                                       + parameters.configurationChangesArguments.join("\n")
-                                       + "</pre>",
-                                       QMessageBox::Apply | QMessageBox::Discard,
-                                       QMessageBox::Apply);
-    return answer == QMessageBox::Apply;
+    QDialog question(Core::ICore::dialogParent());
+    question.resize(600, 300);
+    question.setWindowTitle(Tr::tr("Apply configuration changes?"));
+
+    QDialogButtonBox buttonBox;
+    buttonBox.setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Discard);
+    buttonBox.setCenterButtons(true);
+    QPushButton *apply = buttonBox.button(QDialogButtonBox::Ok);
+    apply->setDefault(true);
+    apply->setAutoDefault(true);
+    apply->setText(Tr::tr("Apply"));
+    QPushButton *discard = buttonBox.button(QDialogButtonBox::Discard);
+    discard->setAutoDefault(false);
+
+    QObject::connect(&buttonBox, &QDialogButtonBox::accepted, &question, &QDialog::accept);
+    QObject::connect(&buttonBox, &QDialogButtonBox::rejected, &question, &QDialog::reject);
+
+    using namespace Layouting;
+    // clang-format off
+    Column {
+        Tr::tr("Run CMake with configuration changes?"),
+        TextEdit {
+            markdown("```\n" +
+                    parameters.configurationChangesArguments.join("\n") +
+                    "\n```"),
+            readOnly(true),
+        }, br,
+        Row {
+            &buttonBox,
+        }
+    }.attachTo(&question);
+    // clang-format on
+
+    return question.exec() == QDialog::Accepted;
 }
 
 void CMakeBuildSystem::runCMake()
