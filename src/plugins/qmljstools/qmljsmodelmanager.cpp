@@ -85,18 +85,16 @@ static void findAllQrcFiles(const FilePath &filePath, FilePaths &out)
             out.append(path.canonicalPath());
             return IterationPolicy::Continue;
         },
-        {{"*.qrc"}, QDir::Files});
+        {{"*.qrc"}, QDir::Files | QDir::Hidden, QDirIterator::Subdirectories});
 }
 
 static FilePaths findGeneratedQrcFiles(const ModelManagerInterface::ProjectInfo &pInfo,
                                        const FilePaths &hiddenRccFolders)
 {
     FilePaths result;
-    // Search in Application Directories for directories named ".rcc"
-    // and add all .qrc files in there to the resource file list.
+    // Search recursively in Application Directories for .qrc files.
     for (const Utils::FilePath &path : pInfo.applicationDirectories) {
-        Utils::FilePath generatedQrcDir = path.pathAppended(".rcc");
-        findAllQrcFiles(generatedQrcDir, result);
+        findAllQrcFiles(path, result);
     }
 
     for (const Utils::FilePath &hiddenRccFolder : hiddenRccFolders) {
