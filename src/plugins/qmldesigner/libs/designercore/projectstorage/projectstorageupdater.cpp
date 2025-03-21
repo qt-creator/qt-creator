@@ -1235,7 +1235,10 @@ auto ProjectStorageUpdater::parseTypeInfo(const Storage::Synchronization::Direct
     case FileState::Removed:
     case FileState::NotExists:
     case FileState::NotExistsUnchanged:
-        throw CannotParseQmlTypesFile{};
+        tracer.tick("append updated source ids", keyValue("source id", directoryInfo.sourceId));
+        package.updatedSourceIds.push_back(directoryInfo.sourceId);
+
+        m_errorNotifier.qmltypesFileMissing(qmltypesPath);
     }
 
     tracer.end(keyValue("state", state));

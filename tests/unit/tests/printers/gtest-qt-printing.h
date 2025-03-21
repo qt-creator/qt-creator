@@ -45,6 +45,7 @@ std::ostream &operator<<(std::ostream &out, const QImage &image);
 std::ostream &operator<<(std::ostream &out, const QIcon &icon);
 
 void PrintTo(const QString &text, std::ostream *os);
+void PrintTo(QStringView text, std::ostream *os);
 void PrintTo(const QVariant &variant, std::ostream *os);
 void PrintTo(const QByteArray &text, std::ostream *os);
 QT_END_NAMESPACE

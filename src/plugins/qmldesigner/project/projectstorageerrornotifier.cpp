@@ -24,6 +24,17 @@ void logIssue(ProjectExplorer::Task::TaskType type, const QString &message, cons
     ProjectExplorer::TaskHub::addTask(task);
     ProjectExplorer::TaskHub::requestPopup();
 }
+
+void logIssue(ProjectExplorer::Task::TaskType type, const QString &message, QStringView sourcePath)
+{
+    const Utils::Id category = ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM;
+
+    Utils::FilePath filePath = Utils::FilePath::fromPathPart(sourcePath);
+    ProjectExplorer::Task task(type, message, filePath, -1, category);
+    ProjectExplorer::TaskHub::addTask(task);
+    ProjectExplorer::TaskHub::requestPopup();
+}
+
 } // namespace
 
 void ProjectStorageErrorNotifier::typeNameCannotBeResolved(Utils::SmallStringView typeName,
@@ -69,6 +80,13 @@ void ProjectStorageErrorNotifier::qmlDocumentDoesNotExistsForQmldirEntry(Utils::
     logIssue(ProjectExplorer::Task::Warning,
              Tr::tr("Not existing Qml Document %1 for type %2.").arg(missingPath).arg(typeNameString),
              m_pathCache.sourcePath(qmldirSourceId));
+}
+
+void ProjectStorageErrorNotifier::qmltypesFileMissing(QStringView qmltypesPath)
+{
+    logIssue(ProjectExplorer::Task::Warning,
+             Tr::tr("Not existing Qmltypes File %1.").arg(qmltypesPath),
+             qmltypesPath);
 }
 
 } // namespace QmlDesigner
