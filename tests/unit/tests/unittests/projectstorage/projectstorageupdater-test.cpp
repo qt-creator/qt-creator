@@ -588,16 +588,34 @@ TEST_F(ProjectStorageUpdater_get_content_for_qml_types, removed_qml_types_file_n
     updater.update({.qtDirectories = directories});
 }
 
-TEST_F(ProjectStorageUpdater, parse_qml_types)
+class ProjectStorageUpdater_parse_qml_types : public BaseProjectStorageUpdater
 {
-    QString qmldir{R"(module Example
+public:
+    ProjectStorageUpdater_parse_qml_types()
+    {
+        QString qmldir{R"(module Example
                       typeinfo example.qmltypes
                       typeinfo example2.qmltypes)"};
-    setContent(u"/path/qmldir", qmldir);
+        setContent(u"/root/path/qmldir", qmldir);
+        setContent(u"/root/path/example.qmltypes", qmltypes);
+        setContent(u"/root/path/example2.qmltypes", qmltypes2);
+    }
+
+public:
     QString qmltypes{"Module {\ndependencies: []}"};
     QString qmltypes2{"Module {\ndependencies: [foo]}"};
-    setContent(u"/path/example.qmltypes", qmltypes);
-    setContent(u"/path/example2.qmltypes", qmltypes2);
+    ModuleId exampleCppNativeModuleId{storage.moduleId("Example", ModuleKind::CppLibrary)};
+    SourceId qmltypesPathSourceId = sourcePathCache.sourceId("/root/path/example.qmltypes");
+    SourceId qmltypes2PathSourceId = sourcePathCache.sourceId("/root/path/example2.qmltypes");
+    SourceId qmlDirPathSourceId = sourcePathCache.sourceId("/root/path/qmldir");
+    SourceContextId directoryPathId = qmlDirPathSourceId.contextId();
+    SourceId directoryPathSourceId = SourceId::create(QmlDesigner::SourceNameId{}, directoryPathId);
+};
+
+TEST_F(ProjectStorageUpdater_parse_qml_types, add_directory)
+{
+    setFilesAdded(
+        {directoryPathSourceId, qmlDirPathSourceId, qmltypesPathSourceId, qmltypes2PathSourceId});
 
     EXPECT_CALL(qmlTypesParserMock,
                 parse(qmltypes,
@@ -612,25 +630,17 @@ TEST_F(ProjectStorageUpdater, parse_qml_types)
                       Field("DirectoryInfo::moduleId", &DirectoryInfo::moduleId, exampleCppNativeModuleId),
                       IsInsideProject::No));
 
-    updater.update({.qtDirectories = directories});
+    updater.update({.qtDirectories = {"/root/path"}});
 }
 
-TEST_F(ProjectStorageUpdater, parse_added_qml_types)
+TEST_F(ProjectStorageUpdater_parse_qml_types, add_qmltypes)
 {
-    QString qmldir{R"(module Example
-                      typeinfo example.qmltypes
-                      typeinfo example2.qmltypes)"};
-    setContent(u"/path/qmldir", qmldir);
-    QString qmltypes{"Module {\ndependencies: []}"};
-    QString qmltypes2{"Module {\ndependencies: [foo]}"};
-    setContent(u"/path/example.qmltypes", qmltypes);
-    setContent(u"/path/example2.qmltypes", qmltypes2);
-    setFilesAdded({directoryPathSourceId,
-                   qmlDirPathSourceId,
-                   qmltypesPathSourceId,
-                   qmltypes2PathSourceId,
-                   qmlDocumentSourceId2,
-                   qmlDocumentSourceId3});
+    setDirectoryInfos(
+        directoryPathId,
+        {{directoryPathId, qmltypesPathSourceId, exampleCppNativeModuleId, FileType::QmlTypes},
+         {directoryPathId, qmltypes2PathSourceId, exampleCppNativeModuleId, FileType::QmlTypes}});
+    setFilesUnchanged({directoryPathSourceId, qmlDirPathSourceId});
+    setFilesAdded({qmltypesPathSourceId, qmltypes2PathSourceId});
 
     EXPECT_CALL(qmlTypesParserMock,
                 parse(qmltypes,
@@ -645,32 +655,13 @@ TEST_F(ProjectStorageUpdater, parse_added_qml_types)
                       Field("DirectoryInfo::moduleId", &DirectoryInfo::moduleId, exampleCppNativeModuleId),
                       IsInsideProject::No));
 
-    updater.update({.qtDirectories = directories});
+    updater.update({.qtDirectories = {"/root/path"}});
 }
 
-TEST_F(ProjectStorageUpdater, parse_qml_types_in_project)
+TEST_F(ProjectStorageUpdater_parse_qml_types, add_directory_inide_project)
 {
-    QString qmldir{R"(module Example
-                      typeinfo example.qmltypes)"};
-    setContent(u"/path/qmldir", qmldir);
-    QString qmltypes{"Module {\ndependencies: []}"};
-    setContent(u"/path/example.qmltypes", qmltypes);
-
-    EXPECT_CALL(qmlTypesParserMock, parse(qmltypes, _, _, _, IsInsideProject::Yes));
-
-    updater.update({.projectDirectory = "/path"});
-}
-
-TEST_F(ProjectStorageUpdater, parse_qml_types_inside_project)
-{
-    QString qmldir{R"(module Example
-                      typeinfo example.qmltypes
-                      typeinfo example2.qmltypes)"};
-    setContent(u"/path/qmldir", qmldir);
-    QString qmltypes{"Module {\ndependencies: []}"};
-    QString qmltypes2{"Module {\ndependencies: [foo]}"};
-    setContent(u"/path/example.qmltypes", qmltypes);
-    setContent(u"/path/example2.qmltypes", qmltypes2);
+    setFilesAdded(
+        {directoryPathSourceId, qmlDirPathSourceId, qmltypesPathSourceId, qmltypes2PathSourceId});
 
     EXPECT_CALL(qmlTypesParserMock,
                 parse(qmltypes,
@@ -685,21 +676,14 @@ TEST_F(ProjectStorageUpdater, parse_qml_types_inside_project)
                       Field("DirectoryInfo::moduleId", &DirectoryInfo::moduleId, exampleCppNativeModuleId),
                       IsInsideProject::Yes));
 
-    updater.update({.projectDirectory = "/path"});
+    updater.update({.projectDirectory = "/root/path"});
 }
 
-TEST_F(ProjectStorageUpdater, parse_qml_types_in_subdirectories)
+TEST_F(ProjectStorageUpdater_parse_qml_types, add_subdirectories)
 {
-    QString qmldir{R"(module Example
-                      typeinfo example.qmltypes
-                      typeinfo example2.qmltypes)"};
-    setContent(u"/path/qmldir", qmldir);
-    QString qmltypes{"Module {\ndependencies: []}"};
-    QString qmltypes2{"Module {\ndependencies: [foo]}"};
-    setContent(u"/path/example.qmltypes", qmltypes);
-    setContent(u"/path/example2.qmltypes", qmltypes2);
-    QStringList directories = {"/root"};
-    setSubdirectoryPaths(u"/root", {"/path"});
+    setFilesAdded(
+        {directoryPathSourceId, qmlDirPathSourceId, qmltypesPathSourceId, qmltypes2PathSourceId});
+    setSubdirectoryPaths(u"/root", {"/root/path"});
 
     EXPECT_CALL(qmlTypesParserMock,
                 parse(qmltypes,
@@ -714,7 +698,7 @@ TEST_F(ProjectStorageUpdater, parse_qml_types_in_subdirectories)
                       Field("DirectoryInfo::moduleId", &DirectoryInfo::moduleId, exampleCppNativeModuleId),
                       IsInsideProject::No));
 
-    updater.update({.qtDirectories = directories});
+    updater.update({.qtDirectories = {"/root"}});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_is_empty_for_no_change)
