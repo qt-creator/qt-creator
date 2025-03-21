@@ -1482,7 +1482,7 @@ bool Check::visit(BinaryExpression *ast)
 bool Check::visit(Block *ast)
 {
     const bool isDirectInConnectionsOrScriptActionScope
-        = isDirectInTypeScope("Connections"_L1, "ScriptAction"_L1);
+        = isDirectInTypeScope("Connections"_L1, "ScriptAction"_L1, "TimelineAnimation"_L1);
 
     if (!isDirectInConnectionsOrScriptActionScope)
         addMessage(ErrBlocksNotSupportedInQmlUi, locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
