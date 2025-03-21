@@ -19,7 +19,7 @@
 #include <QScopeGuard>
 
 namespace {
-
+Q_LOGGING_CATEGORY(dsLog, "qtc.designer.designSystem", QtInfoMsg)
 constexpr char DesignModuleName[] = "DesignSystem";
 
 std::optional<Utils::FilePath> dsModuleDir(QmlDesigner::ExternalDependenciesInterface &ed)
@@ -81,6 +81,15 @@ std::optional<QString> modelSerializeHelper(
         return saver.errorString();
 
     return {};
+}
+
+std::optional<std::tuple<QStringView, QStringView, QStringView>> unpackDSBinding(QStringView binding)
+{
+    const auto parts = binding.split('.', Qt::SkipEmptyParts);
+    if (parts.size() != 3)
+        return {};
+
+    return std::make_tuple(parts[0], parts[1], parts[2]);
 }
 
 } // namespace
@@ -214,7 +223,16 @@ std::optional<QString> DSStore::typeName(DSThemeManager *collection) const
 
 bool DSStore::removeCollection(const QString &name)
 {
-    return m_collections.erase(name);
+    if (auto toRemove = collection(name)) {
+        for (auto &[_, currentCollection] : m_collections) {
+            if (toRemove == &currentCollection)
+                continue;
+            breakBindings(&currentCollection, name);
+        }
+        save();
+        return m_collections.erase(name);
+    }
+    return false;
 }
 
 bool DSStore::renameCollection(const QString &oldName, const QString &newName)
@@ -233,6 +251,9 @@ bool DSStore::renameCollection(const QString &oldName, const QString &newName)
     auto handle = m_collections.extract(oldName);
     handle.key() = uniqueTypeName;
     m_collections.insert(std::move(handle));
+
+    refactorBindings(oldName, uniqueTypeName);
+    save();
     return true;
 }
 
@@ -251,26 +272,120 @@ QStringList DSStore::collectionNames() const
     return names;
 }
 
-ThemeProperty DSStore::resolvedDSBinding(QStringView binding) const
+std::optional<ThemeProperty> DSStore::resolvedDSBinding(QStringView binding) const
 {
-    const auto parts = binding.split('.', Qt::SkipEmptyParts);
-    if (parts.size() != 3)
-        return {};
+    if (auto parts = unpackDSBinding(binding)) {
+        auto &[collectionName, _, propertyName] = *parts;
+        return resolvedDSBinding(collectionName, propertyName);
+    }
 
-    const auto &collectionName = parts[0];
+    qCDebug(dsLog) << "Resolving binding failed. Unexpected binding" << binding;
+    return {};
+}
+
+std::optional<ThemeProperty> DSStore::resolvedDSBinding(QStringView collectionName,
+                                                        QStringView propertyName) const
+{
     auto itr = m_collections.find(collectionName.toString());
     if (itr == m_collections.end())
         return {};
 
     const DSThemeManager &boundCollection = itr->second;
-    const auto &propertyName = parts[2].toLatin1();
-    if (const auto group = boundCollection.groupType(propertyName)) {
-        auto property = boundCollection.property(boundCollection.activeTheme(), *group, propertyName);
+    if (const auto group = boundCollection.groupType(propertyName.toLatin1())) {
+        auto property = boundCollection.property(boundCollection.activeTheme(),
+                                                 *group,
+                                                 propertyName.toLatin1());
         if (property)
             return property->isBinding ? resolvedDSBinding(property->value.toString()) : *property;
     }
 
     return {};
+}
+
+void DSStore::refactorBindings(QStringView oldCollectionName, QStringView newCollectionName)
+{
+    for (auto &[_, currentCollection] : m_collections) {
+        for (const auto &[propName, themeId, gt, expression] : currentCollection.boundProperties()) {
+            auto bindingParts = unpackDSBinding(expression);
+            if (!bindingParts) {
+                qCDebug(dsLog) << "Refactor binding error. Unexpected binding" << expression;
+                continue;
+            }
+
+            const auto &[boundCollection, groupName, boundProp] = *bindingParts;
+            if (boundCollection != oldCollectionName)
+                continue;
+
+            const auto newBinding = QString("%1.%2.%3").arg(newCollectionName, groupName, boundProp);
+            currentCollection.updateProperty(themeId, gt, {propName, newBinding, true});
+        }
+    }
+}
+
+void DSStore::refactorBindings(DSThemeManager *srcCollection, PropertyName from, PropertyName to)
+{
+    auto srcCollectionName = typeName(srcCollection);
+    if (!srcCollectionName)
+        return;
+
+    for (auto &[_, currentCollection] : m_collections) {
+        for (const auto &[propName, themeId, gt, expression] : currentCollection.boundProperties()) {
+            auto bindingParts = unpackDSBinding(expression);
+            if (!bindingParts) {
+                qCDebug(dsLog) << "Refactor binding error. Unexpected binding" << expression;
+                continue;
+            }
+
+            const auto &[boundCollection, groupName, boundProp] = *bindingParts;
+            if (boundCollection != srcCollectionName || from != boundProp.toLatin1())
+                continue;
+
+            const auto newBinding = QString("%1.%2.%3")
+                                        .arg(boundCollection, groupName, QString::fromUtf8(to));
+            currentCollection.updateProperty(themeId, gt, {propName, newBinding, true});
+        }
+    }
+}
+
+void DSStore::breakBindings(DSThemeManager *collection, PropertyName propertyName)
+{
+    auto collectionName = typeName(collection);
+    if (!collectionName)
+        return;
+
+    for (auto &[_, currentCollection] : m_collections) {
+        for (const auto &[propName, themeId, gt, expression] : currentCollection.boundProperties()) {
+            auto bindingParts = unpackDSBinding(expression);
+            if (!bindingParts) {
+                qCDebug(dsLog) << "Error breaking binding. Unexpected binding" << expression;
+                continue;
+            }
+            const auto &[boundCollection, _, boundProp] = *bindingParts;
+            if (boundCollection != collectionName || propertyName != boundProp.toLatin1())
+                continue;
+
+            if (auto value = resolvedDSBinding(*collectionName, boundProp))
+                currentCollection.updateProperty(themeId, gt, {propName, value->value});
+        }
+    }
+}
+
+void DSStore::breakBindings(DSThemeManager *collection, QStringView removeCollection)
+{
+    for (const auto &[propName, themeId, gt, expression] : collection->boundProperties()) {
+        auto bindingParts = unpackDSBinding(expression);
+        if (!bindingParts) {
+            qCDebug(dsLog) << "Error breaking binding. Unexpected binding" << expression;
+            continue;
+        }
+
+        const auto &[boundCollection, _, boundProp] = *bindingParts;
+        if (boundCollection != removeCollection)
+            continue;
+
+        if (auto value = resolvedDSBinding(boundCollection, boundProp))
+            collection->updateProperty(themeId, gt, {propName, value->value});
+    }
 }
 
 QString DSStore::uniqueCollectionName(const QString &hint) const

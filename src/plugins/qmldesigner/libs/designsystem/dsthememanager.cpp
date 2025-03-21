@@ -354,6 +354,22 @@ std::optional<QString> DSThemeManager::load(ModelNode rootModelNode)
     return {};
 }
 
+std::vector<DSBindingInfo> DSThemeManager::boundProperties() const
+{
+    std::vector<DSBindingInfo> bindings;
+    for (auto &[gt, group] : m_groups) {
+        for (auto &[id, _] : m_themes) {
+            for (const auto &propName : group.propertyNames()) {
+                if (auto p = group.propertyValue(id, propName)) {
+                    if (p->isBinding)
+                        bindings.push_back({propName, id, gt, p->value.toString()});
+                }
+            }
+        }
+    }
+    return bindings;
+}
+
 bool DSThemeManager::findPropertyType(const AbstractProperty &p,
                                       ThemeProperty *themeProp,
                                       GroupType *gt) const
