@@ -53,11 +53,8 @@ public:
 
     static consteval bool hasNoFloatStdToChar()
     {
-#if !defined(__cpp_lib_to_chars) || (__cpp_lib_to_chars < 201611L) || \
-        (defined(__GNUC__) && __GNUC__ < 11) || \
-            (defined(_MSC_VER) && _MSC_VER < 1930) || \
-            (defined(__clang_major__) && __clang_major__ < 14)
-            return true;
+#if !defined(__cpp_lib_to_chars) || (__cpp_lib_to_chars < 201611L)
+        return true;
 #else
         return false;
 #endif
