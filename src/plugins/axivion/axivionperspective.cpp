@@ -228,6 +228,8 @@ private:
     QComboBox *m_versionStart = nullptr;
     QComboBox *m_versionEnd = nullptr;
     QComboBox *m_namedFilters = nullptr;
+    QToolButton *m_localBuild = nullptr;
+    QToolButton *m_localDashBoard = nullptr;
     QToolButton *m_showFilterHelp = nullptr;
     Guard m_signalBlocker;
     QLineEdit *m_pathGlobFilter = nullptr; // FancyLineEdit instead?
@@ -279,15 +281,42 @@ IssuesWidget::IssuesWidget(QWidget *parent)
         m_currentPrefix.clear();
         m_currentProject.clear();
         m_issuesModel->clear();
+        m_localBuild->setEnabled(false);
+        m_localDashBoard->setEnabled(false);
         fetchDashboardAndProjectInfo({}, m_dashboardProjects->currentText());
     });
-    // row with issue types (-> depending on choice, tables below change)
+    // row with local build + dashboard, issue types (-> depending on choice, tables below change)
     //  and a selectable range (start version, end version)
     // row with added/removed and some filters (assignee, path glob, (named filter))
     // table, columns depend on chosen issue type
+    QHBoxLayout *localLayout = new QHBoxLayout;
+    localLayout->setSpacing(0);
+    m_localBuild = new QToolButton(this);
+    const Icon build({{":/utils/images/project.png", Theme::PaletteButtonText},
+                      {":/axivion/images/local.png", Theme::PaletteButtonText}}, Icon::Tint);
+    m_localBuild->setIcon(build.icon());
+    m_localBuild->setToolTip(Tr::tr("Local Build..."));
+    m_localBuild->setEnabled(false);
+    m_localDashBoard = new QToolButton(this);
+    const Icon dashboard({{":/axivion/images/dashboard.png", Theme::PaletteButtonText},
+                          {":/axivion/images/local.png", Theme::PaletteButtonText}}, Icon::Tint);
+    m_localDashBoard->setIcon(dashboard.icon());
+    m_localDashBoard->setToolTip(Tr::tr("Local Dashboard"));
+    m_localDashBoard->setCheckable(true);
+    m_localDashBoard->setEnabled(false);
+    localLayout->addWidget(m_localBuild);
+    localLayout->addWidget(m_localDashBoard);
+    connect(&settings(), &AxivionSettings::suitePathValidated, this, [this] {
+        const auto info = settings().versionInfo();
+        const bool enable = info && !info->versionNumber.isEmpty(); // for now
+        m_localBuild->setEnabled(enable);
+        m_localDashBoard->setEnabled(enable);
+    });
+
     m_typesButtonGroup = new QButtonGroup(this);
     m_typesButtonGroup->setExclusive(true);
     m_typesLayout = new QHBoxLayout;
+    m_typesLayout->setSpacing(0);
 
     m_versionStart = new QComboBox(this);
     m_versionStart->setMinimumContentsLength(25);
@@ -404,7 +433,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_stack->addWidget(errorWidget);
 
     Column {
-        Row { m_dashboards, m_dashboardProjects, empty, m_typesLayout, st, m_versionStart, m_versionEnd, st },
+        Row { m_dashboards, m_dashboardProjects, empty, localLayout, st, m_typesLayout, st, m_versionStart, m_versionEnd, st },
         Row { m_addedFilter, m_removedFilter, Space(1), m_ownerFilter, m_pathGlobFilter, m_namedFilters, m_showFilterHelp },
         m_stack,
         Row { st, m_totalRows }
@@ -751,6 +780,8 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
     if (!info) {
         cleanOld();
         GuardLocker lock(m_signalBlocker);
+        m_localBuild->setEnabled(false);
+        m_localDashBoard->setEnabled(false);
         m_userNames.clear();
         m_versionDates.clear();
         m_ownerFilter->clear();
@@ -821,6 +852,10 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
     m_versionStart->setCurrentIndex(m_versionDates.count() - 1);
     updateVersionItemsEnabledState();
     m_showFilterHelp->setEnabled(info->issueFilterHelp.has_value());
+    std::optional<AxivionVersionInfo> suiteVersionInfo = settings().versionInfo();
+    m_localBuild->setEnabled(!m_currentProject.isEmpty()
+                             && suiteVersionInfo && !suiteVersionInfo->versionNumber.isEmpty());
+    m_localDashBoard->setEnabled(true);
 }
 
 void IssuesWidget::updateAllFilters(const QVariant &namedFilter)
