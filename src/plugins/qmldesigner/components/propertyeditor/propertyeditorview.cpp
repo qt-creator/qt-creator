@@ -497,9 +497,11 @@ void PropertyEditorView::resetView()
 
 void PropertyEditorView::setIsSelectionLocked(bool locked)
 {
-    m_isSelectionLocked = locked;
-    if (m_qmlBackEndForCurrentType)
-        m_qmlBackEndForCurrentType->contextObject()->setIsSelectionLocked(locked);
+    if (m_isSelectionLocked != locked) {
+        m_isSelectionLocked = locked;
+        for (PropertyEditorQmlBackend *qmlBackend : std::as_const(m_qmlBackendHash))
+            qmlBackend->contextObject()->setIsSelectionLocked(locked);
+    }
 
     // Show current selection on unlock
     if (!m_locked && !m_isSelectionLocked)
