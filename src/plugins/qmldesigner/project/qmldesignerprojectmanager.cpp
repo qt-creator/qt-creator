@@ -210,8 +210,9 @@ public:
                    projectStorageJournalMode()}
         , errorNotifier{pathCache}
         , fileSystem{pathCache}
+        , fileStatusCache(fileSystem)
         , qmlDocumentParser{storage, pathCache}
-        , pathWatcher{pathCache, fileSystem, &updater}
+        , pathWatcher{pathCache, fileStatusCache, &updater}
         , projectPartId{ProjectPartId::create(
               pathCache.sourceContextId(Utils::PathString{project->projectDirectory().path()})
                   .internalId())}
@@ -232,7 +233,7 @@ public:
     ProjectStorageErrorNotifier errorNotifier;
     ProjectStorage storage{database, errorNotifier, database.isInitialized()};
     FileSystem fileSystem;
-    FileStatusCache fileStatusCache{fileSystem};
+    FileStatusCache fileStatusCache;
     QmlDocumentParser qmlDocumentParser;
     QmlTypesParser qmlTypesParser{storage};
     ProjectStoragePathWatcher<QFileSystemWatcher, QTimer, PathCacheType> pathWatcher;

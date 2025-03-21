@@ -84,7 +84,8 @@ protected:
     Sqlite::Database &database = staticData->database;
     QmlDesigner::ProjectStorage &storage = staticData->storage;
     SourcePathCache pathCache{staticData->sourcePathStorage};
-    Watcher watcher{pathCache, mockFileSystem, &notifier};
+    QmlDesigner::FileStatusCache fileStatusCache{mockFileSystem};
+    Watcher watcher{pathCache, fileStatusCache, &notifier};
     NiceMock<MockQFileSytemWatcher> &mockQFileSytemWatcher = watcher.fileSystemWatcher();
     ProjectChunkId projectChunkId1{ProjectPartId::create(2), SourceType::Qml};
     ProjectChunkId projectChunkId2{ProjectPartId::create(2), SourceType::QmlUi};
