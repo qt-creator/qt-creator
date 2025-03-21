@@ -114,11 +114,11 @@ ProjectStorageUpdater::Components createComponents(
     for (const QQmlDirParser::Component &qmlDirParserComponent : qmlDirParserComponents) {
         if (qmlDirParserComponent.fileName.contains('/'))
             continue;
-        components.emplace_back(qmlDirParserComponent.fileName,
-                                qmlDirParserComponent.typeName,
-                                moduleId,
-                                qmlDirParserComponent.version.majorVersion(),
-                                qmlDirParserComponent.version.minorVersion());
+        components.push_back({qmlDirParserComponent.fileName,
+                              qmlDirParserComponent.typeName,
+                              moduleId,
+                              qmlDirParserComponent.version.majorVersion(),
+                              qmlDirParserComponent.version.minorVersion()});
     }
 
     return components;
