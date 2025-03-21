@@ -38,7 +38,15 @@ public:
     std::optional<Utils::FilePath> moduleDirPath() const;
     QStringList collectionNames() const;
 
-    ThemeProperty resolvedDSBinding(QStringView binding) const;
+    std::optional<ThemeProperty> resolvedDSBinding(QStringView binding) const;
+    std::optional<ThemeProperty> resolvedDSBinding(QStringView collectionName,
+                                                   QStringView propertyName) const;
+
+    void refactorBindings(QStringView oldCollectionName, QStringView newCollectionName);
+    void refactorBindings(DSThemeManager *srcCollection, PropertyName from, PropertyName to);
+
+    void breakBindings(DSThemeManager *collection, PropertyName propertyName);
+    void breakBindings(DSThemeManager *collection, QStringView removeCollection);
 
     QString uniqueCollectionName(const QString &hint) const;
 

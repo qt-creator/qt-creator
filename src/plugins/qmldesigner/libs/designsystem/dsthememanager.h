@@ -66,6 +66,8 @@ public:
 
     std::optional<QString> load(ModelNode rootModelNode);
 
+    std::vector<DSBindingInfo> boundProperties() const;
+
 private:
     DSThemeGroup *propertyGroup(GroupType type);
     void addGroupAliases(ModelNode rootNode) const;

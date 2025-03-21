@@ -63,7 +63,9 @@ QVariant CollectionModel::data(const QModelIndex &index, int role) const
 
     const QVariant propertyValue = property->value.toString();
     const QVariant displayValue = property->isBinding
-                                      ? m_store->resolvedDSBinding(propertyValue.toString()).value
+                                      ? m_store->resolvedDSBinding(propertyValue.toString())
+                                            .value_or(ThemeProperty{})
+                                            .value
                                       : property->value;
 
     switch (role) {
@@ -193,6 +195,7 @@ bool CollectionModel::removeRows(int row, int count, const QModelIndex &parent)
     beginResetModel();
     while (row < sentinelIndex) {
         auto [groupType, name] = m_propertyInfoList[row++];
+        m_store->breakBindings(m_collection, name);
         m_collection->removeProperty(groupType, name);
     }
     updateCache();
@@ -235,7 +238,7 @@ bool CollectionModel::setData(const QModelIndex &index, const QVariant &value, i
     switch (role) {
     case Qt::EditRole: {
         if (p.isBinding) {
-            if (!m_store->resolvedDSBinding(p.value.toString()).isValid())
+            if (!m_store->resolvedDSBinding(p.value.toString()))
                 return false; // Invalid binding, it must resolved to a valid property.
         }
 
@@ -280,6 +283,10 @@ bool CollectionModel::setHeaderData(int section,
         if (auto propInfo = findPropertyName(section)) {
             auto [groupType, propName] = *propInfo;
             success = m_collection->renameProperty(groupType, propName, newName);
+            if (success) {
+                const auto collectionName = m_store->typeName(m_collection);
+                m_store->refactorBindings(m_collection, propName, newName);
+            }
         }
     } else {
         // Theme

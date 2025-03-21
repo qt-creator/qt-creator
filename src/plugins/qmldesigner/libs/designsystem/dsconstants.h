@@ -8,6 +8,8 @@
 
 #include <QVariant>
 
+#include <tuple>
+
 namespace QmlDesigner
 {
 
@@ -35,4 +37,5 @@ constexpr const char *GroupId(const GroupType type) {
     return "unknown";
 }
 
+using DSBindingInfo = std::tuple<PropertyName, ThemeId, GroupType, QStringView>;
 }
