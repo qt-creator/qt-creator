@@ -187,25 +187,6 @@ ModelNode getMaterialOfModel(const ModelNode &model, int idx)
     return mat;
 }
 
-void selectTexture(const ModelNode &texture)
-{
-    if (texture.metaInfo().isQtQuick3DTexture()) {
-        texture.model()->rootModelNode().setAuxiliaryData(Utils3D::matLibSelectedTextureProperty,
-                                                          texture.id());
-    }
-}
-
-ModelNode selectedTexture(AbstractView *view)
-{
-    if (!view)
-        return {};
-
-    ModelNode root = view->rootModelNode();
-    if (auto selectedProperty = root.auxiliaryData(Utils3D::matLibSelectedTextureProperty))
-        return view->modelNodeForId(selectedProperty->toString());
-    return {};
-}
-
 QList<ModelNode> getSelectedModels(AbstractView *view)
 {
     if (!view || !view->model())

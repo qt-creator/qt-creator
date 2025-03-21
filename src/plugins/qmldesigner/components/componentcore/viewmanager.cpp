@@ -28,7 +28,6 @@
 #include <rewriterview.h>
 #include <stateseditorview.h>
 #include <texteditorview.h>
-#include <textureeditorview.h>
 
 #include <qmldesignerbase/settings/designersettings.h>
 
@@ -73,7 +72,6 @@ public:
         , propertyEditorView(imageCache, externalDependencies)
 #ifndef QTC_USE_QML_DESIGNER_LITE
         , materialBrowserView{imageCache, externalDependencies}
-        , textureEditorView{imageCache, externalDependencies}
 #endif
         , statesEditorView{externalDependencies}
     {}
@@ -102,7 +100,6 @@ public:
     PropertyEditorView propertyEditorView;
 #ifndef QTC_USE_QML_DESIGNER_LITE
     MaterialBrowserView materialBrowserView;
-    TextureEditorView textureEditorView;
 #endif
     StatesEditorView statesEditorView;
 
@@ -231,7 +228,6 @@ QList<AbstractView *> ViewManager::standardViews() const
                                   &d->navigatorView,
                                   &d->propertyEditorView,
                                   &d->materialBrowserView,
-                                  &d->textureEditorView,
                                   &d->statesEditorView,
                                   &d->designerActionManagerView};
 #else
@@ -457,7 +453,6 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     widgetInfoList.append(d->propertyEditorView.widgetInfo());
 #ifndef QTC_USE_QML_DESIGNER_LITE
     widgetInfoList.append(d->materialBrowserView.widgetInfo());
-    widgetInfoList.append(d->textureEditorView.widgetInfo());
 #endif
     widgetInfoList.append(d->statesEditorView.widgetInfo());
 

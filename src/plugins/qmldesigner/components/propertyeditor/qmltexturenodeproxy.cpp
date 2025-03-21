@@ -90,6 +90,9 @@ bool QmlTextureNodeProxy::selectedNodeAcceptsMaterial() const
 
 QString QmlTextureNodeProxy::resolveResourcePath(const QString &path) const
 {
+    if (path.isEmpty())
+        return ":/propertyeditor/images/texture_default.png";
+
     if (Utils::FilePath::fromString(path).isAbsolutePath())
         return path;
 

@@ -31,7 +31,8 @@ QQuickImageResponse *AssetImageProvider::requestImageResponse(const QString &id,
             response.get(),
             [response = QPointer<ImageCacheImageResponse>(response.get()), requestedSize] {
                 QImage ktxImage;
-                ktxImage.load(Utils::StyleHelper::dpiSpecificImageFile(":/textureeditor/images/texture_ktx.png"));
+                ktxImage.load(Utils::StyleHelper::dpiSpecificImageFile(
+                    ":/propertyeditor/images/texture_ktx.png"));
                 if (ktxImage.isNull())
                     ktxImage = response->image();
                 if (requestedSize.isValid())

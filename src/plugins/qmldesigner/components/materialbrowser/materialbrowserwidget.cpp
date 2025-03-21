@@ -135,11 +135,13 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
                     if (suffix == "hdr")
                         pixmap = HdrImage{iconPath}.toPixmap();
                     else if (suffix == "ktx")
-                        pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/textureeditor/images/texture_ktx.png");
+                        pixmap = Utils::StyleHelper::dpiSpecificImageFile(
+                            ":/propertyeditor/images/texture_ktx.png");
                     else
                         pixmap = Utils::StyleHelper::dpiSpecificImageFile(iconPath);
                     if (pixmap.isNull())
-                        pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/textureeditor/images/texture_default.png");
+                        pixmap = Utils::StyleHelper::dpiSpecificImageFile(
+                            ":/propertyeditor/images/texture_default.png");
                     model->startDrag(std::move(mimeData), pixmap.scaled({128, 128}), this);
                 }
                 m_materialToDrag = {};
@@ -166,7 +168,8 @@ MaterialBrowserWidget::MaterialBrowserWidget(AsynchronousImageCache &imageCache,
     , m_bundleHelper(std::make_unique<BundleHelper>(view, this))
 {
     QImage defaultImage;
-    defaultImage.load(Utils::StyleHelper::dpiSpecificImageFile(":/textureeditor/images/texture_default.png"));
+    defaultImage.load(
+        Utils::StyleHelper::dpiSpecificImageFile(":/propertyeditor/images/texture_default.png"));
     m_textureImageProvider = new AssetImageProvider(imageCache, defaultImage);
 
     setWindowTitle(tr("Material Browser", "Title of material browser widget"));

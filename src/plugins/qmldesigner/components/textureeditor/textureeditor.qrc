@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/textureeditor">
-        <file>images/texture_default.png</file>
-        <file>images/texture_default@2x.png</file>
-        <file>images/texture_ktx.png</file>
-        <file>images/texture_ktx@2x.png</file>
-    </qresource>
-</RCC>

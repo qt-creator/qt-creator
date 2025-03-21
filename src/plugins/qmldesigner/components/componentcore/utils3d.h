@@ -15,9 +15,6 @@ namespace Utils3D {
 
 inline constexpr AuxiliaryDataKeyView active3dSceneProperty{AuxiliaryDataType::Temporary,
                                                             "active3dScene"};
-inline constexpr AuxiliaryDataKeyView matLibSelectedTextureProperty{AuxiliaryDataType::Temporary,
-                                                                    "matLibSelTex"};
-
 ModelNode active3DSceneNode(AbstractView *view);
 qint32 active3DSceneId(Model *model);
 
@@ -30,12 +27,6 @@ ModelNode activeView3dNode(AbstractView *view);
 QString activeView3dId(AbstractView *view);
 
 ModelNode getMaterialOfModel(const ModelNode &model, int idx = 0);
-
-// These methods handle selection of material library items for various material library views.
-// This is separate selection from the normal selection handling.
-void selectTexture(const ModelNode &texture);
-ModelNode selectedTexture(AbstractView *view);
-
 ModelNode resolveSceneEnv(AbstractView *view, int sceneId);
 
 QList<ModelNode> getSelectedModels(AbstractView *view);

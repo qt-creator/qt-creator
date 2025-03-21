@@ -180,7 +180,6 @@ WidgetInfo MaterialBrowserView::widgetInfo()
             });
         });
 
-        // custom notifications below are sent to the TextureEditor
         MaterialBrowserTexturesModel *texturesModel = m_widget->materialBrowserTexturesModel().data();
         connect(texturesModel,
                 &MaterialBrowserTexturesModel::duplicateTextureTriggered,
@@ -315,9 +314,14 @@ void MaterialBrowserView::updatePropertyList(const QList<T> &propertyList)
             else if (property.name() == "objectName")
                 m_widget->materialBrowserTexturesModel()->updateTextureName(node);
         } else {
-            QmlObjectNode selectedTex = Utils3D::selectedTexture(this);
-            if (property.name() == "source" && selectedTex.propertyChangeForCurrentState() == node)
-                m_widget->materialBrowserTexturesModel()->updateTextureSource(selectedTex);
+            if (property.name() == "source") {
+                const ModelNodes textures = m_widget->materialBrowserTexturesModel()->textures();
+                for (const ModelNode &textureNode : textures) {
+                    const QmlObjectNode textureQmlNode{textureNode};
+                    if (textureQmlNode.propertyChangeForCurrentState() == node)
+                        m_widget->materialBrowserTexturesModel()->updateTextureSource(textureQmlNode);
+                }
+            }
         }
     }
 

@@ -179,21 +179,6 @@ void ComponentView::ensureMatLibTriggered()
     DesignDocument *doc = QmlDesignerPlugin::instance()->currentDesignDocument();
     if (doc && !doc->inFileComponentModelActive())
         Utils3D::ensureMaterialLibraryNode(this);
-
-    matLib = Utils3D::materialLibraryNode(this);
-    if (!matLib.isValid())
-        return;
-
-    bool texSelected = Utils3D::selectedTexture(this).isValid();
-    if (!texSelected) {
-        const QList<ModelNode> matLibNodes = matLib.directSubModelNodes();
-        for (const ModelNode &node : matLibNodes) {
-            if (node.metaInfo().isQtQuick3DTexture()) {
-                Utils3D::selectTexture(node);
-                break;
-            }
-        }
-    }
 }
 
 void ComponentView::modelAttached(Model *model)
@@ -263,30 +248,11 @@ void ComponentView::nodeReparented(const ModelNode &node, const NodeAbstractProp
     updateDescription(node);
 }
 
-void ComponentView::nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId)
+void ComponentView::nodeIdChanged(const ModelNode &node,
+                                  [[maybe_unused]] const QString &newId,
+                                  [[maybe_unused]] const QString &oldId)
 {
     updateDescription(node);
-
-    if (oldId.isEmpty())
-        return;
-
-    // Material/texture id handling is done here as ComponentView is guaranteed to always be
-    // attached, unlike the views actually related to material/texture handling.
-
-    auto maybeSetAuxData = [this, &oldId, &newId](AuxiliaryDataKeyView key) {
-        auto rootNode = rootModelNode();
-        if (auto property = rootNode.auxiliaryData(key)) {
-            if (oldId == property->toString()) {
-                QTimer::singleShot(0, this, [rootNode, newId, key]() {
-                    rootNode.setAuxiliaryData(key, newId);
-                });
-            }
-        }
-    };
-
-    auto metaInfo = node.metaInfo();
-    if (metaInfo.isQtQuick3DTexture())
-        maybeSetAuxData(Utils3D::matLibSelectedTextureProperty);
 }
 
 void ComponentView::nodeSourceChanged(const ModelNode &node, const QString &/*newNodeSource*/)

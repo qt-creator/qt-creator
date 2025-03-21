@@ -515,7 +515,6 @@ static bool isMcuDisabledView(const QString viewId)
     static const QStringList mcuDisabledViews = {
         "Editor3D",
         "MaterialBrowser",
-        "TextureEditor",
         "EffectComposer",
     };
     return mcuDisabledViews.contains(viewId);
