@@ -530,12 +530,6 @@ public:
     bool isAppRunning() const;
 
 private:
-    Utils::FilePath bundlePath() const;
-    QString deviceId() const;
-    IosToolHandler::RunKind runType() const;
-    bool cppDebug() const;
-    bool qmlDebug() const;
-
     void handleGotServerPorts(Ios::IosToolHandler *handler, const FilePath &bundlePath,
                               const QString &deviceId, Port gdbPort, Port qmlPort);
     void handleGotInferiorPid(Ios::IosToolHandler *handler, const FilePath &bundlePath,
@@ -584,36 +578,6 @@ void IosRunner::setQmlDebugging(QmlDebugServicesPreset qmlDebugServices)
     m_qmlDebugServices = qmlDebugServices;
 }
 
-FilePath IosRunner::bundlePath() const
-{
-    return m_bundleDir;
-}
-
-QString IosRunner::deviceId() const
-{
-    IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(m_device);
-    if (!dev)
-        return {};
-    return dev->uniqueDeviceID();
-}
-
-IosToolHandler::RunKind IosRunner::runType() const
-{
-    if (m_cppDebug)
-        return IosToolHandler::DebugRun;
-    return IosToolHandler::NormalRun;
-}
-
-bool IosRunner::cppDebug() const
-{
-    return m_cppDebug;
-}
-
-bool IosRunner::qmlDebug() const
-{
-    return m_qmlDebugServices != NoQmlDebugServices;
-}
-
 void IosRunner::start()
 {
     if (m_toolHandler && isAppRunning())
@@ -651,7 +615,11 @@ void IosRunner::start()
     }
 
     appendMessage(Tr::tr("Starting remote process."), NormalMessageFormat);
-    m_toolHandler->requestRunApp(bundlePath(), args, runType(), deviceId());
+    QString deviceId;
+    if (IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(m_device))
+        deviceId = dev->uniqueDeviceID();
+    const IosToolHandler::RunKind runKind = m_cppDebug ? IosToolHandler::DebugRun : IosToolHandler::NormalRun;
+    m_toolHandler->requestRunApp(m_bundleDir, args, runKind, deviceId);
 }
 
 void IosRunner::stop()
@@ -681,7 +649,7 @@ void IosRunner::handleGotServerPorts(IosToolHandler *handler, const FilePath &bu
     qmlChannel.setPort(qmlPort.number());
     runControl()->setQmlChannel(qmlChannel);
 
-    if (cppDebug()) {
+    if (m_cppDebug) {
         if (!m_gdbServerPort.isValid()) {
             reportFailure(Tr::tr("Failed to get a local debugger port."));
             return;
@@ -690,7 +658,7 @@ void IosRunner::handleGotServerPorts(IosToolHandler *handler, const FilePath &bu
             Tr::tr("Listening for debugger on local port %1.").arg(m_gdbServerPort.number()),
             LogMessageFormat);
     }
-    if (qmlDebug()) {
+    if (m_qmlDebugServices != NoQmlDebugServices) {
         if (!qmlPort.isValid()) {
             reportFailure(Tr::tr("Failed to get a local debugger port."));
             return;
@@ -720,7 +688,7 @@ void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const FilePath &bu
     }
     runControl()->setAttachPid(ProcessHandle(pid));
 
-    if (qmlDebug() && runControl()->qmlChannel().port() == -1)
+    if (m_qmlDebugServices != NoQmlDebugServices && runControl()->qmlChannel().port() == -1)
         reportFailure(Tr::tr("Could not get necessary ports for the debugger connection."));
     else
         reportStarted();
