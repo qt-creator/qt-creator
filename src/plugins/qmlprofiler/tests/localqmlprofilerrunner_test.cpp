@@ -6,6 +6,7 @@
 #include <debugger/analyzer/analyzerutils.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <qmlprofiler/qmlprofilerruncontrol.h>
 #include <qmlprofiler/qmlprofilertool.h>

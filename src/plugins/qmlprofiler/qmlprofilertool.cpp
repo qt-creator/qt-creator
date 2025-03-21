@@ -41,6 +41,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitaspect.h>
@@ -560,7 +561,7 @@ RunControl *QmlProfilerTool::attachToWaitingApplication()
     runControl->setQmlChannel(serverUrl);
     // The object as such is needed, the RunWorker becomes part of the RunControl at construction time,
     // similar to how QObject children are owned by their parents
-    [[maybe_unused]] auto profiler = new QmlProfilerRunner(runControl);
+    [[maybe_unused]] auto profiler = new RecipeRunner(runControl, qmlProfilerRecipe(runControl));
 
     connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionClosed,
             runControl, &RunControl::initiateStop);

@@ -3,21 +3,15 @@
 
 #pragma once
 
-#include <projectexplorer/runcontrol.h>
-#include <projectexplorer/projectexplorerconstants.h>
+namespace ProjectExplorer {
+class RunControl;
+class RunWorker;
+}
+namespace Tasking { class Group; }
 
 namespace QmlProfiler::Internal {
 
-class QmlProfilerRunner : public ProjectExplorer::RunWorker
-{
-public:
-    QmlProfilerRunner(ProjectExplorer::RunControl *runControl);
-
-private:
-    void start() override;
-    void stop() override;
-};
-
+Tasking::Group qmlProfilerRecipe(ProjectExplorer::RunControl *runControl);
 ProjectExplorer::RunWorker *createLocalQmlProfilerWorker(ProjectExplorer::RunControl *runControl);
 void setupQmlProfilerRunning();
 
