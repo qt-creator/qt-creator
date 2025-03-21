@@ -76,8 +76,7 @@ RunWorker *createLocalQmlProfilerWorker(RunControl *runControl)
     worker->addStartDependency(profiler);
 
     worker->setStartModifier([worker, runControl] {
-
-        QUrl serverUrl = runControl->qmlChannel();
+        const QUrl serverUrl = runControl->qmlChannel();
         QString code;
         if (serverUrl.scheme() == Utils::urlSocketScheme())
             code = QString("file:%1").arg(serverUrl.path());
@@ -86,13 +85,11 @@ RunWorker *createLocalQmlProfilerWorker(RunControl *runControl)
         else
             QTC_CHECK(false);
 
-        QString arguments = Utils::ProcessArgs::quoteArg(
+        const QString arguments = Utils::ProcessArgs::quoteArg(
             qmlDebugCommandLineArguments(QmlProfilerServices, code, true));
 
         Utils::CommandLine cmd = worker->commandLine();
-        const QString oldArgs = cmd.arguments();
-        cmd.setArguments(arguments);
-        cmd.addArgs(oldArgs, Utils::CommandLine::Raw);
+        cmd.prependArgs(arguments, Utils::CommandLine::Raw);
         worker->setCommandLine(cmd.toLocal());
     });
 
