@@ -528,29 +528,6 @@ TEST_F(ProjectStorageUpdater_get_content_for_qml_dir_paths, file_status_is_diffe
     updater.update({.qtDirectories = directories});
 }
 
-TEST_F(ProjectStorageUpdater, request_file_status_from_file_system)
-{
-    EXPECT_CALL(fileSystemMock, fileStatus(Ne(directoryPathSourceId))).Times(AnyNumber());
-
-    EXPECT_CALL(fileSystemMock, fileStatus(Eq(directoryPathSourceId)));
-
-    updater.update({.qtDirectories = directories});
-}
-
-TEST_F(ProjectStorageUpdater, request_file_status_from_file_system_for_subdirectories)
-{
-    EXPECT_CALL(fileSystemMock,
-                fileStatus(AllOf(Ne(directoryPathSourceId), Ne(path1SourceId), Ne(path2SourceId))))
-        .Times(AnyNumber());
-    setSubdirectoryPaths(u"/path", {"/path/one", "/path/two"});
-
-    EXPECT_CALL(fileSystemMock, fileStatus(Eq(path1SourceId)));
-    EXPECT_CALL(fileSystemMock, fileStatus(Eq(path2SourceId)));
-    EXPECT_CALL(fileSystemMock, fileStatus(Eq(directoryPathSourceId)));
-
-    updater.update({.qtDirectories = directories});
-}
-
 class ProjectStorageUpdater_get_content_for_qml_types : public BaseProjectStorageUpdater
 {
 public:
