@@ -47,6 +47,7 @@ public:
     QPointer<EffectComposerNodesModel> effectComposerNodesModel() const;
 
     Q_INVOKABLE void addEffectNode(const QString &nodeQenPath);
+    Q_INVOKABLE void removeEffectNodeFromLibrary(const QString &nodeName);
     Q_INVOKABLE void focusSection(int section);
     Q_INVOKABLE void doOpenComposition();
     Q_INVOKABLE QRect screenRect() const;
@@ -68,7 +69,6 @@ private:
     void handleImportScanTimer();
 
     QPointer<EffectComposerModel> m_effectComposerModel;
-    QPointer<EffectComposerNodesModel> m_effectComposerNodesModel;
     QPointer<EffectComposerView> m_effectComposerView;
     QPointer<StudioQuickWidget> m_quickWidget;
     QmlDesigner::QmlModelNodeProxy m_backendModelNode;

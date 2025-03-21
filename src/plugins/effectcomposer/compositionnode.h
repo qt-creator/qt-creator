@@ -24,7 +24,7 @@ class CompositionNode : public QObject
     Q_PROPERTY(QString nodeName READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(bool nodeEnabled READ isEnabled WRITE setIsEnabled NOTIFY isEnabledChanged)
     Q_PROPERTY(bool isDependency READ isDependency NOTIFY isDepencyChanged)
-    Q_PROPERTY(bool isCustom READ isCustom CONSTANT)
+    Q_PROPERTY(bool isCustom READ isCustom NOTIFY isCustomChanged)
     Q_PROPERTY(QObject *nodeUniformsModel READ uniformsModel NOTIFY uniformsModelChanged)
     Q_PROPERTY(
         QString fragmentCode
@@ -59,6 +59,7 @@ public:
 
     bool isDependency() const;
     bool isCustom() const;
+    void setCustom(bool enable);
 
     QString name() const;
     void setName(const QString &name);
@@ -89,6 +90,7 @@ signals:
     void fragmentCodeChanged();
     void vertexCodeChanged();
     void nameChanged();
+    void isCustomChanged();
 
 private slots:
     void onUniformRenamed(const QString &oldName, const QString &newName);

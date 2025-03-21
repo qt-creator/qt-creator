@@ -5,6 +5,7 @@
 
 #include "compositionnode.h"
 #include "effectcomposertr.h"
+#include "effectcomposernodesmodel.h"
 #include "effectshaderscodeeditor.h"
 #include "effectutils.h"
 #include "propertyhandler.h"
@@ -31,7 +32,6 @@
 #include <QFileDialog>
 #include <QLibraryInfo>
 #include <QStandardPaths>
-#include <QTemporaryDir>
 #include <QVector2D>
 
 using namespace Qt::StringLiterals;
@@ -43,6 +43,7 @@ static constexpr int MAIN_CODE_EDITOR_INDEX = -2;
 
 EffectComposerModel::EffectComposerModel(QObject *parent)
     : QAbstractListModel{parent}
+    , m_effectComposerNodesModel{new EffectComposerNodesModel(this)}
     , m_codeEditorIndex(INVALID_CODE_EDITOR_INDEX)
     , m_shaderDir(QDir::tempPath() + "/qds_ec_XXXXXX")
     , m_currentPreviewColor("#dddddd")
@@ -51,6 +52,11 @@ EffectComposerModel::EffectComposerModel(QObject *parent)
     connect(&m_rebakeTimer, &QTimer::timeout, this, &EffectComposerModel::bakeShaders);
     m_currentPreviewImage = defaultPreviewImage();
     connectCodeEditor();
+}
+
+EffectComposerNodesModel *EffectComposerModel::effectComposerNodesModel() const
+{
+    return m_effectComposerNodesModel.data();
 }
 
 QHash<int, QByteArray> EffectComposerModel::roleNames() const
@@ -74,7 +80,7 @@ int EffectComposerModel::rowCount(const QModelIndex &parent) const
 
 QVariant EffectComposerModel::data(const QModelIndex &index, int role) const
 {
-    QTC_ASSERT(index.isValid() && index.row() < m_nodes.size(), return {});
+    QTC_ASSERT(index.isValid() && isValidIndex(index.row()), return {});
     QTC_ASSERT(roleNames().contains(role), return {});
 
     return m_nodes.at(index.row())->property(roleNames().value(role));
@@ -226,7 +232,7 @@ void EffectComposerModel::removeNode(int idx)
 // Returns false if new name was generated
 bool EffectComposerModel::changeNodeName(int nodeIndex, const QString &name)
 {
-    QTC_ASSERT(nodeIndex >= 0 && nodeIndex < m_nodes.size(), return false);
+    QTC_ASSERT(isValidIndex(nodeIndex), return false);
 
     QString trimmedName = name.trimmed();
     const QString oldName = m_nodes[nodeIndex]->name();
@@ -237,8 +243,9 @@ bool EffectComposerModel::changeNodeName(int nodeIndex, const QString &name)
     const QStringList reservedNames = nodeNames();
 
     // Matching is done case-insensitive as section headers are shown in all uppercase
-    QString newName = QmlDesigner::UniqueName::generate(trimmedName, [&oldName, &reservedNames] (const QString &checkName) -> bool {
-        return oldName != checkName && reservedNames.contains(checkName, Qt::CaseInsensitive);
+    QString newName = QmlDesigner::UniqueName::generate(trimmedName, [&] (const QString &checkName) -> bool {
+        return oldName != checkName && (reservedNames.contains(checkName, Qt::CaseInsensitive)
+                                        || m_effectComposerNodesModel->nodeExists(checkName));
     });
 
     if (newName != oldName) {
@@ -1326,6 +1333,91 @@ void EffectComposerModel::openMainCodeEditor()
     setCodeEditorIndex(MAIN_CODE_EDITOR_INDEX);
 }
 
+bool EffectComposerModel::canAddNodeToLibrary(int idx)
+{
+    QTC_ASSERT(isValidIndex(idx), return false);
+    CompositionNode *node = m_nodes.at(idx);
+
+    if (m_effectComposerNodesModel->isBuiltIn(node->name()))
+        return !m_effectComposerNodesModel->nodeExists(node->name());
+
+    return true;
+}
+
+bool EffectComposerModel::nodeExists(int idx)
+{
+    QTC_ASSERT(isValidIndex(idx), return false);
+    CompositionNode *node = m_nodes.at(idx);
+
+    return m_effectComposerNodesModel->nodeExists(node->name());
+}
+
+QString EffectComposerModel::addNodeToLibraryNode(int idx)
+{
+    const QString errorTag{"@ERROR@"};
+    QTC_ASSERT(isValidIndex(idx) && canAddNodeToLibrary(idx), return errorTag);
+
+    CompositionNode *node = m_nodes.at(idx);
+
+    // Adding node to library changes it to a custom one, as we can't overwrite builtin nodes
+    node->setCustom(true);
+
+    QString fileNameBase = EffectUtils::nodeNameToFileName(node->name());
+    Utils::FilePath nodePath = Utils::FilePath::fromString(EffectUtils::nodeLibraryPath())
+                                   .pathAppended(fileNameBase);
+    Utils::FilePath qenFile = nodePath.pathAppended(fileNameBase + ".qen");
+
+    QSet<QString> newFileNames = {qenFile.fileName()};
+    Utils::FilePaths oldFiles;
+    bool update = nodePath.exists();
+    if (update)
+        oldFiles = nodePath.dirEntries(QDir::Files);
+    else
+        nodePath.createDir();
+
+    QJsonObject rootObj;
+    QJsonObject nodeObject = nodeToJson(*node);
+    rootObj.insert("QEN", nodeObject);
+    QJsonDocument jsonDoc(rootObj);
+    Utils::expected_str<qint64> result = qenFile.writeFileContents(jsonDoc.toJson());
+    if (!result)
+        return errorTag + Tr::tr("Failed to write QEN file for effect:\n%1").arg(qenFile.fileName());
+
+    QList<Utils::FilePath> sources;
+    QStringList dests;
+    const QList<Uniform *> uniforms = node->uniforms();
+    for (Uniform *uniform : uniforms) {
+        const QString valueStr = uniform->value().toString();
+        if (uniform->type() == Uniform::Type::Sampler && !valueStr.isEmpty()) {
+            Utils::FilePath imagePath = Utils::FilePath::fromString(valueStr);
+            QString imageFilename = imagePath.fileName();
+            sources.append(imagePath);
+            dests.append(imageFilename);
+        }
+    }
+
+    for (int i = 0; i < sources.count(); ++i) {
+        Utils::FilePath source = sources[i];
+        Utils::FilePath target = nodePath.pathAppended(dests[i]);
+        newFileNames.insert(target.fileName());
+        if (target.exists() && source.fileName() != target.fileName())
+            target.removeFile(); // Remove existing file for update
+        if (!target.exists() && !source.copyFile(target))
+            return errorTag + Tr::tr("Failed to copy effect resource:\n%1").arg(source.fileName());
+    }
+
+    // Delete old content that was not overwritten
+    for (const Utils::FilePath &oldFile : std::as_const(oldFiles)) {
+        if (!newFileNames.contains(oldFile.fileName()))
+            oldFile.removeFile();
+    }
+
+    m_effectComposerNodesModel->loadCustomNodes();
+
+    QString action = update ? Tr::tr("updated in") : Tr::tr("added to");
+    return Tr::tr("Effect was %1 effect library.").arg(action);
+}
+
 QVariant EffectComposerModel::valueLimit(const QString &type, bool max) const
 {
     static const int intMin = std::numeric_limits<int>::lowest();
@@ -1619,7 +1711,7 @@ void EffectComposerModel::saveResources(const QString &name)
         newFileNames.insert(target.fileName());
         if (target.exists() && source.fileName() != target.fileName())
             target.removeFile(); // Remove existing file for update
-        if (!source.copyFile(target) && !target.exists())
+        if (!target.exists() && !source.copyFile(target))
             setEffectError(QString("Failed to copy file: %1").arg(source.toFSPathString()));
 
         if (fileNameToUniformHash.contains(dests[i])) {
@@ -2724,7 +2816,7 @@ QString EffectComposerModel::stripFileFromURL(const QString &urlString) const
 
 void EffectComposerModel::addOrUpdateNodeUniform(int idx, const QVariantMap &data, int updateIndex)
 {
-    QTC_ASSERT(m_nodes.size() > idx && idx >= 0, return);
+    QTC_ASSERT(isValidIndex(idx), return);
 
     // Convert values to Uniform digestible strings
     auto fixedData = data;
@@ -2753,6 +2845,11 @@ bool EffectComposerModel::writeToFile(
         return false;
     }
     return true;
+}
+
+bool EffectComposerModel::isValidIndex(int idx) const
+{
+    return m_nodes.size() > idx && idx >= 0;
 }
 
 } // namespace EffectComposer

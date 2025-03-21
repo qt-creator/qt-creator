@@ -78,8 +78,10 @@ StudioControls.ComboBox {
         flags: Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
 
         onActiveFocusItemChanged: {
-            if (!window.activeFocusItem && !root.hovered && root.popup.opened)
+            if (!window.activeFocusItem && !root.hovered && root.popup.opened) {
                 root.popup.close()
+                confirmRemoveForm.visible = false
+            }
         }
 
         Rectangle {
@@ -92,6 +94,7 @@ StudioControls.ComboBox {
             HelperWidgets.ScrollView {
                 anchors.fill: parent
                 anchors.margins: 1
+                enabled: !confirmRemoveForm.visible
 
                 Row {
                     id: row
@@ -118,9 +121,14 @@ StudioControls.ComboBox {
 
                                 EffectNode {
                                     onAddEffectNode: (nodeQenPath) => {
-                                        EffectComposerBackend.rootView.addEffectNode(modelData.nodeQenPath)
+                                        EffectComposerBackend.rootView.addEffectNode(nodeQenPath)
+                                        confirmRemoveForm.visible = false
                                         root.popup.close()
                                         root.nodeJustAdded = true
+                                    }
+                                    onRemoveEffectNodeFromLibrary: (nodeName) => {
+                                        confirmRemoveForm.visible = true
+                                        confirmRemoveForm.nodeName = nodeName
                                     }
                                 }
                             }
@@ -129,9 +137,35 @@ StudioControls.ComboBox {
                 }
             }
 
+            ConfirmForm {
+                id: confirmRemoveForm
+
+                property string nodeName
+
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+
+                width: 350
+                height: 110
+                visible: false
+                text: qsTr("The node removal from library cannot be undone.\nAre you sure you want to remove node:\n'%1'?")
+                        .arg(confirmRemoveForm.nodeName)
+                acceptButtonLabel: qsTr("Remove")
+
+                onAccepted: {
+                    EffectComposerBackend.rootView.removeEffectNodeFromLibrary(confirmRemoveForm.nodeName)
+                    confirmRemoveForm.visible = false
+                }
+
+                onCanceled: confirmRemoveForm.visible = false
+            }
+
+
             Keys.onPressed: function(event) {
-                if (event.key === Qt.Key_Escape && root.popup.opened)
+                if (event.key === Qt.Key_Escape && root.popup.opened) {
+                    confirmRemoveForm.visible = false
                     root.popup.close()
+                }
             }
         }
     }

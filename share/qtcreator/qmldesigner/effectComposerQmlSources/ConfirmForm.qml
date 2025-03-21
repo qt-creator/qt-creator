@@ -14,6 +14,10 @@ Rectangle {
     border.color: StudioTheme.Values.themeControlOutline
     color: StudioTheme.Values.themeSectionHeadBackground
 
+    property alias text: textLabel.text
+    property alias acceptButtonLabel: acceptButton.text
+    property alias cancelButtonLabel: cancelButton.text
+
     signal accepted()
     signal canceled()
 
@@ -29,13 +33,13 @@ Rectangle {
             width: parent.width
             height: 50
             Text {
+                id: textLabel
                 anchors.centerIn: parent
                 color: StudioTheme.Values.themeTextColor
                 font.bold: true
                 font.pixelSize: StudioTheme.Values.baseFontSize
                 horizontalAlignment: Text.AlignLeft
                 verticalAlignment: Text.AlignVCenter
-                text: qsTr("The property is in use in the shader code.\nAre you sure you want to remove it?")
             }
         }
 
@@ -64,7 +68,7 @@ Rectangle {
                 id: acceptButton
                 width: 80
                 height: 30
-                text: qsTr("Remove")
+                text: qsTr("Accept")
                 padding: 4
 
                 onClicked: {
