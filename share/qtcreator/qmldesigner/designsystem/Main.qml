@@ -345,6 +345,8 @@ Rectangle {
     }
 
     component Cell: Rectangle {
+        id: cell
+
         required property var display
         required property int row
         required property int column
@@ -356,9 +358,7 @@ Rectangle {
         required property bool isBinding
         required property var propertyValue
 
-        property bool creatingBinding: false
-
-        readonly property bool bindingEditor: isBinding || creatingBinding
+        readonly property bool bindingEditor: cell.isBinding || tableView.model.editableOverride
 
         color: root.backgroundColor
         implicitWidth: root.cellWidth
@@ -425,11 +425,12 @@ Rectangle {
                     horizontalAlignment: TextInput.AlignLeft
                     verticalAlignment: TextInput.AlignVCenter
 
-                    text: stringDelegate.bindingEditor ? stringDelegate.propertyValue
-                                                       : stringDelegate.resolvedValue
+                    text: stringDelegate.isBinding ? stringDelegate.propertyValue
+                                                   : tableView.model.editableOverride ? ""
+                                                                                      : stringDelegate.resolvedValue
 
                     Component.onCompleted: stringEditDelegate.selectAll()
-                    Component.onDestruction: stringDelegate.creatingBinding = false
+                    Component.onDestruction: tableView.model.editableOverride = false
 
                     TableView.onCommit: {
                         root.setValue(stringEditDelegate.text,
@@ -438,8 +439,6 @@ Rectangle {
                                       stringDelegate.bindingEditor)
                     }
                 }
-
-                //Component.onCompleted: console.log("DelegateChoice - string", stringDelegate.resolvedValue)
             }
         }
 
@@ -521,13 +520,13 @@ Rectangle {
                         horizontalAlignment: TextInput.AlignLeft
                         verticalAlignment: TextInput.AlignVCenter
 
-                        text: numberDelegate.propertyValue
+                        text: numberDelegate.isBinding ? numberDelegate.propertyValue : ""
 
                         focus: numberDelegate.bindingEditor
                         visible: numberDelegate.bindingEditor
 
                         Component.onCompleted: numberBindingEditDelegate.selectAll()
-                        Component.onDestruction: numberDelegate.creatingBinding = false
+                        Component.onDestruction: tableView.model.editableOverride = false
                     }
 
                     TableView.onCommit: {
@@ -551,8 +550,6 @@ Rectangle {
                         numberEditDelegateFocusScope.alreadyCommited = true
                     }
                 }
-
-                //Component.onCompleted: console.log("DelegateChoice - number", numberDelegate.resolvedValue)
             }
         }
 
@@ -611,10 +608,12 @@ Rectangle {
                     horizontalAlignment: TextInput.AlignLeft
                     verticalAlignment: TextInput.AlignVCenter
 
-                    text: flagDelegate.bindingEditor ? flagDelegate.propertyValue
-                                                     : flagDelegate.resolvedValue
+                    text: flagDelegate.isBinding ? flagDelegate.propertyValue
+                                                 : tableView.model.editableOverride ? ""
+                                                                                    : flagDelegate.resolvedValue
+
                     Component.onCompleted: flagBindingEditDelegate.selectAll()
-                    Component.onDestruction: flagDelegate.creatingBinding = false
+                    Component.onDestruction: tableView.model.editableOverride = false
 
                     TableView.onCommit: {
                         root.setValue(flagBindingEditDelegate.text,
@@ -623,8 +622,6 @@ Rectangle {
                                       true)
                     }
                 }
-
-                //Component.onCompleted: console.log("DelegateChoice - bool", flagDelegate.resolvedValue)
             }
         }
 
@@ -709,8 +706,9 @@ Rectangle {
                     horizontalAlignment: TextInput.AlignLeft
                     verticalAlignment: TextInput.AlignVCenter
 
-                    text: colorDelegate.bindingEditor ? colorDelegate.propertyValue
-                                                      : colorDelegate.resolvedValue
+                    text: colorDelegate.isBinding ? colorDelegate.propertyValue
+                                                  : tableView.model.editableOverride ? ""
+                                                                                    : colorDelegate.resolvedValue
 
                     RegularExpressionValidator {
                         id: hexValidator
@@ -720,7 +718,7 @@ Rectangle {
                     validator: colorDelegate.bindingEditor ? null : hexValidator
 
                     Component.onCompleted: colorEditDelegate.selectAll()
-                    Component.onDestruction: colorDelegate.creatingBinding = false
+                    Component.onDestruction: tableView.model.editableOverride = false
 
                     TableView.onCommit: {
                         root.setValue(colorEditDelegate.text,
@@ -758,8 +756,6 @@ Rectangle {
                         }
                     }
                 }
-
-                //Component.onCompleted: console.log("DelegateChoice - color", colorDelegate.resolvedValue)
             }
         }
     }
@@ -795,7 +791,7 @@ Rectangle {
             text: qsTr("Set Binding")
             onTriggered: {
                 let cell = tableView.itemAtIndex(menu.modelIndex)
-                cell.creatingBinding = true
+                tableView.model.editableOverride = true
                 tableView.edit(menu.modelIndex)
             }
         }
