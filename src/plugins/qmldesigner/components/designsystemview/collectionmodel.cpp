@@ -124,7 +124,7 @@ Qt::ItemFlags CollectionModel::flags(const QModelIndex &index) const
 {
     // If group type is FLAGS and not binding block editable
     if (data(index, Roles::GroupRole).value<GroupType>() == GroupType::Flags
-        && !data(index, Roles::BindingRole).toBool())
+        && !data(index, Roles::BindingRole).toBool() && !m_editableOverride)
         return QAbstractItemModel::flags(index);
 
     return Qt::ItemIsEditable | QAbstractItemModel::flags(index);
@@ -280,6 +280,20 @@ bool CollectionModel::setHeaderData(int section,
     }
 
     return success;
+}
+
+bool CollectionModel::editableOverride() const
+{
+    return m_editableOverride;
+}
+
+void CollectionModel::setEditableOverride(bool value)
+{
+    if (value == m_editableOverride)
+        return;
+
+    m_editableOverride = value;
+    emit editableOverrideChanged();
 }
 
 ThemeId CollectionModel::findThemeId(int column) const

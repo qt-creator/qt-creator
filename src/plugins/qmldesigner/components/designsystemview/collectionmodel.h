@@ -29,6 +29,8 @@ public:
     Q_ENUM(Roles)
 
     Q_PROPERTY(QStringList themeNames READ themeNameList NOTIFY themeNameChanged FINAL)
+    Q_PROPERTY(bool editableOverride READ editableOverride WRITE setEditableOverride NOTIFY
+                   editableOverrideChanged FINAL)
 
     CollectionModel(DSThemeManager *collection, DSStore *store);
 
@@ -66,8 +68,12 @@ public:
                                    const QVariant &value,
                                    int role = Qt::EditRole) override;
 
+    bool editableOverride() const;
+    void setEditableOverride(bool value);
+
 signals:
     void themeNameChanged();
+    void editableOverrideChanged();
 
 private:
     ThemeId findThemeId(int column) const;
@@ -85,5 +91,7 @@ private:
     std::vector<PropInfo> m_propertyInfoList;
 
     QTimer m_saveCompressionTimer;
+
+    bool m_editableOverride = false;
 };
 } // namespace QmlDesigner
