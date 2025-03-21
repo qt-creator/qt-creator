@@ -18,6 +18,8 @@
 
 #include <remotelinux/remotelinux_constants.h>
 
+#include <solutions/tasking/barrier.h>
+
 #include <utils/qtcprocess.h>
 
 #include <QAction>
@@ -25,72 +27,69 @@
 #include <QTcpServer>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace PerfProfiler::Internal {
 
-class PerfParserWorker final : public RunWorker
+static Group perfParserRecipe(RunControl *runControl)
 {
-public:
-    explicit PerfParserWorker(RunControl *runControl)
-        : RunWorker(runControl)
-    {
-        setId("PerfParser");
+    const Storage<PerfDataReader> storage;
 
+    const auto onSetup = [storage, runControl](Barrier &barrier) {
+        PerfDataReader *reader = storage.activeStorage();
         auto tool = PerfProfilerTool::instance();
-        m_reader.setTraceManager(&traceManager());
-        m_reader.triggerRecordingStateChange(tool->isRecording());
 
-        connect(tool, &PerfProfilerTool::recordingChanged,
-                &m_reader, &PerfDataReader::triggerRecordingStateChange);
+        reader->setTraceManager(&traceManager());
+        reader->triggerRecordingStateChange(tool->isRecording());
 
-        connect(&m_reader, &PerfDataReader::updateTimestamps,
-                tool, &PerfProfilerTool::updateTime);
-        connect(&m_reader, &PerfDataReader::starting,
-                tool, &PerfProfilerTool::startLoading);
-        connect(&m_reader, &PerfDataReader::started, tool, &PerfProfilerTool::onReaderStarted);
-        connect(&m_reader, &PerfDataReader::finishing, this, [tool] {
+        QObject::connect(tool, &PerfProfilerTool::recordingChanged,
+                reader, &PerfDataReader::triggerRecordingStateChange);
+
+        QObject::connect(reader, &PerfDataReader::updateTimestamps, tool, &PerfProfilerTool::updateTime);
+        QObject::connect(reader, &PerfDataReader::starting, tool, &PerfProfilerTool::startLoading);
+        QObject::connect(reader, &PerfDataReader::started, tool, &PerfProfilerTool::onReaderStarted);
+        QObject::connect(reader, &PerfDataReader::finishing, tool, [tool] {
             // Temporarily disable buttons.
             tool->setToolActionsEnabled(false);
         });
-        connect(&m_reader, &PerfDataReader::finished, tool, &PerfProfilerTool::onReaderFinished);
+        QObject::connect(reader, &PerfDataReader::finished, tool, &PerfProfilerTool::onReaderFinished);
 
-        connect(&m_reader, &PerfDataReader::processStarted, this, &RunWorker::reportStarted);
-        connect(&m_reader, &PerfDataReader::processFinished, this, &RunWorker::reportStopped);
-        connect(&m_reader, &PerfDataReader::processFailed, this, &RunWorker::reportFailure);
+        RunInterface *iface = runStorage().activeStorage();
+        QObject::connect(reader, &PerfDataReader::processStarted, iface, &RunInterface::started);
+        QObject::connect(reader, &PerfDataReader::processFinished, &barrier, &Barrier::advance);
+        QObject::connect(reader, &PerfDataReader::processFailed, &barrier, [barrier = &barrier] {
+            barrier->stopWithResult(DoneResult::Error);
+        });
 
-        connect(runControl, &RunControl::stdOutData, this, [this, runControl](const QByteArray &data) {
-            if (m_reader.feedParser(data))
+        QObject::connect(runControl, &RunControl::stdOutData, &barrier,
+                         [reader, runControl, barrier = &barrier](const QByteArray &data) {
+            if (reader->feedParser(data))
                 return;
-
             runControl->postMessage(Tr::tr("Failed to transfer Perf data to perfparser."),
                                     ErrorMessageFormat);
-            initiateStop();
+            barrier->stopWithResult(DoneResult::Error);
         });
-    }
 
-    void start() final
-    {
+        QObject::connect(iface, &RunInterface::canceled, reader, &PerfDataReader::stopParser);
+
         CommandLine cmd{findPerfParser()};
-        m_reader.addTargetArguments(&cmd, runControl());
-        if (runControl()->usesPerfChannel()) { // The channel is only used with qdb currently.
-            const QUrl url = runControl()->perfChannel();
+        reader->addTargetArguments(&cmd, runControl);
+        if (runControl->usesPerfChannel()) { // The channel is only used with qdb currently.
+            const QUrl url = runControl->perfChannel();
             QTC_CHECK(url.isValid());
             cmd.addArgs({"--host", url.host(), "--port", QString::number(url.port())});
         }
-        runControl()->postMessage("PerfParser args: " + cmd.arguments(), NormalMessageFormat);
-        m_reader.createParser(cmd);
-        m_reader.startParser();
-    }
+        runControl->postMessage("PerfParser args: " + cmd.arguments(), NormalMessageFormat);
+        reader->createParser(cmd);
+        reader->startParser();
+    };
 
-    void stop() final
-    {
-        m_reader.stopParser();
-    }
-
-private:
-    PerfDataReader m_reader;
-};
+    return {
+        storage,
+        BarrierTask(onSetup)
+    };
+}
 
 // Factories
 
@@ -132,7 +131,7 @@ public:
     PerfProfilerRunWorkerFactory()
     {
         setProducer([](RunControl *runControl) -> RunWorker * {
-            PerfParserWorker *perfParserWorker = new PerfParserWorker(runControl);
+            RecipeRunner *perfParserWorker = new RecipeRunner(runControl, perfParserRecipe(runControl));
 
             // There are currently two RunWorkerFactories reacting to that:
             // PerfRecordRunnerFactory above for the generic case and

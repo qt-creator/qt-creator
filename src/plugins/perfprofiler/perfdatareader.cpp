@@ -47,7 +47,6 @@ PerfDataReader::PerfDataReader(QObject *parent) :
     m_lastRemoteTimestamp(0)
 {
     connect(&m_input, &QProcess::finished, this, [this](int exitCode) {
-        emit processFinished();
         // process any remaining input before signaling finished()
         readFromDevice();
         if (m_recording || future().isRunning()) {
@@ -61,6 +60,7 @@ PerfDataReader::PerfDataReader(QObject *parent) :
                                         "Your trace is incomplete. The exit code was %1.")
                                  .arg(exitCode));
         }
+        emit processFinished();
     });
 
     connect(&m_input, &QIODevice::bytesWritten, this, &PerfDataReader::writeChunk);
