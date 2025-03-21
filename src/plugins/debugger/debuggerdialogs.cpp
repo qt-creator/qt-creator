@@ -412,7 +412,7 @@ void StartApplicationDialog::run(bool attachRemote)
     if (!inputAddress.isEmpty())
         rp.setRemoteChannel(inputAddress);
     else
-        rp.setRemoteChannel(dev->sshParameters().host(), newParameters.serverPort);
+        rp.setRemoteChannel(dev->sshParameters().host() + ':' + QString::number(newParameters.serverPort));
     rp.setDisplayName(newParameters.displayName());
     rp.setBreakOnMain(newParameters.breakAtMain);
     rp.setDebugInfoLocation(newParameters.debugInfoLocation);
@@ -578,7 +578,7 @@ void runAttachToQmlPortDialog()
     rp.setQmlServer(qmlServer);
 
     const SshParameters sshParameters = device->sshParameters();
-    rp.setRemoteChannel(sshParameters.host(), sshParameters.port());
+    rp.setRemoteChannel(sshParameters.host() + ':' + QString::number(sshParameters.port()));
     rp.setStartMode(AttachToQmlServer);
 
     runControl->start();

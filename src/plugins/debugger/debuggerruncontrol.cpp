@@ -249,7 +249,7 @@ ExecutableItem DebuggerRunToolPrivate::fixupParamsRecipe()
         TaskHub::clearTasks(Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
         if (q->runControl()->usesDebugChannel())
-            m_runParameters.setRemoteChannel(q->runControl()->debugChannel());
+            m_runParameters.setRemoteChannel(q->runControl()->debugChannel().toString());
 
         if (q->runControl()->usesQmlChannel()) {
             m_runParameters.setQmlServer(q->runControl()->qmlChannel());

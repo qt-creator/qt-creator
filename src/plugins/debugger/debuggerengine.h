@@ -110,12 +110,6 @@ public:
     void setQmlDebugging(bool on) { m_isQmlDebugging = on; }
 
     void setRemoteChannel(const QString &channel) { m_remoteChannel = channel; }
-    void setRemoteChannel(const QUrl &url) {
-        m_remoteChannel = url.toString();
-    }
-    void setRemoteChannel(const QString &host, int port) {
-        m_remoteChannel = QString("%1:%2").arg(host).arg(port);
-    }
     QString remoteChannel() const { return m_remoteChannel; }
 
     void setUseExtendedRemote(bool on) { m_useExtendedRemote = on; }
