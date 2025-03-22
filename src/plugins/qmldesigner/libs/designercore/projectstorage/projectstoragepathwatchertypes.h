@@ -40,11 +40,15 @@ public:
     ProjectPartId id;
     SourceType sourceType;
 
-    auto operator<=>(const ProjectChunkId &) const = default;
+    auto operator==(const ProjectChunkId &other) const
+    {
+        return std::tie(id, sourceType) == std::tie(other.id, other.sourceType);
+    }
 
-    friend bool operator<(ProjectChunkId first, ProjectPartId second) { return first.id < second; }
-
-    friend bool operator<(ProjectPartId first, ProjectChunkId second) { return first < second.id; }
+    auto operator<=>(const ProjectChunkId &other) const
+    {
+        return std::tie(id, sourceType) <=> std::tie(other.id, other.sourceType);
+    }
 
     template<typename String>
     friend void convertToString(String &string, const ProjectChunkId &id)
@@ -110,16 +114,6 @@ public:
     {
         return std::tie(first.sourceContextId, first.sourceId, first.id)
                <=> std::tie(second.sourceContextId, second.sourceId, second.id);
-    }
-
-    friend auto operator<=>(SourceContextId sourceContextId, WatcherEntry entry)
-    {
-        return sourceContextId <=> entry.sourceContextId;
-    }
-
-    friend auto operator<=>(WatcherEntry entry, SourceContextId sourceContextId)
-    {
-        return entry.sourceContextId <=> sourceContextId;
     }
 
     operator SourceId() const { return sourceId; }

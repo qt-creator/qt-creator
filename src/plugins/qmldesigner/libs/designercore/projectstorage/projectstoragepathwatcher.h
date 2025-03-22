@@ -13,26 +13,11 @@
 #include <sourcepathstorage/storagecache.h>
 
 #include <utils/algorithm.h>
+#include <utils/set_algorithm.h>
 
 #include <QTimer>
 
 namespace QmlDesigner {
-
-template<class InputIt1, class InputIt2, class Callable>
-void set_greedy_intersection_call(
-    InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2, Callable callable)
-{
-    while (first1 != last1 && first2 != last2) {
-        if (*first1 < *first2) {
-            ++first1;
-        } else {
-            if (*first2 < *first1)
-                ++first2;
-            else
-                callable(*first1++);
-        }
-    }
-}
 
 template<typename FileSystemWatcher, typename Timer, class SourcePathCache>
 class ProjectStoragePathWatcher : public ProjectStoragePathWatcherInterface,
@@ -63,7 +48,7 @@ public:
         addEntries(entires);
 
         auto notContainsdId = [&, &ids = ids](WatcherEntry entry) {
-            return !std::binary_search(ids.begin(), ids.end(), entry.id);
+            return !std::ranges::binary_search(ids, entry.id);
         };
         removeUnusedEntries(entires, notContainsdId);
     }
@@ -76,10 +61,8 @@ public:
         addEntries(entires);
 
         auto notContainsId = [&, &ids = ids](WatcherEntry entry) {
-            return !std::binary_search(ids.begin(), ids.end(), entry.id)
-                   || !std::binary_search(sourceContextIds.begin(),
-                                          sourceContextIds.end(),
-                                          entry.sourceContextId);
+            return !std::ranges::binary_search(ids, entry.id)
+                   || !std::ranges::binary_search(sourceContextIds, entry.sourceContextId);
         };
 
         removeUnusedEntries(entires, notContainsId);
@@ -126,28 +109,22 @@ public:
         ProjectChunkIds ids;
         ids.reserve(ids.size());
 
-        auto outputIterator = std::back_inserter(entries);
-
         for (const IdPaths &idPath : idPaths)
         {
             ProjectChunkId id = idPath.id;
 
             ids.push_back(id);
 
-            outputIterator = std::transform(idPath.sourceIds.begin(),
-                                            idPath.sourceIds.end(),
-                                            outputIterator,
-                                            [&](SourceId sourceId) {
-                                                return WatcherEntry{id,
-                                                                    sourceId.contextId(),
-                                                                    sourceId,
-                                                                    m_fileStatusCache.lastModifiedTime(
-                                                                        sourceId)};
-                                            });
+            std::ranges::transform(idPath.sourceIds, std::back_inserter(entries), [&](SourceId sourceId) {
+                return WatcherEntry{id,
+                                    sourceId.contextId(),
+                                    sourceId,
+                                    m_fileStatusCache.lastModifiedTime(sourceId)};
+            });
         }
 
-        std::sort(entries.begin(), entries.end());
-        std::sort(ids.begin(), ids.end());
+        std::ranges::sort(entries);
+        std::ranges::sort(ids);
 
         return {entries, ids};
     }
@@ -191,9 +168,9 @@ public:
         SourceContextIds sourceContextIds = Utils::transform<SourceContextIds>(
             watcherEntries, &WatcherEntry::sourceContextId);
 
-        std::sort(sourceContextIds.begin(), sourceContextIds.end());
-        sourceContextIds.erase(std::unique(sourceContextIds.begin(), sourceContextIds.end()),
-                               sourceContextIds.end());
+        std::ranges::sort(sourceContextIds);
+        auto removed = std::ranges::unique(sourceContextIds);
+        sourceContextIds.erase(removed.begin(), removed.end());
 
         return convertWatcherEntriesToDirectoryPathList(sourceContextIds);
     }
@@ -203,11 +180,7 @@ public:
         WatcherEntries notWatchedEntries;
         notWatchedEntries.reserve(entries.size());
 
-        std::set_difference(entries.begin(),
-                            entries.end(),
-                            m_watchedEntries.cbegin(),
-                            m_watchedEntries.cend(),
-                            std::back_inserter(notWatchedEntries));
+        std::ranges::set_difference(entries, m_watchedEntries, std::back_inserter(notWatchedEntries));
 
         return notWatchedEntries;
     }
@@ -217,11 +190,7 @@ public:
         SourceContextIds notWatchedDirectoryIds;
         notWatchedDirectoryIds.reserve(ids.size());
 
-        std::set_difference(ids.begin(),
-                            ids.end(),
-                            m_watchedEntries.cbegin(),
-                            m_watchedEntries.cend(),
-                            std::back_inserter(notWatchedDirectoryIds));
+        std::ranges::set_difference(ids, m_watchedEntries, std::back_inserter(notWatchedDirectoryIds));
 
         return notWatchedDirectoryIds;
     }
@@ -232,12 +201,10 @@ public:
         WatcherEntries notAnymoreWatchedEntries;
         notAnymoreWatchedEntries.reserve(m_watchedEntries.size());
 
-        std::set_difference(m_watchedEntries.cbegin(),
-                            m_watchedEntries.cend(),
-                            newEntries.begin(),
-                            newEntries.end(),
-                            std::back_inserter(notAnymoreWatchedEntries),
-                            compare);
+        std::ranges::set_difference(m_watchedEntries,
+                                    newEntries,
+                                    std::back_inserter(notAnymoreWatchedEntries),
+                                    compare);
 
         return notAnymoreWatchedEntries;
     }
@@ -245,11 +212,9 @@ public:
     template<typename Filter>
     WatcherEntries notAnymoreWatchedEntriesWithIds(const WatcherEntries &newEntries, Filter filter) const
     {
-        auto oldEntries = notAnymoreWatchedEntries(newEntries, std::less<WatcherEntry>());
+        auto oldEntries = notAnymoreWatchedEntries(newEntries, std::ranges::less{});
 
-        auto newEnd = std::remove_if(oldEntries.begin(), oldEntries.end(), filter);
-
-        oldEntries.erase(newEnd, oldEntries.end());
+        std::erase_if(oldEntries, filter);
 
         return oldEntries;
     }
@@ -259,11 +224,7 @@ public:
         WatcherEntries newWatchedEntries;
         newWatchedEntries.reserve(m_watchedEntries.size() + newEntries.size());
 
-        std::merge(m_watchedEntries.cbegin(),
-                   m_watchedEntries.cend(),
-                   newEntries.begin(),
-                   newEntries.end(),
-                   std::back_inserter(newWatchedEntries));
+        std::ranges::merge(m_watchedEntries, newEntries, std::back_inserter(newWatchedEntries));
 
         m_watchedEntries = std::move(newWatchedEntries);
     }
@@ -273,14 +234,10 @@ public:
         SourceContextIds uniqueDirectoryIds;
         uniqueDirectoryIds.reserve(pathEntries.size());
 
-        auto compare = [](WatcherEntry first, WatcherEntry second) {
-            return first.sourceContextId == second.sourceContextId;
-        };
-
-        std::unique_copy(pathEntries.begin(),
-                         pathEntries.end(),
-                         std::back_inserter(uniqueDirectoryIds),
-                         compare);
+        std::ranges::unique_copy(pathEntries,
+                                 std::back_inserter(uniqueDirectoryIds),
+                                 {},
+                                 &WatcherEntry::sourceContextId);
 
         return uniqueDirectoryIds;
     }
@@ -294,15 +251,13 @@ public:
 
     WatcherEntries removeIdsFromWatchedEntries(const ProjectPartIds &ids)
     {
-        auto keep = [&](WatcherEntry entry) {
-            return !std::binary_search(ids.begin(), ids.end(), entry.id);
-        };
+        auto keep = [&](WatcherEntry entry) { return !std::ranges::binary_search(ids, entry.id.id); };
 
-        auto found = std::stable_partition(m_watchedEntries.begin(), m_watchedEntries.end(), keep);
+        auto removed = std::ranges::stable_partition(m_watchedEntries, keep);
 
-        WatcherEntries removedEntries(found, m_watchedEntries.end());
+        WatcherEntries removedEntries(removed.begin(), removed.end());
 
-        m_watchedEntries.erase(found, m_watchedEntries.end());
+        m_watchedEntries.erase(removed.begin(), removed.end());
 
         return removedEntries;
     }
@@ -312,11 +267,9 @@ public:
         WatcherEntries newWatchedEntries;
         newWatchedEntries.reserve(m_watchedEntries.size() - oldEntries.size());
 
-        std::set_difference(m_watchedEntries.cbegin(),
-                            m_watchedEntries.cend(),
-                            oldEntries.begin(),
-                            oldEntries.end(),
-                            std::back_inserter(newWatchedEntries));
+        std::ranges::set_difference(m_watchedEntries,
+                                    oldEntries,
+                                    std::back_inserter(newWatchedEntries));
 
         m_watchedEntries = std::move(newWatchedEntries);
     }
@@ -332,19 +285,19 @@ public:
         WatcherEntries foundEntries;
         foundEntries.reserve(m_watchedEntries.size());
 
-        set_greedy_intersection_call(m_watchedEntries.begin(),
-                                     m_watchedEntries.end(),
-                                     sourceContextIds.begin(),
-                                     sourceContextIds.end(),
-                                     [&](WatcherEntry &entry) {
-                                         m_fileStatusCache.update(entry.sourceId);
-                                         auto currentLastModified = m_fileStatusCache.lastModifiedTime(
-                                             entry.sourceId);
-                                         if (entry.lastModified < currentLastModified) {
-                                             foundEntries.push_back(entry);
-                                             entry.lastModified = currentLastModified;
-                                         }
-                                     });
+        Utils::set_greedy_intersection(
+            m_watchedEntries,
+            sourceContextIds,
+            [&](WatcherEntry &entry) {
+                m_fileStatusCache.update(entry.sourceId);
+                auto currentLastModified = m_fileStatusCache.lastModifiedTime(entry.sourceId);
+                if (entry.lastModified < currentLastModified) {
+                    foundEntries.push_back(entry);
+                    entry.lastModified = currentLastModified;
+                }
+            },
+            {},
+            &WatcherEntry::sourceContextId);
 
         return foundEntries;
     }
@@ -353,26 +306,31 @@ public:
     {
         auto sourceIds = Utils::transform<SourceIds>(entries, &WatcherEntry::sourceId);
 
-        std::sort(sourceIds.begin(), sourceIds.end());
-
-        sourceIds.erase(std::unique(sourceIds.begin(), sourceIds.end()), sourceIds.end());
+        std::ranges::sort(sourceIds);
+        auto removed = std::ranges::unique(sourceIds);
+        sourceIds.erase(removed.begin(), removed.end());
 
         return sourceIds;
     }
 
     std::vector<IdPaths> idPathsForWatcherEntries(WatcherEntries &&foundEntries)
     {
-        std::sort(foundEntries.begin(), foundEntries.end(), [](WatcherEntry first, WatcherEntry second) {
-            return std::tie(first.id, first.sourceId) < std::tie(second.id, second.sourceId);
+        std::ranges::sort(foundEntries, {}, [](const WatcherEntry &entry) {
+            return std::tie(entry.id, entry.sourceId);
         });
 
         std::vector<IdPaths> idPaths;
         idPaths.reserve(foundEntries.size());
 
-        for (WatcherEntry entry : foundEntries) {
-            if (idPaths.empty() || idPaths.back().id != entry.id)
-                idPaths.emplace_back(entry.id, SourceIds{});
-            idPaths.back().sourceIds.push_back(entry.sourceId);
+        if (foundEntries.size()) {
+            idPaths.emplace_back(foundEntries.front().id, SourceIds{});
+
+            for (WatcherEntry entry : foundEntries) {
+                if (idPaths.back().id != entry.id)
+                    idPaths.emplace_back(entry.id, SourceIds{});
+
+                idPaths.back().sourceIds.push_back(entry.sourceId);
+            }
         }
 
         return idPaths;

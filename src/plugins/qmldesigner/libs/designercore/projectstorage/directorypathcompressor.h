@@ -24,9 +24,7 @@ public:
 
     void addSourceContextId(SourceContextId sourceContextId)
     {
-        auto found = std::lower_bound(m_sourceContextIds.begin(),
-                                      m_sourceContextIds.end(),
-                                      sourceContextId);
+        auto found = std::ranges::lower_bound(m_sourceContextIds, sourceContextId);
 
         if (found == m_sourceContextIds.end() || *found != sourceContextId)
             m_sourceContextIds.insert(found, sourceContextId);
