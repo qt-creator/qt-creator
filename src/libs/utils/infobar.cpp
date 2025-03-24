@@ -4,6 +4,7 @@
 #include "infobar.h"
 
 #include "algorithm.h"
+#include "infolabel.h"
 #include "qtcassert.h"
 #include "qtcsettings.h"
 #include "utilsicons.h"
@@ -26,33 +27,96 @@ QtcSettings *InfoBar::m_settings = nullptr;
 class InfoBarWidget : public QWidget
 {
 public:
-    InfoBarWidget(Qt::Edge edge, QWidget *parent = nullptr);
+    InfoBarWidget(Qt::Edge edge, InfoLabel::InfoType infoType = InfoLabel::None,
+                  QWidget *parent = nullptr);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
 
 private:
+    QColor backgroundColor() const;
+    const Utils::Icon &icon() const;
+
     const Qt::Edge m_edge;
+    const InfoLabel::InfoType m_infoType;
 };
 
-InfoBarWidget::InfoBarWidget(Qt::Edge edge, QWidget *parent)
+InfoBarWidget::InfoBarWidget(Qt::Edge edge, InfoLabel::InfoType infoType, QWidget *parent)
     : QWidget(parent)
     , m_edge(edge)
+    , m_infoType(infoType)
 {
     const bool topEdge = m_edge == Qt::TopEdge;
-    setContentsMargins(2, topEdge ? 0 : 1, 0, topEdge ? 1 : 0);
+    const int leftMargin = m_infoType == InfoLabel::None ? 2 : 26;
+    setContentsMargins(leftMargin, topEdge ? 0 : 1, 0, topEdge ? 1 : 0);
 }
 
 void InfoBarWidget::paintEvent(QPaintEvent *event)
 {
     QWidget::paintEvent(event);
     QPainter p(this);
-    p.fillRect(rect(), creatorColor(Theme::InfoBarBackground));
+    p.fillRect(rect(), backgroundColor());
+    if (m_infoType != InfoLabel::None) {
+        const QPixmap pixmap = icon().pixmap();
+        const int iconY = (height() - pixmap.deviceIndependentSize().height()) / 2;
+        p.drawPixmap(2, iconY, pixmap);
+    }
     const QRectF adjustedRect = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
     const bool topEdge = m_edge == Qt::TopEdge;
     p.setPen(creatorColor(Theme::FancyToolBarSeparatorColor));
     p.drawLine(QLineF(topEdge ? adjustedRect.bottomLeft() : adjustedRect.topLeft(),
                       topEdge ? adjustedRect.bottomRight() : adjustedRect.topRight()));
+}
+
+QColor InfoBarWidget::backgroundColor() const
+{
+    Theme::Color color = Theme::InfoBarBackground;
+    switch (m_infoType) {
+    case InfoLabel::Information:
+        color = Theme::Token_Notification_Neutral_Subtle; break;
+    case InfoLabel::Warning:
+        color = Theme::Token_Notification_Alert_Subtle; break;
+    case InfoLabel::Error:
+    case InfoLabel::NotOk:
+        color = Theme::Token_Notification_Danger_Subtle; break;
+    case InfoLabel::Ok:
+        color = Theme::Token_Notification_Success_Subtle; break;
+    default:
+        color = Theme::InfoBarBackground; break;
+    }
+    return creatorColor(color);
+}
+
+const Icon &InfoBarWidget::icon() const
+{
+    switch (m_infoType) {
+    case InfoLabel::Information: {
+        const static Utils::Icon icon(
+            {{":/utils/images/infolarge.png", Theme::Token_Notification_Neutral_Default}},
+            Icon::Tint);
+        return icon;
+    }
+    case InfoLabel::Warning: {
+        const static Utils::Icon icon(
+            {{":/utils/images/warninglarge.png", Theme::Token_Notification_Alert_Default}},
+            Icon::Tint);
+        return icon;
+    }
+    case InfoLabel::Error:
+    case InfoLabel::NotOk:  {
+        const static Utils::Icon icon(
+            {{":/utils/images/errorlarge.png", Theme::Token_Notification_Danger_Default}},
+            Icon::Tint);
+        return icon;
+    }
+    case InfoLabel::Ok:
+    default: {
+        const static Utils::Icon icon(
+            {{":/utils/images/oklarge.png", Theme::Token_Notification_Success_Default}},
+            Icon::Tint);
+        return icon;
+    }
+    }
 }
 
 InfoBarEntry::InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppression _globalSuppression)
@@ -124,6 +188,11 @@ void InfoBarEntry::removeCancelButton()
 void InfoBarEntry::setDetailsWidgetCreator(const InfoBarEntry::DetailsWidgetCreator &creator)
 {
     m_detailsWidgetCreator = creator;
+}
+
+void InfoBarEntry::setInfoType(InfoLabel::InfoType infoType)
+{
+    m_infoType = infoType;
 }
 
 void InfoBar::addInfo(const InfoBarEntry &info)
@@ -287,7 +356,7 @@ void InfoBarDisplay::update()
         return;
 
     for (const InfoBarEntry &info : std::as_const(m_infoBar->m_infoBarEntries)) {
-        auto infoWidget = new InfoBarWidget(m_edge);
+        auto infoWidget = new InfoBarWidget(m_edge, info.m_infoType);
 
         auto hbox = new QHBoxLayout;
         hbox->setContentsMargins(2, 2, 2, 2);

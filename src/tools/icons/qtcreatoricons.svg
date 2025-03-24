@@ -3792,6 +3792,87 @@
            sodipodi:nodetypes="czc" />
       </g>
     </g>
+    <g
+       id="src/libs/utils/images/warninglarge">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_24"
+         id="use82"
+         transform="translate(2243,148)" />
+      <path
+         id="path91"
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round"
+         d="m 2231,577 v 0 m 0,-8 v 4 m -2,-8.5 c 1,-2 3,-2 4,0 l 6.5,13 c 1,1.5 0.5,3.5 -1.5,3.5 h -14 c -2,0 -2.5,-2 -1.5,-3.5 z" />
+    </g>
+    <g
+       id="src/libs/utils/images/infolarge">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_24"
+         id="use119"
+         transform="translate(2268,148)" />
+      <path
+         id="path119"
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round"
+         d="m 2256,568 v 0 m 0,8 v -4" />
+      <circle
+         style="fill:none;stroke:#000000;stroke-width:2"
+         id="path121"
+         cx="2256"
+         cy="572"
+         r="9" />
+    </g>
+    <g
+       id="src/libs/utils/images/errorlarge">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_24"
+         id="use121"
+         transform="translate(2293,148)" />
+      <path
+         id="path122"
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round"
+         d="m 2281,576 v 0 m 0,-8 v 4" />
+      <path
+         sodipodi:type="star"
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-linejoin:round"
+         id="path123"
+         inkscape:flatsided="true"
+         sodipodi:sides="8"
+         sodipodi:cx="2256"
+         sodipodi:cy="572"
+         sodipodi:r1="9.7430086"
+         sodipodi:r2="8.9215384"
+         sodipodi:arg1="1.177731"
+         sodipodi:arg2="1.5704301"
+         inkscape:rounded="0"
+         inkscape:randomized="0"
+         d="m 2259.7318,581 -7.457,0.003 -5.2748,-5.27095 -0,-7.45697 5.2709,-5.27481 7.457,-0.003 5.2748,5.27095 0,7.45697 z"
+         transform="translate(25)" />
+    </g>
+    <g
+       id="src/libs/utils/images/oklarge">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_24"
+         id="use123"
+         transform="translate(2318,148)" />
+      <circle
+         style="fill:none;stroke:#000000;stroke-width:2"
+         id="circle124"
+         cx="2306"
+         cy="572"
+         r="9" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+         d="m 2302,572 3,3 5,-6"
+         id="path124"
+         sodipodi:nodetypes="ccc" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"

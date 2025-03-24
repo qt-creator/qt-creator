@@ -6,6 +6,7 @@
 #include "utils_global.h"
 
 #include "id.h"
+#include "infolabel.h"
 #include "qtcsettings.h"
 
 #include <QObject>
@@ -57,6 +58,8 @@ public:
     using DetailsWidgetCreator = std::function<QWidget*()>;
     void setDetailsWidgetCreator(const DetailsWidgetCreator &creator);
 
+    void setInfoType(InfoLabel::InfoType infoType);
+
 private:
     struct Button
     {
@@ -75,6 +78,7 @@ private:
 
     Id m_id;
     QString m_infoText;
+    InfoLabel::InfoType m_infoType = InfoLabel::None;
     QList<Button> m_buttons;
     QString m_cancelButtonText;
     CallBack m_cancelButtonCallBack;
