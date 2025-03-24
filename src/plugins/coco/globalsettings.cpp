@@ -22,8 +22,6 @@ using namespace Utils;
 
 namespace Coco::Internal {
 
-static const char DIRECTORY[] = "CocoDirectory";
-
 CocoSettings &cocoSettings()
 {
     static CocoSettings theCocoSettings;
@@ -36,7 +34,7 @@ CocoSettings::CocoSettings()
 
     setAutoApply(false);
 
-    cocoPath.setSettingsKey(Constants::COCO_SETTINGS_GROUP, DIRECTORY);
+    cocoPath.setSettingsKey(Constants::COCO_SETTINGS_GROUP, Constants::COCO_DIR_KEY);
     cocoPath.setExpectedKind(Utils::PathChooser::ExistingDirectory);
     cocoPath.setPromptDialogTitle(Tr::tr("Coco Installation Directory"));
 

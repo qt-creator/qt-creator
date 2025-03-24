@@ -18,6 +18,8 @@ const char COCO_SETTINGS_PAGE_ID[] = "A.CocoOptions";
 // Project settings
 const char SETTINGS_NAME_KEY[] = "CocoProjectSettings";
 const char SELECTION_DIR_KEY[] = "SelectionDir";
+const char COCO_DIR_KEY[] = "CocoDirectory";
+const char CSMES_PATH_KEY[] = "CsmesPath";
 
 } // namespace Constants
 } // namespace Coco
