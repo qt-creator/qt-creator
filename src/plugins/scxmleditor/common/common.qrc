@@ -19,7 +19,11 @@
         <file>images/align_vertical.png</file>
         <file>images/align_vertical@2x.png</file>
         <file>images/colorthemes.png</file>
+        <file>images/colorthemes@2x.png</file>
+        <file>images/fill.png</file>
+        <file>images/fill@2x.png</file>
         <file>images/font_color.png</file>
+        <file>images/font_color@2x.png</file>
         <file>images/history.png</file>
         <file>images/history@2x.png</file>
         <file>images/icon-export-canvas.png</file>
@@ -30,13 +34,22 @@
         <file>images/midRing@2x.png</file>
         <file>images/more_colors.png</file>
         <file>images/navigator.png</file>
+        <file>images/navigator@2x.png</file>
+        <file>images/navigator_fill.png</file>
+        <file>images/navigator_fill@2x.png</file>
         <file>images/outerRing.png</file>
         <file>images/outerRing@2x.png</file>
         <file>images/parallel_icon.png</file>
         <file>images/parallel_icon@2x.png</file>
         <file>images/state.png</file>
         <file>images/state@2x.png</file>
-        <file>images/state_color.png</file>
         <file>images/statistics.png</file>
+        <file>images/statistics@2x.png</file>
+        <file>images/theme1_fill.png</file>
+        <file>images/theme1_fill@2x.png</file>
+        <file>images/theme2_fill.png</file>
+        <file>images/theme2_fill@2x.png</file>
+        <file>images/theme3_fill.png</file>
+        <file>images/theme3_fill@2x.png</file>
     </qresource>
 </RCC>

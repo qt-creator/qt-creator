@@ -326,8 +326,11 @@ void MainWidget::init()
     });
 
     // Init ToolButtons
-    auto stateColorButton = new ColorToolButton("StateColor", ":/scxmleditor/images/state_color.png", Tr::tr("State Color"));
-    auto fontColorButton = new ColorToolButton("FontColor", ":/scxmleditor/images/font_color.png", Tr::tr("Font Color"));
+    const Icon stateColor({{":/scxmleditor/images/fill.png", Theme::IconsBaseColor}}, Icon::Tint);
+    const Icon fontColor({{":/scxmleditor/images/font_color.png", Theme::IconsBaseColor}}, Icon::Tint);
+
+    auto stateColorButton = new ColorToolButton("StateColor", stateColor.icon(), Tr::tr("State Color"));
+    auto fontColorButton = new ColorToolButton("FontColor", fontColor.icon(), Tr::tr("Font Color"));
     QToolButton *alignToolButton = createToolButton(toolButtonIcon(ActionAlignLeft), Tr::tr("Align Left"), QToolButton::MenuButtonPopup);
     QToolButton *adjustToolButton = createToolButton(toolButtonIcon(ActionAdjustWidth), Tr::tr("Adjust Width"), QToolButton::MenuButtonPopup);
 
