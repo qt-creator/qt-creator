@@ -33,6 +33,12 @@ QSize IconCheckboxItemDelegate::sizeHint(const QStyleOptionViewItem & /*option*/
     return {15, 20};
 }
 
+static bool isReference(const QModelIndex &modelIndex)
+{
+    // Internal ids < 0 are reserved for references nodes in NavigatorTreeModel
+    return static_cast<qint32>(modelIndex.internalId()) < 0;
+}
+
 static bool isChecked(const QModelIndex &modelIndex)
 {
     return modelIndex.model()->data(modelIndex, Qt::CheckStateRole) == Qt::Checked;
@@ -57,6 +63,9 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
                                      const QStyleOptionViewItem &styleOption,
                                      const QModelIndex &modelIndex) const
 {
+    if (isReference(modelIndex))
+        return; // Do not paint hover selection and icons for reference nodes
+
     QIcon::Mode mode = QIcon::Mode::Normal;
 
     if (styleOption.state & QStyle::State_MouseOver && !isThisOrAncestorLocked(modelIndex)) {

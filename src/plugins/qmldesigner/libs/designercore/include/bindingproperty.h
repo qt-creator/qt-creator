@@ -26,13 +26,15 @@ public:
     ModelNode resolveToModelNode() const;
     AbstractProperty resolveToProperty() const;
     bool isList() const;
-    QList<ModelNode> resolveToModelNodeList() const;
+    QList<ModelNode> resolveListToModelNodes() const;
+    QList<ModelNode> resolveToModelNodes() const;
     void addModelNodeToArray(const ModelNode &modelNode);
     void removeModelNodeFromArray(const ModelNode &modelNode);
 
     static QList<BindingProperty> findAllReferencesTo(const ModelNode &modelNode);
     static void deleteAllReferencesTo(const ModelNode &modelNode);
 
+    bool canBeReference() const;
 
     bool isAlias() const;
     bool isAliasExport() const;

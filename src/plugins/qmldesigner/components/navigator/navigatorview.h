@@ -101,6 +101,7 @@ private:
     void upButtonClicked();
     void downButtonClicked();
     void colorizeToggled(bool);
+    void referenceToggled(bool);
     void filterToggled(bool);
     void reverseOrderToggled(bool);
 

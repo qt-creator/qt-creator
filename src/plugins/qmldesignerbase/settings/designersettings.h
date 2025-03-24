@@ -49,6 +49,7 @@ inline constexpr char ENABLE_MODEL_EXCEPTION_OUTPUT[] = "WarnException";
 inline constexpr char PUPPET_KILL_TIMEOUT[] = "PuppetKillTimeout";
 inline constexpr char DEBUG_PUPPET[] = "DebugPuppet";
 inline constexpr char FORWARD_PUPPET_OUTPUT[] = "ForwardPuppetOutput";
+inline constexpr char NAVIGATOR_SHOW_REFERENCE_NODES[] = "NavigatorShowReferenceNodes";
 inline constexpr char NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS[] = "NavigatorShowOnlyVisibleItems";
 inline constexpr char NAVIGATOR_REVERSE_ITEM_ORDER[] = "NavigatorReverseItemOrder";
 inline constexpr char NAVIGATOR_COLORIZE_ICONS[] = "NavigatorColorizeIcons";

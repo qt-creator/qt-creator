@@ -1017,7 +1017,7 @@ void editMaterial(const SelectionContext &selectionContext)
         if (view->hasId(prop.expression())) {
             material = view->modelNodeForId(prop.expression());
         } else {
-            QList<ModelNode> materials = prop.resolveToModelNodeList();
+            QList<ModelNode> materials = prop.resolveListToModelNodes();
 
             if (materials.size() > 0)
                 material = materials.first();

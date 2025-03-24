@@ -21,7 +21,11 @@ public:
     virtual void notifyModelNodesRemoved(const QList<ModelNode> &modelNodes) = 0;
     virtual void notifyModelNodesInserted(const QList<ModelNode> &modelNodes) = 0;
     virtual void notifyModelNodesMoved(const QList<ModelNode> &modelNodes) = 0;
+    virtual void notifyModelReferenceNodesUpdated(const QList<ModelNode> &modelNodes) = 0;
     virtual void notifyIconsChanged() = 0;
+    virtual bool isReferenceNodesVisible() const = 0;
+    virtual bool canBeReference(const ModelNode &modelNode) const = 0;
+    virtual void showReferences(bool show) = 0;
     virtual void setFilter(bool showObjects) = 0;
     virtual void setNameFilter(const QString &filter) = 0;
     virtual void setOrder(bool reverse) = 0;

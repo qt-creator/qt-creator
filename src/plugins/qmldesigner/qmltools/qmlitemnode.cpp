@@ -897,7 +897,7 @@ void QmlFlowTargetNode::destroyTargets()
     }
 
     if (hasBindingProperty("targets")) {
-        for (ModelNode &node : modelNode().bindingProperty("targets").resolveToModelNodeList()) {
+        for (ModelNode &node : modelNode().bindingProperty("targets").resolveListToModelNodes()) {
             QmlObjectNode(node).destroy();
         }
         modelNode().removeProperty("targets");
@@ -928,14 +928,14 @@ ModelNode QmlFlowItemNode::decisionNodeForTransition(const ModelNode &transition
 
         if (finalTarget.isValid() && finalTarget.hasMetaInfo() && QmlVisualNode::isFlowDecision(finalTarget)) {
             if (finalTarget.hasBindingProperty("targets")
-                    && finalTarget.bindingProperty("targets").resolveToModelNodeList().contains(transition))
+                    && finalTarget.bindingProperty("targets").resolveListToModelNodes().contains(transition))
                 return finalTarget;
         }
         QmlFlowViewNode flowView(transition.view()->rootModelNode());
         if (flowView.isValid()) {
             for (const ModelNode &target : flowView.decicions()) {
                 if (target.hasBindingProperty("targets")
-                        && target.bindingProperty("targets").resolveToModelNodeList().contains(transition))
+                        && target.bindingProperty("targets").resolveListToModelNodes().contains(transition))
                     return target;
             }
         }

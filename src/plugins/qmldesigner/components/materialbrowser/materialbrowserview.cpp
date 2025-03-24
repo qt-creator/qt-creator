@@ -590,7 +590,7 @@ void MaterialBrowserView::applyTextureToModel3D(const QmlObjectNode &model3D, co
     if (hasId(matsProp.expression()))
         materials.append(modelNodeForId(matsProp.expression()));
     else
-        materials = matsProp.resolveToModelNodeList();
+        materials = matsProp.resolveListToModelNodes();
 
     applyTextureToMaterial(materials, texture);
 }

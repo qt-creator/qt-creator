@@ -145,6 +145,25 @@ QList<QWidget *> NavigatorWidget::createToolBarWidgets()
     connect(button, &QAbstractButton::toggled, this, &NavigatorWidget::colorizeToggled);
     buttons.append(button);
 
+    // Show reference nodes
+    const QIcon referenceOffIcon = Theme::iconFromName(Theme::Icon::unLinked);
+    const QIcon referenceOnIcon = Theme::iconFromName(Theme::Icon::linked);
+
+    QIcon refIcon;
+    refIcon.addPixmap(referenceOnIcon.pixmap({16, 16}), QIcon::Normal, QIcon::On);
+    refIcon.addPixmap(referenceOffIcon.pixmap({16, 16}), QIcon::Normal, QIcon::Off);
+
+    button = new QToolButton();
+    button->setIcon(refIcon);
+    button->setCheckable(true);
+    bool referenceFlag = QmlDesignerPlugin::settings()
+                             .value(DesignerSettingsKey::NAVIGATOR_SHOW_REFERENCE_NODES)
+                             .toBool();
+    button->setChecked(referenceFlag);
+    button->setToolTip(tr("Show reference nodes"));
+    connect(button, &QAbstractButton::toggled, this, &NavigatorWidget::referenceToggled);
+    buttons.append(button);
+
     // Show Only Visible Components
     auto visibleIcon = Theme::iconFromName(Theme::Icon::visible_medium);
     auto invisibleIcon = Theme::iconFromName(Theme::Icon::invisible_medium,

@@ -133,6 +133,12 @@ static QRect drawText(QPainter *painter,
     return textFrame;
 }
 
+static bool isReference(const QModelIndex &modelIndex)
+{
+    // Internal ids < 0 are reserved for references nodes in NavigatorTreeModel
+    return static_cast<qint32>(modelIndex.internalId()) < 0;
+}
+
 static bool isThisOrAncestorLocked(const QModelIndex &modelIndex)
 {
     return modelIndex.model()->data(modelIndex, ItemOrAncestorLocked).toBool();
@@ -199,7 +205,8 @@ void NameItemDelegate::paint(QPainter *painter,
 
     painter->setPen(Theme::getColor(Theme::Color::DSnavigatorText));
 
-    if (styleOption.state & QStyle::State_MouseOver && !isThisOrAncestorLocked(modelIndex)) {
+    if (styleOption.state & QStyle::State_MouseOver && !isThisOrAncestorLocked(modelIndex)
+        && !isReference(modelIndex)) {
         painter->fillRect(styleOption.rect.adjusted(0, delegateMargin, 0, -delegateMargin),
                           Theme::getColor(Theme::Color::DSnavigatorItemBackgroundHover));
         painter->setPen(Theme::getColor(Theme::Color::DSnavigatorTextHover));
@@ -213,7 +220,7 @@ void NameItemDelegate::paint(QPainter *painter,
     ModelNode node = getModelNode(modelIndex);
     if (!ModelUtils::isThisOrAncestorLocked(node)) {
         NavigatorWidget *widget = qobject_cast<NavigatorWidget *>(styleOption.widget->parent());
-        if (widget && !widget->dragType().isEmpty()) {
+        if (widget && !widget->dragType().isEmpty() && !isReference(modelIndex)) {
             QByteArray dragType = widget->dragType();
             const NodeMetaInfo metaInfo = node.metaInfo();
 

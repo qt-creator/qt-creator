@@ -102,9 +102,6 @@ ModelNode BindingProperty::resolveBinding(const QString &binding, ModelNode curr
 
 ModelNode BindingProperty::resolveToModelNode() const
 {
-    if (!isValid())
-        return {};
-
     QString binding = expression();
 
     if (binding.isEmpty())
@@ -158,11 +155,8 @@ bool BindingProperty::isList() const
     return expression().startsWith('[') && expression().endsWith(']');
 }
 
-QList<ModelNode> BindingProperty::resolveToModelNodeList() const
+QList<ModelNode> BindingProperty::resolveListToModelNodes() const
 {
-    if (!isValid())
-        return {};
-
     QString binding = expression();
 
     if (binding.isEmpty())
@@ -179,6 +173,30 @@ QList<ModelNode> BindingProperty::resolveToModelNodeList() const
         }
     }
     return returnList;
+}
+
+QList<ModelNode> BindingProperty::resolveToModelNodes() const
+{
+    QString binding = expression();
+
+    if (binding.isEmpty())
+        return {};
+
+    if (isList()) {
+        QList<ModelNode> returnList;
+        binding.chop(1);
+        binding.remove(0, 1);
+        const QStringList simplifiedList = commaSeparatedSimplifiedStringList(binding);
+        for (const QString &nodeId : simplifiedList) {
+            if (auto internalNode = privateModel()->nodeForId(nodeId))
+                returnList.emplace_back(internalNode, model(), view());
+        }
+        return returnList;
+    } else if (auto node = resolveBinding(binding, parentModelNode())) {
+        return {node};
+    }
+
+    return {};
 }
 
 void BindingProperty::addModelNodeToArray(const ModelNode &modelNode)
@@ -236,11 +254,10 @@ QList<BindingProperty> BindingProperty::findAllReferencesTo(const ModelNode &mod
 
     QList<BindingProperty> list;
     for (const ModelNode &bindingNode : modelNode.view()->allModelNodes()) {
-        for (const BindingProperty &bindingProperty : bindingNode.bindingProperties())
-            if (bindingProperty.resolveToModelNode() == modelNode)
+        for (const BindingProperty &bindingProperty : bindingNode.bindingProperties()) {
+            if (bindingProperty.resolveToModelNodes().contains(modelNode))
                 list.append(bindingProperty);
-            else if (bindingProperty.resolveToModelNodeList().contains(modelNode))
-                list.append(bindingProperty);
+        }
     }
     return list;
 }
@@ -253,6 +270,11 @@ void BindingProperty::deleteAllReferencesTo(const ModelNode &modelNode)
         else
             bindingProperty.parentModelNode().removeProperty(bindingProperty.name());
     }
+}
+
+bool BindingProperty::canBeReference() const
+{
+    return !name().startsWith("anchors.");
 }
 
 bool BindingProperty::isAlias() const

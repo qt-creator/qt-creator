@@ -74,6 +74,7 @@ void DesignerSettings::fromSettings(QtcSettings *settings)
     restoreValue(settings, DesignerSettingsKey::FORWARD_PUPPET_OUTPUT, QString());
     restoreValue(settings, DesignerSettingsKey::REFORMAT_UI_QML_FILES, true);
     restoreValue(settings, DesignerSettingsKey::IGNORE_DEVICE_PIXEL_RATIO, false);
+    restoreValue(settings, DesignerSettingsKey::NAVIGATOR_SHOW_REFERENCE_NODES, true);
     restoreValue(settings, DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS, true);
     restoreValue(settings, DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER, false);
     restoreValue(settings, DesignerSettingsKey::NAVIGATOR_COLORIZE_ICONS, false);

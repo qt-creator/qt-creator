@@ -242,14 +242,16 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
 
     if (index.column() == ColumnType::Name) {
         if (role == Qt::DisplayRole) {
+            if (isReference(index))
+                return Tr::tr("ref: %1").arg(modelNode.displayName());
             return modelNode.displayName();
         } else if (role == Qt::DecorationRole) {
             if (currentQmlObjectNode.hasError())
                 return ::Utils::Icons::WARNING.icon();
-
+            if (isReference(index))
+                return ::Utils::Icons::LINK_TOOLBAR.icon();
             if (QmlDesignerPlugin::settings().value(DesignerSettingsKey::NAVIGATOR_COLORIZE_ICONS).toBool())
                 return colorizeIcon(modelNode.typeIcon(), nodeColor(modelNode));
-
             return modelNode.typeIcon();
         } else if (role == Qt::ToolTipRole) {
             if (currentQmlObjectNode.hasError()) {
@@ -312,11 +314,13 @@ Qt::ItemFlags NavigatorTreeModel::flags(const QModelIndex &index) const
         || index.column() == ColumnType::Lock) {
         if (ModelUtils::isThisOrAncestorLocked(modelNode))
             return Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
+        else if (isReference(index))
+            return Qt::NoItemFlags;
         else
             return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
     }
 
-    if (ModelUtils::isThisOrAncestorLocked(modelNode))
+    if (ModelUtils::isThisOrAncestorLocked(modelNode) || isReference(index))
         return Qt::NoItemFlags;
 
     if (index.column() == ColumnType::Name)
@@ -392,14 +396,26 @@ QModelIndex NavigatorTreeModel::index(int row, int column, const QModelIndex &pa
 
     ModelNode parentModelNode = modelNodeForIndex(parent);
 
+    bool isRef = false;
     ModelNode modelNode;
-    if (parentModelNode.defaultNodeListProperty().isValid())
-        modelNode = filteredList(parentModelNode.defaultNodeListProperty(),
-                                 m_showOnlyVisibleItems,
-                                 m_reverseItemOrder).at(row);
+    if (auto defaultNodeListProperty = parentModelNode.defaultNodeListProperty()) {
+        const QList<ModelNode> list = filteredList(defaultNodeListProperty,
+                                                   m_showOnlyVisibleItems,
+                                                   m_reverseItemOrder);
+        if (row < list.size()) {
+            modelNode = list.at(row);
+        } else if (m_showReferenceItems) {
+            isRef = true;
+            modelNode = referenceList(parentModelNode.bindingProperties(), list)
+                            .at(row - list.size());
+        }
+    }
 
     if (!modelNode.isValid())
         return QModelIndex();
+
+    if (isRef)
+        return createReferenceIndex(row, column, {modelNode, parentModelNode});
 
     return createIndexFromModelNode(row, column, modelNode);
 }
@@ -414,22 +430,26 @@ QModelIndex NavigatorTreeModel::parent(const QModelIndex &index) const
     if (!index.isValid())
         return {};
 
-    const ModelNode modelNode = modelNodeForIndex(index);
+    ModelNode parentModelNode;
+    if (isReference(index)) {
+        parentModelNode = referenceExtractOwner(index);
+    } else {
+        const ModelNode modelNode = modelNodeForIndex(index);
+        if (!modelNode.isValid())
+            return QModelIndex();
 
-    if (!modelNode.isValid())
-        return QModelIndex();
+        if (!modelNode.hasParentProperty())
+            return QModelIndex();
 
-    if (!modelNode.hasParentProperty())
-        return QModelIndex();
-
-    const ModelNode parentModelNode = modelNode.parentProperty().parentModelNode();
+        parentModelNode = modelNode.parentProperty().parentModelNode();
+    }
 
     int row = 0;
-
     if (!parentModelNode.isRootNode() && parentModelNode.parentProperty().isNodeListProperty()) {
-        row = filteredList(parentModelNode.parentProperty().toNodeListProperty(),
-                           m_showOnlyVisibleItems,
-                           m_reverseItemOrder).indexOf(parentModelNode);
+        const QList<ModelNode> list = filteredList(parentModelNode.parentProperty().toNodeListProperty(),
+                                                   m_showOnlyVisibleItems,
+                                                   m_reverseItemOrder);
+        row = list.indexOf(parentModelNode);
     }
 
     return createIndexFromModelNode(row, 0, parentModelNode);
@@ -437,7 +457,7 @@ QModelIndex NavigatorTreeModel::parent(const QModelIndex &index) const
 
 int NavigatorTreeModel::rowCount(const QModelIndex &parent) const
 {
-    if (!m_view->isAttached() || parent.column() > 0)
+    if (!m_view->isAttached() || parent.column() > 0 || isReference(parent))
         return 0;
 
     const ModelNode modelNode = modelNodeForIndex(parent);
@@ -448,10 +468,12 @@ int NavigatorTreeModel::rowCount(const QModelIndex &parent) const
     int rows = 0;
 
     if (modelNode.defaultNodeListProperty().isValid()) {
-        rows = filteredList(modelNode.defaultNodeListProperty(),
-                            m_showOnlyVisibleItems,
-                            m_reverseItemOrder)
-                   .size();
+        const QList<ModelNode> list = filteredList(modelNode.defaultNodeListProperty(),
+                                                   m_showOnlyVisibleItems,
+                                                   m_reverseItemOrder);
+        rows = list.size();
+        if (m_showReferenceItems)
+            rows += referenceList(modelNode.bindingProperties(), list).size();
     }
 
     return rows;
@@ -472,6 +494,9 @@ ModelNode NavigatorTreeModel::modelNodeForIndex(const QModelIndex &index) const
 
     if (!m_view || !m_view->model())
         return ModelNode();
+
+    if (isReference(index))
+        return referenceExtractCurrent(index);
 
     return m_view->modelNodeForInternalId(index.internalId());
 }
@@ -1018,10 +1043,17 @@ bool NavigatorTreeModel::setData(const QModelIndex &index, const QVariant &value
 
 void NavigatorTreeModel::notifyDataChanged(const ModelNode &modelNode)
 {
-    const QModelIndex index = indexForModelNode(modelNode);
-    const QAbstractItemModel *model = index.model();
-    const QModelIndex sibling = model ? model->sibling(index.row(), ColumnType::Count - 1, index) : QModelIndex();
-    emit dataChanged(index, sibling);
+    const auto emitDataChanged = [this](const QModelIndex &index) {
+        const QAbstractItemModel *model = index.model();
+        const QModelIndex sibling = model ? model->sibling(index.row(), ColumnType::Count - 1, index)
+                                          : QModelIndex();
+        emit dataChanged(index, sibling);
+    };
+
+    const QSet<QModelIndex> &referenceIndexes = m_referenceIndexHash[modelNode];
+    for (const QModelIndex &index : referenceIndexes)
+        emitDataChanged(index);
+    emitDataChanged(indexForModelNode(modelNode));
 }
 
 static QList<ModelNode> collectParents(const QList<ModelNode> &modelNodes)
@@ -1045,6 +1077,10 @@ QList<QPersistentModelIndex> NavigatorTreeModel::nodesToPersistentIndex(const QL
 
 void NavigatorTreeModel::notifyModelNodesRemoved(const QList<ModelNode> &modelNodes)
 {
+    for (const ModelNode &modelNode : modelNodes)
+        m_referenceIndexHash.remove(modelNode);
+
+    m_rowReferenceCache.clear();
     m_rowCache.clear();
     QList<QPersistentModelIndex> indexes = nodesToPersistentIndex(collectParents(modelNodes));
     emit layoutAboutToBeChanged(indexes);
@@ -1053,6 +1089,7 @@ void NavigatorTreeModel::notifyModelNodesRemoved(const QList<ModelNode> &modelNo
 
 void NavigatorTreeModel::notifyModelNodesInserted(const QList<ModelNode> &modelNodes)
 {
+    m_rowReferenceCache.clear();
     m_rowCache.clear();
     QList<QPersistentModelIndex> indexes = nodesToPersistentIndex(collectParents(modelNodes));
     emit layoutAboutToBeChanged(indexes);
@@ -1061,8 +1098,19 @@ void NavigatorTreeModel::notifyModelNodesInserted(const QList<ModelNode> &modelN
 
 void NavigatorTreeModel::notifyModelNodesMoved(const QList<ModelNode> &modelNodes)
 {
+    m_rowReferenceCache.clear();
     m_rowCache.clear();
     QList<QPersistentModelIndex> indexes = nodesToPersistentIndex(collectParents(modelNodes));
+    emit layoutAboutToBeChanged(indexes);
+    emit layoutChanged(indexes);
+}
+
+void NavigatorTreeModel::notifyModelReferenceNodesUpdated(const QList<ModelNode> &modelNodes)
+{
+    for (const ModelNode &modelNode : modelNodes)
+        m_rowReferenceCache.remove(modelNode);
+
+    QList<QPersistentModelIndex> indexes = nodesToPersistentIndex(modelNodes);
     emit layoutAboutToBeChanged(indexes);
     emit layoutChanged(indexes);
 }
@@ -1070,6 +1118,13 @@ void NavigatorTreeModel::notifyModelNodesMoved(const QList<ModelNode> &modelNode
 void NavigatorTreeModel::notifyIconsChanged()
 {
     emit dataChanged(index(0, 0), index(rowCount(), 0), {Qt::DecorationRole});
+}
+
+void NavigatorTreeModel::showReferences(bool show)
+{
+    m_showReferenceItems = show;
+    m_rowCache.clear();
+    resetModel();
 }
 
 void NavigatorTreeModel::setFilter(bool showOnlyVisibleItems)
@@ -1121,12 +1176,94 @@ void NavigatorTreeModel::resetModel()
     m_rowCache.clear();
     m_nodeIndexHash.clear();
     m_colorizeIconHash.clear();
+    resetReferences();
     endResetModel();
 }
 
 void NavigatorTreeModel::updateToolTipPixmap(const ModelNode &node, const QPixmap &pixmap)
 {
     emit toolTipPixmapUpdated(node.id(), pixmap);
+}
+
+bool NavigatorTreeModel::isReferenceNodesVisible() const
+{
+    return m_showReferenceItems;
+}
+
+bool NavigatorTreeModel::canBeReference(const ModelNode &modelNode) const
+{
+    return modelNode.hasMetaInfo();
+}
+
+QModelIndex NavigatorTreeModel::createReferenceIndex(int row,
+                                                     int column,
+                                                     const ReferenceData &referenceData) const
+{
+    const QString uniqueId = QString("%1-%2-%3")
+                                 .arg(referenceData.owner.internalId())
+                                 .arg(referenceData.current.internalId())
+                                 .arg(row);
+    if (!m_referenceUnique.contains(uniqueId))
+        m_referenceUnique[uniqueId] = --m_referenceInternalIdCounter;
+    const qint32 referenceInternalId = m_referenceUnique[uniqueId];
+    const QModelIndex index = createIndex(row, column, referenceInternalId);
+    if (column == 0) {
+        m_referenceIndexHash[referenceData.current].insert(index);
+        m_references[referenceInternalId] = referenceData;
+    }
+    return index;
+}
+
+void NavigatorTreeModel::resetReferences()
+{
+    m_rowReferenceCache.clear();
+    m_referenceIndexHash.clear();
+    m_referenceUnique.clear();
+    m_references.clear();
+    m_referenceInternalIdCounter = -1;
+}
+
+QList<ModelNode> NavigatorTreeModel::referenceList(const QList<BindingProperty> &bindingProperties, const QList<ModelNode> &unwanted) const
+{
+    if (bindingProperties.isEmpty())
+        return {};
+
+    const ModelNode propertyOwner = bindingProperties[0].parentModelNode();
+    const auto it = m_rowReferenceCache.find(propertyOwner);
+    if (it != m_rowReferenceCache.cend())
+        return it.value();
+
+    QList<ModelNode> refList;
+    for (const BindingProperty &bindingProperty : bindingProperties) {
+        if (!bindingProperty.canBeReference())
+            continue;
+        const QList<ModelNode> modelNodes = bindingProperty.resolveToModelNodes();
+        for (const ModelNode &modelNode : modelNodes) {
+            if (!unwanted.contains(modelNode) && canBeReference(modelNode))
+                refList.append(modelNode);
+        }
+    }
+
+    m_rowReferenceCache.insert(propertyOwner, refList);
+
+    return refList;
+}
+
+bool NavigatorTreeModel::isReference(const QModelIndex &index) const
+{
+    return m_references.contains(index.internalId());
+}
+
+ModelNode NavigatorTreeModel::referenceExtractCurrent(const QModelIndex &index) const
+{
+    Q_ASSERT(isReference(index));
+    return m_references[index.internalId()].current;
+}
+
+ModelNode NavigatorTreeModel::referenceExtractOwner(const QModelIndex &index) const
+{
+    Q_ASSERT(isReference(index));
+    return m_references[index.internalId()].owner;
 }
 
 } // QmlDesigner

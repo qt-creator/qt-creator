@@ -551,7 +551,7 @@ struct TargetsFilter
     {
         auto targetProperty = node.bindingProperty("targets");
         if (targetProperty.exists())
-            return targetProperty.resolveToModelNodeList();
+            return targetProperty.resolveListToModelNodes();
 
         return {};
     }

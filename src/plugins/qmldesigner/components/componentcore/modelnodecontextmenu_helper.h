@@ -120,7 +120,7 @@ inline bool hasEditableMaterial(const SelectionContext &selectionState)
 
     BindingProperty prop = node.bindingProperty("materials");
 
-    return prop.exists() && (!prop.expression().isEmpty() || !prop.resolveToModelNodeList().empty());
+    return prop.exists() && (!prop.expression().isEmpty() || !prop.resolveListToModelNodes().empty());
 }
 
 inline bool selectionEnabled(const SelectionContext &selectionState)

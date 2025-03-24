@@ -149,6 +149,11 @@ void NavigatorView::modelAttached(Model *model)
     m_widget->clearSearch();
 
     QTimer::singleShot(0, this, [this, treeView]() {
+        m_currentModelInterface->showReferences(
+            QmlDesignerPlugin::settings()
+                .value(DesignerSettingsKey::NAVIGATOR_SHOW_REFERENCE_NODES)
+                .toBool());
+
         m_currentModelInterface->setFilter(
                     QmlDesignerPlugin::settings().value(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS).toBool());
 
@@ -229,6 +234,8 @@ void NavigatorView::modelAboutToBeDetached(Model *model)
         gatherExpandedState(rootIndex);
     }
 
+    m_currentModelInterface->resetModel();
+
     AbstractView::modelAboutToBeDetached(model);
 }
 
@@ -237,8 +244,11 @@ void NavigatorView::importsChanged(const Imports &/*addedImports*/, const Import
     treeWidget()->update();
 }
 
-void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> & propertyList, PropertyChangeFlags /*propertyChange*/)
+void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList,
+                                             PropertyChangeFlags /*propertyChange*/)
 {
+    QSet<ModelNode> owners;
+
     for (const BindingProperty &bindingProperty : propertyList) {
         /* If a binding property that exports an item using an alias property has
          * changed, we have to update the affected item.
@@ -246,7 +256,20 @@ void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> & prop
 
         if (bindingProperty.isAliasExport())
             m_currentModelInterface->notifyDataChanged(modelNodeForId(bindingProperty.expression()));
+
+        if (m_currentModelInterface->isReferenceNodesVisible() && bindingProperty.canBeReference()) {
+            const QList<ModelNode> modelNodes = bindingProperty.resolveToModelNodes();
+            for (const ModelNode &modelNode : modelNodes) {
+                if (m_currentModelInterface->canBeReference(modelNode)) {
+                    owners.insert(bindingProperty.parentModelNode());
+                    break;
+                }
+            }
+        }
     }
+
+    if (!owners.empty())
+        m_currentModelInterface->notifyModelReferenceNodesUpdated(owners.values());
 }
 
 void NavigatorView::dragStarted(QMimeData *mimeData)
@@ -643,6 +666,13 @@ void NavigatorView::colorizeToggled(bool flag)
     m_currentModelInterface->notifyIconsChanged();
 }
 
+void NavigatorView::referenceToggled(bool flag)
+{
+    m_currentModelInterface->showReferences(flag);
+    treeWidget()->expandAll();
+    QmlDesignerPlugin::settings().insert(DesignerSettingsKey::NAVIGATOR_SHOW_REFERENCE_NODES, flag);
+}
+
 void NavigatorView::filterToggled(bool flag)
 {
     m_currentModelInterface->setFilter(flag);
@@ -783,6 +813,7 @@ void NavigatorView::setupWidget()
     connect(m_widget.data(), &NavigatorWidget::downButtonClicked, this, &NavigatorView::downButtonClicked);
     connect(m_widget.data(), &NavigatorWidget::upButtonClicked, this, &NavigatorView::upButtonClicked);
     connect(m_widget.data(), &NavigatorWidget::colorizeToggled, this, &NavigatorView::colorizeToggled);
+    connect(m_widget.data(), &NavigatorWidget::referenceToggled, this, &NavigatorView::referenceToggled);
     connect(m_widget.data(), &NavigatorWidget::filterToggled, this, &NavigatorView::filterToggled);
     connect(m_widget.data(), &NavigatorWidget::reverseOrderToggled, this, &NavigatorView::reverseOrderToggled);
 

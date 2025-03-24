@@ -259,10 +259,16 @@ bool NavigatorTreeView::viewportEvent(QEvent *event)
 
 void NavigatorTreeView::mousePressEvent(QMouseEvent *event)
 {
+    const QModelIndex modelIndex = indexAt(event->pos());
+    if (static_cast<qint32>(modelIndex.internalId()) < 0) {
+        m_dragAllowed = false;
+        return; // Ignore mousePressEvent when item is reference node.
+    }
+
     // Block drag from starting if press was on an item that is not draggable.
     // This is necessary as it is the selected items that are dragged and the pressed item may not
     // be a selected item, e.g. when pressing on locked item, leading to unexpected drags.
-    m_dragAllowed = model()->flags(indexAt(event->pos())) & Qt::ItemIsDragEnabled;
+    m_dragAllowed = model()->flags(modelIndex) & Qt::ItemIsDragEnabled;
 
     QTreeView::mousePressEvent(event);
 }
