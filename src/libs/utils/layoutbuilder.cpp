@@ -30,6 +30,7 @@
 #include <QTabWidget>
 #include <QTextEdit>
 #include <QToolBar>
+#include <QToolButton>
 
 namespace Layouting {
 
@@ -1086,6 +1087,19 @@ ToolBar::ToolBar(std::initializer_list<I> ps)
     ptr = new Implementation;
     apply(this, ps);
     access(this)->setOrientation(Qt::Horizontal);
+}
+
+// ToolButton
+
+ToolButton::ToolButton(std::initializer_list<I> ps)
+{
+    ptr = new Implementation;
+    apply(this, ps);
+}
+
+void ToolButton::setDefaultAction(QAction *action)
+{
+    access(this)->setDefaultAction(action);
 }
 
 // TabWidget

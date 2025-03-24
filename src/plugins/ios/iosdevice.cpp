@@ -610,8 +610,10 @@ void IosDeviceManager::monitorAvailableDevices()
 
 bool IosDeviceManager::isDeviceCtlOutputSupported()
 {
+    // Theoretically the devicectl from Xcode 15.4 already has the required `--console` option,
+    // but that is broken for some (newer?) devices (QTCREATORBUG-32637).
     return instance()->m_deviceCtlVersion
-           && instance()->m_deviceCtlVersion >= QVersionNumber(355, 28); // Xcode 15.4
+           && instance()->m_deviceCtlVersion >= QVersionNumber(397, 21); // Xcode 16.0
 }
 
 bool IosDeviceManager::isDeviceCtlDebugSupported()

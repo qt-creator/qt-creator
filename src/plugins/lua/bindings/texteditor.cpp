@@ -162,7 +162,7 @@ public:
             Core::EditorManager::instance(),
             &Core::EditorManager::editorCreated,
             this,
-            [this](Core::IEditor *editor, const Utils::FilePath &filePath) {
+            [this](Core::IEditor *editor) {
                 auto textEditor = qobject_cast<BaseTextEditor *>(editor);
                 if (textEditor)
                     emit editorCreated(textEditor);
@@ -422,6 +422,13 @@ void setupTextEditorModule()
                 QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
                 return addEmbeddedWidget(textEditor, toWidget(widget), position);
             },
+            "insertExtraToolBarWidget",
+            [](const TextEditorPtr &textEditor,
+               TextEditorWidget::Side side,
+               LayoutOrWidget widget) {
+                QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
+                textEditor->editorWidget()->insertExtraToolBarWidget(side, toWidget(widget));
+            },
             "setRefactorMarker",
             [pluginSpec, activeMarkers](
                 const TextEditorPtr &textEditor,
@@ -469,7 +476,26 @@ void setupTextEditorModule()
                     textEditor && textEditor->editorWidget(),
                     throw sol::error("TextEditor is not valid"));
                 return textEditor->editorWidget()->hasFocus();
+            },
+            "firstVisibleBlockNumber",
+            [](const TextEditorPtr &textEditor) -> int {
+                QTC_ASSERT(
+                    textEditor && textEditor->editorWidget(),
+                    throw sol::error("TextEditor is not valid"));
+                return textEditor->editorWidget()->firstVisibleBlockNumber();
+            },
+            "lastVisibleBlockNumber",
+            [](const TextEditorPtr &textEditor) -> int {
+                QTC_ASSERT(
+                    textEditor && textEditor->editorWidget(),
+                    throw sol::error("TextEditor is not valid"));
+                return textEditor->editorWidget()->lastVisibleBlockNumber();
             });
+
+        result["Side"] = lua.create_table_with(
+                "Left", TextEditorWidget::Left,
+                "Right", TextEditorWidget::Right
+            );
 
         result.new_usertype<TextSuggestion::Data>(
             "Suggestion",
