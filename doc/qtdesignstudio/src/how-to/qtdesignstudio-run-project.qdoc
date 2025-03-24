@@ -12,8 +12,8 @@
 
     \list 1
         \li Open the project with \QDS.
-        \li Select \uicontrol Run dropdown from the top toolbar and select
-          \uicontrol {Run App}.
+        \li Select the run dropdown from the top toolbar, and then select
+            \uicontrol {Run App}.
         \li Select \imagerunproject.
             \image studio-run-project.webp {Run a \QDS project}
 

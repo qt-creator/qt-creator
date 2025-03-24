@@ -37,7 +37,7 @@
     enter to create an account. You are already familiar with the tasks in
     this section from the previous \e {Login UI} tutorials.
 
-    To preview the changes that you make, select the \uicontrol Run dropdown menu from the
+    To preview the changes that you make, select the run dropdown menu from the
     top toolbar, and then select \uicontrol {Live Preview}, or select \key {Alt+P}.
 
     To add the entry field needed on the second page to the \e Screen01
@@ -103,7 +103,7 @@
 
     \image loginui3-states.webp All states in the States view.
 
-    The live preview displays the default state, \e login:
+    \uicontrol {Live Preview} displays the default state, \e login:
 
     \image loginui3-login-state-preview.webp Preview of the login state.
 

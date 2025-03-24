@@ -29,17 +29,17 @@
     \list 1
       \li Open \QUV on your Android device. Find the IP address and note it down.
       \li Open or create a project in \QDS.
-      \li Select \uicontrol Run dropdown from the top toolbar and select
+      \li Select the run dropdown from the top toolbar, and then select
           \uicontrol {Device Manager}.
 
-          \image studio-run-dropdown.webp Device Manager in the Run dropdown
+          \image studio-run-dropdown.webp Device Manager in the run dropdown
 
       \li In \uicontrol {Set target device IP} write the IP address you have
           noted from \QUV. Then, select \imageplus. Your device is now added
           to the list of available devices.
         \list
             \li To update the device name, edit \uicontrol Alias.
-            \li To show your device in the \uicontrol Run dropdow,
+            \li To show your device in the run dropdown,
                 always keep \uicontrol Enabled turned on.
             \li If you are connected to the same network, and \QUV is running on your
                 Android device, the \uicontrol Status is Online.
@@ -50,8 +50,8 @@
 
 
     \note You can connect multiple Android devices to \QDS. Then, run a \QDS
-          project on any of the devices by selecting them from
-          \uicontrol Run dropdown, and selecting \imagerunproject.
+    project on any of the devices by selecting them from the run dropdown, and
+    selecting \imagerunproject.
 
     \section1 Previewing a \QDS project in \QUV
 
@@ -60,8 +60,8 @@
       \list 1
             \li Open or create a project in \QDS.
             \li Open \QUV on your Android device.
-            \li Select your Android device from the \uicontrol Run dropdown.
-                \image studio-run-dropdown-with-added-device.webp {Android device listed in the Run dropdown}
+            \li Select your Android device from the run dropdown.
+                \image studio-run-dropdown-with-added-device.webp Android device listed in the run dropdown.
 
             \li Select \imagerunproject.
       \endlist
@@ -82,11 +82,11 @@
 
       \list 1
             \li Open or create a project in \QDS.
-            \li Select \uicontrol Run dropdown from the top toolbar and select
+            \li Select the run dropdown from the top toolbar, and then select
                 \uicontrol {Device Manager}.
             \li Select the device you want to remove from the list of devices and
                 select \imageminus.
-            \image studio-devicemanager-remove-device.webp Remove a device from the Device Manager
+            \image studio-devicemanager-remove-device.webp Remove a device from Device Manager.
       \endlist
 
 */

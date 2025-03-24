@@ -46,10 +46,10 @@
 
         \li \l {Validating with target hardware}
 
-            You can use the live preview feature to preview a UI file or the
-            entire UI on the desktop, as well as on Android and embedded Linux
-            devices. The changes you make to the UI are instantly visible
-            to you in the preview.
+            You can use the \uicontrol {Live Preview} feature to preview a UI
+            file or the entire UI on the desktop, as well as on Android and
+            embedded Linux devices. The changes you make to the UI are instantly
+            visible to you in the preview.
 
         \li \l {Asset creation with other tools}
 

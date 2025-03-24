@@ -81,7 +81,8 @@
                     accessible in the \uicontrol Projects view.
 
                 \image qtcreator-qt-design-studio-project.webp "Qt Design studio projects in Qt Creator after successful import"
-            \li To run the project, select \uicontrol Run.
+            \li To run the project, select the run dropdown from the top toolbar, and then select
+                \uicontrol {Live Preview}.
         \endlist
 
         \note \QDS 4.4 and earlier versions have a project structure where
