@@ -104,6 +104,7 @@ public:
     Q_INVOKABLE bool has3DNode(const QByteArray &data) const;
     Q_INVOKABLE bool hasTexture(const QString &format, const QVariant &data) const;
     Q_INVOKABLE void addQtQuick3D();
+    Q_INVOKABLE void browseBundleFolder();
 
     QSize sizeHint() const override;
 
@@ -127,8 +128,8 @@ signals:
     void hasModelSelectionChanged();
     void importBundle();
     void requestTab(int tabIndex);
-    void acceptTexturesDrop(const QList<QUrl> &urls);
-    void acceptTextureDrop(const QString &internalId);
+    void acceptTexturesDrop(const QList<QUrl> &urls, const QString &bundlePath = {});
+    void acceptTextureDrop(const QString &internalId, const QString &bundlePath = {});
     void acceptMaterialDrop(const QString &internalId);
     void accept3DDrop(const QByteArray &internalIds);
     void importQtQuick3D();

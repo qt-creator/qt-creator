@@ -91,7 +91,7 @@ WidgetInfo ContentLibraryView::widgetInfo()
         });
 
         connect(m_widget, &ContentLibraryWidget::acceptTextureDrop, this,
-                [this](const QString &internalId) {
+                [this](const QString &internalId, const QString &bundlePath) {
             ModelNode texNode = QmlDesignerPlugin::instance()->viewManager()
                                      .view()->modelNodeForInternalId(internalId.toInt());
             auto [qmlString, depAssets] = m_bundleHelper->modelNodeToQmlString(texNode);
@@ -104,11 +104,11 @@ WidgetInfo ContentLibraryView::widgetInfo()
                     paths.append(path);
             }
 
-            addLibAssets(paths);
+            addLibAssets(paths, bundlePath);
         });
 
         connect(m_widget, &ContentLibraryWidget::acceptTexturesDrop, this,
-                [this](const QList<QUrl> &urls) {
+                [this](const QList<QUrl> &urls, const QString &bundlePath) {
             QStringList paths;
 
             for (const QUrl &url : urls) {
@@ -117,7 +117,7 @@ WidgetInfo ContentLibraryView::widgetInfo()
                 if (Asset(path).isValidTextureSource())
                     paths.append(path);
             }
-            addLibAssets(paths);
+            addLibAssets(paths, bundlePath);
         });
 
         connect(m_widget, &ContentLibraryWidget::acceptMaterialDrop, this,
@@ -569,14 +569,16 @@ void ContentLibraryView::applyBundleMaterialToDropTarget(const ModelNode &bundle
 }
 #endif
 
-void ContentLibraryView::addLibAssets(const QStringList &paths)
+void ContentLibraryView::addLibAssets(const QStringList &paths, const QString &bundlePath)
 {
-    auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/textures");
+    auto fullBundlePath = Utils::FilePath::fromString(bundlePath.isEmpty()
+                                                ? Paths::bundlesPathSetting() + "/User/textures"
+                                                : bundlePath);
     Utils::FilePaths sourcePathsToAdd;
     Utils::FilePaths targetPathsToAdd;
     QStringList fileNamesToRemove;
 
-    const QStringList existingAssetsFileNames = Utils::transform(bundlePath.dirEntries(QDir::Files),
+    const QStringList existingAssetsFileNames = Utils::transform(fullBundlePath.dirEntries(QDir::Files),
                                                                  &Utils::FilePath::fileName);
 
     for (const QString &path : paths) {
@@ -598,20 +600,12 @@ void ContentLibraryView::addLibAssets(const QStringList &paths)
     }
 
     // remove the to-be-overwritten resources from target bundle path
-    m_widget->userModel()->removeTextures(fileNamesToRemove);
+    m_widget->userModel()->removeTextures(fileNamesToRemove, fullBundlePath);
 
     // copy resources to target bundle path
     for (const Utils::FilePath &sourcePath : sourcePathsToAdd) {
-        Utils::FilePath targetPath = bundlePath.pathAppended(sourcePath.fileName());
+        Utils::FilePath targetPath = fullBundlePath.pathAppended(sourcePath.fileName());
         Asset asset{sourcePath.toFSPathString()};
-
-        // save icon
-        QString iconSavePath = bundlePath.pathAppended("icons/" + sourcePath.baseName() + ".png")
-                                   .toFSPathString();
-        QPixmap icon = asset.pixmap({120, 120});
-        bool iconSaved = icon.save(iconSavePath);
-        if (!iconSaved)
-            qWarning() << __FUNCTION__ << "icon save failed";
 
         // save asset
         auto result = sourcePath.copyFile(targetPath);
@@ -620,7 +614,7 @@ void ContentLibraryView::addLibAssets(const QStringList &paths)
         targetPathsToAdd.append(targetPath);
     }
 
-    m_widget->userModel()->addTextures(targetPathsToAdd);
+    m_widget->userModel()->addTextures(targetPathsToAdd, fullBundlePath);
 }
 
 // TODO: combine this method with BundleHelper::exportComponent()

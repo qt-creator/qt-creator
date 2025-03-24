@@ -190,6 +190,21 @@ ContentLibraryWidget::~ContentLibraryWidget()
 {
 }
 
+void ContentLibraryWidget::browseBundleFolder()
+{
+    DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
+    QTC_ASSERT(document, return);
+    const QString currentDir = document->fileName().parentDir().toUrlishString();
+
+    QString dir = QFileDialog::getExistingDirectory(Core::ICore::dialogParent(),
+                                              tr("Choose Directory"),
+                                              currentDir,
+                                              QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+    if (!dir.isEmpty() && !m_userModel->bundleDirExists(dir))
+        m_userModel->addBundleDir(Utils::FilePath::fromString(dir));
+}
+
 void ContentLibraryWidget::createImporter()
 {
     m_importer = new BundleImporter();
