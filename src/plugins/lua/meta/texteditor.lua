@@ -233,6 +233,11 @@ function EmbeddedWidget:onShouldClose(fn) end
 ---@return EmbeddedWidget interface An interface to control the floating widget.
 function TextEditor:addEmbeddedWidget(widget, position) end
 
+---Inserts a widget into toolbar.
+---@param side TextEditor.Side The side where the widget should be added.
+---@param widget Widget|Layout The widget to be added to the toolbar
+function TextEditor:insertExtraToolBarWidget(side, widget) end
+
 ---Adds an refactor marker in the text editor at given cursor position.
 ---@param icon Utils.Icon|FilePath|string Icon to be used. If specified icon is invalid the default QtCreator for markers is used.
 ---@param position integer The position in the document where the marker should appear.
@@ -257,8 +262,23 @@ function TextEditor:insertText(text) end
 ---@return boolean hasFocus True if the editor widget has focus, false otherwise.
 function TextEditor:hasFocus() end
 
+---Returns the block number of the first visible line in the text editor.
+---@return integer blockNumber The block number of the first visible line.
+function TextEditor:firstVisibleBlockNumber() end
+
+---Returns the block number of the last visible line in the text editor.
+---@return integer blockNumber The block number of the last visible line.
+function TextEditor:lastVisibleBlockNumber() end
+
 ---Returns the current editor or nil.
 ---@return TextEditor|nil editor The currently active editor or nil if there is none.
 function textEditor.currentEditor() end
+
+---@enum TextEditor.Side
+---Side of the toolbar.
+textEditor.Side = {
+    Left = 0,
+    Right = 0
+}
 
 return textEditor

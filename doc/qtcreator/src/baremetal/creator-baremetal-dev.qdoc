@@ -207,7 +207,7 @@
 
     \title Set up St-Link
 
-    \l{https://www.st.com/en/development-tools/stm32-programmers.html#products}
+    \l{https://www.st.com/en/development-tools/stlink-v3-bridge.html}
     {ST-LINK Utility} is used for programming STM32 microcontrollers.
 
     \image qtcreator-baremetal-stlink.webp {Bare metal device preferences for St-Link}

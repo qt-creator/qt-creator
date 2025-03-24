@@ -869,7 +869,7 @@ IosRunWorkerFactory::IosRunWorkerFactory()
             if (IosDeviceManager::isDeviceCtlOutputSupported())
                 return new DeviceCtlRunner(control);
             // TODO Remove the polling runner when we decide not to support iOS 17+ devices
-            // with Xcode < 15.4 at all
+            // with Xcode < 16 at all
             return new DeviceCtlPollingRunner(control);
         }
         control->setIcon(Icons::RUN_SMALL_TOOLBAR);
