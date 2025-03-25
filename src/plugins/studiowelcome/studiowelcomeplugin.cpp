@@ -298,13 +298,6 @@ public:
             projectFile = exampleFolder + explicitQmlproject;
 
         ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(FilePath::fromString(projectFile));
-
-        const QString qmlFile = QFileInfo(projectFile).dir().absolutePath() + "/" + formFile;
-
-        // This timer should be replaced with a signal send from project loading
-        QTimer::singleShot(1000, this, [qmlFile]() {
-            Core::EditorManager::openEditor(Utils::FilePath::fromString(qmlFile));
-        });
     }
 
     Q_INVOKABLE void openExample(const QString &example,
