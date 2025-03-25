@@ -68,10 +68,10 @@ void InfoBarWidget::paintEvent(QPaintEvent *event)
                       topEdge ? adjustedRect.bottomRight() : adjustedRect.topRight()));
 }
 
-QColor InfoBarWidget::backgroundColor() const
+QColor InfoBarEntry::backgroundColor(InfoLabel::InfoType infoType)
 {
     Theme::Color color = Theme::InfoBarBackground;
-    switch (m_infoType) {
+    switch (infoType) {
     case InfoLabel::Information:
         color = Theme::Token_Notification_Neutral_Subtle; break;
     case InfoLabel::Warning:
@@ -87,9 +87,14 @@ QColor InfoBarWidget::backgroundColor() const
     return creatorColor(color);
 }
 
-const Icon &InfoBarWidget::icon() const
+QColor InfoBarWidget::backgroundColor() const
 {
-    switch (m_infoType) {
+    return InfoBarEntry::backgroundColor(m_infoType);
+}
+
+const Icon &InfoBarEntry::icon(InfoLabel::InfoType infoType)
+{
+    switch (infoType) {
     case InfoLabel::Information: {
         const static Utils::Icon icon(
             {{":/utils/images/infolarge.png", Theme::Token_Notification_Neutral_Default}},
@@ -103,20 +108,28 @@ const Icon &InfoBarWidget::icon() const
         return icon;
     }
     case InfoLabel::Error:
-    case InfoLabel::NotOk:  {
+    case InfoLabel::NotOk: {
         const static Utils::Icon icon(
             {{":/utils/images/errorlarge.png", Theme::Token_Notification_Danger_Default}},
             Icon::Tint);
         return icon;
     }
-    case InfoLabel::Ok:
-    default: {
+    case InfoLabel::Ok: {
         const static Utils::Icon icon(
             {{":/utils/images/oklarge.png", Theme::Token_Notification_Success_Default}},
             Icon::Tint);
         return icon;
     }
+    default: {
+        const static Utils::Icon icon;
+        return icon;
     }
+    }
+}
+
+const Icon &InfoBarWidget::icon() const
+{
+    return InfoBarEntry::icon(m_infoType);
 }
 
 InfoBarEntry::InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppression _globalSuppression)

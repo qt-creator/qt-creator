@@ -291,6 +291,8 @@ public:
     void saveWindowSettings();
 
     MainWindow *m_mainwindow = nullptr;
+    InfoBar m_infoBar;
+    InfoBar m_popupInfoBar;
     QTimer m_trimTimer;
     QString m_prependAboutInformation;
     QStringList m_aboutInformation;
@@ -866,7 +868,14 @@ QStatusBar *ICore::statusBar()
 */
 Utils::InfoBar *ICore::infoBar()
 {
-    return d->m_modeStack->infoBar();
+    if (qtcEnvironmentVariableIsSet("QTC_DEBUG_POPUPNOTIFICATION"))
+        return &d->m_popupInfoBar;
+    return &d->m_infoBar;
+}
+
+InfoBar *ICore::popupInfoBar()
+{
+    return &d->m_popupInfoBar;
 }
 
 /*!
@@ -1388,6 +1397,7 @@ void ICorePrivate::init()
     m_jsExpander = JsExpander::createGlobalJsExpander();
     m_vcsManager = new VcsManager;
     m_modeStack = new FancyTabWidget(m_mainwindow);
+    m_modeStack->setInfoBar(&m_infoBar);
 
     setupShortcutSettings();
     setupExternalToolSettings();

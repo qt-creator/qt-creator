@@ -229,6 +229,7 @@ static void showUpdateInfo(const QList<Update> &updates,
             scrollArea->setFrameShape(QFrame::NoFrame);
             scrollArea->viewport()->setAutoFillBackground(false);
             label->setAutoFillBackground(false);
+            scrollArea->setWindowTitle(Tr::tr("Update Details"));
             return scrollArea;
         });
     }

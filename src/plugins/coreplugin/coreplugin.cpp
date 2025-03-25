@@ -535,6 +535,7 @@ void CorePlugin::warnAboutCrashReporing()
 
     info.setDetailsWidgetCreator([]() -> QWidget * {
         auto label = new QLabel;
+        label->setWindowTitle(Tr::tr("Crash Reporting"));
         label->setWordWrap(true);
         label->setOpenExternalLinks(true);
         label->setText(msgCrashpadInformation());

@@ -82,6 +82,7 @@ public:
     static QMainWindow *mainWindow();
     static QWidget *dialogParent();
     static Utils::InfoBar *infoBar();
+    static Utils::InfoBar *popupInfoBar();
 
     static bool askForRestart(const QString &text, const QString &altButtonText = {});
 

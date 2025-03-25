@@ -20,6 +20,7 @@ class StatusBarWidget;
 
 namespace Internal {
 
+class PopupInfoBarDisplay;
 class ProgressBar;
 class ProgressView;
 
@@ -31,6 +32,9 @@ public:
     ~ProgressManagerPrivate() override;
     void init();
     void cleanup();
+
+    static int infoMinWidth();
+    static int infoMaxWidth();
 
     FutureProgress *doAddTask(const QFuture<void> &future, const QString &title, Utils::Id type,
                             ProgressFlags flags);
@@ -58,6 +62,7 @@ private:
     void updateVisibility();
     void updateVisibilityWithDelay();
     void updateStatusDetailsWidget();
+    void updateNotificationSummaryIcon();
 
     void readSettings();
     void initInternal();
@@ -73,12 +78,14 @@ private:
     void updateApplicationLabelNow();
 
     QPointer<ProgressView> m_progressView;
+    PopupInfoBarDisplay *m_infoBarDisplay;
     QList<FutureProgress *> m_taskList;
     QHash<QFutureWatcher<void> *, Utils::Id> m_runningTasks;
     QFutureWatcher<void> *m_applicationTask = nullptr;
     StatusBarWidget *m_statusBarWidgetContainer;
     QWidget *m_statusBarWidget;
     QWidget *m_summaryProgressWidget;
+    QLabel *m_notificationSummaryIcon = nullptr;
     QHBoxLayout *m_statusDetailsWidgetLayout = nullptr;
     QWidget *m_currentStatusDetailsWidget = nullptr;
     QPointer<FutureProgress> m_currentStatusDetailsProgress;
