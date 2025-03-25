@@ -1074,7 +1074,7 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
         connect(&m_runner, &ValgrindProcess::valgrindStarted,
                 this, &MemcheckToolRunner::startDebugger);
         connect(&m_runner, &ValgrindProcess::logMessageReceived,
-                this, [this, runControl](const QByteArray &data) {
+                this, [runControl](const QByteArray &data) {
             runControl->postMessage(QString::fromUtf8(data), Utils::StdOutFormat);
         });
     } else {
