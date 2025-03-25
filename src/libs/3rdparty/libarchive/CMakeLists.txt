@@ -11,16 +11,17 @@ add_subdirectory(libarchive)
 # To generate these files, use the CMakeLists.original.txt file, and copy the generated config.h
 # from your build directories to the respective config_*.h file.
 if(APPLE)
-  target_compile_definitions(archive_static PRIVATE PLATFORM_CONFIG_H=<${CMAKE_CURRENT_SOURCE_DIR}/config_mac.h>)
+  set(PLATFORM_CONFIG_H "config_mac.h")
+elseif(MINGW)
+  set(PLATFORM_CONFIG_H "config_mingw.h")
 elseif(WIN32)
-    if(MINGW)
-        target_compile_definitions(archive_static PRIVATE PLATFORM_CONFIG_H=<${CMAKE_CURRENT_SOURCE_DIR}/config_mingw.h>)
-    else()
-        target_compile_definitions(archive_static PRIVATE PLATFORM_CONFIG_H=<${CMAKE_CURRENT_SOURCE_DIR}/config_win.h>)
-    endif()
+  set(PLATFORM_CONFIG_H "config_win.h")
 else()
-  target_compile_definitions(archive_static PRIVATE PLATFORM_CONFIG_H=<${CMAKE_CURRENT_SOURCE_DIR}/config_unix.h>)
+  set(PLATFORM_CONFIG_H "config_unix.h")
 endif()
+
+target_compile_definitions(archive_static PRIVATE
+  "PLATFORM_CONFIG_H=\"${CMAKE_CURRENT_SOURCE_DIR}/${PLATFORM_CONFIG_H}\"")
 
 if (NOT WIN32)
   find_package(Iconv REQUIRED)
