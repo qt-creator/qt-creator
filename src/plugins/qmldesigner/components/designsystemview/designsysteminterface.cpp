@@ -39,6 +39,11 @@ CollectionModel *DesignSystemInterface::model(const QString &typeName)
     return nullptr;
 }
 
+QString DesignSystemInterface::generateCollectionName(const QString &hint) const
+{
+    return m_store->uniqueCollectionName(hint);
+}
+
 void DesignSystemInterface::addCollection(const QString &name)
 {
     if (m_store->addCollection(name))

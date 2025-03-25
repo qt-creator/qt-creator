@@ -154,6 +154,7 @@ Rectangle {
 
     StudioControls.Dialog {
         id: createCollectionDialog
+        property alias newCollectionName: createCollectionTextField.text;
         title: qsTr("Create collection")
         width: Math.min(300, root.width)
         closePolicy: Popup.CloseOnEscape
@@ -171,8 +172,6 @@ Rectangle {
                 actionIndicatorVisible: false
                 translationIndicatorVisible: false
                 width: parent.width
-
-                text: qsTr("NewCollection")
 
                 onAccepted: createCollectionDialog.accept()
                 onRejected: createCollectionDialog.reject()
@@ -318,7 +317,10 @@ Rectangle {
 
                     StudioControls.MenuItem {
                         text: qsTr("Create collection")
-                        onTriggered: createCollectionDialog.open()
+                        onTriggered: {
+                            createCollectionDialog.newCollectionName = DesignSystemBackend.dsInterface.generateCollectionName(qsTr("NewCollection"));
+                            createCollectionDialog.open()
+                        }
                     }
                 }
             }

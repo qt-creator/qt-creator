@@ -48,8 +48,9 @@ public:
     void breakBindings(DSThemeManager *collection, PropertyName propertyName);
     void breakBindings(DSThemeManager *collection, QStringView removeCollection);
 
-private:
     QString uniqueCollectionName(const QString &hint) const;
+
+private:
     std::optional<QString> loadCollection(const QString &typeName, const Utils::FilePath &qmlFilePath);
     std::optional<QString> writeQml(const DSThemeManager &mgr,
                                     const QString &typeName,
