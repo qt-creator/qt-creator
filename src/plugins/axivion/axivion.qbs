@@ -9,8 +9,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
-    Depends { name: "Qt.widgets" }
-    Depends { name: "Qt.network" }
+    Depends { name: "Qt"; submodules: ["network", "sql", "widgets"] }
 
     files: [
         "axivionperspective.cpp",
@@ -24,6 +23,8 @@ QtcPlugin {
         "dynamiclistmodel.h",
         "issueheaderview.cpp",
         "issueheaderview.h",
+        "localbuild.cpp",
+        "localbuild.h",
     ]
 
     cpp.includePaths: base.concat(["."]) // needed for the generated stuff below

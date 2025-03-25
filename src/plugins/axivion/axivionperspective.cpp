@@ -9,6 +9,7 @@
 #include "dashboard/dto.h"
 #include "issueheaderview.h"
 #include "dynamiclistmodel.h"
+#include "localbuild.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
@@ -212,6 +213,7 @@ private:
     void fetchTable();
     void fetchIssues(const IssueListSearch &search);
     void onFetchRequested(int startRow, int limit);
+    void switchDashboard(bool local);
     void hideOverlays();
     void openFilterHelp();
 
@@ -308,11 +310,11 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     localLayout->addWidget(m_localDashBoard);
     connect(&settings(), &AxivionSettings::suitePathValidated, this, [this] {
         const auto info = settings().versionInfo();
-        const bool enable = info && !info->versionNumber.isEmpty(); // for now
+        const bool enable = info && !info->versionNumber.isEmpty();
         m_localBuild->setEnabled(enable);
-        m_localDashBoard->setEnabled(enable);
+        checkForLocalBuildResults(m_currentProject, [this] { m_localDashBoard->setEnabled(true); });
     });
-
+    connect(m_localDashBoard, &QToolButton::clicked, this, &IssuesWidget::switchDashboard);
     m_typesButtonGroup = new QButtonGroup(this);
     m_typesButtonGroup->setExclusive(true);
     m_typesLayout = new QHBoxLayout;
@@ -855,7 +857,7 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
     std::optional<AxivionVersionInfo> suiteVersionInfo = settings().versionInfo();
     m_localBuild->setEnabled(!m_currentProject.isEmpty()
                              && suiteVersionInfo && !suiteVersionInfo->versionNumber.isEmpty());
-    m_localDashBoard->setEnabled(true);
+    checkForLocalBuildResults(m_currentProject, [this] { m_localDashBoard->setEnabled(true); });
 }
 
 void IssuesWidget::updateAllFilters(const QVariant &namedFilter)
@@ -1008,6 +1010,16 @@ void IssuesWidget::showErrorMessage(const QString &message)
 {
     m_errorEdit->setPlainText(message);
     m_stack->setCurrentIndex(1);
+}
+
+void IssuesWidget::switchDashboard(bool local)
+{
+    if (local) {
+        QTC_ASSERT(!m_currentProject.isEmpty(), return);
+        startLocalDashboard(m_currentProject, {});
+    } else {
+        // TODO switch back
+    }
 }
 
 void IssuesWidget::hideOverlays()

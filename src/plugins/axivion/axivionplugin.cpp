@@ -8,6 +8,7 @@
 #include "axiviontr.h"
 #include "dashboard/dto.h"
 #include "dashboard/error.h"
+#include "localbuild.h"
 
 #include <coreplugin/credentialquery.h>
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -1226,6 +1227,14 @@ class AxivionPlugin final : public ExtensionSystem::IPlugin
                 dd, &AxivionPluginPrivate::onDocumentOpened);
         connect(EditorManager::instance(), &EditorManager::documentClosed,
                 dd, &AxivionPluginPrivate::onDocumentClosed);
+    }
+
+    ShutdownFlag aboutToShutdown() final
+    {
+        if (shutdownAllLocalDashboards([this] { emit asynchronousShutdownFinished(); }))
+            return AsynchronousShutdown;
+        else
+            return SynchronousShutdown;
     }
 };
 
