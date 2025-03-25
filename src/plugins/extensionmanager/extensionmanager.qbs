@@ -29,7 +29,6 @@ QtcPlugin {
         files: [
             "extensionmanager_test.h",
             "extensionmanager_test.cpp",
-            "extensionmanager_test.qrc",
         ]
     }
 }
