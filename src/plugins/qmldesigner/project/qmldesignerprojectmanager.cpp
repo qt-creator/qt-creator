@@ -73,7 +73,7 @@ QString previewBrokenImagePath()
     return Core::ICore::resourcePath("qmldesigner/welcomepage/images/noPreview.png").toUrlishString();
 }
 
-::QmlProjectManager::QmlBuildSystem *getQmlBuildSystem(::ProjectExplorer::Target *target)
+::QmlProjectManager::QmlBuildSystem *getQmlBuildSystem(const ::ProjectExplorer::Target *target)
 {
     return qobject_cast<::QmlProjectManager::QmlBuildSystem *>(target->buildSystem());
 }
@@ -193,7 +193,7 @@ Sqlite::JournalMode projectStorageJournalMode()
     return QLibraryInfo::path(QLibraryInfo::QmlImportsPath);
 }
 
-[[maybe_unused]] QString qmlPath(::ProjectExplorer::Project *project)
+[[maybe_unused]] QString qmlPath(const ::ProjectExplorer::Project *project)
 {
     auto qt = QtSupport::QtKitAspect::qtVersion(project->activeKit());
     if (qt)
@@ -205,7 +205,7 @@ Sqlite::JournalMode projectStorageJournalMode()
 class ProjectStorageData
 {
 public:
-    ProjectStorageData(::ProjectExplorer::Project *project, PathCacheType &pathCache)
+    ProjectStorageData(const ::ProjectExplorer::Project *project, PathCacheType &pathCache)
         : database{project->projectDirectory().pathAppended("projectstorage.db").toUrlishString(),
                    projectStorageJournalMode()}
         , errorNotifier{pathCache}
@@ -242,7 +242,7 @@ public:
     ProjectStorageUpdater updater;
 };
 
-std::unique_ptr<ProjectStorageData> createProjectStorageData(::ProjectExplorer::Project *project,
+std::unique_ptr<ProjectStorageData> createProjectStorageData(const ::ProjectExplorer::Project *project,
                                                              PathCacheType &pathCache)
 {
     if constexpr (useProjectStorage()) {
@@ -272,7 +272,7 @@ class QmlDesignerProjectManager::QmlDesignerProjectManagerProjectData
 {
 public:
     QmlDesignerProjectManagerProjectData(ImageCacheStorage<Sqlite::Database> &storage,
-                                         ::ProjectExplorer::Project *project,
+                                         const ::ProjectExplorer::Project *project,
                                          PathCacheType &pathCache,
                                          ExternalDependenciesInterface &externalDependencies)
         : collector{QSize{300, 300},
@@ -281,6 +281,7 @@ public:
                     ImageCacheCollectorNullImageHandling::CaptureNullImage}
         , factory{storage, timeStampProvider, collector}
         , projectStorageData{createProjectStorageData(project, pathCache)}
+        , activeTarget{project->activeTarget()}
     {}
 
     ImageCacheCollector collector;
@@ -461,11 +462,10 @@ QString qtCreatorItemLibraryPath()
 
 } // namespace
 
-void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *project)
+void QmlDesignerProjectManager::projectAdded(const ::ProjectExplorer::Project *project)
 {
     m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>(
         m_previewImageCacheData->storage, project, m_data->pathCache, m_externalDependencies);
-    m_projectData->activeTarget = project->activeTarget();
 
     QObject::connect(project, &::ProjectExplorer::Project::fileListChanged, [&]() {
         fileListChanged();
@@ -483,7 +483,7 @@ void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *project
         activeTargetChanged(target);
 }
 
-void QmlDesignerProjectManager::aboutToRemoveProject(::ProjectExplorer::Project *)
+void QmlDesignerProjectManager::aboutToRemoveProject(const ::ProjectExplorer::Project *)
 {
     if (m_projectData) {
         m_previewImageCacheData->collector.setTarget(m_projectData->activeTarget);
@@ -491,7 +491,7 @@ void QmlDesignerProjectManager::aboutToRemoveProject(::ProjectExplorer::Project 
     }
 }
 
-void QmlDesignerProjectManager::projectRemoved(::ProjectExplorer::Project *) {}
+void QmlDesignerProjectManager::projectRemoved(const ::ProjectExplorer::Project *) {}
 
 void QmlDesignerProjectManager::generatePreview()
 {
