@@ -58,6 +58,15 @@ public:
         connect(&m_reader, &PerfDataReader::processStarted, this, &RunWorker::reportStarted);
         connect(&m_reader, &PerfDataReader::processFinished, this, &RunWorker::reportStopped);
         connect(&m_reader, &PerfDataReader::processFailed, this, &RunWorker::reportFailure);
+
+        connect(runControl, &RunControl::stdOutData, this, [this, runControl](const QByteArray &data) {
+            if (m_reader.feedParser(data))
+                return;
+
+            runControl->postMessage(Tr::tr("Failed to transfer Perf data to perfparser."),
+                                    ErrorMessageFormat);
+            initiateStop();
+        });
     }
 
     void start() final
@@ -78,8 +87,6 @@ public:
     {
         m_reader.stopParser();
     }
-
-    PerfDataReader *reader() { return &m_reader;}
 
 private:
     PerfDataReader m_reader;
@@ -149,17 +156,6 @@ public:
                              &PerfProfilerTool::onRunControlStarted);
             QObject::connect(runControl, &RunControl::stopped, PerfProfilerTool::instance(),
                              &PerfProfilerTool::onRunControlFinished);
-
-            PerfDataReader *reader = perfParserWorker->reader();
-            QObject::connect(perfRecordWorker, &ProcessRunner::stdOutData, perfParserWorker,
-                             [perfParserWorker, reader, runControl](const QByteArray &data) {
-                if (reader->feedParser(data))
-                    return;
-
-                runControl->postMessage(Tr::tr("Failed to transfer Perf data to perfparser."),
-                                        ErrorMessageFormat);
-                perfParserWorker->initiateStop();
-            });
             return perfParserWorker;
         });
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);

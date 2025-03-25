@@ -1496,7 +1496,7 @@ void ProcessRunnerPrivate::handleDone()
 void ProcessRunnerPrivate::handleStandardOutput()
 {
     if (m_suppressDefaultStdOutHandling)
-        emit q->stdOutData(m_process.readAllRawStandardOutput());
+        emit q->runControl()->stdOutData(m_process.readAllRawStandardOutput());
     else
         postMessage(m_process.readAllStandardOutput(), StdOutFormat, false);
 }

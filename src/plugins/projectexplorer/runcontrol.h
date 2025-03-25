@@ -258,6 +258,7 @@ signals:
     void started();
     void stopped();
     void applicationProcessHandleChanged(QPrivateSignal);
+    void stdOutData(const QByteArray &data);
 
 private:
     void setDevice(const IDeviceConstPtr &device);
@@ -286,9 +287,6 @@ public:
     void setProcessMode(Utils::ProcessMode processMode);
 
     void suppressDefaultStdOutHandling();
-
-signals:
-    void stdOutData(const QByteArray &data);
 
 private:
     void start() final;
