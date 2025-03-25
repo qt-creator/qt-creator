@@ -39,6 +39,7 @@ Rectangle {
         id: propertySearchBar
 
         contentItem: mainColumn
+        anchors.top: itemPane.top
         width: parent.width
         z: parent.z + 1
     }
@@ -73,6 +74,7 @@ Rectangle {
 
     Rectangle {
         id: stateSection
+        anchors.top: toolbar.bottom
         width: itemPane.width
         height: StudioTheme.Values.height + StudioTheme.Values.controlGap * 2
         color:  StudioTheme.Values.themePanelBackground
