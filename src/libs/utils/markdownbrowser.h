@@ -42,6 +42,8 @@ protected:
     void changeEvent(QEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
 
+    QMimeData *createMimeDataFromSelection() const override;
+
 private:
     void handleAnchorClicked(const QUrl &link);
     void postProcessDocument(bool firstTime);
