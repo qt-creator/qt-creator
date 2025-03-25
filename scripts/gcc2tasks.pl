@@ -15,16 +15,20 @@ msvc2tasks.pl - Convert GCC warnings into Qt Creator task files.
 
 use strict;
 
+my $count = 0;
 while (my $line = <STDIN> ) {
     chomp($line);
     # --- extract file name based matching:
     # file.cpp:214:37: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
-    if ($line =~ /^([^:]+):(\d+):\d*:? (warning|error): (.*)$/) {
+    if ($line =~ /^([^:]+):(\d+):\d*:? (warning|error|fatal error): (.*)$/) {
         my $fileName = $1;
         my $lineNumber = $2;
         my $type = $3 eq 'warning' ? 'warn' : 'err';
         my $text = $4;
         $fileName =~ s|\\|/|g;
         print $fileName, "\t", $lineNumber, "\t", $type, "\t", $text,"\n";
+        $count++;
     }
 }
+
+print STDERR $count, " issue(s) found.\n" if $count;
