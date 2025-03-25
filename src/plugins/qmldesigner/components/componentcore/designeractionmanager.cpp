@@ -1087,7 +1087,7 @@ bool selectionCanBeLayouted(const SelectionContext &context)
 
 bool selectionCanBeLayoutedAndQtQuickLayoutPossible(const SelectionContext &context)
 {
-    return selectionCanBeLayouted(context) && context.view()->majorQtQuickVersion() > 1;
+    return selectionCanBeLayouted(context);
 }
 
 bool selectionCanBeLayoutedAndQtQuickLayoutPossibleAndNotMCU(const SelectionContext &context)

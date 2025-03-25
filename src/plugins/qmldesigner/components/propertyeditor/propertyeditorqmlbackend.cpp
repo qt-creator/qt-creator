@@ -35,6 +35,10 @@
 #include <utils/fileutils.h>
 #include <utils/smallstring.h>
 
+#ifdef QDS_USE_PROJECTSTORAGE
+#include <qmlprojectmanager/qmlproject.h>
+#endif
+
 #include <QApplication>
 #include <QDir>
 #include <QFileInfo>
@@ -648,8 +652,10 @@ void PropertyEditorQmlBackend::setup(const ModelNodes &editorNodes,
 #ifdef QDS_USE_PROJECTSTORAGE
     contextObject()->setMajorVersion(-1);
     contextObject()->setMinorVersion(-1);
-    contextObject()->setMajorQtQuickVersion(-1);
-    contextObject()->setMinorQtQuickVersion(-1);
+
+    const auto version = QmlProjectManager::QmlProject::qtQuickVersion();
+    contextObject()->setMajorQtQuickVersion(version.major);
+    contextObject()->setMinorQtQuickVersion(version.minor);
 #else
     if (metaInfo.isValid()) {
         contextObject()->setMajorVersion(metaInfo.majorVersion());
@@ -657,13 +663,10 @@ void PropertyEditorQmlBackend::setup(const ModelNodes &editorNodes,
     } else {
         contextObject()->setMajorVersion(-1);
         contextObject()->setMinorVersion(-1);
-        contextObject()->setMajorQtQuickVersion(-1);
-        contextObject()->setMinorQtQuickVersion(-1);
     }
-#endif
     contextObject()->setMajorQtQuickVersion(qmlObjectNode.view()->majorQtQuickVersion());
     contextObject()->setMinorQtQuickVersion(qmlObjectNode.view()->minorQtQuickVersion());
-
+#endif
     contextObject()->setHasMaterialLibrary(Utils3D::materialLibraryNode(propertyEditor).isValid());
     contextObject()->setIsQt6Project(propertyEditor->externalDependencies().isQt6Project());
     contextObject()->setEditorNodes(editorNodes);
