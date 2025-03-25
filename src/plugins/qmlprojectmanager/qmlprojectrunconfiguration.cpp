@@ -216,7 +216,7 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
     if (QtVersion *version = QtKitAspect::qtVersion(kit)) {
         // look for QML Puppet as qmlruntime only in QtStudio Qt versions
         if (version->features().contains("QtStudio") && version->qtVersion().majorVersion() > 5
-            && dev->rootPath().isLocal()) {
+            && !dev->rootPath().needsDevice()) {
             auto [workingDirectoryPath, puppetPath] = QmlDesigner::QmlPuppetPaths::qmlPuppetPaths(
                         target(), QmlDesigner::QmlDesignerBasePlugin::settings());
             if (!puppetPath.isEmpty()) {
