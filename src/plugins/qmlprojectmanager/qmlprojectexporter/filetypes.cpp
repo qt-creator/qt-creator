@@ -7,9 +7,9 @@ namespace QmlProjectManager {
 
 QStringList imageFiles(const std::function<QString(QString)> &transformer)
 {
-    static const QStringList suffixes = {"bmp", "dae",  "gif", "hdr",  "ico", "jpeg", "jpg",
-                                         "ktx", "pbm",  "pgm", "png",  "ppm", "svg",  "svgz",
-                                         "tif", "tiff", "ttf", "webp", "xbm", "xpm",  "tga"};
+    static const QStringList suffixes = {"bmp", "dae",  "gif",  "hdr", "ico", "jpeg", "jpg",
+                                         "ktx", "pbm",  "pgm",  "png", "ppm", "svg",  "svgz",
+                                         "tif", "tiff", "webp", "xbm", "xpm", "tga"};
 
     if (transformer) {
         QStringList result;
