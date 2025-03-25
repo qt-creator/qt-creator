@@ -16,5 +16,9 @@ add_qtc_library(qtcBZip2
 
 IF (NOT MSVC)
   # Disable warnings
-  target_compile_options(qtcBZip2 PRIVATE "-Wimplicit-fallthrough=0" "-Wno-unused-parameter")
+  IF (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(qtcBZip2 PRIVATE "-Wno-unused-parameter")
+  elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(qtcBZip2 PRIVATE "-Wimplicit-fallthrough=0" "-Wno-unused-parameter")
+  endif()
 endif()
