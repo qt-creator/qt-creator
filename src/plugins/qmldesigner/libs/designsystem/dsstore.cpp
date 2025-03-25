@@ -31,6 +31,16 @@ std::optional<Utils::FilePath> dsModuleDir(QmlDesigner::ExternalDependenciesInte
     return {};
 }
 
+static Utils::FilePath dsFilePath(const Utils::FilePath &targetDir, const QString &typeName)
+{
+    return targetDir / (typeName + ".qml");
+}
+
+static QString themeInterfaceType(const QString &typeName)
+{
+    return QString("%1Theme").arg(typeName);
+}
+
 static QByteArray reformatQml(const QString &content)
 {
     auto document = QmlJS::Document::create({}, QmlJS::Dialect::QmlQtQuick2);
@@ -75,7 +85,7 @@ std::optional<QString> modelSerializeHelper(
 
     view.executeInTransaction("DSStore::modelSerializeHelper", [&] { callback(model.get()); });
 
-    Utils::FileSaver saver(targetDir / (typeName + ".qml"), QIODevice::Text);
+    Utils::FileSaver saver(dsFilePath(targetDir, typeName), QIODevice::Text);
     saver.write(reformatQml(modifier.text()));
     if (!saver.finalize())
         return saver.errorString();
@@ -230,6 +240,7 @@ bool DSStore::removeCollection(const QString &name)
             breakBindings(&currentCollection, name);
         }
         save();
+        removeCollectionFiles(name);
         return m_collections.erase(name);
     }
     return false;
@@ -254,6 +265,7 @@ bool DSStore::renameCollection(const QString &oldName, const QString &newName)
 
     refactorBindings(oldName, uniqueTypeName);
     save();
+    removeCollectionFiles(oldName);
     return true;
 }
 
@@ -447,19 +459,19 @@ std::optional<QString> DSStore::writeQml(const DSThemeManager &mgr,
     if (mgr.themeCount() == 0)
         return {};
 
-    const QString themeInterfaceType = mcuCompatible ? QString("%1Theme").arg(typeName) : "QtObject";
+    const QString interfaceType = mcuCompatible ? themeInterfaceType(typeName) : "QtObject";
     if (mcuCompatible) {
         auto decorateInterface = [&mgr](Model *interfaceModel) {
             mgr.decorateThemeInterface(interfaceModel->rootModelNode());
         };
 
         if (auto error = modelSerializeHelper(
-                m_projectStorageDependencies, m_ed, decorateInterface, targetDir, themeInterfaceType))
-            return tr("Can not write theme interface %1.\n%2").arg(themeInterfaceType, *error);
+                m_projectStorageDependencies, m_ed, decorateInterface, targetDir, interfaceType))
+            return tr("Can not write theme interface %1.\n%2").arg(interfaceType, *error);
     }
 
     auto decorateCollection = [&](Model *collectionModel) {
-        mgr.decorate(collectionModel->rootModelNode(), themeInterfaceType.toUtf8(), mcuCompatible);
+        mgr.decorate(collectionModel->rootModelNode(), interfaceType.toUtf8(), mcuCompatible);
     };
 
     if (auto error = modelSerializeHelper(
@@ -467,5 +479,16 @@ std::optional<QString> DSStore::writeQml(const DSThemeManager &mgr,
         return tr("Can not write collection %1.\n%2").arg(typeName, *error);
 
     return {};
+}
+
+void DSStore::removeCollectionFiles(const QString &typeName) const
+{
+    if (auto moduleDir = dsModuleDir(m_ed)) {
+        const auto collectionFilePath = dsFilePath(*moduleDir, typeName);
+        collectionFilePath.removeFile();
+
+        const auto interfaceFile = dsFilePath(*moduleDir, themeInterfaceType(typeName));
+        interfaceFile.removeFile();
+    }
 }
 } // namespace QmlDesigner
