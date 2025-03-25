@@ -100,6 +100,7 @@ public:
     {
         setProducer([](RunControl *runControl) {
             auto runner = new ProcessRunner(runControl);
+            runner->suppressDefaultStdOutHandling();
             runner->setStartModifier([runner, runControl] {
                 const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
                 const QString recordArgs = perfArgs[Constants::PerfRecordArgsId].toString();
@@ -130,19 +131,16 @@ class PerfProfilerRunWorkerFactory final : public RunWorkerFactory
 public:
     PerfProfilerRunWorkerFactory()
     {
-        setProducer([](RunControl *runControl) -> RunWorker * {
-            RecipeRunner *perfParserWorker = new RecipeRunner(runControl, perfParserRecipe(runControl));
+        setProducer([](RunControl *runControl) {
+            // The following RunWorkerFactories react to that:
+            // 1. AppManagerPerfProfilerWorkerFactory
+            // 2. PerfRecordWorkerFactory
+            // 3. QdbPerfProfilerWorkerFactory
+            RunWorker *perfRecordWorker
+                = runControl->createWorker(PerfProfiler::Constants::PERF_PROFILER_RUN_MODE);
+            QTC_ASSERT(perfRecordWorker, return perfRecordWorker);
 
-            // There are currently two RunWorkerFactories reacting to that:
-            // PerfRecordRunnerFactory above for the generic case and
-            // QdbPerfProfilerWorkerFactory in boot2qt.
-            ProcessRunner *perfRecordWorker = qobject_cast<ProcessRunner *>(
-                runControl->createWorker(PerfProfiler::Constants::PERF_PROFILER_RUN_MODE));
-
-            QTC_ASSERT(perfRecordWorker, return nullptr);
-
-            perfRecordWorker->suppressDefaultStdOutHandling();
-
+            RunWorker *perfParserWorker = new RecipeRunner(runControl, perfParserRecipe(runControl));
             perfParserWorker->addStartDependency(perfRecordWorker);
             perfParserWorker->addStopDependency(perfRecordWorker);
             QObject::connect(perfRecordWorker, &RunWorker::stopped, runControl, &RunControl::initiateStop);

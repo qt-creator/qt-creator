@@ -40,10 +40,13 @@ using namespace Utils;
 
 namespace AppManager::Internal {
 
-static RunWorker *createInferiorRunner(RunControl *runControl, QmlDebugServicesPreset qmlServices)
+static RunWorker *createInferiorRunner(RunControl *runControl, QmlDebugServicesPreset qmlServices,
+                                       bool suppressDefaultStdOutHandling = false)
 {
     auto worker = new ProcessRunner(runControl);
     worker->setId(AppManager::Constants::DEBUG_LAUNCHER_ID);
+    if (suppressDefaultStdOutHandling)
+        worker->suppressDefaultStdOutHandling();
 
     worker->setStartModifier([worker, runControl, qmlServices] {
         FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
@@ -262,7 +265,7 @@ public:
     {
         setProducer([](RunControl *runControl) {
             runControl->requestPerfChannel();
-            return createInferiorRunner(runControl, NoQmlDebugServices);
+            return createInferiorRunner(runControl, NoQmlDebugServices, true);
         });
         addSupportedRunMode(PerfProfiler::Constants::PERF_PROFILER_RUN_MODE);
         addSupportedRunConfig(Constants::RUNANDDEBUGCONFIGURATION_ID);

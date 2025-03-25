@@ -27,10 +27,13 @@ using namespace Utils;
 namespace Qdb::Internal {
 
 static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
-                                                QmlDebugServicesPreset qmlServices)
+                                                QmlDebugServicesPreset qmlServices,
+                                                bool suppressDefaultStdOutHandling = false)
 {
     auto worker = new ProcessRunner(runControl);
     worker->setId("QdbDeviceInferiorWorker");
+    if (suppressDefaultStdOutHandling)
+        worker->suppressDefaultStdOutHandling();
 
     worker->setStartModifier([worker, runControl, qmlServices] {
         CommandLine cmd{runControl->device()->filePath(Constants::AppcontrollerFilepath)};
@@ -169,7 +172,7 @@ public:
     {
         setProducer([](RunControl *runControl) {
             runControl->requestPerfChannel();
-            return createQdbDeviceInferiorWorker(runControl, NoQmlDebugServices);
+            return createQdbDeviceInferiorWorker(runControl, NoQmlDebugServices, true);
         });
         addSupportedRunMode(PerfProfiler::Constants::PERF_PROFILER_RUN_MODE);
         addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
