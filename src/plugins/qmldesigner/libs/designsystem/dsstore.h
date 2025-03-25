@@ -57,6 +57,8 @@ private:
                                     const Utils::FilePath &targetDir,
                                     bool mcuCompatible);
 
+    void removeCollectionFiles(const QString &typeName) const;
+
 private:
     ExternalDependenciesInterface &m_ed;
     ProjectStorageDependencies m_projectStorageDependencies;
