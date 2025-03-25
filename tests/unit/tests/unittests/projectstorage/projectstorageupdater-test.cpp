@@ -701,55 +701,91 @@ TEST_F(ProjectStorageUpdater_parse_qml_types, add_subdirectories)
     updater.update({.qtDirectories = {"/root"}});
 }
 
-TEST_F(ProjectStorageUpdater, synchronize_is_empty_for_no_change)
+class ProjectStorageUpdater_synchronize_empty : public BaseProjectStorageUpdater
 {
-    setFilesUnchanged({qmltypesPathSourceId, qmltypes2PathSourceId, qmlDirPathSourceId});
+public:
+    ProjectStorageUpdater_synchronize_empty()
+    {
+        QString qmldir{R"(module Example
+                      typeinfo example.qmltypes
+                      typeinfo example2.qmltypes)"};
+        setContent(u"/root/path/qmldir", qmldir);
+        setContent(u"/root/path/example.qmltypes", qmltypes);
+        setContent(u"/root/path/example2.qmltypes", qmltypes2);
+        setSubdirectoryPaths(u"/root", {"/root/path"});
+    }
+
+public:
+    QString qmltypes{"Module {\ndependencies: []}"};
+    QString qmltypes2{"Module {\ndependencies: [foo]}"};
+    SourceId qmltypesPathSourceId = sourcePathCache.sourceId("/root/path/example.qmltypes");
+    SourceId qmltypes2PathSourceId = sourcePathCache.sourceId("/root/path/example2.qmltypes");
+    SourceId qmlDirPathSourceId = sourcePathCache.sourceId("/root/path/qmldir");
+    SourceContextId directoryPathId = qmlDirPathSourceId.contextId();
+    SourceId directoryPathSourceId = SourceId::create(QmlDesigner::SourceNameId{}, directoryPathId);
+    SourceId annotationDirectoryId = createDirectorySourceId("/root/path/designer");
+    SourceId rootQmlDirPathSourceId = sourcePathCache.sourceId("/root/qmldir");
+    SourceId rootDirectoryPathSourceId = createDirectorySourceId("/root");
+    SourceId rootAnnotationDirectoryId = createDirectorySourceId("/root/designer");
+    SourceId ignoreInQdsSourceId = sourcePathCache.sourceId("/root/path/ignore-in-qds");
+};
+
+TEST_F(ProjectStorageUpdater_synchronize_empty, for_no_change_for_qt)
+{
+    setFilesUnchanged(
+        {qmltypesPathSourceId, qmltypes2PathSourceId, qmlDirPathSourceId, directoryPathSourceId});
+    setFilesNotExistsUnchanged({annotationDirectoryId});
 
     EXPECT_CALL(projectStorageMock, synchronize(PackageIsEmpty()));
 
-    updater.update({.qtDirectories = directories});
+    updater.update({.qtDirectories = {"/root/path"}});
 }
 
-TEST_F(ProjectStorageUpdater, synchronize_is_empty_for_no_change_in_subdirectory)
+TEST_F(ProjectStorageUpdater_synchronize_empty, for_no_change_for_project)
 {
-    SourceId qmlDirRootPathSourceId = sourcePathCache.sourceId("/root/qmldir");
-    SourceId rootPathSourceId = createDirectorySourceId("/root");
+    setFilesUnchanged(
+        {qmltypesPathSourceId, qmltypes2PathSourceId, qmlDirPathSourceId, directoryPathSourceId});
+    setFilesNotExistsUnchanged({annotationDirectoryId});
+
+    EXPECT_CALL(projectStorageMock, synchronize(PackageIsEmpty()));
+
+    updater.update({.projectDirectory = "/root/path"});
+}
+
+TEST_F(ProjectStorageUpdater_synchronize_empty, for_no_change_in_subdirectory)
+{
     setFilesUnchanged({qmltypesPathSourceId,
                        qmltypes2PathSourceId,
                        qmlDirPathSourceId,
-                       qmlDirRootPathSourceId,
-                       rootPathSourceId});
-    QStringList directories = {"/root"};
-    setSubdirectoryPaths(u"/root", {"/path"});
+                       rootDirectoryPathSourceId,
+                       directoryPathSourceId});
+    setFilesNotExistsUnchanged(
+        {annotationDirectoryId, rootQmlDirPathSourceId, rootAnnotationDirectoryId, ignoreInQdsSourceId});
 
     EXPECT_CALL(projectStorageMock, synchronize(PackageIsEmpty()));
 
-    updater.update({.qtDirectories = directories});
+    updater.update({.qtDirectories = {"/root"}});
 }
 
-TEST_F(ProjectStorageUpdater, synchronize_is_empty_for_ignored_subdirectory)
+TEST_F(ProjectStorageUpdater_synchronize_empty, for_ignored_subdirectory)
 {
-    SourceId qmlDirRootPathSourceId = sourcePathCache.sourceId("/root/qmldir");
-    SourceId ignoreInQdsSourceId = sourcePathCache.sourceId("/path/ignore-in-qds");
-    SourceId rootPathSourceId = createDirectorySourceId("/root");
     setFilesChanged({qmltypesPathSourceId, qmltypes2PathSourceId, qmlDirPathSourceId});
-    setFilesUnchanged({rootPathSourceId, qmlDirRootPathSourceId, ignoreInQdsSourceId});
-    setSubdirectoryPaths(u"/root", {"/path"});
+    setFilesUnchanged({rootDirectoryPathSourceId, directoryPathSourceId, ignoreInQdsSourceId});
+    setFilesNotExistsUnchanged(
+        {rootAnnotationDirectoryId, annotationDirectoryId, rootQmlDirPathSourceId});
 
     EXPECT_CALL(projectStorageMock, synchronize(PackageIsEmpty()));
 
     updater.update({.projectDirectory = "/root"});
 }
 
-TEST_F(ProjectStorageUpdater, synchronize_is_empty_for_added_ignored_subdirectory)
+TEST_F(ProjectStorageUpdater_synchronize_empty, not_for_added_ignored_subdirectory)
 {
-    SourceId qmlDirRootPathSourceId = sourcePathCache.sourceId("/root/qmldir");
-    SourceId ignoreInQdsSourceId = sourcePathCache.sourceId("/path/ignore-in-qds");
-    SourceId rootPathSourceId = createDirectorySourceId("/root");
     setFilesChanged({qmltypesPathSourceId, qmltypes2PathSourceId, qmlDirPathSourceId});
+    setFilesUnchanged({rootDirectoryPathSourceId, directoryPathSourceId});
     setFilesAdded({ignoreInQdsSourceId});
-    setFilesUnchanged({rootPathSourceId, qmlDirRootPathSourceId});
-    setSubdirectoryPaths(u"/root", {"/path"});
+    setFilesNotExistsUnchanged(
+        {rootAnnotationDirectoryId, annotationDirectoryId, rootQmlDirPathSourceId});
 
     EXPECT_CALL(
         projectStorageMock,
