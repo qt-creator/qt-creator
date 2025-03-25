@@ -24,6 +24,7 @@ public:
     Q_INVOKABLE void loadDesignSystem();
     Q_INVOKABLE CollectionModel *model(const QString &typeName);
 
+    Q_INVOKABLE QString generateCollectionName(const QString &hint) const;
     Q_INVOKABLE void addCollection(const QString &name);
     Q_INVOKABLE void removeCollection(const QString &name);
     Q_INVOKABLE void renameCollection(const QString &oldName, const QString &newName);
