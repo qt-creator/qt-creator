@@ -646,6 +646,8 @@ expected_str<std::unique_ptr<FilePathWatcher>>
 
 class DesktopFilePathWatcher final : public FilePathWatcher
 {
+    Q_OBJECT
+
     class GlobalWatcher final
     {
     public:
@@ -685,12 +687,18 @@ class DesktopFilePathWatcher final : public FilePathWatcher
                     Qt::BlockingQueuedConnection,
                     &result);
 
+                connect(
+                    watcher,
+                    &DesktopFilePathWatcher::continueWatch,
+                    this,
+                    [this](const FilePath &path) { m_watcher->addPath(path.path()); });
+
                 return result;
             }
             bool removeWatch(DesktopFilePathWatcher *watcher)
             {
                 bool result;
-                return QMetaObject::invokeMethod(
+                QMetaObject::invokeMethod(
                     this,
                     [this, watcher] { return _removeWatch(watcher); },
                     Qt::BlockingQueuedConnection,
@@ -720,14 +728,16 @@ class DesktopFilePathWatcher final : public FilePathWatcher
                 if (it == m_watchClients.end())
                     return;
 
-                for (DesktopFilePathWatcher *watcher : it.value())
+                const bool continueWatch = isFile
+                                         && !m_watcher->files()
+                                                 .contains(
+                                                     path);
+                for (DesktopFilePathWatcher *watcher : it.value()) {
                     watcher->emitChanged();
-
-                if (isFile && !m_watcher->files().contains(path)) {
-                    // The file might have been deleted, lets see if there is a new file to watch
-                    // in its place:
-                    if (QFile::exists(path))
-                        m_watcher->addPath(path);
+                    if (continueWatch) {
+                        QMetaObject::invokeMethod(
+                            watcher, &DesktopFilePathWatcher::requestContinueWatch);
+                    }
                 }
             }
             bool _watch(DesktopFilePathWatcher *watcher)
@@ -791,6 +801,16 @@ public:
     void emitChanged() { emit pathChanged(m_path); }
 
     QString error() const { return m_error; }
+
+    void requestContinueWatch()
+    {
+        if (m_path.exists()) {
+            emit continueWatch(m_path);
+        }
+    }
+
+signals:
+    void continueWatch(const FilePath& path);
 
 private:
     const FilePath m_path;
@@ -1852,3 +1872,5 @@ Environment UnixDeviceFileAccess::deviceEnvironment() const
 }
 
 } // namespace Utils
+
+#include "devicefileaccess.moc"
