@@ -54,6 +54,7 @@
 #include <utils/qtcprocess.h>
 
 #include <QClipboard>
+#include <QDialogButtonBox>
 #include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
