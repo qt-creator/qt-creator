@@ -310,6 +310,11 @@ QString FilePath::toString() const
     return scheme() + "://" + encodedHost() + pathView();
 }
 
+QString FilePath::toUrlishString() const
+{
+    return toString();
+}
+
 bool FilePath::equals(const FilePath &first, const FilePath &second, Qt::CaseSensitivity cs)
 {
     if (first.m_hash != 0 && second.m_hash != 0 && first.m_hash != second.m_hash)

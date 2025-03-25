@@ -310,6 +310,7 @@ public:
 
     // FIXME: Avoid. See toSettings, toVariant, toUserOutput, toFSPathString, path, nativePath.
     QString toString() const;
+    QString toUrlishString() const;
 
     bool equalsCaseSensitive(const FilePath &other) const;
 
